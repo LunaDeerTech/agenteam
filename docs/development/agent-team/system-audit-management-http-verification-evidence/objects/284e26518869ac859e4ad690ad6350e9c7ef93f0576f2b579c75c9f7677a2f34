@@ -1,0 +1,229 @@
+{
+  "conclusion": "BOUNDED PASS for query-stage01 only",
+  "report_md_sha256": "84e5adf7ed621f3cbf90bc829ec7f11d2760a438a21cac6e9689d4fdef1788e7",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/stages/query-stage01/manifest.json",
+    "sha256": "e69a4fb5b067890e149c7ad62c0610b2d49f48d0f338da3bfcef761766630b38"
+  },
+  "candidates": {
+    "internal/central/audit/query.go": {
+      "sha256": "3713a95d285b19300e0038cb6243f9932754bb22a030afb820012b8f9e8968f3",
+      "bytes": 11976
+    },
+    "internal/central/audit/system_query.go": {
+      "sha256": "b84646b38e6810d02e3c6b259c1ee1e88b26aa79af406ebb5c504b58abd2014f",
+      "bytes": 4269
+    },
+    "internal/central/audit/system_query_test.go": {
+      "sha256": "411baa52add891a82ba720643981eae1584c3b7371a8a21a8e21ff56591aef6d",
+      "bytes": 18599
+    }
+  },
+  "dependencies": 59,
+  "independent_result_composition": {
+    "query01": {
+      "actual": {
+        "actual_exit": 1,
+        "actual_wait": true,
+        "seconds": 5.790803517000313,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 16,
+        "adopted_wait_count": 0,
+        "raw_sha256": "6cdae599548b45ebc51890c2644042e7215b2d1769b0f99fc79a67e2cd3d3bb8",
+        "cleanup_sha256": "a7ae591fd809f09a27783fdf29eaa27b9bab95add270819520ead635a6fc063a"
+      },
+      "pass_subcases": 11,
+      "failed_private_comparison_subcase": 1
+    },
+    "query02": {
+      "actual": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 2.2336809530006576,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 6,
+        "adopted_wait_count": 0,
+        "raw_sha256": "9460724fd6fb6eca319ca05c1c678f9a9396966afe238fa4e4f3d65fec3dbf25",
+        "cleanup_sha256": "5cd0d526d3f423e5684a622c2d6c8b38fe8501ee41ca76eb3fb373f4e009facc"
+      },
+      "selected_pass_subcases": 1,
+      "first_top_unchanged": true
+    }
+  },
+  "natural_authority_timeout_ms": {
+    "local": 3001.217,
+    "earlier_parent": 75.508
+  },
+  "limitations": [
+    "controlled-only Service/Authority/Rows; no HTTP preauthentication/native/PG/current Logout proof",
+    "List successful full postgres.Rows chain remains real-stage work",
+    "author pure02 original goroutine join gap retained",
+    "original private DeepEqual failure retained; not a single all-green run"
+  ],
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/binding01.json",
+      "sha256": "f1815acd8bfc252d828faf6686da176b2bd0acb7d7cd55c22e6761b5dd7a32d7"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/delivery3.json",
+      "sha256": "40f8c46e2dff59469dd917e92fa057219d66aa374f4e38c330e5d2006f3ce917"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/baseline-query.go.txt",
+      "sha256": "740b8a1385c437b45b635a61e0c56cd8d321b42053e41ea2396d035cf59a19c0"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/source/internal/central/audit/independent_query_test.go",
+      "sha256": "8eace5fd61d759b1cf806d8308e51dadb3690ae39ec4d17b15501669bd7f3bd9"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/probe02.go",
+      "sha256": "c7424390dc2c1fac35f14b1bc83069f8d9f17c9163a0dfa0c7fd9841e6286ad7"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/probe01-to02.diff",
+      "sha256": "be7fa2b7a59f98669ec67c62db116ab7a2df3c50e5e5a641bf34c3c3ebcd9242"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/overlay02.json",
+      "sha256": "373bff7532935ad379038f18fda7ded8e580b9af061eff5423ed6b90f7f64f14"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/query01-diagnosis.md",
+      "sha256": "6257735b3b7990727784ce00baf8d031eb3f209270746c45f617e120b2f7aa83"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/run_offline.py",
+      "sha256": "320d633d28eacc214284b3386ee842cd7e82a73ceb34f52c3f3f0823daee02fa"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/execution01.json",
+      "sha256": "cb03212e985ba2a580c92522fdbb040b6a0b923f82b713ad2d7694ae0d8157e1"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/execution02.json",
+      "sha256": "6116390dd6d9837a6fb0b64781267f2fa4ca11b4b100eb64353f7a45b5a30242"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/execution03.json",
+      "sha256": "475bbf600e34831ea2e9c5725c7bc385a8f47ab856a1a7f999c1d94353ca78d1"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runtime-closure02.json",
+      "sha256": "740a743fa3b8dd97cb877f74734b7559ce7f296402d7fa3c6f317464ec7c1f03"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/execution-closure01.json",
+      "sha256": "bd4d527ad9f14e7ebf19083f9fce718783bc1ac8a9992168973d1326e290464f"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/execution-closure02.json",
+      "sha256": "61c6d3790bdac18a1bb8fa3360c6f4d46ec36f64ad07174a4e402079f4cce2d5"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/closure01/command.json",
+      "sha256": "9e8969ba798601cb50dc305ea5150f680505787cd75bcb71206cb7b0c7c5a385"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/closure01/raw.log",
+      "sha256": "471888c3bdf57ca7008a71dcb821d742a9cb3579ef4559214c6d12e03dd43b02"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/closure01/result.json",
+      "sha256": "aff1654e80f3f8a35bb0d2adb47800f26897939e945fe8d2b7ae5841f3418fd3"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/closure01/input-before.json",
+      "sha256": "20bb1e503ea7596c31de9f505b300dce7c63551172d7227d5bf94f05bf4d74d5"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/closure01/input-after.json",
+      "sha256": "20bb1e503ea7596c31de9f505b300dce7c63551172d7227d5bf94f05bf4d74d5"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/closure01/cleanup.json",
+      "sha256": "851195c917fd3f1cbef8044cbaf30fe6ac712ca4ad870bfd6a8a2620bae4a7ea"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/closure02/command.json",
+      "sha256": "fd2756aa4725a9f058da3c5ed8c0ed31f8ef098392e9afe7776427c464b434b6"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/closure02/raw.log",
+      "sha256": "25bdebc3940fd9b601cdef42565e37dcc9a2b8f512ac20a319036ac8392bad50"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/closure02/result.json",
+      "sha256": "afdd1cb9fe4713b5c51f412673ddc8fa061a7098a5b8c3c060e10e9fcad1eeb7"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/closure02/input-before.json",
+      "sha256": "ecc65b6bd82485fe0d6f1e6a1a1ad696c307ff789d6f958565d51414b9e3ca01"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/closure02/input-after.json",
+      "sha256": "ecc65b6bd82485fe0d6f1e6a1a1ad696c307ff789d6f958565d51414b9e3ca01"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/closure02/cleanup.json",
+      "sha256": "dd50e65529f9dfcde4eb85cac1d7e1ca2b4647d64facef5f028b05fc6d0c263b"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query01/command.json",
+      "sha256": "c2c0ec24e6304fa12f13419bb4223f38f255b9e343e1bf61785fbc52f11cee51"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query01/raw.log",
+      "sha256": "6cdae599548b45ebc51890c2644042e7215b2d1769b0f99fc79a67e2cd3d3bb8"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query01/result.json",
+      "sha256": "70603b2c37985bad426671e2095df0d35a6a7d0ac846f0cf62c4e039b64ea3e4"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query01/input-before.json",
+      "sha256": "1edf83b6aa0d034a7f250026c814e704f1c9063bdee16a516fad804adf5e9163"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query01/input-after.json",
+      "sha256": "1edf83b6aa0d034a7f250026c814e704f1c9063bdee16a516fad804adf5e9163"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query01/cleanup.json",
+      "sha256": "a7ae591fd809f09a27783fdf29eaa27b9bab95add270819520ead635a6fc063a"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query02/command.json",
+      "sha256": "4f6136f815e357d0e5e06d0feecfd60795c98aa81b6a452c6bada33eb4d80705"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query02/raw.log",
+      "sha256": "9460724fd6fb6eca319ca05c1c678f9a9396966afe238fa4e4f3d65fec3dbf25"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query02/result.json",
+      "sha256": "b3bd4891c4b0dedafd94052dad3993cd1bc099d7e64ed4d78fc02b88edc8fd88"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query02/input-before.json",
+      "sha256": "ec8506f06809229daebde34cf467081a738a0891ac4dd5796ed612a30ab2a7c7"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query02/input-after.json",
+      "sha256": "ec8506f06809229daebde34cf467081a738a0891ac4dd5796ed612a30ab2a7c7"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query02/cleanup.json",
+      "sha256": "5cd0d526d3f423e5684a622c2d6c8b38fe8501ee41ca76eb3fb373f4e009facc"
+    }
+  ]
+}

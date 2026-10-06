@@ -1,0 +1,48 @@
+{
+  "status": "PLANNED ONLY; not executed; root must authorize after copying accepted14 into main",
+  "cwd": "/workspace/agenteam",
+  "new_main_dependency": "1ff044264a54c948e512db9aafad24ec5e0aa3c2 same-package frontend harness; no new dynamic acceptance claimed",
+  "environment": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "<new private check root>/gocache",
+    "TMPDIR": "<new private check root>/tmp"
+  },
+  "argv": [
+    [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-c",
+      "-race",
+      "-tags=integration",
+      "-o",
+      "<new private check root>/account.test",
+      "./tests/account"
+    ],
+    [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-c",
+      "-race",
+      "-tags=integration",
+      "-o",
+      "<new private check root>/app.test",
+      "./internal/central/app"
+    ],
+    [
+      "<new private check root>/account.test",
+      "-test.list",
+      "^(TestSystemAuditHTTPQueryAndProjection|TestSystemAuditHTTPTransactionAndBudget)$"
+    ],
+    [
+      "<new private check root>/app.test",
+      "-test.list",
+      "^(TestSystemAuditHTTPRootProducerBinding)$"
+    ]
+  ]
+}

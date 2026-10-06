@@ -1,0 +1,96 @@
+{
+  "node": "v24.19.0",
+  "flags": [
+    "",
+    "u"
+  ],
+  "formalVectors": 298,
+  "branches": 9,
+  "checks": 5364,
+  "perBranch": [
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "checks": 596
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "checks": 596
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "checks": 596
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "checks": 596
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "checks": 596
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "checks": 596
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "checks": 596
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "checks": 596
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "checks": 596
+    }
+  ],
+  "legacyValidRejections": 1134,
+  "legacyInvalidAcceptances": 0,
+  "endings": [
+    {
+      "name": "LF",
+      "bareDollar": false,
+      "bareDollarUnicode": false,
+      "oldFullField": false,
+      "currentFullField": false,
+      "explicitGuard": true
+    },
+    {
+      "name": "CR",
+      "bareDollar": false,
+      "bareDollarUnicode": false,
+      "oldFullField": false,
+      "currentFullField": false,
+      "explicitGuard": true
+    },
+    {
+      "name": "CRLF",
+      "bareDollar": false,
+      "bareDollarUnicode": false,
+      "oldFullField": false,
+      "currentFullField": false,
+      "explicitGuard": true
+    },
+    {
+      "name": "LS",
+      "bareDollar": false,
+      "bareDollarUnicode": false,
+      "oldFullField": false,
+      "currentFullField": false,
+      "explicitGuard": true
+    },
+    {
+      "name": "PS",
+      "bareDollar": false,
+      "bareDollarUnicode": false,
+      "oldFullField": false,
+      "currentFullField": false,
+      "explicitGuard": true
+    }
+  ],
+  "old257PatternMatches": true,
+  "old257FullFieldRejects": true,
+  "current257FullFieldRejects": true,
+  "scope": "All keywords of nine MIME field subschemas; full record schema is separately checked by Go. No HTTP, browser, Object service or complete OpenAPI engine claim."
+}

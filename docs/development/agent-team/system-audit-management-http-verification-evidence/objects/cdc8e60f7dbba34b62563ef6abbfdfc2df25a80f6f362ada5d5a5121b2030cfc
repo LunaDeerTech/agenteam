@@ -1,0 +1,37 @@
+{
+  "stage": "Audit HTTP Group2 only",
+  "author_manifest": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/stages/http-stage01/manifest.json",
+  "author_manifest_sha256": "d091ccd9f1b7e8fbece300717ae099ed8d6f2356e5136564ccacd0235539a50f",
+  "files": {
+    "api/openapi/audit.json": {
+      "sha256": "168fc76cf7e0e8f89923e0312dee847ff48dd3de2f37f3f764689ef874300ee9",
+      "bytes": 166333
+    },
+    "internal/central/audit/http/handler.go": {
+      "sha256": "b13e6a0885c155ff4eff737790be0fb4f06191abb0d0409701f510cd6441a039",
+      "bytes": 6633
+    },
+    "internal/central/audit/http/handler_test.go": {
+      "sha256": "a7a20d96c9eea5d6ed7f90ed5d6d09a644363aa33ef5f4b5d718c5c3545b0ec5",
+      "bytes": 43802
+    },
+    "internal/central/audit/http/wire.go": {
+      "sha256": "4a42524d07301277350ed57d0a15901e2dfa6a541e16e14bbd145563adb593b4",
+      "bytes": 11980
+    },
+    "internal/central/audit/query.go": {
+      "sha256": "3713a95d285b19300e0038cb6243f9932754bb22a030afb820012b8f9e8968f3",
+      "bytes": 11976
+    },
+    "internal/central/audit/system_query.go": {
+      "sha256": "b84646b38e6810d02e3c6b259c1ee1e88b26aa79af406ebb5c504b58abd2014f",
+      "bytes": 4269
+    },
+    "internal/central/audit/system_query_test.go": {
+      "sha256": "411baa52add891a82ba720643981eae1584c3b7371a8a21a8e21ff56591aef6d",
+      "bytes": 18599
+    }
+  },
+  "query3_reused_from": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/verification-report.md",
+  "query3_report_sha256": "84e5adf7ed621f3cbf90bc829ec7f11d2760a438a21cac6e9689d4fdef1788e7"
+}

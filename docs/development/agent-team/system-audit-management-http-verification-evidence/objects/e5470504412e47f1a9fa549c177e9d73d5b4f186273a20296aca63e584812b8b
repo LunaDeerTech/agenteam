@@ -1,0 +1,65 @@
+{
+  "kind": "JSON.parse plus actual Node ECMAScript RegExp; all used string-schema keywords evaluated",
+  "node": "v24.19.0",
+  "schemaSHA256": "3490bb6367dfaa5bf98ed6547f49adb2af16200abd2e1e84a4503ccb20c3b7ef",
+  "goLogSHA256": "582418aaf52ee45d468b1858ea04a95aa9c4e9f7e8b4f12ecd1beaed7a05feed",
+  "branches": 9,
+  "vectors": 42,
+  "checks": 756,
+  "failures": [],
+  "lineTerminators": [
+    {
+      "name": "LF",
+      "ecmaBareDollar": false,
+      "ecmaBareDollarUnicode": false,
+      "fullSchema": false,
+      "explicitNotMatches": true
+    },
+    {
+      "name": "CR",
+      "ecmaBareDollar": false,
+      "ecmaBareDollarUnicode": false,
+      "fullSchema": false,
+      "explicitNotMatches": true
+    },
+    {
+      "name": "CRLF",
+      "ecmaBareDollar": false,
+      "ecmaBareDollarUnicode": false,
+      "fullSchema": false,
+      "explicitNotMatches": true
+    },
+    {
+      "name": "LS",
+      "ecmaBareDollar": false,
+      "ecmaBareDollarUnicode": false,
+      "fullSchema": false,
+      "explicitNotMatches": true
+    },
+    {
+      "name": "PS",
+      "ecmaBareDollar": false,
+      "ecmaBareDollarUnicode": false,
+      "fullSchema": false,
+      "explicitNotMatches": true
+    }
+  ],
+  "large": [
+    {
+      "name": "single-257",
+      "patternAlone": true,
+      "fullSchema": false
+    },
+    {
+      "name": "pair-257",
+      "patternAlone": true,
+      "fullSchema": false
+    },
+    {
+      "name": "charset-257",
+      "patternAlone": true,
+      "fullSchema": false
+    }
+  ],
+  "note": "No complete OpenAPI engine or HTTP run is claimed. Go separately checks full typed DTO schema branches."
+}

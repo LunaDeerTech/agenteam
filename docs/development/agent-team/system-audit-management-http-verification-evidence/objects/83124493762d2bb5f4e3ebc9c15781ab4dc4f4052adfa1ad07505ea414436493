@@ -1,0 +1,18 @@
+# Audit final independent preparation
+
+OFFLINE READY. Fixed product 213cf5c, dependency Git f843506, author input03. No source rebase to current main. The two real bodies were not executed by these offline checks.
+
+- A: formal Logout/current authority and actual UserSH/EX ordering; real PostgreSQL post-scan barrier with observable zero HTTP status/body until terminal, then success or earlier-parent abort. This is a controlled writer, not TCP precommit evidence.
+- B: formal root Profile twice + Outbound once; native same-connection list/detail, cursor/filter and safe typed projection, unique canonical RequestID/log, read-only DB count and actual root join.
+- Original 13 candidates + 893 accepted closure files remain unchanged. Go overlay adds exactly two new test files; original fixtures, author driver and all shared sources are untouched.
+
+- `compile01` actual 0 / 36.201s; actual wait, inputs unchanged, PID/starttime double sweep clear. `/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/compile01` contains original argv/raw/result/cleanup.
+- `vet01` actual 0 / 8.549s; actual wait, inputs unchanged, PID/starttime double sweep clear. `/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/vet01` contains original argv/raw/result/cleanup.
+- `discovery01` actual 0 / 2.066s; actual wait, inputs unchanged, PID/starttime double sweep clear. `/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/discovery01` contains original argv/raw/result/cleanup.
+- `closure01` actual 0 / 1.273s; actual wait, inputs unchanged, PID/starttime double sweep clear. `/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/closure01` contains original argv/raw/result/cleanup.
+- `gate01` actual 0 / 1.242s; actual wait, inputs unchanged, PID/starttime double sweep clear. `/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/gate01` contains original argv/raw/result/cleanup.
+- `start-gate01` actual 0 / 1.207s; actual wait, inputs unchanged, PID/starttime double sweep clear. `/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/start-gate01` contains original argv/raw/result/cleanup.
+
+All six checks passed. Original formatting runs also actual0; no private compile/test failure occurred. The two owned temporary compiled binaries were hash-verified and removed after precise discovery; evidence and cache retained (`compiled-cleanup01.json`).
+
+Execution: `execution01.json`; private driver delta: `driver-author-to-independent01.diff`; exact probes under `probe/`. Hashes are in `preparation-ready01.json`. The later resource grant authorizes only `independent01 --group both` with unchanged frozen execution and driver. No resource or final product result is inferred from this readiness report.

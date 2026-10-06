@@ -1,0 +1,1492 @@
+[
+  {
+    "name": "known-valid-00",
+    "value": "text",
+    "accepted": true
+  },
+  {
+    "name": "known-valid-01",
+    "value": "text/{json}",
+    "accepted": true
+  },
+  {
+    "name": "known-valid-02",
+    "value": "{x}",
+    "accepted": true
+  },
+  {
+    "name": "known-valid-03",
+    "value": "application/x{probe}",
+    "accepted": true
+  },
+  {
+    "name": "known-valid-04",
+    "value": "{x}/{y}; charset=us-ascii",
+    "accepted": true
+  },
+  {
+    "name": "known-valid-05",
+    "value": "text; charset=utf-8",
+    "accepted": true
+  },
+  {
+    "name": "known-valid-06",
+    "value": "text/plain",
+    "accepted": true
+  },
+  {
+    "name": "known-valid-07",
+    "value": "text/plain; charset=us-ascii",
+    "accepted": true
+  },
+  {
+    "name": "known-valid-08",
+    "value": "text/plain; charset=utf-8",
+    "accepted": true
+  },
+  {
+    "name": "known-valid-09",
+    "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted": true
+  },
+  {
+    "name": "known-valid-10",
+    "value": "t/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted": true
+  },
+  {
+    "name": "known-valid-11",
+    "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; charset=us-ascii",
+    "accepted": true
+  },
+  {
+    "name": "known-invalid-12",
+    "value": "",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-13",
+    "value": "/",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-14",
+    "value": "text/",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-15",
+    "value": "/text",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-16",
+    "value": "text/plain/a",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-17",
+    "value": "Text/Plain",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-18",
+    "value": " text",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-19",
+    "value": "text ",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-20",
+    "value": "text; charset=\"utf-8\"",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-21",
+    "value": "text;charset=utf-8",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-22",
+    "value": "text; charset=UTF-8",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-23",
+    "value": "text; CHARSET=utf-8",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-24",
+    "value": "text; name=x",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-25",
+    "value": "text; charset=utf-8; charset=utf-8",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-26",
+    "value": "text; charset=utf-8;",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-27",
+    "value": "text; charset=latin1",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-28",
+    "value": "text/é",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-29",
+    "value": "text/😀",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-30",
+    "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted": false
+  },
+  {
+    "name": "known-invalid-31",
+    "value": "t/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted": false
+  },
+  {
+    "name": "terminal-0",
+    "value": "text/plain\n",
+    "accepted": false
+  },
+  {
+    "name": "interior-0",
+    "value": "text/\nplain",
+    "accepted": false
+  },
+  {
+    "name": "terminal-1",
+    "value": "text/plain\r",
+    "accepted": false
+  },
+  {
+    "name": "interior-1",
+    "value": "text/\rplain",
+    "accepted": false
+  },
+  {
+    "name": "terminal-2",
+    "value": "text/plain\r\n",
+    "accepted": false
+  },
+  {
+    "name": "interior-2",
+    "value": "text/\r\nplain",
+    "accepted": false
+  },
+  {
+    "name": "terminal-3",
+    "value": "text/plain\u2028",
+    "accepted": false
+  },
+  {
+    "name": "interior-3",
+    "value": "text/\u2028plain",
+    "accepted": false
+  },
+  {
+    "name": "terminal-4",
+    "value": "text/plain\u2029",
+    "accepted": false
+  },
+  {
+    "name": "interior-4",
+    "value": "text/\u2029plain",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-000",
+    "value": "a\u0000b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-000",
+    "value": "text/a\u0000b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-001",
+    "value": "a\u0001b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-001",
+    "value": "text/a\u0001b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-002",
+    "value": "a\u0002b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-002",
+    "value": "text/a\u0002b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-003",
+    "value": "a\u0003b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-003",
+    "value": "text/a\u0003b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-004",
+    "value": "a\u0004b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-004",
+    "value": "text/a\u0004b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-005",
+    "value": "a\u0005b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-005",
+    "value": "text/a\u0005b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-006",
+    "value": "a\u0006b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-006",
+    "value": "text/a\u0006b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-007",
+    "value": "a\u0007b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-007",
+    "value": "text/a\u0007b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-008",
+    "value": "a\bb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-008",
+    "value": "text/a\bb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-009",
+    "value": "a\tb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-009",
+    "value": "text/a\tb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-010",
+    "value": "a\nb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-010",
+    "value": "text/a\nb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-011",
+    "value": "a\u000bb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-011",
+    "value": "text/a\u000bb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-012",
+    "value": "a\fb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-012",
+    "value": "text/a\fb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-013",
+    "value": "a\rb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-013",
+    "value": "text/a\rb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-014",
+    "value": "a\u000eb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-014",
+    "value": "text/a\u000eb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-015",
+    "value": "a\u000fb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-015",
+    "value": "text/a\u000fb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-016",
+    "value": "a\u0010b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-016",
+    "value": "text/a\u0010b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-017",
+    "value": "a\u0011b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-017",
+    "value": "text/a\u0011b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-018",
+    "value": "a\u0012b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-018",
+    "value": "text/a\u0012b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-019",
+    "value": "a\u0013b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-019",
+    "value": "text/a\u0013b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-020",
+    "value": "a\u0014b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-020",
+    "value": "text/a\u0014b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-021",
+    "value": "a\u0015b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-021",
+    "value": "text/a\u0015b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-022",
+    "value": "a\u0016b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-022",
+    "value": "text/a\u0016b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-023",
+    "value": "a\u0017b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-023",
+    "value": "text/a\u0017b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-024",
+    "value": "a\u0018b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-024",
+    "value": "text/a\u0018b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-025",
+    "value": "a\u0019b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-025",
+    "value": "text/a\u0019b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-026",
+    "value": "a\u001ab",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-026",
+    "value": "text/a\u001ab",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-027",
+    "value": "a\u001bb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-027",
+    "value": "text/a\u001bb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-028",
+    "value": "a\u001cb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-028",
+    "value": "text/a\u001cb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-029",
+    "value": "a\u001db",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-029",
+    "value": "text/a\u001db",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-030",
+    "value": "a\u001eb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-030",
+    "value": "text/a\u001eb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-031",
+    "value": "a\u001fb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-031",
+    "value": "text/a\u001fb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-032",
+    "value": "a b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-032",
+    "value": "text/a b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-033",
+    "value": "a!b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-033",
+    "value": "text/a!b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-034",
+    "value": "a\"b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-034",
+    "value": "text/a\"b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-035",
+    "value": "a#b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-035",
+    "value": "text/a#b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-036",
+    "value": "a$b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-036",
+    "value": "text/a$b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-037",
+    "value": "a%b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-037",
+    "value": "text/a%b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-038",
+    "value": "a\u0026b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-038",
+    "value": "text/a\u0026b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-039",
+    "value": "a'b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-039",
+    "value": "text/a'b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-040",
+    "value": "a(b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-040",
+    "value": "text/a(b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-041",
+    "value": "a)b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-041",
+    "value": "text/a)b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-042",
+    "value": "a*b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-042",
+    "value": "text/a*b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-043",
+    "value": "a+b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-043",
+    "value": "text/a+b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-044",
+    "value": "a,b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-044",
+    "value": "text/a,b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-045",
+    "value": "a-b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-045",
+    "value": "text/a-b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-046",
+    "value": "a.b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-046",
+    "value": "text/a.b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-047",
+    "value": "a/b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-047",
+    "value": "text/a/b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-048",
+    "value": "a0b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-048",
+    "value": "text/a0b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-049",
+    "value": "a1b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-049",
+    "value": "text/a1b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-050",
+    "value": "a2b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-050",
+    "value": "text/a2b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-051",
+    "value": "a3b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-051",
+    "value": "text/a3b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-052",
+    "value": "a4b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-052",
+    "value": "text/a4b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-053",
+    "value": "a5b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-053",
+    "value": "text/a5b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-054",
+    "value": "a6b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-054",
+    "value": "text/a6b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-055",
+    "value": "a7b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-055",
+    "value": "text/a7b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-056",
+    "value": "a8b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-056",
+    "value": "text/a8b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-057",
+    "value": "a9b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-057",
+    "value": "text/a9b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-058",
+    "value": "a:b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-058",
+    "value": "text/a:b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-059",
+    "value": "a;b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-059",
+    "value": "text/a;b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-060",
+    "value": "a\u003cb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-060",
+    "value": "text/a\u003cb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-061",
+    "value": "a=b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-061",
+    "value": "text/a=b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-062",
+    "value": "a\u003eb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-062",
+    "value": "text/a\u003eb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-063",
+    "value": "a?b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-063",
+    "value": "text/a?b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-064",
+    "value": "a@b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-064",
+    "value": "text/a@b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-065",
+    "value": "aAb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-065",
+    "value": "text/aAb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-066",
+    "value": "aBb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-066",
+    "value": "text/aBb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-067",
+    "value": "aCb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-067",
+    "value": "text/aCb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-068",
+    "value": "aDb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-068",
+    "value": "text/aDb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-069",
+    "value": "aEb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-069",
+    "value": "text/aEb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-070",
+    "value": "aFb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-070",
+    "value": "text/aFb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-071",
+    "value": "aGb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-071",
+    "value": "text/aGb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-072",
+    "value": "aHb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-072",
+    "value": "text/aHb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-073",
+    "value": "aIb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-073",
+    "value": "text/aIb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-074",
+    "value": "aJb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-074",
+    "value": "text/aJb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-075",
+    "value": "aKb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-075",
+    "value": "text/aKb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-076",
+    "value": "aLb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-076",
+    "value": "text/aLb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-077",
+    "value": "aMb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-077",
+    "value": "text/aMb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-078",
+    "value": "aNb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-078",
+    "value": "text/aNb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-079",
+    "value": "aOb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-079",
+    "value": "text/aOb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-080",
+    "value": "aPb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-080",
+    "value": "text/aPb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-081",
+    "value": "aQb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-081",
+    "value": "text/aQb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-082",
+    "value": "aRb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-082",
+    "value": "text/aRb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-083",
+    "value": "aSb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-083",
+    "value": "text/aSb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-084",
+    "value": "aTb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-084",
+    "value": "text/aTb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-085",
+    "value": "aUb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-085",
+    "value": "text/aUb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-086",
+    "value": "aVb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-086",
+    "value": "text/aVb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-087",
+    "value": "aWb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-087",
+    "value": "text/aWb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-088",
+    "value": "aXb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-088",
+    "value": "text/aXb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-089",
+    "value": "aYb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-089",
+    "value": "text/aYb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-090",
+    "value": "aZb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-090",
+    "value": "text/aZb",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-091",
+    "value": "a[b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-091",
+    "value": "text/a[b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-092",
+    "value": "a\\b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-092",
+    "value": "text/a\\b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-093",
+    "value": "a]b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-093",
+    "value": "text/a]b",
+    "accepted": false
+  },
+  {
+    "name": "ascii-single-094",
+    "value": "a^b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-094",
+    "value": "text/a^b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-095",
+    "value": "a_b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-095",
+    "value": "text/a_b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-096",
+    "value": "a`b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-096",
+    "value": "text/a`b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-097",
+    "value": "aab",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-097",
+    "value": "text/aab",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-098",
+    "value": "abb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-098",
+    "value": "text/abb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-099",
+    "value": "acb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-099",
+    "value": "text/acb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-100",
+    "value": "adb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-100",
+    "value": "text/adb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-101",
+    "value": "aeb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-101",
+    "value": "text/aeb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-102",
+    "value": "afb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-102",
+    "value": "text/afb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-103",
+    "value": "agb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-103",
+    "value": "text/agb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-104",
+    "value": "ahb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-104",
+    "value": "text/ahb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-105",
+    "value": "aib",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-105",
+    "value": "text/aib",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-106",
+    "value": "ajb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-106",
+    "value": "text/ajb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-107",
+    "value": "akb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-107",
+    "value": "text/akb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-108",
+    "value": "alb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-108",
+    "value": "text/alb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-109",
+    "value": "amb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-109",
+    "value": "text/amb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-110",
+    "value": "anb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-110",
+    "value": "text/anb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-111",
+    "value": "aob",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-111",
+    "value": "text/aob",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-112",
+    "value": "apb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-112",
+    "value": "text/apb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-113",
+    "value": "aqb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-113",
+    "value": "text/aqb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-114",
+    "value": "arb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-114",
+    "value": "text/arb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-115",
+    "value": "asb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-115",
+    "value": "text/asb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-116",
+    "value": "atb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-116",
+    "value": "text/atb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-117",
+    "value": "aub",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-117",
+    "value": "text/aub",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-118",
+    "value": "avb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-118",
+    "value": "text/avb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-119",
+    "value": "awb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-119",
+    "value": "text/awb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-120",
+    "value": "axb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-120",
+    "value": "text/axb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-121",
+    "value": "ayb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-121",
+    "value": "text/ayb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-122",
+    "value": "azb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-122",
+    "value": "text/azb",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-123",
+    "value": "a{b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-123",
+    "value": "text/a{b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-124",
+    "value": "a|b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-124",
+    "value": "text/a|b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-125",
+    "value": "a}b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-125",
+    "value": "text/a}b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-126",
+    "value": "a~b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-subtype-126",
+    "value": "text/a~b",
+    "accepted": true
+  },
+  {
+    "name": "ascii-single-127",
+    "value": "ab",
+    "accepted": false
+  },
+  {
+    "name": "ascii-subtype-127",
+    "value": "text/ab",
+    "accepted": false
+  }
+]

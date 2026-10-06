@@ -1,0 +1,11 @@
+--- run-old01.py
++++ run.py
+@@ -14,7 +14,7 @@
+ out=R/'runs'/name;out.mkdir()
+ tmp=out/'tmp';tmp.mkdir()
+ env={k:v for k,v in os.environ.items() if not k.startswith('AGENTEAM_')}
+-env.update({'GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off','GOPROXY':'off','GOSUMDB':'off','GOMODCACHE':'/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache','GOCACHE':str(R/'gocache'),'TMPDIR':str(tmp),'GOTMPDIR':str(tmp),'GOFLAGS':'-mod=readonly -buildvcs=false -p=2','CGO_ENABLED':'1'})
++env.update({'GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off','GOPROXY':'off','GOSUMDB':'off','GOMODCACHE':'/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache','GOCACHE':'/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache','TMPDIR':str(tmp),'GOTMPDIR':str(tmp),'GOFLAGS':'-mod=readonly -buildvcs=false -p=2','CGO_ENABLED':'1'})
+ keys=['GOTOOLCHAIN','GOENV','GOWORK','GOPROXY','GOSUMDB','GOMODCACHE','GOCACHE','TMPDIR','GOTMPDIR','GOFLAGS','CGO_ENABLED']
+ baseline=json.loads((R/'baseline.json').read_text())['files']
+ candidates=['api/openapi/audit.json','internal/central/audit/http/handler_test.go']

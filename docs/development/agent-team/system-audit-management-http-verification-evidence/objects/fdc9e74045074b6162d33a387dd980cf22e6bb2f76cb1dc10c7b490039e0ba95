@@ -1,0 +1,87 @@
+package audithttp
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	c "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+func TestIndependentAuditMIMEFormalSet(t *testing.T) {
+	type vector struct {
+		Name string `json:"name"`
+		Value string `json:"value"`
+		Accepted bool `json:"accepted"`
+		Known *bool `json:"-"`
+	}
+	rows := []vector{}
+	add := func(name, value string, want bool) { rows = append(rows, vector{Name:name, Value:value, Known:&want}) }
+	for _, value := range []string{"text", "text/{json}", "{x}", "application/x{probe}", "{x}/{y}; charset=us-ascii", "text; charset=utf-8", "text/plain", "text/plain; charset=us-ascii", "text/plain; charset=utf-8", strings.Repeat("a",256), "t/"+strings.Repeat("a",254), strings.Repeat("a",238)+"; charset=us-ascii"} {
+		add(fmt.Sprintf("known-valid-%02d",len(rows)),value,true)
+	}
+	for _, value := range []string{"", "/", "text/", "/text", "text/plain/a", "Text/Plain", " text", "text ", "text; charset=\"utf-8\"", "text;charset=utf-8", "text; charset=UTF-8", "text; CHARSET=utf-8", "text; name=x", "text; charset=utf-8; charset=utf-8", "text; charset=utf-8;", "text; charset=latin1", "text/é", "text/😀", strings.Repeat("a",257), "t/"+strings.Repeat("a",255)} {
+		add(fmt.Sprintf("known-invalid-%02d",len(rows)),value,false)
+	}
+	for i,end := range []string{"\n","\r","\r\n","\u2028","\u2029"} {
+		add(fmt.Sprintf("terminal-%d",i),"text/plain"+end,false)
+		add(fmt.Sprintf("interior-%d",i),"text/"+end+"plain",false)
+	}
+	// All ASCII bytes in a singleton and in a subtype independently discover
+	// the formal alphabet; expected decisions come from the fixed constructor.
+	for ch:=0;ch<128;ch++ {
+		rows=append(rows,vector{Name:fmt.Sprintf("ascii-single-%03d",ch),Value:"a"+string(rune(ch))+"b"})
+		rows=append(rows,vector{Name:fmt.Sprintf("ascii-subtype-%03d",ch),Value:"text/a"+string(rune(ch))+"b"})
+	}
+	load := func(name string) map[string]any {
+		raw,err:=os.ReadFile(filepath.Join("..","..","..","..","api","openapi",name));if err!=nil {t.Fatal(err)}
+		var value map[string]any;if json.Unmarshal(raw,&value)!=nil {t.Fatal("schema JSON")};return value
+	}
+	document,common:=load("audit.json"),load("common.json")
+	schemas:=document["components"].(map[string]any)["schemas"].(map[string]any)
+	full:=schemas["SystemAuditRecord"].(map[string]any)
+	actions:=[]struct{action c.Action; name string; phase c.ContentPhase; reason c.Reason; outcome c.Outcome}{
+		{c.ObjectUploadComplete,"ObjectUploadCompleteRecord",c.PublishedPhase,"",c.Success},
+		{c.ObjectUploadFailed,"ObjectUploadFailedRecord",c.FailedPhase,c.Cancelled,c.Failed},
+		{c.ObjectDelete,"ObjectDeleteRecord",c.DeletedPhase,"",c.Success},
+	}
+	fullChecks,formalChecks:=0,0
+	for i:=range rows {
+		v:=&rows[i]
+		fields:=c.ObjectMetadataFields{ObjectID:wireID,InitiatorKind:identity.Human,InitiatorID:wireID,MediaType:v.Value,Phase:c.PublishedPhase,ByteSize:7,SentBytes:3}
+		metadata,err:=c.ObjectMetadata(c.ObjectUploadComplete,fields);v.Accepted=err==nil;formalChecks++
+		if v.Known!=nil && *v.Known!=v.Accepted {t.Fatalf("known formal prerequisite differs: %s",v.Name)}
+		if v.Accepted {
+			record:=typedRecord(t,typedCase{string(c.ObjectUploadComplete),"stored_object",string(metadata.JSON()),identity.ObjectService,c.Success})
+			body,err:=encodeRecord(record);if err!=nil {t.Fatalf("roundtrip: %s",v.Name)}
+			var value map[string]any;if json.Unmarshal(body,&value)!=nil || value["metadata"].(map[string]any)["media_type"]!=v.Value {t.Fatalf("roundtrip changed value: %s",v.Name)}
+		}
+		if v.Known==nil {continue}
+		// Boundary representatives exercise the full encoded record and each
+		// exact action/initiator branch. Other schema tests are not selected.
+		for _,a:=range actions {
+			branches:=schemas[a.name].(map[string]any)["properties"].(map[string]any)["metadata"].(map[string]any)["oneOf"].([]any)
+			if len(branches)!=3 {t.Fatal("branch count")}
+			for index,kind:=range []identity.ActorKind{identity.Human,identity.AgentRun,identity.Service} {
+				f:=fields;f.Phase=a.phase;f.Reason=a.reason;f.InitiatorKind=kind
+				if kind==identity.AgentRun {f.InitiatorExecutionID=wireID}
+				if !v.Accepted {f.MediaType="text/plain"}
+				m,err:=c.ObjectMetadata(a.action,f);if err!=nil {t.Fatalf("branch prerequisite: %s",v.Name)}
+				record:=typedRecord(t,typedCase{string(a.action),"stored_object",string(m.JSON()),identity.ObjectService,a.outcome})
+				body,err:=encodeRecord(record);if err!=nil {t.Fatal("branch projection")}
+				var value map[string]any;if json.Unmarshal(body,&value)!=nil {t.Fatal("branch JSON")}
+				meta:=value["metadata"].(map[string]any);meta["media_type"]=v.Value
+				if schemaAccepts(document,common,full,value)!=v.Accepted || schemaAccepts(document,common,branches[index].(map[string]any),meta)!=v.Accepted {t.Fatalf("schema mismatch: %s/%s/%s",a.name,kind,v.Name)}
+				fullChecks++
+			}
+		}
+	}
+	output:=os.Getenv("AUDIT_MIME_ORACLE_OUTPUT");if output=="" {t.Fatal("missing private output")}
+	raw,err:=json.MarshalIndent(rows,"","  ");if err!=nil {t.Fatal(err)}
+	if err=os.WriteFile(output,append(raw,'\n'),0600);err!=nil {t.Fatal(err)}
+	t.Logf("formal_vectors=%d full_record_and_exact_branch_checks=%d nine_branches=true",formalChecks,fullChecks)
+}

@@ -1,0 +1,31 @@
+from pathlib import Path
+import hashlib
+import importlib.util
+import json
+import sys
+
+sys.dont_write_bytecode = True
+root = Path(__file__).resolve().parent
+sha = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+prior = root / 'driver-stage01/input.json'
+old = json.loads(prior.read_text())
+product = root / 'input03/manifest.json'
+source = json.loads(product.read_text())
+driver = root / 'run-audit-fixture02.py'
+spec = importlib.util.spec_from_file_location('audit_driver02', driver)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+files = {name: row['sha256'] for name, row in source['files'].items()}
+assert [name for name in files if files[name] != old['files'][name]] == ['internal/central/audit/http/handler_test.go']
+module.FROZEN = {'files': files, 'accepted_baseline': old['accepted_baseline']}
+actual = module.accepted_baseline_input()
+assert actual['accepted']
+runtime = module.runtime_input()
+assert runtime == old['runtime'], 'unchanged runtime graph mismatch'
+out = old | {'product_manifest': {'path': str(product), 'sha256': sha(product)}, 'driver_sha256': sha(driver), 'files': files, 'runtime': runtime, 'previous_driver_input': {'path': str(prior), 'sha256': sha(prior)}}
+stage = root / 'driver-stage02'
+stage.mkdir(exist_ok=False)
+(stage / 'input.json').write_text(json.dumps(out, indent=2, sort_keys=True) + '\n')
+(stage / 'driver.py.txt').write_bytes(driver.read_bytes())
+(stage / 'driver01-to-driver02.diff').write_bytes((root / 'driver01-to-driver02.diff').read_bytes())
+print(json.dumps({'input_sha256': sha(stage / 'input.json'), 'driver_sha256': sha(driver), 'driver_diff_sha256': sha(stage / 'driver01-to-driver02.diff'), 'source_count': len(files), 'fixed_dependencies': len(out['accepted_baseline']['files']), 'runtime_unchanged': True, 'resources_started': False}))

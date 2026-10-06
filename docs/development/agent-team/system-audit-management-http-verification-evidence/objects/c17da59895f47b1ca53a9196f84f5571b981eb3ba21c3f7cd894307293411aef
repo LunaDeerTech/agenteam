@@ -1,0 +1,31 @@
+{
+  "author": {
+    "scope": "offline preparation only; no resource execution authorized",
+    "author_input": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/manifest.json",
+      "sha256": "c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b"
+    },
+    "author_driver_input": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/driver-stage02/input.json",
+      "sha256": "0c0306932b4a61a8048c0f76520d5468e40b7512a197e9a353fb2c6c3a8be068"
+    },
+    "product_git": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+    "accepted_dependency_git": "f843506d9ec991be1c334a81b88d5cbacc277467",
+    "cwd": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/workspace",
+    "tops": [
+      "TestAuditIndependentCurrentAuthorityAndTerminal",
+      "TestAuditIndependentRootProducerProjection"
+    ]
+  },
+  "private": {
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/run_offline.py": "de44ee7794f6db88b6df8ce9e8e3643f3fd788b32fdc0180b6feff73201c3e8b",
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/probe/audit_account_independent_test.go": "a207d5daa7965b2da7577fb7509407b9a7ac2641e1248838fbcb7f24fda3bee2",
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/probe/audit_root_independent_test.go": "26185a535b2e96a7fd7b3210f4f46aa3778244cc70fe502c1ff46026965bd0a5",
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/overlay01.json": "554a958ad257594916148a873114e08f5421c7619d2cd14be0afce146fa1a489",
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/driver01.py": "39dbef23524f1d90ae94c9663d899ac8d4233f114fd374a3048c68d049357838",
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/binding01.json": "61ff44a5803d0df4e8f2e835c35718f057ccd1d86dd27b12368dc774de7efeb5"
+  },
+  "actual_fixed_closure_count": 906,
+  "external_runtime_count": 3501,
+  "resource_start_authorized": false
+}

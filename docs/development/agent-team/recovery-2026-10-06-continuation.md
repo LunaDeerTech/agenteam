@@ -344,3 +344,13 @@ SMTP投递已按§26接受。SPA controlled/native已PASS的原调度记录不�
 十二真实轮原件逐退出／输入／IDs／PID／wait保存，read原baseline例外和当前恢复清理分开。新8图与旧8图作者已view，root只看新light390／dark1440，900px首屏不冒称整页。946逻辑原件按SHA为622新对象与117固定Git／既有原件引用，不复制依赖／dist／缓存／二进制或runtime材料；离线校验不执行产品。
 
 Audit仅有已知query／HTTP有界阶段与作者native分轮证据，本档不消费活动事务／producer输入或宣布整卡接受。SPA原scope/native状态不等于产品接受；publication探针因平台内容安全机制停止、无执行目录，竞态未闭合、返修／发布暂停，不重试／改写／转派。Object/tools停止、Summary待决、生产未绑定／ready503保持；完整D08–D28/E01未完成，E01未开始。
+
+## 30. System Audit HTTP十四路径接受及后续MIME边界
+
+§1–29逐字保留。十四路径已由主线程接受、提交推送`b124650aee095b26191bc181dc8cf5d6e0f977f5`并核远端一致；[报告与不可变原件](system-audit-management-http-verification.md)绑定input03、产品213cf5c/依赖f843506，以及单独第14后端说明。[卡技术](../work-items/d04-system-audit-management-http.md)687c85…6f21不变。后续MIME两文件修复另接受于`fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5`；旧运行不回填后继修复。
+
+作者native01原exit1，两PASS复用＋native02受影响两子例PASS；三个正式PG轮均actual0双清。独立Query受控修前提按分轮组合、HTTP两top六子组、最终真实两代表actual0／105.717s、7IDs122PID0adopt双清。A是实际Tx配合受控writer，B是正式producer及复用原生连接；不得互相替代。query-pure02原join缺口、HTTP枚举辅助事后记录与native取消先后未采样、消息级STATIC都保留。
+
+主线2742cf7＋复制14源仅graph和两包race编译／精确发现actual0，614local/3496runtime与2个编译产物SHA、44PID双清保留，无业务重验。作者3501到独立3504是一删四增（Python替换＋2probe/overlay）及共同3500同字节；各轮自身输入前后不变。格式两轮未绑定probe前态不当最终受测源缺件。后续只删作者可再生GOCACHE的维护不回写原cleanup。
+
+Audit UI规格独审接受与作者私有实施／独立计划分列，未验产品，本档不读活动源。Object/tools与SPA publication停止、Summary待决、ready503保持；完整D08–D28/E01未完成、E01未开始。

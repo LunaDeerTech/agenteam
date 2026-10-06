@@ -1,0 +1,64 @@
+import { readFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+
+const [schemaPath, goLogPath] = process.argv.slice(2);
+const source = readFileSync(schemaPath);
+const document = JSON.parse(source.toString('utf8'));
+const log = readFileSync(goLogPath, 'utf8');
+const vectors = [...log.matchAll(/MIME_VECTOR (\{[^\n]+\})/g)].map((m) => JSON.parse(m[1]));
+assert(vectors.length >= 40);
+assert.equal(new Set(vectors.map((v) => v.name)).size, vectors.length);
+const nodes = [];
+for (const name of ['ObjectUploadCompleteRecord', 'ObjectUploadFailedRecord', 'ObjectDeleteRecord']) {
+  const branches = document.components.schemas[name].properties.metadata.oneOf;
+  assert.equal(branches.length, 3);
+  for (const [index, branch] of branches.entries()) {
+    nodes.push([`${name}/${index}`, branch.properties.media_type]);
+  }
+}
+assert.equal(nodes.length, 9);
+assert.equal(new Set(nodes.map(([, node]) => JSON.stringify(node))).size, 1);
+function accepts(schema, value, flags) {
+  assert.deepEqual(Object.keys(schema).sort(), (schema.not
+    ? ['description', 'maxLength', 'minLength', 'not', 'pattern', 'type']
+    : ['description', 'maxLength', 'minLength', 'pattern', 'type']).sort());
+  assert.equal(schema.type, 'string');
+  assert.equal(schema.minLength, 1);
+  assert.equal(schema.maxLength, 256);
+  if (schema.not) assert.deepEqual(Object.keys(schema.not), ['pattern']);
+  const length = [...value].length;
+  return typeof value === 'string' && length >= schema.minLength && length <= schema.maxLength
+    && new RegExp(schema.pattern, flags).test(value)
+    && (!schema.not || !new RegExp(schema.not.pattern, flags).test(value));
+}
+const failures = [];
+let checks = 0;
+for (const flags of ['', 'u']) {
+  for (const [branch, schema] of nodes) {
+    for (const vector of vectors) {
+      checks++;
+      const actual = accepts(schema, vector.value, flags);
+      if (actual !== vector.accepted) failures.push({ branch, flags, vector: vector.name, actual, expected: vector.accepted });
+    }
+  }
+}
+const endings = { LF: '\n', CR: '\r', CRLF: '\r\n', LS: '\u2028', PS: '\u2029' };
+const lineTerminators = Object.entries(endings).map(([name, ending]) => ({
+  name,
+  ecmaBareDollar: new RegExp('^text/plain$').test('text/plain' + ending),
+  ecmaBareDollarUnicode: new RegExp('^text/plain$', 'u').test('text/plain' + ending),
+  fullSchema: accepts(nodes[0][1], 'text/plain' + ending, 'u'),
+  explicitNotMatches: nodes[0][1].not ? new RegExp(nodes[0][1].not.pattern, 'u').test(ending) : null,
+}));
+if (nodes[0][1].not) assert(lineTerminators.every((row) => row.explicitNotMatches && !row.fullSchema));
+const large = vectors.filter((v) => v.name.endsWith('-257')).map((v) => ({ name: v.name,
+  patternAlone: new RegExp(nodes[0][1].pattern, 'u').test(v.value),
+  fullSchema: accepts(nodes[0][1], v.value, 'u') }));
+assert(large.length === 3 && large.every((row) => !row.fullSchema));
+console.log(JSON.stringify({ kind: 'JSON.parse plus actual Node ECMAScript RegExp; all used string-schema keywords evaluated',
+  node: process.version, schemaSHA256: createHash('sha256').update(source).digest('hex'),
+  goLogSHA256: createHash('sha256').update(log).digest('hex'), branches: nodes.length,
+  vectors: vectors.length, checks, failures, lineTerminators, large,
+  note: 'No complete OpenAPI engine or HTTP run is claimed. Go separately checks full typed DTO schema branches.' }, null, 2));
+assert.equal(failures.length, 0, 'ECMAScript media_type schema differs from formal typed vectors');

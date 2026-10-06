@@ -1,0 +1,1215 @@
+package audithttp
+
+import (
+	"bufio"
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"io"
+	"log"
+	"net"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"os"
+	"path/filepath"
+	"reflect"
+	"regexp"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	c "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+const wireID = "01900000-0000-7000-8000-000000000001"
+
+// The schema must describe the formal constructor's canonical output, including
+// its single-token form and complete ASCII token alphabet. Each vector crosses
+// every Object action/initiator branch through the existing typed wire path.
+func TestAuditHTTPPureMIMEClosedSchema(t *testing.T) {
+	load := func(name string) map[string]any {
+		t.Helper()
+		raw, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "api", "openapi", name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		var document map[string]any
+		if err := json.Unmarshal(raw, &document); err != nil {
+			t.Fatal(err)
+		}
+		return document
+	}
+	document, common := load("audit.json"), load("common.json")
+	schemas := document["components"].(map[string]any)["schemas"].(map[string]any)
+	fullSchema := schemas["SystemAuditRecord"].(map[string]any)
+	type vector struct {
+		Name     string `json:"name"`
+		Value    string `json:"value"`
+		Accepted bool   `json:"accepted"`
+	}
+	vectors := []vector{
+		{"single", "a", true}, {"single-longer", "text", true},
+		{"single-braces", "{x}", true}, {"subtype-braces", "text/{json}", true},
+		{"type-braces", "{x}/plain", true}, {"normal", "text/plain", true},
+		{"token-alphabet", "!#$%&'*+-.^_`{|}~0123456789abcdefghijklmnopqrstuvwxyz", true},
+		{"subtype-alphabet", "text/!#$%&'*+-.^_`{|}~0123456789abcdefghijklmnopqrstuvwxyz", true},
+		{"single-utf8", "text; charset=utf-8", true},
+		{"braces-ascii", "{x}/{y}; charset=us-ascii", true},
+		{"normal-utf8", "text/plain; charset=utf-8", true},
+		{"normal-ascii", "text/plain; charset=us-ascii", true},
+		{"single-256", strings.Repeat("a", 256), true},
+		{"pair-256", "text/" + strings.Repeat("a", 251), true},
+		{"charset-256", strings.Repeat("a", 256-len("; charset=utf-8")) + "; charset=utf-8", true},
+		{"empty", "", false}, {"slash-only", "/", false},
+		{"missing-type", "/plain", false}, {"missing-subtype", "text/", false},
+		{"second-slash", "text/plain/extra", false}, {"uppercase", "Text/Plain", false},
+		{"parameter-uppercase", "text/plain; CHARSET=utf-8", false},
+		{"charset-uppercase", "text/plain; charset=UTF-8", false},
+		{"missing-space", "text/plain;charset=utf-8", false},
+		{"quoted-charset", "text/plain; charset=\"utf-8\"", false},
+		{"unknown-charset", "text/plain; charset=latin-1", false},
+		{"unknown-parameter", "text/plain; name=x", false},
+		{"duplicate-parameter", "text/plain; charset=utf-8; charset=utf-8", false},
+		{"trailing-semicolon", "text/plain;", false},
+		{"leading-space", " text/plain", false}, {"trailing-space", "text/plain ", false},
+		{"tab", "text/\tplain", false}, {"nul", "text/plain\x00", false},
+		{"non-ascii", "text/é", false},
+		{"single-257", strings.Repeat("a", 257), false},
+		{"pair-257", "text/" + strings.Repeat("a", 252), false},
+		{"charset-257", strings.Repeat("a", 257-len("; charset=utf-8")) + "; charset=utf-8", false},
+	}
+	for i, ending := range []string{"\n", "\r", "\r\n", "\u2028", "\u2029"} {
+		vectors = append(vectors, vector{"line-ending-" + string(rune('0'+i)), "text/plain" + ending, false})
+	}
+	types := []struct {
+		action  c.Action
+		schema  string
+		phase   c.ContentPhase
+		reason  c.Reason
+		outcome c.Outcome
+	}{
+		{c.ObjectUploadComplete, "ObjectUploadCompleteRecord", c.PublishedPhase, "", c.Success},
+		{c.ObjectUploadFailed, "ObjectUploadFailedRecord", c.FailedPhase, c.Cancelled, c.Failed},
+		{c.ObjectDelete, "ObjectDeleteRecord", c.DeletedPhase, "", c.Success},
+	}
+	for _, v := range vectors {
+		// Only fixed synthetic MIME vectors are logged. A separate ECMAScript
+		// check can consume these exact bytes without duplicating the case table.
+		raw, err := json.Marshal(v)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log("MIME_VECTOR " + string(raw))
+		for _, action := range types {
+			branches := schemas[action.schema].(map[string]any)["properties"].(map[string]any)["metadata"].(map[string]any)["oneOf"].([]any)
+			if len(branches) != 3 {
+				t.Fatal("Object initiator branch count changed")
+			}
+			for index, kind := range []identity.ActorKind{identity.Human, identity.AgentRun, identity.Service} {
+				t.Run(string(action.action)+"/"+string(kind)+"/"+v.Name, func(t *testing.T) {
+					fields := c.ObjectMetadataFields{ObjectID: wireID, InitiatorKind: kind, InitiatorID: wireID, MediaType: v.Value, Phase: action.phase, Reason: action.reason}
+					if kind == identity.AgentRun {
+						fields.InitiatorExecutionID = wireID
+					}
+					metadata, err := c.ObjectMetadata(action.action, fields)
+					if (err == nil) != v.Accepted {
+						t.Fatal("formal ObjectMetadata disagrees with fixed boundary")
+					}
+					if !v.Accepted {
+						fields.MediaType = "text/plain"
+						metadata, err = c.ObjectMetadata(action.action, fields)
+						if err != nil {
+							t.Fatal("valid negative-test prerequisite", err)
+						}
+					}
+					// typedRecord calls the formal DecodeMetadata and NewEntry;
+					// encodeRecord then applies the actual safe HTTP projection.
+					record := typedRecord(t, typedCase{string(action.action), "stored_object", string(metadata.JSON()), identity.ObjectService, action.outcome})
+					body, err := encodeRecord(record)
+					if err != nil {
+						t.Fatal("formal typed Object projection rejected", err)
+					}
+					var value map[string]any
+					if err := json.Unmarshal(body, &value); err != nil {
+						t.Fatal(err)
+					}
+					meta := value["metadata"].(map[string]any)
+					if v.Accepted && meta["media_type"] != v.Value {
+						t.Fatal("MIME changed during typed roundtrip")
+					}
+					meta["media_type"] = v.Value
+					if schemaAccepts(document, common, fullSchema, value) != v.Accepted || schemaAccepts(document, common, branches[index].(map[string]any), meta) != v.Accepted {
+						t.Fatal("schema differs from formal ObjectMetadata in exact action/initiator branch")
+					}
+				})
+			}
+		}
+	}
+}
+
+type typedCase struct {
+	action, resource, metadata string
+	service                    identity.ServiceName
+	outcome                    c.Outcome
+}
+
+func typedCases() []typedCase {
+	id := `"` + wireID + `"`
+	version := `"version":"1"`
+	account := func(phase, fields string) string { return `{` + version + `,"phase":"` + phase + `",` + fields + `}` }
+	return []typedCase{
+		{"secret.create", "secret", `{` + version + `,"changed_fields":["purpose","value"]}`, "", c.Success},
+		{"secret.update", "secret", `{` + version + `,"changed_fields":["value"]}`, "", c.Unknown},
+		{"secret.delete", "secret", `{` + version + `}`, "", c.Denied},
+		{"secret.resolve", "secret", `{"lease_id":` + id + `,"consumer":"smtp"}`, "", c.Success},
+		{"secret.master.register", "secret_master", `{` + version + `}`, identity.SecretService, c.Success},
+		{"secret.master.rotation.start", "secret_rotation", `{` + version + `,"rotation_id":` + id + `,"count":"0"}`, identity.SecretMaintenance, c.Success},
+		{"secret.master.rotation.complete", "secret_rotation", `{` + version + `,"rotation_id":` + id + `,"count":"9"}`, identity.SecretMaintenance, c.Success},
+		{"secret.master.rotation.failed", "secret_rotation", `{` + version + `,"rotation_id":` + id + `,"count":"0","reason":"cancelled"}`, identity.SecretMaintenance, c.Failed},
+		{"outbound.policy.update", "outbound_policy", `{` + version + `,"rule_count":"256"}`, "", c.Unknown},
+		{"outbound.access.deny", "outbound_policy", `{` + version + `,"consumer":"smtp","reason":"permission_denied"}`, identity.OutboundService, c.Denied},
+		{"object.upload.complete", "stored_object", `{"object_id":` + id + `,"initiator_kind":"agent_run","initiator_id":` + id + `,"initiator_execution_id":` + id + `,"media_type":"text/a&b","byte_size":"5","sent_bytes":"3","phase":"published"}`, identity.ObjectService, c.Success},
+		{"object.upload.failed", "stored_object", `{"object_id":` + id + `,"initiator_kind":"human","initiator_id":` + id + `,"media_type":"text/plain","byte_size":"5","sent_bytes":"2","phase":"failed","reason":"cancelled"}`, identity.ObjectMaintenance, c.Unknown},
+		{"object.delete", "stored_object", `{"object_id":` + id + `,"initiator_kind":"service","initiator_id":` + id + `,"media_type":"text/plain; charset=utf-8","byte_size":"0","sent_bytes":"0","phase":"deleted"}`, identity.ObjectService, c.Success},
+		{"outbox.delivery.requeue", "outbox_delivery", `{"delivery_id":` + id + `,"event_id":` + id + `,"handler_id":"handler.a-1","from_state":"dead_letter","redrive_cycle":"2","reason_code":"operator_retry"}`, "", c.Success},
+		{"account.bootstrap", "user", account("created", `"user_id":`+id), identity.AccountBootstrap, c.Success},
+		{"account.login", "account_attempt", account("authenticated", `"attempt_id":`+id+`,"user_id":`+id+`,"session_id":`+id), "", c.Success},
+		{"account.logout", "session", account("revoked", `"user_id":`+id+`,"session_id":`+id), "", c.Success},
+		{"account.invite.create", "invitation", account("created", `"invitation_id":`+id+`,"initiator_id":`+id+`,"channel":"log"`), "", c.Success},
+		{"account.invite.revoke", "invitation", account("revoked", `"invitation_id":`+id), "", c.Success},
+		{"account.invite.redeem", "user", account("redeemed", `"user_id":`+id+`,"invitation_id":`+id), "", c.Success},
+		{"account.password.reset.request", "account_attempt", account("accepted", `"attempt_id":`+id), identity.AccountAuth, c.Success},
+		{"account.password.reset.complete", "password_reset", account("redeemed", `"user_id":`+id+`,"reset_id":`+id), "", c.Success},
+		{"account.password.change", "user", account("updated", `"user_id":`+id+`,"changed_fields":["password"]`), "", c.Success},
+		{"account.profile.update", "user", account("updated", `"user_id":`+id+`,"changed_fields":["display_name","theme","username"]`), "", c.Success},
+		{"account.avatar.update", "user", account("updated", `"user_id":`+id+`,"changed_fields":["avatar"]`), "", c.Success},
+		{"account.settings.update", "account_settings", account("updated", `"changed_fields":["session_idle_seconds","session_absolute_seconds","password_reset_seconds","challenge_after_failures"]`), "", c.Success},
+		{"smtp.settings.update", "smtp_settings", account("updated", `"changed_fields":["host","port","tls_mode","auth_username","password","from","enabled","sender_name","auto_retry_count","retry_interval_seconds"]`), "", c.Success},
+		{"smtp.test.request", "mail_job", account("accepted", `"job_id":`+id+`,"channel":"smtp"`), "", c.Success},
+		{"smtp.delivery.retry", "mail_job", account("accepted", `"job_id":`+id+`,"initiator_id":`+id), "", c.Success},
+		{"smtp.delivery", "mail_job", account("unknown", `"job_id":`+id+`,"attempt_id":`+id+`,"channel":"smtp","reason":"delivery_unknown"`), identity.AccountMail, c.Unknown},
+		{"provider.create", "model_provider", `{` + version + `,"provider_id":` + id + `,"changed_fields":["created"]}`, "", c.Success},
+		{"provider.update", "model_provider", `{` + version + `,"provider_id":` + id + `,"changed_fields":["base_url","credential_ref","enabled","name","provider_options"]}`, "", c.Success},
+		{"provider.delete", "model_provider", `{` + version + `,"provider_id":` + id + `,"changed_fields":["deleted"]}`, "", c.Success},
+		{"model.create", "model_config", `{` + version + `,"provider_id":` + id + `,"model_id":` + id + `,"changed_fields":["created"]}`, "", c.Success},
+		{"model.update", "model_config", `{` + version + `,"provider_id":` + id + `,"model_id":` + id + `,"changed_fields":["capabilities","enabled","header_overwrite","model_id","name","parameters","request_overwrite"]}`, "", c.Success},
+		{"model.delete", "model_config", `{` + version + `,"provider_id":` + id + `,"model_id":` + id + `,"changed_fields":["deleted","replacement"],"replacement_id":` + id + `,"affected_count":"9"}`, "", c.Success},
+		{"model.selection.update", "model_selection", `{` + version + `,"selection_id":` + id + `,"selector_kind":"platform","changed_fields":["selection"]}`, "", c.Success},
+	}
+}
+
+func conditionalCases() []typedCase {
+	id := `"` + wireID + `"`
+	return []typedCase{
+		{"account.login", "account_attempt", `{"version":"1","phase":"rejected","attempt_id":` + id + `,"reason":"credentials_rejected"}`, identity.AccountAuth, c.Denied},
+		{"account.login", "account_attempt", `{"version":"1","phase":"rejected","attempt_id":` + id + `,"user_id":` + id + `,"reason":"session_invalid"}`, "", c.Denied},
+		{"smtp.delivery", "mail_job", `{"version":"1","phase":"sent","job_id":` + id + `,"attempt_id":` + id + `,"channel":"log"}`, identity.AccountMail, c.Success},
+		{"smtp.delivery", "mail_job", `{"version":"1","phase":"failed","job_id":` + id + `,"attempt_id":` + id + `,"channel":"smtp","reason":"timeout","initiator_id":` + id + `}`, identity.AccountMail, c.Failed},
+		{"model.delete", "model_config", `{"version":"1","provider_id":` + id + `,"model_id":` + id + `,"changed_fields":["deleted"],"affected_count":"0"}`, "", c.Success},
+		{"account.avatar.update", "user", `{"version":"1","phase":"updated","user_id":` + id + `,"object_id":` + id + `,"changed_fields":["avatar"]}`, "", c.Success},
+		{"secret.resolve", "secret", `{"lease_id":` + id + `,"consumer":"model","reason":"permission_denied"}`, identity.SecretService, c.Denied},
+		{"outbound.access.deny", "secret", `{"version":"1","consumer":"smtp","reason":"credential_denied"}`, identity.OutboundService, c.Denied},
+	}
+}
+
+func typedRecord(t *testing.T, tc typedCase) c.SafeRecord {
+	t.Helper()
+	u, _ := foundation.ParseID[identity.User](wireID)
+	session, _ := foundation.ParseID[identity.Session]("01900000-0000-7000-8000-000000000002")
+	actor, _ := identity.NewHuman(u, session)
+	if tc.service != "" {
+		registration, err := identity.RegisterService(tc.service)
+		if err != nil {
+			t.Fatal(err)
+		}
+		actor, err = registration.Actor("sha256:"+strings.Repeat("a", 64), identity.SystemScope())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	id := wireID
+	if tc.resource == "secret_master" || tc.resource == "outbound_policy" {
+		id = ""
+	}
+	resource, err := c.NewResource(c.ResourceKind(tc.resource), id)
+	if err != nil {
+		t.Fatal("invalid resource prerequisite", err)
+	}
+	metadata, err := c.DecodeMetadata(c.Action(tc.action), []byte(tc.metadata))
+	if err != nil {
+		t.Fatal("invalid typed metadata prerequisite", tc.action, err)
+	}
+	entry, err := c.NewEntry(c.EntryFields{Scope: identity.SystemScope(), Actor: actor, Action: c.Action(tc.action), Outcome: tc.outcome, Resource: resource, Metadata: metadata})
+	if err != nil {
+		t.Fatal("invalid typed entry prerequisite", tc.action, err)
+	}
+	fields := entry.Fields()
+	aid, _ := foundation.ParseID[c.Record](wireID)
+	at, err := foundation.NewInstant(time.Date(2026, 10, 6, 0, 0, 0, 123456000, time.UTC))
+	if err != nil {
+		t.Fatal(err)
+	}
+	summary := c.ActorSummary{Kind: identity.Human, ID: wireID}
+	if tc.service != "" {
+		summary = c.ActorSummary{Kind: identity.Service, Service: tc.service, CauseRef: actor.Details().CauseRef}
+	}
+	return c.SafeRecord{AppendReceipt: c.AppendReceipt{AuditID: aid, CreatedAt: at}, Scope: fields.Scope, Actor: summary, Action: fields.Action, Outcome: fields.Outcome, Resource: fields.Resource, Metadata: fields.Metadata, Associations: fields.Associations, Summary: "untrusted-summary-canary"}
+}
+
+func TestAuditHTTPPureTypedProjection(t *testing.T) {
+	cases := typedCases()
+	if len(cases) != 37 {
+		t.Fatal("missing System action")
+	}
+	for _, tc := range cases {
+		t.Run(tc.action, func(t *testing.T) {
+			record := typedRecord(t, tc)
+			body, err := encodeRecord(record)
+			if err != nil {
+				t.Fatal("formal typed record rejected", err)
+			}
+			var object map[string]any
+			if json.Unmarshal(body, &object) != nil || len(object) != 10 || object["scope"] != "system" || bytes.Contains(body, []byte("untrusted-summary-canary")) {
+				t.Fatal("not the explicit closed DTO")
+			}
+			actor := object["actor"].(map[string]any)
+			if tc.service == "" && (len(actor) != 2 || actor["id"] != wireID) || tc.service != "" && len(actor) != 3 {
+				t.Fatal("actor projection widened")
+			}
+			if tc.action == "account.logout" && (object["resource"].(map[string]any)["id"] != wireID || object["metadata"].(map[string]any)["session_id"] != wireID) {
+				t.Fatal("legitimate Session audit identity removed")
+			}
+			if tc.action == "object.upload.complete" && (!bytes.Contains(body, []byte(`\u0026`)) || bytes.Contains(body, []byte(`\\u0026`))) {
+				t.Fatal("typed escaping changed or doubled")
+			}
+		})
+	}
+	services := []identity.ServiceName{identity.SecretService, identity.SecretMaintenance, identity.OutboundService, identity.ObjectService, identity.ObjectMaintenance, identity.ProjectLifecycle, identity.OutboxDelivery, identity.AccountBootstrap, identity.AccountAuth, identity.AccountMaintenance, identity.AccountMail, identity.ModelRuntime, identity.ProjectInitialization}
+	for _, service := range services {
+		tc := cases[0]
+		tc.service = service
+		if _, err := encodeRecord(typedRecord(t, tc)); err != nil {
+			t.Fatal("registered service was narrowed", service)
+		}
+	}
+	for _, change := range []func(*c.SafeRecord){
+		func(r *c.SafeRecord) { r.Actor.ProjectID = wireID }, func(r *c.SafeRecord) { r.Actor.Kind = identity.AgentRun }, func(r *c.SafeRecord) { r.Actor.ID = "bad" },
+		func(r *c.SafeRecord) { r.AuditID = c.ID{} }, func(r *c.SafeRecord) { r.Action = c.AccountLogout }, func(r *c.SafeRecord) { r.Associations.ExecutionID = wireID },
+		func(r *c.SafeRecord) {
+			p, _ := foundation.ParseID[identity.Project](wireID)
+			r.Scope, _ = identity.InProject(p)
+		},
+		func(r *c.SafeRecord) { r.Resource, _ = c.NewResource(c.ModelConfigResource, wireID) },
+	} {
+		record := typedRecord(t, cases[0])
+		change(&record)
+		if body, err := encodePage(foundation.Page[c.SafeRecord]{Items: []c.SafeRecord{typedRecord(t, cases[0]), record}}); err == nil || body != nil {
+			t.Fatal("bad record exposed partial page")
+		}
+	}
+	model := typedRecord(t, cases[len(cases)-1])
+	model.Associations.RequestID = wireID
+	if _, err := encodeRecord(model); err == nil {
+		t.Fatal("Model association widened")
+	}
+}
+
+func TestAuditHTTPPureQueryClosure(t *testing.T) {
+	filter, page, err := query("", false)
+	if err != nil || page.Limit != 50 || filter.Validate() != nil {
+		t.Fatal("default page")
+	}
+	for _, raw := range []string{"limit=0", "limit=201", "limit=", "limit=01", "limit=+1", "limit=1e2", "limit=1&limit=1", "scope=system", "project_id=" + wireID, "actor_kind=service&actor_id=" + wireID, "x[]=a", "cursor=%", "limit=1;action=", "from=not-time", "from=2026-10-06T00:00:00Z&to=2026-10-06T00:00:00Z", "action=unknown", "actor_id=bad", strings.Repeat("x", (32<<10)+1)} {
+		if _, _, err := query(raw, false); err == nil {
+			t.Errorf("accepted invalid query %q", raw[:min(len(raw), 80)])
+		}
+	}
+	if _, _, err := query("", true); err == nil {
+		t.Fatal("bare ? accepted")
+	}
+	if _, _, err := query("cursor="+strings.Repeat("A", 8193), false); err == nil {
+		t.Fatal("cursor bound ignored")
+	}
+	values := url.Values{"limit": {"200"}, "cursor": {""}, "from": {"2026-10-06T02:00:00+02:00"}, "to": {"2026-10-07T00:00:00.000001Z"}, "actor_kind": {"agent_run"}, "actor_id": {wireID}, "action": {"project.create.accepted"}, "outcome": {"unknown"}, "resource_kind": {"agent"}, "resource_id": {wireID}, "tool_id": {wireID}, "execution_id": {wireID}, "operation_id": {wireID}, "approval_id": {wireID}, "runner_id": {wireID}, "agent_id": {wireID}}
+	filter, page, err = query(values.Encode(), false)
+	if err != nil || page.Limit != 200 || filter.From.String() != "2026-10-06T00:00:00.000000Z" || filter.ExecutionID != wireID || filter.AgentID != wireID {
+		t.Fatal("original full Filter narrowed", err)
+	}
+}
+
+func TestAuditHTTPPureEncodedBudget(t *testing.T) {
+	record := typedRecord(t, typedCases()[6])
+	record.Actor = c.ActorSummary{Kind: identity.Service, Service: identity.ProjectInitialization, CauseRef: "sha256:" + strings.Repeat("f", 64)}
+	record.Associations = c.Associations{ToolID: wireID, RequestID: wireID, RunnerID: wireID, CorrelationID: wireID, HTTPTraceID: wireID}
+	items := make([]c.SafeRecord, 200)
+	for i := range items {
+		items[i] = record
+	}
+	body, err := encodePage(foundation.Page[c.SafeRecord]{Items: items, NextCursor: strings.Repeat("A", 8192)})
+	if err != nil || len(body) > successBytes {
+		t.Fatal("bounded typed page rejected", err)
+	}
+	empty, err := encodePage(foundation.Page[c.SafeRecord]{})
+	if err != nil || string(empty) != `{"items":[],"next_cursor":null}` {
+		t.Fatal("empty page contract")
+	}
+	if b, err := encode(struct {
+		Value string `json:"value"`
+	}{strings.Repeat("X", successBytes)}); err == nil || b != nil {
+		t.Fatal("final encoded byte limit missing")
+	}
+	for _, token := range []string{"bad<token", strings.Repeat("A", 8193)} {
+		if _, err := encodePage(foundation.Page[c.SafeRecord]{NextCursor: token}); err == nil {
+			t.Fatal("unsafe cursor escaped budget")
+		}
+	}
+	// Synthetic JSON escaping only: these characters are not asserted to be
+	// legal typed metadata or a reachable maximal producer payload.
+	data, err := encode(struct {
+		M json.RawMessage `json:"m"`
+	}{json.RawMessage(`{"s":"\u003c\u003e\u0026\u2028\u2029"}`)})
+	if err != nil || bytes.Contains(data, []byte(`\\u`)) || bytes.Count(data, []byte(`\u`)) != 5 {
+		t.Fatal("RawMessage was double encoded")
+	}
+	// The longest ASCII shell is a conservative Cartesian upper bound.
+	shell := recordDTO{AuditID: record.AuditID, CreatedAt: record.CreatedAt, Scope: "system", Actor: serviceActor{"service", identity.ProjectInitialization, "sha256:" + strings.Repeat("f", 64)}, Action: c.RotationComplete, Outcome: c.Success, Resource: resourceDTO{c.AccountSettingsResource, wireID}, Associations: associationsDTO{wireID, wireID, wireID, wireID, wireID}, Summary: "Master key rotation completed"}
+	raw, _ := json.Marshal(shell)
+	if len(raw)-4 != 739 || (len(raw)-4+4096)*200+8420 != 975420 {
+		t.Fatal("encoded budget arithmetic changed")
+	}
+}
+
+type testBoundary struct {
+	check func(http.ResponseWriter, *http.Request) error
+	auth  func(*http.Request) (identity.Actor, error)
+	calls atomic.Int32
+}
+
+func (b *testBoundary) CheckRequest(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Referrer-Policy", "no-referrer")
+	if b.check != nil {
+		return b.check(w, r)
+	}
+	return nil
+}
+func (b *testBoundary) RequireSystem(r *http.Request, intent identity.AccessIntent) (identity.Actor, error) {
+	b.calls.Add(1)
+	if intent != identity.Read {
+		return identity.Actor{}, fault(foundation.Forbidden)
+	}
+	if b.auth != nil {
+		return b.auth(r)
+	}
+	u, _ := foundation.ParseID[identity.User](wireID)
+	s, _ := foundation.ParseID[identity.Session](wireID)
+	return identity.NewHuman(u, s)
+}
+func (b *testBoundary) WriteProblem(w http.ResponseWriter, r *http.Request, err error) {
+	clone := r.Clone(r.Context())
+	u := *r.URL
+	u.Path = "/api/v1"
+	u.RawPath = ""
+	clone.URL = &u
+	httpapi.WriteProblem(w, clone, err)
+}
+
+type testReader struct {
+	list  func(context.Context) (foundation.Page[c.SafeRecord], error)
+	get   func(context.Context) (c.SafeRecord, error)
+	calls atomic.Int32
+}
+
+func (s *testReader) ListSystem(ctx context.Context, _ identity.Actor, _ c.Filter, _ foundation.PageRequest) (foundation.Page[c.SafeRecord], error) {
+	s.calls.Add(1)
+	if s.list != nil {
+		return s.list(ctx)
+	}
+	return foundation.Page[c.SafeRecord]{}, nil
+}
+func (s *testReader) GetSystem(ctx context.Context, _ identity.Actor, _ c.ID) (c.SafeRecord, error) {
+	s.calls.Add(1)
+	return s.get(ctx)
+}
+
+type budgetWriter struct {
+	*httptest.ResponseRecorder
+	mu            sync.Mutex
+	reads, writes []time.Time
+	setRead       func(time.Time) error
+	flushErr      error
+	short         bool
+	flushes       int
+}
+
+func newBudgetWriter() *budgetWriter { return &budgetWriter{ResponseRecorder: httptest.NewRecorder()} }
+func (w *budgetWriter) SetReadDeadline(at time.Time) error {
+	if w.setRead != nil {
+		if err := w.setRead(at); err != nil {
+			return err
+		}
+	}
+	w.mu.Lock()
+	w.reads = append(w.reads, at)
+	w.mu.Unlock()
+	return nil
+}
+func (w *budgetWriter) SetWriteDeadline(at time.Time) error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.writes = append(w.writes, at)
+	return nil
+}
+func (w *budgetWriter) Write(p []byte) (int, error) {
+	if w.short {
+		return len(p) - 1, nil
+	}
+	return w.ResponseRecorder.Write(p)
+}
+func (w *budgetWriter) FlushError() error { w.flushes++; return w.flushErr }
+func aborts(run func()) (aborted bool) {
+	defer func() {
+		if value := recover(); value != nil {
+			if value != http.ErrAbortHandler {
+				panic(value)
+			}
+			aborted = true
+		}
+	}()
+	run()
+	return false
+}
+
+type closeBody struct {
+	io.Reader
+	close  func() error
+	closed atomic.Int32
+}
+
+func (b *closeBody) Close() error {
+	b.closed.Add(1)
+	if b.close != nil {
+		return b.close()
+	}
+	return nil
+}
+
+func TestAuditHTTPPureRoutesAndAuthorizationOrder(t *testing.T) {
+	for _, tc := range []struct {
+		method, path       string
+		status, auth, read int
+	}{
+		{"GET", auditPath, 200, 1, 1}, {"HEAD", auditPath, 405, 0, 0}, {"POST", auditPath, 405, 0, 0}, {"OPTIONS", auditPath + "/" + wireID, 405, 0, 0},
+		{"GET", auditPath + "/", 404, 0, 0}, {"GET", auditPath + "/" + wireID + "/", 404, 0, 0}, {"GET", auditPath + "/not-id", 400, 1, 0},
+		{"GET", auditPath + "/" + wireID + "?", 400, 1, 0}, {"GET", auditPath + "?x=1", 400, 1, 0}, {"GET", auditPath + "-near", 404, 0, 0},
+	} {
+		t.Run(tc.method+tc.path, func(t *testing.T) {
+			b, s := &testBoundary{}, &testReader{}
+			h := &systemHTTP{s, b}
+			w := newBudgetWriter()
+			r := httptest.NewRequest(tc.method, tc.path, nil)
+			if aborts(func() { httpapi.Handler(nil, h).ServeHTTP(w, r) }) {
+				t.Fatal("normal response aborted")
+			}
+			if w.Code != tc.status || int(b.calls.Load()) != tc.auth || int(s.calls.Load()) != tc.read {
+				t.Fatal("route/order changed", w.Code, b.calls.Load(), s.calls.Load())
+			}
+			if tc.status == 405 && w.Header().Get("Allow") != "GET" {
+				t.Fatal("wrong Allow")
+			}
+			if tc.method == "HEAD" && w.Body.Len() != 0 {
+				t.Fatal("HEAD error body")
+			}
+			if tc.status != 200 && tc.method != "HEAD" {
+				var problem map[string]any
+				_ = json.Unmarshal(w.Body.Bytes(), &problem)
+				if problem["instance"] != "/api/v1" {
+					t.Fatal("reflected request")
+				}
+			}
+			if w.flushes != 1 || !w.reads[len(w.reads)-1].IsZero() || !w.writes[len(w.writes)-1].IsZero() {
+				t.Fatal("response tail did not finish/reset")
+			}
+		})
+	}
+	b := &testBoundary{auth: func(*http.Request) (identity.Actor, error) { return identity.Actor{}, fault(foundation.Forbidden) }}
+	s := &testReader{}
+	w := newBudgetWriter()
+	(&systemHTTP{s, b}).ServeHTTP(w, httptest.NewRequest("GET", auditPath+"?bad=1", nil))
+	if w.Code != 403 || s.calls.Load() != 0 {
+		t.Fatal("parsing bypassed current authority")
+	}
+	if _, err := NewSystemHTTPHandler(nil, nil, SystemHTTPOptions{}); err == nil {
+		t.Fatal("nil constructor accepted")
+	}
+}
+
+func TestAuditHTTPPureBodyWriteAndCapabilities(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		length   int64
+		transfer []string
+		body     string
+	}{
+		{"nonzero", 1, nil, "x"}, {"unknown", -1, nil, ""}, {"chunked", 0, []string{"chunked"}, ""}, {"actual-nonempty", 0, nil, "x"}, {"actual-eof", 0, nil, ""},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			b, s := &testBoundary{}, &testReader{}
+			body := &closeBody{Reader: strings.NewReader(tc.body)}
+			r := httptest.NewRequest("GET", auditPath, nil)
+			r.Body = body
+			r.ContentLength = tc.length
+			r.TransferEncoding = tc.transfer
+			w := newBudgetWriter()
+			(&systemHTTP{s, b}).ServeHTTP(w, r)
+			want := 400
+			if tc.name == "actual-eof" {
+				want = 200
+			}
+			if w.Code != want || body.closed.Load() != 1 || (want == 400 && s.calls.Load() != 0) {
+				t.Fatal("framing/actual body/close boundary changed")
+			}
+		})
+	}
+	for _, name := range []string{"capability", "short-write", "flush-error"} {
+		t.Run(name, func(t *testing.T) {
+			b, s := &testBoundary{}, &testReader{}
+			h := &systemHTTP{s, b}
+			var w http.ResponseWriter = httptest.NewRecorder()
+			if name != "capability" {
+				v := newBudgetWriter()
+				v.short = name == "short-write"
+				if name == "flush-error" {
+					v.flushErr = errors.New("write-failed")
+				}
+				w = v
+			}
+			if !aborts(func() { h.ServeHTTP(w, httptest.NewRequest("GET", auditPath, nil)) }) {
+				t.Fatal("failed I/O did not abort")
+			}
+			if name == "capability" && (b.calls.Load() != 0 || s.calls.Load() != 0) {
+				t.Fatal("unbounded capability fallback reached services")
+			}
+		})
+	}
+}
+
+func TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin(t *testing.T) {
+	for _, tc := range []struct {
+		name         string
+		parentBudget time.Duration
+	}{{"local-three-seconds", time.Minute}, {"earlier-parent", 50 * time.Millisecond}} {
+		t.Run(tc.name, func(t *testing.T) {
+			parent, cancel := context.WithTimeout(context.Background(), tc.parentBudget)
+			defer cancel()
+			parentDeadline, _ := parent.Deadline()
+			entered, release := make(chan struct{}), make(chan struct{})
+			var once sync.Once
+			w := newBudgetWriter()
+			w.setRead = func(at time.Time) error {
+				if !at.IsZero() && !at.After(time.Now()) {
+					once.Do(func() { close(entered); <-release })
+				}
+				return nil
+			}
+			body := &closeBody{Reader: strings.NewReader("")}
+			started := time.Now()
+			b := &testBoundary{auth: func(r *http.Request) (identity.Actor, error) {
+				enteredAt := time.Now()
+				actual, _ := r.Context().Deadline()
+				if tc.parentBudget < readBudget && !actual.Equal(parentDeadline) {
+					t.Error("earlier parent was extended before auth")
+				}
+				if tc.parentBudget > readBudget && (actual.Before(started.Add(readBudget)) || actual.After(enteredAt.Add(readBudget)) || !actual.Before(parentDeadline)) {
+					t.Error("local budget did not start before authentication")
+				}
+				<-r.Context().Done()
+				if !errors.Is(r.Context().Err(), context.DeadlineExceeded) || tc.parentBudget > readBudget && parent.Err() != nil {
+					t.Error("wrong actual context cancellation")
+				}
+				<-entered // only the cancellation callback can reach the gate before auth returns
+				return identity.Actor{}, r.Context().Err()
+			}}
+			s := &testReader{}
+			r := httptest.NewRequest("GET", auditPath, nil).WithContext(parent)
+			r.Body = body
+			done, joined := make(chan bool, 1), make(chan struct{})
+			var releaseOnce sync.Once
+			go func() { defer close(joined); done <- aborts(func() { (&systemHTTP{s, b}).ServeHTTP(w, r) }) }()
+			t.Cleanup(func() { cancel(); releaseOnce.Do(func() { close(release) }); <-joined })
+			select {
+			case <-entered:
+			case <-time.After(readBudget + time.Second):
+				t.Fatal("cancel callback did not run")
+			}
+			select {
+			case <-done:
+				t.Fatal("handler returned before cancellation I/O tail")
+			default:
+			}
+			if s.calls.Load() != 0 {
+				t.Fatal("late preauth reached audit")
+			}
+			releaseOnce.Do(func() { close(release) })
+			if !<-done || body.closed.Load() != 1 {
+				t.Fatal("cancel failed to abort/close")
+			}
+			<-joined
+			w.mu.Lock()
+			defer w.mu.Unlock()
+			if !w.reads[len(w.reads)-1].IsZero() || !w.writes[len(w.writes)-1].IsZero() {
+				t.Fatal("deadline cleared before callback joined")
+			}
+		})
+	}
+}
+
+func TestAuditHTTPPureBodyCloseJoinAndSafeUnknown(t *testing.T) {
+	parent, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	entered, release, joined := make(chan struct{}), make(chan struct{}), make(chan struct{})
+	var releaseOnce sync.Once
+	body := &closeBody{Reader: strings.NewReader(""), close: func() error { close(entered); <-release; return nil }}
+	w := newBudgetWriter()
+	r := httptest.NewRequest("GET", auditPath, nil).WithContext(parent)
+	r.Body = body
+	done := make(chan bool, 1)
+	go func() {
+		defer close(joined)
+		done <- aborts(func() { (&systemHTTP{&testReader{}, &testBoundary{}}).ServeHTTP(w, r) })
+	}()
+	t.Cleanup(func() { cancel(); releaseOnce.Do(func() { close(release) }); <-joined })
+	select {
+	case <-entered:
+	case <-time.After(time.Second):
+		t.Fatal("Body.Close not reached")
+	}
+	cancel()
+	select {
+	case <-done:
+		t.Fatal("body close escaped handler ownership")
+	default:
+	}
+	releaseOnce.Do(func() { close(release) })
+	if !<-done || body.closed.Load() != 1 {
+		t.Fatal("cancel during Close did not abort and join")
+	}
+	<-joined
+	reader := &testReader{list: func(context.Context) (foundation.Page[c.SafeRecord], error) {
+		return foundation.Page[c.SafeRecord]{Items: []c.SafeRecord{typedRecord(t, typedCases()[0])}}, foundation.NewFault(foundation.CommitUnknown, foundation.Unknown)
+	}}
+	w = newBudgetWriter()
+	(&systemHTTP{reader, &testBoundary{}}).ServeHTTP(w, httptest.NewRequest("GET", auditPath+"?cursor=secret-canary", nil))
+	var problem map[string]any
+	_ = json.Unmarshal(w.Body.Bytes(), &problem)
+	if w.Code != 503 || problem["code"] != "COMMIT_UNKNOWN" || problem["commit_state"] != "unknown" || problem["retry_hint"] != "lookup" || problem["instance"] != "/api/v1" || bytes.Contains(w.Body.Bytes(), []byte("secret-canary")) || bytes.Contains(w.Body.Bytes(), []byte("items")) {
+		t.Fatal("read Unknown candidate or request was exposed", w.Code)
+	}
+}
+
+// This verifier is confined to the schema keywords used by this document. It
+// checks concrete formal DTOs and negative mutations, not an HTTP implementation.
+func schemaAccepts(root, common map[string]any, schema map[string]any, value any) bool {
+	if reference, ok := schema["$ref"].(string); ok {
+		parts := strings.SplitN(reference, "#", 2)
+		document := root
+		if parts[0] == "./common.json" {
+			document = common
+		}
+		var node any = document
+		for _, part := range strings.Split(strings.TrimPrefix(parts[1], "/"), "/") {
+			node = node.(map[string]any)[part]
+			if node == nil {
+				return false
+			}
+		}
+		return schemaAccepts(document, common, node.(map[string]any), value)
+	}
+	if expected, ok := schema["const"]; ok && !reflect.DeepEqual(expected, value) {
+		return false
+	}
+	if values, ok := schema["enum"].([]any); ok {
+		found := false
+		for _, expected := range values {
+			if reflect.DeepEqual(expected, value) {
+				found = true
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+	for _, key := range []string{"oneOf", "anyOf", "allOf"} {
+		if branches, ok := schema[key].([]any); ok {
+			count := 0
+			for _, branch := range branches {
+				if schemaAccepts(root, common, branch.(map[string]any), value) {
+					count++
+				}
+			}
+			if key == "oneOf" && count != 1 || key == "anyOf" && count == 0 || key == "allOf" && count != len(branches) {
+				return false
+			}
+		}
+	}
+	if branch, ok := schema["not"].(map[string]any); ok && schemaAccepts(root, common, branch, value) {
+		return false
+	}
+	if condition, ok := schema["if"].(map[string]any); ok && schemaAccepts(root, common, condition, value) {
+		if branch, ok := schema["then"].(map[string]any); ok && !schemaAccepts(root, common, branch, value) {
+			return false
+		}
+	}
+	if kind, ok := schema["type"].(string); ok {
+		valid := false
+		switch kind {
+		case "object":
+			_, valid = value.(map[string]any)
+		case "array":
+			_, valid = value.([]any)
+		case "string":
+			_, valid = value.(string)
+		case "null":
+			valid = value == nil
+		case "integer":
+			n, ok := value.(float64)
+			valid = ok && n == float64(int64(n))
+		case "boolean":
+			_, valid = value.(bool)
+		}
+		if !valid {
+			return false
+		}
+	}
+	if object, ok := value.(map[string]any); ok {
+		properties, _ := schema["properties"].(map[string]any)
+		if required, ok := schema["required"].([]any); ok {
+			for _, key := range required {
+				if _, ok := object[key.(string)]; !ok {
+					return false
+				}
+			}
+		}
+		for key, child := range object {
+			if property, ok := properties[key].(map[string]any); ok {
+				if !schemaAccepts(root, common, property, child) {
+					return false
+				}
+			} else if schema["additionalProperties"] == false {
+				return false
+			}
+		}
+	}
+	if text, ok := value.(string); ok {
+		if pattern, ok := schema["pattern"].(string); ok {
+			expression, err := regexp.Compile(pattern)
+			if err != nil {
+				panic(err)
+			}
+			if !expression.MatchString(text) {
+				return false
+			}
+		}
+		if n, ok := schema["minLength"].(float64); ok && len([]rune(text)) < int(n) {
+			return false
+		}
+		if n, ok := schema["maxLength"].(float64); ok && len([]rune(text)) > int(n) {
+			return false
+		}
+	}
+	if array, ok := value.([]any); ok {
+		if n, ok := schema["minItems"].(float64); ok && len(array) < int(n) {
+			return false
+		}
+		if n, ok := schema["maxItems"].(float64); ok && len(array) > int(n) {
+			return false
+		}
+		for i, child := range array {
+			if item, ok := schema["items"].(map[string]any); ok && !schemaAccepts(root, common, item, child) {
+				return false
+			}
+			if schema["uniqueItems"] == true {
+				for _, before := range array[:i] {
+					if reflect.DeepEqual(before, child) {
+						return false
+					}
+				}
+			}
+		}
+	}
+	return true
+}
+
+func TestAuditHTTPPureOpenAPIClosedContract(t *testing.T) {
+	load := func(name string) map[string]any {
+		t.Helper()
+		path := filepath.Join("..", "..", "..", "..", "api", "openapi", name)
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var value map[string]any
+		if json.Unmarshal(raw, &value) != nil {
+			t.Fatal("invalid OpenAPI JSON")
+		}
+		return value
+	}
+	document, common := load("audit.json"), load("common.json")
+	paths := document["paths"].(map[string]any)
+	if len(paths) != 2 || len(common["paths"].(map[string]any)) != 0 {
+		t.Fatal("route scope widened")
+	}
+	for path, item := range paths {
+		operations := item.(map[string]any)
+		if len(operations) != 1 || operations["get"] == nil {
+			t.Fatal("GET-only drift")
+		}
+		op := operations["get"].(map[string]any)
+		security := op["security"].([]any)
+		if len(security) != 2 || len(security[0].(map[string]any)) != 1 || len(security[1].(map[string]any)) != 1 || security[0].(map[string]any)["Session"] == nil || security[1].(map[string]any)["LocalSession"] == nil {
+			t.Fatal("anonymous/CSRF security drift")
+		}
+		params := op["parameters"].([]any)
+		if path == auditPath {
+			names := map[string]bool{}
+			for _, p := range params {
+				names[p.(map[string]any)["name"].(string)] = true
+			}
+			if len(names) != 16 {
+				t.Fatal("filter parameter count")
+			}
+			for _, name := range []string{"limit", "cursor", "from", "to", "actor_kind", "actor_id", "action", "outcome", "resource_kind", "resource_id", "tool_id", "execution_id", "operation_id", "approval_id", "runner_id", "agent_id"} {
+				if !names[name] {
+					t.Fatal("missing filter", name)
+				}
+			}
+		} else if path != auditPath+"/{id}" || len(params) != 1 {
+			t.Fatal("detail route mismatch")
+		}
+	}
+	schemas := document["components"].(map[string]any)["schemas"].(map[string]any)
+	schema := schemas["SystemAuditRecord"].(map[string]any)
+	if len(schema["oneOf"].([]any)) != 37 {
+		t.Fatal("action branch count")
+	}
+	for _, tc := range append(typedCases(), conditionalCases()...) {
+		t.Run(tc.action, func(t *testing.T) {
+			body, err := encodeRecord(typedRecord(t, tc))
+			if err != nil {
+				t.Fatal(err)
+			}
+			var value map[string]any
+			_ = json.Unmarshal(body, &value)
+			if !schemaAccepts(document, common, schema, value) {
+				t.Fatal("schema rejected formal DTO", tc.action)
+			}
+			value["extra"] = true
+			if schemaAccepts(document, common, schema, value) {
+				t.Fatal("schema unknown record field")
+			}
+			delete(value, "extra")
+			meta := value["metadata"].(map[string]any)
+			meta["extra"] = true
+			if schemaAccepts(document, common, schema, value) {
+				t.Fatal("schema arbitrary metadata")
+			}
+			delete(meta, "extra")
+			value["scope"] = "project"
+			if schemaAccepts(document, common, schema, value) {
+				t.Fatal("System schema accepted Project")
+			}
+		})
+	}
+	for _, tc := range []struct {
+		name   string
+		index  int
+		change func(map[string]any)
+	}{
+		{"authenticated-needs-session", 15, func(v map[string]any) { delete(v["metadata"].(map[string]any), "session_id") }},
+		{"authenticated-forbids-reason", 15, func(v map[string]any) { v["metadata"].(map[string]any)["reason"] = "session_invalid" }},
+		{"phase-outcome", 15, func(v map[string]any) { v["outcome"] = "denied" }},
+		{"unknown-needs-reason", 29, func(v map[string]any) { delete(v["metadata"].(map[string]any), "reason") }},
+		{"retry-forbids-channel", 28, func(v map[string]any) { v["metadata"].(map[string]any)["channel"] = "smtp" }},
+		{"retry-human-only", 28, func(v map[string]any) {
+			v["actor"] = map[string]any{"kind": "service", "service": "account-mail", "cause_ref": wireID}
+		}},
+		{"replacement-needs-id", 35, func(v map[string]any) { delete(v["metadata"].(map[string]any), "replacement_id") }},
+		{"model-associations", 34, func(v map[string]any) { v["associations"].(map[string]any)["request_id"] = wireID }},
+		{"agent-initiator-needs-execution", 10, func(v map[string]any) { delete(v["metadata"].(map[string]any), "initiator_execution_id") }},
+		{"object-actor", 10, func(v map[string]any) { v["actor"] = map[string]any{"kind": "human", "id": wireID} }},
+		{"wrong-resource-kind", 16, func(v map[string]any) { v["resource"].(map[string]any)["kind"] = "user" }},
+		{"master-forbids-id", 4, func(v map[string]any) { v["resource"].(map[string]any)["id"] = wireID }},
+		{"metadata-null", 0, func(v map[string]any) { v["metadata"] = nil }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			body, err := encodeRecord(typedRecord(t, typedCases()[tc.index]))
+			if err != nil {
+				t.Fatal(err)
+			}
+			var value map[string]any
+			_ = json.Unmarshal(body, &value)
+			tc.change(value)
+			if schemaAccepts(document, common, schema, value) {
+				t.Fatal("conditional schema widened")
+			}
+		})
+	}
+}
+
+// Native tests are selected separately from Pure. They require the explicitly
+// granted loopback window; neither package compilation nor Pure executes them.
+type nativeAuditBody struct {
+	io.ReadCloser
+	eof, closed *atomic.Int32
+}
+
+func (b nativeAuditBody) Read(p []byte) (int, error) {
+	n, err := b.ReadCloser.Read(p)
+	if err == io.EOF {
+		b.eof.Add(1)
+	}
+	return n, err
+}
+func (b nativeAuditBody) Close() error { b.closed.Add(1); return b.ReadCloser.Close() }
+
+type nativeAuditResult struct{ aborted bool }
+
+func nativeAuditListener(t *testing.T, handler http.Handler) (string, <-chan nativeAuditResult, *atomic.Int32) {
+	t.Helper()
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	results := make(chan nativeAuditResult, 4)
+	var active sync.WaitGroup
+	connections := &atomic.Int32{}
+	server := &http.Server{ErrorLog: log.New(io.Discard, "", 0), Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		active.Add(1)
+		defer active.Done()
+		defer func() {
+			value := recover()
+			results <- nativeAuditResult{aborted: value == http.ErrAbortHandler}
+			if value != nil {
+				panic(value)
+			}
+		}()
+		handler.ServeHTTP(w, r)
+	}), ConnState: func(_ net.Conn, state http.ConnState) {
+		if state == http.StateNew {
+			connections.Add(1)
+		}
+	}}
+	served := make(chan error, 1)
+	go func() { served <- server.Serve(listener) }()
+	t.Cleanup(func() {
+		if err := server.Close(); err != nil {
+			t.Error("native server close", err)
+		}
+		_ = listener.Close()
+		if err := <-served; !errors.Is(err, http.ErrServerClosed) {
+			t.Error("native Serve terminal", err)
+		}
+		active.Wait()
+	})
+	return listener.Addr().String(), results, connections
+}
+
+func nativeAuditDial(t *testing.T, address string) net.Conn {
+	t.Helper()
+	conn, err := net.DialTimeout("tcp", address, time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = conn.Close() })
+	if err = conn.SetDeadline(time.Now().Add(10 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	return conn
+}
+
+func nativeAuditTerminal(t *testing.T, results <-chan nativeAuditResult) nativeAuditResult {
+	t.Helper()
+	select {
+	case result := <-results:
+		return result
+	case <-time.After(5 * time.Second):
+		t.Fatal("native handler not joined")
+		return nativeAuditResult{}
+	}
+}
+
+func TestAuditHTTPNativeEOFAndKeepAlive(t *testing.T) {
+	var eof, closed, requests atomic.Int32
+	h := &systemHTTP{&testReader{}, &testBoundary{}}
+	address, results, connections := nativeAuditListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		budget := time.Second
+		if requests.Add(1) == 1 {
+			budget = 120 * time.Millisecond
+		}
+		ctx, cancel := context.WithTimeout(r.Context(), budget)
+		defer cancel()
+		r = r.WithContext(ctx)
+		r.Body = nativeAuditBody{r.Body, &eof, &closed}
+		h.ServeHTTP(w, r)
+	}))
+	conn := nativeAuditDial(t, address)
+	reader := bufio.NewReader(conn)
+	for i := 0; i < 2; i++ {
+		if i == 1 {
+			<-time.After(200 * time.Millisecond)
+		}
+		if _, err := io.WriteString(conn, "GET "+auditPath+" HTTP/1.1\r\nHost: "+address+"\r\nContent-Length: 0\r\n\r\n"); err != nil {
+			t.Fatal(err)
+		}
+		response, err := http.ReadResponse(reader, &http.Request{Method: "GET"})
+		if err != nil {
+			t.Fatal("keepalive response", err)
+		}
+		body, readErr := io.ReadAll(response.Body)
+		closeErr := response.Body.Close()
+		if readErr != nil || closeErr != nil || response.StatusCode != 200 || string(body) != `{"items":[],"next_cursor":null}` {
+			t.Fatal("native response incomplete")
+		}
+		if nativeAuditTerminal(t, results).aborted {
+			t.Fatal("complete native response aborted")
+		}
+	}
+	if connections.Load() != 1 || requests.Load() != 2 || eof.Load() != 2 || closed.Load() != 2 {
+		t.Fatal("not one reused connection with actual EOF/Close", connections.Load(), eof.Load(), closed.Load())
+	}
+}
+
+func TestAuditHTTPNativeSlowBodyBudgets(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		parent time.Duration
+	}{{"local-three-seconds", time.Minute}, {"earlier-parent", 120 * time.Millisecond}} {
+		t.Run(tc.name, func(t *testing.T) {
+			type deadlineObservation struct {
+				ctx                                context.Context
+				parentDeadline, before, authorized time.Time
+			}
+			contextSeen := make(chan deadlineObservation, 1)
+			store := &testReader{}
+			var eof, closed atomic.Int32
+			address, results, _ := nativeAuditListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				ctx, cancel := context.WithTimeout(r.Context(), tc.parent)
+				defer cancel()
+				parentDeadline, _ := ctx.Deadline()
+				r = r.WithContext(ctx)
+				r.Body = nativeAuditBody{r.Body, &eof, &closed}
+				var before time.Time
+				boundary := &testBoundary{auth: func(r *http.Request) (identity.Actor, error) {
+					contextSeen <- deadlineObservation{r.Context(), parentDeadline, before, time.Now()}
+					u, _ := foundation.ParseID[identity.User](wireID)
+					s, _ := foundation.ParseID[identity.Session](wireID)
+					return identity.NewHuman(u, s)
+				}}
+				before = time.Now()
+				(&systemHTTP{store, boundary}).ServeHTTP(w, r)
+			}))
+			conn := nativeAuditDial(t, address)
+			started := time.Now()
+			if _, err := io.WriteString(conn, "GET "+auditPath+" HTTP/1.1\r\nHost: "+address+"\r\nContent-Length: 1\r\n\r\n"); err != nil {
+				t.Fatal(err)
+			}
+			var observation deadlineObservation
+			select {
+			case observation = <-contextSeen:
+			case <-time.After(time.Second):
+				t.Fatal("native auth not reached")
+			}
+			observed := observation.ctx
+			deadline, hasDeadline := observed.Deadline()
+			if !hasDeadline || tc.parent < readBudget && !deadline.Equal(observation.parentDeadline) ||
+				tc.parent > readBudget && (deadline.Before(observation.before.Add(readBudget)) || deadline.After(observation.authorized.Add(readBudget)) || !deadline.Before(observation.parentDeadline)) {
+				t.Fatal("native deadline did not preserve the local/auth/parent boundary")
+			}
+			response, err := http.ReadResponse(bufio.NewReader(conn), &http.Request{Method: "GET"})
+			if err == nil {
+				_, _ = io.Copy(io.Discard, response.Body)
+				_ = response.Body.Close()
+				if response.StatusCode == 200 {
+					t.Fatal("slow forbidden body returned 200")
+				}
+			}
+			terminal := nativeAuditTerminal(t, results)
+			finished := time.Now()
+			elapsed := finished.Sub(started)
+			limit := min(tc.parent, readBudget)
+			done := false
+			select {
+			case <-observed.Done():
+				done = true
+			default:
+			}
+			// Native socket deadlines may cancel net/http's parent before the
+			// context timer fires; neither ordering extends the same deadline.
+			cancelled := errors.Is(observed.Err(), context.Canceled) || errors.Is(observed.Err(), context.DeadlineExceeded)
+			if !terminal.aborted || !done || finished.Before(deadline) || !cancelled || elapsed < limit*3/4 || elapsed > limit+time.Second || store.calls.Load() != 0 || closed.Load() != 1 {
+				t.Fatal("native deadline/actual close boundary", terminal.aborted, observed.Err(), elapsed, store.calls.Load(), closed.Load())
+			}
+		})
+	}
+}
+
+type nativeAuditFailureWriter struct {
+	http.ResponseWriter
+	short, flush bool
+}
+
+func (w nativeAuditFailureWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
+func (w nativeAuditFailureWriter) Write(p []byte) (int, error) {
+	if w.short {
+		return w.ResponseWriter.Write(p[:1])
+	}
+	return w.ResponseWriter.Write(p)
+}
+func (w nativeAuditFailureWriter) FlushError() error {
+	if err := http.NewResponseController(w.ResponseWriter).Flush(); err != nil {
+		return err
+	}
+	if w.flush {
+		return io.ErrClosedPipe
+	}
+	return nil
+}
+func TestAuditHTTPNativeWriteAndFlushAbort(t *testing.T) {
+	for _, name := range []string{"short-write", "flush-error"} {
+		t.Run(name, func(t *testing.T) {
+			var eof, closed atomic.Int32
+			address, results, _ := nativeAuditListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				r.Body = nativeAuditBody{r.Body, &eof, &closed}
+				(&systemHTTP{&testReader{}, &testBoundary{}}).ServeHTTP(nativeAuditFailureWriter{w, name == "short-write", name == "flush-error"}, r)
+			}))
+			conn := nativeAuditDial(t, address)
+			if _, err := io.WriteString(conn, "GET "+auditPath+" HTTP/1.1\r\nHost: "+address+"\r\nContent-Length: 0\r\n\r\n"); err != nil {
+				t.Fatal(err)
+			}
+			reader := bufio.NewReader(conn)
+			response, err := http.ReadResponse(reader, &http.Request{Method: "GET"})
+			if err == nil {
+				data, readErr := io.ReadAll(response.Body)
+				_ = response.Body.Close()
+				if bytes.Contains(data, []byte("application/problem")) || name == "short-write" && readErr == nil {
+					t.Fatal("short write or second response hidden")
+				}
+			}
+			if !nativeAuditTerminal(t, results).aborted || closed.Load() != 1 {
+				t.Fatal("write failure escaped native abort/Close")
+			}
+			var one [1]byte
+			if n, err := reader.Read(one[:]); n != 0 || err == nil {
+				t.Fatal("aborted connection survived")
+			}
+		})
+	}
+}

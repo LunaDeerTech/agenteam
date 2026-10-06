@@ -1,0 +1,30 @@
+{
+  "base": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "files": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "api/openapi/audit.json": "168fc76cf7e0e8f89923e0312dee847ff48dd3de2f37f3f764689ef874300ee9",
+    "api/openapi/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+    "internal/central/audit/http/wire.go": "4a42524d07301277350ed57d0a15901e2dfa6a541e16e14bbd145563adb593b4",
+    "internal/central/audit/query.go": "3713a95d285b19300e0038cb6243f9932754bb22a030afb820012b8f9e8968f3",
+    "internal/central/audit/system_query.go": "b84646b38e6810d02e3c6b259c1ee1e88b26aa79af406ebb5c504b58abd2014f",
+    "internal/central/audit/contract/access.go": "775a838c03690fef4b709c37975fd23ccfc24e506569d4c3e8684ac32f8abfd1",
+    "internal/central/audit/contract/account.go": "ef2b5bc2cca4435161d9b2f543c62b868324e54813581da894bfbfb70e42bfed",
+    "internal/central/audit/contract/knowledge.go": "270e1943c9539dda9dc2ae9bb1013a0a48bf2309578b2da8d36c1a432a4d8372",
+    "internal/central/audit/contract/metadata.go": "bdffe42f77fa2525dbbc03a3d3749af7b7665cb6cf2f995d62b82863a2080646",
+    "internal/central/audit/contract/model.go": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6",
+    "internal/central/audit/contract/project.go": "526e8c86d72f45b2584572c159586b59a360e1029269b4304d68ffa55f26083b",
+    "internal/central/audit/contract/project_fact_authority.go": "583ad2f7030a6a5fd84c5174ae260b8a317110abf4afeb69f906e4b9a9ac60ae",
+    "internal/central/audit/contract/types.go": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d",
+    "internal/central/foundation/cause.go": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+    "internal/central/foundation/fault.go": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+    "internal/central/foundation/id.go": "40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54",
+    "internal/central/foundation/instant.go": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+    "internal/central/foundation/integer.go": "6b415d63e04d63e46428bf3b19f545f5a289575c0f375192875a40405b39d215",
+    "internal/central/foundation/lock.go": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+    "internal/central/foundation/page.go": "3be782a4c61729a5a2b13e195e5653ad1070e883765035b5cbb1f4f9e85c3c52",
+    "internal/central/foundation/scalar.go": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198",
+    "internal/central/foundation/tx.go": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+    "internal/central/identity/contract/identity.go": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0"
+  }
+}

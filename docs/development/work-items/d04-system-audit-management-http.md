@@ -1,6 +1,6 @@
 # D04 / D27：System Audit 管理 HTTP
 
-修订：rev1。状态：已获独立有界 STATIC PASS，主线程已采纳规格。被审私稿全文 SHA `91d576400771047c9abda0c5d4fd983d331bfd8c1ff86096701c8edd641756b0`，技术§1–7 SHA `687c85d4a41880828d038251bf6321accc48092aa043a10addb1606ab02c6f21` 原字节保持；固定主线 `f843506d9ec991be1c334a81b88d5cbacc277467`、产品基线 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93` 及十四候选范围不变。仅规格接受，已提交推送 `24da141652bbc4c183cd827e767dbdaf2f2f4051` 并由主线程核远端一致。唯一backend作者已在私有根实际启动query三源，前13源实施与无服务离线检查/编译获授，末14说明另授；独立Audit计划准备已实际启动，尚无独立实现验证；native/listener/真实资源未授权，产品未验收。未消费 Outbound UI 活动源码。
+修订：rev1。状态：14路径产品已由主线程采纳、提交推送`b124650aee095b26191bc181dc8cf5d6e0f977f5`并核远端一致；[永久产品记录](../agent-team/system-audit-management-http-verification.md)保存分阶段接受、原失败、实际退出／双清及主线编译界限。后续MIME两文件修复另接受于`fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5`，原b124证据不改。技术§1–7 SHA `687c85d4a41880828d038251bf6321accc48092aa043a10addb1606ab02c6f21` 原字节保持；固定历史规格与其原STATIC报告继续保留。下文实施前门槛为被审历史，当前产品状态以本页首和永久记录为准，不表示完整D04/D27或Audit UI接受。
 
 独立冻结[STATIC PASS原报告](../agent-team/system-audit-management-http-spec-verification-evidence/objects/ed4cc13288cdb39218e68a53a1b92ac0b622e813d81e4534673136ee42befb79)，SHA `ed4cc13288cdb39218e68a53a1b92ac0b622e813d81e4534673136ee42befb79`；[原JSON](../agent-team/system-audit-management-http-spec-verification-evidence/objects/17ad628661a4a4fe7e9d9fb0572b7fca91ae8ca2a54118591441146bb08dde22) SHA `17ad628661a4a4fe7e9d9fb0572b7fca91ae8ca2a54118591441146bb08dde22`。该结论证明固定规格的可实施性，不是编译、产品或动态通过。原私稿和依据见[永久规格记录](../agent-team/system-audit-management-http-spec-verification.md)，原字节保持。
 

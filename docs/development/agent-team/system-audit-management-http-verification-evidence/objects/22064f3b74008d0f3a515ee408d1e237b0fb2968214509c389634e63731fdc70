@@ -1,0 +1,220 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"net/http"
+	"net/url"
+	"reflect"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+)
+
+const systemAuditHTTPPath = "/api/v1/system/audit"
+
+func auditHTTPShape(t *testing.T, record map[string]any) {
+	t.Helper()
+	keys := []string{"audit_id", "created_at", "scope", "actor", "action", "outcome", "resource", "metadata", "associations", "summary"}
+	if len(record) != len(keys) {
+		t.Fatal("Audit DTO is not the closed ten-field shape")
+	}
+	for _, key := range keys {
+		if _, ok := record[key]; !ok || record[key] == nil {
+			t.Fatal("Audit DTO missing nonnull field", key)
+		}
+	}
+	if _, err := foundation.ParseID[struct{}](httpString(t, record, "audit_id")); err != nil {
+		t.Fatal("Audit ID invalid")
+	}
+	at, err := foundation.ParseInstant(httpString(t, record, "created_at"))
+	if err != nil || at.String() != record["created_at"] {
+		t.Fatal("Audit time noncanonical")
+	}
+	if record["scope"] != "system" {
+		t.Fatal("other scope escaped System HTTP")
+	}
+	actor := httpObject(t, record, "actor")
+	if actor["kind"] == "human" {
+		if len(actor) != 2 || actor["id"] == nil {
+			t.Fatal("human actor projection widened")
+		}
+	} else if actor["kind"] == "service" {
+		if len(actor) != 3 || actor["service"] == nil || actor["cause_ref"] == nil {
+			t.Fatal("service actor projection widened")
+		}
+	} else {
+		t.Fatal("System actor invalid")
+	}
+	for key := range httpObject(t, record, "associations") {
+		if key != "tool_id" && key != "request_id" && key != "runner_id" && key != "correlation_id" && key != "http_trace_id" {
+			t.Fatal("System association leaked", key)
+		}
+	}
+	_ = httpObject(t, record, "metadata")
+}
+
+func TestSystemAuditHTTPQueryAndProjection(t *testing.T) {
+	started := time.Now()
+	f := newHTTPFixture(t)
+	admin := f.admin()
+	member := f.invite(admin, "audit-member@example.test", "audit-member")
+	user := httpObject(t, admin.profile(), "user")
+	userID := httpString(t, user, "id")
+	for _, name := range []string{"Audit first canary", "Audit second canary", "Audit third canary"} {
+		current := httpObject(t, admin.profile(), "user")
+		admin.request("PATCH", "/api/v1/me", map[string]any{"version": current["version"], "display_name": name}, id[struct{}](t).String(), admin.csrf).want(t, 200)
+	}
+	conn := f.db.Connect(t)
+	rows, err := conn.Query(ctxFor(t), `SELECT id::text,created_at FROM agenteam_audit.audit_records WHERE scope_kind='system' AND action='account.profile.update' AND resource_id=$1 ORDER BY created_at DESC,id DESC`, userID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var expected []string
+	times := map[string]string{}
+	for rows.Next() {
+		var key string
+		var at time.Time
+		if err = rows.Scan(&key, &at); err != nil {
+			rows.Close()
+			t.Fatal(err)
+		}
+		instant, e := foundation.NewInstant(at)
+		if e != nil {
+			rows.Close()
+			t.Fatal(e)
+		}
+		expected = append(expected, key)
+		times[key] = instant.String()
+	}
+	rows.Close()
+	if rows.Err() != nil || len(expected) != 3 {
+		t.Fatal("formal profile producer cardinality", rows.Err(), len(expected))
+	}
+	filter := url.Values{"action": {"account.profile.update"}, "resource_id": {userID}, "actor_kind": {"human"}, "actor_id": {userID}}
+	pageURL := func(limit, cursor string) string {
+		v := url.Values{}
+		for k, value := range filter {
+			v[k] = append([]string(nil), value...)
+		}
+		v.Set("limit", limit)
+		if cursor != "" {
+			v.Set("cursor", cursor)
+		}
+		return systemAuditHTTPPath + "?" + v.Encode()
+	}
+	first := admin.request("GET", pageURL("1", ""), nil, "", "").want(t, 200)
+	firstObject := first.object(t)
+	if len(firstObject) != 2 || len(httpItems(t, firstObject)) != 1 {
+		t.Fatal("first page shape")
+	}
+	cursor := httpString(t, firstObject, "next_cursor")
+	secondObject := admin.request("GET", pageURL("2", cursor), nil, "", "").want(t, 200).object(t)
+	if len(secondObject) != 2 || secondObject["next_cursor"] != nil || len(httpItems(t, secondObject)) != 2 {
+		t.Fatal("page-size change or terminal null cursor")
+	}
+	items := append(httpItems(t, firstObject), httpItems(t, secondObject)...)
+	var seen []string
+	for _, raw := range items {
+		record, ok := raw.(map[string]any)
+		if !ok {
+			t.Fatal("nonnull object array required")
+		}
+		auditHTTPShape(t, record)
+		key := httpString(t, record, "audit_id")
+		seen = append(seen, key)
+		if record["created_at"] != times[key] || record["action"] != "account.profile.update" || httpObject(t, record, "resource")["id"] != userID {
+			t.Fatal("formal Audit facts differ")
+		}
+		detail := admin.request("GET", systemAuditHTTPPath+"/"+key, nil, "", "").want(t, 200).object(t)
+		if !reflect.DeepEqual(record, detail) {
+			t.Fatal("safe list/detail mismatch")
+		}
+		metadata := httpObject(t, record, "metadata")
+		if metadata["phase"] != "updated" || metadata["user_id"] != userID || metadata["changed_fields"] == nil {
+			t.Fatal("typed profile metadata changed")
+		}
+	}
+	if !reflect.DeepEqual(seen, expected) {
+		t.Fatal("created_at/id descending pagination changed")
+	}
+	empty := admin.request("GET", systemAuditHTTPPath+"?action=project.create.accepted&limit=200", nil, "", "").want(t, 200).object(t)
+	if len(empty) != 2 || empty["next_cursor"] != nil || len(httpItems(t, empty)) != 0 {
+		t.Fatal("legal original Project filter did not yield empty System observation")
+	}
+	admin.request("GET", systemAuditHTTPPath+"?cursor=", nil, "", "").want(t, 200)
+	// Equivalent legal time offsets bind the same canonical Filter digest.
+	fromTime, _ := foundation.ParseInstant(times[expected[len(expected)-1]])
+	from := fromTime.Time().Add(-time.Second)
+	v := url.Values{"action": {"account.profile.update"}, "from": {from.Format(time.RFC3339Nano)}, "limit": {"1"}}
+	timePage := admin.request("GET", systemAuditHTTPPath+"?"+v.Encode(), nil, "", "").want(t, 200).object(t)
+	v.Set("cursor", httpString(t, timePage, "next_cursor"))
+	v.Set("limit", "200")
+	v.Set("from", from.In(time.FixedZone("offset", 2*3600)).Format(time.RFC3339Nano))
+	if len(httpItems(t, admin.request("GET", systemAuditHTTPPath+"?"+v.Encode(), nil, "", "").want(t, 200).object(t))) != 2 {
+		t.Fatal("canonical time binding changed")
+	}
+	for _, bad := range []struct{ query, code string }{
+		{"limit=0", "INVALID_ARGUMENT"}, {"limit=201", "INVALID_ARGUMENT"}, {"limit=01", "INVALID_ARGUMENT"}, {"limit=1&limit=1", "INVALID_ARGUMENT"}, {"scope=system", "INVALID_ARGUMENT"}, {"project_id=" + userID, "INVALID_ARGUMENT"}, {"actor_kind=service&actor_id=" + userID, "INVALID_ARGUMENT"}, {"cursor=" + strings.Repeat("x", 8193), "CURSOR_INVALID"}, {"cursor=bad", "CURSOR_INVALID"}, {"limit=1;action=x", "INVALID_ARGUMENT"}, {"cursor=" + url.QueryEscape(cursor), "CURSOR_INVALID"},
+	} {
+		admin.request("GET", systemAuditHTTPPath+"?"+bad.query, nil, "", "").problem(t, 400, bad.code)
+	}
+	admin.request("GET", systemAuditHTTPPath+"?", nil, "", "").problem(t, 400, "INVALID_ARGUMENT")
+	admin.request("GET", systemAuditHTTPPath+"/"+id[struct{}](t).String(), nil, "", "").problem(t, 404, "NOT_FOUND")
+	admin.request("GET", systemAuditHTTPPath+"/bad-id", nil, "", "").problem(t, 400, "INVALID_ARGUMENT")
+	detailPath := systemAuditHTTPPath + "/" + expected[0]
+	for _, suffix := range []string{"?", "?limit=1"} {
+		admin.request("GET", detailPath+suffix, nil, "", "").problem(t, 400, "INVALID_ARGUMENT")
+	}
+	for _, path := range []string{systemAuditHTTPPath, detailPath} {
+		for _, method := range []string{"HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"} {
+			response := admin.request(method, path, nil, "", "").want(t, 405)
+			if response.headers.Get("Allow") != "GET" || method == "HEAD" && len(response.data) != 0 {
+				t.Fatal("GET-only method/HEAD/Allow")
+			}
+		}
+		admin.request("GET", path, map[string]any{}, "", "").problem(t, 400, "INVALID_ARGUMENT")
+		f.browser().request("GET", path, nil, "", "").problem(t, 401, "UNAUTHENTICATED")
+		member.request("GET", path, nil, "", "").problem(t, 403, "FORBIDDEN")
+		for _, change := range []func(*http.Request){func(r *http.Request) { r.Host = "foreign.invalid" }, func(r *http.Request) { r.Header.Set("Origin", "https://foreign.invalid") }, func(r *http.Request) { r.Header.Set("Sec-Fetch-Site", "cross-site") }} {
+			admin.raw("GET", path, nil, change).problem(t, 403, "ORIGIN_DENIED")
+		}
+	}
+	loginPage := admin.request("GET", systemAuditHTTPPath+"?action=account.login&limit=200", nil, "", "").want(t, 200).object(t)
+	foundSession := false
+	for _, item := range httpItems(t, loginPage) {
+		metadata := httpObject(t, item.(map[string]any), "metadata")
+		if metadata["phase"] == "authenticated" {
+			if _, e := foundation.ParseID[struct{}](httpString(t, metadata, "session_id")); e != nil {
+				t.Fatal("safe typed Session ID removed")
+			}
+			foundSession = true
+		}
+	}
+	if !foundSession {
+		t.Fatal("formal login Audit missing")
+	}
+	f.assertTrace(first, "unknown_route")
+	cookie := admin.cookie("agenteam_local_session")
+	admin.request("POST", "/api/v1/sessions/logout", map[string]any{}, id[struct{}](t).String(), admin.csrf).want(t, 204)
+	for _, path := range []string{systemAuditHTTPPath, detailPath} {
+		admin.setCookie("agenteam_local_session", cookie)
+		result := admin.request("GET", path, nil, "", "")
+		result.problem(t, 401, "SESSION_REVOKED")
+		if bytes.Contains(result.data, []byte(`"items"`)) || bytes.Contains(result.data, []byte(`"audit_id"`)) || admin.cookie("agenteam_local_session") != "" {
+			t.Fatal("revoked response leaked candidate or retained cookie")
+		}
+	}
+	for _, value := range []string{"Audit first canary", "Audit second canary", "Audit third canary", cookie, admin.csrf, cursor} {
+		if value != "" && (f.log.contains(value) || bytes.Contains(first.data, []byte(value))) {
+			t.Fatal("ordinary log/DTO exposed private request or profile material")
+		}
+	}
+	if time.Since(started) > 2*time.Minute {
+		t.Fatal("scenario exceeded two-minute budget")
+	}
+	t.Log("formal Account producer -> exact System page/detail; current admin/member/revoked authority, safe Session facts, strict query and original cursor semantics")
+}

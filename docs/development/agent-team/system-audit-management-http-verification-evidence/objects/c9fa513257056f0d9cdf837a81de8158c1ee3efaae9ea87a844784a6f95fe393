@@ -1,0 +1,732 @@
+package audithttp
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"os"
+	"path/filepath"
+	"reflect"
+	"regexp"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	c "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+const wireID = "01900000-0000-7000-8000-000000000001"
+
+type typedCase struct {
+	action, resource, metadata string
+	service                    identity.ServiceName
+	outcome                    c.Outcome
+}
+
+func typedCases() []typedCase {
+	id := `"` + wireID + `"`
+	version := `"version":"1"`
+	account := func(phase, fields string) string { return `{` + version + `,"phase":"` + phase + `",` + fields + `}` }
+	return []typedCase{
+		{"secret.create", "secret", `{` + version + `,"changed_fields":["purpose","value"]}`, "", c.Success},
+		{"secret.update", "secret", `{` + version + `,"changed_fields":["value"]}`, "", c.Unknown},
+		{"secret.delete", "secret", `{` + version + `}`, "", c.Denied},
+		{"secret.resolve", "secret", `{"lease_id":` + id + `,"consumer":"smtp"}`, "", c.Success},
+		{"secret.master.register", "secret_master", `{` + version + `}`, identity.SecretService, c.Success},
+		{"secret.master.rotation.start", "secret_rotation", `{` + version + `,"rotation_id":` + id + `,"count":"0"}`, identity.SecretMaintenance, c.Success},
+		{"secret.master.rotation.complete", "secret_rotation", `{` + version + `,"rotation_id":` + id + `,"count":"9"}`, identity.SecretMaintenance, c.Success},
+		{"secret.master.rotation.failed", "secret_rotation", `{` + version + `,"rotation_id":` + id + `,"count":"0","reason":"cancelled"}`, identity.SecretMaintenance, c.Failed},
+		{"outbound.policy.update", "outbound_policy", `{` + version + `,"rule_count":"256"}`, "", c.Unknown},
+		{"outbound.access.deny", "outbound_policy", `{` + version + `,"consumer":"smtp","reason":"permission_denied"}`, identity.OutboundService, c.Denied},
+		{"object.upload.complete", "stored_object", `{"object_id":` + id + `,"initiator_kind":"agent_run","initiator_id":` + id + `,"initiator_execution_id":` + id + `,"media_type":"text/a&b","byte_size":"5","sent_bytes":"3","phase":"published"}`, identity.ObjectService, c.Success},
+		{"object.upload.failed", "stored_object", `{"object_id":` + id + `,"initiator_kind":"human","initiator_id":` + id + `,"media_type":"text/plain","byte_size":"5","sent_bytes":"2","phase":"failed","reason":"cancelled"}`, identity.ObjectMaintenance, c.Unknown},
+		{"object.delete", "stored_object", `{"object_id":` + id + `,"initiator_kind":"service","initiator_id":` + id + `,"media_type":"text/plain; charset=utf-8","byte_size":"0","sent_bytes":"0","phase":"deleted"}`, identity.ObjectService, c.Success},
+		{"outbox.delivery.requeue", "outbox_delivery", `{"delivery_id":` + id + `,"event_id":` + id + `,"handler_id":"handler.a-1","from_state":"dead_letter","redrive_cycle":"2","reason_code":"operator_retry"}`, "", c.Success},
+		{"account.bootstrap", "user", account("created", `"user_id":`+id), identity.AccountBootstrap, c.Success},
+		{"account.login", "account_attempt", account("authenticated", `"attempt_id":`+id+`,"user_id":`+id+`,"session_id":`+id), "", c.Success},
+		{"account.logout", "session", account("revoked", `"user_id":`+id+`,"session_id":`+id), "", c.Success},
+		{"account.invite.create", "invitation", account("created", `"invitation_id":`+id+`,"initiator_id":`+id+`,"channel":"log"`), "", c.Success},
+		{"account.invite.revoke", "invitation", account("revoked", `"invitation_id":`+id), "", c.Success},
+		{"account.invite.redeem", "user", account("redeemed", `"user_id":`+id+`,"invitation_id":`+id), "", c.Success},
+		{"account.password.reset.request", "account_attempt", account("accepted", `"attempt_id":`+id), identity.AccountAuth, c.Success},
+		{"account.password.reset.complete", "password_reset", account("redeemed", `"user_id":`+id+`,"reset_id":`+id), "", c.Success},
+		{"account.password.change", "user", account("updated", `"user_id":`+id+`,"changed_fields":["password"]`), "", c.Success},
+		{"account.profile.update", "user", account("updated", `"user_id":`+id+`,"changed_fields":["display_name","theme","username"]`), "", c.Success},
+		{"account.avatar.update", "user", account("updated", `"user_id":`+id+`,"changed_fields":["avatar"]`), "", c.Success},
+		{"account.settings.update", "account_settings", account("updated", `"changed_fields":["session_idle_seconds","session_absolute_seconds","password_reset_seconds","challenge_after_failures"]`), "", c.Success},
+		{"smtp.settings.update", "smtp_settings", account("updated", `"changed_fields":["host","port","tls_mode","auth_username","password","from","enabled","sender_name","auto_retry_count","retry_interval_seconds"]`), "", c.Success},
+		{"smtp.test.request", "mail_job", account("accepted", `"job_id":`+id+`,"channel":"smtp"`), "", c.Success},
+		{"smtp.delivery.retry", "mail_job", account("accepted", `"job_id":`+id+`,"initiator_id":`+id), "", c.Success},
+		{"smtp.delivery", "mail_job", account("unknown", `"job_id":`+id+`,"attempt_id":`+id+`,"channel":"smtp","reason":"delivery_unknown"`), identity.AccountMail, c.Unknown},
+		{"provider.create", "model_provider", `{` + version + `,"provider_id":` + id + `,"changed_fields":["created"]}`, "", c.Success},
+		{"provider.update", "model_provider", `{` + version + `,"provider_id":` + id + `,"changed_fields":["base_url","credential_ref","enabled","name","provider_options"]}`, "", c.Success},
+		{"provider.delete", "model_provider", `{` + version + `,"provider_id":` + id + `,"changed_fields":["deleted"]}`, "", c.Success},
+		{"model.create", "model_config", `{` + version + `,"provider_id":` + id + `,"model_id":` + id + `,"changed_fields":["created"]}`, "", c.Success},
+		{"model.update", "model_config", `{` + version + `,"provider_id":` + id + `,"model_id":` + id + `,"changed_fields":["capabilities","enabled","header_overwrite","model_id","name","parameters","request_overwrite"]}`, "", c.Success},
+		{"model.delete", "model_config", `{` + version + `,"provider_id":` + id + `,"model_id":` + id + `,"changed_fields":["deleted","replacement"],"replacement_id":` + id + `,"affected_count":"9"}`, "", c.Success},
+		{"model.selection.update", "model_selection", `{` + version + `,"selection_id":` + id + `,"selector_kind":"platform","changed_fields":["selection"]}`, "", c.Success},
+	}
+}
+
+func typedRecord(t *testing.T, tc typedCase) c.SafeRecord {
+	t.Helper()
+	u, _ := foundation.ParseID[identity.User](wireID)
+	session, _ := foundation.ParseID[identity.Session]("01900000-0000-7000-8000-000000000002")
+	actor, _ := identity.NewHuman(u, session)
+	if tc.service != "" {
+		registration, err := identity.RegisterService(tc.service)
+		if err != nil {
+			t.Fatal(err)
+		}
+		actor, err = registration.Actor("sha256:"+strings.Repeat("a", 64), identity.SystemScope())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	id := wireID
+	if tc.resource == "secret_master" || tc.resource == "outbound_policy" {
+		id = ""
+	}
+	resource, err := c.NewResource(c.ResourceKind(tc.resource), id)
+	if err != nil {
+		t.Fatal("invalid resource prerequisite", err)
+	}
+	metadata, err := c.DecodeMetadata(c.Action(tc.action), []byte(tc.metadata))
+	if err != nil {
+		t.Fatal("invalid typed metadata prerequisite", tc.action, err)
+	}
+	entry, err := c.NewEntry(c.EntryFields{Scope: identity.SystemScope(), Actor: actor, Action: c.Action(tc.action), Outcome: tc.outcome, Resource: resource, Metadata: metadata})
+	if err != nil {
+		t.Fatal("invalid typed entry prerequisite", tc.action, err)
+	}
+	fields := entry.Fields()
+	aid, _ := foundation.ParseID[c.Record](wireID)
+	at, err := foundation.NewInstant(time.Date(2026, 10, 6, 0, 0, 0, 123456000, time.UTC))
+	if err != nil {
+		t.Fatal(err)
+	}
+	summary := c.ActorSummary{Kind: identity.Human, ID: wireID}
+	if tc.service != "" {
+		summary = c.ActorSummary{Kind: identity.Service, Service: tc.service, CauseRef: actor.Details().CauseRef}
+	}
+	return c.SafeRecord{AppendReceipt: c.AppendReceipt{AuditID: aid, CreatedAt: at}, Scope: fields.Scope, Actor: summary, Action: fields.Action, Outcome: fields.Outcome, Resource: fields.Resource, Metadata: fields.Metadata, Associations: fields.Associations, Summary: "untrusted-summary-canary"}
+}
+
+func TestAuditHTTPPureTypedProjection(t *testing.T) {
+	cases := typedCases()
+	if len(cases) != 37 {
+		t.Fatal("missing System action")
+	}
+	for _, tc := range cases {
+		t.Run(tc.action, func(t *testing.T) {
+			record := typedRecord(t, tc)
+			body, err := encodeRecord(record)
+			if err != nil {
+				t.Fatal("formal typed record rejected", err)
+			}
+			var object map[string]any
+			if json.Unmarshal(body, &object) != nil || len(object) != 10 || object["scope"] != "system" || bytes.Contains(body, []byte("untrusted-summary-canary")) {
+				t.Fatal("not the explicit closed DTO")
+			}
+			actor := object["actor"].(map[string]any)
+			if tc.service == "" && (len(actor) != 2 || actor["id"] != wireID) || tc.service != "" && len(actor) != 3 {
+				t.Fatal("actor projection widened")
+			}
+			if tc.action == "account.logout" && (object["resource"].(map[string]any)["id"] != wireID || object["metadata"].(map[string]any)["session_id"] != wireID) {
+				t.Fatal("legitimate Session audit identity removed")
+			}
+			if tc.action == "object.upload.complete" && (!bytes.Contains(body, []byte(`\u0026`)) || bytes.Contains(body, []byte(`\\u0026`))) {
+				t.Fatal("typed escaping changed or doubled")
+			}
+		})
+	}
+	services := []identity.ServiceName{identity.SecretService, identity.SecretMaintenance, identity.OutboundService, identity.ObjectService, identity.ObjectMaintenance, identity.ProjectLifecycle, identity.OutboxDelivery, identity.AccountBootstrap, identity.AccountAuth, identity.AccountMaintenance, identity.AccountMail, identity.ModelRuntime, identity.ProjectInitialization}
+	for _, service := range services {
+		tc := cases[0]
+		tc.service = service
+		if _, err := encodeRecord(typedRecord(t, tc)); err != nil {
+			t.Fatal("registered service was narrowed", service)
+		}
+	}
+	for _, change := range []func(*c.SafeRecord){
+		func(r *c.SafeRecord) { r.Actor.ProjectID = wireID }, func(r *c.SafeRecord) { r.Actor.Kind = identity.AgentRun }, func(r *c.SafeRecord) { r.Actor.ID = "bad" },
+		func(r *c.SafeRecord) { r.AuditID = c.ID{} }, func(r *c.SafeRecord) { r.Action = c.AccountLogout }, func(r *c.SafeRecord) { r.Associations.ExecutionID = wireID },
+		func(r *c.SafeRecord) {
+			p, _ := foundation.ParseID[identity.Project](wireID)
+			r.Scope, _ = identity.InProject(p)
+		},
+		func(r *c.SafeRecord) { r.Resource, _ = c.NewResource(c.ModelConfigResource, wireID) },
+	} {
+		record := typedRecord(t, cases[0])
+		change(&record)
+		if body, err := encodePage(foundation.Page[c.SafeRecord]{Items: []c.SafeRecord{typedRecord(t, cases[0]), record}}); err == nil || body != nil {
+			t.Fatal("bad record exposed partial page")
+		}
+	}
+	model := typedRecord(t, cases[len(cases)-1])
+	model.Associations.RequestID = wireID
+	if _, err := encodeRecord(model); err == nil {
+		t.Fatal("Model association widened")
+	}
+}
+
+func TestAuditHTTPPureQueryClosure(t *testing.T) {
+	filter, page, err := query("", false)
+	if err != nil || page.Limit != 50 || filter.Validate() != nil {
+		t.Fatal("default page")
+	}
+	for _, raw := range []string{"limit=0", "limit=201", "limit=", "limit=01", "limit=+1", "limit=1e2", "limit=1&limit=1", "scope=system", "project_id=" + wireID, "actor_kind=service&actor_id=" + wireID, "x[]=a", "cursor=%", "limit=1;action=", "from=not-time", "from=2026-10-06T00:00:00Z&to=2026-10-06T00:00:00Z", "action=unknown", "actor_id=bad", strings.Repeat("x", (32<<10)+1)} {
+		if _, _, err := query(raw, false); err == nil {
+			t.Errorf("accepted invalid query %q", raw[:min(len(raw), 80)])
+		}
+	}
+	if _, _, err := query("", true); err == nil {
+		t.Fatal("bare ? accepted")
+	}
+	if _, _, err := query("cursor="+strings.Repeat("A", 8193), false); err == nil {
+		t.Fatal("cursor bound ignored")
+	}
+	values := url.Values{"limit": {"200"}, "cursor": {""}, "from": {"2026-10-06T02:00:00+02:00"}, "to": {"2026-10-07T00:00:00.000001Z"}, "actor_kind": {"agent_run"}, "actor_id": {wireID}, "action": {"project.create.accepted"}, "outcome": {"unknown"}, "resource_kind": {"agent"}, "resource_id": {wireID}, "tool_id": {wireID}, "execution_id": {wireID}, "operation_id": {wireID}, "approval_id": {wireID}, "runner_id": {wireID}, "agent_id": {wireID}}
+	filter, page, err = query(values.Encode(), false)
+	if err != nil || page.Limit != 200 || filter.From.String() != "2026-10-06T00:00:00.000000Z" || filter.ExecutionID != wireID || filter.AgentID != wireID {
+		t.Fatal("original full Filter narrowed", err)
+	}
+}
+
+func TestAuditHTTPPureEncodedBudget(t *testing.T) {
+	record := typedRecord(t, typedCases()[6])
+	record.Actor = c.ActorSummary{Kind: identity.Service, Service: identity.ProjectInitialization, CauseRef: "sha256:" + strings.Repeat("f", 64)}
+	record.Associations = c.Associations{ToolID: wireID, RequestID: wireID, RunnerID: wireID, CorrelationID: wireID, HTTPTraceID: wireID}
+	items := make([]c.SafeRecord, 200)
+	for i := range items {
+		items[i] = record
+	}
+	body, err := encodePage(foundation.Page[c.SafeRecord]{Items: items, NextCursor: strings.Repeat("A", 8192)})
+	if err != nil || len(body) > successBytes {
+		t.Fatal("bounded typed page rejected", err)
+	}
+	empty, err := encodePage(foundation.Page[c.SafeRecord]{})
+	if err != nil || string(empty) != `{"items":[],"next_cursor":null}` {
+		t.Fatal("empty page contract")
+	}
+	if b, err := encode(struct {
+		Value string `json:"value"`
+	}{strings.Repeat("X", successBytes)}); err == nil || b != nil {
+		t.Fatal("final encoded byte limit missing")
+	}
+	for _, token := range []string{"bad<token", strings.Repeat("A", 8193)} {
+		if _, err := encodePage(foundation.Page[c.SafeRecord]{NextCursor: token}); err == nil {
+			t.Fatal("unsafe cursor escaped budget")
+		}
+	}
+	// Synthetic JSON escaping only: these characters are not asserted to be
+	// legal typed metadata or a reachable maximal producer payload.
+	data, err := encode(struct {
+		M json.RawMessage `json:"m"`
+	}{json.RawMessage(`{"s":"\u003c\u003e\u0026\u2028\u2029"}`)})
+	if err != nil || bytes.Contains(data, []byte(`\\u`)) || bytes.Count(data, []byte(`\u`)) != 5 {
+		t.Fatal("RawMessage was double encoded")
+	}
+	// The longest ASCII shell is a conservative Cartesian upper bound.
+	shell := recordDTO{AuditID: record.AuditID, CreatedAt: record.CreatedAt, Scope: "system", Actor: serviceActor{"service", identity.ProjectInitialization, "sha256:" + strings.Repeat("f", 64)}, Action: c.RotationComplete, Outcome: c.Success, Resource: resourceDTO{c.AccountSettingsResource, wireID}, Associations: associationsDTO{wireID, wireID, wireID, wireID, wireID}, Summary: "Master key rotation completed"}
+	raw, _ := json.Marshal(shell)
+	if len(raw)-4 != 739 || (len(raw)-4+4096)*200+8420 != 975420 {
+		t.Fatal("encoded budget arithmetic changed")
+	}
+}
+
+type testBoundary struct {
+	check func(http.ResponseWriter, *http.Request) error
+	auth  func(*http.Request) (identity.Actor, error)
+	calls atomic.Int32
+}
+
+func (b *testBoundary) CheckRequest(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Referrer-Policy", "no-referrer")
+	if b.check != nil {
+		return b.check(w, r)
+	}
+	return nil
+}
+func (b *testBoundary) RequireSystem(r *http.Request, intent identity.AccessIntent) (identity.Actor, error) {
+	b.calls.Add(1)
+	if intent != identity.Read {
+		return identity.Actor{}, fault(foundation.Forbidden)
+	}
+	if b.auth != nil {
+		return b.auth(r)
+	}
+	u, _ := foundation.ParseID[identity.User](wireID)
+	s, _ := foundation.ParseID[identity.Session](wireID)
+	return identity.NewHuman(u, s)
+}
+func (b *testBoundary) WriteProblem(w http.ResponseWriter, r *http.Request, err error) {
+	clone := r.Clone(r.Context())
+	u := *r.URL
+	u.Path = "/api/v1"
+	u.RawPath = ""
+	clone.URL = &u
+	httpapi.WriteProblem(w, clone, err)
+}
+
+type testReader struct {
+	list  func(context.Context) (foundation.Page[c.SafeRecord], error)
+	get   func(context.Context) (c.SafeRecord, error)
+	calls atomic.Int32
+}
+
+func (s *testReader) ListSystem(ctx context.Context, _ identity.Actor, _ c.Filter, _ foundation.PageRequest) (foundation.Page[c.SafeRecord], error) {
+	s.calls.Add(1)
+	if s.list != nil {
+		return s.list(ctx)
+	}
+	return foundation.Page[c.SafeRecord]{}, nil
+}
+func (s *testReader) GetSystem(ctx context.Context, _ identity.Actor, _ c.ID) (c.SafeRecord, error) {
+	s.calls.Add(1)
+	return s.get(ctx)
+}
+
+type budgetWriter struct {
+	*httptest.ResponseRecorder
+	mu            sync.Mutex
+	reads, writes []time.Time
+	setRead       func(time.Time) error
+	flushErr      error
+	short         bool
+	flushes       int
+}
+
+func newBudgetWriter() *budgetWriter { return &budgetWriter{ResponseRecorder: httptest.NewRecorder()} }
+func (w *budgetWriter) SetReadDeadline(at time.Time) error {
+	if w.setRead != nil {
+		if err := w.setRead(at); err != nil {
+			return err
+		}
+	}
+	w.mu.Lock()
+	w.reads = append(w.reads, at)
+	w.mu.Unlock()
+	return nil
+}
+func (w *budgetWriter) SetWriteDeadline(at time.Time) error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.writes = append(w.writes, at)
+	return nil
+}
+func (w *budgetWriter) Write(p []byte) (int, error) {
+	if w.short {
+		return len(p) - 1, nil
+	}
+	return w.ResponseRecorder.Write(p)
+}
+func (w *budgetWriter) FlushError() error { w.flushes++; return w.flushErr }
+func aborts(run func()) (aborted bool) {
+	defer func() {
+		if value := recover(); value != nil {
+			if value != http.ErrAbortHandler {
+				panic(value)
+			}
+			aborted = true
+		}
+	}()
+	run()
+	return false
+}
+
+type closeBody struct {
+	io.Reader
+	close  func() error
+	closed atomic.Int32
+}
+
+func (b *closeBody) Close() error {
+	b.closed.Add(1)
+	if b.close != nil {
+		return b.close()
+	}
+	return nil
+}
+
+func TestAuditHTTPPureRoutesAndAuthorizationOrder(t *testing.T) {
+	for _, tc := range []struct {
+		method, path       string
+		status, auth, read int
+	}{
+		{"GET", auditPath, 200, 1, 1}, {"HEAD", auditPath, 405, 0, 0}, {"POST", auditPath, 405, 0, 0}, {"OPTIONS", auditPath + "/" + wireID, 405, 0, 0},
+		{"GET", auditPath + "/", 404, 0, 0}, {"GET", auditPath + "/" + wireID + "/", 404, 0, 0}, {"GET", auditPath + "/not-id", 400, 1, 0},
+		{"GET", auditPath + "/" + wireID + "?", 400, 1, 0}, {"GET", auditPath + "?x=1", 400, 1, 0}, {"GET", auditPath + "-near", 404, 0, 0},
+	} {
+		t.Run(tc.method+tc.path, func(t *testing.T) {
+			b, s := &testBoundary{}, &testReader{}
+			h := &systemHTTP{s, b}
+			w := newBudgetWriter()
+			r := httptest.NewRequest(tc.method, tc.path, nil)
+			if aborts(func() { httpapi.Handler(nil, h).ServeHTTP(w, r) }) {
+				t.Fatal("normal response aborted")
+			}
+			if w.Code != tc.status || int(b.calls.Load()) != tc.auth || int(s.calls.Load()) != tc.read {
+				t.Fatal("route/order changed", w.Code, b.calls.Load(), s.calls.Load())
+			}
+			if tc.status == 405 && w.Header().Get("Allow") != "GET" {
+				t.Fatal("wrong Allow")
+			}
+			if tc.method == "HEAD" && w.Body.Len() != 0 {
+				t.Fatal("HEAD error body")
+			}
+			if tc.status != 200 && tc.method != "HEAD" {
+				var problem map[string]any
+				_ = json.Unmarshal(w.Body.Bytes(), &problem)
+				if problem["instance"] != "/api/v1" {
+					t.Fatal("reflected request")
+				}
+			}
+			if w.flushes != 1 || !w.reads[len(w.reads)-1].IsZero() || !w.writes[len(w.writes)-1].IsZero() {
+				t.Fatal("response tail did not finish/reset")
+			}
+		})
+	}
+	b := &testBoundary{auth: func(*http.Request) (identity.Actor, error) { return identity.Actor{}, fault(foundation.Forbidden) }}
+	s := &testReader{}
+	w := newBudgetWriter()
+	(&systemHTTP{s, b}).ServeHTTP(w, httptest.NewRequest("GET", auditPath+"?bad=1", nil))
+	if w.Code != 403 || s.calls.Load() != 0 {
+		t.Fatal("parsing bypassed current authority")
+	}
+	if _, err := NewSystemHTTPHandler(nil, nil, SystemHTTPOptions{}); err == nil {
+		t.Fatal("nil constructor accepted")
+	}
+}
+
+func TestAuditHTTPPureBodyWriteAndCapabilities(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		length   int64
+		transfer []string
+		body     string
+	}{
+		{"nonzero", 1, nil, "x"}, {"unknown", -1, nil, ""}, {"chunked", 0, []string{"chunked"}, ""}, {"actual-nonempty", 0, nil, "x"}, {"actual-eof", 0, nil, ""},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			b, s := &testBoundary{}, &testReader{}
+			body := &closeBody{Reader: strings.NewReader(tc.body)}
+			r := httptest.NewRequest("GET", auditPath, nil)
+			r.Body = body
+			r.ContentLength = tc.length
+			r.TransferEncoding = tc.transfer
+			w := newBudgetWriter()
+			(&systemHTTP{s, b}).ServeHTTP(w, r)
+			want := 400
+			if tc.name == "actual-eof" {
+				want = 200
+			}
+			if w.Code != want || body.closed.Load() != 1 || (want == 400 && s.calls.Load() != 0) {
+				t.Fatal("framing/actual body/close boundary changed")
+			}
+		})
+	}
+	for _, name := range []string{"capability", "short-write", "flush-error"} {
+		t.Run(name, func(t *testing.T) {
+			b, s := &testBoundary{}, &testReader{}
+			h := &systemHTTP{s, b}
+			var w http.ResponseWriter = httptest.NewRecorder()
+			if name != "capability" {
+				v := newBudgetWriter()
+				v.short = name == "short-write"
+				if name == "flush-error" {
+					v.flushErr = errors.New("write-failed")
+				}
+				w = v
+			}
+			if !aborts(func() { h.ServeHTTP(w, httptest.NewRequest("GET", auditPath, nil)) }) {
+				t.Fatal("failed I/O did not abort")
+			}
+			if name == "capability" && (b.calls.Load() != 0 || s.calls.Load() != 0) {
+				t.Fatal("unbounded capability fallback reached services")
+			}
+		})
+	}
+}
+
+func TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin(t *testing.T) {
+	parent, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+	deadline, _ := parent.Deadline()
+	entered, release := make(chan struct{}), make(chan struct{})
+	var once sync.Once
+	w := newBudgetWriter()
+	w.setRead = func(at time.Time) error {
+		if !at.IsZero() && !at.After(time.Now()) {
+			once.Do(func() { close(entered); <-release })
+		}
+		return nil
+	}
+	body := &closeBody{Reader: strings.NewReader("")}
+	b := &testBoundary{auth: func(r *http.Request) (identity.Actor, error) {
+		actual, _ := r.Context().Deadline()
+		if !actual.Equal(deadline) {
+			t.Error("earlier parent was extended before auth")
+		}
+		<-r.Context().Done()
+		<-entered // only the cancellation callback can reach the gate before auth returns
+		return identity.Actor{}, r.Context().Err()
+	}}
+	s := &testReader{}
+	r := httptest.NewRequest("GET", auditPath, nil).WithContext(parent)
+	r.Body = body
+	done, joined := make(chan bool, 1), make(chan struct{})
+	var releaseOnce sync.Once
+	go func() { defer close(joined); done <- aborts(func() { (&systemHTTP{s, b}).ServeHTTP(w, r) }) }()
+	t.Cleanup(func() { cancel(); releaseOnce.Do(func() { close(release) }); <-joined })
+	select {
+	case <-entered:
+	case <-time.After(time.Second):
+		t.Fatal("cancel callback did not run")
+	}
+	select {
+	case <-done:
+		t.Fatal("handler returned before cancellation I/O tail")
+	default:
+	}
+	if s.calls.Load() != 0 {
+		t.Fatal("late preauth reached audit")
+	}
+	releaseOnce.Do(func() { close(release) })
+	if !<-done || body.closed.Load() != 1 {
+		t.Fatal("cancel failed to abort/close")
+	}
+	<-joined
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	if !w.reads[len(w.reads)-1].IsZero() || !w.writes[len(w.writes)-1].IsZero() {
+		t.Fatal("deadline cleared before callback joined")
+	}
+}
+
+// This verifier is confined to the schema keywords used by this document. It
+// checks concrete formal DTOs and negative mutations, not an HTTP implementation.
+func schemaAccepts(root, common map[string]any, schema map[string]any, value any) bool {
+	if reference, ok := schema["$ref"].(string); ok {
+		parts := strings.SplitN(reference, "#", 2)
+		document := root
+		if parts[0] == "./common.json" {
+			document = common
+		}
+		var node any = document
+		for _, part := range strings.Split(strings.TrimPrefix(parts[1], "/"), "/") {
+			node = node.(map[string]any)[part]
+			if node == nil {
+				return false
+			}
+		}
+		return schemaAccepts(document, common, node.(map[string]any), value)
+	}
+	if expected, ok := schema["const"]; ok && !reflect.DeepEqual(expected, value) {
+		return false
+	}
+	if values, ok := schema["enum"].([]any); ok {
+		found := false
+		for _, expected := range values {
+			if reflect.DeepEqual(expected, value) {
+				found = true
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+	for _, key := range []string{"oneOf", "anyOf", "allOf"} {
+		if branches, ok := schema[key].([]any); ok {
+			count := 0
+			for _, branch := range branches {
+				if schemaAccepts(root, common, branch.(map[string]any), value) {
+					count++
+				}
+			}
+			if key == "oneOf" && count != 1 || key == "anyOf" && count == 0 || key == "allOf" && count != len(branches) {
+				return false
+			}
+		}
+	}
+	if branch, ok := schema["not"].(map[string]any); ok && schemaAccepts(root, common, branch, value) {
+		return false
+	}
+	if condition, ok := schema["if"].(map[string]any); ok && schemaAccepts(root, common, condition, value) {
+		if branch, ok := schema["then"].(map[string]any); ok && !schemaAccepts(root, common, branch, value) {
+			return false
+		}
+	}
+	if kind, ok := schema["type"].(string); ok {
+		valid := false
+		switch kind {
+		case "object":
+			_, valid = value.(map[string]any)
+		case "array":
+			_, valid = value.([]any)
+		case "string":
+			_, valid = value.(string)
+		case "null":
+			valid = value == nil
+		case "integer":
+			n, ok := value.(float64)
+			valid = ok && n == float64(int64(n))
+		case "boolean":
+			_, valid = value.(bool)
+		}
+		if !valid {
+			return false
+		}
+	}
+	if object, ok := value.(map[string]any); ok {
+		properties, _ := schema["properties"].(map[string]any)
+		if required, ok := schema["required"].([]any); ok {
+			for _, key := range required {
+				if _, ok := object[key.(string)]; !ok {
+					return false
+				}
+			}
+		}
+		for key, child := range object {
+			if property, ok := properties[key].(map[string]any); ok {
+				if !schemaAccepts(root, common, property, child) {
+					return false
+				}
+			} else if schema["additionalProperties"] == false {
+				return false
+			}
+		}
+	}
+	if text, ok := value.(string); ok {
+		if pattern, ok := schema["pattern"].(string); ok {
+			expression, err := regexp.Compile(pattern)
+			if err != nil {
+				panic(err)
+			}
+			if !expression.MatchString(text) {
+				return false
+			}
+		}
+		if n, ok := schema["minLength"].(float64); ok && len([]rune(text)) < int(n) {
+			return false
+		}
+		if n, ok := schema["maxLength"].(float64); ok && len([]rune(text)) > int(n) {
+			return false
+		}
+	}
+	if array, ok := value.([]any); ok {
+		if n, ok := schema["minItems"].(float64); ok && len(array) < int(n) {
+			return false
+		}
+		if n, ok := schema["maxItems"].(float64); ok && len(array) > int(n) {
+			return false
+		}
+		for i, child := range array {
+			if item, ok := schema["items"].(map[string]any); ok && !schemaAccepts(root, common, item, child) {
+				return false
+			}
+			if schema["uniqueItems"] == true {
+				for _, before := range array[:i] {
+					if reflect.DeepEqual(before, child) {
+						return false
+					}
+				}
+			}
+		}
+	}
+	return true
+}
+
+func TestAuditHTTPPureOpenAPIClosedContract(t *testing.T) {
+	load := func(name string) map[string]any {
+		t.Helper()
+		path := filepath.Join("..", "..", "..", "..", "api", "openapi", name)
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var value map[string]any
+		if json.Unmarshal(raw, &value) != nil {
+			t.Fatal("invalid OpenAPI JSON")
+		}
+		return value
+	}
+	document, common := load("audit.json"), load("common.json")
+	paths := document["paths"].(map[string]any)
+	if len(paths) != 2 || len(common["paths"].(map[string]any)) != 0 {
+		t.Fatal("route scope widened")
+	}
+	for path, item := range paths {
+		operations := item.(map[string]any)
+		if len(operations) != 1 || operations["get"] == nil {
+			t.Fatal("GET-only drift")
+		}
+		op := operations["get"].(map[string]any)
+		security := op["security"].([]any)
+		if len(security) != 2 || len(security[0].(map[string]any)) != 1 || len(security[1].(map[string]any)) != 1 || security[0].(map[string]any)["Session"] == nil || security[1].(map[string]any)["LocalSession"] == nil {
+			t.Fatal("anonymous/CSRF security drift")
+		}
+		params := op["parameters"].([]any)
+		if path == auditPath {
+			names := map[string]bool{}
+			for _, p := range params {
+				names[p.(map[string]any)["name"].(string)] = true
+			}
+			if len(names) != 16 {
+				t.Fatal("filter parameter count")
+			}
+			for _, name := range []string{"limit", "cursor", "from", "to", "actor_kind", "actor_id", "action", "outcome", "resource_kind", "resource_id", "tool_id", "execution_id", "operation_id", "approval_id", "runner_id", "agent_id"} {
+				if !names[name] {
+					t.Fatal("missing filter", name)
+				}
+			}
+		} else if path != auditPath+"/{id}" || len(params) != 1 {
+			t.Fatal("detail route mismatch")
+		}
+	}
+	schemas := document["components"].(map[string]any)["schemas"].(map[string]any)
+	schema := schemas["SystemAuditRecord"].(map[string]any)
+	if len(schema["oneOf"].([]any)) != 37 {
+		t.Fatal("action branch count")
+	}
+	for _, tc := range typedCases() {
+		t.Run(tc.action, func(t *testing.T) {
+			body, err := encodeRecord(typedRecord(t, tc))
+			if err != nil {
+				t.Fatal(err)
+			}
+			var value map[string]any
+			_ = json.Unmarshal(body, &value)
+			if !schemaAccepts(document, common, schema, value) {
+				t.Fatal("schema rejected formal DTO", tc.action)
+			}
+			value["extra"] = true
+			if schemaAccepts(document, common, schema, value) {
+				t.Fatal("schema unknown record field")
+			}
+			delete(value, "extra")
+			meta := value["metadata"].(map[string]any)
+			meta["extra"] = true
+			if schemaAccepts(document, common, schema, value) {
+				t.Fatal("schema arbitrary metadata")
+			}
+			delete(meta, "extra")
+			value["scope"] = "project"
+			if schemaAccepts(document, common, schema, value) {
+				t.Fatal("System schema accepted Project")
+			}
+		})
+	}
+}

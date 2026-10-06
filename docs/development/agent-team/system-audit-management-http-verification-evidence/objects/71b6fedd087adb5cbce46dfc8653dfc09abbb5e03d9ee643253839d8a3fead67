@@ -1,0 +1,160 @@
+package audithttp
+
+import (
+ "bytes"
+ "context"
+ "encoding/json"
+ "errors"
+ "fmt"
+ "io"
+ "net/http"
+ "net/http/httptest"
+ "strings"
+ "sync"
+ "sync/atomic"
+ "testing"
+ "time"
+
+ c "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+ f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ "github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+ id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+func indID(n int) string { return fmt.Sprintf("01900000-0000-7000-8000-%012x", n) }
+func indActor() id.Actor {
+ u,_:=f.ParseID[id.User](indID(11)); s,_:=f.ParseID[id.Session](indID(12)); a,_:=id.NewHuman(u,s); return a
+}
+func indRecord(t *testing.T, action c.Action) c.SafeRecord {
+ t.Helper()
+ actor, kind, resourceID, outcome := indActor(), c.SessionResource, indID(12), c.Success
+ var raw string
+ switch action {
+ case c.AccountLogout:
+  raw=fmt.Sprintf(`{"version":"7","phase":"revoked","user_id":%q,"session_id":%q}`,indID(11),indID(12))
+ case c.ModelDelete:
+  kind,resourceID=c.ModelConfigResource,indID(14)
+  raw=fmt.Sprintf(`{"version":"9","provider_id":%q,"model_id":%q,"changed_fields":["deleted","replacement"],"affected_count":"2","replacement_id":%q}`,indID(13),indID(14),indID(15))
+ case c.ObjectUploadComplete:
+  kind,resourceID=c.ObjectResource,indID(16)
+  reg,e:=id.RegisterService(id.ObjectService); if e!=nil {t.Fatal("service fixture invalid")}
+  actor,e=reg.Actor("sha256:"+strings.Repeat("a",64),id.SystemScope());if e!=nil {t.Fatal("service actor fixture invalid")}
+  raw=fmt.Sprintf(`{"object_id":%q,"initiator_kind":"human","initiator_id":%q,"media_type":"text/x-a&b","byte_size":"8","sent_bytes":"8","phase":"published"}`,indID(16),indID(11))
+ default: t.Fatal("unexpected private typed sample")
+ }
+ meta,e:=c.DecodeMetadata(action,[]byte(raw));if e!=nil {t.Fatal("formal metadata prerequisite",e)}
+ resource,e:=c.NewResource(kind,resourceID);if e!=nil {t.Fatal("formal resource prerequisite",e)}
+ assoc:=c.Associations{CorrelationID:indID(17),HTTPTraceID:indID(18)}
+ entry,e:=c.NewEntry(c.EntryFields{Scope:id.SystemScope(),Actor:actor,Action:action,Outcome:outcome,Resource:resource,Metadata:meta,Associations:assoc});if e!=nil {t.Fatal("formal entry prerequisite",e)}
+ fields:=entry.Fields();aid,_:=f.ParseID[c.Record](indID(19));at,e:=f.NewInstant(time.Date(2026,10,6,1,2,3,456789000,time.UTC));if e!=nil {t.Fatal(e)}
+ a:=c.ActorSummary{Kind:id.Human,ID:indID(11)}
+ if actor.Details().Kind==id.Service { a=c.ActorSummary{Kind:id.Service,Service:id.ObjectService,CauseRef:actor.Details().CauseRef} }
+ return c.SafeRecord{AppendReceipt:c.AppendReceipt{AuditID:aid,CreatedAt:at},Scope:fields.Scope,Actor:a,Action:fields.Action,Outcome:fields.Outcome,Resource:fields.Resource,Metadata:fields.Metadata,Associations:fields.Associations,Summary:"PRIVATE_SUMMARY_MUST_NOT_ESCAPE"}
+}
+
+type indBoundary struct { checks,auths,problems atomic.Int32; check func(*http.Request) error; auth func(*http.Request)(id.Actor,error) }
+func(b *indBoundary)CheckRequest(w http.ResponseWriter,r *http.Request)error{b.checks.Add(1);w.Header().Set("Cache-Control","no-store");if b.check!=nil{return b.check(r)};return nil}
+func(b *indBoundary)RequireSystem(r *http.Request,intent id.AccessIntent)(id.Actor,error){b.auths.Add(1);if intent!=id.Read{return id.Actor{},f.NewFault(f.Forbidden,f.NotStarted)};if b.auth!=nil{return b.auth(r)};return indActor(),nil}
+func(b *indBoundary)WriteProblem(w http.ResponseWriter,r *http.Request,e error){b.problems.Add(1);cl:=r.Clone(r.Context());u:=*r.URL;u.Path="/api/v1";u.RawPath="";cl.URL=&u;httpapi.WriteProblem(w,cl,e)}
+type indReader struct {calls atomic.Int32; list func(context.Context,c.Filter,f.PageRequest)(f.Page[c.SafeRecord],error);get func(context.Context,c.ID)(c.SafeRecord,error)}
+func(s *indReader)ListSystem(ctx context.Context,_ id.Actor,q c.Filter,p f.PageRequest)(f.Page[c.SafeRecord],error){s.calls.Add(1);if s.list!=nil{return s.list(ctx,q,p)};return f.Page[c.SafeRecord]{},nil}
+func(s *indReader)GetSystem(ctx context.Context,_ id.Actor,key c.ID)(c.SafeRecord,error){s.calls.Add(1);if s.get!=nil{return s.get(ctx,key)};return c.SafeRecord{},f.NewFault(f.NotFound,f.NotStarted)}
+type indWriter struct {mu sync.Mutex;headers http.Header;body bytes.Buffer;status,headerCalls,flushes int;reads,writes []time.Time;failRead,failWrite bool;onPastRead func()}
+func newIndWriter()*indWriter{return &indWriter{headers:make(http.Header)}}
+func(w *indWriter)Header()http.Header{return w.headers}
+func(w *indWriter)WriteHeader(n int){w.mu.Lock();defer w.mu.Unlock();w.headerCalls++;w.status=n}
+func(w *indWriter)Write(b []byte)(int,error){w.mu.Lock();defer w.mu.Unlock();if w.status==0{w.status=200;w.headerCalls++};return w.body.Write(b)}
+func(w *indWriter)FlushError()error{w.mu.Lock();defer w.mu.Unlock();w.flushes++;return nil}
+func(w *indWriter)SetReadDeadline(at time.Time)error{if w.failRead{return errors.New("controlled deadline capability")};if !at.IsZero()&&!at.After(time.Now())&&w.onPastRead!=nil{w.onPastRead()};w.mu.Lock();defer w.mu.Unlock();w.reads=append(w.reads,at);return nil}
+func(w *indWriter)SetWriteDeadline(at time.Time)error{if w.failWrite&&!at.IsZero(){return errors.New("controlled write deadline")};w.mu.Lock();defer w.mu.Unlock();w.writes=append(w.writes,at);return nil}
+func(w *indWriter)state()(int,int,bool){w.mu.Lock();defer w.mu.Unlock();clear:=len(w.reads)>0&&len(w.writes)>0&&w.reads[len(w.reads)-1].IsZero()&&w.writes[len(w.writes)-1].IsZero();return w.status,w.headerCalls,clear}
+type indBody struct{reads,closes atomic.Int32;close func()}
+func(b *indBody)Read([]byte)(int,error){b.reads.Add(1);return 0,io.EOF}
+func(b *indBody)Close()error{b.closes.Add(1);if b.close!=nil{b.close()};return nil}
+func indAborts(fn func())(aborted bool){defer func(){if v:=recover();v!=nil{if v!=http.ErrAbortHandler{panic(v)};aborted=true}}();fn();return false}
+func indWait(t *testing.T,ch <-chan struct{},limit time.Duration){t.Helper();select{case<-ch:case<-time.After(limit):t.Fatal("controlled boundary not reached")}}
+func indNotReturned(t *testing.T,ch <-chan bool){t.Helper();select{case<-ch:t.Fatal("handler escaped actual tail");default:}}
+
+func TestIndependentAuditHTTPDeadlineAndPublication(t *testing.T){
+ t.Run("one-parent-deadline-reader-callback-body-tails",func(t *testing.T){
+  ctx,cancel:=context.WithTimeout(context.Background(),90*time.Millisecond);defer cancel();deadline,_:=ctx.Deadline()
+  readerCancelled,readRelease,cbEntered,cbRelease,closeEntered,closeRelease,joined:=make(chan struct{}),make(chan struct{}),make(chan struct{}),make(chan struct{}),make(chan struct{}),make(chan struct{}),make(chan struct{})
+  var readOnce,cbOnce,closeOnce,gateOnce sync.Once
+  release:=func(){cancel();readOnce.Do(func(){close(readRelease)});cbOnce.Do(func(){close(cbRelease)});closeOnce.Do(func(){close(closeRelease)})}
+  w:=newIndWriter();w.onPastRead=func(){gateOnce.Do(func(){close(cbEntered);<-cbRelease})}
+  body:=&indBody{close:func(){close(closeEntered);<-closeRelease}}
+  var first,second,third time.Time
+  b:=&indBoundary{check:func(r *http.Request)error{first,_=r.Context().Deadline();return nil},auth:func(r *http.Request)(id.Actor,error){second,_=r.Context().Deadline();return indActor(),nil}}
+  record:=indRecord(t,c.AccountLogout)
+  s:=&indReader{list:func(current context.Context,_ c.Filter,_ f.PageRequest)(f.Page[c.SafeRecord],error){third,_=current.Deadline();<-current.Done();close(readerCancelled);<-readRelease;return f.Page[c.SafeRecord]{Items:[]c.SafeRecord{record}},nil}}
+  r:=httptest.NewRequest("GET",auditPath,nil).WithContext(ctx);r.Body=body
+  done:=make(chan bool,1)
+  go func(){defer close(joined);done<-indAborts(func(){(&systemHTTP{s,b}).ServeHTTP(w,r)})}()
+  t.Cleanup(func(){release();<-joined})
+  indWait(t,readerCancelled,time.Second);indWait(t,cbEntered,time.Second)
+  if !first.Equal(deadline)||!second.Equal(deadline)||!third.Equal(deadline){t.Fatal("preauth/query renewed the parent budget")}
+  if status,n,_:=w.state();status!=0||n!=0{t.Fatal("candidate published before reader terminal")}
+  indNotReturned(t,done);readOnce.Do(func(){close(readRelease)});indNotReturned(t,done)
+  cbOnce.Do(func(){close(cbRelease)});indWait(t,closeEntered,time.Second);indNotReturned(t,done)
+  closeOnce.Do(func(){close(closeRelease)})
+  if !<-done{t.Fatal("expired candidate was not aborted")};<-joined
+  status,n,cleared:=w.state();if status!=0||n!=0||!cleared||body.reads.Load()!=1||body.closes.Load()!=1||b.problems.Load()!=0||s.calls.Load()!=1{t.Fatal("late candidate/tail boundary failed")}
+  t.Log("safe: one deadline; reader, cancellation callback and Body.Close joined; zero headers")
+ })
+ t.Run("natural-three-seconds-starts-in-CheckRequest",func(t *testing.T){
+  parent,cancel:=context.WithTimeout(context.Background(),10*time.Second);defer cancel();started:=time.Now()
+  var entryDeadline time.Time
+  b:=&indBoundary{check:func(r *http.Request)error{entryDeadline,_=r.Context().Deadline();<-r.Context().Done();return r.Context().Err()}}
+  s:=&indReader{};w:=newIndWriter();body:=&indBody{};r:=httptest.NewRequest("GET",auditPath,nil).WithContext(parent);r.Body=body
+  if !indAborts(func(){(&systemHTTP{s,b}).ServeHTTP(w,r)}){t.Fatal("expired preauthentication was not aborted")}
+  elapsed:=time.Since(started);status,n,cleared:=w.state()
+  if elapsed<3*time.Second||elapsed>4*time.Second||entryDeadline.Before(started.Add(3*time.Second))||entryDeadline.After(started.Add(3100*time.Millisecond))||parent.Err()!=nil||b.auths.Load()!=0||s.calls.Load()!=0||body.closes.Load()!=1||status!=0||n!=0||!cleared{t.Fatal("local budget or terminal projection changed")}
+  t.Logf("safe: natural preauthentication deadline elapsed_ms=%.3f",float64(elapsed)/float64(time.Millisecond))
+ })
+ t.Run("capability-before-boundary",func(t *testing.T){
+  for _,write:=range []bool{false,true}{b,s,w:=&indBoundary{},&indReader{},newIndWriter();w.failRead=!write;w.failWrite=write
+   if !indAborts(func(){(&systemHTTP{s,b}).ServeHTTP(w,httptest.NewRequest("GET",auditPath,nil))})||b.checks.Load()!=0||b.auths.Load()!=0||b.problems.Load()!=0||s.calls.Load()!=0{t.Fatal("deadline failure reached a service or fallback Problem")}
+  }
+ })
+ t.Run("unknown-and-authority-do-not-publish",func(t *testing.T){
+  record:=indRecord(t,c.AccountLogout)
+  for _,detail:=range []bool{false,true}{
+   err:=f.NewFault(f.CommitUnknown,f.Unknown).WithCause(errors.New("PRIVATE_CAUSE_MUST_NOT_ESCAPE"))
+   s:=&indReader{list:func(context.Context,c.Filter,f.PageRequest)(f.Page[c.SafeRecord],error){return f.Page[c.SafeRecord]{Items:[]c.SafeRecord{record}},err},get:func(context.Context,c.ID)(c.SafeRecord,error){return record,err}}
+   path:=auditPath+"?cursor=PRIVATE_QUERY_MUST_NOT_ESCAPE";if detail{path=auditPath+"/"+indID(19)}
+   b,w:=&indBoundary{},newIndWriter();(&systemHTTP{s,b}).ServeHTTP(w,httptest.NewRequest("GET",path,nil))
+   var value map[string]any;if json.Unmarshal(w.body.Bytes(),&value)!=nil||w.status!=503||value["code"]!="COMMIT_UNKNOWN"||value["commit_state"]!="unknown"||value["retry_hint"]!="lookup"||value["instance"]!="/api/v1"||bytes.Contains(w.body.Bytes(),[]byte("PRIVATE_"))||value["items"]!=nil||value["audit_id"]!=nil{t.Fatal("read Unknown exposed candidate or unsafe data")}
+  }
+  b:=&indBoundary{auth:func(*http.Request)(id.Actor,error){return id.Actor{},f.NewFault(f.Forbidden,f.NotStarted)}};s,w:=&indReader{},newIndWriter();(&systemHTTP{s,b}).ServeHTTP(w,httptest.NewRequest("GET",auditPath+"?limit=01",nil));if w.status!=403||s.calls.Load()!=0{t.Fatal("query parsing preceded current authority")}
+ })
+}
+
+func TestIndependentAuditHTTPWireAndBudget(t *testing.T){
+ t.Run("formal-safe-records-and-bad-late-item",func(t *testing.T){
+  logout,model,object:=indRecord(t,c.AccountLogout),indRecord(t,c.ModelDelete),indRecord(t,c.ObjectUploadComplete)
+  data,e:=encodePage(f.Page[c.SafeRecord]{Items:[]c.SafeRecord{logout,model,object}});if e!=nil{t.Fatal("formal independent page rejected",e)}
+  var page struct{Items []map[string]json.RawMessage `json:"items"`;Next any `json:"next_cursor"`};if json.Unmarshal(data,&page)!=nil||len(page.Items)!=3||page.Next!=nil{t.Fatal("closed page shape")}
+  for _,v:=range page.Items{if len(v)!=10||bytes.Contains(v["summary"],[]byte("PRIVATE_")){t.Fatal("unsafe record projection")}}
+  var actor map[string]string;var meta map[string]any;var resource map[string]string
+  _=json.Unmarshal(page.Items[0]["actor"],&actor);_=json.Unmarshal(page.Items[0]["metadata"],&meta);_=json.Unmarshal(page.Items[0]["resource"],&resource)
+  if len(actor)!=2||actor["id"]!=indID(11)||meta["session_id"]!=indID(12)||resource["id"]!=indID(12){t.Fatal("human clipping removed safe Session identity or added private fields")}
+  if !bytes.Contains(page.Items[2]["metadata"],[]byte(`\u0026`))||bytes.Contains(page.Items[2]["metadata"],[]byte(`\\u0026`)){t.Fatal("typed HTML escaping was lost or doubled")}
+  for _,mutate:=range []func(*c.SafeRecord){func(r *c.SafeRecord){r.Associations.RequestID=indID(18)},func(r *c.SafeRecord){r.Resource,_=c.NewResource(c.ModelConfigResource,indID(15))},func(r *c.SafeRecord){r.Actor=c.ActorSummary{Kind:id.Service,Service:id.ModelRuntime,CauseRef:indID(11)}}}{
+   bad:=model;mutate(&bad);b,e:=encodePage(f.Page[c.SafeRecord]{Items:[]c.SafeRecord{logout,bad}});if e==nil||b!=nil{t.Fatal("bad Model record exposed an earlier page item")}
+  }
+  bad:=object;bad.Actor.CauseRef="PRIVATE_NONCANONICAL_CAUSE";if b,e:=encodePage(f.Page[c.SafeRecord]{Items:[]c.SafeRecord{logout,bad}});e==nil||b!=nil{t.Fatal("invalid Service cause published")}
+  bad=logout;bad.Outcome=c.Denied;if b,e:=encodeRecord(bad);e==nil||b!=nil{t.Fatal("Account phase/outcome mismatch published")}
+ })
+ t.Run("closed-query-and-final-encoded-limit",func(t *testing.T){
+  q,p,e:=query("action=project.update&resource_kind=project&limit=200&cursor=",false);if e!=nil||q.Action!=c.ProjectUpdate||p.Limit!=200||p.Cursor!=""{t.Fatal("legal Project filter was narrowed at the System wire")}
+  for _,raw:=range []string{"limit=2&limit=2","project_id="+indID(11),"from=2026-10-06T00%3A00%3A00Z&to=2026-10-06T00%3A00%3A00Z"}{if _,_,e:=query(raw,false);e==nil{t.Fatal("query ambiguity accepted")}}
+  if _,_,e:=query("cursor="+strings.Repeat("A",8193),false);e==nil{t.Fatal("cursor request bound missing")}
+  record:=indRecord(t,c.ObjectUploadComplete);items:=make([]c.SafeRecord,200)
+  for n:=range items{items[n]=record;items[n].AuditID,_=f.ParseID[c.Record](indID(100+n))}
+  data,e:=encodePage(f.Page[c.SafeRecord]{Items:items,NextCursor:strings.Repeat("A",8192)});if e!=nil||len(data)>975420{t.Fatal("bounded typed page encoding failed")}
+  // Synthetic final-byte guards, not a claim about reachable producer maxima.
+  if data,e:=encode(struct{V string `json:"v"`}{strings.Repeat("<",200000)});e==nil||data!=nil{t.Fatal("HTML-escaped final length bypassed 1MiB guard")}
+  raw:=json.RawMessage(`{"s":"\u003c\u003e\u0026\u2028\u2029"}`);data,e=encode(struct{V json.RawMessage `json:"v"`}{raw});if e!=nil||bytes.Contains(data,[]byte(`\\u`))||bytes.Count(data,[]byte(`\u`))!=5{t.Fatal("RawMessage escaping changed")}
+  t.Log("safe: three formal typed representatives; bad late items zero page; synthetic final-byte guard")
+ })
+}

@@ -1,0 +1,45 @@
+import {readFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+const [currentPath, oldPath, oraclePath]=process.argv.slice(2);
+const current=JSON.parse(readFileSync(currentPath,'utf8'));
+const old=JSON.parse(readFileSync(oldPath,'utf8'));
+const vectors=JSON.parse(readFileSync(oraclePath,'utf8'));
+const nodes=[];
+for(const action of ['ObjectUploadCompleteRecord','ObjectUploadFailedRecord','ObjectDeleteRecord']) {
+  const c=current.components.schemas[action].properties.metadata.oneOf;
+  const p=old.components.schemas[action].properties.metadata.oneOf;
+  assert.equal(c.length,3);assert.equal(p.length,3);
+  c.forEach((branch,i)=>nodes.push({name:`${action}/${i}`,current:branch.properties.media_type,old:p[i].properties.media_type}));
+}
+assert.equal(nodes.length,9);
+function accepts(schema,value,flags='') {
+  assert.deepEqual(Object.keys(schema).sort(),['description','maxLength','minLength','pattern','type',...(schema.not?['not']:[])].sort());
+  assert.equal(schema.type,'string');assert.equal(schema.minLength,1);assert.equal(schema.maxLength,256);
+  if(schema.not) assert.deepEqual(Object.keys(schema.not),['pattern']);
+  return typeof value==='string' && [...value].length>=1 && [...value].length<=256 &&
+    new RegExp(schema.pattern,flags).test(value) && (!schema.not || !new RegExp(schema.not.pattern,flags).test(value));
+}
+let checks=0,legacyValidRejections=0,legacyInvalidAcceptances=0;
+const perBranch=[];
+for(const node of nodes) {
+  let count=0;
+  for(const flags of ['', 'u']) for(const v of vectors) {
+    assert.equal(accepts(node.current,v.value,flags),v.accepted,`${node.name}/${v.name}/${flags}`);
+    const previous=accepts(node.old,v.value,flags);
+    if(v.accepted&&!previous)legacyValidRejections++;
+    if(!v.accepted&&previous)legacyInvalidAcceptances++;
+    checks++;count++;
+  }
+  perBranch.push({branch:node.name,checks:count});
+}
+assert(legacyValidRejections>0);assert.equal(legacyInvalidAcceptances,0);
+const endings=Object.entries({LF:'\n',CR:'\r',CRLF:'\r\n',LS:'\u2028',PS:'\u2029'}).map(([name,end])=>{
+  const value='text/plain'+end;
+  const row={name,bareDollar:new RegExp('^text/plain$').test(value),bareDollarUnicode:new RegExp('^text/plain$','u').test(value),oldFullField:accepts(nodes[0].old,value),currentFullField:accepts(nodes[0].current,value),explicitGuard:new RegExp(nodes[0].current.not.pattern).test(end)};
+  assert(!row.bareDollar&&!row.bareDollarUnicode&&!row.oldFullField&&!row.currentFullField&&row.explicitGuard);return row;
+});
+const over='t/'+'a'.repeat(255);
+assert.equal(Buffer.byteLength(over),257);
+assert(new RegExp(nodes[0].old.pattern).test(over));
+assert(!accepts(nodes[0].old,over));assert(!accepts(nodes[0].current,over));
+console.log(JSON.stringify({node:process.version,flags:['','u'],formalVectors:vectors.length,branches:nodes.length,checks,perBranch,legacyValidRejections,legacyInvalidAcceptances,endings,old257PatternMatches:true,old257FullFieldRejects:true,current257FullFieldRejects:true,scope:'All keywords of nine MIME field subschemas; full record schema is separately checked by Go. No HTTP, browser, Object service or complete OpenAPI engine claim.'},null,2));

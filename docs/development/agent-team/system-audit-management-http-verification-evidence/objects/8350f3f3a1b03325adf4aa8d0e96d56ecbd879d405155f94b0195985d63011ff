@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture.py",
+    "--name",
+    "native01",
+    "--group",
+    "native",
+    "--frozen",
+    "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/driver-stage01/input.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/workspace",
+  "env": {
+    "go": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/gocache",
+    "GOTMPDIR": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/tmp",
+    "TMPDIR": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly"
+  }
+}

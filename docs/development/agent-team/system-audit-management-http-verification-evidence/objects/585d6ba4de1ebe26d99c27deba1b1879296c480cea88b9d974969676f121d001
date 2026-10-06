@@ -1,0 +1,35 @@
+{
+  "status": "preparation only; no candidate/test execution",
+  "baseline": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "fixed_files": [
+    {
+      "git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "api/openapi/audit.json",
+      "snapshot": "/workspace/scratch/agenteam-audit-mime-independent-mszmz_3m/baseline/api/openapi/audit.json",
+      "sha256": "168fc76cf7e0e8f89923e0312dee847ff48dd3de2f37f3f764689ef874300ee9",
+      "bytes": 166333
+    },
+    {
+      "git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/contract/metadata.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-mime-independent-mszmz_3m/baseline/internal/central/audit/contract/metadata.go",
+      "sha256": "bdffe42f77fa2525dbbc03a3d3749af7b7665cb6cf2f995d62b82863a2080646",
+      "bytes": 21891
+    },
+    {
+      "git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/http/handler_test.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-mime-independent-mszmz_3m/baseline/internal/central/audit/http/handler_test.go",
+      "sha256": "ed8ae6dba33473b024cdd8fc7e29a2823cf45e348af3bcc3b12d58576c16149e",
+      "bytes": 44933
+    }
+  ],
+  "frontend_oracle": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/oracle01/mime-report.json",
+    "sha256": "4e42a6cb1a6574d4a2e8ab5187c157e215ff76933b761c474f79fd8667d41904",
+    "snapshot": "/workspace/scratch/agenteam-audit-mime-independent-mszmz_3m/frontend-mime-report01.json",
+    "attribution": "author fixed Go1.27.1 ObjectMetadata/Decode/NewEntry observations, not independently rerun"
+  },
+  "old_schema_locations": 9,
+  "candidate_received": false
+}

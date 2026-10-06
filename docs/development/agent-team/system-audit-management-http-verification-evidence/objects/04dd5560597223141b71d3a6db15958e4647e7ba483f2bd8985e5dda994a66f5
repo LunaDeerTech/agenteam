@@ -1,0 +1,188 @@
+{
+  "http-pure01": {
+    "result": {
+      "exit_code": 1,
+      "elapsed_seconds": 14.699,
+      "actual_wait": true,
+      "pid": 94672,
+      "raw_sha256": "0ec8ab2652e12dc6b89e4178c670758f7d6f53a2f9377f359bfe9183cd4db773"
+    },
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-v",
+      "-count=1",
+      "-timeout=45s",
+      "-run",
+      "^TestAuditHTTPPure",
+      "./internal/central/audit/http"
+    ],
+    "product_matches": {
+      "internal/central/audit/http/handler.go": true,
+      "internal/central/audit/http/wire.go": true,
+      "api/openapi/audit.json": true
+    },
+    "rawsha": "0ec8ab2652e12dc6b89e4178c670758f7d6f53a2f9377f359bfe9183cd4db773",
+    "raw_terminal_lines": [
+      "    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/provider.delete (0.00s)",
+      "    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/model.create (0.00s)",
+      "    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/model.update (0.00s)",
+      "    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/model.delete (0.00s)",
+      "    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/model.selection.update (0.00s)",
+      "FAIL",
+      "FAIL\tgithub.com/LunaDeerTech/agenteam/internal/central/audit/http\t0.112s",
+      "FAIL"
+    ]
+  },
+  "http-pure02": {
+    "result": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.973,
+      "actual_wait": true,
+      "pid": 98709,
+      "raw_sha256": "fb2b977124f887afc24ecac34d8294348982bb2a2d419114e26d8ccd4572a0e0"
+    },
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-v",
+      "-count=1",
+      "-timeout=45s",
+      "-run",
+      "^TestAuditHTTPPure(TypedProjection|OpenAPIClosedContract)$",
+      "./internal/central/audit/http"
+    ],
+    "product_matches": {
+      "internal/central/audit/http/handler.go": true,
+      "internal/central/audit/http/wire.go": true,
+      "api/openapi/audit.json": true
+    },
+    "rawsha": "fb2b977124f887afc24ecac34d8294348982bb2a2d419114e26d8ccd4572a0e0",
+    "raw_terminal_lines": [
+      "    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/provider.update (0.00s)",
+      "    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/provider.delete (0.00s)",
+      "    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.create (0.00s)",
+      "    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.update (0.00s)",
+      "    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.delete (0.00s)",
+      "    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.selection.update (0.00s)",
+      "PASS",
+      "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/audit/http\t0.133s"
+    ]
+  },
+  "http-pure03": {
+    "result": {
+      "exit_code": 0,
+      "elapsed_seconds": 4.152,
+      "actual_wait": true,
+      "pid": 100589,
+      "raw_sha256": "874b4329229a1ff7775e15989eac3636e84d4a5812745c0826acfbffc322c758"
+    },
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-v",
+      "-count=1",
+      "-timeout=45s",
+      "-run",
+      "^TestAuditHTTPPure(PreauthenticationBudgetAndCallbackJoin|BodyCloseJoinAndSafeUnknown|OpenAPIClosedContract)$",
+      "./internal/central/audit/http"
+    ],
+    "product_matches": {
+      "internal/central/audit/http/handler.go": true,
+      "internal/central/audit/http/wire.go": true,
+      "api/openapi/audit.json": true
+    },
+    "rawsha": "874b4329229a1ff7775e15989eac3636e84d4a5812745c0826acfbffc322c758",
+    "raw_terminal_lines": [
+      "    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model-associations (0.00s)",
+      "    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/agent-initiator-needs-execution (0.00s)",
+      "    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/object-actor (0.00s)",
+      "    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/wrong-resource-kind (0.00s)",
+      "    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/master-forbids-id (0.00s)",
+      "    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/metadata-null (0.00s)",
+      "PASS",
+      "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/audit/http\t3.232s"
+    ]
+  },
+  "http-race01": {
+    "result": {
+      "exit_code": 0,
+      "elapsed_seconds": 24.925,
+      "actual_wait": true,
+      "pid": 101707,
+      "raw_sha256": "ec35528ac32808ec74b16b98103c3ff0029e516b8c2ac3ce3d35679b7cab9b5c"
+    },
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-race",
+      "-count=1",
+      "-timeout=45s",
+      "-run",
+      "^TestAuditHTTPPure",
+      "./internal/central/audit/http"
+    ],
+    "product_matches": {
+      "internal/central/audit/http/handler.go": true,
+      "internal/central/audit/http/wire.go": true,
+      "api/openapi/audit.json": true
+    },
+    "rawsha": "ec35528ac32808ec74b16b98103c3ff0029e516b8c2ac3ce3d35679b7cab9b5c",
+    "raw_terminal_lines": [
+      "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/audit/http\t4.956s"
+    ]
+  },
+  "http-vet01": {
+    "result": {
+      "exit_code": 0,
+      "elapsed_seconds": 2.027,
+      "actual_wait": true,
+      "pid": 103553,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "./internal/central/audit/http"
+    ],
+    "product_matches": {
+      "internal/central/audit/http/handler.go": true,
+      "internal/central/audit/http/wire.go": true,
+      "api/openapi/audit.json": true
+    },
+    "rawsha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw_terminal_lines": []
+  },
+  "http-list01": {
+    "result": {
+      "exit_code": 0,
+      "elapsed_seconds": 1.745,
+      "actual_wait": true,
+      "pid": 103560,
+      "raw_sha256": "53913e96aba00d4def3d14a83dabd3e8932aec245bf4a9e7ed2fa9a40944366c"
+    },
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-list",
+      "^TestAuditHTTP(Pure|Native)",
+      "./internal/central/audit/http"
+    ],
+    "product_matches": {
+      "internal/central/audit/http/handler.go": true,
+      "internal/central/audit/http/wire.go": true,
+      "api/openapi/audit.json": true
+    },
+    "rawsha": "53913e96aba00d4def3d14a83dabd3e8932aec245bf4a9e7ed2fa9a40944366c",
+    "raw_terminal_lines": [
+      "TestAuditHTTPPureBodyWriteAndCapabilities",
+      "TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin",
+      "TestAuditHTTPPureBodyCloseJoinAndSafeUnknown",
+      "TestAuditHTTPPureOpenAPIClosedContract",
+      "TestAuditHTTPNativeEOFAndKeepAlive",
+      "TestAuditHTTPNativeSlowBodyBudgets",
+      "TestAuditHTTPNativeWriteAndFlushAbort",
+      "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/audit/http\t0.006s"
+    ]
+  }
+}

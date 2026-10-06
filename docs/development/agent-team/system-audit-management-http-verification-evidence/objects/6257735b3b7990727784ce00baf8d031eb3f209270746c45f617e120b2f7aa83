@@ -1,0 +1,7 @@
+# query01 私有比较前提归因
+
+原 query01 actual1/5.790804s，输入不变，16 PID/starttime 两扫空、0 adopted。首 top 七子例全部 PASS；第二 top 四子例 PASS，仅 valid-page 在两次独立 scan 后直接 reflect.DeepEqual 完整 Page[SafeRecord] 失败。原 cursor.Verify 已执行通过，原 raw 无各字段差异观察。
+
+固定 identity/contract/identity.go:75 Scope、audit/contract/types.go:100 Resource、metadata.go:119 Metadata 都含非 nil data func；构造器每次创建闭包。Go reflect.DeepEqual 对非 nil func 必为 false，故该整体比较本身不能证明合法 typed 值语义等价。这是私有探针前提错误，不据此建立产品缺陷。
+
+按主线程授权，probe02 仅替换这一比较：全部公开记录字段、Scope.Equal、Resource.Details、typed Metadata.Validate/JSON 原字节、关联/summary；cursor 由正式 Verify 核同 binding、order generation 与每个 scalar kind/value。原内容、零候选、Close 屏障和其余全部断言保留。原 probe/execution/raw/result 永久保留；通过独立 overlay 只重跑 valid-page 子例，原首 top及其他四子例按字节不变复用。不修改 3 候选或 59 接受依赖，不启动资源。

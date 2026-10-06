@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "scope": "affected-only offline MIME schema alignment",
+  "baseline": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "files": {
+    "verification-report.md": "b4f46218ea3ebd5f740e1cd84828b63350f624b6420661d587aef3842a411c1e",
+    "input01/manifest.json": "96a928444c516bee3e0d67a2048e4ebbe6c945abf9a69f0fadec7fb97b33cec6",
+    "input01/delivery2.json": "68bc470f80158e37174bb8277fac723be923c4fff50ef24e3ba8ae33ee70d6af",
+    "input01/candidate.diff": "9ef3238f909662785137105fda7c0d3d58d26aba680abf077e05f407c48ea929",
+    "static-delta01.json": "78b3bf679fdffe3690339fd308ac9f33d247fe96cc8adeb371943bed6c624a11",
+    "probe01/mime_independent_test.go": "fdc9e74045074b6162d33a387dd980cf22e6bb2f76cb1dc10c7b490039e0ba95",
+    "probe01/mime_ecma.mjs": "0bb0cb01c5df38d2f5f8205957769ec29fecb056dc701240647c0cc5eadb7d43",
+    "overlay01.json": "5e0b228863ae0618513973c55ee0e9d5b1665bd010a50a10533bd912c60150a4",
+    "execution-go01.json": "5d4985f69ae584cf8f6796cedad4093818e185606853d15dd65b6027b7176c08",
+    "execution-node01.json": "c33a14531e6a89b0e4aa26efa14e3b0d3ff11521e68bdb1b999a2bdda55d7554",
+    "runs/go01/oracle.json": "2de0bf538f278b659f63d05c6f3a947b6527dc9baeec305bf8bb4a9d0c228820",
+    "runs/go01/command.json": "c9ab4fa47e4452c55026e88f628259e3dca5ce907dd11754643da145cdce69b1",
+    "runs/go01/raw.log": "24c751f9a26c0b22602d3bca89ebcb04af079256ee1f3e22f28737ea32ec8db1",
+    "runs/go01/result.json": "81dfc4ae141b92dc74b3a2fa16f90b709f97c911b5305b5aa9d33c8abf08b19f",
+    "runs/go01/cleanup.json": "0b97469fff2fe47ff742300c0b4c20832181113c4ce4fb6d9b4255c2ccf145ff",
+    "runs/node01/command.json": "0053ec8444d700796ff0970f73d5aa3e3561da9cc12b8abfd9353ee5357cabd3",
+    "runs/node01/raw.log": "69341bb918a9414fb031ab486b8eec30ee9eca14772c70bd29543b65753ec8cc",
+    "runs/node01/result.json": "896bea96e03a289d84ef10cbe364bd16c7605b9273b42ac8a0c0c64e080e35ca",
+    "runs/node01/cleanup.json": "2cabedb37012b949d5c814e4f94f43a687b083364186844f20b65a765fcbc6c2"
+  },
+  "results": {
+    "go01": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "seconds": 5.169429206000132,
+      "timeout": false,
+      "input_before_matches": true,
+      "input_after_matches": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_processes_observed": 5,
+      "adopted_wait_count": 0,
+      "raw_sha256": "24c751f9a26c0b22602d3bca89ebcb04af079256ee1f3e22f28737ea32ec8db1",
+      "cleanup_sha256": "0b97469fff2fe47ff742300c0b4c20832181113c4ce4fb6d9b4255c2ccf145ff"
+    },
+    "node01": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "seconds": 0.0705429119989276,
+      "timeout": false,
+      "input_before_matches": true,
+      "input_after_matches": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_processes_observed": 1,
+      "adopted_wait_count": 0,
+      "raw_sha256": "69341bb918a9414fb031ab486b8eec30ee9eca14772c70bd29543b65753ec8cc",
+      "cleanup_sha256": "2cabedb37012b949d5c814e4f94f43a687b083364186844f20b65a765fcbc6c2"
+    }
+  },
+  "real_resources_started": false,
+  "product_modified": false,
+  "limitations": [
+    "Current Node no-m bare-dollar rejects all five tested line terminators; no old Node leakage claim.",
+    "The old full field already rejects 257 code points.",
+    "Node checks all keywords of nine MIME fields, not a generic whole OpenAPI engine.",
+    "No HTTP, UI, Object service or external resource conclusions."
+  ]
+}

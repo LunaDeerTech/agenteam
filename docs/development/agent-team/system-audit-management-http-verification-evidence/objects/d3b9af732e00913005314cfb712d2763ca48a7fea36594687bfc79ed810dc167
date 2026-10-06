@@ -1,0 +1,79 @@
+--- input02/internal/central/audit/http/handler_test.go
++++ input03/internal/central/audit/http/handler_test.go
+@@ -969,20 +969,27 @@
+ 		parent time.Duration
+ 	}{{"local-three-seconds", time.Minute}, {"earlier-parent", 120 * time.Millisecond}} {
+ 		t.Run(tc.name, func(t *testing.T) {
+-			contextSeen := make(chan context.Context, 1)
+-			boundary := &testBoundary{auth: func(r *http.Request) (identity.Actor, error) {
+-				contextSeen <- r.Context()
+-				u, _ := foundation.ParseID[identity.User](wireID)
+-				s, _ := foundation.ParseID[identity.Session](wireID)
+-				return identity.NewHuman(u, s)
+-			}}
++			type deadlineObservation struct {
++				ctx                                context.Context
++				parentDeadline, before, authorized time.Time
++			}
++			contextSeen := make(chan deadlineObservation, 1)
+ 			store := &testReader{}
+ 			var eof, closed atomic.Int32
+ 			address, results, _ := nativeAuditListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+ 				ctx, cancel := context.WithTimeout(r.Context(), tc.parent)
+ 				defer cancel()
++				parentDeadline, _ := ctx.Deadline()
+ 				r = r.WithContext(ctx)
+ 				r.Body = nativeAuditBody{r.Body, &eof, &closed}
++				var before time.Time
++				boundary := &testBoundary{auth: func(r *http.Request) (identity.Actor, error) {
++					contextSeen <- deadlineObservation{r.Context(), parentDeadline, before, time.Now()}
++					u, _ := foundation.ParseID[identity.User](wireID)
++					s, _ := foundation.ParseID[identity.Session](wireID)
++					return identity.NewHuman(u, s)
++				}}
++				before = time.Now()
+ 				(&systemHTTP{store, boundary}).ServeHTTP(w, r)
+ 			}))
+ 			conn := nativeAuditDial(t, address)
+@@ -990,11 +997,17 @@
+ 			if _, err := io.WriteString(conn, "GET "+auditPath+" HTTP/1.1\r\nHost: "+address+"\r\nContent-Length: 1\r\n\r\n"); err != nil {
+ 				t.Fatal(err)
+ 			}
+-			var observed context.Context
++			var observation deadlineObservation
+ 			select {
+-			case observed = <-contextSeen:
++			case observation = <-contextSeen:
+ 			case <-time.After(time.Second):
+ 				t.Fatal("native auth not reached")
++			}
++			observed := observation.ctx
++			deadline, hasDeadline := observed.Deadline()
++			if !hasDeadline || tc.parent < readBudget && !deadline.Equal(observation.parentDeadline) ||
++				tc.parent > readBudget && (deadline.Before(observation.before.Add(readBudget)) || deadline.After(observation.authorized.Add(readBudget)) || !deadline.Before(observation.parentDeadline)) {
++				t.Fatal("native deadline did not preserve the local/auth/parent boundary")
+ 			}
+ 			response, err := http.ReadResponse(bufio.NewReader(conn), &http.Request{Method: "GET"})
+ 			if err == nil {
+@@ -1005,9 +1018,19 @@
+ 				}
+ 			}
+ 			terminal := nativeAuditTerminal(t, results)
+-			elapsed := time.Since(started)
++			finished := time.Now()
++			elapsed := finished.Sub(started)
+ 			limit := min(tc.parent, readBudget)
+-			if !terminal.aborted || !errors.Is(observed.Err(), context.DeadlineExceeded) || elapsed < limit*3/4 || elapsed > limit+time.Second || store.calls.Load() != 0 || closed.Load() != 1 {
++			done := false
++			select {
++			case <-observed.Done():
++				done = true
++			default:
++			}
++			// Native socket deadlines may cancel net/http's parent before the
++			// context timer fires; neither ordering extends the same deadline.
++			cancelled := errors.Is(observed.Err(), context.Canceled) || errors.Is(observed.Err(), context.DeadlineExceeded)
++			if !terminal.aborted || !done || finished.Before(deadline) || !cancelled || elapsed < limit*3/4 || elapsed > limit+time.Second || store.calls.Load() != 0 || closed.Load() != 1 {
+ 				t.Fatal("native deadline/actual close boundary", terminal.aborted, observed.Err(), elapsed, store.calls.Load(), closed.Load())
+ 			}
+ 		})

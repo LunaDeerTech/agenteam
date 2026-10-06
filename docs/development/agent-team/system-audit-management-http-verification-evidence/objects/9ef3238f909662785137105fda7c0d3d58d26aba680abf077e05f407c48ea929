@@ -1,0 +1,243 @@
+--- a/api/openapi/audit.json
++++ b/api/openapi/audit.json
+@@ -2023,7 +2023,10 @@
+                     "type": "string",
+                     "minLength": 1,
+                     "maxLength": 256,
+-                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
++                    "pattern": "^[!#$%&'*+.^_`{|}~0-9a-z-]+(/[!#$%&'*+.^_`{|}~0-9a-z-]+)?(; charset=(utf-8|us-ascii))?$",
++                    "not": {
++                      "pattern": "[\\r\\n\u2028\u2029]"
++                    },
+                     "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                   },
+                   "byte_size": {
+@@ -2063,7 +2066,10 @@
+                     "type": "string",
+                     "minLength": 1,
+                     "maxLength": 256,
+-                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
++                    "pattern": "^[!#$%&'*+.^_`{|}~0-9a-z-]+(/[!#$%&'*+.^_`{|}~0-9a-z-]+)?(; charset=(utf-8|us-ascii))?$",
++                    "not": {
++                      "pattern": "[\\r\\n\u2028\u2029]"
++                    },
+                     "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                   },
+                   "byte_size": {
+@@ -2107,7 +2113,10 @@
+                     "type": "string",
+                     "minLength": 1,
+                     "maxLength": 256,
+-                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
++                    "pattern": "^[!#$%&'*+.^_`{|}~0-9a-z-]+(/[!#$%&'*+.^_`{|}~0-9a-z-]+)?(; charset=(utf-8|us-ascii))?$",
++                    "not": {
++                      "pattern": "[\\r\\n\u2028\u2029]"
++                    },
+                     "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                   },
+                   "byte_size": {
+@@ -2230,7 +2239,10 @@
+                     "type": "string",
+                     "minLength": 1,
+                     "maxLength": 256,
+-                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
++                    "pattern": "^[!#$%&'*+.^_`{|}~0-9a-z-]+(/[!#$%&'*+.^_`{|}~0-9a-z-]+)?(; charset=(utf-8|us-ascii))?$",
++                    "not": {
++                      "pattern": "[\\r\\n\u2028\u2029]"
++                    },
+                     "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                   },
+                   "byte_size": {
+@@ -2303,7 +2315,10 @@
+                     "type": "string",
+                     "minLength": 1,
+                     "maxLength": 256,
+-                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
++                    "pattern": "^[!#$%&'*+.^_`{|}~0-9a-z-]+(/[!#$%&'*+.^_`{|}~0-9a-z-]+)?(; charset=(utf-8|us-ascii))?$",
++                    "not": {
++                      "pattern": "[\\r\\n\u2028\u2029]"
++                    },
+                     "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                   },
+                   "byte_size": {
+@@ -2380,7 +2395,10 @@
+                     "type": "string",
+                     "minLength": 1,
+                     "maxLength": 256,
+-                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
++                    "pattern": "^[!#$%&'*+.^_`{|}~0-9a-z-]+(/[!#$%&'*+.^_`{|}~0-9a-z-]+)?(; charset=(utf-8|us-ascii))?$",
++                    "not": {
++                      "pattern": "[\\r\\n\u2028\u2029]"
++                    },
+                     "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                   },
+                   "byte_size": {
+@@ -2532,7 +2550,10 @@
+                     "type": "string",
+                     "minLength": 1,
+                     "maxLength": 256,
+-                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
++                    "pattern": "^[!#$%&'*+.^_`{|}~0-9a-z-]+(/[!#$%&'*+.^_`{|}~0-9a-z-]+)?(; charset=(utf-8|us-ascii))?$",
++                    "not": {
++                      "pattern": "[\\r\\n\u2028\u2029]"
++                    },
+                     "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                   },
+                   "byte_size": {
+@@ -2572,7 +2593,10 @@
+                     "type": "string",
+                     "minLength": 1,
+                     "maxLength": 256,
+-                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
++                    "pattern": "^[!#$%&'*+.^_`{|}~0-9a-z-]+(/[!#$%&'*+.^_`{|}~0-9a-z-]+)?(; charset=(utf-8|us-ascii))?$",
++                    "not": {
++                      "pattern": "[\\r\\n\u2028\u2029]"
++                    },
+                     "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                   },
+                   "byte_size": {
+@@ -2616,7 +2640,10 @@
+                     "type": "string",
+                     "minLength": 1,
+                     "maxLength": 256,
+-                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
++                    "pattern": "^[!#$%&'*+.^_`{|}~0-9a-z-]+(/[!#$%&'*+.^_`{|}~0-9a-z-]+)?(; charset=(utf-8|us-ascii))?$",
++                    "not": {
++                      "pattern": "[\\r\\n\u2028\u2029]"
++                    },
+                     "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                   },
+                   "byte_size": {
+--- a/internal/central/audit/http/handler_test.go
++++ b/internal/central/audit/http/handler_test.go
+@@ -29,6 +29,130 @@
+ )
+ 
+ const wireID = "01900000-0000-7000-8000-000000000001"
++
++// The schema must describe the formal constructor's canonical output, including
++// its single-token form and complete ASCII token alphabet. Each vector crosses
++// every Object action/initiator branch through the existing typed wire path.
++func TestAuditHTTPPureMIMEClosedSchema(t *testing.T) {
++	load := func(name string) map[string]any {
++		t.Helper()
++		raw, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "api", "openapi", name))
++		if err != nil {
++			t.Fatal(err)
++		}
++		var document map[string]any
++		if err := json.Unmarshal(raw, &document); err != nil {
++			t.Fatal(err)
++		}
++		return document
++	}
++	document, common := load("audit.json"), load("common.json")
++	schemas := document["components"].(map[string]any)["schemas"].(map[string]any)
++	fullSchema := schemas["SystemAuditRecord"].(map[string]any)
++	type vector struct {
++		Name     string `json:"name"`
++		Value    string `json:"value"`
++		Accepted bool   `json:"accepted"`
++	}
++	vectors := []vector{
++		{"single", "a", true}, {"single-longer", "text", true},
++		{"single-braces", "{x}", true}, {"subtype-braces", "text/{json}", true},
++		{"type-braces", "{x}/plain", true}, {"normal", "text/plain", true},
++		{"token-alphabet", "!#$%&'*+-.^_`{|}~0123456789abcdefghijklmnopqrstuvwxyz", true},
++		{"subtype-alphabet", "text/!#$%&'*+-.^_`{|}~0123456789abcdefghijklmnopqrstuvwxyz", true},
++		{"single-utf8", "text; charset=utf-8", true},
++		{"braces-ascii", "{x}/{y}; charset=us-ascii", true},
++		{"normal-utf8", "text/plain; charset=utf-8", true},
++		{"normal-ascii", "text/plain; charset=us-ascii", true},
++		{"single-256", strings.Repeat("a", 256), true},
++		{"pair-256", "text/" + strings.Repeat("a", 251), true},
++		{"charset-256", strings.Repeat("a", 256-len("; charset=utf-8")) + "; charset=utf-8", true},
++		{"empty", "", false}, {"slash-only", "/", false},
++		{"missing-type", "/plain", false}, {"missing-subtype", "text/", false},
++		{"second-slash", "text/plain/extra", false}, {"uppercase", "Text/Plain", false},
++		{"parameter-uppercase", "text/plain; CHARSET=utf-8", false},
++		{"charset-uppercase", "text/plain; charset=UTF-8", false},
++		{"missing-space", "text/plain;charset=utf-8", false},
++		{"quoted-charset", "text/plain; charset=\"utf-8\"", false},
++		{"unknown-charset", "text/plain; charset=latin-1", false},
++		{"unknown-parameter", "text/plain; name=x", false},
++		{"duplicate-parameter", "text/plain; charset=utf-8; charset=utf-8", false},
++		{"trailing-semicolon", "text/plain;", false},
++		{"leading-space", " text/plain", false}, {"trailing-space", "text/plain ", false},
++		{"tab", "text/\tplain", false}, {"nul", "text/plain\x00", false},
++		{"non-ascii", "text/é", false},
++		{"single-257", strings.Repeat("a", 257), false},
++		{"pair-257", "text/" + strings.Repeat("a", 252), false},
++		{"charset-257", strings.Repeat("a", 257-len("; charset=utf-8")) + "; charset=utf-8", false},
++	}
++	for i, ending := range []string{"\n", "\r", "\r\n", "\u2028", "\u2029"} {
++		vectors = append(vectors, vector{"line-ending-" + string(rune('0'+i)), "text/plain" + ending, false})
++	}
++	types := []struct {
++		action  c.Action
++		schema  string
++		phase   c.ContentPhase
++		reason  c.Reason
++		outcome c.Outcome
++	}{
++		{c.ObjectUploadComplete, "ObjectUploadCompleteRecord", c.PublishedPhase, "", c.Success},
++		{c.ObjectUploadFailed, "ObjectUploadFailedRecord", c.FailedPhase, c.Cancelled, c.Failed},
++		{c.ObjectDelete, "ObjectDeleteRecord", c.DeletedPhase, "", c.Success},
++	}
++	for _, v := range vectors {
++		// Only fixed synthetic MIME vectors are logged. A separate ECMAScript
++		// check can consume these exact bytes without duplicating the case table.
++		raw, err := json.Marshal(v)
++		if err != nil {
++			t.Fatal(err)
++		}
++		t.Log("MIME_VECTOR " + string(raw))
++		for _, action := range types {
++			branches := schemas[action.schema].(map[string]any)["properties"].(map[string]any)["metadata"].(map[string]any)["oneOf"].([]any)
++			if len(branches) != 3 {
++				t.Fatal("Object initiator branch count changed")
++			}
++			for index, kind := range []identity.ActorKind{identity.Human, identity.AgentRun, identity.Service} {
++				t.Run(string(action.action)+"/"+string(kind)+"/"+v.Name, func(t *testing.T) {
++					fields := c.ObjectMetadataFields{ObjectID: wireID, InitiatorKind: kind, InitiatorID: wireID, MediaType: v.Value, Phase: action.phase, Reason: action.reason}
++					if kind == identity.AgentRun {
++						fields.InitiatorExecutionID = wireID
++					}
++					metadata, err := c.ObjectMetadata(action.action, fields)
++					if (err == nil) != v.Accepted {
++						t.Fatal("formal ObjectMetadata disagrees with fixed boundary")
++					}
++					if !v.Accepted {
++						fields.MediaType = "text/plain"
++						metadata, err = c.ObjectMetadata(action.action, fields)
++						if err != nil {
++							t.Fatal("valid negative-test prerequisite", err)
++						}
++					}
++					// typedRecord calls the formal DecodeMetadata and NewEntry;
++					// encodeRecord then applies the actual safe HTTP projection.
++					record := typedRecord(t, typedCase{string(action.action), "stored_object", string(metadata.JSON()), identity.ObjectService, action.outcome})
++					body, err := encodeRecord(record)
++					if err != nil {
++						t.Fatal("formal typed Object projection rejected", err)
++					}
++					var value map[string]any
++					if err := json.Unmarshal(body, &value); err != nil {
++						t.Fatal(err)
++					}
++					meta := value["metadata"].(map[string]any)
++					if v.Accepted && meta["media_type"] != v.Value {
++						t.Fatal("MIME changed during typed roundtrip")
++					}
++					meta["media_type"] = v.Value
++					if schemaAccepts(document, common, fullSchema, value) != v.Accepted || schemaAccepts(document, common, branches[index].(map[string]any), meta) != v.Accepted {
++						t.Fatal("schema differs from formal ObjectMetadata in exact action/initiator branch")
++					}
++				})
++			}
++		}
++	}
++}
+ 
+ type typedCase struct {
+ 	action, resource, metadata string

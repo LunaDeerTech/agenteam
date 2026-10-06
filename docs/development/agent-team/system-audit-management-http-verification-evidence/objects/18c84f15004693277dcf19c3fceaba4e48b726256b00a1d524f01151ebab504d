@@ -1,0 +1,45 @@
+--- input01/tests/account/audit_http_test.go
++++ input02/tests/account/audit_http_test.go
+@@ -55,6 +55,33 @@
+ 		}
+ 	}
+ 	_ = httpObject(t, record, "metadata")
++}
++
++func auditHTTPSuccessTrace(t *testing.T, f *httpFixture, result httpResult, route string) {
++	t.Helper()
++	requestID := result.headers.Get("X-Request-ID")
++	parsed, err := foundation.ParseID[foundation.Request](requestID)
++	if err != nil || parsed.String() != requestID {
++		t.Fatal("successful Audit response request identity is not canonical")
++	}
++	deadline := time.NewTimer(time.Second)
++	defer deadline.Stop()
++	tick := time.NewTicker(time.Millisecond)
++	defer tick.Stop()
++	for {
++		entries := f.log.requests(requestID)
++		if len(entries) != 0 {
++			if len(entries) != 1 || entries[0]["route"] != route {
++				t.Fatal("real root did not log exactly one successful Audit request at its route")
++			}
++			return
++		}
++		select {
++		case <-tick.C:
++		case <-deadline.C:
++			t.Fatal("real root log does not share the successful Audit response request identity")
++		}
++	}
+ }
+ 
+ func TestSystemAuditHTTPQueryAndProjection(t *testing.T) {
+@@ -197,7 +224,7 @@
+ 	if !foundSession {
+ 		t.Fatal("formal login Audit missing")
+ 	}
+-	f.assertTrace(first, "unknown_route")
++	auditHTTPSuccessTrace(t, f, first, "unknown_route")
+ 	cookie := admin.cookie("agenteam_local_session")
+ 	admin.request("POST", "/api/v1/sessions/logout", map[string]any{}, id[struct{}](t).String(), admin.csrf).want(t, 204)
+ 	for _, path := range []string{systemAuditHTTPPath, detailPath} {

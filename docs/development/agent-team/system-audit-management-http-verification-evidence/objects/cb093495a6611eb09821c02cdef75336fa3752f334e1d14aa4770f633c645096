@@ -1,0 +1,116 @@
+--- /workspace/scratch/agenteam-email-canonical-author-s5egqsel/run-email-canonical-fixture.py
++++ /workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only frozen email canonical roundtrip groups and record actual resources."""
++"""Run only frozen System Audit groups and record actual completion and resources."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -18,7 +18,7 @@
+ ROOT = Path(__file__).resolve().parent
+ REPO = ROOT / 'workspace'
+ GIT_REPO = Path('/workspace/agenteam')
+-BASE = '819aba1b8f764328f1e2e67b53c274fad0db877d'
++BASE = 'f843506d9ec991be1c334a81b88d5cbacc277467'
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
+ MODCACHE = '/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache'
+ MINIO = '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio'
+@@ -159,7 +159,8 @@
+ # Same test package roots selected by the fixed PG driver (including -objects),
+ # plus the fixture binaries built by its shell/SMTP chain. Discovery starts none.
+ TEST_PACKAGES = ['./internal/central/postgres/...', './tests/database/...', './internal/central/app/...', './tests/process/...', './tests/security/...', './tests/outbox/...', './internal/central/outbox/...', './tests/account/...', './tests/accountmail/...', './internal/central/accountmail/...', './internal/central/recoverylog/...', './tests/project/...', './internal/central/model/...', './tests/model/...', './tests/objects/...', './internal/central/object/...']
+-HELPER_PACKAGES = ['./tests/testsupport/objectstore/cmd/fixture', './tests/testsupport/outbound/cmd/fixture', './tests/testsupport/outbound/cmd/server', './tests/testsupport/postgres/cmd/fixture', './tests/testsupport/smtp/cmd/server']
++HELPER_PACKAGES = ['./tests/testsupport/objectstore/cmd/fixture', './tests/testsupport/outbound/cmd/fixture', './tests/testsupport/outbound/cmd/server', './tests/testsupport/postgres/cmd/fixture']
++NATIVE_PACKAGES = ['./internal/central/audit/http']
+ 
+ 
+ def runtime_environment():
+@@ -176,7 +177,7 @@
+     go_environment = json.loads(subprocess.check_output([GO, 'env', '-json', 'GOVERSION', 'CC', 'CXX', 'GOTOOLDIR', 'GOOS', 'GOARCH', 'CGO_CFLAGS', 'CGO_CPPFLAGS', 'CGO_CXXFLAGS', 'CGO_LDFLAGS'], cwd=REPO, env=env, timeout=20))
+     if go_environment['GOVERSION'] != 'go1.27.1':
+         raise RuntimeError('wrong Go toolchain')
+-    discovery_argv = [GO, 'list', '-race', '-deps', '-test', '-tags=integration', '-json', *TEST_PACKAGES, *HELPER_PACKAGES]
++    discovery_argv = [GO, 'list', '-race', '-deps', '-test', '-tags=integration', '-json', *TEST_PACKAGES, *HELPER_PACKAGES, *NATIVE_PACKAGES]
+     raw = subprocess.check_output(discovery_argv, cwd=REPO, env=env, timeout=60)
+     decoder, text, offset = json.JSONDecoder(), raw.decode(), 0
+     files = {Path(GO), Path(MINIO)}
+@@ -271,7 +272,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new-account', 'new-wire', 'old'], required=True)
++    parser.add_argument('--group', choices=['native', 'new-account', 'new-root', 'old'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     mode = parser.add_mutually_exclusive_group(required=True)
+@@ -281,9 +282,10 @@
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+     groups = {
+-        'new-account': ['TestAccountEmailCanonicalRoundTrip', 'TestAccountHTTPEmailCanonicalRoundTrip'],
+-        'new-wire': ['TestAccountMailEmailCanonicalWireRoundTrip'],
+-        'old': ['TestAccountMailSMTPThreeModesUseActualControlledSockets'],
++        'native': ['TestAuditHTTPNativeEOFAndKeepAlive', 'TestAuditHTTPNativeSlowBodyBudgets', 'TestAuditHTTPNativeWriteAndFlushAbort'],
++        'new-account': ['TestSystemAuditHTTPQueryAndProjection', 'TestSystemAuditHTTPTransactionAndBudget'],
++        'new-root': ['TestSystemAuditHTTPRootProducerBinding'],
++        'old': ['TestAuditPaginationBindingsFiltersAndRevocation'],
+     }
+     if str(Path(args.modcache).resolve()) != MODCACHE:
+         raise ValueError('modcache differs from frozen runtime')
+@@ -328,7 +330,8 @@
+     write(run / 'input-before.json', before)
+     baseline_processes = processes()
+     write(run / 'process-baseline.json', {pid: {key: row[key] for key in ['ppid','starttime','state','name','executable']} for pid,row in baseline_processes.items()})
+-    baseline = resources()
++    fixture = args.group != 'native'
++    baseline = resources() if fixture else {}
+     write(run / 'baseline.json', baseline)
+     env = runtime_environment()
+     flags = '-mod=readonly -buildvcs=false -p=1 -v'
+@@ -338,7 +341,8 @@
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': args.modcache,
+                 'GOCACHE': str(ROOT / 'gocache'), 'TMPDIR': str(runtime),
+                 'CGO_ENABLED': '1', 'GOFLAGS': flags})
+-    argv = ['sh', 'scripts/test-security.sh', '-run', args.selector]
++    argv = (['sh', 'scripts/test-security.sh', '-run', args.selector] if fixture else
++            [GO, 'test', '-race', '-count=1', '-timeout=45s', '-v', '-run', args.selector, './internal/central/audit/http'])
+     record = {'argv': argv, 'cwd': str(REPO), 'started_utc': utc(),
+               'env': {key: env[key] for key in ['AGENTEAM_GO', 'AGENTEAM_MINIO_BINARY', 'GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
+     write(run / 'command.json', record)
+@@ -371,7 +375,7 @@
+                     key = str(pid) + ':' + row['starttime']
+                     observed_processes[key] = {'pid': pid, 'starttime': row['starttime'], 'ppid': row['ppid'], 'name': row['name'],
+                                                'executable': row['executable'] or observed_processes.get(key, {}).get('executable', '')}
+-            if time.monotonic() >= next_resources:
++            if fixture and time.monotonic() >= next_resources:
+                 try:
+                     observed_resources.update({key: value for key, value in resources().items() if key not in baseline})
+                 except Exception as exc:
+@@ -392,7 +396,7 @@
+     reap_adopted(observed_processes, process.pid, adopted_waits)
+     for _ in range(2):
+         reap_adopted(observed_processes, process.pid, adopted_waits)
+-        current, proc = resources(), processes()
++        current, proc = (resources() if fixture else {}), processes()
+         exact = {}
+         for resource_id, row in observed_resources.items():
+             result = subprocess.run(['docker', row['kind'], 'inspect', '--format', '{{json .Id}}', resource_id], capture_output=True, timeout=20)
+@@ -419,13 +423,15 @@
+     summary['browser_processes'] = sum(row['name'] in {'chromium', 'chrome', 'chrome_crashpad'} for row in observed_processes.values())
+     summary['node_processes'] = sum(row['executable'] in {'node', 'nodejs'} for row in observed_processes.values())
+     summary['adopted_waits'] = len(adopted_waits)
+-    summary['resource_topology_matches'] = resource_topology(observed_resources, args.group in {'new-wire', 'old'})
++    summary['resource_topology_matches'] = resource_topology(observed_resources, False) if fixture else not observed_resources
++    summary['fixture_resources_started'] = fixture
++    summary['native_only'] = not fixture
+     summary['top_levels'] = tops
+     summary['selected_tests_passed'] = len(tops) == len(expected) and {name for state, name in tops if state == 'PASS'} == expected
+     summary['historical_zombies_untouched'] = [{key: row[key] for key in ['ppid','starttime','state','name']} | {'pid':pid} for pid,row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z']
+     write(run / 'result.json', summary)
+     print(json.dumps(summary), flush=True)
+-    return 0 if exit_code == 0 and clean and len(observed_resources) == (9 if args.group in {'new-wire', 'old'} else 7) and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] and not summary['browser_processes'] and not summary['node_processes'] and summary['resource_topology_matches'] else 1
++    return 0 if exit_code == 0 and clean and len(observed_resources) == (7 if fixture else 0) and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] and not summary['browser_processes'] and not summary['node_processes'] and summary['resource_topology_matches'] else 1
+ 
+ 
+ if __name__ == '__main__':

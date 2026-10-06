@@ -1,0 +1,120 @@
+{
+  "status": "OFFLINE PREPARATION ONLY; no resource launch authorized",
+  "input_sha256": "a5af366ac165bd175f40b25cf213430fddefc92834e015622a4bbbef66faf8f3",
+  "driver_sha256": "6b26ced4ff532a00e680d010d821b7667eac52b1d7ebd170f4fe99cc3dced89d",
+  "product_input02": {
+    "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input02/manifest.json",
+    "sha256": "c0660102684ba6f3493a2f2b90c68feabfad647fcc0349c1d111a86e06a4c8b1"
+  },
+  "fixed_git": "f843506d9ec991be1c334a81b88d5cbacc277467",
+  "product_git": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "disk_snapshot_bytes": {
+    "total": 33770192896,
+    "used": 27486932992,
+    "free": 4548497408
+  },
+  "groups": {
+    "native": {
+      "name": "native01",
+      "top_levels": [
+        "TestAuditHTTPNativeEOFAndKeepAlive",
+        "TestAuditHTTPNativeSlowBodyBudgets",
+        "TestAuditHTTPNativeWriteAndFlushAbort"
+      ],
+      "expected_resource_ids": 0,
+      "argv": [
+        "python3",
+        "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture.py",
+        "--name",
+        "native01",
+        "--group",
+        "native",
+        "--frozen",
+        "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/driver-stage01/input.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--execute-authorized"
+      ],
+      "argv_is_unexecuted_plan": true
+    },
+    "new-account": {
+      "name": "new-account01",
+      "top_levels": [
+        "TestSystemAuditHTTPQueryAndProjection",
+        "TestSystemAuditHTTPTransactionAndBudget"
+      ],
+      "expected_resource_ids": 7,
+      "argv": [
+        "python3",
+        "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture.py",
+        "--name",
+        "new-account01",
+        "--group",
+        "new-account",
+        "--frozen",
+        "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/driver-stage01/input.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--execute-authorized"
+      ],
+      "argv_is_unexecuted_plan": true
+    },
+    "new-root": {
+      "name": "new-root01",
+      "top_levels": [
+        "TestSystemAuditHTTPRootProducerBinding"
+      ],
+      "expected_resource_ids": 7,
+      "argv": [
+        "python3",
+        "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture.py",
+        "--name",
+        "new-root01",
+        "--group",
+        "new-root",
+        "--frozen",
+        "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/driver-stage01/input.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--execute-authorized"
+      ],
+      "argv_is_unexecuted_plan": true
+    },
+    "old": {
+      "name": "old01",
+      "top_levels": [
+        "TestAuditPaginationBindingsFiltersAndRevocation"
+      ],
+      "expected_resource_ids": 7,
+      "argv": [
+        "python3",
+        "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture.py",
+        "--name",
+        "old01",
+        "--group",
+        "old",
+        "--frozen",
+        "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/driver-stage01/input.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--execute-authorized"
+      ],
+      "argv_is_unexecuted_plan": true
+    }
+  },
+  "preflight": [
+    "Obtain an explicit root window for the named group; no automatic continuation",
+    "Recheck unused run name, driver/input hashes and --check-input-only before each launch",
+    "Record available disk immediately before launch; do not launch while current low-space condition persists; proposed minimum 2 GiB for native and 4 GiB for PG fixture, subject to root resource scheduling",
+    "Do not delete shared caches/evidence or touch historical PPID1 zombies or baseline Docker resources"
+  ],
+  "cleanup": "Original subreaper before Popen; actual direct wait and adopted waitpid; PID/starttime union; two owned-process/runtime scans; fixture additionally exact-ID absent twice, original baseline unchanged; no outer force-kill to simulate cleanup",
+  "budgets": "native race/count1/45s; each real scenario <=2m and unchanged PG driver race/count1/pkg6m; no retries, budget extension or concurrent resource groups",
+  "source_integrity": "Before/after candidate13 and exact fixed runtime closure plus tool/module fingerprints, driver and frozen manifest bytes",
+  "limitations": [
+    "Transaction harness uses real PG and formal Authority with a controlled HTTP writer; unfinished call is not native wire publication evidence",
+    "Native group starts no fixture or Docker command; cleanup baseline fields are empty and do not claim a Docker inventory",
+    "Actual PG shell driver compiles its unchanged broad fixed package roots but executes only anchored Audit selectors; no stopped Object/tools/SPA task is selected",
+    "No native/PG/integration behavior has run; Group1/2 controlled evidence cannot substitute for these runs"
+  ]
+}

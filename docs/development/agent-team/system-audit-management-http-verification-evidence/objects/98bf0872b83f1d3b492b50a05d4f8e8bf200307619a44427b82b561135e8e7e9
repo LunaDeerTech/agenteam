@@ -1,0 +1,20 @@
+--- http-pure01/internal/central/audit/http/handler_test.go
++++ http-pure02/internal/central/audit/http/handler_test.go
+@@ -47,7 +47,7 @@
+ 		{"secret.master.rotation.complete", "secret_rotation", `{` + version + `,"rotation_id":` + id + `,"count":"9"}`, identity.SecretMaintenance, c.Success},
+ 		{"secret.master.rotation.failed", "secret_rotation", `{` + version + `,"rotation_id":` + id + `,"count":"0","reason":"cancelled"}`, identity.SecretMaintenance, c.Failed},
+ 		{"outbound.policy.update", "outbound_policy", `{` + version + `,"rule_count":"256"}`, "", c.Unknown},
+-		{"outbound.access.deny", "outbound_policy", `{` + version + `,"consumer":"smtp","reason":"policy_denied"}`, identity.OutboundService, c.Denied},
++		{"outbound.access.deny", "outbound_policy", `{` + version + `,"consumer":"smtp","reason":"permission_denied"}`, identity.OutboundService, c.Denied},
+ 		{"object.upload.complete", "stored_object", `{"object_id":` + id + `,"initiator_kind":"agent_run","initiator_id":` + id + `,"initiator_execution_id":` + id + `,"media_type":"text/a&b","byte_size":"5","sent_bytes":"3","phase":"published"}`, identity.ObjectService, c.Success},
+ 		{"object.upload.failed", "stored_object", `{"object_id":` + id + `,"initiator_kind":"human","initiator_id":` + id + `,"media_type":"text/plain","byte_size":"5","sent_bytes":"2","phase":"failed","reason":"cancelled"}`, identity.ObjectMaintenance, c.Unknown},
+ 		{"object.delete", "stored_object", `{"object_id":` + id + `,"initiator_kind":"service","initiator_id":` + id + `,"media_type":"text/plain; charset=utf-8","byte_size":"0","sent_bytes":"0","phase":"deleted"}`, identity.ObjectService, c.Success},
+@@ -532,7 +532,7 @@
+ 				return false
+ 			}
+ 		}
+-		return schemaAccepts(root, common, node.(map[string]any), value)
++		return schemaAccepts(document, common, node.(map[string]any), value)
+ 	}
+ 	if expected, ok := schema["const"]; ok && !reflect.DeepEqual(expected, value) {
+ 		return false

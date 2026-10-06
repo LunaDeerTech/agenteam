@@ -1,0 +1,81 @@
+{
+  "two_candidates_verified": true,
+  "dependencies_verified": 252,
+  "schema_changes": [
+    {
+      "action": "ObjectUploadCompleteRecord",
+      "initiator_branch": 0,
+      "changed_keys": [
+        "pattern",
+        "not"
+      ]
+    },
+    {
+      "action": "ObjectUploadCompleteRecord",
+      "initiator_branch": 1,
+      "changed_keys": [
+        "pattern",
+        "not"
+      ]
+    },
+    {
+      "action": "ObjectUploadCompleteRecord",
+      "initiator_branch": 2,
+      "changed_keys": [
+        "pattern",
+        "not"
+      ]
+    },
+    {
+      "action": "ObjectUploadFailedRecord",
+      "initiator_branch": 0,
+      "changed_keys": [
+        "pattern",
+        "not"
+      ]
+    },
+    {
+      "action": "ObjectUploadFailedRecord",
+      "initiator_branch": 1,
+      "changed_keys": [
+        "pattern",
+        "not"
+      ]
+    },
+    {
+      "action": "ObjectUploadFailedRecord",
+      "initiator_branch": 2,
+      "changed_keys": [
+        "pattern",
+        "not"
+      ]
+    },
+    {
+      "action": "ObjectDeleteRecord",
+      "initiator_branch": 0,
+      "changed_keys": [
+        "pattern",
+        "not"
+      ]
+    },
+    {
+      "action": "ObjectDeleteRecord",
+      "initiator_branch": 1,
+      "changed_keys": [
+        "pattern",
+        "not"
+      ]
+    },
+    {
+      "action": "ObjectDeleteRecord",
+      "initiator_branch": 2,
+      "changed_keys": [
+        "pattern",
+        "not"
+      ]
+    }
+  ],
+  "other_schema_structure_unchanged": true,
+  "old_test_bytes_after_removing_one_added_function_equal": true,
+  "production_go_unchanged": true
+}

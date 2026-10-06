@@ -1,0 +1,439 @@
+#!/usr/bin/env python3
+"""Run only frozen System Audit groups and record actual completion and resources."""
+import argparse
+import datetime
+import ctypes
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import signal
+import subprocess
+import sys
+import time
+
+
+ROOT = Path(__file__).resolve().parent
+REPO = ROOT / 'workspace'
+GIT_REPO = Path('/workspace/agenteam')
+BASE = 'f843506d9ec991be1c334a81b88d5cbacc277467'
+GO = '/workspace/toolchains/go1.27.1/bin/go'
+MODCACHE = '/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache'
+MINIO = '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio'
+FROZEN = {}
+
+
+def utc():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def write(path, value):
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+
+def command(argv):
+    result = subprocess.run(argv, cwd=REPO, capture_output=True, text=True, timeout=20)
+    if result.returncode:
+        raise RuntimeError('read command failed: ' + ' '.join(argv) + ': ' + result.stderr[:300])
+    return result.stdout
+
+
+def resources():
+    result = {}
+    for kind in ['container', 'network']:
+        for resource_id in command(['docker', kind, 'ls', '-q', '--no-trunc'] if kind == 'network' else ['docker', kind, 'ls', '-aq', '--no-trunc']).split():
+            label = '.Config.Labels' if kind == 'container' else '.Labels'
+            try:
+                raw = command(['docker', kind, 'inspect', '--format', '{{json .Id}}\t{{json .Name}}\t{{json ' + label + '}}', resource_id]).strip().split('\t')
+            except RuntimeError as exc:
+                if 'No such' in str(exc) or 'not found' in str(exc):
+                    continue  # The fixture may remove an ID after the list call.
+                raise
+            value = dict(zip(['id', 'name', 'labels'], map(json.loads, raw)))
+            value['kind'] = kind
+            result[resource_id] = value
+    return result
+
+
+def processes():
+    result = {}
+    for entry in Path('/proc').iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            stat = (entry / 'stat').read_text().rsplit(')', 1)[1].split()
+            raw = (entry / 'cmdline').read_bytes()
+            try:
+                executable = Path(os.readlink(entry / 'exe')).name
+            except OSError:
+                executable = ''
+            result[int(entry.name)] = {'ppid': int(stat[1]), 'starttime': stat[19],
+                                      'state': stat[0], 'name': (entry / 'comm').read_text().strip(),
+                                      'executable': executable, 'raw': raw}
+        except (OSError, ValueError, IndexError):
+            pass
+    return result
+
+
+def reap_adopted(observed, main_pid, waited):
+    current = processes()
+    for key, value in observed.items():
+        pid = value['pid']
+        row = current.get(pid)
+        if pid == main_pid or not row or row['starttime'] != value['starttime'] or row['ppid'] != os.getpid() or row['state'] != 'Z':
+            continue
+        try:
+            got, status = os.waitpid(pid, os.WNOHANG)
+        except ChildProcessError:
+            continue
+        if got == pid:
+            waited.append({'pid': pid, 'starttime': value['starttime'], 'actual_wait': True, 'exit': os.waitstatus_to_exitcode(status), 'time': utc()})
+
+
+# Exact minimal fixed runtime closure, not HEAD or an active frontend tree.
+GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+
+
+def fixed_tree():
+    raw = subprocess.check_output(['git', 'ls-tree', '-r', '-z', BASE], cwd=GIT_REPO, timeout=20)
+    entries = {}
+    for record in raw.split(b'\0'):
+        if not record:
+            continue
+        header, name = record.split(b'\t', 1)
+        mode, kind, oid = header.decode().split()
+        entries[name.decode()] = {'mode': mode, 'kind': kind, 'git_blob': oid}
+    return raw, entries
+
+
+def accepted_baseline_input():
+    expected = FROZEN['accepted_baseline']
+    raw, tree = fixed_tree()
+    selected = {name: tree[name] for name in expected['files']}
+    tree_sha = hashlib.sha256(raw).hexdigest()
+    if expected['product_base'] != BASE or expected['git_tree_sha256'] != tree_sha:
+        raise RuntimeError('fixed accepted Git tree differs from frozen baseline')
+    if any(any(expected['files'][name][key] != value for key, value in row.items()) for name, row in selected.items()):
+        raise RuntimeError('fixed minimal closure differs from accepted Git')
+    # Include every source file in each selected package, and every package
+    # under the fixed PG driver's test roots. Native Go discovery also checks
+    # that all embeds and imports resolve inside this bound closure.
+    covered = set(selected) | set(FROZEN['files'])
+    directories = {str(Path(name).parent) for name in covered if Path(name).suffix in GO_INPUT_SUFFIXES}
+    roots = [name.removeprefix('./').removesuffix('/...') for name in TEST_PACKAGES]
+    required = {name for name in tree if Path(name).suffix in GO_INPUT_SUFFIXES and
+                (str(Path(name).parent) in directories or any(name.startswith(parent + '/') for parent in roots))}
+    if required - covered:
+        raise RuntimeError('incomplete fixed compile package closure')
+    actual, errors = set(), []
+    for directory, directories, files in os.walk(REPO):
+        for name in directories:
+            path = Path(directory) / name
+            if path.is_symlink():
+                errors.append({'path': str(path.relative_to(REPO)), 'reason': 'symlink directory'})
+        for name in files:
+            relative = str((Path(directory) / name).relative_to(REPO))
+            if relative not in FROZEN['files']:
+                actual.add(relative)
+    hashes, mismatches = {}, []
+    for name in sorted(set(selected) & actual):
+        path = REPO / name
+        if path.is_symlink() or not path.is_file():
+            errors.append({'path': name, 'reason': 'not a regular accepted file'})
+            continue
+        data = path.read_bytes()
+        sha = hashlib.sha256(data).hexdigest()
+        oid = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+        hashes[name] = sha
+        if sha != expected['files'][name]['sha256'] or oid != selected[name]['git_blob']:
+            mismatches.append(name)
+    missing, unexpected = sorted(set(selected) - actual), sorted(actual - set(selected))
+    return {'product_base': BASE, 'git_tree_sha256': tree_sha, 'accepted_count': len(selected),
+            'files': hashes, 'missing': missing, 'unexpected': unexpected,
+            'mismatches': mismatches, 'errors': errors,
+            'accepted': not (missing or unexpected or mismatches or errors)}
+
+
+# Same test package roots selected by the fixed PG driver (including -objects),
+# plus the fixture binaries built by its shell/SMTP chain. Discovery starts none.
+TEST_PACKAGES = ['./internal/central/postgres/...', './tests/database/...', './internal/central/app/...', './tests/process/...', './tests/security/...', './tests/outbox/...', './internal/central/outbox/...', './tests/account/...', './tests/accountmail/...', './internal/central/accountmail/...', './internal/central/recoverylog/...', './tests/project/...', './internal/central/model/...', './tests/model/...', './tests/objects/...', './internal/central/object/...']
+HELPER_PACKAGES = ['./tests/testsupport/objectstore/cmd/fixture', './tests/testsupport/outbound/cmd/fixture', './tests/testsupport/outbound/cmd/server', './tests/testsupport/postgres/cmd/fixture']
+NATIVE_PACKAGES = ['./internal/central/audit/http']
+
+
+def runtime_environment():
+    env = {key: value for key, value in os.environ.items() if not key.startswith('AGENTEAM_')}
+    env.update({'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': MODCACHE,
+                'GOCACHE': str(ROOT / 'gocache'), 'TMPDIR': str(ROOT / 'tmp'),
+                'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1'})
+    return env
+
+
+def runtime_input():
+    env = runtime_environment()
+    go_environment = json.loads(subprocess.check_output([GO, 'env', '-json', 'GOVERSION', 'CC', 'CXX', 'GOTOOLDIR', 'GOOS', 'GOARCH', 'CGO_CFLAGS', 'CGO_CPPFLAGS', 'CGO_CXXFLAGS', 'CGO_LDFLAGS'], cwd=REPO, env=env, timeout=20))
+    if go_environment['GOVERSION'] != 'go1.27.1':
+        raise RuntimeError('wrong Go toolchain')
+    discovery_argv = [GO, 'list', '-race', '-deps', '-test', '-tags=integration', '-json', *TEST_PACKAGES, *HELPER_PACKAGES, *NATIVE_PACKAGES]
+    raw = subprocess.check_output(discovery_argv, cwd=REPO, env=env, timeout=60)
+    decoder, text, offset = json.JSONDecoder(), raw.decode(), 0
+    files = {Path(GO), Path(MINIO)}
+    executables = {'python': str(Path(sys.executable).resolve())}
+    for name in ['sh', 'docker', 'mktemp', 'rm', 'rmdir', 'dirname', go_environment['CC'], go_environment['CXX']]:
+        path = shutil.which(name, path=env.get('PATH'))
+        if path is None:
+            raise RuntimeError('required runtime executable is absent')
+        executables[name] = str(Path(path).resolve())
+    files.update(Path(path) for path in executables.values())
+    goroot = Path(GO).parent.parent.resolve()
+    for name in ['compile', 'link', 'asm', 'cgo', 'vet']:
+        files.add(goroot / 'pkg/tool/linux_amd64' / name)
+    fields = ['GoFiles', 'CgoFiles', 'CFiles', 'CXXFiles', 'MFiles', 'HFiles', 'FFiles', 'SFiles', 'SwigFiles', 'SwigCXXFiles', 'SysoFiles', 'EmbedFiles', 'TestGoFiles', 'XTestGoFiles']
+    modules, packages, generated = {}, set(), set()
+    while offset < len(text):
+        while offset < len(text) and text[offset].isspace():
+            offset += 1
+        if offset == len(text):
+            break
+        package, offset = decoder.raw_decode(text, offset)
+        if package.get('Error') or package.get('DepsErrors'):
+            raise RuntimeError('runtime dependency discovery failed')
+        packages.add(package['ImportPath'])
+        module = package.get('Module', {})
+        if module and not module.get('Main'):
+            if module.get('Replace'):
+                raise RuntimeError('unexpected replacement in locked runtime')
+            modules[module['Path']] = {key: module.get(key) for key in ['Version', 'Dir', 'GoMod', 'Sum', 'GoModSum']}
+            files.add(Path(module['GoMod']))
+        directory = Path(package.get('Dir', str(REPO)))
+        for field in fields:
+            for name in package.get(field, []):
+                path = (directory / name).resolve()
+                if path.is_relative_to(REPO):
+                    name = str(path.relative_to(REPO))
+                    if name not in FROZEN['files'] and name not in FROZEN['accepted_baseline']['files']:
+                        raise RuntimeError('runtime local input outside bound closure')
+                    continue
+                if path.is_relative_to(ROOT / 'gocache') or path.is_relative_to(ROOT / 'tmp'):
+                    if not package['ImportPath'].endswith('.test'):
+                        raise RuntimeError('unexpected generated compilation input')
+                    generated.add(package['ImportPath'])
+                    continue
+                if not path.is_relative_to(goroot) and not path.is_relative_to(Path(MODCACHE)):
+                    raise RuntimeError('compilation dependency outside fixed runtime')
+                files.add(path)
+    hashes = {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(files)}
+    if hashes[MINIO] != 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8':
+        raise RuntimeError('fixed MinIO binary mismatch')
+    return {'go': GO, 'modcache': MODCACHE, 'minio': MINIO, 'files': hashes,
+            'modules': dict(sorted(modules.items())), 'packages': sorted(packages),
+            'generated_test_mains': sorted(generated), 'go_environment': go_environment,
+            'executables': executables, 'discovery_argv': discovery_argv,
+            'discovery_env': {key: env[key] for key in ['GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
+
+
+def resource_topology(observed, smtp):
+    expected = {
+        'agenteam.d03.fixture': {'container': 2, 'network': 1},
+        'agenteam.d04.networkfixture': {'container': 1, 'network': 1},
+        'agenteam.d05.objectfixture': {'container': 1, 'network': 1},
+    }
+    if smtp:
+        expected['agenteam.d07.smtpfixture'] = {'container': 1, 'network': 1}
+    found, nonces = {}, {}
+    for row in observed.values():
+        labels = row.get('labels') or {}
+        ownership = [(key, labels[key]) for key in expected if key in labels]
+        if len(ownership) != 1 or re.fullmatch('[0-9a-f]{32}', ownership[0][1]) is None:
+            return False
+        label, nonce = ownership[0]
+        if label in nonces and nonces[label] != nonce:
+            return False
+        nonces[label] = nonce
+        kinds = found.setdefault(label, {})
+        kinds[row['kind']] = kinds.get(row['kind'], 0) + 1
+    return found == expected
+
+
+def source_input():
+    sha = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+    return {
+        'product_base': BASE,
+        'accepted_baseline': accepted_baseline_input(),
+        'files': {name: sha(REPO / name) for name in FROZEN['files']},
+        'runtime': runtime_input(),
+    }
+
+
+def main():
+    global FROZEN
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--name', required=True)
+    parser.add_argument('--group', choices=['native', 'native-slow', 'new-account', 'new-root', 'old'], required=True)
+    parser.add_argument('--frozen', type=Path, required=True)
+    parser.add_argument('--modcache', required=True)
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker or process monitor')
+    mode.add_argument('--execute-authorized', action='store_true', help='only after root transfers the real-resource window')
+    args = parser.parse_args()
+    if '/' in args.name or '..' in args.name:
+        raise ValueError('invalid run name')
+    groups = {
+        'native': ['TestAuditHTTPNativeEOFAndKeepAlive', 'TestAuditHTTPNativeSlowBodyBudgets', 'TestAuditHTTPNativeWriteAndFlushAbort'],
+        'native-slow': ['TestAuditHTTPNativeSlowBodyBudgets'],
+        'new-account': ['TestSystemAuditHTTPQueryAndProjection', 'TestSystemAuditHTTPTransactionAndBudget'],
+        'new-root': ['TestSystemAuditHTTPRootProducerBinding'],
+        'old': ['TestAuditPaginationBindingsFiltersAndRevocation'],
+    }
+    if str(Path(args.modcache).resolve()) != MODCACHE:
+        raise ValueError('modcache differs from frozen runtime')
+    expected = set(groups[args.group])
+    args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
+    frozen_bytes = args.frozen.read_bytes()
+    FROZEN = json.loads(frozen_bytes)
+    if FROZEN['product_base'] != BASE:
+        raise ValueError('wrong accepted backend baseline')
+    if hashlib.sha256(Path(__file__).read_bytes()).hexdigest() != FROZEN['driver_sha256']:
+        raise RuntimeError('driver differs from frozen input')
+    if args.check_input_only:
+        current = source_input()
+        same = all(current[key] == FROZEN[key] for key in ['files', 'runtime'])
+        accepted = current['accepted_baseline']['accepted']
+        print(json.dumps({'candidate_runtime_match': same, 'accepted_baseline': accepted,
+                          'accepted_count': current['accepted_baseline']['accepted_count'],
+                          'missing': current['accepted_baseline']['missing'], 'unexpected': current['accepted_baseline']['unexpected'],
+                          'mismatches': current['accepted_baseline']['mismatches'], 'errors': current['accepted_baseline']['errors'],
+                          'product_base': BASE, 'resources_started': False}), flush=True)
+        return 0 if same and accepted else 1
+    if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+        raise RuntimeError('cannot become task child subreaper')
+    run = ROOT / 'runs' / args.name
+    run.mkdir(parents=True, mode=0o700)
+    driver_bytes = Path(__file__).read_bytes()
+    (run / 'driver.py.txt').write_bytes(driver_bytes)
+    verification_inputs = {'driver_sha256': hashlib.sha256(driver_bytes).hexdigest(),
+                           'frozen_input_sha256': hashlib.sha256(frozen_bytes).hexdigest()}
+    write(run / 'verification-input.json', verification_inputs)
+    runtime = run / 'runtime'
+    runtime.mkdir(mode=0o700)
+    before = source_input()
+    if not before['accepted_baseline']['accepted']:
+        write(run / 'input-rejected.json', before)
+        raise RuntimeError('accepted baseline gate failed before any resource or fixture starts')
+    if any(before[key] != FROZEN[key] for key in ['files', 'runtime']):
+        raise RuntimeError('candidate source/runtime differs from frozen input')
+    if args.frozen.read_bytes() != frozen_bytes:
+        raise RuntimeError('frozen manifest changed during input gate')
+    (run / 'frozen-input.json').write_bytes(frozen_bytes)
+    write(run / 'input-before.json', before)
+    baseline_processes = processes()
+    write(run / 'process-baseline.json', {pid: {key: row[key] for key in ['ppid','starttime','state','name','executable']} for pid,row in baseline_processes.items()})
+    fixture = args.group not in {'native', 'native-slow'}
+    baseline = resources() if fixture else {}
+    write(run / 'baseline.json', baseline)
+    env = runtime_environment()
+    flags = '-mod=readonly -buildvcs=false -p=1 -v'
+    env.update({'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+                'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': args.modcache,
+                'GOCACHE': str(ROOT / 'gocache'), 'TMPDIR': str(runtime),
+                'CGO_ENABLED': '1', 'GOFLAGS': flags})
+    argv = (['sh', 'scripts/test-security.sh', '-run', args.selector] if fixture else
+            [GO, 'test', '-race', '-count=1', '-timeout=45s', '-v', '-run', args.selector, './internal/central/audit/http'])
+    record = {'argv': argv, 'cwd': str(REPO), 'started_utc': utc(),
+              'env': {key: env[key] for key in ['AGENTEAM_GO', 'AGENTEAM_MINIO_BINARY', 'GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
+    write(run / 'command.json', record)
+    observed_resources, observed_processes, errors, adopted_waits = {}, {}, [], []
+    start = time.monotonic()
+    cancellations = []
+    with (run / 'raw.log').open('wb') as raw:
+        process = subprocess.Popen(argv, cwd=REPO, env=env, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)
+        print(json.dumps({'run': args.name, 'pid': process.pid, 'selector': args.selector}), flush=True)
+        def request_stop(signum, _frame):
+            cancellations.append({'signal': signum, 'time': utc(), 'target_pid': process.pid})
+            # The owned shell forwards TERM through the existing fixture chain,
+            # which owns resource cleanup. Continue observing and actually wait.
+            if process.poll() is None:
+                process.send_signal(signal.SIGTERM)
+        signal.signal(signal.SIGTERM, request_stop)
+        signal.signal(signal.SIGINT, request_stop)
+        next_resources = 0.0
+        while True:
+            current = processes()
+            owned = {process.pid} | {pid for pid, row in current.items() if row['ppid'] == os.getpid() or str(runtime).encode() in row['raw']}
+            for _ in range(12):
+                larger = owned | {pid for pid, row in current.items() if row['ppid'] in owned}
+                if larger == owned:
+                    break
+                owned = larger
+            for pid in owned:
+                if pid in current:
+                    row = current[pid]
+                    key = str(pid) + ':' + row['starttime']
+                    observed_processes[key] = {'pid': pid, 'starttime': row['starttime'], 'ppid': row['ppid'], 'name': row['name'],
+                                               'executable': row['executable'] or observed_processes.get(key, {}).get('executable', '')}
+            if fixture and time.monotonic() >= next_resources:
+                try:
+                    observed_resources.update({key: value for key, value in resources().items() if key not in baseline})
+                except Exception as exc:
+                    errors.append({'time': utc(), 'error': str(exc)})
+                next_resources = time.monotonic() + 1.0
+            reap_adopted(observed_processes, process.pid, adopted_waits)
+            if process.poll() is not None:
+                break
+            time.sleep(0.25)
+        exit_code = process.wait()
+    record.update({'exit': exit_code, 'seconds': round(time.monotonic() - start, 3), 'ended_utc': utc(), 'actual_wait_completed': True})
+    write(run / 'command.json', record)
+    write(run / 'observed-resources.json', observed_resources)
+    write(run / 'observed-processes.json', observed_processes)
+    write(run / 'monitor-errors.json', errors)
+    write(run / 'cancellation.json', cancellations)
+    cleanups = []
+    reap_adopted(observed_processes, process.pid, adopted_waits)
+    for _ in range(2):
+        reap_adopted(observed_processes, process.pid, adopted_waits)
+        current, proc = (resources() if fixture else {}), processes()
+        exact = {}
+        for resource_id, row in observed_resources.items():
+            result = subprocess.run(['docker', row['kind'], 'inspect', '--format', '{{json .Id}}', resource_id], capture_output=True, timeout=20)
+            missing = b'No such' in result.stderr or b'not found' in result.stderr
+            exact[resource_id] = {'absent': result.returncode != 0 and resource_id not in current and missing}
+        remaining = [row for row in observed_processes.values() if row['pid'] in proc and proc[row['pid']]['starttime'] == row['starttime']]
+        cleanups.append({'time': utc(), 'exact_absent': exact,
+                         'baseline_unchanged': {key: current.get(key) for key in baseline} == baseline,
+                         'remaining_new': sorted(set(current) - set(baseline)), 'owned_processes': remaining,
+                         'runtime_entries': sorted(path.name for path in runtime.iterdir())})
+        time.sleep(0.5)
+    write(run / 'cleanup.json', cleanups)
+    write(run / 'adopted-waits.json', adopted_waits)
+    after = source_input()
+    write(run / 'input-after.json', after)
+    clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['runtime'] == after['runtime'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
+               'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
+               'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+               'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}
+    verification_unchanged = Path(__file__).read_bytes() == driver_bytes and args.frozen.read_bytes() == frozen_bytes
+    summary['verification_inputs_unchanged'] = verification_unchanged
+    tops = re.findall(r'^--- (PASS|FAIL|SKIP): (\S+)', (run / 'raw.log').read_text(errors='replace'), re.MULTILINE)
+    summary['browser_processes'] = sum(row['name'] in {'chromium', 'chrome', 'chrome_crashpad'} for row in observed_processes.values())
+    summary['node_processes'] = sum(row['executable'] in {'node', 'nodejs'} for row in observed_processes.values())
+    summary['adopted_waits'] = len(adopted_waits)
+    summary['resource_topology_matches'] = resource_topology(observed_resources, False) if fixture else not observed_resources
+    summary['fixture_resources_started'] = fixture
+    summary['native_only'] = not fixture
+    summary['top_levels'] = tops
+    summary['selected_tests_passed'] = len(tops) == len(expected) and {name for state, name in tops if state == 'PASS'} == expected
+    summary['historical_zombies_untouched'] = [{key: row[key] for key in ['ppid','starttime','state','name']} | {'pid':pid} for pid,row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z']
+    write(run / 'result.json', summary)
+    print(json.dumps(summary), flush=True)
+    return 0 if exit_code == 0 and clean and len(observed_resources) == (7 if fixture else 0) and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] and not summary['browser_processes'] and not summary['node_processes'] and summary['resource_topology_matches'] else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

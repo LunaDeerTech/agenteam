@@ -1,0 +1,19 @@
+=== RUN   TestAuditHTTPNativeEOFAndKeepAlive
+--- PASS: TestAuditHTTPNativeEOFAndKeepAlive (0.20s)
+=== RUN   TestAuditHTTPNativeSlowBodyBudgets
+=== RUN   TestAuditHTTPNativeSlowBodyBudgets/local-three-seconds
+    handler_test.go:1011: native deadline/actual close boundary true context canceled 3.002585778s 0 1
+=== RUN   TestAuditHTTPNativeSlowBodyBudgets/earlier-parent
+    handler_test.go:1011: native deadline/actual close boundary true context canceled 120.974343ms 0 1
+--- FAIL: TestAuditHTTPNativeSlowBodyBudgets (3.13s)
+    --- FAIL: TestAuditHTTPNativeSlowBodyBudgets/local-three-seconds (3.00s)
+    --- FAIL: TestAuditHTTPNativeSlowBodyBudgets/earlier-parent (0.12s)
+=== RUN   TestAuditHTTPNativeWriteAndFlushAbort
+=== RUN   TestAuditHTTPNativeWriteAndFlushAbort/short-write
+=== RUN   TestAuditHTTPNativeWriteAndFlushAbort/flush-error
+--- PASS: TestAuditHTTPNativeWriteAndFlushAbort (0.00s)
+    --- PASS: TestAuditHTTPNativeWriteAndFlushAbort/short-write (0.00s)
+    --- PASS: TestAuditHTTPNativeWriteAndFlushAbort/flush-error (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/audit/http	3.345s
+FAIL

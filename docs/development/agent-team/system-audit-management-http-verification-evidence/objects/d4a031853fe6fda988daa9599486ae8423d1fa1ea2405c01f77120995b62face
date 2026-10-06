@@ -1,0 +1,92 @@
+[
+  {
+    "pointer": "/components/schemas/ObjectUploadCompleteRecord/properties/metadata/oneOf/0/properties/media_type",
+    "schema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+      "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+    }
+  },
+  {
+    "pointer": "/components/schemas/ObjectUploadCompleteRecord/properties/metadata/oneOf/1/properties/media_type",
+    "schema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+      "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+    }
+  },
+  {
+    "pointer": "/components/schemas/ObjectUploadCompleteRecord/properties/metadata/oneOf/2/properties/media_type",
+    "schema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+      "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+    }
+  },
+  {
+    "pointer": "/components/schemas/ObjectUploadFailedRecord/properties/metadata/oneOf/0/properties/media_type",
+    "schema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+      "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+    }
+  },
+  {
+    "pointer": "/components/schemas/ObjectUploadFailedRecord/properties/metadata/oneOf/1/properties/media_type",
+    "schema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+      "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+    }
+  },
+  {
+    "pointer": "/components/schemas/ObjectUploadFailedRecord/properties/metadata/oneOf/2/properties/media_type",
+    "schema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+      "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+    }
+  },
+  {
+    "pointer": "/components/schemas/ObjectDeleteRecord/properties/metadata/oneOf/0/properties/media_type",
+    "schema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+      "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+    }
+  },
+  {
+    "pointer": "/components/schemas/ObjectDeleteRecord/properties/metadata/oneOf/1/properties/media_type",
+    "schema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+      "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+    }
+  },
+  {
+    "pointer": "/components/schemas/ObjectDeleteRecord/properties/metadata/oneOf/2/properties/media_type",
+    "schema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+      "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+    }
+  }
+]

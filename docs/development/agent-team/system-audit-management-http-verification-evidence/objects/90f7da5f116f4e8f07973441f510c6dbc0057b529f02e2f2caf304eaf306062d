@@ -1,0 +1,111 @@
+{
+  "status": "OFFLINE READY; real independent01 separately authorized and now running, no real conclusion yet",
+  "fixed_author_input": {
+    "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/manifest.json",
+    "sha256": "c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b"
+  },
+  "execution": {
+    "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/execution01.json",
+    "sha256": "61cf25bfa18217eba933e8ef9cfaba9be392fef8993b3dbfe7a1521b0485d313"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/driver01.py",
+    "sha256": "39dbef23524f1d90ae94c9663d899ac8d4233f114fd374a3048c68d049357838"
+  },
+  "driver_diff": {
+    "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/driver-author-to-independent01.diff",
+    "sha256": "fbb589a505983e9a919cc05c3287c990d4122e9b6c676f899ee720e3f6194dd1"
+  },
+  "probe_files": {
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/probe/audit_account_independent_test.go": "a207d5daa7965b2da7577fb7509407b9a7ac2641e1248838fbcb7f24fda3bee2",
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/probe/audit_root_independent_test.go": "26185a535b2e96a7fd7b3210f4f46aa3778244cc70fe502c1ff46026965bd0a5"
+  },
+  "fixed_counts": {
+    "candidate": 13,
+    "accepted_dependencies": 893,
+    "external_runtime_and_overlay": 3504,
+    "private_inputs": 4,
+    "go_packages": 455
+  },
+  "checks": {
+    "compile01": {
+      "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/compile01",
+      "result_sha256": "47a54c7d562fd96d41d9e3871f517991be7d4aa1ca02907d75fc7661c4df03b6",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_sha256": "e0b135acd0f7d30bd8f62c3e8f39b30dd64e41ba3b31a4b5adc18bc1923313f8",
+      "cleanup_sha256": "98fb0c80947612cf717971b6f5c4ee8d3bf91c47921166977a56496c5057acbe",
+      "actual_exit": 0,
+      "seconds": 36.20118193200142,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_process_count": 70
+    },
+    "vet01": {
+      "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/vet01",
+      "result_sha256": "be12000103a074e9e96633ca14514b4a28fc530d351984873d65ac5b6008be5f",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_sha256": "72f472ab283241998bb468faa986d308e0a6e5b6dee9386412f7c1c490d95380",
+      "cleanup_sha256": "205a913050c099cd0d309111b63dd4f97b2b0fb1f798a24fa796ad06687b22e4",
+      "actual_exit": 0,
+      "seconds": 8.549154753998664,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_process_count": 189
+    },
+    "discovery01": {
+      "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/discovery01",
+      "result_sha256": "37de47771950ae7dfe2841978ffb72db9e1e3286635fb69322c4d63f162fa164",
+      "raw_sha256": "23130a6d29ac062db4d4a72276d3aaffb84cf82cd9a11aa30e16f1ec97724526",
+      "command_sha256": "aeaff99b8a90834547f5d088779004c4474862fa8e51980d4bab0f88dad97af3",
+      "cleanup_sha256": "7ab21980ce64860a3a1598abc175a9999b04a6f11126fac138240d5edf154b8b",
+      "actual_exit": 0,
+      "seconds": 2.065773801999967,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_process_count": 3
+    },
+    "closure01": {
+      "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/closure01",
+      "result_sha256": "03bf264ab3cbae00b60d8ba33c46ef0dd5605801a718b6a9f1be60bae0a5aebd",
+      "raw_sha256": "2e88daf49a2cee69fef305c11f6b97bca4cd13602d13403d2144dc91d79a6b66",
+      "command_sha256": "3e883d6bce63713856b7eee2c88a0eb19829b624efeec947cc0eba897fc3d967",
+      "cleanup_sha256": "7a703a449fb9ca91110711096c04fa4f33ad11bd1e92f139307b671a1e3f6060",
+      "actual_exit": 0,
+      "seconds": 1.272613203000219,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_process_count": 4
+    },
+    "gate01": {
+      "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/gate01",
+      "result_sha256": "2bdf1e698982f89203c869142c0e45c6dd0f62119c4d71b308c6fd4039ee439f",
+      "raw_sha256": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d",
+      "command_sha256": "b081bfeb590e3cc536fb60261a992d4bac39d4ee6a5fa3b282ba4fd72d421612",
+      "cleanup_sha256": "d01b9daf92e93bfb6fc05085aff9db9cbacaf6f5470e88831ca42c70755848c6",
+      "actual_exit": 0,
+      "seconds": 1.2417890560009255,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_process_count": 3
+    },
+    "start-gate01": {
+      "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/start-gate01",
+      "result_sha256": "790f37da32dee67af5b4aeace83f5dfa3a1a2031cfefb7c1c9bac23c82dfbd1b",
+      "raw_sha256": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d",
+      "command_sha256": "7d1098650b20f910a34b5f4d8194205a3d8925190b0edff1522a63a7a97b64dd",
+      "cleanup_sha256": "7ce029a436ecbbfbf76037e6ac6f1f2c584eb03c697f463aa1fcc318dfaee565",
+      "actual_exit": 0,
+      "seconds": 1.2070767850000266,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_process_count": 2
+    }
+  },
+  "boundary": "A uses formal PostgreSQL/Account with a controlled observable HTTP writer; B uses native root HTTP and same actual connection. Neither claims real Unknown injection. 2min/top, race count1, pkg6m, exact7 fixture resources; no SMTP/browser. No product or original fixture edits."
+}

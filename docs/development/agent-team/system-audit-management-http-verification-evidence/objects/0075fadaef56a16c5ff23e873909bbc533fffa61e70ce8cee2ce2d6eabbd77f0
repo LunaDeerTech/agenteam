@@ -1,0 +1,18 @@
+# System Audit HTTP 独立验收
+
+**PASS，限授权 13 个候选路径。** 最终固定 `Q/input03/manifest.json`（`c6a4d578…c551b`），产品 `213cf5c`、依赖 Git `f843506`。精确路径、源副本和 SHA 见同根 `delivery13.json`；第 14 文档未包含。
+
+独立证据分三阶段组合：IQ 查询受控验证、IH HTTP/DTO 受控验证，以及本轮两组真实代表。逐 SHA 核对查询 3 源、HTTP handler/wire/schema 未变；最终 handler_test 只修原生慢体时钟前提，未把测试文件冒称同字节。阶段报告的精确永久位置及 SHA 见 `verification-report.json`。作者已验 native 两旧通过项 + native02 受影响项、正式账户/根/旧分页代表按最终原件复用，不重复全矩阵。
+
+| 本轮精确顶层 | 实际结果 | 主要事实 |
+| --- | --- | --- |
+| `TestAuditIndependentCurrentAuthorityAndTerminal` | PASS，3.10s | 正式 Logout 后同 Tx 重新授权；真实 UserSH 阻塞 Logout EX；扫描后保持实际事务，受控 writer 的 status/body 均未发布，提交后成功；较早 parent 到期后实际尾部完成才退出，零成功状态/候选 |
+| `TestAuditIndependentRootProducerProjection` | PASS，2.32s | 正式 Profile×2、Outbound×1；同根同一原生连接顺序 list/detail；分页换 limit 与 filter 绑定、闭合 typed DTO/golden、唯一 RequestID 对应一条日志、只读前后计数相等、实际根关闭 join |
+
+`runs/independent01` 是唯一独立真实轮：原命令 actual exit0 /105.717s，工具会话 37838 实际关闭。7 个 exact ID 两扫 absent，122 个 owned PID/starttime 两扫空，0 adopted wait，runtime 空；原 2 容器/4 网络基线不变。13+893 固定源闭包、3504 runtime/overlay 输入及私有材料前后相同。原 argv/env/raw/result/cleanup 和输入前后 SHA 均保留，不追加业务轮。此前 race 双包编译、vet、各 1 个精确发现、完整 driver 门禁均实际通过，细节见准备报告。
+
+证据边界：A 是真实 PG 加受控 writer，不能称 TCP 提交前零字节；B 证明正常原生连接，不代替 A 的事务门禁。真实 Unknown 未注入，复用 IQ/IH。自然 3s/较早 parent 的原生证据来自作者分轮测试；B 的 client.Timeout 不作为服务端 parent 证明。
+
+原失败全部保留：IQ 私有闭包字段 DeepEqual 前提、作者 query 零 UUID/原失败尾部 join 缺口；HTTP enum/ref-base 和成功误用 Problem trace；native01 两个慢体断言前提。native01 仍为实际 exit1，未改称单轮全绿。本轮私有两代表没有失败或重跑。
+
+未改 13 源、共享夹具、主树或 Git。主线新增 Outbound UI/harness 未被冒称本轮实测，后续同包有界编译由 root 整合时独立记录。文档末件、Project Audit/UI/SPA 以及停止的 Object/tools 不在验收范围。现在无活动命令或任务资源，窗口已交回。

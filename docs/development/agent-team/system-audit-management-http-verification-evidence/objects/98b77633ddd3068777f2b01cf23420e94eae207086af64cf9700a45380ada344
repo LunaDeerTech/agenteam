@@ -1,0 +1,485 @@
+package audit
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"reflect"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	contract "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/jackc/pgx/v5"
+)
+
+const systemRecordID = "01900000-0000-7000-8000-000000000008"
+
+type auditReadStore struct {
+	Store
+	t          *testing.T
+	tx         foundation.Tx
+	held       bool
+	steps      []string
+	query      string
+	args       []any
+	row        scanner
+	scan       func(context.Context) scanner
+	queryError error
+	acquireErr error
+	result     *foundation.CommitResult
+	tail       func(context.Context)
+	started    atomic.Int32
+	active     atomic.Int32
+}
+
+func (s *auditReadStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
+	s.started.Add(1)
+	s.active.Add(1)
+	defer s.active.Add(-1)
+	if cause.Validate() != nil || cause.Details().Kind != foundation.RecoveryCause || cause.Details().Owner != "audit.system-read" {
+		s.t.Error("read has no private recovery cause")
+	}
+	s.tx = foundation.NewTx()
+	s.steps = append(s.steps, "begin")
+	err := fn(ctx, s.tx)
+	s.steps = append(s.steps, "callback-ended")
+	if s.tail != nil {
+		s.tail(ctx)
+	}
+	s.steps = append(s.steps, "transaction-ended")
+	if s.result != nil {
+		return *s.result
+	}
+	if err != nil {
+		var fault *foundation.Fault
+		if !errors.As(err, &fault) {
+			fault = foundation.NewFault(foundation.InternalError, foundation.NotCommitted).WithCause(err)
+		}
+		return foundation.NotCommittedResult(fault)
+	}
+	return foundation.CommittedResult()
+}
+
+func (s *auditReadStore) Acquire(_ context.Context, tx foundation.Tx, key foundation.LockKey, mode foundation.LockMode) error {
+	want, _ := foundation.UserLock("01900000-0000-7000-8000-000000000001")
+	if tx != s.tx || foundation.CompareLockKeys(key, want) != 0 || mode != foundation.Shared {
+		s.t.Error("wrong transaction/user/lock mode")
+	}
+	s.steps = append(s.steps, "user-shared")
+	s.held = s.acquireErr == nil
+	return s.acquireErr
+}
+
+func (s *auditReadStore) InTx(tx foundation.Tx) (postgres.SQLExecutor, error) {
+	if !s.held || tx != s.tx {
+		return nil, errors.New("transaction lock missing")
+	}
+	s.steps = append(s.steps, "executor")
+	return s, nil
+}
+
+func (s *auditReadStore) QueryRow(ctx context.Context, sql string, args ...any) postgres.Row {
+	s.steps = append(s.steps, "query-row")
+	s.query, s.args = sql, args
+	if s.scan != nil {
+		return s.scan(ctx)
+	}
+	return s.row
+}
+
+func (s *auditReadStore) Query(_ context.Context, sql string, args ...any) (*postgres.Rows, error) {
+	s.steps = append(s.steps, "query")
+	s.query, s.args = sql, args
+	return nil, s.queryError
+}
+
+type auditScanFunc func(...any) error
+
+func (f auditScanFunc) Scan(values ...any) error { return f(values...) }
+
+type auditTestRow struct {
+	values []any
+	err    error
+}
+
+func (r auditTestRow) Scan(dest ...any) error {
+	if r.err != nil {
+		return r.err
+	}
+	if len(dest) != len(r.values) {
+		return fmt.Errorf("scan arity %d", len(dest))
+	}
+	for i, value := range r.values {
+		reflect.ValueOf(dest[i]).Elem().Set(reflect.ValueOf(value))
+	}
+	return nil
+}
+
+func systemTestRow() auditTestRow {
+	return auditTestRow{values: []any{systemRecordID, time.Date(2026, 10, 6, 1, 2, 3, 123456000, time.UTC), "system", "", "human", "01900000-0000-7000-8000-000000000001", "01900000-0000-7000-8000-000000000002", "", "", "", "", "", "secret.create", "success", "secret", "01900000-0000-7000-8000-000000000004", `{"version":"1","changed_fields":["value"]}`, "", "", "", "", "", "", "", "", ""}}
+}
+
+func systemTestService(t *testing.T) (*Service, *auditReadStore, identity.Actor, contract.ID) {
+	t.Helper()
+	keys, err := cursor.LoadKeyring(`{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	actor := testEntry(t, "01900000-0000-7000-8000-000000000002", "", "").Fields().Actor
+	store := &auditReadStore{t: t, row: systemTestRow(), queryError: errors.New("query-stop-canary")}
+	check := func(tx foundation.Tx, name string) {
+		if !tx.Valid() || tx != store.tx || !store.held {
+			t.Errorf("%s bypassed same-Tx shared lock", name)
+		}
+		store.steps = append(store.steps, name)
+	}
+	service, err := New(store, keys, Authorizations{
+		Sessions: sessionPort(func(_ context.Context, tx foundation.Tx, got identity.Actor) error {
+			check(tx, "session")
+			if got.Details() != actor.Details() {
+				t.Error("Session principal changed")
+			}
+			return nil
+		}),
+		System: systemPort(func(_ context.Context, tx foundation.Tx, got identity.Actor, intent identity.AccessIntent) (identity.AccessGrant, error) {
+			check(tx, "administrator")
+			now, _ := foundation.NewInstant(time.Now())
+			return identity.NewAccessGrant(got, identity.SystemScope(), intent, now, 1)
+		}),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, _ := foundation.ParseID[contract.Record](systemRecordID)
+	return service, store, actor, id
+}
+
+func wantSystemFault(t *testing.T, err error, code foundation.Code, state foundation.CommitState) {
+	t.Helper()
+	var fault *foundation.Fault
+	if !errors.As(err, &fault) || fault.Code != code || fault.CommitState != state {
+		t.Fatalf("wanted %s/%s, got %v", code, state, err)
+	}
+}
+
+func TestSystemAuditReadTransactionPublication(t *testing.T) {
+	service, store, actor, id := systemTestService(t)
+	entered, release := make(chan struct{}), make(chan struct{})
+	var once sync.Once
+	store.tail = func(context.Context) { close(entered); <-release }
+	type result struct {
+		record contract.SafeRecord
+		err    error
+	}
+	done := make(chan result, 1)
+	go func() { record, err := service.GetSystem(context.Background(), actor, id); done <- result{record, err} }()
+	t.Cleanup(func() {
+		once.Do(func() { close(release) })
+		if store.active.Load() != 0 {
+			<-done
+		}
+	})
+	select {
+	case <-entered:
+	case <-time.After(time.Second):
+		t.Fatal("did not reach transaction tail")
+	}
+	select {
+	case <-done:
+		t.Fatal("candidate escaped before transaction ended")
+	default:
+	}
+	if store.active.Load() != 1 {
+		t.Fatal("transaction ownership released early")
+	}
+	once.Do(func() { close(release) })
+	got := <-done
+	if got.err != nil || got.record.AuditID != id || store.active.Load() != 0 {
+		t.Fatal("normal transaction did not publish one record", got.err)
+	}
+	want := []string{"begin", "user-shared", "session", "administrator", "executor", "query-row", "callback-ended", "transaction-ended"}
+	if !reflect.DeepEqual(store.steps, want) || store.started.Load() != 1 {
+		t.Fatal("transaction sequence changed", store.steps)
+	}
+	if !strings.Contains(store.query, "WHERE scope=$1 AND scope_key=$2 AND id=$3") || !reflect.DeepEqual(store.args, []any{"system", "system", id.String()}) {
+		t.Fatal("detail query scope changed", store.args)
+	}
+}
+
+func TestSystemAuditReadFailureHasZeroCandidate(t *testing.T) {
+	for _, name := range []string{"unknown", "not-committed", "cancel-after-scan", "revoked", "forged-grant", "lock", "wrong-scope", "not-found", "bad-time"} {
+		t.Run(name, func(t *testing.T) {
+			service, store, actor, id := systemTestService(t)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			code, state := foundation.DependencyUnavailable, foundation.NotCommitted
+			switch name {
+			case "unknown":
+				attempt, _ := foundation.NewID[foundation.TransactionAttempt]()
+				cause, _ := foundation.NewRecoveryCause("test", id.String(), "")
+				value := foundation.UnknownResult(attempt, cause)
+				store.result = &value
+				code, state = foundation.CommitUnknown, foundation.Unknown
+			case "not-committed":
+				value := foundation.NotCommittedResult(foundation.NewFault(foundation.Forbidden, foundation.NotStarted))
+				store.result = &value
+				code = foundation.Forbidden
+			case "cancel-after-scan":
+				store.tail = func(context.Context) { cancel() }
+				state = foundation.NotStarted
+			case "revoked":
+				service.auth.Sessions = sessionPort(func(context.Context, foundation.Tx, identity.Actor) error {
+					return foundation.NewFault(foundation.SessionRevoked, foundation.NotStarted)
+				})
+				code = foundation.SessionRevoked
+			case "forged-grant":
+				service.auth.System = systemPort(func(context.Context, foundation.Tx, identity.Actor, identity.AccessIntent) (identity.AccessGrant, error) {
+					return identity.AccessGrant{}, nil
+				})
+			case "lock":
+				store.acquireErr = errors.New("lock-stop")
+			case "wrong-scope":
+				row := systemTestRow()
+				row.values[2], row.values[3] = "project", "01900000-0000-7000-8000-000000000003"
+				store.row = row
+			case "not-found":
+				store.row = auditTestRow{err: pgx.ErrNoRows}
+				code = foundation.NotFound
+			case "bad-time":
+				row := systemTestRow()
+				row.values[1] = time.Date(10000, 1, 1, 0, 0, 0, 0, time.UTC)
+				store.row = row
+			}
+			got, err := service.GetSystem(ctx, actor, id)
+			wantSystemFault(t, err, code, state)
+			if got.AuditID.String() != "" || got.Scope.Validate() == nil || store.active.Load() != 0 || store.started.Load() != 1 {
+				t.Fatal("failure published or retained transaction")
+			}
+			if (name == "revoked" || name == "forged-grant" || name == "lock") && store.query != "" {
+				t.Fatal("query before authority")
+			}
+		})
+	}
+}
+
+type auditTestRows struct {
+	rows          []auditTestRow
+	index, closes int
+	err, closeErr error
+}
+
+func (r *auditTestRows) Next() bool             { r.index++; return r.index <= len(r.rows) }
+func (r *auditTestRows) Scan(dest ...any) error { return r.rows[r.index-1].Scan(dest...) }
+func (r *auditTestRows) Err() error {
+	if r.closes > 0 && r.closeErr != nil {
+		return r.closeErr
+	}
+	return r.err
+}
+func (r *auditTestRows) Close() { r.closes++ }
+
+func TestSystemAuditPageScansSentinelAndClosesBeforePublication(t *testing.T) {
+	service, _, _, _ := systemTestService(t)
+	digest, _ := filterDigest(contract.Filter{})
+	binding := cursor.Binding{Scope: identity.SystemScope(), QueryDigest: digest, Order: cursor.AuditOrder}
+	for _, name := range []string{"success", "sentinel-scope", "sentinel-time", "sentinel-metadata", "sentinel-id", "rows-error", "close-error", "sign-error", "too-many"} {
+		t.Run(name, func(t *testing.T) {
+			first, extra := systemTestRow(), systemTestRow()
+			extra.values[0] = "01900000-0000-7000-8000-000000000007"
+			rows := &auditTestRows{rows: []auditTestRow{first, extra}}
+			current := *service
+			switch name {
+			case "sentinel-scope":
+				extra.values[2], extra.values[3] = "project", "01900000-0000-7000-8000-000000000003"
+			case "sentinel-time":
+				extra.values[1] = time.Date(10000, 1, 1, 0, 0, 0, 0, time.UTC)
+			case "sentinel-metadata":
+				extra.values[16] = `{"version":"1","changed_fields":["value"],"unknown":true}`
+			case "sentinel-id":
+				extra.values[0] = "bad"
+			case "rows-error":
+				rows.err = errors.New("rows-error")
+			case "close-error":
+				rows.closeErr = errors.New("close-error")
+			case "sign-error":
+				current.keys = cursor.Keyring{}
+			case "too-many":
+				rows.rows = append(rows.rows, systemTestRow())
+			}
+			got, err := current.recordPage(rows, binding, 1, systemRecord)
+			if rows.closes != 1 {
+				t.Fatal("rows not closed exactly once")
+			}
+			if name != "success" {
+				if err == nil || len(got.Items) != 0 || got.NextCursor != "" {
+					t.Fatal("failed sentinel/tail/sign exposed a page")
+				}
+				return
+			}
+			if err != nil || len(got.Items) != 1 || got.NextCursor == "" {
+				t.Fatal("valid page missing", err)
+			}
+			position, err := service.keys.Verify(got.NextCursor, binding)
+			if err != nil || position.Scalars[1].Value() != systemRecordID {
+				t.Fatal("cursor did not use last retained record")
+			}
+			legacy, err := service.recordPage(&auditTestRows{rows: []auditTestRow{first, extra}}, binding, 1, nil)
+			if err != nil || legacy.NextCursor != got.NextCursor || legacy.Items[0].AuditID != got.Items[0].AuditID {
+				t.Fatal("old page/cursor behavior changed")
+			}
+		})
+	}
+}
+
+func TestSystemAuditReadDeadlineAndActualTail(t *testing.T) {
+	for _, earlier := range []bool{false, true} {
+		name := "local-three-seconds"
+		parentBudget := 10 * time.Second
+		if earlier {
+			name = "earlier-parent"
+			parentBudget = 60 * time.Millisecond
+		}
+		t.Run(name, func(t *testing.T) {
+			service, store, actor, id := systemTestService(t)
+			parent, cancel := context.WithTimeout(context.Background(), parentBudget)
+			defer cancel()
+			parentDeadline, _ := parent.Deadline()
+			atEntry, expired, release := make(chan context.Context, 1), make(chan struct{}), make(chan struct{})
+			var once sync.Once
+			store.scan = func(ctx context.Context) scanner {
+				atEntry <- ctx
+				return auditScanFunc(func(...any) error { <-ctx.Done(); close(expired); <-release; return ctx.Err() })
+			}
+			done := make(chan error, 1)
+			start := time.Now()
+			go func() {
+				record, err := service.GetSystem(parent, actor, id)
+				if record.AuditID.String() != "" {
+					done <- errors.New("candidate after deadline")
+					return
+				}
+				done <- err
+			}()
+			t.Cleanup(func() {
+				cancel()
+				once.Do(func() { close(release) })
+				if store.active.Load() != 0 {
+					<-done
+				}
+			})
+			var actual context.Context
+			select {
+			case actual = <-atEntry:
+			case <-time.After(time.Second):
+				t.Fatal("query missing")
+			}
+			entered := time.Now()
+			deadline, ok := actual.Deadline()
+			if !ok || earlier && !deadline.Equal(parentDeadline) || !earlier && (deadline.Before(start.Add(3*time.Second)) || deadline.After(entered.Add(3*time.Second)) || !deadline.Before(parentDeadline)) {
+				t.Fatal("deadline extended or restarted")
+			}
+			select {
+			case <-expired:
+			case <-time.After(4 * time.Second):
+				t.Fatal("original query context did not expire")
+			}
+			if actual.Err() != context.DeadlineExceeded || !earlier && parent.Err() != nil {
+				t.Fatal("wrong cancellation boundary")
+			}
+			select {
+			case <-done:
+				t.Fatal("returned before real tail joined")
+			default:
+			}
+			if store.active.Load() != 1 {
+				t.Fatal("owner released before tail")
+			}
+			once.Do(func() { close(release) })
+			err := <-done
+			wantSystemFault(t, err, foundation.DependencyUnavailable, foundation.NotCommitted)
+			if !errors.Is(err, context.DeadlineExceeded) || store.active.Load() != 0 || store.started.Load() != 1 {
+				t.Fatal("cancel cause or actual terminal accounting lost")
+			}
+		})
+	}
+}
+
+func TestSystemAuditLegacyQueryScopeAndValidationEquivalence(t *testing.T) {
+	service, store, actor, id := systemTestService(t)
+	zeroCalls := 0
+	service.auth.Sessions = sessionPort(func(_ context.Context, tx foundation.Tx, _ identity.Actor) error {
+		if tx.Valid() {
+			t.Error("legacy Session gained a transaction")
+		}
+		zeroCalls++
+		return nil
+	})
+	service.auth.System = systemPort(func(_ context.Context, tx foundation.Tx, a identity.Actor, intent identity.AccessIntent) (identity.AccessGrant, error) {
+		if tx.Valid() {
+			t.Error("legacy authority gained a transaction")
+		}
+		now, _ := foundation.NewInstant(time.Now())
+		return identity.NewAccessGrant(a, identity.SystemScope(), intent, now, 1)
+	})
+	got, err := service.Get(context.Background(), actor, identity.SystemScope(), id)
+	if err != nil || got.AuditID != id || store.started.Load() != 0 || zeroCalls != 1 {
+		t.Fatal("legacy detail semantics changed", err)
+	}
+	_, err = service.List(context.Background(), actor, identity.SystemScope(), contract.Filter{}, foundation.PageRequest{Limit: 0})
+	wantSystemFault(t, err, foundation.InvalidArgument, foundation.NotStarted)
+	if zeroCalls != 2 {
+		t.Fatal("legacy validation moved before authorization")
+	}
+	_, err = service.List(context.Background(), actor, identity.SystemScope(), contract.Filter{ActorKind: identity.AgentRun, AgentID: id.String(), Action: contract.ProjectCreateAccepted}, foundation.PageRequest{Limit: 7})
+	wantSystemFault(t, err, foundation.DependencyUnavailable, foundation.NotStarted)
+	wantTail := "WHERE scope=$1 AND scope_key=$2 AND actor_kind=$3 AND action=$4 AND ((actor_kind='agent_run' AND agent_id=$5) OR (resource_kind='agent' AND resource_id=$5)) ORDER BY created_at DESC,id DESC LIMIT $6"
+	if !strings.HasSuffix(store.query, wantTail) || !reflect.DeepEqual(store.args, []any{"system", "system", "agent_run", string(contract.ProjectCreateAccepted), id.String(), 8}) {
+		t.Fatal("original filter/sentinel query changed")
+	}
+	project, _ := foundation.ParseID[identity.Project](id.String())
+	scope, _ := identity.InProject(project)
+	_, _ = service.listRecords(context.Background(), store, scope, contract.Filter{}, foundation.PageRequest{Limit: 1}, nil)
+	if !strings.HasSuffix(store.query, "WHERE scope=$1 AND scope_key=$2 AND project_id=$3 ORDER BY created_at DESC,id DESC LIMIT $4") || !reflect.DeepEqual(store.args, []any{"project", id.String(), id.String(), 2}) {
+		t.Fatal("legacy Project predicate changed")
+	}
+}
+
+func TestSystemAuditCursorBindingAndInvalidActor(t *testing.T) {
+	service, store, actor, _ := systemTestService(t)
+	digest, _ := filterDigest(contract.Filter{})
+	row, err := scanRecord(systemTestRow())
+	if err != nil {
+		t.Fatal(err)
+	}
+	at, _ := cursor.Instant(row.CreatedAt)
+	id, _ := cursor.UUID(row.AuditID.String())
+	binding := cursor.Binding{Scope: identity.SystemScope(), QueryDigest: digest, Order: cursor.AuditOrder}
+	token, err := service.keys.Sign(binding, cursor.Position{Scalars: []cursor.Scalar{at, id}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = service.ListSystem(context.Background(), actor, contract.Filter{}, foundation.PageRequest{Cursor: token, Limit: 200})
+	wantSystemFault(t, err, foundation.DependencyUnavailable, foundation.NotCommitted)
+	if !strings.Contains(store.query, "(created_at,id)<($3,$4)") || store.args[len(store.args)-1] != 201 {
+		t.Fatal("cursor bound page size or changed tuple")
+	}
+	store.query = ""
+	_, err = service.ListSystem(context.Background(), actor, contract.Filter{Outcome: contract.Success}, foundation.PageRequest{Cursor: token, Limit: 1})
+	wantSystemFault(t, err, foundation.CursorInvalid, foundation.NotCommitted)
+	if store.query != "" {
+		t.Fatal("changed filter reached SQL")
+	}
+	before := store.started.Load()
+	_, err = service.ListSystem(context.Background(), identity.Actor{}, contract.Filter{}, foundation.DefaultPageRequest())
+	wantSystemFault(t, err, foundation.Forbidden, foundation.NotStarted)
+	if store.started.Load() != before {
+		t.Fatal("invalid actor began transaction")
+	}
+}

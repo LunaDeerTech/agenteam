@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "from pathlib import Path; import hashlib,json,shutil; r=Path(\"/workspace/scratch/agenteam-system-audit-author-0iv75y_i\"); wanted={\"run-audit-fixture02.py\":\"67876ad55e3d07c9c5f7a49db4e16fc62c997b0238112ac680b20cee1d04a034\",\"driver-stage02/input.json\":\"0c0306932b4a61a8048c0f76520d5468e40b7512a197e9a353fb2c6c3a8be068\",\"input03/manifest.json\":\"c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b\"}; actual={n:hashlib.sha256((r/n).read_bytes()).hexdigest() for n in wanted}; free=shutil.disk_usage(r).free; unused=not (r/\"runs/new-root01\").exists(); print(json.dumps({\"hashes\":actual,\"hashes_match\":actual==wanted,\"run_name_unused\":unused,\"disk_free_bytes\":free,\"minimum_bytes\":5*1024**3,\"resources_started\":False})); assert actual==wanted and unused and free>=5*1024**3"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/workspace",
+  "env": {
+    "go": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/gocache",
+    "GOTMPDIR": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/tmp",
+    "TMPDIR": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly"
+  }
+}

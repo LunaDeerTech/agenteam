@@ -1,0 +1,26 @@
+{
+  "run_name": "format01",
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-w",
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/probe/audit_account_independent_test.go",
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/probe/audit_root_independent_test.go"
+  ],
+  "cwd": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/overlay01.json"
+  },
+  "files": {
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/run_offline.py": "de44ee7794f6db88b6df8ce9e8e3643f3fd788b32fdc0180b6feff73201c3e8b",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342"
+  },
+  "outer_limit_seconds": 30
+}

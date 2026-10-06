@@ -1,0 +1,62 @@
+--- docs/development/backend/audit.md
++++ docs/development/backend/audit.md
+@@ -1,6 +1,6 @@
+ # Audit 与签名 cursor
+ 
+-`internal/central/audit` 消费 D03 Store/Tx，`audit/contract` 只依赖基础类型与最小 `identity/contract`。`00002_audit.sql` 在同一全局迁移序列增加 `agenteam_audit.audit_records`。本块不创建 User/Session/Project 事实，不提供 Audit HTTP 路由；D07 绑定当前 Session/System 权限，D08 绑定 Owner/gate/删除 cause。未绑定端口返回 `DEPENDENCY_UNBOUND`。规格见 [D04 B01](../work-items/d04-security-design.md#4-b01audit-与签名-cursor)。
++`internal/central/audit` 消费 D03 Store/Tx，`audit/contract` 只依赖基础类型与最小 `identity/contract`。`00002_audit.sql` 在同一全局迁移序列增加 `agenteam_audit.audit_records`。本库不创建 User/Session/Project 事实；D07 绑定当前 Session/System 权限，D08 负责 Owner/gate/删除 cause。现有通用库语义保持，新增 System 管理 HTTP 见下节；不提供 Project Audit HTTP。未绑定端口返回 `DEPENDENCY_UNBOUND`。规格见 [D04 B01](../work-items/d04-security-design.md#4-b01audit-与签名-cursor)。
+ 
+ ## 写入与未知提交
+ 
+@@ -27,7 +27,7 @@
+ | `outbound.policy.update` | `PolicyMetadata`：version、0–256 rule_count；System scope |
+ | `outbound.access.deny` | `DenialMetadata`：consumer、固定 reason、policy version；outcome=denied |
+ 
+-版本和数量为规范十进制 JSON string。每个 action 绑定对应资源类型，Agent 只能提交本 Project 的 Secret resolve/出站拒绝事件；Project gate 仍须正式端口批准。SafeRecord 不返回 SessionID；summary 来自固定 action 文案，不复制关联对象正文。
++版本和数量为规范十进制 JSON string。每个 action 绑定对应资源类型，Agent 只能提交本 Project 的 Secret resolve/出站拒绝事件；Project gate 仍须正式端口批准。SafeRecord 的 ActorSummary 不返回认证 Actor 的 SessionID；正式 typed metadata/resource 中的 Session ID 仍是合法审计标识，不是 Cookie/token。summary 来自固定 action 文案，不复制关联对象正文。
+ 
+ ## 查询与清理
+ 
+@@ -40,6 +40,14 @@
+ `CleanupProject` 只接受注册 Project lifecycle Service 与同 Project/operation 的 Delete cause。每批 500 条短 Tx 先取得 Project exclusive gate，再由 D08 端口验证持久 deleting + stopped + operation/version。归档、普通 Owner/admin、错误 checkpoint 均不能清理。checkpoint 标识 Project/operation，LastID 仅是诊断值，不作为跳过记录的边界。
+ 
+ 未知提交重新拿 gate 并读取剩余记录，以免在旧事务未释放锁时推断完成；核实失败仍返回 `COMMIT_UNKNOWN`。不存在累计删除计数证明完成的路径。System 记录不动；延迟 Project append 必须再次通过同一持久 gate，不能重建已清理记录。D08 保存参与者进度；本块不实现完整项目删除引擎。
++
++## System 管理 HTTP
++
++当前管理员通过 GET /api/v1/system/audit 分页读取 System 记录，通过 GET /api/v1/system/audit/{id} 读取详情。列表恰返回 items/next_cursor，空为 []/null；详情返回单条记录。两口均为 GET-only，HEAD 等其他方法为405、Allow: GET，HEAD 错误无 body。正式路由、16个严格标量 query 和条件 DTO 见[工作卡](../work-items/d04-system-audit-management-http.md)与独立的 [Audit OpenAPI](../../../api/openapi/audit.json)。列表默认50条、显式1–200条，RawQuery 最多32 KiB、decoded cursor 最多8192B；详情无 query，两口均拒绝 body。原 Filter 合法集合与 cursor 的 scope/filter/order 绑定不变，limit 可变；cursor 不提供权限或跨页快照，其他 scope 的 ID 与不存在的 ID 同为404。
++
++HTTP 沿现 Account boundary 核 Cookie、Host/Origin/Fetch-Metadata；ListSystem/GetSystem 再在同一 Tx 内取得 User Shared 锁并核当前 Session/admin。全部记录含 limit+1 哨兵、rows.Err/Close、cursor 签发与实际事务尾部完成，正常 Committed 且 ctx 有效后才发布。失败、失权、取消或 Unknown 均零候选；Unknown 保留 COMMIT_UNKNOWN/unknown，无新 lookup 或自动重读。正式 Logout 的 User Exclusive 与读取串行，root 复用同一原 auditor/core。旧通用 List/Get、Project、Append/LookupAppend/Cleanup 语义不变。
++
++输出为闭合十字段 DTO，保留37种 action、13个 Service、17类 resource 和5种允许关联及其条件约束。metadata 经正式 typed 构造器重建，默认 JSON 转义后最多4096B；不输出认证材料、原 DB JSON 或关联对象正文。成功响应在写200前完整编码，最终 UTF-8 JSON 最多1 MiB（1048576B）；975420B 是保守页上界算术，不是规模性能证据。局部3s预算从预认证之前开始并继承更早 parent，实际读写、Flush、Body.Close 和取消 callback 必须完成；能力不足或短写/写错/Flush失败 abort，不作无界降级。普通日志/显式 Problem 不带 filter/cursor、记录内容或嵌套 cause，保持唯一 RequestID、安全 headers 和原其他 API 链。
+ 
+ ## cursor 与部署配置
+ 
+@@ -64,3 +72,27 @@
+ ```
+ 
+ 普通测试覆盖封闭 metadata、安全投影、摘要、授权拒绝、独立 cursor 已知向量与配置/启动顺序。integration 使用经 nonce/label/精确 ID 校验的临时 PG fixture；包含真实事务回滚/并发重放、COMMIT 响应丢失与正式 LookupAppend、每页授权/过滤、索引、分批删除/未知重读及迟到 append。测试权限事实只存在隔离 fixture，不能作为生产身份绑定的验收。完整 suite 同时回归已有数据库迁移/恢复及实际 Central 信号/故障处理。
++
++
++### System 管理 HTTP 的实际验证范围
++
++本次只运行受影响 query、HTTP DTO/schema、root 的纯测/race/vet、集成编译及 Central/Runner 构建，未重跑上述完整 suite。作者用正式 Account/出站 producer、正式邀请普通用户与 Logout 撤销造事实，不 SQL 写 Audit 或改 role。三个实际 fixture 轮次如下，分别 exit0 /103.558s、55.982s、55.256s；原 race/count1/pkg6m 保持，各业务场景小于2m：
++
++~~~sh
++AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-security.sh -run '^(TestSystemAuditHTTPQueryAndProjection|TestSystemAuditHTTPTransactionAndBudget)$'
++AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-security.sh -run '^(TestSystemAuditHTTPRootProducerBinding)$'
++AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-security.sh -run '^(TestAuditPaginationBindingsFiltersAndRevocation)$'
++~~~
++
++原生 HTTP 使用以下两个固定版本轮次，不能称首轮全绿。native01 两项通过，SlowBody 两子例仅因要求终局 Err 必为 DeadlineExceeded 而失败；native02 增加 parent/本地期限夹界、Done 闭合与终局已到期限的断言，允许 Go 原生 I/O/timer/defer 竞争下的 Canceled 或 DeadlineExceeded，保留原预算、abort、零查询、Close/join 及无200要求。pure 自然 DeadlineExceeded 断言未放宽。
++
++~~~sh
++# native01 / input02：实际 exit1，原失败保留。
++/path/to/go1.27.1/bin/go test -race -count=1 -timeout=45s -v -run '^(TestAuditHTTPNativeEOFAndKeepAlive|TestAuditHTTPNativeSlowBodyBudgets|TestAuditHTTPNativeWriteAndFlushAbort)$' ./internal/central/audit/http
++# native02 / input03：仅受影响顶层两子例 PASS，复用另外两项。
++/path/to/go1.27.1/bin/go test -race -count=1 -timeout=45s -v -run '^(TestAuditHTTPNativeSlowBodyBudgets)$' ./internal/central/audit/http
++~~~
++
++独立私有 overlay 的 selector 为 ^(TestAuditIndependentCurrentAuthorityAndTerminal|TestAuditIndependentRootProducerProjection)$，同轮两项 PASS、actual exit0 /105.717s；这些探针不是仓库公开测试入口。前者是真实 PG/正式 Authority 加受控 writer，后者为同 root 原生连接；受控 writer 提交前未发布不能称 TCP 零字节。真实 DB1s锁超时不冒称自然3s，Unknown 零候选沿受控验证。全部资源轮实际等待并双清，自有 ID/PID 与原基线分开，历史 PPID1 僵尸不在回收声明中。原纯测/trace/native 前提失败及 query-pure02 早退路径缺少独立 goroutine join 证据的限制均保留。
++
++本结果不覆盖 Project Audit HTTP、UI、完整 D04/D27、SPA 或 Runtime。后续主线新增同包前端 harness 的整合编译/发现需另记，固定基线真实轮不冒称后续主线动态验证。

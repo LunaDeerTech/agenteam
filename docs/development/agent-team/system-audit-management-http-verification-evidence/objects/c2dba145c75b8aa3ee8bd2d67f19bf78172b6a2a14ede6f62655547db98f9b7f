@@ -1,0 +1,36 @@
+{
+  "all_actual_wait_and_double_cleanup": true,
+  "all_commands_exit_zero": true,
+  "binaries": {
+    "account": {
+      "bytes": 47963740,
+      "deleted_after_discovery": true,
+      "exact_discovered": [
+        "TestSystemAuditHTTPQueryAndProjection",
+        "TestSystemAuditHTTPTransactionAndBudget"
+      ],
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/main-integration01/account.test",
+      "sha256": "a964849d000ba89b29b589c4cc6d5e2bfa4d25148ebedc4743d9aee66ac9d6c0"
+    },
+    "app": {
+      "bytes": 43905153,
+      "deleted_after_discovery": true,
+      "exact_discovered": [
+        "TestSystemAuditHTTPRootProducerBinding"
+      ],
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/main-integration01/app.test",
+      "sha256": "1ff47b388fa6947042d2361c4b51d1b1546d9e81c4f1dc8025e65c52ddf5b69c"
+    }
+  },
+  "business_tests_executed": false,
+  "disk_free_bytes_after": 5174124544,
+  "input_sha256": "00b17e7c45b3c38082150391996359f8411cf1f0e7c8ef202a7ef52edf719832",
+  "input_unchanged": true,
+  "local_paths": 614,
+  "main_head": "2742cf785e2f9379c2046172556ead70c29b48dc",
+  "modules": 31,
+  "packages": 394,
+  "runtime_files": 3496,
+  "scope": "main two-package integration race compile and exact discovery only; no business execution",
+  "source_writes": false
+}

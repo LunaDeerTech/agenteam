@@ -1,0 +1,14 @@
+--- schema-check01.py (post-run transcript of inline command)
++++ schema-check02.py
+@@ -30,9 +30,9 @@
+ walk(sch,'schemas');assert not badobjects,badobjects;assert actual_resource==expected_resource and len(actual_resource)==17
+ params={p['name'] for p in doc['paths']['/api/v1/system/audit']['get']['parameters']};expect={'limit','cursor','from','to','actor_kind','actor_id','action','outcome','resource_kind','resource_id','tool_id','execution_id','operation_id','approval_id','runner_id','agent_id'};assert params==expect
+ services=sch['ServiceActor']['properties']['service']['enum'];assert len(set(services))==13
+-identity=(S/'internal/central/identity/contract/identity.go').read_text();registered=set(re.findall(r'^\s*\w+\s+ServiceName\s*=\s*"([^"]+)"',identity,re.M));assert set(services)==registered,(set(services),registered)
++identity=(S/'internal/central/identity/contract/identity.go').read_text();registered=set(re.findall(r'^\s*(?:const\s+)?\w+\s+ServiceName\s*=\s*"([^"]+)"',identity,re.M));assert set(services)==registered,(set(services),registered)
+ assert set(sch['Associations']['properties'])=={'tool_id','request_id','runner_id','correlation_id','http_trace_id'}
+ assert set(sch['ModelAssociations']['properties'])=={'correlation_id','http_trace_id'}
+ for p,item in doc['paths'].items():assert set(item)=={'get'} and item['get']['security']==[{'Session':[]},{'LocalSession':[]}]
+ out={'static_only':True,'paths':2,'parameters':16,'actions':37,'services':13,'resources':17,'associations':5,'model_associations':2,'all_closed_object_schemas':objectschemas,'fixed_contract_enum_sets_equal':True,'get_only_cookie_alternative_no_anonymous':True,'production_schema_sha256':hashlib.sha256((S/'api/openapi/audit.json').read_bytes()).hexdigest()}
+-(R/'schema-static01.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out))
++(R/'schema-static02.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out))

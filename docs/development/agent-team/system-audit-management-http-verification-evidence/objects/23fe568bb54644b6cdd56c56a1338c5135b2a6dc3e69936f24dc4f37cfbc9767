@@ -1,0 +1,890 @@
+{
+  "delivery13_sha256": "8b42fe81100486c9ce332b1faa548b5ecbdf60121e6b9691b41ec55afa8d11bd",
+  "candidate_diff_sha256": "69104dfe28f413ffe83748f8aeb05426c6efb71f5b0e4fb4a60d1a73cd0761e1",
+  "checks": {
+    "account-gate01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/account-gate01",
+      "hashes": {
+        "command.json": "36193eb5becdac4eb351da5a6402104dad2b7a1136027df03d2e39a2c0fe731e",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d",
+        "result.json": "fac5956b5f1cededbcdc8f3808e6c7a4de3f2684acff56588f22c07c4621e1f6"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.373,
+        "actual_wait": true,
+        "pid": 249614,
+        "raw_sha256": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d"
+      }
+    },
+    "account-preflight01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/account-preflight01",
+      "hashes": {
+        "command.json": "54fda4cff2b39276ecec75e8c95b540a6de43093dc6551bef5f1398a0c898e9c",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "8851725a7028a27ee23137240d8ec50c0b7a7624c80d6112cdb8eb07b813a27a",
+        "result.json": "3878b0ece1fcbd721dca00612bac9caab818d74e9a2ab75ab14f2aff98fbbb20"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 0.03,
+        "actual_wait": true,
+        "pid": 249590,
+        "raw_sha256": "8851725a7028a27ee23137240d8ec50c0b7a7624c80d6112cdb8eb07b813a27a"
+      }
+    },
+    "central-build01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/central-build01",
+      "hashes": {
+        "command.json": "de394da7b96768e9992368d641744e3b0e6cf38cc363a15b61e861b58f1eb5a8",
+        "input.json": "03a95152181aea82a7b90380a9807cc9cdd85294ab46db9c365cf9a6b274ed30",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "abd9af15c89aa6cb170e3c7718d693ca736e9240167447027f03298a0831a562"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 2.961,
+        "actual_wait": true,
+        "pid": 133476,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "driver-gate01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/driver-gate01",
+      "hashes": {
+        "command.json": "8350f3f3a1b03325adf4aa8d0e96d56ecbd879d405155f94b0195985d63011ff",
+        "input.json": "8040f1264cbaca620e959f2cb09a487c7be2aec6210ba8586e041ac0761eda0a",
+        "raw.log": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d",
+        "result.json": "bd76636c27667a7b98e17cc2334dd7e4d8eb7866406b060c2a4adc33f1558338"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.483,
+        "actual_wait": true,
+        "pid": 174604,
+        "raw_sha256": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d"
+      }
+    },
+    "driver-gate02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/driver-gate02",
+      "hashes": {
+        "command.json": "dfaf107ce945c2a3f3e5627fb1aba0a7218bc6a69bb5b8a9e01ed875ef0b1844",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d",
+        "result.json": "f8b0f894bb9856caf61ac1546a89d6f88040efe02a22e6361beb6a470f1ed17f"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.368,
+        "actual_wait": true,
+        "pid": 248012,
+        "raw_sha256": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d"
+      }
+    },
+    "driver-prepare01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/driver-prepare01",
+      "hashes": {
+        "command.json": "94c1130e0cb9777ab6221d756929a5fc3027adb51a4afef7e3eca5c1677b7411",
+        "input.json": "8040f1264cbaca620e959f2cb09a487c7be2aec6210ba8586e041ac0761eda0a",
+        "raw.log": "d35342a5fef808f7380d99241cf4b246ac649dc1fbf3bbbb7a0ec043f7061405",
+        "result.json": "3ccdd3946a251acf268fc666b6bff35a6e3f0b118484b81c92a5ef5444185e42"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.409,
+        "actual_wait": true,
+        "pid": 169812,
+        "raw_sha256": "d35342a5fef808f7380d99241cf4b246ac649dc1fbf3bbbb7a0ec043f7061405"
+      }
+    },
+    "driver-prepare02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/driver-prepare02",
+      "hashes": {
+        "command.json": "99ae6e958ffa3ebce6fdb5ccac219ba1f34c1c2d8b6b77915219a047f0b6b891",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "46e0b714089247a57182943af35807fa645b9fb83f9a8760b0909fe70ae7ca65",
+        "result.json": "5f9e7c428f4d2bc36b9f113edaa902cccc2eb42623b44db404015569c6706015"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.258,
+        "actual_wait": true,
+        "pid": 247835,
+        "raw_sha256": "46e0b714089247a57182943af35807fa645b9fb83f9a8760b0909fe70ae7ca65"
+      }
+    },
+    "driver-syntax01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/driver-syntax01",
+      "hashes": {
+        "command.json": "64d2175c0e99439c62bb0eda2a272e2aef11698c7c39dbb91c4b7cd0ae89f4cd",
+        "input.json": "8040f1264cbaca620e959f2cb09a487c7be2aec6210ba8586e041ac0761eda0a",
+        "raw.log": "10fb1d2be37d3d7bfe19e45919fb006a1324adf8185728632cc252d602a516b1",
+        "result.json": "1ffe00cbfff418daae7aa230dd935d850c286dc21ea6878c385381357a704ac4"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 0.042,
+        "actual_wait": true,
+        "pid": 174603,
+        "raw_sha256": "10fb1d2be37d3d7bfe19e45919fb006a1324adf8185728632cc252d602a516b1"
+      }
+    },
+    "http-list01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/http-list01",
+      "hashes": {
+        "command.json": "24f77627a01471607b7fc63a3290971ee80196f1109ea46d211d359ae4b02591",
+        "input.json": "c8bb401c93f5aa110b2657c1a298d07b882e177e28340c95ae29ebd8b2b6130a",
+        "raw.log": "53913e96aba00d4def3d14a83dabd3e8932aec245bf4a9e7ed2fa9a40944366c",
+        "result.json": "a749a1a742b8259b499b174c0f151699444670f5e633ad77bf4fcedbea5e5059"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.745,
+        "actual_wait": true,
+        "pid": 103560,
+        "raw_sha256": "53913e96aba00d4def3d14a83dabd3e8932aec245bf4a9e7ed2fa9a40944366c"
+      }
+    },
+    "http-pure01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/http-pure01",
+      "hashes": {
+        "command.json": "9951b979333295741a258a616b13dd54b0f9ece2f333d7dd17a85609dff07682",
+        "input.json": "3747121f00ae0ae7bf0cb3a280d79ea6225cb1ce1eaf800ca05934cb46320a8b",
+        "raw.log": "0ec8ab2652e12dc6b89e4178c670758f7d6f53a2f9377f359bfe9183cd4db773",
+        "result.json": "e1ccc82d2f1ca35d572dc8aafc87b3218a62f9014d98120fc54871e74d9c93a9"
+      },
+      "result": {
+        "exit_code": 1,
+        "elapsed_seconds": 14.699,
+        "actual_wait": true,
+        "pid": 94672,
+        "raw_sha256": "0ec8ab2652e12dc6b89e4178c670758f7d6f53a2f9377f359bfe9183cd4db773"
+      }
+    },
+    "http-pure02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/http-pure02",
+      "hashes": {
+        "command.json": "5f672cee6398142a02082cb79cb047ee6a35bff6f126728de449c492ec90eeb1",
+        "input.json": "f8593493d5d884f4d9731398b60e30475d1a2ee176cd30f3917a755a458c9ff3",
+        "raw.log": "fb2b977124f887afc24ecac34d8294348982bb2a2d419114e26d8ccd4572a0e0",
+        "result.json": "271707a9d14759cc5150fe7347517e60b8bc7c82e3cd4964ed4e9fc998f4f2bf"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 0.973,
+        "actual_wait": true,
+        "pid": 98709,
+        "raw_sha256": "fb2b977124f887afc24ecac34d8294348982bb2a2d419114e26d8ccd4572a0e0"
+      }
+    },
+    "http-pure03": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/http-pure03",
+      "hashes": {
+        "command.json": "a1908115686b660b2f28ad1b7dd27b331a664584c2f82b7d27dd3e0499168a10",
+        "input.json": "76b93ff9accf8e3863d5ef5e961947baeae98c99979277dab0b0b3aa3632e289",
+        "raw.log": "874b4329229a1ff7775e15989eac3636e84d4a5812745c0826acfbffc322c758",
+        "result.json": "ad456b8c343fd4382a23c16689630a0bb911df69faa833cbc0cf26ce4197a6ea"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 4.152,
+        "actual_wait": true,
+        "pid": 100589,
+        "raw_sha256": "874b4329229a1ff7775e15989eac3636e84d4a5812745c0826acfbffc322c758"
+      }
+    },
+    "http-race01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/http-race01",
+      "hashes": {
+        "command.json": "508331520705ea74fd5f9aec1a83fe6ae8d36096e7c6e4dcedf2785a5810885d",
+        "input.json": "c8bb401c93f5aa110b2657c1a298d07b882e177e28340c95ae29ebd8b2b6130a",
+        "raw.log": "ec35528ac32808ec74b16b98103c3ff0029e516b8c2ac3ce3d35679b7cab9b5c",
+        "result.json": "3c091de899700d840e6792b758ee3774503242125483141f4ec2a66d6df78b6f"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 24.925,
+        "actual_wait": true,
+        "pid": 101707,
+        "raw_sha256": "ec35528ac32808ec74b16b98103c3ff0029e516b8c2ac3ce3d35679b7cab9b5c"
+      }
+    },
+    "http-vet01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/http-vet01",
+      "hashes": {
+        "command.json": "6322d0a574db5afb2bc8dd45ca916c58962159bc46f8126c538f30ce42805adf",
+        "input.json": "c8bb401c93f5aa110b2657c1a298d07b882e177e28340c95ae29ebd8b2b6130a",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "e189a65a4a1631b4ceb79eefaa4739ae7278600bf825730aa640c471c7079df2"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 2.027,
+        "actual_wait": true,
+        "pid": 103553,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "integration-account-compile01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/integration-account-compile01",
+      "hashes": {
+        "command.json": "43c2108bbf4e290f9b39f4c07c73fabaf5969ddc86b27f963a67ed03942a6519",
+        "input.json": "6daec5a926e2f808869d453b29be0c2a1e1a102af4134b8be48e418ab8182c0b",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "12028507bd7ba387a24e68393f030827ea36cece4d43aeb65c66328de8cdd46a"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 7.424,
+        "actual_wait": true,
+        "pid": 132360,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "integration-account-compile02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/integration-account-compile02",
+      "hashes": {
+        "command.json": "43c2108bbf4e290f9b39f4c07c73fabaf5969ddc86b27f963a67ed03942a6519",
+        "input.json": "0f8de78d8557d33cf058dcee5d0d2d111b850b7359ebbe667616cdc63a5f7693",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "68f7bf425ed38b3b0b523ed418cb38ab87f3c2ac17ee2162c15f93f9e5edc0c8"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 6.171,
+        "actual_wait": true,
+        "pid": 158754,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "integration-account-list01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/integration-account-list01",
+      "hashes": {
+        "command.json": "90ff043d71a50dd28ab0b12526b2470b271d0a28fb076882f2c172f1409ddf4f",
+        "input.json": "03a95152181aea82a7b90380a9807cc9cdd85294ab46db9c365cf9a6b274ed30",
+        "raw.log": "7538122afb46e5960f2d07a69a55b56a071d4a2b1388800e41e937048708c67a",
+        "result.json": "1cca7c9e578239c8037fe2791bbb66af8048caccc356b6fd5446eceb53909107"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.041,
+        "actual_wait": true,
+        "pid": 133448,
+        "raw_sha256": "7538122afb46e5960f2d07a69a55b56a071d4a2b1388800e41e937048708c67a"
+      }
+    },
+    "integration-account-list02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/integration-account-list02",
+      "hashes": {
+        "command.json": "90ff043d71a50dd28ab0b12526b2470b271d0a28fb076882f2c172f1409ddf4f",
+        "input.json": "0f8de78d8557d33cf058dcee5d0d2d111b850b7359ebbe667616cdc63a5f7693",
+        "raw.log": "7538122afb46e5960f2d07a69a55b56a071d4a2b1388800e41e937048708c67a",
+        "result.json": "c3eb5d773f8eee6e78906f1f9310e85dca073856ba735a71aac467f1357c35d8"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.023,
+        "actual_wait": true,
+        "pid": 158990,
+        "raw_sha256": "7538122afb46e5960f2d07a69a55b56a071d4a2b1388800e41e937048708c67a"
+      }
+    },
+    "integration-account-vet02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/integration-account-vet02",
+      "hashes": {
+        "command.json": "4726c8bf34906842c9b5a14491f3148dbd552279f3f7ced9ede41e0242ebe622",
+        "input.json": "0f8de78d8557d33cf058dcee5d0d2d111b850b7359ebbe667616cdc63a5f7693",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "23e8fbbafe3acd1c927436973fc809bae22eaeb398ffd0f05c5ec8e1bb640054"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 0.481,
+        "actual_wait": true,
+        "pid": 158977,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "integration-root-compile01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/integration-root-compile01",
+      "hashes": {
+        "command.json": "1d72d21e4d19009d3e3e4ca093f22eb80a31005f2b7e441e5d9496717f49d782",
+        "input.json": "6daec5a926e2f808869d453b29be0c2a1e1a102af4134b8be48e418ab8182c0b",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "0173478d1799af58da3b81fc9da2571e34557174b454a9a5566e1bbbb324873c"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 3.637,
+        "actual_wait": true,
+        "pid": 132366,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "integration-root-list01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/integration-root-list01",
+      "hashes": {
+        "command.json": "8b4c1ce0651b46acd81e4c39b88cde69f0987c47268da82f297e0c4ebee16070",
+        "input.json": "03a95152181aea82a7b90380a9807cc9cdd85294ab46db9c365cf9a6b274ed30",
+        "raw.log": "40b1b329ebd960a0b63df3373af7ac8c6f1353bf4923f16f37b3d938ea666136",
+        "result.json": "9f66f73c5eea4db3bc8d32a93cf7c75d389c0c7cb5884df0a615496350ddfd16"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.026,
+        "actual_wait": true,
+        "pid": 133449,
+        "raw_sha256": "40b1b329ebd960a0b63df3373af7ac8c6f1353bf4923f16f37b3d938ea666136"
+      }
+    },
+    "integration-vet01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/integration-vet01",
+      "hashes": {
+        "command.json": "bb296e9474a28a6576f7a4c40052fe0efd302ff161024f7c4f10dde1d2503ea3",
+        "input.json": "03a95152181aea82a7b90380a9807cc9cdd85294ab46db9c365cf9a6b274ed30",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "6c8d422f49b26ff02a201c0e66a67c810287084f859fb62c9713bed044769965"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 5.45,
+        "actual_wait": true,
+        "pid": 133450,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "native-compile02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/native-compile02",
+      "hashes": {
+        "command.json": "d5387a03179e89628d6b44ab986fd2127b18b2c4fa7dff436766e8ce18807315",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "23997980b43682434055eedc03891ff0e734fcb848a7bbc739fb79c5ea52808a"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.509,
+        "actual_wait": true,
+        "pid": 247030,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "native-gate01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/native-gate01",
+      "hashes": {
+        "command.json": "8350f3f3a1b03325adf4aa8d0e96d56ecbd879d405155f94b0195985d63011ff",
+        "input.json": "8040f1264cbaca620e959f2cb09a487c7be2aec6210ba8586e041ac0761eda0a",
+        "raw.log": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d",
+        "result.json": "62f94edaa8a80bffe7eaccbcf0dc023f932b3834c20dd788cf5489a018def8d1"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.306,
+        "actual_wait": true,
+        "pid": 228117,
+        "raw_sha256": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d"
+      }
+    },
+    "native-gate02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/native-gate02",
+      "hashes": {
+        "command.json": "dfaf107ce945c2a3f3e5627fb1aba0a7218bc6a69bb5b8a9e01ed875ef0b1844",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d",
+        "result.json": "7e8223363d6ce02ddc07992e91d5404b14b6acabbbb46b26a5b5cd3a8a7cb04f"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.391,
+        "actual_wait": true,
+        "pid": 248683,
+        "raw_sha256": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d"
+      }
+    },
+    "native-list02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/native-list02",
+      "hashes": {
+        "command.json": "820879ed122323a4c303bae208f1ddefce4c0e18ebc2ea8ffa485a3701b8c265",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "1eb3b1210b1ad04ad797a9e1d454300d4d874ea005b72d088f387d6573a9412f",
+        "result.json": "e878c20581e78c7a4f2c1a6b3a821fce82f44de7ce7469405ddc1b957b535bd2"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.016,
+        "actual_wait": true,
+        "pid": 247564,
+        "raw_sha256": "1eb3b1210b1ad04ad797a9e1d454300d4d874ea005b72d088f387d6573a9412f"
+      }
+    },
+    "native-preflight01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/native-preflight01",
+      "hashes": {
+        "command.json": "df5a68f766c95afc60ef34c68f9b34e92468967e3b45d444a86b0e043ff948ed",
+        "input.json": "8040f1264cbaca620e959f2cb09a487c7be2aec6210ba8586e041ac0761eda0a",
+        "raw.log": "76af17852928aad91d3c4d3dcc3a9689657291a541391bf2b7a70f8ec585be97",
+        "result.json": "1a2e8f46c01b5dbf38e69ceec25346b7d0260463285d448f139fbc7e8c2af137"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 0.025,
+        "actual_wait": true,
+        "pid": 228113,
+        "raw_sha256": "76af17852928aad91d3c4d3dcc3a9689657291a541391bf2b7a70f8ec585be97"
+      }
+    },
+    "native-preflight02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/native-preflight02",
+      "hashes": {
+        "command.json": "95592d09ccecbe84e615d3fd7b22cd1d15b31b915ac65ae247058296080b9043",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "b682d0c61ce549daaa6793ffd92a55bbf7be813173083c5fa393c82867066142",
+        "result.json": "28478066e8838d39971f68b3f6bd1afdb2d21881371ffe6b8d398823ed241f43"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 0.025,
+        "actual_wait": true,
+        "pid": 248679,
+        "raw_sha256": "b682d0c61ce549daaa6793ffd92a55bbf7be813173083c5fa393c82867066142"
+      }
+    },
+    "native-vet02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/native-vet02",
+      "hashes": {
+        "command.json": "6322d0a574db5afb2bc8dd45ca916c58962159bc46f8126c538f30ce42805adf",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "8e52cb36797ef70d3bda1e3b059f9c0ce3b8537176db858c4e6f5fcbfd963a4c"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 0.226,
+        "actual_wait": true,
+        "pid": 247271,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "old-gate01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/old-gate01",
+      "hashes": {
+        "command.json": "d72e6b3bb799e5d074a777d2d4158eb4644f9bcd1843b651b04b3d047bc207c2",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d",
+        "result.json": "dc001cd5889802d45aff4fb845cf4317f853a752125b25419dae36055773cb75"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.449,
+        "actual_wait": true,
+        "pid": 285356,
+        "raw_sha256": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d"
+      }
+    },
+    "old-preflight01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/old-preflight01",
+      "hashes": {
+        "command.json": "25424137a6255e3b725ffdbd994d24c9e5247d4a68b9256e827ed3db1efba8a8",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "f8382acf6a1b851659e35c45a286bc3b78f9b61344dd3595ed28c8f34dce1d44",
+        "result.json": "3444fc83449607a27371388169c3cd2ce0c759911f49226b8ac80b6aeee02ab2"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 0.027,
+        "actual_wait": true,
+        "pid": 285316,
+        "raw_sha256": "f8382acf6a1b851659e35c45a286bc3b78f9b61344dd3595ed28c8f34dce1d44"
+      }
+    },
+    "query-pure01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/query-pure01",
+      "hashes": {
+        "command.json": "a101eec52dd506dd8d9326495cb208acc22e1f066285084071ac20b03de582cd",
+        "input.json": "5af4902b2238c2383bd39971005dddb8f6d6a542142cab2a8e36dcd104d1fd9a",
+        "raw.log": "0d6c1cafd26bd329014cdd42fc3cb2ecd4f6a9e4d808384148e10464a7d063a6",
+        "result.json": "16ba5c755c6909652e95c97e86a383b960bab0a8e5ea457a96e321e6ef7610d0"
+      },
+      "result": {
+        "exit_code": 1,
+        "elapsed_seconds": 17.578,
+        "actual_wait": true,
+        "pid": 72670,
+        "raw_sha256": "0d6c1cafd26bd329014cdd42fc3cb2ecd4f6a9e4d808384148e10464a7d063a6"
+      }
+    },
+    "query-pure02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/query-pure02",
+      "hashes": {
+        "command.json": "a101eec52dd506dd8d9326495cb208acc22e1f066285084071ac20b03de582cd",
+        "input.json": "559bc0a758fd7d4ec42b4787e261f0c788eb8fb627c8e6229013b1dc24264a01",
+        "raw.log": "bde905e7d87b38d73210dff7b7e653d04f684d618607818188db262bf3dbbe7e",
+        "result.json": "31bbfc33f1e2219661281ed555ce6e3f20be530ff25185684c9315b28e39f630"
+      },
+      "result": {
+        "exit_code": 1,
+        "elapsed_seconds": 3.865,
+        "actual_wait": true,
+        "pid": 76917,
+        "raw_sha256": "bde905e7d87b38d73210dff7b7e653d04f684d618607818188db262bf3dbbe7e"
+      }
+    },
+    "query-pure03": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/query-pure03",
+      "hashes": {
+        "command.json": "b4c1a9f9996568ec35dca1f2ff71beb1a1be8e0efdaf950a19a28d06ee1f46bf",
+        "input.json": "7cfb435a96b35061dc9208acc4febe84ac654510adf701b932a277eb2003ff2f",
+        "raw.log": "4a86832b58d8b1292c5eb4205883c02ae898e45cd30a5757f922906486763484",
+        "result.json": "615d2ea428cc372b338fb12014347a5c575172a0133c3019bec9e45c66fe91b2"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 3.73,
+        "actual_wait": true,
+        "pid": 77452,
+        "raw_sha256": "4a86832b58d8b1292c5eb4205883c02ae898e45cd30a5757f922906486763484"
+      }
+    },
+    "query-race01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/query-race01",
+      "hashes": {
+        "command.json": "eaa4d451ddc0470860bcebb4c99b2cebca2128b4e610ac99c50554cfa049c6c3",
+        "input.json": "7cfb435a96b35061dc9208acc4febe84ac654510adf701b932a277eb2003ff2f",
+        "raw.log": "fe36f5dc52e0ad14a17b5bf15e61ecf06e507779c069cf68b1cd55214e6b78e3",
+        "result.json": "91121a951f03540c79cca632b1e993f8e77d4c342ba50f81e3e8211c9a9ed6f9"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 28.62,
+        "actual_wait": true,
+        "pid": 77758,
+        "raw_sha256": "fe36f5dc52e0ad14a17b5bf15e61ecf06e507779c069cf68b1cd55214e6b78e3"
+      }
+    },
+    "query-vet01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/query-vet01",
+      "hashes": {
+        "command.json": "64bb637025ec1c469442d81e323e8b98168a8900dcea44e714f95aafc5a62fdd",
+        "input.json": "1d0145c4afbd76320d4d0d9deddbbc22f0833a7eafd223ec090db2d09df1d0b6",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "1d16a72c732c4ce0d27f3156b057a06096d5beca4a359e10cf04ac0437aa175c"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 3.084,
+        "actual_wait": true,
+        "pid": 82315,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "root-gate01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/root-gate01",
+      "hashes": {
+        "command.json": "d5db1151e5b7d637a52214622c6f8c1d3d590d3587ce6d614fb1c795cd1f3d96",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d",
+        "result.json": "8d30baab57b32fca372bd444bee0578c88535025c6d7844f723bdec58e04d4d6"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.32,
+        "actual_wait": true,
+        "pid": 275527,
+        "raw_sha256": "103c3b17058b6ec08d719be1def26480fe514f0b61bc13d75d3633a57fdb422d"
+      }
+    },
+    "root-preflight01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/root-preflight01",
+      "hashes": {
+        "command.json": "7cd735f13c7f9505d5d1299b360a957f90c3855054bddc237f227aeddeb4cf60",
+        "input.json": "7cd0ad4ad24e668a58e09110ff48931f01bc06a5c0576c7f5f53244270b86112",
+        "raw.log": "6674d231364dd98d899d8de59e8e566d0b232bb5926c0e133fd3673458feb07e",
+        "result.json": "ebcd5cff80c24f26bdec2e431a7e5d5c46487a7e8630b59a5f9c5e26b174a8ad"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 0.031,
+        "actual_wait": true,
+        "pid": 275481,
+        "raw_sha256": "6674d231364dd98d899d8de59e8e566d0b232bb5926c0e133fd3673458feb07e"
+      }
+    },
+    "root-pure01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/root-pure01",
+      "hashes": {
+        "command.json": "415221f0f8e9c21555e8c91314b333f70d2cae91a64ce2e03b331763eacece18",
+        "input.json": "dc3720eb56e1c8b41ab447b30a31bf4b40ae7425c7c30d570dcce500742c085d",
+        "raw.log": "6974d8ea4f26e294b38087a3d2967a319cc5e2d548530c474a992f86dea6b89d",
+        "result.json": "6370089a615efe64920e4d4af767f9e5bab051de66d75666ea6d2d555f6a075b"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 3.806,
+        "actual_wait": true,
+        "pid": 118142,
+        "raw_sha256": "6974d8ea4f26e294b38087a3d2967a319cc5e2d548530c474a992f86dea6b89d"
+      }
+    },
+    "root-race01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/root-race01",
+      "hashes": {
+        "command.json": "cd120c43d7139efdc40f63782993a303526c6534ed7e355d81679a87ccf23b66",
+        "input.json": "f06198e7db07c5e8164911518af8bc22e4bec2889e7cd4105028e694bea89ff4",
+        "raw.log": "4f5018a18b6b59ccd8856dccab34328e4e2811a02f635239d2020029ec37e351",
+        "result.json": "c4e33f71236669383a835b90c5bb35bba1b3354998d0fd399a97ade8ed44acc7"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 7.792,
+        "actual_wait": true,
+        "pid": 120481,
+        "raw_sha256": "4f5018a18b6b59ccd8856dccab34328e4e2811a02f635239d2020029ec37e351"
+      }
+    },
+    "root-vet01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/root-vet01",
+      "hashes": {
+        "command.json": "7ed99de3b97c9466ac8093e8b68822945f0c9f3955b14335d9b7fddda8d8a5b8",
+        "input.json": "f06198e7db07c5e8164911518af8bc22e4bec2889e7cd4105028e694bea89ff4",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "6267322b1a696aa8746e8dabf39794ca185ee8b8fb7d03e0d8b86afcfa0901de"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.294,
+        "actual_wait": true,
+        "pid": 120480,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "runner-build01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/runner-build01",
+      "hashes": {
+        "command.json": "906955e4f61637b5b82ee890b96ec35e0b22f4d763cc64cf47860e567355376e",
+        "input.json": "03a95152181aea82a7b90380a9807cc9cdd85294ab46db9c365cf9a6b274ed30",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "3c6a9c2cea0b180dd3ec393e1f218745244a9caac2ce7391f0dc00ea8afff993"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 0.705,
+        "actual_wait": true,
+        "pid": 133474,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "security-compile01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/security-compile01",
+      "hashes": {
+        "command.json": "63fa7e437850b5109d46629bfa5fe92b0868c3aeb413b89c0f487e593cb627ec",
+        "input.json": "03a95152181aea82a7b90380a9807cc9cdd85294ab46db9c365cf9a6b274ed30",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "2b6b3813e0e232d0d7a5566fe8384538dc6a491d0104b63fde5d361b99e0be93"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 2.623,
+        "actual_wait": true,
+        "pid": 136170,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "security-list01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/checks/security-list01",
+      "hashes": {
+        "command.json": "12fb95c6a2655720ef73c511cd404021e0bf9d283fa3ae025fe5f784d506c79b",
+        "input.json": "03a95152181aea82a7b90380a9807cc9cdd85294ab46db9c365cf9a6b274ed30",
+        "raw.log": "54163cde14433a32e9deaf386f08f2b33a082e25de44a6c43a1d64ebd6519423",
+        "result.json": "48ad944bef64d4b97dfdf019c09b427a537f76816531c4e3dd67a7e70654641b"
+      },
+      "result": {
+        "exit_code": 0,
+        "elapsed_seconds": 1.012,
+        "actual_wait": true,
+        "pid": 137050,
+        "raw_sha256": "54163cde14433a32e9deaf386f08f2b33a082e25de44a6c43a1d64ebd6519423"
+      }
+    }
+  },
+  "runs": {
+    "native01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/runs/native01",
+      "hashes": {
+        "command.json": "efc525fd4c7b50dd4aa91af130fcc926ac190d9402ab99a2c2ca53418cc4d7aa",
+        "raw.log": "9d4296573d58eb61e133d108d245374e2992808babc7c64a1d6c579ee1f04b5e",
+        "result.json": "d9573be478d2e588c3edbda14458a2e2a8a5c6dce6464b9020d77e5e61361c5b",
+        "cleanup.json": "0b350163279c3f90b859b0b26d91953eef3db8015af3965dee1227904d8ef2cd",
+        "input-before.json": "c2d02527eadb9b2fbefc63c9e8c7db9620146fc3a3688f9cb0a301df9f80f04d",
+        "input-after.json": "c2d02527eadb9b2fbefc63c9e8c7db9620146fc3a3688f9cb0a301df9f80f04d",
+        "frozen-input.json": "a5af366ac165bd175f40b25cf213430fddefc92834e015622a4bbbef66faf8f3",
+        "driver.py.txt": "6b26ced4ff532a00e680d010d821b7667eac52b1d7ebd170f4fe99cc3dced89d",
+        "baseline.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+        "observed-processes.json": "60880f63d85917bec5b1a2b8a0d66c0fea7d35a12664603542260a813e1184f0",
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "product_manifest": {
+        "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input02/manifest.json",
+        "sha256": "c0660102684ba6f3493a2f2b90c68feabfad647fcc0349c1d111a86e06a4c8b1"
+      },
+      "actual_exit": 1,
+      "actual_seconds": 4.405,
+      "selected_tops": [
+        [
+          "PASS",
+          "TestAuditHTTPNativeEOFAndKeepAlive"
+        ],
+        [
+          "FAIL",
+          "TestAuditHTTPNativeSlowBodyBudgets"
+        ],
+        [
+          "PASS",
+          "TestAuditHTTPNativeWriteAndFlushAbort"
+        ]
+      ],
+      "resources": 0,
+      "owned_processes": 3,
+      "adopted_waits": 0,
+      "double_cleanup": true
+    },
+    "native02": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/runs/native02",
+      "hashes": {
+        "command.json": "6891e481be9893019027dffe603974c7910bfb492436cc4e875cbb24894c840b",
+        "raw.log": "0d807273872d72e205bc725f38d4b1a6e094f34ad38fa51dda4bef54e12c73bd",
+        "result.json": "f3ff19e116d774f07e96c039b5948678429d2be79e9f7fe1128add1d64a28e35",
+        "cleanup.json": "0e4f19e0a2ba9bb3ef7caab07dfb8e70bbd4bfc5a7c9b56e6833de275eb50f90",
+        "input-before.json": "fbb41ee87991c7cd7536cb6a131a64deb1c79d53fbb36be73e6d311309b1aaac",
+        "input-after.json": "fbb41ee87991c7cd7536cb6a131a64deb1c79d53fbb36be73e6d311309b1aaac",
+        "frozen-input.json": "0c0306932b4a61a8048c0f76520d5468e40b7512a197e9a353fb2c6c3a8be068",
+        "driver.py.txt": "67876ad55e3d07c9c5f7a49db4e16fc62c997b0238112ac680b20cee1d04a034",
+        "baseline.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+        "observed-processes.json": "0642fb15c20aa5a2abbfaef75ecbb3aecee11b2a63a1b502cb402b8f7ac5d5a7",
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "product_manifest": {
+        "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/manifest.json",
+        "sha256": "c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b"
+      },
+      "actual_exit": 0,
+      "actual_seconds": 5.186,
+      "selected_tops": [
+        [
+          "PASS",
+          "TestAuditHTTPNativeSlowBodyBudgets"
+        ]
+      ],
+      "resources": 0,
+      "owned_processes": 3,
+      "adopted_waits": 0,
+      "double_cleanup": true
+    },
+    "new-account01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/runs/new-account01",
+      "hashes": {
+        "command.json": "cbcc0ffd4fb46ede099da68233fef175772512ce8a569336723ac2b510deb4b5",
+        "raw.log": "d6cc0e40ab768512687ced5c4a800844d1ecdb98f882c2224dadbba42bec1a76",
+        "result.json": "9fd7fd3b032afa36b654890db32357969e3e284f410a1a1e7453fddf83626712",
+        "cleanup.json": "635758dc95c1f3cb69dba8f57a714e6294820081ade23beca5e41d55a1859e5e",
+        "input-before.json": "fbb41ee87991c7cd7536cb6a131a64deb1c79d53fbb36be73e6d311309b1aaac",
+        "input-after.json": "fbb41ee87991c7cd7536cb6a131a64deb1c79d53fbb36be73e6d311309b1aaac",
+        "frozen-input.json": "0c0306932b4a61a8048c0f76520d5468e40b7512a197e9a353fb2c6c3a8be068",
+        "driver.py.txt": "67876ad55e3d07c9c5f7a49db4e16fc62c997b0238112ac680b20cee1d04a034",
+        "baseline.json": "bfac70edb21dd9479ac75b945fdefcf1e416dca431448c5e2ba03f7bc2c1fdd9",
+        "observed-processes.json": "be566e0e7303438e48175b24dd97b98c13eaf57964193214c64ec761260d67b8",
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "product_manifest": {
+        "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/manifest.json",
+        "sha256": "c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b"
+      },
+      "actual_exit": 0,
+      "actual_seconds": 103.558,
+      "selected_tops": [
+        [
+          "PASS",
+          "TestSystemAuditHTTPQueryAndProjection"
+        ],
+        [
+          "PASS",
+          "TestSystemAuditHTTPTransactionAndBudget"
+        ]
+      ],
+      "resources": 7,
+      "owned_processes": 111,
+      "adopted_waits": 0,
+      "double_cleanup": true
+    },
+    "new-root01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/runs/new-root01",
+      "hashes": {
+        "command.json": "5317677fbbd38cb3499c86350c1704085c3001802ad631ccc2522b7dbaf7a805",
+        "raw.log": "8cdbfe894ed45770433ebe3e803acdd6a3f36119caa0785ee3d3bb0949a02d51",
+        "result.json": "08973eca61697a415eb17f00c8cee3c753dc8828f8b924693ad98e1f0935232f",
+        "cleanup.json": "100ad65a8f5b82d960b75a9f6d1d19853becbc2730ecf7b0d4f8e2dcd80d1090",
+        "input-before.json": "fbb41ee87991c7cd7536cb6a131a64deb1c79d53fbb36be73e6d311309b1aaac",
+        "input-after.json": "fbb41ee87991c7cd7536cb6a131a64deb1c79d53fbb36be73e6d311309b1aaac",
+        "frozen-input.json": "0c0306932b4a61a8048c0f76520d5468e40b7512a197e9a353fb2c6c3a8be068",
+        "driver.py.txt": "67876ad55e3d07c9c5f7a49db4e16fc62c997b0238112ac680b20cee1d04a034",
+        "baseline.json": "bfac70edb21dd9479ac75b945fdefcf1e416dca431448c5e2ba03f7bc2c1fdd9",
+        "observed-processes.json": "fa384b2b06ee42bd35f095209e16cce4246eecf1a0820b6041d0e79e6512383b",
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "product_manifest": {
+        "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/manifest.json",
+        "sha256": "c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b"
+      },
+      "actual_exit": 0,
+      "actual_seconds": 55.982,
+      "selected_tops": [
+        [
+          "PASS",
+          "TestSystemAuditHTTPRootProducerBinding"
+        ]
+      ],
+      "resources": 7,
+      "owned_processes": 73,
+      "adopted_waits": 0,
+      "double_cleanup": true
+    },
+    "old01": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/runs/old01",
+      "hashes": {
+        "command.json": "f16bf6243557c67eaf460e9b5c48ec163e191928f9aba8784b1259a6b1aa4a02",
+        "raw.log": "483d247c1b61bc25627d3ae02962051b04ddb320d71d6cada57cde3c3eb3bec4",
+        "result.json": "1e9eb36aa81d619eda6cca3882556d3aa1d642b8977aa28d5328cc015ee32eb6",
+        "cleanup.json": "fc56956d3a6eba59a8aec09fc75e108a68cfa9dc1a1a0053f69a677aef081aa2",
+        "input-before.json": "fbb41ee87991c7cd7536cb6a131a64deb1c79d53fbb36be73e6d311309b1aaac",
+        "input-after.json": "fbb41ee87991c7cd7536cb6a131a64deb1c79d53fbb36be73e6d311309b1aaac",
+        "frozen-input.json": "0c0306932b4a61a8048c0f76520d5468e40b7512a197e9a353fb2c6c3a8be068",
+        "driver.py.txt": "67876ad55e3d07c9c5f7a49db4e16fc62c997b0238112ac680b20cee1d04a034",
+        "baseline.json": "bfac70edb21dd9479ac75b945fdefcf1e416dca431448c5e2ba03f7bc2c1fdd9",
+        "observed-processes.json": "3f84217753f6eee9132e56df5ea780bbcb57df97e3f464b2d7159b148826cbab",
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "product_manifest": {
+        "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/manifest.json",
+        "sha256": "c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b"
+      },
+      "actual_exit": 0,
+      "actual_seconds": 55.256,
+      "selected_tops": [
+        [
+          "PASS",
+          "TestAuditPaginationBindingsFiltersAndRevocation"
+        ]
+      ],
+      "resources": 7,
+      "owned_processes": 70,
+      "adopted_waits": 0,
+      "double_cleanup": true
+    }
+  },
+  "old_input_limit": "query-pure02 lacked an explicit goroutine join proof on its early assertion failures; actual process exit must not be restated as goroutine join",
+  "inventory_clarification": {
+    "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/query-vet-inventory-clarification.json",
+    "sha256": "5e5bd017d7cacf71c4a7c1173560e78bcb7f8eff2009967b832d15b670e6a671"
+  },
+  "scope": "Author candidate and evidence only; final independent real acceptance and backend/audit.md pending"
+}

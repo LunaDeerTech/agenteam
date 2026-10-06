@@ -1,0 +1,17 @@
+# System Audit HTTP author input01
+
+Private candidate only: thirteen authorized source paths, 467 fixed-Git dependencies; fixed `f843506d9ec991be1c334a81b88d5cbacc277467` / product `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`. Main and Git were not modified. Exact full snapshot in `source/`, keyed by `manifest.json`; original go.mod/go.sum untouched. No cache/tree clone: selected source closure is about4.3MB before new source. Go1.27.1 and readonly/offline module settings are in every `command.json`.
+
+The seven query/HTTP-stage sources are byte-identical to their earlier frozen snapshots. Group1 independently passed; HTTP Group2 is under independent review, not claimed accepted. New root wiring adds only the existing auditor/core to the pure audithttp constructor and wraps the existing Account/Model/Outbound chain with precise Audit-root routing. The new root pure graph assertion verifies the same auditor variable reaches Account/Model and the new boundary without an additional audit.New.
+
+New pure root tests and the three necessary existing Model/Outbound routing/construction tests passed in `root-pure01` (exit0/3.806s), `root-race01` (exit0/7.792s) and `root-vet01` (exit0/1.294s). These selectors exclude old listener/process tests. Query and HTTP pure/race evidence and their original failures are retained at their stage reports and check directories; this input does not turn earlier failing rounds into passes.
+
+Three integration tops are now SOURCE/COMPILE/DISCOVERY only:
+
+- TestSystemAuditHTTPQueryAndProjection: existing actual-root HTTP fixture; formal profile commands, exact Audit page/detail and current admin/member/revoked Session; canonical time cursor, limit change, safe Session metadata, strict routing/query/headers/log boundaries.
+- TestSystemAuditHTTPTransactionAndBudget: full newB02Account fixture; formal current Authority and real Store delegates; observations at pre-acquire, User SH, and post-callback/precommit. Logout is the formal EX revocation representative. The lock-budget scenario acquires the external EX lock after HTTP preauthentication so it measures the new inner Tx. DB1s and earlier parent remain distinct; no SQL role/Audit changes or fabricated commit result.
+- TestSystemAuditHTTPRootProducerBinding: existing newModelRootApp; formal root Account and Outbound policy producers reach the same bound Audit handler; old Account/Model/Outbound and ready503 retained; actual normal root join is an assertion for the future authorized run.
+
+Account race integration compile exit0/7.424s, app compile0/3.637s; exact discovery2+1. Integration vet0/5.450s. Original security regression race compile0/2.623s and exact TestAuditPaginationBindingsFiltersAndRevocation discovery0/1.012s. Central build0/2.961s and Runner build0/.705s. Builds were not executed as services. Native HTTP three test tops were compiled and discovered in HTTP stage only, not run. Formatting all twelve Go candidate files produced no output.
+
+No listener, socket, Docker, PG, MinIO, browser or business fixture has run. The expected resource steps, separately authorized and sequential, are: bounded native-only3; new account Query+Transaction2; new root1; old Audit pagination1. Real scenario budgets remain2m, packages race/count1/6m; native/Pure45s. A fixture driver/source-runtime gate and exact ownership plan must be frozen and reviewed before any real launch. Current input, thirteen candidate sources and existing stage snapshots stop writing pending review; the last backend/audit.md path remains untouched/ungranted.

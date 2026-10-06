@@ -1,0 +1,34 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-vet=off",
+    "-count=1",
+    "-timeout=45s",
+    "-v",
+    "-run",
+    "^(TestAuditHTTPPureMIMEClosedSchema|TestAuditHTTPPureTypedProjection|TestAuditHTTPPureOpenAPIClosedContract)$",
+    "./internal/central/audit/http"
+  ],
+  "cwd": "/workspace/scratch/agenteam-audit-mime-schema-author-9LFs9mkG/workspace",
+  "ended_utc": "2026-10-06T23:27:46.188434+00:00",
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/agenteam-audit-mime-schema-author-9LFs9mkG/runs/pure-green01/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-audit-mime-schema-author-9LFs9mkG/runs/pure-green01/tmp"
+  },
+  "exit": 0,
+  "limit_seconds": 45,
+  "seconds": 10.049,
+  "started_utc": "2026-10-06T23:27:36.139414+00:00",
+  "timed_out": false
+}

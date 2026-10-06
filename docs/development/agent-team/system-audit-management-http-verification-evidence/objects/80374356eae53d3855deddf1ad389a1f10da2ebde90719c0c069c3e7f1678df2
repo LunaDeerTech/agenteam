@@ -1,0 +1,9 @@
+# System Audit HTTP author input02
+
+Thirteen candidate sources and 467 fixed-Git dependencies remain bound to f843506 / product 213cf5c. Only tests/account/audit_http_test.go changed from input01. All twelve other candidate hashes and every dependency match. Main, old helpers, DTOs and product behavior are unchanged; input01 and all original check evidence remain immutable.
+
+Architecture found a STATIC harness prerequisite error before any integration execution: the old assertTrace helper requires body.request_id for Problem responses, while a successful Audit page has the closed items/next_cursor shape. The new test-local helper parses the response X-Request-ID as a canonical foundation.Request UUID, then retains the existing bounded log wait and requires exactly one matching http_request entry at unknown_route. It does not add a response field or change the old helper.
+
+Affected checks actually exited 0: integration-account-compile02 (race/integration compile, 6.171s), integration-account-vet02 (0.481s), integration-account-list02 (1.023s, exact two tops). Command, input, source and raw/result files are linked in checks.json. These are compile/discovery results, not real test passes. The prior independent Query Group1 and HTTP Group2 results apply to unchanged sources.
+
+The transaction harness will use real PostgreSQL and formal Account Authority with a controlled HTTP writer. Its post-callback gate proves the handler call has not returned; that alone is not native-network or precommit-zero-wire-byte evidence. The separate three native tests have not run. No listener, socket, Docker, PG, MinIO, browser or business fixture has started. All thirteen candidate sources are now frozen again. Native and real groups require separate root authorization; backend/audit.md remains untouched.

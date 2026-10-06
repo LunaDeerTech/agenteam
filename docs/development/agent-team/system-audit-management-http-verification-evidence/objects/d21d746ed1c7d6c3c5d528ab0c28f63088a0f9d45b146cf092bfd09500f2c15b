@@ -1,0 +1,9 @@
+import json, subprocess
+from pathlib import Path
+R=Path(__file__).resolve().parent
+loc=json.loads((R/'compiled-location01.json').read_text())
+for binary,top in [('account.test','TestAuditIndependentCurrentAuthorityAndTerminal'),('app.test','TestAuditIndependentRootProducerProjection')]:
+ argv=[str(Path(loc['path'])/binary),'-test.list=^'+top+'$']
+ done=subprocess.run(argv,capture_output=True,text=True,timeout=15)
+ print(json.dumps({'argv':argv,'actual_wait':True,'exit':done.returncode,'stdout':done.stdout,'stderr':done.stderr}),flush=True)
+ if done.returncode!=0 or done.stdout.splitlines()!=[top] or done.stderr: raise SystemExit(1)

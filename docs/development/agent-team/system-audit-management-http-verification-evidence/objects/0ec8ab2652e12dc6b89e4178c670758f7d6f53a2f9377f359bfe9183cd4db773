@@ -1,0 +1,238 @@
+=== RUN   TestAuditHTTPPureTypedProjection
+=== RUN   TestAuditHTTPPureTypedProjection/secret.create
+=== RUN   TestAuditHTTPPureTypedProjection/secret.update
+=== RUN   TestAuditHTTPPureTypedProjection/secret.delete
+=== RUN   TestAuditHTTPPureTypedProjection/secret.resolve
+=== RUN   TestAuditHTTPPureTypedProjection/secret.master.register
+=== RUN   TestAuditHTTPPureTypedProjection/secret.master.rotation.start
+=== RUN   TestAuditHTTPPureTypedProjection/secret.master.rotation.complete
+=== RUN   TestAuditHTTPPureTypedProjection/secret.master.rotation.failed
+=== RUN   TestAuditHTTPPureTypedProjection/outbound.policy.update
+=== RUN   TestAuditHTTPPureTypedProjection/outbound.access.deny
+    handler_test.go:132: invalid typed metadata prerequisite outbound.access.deny INVALID_ARGUMENT
+=== RUN   TestAuditHTTPPureTypedProjection/object.upload.complete
+=== RUN   TestAuditHTTPPureTypedProjection/object.upload.failed
+=== RUN   TestAuditHTTPPureTypedProjection/object.delete
+=== RUN   TestAuditHTTPPureTypedProjection/outbox.delivery.requeue
+=== RUN   TestAuditHTTPPureTypedProjection/account.bootstrap
+=== RUN   TestAuditHTTPPureTypedProjection/account.login
+=== RUN   TestAuditHTTPPureTypedProjection/account.logout
+=== RUN   TestAuditHTTPPureTypedProjection/account.invite.create
+=== RUN   TestAuditHTTPPureTypedProjection/account.invite.revoke
+=== RUN   TestAuditHTTPPureTypedProjection/account.invite.redeem
+=== RUN   TestAuditHTTPPureTypedProjection/account.password.reset.request
+=== RUN   TestAuditHTTPPureTypedProjection/account.password.reset.complete
+=== RUN   TestAuditHTTPPureTypedProjection/account.password.change
+=== RUN   TestAuditHTTPPureTypedProjection/account.profile.update
+=== RUN   TestAuditHTTPPureTypedProjection/account.avatar.update
+=== RUN   TestAuditHTTPPureTypedProjection/account.settings.update
+=== RUN   TestAuditHTTPPureTypedProjection/smtp.settings.update
+=== RUN   TestAuditHTTPPureTypedProjection/smtp.test.request
+=== RUN   TestAuditHTTPPureTypedProjection/smtp.delivery.retry
+=== RUN   TestAuditHTTPPureTypedProjection/smtp.delivery
+=== RUN   TestAuditHTTPPureTypedProjection/provider.create
+=== RUN   TestAuditHTTPPureTypedProjection/provider.update
+=== RUN   TestAuditHTTPPureTypedProjection/provider.delete
+=== RUN   TestAuditHTTPPureTypedProjection/model.create
+=== RUN   TestAuditHTTPPureTypedProjection/model.update
+=== RUN   TestAuditHTTPPureTypedProjection/model.delete
+=== RUN   TestAuditHTTPPureTypedProjection/model.selection.update
+--- FAIL: TestAuditHTTPPureTypedProjection (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.create (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.delete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.resolve (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.master.register (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.master.rotation.start (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.master.rotation.complete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.master.rotation.failed (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/outbound.policy.update (0.00s)
+    --- FAIL: TestAuditHTTPPureTypedProjection/outbound.access.deny (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/object.upload.complete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/object.upload.failed (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/object.delete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/outbox.delivery.requeue (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.bootstrap (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.login (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.logout (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.invite.create (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.invite.revoke (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.invite.redeem (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.password.reset.request (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.password.reset.complete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.password.change (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.profile.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.avatar.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.settings.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/smtp.settings.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/smtp.test.request (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/smtp.delivery.retry (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/smtp.delivery (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/provider.create (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/provider.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/provider.delete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/model.create (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/model.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/model.delete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/model.selection.update (0.00s)
+=== RUN   TestAuditHTTPPureQueryClosure
+--- PASS: TestAuditHTTPPureQueryClosure (0.00s)
+=== RUN   TestAuditHTTPPureEncodedBudget
+--- PASS: TestAuditHTTPPureEncodedBudget (0.01s)
+=== RUN   TestAuditHTTPPureRoutesAndAuthorizationOrder
+=== RUN   TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit
+=== RUN   TestAuditHTTPPureRoutesAndAuthorizationOrder/HEAD/api/v1/system/audit
+=== RUN   TestAuditHTTPPureRoutesAndAuthorizationOrder/POST/api/v1/system/audit
+=== RUN   TestAuditHTTPPureRoutesAndAuthorizationOrder/OPTIONS/api/v1/system/audit/01900000-0000-7000-8000-000000000001
+=== RUN   TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit/
+=== RUN   TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit/01900000-0000-7000-8000-000000000001/
+=== RUN   TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit/not-id
+=== RUN   TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit/01900000-0000-7000-8000-000000000001?
+=== RUN   TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit?x=1
+=== RUN   TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit-near
+--- PASS: TestAuditHTTPPureRoutesAndAuthorizationOrder (0.00s)
+    --- PASS: TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit (0.00s)
+    --- PASS: TestAuditHTTPPureRoutesAndAuthorizationOrder/HEAD/api/v1/system/audit (0.00s)
+    --- PASS: TestAuditHTTPPureRoutesAndAuthorizationOrder/POST/api/v1/system/audit (0.00s)
+    --- PASS: TestAuditHTTPPureRoutesAndAuthorizationOrder/OPTIONS/api/v1/system/audit/01900000-0000-7000-8000-000000000001 (0.00s)
+    --- PASS: TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit/ (0.00s)
+    --- PASS: TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit/01900000-0000-7000-8000-000000000001/ (0.00s)
+    --- PASS: TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit/not-id (0.00s)
+    --- PASS: TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit/01900000-0000-7000-8000-000000000001? (0.00s)
+    --- PASS: TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit?x=1 (0.00s)
+    --- PASS: TestAuditHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/audit-near (0.00s)
+=== RUN   TestAuditHTTPPureBodyWriteAndCapabilities
+=== RUN   TestAuditHTTPPureBodyWriteAndCapabilities/nonzero
+=== RUN   TestAuditHTTPPureBodyWriteAndCapabilities/unknown
+=== RUN   TestAuditHTTPPureBodyWriteAndCapabilities/chunked
+=== RUN   TestAuditHTTPPureBodyWriteAndCapabilities/actual-nonempty
+=== RUN   TestAuditHTTPPureBodyWriteAndCapabilities/actual-eof
+=== RUN   TestAuditHTTPPureBodyWriteAndCapabilities/capability
+=== RUN   TestAuditHTTPPureBodyWriteAndCapabilities/short-write
+=== RUN   TestAuditHTTPPureBodyWriteAndCapabilities/flush-error
+--- PASS: TestAuditHTTPPureBodyWriteAndCapabilities (0.00s)
+    --- PASS: TestAuditHTTPPureBodyWriteAndCapabilities/nonzero (0.00s)
+    --- PASS: TestAuditHTTPPureBodyWriteAndCapabilities/unknown (0.00s)
+    --- PASS: TestAuditHTTPPureBodyWriteAndCapabilities/chunked (0.00s)
+    --- PASS: TestAuditHTTPPureBodyWriteAndCapabilities/actual-nonempty (0.00s)
+    --- PASS: TestAuditHTTPPureBodyWriteAndCapabilities/actual-eof (0.00s)
+    --- PASS: TestAuditHTTPPureBodyWriteAndCapabilities/capability (0.00s)
+    --- PASS: TestAuditHTTPPureBodyWriteAndCapabilities/short-write (0.00s)
+    --- PASS: TestAuditHTTPPureBodyWriteAndCapabilities/flush-error (0.00s)
+=== RUN   TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin
+--- PASS: TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin (0.05s)
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.create
+    handler_test.go:713: schema rejected formal DTO secret.create
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.update
+    handler_test.go:713: schema rejected formal DTO secret.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.delete
+    handler_test.go:713: schema rejected formal DTO secret.delete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.resolve
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.master.register
+    handler_test.go:713: schema rejected formal DTO secret.master.register
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.start
+    handler_test.go:713: schema rejected formal DTO secret.master.rotation.start
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.complete
+    handler_test.go:713: schema rejected formal DTO secret.master.rotation.complete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.failed
+    handler_test.go:713: schema rejected formal DTO secret.master.rotation.failed
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/outbound.policy.update
+    handler_test.go:713: schema rejected formal DTO outbound.policy.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/outbound.access.deny
+    handler_test.go:706: invalid typed metadata prerequisite outbound.access.deny INVALID_ARGUMENT
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/object.upload.complete
+    handler_test.go:713: schema rejected formal DTO object.upload.complete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/object.upload.failed
+    handler_test.go:713: schema rejected formal DTO object.upload.failed
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/object.delete
+    handler_test.go:713: schema rejected formal DTO object.delete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/outbox.delivery.requeue
+    handler_test.go:713: schema rejected formal DTO outbox.delivery.requeue
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.bootstrap
+    handler_test.go:713: schema rejected formal DTO account.bootstrap
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.login
+    handler_test.go:713: schema rejected formal DTO account.login
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.logout
+    handler_test.go:713: schema rejected formal DTO account.logout
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.invite.create
+    handler_test.go:713: schema rejected formal DTO account.invite.create
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.invite.revoke
+    handler_test.go:713: schema rejected formal DTO account.invite.revoke
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.invite.redeem
+    handler_test.go:713: schema rejected formal DTO account.invite.redeem
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.password.reset.request
+    handler_test.go:713: schema rejected formal DTO account.password.reset.request
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.password.reset.complete
+    handler_test.go:713: schema rejected formal DTO account.password.reset.complete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.password.change
+    handler_test.go:713: schema rejected formal DTO account.password.change
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.profile.update
+    handler_test.go:713: schema rejected formal DTO account.profile.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.avatar.update
+    handler_test.go:713: schema rejected formal DTO account.avatar.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.settings.update
+    handler_test.go:713: schema rejected formal DTO account.settings.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.settings.update
+    handler_test.go:713: schema rejected formal DTO smtp.settings.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.test.request
+    handler_test.go:713: schema rejected formal DTO smtp.test.request
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery.retry
+    handler_test.go:713: schema rejected formal DTO smtp.delivery.retry
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery
+    handler_test.go:713: schema rejected formal DTO smtp.delivery
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/provider.create
+    handler_test.go:713: schema rejected formal DTO provider.create
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/provider.update
+    handler_test.go:713: schema rejected formal DTO provider.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/provider.delete
+    handler_test.go:713: schema rejected formal DTO provider.delete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.create
+    handler_test.go:713: schema rejected formal DTO model.create
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.update
+    handler_test.go:713: schema rejected formal DTO model.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.delete
+    handler_test.go:713: schema rejected formal DTO model.delete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.selection.update
+    handler_test.go:713: schema rejected formal DTO model.selection.update
+--- FAIL: TestAuditHTTPPureOpenAPIClosedContract (0.05s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/secret.create (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/secret.update (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/secret.delete (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.resolve (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/secret.master.register (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.start (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.complete (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.failed (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/outbound.policy.update (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/outbound.access.deny (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/object.upload.complete (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/object.upload.failed (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/object.delete (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/outbox.delivery.requeue (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/account.bootstrap (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/account.login (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/account.logout (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/account.invite.create (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/account.invite.revoke (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/account.invite.redeem (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/account.password.reset.request (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/account.password.reset.complete (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/account.password.change (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/account.profile.update (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/account.avatar.update (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/account.settings.update (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/smtp.settings.update (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/smtp.test.request (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery.retry (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/provider.create (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/provider.update (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/provider.delete (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/model.create (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/model.update (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/model.delete (0.00s)
+    --- FAIL: TestAuditHTTPPureOpenAPIClosedContract/model.selection.update (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/audit/http	0.112s
+FAIL

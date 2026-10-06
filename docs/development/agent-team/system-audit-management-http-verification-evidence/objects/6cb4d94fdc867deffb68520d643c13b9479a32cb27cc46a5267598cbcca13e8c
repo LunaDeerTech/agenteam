@@ -1,0 +1,16 @@
+{
+  "query-stage01": {
+    "internal/central/audit/query.go": true,
+    "internal/central/audit/system_query.go": true,
+    "internal/central/audit/system_query_test.go": true
+  },
+  "http-stage01": {
+    "api/openapi/audit.json": true,
+    "internal/central/audit/http/handler.go": true,
+    "internal/central/audit/http/handler_test.go": false,
+    "internal/central/audit/http/wire.go": true,
+    "internal/central/audit/query.go": true,
+    "internal/central/audit/system_query.go": true,
+    "internal/central/audit/system_query_test.go": true
+  }
+}

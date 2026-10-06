@@ -1,0 +1,28 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestSystemAuditHTTPRootProducerBinding)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/workspace",
+  "ended_utc": "2026-10-06T22:46:48.507498+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/runs/new-root01/runtime"
+  },
+  "exit": 0,
+  "seconds": 55.982,
+  "started_utc": "2026-10-06T22:45:52.525778+00:00"
+}

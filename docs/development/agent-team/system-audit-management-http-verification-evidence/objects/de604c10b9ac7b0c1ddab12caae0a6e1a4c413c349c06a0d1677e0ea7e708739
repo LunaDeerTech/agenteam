@@ -1,0 +1,31 @@
+{
+  "status": "NOT EXECUTED; explicit root native window required",
+  "argv": [
+    "python3",
+    "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture02.py",
+    "--name",
+    "native02",
+    "--group",
+    "native-slow",
+    "--frozen",
+    "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/driver-stage02/input.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--execute-authorized"
+  ],
+  "input_sha256": "0c0306932b4a61a8048c0f76520d5468e40b7512a197e9a353fb2c6c3a8be068",
+  "driver_sha256": "67876ad55e3d07c9c5f7a49db4e16fc62c997b0238112ac680b20cee1d04a034",
+  "product_manifest_sha256": "c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b",
+  "selector": "^(TestAuditHTTPNativeSlowBodyBudgets)$",
+  "expected_top_levels": 1,
+  "subcases": [
+    "local-three-seconds",
+    "earlier-parent"
+  ],
+  "budgets": "race/count1/45s unchanged; no Docker fixture",
+  "preflight": "unused native02 name, frozen hashes, check-only gate and >=2GiB free disk recorded immediately before execution",
+  "current_disk_free_bytes": 5957894144,
+  "cleanup": "same actual Popen wait/subreaper adopted wait/PID-starttime and two empty owned/runtime scans; fixed inputs before/after",
+  "reuse": "native01 unchanged KeepAlive and WriteAndFlushAbort PASS; preserve original SlowBody FAIL; do not rerun the two unaffected tops",
+  "later_unrun": "new-account/new-root/old PG groups remain unrun and each need separate authorization"
+}

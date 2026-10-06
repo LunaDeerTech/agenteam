@@ -1,0 +1,34 @@
+=== RUN   TestIndependentSystemAuditTerminalAndAuthority
+=== RUN   TestIndependentSystemAuditTerminalAndAuthority/committed
+=== RUN   TestIndependentSystemAuditTerminalAndAuthority/unknown
+=== RUN   TestIndependentSystemAuditTerminalAndAuthority/not-committed
+=== RUN   TestIndependentSystemAuditTerminalAndAuthority/committed-expired
+=== RUN   TestIndependentSystemAuditTerminalAndAuthority/current-revocation-before-sql
+=== RUN   TestIndependentSystemAuditTerminalAndAuthority/local-three-seconds-in-authority
+    independent_query_test.go:357: natural_timeout_ms=3001.217 actual_tail_joined=true zero_query=true
+=== RUN   TestIndependentSystemAuditTerminalAndAuthority/earlier-parent-in-authority
+    independent_query_test.go:357: natural_timeout_ms=75.508 actual_tail_joined=true zero_query=true
+--- PASS: TestIndependentSystemAuditTerminalAndAuthority (3.08s)
+    --- PASS: TestIndependentSystemAuditTerminalAndAuthority/committed (0.00s)
+    --- PASS: TestIndependentSystemAuditTerminalAndAuthority/unknown (0.00s)
+    --- PASS: TestIndependentSystemAuditTerminalAndAuthority/not-committed (0.00s)
+    --- PASS: TestIndependentSystemAuditTerminalAndAuthority/committed-expired (0.00s)
+    --- PASS: TestIndependentSystemAuditTerminalAndAuthority/current-revocation-before-sql (0.00s)
+    --- PASS: TestIndependentSystemAuditTerminalAndAuthority/local-three-seconds-in-authority (3.00s)
+    --- PASS: TestIndependentSystemAuditTerminalAndAuthority/earlier-parent-in-authority (0.08s)
+=== RUN   TestIndependentSystemAuditSentinelAndLegacy
+=== RUN   TestIndependentSystemAuditSentinelAndLegacy/valid-page
+    independent_query_test.go:457: legacy retained page/cursor changed
+=== RUN   TestIndependentSystemAuditSentinelAndLegacy/valid-project-sentinel
+=== RUN   TestIndependentSystemAuditSentinelAndLegacy/bad-metadata-sentinel
+=== RUN   TestIndependentSystemAuditSentinelAndLegacy/late-close-error
+=== RUN   TestIndependentSystemAuditSentinelAndLegacy/legacy-authorization-order-and-original-sql
+--- FAIL: TestIndependentSystemAuditSentinelAndLegacy (0.01s)
+    --- FAIL: TestIndependentSystemAuditSentinelAndLegacy/valid-page (0.00s)
+    --- PASS: TestIndependentSystemAuditSentinelAndLegacy/valid-project-sentinel (0.00s)
+    --- PASS: TestIndependentSystemAuditSentinelAndLegacy/bad-metadata-sentinel (0.00s)
+    --- PASS: TestIndependentSystemAuditSentinelAndLegacy/late-close-error (0.00s)
+    --- PASS: TestIndependentSystemAuditSentinelAndLegacy/legacy-authorization-order-and-original-sql (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/audit	3.102s
+FAIL

@@ -1,0 +1,128 @@
+=== RUN   TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin
+=== RUN   TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin/local-three-seconds
+=== RUN   TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin/earlier-parent
+--- PASS: TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin (3.05s)
+    --- PASS: TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin/local-three-seconds (3.00s)
+    --- PASS: TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin/earlier-parent (0.05s)
+=== RUN   TestAuditHTTPPureBodyCloseJoinAndSafeUnknown
+--- PASS: TestAuditHTTPPureBodyCloseJoinAndSafeUnknown (0.00s)
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.create
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.delete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.resolve
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.master.register
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.start
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.complete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.failed
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/outbound.policy.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/outbound.access.deny
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/object.upload.complete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/object.upload.failed
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/object.delete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/outbox.delivery.requeue
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.bootstrap
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.login
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.logout
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.invite.create
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.invite.revoke
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.invite.redeem
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.password.reset.request
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.password.reset.complete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.password.change
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.profile.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.avatar.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.settings.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.settings.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.test.request
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery.retry
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/provider.create
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/provider.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/provider.delete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.create
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.delete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.selection.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.login#01
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.login#02
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery#01
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery#02
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.delete#01
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.avatar.update#01
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.resolve#01
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/outbound.access.deny#01
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/authenticated-needs-session
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/authenticated-forbids-reason
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/phase-outcome
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/unknown-needs-reason
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/retry-forbids-channel
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/retry-human-only
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/replacement-needs-id
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model-associations
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/agent-initiator-needs-execution
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/object-actor
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/wrong-resource-kind
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/master-forbids-id
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/metadata-null
+--- PASS: TestAuditHTTPPureOpenAPIClosedContract (0.18s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.create (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.update (0.01s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.delete (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.resolve (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.master.register (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.start (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.complete (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.failed (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/outbound.policy.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/outbound.access.deny (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/object.upload.complete (0.01s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/object.upload.failed (0.01s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/object.delete (0.01s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/outbox.delivery.requeue (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.bootstrap (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.login (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.logout (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.invite.create (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.invite.revoke (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.invite.redeem (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.password.reset.request (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.password.reset.complete (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.password.change (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.profile.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.avatar.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.settings.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/smtp.settings.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/smtp.test.request (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery.retry (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/provider.create (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/provider.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/provider.delete (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.create (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.delete (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.selection.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.login#01 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.login#02 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery#01 (0.01s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery#02 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.delete#01 (0.01s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.avatar.update#01 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.resolve#01 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/outbound.access.deny#01 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/authenticated-needs-session (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/authenticated-forbids-reason (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/phase-outcome (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/unknown-needs-reason (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/retry-forbids-channel (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/retry-human-only (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/replacement-needs-id (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model-associations (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/agent-initiator-needs-execution (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/object-actor (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/wrong-resource-kind (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/master-forbids-id (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/metadata-null (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit/http	3.232s

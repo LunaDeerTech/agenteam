@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-count=1",
+    "-timeout=45s",
+    "-run",
+    "^TestIndependentSystemAudit(TerminalAndAuthority|SentinelAndLegacy)$",
+    "-v",
+    "./internal/central/audit"
+  ],
+  "cwd": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/source",
+  "env_overrides": {
+    "TMPDIR": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query01/tmp",
+    "GOTMPDIR": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/runs/query01/tmp",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOWORK": "off",
+    "CGO_ENABLED": "1"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "6116390dd6d9837a6fb0b64781267f2fa4ca11b4b100eb64353f7a45b5a30242",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 97110,
+  "actual_exit": 1,
+  "seconds": 5.790803517000313,
+  "timeout": false
+}

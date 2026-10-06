@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-audit-mime-independent-mszmz_3m/probe01/mime_ecma.mjs",
+    "/workspace/scratch/agenteam-audit-mime-independent-mszmz_3m/input01/source/api/openapi/audit.json",
+    "/workspace/scratch/agenteam-audit-mime-independent-mszmz_3m/baseline/api/openapi/audit.json",
+    "/workspace/scratch/agenteam-audit-mime-independent-mszmz_3m/runs/go01/oracle.json"
+  ],
+  "cwd": "/workspace/scratch/agenteam-audit-mime-schema-author-9LFs9mkG/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-audit-offline-tn9j27x4",
+    "GOTMPDIR": "/tmp/agt-audit-offline-tn9j27x4",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "c33a14531e6a89b0e4aa26efa14e3b0d3ff11521e68bdb1b999a2bdda55d7554",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 350157,
+  "actual_exit": 0,
+  "seconds": 0.0705429119989276,
+  "timeout": false
+}

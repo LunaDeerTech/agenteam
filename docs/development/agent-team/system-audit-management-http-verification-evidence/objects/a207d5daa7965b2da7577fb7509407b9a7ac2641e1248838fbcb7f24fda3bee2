@@ -1,0 +1,375 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"errors"
+	"net/http"
+	"sync"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	audithttp "github.com/LunaDeerTech/agenteam/internal/central/audit/http"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+// This private writer observes actual handler calls. It is a controlled writer,
+// not evidence of bytes withheld on a native TCP connection. PostgreSQL and all
+// Account authorization/Logout operations below remain the formal services.
+type independentAuditWriter struct {
+	mu                          sync.Mutex
+	header                      http.Header
+	status                      int
+	data                        []byte
+	readDeadline, writeDeadline time.Time
+}
+
+func (w *independentAuditWriter) Header() http.Header { return w.header }
+func (w *independentAuditWriter) WriteHeader(status int) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	if w.status == 0 {
+		w.status = status
+	}
+}
+func (w *independentAuditWriter) Write(p []byte) (int, error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	if w.status == 0 {
+		w.status = http.StatusOK
+	}
+	w.data = append(w.data, p...)
+	return len(p), nil
+}
+func (w *independentAuditWriter) Flush() { w.WriteHeader(http.StatusOK) }
+func (w *independentAuditWriter) SetReadDeadline(v time.Time) error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.readDeadline = v
+	return nil
+}
+func (w *independentAuditWriter) SetWriteDeadline(v time.Time) error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.writeDeadline = v
+	return nil
+}
+func (w *independentAuditWriter) zero() bool {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.status == 0 && len(w.data) == 0
+}
+
+type independentAuditCall struct {
+	writer              *independentAuditWriter
+	done                chan struct{}
+	response            httpResult
+	aborted, unexpected bool
+}
+
+func independentAuditStart(t *testing.T, h http.Handler, r *http.Request) *independentAuditCall {
+	t.Helper()
+	ctx, cancel := context.WithCancel(r.Context())
+	c := &independentAuditCall{writer: &independentAuditWriter{header: make(http.Header)}, done: make(chan struct{})}
+	t.Cleanup(func() {
+		cancel()
+		select {
+		case <-c.done:
+		case <-time.After(2 * time.Second):
+			t.Error("independent handler failed to actually join")
+		}
+	})
+	go func() {
+		defer close(c.done)
+		defer func() {
+			p := recover()
+			w := c.writer
+			w.mu.Lock()
+			defer w.mu.Unlock()
+			c.aborted = p == http.ErrAbortHandler
+			c.unexpected = p != nil && p != http.ErrAbortHandler || !w.readDeadline.IsZero() || !w.writeDeadline.IsZero()
+			c.response = httpResult{w.status, w.header.Clone(), bytes.Clone(w.data)}
+		}()
+		h.ServeHTTP(c.writer, r.WithContext(ctx))
+	}()
+	return c
+}
+func independentAuditJoin(t *testing.T, c *independentAuditCall) httpResult {
+	t.Helper()
+	select {
+	case <-c.done:
+	case <-time.After(3 * time.Second):
+		t.Fatal("independent HTTP actual tail did not finish")
+	}
+	if c.unexpected {
+		t.Fatal("unexpected handler panic or uncleared connection deadline")
+	}
+	return c.response
+}
+func independentAuditHeld(t *testing.T, c *independentAuditCall, store *auditHTTPStore) {
+	t.Helper()
+	select {
+	case <-c.done:
+		t.Fatal("handler returned before actual transaction terminal")
+	default:
+	}
+	if store.active.Load() != 1 || !c.writer.zero() {
+		t.Fatal("active real transaction published status or candidate bytes early")
+	}
+}
+
+func TestAuditIndependentCurrentAuthorityAndTerminal(t *testing.T) {
+	started := time.Now()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	f := newB02Account(t).fixture
+	password := f.bootstrap(t)
+	_, cursor, _ := keys(t)
+	store := &auditHTTPStore{Store: f.store, reads: make(map[foundation.Tx]*auditHTTPReadTrace)}
+	authority := auditHTTPAuthority{Authority: f.authority, store: store}
+	service, err := audit.New(store, cursor, audit.Authorizations{Sessions: authority, System: authority})
+	if err != nil {
+		t.Fatal("formal audit construction failed")
+	}
+	h, err := audithttp.NewSystemHTTPHandler(service, f.service, audithttp.SystemHTTPOptions{PublicOrigin: httpOrigin})
+	if err != nil {
+		t.Fatal("formal HTTP construction failed")
+	}
+	h = httpapi.Handler(nil, h)
+	var detailID string
+	if err = f.store.QueryRow(ctx, `SELECT id::text FROM agenteam_audit.audit_records WHERE action='account.bootstrap' ORDER BY created_at DESC,id DESC LIMIT 1`).Scan(&detailID); err != nil {
+		t.Fatal("formal bootstrap Audit prerequisite missing")
+	}
+	login := func(t *testing.T) (identity.Actor, string) {
+		t.Helper()
+		r, _ := loginRequest(t, f, password, "admin@mail.com")
+		response, e := f.service.Login(ctx, r)
+		if e != nil {
+			t.Fatal("formal Login failed")
+		}
+		material := useCookie(t, response)
+		defer material.Destroy()
+		if response.Close(ctx) != nil {
+			t.Fatal("formal Login tail did not close")
+		}
+		actor, e := f.service.Authenticate(ctx, material)
+		if e != nil {
+			t.Fatal("formal authentication failed")
+		}
+		var cookie string
+		if material.Use(func(b []byte) error { cookie = string(b); return nil }) != nil {
+			t.Fatal("cookie material unavailable")
+		}
+		return actor, cookie
+	}
+	request := func(t *testing.T, parent context.Context, cookie, path string) *http.Request {
+		t.Helper()
+		r, e := http.NewRequestWithContext(parent, "GET", httpOrigin+path, nil)
+		if e != nil {
+			t.Fatal("request construction failed")
+		}
+		r.Header.Set("Origin", httpOrigin)
+		r.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: cookie})
+		return r
+	}
+	gate := func() (chan struct{}, func()) {
+		c := make(chan struct{})
+		var once sync.Once
+		return c, func() { once.Do(func() { close(c) }) }
+	}
+	wait := func(t *testing.T, ch <-chan struct{}) {
+		t.Helper()
+		select {
+		case <-ch:
+		case <-time.After(time.Second):
+			t.Fatal("formal transaction barrier not reached")
+		}
+	}
+
+	t.Run("preauthenticated_formal_logout_rechecked_in_transaction", func(t *testing.T) {
+		actor, cookie := login(t)
+		entered := make(chan struct{})
+		release, finish := gate()
+		defer finish()
+		store.hooks(func(c context.Context, _ foundation.Tx) error {
+			close(entered)
+			select {
+			case <-release:
+				return nil
+			case <-c.Done():
+				return c.Err()
+			}
+		}, nil, nil)
+		defer store.hooks(nil, nil, nil)
+		call := independentAuditStart(t, h, request(t, ctx, cookie, systemAuditHTTPPath))
+		wait(t, entered)
+		independentAuditHeld(t, call, store)
+		if f.service.Logout(ctx, account.LogoutRequest{Actor: actor, Key: foundation.IdempotencyKey(id[struct{}](t).String())}) != nil {
+			t.Fatal("formal Logout failed before transaction authorization")
+		}
+		finish()
+		got := independentAuditJoin(t, call)
+		got.problem(t, 401, "SESSION_REVOKED")
+		if call.aborted || bytes.Contains(got.data, []byte(`"items"`)) || bytes.Contains(got.data, []byte(`"audit_id"`)) || store.active.Load() != 0 {
+			t.Fatal("stale preauthentication escaped or actual transaction remains")
+		}
+	})
+	t.Run("user_shared_lock_holds_formal_logout_until_actual_terminal", func(t *testing.T) {
+		actor, cookie := login(t)
+		entered := make(chan uint32, 1)
+		release, finish := gate()
+		defer finish()
+		store.hooks(nil, func(c context.Context, tx foundation.Tx) error {
+			key, e := foundation.UserLock(actor.Details().UserID)
+			if e != nil {
+				return e
+			}
+			if e = f.store.RequireHeldLocks(c, tx, []foundation.LockRequest{{Key: key, Mode: foundation.Shared}}); e != nil {
+				return e
+			}
+			x, e := f.store.InTx(tx)
+			if e != nil {
+				return e
+			}
+			var pid uint32
+			if e = x.QueryRow(c, `SELECT pg_backend_pid()`).Scan(&pid); e != nil {
+				return e
+			}
+			entered <- pid
+			select {
+			case <-release:
+				return nil
+			case <-c.Done():
+				return c.Err()
+			}
+		}, nil)
+		defer store.hooks(nil, nil, nil)
+		call := independentAuditStart(t, h, request(t, ctx, cookie, systemAuditHTTPPath))
+		var pid uint32
+		select {
+		case pid = <-entered:
+		case <-time.After(time.Second):
+			t.Fatal("real User SH not held")
+		}
+		independentAuditHeld(t, call, store)
+		revokeCtx, revokeCancel := context.WithCancel(ctx)
+		joined := make(chan struct{})
+		revoked := make(chan error, 1)
+		t.Cleanup(func() {
+			revokeCancel()
+			finish()
+			select {
+			case <-joined:
+			case <-time.After(2 * time.Second):
+				t.Error("formal Logout actual tail unjoined")
+			}
+		})
+		key := foundation.IdempotencyKey(id[struct{}](t).String())
+		go func() {
+			defer close(joined)
+			revoked <- f.service.Logout(revokeCtx, account.LogoutRequest{Actor: actor, Key: key})
+		}()
+		outboundHTTPWaitBlocked(t, f.store, pid)
+		select {
+		case <-revoked:
+			t.Fatal("formal Logout bypassed real User SH")
+		default:
+		}
+		independentAuditHeld(t, call, store)
+		finish()
+		got := independentAuditJoin(t, call)
+		got.want(t, 200)
+		select {
+		case e := <-revoked:
+			if e != nil {
+				t.Fatal("formal Logout failed after read terminal")
+			}
+		case <-time.After(2 * time.Second):
+			t.Fatal("formal Logout remained blocked")
+		}
+		<-joined
+		revokeCancel()
+		store.mu.Lock()
+		state := store.last.State()
+		store.mu.Unlock()
+		if call.aborted || state != foundation.Committed || store.active.Load() != 0 {
+			t.Fatal("read did not commit and release actual owner")
+		}
+		store.hooks(nil, nil, nil)
+		later := independentAuditStart(t, h, request(t, ctx, cookie, systemAuditHTTPPath+"/"+detailID))
+		independentAuditJoin(t, later).problem(t, 401, "SESSION_REVOKED")
+	})
+	t.Run("post_scan_success_and_earlier_parent_wait_for_real_transaction", func(t *testing.T) {
+		for _, early := range []bool{false, true} {
+			_, cookie := login(t)
+			parent := ctx
+			stop := func() {}
+			if early {
+				parent, stop = context.WithTimeout(ctx, 250*time.Millisecond)
+			}
+			entered := make(chan struct{})
+			release, finish := gate()
+			func() {
+				defer stop()
+				defer finish()
+				defer store.hooks(nil, nil, nil)
+				store.hooks(nil, nil, func(c context.Context, tx foundation.Tx) error {
+					store.mu.Lock()
+					trace := store.reads[tx]
+					valid := trace != nil && trace.queries == 1 && trace.sessions == 1 && trace.authority == 1
+					store.mu.Unlock()
+					if !valid {
+						return errors.New("post-scan formal authorization/SQL trace missing")
+					}
+					if early {
+						d, ok := c.Deadline()
+						expected, _ := parent.Deadline()
+						if !ok || !d.Equal(expected) {
+							return errors.New("earlier parent deadline was replaced")
+						}
+					}
+					close(entered)
+					// Deliberately keep the actual Store transaction owned after cancellation.
+					// Deferred release and cleanup always join this private barrier.
+					<-release
+					return c.Err()
+				})
+				call := independentAuditStart(t, h, request(t, parent, cookie, systemAuditHTTPPath+"/"+detailID))
+				wait(t, entered)
+				independentAuditHeld(t, call, store)
+				if early {
+					<-parent.Done()
+					independentAuditHeld(t, call, store)
+				}
+				finish()
+				got := independentAuditJoin(t, call)
+				store.mu.Lock()
+				state := store.last.State()
+				store.mu.Unlock()
+				if store.active.Load() != 0 {
+					t.Fatal("actual PostgreSQL tail still active")
+				}
+				if early {
+					if !call.aborted || !call.writer.zero() || state != foundation.NotCommitted {
+						t.Fatal("cancelled transaction published status/DTO or lost terminal state")
+					}
+				} else {
+					got.want(t, 200)
+					if call.aborted || state != foundation.Committed {
+						t.Fatal("live committed candidate failed to publish")
+					}
+				}
+			}()
+		}
+	})
+	if ctx.Err() != nil || time.Since(started) > 2*time.Minute {
+		t.Fatal("two-minute independent scenario budget exceeded")
+	}
+	t.Log("independent safe facts: formal Logout/current authority; real User SH/EX blocking; post-scan zero status/bytes until actual terminal; earlier parent abort and actual transaction joined")
+}

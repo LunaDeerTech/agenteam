@@ -1,0 +1,148 @@
+--- author/run-audit-fixture02.py
++++ independent/driver01.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only frozen System Audit groups and record actual completion and resources."""
++"""Run only the two private frozen System Audit representatives with original resource cleanup."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -16,7 +16,10 @@
+ 
+ 
+ ROOT = Path(__file__).resolve().parent
+-REPO = ROOT / 'workspace'
++AUTHOR_ROOT = Path('/workspace/scratch/agenteam-system-audit-author-0iv75y_i')
++REPO = AUTHOR_ROOT / 'workspace'
++CACHE = Path('/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache')
++OVERLAY = ROOT / 'overlay01.json'
+ GIT_REPO = Path('/workspace/agenteam')
+ BASE = 'f843506d9ec991be1c334a81b88d5cbacc277467'
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
+@@ -167,8 +170,8 @@
+     env = {key: value for key, value in os.environ.items() if not key.startswith('AGENTEAM_')}
+     env.update({'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': MODCACHE,
+-                'GOCACHE': str(ROOT / 'gocache'), 'TMPDIR': str(ROOT / 'tmp'),
+-                'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1'})
++                'GOCACHE': str(CACHE), 'TMPDIR': str(ROOT / 'tmp'),
++                'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -overlay=' + str(OVERLAY)})
+     return env
+ 
+ 
+@@ -180,7 +183,12 @@
+     discovery_argv = [GO, 'list', '-race', '-deps', '-test', '-tags=integration', '-json', *TEST_PACKAGES, *HELPER_PACKAGES, *NATIVE_PACKAGES]
+     raw = subprocess.check_output(discovery_argv, cwd=REPO, env=env, timeout=60)
+     decoder, text, offset = json.JSONDecoder(), raw.decode(), 0
+-    files = {Path(GO), Path(MINIO)}
++    files = {Path(GO), Path(MINIO), OVERLAY}
++    replacements = json.loads(OVERLAY.read_text())['Replace']
++    expected_destinations = {str(REPO / 'tests/account/audit_independent_final_test.go'), str(REPO / 'internal/central/app/audit_independent_final_test.go')}
++    if set(replacements) != expected_destinations or any(not Path(p).is_relative_to(ROOT / 'probe') for p in replacements.values()):
++        raise RuntimeError('private overlay escapes the two authorized new test files')
++    files.update(Path(p) for p in replacements.values())
+     executables = {'python': str(Path(sys.executable).resolve())}
+     for name in ['sh', 'docker', 'mktemp', 'rm', 'rmdir', 'dirname', go_environment['CC'], go_environment['CXX']]:
+         path = shutil.which(name, path=env.get('PATH'))
+@@ -212,15 +220,21 @@
+         for field in fields:
+             for name in package.get(field, []):
+                 path = (directory / name).resolve()
++                if str(path) in replacements:
++                    files.add(Path(replacements[str(path)]))
++                    continue
+                 if path.is_relative_to(REPO):
+                     name = str(path.relative_to(REPO))
+                     if name not in FROZEN['files'] and name not in FROZEN['accepted_baseline']['files']:
+                         raise RuntimeError('runtime local input outside bound closure')
+                     continue
+-                if path.is_relative_to(ROOT / 'gocache') or path.is_relative_to(ROOT / 'tmp'):
++                if path.is_relative_to(CACHE) or path.is_relative_to(ROOT / 'tmp'):
+                     if not package['ImportPath'].endswith('.test'):
+                         raise RuntimeError('unexpected generated compilation input')
+                     generated.add(package['ImportPath'])
++                    continue
++                if path in {Path(p) for p in replacements.values()}:
++                    files.add(path)
+                     continue
+                 if not path.is_relative_to(goroot) and not path.is_relative_to(Path(MODCACHE)):
+                     raise RuntimeError('compilation dependency outside fixed runtime')
+@@ -265,6 +279,7 @@
+         'accepted_baseline': accepted_baseline_input(),
+         'files': {name: sha(REPO / name) for name in FROZEN['files']},
+         'runtime': runtime_input(),
++        'private_files': {name: sha(Path(name)) for name in FROZEN['private_files']},
+     }
+ 
+ 
+@@ -272,7 +287,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['native', 'native-slow', 'new-account', 'new-root', 'old'], required=True)
++    parser.add_argument('--group', choices=['both', 'authority', 'root'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     mode = parser.add_mutually_exclusive_group(required=True)
+@@ -282,11 +297,9 @@
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+     groups = {
+-        'native': ['TestAuditHTTPNativeEOFAndKeepAlive', 'TestAuditHTTPNativeSlowBodyBudgets', 'TestAuditHTTPNativeWriteAndFlushAbort'],
+-        'native-slow': ['TestAuditHTTPNativeSlowBodyBudgets'],
+-        'new-account': ['TestSystemAuditHTTPQueryAndProjection', 'TestSystemAuditHTTPTransactionAndBudget'],
+-        'new-root': ['TestSystemAuditHTTPRootProducerBinding'],
+-        'old': ['TestAuditPaginationBindingsFiltersAndRevocation'],
++        'both': ['TestAuditIndependentCurrentAuthorityAndTerminal', 'TestAuditIndependentRootProducerProjection'],
++        'authority': ['TestAuditIndependentCurrentAuthorityAndTerminal'],
++        'root': ['TestAuditIndependentRootProducerProjection'],
+     }
+     if str(Path(args.modcache).resolve()) != MODCACHE:
+         raise ValueError('modcache differs from frozen runtime')
+@@ -300,7 +313,7 @@
+         raise RuntimeError('driver differs from frozen input')
+     if args.check_input_only:
+         current = source_input()
+-        same = all(current[key] == FROZEN[key] for key in ['files', 'runtime'])
++        same = all(current[key] == FROZEN[key] for key in ['files', 'runtime', 'private_files'])
+         accepted = current['accepted_baseline']['accepted']
+         print(json.dumps({'candidate_runtime_match': same, 'accepted_baseline': accepted,
+                           'accepted_count': current['accepted_baseline']['accepted_count'],
+@@ -323,7 +336,7 @@
+     if not before['accepted_baseline']['accepted']:
+         write(run / 'input-rejected.json', before)
+         raise RuntimeError('accepted baseline gate failed before any resource or fixture starts')
+-    if any(before[key] != FROZEN[key] for key in ['files', 'runtime']):
++    if any(before[key] != FROZEN[key] for key in ['files', 'runtime', 'private_files']):
+         raise RuntimeError('candidate source/runtime differs from frozen input')
+     if args.frozen.read_bytes() != frozen_bytes:
+         raise RuntimeError('frozen manifest changed during input gate')
+@@ -331,16 +344,16 @@
+     write(run / 'input-before.json', before)
+     baseline_processes = processes()
+     write(run / 'process-baseline.json', {pid: {key: row[key] for key in ['ppid','starttime','state','name','executable']} for pid,row in baseline_processes.items()})
+-    fixture = args.group not in {'native', 'native-slow'}
++    fixture = True
+     baseline = resources() if fixture else {}
+     write(run / 'baseline.json', baseline)
+     env = runtime_environment()
+-    flags = '-mod=readonly -buildvcs=false -p=1 -v'
++    flags = '-mod=readonly -buildvcs=false -p=1 -v -overlay=' + str(OVERLAY)
+     env.update({'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+                 'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                 'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': args.modcache,
+-                'GOCACHE': str(ROOT / 'gocache'), 'TMPDIR': str(runtime),
++                'GOCACHE': str(CACHE), 'TMPDIR': str(runtime),
+                 'CGO_ENABLED': '1', 'GOFLAGS': flags})
+     argv = (['sh', 'scripts/test-security.sh', '-run', args.selector] if fixture else
+             [GO, 'test', '-race', '-count=1', '-timeout=45s', '-v', '-run', args.selector, './internal/central/audit/http'])
+@@ -414,7 +427,7 @@
+     after = source_input()
+     write(run / 'input-after.json', after)
+     clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+-    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['runtime'] == after['runtime'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
++    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['runtime'] == after['runtime'] and before['private_files'] == after['private_files'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
+                'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
+                'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+                'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}

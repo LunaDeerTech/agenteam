@@ -1,0 +1,19 @@
+{
+  "stage": "query-stage01 only; not full Audit HTTP acceptance",
+  "author_manifest_sha256": "e69a4fb5b067890e149c7ad62c0610b2d49f48d0f338da3bfcef761766630b38",
+  "source_root": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/stages/query-stage01/source",
+  "files": {
+    "internal/central/audit/query.go": {
+      "sha256": "3713a95d285b19300e0038cb6243f9932754bb22a030afb820012b8f9e8968f3",
+      "bytes": 11976
+    },
+    "internal/central/audit/system_query.go": {
+      "sha256": "b84646b38e6810d02e3c6b259c1ee1e88b26aa79af406ebb5c504b58abd2014f",
+      "bytes": 4269
+    },
+    "internal/central/audit/system_query_test.go": {
+      "sha256": "411baa52add891a82ba720643981eae1584c3b7371a8a21a8e21ff56591aef6d",
+      "bytes": 18599
+    }
+  }
+}

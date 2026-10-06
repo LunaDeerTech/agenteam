@@ -1,0 +1,8 @@
+=== RUN   TestAuditHTTPNativeSlowBodyBudgets
+=== RUN   TestAuditHTTPNativeSlowBodyBudgets/local-three-seconds
+=== RUN   TestAuditHTTPNativeSlowBodyBudgets/earlier-parent
+--- PASS: TestAuditHTTPNativeSlowBodyBudgets (3.13s)
+    --- PASS: TestAuditHTTPNativeSlowBodyBudgets/local-three-seconds (3.00s)
+    --- PASS: TestAuditHTTPNativeSlowBodyBudgets/earlier-parent (0.12s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit/http	4.144s

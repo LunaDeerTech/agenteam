@@ -1,0 +1,27 @@
+--- FAIL: TestSystemAuditReadFailureHasZeroCandidate (0.00s)
+    --- FAIL: TestSystemAuditReadFailureHasZeroCandidate/unknown (0.00s)
+        system_query_test.go:263: failure published or retained transaction
+    --- FAIL: TestSystemAuditReadFailureHasZeroCandidate/not-committed (0.00s)
+        system_query_test.go:263: failure published or retained transaction
+    --- FAIL: TestSystemAuditReadFailureHasZeroCandidate/cancel-after-scan (0.00s)
+        system_query_test.go:263: failure published or retained transaction
+    --- FAIL: TestSystemAuditReadFailureHasZeroCandidate/revoked (0.00s)
+        system_query_test.go:263: failure published or retained transaction
+    --- FAIL: TestSystemAuditReadFailureHasZeroCandidate/forged-grant (0.00s)
+        system_query_test.go:263: failure published or retained transaction
+    --- FAIL: TestSystemAuditReadFailureHasZeroCandidate/lock (0.00s)
+        system_query_test.go:263: failure published or retained transaction
+    --- FAIL: TestSystemAuditReadFailureHasZeroCandidate/wrong-scope (0.00s)
+        system_query_test.go:263: failure published or retained transaction
+    --- FAIL: TestSystemAuditReadFailureHasZeroCandidate/not-found (0.00s)
+        system_query_test.go:263: failure published or retained transaction
+    --- FAIL: TestSystemAuditReadFailureHasZeroCandidate/bad-time (0.00s)
+        system_query_test.go:263: failure published or retained transaction
+--- FAIL: TestSystemAuditReadDeadlineAndActualTail (3.06s)
+    --- FAIL: TestSystemAuditReadDeadlineAndActualTail/local-three-seconds (3.00s)
+        system_query_test.go:406: wanted DEPENDENCY_UNAVAILABLE/not_committed, got candidate after deadline
+    --- FAIL: TestSystemAuditReadDeadlineAndActualTail/earlier-parent (0.06s)
+        system_query_test.go:406: wanted DEPENDENCY_UNAVAILABLE/not_committed, got candidate after deadline
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/audit	3.069s
+FAIL

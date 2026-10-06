@@ -1,0 +1,22 @@
+import sys,os,json,subprocess,time,hashlib,shutil
+from pathlib import Path
+r=Path(__file__).resolve().parent
+name=sys.argv[1];argv=sys.argv[2:];out=r/'checks'/name;out.mkdir(exist_ok=False)
+env=os.environ.copy();env.update(json.loads((r/'environment.json').read_text()));env.pop('go')
+files={}
+for p in sorted((r/'workspace').rglob('*')):
+ if p.is_file():files[str(p.relative_to(r/'workspace'))]=hashlib.sha256(p.read_bytes()).hexdigest()
+candidate_paths=['internal/central/audit/query.go','internal/central/audit/system_query.go','internal/central/audit/system_query_test.go','internal/central/audit/http/handler.go','internal/central/audit/http/wire.go','internal/central/audit/http/handler_test.go','internal/central/app/account.go','internal/central/app/audit_http.go','internal/central/app/audit_http_test.go','api/openapi/audit.json','tests/account/audit_http_test.go','tests/account/audit_http_transaction_test.go','internal/central/app/audit_http_process_test.go']
+for path in candidate_paths:
+ p=r/'workspace'/path
+ if p.exists():
+  d=out/'source'/path;d.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,d)
+(out/'input.json').write_text(json.dumps(files,indent=2)+'\n')
+(out/'command.json').write_text(json.dumps({'argv':argv,'cwd':str(r/'workspace'),'env':json.loads((r/'environment.json').read_text())},indent=2)+'\n')
+start=time.monotonic()
+with (out/'raw.log').open('wb') as log:
+ proc=subprocess.Popen(argv,cwd=r/'workspace',env=env,stdout=log,stderr=subprocess.STDOUT)
+ code=proc.wait()
+result={'exit_code':code,'elapsed_seconds':round(time.monotonic()-start,3),'actual_wait':True,'pid':proc.pid,'raw_sha256':hashlib.sha256((out/'raw.log').read_bytes()).hexdigest()}
+(out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result));print((out/'raw.log').read_text());sys.exit(code)

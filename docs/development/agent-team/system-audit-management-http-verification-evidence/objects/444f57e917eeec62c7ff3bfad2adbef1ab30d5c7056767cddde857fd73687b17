@@ -1,0 +1,96 @@
+{
+  "conclusion": "PASS within the authorized thirteen-candidate System Audit HTTP scope",
+  "fixed_product_git": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "accepted_dependency_git": "f843506d9ec991be1c334a81b88d5cbacc277467",
+  "references": {
+    "plan": {
+      "path": "/workspace/scratch/agenteam-system-audit-independent-plan-ox_0ue4a/plan01.md",
+      "sha256": "01d57f382e1d9ffcab5fbe2b2d9d2e71436c84a1d44ae70a8795306a5804e589"
+    },
+    "query_controlled": {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/verification-report.md",
+      "sha256": "84e5adf7ed621f3cbf90bc829ec7f11d2760a438a21cac6e9689d4fdef1788e7"
+    },
+    "http_controlled": {
+      "path": "/workspace/scratch/agenteam-audit-http-independent-emx29a7f/verification-report.md",
+      "sha256": "53cd3d02b63f4c49d8809d18cb62f421b47649507db671c1869ffe163afc788e"
+    },
+    "author_final": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/author-report.md",
+      "sha256": "555dfca7665b47c4cf1be8180ae6bb8ee8e6753ada49f921a1aef312212ce789"
+    },
+    "author_input": {
+      "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/manifest.json",
+      "sha256": "c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b"
+    }
+  },
+  "delivery13": {
+    "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/delivery13.json",
+    "sha256": "0a67b1eb79ddb5eea9d5c99285fe9385e60e54ab84079e28823c6fad7368ea4a"
+  },
+  "private_execution": {
+    "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/execution01.json",
+    "sha256": "61cf25bfa18217eba933e8ef9cfaba9be392fef8993b3dbfe7a1521b0485d313"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/driver01.py",
+    "sha256": "39dbef23524f1d90ae94c9663d899ac8d4233f114fd374a3048c68d049357838"
+  },
+  "stage_reuse": {
+    "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/stage-reuse01.json",
+    "sha256": "6cb4d94fdc867deffb68520d643c13b9479a32cb27cc46a5267598cbcca13e8c",
+    "query3_unchanged": true,
+    "http_handler_wire_schema_unchanged": true,
+    "handler_test_final_delta": "Only native slow-body premise repair in input03; earlier controlled contract evidence reused without claiming unchanged test source."
+  },
+  "offline_ready": {
+    "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/preparation-ready01.json",
+    "sha256": "90f7da5f116f4e8f07973441f510c6dbc0057b529f02e2f2caf304eaf306062d"
+  },
+  "actual_real": {
+    "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/runs/independent01",
+    "actual_exit": 0,
+    "actual_wait": true,
+    "seconds": 105.717,
+    "tops": [
+      {
+        "name": "TestAuditIndependentCurrentAuthorityAndTerminal",
+        "result": "PASS",
+        "seconds": 3.1,
+        "evidence": "formal PostgreSQL/Account Logout, actual User SH/EX blocking, post-scan controlled writer no status/body before actual terminal, early parent abort and actual join"
+      },
+      {
+        "name": "TestAuditIndependentRootProducerProjection",
+        "result": "PASS",
+        "seconds": 2.32,
+        "evidence": "formal root Profile2/Outbound1; native same-connection list/detail; closed typed golden DTOs, cursor bindings, unique canonical server RequestID/log, read-only counts, root actual join"
+      }
+    ],
+    "hashes": {
+      "raw.log": "d11b44369066ef387dba8f9d774f672c1fe4fd17029b9351c5fbcaddfde9e6b4",
+      "result.json": "a3e08bc7797d5d30ee26d93818c403bdc748cfe51c33e353136ceb3c563c1abc",
+      "command.json": "4a619bc4655f13673b4220b9c2fb44f4fd99b88b1bcdb6fde3894cc76d0671ba",
+      "cleanup.json": "51c2fa812dc230071ac9b866dd44fdc4791acbd4e17b8bfc8c2ee490f6566bf3",
+      "input-before.json": "d2feef05df9efd717b1991381a267c367ce4bf9ca856e9a124f13fa79f55226d",
+      "input-after.json": "d2feef05df9efd717b1991381a267c367ce4bf9ca856e9a124f13fa79f55226d",
+      "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "exact_resources": 7,
+    "owned_pid_starttime": 122,
+    "adopted_waits": 0,
+    "baseline": "original 2 containers / 4 networks unchanged",
+    "runtime_empty": true,
+    "input_before_after_equal": true,
+    "both_cleanup_scans_clear": true,
+    "tool_session": 37838,
+    "tool_actual_exit": 0
+  },
+  "limits": [
+    "A controlled ResponseWriter is not native TCP precommit zero-byte evidence. B native same-root connection proves real successful transport only.",
+    "Real Unknown is not injected. Unknown no-candidate/typed terminal behavior reuses independent controlled IQ/IH. Natural local3s and earlier-parent native timing reuse the separately attributed author native rounds; B client Timeout is not a server parent-deadline proof.",
+    "All historical prerequisite failures remain original, including query closure comparison/zero-UUID premises and old author goroutine-join evidence gap; HTTP enum/ref-base and success trace helper premises; native01 Canceled/Deadline observation and partial-pass boundaries.",
+    "Only fixed product213 and author input03 are dynamically tested. Main after Outbound UI acceptance requires root planned bounded same-package compile/discovery, not an implied main resource rerun.",
+    "Documentation path14, UI, Project Audit, production SPA, stopped Object/tools and full D04/D27 acceptance are outside this result."
+  ],
+  "writes": "Private probes/overlay/runner/evidence only; no candidate/shared-fixture/main/Git mutation. No active command or owned resource remains."
+}

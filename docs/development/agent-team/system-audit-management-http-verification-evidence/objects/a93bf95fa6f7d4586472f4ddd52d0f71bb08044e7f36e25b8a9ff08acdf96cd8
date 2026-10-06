@@ -1,0 +1,50 @@
+{
+  "actual_git_argv": [
+    "git",
+    "diff",
+    "--no-index",
+    "--check",
+    "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/documentation01/before/docs/development/backend/audit.md",
+    "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/documentation01/source/docs/development/backend/audit.md"
+  ],
+  "actual_git_exit": 1,
+  "actual_wait": true,
+  "elapsed_seconds": 0.009,
+  "normal_no_index_difference": true,
+  "whitespace_diagnostics_empty": true,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "UTF8_LF_final_newline_no_trailing_space": true,
+  "fences_balanced": true,
+  "links": [
+    {
+      "target": "../work-items/d04-security-design.md#4-b01audit-与签名-cursor",
+      "resolved": "docs/development/work-items/d04-security-design.md",
+      "origin": "accepted Git 1ff0442",
+      "sha256": "f1f8e72d0284038f4c35d989e8d8d8360293976836812fd0e480bb22aae42914",
+      "fragment_checked": true
+    },
+    {
+      "target": "../work-items/d04-system-audit-management-http.md",
+      "resolved": "docs/development/work-items/d04-system-audit-management-http.md",
+      "origin": "accepted Git 1ff0442",
+      "sha256": "97b68e340ccf9e7dda2c4d5d78698b43e25d68d063a20e0987dfd7ff6c7b93e9",
+      "fragment_checked": false
+    },
+    {
+      "target": "../../../api/openapi/audit.json",
+      "resolved": "api/openapi/audit.json",
+      "origin": "accepted input03 candidate",
+      "sha256": "168fc76cf7e0e8f89923e0312dee847ff48dd3de2f37f3f764689ef874300ee9",
+      "fragment_checked": false
+    }
+  ],
+  "source13_unchanged": true,
+  "before_sha256": "958cf7f575d58645dffebb850eb7196fff6eea551a6faa2ff19a279d1f0ff3fe",
+  "after_sha256": "6c0447804f5bd92c6963d56984848130cddebeff5142e27f7f338c8f426274ca",
+  "prior_tool_precondition": {
+    "tool_chunk": "82750f",
+    "wrapper_exit": 1,
+    "reason": "wrapper wrongly required git --no-index --check exit0 although different files yield exit1 with empty diagnostics; original format.raw.log retained"
+  },
+  "resources_started": false
+}

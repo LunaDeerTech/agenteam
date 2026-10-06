@@ -1,0 +1,11 @@
+{
+  "source_record": "schema-check01.py is a post-run verbatim transcription of the inline Python command, not a pre-run snapshot",
+  "tool_exit": 1,
+  "tool_actual_wait": true,
+  "command_kind": "python3 heredoc, no child commands",
+  "location": "<stdin> line 33",
+  "assertion": "service enum mismatch: extraction omitted standalone const ProjectInitialization ServiceName",
+  "fixed_source": "source/internal/central/identity/contract/identity.go:70 and RegisterService:173",
+  "classification": "private static extraction prerequisite, not product",
+  "production_or_go_probe_changed": false
+}

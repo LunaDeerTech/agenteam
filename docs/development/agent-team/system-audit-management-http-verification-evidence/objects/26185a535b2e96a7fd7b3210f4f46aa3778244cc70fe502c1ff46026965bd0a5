@@ -1,0 +1,348 @@
+//go:build integration
+
+package app
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"io"
+	"net"
+	"net/http"
+	"net/http/httptrace"
+	"net/url"
+	"reflect"
+	"strings"
+	"syscall"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+)
+
+func TestAuditIndependentRootProducerProjection(t *testing.T) {
+	started := time.Now()
+	a := newModelRootApp(t, "3s", nil)
+	address := a.address(t)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	login, err := fixtureAccountLoginResponse(ctx, a.cfg, a.core)
+	if err != nil {
+		t.Fatal("formal root Login failed")
+	}
+	var material sc.SecretMaterial
+	if login.UseCookie(func(b []byte) error { var e error; material, e = sc.NewSecretMaterial(b); return e }) != nil {
+		t.Fatal("private cookie material unavailable")
+	}
+	defer material.Destroy()
+	if login.Close(ctx) != nil {
+		t.Fatal("Login actual response tail failed")
+	}
+	session, err := a.core.GetSession(ctx, material)
+	if err != nil {
+		t.Fatal("formal Session failed")
+	}
+	defer session.CSRF.Destroy()
+	var cookie, csrf string
+	if material.Use(func(b []byte) error { cookie = string(b); return nil }) != nil || session.CSRF.Use(func(b []byte) error { csrf = string(b); return nil }) != nil {
+		t.Fatal("private session materials unavailable")
+	}
+	transport := &http.Transport{Proxy: nil, MaxConnsPerHost: 1, MaxIdleConnsPerHost: 1}
+	client := &http.Client{Transport: transport, Timeout: 5 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+	defer transport.CloseIdleConnections()
+	type reply struct {
+		object map[string]any
+		header http.Header
+		conn   net.Conn
+	}
+	requestIDs := map[string]bool{}
+	call := func(method, path string, payload any, status int) reply {
+		t.Helper()
+		var raw []byte
+		if payload != nil {
+			raw, err = json.Marshal(payload)
+			if err != nil {
+				t.Fatal("request encoding failed")
+			}
+		}
+		r, e := http.NewRequestWithContext(ctx, method, address+path, bytes.NewReader(raw))
+		if e != nil {
+			t.Fatal("request construction failed")
+		}
+		r.Host = "localhost:8080"
+		r.Header.Set("Origin", "http://localhost:8080")
+		r.Header.Set("X-Request-ID", "incoming-canary-ignored")
+		r.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: cookie})
+		if method == "PATCH" || method == "PUT" {
+			r.Header.Set("Content-Type", "application/json")
+			r.Header.Set("X-CSRF-Token", csrf)
+			r.Header.Set("Idempotency-Key", guardID[struct{}](t).String())
+		}
+		var conn net.Conn
+		r = r.WithContext(httptrace.WithClientTrace(r.Context(), &httptrace.ClientTrace{GotConn: func(info httptrace.GotConnInfo) { conn = info.Conn }}))
+		res, e := client.Do(r)
+		if e != nil {
+			t.Fatal("root HTTP request failed")
+		}
+		body, readErr := io.ReadAll(io.LimitReader(res.Body, (1<<20)+1))
+		closeErr := res.Body.Close()
+		if readErr != nil || closeErr != nil || res.StatusCode != status || len(body) > 1<<20 || conn == nil {
+			t.Fatalf("root HTTP status/completion failed: status=%d expected=%d", res.StatusCode, status)
+		}
+		if res.Header.Get("Cache-Control") != "no-store" || res.Header.Get("X-Content-Type-Options") != "nosniff" || res.Header.Get("Referrer-Policy") != "no-referrer" {
+			t.Fatal("safe response headers missing")
+		}
+		ids := res.Header.Values("X-Request-ID")
+		if len(ids) != 1 {
+			t.Fatal("duplicate response RequestID")
+		}
+		requestID, e := foundation.ParseID[foundation.Request](ids[0])
+		if e != nil || requestID.String() != ids[0] || requestIDs[ids[0]] {
+			t.Fatal("noncanonical or reused server RequestID")
+		}
+		requestIDs[ids[0]] = true
+		wantRoute := "unknown_route"
+		if path == "/api/v1/me" {
+			wantRoute = "/api/v1/me"
+		}
+		if path == "/api/v1/system/audit-near" {
+			wantRoute = "/"
+		}
+		deadline := time.Now().Add(time.Second)
+		for {
+			var matches []map[string]any
+			for _, line := range strings.Split(a.logs.String(), "\n") {
+				var event map[string]any
+				if json.Unmarshal([]byte(line), &event) == nil && event["event"] == "http_request" && event["request_id"] == ids[0] {
+					matches = append(matches, event)
+				}
+			}
+			if len(matches) == 1 {
+				if matches[0]["method"] != method || matches[0]["status"] != float64(status) || matches[0]["route"] != wantRoute {
+					t.Fatal("unique root RequestID access log mismatch")
+				}
+				break
+			}
+			if len(matches) > 1 || time.Now().After(deadline) {
+				t.Fatal("RequestID did not match exactly one root log")
+			}
+			time.Sleep(time.Millisecond)
+		}
+		var object map[string]any
+		if method == "HEAD" {
+			if len(body) != 0 {
+				t.Fatal("HEAD emitted a response body")
+			}
+		} else if json.Unmarshal(body, &object) != nil {
+			t.Fatal("response not a closed JSON object")
+		}
+		if status == 200 && strings.HasPrefix(path, "/api/v1/system/audit") {
+			if _, exists := object["request_id"]; exists {
+				t.Fatal("success DTO added transport identity")
+			}
+		}
+		return reply{object, res.Header, conn}
+	}
+	object := func(value any) map[string]any {
+		t.Helper()
+		v, ok := value.(map[string]any)
+		if !ok {
+			t.Fatal("expected object shape")
+		}
+		return v
+	}
+	str := func(value any) string {
+		t.Helper()
+		v, ok := value.(string)
+		if !ok || v == "" {
+			t.Fatal("expected nonempty string")
+		}
+		return v
+	}
+	me := call("GET", "/api/v1/me", nil, 200).object
+	user := object(me["user"])
+	userID := str(user["id"])
+	var profileVersions []string
+	for _, name := range []string{"Independent private audit first", "Independent private audit second"} {
+		updated := call("PATCH", "/api/v1/me", map[string]any{"version": user["version"], "display_name": name}, 200).object
+		user = object(updated["user"])
+		profileVersions = append(profileVersions, str(user["version"]))
+	}
+	receipt := call("PUT", "/api/v1/system/outbound-policy", map[string]any{"expected_version": "1", "rules": []any{}}, 200).object
+	policyID := str(receipt["audit_id"])
+	if len(receipt) != 4 || receipt["version"] != "2" || receipt["rule_count"] != "0" {
+		t.Fatal("formal Outbound receipt shape/version/count changed")
+	}
+	if at, e := foundation.ParseInstant(str(receipt["created_at"])); e != nil || at.String() != receipt["created_at"] {
+		t.Fatal("receipt instant not canonical")
+	}
+	rows, err := a.store.Query(ctx, `SELECT id::text FROM agenteam_audit.audit_records WHERE action='account.profile.update' AND resource_id=$1 ORDER BY created_at DESC,id DESC`, userID)
+	if err != nil {
+		t.Fatal("read-only producer identity query failed")
+	}
+	var profileIDs []string
+	for rows.Next() {
+		var id string
+		if rows.Scan(&id) != nil {
+			rows.Close()
+			t.Fatal("producer identity scan failed")
+		}
+		profileIDs = append(profileIDs, id)
+	}
+	rowErr := rows.Err()
+	rows.Close()
+	if rowErr != nil || len(profileIDs) != 2 {
+		t.Fatal("formal profile producer count is not two")
+	}
+	count := func() [3]int {
+		t.Helper()
+		var result [3]int
+		if a.store.QueryRow(ctx, `SELECT count(*),count(*) FILTER(WHERE action='account.profile.update'),count(*) FILTER(WHERE action='outbound.policy.update') FROM agenteam_audit.audit_records`).Scan(&result[0], &result[1], &result[2]) != nil {
+			t.Fatal("read-only Audit cardinality query failed")
+		}
+		return result
+	}
+	expectedProfileVersions := map[string]string{profileIDs[0]: profileVersions[1], profileIDs[1]: profileVersions[0]}
+	before := count()
+	if before[1] != 2 || before[2] != 1 {
+		t.Fatal("unexpected formal producer cardinality")
+	}
+	validate := func(record map[string]any, id, action, kind string) {
+		t.Helper()
+		keys := []string{"audit_id", "created_at", "scope", "actor", "action", "outcome", "resource", "metadata", "associations", "summary"}
+		if len(record) != len(keys) {
+			t.Fatal("Audit DTO field set not closed")
+		}
+		for _, k := range keys {
+			if record[k] == nil {
+				t.Fatal("required safe field missing")
+			}
+		}
+		parsed, e := foundation.ParseID[ac.Record](str(record["audit_id"]))
+		if e != nil || parsed.String() != id || record["audit_id"] != id {
+			t.Fatal("Audit identity not canonical expected formal producer")
+		}
+		at, e := foundation.ParseInstant(str(record["created_at"]))
+		if e != nil || at.String() != record["created_at"] {
+			t.Fatal("Audit timestamp not canonical")
+		}
+		if record["scope"] != "system" || record["action"] != action || record["outcome"] != "success" {
+			t.Fatal("Audit formal action/scope/outcome mismatch")
+		}
+		actor := object(record["actor"])
+		if len(actor) != 2 || actor["kind"] != "human" || actor["id"] != userID {
+			t.Fatal("safe human actor projection mismatch")
+		}
+		resource := object(record["resource"])
+		if resource["kind"] != kind {
+			t.Fatal("resource kind mismatch")
+		}
+		if kind == "user" {
+			if len(resource) != 2 || resource["id"] != userID {
+				t.Fatal("profile resource mismatch")
+			}
+		} else if len(resource) != 1 {
+			t.Fatal("singleton resource leaked extra field")
+		}
+		associations := object(record["associations"])
+		for k, v := range associations {
+			switch k {
+			case "tool_id", "request_id", "runner_id", "correlation_id", "http_trace_id":
+			default:
+				t.Fatal("unsafe association field")
+			}
+			if _, e := foundation.ParseID[struct{}](str(v)); e != nil {
+				t.Fatal("association identity malformed")
+			}
+		}
+		metadata := object(record["metadata"])
+		raw, e := json.Marshal(metadata)
+		if e != nil {
+			t.Fatal("metadata encoding failed")
+		}
+		typed, e := ac.DecodeMetadata(ac.Action(action), raw)
+		if e != nil || typed.Validate(ac.Action(action)) != nil {
+			t.Fatal("metadata not accepted by formal typed contract")
+		}
+		if kind == "user" {
+			if len(metadata) != 4 || metadata["version"] != expectedProfileVersions[id] || metadata["phase"] != "updated" || metadata["user_id"] != userID || !reflect.DeepEqual(metadata["changed_fields"], []any{"display_name"}) || record["summary"] != "Audit event" {
+				t.Fatal("profile metadata golden mismatch")
+			}
+		} else if len(metadata) != 2 || metadata["version"] != "2" || metadata["rule_count"] != "0" || record["summary"] != "Outbound policy updated" {
+			t.Fatal("policy metadata golden mismatch")
+		}
+	}
+	filter := url.Values{"action": {"account.profile.update"}, "resource_kind": {"user"}, "resource_id": {userID}, "limit": {"1"}}
+	first := call("GET", "/api/v1/system/audit?"+filter.Encode(), nil, 200)
+	if len(first.object) != 2 {
+		t.Fatal("page field set not closed")
+	}
+	items, ok := first.object["items"].([]any)
+	if !ok || len(items) != 1 {
+		t.Fatal("small first page wrong")
+	}
+	firstRecord := object(items[0])
+	validate(firstRecord, profileIDs[0], "account.profile.update", "user")
+	cursor := str(first.object["next_cursor"])
+	detail := call("GET", "/api/v1/system/audit/"+profileIDs[0], nil, 200)
+	if first.conn != detail.conn {
+		t.Fatal("native sequential list/detail did not reuse one actual connection")
+	}
+	validate(detail.object, profileIDs[0], "account.profile.update", "user")
+	if !reflect.DeepEqual(firstRecord, detail.object) {
+		t.Fatal("list/detail typed projections differ")
+	}
+	filter.Set("cursor", cursor)
+	filter.Set("limit", "2")
+	second := call("GET", "/api/v1/system/audit?"+filter.Encode(), nil, 200).object
+	secondItems, ok := second["items"].([]any)
+	if !ok || len(secondItems) != 1 || second["next_cursor"] != nil || len(second) != 2 {
+		t.Fatal("cursor/change-limit page failed")
+	}
+	validate(object(secondItems[0]), profileIDs[1], "account.profile.update", "user")
+	filter.Set("action", "outbound.policy.update")
+	bad := call("GET", "/api/v1/system/audit?"+filter.Encode(), nil, 400).object
+	if bad["code"] != "CURSOR_INVALID" {
+		t.Fatal("cursor accepted different filter")
+	}
+	policy := call("GET", "/api/v1/system/audit/"+policyID, nil, 200).object
+	validate(policy, policyID, "outbound.policy.update", "outbound_policy")
+	policyPage := call("GET", "/api/v1/system/audit?action=outbound.policy.update&limit=1", nil, 200).object
+	policyItems, ok := policyPage["items"].([]any)
+	if !ok || len(policyItems) != 1 || !reflect.DeepEqual(policy, object(policyItems[0])) || policyPage["next_cursor"] != nil {
+		t.Fatal("root policy producer missing from same auditor page")
+	}
+	head := call("HEAD", "/api/v1/system/audit", nil, 405)
+	if head.header.Get("Allow") != "GET" {
+		t.Fatal("HEAD changed Audit method contract")
+	}
+	if call("GET", "/api/v1/system/audit/", nil, 400).object["code"] != "INVALID_ARGUMENT" {
+		t.Fatal("ambiguous trailing path bypassed formal Account boundary")
+	}
+	if call("GET", "/api/v1/system/audit-near", nil, 404).object["code"] != "NOT_FOUND" {
+		t.Fatal("near prefix changed original Account route")
+	}
+	if call("GET", "/api/v1/system/outbound-policy", nil, 200).object["version"] != "2" {
+		t.Fatal("existing policy route changed")
+	}
+	if after := count(); after != before {
+		t.Fatal("management reads created or altered Audit cardinality")
+	}
+	transport.CloseIdleConnections()
+	a.signals <- syscall.SIGTERM
+	await(t, a.done)
+	if a.err != nil || !a.owned.accounts().Joined() {
+		t.Fatal("root/Account actual shutdown tail not joined")
+	}
+	for _, sensitive := range []string{cookie, csrf, policyID, profileIDs[0], profileIDs[1], cursor, "Independent private audit first", "Independent private audit second", "incoming-canary-ignored"} {
+		if strings.Contains(a.logs.String(), sensitive) {
+			t.Fatal("ordinary log contains private request/Audit material")
+		}
+	}
+	if ctx.Err() != nil || time.Since(started) > 2*time.Minute {
+		t.Fatal("two-minute independent root budget exceeded")
+	}
+	t.Log("independent safe facts: formal Profile2/Outbound1; same-root native list/detail same connection; cursor binding; closed typed DTO goldens; unique server RequestID/log; zero read side effects; actual root joined")
+}

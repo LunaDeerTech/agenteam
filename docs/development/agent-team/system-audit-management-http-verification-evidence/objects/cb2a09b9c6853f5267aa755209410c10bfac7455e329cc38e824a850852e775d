@@ -1,0 +1,8 @@
+{
+  "source": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/run-email-canonical-fixture.py",
+  "source_sha256": "87d1d99f256def5cf7205e7932a7c7a7d311cc389fa5e68672f4625a1e3e16c2",
+  "driver": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture.py",
+  "driver_sha256": "6b26ced4ff532a00e680d010d821b7667eac52b1d7ebd170f4fe99cc3dced89d",
+  "native_boundary": "native group runs only three audithttp tests, no fixture or Docker calls; process actual-wait/subreaper/two scans remain",
+  "fixture_boundary": "normal unchanged security/object/PG fixture chain, seven IDs; exact Audit selectors only"
+}

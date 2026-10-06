@@ -1,0 +1,25 @@
+# System Audit HTTP main integration compile and discovery
+
+PASS for bounded compile compatibility only. Main HEAD is `2742cf785e2f9379c2046172556ead70c29b48dc`, with the accepted 14-file Audit delivery copied but not yet committed. No source was modified by these checks.
+
+Both packages compiled with Go 1.27.1, `-c -race -vet=off -tags=integration`, read-only locked module settings and the author’s existing private GOCACHE. Each command retained its original argv/environment, raw output, actual wait, input hashes, PID/starttime observations and two cleanup scans. The 45-second limit was unchanged.
+
+| Check | Actual exit | Seconds | Result |
+| --- | ---: | ---: | --- |
+| graph01 | 0 | 0.120 | Selected two-package Go dependency discovery |
+| account-compile01 | 0 | 31.624 | Integration race binary compiled |
+| account-list01 | 0 | 1.052 | Exactly QueryAndProjection and TransactionAndBudget discovered |
+| app-compile01 | 0 | 3.238 | Integration race binary compiled |
+| app-list01 | 0 | 1.021 | Exactly RootProducerBinding discovered |
+
+The fixed input binds 614 local paths and 3496 runtime/tool paths from the selected Go graph (394 package entries, 31 modules), plus the explicit delivery paths. Go-reported test-file metadata is conservatively included; this is not a full repository index. All noncandidate local bytes match HEAD; the two new Outbound test sources also match accepted `1ff0442`. Accepted 14-file SHA values and each compile/list input remained unchanged.
+
+All five commands actually exited 0; the outer wrapper also actually exited 0 (session 87318, terminal chunk 70c3bf). The 44 observed PID/starttime identities were absent in both command cleanup scans; adopted wait count was 0 and private temporary runtime directories were empty. Neither Docker, native listeners nor browser/business scenarios were started. Historical non-owned processes are outside this cleanup claim.
+
+Both generated test binaries were SHA256-recorded after discovery and then deleted:
+- account: `a964849d000ba89b29b589c4cc6d5e2bfa4d25148ebedc4743d9aee66ac9d6c0` (47963740 bytes), deletion confirmed.
+- app: `1ff47b388fa6947042d2361c4b51d1b1546d9e81c4f1dc8025e65c52ddf5b69c` (43905153 bytes), deletion confirmed.
+
+This establishes current-main same-package compilation and exact test discovery, including the new Outbound harness. It does not establish current-main dynamic, full-suite or vet acceptance; earlier accepted Audit real results retain their original frozen base and limits.
+
+Permanent originals are adjacent `input.json`, `runner.log`, `result.json`, `outer-result.json`, the five command subdirectories, and the compact hash index `report.json`. No retry or source repair occurred in this check. All check inputs and reports are now frozen.

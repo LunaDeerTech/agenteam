@@ -1,0 +1,37 @@
+{
+  "actual_wait": true,
+  "adopted_waits": 0,
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "run",
+    "./.audit-oracle",
+    "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/oracle01/mime-vectors.json"
+  ],
+  "child_pid": 333473,
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+  "duration_seconds": 1.302,
+  "env": {
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "TMPDIR": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/tmp"
+  },
+  "exit_code": 0,
+  "input_after_sha256": "9ef3e80968bb04e572fa7e71625fe731e51c5b8aacce7d736042b40292cdecbb",
+  "input_before_sha256": "9ef3e80968bb04e572fa7e71625fe731e51c5b8aacce7d736042b40292cdecbb",
+  "input_unchanged": true,
+  "owned_processes_double_empty": true,
+  "raw_sha256": "f132cced445a9f47cb4439a72aa0512cc2b45f13f370233f75e14d56956bb0bf",
+  "resource_execution": false,
+  "runner_sha256": "59415ba6e78ab062b5eee48f8981f0993c01e9df2a6705a3d2c17ed8b9b0a9a9",
+  "timed_out": false
+}

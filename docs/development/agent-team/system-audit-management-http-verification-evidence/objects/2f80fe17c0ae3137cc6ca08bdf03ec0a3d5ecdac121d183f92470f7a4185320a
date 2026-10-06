@@ -1,0 +1,53 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"mime"
+	"os"
+	"strings"
+
+	c "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+func main() {
+	const object = "01970000-0000-7000-8000-000000000001"
+	inputs := []string{"text/plain", "text", "text/{json}", "{x}", "application/x{probe}", "text&x/plain", "text/plain; charset=utf-8", "text/plain; charset=us-ascii", "Text/Plain", "text/plain;charset=utf-8", "text/plain; charset=\"utf-8\"", "text/plain; charset=UTF-8", "text/plain; name=x", "text/plain; charset=latin-1", "text/", "text/plain/extra", "text/plain\n", "text/" + strings.Repeat("a", 251), "text/" + strings.Repeat("a", 252)}
+	type vector struct {
+		Input string `json:"input"`
+		Parsed bool `json:"parsed"`
+		Canonical string `json:"canonical"`
+		TypedAccepted bool `json:"typed_accepted"`
+		DecodeAccepted bool `json:"decode_accepted"`
+		EntryAccepted bool `json:"entry_accepted"`
+		CanonicalMetadataBytes int `json:"canonical_metadata_bytes"`
+	}
+	var vectors []vector
+	reg, err := id.RegisterService(id.ObjectService)
+	if err != nil { panic("service fixture") }
+	actor, err := reg.Actor(object, id.SystemScope())
+	if err != nil { panic("actor fixture") }
+	resource, err := c.NewResource(c.ObjectResource, object)
+	if err != nil { panic("resource fixture") }
+	for _, input := range inputs {
+		kind, params, parsed := mime.ParseMediaType(input)
+		metadata, typed := c.ObjectMetadata(c.ObjectUploadComplete, c.ObjectMetadataFields{ObjectID: object, InitiatorKind: id.Human, InitiatorID: object, MediaType: input, ByteSize: f.Progress(2), SentBytes: f.Progress(1), Phase: c.PublishedPhase})
+		entryOK, decodeOK := false, false
+		if typed == nil {
+			decoded, decodeErr := c.DecodeMetadata(c.ObjectUploadComplete, metadata.JSON())
+			decodeOK = decodeErr == nil
+			_, e := c.NewEntry(c.EntryFields{Scope: id.SystemScope(), Actor: actor, Action: c.ObjectUploadComplete, Outcome: c.Success, Resource: resource, Metadata: decoded})
+			entryOK = e == nil
+		}
+		canonical := ""
+		if parsed == nil { canonical = mime.FormatMediaType(kind, params) }
+		vectors = append(vectors, vector{input, parsed == nil, canonical, typed == nil, decodeOK, entryOK, len(metadata.JSON())})
+	}
+	data, err := json.MarshalIndent(vectors, "", "  ")
+	if err != nil || len(os.Args) != 2 || os.WriteFile(os.Args[1], append(data, '\n'), 0600) != nil { panic("oracle output") }
+	accepted := 0
+	for _, v := range vectors { if v.EntryAccepted { accepted++ } }
+	fmt.Printf("pure MIME oracle: cases=%d formal_entry_accepted=%d; no I/O service or producer started\n", len(vectors), accepted)
+}

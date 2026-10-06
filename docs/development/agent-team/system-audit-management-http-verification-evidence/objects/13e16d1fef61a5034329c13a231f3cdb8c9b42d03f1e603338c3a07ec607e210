@@ -1,0 +1,21 @@
+=== RUN   TestIndependentAuditHTTPDeadlineAndPublication
+=== RUN   TestIndependentAuditHTTPDeadlineAndPublication/one-parent-deadline-reader-callback-body-tails
+    zz_independent_http_test.go:102: safe: one deadline; reader, cancellation callback and Body.Close joined; zero headers
+=== RUN   TestIndependentAuditHTTPDeadlineAndPublication/natural-three-seconds-starts-in-CheckRequest
+    zz_independent_http_test.go:112: safe: natural preauthentication deadline elapsed_ms=3002.179
+=== RUN   TestIndependentAuditHTTPDeadlineAndPublication/capability-before-boundary
+=== RUN   TestIndependentAuditHTTPDeadlineAndPublication/unknown-and-authority-do-not-publish
+--- PASS: TestIndependentAuditHTTPDeadlineAndPublication (3.10s)
+    --- PASS: TestIndependentAuditHTTPDeadlineAndPublication/one-parent-deadline-reader-callback-body-tails (0.09s)
+    --- PASS: TestIndependentAuditHTTPDeadlineAndPublication/natural-three-seconds-starts-in-CheckRequest (3.00s)
+    --- PASS: TestIndependentAuditHTTPDeadlineAndPublication/capability-before-boundary (0.00s)
+    --- PASS: TestIndependentAuditHTTPDeadlineAndPublication/unknown-and-authority-do-not-publish (0.00s)
+=== RUN   TestIndependentAuditHTTPWireAndBudget
+=== RUN   TestIndependentAuditHTTPWireAndBudget/formal-safe-records-and-bad-late-item
+=== RUN   TestIndependentAuditHTTPWireAndBudget/closed-query-and-final-encoded-limit
+    zz_independent_http_test.go:158: safe: three formal typed representatives; bad late items zero page; synthetic final-byte guard
+--- PASS: TestIndependentAuditHTTPWireAndBudget (0.10s)
+    --- PASS: TestIndependentAuditHTTPWireAndBudget/formal-safe-records-and-bad-late-item (0.00s)
+    --- PASS: TestIndependentAuditHTTPWireAndBudget/closed-query-and-final-encoded-limit (0.10s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit/http	4.214s

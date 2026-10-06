@@ -1,0 +1,28 @@
+--- /workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture.py
++++ /workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture02.py
+@@ -272,7 +272,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['native', 'new-account', 'new-root', 'old'], required=True)
++    parser.add_argument('--group', choices=['native', 'native-slow', 'new-account', 'new-root', 'old'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     mode = parser.add_mutually_exclusive_group(required=True)
+@@ -283,6 +283,7 @@
+         raise ValueError('invalid run name')
+     groups = {
+         'native': ['TestAuditHTTPNativeEOFAndKeepAlive', 'TestAuditHTTPNativeSlowBodyBudgets', 'TestAuditHTTPNativeWriteAndFlushAbort'],
++        'native-slow': ['TestAuditHTTPNativeSlowBodyBudgets'],
+         'new-account': ['TestSystemAuditHTTPQueryAndProjection', 'TestSystemAuditHTTPTransactionAndBudget'],
+         'new-root': ['TestSystemAuditHTTPRootProducerBinding'],
+         'old': ['TestAuditPaginationBindingsFiltersAndRevocation'],
+@@ -330,7 +331,7 @@
+     write(run / 'input-before.json', before)
+     baseline_processes = processes()
+     write(run / 'process-baseline.json', {pid: {key: row[key] for key in ['ppid','starttime','state','name','executable']} for pid,row in baseline_processes.items()})
+-    fixture = args.group != 'native'
++    fixture = args.group not in {'native', 'native-slow'}
+     baseline = resources() if fixture else {}
+     write(run / 'baseline.json', baseline)
+     env = runtime_environment()

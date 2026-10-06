@@ -1,0 +1,1037 @@
+=== RUN   TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"single","value":"a","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/single
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/single
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/single
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/single
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/single
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/single
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/single
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/single
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/single
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"single-longer","value":"text","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/single-longer
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/single-longer
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/single-longer
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/single-longer
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/single-longer
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/single-longer
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/single-longer
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/single-longer
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/single-longer
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"single-braces","value":"{x}","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/single-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/single-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/single-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/single-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/single-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/single-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/single-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/single-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/single-braces
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"subtype-braces","value":"text/{json}","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/subtype-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/subtype-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/subtype-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/subtype-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/subtype-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/subtype-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/subtype-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/subtype-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/subtype-braces
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"type-braces","value":"{x}/plain","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/type-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/type-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/type-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/type-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/type-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/type-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/type-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/type-braces
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/type-braces
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"normal","value":"text/plain","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/normal
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/normal
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/normal
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/normal
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/normal
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/normal
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/normal
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/normal
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/normal
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"token-alphabet","value":"!#$%\u0026'*+-.^_`{|}~0123456789abcdefghijklmnopqrstuvwxyz","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/token-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/token-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/token-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/token-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/token-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/token-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/token-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/token-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/token-alphabet
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"subtype-alphabet","value":"text/!#$%\u0026'*+-.^_`{|}~0123456789abcdefghijklmnopqrstuvwxyz","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/subtype-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/subtype-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/subtype-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/subtype-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/subtype-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/subtype-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/subtype-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/subtype-alphabet
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/subtype-alphabet
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"single-utf8","value":"text; charset=utf-8","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/single-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/single-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/single-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/single-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/single-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/single-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/single-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/single-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/single-utf8
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"braces-ascii","value":"{x}/{y}; charset=us-ascii","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/braces-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/braces-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/braces-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/braces-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/braces-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/braces-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/braces-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/braces-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/braces-ascii
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"normal-utf8","value":"text/plain; charset=utf-8","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/normal-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/normal-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/normal-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/normal-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/normal-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/normal-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/normal-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/normal-utf8
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/normal-utf8
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"normal-ascii","value":"text/plain; charset=us-ascii","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/normal-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/normal-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/normal-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/normal-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/normal-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/normal-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/normal-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/normal-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/normal-ascii
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"single-256","value":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/single-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/single-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/single-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/single-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/single-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/single-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/single-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/single-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/single-256
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"pair-256","value":"text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/pair-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/pair-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/pair-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/pair-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/pair-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/pair-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/pair-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/pair-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/pair-256
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"charset-256","value":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; charset=utf-8","accepted":true}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/charset-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/charset-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/charset-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/charset-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/charset-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/charset-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/charset-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/charset-256
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/charset-256
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"empty","value":"","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/empty
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/empty
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/empty
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/empty
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/empty
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/empty
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/empty
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/empty
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/empty
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"slash-only","value":"/","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/slash-only
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/slash-only
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/slash-only
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/slash-only
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/slash-only
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/slash-only
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/slash-only
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/slash-only
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/slash-only
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"missing-type","value":"/plain","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/missing-type
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/missing-type
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/missing-type
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/missing-type
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/missing-type
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/missing-type
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/missing-type
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/missing-type
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/missing-type
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"missing-subtype","value":"text/","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/missing-subtype
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/missing-subtype
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/missing-subtype
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/missing-subtype
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/missing-subtype
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/missing-subtype
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/missing-subtype
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/missing-subtype
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/missing-subtype
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"second-slash","value":"text/plain/extra","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/second-slash
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/second-slash
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/second-slash
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/second-slash
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/second-slash
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/second-slash
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/second-slash
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/second-slash
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/second-slash
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"uppercase","value":"Text/Plain","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/uppercase
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"parameter-uppercase","value":"text/plain; CHARSET=utf-8","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/parameter-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/parameter-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/parameter-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/parameter-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/parameter-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/parameter-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/parameter-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/parameter-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/parameter-uppercase
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"charset-uppercase","value":"text/plain; charset=UTF-8","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/charset-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/charset-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/charset-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/charset-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/charset-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/charset-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/charset-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/charset-uppercase
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/charset-uppercase
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"missing-space","value":"text/plain;charset=utf-8","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/missing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/missing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/missing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/missing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/missing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/missing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/missing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/missing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/missing-space
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"quoted-charset","value":"text/plain; charset=\"utf-8\"","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/quoted-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/quoted-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/quoted-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/quoted-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/quoted-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/quoted-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/quoted-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/quoted-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/quoted-charset
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"unknown-charset","value":"text/plain; charset=latin-1","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/unknown-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/unknown-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/unknown-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/unknown-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/unknown-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/unknown-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/unknown-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/unknown-charset
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/unknown-charset
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"unknown-parameter","value":"text/plain; name=x","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/unknown-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/unknown-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/unknown-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/unknown-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/unknown-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/unknown-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/unknown-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/unknown-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/unknown-parameter
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"duplicate-parameter","value":"text/plain; charset=utf-8; charset=utf-8","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/duplicate-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/duplicate-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/duplicate-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/duplicate-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/duplicate-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/duplicate-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/duplicate-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/duplicate-parameter
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/duplicate-parameter
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"trailing-semicolon","value":"text/plain;","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/trailing-semicolon
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/trailing-semicolon
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/trailing-semicolon
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/trailing-semicolon
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/trailing-semicolon
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/trailing-semicolon
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/trailing-semicolon
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/trailing-semicolon
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/trailing-semicolon
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"leading-space","value":" text/plain","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/leading-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/leading-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/leading-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/leading-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/leading-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/leading-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/leading-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/leading-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/leading-space
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"trailing-space","value":"text/plain ","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/trailing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/trailing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/trailing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/trailing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/trailing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/trailing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/trailing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/trailing-space
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/trailing-space
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"tab","value":"text/\tplain","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/tab
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/tab
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/tab
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/tab
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/tab
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/tab
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/tab
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/tab
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/tab
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"nul","value":"text/plain\u0000","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/nul
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/nul
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/nul
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/nul
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/nul
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/nul
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/nul
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/nul
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/nul
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"non-ascii","value":"text/é","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/non-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/non-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/non-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/non-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/non-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/non-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/non-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/non-ascii
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/non-ascii
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"single-257","value":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/single-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/single-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/single-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/single-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/single-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/single-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/single-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/single-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/single-257
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"pair-257","value":"text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/pair-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/pair-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/pair-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/pair-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/pair-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/pair-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/pair-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/pair-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/pair-257
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"charset-257","value":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; charset=utf-8","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/charset-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/charset-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/charset-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/charset-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/charset-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/charset-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/charset-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/charset-257
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/charset-257
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"line-ending-0","value":"text/plain\n","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/line-ending-0
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/line-ending-0
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/line-ending-0
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/line-ending-0
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/line-ending-0
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/line-ending-0
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/line-ending-0
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/line-ending-0
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/line-ending-0
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"line-ending-1","value":"text/plain\r","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/line-ending-1
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/line-ending-1
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/line-ending-1
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/line-ending-1
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/line-ending-1
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/line-ending-1
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/line-ending-1
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/line-ending-1
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/line-ending-1
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"line-ending-2","value":"text/plain\r\n","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/line-ending-2
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/line-ending-2
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/line-ending-2
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/line-ending-2
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/line-ending-2
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/line-ending-2
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/line-ending-2
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/line-ending-2
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/line-ending-2
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"line-ending-3","value":"text/plain\u2028","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/line-ending-3
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/line-ending-3
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/line-ending-3
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/line-ending-3
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/line-ending-3
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/line-ending-3
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/line-ending-3
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/line-ending-3
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/line-ending-3
+=== NAME  TestAuditHTTPPureMIMEClosedSchema
+    handler_test.go:109: MIME_VECTOR {"name":"line-ending-4","value":"text/plain\u2029","accepted":false}
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/line-ending-4
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/line-ending-4
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/line-ending-4
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/line-ending-4
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/line-ending-4
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/line-ending-4
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/human/line-ending-4
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/line-ending-4
+=== RUN   TestAuditHTTPPureMIMEClosedSchema/object.delete/service/line-ending-4
+--- PASS: TestAuditHTTPPureMIMEClosedSchema (0.65s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/single (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/single (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/single (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/single (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/single (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/single (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/single (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/single (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/single (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/single-longer (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/single-longer (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/single-longer (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/single-longer (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/single-longer (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/single-longer (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/single-longer (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/single-longer (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/single-longer (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/single-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/single-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/single-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/single-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/single-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/single-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/single-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/single-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/single-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/subtype-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/subtype-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/subtype-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/subtype-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/subtype-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/subtype-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/subtype-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/subtype-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/subtype-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/type-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/type-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/type-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/type-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/type-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/type-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/type-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/type-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/type-braces (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/normal (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/normal (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/normal (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/normal (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/normal (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/normal (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/normal (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/normal (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/normal (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/token-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/token-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/token-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/token-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/token-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/token-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/token-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/token-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/token-alphabet (0.01s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/subtype-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/subtype-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/subtype-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/subtype-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/subtype-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/subtype-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/subtype-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/subtype-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/subtype-alphabet (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/single-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/single-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/single-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/single-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/single-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/single-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/single-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/single-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/single-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/braces-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/braces-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/braces-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/braces-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/braces-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/braces-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/braces-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/braces-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/braces-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/normal-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/normal-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/normal-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/normal-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/normal-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/normal-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/normal-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/normal-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/normal-utf8 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/normal-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/normal-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/normal-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/normal-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/normal-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/normal-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/normal-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/normal-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/normal-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/single-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/single-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/single-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/single-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/single-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/single-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/single-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/single-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/single-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/pair-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/pair-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/pair-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/pair-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/pair-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/pair-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/pair-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/pair-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/pair-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/charset-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/charset-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/charset-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/charset-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/charset-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/charset-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/charset-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/charset-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/charset-256 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/empty (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/empty (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/empty (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/empty (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/empty (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/empty (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/empty (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/empty (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/empty (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/slash-only (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/slash-only (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/slash-only (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/slash-only (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/slash-only (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/slash-only (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/slash-only (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/slash-only (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/slash-only (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/missing-type (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/missing-type (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/missing-type (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/missing-type (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/missing-type (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/missing-type (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/missing-type (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/missing-type (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/missing-type (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/missing-subtype (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/missing-subtype (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/missing-subtype (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/missing-subtype (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/missing-subtype (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/missing-subtype (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/missing-subtype (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/missing-subtype (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/missing-subtype (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/second-slash (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/second-slash (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/second-slash (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/second-slash (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/second-slash (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/second-slash (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/second-slash (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/second-slash (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/second-slash (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/parameter-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/parameter-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/parameter-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/parameter-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/parameter-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/parameter-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/parameter-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/parameter-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/parameter-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/charset-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/charset-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/charset-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/charset-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/charset-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/charset-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/charset-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/charset-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/charset-uppercase (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/missing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/missing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/missing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/missing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/missing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/missing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/missing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/missing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/missing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/quoted-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/quoted-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/quoted-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/quoted-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/quoted-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/quoted-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/quoted-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/quoted-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/quoted-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/unknown-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/unknown-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/unknown-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/unknown-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/unknown-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/unknown-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/unknown-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/unknown-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/unknown-charset (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/unknown-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/unknown-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/unknown-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/unknown-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/unknown-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/unknown-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/unknown-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/unknown-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/unknown-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/duplicate-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/duplicate-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/duplicate-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/duplicate-parameter (0.01s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/duplicate-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/duplicate-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/duplicate-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/duplicate-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/duplicate-parameter (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/trailing-semicolon (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/trailing-semicolon (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/trailing-semicolon (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/trailing-semicolon (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/trailing-semicolon (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/trailing-semicolon (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/trailing-semicolon (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/trailing-semicolon (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/trailing-semicolon (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/leading-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/leading-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/leading-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/leading-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/leading-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/leading-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/leading-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/leading-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/leading-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/trailing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/trailing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/trailing-space (0.01s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/trailing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/trailing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/trailing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/trailing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/trailing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/trailing-space (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/tab (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/tab (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/tab (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/tab (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/tab (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/tab (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/tab (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/tab (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/tab (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/nul (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/nul (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/nul (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/nul (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/nul (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/nul (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/nul (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/nul (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/nul (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/non-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/non-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/non-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/non-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/non-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/non-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/non-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/non-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/non-ascii (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/single-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/single-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/single-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/single-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/single-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/single-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/single-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/single-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/single-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/pair-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/pair-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/pair-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/pair-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/pair-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/pair-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/pair-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/pair-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/pair-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/charset-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/charset-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/charset-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/charset-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/charset-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/charset-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/charset-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/charset-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/charset-257 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/line-ending-0 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/line-ending-0 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/line-ending-0 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/line-ending-0 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/line-ending-0 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/line-ending-0 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/line-ending-0 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/line-ending-0 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/line-ending-0 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/line-ending-1 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/line-ending-1 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/line-ending-1 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/line-ending-1 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/line-ending-1 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/line-ending-1 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/line-ending-1 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/line-ending-1 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/line-ending-1 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/line-ending-2 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/line-ending-2 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/line-ending-2 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/line-ending-2 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/line-ending-2 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/line-ending-2 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/line-ending-2 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/line-ending-2 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/line-ending-2 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/line-ending-3 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/line-ending-3 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/line-ending-3 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/line-ending-3 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/line-ending-3 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/line-ending-3 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/line-ending-3 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/line-ending-3 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/line-ending-3 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/human/line-ending-4 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/agent_run/line-ending-4 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.complete/service/line-ending-4 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/human/line-ending-4 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/agent_run/line-ending-4 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.upload.failed/service/line-ending-4 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/human/line-ending-4 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/agent_run/line-ending-4 (0.00s)
+    --- PASS: TestAuditHTTPPureMIMEClosedSchema/object.delete/service/line-ending-4 (0.00s)
+=== RUN   TestAuditHTTPPureTypedProjection
+=== RUN   TestAuditHTTPPureTypedProjection/secret.create
+=== RUN   TestAuditHTTPPureTypedProjection/secret.update
+=== RUN   TestAuditHTTPPureTypedProjection/secret.delete
+=== RUN   TestAuditHTTPPureTypedProjection/secret.resolve
+=== RUN   TestAuditHTTPPureTypedProjection/secret.master.register
+=== RUN   TestAuditHTTPPureTypedProjection/secret.master.rotation.start
+=== RUN   TestAuditHTTPPureTypedProjection/secret.master.rotation.complete
+=== RUN   TestAuditHTTPPureTypedProjection/secret.master.rotation.failed
+=== RUN   TestAuditHTTPPureTypedProjection/outbound.policy.update
+=== RUN   TestAuditHTTPPureTypedProjection/outbound.access.deny
+=== RUN   TestAuditHTTPPureTypedProjection/object.upload.complete
+=== RUN   TestAuditHTTPPureTypedProjection/object.upload.failed
+=== RUN   TestAuditHTTPPureTypedProjection/object.delete
+=== RUN   TestAuditHTTPPureTypedProjection/outbox.delivery.requeue
+=== RUN   TestAuditHTTPPureTypedProjection/account.bootstrap
+=== RUN   TestAuditHTTPPureTypedProjection/account.login
+=== RUN   TestAuditHTTPPureTypedProjection/account.logout
+=== RUN   TestAuditHTTPPureTypedProjection/account.invite.create
+=== RUN   TestAuditHTTPPureTypedProjection/account.invite.revoke
+=== RUN   TestAuditHTTPPureTypedProjection/account.invite.redeem
+=== RUN   TestAuditHTTPPureTypedProjection/account.password.reset.request
+=== RUN   TestAuditHTTPPureTypedProjection/account.password.reset.complete
+=== RUN   TestAuditHTTPPureTypedProjection/account.password.change
+=== RUN   TestAuditHTTPPureTypedProjection/account.profile.update
+=== RUN   TestAuditHTTPPureTypedProjection/account.avatar.update
+=== RUN   TestAuditHTTPPureTypedProjection/account.settings.update
+=== RUN   TestAuditHTTPPureTypedProjection/smtp.settings.update
+=== RUN   TestAuditHTTPPureTypedProjection/smtp.test.request
+=== RUN   TestAuditHTTPPureTypedProjection/smtp.delivery.retry
+=== RUN   TestAuditHTTPPureTypedProjection/smtp.delivery
+=== RUN   TestAuditHTTPPureTypedProjection/provider.create
+=== RUN   TestAuditHTTPPureTypedProjection/provider.update
+=== RUN   TestAuditHTTPPureTypedProjection/provider.delete
+=== RUN   TestAuditHTTPPureTypedProjection/model.create
+=== RUN   TestAuditHTTPPureTypedProjection/model.update
+=== RUN   TestAuditHTTPPureTypedProjection/model.delete
+=== RUN   TestAuditHTTPPureTypedProjection/model.selection.update
+--- PASS: TestAuditHTTPPureTypedProjection (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.create (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.delete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.resolve (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.master.register (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.master.rotation.start (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.master.rotation.complete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/secret.master.rotation.failed (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/outbound.policy.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/outbound.access.deny (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/object.upload.complete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/object.upload.failed (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/object.delete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/outbox.delivery.requeue (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.bootstrap (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.login (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.logout (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.invite.create (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.invite.revoke (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.invite.redeem (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.password.reset.request (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.password.reset.complete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.password.change (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.profile.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.avatar.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/account.settings.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/smtp.settings.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/smtp.test.request (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/smtp.delivery.retry (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/smtp.delivery (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/provider.create (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/provider.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/provider.delete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/model.create (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/model.update (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/model.delete (0.00s)
+    --- PASS: TestAuditHTTPPureTypedProjection/model.selection.update (0.00s)
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.create
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.delete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.resolve
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.master.register
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.start
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.complete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.failed
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/outbound.policy.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/outbound.access.deny
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/object.upload.complete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/object.upload.failed
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/object.delete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/outbox.delivery.requeue
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.bootstrap
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.login
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.logout
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.invite.create
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.invite.revoke
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.invite.redeem
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.password.reset.request
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.password.reset.complete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.password.change
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.profile.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.avatar.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.settings.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.settings.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.test.request
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery.retry
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/provider.create
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/provider.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/provider.delete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.create
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.delete
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.selection.update
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.login#01
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.login#02
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery#01
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery#02
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model.delete#01
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/account.avatar.update#01
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/secret.resolve#01
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/outbound.access.deny#01
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/authenticated-needs-session
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/authenticated-forbids-reason
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/phase-outcome
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/unknown-needs-reason
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/retry-forbids-channel
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/retry-human-only
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/replacement-needs-id
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/model-associations
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/agent-initiator-needs-execution
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/object-actor
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/wrong-resource-kind
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/master-forbids-id
+=== RUN   TestAuditHTTPPureOpenAPIClosedContract/metadata-null
+--- PASS: TestAuditHTTPPureOpenAPIClosedContract (0.19s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.create (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.delete (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.resolve (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.master.register (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.start (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.complete (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.master.rotation.failed (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/outbound.policy.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/outbound.access.deny (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/object.upload.complete (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/object.upload.failed (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/object.delete (0.01s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/outbox.delivery.requeue (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.bootstrap (0.01s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.login (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.logout (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.invite.create (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.invite.revoke (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.invite.redeem (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.password.reset.request (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.password.reset.complete (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.password.change (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.profile.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.avatar.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.settings.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/smtp.settings.update (0.01s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/smtp.test.request (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery.retry (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/provider.create (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/provider.update (0.01s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/provider.delete (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.create (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.delete (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.selection.update (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.login#01 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.login#02 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery#01 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/smtp.delivery#02 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model.delete#01 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/account.avatar.update#01 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/secret.resolve#01 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/outbound.access.deny#01 (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/authenticated-needs-session (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/authenticated-forbids-reason (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/phase-outcome (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/unknown-needs-reason (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/retry-forbids-channel (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/retry-human-only (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/replacement-needs-id (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/model-associations (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/agent-initiator-needs-execution (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/object-actor (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/wrong-resource-kind (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/master-forbids-id (0.00s)
+    --- PASS: TestAuditHTTPPureOpenAPIClosedContract/metadata-null (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit/http	0.847s

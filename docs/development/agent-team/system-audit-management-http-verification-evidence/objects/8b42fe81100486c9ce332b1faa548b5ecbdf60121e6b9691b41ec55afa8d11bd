@@ -1,0 +1,80 @@
+{
+  "status": "Author candidate13 frozen; independent final verification and documentation path14 pending",
+  "fixed_git": "f843506d9ec991be1c334a81b88d5cbacc277467",
+  "product_git": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "product_manifest": {
+    "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/manifest.json",
+    "sha256": "c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b"
+  },
+  "runtime_manifest": {
+    "path": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/driver-stage02/input.json",
+    "sha256": "0c0306932b4a61a8048c0f76520d5468e40b7512a197e9a353fb2c6c3a8be068"
+  },
+  "files": {
+    "api/openapi/audit.json": {
+      "sha256": "168fc76cf7e0e8f89923e0312dee847ff48dd3de2f37f3f764689ef874300ee9",
+      "bytes": 166333,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/api/openapi/audit.json"
+    },
+    "internal/central/app/account.go": {
+      "sha256": "be95ac04214983a95ed9b63d845bc8aa622c3b926ea16328a492d908001e463c",
+      "bytes": 13909,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/app/account.go"
+    },
+    "internal/central/app/audit_http.go": {
+      "sha256": "b2a547db23854de76a9d456152edc6a0c0a0c9e88f3741d89ced580179fde26b",
+      "bytes": 523,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/app/audit_http.go"
+    },
+    "internal/central/app/audit_http_process_test.go": {
+      "sha256": "b44be5136db527ebcb39da30da760b49bc794937c32db3f44d02c07e01f9d1ba",
+      "bytes": 6318,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/app/audit_http_process_test.go"
+    },
+    "internal/central/app/audit_http_test.go": {
+      "sha256": "c3bef11fb2c72a62d4c89e44a4921ff98e508ba00326b16fe5bdb5bfe6de8467",
+      "bytes": 5273,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/app/audit_http_test.go"
+    },
+    "internal/central/audit/http/handler.go": {
+      "sha256": "b13e6a0885c155ff4eff737790be0fb4f06191abb0d0409701f510cd6441a039",
+      "bytes": 6633,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/http/handler.go"
+    },
+    "internal/central/audit/http/handler_test.go": {
+      "sha256": "ed8ae6dba33473b024cdd8fc7e29a2823cf45e348af3bcc3b12d58576c16149e",
+      "bytes": 44933,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/http/handler_test.go"
+    },
+    "internal/central/audit/http/wire.go": {
+      "sha256": "4a42524d07301277350ed57d0a15901e2dfa6a541e16e14bbd145563adb593b4",
+      "bytes": 11980,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/http/wire.go"
+    },
+    "internal/central/audit/query.go": {
+      "sha256": "3713a95d285b19300e0038cb6243f9932754bb22a030afb820012b8f9e8968f3",
+      "bytes": 11976,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/query.go"
+    },
+    "internal/central/audit/system_query.go": {
+      "sha256": "b84646b38e6810d02e3c6b259c1ee1e88b26aa79af406ebb5c504b58abd2014f",
+      "bytes": 4269,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/system_query.go"
+    },
+    "internal/central/audit/system_query_test.go": {
+      "sha256": "411baa52add891a82ba720643981eae1584c3b7371a8a21a8e21ff56591aef6d",
+      "bytes": 18599,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/system_query_test.go"
+    },
+    "tests/account/audit_http_test.go": {
+      "sha256": "788fcc081557181115f17202964e77a99e04b140924cfc7c33df49095c17cff4",
+      "bytes": 10924,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/tests/account/audit_http_test.go"
+    },
+    "tests/account/audit_http_transaction_test.go": {
+      "sha256": "56f5b38e2a35117fc29e5b634a51bd4f613fa1969c848119f8b1f9f4c236c25b",
+      "bytes": 15682,
+      "source": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/tests/account/audit_http_transaction_test.go"
+    }
+  }
+}

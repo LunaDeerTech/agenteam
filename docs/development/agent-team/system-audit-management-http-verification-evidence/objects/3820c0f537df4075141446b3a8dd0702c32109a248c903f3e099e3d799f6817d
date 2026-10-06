@@ -1,0 +1,18 @@
+# System Audit HTTP stage01 — author handoff
+
+Fixed Git `f843506d9ec991be1c334a81b88d5cbacc277467` / product `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`. Private only; main unchanged. The query stage's three accepted candidate sources remain byte-identical. This stage adds four authorized sources, with 247 fixed Git dependencies in `source/`; `manifest.json` binds the complete 254-file snapshot. The reused readonly module cache and private Go cache/TMP are recorded in each command.json.
+
+The HTTP handler retains the exact auditor and Account services through a pure constructor. Its 3s context starts before CheckRequest/RequireSystem, uses native deadline capabilities without unbounded fallback, and owns synchronous write/Flush/Body.Close and cancellation callback completion. Only two exact GET resources exist; errors use the original constant-instance Account boundary. The explicit closed DTO covers 37 actions, 13 registered services, 17 resources, five associations and the narrower Model association rules. Metadata is reconstructed by the formal typed constructors; schema has closed action/phase/actor/resource branches and the 1MiB final encoding check. The original Filter input set is retained.
+
+Checks (all subprocesses actually waited; original files/commands/raw/results retained):
+
+- `http-pure01`: exit 1, 14.699s. Two new-test prerequisites failed: non-contract reason `policy_denied`, and the test-local schema resolver incorrectly resolved common.json's local Version/Progress refs against audit.json. Its other five pure tops passed. The exact original seven candidate files remain in that check's source directory.
+- `http-pure02`: exit 0, 0.973s. Only the two test lines in `pure01-to02.diff` changed; formal typed projection and schema 37-action checks passed. Handler/wire/OpenAPI production SHA was unchanged.
+- `http-pure03`: exit 0, 4.152s. Added conditional typed cases/negative schema cases; the preauthentication local 3s and earlier parent 50ms actually expired, cancellation callback gate and Body.Close were actually joined, and Unknown kept its registered safe Problem while returning no DTO. The local parent remained live.
+- `http-race01`: exit 0, 24.925s (package 4.956s), exact `^TestAuditHTTPPure` eight tops. All added native test source compiled but no native test executed.
+- `http-vet01`: exit 0, 2.027s.
+- `http-list01`: exit 0, 1.745s; exact discovery eight Pure + three Native tops; no TestMain and no listener execution.
+
+The three production HTTP/schema sources have identical SHA throughout all six checks. Query production/test sources have not changed since query-stage01. Normal unit coverage combines the unchanged passing pure01 groups, pure02, and pure03; the final race run executes all eight Pure tops. The bounded schema test helper resolves only keywords used by this document and is not a new runtime/public schema engine.
+
+Native EOF/keepalive, slow-body 3s/earlier parent, and controlled short-write/Flush tests are SOURCE + COMPILE ONLY, pending a separately authorized loopback window. No native HTTP, socket, Docker, PG, MinIO, browser or business fixture ran. Root constructor/real producer and three real top-level tests are not yet implemented or claimed passing. Four HTTP sources in this stage now stop writing pending independent Group2; work may continue only in the separately authorized root/integration paths. Query-stage01 remains frozen.

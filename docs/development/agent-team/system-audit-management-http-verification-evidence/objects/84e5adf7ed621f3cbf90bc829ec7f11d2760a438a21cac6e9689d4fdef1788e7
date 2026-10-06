@@ -1,0 +1,26 @@
+# System Audit Group1：独立有界 PASS
+
+固定 query-stage01 manifest：`e69a4fb5b067890e149c7ad62c0610b2d49f48d0f338da3bfcef761766630b38`。三候选与 59 接受依赖逐 SHA/字节核定，依赖对照 Git f843506，产品基线 213cf5c。精确三路径见 `delivery3.json`。仅本查询阶段可接受；HTTP/wire/schema/root、真实当前权限/PG 与原生 I/O 尚未交验。
+
+静审未发现阻断。旧 filterDigest、recordColumns、scanner、summary 全段逐字相同；List 的 Filter/cursor/SQL 构造段逐字相同，旧公开接口仍先 Tx{} 授权再原参数校验。新 helper 的 check=nil 保留旧路径，System 分支在裁页前检查包括 limit+1 哨兵的每一行，并在 Close 后检查 Err；游标签名之后才结束回调。新同一非零 Tx 顺序为 User SH→当前 Session/admin→同 SQL executor，回调候选不得直接发布；外层只在实际 WithinTx 返回 Committed 且 ctx 有效时成功，Unknown 保持 COMMIT_UNKNOWN/unknown，NotCommitted 返回原 typed Fault。
+
+独立两 top、12 个子例使用原 Service/foundation/cursor/typed scanner，私有受控 Store/Authority/Rows；没有替换产品函数。实际命令为固定 Go1.27.1 的 `go test -race -count=1 -timeout=45s`，精确 selector 见 execution02/03 与各 run 的 command.json。
+
+| 轮次 | 实际结果 | 终局 |
+| --- | --- | --- |
+| query01 | actual 1 / 5.790804 s；事务/授权 top 七子例全部 PASS；第二 top 四 PASS、一私有比较前提 FAIL | 16 个已观察 PID/starttime 双扫空，0 adopted wait，TMP 删除，2797 输入指纹前后一致 |
+| query02 | actual 0 / 2.233681 s；只选择第二 top 的 valid-page 子例，PASS | 6 个已观察 PID/starttime 双扫空，0 adopted wait，TMP 删除，输入前后一致 |
+
+组合所证：
+
+- 合法候选已完成扫描但事务尾部仍持有时不提前返回；正常提交发布，Unknown、NotCommitted 和 Committed 后 ctx 已取消全部返回严格零值。原 typed ResourceBusy/cause 保留；当前 Session 撤销拒绝在查询前结束。
+- 所有新权限/执行器调用接受同一非零 Tx、同 context 且已持正确 User Shared。自然期限屏障放在当前 Session 授权阶段：局部 3 秒实际 `3001.217 ms`、更早 parent 实际 `75.508 ms`；ctx 到期后尾部未放行仍持事务、零 SQL，放行后方法返回且 goroutine 明确 joined。真实耗时与 deadline 均已记录，不是立即造错、虚拟时钟或只看进程退出。
+- limit=1 的第二行完整扫描；独立合法 Project scope 哨兵、坏 metadata 哨兵及 Close 后才出现的错误均为零页。Close 本身设置尾部屏障，调用不得提前结束；正常 cursor 指向保留行。旧页面用完整公开记录字段/Scope.Equal/Resource.Details/Metadata.Validate+JSON 字节及正式 cursor.Verify 逐 scalar 比较等价。旧 Get 无新事务，旧 List 校验仍在授权后，原合法 Project action/agent filter、AND/特殊 agent 表达式和 limit+1 参数保持。
+
+query01 唯一失败是私有 `reflect.DeepEqual` 完整 typed SafeRecord：Scope、Resource、Metadata 都含非 nil data func，Go 的 DeepEqual 对非 nil func 必为 false。原 raw 没有各字段差异观察，因此不把它误称产品语义不同。按主线程授权仅换该比较，原完整内容/cursor/屏障断言不削，overlay 指向新 probe02；原 probe、actual1、raw、execution 永久保留。第一 top 和其余四子例不重跑，结论是分轮组合，不能称单轮全绿。原准备 execution01 只绑定普通依赖发现，未执行产品测试；实际 query01 使用 race-specific closure02/execution02（269 packages），query02 只增加私有 overlay/已在闭包内的 bytes 导入。
+
+作者新六 top/20 子例、Audit 全包 race/vet 为其固定证据，不冒独立重跑。已核两生产在作者 pure01/02/03 字节未变：pure01 的 LockKey 直接比较编译失败、pure02 的零 UUID.String 误断言均保留。尤其作者 pure02 没有独立 goroutine 退出 joined 证据，不能用进程退出补填；其后修正记录与本次明确屏障/join 分开。
+
+限制：受控 Authority 拒绝并非正式 Logout/真实 PG 撤权证明；List 的受控完整 Rows 通过私有 helper 验证，成功 ListSystem→真实 postgres.Rows 整链仍待真实阶段。这里自然 3 秒证明的是 Service 权限阶段，不是尚未冻结 HTTP 的预认证计时；DB 1 秒 LOCK_TIMEOUT 与其 mapper 未运行。没有 listener/native HTTP、PG、Docker、MinIO、浏览器、外网或任何停止任务。三源/依赖和主树/Git 均未修改。
+
+最小原件见 binding01、delivery3、execution02/03、probe01-to02.diff、query01-diagnosis、两 run 的 command/raw/result/input-before/input-after/cleanup；运行时闭包为 runtime-closure02。普通/race 依赖发现 closure01/02 的 actual0 与清理也保留。全部路径和 SHA 见同名 JSON。阶段报告冻结，停止本阶段写入/执行。

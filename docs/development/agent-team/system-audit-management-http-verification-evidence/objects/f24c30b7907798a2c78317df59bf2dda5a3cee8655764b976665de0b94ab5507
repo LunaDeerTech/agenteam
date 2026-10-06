@@ -1,0 +1,14 @@
+# System Audit query-stage01
+
+三源固定，供独立阶段审查；后续 HTTP/schema/root/harness 尚未交付，不是整卡通过。
+
+- 固定基线 f843506 / 产品213cf5c；正式卡全文 5fdc1dde616c89840fa583213377e078c636284b79be57e4234095031ac777f0。
+- source/ 恰 3 候选 + 59 依赖 = 62 文件；modcache只读复用，GOCACHE/TMP独占；命令/env/input/raw/result 均见 manifest checks 的精确原路径。
+- 原 Get/List 保留 Tx{} 授权、参数化 SQL/filter/cursor 与错误投影。局部 recordRows 只供同一查询扫描；新 System check 校验全部行含哨兵，并先 Close/Err 再签 cursor/结束回调。未新增公共 Store/Reader 接口。
+- System 方法持同一 User SH/Tx 核 Session/admin，在同 executor 完整读取；Committed + ctx有效才发布。NotCommitted 原 Fault保留，Unknown明确 COMMIT_UNKNOWN，零候选，未走 portError。
+- query-pure03：新6顶层/20子例实际0，3.730s。自然3s/早parent两例实际等待原ctx.Done，再等tail放行，最后操作数0；新清理等待独立joined。
+- query-race01：含旧Audit包测试实际0，28.620s（测试4.101s）；query-vet01实际0，3.084s。无native/监听测试。
+- 原 query-pure01 actual1/17.578s：新测试把含闭包LockKey直接比较，编译失败，原三源仍在该checks/source；改为正式CompareLockKeys。
+- 原 query-pure02 actual1/3.865s：新测试误把零UUID.String当空串，9故障+2deadline子例在零值断言误红；修为完整SafeRecord{}严格相等。原goroutine没有独立退出join证明，不能用进程退出回填；新稿加joined覆盖Cleanup前置失败路径。两生产源在全部轮次逐SHA相同。
+
+生产/测试3源此刻停止写入。原失败、固定输入和原日志不覆盖；实际真实权限/PG/HTTP/native、OpenAPI、root仍待后续授权和独立验证。

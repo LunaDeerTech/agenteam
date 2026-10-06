@@ -1,0 +1,228 @@
+{
+  "base": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "description": "Pure fixed typed construction/decode/NewEntry and Go1.27.1 MIME; no Object service, producer or I/O resources started",
+  "schema_pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+  "accepted_by_formal_entry_rejected_by_schema": [
+    "text",
+    "text/{json}",
+    "{x}",
+    "application/x{probe}"
+  ],
+  "vectors": [
+    {
+      "input": "text/plain",
+      "parsed": true,
+      "canonical": "text/plain",
+      "typed_accepted": true,
+      "decode_accepted": true,
+      "entry_accepted": true,
+      "canonical_metadata_bytes": 210,
+      "schema_pattern_accepts": true
+    },
+    {
+      "input": "text",
+      "parsed": true,
+      "canonical": "text",
+      "typed_accepted": true,
+      "decode_accepted": true,
+      "entry_accepted": true,
+      "canonical_metadata_bytes": 204,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "text/{json}",
+      "parsed": true,
+      "canonical": "text/{json}",
+      "typed_accepted": true,
+      "decode_accepted": true,
+      "entry_accepted": true,
+      "canonical_metadata_bytes": 211,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "{x}",
+      "parsed": true,
+      "canonical": "{x}",
+      "typed_accepted": true,
+      "decode_accepted": true,
+      "entry_accepted": true,
+      "canonical_metadata_bytes": 203,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "application/x{probe}",
+      "parsed": true,
+      "canonical": "application/x{probe}",
+      "typed_accepted": true,
+      "decode_accepted": true,
+      "entry_accepted": true,
+      "canonical_metadata_bytes": 220,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "text&x/plain",
+      "parsed": true,
+      "canonical": "text&x/plain",
+      "typed_accepted": true,
+      "decode_accepted": true,
+      "entry_accepted": true,
+      "canonical_metadata_bytes": 217,
+      "schema_pattern_accepts": true
+    },
+    {
+      "input": "text/plain; charset=utf-8",
+      "parsed": true,
+      "canonical": "text/plain; charset=utf-8",
+      "typed_accepted": true,
+      "decode_accepted": true,
+      "entry_accepted": true,
+      "canonical_metadata_bytes": 225,
+      "schema_pattern_accepts": true
+    },
+    {
+      "input": "text/plain; charset=us-ascii",
+      "parsed": true,
+      "canonical": "text/plain; charset=us-ascii",
+      "typed_accepted": true,
+      "decode_accepted": true,
+      "entry_accepted": true,
+      "canonical_metadata_bytes": 228,
+      "schema_pattern_accepts": true
+    },
+    {
+      "input": "Text/Plain",
+      "parsed": true,
+      "canonical": "text/plain",
+      "typed_accepted": false,
+      "decode_accepted": false,
+      "entry_accepted": false,
+      "canonical_metadata_bytes": 2,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "text/plain;charset=utf-8",
+      "parsed": true,
+      "canonical": "text/plain; charset=utf-8",
+      "typed_accepted": false,
+      "decode_accepted": false,
+      "entry_accepted": false,
+      "canonical_metadata_bytes": 2,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "text/plain; charset=\"utf-8\"",
+      "parsed": true,
+      "canonical": "text/plain; charset=utf-8",
+      "typed_accepted": false,
+      "decode_accepted": false,
+      "entry_accepted": false,
+      "canonical_metadata_bytes": 2,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "text/plain; charset=UTF-8",
+      "parsed": true,
+      "canonical": "text/plain; charset=UTF-8",
+      "typed_accepted": false,
+      "decode_accepted": false,
+      "entry_accepted": false,
+      "canonical_metadata_bytes": 2,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "text/plain; name=x",
+      "parsed": true,
+      "canonical": "text/plain; name=x",
+      "typed_accepted": false,
+      "decode_accepted": false,
+      "entry_accepted": false,
+      "canonical_metadata_bytes": 2,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "text/plain; charset=latin-1",
+      "parsed": true,
+      "canonical": "text/plain; charset=latin-1",
+      "typed_accepted": false,
+      "decode_accepted": false,
+      "entry_accepted": false,
+      "canonical_metadata_bytes": 2,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "text/",
+      "parsed": false,
+      "canonical": "",
+      "typed_accepted": false,
+      "decode_accepted": false,
+      "entry_accepted": false,
+      "canonical_metadata_bytes": 2,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "text/plain/extra",
+      "parsed": false,
+      "canonical": "",
+      "typed_accepted": false,
+      "decode_accepted": false,
+      "entry_accepted": false,
+      "canonical_metadata_bytes": 2,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "text/plain\n",
+      "parsed": true,
+      "canonical": "text/plain",
+      "typed_accepted": false,
+      "decode_accepted": false,
+      "entry_accepted": false,
+      "canonical_metadata_bytes": 2,
+      "schema_pattern_accepts": false
+    },
+    {
+      "input": "text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "parsed": true,
+      "canonical": "text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "typed_accepted": true,
+      "decode_accepted": true,
+      "entry_accepted": true,
+      "canonical_metadata_bytes": 456,
+      "schema_pattern_accepts": true
+    },
+    {
+      "input": "text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "parsed": true,
+      "canonical": "text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "typed_accepted": false,
+      "decode_accepted": false,
+      "entry_accepted": false,
+      "canonical_metadata_bytes": 2,
+      "schema_pattern_accepts": true
+    }
+  ],
+  "result": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/mime-oracle01/result.json",
+    "sha256": "f9f6d34ecedd018fa8cc4ec0fda8f44bdcb4a81c393fb323ab44126190c8f574"
+  },
+  "raw": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/mime-oracle01/raw.log",
+    "sha256": "f132cced445a9f47cb4439a72aa0512cc2b45f13f370233f75e14d56956bb0bf"
+  },
+  "cleanup": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/mime-oracle01/cleanup.json",
+    "sha256": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3"
+  },
+  "backend_reference": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/backend-reference.json",
+    "sha256": "560562d161a7157163b9dea3a037e17f494f8d6529e91fee7316f88c78a41c71"
+  },
+  "source": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/mime-oracle01/source/.audit-oracle/main.go",
+    "sha256": "2f80fe17c0ae3137cc6ca08bdf03ec0a3d5ecdac121d183f92470f7a4185320a"
+  },
+  "actual_exit": 0,
+  "seconds": 1.302,
+  "observed_pid_count": 5,
+  "double_empty": true,
+  "product_parser_not_implemented_or_changed_for_this_finding": true
+}

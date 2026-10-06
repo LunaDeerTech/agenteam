@@ -1,0 +1,38 @@
+from pathlib import Path
+import json,re,hashlib
+R=Path('/workspace/scratch/agenteam-audit-http-independent-emx29a7f');S=R/'source';doc=json.loads((S/'api/openapi/audit.json').read_text());sch=doc['components']['schemas'];contracts=S/'internal/central/audit/contract';wire=(S/'internal/central/audit/http/wire.go').read_text()
+constants={}
+for p in contracts.glob('*.go'):
+ constants.update(dict(re.findall(r'^\s*(\w+)\s+(?:Action|ResourceKind)\s*=\s*"([^"]+)"',p.read_text(),re.M)))
+expected_actions=set()
+for name in ['account.go','model.go']:
+ expected_actions.update(re.findall(r'^\s*\w+\s+Action\s*=\s*"([^"]+)"',(contracts/name).read_text(),re.M))
+base=['SecretCreate','SecretUpdate','SecretDelete','SecretResolve','MasterRegister','RotationStart','RotationComplete','RotationFailed','PolicyUpdate','AccessDeny','ObjectUploadComplete','ObjectUploadFailed','ObjectDelete','OutboxDeliveryRequeue']
+expected_actions.update(constants[k] for k in base)
+actions=sch['SystemAuditRecord']['discriminator']['mapping'];assert set(actions)==expected_actions and len(actions)==37
+resource_block=wire[wire.index('func systemResource('):wire.index('func projectRecord(')];expected_resource={constants[n] for n in re.findall(r'c\.(\w+Resource)',resource_block)}
+actual_resource=set();objectschemas=0;badobjects=[]
+def walk(node,path):
+ global objectschemas
+ if isinstance(node,dict):
+  if node.get('type')=='object':
+   objectschemas+=1
+   if node.get('additionalProperties') is not False:badobjects.append(path)
+  for k,v in node.items():walk(v,path+'/'+k)
+ elif isinstance(node,list):
+  for i,v in enumerate(node):walk(v,path+'/'+str(i))
+for action,ref in actions.items():
+ row=sch[ref.split('/')[-1]];assert row['properties']['action']['const']==action
+ r=row['properties']['resource'];
+ if 'oneOf' in r:
+  actual_resource.update(arm['properties']['kind']['const'] for arm in r['oneOf'])
+ else:actual_resource.add(r['properties']['kind']['const'])
+walk(sch,'schemas');assert not badobjects,badobjects;assert actual_resource==expected_resource and len(actual_resource)==17
+params={p['name'] for p in doc['paths']['/api/v1/system/audit']['get']['parameters']};expect={'limit','cursor','from','to','actor_kind','actor_id','action','outcome','resource_kind','resource_id','tool_id','execution_id','operation_id','approval_id','runner_id','agent_id'};assert params==expect
+services=sch['ServiceActor']['properties']['service']['enum'];assert len(set(services))==13
+identity=(S/'internal/central/identity/contract/identity.go').read_text();registered=set(re.findall(r'^\s*(?:const\s+)?\w+\s+ServiceName\s*=\s*"([^"]+)"',identity,re.M));assert set(services)==registered,(set(services),registered)
+assert set(sch['Associations']['properties'])=={'tool_id','request_id','runner_id','correlation_id','http_trace_id'}
+assert set(sch['ModelAssociations']['properties'])=={'correlation_id','http_trace_id'}
+for p,item in doc['paths'].items():assert set(item)=={'get'} and item['get']['security']==[{'Session':[]},{'LocalSession':[]}]
+out={'static_only':True,'paths':2,'parameters':16,'actions':37,'services':13,'resources':17,'associations':5,'model_associations':2,'all_closed_object_schemas':objectschemas,'fixed_contract_enum_sets_equal':True,'get_only_cookie_alternative_no_anonymous':True,'production_schema_sha256':hashlib.sha256((S/'api/openapi/audit.json').read_bytes()).hexdigest()}
+(R/'schema-static02.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out))

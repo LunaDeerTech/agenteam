@@ -1,0 +1,131 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 97110,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 97110,
+      "ppid": 97106,
+      "pgid": 97110,
+      "state": "S",
+      "starttime": "575949"
+    },
+    {
+      "pid": 97142,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "R",
+      "starttime": "575958"
+    },
+    {
+      "pid": 97168,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "S",
+      "starttime": "575987"
+    },
+    {
+      "pid": 97166,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "R",
+      "starttime": "575987"
+    },
+    {
+      "pid": 97167,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "S",
+      "starttime": "575987"
+    },
+    {
+      "pid": 97201,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "S",
+      "starttime": "576002"
+    },
+    {
+      "pid": 97200,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "S",
+      "starttime": "576002"
+    },
+    {
+      "pid": 97211,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "S",
+      "starttime": "576002"
+    },
+    {
+      "pid": 97217,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "S",
+      "starttime": "576020"
+    },
+    {
+      "pid": 97222,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "S",
+      "starttime": "576054"
+    },
+    {
+      "pid": 97228,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "S",
+      "starttime": "576093"
+    },
+    {
+      "pid": 97229,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "R",
+      "starttime": "576094"
+    },
+    {
+      "pid": 97240,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "S",
+      "starttime": "576162"
+    },
+    {
+      "pid": 97241,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "R",
+      "starttime": "576162"
+    },
+    {
+      "pid": 97257,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "R",
+      "starttime": "576167"
+    },
+    {
+      "pid": 97288,
+      "ppid": 97110,
+      "pgid": 97110,
+      "state": "S",
+      "starttime": "576217"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

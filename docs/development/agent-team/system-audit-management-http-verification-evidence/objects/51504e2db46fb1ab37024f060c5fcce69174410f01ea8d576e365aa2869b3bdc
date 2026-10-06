@@ -1,0 +1,29 @@
+# Audit MIME schema repair — author candidate
+
+Bounded author PASS; independent verification remains pending. Fixed product base: `b124650aee095b26191bc181dc8cf5d6e0f977f5`; both original candidate files also match accepted main `a7a29c34acbe392d9a1375967309123b9a74ec16`. Main and all older Audit evidence were left untouched.
+
+Only `api/openapi/audit.json` and `internal/central/audit/http/handler_test.go` change. The schema’s nine Object action/initiator `media_type` nodes now admit a single ASCII token or token/token with the full Go token alphabet including braces, and only the canonical utf-8/us-ascii charset suffix. Existing 1–256 length and all other record/metadata conditions remain. An explicit `not` rejects CR, LF, U+2028 and U+2029. No backend constructor, HTTP handler, query or producer changes.
+
+The new pure test passes each of 42 synthetic vectors through every one of the nine branches: formal ObjectMetadata → existing typedRecord DecodeMetadata/NewEntry → actual HTTP projection → full SystemAuditRecord and exact metadata-branch schema. Negative inputs must first fail the formal constructor, then fail a forged media_type on an otherwise formally encoded DTO. All original test bytes are preserved outside this one added function.
+
+Original RED is retained: old01 actual exit 1 / 29.041s, 99 schema-only failures and 279 passing branch checks; all formal constructor checks agree with the vectors. The unchanged Node probe against the old schema also failed (198 mismatches / 756 checks), using the same logged vectors and all nine complete media_type schemas. This independently uses actual JSON.parse and ECMAScript RegExp with default and Unicode modes, evaluating every used string-schema keyword; it is not a claim of a complete OpenAPI validator.
+
+| Check | Actual exit | Seconds | Scope |
+| --- | ---: | ---: | --- |
+| old01 | 1 | 29.041 | Original schema, new typed 42×9 test: expected RED |
+| node-old01 | 1 | 0.053 | Original schema, same Node probe: expected RED |
+| pure-green01 | 0 | 10.049 | New MIME + original TypedProjection/OpenAPI tops |
+| node-green01 | 0 | 0.053 | Same Node probe, 756/756 PASS |
+| race01 | 0 | 19.849 | Same three affected pure tops; race/count1/45s |
+| vet01 | 0 | 4.680 | Affected HTTP package only |
+| format01 | 0 | 0.009 | gofmt -l, empty output |
+
+Node v24.19.0 without multiline mode actually rejects terminal LF/CR/CRLF/LS/PS even for the bare anchored pattern; no false claim of an observed Node dollar-anchor leak is made. The candidate additionally proves that its explicit not-guard matches each terminator and the complete string schema rejects it. A 257-byte pair may match the pattern alone, but the existing maxLength rejects the full field both before and after this change.
+
+old01/node-old01 used the new private cache. After explicit root authorization, only the runner cache setting changed to the existing `/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache`; the prior runner is retained byte-for-byte and its exact one-line delta is recorded. No cache was copied/deleted and the shared locked module cache was unchanged.
+
+All seven commands actually waited, recorded unchanged inputs, and completed two empty owned-process/runtime scans (451 observed PID/starttime identities; zero adopted waits). No listener, Docker, browser, Object service or business scenario was run. Old unrelated stopped tasks were not accessed. This result does not replace independent acceptance, the earlier real Audit evidence, or UI acceptance.
+
+The private closure contains 254 fixed-Git files (2 candidates + 252 unchanged dependencies), selected from the previously verified HTTP-stage file list rather than a full repository copy. `input01/manifest.json` fixes both deliverable copies and the remaining read-only closure. `report.json` contains exact commands, environment, raw/result/cleanup hashes; original failed runs and their candidate source copies remain under runs/.
+
+All source, runner, probe, input and report files are now frozen.

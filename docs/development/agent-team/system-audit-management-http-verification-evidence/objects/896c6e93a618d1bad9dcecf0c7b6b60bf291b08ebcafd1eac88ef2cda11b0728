@@ -1,0 +1,1065 @@
+--- internal/central/app/account.go
++++ internal/central/app/account.go
+@@ -10,6 +10,7 @@
+ 	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/accountmail"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
++	audithttp "github.com/LunaDeerTech/agenteam/internal/central/audit/http"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/config"
+ 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+@@ -396,8 +397,12 @@
+ 	if err != nil {
+ 		return err
+ 	}
++	auditHandler, err := audithttp.NewSystemHTTPHandler(auditor, core, audithttp.SystemHTTPOptions{PublicOrigin: cfg.PublicOrigin()})
++	if err != nil {
++		return err
++	}
+ 	if !accounts.install(ctx, func() {
+-		accounts.handler = systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler)
++		accounts.handler = systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler)
+ 	}) {
+ 		return context.Canceled
+ 	}
+--- /dev/null
++++ internal/central/app/audit_http.go
+@@ -0,0 +1,19 @@
++package app
++
++import (
++	"net/http"
++	"strings"
++)
++
++// Preserve every original request field. The new boundary owns the complete
++// Audit path root and rejects any unknown or ambiguous descendants itself.
++func systemAuditRoutes(existing, auditor http.Handler) http.Handler {
++	const root = "/api/v1/system/audit"
++	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		if r.URL.Path == root || strings.HasPrefix(r.URL.Path, root+"/") {
++			auditor.ServeHTTP(w, r)
++			return
++		}
++		existing.ServeHTTP(w, r)
++	})
++}
+--- /dev/null
++++ internal/central/app/audit_http_test.go
+@@ -0,0 +1,131 @@
++package app
++
++import (
++	"bytes"
++	"go/ast"
++	"go/parser"
++	"go/token"
++	"io"
++	"log/slog"
++	"net/http"
++	"net/http/httptest"
++	"strings"
++	"testing"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
++)
++
++func TestAuditRootPureRoutePreservationAndSingleMiddleware(t *testing.T) {
++	const root = "/api/v1/system/audit"
++	for _, tc := range []struct{ path, raw, owner string }{
++		{root, "", "audit"}, {root + "/", "", "audit"}, {root + "/child", "", "audit"}, {root + "//child", "", "audit"}, {root + "/../session", "", "audit"},
++		{root + "/child", root + "%2fchild", "audit"}, {root + "-other", "", "account"}, {root + "x", "", "account"}, {"/api/v1/session", "", "account"},
++		{"/api/v1/system/users", "", "account"}, {"/api/v1/system/mail-jobs", "", "account"}, {"/readyz", "", "account"},
++		{"/api/v1/system/model-providers", "", "model"}, {"/api/v1/system/models/child", "", "model"}, {"/api/v1/system/model-selection", "", "model"},
++		{"/api/v1/system/model-commands/lookup", "", "model"}, {"/api/v1/system/model-credentials/id", "", "model"}, {"/api/v1/system/model-credential-commands/lookup", "", "model"},
++		{"/api/v1/system/outbound-policy", "", "policy"}, {"/api/v1/system/outbound-policy/child", "", "policy"},
++	} {
++		t.Run(tc.path+tc.raw, func(t *testing.T) {
++			r := httptest.NewRequest("PATCH", "http://localhost:8080"+tc.path+"?filter=private-canary", strings.NewReader("body-canary"))
++			r.URL.RawPath = tc.raw
++			r.Header.Set("Origin", "http://localhost:8080")
++			r.Header.Set("Cookie", "cookie-canary")
++			r.Header.Set("Idempotency-Key", "key-canary")
++			url, body, uri := r.URL, r.Body, r.RequestURI
++			calls := 0
++			child := func(owner string) http.Handler {
++				return http.HandlerFunc(func(w http.ResponseWriter, got *http.Request) {
++					calls++
++					if owner != tc.owner || got.URL != url || got.Body != body || got.RequestURI != uri || got.Method != "PATCH" || got.URL.Path != tc.path || got.URL.RawPath != tc.raw || got.Host != "localhost:8080" || got.Header.Get("Cookie") != "cookie-canary" || got.Header.Get("Idempotency-Key") != "key-canary" || got.Header.Get("Origin") != "http://localhost:8080" {
++						t.Fatal("request or route ownership changed")
++					}
++					b, err := io.ReadAll(got.Body)
++					if err != nil || string(b) != "body-canary" || httpapi.RequestID(got.Context()).Validate() != nil {
++						t.Fatal("body consumed or missing single outer request identity")
++					}
++					w.WriteHeader(204)
++				})
++			}
++			var logs bytes.Buffer
++			logger := slog.New(slog.NewJSONHandler(&logs, nil))
++			w := httptest.NewRecorder()
++			httpapi.Handler(logger, systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(child("account"), child("model")), child("policy")), child("audit"))).ServeHTTP(w, r)
++			if calls != 1 || w.Code != 204 || w.Header().Get("Location") != "" || len(w.Header().Values("X-Request-ID")) != 1 || strings.Count(logs.String(), `"event":"http_request"`) != 1 {
++				t.Fatal("duplicated middleware/dispatch or redirect")
++			}
++			for _, sensitive := range []string{"private-canary", "body-canary", "cookie-canary", "key-canary"} {
++				if strings.Contains(logs.String(), sensitive) {
++					t.Fatal("ordinary log exposed request material")
++				}
++			}
++		})
++	}
++}
++
++// The graph test establishes the concrete same-variable constructor binding;
++// real producer reachability is checked separately through the actual root.
++func TestAuditRootPureSameInstanceConstructionGraph(t *testing.T) {
++	file, err := parser.ParseFile(token.NewFileSet(), "account.go", nil, 0)
++	if err != nil {
++		t.Fatal(err)
++	}
++	var bind *ast.FuncDecl
++	for _, node := range file.Decls {
++		if f, ok := node.(*ast.FuncDecl); ok && f.Name.Name == "bindAccounts" {
++			bind = f
++		}
++	}
++	if bind == nil {
++		t.Fatal("root assembly missing")
++	}
++	created, bound, accountProducer, modelProducer := 0, 0, 0, 0
++	is := func(expr ast.Expr, name string) bool { id, ok := expr.(*ast.Ident); return ok && id.Name == name }
++	ast.Inspect(bind, func(node ast.Node) bool {
++		call, ok := node.(*ast.CallExpr)
++		if !ok {
++			return true
++		}
++		if is(call.Fun, "createSecurity") {
++			created++
++		}
++		selector, ok := call.Fun.(*ast.SelectorExpr)
++		if !ok {
++			return true
++		}
++		if is(selector.X, "audit") && selector.Sel.Name == "New" {
++			t.Error("root built a second auditor")
++		}
++		if is(selector.X, "audithttp") && selector.Sel.Name == "NewSystemHTTPHandler" {
++			bound++
++			if len(call.Args) != 3 || !is(call.Args[0], "auditor") || !is(call.Args[1], "core") {
++				t.Error("read handler uses a different service instance")
++			}
++		}
++		if selector.Sel.Name == "New" && (is(selector.X, "account") || is(selector.X, "model")) {
++			for _, arg := range call.Args {
++				literal, ok := arg.(*ast.CompositeLit)
++				if !ok {
++					continue
++				}
++				for _, element := range literal.Elts {
++					kv, ok := element.(*ast.KeyValueExpr)
++					if !ok || !is(kv.Key, "Audit") {
++						continue
++					}
++					if !is(kv.Value, "auditor") {
++						t.Error("formal producer uses a different auditor")
++					}
++					if is(selector.X, "account") {
++						accountProducer++
++					} else {
++						modelProducer++
++					}
++				}
++			}
++		}
++		return true
++	})
++	if created != 1 || bound != 1 || accountProducer != 1 || modelProducer != 1 {
++		t.Fatal("incomplete singleton graph", created, bound, accountProducer, modelProducer)
++	}
++}
+--- /dev/null
++++ tests/account/audit_http_test.go
+@@ -0,0 +1,223 @@
++//go:build integration
++
++package account_test
++
++import (
++	"bytes"
++	"net/http"
++	"net/url"
++	"reflect"
++	"strings"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++)
++
++const systemAuditHTTPPath = "/api/v1/system/audit"
++
++func auditHTTPShape(t *testing.T, record map[string]any) {
++	t.Helper()
++	keys := []string{"audit_id", "created_at", "scope", "actor", "action", "outcome", "resource", "metadata", "associations", "summary"}
++	if len(record) != len(keys) {
++		t.Fatal("Audit DTO is not the closed ten-field shape")
++	}
++	for _, key := range keys {
++		if _, ok := record[key]; !ok || record[key] == nil {
++			t.Fatal("Audit DTO missing nonnull field", key)
++		}
++	}
++	if _, err := foundation.ParseID[struct{}](httpString(t, record, "audit_id")); err != nil {
++		t.Fatal("Audit ID invalid")
++	}
++	at, err := foundation.ParseInstant(httpString(t, record, "created_at"))
++	if err != nil || at.String() != record["created_at"] {
++		t.Fatal("Audit time noncanonical")
++	}
++	if record["scope"] != "system" {
++		t.Fatal("other scope escaped System HTTP")
++	}
++	actor := httpObject(t, record, "actor")
++	if actor["kind"] == "human" {
++		if len(actor) != 2 || actor["id"] == nil {
++			t.Fatal("human actor projection widened")
++		}
++	} else if actor["kind"] == "service" {
++		if len(actor) != 3 || actor["service"] == nil || actor["cause_ref"] == nil {
++			t.Fatal("service actor projection widened")
++		}
++	} else {
++		t.Fatal("System actor invalid")
++	}
++	for key := range httpObject(t, record, "associations") {
++		if key != "tool_id" && key != "request_id" && key != "runner_id" && key != "correlation_id" && key != "http_trace_id" {
++			t.Fatal("System association leaked", key)
++		}
++	}
++	_ = httpObject(t, record, "metadata")
++}
++
++func TestSystemAuditHTTPQueryAndProjection(t *testing.T) {
++	started := time.Now()
++	f := newHTTPFixture(t)
++	admin := f.admin()
++	member := f.invite(admin, "audit-member@example.test", "audit-member")
++	user := httpObject(t, admin.profile(), "user")
++	userID := httpString(t, user, "id")
++	for _, name := range []string{"Audit first canary", "Audit second canary", "Audit third canary"} {
++		current := httpObject(t, admin.profile(), "user")
++		admin.request("PATCH", "/api/v1/me", map[string]any{"version": current["version"], "display_name": name}, id[struct{}](t).String(), admin.csrf).want(t, 200)
++	}
++	conn := f.db.Connect(t)
++	rows, err := conn.Query(ctxFor(t), `SELECT id::text,created_at FROM agenteam_audit.audit_records WHERE scope='system' AND action='account.profile.update' AND resource_id=$1 ORDER BY created_at DESC,id DESC`, userID)
++	if err != nil {
++		t.Fatal(err)
++	}
++	var expected []string
++	times := map[string]string{}
++	for rows.Next() {
++		var key string
++		var at time.Time
++		if err = rows.Scan(&key, &at); err != nil {
++			rows.Close()
++			t.Fatal(err)
++		}
++		instant, e := foundation.NewInstant(at)
++		if e != nil {
++			rows.Close()
++			t.Fatal(e)
++		}
++		expected = append(expected, key)
++		times[key] = instant.String()
++	}
++	rows.Close()
++	if rows.Err() != nil || len(expected) != 3 {
++		t.Fatal("formal profile producer cardinality", rows.Err(), len(expected))
++	}
++	filter := url.Values{"action": {"account.profile.update"}, "resource_id": {userID}, "actor_kind": {"human"}, "actor_id": {userID}}
++	pageURL := func(limit, cursor string) string {
++		v := url.Values{}
++		for k, value := range filter {
++			v[k] = append([]string(nil), value...)
++		}
++		v.Set("limit", limit)
++		if cursor != "" {
++			v.Set("cursor", cursor)
++		}
++		return systemAuditHTTPPath + "?" + v.Encode()
++	}
++	first := admin.request("GET", pageURL("1", ""), nil, "", "").want(t, 200)
++	firstObject := first.object(t)
++	if len(firstObject) != 2 || len(httpItems(t, firstObject)) != 1 {
++		t.Fatal("first page shape")
++	}
++	cursor := httpString(t, firstObject, "next_cursor")
++	secondObject := admin.request("GET", pageURL("2", cursor), nil, "", "").want(t, 200).object(t)
++	if len(secondObject) != 2 || secondObject["next_cursor"] != nil || len(httpItems(t, secondObject)) != 2 {
++		t.Fatal("page-size change or terminal null cursor")
++	}
++	items := append(httpItems(t, firstObject), httpItems(t, secondObject)...)
++	var seen []string
++	for _, raw := range items {
++		record, ok := raw.(map[string]any)
++		if !ok {
++			t.Fatal("nonnull object array required")
++		}
++		auditHTTPShape(t, record)
++		key := httpString(t, record, "audit_id")
++		seen = append(seen, key)
++		if record["created_at"] != times[key] || record["action"] != "account.profile.update" || httpObject(t, record, "resource")["id"] != userID {
++			t.Fatal("formal Audit facts differ")
++		}
++		detail := admin.request("GET", systemAuditHTTPPath+"/"+key, nil, "", "").want(t, 200).object(t)
++		if !reflect.DeepEqual(record, detail) {
++			t.Fatal("safe list/detail mismatch")
++		}
++		metadata := httpObject(t, record, "metadata")
++		if metadata["phase"] != "updated" || metadata["user_id"] != userID || metadata["changed_fields"] == nil {
++			t.Fatal("typed profile metadata changed")
++		}
++	}
++	if !reflect.DeepEqual(seen, expected) {
++		t.Fatal("created_at/id descending pagination changed")
++	}
++	empty := admin.request("GET", systemAuditHTTPPath+"?action=project.create.accepted&limit=200", nil, "", "").want(t, 200).object(t)
++	if len(empty) != 2 || empty["next_cursor"] != nil || len(httpItems(t, empty)) != 0 {
++		t.Fatal("legal original Project filter did not yield empty System observation")
++	}
++	admin.request("GET", systemAuditHTTPPath+"?cursor=", nil, "", "").want(t, 200)
++	// Equivalent legal time offsets bind the same canonical Filter digest.
++	fromTime, _ := foundation.ParseInstant(times[expected[len(expected)-1]])
++	from := fromTime.Time().Add(-time.Second)
++	v := url.Values{"action": {"account.profile.update"}, "from": {from.Format(time.RFC3339Nano)}, "limit": {"1"}}
++	timePage := admin.request("GET", systemAuditHTTPPath+"?"+v.Encode(), nil, "", "").want(t, 200).object(t)
++	v.Set("cursor", httpString(t, timePage, "next_cursor"))
++	v.Set("limit", "200")
++	v.Set("from", from.In(time.FixedZone("offset", 2*3600)).Format(time.RFC3339Nano))
++	if len(httpItems(t, admin.request("GET", systemAuditHTTPPath+"?"+v.Encode(), nil, "", "").want(t, 200).object(t))) != 2 {
++		t.Fatal("canonical time binding changed")
++	}
++	for _, bad := range []struct{ query, code string }{
++		{"limit=0", "INVALID_ARGUMENT"}, {"limit=201", "INVALID_ARGUMENT"}, {"limit=01", "INVALID_ARGUMENT"}, {"limit=1&limit=1", "INVALID_ARGUMENT"}, {"scope=system", "INVALID_ARGUMENT"}, {"project_id=" + userID, "INVALID_ARGUMENT"}, {"actor_kind=service&actor_id=" + userID, "INVALID_ARGUMENT"}, {"cursor=" + strings.Repeat("x", 8193), "CURSOR_INVALID"}, {"cursor=bad", "CURSOR_INVALID"}, {"limit=1;action=x", "INVALID_ARGUMENT"}, {"cursor=" + url.QueryEscape(cursor), "CURSOR_INVALID"},
++	} {
++		admin.request("GET", systemAuditHTTPPath+"?"+bad.query, nil, "", "").problem(t, 400, bad.code)
++	}
++	admin.request("GET", systemAuditHTTPPath+"?", nil, "", "").problem(t, 400, "INVALID_ARGUMENT")
++	admin.request("GET", systemAuditHTTPPath+"/"+id[struct{}](t).String(), nil, "", "").problem(t, 404, "NOT_FOUND")
++	admin.request("GET", systemAuditHTTPPath+"/bad-id", nil, "", "").problem(t, 400, "INVALID_ARGUMENT")
++	detailPath := systemAuditHTTPPath + "/" + expected[0]
++	for _, suffix := range []string{"?", "?limit=1"} {
++		admin.request("GET", detailPath+suffix, nil, "", "").problem(t, 400, "INVALID_ARGUMENT")
++	}
++	for _, path := range []string{systemAuditHTTPPath, detailPath} {
++		for _, method := range []string{"HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"} {
++			response := admin.request(method, path, nil, "", "").want(t, 405)
++			if response.headers.Get("Allow") != "GET" || method == "HEAD" && len(response.data) != 0 {
++				t.Fatal("GET-only method/HEAD/Allow")
++			}
++		}
++		admin.request("GET", path, map[string]any{}, "", "").problem(t, 400, "INVALID_ARGUMENT")
++		f.browser().request("GET", path, nil, "", "").problem(t, 401, "UNAUTHENTICATED")
++		member.request("GET", path, nil, "", "").problem(t, 403, "FORBIDDEN")
++		for _, change := range []func(*http.Request){func(r *http.Request) { r.Host = "foreign.invalid" }, func(r *http.Request) { r.Header.Set("Origin", "https://foreign.invalid") }, func(r *http.Request) { r.Header.Set("Sec-Fetch-Site", "cross-site") }} {
++			admin.raw("GET", path, nil, change).problem(t, 403, "ORIGIN_DENIED")
++		}
++	}
++	loginPage := admin.request("GET", systemAuditHTTPPath+"?action=account.login&limit=200", nil, "", "").want(t, 200).object(t)
++	foundSession := false
++	for _, item := range httpItems(t, loginPage) {
++		metadata := httpObject(t, item.(map[string]any), "metadata")
++		if metadata["phase"] == "authenticated" {
++			if _, e := foundation.ParseID[struct{}](httpString(t, metadata, "session_id")); e != nil {
++				t.Fatal("safe typed Session ID removed")
++			}
++			foundSession = true
++		}
++	}
++	if !foundSession {
++		t.Fatal("formal login Audit missing")
++	}
++	f.assertTrace(first, "unknown_route")
++	cookie := admin.cookie("agenteam_local_session")
++	admin.request("POST", "/api/v1/sessions/logout", map[string]any{}, id[struct{}](t).String(), admin.csrf).want(t, 204)
++	for _, path := range []string{systemAuditHTTPPath, detailPath} {
++		admin.setCookie("agenteam_local_session", cookie)
++		result := admin.request("GET", path, nil, "", "")
++		result.problem(t, 401, "SESSION_REVOKED")
++		if bytes.Contains(result.data, []byte(`"items"`)) || bytes.Contains(result.data, []byte(`"audit_id"`)) || admin.cookie("agenteam_local_session") != "" {
++			t.Fatal("revoked response leaked candidate or retained cookie")
++		}
++	}
++	for _, value := range []string{"Audit first canary", "Audit second canary", "Audit third canary", cookie, admin.csrf} {
++		if value != "" && (f.log.contains(value) || bytes.Contains(first.data, []byte(value))) {
++			t.Fatal("ordinary log/DTO exposed private request or profile material")
++		}
++	}
++	if f.log.contains(cursor) {
++		t.Fatal("ordinary log exposed signed cursor")
++	}
++	if time.Since(started) > 2*time.Minute {
++		t.Fatal("scenario exceeded two-minute budget")
++	}
++	t.Log("formal Account producer -> exact System page/detail; current admin/member/revoked authority, safe Session facts, strict query and original cursor semantics")
++}
+--- /dev/null
++++ tests/account/audit_http_transaction_test.go
+@@ -0,0 +1,493 @@
++//go:build integration
++
++package account_test
++
++import (
++	"bytes"
++	"context"
++	"errors"
++	"net/http"
++	"strings"
++	"sync"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/account"
++	"github.com/LunaDeerTech/agenteam/internal/central/audit"
++	audithttp "github.com/LunaDeerTech/agenteam/internal/central/audit/http"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++)
++
++type auditHTTPReadTrace struct {
++	locks                        []foundation.LockRequest
++	sessions, authority, queries int
++	state                        foundation.CommitState
++}
++
++type auditHTTPStore struct {
++	*postgres.Store
++	mu                  sync.Mutex
++	reads               map[foundation.Tx]*auditHTTPReadTrace
++	before, after, tail func(context.Context, foundation.Tx) error
++	active              atomic.Int32
++	last                foundation.CommitResult
++}
++
++func (s *auditHTTPStore) Acquire(ctx context.Context, tx foundation.Tx, key foundation.LockKey, mode foundation.LockMode) error {
++	return s.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: key, Mode: mode}})
++}
++
++func (s *auditHTTPStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
++	if cause.Details().Owner != "audit.system-read" {
++		return s.Store.WithinTx(ctx, cause, fn)
++	}
++	s.active.Add(1)
++	defer s.active.Add(-1)
++	trace := &auditHTTPReadTrace{}
++	result := s.Store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
++		s.mu.Lock()
++		s.reads[tx] = trace
++		s.mu.Unlock()
++		err := fn(ctx, tx)
++		s.mu.Lock()
++		tail := s.tail
++		s.mu.Unlock()
++		if err == nil && tail != nil {
++			return tail(ctx, tx)
++		}
++		return err
++	})
++	s.mu.Lock()
++	trace.state = result.State()
++	s.last = result
++	s.mu.Unlock()
++	return result
++}
++func (s *auditHTTPStore) AcquireAll(ctx context.Context, tx foundation.Tx, locks []foundation.LockRequest) error {
++	s.mu.Lock()
++	trace := s.reads[tx]
++	before, after := s.before, s.after
++	if trace != nil {
++		trace.locks = append(trace.locks, locks...)
++	}
++	s.mu.Unlock()
++	if trace == nil {
++		return errors.New("Audit read transaction identity missing")
++	}
++	if before != nil {
++		if err := before(ctx, tx); err != nil {
++			return err
++		}
++	}
++	if err := s.Store.AcquireAll(ctx, tx, locks); err != nil {
++		return err
++	}
++	if after != nil {
++		return after(ctx, tx)
++	}
++	return nil
++}
++func (s *auditHTTPStore) InTx(tx foundation.Tx) (postgres.SQLExecutor, error) {
++	executor, err := s.Store.InTx(tx)
++	if err != nil {
++		return nil, err
++	}
++	return auditHTTPExecutor{executor, s, tx}, nil
++}
++func (s *auditHTTPStore) hooks(before, after, tail func(context.Context, foundation.Tx) error) {
++	s.mu.Lock()
++	defer s.mu.Unlock()
++	s.before, s.after, s.tail = before, after, tail
++}
++
++type auditHTTPExecutor struct {
++	postgres.SQLExecutor
++	store *auditHTTPStore
++	tx    foundation.Tx
++}
++
++func (e auditHTTPExecutor) capture(query string) {
++	if !strings.Contains(query, "FROM agenteam_audit.audit_records") {
++		return
++	}
++	e.store.mu.Lock()
++	defer e.store.mu.Unlock()
++	trace := e.store.reads[e.tx]
++	if trace == nil || trace.sessions != 1 || trace.authority != 1 {
++		panic("Audit SQL was not authorized in its same transaction")
++	}
++	trace.queries++
++}
++func (e auditHTTPExecutor) Query(ctx context.Context, query string, args ...any) (*postgres.Rows, error) {
++	e.capture(query)
++	return e.SQLExecutor.Query(ctx, query, args...)
++}
++func (e auditHTTPExecutor) QueryRow(ctx context.Context, query string, args ...any) postgres.Row {
++	e.capture(query)
++	return e.SQLExecutor.QueryRow(ctx, query, args...)
++}
++
++type auditHTTPAuthority struct {
++	*account.Authority
++	store *auditHTTPStore
++}
++
++func (a auditHTTPAuthority) RequireCurrentSession(ctx context.Context, tx foundation.Tx, actor identity.Actor) error {
++	if !tx.Valid() {
++		return errors.New("Audit Session was checked outside read Tx")
++	}
++	a.store.mu.Lock()
++	trace := a.store.reads[tx]
++	if trace != nil {
++		trace.sessions++
++	}
++	a.store.mu.Unlock()
++	if trace == nil {
++		return errors.New("Audit Session Tx not owned")
++	}
++	return a.Authority.RequireCurrentSession(ctx, tx, actor)
++}
++func (a auditHTTPAuthority) AuthorizeSystem(ctx context.Context, tx foundation.Tx, actor identity.Actor, intent identity.AccessIntent) (identity.AccessGrant, error) {
++	a.store.mu.Lock()
++	trace := a.store.reads[tx]
++	valid := trace != nil && trace.sessions == 1 && intent == identity.Read
++	if valid {
++		trace.authority++
++	}
++	a.store.mu.Unlock()
++	if !valid {
++		return identity.AccessGrant{}, errors.New("Audit current admin check has wrong Tx/order")
++	}
++	return a.Authority.AuthorizeSystem(ctx, tx, actor, intent)
++}
++
++func TestSystemAuditHTTPTransactionAndBudget(t *testing.T) {
++	started := time.Now()
++	f := newB02Account(t).fixture
++	password := f.bootstrap(t)
++	_, cursor, _ := keys(t)
++	store := &auditHTTPStore{Store: f.store, reads: map[foundation.Tx]*auditHTTPReadTrace{}}
++	authority := auditHTTPAuthority{f.authority, store}
++	service, err := audit.New(store, cursor, audit.Authorizations{Sessions: authority, System: authority})
++	if err != nil {
++		t.Fatal(err)
++	}
++	handler, err := audithttp.NewSystemHTTPHandler(service, f.service, audithttp.SystemHTTPOptions{PublicOrigin: httpOrigin})
++	if err != nil {
++		t.Fatal(err)
++	}
++	handler = httpapi.Handler(nil, handler)
++	var detailID string
++	if err = f.store.QueryRow(ctxFor(t), `SELECT id::text FROM agenteam_audit.audit_records WHERE action='account.bootstrap' ORDER BY created_at DESC,id DESC LIMIT 1`).Scan(&detailID); err != nil {
++		t.Fatal(err)
++	}
++	login := func(t *testing.T) (identity.Actor, string) {
++		t.Helper()
++		request, _ := loginRequest(t, f, password, "admin@mail.com")
++		response, err := f.service.Login(ctxFor(t), request)
++		if err != nil {
++			t.Fatal(err)
++		}
++		cookie := useCookie(t, response)
++		if err = response.Close(ctxFor(t)); err != nil {
++			t.Fatal(err)
++		}
++		actor, err := f.service.Authenticate(ctxFor(t), cookie)
++		if err != nil {
++			t.Fatal(err)
++		}
++		var value string
++		if err = cookie.Use(func(b []byte) error { value = string(b); return nil }); err != nil {
++			t.Fatal(err)
++		}
++		return actor, value
++	}
++	request := func(t *testing.T, ctx context.Context, cookie, path string) *http.Request {
++		t.Helper()
++		r, err := http.NewRequestWithContext(ctx, "GET", httpOrigin+path, nil)
++		if err != nil {
++			t.Fatal(err)
++		}
++		r.Header.Set("Origin", httpOrigin)
++		r.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: cookie})
++		return r
++	}
++	releaseGate := func() (<-chan struct{}, func()) {
++		release := make(chan struct{})
++		var once sync.Once
++		return release, func() { once.Do(func() { close(release) }) }
++	}
++	waitGate := func(t *testing.T, ch <-chan struct{}) {
++		t.Helper()
++		select {
++		case <-ch:
++		case <-time.After(time.Second):
++			t.Fatal("formal read seam not reached")
++		}
++	}
++	for _, path := range []string{systemAuditHTTPPath, systemAuditHTTPPath + "/" + detailID} {
++		t.Run("preauthenticated_then_revoked_"+path, func(t *testing.T) {
++			actor, cookie := login(t)
++			entered := make(chan struct{})
++			release, finish := releaseGate()
++			defer finish()
++			var once sync.Once
++			store.hooks(func(ctx context.Context, _ foundation.Tx) error {
++				once.Do(func() { close(entered) })
++				select {
++				case <-release:
++					return nil
++				case <-ctx.Done():
++					return ctx.Err()
++				}
++			}, nil, nil)
++			defer store.hooks(nil, nil, nil)
++			done := outboundHTTPStart(t, handler, request(t, ctxFor(t), cookie, path))
++			waitGate(t, entered)
++			if err := f.service.Logout(ctxFor(t), account.LogoutRequest{Actor: actor, Key: foundation.IdempotencyKey(id[struct{}](t).String())}); err != nil {
++				t.Fatal("formal revoke", err)
++			}
++			finish()
++			got := outboundHTTPJoin(t, done)
++			if got.aborted {
++				t.Fatal("live revoked request aborted")
++			}
++			got.response.problem(t, 401, "SESSION_REVOKED")
++			if bytes.Contains(got.response.data, []byte(`"items"`)) || bytes.Contains(got.response.data, []byte(`"audit_id"`)) || store.active.Load() != 0 {
++				t.Fatal("stale preauthentication published candidate or released early")
++			}
++		})
++	}
++	t.Run("held_shared_serializes_formal_logout", func(t *testing.T) {
++		actor, cookie := login(t)
++		entered := make(chan uint32, 1)
++		release, finish := releaseGate()
++		defer finish()
++		store.hooks(nil, func(ctx context.Context, tx foundation.Tx) error {
++			key, _ := foundation.UserLock(actor.Details().UserID)
++			if err := f.store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{{Key: key, Mode: foundation.Shared}}); err != nil {
++				return err
++			}
++			executor, err := f.store.InTx(tx)
++			if err != nil {
++				return err
++			}
++			var pid uint32
++			if err = executor.QueryRow(ctx, `SELECT pg_backend_pid()`).Scan(&pid); err != nil {
++				return err
++			}
++			entered <- pid
++			select {
++			case <-release:
++				return nil
++			case <-ctx.Done():
++				return ctx.Err()
++			}
++		}, nil)
++		defer store.hooks(nil, nil, nil)
++		done := outboundHTTPStart(t, handler, request(t, ctxFor(t), cookie, systemAuditHTTPPath))
++		var pid uint32
++		select {
++		case pid = <-entered:
++		case <-time.After(time.Second):
++			t.Fatal("User SH not observed")
++		}
++		revokeCtx, cancel := context.WithCancel(ctxFor(t))
++		revoked := make(chan error, 1)
++		joined := make(chan struct{})
++		t.Cleanup(func() {
++			cancel()
++			finish()
++			select {
++			case <-joined:
++			case <-time.After(2 * time.Second):
++				t.Error("formal Logout did not actually join")
++			}
++		})
++		go func() {
++			defer close(joined)
++			revoked <- f.service.Logout(revokeCtx, account.LogoutRequest{Actor: actor, Key: foundation.IdempotencyKey(id[struct{}](t).String())})
++		}()
++		outboundHTTPWaitBlocked(t, f.store, pid)
++		select {
++		case <-revoked:
++			t.Fatal("Logout passed User SH")
++		default:
++		}
++		finish()
++		got := outboundHTTPJoin(t, done)
++		if got.aborted {
++			t.Fatal("serialized reader aborted")
++		}
++		got.response.want(t, 200)
++		select {
++		case err := <-revoked:
++			if err != nil {
++				t.Fatal(err)
++			}
++		case <-time.After(2 * time.Second):
++			t.Fatal("Logout failed after committed reader")
++		}
++		<-joined
++		cancel()
++		store.hooks(nil, nil, nil)
++		next := outboundHTTPJoin(t, outboundHTTPStart(t, handler, request(t, ctxFor(t), cookie, systemAuditHTTPPath)))
++		next.response.problem(t, 401, "SESSION_REVOKED")
++	})
++	t.Run("candidate_waits_for_real_transaction_terminal", func(t *testing.T) {
++		_, cookie := login(t)
++		entered := make(chan struct{})
++		release, finish := releaseGate()
++		defer finish()
++		store.hooks(nil, nil, func(ctx context.Context, tx foundation.Tx) error {
++			store.mu.Lock()
++			trace := store.reads[tx]
++			valid := trace != nil && trace.queries == 1
++			store.mu.Unlock()
++			if !valid {
++				return errors.New("candidate gate before complete SQL")
++			}
++			close(entered)
++			select {
++			case <-release:
++				return nil
++			case <-ctx.Done():
++				return ctx.Err()
++			}
++		})
++		defer store.hooks(nil, nil, nil)
++		done := outboundHTTPStart(t, handler, request(t, ctxFor(t), cookie, systemAuditHTTPPath))
++		waitGate(t, entered)
++		if store.active.Load() != 1 {
++			t.Fatal("real transaction no longer owned")
++		}
++		select {
++		case <-done:
++			t.Fatal("candidate escaped before actual commit")
++		default:
++		}
++		finish()
++		got := outboundHTTPJoin(t, done)
++		got.response.want(t, 200)
++		store.mu.Lock()
++		state := store.last.State()
++		store.mu.Unlock()
++		if got.aborted || state != foundation.Committed || store.active.Load() != 0 {
++			t.Fatal("normal commit/actual owner terminal missing")
++		}
++	})
++	if f.db.Config(t, nil).LockTimeout() != time.Second {
++		t.Fatal("fixture DB lock budget changed")
++	}
++	for _, detail := range []bool{false, true} {
++		for _, early := range []bool{false, true} {
++			name := "list"
++			path := systemAuditHTTPPath
++			if detail {
++				name = "detail"
++				path += "/" + detailID
++			}
++			if early {
++				name += "_earlier_parent"
++			} else {
++				name += "_earlier_database_timeout"
++			}
++			t.Run(name, func(t *testing.T) {
++				actor, cookie := login(t)
++				conn := f.db.Connect(t)
++				tx, err := conn.Begin(ctxFor(t))
++				if err != nil {
++					t.Fatal(err)
++				}
++				defer func() {
++					ctx, cancel := context.WithTimeout(context.Background(), time.Second)
++					defer cancel()
++					_ = tx.Rollback(ctx)
++				}()
++				entered := make(chan context.Context, 1)
++				release, finish := releaseGate()
++				defer finish()
++				store.hooks(func(ctx context.Context, _ foundation.Tx) error {
++					entered <- ctx
++					select {
++					case <-release:
++						return nil
++					case <-ctx.Done():
++						return ctx.Err()
++					}
++				}, nil, nil)
++				defer store.hooks(nil, nil, nil)
++				budget := 5 * time.Second
++				if early {
++					budget = 250 * time.Millisecond
++				}
++				ctx, cancel := context.WithTimeout(context.Background(), budget)
++				defer cancel()
++				start := time.Now()
++				done := outboundHTTPStart(t, handler, request(t, ctx, cookie, path))
++				var actual context.Context
++				select {
++				case actual = <-entered:
++				case <-time.After(time.Second):
++					t.Fatal("HTTP preauthentication did not enter Audit Tx")
++				}
++				// Acquire the competing lock only after HTTP preauthentication; otherwise
++				// the old Account precheck, rather than this read Tx, would be measured.
++				key, _ := foundation.UserLock(actor.Details().UserID)
++				if _, err = tx.Exec(ctxFor(t), `SELECT pg_advisory_xact_lock($1)`, key.AdvisoryKey()); err != nil {
++					t.Fatal(err)
++				}
++				finish()
++				outboundHTTPWaitBlocked(t, f.store, conn.PgConn().PID())
++				got := outboundHTTPJoin(t, done)
++				elapsed := time.Since(start)
++				store.mu.Lock()
++				result := store.last
++				store.mu.Unlock()
++				var databaseError *postgres.Error
++				if store.active.Load() != 0 || result.State() != foundation.NotCommitted || result.Fault() == nil || !errors.As(result.Fault(), &databaseError) || databaseError.Code() != postgres.LockFailed {
++					t.Fatal("read lock failure lost actual terminal/typed state")
++				}
++				if bytes.Contains(got.response.data, []byte(`"items"`)) || bytes.Contains(got.response.data, []byte(`"audit_id"`)) {
++					t.Fatal("failed read candidate exposed")
++				}
++				actualDeadline, _ := actual.Deadline()
++				parentDeadline, _ := ctx.Deadline()
++				if actualDeadline.After(parentDeadline) || actualDeadline.After(time.Now().Add(3*time.Second)) {
++					t.Fatal("read extended HTTP/parent budget")
++				}
++				if early {
++					if ctx.Err() != context.DeadlineExceeded || !got.aborted || len(got.response.data) != 0 || elapsed > budget+500*time.Millisecond {
++						t.Fatal("expired parent response or unjoined tail", elapsed)
++					}
++				} else {
++					if ctx.Err() != nil || got.aborted || databaseError.SQLState() != "55P03" || elapsed > 3*time.Second {
++						t.Fatal("DB timeout confused with local deadline", elapsed)
++					}
++					got.response.problem(t, 500, "INTERNAL_ERROR")
++				}
++				if err = tx.Rollback(ctxFor(t)); err != nil {
++					t.Fatal(err)
++				}
++				t.Logf("%s actual_join=%s typed=%s SQLSTATE=%q parent_expired=%t error_is_deadline=%t", name, elapsed, databaseError.Code(), databaseError.SQLState(), ctx.Err() == context.DeadlineExceeded, errors.Is(result.Fault(), context.DeadlineExceeded))
++			})
++		}
++	}
++	store.mu.Lock()
++	for tx, trace := range store.reads {
++		if !tx.Valid() || len(trace.locks) != 1 || trace.locks[0].Mode != foundation.Shared {
++			t.Error("wrong read transaction/lock set")
++		}
++		if trace.state == foundation.Committed && (trace.sessions != 1 || trace.authority != 1 || trace.queries != 1) {
++			t.Error("successful read did not use one same-Tx current authority and query")
++		}
++	}
++	store.mu.Unlock()
++	if time.Since(started) > 2*time.Minute {
++		t.Fatal("scenario exceeded two-minute budget")
++	}
++}
+--- /dev/null
++++ internal/central/app/audit_http_process_test.go
+@@ -0,0 +1,160 @@
++//go:build integration
++
++package app
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"io"
++	"net/http"
++	"net/url"
++	"strings"
++	"syscall"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++func TestSystemAuditHTTPRootProducerBinding(t *testing.T) {
++	started := time.Now()
++	a := newModelRootApp(t, "3s", nil)
++	address := a.address(t)
++	ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
++	defer cancel()
++	login, err := fixtureAccountLoginResponse(ctx, a.cfg, a.core)
++	if err != nil {
++		t.Fatal("formal root login", err)
++	}
++	var material sc.SecretMaterial
++	if err = login.UseCookie(func(raw []byte) error { var err error; material, err = sc.NewSecretMaterial(raw); return err }); err != nil {
++		t.Fatal(err)
++	}
++	defer material.Destroy()
++	if err = login.Close(ctx); err != nil {
++		t.Fatal(err)
++	}
++	session, err := a.core.GetSession(ctx, material)
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer session.CSRF.Destroy()
++	var cookie, csrf string
++	if err = material.Use(func(raw []byte) error { cookie = string(raw); return nil }); err != nil {
++		t.Fatal(err)
++	}
++	if err = session.CSRF.Use(func(raw []byte) error { csrf = string(raw); return nil }); err != nil {
++		t.Fatal(err)
++	}
++	client := &http.Client{Transport: &http.Transport{Proxy: nil}, Timeout: 5 * time.Second}
++	defer client.CloseIdleConnections()
++	call := func(method, path string, payload any, status int) map[string]any {
++		t.Helper()
++		var raw []byte
++		var err error
++		if payload != nil {
++			raw, err = json.Marshal(payload)
++			if err != nil {
++				t.Fatal(err)
++			}
++		}
++		request, err := http.NewRequestWithContext(ctx, method, address+path, bytes.NewReader(raw))
++		if err != nil {
++			t.Fatal(err)
++		}
++		request.Host = "localhost:8080"
++		request.Header.Set("Origin", "http://localhost:8080")
++		request.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: cookie})
++		if method != "GET" {
++			request.Header.Set("Content-Type", "application/json")
++			request.Header.Set("X-CSRF-Token", csrf)
++			request.Header.Set("Idempotency-Key", guardID[struct{}](t).String())
++		}
++		response, err := client.Do(request)
++		if err != nil {
++			t.Fatal("root HTTP request", err)
++		}
++		body, readErr := io.ReadAll(io.LimitReader(response.Body, (1<<20)+1))
++		closeErr := response.Body.Close()
++		if readErr != nil || closeErr != nil || response.StatusCode != status || len(body) > 1<<20 {
++			t.Fatal("root response incomplete/status", response.StatusCode)
++		}
++		if len(response.Header.Values("X-Request-ID")) != 1 {
++			t.Fatal("root request identity duplicated")
++		}
++		if _, err = foundation.ParseID[foundation.Request](response.Header.Get("X-Request-ID")); err != nil {
++			t.Fatal("root request identity malformed")
++		}
++		if strings.HasPrefix(path, "/api/") && (response.Header.Get("Cache-Control") != "no-store" || response.Header.Get("X-Content-Type-Options") != "nosniff" || response.Header.Get("Referrer-Policy") != "no-referrer") {
++			t.Fatal("root shared security headers lost")
++		}
++		var result map[string]any
++		if json.Unmarshal(body, &result) != nil {
++			t.Fatal("root JSON malformed")
++		}
++		return result
++	}
++	me := call("GET", "/api/v1/me", nil, 200)
++	user, ok := me["user"].(map[string]any)
++	if !ok {
++		t.Fatal("profile prerequisite")
++	}
++	userID, ok := user["id"].(string)
++	if !ok {
++		t.Fatal("profile identity prerequisite")
++	}
++	call("PATCH", "/api/v1/me", map[string]any{"version": user["version"], "display_name": "Audit root private profile"}, 200)
++	receipt := call("PUT", "/api/v1/system/outbound-policy", map[string]any{"expected_version": "1", "rules": []any{}}, 200)
++	policyAudit, ok := receipt["audit_id"].(string)
++	if !ok {
++		t.Fatal("formal policy receipt lacks Audit ID")
++	}
++	var profileAudit string
++	if err = a.store.QueryRow(ctx, `SELECT id::text FROM agenteam_audit.audit_records WHERE action='account.profile.update' AND resource_id=$1 ORDER BY created_at DESC,id DESC LIMIT 1`, userID).Scan(&profileAudit); err != nil {
++		t.Fatal(err)
++	}
++	for _, want := range []struct{ id, action, resource string }{{profileAudit, "account.profile.update", "user"}, {policyAudit, "outbound.policy.update", "outbound_policy"}} {
++		detail := call("GET", "/api/v1/system/audit/"+want.id, nil, 200)
++		if len(detail) != 10 || detail["audit_id"] != want.id || detail["action"] != want.action || detail["scope"] != "system" {
++			t.Fatal("root producer not reachable through same bound auditor")
++		}
++		resource, ok := detail["resource"].(map[string]any)
++		if !ok || resource["kind"] != want.resource {
++			t.Fatal("root safe resource projection")
++		}
++		values := url.Values{"action": {want.action}, "limit": {"1"}}
++		page := call("GET", "/api/v1/system/audit?"+values.Encode(), nil, 200)
++		items, ok := page["items"].([]any)
++		if !ok || len(items) != 1 || items[0].(map[string]any)["audit_id"] != want.id {
++			t.Fatal("root filtered page omitted formal producer")
++		}
++	}
++	// Existing chain endpoints retain their original handler and ready boundary.
++	call("GET", "/api/v1/session", nil, 200)
++	call("GET", "/api/v1/system/model-providers", nil, 200)
++	current := call("GET", "/api/v1/system/outbound-policy", nil, 200)
++	if current["version"] != "2" {
++		t.Fatal("Audit binding replaced old policy handler")
++	}
++	call("GET", "/readyz", nil, 503)
++	var profiles, policies int
++	if err = a.store.QueryRow(ctx, `SELECT count(*) FILTER(WHERE action='account.profile.update'),count(*) FILTER(WHERE action='outbound.policy.update') FROM agenteam_audit.audit_records`).Scan(&profiles, &policies); err != nil || profiles != 1 || policies != 1 {
++		t.Fatal("management GET duplicated producer Audit", err)
++	}
++	for _, sensitive := range []string{cookie, csrf, profileAudit, policyAudit, "Audit root private profile"} {
++		if strings.Contains(a.logs.String(), sensitive) {
++			t.Fatal("root ordinary log exposed audit or browser material")
++		}
++	}
++	a.signals <- syscall.SIGTERM
++	await(t, a.done)
++	if a.err != nil || !a.owned.accounts().Joined() {
++		t.Fatal("actual root normal shutdown not joined", a.err)
++	}
++	if time.Since(started) > 2*time.Minute {
++		t.Fatal("root scenario exceeded two-minute budget")
++	}
++	t.Log("root's existing Account + Outbound producer Audit read by bound new handler; original Model/Account/Outbound and ready503 preserved; normal shutdown joined")
++}

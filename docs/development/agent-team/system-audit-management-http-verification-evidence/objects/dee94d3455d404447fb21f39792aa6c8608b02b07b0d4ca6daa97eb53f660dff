@@ -1,0 +1,29 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/main-integration01/app.test",
+    "-test.list",
+    "^(TestSystemAuditHTTPRootProducerBinding)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-06T23:11:33.032296+00:00",
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/main-integration01/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/main-integration01/tmp"
+  },
+  "exit": 0,
+  "limit_seconds": 45,
+  "main_head": "2742cf785e2f9379c2046172556ead70c29b48dc",
+  "seconds": 1.021,
+  "started_utc": "2026-10-06T23:11:32.011078+00:00",
+  "timed_out": false
+}

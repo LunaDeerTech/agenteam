@@ -1,0 +1,32 @@
+{
+  "status": "Frozen candidate; author affected checks PASS, independent pending",
+  "base_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "main_comparison_git": "a7a29c34acbe392d9a1375967309123b9a74ec16",
+  "files": {
+    "api/openapi/audit.json": {
+      "sha256": "3490bb6367dfaa5bf98ed6547f49adb2af16200abd2e1e84a4503ccb20c3b7ef",
+      "bytes": 167368,
+      "source": "/workspace/scratch/agenteam-audit-mime-schema-author-9LFs9mkG/input01/source/api/openapi/audit.json",
+      "before_sha256": "168fc76cf7e0e8f89923e0312dee847ff48dd3de2f37f3f764689ef874300ee9",
+      "before_source": "/workspace/scratch/agenteam-audit-mime-schema-author-9LFs9mkG/before/api/openapi/audit.json"
+    },
+    "internal/central/audit/http/handler_test.go": {
+      "sha256": "0844862bbaa0ac8f7f90dbd574e73534333c3d31b1bba10e2d3dd22cff5c0764",
+      "bytes": 50702,
+      "source": "/workspace/scratch/agenteam-audit-mime-schema-author-9LFs9mkG/input01/source/internal/central/audit/http/handler_test.go",
+      "before_sha256": "ed8ae6dba33473b024cdd8fc7e29a2823cf45e348af3bcc3b12d58576c16149e",
+      "before_source": "/workspace/scratch/agenteam-audit-mime-schema-author-9LFs9mkG/before/internal/central/audit/http/handler_test.go"
+    }
+  },
+  "baseline_manifest": {
+    "path": "/workspace/scratch/agenteam-audit-mime-schema-author-9LFs9mkG/baseline.json",
+    "sha256": "012fde393b710e4f71fd6179d4336966040bce30c35bbe3352f8e8c116d6c30b"
+  },
+  "candidate_diff": {
+    "path": "/workspace/scratch/agenteam-audit-mime-schema-author-9LFs9mkG/candidate.diff",
+    "sha256": "9ef3238f909662785137105fda7c0d3d58d26aba680abf077e05f407c48ea929"
+  },
+  "production_go_unchanged": true,
+  "old_tests_byte_preserved": true,
+  "no_business_or_resource_tests": true
+}

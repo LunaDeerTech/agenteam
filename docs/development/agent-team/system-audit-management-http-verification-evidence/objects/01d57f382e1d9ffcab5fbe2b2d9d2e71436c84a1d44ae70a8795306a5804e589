@@ -1,0 +1,24 @@
+# System Audit HTTP 独立验证计划 01
+
+只读准备已完成。规格固定 Git `24da141652bbc4c183cd827e767dbdaf2f2f4051`，全文 `5fdc1dde616c89840fa583213377e078c636284b79be57e4234095031ac777f0`，技术 `687c85d4a41880828d038251bf6321accc48092aa043a10addb1606ab02c6f21`；产品基线 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`。复用既有独立规格 STATIC 报告，未重审全卡或读取作者活动 query3。当前没有产品验证结论，也未执行测试、编译、监听或业务资源。
+
+**阶段源冻结后，先做两个有界离线风险组。**
+
+1. **Query/事务发布组。** 对照固定旧 query helper 的 SQL、参数顺序、scope/key、filterDigest、cursor/order、limit+1、scanner/错误投影及旧公开调用顺序，确认仅抽取 SQLExecutor，没有把新权限/预算扩至旧入口。独立受控 Store/Authority/Rows 证明同一非零 Tx 的 User SH→当前 Session/admin→完整扫描→Close/事务尾部→返回。用有效前行加坏 limit+1 哨兵（合法 Project 记录或坏 typed 行）、后段 rows.Err，证明裁页前也校验且整页零候选；不以“用户看到的前 N 条合法”放行。用候选已读到但事务尾部仍被屏障持有、最终 Unknown、NotCommitted 或 ctx 已过期的代表，证明无提前发布，Unknown 保持 COMMIT_UNKNOWN/unknown，NotCommitted 保留 typed Fault，而非旧 portError 降级。控制端口实际等到 3s/更早 parent 并在取消后加尾部屏障，分别记录 deadline 与真实自然到期/实际返回；不以立即返回错误代替实际取消。
+
+2. **HTTP wire/期限组。** 在冻结构造和私有窄 seam 上组合验证：预认证开始即取同一预算，不在进入 query 时续期；能力/期限设置失败在 Account/Audit 调用前中止；候选、最终 UTF-8 编码及 ctx 检查均在 200 前。对两 GET 的严格 query/path/方法/bodyEOF、当前权限错误和响应边界做代表反例，静态核完整 16 query/37 actions/13 services/17 resources/5 associations 集合及条件 schema。独立样本集中于易误裁剪或泄露的 Session ID、Model 关联限制、Service cause、Account phase/reason、HTML escaping 与 RawMessage 重编码；非法行全页失败，合法 Project action 的 Filter 仍可查询为空。按正式 typed 构造器验证有界多项编码及最终 1MiB 检查；975420B 是保守笛卡尔积，不称合法 producer 可同时产生该最大组合。超 1MiB 仅受控异常候选，不伪造正式数据。原作者完整枚举/schema、200 项及其他正常分支按固定字节和实际证据复用，不另复制整矩阵。
+
+如冻结 seam 不足以表达上述关口，先报告具体缺口，不新增公开接口、修改产品或借活动测试实现。两个组的具体断言/私有源码在相应冻结阶段授权后才编写。
+
+**原生 HTTP：另授窗口后一个代表组合。** 自有 loopback/临时端口，正常空体 EOF/响应后同连接再请求，证明旧局部期限已清；另用有界慢体或取消场景证明实际 read/Body.Close/callback 尾部结束才返回，错误响应无法完整写出时没有追加第二份 Problem。短写/Flush 失败可由受控 writer 与一个真实连接场景组合，不把 Recorder 或方法被调用等同原生退出。断开的错误连接不硬要求继续复用；正常路径的 keep-alive 必须单独真实观察。所有 listener/client/conn/callback 实际关闭并 join。具体最小组合依据作者已冻 native 覆盖收窄，不为数量再造用例。
+
+**最终真实最多两个代表，均另授独占资源。**
+
+- **A 当前权限与事务串行。** 使用完整 `newB02Account(t).fixture` 的正式 Account/Audit 依赖。HTTP 预认证后，经正式 Logout 撤销原 Session，再进入新读 Tx 必须拒绝；互补顺序在新读已持 User SH 时发起正式 User EX Logout，证明撤销等待实际读事务结束，完成后翻页/详情重新拒绝。只用自有锁屏障及只读 SQL 旁证；不 SQL 改 role、插审计或假授权。普通用户 403 使用正式邀请账户，未变场景可引用作者实际证据。DB 固定 LOCK_TIMEOUT=1s 的结果按 min(parent,3s,DB1s) 与 typed 安全错误核，不强求 errors.Is(DeadlineExceeded)，不称真实 PG 自然等满 3s。
+- **B 原 root 同实例与安全投影。** 原 app root 正式 Account 加至少一种已绑定 Model 或出站配置 producer 产生少量可精确关联记录，新两 GET 完成小页 cursor/筛选/详情读回；cursor 换 limit 仍合法、换 filter 或无当前 Session 不成为权限凭证。通过构造图的同一 auditor 变量及 root 正式 producer→HTTP 事实共同证明绑定，不能以另建同库 auditor 代替。同一场景带原 API 分流/唯一 RequestID/安全 headers 代表；完整旧 API/ready503、原 Audit 分页/索引/Append/清理证据仅在精确差量不涉及处复用。只读查询不得增加 Audit/receipt/outbox；正式 producer 自身副作用与读请求区分计数，避免并发后台事实造成虚假归因。
+
+不启动 Object/tools/SPA publication、Project/未绑定 Runtime、SMTP 投递、目标外网或停止任务。不为真实覆盖机械制造 200 写或 37 类 producer。Unknown 故障主要由受控事务证明，不在真实库破坏提交状态。
+
+**执行与证据纪律。** 冻结每阶段候选/接受依赖、私有 probe/overlay、实际 cwd/argv、工具锁/运行闭包；新 source 未冻结不读。固定 Go1.27.1，local toolchain、GOPROXY/GOSUMDB off、mod readonly，复用已准 cache，不复制整树或安装依赖。普通受控/native单场景≤45s、新真实 top≤2m、包 `-race -count=1 -timeout=6m`，不加时/自动重跑。运行前设 subreaper；逐命令 actual wait、PID/starttime 与 exact fixture IDs 两扫、输入前后指纹、callback/owner/adopted wait 分列。取消没有观察到实际尾部就不称 join；无真实服务时不冒原生/真实通过。仅安全布尔、计数及必要时间诊断，不输出 filter/cursor、审计正文、Cookie/token/CSRF、SQL cause 等材料。
+
+失败先保留原 probe/输入/raw/退出与清理，再区分产品/夹具前提，交主线程决定最小修复；不自行改产品或降强断言。通过报告按实际版本逐组组合复用，未知/未执行/skip 保持分列。全部产品/main/Git 不写，不委派。Outbound D 与本任务的离线/唯一资源窗口按主线程优先级顺序调度；本计划不是执行授权。

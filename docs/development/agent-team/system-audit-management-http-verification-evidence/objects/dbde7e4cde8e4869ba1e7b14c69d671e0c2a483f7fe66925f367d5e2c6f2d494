@@ -1,0 +1,1473 @@
+{
+  "kind": "JSON.parse plus actual Node ECMAScript RegExp; all used string-schema keywords evaluated",
+  "node": "v24.19.0",
+  "schemaSHA256": "168fc76cf7e0e8f89923e0312dee847ff48dd3de2f37f3f764689ef874300ee9",
+  "goLogSHA256": "582418aaf52ee45d468b1858ea04a95aa9c4e9f7e8b4f12ecd1beaed7a05feed",
+  "branches": 9,
+  "vectors": 42,
+  "checks": 756,
+  "failures": [
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "u",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "u",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "u",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "u",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "u",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "u",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "u",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "u",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "u",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "u",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/0",
+      "flags": "u",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "u",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "u",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "u",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "u",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "u",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "u",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "u",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "u",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "u",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "u",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/1",
+      "flags": "u",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "u",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "u",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "u",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "u",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "u",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "u",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "u",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "u",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "u",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "u",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadCompleteRecord/2",
+      "flags": "u",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "u",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "u",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "u",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "u",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "u",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "u",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "u",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "u",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "u",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "u",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/0",
+      "flags": "u",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "u",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "u",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "u",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "u",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "u",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "u",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "u",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "u",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "u",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "u",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/1",
+      "flags": "u",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "u",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "u",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "u",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "u",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "u",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "u",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "u",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "u",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "u",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "u",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectUploadFailedRecord/2",
+      "flags": "u",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "u",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "u",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "u",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "u",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "u",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "u",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "u",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "u",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "u",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "u",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/0",
+      "flags": "u",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "u",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "u",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "u",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "u",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "u",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "u",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "u",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "u",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "u",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "u",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/1",
+      "flags": "u",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "u",
+      "vector": "single",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "u",
+      "vector": "single-longer",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "u",
+      "vector": "single-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "u",
+      "vector": "subtype-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "u",
+      "vector": "type-braces",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "u",
+      "vector": "token-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "u",
+      "vector": "subtype-alphabet",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "u",
+      "vector": "single-utf8",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "u",
+      "vector": "braces-ascii",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "u",
+      "vector": "single-256",
+      "actual": false,
+      "expected": true
+    },
+    {
+      "branch": "ObjectDeleteRecord/2",
+      "flags": "u",
+      "vector": "charset-256",
+      "actual": false,
+      "expected": true
+    }
+  ],
+  "lineTerminators": [
+    {
+      "name": "LF",
+      "ecmaBareDollar": false,
+      "ecmaBareDollarUnicode": false,
+      "fullSchema": false,
+      "explicitNotMatches": null
+    },
+    {
+      "name": "CR",
+      "ecmaBareDollar": false,
+      "ecmaBareDollarUnicode": false,
+      "fullSchema": false,
+      "explicitNotMatches": null
+    },
+    {
+      "name": "CRLF",
+      "ecmaBareDollar": false,
+      "ecmaBareDollarUnicode": false,
+      "fullSchema": false,
+      "explicitNotMatches": null
+    },
+    {
+      "name": "LS",
+      "ecmaBareDollar": false,
+      "ecmaBareDollarUnicode": false,
+      "fullSchema": false,
+      "explicitNotMatches": null
+    },
+    {
+      "name": "PS",
+      "ecmaBareDollar": false,
+      "ecmaBareDollarUnicode": false,
+      "fullSchema": false,
+      "explicitNotMatches": null
+    }
+  ],
+  "large": [
+    {
+      "name": "single-257",
+      "patternAlone": false,
+      "fullSchema": false
+    },
+    {
+      "name": "pair-257",
+      "patternAlone": true,
+      "fullSchema": false
+    },
+    {
+      "name": "charset-257",
+      "patternAlone": false,
+      "fullSchema": false
+    }
+  ],
+  "note": "No complete OpenAPI engine or HTTP run is claimed. Go separately checks full typed DTO schema branches."
+}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: ECMAScript media_type schema differs from formal typed vectors
+
+198 !== 0
+
+    at file:///workspace/scratch/agenteam-audit-mime-schema-author-9LFs9mkG/node-vectors.mjs:64:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 198,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

@@ -1,0 +1,16 @@
+# Audit HTTP Group2 独立验收
+
+**有界 PASS**：冻结七源/247依赖的 HTTP、wire、schema 静审，以及两个独立受控离线 Go 组合通过。未启动 listener、原生 HTTP、PG、Docker、MinIO 或浏览器；不外推 root/真实事务接受。
+
+输入 `stages/http-stage01/manifest.json` SHA `d091ccd9f1b7e8fbece300717ae099ed8d6f2356e5136564ccacd0235539a50f`，固定 Git `f843506d9ec991be1c334a81b88d5cbacc277467` / 产品 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`。完整254文件已逐SHA复制为私有最小闭包；query三源等于已接受 Group1，未重测旧矩阵。精确七路径/源SHA见 `delivery7.json`。
+
+独立 `runs/http01`：两个 top、六个子组全部 PASS，`-race -count=1 -timeout=45s`，包4.214s，实际命令退出0/23.190265s。启动前subreaper；41个 owned PID/starttime 两扫为空、0 adopted waits、TMP已移除；3716个固定输入前后不变。原argv/cwd/env/actualwait 在 `command.json`，原raw/result/cleanup与输入前后均保留。
+
+- 入口 CheckRequest→RequireSystem→reader 共用原90ms parent期限。reader在取消后保留候选但受控尾部未放行时不返回；取消callback、Body.Close分别持屏障，实际释放/join后才退出，零200/header/Problem。另在CheckRequest真正自然等待3002.179ms，未进入鉴权/查询，parent仍有效。读写deadline设置失败在服务调用前abort；这里只检查停止边界，不把受控writer当原生网络。
+- 两GET即便 reader 同时交出候选与 COMMIT_UNKNOWN，仍503/unknown、无DTO且常量instance/无cause或query回显。三种正式typed样本独立核Human与安全Session ID、Model替代/关联约束、Service cause与HTML转义；坏后项整页零候选。200条内存typed记录、合法Project filter不误拒、重复query与cursor界、最终HTML escaping超1MiB和RawMessage不二次转义均通过。超界样本是合成编码负例，975420B仍仅保守笛卡尔积上界。
+
+静态全文核两精确GET、纯构造保留原auditor/Account边界、入口预算/错误/实际尾部和显式DTO；OpenAPI核16参数、37动作、13正式注册Service、17资源、5关联（Model仅2）、127处对象schema闭合及Session/LocalSession二选一。静态枚举辅助首次漏提取独立单行 `const ProjectInitialization`，工具实际exit1保留；`schema-check01.py`为该inline命令的事后原文记录，不冒前置快照。仅提取器加可选const前缀，`runs/schema02` actual0/0.038328s/双清；没有重跑已过Go。
+
+作者 `http-pure01` 的非法reason与测试内$ref基址两前提红永久保留；其生产handler/wire/schema在六轮均逐SHA相同，后续两行测试修正、补测及全部八Pure race通过只按原件复用。`author-evidence01.json`指向各实际raw/command/result。Group1旧失败及join限制不被本轮覆盖。作者三Native仅SOURCE/COMPILE/LIST，仍UNRUN；本阶段未消费未来root/集成活动源码。
+
+原件与完整SHA索引见同目录 `verification-report.json`；不需新动态或追加矩阵。

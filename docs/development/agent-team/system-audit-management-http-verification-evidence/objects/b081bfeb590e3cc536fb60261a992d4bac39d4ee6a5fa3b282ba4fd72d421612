@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/driver01.py",
+    "--name",
+    "gate01",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/execution01.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "cwd": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-audit-offline-a4djccmn",
+    "GOTMPDIR": "/tmp/agt-audit-offline-a4djccmn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/overlay01.json"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "4b18aa8babecf7ab02a3771e7d3e95887bf77c4a4b4e0522945a8fda4947d868",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 303518,
+  "actual_exit": 0,
+  "seconds": 1.2417890560009255,
+  "timeout": false
+}

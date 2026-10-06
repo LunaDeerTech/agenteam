@@ -1,0 +1,5 @@
+=== RUN   TestIndependentAuditMIMEFormalSet
+    mime_independent_test.go:86: formal_vectors=298 full_record_and_exact_branch_checks=378 nine_branches=true
+--- PASS: TestIndependentAuditMIMEFormalSet (2.68s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit/http	3.695s

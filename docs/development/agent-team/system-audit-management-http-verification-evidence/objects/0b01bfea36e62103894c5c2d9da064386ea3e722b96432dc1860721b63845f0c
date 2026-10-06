@@ -1,0 +1,25 @@
+import hashlib, importlib.util, json, sys
+from pathlib import Path
+sys.dont_write_bytecode = True
+R = Path(__file__).resolve().parent
+Q = Path('/workspace/scratch/agenteam-system-audit-author-0iv75y_i')
+sha = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
+assert sha(Q/'input03/manifest.json') == 'c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b'
+assert sha(Q/'driver-stage02/input.json') == '0c0306932b4a61a8048c0f76520d5468e40b7512a197e9a353fb2c6c3a8be068'
+spec = importlib.util.spec_from_file_location('independent_audit_driver', R/'driver01.py')
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+d = json.loads((Q/'driver-stage02/input.json').read_text())
+d['driver_sha256'] = sha(R/'driver01.py')
+d['private_files'] = {str(p): sha(p) for p in [R/'probe/audit_account_independent_test.go', R/'probe/audit_root_independent_test.go', R/'overlay01.json', R/'binding01.json']}
+m.FROZEN = d
+current = m.source_input()
+assert current['accepted_baseline']['accepted'] and current['files'] == d['files']
+assert current['private_files'] == d['private_files']
+d['runtime'] = current['runtime']
+d['independent_origin'] = {'path':str(Q/'driver-stage02/input.json'), 'sha256':sha(Q/'driver-stage02/input.json')}
+d['independent_scope'] = {'groups':{'both':['TestAuditIndependentCurrentAuthorityAndTerminal','TestAuditIndependentRootProducerProjection'],'authority':['TestAuditIndependentCurrentAuthorityAndTerminal'],'root':['TestAuditIndependentRootProducerProjection']},'exact_resource_count':7,'top_budget_seconds':120,'package_timeout':'6m','race':True,'count':1,'actual_cwd':str(Q/'workspace'),'real_execution_authorized':False,'evidence_limit':'A real PostgreSQL plus controlled observable writer; B native same-root connection; no simulated real Unknown'}
+out=R/'execution01.json'
+if out.exists(): raise RuntimeError('frozen execution already exists')
+out.write_text(json.dumps(d,indent=2,sort_keys=True)+'\n')
+(R/'execution01-source-fingerprints.json').write_text(json.dumps(current,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'execution_path':str(out),'sha256':sha(out),'candidate_count':len(d['files']),'fixed_dependency_count':len(d['accepted_baseline']['files']),'private_count':len(d['private_files']),'runtime_count':len(d['runtime']['files']),'runtime_packages':len(d['runtime']['packages']),'resources_started':False}))

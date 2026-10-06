@@ -1,0 +1,41 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 303518,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 303518,
+      "ppid": 303514,
+      "pgid": 303518,
+      "state": "R",
+      "starttime": "932983"
+    },
+    {
+      "pid": 303519,
+      "ppid": 303518,
+      "pgid": 303518,
+      "state": "R",
+      "starttime": "932987"
+    },
+    {
+      "pid": 303533,
+      "ppid": 303518,
+      "pgid": 303518,
+      "state": "S",
+      "starttime": "932998"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-audit-offline-a4djccmn",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

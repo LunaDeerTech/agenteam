@@ -1,0 +1,1344 @@
+{
+  "package_count": 267,
+  "selected_source_files": 2785,
+  "packages": [
+    {
+      "import_path": "internal/goarch",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/goarch",
+      "module": null
+    },
+    {
+      "import_path": "unsafe",
+      "directory": "/workspace/toolchains/go1.27.1/src/unsafe",
+      "module": null
+    },
+    {
+      "import_path": "internal/abi",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/abi",
+      "module": null
+    },
+    {
+      "import_path": "internal/unsafeheader",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/unsafeheader",
+      "module": null
+    },
+    {
+      "import_path": "internal/cpu",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/cpu",
+      "module": null
+    },
+    {
+      "import_path": "internal/bytealg",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/bytealg",
+      "module": null
+    },
+    {
+      "import_path": "internal/byteorder",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/byteorder",
+      "module": null
+    },
+    {
+      "import_path": "internal/chacha8rand",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/chacha8rand",
+      "module": null
+    },
+    {
+      "import_path": "internal/coverage/rtcov",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/coverage/rtcov",
+      "module": null
+    },
+    {
+      "import_path": "internal/godebugs",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/godebugs",
+      "module": null
+    },
+    {
+      "import_path": "internal/goexperiment",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/goexperiment",
+      "module": null
+    },
+    {
+      "import_path": "internal/goos",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/goos",
+      "module": null
+    },
+    {
+      "import_path": "internal/profilerecord",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/profilerecord",
+      "module": null
+    },
+    {
+      "import_path": "internal/runtime/atomic",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/runtime/atomic",
+      "module": null
+    },
+    {
+      "import_path": "internal/runtime/syscall/linux",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/runtime/syscall/linux",
+      "module": null
+    },
+    {
+      "import_path": "math/bits",
+      "directory": "/workspace/toolchains/go1.27.1/src/math/bits",
+      "module": null
+    },
+    {
+      "import_path": "internal/strconv",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/strconv",
+      "module": null
+    },
+    {
+      "import_path": "internal/runtime/cgroup",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/runtime/cgroup",
+      "module": null
+    },
+    {
+      "import_path": "internal/runtime/exithook",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/runtime/exithook",
+      "module": null
+    },
+    {
+      "import_path": "internal/runtime/gc",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/runtime/gc",
+      "module": null
+    },
+    {
+      "import_path": "internal/runtime/sys",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/runtime/sys",
+      "module": null
+    },
+    {
+      "import_path": "internal/runtime/gc/scan",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/runtime/gc/scan",
+      "module": null
+    },
+    {
+      "import_path": "internal/asan",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/asan",
+      "module": null
+    },
+    {
+      "import_path": "internal/msan",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/msan",
+      "module": null
+    },
+    {
+      "import_path": "internal/race",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/race",
+      "module": null
+    },
+    {
+      "import_path": "internal/runtime/math",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/runtime/math",
+      "module": null
+    },
+    {
+      "import_path": "internal/runtime/maps",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/runtime/maps",
+      "module": null
+    },
+    {
+      "import_path": "internal/runtime/pprof/label",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/runtime/pprof/label",
+      "module": null
+    },
+    {
+      "import_path": "internal/stringslite",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/stringslite",
+      "module": null
+    },
+    {
+      "import_path": "internal/trace/tracev2",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/trace/tracev2",
+      "module": null
+    },
+    {
+      "import_path": "runtime",
+      "directory": "/workspace/toolchains/go1.27.1/src/runtime",
+      "module": null
+    },
+    {
+      "import_path": "internal/reflectlite",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/reflectlite",
+      "module": null
+    },
+    {
+      "import_path": "errors",
+      "directory": "/workspace/toolchains/go1.27.1/src/errors",
+      "module": null
+    },
+    {
+      "import_path": "sync/atomic",
+      "directory": "/workspace/toolchains/go1.27.1/src/sync/atomic",
+      "module": null
+    },
+    {
+      "import_path": "internal/sync",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/sync",
+      "module": null
+    },
+    {
+      "import_path": "internal/synctest",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/synctest",
+      "module": null
+    },
+    {
+      "import_path": "sync",
+      "directory": "/workspace/toolchains/go1.27.1/src/sync",
+      "module": null
+    },
+    {
+      "import_path": "internal/oserror",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/oserror",
+      "module": null
+    },
+    {
+      "import_path": "cmp",
+      "directory": "/workspace/toolchains/go1.27.1/src/cmp",
+      "module": null
+    },
+    {
+      "import_path": "iter",
+      "directory": "/workspace/toolchains/go1.27.1/src/iter",
+      "module": null
+    },
+    {
+      "import_path": "slices",
+      "directory": "/workspace/toolchains/go1.27.1/src/slices",
+      "module": null
+    },
+    {
+      "import_path": "syscall",
+      "directory": "/workspace/toolchains/go1.27.1/src/syscall",
+      "module": null
+    },
+    {
+      "import_path": "time",
+      "directory": "/workspace/toolchains/go1.27.1/src/time",
+      "module": null
+    },
+    {
+      "import_path": "context",
+      "directory": "/workspace/toolchains/go1.27.1/src/context",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/constanttime",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/constanttime",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/alias",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/alias",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140deps/byteorder",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140deps/byteorder",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/subtle",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/subtle",
+      "module": null
+    },
+    {
+      "import_path": "crypto/subtle",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/subtle",
+      "module": null
+    },
+    {
+      "import_path": "io",
+      "directory": "/workspace/toolchains/go1.27.1/src/io",
+      "module": null
+    },
+    {
+      "import_path": "unicode",
+      "directory": "/workspace/toolchains/go1.27.1/src/unicode",
+      "module": null
+    },
+    {
+      "import_path": "unicode/utf8",
+      "directory": "/workspace/toolchains/go1.27.1/src/unicode/utf8",
+      "module": null
+    },
+    {
+      "import_path": "bytes",
+      "directory": "/workspace/toolchains/go1.27.1/src/bytes",
+      "module": null
+    },
+    {
+      "import_path": "encoding",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding",
+      "module": null
+    },
+    {
+      "import_path": "encoding/json/internal",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/json/internal",
+      "module": null
+    },
+    {
+      "import_path": "encoding/json/internal/jsonflags",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/json/internal/jsonflags",
+      "module": null
+    },
+    {
+      "import_path": "encoding/json/internal/jsonopts",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/json/internal/jsonopts",
+      "module": null
+    },
+    {
+      "import_path": "math",
+      "directory": "/workspace/toolchains/go1.27.1/src/math",
+      "module": null
+    },
+    {
+      "import_path": "strconv",
+      "directory": "/workspace/toolchains/go1.27.1/src/strconv",
+      "module": null
+    },
+    {
+      "import_path": "strings",
+      "directory": "/workspace/toolchains/go1.27.1/src/strings",
+      "module": null
+    },
+    {
+      "import_path": "unicode/utf16",
+      "directory": "/workspace/toolchains/go1.27.1/src/unicode/utf16",
+      "module": null
+    },
+    {
+      "import_path": "encoding/json/internal/jsonwire",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/json/internal/jsonwire",
+      "module": null
+    },
+    {
+      "import_path": "encoding/json/jsontext",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/json/jsontext",
+      "module": null
+    },
+    {
+      "import_path": "encoding/base32",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/base32",
+      "module": null
+    },
+    {
+      "import_path": "encoding/base64",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/base64",
+      "module": null
+    },
+    {
+      "import_path": "reflect",
+      "directory": "/workspace/toolchains/go1.27.1/src/reflect",
+      "module": null
+    },
+    {
+      "import_path": "encoding/binary",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/binary",
+      "module": null
+    },
+    {
+      "import_path": "internal/fmtsort",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/fmtsort",
+      "module": null
+    },
+    {
+      "import_path": "path",
+      "directory": "/workspace/toolchains/go1.27.1/src/path",
+      "module": null
+    },
+    {
+      "import_path": "io/fs",
+      "directory": "/workspace/toolchains/go1.27.1/src/io/fs",
+      "module": null
+    },
+    {
+      "import_path": "internal/filepathlite",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/filepathlite",
+      "module": null
+    },
+    {
+      "import_path": "internal/syscall/unix",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/syscall/unix",
+      "module": null
+    },
+    {
+      "import_path": "internal/poll",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/poll",
+      "module": null
+    },
+    {
+      "import_path": "internal/syscall/execenv",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/syscall/execenv",
+      "module": null
+    },
+    {
+      "import_path": "internal/testlog",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/testlog",
+      "module": null
+    },
+    {
+      "import_path": "os",
+      "directory": "/workspace/toolchains/go1.27.1/src/os",
+      "module": null
+    },
+    {
+      "import_path": "fmt",
+      "directory": "/workspace/toolchains/go1.27.1/src/fmt",
+      "module": null
+    },
+    {
+      "import_path": "encoding/hex",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/hex",
+      "module": null
+    },
+    {
+      "import_path": "encoding/json/v2",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/json/v2",
+      "module": null
+    },
+    {
+      "import_path": "encoding/json",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/json",
+      "module": null
+    },
+    {
+      "import_path": "hash",
+      "directory": "/workspace/toolchains/go1.27.1/src/hash",
+      "module": null
+    },
+    {
+      "import_path": "crypto",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto",
+      "module": null
+    },
+    {
+      "import_path": "internal/bisect",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/bisect",
+      "module": null
+    },
+    {
+      "import_path": "internal/godebug",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/godebug",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140deps/godebug",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140deps/godebug",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140deps/cpu",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140deps/cpu",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/impl",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/impl",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/sha256",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/sha256",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/sha3",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/sha3",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/sha512",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/sha512",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/hmac",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/hmac",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/check",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/check",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/aes",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/aes",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140deps/time",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140deps/time",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/entropy/v1.0.0",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/entropy/v1.0.0",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/sysrand",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/sysrand",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/drbg",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/drbg",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/aes/gcm",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/aes/gcm",
+      "module": null
+    },
+    {
+      "import_path": "crypto/fips140",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/fips140",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140only",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140only",
+      "module": null
+    },
+    {
+      "import_path": "crypto/cipher",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/cipher",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/boring/sig",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/boring/sig",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/boring",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/boring",
+      "module": null
+    },
+    {
+      "import_path": "math/rand/v2",
+      "directory": "/workspace/toolchains/go1.27.1/src/math/rand/v2",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/randutil",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/randutil",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/rand",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/rand",
+      "module": null
+    },
+    {
+      "import_path": "math/rand",
+      "directory": "/workspace/toolchains/go1.27.1/src/math/rand",
+      "module": null
+    },
+    {
+      "import_path": "math/big",
+      "directory": "/workspace/toolchains/go1.27.1/src/math/big",
+      "module": null
+    },
+    {
+      "import_path": "crypto/rand",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/rand",
+      "module": null
+    },
+    {
+      "import_path": "crypto/sha256",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/sha256",
+      "module": null
+    },
+    {
+      "import_path": "log/internal",
+      "directory": "/workspace/toolchains/go1.27.1/src/log/internal",
+      "module": null
+    },
+    {
+      "import_path": "log",
+      "directory": "/workspace/toolchains/go1.27.1/src/log",
+      "module": null
+    },
+    {
+      "import_path": "log/slog/internal",
+      "directory": "/workspace/toolchains/go1.27.1/src/log/slog/internal",
+      "module": null
+    },
+    {
+      "import_path": "log/slog/internal/buffer",
+      "directory": "/workspace/toolchains/go1.27.1/src/log/slog/internal/buffer",
+      "module": null
+    },
+    {
+      "import_path": "log/slog",
+      "directory": "/workspace/toolchains/go1.27.1/src/log/slog",
+      "module": null
+    },
+    {
+      "import_path": "sort",
+      "directory": "/workspace/toolchains/go1.27.1/src/sort",
+      "module": null
+    },
+    {
+      "import_path": "regexp/syntax",
+      "directory": "/workspace/toolchains/go1.27.1/src/regexp/syntax",
+      "module": null
+    },
+    {
+      "import_path": "regexp",
+      "directory": "/workspace/toolchains/go1.27.1/src/regexp",
+      "module": null
+    },
+    {
+      "import_path": "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+      "directory": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/source/internal/central/foundation",
+      "module": null
+    },
+    {
+      "import_path": "github.com/LunaDeerTech/agenteam/internal/central/identity/contract",
+      "directory": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/source/internal/central/identity/contract",
+      "module": null
+    },
+    {
+      "import_path": "bufio",
+      "directory": "/workspace/toolchains/go1.27.1/src/bufio",
+      "module": null
+    },
+    {
+      "import_path": "maps",
+      "directory": "/workspace/toolchains/go1.27.1/src/maps",
+      "module": null
+    },
+    {
+      "import_path": "mime",
+      "directory": "/workspace/toolchains/go1.27.1/src/mime",
+      "module": null
+    },
+    {
+      "import_path": "github.com/LunaDeerTech/agenteam/internal/central/audit/contract",
+      "directory": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/source/internal/central/audit/contract",
+      "module": null
+    },
+    {
+      "import_path": "crypto/sha3",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/sha3",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140hash",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140hash",
+      "module": null
+    },
+    {
+      "import_path": "crypto/hmac",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/hmac",
+      "module": null
+    },
+    {
+      "import_path": "github.com/LunaDeerTech/agenteam/internal/central/cursor",
+      "directory": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/source/internal/central/cursor",
+      "module": null
+    },
+    {
+      "import_path": "container/list",
+      "directory": "/workspace/toolchains/go1.27.1/src/container/list",
+      "module": null
+    },
+    {
+      "import_path": "crypto/aes",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/aes",
+      "module": null
+    },
+    {
+      "import_path": "crypto/des",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/des",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/nistec/fiat",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/nistec/fiat",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/nistec",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/nistec",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/ecdh",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/ecdh",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/edwards25519/field",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/edwards25519/field",
+      "module": null
+    },
+    {
+      "import_path": "crypto/ecdh",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/ecdh",
+      "module": null
+    },
+    {
+      "import_path": "crypto/elliptic",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/elliptic",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/boring/bbig",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/boring/bbig",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/bigmod",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/bigmod",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/ecdsa",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/ecdsa",
+      "module": null
+    },
+    {
+      "import_path": "weak",
+      "directory": "/workspace/toolchains/go1.27.1/src/weak",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140cache",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140cache",
+      "module": null
+    },
+    {
+      "import_path": "crypto/sha512",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/sha512",
+      "module": null
+    },
+    {
+      "import_path": "internal/saferio",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/saferio",
+      "module": null
+    },
+    {
+      "import_path": "encoding/asn1",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/asn1",
+      "module": null
+    },
+    {
+      "import_path": "vendor/golang.org/x/crypto/cryptobyte/asn1",
+      "directory": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/crypto/cryptobyte/asn1",
+      "module": null
+    },
+    {
+      "import_path": "vendor/golang.org/x/crypto/cryptobyte",
+      "directory": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/crypto/cryptobyte",
+      "module": null
+    },
+    {
+      "import_path": "crypto/ecdsa",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/ecdsa",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/edwards25519",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/edwards25519",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/ed25519",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/ed25519",
+      "module": null
+    },
+    {
+      "import_path": "crypto/ed25519",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/ed25519",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/hkdf",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/hkdf",
+      "module": null
+    },
+    {
+      "import_path": "crypto/hkdf",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/hkdf",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/mlkem",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/mlkem",
+      "module": null
+    },
+    {
+      "import_path": "crypto/mlkem",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/mlkem",
+      "module": null
+    },
+    {
+      "import_path": "vendor/golang.org/x/crypto/internal/alias",
+      "directory": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/crypto/internal/alias",
+      "module": null
+    },
+    {
+      "import_path": "vendor/golang.org/x/crypto/chacha20",
+      "directory": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/crypto/chacha20",
+      "module": null
+    },
+    {
+      "import_path": "vendor/golang.org/x/crypto/internal/poly1305",
+      "directory": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/crypto/internal/poly1305",
+      "module": null
+    },
+    {
+      "import_path": "vendor/golang.org/x/sys/cpu",
+      "directory": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/sys/cpu",
+      "module": null
+    },
+    {
+      "import_path": "vendor/golang.org/x/crypto/chacha20poly1305",
+      "directory": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/crypto/chacha20poly1305",
+      "module": null
+    },
+    {
+      "import_path": "crypto/hpke",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/hpke",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/tls12",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/tls12",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/tls13",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/tls13",
+      "module": null
+    },
+    {
+      "import_path": "crypto/md5",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/md5",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/mldsa",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/mldsa",
+      "module": null
+    },
+    {
+      "import_path": "crypto/mldsa",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/mldsa",
+      "module": null
+    },
+    {
+      "import_path": "crypto/rc4",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/rc4",
+      "module": null
+    },
+    {
+      "import_path": "crypto/internal/fips140/rsa",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/rsa",
+      "module": null
+    },
+    {
+      "import_path": "crypto/rsa",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/rsa",
+      "module": null
+    },
+    {
+      "import_path": "crypto/sha1",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/sha1",
+      "module": null
+    },
+    {
+      "import_path": "crypto/tls/internal/fips140tls",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/tls/internal/fips140tls",
+      "module": null
+    },
+    {
+      "import_path": "crypto/dsa",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/dsa",
+      "module": null
+    },
+    {
+      "import_path": "crypto/x509/pkix",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/x509/pkix",
+      "module": null
+    },
+    {
+      "import_path": "encoding/pem",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/pem",
+      "module": null
+    },
+    {
+      "import_path": "vendor/golang.org/x/net/dns/dnsmessage",
+      "directory": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/net/dns/dnsmessage",
+      "module": null
+    },
+    {
+      "import_path": "internal/nettrace",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/nettrace",
+      "module": null
+    },
+    {
+      "import_path": "internal/singleflight",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/singleflight",
+      "module": null
+    },
+    {
+      "import_path": "unique",
+      "directory": "/workspace/toolchains/go1.27.1/src/unique",
+      "module": null
+    },
+    {
+      "import_path": "net/netip",
+      "directory": "/workspace/toolchains/go1.27.1/src/net/netip",
+      "module": null
+    },
+    {
+      "import_path": "runtime/cgo",
+      "directory": "/workspace/toolchains/go1.27.1/src/runtime/cgo",
+      "module": null
+    },
+    {
+      "import_path": "net",
+      "directory": "/workspace/toolchains/go1.27.1/src/net",
+      "module": null
+    },
+    {
+      "import_path": "net/url",
+      "directory": "/workspace/toolchains/go1.27.1/src/net/url",
+      "module": null
+    },
+    {
+      "import_path": "path/filepath",
+      "directory": "/workspace/toolchains/go1.27.1/src/path/filepath",
+      "module": null
+    },
+    {
+      "import_path": "crypto/x509",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/x509",
+      "module": null
+    },
+    {
+      "import_path": "crypto/tls",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/tls",
+      "module": null
+    },
+    {
+      "import_path": "database/sql/internal",
+      "directory": "/workspace/toolchains/go1.27.1/src/database/sql/internal",
+      "module": null
+    },
+    {
+      "import_path": "uuid",
+      "directory": "/workspace/toolchains/go1.27.1/src/uuid",
+      "module": null
+    },
+    {
+      "import_path": "database/sql/driver",
+      "directory": "/workspace/toolchains/go1.27.1/src/database/sql/driver",
+      "module": null
+    },
+    {
+      "import_path": "database/sql",
+      "directory": "/workspace/toolchains/go1.27.1/src/database/sql",
+      "module": null
+    },
+    {
+      "import_path": "embed",
+      "directory": "/workspace/toolchains/go1.27.1/src/embed",
+      "module": null
+    },
+    {
+      "import_path": "github.com/LunaDeerTech/agenteam/db/migrations",
+      "directory": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/source/db/migrations",
+      "module": null
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5/internal/pgio",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/internal/pgio",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5/internal/pgdatetime",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/internal/pgdatetime",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5/internal/sanitize",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/internal/sanitize",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "crypto/internal/fips140/pbkdf2",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/pbkdf2",
+      "module": null
+    },
+    {
+      "import_path": "crypto/pbkdf2",
+      "directory": "/workspace/toolchains/go1.27.1/src/crypto/pbkdf2",
+      "module": null
+    },
+    {
+      "import_path": "github.com/jackc/pgpassfile",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgpassfile@v1.0.0",
+      "module": "v1.0.0"
+    },
+    {
+      "import_path": "github.com/jackc/pgservicefile",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgservicefile@v0.0.0-20240606120523-5a60cdf6a761",
+      "module": "v0.0.0-20240606120523-5a60cdf6a761"
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5/internal/iobufpool",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/internal/iobufpool",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5/pgconn/ctxwatch",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/pgconn/ctxwatch",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5/pgconn/internal/bgreader",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/pgconn/internal/bgreader",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5/pgproto3",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/pgproto3",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "encoding/xml",
+      "directory": "/workspace/toolchains/go1.27.1/src/encoding/xml",
+      "module": null
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5/pgtype",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/pgtype",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "golang.org/x/text/internal/tag",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/internal/tag",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "golang.org/x/text/internal/language",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/internal/language",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "golang.org/x/text/internal/language/compact",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/internal/language/compact",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "golang.org/x/text/language",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/language",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "golang.org/x/text/internal",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/internal",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "golang.org/x/text/transform",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/transform",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "golang.org/x/text/unicode/norm",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/unicode/norm",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "golang.org/x/text/cases",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/cases",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "golang.org/x/text/runes",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/runes",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "golang.org/x/text/unicode/bidi",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/unicode/bidi",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "golang.org/x/text/secure/bidirule",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/secure/bidirule",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "golang.org/x/text/width",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/width",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "golang.org/x/text/secure/precis",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/text@v0.41.0/secure/precis",
+      "module": "v0.41.0"
+    },
+    {
+      "import_path": "os/user",
+      "directory": "/workspace/toolchains/go1.27.1/src/os/user",
+      "module": null
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5/pgconn",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/pgconn",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5/internal/stmtcache",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/internal/stmtcache",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "github.com/jackc/puddle/v2/internal/genstack",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/puddle/v2@v2.2.2/internal/genstack",
+      "module": "v2.2.2"
+    },
+    {
+      "import_path": "golang.org/x/sync/semaphore",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/sync@v0.22.0/semaphore",
+      "module": "v0.22.0"
+    },
+    {
+      "import_path": "github.com/jackc/puddle/v2",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/puddle/v2@v2.2.2",
+      "module": "v2.2.2"
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5/pgxpool",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/pgxpool",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "github.com/jackc/pgx/v5/stdlib",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/stdlib",
+      "module": "v5.11.0"
+    },
+    {
+      "import_path": "github.com/pressly/goose/v3/database/dialect",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/pressly/goose/v3@v3.28.0/database/dialect",
+      "module": "v3.28.0"
+    },
+    {
+      "import_path": "github.com/pressly/goose/v3/internal/dialects",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/pressly/goose/v3@v3.28.0/internal/dialects",
+      "module": "v3.28.0"
+    },
+    {
+      "import_path": "github.com/pressly/goose/v3/database",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/pressly/goose/v3@v3.28.0/database",
+      "module": "v3.28.0"
+    },
+    {
+      "import_path": "github.com/pressly/goose/v3/internal/controller",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/pressly/goose/v3@v3.28.0/internal/controller",
+      "module": "v3.28.0"
+    },
+    {
+      "import_path": "github.com/pressly/goose/v3/internal/gooseutil",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/pressly/goose/v3@v3.28.0/internal/gooseutil",
+      "module": "v3.28.0"
+    },
+    {
+      "import_path": "github.com/pressly/goose/v3/internal/legacystore",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/pressly/goose/v3@v3.28.0/internal/legacystore",
+      "module": "v3.28.0"
+    },
+    {
+      "import_path": "github.com/mfridman/interpolate",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/mfridman/interpolate@v0.0.2",
+      "module": "v0.0.2"
+    },
+    {
+      "import_path": "go.uber.org/multierr",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/go.uber.org/multierr@v1.11.0",
+      "module": "v1.11.0"
+    },
+    {
+      "import_path": "golang.org/x/sync/errgroup",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/golang.org/x/sync@v0.22.0/errgroup",
+      "module": "v0.22.0"
+    },
+    {
+      "import_path": "github.com/pressly/goose/v3/internal/sqlparser",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/pressly/goose/v3@v3.28.0/internal/sqlparser",
+      "module": "v3.28.0"
+    },
+    {
+      "import_path": "github.com/pressly/goose/v3/lock/internal/store",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/pressly/goose/v3@v3.28.0/lock/internal/store",
+      "module": "v3.28.0"
+    },
+    {
+      "import_path": "github.com/sethvargo/go-retry",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/sethvargo/go-retry@v0.4.0",
+      "module": "v0.4.0"
+    },
+    {
+      "import_path": "github.com/pressly/goose/v3/lock/internal/table",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/pressly/goose/v3@v3.28.0/lock/internal/table",
+      "module": "v3.28.0"
+    },
+    {
+      "import_path": "github.com/pressly/goose/v3/lock",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/pressly/goose/v3@v3.28.0/lock",
+      "module": "v3.28.0"
+    },
+    {
+      "import_path": "runtime/debug",
+      "directory": "/workspace/toolchains/go1.27.1/src/runtime/debug",
+      "module": null
+    },
+    {
+      "import_path": "text/template/parse",
+      "directory": "/workspace/toolchains/go1.27.1/src/text/template/parse",
+      "module": null
+    },
+    {
+      "import_path": "text/template",
+      "directory": "/workspace/toolchains/go1.27.1/src/text/template",
+      "module": null
+    },
+    {
+      "import_path": "github.com/pressly/goose/v3",
+      "directory": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/pressly/goose/v3@v3.28.0",
+      "module": "v3.28.0"
+    },
+    {
+      "import_path": "github.com/LunaDeerTech/agenteam/internal/central/postgres",
+      "directory": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/source/internal/central/postgres",
+      "module": null
+    },
+    {
+      "import_path": "github.com/LunaDeerTech/agenteam/internal/central/audit",
+      "directory": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/source/internal/central/audit",
+      "module": null
+    },
+    {
+      "import_path": "flag",
+      "directory": "/workspace/toolchains/go1.27.1/src/flag",
+      "module": null
+    },
+    {
+      "import_path": "internal/sysinfo",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/sysinfo",
+      "module": null
+    },
+    {
+      "import_path": "runtime/trace",
+      "directory": "/workspace/toolchains/go1.27.1/src/runtime/trace",
+      "module": null
+    },
+    {
+      "import_path": "testing",
+      "directory": "/workspace/toolchains/go1.27.1/src/testing",
+      "module": null
+    },
+    {
+      "import_path": "go/token",
+      "directory": "/workspace/toolchains/go1.27.1/src/go/token",
+      "module": null
+    },
+    {
+      "import_path": "go/scanner",
+      "directory": "/workspace/toolchains/go1.27.1/src/go/scanner",
+      "module": null
+    },
+    {
+      "import_path": "go/ast",
+      "directory": "/workspace/toolchains/go1.27.1/src/go/ast",
+      "module": null
+    },
+    {
+      "import_path": "go/build/constraint",
+      "directory": "/workspace/toolchains/go1.27.1/src/go/build/constraint",
+      "module": null
+    },
+    {
+      "import_path": "go/parser",
+      "directory": "/workspace/toolchains/go1.27.1/src/go/parser",
+      "module": null
+    },
+    {
+      "import_path": "os/exec",
+      "directory": "/workspace/toolchains/go1.27.1/src/os/exec",
+      "module": null
+    },
+    {
+      "import_path": "internal/fuzz",
+      "directory": "/workspace/toolchains/go1.27.1/src/internal/fuzz",
+      "module": null
+    },
+    {
+      "import_path": "os/signal",
+      "directory": "/workspace/toolchains/go1.27.1/src/os/signal",
+      "module": null
+    },
+    {
+      "import_path": "compress/flate",
+      "directory": "/workspace/toolchains/go1.27.1/src/compress/flate",
+      "module": null
+    },
+    {
+      "import_path": "hash/crc32",
+      "directory": "/workspace/toolchains/go1.27.1/src/hash/crc32",
+      "module": null
+    },
+    {
+      "import_path": "compress/gzip",
+      "directory": "/workspace/toolchains/go1.27.1/src/compress/gzip",
+      "module": null
+    },
+    {
+      "import_path": "text/tabwriter",
+      "directory": "/workspace/toolchains/go1.27.1/src/text/tabwriter",
+      "module": null
+    },
+    {
+      "import_path": "runtime/pprof",
+      "directory": "/workspace/toolchains/go1.27.1/src/runtime/pprof",
+      "module": null
+    },
+    {
+      "import_path": "testing/internal/testdeps",
+      "directory": "/workspace/toolchains/go1.27.1/src/testing/internal/testdeps",
+      "module": null
+    },
+    {
+      "import_path": "github.com/LunaDeerTech/agenteam/internal/central/audit [github.com/LunaDeerTech/agenteam/internal/central/audit.test]",
+      "directory": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/source/internal/central/audit",
+      "module": null
+    },
+    {
+      "import_path": "github.com/LunaDeerTech/agenteam/internal/central/audit.test",
+      "directory": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/source/internal/central/audit",
+      "module": null
+    }
+  ],
+  "no_missing_selected_files": true,
+  "toolchain": "Go1.27.1",
+  "source_manifest_sha256": "e69a4fb5b067890e149c7ad62c0610b2d49f48d0f338da3bfcef761766630b38"
+}

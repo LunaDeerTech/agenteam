@@ -1,0 +1,40 @@
+--- probe01
++++ probe02
+@@ -1,6 +1,7 @@
+ package audit
+ 
+ import (
++	"bytes"
+ 	"context"
+ 	"errors"
+ 	"reflect"
+@@ -453,8 +454,27 @@
+ 				t.Fatal("cursor uses discarded sentinel")
+ 			}
+ 			legacy, e := svc.recordPage(&iqRows{rows: []iqRow{first, last}}, binding, 1, nil)
+-			if e != nil || !reflect.DeepEqual(legacy, out.page) {
+-				t.Fatal("legacy retained page/cursor changed")
++			if e != nil || len(legacy.Items) != len(out.page.Items) {
++				t.Fatal("legacy retained page size changed")
++			}
++			left, right := legacy.Items[0], out.page.Items[0]
++			if left.AuditID != right.AuditID || !left.CreatedAt.Time().Equal(right.CreatedAt.Time()) ||
++				!left.Scope.Equal(right.Scope) || left.Actor != right.Actor || left.Action != right.Action ||
++				left.Outcome != right.Outcome || left.Resource.Details() != right.Resource.Details() ||
++				left.Metadata.Validate(left.Action) != nil || right.Metadata.Validate(right.Action) != nil ||
++				!bytes.Equal(left.Metadata.JSON(), right.Metadata.JSON()) ||
++				!reflect.DeepEqual(left.Associations, right.Associations) || left.Summary != right.Summary {
++				t.Fatal("legacy retained public record semantics changed")
++			}
++			legacyPosition, e := svc.keys.Verify(legacy.NextCursor, binding)
++			if e != nil || len(legacyPosition.Scalars) != len(position.Scalars) ||
++				legacyPosition.OrderGeneration != nil || position.OrderGeneration != nil {
++				t.Fatal("legacy cursor binding or shape changed")
++			}
++			for i, scalar := range legacyPosition.Scalars {
++				if scalar.Kind() != position.Scalars[i].Kind() || scalar.Value() != position.Scalars[i].Value() {
++					t.Fatal("legacy cursor position changed")
++				}
+ 			}
+ 		})
+ 	}

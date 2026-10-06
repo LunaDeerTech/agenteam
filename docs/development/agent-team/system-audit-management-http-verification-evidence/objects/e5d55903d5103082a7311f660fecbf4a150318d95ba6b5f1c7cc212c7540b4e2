@@ -1,0 +1,7 @@
+# Audit native prerequisite repair execution input
+
+input03 changes only the SlowBody test in handler_test.go; no production delta. Exact source diff and original native01 failures are preserved. Race compile, vet and one-top discovery passed offline. driver02 adds only native-slow to the enumeration, maps it to the existing top and classifies it as no-fixture native. Old driver/stage01 remain immutable.
+
+The new execution input changes that one source hash and the driver hash, points to input03 and retains all 893 fixed runtime dependencies and the full Go/tool/module graph exactly. driver-prepare02 actual0/1.258s; driver-gate02 actual0 with candidate/runtime match and no missing/unexpected/mismatched dependency. Its precise time/raw are in checks.json. No resources were started.
+
+The sole requested next run is native02 / native-slow: one top with local3s and parent120ms subcases, original race/count1/45s. execution-plan.json gives exact unexecuted argv and requires a new root window plus fresh >=2GiB disk/hash/gate checks. Both other native tops from native01 are unchanged and reused. PG groups remain unrun; no automatic continuation. All product/input03/driver-stage02 inputs stop writing at handoff.

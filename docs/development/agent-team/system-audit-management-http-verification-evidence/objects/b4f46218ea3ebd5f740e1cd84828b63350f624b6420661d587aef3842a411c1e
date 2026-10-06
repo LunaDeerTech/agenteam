@@ -1,0 +1,26 @@
+# Audit MIME schema 独立验收
+
+结论：**PASS（两路径、受影响离线范围）**。固定基线 `b124650aee095b26191bc181dc8cf5d6e0f977f5`；作者 `input01/manifest.json` SHA256 `96a928444c516bee3e0d67a2048e4ebbe6c945abf9a69f0fadec7fb97b33cec6`，精确交付清单 `input01/delivery2.json` SHA256 `68bc470f80158e37174bb8277fac723be923c4fff50ef24e3ba8ae33ee70d6af`。没有产品修改或业务资源执行。
+
+静核确认只修改三个 Object action × 三个 initiator 的九个 `media_type` schema 节点之 `pattern`/`not`，字符串类型及 1–256 长度约束保持；移除唯一新增测试函数后，原测试字节完全相同。两候选及 252 固定依赖逐 SHA 核对通过，正式 Go contract/handler 未改变。详见 `static-delta01.json`。
+
+独立实际结果：
+
+| 原件目录 | 受测范围 | 实际结果 |
+| --- | --- | --- |
+| `runs/go01` | 单个 race top；298 个正式构造器判定向量，含全 ASCII 单字符位置、无斜线、花括号、两种 canonical charset、256/257 和终止符；42 个边界向量经正式 metadata/record/encoder 对九分支作 378 次完整记录及指定分支校验 | exit 0，5.169429s；top 2.68s |
+| `runs/node01` | Node v24.19.0，九个 MIME 字段全部约束；298 个 Go 判定向量在 default/u、无 m 两模式下共 5364 次实际 ECMAScript 对照 | exit 0，0.070543s |
+
+每命令原限 45s，均有原 argv、actual wait、输入前后指纹和两扫清理原件。Go/Node 分别观察 5/1 个 owned PID/starttime，终局均空，0 adopted waits，私有 TMP 已删；没有 listener、HTTP、PG、Docker、browser 或 Object 服务。运行闭包仅复用已核工具/模块指纹，未复制全树。
+
+准确边界：当前 Node 无 m 的裸 `$` 对 LF、CR、CRLF、U+2028、U+2029 已实测拒绝，旧完整字段也拒绝；新增 `not` 是显式防线，**不声称旧 Node 存在换行泄漏**。257B 的旧 pattern 可以匹配，但旧完整字段的 `maxLength` 已拒绝，不能当作本修复新增保证。新九字段与本次正式 Go 向量一致；旧 schema 对合法向量有拒绝，未发现旧字段在这些非法向量中放行。Node 检查覆盖这九个字段的全部实际关键词，不冒称通用完整 OpenAPI 引擎；Go 完整记录检查沿冻结测试 helper。无 HTTP/UI 最大包络或外部服务结论。
+
+作者原 `old01`/`node-old01` RED 保留，属于作者证据；作者后续 pure/race/vet 通过不改写原退出。独立本次两命令首轮均通过，不重跑其他 Audit 矩阵。
+
+关键 SHA256：
+
+- Go probe：`fdc9e74045074b6162d33a387dd980cf22e6bb2f76cb1dc10c7b490039e0ba95`；Node probe：`0bb0cb01c5df38d2f5f8205957769ec29fecb056dc701240647c0cc5eadb7d43`。
+- Go raw：`24c751f9a26c0b22602d3bca89ebcb04af079256ee1f3e22f28737ea32ec8db1`；result：`81dfc4ae141b92dc74b3a2fa16f90b709f97c911b5305b5aa9d33c8abf08b19f`；cleanup：`0b97469fff2fe47ff742300c0b4c20832181113c4ce4fb6d9b4255c2ccf145ff`。
+- Node raw：`69341bb918a9414fb031ab486b8eec30ee9eca14772c70bd29543b65753ec8cc`；result：`896bea96e03a289d84ef10cbe364bd16c7605b9273b42ac8a0c0c64e080e35ca`；cleanup：`2cabedb37012b949d5c814e4f94f43a687b083364186844f20b65a765fcbc6c2`。
+
+两项实际执行清单分别为 `execution-go01.json`（`5d4985f69ae584cf8f6796cedad4093818e185606853d15dd65b6027b7176c08`）与 `execution-node01.json`（`c33a14531e6a89b0e4aa26efa14e3b0d3ff11521e68bdb1b999a2bdda55d7554`）；原件就地停写冻结。

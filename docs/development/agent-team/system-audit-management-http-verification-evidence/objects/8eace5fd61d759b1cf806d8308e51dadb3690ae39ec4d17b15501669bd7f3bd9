@@ -1,0 +1,482 @@
+package audit
+
+import (
+	"context"
+	"errors"
+	"reflect"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+)
+
+const iqUser = "01900000-0000-7000-8000-000000000041"
+const iqSessionID = "01900000-0000-7000-8000-000000000042"
+const iqRecord = "01900000-0000-7000-8000-000000000048"
+
+type iqRow []any
+
+func (r iqRow) Scan(dest ...any) error {
+	if len(dest) != len(r) {
+		return errors.New("independent scan arity")
+	}
+	for i, v := range r {
+		reflect.ValueOf(dest[i]).Elem().Set(reflect.ValueOf(v))
+	}
+	return nil
+}
+func iqData() iqRow {
+	return iqRow{iqRecord, time.Date(2026, 10, 6, 1, 2, 3, 123456000, time.UTC), "system", "", "human", iqUser, iqSessionID, "", "", "", "", "", "secret.create", "success", "secret", "01900000-0000-7000-8000-000000000044", `{"version":"1","changed_fields":["value"]}`, "", "", "", "", "", "", "", "", ""}
+}
+
+type iqStore struct {
+	Store
+	t               *testing.T
+	tx              foundation.Tx
+	ctx             context.Context
+	held, legacy    bool
+	active, queries atomic.Int32
+	steps           []string
+	row             iqRow
+	query           string
+	args            []any
+	onSession       func(context.Context) error
+	onAdmin         func(context.Context) error
+	tail            func(context.Context)
+	finish          func(foundation.TransactionCause) foundation.CommitResult
+}
+
+func (s *iqStore) check(ctx context.Context, tx foundation.Tx, step string) {
+	if s.legacy {
+		if tx.Valid() {
+			s.t.Error("legacy gained transaction")
+		}
+	} else if !tx.Valid() || tx != s.tx || ctx != s.ctx || !s.held {
+		s.t.Error("same transaction/context/User shared lock not held")
+	}
+	s.steps = append(s.steps, step)
+}
+func (s *iqStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
+	if s.legacy {
+		s.t.Error("legacy began transaction")
+	}
+	if cause.Validate() != nil || cause.Details().Kind != foundation.RecoveryCause || cause.Details().Owner != "audit.system-read" {
+		s.t.Error("read cause not private recovery")
+	}
+	s.active.Add(1)
+	defer s.active.Add(-1)
+	s.ctx, s.tx, s.held = ctx, foundation.NewTx(), false
+	s.steps = append(s.steps, "begin")
+	err := fn(ctx, s.tx)
+	s.steps = append(s.steps, "callback-ended")
+	if s.tail != nil {
+		s.tail(ctx)
+	}
+	s.held = false
+	s.steps = append(s.steps, "transaction-ended")
+	if s.finish != nil {
+		return s.finish(cause)
+	}
+	if err != nil {
+		var f *foundation.Fault
+		if !errors.As(err, &f) {
+			f = foundation.NewFault(foundation.InternalError, foundation.NotCommitted).WithCause(err)
+		}
+		return foundation.NotCommittedResult(f)
+	}
+	return foundation.CommittedResult()
+}
+func (s *iqStore) Acquire(ctx context.Context, tx foundation.Tx, key foundation.LockKey, mode foundation.LockMode) error {
+	want, _ := foundation.UserLock(iqUser)
+	if ctx != s.ctx || tx != s.tx || foundation.CompareLockKeys(key, want) != 0 || mode != foundation.Shared {
+		s.t.Error("wrong shared lock or transaction")
+	}
+	s.held = true
+	s.steps = append(s.steps, "user-shared")
+	return nil
+}
+func (s *iqStore) InTx(tx foundation.Tx) (postgres.SQLExecutor, error) {
+	s.check(s.ctx, tx, "executor")
+	return s, nil
+}
+func (s *iqStore) QueryRow(ctx context.Context, q string, args ...any) postgres.Row {
+	if !s.legacy {
+		s.check(ctx, s.tx, "row")
+	}
+	s.queries.Add(1)
+	s.query = q
+	s.args = args
+	return s.row
+}
+func (s *iqStore) Query(ctx context.Context, q string, args ...any) (*postgres.Rows, error) {
+	if !s.legacy {
+		s.check(ctx, s.tx, "query")
+	}
+	s.queries.Add(1)
+	s.query = q
+	s.args = args
+	return nil, errors.New("private-query-canary")
+}
+
+type iqSessionPort struct{ s *iqStore }
+
+func (p iqSessionPort) RequireCurrentSession(ctx context.Context, tx foundation.Tx, a identity.Actor) error {
+	p.s.check(ctx, tx, "session")
+	if a.Details().UserID != iqUser || a.Details().SessionID != iqSessionID {
+		p.s.t.Error("principal changed")
+	}
+	if p.s.onSession != nil {
+		return p.s.onSession(ctx)
+	}
+	return nil
+}
+
+type iqAdminPort struct{ s *iqStore }
+
+func (p iqAdminPort) AuthorizeSystem(ctx context.Context, tx foundation.Tx, a identity.Actor, intent identity.AccessIntent) (identity.AccessGrant, error) {
+	p.s.check(ctx, tx, "admin")
+	if intent != identity.Read {
+		p.s.t.Error("not a read authorization")
+	}
+	if p.s.onAdmin != nil {
+		if e := p.s.onAdmin(ctx); e != nil {
+			return identity.AccessGrant{}, e
+		}
+	}
+	now, e := foundation.NewInstant(time.Now())
+	if e != nil {
+		return identity.AccessGrant{}, e
+	}
+	return identity.NewAccessGrant(a, identity.SystemScope(), intent, now, 1)
+}
+func iqFixture(t *testing.T) (*Service, *iqStore, identity.Actor, ac.ID) {
+	t.Helper()
+	keys, e := cursor.LoadKeyring(`{"format":1,"current_kid":"independent","keys":[{"kid":"independent","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`)
+	if e != nil {
+		t.Fatal(e)
+	}
+	u, e := foundation.ParseID[identity.User](iqUser)
+	if e != nil {
+		t.Fatal(e)
+	}
+	session, e := foundation.ParseID[identity.Session](iqSessionID)
+	if e != nil {
+		t.Fatal(e)
+	}
+	actor, e := identity.NewHuman(u, session)
+	if e != nil {
+		t.Fatal(e)
+	}
+	id, e := foundation.ParseID[ac.Record](iqRecord)
+	if e != nil {
+		t.Fatal(e)
+	}
+	st := &iqStore{t: t, row: iqData()}
+	svc, e := New(st, keys, Authorizations{Sessions: iqSessionPort{st}, System: iqAdminPort{st}})
+	if e != nil {
+		t.Fatal(e)
+	}
+	return svc, st, actor, id
+}
+func iqSignal(t *testing.T, c <-chan struct{}) {
+	t.Helper()
+	select {
+	case <-c:
+	case <-time.After(5 * time.Second):
+		t.Fatal("controlled barrier not reached")
+	}
+}
+func iqFault(t *testing.T, e error, code foundation.Code, state foundation.CommitState) {
+	t.Helper()
+	var f *foundation.Fault
+	if !errors.As(e, &f) || f.Code != code || f.CommitState != state {
+		t.Fatalf("wrong safe fault: %v", e)
+	}
+	if strings.Contains(e.Error(), "private-") {
+		t.Fatal("private cause exposed")
+	}
+}
+
+func TestIndependentSystemAuditTerminalAndAuthority(t *testing.T) {
+	for _, mode := range []string{"committed", "unknown", "not-committed", "committed-expired"} {
+		t.Run(mode, func(t *testing.T) {
+			svc, st, actor, id := iqFixture(t)
+			ctx, cancel := context.WithCancel(context.Background())
+			entered, release, joined := make(chan struct{}), make(chan struct{}), make(chan struct{})
+			var once sync.Once
+			st.tail = func(context.Context) { close(entered); <-release }
+			canary := errors.New("private-terminal-canary")
+			if mode == "unknown" {
+				st.finish = func(c foundation.TransactionCause) foundation.CommitResult {
+					attempt, _ := foundation.NewID[foundation.TransactionAttempt]()
+					return foundation.UnknownResult(attempt, c)
+				}
+			}
+			if mode == "not-committed" {
+				st.finish = func(foundation.TransactionCause) foundation.CommitResult {
+					return foundation.NotCommittedResult(foundation.NewFault(foundation.ResourceBusy, foundation.NotStarted).WithCause(canary))
+				}
+			}
+			type output struct {
+				record ac.SafeRecord
+				err    error
+			}
+			done := make(chan output, 1)
+			t.Cleanup(func() { cancel(); once.Do(func() { close(release) }); <-joined })
+			go func() { defer close(joined); r, e := svc.GetSystem(ctx, actor, id); done <- output{r, e} }()
+			iqSignal(t, entered)
+			if st.active.Load() != 1 || st.queries.Load() != 1 {
+				t.Fatal("tail not owned after candidate scan")
+			}
+			select {
+			case <-done:
+				t.Fatal("candidate before terminal")
+			default:
+			}
+			if mode == "committed-expired" {
+				cancel()
+			}
+			once.Do(func() { close(release) })
+			out := <-done
+			iqSignal(t, joined)
+			if st.active.Load() != 0 {
+				t.Fatal("transaction owner not finished")
+			}
+			if !reflect.DeepEqual(st.steps, []string{"begin", "user-shared", "session", "admin", "executor", "row", "callback-ended", "transaction-ended"}) {
+				t.Fatal("wrong transaction order")
+			}
+			if mode == "committed" {
+				if out.err != nil || out.record.AuditID != id {
+					t.Fatal("valid candidate missing")
+				}
+				return
+			}
+			if !reflect.DeepEqual(out.record, ac.SafeRecord{}) {
+				t.Fatal("noncommitted or expired candidate exposed")
+			}
+			switch mode {
+			case "unknown":
+				iqFault(t, out.err, foundation.CommitUnknown, foundation.Unknown)
+			case "not-committed":
+				iqFault(t, out.err, foundation.ResourceBusy, foundation.NotCommitted)
+				if !errors.Is(out.err, canary) {
+					t.Fatal("typed original cause lost")
+				}
+			case "committed-expired":
+				iqFault(t, out.err, foundation.DependencyUnavailable, foundation.NotStarted)
+				if !errors.Is(out.err, context.Canceled) {
+					t.Fatal("postcommit context ignored")
+				}
+			}
+		})
+	}
+	t.Run("current-revocation-before-sql", func(t *testing.T) {
+		svc, st, actor, _ := iqFixture(t)
+		st.onSession = func(context.Context) error {
+			return foundation.NewFault(foundation.SessionRevoked, foundation.NotStarted)
+		}
+		page, e := svc.ListSystem(context.Background(), actor, ac.Filter{}, foundation.DefaultPageRequest())
+		iqFault(t, e, foundation.SessionRevoked, foundation.NotCommitted)
+		if !reflect.DeepEqual(page, foundation.Page[ac.SafeRecord]{}) || st.queries.Load() != 0 || st.active.Load() != 0 {
+			t.Fatal("revoked Session reached query or published")
+		}
+	})
+	for _, budget := range []time.Duration{10 * time.Second, 75 * time.Millisecond} {
+		name := "local-three-seconds-in-authority"
+		if budget < time.Second {
+			name = "earlier-parent-in-authority"
+		}
+		t.Run(name, func(t *testing.T) {
+			svc, st, actor, _ := iqFixture(t)
+			parent, cancel := context.WithTimeout(context.Background(), budget)
+			parentDeadline, _ := parent.Deadline()
+			entered := make(chan context.Context, 1)
+			expired, release, joined := make(chan struct{}), make(chan struct{}), make(chan struct{})
+			var once sync.Once
+			st.onSession = func(ctx context.Context) error { entered <- ctx; <-ctx.Done(); close(expired); return ctx.Err() }
+			st.tail = func(context.Context) { <-release }
+			type output struct {
+				page foundation.Page[ac.SafeRecord]
+				err  error
+			}
+			done := make(chan output, 1)
+			t.Cleanup(func() { cancel(); once.Do(func() { close(release) }); <-joined })
+			started := time.Now()
+			go func() {
+				defer close(joined)
+				p, e := svc.ListSystem(parent, actor, ac.Filter{}, foundation.DefaultPageRequest())
+				done <- output{p, e}
+			}()
+			var observed context.Context
+			select {
+			case observed = <-entered:
+			case <-time.After(5 * time.Second):
+				t.Fatal("authority not reached")
+			}
+			observedAt := time.Now()
+			deadline, ok := observed.Deadline()
+			if !ok {
+				t.Fatal("no deadline")
+			}
+			if budget < time.Second {
+				if !deadline.Equal(parentDeadline) {
+					t.Fatal("earlier parent extended")
+				}
+			} else if deadline.Before(started.Add(3*time.Second)) || deadline.After(observedAt.Add(3*time.Second)) || !deadline.Before(parentDeadline) {
+				t.Fatal("local deadline not inherited from entry")
+			}
+			iqSignal(t, expired)
+			if observed.Err() != context.DeadlineExceeded || budget > time.Second && parent.Err() != nil {
+				t.Fatal("wrong natural timeout")
+			}
+			select {
+			case <-done:
+				t.Fatal("visible timeout detached actual transaction tail")
+			default:
+			}
+			if st.active.Load() != 1 || st.queries.Load() != 0 {
+				t.Fatal("authority timeout lost owner or reached query")
+			}
+			once.Do(func() { close(release) })
+			out := <-done
+			iqSignal(t, joined)
+			if !reflect.DeepEqual(out.page, foundation.Page[ac.SafeRecord]{}) || st.active.Load() != 0 {
+				t.Fatal("deadline leaked candidate/owner")
+			}
+			iqFault(t, out.err, foundation.DependencyUnavailable, foundation.NotCommitted)
+			if !errors.Is(out.err, context.DeadlineExceeded) {
+				t.Fatal("actual deadline cause lost")
+			}
+			t.Logf("natural_timeout_ms=%.3f actual_tail_joined=true zero_query=true", float64(time.Since(started))/float64(time.Millisecond))
+		})
+	}
+}
+
+type iqRows struct {
+	rows          []iqRow
+	index         int
+	scans, closes atomic.Int32
+	onClose       func()
+	closeErr      error
+}
+
+func (r *iqRows) Next() bool             { r.index++; return r.index <= len(r.rows) }
+func (r *iqRows) Scan(dest ...any) error { r.scans.Add(1); return r.rows[r.index-1].Scan(dest...) }
+func (r *iqRows) Close() {
+	r.closes.Add(1)
+	if r.onClose != nil {
+		r.onClose()
+	}
+}
+func (r *iqRows) Err() error {
+	if r.closes.Load() > 0 {
+		return r.closeErr
+	}
+	return nil
+}
+
+func TestIndependentSystemAuditSentinelAndLegacy(t *testing.T) {
+	for _, mode := range []string{"valid-page", "valid-project-sentinel", "bad-metadata-sentinel", "late-close-error"} {
+		t.Run(mode, func(t *testing.T) {
+			svc, _, _, _ := iqFixture(t)
+			digest, e := filterDigest(ac.Filter{})
+			if e != nil {
+				t.Fatal(e)
+			}
+			binding := cursor.Binding{Scope: identity.SystemScope(), QueryDigest: digest, Order: cursor.AuditOrder}
+			first, last := iqData(), iqData()
+			last[0] = "01900000-0000-7000-8000-000000000047"
+			if mode == "valid-project-sentinel" {
+				last[2], last[3] = "project", "01900000-0000-7000-8000-000000000043"
+				record, e := scanRecord(last)
+				if e != nil || record.Scope.Equal(identity.SystemScope()) {
+					t.Fatal("project sentinel is not independently valid")
+				}
+			}
+			if mode == "bad-metadata-sentinel" {
+				last[16] = `{"version":"1","changed_fields":["value"],"extra":"private-canary"}`
+			}
+			rows := &iqRows{rows: []iqRow{first, last}}
+			if mode == "late-close-error" {
+				rows.closeErr = errors.New("private-close-canary")
+			}
+			entered, release, joined := make(chan struct{}), make(chan struct{}), make(chan struct{})
+			var once sync.Once
+			rows.onClose = func() { close(entered); <-release }
+			type output struct {
+				page foundation.Page[ac.SafeRecord]
+				err  error
+			}
+			done := make(chan output, 1)
+			t.Cleanup(func() { once.Do(func() { close(release) }); <-joined })
+			go func() {
+				defer close(joined)
+				p, e := svc.recordPage(rows, binding, 1, systemRecord)
+				done <- output{p, e}
+			}()
+			iqSignal(t, entered)
+			if rows.scans.Load() != 2 {
+				t.Fatal("sentinel was not scanned")
+			}
+			select {
+			case <-done:
+				t.Fatal("page escaped before Close actual return")
+			default:
+			}
+			once.Do(func() { close(release) })
+			out := <-done
+			iqSignal(t, joined)
+			if rows.closes.Load() != 1 {
+				t.Fatal("rows not closed exactly once")
+			}
+			if mode != "valid-page" {
+				if out.err == nil || !reflect.DeepEqual(out.page, foundation.Page[ac.SafeRecord]{}) {
+					t.Fatal("bad sentinel/late close leaked page")
+				}
+				if strings.Contains(out.err.Error(), "private-") {
+					t.Fatal("cause leaked")
+				}
+				return
+			}
+			if out.err != nil || len(out.page.Items) != 1 || out.page.NextCursor == "" {
+				t.Fatal("page/cursor missing")
+			}
+			position, e := svc.keys.Verify(out.page.NextCursor, binding)
+			if e != nil || position.Scalars[1].Value() != iqRecord {
+				t.Fatal("cursor uses discarded sentinel")
+			}
+			legacy, e := svc.recordPage(&iqRows{rows: []iqRow{first, last}}, binding, 1, nil)
+			if e != nil || !reflect.DeepEqual(legacy, out.page) {
+				t.Fatal("legacy retained page/cursor changed")
+			}
+		})
+	}
+	t.Run("legacy-authorization-order-and-original-sql", func(t *testing.T) {
+		svc, st, actor, id := iqFixture(t)
+		st.legacy = true
+		got, e := svc.Get(context.Background(), actor, identity.SystemScope(), id)
+		if e != nil || got.AuditID != id || !reflect.DeepEqual(st.steps, []string{"session", "admin"}) || st.active.Load() != 0 {
+			t.Fatal("legacy detail gained new lifecycle")
+		}
+		st.query = ""
+		st.steps = nil
+		_, e = svc.List(context.Background(), actor, identity.SystemScope(), ac.Filter{}, foundation.PageRequest{Limit: 0})
+		iqFault(t, e, foundation.InvalidArgument, foundation.NotStarted)
+		if !reflect.DeepEqual(st.steps, []string{"session", "admin"}) || st.query != "" {
+			t.Fatal("legacy validation moved before authority or reached SQL")
+		}
+		_, e = svc.List(context.Background(), actor, identity.SystemScope(), ac.Filter{ActorKind: identity.AgentRun, AgentID: id.String(), Action: ac.ProjectCreateAccepted}, foundation.PageRequest{Limit: 7})
+		iqFault(t, e, foundation.DependencyUnavailable, foundation.NotStarted)
+		tail := "WHERE scope=$1 AND scope_key=$2 AND actor_kind=$3 AND action=$4 AND ((actor_kind='agent_run' AND agent_id=$5) OR (resource_kind='agent' AND resource_id=$5)) ORDER BY created_at DESC,id DESC LIMIT $6"
+		if !strings.HasSuffix(st.query, tail) || !reflect.DeepEqual(st.args, []any{"system", "system", "agent_run", string(ac.ProjectCreateAccepted), id.String(), 8}) {
+			t.Fatal("legacy filter or sentinel SQL changed")
+		}
+	})
+}
