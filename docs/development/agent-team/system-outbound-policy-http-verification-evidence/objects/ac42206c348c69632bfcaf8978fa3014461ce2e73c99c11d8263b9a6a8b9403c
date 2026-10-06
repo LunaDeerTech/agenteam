@@ -1,0 +1,35 @@
+# D04 出站规则管理 HTTP rev1 独立静审
+
+**STATIC PASS。未发现必须改契约、增加公开 API 或扩出十二候选路径的阻断。** 只审规格和固定源码，不是实现验收，也不授产品或资源写权。
+
+冻结卡：`docs/development/work-items/d04-system-outbound-policy-http.md`，全文 SHA256 `8b3770b1900c52126a50975d0c452b38096a1e284770b539ae8a961b172a9a74`，技术§1–7 `44515e212a996d1a1413022a38ae2b56297ad7e5cd9d195d732225aab818f8dc`。源码只取 Git `819aba1b8f764328f1e2e67b53c274fad0db877d`；精确选件／SHA在本目录 `input.json`，卡原件为 `card-rev1.md`。没有消费活动 SMTP UI 或未接受产品。
+
+## 契约与权限
+
+- `outbound/policy.go:261–291,293–318,345–467` 的签名、命令身份、用户语义摘要和锁顺序与卡一致。GET用policy SH＋User SH；PUT在exclusive send gate内取得command EX＋policy EX＋User SH，先原Session/System授权，再历史receipt，再expected version。规则／端口归一化后同义重放、同key异义、竞争、最大版本、Audit／receipt原子写和无Outbox均有原服务落点，HTTP无需第二业务事务。
+- `account/http_boundary.go:20–84` 与 `csrf.go:71–135` 可直接提供纯构造、原Host／Origin／Fetch-Metadata／路径门禁、当前Session、PUT CSRF与选定cookie清理。`authority.go:32–88`在有效Tx内要求已持User锁并查询当前Session／管理员；卡没有把HTTP预授权替代事务授权。
+- `policy.go:419–467` 的旧receipt不发布旧规则、不恢复不可用镜像；Unknown原cause、同权限／锁核实及只在成功核实当前policy后发布均被卡保留。`GetPolicy`不Reload；缺singleton不可用。`httpapi/problem.go:96–104`确有通用`retry_hint=lookup`，卡显式保留投影且不虚构本域lookup，GET／历史确认分离准确。
+
+## 编码、边界与期限
+
+- `outbound/rules.go:22–172,176–224`与卡逐项一致：256规则／256端口、512 KiB原rules输入、canonical RFC1918/ULA CIDR、mapped拒绝、网络掩码、重复规范规则与重复端口拒绝、allow_http省略=false、全层重复／null／尾随／深度拒绝。数字端口经uint16原解码，浮点／指数不会被当合法整数接受。普通Rules/Policy JSON／fmt／slog仍脱敏，授权wire须调用显式JSON投影。
+- `httpapi/json.go:36–115`支持单application/json、原始UTF-8字节和独立1 MiB外层预算；`json.RawMessage`可原样交`DecodeRules`，不必重编码或放宽全局decoder。最终必需字段／null及版本范围仍由新wire与原typed入口验证。
+- 纯静态JSON字节上界：canonical CIDR最长43B，每条最大1619B，256条数组至多414721B，包含最大19位version的GET包装至多414763B，低于1 MiB。此为编码形式算术上界，不冒充实际Go编码／最大规则动态检查；后者已列§7。
+- `httpapi/response_writer.go:23–24`保留Unwrap，`app/app.go:170–189`的准入层直接传递writer，原root具备ResponseController到原生server的链路。卡明确GET3s／PUT30s从预认证前共用期限、受限读取、取消回调stop/join、实际服务／事务尾部、最后编码检查和本次deadline清除；不支持所需期限时在服务前拒绝。提交后不能送达的结果以abort终止，不用取消推翻真实提交。具体native读取／回调竞态仍须实施后按卡验证。
+- 路径为完整单根，子路径只交原边界拒绝，近似前缀仍走旧链；GET/PUT-only与HEAD405无body可在新handler中显式实现，无需修改Account／Model原路由或共用Problem。单层RequestID/Recover与不记录规则／材料的边界均明确。
+
+## 同实例与十二路径可执行性
+
+- `app/outbound.go:43–58`一次构造policy/client；`app/account.go:271–282,360,386–394,418–422`先构造transport，再捕获同client于SMTP，最后装HTTP，并在原启动阶段Reload。新HTTP只接同`transport.policy`和`core`即可；父outbound不导入新子包，Account原依赖父包，app导入子包，不形成循环。
+- `newModelRootApp`（`app/model_process_test.go:141–175`）在run前提供setup，已有`outboundConstruct`位于任何消费者捕获client之前。`app/outbound_process_test.go:68–76`已有固定classifier／同policy下换任务DNS客户端的接缝，允许新测试在第8路径捕获同实例、使用自有CA/网络目标计数，毋须新增生产发送口或改旧fixture。
+- `tests/account/http_fixture_test.go:121–178`会运行正式`app.Run`并提供真实登录／普通用户／日志工具；新两个tests/account文件可覆盖真实HTTP与事务撤权。`scripts/test-security.sh`已有PG／Object基础fixture与outbound fixture串联，卡规定的三个新顶层和两个旧回归均有包／入口落点。这里只读取固定helper，未启动或重试停止的Object/tools工作。
+- 原`TestOutboundPolicyRealCommitUnknown`（`tests/security/outbound_policy_test.go:187`）确实区分committed_verified／committed_unavailable／not_observed；卡把库层数据库Unknown复用与HTTP已提交截断分开。新不可用镜像场景可用policy EX屏障让正式Reload在更早期限失败；`policy.go:180–210`取得gate后事务失败会标不可用。无需破坏policy行或制造receipt；原旧回归仍按其既有断言执行。
+- 十二路径唯一且足够覆盖子包、root装配、三类测试、新独立OpenAPI与末件后端说明。无须改父引擎、Authority、公共decoder、既有fixture、迁移或锁；共享`app/account.go`实际写权仍由主线程在实施前独占分配。
+
+## 实际检查与限制
+
+已读验证技能及受影响既定设计；实际执行仅`git ls-tree`／`git grep`／`git cat-file`固定对象读取、SHA与静态JSON字节算术、十二唯一路径及Markdown格式／相对链接片段检查。精确结果见`static-checks.json`。一次文件定位将csrf误猜作http_csrf，随后按固定Git定位到csrf.go；只读准备错误，无产品或验收失败含义。
+
+未运行Go、编译、服务、PG/SMTP、浏览器或网络请求，未修改仓库文件／卡／台账，没有Git mutation或子委派。STATIC PASS仅说明冻结工程契约与基线可实现、验收有落点；实际deadline、原生Read／Write尾部、同实例目标计数、正式授权并发与资源清理尚待实施及独立动态验收。SMTP UI、未来D27出站页面、完整D08/D09/D27、Runtime及停止任务不随本结果接受。
+
+本报告与私有输入现冻结，停止写入。

@@ -1,0 +1,36 @@
+go: downloading github.com/jackc/pgx/v5 v5.11.0
+go: downloading github.com/pressly/goose/v3 v3.28.0
+go: downloading github.com/wenlng/go-captcha/v2 v2.0.5
+go: downloading golang.org/x/crypto v0.55.0
+go: downloading golang.org/x/image v0.45.0
+go: downloading github.com/minio/minio-go/v7 v7.3.0
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/postgres/config.go:17:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/postgres/error.go:12:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/postgres/migrate.go:12:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/postgres/store.go:11:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/postgres/migrate.go:13:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/postgres/migrate.go:14:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/postgres/journal.go:8:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/object/storage.go:22:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/object/storage.go:23:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/account/challenge.go:24:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/account/challenge.go:25:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/account/password.go:20:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/account/avatar_codec.go:16:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http
+internal/central/account/avatar_codec.go:17:2: module lookup disabled by GOPROXY=off
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/outbound/http [setup failed]
+FAIL

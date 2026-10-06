@@ -1,0 +1,55 @@
+--- a/docs/development/backend/outbound.md
++++ b/docs/development/backend/outbound.md
+@@ -1,6 +1,6 @@
+ # 受控出站
+ 
+-`internal/central/outbound` 提供 DB 策略、固定地址分类、完整 DNS 审批、HTTP/1.1 client 和 SMTP 受控连接端口。全局迁移为 `00004_outbound.sql`。生产组合根已绑定真实 Account Session/SystemAdmin 授权并载入策略；D07 的 [accountmail](accountmail.md) 已用该端口执行 SMTP 协议。出站策略管理 HTTP、Provider/MCP SDK 与 Project 授权仍待后续绑定；当前没有匿名策略 API 或默认成功的授权实现。
++`internal/central/outbound` 提供 DB 策略、固定地址分类、完整 DNS 审批、HTTP/1.1 client 和 SMTP 受控连接端口。全局迁移为 `00004_outbound.sql`。生产组合根已绑定真实 Account Session/SystemAdmin 授权并载入策略；D07 的 [accountmail](accountmail.md) 已用该端口执行 SMTP 协议。System 出站策略管理 HTTP 已复用同一个 PolicyService 与 Account core 装配到生产根；Provider/MCP SDK 运行绑定与 Project 授权仍待后续落实，没有匿名策略 API 或默认成功的授权实现。
+ 
+ 产品规则见[出站架构](../../architecture/platform-infrastructure/outbound-network-policy.md)，工程接口与验收见 [D04 实施规格](../work-items/d04-security-design.md)。此实现依赖正式部署的单 Central 前提。
+ 
+@@ -21,6 +21,27 @@
+ HTTP 使用包内 H1 RoundTripper 与受控 keep-alive 池，复用标准 `Request.Write/ReadResponse` 的语法处理。选择此实现是为了直接控制真实初写和重试身份：同 attempt 的 sent 跨新建/复用 socket 保持，n>0 后从不内部重发；全部写为零时最多重试一次，且重新完整 DNS/当前策略准入。GET 或 Idempotency-Key 不改变这条规则。正常 EOF、完整 trailer 且无多余预读字节后才归池；取消、错误、提前 Close 或超限关闭连接。
+ 
+ 标准 httptrace 的 GetConn/GotConn/WroteRequest 可观测这条路径。GotConn 仅给观察 wrapper，不能 Read/Write/改 deadline 或取得底层 socket；允许关闭 socket/发送半边。callback 必须及时返回并响应其 context，不能借 callback 绕过准入。标准 Request.Write 自行产生一次 WroteRequest，不能在 adapter 重复通知。请求 Body 遵循 `net/http` 的 Read/Close 契约，Close 必须解除阻塞 Read；实际 transport 统一管理一次 Close。
++
++## System 出站规则 HTTP
++
++`internal/central/outbound/http.NewSystemHTTPHandler` 纯构造管理边界，接收根已创建的策略实例与 Account core；不初始化、Reload 或新建另一份策略。根的受控 client 和管理口共享该 PolicyService，规则修改无需重启。精确 wire 见 [OpenAPI](../../../api/openapi/outbound-policy.json) 与 [HTTP 实施规格](../work-items/d04-system-outbound-policy-http.md)。
++
++| 方法与路径 | 输入与成功结果 |
++| --- | --- |
++| `GET /api/v1/system/outbound-policy` | 当前管理员，无 query/body；200 恰 `{version,rules}`，返回数据库当前完整观察。空规则为 `[]`，不是读取失败的替代值。 |
++| `PUT /api/v1/system/outbound-policy` | 当前管理员、合法 Origin/CSRF、唯一 Idempotency-Key；JSON 恰 `{expected_version,rules}` 完整替换。200 恰 `{version,rule_count,audit_id,created_at}`，是原 UpdatePolicy 的历史命令回执，不追加 GET。 |
++
++版本为规范正 int64 十进制字符串，rule_count 为0–256的规范十进制字符串；audit_id 为 UUIDv7，created_at 为规范 UTC 微秒时间。规则最多256条，必须为规范、已掩码且非 IPv4-mapped 的 RFC1918/ULA CIDR；ports 为显式 `"all"` 或1–256个互异的1–65535整数，不能用空端口列表表示全部。输入 allow_http 可省略并取 false，输出必有 boolean；端口与规则由原引擎排序，规范重复规则拒绝，顺序不代表优先级。沿唯一 DecodeRules 校验，不增加客户端权限或覆盖固定禁用地址的规则。
++
++仅支持 GET/PUT，其他方法405且 `Allow: GET, PUT`，HEAD 无响应体；无 lookup、目标测试、代理或 Reload HTTP。Account 边界先检查 Host/Origin/Fetch-Metadata 和路径歧义，再认证与解析；GET不要求写CSRF，PUT要求当前合法CSRF。两口拒绝任何query，GET拒绝实际body及不合法framing；PUT只接受严格单个UTF-8 JSON，整个请求上限1 MiB，原始rules字段另限512 KiB，拒绝重复/未知/缺失/null与尾随值。成功输出完整校验/编码后才发布，普通日志和Problem不包含规则、内网地址、Cookie、CSRF、key或底层cause。
++
++GET最长3s、PUT最长30s，期限在HTTP预认证前建立并继承更早parent；包含实际body读取、发送门禁、事务、Unknown核实和响应准备，不为各阶段续期。局部连接读写deadline使取消能结束原生Read；body关闭与取消回调实际完成、清除连接期限后才退出，避免污染keep-alive后续请求。底层不支持所需期限时在业务调用前拒绝，不以后台goroutine提前返回。服务已调用后的取消/断响应不能改成not_started；已确认接受而不能完整送达时终止响应，不追加第二个Problem。
++
++HTTP预认证不替代PolicyService同Tx的当前Session/SystemAdmin检查与User锁。权限撤销后不能读取旧receipt；同用户新Session仅在当前授权和合法CSRF下重放原key/body。原语义摘要含expected_version和canonical Rules，端口/规则换序同义；同key异义或新key旧版本冲突都不自动生成替代命令。旧key始终返回原version/rule_count/AuditID/时间，不回退较新规则，也不恢复unavailable镜像；GET只是当前数据库观察，同样不Reload。
++
++COMMIT_UNKNOWN保留原unknown分类和公共 `retry_hint=lookup` 兼容投影，但本域没有lookup端点；调用方只能显式用原PUT/key/body与当前合法CSRF确认，不能把GET或其版本当receipt。原服务核实receipt与当前策略并确认核实事务成功后才能发布当前镜像；核实失败仍unknown/fail closed。旧历史receipt并不证明当前镜像健康。
++
++保存后的新请求、retry及每跳redirect继续使用同一root client的当前准入；已发出请求的body/响应可继续完成，更新不主动中断它们，也不保证撤回外部副作用。真实同实例验收包含收紧后后续请求零发送、原在途body读至EOF并实际关闭socket。管理口不填补Provider/MCP或Project未绑定职责，原整体ready503与启动/停止门禁保持；此交付不是D27页面、外网可达或完整Runtime验收。
+ 
+ ## DNS、地址与 TLS
+ 
+@@ -54,12 +75,16 @@
+ 
+ ## 验证
+ 
++管理 HTTP 的作者三新两旧与独立代表、首红归因、实际尾部及资源收尾记录见[出站规则 HTTP 验收报告](../agent-team/system-outbound-policy-http-verification.md)。独立代表验证原请求回执与更晚GET分离、当前撤权，以及同root client的在途body/后续准入；本次不重建已接受D04的底层COMMIT Unknown注入，也不宣称已测试公网目标。
++
+ ```sh
+ AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/check-go.sh
+ AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-postgres.sh
+ AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-security.sh
+ # 定向真实网络/入口场景：
+ AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-security.sh -run '^(TestOutboundNetwork|TestRealOutbound|TestCentralOutbound)'
++# 出站管理 HTTP 三新两旧定向场景：
++AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-security.sh -run '^(TestSystemOutboundPolicyHTTP|TestSystemOutboundPolicyHTTPTransactionAndBudget|TestSystemOutboundPolicyHTTPRootSharedInstance|TestOutboundPolicyDurabilityReplayAndAuthorization|TestOutboundPolicyRollbackAndUnavailableReplay)$'
+ ```
+ 
+ 普通测试无需 Docker。test-security 组合既有固定 PG17.8/vector0.8.1 与 PG16 反例 fixture，以及同固定镜像内运行的临时网络 server binary。网络为 owned internal bridge，业务请求使用真实 private IP+精确 CIDR/端口规则+临时 CA；控制通道也只访问已验证 nonce/标签/精确 ID 的容器。DNS 测试替身只提供结果，生产分类/固定 IP/TLS/首写都真实执行，不将 loopback 分类改为 allow。UDP/TCP DNS wire 测试另在本机 loopback port 0 上运行。

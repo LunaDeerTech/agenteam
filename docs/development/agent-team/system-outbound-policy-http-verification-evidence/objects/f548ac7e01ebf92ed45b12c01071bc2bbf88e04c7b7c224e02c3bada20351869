@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "vet",
+    "-p=2",
+    "-tags=integration",
+    "./internal/central/app",
+    "./tests/account",
+    "./tests/security"
+  ],
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/source",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/tmp",
+    "GOMAXPROCS": "2"
+  },
+  "outer_budget_seconds": 120
+}

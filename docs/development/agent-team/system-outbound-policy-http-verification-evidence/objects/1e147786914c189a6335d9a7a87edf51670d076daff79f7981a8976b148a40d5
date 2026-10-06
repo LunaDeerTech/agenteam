@@ -1,0 +1,21 @@
+{
+  "result": "STATIC PASS",
+  "blockers": [],
+  "spec_only": true,
+  "base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "card_full_sha256": "8b3770b1900c52126a50975d0c452b38096a1e284770b539ae8a961b172a9a74",
+  "card_technical_sha256": "44515e212a996d1a1413022a38ae2b56297ad7e5cd9d195d732225aab818f8dc",
+  "review_sha256": "ac42206c348c69632bfcaf8978fa3014461ce2e73c99c11d8263b9a6a8b9403c",
+  "input_sha256": "a593f0c5ee2e75512daaa6271c7e4e021cd0ea91c8e8d9b5b71e9ba9e857c424",
+  "static_checks_sha256": "791b6db3b2fc6da15bcb1aa398a96219791a74d32d8c5c45ed50aa4e8940dc08",
+  "fixed_git_files": 29,
+  "actions": [
+    "fixed Git read",
+    "SHA",
+    "static size arithmetic",
+    "spec paths and Markdown checks"
+  ],
+  "no_product_tests_or_resources": true,
+  "repository_unchanged_by_reviewer": true,
+  "stopped_writing": true
+}

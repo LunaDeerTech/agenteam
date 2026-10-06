@@ -1,0 +1,1 @@
+compile-account01 实际 exit1/94.010s，原私有原件 probe01/driver01.py/tools/check-offline.py 保持。新 probe 将 string key 直接传给 foundation.NewCommandIdentity，但其契约是 IdempotencyKey。仅私有 A 改先调用正式 ParseIdempotencyKey；B 原字节不动。编译未执行业务，实际 wait、输入未变、两扫空。原 raw SHA ee979b20d362e4975ff09ee6c6ca068403f2c1d3fb069c90f9baa06b3ef85f53 保留，不是产品 RED。

@@ -1,0 +1,17 @@
+{
+  "harness_closure_sha256": "73ca61720757dae8393b0170de10446538adeb8e92cd8d22fb65e32e8a995884",
+  "baseline_closure_sha256": "e78c25dbc134f830c6d9fd46d0569182228e0de852bbf39651a9fe23d15fb1c4",
+  "files": {
+    "internal/central/outbound/http/handler.go": "cb0e2a362e46251a43ff2a963c61a2a3ab8898b31eed4b52366eae6896384924",
+    "internal/central/outbound/http/wire.go": "311fa4316fd24d60ea90c804536ad700c5d55014c30c3ae7cb8aa1e47ada5b08",
+    "internal/central/outbound/http/handler_test.go": "cb6cbf850c78751a73807519cd1566631ec1d12555f5f39edca78cba0e099699",
+    "internal/central/outbound/http/wire_test.go": "2440caa5757f6576d69ddd7760b2b8b3c407daec87f2ef75cc3f67f7dd68ba98",
+    "internal/central/app/account.go": "2b8c59aa2d49a96c8f327cd456c44cabaac2cf8ca864a4f82a191cbecacd7dc5",
+    "internal/central/app/outbound_policy_http.go": "cc7fc5c5c0f331283788216ab8865972577ff5404944a1df08c86bcde47d6366",
+    "internal/central/app/outbound_policy_http_test.go": "65de62d11d27230edff4d06a962ab7e0dec2ad857522ddc8cc3617203e1f3199",
+    "api/openapi/outbound-policy.json": "b886602a4e8c306d2146051aa417ce9d922c652709ac6ea61fd7b2861ae8ec02",
+    "internal/central/app/outbound_policy_http_process_test.go": "9d921261fa88f9cb7a4e23d82b78d46d919ffc419f50dbabba4b66673e9c064e",
+    "tests/account/outbound_policy_http_test.go": "89dbcb933766ee3d80e5ffd028931f9051e8346874ed8874fb96fba96564484d",
+    "tests/account/outbound_policy_http_transaction_test.go": "c3896f1cb9d633b8a044456522263c6f23763831adc3424738ba7ebec8a4539f"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "actual_exit": 1,
+  "actual_seconds": 32.295,
+  "actual_wait_completed": true,
+  "adopted_actual_waits": 0,
+  "diagnosis": {
+    "cause": "newAccount -> assembleAccount lacks Challenges and DeliveryRequested; accepted account.httpValidateCore correctly rejects this service subset",
+    "failure": "tests/account/outbound_policy_http_transaction_test.go:156 DEPENDENCY_UNBOUND at constructor",
+    "not_reached": [
+      "HTTP handler installed",
+      "HTTP preauthorization",
+      "transaction/revocation subtests",
+      "parent or DB lock-timeout subtests"
+    ],
+    "production_change": false,
+    "reached": [
+      "real DB/migrations",
+      "bootstrap",
+      "audit.New",
+      "outbound.NewPolicyService",
+      "policy.Reload"
+    ],
+    "repair": "only newAccount(t) -> newB02Account(t).fixture; add immutable fixed819 b02_fixture_test.go dependency"
+  },
+  "double_cleanup": true,
+  "evidence": {
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-real01/adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-real01/cleanup.json": "b00d68f4d23ba1a3aaf4c437bc5c635b84bee476eaae51c5838b2eaef67570bf",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-real01/command.json": "48bad197107e16e3d2d0ecfd9f20c95be2b4231d289e1888a255e5a342e100d6",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-real01/input-after.json": "b686c05f76f4ad7b44b9fdee3f7eac9c686ab58e4b09f8e2b8871c571d63b704",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-real01/input-before.json": "b686c05f76f4ad7b44b9fdee3f7eac9c686ab58e4b09f8e2b8871c571d63b704",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-real01/observed-processes.json": "0696bfb0e8788230bc3afea1dc88e371891ac2437a4fc655c6a6d553deaf70a8",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-real01/observed-resources.json": "b09f408d85c14ccce0cdc637b7c3c21fbe59ddf488977bd09340c59e1822f915",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-real01/raw.log": "249b1abb4ad5d63017490425ea336c5c0d64e61969e0afbbbccbbdab69d1a6a9",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-real01/result.json": "32bfa84d3458b5f8a59673e9e2c3c9b26a86ed04c2319ab61a0a629eeee25d88"
+  },
+  "execution_input_sha256": "36e785775575623b59b996f49c1c0fe7362f1e70920ddd91d778cbfdcbf46044",
+  "input_unchanged": true,
+  "owned_pid_starttime_entries": 39,
+  "resource_window": "returned to root after actual wait and two exact-ID/PID-starttime/baseline cleanup scans; no rerun authorized",
+  "resources": 7,
+  "stage": "author real01: four tops passed, transaction fixture failed before HTTP boundary; not complete acceptance",
+  "top_level_seconds": {
+    "TestOutboundPolicyDurabilityReplayAndAuthorization": 1.04,
+    "TestOutboundPolicyRollbackAndUnavailableReplay": 0.91,
+    "TestSystemOutboundPolicyHTTP": 3.88,
+    "TestSystemOutboundPolicyHTTPRootSharedInstance": 2.57,
+    "TestSystemOutboundPolicyHTTPTransactionAndBudget": 1.37
+  },
+  "top_levels": [
+    [
+      "PASS",
+      "TestSystemOutboundPolicyHTTPRootSharedInstance"
+    ],
+    [
+      "PASS",
+      "TestSystemOutboundPolicyHTTP"
+    ],
+    [
+      "FAIL",
+      "TestSystemOutboundPolicyHTTPTransactionAndBudget"
+    ],
+    [
+      "PASS",
+      "TestOutboundPolicyDurabilityReplayAndAuthorization"
+    ],
+    [
+      "PASS",
+      "TestOutboundPolicyRollbackAndUnavailableReplay"
+    ]
+  ]
+}

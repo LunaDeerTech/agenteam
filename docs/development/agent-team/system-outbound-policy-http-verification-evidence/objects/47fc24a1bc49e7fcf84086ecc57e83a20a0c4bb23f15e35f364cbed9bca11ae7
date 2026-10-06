@@ -1,0 +1,39 @@
+{
+  "status": "API/root STAGE PASS; not whole-card acceptance",
+  "base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "author_manifest_sha256": "619f6fd0ac4b3dbaba7cb9dcd9a8e193393d9fac9aaa84947f4a72660e9aafd3",
+  "review_sha256": "3afaa3235170490b58c946e3e14bef64e3422ba24961bc89e968b7207ef569f4",
+  "independent_result": {
+    "actual_exit": 0,
+    "actual_wait_completed": true,
+    "seconds": 58.397,
+    "timed_out": false,
+    "child_pid": 1709353,
+    "actual_adopted_waits": [],
+    "cleanup_first": [],
+    "cleanup_second": [],
+    "input_unchanged": true,
+    "raw_sha256": "657160d534fcf65d79afb76f68b525d1107f22d30edd01233d234faca2d9bcff",
+    "ended_utc": "2026-10-06T16:50:17.748434+00:00"
+  },
+  "owned_pid_starttime_count": 237,
+  "scope": "Static, controlled pure and owned native loopback; no real Account authority/PG/Docker/SMTP/outbound target",
+  "artifact_hashes": {
+    "author-input.json": "619f6fd0ac4b3dbaba7cb9dcd9a8e193393d9fac9aaa84947f4a72660e9aafd3",
+    "baseline-closure.json": "e78c25dbc134f830c6d9fd46d0569182228e0de852bbf39651a9fe23d15fb1c4",
+    "author-report.md": "5a8bc24a38e800d2f37177b1445633f662f37c9cec1ecdf4aa731dcc85a26fb1",
+    "spec.md": "dfcf8296e9ac64ba674e019e1cc5bd99fd562cfac09b58383348f498892b453c",
+    "fixed-input.json": "ead9502f3009c6a5fd341c484bce9eec900ebd6a30ae47ce0c967fdfdc5ec96b",
+    "static-review.json": "f93e40f4e4025fa334f1c60d1164de47de19646585ca6958f23a3e51f8ff7274",
+    "run.py": "8e60635c9864465d8833caf5df917cc93182ee766014f4213fee0a1730f8ab8d",
+    "source/internal/central/outbound/http/independent_risk_test.go": "8244a6721b750631ab1b012771117f5f1d559dc07afe337d01fd68d744d232e8",
+    "runs/independent01/command.json": "75957c74301553ff8826d4384e9b4a3493b7630870fa1082523432d819ed921b",
+    "runs/independent01/input-before.json": "cc0cc8af733ebf8d4ba7006ae53e3366dedd402c628eb7f7dabe411af514cdd7",
+    "runs/independent01/input-after.json": "cc0cc8af733ebf8d4ba7006ae53e3366dedd402c628eb7f7dabe411af514cdd7",
+    "runs/independent01/probe.go.txt": "8244a6721b750631ab1b012771117f5f1d559dc07afe337d01fd68d744d232e8",
+    "runs/independent01/driver.py.txt": "8e60635c9864465d8833caf5df917cc93182ee766014f4213fee0a1730f8ab8d",
+    "runs/independent01/raw.log": "657160d534fcf65d79afb76f68b525d1107f22d30edd01233d234faca2d9bcff",
+    "runs/independent01/result.json": "bc06e464af6f29286830486edd52f9967c964c8f42a6c6e88bdbb13180723de5"
+  },
+  "frozen": true
+}

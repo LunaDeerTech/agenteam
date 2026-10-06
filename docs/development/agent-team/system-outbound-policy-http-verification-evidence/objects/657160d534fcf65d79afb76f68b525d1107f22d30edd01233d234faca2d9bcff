@@ -1,0 +1,9 @@
+=== RUN   TestIndependentPolicyWireAndUnknownReceipt
+--- PASS: TestIndependentPolicyWireAndUnknownReceipt (0.00s)
+=== RUN   TestIndependentPolicyCancellationWaitsWriteCallback
+--- PASS: TestIndependentPolicyCancellationWaitsWriteCallback (0.03s)
+=== RUN   TestIndependentPolicyNativeMixedReuseAndBudgets
+    independent_risk_test.go:338: six exact native requests; error/success same-connection reuse; original GET3s and earlier PUT120ms; all connections and handlers joined
+--- PASS: TestIndependentPolicyNativeMixedReuseAndBudgets (3.13s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbound/http	4.165s

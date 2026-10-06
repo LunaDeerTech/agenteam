@@ -1,0 +1,9 @@
+Outbound execution-stage02 窄 STATIC PASS，只支持原 TransactionAndBudget 一顶层复验。原 real01 的初始化 RED 与另外四项 PASS 分列保留，不重跑已过四项。
+
+执行 input SHA 13b8597403d77faaac567e0a99d7ec94d82c897138b1a7cae6b238607a7e88b5；harness-stage02 SHA de32ede50b0c8d45c70c98ce480829c7630a568f07a554847484f3f9eb99938b。候选差量严格仅 tests/account/outbound_policy_http_transaction_test.go 中 newAccount(t) 换 newB02Account(t).fixture 一行；反向还原与原快照相同，全部子例、断言和预算不变。
+
+新增唯一依赖 tests/account/b02_fixture_test.go SHA 8acf211919f82ddbe01f2836c757a522f474dd188d588ae65ac063db157d2f51，逐字节核固定 Git819。该正式既有 helper 通过 assembleB02 提供 Challenges/DeliveryRequested，并保留实际 PG、Authority、Secret、Audit、Outbox、RecoveryLog 和 service cleanup。旧 newAccount 无这两项不能构造 HTTPBoundary，是新测试装配前提错误；没有改生产门禁。
+
+完整只读 closure-source 的 432 文件（11候选+421接受依赖）及3503 runtime现存哈希全匹配。v2 driver 89e4a0d78b10e9b97050fc2a0cc8c4f197cbc2a930f8846d3fec742d19d6188b 只改 scope 路径并增加 transaction-only；scope 映射接受固定 fixture 实际16包 argv，严格 selector/race/count1/6m/cwd，transaction 仅account一包。原 all 能力保留但当前不授权执行，资源 baseline/7ID/PIDstarttime/subreaper/actualwait/双清逻辑未改。
+
+六份冻结离线原 result/raw 指纹独立核验：compile0/3.193s、vet0/.465s、发现0/2.338s、scope两正五负0/.227s、runtime0/2.412s、gate0/2.013s；各实际等待后两扫空。此报告没有启动资源，也没有把准备通过当作该事务组已经真实通过。后续独立两代表借用本固定只读 closure-source，以私有 overlay/cache 执行，不读作者可变 source。

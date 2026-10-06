@@ -1,0 +1,55 @@
+{
+  "current_main_document_equals_fixed_base": true,
+  "eleven_original_files_byte_identical": true,
+  "format": "UTF-8 LF final newline, no trailing whitespace",
+  "links": [
+    {
+      "resolved": "docs/development/backend/accountmail.md",
+      "sha256": "989d2949bb6c1517c2ed00fe4cce94a2f23f677a12370ba240495f621d6c4471",
+      "status": "exists",
+      "target": "accountmail.md"
+    },
+    {
+      "resolved": "docs/architecture/platform-infrastructure/outbound-network-policy.md",
+      "sha256": "2dd897fdd076deebc3def739672ebb1446304268e368284aaa0855e68be10d8b",
+      "status": "exists",
+      "target": "../../architecture/platform-infrastructure/outbound-network-policy.md"
+    },
+    {
+      "resolved": "docs/development/work-items/d04-security-design.md",
+      "sha256": "f1f8e72d0284038f4c35d989e8d8d8360293976836812fd0e480bb22aae42914",
+      "status": "exists",
+      "target": "../work-items/d04-security-design.md"
+    },
+    {
+      "resolved": "api/openapi/outbound-policy.json",
+      "sha256": "b886602a4e8c306d2146051aa417ce9d922c652709ac6ea61fd7b2861ae8ec02",
+      "status": "exists",
+      "target": "../../../api/openapi/outbound-policy.json"
+    },
+    {
+      "resolved": "docs/development/work-items/d04-system-outbound-policy-http.md",
+      "sha256": "dfcf8296e9ac64ba674e019e1cc5bd99fd562cfac09b58383348f498892b453c",
+      "status": "exists",
+      "target": "../work-items/d04-system-outbound-policy-http.md"
+    },
+    {
+      "status": "existing external reference, no network request",
+      "target": "https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml"
+    },
+    {
+      "status": "existing external reference, no network request",
+      "target": "https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml"
+    },
+    {
+      "resolved": "docs/development/agent-team/system-outbound-policy-http-verification.md",
+      "status": "root-authorized permanent report reservation; archive not written by this task",
+      "target": "../agent-team/system-outbound-policy-http-verification.md"
+    }
+  ],
+  "no_index_diff_check_exit": 1,
+  "no_index_diff_check_stderr": "",
+  "no_index_diff_check_stdout": "",
+  "no_product_or_resource_execution": true,
+  "reserved_report_only_pending_link": "docs/development/agent-team/system-outbound-policy-http-verification.md"
+}

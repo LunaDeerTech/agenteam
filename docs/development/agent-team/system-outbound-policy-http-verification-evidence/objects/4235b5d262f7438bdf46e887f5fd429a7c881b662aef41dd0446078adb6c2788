@@ -1,0 +1,63 @@
+import ast
+import json
+import os
+from pathlib import Path
+import re
+import runpy
+import sys
+
+root = Path(__file__).resolve().parents[1]
+shim = root / 'tools/go-narrow-v2.py'
+driver = root / 'run-outbound-policy-fixture-v2.py'
+tree = ast.parse(driver.read_text())
+group_assignments = [node for node in ast.walk(tree) if isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == 'groups' for target in node.targets)]
+assert len(group_assignments) == 1
+groups = ast.literal_eval(group_assignments[0].value)
+assert groups['transaction-only'] == ['TestSystemOutboundPolicyHTTPTransactionAndBudget']
+assert len(groups['all']) == 5 and len(set(groups['all'])) == 5
+fixed = (root / 'source/tests/testsupport/postgres/cmd/fixture/main.go').read_text()
+fragment = fixed.split('arguments := []string{"test",', 1)[1].split('cmd := exec.CommandContext', 1)[0]
+packages = re.findall(r'"(\./[^\"]+)"', fragment)
+assert len(packages) == 16
+prefix = ['-tags=integration', '-race', '-count=1', '-timeout=6m']
+selectors = {key: '^(' + '|'.join(value) + ')$' for key, value in groups.items()}
+checks = []
+
+class InterceptedExec(Exception):
+    pass
+
+def check(name, arguments, expected=None, cwd=None):
+    original_exec, original_argv, original_cwd = os.execv, sys.argv, Path.cwd()
+    executed = []
+    def intercepted(executable, argv):
+        executed.append((executable, argv))
+        raise InterceptedExec()
+    try:
+        os.execv = intercepted
+        sys.argv = [str(shim)] + arguments
+        os.chdir(cwd or root / 'source')
+        try:
+            runpy.run_path(str(shim), run_name='__main__')
+        except InterceptedExec:
+            assert expected is not None and executed == [('/workspace/toolchains/go1.27.1/bin/go', ['/workspace/toolchains/go1.27.1/bin/go'] + expected)]
+        except SystemExit as rejected:
+            assert expected is None and not executed and str(rejected) == 'private outbound test command does not match frozen scope'
+        else:
+            raise AssertionError('scope adapter neither rejects nor execs')
+        checks.append({'name': name, 'accepted': expected is not None, 'passed': True, 'actual_go_started': False})
+    finally:
+        os.execv, sys.argv = original_exec, original_argv
+        os.chdir(original_cwd)
+
+for group, target in [('all', ['./internal/central/app', './tests/account', './tests/security']), ('transaction-only', ['./tests/account'])]:
+    flags = prefix + ['-run=' + selectors[group]]
+    check(group, ['test'] + flags + packages, ['test', '-p=1', '-v'] + flags + target)
+base = ['test'] + prefix + ['-run=' + selectors['transaction-only']] + packages
+check('reject_broad_selector', ['test'] + prefix + ['-run=.*'] + packages)
+check('reject_changed_budget', [value.replace('-timeout=6m', '-timeout=7m') for value in base])
+check('reject_missing_fixed_package', base[:-1])
+check('reject_additional_package', base + ['./extra/...'])
+check('reject_other_cwd', base, cwd=root)
+for path in [driver, shim]:
+    compile(path.read_text(), str(path), 'exec')
+print(json.dumps({'checks': checks, 'resources_started': False, 'fixture_package_argv_matches_fixed819': True}))

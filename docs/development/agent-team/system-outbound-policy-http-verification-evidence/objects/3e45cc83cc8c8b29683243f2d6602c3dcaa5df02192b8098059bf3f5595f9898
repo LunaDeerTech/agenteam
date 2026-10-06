@@ -1,0 +1,82 @@
+{
+  "additional_files": [
+    {
+      "bytes": 2866,
+      "path": "tests/account/common_test.go",
+      "sha256": "d28f33a8c97b1012b874e2c4e1e8fd1357c7e8629041f0b40e122512a46487cb"
+    },
+    {
+      "bytes": 9706,
+      "path": "tests/account/login_test.go",
+      "sha256": "28460ba04b0678a7af30dc1af0df59737b05283f36f9fd708ff223b1d2c81708"
+    },
+    {
+      "bytes": 2602,
+      "path": "tests/account/authority_test.go",
+      "sha256": "e68cdbdd416ef79d7d4cc301032b8f9f027a801cb4d8dc8c004b9fbe40291c07"
+    },
+    {
+      "bytes": 12793,
+      "path": "tests/account/http_fixture_test.go",
+      "sha256": "f622024fed7d759ea422c3338bcc145818d7683709f109ee79a3413f6ee03d4f"
+    },
+    {
+      "bytes": 9250,
+      "path": "tests/security/audit_common_test.go",
+      "sha256": "eb8244a7166dc2dee4a4b19929739bd0d1bef2a81073e46fadeae34e7fac10a7"
+    },
+    {
+      "bytes": 8359,
+      "path": "tests/security/audit_proxy_test.go",
+      "sha256": "fd14fe4bc2e7ef18e2d81b041427ac9384ff52e99673cb75d4dde7780cc33d8f"
+    },
+    {
+      "bytes": 9408,
+      "path": "tests/security/outbound_policy_test.go",
+      "sha256": "4dfd9d79efb8e93eac1c26cc6ddc8e041e6596a8434ea147c86676ef4f2917c0"
+    },
+    {
+      "bytes": 1117,
+      "path": "scripts/test-security.sh",
+      "sha256": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be"
+    },
+    {
+      "bytes": 1353,
+      "path": "scripts/test-postgres.sh",
+      "sha256": "eddfb4f44288f8ec448400b02435f5fd6d6c44b0d80003fd34f7785e2980cdfe"
+    },
+    {
+      "bytes": 1029,
+      "path": "scripts/test-objects.sh",
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87"
+    },
+    {
+      "bytes": 9567,
+      "path": "tests/testsupport/objectstore/cmd/fixture/main.go",
+      "sha256": "680472027d5a30aa5f3a316c9301fc3c78bc9a7297cbe18647fab43af1b5bbab"
+    },
+    {
+      "bytes": 13098,
+      "path": "tests/testsupport/postgres/cmd/fixture/main.go",
+      "sha256": "55ae7da25e69c4f4f29ca516748d8cc837913016e9fc381fc96abc11f37298de"
+    },
+    {
+      "bytes": 8288,
+      "path": "tests/testsupport/outbound/cmd/fixture/main.go",
+      "sha256": "46da1f582264c5799b509e5d3f5002ed588628b1d12b9b589ab8064fc3cdf683"
+    },
+    {
+      "bytes": 10592,
+      "path": "tests/testsupport/outbound/cmd/server/main.go",
+      "sha256": "2ca0951c43f5dede7defd35443b67c31aa7e910f36ecdfe9fbb8212070ef6071"
+    },
+    {
+      "bytes": 3750,
+      "path": "tests/account/b02_fixture_test.go",
+      "sha256": "8acf211919f82ddbe01f2836c757a522f474dd188d588ae65ac063db157d2f51"
+    }
+  ],
+  "baseline": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "parent_manifest_sha256": "e78c25dbc134f830c6d9fd46d0569182228e0de852bbf39651a9fe23d15fb1c4",
+  "previous_manifest_sha256": "1b596f3581b53e098420f4f569bac0665130cc5e688eb0436d3e2812817b8245"
+}

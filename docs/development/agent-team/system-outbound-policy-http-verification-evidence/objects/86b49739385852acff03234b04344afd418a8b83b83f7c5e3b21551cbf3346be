@@ -1,0 +1,93 @@
+{
+  "status": "HARNESSES STATIC PASS; REAL STARTUP BLOCKED until a frozen real supervisor exists",
+  "input": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/harness-stage01.json",
+    "sha256": "1d21a6ea1b32e43ec129e04e6b30c2ba351e173bc9cc62cd182442cf00260fe9"
+  },
+  "base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "spec_commit": "8c27bc430834bea118b0380cc0e54c445fd746b5",
+  "candidate_files": {
+    "internal/central/outbound/http/handler.go": "cb0e2a362e46251a43ff2a963c61a2a3ab8898b31eed4b52366eae6896384924",
+    "internal/central/outbound/http/wire.go": "311fa4316fd24d60ea90c804536ad700c5d55014c30c3ae7cb8aa1e47ada5b08",
+    "internal/central/outbound/http/handler_test.go": "cb6cbf850c78751a73807519cd1566631ec1d12555f5f39edca78cba0e099699",
+    "internal/central/outbound/http/wire_test.go": "2440caa5757f6576d69ddd7760b2b8b3c407daec87f2ef75cc3f67f7dd68ba98",
+    "internal/central/app/account.go": "2b8c59aa2d49a96c8f327cd456c44cabaac2cf8ca864a4f82a191cbecacd7dc5",
+    "internal/central/app/outbound_policy_http.go": "cc7fc5c5c0f331283788216ab8865972577ff5404944a1df08c86bcde47d6366",
+    "internal/central/app/outbound_policy_http_test.go": "65de62d11d27230edff4d06a962ab7e0dec2ad857522ddc8cc3617203e1f3199",
+    "api/openapi/outbound-policy.json": "b886602a4e8c306d2146051aa417ce9d922c652709ac6ea61fd7b2861ae8ec02",
+    "internal/central/app/outbound_policy_http_process_test.go": "59e68b4717e4e2346c24c8c8d55d071a5760026d2d093f5086bba5050af5db1b",
+    "tests/account/outbound_policy_http_test.go": "b1fbc8884927d0436f9b68c39cce22adc5ad04458ca16b396675fbb05159cbd2",
+    "tests/account/outbound_policy_http_transaction_test.go": "162491838bf4092a42fe95d0ba0136bd2ac20954cec03b4182ebfbcfa3a8ac47"
+  },
+  "validated_source_count": 431,
+  "accepted_base_files": 407,
+  "additional_git_checked_files": 14,
+  "prior_eight_unchanged": true,
+  "prior_independent_api_report": {
+    "path": "/workspace/scratch/agenteam-outbound-api-independent-wz8rzczj/review.md",
+    "sha256": "3afaa3235170490b58c946e3e14bef64e3422ba24961bc89e968b7207ef569f4"
+  },
+  "runner": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/tools/run-harness.py",
+    "sha256": "687e6a4e8faff0542e6ceb82f31d92ed2b70d1a92411d06e620d82650da39b60",
+    "scope_adapter": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/tools/go-narrow.py",
+    "scope_adapter_sha256": "3edfe3f02e06a09b23448a6b66e7f83f90baad3b87d2101d5dae01c7c726da61",
+    "real_plan": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/inputs/real-run-plan.json",
+    "real_plan_sha256": "c4de6a58009b189466c5419c9de23ba361d97917fd844352196a3f82fa1141d1",
+    "private_scope_only": "fixed scripts unchanged; Go test package selection narrowed only, same five exact names/race/count/6m"
+  },
+  "checked_author_offline": {
+    "harness-compile01": {
+      "actual_exit": 0,
+      "seconds": 4.684,
+      "result_sha256": "292c250ec93aaa81b5655b9a3df5b84c4573bd8a98a3590ffaaa817d1c60aa12",
+      "raw_sha256": "bb17537b5fc6b309736bb999ce64d3ecc1be3d88676c71e02d889dd163eddcfa"
+    },
+    "harness-compile02": {
+      "actual_exit": 0,
+      "seconds": 4.609,
+      "result_sha256": "4b808766b2d611944240ccd6fdd0b21ae405c919d6b39a66fdafbee38ca22993",
+      "raw_sha256": "30e26776679be925c30713afa12268331872a23fa70b294293214dbe89272df5"
+    },
+    "harness-vet01": {
+      "actual_exit": 0,
+      "seconds": 5.759,
+      "result_sha256": "27f0d09e634ab9f2f9213794ee60cb69ac0f59e846911c5b31353f219393448f",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "harness-discovery01": {
+      "actual_exit": 0,
+      "seconds": 3.765,
+      "result_sha256": "689889dedeabfa85c1779c8d7bc7e7726ee72218e4cc44ec319b86ee2d8d29dd",
+      "raw_sha256": "d6d38c245baff0be2ec9d2a61c004fdf2142afa6f19751500b01c5f1365cafe9"
+    },
+    "harness-fixture-build01": {
+      "actual_exit": 0,
+      "seconds": 1.551,
+      "result_sha256": "5f01d1771abc2e65c443eda9bb61fa98b18d5efdece23203e8159dcb988b06a0",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "harness-app-compile03": {
+      "actual_exit": 0,
+      "seconds": 4.456,
+      "result_sha256": "69271c8f82df07f0d112299420e749784dd0b9018dcb9427efc59793e9abaca8",
+      "raw_sha256": "f06641b6af4dd4699b73c6a600edb96c7898beb6d46c0604c3874dce49ac190a"
+    },
+    "harness-app-vet02": {
+      "actual_exit": 0,
+      "seconds": 0.649,
+      "result_sha256": "1680e1bd8363feaeb3fe1582315d12d3d38ac753c9e3590ace8fe64c805a9aa8",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "blocking_id": "O-HARNESS-01",
+  "blocking_reason": "Frozen runner is an offline 120s process-group wrapper, not a real resource supervisor. No source/runtime expected-hash gate or post-input comparison; no original Docker baseline/exactID double absence or PID-starttime binding; abrupt120s TERM+0.5s KILL; real plan remains a plan and omits frozen MinIO binary.",
+  "required_delta": "Only private real supervisor/input: reuse accepted actualwait/subreaper/exactID/PID-starttime double-cleanup runner; bind current431 source closure and actual runtime/locked toolchain/MinIO/adapter; reject inherited descriptors; enforce exact selected tops and actual non-skip outcomes; retain original package6m/per-test budgets and real fixture cleanup, no generic120s abrupt kill.",
+  "not_claimed": [
+    "No PostgreSQL/Docker/MinIO/controlled target/browser or new dynamic tests were started by verifier.",
+    "New HTTP receipt truncation proves response loss after real acceptance, not PostgreSQL COMMIT Unknown.",
+    "Author aggregate counts3 or2 are scoped fresh-database facts, not an independent exact-original-command relationship proof.",
+    "HTTP/transaction 2m is an elapsed assertion plus unchanged helper call deadlines, not a newly propagated common 2m context from fixture creation.",
+    "Original Object/tools stopped tasks are not selected or repaired."
+  ]
+}

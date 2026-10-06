@@ -1,0 +1,55 @@
+{
+  "author_evidence": {
+    "real01_report_sha256": "eedce190347a268e394fbfd7bc80531e7cb4303b58a60338f487b8d1b3b524ff",
+    "transaction_real02_report_sha256": "c9a9952775a789b206b306789757e6248bb4f03c076cdfd0a1431b4fec36517f"
+  },
+  "checks_path": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/delivery12/checks.json",
+  "checks_sha256": "b3d6e040ddf831fb80813813b69f03b25b05c2eb48d5827b5997e59176eb4c5d",
+  "document": {
+    "baseline_sha256": "942325fb5f6aba360b3ca403d87ccee27fdbfb7f9d64eacd9e6979b7e1e36da9",
+    "candidate_sha256": "809de939bedcd7625342b9507921f0f0b7a0be4be62a6aa377edcebf1b501015",
+    "diff_path": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/delivery12/outbound-doc.diff",
+    "diff_sha256": "5442bce2105a5acf6cedc428fbb983da46a9822360380a1b28a61a2b3394a4f3",
+    "path": "docs/development/backend/outbound.md"
+  },
+  "eleven_byte_identical": true,
+  "eleven_manifest": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/harness-stage02.json",
+    "sha256": "de32ede50b0c8d45c70c98ce480829c7630a568f07a554847484f3f9eb99938b"
+  },
+  "files": {
+    "api/openapi/outbound-policy.json": "b886602a4e8c306d2146051aa417ce9d922c652709ac6ea61fd7b2861ae8ec02",
+    "docs/development/backend/outbound.md": "809de939bedcd7625342b9507921f0f0b7a0be4be62a6aa377edcebf1b501015",
+    "internal/central/app/account.go": "2b8c59aa2d49a96c8f327cd456c44cabaac2cf8ca864a4f82a191cbecacd7dc5",
+    "internal/central/app/outbound_policy_http.go": "cc7fc5c5c0f331283788216ab8865972577ff5404944a1df08c86bcde47d6366",
+    "internal/central/app/outbound_policy_http_process_test.go": "59e68b4717e4e2346c24c8c8d55d071a5760026d2d093f5086bba5050af5db1b",
+    "internal/central/app/outbound_policy_http_test.go": "65de62d11d27230edff4d06a962ab7e0dec2ad857522ddc8cc3617203e1f3199",
+    "internal/central/outbound/http/handler.go": "cb0e2a362e46251a43ff2a963c61a2a3ab8898b31eed4b52366eae6896384924",
+    "internal/central/outbound/http/handler_test.go": "cb6cbf850c78751a73807519cd1566631ec1d12555f5f39edca78cba0e099699",
+    "internal/central/outbound/http/wire.go": "311fa4316fd24d60ea90c804536ad700c5d55014c30c3ae7cb8aa1e47ada5b08",
+    "internal/central/outbound/http/wire_test.go": "2440caa5757f6576d69ddd7760b2b8b3c407daec87f2ef75cc3f67f7dd68ba98",
+    "tests/account/outbound_policy_http_test.go": "b1fbc8884927d0436f9b68c39cce22adc5ad04458ca16b396675fbb05159cbd2",
+    "tests/account/outbound_policy_http_transaction_test.go": "7b190eda94488d0230decbd6762401431be3396c5e035ac9bee18101962f7af0"
+  },
+  "independent_raw_evidence": {
+    "command_path": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/runs/independent01/command.json",
+    "command_sha256": "23afa9fd34e769de94f99965a043beade39641f55dffe2b337206a7c8169fd9a",
+    "raw_path": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/runs/independent01/raw.log",
+    "raw_sha256": "bfb5bb81e4015ec230566d09ac891ea783de809585e7b96ccaafea35f3c21afb",
+    "report_freeze_pending": true
+  },
+  "new_runs": false,
+  "not_modified": [
+    "main tree",
+    "eleven source candidates",
+    "execution-stage02 input/driver/runtime closure",
+    "UI private draft",
+    "archive documents"
+  ],
+  "permanent_report_archive_pending": true,
+  "permanent_report_path": "docs/development/agent-team/system-outbound-policy-http-verification.md",
+  "product_base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "snapshot": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/delivery12-source",
+  "spec_commit": "8c27bc430834bea118b0380cc0e54c445fd746b5",
+  "stage": "delivery12: original eleven plus final backend explanation; private candidate awaiting root integration"
+}

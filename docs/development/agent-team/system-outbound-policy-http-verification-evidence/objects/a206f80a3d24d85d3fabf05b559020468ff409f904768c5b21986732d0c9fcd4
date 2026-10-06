@@ -1,0 +1,15 @@
+--- probe01/history_test.go
++++ probe02/history_test.go
+@@ -152,7 +152,11 @@
+ 	if json.Unmarshal(first, &receipt) != nil || json.Unmarshal(first, &fields) != nil || len(fields) != 4 || receipt.Version != 2 || receipt.RuleCount != 1 || receipt.AuditID.Validate() != nil || receipt.CreatedAt.Validate() != nil {
+ 		t.Fatal("accepted original receipt invalid")
+ 	}
+-	identity, err := foundation.NewCommandIdentity("outbound-policy", []string{user}, "update", key)
++	parsedKey, err := foundation.ParseIdempotencyKey(key)
++	if err != nil {
++		t.Fatal("original idempotency key invalid")
++	}
++	identity, err := foundation.NewCommandIdentity("outbound-policy", []string{user}, "update", parsedKey)
+ 	if err != nil {
+ 		t.Fatal("original command identity invalid")
+ 	}

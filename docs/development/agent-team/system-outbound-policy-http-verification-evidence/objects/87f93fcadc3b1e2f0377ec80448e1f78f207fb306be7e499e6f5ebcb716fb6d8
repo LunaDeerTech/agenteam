@@ -1,0 +1,75 @@
+{
+  "approved_original_sha256": "87d1d99f256def5cf7205e7932a7c7a7d311cc389fa5e68672f4625a1e3e16c2",
+  "bound_inputs": {
+    "candidate_files": 11,
+    "explicitly_omitted_unselected_fixed_tests": 207,
+    "fixed_dependencies": 420,
+    "profiles": [
+      "integration-race",
+      "fixture-build",
+      "outbound-server-static"
+    ],
+    "runtime_files": 3503,
+    "runtime_modules": 31,
+    "runtime_packages": 398,
+    "total_source_files": 431
+  },
+  "critical_inherited_functions_exact_bytes": [
+    "utc",
+    "write",
+    "command",
+    "resources",
+    "processes",
+    "reap_adopted",
+    "fixed_tree",
+    "runtime_environment",
+    "resource_topology",
+    "source_input"
+  ],
+  "delta": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/execution-stage01/driver.diff",
+  "delta_sha256": "f778998858471d30e42e9b81049ed16e08db7d8613e2f0717758f62d8dad6b94",
+  "driver": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/run-outbound-policy-fixture.py",
+  "driver_sha256": "5da5dfc65819031f4e27db463111891f9c209edb98b5a52ddb64322a9193f836",
+  "eleven_product_test_files_unchanged": true,
+  "execution": {
+    "actual_fixture_execution_done": false,
+    "expected_ids": 7,
+    "go_per_package_timeout_seconds": 360,
+    "group": "all",
+    "legacy_max_seconds": 45,
+    "new_scenario_max_seconds": 120,
+    "outer_120s_kill": false,
+    "selected_top_levels": 5
+  },
+  "execution_input": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/execution-stage01/input.json",
+  "execution_sha256": "36e785775575623b59b996f49c1c0fe7362f1e70920ddd91d778cbfdcbf46044",
+  "gate": {
+    "actual_exit": 0,
+    "actual_seconds": 1.924,
+    "adopted_count": 0,
+    "command_sha256": "902d2e71b656d6101099595ba4a915eef648fecc2c2e9f3a71ab1f79a55b06ca",
+    "directory": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/execution-gate01",
+    "docker_calls": false,
+    "double_process_clear": true,
+    "fixture_start": false,
+    "owned_pid_count": 3,
+    "raw_sha256": "08de8626242e64ed479101a8f035094eca0713759571c317673d5ca4363d1d8c",
+    "result_sha256": "d8f19ade83448fc61182da37448c82a281ae776300995e224c29a37ff3f7417e"
+  },
+  "inherited_actual_monitor_wait_double_cleanup_block_exact_bytes": true,
+  "next_command_after_root_authorization": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/run-outbound-policy-fixture.py",
+    "--name",
+    "outbound-http-real01",
+    "--group",
+    "all",
+    "--frozen",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/execution-stage01/input.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--execute-authorized"
+  ],
+  "product_input_sha256": "1d21a6ea1b32e43ec129e04e6b30c2ba351e173bc9cc62cd182442cf00260fe9",
+  "status": "offline gate passed; heavy execution not authorized/not started"
+}

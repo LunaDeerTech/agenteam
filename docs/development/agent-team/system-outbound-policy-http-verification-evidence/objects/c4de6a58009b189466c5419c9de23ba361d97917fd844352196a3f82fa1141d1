@@ -1,0 +1,51 @@
+{
+  "status": "prepared only; heavy execution/resource window not authorized",
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/source",
+  "command": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestSystemOutboundPolicyHTTP|TestSystemOutboundPolicyHTTPTransactionAndBudget|TestSystemOutboundPolicyHTTPRootSharedInstance|TestOutboundPolicyDurabilityReplayAndAuthorization|TestOutboundPolicyRollbackAndUnavailableReplay)$"
+  ],
+  "env": {
+    "AGENTEAM_GO": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/tools/go-narrow.py",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/tmp",
+    "GOMAXPROCS": "2"
+  },
+  "package_scope": [
+    "./internal/central/app",
+    "./tests/account",
+    "./tests/security"
+  ],
+  "exact_top_level_count": 5,
+  "new_top_level_count": 3,
+  "unchanged_legacy_top_level_count": 2,
+  "budgets": {
+    "ordinary_seconds": 45,
+    "new_scenario_seconds": 120,
+    "go_timeout_seconds": 360,
+    "suggested_outer_seconds": 480,
+    "fixture_cleanup_seconds": 60
+  },
+  "resources": "fresh task-owned PG + required root MinIO + controlled network fixture; no SMTP; inherited fixture descriptors must be absent before authorization/start",
+  "must_record": [
+    "frozen input before/after",
+    "actual command and exit/duration/raw",
+    "actual selected test outcomes (not skips)",
+    "process group children/adopted actual wait",
+    "nonce/labels/exact Docker IDs from original fixture output",
+    "two post-run exact-owned process/resource absence observations"
+  ],
+  "not_evidence": [
+    "this plan does not run resources",
+    "compile/list/vet are not real PostgreSQL or controlled-network acceptance",
+    "response truncation is not a COMMIT Unknown injection",
+    "unchanged earlier D04 CommitUnknown evidence is reused separately"
+  ]
+}

@@ -1,0 +1,34 @@
+# Outbound independent A/B offline preparation
+
+Status: **READY for the separately authorized exclusive window**. No real server, Docker fixture, browser or business test was started by this preparation.
+
+Fixed author execution: `execution-stage02/input.json`, SHA `13b8597403d77faaac567e0a99d7ec94d82c897138b1a7cae6b238607a7e88b5`. Actual compilation/execution cwd is the author's frozen `execution-stage02/closure-source`, not its working tree. The binding covers all 11 candidates, 421 fixed Git 819aba1 dependencies and 3506 actual runtime files. Two private Go overlay sources are separately hashed; no product file or Git change.
+
+- A `TestIndependentOutboundHTTPHistoricalReceipt`: a native accepted-response cut, fresh same-user Session and intervening formal update, original body/key with valid CSRF replay, exact outbound command receipt and Audit cause correlation, historical receipt/current separation and formal logout rejection. Logs only safe counts/booleans.
+- B `TestIndependentOutboundRootInflightPolicy`: one captured root policy/client, the existing generic fixture stream/Release control, an admitted native body held across policy removal, exact unsent denial for a new request, original EOF/reader join and actual socket/root cleanup. No new fixture protocol or producer.
+
+Actual offline checks: account race compile **0 / 2.496s**, app race compile **0 / 4.236s**, affected vet **0 / 68.910s**, discovery **0 / 4.122s** (exactly one test per package), runtime binding **0 / 2.228s**, final no-resource gate **0 / 2.246s**. Recorded compiler/vet/discovery processes were actually waited; input before/after unchanged, no adopted waits, two owned process-group scans empty. Runtime/gate commands also completed with actual waits; neither invokes a resource monitor or fixture.
+
+The original `compile-account01` **exit1 / 94.010s** is retained: the private oracle initially passed a Go string where `foundation.IdempotencyKey` is required. `probe01-to02.diff` only parses the same original key with the formal parser; original source, command and raw remain. It was a compile prerequisite failure, not a product or real-run result.
+
+Final bindings:
+
+| Artifact | SHA256 |
+| --- | --- |
+| `execution01.json` | `6c429eb693790085670fbfddb79aa3e68690d1bcf451eed22eda0b2f836d2414` |
+| `driver02.py` | `9c58f39106a31c30699dcd41b4e77a4b8ab4c308780f811d7d179f0c9d061b29` |
+| `driver-author-to-independent02.diff` | `dc95c6d1d911d4032227efef79c829eda9b4c9074059af9ff12e052ad828fbd2` |
+| `probe02/overlay.json` | `0131103d671f9cc71a8a9a766dcfd8b8a3b39524491402e8a8310a8935678a66` |
+| `probe02/history_test.go` | `3c3daa21c7e45cebc5a907491138e1f4437e18eb9eec7b02ceb73e5aea9e81c1` |
+| `probe02/inflight_test.go` | `d802ce9fe332005791a12697f20d8100710c356b0fa2a6f0ea8401410aeea441` |
+| `tools/go-narrow.py` | `32c63a7850c7f4eb62bbeb0be80fdf5d52ff9159a66eb37e1205fdb3bb4c9ed5` |
+
+Exact proposed invocation after root transfers the real window:
+
+```sh
+/usr/bin/python3 /workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/driver02.py --name independent01 --group both --frozen /workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/execution01.json --modcache /workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache --execute-authorized
+```
+
+The driver difference narrows the existing fixture command to these two tops and binds the private overlay/fixed cwd. Race/count1/package6m and per-top2m remain; original signal forwarding, subreaper, actual process waits, PID/starttime ownership, seven exact fixture IDs, two cleanup scans and baseline/source/runtime gates remain unchanged. It adds no automatic rerun. Historical unowned PPID1 zombies remain untouched.
+
+Prior API/root strict protocol, Unknown projection and author transaction budget/authority evidence are reused only for unchanged source. These preparations do not independently prove the new native history/in-flight combinations; those remain pending the authorized real run. All listed probe/input/driver/preparation artifacts are now stopped and available for review; future real runs create new run directories.

@@ -1,0 +1,215 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"io"
+	"net"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+)
+
+// The private native hop observes only booleans and accepted response bytes in
+// memory. Nothing logs the body, command identity, cookie or CSRF.
+func TestIndependentOutboundHTTPHistoricalReceipt(t *testing.T) {
+	started := time.Now()
+	f := newHTTPFixture(t)
+	admin := f.admin()
+	ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
+	defer cancel()
+	session := func(b *httpBrowser) (string, string) {
+		t.Helper()
+		obj := b.request("GET", "/api/v1/session", nil, "", "").want(t, 200).object(t)
+		u, ok1 := obj["user"].(map[string]any)
+		s, ok2 := obj["session"].(map[string]any)
+		if !ok1 || !ok2 {
+			t.Fatal("formal Session shape missing")
+		}
+		user, ok1 := u["id"].(string)
+		sid, ok2 := s["id"].(string)
+		if !ok1 || !ok2 || user == "" || sid == "" || u["role"] != "admin" {
+			t.Fatal("formal current admin identity missing")
+		}
+		return user, sid
+	}
+	user, originalSession := session(admin)
+	body := []byte(`{"expected_version":"1","rules":[{"cidr":"10.73.0.0/16","ports":[443],"allow_http":false}]}`)
+	key := id[struct{}](t).String()
+	type expectedRequest struct {
+		csrf, cookie string
+		truncate     bool
+	}
+	type observedRequest struct {
+		receipt                                   []byte
+		body, key, csrf, cookie, origin, complete bool
+		status                                    int
+	}
+	expected := make(chan expectedRequest, 1)
+	observed := make(chan observedRequest, 1)
+	finished := make(chan struct{}, 1)
+	transport := &http.Transport{Proxy: nil, DialContext: func(c context.Context, n, _ string) (net.Conn, error) {
+		return (&net.Dialer{}).DialContext(c, n, f.address)
+	}}
+	defer transport.CloseIdleConnections()
+	hop := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() { finished <- struct{}{} }()
+		e := <-expected
+		got, readErr := io.ReadAll(io.LimitReader(r.Body, (1<<20)+1))
+		_ = r.Body.Close()
+		cookie, cookieErr := r.Cookie("agenteam_local_session")
+		fact := observedRequest{body: readErr == nil && bytes.Equal(got, body), key: r.Header.Get("Idempotency-Key") == key, csrf: e.csrf != "" && r.Header.Get("X-CSRF-Token") == e.csrf, cookie: cookieErr == nil && cookie.Value == e.cookie, origin: r.Header.Get("Origin") == httpOrigin}
+		up := r.Clone(r.Context())
+		up.RequestURI = ""
+		up.URL.Scheme = "http"
+		up.URL.Host = "localhost:8080"
+		up.Host = "localhost:8080"
+		up.Body = io.NopCloser(bytes.NewReader(got))
+		response, err := transport.RoundTrip(up)
+		if err != nil {
+			observed <- fact
+			w.WriteHeader(502)
+			return
+		}
+		fact.status = response.StatusCode
+		fact.receipt, err = io.ReadAll(io.LimitReader(response.Body, (1<<20)+1))
+		closeErr := response.Body.Close()
+		fact.complete = err == nil && closeErr == nil && len(fact.receipt) <= 1<<20
+		observed <- fact
+		if !fact.complete || response.StatusCode != 200 || len(fact.receipt) < 8 {
+			w.WriteHeader(502)
+			return
+		}
+		for name, values := range response.Header {
+			w.Header()[name] = values
+		}
+		w.WriteHeader(response.StatusCode)
+		if e.truncate {
+			_, _ = w.Write(fact.receipt[:8])
+			_ = http.NewResponseController(w).Flush()
+			panic(http.ErrAbortHandler)
+		}
+		_, _ = w.Write(fact.receipt)
+	}))
+	defer hop.Close()
+	client := hop.Client()
+	client.Timeout = 5 * time.Second
+	defer client.CloseIdleConnections()
+	viaHop := func(b *httpBrowser, cut bool) []byte {
+		t.Helper()
+		expected <- expectedRequest{b.csrf, b.cookie("agenteam_local_session"), cut}
+		r, err := http.NewRequestWithContext(ctx, "PUT", hop.URL+outboundPolicyHTTPPath, bytes.NewReader(body))
+		if err != nil {
+			t.Fatal("owned request construction")
+		}
+		r.Header.Set("Content-Type", "application/json")
+		r.Header.Set("Origin", httpOrigin)
+		r.Header.Set("X-CSRF-Token", b.csrf)
+		r.Header.Set("Idempotency-Key", key)
+		r.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: b.cookie("agenteam_local_session")})
+		response, err := client.Do(r)
+		if err != nil {
+			t.Fatal("owned response prefix unavailable")
+		}
+		raw, readErr := io.ReadAll(io.LimitReader(response.Body, (1<<20)+1))
+		_ = response.Body.Close()
+		if response.StatusCode != 200 || (cut && (readErr == nil || len(raw) != 8)) || (!cut && readErr != nil) {
+			t.Fatal("native acceptance/cut boundary not reached")
+		}
+		var fact observedRequest
+		select {
+		case fact = <-observed:
+		case <-time.After(time.Second):
+			t.Fatal("upstream response observer did not return")
+		}
+		select {
+		case <-finished:
+		case <-time.After(time.Second):
+			t.Fatal("native hop handler did not actually join")
+		}
+		if !(fact.body && fact.key && fact.csrf && fact.cookie && fact.origin && fact.complete && fact.status == 200) {
+			t.Fatal("original request or complete upstream receipt differed")
+		}
+		if !cut && !bytes.Equal(raw, fact.receipt) {
+			t.Fatal("untruncated response bytes differed")
+		}
+		return fact.receipt
+	}
+	first := viaHop(admin, true)
+	var receipt outbound.UpdateResult
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(first, &receipt) != nil || json.Unmarshal(first, &fields) != nil || len(fields) != 4 || receipt.Version != 2 || receipt.RuleCount != 1 || receipt.AuditID.Validate() != nil || receipt.CreatedAt.Validate() != nil {
+		t.Fatal("accepted original receipt invalid")
+	}
+	identity, err := foundation.NewCommandIdentity("outbound-policy", []string{user}, "update", key)
+	if err != nil {
+		t.Fatal("original command identity invalid")
+	}
+	h := sha256.Sum256([]byte(identity.Canonical()))
+	digest := "sha256:" + hex.EncodeToString(h[:])
+	appendKey, err := audit.CommandAppendKey(ac.PolicyProducer, identity, 0)
+	if err != nil {
+		t.Fatal("original Audit identity invalid")
+	}
+	connection := f.db.Connect(t)
+	oracle := func(wantVersion int) {
+		t.Helper()
+		var exactReceipt, allReceipt, exactAudit, allAudit, current int
+		err := connection.QueryRow(ctx, `SELECT
+		(SELECT count(*) FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1 AND user_id=$2::uuid AND version=2 AND rule_count=1 AND audit_id=$3::uuid AND created_at=$4),
+		(SELECT count(*) FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1),
+		(SELECT count(*) FROM agenteam_audit.audit_records WHERE id=$3::uuid AND producer=$5 AND cause_ref=$6 AND ordinal=0 AND action='outbound.policy.update' AND actor_kind='human' AND user_id=$2::uuid AND session_id=$7::uuid AND scope='system' AND resource_kind='outbound_policy' AND outcome='success'),
+		(SELECT count(*) FROM agenteam_audit.audit_records WHERE producer=$5 AND cause_ref=$6 AND ordinal=0),
+		(SELECT version FROM agenteam_outbound.outbound_policy WHERE singleton)`, digest, user, receipt.AuditID.String(), receipt.CreatedAt.Time(), string(ac.PolicyProducer), appendKey.Details().CauseRef, originalSession).Scan(&exactReceipt, &allReceipt, &exactAudit, &allAudit, &current)
+		if err != nil || exactReceipt != 1 || allReceipt != 1 || exactAudit != 1 || allAudit != 1 || current != wantVersion {
+			t.Fatalf("safe original facts exact_receipt=%d receipt_count=%d exact_audit=%d audit_count=%d current_matches=%t query_ok=%t", exactReceipt, allReceipt, exactAudit, allAudit, current == wantVersion, err == nil)
+		}
+	}
+	oracle(2)
+	other := f.admin()
+	newUser, newSession := session(other)
+	if newUser != user || newSession == originalSession {
+		t.Fatal("fresh Session did not retain stable user")
+	}
+	other.request("PUT", outboundPolicyHTTPPath, json.RawMessage(`{"expected_version":"2","rules":[]}`), id[struct{}](t).String(), other.csrf).want(t, 200)
+	current := other.request("GET", outboundPolicyHTTPPath, nil, "", "").want(t, 200)
+	if !bytes.Equal(current.data, []byte(`{"version":"3","rules":[]}`)) {
+		t.Fatal("new current observation invalid")
+	}
+	oracle(3)
+	if !bytes.Equal(first, viaHop(other, false)) {
+		t.Fatal("explicit old request did not recover its exact receipt")
+	}
+	oracle(3)
+	if !bytes.Equal(other.request("GET", outboundPolicyHTTPPath, nil, "", "").want(t, 200).data, current.data) {
+		t.Fatal("replay rewound current policy")
+	}
+	oldCookie := other.cookie("agenteam_local_session")
+	other.request("POST", "/api/v1/sessions/logout", map[string]any{}, id[struct{}](t).String(), other.csrf).want(t, 204)
+	other.setCookie("agenteam_local_session", oldCookie)
+	other.request("PUT", outboundPolicyHTTPPath, json.RawMessage(body), key, other.csrf).problem(t, 401, "SESSION_REVOKED")
+	if other.cookie("agenteam_local_session") != "" {
+		t.Fatal("revoked session cookie survived")
+	}
+	oracle(3)
+	for _, s := range []string{key, string(body), digest, oldCookie, admin.csrf, other.csrf} {
+		if s != "" && f.log.contains(s) {
+			t.Fatal("ordinary log exposed private command/browser data")
+		}
+	}
+	if time.Since(started) > 2*time.Minute {
+		t.Fatal("scenario exceeded original budget")
+	}
+	t.Log("safe facts: original_body_key_valid_csrf=true exact_command_receipt=1 exact_audit=1 historical_version=2 current_version=3 current_revocation_enforced=true native_hop_join=true")
+}

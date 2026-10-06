@@ -1,0 +1,30 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.50.247.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=2564e26cd9306b19877a98b1515816f6
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=dc9ff27e32249a1334f7a65eb9ac1aac
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+=== RUN   TestSystemOutboundPolicyHTTPTransactionAndBudget
+=== RUN   TestSystemOutboundPolicyHTTPTransactionAndBudget/preauthenticated_then_revoked_GET
+=== RUN   TestSystemOutboundPolicyHTTPTransactionAndBudget/preauthenticated_then_revoked_PUT
+=== RUN   TestSystemOutboundPolicyHTTPTransactionAndBudget/held_user_shared_serializes_formal_revoke
+=== RUN   TestSystemOutboundPolicyHTTPTransactionAndBudget/GET_earlier_parent
+    outbound_policy_http_transaction_test.go:400: GET_earlier_parent: actual join=256.647383ms typed=DATABASE_LOCK_FAILED sqlstate="57014"; no candidate
+=== RUN   TestSystemOutboundPolicyHTTPTransactionAndBudget/GET_database_timeout
+    outbound_policy_http_transaction_test.go:400: GET_database_timeout: actual join=1.00627631s typed=DATABASE_LOCK_FAILED sqlstate="55P03"; no candidate
+=== RUN   TestSystemOutboundPolicyHTTPTransactionAndBudget/PUT_earlier_parent
+    outbound_policy_http_transaction_test.go:400: PUT_earlier_parent: actual join=256.162164ms typed=DATABASE_LOCK_FAILED sqlstate=""; no candidate
+=== RUN   TestSystemOutboundPolicyHTTPTransactionAndBudget/PUT_database_timeout
+    outbound_policy_http_transaction_test.go:400: PUT_database_timeout: actual join=1.010332451s typed=DATABASE_LOCK_FAILED sqlstate="55P03"; no candidate
+--- PASS: TestSystemOutboundPolicyHTTPTransactionAndBudget (5.37s)
+    --- PASS: TestSystemOutboundPolicyHTTPTransactionAndBudget/preauthenticated_then_revoked_GET (0.37s)
+    --- PASS: TestSystemOutboundPolicyHTTPTransactionAndBudget/preauthenticated_then_revoked_PUT (0.32s)
+    --- PASS: TestSystemOutboundPolicyHTTPTransactionAndBudget/held_user_shared_serializes_formal_revoke (0.36s)
+    --- PASS: TestSystemOutboundPolicyHTTPTransactionAndBudget/GET_earlier_parent (0.28s)
+    --- PASS: TestSystemOutboundPolicyHTTPTransactionAndBudget/GET_database_timeout (1.03s)
+    --- PASS: TestSystemOutboundPolicyHTTPTransactionAndBudget/PUT_earlier_parent (0.28s)
+    --- PASS: TestSystemOutboundPolicyHTTPTransactionAndBudget/PUT_database_timeout (1.03s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	6.404s
+D03 fixture cleanup checked for nonce 1192e5224fadbe87480607548ad64d4b
+D04 outbound fixture cleanup checked for nonce dc9ff27e32249a1334f7a65eb9ac1aac
+D05 object fixture exact resource cleanup checked nonce=2564e26cd9306b19877a98b1515816f6

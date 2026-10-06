@@ -1,0 +1,25 @@
+{
+  "name": "outbound-http-transaction-real02",
+  "name_unused": true,
+  "disk_free_bytes": 9274744832,
+  "disk_free_gib": 8.638,
+  "input_sha256": "13b8597403d77faaac567e0a99d7ec94d82c897138b1a7cae6b238607a7e88b5",
+  "driver_sha256": "89e4a0d78b10e9b97050fc2a0cc8c4f197cbc2a930f8846d3fec742d19d6188b",
+  "gate_command": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/run-outbound-policy-fixture-v2.py",
+    "--name",
+    "outbound-http-transaction-real02",
+    "--group",
+    "transaction-only",
+    "--frozen",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/execution-stage02/input.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "gate_exit": 0,
+  "gate_seconds": 1.748,
+  "gate_stdout": "{\"candidate_runtime_match\": true, \"accepted_baseline\": true, \"accepted_count\": 421, \"missing\": [], \"unexpected\": [], \"mismatches\": [], \"errors\": [], \"product_base\": \"819aba1b8f764328f1e2e67b53c274fad0db877d\", \"resources_started\": false}\n",
+  "gate_stderr": ""
+}

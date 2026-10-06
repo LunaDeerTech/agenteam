@@ -1,0 +1,85 @@
+{
+  "additional_closure_sha256": "3e45cc83cc8c8b29683243f2d6602c3dcaa5df02192b8098059bf3f5595f9898",
+  "authorized_for_next_execution": false,
+  "baseline": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "baseline_closure_sha256": "e78c25dbc134f830c6d9fd46d0569182228e0de852bbf39651a9fe23d15fb1c4",
+  "changed_candidate": "tests/account/outbound_policy_http_transaction_test.go",
+  "checks": {
+    "transaction-compile01": {
+      "actual_exit": 0,
+      "actual_seconds": 3.193,
+      "command_sha256": "f8142c42dadab41b43ef6cd0c3a85c28e807567c4c7d69f9cc083eb7a4334cc5",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/transaction-compile01",
+      "double_process_group_clear": true,
+      "input_sha256": "1c222a1f2ec9d155a69745d152cb6423f9b92334299e4762cdce83ceec900dad",
+      "observed_group_pid_count": 5,
+      "raw_sha256": "2ba60ac0d5ee50c26d06af948a8f895104b35953327a0269b19d946f69c9c739",
+      "result_sha256": "f37eaf6d45ce57d91f17ed8f26f7c1d67277e819ddbbac13d1c86853b0505a5f"
+    },
+    "transaction-discovery01": {
+      "actual_exit": 0,
+      "actual_seconds": 2.338,
+      "command_sha256": "0715a91203c5b67eb5009aa984bf291ab8abfd2bd28454c1260b1e68f63240ab",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/transaction-discovery01",
+      "double_process_group_clear": true,
+      "input_sha256": "1c222a1f2ec9d155a69745d152cb6423f9b92334299e4762cdce83ceec900dad",
+      "observed_group_pid_count": 3,
+      "raw_sha256": "a8beaeb4fe478674b9d2d367667b7e1591e834536266a801b6cd2175c6744a85",
+      "result_sha256": "6c978d4cd8fd7479c10e2de5f2c9dd71d2addb2b677f518e3865e039881abda7"
+    },
+    "transaction-scope01": {
+      "actual_exit": 0,
+      "actual_seconds": 0.227,
+      "command_sha256": "51173c33310619cadea95d11fe3fb1ed95f1a801880ddd7cdbc40dc61bc8378d",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/transaction-scope01",
+      "double_process_group_clear": true,
+      "input_sha256": "1c222a1f2ec9d155a69745d152cb6423f9b92334299e4762cdce83ceec900dad",
+      "observed_group_pid_count": 1,
+      "raw_sha256": "eb40e995f7eba5b7941f0148bf6c5234ffb05a53eea83121ec84ec216df19816",
+      "result_sha256": "190762522a5bd2e43d4b5f9f49a712fb7e33ff13c147ef26b61cb7cc15cb7e61"
+    },
+    "transaction-vet01": {
+      "actual_exit": 0,
+      "actual_seconds": 0.465,
+      "command_sha256": "9145cb3521380b89444f19bd1fe2ff31e15567208606b7559ab25fc759cff7a1",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/transaction-vet01",
+      "double_process_group_clear": true,
+      "input_sha256": "1c222a1f2ec9d155a69745d152cb6423f9b92334299e4762cdce83ceec900dad",
+      "observed_group_pid_count": 1,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "4094b367d7305600068ec3feca83e360a43528d41dc98282a026f0b7908024ff"
+    }
+  },
+  "files": {
+    "api/openapi/outbound-policy.json": "b886602a4e8c306d2146051aa417ce9d922c652709ac6ea61fd7b2861ae8ec02",
+    "internal/central/app/account.go": "2b8c59aa2d49a96c8f327cd456c44cabaac2cf8ca864a4f82a191cbecacd7dc5",
+    "internal/central/app/outbound_policy_http.go": "cc7fc5c5c0f331283788216ab8865972577ff5404944a1df08c86bcde47d6366",
+    "internal/central/app/outbound_policy_http_process_test.go": "59e68b4717e4e2346c24c8c8d55d071a5760026d2d093f5086bba5050af5db1b",
+    "internal/central/app/outbound_policy_http_test.go": "65de62d11d27230edff4d06a962ab7e0dec2ad857522ddc8cc3617203e1f3199",
+    "internal/central/outbound/http/handler.go": "cb0e2a362e46251a43ff2a963c61a2a3ab8898b31eed4b52366eae6896384924",
+    "internal/central/outbound/http/handler_test.go": "cb6cbf850c78751a73807519cd1566631ec1d12555f5f39edca78cba0e099699",
+    "internal/central/outbound/http/wire.go": "311fa4316fd24d60ea90c804536ad700c5d55014c30c3ae7cb8aa1e47ada5b08",
+    "internal/central/outbound/http/wire_test.go": "2440caa5757f6576d69ddd7760b2b8b3c407daec87f2ef75cc3f67f7dd68ba98",
+    "tests/account/outbound_policy_http_test.go": "b1fbc8884927d0436f9b68c39cce22adc5ad04458ca16b396675fbb05159cbd2",
+    "tests/account/outbound_policy_http_transaction_test.go": "7b190eda94488d0230decbd6762401431be3396c5e035ac9bee18101962f7af0"
+  },
+  "fixed_helper": {
+    "path": "tests/account/b02_fixture_test.go",
+    "read_only_fixed_git_dependency": true,
+    "sha256": "8acf211919f82ddbe01f2836c757a522f474dd188d588ae65ac063db157d2f51",
+    "snapshot": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/execution-stage02/fixed819/tests/account/b02_fixture_test.go"
+  },
+  "only_source_delta": "newAccount(t) -> newB02Account(t).fixture",
+  "prior_execution_sha256": "36e785775575623b59b996f49c1c0fe7362f1e70920ddd91d778cbfdcbf46044",
+  "prior_harness_sha256": "1d21a6ea1b32e43ec129e04e6b30c2ba351e173bc9cc62cd182442cf00260fe9",
+  "real01_json_sha256": "eedce190347a268e394fbfd7bc80531e7cb4303b58a60338f487b8d1b3b524ff",
+  "real01_report_sha256": "4571f1065dfd06f7720664549886e8216601f900a5558092bc00147446821afe",
+  "resources_started": false,
+  "snapshot": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/harness-stage02-source",
+  "source_bytes": 4050758,
+  "source_file_count": 432,
+  "spec_commit": "8c27bc430834bea118b0380cc0e54c445fd746b5",
+  "spec_sha256": "dfcf8296e9ac64ba674e019e1cc5bd99fd562cfac09b58383348f498892b453c",
+  "stage": "harness-stage02: author offline fixture-only repair, not real execution or independent acceptance",
+  "ten_prior_candidates_byte_identical": true
+}

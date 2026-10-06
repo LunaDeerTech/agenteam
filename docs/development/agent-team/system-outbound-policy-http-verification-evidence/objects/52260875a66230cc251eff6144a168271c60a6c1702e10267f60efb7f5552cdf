@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/driver02.py",
+    "--name",
+    "independent01",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/execution01.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "cwd": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb",
+  "exit": 0,
+  "seconds": 2.246,
+  "actual_wait": true,
+  "resources_started": false,
+  "execution_sha256": "6c429eb693790085670fbfddb79aa3e68690d1bcf451eed22eda0b2f836d2414",
+  "driver_sha256": "9c58f39106a31c30699dcd41b4e77a4b8ab4c308780f811d7d179f0c9d061b29",
+  "gate": {
+    "candidate_runtime_match": true,
+    "accepted_baseline": true,
+    "accepted_count": 421,
+    "missing": [],
+    "unexpected": [],
+    "mismatches": [],
+    "errors": [],
+    "product_base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+    "resources_started": false
+  }
+}

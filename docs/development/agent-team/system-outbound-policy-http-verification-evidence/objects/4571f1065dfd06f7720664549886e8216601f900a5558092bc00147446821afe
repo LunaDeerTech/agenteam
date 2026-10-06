@@ -1,0 +1,13 @@
+# Outbound HTTP real01：首次实际结果与静态归因
+
+- 实际退出 1 / 32.295s；三新两旧中四项 PASS，事务项在初始化 1.37s 返回 DEPENDENCY_UNBOUND。
+- PASS：RootSharedInstance 2.57s、HTTP 3.88s、旧 DurabilityReplayAndAuthorization 1.04s、旧 RollbackAndUnavailableReplay 0.91s。事务权限与预算子用例尚未执行，不能判定其业务行为。
+- 实际 shell wait 完成；7 个精确资源 ID、39 个 PID/starttime、0 adopted；两次 baseline 不变且资源、owned PID、runtime 目录皆清零。source/runtime 与原输入前后一致。窗口已交回主线程。
+
+## 初始化失败边界
+
+固定 819aba1 的 tests/account/login_test.go newAccount/assembleAccount 只组装 Account 服务子集，未传 Challenges 和 DeliveryRequested；Account.New 允许这套核心服务。候选 #11:139 使用该 fixture 后，bootstrap、audit、PolicyService 构造及 Reload 均已返回成功；#11:154–156 调用 NewSystemHTTPHandler 时，account.NewHTTPBoundary → httpValidateCore 在 http.go:41 正确拒绝缺失的 HTTP 必需依赖。未到中间件安装、HTTP 预认证、正式撤销或锁等待断言。
+
+固定 tests/account/b02_fixture_test.go:32/65/70/78/82 已正式组装 DeliveryRequested、具备 Process 的 outbox、Challenges 和相同真实 Authority/Store；其嵌入 fixture 可直接复用。唯一修复为 #11 的 newAccount(t) 改为 newB02Account(t).fixture，原写服务、HTTPBoundary、断言、时限和其他十个候选文件不变。旧 helper 仅从固定 Git 复制为只读依赖，不修改它。
+
+原 runs/outbound-http-real01、harness-stage01-source 与 execution-stage01 均保留。详细证据完整 SHA 位于同名 JSON；本报告不是新的运行或独立验收。

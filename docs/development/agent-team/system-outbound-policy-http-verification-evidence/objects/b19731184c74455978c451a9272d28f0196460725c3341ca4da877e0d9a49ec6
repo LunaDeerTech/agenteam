@@ -1,0 +1,9 @@
+# github.com/LunaDeerTech/agenteam/internal/central/outbound/http [github.com/LunaDeerTech/agenteam/internal/central/outbound/http.test]
+internal/central/outbound/http/handler_test.go:126:80: cannot use s (variable of type *readStore) as postgres.SQLExecutor value in return statement: *readStore does not implement postgres.SQLExecutor (wrong type for method QueryRow)
+		have QueryRow(context.Context, string, ...any) pgx.Row
+		want QueryRow(context.Context, string, ...any) postgres.Row
+internal/central/outbound/http/handler_test.go:161:36: cannot use s (variable of type *readStore) as outbound.Store value in argument to outbound.NewPolicyService: *readStore does not implement outbound.Store (wrong type for method QueryRow)
+		have QueryRow(context.Context, string, ...any) pgx.Row
+		want QueryRow(context.Context, string, ...any) postgres.Row
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/outbound/http [build failed]
+FAIL

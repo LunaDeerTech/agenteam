@@ -1,0 +1,51 @@
+#!/usr/bin/python3
+"""Read-only execution binding discovery; no real supervisor main or Docker."""
+import ctypes
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import time
+
+ROOT = Path(__file__).resolve().parents[1]
+AUTHOR = Path('/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/execution-stage02/input.json')
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def main():
+    if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+        raise RuntimeError('subreaper unavailable')
+    run = ROOT / 'runs/runtime01'
+    run.mkdir()
+    begin = time.monotonic()
+    binding = json.loads((ROOT/'binding01.json').read_text())
+    before = {p:digest(Path(p)) for p in binding['files']}
+    if before != binding['files']:
+        raise RuntimeError('author fixed inputs changed')
+    spec = importlib.util.spec_from_file_location('private_outbound_driver', ROOT/'driver02.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    author = json.loads(AUTHOR.read_text())
+    module.FROZEN = author
+    current = module.source_input()
+    if not current['accepted_baseline']['accepted'] or current['files'] != author['files']:
+        raise RuntimeError('private closure gate failed')
+    frozen = dict(author)
+    frozen.update(driver_sha256=digest(ROOT/'driver02.py'), runtime=current['runtime'])
+    frozen['approved_driver']={'path':str(AUTHOR.parent/'driver.py.txt'),'sha256':author['driver_sha256']}
+    frozen['author_execution']={'path':str(AUTHOR),'sha256':digest(AUTHOR)}
+    frozen['private_binding']={'path':str(ROOT/'binding01.json'),'sha256':digest(ROOT/'binding01.json')}
+    frozen['private_inputs']={str(p):digest(p) for p in [ROOT/'probe02/history_test.go',ROOT/'probe02/inflight_test.go',ROOT/'probe02/overlay.json',ROOT/'tools/go-narrow.py',ROOT/'driver02.py']}
+    frozen['execution_contract']={'group':'both','tests':['TestIndependentOutboundHTTPHistoricalReceipt','TestIndependentOutboundRootInflightPolicy'],'expected_resources':7,'scenario_seconds':120,'go_package_timeout_seconds':360,'resource_execution':False}
+    frozen['actual_cwd']=str(module.REPO)
+    after = {p:digest(Path(p)) for p in binding['files']}
+    if before != after:
+        raise RuntimeError('author fixed inputs changed during discovery')
+    (ROOT/'execution01.json').write_text(json.dumps(frozen,indent=2,sort_keys=True)+'\n')
+    result={'exit':0,'seconds':round(time.monotonic()-begin,3),'author_input_unchanged':True,'resources_started':False,'candidate_count':len(frozen['files']),'accepted_count':len(frozen['accepted_baseline']['files']),'runtime_count':len(frozen['runtime']['files']),'execution_sha256':digest(ROOT/'execution01.json')}
+    (run/'result.json').write_text(json.dumps(result,indent=2)+'\n')
+    print(json.dumps(result),flush=True)
+
+if __name__=='__main__':
+    main()

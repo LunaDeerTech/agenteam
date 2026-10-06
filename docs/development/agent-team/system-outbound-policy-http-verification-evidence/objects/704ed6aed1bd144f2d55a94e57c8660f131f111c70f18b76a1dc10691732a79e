@@ -1,0 +1,11 @@
+--- harness-stage01/tests/account/outbound_policy_http_transaction_test.go
++++ harness-stage02/tests/account/outbound_policy_http_transaction_test.go
+@@ -136,7 +136,7 @@
+ 
+ func TestSystemOutboundPolicyHTTPTransactionAndBudget(t *testing.T) {
+ 	started := time.Now()
+-	f := newAccount(t)
++	f := newB02Account(t).fixture
+ 	password := f.bootstrap(t)
+ 	_, cursor, _ := keys(t)
+ 	aud, err := audit.New(f.store, cursor, audit.Authorizations{Sessions: f.authority, System: f.authority})

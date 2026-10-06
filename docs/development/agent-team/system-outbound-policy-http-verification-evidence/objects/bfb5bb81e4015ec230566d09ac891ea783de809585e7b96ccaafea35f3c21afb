@@ -1,0 +1,33 @@
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.158.185.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=3828038d1eac00cfbfc174923c2cf789
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+net
+crypto/x509
+crypto/tls
+net/textproto
+vendor/golang.org/x/net/http/httpguts
+vendor/golang.org/x/net/http/httpproxy
+mime/multipart
+net/http/httptrace
+net/http/internal/httpcommon
+net/http/internal/http2
+net/http
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=de055b1792a55e0a63e04da0b3ccc61f
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+=== RUN   TestIndependentOutboundRootInflightPolicy
+    zz_independent_outbound_inflight_test.go:263: safe facts: same_root_client=true admitted_policy=2 current_policy=3 later_request_unsent=true original_body_eof=true reader_join=true socket_closed=true target_requests=1 policy_receipts=2
+--- PASS: TestIndependentOutboundRootInflightPolicy (2.49s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	3.525s
+=== RUN   TestIndependentOutboundHTTPHistoricalReceipt
+    zz_independent_outbound_history_test.go:218: safe facts: original_body_key_valid_csrf=true exact_command_receipt=1 exact_audit=1 historical_version=2 current_version=3 current_revocation_enforced=true native_hop_join=true
+--- PASS: TestIndependentOutboundHTTPHistoricalReceipt (2.58s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	3.611s
+D03 fixture cleanup checked for nonce 08490f2477634adfbb0c14cecefe1f9e
+D04 outbound fixture cleanup checked for nonce de055b1792a55e0a63e04da0b3ccc61f
+D05 object fixture exact resource cleanup checked nonce=3828038d1eac00cfbfc174923c2cf789

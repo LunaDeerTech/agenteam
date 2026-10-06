@@ -1,0 +1,87 @@
+{
+  "actual_exit": 0,
+  "actual_seconds": 23.728,
+  "actual_wait_completed": true,
+  "adopted_actual_waits": 0,
+  "candidate_manifest_sha256": "de32ede50b0c8d45c70c98ce480829c7630a568f07a554847484f3f9eb99938b",
+  "double_cleanup": true,
+  "driver_sha256": "89e4a0d78b10e9b97050fc2a0cc8c4f197cbc2a930f8846d3fec742d19d6188b",
+  "evidence": {
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-transaction-real02/adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-transaction-real02/cleanup.json": "dec4ac08df12a913541a2d3741f7ffaef19f17600f7b361781d67c0258bedbd6",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-transaction-real02/command.json": "5c122dcdec57b243b7c1b9cbd7106f9339ee86e33dc13a9231a7fb24c703af12",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-transaction-real02/input-after.json": "4e7b79b7ed8ae9c48d050e33699b66fd88d1dd021bca7a0dbf14319a77075b33",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-transaction-real02/input-before.json": "4e7b79b7ed8ae9c48d050e33699b66fd88d1dd021bca7a0dbf14319a77075b33",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-transaction-real02/observed-processes.json": "949969e4af30a17848e7676166480a02665bead69ef6da6b099ff08a2eed7201",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-transaction-real02/observed-resources.json": "ae0027dec66f34f2b4c7dcf2c81ffa11d6416f0a41c6025b5af349115967a756",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-transaction-real02/raw.log": "f0dfb6f2534c5fe720c257c47011d4f1cb477ef981406c8f95fdf57555c47c91",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-transaction-real02/result.json": "c973acda888006100ba998a252a7982a546072c30a3e8bc2a79cee7f2c7c7c67",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-transaction-real02/verification-input.json": "080b9a3966b7c50f0edb682a6e6855c5deca0c477e6dcabd89aec92726816aa2"
+  },
+  "execution_input_sha256": "13b8597403d77faaac567e0a99d7ec94d82c897138b1a7cae6b238607a7e88b5",
+  "limitations": [
+    "This is author evidence, not independent acceptance",
+    "Only transaction-only rerun; previous four PASS results remain in real01",
+    "No production or assertion/budget changes after stage02 freeze",
+    "No new COMMIT Unknown injection; accepted legacy Unknown evidence retained"
+  ],
+  "monitor_errors": 0,
+  "owned_pid_starttime": 30,
+  "preflight_sha256": "0c05559a0dac8ec030e7df6c5d00c96c4c3eed8df0b96f866c4a380f759fb641",
+  "previous_run": {
+    "four_passing_tops_not_rerun": true,
+    "original_fixture_failure_preserved": true,
+    "path": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-real01",
+    "report_sha256": "eedce190347a268e394fbfd7bc80531e7cb4303b58a60338f487b8d1b3b524ff"
+  },
+  "resource_window_released": true,
+  "resources": 7,
+  "source_runtime_before_after_identical": true,
+  "status": "author transaction-only real02 PASS; independent dynamic acceptance pending",
+  "subtests": [
+    [
+      "PASS",
+      "TestSystemOutboundPolicyHTTPTransactionAndBudget/preauthenticated_then_revoked_GET",
+      "0.37"
+    ],
+    [
+      "PASS",
+      "TestSystemOutboundPolicyHTTPTransactionAndBudget/preauthenticated_then_revoked_PUT",
+      "0.32"
+    ],
+    [
+      "PASS",
+      "TestSystemOutboundPolicyHTTPTransactionAndBudget/held_user_shared_serializes_formal_revoke",
+      "0.36"
+    ],
+    [
+      "PASS",
+      "TestSystemOutboundPolicyHTTPTransactionAndBudget/GET_earlier_parent",
+      "0.28"
+    ],
+    [
+      "PASS",
+      "TestSystemOutboundPolicyHTTPTransactionAndBudget/GET_database_timeout",
+      "1.03"
+    ],
+    [
+      "PASS",
+      "TestSystemOutboundPolicyHTTPTransactionAndBudget/PUT_earlier_parent",
+      "0.28"
+    ],
+    [
+      "PASS",
+      "TestSystemOutboundPolicyHTTPTransactionAndBudget/PUT_database_timeout",
+      "1.03"
+    ]
+  ],
+  "top_level": [
+    [
+      "PASS",
+      "TestSystemOutboundPolicyHTTPTransactionAndBudget"
+    ]
+  ],
+  "top_seconds": {
+    "TestSystemOutboundPolicyHTTPTransactionAndBudget": 5.37
+  }
+}

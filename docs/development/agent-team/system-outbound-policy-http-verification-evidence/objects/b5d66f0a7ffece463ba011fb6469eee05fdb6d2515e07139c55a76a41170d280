@@ -1,0 +1,5 @@
+--- FAIL: TestOutboundHTTPNativeBodyCancellationAndConnectionReuse (0.00s)
+    handler_test.go:584: cleared request deadline poisoned reused connection unexpected EOF
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/outbound/http	2.232s
+FAIL

@@ -1,0 +1,9 @@
+Outbound HTTP 独立后续计划：保持固定 819aba1 + 最终作者 11 源，作者三新两旧实际结束并双清后，再由主线程授独立窗口。现在只做计划，不启动资源或编写大套测试。
+
+复用已独立通过且未变的八源阶段：严格 wire/Unknown 安全投影、GET3s/PUT30s 与更早 parent、原生 keepalive 和取消实际尾部。作者最终三组覆盖正式 Authority/PG 锁与撤销、root 同实例更新及 unavailable、HTTP 并发和响应截断；按最终逐 SHA 和实际结果复用，不重新铺完整矩阵。
+
+代表 A：在真实 HTTP 接受原 PUT 后截断响应，以另一正式命令推进当前策略；GET 只作当前观察，同一用户新 Session 使用原 key/body 和合法 CSRF 显式重放精确历史 receipt，当前策略不倒退。只读 PG 按 outbound 自身 command identity 的 canonical SHA256 查原 receipt，并按回执 audit_id/正式 CommandAppendKey 关联唯一 Audit，避免 fresh-DB 总数代替逐原命令证明。随后正式撤销该 Session，原 key 也须受当前权限拒绝。仅记录安全布尔、数目和结果分类，不输出 cookie/CSRF/body。
+
+代表 B：通过已冻结 root 构造接缝捕获正式唯一 runtime/client，使用原受控网络 fixture 的有界响应暂停。允许规则下请求已实际获准并进入响应，再经管理 HTTP 清规则；后续请求被拒绝，而既有响应在显式 release 后正常 EOF/关闭，实际 join/socket 尾部闭合。必要时组合旧 receipt/GET 不恢复 unavailable 与显式 Reload 的边界；作者同字节已有强证据可直接复用，不为矩阵再造一次重型场景。无新 /egress、假 classifier、权限表写或新 fixture 协议。
+
+实施前只增私有最小 probe/overlay，冻结源、唯一工具链、精确每组一个顶层及实际编译闭包；原 race/count1/每包6m、新场景2m/原调用预算保持。正式资源沿自有 nonce、固定 MinIO/PG/网络、7-ID 拓扑、subreaper、actual wait/PIDstarttime/精确 ID 双清及前后门禁。响应截断明确区别 DB CommitUnknown；若出现失败先保留原件并实际清理，不自动改断言或重跑。原已停止任务不涉及。

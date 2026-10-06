@@ -2,6 +2,12 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：System 出站规则管理 HTTP 完整结果接受
+
+- [D04/D27 工作卡 rev1](../work-items/d04-system-outbound-policy-http.md)十二路径已获作者检查、独立风险验收及主线程采纳，提交推送 `a94277982620f01dc15488b09ae6ea9064977b5a`，远端一致。[正式报告与不可变证据](system-outbound-policy-http-verification.md)固定819aba1、最终十一源与第十二后端说明，技术§1–7 44515e…f8dc原字节保持。
+- 正式 GET/PUT、当前事务授权与同实例 policy/client 已接受；原native keepalive产品RED、fixture DEPENDENCY_UNBOUND及独立typed key编译前提红保留。作者首轮4 PASS与仅fixture一行修复后的事务1 PASS组合；独立两真实代表首轮PASS，三轮actual wait／7精确资源双absent／所属PID空／baseline不变，未称最终作者五组同轮重跑。
+- 离线归档核12固定Git交付、431→432源闭包／420→421依赖、3503作者／3506独立运行时指纹及35原检查，早期旧附加闭包全文缺件有界保留。不重新运行产品；SMTP UI／未来出站页面待各自验收，完整D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、生产未绑定及ready503边界不变。
+
 ## 2026-10-06：邮箱 canonical 再输入与 SMTP wire 闭包修复接受
 
 - [D07 修复卡 rev1](../work-items/d07-email-canonical-roundtrip.md)十路径获作者检查、独立风险验收及主线程采纳，提交推送 `f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a`，远端一致。[正式报告与不可变证据](email-canonical-roundtrip-verification.md)固定819aba1、九源input01及第十后端说明；卡技术§1–7保持f62bf7…af15原字节。

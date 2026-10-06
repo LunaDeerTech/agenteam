@@ -1,0 +1,19 @@
+# Outbound HTTP transaction-only real02：作者实际 PASS
+
+- 精确唯一顶层 `TestSystemOutboundPolicyHTTPTransactionAndBudget` PASS 5.37s；整轮 actual exit 0 / 23.728s，主 shell 实际 wait 完成。
+- 冻结执行输入 SHA `13b8597403d77faaac567e0a99d7ec94d82c897138b1a7cae6b238607a7e88b5`，11 候选输入 `harness-stage02.json` SHA `de32ede50b0c8d45c70c98ce480829c7630a568f07a554847484f3f9eb99938b`。仅原 #11 的 fixture 选择一行返修；原产品十文件、全部断言和预算保持。
+- 启动前 name 未占、磁盘 8.638GiB、实际只读 gate 通过；preflight SHA `0c05559a0dac8ec030e7df6c5d00c96c4c3eed8df0b96f866c4a380f759fb641`。
+
+## 实际覆盖
+
+七个子用例全部通过：HTTP 预认证后 GET/PUT 遭正式撤销；真实持有 User SH 使正式 revoke 排队；GET/PUT 的更早 parent 与 PostgreSQL LOCK_TIMEOUT=1s 分别触发实际锁等待/实际尾部返回。
+
+GET parent actual join 256.647ms，typed DATABASE_LOCK_FAILED，SQLSTATE 57014；PUT parent actual join 256.162ms，typed DATABASE_LOCK_FAILED，未要求底层 SQLSTATE 必有值。GET/PUT DB timeout actual join 分别 1.006s / 1.010s，typed DATABASE_LOCK_FAILED，SQLSTATE 55P03。所有未完成读取无候选，最终 policy version 1、receipts 0、audit 0 原断言通过。该数据库组不冒充自然3s或原生 socket 证明；对应先前已独立通过的 API 单元证据保持。
+
+## 收尾与冻结
+
+- 7 个任务自有精确资源 ID、30 个 PID/starttime；0 adopted、0 monitor error；两次 baseline 不变且每个 exact ID 缺失、owned PID/新资源/runtime 目录皆空。源码/runtime 前后完全相同，工具 session 实际退出0，重型窗口已交回主线程。
+- raw SHA `f0dfb6f2534c5fe720c257c47011d4f1cb477ef981406c8f95fdf57555c47c91`；result SHA `c973acda888006100ba998a252a7982a546072c30a3e8bc2a79cee7f2c7c7c67`；cleanup SHA `dec4ac08df12a913541a2d3741f7ffaef19f17600f7b361781d67c0258bedbd6`；command SHA `5c122dcdec57b243b7c1b9cbd7106f9339ee86e33dc13a9231a7fb24c703af12`。
+- 原件位于 `/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-transaction-real02`。全部证据 SHA 与七子用例耗时记录于同名 JSON，SHA `c9a9952775a789b206b306789757e6248bb4f03c076cdfd0a1431b4fec36517f`。
+- real01 的四项 PASS 与 transaction 初始化首红原件全部保留。此次只运行该事务顶层，没有重跑其余四项；两轮合起来满足作者三新两旧目标，但独立最终验收仍由主线程安排。
+- 未修改 main、生产源码、旧 fixture 或第12文档；11 候选、432 闭包、driver 和输入均停写。本轮结束后不继续运行资源。

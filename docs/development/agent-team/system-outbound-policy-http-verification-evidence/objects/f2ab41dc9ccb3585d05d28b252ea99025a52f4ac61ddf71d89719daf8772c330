@@ -1,0 +1,61 @@
+import hashlib
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+root = Path('/workspace/scratch/agenteam-outbound-policy-http-p04eazqi')
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+driver = root / 'run-outbound-policy-fixture-v2.py'
+spec = importlib.util.spec_from_file_location('outbound_driver_v2', driver)
+m = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(m)
+product = root / 'harness-stage02.json'
+source = json.loads(product.read_text())
+assert sha(product) == 'de32ede50b0c8d45c70c98ce480829c7630a568f07a554847484f3f9eb99938b'
+base = json.loads((root / 'inputs/baseline-closure.json').read_text())
+addition = json.loads((root / 'inputs/harness-closure02.json').read_text())
+raw, tree = m.fixed_tree()
+fixed = dict(base['files'])
+fixed.update({i['path']: i['sha256'] for i in addition['additional_files']})
+accepted = {name: {**tree[name], 'sha256': value} for name, value in fixed.items() if name not in source['files']}
+covered = set(accepted) | set(source['files'])
+directories = {str(Path(name).parent) for name in covered if Path(name).suffix in m.GO_INPUT_SUFFIXES}
+roots = [name.removeprefix('./').removesuffix('/...') for name in m.TEST_PACKAGES]
+required = {name for name in tree if Path(name).suffix in m.GO_INPUT_SUFFIXES and (str(Path(name).parent) in directories or any(name.startswith(parent + '/') for parent in roots))}
+omitted = sorted(name for name in required - covered if name.endswith('_test.go'))
+assert not (required - covered - set(omitted))
+baseline = {'product_base': m.BASE, 'git_tree_sha256': hashlib.sha256(raw).hexdigest(), 'files': accepted, 'omitted_test_files': omitted}
+m.FROZEN = {'files': source['files'], 'accepted_baseline': baseline}
+current = m.accepted_baseline_input()
+assert current['accepted'], current
+assert len(covered) == 432 and len(accepted) == 421 and len(omitted) == 206
+runtime = m.runtime_input()
+for name, value in source['files'].items():
+    assert sha(m.REPO / name) == value, name
+out = {
+    'product_base': m.BASE,
+    'product_manifest': {'path': str(product), 'sha256': sha(product)},
+    'prior_execution_input': {'path': str(root / 'execution-stage01/input.json'), 'sha256': sha(root / 'execution-stage01/input.json')},
+    'closure_manifests': {str(root / 'inputs' / name): sha(root / 'inputs' / name) for name in ['baseline-closure.json', 'harness-closure02.json']},
+    'driver_sha256': sha(driver),
+    'approved_driver': {'path': str(root / 'run-outbound-policy-fixture.py'), 'sha256': sha(root / 'run-outbound-policy-fixture.py')},
+    'driver_delta_sha256': sha(root / 'execution-stage02/driver.diff'),
+    'scope_adapter_delta_sha256': sha(root / 'execution-stage02/scope-adapter.diff'),
+    'candidate_delta_sha256': sha(root / 'execution-stage02/candidate.diff'),
+    'files': source['files'], 'accepted_baseline': baseline, 'runtime': runtime,
+    'execution_contract': {
+        'group': 'transaction-only',
+        'selector': '^(TestSystemOutboundPolicyHTTPTransactionAndBudget)$',
+        'test_packages': ['./tests/account'],
+        'all_group_retained_but_not_authorized': True,
+        'expected_resources': 7, 'scenario_seconds': 120,
+        'legacy_scenario_seconds': 45, 'go_package_timeout_seconds': 360,
+        'whole_run_120s_kill': False, 'heavy_start_authorized': False,
+        'check_input_only_resources_started': False,
+    },
+}
+p = root / 'execution-stage02/input.json'
+p.write_text(json.dumps(out, indent=2, sort_keys=True) + '\n')
+print(json.dumps({'execution_sha256': sha(p), 'driver_sha256': sha(driver), 'delta_sha256': out['driver_delta_sha256'], 'candidates': len(source['files']), 'accepted_dependencies': len(accepted), 'omitted_fixed_test_files': len(omitted), 'runtime_files': len(runtime['files']), 'runtime_modules': len(runtime['modules']), 'runtime_packages': len(runtime['packages']), 'resources_started': False}))

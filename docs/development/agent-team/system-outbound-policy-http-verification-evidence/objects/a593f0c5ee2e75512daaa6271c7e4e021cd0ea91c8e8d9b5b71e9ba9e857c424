@@ -1,0 +1,152 @@
+{
+  "base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "card": "docs/development/work-items/d04-system-outbound-policy-http.md",
+  "card_sha256": "8b3770b1900c52126a50975d0c452b38096a1e284770b539ae8a961b172a9a74",
+  "fixed_files": {
+    "internal/central/outbound/policy.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/outbound/policy.go",
+      "sha256": "50056c5f6cdf14acaaa93dd463a50b948a1ba93da9b01d9eb421cd025379febc",
+      "bytes": 16094
+    },
+    "internal/central/outbound/rules.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/outbound/rules.go",
+      "sha256": "a5c8833c7e68c0abf2dbed07829af8851728f071c68b82050b88c41db6bbb4c4",
+      "bytes": 6658
+    },
+    "internal/central/outbound/gate.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/outbound/gate.go",
+      "sha256": "660873aa833e0fbb63cc213d24a3b822b130df513869d821fa4cf699421acafc",
+      "bytes": 1406
+    },
+    "internal/central/outbound/client.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/outbound/client.go",
+      "sha256": "127467315ed1798db92d4785d856880b46b7e2b723c2dc723d3fbf7b1dcc4816",
+      "bytes": 13519
+    },
+    "internal/central/account/http_boundary.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/account/http_boundary.go",
+      "sha256": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc",
+      "bytes": 2525
+    },
+    "internal/central/app/account.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/app/account.go",
+      "sha256": "a855a5320b3fbbd5f34cdb3781ce34299a12d86b80e14cafc8d37c03734944c5",
+      "bytes": 13332
+    },
+    "internal/central/app/outbound.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/app/outbound.go",
+      "sha256": "e7209af27fdb5b57ae799f8ac3b14436b8f3414036d55a80f04911d480fc5355",
+      "bytes": 1616
+    },
+    "internal/central/app/model.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/app/model.go",
+      "sha256": "88921c967e1a70509c169e4461e7f73c9f0b76429c85c2fdb29d59ae5e10c799",
+      "bytes": 837
+    },
+    "internal/central/app/model_process_test.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/app/model_process_test.go",
+      "sha256": "d0da84b5ba533cbfae206caeac0b4631aa62e0b41b9bc8b343b1c0e649c8f1db",
+      "bytes": 17632
+    },
+    "internal/central/app/outbound_process_test.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/app/outbound_process_test.go",
+      "sha256": "d7edf9f997e79468fb21ae895319f3cfee8f2fb307429537dd2488cccce7c930",
+      "bytes": 11440
+    },
+    "internal/central/httpapi/json.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/httpapi/json.go",
+      "sha256": "5d1f29283f303400573261df614fa0c0ced66a1575c184cf02ffd720a02a2d6a",
+      "bytes": 8722
+    },
+    "internal/central/httpapi/problem.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/httpapi/problem.go",
+      "sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde",
+      "bytes": 8391
+    },
+    "internal/central/httpapi/response_writer.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/httpapi/response_writer.go",
+      "sha256": "360d0992159938812cfdad706a4b8b53de1e7673859462100aad4bd44bd361bc",
+      "bytes": 3529
+    },
+    "tests/account/http_fixture_test.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:tests/account/http_fixture_test.go",
+      "sha256": "f622024fed7d759ea422c3338bcc145818d7683709f109ee79a3413f6ee03d4f",
+      "bytes": 12793
+    },
+    "docs/development/backend/outbound.md": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:docs/development/backend/outbound.md",
+      "sha256": "942325fb5f6aba360b3ca403d87ccee27fdbfb7f9d64eacd9e6979b7e1e36da9",
+      "bytes": 11397
+    },
+    "docs/architecture/platform-infrastructure/outbound-network-policy.md": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:docs/architecture/platform-infrastructure/outbound-network-policy.md",
+      "sha256": "2dd897fdd076deebc3def739672ebb1446304268e368284aaa0855e68be10d8b",
+      "bytes": 14294
+    },
+    "docs/development/work-items/d04-security-design.md": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:docs/development/work-items/d04-security-design.md",
+      "sha256": "f1f8e72d0284038f4c35d989e8d8d8360293976836812fd0e480bb22aae42914",
+      "bytes": 41240
+    },
+    "api/openapi/common.json": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:api/openapi/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "bytes": 11091
+    },
+    "internal/central/outbound/error.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/outbound/error.go",
+      "sha256": "78db79258b5fe522909bdb2a85c30c7a04f6ea888645e5ca66f8cb685216759c",
+      "bytes": 1856
+    },
+    "internal/central/httpapi/middleware.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/httpapi/middleware.go",
+      "sha256": "3db915b7be11aa978347a434bb22a2c6ae225022b65dac9ca2e1349e3008491c",
+      "bytes": 3178
+    },
+    "internal/central/account/authority.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/account/authority.go",
+      "sha256": "4ee6365489ff21bfd629313b658f46f03495fe38a27e640ed4897a43547f14d5",
+      "bytes": 3404
+    },
+    "internal/central/account/http.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/account/http.go",
+      "sha256": "e87f71d7954ad9c1620bc90b47b1fb6b483ffeb1410668f6a1c2e93765fe93a1",
+      "bytes": 7884
+    },
+    "scripts/test-security.sh": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:scripts/test-security.sh",
+      "sha256": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be",
+      "bytes": 1117
+    },
+    "internal/central/account/csrf.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/account/csrf.go",
+      "sha256": "7081e08ba956c81daa1051a3f57e0792600cc12e71f4dddeeb3277e675a59e94",
+      "bytes": 5731
+    },
+    "internal/central/foundation/cause.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/foundation/cause.go",
+      "sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+      "bytes": 5490
+    },
+    "internal/central/foundation/scalar.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/foundation/scalar.go",
+      "sha256": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198",
+      "bytes": 3285
+    },
+    "tests/security/outbound_policy_test.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:tests/security/outbound_policy_test.go",
+      "sha256": "4dfd9d79efb8e93eac1c26cc6ddc8e041e6596a8434ea147c86676ef4f2917c0",
+      "bytes": 9408
+    },
+    "internal/central/app/app.go": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:internal/central/app/app.go",
+      "sha256": "16d03bee7c067afd57119d3d318f94119bf2cf3db033ed52afd9d380a39cf005",
+      "bytes": 20242
+    },
+    "docs/development/work-items/d04-security-foundation.md": {
+      "git": "819aba1b8f764328f1e2e67b53c274fad0db877d:docs/development/work-items/d04-security-foundation.md",
+      "sha256": "6f6966ee2236b5c327fe617864e0b3d46dbc89f6d1c808d1dbb5ec25e20b57d3",
+      "bytes": 60222
+    }
+  }
+}

@@ -1,0 +1,97 @@
+--- author-stage02/driver.py
++++ independent/driver02.py
+@@ -16,8 +16,10 @@
+ 
+ 
+ ROOT = Path(__file__).resolve().parent
+-REPO = ROOT / 'source'
+-SCOPE_ADAPTER = ROOT / 'tools/go-narrow-v2.py'
++REPO = Path('/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/execution-stage02/closure-source')
++OVERLAY_PATH = ROOT / 'probe02/overlay.json'
++OVERLAY = json.loads(OVERLAY_PATH.read_text())['Replace']
++SCOPE_ADAPTER = ROOT / 'tools/go-narrow.py'
+ GIT_REPO = Path('/workspace/agenteam')
+ BASE = '819aba1b8f764328f1e2e67b53c274fad0db877d'
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
+@@ -163,7 +165,7 @@
+ 
+ # The frozen private scope adapter narrows only Go test's package argv. Original
+ # scripts/fixture ownership and race/count/6m remain fixed; no SMTP is selected.
+-TEST_PACKAGES = ['./internal/central/app', './tests/account', './tests/security']
++TEST_PACKAGES = ['./internal/central/app', './tests/account']
+ HELPER_PACKAGES = ['./tests/testsupport/objectstore/cmd/fixture', './tests/testsupport/outbound/cmd/fixture', './tests/testsupport/outbound/cmd/server', './tests/testsupport/postgres/cmd/fixture']
+ 
+ 
+@@ -172,7 +174,7 @@
+     env.update({'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': MODCACHE,
+                 'GOCACHE': str(ROOT / 'gocache'), 'TMPDIR': str(ROOT / 'tmp'),
+-                'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1'})
++                'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -overlay=' + str(OVERLAY_PATH)})
+     return env
+ 
+ 
+@@ -193,7 +195,7 @@
+     decoder, text, offset = json.JSONDecoder(), '\n'.join(streams), 0
+     # The adapter is actually executed through this fixed interpreter, distinct
+     # from whichever Python starts this supervisor. Bind both executables.
+-    files = {Path(GO), Path(MINIO), SCOPE_ADAPTER, Path('/usr/bin/python3').resolve()}
++    files = {Path(GO), Path(MINIO), SCOPE_ADAPTER, Path('/usr/bin/python3').resolve(), OVERLAY_PATH, *(Path(p) for p in OVERLAY.values())}
+     executables = {'python': str(Path(sys.executable).resolve())}
+     for name in ['sh', 'docker', 'mktemp', 'rm', 'rmdir', 'dirname', go_environment['CC'], go_environment['CXX']]:
+         path = shutil.which(name, path=env.get('PATH'))
+@@ -225,6 +227,14 @@
+         for field in fields:
+             for name in package.get(field, []):
+                 path = (directory / name).resolve()
++                if str(path) in OVERLAY:
++                    files.add(Path(OVERLAY[str(path)]))
++                    continue
++                if path.is_relative_to(ROOT / 'probe02'):
++                    if path not in {Path(p) for p in OVERLAY.values()}:
++                        raise RuntimeError('private source outside fixed overlay')
++                    files.add(path)
++                    continue
+                 if path.is_relative_to(REPO):
+                     name = str(path.relative_to(REPO))
+                     if name not in FROZEN['files'] and name not in FROZEN['accepted_baseline']['files']:
+@@ -286,7 +296,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['all', 'transaction-only'], required=True)
++    parser.add_argument('--group', choices=['both'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     mode = parser.add_mutually_exclusive_group(required=True)
+@@ -296,11 +306,7 @@
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+     groups = {
+-        'all': ['TestSystemOutboundPolicyHTTP', 'TestSystemOutboundPolicyHTTPTransactionAndBudget',
+-                'TestSystemOutboundPolicyHTTPRootSharedInstance',
+-                'TestOutboundPolicyDurabilityReplayAndAuthorization',
+-                'TestOutboundPolicyRollbackAndUnavailableReplay'],
+-        'transaction-only': ['TestSystemOutboundPolicyHTTPTransactionAndBudget'],
++        'both': ['TestIndependentOutboundHTTPHistoricalReceipt', 'TestIndependentOutboundRootInflightPolicy'],
+     }
+     if str(Path(args.modcache).resolve()) != MODCACHE:
+         raise ValueError('modcache differs from frozen runtime')
+@@ -348,7 +354,7 @@
+     baseline = resources()
+     write(run / 'baseline.json', baseline)
+     env = runtime_environment()
+-    flags = '-mod=readonly -buildvcs=false -p=1 -v'
++    flags = '-mod=readonly -buildvcs=false -p=1 -v -overlay=' + str(OVERLAY_PATH)
+     env.update({'AGENTEAM_GO': str(SCOPE_ADAPTER),
+                 'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                 'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+@@ -439,7 +445,7 @@
+     summary['resource_topology_matches'] = resource_topology(observed_resources, False)
+     durations = re.findall(r'^--- (PASS|FAIL|SKIP): (\S+) \(([0-9.]+)s\)', (run / 'raw.log').read_text(errors='replace'), re.MULTILINE)
+     summary['top_level_seconds'] = {name: float(seconds) for _, name, seconds in durations}
+-    summary['scenario_budgets_match'] = len(durations) == len(expected) and all(float(seconds) <= (120 if name.startswith('TestSystemOutboundPolicy') else 45) for _, name, seconds in durations)
++    summary['scenario_budgets_match'] = len(durations) == len(expected) and all(float(seconds) <= (120 if name.startswith('TestIndependentOutbound') else 45) for _, name, seconds in durations)
+     summary['top_levels'] = tops
+     summary['selected_tests_passed'] = len(tops) == len(expected) and {name for state, name in tops if state == 'PASS'} == expected
+     summary['historical_zombies_untouched'] = [{key: row[key] for key in ['ppid','starttime','state','name']} | {'pid':pid} for pid,row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z']

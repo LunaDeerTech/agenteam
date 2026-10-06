@@ -1,0 +1,29 @@
+# Outbound HTTP 最终独立验证
+
+**PASS：固定十一条实现/测试路径可接受。** 最后第十二条 `docs/development/backend/outbound.md` 由作者另行交付，不在本清单内。基线 `819aba1b8f764328f1e2e67b53c274fad0db877d`；最终作者 `harness-stage02.json` SHA `de32ede50b0c8d45c70c98ce480829c7630a568f07a554847484f3f9eb99938b`，执行输入 SHA `13b8597403d77faaac567e0a99d7ec94d82c897138b1a7cae6b238607a7e88b5`。
+
+本次独立真实首轮 `runs/independent01` 两顶层全部通过，driver **actual exit0 / 27.539s**；没有重跑业务或放宽断言。使用固定只读 `execution-stage02/closure-source` 的11候选+421接受依赖及私有overlay，3506实际runtime文件逐项绑定；前后输入完全一致。Go1.27.1、原race/count1/package6m、新顶层2m、内部45s与stream3s均保持。
+
+| 独立代表 | 实际结果与到达事实 |
+| --- | --- |
+| `TestIndependentOutboundHTTPHistoricalReceipt` | PASS 2.58s。正式HTTP PUT上游完整提交回执后原生截断下游；另一合法同用户Session正式推进当前版本，再GET观察。显式使用原body字节/key与合法CSRF重放得到逐字节原v2回执，当前保持v3。沿Outbound自己的SHA256 canonical command与正式Audit AppendKey cause分别精确查询，原command receipt=1、原Audit=1、原actor/session/time完全匹配。正式注销后的旧Cookie重放401并清cookie；未新增原命令事实。 |
+| `TestIndependentOutboundRootInflightPolicy` | PASS 2.49s。同一root构造的policy/client接收HTTP更新；既有generic stream/Release fixture实际保持原请求body。HTTP清规则到v3后新请求精确PrivateNotAllowed、Sent=false，目标仍仅1请求，旧body仍在途。显式Release后原body真实EOF/reader join，旧回执不回滚当前，root实际退出后目标socket关闭、handler清零。 |
+
+整轮实际wait后 **7个exact资源ID两遍absent、36个所属PID/starttime两遍空、0个adopted wait、monitor0、runtime空、原baseline不变**；未触碰历史非自有PPID1僵尸。资源窗口已明确交回主线程，没有活动命令或后续运行计划。
+
+复用范围已逐SHA核对：此前独立API/root八源与最终八源完全一致，原三组独立strict wire/Unknown安全投影/native keep-alive/预认证预算及取消回调真实尾部PASS继续有效。作者原 `outbound-http-real01` 中root2.57s、HTTP3.88s、旧2项1.04/0.91s的四项PASS按不变代码复用；该轮总体exit1仍保留。唯一事务测试在构造HTTPBoundary前缺Challenges/DeliveryRequested而报DEPENDENCY_UNBOUND，改为固定Git819既有B02 helper后，`outbound-http-transaction-real02` actual0/23.728s、唯一top5.37s及7子例全PASS。独立已读取两轮原raw/command/result/cleanup；最终一行fixture差量没有修改生产或断言。
+
+原失败不覆盖：作者API `api03` 的原生keep-alive unexpected EOF属于已修产品RED；作者real01属于新测试fixture前提；本独立 `compile-account01` exit1/94.010s属于私有string误传typed IdempotencyKey的编译前提，`probe01`/raw均保留。修正只通过正式ParseIdempotencyKey构造原key，后续A/B race编译、vet、精确发现与门禁全部实际0；真实首轮即通过。
+
+边界：本轮HTTP截断不是DB COMMIT Unknown注入；数据库双向Unknown及核实失败复用卡明确允许的未变D04证据，HTTP Unknown投影由已验纯组证明。实际PG锁测试约256ms parent或1s DB期限的typed错误/零候选/actual join，不称其为HTTP3s/30s自然到期；该时间边界另有固定独立API原生/受控证据。B隔离库总数不冒充精确原command证明，后者由A完成。本结论不扩为SMTP UI、未来出站页面、完整D27或已停止Object/tools任务通过。
+
+精确十一源目标路径、来源和SHA在 `delivery11.json`，SHA `8940d304bc2a7b91c4f9b10bcc59ec2e9c2bdb52d88ea7894824c5dffbdf0d2c`。私有执行输入 `execution01.json` SHA `6c429eb693790085670fbfddb79aa3e68690d1bcf451eed22eda0b2f836d2414`，driver SHA `9c58f39106a31c30699dcd41b4e77a4b8ab4c308780f811d7d179f0c9d061b29`；原完整命令/env和实际退出在本轮 `command.json`。
+
+| 本轮原件 | SHA256 |
+| --- | --- |
+| `runs/independent01/raw.log` | `bfb5bb81e4015ec230566d09ac891ea783de809585e7b96ccaafea35f3c21afb` |
+| `runs/independent01/result.json` | `a444d9af69172d6c70900ba4a15ad360fe1cfe5421fe7a60c21b3c0e0174f8cb` |
+| `runs/independent01/cleanup.json` | `9921a9ae6d75e09cee5ed027fa25335bb9ee4539b3c3eaae9322c9db661aedfa` |
+| `runs/independent01/command.json` | `23afa9fd34e769de94f99965a043beade39641f55dffe2b337206a7c8169fd9a` |
+
+`verification-report.json` 只索引最小原件及各轮边界，未复制全源码树/模块缓存/二进制。全部本报告、清单、探针、执行输入及已结束run原件已停止写入，可供归档；此前阶段报告保持原字节。

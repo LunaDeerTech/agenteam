@@ -1,0 +1,152 @@
+--- approved-email/run-email-canonical-fixture.py
++++ outbound/run-outbound-policy-fixture.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only frozen email canonical roundtrip groups and record actual resources."""
++"""Run only frozen outbound policy HTTP groups and record actual resources."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -16,7 +16,8 @@
+ 
+ 
+ ROOT = Path(__file__).resolve().parent
+-REPO = ROOT / 'workspace'
++REPO = ROOT / 'source'
++SCOPE_ADAPTER = ROOT / 'tools/go-narrow.py'
+ GIT_REPO = Path('/workspace/agenteam')
+ BASE = '819aba1b8f764328f1e2e67b53c274fad0db877d'
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
+@@ -117,16 +118,20 @@
+         raise RuntimeError('fixed accepted Git tree differs from frozen baseline')
+     if any(any(expected['files'][name][key] != value for key, value in row.items()) for name, row in selected.items()):
+         raise RuntimeError('fixed minimal closure differs from accepted Git')
+-    # Include every source file in each selected package, and every package
+-    # under the fixed PG driver's test roots. Native Go discovery also checks
+-    # that all embeds and imports resolve inside this bound closure.
++    # Keep all non-test source in every selected package. This task deliberately
++    # copies only the fixed old test fixtures needed by the five named tops;
++    # bind the exact omitted test inventory instead of silently pruning files.
++    # Native discovery below closes all actual imports/embeds/build profiles.
+     covered = set(selected) | set(FROZEN['files'])
+     directories = {str(Path(name).parent) for name in covered if Path(name).suffix in GO_INPUT_SUFFIXES}
+     roots = [name.removeprefix('./').removesuffix('/...') for name in TEST_PACKAGES]
+     required = {name for name in tree if Path(name).suffix in GO_INPUT_SUFFIXES and
+                 (str(Path(name).parent) in directories or any(name.startswith(parent + '/') for parent in roots))}
+-    if required - covered:
+-        raise RuntimeError('incomplete fixed compile package closure')
++    omitted_tests = sorted(name for name in required - covered if name.endswith('_test.go'))
++    if required - covered - set(omitted_tests):
++        raise RuntimeError('incomplete fixed non-test compile package closure')
++    if omitted_tests != expected['omitted_test_files']:
++        raise RuntimeError('fixed unselected test inventory differs from frozen scope')
+     actual, errors = set(), []
+     for directory, directories, files in os.walk(REPO):
+         for name in directories:
+@@ -150,16 +155,16 @@
+         if sha != expected['files'][name]['sha256'] or oid != selected[name]['git_blob']:
+             mismatches.append(name)
+     missing, unexpected = sorted(set(selected) - actual), sorted(actual - set(selected))
+-    return {'product_base': BASE, 'git_tree_sha256': tree_sha, 'accepted_count': len(selected),
++    return {'product_base': BASE, 'git_tree_sha256': tree_sha, 'accepted_count': len(selected), 'omitted_test_files': omitted_tests,
+             'files': hashes, 'missing': missing, 'unexpected': unexpected,
+             'mismatches': mismatches, 'errors': errors,
+             'accepted': not (missing or unexpected or mismatches or errors)}
+ 
+ 
+-# Same test package roots selected by the fixed PG driver (including -objects),
+-# plus the fixture binaries built by its shell/SMTP chain. Discovery starts none.
+-TEST_PACKAGES = ['./internal/central/postgres/...', './tests/database/...', './internal/central/app/...', './tests/process/...', './tests/security/...', './tests/outbox/...', './internal/central/outbox/...', './tests/account/...', './tests/accountmail/...', './internal/central/accountmail/...', './internal/central/recoverylog/...', './tests/project/...', './internal/central/model/...', './tests/model/...', './tests/objects/...', './internal/central/object/...']
+-HELPER_PACKAGES = ['./tests/testsupport/objectstore/cmd/fixture', './tests/testsupport/outbound/cmd/fixture', './tests/testsupport/outbound/cmd/server', './tests/testsupport/postgres/cmd/fixture', './tests/testsupport/smtp/cmd/server']
++# The frozen private scope adapter narrows only Go test's package argv. Original
++# scripts/fixture ownership and race/count/6m remain fixed; no SMTP is selected.
++TEST_PACKAGES = ['./internal/central/app', './tests/account', './tests/security']
++HELPER_PACKAGES = ['./tests/testsupport/objectstore/cmd/fixture', './tests/testsupport/outbound/cmd/fixture', './tests/testsupport/outbound/cmd/server', './tests/testsupport/postgres/cmd/fixture']
+ 
+ 
+ def runtime_environment():
+@@ -176,10 +181,19 @@
+     go_environment = json.loads(subprocess.check_output([GO, 'env', '-json', 'GOVERSION', 'CC', 'CXX', 'GOTOOLDIR', 'GOOS', 'GOARCH', 'CGO_CFLAGS', 'CGO_CPPFLAGS', 'CGO_CXXFLAGS', 'CGO_LDFLAGS'], cwd=REPO, env=env, timeout=20))
+     if go_environment['GOVERSION'] != 'go1.27.1':
+         raise RuntimeError('wrong Go toolchain')
+-    discovery_argv = [GO, 'list', '-race', '-deps', '-test', '-tags=integration', '-json', *TEST_PACKAGES, *HELPER_PACKAGES]
+-    raw = subprocess.check_output(discovery_argv, cwd=REPO, env=env, timeout=60)
+-    decoder, text, offset = json.JSONDecoder(), raw.decode(), 0
+-    files = {Path(GO), Path(MINIO)}
++    profiles = [
++        ('integration-race', [GO, 'list', '-race', '-deps', '-test', '-tags=integration', '-json', *TEST_PACKAGES], env),
++        ('fixture-build', [GO, 'list', '-deps', '-json', *HELPER_PACKAGES], env),
++        ('outbound-server-static', [GO, 'list', '-deps', '-json', './tests/testsupport/outbound/cmd/server'], dict(env, CGO_ENABLED='0')),
++    ]
++    discoveries, streams = [], []
++    for name, argv, profile_env in profiles:
++        streams.append(subprocess.check_output(argv, cwd=REPO, env=profile_env, timeout=60).decode())
++        discoveries.append({'profile': name, 'argv': argv, 'CGO_ENABLED': profile_env['CGO_ENABLED']})
++    decoder, text, offset = json.JSONDecoder(), '\n'.join(streams), 0
++    # The adapter is actually executed through this fixed interpreter, distinct
++    # from whichever Python starts this supervisor. Bind both executables.
++    files = {Path(GO), Path(MINIO), SCOPE_ADAPTER, Path('/usr/bin/python3').resolve()}
+     executables = {'python': str(Path(sys.executable).resolve())}
+     for name in ['sh', 'docker', 'mktemp', 'rm', 'rmdir', 'dirname', go_environment['CC'], go_environment['CXX']]:
+         path = shutil.which(name, path=env.get('PATH'))
+@@ -230,7 +244,8 @@
+     return {'go': GO, 'modcache': MODCACHE, 'minio': MINIO, 'files': hashes,
+             'modules': dict(sorted(modules.items())), 'packages': sorted(packages),
+             'generated_test_mains': sorted(generated), 'go_environment': go_environment,
+-            'executables': executables, 'discovery_argv': discovery_argv,
++            'executables': executables, 'discovery_profiles': discoveries,
++            'scope_adapter': str(SCOPE_ADAPTER), 'scope_interpreter': str(Path('/usr/bin/python3').resolve()),
+             'discovery_env': {key: env[key] for key in ['GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
+ 
+ 
+@@ -271,7 +286,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new-account', 'new-wire', 'old'], required=True)
++    parser.add_argument('--group', choices=['all'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     mode = parser.add_mutually_exclusive_group(required=True)
+@@ -281,9 +296,10 @@
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+     groups = {
+-        'new-account': ['TestAccountEmailCanonicalRoundTrip', 'TestAccountHTTPEmailCanonicalRoundTrip'],
+-        'new-wire': ['TestAccountMailEmailCanonicalWireRoundTrip'],
+-        'old': ['TestAccountMailSMTPThreeModesUseActualControlledSockets'],
++        'all': ['TestSystemOutboundPolicyHTTP', 'TestSystemOutboundPolicyHTTPTransactionAndBudget',
++                'TestSystemOutboundPolicyHTTPRootSharedInstance',
++                'TestOutboundPolicyDurabilityReplayAndAuthorization',
++                'TestOutboundPolicyRollbackAndUnavailableReplay'],
+     }
+     if str(Path(args.modcache).resolve()) != MODCACHE:
+         raise ValueError('modcache differs from frozen runtime')
+@@ -332,7 +348,7 @@
+     write(run / 'baseline.json', baseline)
+     env = runtime_environment()
+     flags = '-mod=readonly -buildvcs=false -p=1 -v'
+-    env.update({'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
++    env.update({'AGENTEAM_GO': str(SCOPE_ADAPTER),
+                 'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                 'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': args.modcache,
+@@ -419,13 +435,16 @@
+     summary['browser_processes'] = sum(row['name'] in {'chromium', 'chrome', 'chrome_crashpad'} for row in observed_processes.values())
+     summary['node_processes'] = sum(row['executable'] in {'node', 'nodejs'} for row in observed_processes.values())
+     summary['adopted_waits'] = len(adopted_waits)
+-    summary['resource_topology_matches'] = resource_topology(observed_resources, args.group in {'new-wire', 'old'})
++    summary['resource_topology_matches'] = resource_topology(observed_resources, False)
++    durations = re.findall(r'^--- (PASS|FAIL|SKIP): (\S+) \(([0-9.]+)s\)', (run / 'raw.log').read_text(errors='replace'), re.MULTILINE)
++    summary['top_level_seconds'] = {name: float(seconds) for _, name, seconds in durations}
++    summary['scenario_budgets_match'] = len(durations) == len(expected) and all(float(seconds) <= (120 if name.startswith('TestSystemOutboundPolicy') else 45) for _, name, seconds in durations)
+     summary['top_levels'] = tops
+     summary['selected_tests_passed'] = len(tops) == len(expected) and {name for state, name in tops if state == 'PASS'} == expected
+     summary['historical_zombies_untouched'] = [{key: row[key] for key in ['ppid','starttime','state','name']} | {'pid':pid} for pid,row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z']
+     write(run / 'result.json', summary)
+     print(json.dumps(summary), flush=True)
+-    return 0 if exit_code == 0 and clean and len(observed_resources) == (9 if args.group in {'new-wire', 'old'} else 7) and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] and not summary['browser_processes'] and not summary['node_processes'] and summary['resource_topology_matches'] else 1
++    return 0 if exit_code == 0 and clean and len(observed_resources) == 7 and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] and not summary['browser_processes'] and not summary['node_processes'] and summary['resource_topology_matches'] and summary['scenario_budgets_match'] else 1
+ 
+ 
+ if __name__ == '__main__':

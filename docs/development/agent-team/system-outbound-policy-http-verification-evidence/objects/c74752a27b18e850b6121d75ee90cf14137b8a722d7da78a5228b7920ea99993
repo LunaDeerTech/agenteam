@@ -1,0 +1,35 @@
+# Outbound HTTP：11 文件离线 harness 冻结
+
+- 固定产品基线：`819aba1b8f764328f1e2e67b53c274fad0db877d`；已接受规格 `8c27bc430834bea118b0380cc0e54c445fd746b5`。
+- 完整输入：`harness-stage01.json` SHA `1d21a6ea1b32e43ec129e04e6b30c2ba351e173bc9cc62cd182442cf00260fe9`；只读候选 `harness-stage01-source/`。
+- 八源完全等于原 `api-stage01.json` SHA `619f6fd0ac4b3dbaba7cb9dcd9a8e193393d9fac9aaa84947f4a72660e9aafd3`，未修产品。只新增卡 #8/#10/#11；#12 文档未动。
+- 前阶段独立有界 API/root PASS 已由主线程采纳；本报告只报告作者离线准备，不替代三真实顶层验收。
+
+## 三条新顶层及证据边界
+
+- `TestSystemOutboundPolicyHTTP`：复用正式 root、bootstrap/login/invite/redeem，管理员与普通用户/撤销会话，严格两口输入与单 RequestID；同版本新 key 竞争、语义/版本冲突、新 Session 原回执、当前观察分离。任务自有原生 HTTP hop 在上游真实接受后截断响应，确认原 body/key 的唯一回执/Audit；该断响应不等同 PostgreSQL COMMIT Unknown。
+- `TestSystemOutboundPolicyHTTPTransactionAndBudget`：实际 Account Authority/PolicyService/PG，观察 wrapper 每次委托真实 Store；预认证后正式 logout、实际 User SH 与 revoke EX 排队、GET/PUT 对相同 policy lock 的 parent/DB1s 期限及实际尾部、无候选/无命令事实。受控 recorder 仅此真实 DB 组使用，不冒充原生 socket 证明。
+- `TestSystemOutboundPolicyHTTPRootSharedInstance`：实际 root 捕获唯一 runtime；纯构造期仅换真实 NewClient 的 fixture DNS/CA，policy 指针/分类器不变。所有规则修改走 HTTP；空→允许→清空→旧 receipt、任务自有目标计数与实际 socket 关闭；真实锁令 maintenance Reload 失败，GET/旧 receipt 不恢复镜像，唯显式 maintenance Reload 恢复当前版。ready503 保持，无测试 `/egress`。
+- 两条旧 D04 顶层原文件未改，只读保留：`TestOutboundPolicyDurabilityReplayAndAuthorization`、`TestOutboundPolicyRollbackAndUnavailableReplay`。旧测试权限 fixture/直接异常注入与三条新正式 Account/只读 SQL+锁屏障证据分开。旧已接受 COMMIT Unknown 证据复用，本轮未再运行。
+
+## 实际离线检查
+
+| 命令记录 | 实际退出 / 秒 | 作用 |
+| --- | --- | --- |
+| `harness-compile01` | 0 / 4.684 | 首次两包 integration/race 编译，零测试执行 |
+| `harness-compile02` | 0 / 4.609 | 含两旧回归的三包 integration/race 编译，零测试执行 |
+| `harness-vet01` | 0 / 5.759 | 三包 integration vet |
+| `harness-discovery01` | 0 / 3.765 | 恰三新+两旧名称，零测试执行 |
+| `harness-fixture-build01` | 0 / 1.551 | 四个固定 fixture/server main 编译；没有启动 |
+| `harness-app-compile03` | 0 / 4.456 | 最后仅 root failed-case join 改动后编译，零测试执行 |
+| `harness-app-vet02` | 0 / 0.649 | 最后 root 变动后 vet |
+
+- 每条原始 command/input/raw/result 位于 `evidence/<name>/`。均保留实际 PID 集合、实际 wait 和两次进程组为空；adopted 为0。未执行的测试没有 PASS 声明。
+- 本轮新增最小固定依赖14文件，记于 `inputs/harness-closure.json`；原407文件编译闭包不重建。私有 source 共431文件，全部逐字节匹配固定819依赖或授权11候选。
+- 三新文件 gofmt/UTF8/LF/尾空白/no-index diff-check通过；旧八源指纹一致。首次冻结脚本误将 no-index 的无诊断 exit1 当失败，已修正为新文件差异的正常返回；未因此改源码。仅最后 root 清理一处新增后重跑 app 编译/vet，未机械重跑既有 API 行为测试。
+
+## 后续真实运行准备与未授权
+
+- `inputs/real-run-plan.json` 仅准备：原 `scripts/test-security.sh -run` 精确五名；保持原资源脚本全部字节，仅私有 `tools/go-narrow.py` 将底层 Go test 包表缩到 app/account/security，并保留 race/count1/timeout6m，增 verbose/p1供逐顶层证据和有界执行。脚本和 helper 本身不是产品变更。
+- 新场景≤2m、普通目标45s、Go全组6m；实际资源窗口、精确命令外层监督、现有可验证 MinIO缓存与两次任务自有 ID 清理记录由主线程下一次移交后执行。启动前不得继承别的任务 fixture descriptor。没有启动 Docker/PG/MinIO/网络 fixture 或 SMTP；没有消费活动 email/SMTPUI 输入。
+- 尚未验证：真实 HTTP 权限/DB竞争/同实例控制网络行为、原两条动态回归以及最终 root 组合。11候选已停止写入；main/旧文档/迁移/其他产品路径均未写。

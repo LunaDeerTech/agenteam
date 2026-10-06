@@ -1,0 +1,121 @@
+{
+  "actual_cwd": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/execution-stage02/closure-source",
+  "author_execution": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/execution-stage02/input.json",
+    "sha256": "13b8597403d77faaac567e0a99d7ec94d82c897138b1a7cae6b238607a7e88b5"
+  },
+  "checks": {
+    "compile-account01": {
+      "actual_wait": true,
+      "artifacts": {
+        "command.json": "ab1e7654b8a4f6a74d34e182597ae78cb208a6afeeb48fb93b6c97039b8a5cc9",
+        "raw.log": "ee979b20d362e4975ff09ee6c6ca068403f2c1d3fb069c90f9baa06b3ef85f53",
+        "result.json": "b1003033064b72aac4ee2902085d520284b6223d6192387ff5f19ec17e1416c4"
+      },
+      "exit_code": 1,
+      "input_unchanged": true,
+      "resource_execution": false,
+      "seconds": 94.01
+    },
+    "compile-account02": {
+      "actual_wait": true,
+      "artifacts": {
+        "command.json": "bd6a508329d1c35c345d214d68f99dc2cd782a04dd3d1b5baebbaf19812eef7b",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "942aab4f7959f389ff66785dd30c86213b9320c6fc93e21eb6d7231ce8b955d7"
+      },
+      "exit_code": 0,
+      "input_unchanged": true,
+      "resource_execution": false,
+      "seconds": 2.496
+    },
+    "compile-app01": {
+      "actual_wait": true,
+      "artifacts": {
+        "command.json": "c966d2831625d39b531b8ed6e1aa33afdd20a6b23cc832328c9fc3963f1e2f42",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "e77d6fa98d2dfa9c55822c2c6b40d43a96a1b9edca85ba564e4d4f5b49a11521"
+      },
+      "exit_code": 0,
+      "input_unchanged": true,
+      "resource_execution": false,
+      "seconds": 4.236
+    },
+    "discovery01": {
+      "actual_wait": true,
+      "artifacts": {
+        "command.json": "7a1cf293b174946fba369ae43fe1636b1f3b06adcff64ba13d57e4c5b48e04fa",
+        "raw.log": "1bfad02816115fe654a00cb73ce80741402861e0ce2cfa4de0ccf2d1cdbb94bd",
+        "result.json": "bf21f9abb5fddf17f101f2310ba797d75f82b70d84cf17515036abddd9fc2c57"
+      },
+      "exit_code": 0,
+      "input_unchanged": true,
+      "resource_execution": false,
+      "seconds": 4.122
+    },
+    "gate01": {
+      "actual_wait": true,
+      "artifacts": {
+        "command.json": "d15e7b0ec82c6c0c1c5f1c1dba2d7ad8ee9035f76e25baa1877ba11fd1c1b0d3",
+        "raw.log": "1cc97caf04b18b2c0c6b96c9cb90cf8831c52f507a4f4091bd67dd8059d52afa",
+        "result.json": "52260875a66230cc251eff6144a168271c60a6c1702e10267f60efb7f5552cdf"
+      },
+      "exit": 0,
+      "resources_started": false,
+      "seconds": 2.246
+    },
+    "runtime01": {
+      "artifacts": {
+        "command.json": "dc186256692d853a36f862f596902c0b09a6d235816b99b15bf3d51b8ea07f05",
+        "raw.log": "b5edf21c7f83cda7089a823bd53ba2f275bda5c75da1b85ba1d0292e3181bc97",
+        "result.json": "8c1c2f11b7af7cd6a6989c27fea8afa62fbc1d7462e1812c95fe51e44a7f68f5"
+      },
+      "author_input_unchanged": true,
+      "exit": 0,
+      "resources_started": false,
+      "seconds": 2.198
+    },
+    "vet01": {
+      "actual_wait": true,
+      "artifacts": {
+        "command.json": "3913bc04918fbd8ae4a17f91e08c1d38cbaefb7cacae69311bac58e6d24e0318",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "ceb3fe2e01463ab4a047d2312ebb4fbc453158ab50b4077b3e8be30cd0e045c4"
+      },
+      "exit_code": 0,
+      "input_unchanged": true,
+      "resource_execution": false,
+      "seconds": 68.91
+    }
+  },
+  "files": {
+    "binding01.json": "813412c350d117e1ab52fd8f16140da05292c66de4960e706fef4f4255a188a3",
+    "driver-author-to-independent02.diff": "dc95c6d1d911d4032227efef79c829eda9b4c9074059af9ff12e052ad828fbd2",
+    "driver02.py": "9c58f39106a31c30699dcd41b4e77a4b8ab4c308780f811d7d179f0c9d061b29",
+    "execution01.json": "6c429eb693790085670fbfddb79aa3e68690d1bcf451eed22eda0b2f836d2414",
+    "preparation-failure01.md": "609000c60e8f15b5b066f5304d6ba0fdd4bd2acd6b0d4ba0f3c3c6c84cd40b79",
+    "probe01-to02.diff": "a206f80a3d24d85d3fabf05b559020468ff409f904768c5b21986732d0c9fcd4",
+    "probe02/history_test.go": "3c3daa21c7e45cebc5a907491138e1f4437e18eb9eec7b02ceb73e5aea9e81c1",
+    "probe02/inflight_test.go": "d802ce9fe332005791a12697f20d8100710c356b0fa2a6f0ea8401410aeea441",
+    "probe02/overlay.json": "0131103d671f9cc71a8a9a766dcfd8b8a3b39524491402e8a8310a8935678a66",
+    "tools/go-narrow.py": "32c63a7850c7f4eb62bbeb0be80fdf5d52ff9159a66eb37e1205fdb3bb4c9ed5"
+  },
+  "limits": {
+    "count": 1,
+    "go_package_timeout_seconds": 360,
+    "per_new_top_seconds": 120,
+    "race": true,
+    "resources": 7
+  },
+  "no_real_resources_started": true,
+  "selectors": [
+    "TestIndependentOutboundHTTPHistoricalReceipt",
+    "TestIndependentOutboundRootInflightPolicy"
+  ],
+  "source_counts": {
+    "accepted": 421,
+    "candidate": 11,
+    "runtime": 3506
+  },
+  "status": "OFFLINE READY; no real-resource result"
+}

@@ -1,0 +1,37 @@
+# 出站规则 HTTP：作者 API/root 阶段01
+
+状态：8条候选路径已冻结，供独立审查；不是完整后端接受。本阶段没有主树、Git或重型资源变更。
+
+固定产品基线819aba1b8f764328f1e2e67b53c274fad0db877d；规格8c27bc430834bea118b0380cc0e54c445fd746b5。固定输入 `api-stage01.json` SHA `619f6fd0ac4b3dbaba7cb9dcd9a8e193393d9fac9aaa84947f4a72660e9aafd3`，只含8条候选；依赖按其中baseline-closure定位的36包/407文件/3.84MB固定闭包读取，不消费SMTPUI/email活动源。候选副本位于 `api-stage01-source/`，编译闭包位于 `source/`，均已停止写入。
+
+实现正式GET/PUT、Account原边界、strict DTO/规则原字节与独立1MiB/512KiB预算、同用户原命令身份、预认证前3s/30s及实际body/服务/取消尾部、完整响应后置检查。root只在app/account.go接已有transport.policy/core并包一层精确路由，未改变原PolicyService、HTTPBoundary或分类器。OpenAPI只新增两operation。
+
+## 实际检查
+
+每组 `evidence/<run>/` 保存command/input/result/raw，失败原件保留。Go1.27.1；readonly/off，本地GOCACHE/TMPDIR，共享已指定modcache；`-race -count=1 -timeout=45s`。未把Go编译时间当用例执行时间。
+
+| 组 | actual exit | 含构建及清理wall | 观察owned PID / adopted wait |
+| --- | --- | --- | --- |
+| api01 | 1 | 0.309s | 1 / 0 |
+| api02 | 1 | 57.256s | 235 / 0 |
+| api03 | 1 | 4.185s | 6 / 0 |
+| api04 | 0 | 4.796s | 4 / 0 |
+| compat01 | 0 | 17.291s | 29 / 0 |
+| vet01 | 0 | 34.503s | 210 / 0 |
+| api05 | 0 | 5.378s | 5 / 0 |
+| vet02 | 0 | 0.681s | 2 / 0 |
+| build01 | 0 | 2.062s | 6 / 0 |
+
+- api01为默认缓存缺依赖的准备前提失败，无测试执行；api02为纯测试mock返回postgres.Row类型不匹配的编译失败，无测试执行。
+- api03保留产品首红：原生keep-alive读取unexpected EOF，包2.232s。正常完成时先cancel导致本地回调立即设置已过期写期限；已改为正常尾部先close body、stop/join回调并清期限，再cancel。并非放宽原生断言。
+- api04包3.166s通过；补充受控body Read/Close分别保持尾部的用例后，api05在最终8路径原字节上通过，12个HTTP顶层/包3.440s，包括最大合法规则、严格wire、权限边界、GET/PUT预算、服务/回调/body实际join、已接受写响应失败不追加Problem、独立原生连接连续复用及部分PUT体100ms parent取消。
+- 原生用例仅自有127.0.0.1临时端口，assert3个请求命中、取消输入零PUT、server/connection/handler清零；这是原生传输证据，不是DB/真实Account权限/实际出站目标证据。
+- compat01：app新路由与旧Model分派/构造、Account HTTPBoundary/OpenAPI、Model OpenAPI及公共schema，共4包通过。与最终输入差异只有未被这些包编译的subpackage handler_test新增body-tail用例；相关产品字节一致。
+- vet01覆盖outbound/http、outbound、app、account、model、httpapi；仅新增的handler_test由最终vet02再核。build01用最终输入构建Central/Runner成功，未执行产物。
+- gofmt、UTF8/LF/尾空白、限定diff-check、20个OpenAPI本地ref与候选外零改动通过。所有命令组均actual wait结束、组内进程两次为零，无adopted未终结项。
+
+## 未验边界与后续
+
+尚未编写授权的3条真实harness：app/outbound_policy_http_process_test.go、tests/account/outbound_policy_http_test.go及outbound_policy_http_transaction_test.go。当前真实事务授权/撤权/版本竞争、历史receipt/Audit、DB锁1s/HTTP3s或30s、正式root捕获同policy/client的目标计数切换及unavailable镜像不被旧receipt恢复，均未动态验证。固定原D04/Account能力只作为已验依赖，不借纯替身声称组合已通过。
+
+第12路径backend/outbound.md仍未授写；重型资源窗口另授。后续按本阶段独立审查结论继续离线harness，再移交真实执行。Object/tools停止、Summary待决及生产ready503不变。

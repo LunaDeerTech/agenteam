@@ -1,0 +1,28 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestSystemOutboundPolicyHTTP|TestSystemOutboundPolicyHTTPTransactionAndBudget|TestSystemOutboundPolicyHTTPRootSharedInstance|TestOutboundPolicyDurabilityReplayAndAuthorization|TestOutboundPolicyRollbackAndUnavailableReplay)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/source",
+  "ended_utc": "2026-10-06T17:10:43.570156+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/tools/go-narrow.py",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/runs/outbound-http-real01/runtime"
+  },
+  "exit": 1,
+  "seconds": 32.295,
+  "started_utc": "2026-10-06T17:10:11.275372+00:00"
+}

@@ -1,0 +1,55 @@
+{
+  "exit_code": 0,
+  "seconds": 4.236,
+  "actual_wait": true,
+  "input_unchanged": true,
+  "observed": {
+    "1823802:4805678": {
+      "pid": 1823802,
+      "starttime": "4805678",
+      "ppid": 1823799,
+      "state": "S"
+    },
+    "1823821:4805700": {
+      "pid": 1823821,
+      "starttime": "4805700",
+      "ppid": 1823802,
+      "state": "R"
+    },
+    "1823825:4805706": {
+      "pid": 1823825,
+      "starttime": "4805706",
+      "ppid": 1823802,
+      "state": "S"
+    },
+    "1823829:4805717": {
+      "pid": 1823829,
+      "starttime": "4805717",
+      "ppid": 1823802,
+      "state": "R"
+    },
+    "1823861:4805931": {
+      "pid": 1823861,
+      "starttime": "4805931",
+      "ppid": 1823802,
+      "state": "R"
+    },
+    "1823897:4806065": {
+      "pid": 1823897,
+      "starttime": "4806065",
+      "ppid": 1823802,
+      "state": "R"
+    },
+    "1823905:4806071": {
+      "pid": 1823905,
+      "starttime": "4806071",
+      "ppid": 1823802,
+      "state": "R"
+    }
+  },
+  "adopted_waits": [],
+  "first": {},
+  "second": {},
+  "resource_execution": false,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

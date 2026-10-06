@@ -1,0 +1,19 @@
+# Outbound HTTP：真实 driver 离线补齐
+
+- execution input SHA：`36e785775575623b59b996f49c1c0fe7362f1e70920ddd91d778cbfdcbf46044`。11 产品/测试仍为 `harness-stage01.json` `1d21a6ea1b32e43ec129e04e6b30c2ba351e173bc9cc62cd182442cf00260fe9`，原字节保持。
+- 真实 driver SHA：`5da5dfc65819031f4e27db463111891f9c209edb98b5a52ddb64322a9193f836`；相对已验 email driver `87d1d99f256def5cf7205e7932a7c7a7d311cc389fa5e68672f4625a1e3e16c2` 的差异见 `driver.diff`，SHA `f778998858471d30e42e9b81049ed16e08db7d8613e2f0717758f62d8dad6b94`。
+- 当前只完成离线门禁；重型资源与三新/两旧真实测试均未启动。`tools/run-harness.py` 仍只是离线检查记录器，不再作为未来重型执行 driver。
+
+## 限定差异
+
+- 路径改为本任务 `source/`；只选原三包中的三个新顶层和两个旧 D04 顶层，预期7个任务自有 Docker ID（D03三、D04二、D05二），无 SMTP。
+- 保留431最小文件：11候选、420固定Git依赖。所有所选包非测试源码完整；207个未选旧测试文件按固定Git列出，名单本身受门禁约束。没有默默删改原断言或重新复制全仓；全包旧测试通过不在本结果声明中。
+- 当前 Go1.27.1、指定只读 modcache、精确 MinIO SHA及脚本/实际解释器/工具二进制均绑定。runtime union覆盖 integration/race、普通fixture build、CGO=0 outbound server，共3503工具/依赖文件、31模块、398包；scope shim及其/usr/bin/python3也入指纹。
+- 原资源扫描、PID/starttime发现、subreaper收养wait、取消时只通知原shell并等待原fixture正常收尾、baseline+exact-ID双扫、runtime前后重核保持；关键函数及从monitor到双清块已机械确认原字节。没有外层120秒TERM/0.5秒KILL。仍保留正式Go每包6m；逐顶层输出另核新场景≤2m、两旧回归≤45s。
+
+## 实际离线 gate
+
+- 命令：`/usr/bin/python3 ../run-outbound-policy-fixture.py --name outbound-http-real01 --group all --frozen ../execution-stage01/input.json --modcache /workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache --check-input-only`。
+- 实际退出0 / 1.924s，candidate/runtime 与420固定依赖均匹配，missing/unexpected/mismatch/error均空；3 PID、0 adopted、实际 wait 后两次进程组空。
+- 原件：`/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/execution-gate01`，raw SHA `08de8626242e64ed479101a8f035094eca0713759571c317673d5ca4363d1d8c`。此分支在 Docker/进程monitor入口前返回，没有查询 Docker 或启动fixture。
+- 执行仍须主线程独占资源移交；实际运行后才能产生7-ID拓扑、原fixture收尾、双扫、输入前后不变和真实五顶层结果。此报告不把代码中预备的清理逻辑当成本轮已执行的资源清理证据。

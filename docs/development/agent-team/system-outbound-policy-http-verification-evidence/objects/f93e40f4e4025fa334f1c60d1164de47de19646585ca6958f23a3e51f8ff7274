@@ -1,0 +1,110 @@
+{
+  "static_result": "PASS for API/root stage only",
+  "baseline": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "author_sha256": "619f6fd0ac4b3dbaba7cb9dcd9a8e193393d9fac9aaa84947f4a72660e9aafd3",
+  "native_and_offline_groups": 3,
+  "all_observed_237_pid_starttime_pairs_gone": true,
+  "tmp_empty": true,
+  "frozen_eight_and_414_effective_sources_unchanged": true,
+  "go_binary_matches_author_fixed_sha": true,
+  "author_evidence": [
+    {
+      "run": "api01",
+      "result": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/api01/result.json",
+      "raw": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/api01/raw.log",
+      "actual_exit": 1,
+      "raw_sha256": "6ee66c000cf3d85a600ab840442eab800ee708dfed7e19111f1ef8088569542e",
+      "result_sha256": "19bead263c06598f9ca0b869c08e643a795b9d782a8a00a4260e1d41cdc43aa7",
+      "candidate_differences_from_frozen": [
+        "internal/central/outbound/http/handler.go",
+        "internal/central/outbound/http/handler_test.go"
+      ]
+    },
+    {
+      "run": "api02",
+      "result": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/api02/result.json",
+      "raw": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/api02/raw.log",
+      "actual_exit": 1,
+      "raw_sha256": "b19731184c74455978c451a9272d28f0196460725c3341ca4da877e0d9a49ec6",
+      "result_sha256": "f02481bb276c105d0f57fdcd46a96bf1be32af03962b32d9e1d40f8d684e4715",
+      "candidate_differences_from_frozen": [
+        "internal/central/outbound/http/handler.go",
+        "internal/central/outbound/http/handler_test.go"
+      ]
+    },
+    {
+      "run": "api03",
+      "result": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/api03/result.json",
+      "raw": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/api03/raw.log",
+      "actual_exit": 1,
+      "raw_sha256": "b5d66f0a7ffece463ba011fb6469eee05fdb6d2515e07139c55a76a41170d280",
+      "result_sha256": "c00f64037a751e5b1259cb6ac65613f8c39cc2f73b9accd009a9174a04d98446",
+      "candidate_differences_from_frozen": [
+        "internal/central/outbound/http/handler.go",
+        "internal/central/outbound/http/handler_test.go"
+      ]
+    },
+    {
+      "run": "api04",
+      "result": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/api04/result.json",
+      "raw": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/api04/raw.log",
+      "actual_exit": 0,
+      "raw_sha256": "d13f056aa402cb6d6f1a05832ba70ccd90562445535a8db086ad8c9948268282",
+      "result_sha256": "0380243f3653b8962ba561dc5ddaa422e6aa280fa6e81b173ad93529da75076b",
+      "candidate_differences_from_frozen": [
+        "internal/central/outbound/http/handler_test.go"
+      ]
+    },
+    {
+      "run": "api05",
+      "result": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/api05/result.json",
+      "raw": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/api05/raw.log",
+      "actual_exit": 0,
+      "raw_sha256": "a5b150c4f0bb62675e2db6d036bb719711b6853430fd52711edef53400d72742",
+      "result_sha256": "49e1b5bd6cd94d0ca0f6831f8eff850cab0df1bfcd44ae430fe8910167c40c4d",
+      "candidate_differences_from_frozen": []
+    },
+    {
+      "run": "compat01",
+      "result": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/compat01/result.json",
+      "raw": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/compat01/raw.log",
+      "actual_exit": 0,
+      "raw_sha256": "8d7aad984997be075647fca02c4296943ba246dd2dc12ad981ac8874aae54e47",
+      "result_sha256": "247d3cf41064c35ba8229626da7581eba08551cff5f4f894dcef7f22bee3d644",
+      "candidate_differences_from_frozen": [
+        "internal/central/outbound/http/handler_test.go"
+      ]
+    },
+    {
+      "run": "vet01",
+      "result": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/vet01/result.json",
+      "raw": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/vet01/raw.log",
+      "actual_exit": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "5cf6698f2d830ac7205748e6d9f90aa73e0922d81438a9222e3f74720254b1cf",
+      "candidate_differences_from_frozen": [
+        "internal/central/outbound/http/handler_test.go"
+      ]
+    },
+    {
+      "run": "vet02",
+      "result": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/vet02/result.json",
+      "raw": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/vet02/raw.log",
+      "actual_exit": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "1976054b17f24c635df495f7f564e1e9c6d3e36773ae4cc51c40e8aaed1686a3",
+      "candidate_differences_from_frozen": []
+    },
+    {
+      "run": "build01",
+      "result": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/build01/result.json",
+      "raw": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/build01/raw.log",
+      "actual_exit": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "0d76677643b8feb9d21bda89adbed1cae1c95fe1a595741e0e949aef61078f36",
+      "candidate_differences_from_frozen": []
+    }
+  ],
+  "git_reconstruction_scope": "407 fixed Git files; 8 candidate overlays; no active product source",
+  "no_heavy_resources": true
+}

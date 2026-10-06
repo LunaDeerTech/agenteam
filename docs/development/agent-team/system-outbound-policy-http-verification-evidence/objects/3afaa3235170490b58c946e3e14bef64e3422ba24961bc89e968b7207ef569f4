@@ -1,0 +1,45 @@
+# 出站规则 HTTP API/root 阶段独立审查
+
+**阶段 PASS：静态审查及三组最小独立离线风险测试通过，无阶段阻断。不是完整后端接受。** 固定作者 input `619f6fd0ac4b3dbaba7cb9dcd9a8e193393d9fac9aaa84947f4a72660e9aafd3` 的八源，基线 `819aba1b8f764328f1e2e67b53c274fad0db877d`；规格提交 `8c27bc430834bea118b0380cc0e54c445fd746b5` 的技术 SHA 仍为 `44515e212a996d1a1413022a38ae2b56297ad7e5cd9d195d732225aab818f8dc`。
+
+本次从固定 Git 重建 407 文件闭包，叠加八源得到 414 个有效输入；另加一份私有探针。没有消费活动主树、修改产品或仓库文档，也没有 PG、Docker、SMTP、出站目标或浏览器资源。
+
+## 静态核对
+
+- `handler.go` 直接使用原 Account HTTPBoundary；CheckRequest 先于路径/身份/body，精确 GET/PUT 在预认证前建立原 3s/30s，继承更早 parent，同一 context 进入实际读取和 PolicyService。同步调用保持真实服务尾部，不用 goroutine 提前放行。
+- `connectionBudget` 的正常尾部先 Close 当前 body，再 stop 或等待取消回调，最后清除本地读写期限；外层 deferred cancel 在其后执行。取消回调只设置期限，未发布响应；失败/短写与过期成功使用 ErrAbortHandler，不追加第二个 Problem。底层不支持期限时在认证/服务前拒绝。
+- `wire.go` 复用原 DecodeJSON/DecodeRules、原字段字节与独立 1 MiB/512 KiB 上限；稳定用户身份构造原 command，Session/trace 不加入业务幂等身份。显式完整 DTO 编码保留 Rules 普通脱敏；原 Unknown 分类与兼容 lookup hint 不虚构 lookup 路由。
+- `app/account.go` 的产品差量只有新 handler 构造及外层精确单根分派，传入原 `transport.policy` 和同一 `core`；原 PolicyService、client、Account/Model 路由、初始化/Reload 和唯一 RequestID/Recover 未变。这里证明构造图，不声称动态同镜像目标切换已通过。
+- OpenAPI 恰 GET/PUT 两 operation，闭合输入/输出及 scalar 引用与卡一致；20 个本地 ref 均定位成功。真实权限/同 Tx 授权仍由固定 PolicyService 执行，本适配没有第二业务事务或预取 policy 决策。
+
+## 独立实际结果
+
+原命令、选定 env、输入和实际终局见 [runs/independent01/command.json](runs/independent01/command.json)、[raw.log](runs/independent01/raw.log)、[result.json](runs/independent01/result.json)。Go 二进制 SHA 与作者固定 Go1.27.1 一致，使用独立 GOCACHE/TMPDIR，模块下载关闭。
+
+```text
+go test -p=2 -race -count=1 -timeout=45s ./internal/central/outbound/http -run ^TestIndependentPolicy -v
+```
+
+| 独立顶层 | 实际结果与证明边界 |
+| --- | --- |
+| TestIndependentPolicyWireAndUnknownReceipt | PASS。转义重复键、字段大小写、指数端口、null allow_http 与非法版本拒绝；PUT 预认证原 30s、单次原 command、503/unknown/lookup、安全 cause 隐藏与清期限。受控服务返回 Unknown，不是真实 DB COMMIT Unknown。 |
+| TestIndependentPolicyCancellationWaitsWriteCallback | PASS，0.03s。取消后的 WriteDeadline 回调被显式屏障保持；服务尾部返回后 handler 仍不返回，直到回调真正完成。最后 ErrAbortHandler、零候选规则、读写期限均清除。 |
+| TestIndependentPolicyNativeMixedReuseAndBudgets | PASS，3.13s。自有 127.0.0.1 上六个原生请求：同一连接 GET→非法 PUT→合法 PUT→GET 均完整返回；原 3s GET 自然到期后授权尾部仍保持，释放前 handler 未结束；更早 120ms parent 中断不完整 PUT body，零额外写调用。结束时所有原生连接/handler 实际关闭并 join。 |
+
+首轮实际退出 0，actual wait **58.397s**（含冷 race 编译）；测试包 **4.165s**，没有超出 45s 用例期限。237 个所属 PID/starttime 观测最终逐一不存在，进程组原两扫为空；实际 adopted wait 为 0，不补造等待。TMPDIR 为空，415 个输入前后相同，作者冻结八源也未变。原 raw SHA：`657160d534fcf65d79afb76f68b525d1107f22d30edd01233d234faca2d9bcff`。
+
+私有探针只复用作者已审读的 typed actor/receipt 和通过正式构造器取得 opaque Policy 的受控 fixture 帮助函数，自己的输入、屏障、native 请求及断言另写。Account boundary/SQL/PolicyService 的受控替身不构成真实权限、持久化或出站证据。未改变原生产可见性、预算或断言。
+
+## 作者证据复用与原失败
+
+已核作者原 raw/result SHA 与清理终局。api01 是缺缓存依赖的准备失败，api02 是 postgres.Row 替身签名编译失败；api03 是真实产品首红：原生 keep-alive `unexpected EOF`。其原 input/raw 保留，`handler.go` 精确差量是去除正常尾部提前 cancel，改在 finish 后由外层 defer cancel；不把原失败改写成工具问题。
+
+api04 通过后的差异只有 handler_test 新增 body Read/Close 尾部用例；最终 api05、vet02、build01 与冻结八源精确相同。compat01 四包 Account HTTPBoundary/OpenAPI、Model OpenAPI、app 分派及公共 schema 的产品输入未变，只有未被这些包编译的 subpackage handler_test 差异，因此复用原检查，不重复跑整套。作者实际检查与精确差量见 [static-review.json](static-review.json)，九条检查均保留当时退出。
+
+作者原首红定位：`/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/evidence/api03/raw.log`，SHA `b5d66f0a7ffece463ba011fb6469eee05fdb6d2515e07139c55a76a41170d280`；相应八源原快照位于该轮 `input/`。本次独立动态没有首红。
+
+## 尚未验证与交付
+
+尚未真实验证 Account 撤权与 policy 同 Tx 竞争、receipt/Audit 唯一性、原 DB 1s 锁期限、COMMIT Unknown 核实、已提交 HTTP 截断后原 key 重放，或正式 root 同 policy/client 的目标计数变化与 unavailable 镜像。作者后续三条 integration harness 和最后 backend/outbound.md 仍属完整卡待交付范围；本阶段 PASS 不取代它们，也不授重型窗口或产品接受。
+
+固定输入、最小原件 SHA 与复用边界见 [review.json](review.json)、[fixed-input.json](fixed-input.json)。无需复制 GOCACHE、TMPDIR、模块依赖或二进制到正式归档。所有本次命令已结束、私有报告与探针停止写入。Object/tools 停止边界未触及。

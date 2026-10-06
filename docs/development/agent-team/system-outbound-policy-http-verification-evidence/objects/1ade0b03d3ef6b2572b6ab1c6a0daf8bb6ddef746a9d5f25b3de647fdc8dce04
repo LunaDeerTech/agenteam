@@ -1,0 +1,89 @@
+#!/usr/bin/python3
+"""Record only authorized non-executing Go compile/vet/discovery preparation."""
+import ctypes
+import hashlib
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parents[1]
+REPO = Path('/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/execution-stage02/closure-source')
+GO = '/workspace/toolchains/go1.27.1/bin/go'
+
+def snapshot():
+    paths = [p for p in (ROOT / 'probe01').iterdir() if p.is_file()]
+    paths += [ROOT / 'driver01.py', ROOT / 'tools/go-narrow.py']
+    paths += [ROOT / 'binding01.json', ROOT / 'tools/check-offline.py']
+    binding = json.loads((ROOT / 'binding01.json').read_text())
+    paths += [Path(p) for p in binding['files']]
+    return {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(set(paths))}
+
+def proc_group(group):
+    found = {}
+    for p in Path('/proc').iterdir():
+        if not p.name.isdigit():
+            continue
+        try:
+            fields = (p / 'stat').read_text().rsplit(')', 1)[1].split()
+            if int(fields[2]) == group:
+                found[p.name + ':' + fields[19]] = {'pid': int(p.name), 'starttime': fields[19], 'ppid': int(fields[1]), 'state': fields[0]}
+        except (OSError, ValueError, IndexError):
+            pass
+    return found
+
+def main():
+    name, mode = sys.argv[1:]
+    if '/' in name or '..' in name or mode not in ['compile-account', 'compile-app', 'vet', 'list']:
+        raise ValueError('only exact offline modes are allowed')
+    if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+        raise RuntimeError('subreaper unavailable')
+    run = ROOT / 'runs' / name
+    run.mkdir(mode=0o700)
+    env = {k: v for k, v in os.environ.items() if not k.startswith('AGENTEAM_')}
+    env.update(GOTOOLCHAIN='local', GOENV='off', GOWORK='off', GOPROXY='off', GOSUMDB='off',
+               GOMODCACHE='/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache',
+               GOCACHE=str(ROOT / 'gocache'), TMPDIR=str(ROOT / 'tmp'), CGO_ENABLED='1', GOMAXPROCS='2',
+               GOFLAGS='-mod=readonly -buildvcs=false -p=1 -overlay=' + str(ROOT / 'probe01/overlay.json'))
+    if mode.startswith('compile-'):
+        package = './tests/account' if mode.endswith('account') else './internal/central/app'
+        argv = [GO, 'test', '-c', '-tags=integration', '-race', '-o', str(run / 'test.bin'), package]
+    elif mode == 'vet':
+        argv = [GO, 'vet', '-tags=integration', './tests/account', './internal/central/app']
+    else:
+        argv = [GO, 'test', '-tags=integration', '-race', '-list', '^TestIndependentOutbound(HTTPHistoricalReceipt|RootInflightPolicy)$', './tests/account', './internal/central/app']
+    before = snapshot()
+    binding = json.loads((ROOT / 'binding01.json').read_text())
+    if any(before[p] != h for p,h in binding['files'].items()):
+        raise RuntimeError('fixed author input differs before offline preparation')
+    (run / 'input-before.json').write_text(json.dumps(before, indent=2) + '\n')
+    record = {'argv': argv, 'cwd': str(REPO), 'env': {k: env[k] for k in ['GOTOOLCHAIN','GOENV','GOWORK','GOPROXY','GOSUMDB','GOMODCACHE','GOCACHE','TMPDIR','CGO_ENABLED','GOMAXPROCS','GOFLAGS']}, 'resource_execution': False}
+    (run / 'command.json').write_text(json.dumps(record, indent=2) + '\n')
+    seen, waits = {}, []
+    start = time.monotonic()
+    with (run / 'raw.log').open('wb') as raw:
+        child = subprocess.Popen(argv, cwd=REPO, env=env, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)
+        print(json.dumps({'run': name, 'pid': child.pid, 'mode': mode}), flush=True)
+        while child.poll() is None:
+            seen.update(proc_group(child.pid))
+            time.sleep(.1)
+        code = child.wait()
+    for row in list(proc_group(child.pid).values()):
+        if row['ppid'] == os.getpid() and row['state'] == 'Z':
+            pid, status = os.waitpid(row['pid'], 0)
+            waits.append({'pid': pid, 'starttime': row['starttime'], 'actual_wait': True, 'exit': os.waitstatus_to_exitcode(status)})
+    first = proc_group(child.pid)
+    time.sleep(.1)
+    second = proc_group(child.pid)
+    after = snapshot()
+    (run / 'input-after.json').write_text(json.dumps(after, indent=2) + '\n')
+    result = {'exit_code': code, 'seconds': round(time.monotonic()-start,3), 'actual_wait': True, 'input_unchanged': before == after, 'observed': seen, 'adopted_waits': waits, 'first': first, 'second': second, 'resource_execution': False, 'raw_sha256': hashlib.sha256((run/'raw.log').read_bytes()).hexdigest()}
+    (run / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
+    print(json.dumps({k:v for k,v in result.items() if k!='observed'}), flush=True)
+    return 0 if code == 0 and before == after and not first and not second else 1
+
+if __name__ == '__main__':
+    raise SystemExit(main())

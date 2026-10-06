@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "scope": "static cardinality/arithmetic and frozen-input check only; no Go or product execution",
+  "candidate_paths": [
+    "internal/central/outbound/http/handler.go",
+    "internal/central/outbound/http/wire.go",
+    "internal/central/outbound/http/handler_test.go",
+    "internal/central/outbound/http/wire_test.go",
+    "internal/central/app/account.go",
+    "internal/central/app/outbound_policy_http.go",
+    "internal/central/app/outbound_policy_http_test.go",
+    "internal/central/app/outbound_policy_http_process_test.go",
+    "api/openapi/outbound-policy.json",
+    "tests/account/outbound_policy_http_test.go",
+    "tests/account/outbound_policy_http_transaction_test.go",
+    "docs/development/backend/outbound.md"
+  ],
+  "maximum_canonical_cidr_bytes": 43,
+  "canonical_rule_upper_bytes": 1619,
+  "canonical_rules_upper_bytes": 414721,
+  "policy_response_upper_bytes": 414763,
+  "full_sha256": "8b3770b1900c52126a50975d0c452b38096a1e284770b539ae8a961b172a9a74",
+  "technical_sha256": "44515e212a996d1a1413022a38ae2b56297ad7e5cd9d195d732225aab818f8dc",
+  "utf8_lf_final_newline_no_trailing_whitespace": "PASS",
+  "fences": "PASS",
+  "relative_links_and_fragments": 12,
+  "frozen_card_unchanged": true
+}

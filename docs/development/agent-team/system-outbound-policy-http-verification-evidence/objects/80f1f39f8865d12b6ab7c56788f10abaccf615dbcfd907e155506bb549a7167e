@@ -1,0 +1,43 @@
+--- execution-stage01/go-narrow.py
++++ execution-stage02/go-narrow-v2.py
+@@ -1,16 +1,35 @@
+ #!/usr/bin/python3
+-"""Private scope adapter; production scripts and fixture lifecycle stay fixed."""
++"""Private exact scope adapter; fixed fixture lifecycle and budgets stay unchanged."""
+ import os
+ from pathlib import Path
+ import sys
+ 
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
+ ROOT = Path(__file__).resolve().parents[1]
+-FILTER = '^(TestSystemOutboundPolicyHTTP|TestSystemOutboundPolicyHTTPTransactionAndBudget|TestSystemOutboundPolicyHTTPRootSharedInstance|TestOutboundPolicyDurabilityReplayAndAuthorization|TestOutboundPolicyRollbackAndUnavailableReplay)$'
++ALL_FILTER = '^(TestSystemOutboundPolicyHTTP|TestSystemOutboundPolicyHTTPTransactionAndBudget|TestSystemOutboundPolicyHTTPRootSharedInstance|TestOutboundPolicyDurabilityReplayAndAuthorization|TestOutboundPolicyRollbackAndUnavailableReplay)$'
++TRANSACTION_FILTER = '^(TestSystemOutboundPolicyHTTPTransactionAndBudget)$'
++FILTER_PACKAGES = {
++    ALL_FILTER: ['./internal/central/app', './tests/account', './tests/security'],
++    TRANSACTION_FILTER: ['./tests/account'],
++}
++# Exact argv emitted by the fixed819 PG helper after the owned object fixture.
++FIXTURE_PACKAGES = [
++    './internal/central/postgres/...', './tests/database/...', './internal/central/app/...',
++    './tests/process/...', './tests/security/...', './tests/outbox/...',
++    './internal/central/outbox/...', './tests/account/...', './tests/accountmail/...',
++    './internal/central/accountmail/...', './internal/central/recoverylog/...',
++    './tests/project/...', './internal/central/model/...', './tests/model/...',
++    './tests/objects/...', './internal/central/object/...',
++]
+ args = sys.argv[1:]
+ if args and args[0] == 'test':
+-    expected_flags = ['-tags=integration', '-race', '-count=1', '-timeout=6m', '-run=' + FILTER]
+-    if args[1:6] != expected_flags or not all(p.startswith('./') and p.endswith('/...') for p in args[6:]) or Path.cwd() != ROOT / 'source':
++    selected = None
++    for selector, packages in FILTER_PACKAGES.items():
++        flags = ['-tags=integration', '-race', '-count=1', '-timeout=6m', '-run=' + selector]
++        if args == ['test'] + flags + FIXTURE_PACKAGES:
++            selected = ['test', '-p=1', '-v'] + flags + packages
++            break
++    if selected is None or Path.cwd() != ROOT / 'source':
+         sys.exit('private outbound test command does not match frozen scope')
+-    args = ['test', '-p=1', '-v'] + expected_flags + ['./internal/central/app', './tests/account', './tests/security']
++    args = selected
+ os.execv(GO, [GO] + args)

@@ -1,0 +1,89 @@
+import ctypes
+import hashlib
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+import time
+
+root = Path(__file__).resolve().parents[1]
+name, *command = sys.argv[1:]
+run = root / 'evidence' / name
+run.mkdir()
+paths = [
+    'internal/central/outbound/http/handler.go',
+    'internal/central/outbound/http/wire.go',
+    'internal/central/outbound/http/handler_test.go',
+    'internal/central/outbound/http/wire_test.go',
+    'internal/central/app/account.go',
+    'internal/central/app/outbound_policy_http.go',
+    'internal/central/app/outbound_policy_http_test.go',
+    'api/openapi/outbound-policy.json',
+    'internal/central/app/outbound_policy_http_process_test.go',
+    'tests/account/outbound_policy_http_test.go',
+    'tests/account/outbound_policy_http_transaction_test.go',
+]
+fingerprints = {}
+for path in paths:
+    data = (root / 'source' / path).read_bytes()
+    out = run / 'input' / path
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes(data)
+    fingerprints[path] = hashlib.sha256(data).hexdigest()
+(run / 'input.json').write_text(json.dumps({'harness_closure_sha256': hashlib.sha256((root / 'inputs/harness-closure02.json').read_bytes()).hexdigest(), 'baseline_closure_sha256': hashlib.sha256((root / 'inputs/baseline-closure.json').read_bytes()).hexdigest(), 'files': fingerprints}, indent=2) + '\n')
+for directory in ('gocache', 'tmp'):
+    (root / directory).mkdir(exist_ok=True)
+fixed_env = {'GOTOOLCHAIN': 'local', 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOFLAGS': '-mod=readonly', 'GOMODCACHE': '/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache', 'GOCACHE': str(root/'gocache'), 'TMPDIR': str(root/'tmp'), 'GOMAXPROCS': '2'}
+env = dict(os.environ, **fixed_env)
+metadata = {'command': command, 'cwd': str(root / 'source'), 'env': fixed_env, 'outer_budget_seconds': 120}
+(run / 'command.json').write_text(json.dumps(metadata, indent=2) + '\n')
+ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0)
+def group(pid):
+    found = []
+    for path in Path('/proc').glob('[0-9]*/stat'):
+        try:
+            fields = path.read_text().rsplit(')', 1)[1].split()
+            if int(fields[2]) == pid:
+                found.append(int(path.parent.name))
+        except (FileNotFoundError, ProcessLookupError):
+            pass
+    return sorted(found)
+
+started = time.monotonic()
+seen = set()
+adopted = []
+with (run / 'raw.log').open('wb') as log:
+    proc = subprocess.Popen(command, cwd=root / 'source', env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+    while proc.poll() is None:
+        seen.update(group(proc.pid))
+        if time.monotonic() - started > 120:
+            os.killpg(proc.pid, signal.SIGTERM)
+            time.sleep(0.5)
+            if proc.poll() is None:
+                os.killpg(proc.pid, signal.SIGKILL)
+            break
+        time.sleep(0.05)
+    code = proc.wait()
+for _ in range(40):
+    while True:
+        try:
+            child, status = os.waitpid(-1, os.WNOHANG)
+        except ChildProcessError:
+            break
+        if child == 0:
+            break
+        adopted.append({'pid': child, 'status': status})
+    remaining = group(proc.pid)
+    if not remaining:
+        break
+    time.sleep(0.05)
+first = group(proc.pid)
+time.sleep(0.1)
+second = group(proc.pid)
+result = {'exit_code': code, 'seconds': round(time.monotonic() - started, 3), 'pid': proc.pid, 'observed_group_pids': sorted(seen), 'adopted_waits': adopted, 'cleanup_first': first, 'cleanup_second': second, 'raw_sha256': hashlib.sha256((run/'raw.log').read_bytes()).hexdigest()}
+(run / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({k:v for k,v in result.items() if k!='observed_group_pids'} | {'observed_group_pid_count':len(seen)}))
+print((run/'raw.log').read_text())
+sys.exit(code if code else (1 if first or second else 0))

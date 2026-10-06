@@ -1,0 +1,13 @@
+Outbound 三新 harness 静态有界 PASS；当前尚不能授真实启动，唯一确定阻断为 O-HARNESS-01（私有真实执行器待补）。
+
+固定 harness-stage01 SHA 1d21a6ea1b32e43ec129e04e6b30c2ba351e173bc9cc62cd182442cf00260fe9、base819aba1、规格8c27bc4。11快照与实际私有source逐SHA一致；旧8源等已独立阶段输入，431文件全在407既有闭包+14新固定Git依赖+11候选覆盖内。14新增依赖逐项对固定Git字节核验。作者七项compile/vet/list/fixture build原result/raw均0，两扫进程组空；最终root尾部改动后专门compile/vet补齐，未重跑原8源行为矩阵。
+
+三新测试使用正式root/bootstrap/login/invite/redeem、Account Authority和PG。预认证后正式Logout使policy同Tx拒绝；User SH阻塞正式撤销，后继读取拒绝。锁上界沿parent/DB1s，明确NotCommitted/LockFailed与SQLSTATE、实际active=0，不强求errors.Is Deadline。SQL仅读事实和任务自有advisory锁，表列与固定migration/producer一致。
+
+HTTP实际接受200后原生hop截断8字节，再原key/body重放精确四字段receipt；新Session稳定身份、并发同版本与当前观察分离均有断言。此截断不是DB Unknown。fresh DB aggregate receipt/Audit数不冒充逐原command关联，后续独立代表可窄补。
+
+root构造接缝在Account/SMTP消费者捕获前设置真实NewClient的fixture DNS/CA，使用同一policy与正式分类器；空→允许→清空、旧receipt不回退、真实锁使Reload失败→GET/旧receipt不恢复unavailable→显式维护恢复都逐步核实际目标计数。关闭真实root后检查socket和handler结束，ready503保持。没有新增egress口或改权限表。
+
+冻结tools/run-harness.py是离线120s检查器，只记录进程组PID，超时TERM后0.5sKILL；real-run-plan.json仍是计划。它未实现实际资源baseline/exactID/PID-starttime双清、固定完整输入前后门禁或明确MinIO运行指纹。因此只能接受harness静态准备，须另冻私有真实supervisor再点核启动；不要求改11产品/测试或复制全树。
+
+预算据实际代码分列：HTTP/transaction两分钟为末尾elapsed强断言，具体调用沿原helper与HTTP预算；root主要操作45s context、目标3s，原Go每包6m不变。没有声称从夹具起就统一派生2m context。当前无此agent启动的真实资源或产品/Git写入。

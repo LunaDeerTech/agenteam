@@ -1,0 +1,264 @@
+//go:build integration
+
+package app
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
+	"net/netip"
+	"os"
+	"strings"
+	"sync/atomic"
+	"syscall"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
+)
+
+// This uses only the existing generic stream/Release mode, not any Model/tools
+// wire protocol, new producer or public egress route.
+func TestIndependentOutboundRootInflightPolicy(t *testing.T) {
+	if os.Getenv(netfixture.Env) == "" {
+		t.Skip("requires task-owned controlled network")
+	}
+	started := time.Now()
+	network, err := netfixture.Load()
+	if err != nil {
+		t.Fatal("controlled network unavailable")
+	}
+	trust, err := outbound.LoadTrustStore(network.CAFile)
+	if err != nil {
+		t.Fatal("controlled CA unavailable")
+	}
+	var runtime *outboundRuntime
+	var constructed atomic.Int64
+	a := newModelRootApp(t, "3s", func(_ *modelRootApp, deps *dependencies) {
+		deps.outboundConstruct = func(ctx context.Context, _ config.Config, created *outboundRuntime) error {
+			constructed.Add(1)
+			runtime = created
+			if err := created.client.ForceClose(ctx); err != nil {
+				return err
+			}
+			var err error
+			created.client, err = outbound.NewClient(created.policy, trust, appFixtureResolver{netip.MustParseAddr(network.PrivateIP)})
+			return err
+		}
+	})
+	address := a.address(t)
+	if constructed.Load() != 1 || runtime == nil || a.owned.outbound() != runtime {
+		t.Fatal("root singleton mismatch")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
+	defer cancel()
+	login, err := fixtureAccountLoginResponse(ctx, a.cfg, a.core)
+	if err != nil {
+		t.Fatal("formal root login failed")
+	}
+	var cookie sc.SecretMaterial
+	if err = login.UseCookie(func(b []byte) error { var e error; cookie, e = sc.NewSecretMaterial(b); return e }); err != nil {
+		t.Fatal("formal cookie unavailable")
+	}
+	defer cookie.Destroy()
+	if login.Close(ctx) != nil {
+		t.Fatal("formal login tail incomplete")
+	}
+	actor, err := a.core.Authenticate(ctx, cookie)
+	if err != nil {
+		t.Fatal("current root actor unavailable")
+	}
+	view, err := a.core.GetSession(ctx, cookie)
+	if err != nil {
+		t.Fatal("current root Session unavailable")
+	}
+	defer view.CSRF.Destroy()
+	var cookieValue, csrf string
+	if cookie.Use(func(b []byte) error { cookieValue = string(b); return nil }) != nil || view.CSRF.Use(func(b []byte) error { csrf = string(b); return nil }) != nil {
+		t.Fatal("private browser material unavailable")
+	}
+	httpClient := &http.Client{Transport: &http.Transport{Proxy: nil}, Timeout: 5 * time.Second}
+	defer httpClient.CloseIdleConnections()
+	call := func(method string, body []byte, key string) []byte {
+		t.Helper()
+		r, e := http.NewRequestWithContext(ctx, method, address+"/api/v1/system/outbound-policy", bytes.NewReader(body))
+		if e != nil {
+			t.Fatal("root HTTP request construction")
+		}
+		r.Host = "localhost:8080"
+		r.Header.Set("Origin", "http://localhost:8080")
+		r.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: cookieValue})
+		if method == "PUT" {
+			r.Header.Set("Content-Type", "application/json")
+			r.Header.Set("X-CSRF-Token", csrf)
+			r.Header.Set("Idempotency-Key", key)
+		}
+		response, e := httpClient.Do(r)
+		if e != nil {
+			t.Fatal("root management request unavailable")
+		}
+		body, e = io.ReadAll(io.LimitReader(response.Body, (1<<20)+1))
+		closeErr := response.Body.Close()
+		if e != nil || closeErr != nil || response.StatusCode != 200 || len(body) > 1<<20 || response.Header.Get("X-Request-ID") == "" || response.Header.Get("Cache-Control") != "no-store" {
+			t.Fatal("management receipt incomplete")
+		}
+		return body
+	}
+	allow, _ := json.Marshal(map[string]any{"expected_version": "1", "rules": []any{map[string]any{"cidr": network.PrivateIP + "/32", "ports": []int{8443}, "allow_http": false}}})
+	key := guardID[struct{}](t).String()
+	original := call("PUT", allow, key)
+	if s := runtime.policy.Status(); !s.Available || s.Version == nil || *s.Version != 2 {
+		t.Fatal("captured policy did not receive HTTP update")
+	}
+	scenario, err := network.Create(ctx, netfixture.ScenarioConfig{Mode: "stream", Body: "independent-prefix", Size: 7})
+	if err != nil {
+		t.Fatal("existing stream control unavailable")
+	}
+	defer func() {
+		c, stop := context.WithTimeout(context.Background(), 2*time.Second)
+		defer stop()
+		_ = network.Release(c, scenario)
+	}()
+	requestTarget := func() (outbound.Response, error) {
+		appendKey, e := ac.NewAppendKey(ac.AccessProducer, guardID[struct{}](t).String(), 0)
+		if e != nil {
+			t.Fatal("outbound call key invalid")
+		}
+		call, e := outbound.NewCallContext(actor, identity.SystemScope(), appendKey, ac.Associations{})
+		if e != nil {
+			t.Fatal("outbound actor invalid")
+		}
+		profile, e := outbound.NewProfile(outbound.ProfileOptions{Consumer: ac.Model, Context: call, Limits: outbound.Limits{Overall: 3 * time.Second}})
+		if e != nil {
+			t.Fatal("outbound profile invalid")
+		}
+		r, e := http.NewRequest("GET", "https://fixture.test:8443/case/"+scenario, nil)
+		if e != nil {
+			t.Fatal("controlled target construction")
+		}
+		return runtime.client.Do(ctx, r, profile)
+	}
+	response, err := requestTarget()
+	if err != nil {
+		t.Fatal("admitted target failed")
+	}
+	defer response.Close()
+	prefix := make([]byte, len("independent-prefix"))
+	if _, err = io.ReadFull(response.Body(), prefix); err != nil || string(prefix) != "independent-prefix" {
+		t.Fatal("actual response prefix not received")
+	}
+	decision := response.Decision()
+	if decision.PolicyVersion == nil || *decision.PolicyVersion != 2 || !decision.Sent {
+		t.Fatal("admitted response did not retain its policy version")
+	}
+	state, err := network.State(ctx, scenario)
+	if err != nil || len(state.Requests) != 1 || state.ActiveHandlers != 1 || state.CompletedHandlers != 0 {
+		t.Fatal("native stream was not actually held")
+	}
+	connection := state.Requests[0].Connection
+	type tail struct {
+		body              []byte
+		readErr, closeErr error
+	}
+	result := make(chan tail, 1)
+	joined := make(chan struct{})
+	readStarted := make(chan struct{})
+	t.Cleanup(func() {
+		c, stop := context.WithTimeout(context.Background(), 2*time.Second)
+		defer stop()
+		_ = network.Release(c, scenario)
+		_ = response.Close()
+		select {
+		case <-joined:
+		case <-c.Done():
+			t.Error("native reader did not actually join during cleanup")
+		}
+	})
+	go func() {
+		defer close(joined)
+		close(readStarted)
+		body, e := io.ReadAll(io.LimitReader(response.Body(), 64))
+		closeErr := response.Close()
+		result <- tail{body, e, closeErr}
+	}()
+	<-readStarted
+	call("PUT", []byte(`{"expected_version":"2","rules":[]}`), guardID[struct{}](t).String())
+	if s := runtime.policy.Status(); !s.Available || s.Version == nil || *s.Version != 3 {
+		t.Fatal("HTTP clear missed the captured runtime")
+	}
+	denied, err := requestTarget()
+	if err == nil {
+		_ = denied.Close()
+		t.Fatal("new target admitted after current policy removal")
+	}
+	var failure *outbound.NetworkError
+	if !errors.As(err, &failure) || failure.Decision().Reason != ac.PrivateNotAllowed || failure.Decision().Sent {
+		t.Fatal("new request lost precise unsent denial")
+	}
+	select {
+	case <-joined:
+		t.Fatal("policy update cancelled or prematurely completed admitted response")
+	default:
+	}
+	state, err = network.State(ctx, scenario)
+	if err != nil || len(state.Requests) != 1 || state.ActiveHandlers != 1 || state.CompletedHandlers != 0 {
+		t.Fatal("new request leaked to target or old response lost its hold")
+	}
+	if err = network.Release(ctx, scenario); err != nil {
+		t.Fatal("explicit stream release failed")
+	}
+	select {
+	case <-joined:
+	case <-time.After(time.Second):
+		t.Fatal("released body did not actually finish")
+	}
+	tailResult := <-result
+	if tailResult.readErr != nil || tailResult.closeErr != nil || string(tailResult.body) != "xxxxxxx" {
+		t.Fatal("original admitted body lost its real EOF")
+	}
+	if !bytes.Equal(call("PUT", allow, key), original) || !bytes.Equal(call("GET", nil, ""), []byte(`{"version":"3","rules":[]}`)) {
+		t.Fatal("historical root receipt rewound cleared policy")
+	}
+	var receipts, audits int
+	if a.store.QueryRow(ctx, `SELECT (SELECT count(*) FROM agenteam_outbound.outbound_policy_receipts),(SELECT count(*) FROM agenteam_audit.audit_records WHERE action='outbound.policy.update')`).Scan(&receipts, &audits) != nil || receipts != 2 || audits != 2 {
+		t.Fatal("read/replay created additional policy writes")
+	}
+	for _, s := range []string{network.PrivateIP, key, cookieValue, csrf} {
+		if strings.Contains(a.logs.String(), s) {
+			t.Fatal("ordinary root log exposed private material")
+		}
+	}
+	a.signals <- syscall.SIGTERM
+	await(t, a.done)
+	if a.err != nil || !a.owned.accounts().Joined() {
+		t.Fatal("real root did not join normally")
+	}
+	closed, stop := context.WithTimeout(context.Background(), time.Second)
+	defer stop()
+	for {
+		state, err = network.State(closed, scenario)
+		if err != nil {
+			t.Fatal("target closure observation failed")
+		}
+		if len(state.Requests) == 1 && state.Closed[connection] && state.ActiveHandlers == 0 && state.CompletedHandlers == 1 {
+			break
+		}
+		select {
+		case <-closed.Done():
+			t.Fatal("target socket/handler survived root join")
+		case <-time.After(5 * time.Millisecond):
+		}
+	}
+	if constructed.Load() != 1 || time.Since(started) > 2*time.Minute {
+		t.Fatal("runtime reconstructed or original scenario budget exceeded")
+	}
+	t.Log("safe facts: same_root_client=true admitted_policy=2 current_policy=3 later_request_unsent=true original_body_eof=true reader_join=true socket_closed=true target_requests=1 policy_receipts=2")
+}

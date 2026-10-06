@@ -1,0 +1,38 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.44.17.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=14ad0b4245e6ab891800e64a601609e6
+net
+crypto/x509
+crypto/tls
+net/textproto
+vendor/golang.org/x/net/http/httpguts
+vendor/golang.org/x/net/http/httpproxy
+mime/multipart
+net/http/httptrace
+net/http/internal/httpcommon
+net/http/internal/http2
+net/http
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=9a10cbc2b3c5f6cb20cc2816e24fd2a3
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+=== RUN   TestSystemOutboundPolicyHTTPRootSharedInstance
+--- PASS: TestSystemOutboundPolicyHTTPRootSharedInstance (2.57s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	3.595s
+=== RUN   TestSystemOutboundPolicyHTTP
+--- PASS: TestSystemOutboundPolicyHTTP (3.88s)
+=== RUN   TestSystemOutboundPolicyHTTPTransactionAndBudget
+    outbound_policy_http_transaction_test.go:156: DEPENDENCY_UNBOUND
+--- FAIL: TestSystemOutboundPolicyHTTPTransactionAndBudget (1.37s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	5.285s
+=== RUN   TestOutboundPolicyDurabilityReplayAndAuthorization
+--- PASS: TestOutboundPolicyDurabilityReplayAndAuthorization (1.04s)
+=== RUN   TestOutboundPolicyRollbackAndUnavailableReplay
+--- PASS: TestOutboundPolicyRollbackAndUnavailableReplay (0.91s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	2.974s
+FAIL
+D03 fixture cleanup checked for nonce 5cdd9dfe643c6ce3c8a864c3e7837076
+D04 outbound fixture cleanup checked for nonce 9a10cbc2b3c5f6cb20cc2816e24fd2a3
+D05 object fixture exact resource cleanup checked nonce=14ad0b4245e6ab891800e64a601609e6

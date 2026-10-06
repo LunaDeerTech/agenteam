@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "../run-outbound-policy-fixture.py",
+    "--name",
+    "outbound-http-real01",
+    "--group",
+    "all",
+    "--frozen",
+    "../execution-stage01/input.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/source",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/tmp",
+    "GOMAXPROCS": "2"
+  },
+  "outer_budget_seconds": 120
+}

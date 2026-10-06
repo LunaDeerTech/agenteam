@@ -1,0 +1,28 @@
+--- execution-stage01/driver.py
++++ execution-stage02/driver.py
+@@ -17,7 +17,7 @@
+ 
+ ROOT = Path(__file__).resolve().parent
+ REPO = ROOT / 'source'
+-SCOPE_ADAPTER = ROOT / 'tools/go-narrow.py'
++SCOPE_ADAPTER = ROOT / 'tools/go-narrow-v2.py'
+ GIT_REPO = Path('/workspace/agenteam')
+ BASE = '819aba1b8f764328f1e2e67b53c274fad0db877d'
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
+@@ -286,7 +286,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['all'], required=True)
++    parser.add_argument('--group', choices=['all', 'transaction-only'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     mode = parser.add_mutually_exclusive_group(required=True)
+@@ -300,6 +300,7 @@
+                 'TestSystemOutboundPolicyHTTPRootSharedInstance',
+                 'TestOutboundPolicyDurabilityReplayAndAuthorization',
+                 'TestOutboundPolicyRollbackAndUnavailableReplay'],
++        'transaction-only': ['TestSystemOutboundPolicyHTTPTransactionAndBudget'],
+     }
+     if str(Path(args.modcache).resolve()) != MODCACHE:
+         raise ValueError('modcache differs from frozen runtime')

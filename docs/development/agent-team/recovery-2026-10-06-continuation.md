@@ -234,3 +234,17 @@ controller仅在公开主动放弃的同步退役边界将本批未完current/re
 被审候选规格全文c48e3a…71c63缺精确副本，只保留原技术和接受页首全文73c7d5…81f4；不得重建推测旧页首。394逻辑原件以194个SHA对象与9Git引用去重，离线核十Git路径、621/886阶段闭包、881实际依赖及3501/3512原运行指纹，不复制完整树/缓存/依赖/二进制，不重跑产品。历史回执由候选创建，不证明跨二进制升级；受控SMTP不证明外部邮箱送达。
 
 SMTP UI、出站HTTP及完整D07/D27仍各自待验，D08–D28/E01未完成、E01未开始；Summary待决、Object/tools原停止、Artifact/Project及生产未绑定／ready503等边界保持。本次仅归位授权入口，不改旧报告、SMTPUI/出站卡或后端说明。
+
+## 21. System 出站规则管理 HTTP 完整结果接受
+
+§1–20保留原阶段事实。[D04/D27卡rev1](../work-items/d04-system-outbound-policy-http.md)十二路径已获作者检查、独立风险验收与主线程采纳，提交推送 `a94277982620f01dc15488b09ae6ea9064977b5a`，主线程核远端一致。[正式报告与不可变证据](system-outbound-policy-http-verification.md)绑定819aba1、harness-stage02十一源及第十二后端说明；技术§1–7 44515e…f8dc原字节保持。
+
+正式管理员 GET/PUT 复用原 Account HTTPBoundary、同Tx当前授权与同实例PolicyService/client，当前GET与原body/key历史回执分离。3s／30s预认证期限、实际body/服务/取消尾部及原规则字节/分类器/Unknown保持；不新增lookup、Reload、探测或代理HTTP。
+
+原API api03 native keepalive unexpected EOF产品RED、作者real01事务fixture缺Challenges/DeliveryRequested的DEPENDENCY_UNBOUND、独立compile-account01 typed key编译前提全部保留。作者real01 actual1/32.295s四项PASS，事务初始化未到子例；仅换固定B02 fixture一行，transaction-real02 actual0/23.728s、事务top5.37s七子例通过。不是最终五组同轮全绿。独立independent01 actual0/27.539s，A历史回执／精确原command Audit2.58s、B同root进行中body跨规则删除2.49s首轮通过。
+
+三轮均原actual wait、7exact IDs双absent、各39/30/36所属PID/starttime清零、adopted0、runtime空、monitor0及原2容器4网络基线不变；历史非自有PPID1 Z不触碰、不计已wait。真实parent约256ms／PG1s锁等待与API自然3s/原生期限分别证明，HTTP截断不冒充DB CommitUnknown，新旧Unknown证据按既定未变边界复用。
+
+581逻辑原件用213对象和286个Git引用去重，离线核12交付、431→432源码／420→421依赖、3503／3506运行时指纹和35原检查；只保留必要原件，不复制整个树/cache/依赖/二进制。早期harness-compile01引用的旧附加闭包SHA73ca6172…95884全文未定位，原11候选源/命令/raw/退出及最终完整依赖齐，不补造历史清单。
+
+本次只归位授权报告与入口，不改旧§1–20、SMTP卡或后端说明。SMTP UI及未来出站页面各自待验；完整D08–D28/E01未完成、E01未开始，Summary待决、Object/tools停止、Artifact/Project及生产未绑定／ready503边界保持。

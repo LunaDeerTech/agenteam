@@ -1,0 +1,38 @@
+# Outbound HTTP transaction-only：fixture 一行返修冻结
+
+- 执行输入 `input.json` SHA `13b8597403d77faaac567e0a99d7ec94d82c897138b1a7cae6b238607a7e88b5`。
+- 11 候选清单 `../harness-stage02.json` SHA `de32ede50b0c8d45c70c98ce480829c7630a568f07a554847484f3f9eb99938b`；只读候选位于 `../harness-stage02-source/`。
+- 完整 432 文件只读闭包位于 `closure-source/`；`closure-snapshot.json` SHA `d0dc4df4fb6450fb8356a59d5de0a79ddad70f005bca51fa28de8ca95e32af02`，421 个固定819依赖 + 11 个授权候选。独立复核无需读取仍可用于后续工作的 source 目录。
+- v2 driver SHA `89e4a0d78b10e9b97050fc2a0cc8c4f197cbc2a930f8846d3fec742d19d6188b`，精确 scope shim SHA `bac0de31e0f9e928de1c97ab5114022622d4ed6ecf12959ae915661cb6159115`。
+
+## 最小差量
+
+- `candidate.diff` 仅 #11 的 `newAccount(t)` → `newB02Account(t).fixture`。反向还原与原11冻结逐字节相同；其他十个候选、所有断言和预算不变。新依赖 `tests/account/b02_fixture_test.go` 精确来自 Git819，未编辑，另提供 fixed819/ 下只读副本。
+- `driver.diff` 仅指向 v2 shim、增加 `transaction-only` 选项及唯一顶层名称。原 all 五项保留作为原能力与证据，但本轮不授权重跑四个已 PASS 顶层。
+- `scope-adapter.diff` 将两种精确 selector 映射到各自包表：transaction-only 仅 `./tests/account`；all 保持 app/account/security。输入须等于固定 fixture 实际16包 argv，不接受宽泛 selector、变更时限、漏包、额外包或错误 cwd。scope 检查拦截 exec，只证明映射和拒绝，不执行 Go 测试。
+- 原资源拓扑/7ID、PID-starttime、subreaper 实际 wait、signal/fixture 收尾、baseline 与精确 ID 两扫、原每包6m和新场景2m代码均未变；真实 driver 没有120s整轮提前终止。原执行 stage01、11源 snapshot 与 real01 首红全部保留。
+
+## 实际离线检查
+
+| 记录 | actual exit / 秒 | 边界 |
+| --- | --- | --- |
+| `transaction-compile01` | 0 / 3.193 | Account integration/race 编译，run ^$，零测试执行 |
+| `transaction-vet01` | 0 / 0.465 | 受影响 Account integration vet |
+| `transaction-discovery01` | 0 / 2.338 | 精确发现唯一 TransactionAndBudget，零测试执行 |
+| `transaction-scope01` | 0 / 0.227 | 两正五负 argv 映射；拦截 exec，零 Go/资源启动 |
+| `transaction-runtime01` | 0 / 2.412 | 原三编译配置 runtime 重新发现与指纹 |
+| `transaction-gate01` | 0 / 2.013 | 实际只读 gate：candidate/runtime 一致、421 fixed依赖匹配、缺失/额外/错字节皆0 |
+
+- 每条命令均实际 wait、两次进程组为空、0 adopted。Runtime 保留3503外部/工具链文件、31模块、398包；固定未选测试清单从207减到206，仅新增B02 helper。原四项PASS没有机械重跑。
+
+## 证据与后续边界
+
+- real01实际退出1/32.295s：事务项因fixture缺HTTP依赖在初始化失败，未执行任何事务权限/预算子用例。独立 root/HTTP 与两旧回归四项PASS事实不被覆盖。两次清理确认7个精确ID、39个owned PID全部消失；该窗口已交回。诊断报告和所有原件SHA见同名JSON。
+- 当前只有作者离线检查通过，未启动Docker/PG/MinIO/SMTP/浏览器或loopback。重型窗口仍归主线程安排；须经独立点核后另授。
+- 待另授的精确命令从原 source cwd 运行：
+
+```sh
+/usr/bin/python3 ../run-outbound-policy-fixture-v2.py --name outbound-http-transaction-real02 --group transaction-only --frozen /workspace/scratch/agenteam-outbound-policy-http-p04eazqi/execution-stage02/input.json --modcache /workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache --execute-authorized
+```
+
+- 此命令尚未执行。main、生产其他路径、旧fixture、规格及第12文档均未修改。

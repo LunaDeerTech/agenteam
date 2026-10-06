@@ -1,0 +1,265 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"io"
+	"net"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+	"time"
+)
+
+const outboundPolicyHTTPPath = "/api/v1/system/outbound-policy"
+
+// These assertions use the actual root and browser protocols. Policy, Audit and
+// receipts are never manufactured by SQL; the final SQL only counts facts.
+func TestSystemOutboundPolicyHTTP(t *testing.T) {
+	started := time.Now()
+	f := newHTTPFixture(t)
+	admin := f.admin()
+	member := f.invite(admin, "outbound-member@example.test", "outbound-member")
+	initial := admin.request("GET", outboundPolicyHTTPPath, nil, "", "").want(t, 200)
+	if !bytes.Equal(initial.data, []byte(`{"version":"1","rules":[]}`)) {
+		t.Fatal("fresh root policy is not the complete empty observation")
+	}
+	f.browser().request("GET", outboundPolicyHTTPPath, nil, "", "").problem(t, 401, "UNAUTHENTICATED")
+	member.request("GET", outboundPolicyHTTPPath, nil, "", "").problem(t, 403, "FORBIDDEN")
+	body := []byte(`{"expected_version":"1","rules":[{"cidr":"10.73.0.0/16","ports":[8443,443],"allow_http":false}]}`)
+	key := id[struct{}](t).String()
+	put := func(b *httpBrowser, data []byte, command string) httpResult {
+		return b.raw("PUT", outboundPolicyHTTPPath, data, func(r *http.Request) {
+			r.Header.Set("Idempotency-Key", command)
+			r.Header.Set("X-CSRF-Token", b.csrf)
+		})
+	}
+	member.request("PUT", outboundPolicyHTTPPath, json.RawMessage(body), key, member.csrf).problem(t, 403, "FORBIDDEN")
+	admin.request("PUT", outboundPolicyHTTPPath, json.RawMessage(body), key, "wrong-csrf").problem(t, 403, "CSRF_FAILED")
+	for _, change := range []func(*http.Request){
+		func(r *http.Request) { r.Header.Set("Origin", "https://elsewhere.invalid") },
+		func(r *http.Request) { r.Host = "elsewhere.invalid" },
+	} {
+		admin.raw("GET", outboundPolicyHTTPPath, nil, change).problem(t, 403, "ORIGIN_DENIED")
+	}
+	for _, method := range []string{"HEAD", "POST", "PATCH", "DELETE", "OPTIONS"} {
+		r := admin.raw(method, outboundPolicyHTTPPath, nil, nil).want(t, 405)
+		if r.headers.Get("Allow") != "GET, PUT" || method == "HEAD" && len(r.data) != 0 {
+			t.Fatal("exact method/HEAD/Allow boundary changed")
+		}
+	}
+	for _, suffix := range []string{"?", "?limit=1"} {
+		admin.request("GET", outboundPolicyHTTPPath+suffix, nil, "", "").problem(t, 400, "INVALID_ARGUMENT")
+	}
+	admin.raw("GET", outboundPolicyHTTPPath, []byte("x"), nil).problem(t, 400, "INVALID_ARGUMENT")
+	for _, path := range []string{outboundPolicyHTTPPath + "/child", outboundPolicyHTTPPath + "s"} {
+		admin.request("GET", path, nil, "", "").problem(t, 404, "NOT_FOUND")
+	}
+	admin.request("GET", outboundPolicyHTTPPath+"//child", nil, "", "").problem(t, 400, "INVALID_ARGUMENT")
+	for _, bad := range []string{
+		`{"expected_version":"1","rules":[],"extra":1}`,
+		`{"expected_version":"1","expected_version":"1","rules":[]}`,
+		`{"expected_version":1,"rules":[]}`, `{"expected_version":"1","rules":null}`,
+		`{"expected_version":"1","rules":[{"cidr":"127.0.0.0/8","ports":"all"}]}`,
+	} {
+		put(admin, []byte(bad), key).problem(t, 400, "INVALID_ARGUMENT")
+	}
+	admin.raw("PUT", outboundPolicyHTTPPath, body, func(r *http.Request) {
+		r.Header.Set("Idempotency-Key", key)
+		r.Header.Add("Idempotency-Key", key)
+		r.Header.Set("X-CSRF-Token", admin.csrf)
+	}).problem(t, 400, "INVALID_ARGUMENT")
+	admin.raw("PUT", outboundPolicyHTTPPath, body, func(r *http.Request) {
+		r.Header.Set("Idempotency-Key", key)
+		r.Header.Set("X-CSRF-Token", admin.csrf)
+		r.Header.Set("Content-Type", "text/plain")
+	}).problem(t, 415, "UNSUPPORTED_MEDIA_TYPE")
+	put(admin, append(bytes.Repeat([]byte(" "), 1<<20), body...), key).problem(t, 413, "PAYLOAD_TOO_LARGE")
+	first := put(admin, body, key).want(t, 200)
+	result := first.object(t)
+	if len(result) != 4 || result["version"] != "2" || result["rule_count"] != "1" || result["audit_id"] == nil || result["created_at"] == nil {
+		t.Fatal("write receipt is not the closed historical result")
+	}
+	canonical := bytes.ReplaceAll(body, []byte("[8443,443]"), []byte("[443,8443]"))
+	if !bytes.Equal(first.data, put(admin, canonical, key).want(t, 200).data) {
+		t.Fatal("canonical rule ordering changed the command receipt")
+	}
+	put(admin, []byte(`{"expected_version":"1","rules":[]}`), key).problem(t, 409, "IDEMPOTENCY_KEY_REUSED")
+	conflict := put(admin, body, id[struct{}](t).String())
+	conflict.problem(t, 409, "VERSION_CONFLICT")
+	f.assertTrace(conflict, "unknown_route")
+
+	// Two actual HTTP commands compete for v2. Even within one process gate,
+	// their distinct identities must produce only one new durable fact.
+	competing := []byte(`{"expected_version":"2","rules":[]}`)
+	responses := make(chan outboundHTTPOutcome, 2)
+	for range 2 {
+		command := id[struct{}](t).String()
+		go func() { responses <- outboundHTTPExchange(admin, competing, command) }()
+	}
+	accepted, rejected := 0, 0
+	for range 2 {
+		select {
+		case got := <-responses:
+			if got.err != nil {
+				t.Fatal("competing HTTP request failed", got.err)
+			}
+			switch got.result.status {
+			case 200:
+				accepted++
+			case 409:
+				got.result.problem(t, 409, "VERSION_CONFLICT")
+				rejected++
+			default:
+				t.Fatal("unexpected competing status", got.result.status)
+			}
+		case <-time.After(5 * time.Second):
+			t.Fatal("competing HTTP commands did not actually return")
+		}
+	}
+	if accepted != 1 || rejected != 1 {
+		t.Fatal("same-version commands did not serialize")
+	}
+
+	other := f.admin() // Same stable user, fresh real Session and CSRF.
+	if admin.cookie("agenteam_local_session") == other.cookie("agenteam_local_session") {
+		t.Fatal("fresh login reused Session")
+	}
+	if !bytes.Equal(first.data, put(other, body, key).want(t, 200).data) {
+		t.Fatal("new Session changed the historical receipt")
+	}
+	current := other.request("GET", outboundPolicyHTTPPath, nil, "", "").want(t, 200)
+	if !bytes.Equal(current.data, []byte(`{"version":"3","rules":[]}`)) {
+		t.Fatal("old receipt rewound current policy")
+	}
+
+	// The upstream has actually returned an accepted receipt. A task-owned
+	// native HTTP hop then truncates its body. This is response-loss evidence,
+	// not a manufactured PostgreSQL CommitUnknown result.
+	lost := []byte(`{"expected_version":"3","rules":[]}`)
+	lostKey := id[struct{}](t).String()
+	upstreamReceipt := outboundHTTPTruncate(t, other, lost, lostKey)
+	confirmed := put(other, lost, lostKey).want(t, 200)
+	if !bytes.Equal(confirmed.data, upstreamReceipt) || confirmed.object(t)["version"] != "4" {
+		t.Fatal("original replay did not confirm the sole response-lost write")
+	}
+	var version, receipts, audits int
+	if err := f.db.Connect(t).QueryRow(ctxFor(t), `SELECT version,(SELECT count(*) FROM agenteam_outbound.outbound_policy_receipts),(SELECT count(*) FROM agenteam_audit.audit_records WHERE action='outbound.policy.update') FROM agenteam_outbound.outbound_policy WHERE singleton`).Scan(&version, &receipts, &audits); err != nil || version != 4 || receipts != 3 || audits != 3 {
+		t.Fatal("HTTP retries duplicated durable policy facts", version, receipts, audits, err)
+	}
+	oldCookie := admin.cookie("agenteam_local_session")
+	admin.request("POST", "/api/v1/sessions/logout", map[string]any{}, id[struct{}](t).String(), admin.csrf).want(t, 204)
+	admin.setCookie("agenteam_local_session", oldCookie)
+	put(admin, body, key).problem(t, 401, "SESSION_REVOKED")
+	if admin.cookie("agenteam_local_session") != "" {
+		t.Fatal("revoked cookie was not cleared")
+	}
+	for _, material := range []string{"10.73.0.0/16", key, lostKey, admin.csrf, other.csrf, oldCookie} {
+		if f.log.contains(material) || bytes.Contains(conflict.data, []byte(material)) {
+			t.Fatal("ordinary logs/Problem exposed policy or browser material")
+		}
+	}
+	if time.Since(started) > 2*time.Minute {
+		t.Fatal("scenario exceeded its two-minute budget")
+	}
+}
+
+type outboundHTTPOutcome struct {
+	result httpResult
+	err    error
+}
+
+func outboundHTTPExchange(b *httpBrowser, body []byte, key string) outboundHTTPOutcome {
+	r, err := http.NewRequest("PUT", httpOrigin+outboundPolicyHTTPPath, bytes.NewReader(body))
+	if err != nil {
+		return outboundHTTPOutcome{err: err}
+	}
+	r.Header.Set("Origin", httpOrigin)
+	r.Header.Set("Content-Type", "application/json")
+	r.Header.Set("X-CSRF-Token", b.csrf)
+	r.Header.Set("Idempotency-Key", key)
+	response, err := b.client.Do(r)
+	if err != nil {
+		return outboundHTTPOutcome{err: err}
+	}
+	data, readErr := io.ReadAll(io.LimitReader(response.Body, (1<<20)+1))
+	closeErr := response.Body.Close()
+	if readErr != nil {
+		return outboundHTTPOutcome{err: readErr}
+	}
+	if closeErr != nil {
+		return outboundHTTPOutcome{err: closeErr}
+	}
+	return outboundHTTPOutcome{result: httpResult{response.StatusCode, response.Header.Clone(), data}}
+}
+
+func outboundHTTPTruncate(t *testing.T, b *httpBrowser, body []byte, key string) []byte {
+	t.Helper()
+	transport := &http.Transport{Proxy: nil, DialContext: func(ctx context.Context, network, _ string) (net.Conn, error) {
+		return (&net.Dialer{}).DialContext(ctx, network, b.f.address)
+	}}
+	defer transport.CloseIdleConnections()
+	completed := make(chan outboundHTTPOutcome, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		upstream := r.Clone(r.Context())
+		upstream.RequestURI = ""
+		upstream.URL.Scheme, upstream.URL.Host, upstream.Host = "http", "localhost:8080", "localhost:8080"
+		response, err := transport.RoundTrip(upstream)
+		if err != nil {
+			completed <- outboundHTTPOutcome{err: err}
+			w.WriteHeader(502)
+			return
+		}
+		raw, err := io.ReadAll(io.LimitReader(response.Body, (1<<20)+1))
+		_ = response.Body.Close()
+		completed <- outboundHTTPOutcome{result: httpResult{response.StatusCode, response.Header.Clone(), raw}, err: err}
+		if err != nil || response.StatusCode != 200 || len(raw) < 8 {
+			w.WriteHeader(502)
+			return
+		}
+		for k, values := range response.Header {
+			w.Header()[k] = values
+		}
+		w.WriteHeader(200)
+		_, _ = w.Write(raw[:8])
+		_ = http.NewResponseController(w).Flush()
+		panic(http.ErrAbortHandler)
+	}))
+	defer server.Close()
+	r, err := http.NewRequest("PUT", server.URL+outboundPolicyHTTPPath, bytes.NewReader(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Header.Set("Origin", httpOrigin)
+	r.Header.Set("Content-Type", "application/json")
+	r.Header.Set("X-CSRF-Token", b.csrf)
+	r.Header.Set("Idempotency-Key", key)
+	r.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: b.cookie("agenteam_local_session")})
+	client := server.Client()
+	client.Timeout = 5 * time.Second
+	defer client.CloseIdleConnections()
+	response, err := client.Do(r)
+	if err != nil {
+		t.Fatal("response-loss probe did not reach its accepted-response prefix", err)
+	}
+	partial, readErr := io.ReadAll(response.Body)
+	_ = response.Body.Close()
+	if response.StatusCode != 200 || readErr == nil || len(partial) != 8 || strings.Contains(string(partial), "not_started") {
+		t.Fatal("native accepted response was not actually truncated")
+	}
+	select {
+	case got := <-completed:
+		if got.err != nil || got.result.status != 200 {
+			t.Fatal("upstream did not confirm actual acceptance", got.err)
+		}
+		return got.result.data
+	case <-time.After(time.Second):
+		t.Fatal("response-loss upstream did not actually join")
+	}
+	return nil
+}
