@@ -1,12 +1,10 @@
 # D27：System 出站规则管理 UI
 
-状态：正式规格 rev1，2026-10-06，独立 STATIC 审查通过、主线程已采纳；仅规格接受，已提交推送 `f843506d9ec991be1c334a81b88d5cbacc277467`、主线程核远端一致。唯一前端作者已获授33源私有实施与离线检查并实际启动阶段A五源，README最后；独立私有计划已启动，真实资源尚未授权，产品未验收。被审私稿 rev3 全文 SHA256 `efc6c8cb8c87c058c5e3f7db0d68bd3c33d6eef13a42fdcbc56fe0196d0699b0`、技术 §1–7 SHA256 `343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b`；原私稿 rev1–3 均保留。
-
-独立 rev3 [STATIC PASS原报告](../agent-team/system-outbound-policy-ui-spec-verification-evidence/objects/525832e8a7a08ecddf1b09a0ae641e19003c1aa1fe69c60f54886c00a95ae011) SHA256 `525832e8a7a08ecddf1b09a0ae641e19003c1aa1fe69c60f54886c00a95ae011` 为 STATIC PASS，闭合原唯一 OUI-SPEC-01；原 rev2 报告与证据保留。技术正文逐字沿已审稿，其候选/待审措辞的规格状态以本页首为准，当前实施授权以本页首及[永久规格记录](../agent-team/system-outbound-policy-ui-spec-verification.md)为准；未授真实资源与未验产品的边界仍有效。
+状态：私有规格候选 rev2，2026-10-06，待独立 STATIC 审查与主线程采纳；未写主树、未授产品/测试实施或资源。拟归位 `docs/development/work-items/d27-system-outbound-policy-ui.md`。原私稿 rev1 全文 SHA256 `7fa69924facaceaa9944364a68fdf53cdb26655eddf2bf89b48c94e19feb1a71` 保留，不覆盖原状态或证据。
 
 固定前端产品基线：`213cf5c3f552e6b05b541ce02afc1dd65ce9db93`，SMTP 投递17路径已由主线程接受、提交推送且核 main clean；第九 Cookie 域、最终 SMTP 分区协调器、七系统叶子/三组/十一 return 均从该 Git 实读。其独立最终报告 SHA256 `703600fccf13d2ce6d752f620eb8a40126b53a93b277e9ee9498f4c5c34dec05` 只验16源及正式组合，第17 README由作者最后完成并由主线程接受；不把本次静态核对说成重新动态验证。后端产品 `a94277982620f01dc15488b09ae6ea9064977b5a` 与档案 `63de0ac675e0fd4cd26e2cecde91f417a63d3bca` 已接受，已包含在本基线；OpenAPI SHA256 `b886602a4e8c306d2146051aa417ce9d922c652709ac6ea61fd7b2861ae8ec02`。
 
-本卡34路径（十九核心、十五旧测试窄适配）为已采纳的规格范围；主线程已授唯一frontend作者33源私有实施及离线检查，README第19路径最后，真实窗口仍待另授。必读[前端规则](../frontend/README.md)、[系统设置布局](../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置)、[设置框架](../../frontend-design/layouts/settings-shell.md)、[出站架构](../../architecture/platform-infrastructure/outbound-network-policy.md)及[正式 HTTP 卡](d04-system-outbound-policy-http.md)；执行角色按[团队流程](../agent-team/README.md)使用前端、[Vue 测试](../../../.agents/skills/vue-testing-best-practices/SKILL.md)、可用 Playwright 与[独立验证](../../../.agents/skills/agenteam-verification/SKILL.md)技能。既有停止任务与未决 Summary 不属于本卡依赖。
+本候选34路径（十九核心、十五旧测试窄适配）仅供规格审查；产品唯一作者、实施与真实窗口均待主线程另授。必读[前端规则](../frontend/README.md)、[系统设置布局](../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置)、[设置框架](../../frontend-design/layouts/settings-shell.md)、[出站架构](../../architecture/platform-infrastructure/outbound-network-policy.md)及[正式 HTTP 卡](d04-system-outbound-policy-http.md)；执行角色按[团队流程](../agent-team/README.md)使用前端、[Vue 测试](../../../.agents/skills/vue-testing-best-practices/SKILL.md)、可用 Playwright 与[独立验证](../../../.agents/skills/agenteam-verification/SKILL.md)技能。既有停止任务与未决 Summary 不属于本卡依赖。
 
 ## 1. 完整结果与依赖门槛
 
@@ -56,11 +54,9 @@ App期状态分别保存当前观察/编辑基线、普通草稿、最后确认�
 
 显式保存完成 capture 后最多派发一次。成功 receipt 只确认该命令，不能把发送草稿当作“现在生效的规则”、不能用 receipt.version 覆盖更高的 GET，也不能因旧 receipt 恢复不可用镜像。确认后允许控制器安排至多一次独立 GET 刷新：它是新的只读 owner 操作，不续期原 PUT预算，不改变写已确认状态；只在本页/同完整身份仍可访问时发出。此后读失败保留确认与草稿/最后观察并标明待重读，不重复 PUT；离页、取消或身份失效后不补发。取得新的可靠 GET 前不以旧 receipt 构造新编辑基线。
 
-除下述合法身份安全清理外，已派发后的网络失败、取消、截断/非法200或 COMMIT_UNKNOWN 都保留原 intent 为结果未确认；按钮明确“用原请求确认”，不是新建保存，也无自动重试。重复使用原 key/body/version及当前已验合法CSRF，收到有效原 receipt 才确认。GET恰好相同/更高版本、后读失败或后一次not_started/not_committed均不能单独洗掉历史不确定性；不得用通用 lookup hint 推导接口。前次已经确认时，后读失败也不推翻接受事实。
+已派发后的网络失败、取消、截断/非法200或 COMMIT_UNKNOWN 都保留原 intent 为结果未确认；按钮明确“用原请求确认”，不是新建保存，也无自动重试。重复使用原 key/body/version及当前已验合法CSRF，收到有效原 receipt 才确认。GET恰好相同/更高版本、后读失败或后一次not_started/not_committed均不能单独洗掉历史不确定性；不得用通用 lookup hint 推导接口。前次已经确认时，后读失败也不推翻接受事实。
 
-先按 §5 的精确配对与原身份/owner守卫处理合法身份安全清理；它优先于未知保留规则，即使 commit_state 为 committed/unknown 也销毁失效身份的恢复资格，但不证明旧写未提交。未派发的本地非法/busy不建请求。除此之外，首次可确认业务拒绝仅为 `(400, INVALID_ARGUMENT)`、`(404, NOT_FOUND)`、`(409, VERSION_CONFLICT)`、`(409, INVALID_STATE)` 四项闭集，并且同时满足合法且与 HTTP 一致的 Problem、commit_state 为 not_started/not_committed、该 intent 此前从未进入结果未确认；只有此时可结束该次尝试。VERSION_CONFLICT保留草稿并要求人工选择重读/复核后用新基线新key提交。
-
-闭集外其他已派发失败，包括所有5xx、未知code、code/status错配、committed/unknown或非法/截断响应，都保留原intent与结果未确认；尤其 `503/DEPENDENCY_UNAVAILABLE/not_started` 不能认定未提交。固定 `policy.go:420–425` 在事务已提交后仍可能 publish 失败，而 `error.go:22,34` 给该错误 NotStarted；这是静态路径依据，不声称本卡动态制造过该故障。`IDEMPOTENCY_KEY_REUSED` 单列为原key冲突，保留原材料与key，不自动换key；已有结果未知也不能被其或后续四项闭集拒绝洗掉。合法身份清理以外，历史不确定仍保留原恢复身份，安全错误不能冒充receipt。明确放弃仅丢弃本地恢复信息，不声称已回滚/未提交；离页确认说明这一点。
+沿已验账号安全/SMTP的失败纪律，首次可确认业务拒绝不全部归为未确认：未派发的本地非法/busy不建请求；无此前不确定历史的明确 not_started/not_committed 拒绝可结束该次尝试。VERSION_CONFLICT保留草稿并要求人工选择重读/复核后用新基线新key提交；IDEMPOTENCY_KEY_REUSED不自动换key。存在历史不确定时仍保留原恢复身份，安全错误不能冒充receipt。明确放弃仅丢弃本地恢复信息，不声称已回滚/未提交；离页确认说明这一点。
 
 后端同User新Session可合法重放是领域能力；本 UI 仍沿既有完整身份/epoch隔离，不把旧Session的pending intent迁给新身份。安全清理若使恢复资格失效，不能为了恢复请求保留旧CSRF或旧owner。无 lookup、没有 Receipt browser存储/导出/导入。
 
@@ -68,15 +64,13 @@ App期状态分别保存当前观察/编辑基线、普通草稿、最后确认�
 
 固定 `useSession.ts:382–392` 的前九参数依次为 Account、SystemAccount、Invitation、Provider、Model、ModelSelection、AccountSecurity、SMTPSettings、SMTPDelivery API；末尾追加第十个可选 `outboundAPI: SystemOutboundPolicyAPI = createSystemOutboundPolicyAPI()`，旧调用与 mocks 兼容。增加明确 `outbound-policy-read/write` kind、独立 revision、私有 intent 和 `auth.system.outboundPolicy` 域，显式加入 `runAuthorized` 分类，不能落入 provider 或 personal 默认分支。所有 Cookie 操作复用唯一 owner；原30秒可见预算和 fetch/body read/cancel 的实际 finally join 保持，逻辑结束不能提前释放 owner 或让其他域/新身份越过。服务端 GET3s/PUT30s保持，客户端超时不是回滚。
 
-本域与 personal、用户目录、邀请、Provider、Model、Selection、账号安全、SMTP配置、SMTP投递的 abandon 双向隔离；API 的放弃读取只退休本域读，完整放弃才清本域恢复信息。App.dispose/auth.leave 仍是全局清理。身份安全清理先要求合法 AccountFailure Problem，并保持当前完整 identity 与 owner generation 的原守卫：`(401, UNAUTHENTICATED|SESSION_REVOKED)` 沿现 unavailableSession 清理；仅新增 `outbound-policy-write` 的 `(403, CSRF_FAILED)` 纳入同一身份清理，不能只看code；`(403, FORBIDDEN)` 另外要求现有 current()，清全部 system 私有状态并发布原身份绑定拒绝。三类合法安全配对优先于 §4 的结果未知保留，不依赖 commit_state，但不把安全清理当作写入确认或未提交证明。固定 useSession 的401/FORBIDDEN配对和旧域 CSRF 分支保持，本卡只给新write增加403门禁；401/403数字、未知code或错配本身不得触发清理。
-
-换身份/注销沿已验会话纪律，旧身份迟到失败不污染新身份；不能只清新页，也不能改 User.role 或借旧 GET 解除拒绝。系统整体失效、Session/CSRF变化与全局清理入口同样纳入本域，旧实际尾部未结束不能设空 owner。
+本域与 personal、用户目录、邀请、Provider、Model、Selection、账号安全、SMTP配置、SMTP投递的 abandon 双向隔离；API 的放弃读取只退休本域读，完整放弃才清本域恢复信息。App.dispose/auth.leave 仍是全局清理。新 write kind 纳入当前完整 identity+owner generation 的 CSRF_FAILED；当前403清全部 system 私有状态并发布原身份绑定拒绝，不能只清新页，也不能改 User.role 或借旧 GET 解除拒绝；401/换身份/注销沿已验会话纪律，旧身份迟到失败不污染新身份。系统整体失效、Session/CSRF变化与全局清理入口同样纳入本域，旧实际尾部未结束不能设空 owner。
 
 临时 checking 隐藏内容但保留同身份 App 草稿、intent 与确认 Promise。放弃/取消/卸载当前读取时，由同步退休步骤推进读代次并把该次无活读取的 loading 改为明确可重读 error，保留有效观察与独立未确认写；旧 catch/finally 不晚写新代次，不能因 busy=false 留永远 loading。首次从未派发的页面读可等 owner 实际终局后启动一次；已取消/失效的读取不自动续发，显式重读才重新获取 owner，不放宽 canSave。确认成功后的至多一次 GET 依§4作为新的只读操作，不让离页/checking/失效旧续体后台补发。
 
 App 创建/provide `createSystemOutboundPolicy(auth)`，负责状态、导航 hook、退出与 dispose；View只负责DOM且本叶子/已确认管理员身份才 attach。固定 `App.vue:100–112` 使用 `smtpSections` 统一 SMTP 导航与退出，本卡在其后追加出站确认，不拆成 smtp/smtpDelivery 两次确认，不改 `createSMTPSections` 或既有 SMTP availability。`installOutboundPolicyNavigation` 沿现 router hook 结构，仅从新精确叶子离开才确认，并先于 Session 重验；成功导航才 afterNavigation。原本人入口/浏览器返回/beforeunload及退出协议不变。
 
-新 controller 未激活且无 dirty 的新调用不得阻塞其他叶子或退出。新的 clean 离页还可在入口已无 dirty/无实际 busy 且满足下列之一时放行：已清理 anonymous（personalContext=invalid、identity=null）；或稳定 authenticated/current、完整 identity 存在且 state.user/session ID 与其相同，并且当前角色非 admin **或** system.denied。不能把非admin遗漏为只判断denied。须在调用入口捕获 inactive/clearedAnonymous/clearedRejected 资格，await 后重核同一调用/代次、仍相同活动状态与对应条件；rejected 还须同一完整 identity。checking/failed 不产生新的 cleared 资格，等待中清理或换身份不能使旧待决确认追获权。checking 中旧 Promise 保留，真正离页/身份失效/失权/dispose 则以 false 结算旧待决 Promise，旧导航/退出续体不能迁到新身份；这与随后另一次 clean 导航允许离开分别验收。
+新 controller 的未激活、无草稿状态不得阻塞其他叶子或退出。新的、入口时已清理且无 dirty/无实际 busy 的匿名或当前拒绝身份导航可以离开；须在调用入口捕获该资格，await 后重核同一调用/代次与身份条件，不能因等待中清理或换身份让旧待决确认获权。checking 中旧 Promise 保留，真正离页/身份失效/失权/dispose 则以 false 结算旧待决 Promise，旧导航/退出续体不能迁到新身份；这与随后另一次 clean 导航允许离开分别验收。
 
 View末尾常驻一个 UiDialog 组件，open 控制内部 overlay，不用外层 v-if 或新增 App 常驻 Dialog。现 `UiDialog.fallbackFocus` 类型是 `HTMLElement | null`：以本 View 当前标题 `tabindex=-1` 的本地 ref 生成 computed 值并传 `:fallback-focus="fallbackFocus"`，不是函数或开层 snapshot；只有本实例仍活、personalContext=current、完整身份仍与实例捕获值相同且admin/system未拒绝时才返回节点。组件在 normal close 同步读取最新 prop，优先合法且实际受焦点的原 trigger，有剩余modal不越界，unmount不新增fallback；确认打开时 mounted 标题不抢焦点，旧实例await续体不得focus新页。
 
@@ -131,9 +125,9 @@ pageshow checking共同卸载View/确认DOM，App Promise不迁移；503时App�
 
 纯/组件先验：最大合法256×256规则与正式 Go grammar 对照，IPv4/ULA边界、掩码/压缩/同长零段/mapped/zone反例；unknown/null/字段/端口/重复、版本边界、GET414763B保守上界和600000B超限的实际流cancel join；PUT两项独立字节门禁及其他endpoint预算不变。非法输入在生成key/intent前拒绝；不能以两个同源JS函数互相比较代替正式引擎依据，最大真实读取由正式HTTP写入不同合法规则再GET验证。
 
-生产controller+受控transport分层阻塞fetch、原生Response body与cancel：30秒可见结束/显式取消/放弃/身份变化后，实际finally未join前owner仍忙且所有Cookie域不得越过，旧结果零发布；同步退休loading为可显式重读error，不自动补发。双向屏障至少以personal、SMTP配置私有密码及SMTP投递原intent为代表，静核所有域分类/清理入口；旧前九参数省略调用不触发新页请求。覆盖 §4 四项闭集首次拒绝正例；`503/DEPENDENCY_UNAVAILABLE/not_started`、未知code、code/status错配、committed/unknown及非法响应都保留原intent；先unknown再400/409闭集拒绝仍不洗掉历史。覆盖合法401会话配对、403/FORBIDDEN及本域write的403/CSRF_FAILED优先清理，即使 committed/unknown 也销毁失效身份恢复资格而不确认旧写；503/400+CSRF_FAILED、错配401/403及未知code不能误清，旧身份迟到安全错误不影响新身份，旧域分支不变。确认后GET失败保留receipt、历史receipt不盖较新观察、原key/body/version/同身份CSRF精确重放、IDEMPOTENCY_KEY_REUSED保留原材料/key且不换key。COMMIT_UNKNOWN及上述故障受控Problem只验分类/恢复分支，不冒充真实DB Unknown或真实提交后镜像故障。
+生产controller+受控transport分层阻塞fetch、原生Response body与cancel：30秒可见结束/显式取消/放弃/身份变化后，实际finally未join前owner仍忙且所有Cookie域不得越过，旧结果零发布；同步退休loading为可显式重读error，不自动补发。双向屏障至少以personal、SMTP配置私有密码及SMTP投递原intent为代表，静核所有域分类/清理入口；旧前九参数省略调用不触发新页请求。覆盖当前/旧身份401/403/CSRF、确认后GET失败保留receipt、历史receipt不盖较新观察、原key/body/version/同身份CSRF精确重放、先未知再not_started仍不洗掉历史、IDEMPOTENCY_KEY_REUSED不换key。COMMIT_UNKNOWN受控Problem只验恢复分支，不冒充真实DB Unknown。
 
-真实App/router/factory纯测：八叶/三组/十二精确return与新query/hash/trailing/extra/数组拒绝；脏表单统一确认、active与inactive离页、新的未激活clean/已清理匿名/稳定current非admin/system.denied正常离开及旧pending身份失效false分别覆盖；checking/failed或等待中才清理不能给旧调用补资格。打开确认后用生产pageshow listener合成checking/一次Session503/显式同Session恢复，确认仍可回应、无残留overlay/inert、零自动PUT/key；同身份重挂后normal close读取当前本地fallback，旧实例/unmount不恢复。jsdom只证明状态/层序，真实browser另证焦点/Tab，不把合成pageshow称为BFCache。App仍通过smtpSections协调SMTP两分区，默认配置不多读投递API、不多写测试。
+真实App/router/factory纯测：八叶/三组/十二精确return与新query/hash/trailing/extra/数组拒绝；脏表单统一确认、active与inactive离页、新clean匿名/拒绝身份正常离开及旧pending身份失效false分别覆盖。打开确认后用生产pageshow listener合成checking/一次Session503/显式同Session恢复，确认仍可回应、无残留overlay/inert、零自动PUT/key；同身份重挂后normal close读取当前本地fallback，旧实例/unmount不恢复。jsdom只证明状态/层序，真实browser另证焦点/Tab，不把合成pageshow称为BFCache。App仍通过smtpSections协调SMTP两分区，默认配置不多读投递API、不多写测试。
 
 四个新真实组（以下均仅为待实施验收要求，本卡没有执行）：
 

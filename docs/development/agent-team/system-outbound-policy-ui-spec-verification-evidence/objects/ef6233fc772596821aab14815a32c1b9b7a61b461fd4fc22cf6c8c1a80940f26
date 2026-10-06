@@ -1,0 +1,22 @@
+# Outbound UI 独立验收计划（准备版）
+
+固定产品 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`；规格采用已独立 STATIC PASS 的技术 §1–7 SHA256 `343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b`，候选全文 `efc6c8cb8c87c058c5e3f7db0d68bd3c33d6eef13a42fdcbc56fe0196d0699b0`。后续正式页首只做指纹重绑。本计划不授权执行；目前无作者候选，不写假定接口的实现探针。
+
+阶段 A 的五源一冻结即独立消费：`client.ts`、`outbound-rules.ts`、`system-outbound-policy.ts`、`outbound-rules.spec.ts`、`system-outbound-policy-client.spec.ts`。不用等待全34路径，检查其最小固定依赖和原件后才按另授权限执行。后续 owner、页面、harness 分阶段接收，前段逐SHA未变即复用。
+
+| 阶段 | 最小独立风险组合 |
+| --- | --- |
+| API / canonical | 两组。①以固定 Go NewRule/DecodeRules/Rules.JSON 为独立依据，选择 IPv4/ULA 边界、掩码、IPv6最长零段及同长取左、mapped/zone、端口数值排序与整规则 JSON 字节排序、完全重复与合法重叠，核输入capture和GET严格顺序的区别；不复制完整Go分类器或让两个JS函数互证。②精确GET/PUT、严格不可变DTO与原expected+1/count/Audit/时间关联；最大合法不同规则与414763B形状界分开，原生流600000B超限和cancel屏障须实际join。核仅新PUT 1MiB与rules512KiB独立门禁、旧endpoint限额不变；不伪称合法canonical规则能达到这两个更高上限。 |
+| 第十 owner | 两个组合。①原生Response/read/cancel受控屏障下派发PUT，覆盖30秒可见结束但实际尾部未join仍busy、原key/body/version/同identity合法CSRF重放；503/DEPENDENCY_UNAVAILABLE/not_started保持未知，先未知再400/404/409不能抹历史。闭集首次拒绝、未知code/status错配和key冲突作小参数集，不重跑API矩阵。②代表personal与SMTP配置/投递的双向abandon、读退休及全局安全清理；当前合法401/403优先、503/400 CSRF_FAILED不误清、迟到旧identity失败不污染新身份。静核全部kind/revision/清理入口、前九参数兼容；不新增任意flush:sync主动发写原子性门槛。 |
+| 真实App / controller | 两个公开动作组合。①脏表单打开确认→生产pageshow listener进入checking→一次Session503→显式同完整identity恢复；Promise保留、共同卸载、旧读取同步error、显式重读才恢复，旧实例不能发布/focus；换identity时旧pending必须false。②首次已知冲突保留草稿并显式采用新基线，确认后GET失败仍确认且零重PUT；inactive clean、清理后anonymous、current非admin/denied的新离页与旧pending隔离，并核原smtpSections只确认一次。八叶/三组/十二return与立即新草稿反馈按实际差量选代表，原全check由作者完成；jsdom不声称原生焦点或BFCache。 |
+
+页面探针待冻结后沿实际可访问名、条件文案和公开按钮编写，不复制历史页面的通用标签。安全分类可参数化，实际尾部、身份切换和确认用少量明确屏障，避免每个owner全排列。
+
+最终真实最多两个独立顶层，待作者四新三旧原件及固定fixture可读后确定精确接缝与选择器，再另授编译/发现和实际窗口：
+
+- **A：原写历史receipt与较新当前GET。** UI捕获原规则并正式PUT；仅在正式服务已接受后用自有代理有界截断真实响应。另一正式管理员命令推进当前版本；同浏览器Session/GET更高版本都不确认原写。用户显式用原PUT确认，内存比较method/path/key/body字节/原expected与当前合法CSRF，只输出布尔；核原receipt expected+1及原count，当前GET不回退。以Outbound自身command_digest/semantic_digest与正式Audit关联逐原命令核receipt/Audit唯一，不套Account或Model规则、不用全库增量。确认后GET故障及只重读可在预算内合并；若作者已有同源精确证据，优先复用而不增加第二次截断。不存在lookup请求。
+- **B：当前权限与确认恢复。** 原生打开dirty/unknown确认，pageshow→Session503→同Session新请求200完整读取后恢复，核实际可操作焦点、Tab和normal close最新fallback。结合一次正式当前权限失效，核真实安全响应、私有草稿/intent销毁、旧pending false和随后新clean离页/退出可达。未激活页不得挡合法其他叶子导航，但不释放实际Cookie owner。其余旧身份/CSRF/权限全矩阵按作者原件与独立pure复用；实际owner尾部证明以原生纯屏障为主，不拿浏览器观察EOF冒充owner join。具体权限准备只沿冻结的正式服务/既有获准fixture，不临时造权限、policy、receipt或Audit事实。
+
+A/B每顶层2分钟、每browser45秒、包6分钟，race/count1、worker1/retry0不变；必要分顶层而不续期。使用同一锁定Playwright实例/绝对CLI、私有testDir，每mode发现恰1例；原生旁路返回原Promise/Response/read/cancel，不clone/tee/重发，不要求text/plain错误有不存在的EOF。合法恢复必须是新序号200实际结束且同完整Session，权限/业务响应不能由status猜身份。材料、规则和其hash不输出，关闭trace/video/自动失败截图；不引入SMTP listener、外网试连、生产SPA发布或停止任务。
+
+所有实际执行另授。固定产品/最小依赖/dist/私有overlay和工具指纹，记录原命令、实际退出及前后SHA；仅自有资源nonce、精确ID/PID-starttime、实际wait/adopted wait和baseline双扫。失败保留首轮并先完成尾部/清理再归因，不自行改产品、弱化断言或自动重跑。只复用明确未变的已接受后端同实例/镜像/事务和共享focus事实；未运行旧顶层绝不写本轮PASS。

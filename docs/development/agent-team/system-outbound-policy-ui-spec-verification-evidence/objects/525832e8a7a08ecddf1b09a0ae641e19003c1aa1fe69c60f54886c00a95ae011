@@ -1,0 +1,11 @@
+# Outbound UI rev3 独立差量审查
+
+结论：**STATIC PASS，OUI-SPEC-01 已闭合**。本次仅复核冻结 rev2→rev3 规格差量，不代表产品实现或动态通过。
+
+候选：`/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/ui-spec-rev3/d27-system-outbound-policy-ui.md`，全文 SHA256 `efc6c8cb8c87c058c5e3f7db0d68bd3c33d6eef13a42fdcbc56fe0196d0699b0`，技术 §1–7 `343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b`。差量 SHA256 `a4b7a7a8b5ba9e257ec7d2c6bdb9fc6f6e884364ab3bb25fc766ec30a9f0e5b4`；固定产品 Git `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`。
+
+§4 已写明四项 HTTP/code 闭集、合法 Problem、not_started/not_committed 和此前无未知的共同条件；其他已派发失败保留未知，明确包括提交后 publish 可返回的 503/DEPENDENCY_UNAVAILABLE/not_started。后续拒绝不洗掉历史未知，key 冲突不换原 key。§5 合法401会话、403/FORBIDDEN及新 write 的403/CSRF_FAILED先走原身份/generation/current守卫，即使 commit_state 为 committed/unknown也安全销毁失效资格而不声称旧写未提交；错配状态码/未知code不能触发该清理。旧域 CSRF 分支不变。§7 对应首次拒绝正例、503/未知/错配/历史未知及安全优先负例完整，受控故障不冒充真实提交后镜像故障。
+
+clean 导航已区分 inactive、cleared anonymous、稳定 current 且非admin或system.denied的新入口，与旧 pending 的身份/代次失效。checking/failed不追授旧调用。固定 `useSystemSMTPDelivery.ts:747–765` 的 inactive clean 本来只决定能否离页，不以其他域全局 busy 阻塞导航；它不释放 Cookie owner。`useSession.ts:1124` 拒已有 owner，`:937–939` logout 遇 owner 不派发，`:1239–1246` 仅 actual finally 释放，App退出按钮亦受busy保护。rev3原唯一owner/实际join要求保持，因此无需为inactive额外扩门禁或改变旧协调器。
+
+§1–3和§6逐字等于rev2；34路径、九链接、CIDR/预算、四新三旧实际验收选择未变，复用原完整审查 `review.md` SHA256 `629917c04eea41426d53a5edd964625d322430f811c65cbad4d2fcfd38fcfc5d`。独立读取全部实际差量及basis，核全文/技术/差量SHA与前后输入一致；旧rev2输入、报告及准备误判原件不覆盖。没有产品测试、构建、监听器、浏览器、Docker、主树修改或Git mutation。规格通过不授权产品或资源实施，后续由主线程决定。

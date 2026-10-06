@@ -1,0 +1,188 @@
+{
+  "created_utc": "2026-10-06T20:54:54.613495+00:00",
+  "review_kind": "STATIC_ONLY",
+  "baseline": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "input_files": {
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/ui-spec-rev2/d27-system-outbound-policy-ui.md": "a6b698b72f4e213c8decb360c171e3c27444f39e9df0540aa431d56597080d2a",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/ui-spec-rev2/basis.md": "6b9c09c71fa4baf340a75b2227ea2b7b64d04282d47122f612a975f8cdad4673",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/ui-spec-rev2/basis.json": "5f5911aecda2ed756fb9cf0b3bb2cd1fc06be8e3dd2fde2f7c00bf86ded06ba0",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/ui-spec-rev2/rev1-to-rev2.diff": "85681f0c2024b9a2704ff0d7a066eef21e3c3997630c1127a80bf6c50761baaf"
+  },
+  "fixed_basis_hash_checks": [
+    {
+      "path": ".agents/skills/agenteam-design/SKILL.md",
+      "expected_sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81",
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81",
+      "match": true
+    },
+    {
+      "path": "AGENTS.md",
+      "expected_sha256": "5106a1e087fb323a53be16ddff57e054614ea3b543586cc1aef0a2754a0f878c",
+      "sha256": "5106a1e087fb323a53be16ddff57e054614ea3b543586cc1aef0a2754a0f878c",
+      "match": true
+    },
+    {
+      "path": "api/openapi/outbound-policy.json",
+      "expected_sha256": "b886602a4e8c306d2146051aa417ce9d922c652709ac6ea61fd7b2861ae8ec02",
+      "sha256": "b886602a4e8c306d2146051aa417ce9d922c652709ac6ea61fd7b2861ae8ec02",
+      "match": true
+    },
+    {
+      "path": "docs/development/agent-team/system-outbound-policy-http-verification.md",
+      "expected_sha256": "38d137b85339e35b4adeac41deae2d98abeef6428c300597dc625b54a62a7a97",
+      "sha256": "38d137b85339e35b4adeac41deae2d98abeef6428c300597dc625b54a62a7a97",
+      "match": true
+    },
+    {
+      "path": "docs/development/agent-team/tasks.md",
+      "expected_sha256": "20e6f75fe350fb658ddf40e9f7a3f221d457928e91f657457a71cab96edeb750",
+      "sha256": "20e6f75fe350fb658ddf40e9f7a3f221d457928e91f657457a71cab96edeb750",
+      "match": true
+    },
+    {
+      "path": "docs/development/backend/outbound.md",
+      "expected_sha256": "809de939bedcd7625342b9507921f0f0b7a0be4be62a6aa377edcebf1b501015",
+      "sha256": "809de939bedcd7625342b9507921f0f0b7a0be4be62a6aa377edcebf1b501015",
+      "match": true
+    },
+    {
+      "path": "docs/development/development-plan.md",
+      "expected_sha256": "307d8c418cc81bbf1a3eb9a4089b01b0d12b87dfd424d77fd081a391437505b0",
+      "sha256": "307d8c418cc81bbf1a3eb9a4089b01b0d12b87dfd424d77fd081a391437505b0",
+      "match": true
+    },
+    {
+      "path": "docs/development/work-items/d04-system-outbound-policy-http.md",
+      "expected_sha256": "2e1d6963f8be97976f4ef8b52f5d0193637534d46cb6f02c0508e910777ec91f",
+      "sha256": "2e1d6963f8be97976f4ef8b52f5d0193637534d46cb6f02c0508e910777ec91f",
+      "match": true
+    },
+    {
+      "path": "docs/development/work-items/d27-system-smtp-delivery-ui.md",
+      "expected_sha256": "b64be31d5e33d0c5a785820538473f6cdc2f8d57bbfe9329ff9817cd235df3e0",
+      "sha256": "b64be31d5e33d0c5a785820538473f6cdc2f8d57bbfe9329ff9817cd235df3e0",
+      "match": true
+    },
+    {
+      "path": "internal/central/outbound/http/wire.go",
+      "expected_sha256": "311fa4316fd24d60ea90c804536ad700c5d55014c30c3ae7cb8aa1e47ada5b08",
+      "sha256": "311fa4316fd24d60ea90c804536ad700c5d55014c30c3ae7cb8aa1e47ada5b08",
+      "match": true
+    },
+    {
+      "path": "internal/central/outbound/rules.go",
+      "expected_sha256": "a5c8833c7e68c0abf2dbed07829af8851728f071c68b82050b88c41db6bbb4c4",
+      "sha256": "a5c8833c7e68c0abf2dbed07829af8851728f071c68b82050b88c41db6bbb4c4",
+      "match": true
+    },
+    {
+      "path": "tests/account/system_smtp_delivery_web_test.go",
+      "expected_sha256": "9cb43e944cfdfaed19955dd80c6646e576aa8a2500b669888755129389196f52",
+      "sha256": "9cb43e944cfdfaed19955dd80c6646e576aa8a2500b669888755129389196f52",
+      "match": true
+    },
+    {
+      "path": "tests/account/system_smtp_settings_web_test.go",
+      "expected_sha256": "df9fee364590ffe0f8fa9998e341c59e466a8d0b8c65047970b9f4ffb90bbd1b",
+      "sha256": "df9fee364590ffe0f8fa9998e341c59e466a8d0b8c65047970b9f4ffb90bbd1b",
+      "match": true
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "expected_sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "match": true
+    },
+    {
+      "path": "web/src/api/system-account.ts",
+      "expected_sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+      "match": true
+    },
+    {
+      "path": "web/src/components/ui/UiDialog.vue",
+      "expected_sha256": "2009c74dbb2f2cd5ae351b435eb3d801f9dce3ea0a9c91c73a055371fed211b0",
+      "sha256": "2009c74dbb2f2cd5ae351b435eb3d801f9dce3ea0a9c91c73a055371fed211b0",
+      "match": true
+    },
+    {
+      "path": "web/src/composables/useSystemSMTPDelivery.ts",
+      "expected_sha256": "cdeec662a025f429c13f6c840c895e699010982bf19f635e880f75a6c00468bf",
+      "sha256": "cdeec662a025f429c13f6c840c895e699010982bf19f635e880f75a6c00468bf",
+      "match": true
+    },
+    {
+      "path": "web/src/composables/useSystemSMTPSettings.ts",
+      "expected_sha256": "2baf377922d3f04cbb553b2d6ff85c3ef92334ed10ee00661c66682640519296",
+      "sha256": "2baf377922d3f04cbb553b2d6ff85c3ef92334ed10ee00661c66682640519296",
+      "match": true
+    },
+    {
+      "path": "web/src/tests/system-smtp-delivery.spec.ts",
+      "expected_sha256": "b77f8e4575807e8dad38b6677b5bf3dc74c0d49b7cea5acefb96454b64fb12cf",
+      "sha256": "b77f8e4575807e8dad38b6677b5bf3dc74c0d49b7cea5acefb96454b64fb12cf",
+      "match": true
+    },
+    {
+      "path": "web/src/views/system/SystemSMTPSettingsView.vue",
+      "expected_sha256": "d2842173aed715b46fa2982d37f0b851eae83cfa6637f42005a5e78b7d95d6a5",
+      "sha256": "d2842173aed715b46fa2982d37f0b851eae83cfa6637f42005a5e78b7d95d6a5",
+      "match": true
+    }
+  ],
+  "extra_read_source_hashes": {
+    ".agents/skills/agenteam-design/SKILL.md": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81",
+    "AGENTS.md": "5106a1e087fb323a53be16ddff57e054614ea3b543586cc1aef0a2754a0f878c",
+    "api/openapi/outbound-policy.json": "b886602a4e8c306d2146051aa417ce9d922c652709ac6ea61fd7b2861ae8ec02",
+    "docs/development/agent-team/system-outbound-policy-http-verification.md": "38d137b85339e35b4adeac41deae2d98abeef6428c300597dc625b54a62a7a97",
+    "docs/development/agent-team/tasks.md": "20e6f75fe350fb658ddf40e9f7a3f221d457928e91f657457a71cab96edeb750",
+    "docs/development/backend/outbound.md": "809de939bedcd7625342b9507921f0f0b7a0be4be62a6aa377edcebf1b501015",
+    "docs/development/development-plan.md": "307d8c418cc81bbf1a3eb9a4089b01b0d12b87dfd424d77fd081a391437505b0",
+    "docs/development/work-items/d04-system-outbound-policy-http.md": "2e1d6963f8be97976f4ef8b52f5d0193637534d46cb6f02c0508e910777ec91f",
+    "docs/development/work-items/d27-system-smtp-delivery-ui.md": "b64be31d5e33d0c5a785820538473f6cdc2f8d57bbfe9329ff9817cd235df3e0",
+    "internal/central/outbound/http/wire.go": "311fa4316fd24d60ea90c804536ad700c5d55014c30c3ae7cb8aa1e47ada5b08",
+    "internal/central/outbound/rules.go": "a5c8833c7e68c0abf2dbed07829af8851728f071c68b82050b88c41db6bbb4c4",
+    "tests/account/system_smtp_delivery_web_test.go": "9cb43e944cfdfaed19955dd80c6646e576aa8a2500b669888755129389196f52",
+    "tests/account/system_smtp_settings_web_test.go": "df9fee364590ffe0f8fa9998e341c59e466a8d0b8c65047970b9f4ffb90bbd1b",
+    "web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "web/src/components/ui/UiDialog.vue": "2009c74dbb2f2cd5ae351b435eb3d801f9dce3ea0a9c91c73a055371fed211b0",
+    "web/src/composables/useSystemSMTPDelivery.ts": "cdeec662a025f429c13f6c840c895e699010982bf19f635e880f75a6c00468bf",
+    "web/src/composables/useSystemSMTPSettings.ts": "2baf377922d3f04cbb553b2d6ff85c3ef92334ed10ee00661c66682640519296",
+    "web/src/tests/system-smtp-delivery.spec.ts": "b77f8e4575807e8dad38b6677b5bf3dc74c0d49b7cea5acefb96454b64fb12cf",
+    "web/src/views/system/SystemSMTPSettingsView.vue": "d2842173aed715b46fa2982d37f0b851eae83cfa6637f42005a5e78b7d95d6a5",
+    "internal/central/outbound/policy.go": "50056c5f6cdf14acaaa93dd463a50b948a1ba93da9b01d9eb421cd025379febc",
+    "internal/central/outbound/error.go": "78db79258b5fe522909bdb2a85c30c7a04f6ea888645e5ca66f8cb685216759c",
+    "internal/central/outbound/http/handler.go": "cb0e2a362e46251a43ff2a963c61a2a3ab8898b31eed4b52366eae6896384924",
+    "internal/central/httpapi/problem.go": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde",
+    "internal/central/account/http_boundary.go": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc",
+    "internal/central/account/authority.go": "4ee6365489ff21bfd629313b658f46f03495fe38a27e640ed4897a43547f14d5",
+    "web/src/composables/useLayer.ts": "aa3e2624666350d289c571c99516776423ef79d58f095308478d2593a5dcd7f3"
+  },
+  "scope": {
+    "count": 34,
+    "existing": 22,
+    "new": 12,
+    "old_browser_files": 7,
+    "old_browser_count_points": 12
+  },
+  "structural_response_upper_bound_bytes": 414763,
+  "upper_bound_is_not_a_valid_max_rule_fixture": true,
+  "diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/d27-system-outbound-policy-ui.draft.md",
+      "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/ui-spec-rev2/d27-system-outbound-policy-ui.md"
+    ],
+    "actual_exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "interpretation": "No whitespace diagnostics. Exit 1 retained for differing no-index inputs."
+  },
+  "checks_type": "synchronous read-only Git/show, SHA-256, shape arithmetic, and diff check; no product runtime or tests",
+  "product_or_git_mutation": false,
+  "resources_started": false
+}

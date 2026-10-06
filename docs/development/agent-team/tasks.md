@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：System 出站规则 UI 规格接受及私有实施启动
+
+- [正式卡 rev1](../work-items/d27-system-outbound-policy-ui.md)已提交推送 `f843506d9ec991be1c334a81b88d5cbacc277467`，主线程核远端一致；[规格报告与原件](system-outbound-policy-ui-spec-verification.md)固定213cf5c及技术343f09…0ab6b。rev2唯一OUI-SPEC-01为STATIC阻断，rev3关闭，未冒充产品RED／动态PASS。
+- 34路径（22旧／12新）与预算、四新／三旧真实选择保持；首次明确拒绝需合法Problem及四对status/code等共同条件，503提交后publish失败仍unknown，安全清理按当前身份守卫。第十域实际owner、同View宿主和原SMTP协调器不放宽。
+- frontend已实际启动私有阶段A五源，获授33源离线实施、README末件；独立计划也已启动，仅API／owner／App各两组合与未来A/B计划，无真实资源授权或本UI产品接受。21逻辑原件／19新对象，57固定Git引用，不复制产品树或重跑旧验收。
+- 旧§1–26与验收档案保持。Object/tools及SPA publication停止不重试／改写／转派，Summary待决、生产未绑定／ready503保持；完整D08–D28/E01未完成，E01未开始。
+
 ## 2026-10-06：SMTP 测试与投递任务 UI 完整结果接受
 
 - [工作卡rev1](../work-items/d27-system-smtp-delivery-ui.md)17路径已由主线程采纳、提交推送 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93` 并核远端一致；[正式报告与原件](system-smtp-delivery-ui-verification.md)绑定628612c真实基线、input04及README末件。四API、第九域actual owner、原请求恢复及新clean匿名/拒绝身份导航已经按范围验证。

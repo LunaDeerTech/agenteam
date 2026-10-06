@@ -1,0 +1,10 @@
+{
+  "kind": "review preparation assumption error, not a product/spec failure",
+  "actual_python_exit": 1,
+  "raw": "Traceback (most recent call last):\n  File \"<stdin>\", line 14, in <module>\nAssertionError: (1, '', '')\n",
+  "cause": "The initial preparation script required no-index diff --check to return 0 even though it returned 1 with no diagnostics for differing files. No report directory or product file had been written; corrected only the interpretation.",
+  "original_diff_actual_exit": 1,
+  "original_diff_stdout": "",
+  "original_diff_stderr": "",
+  "no_business_resources": true
+}

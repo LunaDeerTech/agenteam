@@ -1,0 +1,69 @@
+{
+  "result": "STATIC_BLOCKED_PENDING_NARROW_SPEC_REPAIR",
+  "baseline": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "card": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/ui-spec-rev2/d27-system-outbound-policy-ui.md",
+    "sha256": "a6b698b72f4e213c8decb360c171e3c27444f39e9df0540aa431d56597080d2a",
+    "technical_sha256": "66c3653b01f1cb6a5ac81ddd3f8985ace0761957f89b1c8f58410ea6a947208f"
+  },
+  "blocking_findings": [
+    {
+      "id": "OUI-SPEC-01",
+      "location": "section4 line59 and related security/acceptance seams",
+      "reason": "commit_state alone does not prove noncommit; committed->publish can return 503/DEPENDENCY_UNAVAILABLE/not_started",
+      "recommended_first_definite_rejection_pairs": [
+        [
+          400,
+          "INVALID_ARGUMENT"
+        ],
+        [
+          404,
+          "NOT_FOUND"
+        ],
+        [
+          409,
+          "VERSION_CONFLICT"
+        ],
+        [
+          409,
+          "INVALID_STATE"
+        ]
+      ],
+      "requires": [
+        "valid Problem matching HTTP status",
+        "commit_state not_started or not_committed",
+        "no previous uncertainty",
+        "security cleanup evaluated separately with exact code/status and existing identity/generation guards"
+      ],
+      "new_domain_only_security_gate": "403+CSRF_FAILED for outbound-policy-write; preserve all legacy-domain behavior",
+      "negative_cases": [
+        "503/DEPENDENCY_UNAVAILABLE/not_started",
+        "unknown code",
+        "status/code mismatch",
+        "uncertain followed by 400 or 409",
+        "503/400+CSRF_FAILED does not clear identity or original intent",
+        "legal current security failure remains authoritative despite committed/unknown",
+        "late identity failures do not affect new identity"
+      ]
+    }
+  ],
+  "other_substantive_blockers": [],
+  "nonblocking_clarification": "clean current rejected identity includes stable nonadmin OR system.denied; inactive clean remains allowed, checking/failed and old pending gain no new eligibility",
+  "scope": {
+    "count": 34,
+    "existing": 22,
+    "new": 12,
+    "old_browser_files": 7,
+    "old_browser_count_points": 12
+  },
+  "response_shape_upper_bound": 414763,
+  "dynamic_tests_run": false,
+  "product_or_main_writes": false,
+  "git_mutations": false,
+  "resources_started": false,
+  "input_after_same": true,
+  "private_preparation_issue_preserved": "preparation01-tool-record.json",
+  "review_sha256": "629917c04eea41426d53a5edd964625d322430f811c65cbad4d2fcfd38fcfc5d",
+  "static_check_sha256": "77c5a3b6a0857e13cd4207dc85abb006ede6cbe49e1ad3b31f16d676c3aca160",
+  "frozen_utc": "2026-10-06T20:56:56.410376+00:00"
+}

@@ -1,0 +1,35 @@
+# Outbound UI rev2 独立 STATIC 审查
+
+结论：**STATIC BLOCKED，待一项规格窄修**。§4 首次确定拒绝缺少本域明确的 HTTP status/code 闭集；仅凭 `not_started/not_committed` 不足以结束已派发请求。其余范围、固定接缝及验收设计未发现第二项实质阻断。此结论仅审规格，不代表产品或动态验收。
+
+输入为 `/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/ui-spec-rev2/d27-system-outbound-policy-ui.md`，全文 SHA256 `a6b698b72f4e213c8decb360c171e3c27444f39e9df0540aa431d56597080d2a`，技术 §1–7 SHA256 `66c3653b01f1cb6a5ac81ddd3f8985ace0761957f89b1c8f58410ea6a947208f`；固定产品 Git `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`。原 diff SHA256 `85681f0c2024b9a2704ff0d7a066eef21e3c3997630c1127a80bf6c50761baaf`。后端 `a94277982620f01dc15488b09ae6ea9064977b5a` 已接受；本审查不要求改后端。
+
+**OUI-SPEC-01：§4 第59行需要明确拒绝分类。** 固定 `internal/central/outbound/policy.go:420–425` 在事务已 Committed 后调用 `publish(next)`，失败直接返回错误；`error.go:21–35` 的 `unavailable` 为 `DEPENDENCY_UNAVAILABLE/not_started`，HTTP 映射为 503。因此状态标签不能单独证明没有提交。成功路径只 encode receipt，没有 SMTP test/retry 的写后 GetJob；`wire.go` 投影失败也保留 Unknown。以上是固定代码路径证明，本次没有制造或动态复现提交后发布故障。
+
+建议首次确定业务拒绝采用保守闭集：
+
+| HTTP status | Problem code |
+| --- | --- |
+| 400 | INVALID_ARGUMENT |
+| 404 | NOT_FOUND |
+| 409 | VERSION_CONFLICT |
+| 409 | INVALID_STATE |
+
+必须同时满足：合法且与 HTTP 一致的 Problem、`commit_state` 为 `not_started` 或 `not_committed`、此前该 intent 从未进入结果未知。固定 handler 的路径拒绝、authority 与服务中这些业务失败均在写前/未提交路径；本域 404 不照搬 SMTP 写后读取的分类。`policy.go:389–398` 给出版本冲突/版本耗尽在 UPDATE 前的依据；`handler.go` 的固定路由、`policy.go:216–247` 的 authority 与 `httpapi/problem.go` 给出其余配对依据。
+
+除下述身份安全清理优先分支外，所有 5xx、未知 code、code/status 错配、committed/unknown、非法/截断响应均保留结果未知；特别是 `503/DEPENDENCY_UNAVAILABLE/not_started`。后续即使收到闭集拒绝也不能抹掉旧未知。`IDEMPOTENCY_KEY_REUSED` 单列保留原恢复材料与 key 冲突，不自动换 key。§7 对应增加上述 503、未知 code、错配、先未知再 400/409 的负例及闭集首次拒绝正例，仍在原测试路径内。
+
+安全清理必须精确配对并先判：合法 Problem 的 `(401, UNAUTHENTICATED|SESSION_REVOKED)`、新 Outbound write 的 `(403, CSRF_FAILED)`、当前有效操作的 `(403, FORBIDDEN)`，仍沿同完整 identity/owner generation 等原守卫。合法安全失败即使带 committed/unknown 也必须销毁失效身份的恢复资格，但不能据此确认旧命令未提交。固定 `useSession.ts:369–373` 已闭合前者，`:1405` 已闭合 FORBIDDEN；`:1387–1399` 原 CSRF 分支仅看 code。因此只为新增 Outbound write 加 status403 门禁，旧域规则不改。`client.ts:112–141` 仅核 HTTP/status 一致而未核 code/status 配对，不能假设 API 已过滤错配。验收补 503/400+CSRF_FAILED、错配401/403或未知code不误清，以及合法安全配对优先和旧身份迟到阴性。此为同一分类阻断的必要接缝，不增加路径或后端范围。
+
+其余已核结论：
+
+- 34 路径唯一：22 既有、12 新建；既有 SHA 全部对应固定 Git。七个旧 browser 正好十二处 `toHaveCount(7)`，与候选清单逐项一致。八叶、三组、十二个精确 return 的路由/菜单/纯测/旧 browser 接缝有对应范围；不需要改 SMTP coordinator、旧业务 controller 或共享 Ui。
+- `rules.go` 的网络前缀需原字符串等于 Masked/String，禁止 mapped/zone，完整落在 RFC1918/ULA 内；端口数值升序，整规则按 Go canonical JSON 字节排序，完全重复拒绝。ASCII JSON 字段顺序与前端要求一致。静态形状上界为每规则 1619B、GET 414763B，低于 600000B；该算式不是合法最大规则动态样本，正式最大读取仍须使用不同合法规则写入再 GET。原 PUT 1MiB 与 raw rules 512KiB 为两个独立门禁。
+- receipt 需对应原 expected+1、捕获规则数和合法 Audit/时间，历史 receipt 与当前 GET 分离；原命令重放不得回退当前观察或旧镜像，无 lookup。第十个可选 API、独立读写 kind、全域清理、当前身份/CSRF 与实际 finally join 均有明确规格要求。已有传输与后端不变事实可以精确复用，新增接缝仍须独立验证。
+- clean 离页须沿固定 `useSystemSMTPDelivery.ts:650–670,747–770` 的语义：未激活 clean 不挡其他页；新调用入口可接受已清理 anonymous，或稳定 authenticated/current、合法完整 identity 的非 admin **或** `system.denied`，且无 busy/双 clean。await 后仍核入口资格、同代次/身份/section；不能让旧 pending 因后续清理获得资格，checking/failed 不获新资格。建议将“当前拒绝身份”明确写成非 admin 或 denied，并分别覆盖普通用户退出、当前 denied 离页和旧 pending 失效；这澄清已接受契约，不扩范围。
+- 固定 `UiDialog` 与 `useLayer.ts:147–178,206` 支持常驻 Dialog、normal close 读取最新本地 fallback、合法原 trigger 优先、剩余 modal 内恢复、unmount 不新增 fallback。View 的当前完整身份/实例存活门禁、checking 共同卸载和旧续体禁 focus 已写明。jsdom 与真实焦点/Tab 证据分层正确。
+- 四个新真实组覆盖规则/最大读取、正式写竞争与历史恢复、当前权限/owner、导航与原生焦点；三个旧兼容顶层在固定 Git 实际存在。复用其他旧组必须按精确差量说明，未执行者不称本轮 PASS。预算、同源故障控制、私有请求布尔比较、无敏感正文/trace、实际 wait 与自有资源双清边界可实施；不依赖生产 SPA 发布、外网或新 SMTP listener。
+
+固定输入与源码指纹、20 项 basis SHA 核对和只读检查记录在 `static-check.json`。仅执行 Git 读取、SHA、静态形状算式及 no-index diff-check；没有产品测试、浏览器、监听器、Docker 或业务资源，也没有主树/Git mutation。一次报告准备把 no-index diff 的无诊断 exit 1 错当必须为 0，原失败记录在 `preparation01-tool-record.json`；修正仅解释差异返回码，后续脚本 actual exit 0。另一次只读 useLayer 路径定位已由不存在的 components/ui 路径纠正为固定 composables 路径，不涉及产品行为。
+
+等待冻结 rev3 后仅复核 §4/§5/§7 窄差量及技术指纹；rev2 原件和本报告保持不改。

@@ -1,0 +1,13 @@
+# Outbound UI rev3 窄修依据
+
+仅私有规格修订，待独立差量复审；无产品、测试执行、构建、监听或其他资源，未改主树/Git。rev2 全部原件保持。
+
+- 全文 SHA256 `efc6c8cb8c87c058c5e3f7db0d68bd3c33d6eef13a42fdcbc56fe0196d0699b0`；技术 §1–7 SHA256 `343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b`。
+- `rev2-to-rev3.diff` SHA256 `a4b7a7a8b5ba9e257ec7d2c6bdb9fc6f6e884364ab3bb25fc766ec30a9f0e5b4`；旧全文 `a6b698b72f4e213c8decb360c171e3c27444f39e9df0540aa431d56597080d2a`。
+- rev2 独立报告 `/workspace/scratch/agenteam-outbound-ui-rev2-review-0xro88w6/review.md` SHA256 `629917c04eea41426d53a5edd964625d322430f811c65cbad4d2fcfd38fcfc5d`：唯一 OUI-SPEC-01，尚不能把本作者修订称独立通过。
+
+固定 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93` 依据：`policy.go:420–425` 已提交后 publish 仍可返回错误，`error.go:22,34` 给 DEPENDENCY_UNAVAILABLE/NotStarted；仅为静态可达性。`client.ts:112–167` 校验 Problem/HTTP status 一致但不校验 code/status 配对。`useSession.ts:369–373,1375–1405` 已有严格401会话和403/FORBIDDEN分支，仅新 Outbound write 增403/CSRF_FAILED门禁，保留原身份/generation/current守卫与旧域行为。`useSystemSMTPDelivery.ts:650–670,747–770` 为入口 clean 资格及 await 后不追授旧 pending 的已接受来源。
+
+差量仅页首、§4明确安全清理优先/四项首次业务拒绝闭集/其余保留与历史未知、§5精确安全配对及非admin OR denied的clean离页、§7对应分类和导航正反例。IDEMPOTENCY_KEY_REUSED始终保留原材料/key且不自动换key。§1–3/§6逐字不变；原34路径、九链接及所有预算/真实组/旧回归选择不变。内存精确逆还原全部七处替换后等于rev2全文和技术SHA；格式检查无诊断（no-index diff有差量返回码为1）。
+
+`basis.json` 固定上述五个源码SHA与检查结果；其余路径/链接复用未改的 rev2 basis，不重复索引。当前仅等待独立复审，不授实施或资源。

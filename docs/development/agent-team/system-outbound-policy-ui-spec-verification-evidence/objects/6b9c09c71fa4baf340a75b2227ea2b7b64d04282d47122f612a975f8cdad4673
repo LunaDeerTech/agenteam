@@ -1,0 +1,17 @@
+# Outbound UI rev2 候选依据与差量
+
+仅架构自查完成，待独立规格审查；未实施、构建、测试或启动资源。本目录只含规格、原稿差量与固定依据，主树及原私稿不改。
+
+- 固定产品：`213cf5c3f552e6b05b541ce02afc1dd65ce9db93`；后端 `a942779` / 档案 `63de0ac` 已包含。
+- 候选全文：`a6b698b72f4e213c8decb360c171e3c27444f39e9df0540aa431d56597080d2a`；技术§1–7：`66c3653b01f1cb6a5ac81ddd3f8985ace0761957f89b1c8f58410ea6a947208f`。
+- 原私稿全文：`7fa69924facaceaa9944364a68fdf53cdb26655eddf2bf89b48c94e19feb1a71`；技术：`1ac9677f62485d7db759da79c8420f452617475e6786a3d2113d4d77174fa877`；仍在父目录 `d27-system-outbound-policy-ui.draft.md`。
+- 精确差量：`rev1-to-rev2.diff`，SHA `85681f0c2024b9a2704ff0d7a066eef21e3c3997630c1127a80bf6c50761baaf`。
+- `basis.json` SHA `5f5911aecda2ed756fb9cf0b3bb2cd1fc06be8e3dd2fde2f7c00bf86ded06ba0`：34唯一候选（22既有、12新），固定源码SHA、9链接/fragment、格式与旧真实selector存在性检查。只核Git文件，没有执行selector。
+
+差量集中在：页首/§1改已接受依赖；§3明确两API签名与现公开解析入口；§4补原body及同identity原CSRF资格；§5绑定第十参数/分域清理、最终smtpSections、取消终态、实际HTMLElement|null fallback、新clean离页与旧pending身份隔离；§6冻结十九核心+十五旧测试；§7给四新真实组和三旧高风险代表，分列受控/native/真实证据、实际join与预算。§2的Rules产品规则未改。
+
+关键固定接缝：`useSession.ts:382`第九smtpDeliveryAPI，`:1108`runAuthorized及`:1375`systemFailure；`App.vue`使用smtpSections导航/退出/dispose；`useSystemSMTPDelivery.ts:631`协调器，`:747`捕获新clean离页资格、等待后不回溯授予旧pending；`UiDialog.vue`fallbackFocus为HTMLElement|null；`SystemSMTPSettingsView.vue`computed最新本地ref。SMTP报告仅16源独立动态，README第17由主线程接受，完整报告路径/SHA保存在basis.json，不外推整棵新Git重跑。
+
+原14条旧测试候选均实际需要窄适配；投递browser另有1424/1555两处count7，纳入#34，投递App spec没有固定全系统数量故排除。旧七browser合计十二处7→8；SMTP仍本来第七叶/第十一return，不改旧eleventh_return事实字段或旧Go协议。全系统总数成为八叶/三组/十二return。
+
+独立审阅重点：严格Rules与response/request预算；原receipt/current观察及无lookup未知恢复；同identity原CSRF、全部系统清理与actual owner尾部；smtpSections不拆分与新clean/旧pending导航；34路径是否闭合及旧真实代表复用边界。SPA publication/停止Object/tools和未决Summary不进入实施依赖。

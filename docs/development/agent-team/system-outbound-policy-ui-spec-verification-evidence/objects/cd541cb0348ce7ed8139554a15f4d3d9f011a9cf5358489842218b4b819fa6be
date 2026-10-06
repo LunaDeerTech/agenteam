@@ -1,0 +1,18 @@
+--- ui-spec-rev3/d27-system-outbound-policy-ui.md
++++ formal-header01/d27-system-outbound-policy-ui.md
+@@ -1,12 +1,12 @@
+ # D27：System 出站规则管理 UI
+ 
+-状态：私有规格候选 rev3，2026-10-06，待独立 STATIC 差量复审与主线程采纳；未写主树、未授产品/测试实施或资源。拟归位 `docs/development/work-items/d27-system-outbound-policy-ui.md`。原私稿 rev1 与 rev2 保留；rev2 全文 SHA256 `a6b698b72f4e213c8decb360c171e3c27444f39e9df0540aa431d56597080d2a`、技术 §1–7 SHA256 `66c3653b01f1cb6a5ac81ddd3f8985ace0761957f89b1c8f58410ea6a947208f` 不变。
++状态：正式规格 rev1，2026-10-06，独立 STATIC 审查通过、主线程已采纳；仅规格接受，尚未实施，产品/测试实施与资源均未授权。被审私稿 rev3 全文 SHA256 `efc6c8cb8c87c058c5e3f7db0d68bd3c33d6eef13a42fdcbc56fe0196d0699b0`、技术 §1–7 SHA256 `343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b`；原私稿 rev1–3 均保留。
+ 
+-rev2 独立审查为 STATIC BLOCKED，唯一阻断 OUI-SPEC-01；报告 `/workspace/scratch/agenteam-outbound-ui-rev2-review-0xro88w6/review.md` SHA256 `629917c04eea41426d53a5edd964625d322430f811c65cbad4d2fcfd38fcfc5d`。本次只补 §4/§5 的首次业务拒绝闭集与优先身份安全清理，明确 clean 离页资格，并在 §7 增对应验收；其余技术及34路径不扩。
++独立 rev3 报告 `/workspace/scratch/agenteam-outbound-ui-rev2-review-0xro88w6/rev3-review.md` SHA256 `525832e8a7a08ecddf1b09a0ae641e19003c1aa1fe69c60f54886c00a95ae011` 为 STATIC PASS，闭合原唯一 OUI-SPEC-01；原 rev2 报告与证据保留。技术正文逐字沿已审稿，其候选/待审措辞的规格状态以本页首为准，所有未授产品与资源的边界仍有效。
+ 
+ 固定前端产品基线：`213cf5c3f552e6b05b541ce02afc1dd65ce9db93`，SMTP 投递17路径已由主线程接受、提交推送且核 main clean；第九 Cookie 域、最终 SMTP 分区协调器、七系统叶子/三组/十一 return 均从该 Git 实读。其独立最终报告 SHA256 `703600fccf13d2ce6d752f620eb8a40126b53a93b277e9ee9498f4c5c34dec05` 只验16源及正式组合，第17 README由作者最后完成并由主线程接受；不把本次静态核对说成重新动态验证。后端产品 `a94277982620f01dc15488b09ae6ea9064977b5a` 与档案 `63de0ac675e0fd4cd26e2cecde91f417a63d3bca` 已接受，已包含在本基线；OpenAPI SHA256 `b886602a4e8c306d2146051aa417ce9d922c652709ac6ea61fd7b2861ae8ec02`。
+ 
+-本候选34路径（十九核心、十五旧测试窄适配）仅供规格审查；产品唯一作者、实施与真实窗口均待主线程另授。必读[前端规则](../frontend/README.md)、[系统设置布局](../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置)、[设置框架](../../frontend-design/layouts/settings-shell.md)、[出站架构](../../architecture/platform-infrastructure/outbound-network-policy.md)及[正式 HTTP 卡](d04-system-outbound-policy-http.md)；执行角色按[团队流程](../agent-team/README.md)使用前端、[Vue 测试](../../../.agents/skills/vue-testing-best-practices/SKILL.md)、可用 Playwright 与[独立验证](../../../.agents/skills/agenteam-verification/SKILL.md)技能。既有停止任务与未决 Summary 不属于本卡依赖。
++本卡34路径（十九核心、十五旧测试窄适配）为已采纳的规格范围；产品唯一作者、实施与真实窗口均待主线程另授。必读[前端规则](../frontend/README.md)、[系统设置布局](../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置)、[设置框架](../../frontend-design/layouts/settings-shell.md)、[出站架构](../../architecture/platform-infrastructure/outbound-network-policy.md)及[正式 HTTP 卡](d04-system-outbound-policy-http.md)；执行角色按[团队流程](../agent-team/README.md)使用前端、[Vue 测试](../../../.agents/skills/vue-testing-best-practices/SKILL.md)、可用 Playwright 与[独立验证](../../../.agents/skills/agenteam-verification/SKILL.md)技能。既有停止任务与未决 Summary 不属于本卡依赖。
+ 
+ ## 1. 完整结果与依赖门槛
+ 

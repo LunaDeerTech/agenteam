@@ -310,3 +310,13 @@ SMTP投递UI的authority01失败已有静态产品归因，私有修复仍未验
 四API没有lookup，Session/GET不是receipt；原请求重放保持同完整identity、合法原CSRF/key/body/version，实际尾部结束才释放第九域owner。取消due-scan不是queue/逐次ClaimBusy证明，hold自身发送单列。外部邮箱、生产SPA、Runtime及完整D27不在本次通过范围。
 
 另据主线程调度通知：SPA scope controlled01/native01已实际PASS双清，但concurrent-publication探针被平台内容安全机制终止，run目录不存在、无执行证据，stage02竞态静态缺口未关闭，脚本返修/发布暂停。该新停止项不得重试、改写或转交。已冻harness三文件仅格式/type/list，Go compile/真实build/两top尚未执行，SPA产品仍未接受；此处不扩本档证据。原Object/tools停止、Summary待决、未绑定能力与ready503保持；完整D08–D28/E01未完成，E01未开始。
+
+## 27. System 出站规则 UI 规格采纳及私有阶段启动
+
+§1–26逐字保留。[正式卡rev1](../work-items/d27-system-outbound-policy-ui.md)由主线程采纳并提交推送 `f843506d9ec991be1c334a81b88d5cbacc277467`、远端一致；[规格报告](system-outbound-policy-ui-spec-verification.md)绑定产品213cf5c、被审rev3全文efc6c8…699b0及技术§1–7 `343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b`。原rev1／2、rev2唯一STATIC阻断、rev3差量与独立PASS、正式页首及no-index准备误判原件保留，不是产品失败或UI动态接受。
+
+rev3收窄首次明确拒绝的合法Problem／status-code闭集／commit状态／此前无unknown共同条件；提交后publish可能503/not_started，不能据此抹原未确认。合法当前会话／权限与新域CSRF失败优先安全清理，不反推旧写回滚；错配／迟到旧身份不可清理新intent。inactive clean离页不释放Cookie owner，第十域及实际尾部、既有smtpSections保持。
+
+34路径／原预算／四新三旧验收要求不变。主线程已授权唯一frontend作者33源私有实施与离线检查，README第19路径最后；作者在 `/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i` 实际启动#1/2/3/11/12阶段A五源。独立私有计划已实际启动并冻结两原件，API／owner／App各两组合、最终A/B均只是计划；真实资源尚未授权，未读取活动候选或宣称实现通过。21逻辑原件／19对象、57固定Git引用，旧SMTP永久原件直接复用。
+
+SMTP投递已按§26接受。SPA controlled/native已PASS的原调度记录不等于SPA产品接受；后继concurrent-publication因平台内容安全机制停止，无run目录，stage02竞态未闭合，脚本返修／发布继续暂停，不重试／改写／转交。Object/tools原停止、Summary待决、生产未绑定／ready503保持；完整D08–D28/E01未完成，E01未开始。这里只追加规格与行政状态，不扩产品／资源授权。

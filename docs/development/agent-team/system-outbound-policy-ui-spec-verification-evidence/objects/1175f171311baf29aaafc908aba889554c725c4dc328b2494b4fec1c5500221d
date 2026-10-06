@@ -1,0 +1,24 @@
+{
+  "kind": "independent verification design only",
+  "baseline": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "technical_sha256": "343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b",
+  "plan_sha256": "ef6233fc772596821aab14815a32c1b9b7a61b461fd4fc22cf6c8c1a80940f26",
+  "candidate_available": false,
+  "stage_a_expected_frozen_paths": [
+    "web/src/api/client.ts",
+    "web/src/api/outbound-rules.ts",
+    "web/src/api/system-outbound-policy.ts",
+    "web/src/tests/outbound-rules.spec.ts",
+    "web/src/tests/system-outbound-policy-client.spec.ts"
+  ],
+  "planned_api_combinations": 2,
+  "planned_owner_combinations": 2,
+  "planned_app_combinations": 2,
+  "planned_real_representatives": 2,
+  "actual_tests_executed": false,
+  "implementation_probe_written": false,
+  "resources_started": false,
+  "main_or_git_mutation": false,
+  "requires_separate_execution_authorization": true,
+  "frozen_utc": "2026-10-06T21:04:53.234245+00:00"
+}

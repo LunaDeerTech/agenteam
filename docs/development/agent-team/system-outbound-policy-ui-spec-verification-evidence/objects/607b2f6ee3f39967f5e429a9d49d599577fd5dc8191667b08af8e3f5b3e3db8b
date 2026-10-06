@@ -1,0 +1,23 @@
+{
+  "status": "FORMAL_REV1_SPECIFICATION_ACCEPTED_ONLY",
+  "source_path": "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/ui-spec-rev3/d27-system-outbound-policy-ui.md",
+  "source_sha256": "efc6c8cb8c87c058c5e3f7db0d68bd3c33d6eef13a42fdcbc56fe0196d0699b0",
+  "card_sha256": "2f7f3dbed8cc4d263f1c1db3576404589c0cedb7c2aec217e84a223d9880579b",
+  "technical_sha256": "343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b",
+  "header_diff_sha256": "cd541cb0348ce7ed8139554a15f4d3d9f011a9cf5358489842218b4b819fa6be",
+  "independent_report": {
+    "path": "/workspace/scratch/agenteam-outbound-ui-rev2-review-0xro88w6/rev3-review.md",
+    "sha256": "525832e8a7a08ecddf1b09a0ae641e19003c1aa1fe69c60f54886c00a95ae011",
+    "conclusion": "STATIC PASS"
+  },
+  "checks": {
+    "technical_1_7_byte_identical": true,
+    "scope_34_paths_unchanged": true,
+    "nine_links_unchanged": true,
+    "utf8_lf_final_lf_no_trailing_whitespace": true,
+    "diff_check_actual_exit": 1,
+    "diff_check_no_diagnostics": true,
+    "source_still_same_sha256": true,
+    "no_product_build_test_resource_or_git_mutation": true
+  }
+}

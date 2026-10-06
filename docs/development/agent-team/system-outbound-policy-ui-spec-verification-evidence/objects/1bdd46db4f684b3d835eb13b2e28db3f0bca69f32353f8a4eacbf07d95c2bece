@@ -1,0 +1,44 @@
+{
+  "result": "STATIC_PASS",
+  "closed_finding": "OUI-SPEC-01",
+  "review_scope": "frozen rev2 to rev3 specification delta only",
+  "product_baseline": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "inputs": {
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/ui-spec-rev2/d27-system-outbound-policy-ui.md": "a6b698b72f4e213c8decb360c171e3c27444f39e9df0540aa431d56597080d2a",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/ui-spec-rev3/d27-system-outbound-policy-ui.md": "efc6c8cb8c87c058c5e3f7db0d68bd3c33d6eef13a42fdcbc56fe0196d0699b0",
+    "/workspace/scratch/agenteam-outbound-policy-http-p04eazqi/ui-spec-rev3/rev2-to-rev3.diff": "a4b7a7a8b5ba9e257ec7d2c6bdb9fc6f6e884364ab3bb25fc766ec30a9f0e5b4",
+    "/workspace/scratch/agenteam-outbound-ui-rev2-review-0xro88w6/review.md": "629917c04eea41426d53a5edd964625d322430f811c65cbad4d2fcfd38fcfc5d"
+  },
+  "technical_sha256": "343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b",
+  "unchanged_sections": {
+    "1": true,
+    "2": true,
+    "3": true,
+    "4": false,
+    "5": false,
+    "6": true,
+    "7": false
+  },
+  "scope_count": 34,
+  "scope_and_budgets_and_real_selectors_unchanged": true,
+  "inactive_navigation_is_not_owner_release": true,
+  "guards_read": [
+    "useSystemSMTPDelivery.ts:747-765",
+    "useSession.ts:937-939",
+    "useSession.ts:1124",
+    "useSession.ts:1239-1246",
+    "App.vue:181"
+  ],
+  "diff_check": {
+    "actual_exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "interpretation": "no whitespace diagnostics; no-index differing-input exit retained"
+  },
+  "dynamic_tests": false,
+  "resources_started": false,
+  "product_or_git_mutation": false,
+  "input_after_same": true,
+  "review_sha256": "525832e8a7a08ecddf1b09a0ae641e19003c1aa1fe69c60f54886c00a95ae011",
+  "frozen_utc": "2026-10-06T21:02:29.509210+00:00"
+}
