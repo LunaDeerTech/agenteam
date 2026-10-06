@@ -1,0 +1,807 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"log/slog"
+	"net"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"syscall"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/app"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
+	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+)
+
+// Only this owned same-origin server controls a completed response. Production
+// authentication, commands, transactions, origin and CSRF remain untouched.
+type modelsResponseLost struct {
+	header http.Header
+	prefix []byte
+	length int
+}
+
+func (*modelsResponseLost) Error() string {
+	return "owned Model response intentionally truncated"
+}
+
+type modelsWebFixture struct {
+	*authenticationWebFixture
+	mode                                  string
+	setup                                 *personalWebFixture
+	admin, member                         personalWebCredential
+	adminClient                           *http.Client
+	csrf                                  string
+	ids                                   map[string]string
+	mu                                    sync.Mutex
+	dropPath, dropMethod, lostKey, lostID string
+	dropNext                              bool
+	dropped, replayed                     int
+	failRead, failSession                 atomic.Bool
+	readFailures, sessionFailures         atomic.Int32
+	secrets                               []string
+	referenceOwner, referenceProject      string
+}
+
+func newModelsWebRoot(t *testing.T, ctx context.Context, own *modelsWebFixture) *authenticationWebFixture {
+	t.Helper()
+	db := pgfixture.NewDatabase(t)
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal("owned frontend listener unavailable")
+	}
+	t.Cleanup(func() { _ = listener.Close() })
+	origin := "http://" + listener.Addr().String()
+	inputs := accountenv.New(t)
+	objects, err := objectfixture.Environment(ctx, db.Name)
+	if err != nil {
+		t.Fatal("owned object fixture unavailable")
+	}
+	values := inputs.Values()
+	for _, v := range objects {
+		k, value, _ := strings.Cut(v, "=")
+		values[k] = value
+	}
+	for k, v := range map[string]string{
+		"DATABASE_URL": db.Fixture.URL(db.Name), "DATABASE_CA_FILE": db.Fixture.CAFile,
+		"DATABASE_STARTUP_TIMEOUT": "15s", "HTTP_ADDR": "127.0.0.1:0", "PUBLIC_ORIGIN": origin, "SHUTDOWN_TIMEOUT": "2s",
+		"CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`,
+		"SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`,
+	} {
+		values[config.Prefix+k] = v
+	}
+	var environment []string
+	for k, v := range values {
+		environment = append(environment, k+"="+v)
+	}
+	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, environment)
+	if err != nil {
+		t.Fatal("owned root configuration invalid")
+	}
+	output := &httpFixtureLog{listening: make(chan string, 1)}
+	logger, err := logging.New(logging.Central, slog.LevelInfo, output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rootCtx, cancel := context.WithCancel(ctx)
+	rootDone := make(chan error, 1)
+	go func() { rootDone <- app.Run(rootCtx, cfg, logger, nil) }()
+	t.Cleanup(func() {
+		cancel()
+		select {
+		case err := <-rootDone:
+			if err != nil {
+				t.Error("full Account/Secret/Model root shutdown failed", err)
+			}
+		case <-time.After(5 * time.Second):
+			t.Error("full root did not join within its original shutdown budget")
+		}
+	})
+	var address string
+	select {
+	case address = <-output.listening:
+	case err := <-rootDone:
+		rootDone <- err
+		t.Fatal("full root initialization failed", err)
+	case <-ctx.Done():
+		t.Fatal("shared browser budget ended during root startup")
+	}
+	backend, err := url.Parse("http://" + address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	transport := &http.Transport{Proxy: nil}
+	proxy := httputil.NewSingleHostReverseProxy(backend)
+	proxy.Transport = transport // NewSingleHostReverseProxy preserves the original Host.
+	proxy.ModifyResponse = own.controlResponse
+	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, err error) {
+		var lost *modelsResponseLost
+		if !errors.As(err, &lost) {
+			http.Error(w, "owned API unavailable", 502)
+			return
+		}
+		defer clear(lost.prefix)
+		for name, values := range lost.header {
+			w.Header()[name] = append([]string(nil), values...)
+		}
+		w.Header().Del("Transfer-Encoding")
+		w.Header().Set("Content-Length", strconv.Itoa(lost.length))
+		w.Header().Set("Connection", "close")
+		w.WriteHeader(200)
+		_, _ = w.Write(lost.prefix)
+		_ = http.NewResponseController(w).Flush()
+		if hijacker, ok := w.(http.Hijacker); ok {
+			if conn, _, e := hijacker.Hijack(); e == nil {
+				_ = conn.Close()
+			}
+		}
+	}
+	root, err := filepath.Abs("../../web/dist")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(filepath.Join(root, "index.html")); err != nil {
+		t.Fatal("formal production dist must be built before browser execution")
+	}
+	assets := http.FileServer(http.Dir(root))
+	server := &http.Server{ReadHeaderTimeout: 5 * time.Second, Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" && r.URL.Path == "/api/v1/session" && own.failSession.CompareAndSwap(true, false) {
+			own.sessionFailures.Add(1)
+			http.Error(w, "owned bounded session read unavailable", 503)
+			return
+		}
+		if r.Method == "GET" && (strings.HasPrefix(r.URL.Path, "/api/v1/system/model-providers/") || strings.HasPrefix(r.URL.Path, "/api/v1/system/models/")) && own.failRead.CompareAndSwap(true, false) {
+			own.readFailures.Add(1)
+			http.Error(w, "owned bounded configuration read unavailable", 503)
+			return
+		}
+		if r.URL.Path == "/api/v1" || strings.HasPrefix(r.URL.Path, "/api/v1/") {
+			proxy.ServeHTTP(w, r)
+			return
+		}
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			http.Error(w, "method unavailable", 405)
+			return
+		}
+		clean := filepath.Clean("/" + r.URL.Path)
+		if info, e := os.Stat(filepath.Join(root, clean)); e == nil && !info.IsDir() {
+			assets.ServeHTTP(w, r)
+			return
+		}
+		if strings.HasPrefix(clean, "/assets/") || filepath.Ext(clean) != "" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Cache-Control", "no-store")
+		http.ServeFile(w, r, filepath.Join(root, "index.html"))
+	})}
+	serverDone := make(chan error, 1)
+	go func() { serverDone <- server.Serve(listener) }()
+	t.Cleanup(func() {
+		shutdown, stop := context.WithTimeout(context.Background(), 2*time.Second)
+		defer stop()
+		if err := server.Shutdown(shutdown); err != nil {
+			t.Error("frontend server did not drain")
+			_ = server.Close()
+		}
+		if err := <-serverDone; !errors.Is(err, http.ErrServerClosed) {
+			t.Error("owned frontend server failed", err)
+		}
+		transport.CloseIdleConnections()
+	})
+	runtimeRoot := os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME")
+	if !filepath.IsAbs(runtimeRoot) || len(runtimeRoot) > 45 {
+		t.Fatal("explicit short task-owned browser runtime is required")
+	}
+	directory, err := os.MkdirTemp(runtimeRoot, "run-")
+	if err != nil {
+		t.Fatal("private browser runtime creation failed")
+	}
+	if err := os.Chmod(directory, 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.RemoveAll(directory); err != nil {
+			t.Error("private browser runtime cleanup failed")
+		}
+		if _, err := os.Stat(directory); !errors.Is(err, os.ErrNotExist) {
+			t.Error("private browser runtime still exists")
+		}
+	})
+	old := &httpFixture{t: t, db: db, config: cfg, address: address, log: output}
+	entry := old.record("bootstrap", "admin@mail.com", "")
+	material, err := json.Marshal(map[string]string{"email": entry.Email, "password": entry.Password})
+	if err != nil {
+		t.Fatal("private bootstrap encoding failed")
+	}
+	defer clear(material)
+	if err := os.WriteFile(filepath.Join(directory, "credentials.json"), material, 0600); err != nil {
+		t.Fatal("private bootstrap transfer failed")
+	}
+	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output, record: old.record, recoveryLogPath: cfg.AccountRecoveryLog()}
+	t.Cleanup(func() {
+		if output.contains(entry.Password) {
+			t.Error("bootstrap material escaped the restricted recovery log")
+		}
+	})
+	conn, closeConnection := invitationsWebConnect(t, ctx, db)
+	defer closeConnection()
+	var configured bool
+	if err := conn.QueryRow(ctx, `SELECT configured FROM agenteam_model.platform_selection WHERE singleton`).Scan(&configured); err != nil || configured {
+		t.Fatal("real Model Initialize technical singleton missing", err)
+	}
+	return f
+}
+
+func modelsWebInput(name, kind string) map[string]any {
+	output := []string{"text"}
+	if kind == "embedding" {
+		output = []string{"vector"}
+	}
+	if kind == "reranker" {
+		output = []string{}
+	}
+	if kind == "image_generation" {
+		output = []string{"image"}
+	}
+	structured := []string{}
+	if kind == "chat" {
+		structured = []string{"text", "json_schema"}
+	}
+	return map[string]any{"name": name, "provider_model_id": "native-" + name, "type": kind, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]any{}, "capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": output, "reasoning_efforts": []string{}, "structured_output_modes": structured, "context_length": nil, "max_output": nil}}
+}
+func (f *modelsWebFixture) request(ctx context.Context, method, path string, body any, status int) map[string]any {
+	f.t.Helper()
+	raw, err := json.Marshal(body)
+	if err != nil {
+		f.t.Fatal("owned Model setup encoding failed")
+	}
+	defer clear(raw)
+	var reader io.Reader
+	if body != nil {
+		reader = bytes.NewReader(raw)
+	}
+	r, err := http.NewRequestWithContext(ctx, method, f.origin+path, reader)
+	if err != nil {
+		f.t.Fatal("owned Model setup request invalid")
+	}
+	r.Header.Set("Origin", f.origin)
+	r.Header.Set("Sec-Fetch-Site", "same-origin")
+	if body != nil {
+		r.Header.Set("Content-Type", "application/json")
+		r.Header.Set("Idempotency-Key", id[struct{}](f.t).String())
+		r.Header.Set("X-CSRF-Token", f.csrf)
+	}
+	response, err := f.adminClient.Do(r)
+	if err != nil {
+		f.t.Fatal("formal Model setup HTTP failed", err)
+	}
+	defer response.Body.Close()
+	if response.StatusCode != status {
+		f.t.Fatalf("formal Model setup %s status=%d want=%d", method, response.StatusCode, status)
+	}
+	value := map[string]any{}
+	if json.NewDecoder(io.LimitReader(response.Body, 2097153)).Decode(&value) != nil {
+		f.t.Fatal("formal Model setup response invalid")
+	}
+	return value
+}
+func (f *modelsWebFixture) createProvider(ctx context.Context, name, protocol, endpoint string, enabled bool) string {
+	input := providerWebInput(name, endpoint, nil)
+	input["protocol"], input["enabled"] = protocol, enabled
+	return httpString(f.t, f.request(ctx, "POST", "/api/v1/system/model-providers", map[string]any{"input": input}, 200), "resource_id")
+}
+func (f *modelsWebFixture) createModel(ctx context.Context, providerID string, input map[string]any) string {
+	return httpString(f.t, f.request(ctx, "POST", "/api/v1/system/models", map[string]any{"provider_id": providerID, "input": input}, 200), "resource_id")
+}
+func (f *modelsWebFixture) selection(ctx context.Context, role, target string) map[string]any {
+	value := f.request(ctx, "GET", "/api/v1/system/model-selection", nil, 200)
+	body := map[string]any{"id": value["id"], "expected_version": value["version"], "embedding": f.ids["embedding"], "memory": f.ids["memory"], "reranker": nil, "image": nil}
+	if current, ok := value["configured"].(map[string]any); ok {
+		for _, name := range []string{"embedding", "memory", "reranker", "image"} {
+			body[name] = current[name]
+		}
+	}
+	if role == "initial" {
+		body["reranker"], body["image"] = f.ids["reranker"], f.ids["image"]
+	} else {
+		if role != "embedding" && role != "memory" && role != "reranker" && role != "image" {
+			f.t.Fatal("owned selector role invalid")
+		}
+		if target == "" {
+			body[role] = nil
+		} else {
+			body[role] = target
+		}
+	}
+	return f.request(ctx, "PUT", "/api/v1/system/model-selection", body, 200)
+}
+func newModelsWebFixture(t *testing.T, ctx context.Context, mode string) *modelsWebFixture {
+	t.Helper()
+	f := &modelsWebFixture{mode: mode, ids: map[string]string{}}
+	f.authenticationWebFixture = newModelsWebRoot(t, ctx, f)
+	f.setup = &personalWebFixture{authenticationWebFixture: f.authenticationWebFixture}
+	f.admin = personalWebCredential{Email: f.entry.Email, Password: f.entry.Password, UserID: f.entry.ID}
+	f.adminClient = f.setup.setupClient()
+	anonymous := f.setup.setupRequest(ctx, f.adminClient, "GET", "/api/v1/auth/bootstrap", nil, "", false, 200)
+	f.setup.setupRequest(ctx, f.adminClient, "POST", "/api/v1/sessions/login", map[string]string{"email": f.admin.Email, "password": f.admin.Password}, httpString(t, anonymous, "csrf_token"), true, 200)
+	f.csrf = httpString(t, f.setup.setupRequest(ctx, f.adminClient, "GET", "/api/v1/session", nil, "", false, 200), "csrf_token")
+	f.member = f.setup.inviteMember(ctx, f.adminClient, f.csrf, "models-owned-member@example.com", "models-member")
+	f.secrets = []string{f.admin.Password, f.member.Password}
+	protocols := []struct{ name, protocol, kind string }{{"chat", "openai-chat-completions", "chat"}, {"anthropic", "anthropic-messages", "chat"}, {"embedding", "openai-embeddings", "embedding"}, {"reranker", "jina-rerank", "reranker"}, {"image", "openai-images-generations", "image_generation"}}
+	if mode == "read" {
+		endpoint := ("https://provider.invalid/" + strings.Repeat("&<>", 8192))[:8192]
+		for n := 0; n < 26; n++ {
+			protocol := "openai-chat-completions"
+			if n == 0 {
+				protocol = "openai-embeddings"
+			}
+			key := f.createProvider(ctx, fmt.Sprintf("Provider-%02d-%s", n, strings.Repeat("界", 116)), protocol, endpoint, true)
+			if n == 0 {
+				f.ids["embedding_provider"] = key
+			}
+			if n == 24 {
+				f.ids["empty_provider"] = key
+			}
+			if n == 25 {
+				f.ids["chat_provider"], f.ids["target_provider"] = key, key
+			}
+		}
+		for n := 0; n < 26; n++ {
+			value := modelsWebInput(fmt.Sprintf("Model-%02d-%s", n, strings.Repeat("长", 112)), "chat")
+			value["provider_model_id"] = fmt.Sprintf("native-%02d-", n) + strings.Repeat("x", 240)
+			f.ids["target"] = f.createModel(ctx, f.ids["target_provider"], value)
+		}
+		f.ids["memory"] = f.ids["target"]
+		f.ids["embedding"] = f.createModel(ctx, f.ids["embedding_provider"], modelsWebInput("Required embedding", "embedding"))
+		f.selection(ctx, "memory", f.ids["memory"])
+	} else {
+		for _, p := range protocols {
+			if mode != "lifecycle" && mode != "deletion" && p.name != "chat" {
+				continue
+			}
+			f.ids[p.name+"_provider"] = f.createProvider(ctx, "Owned "+p.name+" Provider", p.protocol, "https://provider.invalid/v1", p.name != "anthropic")
+			if mode == "deletion" && p.name != "anthropic" {
+				role := p.name
+				if role == "chat" {
+					role = "memory"
+				}
+				f.ids[role] = f.createModel(ctx, f.ids[p.name+"_provider"], modelsWebInput("Target "+role, p.kind))
+				f.ids[role+"_provider"] = f.ids[p.name+"_provider"]
+				replacement := f.createProvider(ctx, "Replacement "+role+" Provider", p.protocol, "https://provider.invalid/v1", true)
+				f.ids[role+"_replacement_provider"] = replacement
+				f.ids[role+"_replacement"] = f.createModel(ctx, replacement, modelsWebInput("Replacement "+role, p.kind))
+			}
+		}
+		f.ids["target_provider"] = f.ids["chat_provider"]
+		if mode != "lifecycle" {
+			value := modelsWebInput("Owned target Model", "chat")
+			if mode == "navigation" {
+				value["name"] = "Owned " + strings.Repeat("长名称", 35)
+				value["provider_model_id"] = strings.Repeat("n", 256)
+			}
+			f.ids["target"] = f.createModel(ctx, f.ids["target_provider"], value)
+		}
+		if mode == "navigation" {
+			f.ids["embedding_provider"] = f.createProvider(ctx, "Navigation embedding Provider", "openai-embeddings", "https://provider.invalid/v1", true)
+			f.ids["embedding"] = f.createModel(ctx, f.ids["embedding_provider"], modelsWebInput("Navigation embedding", "embedding"))
+			f.ids["memory"] = f.ids["target"]
+			f.ids["replacement_provider"] = f.ids["target_provider"]
+			f.ids["replacement"] = f.createModel(ctx, f.ids["target_provider"], modelsWebInput("Navigation replacement", "chat"))
+			f.selection(ctx, "memory", f.ids["memory"])
+		}
+		if mode == "deletion" {
+			bad := modelsWebInput("No schema candidate", "chat")
+			bad["capabilities"].(map[string]any)["structured_output_modes"] = []string{"text"}
+			f.ids["no_schema"] = f.createModel(ctx, f.ids["memory_replacement_provider"], bad)
+			disabled := modelsWebInput("Disabled candidate", "chat")
+			disabled["enabled"] = false
+			f.ids["disabled"] = f.createModel(ctx, f.ids["memory_replacement_provider"], disabled)
+			f.ids["disabled_provider"] = f.createProvider(ctx, "Disabled replacement Provider", "openai-chat-completions", "https://provider.invalid/v1", false)
+			f.ids["disabled_provider_model"] = f.createModel(ctx, f.ids["disabled_provider"], modelsWebInput("Disabled Provider candidate", "chat"))
+			f.ids["late_reference"] = f.createModel(ctx, f.ids["embedding_provider"], modelsWebInput("Late required reference", "embedding"))
+			f.ids["unbound"] = f.createModel(ctx, f.ids["chat_provider"], modelsWebInput("Owned unbound negative", "chat"))
+			f.selection(ctx, "initial", "")
+			f.insertOwnedReference(ctx)
+		}
+	}
+	f.private("models-material.json", map[string]any{"admin": f.admin, "member": f.member, "ids": f.ids, "providers": f.snapshotProviders(ctx), "models": f.snapshotModels(ctx)})
+	t.Cleanup(func() {
+		for _, value := range f.secrets {
+			if value != "" && f.log.contains(value) {
+				t.Error("Model private material escaped restricted transfer")
+			}
+		}
+		f.secrets = nil
+		f.csrf = ""
+		f.admin.Password = ""
+		f.member.Password = ""
+		f.lostKey = ""
+	})
+	return f
+}
+func (f *modelsWebFixture) private(name string, value any) {
+	raw, err := json.Marshal(value)
+	if err != nil {
+		f.t.Fatal("private Model encoding failed")
+	}
+	defer clear(raw)
+	path := filepath.Join(f.directory, name)
+	if os.WriteFile(path+".tmp", raw, 0600) != nil || os.Rename(path+".tmp", path) != nil {
+		f.t.Fatal("private Model transfer failed")
+	}
+}
+func (f *modelsWebFixture) controlResponse(response *http.Response) error {
+	r := response.Request
+	if r == nil || response.StatusCode != 200 || (r.Method != "POST" && r.Method != "PUT" && r.Method != "DELETE") || !(r.URL.Path == "/api/v1/system/models" || strings.HasPrefix(r.URL.Path, "/api/v1/system/models/")) {
+		return nil
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.lostKey != "" && r.Header.Get("Idempotency-Key") == f.lostKey {
+		f.replayed++
+	}
+	if !f.dropNext || r.URL.Path != f.dropPath || r.Method != f.dropMethod {
+		return nil
+	}
+	f.dropNext = false
+	raw, err := io.ReadAll(io.LimitReader(response.Body, 600001))
+	closeErr := response.Body.Close()
+	defer clear(raw)
+	var receipt map[string]any
+	if err != nil || closeErr != nil || len(raw) > 600000 || json.Unmarshal(raw, &receipt) != nil {
+		return errors.New("owned response control requires complete formal receipt")
+	}
+	target, ok := receipt["resource_id"].(string)
+	if !ok || target == "" {
+		return errors.New("owned response control has no formal target")
+	}
+	f.lostID = target
+	f.lostKey = r.Header.Get("Idempotency-Key")
+	f.dropped++
+	return &modelsResponseLost{header: response.Header.Clone(), prefix: append([]byte(nil), raw[:len(raw)/2]...), length: len(raw)}
+}
+func (f *modelsWebFixture) snapshotProviders(ctx context.Context) []map[string]any {
+	// Reuse only the accepted readonly DB projection, with its own closed connection.
+	return (&providersWebFixture{authenticationWebFixture: f.authenticationWebFixture}).snapshot(ctx)
+}
+func (f *modelsWebFixture) snapshotModels(ctx context.Context) []map[string]any {
+	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+	defer closeConnection()
+	rows, err := conn.Query(ctx, `SELECT m.id::text,m.provider_id::text,m.name,m.provider_model_id,m.type,m.enabled,m.parameters,m.request_overwrite,m.header_overwrite,m.capabilities,m.version::text,m.created_at,m.updated_at FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='system' ORDER BY m.created_at DESC,m.id DESC`)
+	if err != nil {
+		f.t.Fatal("owned Model snapshot failed", err)
+	}
+	defer rows.Close()
+	out := []map[string]any{}
+	for rows.Next() {
+		var key, parent, name, native, kind, version string
+		var enabled bool
+		var parameters, overwrite, headers, capabilities []byte
+		var created, updated time.Time
+		if err = rows.Scan(&key, &parent, &name, &native, &kind, &enabled, &parameters, &overwrite, &headers, &capabilities, &version, &created, &updated); err != nil {
+			f.t.Fatal(err)
+		}
+		config := map[string]any{"name": name, "provider_model_id": native, "type": kind, "enabled": enabled}
+		for field, raw := range map[string][]byte{"parameters": parameters, "request_overwrite": overwrite, "header_overwrite": headers, "capabilities": capabilities} {
+			var value map[string]any
+			if json.Unmarshal(raw, &value) != nil {
+				f.t.Fatal("stored Model projection invalid")
+			}
+			if field == "capabilities" {
+				modelsWebSnapshotCapabilityDTO(value)
+			}
+			config[field] = value
+		}
+		out = append(out, map[string]any{"id": key, "provider_id": parent, "input": config, "version": version, "created_at": created.UTC().Format("2006-01-02T15:04:05.000000Z"), "updated_at": updated.UTC().Format("2006-01-02T15:04:05.000000Z")})
+	}
+	if rows.Err() != nil {
+		f.t.Fatal("owned Model snapshot scan failed")
+	}
+	return out
+}
+
+// Storage omits absent token counts and may encode empty slices as null. The
+// accepted HTTP DTO emits required null counts and arrays, preserving values.
+func modelsWebSnapshotCapabilityDTO(value map[string]any) {
+	for _, field := range []string{"context_length", "max_output"} {
+		if _, present := value[field]; !present {
+			value[field] = nil
+		}
+	}
+	for _, field := range []string{"input_modalities", "output_modalities", "reasoning_efforts", "structured_output_modes"} {
+		if value[field] == nil {
+			value[field] = []any{}
+		}
+	}
+}
+
+// This sole foreign-index negative does not create an Agent or Project and does
+// not claim a production adapter exists. Every cleanup term identifies this row.
+func (f *modelsWebFixture) insertOwnedReference(ctx context.Context) {
+	if f.mode != "deletion" || f.ids["unbound"] == "" {
+		f.t.Fatal("foreign-index negative not owned")
+	}
+	f.referenceOwner, f.referenceProject = id[struct{}](f.t).String(), id[struct{}](f.t).String()
+	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+	tag, err := conn.Exec(ctx, `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,project_id,model_id,owner_version,reasoning_effort) SELECT 'agent',$1,'agent_model',$2,m.id,1,'' FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE m.id=$3 AND m.provider_id=$4 AND p.scope='system'`, f.referenceOwner, f.referenceProject, f.ids["unbound"], f.ids["chat_provider"])
+	closeConnection()
+	if err != nil || tag.RowsAffected() != 1 {
+		f.t.Fatal("exact owned foreign reference insertion failed", err)
+	}
+	f.t.Cleanup(func() {
+		clean, stop := context.WithTimeout(context.Background(), 3*time.Second)
+		defer stop()
+		connection, closeOwned := invitationsWebConnect(f.t, clean, f.db)
+		defer closeOwned()
+		tag, err := connection.Exec(clean, `DELETE FROM agenteam_model.references WHERE owner_kind='agent' AND owner_id=$1 AND role='agent_model' AND project_id=$2 AND model_id=$3 AND owner_version=1 AND reasoning_effort=''`, f.referenceOwner, f.referenceProject, f.ids["unbound"])
+		if err != nil || tag.RowsAffected() != 1 {
+			f.t.Error("exact owned foreign reference cleanup did not remove one row", err)
+		}
+	})
+}
+func (f *modelsWebFixture) facts(ctx context.Context, target string) map[string]any {
+	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+	defer closeConnection()
+	var models, commands, audits, events, refs, invocations, credentials int
+	if err := conn.QueryRow(ctx, `SELECT (SELECT count(*) FROM agenteam_model.models),(SELECT count(*) FROM agenteam_model.commands WHERE command_name IN ('model.create','model.update','model.delete') AND phase='committed'),(SELECT count(*) FROM agenteam_audit.audit_records WHERE action IN ('model.create','model.update','model.delete') AND outcome='success'),(SELECT count(*) FROM agenteam_outbox.events WHERE producer='model' AND event_type='model.configuration_changed' AND aggregate_id IN (SELECT resource_id FROM agenteam_model.commands WHERE command_name IN ('model.create','model.update','model.delete') AND phase='committed')),(SELECT count(*) FROM agenteam_model.references),(SELECT count(*) FROM agenteam_model.invocations),(SELECT count(*) FROM agenteam_secret.secrets WHERE purpose='model')`).Scan(&models, &commands, &audits, &events, &refs, &invocations, &credentials); err != nil {
+		f.t.Fatal(err)
+	}
+	out := map[string]any{"models": models, "commands": commands, "audits": audits, "events": events, "references": refs, "invocations": invocations, "credentials": credentials}
+	if target != "" {
+		var exists bool
+		var count, receipts, changes int
+		var version, fingerprint *string
+		var referenceFingerprint string
+		if err := conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_model.models WHERE id=$1),(SELECT version::text FROM agenteam_model.models WHERE id=$1),(SELECT count(*) FROM agenteam_model.references WHERE model_id=$1),(SELECT count(*) FROM agenteam_model.commands WHERE resource_id=$1 AND command_name='model.delete' AND phase='committed'),(SELECT count(*) FROM agenteam_outbox.events WHERE aggregate_id=$1 AND producer='model' AND event_type='model.configuration_changed'),(SELECT md5(row_to_json(m)::text) FROM agenteam_model.models m WHERE m.id=$1),(SELECT md5(coalesce(jsonb_agg(to_jsonb(r) ORDER BY r.owner_kind,r.owner_id,r.role)::text,'[]')) FROM agenteam_model.references r WHERE r.model_id=$1)`, target).Scan(&exists, &version, &count, &receipts, &changes, &fingerprint, &referenceFingerprint); err != nil {
+			f.t.Fatal(err)
+		}
+		out["exists"], out["version"], out["target_references"], out["delete_receipts"], out["target_events"] = exists, version, count, receipts, changes
+		out["model_fingerprint"], out["reference_fingerprint"] = fingerprint, referenceFingerprint
+	}
+	var embedding, memory, reranker, image *string
+	var selectionVersion string
+	if err := conn.QueryRow(ctx, `SELECT version::text,embedding_id::text,memory_id::text,reranker_id::text,image_id::text FROM agenteam_model.platform_selection WHERE singleton`).Scan(&selectionVersion, &embedding, &memory, &reranker, &image); err != nil {
+		f.t.Fatal(err)
+	}
+	out["selection"] = map[string]any{"version": selectionVersion, "embedding": embedding, "memory": memory, "reranker": reranker, "image": image}
+	return out
+}
+
+type modelsWebIPC struct {
+	Sequence  int    `json:"sequence"`
+	Action    string `json:"action"`
+	ID        string `json:"id"`
+	Stage     string `json:"stage"`
+	UserID    string `json:"user_id"`
+	SessionID string `json:"session_id"`
+}
+
+func (f *modelsWebFixture) ipc(ctx context.Context, r modelsWebIPC) map[string]any {
+	out := map[string]any{"ok": true, "sequence": r.Sequence}
+	if r.ID != "" {
+		if _, err := foundation.ParseID[struct{}](r.ID); err != nil {
+			f.t.Fatal("owned Model target invalid")
+		}
+	}
+	switch r.Action {
+	case "snapshot":
+		out["providers"], out["models"] = f.snapshotProviders(ctx), f.snapshotModels(ctx)
+	case "facts":
+		out["facts"] = f.facts(ctx, r.ID)
+	case "missing":
+		f.request(ctx, "GET", "/api/v1/system/models/"+r.ID, nil, 404)
+		out["missing"] = true
+	case "impact":
+		out["impact"] = f.request(ctx, "GET", "/api/v1/system/models/"+r.ID+"/deletion-impact", nil, 200)
+	case "selection":
+		if f.mode != "deletion" {
+			f.t.Fatal("owned selection scenario rejected")
+		}
+		out["receipt"] = f.selection(ctx, r.Stage, r.ID)
+	case "compete", "disable", "enable":
+		value := f.request(ctx, "GET", "/api/v1/system/models/"+r.ID, nil, 200)
+		input := httpObject(f.t, value, "input")
+		if r.Action == "compete" {
+			input["name"] = "Concurrent Model configuration"
+		} else {
+			input["enabled"] = r.Action == "enable"
+		}
+		out["receipt"] = f.request(ctx, "PUT", "/api/v1/system/models/"+r.ID, map[string]any{"expected_version": value["version"], "input": input}, 200)
+	case "unbound-http":
+		if f.mode != "deletion" || r.ID != f.ids["unbound"] {
+			f.t.Fatal("exact foreign negative target rejected")
+		}
+		before := f.facts(ctx, r.ID)
+		current := f.request(ctx, "GET", "/api/v1/system/models/"+r.ID, nil, 200)
+		failure := f.request(ctx, "DELETE", "/api/v1/system/models/"+r.ID, map[string]any{"expected_version": current["version"], "replacement": f.ids["memory_replacement"]}, 503)
+		if failure["code"] != "DEPENDENCY_UNBOUND" {
+			f.t.Fatal("formal unbound deletion error changed")
+		}
+		after := f.facts(ctx, r.ID)
+		a, _ := json.Marshal(before)
+		b, _ := json.Marshal(after)
+		if !bytes.Equal(a, b) {
+			f.t.Fatal("unbound rejection changed business facts")
+		}
+		out["status"], out["code"], out["unchanged"] = 503, "DEPENDENCY_UNBOUND", true
+	case "arm-drop":
+		method := map[string]string{"create": "POST", "update": "PUT", "delete": "DELETE"}[r.Stage]
+		if method == "" || (method != "POST" && r.ID == "") {
+			f.t.Fatal("owned response stage rejected")
+		}
+		path := "/api/v1/system/models"
+		if r.ID != "" {
+			path += "/" + r.ID
+		}
+		f.mu.Lock()
+		f.dropPath, f.dropMethod, f.dropNext, f.lostKey, f.lostID, f.dropped, f.replayed = path, method, true, "", "", 0, 0
+		f.mu.Unlock()
+		out["armed"] = true
+	case "drop-facts":
+		f.mu.Lock()
+		out["dropped"], out["replayed"], out["target"], out["armed"] = f.dropped, f.replayed, f.lostID, f.dropNext
+		f.mu.Unlock()
+	case "arm-get-fail":
+		f.failRead.Store(true)
+		out["armed"] = true
+	case "arm-session-fail":
+		f.failSession.Store(true)
+		out["armed"] = true
+	case "failure-facts":
+		out["read_failures"], out["session_failures"] = f.readFailures.Load(), f.sessionFailures.Load()
+	case "demote", "promote", "revoke-session":
+		if f.mode != "authority" || r.UserID != f.admin.UserID {
+			f.t.Fatal("owned Model authority rejected")
+		}
+		if _, err := foundation.ParseID[struct{}](r.SessionID); err != nil {
+			f.t.Fatal("owned Session target rejected")
+		}
+		conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+		defer closeConnection()
+		var owned bool
+		if err := conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL)`, r.SessionID, r.UserID).Scan(&owned); err != nil || !owned {
+			f.t.Fatal("owned active Session absent", err)
+		}
+		if r.Action == "revoke-session" {
+			tag, err := conn.Exec(ctx, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='administrative' WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL`, r.SessionID, r.UserID)
+			if err != nil || tag.RowsAffected() != 1 {
+				f.t.Fatal("owned Session revoke failed", err)
+			}
+		} else {
+			role := "user"
+			if r.Action == "promote" {
+				role = "admin"
+			}
+			tag, err := conn.Exec(ctx, `UPDATE agenteam_account.users SET role=$1,version=version+1,updated_at=clock_timestamp() WHERE id=$2`, role, r.UserID)
+			if err != nil || tag.RowsAffected() != 1 {
+				f.t.Fatal("owned role preparation failed", err)
+			}
+		}
+	default:
+		f.t.Fatal("unknown Model IPC action")
+	}
+	return out
+}
+func (f *modelsWebFixture) browserModels(ctx context.Context) map[string]any {
+	f.t.Helper()
+	root, e := filepath.Abs("../account-captcha-web")
+	if e != nil {
+		f.t.Fatal(e)
+	}
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "system-models.config.js"))
+	cmd.Dir = root
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	cmd.WaitDelay = time.Second
+	for _, value := range os.Environ() {
+		if !strings.HasPrefix(value, "TMPDIR=") && !strings.HasPrefix(value, "AGENTEAM_AUTH_WEB_") && !strings.HasPrefix(value, "AGENTEAM_MODELS_WEB_") && !strings.HasPrefix(value, "PLAYWRIGHT_NO_COPY_PROMPT=") && !strings.HasPrefix(value, "DEBUG=") && !strings.HasPrefix(value, "PWDEBUG=") {
+			cmd.Env = append(cmd.Env, value)
+		}
+	}
+	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_MODELS_WEB_CASE="+f.mode, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "PLAYWRIGHT_NO_COPY_PROMPT=1")
+	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
+		if !filepath.IsAbs(images) {
+			f.t.Fatal("Model image path must be absolute")
+		}
+		cmd.Env = append(cmd.Env, "AGENTEAM_AUTH_WEB_IMAGES="+images)
+	}
+	var output bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &output, &output
+	if e = cmd.Start(); e != nil {
+		f.t.Fatal("locked Model browser runner could not start")
+	}
+	done := make(chan error, 1)
+	go func() { done <- cmd.Wait() }()
+	joined := false
+	defer func() {
+		if !joined {
+			_ = cmd.Cancel()
+			<-done
+		}
+		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		cmd.Env = nil
+	}()
+	tick := time.NewTicker(20 * time.Millisecond)
+	defer tick.Stop()
+	sequence := 0
+	var runErr error
+wait:
+	for {
+		select {
+		case runErr = <-done:
+			joined = true
+			break wait
+		case <-tick.C:
+			raw, err := os.ReadFile(filepath.Join(f.directory, "models-ipc.json"))
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			var request modelsWebIPC
+			decode := json.Unmarshal(raw, &request)
+			clear(raw)
+			if err != nil || decode != nil || request.Sequence < 1 || request.Sequence > 128 {
+				f.t.Error("private Model IPC rejected")
+				_ = cmd.Cancel()
+				continue
+			}
+			if request.Sequence <= sequence {
+				continue
+			}
+			if request.Sequence != sequence+1 {
+				f.t.Error("private Model IPC sequence invalid")
+				_ = cmd.Cancel()
+				continue
+			}
+			reply := f.ipc(ctx, request)
+			sequence = request.Sequence
+			f.private("models-ack-"+strconv.Itoa(sequence)+".json", reply)
+		}
+	}
+	safe := output.String()
+	for _, secret := range f.secrets {
+		if secret != "" {
+			safe = strings.ReplaceAll(safe, secret, "[redacted]")
+		}
+	}
+	f.mu.Lock()
+	if f.lostKey != "" {
+		safe = strings.ReplaceAll(safe, f.lostKey, "[redacted]")
+	}
+	f.mu.Unlock()
+	f.t.Log(safe)
+	if runErr != nil {
+		f.t.Fatalf("actual Model production browser failed: %v", runErr)
+	}
+	raw, e := os.ReadFile(filepath.Join(f.directory, "models-result.json"))
+	if e != nil {
+		f.t.Fatal("safe Model browser result missing")
+	}
+	defer clear(raw)
+	var result map[string]any
+	if json.Unmarshal(raw, &result) != nil || result["completed"] != true {
+		f.t.Fatal("safe Model browser result invalid")
+	}
+	return result
+}

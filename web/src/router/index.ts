@@ -59,6 +59,7 @@ export const router = createRouter({
           component: () => import('../views/system/SystemInvitationsView.vue'),
         },
         { path: 'providers', component: () => import('../views/system/SystemProvidersView.vue') },
+        { path: 'models', component: () => import('../views/system/SystemModelsView.vue') },
       ],
     },
     {

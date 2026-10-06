@@ -1189,7 +1189,7 @@ test("[navigation] App checking cohost, dirty and uncertain transitions, keyboar
     page
       .getByRole("navigation", { name: "系统设置", exact: true })
       .getByRole("link"),
-  ).toHaveCount(3);
+  ).toHaveCount(4);
   await page.getByRole("link", { name: "待注册邀请", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "待注册邀请", exact: true }),

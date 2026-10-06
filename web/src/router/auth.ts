@@ -9,6 +9,7 @@ const returnTargets = [
   '/system/users',
   '/system/invitations',
   '/system/providers',
+  '/system/models',
 ] as const
 type ReturnTarget = (typeof returnTargets)[number]
 export function safeReturnTarget(value: unknown): ReturnTarget {
@@ -60,6 +61,12 @@ export function installAuthentication(router: Router, auth: SessionController = 
   router.beforeEach(async (to, from) => {
     // Ask before Session revalidation can temporarily unmount the dirty page.
     if (
+      from.path === '/system/models' &&
+      to.fullPath !== from.fullPath &&
+      !((await modelNavigation.get(router)?.confirmLeave()) ?? true)
+    )
+      return false
+    if (
       from.path === '/system/providers' &&
       to.fullPath !== from.fullPath &&
       !((await providerNavigation.get(router)?.confirmLeave()) ?? true)
@@ -101,6 +108,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
     return true
   })
   router.afterEach((to, from, failure) => {
+    if (!failure) modelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) providerNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) invitationNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) personalNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
@@ -146,5 +154,25 @@ export function installProviderNavigation(
   providerNavigation.set(router, owner)
   return () => {
     if (providerNavigation.get(router) === owner) providerNavigation.delete(router)
+  }
+}
+
+const modelNavigation = new WeakMap<
+  Router,
+  {
+    confirmLeave: () => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  }
+>()
+export function installModelNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: () => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  modelNavigation.set(router, owner)
+  return () => {
+    if (modelNavigation.get(router) === owner) modelNavigation.delete(router)
   }
 }

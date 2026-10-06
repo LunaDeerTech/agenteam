@@ -198,7 +198,7 @@ async function click(label: string) {
 }
 
 describe('System user directory page and shared shells', () => {
-  it('opens users from the two-leaf administrator entry with separately labelled fields', async () => {
+  it('opens users from the four-leaf administrator entry with separately labelled fields', async () => {
     const p = await page('/')
     await p.wrapper.get('nav[aria-label="系统导航"] a[href="/system"]').trigger('click')
     await flushPromises()
@@ -207,7 +207,12 @@ describe('System user directory page and shared shells', () => {
     expect(p.wrapper.find('nav[aria-label="个人设置"]').exists()).toBe(false)
     const menu = p.wrapper.get('nav[aria-label="系统设置"]')
     expect(menu.text()).toContain('用户与邀请')
-    expect(menu.findAll('a').map((a) => a.text())).toEqual(['用户', '待注册邀请', 'Providers'])
+    expect(menu.findAll('a').map((a) => a.text())).toEqual([
+      '用户',
+      '待注册邀请',
+      'Providers',
+      'Models',
+    ])
     expect(menu.get('a').attributes('aria-current')).toBe('page')
     expect(menu.findAll('button').map((b) => b.text())).not.toContain('退出登录')
     expect(p.wrapper.findAll('thead th').map((th) => th.text())).toEqual([
@@ -391,12 +396,13 @@ describe('System user directory page and shared shells', () => {
       '/system',
       '/system/users?x=1',
       '/system/users#x',
-      '/system/models',
+      '/system/models?x=1',
       '//example.com/system/users',
       ['/system/users'],
     ])
       expect(safeReturnTarget(value)).toBe('/')
     expect(safeReturnTarget('/system/users')).toBe('/system/users')
+    expect(safeReturnTarget('/system/models')).toBe('/system/models')
     const p = await page('/system/users', 'admin', true)
     expect(p.router.currentRoute.value.name).toBe('login')
     expect(p.router.currentRoute.value.query.return).toBe('/system/users')

@@ -23,7 +23,10 @@ const groups = [
   {
     key: 'models-providers',
     label: '模型与提供商',
-    children: [{ label: 'Providers', path: '/system/providers' }],
+    children: [
+      { label: 'Providers', path: '/system/providers' },
+      { label: 'Models', path: '/system/models' },
+    ],
   },
 ]
 const heading = ref<HTMLElement | null>(null)

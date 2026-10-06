@@ -395,6 +395,9 @@ function model(value: unknown, providerID: string, protocol: ProviderProtocol): 
     }),
   })
 }
+// Model management shares these exact read/configuration rules. Provider
+// commands and their zero-reference receipt contract remain separate.
+export { model as parseProviderModel, capabilities as parseModelCapabilities }
 function page<T extends { id: string; created_at: string }>(
   value: unknown,
   parse: (value: unknown) => T,

@@ -56,6 +56,39 @@ import {
   type ProviderQuery,
   type ProviderModelQuery,
 } from '../api/system-providers'
+import {
+  createSystemModelAPI,
+  captureModelCommand,
+  type SystemModelAPI,
+  type ModelCommand,
+  type ModelTarget,
+  type ModelReceipt,
+} from '../api/system-models'
+
+export type SystemModelRead =
+  | 'model-providers'
+  | 'model-provider'
+  | 'model-list'
+  | 'model-detail'
+  | 'model-impact'
+  | 'model-replacement-providers'
+  | 'model-replacement-provider'
+  | 'model-replacement-list'
+type ModelAction = SystemModelRead | 'model-write' | 'model-lookup'
+export type SystemModelProgress = Readonly<{
+  kind: ModelCommand['kind']
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  receipt: ModelReceipt | null
+  observation: 'none' | 'found' | 'missing' | 'failed'
+  contextValid: boolean
+  canRetryOriginal: boolean
+}>
+type SystemModelIntent = Readonly<{
+  command: ModelCommand
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+}>
 
 type ProviderRead = 'provider-list' | 'provider-detail' | 'provider-models' | 'provider-metadata'
 type ProviderAction = ProviderRead | 'provider-write' | 'provider-lookup'
@@ -132,6 +165,7 @@ type Action =
   | 'invitation-read'
   | 'invitation-write'
   | ProviderAction
+  | ModelAction
 interface Operation {
   generation: number
   kind: Action
@@ -231,6 +265,7 @@ export function createSessionController(
   systemAPI: SystemAccountAPI = createSystemAccountAPI(),
   invitationAPI: SystemInvitationAPI = createSystemInvitationAPI(),
   providerAPI: SystemProviderAPI = createSystemProviderAPI(),
+  modelAPI: SystemModelAPI = createSystemModelAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -294,6 +329,26 @@ export function createSessionController(
     materialInvalid: boolean
     materialRevision: number
   }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
+  const modelRevisions: Record<ModelAction, number> = {
+    'model-providers': 0,
+    'model-provider': 0,
+    'model-list': 0,
+    'model-detail': 0,
+    'model-impact': 0,
+    'model-replacement-providers': 0,
+    'model-replacement-provider': 0,
+    'model-replacement-list': 0,
+    'model-write': 0,
+    'model-lookup': 0,
+  }
+  const isModelAction = (kind: Action): kind is ModelAction => Object.hasOwn(modelRevisions, kind)
+  let modelIntent: SystemModelIntent | null = null,
+    modelUncertain = false,
+    modelChecked = false,
+    modelKeyConflict = false
+  const modelState = shallowReactive<{
+    progress: Omit<SystemModelProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
   const systemDenied = () => sameIdentity(systemState.deniedIdentity, personalContext.identity)
   let identityEpoch = 0,
     personalRevision = 0
@@ -329,6 +384,7 @@ export function createSessionController(
     if (invalidate) {
       clearInvitationState()
       clearProviderState()
+      clearModelState()
       ++systemRevision
       systemState.deniedIdentity = null
       sessionCSRF = ''
@@ -416,6 +472,8 @@ export function createSessionController(
       (providerIntent && providerIntent.csrf !== sessionCSRF)
     )
       clearProviderState()
+    if (!same || view.user.role !== 'admin' || (modelIntent && modelIntent.csrf !== sessionCSRF))
+      clearModelState()
     state.notice = ''
     state.fields = {}
     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
@@ -843,7 +901,12 @@ export function createSessionController(
     work: (op: Operation, current: () => boolean) => Promise<T>,
     command?: PersonalCommand,
     kind:
-      'personal' | 'system' | 'invitation-read' | 'invitation-write' | ProviderAction = 'personal',
+      | 'personal'
+      | 'system'
+      | 'invitation-read'
+      | 'invitation-write'
+      | ProviderAction
+      | ModelAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
@@ -855,7 +918,9 @@ export function createSessionController(
             ? invitationRevision
             : kind === 'personal'
               ? personalRevision
-              : providerRevisions[kind]
+              : isModelAction(kind)
+                ? modelRevisions[kind]
+                : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1098,7 +1163,13 @@ export function createSessionController(
       // invalidates that identity, but never a later identity or another owner.
       if (
         unavailableSession(e) ||
-        (['invitation-write', 'provider-write', 'provider-lookup'].includes(op.kind) &&
+        ([
+          'invitation-write',
+          'provider-write',
+          'provider-lookup',
+          'model-write',
+          'model-lookup',
+        ].includes(op.kind) &&
           e.problem?.code === 'CSRF_FAILED')
       ) {
         clearIdentity()
@@ -1108,6 +1179,7 @@ export function createSessionController(
       } else if (current() && e.problem?.status === 403 && e.problem.code === 'FORBIDDEN') {
         clearInvitationState()
         clearProviderState()
+        clearModelState()
         systemState.deniedIdentity = identity
       }
     }
@@ -1605,7 +1677,226 @@ export function createSessionController(
       }
     },
   }
+  function clearModelState() {
+    for (const scope of Object.keys(modelRevisions) as ModelAction[]) ++modelRevisions[scope]
+    modelIntent = null
+    modelUncertain = modelChecked = modelKeyConflict = false
+    modelState.progress = null
+    if (owner && isModelAction(owner.kind)) owner.abandon?.()
+  }
+  function abandonModelRead(scope: SystemModelRead) {
+    if (
+      !Object.hasOwn(modelRevisions, scope) ||
+      scope === ('model-write' as string) ||
+      scope === ('model-lookup' as string)
+    )
+      throw new AccountFailure('invalid-input')
+    ++modelRevisions[scope]
+    if (owner?.kind === scope) owner.abandon?.()
+  }
+  function readModel<T>(
+    scope: SystemModelRead,
+    work: (signal: AbortSignal) => Promise<T>,
+  ): Promise<T> {
+    try {
+      const identity = invitationIdentity()
+      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, scope)
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  function captureModelRead<T extends object>(value: T): Readonly<T> {
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      throw new AccountFailure('invalid-input')
+    return Object.freeze({ ...value })
+  }
+  function publishModel(
+    original: SystemModelIntent,
+    phase: SystemModelProgress['phase'],
+    receipt: ModelReceipt | null = null,
+  ) {
+    modelState.progress = Object.freeze({
+      kind: original.command.kind,
+      phase,
+      receipt,
+      observation: 'none',
+    })
+  }
+  function performModel(original: SystemModelIntent): Promise<ModelReceipt> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (modelIntent !== original || !invitationContext(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const revision = modelRevisions['model-write']
+    let dispatched = false
+    modelChecked = false
+    publishModel(original, 'submitting')
+    return runAuthorized(
+      original.identity,
+      async (op, current) => {
+        if (!current() || modelIntent !== original || !invitationContext(original))
+          throw new AccountFailure('cancelled')
+        const command = original.command
+        const context = { provider_id: command.provider_id, protocol: command.protocol }
+        const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+        dispatched = true
+        if (command.kind === 'model.create')
+          return modelAPI.createModel(context, command.input, options)
+        const target = { ...context, id: command.id }
+        if (command.kind === 'model.update')
+          return modelAPI.updateModel(target, command.expected_version, command.input, options)
+        return modelAPI.deleteModel(target, command.expected_version, command.replacement, options)
+      },
+      undefined,
+      'model-write',
+    ).then(
+      (receipt) => {
+        const current = () =>
+          modelIntent === original &&
+          revision === modelRevisions['model-write'] &&
+          invitationContext(original)
+        if (!current()) throw new AccountFailure('cancelled')
+        publishModel(original, 'confirmed', receipt)
+        // A synchronous consumer may abandon or start another command from this
+        // notification. The old completion must never clear that successor.
+        if (!current()) throw new AccountFailure('cancelled')
+        modelIntent = null
+        modelUncertain = modelChecked = modelKeyConflict = false
+        return receipt
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          modelIntent === original &&
+          revision === modelRevisions['model-write'] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          const known =
+            !dispatched ||
+            (p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.status < 500 &&
+              [
+                'INVALID_ARGUMENT',
+                'VERSION_CONFLICT',
+                'NOT_FOUND',
+                'INVALID_STATE',
+                'CAPABILITY_UNSUPPORTED',
+                'RATE_LIMITED',
+                'RESOURCE_DELETED',
+              ].includes(p.code))
+          modelKeyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+          modelUncertain ||= !known || modelKeyConflict
+          modelChecked = false
+          publishModel(original, modelUncertain ? 'uncertain' : 'rejected')
+        }
+        throw e
+      },
+    )
+  }
+  const models = {
+    get progress(): SystemModelProgress | null {
+      const value = modelState.progress
+      if (!value) return null
+      const contextValid = !!modelIntent && invitationContext(modelIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!modelIntent &&
+          modelUncertain &&
+          modelChecked &&
+          !modelKeyConflict &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    async listProviders(query: ProviderQuery, replacement = false) {
+      const captured = captureModelRead(query)
+      return readModel(replacement ? 'model-replacement-providers' : 'model-providers', (signal) =>
+        modelAPI.listProviders(captured, signal),
+      )
+    },
+    getProvider(id: string, replacement = false) {
+      return readModel(replacement ? 'model-replacement-provider' : 'model-provider', (signal) =>
+        modelAPI.getProvider(id, signal),
+      )
+    },
+    async list(query: ProviderModelQuery, replacement = false) {
+      const captured = captureModelRead(query)
+      return readModel(replacement ? 'model-replacement-list' : 'model-list', (signal) =>
+        modelAPI.listModels(captured, signal),
+      )
+    },
+    async get(target: ModelTarget) {
+      const captured = captureModelRead(target)
+      return readModel('model-detail', (signal) => modelAPI.getModel(captured, signal))
+    },
+    impact(id: string) {
+      return readModel('model-impact', (signal) => modelAPI.getDeletionImpact(id, signal))
+    },
+    abandonRead: abandonModelRead,
+    abandon: clearModelState,
+    start(command: ModelCommand) {
+      try {
+        const identity = invitationIdentity()
+        if (owner || modelIntent || personalIntent || pending) throw new AccountFailure('busy')
+        const captured = captureModelCommand(command)
+        const original = Object.freeze({
+          command: captured,
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+        })
+        modelIntent = original
+        modelUncertain = modelChecked = modelKeyConflict = false
+        return performModel(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    async checkOriginal() {
+      const original = modelIntent
+      if (!original || !modelUncertain || owner) throw new AccountFailure('invalid-input')
+      modelChecked = false
+      await restore()
+      if (modelIntent !== original || !invitationContext(original))
+        throw new AccountFailure('cancelled')
+      modelChecked = true
+      // Lookup observes history only. Session/CSRF validation allows a later
+      // explicit original Execute even when lookup is missing or unavailable.
+      return runAuthorized(
+        original.identity,
+        async (op, current) => {
+          if (modelIntent !== original || !current()) throw new AccountFailure('cancelled')
+          const observed = await modelAPI.lookupModelCommand(original.command, {
+            csrfToken: original.csrf,
+            key: original.key,
+            signal: op.abort.signal,
+          })
+          if (current() && modelIntent === original && modelState.progress)
+            modelState.progress = {
+              ...modelState.progress,
+              observation: observed.found ? 'found' : 'missing',
+            }
+          return observed
+        },
+        undefined,
+        'model-lookup',
+      ).catch((error: unknown) => {
+        if (modelIntent === original && invitationContext(original) && modelState.progress)
+          modelState.progress = { ...modelState.progress, observation: 'failed' }
+        throw error
+      })
+    },
+    retryOriginal() {
+      if (!modelIntent || !models.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performModel(modelIntent)
+    },
+  }
   const system = {
+    models,
     providers,
     get denied() {
       return systemDenied()
