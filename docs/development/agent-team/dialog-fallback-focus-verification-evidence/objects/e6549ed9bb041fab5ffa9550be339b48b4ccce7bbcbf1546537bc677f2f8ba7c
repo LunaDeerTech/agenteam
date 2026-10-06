@@ -1,0 +1,5 @@
+Listing tests:
+  independent.spec.ts:173:1 › independent latest ref after whole-page remount keeps the old candidate connected
+  independent.spec.ts:201:1 › independent actual focus success controls fallback and unmount stays separate
+  independent.spec.ts:269:1 › independent remaining modal wins over page fallback and null target stays compatible
+Total: 3 tests in 1 file

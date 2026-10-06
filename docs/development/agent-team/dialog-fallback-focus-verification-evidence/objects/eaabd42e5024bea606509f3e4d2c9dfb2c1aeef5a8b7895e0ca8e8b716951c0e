@@ -1,0 +1,11 @@
+independent.spec.ts(2,40): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+independent.spec.ts(3,77): error TS2307: Cannot find module 'node:fs/promises' or its corresponding type declarations.
+independent.spec.ts(4,31): error TS2307: Cannot find module 'node:module' or its corresponding type declarations.
+independent.spec.ts(5,31): error TS2307: Cannot find module 'node:path' or its corresponding type declarations.
+independent.spec.ts(6,31): error TS2307: Cannot find module 'node:url' or its corresponding type declarations.
+independent.spec.ts(28,23): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+independent.spec.ts(29,22): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+independent.spec.ts(94,33): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+independent.spec.ts(103,20): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+independent.spec.ts(166,19): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+independent.spec.ts(240,62): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.

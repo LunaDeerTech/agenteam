@@ -1,0 +1,6 @@
+import { defineConfig } from '@playwright/test'
+import { join } from 'node:path'
+export default defineConfig({ testDir: '.', testMatch: 'independent.spec.ts', testIgnore: '**/runs/**', timeout: 45000, expect: { timeout: 3000 }, workers: 1, retries: 0, forbidOnly: true,
+  outputDir: join(process.env.AGENTEAM_DIALOG_RUN_DIR, 'results'), reporter: [['line'], ['json', { outputFile: join(process.env.AGENTEAM_DIALOG_RUN_DIR, 'results.json') }]],
+  use: { browserName: 'chromium', serviceWorkers: 'block', launchOptions: { executablePath: process.env.AGENTEAM_DIALOG_CHROMIUM, args: ['--no-sandbox', '--disable-dev-shm-usage'] }, screenshot: 'only-on-failure', trace: 'off', video: 'off' }
+})

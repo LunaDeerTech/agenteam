@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/candidate02/web/vitest.config.ts",
+    "--reporter=verbose",
+    "--testNamePattern",
+    "^does not let a valid background target escape the remaining modal$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/candidate02/web",
+  "env": {
+    "CI": "1",
+    "TZ": "UTC",
+    "TMPDIR": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/runs/pure02/tmp",
+    "NO_COLOR": "1"
+  },
+  "pid": 1241927,
+  "started_utc": "2026-10-06T14:01:19.890480+00:00",
+  "seconds": 1.421,
+  "exit": 0,
+  "actual_wait_completed": true,
+  "timeout": false
+}

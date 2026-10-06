@@ -1,0 +1,34 @@
+# Dialog fallbackFocus 独立验收
+
+结论：**PASS，可按五条冻结路径接受共享组件结果。** 组件基线 870ebbb986f56bb62be34ccdfa2c77819ce995a6，规格 3c79fd4069837c4cee0b1ed37e00480ea8f1909f；作者 input01/manifest.json SHA 604a4738761e428b0bff3f8ea64319ae07f6e8e072b97dead925c309c09f6860。
+
+生产静审确认仅正常 open=false、顶层、无剩余 modal 且提供非空目标进入显式恢复；UiDialog toRef 在关闭时提供最新目标。合法原 trigger 必须实际聚焦成功才优先，随后显式目标也受同 document/BODY-HTML/布局/祖先/禁用/实际 activeElement 门禁。unmount、非顶层、无 prop/null 与剩余 modal 分支保持旧契约，文档与代码一致。未读取或消费账号安全候选。
+
+独立纯测合并通过8项：pure01七项PASS；一项误把剩余 modal 首可聚焦元素写成内容input，实际固定UiDialog首项为内建关闭按钮，属私有断言前提。原输入/raw完整保留；pure02只改精确下层关闭按钮断言，背景fallback零调用门槛不变，单项actual0/1.421s。原pure01 actual1/1.759s；两轮均输入不变、实际wait/所属PID两扫空。未把 jsdom 布局spy当真实几何。
+
+独立真实 browser01 **3/3 PASS，actual exit0/8.292s**：
+
+- 整页面及单层Dialog重挂、initial-null后本地ref就绪；旧候选标题仍connected时替换为新目标，正常关闭精确落新标题，旧trigger仍断开，再原生Tab到当前页面控件。
+- 原生继承contenteditable后代的focus确实no-op（安全附件记录真实前提）；原trigger失去独立可聚焦性时转到标题。合法原trigger精确优先，直接unmount不调用新fallback，后续用户焦点保持。
+- 剩余modal优先于背景fallback，失效原trigger回下层真实首控件，Tab不逃逸；null目标保留原trigger恢复。
+
+固定执行 execution01.json SHA c10f560b5894eff4b418357d7fbe7f935232dd259ae3e5a9cf2f5f89f7c99db4；实际argv/env见 runs/browser01/command.json。唯一绝对锁定Playwright CLI、45秒/test、1worker/0retry；3例发现通过。type01仅未显式定位已锁Node声明而失败，原配置/raw保留；私有tsconfig接入原web/@types后type02 actual0/.918s，未改spec断言。真实执行前后5候选、11组件闭包、7094依赖文件/28符号链接以及私有probe/config/runner/工具指纹一致。
+
+真实终局：Node实际wait；19所属PID/starttime两扫空，4 adopted wait，server.close=true，私有TMP消失，端口基线不变，无清理信号。历史PPID1僵尸未触碰或冒称回收。原件：
+
+- runs/browser01/raw.log SHA 043f263c240f13953f912b708a1d4ebbdfe0b9df5e7e0b567fa1cb9b2bb23927
+- runs/browser01/result.json SHA 7d094cb38721b51e4f12f923694b8a95bae604dce4497c4697f36384efa302b8
+- runs/browser01/cleanup.json SHA 54de674e1d2208bbb4a6c839fb66afc3500d33267a3d4a0ca919efd3574a7754
+- runs/browser01/results.json SHA a11b6680bee2c8006a2003748e1ffb92169258ba0e8454a7fb64298bb13ae7b6（含原生focus安全附件）
+
+作者证据按冻结范围复用：pure02 114项与type/build，new01原34+新11共45浏览器PASS及old02旧组件真实焦点RED。作者old01 discovery未进入行为、pure01两布局spy前提红保留；old02 spec后来只格式规范化，原件和规范化等价证明保留，不称运行原件逐字节从未变化。独立没有重复作者完整矩阵。
+
+五条交付路径与SHA：
+
+- `docs/development/frontend/components.md`：`0a20dc50008737e56d094e641dc2354816596553785fa4c3bf5de2d3d3784e96`
+- `tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts`：`f2db7a6e2f0123f1628a6c7c9a8d32c257373b4867c8710be53a9dd3030e57bc`
+- `web/src/components/ui/UiDialog.vue`：`2009c74dbb2f2cd5ae351b435eb3d801f9dce3ea0a9c91c73a055371fed211b0`
+- `web/src/composables/useLayer.ts`：`aa3e2624666350d289c571c99516776423ef79d58f095308478d2593a5dcd7f3`
+- `web/src/tests/dialog-outside-focus.spec.ts`：`50e1e4da805ad3229322cc6429fab9fc476859df2f70f51f8b024bba3ff8ec59`
+
+本私有根的计划、输入、probe/壳/runner、两纯测轮、两type轮/list、真实轮和本报告已停写，可归档最小原件；无需复制缓存、node_modules或完整web。没有产品/Git写或PG/Docker/业务运行。结果仅覆盖共享组件；不代表账号安全真实Session/BFCache/Navigation通过，后继须在本共享提交接受后按账号安全rev2独立组合验证。

@@ -1,0 +1,23 @@
+# Dialog fallbackFocus 独立最小验证准备
+
+只消费固定 Git 870ebbb 共享闭包和已接受规格 3c79fd4。当前作者拥有五源与组件浏览器窗口；本准备未读活动候选、不运行任何动态或服务。待作者候选永久冻结及实际清理后，由主线程另授独立窗口。
+
+## 固定输入与复用
+
+接验只核五路径差量及固定组件/样式/锁/CLI指纹。既有 modal 范围恢复、outside preventDefault、Drawer/Popover、Tab、样式证据按实际未变字节和适用范围复用，不重跑全树。作者完整参数矩阵不作为独立重点的替代。
+
+## 有界纯测
+
+真实 UiDialog/useLayer，不 stub。代表性屏障覆盖：初始 open=true 的 ref 先 null 后就绪；打开期间替换目标、旧目标仍连接但关闭只能读取新值；正常 false 与直接 unmount 分流；无 prop/null、非顶层、余 modal 不启用新增后备。对 focus 方法无效的候选必须核实际 activeElement，不能用 focus 被调用即判成功。对当前合法原 trigger 保留精确优先；非法/不同 document/fieldset 禁用/隐藏祖先只验证拒绝与零越界，不穷举机械组合。
+
+## 独立真实组件代表
+
+1. **重挂和最新目标**：页面与单层 Dialog 共同卸载，保留旧节点作 disconnected oracle；新页面 Dialog 初始 open=true、本地标题 ref 后就绪，再替换为新标题。正常按钮关闭使 open=false 而 Dialog 实例仍在，精确 focus 新标题，旧/前一标题均不接管；原生 Tab 到当前页面控件，overlay/inert/滚动锁解除。覆盖 initial-null 和最新替换，不以业务 App/Session 为输入。
+2. **实际 focus 成败及关闭原因**：先以真实可聚焦节点开层并验证 capture，再让其退化为仅继承 contenteditable 的后代（原生 focus 可 no-op），正常关闭必须转到合法显式标题。配套真正可聚焦原 trigger 优先正例与直接 unmount 不调用新 fallback 阴性；不在断言前补 focus。
+3. **范围和兼容**：下层 modal + 上层 Dialog 含背景 fallback，关闭必须留在已接受的剩余 modal 允许范围；选一个无 prop 原 trigger 正例证明旧行为。原完整 Drawer/Popover/关闭方式矩阵按冻结差量复用，必要时仅补受影响代表，不重复全部作者测试。
+
+测试壳沿固定 spec 的本地 shell/组件闭包结构，独立用私有 spec/testDir，唯一绝对锁定 Playwright CLI；发现每代表恰一例，保持 workers1/retries0/45秒。只记录有限目标标签、连接/可见/active 状态，不引入账号、Cookie 或业务数据。需要真实窗口后才启动自有 loopback Vite/Chromium；无 PG/MinIO/Docker。
+
+## 实际终局门槛
+
+启动前完整输入/配置/闭包指纹和现存进程基线；runner 先设 subreaper，再启动唯一命令。固定选择器、实际 exit/wait、server.close、所属 PID/starttime 并集两扫空和私有 TMP 终局。历史 PPID1 zombie 不触碰或冒称回收。原失败和输入永久保留；产品缺陷交作者，禁止自改产品或自动扩大预算。独立组件通过仍不代表账号安全 Navigation 通过。

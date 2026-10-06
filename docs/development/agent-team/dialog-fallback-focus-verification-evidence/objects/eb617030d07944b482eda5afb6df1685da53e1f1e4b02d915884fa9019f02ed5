@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/node_modules/.bin/playwright",
+    "test",
+    "--config",
+    "tests/account-captcha-web/dialog-outside-focus.config.js",
+    "--max-failures=1",
+    "--grep",
+    "^page fallback 390 no-preference: restored single confirmation returns to current title$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate",
+  "outer_budget_seconds": 240,
+  "playwright_realpath": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+  "subreaper_enabled_before_launch": true,
+  "env": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TMPDIR": "/tmp/dfb-354saczo",
+    "AGENTEAM_DIALOG_WEB_ROOT": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/baseline/web",
+    "AGENTEAM_DIALOG_RUN_DIR": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old01",
+    "AGENTEAM_DIALOG_CHROMIUM": "/usr/lib/chromium/chromium"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "author_manifest": "604a4738761e428b0bff3f8ea64319ae07f6e8e072b97dead925c309c09f6860",
+  "sources": {
+    "browser01/independent.spec.ts": "4deff49ea31752545af99c02f829e2d24e4ad0b3f9f8914142c0c83d766b352a",
+    "browser01/Harness.vue.txt": "4bf7cbee559900dc9021dc4407ba0f322d901f4fd4e280e0cbe56a08ea90e6c1",
+    "browser01/tests.tail.txt": "06d88fa8f5cc20812bcd054c2ccb34987907b7cfad3971c3a67a5c20ee58a460",
+    "browser01/playwright.config.mjs": "ef2723515b836632ebb65b070050552065e68b907b7a6fdcca2903b8e4905fd8",
+    "browser01/tsconfig.json": "ff15b800baf9fe4ccda627093a643a167e67eeda545d3df8e57eca3e6133b795",
+    "run-browser01.py": "2a5e218a6b8a12d0dd54b35e640dcd093049db5851b013dd50e061c50a392a4b"
+  },
+  "preflight": "preparation/gate01.json",
+  "type": "runs/type02/result.json",
+  "discovery": "runs/list01/raw.log",
+  "expected_tests": 3,
+  "browser_window": "root explicitly authorized",
+  "budget": {
+    "test_seconds": 45,
+    "workers": 1,
+    "retries": 0,
+    "outer_seconds": 180
+  },
+  "scope": "private component-only; no Account/PG/MinIO/Docker"
+}

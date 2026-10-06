@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:unit",
+    "--prefix",
+    "web",
+    "--",
+    "src/tests/dialog-outside-focus.spec.ts",
+    "src/tests/components.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate",
+  "outer_budget_seconds": 240,
+  "subreaper_enabled_before_launch": true,
+  "env": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TMPDIR": "/tmp/dfb-4fbv44ez",
+    "AGENTEAM_DIALOG_WEB_ROOT": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/web",
+    "AGENTEAM_DIALOG_RUN_DIR": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure01",
+    "AGENTEAM_DIALOG_CHROMIUM": "/usr/lib/chromium/chromium"
+  }
+}

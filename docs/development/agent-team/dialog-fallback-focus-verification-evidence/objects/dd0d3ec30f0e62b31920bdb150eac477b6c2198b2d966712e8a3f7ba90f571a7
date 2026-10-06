@@ -1,0 +1,12 @@
+--- probe01
++++ probe02
+@@ -147,7 +147,8 @@
+   const targetFocus = vi.spyOn(target, 'focus')
+   document.querySelector<HTMLButtonElement>('[data-upper-close]')!.click()
+   await nextTick()
+-  expect(document.activeElement).toBe(document.querySelector('[data-lower]'))
++  const lower = document.querySelector('[data-lower]')!.closest('.ui-dialog')!
++  expect(document.activeElement).toBe(lower.querySelector('button[aria-label="关闭"]'))
+   expect(targetFocus).not.toHaveBeenCalled()
+   expect(host.inert).toBe(true)
+ })

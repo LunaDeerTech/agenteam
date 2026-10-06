@@ -1,0 +1,136 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/browser01/playwright.config.mjs",
+    "rootDir": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/browser01",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/runs/list01/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/runs/list01/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/browser01",
+        "testIgnore": [
+          "**/runs/**"
+        ],
+        "testMatch": [
+          "independent.spec.ts"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "independent.spec.ts",
+      "file": "independent.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "independent latest ref after whole-page remount keeps the old candidate connected",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "82f714dc92b415937ba4-18cfcd06296edfdc91cd",
+          "file": "independent.spec.ts",
+          "line": 173,
+          "column": 1
+        },
+        {
+          "title": "independent actual focus success controls fallback and unmount stays separate",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "82f714dc92b415937ba4-e32a0189eb0dbd764778",
+          "file": "independent.spec.ts",
+          "line": 201,
+          "column": 1
+        },
+        {
+          "title": "independent remaining modal wins over page fallback and null target stays compatible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "82f714dc92b415937ba4-04c7a146dec54c8dbc72",
+          "file": "independent.spec.ts",
+          "line": 269,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T14:05:10.787Z",
+    "duration": 81.92399999999998,
+    "expected": 0,
+    "skipped": 3,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

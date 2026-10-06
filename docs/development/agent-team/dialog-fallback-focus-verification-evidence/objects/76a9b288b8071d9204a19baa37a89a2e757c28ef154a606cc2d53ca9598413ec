@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/browser01/playwright.config.mjs",
+    "--list"
+  ],
+  "cwd": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/browser01",
+  "env": {
+    "CI": "1",
+    "TZ": "UTC",
+    "TMPDIR": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/runs/list01/tmp",
+    "NO_COLOR": "1",
+    "AGENTEAM_DIALOG_WEB_ROOT": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/browser-web01/web",
+    "AGENTEAM_DIALOG_RUN_DIR": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/runs/list01",
+    "AGENTEAM_DIALOG_CHROMIUM": "/usr/lib/chromium/chromium"
+  },
+  "pid": 1244313,
+  "started_utc": "2026-10-06T14:05:09.896197+00:00",
+  "seconds": 1.024,
+  "exit": 0,
+  "actual_wait_completed": true,
+  "timeout": false
+}

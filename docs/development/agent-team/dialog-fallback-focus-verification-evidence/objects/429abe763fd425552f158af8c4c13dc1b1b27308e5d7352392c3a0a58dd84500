@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/dialog-outside-focus.spec.ts src/tests/components.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/web
+
+
+ Test Files  2 passed (2)
+      Tests  114 passed (114)
+   Start at  13:56:02
+   Duration  2.71s (transform 732ms, setup 0ms, import 1.04s, tests 2.06s, environment 912ms)
+

@@ -167,3 +167,13 @@ input01作者287项完整纯测及30项真实矩阵通过后，独立仍发现�
 作者五轮和独立三轮实际wait、7exact资源各自双absent、原2容器/4网络基线与固定输入保持、所属PID/runtime清零。最终A03为84PID/starttime和4实际adopted wait，monitor0，窗口释放；历史PPID1 Z不计回收。作者八图逐张查看，主线程实际看light1440/dark390；900px视口不证明全部下方字段。四份确认缺失的历史通过源码及十二份formatter输入暂态未定位分别保留原hash/command/raw/exit，不补造、重跑或声称每版可重建；失败测试源和最终受测源完整。
 
 本次按SHA归档1235逻辑/445物理原件，离线核固定870ebbb的26路径、31dist指纹、1041基线和八轮终局，不读取后继账号安全活动源码、不复制依赖/dist实体/缓存/二进制或运行产品。账号安全UI另卡推进；完整D09/D26/D27及D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503、Runtime/生产SPA/Vite/其他引擎/native zoom等边界保持。
+
+## 16. 共享 Dialog 显式页面焦点后备接受
+
+§1–15保留各阶段原事实。[共享 fallback rev1](../work-items/d27-dialog-fallback-focus.md)已获作者与独立最终PASS、主线程采纳，五路径提交推送 `fd32120eba4c76f67b649248377f4825a78d5d79`，主线程核远端一致。[正式报告与最小证据](dialog-fallback-focus-verification.md)固定组件基线870ebbb、规格3c79fd4、作者input01 manifest `604a4738761e428b0bff3f8ea64319ae07f6e8e072b97dead925c309c09f6860`，共享卡技术§1–4保持原字节。UiDialog可提供本地显式fallbackFocus，正常顶层关闭且无剩余modal时读取最新ref；合法原trigger实际聚焦优先，目标有同document／非BODY-HTML／可见／禁用及实际焦点门禁。无prop、卸载、非顶层和剩余modal保留原规则，不增加延迟抢焦点或全局搜索。
+
+作者old01因grep discovery无测试而actual1/2.008s，没有browser/server；原clean=false与实际所属两扫空、端口不变、TMP删除分列。old02原组件真实焦点RED为actual1/7.608s；原probe后来只按项目Prettier规范化，保留两版和等价证明，不称byte-identical，也不追填后来list先于旧红。pure01两处布局spy前提原红后，仅测试装配调整，pure02为Dialog102＋旧components12共114通过。作者new01原34＋新11共45项Chromium全PASS，actual0/123.627s、145所属PID／4adopted实际wait、输入不变、server关闭、两扫空、端口不变与短TMP删除；type/build/format和发现原件齐。
+
+独立pure01七项通过、一项错误预期下层内容input而非内建关闭按钮；pure02只复验正确精确目标一项，组成8项通过，旧轮仍exit1。type01未定位已锁Node声明而exit2，私有配置接入原web/@types后type02通过，未改浏览器断言。browser01三项真实PASS、actual0/8.292s，验证initial-null重挂后最新目标、原生inherited editable focus no-op后备、合法trigger优先、卸载／null／剩余modal门禁及原生Tab／用户后续焦点。19所属PID双扫空、4adopted实际wait、server.close=true、TMP消失、端口不变，无清理信号，窗口释放；历史PPID1 Z未触碰且不称已wait。
+
+本次219逻辑／139物理原件与140固定Git引用只做原字节、五交付源及16轮原退出／清理离线核对，不复制完整web、依赖、dist或二进制，不重跑产品。Account new01组合断言false与new02实际BODY、未直接采样captured trigger的边界只作固定交叉引用；账号安全正按rev2继续实际Session／Navigation组合，尚未接受，受控共享组件结果不能替代业务卡。AGENTS只新增此适用能力说明；完整D26/D27及D08–D28/E01未完成，E01未开始，Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503及Runtime／生产SPA／Vite等边界保持。

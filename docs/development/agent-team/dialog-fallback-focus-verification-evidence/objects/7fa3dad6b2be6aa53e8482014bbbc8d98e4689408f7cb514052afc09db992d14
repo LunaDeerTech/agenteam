@@ -1,0 +1,528 @@
+{
+  "base": "870ebbb986f56bb62be34ccdfa2c77819ce995a6",
+  "browser_closure": {
+    "web/src/components/ui/UiButton.vue": "af03eda76b9d74f9c74e788f239397bfac9bdb67f9c7454ac8bf1a29e5e5abf9",
+    "web/src/components/ui/UiDialog.vue": "2009c74dbb2f2cd5ae351b435eb3d801f9dce3ea0a9c91c73a055371fed211b0",
+    "web/src/components/ui/UiDrawer.vue": "e62cc686f6fe8c3981680c3c88ec4880effbb9e84aedf80a5aff9978939a2def",
+    "web/src/components/ui/UiIcon.vue": "180fd280018366204978a388b933543be597c9f8c654c5af1b6eb8f9d262e280",
+    "web/src/components/ui/UiPopover.vue": "d41aae39719cab8ce3cd7b4924d9e1db4c9ab450fe423a9397b45f752db1970c",
+    "web/src/components/ui/UiSpinner.vue": "b8568ad14952ddb87bf13e8877c89d30e5c69f23fd38bc7c72c44562f602689c",
+    "web/src/components/ui/types.ts": "5cde2f860f7088f599aa86a485787d79c5f0f8886e5bfb766dfccac8e0b29ec7",
+    "web/src/composables/useLayer.ts": "aa3e2624666350d289c571c99516776423ef79d58f095308478d2593a5dcd7f3",
+    "web/src/styles/base.css": "95406edff72418d7ca07d37f638b0718ec8ad711eab9b6c579cd4e1cebe55b72",
+    "web/src/styles/components.css": "0f8289238b3f4af109e233cea7f76a3759d79c45f737c575467af771b05d96eb",
+    "web/src/styles/tokens.css": "e71b59daf59c53187796c061bc8486649e2aa0ad92d5b9c9c292165613a466b8"
+  },
+  "browser_stats": {
+    "duration": 121913.914,
+    "expected": 45,
+    "flaky": 0,
+    "skipped": 0,
+    "startTime": "2026-10-06T13:58:03.331Z",
+    "unexpected": 0
+  },
+  "card_commit": "3c79fd4069837c4cee0b1ed37e00480ea8f1909f",
+  "card_sha256": "9a348d14fcdb3965642c3b2932c5518894001b128bdb9c7ece740be29a426483",
+  "checks": {
+    "browser-type01": {
+      "adopted_actual_waits": 0,
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/browser-type01/cleanup.json",
+          "sha256": "c00d75e15dd6e244366b67b2978b87c5fe721c48006069b31ec6c0aafdcc7171"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/browser-type01/command.json",
+          "sha256": "9dceca9dc1ae5d7647d0a809a6d3708d7ee39a8befa10734fa84281d8ea9d80d"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/browser-type01/input-after.json",
+          "sha256": "e3df4f62e2dd595b7fe9a0d3a56c338c8b5786492912a6b70e3016010dbc8ce4"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/browser-type01/input-before.json",
+          "sha256": "e3df4f62e2dd595b7fe9a0d3a56c338c8b5786492912a6b70e3016010dbc8ce4"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/browser-type01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/browser-type01/result.json",
+          "sha256": "319bddddcff5008efdc291fa4d0480d7b6542c732edd84a92e90ca6411950152"
+        }
+      },
+      "ports_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "result": {
+        "actual_wait_completed": true,
+        "clean": true,
+        "elapsed_seconds": 2.517,
+        "exit": 0,
+        "inputs_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "timed_out": false
+      },
+      "server_all_closed": true,
+      "tmp_absent": true,
+      "tracked_pid_starttime": 1
+    },
+    "build01": {
+      "adopted_actual_waits": 0,
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/build01/cleanup.json",
+          "sha256": "03aa61833b2dfc34e3ee6578d833e45fec751132be608f246464d9b5dc501049"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/build01/command.json",
+          "sha256": "cb76d99ce6375828bf7b3bf6367a23ca4c587528b3d7fbbeb844ba45a4345a39"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/build01/input-after.json",
+          "sha256": "e3df4f62e2dd595b7fe9a0d3a56c338c8b5786492912a6b70e3016010dbc8ce4"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/build01/input-before.json",
+          "sha256": "e3df4f62e2dd595b7fe9a0d3a56c338c8b5786492912a6b70e3016010dbc8ce4"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/build01/raw.log",
+          "sha256": "33641710c556dc38d3ec920da2513b93e26373279e8cde2cd1f828188ef17645"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/build01/result.json",
+          "sha256": "7b001e886f03e4a3ea1ba906f09e7e94fa8fef5272dc4ecacee85cbd95ff33d6"
+        }
+      },
+      "ports_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "result": {
+        "actual_wait_completed": true,
+        "clean": true,
+        "elapsed_seconds": 9.432,
+        "exit": 0,
+        "inputs_unchanged": true,
+        "raw_sha256": "33641710c556dc38d3ec920da2513b93e26373279e8cde2cd1f828188ef17645",
+        "timed_out": false
+      },
+      "server_all_closed": true,
+      "tmp_absent": true,
+      "tracked_pid_starttime": 6
+    },
+    "format01": {
+      "adopted_actual_waits": 0,
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/format01/cleanup.json",
+          "sha256": "bc1f272362d83d98fee40407e12f70a1410386f6dea5ecbfae290febcac8c84f"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/format01/command.json",
+          "sha256": "67afff0be02370f1da52e188143c943d68b9f0c899a24e1a8faf74e68644012e"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/format01/input-after.json",
+          "sha256": "e3df4f62e2dd595b7fe9a0d3a56c338c8b5786492912a6b70e3016010dbc8ce4"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/format01/input-before.json",
+          "sha256": "e3df4f62e2dd595b7fe9a0d3a56c338c8b5786492912a6b70e3016010dbc8ce4"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/format01/raw.log",
+          "sha256": "9fdbf9363cc35b66e90a22016e7a027730f7374c1ebe97b8bcb767a606c6d517"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/format01/result.json",
+          "sha256": "74eab8841c447fdbc6aeb059cd2a68ce69813ab177fb298b56c367bb3d8df458"
+        }
+      },
+      "ports_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "result": {
+        "actual_wait_completed": true,
+        "clean": true,
+        "elapsed_seconds": 5.924,
+        "exit": 0,
+        "inputs_unchanged": true,
+        "raw_sha256": "9fdbf9363cc35b66e90a22016e7a027730f7374c1ebe97b8bcb767a606c6d517",
+        "timed_out": false
+      },
+      "server_all_closed": true,
+      "tmp_absent": true,
+      "tracked_pid_starttime": 3
+    },
+    "list01": {
+      "adopted_actual_waits": 0,
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list01/cleanup.json",
+          "sha256": "0181244db478b8c4629f1736296ba79be4d36763756a39402ab96e659394a3fb"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list01/command.json",
+          "sha256": "2429fc4e21c01a111013ca85e8c3aaa4f7917ececf27cd32eba952b7fda9c05c"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list01/input-after.json",
+          "sha256": "e3df4f62e2dd595b7fe9a0d3a56c338c8b5786492912a6b70e3016010dbc8ce4"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list01/input-before.json",
+          "sha256": "e3df4f62e2dd595b7fe9a0d3a56c338c8b5786492912a6b70e3016010dbc8ce4"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list01/raw.log",
+          "sha256": "382708421cc5e4fdd176763981cb734fda586863db0dfb29b30cfa916223fbf1"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list01/result.json",
+          "sha256": "9faf252b651f3f2b3641307c8ddf7414db4bf09be5b2cead9e867911c34c7071"
+        }
+      },
+      "ports_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "result": {
+        "actual_wait_completed": true,
+        "clean": true,
+        "elapsed_seconds": 1.893,
+        "exit": 0,
+        "inputs_unchanged": true,
+        "raw_sha256": "382708421cc5e4fdd176763981cb734fda586863db0dfb29b30cfa916223fbf1",
+        "timed_out": false
+      },
+      "server_all_closed": true,
+      "tmp_absent": true,
+      "tracked_pid_starttime": 1
+    },
+    "list02": {
+      "adopted_actual_waits": 0,
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list02/cleanup.json",
+          "sha256": "8b41917fc11070e4d31f7dffa93012ca2cde327bf2033c34fee7b30e681b3e79"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list02/command.json",
+          "sha256": "2a0905456aa95c0e4e287e6c58188975af5f982791eeda611d68d84ee642958d"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list02/input-after.json",
+          "sha256": "e3df4f62e2dd595b7fe9a0d3a56c338c8b5786492912a6b70e3016010dbc8ce4"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list02/input-before.json",
+          "sha256": "e3df4f62e2dd595b7fe9a0d3a56c338c8b5786492912a6b70e3016010dbc8ce4"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list02/raw.log",
+          "sha256": "24e0e9e2aa251587c6c9f4ae81fef0865b26d8dced5d5981d2b1e202ad74bb46"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list02/result.json",
+          "sha256": "fa0e8059dffe711daf2a1b8fc0463ffaa331039bf584bfbc276ec15c959339a6"
+        }
+      },
+      "ports_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "result": {
+        "actual_wait_completed": true,
+        "clean": true,
+        "elapsed_seconds": 1.897,
+        "exit": 0,
+        "inputs_unchanged": true,
+        "raw_sha256": "24e0e9e2aa251587c6c9f4ae81fef0865b26d8dced5d5981d2b1e202ad74bb46",
+        "timed_out": false
+      },
+      "server_all_closed": true,
+      "tmp_absent": true,
+      "tracked_pid_starttime": 1
+    },
+    "new01": {
+      "adopted_actual_waits": 4,
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/new01/cleanup.json",
+          "sha256": "f4c24115899463a366da5364037c141b1176e004ec1139592f67baf1074af6d2"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/new01/command.json",
+          "sha256": "c90e890e27c17652d36f6ef12f733d21ff799b45e1c8aadffa7ad064996f5e8e"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/new01/input-after.json",
+          "sha256": "94d767e5e5c917510db3eb0cb5f75c9c2607e11ba4c970231404590cfff1f982"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/new01/input-before.json",
+          "sha256": "94d767e5e5c917510db3eb0cb5f75c9c2607e11ba4c970231404590cfff1f982"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/new01/raw.log",
+          "sha256": "087f591d97c4f9d70a19fe158370b090c13dc3ee9c2bb4781ba5aff84ba360d5"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/new01/result.json",
+          "sha256": "9de4cabce97b62c48d700d3ca47c0e048a4d79e7487dbb58d86f28bd58fc78c4"
+        }
+      },
+      "ports_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "result": {
+        "actual_wait_completed": true,
+        "clean": true,
+        "elapsed_seconds": 123.627,
+        "exit": 0,
+        "inputs_unchanged": true,
+        "raw_sha256": "087f591d97c4f9d70a19fe158370b090c13dc3ee9c2bb4781ba5aff84ba360d5",
+        "timed_out": false
+      },
+      "server_all_closed": true,
+      "tmp_absent": true,
+      "tracked_pid_starttime": 145
+    },
+    "old01": {
+      "adopted_actual_waits": 0,
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old01/cleanup.json",
+          "sha256": "c6355e88e88940592935498a37477b8b718e1c03f08e7d146c5cee18d9b78130"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old01/command.json",
+          "sha256": "eb617030d07944b482eda5afb6df1685da53e1f1e4b02d915884fa9019f02ed5"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old01/input-after.json",
+          "sha256": "22228c323774bfce680947ac32e4b927e58db6015dc7bb3ea1f958c39fd185cb"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old01/input-before.json",
+          "sha256": "22228c323774bfce680947ac32e4b927e58db6015dc7bb3ea1f958c39fd185cb"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old01/raw.log",
+          "sha256": "4112e27a85f600186f5b1b1f59daeaf2238aa4a04012c3e52b325f6d61d7ee43"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old01/result.json",
+          "sha256": "7b27057527090909ac1b11e80b70c260d4b8bfe4807526bb4432b4587bbb5713"
+        }
+      },
+      "ports_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "result": {
+        "actual_wait_completed": true,
+        "clean": false,
+        "elapsed_seconds": 2.008,
+        "exit": 1,
+        "inputs_unchanged": true,
+        "raw_sha256": "4112e27a85f600186f5b1b1f59daeaf2238aa4a04012c3e52b325f6d61d7ee43",
+        "timed_out": false
+      },
+      "server_all_closed": false,
+      "tmp_absent": true,
+      "tracked_pid_starttime": 1
+    },
+    "old02": {
+      "adopted_actual_waits": 5,
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old02/cleanup.json",
+          "sha256": "2dbca91dda979d2e9d2c73a39f7000e87d5420abb4ece6aa1addd2a4d54440db"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old02/command.json",
+          "sha256": "d5f844f6ad370b234079b9c1bfbb7c63fd46061e9581ebb150177cbc8366e8c4"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old02/input-after.json",
+          "sha256": "22228c323774bfce680947ac32e4b927e58db6015dc7bb3ea1f958c39fd185cb"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old02/input-before.json",
+          "sha256": "22228c323774bfce680947ac32e4b927e58db6015dc7bb3ea1f958c39fd185cb"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old02/raw.log",
+          "sha256": "3d701d403c28f83015a3e044766d3dec6326ab4d35334e520925d23cde383a76"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old02/result.json",
+          "sha256": "c179b21abb88394e70e5a0b8e9d78bf366ffb2f1524f2b5bd1a336f671baee67"
+        }
+      },
+      "ports_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "result": {
+        "actual_wait_completed": true,
+        "clean": true,
+        "elapsed_seconds": 7.608,
+        "exit": 1,
+        "inputs_unchanged": true,
+        "raw_sha256": "3d701d403c28f83015a3e044766d3dec6326ab4d35334e520925d23cde383a76",
+        "timed_out": false
+      },
+      "server_all_closed": true,
+      "tmp_absent": true,
+      "tracked_pid_starttime": 13
+    },
+    "pure01": {
+      "adopted_actual_waits": 0,
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure01/cleanup.json",
+          "sha256": "5dd618c37049a513c1ca14c5129963ed9e141c5e8fc64f73cd2dc1c736e8ef9f"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure01/command.json",
+          "sha256": "8730988de3215677a6eb87fe830bb3b1a60d0400c87393a274bd1456ba7978bb"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure01/input-after.json",
+          "sha256": "c3466347743e3141d8a6f368e77ccb949b55e0c3aac7f8810b26015ec9b8e391"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure01/input-before.json",
+          "sha256": "c3466347743e3141d8a6f368e77ccb949b55e0c3aac7f8810b26015ec9b8e391"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure01/raw.log",
+          "sha256": "94e71b82fe7684bd870f8da1d6645ee2f6ff1a8a59cc8aabba86063ea3f70bcd"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure01/result.json",
+          "sha256": "ff54a2299b0c0dc23f9f5a258d1cb91346f1a50007036a8028b01d3ffadfc731"
+        }
+      },
+      "ports_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "result": {
+        "actual_wait_completed": true,
+        "clean": true,
+        "elapsed_seconds": 4.055,
+        "exit": 1,
+        "inputs_unchanged": true,
+        "raw_sha256": "94e71b82fe7684bd870f8da1d6645ee2f6ff1a8a59cc8aabba86063ea3f70bcd",
+        "timed_out": false
+      },
+      "server_all_closed": true,
+      "tmp_absent": true,
+      "tracked_pid_starttime": 5
+    },
+    "pure02": {
+      "adopted_actual_waits": 0,
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure02/cleanup.json",
+          "sha256": "dbcbccd392a9707bc02e7d273555cdc642b774277282df7929903e5ead8119ba"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure02/command.json",
+          "sha256": "5b8cdd92787412f8ecad8253a987a82c6a097b029a509a96e1b512293a371207"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure02/input-after.json",
+          "sha256": "e3df4f62e2dd595b7fe9a0d3a56c338c8b5786492912a6b70e3016010dbc8ce4"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure02/input-before.json",
+          "sha256": "e3df4f62e2dd595b7fe9a0d3a56c338c8b5786492912a6b70e3016010dbc8ce4"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure02/raw.log",
+          "sha256": "429abe763fd425552f158af8c4c13dc1b1b27308e5d7352392c3a0a58dd84500"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/pure02/result.json",
+          "sha256": "87d8d491c3f41523efaf9e0ec79f20677e101f5e2cc384296f6e7085d27ec743"
+        }
+      },
+      "ports_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "result": {
+        "actual_wait_completed": true,
+        "clean": true,
+        "elapsed_seconds": 4.238,
+        "exit": 0,
+        "inputs_unchanged": true,
+        "raw_sha256": "429abe763fd425552f158af8c4c13dc1b1b27308e5d7352392c3a0a58dd84500",
+        "timed_out": false
+      },
+      "server_all_closed": true,
+      "tmp_absent": true,
+      "tracked_pid_starttime": 5
+    }
+  },
+  "diff": {
+    "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/five-paths.diff",
+    "sha256": "7fe08a30ee1584a926a125f5ef3d36500299408790571f9c07650bccdf400351"
+  },
+  "document_check": {
+    "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/document-check.json",
+    "sha256": "bfbd149d655c1db3e74c4165d458c65bbb1675da21646e9d6f867cc6499532f7"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/run-browser.py",
+    "sha256": "a955a0f26046701d22e15c056175249cbe6cade530a82d9a55ab0a5f1f15608d"
+  },
+  "files": {
+    "docs/development/frontend/components.md": "0a20dc50008737e56d094e641dc2354816596553785fa4c3bf5de2d3d3784e96",
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": "f2db7a6e2f0123f1628a6c7c9a8d32c257373b4867c8710be53a9dd3030e57bc",
+    "web/src/components/ui/UiDialog.vue": "2009c74dbb2f2cd5ae351b435eb3d801f9dce3ea0a9c91c73a055371fed211b0",
+    "web/src/composables/useLayer.ts": "aa3e2624666350d289c571c99516776423ef79d58f095308478d2593a5dcd7f3",
+    "web/src/tests/dialog-outside-focus.spec.ts": "50e1e4da805ad3229322cc6429fab9fc476859df2f70f51f8b024bba3ff8ec59"
+  },
+  "format_equivalence": {
+    "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/old02-probe-format-equivalence.json",
+    "sha256": "3072ee646ef7328902042f47b9dc905b072f4b46755440cfb24b2592f020d548"
+  },
+  "frozen_utc": "2026-10-06T14:00:55.943043+00:00",
+  "git_mutation": false,
+  "manifest": {
+    "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/input01/manifest.json",
+    "sha256": "604a4738761e428b0bff3f8ea64319ae07f6e8e072b97dead925c309c09f6860"
+  },
+  "resource_window_released": true,
+  "retained_failures": {
+    "old01": "discovery only: leading ^ did not match Playwright full title, no tests. exit1/2.008s; clean=false because no server lifecycle, no owned process/port/TMP remained. Not a behavioral RED.",
+    "old02": "actual behavioral RED at current title toBeFocused, after restored single confirmation close. exit1/7.608s and true cleanup; original runtime probe later changed only by project Prettier canonical formatting.",
+    "pure01": "112/114 PASS; two new layout tests incorrectly reused inherited prototype spy and changed all nodes; test-only own-property replacement, no production change, pure02 all114 PASS."
+  },
+  "runtime_after_matched": true,
+  "runtime_dependencies": {
+    "files": 7094,
+    "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runtime-dependencies.json",
+    "sha256": "5b3c519781be3e181e48745d1bef0d7f3b9dff23917a941734d78fefa4d085e6",
+    "symlinks": 28
+  },
+  "scope_limits": [
+    "Only fixed committed component closure, no Account candidate source or dist and no Session/BFCache business verification.",
+    "UiDialog typed API only; no new UiDrawer/Popover API, original no-prop/unmount/remaining-modal branches preserved.",
+    "jsdom layout stub is not real focus evidence; real Chromium provides old RED/new GREEN and native pointer/Tab checks.",
+    "No Docker/PG/MinIO/SMTP/external origin; historical PPID1 Z entries are not owned or claimed reclaimed."
+  ],
+  "status": "AUTHOR PASS; ready for independent verification, no business Account claim",
+  "stopped_writing": true,
+  "unchanged_dependencies": {
+    "tests/account-captcha-web/dialog-outside-focus.config.js": "42516eb6ed5db78278a3169818a67e579e94a8b8671e067ade97830540adafd5",
+    "tests/account-captcha-web/package-lock.json": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534",
+    "tests/account-captcha-web/package.json": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58",
+    "tests/account-captcha-web/tsconfig.json": "885e24af70061f1abfbf0f7795b4d36fe9e9d85047d49aa3ed1a887e39f2bc54",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/tsconfig.json": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+    "web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+  }
+}

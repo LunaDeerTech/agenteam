@@ -1,0 +1,161 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/dialog-outside-focus.config.js",
+    "rootDir": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/e2e",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 1,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old02/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old02/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "dialog-outside-focus.spec.ts"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "dialog-outside-focus.spec.ts",
+      "file": "dialog-outside-focus.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "page fallback 390 no-preference: restored single confirmation returns to current title",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4967,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('page-title')\nExpected: focused\nReceived: inactive\nTimeout:  3000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('page-title')\u001b[22m\n\u001b[2m    7 × locator resolved to <h1 tabindex=\"-1\" disabled=\"false\" data-testid=\"page-title\">Current page 1 original</h1>\u001b[22m\n\u001b[2m      - unexpected value \"inactive\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('page-title')\nExpected: focused\nReceived: inactive\nTimeout:  3000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('page-title')\u001b[22m\n\u001b[2m    7 × locator resolved to <h1 tabindex=\"-1\" disabled=\"false\" data-testid=\"page-title\">Current page 1 original</h1>\u001b[22m\n\u001b[2m      - unexpected value \"inactive\"\u001b[22m\n\n    at /workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:666:54",
+                    "location": {
+                      "file": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts",
+                      "column": 54,
+                      "line": 666
+                    },
+                    "snippet": "  664 |         else await clickOverlay(page);\n  665 |         await pageLayerClosed(page);\n> 666 |         await expect(page.getByTestId(\"page-title\")).toBeFocused();\n      |                                                      ^\n  667 |         expect(await oldTrigger.evaluate((node) => node.isConnected)).toBe(\n  668 |           false,\n  669 |         );"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts",
+                        "column": 54,
+                        "line": 666
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('page-title')\nExpected: focused\nReceived: inactive\nTimeout:  3000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('page-title')\u001b[22m\n\u001b[2m    7 × locator resolved to <h1 tabindex=\"-1\" disabled=\"false\" data-testid=\"page-title\">Current page 1 original</h1>\u001b[22m\n\u001b[2m      - unexpected value \"inactive\"\u001b[22m\n\n\n  664 |         else await clickOverlay(page);\n  665 |         await pageLayerClosed(page);\n> 666 |         await expect(page.getByTestId(\"page-title\")).toBeFocused();\n      |                                                      ^\n  667 |         expect(await oldTrigger.evaluate((node) => node.isConnected)).toBe(\n  668 |           false,\n  669 |         );\n    at /workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:666:54"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:21.870Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old02/results/dialog-outside-focus-page--610af-on-returns-to-current-title/test-failed-1.png"
+                    },
+                    {
+                      "name": "pointer-events",
+                      "contentType": "application/json",
+                      "body": "ewogICJibG9ja2VkIjogW10sCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgInR5cGUiOiAicG9pbnRlcmRvd24iLAogICAgICAiY2FwdHVyZSI6IHRydWUsCiAgICAgICJ0YXJnZXQiOiAicGFnZS1vcGVuIiwKICAgICAgImFjdGl2ZSI6ICJCT0RZIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAicG9pbnRlcmRvd24iLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogInBhZ2Utb3BlbiIsCiAgICAgICJhY3RpdmUiOiAiQk9EWSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogIm1vdXNlZG93biIsCiAgICAgICJjYXB0dXJlIjogdHJ1ZSwKICAgICAgInRhcmdldCI6ICJwYWdlLW9wZW4iLAogICAgICAiYWN0aXZlIjogIkJPRFkiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJtb3VzZWRvd24iLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogInBhZ2Utb3BlbiIsCiAgICAgICJhY3RpdmUiOiAiQk9EWSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3VzaW4iLAogICAgICAiY2FwdHVyZSI6IHRydWUsCiAgICAgICJ0YXJnZXQiOiAicGFnZS1vcGVuIiwKICAgICAgImFjdGl2ZSI6ICJwYWdlLW9wZW4iLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJmb2N1c2luIiwKICAgICAgImNhcHR1cmUiOiBmYWxzZSwKICAgICAgInRhcmdldCI6ICJwYWdlLW9wZW4iLAogICAgICAiYWN0aXZlIjogInBhZ2Utb3BlbiIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogIm1vdXNldXAiLAogICAgICAiY2FwdHVyZSI6IHRydWUsCiAgICAgICJ0YXJnZXQiOiAicGFnZS1vcGVuIiwKICAgICAgImFjdGl2ZSI6ICJwYWdlLW9wZW4iLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJtb3VzZXVwIiwKICAgICAgImNhcHR1cmUiOiBmYWxzZSwKICAgICAgInRhcmdldCI6ICJwYWdlLW9wZW4iLAogICAgICAiYWN0aXZlIjogInBhZ2Utb3BlbiIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImNsaWNrIiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogInBhZ2Utb3BlbiIsCiAgICAgICJhY3RpdmUiOiAicGFnZS1vcGVuIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNvdXQiLAogICAgICAiY2FwdHVyZSI6IHRydWUsCiAgICAgICJ0YXJnZXQiOiAicGFnZS1vcGVuIiwKICAgICAgImFjdGl2ZSI6ICJCT0RZIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNvdXQiLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogInBhZ2Utb3BlbiIsCiAgICAgICJhY3RpdmUiOiAiQk9EWSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3VzaW4iLAogICAgICAiY2FwdHVyZSI6IHRydWUsCiAgICAgICJ0YXJnZXQiOiAicGFnZS1jb25maXJtLWlucHV0IiwKICAgICAgImFjdGl2ZSI6ICJwYWdlLWNvbmZpcm0taW5wdXQiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJmb2N1c2luIiwKICAgICAgImNhcHR1cmUiOiBmYWxzZSwKICAgICAgInRhcmdldCI6ICJwYWdlLWNvbmZpcm0taW5wdXQiLAogICAgICAiYWN0aXZlIjogInBhZ2UtY29uZmlybS1pbnB1dCIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImNsaWNrIiwKICAgICAgImNhcHR1cmUiOiBmYWxzZSwKICAgICAgInRhcmdldCI6ICJwYWdlLW9wZW4iLAogICAgICAiYWN0aXZlIjogInBhZ2UtY29uZmlybS1pbnB1dCIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogInBvaW50ZXJkb3duIiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogInBhZ2UtcmVzdG9yZSIsCiAgICAgICJhY3RpdmUiOiAicGFnZS1jb25maXJtLWlucHV0IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAicG9pbnRlcmRvd24iLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogInBhZ2UtcmVzdG9yZSIsCiAgICAgICJhY3RpdmUiOiAicGFnZS1jb25maXJtLWlucHV0IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAibW91c2Vkb3duIiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogInBhZ2UtcmVzdG9yZSIsCiAgICAgICJhY3RpdmUiOiAicGFnZS1jb25maXJtLWlucHV0IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAibW91c2Vkb3duIiwKICAgICAgImNhcHR1cmUiOiBmYWxzZSwKICAgICAgInRhcmdldCI6ICJwYWdlLXJlc3RvcmUiLAogICAgICAiYWN0aXZlIjogInBhZ2UtY29uZmlybS1pbnB1dCIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3Vzb3V0IiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogInBhZ2UtY29uZmlybS1pbnB1dCIsCiAgICAgICJhY3RpdmUiOiAiQk9EWSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3Vzb3V0IiwKICAgICAgImNhcHR1cmUiOiBmYWxzZSwKICAgICAgInRhcmdldCI6ICJwYWdlLWNvbmZpcm0taW5wdXQiLAogICAgICAiYWN0aXZlIjogIkJPRFkiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJmb2N1c2luIiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogInBhZ2UtcmVzdG9yZSIsCiAgICAgICJhY3RpdmUiOiAicGFnZS1yZXN0b3JlIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNpbiIsCiAgICAgICJjYXB0dXJlIjogZmFsc2UsCiAgICAgICJ0YXJnZXQiOiAicGFnZS1yZXN0b3JlIiwKICAgICAgImFjdGl2ZSI6ICJwYWdlLXJlc3RvcmUiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJtb3VzZXVwIiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogInBhZ2UtcmVzdG9yZSIsCiAgICAgICJhY3RpdmUiOiAicGFnZS1yZXN0b3JlIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAibW91c2V1cCIsCiAgICAgICJjYXB0dXJlIjogZmFsc2UsCiAgICAgICJ0YXJnZXQiOiAicGFnZS1yZXN0b3JlIiwKICAgICAgImFjdGl2ZSI6ICJwYWdlLXJlc3RvcmUiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJjbGljayIsCiAgICAgICJjYXB0dXJlIjogdHJ1ZSwKICAgICAgInRhcmdldCI6ICJwYWdlLXJlc3RvcmUiLAogICAgICAiYWN0aXZlIjogInBhZ2UtcmVzdG9yZSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3Vzb3V0IiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogInBhZ2UtcmVzdG9yZSIsCiAgICAgICJhY3RpdmUiOiAiQk9EWSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3Vzb3V0IiwKICAgICAgImNhcHR1cmUiOiBmYWxzZSwKICAgICAgInRhcmdldCI6ICJwYWdlLXJlc3RvcmUiLAogICAgICAiYWN0aXZlIjogIkJPRFkiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJmb2N1c2luIiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogInBhZ2Utb3BlbiIsCiAgICAgICJhY3RpdmUiOiAicGFnZS1vcGVuIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNpbiIsCiAgICAgICJjYXB0dXJlIjogZmFsc2UsCiAgICAgICJ0YXJnZXQiOiAicGFnZS1vcGVuIiwKICAgICAgImFjdGl2ZSI6ICJwYWdlLW9wZW4iLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJmb2N1c291dCIsCiAgICAgICJjYXB0dXJlIjogdHJ1ZSwKICAgICAgInRhcmdldCI6ICJwYWdlLW9wZW4iLAogICAgICAiYWN0aXZlIjogIkJPRFkiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJmb2N1c291dCIsCiAgICAgICJjYXB0dXJlIjogZmFsc2UsCiAgICAgICJ0YXJnZXQiOiAicGFnZS1vcGVuIiwKICAgICAgImFjdGl2ZSI6ICJCT0RZIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNpbiIsCiAgICAgICJjYXB0dXJlIjogdHJ1ZSwKICAgICAgInRhcmdldCI6ICJwYWdlLWNvbmZpcm0taW5wdXQiLAogICAgICAiYWN0aXZlIjogInBhZ2UtY29uZmlybS1pbnB1dCIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3VzaW4iLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogInBhZ2UtY29uZmlybS1pbnB1dCIsCiAgICAgICJhY3RpdmUiOiAicGFnZS1jb25maXJtLWlucHV0IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiY2xpY2siLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogInBhZ2UtcmVzdG9yZSIsCiAgICAgICJhY3RpdmUiOiAicGFnZS1jb25maXJtLWlucHV0IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNvdXQiLAogICAgICAiY2FwdHVyZSI6IHRydWUsCiAgICAgICJ0YXJnZXQiOiAicGFnZS1jb25maXJtLWlucHV0IiwKICAgICAgImFjdGl2ZSI6ICJCT0RZIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNvdXQiLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogInBhZ2UtY29uZmlybS1pbnB1dCIsCiAgICAgICJhY3RpdmUiOiAiQk9EWSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0KICBdCn0="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old02/results/dialog-outside-focus-page--610af-on-returns-to-current-title/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/old02/results/dialog-outside-focus-page--610af-on-returns-to-current-title/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts",
+                    "column": 54,
+                    "line": 666
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-951d6657e134a11f07fb",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 551,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "message": "Testing stopped early after 1 maximum allowed failures."
+    }
+  ],
+  "stats": {
+    "startTime": "2026-10-06T13:51:21.185Z",
+    "duration": 5935.82,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

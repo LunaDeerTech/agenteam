@@ -1,0 +1,16 @@
+# Page snapshot
+
+```yaml
+- main [ref=e3]:
+  - button "Open surface" [ref=e4] [cursor=pointer]
+  - generic [ref=e5]:
+    - text: Later input
+    - textbox "Later input" [ref=e6]
+  - status [ref=e7]: "[]"
+  - generic [ref=e8]:
+    - heading "Current page 1 original" [level=1] [ref=e9]
+    - button "Open page confirmation" [ref=e10] [cursor=pointer]
+    - textbox "Current page input" [ref=e11]
+    - status [ref=e12]: 1:true
+    - status [ref=e13]: "0"
+```

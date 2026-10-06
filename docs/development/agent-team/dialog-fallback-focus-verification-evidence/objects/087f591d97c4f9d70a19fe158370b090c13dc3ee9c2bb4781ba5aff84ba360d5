@@ -1,0 +1,57 @@
+
+Running 45 tests using 1 worker
+
+[1A[2K(node:1238069) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1238069) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:309:7 › dialog 390 no-preference: outside keeps trigger focus
+[1A[2K[2/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:309:7 › dialog 390 reduce: outside keeps trigger focus
+[1A[2K[3/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:309:7 › dialog 1440 no-preference: outside keeps trigger focus
+[1A[2K[4/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:309:7 › dialog 1440 reduce: outside keeps trigger focus
+[1A[2K[5/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:345:3 › dialog: disabled outside and Escape preserve editing and action
+[1A[2K[6/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:309:7 › drawer 390 no-preference: outside keeps trigger focus
+[1A[2K[7/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:309:7 › drawer 390 reduce: outside keeps trigger focus
+[1A[2K[8/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:309:7 › drawer 1440 no-preference: outside keeps trigger focus
+[1A[2K[9/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:309:7 › drawer 1440 reduce: outside keeps trigger focus
+[1A[2K[10/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:345:3 › drawer: disabled outside and Escape preserve editing and action
+[1A[2K[11/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:374:1 › two modal layers close only the top and restore the lower trigger
+[1A[2K[12/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › dialog 390 no-preference: initial modal restoration
+[1A[2K[13/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › dialog 390 no-preference: remount modal restoration
+[1A[2K[14/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › dialog 390 reduce: initial modal restoration
+[1A[2K[15/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › dialog 390 reduce: remount modal restoration
+[1A[2K[16/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › dialog 1440 no-preference: initial modal restoration
+[1A[2K[17/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › dialog 1440 no-preference: remount modal restoration
+[1A[2K[18/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › dialog 1440 reduce: initial modal restoration
+[1A[2K[19/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › dialog 1440 reduce: remount modal restoration
+[1A[2K[20/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › drawer 390 no-preference: initial modal restoration
+[1A[2K[21/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › drawer 390 no-preference: remount modal restoration
+[1A[2K[22/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › drawer 390 reduce: initial modal restoration
+[1A[2K[23/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › drawer 390 reduce: remount modal restoration
+[1A[2K[24/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › drawer 1440 no-preference: initial modal restoration
+[1A[2K[25/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › drawer 1440 no-preference: remount modal restoration
+[1A[2K[26/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › drawer 1440 reduce: initial modal restoration
+[1A[2K[27/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:412:9 › drawer 1440 reduce: remount modal restoration
+[1A[2K[28/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:458:1 › popover without a modal retains its original anchor on Escape and action
+[1A[2K[29/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:472:1 › top nonmodal popover restores its valid modal anchor and keeps Tab inside
+[1A[2K[30/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:489:1 › top nonmodal popover with a disabled anchor falls back within its remaining modal
+[1A[2K[31/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:507:5 › dialog: native editable-child focus restoration
+[1A[2K[32/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:507:5 › dialog: native editable-host focus restoration
+[1A[2K[33/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:507:5 › drawer: native editable-child focus restoration
+[1A[2K[34/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:507:5 › drawer: native editable-host focus restoration
+[1A[2K[35/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:551:5 › page fallback 390 no-preference: restored single confirmation returns to current title
+[1A[2K[36/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:551:5 › page fallback 390 reduce: restored single confirmation returns to current title
+[1A[2K[37/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:551:5 › page fallback 1440 no-preference: restored single confirmation returns to current title
+[1A[2K[38/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:551:5 › page fallback 1440 reduce: restored single confirmation returns to current title
+[1A[2K[39/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:579:1 › page fallback preserves the exact live trigger before the explicit target
+[1A[2K[40/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:591:1 › page fallback reads the replacement local ref at close
+[1A[2K[41/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:608:3 › page fallback refuses a hidden target without selecting another page control
+[1A[2K[42/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:608:3 › page fallback refuses a disabled target without selecting another page control
+[1A[2K[43/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:608:3 › page fallback refuses a none target without selecting another page control
+[1A[2K[44/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:621:1 › page fallback is not attempted by direct component destruction
+[1A[2K[45/45] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:635:1 › page fallback cannot escape a remaining modal or steal focus on non-top removal
+[1A[2K  45 passed (2.0m)

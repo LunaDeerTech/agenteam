@@ -1,0 +1,57 @@
+
+Running 1 test using 1 worker
+
+[1A[2K(node:1233298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1233298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/1] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:551:5 › page fallback 390 no-preference: restored single confirmation returns to current title
+[1A[2K  1) tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:551:5 › page fallback 390 no-preference: restored single confirmation returns to current title 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+
+    Locator:  getByTestId('page-title')
+    Expected: focused
+    Received: inactive
+    Timeout:  3000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 3000ms[22m
+    [2m  - waiting for getByTestId('page-title')[22m
+    [2m    7 × locator resolved to <h1 tabindex="-1" disabled="false" data-testid="page-title">Current page 1 original</h1>[22m
+    [2m      - unexpected value "inactive"[22m
+
+
+      664 |         else await clickOverlay(page);
+      665 |         await pageLayerClosed(page);
+    > 666 |         await expect(page.getByTestId("page-title")).toBeFocused();
+          |                                                      ^
+      667 |         expect(await oldTrigger.evaluate((node) => node.isConnected)).toBe(
+      668 |           false,
+      669 |         );
+        at /workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:666:54
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../runs/old02/results/dialog-outside-focus-page--610af-on-returns-to-current-title/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../runs/old02/results/dialog-outside-focus-page--610af-on-returns-to-current-title/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../runs/old02/results/dialog-outside-focus-page--610af-on-returns-to-current-title/trace.zip
+    Usage:
+
+        npx playwright show-trace ../runs/old02/results/dialog-outside-focus-page--610af-on-returns-to-current-title/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2KTesting stopped early after 1 maximum allowed failures.
+
+[1A[2K  1 failed
+    tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:551:5 › page fallback 390 no-preference: restored single confirmation returns to current title 
+  1 error was not a part of any test, see above for details

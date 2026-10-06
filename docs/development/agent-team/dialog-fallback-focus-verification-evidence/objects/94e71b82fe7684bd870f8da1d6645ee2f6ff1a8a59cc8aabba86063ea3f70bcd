@@ -1,0 +1,67 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/dialog-outside-focus.spec.ts src/tests/components.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/web
+
+ ❯ src/tests/dialog-outside-focus.spec.ts (102 tests | 2 failed) 1614ms
+     × rejects the now-no-layout trigger and focuses the explicit local target 10ms
+     × rejects the now-empty-region trigger and focuses the explicit local target 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/dialog-outside-focus.spec.ts > UiDialog explicit page fallback > rejects the now-no-layout trigger and focuses the explicit local target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > UiDialog explicit page fallback > rejects the now-empty-region trigger and focuses the explicit local target
+AssertionError: expected <body style="overflow: auto;">…(2)</body> to be <h1 tabindex="-1"></h1> // Object.is equality
+
+- Expected
++ Received
+
++ <body
++   style="overflow: auto;"
++ >
++   <div
++     id="app"
++   >
+      <h1
+        tabindex="-1"
+      >
+        Current page
+      </h1>
++     <button />
++     <div
++       data-v-app=""
++     >
++       <!--teleport start-->
++       <!--teleport end-->
++     </div>
++   </div>
++   
++   <transition-stub
++     appear="false"
++     css="true"
++     name="dialog"
++     persisted="false"
++   >
++     <!--v-if-->
++   </transition-stub>
++   
++ </body>
+
+ ❯ src/tests/dialog-outside-focus.spec.ts:607:36
+    605|     const focused = vi.spyOn(heading, 'focus')
+    606|     await wrapper.setProps({ open: false })
+    607|     expect(document.activeElement).toBe(heading)
+       |                                    ^
+    608|     expect(focused).toHaveBeenCalledExactlyOnceWith({ preventScroll: t…
+    609|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 112 passed (114)
+   Start at  13:55:32
+   Duration  2.56s (transform 860ms, setup 0ms, import 1.12s, tests 2.01s, environment 789ms)
+

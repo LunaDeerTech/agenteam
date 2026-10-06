@@ -1,0 +1,252 @@
+{
+  "actual_wait_completed": true,
+  "subreaper_enabled_before_launch": true,
+  "adopted_waits": [
+    {
+      "pid": 1245737,
+      "status": 0,
+      "tracked_starttime": 3619612
+    },
+    {
+      "pid": 1245741,
+      "status": 0,
+      "tracked_starttime": 3619612
+    },
+    {
+      "pid": 1245740,
+      "status": 0,
+      "tracked_starttime": 3619612
+    },
+    {
+      "pid": 1245742,
+      "status": 0,
+      "tracked_starttime": 3619612
+    }
+  ],
+  "owned_processes": [
+    {
+      "pid": 1245690,
+      "ppid": 1245664,
+      "state": "S",
+      "session": 1245690,
+      "starttime": 3619465,
+      "comm": "MainThread"
+    },
+    {
+      "pid": 1245703,
+      "ppid": 1245690,
+      "state": "R",
+      "session": 1245690,
+      "starttime": 3619552,
+      "comm": "MainThread"
+    },
+    {
+      "pid": 1245734,
+      "ppid": 1245703,
+      "state": "R",
+      "session": 1245734,
+      "starttime": 3619609,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245765,
+      "ppid": 1245740,
+      "state": "S",
+      "session": 1245734,
+      "starttime": 3619618,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245737,
+      "ppid": 1245664,
+      "state": "Z",
+      "session": 1245736,
+      "starttime": 3619612,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 1245740,
+      "ppid": 1245664,
+      "state": "Z",
+      "session": 1245734,
+      "starttime": 3619612,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245741,
+      "ppid": 1245664,
+      "state": "Z",
+      "session": 1245739,
+      "starttime": 3619612,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 1245742,
+      "ppid": 1245664,
+      "state": "Z",
+      "session": 1245734,
+      "starttime": 3619612,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245768,
+      "ppid": 1245734,
+      "state": "S",
+      "session": 1245734,
+      "starttime": 3619619,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245781,
+      "ppid": 1245742,
+      "state": "S",
+      "session": 1245734,
+      "starttime": 3619622,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245811,
+      "ppid": 1245742,
+      "state": "R",
+      "session": 1245734,
+      "starttime": 3619629,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245820,
+      "ppid": 1245742,
+      "state": "S",
+      "session": 1245734,
+      "starttime": 3619630,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245821,
+      "ppid": 1245742,
+      "state": "R",
+      "session": 1245734,
+      "starttime": 3619630,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245861,
+      "ppid": 1245742,
+      "state": "Z",
+      "session": 1245734,
+      "starttime": 3619767,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245870,
+      "ppid": 1245742,
+      "state": "S",
+      "session": 1245734,
+      "starttime": 3619769,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245872,
+      "ppid": 1245742,
+      "state": "S",
+      "session": 1245734,
+      "starttime": 3619769,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245919,
+      "ppid": 1245742,
+      "state": "S",
+      "session": 1245734,
+      "starttime": 3619971,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245928,
+      "ppid": 1245742,
+      "state": "S",
+      "session": 1245734,
+      "starttime": 3619973,
+      "comm": "chromium"
+    },
+    {
+      "pid": 1245929,
+      "ppid": 1245742,
+      "state": "S",
+      "session": 1245734,
+      "starttime": 3619973,
+      "comm": "chromium"
+    }
+  ],
+  "remaining_first": [],
+  "remaining_second": [],
+  "cleanup_signals": [],
+  "tmpdir": "/tmp/dfbi-8_4buc6w",
+  "tmp_contents_before_cleanup": [
+    "playwright-transform-cache-1000",
+    "playwright-transform-cache-1000/60",
+    "playwright-transform-cache-1000/93",
+    "playwright-transform-cache-1000/60/60f56897a0_69f9298_independentspec.js",
+    "playwright-transform-cache-1000/60/60f56897a0_69f9298_independentspec.map",
+    "playwright-transform-cache-1000/93/935e211853_8103fcc_playwrightconfig.js",
+    "playwright-transform-cache-1000/93/935e211853_8103fcc_playwrightconfig.map"
+  ],
+  "tmp_absent": true,
+  "servers": [
+    {
+      "pid": 1245703,
+      "origin": "http://127.0.0.1:46793",
+      "nonce": "d3f3d406-7ee3-4124-b451-1ac5fda43b02",
+      "inputs": {
+        "src/components/ui/UiDialog.vue": "2009c74dbb2f2cd5ae351b435eb3d801f9dce3ea0a9c91c73a055371fed211b0",
+        "src/components/ui/UiDrawer.vue": "e62cc686f6fe8c3981680c3c88ec4880effbb9e84aedf80a5aff9978939a2def",
+        "src/components/ui/UiPopover.vue": "d41aae39719cab8ce3cd7b4924d9e1db4c9ab450fe423a9397b45f752db1970c",
+        "src/components/ui/UiButton.vue": "af03eda76b9d74f9c74e788f239397bfac9bdb67f9c7454ac8bf1a29e5e5abf9",
+        "src/components/ui/UiIcon.vue": "180fd280018366204978a388b933543be597c9f8c654c5af1b6eb8f9d262e280",
+        "src/components/ui/UiSpinner.vue": "b8568ad14952ddb87bf13e8877c89d30e5c69f23fd38bc7c72c44562f602689c",
+        "src/components/ui/types.ts": "5cde2f860f7088f599aa86a485787d79c5f0f8886e5bfb766dfccac8e0b29ec7",
+        "src/composables/useLayer.ts": "aa3e2624666350d289c571c99516776423ef79d58f095308478d2593a5dcd7f3",
+        "src/styles/tokens.css": "e71b59daf59c53187796c061bc8486649e2aa0ad92d5b9c9c292165613a466b8",
+        "src/styles/base.css": "95406edff72418d7ca07d37f638b0718ec8ad711eab9b6c579cd4e1cebe55b72",
+        "src/styles/components.css": "0f8289238b3f4af109e233cea7f76a3759d79c45f737c575467af771b05d96eb"
+      },
+      "closed": true
+    }
+  ],
+  "server_all_closed": true,
+  "ports_unchanged": true,
+  "ports_after": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                \nLISTEN 0      0          127.0.0.1:9001      0.0.0.0:*                                          \nLISTEN 0      0          127.0.0.1:9000      0.0.0.0:*                                          \nLISTEN 0      0            0.0.0.0:1040      0.0.0.0:*    users:((\"caas-prefix-tra\",pid=2,fd=3))\nLISTEN 0      0          127.0.0.1:5432      0.0.0.0:*                                          \n",
+  "historical_baseline_not_owned": [
+    {
+      "pid": 180180,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180179,
+      "starttime": 408854,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 180182,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180178,
+      "starttime": 408854,
+      "comm": "chromium"
+    },
+    {
+      "pid": 180184,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180183,
+      "starttime": 408854,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 180185,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180178,
+      "starttime": 408854,
+      "comm": "chromium"
+    }
+  ]
+}

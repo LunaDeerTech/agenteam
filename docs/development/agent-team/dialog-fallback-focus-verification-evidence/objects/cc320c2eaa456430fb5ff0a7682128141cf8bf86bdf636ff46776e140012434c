@@ -1,0 +1,11 @@
+{
+  "kind": "private assertion prerequisite",
+  "failed_test": "does not let a valid background target escape the remaining modal",
+  "observed_active": "lower UiDialog built-in close button",
+  "incorrect_expected": "lower content input",
+  "fixed_contract": "remaining modal restore uses ordered focusable candidates; header close precedes content input",
+  "product_change": false,
+  "scope": "one exact target assertion; background fallback remains forbidden",
+  "retained": "runs/pure01/ and candidate01/ unchanged",
+  "rerun": "only affected test in candidate02; other seven results reused by unchanged test bodies"
+}

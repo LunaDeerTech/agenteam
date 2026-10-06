@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "node",
+    "web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--types",
+    "node",
+    "--typeRoots",
+    "web/node_modules/@types",
+    "--skipLibCheck",
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate",
+  "outer_budget_seconds": 240,
+  "subreaper_enabled_before_launch": true,
+  "env": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TMPDIR": "/tmp/dfb-afj15w17",
+    "AGENTEAM_DIALOG_WEB_ROOT": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/web",
+    "AGENTEAM_DIALOG_RUN_DIR": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/browser-type01",
+    "AGENTEAM_DIALOG_CHROMIUM": "/usr/lib/chromium/chromium"
+  }
+}

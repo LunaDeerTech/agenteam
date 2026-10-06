@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：Dialog 显式页面焦点后备接受
+
+- [共享 fallback rev1](../work-items/d27-dialog-fallback-focus.md)五路径已完成作者检查及独立验收，主线程采纳提交推送 `fd32120eba4c76f67b649248377f4825a78d5d79`，远端一致。[正式报告与最小证据](dialog-fallback-focus-verification.md)绑定组件基线870ebbb、规格3c79fd4及作者input01 `604a4738…9f6860`，技术§1–4保持原字节。
+- UiDialog显式页面目标在正常顶层关闭且无剩余modal时读取最新ref；合法原trigger实际聚焦优先，目标经过可见／同document／禁用及实际焦点门禁。无prop、卸载、非顶层和剩余modal原规则保持；不添加延迟抢焦点或全局扫描。
+- 作者114纯测、type/build/format及45项真实Chromium通过；独立8纯测按原七项＋单项复验组合、3真实例通过，browser01实际exit0/8.292s、19所属PID双清／4adopted实际wait、server关闭、端口基线不变、TMP删除。old01 discovery原clean=false、old02真RED与格式规范化等价、作者pure01两布局前提及独立pure01目标／type01 Node声明前提均保留；历史PPID1 Z不计回收。
+- 本次219逻辑／139物理原件按SHA去重，140固定Git引用替代完整树，离线检查不重跑产品。账号安全按rev2继续Session／Navigation组合验收，尚未接受；Selection§15与旧记录保持。完整D26/D27及D08–D28/E01未完成，E01未开始，Summary待决、Object/tools原停止与生产未绑定／ready503等边界不变。
+
 ## 2026-10-06：System 平台模型用途 UI 完整卡接受
 
 - [Selection rev2](../work-items/d27-system-model-selection-ui.md)实际26路径已由 `directory_backend`（frontend_worker）完成、`recovery_verification` 独立最终PASS，主线程采纳提交推送 `870ebbb986f56bb62be34ccdfa2c77819ce995a6`，远端一致。[正式报告与最小证据](system-model-selection-ui-verification.md)固定input02 `af2f9f4a…72c5`的25源/31dist指纹及README末件；消费Model基线bc17167、后端9b32015/迁移1–19与1041固定依赖，卡技术§1–7不变。

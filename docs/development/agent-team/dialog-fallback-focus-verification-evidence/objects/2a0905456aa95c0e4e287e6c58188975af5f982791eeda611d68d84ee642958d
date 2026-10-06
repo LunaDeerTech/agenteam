@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "tests/account-captcha-web/node_modules/.bin/playwright",
+    "test",
+    "--config",
+    "tests/account-captcha-web/dialog-outside-focus.config.js",
+    "--list"
+  ],
+  "cwd": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate",
+  "outer_budget_seconds": 240,
+  "subreaper_enabled_before_launch": true,
+  "env": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TMPDIR": "/tmp/dfb-wddce9g1",
+    "AGENTEAM_DIALOG_WEB_ROOT": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/web",
+    "AGENTEAM_DIALOG_RUN_DIR": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list02",
+    "AGENTEAM_DIALOG_CHROMIUM": "/usr/lib/chromium/chromium"
+  }
+}

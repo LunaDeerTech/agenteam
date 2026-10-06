@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/browser01/playwright.config.mjs",
+    "--max-failures=1"
+  ],
+  "cwd": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/browser01",
+  "outer_budget_seconds": 180,
+  "playwright_realpath": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+  "node_realpath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "subreaper_enabled_before_launch": true,
+  "env": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TMPDIR": "/tmp/dfbi-8_4buc6w",
+    "AGENTEAM_DIALOG_WEB_ROOT": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/browser-web01/web",
+    "AGENTEAM_DIALOG_RUN_DIR": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/runs/browser01",
+    "AGENTEAM_DIALOG_CHROMIUM": "/usr/lib/chromium/chromium"
+  }
+}

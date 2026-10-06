@@ -1,0 +1,47 @@
+Listing tests:
+  dialog-outside-focus.spec.ts:309:7 › dialog 390 no-preference: outside keeps trigger focus
+  dialog-outside-focus.spec.ts:309:7 › dialog 390 reduce: outside keeps trigger focus
+  dialog-outside-focus.spec.ts:309:7 › dialog 1440 no-preference: outside keeps trigger focus
+  dialog-outside-focus.spec.ts:309:7 › dialog 1440 reduce: outside keeps trigger focus
+  dialog-outside-focus.spec.ts:345:3 › dialog: disabled outside and Escape preserve editing and action
+  dialog-outside-focus.spec.ts:309:7 › drawer 390 no-preference: outside keeps trigger focus
+  dialog-outside-focus.spec.ts:309:7 › drawer 390 reduce: outside keeps trigger focus
+  dialog-outside-focus.spec.ts:309:7 › drawer 1440 no-preference: outside keeps trigger focus
+  dialog-outside-focus.spec.ts:309:7 › drawer 1440 reduce: outside keeps trigger focus
+  dialog-outside-focus.spec.ts:345:3 › drawer: disabled outside and Escape preserve editing and action
+  dialog-outside-focus.spec.ts:374:1 › two modal layers close only the top and restore the lower trigger
+  dialog-outside-focus.spec.ts:412:9 › dialog 390 no-preference: initial modal restoration
+  dialog-outside-focus.spec.ts:412:9 › dialog 390 no-preference: remount modal restoration
+  dialog-outside-focus.spec.ts:412:9 › dialog 390 reduce: initial modal restoration
+  dialog-outside-focus.spec.ts:412:9 › dialog 390 reduce: remount modal restoration
+  dialog-outside-focus.spec.ts:412:9 › dialog 1440 no-preference: initial modal restoration
+  dialog-outside-focus.spec.ts:412:9 › dialog 1440 no-preference: remount modal restoration
+  dialog-outside-focus.spec.ts:412:9 › dialog 1440 reduce: initial modal restoration
+  dialog-outside-focus.spec.ts:412:9 › dialog 1440 reduce: remount modal restoration
+  dialog-outside-focus.spec.ts:412:9 › drawer 390 no-preference: initial modal restoration
+  dialog-outside-focus.spec.ts:412:9 › drawer 390 no-preference: remount modal restoration
+  dialog-outside-focus.spec.ts:412:9 › drawer 390 reduce: initial modal restoration
+  dialog-outside-focus.spec.ts:412:9 › drawer 390 reduce: remount modal restoration
+  dialog-outside-focus.spec.ts:412:9 › drawer 1440 no-preference: initial modal restoration
+  dialog-outside-focus.spec.ts:412:9 › drawer 1440 no-preference: remount modal restoration
+  dialog-outside-focus.spec.ts:412:9 › drawer 1440 reduce: initial modal restoration
+  dialog-outside-focus.spec.ts:412:9 › drawer 1440 reduce: remount modal restoration
+  dialog-outside-focus.spec.ts:458:1 › popover without a modal retains its original anchor on Escape and action
+  dialog-outside-focus.spec.ts:472:1 › top nonmodal popover restores its valid modal anchor and keeps Tab inside
+  dialog-outside-focus.spec.ts:489:1 › top nonmodal popover with a disabled anchor falls back within its remaining modal
+  dialog-outside-focus.spec.ts:507:5 › dialog: native editable-child focus restoration
+  dialog-outside-focus.spec.ts:507:5 › dialog: native editable-host focus restoration
+  dialog-outside-focus.spec.ts:507:5 › drawer: native editable-child focus restoration
+  dialog-outside-focus.spec.ts:507:5 › drawer: native editable-host focus restoration
+  dialog-outside-focus.spec.ts:551:5 › page fallback 390 no-preference: restored single confirmation returns to current title
+  dialog-outside-focus.spec.ts:551:5 › page fallback 390 reduce: restored single confirmation returns to current title
+  dialog-outside-focus.spec.ts:551:5 › page fallback 1440 no-preference: restored single confirmation returns to current title
+  dialog-outside-focus.spec.ts:551:5 › page fallback 1440 reduce: restored single confirmation returns to current title
+  dialog-outside-focus.spec.ts:579:1 › page fallback preserves the exact live trigger before the explicit target
+  dialog-outside-focus.spec.ts:591:1 › page fallback reads the replacement local ref at close
+  dialog-outside-focus.spec.ts:608:3 › page fallback refuses a hidden target without selecting another page control
+  dialog-outside-focus.spec.ts:608:3 › page fallback refuses a disabled target without selecting another page control
+  dialog-outside-focus.spec.ts:608:3 › page fallback refuses a none target without selecting another page control
+  dialog-outside-focus.spec.ts:621:1 › page fallback is not attempted by direct component destruction
+  dialog-outside-focus.spec.ts:635:1 › page fallback cannot escape a remaining modal or steal focus on non-top removal
+Total: 45 tests in 1 file

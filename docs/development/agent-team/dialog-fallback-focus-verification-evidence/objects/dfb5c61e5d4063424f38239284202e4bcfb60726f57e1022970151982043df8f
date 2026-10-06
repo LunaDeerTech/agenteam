@@ -1,0 +1,25 @@
+{
+  "phase": "PREPARATION ONLY",
+  "created_utc": "2026-10-06T13:47:40.145105+00:00",
+  "product_base": "870ebbb986f56bb62be34ccdfa2c77819ce995a6",
+  "spec_commit": "3c79fd4069837c4cee0b1ed37e00480ea8f1909f",
+  "readonly_inputs": {
+    "web/src/composables/useLayer.ts": "92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f",
+    "web/src/components/ui/UiDialog.vue": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065",
+    "web/src/components/ui/UiDrawer.vue": "e62cc686f6fe8c3981680c3c88ec4880effbb9e84aedf80a5aff9978939a2def",
+    "web/src/components/ui/UiPopover.vue": "d41aae39719cab8ce3cd7b4924d9e1db4c9ab450fe423a9397b45f752db1970c",
+    "tests/account-captcha-web/dialog-outside-focus.config.js": "42516eb6ed5db78278a3169818a67e579e94a8b8671e067ade97830540adafd5",
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": "ab6f5b4e33d8d554a42ed64a9b874accc9c94bc67f2dc63626db94e96b089d1a",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "tests/account-captcha-web/package.json": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58",
+    "tests/account-captcha-web/package-lock.json": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534",
+    "3c79fd4069837c4cee0b1ed37e00480ea8f1909f:docs/development/work-items/d27-dialog-fallback-focus.md": "9a348d14fcdb3965642c3b2932c5518894001b128bdb9c7ece740be29a426483",
+    "3c79fd4069837c4cee0b1ed37e00480ea8f1909f:docs/development/work-items/d27-system-account-security-ui.md": "5c50265eba42da48535eba3ec8817a9b3d71ab46c5fc0208b5208a57459e44e1"
+  },
+  "plan_sha256": "f109b531a5f558d9a9c86d31e82eb528624dc7c36602684253384700eb384c3a",
+  "dynamic_commands": [],
+  "resources_started": false,
+  "active_author_sources_read": false,
+  "next_gate": "root transfers window after author fixed input and actual cleanup"
+}

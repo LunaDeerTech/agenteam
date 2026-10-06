@@ -1,0 +1,15 @@
+
+Running 3 tests using 1 worker
+
+[1A[2K(node:1245703) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1245703) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/3] independent.spec.ts:173:1 › independent latest ref after whole-page remount keeps the old candidate connected
+[1A[2K[2/3] independent.spec.ts:201:1 › independent actual focus success controls fallback and unmount stays separate
+[1A[2K[3/3] independent.spec.ts:269:1 › independent remaining modal wins over page fallback and null target stays compatible
+[1A[2K  3 passed (6.4s)

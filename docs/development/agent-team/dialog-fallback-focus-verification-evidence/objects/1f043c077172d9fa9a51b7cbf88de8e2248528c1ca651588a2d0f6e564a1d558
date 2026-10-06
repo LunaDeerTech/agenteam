@@ -1,0 +1,75 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/candidate01/web
+
+ ✓ src/tests/independent-fallback.spec.ts > initially null prop resolves at close and replacement wins while the old heading stays connected 179ms
+ ✓ src/tests/independent-fallback.spec.ts > requires actual trigger focus success before suppressing the explicit target 23ms
+ ✓ src/tests/independent-fallback.spec.ts > keeps a valid exact trigger ahead of a supplied target and retains null-prop behavior 38ms
+ ✓ src/tests/independent-fallback.spec.ts > direct unmount never invokes the new target after losing its original trigger 7ms
+ × src/tests/independent-fallback.spec.ts > does not let a valid background target escape the remaining modal 39ms
+   → expected <button type="button" …(2)>…(1)</button> to be <input data-lower></input> // Object.is equality
+ ✓ src/tests/independent-fallback.spec.ts > non-top removal preserves the active upper field without fallback 15ms
+ ✓ src/tests/independent-fallback.spec.ts > rejects no-op fallback without finding an unrelated page control 15ms
+ ✓ src/tests/independent-fallback.spec.ts > rejects foreign fallback without finding an unrelated page control 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/independent-fallback.spec.ts > does not let a valid background target escape the remaining modal
+AssertionError: expected <button type="button" …(2)>…(1)</button> to be <input data-lower></input> // Object.is equality
+
+- Expected
++ Received
+
+- <input
+-   data-lower=""
++ <button
++   aria-label="关闭"
++   class="ui-button ghost icon-only"
++   type="button"
++ >
++   <span
++     class="button-content"
++   >
++     <span
++       aria-hidden="false"
++       class="button-label"
++     >
++       
++       <svg
++         aria-hidden="true"
++         class="ui-icon"
++         fill="none"
++         stroke="currentColor"
++         stroke-linecap="round"
++         stroke-linejoin="round"
++         stroke-width="1.6"
++         viewBox="0 0 24 24"
++       >
++         <path
++           d="M6 6l12 12M18 6L6 18"
+          />
++       </svg>
++       
++     </span>
++     <!--v-if-->
++     <!--v-if-->
++     <!--v-if-->
++     <!--v-if-->
++   </span>
++ </button>
+
+ ❯ src/tests/independent-fallback.spec.ts:150:34
+    148|   document.querySelector<HTMLButtonElement>('[data-upper-close]')!.cli…
+    149|   await nextTick()
+    150|   expect(document.activeElement).toBe(document.querySelector('[data-lo…
+       |                                  ^
+    151|   expect(targetFocus).not.toHaveBeenCalled()
+    152|   expect(host.inert).toBe(true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  14:00:42
+   Duration  1.23s (transform 292ms, setup 0ms, import 371ms, tests 327ms, environment 411ms)
+

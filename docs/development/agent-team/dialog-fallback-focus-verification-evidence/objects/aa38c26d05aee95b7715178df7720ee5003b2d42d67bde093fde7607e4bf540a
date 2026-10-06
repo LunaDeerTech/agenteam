@@ -1,0 +1,182 @@
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { mount, type VueWrapper } from '@vue/test-utils'
+import { defineComponent, nextTick, ref } from 'vue'
+import UiDialog from '../components/ui/UiDialog.vue'
+
+let host: HTMLDivElement
+const mounted: VueWrapper[] = []
+
+beforeEach(() => {
+  host = document.createElement('div')
+  host.id = 'app'
+  document.body.append(host)
+  document.body.style.overflow = 'auto'
+  // Explicit jsdom layout prerequisite only; no browser geometry claim.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+    () => [{ width: 20, height: 10 }] as unknown as DOMRectList,
+  )
+})
+afterEach(() => {
+  for (const wrapper of mounted.splice(0).reverse()) wrapper.unmount()
+  host.remove()
+  document.body.style.overflow = ''
+  vi.restoreAllMocks()
+})
+
+function localHeading() {
+  const node = document.createElement('h1')
+  node.tabIndex = -1
+  node.textContent = 'Explicit local return'
+  host.append(node)
+  return node
+}
+function button() {
+  const node = document.createElement('button')
+  node.textContent = 'Original trigger'
+  host.append(node)
+  return node
+}
+async function dialog(target?: HTMLElement | null, trigger?: HTMLElement) {
+  // jsdom click does not implement browser default focus: establish the capture explicitly.
+  trigger?.focus()
+  if (trigger) expect(document.activeElement).toBe(trigger)
+  const wrapper = mount(UiDialog, {
+    attachTo: host,
+    props: { open: true, title: 'Confirmation', fallbackFocus: target },
+    slots: { default: '<input data-probe-input data-autofocus />' },
+  })
+  mounted.push(wrapper)
+  await nextTick()
+  expect(document.activeElement).toBe(document.querySelector('[data-probe-input]'))
+  return wrapper
+}
+function destroy(wrapper: VueWrapper) {
+  wrapper.unmount()
+  mounted.splice(mounted.indexOf(wrapper), 1)
+}
+
+it('initially null prop resolves at close and replacement wins while the old heading stays connected', async () => {
+  const wrapper = mount(defineComponent({
+    components: { UiDialog },
+    setup: () => ({ open: ref(true), chooseSecond: ref(false), first: ref<HTMLElement | null>(null), second: ref<HTMLElement | null>(null) }),
+    template: `<h1 ref="first" tabindex="-1" data-first>First title</h1>
+      <h2 ref="second" tabindex="-1" data-second>Second title</h2>
+      <UiDialog v-model:open="open" title="Initially open" :fallback-focus="chooseSecond ? second : first">
+        <input data-autofocus /><button data-choose @click="chooseSecond = true">Choose other heading</button>
+        <button data-close @click="open = false">Close normally</button>
+      </UiDialog>`,
+  }), { attachTo: host })
+  mounted.push(wrapper)
+  expect(wrapper.getComponent(UiDialog).props('fallbackFocus')).toBeNull()
+  await nextTick()
+  const first = wrapper.get('[data-first]').element as HTMLElement
+  const second = wrapper.get('[data-second]').element as HTMLElement
+  expect(wrapper.getComponent(UiDialog).props('fallbackFocus')).toBe(first)
+  const oldFocus = vi.spyOn(first, 'focus')
+  document.querySelector<HTMLButtonElement>('[data-choose]')!.click()
+  await nextTick()
+  expect(first.isConnected).toBe(true)
+  expect(wrapper.getComponent(UiDialog).props('fallbackFocus')).toBe(second)
+  document.querySelector<HTMLButtonElement>('[data-close]')!.click()
+  await nextTick()
+  expect(document.activeElement).toBe(second)
+  expect(oldFocus).not.toHaveBeenCalled()
+  expect(wrapper.findComponent(UiDialog).exists()).toBe(true)
+  expect(document.querySelector('.ui-overlay')).toBeNull()
+  expect(host.inert).toBe(false)
+  expect(document.body.style.overflow).toBe('auto')
+})
+
+it('requires actual trigger focus success before suppressing the explicit target', async () => {
+  const target = localHeading(), trigger = button()
+  const wrapper = await dialog(target, trigger)
+  const triggerFocus = vi.spyOn(trigger, 'focus').mockImplementation(() => {})
+  const targetFocus = vi.spyOn(target, 'focus')
+  await wrapper.setProps({ open: false })
+  expect(triggerFocus).toHaveBeenCalledExactlyOnceWith({ preventScroll: true })
+  expect(targetFocus).toHaveBeenCalledExactlyOnceWith({ preventScroll: true })
+  expect(document.activeElement).toBe(target)
+})
+
+it('keeps a valid exact trigger ahead of a supplied target and retains null-prop behavior', async () => {
+  const target = localHeading(), trigger = button()
+  const targetFocus = vi.spyOn(target, 'focus')
+  for (const fallback of [target, null, undefined]) {
+    const wrapper = await dialog(fallback, trigger)
+    await wrapper.setProps({ open: false })
+    expect(document.activeElement).toBe(trigger)
+    expect(targetFocus).not.toHaveBeenCalled()
+    destroy(wrapper)
+  }
+})
+
+it('direct unmount never invokes the new target after losing its original trigger', async () => {
+  const target = localHeading(), trigger = button()
+  const wrapper = await dialog(target, trigger)
+  trigger.remove()
+  const targetFocus = vi.spyOn(target, 'focus')
+  destroy(wrapper)
+  await nextTick()
+  expect(targetFocus).not.toHaveBeenCalled()
+  expect(document.activeElement).not.toBe(target)
+  expect(host.inert).toBe(false)
+  expect(document.body.style.overflow).toBe('auto')
+})
+
+async function twoDialogs() {
+  const wrapper = mount(defineComponent({
+    components: { UiDialog },
+    setup: () => ({ lower: ref(true), upper: ref(true), target: ref<HTMLElement | null>(null) }),
+    template: `<h1 ref="target" tabindex="-1" data-background>Background title</h1>
+      <UiDialog v-model:open="lower" title="Lower" :fallback-focus="target"><input data-lower /></UiDialog>
+      <UiDialog v-model:open="upper" title="Upper" :fallback-focus="target">
+        <input data-upper data-autofocus />
+        <button data-upper-close @click="upper = false">Close upper</button>
+        <button data-lower-close @click="lower = false">Close lower</button>
+      </UiDialog>`,
+  }), { attachTo: host })
+  mounted.push(wrapper)
+  await nextTick()
+  expect(document.activeElement).toBe(document.querySelector('[data-upper]'))
+  return wrapper
+}
+
+it('does not let a valid background target escape the remaining modal', async () => {
+  const wrapper = await twoDialogs()
+  const target = wrapper.get('[data-background]').element as HTMLElement
+  const targetFocus = vi.spyOn(target, 'focus')
+  document.querySelector<HTMLButtonElement>('[data-upper-close]')!.click()
+  await nextTick()
+  const lower = document.querySelector('[data-lower]')!.closest('.ui-dialog')!
+  expect(document.activeElement).toBe(lower.querySelector('button[aria-label="关闭"]'))
+  expect(targetFocus).not.toHaveBeenCalled()
+  expect(host.inert).toBe(true)
+})
+
+it('non-top removal preserves the active upper field without fallback', async () => {
+  const wrapper = await twoDialogs()
+  const target = wrapper.get('[data-background]').element as HTMLElement
+  const targetFocus = vi.spyOn(target, 'focus')
+  const active = document.activeElement
+  document.querySelector<HTMLButtonElement>('[data-lower-close]')!.click()
+  await nextTick()
+  expect(document.activeElement).toBe(active)
+  expect(targetFocus).not.toHaveBeenCalled()
+  expect(document.querySelectorAll('.ui-overlay')).toHaveLength(1)
+})
+
+it.each(['no-op', 'foreign'] as const)('rejects %s fallback without finding an unrelated page control', async (kind) => {
+  const unrelated = button(), trigger = button()
+  const foreign = document.implementation.createHTMLDocument('foreign')
+  const target = kind === 'foreign' ? foreign.createElement('button') : localHeading()
+  if (kind === 'foreign') foreign.body.append(target)
+  const wrapper = await dialog(target, trigger)
+  trigger.remove()
+  const unrelatedFocus = vi.spyOn(unrelated, 'focus')
+  const targetFocus = vi.spyOn(target, 'focus').mockImplementation(() => {})
+  await wrapper.setProps({ open: false })
+  expect(targetFocus).toHaveBeenCalledTimes(kind === 'foreign' ? 0 : 1)
+  expect(unrelatedFocus).not.toHaveBeenCalled()
+  expect(document.activeElement).not.toBe(unrelated)
+  expect(document.activeElement).not.toBe(target)
+})

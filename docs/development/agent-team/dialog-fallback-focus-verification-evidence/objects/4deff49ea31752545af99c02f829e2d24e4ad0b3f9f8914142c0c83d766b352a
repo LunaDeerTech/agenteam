@@ -1,0 +1,299 @@
+import { test as base, expect, type Page } from '@playwright/test'
+import { createHash, randomUUID } from 'node:crypto'
+import { copyFile, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import { dirname, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
+
+const closure = [
+  'src/components/ui/UiDialog.vue',
+  'src/components/ui/UiDrawer.vue',
+  'src/components/ui/UiPopover.vue',
+  'src/components/ui/UiButton.vue',
+  'src/components/ui/UiIcon.vue',
+  'src/components/ui/UiSpinner.vue',
+  'src/components/ui/types.ts',
+  'src/composables/useLayer.ts',
+  'src/styles/tokens.css',
+  'src/styles/base.css',
+  'src/styles/components.css',
+]
+
+const shell = "<script setup lang=\"ts\">\nimport { computed, nextTick, ref } from 'vue'\nimport UiDialog from './src/components/ui/UiDialog.vue'\nconst query = new URLSearchParams(location.search)\nconst mode = query.get('mode') || 'remount'\nconst mounted = ref(true), open = ref(false), layerMounted = ref(true)\nconst first = ref<HTMLElement|null>(null), second = ref<HTMLElement|null>(null), trigger = ref<HTMLElement|null>(null)\nconst latest = ref(false), generation = ref(0), oldDisconnected = ref(false), captured = ref(false)\nconst firstFocus = ref(0), secondFocus = ref(0), noop = ref(false)\nconst lower = ref(false), upper = ref(false), lowerDisabled = ref(false)\nconst target = computed(() => query.get('fallback') === 'none' ? null : latest.value ? second.value : first.value)\nfunction launch(event: Event) {\n  captured.value = document.activeElement === event.currentTarget\n  open.value = true\n}\nasync function restorePage() {\n  const previous = trigger.value\n  mounted.value = false\n  await nextTick()\n  oldDisconnected.value = previous?.isConnected === false\n  generation.value++\n  open.value = true\n  mounted.value = true\n}\n</script>\n<template>\n  <main style=\"padding:24px\">\n    <section v-if=\"mounted\" :key=\"generation\">\n      <h1 ref=\"first\" tabindex=\"-1\" data-testid=\"first\" @focus=\"firstFocus++\">First local heading {{ generation }}</h1>\n      <h2 ref=\"second\" tabindex=\"-1\" data-testid=\"second\" @focus=\"secondFocus++\">Latest local heading {{ generation }}</h2>\n      <template v-if=\"mode !== 'layers'\">\n        <div v-if=\"mode === 'focus'\" :contenteditable=\"noop ? 'true' : undefined\">\n          <span ref=\"trigger\" data-testid=\"open\" :tabindex=\"noop ? undefined : 0\"\n            style=\"display:inline-block;padding:8px;border:1px solid currentColor\" @click=\"launch\">Open confirmation</span>\n        </div>\n        <button v-else ref=\"trigger\" data-testid=\"open\" @click=\"launch\">Open confirmation</button>\n        <button data-testid=\"after\">Current page control</button>\n        <div v-if=\"mode === 'focus'\" contenteditable=\"true\"><span data-testid=\"native-proof\">Inherited editable child</span></div>\n        <output data-testid=\"generation\">{{ generation }}:{{ oldDisconnected }}</output>\n        <output data-testid=\"captured\">{{ captured }}</output>\n        <output data-testid=\"focuses\">{{ firstFocus }}:{{ secondFocus }}</output>\n        <UiDialog v-if=\"layerMounted\" v-model:open=\"open\" title=\"Independent confirmation\" :fallback-focus=\"target\">\n          <input data-testid=\"inside\" data-autofocus />\n          <button data-testid=\"remount\" @click=\"restorePage\">Restore whole page</button>\n          <button data-testid=\"latest\" @click=\"latest = true\">Use latest local heading</button>\n          <button data-testid=\"noop\" @click=\"noop = true\">Remove own focusability</button>\n          <button data-testid=\"destroy\" @click=\"layerMounted = false\">Unmount only dialog</button>\n          <template #footer=\"{ close }\"><button data-testid=\"close\" @click=\"close\">Continue editing</button></template>\n        </UiDialog>\n      </template>\n      <template v-else>\n        <button data-testid=\"lower-open\" @click=\"lower = true\">Open lower</button>\n        <output data-testid=\"focuses\">{{ firstFocus }}:{{ secondFocus }}</output>\n        <UiDialog v-model:open=\"lower\" title=\"Independent lower\" :fallback-focus=\"target\">\n          <input data-testid=\"lower-input\" data-autofocus />\n          <button data-testid=\"upper-open\" :disabled=\"lowerDisabled\" @click=\"upper = true\">Open upper</button>\n        </UiDialog>\n        <UiDialog v-model:open=\"upper\" title=\"Independent upper\" :fallback-focus=\"target\">\n          <input data-testid=\"upper-input\" data-autofocus />\n          <button data-testid=\"disable-lower-trigger\" @click=\"lowerDisabled = true\">Disable lower trigger</button>\n        </UiDialog>\n      </template>\n    </section>\n  </main>\n</template>\n"
+
+type Harness = { origin: string; nonce: string }
+const test = base.extend<{ ownOrigin: void }, { harness: Harness }>({
+  harness: [
+    async ({}, use, workerInfo) => {
+      const webRoot = process.env.AGENTEAM_DIALOG_WEB_ROOT!
+      const runDir = process.env.AGENTEAM_DIALOG_RUN_DIR!
+      const webRequire = createRequire(join(webRoot, 'package.json'))
+      const floatingPackage = webRequire.resolve('@floating-ui/vue/package.json')
+      const floating = JSON.parse(await readFile(floatingPackage, 'utf8')) as {
+        module: string
+      }
+      const { createServer } = await import(pathToFileURL(webRequire.resolve('vite')).href)
+      const { default: vue } = await import(
+        pathToFileURL(webRequire.resolve('@vitejs/plugin-vue')).href
+      )
+      await mkdir(runDir, { recursive: true })
+      const root = await mkdtemp(join(runDir, 'component-'))
+      const nonce = randomUUID()
+      const inputs: Record<string, string> = {}
+      for (const path of closure) {
+        await mkdir(dirname(join(root, path)), { recursive: true })
+        await copyFile(join(webRoot, path), join(root, path))
+        inputs[path] = createHash('sha256')
+          .update(await readFile(join(root, path)))
+          .digest('hex')
+      }
+      await writeFile(join(root, 'Harness.vue'), shell)
+      await writeFile(
+        join(root, 'main.ts'),
+        `import { createApp } from 'vue'; import Harness from './Harness.vue';
+import './src/styles/tokens.css'; import './src/styles/base.css'; import './src/styles/components.css';
+document.body.style.overflow = 'auto'; createApp(Harness).mount('#app');`,
+      )
+      await writeFile(
+        join(root, 'index.html'),
+        `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="harness-nonce" content="${nonce}"></head><body><div id="app"></div><script type="module" src="/main.ts"></script></body></html>`,
+      )
+      const server = await createServer({
+        configFile: false,
+        root,
+        publicDir: false,
+        cacheDir: join(root, '.vite'),
+        clearScreen: false,
+        logLevel: 'error',
+        plugins: [vue()],
+        resolve: {
+          alias: {
+            vue: webRequire.resolve('vue/dist/vue.esm-bundler.js'),
+            '@floating-ui/vue': join(dirname(floatingPackage), floating.module),
+          },
+          dedupe: ['vue'],
+        },
+        server: {
+          host: '127.0.0.1',
+          port: 0,
+          strictPort: true,
+          hmr: false,
+          cors: false,
+          fs: { allow: [root, await realpath(join(webRoot, 'node_modules'))] },
+        },
+      })
+      const lifecycle = join(runDir, `server-${workerInfo.workerIndex}.json`)
+      let origin = ''
+      try {
+        await server.listen()
+        const address = server.httpServer!.address()
+        if (!address || typeof address === 'string') throw new Error('LOOPBACK_ADDRESS_REQUIRED')
+        origin = `http://127.0.0.1:${address.port}`
+        await writeFile(
+          lifecycle,
+          JSON.stringify({ pid: process.pid, origin, nonce, inputs, closed: false }, null, 2),
+        )
+        await use({ origin, nonce })
+      } finally {
+        await server.close()
+        await writeFile(
+          lifecycle,
+          JSON.stringify(
+            {
+              pid: process.pid,
+              origin,
+              nonce,
+              inputs,
+              closed: !server.httpServer?.listening,
+            },
+            null,
+            2,
+          ),
+        )
+        await rm(root, { recursive: true, force: true })
+      }
+    },
+    { scope: 'worker' },
+  ],
+  ownOrigin: [
+    async ({ context, page, harness }, use, testInfo) => {
+      const blocked: string[] = []
+      await context.route('**/*', async (route) => {
+        if (new URL(route.request().url()).origin === harness.origin) await route.continue()
+        else {
+          blocked.push(route.request().url())
+          await route.abort('blockedbyclient')
+        }
+      })
+      await page.addInitScript(() => {
+        const events: object[] = []
+        Object.assign(window, { pointerEvidence: events })
+        const label = (node: EventTarget | null) =>
+          node instanceof Element
+            ? node.getAttribute('data-testid') || node.id || node.className || node.tagName
+            : null
+        for (const type of [
+          'pointerdown',
+          'mousedown',
+          'mouseup',
+          'click',
+          'focusin',
+          'focusout',
+        ]) {
+          for (const capture of [true, false]) {
+            document.addEventListener(
+              type,
+              (event) => {
+                if (events.length < 1000)
+                  events.push({
+                    type,
+                    capture,
+                    target: label(event.target),
+                    active: label(document.activeElement),
+                    defaultPrevented: event.defaultPrevented,
+                  })
+              },
+              capture,
+            )
+          }
+        }
+      })
+      try {
+        await use()
+      } finally {
+        if (!page.isClosed()) {
+          await testInfo.attach('pointer-events', {
+            body: Buffer.from(
+              JSON.stringify(
+                {
+                  blocked,
+                  events: await page.evaluate(
+                    () => (window as unknown as { pointerEvidence: object[] }).pointerEvidence,
+                  ),
+                },
+                null,
+                2,
+              ),
+            ),
+            contentType: 'application/json',
+          })
+        }
+        expect(blocked, 'the component harness must not request other origins').toEqual([])
+      }
+    },
+    { auto: true },
+  ],
+})
+
+async function visitIndependent(page: Page, harness: Harness, query: string) {
+  await page.goto(harness.origin + '/?' + query)
+  await expect(page.locator('meta[name="harness-nonce"]')).toHaveAttribute('content', harness.nonce)
+}
+async function closed(page: Page) {
+  await expect(page.locator('.ui-overlay')).toHaveCount(0)
+  await expect(page.locator('#app')).toHaveJSProperty('inert', false)
+  await expect(page.locator('body')).toHaveCSS('overflow', 'auto')
+}
+async function remountIndependent(page: Page) {
+  await page.getByTestId('open').click()
+  await expect(page.getByTestId('captured')).toHaveText('true')
+  await expect(page.getByTestId('inside')).toBeFocused()
+  const oldTrigger = await page.getByTestId('open').elementHandle()
+  await page.getByTestId('remount').click()
+  await expect(page.getByTestId('generation')).toHaveText('1:true')
+  expect(await oldTrigger!.evaluate(node => node.isConnected)).toBe(false)
+  await expect(page.getByTestId('inside')).toBeFocused()
+  await expect(page.getByTestId('focuses')).toHaveText('0:0')
+  return oldTrigger!
+}
+
+test('independent latest ref after whole-page remount keeps the old candidate connected', async ({ page, harness }) => {
+  await page.setViewportSize({ width: 390, height: 900 })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await visitIndependent(page, harness, 'mode=remount')
+  const oldTrigger = await remountIndependent(page)
+  const previousCandidate = await page.getByTestId('first').elementHandle()
+  await page.getByTestId('latest').click()
+  expect(await previousCandidate!.evaluate(node => node.isConnected)).toBe(true)
+  await page.getByTestId('close').click()
+  await closed(page)
+  await expect(page.getByTestId('second')).toBeFocused()
+  await expect(page.getByTestId('focuses')).toHaveText('0:1')
+  expect(await oldTrigger.evaluate(node => node.isConnected)).toBe(false)
+  await page.keyboard.press('Tab')
+  await expect(page.getByTestId('open')).toBeFocused()
+  await page.getByTestId('after').click()
+  await expect(page.getByTestId('after')).toBeFocused()
+  await previousCandidate!.dispose()
+  await oldTrigger.dispose()
+})
+
+test('independent actual focus success controls fallback and unmount stays separate', async ({ page, harness }, testInfo) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await visitIndependent(page, harness, 'mode=focus')
+  const native = await page.getByTestId('native-proof').evaluate(node => {
+    const target = node as HTMLElement
+    const before = document.activeElement
+    target.focus({ preventScroll: true })
+    return { inheritedEditable: target.isContentEditable, explicitTabindex: target.hasAttribute('tabindex'), selfActive: document.activeElement === target, priorUnchanged: document.activeElement === before }
+  })
+  await testInfo.attach('native-focus-prerequisite', { body: Buffer.from(JSON.stringify(native)), contentType: 'application/json' })
+  expect(native).toEqual({ inheritedEditable: true, explicitTabindex: false, selfActive: false, priorUnchanged: true })
+  await page.getByTestId('open').click()
+  await expect(page.getByTestId('captured')).toHaveText('true')
+  await expect(page.getByTestId('inside')).toBeFocused()
+  await page.getByTestId('noop').click()
+  expect(await page.getByTestId('open').evaluate(node => ({ editable: (node as HTMLElement).isContentEditable, tabindex: node.getAttribute('tabindex'), connected: node.isConnected }))).toEqual({ editable: true, tabindex: null, connected: true })
+  await page.getByTestId('close').click()
+  await closed(page)
+  await expect(page.getByTestId('first')).toBeFocused()
+  await expect(page.getByTestId('focuses')).toHaveText('1:0')
+
+  await visitIndependent(page, harness, 'mode=focus')
+  await page.getByTestId('open').click()
+  await expect(page.getByTestId('captured')).toHaveText('true')
+  await expect(page.getByTestId('inside')).toBeFocused()
+  await page.keyboard.press('Escape')
+  await closed(page)
+  await expect(page.getByTestId('open')).toBeFocused()
+  await expect(page.getByTestId('focuses')).toHaveText('0:0')
+
+  await visitIndependent(page, harness, 'mode=remount')
+  const oldTrigger = await remountIndependent(page)
+  await page.getByTestId('destroy').click()
+  await closed(page)
+  await expect(page.getByTestId('focuses')).toHaveText('0:0')
+  await expect(page.getByTestId('first')).not.toBeFocused()
+  await expect(page.getByTestId('second')).not.toBeFocused()
+  await page.getByTestId('after').click()
+  await expect(page.getByTestId('after')).toBeFocused()
+  await oldTrigger.dispose()
+})
+
+test('independent remaining modal wins over page fallback and null target stays compatible', async ({ page, harness }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await visitIndependent(page, harness, 'mode=layers')
+  await page.getByTestId('lower-open').click()
+  await expect(page.getByTestId('lower-input')).toBeFocused()
+  await page.getByTestId('upper-open').click()
+  await expect(page.getByTestId('upper-input')).toBeFocused()
+  await page.getByTestId('disable-lower-trigger').click()
+  await page.keyboard.press('Escape')
+  const lower = page.getByRole('dialog', { name: 'Independent lower', exact: true })
+  await expect(page.locator('.ui-overlay')).toHaveCount(1)
+  await expect(lower.getByRole('button', { name: '关闭', exact: true })).toBeFocused()
+  await expect(page.getByTestId('focuses')).toHaveText('0:0')
+  await page.keyboard.press('Tab')
+  expect(await lower.evaluate(node => node.contains(document.activeElement))).toBe(true)
+  await page.keyboard.press('Escape')
+  await closed(page)
+  await expect(page.getByTestId('lower-open')).toBeFocused()
+
+  await visitIndependent(page, harness, 'mode=remount&fallback=none')
+  await page.getByTestId('open').click()
+  await expect(page.getByTestId('inside')).toBeFocused()
+  await page.getByTestId('close').click()
+  await closed(page)
+  await expect(page.getByTestId('open')).toBeFocused()
+  await expect(page.getByTestId('focuses')).toHaveText('0:0')
+})

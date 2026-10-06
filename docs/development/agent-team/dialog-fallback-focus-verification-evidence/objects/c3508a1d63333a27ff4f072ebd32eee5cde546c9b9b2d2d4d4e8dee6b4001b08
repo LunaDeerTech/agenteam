@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/candidate01/web/vitest.config.ts",
+    "--reporter=verbose"
+  ],
+  "cwd": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/candidate01/web",
+  "env": {
+    "CI": "1",
+    "TZ": "UTC",
+    "TMPDIR": "/workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/runs/pure01/tmp",
+    "NO_COLOR": "1"
+  },
+  "pid": 1241500,
+  "started_utc": "2026-10-06T14:00:42.383549+00:00",
+  "seconds": 1.759,
+  "exit": 1,
+  "actual_wait_completed": true,
+  "timeout": false
+}

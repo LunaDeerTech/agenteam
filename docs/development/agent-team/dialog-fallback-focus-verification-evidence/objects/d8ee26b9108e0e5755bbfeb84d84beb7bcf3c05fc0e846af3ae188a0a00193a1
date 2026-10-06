@@ -1,0 +1,98 @@
+from pathlib import Path
+import ctypes, datetime, hashlib, json, os, signal, subprocess, threading, time
+
+ROOT = Path(__file__).parent
+WEB = ROOT / 'browser01'
+RUN = ROOT / 'runs/type01'
+RUN.mkdir(parents=True, exist_ok=False)
+(RUN / 'tmp').mkdir()
+NODE = '/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node'
+CLI = '/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/web/node_modules/typescript/bin/tsc'
+ARGV = [NODE, CLI, '--project', str(WEB / 'tsconfig.json')]
+ENV = {'CI': '1', 'TZ': 'UTC', 'TMPDIR': str(RUN / 'tmp'), 'NO_COLOR': '1', 'AGENTEAM_DIALOG_WEB_ROOT': str(ROOT / 'browser-web01/web'), 'AGENTEAM_DIALOG_RUN_DIR': str(RUN), 'AGENTEAM_DIALOG_CHROMIUM': '/usr/lib/chromium/chromium'}
+HASH = lambda path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+def dump(name, value):
+    (RUN / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+def inputs():
+    files = [p for p in WEB.rglob('*') if p.is_file() and '.private-vite-cache' not in p.parts and 'node_modules' not in p.parts]
+    for p in [NODE, CLI, '/workspace/agenteam/web/node_modules/vue/package.json', '/workspace/agenteam/web/node_modules/vitest/package.json', '/workspace/agenteam/web/node_modules/jsdom/package.json', '/workspace/agenteam/web/node_modules/@vue/test-utils/package.json', '/workspace/agenteam/web/node_modules/@vitejs/plugin-vue/package.json', __file__]:
+        files.append(Path(p))
+    return {str(p): HASH(p) for p in sorted(files)}
+
+def processes():
+    result = {}
+    for p in Path('/proc').iterdir():
+        if not p.name.isdigit():
+            continue
+        try:
+            text = (p / 'stat').read_text()
+            tail = text[text.rfind(')') + 2:].split()
+            result[int(p.name)] = {'ppid': int(tail[1]), 'state': tail[0], 'starttime': tail[19]}
+        except (FileNotFoundError, PermissionError, ProcessLookupError):
+            pass
+    return result
+
+assert ctypes.CDLL(None).prctl(36, 1, 0, 0, 0) == 0
+before = inputs()
+dump('input-before.json', before)
+owned = {}
+stop = threading.Event()
+started = datetime.datetime.now(datetime.timezone.utc).isoformat()
+tick = time.monotonic()
+with (RUN / 'raw.log').open('w') as raw:
+    process = subprocess.Popen(ARGV, cwd=WEB, env={**os.environ, **ENV}, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)
+    def monitor():
+        while not stop.is_set():
+            table = processes()
+            parents = {process.pid, os.getpid()}
+            changed = True
+            while changed:
+                changed = False
+                for pid, entry in table.items():
+                    if pid == process.pid or entry['ppid'] in parents:
+                        owned[(pid, entry['starttime'])] = entry
+                        if pid not in parents:
+                            parents.add(pid)
+                            changed = True
+            stop.wait(0.02)
+    thread = threading.Thread(target=monitor)
+    thread.start()
+    timed_out = False
+    try:
+        exit_code = process.wait(timeout=45)
+    except subprocess.TimeoutExpired:
+        timed_out = True
+        os.killpg(process.pid, signal.SIGTERM)
+        try:
+            exit_code = process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            os.killpg(process.pid, signal.SIGKILL)
+            exit_code = process.wait()
+    adopted = []
+    for _ in range(100):
+        try:
+            pid, status = os.waitpid(-1, os.WNOHANG)
+        except ChildProcessError:
+            break
+        if pid:
+            adopted.append({'pid': pid, 'status': status})
+        else:
+            time.sleep(0.02)
+    stop.set()
+    thread.join()
+elapsed = round(time.monotonic() - tick, 3)
+after = inputs()
+dump('input-after.json', after)
+scans = []
+for _ in range(2):
+    table = processes()
+    scans.append([{'pid': pid, **table[pid]} for pid, start in owned if pid in table and table[pid]['starttime'] == start])
+    time.sleep(0.02)
+dump('command.json', {'argv': ARGV, 'cwd': str(WEB), 'env': ENV, 'pid': process.pid, 'started_utc': started, 'seconds': elapsed, 'exit': exit_code, 'actual_wait_completed': True, 'timeout': timed_out})
+dump('cleanup.json', {'owned': [{'pid': pid, 'starttime': start} for pid, start in sorted(owned)], 'scans': scans, 'adopted_waits': adopted, 'subreaper_before_spawn': True})
+result = {'exit': exit_code, 'seconds': elapsed, 'actual_wait_completed': True, 'inputs_unchanged': before == after, 'owned_processes': len(owned), 'owned_two_scans_empty': scans == [[], []], 'adopted_waits': len(adopted), 'raw_sha256': HASH(RUN / 'raw.log')}
+dump('result.json', result)
+print(json.dumps(result))
+raise SystemExit(exit_code if exit_code else (0 if result['inputs_unchanged'] and result['owned_two_scans_empty'] else 2))

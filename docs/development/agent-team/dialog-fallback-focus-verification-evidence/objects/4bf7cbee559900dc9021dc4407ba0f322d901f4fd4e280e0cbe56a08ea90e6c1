@@ -1,0 +1,65 @@
+<script setup lang="ts">
+import { computed, nextTick, ref } from 'vue'
+import UiDialog from './src/components/ui/UiDialog.vue'
+const query = new URLSearchParams(location.search)
+const mode = query.get('mode') || 'remount'
+const mounted = ref(true), open = ref(false), layerMounted = ref(true)
+const first = ref<HTMLElement|null>(null), second = ref<HTMLElement|null>(null), trigger = ref<HTMLElement|null>(null)
+const latest = ref(false), generation = ref(0), oldDisconnected = ref(false), captured = ref(false)
+const firstFocus = ref(0), secondFocus = ref(0), noop = ref(false)
+const lower = ref(false), upper = ref(false), lowerDisabled = ref(false)
+const target = computed(() => query.get('fallback') === 'none' ? null : latest.value ? second.value : first.value)
+function launch(event: Event) {
+  captured.value = document.activeElement === event.currentTarget
+  open.value = true
+}
+async function restorePage() {
+  const previous = trigger.value
+  mounted.value = false
+  await nextTick()
+  oldDisconnected.value = previous?.isConnected === false
+  generation.value++
+  open.value = true
+  mounted.value = true
+}
+</script>
+<template>
+  <main style="padding:24px">
+    <section v-if="mounted" :key="generation">
+      <h1 ref="first" tabindex="-1" data-testid="first" @focus="firstFocus++">First local heading {{ generation }}</h1>
+      <h2 ref="second" tabindex="-1" data-testid="second" @focus="secondFocus++">Latest local heading {{ generation }}</h2>
+      <template v-if="mode !== 'layers'">
+        <div v-if="mode === 'focus'" :contenteditable="noop ? 'true' : undefined">
+          <span ref="trigger" data-testid="open" :tabindex="noop ? undefined : 0"
+            style="display:inline-block;padding:8px;border:1px solid currentColor" @click="launch">Open confirmation</span>
+        </div>
+        <button v-else ref="trigger" data-testid="open" @click="launch">Open confirmation</button>
+        <button data-testid="after">Current page control</button>
+        <div v-if="mode === 'focus'" contenteditable="true"><span data-testid="native-proof">Inherited editable child</span></div>
+        <output data-testid="generation">{{ generation }}:{{ oldDisconnected }}</output>
+        <output data-testid="captured">{{ captured }}</output>
+        <output data-testid="focuses">{{ firstFocus }}:{{ secondFocus }}</output>
+        <UiDialog v-if="layerMounted" v-model:open="open" title="Independent confirmation" :fallback-focus="target">
+          <input data-testid="inside" data-autofocus />
+          <button data-testid="remount" @click="restorePage">Restore whole page</button>
+          <button data-testid="latest" @click="latest = true">Use latest local heading</button>
+          <button data-testid="noop" @click="noop = true">Remove own focusability</button>
+          <button data-testid="destroy" @click="layerMounted = false">Unmount only dialog</button>
+          <template #footer="{ close }"><button data-testid="close" @click="close">Continue editing</button></template>
+        </UiDialog>
+      </template>
+      <template v-else>
+        <button data-testid="lower-open" @click="lower = true">Open lower</button>
+        <output data-testid="focuses">{{ firstFocus }}:{{ secondFocus }}</output>
+        <UiDialog v-model:open="lower" title="Independent lower" :fallback-focus="target">
+          <input data-testid="lower-input" data-autofocus />
+          <button data-testid="upper-open" :disabled="lowerDisabled" @click="upper = true">Open upper</button>
+        </UiDialog>
+        <UiDialog v-model:open="upper" title="Independent upper" :fallback-focus="target">
+          <input data-testid="upper-input" data-autofocus />
+          <button data-testid="disable-lower-trigger" @click="lowerDisabled = true">Disable lower trigger</button>
+        </UiDialog>
+      </template>
+    </section>
+  </main>
+</template>

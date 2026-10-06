@@ -1,0 +1,17 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-dialog-fallback-independent-_vvloy25/candidate02/web
+
+ ↓ src/tests/independent-fallback.spec.ts > initially null prop resolves at close and replacement wins while the old heading stays connected
+ ↓ src/tests/independent-fallback.spec.ts > requires actual trigger focus success before suppressing the explicit target
+ ↓ src/tests/independent-fallback.spec.ts > keeps a valid exact trigger ahead of a supplied target and retains null-prop behavior
+ ↓ src/tests/independent-fallback.spec.ts > direct unmount never invokes the new target after losing its original trigger
+ ✓ src/tests/independent-fallback.spec.ts > does not let a valid background target escape the remaining modal 175ms
+ ↓ src/tests/independent-fallback.spec.ts > non-top removal preserves the active upper field without fallback
+ ↓ src/tests/independent-fallback.spec.ts > rejects no-op fallback without finding an unrelated page control
+ ↓ src/tests/independent-fallback.spec.ts > rejects foreign fallback without finding an unrelated page control
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 7 skipped (8)
+   Start at  14:01:20
+   Duration  1.04s (transform 276ms, setup 0ms, import 342ms, tests 176ms, environment 394ms)
+

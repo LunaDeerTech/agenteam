@@ -1,0 +1,3 @@
+import { defineConfig } from 'vitest/config'
+import vue from '@vitejs/plugin-vue'
+export default defineConfig({ plugins: [vue()], cacheDir: './.private-vite-cache', test: { environment: 'jsdom', include: ['src/tests/independent-fallback.spec.ts'], restoreMocks: true, fileParallelism: false, maxWorkers: 1, testTimeout: 5000 } })

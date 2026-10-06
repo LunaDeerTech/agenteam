@@ -1,0 +1,974 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/dialog-outside-focus.config.js",
+    "rootDir": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/e2e",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list02/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/runs/list02/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/agenteam-dialog-fallback-author-1c9kb4lh/candidate/tests/account-captcha-web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "dialog-outside-focus.spec.ts"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "dialog-outside-focus.spec.ts",
+      "file": "dialog-outside-focus.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "dialog 390 no-preference: outside keeps trigger focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-0ac1728f318eb9ce1dd2",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 309,
+          "column": 7
+        },
+        {
+          "title": "dialog 390 reduce: outside keeps trigger focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-6def122717f3a3e8d74b",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 309,
+          "column": 7
+        },
+        {
+          "title": "dialog 1440 no-preference: outside keeps trigger focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-54d44f57487d61a2565a",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 309,
+          "column": 7
+        },
+        {
+          "title": "dialog 1440 reduce: outside keeps trigger focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-77622d0747ea2f03fde4",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 309,
+          "column": 7
+        },
+        {
+          "title": "dialog: disabled outside and Escape preserve editing and action",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-8f1fd598f26237541e7e",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 345,
+          "column": 3
+        },
+        {
+          "title": "drawer 390 no-preference: outside keeps trigger focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-fcd959dc2da7bb593e06",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 309,
+          "column": 7
+        },
+        {
+          "title": "drawer 390 reduce: outside keeps trigger focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-a3ace9f28b5ecaa28e10",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 309,
+          "column": 7
+        },
+        {
+          "title": "drawer 1440 no-preference: outside keeps trigger focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-a425722d14f783c6f22d",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 309,
+          "column": 7
+        },
+        {
+          "title": "drawer 1440 reduce: outside keeps trigger focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-a622040656d88e0d5d93",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 309,
+          "column": 7
+        },
+        {
+          "title": "drawer: disabled outside and Escape preserve editing and action",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-cd6f66681531b9af5178",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 345,
+          "column": 3
+        },
+        {
+          "title": "two modal layers close only the top and restore the lower trigger",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-6bf68ca8dfe60fdc3c4c",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 374,
+          "column": 1
+        },
+        {
+          "title": "dialog 390 no-preference: initial modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-5ff08bebb41104f13eaf",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "dialog 390 no-preference: remount modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-bdb0460a6a1ba0022f0c",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "dialog 390 reduce: initial modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-8a369d8c256aa50bf43b",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "dialog 390 reduce: remount modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-bb9f4ac9b661e1436ff9",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "dialog 1440 no-preference: initial modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-27e5753a390b74b421b5",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "dialog 1440 no-preference: remount modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-887806df77488b0e5195",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "dialog 1440 reduce: initial modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-4f28a4ce1d43572b0393",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "dialog 1440 reduce: remount modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-278a02e16bd7770ed351",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "drawer 390 no-preference: initial modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-8b78e1b9fa4f9e1ad957",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "drawer 390 no-preference: remount modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-5029818911fe97fec820",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "drawer 390 reduce: initial modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-5bebac80aa61085579f3",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "drawer 390 reduce: remount modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-7c4c2de1d5a6637060d0",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "drawer 1440 no-preference: initial modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-710771468308c22e4c8a",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "drawer 1440 no-preference: remount modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-8f230aa6dad0ed98861b",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "drawer 1440 reduce: initial modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-ca45fc0d959a89880432",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "drawer 1440 reduce: remount modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-f4027bcc0cbf00a08ed9",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 412,
+          "column": 9
+        },
+        {
+          "title": "popover without a modal retains its original anchor on Escape and action",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-0885e7a1cf35fd92420a",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 458,
+          "column": 1
+        },
+        {
+          "title": "top nonmodal popover restores its valid modal anchor and keeps Tab inside",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-20f928e616cb5f437e27",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 472,
+          "column": 1
+        },
+        {
+          "title": "top nonmodal popover with a disabled anchor falls back within its remaining modal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-a78577c259d5f40c9378",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 489,
+          "column": 1
+        },
+        {
+          "title": "dialog: native editable-child focus restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-7da3d7d67b5ef49c34e5",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 507,
+          "column": 5
+        },
+        {
+          "title": "dialog: native editable-host focus restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-5c0da019d6b6bdf6c36d",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 507,
+          "column": 5
+        },
+        {
+          "title": "drawer: native editable-child focus restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-c5206d59e1cdb43ef904",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 507,
+          "column": 5
+        },
+        {
+          "title": "drawer: native editable-host focus restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-b787a9cda964532d93ca",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 507,
+          "column": 5
+        },
+        {
+          "title": "page fallback 390 no-preference: restored single confirmation returns to current title",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-951d6657e134a11f07fb",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 551,
+          "column": 5
+        },
+        {
+          "title": "page fallback 390 reduce: restored single confirmation returns to current title",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-65c18723417c462831d5",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 551,
+          "column": 5
+        },
+        {
+          "title": "page fallback 1440 no-preference: restored single confirmation returns to current title",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-c4a295a1e05b1713477d",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 551,
+          "column": 5
+        },
+        {
+          "title": "page fallback 1440 reduce: restored single confirmation returns to current title",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-f2b8c48ee40aaadc68ef",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 551,
+          "column": 5
+        },
+        {
+          "title": "page fallback preserves the exact live trigger before the explicit target",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-920d7e7e09e6d72883a9",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 579,
+          "column": 1
+        },
+        {
+          "title": "page fallback reads the replacement local ref at close",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-83bc702727dfe04cdf90",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 591,
+          "column": 1
+        },
+        {
+          "title": "page fallback refuses a hidden target without selecting another page control",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-94b556258099003d7525",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 608,
+          "column": 3
+        },
+        {
+          "title": "page fallback refuses a disabled target without selecting another page control",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-784eedf2feaba3e13acd",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 608,
+          "column": 3
+        },
+        {
+          "title": "page fallback refuses a none target without selecting another page control",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-3577828592e8685704b1",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 608,
+          "column": 3
+        },
+        {
+          "title": "page fallback is not attempted by direct component destruction",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-2270e8c411579b75df8d",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 621,
+          "column": 1
+        },
+        {
+          "title": "page fallback cannot escape a remaining modal or steal focus on non-top removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-79ebb90e548735006d09",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 635,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T13:57:18.644Z",
+    "duration": 119.923,
+    "expected": 0,
+    "skipped": 45,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

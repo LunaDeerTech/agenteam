@@ -1,0 +1,34 @@
+共享 Dialog fallbackFocus 作者验证通过，等待独立验收。固定组件基线 `870ebbb986f56bb62be34ccdfa2c77819ce995a6`；五候选、11 文件 browser 闭包及锁清单见 `input01/manifest.json`（SHA `604a4738761e428b0bff3f8ea64319ae07f6e8e072b97dead925c309c09f6860`），所有实际运行只消费此隔离固定闭包，没有账号安全活动源码/dist。当前已停止写入，无运行命令或自有真实资源，浏览器窗口交回主线程。
+
+UiDialog 用 toRef 传递可选 HTMLElement/null；useLayer 仅正常关闭、顶层、无剩余 modal、非空目标时进入新分支，合法原 trigger 实际聚焦成功优先，否则同步尝试最新页面目标。目标复用严格布局/祖先/禁用/实际 activeElement 检查，并拒绝跨 document、BODY/HTML；无参数、直接 unmount、剩余 modal 与非顶层路径保持原规则。没有新 timer、扫描页面、CSS/Tab/开层顺序或其他共享 API 变化。
+
+原始失败永久保留：old01 仅 grep discovery 前提失败（exit1），没有 browser/server；其 clean=false 因没有 server lifecycle，实际所属 PID 两扫空、端口不变、TMP 已删。old02 为原固定组件真实焦点 RED：重挂后正常关闭已清 overlay/inert/滚动锁，当前标题 toBeFocused 失败；actual1/7.608s、输入一致、资源双清。root 的先 list 指令到达时 old02 已启动，没有追填先执行事实；候选前 list01 确认该精确案例1项、list02 确认全45项。old02 spec 后续仅按项目 Prettier 格式还原，规范化字节完全相等，壳内容与断言语义不变，证明见 `old02-probe-format-equivalence.json`。
+
+pure01 为112/114，两个新增用例在 inherited 布局 spy 上重复 spyOn，误让后备目标也无布局；仅改节点自有 getClientRects，原输入/raw 保留。pure02 的 Dialog102及旧 components12共114/114通过。完整隔离 web 格式、vue-tsc+生产 build、browser type及list均通过；没有修改旧 components setup。旧 pure 前缀、browser 原动作/断言逐字节不变。
+
+new01 真实 Chromium 全45项通过（原34＋新11），含旧红原断言、Escape/action/真实遮罩、390/1440×normal/reduced-motion、当前 ref 更换、有效 trigger 优先、无效后备、直接卸载、余 modal/非顶层和后续用户焦点。actual0/123.627s，45s/test、expect3s、worker1/retry0保持。subreaper 在 Node 启动前设置；145个所属 PID/starttime、4次 adopted 实际 wait；server.close=true、两次所属进程扫描为空、端口基线不变、短TMP已删，输入前后一致。历史 PPID1 Z 没有触碰或声称回收。
+
+| 运行 | actual exit | 总耗时 | 终局 |
+| --- | --- | --- | --- |
+| `browser-type01` | 0 | 2.517s | clean |
+| `build01` | 0 | 9.432s | clean |
+| `format01` | 0 | 5.924s | clean |
+| `list01` | 0 | 1.893s | clean |
+| `list02` | 0 | 1.897s | clean |
+| `new01` | 0 | 123.627s | clean |
+| `old01` | 1 | 2.008s | see retained failure |
+| `old02` | 1 | 7.608s | clean |
+| `pure01` | 1 | 4.055s | clean |
+| `pure02` | 0 | 4.238s | clean |
+
+所有原 argv/env/raw/source/前后输入/exit/cleanup 在各 `runs/<name>/`；哈希索引见 `author-report.json`。原锁模块7094文件/28符号链接最终逐项未变；browser/server实际复制的11源与冻结清单逐SHA一致。组件文档链接及五源 git diff --check 通过，差量见 `five-paths.diff`。
+
+五源精确SHA：
+
+- `docs/development/frontend/components.md`: `0a20dc50008737e56d094e641dc2354816596553785fa4c3bf5de2d3d3784e96`
+- `tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts`: `f2db7a6e2f0123f1628a6c7c9a8d32c257373b4867c8710be53a9dd3030e57bc`
+- `web/src/components/ui/UiDialog.vue`: `2009c74dbb2f2cd5ae351b435eb3d801f9dce3ea0a9c91c73a055371fed211b0`
+- `web/src/composables/useLayer.ts`: `aa3e2624666350d289c571c99516776423ef79d58f095308478d2593a5dcd7f3`
+- `web/src/tests/dialog-outside-focus.spec.ts`: `50e1e4da805ad3229322cc6429fab9fc476859df2f70f51f8b024bba3ff8ec59`
+
+本结果仅为共享组件作者证据，不代表实际 Account Session恢复、BFCache或业务卡通过；UiDrawer/Popover封装器未新增typed接口。没有 Git写、后端资源或外部网络依赖。本根最终报告及 input01/原运行证据停止写入，供独立验收读取。
