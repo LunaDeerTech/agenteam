@@ -1,8 +1,8 @@
 # D27：System SMTP 配置与私有凭据 UI
 
-状态：rev1，2026-10-06 已获独立静审通过（STATIC PASS）并由主线程采纳；被审全文 SHA256 `c1fd5785c1be9796e872c1d21b38106a51ccf1bfa1954e68e0e5178a9a4f72d8`，技术§1–7 SHA256 `896a1c38496be34f50171decdfd452726797eba23b6c1dc1c7e0adae3769b62e`。本次仅同步页首采纳状态，技术正文保持被审原字节；architecture_worker仅获本卡页首唯一写权。账号安全产品尚未完整接受，下列29条仍是候选路径，产品实施、真实资源与后继投递页面均未授权。
+状态：rev2，2026-10-06，**已独立静审通过（STATIC PASS），主线程已采纳规格**；被审全文 SHA256 `a6bef13c86fd60941c4ab6cb5434c339b4793118a74a059800ee0e6287bee9c5`，技术§1–7 SHA256 `910b51cf93f8a97e04641f31d9bc1e76f9b9a7c95850b2a72edad7da3e269d86` 保持原字节。本次仅更新页首，正文关于本rev2待采纳的原时态以本页首为准；产品实施与资源仍须主线程另授。原rev1已获STATIC PASS并采纳，被审全文 SHA256 `c1fd5785c1be9796e872c1d21b38106a51ccf1bfa1954e68e0e5178a9a4f72d8`、原技术§1–7 SHA256 `896a1c38496be34f50171decdfd452726797eba23b6c1dc1c7e0adae3769b62e`，接受副本固定于Git `eecca498`。本次只更新已验基线/接缝、显式焦点后备与取消读取终态及对应验收；§2–4的凭据、SMTP写与原请求恢复契约保持原字节。29候选路径不扩，产品实施、真实资源与后继投递页面仍未授权。
 
-固定后端/产品基线为 `870ebbb986f56bb62be34ccdfa2c77819ce995a6`，沿已接受迁移1–19。[账号安全 rev1](d27-system-account-security-ui.md)已获独立静审/采纳，技术§1–7 SHA256 `e83033c44b4eff79987913dc9baf9f2a82fe4a5d77a5e175e37663d22c7dbc1a`；其产品尚未完整接受。本卡仅依该已定契约规划第八依赖、七叶子/三组、第十一return与共同确认生命周期，不消费其活动源码。实施前必须等待账号安全完整接受，固定实际提交并复核共享签名、菜单断言和候选取舍，再由主线程另授唯一作者与资源窗口。
+固定后端/产品基线为 `40c904c0dd88420fc621f40c0a737d243d514ec1`，账号安全27路径已独立接受、提交推送且远端一致，沿已接受迁移1–19。该基线包含Dialog显式后备目标 `fd32120` 与Selection取消读取恢复 `debbb28`；已核第七依赖及独立域、六叶子/三组、十return与当前View确认接缝。本卡在其后追加第八依赖、SMTP第七叶子和第十一return；不消费活动候选。前置产品已满足，但本修订独立采纳、唯一作者和资源窗口仍须主线程另授。
 
 ## 1. 完整结果与真实依赖
 
@@ -11,13 +11,13 @@
 | 依赖 | 证据与门槛 |
 | --- | --- |
 | 正式 Account/SMTP 服务 | **已满足**，[D07 当前范围](d07-account-session-smtp.md#当前进度)的真实根、当前管理员、SMTP singleton/版本、Secret、命令幂等、typed Audit 与迁移1–19已接受；B03/B04 的正式服务在固定基线内。本卡不新增后端、迁移、凭据端口或发送资源。 |
-| 现有系统壳、Cookie owner、焦点 | **已满足**，固定基线含已接受用户、邀请、Provider、Model及Selection；沿[共享模态恢复](d27-modal-focus-restoration.md)、[个人设置](d26-personal-settings.md)与[Provider私有材料纪律](d27-system-provider-management-ui.md#3-固定-api严格解析与材料预算)。SettingsShell/Ui/useLayer只读。 |
-| 账号安全共享前端接缝 | **产品门槛未满足**，仅沿[账号安全 §5–7](d27-system-account-security-ui.md#5-共享-owner身份与确认生命周期)的第七依赖、独立域、平台配置组/六叶子/十return、App期状态及View末尾确认宿主。接受后核实际导出/清理分类/旧测试，不把规格或活动源码当已验能力。 |
+| 现有系统壳、Cookie owner、焦点 | **已满足**，固定基线含已接受用户、邀请、Provider、Model、Selection及其 `debbb28` [取消读取恢复](d27-model-selection-cancelled-read-recovery.md#2-最小取消恢复契约)；沿[共享模态恢复](d27-modal-focus-restoration.md)、`fd32120` [显式后备目标](d27-dialog-fallback-focus.md#2-最小-api-与恢复生命周期)、[个人设置](d26-personal-settings.md)与[Provider私有材料纪律](d27-system-provider-management-ui.md#3-固定-api严格解析与材料预算)。SettingsShell/Ui/useLayer只读。 |
+| 账号安全共享前端接缝 | **已满足**，`40c904c` 的[账号安全 §5–7](d27-system-account-security-ui.md#5-共享-owner身份与确认生命周期)对应正式第七参数 `accountSecurityAPI`、`auth.system.accountSecurity` 独立域、平台配置组/六叶子/十return、App期状态及View末常驻确认/最新本地fallback。本卡只追加自身域和精确路由，原清理、确认与实际尾部保持。 |
 | 已定产品规则 | [SMTP Delivery](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)、[D07 SMTP工程契约](d07-account-session-smtp-design.md#8-smtp-配置outbox-和真实投递状态机)、[系统设置 §6](../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置)、[通用设置](../../frontend-design/layouts/settings-shell.md)、[样式](../../frontend-design/styles/README.md)、[组件接口](../frontend/components.md)及[D27计划](../development-plan.md#d27-业务页面与设置)。本卡范围没有待用户决定的新产品含义。 |
 
 固定源码依据为 [SMTP服务](../../../internal/central/account/smtp_settings.go)、[HTTP三口及DTO](../../../internal/central/account/http_system.go)、[正式契约](../../../internal/central/account/contract/delivery.go)、[Account OpenAPI](../../../api/openapi/account.json)与[既有真实管理用例](../../../tests/account/http_admin_test.go)。静态核对不冒充本UI的动态验收；旧真实用例已覆盖保存/停用、凭据不回显、旧请求重放的历史applied_version与较新current settings、权限撤销后拒绝重放。
 
-后继独立完整结果承担测试收件人/显式测试发送、投递任务读取/人工重试及真实SMTP协议组合；本卡不写其规格或实现，不提供测试/连接检查按钮、空投递区或假成功入口。其202/job版本、unknown与可能重复投递必须按正式D07另行验收；本卡接受不代表全SMTP页面、D27或Runtime已完成。
+后继独立完整结果承担测试收件人/显式测试发送、投递任务读取/人工重试及真实SMTP协议组合；新邮件任务管理读口不是本配置首卡的依赖。本卡不写其规格或实现，不提供测试/连接检查按钮、空投递区或假成功入口。其202/job版本、unknown与可能重复投递必须按正式D07另行验收；本卡接受不代表全SMTP页面、D27或Runtime已完成。
 
 ## 2. 页面、配置与凭据行为
 
@@ -78,19 +78,21 @@ unconfigure保留捕获的两个重试值，重复重放不再次清除后来保
 
 ## 5. 第八依赖、身份与共同确认生命周期
 
-在账号安全接受的前七个依赖后追加第八个可选 `SystemSMTPSettingsAPI`（默认正式工厂），保持旧参数顺序/调用方。新增明确 `smtp-settings-read/write`、独立revision/私有intent/材料/progress；不落入personal、账号安全或其它system域的默认分类。三API及恢复Session检查都走唯一Cookie owner，无第二队列、认证缓存、直接fetch或任意特权回调。
+固定 `40c904c` 的 `createSessionController(api, systemAPI, invitationAPI, providerAPI, modelAPI, selectionAPI, accountSecurityAPI)` 七参数顺序后，追加第八个可选 `SystemSMTPSettingsAPI`（默认正式工厂），保持旧参数顺序/调用方。新增明确 `smtp-settings-read/write`、独立revision/私有intent/材料/progress；不落入personal、账号安全或其它system域的默认分类。三API及恢复Session检查都走唯一Cookie owner，无第二队列、认证缓存、直接fetch或任意特权回调。
 
 沿原30秒可见预算；取消、超时、放弃、离页或身份失效可停止可见等待并隔离代次，但fetch/body read/cancel实际finally未join前不能释放owner或让新身份/其他域越过。初次未派发busy可延迟一次，离页/失效后不续发、不循环重试。各域abandon双向隔离，SMTP不可撤个人/users/邀请/Provider/Model/Selection/账号安全；反向同样成立。App.dispose/auth.leave保持全局清理和原退出协议。
+
+沿 `debbb28` 已验取消职责：同身份页面仍保留时，放弃/取消使本次读取代次失效，同步把该批无当前有效读取的loading收敛为可显式重读的error，不能等已失效catch/finally晚写；保留已确认的applied结果和仍有效观察，旧续体不清或覆盖新代次。读取取消本身不销毁§4仍可恢复的写意图/密码，明确放弃写仍按§4处理。实际owner未join前保持busy，不为恢复放宽保存条件；除原attach恢复门禁外，取消不自动补发GET，须显式重读才能取得新的编辑基线。
 
 两写口均纳入当前完整identity+owner generation的CSRF_FAILED护栏；当前及同身份迟到401沿既有Cookie规则，旧身份/旧代次失败不污染新账号。当前403清全部系统私有状态，新增本域观察/草稿/材料/intent也须清，发布原身份绑定拒绝而不改User.role或自动登出；成功Session重验才能恢复资格。真正换账号、同User换Session/epoch、CSRF失效、失权、注销/dispose销毁旧材料与恢复资格，但不越过旧实际尾部；临时checking仅隐藏受保护内容并保留同身份App期状态。
 
 App创建/provide `createSystemSMTPSettings`，持有普通草稿/观察、安全材料状态、确认状态与Promise；敏感值/请求仍在私有owner。View只承载DOM，本叶子且身份确认才attach；dirty含字段/策略/配置模式变化、新材料、显式移除、冲突草稿、进行中/未确认写。取消、覆盖重载、菜单/本人入口/退出与浏览器返回统一放弃确认，路由确认先于Session重验，beforeunload沿原原生提示。停用确认独立于统一放弃确认，捕获目标及策略后不随下层输入变化；两者至多各有一个待决Promise。
 
-View模板末尾依序放停用确认、统一放弃确认UiDialog；App不新增常驻Dialog。checking共同卸载全部本域模态，App的草稿/原密码/Promise保留，detach不能当真实离页销毁；检查失败时原App恢复按钮可用、无残留overlay/inert/滚动锁。同完整identity/admin恢复后同序重挂，确认仍顶层/可响应，零新写/key/自动答案，私有密码不回显DOM。确认打开时mounted标题不抢焦点；await后DOM续体核本实例仍挂载/节点当前可用，确认关闭只消费共享恢复，不用全局querySelector、手工focus或反复重挂修层序。真正离页/新身份/失权/dispose以false结算所有待决确认并清旧状态，旧导航/退出续体不能迁到新身份，继续/放弃/停用至多结算一次。
+View模板末尾依序放停用确认、统一放弃确认UiDialog；App不新增常驻Dialog。两个Dialog组件在该View内保留，不加以open为条件的外层v-if，只以open表达正常关闭，内部overlay仍按open挂载；不能把正常关闭变成组件卸载。两者均传当前View已有 `tabindex=-1` 标题的最新 `fallbackFocus`：本实例仍存活、personalContext=current、完整UserID/SessionID/epoch与本实例捕获身份一致、当前admin且system未拒绝才提供，否则null。节点只来自当前本地ref，不在open时snapshot、不存入App/controller；共享层仍优先合法且实际受焦点的原trigger，有剩余modal时不越界，unmount不尝试新增fallback。checking共同卸载全部本域模态，App的草稿/原密码/Promise保留，detach不能当真实离页销毁；检查失败时原App恢复按钮可用、无残留overlay/inert/滚动锁。同完整identity/admin恢复后同序重挂，确认仍顶层/可响应，零新写/key/自动答案，私有密码不回显DOM。确认打开时mounted标题不抢焦点；await后DOM续体核本实例仍挂载/节点当前可用，确认关闭只消费共享恢复，不用全局querySelector、手工focus或反复重挂修层序。真正离页/新身份/失权/dispose以false结算所有待决确认并清旧状态，旧导航/退出续体不能迁到新身份，继续/放弃/停用至多结算一次。
 
 ## 6. 唯一候选路径与实施移交
 
-以下29条仅为规格候选。账号安全完整接受后先核第八依赖、公开类型/分域分类、平台组六叶子/十return与旧测试准确位置；无必要候选可剔除，新增路径/公共语义先报主线程。共享产品文件/测试及README与上游串行，不消费未验活动实现。
+以下原29候选路径已按固定 `40c904c` 核对，全部仍有必要；第八依赖、公开类型/分域分类、平台组六叶子/十return与旧断言位置已明确，尚未授产品实施。新增路径/公共语义仍先报主线程，共享产品文件/测试及README由主线程移交唯一作者，不消费未验活动实现。
 
 | # | 路径 | 唯一用途 |
 | --- | --- | --- |
@@ -106,35 +108,35 @@ View模板末尾依序放停用确认、统一放弃确认UiDialog；App不新�
 | 10 | `web/src/tests/system-smtp-settings-client.spec.ts`（新） | 三wire、严格DTO/编码预算、applied/current及传输尾部。 |
 | 11 | `web/src/tests/system-smtp-settings-state.spec.ts`（新） | 生产controller+受控transport，材料/原重放/冲突/双向owner/身份屏障。 |
 | 12 | `web/src/tests/system-smtp-settings.spec.ts`（新） | 真实App/router/controller的配置/策略/确认重挂与菜单/return。 |
-| 13 | `web/src/tests/system-user-directory.spec.ts` | 仅七叶子/新合法目标兼容，默认用户/权限保持。 |
-| 14 | `web/src/tests/system-invitations.spec.ts` | 仅菜单七叶子/新目标兼容，分组仍3，原写/恢复/cohost保持。 |
-| 15 | `web/src/tests/system-providers.spec.ts` | 同上菜单兼容，原两步凭据/恢复断言保持。 |
-| 16 | `web/src/tests/system-models.spec.ts` | 同上菜单兼容，原CRUD/impact/替代/恢复保持。 |
-| 17 | `web/src/tests/system-model-selection.spec.ts` | 同上菜单兼容，原选择器引用/恢复保持。 |
-| 18 | `web/src/tests/system-account-security.spec.ts` | 待接受核实：仅实际菜单/合法目标兼容，原配置/恢复/确认断言保持。 |
-| 19 | `web/src/tests/personal-settings.spec.ts` | 十项return增十一项的说明/正反例，旧本人草稿/退出保持。 |
+| 13 | `web/src/tests/system-user-directory.spec.ts` | 仅固定40c904c:216所在菜单数组追加SMTP；默认用户/权限保持。 |
+| 14 | `web/src/tests/system-invitations.spec.ts` | 仅固定40c904c:286菜单追加SMTP，280分组仍3；原写/恢复/cohost保持。 |
+| 15 | `web/src/tests/system-providers.spec.ts` | 仅固定40c904c:327菜单追加SMTP及319相关六叶/十return说明改七叶/十一return，328分组仍3；原两步凭据/恢复保持。 |
+| 16 | `web/src/tests/system-models.spec.ts` | 仅固定40c904c:449菜单追加SMTP及相关菜单说明，450分组仍3；原CRUD/impact/替代/恢复保持。 |
+| 17 | `web/src/tests/system-model-selection.spec.ts` | 仅固定40c904c:527菜单追加SMTP及相关菜单说明，528分组仍3；原引用/恢复及debbb28取消强断言保持。 |
+| 18 | `web/src/tests/system-account-security.spec.ts` | 仅固定40c904c:266菜单追加SMTP；267起三组名称及原配置/恢复/确认/合法目标断言保持。 |
+| 19 | `web/src/tests/personal-settings.spec.ts` | 固定40c904c:474起十项return说明增十一项，并加SMTP精确目标正反例；旧本人草稿/退出保持。 |
 | 20 | `tests/account/system_smtp_settings_web_test.go`（新） | 下节真实顶层及自有设置/命令/Secret引用/Audit旁证。 |
 | 21 | `tests/account/system_smtp_settings_web_fixture_test.go`（新） | 正式隔离fixture、专用launcher与有界响应控制，不增SMTP socket或改旧fixture。 |
 | 22 | `tests/account-captcha-web/system-smtp-settings.config.js`（新） | 专用Playwright配置/私有输出，原预算保持。 |
 | 23 | `tests/account-captcha-web/e2e/system-smtp-settings.spec.ts`（新） | 生产dist+真实后端的保存/凭据/恢复/权限/导航布局。 |
-| 24 | `tests/account-captcha-web/e2e/system-invitations.spec.ts` | 暂候选：旧Drawer全链接仅6→7；870ebbb:1528为5、账号安全约定改6，待核接受源。 |
-| 25 | `tests/account-captcha-web/e2e/system-providers.spec.ts` | 暂候选：旧全系统链接仅6→7；870ebbb:1192为5、账号安全约定改6。 |
-| 26 | `tests/account-captcha-web/e2e/system-models.spec.ts` | 暂候选：旧系统/Drawer两处仅6→7；870ebbb:1923/1991为5、账号安全约定改6。 |
-| 27 | `tests/account-captcha-web/e2e/system-model-selection.spec.ts` | 暂候选：旧系统/Drawer两处仅6→7；870ebbb:1864/1963为5、账号安全约定改6。 |
-| 28 | `tests/account-captcha-web/e2e/system-account-security.spec.ts` | 待接受核实：仅实际全系统/Drawer六链接6→7，不存在则剔除；其它断言不改。 |
+| 24 | `tests/account-captcha-web/e2e/system-invitations.spec.ts` | 固定40c904c:1528的Drawer全链接仅6→7；其后Tab/Escape/遮罩/焦点原断言保持。 |
+| 25 | `tests/account-captcha-web/e2e/system-providers.spec.ts` | 固定40c904c:1192的全系统链接仅6→7，其余原断言保持。 |
+| 26 | `tests/account-captcha-web/e2e/system-models.spec.ts` | 固定40c904c:1923/1991的系统/Drawer两处仅6→7，其余原断言保持。 |
+| 27 | `tests/account-captcha-web/e2e/system-model-selection.spec.ts` | 固定40c904c:1922/2081的系统/Drawer两处仅6→7，debbb28取消恢复与其它原强断言保持。 |
+| 28 | `tests/account-captcha-web/e2e/system-account-security.spec.ts` | 固定40c904c:1112/1189的系统/Drawer两处仅6→7，三组及已验会话/焦点/身份原强断言保持。 |
 | 29 | `docs/development/frontend/README.md` | 产品独立接受后最后同步三口/七叶子/十一return、实际证据和后继未交付边界。 |
 
 旧菜单变更不增加分组数量，不用重复组/CSS隐藏/削减链接规避计数；旧Tab困陷、Escape/遮罩、焦点、确认与身份断言保持。实施者必读[Vue技能](../../../.agents/skills/agenteam-vue-development/SKILL.md)、[Vue测试技能](../../../.agents/skills/vue-testing-best-practices/SKILL.md)，独立验收读[验证技能](../../../.agents/skills/agenteam-verification/SKILL.md)与可用Playwright技能。后端/OpenAPI/迁移、SettingsShell/Ui/useLayer/全局CSS、旧API/controller/View、旧fixture/driver/脚本、锁及归档只读；不新增依赖、DDL或改台账/continuation。
 
 ## 7. 高风险验收与资源门槛
 
-开工固定账号安全完整接受提交、实际候选清单和接缝；作者运行 `npm run check --prefix web`，仅格式化授权路径。Go1.27.1/local，`GOPROXY=off GOSUMDB=off GOFLAGS=-mod=readonly`下精确integration-tag race编译/适用vet，准备阶段单列。纯测、静审、编译不冒充真实HTTP/事务/浏览器通过。
+开工固定账号安全完整接受 `40c904c`、上述29路径和接缝，并等待本rev2独立采纳及主线程另授；作者运行 `npm run check --prefix web`，仅格式化授权路径。Go1.27.1/local，`GOPROXY=off GOSUMDB=off GOFLAGS=-mod=readonly`下精确integration-tag race编译/适用vet，准备阶段单列。纯测、静审、编译不冒充真实HTTP/事务/浏览器通过。
 
 纯测覆盖12字段Settings/11种可能PUT成员/3字段unconfigure/2字段Result闭集，configured两分支、username/credential一致、host/邮箱/Unicode/整数字符串/port/最大version和密码UTF-8上下界；合法空格、空password保持、remove与替换互斥、缺retry拒绝。核32KiB/16KiB/600000B与旧端点预算不变，完整编码预算/无变化/非法输入/双击零intent或派发，坏媒体/状态/截断/非法DTO/超限read/cancel实际尾部。当前更高版本/相反configured状态仍可确认原applied，错singleton/version/缺settings拒绝；公开state/错误/DOM恢复/storage中无材料或原key/body。
 
-生产controller+受控transport分别阻塞fetch、body read、cancel；30秒可见结束/取消/放弃/身份变化后owner仍忙，原实际join前所有GET/写/Session/其它域不得越过，晚到零发布。单列写后GET报错（含not_started）仍保留原password/body/key的纯机制例，与真实接受后丢失响应证据分开；不能把代理故障称为服务内真实读故障。覆盖明示写前业务拒绝/首次VERSION_CONFLICT/先未知再拒绝、原CSRF/同User新Session、当前及迟到401/403、全部既有域双向abandon及App总dispose，材料只在合法恢复阶段保留、终局后清引用。
+生产controller+受控transport分别阻塞fetch、body read、cancel；30秒可见结束/取消/放弃/身份变化后owner仍忙，原实际join前所有GET/写/Session/其它域不得越过，晚到零发布。单列写后GET报错（含not_started）仍保留原password/body/key的纯机制例，与真实接受后丢失响应证据分开；不能把代理故障称为服务内真实读故障。覆盖明示写前业务拒绝/首次VERSION_CONFLICT/先未知再拒绝、原CSRF/同User新Session、当前及迟到401/403、全部既有域双向abandon及App总dispose，材料只在合法恢复阶段保留、终局后清引用。另用native body/cancel屏障核公开放弃/读取取消：同步离开本次无有效读取的loading，实际尾部join前仍busy，旧结果零发布；join后显式重读恢复，不自动补发、不弱化保存前置；读取取消本身不清历史applied或尚合法原intent/密码，明确放弃写则仍按§4销毁。
 
-真实App页面纯测分别打开停用确认和dirty/未确认放弃确认，再对生产listener合成pageshow并保持Session GET待决：checking无本域overlay，失败App恢复可用，同完整身份恢复仍可按钮/键盘响应、零新PUT/POST及材料回显。覆盖待决路由/退出、真实失权/换身份/dispose的false终点、旧实例await续体及标题不抢焦点；不直接结算Promise替代交互，jsdom层序证据与真实浏览器焦点分列。
+真实App页面纯测分别打开停用确认和dirty/未确认放弃确认，再对生产listener合成pageshow并保持Session GET待决：checking无本域overlay，失败App恢复可用，同完整身份恢复仍可按钮/键盘响应、零新PUT/POST及材料回显。覆盖待决路由/退出、真实失权/换身份/dispose的false终点、旧实例await续体及标题不抢焦点；两Dialog保持实例、正常open关闭，fallback最初null后更新为当前本地ref，同身份重挂且无剩余modal、原trigger不可用时，正常关闭精确回当前标题且Tab可达控件；仍有modal沿其内恢复，原合法trigger优先与卸载/失权不fallback均有阴性证据。不直接结算Promise替代交互，jsdom层序证据与真实浏览器焦点分列。
 
 | 新真实顶层 | 必须覆盖 |
 | --- | --- |
@@ -143,10 +145,10 @@ View模板末尾依序放停用确认、统一放弃确认UiDialog；App不新�
 | `TestAccountSystemSMTPSettingsWebConcurrency` | 两个真实管理员同version，以不同key分别配置/替换或停用，只有先提交成功，后者真实409保留普通草稿/新材料。显式当前读取/人工核对后重新编辑，新写仍正式裁决；旁证设置、已提交命令、凭据引用和Audit原子且无拒绝后的部分配置，不SQL制造version/值。 |
 | `TestAccountSystemSMTPSettingsWebOutcomeRecovery` | 自有同源代理在真实PUT接受后有界丢失响应，另一正式会话unconfigure/再配置推进当前；原页保持精确材料，Session/GET只观察，原key/body/password显式重放确认原applied而显示较新current，命令/Audit不重复。另以真实unconfigure接受后响应丢失、后续正式PUT复原配置，再原POST重放确认历史停用但当前仍配置；观察失败/明确放弃不回滚、不自动新key，不调用lookup/test/jobs。 |
 | `TestAccountSystemSMTPSettingsWebAuthorityAndIdentity` | 普通用户入口/直链零管理请求；正式Session撤销/精确自有admin失权后真实GET/新写/原请求重放拒绝，清材料/草稿/intent。换账号/同User新Session无旧恢复，新增两写CSRF护栏/实际Cookie尾部独立证据；不以fulfill假403冒充权限。 |
-| `TestAccountSystemSMTPSettingsWebNavigationAndLayouts` | 三组/七叶子、默认用户、第十一return、平台组active/展开/键盘、dirty/未确认离页。两类确认已开时合成pageshow，Session GET一次受限失败/App恢复同Session后实际继续/放弃/停用可响应且无自动写；light/dark×1440/1024/834/390，长字段/错误、Drawer和Dialog的Tab/Escape/遮罩/焦点、reduced-motion/无溢出。合成事件不冒充真实BFCache。 |
+| `TestAccountSystemSMTPSettingsWebNavigationAndLayouts` | 三组/七叶子、默认用户、第十一return、平台组active/展开/键盘、dirty/未确认离页。两类确认已开时合成pageshow，Session GET一次受限失败/App恢复同Session后实际继续/放弃/停用可响应且无自动写；同身份重挂后全部确认正常关闭且原trigger不可用时，精确焦点当前标题、Tab可达当前控件、旧节点断开且无残留overlay/inert/滚动锁；仍有modal不越界，正常未重挂关闭仍恢复合法trigger；light/dark×1440/1024/834/390，长字段/错误、Drawer和Dialog的Tab/Escape/遮罩/焦点、reduced-motion/无溢出。合成事件不冒充真实BFCache。 |
 
 配置/策略/冲突全部使用正式HTTP/服务；只沿既有隔离fixture纪律对任务自有精确账号准备/撤销管理员资格，其他业务表不写，SQL只旁证自有settings/commands/Secret引用/Audit及必要的准备终局。普通用户/第二管理员在SMTP未配置时沿既有正式邀请→受限日志→redeem准备；等待这些精确自有日志投递及attempt实际终局、无待发送/在途工作后记录基线，不能要求历史任务表为空或直接改任务phase。沿正式根/隔离PG/MinIO/Secret与生产dist同源，不新建SMTP listener/CA/出站放行；浏览器SMTP配置操作期不调用test、邀请、reset或jobs，投递intent/job数量相对准备基线零新增。该前提下的零新发送不证明现实旧任务无I/O。密码/Cookie/CSRF/MAC/raw请求不进入证据日志，实际body等价可在自有进程内比较后只输出脱敏断言。
 
-六新组按精确名称分组执行 `scripts/test-security.sh -run '^TestAccountSystemSMTPSettingsWeb(Lifecycle|CredentialLifecycle|Concurrency|OutcomeRecovery|AuthorityAndIdentity|NavigationAndLayouts)$'`。Playwright每test45秒、Go顶层2分钟、workers=1/retries=0、race/count1/每包6分钟保持；按实际耗时分组，不放大预算、削断言或将no-tests计PASS。旧真实回归沿账号安全§7已定集合，再含账号安全最终接受的OutcomeRecovery/AuthorityAndIdentity/NavigationAndLayouts；菜单仅上述精确6→7。语义/输入未变可复用证据，密码恢复/停用竞态/权限与共同确认必须有独立验证。
+六新组按精确名称分组执行 `scripts/test-security.sh -run '^TestAccountSystemSMTPSettingsWeb(Lifecycle|CredentialLifecycle|Concurrency|OutcomeRecovery|AuthorityAndIdentity|NavigationAndLayouts)$'`。Playwright每test45秒、Go顶层2分钟、workers=1/retries=0、race/count1/每包6分钟保持；按实际耗时分组，不放大预算、削断言或将no-tests计PASS。旧真实回归沿账号安全§7已定集合，再含固定40c904c的 `TestAccountSystemAccountSecurityWebOutcomeRecovery`、`TestAccountSystemAccountSecurityWebAuthorityAndIdentity`、`TestAccountSystemAccountSecurityWebNavigationAndLayouts`；菜单仅上述八处精确6→7。语义/输入未变可复用证据，密码恢复/停用竞态/权限与共同确认必须有独立验证。
 
-仅账号安全相关命令停止、资源双清及完整接受后，由主线程另授本卡唯一作者与独占窗口。作者冻结源/dist/锁/环境、保留首红及实际argv/env/退出/安全原log，交未参与实现的verification_worker；每轮实际wait、server/browser/所属进程join、自有exact-ID双次absent及基线不变后交回。产品独立通过并主线程采纳后才写第29路径。本卡没有运行真实资源；后继测试发送/投递管理、全SMTP页、完整D26/D27、生产SPA/真实Vite代理、Runtime/ready503仍未交付，Summary待定及Object/tools原停止保持。
+账号安全产品前置已接受；本卡仍须独立采纳本rev2、无文件所有权冲突且实际资源窗口释放后，由主线程另授唯一作者与独占窗口。作者冻结源/dist/锁/环境、保留首红及实际argv/env/退出/安全原log，交未参与实现的verification_worker；每轮实际wait、server/browser/所属进程join、自有exact-ID双次absent及基线不变后交回。产品独立通过并主线程采纳后才写第29路径。本卡没有运行真实资源；后继测试发送/投递管理、全SMTP页、完整D26/D27、生产SPA/真实Vite代理、Runtime/ready503仍未交付，Summary待定及Object/tools原停止保持。
