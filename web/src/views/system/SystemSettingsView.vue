@@ -32,7 +32,10 @@ const groups = [
   {
     key: 'platform-configuration',
     label: '平台配置',
-    children: [{ label: '账号安全', path: '/system/account-security' }],
+    children: [
+      { label: '账号安全', path: '/system/account-security' },
+      { label: 'SMTP', path: '/system/smtp' },
+    ],
   },
 ]
 const heading = ref<HTMLElement | null>(null)

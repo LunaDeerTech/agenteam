@@ -1920,7 +1920,7 @@ test("[navigation] same-session cohost recovery, real focus and eight layouts", 
     page
       .getByRole("navigation", { name: "系统设置", exact: true })
       .getByRole("link"),
-  ).toHaveCount(6);
+  ).toHaveCount(7);
   for (const leaf of ["待注册邀请", "Providers", "Models"]) {
     await page.getByRole("link", { name: leaf, exact: true }).click();
     await expect(title(page, leaf)).toBeVisible();
@@ -1988,7 +1988,7 @@ test("[navigation] same-session cohost recovery, real focus and eight layouts", 
         await expect(page.getByRole("dialog")).toHaveCount(0);
         const toggle = button(page, "系统设置栏目");
         await toggle.click();
-        await expect(top(page).getByRole("link")).toHaveCount(6);
+        await expect(top(page).getByRole("link")).toHaveCount(7);
         await focusContained(page);
         await page.keyboard.press("Escape");
         await expect(page.getByRole("dialog")).toHaveCount(0);

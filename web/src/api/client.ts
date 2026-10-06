@@ -91,6 +91,9 @@ const endpoints = {
   lookupModelSelectionCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
   getAccountSecurity: ['GET', '/api/v1/system/account-settings', 200],
   updateAccountSecurity: ['PUT', '/api/v1/system/account-settings', 200],
+  getSMTPSettings: ['GET', '/api/v1/system/smtp', 200],
+  updateSMTPSettings: ['PUT', '/api/v1/system/smtp', 200],
+  unconfigureSMTP: ['POST', '/api/v1/system/smtp/unconfigure', 200],
   createModelCredential: ['POST', '/api/v1/system/model-credentials', 200],
   getModelCredentialMetadata: ['GET', '/api/v1/system/model-credentials/{id}', 200],
   lookupProviderCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
@@ -353,7 +356,22 @@ const accountSecurityEndpoints: readonly AccountSecurityEndpoint[] = [
   'updateAccountSecurity',
 ]
 
+type SMTPEndpoint = 'getSMTPSettings' | 'updateSMTPSettings' | 'unconfigureSMTP'
+type SMTPOptions<E extends SMTPEndpoint> = E extends 'getSMTPSettings'
+  ? { signal: AbortSignal }
+  : { signal: AbortSignal; body: unknown; csrf: string; key: string }
+const smtpEndpoints: readonly SMTPEndpoint[] = [
+  'getSMTPSettings',
+  'updateSMTPSettings',
+  'unconfigureSMTP',
+]
+
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends SMTPEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: SMTPOptions<E>,
+  ): Promise<T>
   function request<T, E extends AccountSecurityEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -399,6 +417,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       | ModelEndpoint
       | SelectionEndpoint
       | AccountSecurityEndpoint
+      | SMTPEndpoint
     >,
     parse: (value: unknown) => T,
     options: RequestOptions & { users?: never; invitations?: never; target?: never },
@@ -421,7 +440,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       providerEndpoints.includes(endpoint as ProviderEndpoint) ||
       modelEndpoints.includes(endpoint as ModelEndpoint) ||
       selectionEndpoints.includes(endpoint as SelectionEndpoint) ||
-      accountSecurityEndpoints.includes(endpoint as AccountSecurityEndpoint)
+      accountSecurityEndpoints.includes(endpoint as AccountSecurityEndpoint) ||
+      smtpEndpoints.includes(endpoint as SMTPEndpoint)
     ) {
       try {
         const target = basePath.includes('{id}')
@@ -520,7 +540,9 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       const maximum =
         endpoint === 'createModelCredential'
           ? 512 * 1024
-          : endpoint === 'createProvider' || endpoint === 'updateProvider'
+          : endpoint === 'createProvider' ||
+              endpoint === 'updateProvider' ||
+              endpoint === 'updateSMTPSettings'
             ? 32 * 1024
             : 16 * 1024
       try {

@@ -12,6 +12,7 @@ const returnTargets = [
   '/system/models',
   '/system/model-selection',
   '/system/account-security',
+  '/system/smtp',
 ] as const
 type ReturnTarget = (typeof returnTargets)[number]
 export function safeReturnTarget(value: unknown): ReturnTarget {
@@ -62,6 +63,12 @@ export function installPersonalNavigation(
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   router.beforeEach(async (to, from) => {
     // Ask before Session revalidation can temporarily unmount the dirty page.
+    if (
+      from.path === '/system/smtp' &&
+      to.fullPath !== from.fullPath &&
+      !((await smtpNavigation.get(router)?.confirmLeave()) ?? true)
+    )
+      return false
     if (
       from.path === '/system/account-security' &&
       to.fullPath !== from.fullPath &&
@@ -122,6 +129,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
     return true
   })
   router.afterEach((to, from, failure) => {
+    if (!failure) smtpNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) modelSelectionNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) modelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
@@ -227,5 +235,22 @@ export function installModelSelectionNavigation(
   modelSelectionNavigation.set(router, owner)
   return () => {
     if (modelSelectionNavigation.get(router) === owner) modelSelectionNavigation.delete(router)
+  }
+}
+
+const smtpNavigation = new WeakMap<
+  Router,
+  { confirmLeave: () => Promise<boolean>; afterNavigation: (to: string, from: string) => void }
+>()
+export function installSMTPSettingsNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: () => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  smtpNavigation.set(router, owner)
+  return () => {
+    if (smtpNavigation.get(router) === owner) smtpNavigation.delete(router)
   }
 }

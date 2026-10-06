@@ -283,7 +283,7 @@ describe('real App, router and invitations controller composition', () => {
         .get('nav[aria-label="系统设置"]')
         .findAll('a')
         .map((a) => a.text()),
-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
+    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全', 'SMTP'])
     expect(f.reads()).toHaveLength(1)
     expect(f.wrapper.findAll('th').map((n) => n.text())).toEqual([
       '邮箱',

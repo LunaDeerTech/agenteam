@@ -15,6 +15,7 @@ import {
   installModelNavigation,
   installModelSelectionNavigation,
   installAccountSecurityNavigation,
+  installSMTPSettingsNavigation,
 } from './router/auth'
 import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'
 import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'
@@ -28,6 +29,10 @@ import {
   createSystemAccountSecurity,
   systemAccountSecurityKey,
 } from './composables/useSystemAccountSecurity'
+import {
+  createSystemSMTPSettings,
+  systemSMTPSettingsKey,
+} from './composables/useSystemSMTPSettings'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
@@ -53,6 +58,9 @@ const stopSelectionNavigation = installModelSelectionNavigation(router, selectio
 const accountSecurity = createSystemAccountSecurity(auth)
 provide(systemAccountSecurityKey, accountSecurity)
 const stopAccountSecurityNavigation = installAccountSecurityNavigation(router, accountSecurity)
+const smtp = createSystemSMTPSettings(auth)
+provide(systemSMTPSettingsKey, smtp)
+const stopSMTPNavigation = installSMTPSettingsNavigation(router, smtp)
 async function logout() {
   if (
     (await settings.confirmLeave()) &&
@@ -60,7 +68,8 @@ async function logout() {
     (await providers.confirmLeave()) &&
     (await models.confirmLeave()) &&
     (await selection.confirmLeave()) &&
-    (await accountSecurity.confirmLeave())
+    (await accountSecurity.confirmLeave()) &&
+    (await smtp.confirmLeave())
   )
     await auth.logout()
 }
@@ -95,6 +104,7 @@ onMounted(() => {
   models.afterNavigation(route.fullPath, '')
   selection.afterNavigation(route.fullPath, '')
   accountSecurity.afterNavigation(route.fullPath, '')
+  smtp.afterNavigation(route.fullPath, '')
   document.addEventListener('visibilitychange', refreshVisible)
   window.addEventListener('pageshow', refreshVisible)
 })
@@ -108,6 +118,8 @@ onUnmounted(() => {
   stopModelNavigation()
   stopSelectionNavigation()
   stopAccountSecurityNavigation()
+  stopSMTPNavigation()
+  smtp.dispose()
   accountSecurity.dispose()
   selection.dispose()
   models.dispose()

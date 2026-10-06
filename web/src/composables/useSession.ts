@@ -79,6 +79,37 @@ import {
   type AccountSecurityUpdateInput,
 } from '../api/system-account-security'
 
+import {
+  createSystemSMTPSettingsAPI,
+  captureSMTPUpdate,
+  captureSMTPUnconfigure,
+  validateSMTPPassword,
+  type SystemSMTPSettingsAPI,
+  type SMTPSettings,
+  type SMTPUpdateInput,
+  type SMTPUnconfigureInput,
+  type SMTPResult,
+} from '../api/system-smtp-settings'
+
+type SMTPAction = 'smtp-settings-read' | 'smtp-settings-write'
+export type SystemSMTPKind = 'configure' | 'policy' | 'unconfigure'
+export type SystemSMTPProgress = Readonly<{
+  kind: SystemSMTPKind
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  result: SMTPResult | null
+  observation: 'none' | 'current' | 'failed'
+  contextValid: boolean
+  canRetryOriginal: boolean
+}>
+type SystemSMTPIntent = Readonly<{
+  kind: SystemSMTPKind
+  payload: { input: SMTPUpdateInput | SMTPUnconfigureInput | null; body: string | null }
+  singletonID: string
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+}>
+
 type AccountSecurityAction = 'account-security-read' | 'account-security-write'
 export type SystemAccountSecurityProgress = Readonly<{
   phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
@@ -220,6 +251,7 @@ type Action =
   | ModelAction
   | SelectionAction
   | AccountSecurityAction
+  | SMTPAction
 interface Operation {
   generation: number
   kind: Action
@@ -322,6 +354,7 @@ export function createSessionController(
   modelAPI: SystemModelAPI = createSystemModelAPI(),
   selectionAPI: SystemModelSelectionAPI = createSystemModelSelectionAPI(),
   accountSecurityAPI: SystemAccountSecurityAPI = createSystemAccountSecurityAPI(),
+  smtpAPI: SystemSMTPSettingsAPI = createSystemSMTPSettingsAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -437,6 +470,23 @@ export function createSessionController(
   const accountSecurityState = shallowReactive<{
     progress: Omit<SystemAccountSecurityProgress, 'contextValid' | 'canRetryOriginal'> | null
   }>({ progress: null })
+  const smtpRevisions: Record<SMTPAction, number> = {
+    'smtp-settings-read': 0,
+    'smtp-settings-write': 0,
+  }
+  const isSMTPAction = (kind: Action): kind is SMTPAction => Object.hasOwn(smtpRevisions, kind)
+  let smtpIntent: SystemSMTPIntent | null = null,
+    smtpSingleton: Readonly<{ identity: PersonalIdentity; settings: SMTPSettings }> | null = null,
+    smtpMaterial: string | null = null,
+    smtpUncertain = false,
+    smtpChecked = false,
+    smtpKeyConflict = false
+  const smtpState = shallowReactive<{
+    progress: Omit<SystemSMTPProgress, 'contextValid' | 'canRetryOriginal'> | null
+    hasMaterial: boolean
+    materialInvalid: boolean
+    materialRevision: number
+  }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
   const systemDenied = () => sameIdentity(systemState.deniedIdentity, personalContext.identity)
   let identityEpoch = 0,
     personalRevision = 0
@@ -475,6 +525,7 @@ export function createSessionController(
       clearModelState()
       clearSelectionState()
       clearAccountSecurityState(true)
+      clearSMTPState(true)
       ++systemRevision
       systemState.deniedIdentity = null
       sessionCSRF = ''
@@ -576,6 +627,8 @@ export function createSessionController(
       (accountSecurityIntent && accountSecurityIntent.csrf !== sessionCSRF)
     )
       clearAccountSecurityState(true)
+    if (!same || view.user.role !== 'admin' || (smtpIntent && smtpIntent.csrf !== sessionCSRF))
+      clearSMTPState(true)
     state.notice = ''
     state.fields = {}
     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
@@ -1010,7 +1063,8 @@ export function createSessionController(
       | ProviderAction
       | ModelAction
       | SelectionAction
-      | AccountSecurityAction = 'personal',
+      | AccountSecurityAction
+      | SMTPAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
@@ -1028,7 +1082,9 @@ export function createSessionController(
                   ? selectionRevisions[kind]
                   : isAccountSecurityAction(kind)
                     ? accountSecurityRevisions[kind]
-                    : providerRevisions[kind]
+                    : isSMTPAction(kind)
+                      ? smtpRevisions[kind]
+                      : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1280,6 +1336,7 @@ export function createSessionController(
           'selection-write',
           'selection-lookup',
           'account-security-write',
+          'smtp-settings-write',
         ].includes(op.kind) &&
           e.problem?.code === 'CSRF_FAILED')
       ) {
@@ -1293,6 +1350,7 @@ export function createSessionController(
         clearModelState()
         clearSelectionState()
         clearAccountSecurityState(true)
+        clearSMTPState(true)
         systemState.deniedIdentity = identity
       }
     }
@@ -2415,7 +2473,296 @@ export function createSessionController(
       return performAccountSecurity(accountSecurityIntent)
     },
   }
+  function clearSMTPMaterial() {
+    smtpMaterial = null
+    smtpState.hasMaterial = smtpState.materialInvalid = false
+    ++smtpState.materialRevision
+  }
+  function clearSMTPPayload(original: SystemSMTPIntent | null) {
+    if (original) {
+      original.payload.input = null
+      original.payload.body = null
+    }
+  }
+  function clearSMTPState(clearSingleton = false) {
+    const retiring = owner && isSMTPAction(owner.kind) ? owner : null
+    ++smtpRevisions['smtp-settings-read']
+    ++smtpRevisions['smtp-settings-write']
+    clearSMTPPayload(smtpIntent)
+    smtpIntent = null
+    smtpUncertain = smtpChecked = smtpKeyConflict = false
+    clearSMTPMaterial()
+    smtpState.progress = null
+    if (clearSingleton) smtpSingleton = null
+    retiring?.abandon?.()
+  }
+  function captureSMTPObservation(identity: PersonalIdentity, value: SMTPSettings) {
+    if (
+      smtpSingleton &&
+      (!sameIdentity(smtpSingleton.identity, identity) || value.id !== smtpSingleton.settings.id)
+    )
+      throw new AccountFailure('invalid-response')
+    if (!smtpSingleton || BigInt(value.version) >= BigInt(smtpSingleton.settings.version))
+      smtpSingleton = Object.freeze({ identity, settings: value })
+  }
+  function readSMTP(): Promise<SMTPSettings> {
+    try {
+      const identity = invitationIdentity()
+      return runAuthorized(
+        identity,
+        async (op, current) => {
+          const value = await smtpAPI.getSettings(op.abort.signal)
+          if (!current()) throw new AccountFailure('cancelled')
+          captureSMTPObservation(identity, value)
+          return value
+        },
+        undefined,
+        'smtp-settings-read',
+      )
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  function publishSMTP(
+    original: SystemSMTPIntent,
+    phase: SystemSMTPProgress['phase'],
+    result: SMTPResult | null = null,
+  ) {
+    smtpState.progress = Object.freeze({ kind: original.kind, phase, result, observation: 'none' })
+  }
+  function performSMTP(original: SystemSMTPIntent): Promise<SMTPResult> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (
+      smtpIntent !== original ||
+      !invitationContext(original) ||
+      !original.payload.input ||
+      !original.payload.body
+    )
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const revision = smtpRevisions['smtp-settings-write']
+    const live = () =>
+      smtpIntent === original &&
+      revision === smtpRevisions['smtp-settings-write'] &&
+      invitationContext(original)
+    let dispatched = false
+    smtpChecked = false
+    publishSMTP(original, 'submitting')
+    if (!live()) return Promise.reject(new AccountFailure('cancelled'))
+    return runAuthorized(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        const captured = original.payload.input
+        if (!captured || JSON.stringify(captured) !== original.payload.body)
+          throw new AccountFailure('invalid-input')
+        const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+        dispatched = true
+        try {
+          const value =
+            original.kind === 'configure'
+              ? await smtpAPI.updateSettings(captured as SMTPUpdateInput, options)
+              : await smtpAPI.unconfigure(captured, options)
+          if (value.settings.id !== original.singletonID)
+            throw new AccountFailure('invalid-response')
+          return value
+        } finally {
+          // Explicit abandonment already removes recovery access; the API owns
+          // only the temporary original request through its actual I/O tail.
+          if (smtpIntent !== original) clearSMTPPayload(original)
+        }
+      },
+      undefined,
+      'smtp-settings-write',
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        captureSMTPObservation(original.identity, value.settings)
+        // At this point the transport's original EOF/cancel has actually joined.
+        clearSMTPPayload(original)
+        clearSMTPMaterial()
+        if (!live()) throw new AccountFailure('cancelled')
+        publishSMTP(original, 'confirmed', value)
+        // Synchronous consumers may abandon and create a successor here.
+        if (!live()) throw new AccountFailure('cancelled')
+        smtpIntent = null
+        smtpUncertain = smtpChecked = smtpKeyConflict = false
+        return value
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          smtpIntent === original &&
+          revision === smtpRevisions['smtp-settings-write'] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          const known =
+            !dispatched ||
+            (p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.status < 500 &&
+              [
+                'INVALID_ARGUMENT',
+                'VERSION_CONFLICT',
+                'NOT_FOUND',
+                'INVALID_STATE',
+                'RATE_LIMITED',
+                'RESOURCE_DELETED',
+              ].includes(p.code))
+          // Both write endpoints perform a separate authorized current GET after
+          // committing. Its 5xx/not_started is not evidence that the write failed.
+          smtpKeyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+          smtpUncertain ||= !known || smtpKeyConflict
+          smtpChecked = false
+          publishSMTP(original, smtpUncertain ? 'uncertain' : 'rejected')
+        }
+        throw e
+      },
+    )
+  }
+  function startSMTP(kind: SystemSMTPKind, input: SMTPUpdateInput | SMTPUnconfigureInput) {
+    try {
+      const identity = invitationIdentity()
+      if (owner || smtpIntent || personalIntent || pending) throw new AccountFailure('busy')
+      if (!smtpSingleton || !sameIdentity(smtpSingleton.identity, identity))
+        throw new AccountFailure('invalid-input')
+      if (!input || typeof input !== 'object' || Object.hasOwn(input, 'password'))
+        throw new AccountFailure('invalid-input')
+      if (smtpState.materialInvalid) throw new AccountFailure('invalid-input')
+      const captured =
+        kind === 'configure'
+          ? captureSMTPUpdate({
+              ...(input as SMTPUpdateInput),
+              ...(smtpMaterial === null ? {} : { password: smtpMaterial }),
+            })
+          : captureSMTPUnconfigure(input)
+      if (kind === 'configure' && captured.version === smtpSingleton.settings.version) {
+        const update = captured as SMTPUpdateInput
+        const credential =
+          update.credential_action === 'remove'
+            ? false
+            : !!update.password || smtpSingleton.settings.credential_present
+        if ((update.username !== '') !== credential) throw new AccountFailure('invalid-input')
+      }
+      const original: SystemSMTPIntent = Object.freeze({
+        kind,
+        payload: { input: captured, body: JSON.stringify(captured) },
+        singletonID: smtpSingleton.settings.id,
+        identity,
+        csrf: sessionCSRF,
+        key: newKey(),
+      })
+      smtpIntent = original
+      smtpMaterial = null
+      smtpState.hasMaterial = kind === 'configure' && !!(captured as SMTPUpdateInput).password
+      smtpUncertain = smtpChecked = smtpKeyConflict = false
+      return performSMTP(original)
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  const smtp = {
+    get progress(): SystemSMTPProgress | null {
+      const value = smtpState.progress
+      if (!value) return null
+      const contextValid = !!smtpIntent && invitationContext(smtpIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!smtpIntent &&
+          !!smtpIntent.payload.input &&
+          smtpUncertain &&
+          smtpChecked &&
+          !smtpKeyConflict &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    get material() {
+      return Object.freeze({
+        present: smtpState.hasMaterial,
+        invalid: smtpState.materialInvalid,
+        revision: smtpState.materialRevision,
+      })
+    },
+    setMaterial(value: string) {
+      invitationIdentity()
+      if (smtpIntent) throw new AccountFailure('busy')
+      if (value === '') {
+        clearSMTPMaterial()
+        return
+      }
+      try {
+        validateSMTPPassword(value)
+        smtpMaterial = value
+        smtpState.hasMaterial = true
+        smtpState.materialInvalid = false
+        ++smtpState.materialRevision
+      } catch (error) {
+        clearSMTPMaterial()
+        smtpState.materialInvalid = true
+        throw error
+      }
+    },
+    get: readSMTP,
+    abandonRead() {
+      ++smtpRevisions['smtp-settings-read']
+      if (owner?.kind === 'smtp-settings-read') owner.abandon?.()
+    },
+    abandon() {
+      clearSMTPState()
+    },
+    editRejected() {
+      if (
+        !smtpIntent ||
+        smtpUncertain ||
+        smtpState.progress?.phase !== 'rejected' ||
+        owner ||
+        !invitationContext(smtpIntent)
+      )
+        throw new AccountFailure('invalid-input')
+      smtpMaterial = (smtpIntent.payload.input as SMTPUpdateInput | null)?.password ?? null
+      clearSMTPPayload(smtpIntent)
+      smtpIntent = null
+      smtpState.progress = null
+      smtpUncertain = smtpChecked = smtpKeyConflict = false
+    },
+    startUpdate(input: Omit<SMTPUpdateInput, 'password'>) {
+      return startSMTP('configure', input)
+    },
+    startUnconfigure(input: SMTPUnconfigureInput, kind: 'policy' | 'unconfigure' = 'unconfigure') {
+      if (kind !== 'policy' && kind !== 'unconfigure')
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return startSMTP(kind, input)
+    },
+    async checkOriginal() {
+      const original = smtpIntent
+      if (!original || !smtpUncertain || owner) throw new AccountFailure('invalid-input')
+      smtpChecked = false
+      await restore()
+      if (smtpIntent !== original || !invitationContext(original))
+        throw new AccountFailure('cancelled')
+      smtpChecked = true
+      try {
+        const value = await readSMTP()
+        if (smtpIntent === original && invitationContext(original) && smtpState.progress)
+          smtpState.progress = Object.freeze({ ...smtpState.progress, observation: 'current' })
+        return value
+      } catch (error) {
+        if (smtpIntent === original && invitationContext(original) && smtpState.progress)
+          smtpState.progress = Object.freeze({ ...smtpState.progress, observation: 'failed' })
+        throw error
+      }
+    },
+    retryOriginal() {
+      if (!smtpIntent || !smtp.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performSMTP(smtpIntent)
+    },
+  }
   const system = {
+    smtp,
     accountSecurity,
     selection,
     models,

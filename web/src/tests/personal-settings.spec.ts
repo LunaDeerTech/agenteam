@@ -471,12 +471,13 @@ describe('personal settings pages', () => {
       expect(p.api.login.mock.calls.length).toBe(1)
     },
   )
-  it('only permits the ten exact return targets and clears dirty previews on real context invalidation', async () => {
+  it('only permits the eleven exact return targets and clears dirty previews on real context invalidation', async () => {
     expect(safeReturnTarget('/system/invitations')).toBe('/system/invitations')
     expect(safeReturnTarget('/system/providers')).toBe('/system/providers')
     expect(safeReturnTarget('/system/models')).toBe('/system/models')
     expect(safeReturnTarget('/system/model-selection')).toBe('/system/model-selection')
     expect(safeReturnTarget('/system/account-security')).toBe('/system/account-security')
+    expect(safeReturnTarget('/system/smtp')).toBe('/system/smtp')
     expect(safeReturnTarget('/system/users')).toBe('/system/users')
     for (const target of [
       '/settings',
@@ -487,6 +488,11 @@ describe('personal settings pages', () => {
       '/system/account-security/',
       '/system/account-security/extra',
       ['/system/account-security'],
+      '/system/smtp?x=1',
+      '/system/smtp#x',
+      '/system/smtp/',
+      '/system/smtp/extra',
+      ['/system/smtp'],
       '//example.com',
       'https://example.com',
       ['/settings/profile'],

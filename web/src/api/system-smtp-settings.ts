@@ -1,0 +1,286 @@
+import { AccountFailure, accountTransport, shape, string, uuid7, type Fetch } from './client'
+import type { WriteOptions } from './account'
+
+export type SMTPSettings = Readonly<{
+  id: string
+  version: string
+  configured: boolean
+  host: string
+  port: number
+  encryption: '' | 'tls' | 'starttls' | 'none'
+  username: string
+  sender_email: string
+  sender_name: string
+  credential_present: boolean
+  auto_retry_count: string
+  retry_interval_seconds: string
+}>
+export type SMTPUnconfigureInput = Readonly<{
+  version: string
+  auto_retry_count: string
+  retry_interval_seconds: string
+}>
+export type SMTPUpdateInput = SMTPUnconfigureInput &
+  Readonly<{
+    host: string
+    port: number
+    encryption: 'tls' | 'starttls' | 'none'
+    username: string
+    sender_email: string
+    sender_name: string
+    credential_action: 'keep' | 'remove'
+    password?: string
+  }>
+export type SMTPResult = Readonly<{ applied_version: string; settings: SMTPSettings }>
+export interface SystemSMTPSettingsAPI {
+  getSettings(signal: AbortSignal): Promise<SMTPSettings>
+  updateSettings(input: SMTPUpdateInput, options: WriteOptions): Promise<SMTPResult>
+  unconfigure(input: SMTPUnconfigureInput, options: WriteOptions): Promise<SMTPResult>
+}
+
+const maximumVersion = 9223372036854775807n
+const encoder = new TextEncoder()
+const retryKeys = ['auto_retry_count', 'retry_interval_seconds'] as const
+const transportKeys = [
+  'host',
+  'port',
+  'encryption',
+  'username',
+  'sender_email',
+  'sender_name',
+] as const
+function requireValue(value: boolean) {
+  if (!value) throw new AccountFailure('invalid-response')
+}
+function input<T>(work: () => T): T {
+  try {
+    return work()
+  } catch {
+    throw new AccountFailure('invalid-input')
+  }
+}
+function decimal(value: unknown, minimum: bigint, maximum: bigint): string {
+  const result = string(value, 1, 19)
+  requireValue(/^(?:0|[1-9][0-9]*)$/.test(result))
+  requireValue(BigInt(result) >= minimum && BigInt(result) <= maximum)
+  return result
+}
+function wellFormed(value: string) {
+  for (let i = 0; i < value.length; i++) {
+    const unit = value.charCodeAt(i)
+    if (unit >= 0xd800 && unit <= 0xdbff) {
+      const next = value.charCodeAt(++i)
+      if (!(next >= 0xdc00 && next <= 0xdfff)) return false
+    } else if (unit >= 0xdc00 && unit <= 0xdfff) return false
+  }
+  return true
+}
+function text(value: unknown, bytes: number, characters = bytes) {
+  const result = string(value, 0, characters)
+  requireValue(
+    wellFormed(result) &&
+      !/[\u0000-\u001f\u007f-\u009f]/.test(result) &&
+      encoder.encode(result).byteLength <= bytes,
+  )
+  return result
+}
+function ipv4(value: string) {
+  return (
+    /^(?:0|[1-9][0-9]{0,2})(?:\.(?:0|[1-9][0-9]{0,2})){3}$/.test(value) &&
+    value.split('.').every((part) => Number(part) <= 255)
+  )
+}
+function ipv6(value: string): string | null {
+  if (!/^[0-9a-f:.]+$/i.test(value) || !value.includes(':')) return null
+  try {
+    return new URL(`http://[${value}]/`).hostname
+  } catch {
+    return null
+  }
+}
+function host(value: unknown) {
+  const result = string(value, 1, 253)
+  if (ipv4(result) || ipv6(result)) return result
+  const dns = result.toLowerCase().replace(/\.$/, '')
+  const labels = dns.split('.'),
+    last = labels.at(-1)!
+  requireValue(!/^(?:[0-9]+|0x[0-9a-f]*)$/.test(last))
+  requireValue(labels.every((label) => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label)))
+  return result
+}
+function email(value: unknown) {
+  const result = string(value, 3, 254)
+  requireValue(/^[\x21-\x7e]+$/.test(result))
+  const parts = result.split('@')
+  requireValue(parts.length === 2)
+  const atom = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*$/
+  requireValue(atom.test(parts[0]!.toLowerCase()))
+  const domain = parts[1]!
+  if (domain.startsWith('[') && domain.endsWith(']')) {
+    const literal = domain.slice(1, -1),
+      prefixed =
+        literal.startsWith('IPv6:') ||
+        (result === result.toLowerCase() && literal.startsWith('ipv6:'))
+    const address = prefixed ? literal.slice(5) : literal,
+      parsed = ipv6(address)
+    requireValue(
+      ipv4(address) ||
+        (parsed !== null && (prefixed || /^\[::ffff:[0-9a-f]{1,4}:[0-9a-f]{1,4}\]$/.test(parsed))),
+    )
+  } else requireValue(atom.test(domain.toLowerCase()))
+  return result
+}
+function retry(value: Record<string, unknown>) {
+  return {
+    auto_retry_count: decimal(value.auto_retry_count, 0n, 5n),
+    retry_interval_seconds: decimal(value.retry_interval_seconds, 10n, 3600n),
+  }
+}
+function transport(value: Record<string, unknown>) {
+  requireValue(
+    typeof value.port === 'number' &&
+      Number.isInteger(value.port) &&
+      value.port >= 1 &&
+      value.port <= 65535,
+  )
+  requireValue(['tls', 'starttls', 'none'].includes(value.encryption as string))
+  return {
+    host: host(value.host),
+    port: value.port as number,
+    encryption: value.encryption as SMTPUpdateInput['encryption'],
+    username: text(value.username, 256),
+    sender_email: email(value.sender_email),
+    sender_name: text(value.sender_name, 320, 80),
+  }
+}
+function settings(value: unknown): SMTPSettings {
+  const v = shape(value, [
+    'id',
+    'version',
+    'configured',
+    ...transportKeys,
+    'credential_present',
+    ...retryKeys,
+  ])
+  const id = string(v.id, 36, 36)
+  requireValue(
+    uuid7.test(id) &&
+      typeof v.configured === 'boolean' &&
+      typeof v.credential_present === 'boolean',
+  )
+  const common = { id, version: decimal(v.version, 1n, maximumVersion), ...retry(v) }
+  if (v.configured) {
+    const fields = transport(v)
+    requireValue(fields.sender_email === fields.sender_email.toLowerCase())
+    requireValue((fields.username !== '') === v.credential_present)
+    return Object.freeze({
+      ...common,
+      configured: true,
+      ...fields,
+      credential_present: v.credential_present as boolean,
+    })
+  }
+  requireValue(
+    v.port === 0 &&
+      v.credential_present === false &&
+      transportKeys.filter((k) => k !== 'port').every((k) => v[k] === ''),
+  )
+  return Object.freeze({
+    ...common,
+    configured: false,
+    host: '',
+    port: 0,
+    encryption: '',
+    username: '',
+    sender_email: '',
+    sender_name: '',
+    credential_present: false,
+  })
+}
+// This helper validates material without exposing a material getter or retaining errors.
+export function validateSMTPPassword(value: string) {
+  return input(() => {
+    requireValue(typeof value === 'string' && wellFormed(value) && !/[\0\r\n]/.test(value))
+    requireValue(encoder.encode(value).byteLength >= 1 && encoder.encode(value).byteLength <= 2048)
+  })
+}
+export function captureSMTPUpdate(value: SMTPUpdateInput): SMTPUpdateInput {
+  return input(() => {
+    const v = shape(
+      value,
+      ['version', ...transportKeys, 'credential_action', ...retryKeys],
+      ['password'],
+    )
+    const fields = transport(v)
+    requireValue(v.credential_action === 'keep' || v.credential_action === 'remove')
+    let password: string | undefined
+    if (Object.hasOwn(v, 'password')) {
+      requireValue(typeof v.password === 'string')
+      if (v.password !== '') {
+        validateSMTPPassword(v.password as string)
+        password = v.password as string
+      }
+    }
+    requireValue(
+      v.credential_action !== 'remove' || (fields.username === '' && password === undefined),
+    )
+    requireValue(password === undefined || fields.username !== '')
+    const result = Object.freeze({
+      version: decimal(v.version, 1n, maximumVersion - 1n),
+      ...fields,
+      credential_action: v.credential_action as SMTPUpdateInput['credential_action'],
+      ...retry(v),
+      ...(password === undefined ? {} : { password }),
+    })
+    requireValue(encoder.encode(JSON.stringify(result)).byteLength <= 32 * 1024)
+    return result
+  })
+}
+export function captureSMTPUnconfigure(value: SMTPUnconfigureInput): SMTPUnconfigureInput {
+  return input(() => {
+    const v = shape(value, ['version', ...retryKeys])
+    const result = Object.freeze({
+      version: decimal(v.version, 1n, maximumVersion - 1n),
+      ...retry(v),
+    })
+    requireValue(encoder.encode(JSON.stringify(result)).byteLength <= 16 * 1024)
+    return result
+  })
+}
+function options(value: WriteOptions) {
+  return input(() => {
+    const v = shape(value, ['csrfToken', 'key', 'signal'])
+    return { csrf: v.csrfToken as string, key: v.key as string, signal: v.signal as AbortSignal }
+  })
+}
+function result(value: unknown, version: string): SMTPResult {
+  const v = shape(value, ['applied_version', 'settings'])
+  const applied = decimal(v.applied_version, 1n, maximumVersion),
+    current = settings(v.settings)
+  requireValue(
+    BigInt(applied) === BigInt(version) + 1n && BigInt(current.version) >= BigInt(applied),
+  )
+  // The owner also checks the singleton and full Session identity. Current
+  // settings may describe the opposite state after another accepted command.
+  return Object.freeze({ applied_version: applied, settings: current })
+}
+export function createSystemSMTPSettingsAPI(fetcher?: Fetch): SystemSMTPSettingsAPI {
+  const request = accountTransport(fetcher)
+  return {
+    getSettings: (signal) => request('getSMTPSettings', settings, { signal }),
+    async updateSettings(value, write) {
+      const captured = captureSMTPUpdate(value)
+      return request('updateSMTPSettings', (value) => result(value, captured.version), {
+        ...options(write),
+        body: captured,
+      })
+    },
+    async unconfigure(value, write) {
+      const captured = captureSMTPUnconfigure(value)
+      return request('unconfigureSMTP', (value) => result(value, captured.version), {
+        ...options(write),
+        body: captured,
+      })
+    },
+  }
+}

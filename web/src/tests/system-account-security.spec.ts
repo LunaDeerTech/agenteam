@@ -263,7 +263,7 @@ describe('Account security inline form in the actual App and router', () => {
         .get('nav[aria-label="系统设置"]')
         .findAll('a')
         .map((a) => a.text()),
-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
+    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全', 'SMTP'])
     expect(f.wrapper.findAll('.settings-group-toggle').map((group) => group.text())).toEqual([
       '用户与邀请',
       '模型与提供商',
