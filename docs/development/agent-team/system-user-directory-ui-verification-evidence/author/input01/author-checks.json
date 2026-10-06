@@ -1,0 +1,184 @@
+{
+  "input_sha256": "490e7af16f406b61512256ee4f80ba01628041213f32569d32a9065455ca4184",
+  "checks": [
+    {
+      "name": "new-unit-first",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/system-account-client.spec.ts",
+        "src/tests/system-user-directory-state.spec.ts",
+        "src/tests/system-user-directory.spec.ts"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {},
+      "exit": 1,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/unit-01.log",
+      "log_sha256": "df7fd260773101a039f0dad1acb96c619763f825936c3aaf945f62b76f628469",
+      "note": "79/80 passed. Test queried wrapper text for Teleport confirmation; changed assertion to document.body and supplied existing appearance/password routes. No product owner failure. Preserved raw failure."
+    },
+    {
+      "name": "new-unit-final",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/system-account-client.spec.ts",
+        "src/tests/system-user-directory-state.spec.ts",
+        "src/tests/system-user-directory.spec.ts"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {},
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/unit-02.log",
+      "log_sha256": "5cd80a0637c77f39631fa4d01fdf2af5c7011bb90a8cf4b80c3c916050ac540a",
+      "note": "81/81 in 3 files. Includes added accessible pagination focus test."
+    },
+    {
+      "name": "full-web-check",
+      "argv": [
+        "npm",
+        "run",
+        "check",
+        "--prefix",
+        "web"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {},
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/check-01.log",
+      "log_sha256": "1e57a1322bc1ea3e7a5f9e1c290d151436682412d73f3683d789fa3f09b240c0",
+      "note": "Format PASS; full Vitest 232/232, 15 files; vue-tsc PASS; production Vite build PASS. Frozen dist is this build."
+    },
+    {
+      "name": "harness-types",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--target",
+        "ES2022",
+        "--module",
+        "NodeNext",
+        "--moduleResolution",
+        "NodeNext",
+        "--lib",
+        "ES2022,DOM,DOM.Iterable",
+        "--types",
+        "node",
+        "--typeRoots",
+        "../../web/node_modules/@types",
+        "--strict",
+        "--skipLibCheck",
+        "e2e/system-user-directory.spec.ts"
+      ],
+      "cwd": "/workspace/agenteam/tests/account-captcha-web",
+      "environment_overrides": {},
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/harness-types-01.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "go-compile-first",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-p",
+        "2",
+        "-c",
+        "-race",
+        "-tags=integration",
+        "-o",
+        "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/account-integration.test",
+        "./tests/account"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {
+        "GOTOOLCHAIN": "local",
+        "GOPROXY": "off",
+        "GOSUMDB": "off",
+        "GOFLAGS": "-mod=readonly",
+        "GOMAXPROCS": "2",
+        "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/modcache",
+        "GOCACHE": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/gocache",
+        "GOTMPDIR": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/gotmp"
+      },
+      "exit": 1,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/go-compile-01.log",
+      "log_sha256": "ebf1f12c71187aec58bc12b92f9ea31a5d4c46f56f9f7dac409be6349a1e1c48",
+      "note": "Dependency load only failed: selected MinIO verifier cache lacks current locked versions; offline GOPROXY blocked lookup. No compilation/product failure, no TestMain run. Retained raw failure and corrected cache to accepted author preparation."
+    },
+    {
+      "name": "go-integration-race-compile",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-p",
+        "2",
+        "-c",
+        "-race",
+        "-tags=integration",
+        "-o",
+        "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/account-integration.test",
+        "./tests/account"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {
+        "GOTOOLCHAIN": "local",
+        "GOPROXY": "off",
+        "GOSUMDB": "off",
+        "GOFLAGS": "-mod=readonly",
+        "GOMAXPROCS": "2",
+        "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "GOCACHE": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/gocache",
+        "GOTMPDIR": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/gotmp"
+      },
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/go-compile-02.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "note": "Compile only; binary never run, no fixture started."
+    },
+    {
+      "name": "go-vet",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-p",
+        "2",
+        "-tags=integration",
+        "./tests/account"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {
+        "GOTOOLCHAIN": "local",
+        "GOPROXY": "off",
+        "GOSUMDB": "off",
+        "GOFLAGS": "-mod=readonly",
+        "GOMAXPROCS": "2",
+        "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "GOCACHE": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/gocache",
+        "GOTMPDIR": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/gotmp"
+      },
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/go-vet-01.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "integration_binary": {
+    "path": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/account-integration.test",
+    "sha256": "51fc290d37f420212deb967a2956c0b2656c214e0d367ca053a047adb98d5efc",
+    "executed": false
+  },
+  "dependency_preparation": {
+    "metadata": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/preparation.json",
+    "sha256": "67907ed78060c9eddaf63675a1a4ce1bd379299bf45a3449e4f5c8f0e051c8d0",
+    "note": "Historic read-only preparation record; its then-current product baseline/status intentionally preserved."
+  }
+}

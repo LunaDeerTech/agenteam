@@ -1,0 +1,7 @@
+{
+  "time_utc": "2026-10-06T04:55:17.293510+00:00",
+  "reason": "Node 24 names comm MainThread; identify node by live /proc/PID/exe basename, retained if later zombie. Prior run frozen driver/result untouched.",
+  "before": "b80b7c59d70220cc4d179d84bf7d13203dc493c99a4520fd361b9a73831a574b",
+  "after": "1efa7021bb8a02c79bd58c31c7bf2f4ede8feec437bd221d5ef2abe7b9ec3cee",
+  "validation": "Python ast.parse passed; no fixture/process launched"
+}

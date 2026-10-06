@@ -1,0 +1,150 @@
+import { test, expect, type Page, type Locator } from '@playwright/test'
+import { readFileSync, writeFileSync, renameSync, existsSync } from 'node:fs'
+import { join } from 'node:path'
+
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!
+type Credential = { email: string; password: string; user_id: string }
+type Fact = { id: string; email: string; username: string; display_name: string; role: string; created_at: string }
+const material = () => JSON.parse(readFileSync(join(directory, 'personal-credentials.json'), 'utf8')) as { admin: Credential; member: Credential }
+const facts = () => JSON.parse(readFileSync(join(directory, 'directory-facts.json'), 'utf8')) as Fact[]
+
+async function privateFill(input: Locator, value: string) {
+  try { await input.fill(value) } catch { throw new Error('private directory probe field unavailable') }
+}
+async function login(page: Page, credential: Credential, target = '/login', expectedRole: 'admin' | 'user' = 'user') {
+  await page.goto(target)
+  await expect(page.locator('#login-email')).toBeEditable()
+  await privateFill(page.locator('#login-email'), credential.email)
+  await privateFill(page.locator('#login-password'), credential.password)
+  const pending = page.waitForResponse(r => new URL(r.url()).pathname === '/api/v1/sessions/login' && r.request().method() === 'POST')
+  await page.getByRole('button', { name: '登录', exact: true }).click()
+  const response = await pending
+  expect(response.status()).toBe(200)
+  if (expectedRole === 'admin') {
+    await expect(page.getByRole('table')).toBeVisible()
+    await expect(page.getByRole('button', { name: '刷新', exact: true })).toBeEnabled()
+  } else {
+    await expect(page.getByRole('heading', { name: '首页', exact: true })).toBeVisible()
+  }
+  // Once the real login has reached its stable authenticated page, read a new real
+  // Session through this browser's Cookie. This is a test identity oracle,
+  // not an owner-completion assertion or a dependency on CDP body caching.
+  const fact = await page.evaluate(async () => {
+    const current = await fetch('/api/v1/session', {
+      credentials: 'same-origin', cache: 'no-store', redirect: 'error',
+      signal: AbortSignal.timeout(5000),
+    })
+    const value = await current.json()
+    return {
+      status: current.status, userID: value.user?.id as string,
+      role: value.user?.role as string, userFields: Object.keys(value.user ?? {}).sort(),
+      sessionID: value.session?.id as string,
+    }
+  })
+  expect(fact.status).toBe(200)
+  expect(fact.userID === credential.user_id && fact.role === expectedRole).toBe(true)
+  expect(fact.userFields).toEqual(['display_name', 'email', 'id', 'initial_password_suggestion', 'role', 'theme', 'username', 'version'])
+  expect(fact.sessionID).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+  return { userID: fact.userID, sessionID: fact.sessionID }
+}
+async function responseFor(page: Page, path: string, action: () => Promise<unknown>) {
+  const pending = page.waitForResponse(r => new URL(r.url()).pathname === path && r.request().method() === 'GET')
+  await action()
+  return pending
+}
+let sequence = 0
+async function changeOwnedFact(action: 'demote' | 'promote' | 'revoke', sessionID = '') {
+  const current = ++sequence
+  const path = join(directory, 'directory-control.json')
+  writeFileSync(path + '.tmp', JSON.stringify({ sequence: current, action, session_id: sessionID }), { mode: 0o600 })
+  renameSync(path + '.tmp', path)
+  const ack = join(directory, `directory-ack-${current}.json`)
+  await expect.poll(() => existsSync(ack)).toBe(true)
+  expect(JSON.parse(readFileSync(ack, 'utf8')).completed === true).toBe(true)
+}
+async function canonicalRows(page: Page, expected: Fact[]) {
+  await expect(page.getByRole('heading', { name: '用户', exact: true })).toBeVisible()
+  await expect(page.locator('time[datetime]')).toHaveCount(expected.length)
+  const actual = await page.locator('time[datetime]').evaluateAll(nodes => nodes.map(n => n.getAttribute('datetime')))
+  expect(actual.length === expected.length && actual.every((value, index) => value === expected[index].created_at)).toBe(true)
+  const table = page.getByRole('table')
+  await expect(table).toBeVisible()
+  const headers = (await table.getByRole('columnheader').allTextContents()).map(value => value.trim())
+  for (const label of ['邮箱', '用户名', '显示名', '角色']) expect(headers.includes(label)).toBe(true)
+  expect(headers.some(label => label.includes('注册时间') && label.includes('UTC'))).toBe(true)
+  for (const fact of expected) {
+    const row = table.getByRole('row').filter({ hasText: fact.email })
+    await expect(row).toHaveCount(1)
+    const cells = await row.getByRole('cell').allTextContents()
+    expect(cells[headers.indexOf('邮箱')] === fact.email).toBe(true)
+    expect(cells[headers.indexOf('用户名')] === (fact.username || '—')).toBe(true)
+    expect(cells[headers.indexOf('显示名')] === (fact.display_name || fact.email)).toBe(true)
+    expect(cells[headers.indexOf('角色')] === (fact.role === 'admin' ? '管理员' : '普通用户')).toBe(true)
+  }
+}
+
+test('independent real canonical directory, permission recovery and identity cleanup', async ({ page }) => {
+  const credentials = material(), expected = facts()
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' })
+  const signed = await login(page, credentials.admin, '/system/users', 'admin')
+  await expect(page).toHaveURL(/\/system\/users$/)
+  await canonicalRows(page, expected)
+  await expect(page.getByRole('link', { name: '系统设置', exact: true })).toBeVisible()
+
+  const restored = await responseFor(page, '/api/v1/session', () => page.evaluate(() => window.dispatchEvent(new Event('pageshow'))))
+  expect(restored.status()).toBe(200)
+  await canonicalRows(page, expected)
+  const images = process.env.AGENTEAM_AUTH_WEB_IMAGES
+  if (images) await page.screenshot({ path: join(images, 'independent-directory-light-1440.png') })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' })
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  const trigger = page.getByRole('button', { name: '系统设置栏目', exact: true })
+  await trigger.click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(trigger).toBeFocused()
+  if (images) await page.screenshot({ path: join(images, 'independent-directory-dark-390.png') })
+  await page.setViewportSize({ width: 1440, height: 1000 })
+
+  await changeOwnedFact('demote')
+  const denied = await responseFor(page, '/api/v1/system/users', () => page.getByRole('button', { name: '刷新', exact: true }).click())
+  expect(denied.status()).toBe(403)
+  await expect(page.getByText('无权访问系统设置', { exact: true })).toBeVisible()
+  await expect(page.locator('time[datetime]')).toHaveCount(0)
+  await expect(page.getByRole('link', { name: '系统设置', exact: true })).toHaveCount(0)
+  const deniedCheck = await responseFor(page, '/api/v1/session', () => page.getByRole('button', { name: '重新检查权限', exact: true }).click())
+  expect(deniedCheck.status()).toBe(200)
+  await expect(page.getByText('无权访问系统设置', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: '重新检查权限', exact: true })).toBeEnabled()
+  await changeOwnedFact('promote')
+  const granted = await responseFor(page, '/api/v1/session', () => page.getByRole('button', { name: '重新检查权限', exact: true }).click())
+  expect(granted.status()).toBe(200)
+  await canonicalRows(page, expected)
+
+  await changeOwnedFact('revoke', signed.sessionID)
+  const revoked = await responseFor(page, '/api/v1/system/users', () => page.getByRole('button', { name: '刷新', exact: true }).click())
+  expect(revoked.status()).toBe(401)
+  await expect(page.locator('time[datetime]')).toHaveCount(0)
+  await expect(page.getByRole('link', { name: '系统设置', exact: true })).toHaveCount(0)
+  const missing = await responseFor(page, '/api/v1/session', () => page.getByRole('button', { name: '检查当前会话', exact: true }).click())
+  expect(missing.status()).toBe(401)
+  await expect(page.getByRole('heading', { name: '登录', exact: true })).toBeVisible()
+  const member = await login(page, credentials.member)
+  await expect(page.getByRole('heading', { name: '首页', exact: true })).toBeVisible()
+  await expect(page.getByRole('link', { name: '系统设置', exact: true })).toHaveCount(0)
+  let memberDirectoryReads = 0
+  const observe = (request: { url(): string; method(): string }) => {
+    if (new URL(request.url()).pathname === '/api/v1/system/users' && request.method() === 'GET') memberDirectoryReads++
+  }
+  page.on('request', observe)
+  await page.goto('/system/users')
+  await expect(page.getByText('无权访问系统设置', { exact: true })).toBeVisible()
+  await expect(page.locator('time[datetime]')).toHaveCount(0)
+  expect(memberDirectoryReads).toBe(0)
+  page.off('request', observe)
+  writeFileSync(join(directory, 'directory-independent-result.json'), JSON.stringify({ completed: true, user_id: signed.userID, revoked_session_id: signed.sessionID, member_id: member.userID, canonical_rows: expected.length, transitions: sequence, member_directory_reads: memberDirectoryReads }), { mode: 0o600 })
+})

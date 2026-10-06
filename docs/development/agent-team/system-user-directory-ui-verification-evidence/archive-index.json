@@ -1,0 +1,1867 @@
+{
+  "format": 1,
+  "accepted_commit": "7ef3e30cf06b5df6d19516f24c34855a8308ef05",
+  "integration_base": "b53895f7eb1d020276e8f54a99a7c0821b286481",
+  "backend_base": "3affc0194214101cfa1e6fdc583afa5d60005db8",
+  "source_prefixes": {
+    "author": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/",
+    "verification": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/"
+  },
+  "scope": "Accepted D27 user directory UI only. Git base + exact 19 sources reconstruct each input. Twentieth README path was separately checked after dynamic acceptance. Dist bytes, dependencies, executables and runtime are not archived. ../dialog-outside-focus-repair-verification-evidence paths reuse previously committed identical originals without modifying them.",
+  "logical_originals": 264,
+  "physical_originals": 163,
+  "local_physical_originals": 147,
+  "reused_physical_originals": 16,
+  "logical_bytes": 2949900,
+  "local_physical_bytes": 1993538,
+  "entries": [
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/api/client.ts",
+      "archive": "author/input04/files/web/src/api/client.ts.txt",
+      "sha256": "8a73acb284970e5a8a2df005deafa85c8b32ad5d97befc24104879774319433f",
+      "bytes": 13112,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/api/account.ts",
+      "archive": "author/input04/files/web/src/api/account.ts.txt",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "bytes": 18878,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/api/system-account.ts",
+      "archive": "author/input04/files/web/src/api/system-account.ts.txt",
+      "sha256": "513ebe16bb11f66507ccd9990321ed038f8e8f6eb78d4219556c88eff19ea949",
+      "bytes": 2929,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/composables/useSession.ts",
+      "archive": "author/input04/files/web/src/composables/useSession.ts.txt",
+      "sha256": "ff9ef38e2d4c4aed2d7a0b685456b431757acc92a8399d0167f9dac0d93782a9",
+      "bytes": 51084,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/composables/useSystemUserDirectory.ts",
+      "archive": "author/input04/files/web/src/composables/useSystemUserDirectory.ts.txt",
+      "sha256": "3058a34b16bdc2d1018297daa556606806d7d2bf241d313dbcfa33b2f54a0894",
+      "bytes": 5297,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/components/layout/SettingsShell.vue",
+      "archive": "author/input04/files/web/src/components/layout/SettingsShell.vue.txt",
+      "sha256": "33ffaf93b3064a3ca768c9345de75b540f764cf25cd104dbdfbe09fcbffba340",
+      "bytes": 4133,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/components/layout/SystemNav.vue",
+      "archive": "author/input04/files/web/src/components/layout/SystemNav.vue.txt",
+      "sha256": "f381d7134b04d7f2f43e10a2be55ca2fd885b75b75e5528913582fc6d88ed1f7",
+      "bytes": 994,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/views/system/SystemSettingsView.vue",
+      "archive": "author/input04/files/web/src/views/system/SystemSettingsView.vue.txt",
+      "sha256": "dbb3e19184bcc081883104c191305edfd34d4b327ed06e304df3877dc56912cb",
+      "bytes": 1490,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/views/system/SystemUsersView.vue",
+      "archive": "author/input04/files/web/src/views/system/SystemUsersView.vue.txt",
+      "sha256": "b30819ae5b8592a894188f4431427b171b8017c21adf63aec6d93138b8a71865",
+      "bytes": 5639,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/router/index.ts",
+      "archive": "author/input04/files/web/src/router/index.ts.txt",
+      "sha256": "674c7ad214401b9116f78666c76d33c19c755abee59daaa5d7abc439bbea6632",
+      "bytes": 2802,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/router/auth.ts",
+      "archive": "author/input04/files/web/src/router/auth.ts.txt",
+      "sha256": "5f4d814d2e67a90b3a8563d5e326dcb88c4f85aa8e6203a2005b2a12cf2fd5f8",
+      "bytes": 3098,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/tests/system-account-client.spec.ts",
+      "archive": "author/input04/files/web/src/tests/system-account-client.spec.ts.txt",
+      "sha256": "5fefbc0891bb208da566beca0168e33f6509975b9e234680796b3e86059feb8a",
+      "bytes": 8132,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/tests/system-user-directory-state.spec.ts",
+      "archive": "author/input04/files/web/src/tests/system-user-directory-state.spec.ts.txt",
+      "sha256": "7ac3ca1df17a080358c14e4be5e4cc44eecf6bb25af28317e0b147257085f793",
+      "bytes": 18383,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/tests/system-user-directory.spec.ts",
+      "archive": "author/input04/files/web/src/tests/system-user-directory.spec.ts.txt",
+      "sha256": "9659c19e4b508ab3ea46c1e23326dd6e0018a71b76ef4fbe737bef66d1dc2052",
+      "bytes": 16979,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/web/src/tests/personal-settings.spec.ts",
+      "archive": "author/input04/files/web/src/tests/personal-settings.spec.ts.txt",
+      "sha256": "0e6a3d862f2e97e236beee1f534d2b77524cf355d744546cb26eab3ed74498fc",
+      "bytes": 22283,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/tests/account/system_user_directory_web_test.go",
+      "archive": "author/input04/files/tests/account/system_user_directory_web_test.go.txt",
+      "sha256": "8f949e08cb00f4676a4b6f0367cc110e5782dfd261f3e8cdee4e9155fb2f8dbe",
+      "bytes": 2469,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/tests/account/system_user_directory_web_fixture_test.go",
+      "archive": "author/input04/files/tests/account/system_user_directory_web_fixture_test.go.txt",
+      "sha256": "b64fa72cd837ec37e3e1007ad9afec05d477bc9eb8c067ca12a57ca53c7cd4af",
+      "bytes": 10729,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/tests/account-captcha-web/system-user-directory.config.js",
+      "archive": "author/input04/files/tests/account-captcha-web/system-user-directory.config.js.txt",
+      "sha256": "3cb27bfc7aaa4ac564f877b9eefe660c13f24ef351ef3cb7a60c5fdefc47e05e",
+      "bytes": 1137,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/files/tests/account-captcha-web/e2e/system-user-directory.spec.ts",
+      "archive": "author/input04/files/tests/account-captcha-web/e2e/system-user-directory.spec.ts.txt",
+      "sha256": "51112073eeb83318ea6f4a6312c56306489997f55fdcea09a280f4c501ec8034",
+      "bytes": 25872,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/input04.json",
+      "archive": "author/input04/input04.json",
+      "sha256": "c8f823330cd8ab9a226f96d5b2bdc6cbe9ec3d5d4a81080080ca8bdcc4b35966",
+      "bytes": 11107,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/author-checks.json",
+      "archive": "author/input04/author-checks.json",
+      "sha256": "a9abdba8da3162804fb682bbecd3bd342858a7897a1da35c37a118477204fd94",
+      "bytes": 2775,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/dist-sha256.txt",
+      "archive": "author/input04/dist-sha256.txt",
+      "sha256": "93b27276ea6344c28dbbe1e1e6a050a7b75d803537efd574120f5fd21901a947",
+      "bytes": 2402,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision04-check-01.log",
+      "archive": "author/logs/revision04-check-01.log",
+      "sha256": "78a60cc3e915e7fcfbb17b2773726cbcd93282007fb594a4f5f4da5bd6012716",
+      "bytes": 2435,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/api/client.ts",
+      "archive": "author/input04/files/web/src/api/client.ts.txt",
+      "sha256": "8a73acb284970e5a8a2df005deafa85c8b32ad5d97befc24104879774319433f",
+      "bytes": 13112,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/api/account.ts",
+      "archive": "author/input04/files/web/src/api/account.ts.txt",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "bytes": 18878,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/api/system-account.ts",
+      "archive": "author/input04/files/web/src/api/system-account.ts.txt",
+      "sha256": "513ebe16bb11f66507ccd9990321ed038f8e8f6eb78d4219556c88eff19ea949",
+      "bytes": 2929,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/composables/useSession.ts",
+      "archive": "author/input04/files/web/src/composables/useSession.ts.txt",
+      "sha256": "ff9ef38e2d4c4aed2d7a0b685456b431757acc92a8399d0167f9dac0d93782a9",
+      "bytes": 51084,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/composables/useSystemUserDirectory.ts",
+      "archive": "author/input04/files/web/src/composables/useSystemUserDirectory.ts.txt",
+      "sha256": "3058a34b16bdc2d1018297daa556606806d7d2bf241d313dbcfa33b2f54a0894",
+      "bytes": 5297,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/components/layout/SettingsShell.vue",
+      "archive": "author/input04/files/web/src/components/layout/SettingsShell.vue.txt",
+      "sha256": "33ffaf93b3064a3ca768c9345de75b540f764cf25cd104dbdfbe09fcbffba340",
+      "bytes": 4133,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/components/layout/SystemNav.vue",
+      "archive": "author/input04/files/web/src/components/layout/SystemNav.vue.txt",
+      "sha256": "f381d7134b04d7f2f43e10a2be55ca2fd885b75b75e5528913582fc6d88ed1f7",
+      "bytes": 994,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/views/system/SystemSettingsView.vue",
+      "archive": "author/input04/files/web/src/views/system/SystemSettingsView.vue.txt",
+      "sha256": "dbb3e19184bcc081883104c191305edfd34d4b327ed06e304df3877dc56912cb",
+      "bytes": 1490,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/views/system/SystemUsersView.vue",
+      "archive": "author/input04/files/web/src/views/system/SystemUsersView.vue.txt",
+      "sha256": "b30819ae5b8592a894188f4431427b171b8017c21adf63aec6d93138b8a71865",
+      "bytes": 5639,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/router/index.ts",
+      "archive": "author/input04/files/web/src/router/index.ts.txt",
+      "sha256": "674c7ad214401b9116f78666c76d33c19c755abee59daaa5d7abc439bbea6632",
+      "bytes": 2802,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/router/auth.ts",
+      "archive": "author/input04/files/web/src/router/auth.ts.txt",
+      "sha256": "5f4d814d2e67a90b3a8563d5e326dcb88c4f85aa8e6203a2005b2a12cf2fd5f8",
+      "bytes": 3098,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/tests/system-account-client.spec.ts",
+      "archive": "author/input04/files/web/src/tests/system-account-client.spec.ts.txt",
+      "sha256": "5fefbc0891bb208da566beca0168e33f6509975b9e234680796b3e86059feb8a",
+      "bytes": 8132,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/tests/system-user-directory-state.spec.ts",
+      "archive": "author/input04/files/web/src/tests/system-user-directory-state.spec.ts.txt",
+      "sha256": "7ac3ca1df17a080358c14e4be5e4cc44eecf6bb25af28317e0b147257085f793",
+      "bytes": 18383,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/tests/system-user-directory.spec.ts",
+      "archive": "author/input04/files/web/src/tests/system-user-directory.spec.ts.txt",
+      "sha256": "9659c19e4b508ab3ea46c1e23326dd6e0018a71b76ef4fbe737bef66d1dc2052",
+      "bytes": 16979,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/web/src/tests/personal-settings.spec.ts",
+      "archive": "author/input04/files/web/src/tests/personal-settings.spec.ts.txt",
+      "sha256": "0e6a3d862f2e97e236beee1f534d2b77524cf355d744546cb26eab3ed74498fc",
+      "bytes": 22283,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/tests/account/system_user_directory_web_test.go",
+      "archive": "author/input04/files/tests/account/system_user_directory_web_test.go.txt",
+      "sha256": "8f949e08cb00f4676a4b6f0367cc110e5782dfd261f3e8cdee4e9155fb2f8dbe",
+      "bytes": 2469,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/tests/account/system_user_directory_web_fixture_test.go",
+      "archive": "author/input04/files/tests/account/system_user_directory_web_fixture_test.go.txt",
+      "sha256": "b64fa72cd837ec37e3e1007ad9afec05d477bc9eb8c067ca12a57ca53c7cd4af",
+      "bytes": 10729,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/tests/account-captcha-web/system-user-directory.config.js",
+      "archive": "author/input04/files/tests/account-captcha-web/system-user-directory.config.js.txt",
+      "sha256": "3cb27bfc7aaa4ac564f877b9eefe660c13f24ef351ef3cb7a60c5fdefc47e05e",
+      "bytes": 1137,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/files/tests/account-captcha-web/e2e/system-user-directory.spec.ts",
+      "archive": "author/input04/files/tests/account-captcha-web/e2e/system-user-directory.spec.ts.txt",
+      "sha256": "51112073eeb83318ea6f4a6312c56306489997f55fdcea09a280f4c501ec8034",
+      "bytes": 25872,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/input03.json",
+      "archive": "author/input03/input03.json",
+      "sha256": "e45a32cf24db3920b3468395a983b8a4768528a86f04c01025bbf56fdce7f917",
+      "bytes": 10877,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/author-checks.json",
+      "archive": "author/input03/author-checks.json",
+      "sha256": "2750c23c49a7a0bb234ae99c25dcfca0c01bf505494e130757d362edd5106e1c",
+      "bytes": 5902,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/dist-sha256.txt",
+      "archive": "author/input03/dist-sha256.txt",
+      "sha256": "a00ff32ed62a418ffd2f2744d1f2beb2d70df7f2e9ab8c710ccb341699b2dd83",
+      "bytes": 2402,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/delta.diff",
+      "archive": "author/input03/delta.diff",
+      "sha256": "ebf3f1512eb9f902d5ba3c2642dafd050eac509547e0993159d6532c970f0b3d",
+      "bytes": 12849,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-component-01.log",
+      "archive": "author/logs/revision03-component-01.log",
+      "sha256": "be4636f12d2fe37de477a59ad96e6944d8d4e769a8735742ccd97d11b0cd5937",
+      "bytes": 299,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-harness-types-01.log",
+      "archive": "author/logs/revision03-harness-types-01.log",
+      "sha256": "486e08fc25412d0a49cb69785c3009cf4ac4dddcc572f8dddd659a050d76c6e3",
+      "bytes": 134,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-harness-types-02.log",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/verification/types01/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-format-01.log",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/author/runs/harness-pure02/raw.log",
+      "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "bytes": 66,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-build-01.log",
+      "archive": "author/logs/revision03-build-01.log",
+      "sha256": "7834441db8cbdb9d88e56ae9b3c487da210532eaef2f8323943fd51a1f9a3a13",
+      "bytes": 1957,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-observer-probe-01.log",
+      "archive": "author/logs/revision03-observer-probe-01.log",
+      "sha256": "97b56913e1e8dfe5f2393b2393a5ea8dd1ed31cddd019d0c3ac2278987c1ca98",
+      "bytes": 240,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/api/client.ts",
+      "archive": "author/input04/files/web/src/api/client.ts.txt",
+      "sha256": "8a73acb284970e5a8a2df005deafa85c8b32ad5d97befc24104879774319433f",
+      "bytes": 13112,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/api/account.ts",
+      "archive": "author/input04/files/web/src/api/account.ts.txt",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "bytes": 18878,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/api/system-account.ts",
+      "archive": "author/input04/files/web/src/api/system-account.ts.txt",
+      "sha256": "513ebe16bb11f66507ccd9990321ed038f8e8f6eb78d4219556c88eff19ea949",
+      "bytes": 2929,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/composables/useSession.ts",
+      "archive": "author/input04/files/web/src/composables/useSession.ts.txt",
+      "sha256": "ff9ef38e2d4c4aed2d7a0b685456b431757acc92a8399d0167f9dac0d93782a9",
+      "bytes": 51084,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/composables/useSystemUserDirectory.ts",
+      "archive": "author/input04/files/web/src/composables/useSystemUserDirectory.ts.txt",
+      "sha256": "3058a34b16bdc2d1018297daa556606806d7d2bf241d313dbcfa33b2f54a0894",
+      "bytes": 5297,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/components/layout/SettingsShell.vue",
+      "archive": "author/input04/files/web/src/components/layout/SettingsShell.vue.txt",
+      "sha256": "33ffaf93b3064a3ca768c9345de75b540f764cf25cd104dbdfbe09fcbffba340",
+      "bytes": 4133,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/components/layout/SystemNav.vue",
+      "archive": "author/input04/files/web/src/components/layout/SystemNav.vue.txt",
+      "sha256": "f381d7134b04d7f2f43e10a2be55ca2fd885b75b75e5528913582fc6d88ed1f7",
+      "bytes": 994,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/views/system/SystemSettingsView.vue",
+      "archive": "author/input04/files/web/src/views/system/SystemSettingsView.vue.txt",
+      "sha256": "dbb3e19184bcc081883104c191305edfd34d4b327ed06e304df3877dc56912cb",
+      "bytes": 1490,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/views/system/SystemUsersView.vue",
+      "archive": "author/input02/files/web/src/views/system/SystemUsersView.vue.txt",
+      "sha256": "2991f8aef38553647bbb258c639c854bec7bb025571172a7c05bcfe0366a3783",
+      "bytes": 5406,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/router/index.ts",
+      "archive": "author/input04/files/web/src/router/index.ts.txt",
+      "sha256": "674c7ad214401b9116f78666c76d33c19c755abee59daaa5d7abc439bbea6632",
+      "bytes": 2802,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/router/auth.ts",
+      "archive": "author/input04/files/web/src/router/auth.ts.txt",
+      "sha256": "5f4d814d2e67a90b3a8563d5e326dcb88c4f85aa8e6203a2005b2a12cf2fd5f8",
+      "bytes": 3098,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/tests/system-account-client.spec.ts",
+      "archive": "author/input04/files/web/src/tests/system-account-client.spec.ts.txt",
+      "sha256": "5fefbc0891bb208da566beca0168e33f6509975b9e234680796b3e86059feb8a",
+      "bytes": 8132,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/tests/system-user-directory-state.spec.ts",
+      "archive": "author/input04/files/web/src/tests/system-user-directory-state.spec.ts.txt",
+      "sha256": "7ac3ca1df17a080358c14e4be5e4cc44eecf6bb25af28317e0b147257085f793",
+      "bytes": 18383,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/tests/system-user-directory.spec.ts",
+      "archive": "author/input02/files/web/src/tests/system-user-directory.spec.ts.txt",
+      "sha256": "9ea141502a0be3a20add7a2b3b9cdf3c3be1c582952b378bf4485746cdc876f7",
+      "bytes": 16040,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/web/src/tests/personal-settings.spec.ts",
+      "archive": "author/input04/files/web/src/tests/personal-settings.spec.ts.txt",
+      "sha256": "0e6a3d862f2e97e236beee1f534d2b77524cf355d744546cb26eab3ed74498fc",
+      "bytes": 22283,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/tests/account/system_user_directory_web_test.go",
+      "archive": "author/input04/files/tests/account/system_user_directory_web_test.go.txt",
+      "sha256": "8f949e08cb00f4676a4b6f0367cc110e5782dfd261f3e8cdee4e9155fb2f8dbe",
+      "bytes": 2469,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/tests/account/system_user_directory_web_fixture_test.go",
+      "archive": "author/input04/files/tests/account/system_user_directory_web_fixture_test.go.txt",
+      "sha256": "b64fa72cd837ec37e3e1007ad9afec05d477bc9eb8c067ca12a57ca53c7cd4af",
+      "bytes": 10729,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/tests/account-captcha-web/system-user-directory.config.js",
+      "archive": "author/input04/files/tests/account-captcha-web/system-user-directory.config.js.txt",
+      "sha256": "3cb27bfc7aaa4ac564f877b9eefe660c13f24ef351ef3cb7a60c5fdefc47e05e",
+      "bytes": 1137,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/files/tests/account-captcha-web/e2e/system-user-directory.spec.ts",
+      "archive": "author/input02/files/tests/account-captcha-web/e2e/system-user-directory.spec.ts.txt",
+      "sha256": "12d016312b7d6602298801772e1e1bb1cf4a8a3cbd9ae5a1153e432fbb68e69d",
+      "bytes": 20402,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/input02.json",
+      "archive": "author/input02/input02.json",
+      "sha256": "0a2a8e7628a4afade78700ee31c14aa84469d36fc3979bf8ecbecef6794d340b",
+      "bytes": 10328,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/author-checks.json",
+      "archive": "author/input02/author-checks.json",
+      "sha256": "d40185a32d84a2cbb1db87e75dbc5204795438c7efcb40ce66adf946dbbfe23b",
+      "bytes": 3085,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/dist-sha256.txt",
+      "archive": "author/input02/dist-sha256.txt",
+      "sha256": "e96e28e9e1c16be490d1c8ac0d8efec54dbfd495ec3e6a97269f45613aa4dcd8",
+      "bytes": 2402,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/delta.diff",
+      "archive": "author/input02/delta.diff",
+      "sha256": "766593d0e46c4bcf589d27202b6303c7863d5bf35006741935d32ab358ab0b61",
+      "bytes": 7715,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision02-component-01.log",
+      "archive": "author/logs/revision02-component-01.log",
+      "sha256": "e6bc04d91cd9f611dcd645b853e4119f853305424f6491bb06100eb91b5a24ed",
+      "bytes": 299,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision02-type-check-01.log",
+      "archive": "author/logs/revision02-type-check-01.log",
+      "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+      "bytes": 54,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision02-harness-types-01.log",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/verification/types01/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/api/client.ts",
+      "archive": "author/input04/files/web/src/api/client.ts.txt",
+      "sha256": "8a73acb284970e5a8a2df005deafa85c8b32ad5d97befc24104879774319433f",
+      "bytes": 13112,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/api/account.ts",
+      "archive": "author/input04/files/web/src/api/account.ts.txt",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "bytes": 18878,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/api/system-account.ts",
+      "archive": "author/input04/files/web/src/api/system-account.ts.txt",
+      "sha256": "513ebe16bb11f66507ccd9990321ed038f8e8f6eb78d4219556c88eff19ea949",
+      "bytes": 2929,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/composables/useSession.ts",
+      "archive": "author/input04/files/web/src/composables/useSession.ts.txt",
+      "sha256": "ff9ef38e2d4c4aed2d7a0b685456b431757acc92a8399d0167f9dac0d93782a9",
+      "bytes": 51084,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/composables/useSystemUserDirectory.ts",
+      "archive": "author/input04/files/web/src/composables/useSystemUserDirectory.ts.txt",
+      "sha256": "3058a34b16bdc2d1018297daa556606806d7d2bf241d313dbcfa33b2f54a0894",
+      "bytes": 5297,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/components/layout/SettingsShell.vue",
+      "archive": "author/input04/files/web/src/components/layout/SettingsShell.vue.txt",
+      "sha256": "33ffaf93b3064a3ca768c9345de75b540f764cf25cd104dbdfbe09fcbffba340",
+      "bytes": 4133,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/components/layout/SystemNav.vue",
+      "archive": "author/input04/files/web/src/components/layout/SystemNav.vue.txt",
+      "sha256": "f381d7134b04d7f2f43e10a2be55ca2fd885b75b75e5528913582fc6d88ed1f7",
+      "bytes": 994,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/views/system/SystemSettingsView.vue",
+      "archive": "author/input04/files/web/src/views/system/SystemSettingsView.vue.txt",
+      "sha256": "dbb3e19184bcc081883104c191305edfd34d4b327ed06e304df3877dc56912cb",
+      "bytes": 1490,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/views/system/SystemUsersView.vue",
+      "archive": "author/input02/files/web/src/views/system/SystemUsersView.vue.txt",
+      "sha256": "2991f8aef38553647bbb258c639c854bec7bb025571172a7c05bcfe0366a3783",
+      "bytes": 5406,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/router/index.ts",
+      "archive": "author/input04/files/web/src/router/index.ts.txt",
+      "sha256": "674c7ad214401b9116f78666c76d33c19c755abee59daaa5d7abc439bbea6632",
+      "bytes": 2802,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/router/auth.ts",
+      "archive": "author/input04/files/web/src/router/auth.ts.txt",
+      "sha256": "5f4d814d2e67a90b3a8563d5e326dcb88c4f85aa8e6203a2005b2a12cf2fd5f8",
+      "bytes": 3098,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/tests/system-account-client.spec.ts",
+      "archive": "author/input04/files/web/src/tests/system-account-client.spec.ts.txt",
+      "sha256": "5fefbc0891bb208da566beca0168e33f6509975b9e234680796b3e86059feb8a",
+      "bytes": 8132,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/tests/system-user-directory-state.spec.ts",
+      "archive": "author/input04/files/web/src/tests/system-user-directory-state.spec.ts.txt",
+      "sha256": "7ac3ca1df17a080358c14e4be5e4cc44eecf6bb25af28317e0b147257085f793",
+      "bytes": 18383,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/tests/system-user-directory.spec.ts",
+      "archive": "author/input01/files/web/src/tests/system-user-directory.spec.ts.txt",
+      "sha256": "6c8668f37cb59577577de2dd7be04840182ac4ba33ef84cf49d8cdfad4468725",
+      "bytes": 15274,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/web/src/tests/personal-settings.spec.ts",
+      "archive": "author/input04/files/web/src/tests/personal-settings.spec.ts.txt",
+      "sha256": "0e6a3d862f2e97e236beee1f534d2b77524cf355d744546cb26eab3ed74498fc",
+      "bytes": 22283,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/tests/account/system_user_directory_web_test.go",
+      "archive": "author/input04/files/tests/account/system_user_directory_web_test.go.txt",
+      "sha256": "8f949e08cb00f4676a4b6f0367cc110e5782dfd261f3e8cdee4e9155fb2f8dbe",
+      "bytes": 2469,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/tests/account/system_user_directory_web_fixture_test.go",
+      "archive": "author/input04/files/tests/account/system_user_directory_web_fixture_test.go.txt",
+      "sha256": "b64fa72cd837ec37e3e1007ad9afec05d477bc9eb8c067ca12a57ca53c7cd4af",
+      "bytes": 10729,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/tests/account-captcha-web/system-user-directory.config.js",
+      "archive": "author/input04/files/tests/account-captcha-web/system-user-directory.config.js.txt",
+      "sha256": "3cb27bfc7aaa4ac564f877b9eefe660c13f24ef351ef3cb7a60c5fdefc47e05e",
+      "bytes": 1137,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/files/tests/account-captcha-web/e2e/system-user-directory.spec.ts",
+      "archive": "author/input01/files/tests/account-captcha-web/e2e/system-user-directory.spec.ts.txt",
+      "sha256": "289f1879af4bb5ef50f41e57eb2e3fb81145523eeb5a1cedddb057dd0e73fba8",
+      "bytes": 18165,
+      "role": "exact source snapshot"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/input01.json",
+      "archive": "author/input01/input01.json",
+      "sha256": "490e7af16f406b61512256ee4f80ba01628041213f32569d32a9065455ca4184",
+      "bytes": 9544,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/author-checks.json",
+      "archive": "author/input01/author-checks.json",
+      "sha256": "11b5724a370ac6a7eca44eeca7248631475c5e048965293ef583a7a0917c5f81",
+      "bytes": 6868,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/dist-sha256.txt",
+      "archive": "author/input02/dist-sha256.txt",
+      "sha256": "e96e28e9e1c16be490d1c8ac0d8efec54dbfd495ec3e6a97269f45613aa4dcd8",
+      "bytes": 2402,
+      "role": "frozen author input/checks or exact delta; dist hashes only"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/unit-01.log",
+      "archive": "author/logs/unit-01.log",
+      "sha256": "df7fd260773101a039f0dad1acb96c619763f825936c3aaf945f62b76f628469",
+      "bytes": 2907,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/unit-02.log",
+      "archive": "author/logs/unit-02.log",
+      "sha256": "5cd80a0637c77f39631fa4d01fdf2af5c7011bb90a8cf4b80c3c916050ac540a",
+      "bytes": 385,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/check-01.log",
+      "archive": "author/logs/check-01.log",
+      "sha256": "1e57a1322bc1ea3e7a5f9e1c290d151436682412d73f3683d789fa3f09b240c0",
+      "bytes": 2435,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/harness-types-01.log",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/verification/types01/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/go-compile-01.log",
+      "archive": "author/logs/go-compile-01.log",
+      "sha256": "ebf1f12c71187aec58bc12b92f9ea31a5d4c46f56f9f7dac409be6349a1e1c48",
+      "bytes": 495,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/go-compile-02.log",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/verification/types01/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/go-vet-01.log",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/verification/types01/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original command output, including failures"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/preparation.json",
+      "archive": "author/preparation.json",
+      "sha256": "67907ed78060c9eddaf63675a1a4ce1bd379299bf45a3449e4f5c8f0e051c8d0",
+      "bytes": 2022,
+      "role": "preparation or original native reader probe"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/web-npm-ci.log",
+      "archive": "author/web-npm-ci.log",
+      "sha256": "be1327ac5da2f7df9690180640c813b5b094c9cf75db8ae3b5633ff4b25ad18c",
+      "bytes": 805,
+      "role": "preparation or original native reader probe"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/web-npm-ci-02.log",
+      "archive": "author/web-npm-ci-02.log",
+      "sha256": "89274695f5fbd1c31de5a145eaaf9a1ca5a283670023dd7a003dcf2808463ad5",
+      "bytes": 26,
+      "role": "preparation or original native reader probe"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/harness-npm-ci.log",
+      "archive": "author/harness-npm-ci.log",
+      "sha256": "b2adb8edff1e915d9eb057bf436eb8eff2cbf55dd54970f42de3bd26458212e7",
+      "bytes": 25,
+      "role": "preparation or original native reader probe"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-observer-probe.cjs",
+      "archive": "author/revision03-observer-probe.cjs.txt",
+      "sha256": "832f289c3d1e4f49c521f98f5cb53101bdfd8495a3d8c9b209045cbfb678cb44",
+      "bytes": 3625,
+      "role": "preparation or original native reader probe"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/readme-final01/README.diff",
+      "archive": "author/readme-final01/README.diff",
+      "sha256": "a476c436a8be017cee0cfdb5917409b3a026b93171a0df31d683468906120268",
+      "bytes": 15120,
+      "role": "accepted documentation-only twentieth path"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/readme-final01/README.final.md",
+      "archive": "author/readme-final01/README.final.md.txt",
+      "sha256": "cbd81dcb0280801d972a96b6cd9a6b110d3c756c185e57c9bd9875bdc731a6df",
+      "bytes": 16409,
+      "role": "accepted documentation-only twentieth path"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/readme-final01/README.original.md",
+      "archive": "author/readme-final01/README.original.md.txt",
+      "sha256": "da9b2499f7e4d96d9635600dd2c576c88528076774e17f1468cde8de6f015a31",
+      "bytes": 11126,
+      "role": "accepted documentation-only twentieth path"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/readme-final01/checks.json",
+      "archive": "author/readme-final01/checks.json",
+      "sha256": "a5ae082ddd4ff59d15b05d3b6c9b6ae0b152060ff3f97256e4c884a1bbf85e3a",
+      "bytes": 2520,
+      "role": "accepted documentation-only twentieth path"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/readme-final01/delivery20.json",
+      "archive": "author/readme-final01/delivery20.json",
+      "sha256": "503c60ed42fc4f521bf83c16379d429c155a8e77a4a8d0e28d9532e388053ce6",
+      "bytes": 5561,
+      "role": "accepted documentation-only twentieth path"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/verification-report.md",
+      "archive": "verification/verification-report.md.txt",
+      "sha256": "1cceaf0cfb56dd49b5db15216852c1913985ea96f6369faa7ac98d297f7b297d",
+      "bytes": 8016,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/verification-report.json",
+      "archive": "verification/verification-report.json",
+      "sha256": "3dc8c6608c5db99c909c325fd74424a4fb180747e83bef29fa2b85d3889481ec",
+      "bytes": 9942,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/preparation-plan.json",
+      "archive": "verification/preparation-plan.json",
+      "sha256": "d05e5cbe14ac9a924c4610ee732f002f72121416ab7fce7918559a35f7bb373a",
+      "bytes": 3156,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/review01.json",
+      "archive": "verification/review01.json",
+      "sha256": "23f8c1326576dd8686b5419d31ac81ff39e9e43aa83fc1a5589b44ab331a2901",
+      "bytes": 3394,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/review02.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/ui-review02.json",
+      "sha256": "777ff474041e7188f8d4988d16aa7a2d9a398a265f6a0f706e15488c5377a698",
+      "bytes": 4020,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/frozen-input01.json",
+      "archive": "verification/frozen-input01.json",
+      "sha256": "7d30896f1ab376b1b6f6e6b3df9ec34ee099ddfbcb42a750355930acfab1ee7a",
+      "bytes": 11932,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/frozen-input02.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/frozen-input.json",
+      "sha256": "b846d531a803d374b07ff2096afb62d1713f9706a11c80d3577929c5c471b0ec",
+      "bytes": 11932,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/frozen-input04.json",
+      "archive": "verification/frozen-input04.json",
+      "sha256": "3e9eb47554d3ca87471a5e8c21adf6e0f28b12e37b61f7a8a88907e65ca12333",
+      "bytes": 12463,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/driver-revision02.json",
+      "archive": "verification/driver-revision02.json",
+      "sha256": "f29bd8293cdd3195b9c43d6c922fc944b92aa113c3b4f3af8e67da448fe1be75",
+      "bytes": 444,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/probe-revision02.json",
+      "archive": "verification/probe-revision02.json",
+      "sha256": "52f0e60afe503c132ca288af68a7b8fcb5392d501c753872e376e3a9ca9fbf37",
+      "bytes": 782,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/probe-revision03.json",
+      "archive": "verification/probe-revision03.json",
+      "sha256": "bc1e7713303d8bf60ab32ab9af6b3a5d2449f013ac1a0e446ae8163d3946f7ac",
+      "bytes": 1472,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/probe-revision02.diff",
+      "archive": "verification/probe-revision02.diff",
+      "sha256": "8abc57350b00f7155ea5d1552109de401479def616413a3292482c83206566e1",
+      "bytes": 2924,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/probe-revision03.diff",
+      "archive": "verification/probe-revision03.diff",
+      "sha256": "cc1ca051fcd2b9a3c95afbc92c374ddc6d9c1a475540bc1a442f28b137d363a5",
+      "bytes": 5075,
+      "role": "original independent report, review or frozen input"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/pure/directory-independent-state.spec.ts",
+      "archive": "verification/pure/directory-independent-state.spec.ts.txt",
+      "sha256": "cda21158c480396189a9bd19fdd8cde4301baf9287abafa8f424fc5af94bd783",
+      "bytes": 5020,
+      "role": "independent pure probe source"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/pure/vitest.config.mjs",
+      "archive": "verification/pure/vitest.config.mjs.txt",
+      "sha256": "0d0f1ef1d84939fc4650ed14ad53bdd3301be8cdf32b94bbf6d46239595b6d61",
+      "bytes": 320,
+      "role": "independent pure probe source"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/adopted-waits.json",
+      "archive": "verification/runs/new01/adopted-waits.json",
+      "sha256": "4a768ce5a2fb8b0a2700ad2bc6f7d3033964314a8740e70d128998a87ab82825",
+      "bytes": 1707,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/baseline.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/cleanup.json",
+      "archive": "verification/runs/new01/cleanup.json",
+      "sha256": "5e983669f96f54c13e0d6b49f3978809f14ac8f8868abaa7e57fc8bd4d6bd1ce",
+      "bytes": 2073,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/command.json",
+      "archive": "verification/runs/new01/command.json",
+      "sha256": "5118831d32a833f1d115546f0baa3b40b1c3aba6af09ed1de2488a17640796c4",
+      "bytes": 1396,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/driver.py.txt",
+      "archive": "verification/runs/new01/driver.py.txt",
+      "sha256": "b80b7c59d70220cc4d179d84bf7d13203dc493c99a4520fd361b9a73831a574b",
+      "bytes": 15516,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/frozen-input.json",
+      "archive": "verification/frozen-input01.json",
+      "sha256": "7d30896f1ab376b1b6f6e6b3df9ec34ee099ddfbcb42a750355930acfab1ee7a",
+      "bytes": 11932,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/input-after.json",
+      "archive": "verification/runs/new01/input-after.json",
+      "sha256": "ab2cb3517acb337b6b679b20a3a7cd6c06ebde5f305f6882676913dea500c52a",
+      "bytes": 12602,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/input-before.json",
+      "archive": "verification/runs/new01/input-after.json",
+      "sha256": "ab2cb3517acb337b6b679b20a3a7cd6c06ebde5f305f6882676913dea500c52a",
+      "bytes": 12602,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/monitor-errors.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/observed-processes.json",
+      "archive": "verification/runs/new01/observed-processes.json",
+      "sha256": "ed0113bd9a9ec784235ac3aca9742ff90ae8be02c738f32fc72df4c561dcefb7",
+      "bytes": 44698,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/observed-resources.json",
+      "archive": "verification/runs/new01/observed-resources.json",
+      "sha256": "88de81d57b3ba47c505d8e1b2241e75d7b685accb6879fd2f5841cc62fd481ac",
+      "bytes": 2350,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/raw.log",
+      "archive": "verification/runs/new01/raw.log",
+      "sha256": "0868b98c01cb9ada87934ea96c1224d1736c22ce8552e978e967479c979b8438",
+      "bytes": 17800,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/result.json",
+      "archive": "verification/runs/new01/result.json",
+      "sha256": "c8708e72de5f0aa553e288bdde767396bc2e2f0d08e564747056ac7b59a7e86e",
+      "bytes": 749,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/verification-input.json",
+      "archive": "verification/runs/new01/verification-input.json",
+      "sha256": "ddfa7c3fb904b1f3c8117497fca847b519132d570130c89c8653108738caa00b",
+      "bytes": 90,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/adopted-waits.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/adopted-waits.json",
+      "sha256": "8d951f019142d1a2f22efb6448a396eb4659fe4a4d6048959dfd00dc16ce8fba",
+      "bytes": 1707,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/baseline.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/cleanup.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/cleanup.json",
+      "sha256": "6f22900c1c82f66fa4c093e8b16a53a35a216c588c184674c300b7800b489ea5",
+      "bytes": 2073,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/command.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/command.json",
+      "sha256": "f79e53e18321ba614406ad6b85330e7e2e4ea96f917afe513bccd8ba59991061",
+      "bytes": 1395,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/driver.py.txt",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/verification/runs/independent01/monitor.py.txt",
+      "sha256": "1efa7021bb8a02c79bd58c31c7bf2f4ede8feec437bd221d5ef2abe7b9ec3cee",
+      "bytes": 15879,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/frozen-input.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/frozen-input.json",
+      "sha256": "b846d531a803d374b07ff2096afb62d1713f9706a11c80d3577929c5c471b0ec",
+      "bytes": 11932,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/input-after.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/input-after.json",
+      "sha256": "75a8ec64532db9f39b523b48a368f7336ac6198b8fa2659d3b6163fc381838f9",
+      "bytes": 12602,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/input-before.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/input-after.json",
+      "sha256": "75a8ec64532db9f39b523b48a368f7336ac6198b8fa2659d3b6163fc381838f9",
+      "bytes": 12602,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/monitor-errors.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/observed-processes.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/observed-processes.json",
+      "sha256": "a8c84dae1df25802eae8ef57aa7eab6d50073b3a67e344ec996cf434cd3f815b",
+      "bytes": 16571,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/observed-resources.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/observed-resources.json",
+      "sha256": "8491cb0d25fba755adb451e68d3a535d3d9007c32c1b3110a6bb591911b53972",
+      "bytes": 2350,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/raw.log",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/raw.log",
+      "sha256": "ea421557434f5d918b9849297d6cbd208e4df76bfd3fd64a7dfb9918db255409",
+      "bytes": 9390,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/result.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/result.json",
+      "sha256": "4beab8e46ab43196f7cdcd7e99d8002c3847dc0150d648d7dfcaedd9b61e47bf",
+      "bytes": 749,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/verification-input.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/verification-input.json",
+      "sha256": "8b175a7569f8afe1c147e4ae9e77a7775579d14eb9d21fd296f59f4f3ca9d3ee",
+      "bytes": 90,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/adopted-waits.json",
+      "archive": "verification/runs/new03/adopted-waits.json",
+      "sha256": "489e450a285aa324f2a45093cc36a2a2ba4458dedce44866ab6e66f49ee900b4",
+      "bytes": 1707,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/baseline.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/cleanup.json",
+      "archive": "verification/runs/new03/cleanup.json",
+      "sha256": "b4dd7fec2af7661f3ad5ffdb9310bae8d2b96d4f4491e8f2ca9aee0c5c0e65eb",
+      "bytes": 2073,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/command.json",
+      "archive": "verification/runs/new03/command.json",
+      "sha256": "abcca3d6368b4ea9d6835c4fd95f147653a2e6e9f034d3d1d334b274feb1590e",
+      "bytes": 1395,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/driver.py.txt",
+      "archive": "verification/runs/new03/driver.py.txt",
+      "sha256": "93a022e4f284f9b2f213f7cd587ca0378e92a245534bfa7b3b2c324eec1172d7",
+      "bytes": 16021,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/frozen-input.json",
+      "archive": "verification/frozen-input04.json",
+      "sha256": "3e9eb47554d3ca87471a5e8c21adf6e0f28b12e37b61f7a8a88907e65ca12333",
+      "bytes": 12463,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/input-after.json",
+      "archive": "verification/runs/new03/input-after.json",
+      "sha256": "ac962452d4409c157e4bbdd597c46464a12325e5f4b99a7b4208e4788e074ba1",
+      "bytes": 13051,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/input-before.json",
+      "archive": "verification/runs/new03/input-after.json",
+      "sha256": "ac962452d4409c157e4bbdd597c46464a12325e5f4b99a7b4208e4788e074ba1",
+      "bytes": 13051,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/monitor-errors.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/observed-processes.json",
+      "archive": "verification/runs/new03/observed-processes.json",
+      "sha256": "72a5367526d74abce78aaf4c0ac9330fd58ac1e17e280a389342283d32f68474",
+      "bytes": 16152,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/observed-resources.json",
+      "archive": "verification/runs/new03/observed-resources.json",
+      "sha256": "99284271f4a877a3de8377bb2967dd988c3361d5d6628f3bc0fadacb390903b6",
+      "bytes": 2350,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/raw.log",
+      "archive": "verification/runs/new03/raw.log",
+      "sha256": "7d0c3f6ebe8673e4728a97a493721c64e8d0a12a3539fb2a124d5938687f42e9",
+      "bytes": 6755,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/result.json",
+      "archive": "verification/runs/new03/result.json",
+      "sha256": "8ff6c0ea270ff6da32c675934f8aabf025d7183c8a560da6634225706b217c34",
+      "bytes": 748,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/verification-input.json",
+      "archive": "verification/runs/new03/verification-input.json",
+      "sha256": "4fe766ba73425a0442ffe1752de62867f7441553879cb3240228cfeccd164936",
+      "bytes": 90,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/adopted-waits.json",
+      "archive": "verification/runs/old01/adopted-waits.json",
+      "sha256": "45a656661194a79bca735932066e0de390912475da8e7a6e75fddf094ad01a1c",
+      "bytes": 1707,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/baseline.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/cleanup.json",
+      "archive": "verification/runs/old01/cleanup.json",
+      "sha256": "8f6b01d7ff0f05cf12c4ab41f9a8f2d973832d7a80c99f3ee0d20796ebd59986",
+      "bytes": 2073,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/command.json",
+      "archive": "verification/runs/old01/command.json",
+      "sha256": "7179c2f60294100f8d71a9618ec5051a03ae933b118b68c11ed87af673323a6b",
+      "bytes": 1374,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/driver.py.txt",
+      "archive": "verification/runs/new03/driver.py.txt",
+      "sha256": "93a022e4f284f9b2f213f7cd587ca0378e92a245534bfa7b3b2c324eec1172d7",
+      "bytes": 16021,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/frozen-input.json",
+      "archive": "verification/frozen-input04.json",
+      "sha256": "3e9eb47554d3ca87471a5e8c21adf6e0f28b12e37b61f7a8a88907e65ca12333",
+      "bytes": 12463,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/input-after.json",
+      "archive": "verification/runs/new03/input-after.json",
+      "sha256": "ac962452d4409c157e4bbdd597c46464a12325e5f4b99a7b4208e4788e074ba1",
+      "bytes": 13051,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/input-before.json",
+      "archive": "verification/runs/new03/input-after.json",
+      "sha256": "ac962452d4409c157e4bbdd597c46464a12325e5f4b99a7b4208e4788e074ba1",
+      "bytes": 13051,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/monitor-errors.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/observed-processes.json",
+      "archive": "verification/runs/old01/observed-processes.json",
+      "sha256": "58e7e7fa4113789af0f82f7d78c3a721782e9611b9ba3d6f33ca116a2c483d8b",
+      "bytes": 16464,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/observed-resources.json",
+      "archive": "verification/runs/old01/observed-resources.json",
+      "sha256": "fb1ea104f01370329cc29530359fde268cba54fda9227ef4d135a930a1e7fadc",
+      "bytes": 2350,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/raw.log",
+      "archive": "verification/runs/old01/raw.log",
+      "sha256": "476c38a0369deee18d84ce72ff25fc697da29a5991cb4711b5ad22c22e8f1593",
+      "bytes": 8854,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/result.json",
+      "archive": "verification/runs/old01/result.json",
+      "sha256": "94974d3eeca48e05e18ae84cc12a24768081b75d647d42e230afae8c4ce7eb4b",
+      "bytes": 727,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/verification-input.json",
+      "archive": "verification/runs/new03/verification-input.json",
+      "sha256": "4fe766ba73425a0442ffe1752de62867f7441553879cb3240228cfeccd164936",
+      "bytes": 90,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/adopted-waits.json",
+      "archive": "verification/runs/independent01/adopted-waits.json",
+      "sha256": "2582d63eb1ffbe3f66ac257d3f31e371de536f9810b31a611b7e9e3363697e96",
+      "bytes": 571,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/baseline.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/cleanup.json",
+      "archive": "verification/runs/independent01/cleanup.json",
+      "sha256": "d63b2d8bdf7ba86ffed71606a50dd73283db4402f1965df51d100d8b95ed58bf",
+      "bytes": 2073,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/command.json",
+      "archive": "verification/runs/independent01/command.json",
+      "sha256": "91f64f8d22b212398ce2182716554ccb32c2516b9f4b9785cf9f93254bf9a6c0",
+      "bytes": 1480,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/directory-independent.config.mjs.txt",
+      "archive": "verification/runs/independent01/directory-independent.config.mjs.txt",
+      "sha256": "4e65c91248aa169e6c76852b0656fe6bebcb6242aa72d16b0724ff09abc1d681",
+      "bytes": 901,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/directory-independent.spec.ts.txt",
+      "archive": "verification/runs/independent01/directory-independent.spec.ts.txt",
+      "sha256": "ab7feecd16098e1f10ab06d7ec49e2eba521c6254e2a9f2745812b1aaa0d93fe",
+      "bytes": 8377,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/directory_independent_test.go.txt",
+      "archive": "verification/runs/independent01/directory_independent_test.go.txt",
+      "sha256": "61d163713c0f1f6e3a6d674fc1fc9b128fb08e8981156d42aee21da84c701725",
+      "bytes": 7749,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/driver.py.txt",
+      "archive": "verification/runs/new03/driver.py.txt",
+      "sha256": "93a022e4f284f9b2f213f7cd587ca0378e92a245534bfa7b3b2c324eec1172d7",
+      "bytes": 16021,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/frozen-input.json",
+      "archive": "verification/frozen-input04.json",
+      "sha256": "3e9eb47554d3ca87471a5e8c21adf6e0f28b12e37b61f7a8a88907e65ca12333",
+      "bytes": 12463,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/input-after.json",
+      "archive": "verification/runs/new03/input-after.json",
+      "sha256": "ac962452d4409c157e4bbdd597c46464a12325e5f4b99a7b4208e4788e074ba1",
+      "bytes": 13051,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/input-before.json",
+      "archive": "verification/runs/new03/input-after.json",
+      "sha256": "ac962452d4409c157e4bbdd597c46464a12325e5f4b99a7b4208e4788e074ba1",
+      "bytes": 13051,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/monitor-errors.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/observed-processes.json",
+      "archive": "verification/runs/independent01/observed-processes.json",
+      "sha256": "3143243c247bd933160652cd3b1cea46cd3f6d156a5e7539ba89b5f0a960e60e",
+      "bytes": 12302,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/observed-resources.json",
+      "archive": "verification/runs/independent01/observed-resources.json",
+      "sha256": "ee0d0dcb3787e5f6f8a8205cfe33e0f4b82f4c1d729d14b3a36178fb68b58b20",
+      "bytes": 2350,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/overlay.json",
+      "archive": "verification/runs/independent01/overlay.json",
+      "sha256": "efc97c9a0649476ccf862603a89b6cc6b1ad586e11d3c988a287874a4460484d",
+      "bytes": 212,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/raw.log",
+      "archive": "verification/runs/independent01/raw.log",
+      "sha256": "b99851760b9651b202dd15ceedb3194dd17924918e4fd5b087d926a455acffe8",
+      "bytes": 5997,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/result.json",
+      "archive": "verification/runs/independent01/result.json",
+      "sha256": "dd4f14d1a24cb76fe8e1237e48cc93ac93951af7cacdd1e331f49341491dc307",
+      "bytes": 579,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/verification-input.json",
+      "archive": "verification/runs/independent01/verification-input.json",
+      "sha256": "dad8a759447bb0cd50cb7a1bcc377b3483109c3076245baebca4c36295135ebf",
+      "bytes": 503,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/adopted-waits.json",
+      "archive": "verification/runs/independent02/adopted-waits.json",
+      "sha256": "6c092c1eb1d7de11b57508c38cffe533abb52683dc0d933a1e8c825bf4e95344",
+      "bytes": 571,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/baseline.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/cleanup.json",
+      "archive": "verification/runs/independent02/cleanup.json",
+      "sha256": "14c2cbdd774c17b4e4baab4ad189fa95555360b68fa31416fbaeeaf099454c57",
+      "bytes": 2073,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/command.json",
+      "archive": "verification/runs/independent02/command.json",
+      "sha256": "6a27017a036a39455af694443f049e3919f75c324378f656a306d208b8b7a2bb",
+      "bytes": 1481,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/directory-independent.config.mjs.txt",
+      "archive": "verification/runs/independent01/directory-independent.config.mjs.txt",
+      "sha256": "4e65c91248aa169e6c76852b0656fe6bebcb6242aa72d16b0724ff09abc1d681",
+      "bytes": 901,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/directory-independent.spec.ts.txt",
+      "archive": "verification/runs/independent02/directory-independent.spec.ts.txt",
+      "sha256": "60b144da61356f62bd8d4b8c1c64d66cda3776866166c244394a10e8349a7321",
+      "bytes": 9714,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/directory_independent_test.go.txt",
+      "archive": "verification/runs/independent01/directory_independent_test.go.txt",
+      "sha256": "61d163713c0f1f6e3a6d674fc1fc9b128fb08e8981156d42aee21da84c701725",
+      "bytes": 7749,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/driver.py.txt",
+      "archive": "verification/runs/new03/driver.py.txt",
+      "sha256": "93a022e4f284f9b2f213f7cd587ca0378e92a245534bfa7b3b2c324eec1172d7",
+      "bytes": 16021,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/frozen-input.json",
+      "archive": "verification/frozen-input04.json",
+      "sha256": "3e9eb47554d3ca87471a5e8c21adf6e0f28b12e37b61f7a8a88907e65ca12333",
+      "bytes": 12463,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/input-after.json",
+      "archive": "verification/runs/independent02/input-after.json",
+      "sha256": "57f5f5b4ffc18df18ebee118745fa4d1b31dae9ba7753241aba7224cd46c593f",
+      "bytes": 13051,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/input-before.json",
+      "archive": "verification/runs/new03/input-after.json",
+      "sha256": "ac962452d4409c157e4bbdd597c46464a12325e5f4b99a7b4208e4788e074ba1",
+      "bytes": 13051,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/monitor-errors.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/observed-processes.json",
+      "archive": "verification/runs/independent02/observed-processes.json",
+      "sha256": "a6ed900fc7b8d36186fb1c280312f65c4aec928f63fe2aea6ae605ed5a8fc540",
+      "bytes": 12028,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/observed-resources.json",
+      "archive": "verification/runs/independent02/observed-resources.json",
+      "sha256": "57c5da4af9d3d9529d520793a0e54d96753d35f775f1f7b51f0d08892526e1c8",
+      "bytes": 2350,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/overlay.json",
+      "archive": "verification/runs/independent01/overlay.json",
+      "sha256": "efc97c9a0649476ccf862603a89b6cc6b1ad586e11d3c988a287874a4460484d",
+      "bytes": 212,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/raw.log",
+      "archive": "verification/runs/independent02/raw.log",
+      "sha256": "c5430d611b799db519b7a6dda787a1f7b098d4893b37857806b4b8e67a41ffde",
+      "bytes": 5620,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/result.json",
+      "archive": "verification/runs/independent02/result.json",
+      "sha256": "9bd7a78ae3e452ce2569bea0d7a1ccde5caa0814e8709518df07fc9a3a91307a",
+      "bytes": 579,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/verification-input.json",
+      "archive": "verification/runs/independent02/verification-input.json",
+      "sha256": "9061e5b70042049c5a2ec5e8e560e8681efe25e7988a300c979dc46a7ab282df",
+      "bytes": 503,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/adopted-waits.json",
+      "archive": "verification/runs/independent03/adopted-waits.json",
+      "sha256": "10efb1f64a0fb079504efbc5c164696b7f19cca557073699cc41520d608dbaa5",
+      "bytes": 571,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/baseline.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/cleanup.json",
+      "archive": "verification/runs/independent03/cleanup.json",
+      "sha256": "4ba9bb296239941b64c0ad47d082db5847db736b744b908f02e63662d6547060",
+      "bytes": 2073,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/command.json",
+      "archive": "verification/runs/independent03/command.json",
+      "sha256": "9c3c23f64893159d6f73c8476bc2d227c1d4d44f46df3c271af9984a694ef339",
+      "bytes": 1481,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/directory-independent.config.mjs.txt",
+      "archive": "verification/runs/independent01/directory-independent.config.mjs.txt",
+      "sha256": "4e65c91248aa169e6c76852b0656fe6bebcb6242aa72d16b0724ff09abc1d681",
+      "bytes": 901,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/directory-independent.spec.ts.txt",
+      "archive": "verification/runs/independent03/directory-independent.spec.ts.txt",
+      "sha256": "980ab1e41ad2241c352d5d193274c9a5dcb0f1ec9d6d51bbcf6806a9c21bd0a8",
+      "bytes": 9636,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/directory_independent_test.go.txt",
+      "archive": "verification/runs/independent01/directory_independent_test.go.txt",
+      "sha256": "61d163713c0f1f6e3a6d674fc1fc9b128fb08e8981156d42aee21da84c701725",
+      "bytes": 7749,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/driver.py.txt",
+      "archive": "verification/runs/new03/driver.py.txt",
+      "sha256": "93a022e4f284f9b2f213f7cd587ca0378e92a245534bfa7b3b2c324eec1172d7",
+      "bytes": 16021,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/frozen-input.json",
+      "archive": "verification/frozen-input04.json",
+      "sha256": "3e9eb47554d3ca87471a5e8c21adf6e0f28b12e37b61f7a8a88907e65ca12333",
+      "bytes": 12463,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/input-after.json",
+      "archive": "verification/runs/independent02/input-after.json",
+      "sha256": "57f5f5b4ffc18df18ebee118745fa4d1b31dae9ba7753241aba7224cd46c593f",
+      "bytes": 13051,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/input-before.json",
+      "archive": "verification/runs/independent02/input-after.json",
+      "sha256": "57f5f5b4ffc18df18ebee118745fa4d1b31dae9ba7753241aba7224cd46c593f",
+      "bytes": 13051,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/monitor-errors.json",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/history/new02/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/observed-processes.json",
+      "archive": "verification/runs/independent03/observed-processes.json",
+      "sha256": "9b1079605cfeb55f2073aae554a6cd756e23f5b8f94888c601a99e8b57bd1a12",
+      "bytes": 12314,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/observed-resources.json",
+      "archive": "verification/runs/independent03/observed-resources.json",
+      "sha256": "c71e16754dda2b7a41c63d7301aa257e371e627061f68a9ef19267238db256e6",
+      "bytes": 2350,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/overlay.json",
+      "archive": "verification/runs/independent01/overlay.json",
+      "sha256": "efc97c9a0649476ccf862603a89b6cc6b1ad586e11d3c988a287874a4460484d",
+      "bytes": 212,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/raw.log",
+      "archive": "verification/runs/independent03/raw.log",
+      "sha256": "23eb271a824876e1950ae718b8fb47528c847a548d55f53062ae55f9c6835dea",
+      "bytes": 4967,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/result.json",
+      "archive": "verification/runs/independent03/result.json",
+      "sha256": "f172117a6424bd7a64769fc88c14bea97fc97972b000886af198e5f633026b6f",
+      "bytes": 578,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/verification-input.json",
+      "archive": "verification/runs/independent03/verification-input.json",
+      "sha256": "7a2ccc4502d27d4a21e27391bab295c835c5aad02a6c55882fcb4a2349d9e4b8",
+      "bytes": 503,
+      "role": "original actual run command/input/raw/resource evidence"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/pure01/command.json",
+      "archive": "verification/runs/pure01/command.json",
+      "sha256": "d2043dfef30a1dcdbadd5df523ba2af66549e937f910800d9dac9fdd82bf1280",
+      "bytes": 1099,
+      "role": "independent pure/type/compile command; no executable archived"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/pure01/raw.log",
+      "archive": "verification/runs/pure01/raw.log",
+      "sha256": "2317bbf0c95cff47603653a65ed0cb5526df3ff9791188c3f7bd23d9c72d26c8",
+      "bytes": 209,
+      "role": "independent pure/type/compile command; no executable archived"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/probe-types01/command.json",
+      "archive": "verification/runs/probe-types01/command.json",
+      "sha256": "2a7551a10b656805cf4daa9c895a1735fb784cb39fc5737dca8e804bbbf068c1",
+      "bytes": 872,
+      "role": "independent pure/type/compile command; no executable archived"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/probe-types01/raw.log",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/verification/types01/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "independent pure/type/compile command; no executable archived"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/probe-types02/command.json",
+      "archive": "verification/runs/probe-types02/command.json",
+      "sha256": "dea97cebc80b259d4b19c1f683e8ce3d5430d71661282620ff218c97ce5aa772",
+      "bytes": 925,
+      "role": "independent pure/type/compile command; no executable archived"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/probe-types02/raw.log",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/verification/types01/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "independent pure/type/compile command; no executable archived"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/probe-types03/command.json",
+      "archive": "verification/runs/probe-types03/command.json",
+      "sha256": "712279173d682bfdf8ad586d13cf74f0147ab0d43cd6d550c23c6cd4d77daa5a",
+      "bytes": 925,
+      "role": "independent pure/type/compile command; no executable archived"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/probe-types03/raw.log",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/verification/types01/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "independent pure/type/compile command; no executable archived"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/probe-compile01/command.json",
+      "archive": "verification/runs/probe-compile01/command.json",
+      "sha256": "370647eb6c24db0e4e1dd38d8737c7699a02aa35aea9512bd15c61ea40d38f82",
+      "bytes": 2439,
+      "role": "independent pure/type/compile command; no executable archived"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/probe-compile01/raw.log",
+      "archive": "../dialog-outside-focus-repair-verification-evidence/verification/types01/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "independent pure/type/compile command; no executable archived"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/images/system-directory-light-1440.png",
+      "archive": "verification/runs/new02/images/system-directory-light-1440.png",
+      "sha256": "428e0d2e77004fb3fdff7a83adc80a55ea524933714da6178447604a56280bef",
+      "bytes": 100623,
+      "role": "browser screenshot; reviewed subset stated in report"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/images/system-directory-light-834.png",
+      "archive": "verification/runs/new02/images/system-directory-light-834.png",
+      "sha256": "70b626fb1e7da3d0a0cbd05cd93d2cb1fb9d8d7ae54f17eba86de64bfbb41f8e",
+      "bytes": 77482,
+      "role": "browser screenshot; reviewed subset stated in report"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/images/system-directory-dark-1024.png",
+      "archive": "verification/runs/new03/images/system-directory-dark-1024.png",
+      "sha256": "2bf6cd9352e8329f328870492547ba9462a9a60f0300188a3f4be46f3f9226ab",
+      "bytes": 136486,
+      "role": "browser screenshot; reviewed subset stated in report"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/images/system-directory-dark-1440.png",
+      "archive": "verification/runs/new03/images/system-directory-dark-1440.png",
+      "sha256": "e1a57504a69ad34077ea15a405700c62aa214f1a211562401f8353d98f36e95d",
+      "bytes": 149384,
+      "role": "browser screenshot; reviewed subset stated in report"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/images/system-directory-dark-390.png",
+      "archive": "verification/runs/new03/images/system-directory-dark-390.png",
+      "sha256": "71f65712c8b1f2e9d0b5c787c1243c20c6ab130ca562bbc92c677c1c2fc771a0",
+      "bytes": 49950,
+      "role": "browser screenshot; reviewed subset stated in report"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/images/system-directory-dark-834.png",
+      "archive": "verification/runs/new03/images/system-directory-dark-834.png",
+      "sha256": "4605158e42db4b51e85adc77bbc61a2a7ad90d0fc82e5db32e2b3bf8aca7306a",
+      "bytes": 100917,
+      "role": "browser screenshot; reviewed subset stated in report"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/images/system-directory-light-1024.png",
+      "archive": "verification/runs/new03/images/system-directory-light-1024.png",
+      "sha256": "d339ee15f754a98f5fb35eeebe497e4d87d7b459749c5a84aa5070489a8e374f",
+      "bytes": 135609,
+      "role": "browser screenshot; reviewed subset stated in report"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/images/system-directory-light-1440.png",
+      "archive": "verification/runs/new03/images/system-directory-light-1440.png",
+      "sha256": "1b6338a793d9dbad6e0b1d4b5722e8e333bb7813cc72b03663572c56ab8e85f0",
+      "bytes": 149081,
+      "role": "browser screenshot; reviewed subset stated in report"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/images/system-directory-light-390.png",
+      "archive": "verification/runs/new03/images/system-directory-light-390.png",
+      "sha256": "9aa6b4e61365ed72d0bd20736b154202f151c71aacb15711249953e8b9ea1ea8",
+      "bytes": 49613,
+      "role": "browser screenshot; reviewed subset stated in report"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/images/system-directory-light-834.png",
+      "archive": "verification/runs/new03/images/system-directory-light-834.png",
+      "sha256": "9d066c9fa8d552446aad1719697a4c9ded72ee19e516c3463cfe1ba0003a1018",
+      "bytes": 100707,
+      "role": "browser screenshot; reviewed subset stated in report"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/images/independent-directory-dark-390.png",
+      "archive": "verification/runs/independent03/images/independent-directory-dark-390.png",
+      "sha256": "a94a6988e8637581548f2cfafa4195aa111ad187664c2db21e840d6b1f5300dd",
+      "bytes": 44611,
+      "role": "browser screenshot; reviewed subset stated in report"
+    },
+    {
+      "source": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/images/independent-directory-light-1440.png",
+      "archive": "verification/runs/independent03/images/independent-directory-light-1440.png",
+      "sha256": "df520bb240460976ab397f6f744bfcd8a3544a0b6809337977030401316a36d5",
+      "bytes": 61395,
+      "role": "browser screenshot; reviewed subset stated in report"
+    }
+  ]
+}

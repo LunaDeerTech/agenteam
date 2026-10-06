@@ -1,0 +1,1 @@
+PASS: exact native fetch/Response/read promises preserved; exactly two caller reads and one caller cancel; original chunks unchanged; full code captured before caller abort; >600000B observer bounded. No network/browser/business resources.

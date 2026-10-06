@@ -1,0 +1,118 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.133.195.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=1b85d3ab9351031ff55dbcd92ad0ad09
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=f56293f5ed5d3ec0a207871a1a2f9601
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.046s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+=== RUN   TestAccountSystemUserDirectoryWebReadAndPagination
+    system_user_directory_web_test.go:16: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:190541) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:190541) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-user-directory.spec.ts:338:1 › [read] real canonical fields and fresh cursor pagination
+        [1A[2K  1 passed (3.2s)
+        
+    system_user_directory_web_test.go:20: real bootstrap/invitation identities plus 28 explicitly inserted read-only samples: first/next/previous/refresh verified against canonical database fields; no snapshot claim
+--- PASS: TestAccountSystemUserDirectoryWebReadAndPagination (7.27s)
+=== RUN   TestAccountSystemUserDirectoryWebAuthorityAndIdentity
+    system_user_directory_web_test.go:27: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:191532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:191532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-user-directory.spec.ts:389:1 › [authority] real revocation, role loss and explicit identity switch
+        [1A[2K  1 passed (5.8s)
+        
+    system_user_directory_web_test.go:35: normal direct link did not issue directory GET; owned administrative Session revocation and role demotion produced actual backend 401/403; explicit account switch retired old data
+--- PASS: TestAccountSystemUserDirectoryWebAuthorityAndIdentity (9.80s)
+=== RUN   TestAccountSystemUserDirectoryWebNavigationAndLayouts
+    system_user_directory_web_test.go:42: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:192961) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:192961) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-user-directory.spec.ts:491:1 › [navigation] production navigation, draft confirmation and responsive accessibility
+        [1A[2K  1 passed (5.2s)
+        
+    system_user_directory_web_test.go:46: real administrator entry/login return, personal draft continue/discard, top logout, light/dark x 1440/1024/834/390, long names/email, keyboard/focus, reduced motion and no page overflow; production dist fixture only, no native zoom or deployment claim
+--- PASS: TestAccountSystemUserDirectoryWebNavigationAndLayouts (9.16s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	27.269s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.011s [no tests to run]
+D03 fixture cleanup checked for nonce 0e7e74fa27d9339380fad09431de461b
+D04 outbound fixture cleanup checked for nonce f56293f5ed5d3ec0a207871a1a2f9601
+D05 object fixture exact resource cleanup checked nonce=1b85d3ab9351031ff55dbcd92ad0ad09

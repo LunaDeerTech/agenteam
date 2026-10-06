@@ -87,3 +87,15 @@ author01 首红为合法 admin HEAD 实际405、原断言要求200；rev1 规格
 作者 old01 首 runner 缺 subreaper，两个 PID1 所属 Z 记录已经退出，但当前父进程无法 wait；该轮不写成全清零。作者新轮的实际回收只适用于新轮；独立首轮原 clean=false 及之后实际转换缓存清理分别保留，最终轮实际 wait/双清与监听基线不变。漏复制颜色文档、standalone tsc 缺 Node typeRoot、机制首次长 TMPDIR 启动失败也保留。归档按 SHA 去重，不复制全 web、依赖、dist 或可执行文件，没有重跑浏览器或业务测试。
 
 基础结果先独立交付，系统用户目录 UI 正按已接受 `b53895f` 重建冻结组合，仍须复验原 Navigation、权限与布局，尚无页面接受结论；本次仅在 UI 卡页首追加此基础依赖，其技术正文不变。邀请读口/00019 未进入该组合；完整 D27、D08–D28/E01 未完成，E01 未开始。既有 Summary 待决、Object/tools 原停止任务、Artifact/Project 阻塞、生产未绑定和 ready503 边界保持。
+
+## 9. 系统设置壳与用户目录 UI 完整卡接受
+
+§1–8保留恢复、后端补口与共享焦点分离交付时的事实。[用户目录UI完整卡](../work-items/d27-system-user-directory-ui.md)现已完成独立验收，主线程采纳并提交推送 `7ef3e30cf06b5df6d19516f24c34855a8308ef05`，远端与HEAD一致。[正式报告和最小证据](system-user-directory-ui-verification.md)固定input04 SHA-256 `c8f823330cd8ab9a226f96d5b2bdc6cbe9ec3d5d4a81080080ca8bdcc4b35966`，测试19源消费后端 `3affc01` 与共享焦点 `b53895f`；第20路径README在动态通过后另行文档检查。迁移前缀为00001–00018，邀请投递/00019没有混入此结果。
+
+作者完整check实际244/244测试、格式/类型/build通过；最终new03三个新顶层、old01三个旧顶层、independent03一个独立顶层均PASS，driver分别exit0/71.438s、84.826s、64.675s。独立两项pure在input01使用真实client/controller核唯一Cookie owner的实际fetch/body/cancel尾部，依所涉源至input04字节不变复用。不能以原native-reader的DTO观察或额外Session身份oracle代替owner尾部证据。
+
+new01/new02原红及原输入保留：尾空格比较错误、clone在真实401后的abort观察问题、局部表格nowrap和真实遮罩焦点缺陷分别处理；共享焦点仍沿§8独立接受后组合，原断言未放宽。独立01/02的CDP缓存缺失属于测试观察方法失败，实际登录200已确认；两轮原probe保留，最终使用稳定页面后的同浏览器原生Session GET证明身份，第三轮同一独立顶层通过。没有将测试观察失败称为产品失败。
+
+new03的light1440/dark390已由验收者、主线程及文档负责人实际查看，八主题尺寸组合的25行五列几何及窄屏标签顺序有真实断言；独立最终两截图也经验收者实际查看。七轮各自actual wait、7资源exact-ID双次absent、原2容器/4网络不变，所属PID/runtime清零；最终独立86PID、4实际adopted wait，源/dist/验证输入不变，窗口已交还。共享焦点旧作者两个PPID1 Z已退出但未由当前父wait的限制继续沿旧档保留，不以后轮清理倒推旧轮。
+
+本次只追加报告/证据、台账页首、本节与UI卡接受页首，技术正文和旧焦点档不变。证据按SHA去重，22dist只留哈希/输入/构建原log，不复制依赖缓存、可执行文件或完整web；离线脚本只核原字节及固定Git，未重跑浏览器、业务或资源。仅此目录UI卡接受，生产SPA、Vite真实代理、原生zoom、其他浏览器及完整D26/D27未验。Summary待决、Object/tools原停止、Artifact/Project阻塞、生产未绑定与ready503保持；完整D08–D28/E01未完成，E01未开始。

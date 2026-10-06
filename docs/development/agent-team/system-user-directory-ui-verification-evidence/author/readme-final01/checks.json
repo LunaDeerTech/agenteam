@@ -1,0 +1,51 @@
+{
+  "status": "README_APPLIED_AFTER_ROOT_ACCEPTED_FINAL_INDEPENDENT_PASS",
+  "applied_at_utc": "2026-10-06T05:27:34.364693+00:00",
+  "path": "docs/development/frontend/README.md",
+  "previous_sha256": "da9b2499f7e4d96d9635600dd2c576c88528076774e17f1468cde8de6f015a31",
+  "sha256": "cbd81dcb0280801d972a96b6cd9a6b110d3c756c185e57c9bd9875bdc731a6df",
+  "delta_sha256": "a476c436a8be017cee0cfdb5917409b3a026b93171a0df31d683468906120268",
+  "relative_links_checked": [
+    "../work-items/d26-account-authentication.md",
+    "../work-items/d26-personal-settings.md",
+    "../work-items/d26-public-account-entry.md",
+    "../work-items/d27-system-user-directory-ui.md",
+    "../backend/README.md",
+    "../work-items/d26-account-authentication.md",
+    "../work-items/d26-personal-settings.md",
+    "../../../api/openapi/account.json",
+    "../agent-team/personal-settings-verification.md",
+    "../agent-team/public-account-entry-verification.md",
+    "../work-items/d27-system-user-directory-ui.md",
+    "../agent-team/system-user-directory-read-verification.md",
+    "../agent-team/dialog-outside-focus-repair-verification.md",
+    "../backend/README.md",
+    "../../frontend-design/styles/README.md",
+    "components.md",
+    "verification.md"
+  ],
+  "shell_blocks_syntax_checked_without_execution": 5,
+  "real_test_selector_exact_matches": [
+    "TestAccountAuthenticationWebSessionLifecycle",
+    "TestAccountPersonalSettingsWebThemeAndNavigation",
+    "TestAccountPublicEntryWebIdentityNavigation",
+    "TestAccountSystemUserDirectoryWebAuthorityAndIdentity",
+    "TestAccountSystemUserDirectoryWebNavigationAndLayouts",
+    "TestAccountSystemUserDirectoryWebReadAndPagination"
+  ],
+  "format_checks": "UTF-8/LF, no trailing whitespace, balanced code fences, consistent Markdown table columns; shell snippets syntax checked only.",
+  "frozen_input04": {
+    "path": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/input04.json",
+    "sha256": "c8f823330cd8ab9a226f96d5b2bdc6cbe9ec3d5d4a81080080ca8bdcc4b35966",
+    "source_files_verified_unchanged": 19,
+    "dist_files_verified_unchanged": 22
+  },
+  "acceptance_basis": "Root reports independent03 exit0/64.675s, top8.83s, seven exact resources twice absent,86 PIDs gone,4 waits,runtime empty,source/dist unchanged; new3+old3+independent1 real PASS. No unavailable report link added.",
+  "not_run": [
+    "Git operations",
+    "browser",
+    "Docker",
+    "business services",
+    "product build or tests for this documentation-only change"
+  ]
+}

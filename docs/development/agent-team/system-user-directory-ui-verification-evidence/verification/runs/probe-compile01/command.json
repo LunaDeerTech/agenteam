@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-c",
+    "-race",
+    "-tags=integration",
+    "-o",
+    "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/probe-compile01/independent.test",
+    "./tests/account"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "CGO_ENABLED": "1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/gocache",
+    "GOTMPDIR": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/probe-compile01/tmp",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/probes/overlay.json"
+  },
+  "started_utc": "2026-10-06T04:56:33.124024+00:00",
+  "inputs": {
+    "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/probes/overlay.json": "efc97c9a0649476ccf862603a89b6cc6b1ad586e11d3c988a287874a4460484d",
+    "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/probes/directory_independent_test.go": "61d163713c0f1f6e3a6d674fc1fc9b128fb08e8981156d42aee21da84c701725",
+    "/workspace/agenteam/go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "/workspace/agenteam/go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "/workspace/agenteam/tests/account/authentication_web_fixture_test.go": "f8255ce98894757369d2b4ed93bf1382d20c035afe843e0f3b3890fed898e9c3",
+    "/workspace/agenteam/tests/account/personal_settings_web_fixture_test.go": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b",
+    "/workspace/agenteam/tests/account/system_user_directory_web_test.go": "8f949e08cb00f4676a4b6f0367cc110e5782dfd261f3e8cdee4e9155fb2f8dbe",
+    "/workspace/agenteam/tests/account/system_user_directory_web_fixture_test.go": "b64fa72cd837ec37e3e1007ad9afec05d477bc9eb8c067ca12a57ca53c7cd4af"
+  },
+  "scope": "Compile only; executable is not run. Backend 3affc01/migrations1\u201318; author Go files unchanged.",
+  "exit": 0,
+  "seconds": 4.237,
+  "actual_wait_completed": true,
+  "ended_utc": "2026-10-06T04:56:37.361336+00:00",
+  "inputs_unchanged": true,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

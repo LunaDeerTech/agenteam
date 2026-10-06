@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "node",
+    "/workspace/agenteam/tests/account-captcha-web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--target",
+    "ES2022",
+    "--module",
+    "NodeNext",
+    "--moduleResolution",
+    "NodeNext",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--types",
+    "node",
+    "--typeRoots",
+    "/workspace/agenteam/web/node_modules/@types",
+    "--strict",
+    "--skipLibCheck",
+    "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/probes/directory-independent.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-06T05:25:19.292720+00:00",
+  "seconds": 0.816,
+  "exit": 0,
+  "actual_wait_completed": true,
+  "input_sha256": "980ab1e41ad2241c352d5d193274c9a5dcb0f1ec9d6d51bbcf6806a9c21bd0a8",
+  "input_unchanged": true,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "started_utc": "2026-10-06T05:25:18.476268+00:00"
+}

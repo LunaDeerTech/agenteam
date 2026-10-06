@@ -1,0 +1,9 @@
+export default {
+  cacheDir: '/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/pure/vite-cache',
+  test: {
+    environment: 'jsdom',
+    dir: '/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/pure',
+    include: ['directory-independent-state.spec.ts'],
+    restoreMocks: true,
+  },
+}

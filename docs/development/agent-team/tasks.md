@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：系统设置壳与用户目录 UI 完整卡接受
+
+- [用户目录 UI rev1](../work-items/d27-system-user-directory-ui.md)已由前端作者完成、`recovery_verification` 独立最终 PASS；主线程采纳提交推送 `7ef3e30cf06b5df6d19516f24c34855a8308ef05`，远端一致。[正式报告与去重证据](system-user-directory-ui-verification.md)固定作者 input04 `c8f823330cd8ab9a226f96d5b2bdc6cbe9ec3d5d4a81080080ca8bdcc4b35966`：19个已测源码与22项dist哈希，后补README为第20路径，交付源全部与Git匹配。
+- 组合固定后端 `3affc01`、共享焦点 `b53895f` 及迁移00001–00018。完整npm检查244/244与格式/类型/build通过；最终new03新3、old01旧3、independent03独立1真实全PASS，独立pure两测试按未变client/controller字节复用。new01/new02原红、布局/共享焦点修复、独立两次CDP观察失败及原probe均保留，不把CDP缓存失败写成产品失败。
+- 每轮命令实际结束，各7资源exact-ID双次absent、原2容器/4网络不变，所属PID/runtime清零；最终独立exit0/64.675s、86PID与4实际wait，窗口已交还。截图真实审阅和八主题尺寸几何均有记录；焦点旧作者两个PPID1 Z历史限制继续分列。归档只读核原件/Git，没有重跑产品，不复制dist/缓存/二进制。
+- 仅本目录UI完整卡接受，未覆盖生产SPA/Vite真实代理、原生zoom、其他浏览器、邀请投递/00019或完整D26/D27。Summary待决、Object/tools原停止、Artifact/Project阻塞、ready503、完整D08–D28/E01未完成和E01未开始保持。以下旧记录保留当时事实。
+
 ## 2026-10-06：共享遮罩关闭焦点修复独立交付
 
 - [基础修复 rev1](../work-items/d27-dialog-outside-focus-repair.md)四路径由 `directory_backend` 实现、`recovery_verification` 独立 PASS；主线程采纳提交推送 `b53895f7eb1d020276e8f54a99a7c0821b286481`，远端一致。[正式报告与去重证据](dialog-outside-focus-repair-verification.md)固定作者 input01 `5a2300ba7a852feea5ad39ea48aa20c1e10f04e3ca4d76a5d335b0e3ea01a140`，四源与交付 Git 匹配。仅 UiDialog 的顶层/允许 outside handler 先 preventDefault 再关闭，UiDrawer 继承；层栈、样式和业务页均未在本卡改动。

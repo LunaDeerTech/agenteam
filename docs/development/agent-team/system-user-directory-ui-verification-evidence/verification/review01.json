@@ -1,0 +1,37 @@
+{
+  "reviewed_utc": "2026-10-06T04:56:10.326951+00:00",
+  "author_input_sha256": "490e7af16f406b61512256ee4f80ba01628041213f32569d32a9065455ca4184",
+  "combined_input_sha256": "7d30896f1ab376b1b6f6e6b3df9ec34ee099ddfbcb42a750355930acfab1ee7a",
+  "scope": "Independent frozen UI source review. Product files read only; tests authored only in scratch.",
+  "static_result": "No product blocker found in inspected source; dynamic UI not accepted while new01 failures remain.",
+  "checks": [
+    "Exactly nine SystemUser fields projected to unchanged eight-field AccountUser parser; strict Gregorian years0000–9999 and six fractional digits; immutable bounded rows, duplicate/order/cursor validation.",
+    "Fixed same-origin GET users limit25 with opaque cursor; no arbitrary request configuration, CSRF/write intent or command key.",
+    "System reads use existing Cookie owner and actual finally; visible 30s timeout or abandon cannot release unresolved fetch/body-cancel. Separate system revision cannot cancel personal/restore/entry owner.",
+    "Full current identity plus operation/page generations gate publication. Current401 invalidates identity; current403 blocks directory until successful Session confirmation. Page dispose resets rows and cursor history and removes watcher.",
+    "Only current admin navigation; nonadmin component branch cannot mount directory. SettingsShell defaults preserve personal scope and existing dirty-draft confirmation.",
+    "Pagination reads prior cursors again and only advances history on success; refresh resets history; failed/invalidcursor no autoretry. UTC canonical microseconds retained in time datetime and aria-label.",
+    "New fixture limits mutation to nonce-owned database/admin or exactSession and actual joined Node processes,45s/2m/oneworker/zero retries. Backend3affc01 and migrations1–18 held fixed."
+  ],
+  "independent_pure": {
+    "result": "PASS 2 tests",
+    "record": "runs/pure01/command.json",
+    "raw": "runs/pure01/raw.log",
+    "coverage": "Actual client/controller fetch barrier + unresolved body cancel retains owner across visible timeout and logout; strict calendar/microsecond/order/duplicate and unchanged old User shape."
+  },
+  "new01": {
+    "result": "FAIL 3 selected browser tests",
+    "actual_exit": 1,
+    "seconds": 230.626,
+    "input_unchanged": true,
+    "resource_terminal": "7 exact resources absent twice; baseline unchanged;393 observed PID/starttime gone;12 adopted waits; runtime empty; browser parent removed",
+    "raw_sha256": "0868b98c01cb9ada87934ea96c1224d1736c22ce8552e978e967479c979b8438",
+    "unresolved": "DOM aggregate comparison false after wire match; authority aggregate status/code false. No saved safe image before failure, no trace; detailed underlying values not captured. Author repair requires narrow diagnostics, without changing product string or error contract."
+  },
+  "limitations": [
+    "Registered Playwright skill/browser connector unavailable; accepted repository harness and exact locked Playwright1.56.1 drive installed Chromium151.",
+    "Author fetch Response.clone observation is DTO-only and can fail after original abort; never treated as owner/body-cancel completion evidence.",
+    "No production hosting/Vite proxy/native browser zoom/crossbrowser claim.",
+    "Old3 and independent real browser not yet run; stopped Object/tools tasks untouched."
+  ]
+}

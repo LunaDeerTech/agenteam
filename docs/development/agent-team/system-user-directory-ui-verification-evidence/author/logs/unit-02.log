@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-account-client.spec.ts src/tests/system-user-directory-state.spec.ts src/tests/system-user-directory.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+
+ Test Files  3 passed (3)
+      Tests  81 passed (81)
+   Start at  04:40:35
+   Duration  1.80s (transform 973ms, setup 0ms, import 1.27s, tests 567ms, environment 1.16s)
+

@@ -1,0 +1,69 @@
+{
+  "scope": "D27 System user directory frontend read-only preparation; no product implementation",
+  "baseline": "125e3c222ffca01ea0fd987d7dc47b8c30fa5f8b product; main 5fac116 documentation; backend five paths unaccepted during preparation",
+  "node": "24.19.0",
+  "npm": "11.9.0",
+  "dependency_runs": [
+    {
+      "name": "web-npm-ci",
+      "exit": 1,
+      "log": "web-npm-ci.log",
+      "note": "locked mirror returned HTTP 403; npm exited with Exit handler never called; preserved"
+    },
+    {
+      "name": "web-npm-ci-02",
+      "exit": 0,
+      "log": "web-npm-ci-02.log",
+      "locked_entries_installed": 146
+    },
+    {
+      "name": "harness-npm-ci",
+      "exit": 0,
+      "log": "harness-npm-ci.log",
+      "locked_entries_installed": 85
+    }
+  ],
+  "successful_flags": [
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund",
+    "--fetch-retries=0",
+    "--fetch-timeout=30000",
+    "--maxsockets=10",
+    "--registry=https://registry.npmjs.org",
+    "--replace-registry-host=always"
+  ],
+  "env": {
+    "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"
+  },
+  "cache": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/npm-cache",
+  "locked_dependencies": {
+    "web": {
+      "package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    "tests/account-captcha-web": {
+      "package.json": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58",
+      "package-lock.json": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+    }
+  },
+  "cli_versions": {
+    "vite": "8.3.1",
+    "vitest": "4.1.11",
+    "playwright": "1.56.1"
+  },
+  "browser_static": {
+    "executable": "/usr/bin/chromium",
+    "debian_package_version": "151.0.7922.173-1~deb13u1",
+    "launched": false
+  },
+  "not_run": [
+    "product tests",
+    "product build",
+    "browser",
+    "business server",
+    "Docker",
+    "Git mutation"
+  ],
+  "active_commands": 0
+}

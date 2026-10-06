@@ -1,0 +1,228 @@
+{
+  "scope": "D27 system settings shell and read-only user directory UI rev1; independent verifier, no product edits or Git mutations",
+  "result": "PASS, root accepted conclusion; UI product commit pending root",
+  "frozen_utc": "2026-10-06T05:28:14.139662+00:00",
+  "author_root": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0",
+  "author_input04": {
+    "path": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/input04.json",
+    "sha256": "c8f823330cd8ab9a226f96d5b2bdc6cbe9ec3d5d4a81080080ca8bdcc4b35966",
+    "source_count": 19,
+    "dist_count": 22
+  },
+  "combined_input": {
+    "path": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/frozen-input04.json",
+    "sha256": "3e9eb47554d3ca87471a5e8c21adf6e0f28b12e37b61f7a8a88907e65ca12333",
+    "selected_input_files": 82,
+    "dist_files": 22,
+    "integration_base": "b53895f7eb1d020276e8f54a99a7c0821b286481",
+    "backend_base": "3affc0194214101cfa1e6fdc583afa5d60005db8",
+    "migration_prefix": "00001–00018; no00019"
+  },
+  "author_final_check": {
+    "command": "npm run check --prefix web",
+    "record": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/author-checks.json",
+    "raw": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision04-check-01.log",
+    "raw_sha256": "78a60cc3e915e7fcfbb17b2773726cbcd93282007fb594a4f5f4da5bd6012716",
+    "exit": 0,
+    "results": "16 files/244 tests, format, vue-tsc and production build PASS"
+  },
+  "independent_pure": {
+    "record": "runs/pure01/command.json",
+    "raw_sha256": "2317bbf0c95cff47603653a65ed0cb5526df3ff9791188c3f7bd23d9c72d26c8",
+    "result": "2 PASS; real client/controller owner retained through ignored fetch abort and unresolved body cancel; strict dates/microseconds/ordering/duplicate and old eight-field User shape"
+  },
+  "runs": {
+    "new01": {
+      "command": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/command.json",
+      "exit": 1,
+      "seconds": 230.626,
+      "actual_wait_completed": true,
+      "raw": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/raw.log",
+      "raw_sha256": "0868b98c01cb9ada87934ea96c1224d1736c22ce8552e978e967479c979b8438",
+      "top_levels": [
+        [
+          "FAIL",
+          "TestAccountSystemUserDirectoryWebReadAndPagination"
+        ],
+        [
+          "FAIL",
+          "TestAccountSystemUserDirectoryWebAuthorityAndIdentity"
+        ],
+        [
+          "FAIL",
+          "TestAccountSystemUserDirectoryWebNavigationAndLayouts"
+        ]
+      ],
+      "resources": 7,
+      "observed_processes": 393,
+      "adopted_waits": 12,
+      "double_cleanup": true,
+      "source_files_unchanged": true,
+      "verification_inputs_unchanged": true
+    },
+    "new02": {
+      "command": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/command.json",
+      "exit": 1,
+      "seconds": 72.622,
+      "actual_wait_completed": true,
+      "raw": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/raw.log",
+      "raw_sha256": "ea421557434f5d918b9849297d6cbd208e4df76bfd3fd64a7dfb9918db255409",
+      "top_levels": [
+        [
+          "PASS",
+          "TestAccountSystemUserDirectoryWebReadAndPagination"
+        ],
+        [
+          "FAIL",
+          "TestAccountSystemUserDirectoryWebAuthorityAndIdentity"
+        ],
+        [
+          "FAIL",
+          "TestAccountSystemUserDirectoryWebNavigationAndLayouts"
+        ]
+      ],
+      "resources": 7,
+      "observed_processes": 115,
+      "adopted_waits": 12,
+      "double_cleanup": true,
+      "source_files_unchanged": true,
+      "verification_inputs_unchanged": true
+    },
+    "new03": {
+      "command": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/command.json",
+      "exit": 0,
+      "seconds": 71.438,
+      "actual_wait_completed": true,
+      "raw": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new03/raw.log",
+      "raw_sha256": "7d0c3f6ebe8673e4728a97a493721c64e8d0a12a3539fb2a124d5938687f42e9",
+      "top_levels": [
+        [
+          "PASS",
+          "TestAccountSystemUserDirectoryWebReadAndPagination"
+        ],
+        [
+          "PASS",
+          "TestAccountSystemUserDirectoryWebAuthorityAndIdentity"
+        ],
+        [
+          "PASS",
+          "TestAccountSystemUserDirectoryWebNavigationAndLayouts"
+        ]
+      ],
+      "resources": 7,
+      "observed_processes": 112,
+      "adopted_waits": 12,
+      "double_cleanup": true,
+      "source_files_unchanged": true,
+      "verification_inputs_unchanged": true
+    },
+    "old01": {
+      "command": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/command.json",
+      "exit": 0,
+      "seconds": 84.826,
+      "actual_wait_completed": true,
+      "raw": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/old01/raw.log",
+      "raw_sha256": "476c38a0369deee18d84ce72ff25fc697da29a5991cb4711b5ad22c22e8f1593",
+      "top_levels": [
+        [
+          "PASS",
+          "TestAccountPublicEntryWebIdentityNavigation"
+        ],
+        [
+          "PASS",
+          "TestAccountAuthenticationWebSessionLifecycle"
+        ],
+        [
+          "PASS",
+          "TestAccountPersonalSettingsWebThemeAndNavigation"
+        ]
+      ],
+      "resources": 7,
+      "observed_processes": 114,
+      "adopted_waits": 12,
+      "double_cleanup": true,
+      "source_files_unchanged": true,
+      "verification_inputs_unchanged": true
+    },
+    "independent01": {
+      "command": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/command.json",
+      "exit": 1,
+      "seconds": 60.81,
+      "actual_wait_completed": true,
+      "raw": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent01/raw.log",
+      "raw_sha256": "b99851760b9651b202dd15ceedb3194dd17924918e4fd5b087d926a455acffe8",
+      "top_levels": [
+        [
+          "FAIL",
+          "TestAccountSystemUserDirectoryWebIndependent"
+        ]
+      ],
+      "resources": 7,
+      "observed_processes": 86,
+      "adopted_waits": 4,
+      "double_cleanup": true,
+      "source_files_unchanged": true,
+      "verification_inputs_unchanged": true
+    },
+    "independent02": {
+      "command": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/command.json",
+      "exit": 1,
+      "seconds": 53.812,
+      "actual_wait_completed": true,
+      "raw": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent02/raw.log",
+      "raw_sha256": "c5430d611b799db519b7a6dda787a1f7b098d4893b37857806b4b8e67a41ffde",
+      "top_levels": [
+        [
+          "FAIL",
+          "TestAccountSystemUserDirectoryWebIndependent"
+        ]
+      ],
+      "resources": 7,
+      "observed_processes": 84,
+      "adopted_waits": 4,
+      "double_cleanup": true,
+      "source_files_unchanged": true,
+      "verification_inputs_unchanged": true
+    },
+    "independent03": {
+      "command": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/command.json",
+      "exit": 0,
+      "seconds": 64.675,
+      "actual_wait_completed": true,
+      "raw": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/independent03/raw.log",
+      "raw_sha256": "23eb271a824876e1950ae718b8fb47528c847a548d55f53062ae55f9c6835dea",
+      "top_levels": [
+        [
+          "PASS",
+          "TestAccountSystemUserDirectoryWebIndependent"
+        ]
+      ],
+      "resources": 7,
+      "observed_processes": 86,
+      "adopted_waits": 4,
+      "double_cleanup": true,
+      "source_files_unchanged": true,
+      "verification_inputs_unchanged": true
+    }
+  },
+  "final_probe_sha256": "980ab1e41ad2241c352d5d193274c9a5dcb0f1ec9d6d51bbcf6806a9c21bd0a8",
+  "probe_revisions": [
+    "probe-revision02.json",
+    "probe-revision02.diff",
+    "probe-revision03.json",
+    "probe-revision03.diff"
+  ],
+  "visual_review": [
+    "new03/system-directory-light-1440.png and dark-390.png actually viewed by verifier and root; 8 theme/width browser geometry assertions PASS",
+    "independent03/independent-directory-light-1440.png and dark-390.png actually viewed by verifier; table/card labels and no horizontal overflow"
+  ],
+  "resource_terminal": "No active verifier commands or real resources; final independent03 exact seven Docker IDs absent twice, baseline unchanged,86 PID/starttime gone,2Node/11Chromium,4actual adopted waits,monitor errors0,owned runtime empty/removed. Each prior UI round separately completed cleanup. Window released; no new starts authorized.",
+  "limitations": [
+    "Installed locked Playwright1.56.1/Chromium151 harness used; Playwright skill/browser connector unavailable, not falsely claimed.",
+    "Own Session oracle is a separate real same-browser GET after stable authenticated page; it proves current identity and exact Session User shape, not login-body shape or owner completion. Playwright Response objects only provide status; no CDP body reads remain in final probe.",
+    "Author native-reader observation is bounded600000B, returns original native promises/readers and performs no clone/tee/extra reads; safe code/DTO observation is not owner-tail proof. Independent controlled-transport pure test provides that tail evidence.",
+    "Task-owned same-origin dist server is not production SPA hosting or a real Vite proxy browser run. No native browser zoom, cross-browser or full D26/D27 claim.",
+    "Known Object/tools stopped tasks not resumed. Backend remained3affc01/migrations1–18. Invitation delivery/00019 absent.",
+    "Shared focus repair accepted separately b53895f; historical author old01 two PPID1 zombie records are still a documented unreapable historical tail, not UI-round active resources or a cleanup claim."
+  ]
+}

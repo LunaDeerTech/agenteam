@@ -1,0 +1,63 @@
+{
+  "scope": "D27 system settings shell/user directory UI rev1 independent verification preparation only",
+  "product_base": "3affc0194214101cfa1e6fdc583afa5d60005db8",
+  "root": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71",
+  "frontend_author_scratch": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0",
+  "locked_dependencies": {
+    "web": {
+      "package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    "tests/account-captcha-web": {
+      "package.json": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58",
+      "package-lock.json": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+    }
+  },
+  "playwright": "1.56.1 installed from original lock",
+  "chromium": "151.0.7922.173 at /usr/bin/chromium",
+  "node": "24.19.0",
+  "npm": "11.9.0",
+  "skill_limit": "No registered Playwright skill or browser connector available; use existing accepted repository harness, without claiming plugin/skill execution",
+  "reused_minio": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+  "reused_modcache": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+  "test_groups": {
+    "new": [
+      "TestAccountSystemUserDirectoryWebReadAndPagination",
+      "TestAccountSystemUserDirectoryWebAuthorityAndIdentity",
+      "TestAccountSystemUserDirectoryWebNavigationAndLayouts"
+    ],
+    "old": [
+      "TestAccountAuthenticationWebSessionLifecycle",
+      "TestAccountPersonalSettingsWebThemeAndNavigation",
+      "TestAccountPublicEntryWebIdentityNavigation"
+    ],
+    "independent": "At least one fresh browser/HTTP/PG chain for DB canonical time, ordinary-user refusal and real identity loss/permission recovery; scratch overlay only"
+  },
+  "static_risks": [
+    "one Cookie owner retained through actual fetch/body/cancel settlement after visible timeout or abandon",
+    "full UserID/SessionID/epoch plus page/request generation; stale403 cannot hide new identity navigation",
+    "system.dispose cannot cancel restore/password/entry or destroy personal drafts",
+    "closed9-field DTO preserves8-field Account parser; canonical valid calendar and microseconds ordering",
+    "fixed same-origin GET endpoint,25-item cursor page and no directory material in URL/storage/console",
+    "system SettingsShell scope,strict login return,dirty leave guard,focus and adaptive table semantic labels"
+  ],
+  "budgets": {
+    "playwright_case_seconds": 45,
+    "go_top_seconds": 120,
+    "go_package_seconds": 360,
+    "workers": 1,
+    "retries": 0,
+    "browser_runtime_max_chars": 45
+  },
+  "resource_policy": "One sequential fixture owner; capture prestart baseline, PID/starttime and actual waits; exact resources absent twice and private runtime removed; frozen source+dist checks before/after",
+  "not_started": [
+    "fixture",
+    "browser",
+    "business process",
+    "product test"
+  ],
+  "waiting_for": [
+    "frontend frozen input and stopped writes",
+    "root real-resource window authorization"
+  ]
+}

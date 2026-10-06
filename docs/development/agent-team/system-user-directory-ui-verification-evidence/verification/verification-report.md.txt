@@ -1,0 +1,47 @@
+# D27 系统用户目录 UI 独立验收
+
+结论：**PASS**。主线程已采纳结论，产品提交由主线程处理。验收者未改产品源码、锁、迁移或 Git；任务自有真实资源已交回，不再启动或重复运行。
+
+固定作者 input04：`/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/input04.json`，SHA `c8f823330cd8ab9a226f96d5b2bdc6cbe9ec3d5d4a81080080ca8bdcc4b35966`，19 源 + 22 dist。组合清单 `frozen-input04.json` SHA `3e9eb47554d3ca87471a5e8c21adf6e0f28b12e37b61f7a8a88907e65ca12333`，82 个所需源/依赖及 22 dist；基础 `b53895f7eb1d020276e8f54a99a7c0821b286481`，后端严格 `3affc0194214101cfa1e6fdc583afa5d60005db8`、迁移 1–18。README 第20路径仅后续文档差量。各真实轮 input-before/after 对源码/dist逐项一致；运行间纯文档提交不充当产品输入变化。
+
+独立静审通过固定只读 GET/limit25/不透明 cursor、严格九字段向旧八字段解析器投影、有效 Gregorian 年份与完整微秒、冻结页/严格顺序、唯一 Cookie owner 实际尾部、完整 identity/代次门控、401/403 清理、页面 dispose 不取消 restore/个人/公开操作、原个人草稿离页确认和壳默认行为。`review01.json`、`review02.json` 是保留当时未完成/首红结论的历史原件；最终结论以本报告为准。
+
+作者最终 `npm run check --prefix web` 实际 exit0：16 文件244测试、格式、vue-tsc、production build 全过；`input04/author-checks.json` 与 `revision04-check-01.log`（SHA `78a60cc3e915e7fcfbb17b2773726cbcd93282007fb594a4f5f4da5bd6012716`）为原件。Go integration race compile/vet 沿 input01 未变 Go 字节复用；browser tsc/native-reader纯探针沿 input03 未变字节复用。
+
+独立 `runs/pure01` 实际2测试 PASS：真实 client/controller 的 fetch 忽略 abort、可见30秒后及 body cancel 尚未结束时均不能让 logout 越过 owner，真实尾部完成后才继续；严格日历边界、六位微秒排序、重复ID及旧 User 拒绝新增 created_at。不是以 mock 已 resolve API 推断资源结束。
+
+真实命令均为 `sh scripts/test-objects.sh -run <精确锚定顶层>`；各 `runs/<name>/command.json` 记录实际 argv/env/exit/wait，`driver.py.txt` 为执行时驱动。最终三个组如下：
+
+| 轮次 | 实际结果/总耗时 | 关键事实 |
+| --- | --- | --- |
+| new03 | exit0 / 71.438s，新3组全过 | canonical 分页/上一页重读/刷新；真实401 SESSION_REVOKED和403 FORBIDDEN；身份清理、个人草稿与注销；8主题宽度组合全部cell几何和标签顺序、遮罩/Escape焦点。 |
+| old01 | exit0 / 84.826s，旧3组全过 | 登录/Session生命周期、个人主题导航、公开入口身份与脏草稿导航。 |
+| independent03 | exit0 / 64.675s，独立1组过（顶层8.83s/browser3.8s） | 正式 bootstrap/邀请形成3账户，PG canonical时间/五列逐行吻合；同Session恢复；自有admin精确降权→真实403→Session重验→恢复；精确Session撤销→真实401→零旧行；新普通身份经同浏览器真实Session精确确认，直达目录拒绝且零users GET。 |
+
+独立 fixture 只对任务自有库精确admin行降权/恢复以及捕获的自有Session行撤销，三次各影响1行；Go终局复查角色恢复与同Session撤销事实。原生Session oracle在实际登录200及稳定目标页之后发起，只返回身份/角色/字段名/Session ID等必要事实，不向产品状态写入，也不冒充owner尾部证据。
+
+原失败均保留，未缩减契约断言或延长预算：
+
+- new01 三红：目录observer对textContent做trim，破坏fixture真实尾空格；Authority的clone JSON观察未记录失败细节。input02只修测试比较并补窄诊断，真实组件纯测试证明产品保留原文。
+- new02 Read已过；Authority诊断确认实际401但clone读取Abort；Navigation真实遮罩关闭后触发点失焦。实际截图还显示继承nowrap令桌面仅邮箱列可见。input03改局部表格换行/列宽及几何断言，观察器改真实响应优先+原native reader有界旁路，严格状态/code仍保留；共享焦点另卡独立接受b53895f后才重建input04组合。
+- independent01、independent02 分别在最终普通登录/首次管理员登录的CDP Network.getResponseBody缓存缺失失败，实际HTTP200已经确认。两次登录统一稳定目标页后真实同浏览器Session GET；最终全部Playwright Response仅读status，唯一native JSON读取不使用CDP缓存，无clone/tee。两次原红、精确probe快照及revision02/03差量保留；第三轮通过后停止。
+
+验收者与主线程实际查看 new03 light1440/dark390：桌面五列同屏、长文本换行，390窄屏为有明确字段标签的卡片；验收者还实际查看 independent03 的同两尺寸截图。new03自动几何覆盖 light/dark ×1440/1024/834/390 全部25行的五个cell与窄屏标签顺序。截图仅证布局，权限与焦点由真实交互断言证明。
+
+每轮保持 browser45秒、Go顶层2分钟、fixture原预算、workers1/retries0、race/count1/每包6m。精确 Go1.27.1、锁定只读/离线模块；实际 MinIO SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`，PG17.8/vector0.8.1及原固定PG16 fixture（本轮其他包无匹配测试，不重复宣称执行PG16拒绝测试），实际版本/镜像digest在各raw；Node24.19/Playwright1.56.1/Chromium151.0.7922.173。原准备在 `preparation-plan.json` 与作者 `preparation.json`，正式运行不使用MinIO构建modcache。
+
+资源终局：new03 的112、old01 的114、independent03 的86个观察所属PID/starttime全部消失；三轮各7个exact-ID Docker资源双次absent，原2容器/4网络基线不变，runtime为空/短浏览器目录删除，实际等待和adopted wait分别12/12/4，monitor errors=0，source/dist/probe不变。原红各轮也分别完成同样终局；不以后轮清理倒推旧轮。基础焦点作者old01的两PPID1 Z历史回收限制沿已归档独立报告保留，未声称本UI轮回收了它们。
+
+限制：未验证生产SPA托管、真实Vite代理、原生浏览器缩放或其他浏览器，不等同完整D26/D27；Playwright技能/浏览器connector不可用，使用已锁仓库harness，不虚称调用技能。原Object/tools停止任务未恢复；邀请投递/00019未混入。读取observer的body done/DTO只作观察，不可替代原owner/cancel实际尾部。
+
+最小归档：保留本md/json、preparation-plan、review01/02、frozen-input01/02/04、driver-revision02、probe-revision02/03及diff；pure的两个源码和命令/raw；独立Go/TS/config/overlay；各七真实轮顶层原件（command/raw/result、driver、frozen/input-before/input-after、verification-input、baseline、observed-resources/processes、monitor-errors、adopted-waits、cleanup和独立轮精确probe副本），new03八截图与independent03两截图，以及new02已视两张布局原件。作者根input01–04清单/author-checks/精确delta、最终19源+22dist及按SHA去重的历史变动源；author-checks所指实际日志和native-reader探针。基础共享组件/DOM机制/旧Z证据引用已接受焦点归档，不再复制全web、依赖缓存、runtime、凭据或二进制。
+
+各真实raw SHA（其余文件原件及精确路径在 JSON 报告/各轮清单）：
+
+- `new01` exit1: `0868b98c01cb9ada87934ea96c1224d1736c22ce8552e978e967479c979b8438`。
+- `new02` exit1: `ea421557434f5d918b9849297d6cbd208e4df76bfd3fd64a7dfb9918db255409`。
+- `new03` exit0: `7d0c3f6ebe8673e4728a97a493721c64e8d0a12a3539fb2a124d5938687f42e9`。
+- `old01` exit0: `476c38a0369deee18d84ce72ff25fc697da29a5991cb4711b5ad22c22e8f1593`。
+- `independent01` exit1: `b99851760b9651b202dd15ceedb3194dd17924918e4fd5b087d926a455acffe8`。
+- `independent02` exit1: `c5430d611b799db519b7a6dda787a1f7b098d4893b37857806b4b8e67a41ffde`。
+- `independent03` exit0: `23eb271a824876e1950ae718b8fb47528c847a548d55f53062ae55f9c6835dea`。

@@ -1,0 +1,96 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { createAccountAPI } from '/workspace/agenteam/web/src/api/account'
+import { createSystemAccountAPI } from '/workspace/agenteam/web/src/api/system-account'
+import { type Fetch } from '/workspace/agenteam/web/src/api/client'
+import { createSessionController } from '/workspace/agenteam/web/src/composables/useSession'
+
+const userID = '01900000-0000-7000-8000-000000000001'
+const sessionID = '01900000-0000-7000-8000-000000000002'
+const at = '2026-10-06T01:02:03.123456Z'
+const user = {
+  id: userID, email: 'independent@example.com', username: 'independent', display_name: '',
+  role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false,
+}
+const session = {
+  user,
+  session: { id: sessionID, issued_at: at, absolute_expires_at: at, idle_expires_at: at },
+  csrf_token: 'S'.repeat(43),
+}
+const jsonResponse = (value: unknown) => new Response(JSON.stringify(value), { status: 200, headers: { 'Content-Type': 'application/json' } })
+function deferred<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>(yes => { resolve = yes })
+  return { promise, resolve }
+}
+afterEach(() => { vi.useRealTimers() })
+
+describe('independent directory risk probes', () => {
+  it('does not release the Cookie owner at the visible deadline, ignored fetch abort, or pending body cancellation', async () => {
+    vi.useFakeTimers()
+    const fetchTail = deferred<Response>(), cancelTail = deferred<void>()
+    let directoryCalls = 0, logoutCalls = 0, cancelCalls = 0
+    const fetcher: Fetch = async (path, init) => {
+      if (path === '/api/v1/session') return jsonResponse(session)
+      if (path.startsWith('/api/v1/system/users?')) {
+        directoryCalls++
+        expect(init.method).toBe('GET')
+        return fetchTail.promise
+      }
+      if (path === '/api/v1/sessions/logout') { logoutCalls++; return new Response(null, { status: 204 }) }
+      throw new Error('unexpected independent request')
+    }
+    const auth = createSessionController(createAccountAPI(fetcher), createSystemAccountAPI(fetcher))
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) { controller.enqueue(new TextEncoder().encode('{"items":')) },
+      cancel() { cancelCalls++; return cancelTail.promise },
+    })
+    const response = new Response(body, { status: 200, headers: { 'Content-Type': 'application/json' } })
+    try {
+      await auth.restore()
+      await flushPromises()
+      expect(auth.state.phase).toBe('authenticated')
+      const visible = auth.system.listUsers({}).catch(failure => failure)
+      await flushPromises()
+      expect(directoryCalls).toBe(1)
+      await vi.advanceTimersByTimeAsync(30_000)
+      await visible
+      await auth.logout()
+      expect(logoutCalls).toBe(0)
+      fetchTail.resolve(response)
+      await flushPromises()
+      expect(cancelCalls).toBe(1)
+      await auth.logout()
+      expect(logoutCalls).toBe(0)
+      cancelTail.resolve()
+      await flushPromises()
+      await auth.logout()
+      await flushPromises()
+      expect(logoutCalls).toBe(1)
+      expect(auth.state.phase).toBe('anonymous')
+    } finally {
+      fetchTail.resolve(response)
+      cancelTail.resolve()
+      auth.leave()
+      await flushPromises()
+    }
+  })
+
+  it('retains foundation calendar years and microseconds while rejecting normalized dates, broken order and User shape leakage', async () => {
+    const parse = async (items: unknown[]) => createSystemAccountAPI(async () => jsonResponse({ items })).listUsers({}, new AbortController().signal)
+    for (const created_at of ['0000-02-29T00:00:00.000000Z', '0099-12-31T23:59:59.999999Z', '2000-02-29T12:00:00.000001Z', '9999-12-31T23:59:59.999999Z']) {
+      const page = await parse([{ ...user, created_at }])
+      expect(page.items[0]?.created_at).toBe(created_at)
+      expect(Object.isFrozen(page.items) && Object.isFrozen(page.items[0])).toBe(true)
+    }
+    for (const created_at of ['1900-02-29T00:00:00.000000Z', '2026-04-31T00:00:00.000000Z', '2026-10-06T24:00:00.000000Z', '2026-10-06T01:02:03.123Z', '10000-01-01T00:00:00.000000Z']) {
+      await expect(parse([{ ...user, created_at }])).rejects.toMatchObject({ kind: 'invalid-response' })
+    }
+    const older = { ...user, id: '01900000-0000-7000-8000-00000000000f', created_at: '2026-10-06T01:02:03.123001Z' }
+    const newer = { ...user, created_at: '2026-10-06T01:02:03.123499Z' }
+    expect((await parse([newer, older])).items.map(item => item.created_at)).toEqual([newer.created_at, older.created_at])
+    await expect(parse([older, newer])).rejects.toMatchObject({ kind: 'invalid-response' })
+    await expect(parse([newer, { ...older, id: newer.id }])).rejects.toMatchObject({ kind: 'invalid-response' })
+    await expect(createAccountAPI(async () => jsonResponse({ ...session, user: { ...user, created_at: at } })).getSession(new AbortController().signal)).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+})

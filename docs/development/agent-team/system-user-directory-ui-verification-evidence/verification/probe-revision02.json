@@ -1,0 +1,9 @@
+{
+  "at_utc": "2026-10-06T05:23:49.000016+00:00",
+  "reason": "independent01 second login CDP Network.getResponseBody had no cached body after real 200; prove final current identity with a new real same-browser Session GET only after authenticated home. Original first login User shape, all cleanup/permission/zero-directory assertions and budgets unchanged. No product/Go/dist edits.",
+  "before": "ab7feecd16098e1f10ab06d7ec49e2eba521c6254e2a9f2745812b1aaa0d93fe",
+  "after": "60b144da61356f62bd8d4b8c1c64d66cda3776866166c244394a10e8349a7321",
+  "initial_run": "runs/independent01",
+  "initial_actual_exit": 1,
+  "initial_cleanup": "7 exact resources absent twice,86 observed PID/starttime gone,4 adopted waits, runtime empty; source and original verification inputs unchanged"
+}

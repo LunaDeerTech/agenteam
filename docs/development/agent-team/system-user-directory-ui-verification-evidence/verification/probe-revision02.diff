@@ -1,0 +1,50 @@
+--- independent01/probe
++++ independent02/probe
+@@ -11,7 +11,7 @@
+ async function privateFill(input: Locator, value: string) {
+   try { await input.fill(value) } catch { throw new Error('private directory probe field unavailable') }
+ }
+-async function login(page: Page, credential: Credential, target = '/login') {
++async function login(page: Page, credential: Credential, target = '/login', confirmWithSession = false) {
+   await page.goto(target)
+   await expect(page.locator('#login-email')).toBeEditable()
+   await privateFill(page.locator('#login-email'), credential.email)
+@@ -20,6 +20,29 @@
+   await page.getByRole('button', { name: '登录', exact: true }).click()
+   const response = await pending
+   expect(response.status()).toBe(200)
++  if (confirmWithSession) {
++    await expect(page.getByRole('heading', { name: '首页', exact: true })).toBeVisible()
++    // Once the real login has reached the authenticated home, read a new real
++    // Session through this browser's Cookie. This is a test identity oracle,
++    // not an owner-completion assertion or a dependency on CDP body caching.
++    const fact = await page.evaluate(async () => {
++      const current = await fetch('/api/v1/session', {
++        credentials: 'same-origin', cache: 'no-store', redirect: 'error',
++        signal: AbortSignal.timeout(5000),
++      })
++      const value = await current.json()
++      return {
++        status: current.status, userID: value.user?.id as string,
++        role: value.user?.role as string, userFields: Object.keys(value.user ?? {}).sort(),
++        sessionID: value.session?.id as string,
++      }
++    })
++    expect(fact.status).toBe(200)
++    expect(fact.userID === credential.user_id && fact.role === 'user').toBe(true)
++    expect(fact.userFields).toEqual(['display_name', 'email', 'id', 'initial_password_suggestion', 'role', 'theme', 'username', 'version'])
++    expect(fact.sessionID).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
++    return { userID: fact.userID, sessionID: fact.sessionID }
++  }
+   const value = await response.json()
+   expect(value.user.id === credential.user_id && Object.keys(value.user).length === 8).toBe(true)
+   return { userID: value.user.id as string, sessionID: value.session.id as string }
+@@ -110,7 +133,7 @@
+   const missing = await responseFor(page, '/api/v1/session', () => page.getByRole('button', { name: '检查当前会话', exact: true }).click())
+   expect(missing.status()).toBe(401)
+   await expect(page.getByRole('heading', { name: '登录', exact: true })).toBeVisible()
+-  const member = await login(page, credentials.member)
++  const member = await login(page, credentials.member, '/login', true)
+   await expect(page.getByRole('heading', { name: '首页', exact: true })).toBeVisible()
+   await expect(page.getByRole('link', { name: '系统设置', exact: true })).toHaveCount(0)
+   let memberDirectoryReads = 0

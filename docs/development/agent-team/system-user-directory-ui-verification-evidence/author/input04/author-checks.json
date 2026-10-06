@@ -1,0 +1,48 @@
+{
+  "input_sha256": "c8f823330cd8ab9a226f96d5b2bdc6cbe9ec3d5d4a81080080ca8bdcc4b35966",
+  "checks": [
+    {
+      "name": "full-combined-web-check",
+      "argv": [
+        "npm",
+        "run",
+        "check",
+        "--prefix",
+        "web"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {},
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision04-check-01.log",
+      "log_sha256": "78a60cc3e915e7fcfbb17b2773726cbcd93282007fb594a4f5f4da5bd6012716",
+      "results": "Format PASS; Vitest 244/244 tests across 16 files PASS, including accepted new focus tests and directory tests; vue-tsc PASS; production Vite build PASS. Frozen 22-file dist is this build."
+    }
+  ],
+  "source_delta": [],
+  "accepted_dependency": {
+    "status": "accepted by root after independent real PASS",
+    "accepted_commit": "b53895f7eb1d020276e8f54a99a7c0821b286481",
+    "sources": {
+      "tests/account-captcha-web/dialog-outside-focus.config.js": "42516eb6ed5db78278a3169818a67e579e94a8b8671e067ade97830540adafd5",
+      "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": "8c1af0a58af17d41a84686457ea70994ddd2b629d895730936d4e9b9b0df8649",
+      "web/src/components/ui/UiDialog.vue": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065",
+      "web/src/tests/dialog-outside-focus.spec.ts": "12d38d793d5b7864f7f262e8799965e1749bfebc999024a656a6bace4fc8ba50"
+    },
+    "frozen_copy_root": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/dependencies",
+    "note": "Dependency consumed read-only; no directory author modifications to these four files. Backend dependency remains accepted 3affc01."
+  },
+  "reused_author_checks": [
+    {
+      "path": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/author-checks.json",
+      "sha256": "11b5724a370ac6a7eca44eeca7248631475c5e048965293ef583a7a0917c5f81",
+      "scope": "Go integration race compile/vet; Go fixture and locked dependencies unchanged."
+    },
+    {
+      "path": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input03/author-checks.json",
+      "sha256": "2750c23c49a7a0bb234ae99c25dcfca0c01bf505494e130757d362edd5106e1c",
+      "scope": "Unchanged browser harness TypeScript check and original-stream observer pure probe. Current complete check supersedes earlier frontend unit/build result."
+    }
+  ],
+  "scope_check": "All 19 candidate sources match input03; all four dependency files match accepted Git commit; git diff --check exit0. No source edits, browser/Docker/business starts or Git mutations in this revision.",
+  "pending": "Independent new03 actual three new groups, required three old groups and independent probes on fixed input04 production dist."
+}

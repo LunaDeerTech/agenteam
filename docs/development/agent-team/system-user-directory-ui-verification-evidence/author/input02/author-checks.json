@@ -1,0 +1,78 @@
+{
+  "input_sha256": "0a2a8e7628a4afade78700ee31c14aa84469d36fc3979bf8ecbecef6794d340b",
+  "checks": [
+    {
+      "name": "component-trailing-space-evidence",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/system-user-directory.spec.ts"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {},
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision02-component-01.log",
+      "log_sha256": "e6bc04d91cd9f611dcd645b853e4119f853305424f6491bb06100eb91b5a24ed"
+    },
+    {
+      "name": "type-check",
+      "argv": [
+        "npm",
+        "run",
+        "type-check",
+        "--prefix",
+        "web"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {},
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision02-type-check-01.log",
+      "log_sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373"
+    },
+    {
+      "name": "harness-types",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--target",
+        "ES2022",
+        "--module",
+        "NodeNext",
+        "--moduleResolution",
+        "NodeNext",
+        "--lib",
+        "ES2022,DOM,DOM.Iterable",
+        "--types",
+        "node",
+        "--typeRoots",
+        "../../web/node_modules/@types",
+        "--strict",
+        "--skipLibCheck",
+        "e2e/system-user-directory.spec.ts"
+      ],
+      "cwd": "/workspace/agenteam/tests/account-captcha-web",
+      "environment_overrides": {},
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision02-harness-types-01.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "results": "Target component group 11/11 PASS, includes real rendered exact fixture text and proof that old trim loses the trailing space. Vue types and standalone new browser harness types PASS. Exact changed files formatted; git diff --check exit0.",
+  "reused_author_checks": {
+    "path": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/author-checks.json",
+    "sha256": "11b5724a370ac6a7eca44eeca7248631475c5e048965293ef583a7a0917c5f81",
+    "reason": "All production, Go and dist bytes unchanged. Existing full npm check 232/232, production build, Go race compile/vet remain applicable; only changed tests rechecked."
+  },
+  "retained_first_real_failure": {
+    "path": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new01/raw.log",
+    "sha256": "0868b98c01cb9ada87934ea96c1224d1736c22ce8552e978e967479c979b8438",
+    "exit": 1,
+    "scope": "Read/Navigation DOM comparison; Authority boolean status/code assertion. Resource lifecycle owned and closed by recovery_verification."
+  },
+  "unresolved": "Actual Authority problem clone-read cause; safe diagnostics intentionally retain strict original assertions. Independent true rerun required."
+}

@@ -1,0 +1,66 @@
+const fs = require('node:fs');
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const ts = require('/workspace/agenteam/tests/account-captcha-web/node_modules/typescript');
+const file = '/workspace/agenteam/tests/account-captcha-web/e2e/system-user-directory.spec.ts';
+const source = fs.readFileSync(file, 'utf8');
+const parsed = ts.createSourceFile(file, source, ts.ScriptTarget.ES2022, true);
+const declaration = parsed.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'installDirectoryObservation');
+assert(declaration);
+const js = ts.transpileModule(declaration.getText(parsed), {compilerOptions: {target: ts.ScriptTarget.ES2022}}).outputText;
+async function check(bytes, expectedCode, overLimit = false) {
+  let reads = 0, cancels = 0;
+  const nativePromises = [];
+  const originalBytes = bytes.slice();
+  const stream = new ReadableStream({start(controller) { controller.enqueue(bytes); controller.close(); }});
+  const nativeGetReader = stream.getReader;
+  stream.getReader = function(...args) {
+    const reader = Reflect.apply(nativeGetReader, this, args);
+    const nativeRead = reader.read, nativeCancel = reader.cancel;
+    reader.read = function(...args) {
+      ++reads;
+      const pending = Reflect.apply(nativeRead, this, args);
+      nativePromises.push(pending);
+      return pending;
+    };
+    reader.cancel = function(...args) { ++cancels; return Reflect.apply(nativeCancel, this, args); };
+    return reader;
+  };
+  const response = new Response(stream, {status: 401, headers: {'Content-Type': 'application/problem+json'}});
+  const nativeFetchPromise = Promise.resolve(response);
+  const window = {fetch: () => nativeFetchPromise};
+  const context = {window, location: {href: 'http://127.0.0.1:4321/system/users', origin: 'http://127.0.0.1:4321'}, URL, Request, Response, DOMException, SyntaxError, TypeError, Uint8Array, TextDecoder};
+  vm.runInNewContext(js + '\ninstallDirectoryObservation();', context);
+  const controller = new AbortController();
+  const requested = window.fetch('/api/v1/system/users?limit=25', {signal: controller.signal});
+  assert.strictEqual(requested, nativeFetchPromise);
+  const received = await requested;
+  assert.strictEqual(received, response);
+  const reader = received.body.getReader();
+  const first = reader.read();
+  assert.strictEqual(first, nativePromises.at(-1));
+  assert.equal((await first).done, false);
+  const last = reader.read();
+  assert.strictEqual(last, nativePromises.at(-1));
+  assert.equal((await last).done, true);
+  controller.abort();
+  await reader.cancel();
+  reader.releaseLock();
+  assert.equal(reads, 2);
+  assert.equal(cancels, 1);
+  assert.deepEqual(bytes, originalBytes);
+  const observed = window.__directoryObservation.last;
+  assert.equal(observed.settled, true);
+  assert.equal(observed.status, 401);
+  if (overLimit) assert.equal(observed.parseFailure, 'limit');
+  else {
+    assert.equal(observed.stage, 'parsed');
+    assert.equal(observed.code, expectedCode);
+    assert.equal(observed.codePresent, true);
+  }
+}
+(async () => {
+  await check(new TextEncoder().encode(JSON.stringify({code:'SESSION_REVOKED'})), 'SESSION_REVOKED');
+  await check(new Uint8Array(600001), undefined, true);
+  process.stdout.write('PASS: exact native fetch/Response/read promises preserved; exactly two caller reads and one caller cancel; original chunks unchanged; full code captured before caller abort; >600000B observer bounded. No network/browser/business resources.\n');
+})().catch(() => { process.stderr.write('FAIL: isolated original-stream observer probe\n'); process.exitCode=1; });

@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "node",
+    "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/pure/vitest.config.mjs",
+    "--root",
+    "/workspace/agenteam/web",
+    "--no-file-parallelism",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/agenteam",
+  "started": "2026-10-06T04:50:09.646457+00:00",
+  "frozen_input_sha256": "7d30896f1ab376b1b6f6e6b3df9ec34ee099ddfbcb42a750355930acfab1ee7a",
+  "probes": {
+    "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/pure/vitest.config.mjs": "0d0f1ef1d84939fc4650ed14ad53bdd3301be8cdf32b94bbf6d46239595b6d61",
+    "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/pure/directory-independent-state.spec.ts": "cda21158c480396189a9bd19fdd8cde4301baf9287abafa8f424fc5af94bd783"
+  },
+  "exit": 0,
+  "seconds": 1.088,
+  "ended": "2026-10-06T04:50:10.734352+00:00",
+  "source_unchanged": true,
+  "dist_unchanged": true,
+  "probes_unchanged": true,
+  "raw_sha256": "2317bbf0c95cff47603653a65ed0cb5526df3ff9791188c3f7bd23d9c72d26c8"
+}

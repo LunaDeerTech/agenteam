@@ -1,0 +1,362 @@
+--- input02/web/src/views/system/SystemUsersView.vue
++++ input03/web/src/views/system/SystemUsersView.vue
+@@ -146,6 +146,7 @@
+ }
+ table {
+   width: 100%;
++  table-layout: fixed;
+   border-collapse: collapse;
+   text-align: start;
+ }
+@@ -153,6 +154,7 @@
+ td {
+   padding: 12px;
+   vertical-align: top;
++  white-space: normal;
+   overflow-wrap: anywhere;
+   border-bottom: 1px solid var(--border);
+ }
+@@ -160,6 +162,19 @@
+   font-weight: 600;
+   background: var(--surface);
+ }
++th:nth-child(1),
++th:nth-child(3) {
++  width: 25%;
++}
++th:nth-child(2) {
++  width: 18%;
++}
++th:nth-child(4) {
++  width: 12%;
++}
++th:nth-child(5) {
++  width: 20%;
++}
+ tbody tr:last-child td {
+   border-bottom: 0;
+ }
+@@ -167,6 +182,9 @@
+   font-variant-numeric: tabular-nums;
+ }
+ @media (max-width: 760px) {
++  table {
++    display: block;
++  }
+   thead {
+     position: absolute;
+     width: 1px;
+--- input02/web/src/tests/system-user-directory.spec.ts
++++ input03/web/src/tests/system-user-directory.spec.ts
+@@ -262,6 +262,31 @@
+     // display name before comparing it with the unchanged database value.
+     expect(cells[2]!.element.textContent!.trim()).not.toBe(row.display_name)
+   })
++  it('retains five distinct field labels and full long record text in the narrow layout', async () => {
++    narrow = true
++    const row = {
++      ...rows(1)[0]!,
++      email: `directory-${'long'.repeat(20)}@example.com`,
++      username: 'directory-fixture-0123456789',
++      display_name: '系统目录长名称 Mixed '.repeat(4),
++    }
++    const p = await page('/system', 'admin', false, async () => json({ items: [row] }))
++    const cells = p.wrapper.get('tbody tr').findAll('td')
++    expect(cells.map((cell) => cell.attributes('data-label'))).toEqual([
++      '邮箱',
++      '用户名',
++      '显示名',
++      '角色',
++      '注册时间（UTC）',
++    ])
++    expect(cells.slice(0, 3).map((cell) => cell.element.textContent)).toEqual([
++      row.email,
++      row.username,
++      row.display_name,
++    ])
++    expect(cells[4]!.get('time').attributes('datetime')).toBe(time)
++    expect(button('系统设置栏目')).toBeTruthy()
++  })
+   it('shows loading, failure and empty states without stale rows or raw error text', async () => {
+     const held = barrier<Response>()
+     const p = await page('/system', 'admin', false, () => held.promise)
+--- input02/tests/account-captcha-web/e2e/system-user-directory.spec.ts
++++ input03/tests/account-captcha-web/e2e/system-user-directory.spec.ts
+@@ -26,8 +26,10 @@
+   code?: string;
+   codePresent?: boolean;
+   stage: "fetch" | "body" | "parsed";
+-  parseFailure?: "abort" | "syntax" | "type" | "other";
++  parseFailure?: "abort" | "syntax" | "type" | "limit" | "other";
+   requestAborted: boolean;
++  problemSource?: "playwright-response" | "native-reader";
++  responseBodyUnavailable?: boolean;
+   settled: boolean;
+ };
+ type ObservedWindow = Window & {
+@@ -83,41 +85,94 @@
+         settled: false,
+       };
+       observation.last = value;
+-      // The original native promise/Response is returned unchanged. This clone
+-      // observes a small real DTO only; it is not proof of original reader/cancel
+-      // completion. The pure controlled-transport tests cover that owner tail.
++      let captured: Uint8Array | undefined;
++      let bytes = 0;
++      const finish = () => {
++        captured?.fill(0);
++        captured = undefined;
++        value.requestAborted =
++          (init?.signal ?? (input instanceof Request ? input.signal : null))
++            ?.aborted === true;
++        value.settled = true;
++      };
++      const fail = (error: unknown) => {
++        if (value.settled) return;
++        value.parseFailure =
++          error instanceof DOMException && error.name === "AbortError"
++            ? "abort"
++            : error instanceof SyntaxError
++              ? "syntax"
++              : error instanceof TypeError
++                ? "type"
++                : "other";
++        finish();
++      };
++      // Observe only the production reader's actual chunks/done. Fetch,
++      // Response, reader and each native read Promise are returned unchanged;
++      // there is no clone/tee, extra read, delayed abort or awaited observer.
++      // Done here is NOT evidence that the owner's body/cancel tail completed.
+       void pending
+-        .then(async (response) => {
++        .then((response) => {
+           value.status = response.status;
+           value.stage = "body";
+-          const body = await response.clone().json();
+-          value.stage = "parsed";
+-          if (response.status === 200) value.value = body;
+-          else {
+-            value.codePresent = Object.hasOwn(body, "code");
+-            if (
+-              typeof body.code === "string" &&
+-              /^[A-Z][A-Z0-9_]{0,127}$/.test(body.code)
+-            )
+-              value.code = body.code;
+-          }
++          const stream = response.body;
++          if (!stream) throw new TypeError();
++          const getReader = stream.getReader;
++          stream.getReader = function (
++            this: ReadableStream<Uint8Array>,
++            ...readerArgs: unknown[]
++          ) {
++            const reader = Reflect.apply(
++              getReader,
++              this,
++              readerArgs,
++            ) as ReadableStreamDefaultReader<Uint8Array>;
++            stream.getReader = getReader;
++            const read = reader.read;
++            reader.read = function () {
++              const reading = Reflect.apply(read, this, []) as ReturnType<
++                typeof read
++              >;
++              void reading.then((chunk) => {
++                if (value.settled) return;
++                try {
++                  if (!chunk.done) {
++                    if (bytes + chunk.value.byteLength > 600_000) {
++                      value.parseFailure = "limit";
++                      finish();
++                      return;
++                    }
++                    captured ??= new Uint8Array(600_000);
++                    captured.set(chunk.value, bytes);
++                    bytes += chunk.value.byteLength;
++                    return;
++                  }
++                  const body = JSON.parse(
++                    new TextDecoder("utf-8", { fatal: true }).decode(
++                      captured?.subarray(0, bytes),
++                    ),
++                  );
++                  value.stage = "parsed";
++                  if (response.status === 200) value.value = body;
++                  else {
++                    value.codePresent = Object.hasOwn(body, "code");
++                    if (
++                      typeof body.code === "string" &&
++                      /^[A-Z][A-Z0-9_]{0,127}$/.test(body.code)
++                    )
++                      value.code = body.code;
++                  }
++                  finish();
++                } catch (error: unknown) {
++                  fail(error);
++                }
++              }, fail);
++              return reading;
++            };
++            return reader;
++          } as typeof stream.getReader;
+         })
+-        .catch((error: unknown) => {
+-          value.parseFailure =
+-            error instanceof DOMException && error.name === "AbortError"
+-              ? "abort"
+-              : error instanceof SyntaxError
+-                ? "syntax"
+-                : error instanceof TypeError
+-                  ? "type"
+-                  : "other";
+-        })
+-        .finally(() => {
+-          value.requestAborted =
+-            (init?.signal ?? (input instanceof Request ? input.signal : null))
+-              ?.aborted === true;
+-          value.settled = true;
+-        });
++        .catch(fail);
+     }
+     return pending;
+   };
+@@ -144,6 +199,44 @@
+   );
+   await action();
+   return takeRead(page, before);
++}
++async function problemAfter(page: Page, action: () => Promise<unknown>) {
++  const network = page
++    .waitForResponse(
++      (response) =>
++        new URL(response.url()).origin === new URL(page.url()).origin &&
++        new URL(response.url()).pathname === "/api/v1/system/users" &&
++        response.request().method() === "GET",
++    )
++    .then(async (response) => {
++      try {
++        const body = await response.json();
++        const code =
++          typeof body?.code === "string" &&
++          /^[A-Z][A-Z0-9_]{0,127}$/.test(body.code)
++            ? body.code
++            : undefined;
++        return { status: response.status(), parsed: true, code };
++      } catch {
++        // Chromium may discard the network body after the product has already
++        // read a 401/403 and aborted its finished request while retiring a page.
++        return { status: response.status(), parsed: false, code: undefined };
++      }
++    });
++  const [observed, actual] = await Promise.all([
++    readAfter(page, action),
++    network,
++  ]);
++  expect(actual.status).toBe(observed.status);
++  if (actual.parsed) {
++    expect(actual.code).toBe(observed.code);
++    observed.code = actual.code;
++  }
++  observed.problemSource = actual.parsed
++    ? "playwright-response"
++    : "native-reader";
++  observed.responseBodyUnavailable = !actual.parsed;
++  return observed;
+ }
+ async function login(
+   page: Page,
+@@ -292,6 +385,58 @@
+     }),
+   ).toBe(true);
+ }
++async function directoryFieldsFit(page: Page, narrow: boolean) {
++  const layout = await page
++    .locator(".directory-scroll")
++    .evaluate((region, stacked) => {
++      const bounds = region.getBoundingClientRect();
++      const rows = [...region.querySelectorAll("tbody tr")];
++      const labels = ["邮箱", "用户名", "显示名", "角色", "注册时间（UTC）"];
++      const failures: object[] = [];
++      if (region.scrollWidth > region.clientWidth + 1)
++        failures.push({
++          field: "region",
++          excess: region.scrollWidth - region.clientWidth,
++        });
++      for (const [index, row] of rows.entries()) {
++        const cells = [...row.querySelectorAll("td")];
++        if (cells.length !== 5) failures.push({ index, cells: cells.length });
++        let previousBottom = 0;
++        for (const [column, cell] of cells.entries()) {
++          const rect = cell.getBoundingClientRect();
++          if (
++            rect.width <= 0 ||
++            rect.height <= 0 ||
++            rect.left < bounds.left - 1 ||
++            rect.right > bounds.right + 1 ||
++            cell.scrollWidth > cell.clientWidth + 1
++          )
++            failures.push({
++              index,
++              column,
++              field: labels[column],
++              width: rect.width,
++              excess: cell.scrollWidth - cell.clientWidth,
++              insideRegion:
++                rect.left >= bounds.left - 1 && rect.right <= bounds.right + 1,
++            });
++          if (
++            stacked &&
++            (cell.dataset.label !== labels[column] ||
++              rect.top < previousBottom - 1)
++          )
++            failures.push({
++              index,
++              column,
++              field: "stacked-field-label-or-order",
++            });
++          previousBottom = rect.bottom;
++        }
++      }
++      return { rows: rows.length, failures };
++    }, narrow);
++  expect(layout).toEqual({ rows: 25, failures: [] });
++}
+ function safeProblemObservation(observed: Observation) {
+   return JSON.stringify({
+     status: observed.status,
+@@ -300,6 +445,8 @@
+     stage: observed.stage,
+     parseFailure: observed.parseFailure ?? null,
+     requestAborted: observed.requestAborted,
++    problemSource: observed.problemSource ?? null,
++    responseBodyUnavailable: observed.responseBodyUnavailable ?? false,
+   });
+ }
+ test.beforeEach(async ({ context }) => {
+@@ -396,7 +543,7 @@
+     true,
+   );
+   await changeAuthority("revoke-session", before);
+-  const revoked = await readAfter(page, () =>
++  const revoked = await problemAfter(page, () =>
+     page.getByRole("button", { name: "刷新", exact: true }).click(),
+   );
+   const revokedDiagnostic = safeProblemObservation(revoked);
+@@ -418,7 +565,7 @@
+     current.status === 200 && current.session_id !== before.session_id,
+   ).toBe(true);
+   await changeAuthority("demote", current);
+-  const denied = await readAfter(page, () =>
++  const denied = await problemAfter(page, () =>
+     page.getByRole("button", { name: "刷新", exact: true }).click(),
+   );
+   const deniedDiagnostic = safeProblemObservation(denied);
+@@ -504,7 +651,7 @@
+       await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+       await noOverflow(page);
+-      expect(await page.locator("tbody tr").count()).toBe(25);
++      await directoryFieldsFit(page, width <= 760);
+       if (width === 390) {
+         const trigger = page.getByRole("button", {
+           name: "系统设置栏目",

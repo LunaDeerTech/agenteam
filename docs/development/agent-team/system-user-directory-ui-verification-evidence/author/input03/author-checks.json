@@ -1,0 +1,141 @@
+{
+  "input_sha256": "e45a32cf24db3920b3468395a983b8a4768528a86f04c01025bbf56fdce7f917",
+  "checks": [
+    {
+      "name": "component-fields-and-long-text",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/system-user-directory.spec.ts"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {},
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-component-01.log",
+      "log_sha256": "be4636f12d2fe37de477a59ad96e6944d8d4e769a8735742ccd97d11b0cd5937",
+      "note": "12/12 PASS. Component test checks all 5 distinct narrow field labels and full long text. Browser geometry is separately pending actual run; JSDOM is not layout evidence."
+    },
+    {
+      "name": "harness-types-first",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--target",
+        "ES2022",
+        "--module",
+        "NodeNext",
+        "--moduleResolution",
+        "NodeNext",
+        "--lib",
+        "ES2022,DOM,DOM.Iterable",
+        "--types",
+        "node",
+        "--typeRoots",
+        "../../web/node_modules/@types",
+        "--strict",
+        "--skipLibCheck",
+        "e2e/system-user-directory.spec.ts"
+      ],
+      "cwd": "/workspace/agenteam/tests/account-captcha-web",
+      "environment_overrides": {},
+      "exit": 2,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-harness-types-01.log",
+      "log_sha256": "486e08fc25412d0a49cb69785c3009cf4ac4dddcc572f8dddd659a050d76c6e3",
+      "note": "TS2683: new native getReader wrapper needed an explicit this type. Added annotation only; original raw failure retained."
+    },
+    {
+      "name": "harness-types-final",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--target",
+        "ES2022",
+        "--module",
+        "NodeNext",
+        "--moduleResolution",
+        "NodeNext",
+        "--lib",
+        "ES2022,DOM,DOM.Iterable",
+        "--types",
+        "node",
+        "--typeRoots",
+        "../../web/node_modules/@types",
+        "--strict",
+        "--skipLibCheck",
+        "e2e/system-user-directory.spec.ts"
+      ],
+      "cwd": "/workspace/agenteam/tests/account-captcha-web",
+      "environment_overrides": {},
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-harness-types-02.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "changed-files-format",
+      "argv": [
+        "node",
+        "web/node_modules/prettier/bin/prettier.cjs",
+        "--check",
+        "web/src/views/system/SystemUsersView.vue",
+        "web/src/tests/system-user-directory.spec.ts",
+        "tests/account-captcha-web/e2e/system-user-directory.spec.ts"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {},
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-format-01.log",
+      "log_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+    },
+    {
+      "name": "production-build-and-types",
+      "argv": [
+        "npm",
+        "run",
+        "build",
+        "--prefix",
+        "web"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {},
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-build-01.log",
+      "log_sha256": "7834441db8cbdb9d88e56ae9b3c487da210532eaef2f8323943fd51a1f9a3a13",
+      "note": "vue-tsc PASS then production Vite build PASS; frozen dist is this actual output."
+    },
+    {
+      "name": "isolated-original-reader-observer",
+      "argv": [
+        "node",
+        "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-observer-probe.cjs"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment_overrides": {},
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-observer-probe-01.log",
+      "log_sha256": "97b56913e1e8dfe5f2393b2393a5ea8dd1ed31cddd019d0c3ac2278987c1ca98",
+      "note": "Private pure Node WHATWG stream probe extracts actual observer from changed harness using locked TypeScript. Native fetch/Response/read Promise identity, no extra reads/cancel, original chunks unchanged, complete code before abort, >600000B bounded. No network/browser or owner-tail claim."
+    }
+  ],
+  "probe_source": {
+    "path": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/revision03-observer-probe.cjs",
+    "sha256": "832f289c3d1e4f49c521f98f5cb53101bdfd8495a3d8c9b209045cbfb678cb44"
+  },
+  "retained_second_real_failure": {
+    "path": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02/raw.log",
+    "sha256": "ea421557434f5d918b9849297d6cbd208e4df76bfd3fd64a7dfb9918db255409",
+    "exit": 1,
+    "facts": "Read PASS; Authority clone abort confirmed status401/stagebody/parseFailureabort/requestAbortedtrue; Navigation strict backdrop focus failure. Screenshots confirmed global nowrap made only email column initially visible."
+  },
+  "reused_checks": {
+    "full_web_check": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input01/author-checks.json",
+    "target_prior": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input02/author-checks.json",
+    "reason": "Old owner/DTO/state semantics and Go fixture bytes unchanged; existing full 232 tests and Go compile/vet evidence retained. Affected component, format, type, observer and production build checked above."
+  },
+  "pending": "Actual browser rerun and separate foundation backdrop-focus acceptance; current navigation assertion intentionally remains strict and unresolved until dependency accepted."
+}

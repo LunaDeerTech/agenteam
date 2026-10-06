@@ -1,8 +1,8 @@
 # D27：系统设置壳与用户目录只读页面
 
-状态：rev1，2026-10-06 已由独立 verification_worker 静审通过（STATIC PASS）并获主线程采纳；被审稿 SHA256 `846591b9fea5f92f1a05305bebc83c3c54a2c401963cb4651f8d61484b986974`。注册时间后端读口 rev2 已独立验收并接受提交 `3affc0194214101cfa1e6fdc583afa5d60005db8`，本卡后端前置已满足，前端已由主线程另行授权实施。本次只更新页首与依赖定位，UI 技术契约和20路径范围不变；真实资源仍按主线程的唯一所有权授权，不因规格或上游接受自动授予运行权。本卡尚无页面或产品验收结论。
+状态：rev1，2026-10-06 已由独立 verification_worker 静审通过（STATIC PASS）并获主线程采纳；被审稿 SHA256 `846591b9fea5f92f1a05305bebc83c3c54a2c401963cb4651f8d61484b986974`。本卡现已实现并经 `recovery_verification` 独立最终 PASS，主线程采纳提交推送 `7ef3e30cf06b5df6d19516f24c34855a8308ef05`，远端一致，见[正式报告与持久证据](../agent-team/system-user-directory-ui-verification.md)。input04固定19个已测源码，后补README构成原20路径交付；244项检查、新3/旧3/独立1真实顶层通过，原失败和资源终局完整保留。
 
-补充已接受基础依赖：共享 UiDialog/UiDrawer 遮罩关闭焦点修复已独立验收并交付 `b53895f7eb1d020276e8f54a99a7c0821b286481`，见[正式报告](../agent-team/dialog-outside-focus-repair-verification.md)。本卡重新冻结组合时纳入该已接受组件，保留原真实遮罩焦点断言并另行复验；共享组件 PASS 不代替本页面接受。下列技术内容保持不变，邀请读口/00019 不进入这次 UI 组合。
+已接受组合依赖：注册时间后端读口 `3affc0194214101cfa1e6fdc583afa5d60005db8`，共享 UiDialog/UiDrawer 遮罩关闭焦点修复 `b53895f7eb1d020276e8f54a99a7c0821b286481`（见[基础报告](../agent-team/dialog-outside-focus-repair-verification.md)）。实际组合保持原真实遮罩焦点断言，迁移仅00001–00018；邀请读口/00019、完整D26/D27与生产托管不在本接受范围。下列技术正文与20路径契约保持不变；接受结果不自动授予新真实资源运行权。
 
 ## 1. 完整结果与依赖
 

@@ -1,0 +1,43 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-account-client.spec.ts src/tests/system-user-directory-state.spec.ts src/tests/system-user-directory.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+stderr | src/tests/system-user-directory.spec.ts > System user directory page and shared shells > keeps the personal draft before revalidation, then discards only after confirmation
+[Vue Router warn]: No match found for location with path "/settings/appearance"
+[Vue Router warn]: No match found for location with path "/settings/password"
+
+ ❯ src/tests/system-user-directory.spec.ts (9 tests | 1 failed) 463ms
+     × keeps the personal draft before revalidation, then discards only after confirmation 55ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-user-directory.spec.ts > System user directory page and shared shells > keeps the personal draft before revalidation, then discards only after confirmation
+AssertionError: expected '跳转到内容aagenteam系统设置Admin退出登录处理中已完成个人设置…' to contain '放弃未保存修改？'
+
+Expected: "放弃未保存修改？"
+Received: "跳转到内容aagenteam系统设置Admin退出登录处理中已完成个人设置个人资料基本资料界面偏好主题账号安全修改密码退出登录处理中已完成基本资料邮箱邮箱不能修改。用户名3–32 位英文字母、数字或中间连字符。更改用户名后，本人项目路径将变化；旧链接失效，没有别名或自动跳转。显示名最多 80 个字符、320 字节；留空时显示邮箱，保留输入的空格。保存资料处理中已完成取消修改处理中已完成重新加载最新资料处理中已完成头像A 静态 JPG、PNG、WebP，最多 5 MiB、单边 4096 像素，总计 16,777,216 像素。不支持 SVG 或动画。保存时服务器会缩放至最长 512 像素并移除元数据。 选择图片处理中已完成上传 / 替换头像处理中已完成取消选择处理中已完成移除头像处理中已完成"
+
+ ❯ src/tests/system-user-directory.spec.ts:296:30
+    294|     const navigation = p.router.push('/system')
+    295|     await flushPromises()
+    296|     expect(p.wrapper.text()).toContain('放弃未保存修改？')
+       |                              ^
+    297|     expect(p.fetch.mock.calls.length).toBe(before)
+    298|     await click('继续编辑')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 79 passed (80)
+   Start at  04:38:14
+   Duration  2.47s (transform 1.18s, setup 0ms, import 1.54s, tests 644ms, environment 1.84s)
+
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

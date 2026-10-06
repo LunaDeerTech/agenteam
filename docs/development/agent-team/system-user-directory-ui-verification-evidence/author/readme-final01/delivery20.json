@@ -1,0 +1,61 @@
+{
+  "status": "ROOT_ACCEPTED_UI_INPUT04_PLUS_AUTHORIZED_README_DELTA",
+  "product_input": {
+    "path": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/input04/input04.json",
+    "sha256": "c8f823330cd8ab9a226f96d5b2bdc6cbe9ec3d5d4a81080080ca8bdcc4b35966"
+  },
+  "paths": {
+    "web/src/api/client.ts": "8a73acb284970e5a8a2df005deafa85c8b32ad5d97befc24104879774319433f",
+    "web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "web/src/api/system-account.ts": "513ebe16bb11f66507ccd9990321ed038f8e8f6eb78d4219556c88eff19ea949",
+    "web/src/composables/useSession.ts": "ff9ef38e2d4c4aed2d7a0b685456b431757acc92a8399d0167f9dac0d93782a9",
+    "web/src/composables/useSystemUserDirectory.ts": "3058a34b16bdc2d1018297daa556606806d7d2bf241d313dbcfa33b2f54a0894",
+    "web/src/components/layout/SettingsShell.vue": "33ffaf93b3064a3ca768c9345de75b540f764cf25cd104dbdfbe09fcbffba340",
+    "web/src/components/layout/SystemNav.vue": "f381d7134b04d7f2f43e10a2be55ca2fd885b75b75e5528913582fc6d88ed1f7",
+    "web/src/views/system/SystemSettingsView.vue": "dbb3e19184bcc081883104c191305edfd34d4b327ed06e304df3877dc56912cb",
+    "web/src/views/system/SystemUsersView.vue": "b30819ae5b8592a894188f4431427b171b8017c21adf63aec6d93138b8a71865",
+    "web/src/router/index.ts": "674c7ad214401b9116f78666c76d33c19c755abee59daaa5d7abc439bbea6632",
+    "web/src/router/auth.ts": "5f4d814d2e67a90b3a8563d5e326dcb88c4f85aa8e6203a2005b2a12cf2fd5f8",
+    "web/src/tests/system-account-client.spec.ts": "5fefbc0891bb208da566beca0168e33f6509975b9e234680796b3e86059feb8a",
+    "web/src/tests/system-user-directory-state.spec.ts": "7ac3ca1df17a080358c14e4be5e4cc44eecf6bb25af28317e0b147257085f793",
+    "web/src/tests/system-user-directory.spec.ts": "9659c19e4b508ab3ea46c1e23326dd6e0018a71b76ef4fbe737bef66d1dc2052",
+    "web/src/tests/personal-settings.spec.ts": "0e6a3d862f2e97e236beee1f534d2b77524cf355d744546cb26eab3ed74498fc",
+    "tests/account/system_user_directory_web_test.go": "8f949e08cb00f4676a4b6f0367cc110e5782dfd261f3e8cdee4e9155fb2f8dbe",
+    "tests/account/system_user_directory_web_fixture_test.go": "b64fa72cd837ec37e3e1007ad9afec05d477bc9eb8c067ca12a57ca53c7cd4af",
+    "tests/account-captcha-web/system-user-directory.config.js": "3cb27bfc7aaa4ac564f877b9eefe660c13f24ef351ef3cb7a60c5fdefc47e05e",
+    "tests/account-captcha-web/e2e/system-user-directory.spec.ts": "51112073eeb83318ea6f4a6312c56306489997f55fdcea09a280f4c501ec8034",
+    "docs/development/frontend/README.md": "cbd81dcb0280801d972a96b6cd9a6b110d3c756c185e57c9bd9875bdc731a6df"
+  },
+  "dist": {
+    "web/dist/assets/AppearanceSettings-C62lc3Dy.js": "e8da49162e513c10be17916e6cc9a3748cf2f464c8656019b4ecb540aa5c619b",
+    "web/dist/assets/ForgotPasswordView-DJSF_FFM.css": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2",
+    "web/dist/assets/ForgotPasswordView-ogmoOWJE.js": "3582eb6c081215ba1a6fb220dd922eea88db5db010bdecb923bf24ba861426b4",
+    "web/dist/assets/InvitationView-B0cj0ypH.js": "fe0075805485ec64fad67a605c61003a92f49f21f1b378910aab8cd47d3523c7",
+    "web/dist/assets/InvitationView-B4wTz1D4.css": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177",
+    "web/dist/assets/PasswordSettings-BunFVzN4.js": "c8272e261102ba76904dbff0a2aab1d4e475a5cd00fbe346b963700f34926dd4",
+    "web/dist/assets/PersonalSettingsView-BLWru9en.css": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5",
+    "web/dist/assets/PersonalSettingsView-CcALRnXt.js": "f6665968cff86e852358c8f3700d14eaad872e5b5c6212f18ce80b56471a49da",
+    "web/dist/assets/ProfileSettings-BXT5Gtn5.js": "96fc7a210b128e9dc377826ff5f6f800c5198fb333352c6160711c064061f298",
+    "web/dist/assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+    "web/dist/assets/ResetPasswordView-DSiu2awb.css": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527",
+    "web/dist/assets/ResetPasswordView-bYM7pYdK.js": "4cbad73eb75c857a62f96b218caf4934e3fca32f7abd9f6086bb1dc1229eb3ca",
+    "web/dist/assets/SettingsShell-Bcw4C853.css": "21f9308163aec86289533dcc640f257b0606dd8dff851f9bab21d2d670ad3367",
+    "web/dist/assets/SettingsShell-CYdVFUa5.js": "75e6bf60122b9694b875ffc3457a32f245829fe18530da68416d13f3983f24a3",
+    "web/dist/assets/SystemSettingsView-lM0k6t-1.js": "3f18648cc29439003a63dfc63fa82f1f1a2da4840a65199dee48e529c814331d",
+    "web/dist/assets/SystemSettingsView-mF8uhjc6.css": "a4b153d9a1915271b28f49a2283e3e5767b17719d477302c106fba3c1814cff5",
+    "web/dist/assets/SystemUsersView-B41TxT1D.css": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3",
+    "web/dist/assets/SystemUsersView-DJtPQZHN.js": "f95a6a519bd30b8f160a943dccaeefe62dc7ec12cd976f7fca08fa3e7eb49685",
+    "web/dist/assets/UiButton-chGnQun2.js": "0e98e2606fa1588df3f28c3894cec997acb3023841bad4983f1afacd72767507",
+    "web/dist/assets/index-DMOEz6aq.js": "20ef7fdd9c6fa5ba899f6f5c00161d258bfbec36307a1e0feed0c36c3adcebc3",
+    "web/dist/assets/index-Dz8igKKS.css": "93062c5fa0bfe5f17091a7efc49e24606c3581ffeaeeab1633152401601ada62",
+    "web/dist/index.html": "4047ebd6059170ca939479da109a91bf9f642fe32c2174b7ff139d698a6ebb86"
+  },
+  "documentation_checks": {
+    "path": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/readme-final01/checks.json",
+    "sha256": "a5ae082ddd4ff59d15b05d3b6c9b6ae0b152060ff3f97256e4c884a1bbf85e3a"
+  },
+  "author_stopped_writing": true,
+  "active_commands": 0,
+  "real_resources_started": false,
+  "git_operations_performed": false
+}
