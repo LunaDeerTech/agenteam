@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "vet",
+    "-tags=integration",
+    "-overlay",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/overlay.json",
+    "./tests/account",
+    "./tests/accountmail"
+  ],
+  "cwd": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/workspace",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/gocache",
+    "GOTMPDIR": "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/tmp",
+    "TMPDIR": "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/tmp",
+    "CGO_ENABLED": "1"
+  },
+  "resources_started": false,
+  "started_utc": "2026-10-06T16:46:29.544163+00:00"
+}

@@ -1,0 +1,11 @@
+=== RUN   TestNormalizeEmailCanonicalReentry
+    validation_test.go:45: canonical email cannot be normalized again
+--- FAIL: TestNormalizeEmailCanonicalReentry (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/account	0.005s
+=== RUN   TestSMTPMessageCanonicalReentry
+    smtp_address_test.go:22: canonical SMTP addresses cannot prepare a message
+--- FAIL: TestSMTPMessageCanonicalReentry (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/accountmail	0.004s
+FAIL

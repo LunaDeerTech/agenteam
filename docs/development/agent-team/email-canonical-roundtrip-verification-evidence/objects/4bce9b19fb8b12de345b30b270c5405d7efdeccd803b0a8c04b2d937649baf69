@@ -1,0 +1,94 @@
+{
+  "status": "PREPARATION PASS; corrected private prerequisite only, not yet rerun",
+  "execution_sha256": "25a0a29d5885620646f607391118438d677b94057660c526b49c6ed25a6969d9",
+  "driver_sha256": "d8ab4d89d45c6cf2c4c729d53f7b569a39b57cb36d5fcb8e06c49257f9f19f08",
+  "candidate_count": 9,
+  "accepted_count": 881,
+  "private_count": 14,
+  "runtime_count": 3512,
+  "checks": {
+    "compile02": {
+      "mode": "compile",
+      "exit_code": 0,
+      "actual_wait": true,
+      "pid": 1729424,
+      "seconds": 8.823,
+      "input_unchanged": true,
+      "raw_sha256": "ad6ce23aed4b91d26440d30064742aae9484a106fc2890887bc2f999dc20e726",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resources_started": false
+    },
+    "list02": {
+      "mode": "list",
+      "exit_code": 0,
+      "actual_wait": true,
+      "pid": 1729748,
+      "seconds": 3.968,
+      "input_unchanged": true,
+      "raw_sha256": "72fe5cb8a9b1033a69209d45b684efd5495d732da39f5f7fae9b92e54c1c1b7d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resources_started": false,
+      "exact_tests": [
+        "TestIndependentEmailHistoryAndTestIntent",
+        "TestIndependentEmailCanonicalWire"
+      ],
+      "exact_two_once": true
+    },
+    "freeze02": {
+      "mode": "freeze",
+      "exit_code": 0,
+      "actual_wait": true,
+      "pid": 1729753,
+      "seconds": 1.578,
+      "input_unchanged": true,
+      "raw_sha256": "6e510e2187dd268904335d9a3835485c901b8d27227783c76cc07db5839cf16c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resources_started": false
+    },
+    "gate02": {
+      "mode": "gate",
+      "exit_code": 0,
+      "actual_wait": true,
+      "pid": 1729982,
+      "seconds": 1.481,
+      "input_unchanged": true,
+      "raw_sha256": "59e32446b54b432a37fa9aeb1017dfb10b5b9b939aa9f329b5d93c04647d6c07",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resources_started": false
+    }
+  },
+  "artifacts": {
+    "execution02.json": "25a0a29d5885620646f607391118438d677b94057660c526b49c6ed25a6969d9",
+    "run-independent02.py": "d8ab4d89d45c6cf2c4c729d53f7b569a39b57cb36d5fcb8e06c49257f9f19f08",
+    "probe01-to02.diff": "01fcee1920cf765f6683ba81575d44217fa3eef5659af2c4845d083acbd18009",
+    "driver01-to02.diff": "ea0a8c7583ca89fa923c1566427e9bb924605c6097f11849758a771781554a59",
+    "overlay02.json": "fd837cbcc692590ac4313bd3478086029fb207b2edfbecbf580a613c082893c0",
+    "probe02/independent_email_history_test.go": "44d4811c52caa0e83dfd8a9a1cab04f40097552ffc6d5106d4f8a2931c56cff7"
+  },
+  "exact_go_run_selector": "^(TestIndependentEmailHistoryAndTestIntent|TestIndependentEmailCanonicalWire)$/^(http-original-history|expanded-ipv6)$",
+  "selected_subtests": [
+    "TestIndependentEmailHistoryAndTestIntent/http-original-history",
+    "TestIndependentEmailCanonicalWire/expanded-ipv6"
+  ],
+  "reused_subtests": [
+    "independent01:TestIndependentEmailHistoryAndTestIntent/formal-test-intent",
+    "independent01:TestIndependentEmailCanonicalWire/prefixed-ipv4-and-mapped"
+  ],
+  "reused_formal_body_unchanged": true,
+  "reused_wire_source_sha256": "074a4e343544042bfdf7889d721b6c798b4b7241af098a24db4d3d92b9b98c3a",
+  "no_product_helper_fixture_or_budget_changes": true,
+  "resources_started": false,
+  "run_after_root_window": [
+    "python3",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/run-independent02.py",
+    "--name",
+    "independent02",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/execution02.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--execute-authorized"
+  ]
+}

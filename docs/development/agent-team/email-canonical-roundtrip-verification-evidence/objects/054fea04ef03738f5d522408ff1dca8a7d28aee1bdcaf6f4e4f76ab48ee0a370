@@ -1,0 +1,8 @@
+=== RUN   TestNormalizeEmailCanonicalReentry
+--- PASS: TestNormalizeEmailCanonicalReentry (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/account	0.005s
+=== RUN   TestSMTPMessageCanonicalReentry
+--- PASS: TestSMTPMessageCanonicalReentry (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	0.004s

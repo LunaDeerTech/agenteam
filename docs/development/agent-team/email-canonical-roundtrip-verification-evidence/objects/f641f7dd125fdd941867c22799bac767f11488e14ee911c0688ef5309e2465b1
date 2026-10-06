@@ -1,0 +1,14 @@
+# Email canonical 往返修复卡独立静审
+
+**STATIC PASS。** 仅审已冻结 rev1 卡与固定 `819aba1b8f764328f1e2e67b53c274fad0db877d` 正式依赖；未修改产品、未运行纯/业务/浏览器/数据库或 SMTP 资源。
+
+被审卡全文 SHA `c48e3a5e71b9f454cdf32786d9e864480bf9fa91ea7128d565022ac711e71c63`，技术 §1–7 SHA `f62bf7a195d9bf501d33cebf48e43680e5f58db112d00b7dc417583f757aaf15`。十路径包含两生产、原/新测试、两个现 SMTP fixture 观察口及最后文档；没有前端、schema、锁或写服务扩域。链接与 LF/尾空白检查通过，固定源码 SHA 在 review.json。
+
+1. 合法集可实现：旧 NormalizeEmail 的 ASCII/长度/裸地址精确等值与字符排除保持；旧分支不变。仅原失败且整个输入已小写时，把实际 domain-literal 的 ipv6: 私有恢复为 Go 所需 IPv6:，再次完整验证，接受集扩到旧 S 的小写输出。Go1.27.1 net/mail 的精确 CutPrefix 与 ParseIP 分支说明 prefixed IPv4 原本合法；无前缀 mapped、点原子域及非压缩地址文本保持。不能先 lower 全输入放行 mixed 或非全小写 lower-prefix。
+2. SMTP wire 边界闭合：固定 sendSMTP 当前在协商/可能 AUTH 后才准备 message，随后才 SMTPMail/MAIL。私有 canonical 等值校验及 wire 标记适配可留在此边界，生成一对值供信封和头部共用；原 SenderName 安全编码、Message-ID/正文、64KiB、permit/首写/终局/实际 join 不变。accountmail/runtime.go 已导入 account，不新增循环依赖。
+3. 兼容责任完整：正式调用点涵盖 SMTP Update/Test/二次 insertDelivery、邀请、登录/lookup、Challenge 与 reset；原 S 输出不变便不改其既有 canonical 语义和 MAC 派生输入。新 canonical 可再输入，不迁移/重写邮箱或补造历史回执。旧 planned 命令可能已存在与 worker 校验前可能已有连接/AUTH 的限制均明确。
+4. 验收可实施：现服务/HTTP fixture、公开 Challenge 解法和 accountmail worker/自有 SMTP fixture 可复用。MAIL/RCPT 收完整 CRLF 行的既有分支可在原 mutex 下只增加两个最近整行 SHA；与独立构造固定预期及现 MessageSHA 比对，不能只互相一致。三个精确新真实顶层、旧三模式和正常/非法集合代表有界；失败/终局和输出边界明确，未把 fixture250 当外部收件成功。
+
+后续必须实际保留原函数/worker地址准备 RED，再验修复纯、HTTP、共同入口和 SMTP wire；当前 STATIC PASS 不替代它们。候选中新 receipt 不能冒称跨二进制升级实证。SMTP UI 原 API01 首红继续保留，后端接受后才另授 input/DTO 窄修，冻结 pending body/key/material 不得改写。
+
+归档前主线程已授架构只改接受页首，首个原全文 SHA 防漂移断言因此退出1、未写文件；重新核技术字节完全不变，现存接受页首全文 SHA `73c7d5fb8b1a503cb7c27929e717397228973833564d3de5fc895db8a5ed81f4` 已复制为 card-accepted-header.md，不重造原候选全文。本轮没有运行新动态。全部私有静审原件现停止写入。

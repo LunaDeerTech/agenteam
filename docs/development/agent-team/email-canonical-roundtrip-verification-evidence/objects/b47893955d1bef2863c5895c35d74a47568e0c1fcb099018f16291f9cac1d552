@@ -1,0 +1,21 @@
+{
+  "report_sha256": "e7f2d7c8b8dff34358e7692f5f5f3d245974c80e283562e69537ca64a3fa1c36",
+  "run": {
+    "raw.log": "f1c15b8f58ceddf694f8d5e91ebb0c2eac70f095d0a6d587bf723db03cfee3e2",
+    "result.json": "1649e1042866b654f37723ef843ca705fd398a280ef1843ccefbab3c40d6405a",
+    "cleanup.json": "e04a366687c2eb7a4f8c1d6a33441b135eae60fc6b37fb9cc02c2c00071f3d7c",
+    "command.json": "d30f72b193cdf50ca02c90d73d51cc5879b7470e4cfe2ebbfba32e12b2e1c264",
+    "input-before.json": "f1e4a50eb746e4ad367117b99cddbcd5d4e96ca2e7c60466a9c2c4af6af9a2fd",
+    "input-after.json": "f1e4a50eb746e4ad367117b99cddbcd5d4e96ca2e7c60466a9c2c4af6af9a2fd"
+  },
+  "fixed_sources": {
+    "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/workspace/tests/account/http_fixture_test.go": "f622024fed7d759ea422c3338bcc145818d7683709f109ee79a3413f6ee03d4f",
+    "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/workspace/internal/central/account/http_facade.go": "6e8ca0b3ad8b8f18fbfeafb1981752239daeaca6f9953cbc1475261d72baf222",
+    "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/workspace/internal/central/account/http_auth.go": "4a8f24dec41bb2dd7d94c3777ee8c80fe3b0ba4e9a799b9e07435c8989a5ba98"
+  },
+  "probe_sources": {
+    "probe/independent_email_history_test.go": "9dde68eab94f809f0438d57d0e647de76bd9b14a372a6a2db093f8fdbb3a7cfa",
+    "probe/independent_email_wire_test.go": "074a4e343544042bfdf7889d721b6c798b4b7241af098a24db4d3d92b9b98c3a"
+  },
+  "no_rerun": true
+}

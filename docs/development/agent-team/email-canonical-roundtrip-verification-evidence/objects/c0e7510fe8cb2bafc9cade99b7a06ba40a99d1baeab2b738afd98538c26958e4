@@ -1,0 +1,176 @@
+{
+  "status": "INDEPENDENT PASS for nine frozen Email canonical roundtrip candidates; product integration/commit by root",
+  "base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "candidate_manifest": {
+    "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/input01/manifest.json",
+    "sha256": "e2882f0a9c6458127d09034309540ab04b7c7257f6d92d931c1d832a5ae1c26a"
+  },
+  "delivery9": {
+    "internal/central/account/validation.go": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94",
+    "internal/central/account/validation_test.go": "1141ef16fd32317fc7e5bdfba0c7aeef827b2d641f6f2e848b673774fffe7e99",
+    "internal/central/accountmail/smtp.go": "f509b9b279f2cb49898c01f32d19e86cf617421ac1487354fa4df78de48289b9",
+    "internal/central/accountmail/smtp_address_test.go": "711cbb47191cd5975df316b0dbaaf0bcfe549a933d1b0cd898c5c4998febdd48",
+    "tests/account/email_canonical_roundtrip_test.go": "d26430c0e98eca20799a66d120461fa397a2fd6ac939d9b6aa487e2db11a7024",
+    "tests/account/http_email_canonical_roundtrip_test.go": "dd61dfced5513c70c44aeeb0ae3da9524ed0597ae4fda5fb824b5396f425b347",
+    "tests/accountmail/email_canonical_roundtrip_test.go": "8192427c5089ff2b592b0b5f775b73876f59b670dde092711b83d1ea677168b9",
+    "tests/testsupport/smtp/cmd/server/main.go": "0c67c9cb015e76b5c35c857a4628fdaecdf569516fd8b29c11cf06a47ded2773",
+    "tests/testsupport/smtp/fixture.go": "9555fe9e05d795354a9f7eaec57cb11d20b378c5566ed69a7ca5362dbb907851"
+  },
+  "stages": {
+    "core_review_md": {
+      "path": "/workspace/scratch/agenteam-email-core-independent-o5abw2d6/review.md",
+      "sha256": "e3c8445b222706f0b263da6c948f4b66a243d822bd48e62b619a90cc93d14e6f"
+    },
+    "core_review_json": {
+      "path": "/workspace/scratch/agenteam-email-core-independent-o5abw2d6/review.json",
+      "sha256": "f474f5aee507ed8712f80e48d5f42b29339bd3221f727de2c3fa1d39c6510f6c"
+    },
+    "harness_review_md": {
+      "path": "/workspace/scratch/agenteam-email-harness-independent-g18de4oo/review.md",
+      "sha256": "93d6e5978647c6157a496e4f42ff1d76a909f70172dcdadcc704c37b2e6fdc6b"
+    },
+    "harness_review_json": {
+      "path": "/workspace/scratch/agenteam-email-harness-independent-g18de4oo/review.json",
+      "sha256": "d47bd9d1bb0aec2c52129a9e4097fdc99b2dcec7bc8a3d93e4e1c59fe730bdbf"
+    },
+    "author_report_md": {
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/author-report.md",
+      "sha256": "98ac44617f52d4047ee20ccf1cb568719a83530acb68b4dbc32f986150008427"
+    },
+    "author_report_json": {
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/author-report.json",
+      "sha256": "dd92950e3fc5a2c5f3e9c810e47628bf735fee82ebfa0230f2fc1a31e92e5f42"
+    },
+    "author_delivery9": {
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/author-delivery9.json",
+      "sha256": "c1f92a1365fee883daaee34b1636965785f63d54d60821d3a669fd1116eeb6c6"
+    }
+  },
+  "independent_real": {
+    "independent01": {
+      "directory": "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/runs/independent01",
+      "exit": 1,
+      "seconds": 123.034,
+      "actual_wait": true,
+      "exact_ids": 9,
+      "owned_pids": 120,
+      "adopted_waits": 0,
+      "monitor_errors": 0,
+      "double_cleanup": true,
+      "input_unchanged": true,
+      "top_levels": [
+        [
+          "FAIL",
+          "TestIndependentEmailHistoryAndTestIntent"
+        ],
+        [
+          "FAIL",
+          "TestIndependentEmailCanonicalWire"
+        ]
+      ],
+      "hashes": {
+        "raw.log": "f1c15b8f58ceddf694f8d5e91ebb0c2eac70f095d0a6d587bf723db03cfee3e2",
+        "command.json": "d30f72b193cdf50ca02c90d73d51cc5879b7470e4cfe2ebbfba32e12b2e1c264",
+        "result.json": "1649e1042866b654f37723ef843ca705fd398a280ef1843ccefbab3c40d6405a",
+        "cleanup.json": "e04a366687c2eb7a4f8c1d6a33441b135eae60fc6b37fb9cc02c2c00071f3d7c",
+        "input-before.json": "f1e4a50eb746e4ad367117b99cddbcd5d4e96ca2e7c60466a9c2c4af6af9a2fd",
+        "input-after.json": "f1e4a50eb746e4ad367117b99cddbcd5d4e96ca2e7c60466a9c2c4af6af9a2fd",
+        "frozen-input.json": "46fe6ae1079036944384e827e37944ce8b511793747345991f09197a0632dee1",
+        "driver.py.txt": "8f28faca454889fd77639fb4ae812790dbb96cd14fe2ba76504010f0737d6ef1"
+      }
+    },
+    "independent02": {
+      "directory": "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/runs/independent02",
+      "exit": 0,
+      "seconds": 72.577,
+      "actual_wait": true,
+      "exact_ids": 9,
+      "owned_pids": 74,
+      "adopted_waits": 0,
+      "monitor_errors": 0,
+      "double_cleanup": true,
+      "input_unchanged": true,
+      "top_levels": [
+        [
+          "PASS",
+          "TestIndependentEmailHistoryAndTestIntent"
+        ],
+        [
+          "PASS",
+          "TestIndependentEmailCanonicalWire"
+        ]
+      ],
+      "hashes": {
+        "raw.log": "31524e6cf508dc615c17c3c05477dc6d6b5ce306fc956934b8e2f9574716f1b1",
+        "command.json": "455159d438d72c75ab9fabf8139f6ddf3c079223d3d7e68424d840d146b8052e",
+        "result.json": "a9dfff850dd6fa7f7a18167cbdc5b70f22ab71da4b4e4f35fab684f4e3280087",
+        "cleanup.json": "50c5e8fd4337f00b56d728a5c1a5bfe69b333dfd5c601da8a9d3d4de3f0e4b0b",
+        "input-before.json": "dab72dab959eaf825e41441a2dc65ee002b3357e8c6a61653f2a0701ead3b4cd",
+        "input-after.json": "dab72dab959eaf825e41441a2dc65ee002b3357e8c6a61653f2a0701ead3b4cd",
+        "frozen-input.json": "25a0a29d5885620646f607391118438d677b94057660c526b49c6ed25a6969d9",
+        "driver.py.txt": "d8ab4d89d45c6cf2c4c729d53f7b569a39b57cb36d5fcb8e06c49257f9f19f08"
+      }
+    }
+  },
+  "combination": [
+    {
+      "run": "independent02",
+      "case": "http-original-history",
+      "seconds": 2.27,
+      "checks": "original HTTP body/key/legal CSRF; canonical edit; old applied version/current highwater; exact Account command/Audit and unchanged MAC; invalid/unauthenticated/CSRF rejects leave current unchanged"
+    },
+    {
+      "run": "independent01",
+      "case": "formal-test-intent",
+      "seconds": 2.8,
+      "checks": "second normalization; original/equivalent same key JobID; exact command/Audit/intent/event/job; original semantic MAC unchanged"
+    },
+    {
+      "run": "independent02",
+      "case": "expanded-ipv6",
+      "seconds": 2.23,
+      "checks": "independent explicit MAIL/RCPT complete-line and full-message golden; canonical persistence; actual socket close; terminal/io_joined/registry join; one message and credential lease released"
+    },
+    {
+      "run": "independent01",
+      "case": "prefixed-ipv4-and-mapped",
+      "seconds": 2.08,
+      "checks": "same complete wire and terminal invariants, different fixed address pair"
+    }
+  ],
+  "private_artifacts": {
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/execution01.json": "46fe6ae1079036944384e827e37944ce8b511793747345991f09197a0632dee1",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/execution02.json": "25a0a29d5885620646f607391118438d677b94057660c526b49c6ed25a6969d9",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/run-independent01.py": "8f28faca454889fd77639fb4ae812790dbb96cd14fe2ba76504010f0737d6ef1",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/run-independent02.py": "d8ab4d89d45c6cf2c4c729d53f7b569a39b57cb36d5fcb8e06c49257f9f19f08",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/overlay.json": "d21c88c6c97c50434316395846c377d164e65a6ac6fd760f9c20f9560e0dbdf6",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/overlay02.json": "fd837cbcc692590ac4313bd3478086029fb207b2edfbecbf580a613c082893c0",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/probe/independent_email_history_test.go": "9dde68eab94f809f0438d57d0e647de76bd9b14a372a6a2db093f8fdbb3a7cfa",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/probe02/independent_email_history_test.go": "44d4811c52caa0e83dfd8a9a1cab04f40097552ffc6d5106d4f8a2931c56cff7",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/probe/independent_email_wire_test.go": "074a4e343544042bfdf7889d721b6c798b4b7241af098a24db4d3d92b9b98c3a",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/driver-author-to-independent01.diff": "4f5268d995f4413f35a5fa6d5da77bc69221cac32d356e45d0ee17418bd87d0c",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/probe01-to02.diff": "01fcee1920cf765f6683ba81575d44217fa3eef5659af2c4845d083acbd18009",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/driver01-to02.diff": "ea0a8c7583ca89fa923c1566427e9bb924605c6097f11849758a771781554a59",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/start01-tool-record.json": "1d5653d4c00a209c2af0cc9beb0e79023057925d4200f4240ad4032d9300a817",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/preparation-erratum01.md": "e13a328281a0e732a5f55460fd988009b1c9cbc213fe3ef089065883584bba18",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/independent01-analysis.md": "e7f2d7c8b8dff34358e7692f5f5f3d245974c80e283562e69537ca64a3fa1c36",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/independent01-analysis.json": "b47893955d1bef2863c5895c35d74a47568e0c1fcb099018f16291f9cac1d552",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/disk-before-independent02.json": "2da53401e81142f304a7d7f934c4a02bb2c5b67604ed2696ea35f4a66068bd2f",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/preparation-ready01.json": "6bbcb3d176d0921d965488df80b483e08d70873d44ca8972221b564f5f4d84e6",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/preparation-ready02.json": "4bce9b19fb8b12de345b30b270c5405d7efdeccd803b0a8c04b2d937649baf69"
+  },
+  "preserved_failures": [
+    "Author exact old normalization/worker dynamic RED; original missing accepted assets complete-pure prerequisite and old run-name collision remain in frozen author report.",
+    "Independent static original-function extraction included trailing comment; preserved correction record in core review.",
+    "Independent initial --run CLI argument exit2 before resource/test setup; original preparation report and erratum kept.",
+    "Independent01 full actual exit1 remains: guest helper backend_log prerequisite conflicts with configured smtp; combined bootstrap condition body was not recorded so no retroactive field observation.",
+    "Independent01 expanded-ipv6 ENOSPC at TempDir before delivery; root reclaimed only completed, archived, unused rebuildable Go caches; own later preflight observed9.3GiB."
+  ],
+  "limits": [
+    "No single all-green four-case real round is claimed: two unchanged subcases reuse independent01 and two affected subcases pass independent02.",
+    "Candidate-created historical receipts and exact frozen original function/goldens establish this change boundary; no cross-binary upgrade experiment or external mailbox delivery claim.",
+    "Only this Email card is accepted here; pending SMTP UI API alignment and full UI acceptance remain separate.",
+    "Original package6m/race/count1, private2m contexts and accepted HTTP20s/request remain; original setup helpers do not all inherit private outer context.",
+    "No product file or Git mutation by verifier; no further command or owned resource is running; historical PPID1 zombies untouched."
+  ]
+}

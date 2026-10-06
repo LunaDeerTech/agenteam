@@ -1,0 +1,77 @@
+{
+  "result": "STATIC PASS",
+  "base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "card": "/workspace/agenteam/docs/development/work-items/d07-email-canonical-roundtrip.md",
+  "reviewed_card_sha256": "c48e3a5e71b9f454cdf32786d9e864480bf9fa91ea7128d565022ac711e71c63",
+  "archived_accepted_header_card_sha256": "73c7d5fb8b1a503cb7c27929e717397228973833564d3de5fc895db8a5ed81f4",
+  "technical_sha256": "f62bf7a195d9bf501d33cebf48e43680e5f58db112d00b7dc417583f757aaf15",
+  "scope": "specification only; no product edit or dynamic/service/browser/PG/Docker execution",
+  "fixed_sources": {
+    "internal/central/account/validation.go": "8fcc8faa4ecd908188b4711792373f98cb4551ef75139435c7ca08cc1994a0a3",
+    "internal/central/account/validation_test.go": "197f4182264278dfef352c1ca325875bfabac948566ce0eabc794d24dc2a8491",
+    "internal/central/account/smtp_settings.go": "69eb1b8f8f5cf47633f6bdab6c20c1ffcf9624fc0a9d030efb4cc7337aa9a225",
+    "internal/central/account/smtp_commands.go": "7bac163a844e6b3295f9cd48812184bb4cc83e16fe4695013b43fdc3bf87ca2d",
+    "internal/central/account/delivery_intent.go": "57d6fbd41453640455bc115d660bb9406c05d178bc87659d6dd04865554bfcd3",
+    "internal/central/account/challenge.go": "779aa885896b85edb96e6a5c34e55d8d52d6a8cc6a07933abf68cacdd77cbdb8",
+    "internal/central/account/login.go": "a1802b85303167f2b5421fbbef82e769239dcc28f5da8126b83082996186ee06",
+    "internal/central/account/reset.go": "c228fb40df0b11889cc7e911c4abd3865358473683123b265d12f30c6b8928df",
+    "internal/central/account/invitation.go": "447c4ec90cfe8b74abf6ebad2c262334ad3710fbf19449f774675b1216fba598",
+    "internal/central/accountmail/smtp.go": "65e44e70bad11b91f6ac31d18464cb8fbfdfb28f98c96f7950efa606a2ae799d",
+    "internal/central/accountmail/runtime.go": "b02f28be11459947c7a0c446444581d371eeccd0491aec5d7761fff520358c34",
+    "tests/testsupport/smtp/fixture.go": "898b05d896cc66b70f81b7f4b1efe6bc1fade1464ad583f61a7e4f64ac143d84",
+    "tests/testsupport/smtp/cmd/server/main.go": "d3da832cdeea730e227088de0bdea89b3393b24d9e0257f2ccc9b9417e7ab725",
+    "tests/accountmail/smtp_test.go": "012162c9094e631d23210897976d2a6c3d62a7e7bfacd7d5f526f21db5559482",
+    "tests/accountmail/fixture_test.go": "53e71fd3afe42508c01612778a69e21f8543513bf0d7ea2b0e8cfd53159dc971",
+    "tests/account/challenge_test.go": "b6ca8b74c369e2b39aac3b21448f89acc54d5eb886a37c9faef9d91116d39a19",
+    "/workspace/toolchains/go1.27.1/src/net/mail/message.go": "241de6e1b1470663a2897f28cb78b19d45446c572b831daab92e5b3dfdda4497"
+  },
+  "links": [
+    {
+      "target": "../../../AGENTS.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/README.md",
+      "exists": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "exists": true
+    },
+    {
+      "target": "d07-account-session-smtp-design.md",
+      "exists": true
+    },
+    {
+      "target": "../../architecture/platform-infrastructure/authentication/account-lifecycle.md",
+      "exists": true
+    },
+    {
+      "target": "../../architecture/platform-infrastructure/authentication/smtp-delivery.md",
+      "exists": true
+    },
+    {
+      "target": "../backend/account.md",
+      "exists": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-go-development/SKILL.md",
+      "exists": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-verification/SKILL.md",
+      "exists": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-documentation/SKILL.md",
+      "exists": true
+    }
+  ],
+  "archiving_note": "First archive assertion on the original full SHA failed because root-authorized acceptance header had already changed; no file was written by that attempt. Technical bytes rechecked unchanged. Current accepted-header card archived without reconstructing original.",
+  "limits": [
+    "S union lower(S) and unchanged old canonical/MAC are specification requirements, not implemented proof",
+    "Formal HTTP/Account/SMTP old-red/new-green and command/Audit/wire/join remain pending",
+    "No cross-binary historical receipt run occurred",
+    "SMTP UI api-stage01 original 11 PASS/1 FAIL unchanged; page review may resume under root authorization"
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "32badae41496ca04ead5bd4b2c1886fd8bc860c1dd57e3146a3a5d58ce7ff562": {
+    "id": "32badae41496ca04ead5bd4b2c1886fd8bc860c1dd57e3146a3a5d58ce7ff562",
+    "kind": "network",
+    "labels": {
+      "agenteam.d05.objectfixture": "8bfe85c846a6c23e621370aabdcd3ff1"
+    },
+    "name": "agenteam-d05-object-8bfe85c846a6c23e621370aabdcd3ff1"
+  },
+  "3823483d7be8c2a45d4b4c9678872ff184205cec9bee4bf6a167b0cf453e155a": {
+    "id": "3823483d7be8c2a45d4b4c9678872ff184205cec9bee4bf6a167b0cf453e155a",
+    "kind": "container",
+    "labels": {
+      "agenteam.d03.fixture": "db60026d443038ebebc0f879413394ed"
+    },
+    "name": "/agenteam-d03-db60026d443038ebebc0f879413394ed"
+  },
+  "52d56f78f3db6a42ca1c11b91e1b1d0d3a87734ce11552d83c7aa0f98df97752": {
+    "id": "52d56f78f3db6a42ca1c11b91e1b1d0d3a87734ce11552d83c7aa0f98df97752",
+    "kind": "network",
+    "labels": {
+      "agenteam.d03.fixture": "db60026d443038ebebc0f879413394ed"
+    },
+    "name": "agenteam-d03-db60026d443038ebebc0f879413394ed"
+  },
+  "7c8cede20ffd91416b0a0968c0e4ae8a7540a01526e115de6ec46d8071651a7c": {
+    "id": "7c8cede20ffd91416b0a0968c0e4ae8a7540a01526e115de6ec46d8071651a7c",
+    "kind": "container",
+    "labels": {
+      "agenteam.d05.objectfixture": "8bfe85c846a6c23e621370aabdcd3ff1"
+    },
+    "name": "/agenteam-d05-object-8bfe85c846a6c23e621370aabdcd3ff1"
+  },
+  "b3a0b52f65757c64f5f813203bd7d228052c051784e75196d56fa2a51568a7e1": {
+    "id": "b3a0b52f65757c64f5f813203bd7d228052c051784e75196d56fa2a51568a7e1",
+    "kind": "network",
+    "labels": {
+      "agenteam.d04.networkfixture": "5f67cf3b2c6d1c4bc0fedbedcd5c1391"
+    },
+    "name": "agenteam-d04-net-5f67cf3b2c6d1c4bc0fedbedcd5c1391"
+  },
+  "c06970ac891f3a505ccf85d7e8542ad4bcaf6e2aaf82738bf62645f3b96f87a7": {
+    "id": "c06970ac891f3a505ccf85d7e8542ad4bcaf6e2aaf82738bf62645f3b96f87a7",
+    "kind": "container",
+    "labels": {
+      "agenteam.d04.networkfixture": "5f67cf3b2c6d1c4bc0fedbedcd5c1391"
+    },
+    "name": "/agenteam-d04-net-5f67cf3b2c6d1c4bc0fedbedcd5c1391"
+  },
+  "cab41483d4172b737253028d93750f93e20c2cf205c71b3b8fb13ce87e5f20a2": {
+    "id": "cab41483d4172b737253028d93750f93e20c2cf205c71b3b8fb13ce87e5f20a2",
+    "kind": "container",
+    "labels": {
+      "agenteam.d07.smtpfixture": "9342bf386f0800c2045bd2c099632634"
+    },
+    "name": "/agenteam-d07-smtp-9342bf386f0800c2045bd2c099632634"
+  },
+  "dbff82ba7fb7950c9367802117a1b590a4d9a4d9690d32da20d1333a730c6f3b": {
+    "id": "dbff82ba7fb7950c9367802117a1b590a4d9a4d9690d32da20d1333a730c6f3b",
+    "kind": "network",
+    "labels": {
+      "agenteam.d07.smtpfixture": "9342bf386f0800c2045bd2c099632634"
+    },
+    "name": "agenteam-d07-smtp-9342bf386f0800c2045bd2c099632634"
+  },
+  "df91598e6fa17f43365650bfb3b74781017e19caf6e703e6152291067020277d": {
+    "id": "df91598e6fa17f43365650bfb3b74781017e19caf6e703e6152291067020277d",
+    "kind": "container",
+    "labels": {
+      "agenteam.d03.fixture": "db60026d443038ebebc0f879413394ed"
+    },
+    "name": "/agenteam-d03-db60026d443038ebebc0f879413394ed-pg16"
+  }
+}

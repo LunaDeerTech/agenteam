@@ -1,0 +1,32 @@
+# Email canonical roundtrip: offline handoff
+
+Fixed product base `819aba1b8f764328f1e2e67b53c274fad0db877d`; private nine-source input `e2882f0a9c6458127d09034309540ab04b7c7257f6d92d931c1d832a5ae1c26a`. Nine files and the six-file core stage are stopped. Shared main is untouched. No runtime resources have started.
+
+The two production changes preserve the original accepted set and canonical output, admit only complete lowercase former outputs, and prepare one strict wire pair for MAIL/RCPT/From/To. Both fixture additions store only whole-line SHA-256 observations. No write-service, contract, schema, lock or dependency change.
+
+## Actual checks
+
+| Run | Exit / seconds | Evidence meaning |
+| --- | --- | --- |
+| old01 | 1 / 32.183 | Original production: both minimal reentry probes fail. |
+| new-minimal01 | 0 / 7.361 | Same two probe function bytes now pass. |
+| pure01 | 1 / 18.539 | Account pure failed for missing fixed test assets; Accountmail passed. No assertion relaxed. |
+| pure02 | 0 / 13.995 | Complete affected Account/Accountmail pure passed after seven fixed assets restored. |
+| race01 | 0 / 101.447 | Same two complete packages; cold race compilation included in elapsed time. |
+| vet01 | 0 / 14.039 | Production/pure packages and SMTP fixture vet. |
+| build01 | 0 / 16.246 | Central and Runner compiled, never started. |
+| integration-compile01 | 0 / 10.718 | Three new tops compile with race; before only two test SQL type corrections. |
+| integration-vet01 | 0 / 4.215 | Final nine-source integration and SMTP fixture vet. |
+| runtime-discovery01 | 0 / 24.055 | Fixed script full package roots compile with race; exactly three new tops plus original three-mode SMTP top discovered. No tests executed or skipped. |
+| fixture-build01 | 0 / 1.124 | Exact five runtime fixture helpers compiled, never started. |
+| driver-gate01 | 0 / 1.441 | Read-only source/runtime gate accepted 881 fixed dependencies, nine candidates, 3501 tool/dependency files. |
+
+Each `runs/<name>/` contains source snapshot, command/env, raw log, result, and input before/after. Original failed runs remain unchanged. All recorded commands actually waited and source inventories remained equal. Runtime package compilation reuses the formal PG driver package list; the closure is 886 original files, of which five are overlaid by authorized candidates, leaving 881 read-only dependencies. No web or active SMTP UI input is present.
+
+## Planned real windows
+
+`run-email-canonical-fixture.py` only supports `new-account` (the service and HTTP tops, seven expected exact fixture IDs), `new-wire` (the new actual SMTP top, nine), and `old` (original three-mode SMTP top, nine). Each uses the unchanged `scripts/test-security.sh -run`, Go 1.27.1, race/count1/6m and task-owned nonces; subreaper, actual waits, PID/starttime ownership and double exact-ID cleanup are retained from the accepted driver. Do not execute until root grants the individual window.
+
+The complete driver/runtime input is `driver-stage01/input.json`; its companion `driver.diff` isolates base, minimal-closure binding and test groups. The gate ran with `--check-input-only`, so it did not query Docker or start fixture processes. Existing unrelated resources and historical PPID1 zombies are outside ownership.
+
+Independent core-only result is [the fixed report](/workspace/scratch/agenteam-email-core-independent-o5abw2d6/review.md), SHA `e3c8445b222706f0b263da6c948f4b66a243d822bd48e62b619a90cc93d14e6f`; it is not a real SMTP or whole-card acceptance. Final HTTP/DB/SMTP facts, independent acceptance and the tenth backend documentation file remain pending.

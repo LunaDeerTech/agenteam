@@ -1,0 +1,317 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+)
+
+func TestAccountEmailCanonicalRoundTrip(t *testing.T) {
+	t.Run("test-intent-and-original-replay", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+		f := newB02Account(t)
+		admin := b02Admin(t, f)
+		settings, err := f.service.GetSMTPSettings(ctx, admin)
+		if err != nil {
+			t.Fatal("SMTP settings", err)
+		}
+		configure, err := c.NewSMTPUpdate(c.SMTPUpdateFields{Actor: admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), ExpectedVersion: settings.Version, Configured: true, Host: "mail.example.test", Port: 2525, TLSMode: "none", SenderEmail: "sender@[ipv6:2001:db8::7]", RetryCount: 0, RetryIntervalSeconds: 10})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err = f.service.UpdateSMTPSettings(ctx, configure); err != nil {
+			t.Fatal("canonical configuration", err)
+		}
+		for _, recipient := range []string{"Recipient@[IPv6:2001:DB8::8]", "recipient@[ipv6:2001:db8::8]"} {
+			request := c.SMTPTest{Actor: admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Recipient: recipient}
+			accepted, err := f.service.TestSMTP(ctx, request)
+			if err != nil || accepted.Phase != "enqueue_pending" {
+				t.Fatal("test recipient second normalization", err)
+			}
+			var command string
+			var originalMAC []byte
+			if err = f.store.QueryRow(ctx, `SELECT id::text,semantic_mac FROM agenteam_account.commands WHERE namespace='account.smtp' AND command_key=$1 AND phase='committed'`, string(request.Key)).Scan(&command, &originalMAC); err != nil {
+				t.Fatal("committed test command", err)
+			}
+			defer clear(originalMAC)
+			if _, err = f.service.ReconcileDeliveryIntents(ctx); err != nil {
+				t.Fatal("reconcile", err)
+			}
+			// Reuse the untouched original request, then independently verify that
+			// the new canonical spelling has the same old command semantics.
+			equivalent := request
+			equivalent.Recipient = "recipient@[ipv6:2001:db8::8]"
+			for _, replay := range []c.SMTPTest{request, equivalent} {
+				again, err := f.service.TestSMTP(ctx, replay)
+				if err != nil || again.JobID != accepted.JobID || again.Phase != "pending" {
+					t.Fatal("original test command did not replay", err)
+				}
+			}
+			var intents, events, audits, jobs int
+			var stored string
+			var afterMAC []byte
+			err = f.store.QueryRow(ctx, `SELECT i.recipient,c.semantic_mac,(SELECT count(*) FROM agenteam_account.delivery_intents WHERE id=c.id),(SELECT count(*) FROM agenteam_outbox.events WHERE id=c.id::text),(SELECT count(*) FROM agenteam_audit.audit_records WHERE action='smtp.test.request' AND cause_ref=c.id::text),(SELECT count(*) FROM agenteam_account.mail_jobs WHERE intent_id=c.id) FROM agenteam_account.commands c JOIN agenteam_account.delivery_intents i ON i.id=c.id WHERE c.id=$1`, command).Scan(&stored, &afterMAC, &intents, &events, &audits, &jobs)
+			if err != nil || stored != "recipient@[ipv6:2001:db8::8]" || !bytes.Equal(originalMAC, afterMAC) || intents != 1 || events != 1 || audits != 1 || jobs != 1 {
+				t.Fatal("test command/canonical/intent/event/Audit uniqueness", err)
+			}
+			clear(afterMAC)
+		}
+		t.Log("raw and canonical test recipients accepted; second normalization and exact command/MAC/intent/event/Audit/job checks passed")
+	})
+	t.Run("invitation-identity-challenge-and-reset", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+		f := newB02Account(t)
+		admin := b02Admin(t, f)
+		const raw = "Account@[IPv6:2001:DB8::17]"
+		const canonical = "account@[ipv6:2001:db8::17]"
+		create, err := c.NewInvitationCreate(c.InvitationCreateFields{Actor: admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Email: raw})
+		if err != nil {
+			t.Fatal(err)
+		}
+		invite, err := f.service.CreateInvitation(ctx, create)
+		if err != nil {
+			t.Fatal("literal invitation", err)
+		}
+		equivalentCreate := create.Fields()
+		equivalentCreate.Email = canonical
+		equivalent, err := c.NewInvitationCreate(equivalentCreate)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if again, err := f.service.CreateInvitation(ctx, equivalent); err != nil || again != invite {
+			t.Fatal("invitation canonical replay", err)
+		}
+		var stored string
+		var invites int
+		if err = f.store.QueryRow(ctx, `SELECT canonical_email,(SELECT count(*) FROM agenteam_account.invitations WHERE canonical_email=$2) FROM agenteam_account.invitations WHERE id=$1`, invite.ID.String(), canonical).Scan(&stored, &invites); err != nil || stored != canonical || invites != 1 {
+			t.Fatal("canonical invitation uniqueness", err)
+		}
+		token := fixtureLinkToken(t, f, c.InvitationToken, invite.ID.String())
+		anonymous, err := f.service.NewAnonymousContext(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer anonymous.Cookie.Destroy()
+		defer anonymous.CSRF.Destroy()
+		view, err := f.service.InspectInvitation(ctx, anonymous.Identity, token, nil)
+		if err != nil || view.Email != canonical {
+			t.Fatal("canonical invitation view", err)
+		}
+		password, err := sc.NewSecretMaterial([]byte("Owned canonical account passphrase 739584!"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer password.Destroy()
+		redeem, err := c.NewInvitationRedeem(c.RedeemFields{Browser: anonymous.Identity, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Token: token, Username: "canonical-user", DisplayName: "Canonical account", Password: password, Confirmation: password})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if result, err := f.service.RedeemInvitation(ctx, redeem); err != nil || !result.Completed {
+			t.Fatal("canonical invitation redeem", err)
+		}
+		login, _ := loginRequest(t, f.fixture, password, canonical)
+		response, err := f.service.Login(ctx, login)
+		if err != nil {
+			t.Fatal("canonical login", err)
+		}
+		actor, err := f.service.Authenticate(ctx, useCookie(t, response))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = response.Close(ctx); err != nil {
+			t.Fatal("login response join", err)
+		}
+		for _, email := range []string{canonical, raw} {
+			fields := login.Fields()
+			fields.Email = email
+			lookup, err := c.NewLoginRequest(fields)
+			if err != nil {
+				t.Fatal(err)
+			}
+			response, err := f.service.LookupLogin(ctx, lookup)
+			if err != nil {
+				t.Fatal("equivalent historical login lookup", err)
+			}
+			current, err := f.service.Authenticate(ctx, useCookie(t, response))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err = response.Close(ctx); err != nil {
+				t.Fatal("lookup actual join", err)
+			}
+			if current.Details().UserID != actor.Details().UserID || current.Details().SessionID != actor.Details().SessionID {
+				t.Fatal("canonical/raw lookup changed identity")
+			}
+		}
+		duplicateFields := create.Fields()
+		duplicateFields.Email = canonical
+		duplicateFields.Key = foundation.IdempotencyKey(id[struct{}](t).String())
+		duplicate, err := c.NewInvitationCreate(duplicateFields)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err = f.service.CreateInvitation(ctx, duplicate); !hasCode(err, foundation.InvalidArgument) {
+			t.Fatal("registered canonical duplicate admitted")
+		}
+		var users int
+		if err = f.store.QueryRow(ctx, `SELECT email,(SELECT count(*) FROM agenteam_account.users WHERE email=$2) FROM agenteam_account.users WHERE id=$1`, actor.Details().UserID, canonical).Scan(&stored, &users); err != nil || stored != canonical || users != 1 {
+			t.Fatal("one lower-case account identity", err)
+		}
+		// Configure the real challenge threshold through its formal facade.
+		_, cursor, _ := keys(t)
+		facade, err := account.NewSystemHTTPFacade(f.service, cursor)
+		if err != nil {
+			t.Fatal(err)
+		}
+		settings, err := facade.GetAccountSettings(ctx, admin)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err = facade.UpdateAccountSettings(ctx, account.HTTPAccountSettingsUpdate{Actor: admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), ExpectedVersion: settings.Version, SessionIdleSeconds: settings.SessionIdleSeconds, SessionAbsoluteSeconds: settings.SessionAbsoluteSeconds, PasswordResetSeconds: settings.PasswordResetSeconds, ChallengeAfterFailures: 1}); err != nil {
+			t.Fatal("formal challenge threshold", err)
+		}
+		bad, err := sc.NewSecretMaterial([]byte("an intentionally incorrect account password"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer bad.Destroy()
+		failed, anon := loginRequest(t, f.fixture, bad, raw)
+		if _, err = f.service.Login(ctx, failed); !hasCode(err, foundation.Unauthenticated) {
+			t.Fatal("real failed login prerequisite")
+		}
+		fields := failed.Fields()
+		fields.Key = foundation.IdempotencyKey(id[struct{}](t).String())
+		fields.Password = password
+		fields.Email = canonical
+		unproved, err := c.NewLoginRequest(fields)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err = f.service.Login(ctx, unproved); !hasCode(err, foundation.ChallengeRequired) {
+			t.Fatal("canonical subject did not inherit challenge threshold")
+		}
+		challenge, err := c.NewChallengeRequest(c.ChallengeFields{Browser: anon.Identity, Email: raw, LoginKey: fields.Key})
+		if err != nil {
+			t.Fatal(err)
+		}
+		puzzle, err := f.service.CreateChallenge(ctx, challenge)
+		if err != nil {
+			t.Fatal("real challenge", err)
+		}
+		answer := solveChallenge(t, puzzle)
+		verify, err := c.NewChallengeRequest(c.ChallengeFields{Browser: anon.Identity, Email: canonical, LoginKey: fields.Key})
+		if err != nil {
+			t.Fatal(err)
+		}
+		pass, err := f.service.VerifyChallenge(ctx, verify, puzzle.ID, answer)
+		if err != nil {
+			t.Fatal("canonical public challenge verification", err)
+		}
+		defer pass.Destroy()
+		for _, kind := range []string{"email", "browser", "key"} {
+			g := fields
+			g.ChallengePass = pass
+			switch kind {
+			case "email":
+				g.Email = "different@[ipv6:2001:db8::17]"
+			case "key":
+				g.Key = foundation.IdempotencyKey(id[struct{}](t).String())
+			case "browser":
+				other, err := f.service.NewAnonymousContext(ctx)
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer other.Cookie.Destroy()
+				defer other.CSRF.Destroy()
+				g.Browser = other.Identity
+			}
+			wrong, err := c.NewLoginRequest(g)
+			if err != nil {
+				t.Fatal(err)
+			}
+			lock, err := foundation.SystemConfigLock("account-challenges")
+			if err != nil {
+				t.Fatal(err)
+			}
+			result := f.store.WithinTx(ctx, cause(t), func(ctx context.Context, tx foundation.Tx) error {
+				if err := f.store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: lock, Mode: foundation.Exclusive}}); err != nil {
+					return err
+				}
+				return f.challenges.CheckLoginInTx(ctx, tx, wrong)
+			})
+			if result.State() == foundation.Committed || !hasCode(result.Fault(), foundation.ChallengeInvalid) {
+				t.Fatal("challenge binding changed")
+			}
+		}
+		fields.ChallengePass = pass
+		proved, err := c.NewLoginRequest(fields)
+		if err != nil {
+			t.Fatal(err)
+		}
+		response, err = f.service.Login(ctx, proved)
+		if err != nil {
+			t.Fatal("canonical challenge consumption", err)
+		}
+		current, err := f.service.Authenticate(ctx, useCookie(t, response))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = response.Close(ctx); err != nil {
+			t.Fatal(err)
+		}
+		if current.Details().UserID != actor.Details().UserID {
+			t.Fatal("challenge changed account identity")
+		}
+		var phase string
+		if err = f.store.QueryRow(ctx, `SELECT phase FROM agenteam_account.challenges WHERE id=$1`, puzzle.ID.String()).Scan(&phase); err != nil || phase != "consumed" {
+			t.Fatal("challenge was not actually consumed", err)
+		}
+		registered := resetRequest(t, f, canonical)
+		missing := resetRequest(t, f, "missing@[ipv6:2001:db8::17]")
+		one, err := f.service.RequestPasswordReset(ctx, registered)
+		if err != nil {
+			t.Fatal("canonical reset", err)
+		}
+		two, err := f.service.RequestPasswordReset(ctx, missing)
+		if err != nil {
+			t.Fatal("missing canonical reset", err)
+		}
+		a, _ := json.Marshal(one)
+		b, _ := json.Marshal(two)
+		if !bytes.Equal(a, b) || string(a) != `{"accepted":true,"delivery_channel":"backend_log"}` {
+			t.Fatal("reset existence leaked")
+		}
+		resetFields := registered.Fields()
+		resetFields.Email = raw
+		equivalentReset, err := c.NewResetRequest(resetFields)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if replay, err := f.service.RequestPasswordReset(ctx, equivalentReset); err != nil || replay != one {
+			t.Fatal("reset canonical semantic replay", err)
+		}
+		var requests int
+		if err = f.store.QueryRow(ctx, `SELECT count(*) FROM agenteam_account.reset_requests WHERE command_id IN (SELECT id FROM agenteam_account.commands WHERE command_key=$1)`, string(registered.Fields().Key)).Scan(&requests); err != nil || requests != 1 {
+			t.Fatal("reset accepted twice", err)
+		}
+		if _, err = f.service.Recover(ctx); err != nil {
+			t.Fatal("formal reset recovery", err)
+		}
+		var resets int
+		if err = f.store.QueryRow(ctx, `SELECT count(*) FROM agenteam_account.password_resets WHERE user_id=$1`, actor.Details().UserID).Scan(&resets); err != nil || resets != 1 {
+			t.Fatal("registered canonical reset material", err)
+		}
+		t.Log("one canonical account; raw/canonical login+lookup; bound real challenge consumed; reset public equality and original semantic replay passed")
+	})
+}

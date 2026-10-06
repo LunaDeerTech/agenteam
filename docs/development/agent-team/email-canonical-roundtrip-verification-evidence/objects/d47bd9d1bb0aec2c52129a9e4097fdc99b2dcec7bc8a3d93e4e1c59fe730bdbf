@@ -1,0 +1,127 @@
+{
+  "conclusion": "STATIC PASS for authorized author groups; no independent real run yet",
+  "product_manifest": {
+    "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/input01/manifest.json",
+    "sha256": "e2882f0a9c6458127d09034309540ab04b7c7257f6d92d931c1d832a5ae1c26a"
+  },
+  "driver_input": {
+    "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/driver-stage01/input.json",
+    "sha256": "d1b672a8ecef6258cfa84e86bfaaaa282c3dbebbba60dbb2dab73dae8430e016"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/driver-stage01/driver.py.txt",
+    "sha256": "87d1d99f256def5cf7205e7932a7c7a7d311cc389fa5e68672f4625a1e3e16c2"
+  },
+  "diff": {
+    "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/driver-stage01/driver.diff",
+    "sha256": "22abea4220d71607fb12053ea802537db5f71203e2aeb47159ab0367ad8aa60e"
+  },
+  "files": {
+    "internal/central/account/validation.go": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94",
+    "internal/central/account/validation_test.go": "1141ef16fd32317fc7e5bdfba0c7aeef827b2d641f6f2e848b673774fffe7e99",
+    "internal/central/accountmail/smtp.go": "f509b9b279f2cb49898c01f32d19e86cf617421ac1487354fa4df78de48289b9",
+    "internal/central/accountmail/smtp_address_test.go": "711cbb47191cd5975df316b0dbaaf0bcfe549a933d1b0cd898c5c4998febdd48",
+    "tests/account/email_canonical_roundtrip_test.go": "d26430c0e98eca20799a66d120461fa397a2fd6ac939d9b6aa487e2db11a7024",
+    "tests/account/http_email_canonical_roundtrip_test.go": "dd61dfced5513c70c44aeeb0ae3da9524ed0597ae4fda5fb824b5396f425b347",
+    "tests/accountmail/email_canonical_roundtrip_test.go": "8192427c5089ff2b592b0b5f775b73876f59b670dde092711b83d1ea677168b9",
+    "tests/testsupport/smtp/cmd/server/main.go": "0c67c9cb015e76b5c35c857a4628fdaecdf569516fd8b29c11cf06a47ded2773",
+    "tests/testsupport/smtp/fixture.go": "9555fe9e05d795354a9f7eaec57cb11d20b378c5566ed69a7ca5362dbb907851"
+  },
+  "checks": {
+    "runtime-discovery01": {
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/runtime-discovery01/result.json",
+      "sha256": "520166601219b3ce0438cf16619446312da83409ad1d7b14e2f483571c9917ad",
+      "result": {
+        "exit_code": 0,
+        "actual_wait": true,
+        "seconds": 24.055,
+        "input_unchanged": true,
+        "raw_sha256": "5e26e853be2d9e4dae00eb3f8fb747acb0df71abf00af4f833e1069c61f0c484"
+      }
+    },
+    "fixture-build01": {
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/fixture-build01/result.json",
+      "sha256": "5997abe1699f380f4d03f0f04157843e79c9650d43d19eefb886016e98c61e42",
+      "result": {
+        "exit_code": 0,
+        "actual_wait": true,
+        "seconds": 1.124,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "integration-vet01": {
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/integration-vet01/result.json",
+      "sha256": "60cd47f5da5e3a3f6984b97980b76dd6f0779dfaf6644f73e4230bf2ffda0371",
+      "result": {
+        "exit_code": 0,
+        "actual_wait": true,
+        "seconds": 4.215,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "driver-gate01": {
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/driver-gate01/result.json",
+      "sha256": "952fe64789ed8799c48a185001d05a198c6586dababfb4736b8b2c17a4ba162d",
+      "result": {
+        "exit_code": 0,
+        "actual_wait": true,
+        "seconds": 1.441,
+        "input_unchanged": true,
+        "raw_sha256": "59e32446b54b432a37fa9aeb1017dfb10b5b9b939aa9f329b5d93c04647d6c07"
+      }
+    }
+  },
+  "fixed_byte_check": {
+    "candidates": 9,
+    "accepted_dependencies": 881,
+    "runtime_files": 3501,
+    "mismatches": [],
+    "core_six_unchanged": true
+  },
+  "groups": {
+    "new-account": {
+      "exact_top_levels": [
+        "TestAccountEmailCanonicalRoundTrip",
+        "TestAccountHTTPEmailCanonicalRoundTrip"
+      ],
+      "expected_resource_ids": 7
+    },
+    "new-wire": {
+      "exact_top_levels": [
+        "TestAccountMailEmailCanonicalWireRoundTrip"
+      ],
+      "expected_resource_ids": 9
+    },
+    "old": {
+      "exact_top_levels": [
+        "TestAccountMailSMTPThreeModesUseActualControlledSockets"
+      ],
+      "expected_resource_ids": 9
+    }
+  },
+  "findings": [
+    "HTTP original first body and distinct canonical-equivalent replay are separate. Historical applied_version remains first while current settings remain second; exact original command/MAC/Audit counts remain strong.",
+    "Facade TestSMTP invokes real second normalization and reconciliation then same-job replay; invitation/login/lookup/Challenge/reset exercise shared normalization without direct business-table writes. Challenge negative binding invokes the accepted transactional authority API under actual lock.",
+    "Wire has four explicit sender/recipient expected text pairs; expected MAIL/RCPT line and complete TestDelivery message are independent literals, not implementation echo. Actual fixture Closed and terminal/io_joined, lease release, registry Joined are required. Only boolean/count diagnostics emitted.",
+    "Private cwd uses fixed819aba1 closure. Driver enumerates accepted package roots plus native imports/embeds, rejects unbound files and verifies3501 toolchain/module/runtime files, original manifest/driver before and after.",
+    "Groups are exact anchored top-level selections; no stopped Object/tools scenario is selected. Main/adopted actual wait and TERM handling, ownedPID/starttime, nonce topology/exactID absence and baseline unchanged double-check retained."
+  ],
+  "budgets": {
+    "facade_wire": "Each new subscenario has2m context; fixture and SMTP existing limits unchanged.",
+    "http": "Accepted HTTP helper has20s per request and package6m; no newly implemented aggregate HTTP2m deadline. Root accepts reporting actual new scenario duration<=2m without claiming such deadline.",
+    "go": "Original race/count1/package timeout6m; no new browser."
+  },
+  "reuse": {
+    "core_report": "/workspace/scratch/agenteam-email-core-independent-o5abw2d6/review.json",
+    "sha256": "f474f5aee507ed8712f80e48d5f42b29339bd3221f727de2c3fa1d39c6510f6c"
+  },
+  "limits": [
+    "No real service/SMTP/PG/Docker/browser was started by this review; this is permission-to-start technical review, not dynamic acceptance.",
+    "HTTP receipts are newly created under candidate, not a cross-binary upgrade demonstration.",
+    "Original integration compile preceded two SQL cast comparison corrections; current native runtime discovery/race compile and vet bind final sources.",
+    "First failures remain immutable; shared prior TLS/protocol evidence reused by unchanged fixed inputs only."
+  ],
+  "frozen": true
+}

@@ -1,0 +1,124 @@
+{
+  "core_independent_report": {
+    "path": "/workspace/scratch/agenteam-email-core-independent-o5abw2d6/review.md",
+    "sha256": "e3c8445b222706f0b263da6c948f4b66a243d822bd48e62b619a90cc93d14e6f"
+  },
+  "delivery_manifest_sha256": "c1f92a1365fee883daaee34b1636965785f63d54d60821d3a669fd1116eeb6c6",
+  "driver_manifest_sha256": "d1b672a8ecef6258cfa84e86bfaaaa282c3dbebbba60dbb2dab73dae8430e016",
+  "input_manifest_sha256": "e2882f0a9c6458127d09034309540ab04b7c7257f6d92d931c1d832a5ae1c26a",
+  "limits": [
+    "Three new real tops passed across new-account01 and new-wire01; original SMTP three-mode regression is separate old-smtp01.",
+    "Receipt history was created under the candidate, not a cross-binary upgrade.",
+    "Fixture SMTP acceptance proves controlled protocol and terminal facts, not external mailbox delivery.",
+    "No SMTP UI, full Account domain, D27 or stopped outbound/Object/tools task acceptance is claimed.",
+    "Historical PPID1 zombies were not owned or reaped by these runs."
+  ],
+  "nine_sources_and_driver_stopped": true,
+  "offline_report": {
+    "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/offline-report.json",
+    "sha256": "37c39eb8b46d59daa9e8fb483c5d5dfdcd4ffc75fd33ff365732cfb26747aa63"
+  },
+  "preserved_failures": {
+    "missing_fixed_pure_assets": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/pure01",
+    "old_run_directory_collision": {
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/old-start01-tool-record.json",
+      "resources_started": false,
+      "sha256": "84927ad3575a06bba9c004b76e9194f572290fc0391c461d51aa6d01b59b4702"
+    },
+    "original_normalization_and_worker_red": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/old01"
+  },
+  "real_runs": {
+    "new-account01": {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "directory": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/new-account01",
+      "double_cleanup": true,
+      "exit": 0,
+      "files": {
+        "cleanup.json": "58b032afc13d9b6b829eae137f2615cd8b933ef4156874e72f578b104b195b8f",
+        "command.json": "de7a82ee14cc5472622d6dba286eaf02a6cab74b7f096e7db2e139b1997bea2d",
+        "input-after.json": "c353c5843cb662aed15cb30c7405d8b19e1d6e6f57fb8f912fc43a4200e6de8b",
+        "input-before.json": "c353c5843cb662aed15cb30c7405d8b19e1d6e6f57fb8f912fc43a4200e6de8b",
+        "raw.log": "f13152ec975d47ff4c95794cdb98f1c314552186d673b2c1f62c1b4daf4ecd1a",
+        "result.json": "7540723b313629d12a9cf756fb23ecce1c881ee0054b0062a474d4b29dabbb81",
+        "verification-input.json": "d5c56c0d6ea3bef98460c598c6eee6a5f0788ae58aeae580d657f421ffe5c25f"
+      },
+      "fixed_inputs_unchanged": true,
+      "monitor_errors": 0,
+      "observed_pid_starttime_pairs": 73,
+      "observed_resources": 7,
+      "seconds": 71.344,
+      "tops": [
+        [
+          "PASS",
+          "TestAccountEmailCanonicalRoundTrip",
+          "5.40s"
+        ],
+        [
+          "PASS",
+          "TestAccountHTTPEmailCanonicalRoundTrip",
+          "3.35s"
+        ]
+      ]
+    },
+    "new-wire01": {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "directory": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/new-wire01",
+      "double_cleanup": true,
+      "exit": 0,
+      "files": {
+        "cleanup.json": "bf0babb1f6ee88c600fe083857514e2971e460975e40a9a8e744ab776ecacb15",
+        "command.json": "92a882b9f880086753c41d3bae64231a3f401cbe321c7593d0a1e6c9f7cfa4c9",
+        "input-after.json": "c353c5843cb662aed15cb30c7405d8b19e1d6e6f57fb8f912fc43a4200e6de8b",
+        "input-before.json": "c353c5843cb662aed15cb30c7405d8b19e1d6e6f57fb8f912fc43a4200e6de8b",
+        "raw.log": "f9ecc709440969592200686d69965142cccb49b97b44be5187bf70876e296198",
+        "result.json": "1c85f46259a97ec323de0660fc66025557d2c3f5d9b92aaedb6a57f9bdd5f805",
+        "verification-input.json": "d5c56c0d6ea3bef98460c598c6eee6a5f0788ae58aeae580d657f421ffe5c25f"
+      },
+      "fixed_inputs_unchanged": true,
+      "monitor_errors": 0,
+      "observed_pid_starttime_pairs": 78,
+      "observed_resources": 9,
+      "seconds": 67.151,
+      "tops": [
+        [
+          "PASS",
+          "TestAccountMailEmailCanonicalWireRoundTrip",
+          "15.60s"
+        ]
+      ]
+    },
+    "old-smtp01": {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "directory": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/old-smtp01",
+      "double_cleanup": true,
+      "exit": 0,
+      "files": {
+        "cleanup.json": "2d54db49ce80708af6acac500592a50f536d48c6e7a944442022c72f29cb873c",
+        "command.json": "eafa94630d88a07483e7ae89b896e5a592e72c101adff0fe5250580aa9b905a0",
+        "input-after.json": "c353c5843cb662aed15cb30c7405d8b19e1d6e6f57fb8f912fc43a4200e6de8b",
+        "input-before.json": "c353c5843cb662aed15cb30c7405d8b19e1d6e6f57fb8f912fc43a4200e6de8b",
+        "raw.log": "77073ed7c0e0281fd621e9f1b281ac9bdf0b2e81456cc09b2685bd621bcab38a",
+        "result.json": "8a53a61a93c4b4bf6065ea9eba9100e2a2124542aba5fbfe64e5ace1a1c1be75",
+        "verification-input.json": "d5c56c0d6ea3bef98460c598c6eee6a5f0788ae58aeae580d657f421ffe5c25f"
+      },
+      "fixed_inputs_unchanged": true,
+      "monitor_errors": 0,
+      "observed_pid_starttime_pairs": 75,
+      "observed_resources": 9,
+      "seconds": 57.46,
+      "tops": [
+        [
+          "PASS",
+          "TestAccountMailSMTPThreeModesUseActualControlledSockets",
+          "8.71s"
+        ]
+      ]
+    }
+  },
+  "resources_released": true,
+  "shared_main_untouched": true,
+  "status": "AUTHOR PASS, awaiting final independent acceptance and separately authorized tenth document"
+}

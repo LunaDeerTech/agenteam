@@ -1,0 +1,29 @@
+{
+  "main_packages": [
+    "github.com/LunaDeerTech/agenteam/db/migrations",
+    "github.com/LunaDeerTech/agenteam/internal/central/account",
+    "github.com/LunaDeerTech/agenteam/internal/central/account [github.com/LunaDeerTech/agenteam/internal/central/account.test]",
+    "github.com/LunaDeerTech/agenteam/internal/central/account/contract",
+    "github.com/LunaDeerTech/agenteam/internal/central/accountmail",
+    "github.com/LunaDeerTech/agenteam/internal/central/accountmail [github.com/LunaDeerTech/agenteam/internal/central/accountmail.test]",
+    "github.com/LunaDeerTech/agenteam/internal/central/audit",
+    "github.com/LunaDeerTech/agenteam/internal/central/audit/contract",
+    "github.com/LunaDeerTech/agenteam/internal/central/cursor",
+    "github.com/LunaDeerTech/agenteam/internal/central/event/contract",
+    "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+    "github.com/LunaDeerTech/agenteam/internal/central/httpapi",
+    "github.com/LunaDeerTech/agenteam/internal/central/identity/contract",
+    "github.com/LunaDeerTech/agenteam/internal/central/object",
+    "github.com/LunaDeerTech/agenteam/internal/central/object/contract",
+    "github.com/LunaDeerTech/agenteam/internal/central/outbound",
+    "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract",
+    "github.com/LunaDeerTech/agenteam/internal/central/postgres",
+    "github.com/LunaDeerTech/agenteam/internal/central/recoverylog",
+    "github.com/LunaDeerTech/agenteam/internal/central/secret",
+    "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+  ],
+  "actual_file_count": 357,
+  "unknown_files": [],
+  "no_integration_package": true,
+  "all_bound": true
+}

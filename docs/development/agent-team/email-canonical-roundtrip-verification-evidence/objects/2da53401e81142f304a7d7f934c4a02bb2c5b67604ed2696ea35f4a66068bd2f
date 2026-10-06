@@ -1,0 +1,12 @@
+{
+  "command": [
+    "df",
+    "-h",
+    "/workspace",
+    "/tmp"
+  ],
+  "timing": "Tool completed immediately before independent02 driver invocation in the same orchestration call",
+  "actual_exit": 0,
+  "output": "Filesystem      Size  Used Avail Use% Mounted on\noverlay          32G   21G  9.3G  70% /\nnone            8.8G   38M  8.8G   1% /tmp\n",
+  "cleanup_performed_by_this_check": false
+}

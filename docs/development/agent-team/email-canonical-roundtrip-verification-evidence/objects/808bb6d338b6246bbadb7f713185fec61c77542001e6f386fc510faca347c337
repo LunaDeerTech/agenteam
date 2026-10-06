@@ -1,0 +1,79 @@
+package accountmail
+
+import (
+	"bytes"
+	"errors"
+	"fmt"
+	"net/mail"
+	"testing"
+
+	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+)
+
+func TestIndependentEmailWireGoldenAndMaterial(t *testing.T) {
+	process, err := foundation.NewID[c.Process]()
+	if err != nil {
+		t.Fatal("process setup")
+	}
+	registry, err := NewWorkRegistry(registryProcess{process})
+	if err != nil {
+		t.Fatal("registry setup")
+	}
+	worker := &Worker{func() *Dependencies { return &Dependencies{PublicOrigin: "https://accounts.example.test"} }}
+	attempt := registryAttempt(t, registry)
+	cases := []struct{ sender, recipient, senderWire, recipientWire string }{
+		{"s@[ipv6:2001:0db8:0000:0:0:0:0:7]", "r@[ipv6:192.0.2.9]", "s@[IPv6:2001:0db8:0000:0:0:0:0:7]", "r@[IPv6:192.0.2.9]"},
+		{"s@[0:0:0:0:0:ffff:c000:207]", "r@[ipv6:::ffff:192.0.2.9]", "s@[0:0:0:0:0:ffff:c000:207]", "r@[IPv6:::ffff:192.0.2.9]"},
+		{"s+keep@domain_test!", "r@[192.0.2.9]", "s+keep@domain_test!", "r@[192.0.2.9]"},
+	}
+	for i, row := range cases {
+		t.Run(fmt.Sprintf("pair-%d", i), func(t *testing.T) {
+			fields := c.DeliveryMaterialFields{Attempt: attempt, SenderEmail: row.sender, Recipient: row.recipient, SenderName: "Verifier Name"}
+			got, err := worker.message(fields)
+			if err != nil {
+				t.Fatal("canonical pair rejected")
+			}
+			defer clear(got.body)
+			if got.sender != row.senderWire || got.recipient != row.recipientWire || fields.SenderEmail != row.sender || fields.Recipient != row.recipient {
+				t.Fatal("wire pair or original material mismatch")
+			}
+			want := "From: \"Verifier Name\" <" + row.senderWire + ">\r\nTo: <" + row.recipientWire + ">\r\nMessage-ID: <" + attempt.Details().JobID.String() + "@accounts.example.test>\r\nSubject: Agenteam account\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\nAgenteam SMTP test.\r\n"
+			if string(got.body) != want {
+				t.Fatal("complete fixed header/body golden mismatch")
+			}
+			parsed, err := mail.ReadMessage(bytes.NewReader(got.body))
+			if err != nil {
+				t.Fatal("prepared header parse")
+			}
+			from, ef := mail.ParseAddress(parsed.Header.Get("From"))
+			to, et := mail.ParseAddress(parsed.Header.Get("To"))
+			if ef != nil || et != nil || from.Address != row.senderWire || to.Address != row.recipientWire || from.Name != "Verifier Name" {
+				t.Fatal("header projection differs from prepared envelope pair")
+			}
+		})
+	}
+	bad := []string{"S@example.test", "s@[IPv6:2001:db8::7]", "s@[iPv6:2001:db8::7]", "S@[ipv6:2001:db8::7]", "s@[ipv6:2001:DB8::7]", "s@[ipv6:fe80::1%eth0]", "s@[ipv6:192.000.2.9]", "s@example.test\r\nBcc:other@example.test", "s\x00@example.test", "\"s\"@example.test"}
+	for i, input := range bad {
+		for _, recipient := range []bool{false, true} {
+			fields := c.DeliveryMaterialFields{Attempt: attempt, SenderEmail: "s@example.test", Recipient: "r@example.test"}
+			if recipient {
+				fields.Recipient = input
+			} else {
+				fields.SenderEmail = input
+			}
+			got, err := worker.message(fields)
+			var fault *foundation.Fault
+			if !errors.As(err, &fault) || fault.Code != foundation.InvalidArgument || got.body != nil || got.sender != "" || got.recipient != "" {
+				t.Fatalf("invalid material produced partial result index=%d recipient=%t", i, recipient)
+			}
+		}
+	}
+	for _, senderName := range []string{"Verifier\rName", "Verifier\nName", "Verifier\x00Name"} {
+		got, err := worker.message(c.DeliveryMaterialFields{Attempt: attempt, SenderEmail: "s@example.test", Recipient: "r@example.test", SenderName: senderName})
+		if err == nil || got.body != nil || got.sender != "" || got.recipient != "" {
+			t.Fatal("unsafe sender display produced partial result")
+		}
+	}
+	t.Logf("safe exact_pairs=%d rejected_material_sides=%d display_injection_rejections=3", len(cases), len(bad)*2)
+}

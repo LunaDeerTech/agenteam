@@ -1,0 +1,92 @@
+package account
+
+import (
+	"errors"
+	"fmt"
+	"strings"
+	"testing"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+)
+
+func TestIndependentEmailCanonicalSetAndGolden(t *testing.T) {
+	golden := []struct{ raw, canonical string }{
+		{"A.B+Keep@DOMAIN_TEST!", "a.b+keep@domain_test!"},
+		{"A!#$%&'*+-/=?^_`{|}~@X", "a!#$%&'*+-/=?^_`{|}~@x"},
+		{"A@[IPv6:2001:DB8::7]", "a@[ipv6:2001:db8::7]"},
+		{"A@[IPv6:192.0.2.7]", "a@[ipv6:192.0.2.7]"},
+		{"A@[IPv6:0:0:0:0:0:FFFF:C000:207]", "a@[ipv6:0:0:0:0:0:ffff:c000:207]"},
+		{"A@[0:0:0:0:0:FFFF:C000:207]", "a@[0:0:0:0:0:ffff:c000:207]"},
+		{"A@[::FFFF:192.0.2.7]", "a@[::ffff:192.0.2.7]"},
+		{"A@[IPv6:2001:0DB8:0000:0:0:0:0:0007]", "a@[ipv6:2001:0db8:0000:0:0:0:0:0007]"},
+		{strings.Repeat("A", 252) + "@B", strings.Repeat("a", 252) + "@b"},
+	}
+	image := map[string]bool{}
+	var inputs []string
+	for i, row := range golden {
+		old, err := independentOldNormalizeEmail(row.raw)
+		if err != nil || old != row.canonical {
+			t.Fatalf("fixed old-set golden premise differs at row %d", i)
+		}
+		image[old] = true
+		inputs = append(inputs, row.raw, row.canonical)
+	}
+	// Exhaust the three case-bearing prefix letters for one legal address,
+	// combined with local/domain case; this targets exactly the new set boundary.
+	for mask := 0; mask < 8; mask++ {
+		prefix := []byte("ipv6:")
+		for bit := 0; bit < 3; bit++ {
+			if mask&(1<<bit) != 0 {
+				prefix[bit] -= 'a' - 'A'
+			}
+		}
+		for _, local := range []string{"a", "A"} {
+			for _, domain := range []string{"2001:db8::7", "2001:DB8::7"} {
+				inputs = append(inputs, local+"@["+string(prefix)+domain+"]")
+			}
+		}
+	}
+	inputs = append(inputs,
+		strings.Repeat("a", 253)+"@b", "a@[2001:db8::7]", "a@[ipv6:192.000.2.7]",
+		"a@[ipv6:fe80::1%lo]", "a@[ipv6:2001:db8::7]tail", "a@[ipv6:2001:db8::7]@b",
+		"a@x@[ipv6:2001:db8::7]", "a@[ipv6:@2001:db8::7]", "@[ipv6:2001:db8::7]",
+		"a(comment)@[ipv6:2001:db8::7]", "\"a\"@[ipv6:2001:db8::7]", "a\\b@[ipv6:2001:db8::7]",
+		"a@[ipv6:2001:db8::7]\r\nBcc:x@y", "a@[ipv6:2001:db8::7]\x00", "a\x7f@b",
+		"a\u0085@b", "a\xff@b", "é@b", " a@b", "a@b ",
+	)
+	for i, input := range inputs {
+		t.Run(fmt.Sprintf("case-%02d", i), func(t *testing.T) {
+			old, oldErr := independentOldNormalizeEmail(input)
+			want := oldErr == nil || image[input]
+			got, err := NormalizeEmail(input)
+			if (err == nil) != want {
+				t.Fatalf("old-or-image boundary mismatch old=%t image=%t accepted=%t", oldErr == nil, image[input], err == nil)
+			}
+			if want {
+				expected := input
+				if oldErr == nil {
+					expected = old
+				}
+				if got != expected {
+					t.Fatal("canonical bytes changed")
+				}
+				again, err := NormalizeEmail(got)
+				if err != nil || again != expected {
+					t.Fatal("canonical not idempotent")
+				}
+				return
+			}
+			var fault *foundation.Fault
+			if got != "" || !errors.As(err, &fault) || fault.Code != foundation.InvalidArgument || fault.CommitState != foundation.NotStarted || len(fault.FieldErrors) != 1 || fault.FieldErrors[0].Path != "/email" || fault.FieldErrors[0].Code != "EMAIL_INVALID" {
+				t.Fatal("original safe error contract changed")
+			}
+		})
+	}
+	// Existing distinct textual identities remain distinct; no IP compression or tag removal.
+	a, ea := NormalizeEmail("x@[IPv6:2001:db8::7]")
+	b, eb := NormalizeEmail("x@[IPv6:2001:0db8:0:0:0:0:0:7]")
+	if ea != nil || eb != nil || a == b {
+		t.Fatal("distinct old textual identities merged")
+	}
+	t.Logf("safe cases=%d old_golden=%d no_identity_recompression=true", len(inputs), len(golden))
+}

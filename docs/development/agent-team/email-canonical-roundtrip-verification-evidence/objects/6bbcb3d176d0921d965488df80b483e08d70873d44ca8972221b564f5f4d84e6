@@ -1,0 +1,107 @@
+{
+  "status": "PREPARATION PASS; no real run authorized or executed",
+  "author_input_sha256": "e2882f0a9c6458127d09034309540ab04b7c7257f6d92d931c1d832a5ae1c26a",
+  "author_driver_input_sha256": "d1b672a8ecef6258cfa84e86bfaaaa282c3dbebbba60dbb2dab73dae8430e016",
+  "base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "actual_cwd": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/workspace",
+  "accepted_count": 881,
+  "candidate_count": 9,
+  "private_count": 14,
+  "runtime_count": 3512,
+  "selected_tests": [
+    "TestIndependentEmailHistoryAndTestIntent",
+    "TestIndependentEmailCanonicalWire"
+  ],
+  "checks": {
+    "compile01": {
+      "mode": "compile",
+      "exit_code": 0,
+      "actual_wait": true,
+      "pid": 1672397,
+      "seconds": 96.787,
+      "input_unchanged": true,
+      "raw_sha256": "d99a5111dd200fd445c123ffd84144c687bd144ef3e2b61e552a01c164ee6d18",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resources_started": false
+    },
+    "list01": {
+      "mode": "list",
+      "exit_code": 0,
+      "actual_wait": true,
+      "pid": 1692240,
+      "seconds": 5.075,
+      "input_unchanged": true,
+      "raw_sha256": "5d9d575792a27668c1c0ba03b120677c7c045a004ab2be8dc4efbdd5a13487d7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resources_started": false,
+      "exact_tests": [
+        "TestIndependentEmailHistoryAndTestIntent",
+        "TestIndependentEmailCanonicalWire"
+      ],
+      "exact_two_once": true
+    },
+    "vet01": {
+      "mode": "vet",
+      "exit_code": 0,
+      "actual_wait": true,
+      "pid": 1692248,
+      "seconds": 58.711,
+      "input_unchanged": true,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resources_started": false
+    },
+    "freeze01": {
+      "mode": "freeze",
+      "exit_code": 0,
+      "actual_wait": true,
+      "pid": 1698872,
+      "seconds": 1.977,
+      "input_unchanged": true,
+      "raw_sha256": "a80d6c14fa3afbb8b8b0542452257be50fd836cbe8501c4e14bedaad942428d0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resources_started": false
+    },
+    "gate01": {
+      "mode": "gate",
+      "exit_code": 0,
+      "actual_wait": true,
+      "pid": 1705066,
+      "seconds": 1.698,
+      "input_unchanged": true,
+      "raw_sha256": "59e32446b54b432a37fa9aeb1017dfb10b5b9b939aa9f329b5d93c04647d6c07",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resources_started": false
+    }
+  },
+  "artifacts": {
+    "execution01.json": "46fe6ae1079036944384e827e37944ce8b511793747345991f09197a0632dee1",
+    "run-independent01.py": "8f28faca454889fd77639fb4ae812790dbb96cd14fe2ba76504010f0737d6ef1",
+    "driver-author-to-independent01.diff": "4f5268d995f4413f35a5fa6d5da77bc69221cac32d356e45d0ee17418bd87d0c",
+    "overlay.json": "d21c88c6c97c50434316395846c377d164e65a6ac6fd760f9c20f9560e0dbdf6",
+    "probe/independent_email_history_test.go": "9dde68eab94f809f0438d57d0e647de76bd9b14a372a6a2db093f8fdbb3a7cfa",
+    "probe/independent_email_wire_test.go": "074a4e343544042bfdf7889d721b6c798b4b7241af098a24db4d3d92b9b98c3a",
+    "run-check.py": "f9a478a7c7ae5ada2c7c3c200e142e28a79c33d0c11a70d91f1a10014705b83a",
+    "freeze-runtime.py": "fe8559882ee0fd2415503795f3d2f2cbf5e8f3fb7fa9490fd71754acbb03d44f"
+  },
+  "run_after_root_window": [
+    "python3",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/run-independent01.py",
+    "--name",
+    "independent01",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/execution01.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--run"
+  ],
+  "limits": [
+    "Only two exact tops; existing race/count=1/package6m; independent outer2m contexts; original HTTP helper20s per request retained; existing setup helpers have their own unchanged contexts.",
+    "Own scratch/Go overlay/cache/runtime, no product writes and no whole-tree copy.",
+    "Nine exact resource topology for both; no browser/Node/external endpoint. Original subreaper, actual waits, PID-starttime/exactID double cleanup and baseline preservation retained.",
+    "No real business assertions reached by compile/list/vet/gate; no dynamic PASS claim.",
+    "Only safe booleans/counts in new logs; raw request/key/CSRF, secret material and their digests never printed."
+  ]
+}

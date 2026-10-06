@@ -1,0 +1,100 @@
+{
+  "stage": "email core-stage01 independent bounded PASS",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/core-stage01/manifest.json",
+    "sha256": "3301a23d5f82c51bfd525d3e2780ecf54e80c281e1aac92b81318103775d1486"
+  },
+  "base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "candidate_files": {
+    "tests/testsupport/smtp/fixture.go": "9555fe9e05d795354a9f7eaec57cb11d20b378c5566ed69a7ca5362dbb907851",
+    "tests/testsupport/smtp/cmd/server/main.go": "0c67c9cb015e76b5c35c857a4628fdaecdf569516fd8b29c11cf06a47ded2773",
+    "internal/central/account/validation_test.go": "1141ef16fd32317fc7e5bdfba0c7aeef827b2d641f6f2e848b673774fffe7e99",
+    "internal/central/account/validation.go": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94",
+    "internal/central/accountmail/smtp_address_test.go": "711cbb47191cd5975df316b0dbaaf0bcfe549a933d1b0cd898c5c4998febdd48",
+    "internal/central/accountmail/smtp.go": "f509b9b279f2cb49898c01f32d19e86cf617421ac1487354fa4df78de48289b9"
+  },
+  "result": {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-overlay",
+      "/workspace/scratch/agenteam-email-core-independent-o5abw2d6/overlay.json",
+      "./internal/central/account",
+      "./internal/central/accountmail",
+      "-run",
+      "^(TestIndependentEmailCanonicalSetAndGolden|TestIndependentEmailWireGoldenAndMaterial)$",
+      "-count=1",
+      "-timeout=45s",
+      "-v"
+    ],
+    "cwd": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/workspace",
+    "env": {
+      "GOTOOLCHAIN": "local",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOFLAGS": "-mod=readonly",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+      "GOCACHE": "/workspace/scratch/agenteam-email-core-independent-o5abw2d6/gocache",
+      "GOTMPDIR": "/workspace/scratch/agenteam-email-core-independent-o5abw2d6/tmp",
+      "TMPDIR": "/workspace/scratch/agenteam-email-core-independent-o5abw2d6/tmp",
+      "NO_COLOR": "1"
+    },
+    "started_utc": "2026-10-06T16:28:53.566753+00:00",
+    "mode": "pure",
+    "real_resources": false,
+    "pid": 1603329,
+    "actual_wait": true,
+    "exit_code": 0,
+    "seconds": 32.68,
+    "input_unchanged": true,
+    "raw_sha256": "1304f98a71baf8bbca4d6926d5916b90cd720bcefc3d54066fc96c42a0925a3d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "scope": [
+    "Exact old NormalizeEmail function retained as independent oracle; 9 explicit original goldens and 70 bounded vectors cover S union lower(S), canonical identity, idempotence and strict failures.",
+    "Three explicit sender/recipient wire pairs and full-message goldens, plus noncanonical/address/name rejection; one prepared pair is shared by envelope and header.",
+    "Static six-source review: fixture adds only raw whole MAIL/RCPT line SHA observations inside original mutex branches; no protocol control change.",
+    "Actual Go graph has 357 main-module files, all bound to accepted/candidate inputs, no integration package."
+  ],
+  "reuse": [
+    "Author same-function old RED and new GREEN bodies checked byte-identical; author full package race/vet/build evidence reused without independent rerun."
+  ],
+  "limits": [
+    "No HTTP, PostgreSQL, Docker, SMTP delivery, browser or external network was started. Wire evidence here is private message preparation, not actual server receipt.",
+    "Bounded vectors and static branch reasoning are not exhaustive enumeration of all strings. Singleton, authentication and real cross-entry behavior await full integration evidence.",
+    "Independent go test was ordinary offline count=1/45s, not race; 32.680s wall includes cold compilation.",
+    "An initial static function extractor included a following comment and falsely reported a body difference; corrected closing-brace extraction is explicitly retained in original-functions.json. No dynamic independent core failure occurred."
+  ],
+  "artifact_sha256": {
+    "fixed-inputs.json": "606e58b312250abcd59ee47a309d35a5863a49571c671c63ab341da7f9866388",
+    "overlay.json": "63c1b3365d72d9a11d1202d3375ba10bdcbe8041f78a6fcc52cf83c618dcc3dd",
+    "run-check.py": "1ec1acb6ce4289c0e5b25a7a41a9233b7a0fe39398e421bdc0869554ed5f7f10",
+    "original-functions.json": "4b4d2c00e006aed6eadefadaa3d47f857534f6a0ad4ffd69bceea1bff4ecd185",
+    "baseline-validation.go.txt": "8fcc8faa4ecd908188b4711792373f98cb4551ef75139435c7ca08cc1994a0a3",
+    "probe/wire_test.go": "808bb6d338b6246bbadb7f713185fec61c77542001e6f386fc510faca347c337",
+    "probe/normalize_test.go": "f9fa782e35e9c3b27e386aef0852df57b9054110e7ba1aaec0fcc0cb3bfbc6ab",
+    "probe/old_normalize_oracle_test.go": "121addce490081d98cdd038a94f8700a116d5298e4ab7c3e6e34dd730fd757cd",
+    "source/tests/testsupport/smtp/fixture.go": "9555fe9e05d795354a9f7eaec57cb11d20b378c5566ed69a7ca5362dbb907851",
+    "source/tests/testsupport/smtp/cmd/server/main.go": "0c67c9cb015e76b5c35c857a4628fdaecdf569516fd8b29c11cf06a47ded2773",
+    "source/internal/central/account/validation_test.go": "1141ef16fd32317fc7e5bdfba0c7aeef827b2d641f6f2e848b673774fffe7e99",
+    "source/internal/central/account/validation.go": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94",
+    "source/internal/central/accountmail/smtp_address_test.go": "711cbb47191cd5975df316b0dbaaf0bcfe549a933d1b0cd898c5c4998febdd48",
+    "source/internal/central/accountmail/smtp.go": "f509b9b279f2cb49898c01f32d19e86cf617421ac1487354fa4df78de48289b9",
+    "checks/pure01/command.json": "c804aa6e04ec8664dd1b82c1a77f1d131a084b4541715eff1ecc337b37eddd48",
+    "checks/pure01/input-after.json": "938252fb3580a8983a5fdd163899fe0b165071ef76e98f642beef658138b70e0",
+    "checks/pure01/input-before.json": "938252fb3580a8983a5fdd163899fe0b165071ef76e98f642beef658138b70e0",
+    "checks/pure01/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks/pure01/result.json": "e2ac9d6924864701601b4b48ef33b8cc8a78f4c4e006a73f723f31b89b83bbf9",
+    "checks/pure01/raw.log": "1304f98a71baf8bbca4d6926d5916b90cd720bcefc3d54066fc96c42a0925a3d",
+    "checks/graph01/command.json": "e0b136a364c8eb72960c607715ea3feacb2a0abd70fea691e4e8b3ba330a79dd",
+    "checks/graph01/input-after.json": "938252fb3580a8983a5fdd163899fe0b165071ef76e98f642beef658138b70e0",
+    "checks/graph01/input-before.json": "938252fb3580a8983a5fdd163899fe0b165071ef76e98f642beef658138b70e0",
+    "checks/graph01/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks/graph01/result.json": "3c92d5d106074c5d0e93868d7479f1291c264d05ed714e1a266060fcfb408f98",
+    "checks/graph01/graph-gate.json": "4044e8cd12dd4fe56d182c56c22a58a0af6d9c60f1109a0b6fecfca1492f9a24",
+    "checks/graph01/raw.log": "24059de1ed0cbd19f1cdafa1082362b345dc3f339518c045cad365f38caf3a35"
+  },
+  "frozen": true
+}

@@ -1,0 +1,28 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestIndependentEmailHistoryAndTestIntent|TestIndependentEmailCanonicalWire)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/workspace",
+  "ended_utc": "2026-10-06T16:51:12.043375+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/agenteam-email-real-independent-7lijrd4n/overlay.json",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/runs/independent01/runtime"
+  },
+  "exit": 1,
+  "seconds": 123.034,
+  "started_utc": "2026-10-06T16:49:09.009135+00:00"
+}

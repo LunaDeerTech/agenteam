@@ -1,0 +1,29 @@
+{
+  "command": [
+    "python3",
+    "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/run-email-canonical-fixture.py",
+    "--name",
+    "check01",
+    "--group",
+    "new-account",
+    "--frozen",
+    "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/driver-stage01/input.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "cwd": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/workspace",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/tmp"
+  },
+  "runner_sha256": "37d29553b01b48b67a1d7b06350b44500e70ae149b359345e3669bdbf5ab3076",
+  "closure_sha256": "a107e67de135c82eca87ac5bca474d19ffc61993930d7ba14d0c0d7c1c670765"
+}

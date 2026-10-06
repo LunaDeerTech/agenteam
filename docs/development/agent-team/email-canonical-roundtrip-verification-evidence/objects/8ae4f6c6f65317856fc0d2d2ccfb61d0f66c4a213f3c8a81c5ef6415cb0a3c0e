@@ -1,0 +1,9 @@
+{
+  "source": "exec_command returned completion",
+  "chunk_id": "3c3223",
+  "script_exit": 1,
+  "reason": "Checker incorrectly expected --no-index --check exit0; actual git exit1 with empty stdout/stderr reflects intended diff, not whitespace errors",
+  "candidate_sha256": "a3e6da5c99d5ba1564c9df88d88a907c8e53251015d9523dda9eacdeedc0ea22",
+  "candidate_changed_for_recheck": false,
+  "original_checker": "check_documentation01.py"
+}

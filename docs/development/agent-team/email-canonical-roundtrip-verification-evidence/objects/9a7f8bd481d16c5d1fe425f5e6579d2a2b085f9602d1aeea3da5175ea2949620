@@ -1,0 +1,375 @@
+--- 819aba1/internal/central/account/validation.go
++++ candidate/internal/central/account/validation.go
+@@ -16,11 +16,25 @@
+ 			return "", field("/email", "EMAIL_INVALID")
+ 		}
+ 	}
+-	a, e := mail.ParseAddress(input)
+-	if e != nil || a.Name != "" || a.Address != input || strings.ContainsAny(input, "()<>,;\\\"") {
+-		return "", field("/email", "EMAIL_INVALID")
++	canonical := strings.ToLower(input)
++	if bareEmailAddress(input) {
++		return canonical, nil
+ 	}
+-	return strings.ToLower(input), nil
++	// Preserve the old accepted set, adding only its complete lowercase
++	// outputs. Go's parser requires this one domain-literal marker's case.
++	local, domain, ok := strings.Cut(input, "@")
++	if input == canonical && ok && !strings.Contains(domain, "@") && strings.HasPrefix(domain, "[ipv6:") && strings.HasSuffix(domain, "]") {
++		wire := local + "@[IPv6:" + domain[len("[ipv6:"):]
++		if bareEmailAddress(wire) {
++			return canonical, nil
++		}
++	}
++	return "", field("/email", "EMAIL_INVALID")
++}
++
++func bareEmailAddress(input string) bool {
++	a, err := mail.ParseAddress(input)
++	return err == nil && a.Name == "" && a.Address == input && !strings.ContainsAny(input, "()<>,;\\\"")
+ }
+ 
+ var reservedNames = map[string]bool{"api": true, "assets": true, "auth": true, "login": true, "logout": true, "invite": true, "reset": true, "settings": true, "system": true, "personal": true, "diagnostics": true, "livez": true, "readyz": true, "debug": true, "support": true, "root": true, "admin": true}
+--- 819aba1/internal/central/accountmail/smtp.go
++++ candidate/internal/central/accountmail/smtp.go
+@@ -15,6 +15,7 @@
+ 	"strings"
+ 	"time"
+ 
++	"github.com/LunaDeerTech/agenteam/internal/central/account"
+ 	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+ 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+@@ -327,11 +328,11 @@
+ 	if e != nil {
+ 		return smtpError(e, false)
+ 	}
+-	defer clear(message)
++	defer clear(message.body)
+ 	if e = begin(c.SMTPMail); e != nil {
+ 		return smtpError(e, false)
+ 	}
+-	for _, cmd := range []string{"MAIL FROM:<" + f.SenderEmail + ">", "RCPT TO:<" + f.Recipient + ">"} {
++	for _, cmd := range []string{"MAIL FROM:<" + message.sender + ">", "RCPT TO:<" + message.recipient + ">"} {
+ 		code, _, e = p.command(cmd)
+ 		if e != nil {
+ 			return smtpError(e, false)
+@@ -352,7 +353,7 @@
+ 	}
+ 	// Once DATA has begun, an interrupted stream or absent final acceptance is
+ 	// unknown. No retry occurs on this connection or with this attempt handle.
+-	if e = p.write(message); e != nil {
++	if e = p.write(message.body); e != nil {
+ 		return smtpError(e, true)
+ 	}
+ 	if e = w.data().Port.CheckpointDelivery(ctx, attempt, c.AwaitingAcceptance); e != nil {
+@@ -371,40 +372,67 @@
+ 	_ = raw.EndSend() // No QUIT or any other protocol write after EndSend.
+ 	return c.DeliveryOutcome{Result: c.DeliverySent, Reason: c.ReasonSent}, nil
+ }
+-func (w *Worker) message(f c.DeliveryMaterialFields) ([]byte, error) {
++
++// smtpMessage holds the single prepared pair used by both envelope and headers.
++// These wire spellings never replace canonical persistent account facts.
++type smtpMessage struct {
++	sender, recipient string
++	body              []byte
++}
++
++func smtpWireAddress(input string) (string, error) {
++	canonical, err := account.NormalizeEmail(input)
++	if err != nil || canonical != input {
++		return "", invalid()
++	}
++	local, domain, _ := strings.Cut(input, "@")
++	wire := input
++	if strings.HasPrefix(domain, "[ipv6:") {
++		wire = local + "@[IPv6:" + domain[len("[ipv6:"):]
++	}
++	parsed, err := mail.ParseAddress(wire)
++	if err != nil || parsed.Name != "" || parsed.Address != wire {
++		return "", invalid()
++	}
++	return wire, nil
++}
++
++func (w *Worker) message(f c.DeliveryMaterialFields) (smtpMessage, error) {
+ 	for _, s := range []string{f.Recipient, f.SenderEmail, f.SenderName} {
+ 		if strings.ContainsAny(s, "\r\n\x00") {
+-			return nil, invalid()
+-		}
+-	}
+-	for _, s := range []string{f.Recipient, f.SenderEmail} {
+-		a, e := mail.ParseAddress(s)
+-		if e != nil || a.Address != s || a.Name != "" {
+-			return nil, invalid()
+-		}
+-	}
+-	from := (&mail.Address{Name: f.SenderName, Address: f.SenderEmail}).String()
++			return smtpMessage{}, invalid()
++		}
++	}
++	sender, e := smtpWireAddress(f.SenderEmail)
++	if e != nil {
++		return smtpMessage{}, e
++	}
++	recipient, e := smtpWireAddress(f.Recipient)
++	if e != nil {
++		return smtpMessage{}, e
++	}
++	from := (&mail.Address{Name: f.SenderName, Address: sender}).String()
+ 	origin, e := url.Parse(w.data().PublicOrigin)
+ 	if e != nil {
+-		return nil, invalid()
+-	}
+-	header := "From: " + from + "\r\nTo: <" + f.Recipient + ">\r\nMessage-ID: <" + f.Attempt.Details().JobID.String() + "@" + origin.Hostname() + ">\r\nSubject: Agenteam account\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n"
++		return smtpMessage{}, invalid()
++	}
++	header := "From: " + from + "\r\nTo: <" + recipient + ">\r\nMessage-ID: <" + f.Attempt.Details().JobID.String() + "@" + origin.Hostname() + ">\r\nSubject: Agenteam account\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n"
+ 	body := "Agenteam SMTP test.\r\n"
+ 	if f.Attempt.Details().Kind != c.TestDelivery {
+ 		link, e := w.link(f)
+ 		if e != nil {
+-			return nil, e
++			return smtpMessage{}, e
+ 		}
+ 		defer link.Destroy()
+ 		e = link.Use(func(b []byte) error { body = string(b) + "\r\n"; return nil })
+ 		if e != nil {
+-			return nil, e
++			return smtpMessage{}, e
+ 		}
+ 	}
+ 	message := []byte(header + strings.ReplaceAll(body, "\r\n.", "\r\n.."))
+ 	if len(message) > 64<<10 {
+ 		clear(message)
+-		return nil, invalid()
+-	}
+-	return message, nil
+-}
++		return smtpMessage{}, invalid()
++	}
++	return smtpMessage{sender: sender, recipient: recipient, body: message}, nil
++}
+--- 819aba1/internal/central/account/validation_test.go
++++ candidate/internal/central/account/validation_test.go
+@@ -1,7 +1,11 @@
+ package account
+ 
+ import (
++	"errors"
++	"fmt"
+ 	"strings"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	"testing"
+ )
+ 
+@@ -34,3 +38,74 @@
+ 		}
+ 	}
+ }
++
++func TestNormalizeEmailCanonicalReentry(t *testing.T) {
++	canonical, err := NormalizeEmail("A@[IPv6:2001:DB8::7]")
++	if err != nil || canonical != "a@[ipv6:2001:db8::7]" {
++		t.Fatal("old legal input changed canonical")
++	}
++	again, err := NormalizeEmail(canonical)
++	if err != nil || again != canonical {
++		t.Fatal("canonical email cannot be normalized again")
++	}
++}
++
++// These fixed outputs are also the email bytes consumed by existing identity,
++// privacy and command semantic/MAC inputs. No IP spelling is recompressed.
++func TestNormalizeEmailOldGoldenAndClosure(t *testing.T) {
++	cases := []struct{ name, input, canonical string }{
++		{"ordinary", "A.B+tag@EXAMPLE.COM", "a.b+tag@example.com"},
++		{"domain-punctuation", "A@domain!TEST", "a@domain!test"},
++		{"domain-underscore", "A@domain_TEST", "a@domain_test"},
++		{"local-atoms", "A!#$%&'*+-/=?^_`{|}~@EXAMPLE.test", "a!#$%&'*+-/=?^_`{|}~@example.test"},
++		{"ipv4", "A@[192.0.2.7]", "a@[192.0.2.7]"},
++		{"ipv6", "A@[IPv6:2001:DB8::7]", "a@[ipv6:2001:db8::7]"},
++		{"expanded", "A@[IPv6:2001:0DB8:0000:0000:0000:0000:0000:0007]", "a@[ipv6:2001:0db8:0000:0000:0000:0000:0000:0007]"},
++		{"prefixed-ipv4", "A@[IPv6:192.0.2.7]", "a@[ipv6:192.0.2.7]"},
++		{"prefixed-mapped", "A@[IPv6:::FFFF:192.0.2.7]", "a@[ipv6:::ffff:192.0.2.7]"},
++		{"unprefixed-mapped", "A@[::FFFF:192.0.2.7]", "a@[::ffff:192.0.2.7]"},
++		{"unprefixed-expanded-mapped", "A@[0:0:0:0:0:FFFF:C000:207]", "a@[0:0:0:0:0:ffff:c000:207]"},
++		{"254-bytes", "A@" + strings.Repeat("B", 252), "a@" + strings.Repeat("b", 252)},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			got, err := NormalizeEmail(tc.input)
++			if err != nil || got != tc.canonical {
++				t.Fatal("old canonical bytes changed")
++			}
++			for range 3 {
++				got, err = NormalizeEmail(got)
++				if err != nil || got != tc.canonical {
++					t.Fatal("canonical closure failed")
++				}
++			}
++		})
++	}
++}
++
++func TestNormalizeEmailRejectsOutsideCanonicalClosure(t *testing.T) {
++	inputs := []string{
++		"", "a@" + strings.Repeat("b", 253), "a@[iPv6:2001:db8::7]", "a@[IPV6:2001:db8::7]",
++		"A@[ipv6:2001:db8::7]", "a@[ipv6:2001:DB8::7]", "a@[2001:db8::7]",
++		"a@[IPv6:fe80::1%lo]", "a@[ipv6:fe80::1%lo]", "a@[192.000.2.7]", "a@[1.2.3.999]",
++		"a@[ipv6:not-an-ip]", "a@[ipv6:2001:db8::7]tail", "a@[ipv6:2001:db8::7", "a@[ipv6:@2001:db8::7]",
++		"@[ipv6:2001:db8::7]", "a@b@[ipv6:2001:db8::7]", "a..b@example.test", "a@b..c",
++		"display <a@example.test>", "a(comment)@example.test", "a@example.test(comment)",
++		"a@example.test,b@example.test", "group:a@example.test;", "\"a\"@example.test", "a\\b@example.test",
++		" a@example.test", "a@example.test ", "é@example.test", "a@例子.test", string([]byte{'a', 0xff, '@', 'b'}),
++	}
++	for b := 0; b <= 255; b++ {
++		if b < 33 || b > 126 {
++			inputs = append(inputs, "a"+string([]byte{byte(b)})+"@example.test")
++		}
++	}
++	for i, input := range inputs {
++		t.Run(fmt.Sprintf("rejected-%03d", i), func(t *testing.T) {
++			got, err := NormalizeEmail(input)
++			var fault *foundation.Fault
++			if got != "" || !errors.As(err, &fault) || fault.Code != foundation.InvalidArgument {
++				t.Fatal("unsafe email admitted or error changed")
++			}
++		})
++	}
++}
+--- 819aba1/internal/central/accountmail/smtp_address_test.go
++++ candidate/internal/central/accountmail/smtp_address_test.go
+@@ -0,0 +1,100 @@
++package accountmail
++
++import (
++	"bytes"
++	"errors"
++	"net/mail"
++	"strings"
++	"testing"
++
++	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++)
++
++func TestSMTPMessageCanonicalReentry(t *testing.T) {
++	process, err := foundation.NewID[c.Process]()
++	if err != nil {
++		t.Fatal("process identity")
++	}
++	registry, err := NewWorkRegistry(registryProcess{process})
++	if err != nil {
++		t.Fatal("registry")
++	}
++	worker := &Worker{func() *Dependencies { return &Dependencies{PublicOrigin: "https://accounts.example.test"} }}
++	fields := c.DeliveryMaterialFields{Attempt: registryAttempt(t, registry), SenderEmail: "sender@[ipv6:2001:db8::7]", Recipient: "recipient@[ipv6:2001:db8::8]"}
++	if _, err := worker.message(fields); err != nil {
++		t.Fatal("canonical SMTP addresses cannot prepare a message")
++	}
++}
++
++func TestSMTPMessageUsesOneCanonicalWirePair(t *testing.T) {
++	cases := []struct{ name, sender, recipient, senderWire, recipientWire string }{
++		{"ordinary", "sender@example.test", "recipient@domain_test", "sender@example.test", "recipient@domain_test"},
++		{"ipv4", "sender@[192.0.2.7]", "recipient@[192.0.2.8]", "sender@[192.0.2.7]", "recipient@[192.0.2.8]"},
++		{"ipv6", "sender@[ipv6:2001:db8::7]", "recipient@[ipv6:2001:db8::8]", "sender@[IPv6:2001:db8::7]", "recipient@[IPv6:2001:db8::8]"},
++		{"prefixed-ipv4", "sender@[ipv6:192.0.2.7]", "recipient@[ipv6:192.0.2.8]", "sender@[IPv6:192.0.2.7]", "recipient@[IPv6:192.0.2.8]"},
++		{"mapped", "sender@[::ffff:192.0.2.7]", "recipient@[0:0:0:0:0:ffff:c000:208]", "sender@[::ffff:192.0.2.7]", "recipient@[0:0:0:0:0:ffff:c000:208]"},
++		{"expanded", "sender@[ipv6:2001:0db8:0:0:0:0:0:7]", "recipient@[ipv6:::ffff:192.0.2.8]", "sender@[IPv6:2001:0db8:0:0:0:0:0:7]", "recipient@[IPv6:::ffff:192.0.2.8]"},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			process, _ := foundation.NewID[c.Process]()
++			registry, err := NewWorkRegistry(registryProcess{process})
++			if err != nil {
++				t.Fatal("registry")
++			}
++			worker := &Worker{func() *Dependencies { return &Dependencies{PublicOrigin: "https://accounts.example.test"} }}
++			fields := c.DeliveryMaterialFields{Attempt: registryAttempt(t, registry), SenderEmail: tc.sender, Recipient: tc.recipient}
++			got, err := worker.message(fields)
++			if err != nil {
++				t.Fatal("message preparation")
++			}
++			defer clear(got.body)
++			if got.sender != tc.senderWire || got.recipient != tc.recipientWire || fields.SenderEmail != tc.sender || fields.Recipient != tc.recipient {
++				t.Fatal("wire or canonical material changed")
++			}
++			want := "From: <" + tc.senderWire + ">\r\nTo: <" + tc.recipientWire + ">\r\nMessage-ID: <" + fields.Attempt.Details().JobID.String() + "@accounts.example.test>\r\nSubject: Agenteam account\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\nAgenteam SMTP test.\r\n"
++			if string(got.body) != want {
++				t.Fatal("full prepared message differs from explicit wire expectation")
++			}
++			fields.SenderName = "显示, Name"
++			encoded, err := worker.message(fields)
++			if err != nil {
++				t.Fatal("display name preparation")
++			}
++			defer clear(encoded.body)
++			parsed, err := mail.ReadMessage(bytes.NewReader(encoded.body))
++			if err != nil {
++				t.Fatal("header encoding")
++			}
++			from, err := mail.ParseAddress(parsed.Header.Get("From"))
++			if err != nil || from.Name != fields.SenderName || from.Address != tc.senderWire {
++				t.Fatal("display name no longer safely encoded")
++			}
++		})
++	}
++}
++
++func TestSMTPMessageRejectsNoncanonicalAndUnsafeMaterial(t *testing.T) {
++	worker := &Worker{func() *Dependencies { return &Dependencies{PublicOrigin: "https://accounts.example.test"} }}
++	for _, value := range []string{"Sender@example.test", "sender@[IPv6:2001:db8::7]", "sender@[iPv6:2001:db8::7]", "sender@[ipv6:2001:DB8::7]", "sender@[ipv6:fe80::1%lo]", "x <sender@example.test>", "sender@example.test\r\nBcc: x@evil.test", "sender@example.test\x00", "sender@" + strings.Repeat("a", 248)} {
++		for _, recipient := range []bool{false, true} {
++			f := c.DeliveryMaterialFields{SenderEmail: "sender@example.test", Recipient: "recipient@example.test"}
++			if recipient {
++				f.Recipient = value
++			} else {
++				f.SenderEmail = value
++			}
++			got, err := worker.message(f)
++			var fault *foundation.Fault
++			if !errors.As(err, &fault) || fault.Code != foundation.InvalidArgument || got.body != nil || got.sender != "" || got.recipient != "" {
++				t.Fatal("unsafe/noncanonical material produced a message")
++			}
++		}
++	}
++	for _, name := range []string{"sender\r", "sender\n", "sender\x00"} {
++		if _, err := worker.message(c.DeliveryMaterialFields{SenderEmail: "sender@example.test", Recipient: "recipient@example.test", SenderName: name}); err == nil {
++			t.Fatal("unsafe sender name")
++		}
++	}
++}
+--- 819aba1/tests/testsupport/smtp/fixture.go
++++ candidate/tests/testsupport/smtp/fixture.go
+@@ -52,6 +52,7 @@
+ 	Phase                                                      string
+ 	MessageBytes                                               int
+ 	MessageSHA, MessageID                                      string
++	MailFromSHA, RCPTToSHA                                     string
+ }
+ type Endpoint struct {
+ 	ID   string
+--- 819aba1/tests/testsupport/smtp/cmd/server/main.go
++++ candidate/tests/testsupport/smtp/cmd/server/main.go
+@@ -233,6 +233,8 @@
+ 		case "MAIL":
+ 			c.mu.Lock()
+ 			c.state.Mail++
++			sum := sha256.Sum256([]byte(line))
++			c.state.MailFromSHA = hex.EncodeToString(sum[:])
+ 			c.mu.Unlock()
+ 			if !c.phase("mail") || !write(c.config.MailCode) {
+ 				return
+@@ -240,6 +242,8 @@
+ 		case "RCPT":
+ 			c.mu.Lock()
+ 			c.state.RCPT++
++			sum := sha256.Sum256([]byte(line))
++			c.state.RCPTToSHA = hex.EncodeToString(sum[:])
+ 			c.mu.Unlock()
+ 			if !c.phase("rcpt") || !write(c.config.RCPTCode) {
+ 				return

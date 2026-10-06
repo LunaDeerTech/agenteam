@@ -1,0 +1,22 @@
+--- FAIL: TestB04AvatarStaticFormatsReencodeAndRetainOriginalDigest (0.00s)
+    avatar_codec_test.go:108: open testdata/b04-avatar/progressive.jpg: no such file or directory
+--- FAIL: TestB04AvatarJPEGRealMarkersAndMultipleScans (0.00s)
+    avatar_codec_test.go:202: open testdata/b04-avatar/progressive.jpg: no such file or directory
+--- FAIL: TestB04AvatarWebPCompleteRIFFRejectsAnimationAndExtraImages (0.00s)
+    avatar_codec_test.go:230: open testdata/b04-avatar/lossy.webp: no such file or directory
+--- FAIL: TestB04AvatarLimitsMIMEAndBeforeDecodeDimensions (0.00s)
+    avatar_codec_test.go:278: open testdata/b04-avatar/lossless.webp: no such file or directory
+--- FAIL: TestHTTPInvitationDeliveryProjectionAndSchema (0.00s)
+    http_invitation_delivery_test.go:131: open ../../../api/openapi/account.json: no such file or directory
+--- FAIL: TestHTTPMailJobManagementOpenAPIClosedSchemas (0.00s)
+    http_mail_job_management_test.go:640: open ../../../api/openapi/account.json: no such file or directory
+--- FAIL: TestB04HTTPOpenAPIRoutesAgree (0.00s)
+    http_test.go:702: open ../../../api/openapi/account.json: no such file or directory
+--- FAIL: TestHTTPUserDirectoryProjectionAndSchema (0.00s)
+    http_user_directory_test.go:68: open ../../../api/openapi/account.json: no such file or directory
+--- FAIL: TestHTTPUserDirectoryHEADRoutesAndSchema (0.00s)
+    http_user_directory_test.go:189: open ../../../api/openapi/account.json: no such file or directory
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/account	13.531s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	0.026s
+FAIL

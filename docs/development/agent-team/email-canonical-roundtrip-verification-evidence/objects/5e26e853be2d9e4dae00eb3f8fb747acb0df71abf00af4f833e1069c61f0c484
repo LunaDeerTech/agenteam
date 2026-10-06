@@ -1,0 +1,24 @@
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.017s
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.016s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.033s
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.420s
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.014s
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.017s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.023s
+TestAccountEmailCanonicalRoundTrip
+TestAccountHTTPEmailCanonicalRoundTrip
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.017s
+TestAccountMailEmailCanonicalWireRoundTrip
+TestAccountMailSMTPThreeModesUseActualControlledSockets
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.035s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.020s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.023s
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.021s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.022s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.015s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.015s
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.017s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.016s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s

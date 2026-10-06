@@ -1,0 +1,51 @@
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+root = Path(__file__).resolve().parent
+author = Path('/workspace/scratch/agenteam-email-canonical-author-s5egqsel')
+repo = author / 'workspace'
+go = '/workspace/toolchains/go1.27.1/bin/go'
+mode, name = sys.argv[1:3]
+selector = '^(TestIndependentEmailHistoryAndTestIntent|TestIndependentEmailCanonicalWire)$'
+env = {k:v for k,v in os.environ.items() if not k.startswith('AGENTEAM_')}
+env.update({'GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off','GOPROXY':'off','GOSUMDB':'off','GOFLAGS':'-mod=readonly -buildvcs=false -p=1','GOMODCACHE':'/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache','GOCACHE':str(root/'gocache'),'GOTMPDIR':str(root/'tmp'),'TMPDIR':str(root/'tmp'),'CGO_ENABLED':'1','NO_COLOR':'1'})
+commands = {
+    'compile':[go,'test','-race','-tags=integration','-overlay',str(root/'overlay.json'),'-run','^$','-count=1','-timeout=45s','./tests/account','./tests/accountmail'],
+    'list':[go,'test','-race','-tags=integration','-overlay',str(root/'overlay.json'),'-list',selector,'-run','^$','-count=1','-timeout=45s','./tests/account','./tests/accountmail'],
+    'vet':[go,'vet','-tags=integration','-overlay',str(root/'overlay.json'),'./tests/account','./tests/accountmail'],
+    'freeze':[sys.executable,str(root/'freeze-runtime.py')],
+    'gate':[sys.executable,str(root/'run-independent01.py'),'--name',name,'--group','both','--frozen',str(root/'execution01.json'),'--modcache',env['GOMODCACHE'],'--check-input-only'],
+}
+argv = commands[mode]
+run = root/'checks'/name
+run.mkdir(mode=0o700)
+sha = lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+seed = json.loads((root/'execution01.seed.json').read_text())
+paths = {str(repo/p) for p in seed['files']} | {str(repo/p) for p in seed['accepted_baseline']['files']} | set(seed['private_files']) | {str(root/'run-independent01.py'),str(root/'run-check.py'),str(root/'freeze-runtime.py'),str(root/'execution01.seed.json')}
+if (root/'execution01.json').exists(): paths.add(str(root/'execution01.json'))
+def inputs(): return {p:sha(Path(p)) for p in sorted(paths)}
+before=inputs()
+(run/'input-before.json').write_text(json.dumps(before,indent=2)+'\n')
+record={'argv':argv,'cwd':str(repo),'env':{k:env[k] for k in ['GOTOOLCHAIN','GOENV','GOWORK','GOPROXY','GOSUMDB','GOFLAGS','GOMODCACHE','GOCACHE','GOTMPDIR','TMPDIR','CGO_ENABLED']},'resources_started':False,'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+(run/'command.json').write_text(json.dumps(record,indent=2)+'\n')
+start=time.monotonic()
+with (run/'raw.log').open('wb') as raw,(run/'stderr.log').open('wb') as stderr:
+    child=subprocess.Popen(argv,cwd=repo,env=env,stdout=raw,stderr=stderr)
+    print(json.dumps({'mode':mode,'pid':child.pid,'run':str(run)}),flush=True)
+    status=child.wait()
+after=inputs()
+(run/'input-after.json').write_text(json.dumps(after,indent=2)+'\n')
+result={'mode':mode,'exit_code':status,'actual_wait':True,'pid':child.pid,'seconds':round(time.monotonic()-start,3),'input_unchanged':before==after,'raw_sha256':sha(run/'raw.log'),'stderr_sha256':sha(run/'stderr.log'),'resources_started':False}
+if mode=='list' and status==0:
+    names=[line for line in (run/'raw.log').read_text().splitlines() if line.startswith('TestIndependent')]
+    result['exact_tests']=names
+    result['exact_two_once']=len(names)==2 and set(names)=={'TestIndependentEmailHistoryAndTestIntent','TestIndependentEmailCanonicalWire'}
+(run/'result.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result),flush=True)
+sys.exit(0 if status==0 and before==after and result.get('exact_two_once',True) else 1)

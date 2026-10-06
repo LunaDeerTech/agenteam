@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：邮箱 canonical 再输入与 SMTP wire 闭包修复接受
+
+- [D07 修复卡 rev1](../work-items/d07-email-canonical-roundtrip.md)十路径获作者检查、独立风险验收及主线程采纳，提交推送 `f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a`，远端一致。[正式报告与不可变证据](email-canonical-roundtrip-verification.md)固定819aba1、九源input01及第十后端说明；卡技术§1–7保持f62bf7…af15原字节。
+- 原合法集合仅补完整小写canonical再输入，旧输出/身份/MAC/receipt保持；SMTP单一wire地址对用于信封/邮件头。作者service/HTTP、新四wire子例及原三模式通过；独立原轮两个完整PASS与第二轮两个受影响子例组合接受，原整体exit1保留，不称最终全矩阵重跑。
+- 原两行为RED、pure缺七固定资产、独立bootstrap前提/ENOSPC、CLI参数及作者命名碰撞均保留。作者三轮＋独立两轮actual wait、7或9 exact IDs双absent、所属PID/starttime空、原基线不变；最终独立actual0/72.577s、9IDs74PID、0adopted wait/monitor。历史PPID1 Z不计回收，清空间只删可重建非活动GOCACHE，不删证据。
+- 394逻辑／194去重对象＋9Git引用离线核十路径、881依赖及3501/3512原运行指纹。被审candidate规格full缺件如实保留，仅技术与接受页首可恢复；无跨二进制升级或外部邮箱证明。SMTP UI/出站HTTP及完整D07/D27另验，D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止及生产未绑定／ready503保持。
+
 ## 2026-10-06：System 邮件任务管理事实读口接受
 
 - [D07 管理读口 rev1.2](../work-items/d07-system-mail-job-management-reads.md)八路径获作者新三组／旧两组及独立风险PASS、主线程采纳，提交推送 `819aba1b8f764328f1e2e67b53c274fad0db877d`，远端一致。[正式报告与不可变证据](system-mail-job-management-reads-verification.md)固定input04、3c79fd4私有基线及935依赖／3501运行时指纹；卡技术§1–6保持原字节。

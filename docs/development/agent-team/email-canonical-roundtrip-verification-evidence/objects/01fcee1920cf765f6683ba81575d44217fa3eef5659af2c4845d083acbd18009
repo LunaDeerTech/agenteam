@@ -1,0 +1,15 @@
+--- probe01/history.go
++++ probe02/history.go
+@@ -139,7 +139,11 @@
+ 		bad["version"], bad["sender_email"] = current["version"], "original@[iPv6:192.0.2.17]"
+ 		admin.request("PUT", "/api/v1/system/smtp", bad, id[struct{}](t).String(), csrf).problem(t, 400, "INVALID_ARGUMENT")
+ 		guest := f.browser()
+-		guest.bootstrap()
++		guestBootstrap := guest.request("GET", "/api/v1/auth/bootstrap", nil, "", "").want(t, 200).object(t)
++		guest.anonymousCSRF, _ = guestBootstrap["csrf_token"].(string)
++		if guest.anonymousCSRF == "" || guestBootstrap["delivery_channel"] != "smtp" {
++			t.Fatal("configured SMTP anonymous bootstrap prerequisite")
++		}
+ 		guest.request("GET", "/api/v1/system/smtp", nil, "", "").problem(t, 401, "UNAUTHENTICATED")
+ 		secondBody["version"] = current["version"]
+ 		admin.request("PUT", "/api/v1/system/smtp", secondBody, id[struct{}](t).String(), guest.anonymousCSRF).problem(t, 403, "CSRF_FAILED")

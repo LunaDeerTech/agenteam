@@ -1,0 +1,894 @@
+--- 819aba1/internal/central/account/validation.go
++++ candidate/internal/central/account/validation.go
+@@ -16,11 +16,25 @@
+ 			return "", field("/email", "EMAIL_INVALID")
+ 		}
+ 	}
+-	a, e := mail.ParseAddress(input)
+-	if e != nil || a.Name != "" || a.Address != input || strings.ContainsAny(input, "()<>,;\\\"") {
+-		return "", field("/email", "EMAIL_INVALID")
++	canonical := strings.ToLower(input)
++	if bareEmailAddress(input) {
++		return canonical, nil
+ 	}
+-	return strings.ToLower(input), nil
++	// Preserve the old accepted set, adding only its complete lowercase
++	// outputs. Go's parser requires this one domain-literal marker's case.
++	local, domain, ok := strings.Cut(input, "@")
++	if input == canonical && ok && !strings.Contains(domain, "@") && strings.HasPrefix(domain, "[ipv6:") && strings.HasSuffix(domain, "]") {
++		wire := local + "@[IPv6:" + domain[len("[ipv6:"):]
++		if bareEmailAddress(wire) {
++			return canonical, nil
++		}
++	}
++	return "", field("/email", "EMAIL_INVALID")
++}
++
++func bareEmailAddress(input string) bool {
++	a, err := mail.ParseAddress(input)
++	return err == nil && a.Name == "" && a.Address == input && !strings.ContainsAny(input, "()<>,;\\\"")
+ }
+ 
+ var reservedNames = map[string]bool{"api": true, "assets": true, "auth": true, "login": true, "logout": true, "invite": true, "reset": true, "settings": true, "system": true, "personal": true, "diagnostics": true, "livez": true, "readyz": true, "debug": true, "support": true, "root": true, "admin": true}
+--- 819aba1/internal/central/accountmail/smtp.go
++++ candidate/internal/central/accountmail/smtp.go
+@@ -15,6 +15,7 @@
+ 	"strings"
+ 	"time"
+ 
++	"github.com/LunaDeerTech/agenteam/internal/central/account"
+ 	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+ 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+@@ -327,11 +328,11 @@
+ 	if e != nil {
+ 		return smtpError(e, false)
+ 	}
+-	defer clear(message)
++	defer clear(message.body)
+ 	if e = begin(c.SMTPMail); e != nil {
+ 		return smtpError(e, false)
+ 	}
+-	for _, cmd := range []string{"MAIL FROM:<" + f.SenderEmail + ">", "RCPT TO:<" + f.Recipient + ">"} {
++	for _, cmd := range []string{"MAIL FROM:<" + message.sender + ">", "RCPT TO:<" + message.recipient + ">"} {
+ 		code, _, e = p.command(cmd)
+ 		if e != nil {
+ 			return smtpError(e, false)
+@@ -352,7 +353,7 @@
+ 	}
+ 	// Once DATA has begun, an interrupted stream or absent final acceptance is
+ 	// unknown. No retry occurs on this connection or with this attempt handle.
+-	if e = p.write(message); e != nil {
++	if e = p.write(message.body); e != nil {
+ 		return smtpError(e, true)
+ 	}
+ 	if e = w.data().Port.CheckpointDelivery(ctx, attempt, c.AwaitingAcceptance); e != nil {
+@@ -371,40 +372,67 @@
+ 	_ = raw.EndSend() // No QUIT or any other protocol write after EndSend.
+ 	return c.DeliveryOutcome{Result: c.DeliverySent, Reason: c.ReasonSent}, nil
+ }
+-func (w *Worker) message(f c.DeliveryMaterialFields) ([]byte, error) {
++
++// smtpMessage holds the single prepared pair used by both envelope and headers.
++// These wire spellings never replace canonical persistent account facts.
++type smtpMessage struct {
++	sender, recipient string
++	body              []byte
++}
++
++func smtpWireAddress(input string) (string, error) {
++	canonical, err := account.NormalizeEmail(input)
++	if err != nil || canonical != input {
++		return "", invalid()
++	}
++	local, domain, _ := strings.Cut(input, "@")
++	wire := input
++	if strings.HasPrefix(domain, "[ipv6:") {
++		wire = local + "@[IPv6:" + domain[len("[ipv6:"):]
++	}
++	parsed, err := mail.ParseAddress(wire)
++	if err != nil || parsed.Name != "" || parsed.Address != wire {
++		return "", invalid()
++	}
++	return wire, nil
++}
++
++func (w *Worker) message(f c.DeliveryMaterialFields) (smtpMessage, error) {
+ 	for _, s := range []string{f.Recipient, f.SenderEmail, f.SenderName} {
+ 		if strings.ContainsAny(s, "\r\n\x00") {
+-			return nil, invalid()
+-		}
+-	}
+-	for _, s := range []string{f.Recipient, f.SenderEmail} {
+-		a, e := mail.ParseAddress(s)
+-		if e != nil || a.Address != s || a.Name != "" {
+-			return nil, invalid()
+-		}
+-	}
+-	from := (&mail.Address{Name: f.SenderName, Address: f.SenderEmail}).String()
++			return smtpMessage{}, invalid()
++		}
++	}
++	sender, e := smtpWireAddress(f.SenderEmail)
++	if e != nil {
++		return smtpMessage{}, e
++	}
++	recipient, e := smtpWireAddress(f.Recipient)
++	if e != nil {
++		return smtpMessage{}, e
++	}
++	from := (&mail.Address{Name: f.SenderName, Address: sender}).String()
+ 	origin, e := url.Parse(w.data().PublicOrigin)
+ 	if e != nil {
+-		return nil, invalid()
+-	}
+-	header := "From: " + from + "\r\nTo: <" + f.Recipient + ">\r\nMessage-ID: <" + f.Attempt.Details().JobID.String() + "@" + origin.Hostname() + ">\r\nSubject: Agenteam account\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n"
++		return smtpMessage{}, invalid()
++	}
++	header := "From: " + from + "\r\nTo: <" + recipient + ">\r\nMessage-ID: <" + f.Attempt.Details().JobID.String() + "@" + origin.Hostname() + ">\r\nSubject: Agenteam account\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n"
+ 	body := "Agenteam SMTP test.\r\n"
+ 	if f.Attempt.Details().Kind != c.TestDelivery {
+ 		link, e := w.link(f)
+ 		if e != nil {
+-			return nil, e
++			return smtpMessage{}, e
+ 		}
+ 		defer link.Destroy()
+ 		e = link.Use(func(b []byte) error { body = string(b) + "\r\n"; return nil })
+ 		if e != nil {
+-			return nil, e
++			return smtpMessage{}, e
+ 		}
+ 	}
+ 	message := []byte(header + strings.ReplaceAll(body, "\r\n.", "\r\n.."))
+ 	if len(message) > 64<<10 {
+ 		clear(message)
+-		return nil, invalid()
+-	}
+-	return message, nil
+-}
++		return smtpMessage{}, invalid()
++	}
++	return smtpMessage{sender: sender, recipient: recipient, body: message}, nil
++}
+--- 819aba1/internal/central/account/validation_test.go
++++ candidate/internal/central/account/validation_test.go
+@@ -1,7 +1,11 @@
+ package account
+ 
+ import (
++	"errors"
++	"fmt"
+ 	"strings"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	"testing"
+ )
+ 
+@@ -34,3 +38,74 @@
+ 		}
+ 	}
+ }
++
++func TestNormalizeEmailCanonicalReentry(t *testing.T) {
++	canonical, err := NormalizeEmail("A@[IPv6:2001:DB8::7]")
++	if err != nil || canonical != "a@[ipv6:2001:db8::7]" {
++		t.Fatal("old legal input changed canonical")
++	}
++	again, err := NormalizeEmail(canonical)
++	if err != nil || again != canonical {
++		t.Fatal("canonical email cannot be normalized again")
++	}
++}
++
++// These fixed outputs are also the email bytes consumed by existing identity,
++// privacy and command semantic/MAC inputs. No IP spelling is recompressed.
++func TestNormalizeEmailOldGoldenAndClosure(t *testing.T) {
++	cases := []struct{ name, input, canonical string }{
++		{"ordinary", "A.B+tag@EXAMPLE.COM", "a.b+tag@example.com"},
++		{"domain-punctuation", "A@domain!TEST", "a@domain!test"},
++		{"domain-underscore", "A@domain_TEST", "a@domain_test"},
++		{"local-atoms", "A!#$%&'*+-/=?^_`{|}~@EXAMPLE.test", "a!#$%&'*+-/=?^_`{|}~@example.test"},
++		{"ipv4", "A@[192.0.2.7]", "a@[192.0.2.7]"},
++		{"ipv6", "A@[IPv6:2001:DB8::7]", "a@[ipv6:2001:db8::7]"},
++		{"expanded", "A@[IPv6:2001:0DB8:0000:0000:0000:0000:0000:0007]", "a@[ipv6:2001:0db8:0000:0000:0000:0000:0000:0007]"},
++		{"prefixed-ipv4", "A@[IPv6:192.0.2.7]", "a@[ipv6:192.0.2.7]"},
++		{"prefixed-mapped", "A@[IPv6:::FFFF:192.0.2.7]", "a@[ipv6:::ffff:192.0.2.7]"},
++		{"unprefixed-mapped", "A@[::FFFF:192.0.2.7]", "a@[::ffff:192.0.2.7]"},
++		{"unprefixed-expanded-mapped", "A@[0:0:0:0:0:FFFF:C000:207]", "a@[0:0:0:0:0:ffff:c000:207]"},
++		{"254-bytes", "A@" + strings.Repeat("B", 252), "a@" + strings.Repeat("b", 252)},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			got, err := NormalizeEmail(tc.input)
++			if err != nil || got != tc.canonical {
++				t.Fatal("old canonical bytes changed")
++			}
++			for range 3 {
++				got, err = NormalizeEmail(got)
++				if err != nil || got != tc.canonical {
++					t.Fatal("canonical closure failed")
++				}
++			}
++		})
++	}
++}
++
++func TestNormalizeEmailRejectsOutsideCanonicalClosure(t *testing.T) {
++	inputs := []string{
++		"", "a@" + strings.Repeat("b", 253), "a@[iPv6:2001:db8::7]", "a@[IPV6:2001:db8::7]",
++		"A@[ipv6:2001:db8::7]", "a@[ipv6:2001:DB8::7]", "a@[2001:db8::7]",
++		"a@[IPv6:fe80::1%lo]", "a@[ipv6:fe80::1%lo]", "a@[192.000.2.7]", "a@[1.2.3.999]",
++		"a@[ipv6:not-an-ip]", "a@[ipv6:2001:db8::7]tail", "a@[ipv6:2001:db8::7", "a@[ipv6:@2001:db8::7]",
++		"@[ipv6:2001:db8::7]", "a@b@[ipv6:2001:db8::7]", "a..b@example.test", "a@b..c",
++		"display <a@example.test>", "a(comment)@example.test", "a@example.test(comment)",
++		"a@example.test,b@example.test", "group:a@example.test;", "\"a\"@example.test", "a\\b@example.test",
++		" a@example.test", "a@example.test ", "é@example.test", "a@例子.test", string([]byte{'a', 0xff, '@', 'b'}),
++	}
++	for b := 0; b <= 255; b++ {
++		if b < 33 || b > 126 {
++			inputs = append(inputs, "a"+string([]byte{byte(b)})+"@example.test")
++		}
++	}
++	for i, input := range inputs {
++		t.Run(fmt.Sprintf("rejected-%03d", i), func(t *testing.T) {
++			got, err := NormalizeEmail(input)
++			var fault *foundation.Fault
++			if got != "" || !errors.As(err, &fault) || fault.Code != foundation.InvalidArgument {
++				t.Fatal("unsafe email admitted or error changed")
++			}
++		})
++	}
++}
+--- 819aba1/internal/central/accountmail/smtp_address_test.go
++++ candidate/internal/central/accountmail/smtp_address_test.go
+@@ -0,0 +1,100 @@
++package accountmail
++
++import (
++	"bytes"
++	"errors"
++	"net/mail"
++	"strings"
++	"testing"
++
++	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++)
++
++func TestSMTPMessageCanonicalReentry(t *testing.T) {
++	process, err := foundation.NewID[c.Process]()
++	if err != nil {
++		t.Fatal("process identity")
++	}
++	registry, err := NewWorkRegistry(registryProcess{process})
++	if err != nil {
++		t.Fatal("registry")
++	}
++	worker := &Worker{func() *Dependencies { return &Dependencies{PublicOrigin: "https://accounts.example.test"} }}
++	fields := c.DeliveryMaterialFields{Attempt: registryAttempt(t, registry), SenderEmail: "sender@[ipv6:2001:db8::7]", Recipient: "recipient@[ipv6:2001:db8::8]"}
++	if _, err := worker.message(fields); err != nil {
++		t.Fatal("canonical SMTP addresses cannot prepare a message")
++	}
++}
++
++func TestSMTPMessageUsesOneCanonicalWirePair(t *testing.T) {
++	cases := []struct{ name, sender, recipient, senderWire, recipientWire string }{
++		{"ordinary", "sender@example.test", "recipient@domain_test", "sender@example.test", "recipient@domain_test"},
++		{"ipv4", "sender@[192.0.2.7]", "recipient@[192.0.2.8]", "sender@[192.0.2.7]", "recipient@[192.0.2.8]"},
++		{"ipv6", "sender@[ipv6:2001:db8::7]", "recipient@[ipv6:2001:db8::8]", "sender@[IPv6:2001:db8::7]", "recipient@[IPv6:2001:db8::8]"},
++		{"prefixed-ipv4", "sender@[ipv6:192.0.2.7]", "recipient@[ipv6:192.0.2.8]", "sender@[IPv6:192.0.2.7]", "recipient@[IPv6:192.0.2.8]"},
++		{"mapped", "sender@[::ffff:192.0.2.7]", "recipient@[0:0:0:0:0:ffff:c000:208]", "sender@[::ffff:192.0.2.7]", "recipient@[0:0:0:0:0:ffff:c000:208]"},
++		{"expanded", "sender@[ipv6:2001:0db8:0:0:0:0:0:7]", "recipient@[ipv6:::ffff:192.0.2.8]", "sender@[IPv6:2001:0db8:0:0:0:0:0:7]", "recipient@[IPv6:::ffff:192.0.2.8]"},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			process, _ := foundation.NewID[c.Process]()
++			registry, err := NewWorkRegistry(registryProcess{process})
++			if err != nil {
++				t.Fatal("registry")
++			}
++			worker := &Worker{func() *Dependencies { return &Dependencies{PublicOrigin: "https://accounts.example.test"} }}
++			fields := c.DeliveryMaterialFields{Attempt: registryAttempt(t, registry), SenderEmail: tc.sender, Recipient: tc.recipient}
++			got, err := worker.message(fields)
++			if err != nil {
++				t.Fatal("message preparation")
++			}
++			defer clear(got.body)
++			if got.sender != tc.senderWire || got.recipient != tc.recipientWire || fields.SenderEmail != tc.sender || fields.Recipient != tc.recipient {
++				t.Fatal("wire or canonical material changed")
++			}
++			want := "From: <" + tc.senderWire + ">\r\nTo: <" + tc.recipientWire + ">\r\nMessage-ID: <" + fields.Attempt.Details().JobID.String() + "@accounts.example.test>\r\nSubject: Agenteam account\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\nAgenteam SMTP test.\r\n"
++			if string(got.body) != want {
++				t.Fatal("full prepared message differs from explicit wire expectation")
++			}
++			fields.SenderName = "显示, Name"
++			encoded, err := worker.message(fields)
++			if err != nil {
++				t.Fatal("display name preparation")
++			}
++			defer clear(encoded.body)
++			parsed, err := mail.ReadMessage(bytes.NewReader(encoded.body))
++			if err != nil {
++				t.Fatal("header encoding")
++			}
++			from, err := mail.ParseAddress(parsed.Header.Get("From"))
++			if err != nil || from.Name != fields.SenderName || from.Address != tc.senderWire {
++				t.Fatal("display name no longer safely encoded")
++			}
++		})
++	}
++}
++
++func TestSMTPMessageRejectsNoncanonicalAndUnsafeMaterial(t *testing.T) {
++	worker := &Worker{func() *Dependencies { return &Dependencies{PublicOrigin: "https://accounts.example.test"} }}
++	for _, value := range []string{"Sender@example.test", "sender@[IPv6:2001:db8::7]", "sender@[iPv6:2001:db8::7]", "sender@[ipv6:2001:DB8::7]", "sender@[ipv6:fe80::1%lo]", "x <sender@example.test>", "sender@example.test\r\nBcc: x@evil.test", "sender@example.test\x00", "sender@" + strings.Repeat("a", 248)} {
++		for _, recipient := range []bool{false, true} {
++			f := c.DeliveryMaterialFields{SenderEmail: "sender@example.test", Recipient: "recipient@example.test"}
++			if recipient {
++				f.Recipient = value
++			} else {
++				f.SenderEmail = value
++			}
++			got, err := worker.message(f)
++			var fault *foundation.Fault
++			if !errors.As(err, &fault) || fault.Code != foundation.InvalidArgument || got.body != nil || got.sender != "" || got.recipient != "" {
++				t.Fatal("unsafe/noncanonical material produced a message")
++			}
++		}
++	}
++	for _, name := range []string{"sender\r", "sender\n", "sender\x00"} {
++		if _, err := worker.message(c.DeliveryMaterialFields{SenderEmail: "sender@example.test", Recipient: "recipient@example.test", SenderName: name}); err == nil {
++			t.Fatal("unsafe sender name")
++		}
++	}
++}
+--- 819aba1/tests/account/email_canonical_roundtrip_test.go
++++ candidate/tests/account/email_canonical_roundtrip_test.go
+@@ -0,0 +1,317 @@
++//go:build integration
++
++package account_test
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/account"
++	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++func TestAccountEmailCanonicalRoundTrip(t *testing.T) {
++	t.Run("test-intent-and-original-replay", func(t *testing.T) {
++		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
++		defer cancel()
++		f := newB02Account(t)
++		admin := b02Admin(t, f)
++		settings, err := f.service.GetSMTPSettings(ctx, admin)
++		if err != nil {
++			t.Fatal("SMTP settings", err)
++		}
++		configure, err := c.NewSMTPUpdate(c.SMTPUpdateFields{Actor: admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), ExpectedVersion: settings.Version, Configured: true, Host: "mail.example.test", Port: 2525, TLSMode: "none", SenderEmail: "sender@[ipv6:2001:db8::7]", RetryCount: 0, RetryIntervalSeconds: 10})
++		if err != nil {
++			t.Fatal(err)
++		}
++		if _, err = f.service.UpdateSMTPSettings(ctx, configure); err != nil {
++			t.Fatal("canonical configuration", err)
++		}
++		for _, recipient := range []string{"Recipient@[IPv6:2001:DB8::8]", "recipient@[ipv6:2001:db8::8]"} {
++			request := c.SMTPTest{Actor: admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Recipient: recipient}
++			accepted, err := f.service.TestSMTP(ctx, request)
++			if err != nil || accepted.Phase != "enqueue_pending" {
++				t.Fatal("test recipient second normalization", err)
++			}
++			var command string
++			var originalMAC []byte
++			if err = f.store.QueryRow(ctx, `SELECT id::text,semantic_mac FROM agenteam_account.commands WHERE namespace='account.smtp' AND command_key=$1 AND phase='committed'`, string(request.Key)).Scan(&command, &originalMAC); err != nil {
++				t.Fatal("committed test command", err)
++			}
++			defer clear(originalMAC)
++			if _, err = f.service.ReconcileDeliveryIntents(ctx); err != nil {
++				t.Fatal("reconcile", err)
++			}
++			// Reuse the untouched original request, then independently verify that
++			// the new canonical spelling has the same old command semantics.
++			equivalent := request
++			equivalent.Recipient = "recipient@[ipv6:2001:db8::8]"
++			for _, replay := range []c.SMTPTest{request, equivalent} {
++				again, err := f.service.TestSMTP(ctx, replay)
++				if err != nil || again.JobID != accepted.JobID || again.Phase != "pending" {
++					t.Fatal("original test command did not replay", err)
++				}
++			}
++			var intents, events, audits, jobs int
++			var stored string
++			var afterMAC []byte
++			err = f.store.QueryRow(ctx, `SELECT i.recipient,c.semantic_mac,(SELECT count(*) FROM agenteam_account.delivery_intents WHERE id=c.id),(SELECT count(*) FROM agenteam_outbox.events WHERE id=c.id),(SELECT count(*) FROM agenteam_audit.audit_records WHERE action='smtp.test.request' AND cause_ref=c.id::text),(SELECT count(*) FROM agenteam_account.mail_jobs WHERE intent_id=c.id) FROM agenteam_account.commands c JOIN agenteam_account.delivery_intents i ON i.id=c.id WHERE c.id=$1`, command).Scan(&stored, &afterMAC, &intents, &events, &audits, &jobs)
++			if err != nil || stored != "recipient@[ipv6:2001:db8::8]" || !bytes.Equal(originalMAC, afterMAC) || intents != 1 || events != 1 || audits != 1 || jobs != 1 {
++				t.Fatal("test command/canonical/intent/event/Audit uniqueness", err)
++			}
++			clear(afterMAC)
++		}
++		t.Log("raw and canonical test recipients accepted; second normalization and exact command/MAC/intent/event/Audit/job checks passed")
++	})
++	t.Run("invitation-identity-challenge-and-reset", func(t *testing.T) {
++		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
++		defer cancel()
++		f := newB02Account(t)
++		admin := b02Admin(t, f)
++		const raw = "Account@[IPv6:2001:DB8::17]"
++		const canonical = "account@[ipv6:2001:db8::17]"
++		create, err := c.NewInvitationCreate(c.InvitationCreateFields{Actor: admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Email: raw})
++		if err != nil {
++			t.Fatal(err)
++		}
++		invite, err := f.service.CreateInvitation(ctx, create)
++		if err != nil {
++			t.Fatal("literal invitation", err)
++		}
++		equivalentCreate := create.Fields()
++		equivalentCreate.Email = canonical
++		equivalent, err := c.NewInvitationCreate(equivalentCreate)
++		if err != nil {
++			t.Fatal(err)
++		}
++		if again, err := f.service.CreateInvitation(ctx, equivalent); err != nil || again != invite {
++			t.Fatal("invitation canonical replay", err)
++		}
++		var stored string
++		var invites int
++		if err = f.store.QueryRow(ctx, `SELECT canonical_email,(SELECT count(*) FROM agenteam_account.invitations WHERE canonical_email=$2) FROM agenteam_account.invitations WHERE id=$1`, invite.ID.String(), canonical).Scan(&stored, &invites); err != nil || stored != canonical || invites != 1 {
++			t.Fatal("canonical invitation uniqueness", err)
++		}
++		token := fixtureLinkToken(t, f, c.InvitationToken, invite.ID.String())
++		anonymous, err := f.service.NewAnonymousContext(ctx)
++		if err != nil {
++			t.Fatal(err)
++		}
++		defer anonymous.Cookie.Destroy()
++		defer anonymous.CSRF.Destroy()
++		view, err := f.service.InspectInvitation(ctx, anonymous.Identity, token, nil)
++		if err != nil || view.Email != canonical {
++			t.Fatal("canonical invitation view", err)
++		}
++		password, err := sc.NewSecretMaterial([]byte("Owned canonical account passphrase 739584!"))
++		if err != nil {
++			t.Fatal(err)
++		}
++		defer password.Destroy()
++		redeem, err := c.NewInvitationRedeem(c.RedeemFields{Browser: anonymous.Identity, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Token: token, Username: "canonical-user", DisplayName: "Canonical account", Password: password, Confirmation: password})
++		if err != nil {
++			t.Fatal(err)
++		}
++		if result, err := f.service.RedeemInvitation(ctx, redeem); err != nil || !result.Completed {
++			t.Fatal("canonical invitation redeem", err)
++		}
++		login, _ := loginRequest(t, f.fixture, password, canonical)
++		response, err := f.service.Login(ctx, login)
++		if err != nil {
++			t.Fatal("canonical login", err)
++		}
++		actor, err := f.service.Authenticate(ctx, useCookie(t, response))
++		if err != nil {
++			t.Fatal(err)
++		}
++		if err = response.Close(ctx); err != nil {
++			t.Fatal("login response join", err)
++		}
++		for _, email := range []string{canonical, raw} {
++			fields := login.Fields()
++			fields.Email = email
++			lookup, err := c.NewLoginRequest(fields)
++			if err != nil {
++				t.Fatal(err)
++			}
++			response, err := f.service.LookupLogin(ctx, lookup)
++			if err != nil {
++				t.Fatal("equivalent historical login lookup", err)
++			}
++			current, err := f.service.Authenticate(ctx, useCookie(t, response))
++			if err != nil {
++				t.Fatal(err)
++			}
++			if err = response.Close(ctx); err != nil {
++				t.Fatal("lookup actual join", err)
++			}
++			if current.Details().UserID != actor.Details().UserID || current.Details().SessionID != actor.Details().SessionID {
++				t.Fatal("canonical/raw lookup changed identity")
++			}
++		}
++		duplicateFields := create.Fields()
++		duplicateFields.Email = canonical
++		duplicateFields.Key = foundation.IdempotencyKey(id[struct{}](t).String())
++		duplicate, err := c.NewInvitationCreate(duplicateFields)
++		if err != nil {
++			t.Fatal(err)
++		}
++		if _, err = f.service.CreateInvitation(ctx, duplicate); !hasCode(err, foundation.InvalidArgument) {
++			t.Fatal("registered canonical duplicate admitted")
++		}
++		var users int
++		if err = f.store.QueryRow(ctx, `SELECT email,(SELECT count(*) FROM agenteam_account.users WHERE email=$2) FROM agenteam_account.users WHERE id=$1`, actor.Details().UserID, canonical).Scan(&stored, &users); err != nil || stored != canonical || users != 1 {
++			t.Fatal("one lower-case account identity", err)
++		}
++		// Configure the real challenge threshold through its formal facade.
++		_, cursor, _ := keys(t)
++		facade, err := account.NewSystemHTTPFacade(f.service, cursor)
++		if err != nil {
++			t.Fatal(err)
++		}
++		settings, err := facade.GetAccountSettings(ctx, admin)
++		if err != nil {
++			t.Fatal(err)
++		}
++		if _, err = facade.UpdateAccountSettings(ctx, account.HTTPAccountSettingsUpdate{Actor: admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), ExpectedVersion: settings.Version, SessionIdleSeconds: settings.SessionIdleSeconds, SessionAbsoluteSeconds: settings.SessionAbsoluteSeconds, PasswordResetSeconds: settings.PasswordResetSeconds, ChallengeAfterFailures: 1}); err != nil {
++			t.Fatal("formal challenge threshold", err)
++		}
++		bad, err := sc.NewSecretMaterial([]byte("an intentionally incorrect account password"))
++		if err != nil {
++			t.Fatal(err)
++		}
++		defer bad.Destroy()
++		failed, anon := loginRequest(t, f.fixture, bad, raw)
++		if _, err = f.service.Login(ctx, failed); !hasCode(err, foundation.Unauthenticated) {
++			t.Fatal("real failed login prerequisite")
++		}
++		fields := failed.Fields()
++		fields.Key = foundation.IdempotencyKey(id[struct{}](t).String())
++		fields.Password = password
++		fields.Email = canonical
++		unproved, err := c.NewLoginRequest(fields)
++		if err != nil {
++			t.Fatal(err)
++		}
++		if _, err = f.service.Login(ctx, unproved); !hasCode(err, foundation.ChallengeRequired) {
++			t.Fatal("canonical subject did not inherit challenge threshold")
++		}
++		challenge, err := c.NewChallengeRequest(c.ChallengeFields{Browser: anon.Identity, Email: raw, LoginKey: fields.Key})
++		if err != nil {
++			t.Fatal(err)
++		}
++		puzzle, err := f.service.CreateChallenge(ctx, challenge)
++		if err != nil {
++			t.Fatal("real challenge", err)
++		}
++		answer := solveChallenge(t, puzzle)
++		verify, err := c.NewChallengeRequest(c.ChallengeFields{Browser: anon.Identity, Email: canonical, LoginKey: fields.Key})
++		if err != nil {
++			t.Fatal(err)
++		}
++		pass, err := f.service.VerifyChallenge(ctx, verify, puzzle.ID, answer)
++		if err != nil {
++			t.Fatal("canonical public challenge verification", err)
++		}
++		defer pass.Destroy()
++		for _, kind := range []string{"email", "browser", "key"} {
++			g := fields
++			g.ChallengePass = pass
++			switch kind {
++			case "email":
++				g.Email = "different@[ipv6:2001:db8::17]"
++			case "key":
++				g.Key = foundation.IdempotencyKey(id[struct{}](t).String())
++			case "browser":
++				other, err := f.service.NewAnonymousContext(ctx)
++				if err != nil {
++					t.Fatal(err)
++				}
++				defer other.Cookie.Destroy()
++				defer other.CSRF.Destroy()
++				g.Browser = other.Identity
++			}
++			wrong, err := c.NewLoginRequest(g)
++			if err != nil {
++				t.Fatal(err)
++			}
++			lock, err := foundation.SystemConfigLock("account-challenges")
++			if err != nil {
++				t.Fatal(err)
++			}
++			result := f.store.WithinTx(ctx, cause(t), func(ctx context.Context, tx foundation.Tx) error {
++				if err := f.store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: lock, Mode: foundation.Exclusive}}); err != nil {
++					return err
++				}
++				return f.challenges.CheckLoginInTx(ctx, tx, wrong)
++			})
++			if result.State() == foundation.Committed || !hasCode(result.Fault(), foundation.ChallengeInvalid) {
++				t.Fatal("challenge binding changed")
++			}
++		}
++		fields.ChallengePass = pass
++		proved, err := c.NewLoginRequest(fields)
++		if err != nil {
++			t.Fatal(err)
++		}
++		response, err = f.service.Login(ctx, proved)
++		if err != nil {
++			t.Fatal("canonical challenge consumption", err)
++		}
++		current, err := f.service.Authenticate(ctx, useCookie(t, response))
++		if err != nil {
++			t.Fatal(err)
++		}
++		if err = response.Close(ctx); err != nil {
++			t.Fatal(err)
++		}
++		if current.Details().UserID != actor.Details().UserID {
++			t.Fatal("challenge changed account identity")
++		}
++		var phase string
++		if err = f.store.QueryRow(ctx, `SELECT phase FROM agenteam_account.challenges WHERE id=$1`, puzzle.ID.String()).Scan(&phase); err != nil || phase != "consumed" {
++			t.Fatal("challenge was not actually consumed", err)
++		}
++		registered := resetRequest(t, f, canonical)
++		missing := resetRequest(t, f, "missing@[ipv6:2001:db8::17]")
++		one, err := f.service.RequestPasswordReset(ctx, registered)
++		if err != nil {
++			t.Fatal("canonical reset", err)
++		}
++		two, err := f.service.RequestPasswordReset(ctx, missing)
++		if err != nil {
++			t.Fatal("missing canonical reset", err)
++		}
++		a, _ := json.Marshal(one)
++		b, _ := json.Marshal(two)
++		if !bytes.Equal(a, b) || string(a) != `{"accepted":true,"delivery_channel":"backend_log"}` {
++			t.Fatal("reset existence leaked")
++		}
++		resetFields := registered.Fields()
++		resetFields.Email = raw
++		equivalentReset, err := c.NewResetRequest(resetFields)
++		if err != nil {
++			t.Fatal(err)
++		}
++		if replay, err := f.service.RequestPasswordReset(ctx, equivalentReset); err != nil || replay != one {
++			t.Fatal("reset canonical semantic replay", err)
++		}
++		var requests int
++		if err = f.store.QueryRow(ctx, `SELECT count(*) FROM agenteam_account.reset_requests WHERE command_id IN (SELECT id FROM agenteam_account.commands WHERE command_key=$1)`, string(registered.Fields().Key)).Scan(&requests); err != nil || requests != 1 {
++			t.Fatal("reset accepted twice", err)
++		}
++		if _, err = f.service.Recover(ctx); err != nil {
++			t.Fatal("formal reset recovery", err)
++		}
++		var resets int
++		if err = f.store.QueryRow(ctx, `SELECT count(*) FROM agenteam_account.password_resets WHERE user_id=$1`, actor.Details().UserID).Scan(&resets); err != nil || resets != 1 {
++			t.Fatal("registered canonical reset material", err)
++		}
++		t.Log("one canonical account; raw/canonical login+lookup; bound real challenge consumed; reset public equality and original semantic replay passed")
++	})
++}
+--- 819aba1/tests/account/http_email_canonical_roundtrip_test.go
++++ candidate/tests/account/http_email_canonical_roundtrip_test.go
+@@ -0,0 +1,86 @@
++//go:build integration
++
++package account_test
++
++import (
++	"bytes"
++	"testing"
++)
++
++// This is a candidate-created historical receipt, not a cross-binary upgrade.
++func TestAccountHTTPEmailCanonicalRoundTrip(t *testing.T) {
++	f := newHTTPFixture(t)
++	admin := f.admin()
++	member := f.invite(admin, "email-closure-member@example.test", "email-closure-member")
++	guest := f.browser()
++	guest.bootstrap()
++	guest.request("GET", "/api/v1/system/smtp", nil, "", "").problem(t, 401, "UNAUTHENTICATED")
++	before := admin.request("GET", "/api/v1/system/smtp", nil, "", "").want(t, 200).object(t)
++	const original = "Sender@[IPv6:2001:DB8::7]"
++	const canonical = "sender@[ipv6:2001:db8::7]"
++	firstBody := map[string]any{"version": before["version"], "host": "first.example.test", "port": 2525, "encryption": "none", "username": "", "sender_email": original, "sender_name": "", "credential_action": "keep", "auto_retry_count": "0", "retry_interval_seconds": "10"}
++	key := id[struct{}](t).String()
++	first := admin.request("PUT", "/api/v1/system/smtp", firstBody, key, admin.csrf).want(t, 200).object(t)
++	firstSettings := httpObject(t, first, "settings")
++	if firstSettings["sender_email"] != canonical || firstSettings["host"] != "first.example.test" {
++		t.Fatal("first SMTP canonical projection")
++	}
++	conn := f.db.Connect(t)
++	var command string
++	var mac []byte
++	if err := conn.QueryRow(ctxFor(t), `SELECT id::text,semantic_mac FROM agenteam_account.commands WHERE namespace='account.smtp' AND command_key=$1 AND phase='committed'`, key).Scan(&command, &mac); err != nil {
++		t.Fatal("first command fact", err)
++	}
++	defer clear(mac)
++	observed := admin.request("GET", "/api/v1/system/smtp", nil, "", "").want(t, 200).object(t)
++	if observed["sender_email"] != canonical || observed["version"] != firstSettings["version"] {
++		t.Fatal("GET lost canonical")
++	}
++	secondBody := make(map[string]any, len(firstBody))
++	for k, v := range firstBody {
++		secondBody[k] = v
++	}
++	secondBody["version"], secondBody["host"], secondBody["sender_email"] = observed["version"], "second.example.test", observed["sender_email"]
++	second := admin.request("PUT", "/api/v1/system/smtp", secondBody, id[struct{}](t).String(), admin.csrf).want(t, 200).object(t)
++	secondSettings := httpObject(t, second, "settings")
++	if secondSettings["host"] != "second.example.test" || secondSettings["sender_email"] != canonical || second["applied_version"] == first["applied_version"] {
++		t.Fatal("GET-edit-PUT roundtrip")
++	}
++	// Keep the first body untouched. The second replay is a separate semantic
++	// equivalence probe, not mutation of a pending user's request.
++	equivalent := make(map[string]any, len(firstBody))
++	for k, v := range firstBody {
++		equivalent[k] = v
++	}
++	equivalent["sender_email"] = canonical
++	for _, body := range []map[string]any{firstBody, equivalent} {
++		replay := admin.request("PUT", "/api/v1/system/smtp", body, key, admin.csrf).want(t, 200).object(t)
++		current := httpObject(t, replay, "settings")
++		if replay["applied_version"] != first["applied_version"] || current["version"] != secondSettings["version"] || current["host"] != "second.example.test" || current["sender_email"] != canonical {
++			t.Fatal("historical receipt changed current SMTP settings")
++		}
++	}
++	var afterMAC []byte
++	var commands, audits int
++	if err := conn.QueryRow(ctxFor(t), `SELECT semantic_mac,(SELECT count(*) FROM agenteam_account.commands WHERE namespace='account.smtp' AND command_key=$2),(SELECT count(*) FROM agenteam_audit.audit_records WHERE action='smtp.settings.update' AND cause_ref=$1::text) FROM agenteam_account.commands WHERE id=$1::uuid`, command, key).Scan(&afterMAC, &commands, &audits); err != nil || !bytes.Equal(mac, afterMAC) || commands != 1 || audits != 1 {
++		t.Fatal("original SMTP command/MAC/Audit changed", err)
++	}
++	clear(afterMAC)
++	for _, invalid := range []string{"sender@[iPv6:2001:db8::7]", "Sender@[ipv6:2001:db8::7]", "sender@[ipv6:2001:DB8::7]", "sender@example.test\r\nBcc: x@invalid.test"} {
++		bad := make(map[string]any, len(secondBody))
++		for k, v := range secondBody {
++			bad[k] = v
++		}
++		bad["version"], bad["sender_email"] = secondSettings["version"], invalid
++		admin.request("PUT", "/api/v1/system/smtp", bad, id[struct{}](t).String(), admin.csrf).problem(t, 400, "INVALID_ARGUMENT")
++	}
++	secondBody["version"] = secondSettings["version"]
++	admin.request("PUT", "/api/v1/system/smtp", secondBody, id[struct{}](t).String(), guest.anonymousCSRF).problem(t, 403, "CSRF_FAILED")
++	member.request("PUT", "/api/v1/system/smtp", secondBody, id[struct{}](t).String(), member.csrf).problem(t, 403, "FORBIDDEN")
++	var stored string
++	var total int
++	if err := conn.QueryRow(ctxFor(t), `SELECT from_address,(SELECT count(*) FROM agenteam_account.commands WHERE namespace='account.smtp') FROM agenteam_account.smtp_settings WHERE singleton`).Scan(&stored, &total); err != nil || stored != canonical || total != 2 {
++		t.Fatal("rejected inputs changed SMTP facts", err)
++	}
++	t.Log("canonical GET/edit/PUT, original receipt/MAC/Audit and authority/CSRF checks passed")
++}
+--- 819aba1/tests/accountmail/email_canonical_roundtrip_test.go
++++ candidate/tests/accountmail/email_canonical_roundtrip_test.go
+@@ -0,0 +1,107 @@
++//go:build integration
++
++package accountmail_test
++
++import (
++	"context"
++	"crypto/sha256"
++	"encoding/hex"
++	"testing"
++	"time"
++
++	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++	smtpfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/smtp"
++)
++
++func TestAccountMailEmailCanonicalWireRoundTrip(t *testing.T) {
++	network := startSMTP(t)
++	cases := []struct{ name, sender, recipient, senderWire, recipientWire string }{
++		{"ipv6", "sender@[ipv6:2001:db8::7]", "recipient@[ipv6:2001:db8::8]", "sender@[IPv6:2001:db8::7]", "recipient@[IPv6:2001:db8::8]"},
++		{"prefixed-ipv4", "sender@[ipv6:192.0.2.7]", "recipient@[ipv6:192.0.2.8]", "sender@[IPv6:192.0.2.7]", "recipient@[IPv6:192.0.2.8]"},
++		{"mapped", "sender@[::ffff:192.0.2.7]", "recipient@[0:0:0:0:0:ffff:c000:208]", "sender@[::ffff:192.0.2.7]", "recipient@[0:0:0:0:0:ffff:c000:208]"},
++		{"ordinary", "sender@example.test", "recipient@example.test", "sender@example.test", "recipient@example.test"},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
++			defer cancel()
++			endpoint, err := network.Create(ctx, smtpfixture.Scenario{Mode: "none"})
++			if err != nil {
++				t.Fatal("SMTP scenario", err)
++			}
++			f := newAccount(t)
++			settings, err := f.service.GetSMTPSettings(ctx, f.admin)
++			if err != nil {
++				t.Fatal(err)
++			}
++			password, err := sc.NewSecretMaterial([]byte("owned email-closure SMTP credential"))
++			if err != nil {
++				t.Fatal(err)
++			}
++			defer password.Destroy()
++			request, err := c.NewSMTPUpdate(c.SMTPUpdateFields{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), ExpectedVersion: settings.Version, Configured: true, Host: smtpfixture.Host, Port: endpoint.Port, TLSMode: "none", Username: "fixture", Password: &password, SenderEmail: tc.sender, RetryCount: 0, RetryIntervalSeconds: 10})
++			if err != nil {
++				t.Fatal(err)
++			}
++			if _, err = f.service.UpdateSMTPSettings(ctx, request); err != nil {
++				t.Fatal("canonical sender save", err)
++			}
++			m := composeMail(t, f, network, uint16(endpoint.Port))
++			accepted, err := f.service.TestSMTP(ctx, c.SMTPTest{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Recipient: tc.recipient})
++			if err != nil {
++				t.Fatal("canonical test intent", err)
++			}
++			if _, err = f.service.ReconcileDeliveryIntents(ctx); err != nil {
++				t.Fatal(err)
++			}
++			if err = m.worker.RunJob(ctx, accepted.JobID); err != nil {
++				t.Fatal("actual SMTP send", err)
++			}
++			status, err := f.service.GetMailJob(ctx, f.admin, accepted.JobID)
++			if err != nil || status.Phase != "sent" || status.Attempts != 1 {
++				t.Fatal("sent fact", err)
++			}
++			// Await the fixture's actual connection close, not only its 250 reply.
++			closed, cancelClose := context.WithTimeout(ctx, 2*time.Second)
++			defer cancelClose()
++			tick := time.NewTicker(10 * time.Millisecond)
++			defer tick.Stop()
++			var state smtpfixture.State
++			for {
++				state, err = network.State(closed, endpoint.ID)
++				if err != nil {
++					t.Fatal("SMTP observation", err)
++				}
++				if state.Closed == 1 {
++					break
++				}
++				select {
++				case <-tick.C:
++				case <-closed.Done():
++					t.Fatal("SMTP connection did not actually close")
++				}
++			}
++			wantMessage := "From: <" + tc.senderWire + ">\r\nTo: <" + tc.recipientWire + ">\r\nMessage-ID: <" + accepted.JobID.String() + "@accounts.example.test>\r\nSubject: Agenteam account\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\nAgenteam SMTP test.\r\n"
++			digest := func(value string) string { h := sha256.Sum256([]byte(value)); return hex.EncodeToString(h[:]) }
++			mailMatches := state.MailFromSHA == digest("MAIL FROM:<"+tc.senderWire+">\r\n")
++			rcptMatches := state.RCPTToSHA == digest("RCPT TO:<"+tc.recipientWire+">\r\n")
++			bodyMatches := state.MessageSHA == digest(wantMessage)
++			if !mailMatches || !rcptMatches || !bodyMatches || state.MessageBytes != len(wantMessage) {
++				t.Fatalf("SMTP explicit wire matches: mail=%t rcpt=%t body=%t", mailMatches, rcptMatches, bodyMatches)
++			}
++			if state.Connections != 1 || state.Auth != 1 || state.TLS != 0 || state.Mail != 1 || state.RCPT != 1 || state.Data != 1 || state.Messages != 1 {
++				t.Fatal("SMTP protocol counts changed")
++			}
++			var terminal, joined bool
++			var leases, active, audits int
++			var sender, recipient string
++			err = f.store.QueryRow(ctx, `SELECT a.terminal,a.io_joined,(SELECT count(*) FROM agenteam_secret.secret_leases WHERE owner_id=a.id),(SELECT count(*) FROM agenteam_secret.secret_leases WHERE owner_id=a.id AND NOT released),(SELECT count(*) FROM agenteam_audit.audit_records WHERE action='smtp.delivery' AND cause_ref=a.id::text),(SELECT from_address FROM agenteam_account.smtp_settings WHERE singleton),i.recipient FROM agenteam_account.mail_jobs j JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id JOIN agenteam_account.delivery_intents i ON i.id=j.intent_id WHERE j.id=$1`, accepted.JobID.String()).Scan(&terminal, &joined, &leases, &active, &audits, &sender, &recipient)
++			if err != nil || !terminal || !joined || leases != 1 || active != 0 || audits != 1 || !m.registry.Joined() || sender != tc.sender || recipient != tc.recipient {
++				t.Fatal("canonical persistence, terminal or actual material join", err)
++			}
++			t.Log("explicit MAIL/RCPT/message matches=true; one sent message; terminal/io_joined/lease release/registry joined=true")
++		})
++	}
++}
+--- 819aba1/tests/testsupport/smtp/fixture.go
++++ candidate/tests/testsupport/smtp/fixture.go
+@@ -52,6 +52,7 @@
+ 	Phase                                                      string
+ 	MessageBytes                                               int
+ 	MessageSHA, MessageID                                      string
++	MailFromSHA, RCPTToSHA                                     string
+ }
+ type Endpoint struct {
+ 	ID   string
+--- 819aba1/tests/testsupport/smtp/cmd/server/main.go
++++ candidate/tests/testsupport/smtp/cmd/server/main.go
+@@ -233,6 +233,8 @@
+ 		case "MAIL":
+ 			c.mu.Lock()
+ 			c.state.Mail++
++			sum := sha256.Sum256([]byte(line))
++			c.state.MailFromSHA = hex.EncodeToString(sum[:])
+ 			c.mu.Unlock()
+ 			if !c.phase("mail") || !write(c.config.MailCode) {
+ 				return
+@@ -240,6 +242,8 @@
+ 		case "RCPT":
+ 			c.mu.Lock()
+ 			c.state.RCPT++
++			sum := sha256.Sum256([]byte(line))
++			c.state.RCPTToSHA = hex.EncodeToString(sum[:])
+ 			c.mu.Unlock()
+ 			if !c.phase("rcpt") || !write(c.config.RCPTCode) {
+ 				return

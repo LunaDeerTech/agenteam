@@ -218,3 +218,19 @@ controller仅在公开主动放弃的同步退役边界将本批未完current/re
 受控handler真实context本地3s／更早150ms与真实PG75ms父期限／原1s锁超时分别记录，不能把DB1s说成3s自然到期。三个正式intent的normal/next/empty EXPLAIN返回3/2/0行，只证明小表计划和分页后关联限制，不证明无索引历史排序规模SLA。B仅自有受控SMTP和受限日志，没有外部邮箱／SMTP UI／浏览器／生产SPA或Runtime验收。
 
 归档529逻辑／237去重原件，仅离线核八Git路径／935固定依赖／3501原运行时指纹与38检查含七轮终局，不复制完整树／依赖／dist／二进制或重新执行产品。Account§18接受不被改写，SMTP配置首卡及后继页面仍各自另验。本次只更新授权入口；完整D07/D27及D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project及生产未绑定／ready503等边界保持。
+
+## 20. 邮箱 canonical 再输入与 SMTP wire 闭包修复接受
+
+§1–19保持原阶段事实。[D07修复卡rev1](../work-items/d07-email-canonical-roundtrip.md)十路径已获作者检查、独立风险验收及主线程采纳，提交推送 `f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a`，主线程核远端一致。[正式报告与不可变证据](email-canonical-roundtrip-verification.md)固定819aba1基线、九源input01 `e2882f0a9c6458127d09034309540ab04b7c7257f6d92d931c1d832a5ae1c26a`与第十Account说明；卡技术§1–7 f62bf7…af15原字节保持。
+
+只补原合法输入全小写canonical的再输入资格，旧NormalizeEmail成功分支和输出、持久身份/索引、MAC及历史回执保持。SMTP要求canonical材料，私有wire副本恢复IPv6标记并供MAIL/RCPT/From/To同用；普通地址、prefixed IPv4/mapped文本及原预算/TLS/join保持。无写服务/API/schema/迁移/锁变化，不消费活动SMTP前端。
+
+原old01两个真正行为RED与new-minimal01同函数原字节绿保留。pure01缺七固定资产的前提红由恢复资产后的pure02闭合，完整受影响两包pure/race、vet/build及最终九源编译/发现通过；早期integration-compile旧测试输入不冒充最终版。独立core两纯代表覆盖原S oracle/边界和完整wire golden，harness静审与真实验收分列。
+
+作者new-account01 service/HTTP两顶层通过，new-wire01四子例通过，old-smtp01原none/STARTTLS/TLS通过。独立independent01 actual1/123.034s两顶层FAIL：formal-test-intent及prefixed-ipv4-and-mapped两个子例完整PASS；http子例末guest.bootstrap强求backend_log、expanded子例TempDir ENOSPC分别阻断。原http raw无bootstrap DTO，且401/403/尾部尚未到达，不能追填。只修私有bootstrap调用与两个子例选择，independent02 actual0/72.577s，http-original-history2.27s、expanded-ipv6 2.23s完整PASS；原两个通过子例字节未变复用，未称最终四例全重跑或原轮全绿。
+
+作者三轮与独立两轮均actual wait、exact资源两扫absent、所属PID/starttime空、runtime空/monitor0及原2容器4网络不变；末轮9IDs74PID，五轮adopted wait均0，历史PPID1 Z单列未触碰、不计已回收。作者old01命名碰撞exit1、独立错误--run参数exit2均在资源前停止；清空间只处理六个非活动可重建GOCACHE，未删源或证据。第十文档检查器误解no-index exit1的准备记录保留，文档候选未为此改变。
+
+被审候选规格全文c48e3a…71c63缺精确副本，只保留原技术和接受页首全文73c7d5…81f4；不得重建推测旧页首。394逻辑原件以194个SHA对象与9Git引用去重，离线核十Git路径、621/886阶段闭包、881实际依赖及3501/3512原运行指纹，不复制完整树/缓存/依赖/二进制，不重跑产品。历史回执由候选创建，不证明跨二进制升级；受控SMTP不证明外部邮箱送达。
+
+SMTP UI、出站HTTP及完整D07/D27仍各自待验，D08–D28/E01未完成、E01未开始；Summary待决、Object/tools原停止、Artifact/Project及生产未绑定／ready503等边界保持。本次仅归位授权入口，不改旧报告、SMTPUI/出站卡或后端说明。

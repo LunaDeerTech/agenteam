@@ -1,0 +1,183 @@
+{
+  "checks": {
+    "build01": {
+      "command_sha256": "854efa1440fd87ddfdcd9575d71cd17254cebbea1ff8e1ec991c949cd49d8129",
+      "input_after_sha256": "83a97a68b67fa78f9b231ce3091c6e45b2949a0f25bfa62d912c83734c2478ed",
+      "input_before_sha256": "83a97a68b67fa78f9b231ce3091c6e45b2949a0f25bfa62d912c83734c2478ed",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "seconds": 16.246
+      },
+      "result_sha256": "47e267158cf517551ca400838bbdbdde5fb7a61e1b7163647c956e1d60391548"
+    },
+    "driver-gate01": {
+      "command_sha256": "a33ab70d18db1a28221dabbeb54237e7411d89c385cd96e42061c8eb26da7645",
+      "input_after_sha256": "c4e7dd260e4b3a8bd759faf70967e26186d7567009ed5a380d8c77bef3c26e8e",
+      "input_before_sha256": "c4e7dd260e4b3a8bd759faf70967e26186d7567009ed5a380d8c77bef3c26e8e",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "59e32446b54b432a37fa9aeb1017dfb10b5b9b939aa9f329b5d93c04647d6c07",
+        "seconds": 1.441
+      },
+      "result_sha256": "952fe64789ed8799c48a185001d05a198c6586dababfb4736b8b2c17a4ba162d"
+    },
+    "fixture-build01": {
+      "command_sha256": "48f160979bc458bf19774f86315881f913fdc3d65903949d39cf26e22f2ec980",
+      "input_after_sha256": "c4e7dd260e4b3a8bd759faf70967e26186d7567009ed5a380d8c77bef3c26e8e",
+      "input_before_sha256": "c4e7dd260e4b3a8bd759faf70967e26186d7567009ed5a380d8c77bef3c26e8e",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "seconds": 1.124
+      },
+      "result_sha256": "5997abe1699f380f4d03f0f04157843e79c9650d43d19eefb886016e98c61e42"
+    },
+    "integration-compile01": {
+      "command_sha256": "e5c00696716bb8e45f0bab4590a883556b5a08f490329b2553b95d97c9f19c0c",
+      "input_after_sha256": "da3b1dfddb1e4edd3eac8bb927b0bce10033555cdf3eaa42378e1ee5d1d0aa85",
+      "input_before_sha256": "da3b1dfddb1e4edd3eac8bb927b0bce10033555cdf3eaa42378e1ee5d1d0aa85",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "6e3afd3b3e6331471762d8733926e28f96b4aef3d6d960fcc81181ffb9cbb8d2",
+        "seconds": 10.718
+      },
+      "result_sha256": "c6ee1f3828dbafba57823ec9095fae898edbdd7ed8024432b3950897a7e19d11"
+    },
+    "integration-vet01": {
+      "command_sha256": "dbf0541de23f6fe98e86856c83477834341308f513661f931872547ecffe79a0",
+      "input_after_sha256": "c4e7dd260e4b3a8bd759faf70967e26186d7567009ed5a380d8c77bef3c26e8e",
+      "input_before_sha256": "c4e7dd260e4b3a8bd759faf70967e26186d7567009ed5a380d8c77bef3c26e8e",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "seconds": 4.215
+      },
+      "result_sha256": "60cd47f5da5e3a3f6984b97980b76dd6f0779dfaf6644f73e4230bf2ffda0371"
+    },
+    "new-minimal01": {
+      "command_sha256": "9680893d88f0b7253b5c8db19b93cbdea14a2b0a40f4edc5867f9d011f93b996",
+      "input_after_sha256": "5a3511ce614e835b908488e7632805c3167a044949e80396c965e4ff674b7d7a",
+      "input_before_sha256": "5a3511ce614e835b908488e7632805c3167a044949e80396c965e4ff674b7d7a",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "054fea04ef03738f5d522408ff1dca8a7d28aee1bdcaf6f4e4f76ab48ee0a370",
+        "seconds": 7.361
+      },
+      "result_sha256": "a71b3ae218907ca4068abe8581480dff841166fa4c59367499cdb69261ff6fc4"
+    },
+    "old01": {
+      "command_sha256": "9680893d88f0b7253b5c8db19b93cbdea14a2b0a40f4edc5867f9d011f93b996",
+      "input_after_sha256": "dc398768d5bd494b7b091383365c919b0de432f247922f1fa49784c13abd057d",
+      "input_before_sha256": "dc398768d5bd494b7b091383365c919b0de432f247922f1fa49784c13abd057d",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 1,
+        "input_unchanged": true,
+        "raw_sha256": "3c0c89566bb6d255ec2f4195183eb1b7cb690c19bb77a6289bd0f5dbd1aad4ab",
+        "seconds": 32.183
+      },
+      "result_sha256": "3ea5fbb16711c2abab350e20c0c0957812d12290fab1785b895bae74c65217df"
+    },
+    "pure01": {
+      "command_sha256": "893e2b30bd574a704f48cb6be08716b7f7c0449252225ebd638cf2ae0a454ef5",
+      "input_after_sha256": "83a97a68b67fa78f9b231ce3091c6e45b2949a0f25bfa62d912c83734c2478ed",
+      "input_before_sha256": "83a97a68b67fa78f9b231ce3091c6e45b2949a0f25bfa62d912c83734c2478ed",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 1,
+        "input_unchanged": true,
+        "raw_sha256": "2e6d45edd33d329107af43d2220717b6c22dacbde636acacfc20e04b4699c0be",
+        "seconds": 18.539
+      },
+      "result_sha256": "6e5d4fa179db262c4fc980d2f6d858486929b7d02f775007cd925ad0142c4bd9"
+    },
+    "pure02": {
+      "command_sha256": "82d9822215940d8ba606af3506bece6dce7a34bbb4d2e8fd7e0aaacac3714d46",
+      "input_after_sha256": "83a97a68b67fa78f9b231ce3091c6e45b2949a0f25bfa62d912c83734c2478ed",
+      "input_before_sha256": "83a97a68b67fa78f9b231ce3091c6e45b2949a0f25bfa62d912c83734c2478ed",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "75fe781d0045f62cc663514c23483aab73c2e89213be0049683b25c03ade91c6",
+        "seconds": 13.995
+      },
+      "result_sha256": "0884025dd8a587e73903dc51454bcbce0f7bdd785621a83a7935a820246c094a"
+    },
+    "race01": {
+      "command_sha256": "410416d325274c0675550aaa7151f27aa482d1028600ec47d31fd5d9ee0b4224",
+      "input_after_sha256": "83a97a68b67fa78f9b231ce3091c6e45b2949a0f25bfa62d912c83734c2478ed",
+      "input_before_sha256": "83a97a68b67fa78f9b231ce3091c6e45b2949a0f25bfa62d912c83734c2478ed",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "6883b86618fd763ccff304ea023cb43d72ec0d9405c8c98b60b8b8da56610240",
+        "seconds": 101.447
+      },
+      "result_sha256": "a7895a687463e000d94aca823262a5aa59e64d6c5602f368ad0fbf75e87341bc"
+    },
+    "runtime-discovery01": {
+      "command_sha256": "bf0c452e54c05ea24bf57535fe6bc549ee51b6e3391b6cc5602486eef1a2e486",
+      "input_after_sha256": "c4e7dd260e4b3a8bd759faf70967e26186d7567009ed5a380d8c77bef3c26e8e",
+      "input_before_sha256": "c4e7dd260e4b3a8bd759faf70967e26186d7567009ed5a380d8c77bef3c26e8e",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "5e26e853be2d9e4dae00eb3f8fb747acb0df71abf00af4f833e1069c61f0c484",
+        "seconds": 24.055
+      },
+      "result_sha256": "520166601219b3ce0438cf16619446312da83409ad1d7b14e2f483571c9917ad"
+    },
+    "vet01": {
+      "command_sha256": "2779d054f35f16d4caa70fd183ce7ad12da2b58d1c6808b7ea252e2d9d93be7f",
+      "input_after_sha256": "83a97a68b67fa78f9b231ce3091c6e45b2949a0f25bfa62d912c83734c2478ed",
+      "input_before_sha256": "83a97a68b67fa78f9b231ce3091c6e45b2949a0f25bfa62d912c83734c2478ed",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "seconds": 14.039
+      },
+      "result_sha256": "d929e1bee67787b9533551d25ee5bd92ca6182a9d5f1b05516d2c15be6faf63e"
+    }
+  },
+  "core_independent_report": {
+    "path": "/workspace/scratch/agenteam-email-core-independent-o5abw2d6/review.md",
+    "sha256": "e3c8445b222706f0b263da6c948f4b66a243d822bd48e62b619a90cc93d14e6f"
+  },
+  "driver_manifest": {
+    "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/driver-stage01/input.json",
+    "sha256": "d1b672a8ecef6258cfa84e86bfaaaa282c3dbebbba60dbb2dab73dae8430e016"
+  },
+  "input_manifest": {
+    "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/input01/manifest.json",
+    "sha256": "e2882f0a9c6458127d09034309540ab04b7c7257f6d92d931c1d832a5ae1c26a"
+  },
+  "nine_sources_stopped": true,
+  "product_base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "resources_started": false,
+  "scope_limits": [
+    "No formal HTTP/DB/SMTP scenario yet; integration compilation is not behavior evidence.",
+    "Candidate-created historical receipts will not be labelled cross-binary upgrade.",
+    "Fixture wire/message observations will report only matches and counts, not addresses, raw messages or hashes.",
+    "Tenth backend document and shared-main synchronization remain unauthorized."
+  ],
+  "shared_repository_writes": false,
+  "status": "OFFLINE READY; real scenarios not executed"
+}

@@ -1,0 +1,24 @@
+package accountmail
+
+import (
+	"testing"
+
+	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+)
+
+func TestSMTPMessageCanonicalReentry(t *testing.T) {
+	process, err := foundation.NewID[c.Process]()
+	if err != nil {
+		t.Fatal("process identity")
+	}
+	registry, err := NewWorkRegistry(registryProcess{process})
+	if err != nil {
+		t.Fatal("registry")
+	}
+	worker := &Worker{func() *Dependencies { return &Dependencies{PublicOrigin: "https://accounts.example.test"} }}
+	fields := c.DeliveryMaterialFields{Attempt: registryAttempt(t, registry), SenderEmail: "sender@[ipv6:2001:db8::7]", Recipient: "recipient@[ipv6:2001:db8::8]"}
+	if _, err := worker.message(fields); err != nil {
+		t.Fatal("canonical SMTP addresses cannot prepare a message")
+	}
+}

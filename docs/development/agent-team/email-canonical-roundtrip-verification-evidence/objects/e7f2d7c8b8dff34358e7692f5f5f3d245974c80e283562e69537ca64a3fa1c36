@@ -1,0 +1,13 @@
+邮箱独立 independent01 原失败归因（本文件冻结后不追改原结果）。
+
+实际 driver exit 1 / 123.034s，两个顶层均 FAIL。9 exact ID 两遍 absent，120 owned PID/starttime 清零、0 adopted wait/monitor，runtime 空、原基线和 9/881/14/3512 输入未变。command/result/cleanup/raw 原件位于 runs/independent01。
+
+A/http-original-history 在私有 L142 的 guest.bootstrap() 报通用 anonymous context or recovery channel unavailable。固定 helper http_fixture_test.go:242–249 要求 backend_log；此前本例已正式配置 SMTP，而固定 http_facade.go:137–146 对 configured=true 返回 smtp。该 helper 用于默认未配置场景，私有探针此处误复用。原日志未输出 bootstrap body，不能倒填本轮具体条件取值。此前原 body/key/CSRF 历史重放、canonical 编辑、精确 command/Audit/MAC 和混合标记 INVALID_ARGUMENT 已到达；匿名 401、错误 CSRF403 及尾部不变断言未到达，A不能计PASS。
+
+A/formal-test-intent 全部 PASS（2.80s）：TestSMTP 正规化、同key同Job、原MAC、exact command/Audit/intent/event/job均已真实到达。
+
+B/expanded-ipv6 在 testing.TempDir/newAccount 准备时报 ENOSPC，未到该例投递，不能计wire PASS。B/prefixed-ipv4-and-mapped 全部 PASS（2.08s）：独立MAIL/RCPT/完整消息golden、canonical持久化、实际关闭、terminal/io_joined、租约释放和唯一投递均到达。
+
+主线程报告当时32G overlay使用98%仅782MB，/tmp8.8G可用且非inode耗尽；本轮清理后又仅回收六个已验归档且/proc无GOCACHE引用的可重建缓存，使可用恢复9.3GiB。删除前的README文案校验曾exit1且零删除，纠正校验后成功；源/日志/归档/bin/modcache及活动缓存未改。本agent只读df时见中间4.4G可用；不将主线程最终空间事实或清理当作重跑结果。
+
+建议最小后续：仅私有bootstrap调用改真实GET200+非空匿名CSRF+精确smtp，保留原401/403与全部历史和wire断言；只选 A/http-original-history、B/expanded-ipv6，两个已过子例按原字节复用。尚未修源或重跑，待根授权。

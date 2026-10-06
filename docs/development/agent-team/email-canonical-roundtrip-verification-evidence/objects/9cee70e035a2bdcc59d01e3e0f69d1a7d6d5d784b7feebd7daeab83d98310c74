@@ -1,0 +1,9 @@
+邮箱 canonical roundtrip 九候选独立验收 PASS，可交主线程整合。固定 input01 SHA e2882f0a9c6458127d09034309540ab04b7c7257f6d92d931c1d832a5ae1c26a；九路径及逐 SHA 见 verification-report.json.delivery9，并与作者 author-delivery9.json（c1f92a1365fee883daaee34b1636965785f63d54d60821d3a669fd1116eeb6c6）一致。两生产、两纯测试、三集成测试及两 SMTP fixture 共九源均停止写入；第十文档另由作者和主线程处理。
+
+静审和两独立离线代表已经通过：固定原 S 函数 oracle、旧输出及规范化边界；独立完整 envelope/header/message golden 和坏材料拒绝。原 core/harness 简报及精确命令/raw/SHA 在 JSON 的 stages 中复用，不重跑已过矩阵。作者正式 Account/HTTP、四 wire 子例及原 none/STARTTLS/TLS 三模式均已实际退出并双清，已独立读取固定报告与三轮 command/result/cleanup。
+
+独立真实结果按子例组合：independent01 的 formal-test-intent（2.80s）和 prefixed-ipv4-and-mapped（2.08s）完整 PASS；independent02 仅重跑 http-original-history（2.27s）与 expanded-ipv6（2.23s），均完整 PASS。原请求 bytes/key/合法 CSRF、历史 applied/current 分离、精确 Account 自身 command digest/Audit record ID 与原 MAC、同 key 原 job/intent/event 唯一事实、独立整行 MAIL/RCPT/完整消息、实际关闭及 terminal/io_joined/租约释放都实际到达。两个复用子例相关源码逐字节未变。
+
+independent02 actual exit 0 / 72.577s：9 exact ID 两扫 absent、74 owned PID/starttime 清零、0 adopted wait/monitor，runtime 空、原基线及 9候选/881接受/14私有/3512运行输入不变。原 independent01 actual exit 1 / 123.034s 仍保留，9 ID/120 PID 同样双清；不得称原轮全绿。原失败分别是私有 guest.bootstrap 强求 backend_log、expanded 子例 TempDir 的 ENOSPC；仅前者私有调用修为真实 200+非空匿名 CSRF+smtp，原401/403等否例未削。另保留最初 --run 参数 exit2及勘误，均非产品缺陷。
+
+限制：历史回执由候选创建，未做跨二进制升级实验；线报文由任务自有 SMTP 端点验证，不声称外部邮箱送达。原 race/count1/package6m、私有2m及HTTP helper每请求20s保持。SMTP UI尚待其独立组合验收，本报告不代替UI接受。所有列出原件已永久停写，当前没有活动命令或自有资源；未作产品/Git变更。

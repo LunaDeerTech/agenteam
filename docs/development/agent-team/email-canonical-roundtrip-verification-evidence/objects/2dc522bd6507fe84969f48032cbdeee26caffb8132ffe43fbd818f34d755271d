@@ -1,0 +1,84 @@
+{
+  "document_sha256": "a3e6da5c99d5ba1564c9df88d88a907c8e53251015d9523dda9eacdeedc0ea22",
+  "fixed_link_base": "7e2a7d60cca7f8d5187026718e213e1b7334a6e1",
+  "utf8_lf_final_newline": true,
+  "trailing_whitespace": false,
+  "headings_and_fences_valid": true,
+  "links": [
+    {
+      "target": "accountmail.md",
+      "resolved": "docs/development/backend/accountmail.md",
+      "status": "fixed accepted target and fragment verified"
+    },
+    {
+      "target": "../work-items/d07-account-session-smtp-design.md",
+      "resolved": "docs/development/work-items/d07-account-session-smtp-design.md",
+      "status": "fixed accepted target and fragment verified"
+    },
+    {
+      "target": "../work-items/d07-account-session-smtp.md",
+      "resolved": "docs/development/work-items/d07-account-session-smtp.md",
+      "status": "fixed accepted target and fragment verified"
+    },
+    {
+      "target": "../../../deploy/central.env.example",
+      "resolved": "deploy/central.env.example",
+      "status": "fixed accepted target and fragment verified"
+    },
+    {
+      "target": "../../../api/openapi/account.json",
+      "resolved": "api/openapi/account.json",
+      "status": "fixed accepted target and fragment verified"
+    },
+    {
+      "target": "README.md#停止与退出",
+      "resolved": "docs/development/backend/README.md",
+      "status": "fixed accepted target and fragment verified"
+    },
+    {
+      "target": "../work-items/d07-email-canonical-roundtrip.md",
+      "resolved": "docs/development/work-items/d07-email-canonical-roundtrip.md",
+      "status": "fixed accepted target and fragment verified"
+    },
+    {
+      "target": "../../../tests/account-captcha-web/README.md",
+      "resolved": "tests/account-captcha-web/README.md",
+      "status": "fixed accepted target and fragment verified"
+    },
+    {
+      "target": "README.md",
+      "resolved": "docs/development/backend/README.md",
+      "status": "fixed accepted target and fragment verified"
+    },
+    {
+      "target": "../work-items/d07-account-session-smtp.md#当前进度",
+      "resolved": "docs/development/work-items/d07-account-session-smtp.md",
+      "status": "fixed accepted target and fragment verified"
+    },
+    {
+      "target": "../agent-team/email-canonical-roundtrip-verification.md",
+      "resolved": "docs/development/agent-team/email-canonical-roundtrip-verification.md",
+      "status": "root-confirmed forward report target; documentation agent owns pending materialization"
+    }
+  ],
+  "diff_check": {
+    "command": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/documentation/original/docs/development/backend/account.md",
+      "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/documentation/source/docs/development/backend/account.md"
+    ],
+    "exit": 1,
+    "accepted": true,
+    "interpretation": "--no-index returns 1 for the intended diff; --check emitted no diagnostics",
+    "stdout": "",
+    "stderr": ""
+  },
+  "limits": [
+    "One explicitly authorized forward report link is pending documentation-owner materialization; not claimed as already present."
+  ],
+  "product_tests_rerun": false
+}

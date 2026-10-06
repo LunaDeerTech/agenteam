@@ -1,0 +1,86 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"testing"
+)
+
+// This is a candidate-created historical receipt, not a cross-binary upgrade.
+func TestAccountHTTPEmailCanonicalRoundTrip(t *testing.T) {
+	f := newHTTPFixture(t)
+	admin := f.admin()
+	member := f.invite(admin, "email-closure-member@example.test", "email-closure-member")
+	guest := f.browser()
+	guest.bootstrap()
+	guest.request("GET", "/api/v1/system/smtp", nil, "", "").problem(t, 401, "UNAUTHENTICATED")
+	before := admin.request("GET", "/api/v1/system/smtp", nil, "", "").want(t, 200).object(t)
+	const original = "Sender@[IPv6:2001:DB8::7]"
+	const canonical = "sender@[ipv6:2001:db8::7]"
+	firstBody := map[string]any{"version": before["version"], "host": "first.example.test", "port": 2525, "encryption": "none", "username": "", "sender_email": original, "sender_name": "", "credential_action": "keep", "auto_retry_count": "0", "retry_interval_seconds": "10"}
+	key := id[struct{}](t).String()
+	first := admin.request("PUT", "/api/v1/system/smtp", firstBody, key, admin.csrf).want(t, 200).object(t)
+	firstSettings := httpObject(t, first, "settings")
+	if firstSettings["sender_email"] != canonical || firstSettings["host"] != "first.example.test" {
+		t.Fatal("first SMTP canonical projection")
+	}
+	conn := f.db.Connect(t)
+	var command string
+	var mac []byte
+	if err := conn.QueryRow(ctxFor(t), `SELECT id::text,semantic_mac FROM agenteam_account.commands WHERE namespace='account.smtp' AND command_key=$1 AND phase='committed'`, key).Scan(&command, &mac); err != nil {
+		t.Fatal("first command fact", err)
+	}
+	defer clear(mac)
+	observed := admin.request("GET", "/api/v1/system/smtp", nil, "", "").want(t, 200).object(t)
+	if observed["sender_email"] != canonical || observed["version"] != firstSettings["version"] {
+		t.Fatal("GET lost canonical")
+	}
+	secondBody := make(map[string]any, len(firstBody))
+	for k, v := range firstBody {
+		secondBody[k] = v
+	}
+	secondBody["version"], secondBody["host"], secondBody["sender_email"] = observed["version"], "second.example.test", observed["sender_email"]
+	second := admin.request("PUT", "/api/v1/system/smtp", secondBody, id[struct{}](t).String(), admin.csrf).want(t, 200).object(t)
+	secondSettings := httpObject(t, second, "settings")
+	if secondSettings["host"] != "second.example.test" || secondSettings["sender_email"] != canonical || second["applied_version"] == first["applied_version"] {
+		t.Fatal("GET-edit-PUT roundtrip")
+	}
+	// Keep the first body untouched. The second replay is a separate semantic
+	// equivalence probe, not mutation of a pending user's request.
+	equivalent := make(map[string]any, len(firstBody))
+	for k, v := range firstBody {
+		equivalent[k] = v
+	}
+	equivalent["sender_email"] = canonical
+	for _, body := range []map[string]any{firstBody, equivalent} {
+		replay := admin.request("PUT", "/api/v1/system/smtp", body, key, admin.csrf).want(t, 200).object(t)
+		current := httpObject(t, replay, "settings")
+		if replay["applied_version"] != first["applied_version"] || current["version"] != secondSettings["version"] || current["host"] != "second.example.test" || current["sender_email"] != canonical {
+			t.Fatal("historical receipt changed current SMTP settings")
+		}
+	}
+	var afterMAC []byte
+	var commands, audits int
+	if err := conn.QueryRow(ctxFor(t), `SELECT semantic_mac,(SELECT count(*) FROM agenteam_account.commands WHERE namespace='account.smtp' AND command_key=$2),(SELECT count(*) FROM agenteam_audit.audit_records WHERE action='smtp.settings.update' AND cause_ref=$1) FROM agenteam_account.commands WHERE id=$1`, command, key).Scan(&afterMAC, &commands, &audits); err != nil || !bytes.Equal(mac, afterMAC) || commands != 1 || audits != 1 {
+		t.Fatal("original SMTP command/MAC/Audit changed", err)
+	}
+	clear(afterMAC)
+	for _, invalid := range []string{"sender@[iPv6:2001:db8::7]", "Sender@[ipv6:2001:db8::7]", "sender@[ipv6:2001:DB8::7]", "sender@example.test\r\nBcc: x@invalid.test"} {
+		bad := make(map[string]any, len(secondBody))
+		for k, v := range secondBody {
+			bad[k] = v
+		}
+		bad["version"], bad["sender_email"] = secondSettings["version"], invalid
+		admin.request("PUT", "/api/v1/system/smtp", bad, id[struct{}](t).String(), admin.csrf).problem(t, 400, "INVALID_ARGUMENT")
+	}
+	secondBody["version"] = secondSettings["version"]
+	admin.request("PUT", "/api/v1/system/smtp", secondBody, id[struct{}](t).String(), guest.anonymousCSRF).problem(t, 403, "CSRF_FAILED")
+	member.request("PUT", "/api/v1/system/smtp", secondBody, id[struct{}](t).String(), member.csrf).problem(t, 403, "FORBIDDEN")
+	var stored string
+	var total int
+	if err := conn.QueryRow(ctxFor(t), `SELECT from_address,(SELECT count(*) FROM agenteam_account.commands WHERE namespace='account.smtp') FROM agenteam_account.smtp_settings WHERE singleton`).Scan(&stored, &total); err != nil || stored != canonical || total != 2 {
+		t.Fatal("rejected inputs changed SMTP facts", err)
+	}
+	t.Log("canonical GET/edit/PUT, original receipt/MAC/Audit and authority/CSRF checks passed")
+}

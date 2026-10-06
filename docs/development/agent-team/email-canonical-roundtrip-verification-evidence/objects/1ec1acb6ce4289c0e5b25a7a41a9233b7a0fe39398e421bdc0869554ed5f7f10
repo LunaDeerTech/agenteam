@@ -1,0 +1,73 @@
+import argparse
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import time
+
+ROOT = Path(__file__).resolve().parent
+FIXED = json.loads((ROOT / 'fixed-inputs.json').read_text())
+GO = '/workspace/toolchains/go1.27.1/bin/go'
+p = argparse.ArgumentParser()
+p.add_argument('name')
+p.add_argument('mode', choices=['graph', 'pure'])
+a = p.parse_args()
+run = ROOT / 'checks' / a.name
+run.mkdir()
+paths = dict(FIXED['sources'])
+for path in [ROOT / 'fixed-inputs.json', ROOT / 'overlay.json', ROOT / 'run-check.py', ROOT / 'baseline-validation.go.txt', *sorted((ROOT / 'probe').glob('*.go'))]:
+    paths[str(path)] = hashlib.sha256(path.read_bytes()).hexdigest()
+paths[GO] = hashlib.sha256(Path(GO).read_bytes()).hexdigest()
+
+def fingerprint():
+    return {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in sorted(paths)}
+
+before = fingerprint()
+assert before == paths, 'fixed input changed before invocation'
+(run / 'input-before.json').write_text(json.dumps(before, indent=2) + '\n')
+env = os.environ.copy()
+owned = {'GOTOOLCHAIN': 'local', 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOFLAGS': '-mod=readonly', 'GOENV': 'off', 'GOWORK': 'off', 'GOMODCACHE': '/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache', 'GOCACHE': str(ROOT / 'gocache'), 'GOTMPDIR': str(ROOT / 'tmp'), 'TMPDIR': str(ROOT / 'tmp'), 'NO_COLOR': '1'}
+env.update(owned)
+overlay = ['-overlay', str(ROOT / 'overlay.json')]
+packages = ['./internal/central/account', './internal/central/accountmail']
+if a.mode == 'graph':
+    argv = [GO, 'list', *overlay, '-deps', '-test', '-json', *packages]
+else:
+    argv = [GO, 'test', *overlay, *packages, '-run', '^(TestIndependentEmailCanonicalSetAndGolden|TestIndependentEmailWireGoldenAndMaterial)$', '-count=1', '-timeout=45s', '-v']
+record = {'argv': argv, 'cwd': FIXED['workspace'], 'env': owned, 'started_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'mode': a.mode, 'real_resources': False}
+(run / 'command.json').write_text(json.dumps(record, indent=2) + '\n')
+start = time.monotonic()
+with (run / 'raw.log').open('wb') as out, (run / 'stderr.log').open('wb') as err:
+    process = subprocess.Popen(argv, cwd=FIXED['workspace'], env=env, stdout=out, stderr=err)
+    code = process.wait()
+after = fingerprint()
+(run / 'input-after.json').write_text(json.dumps(after, indent=2) + '\n')
+record.update({'pid': process.pid, 'actual_wait': True, 'exit_code': code, 'seconds': round(time.monotonic() - start, 3), 'input_unchanged': before == after, 'raw_sha256': hashlib.sha256((run / 'raw.log').read_bytes()).hexdigest(), 'stderr_sha256': hashlib.sha256((run / 'stderr.log').read_bytes()).hexdigest()})
+if a.mode == 'graph' and code == 0:
+    raw = (run / 'raw.log').read_text()
+    decoder = json.JSONDecoder()
+    packages_seen, actual = [], set()
+    while raw.strip():
+        raw = raw.lstrip()
+        pkg, n = decoder.raw_decode(raw)
+        raw = raw[n:]
+        if pkg.get('Standard') or not pkg.get('Module', {}).get('Main'):
+            continue
+        if pkg.get('ImportPath', '').endswith('.test'):
+            continue  # Generated test main; source packages below remain gated.
+        packages_seen.append(pkg['ImportPath'])
+        for field in ['GoFiles', 'CgoFiles', 'CFiles', 'CXXFiles', 'HFiles', 'SFiles', 'SysoFiles', 'EmbedFiles', 'TestGoFiles', 'XTestGoFiles', 'TestEmbedFiles', 'XTestEmbedFiles']:
+            for file in pkg.get(field, []):
+                actual.add(str((Path(pkg['Dir']) / file).resolve()))
+    replacements = json.loads((ROOT / 'overlay.json').read_text())['Replace']
+    unknown = sorted(path for path in actual if replacements.get(path, path) not in paths)
+    gate = {'main_packages': sorted(set(packages_seen)), 'actual_file_count': len(actual), 'unknown_files': unknown, 'no_integration_package': all('/tests/account' not in path for path in actual), 'all_bound': not unknown}
+    (run / 'graph-gate.json').write_text(json.dumps(gate, indent=2) + '\n')
+    record['graph_gate'] = {key: gate[key] for key in ['actual_file_count', 'unknown_files', 'no_integration_package', 'all_bound']}
+    if unknown or not gate['no_integration_package']:
+        record['gate_failure'] = True
+(run / 'result.json').write_text(json.dumps(record, indent=2) + '\n')
+print(json.dumps({key: record[key] for key in ['pid', 'actual_wait', 'exit_code', 'seconds', 'input_unchanged', 'raw_sha256']}, ensure_ascii=False), flush=True)
+raise SystemExit(code if code else (0 if before == after and not record.get('gate_failure') else 2))

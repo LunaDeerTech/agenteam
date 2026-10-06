@@ -1,0 +1,211 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"io"
+	"net/http"
+	"reflect"
+	"testing"
+	"time"
+
+	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/jackc/pgx/v5"
+)
+
+type independentEmailCommandFact struct {
+	id, kid string
+	mac     []byte
+}
+
+// Account identities use sha256(Canonical()), and Audit cause_ref is the
+// committed Account command's UUID. Neither is Model's cursor digest.
+func independentEmailCommand(t *testing.T, ctx context.Context, conn *pgx.Conn, owner, key, name, action, resource string) independentEmailCommandFact {
+	t.Helper()
+	identity, err := foundation.NewCommandIdentity("account.smtp", []string{owner}, name, foundation.IdempotencyKey(key))
+	if err != nil {
+		t.Fatal("private command identity prerequisite")
+	}
+	digest := sha256.Sum256([]byte(identity.Canonical()))
+	var fact independentEmailCommandFact
+	var commands, audits int
+	err = conn.QueryRow(ctx, `SELECT c.id::text,c.semantic_kid,c.semantic_mac,
+ (SELECT count(*) FROM agenteam_account.commands WHERE identity_digest=$1),
+ (SELECT count(*) FROM agenteam_audit.audit_records a WHERE a.scope='system' AND a.producer='account' AND a.cause_ref=c.id::text AND a.ordinal=0 AND a.action=$5 AND a.outcome='success' AND a.user_id=$2::uuid AND a.resource_id=$4::uuid)
+ FROM agenteam_account.commands c WHERE c.namespace='account.smtp' AND c.identity_digest=$1 AND c.owner_id=$2::uuid AND c.command_name=$3 AND c.command_key=$6 AND c.phase='committed'`,
+		"sha256:"+hex.EncodeToString(digest[:]), owner, name, resource, action, key).Scan(&fact.id, &fact.kid, &fact.mac, &commands, &audits)
+	if err != nil || commands != 1 || audits != 1 || len(fact.mac) != 32 || fact.kid == "" {
+		t.Fatalf("private exact Account facts failed error=%t commands=%d audits=%d", err != nil, commands, audits)
+	}
+	return fact
+}
+
+func independentEmailSameCommand(t *testing.T, a, b independentEmailCommandFact) {
+	t.Helper()
+	if a.id != b.id || a.kid != b.kid || !bytes.Equal(a.mac, b.mac) {
+		t.Fatal("original command or semantic MAC changed")
+	}
+}
+
+func TestIndependentEmailHistoryAndTestIntent(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	t.Run("http-original-history", func(t *testing.T) {
+		f := newHTTPFixture(t)
+		admin := f.admin()
+		session := admin.request("GET", "/api/v1/session", nil, "", "").want(t, 200).object(t)
+		owner := httpString(t, httpObject(t, session, "user"), "id")
+		before := admin.request("GET", "/api/v1/system/smtp", nil, "", "").want(t, 200).object(t)
+		const rawSender = "Original@[IPv6:192.0.2.17]"
+		const canonical = "original@[ipv6:192.0.2.17]"
+		body := map[string]any{"version": before["version"], "host": "first.example.test", "port": 2525, "encryption": "none", "username": "", "sender_email": rawSender, "sender_name": "Independent sender", "credential_action": "keep", "auto_retry_count": "0", "retry_interval_seconds": "10"}
+		original, err := json.Marshal(body)
+		if err != nil {
+			t.Fatal("private body encoding")
+		}
+		defer clear(original)
+		originalDigest := sha256.Sum256(original)
+		key, csrf := id[struct{}](t).String(), admin.csrf
+		originalCalls := 0
+		sendOriginal := func() map[string]any {
+			return admin.raw("PUT", "/api/v1/system/smtp", original, func(r *http.Request) {
+				*r = *r.WithContext(ctx)
+				r.Header.Set("Idempotency-Key", key)
+				r.Header.Set("X-CSRF-Token", csrf)
+				copyReader, err := r.GetBody()
+				if err != nil {
+					t.Fatal("original body observation")
+				}
+				copyBytes, readErr := io.ReadAll(copyReader)
+				closeErr := copyReader.Close()
+				same := readErr == nil && closeErr == nil && bytes.Equal(copyBytes, original) && sha256.Sum256(copyBytes) == originalDigest && r.Header.Get("Idempotency-Key") == key && r.Header.Get("X-CSRF-Token") == csrf
+				clear(copyBytes)
+				if !same {
+					t.Fatal("original raw body/key/CSRF changed")
+				}
+				originalCalls++
+			}).want(t, 200).object(t)
+		}
+		first := sendOriginal()
+		firstSettings := httpObject(t, first, "settings")
+		if len(first) != 2 || len(firstSettings) != 12 || firstSettings["sender_email"] != canonical {
+			t.Fatal("initial strict canonical result")
+		}
+		resource := httpString(t, firstSettings, "id")
+		conn := f.db.Connect(t)
+		initialFact := independentEmailCommand(t, ctx, conn, owner, key, "smtp-settings-update", "smtp.settings.update", resource)
+		defer clear(initialFact.mac)
+		observed := admin.request("GET", "/api/v1/system/smtp", nil, "", "").want(t, 200).object(t)
+		if !reflect.DeepEqual(observed, firstSettings) {
+			t.Fatal("GET did not preserve complete canonical settings")
+		}
+		secondBody := make(map[string]any, len(body))
+		for k, v := range body {
+			secondBody[k] = v
+		}
+		secondBody["version"], secondBody["host"], secondBody["sender_email"] = observed["version"], "second.example.test", observed["sender_email"]
+		second := admin.request("PUT", "/api/v1/system/smtp", secondBody, id[struct{}](t).String(), admin.csrf).want(t, 200).object(t)
+		current := httpObject(t, second, "settings")
+		if current["sender_email"] != canonical || current["host"] != "second.example.test" || second["applied_version"] == first["applied_version"] {
+			t.Fatal("canonical edit did not create new accepted version")
+		}
+		replayed := sendOriginal()
+		if replayed["applied_version"] != first["applied_version"] || !reflect.DeepEqual(httpObject(t, replayed, "settings"), current) || originalCalls != 2 {
+			t.Fatal("original receipt/current separation")
+		}
+		// Separate equivalent-input probe; never rewrites the original pending body.
+		equivalent := make(map[string]any, len(body))
+		for k, v := range body {
+			equivalent[k] = v
+		}
+		equivalent["sender_email"] = canonical
+		again := admin.request("PUT", "/api/v1/system/smtp", equivalent, key, csrf).want(t, 200).object(t)
+		if again["applied_version"] != first["applied_version"] || !reflect.DeepEqual(httpObject(t, again, "settings"), current) || sha256.Sum256(original) != originalDigest {
+			t.Fatal("canonical equivalence changed original or current")
+		}
+		finalFact := independentEmailCommand(t, ctx, conn, owner, key, "smtp-settings-update", "smtp.settings.update", resource)
+		defer clear(finalFact.mac)
+		independentEmailSameCommand(t, initialFact, finalFact)
+		bad := make(map[string]any, len(secondBody))
+		for k, v := range secondBody {
+			bad[k] = v
+		}
+		bad["version"], bad["sender_email"] = current["version"], "original@[iPv6:192.0.2.17]"
+		admin.request("PUT", "/api/v1/system/smtp", bad, id[struct{}](t).String(), csrf).problem(t, 400, "INVALID_ARGUMENT")
+		guest := f.browser()
+		guestBootstrap := guest.request("GET", "/api/v1/auth/bootstrap", nil, "", "").want(t, 200).object(t)
+		guest.anonymousCSRF, _ = guestBootstrap["csrf_token"].(string)
+		if guest.anonymousCSRF == "" || guestBootstrap["delivery_channel"] != "smtp" {
+			t.Fatal("configured SMTP anonymous bootstrap prerequisite")
+		}
+		guest.request("GET", "/api/v1/system/smtp", nil, "", "").problem(t, 401, "UNAUTHENTICATED")
+		secondBody["version"] = current["version"]
+		admin.request("PUT", "/api/v1/system/smtp", secondBody, id[struct{}](t).String(), guest.anonymousCSRF).problem(t, 403, "CSRF_FAILED")
+		last := admin.request("GET", "/api/v1/system/smtp", nil, "", "").want(t, 200).object(t)
+		if !reflect.DeepEqual(last, current) {
+			t.Fatal("rejected writes changed current settings")
+		}
+		lastFact := independentEmailCommand(t, ctx, conn, owner, key, "smtp-settings-update", "smtp.settings.update", resource)
+		defer clear(lastFact.mac)
+		independentEmailSameCommand(t, initialFact, lastFact)
+		t.Log("safe HTTP original_bytes_key_csrf=true canonical_edit=true historical_current=true exact_command_audit=1 mac_unchanged=true rejected_zero_change=true")
+	})
+	t.Run("formal-test-intent", func(t *testing.T) {
+		f := newB02Account(t)
+		admin := b02Admin(t, f)
+		settings, err := f.service.GetSMTPSettings(ctx, admin)
+		if err != nil {
+			t.Fatal("SMTP configuration read")
+		}
+		configuration, err := c.NewSMTPUpdate(c.SMTPUpdateFields{Actor: admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), ExpectedVersion: settings.Version, Configured: true, Host: "mail.example.test", Port: 2525, TLSMode: "none", SenderEmail: "sender@[ipv6:2001:db8::7]", RetryCount: 0, RetryIntervalSeconds: 10})
+		if err != nil {
+			t.Fatal("canonical configuration prerequisite")
+		}
+		if _, err = f.service.UpdateSMTPSettings(ctx, configuration); err != nil {
+			t.Fatal("canonical configuration commit")
+		}
+		request := c.SMTPTest{Actor: admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Recipient: "Recipient@[IPv6:192.0.2.29]"}
+		const canonical = "recipient@[ipv6:192.0.2.29]"
+		accepted, err := f.service.TestSMTP(ctx, request)
+		if err != nil || accepted.Phase != "enqueue_pending" {
+			t.Fatal("formal second normalization admission")
+		}
+		conn := f.db.Connect(t)
+		initial := independentEmailCommand(t, ctx, conn, admin.Details().UserID, string(request.Key), "smtp-test", "smtp.test.request", accepted.JobID.String())
+		defer clear(initial.mac)
+		if _, err = f.service.ReconcileDeliveryIntents(ctx); err != nil {
+			t.Fatal("formal intent reconciliation")
+		}
+		equivalent := request
+		equivalent.Recipient = canonical
+		for _, replay := range []c.SMTPTest{request, equivalent} {
+			got, err := f.service.TestSMTP(ctx, replay)
+			if err != nil || got.JobID != accepted.JobID || got.Phase != "pending" || got.Attempts != 0 {
+				t.Fatal("same-key original/equivalent test replay")
+			}
+		}
+		final := independentEmailCommand(t, ctx, conn, admin.Details().UserID, string(request.Key), "smtp-test", "smtp.test.request", accepted.JobID.String())
+		defer clear(final.mac)
+		independentEmailSameCommand(t, initial, final)
+		var intents, events, jobs int
+		var stored string
+		err = conn.QueryRow(ctx, `SELECT i.recipient,
+ (SELECT count(*) FROM agenteam_account.delivery_intents WHERE id=$1::uuid),
+ (SELECT count(*) FROM agenteam_outbox.events WHERE id=$1::uuid),
+ (SELECT count(*) FROM agenteam_account.mail_jobs WHERE intent_id=$1::uuid AND id=$2::uuid)
+ FROM agenteam_account.delivery_intents i WHERE i.id=$1::uuid AND i.job_id=$2::uuid`, initial.id, accepted.JobID.String()).Scan(&stored, &intents, &events, &jobs)
+		if err != nil || stored != canonical || intents != 1 || events != 1 || jobs != 1 {
+			t.Fatalf("exact intent facts error=%t intents=%d events=%d jobs=%d", err != nil, intents, events, jobs)
+		}
+		t.Log("safe second_normalization=true same_job=true exact_command_audit_intent_event_job=1 original_mac_unchanged=true")
+	})
+	if ctx.Err() != nil {
+		t.Fatal("independent A original 2m budget exhausted")
+	}
+}

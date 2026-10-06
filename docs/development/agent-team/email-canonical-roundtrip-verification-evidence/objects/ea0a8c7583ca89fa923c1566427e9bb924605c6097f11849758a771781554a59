@@ -1,0 +1,20 @@
+--- driver01
++++ driver02
+@@ -18,7 +18,7 @@
+ ROOT = Path(__file__).resolve().parent
+ AUTHOR_ROOT = Path('/workspace/scratch/agenteam-email-canonical-author-s5egqsel')
+ REPO = AUTHOR_ROOT / 'workspace'
+-OVERLAY = ROOT / 'overlay.json'
++OVERLAY = ROOT / 'overlay02.json'
+ GIT_REPO = Path('/workspace/agenteam')
+ BASE = '819aba1b8f764328f1e2e67b53c274fad0db877d'
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
+@@ -298,7 +298,7 @@
+     if str(Path(args.modcache).resolve()) != MODCACHE:
+         raise ValueError('modcache differs from frozen runtime')
+     expected = set(groups[args.group])
+-    args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
++    args.selector = '^(' + '|'.join(groups[args.group]) + ')$/^(http-original-history|expanded-ipv6)$'
+     frozen_bytes = args.frozen.read_bytes()
+     FROZEN = json.loads(frozen_bytes)
+     if FROZEN['product_base'] != BASE:

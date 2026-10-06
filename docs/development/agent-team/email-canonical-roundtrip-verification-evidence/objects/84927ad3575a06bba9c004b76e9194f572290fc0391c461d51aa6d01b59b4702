@@ -1,0 +1,25 @@
+{
+  "record_source": "exec_command returned result, captured after actual completion; not a fixture run record",
+  "argv": [
+    "python3",
+    "run-email-canonical-fixture.py",
+    "--name",
+    "old01",
+    "--group",
+    "old",
+    "--frozen",
+    "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/driver-stage01/input.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--execute-authorized"
+  ],
+  "cwd": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel",
+  "actual_exit": 1,
+  "tool_chunk_id": "9b2b39",
+  "tool_wall_time_seconds": 2.2494e-05,
+  "failure": "FileExistsError at run.mkdir, driver line 311; runs/old01 already contains the original pure RED",
+  "resources_started": false,
+  "fixture_child_started": false,
+  "original_old01_command_result_raw_unchanged": true,
+  "followup": "Root authorized only run name old-smtp01; no source, driver, selector or budget change"
+}

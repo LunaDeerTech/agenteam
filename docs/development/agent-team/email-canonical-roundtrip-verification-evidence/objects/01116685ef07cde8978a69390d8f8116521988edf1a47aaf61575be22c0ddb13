@@ -1,0 +1,23 @@
+import importlib.util
+import json
+import hashlib
+import sys
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+root = Path(__file__).resolve().parent
+spec = importlib.util.spec_from_file_location('owned_independent_driver', root / 'run-independent02.py')
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+seed = json.loads((root / 'execution02.seed.json').read_text())
+module.FROZEN = seed
+current = module.source_input()  # read-only native Go discovery, no real fixture
+if not current['accepted_baseline']['accepted'] or current['files'] != seed['files'] or current['private_files'] != seed['private_files']:
+    raise RuntimeError('private or accepted source drift before freeze')
+seed['runtime'] = current['runtime']
+seed['independent_runtime_note'] = 'Runtime graph includes exact frozen private overlay source; real execution not yet authorized.'
+target = root / 'execution02.json'
+if target.exists():
+    raise RuntimeError('never replace an existing frozen execution manifest')
+target.write_text(json.dumps(seed, indent=2) + '\n')
+print(json.dumps({'accepted': True, 'accepted_count': current['accepted_baseline']['accepted_count'], 'candidate_count': len(current['files']), 'private_count': len(current['private_files']), 'runtime_count': len(seed['runtime']['files']), 'execution_sha256': hashlib.sha256(target.read_bytes()).hexdigest(), 'resources_started': False}))

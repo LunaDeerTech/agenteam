@@ -1,0 +1,16 @@
+{
+  "mode": "list",
+  "exit_code": 0,
+  "actual_wait": true,
+  "pid": 1692240,
+  "seconds": 5.075,
+  "input_unchanged": true,
+  "raw_sha256": "5d9d575792a27668c1c0ba03b120677c7c045a004ab2be8dc4efbdd5a13487d7",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "resources_started": false,
+  "exact_tests": [
+    "TestIndependentEmailHistoryAndTestIntent",
+    "TestIndependentEmailCanonicalWire"
+  ],
+  "exact_two_once": true
+}

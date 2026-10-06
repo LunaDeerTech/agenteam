@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "build",
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "cwd": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/workspace",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/tmp"
+  },
+  "runner_sha256": "1e7ddf64b7bc3c762aaddf8f5045ce52ac99ea0101034bc85136b53393b3ac41",
+  "closure_sha256": "ac2dc18f8f935f5ae83c01c0577b87c0ecaf02109479cd74c4b101add75f5dad"
+}

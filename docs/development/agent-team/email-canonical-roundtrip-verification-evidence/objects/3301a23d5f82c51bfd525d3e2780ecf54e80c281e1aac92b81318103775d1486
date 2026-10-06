@@ -1,0 +1,116 @@
+{
+  "base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "card_sha256": "73c7d5fb8b1a503cb7c27929e717397228973833564d3de5fc895db8a5ed81f4",
+  "files": {
+    "internal/central/account/validation.go": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94",
+    "internal/central/accountmail/smtp.go": "f509b9b279f2cb49898c01f32d19e86cf617421ac1487354fa4df78de48289b9",
+    "internal/central/account/validation_test.go": "1141ef16fd32317fc7e5bdfba0c7aeef827b2d641f6f2e848b673774fffe7e99",
+    "internal/central/accountmail/smtp_address_test.go": "711cbb47191cd5975df316b0dbaaf0bcfe549a933d1b0cd898c5c4998febdd48",
+    "tests/testsupport/smtp/fixture.go": "9555fe9e05d795354a9f7eaec57cb11d20b378c5566ed69a7ca5362dbb907851",
+    "tests/testsupport/smtp/cmd/server/main.go": "0c67c9cb015e76b5c35c857a4628fdaecdf569516fd8b29c11cf06a47ded2773"
+  },
+  "fixed_dependencies_manifest": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/closure02.json",
+  "fixed_dependencies_sha256": "ac2dc18f8f935f5ae83c01c0577b87c0ecaf02109479cd74c4b101add75f5dad",
+  "runs": {
+    "old01": {
+      "result": {
+        "exit_code": 1,
+        "actual_wait": true,
+        "seconds": 32.183,
+        "input_unchanged": true,
+        "raw_sha256": "3c0c89566bb6d255ec2f4195183eb1b7cb690c19bb77a6289bd0f5dbd1aad4ab"
+      },
+      "result_sha256": "3ea5fbb16711c2abab350e20c0c0957812d12290fab1785b895bae74c65217df",
+      "command_sha256": "9680893d88f0b7253b5c8db19b93cbdea14a2b0a40f4edc5867f9d011f93b996",
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/old01"
+    },
+    "new-minimal01": {
+      "result": {
+        "exit_code": 0,
+        "actual_wait": true,
+        "seconds": 7.361,
+        "input_unchanged": true,
+        "raw_sha256": "054fea04ef03738f5d522408ff1dca8a7d28aee1bdcaf6f4e4f76ab48ee0a370"
+      },
+      "result_sha256": "a71b3ae218907ca4068abe8581480dff841166fa4c59367499cdb69261ff6fc4",
+      "command_sha256": "9680893d88f0b7253b5c8db19b93cbdea14a2b0a40f4edc5867f9d011f93b996",
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/new-minimal01"
+    },
+    "pure01": {
+      "result": {
+        "exit_code": 1,
+        "actual_wait": true,
+        "seconds": 18.539,
+        "input_unchanged": true,
+        "raw_sha256": "2e6d45edd33d329107af43d2220717b6c22dacbde636acacfc20e04b4699c0be"
+      },
+      "result_sha256": "6e5d4fa179db262c4fc980d2f6d858486929b7d02f775007cd925ad0142c4bd9",
+      "command_sha256": "893e2b30bd574a704f48cb6be08716b7f7c0449252225ebd638cf2ae0a454ef5",
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/pure01"
+    },
+    "pure02": {
+      "result": {
+        "exit_code": 0,
+        "actual_wait": true,
+        "seconds": 13.995,
+        "input_unchanged": true,
+        "raw_sha256": "75fe781d0045f62cc663514c23483aab73c2e89213be0049683b25c03ade91c6"
+      },
+      "result_sha256": "0884025dd8a587e73903dc51454bcbce0f7bdd785621a83a7935a820246c094a",
+      "command_sha256": "82d9822215940d8ba606af3506bece6dce7a34bbb4d2e8fd7e0aaacac3714d46",
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/pure02"
+    },
+    "race01": {
+      "result": {
+        "exit_code": 0,
+        "actual_wait": true,
+        "seconds": 101.447,
+        "input_unchanged": true,
+        "raw_sha256": "6883b86618fd763ccff304ea023cb43d72ec0d9405c8c98b60b8b8da56610240"
+      },
+      "result_sha256": "a7895a687463e000d94aca823262a5aa59e64d6c5602f368ad0fbf75e87341bc",
+      "command_sha256": "410416d325274c0675550aaa7151f27aa482d1028600ec47d31fd5d9ee0b4224",
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/race01"
+    },
+    "vet01": {
+      "result": {
+        "exit_code": 0,
+        "actual_wait": true,
+        "seconds": 14.039,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result_sha256": "d929e1bee67787b9533551d25ee5bd92ca6182a9d5f1b05516d2c15be6faf63e",
+      "command_sha256": "2779d054f35f16d4caa70fd183ce7ad12da2b58d1c6808b7ea252e2d9d93be7f",
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/vet01"
+    },
+    "build01": {
+      "result": {
+        "exit_code": 0,
+        "actual_wait": true,
+        "seconds": 16.246,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result_sha256": "47e267158cf517551ca400838bbdbdde5fb7a61e1b7163647c956e1d60391548",
+      "command_sha256": "854efa1440fd87ddfdcd9575d71cd17254cebbea1ff8e1ec991c949cd49d8129",
+      "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/build01"
+    }
+  },
+  "original_probe_functions": {
+    "TestNormalizeEmailCanonicalReentry": {
+      "same_bytes": true,
+      "sha256": "bdfec6cafe1b78c59ffcc8b0666d8fce0a27cd9fa5683f81a1a60dd2bd561e11"
+    },
+    "TestSMTPMessageCanonicalReentry": {
+      "same_bytes": true,
+      "sha256": "64442722cf30cb4b05a8aa3a16d1c04ed4e381aeb3e459fa93c64ecbeac712de"
+    }
+  },
+  "limits": [
+    "core stage only; three new integration sources still being prepared outside this fixed snapshot",
+    "pure01 missing accepted test data/schema, preserved; pure02 complete affected packages passed",
+    "no actual service/browser/PG/SMTP resources launched; no main source changes",
+    "ordinary race command duration includes cold compilation; package runtime budget remains 45s"
+  ]
+}

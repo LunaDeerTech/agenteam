@@ -1,0 +1,38 @@
+{
+  "accepted_author_delivery9_sha256": "c1f92a1365fee883daaee34b1636965785f63d54d60821d3a669fd1116eeb6c6",
+  "candidate_location": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/delivery10/source",
+  "document_check": {
+    "authorized_forward_report_links_pending": 1,
+    "checker_actual_exit": 0,
+    "existing_relative_links_and_fragments_verified": 10,
+    "git_check_diagnostics_empty": true,
+    "git_no_index_check_exit": 1,
+    "path": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/documentation/check.json",
+    "sha256": "2dc522bd6507fe84969f48032cbdeee26caffb8132ffe43fbd818f34d755271d"
+  },
+  "document_diff_sha256": "b72c1becd627933a3152334af1cc6a8eb57bb3473777cb7caec22ef09432ac58",
+  "document_original_sha256": "2026772a618cf8eb0deb042f4a84731e526c9291c483793b32f8be03ee10fddc",
+  "files": {
+    "docs/development/backend/account.md": "a3e6da5c99d5ba1564c9df88d88a907c8e53251015d9523dda9eacdeedc0ea22",
+    "internal/central/account/validation.go": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94",
+    "internal/central/account/validation_test.go": "1141ef16fd32317fc7e5bdfba0c7aeef827b2d641f6f2e848b673774fffe7e99",
+    "internal/central/accountmail/smtp.go": "f509b9b279f2cb49898c01f32d19e86cf617421ac1487354fa4df78de48289b9",
+    "internal/central/accountmail/smtp_address_test.go": "711cbb47191cd5975df316b0dbaaf0bcfe549a933d1b0cd898c5c4998febdd48",
+    "tests/account/email_canonical_roundtrip_test.go": "d26430c0e98eca20799a66d120461fa397a2fd6ac939d9b6aa487e2db11a7024",
+    "tests/account/http_email_canonical_roundtrip_test.go": "dd61dfced5513c70c44aeeb0ae3da9524ed0597ae4fda5fb824b5396f425b347",
+    "tests/accountmail/email_canonical_roundtrip_test.go": "8192427c5089ff2b592b0b5f775b73876f59b670dde092711b83d1ea677168b9",
+    "tests/testsupport/smtp/cmd/server/main.go": "0c67c9cb015e76b5c35c857a4628fdaecdf569516fd8b29c11cf06a47ded2773",
+    "tests/testsupport/smtp/fixture.go": "9555fe9e05d795354a9f7eaec57cb11d20b378c5566ed69a7ca5362dbb907851"
+  },
+  "full_diff_sha256": "d1ea742d6f8d035cb33950eee3939961a1f7174252969c31d984dd6b3cb0d013",
+  "independent_nine_source_report": {
+    "path": "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/verification-report.md",
+    "sha256": "9cee70e035a2bdcc59d01e3e0f69d1a7d6d5d784b7feebd7daeab83d98310c74"
+  },
+  "input01_manifest_sha256": "e2882f0a9c6458127d09034309540ab04b7c7257f6d92d931c1d832a5ae1c26a",
+  "nine_product_files_unchanged": true,
+  "product_base": "819aba1b8f764328f1e2e67b53c274fad0db877d",
+  "resources_active": false,
+  "shared_main_untouched": true,
+  "stopped": true
+}

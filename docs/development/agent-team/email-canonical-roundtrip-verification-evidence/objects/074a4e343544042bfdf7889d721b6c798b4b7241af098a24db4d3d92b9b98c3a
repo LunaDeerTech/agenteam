@@ -1,0 +1,113 @@
+//go:build integration
+
+package accountmail_test
+
+import (
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"testing"
+	"time"
+
+	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+	smtpfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/smtp"
+)
+
+func TestIndependentEmailCanonicalWire(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	network := startSMTP(t)
+	rows := []struct{ name, sender, recipient, senderWire, recipientWire string }{
+		{"expanded-ipv6", "s@[ipv6:2001:0db8:0000:0:0:0:0:7]", "r@[ipv6:2001:db8::8]", "s@[IPv6:2001:0db8:0000:0:0:0:0:7]", "r@[IPv6:2001:db8::8]"},
+		{"prefixed-ipv4-and-mapped", "s@[ipv6:192.0.2.17]", "r@[0:0:0:0:0:ffff:c000:208]", "s@[IPv6:192.0.2.17]", "r@[0:0:0:0:0:ffff:c000:208]"},
+	}
+	for _, row := range rows {
+		t.Run(row.name, func(t *testing.T) {
+			endpoint, err := network.Create(ctx, smtpfixture.Scenario{Mode: "none"})
+			if err != nil {
+				t.Fatal("owned SMTP scenario")
+			}
+			f := newAccount(t)
+			settings, err := f.service.GetSMTPSettings(ctx, f.admin)
+			if err != nil {
+				t.Fatal("SMTP read prerequisite")
+			}
+			password, err := sc.NewSecretMaterial([]byte("owned independent canonical wire credential"))
+			if err != nil {
+				t.Fatal("private material prerequisite")
+			}
+			defer password.Destroy()
+			configuration, err := c.NewSMTPUpdate(c.SMTPUpdateFields{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), ExpectedVersion: settings.Version, Configured: true, Host: smtpfixture.Host, Port: endpoint.Port, TLSMode: "none", Username: "fixture", Password: &password, SenderEmail: row.sender, SenderName: "Verifier Name", RetryCount: 0, RetryIntervalSeconds: 10})
+			if err != nil {
+				t.Fatal("formal configuration prerequisite")
+			}
+			if _, err = f.service.UpdateSMTPSettings(ctx, configuration); err != nil {
+				t.Fatal("formal canonical configuration")
+			}
+			composition := composeMail(t, f, network, uint16(endpoint.Port))
+			job, err := f.service.TestSMTP(ctx, c.SMTPTest{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Recipient: row.recipient})
+			if err != nil {
+				t.Fatal("formal test intent")
+			}
+			if _, err = f.service.ReconcileDeliveryIntents(ctx); err != nil {
+				t.Fatal("formal reconciliation")
+			}
+			if err = composition.worker.RunJob(ctx, job.JobID); err != nil {
+				t.Fatal("actual owned SMTP worker")
+			}
+			status, err := f.service.GetMailJob(ctx, f.admin, job.JobID)
+			if err != nil || status.Phase != "sent" || status.Attempts != 1 {
+				t.Fatal("committed delivery result")
+			}
+			closed, stop := context.WithTimeout(ctx, 2*time.Second)
+			defer stop()
+			tick := time.NewTicker(10 * time.Millisecond)
+			defer tick.Stop()
+			var state smtpfixture.State
+			for {
+				state, err = network.State(closed, endpoint.ID)
+				if err != nil {
+					t.Fatal("owned safe SMTP observation")
+				}
+				if state.Closed == 1 {
+					break
+				}
+				select {
+				case <-tick.C:
+				case <-closed.Done():
+					t.Fatal("SMTP connection did not actually close")
+				}
+			}
+			// These full-line/header/body goldens are independent explicit text,
+			// never candidate NormalizeEmail/message results or observed wire echo.
+			message := "From: \"Verifier Name\" <" + row.senderWire + ">\r\nTo: <" + row.recipientWire + ">\r\nMessage-ID: <" + job.JobID.String() + "@accounts.example.test>\r\nSubject: Agenteam account\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\nAgenteam SMTP test.\r\n"
+			digest := func(value string) string { sum := sha256.Sum256([]byte(value)); return hex.EncodeToString(sum[:]) }
+			mail, rcpt, body := state.MailFromSHA == digest("MAIL FROM:<"+row.senderWire+">\r\n"), state.RCPTToSHA == digest("RCPT TO:<"+row.recipientWire+">\r\n"), state.MessageSHA == digest(message)
+			if !mail || !rcpt || !body || state.MessageBytes != len(message) {
+				t.Fatalf("independent wire golden mail=%t rcpt=%t body=%t length=%t", mail, rcpt, body, state.MessageBytes == len(message))
+			}
+			if state.Connections != 1 || state.TLS != 0 || state.Auth != 1 || state.Mail != 1 || state.RCPT != 1 || state.Data != 1 || state.Messages != 1 || state.Closed != 1 {
+				t.Fatal("one connection/protocol/message/actual-close invariant")
+			}
+			var terminal, joined bool
+			var sender, recipient, channel, result string
+			var attempts, leases, active, audits int
+			err = f.store.QueryRow(ctx, `SELECT a.terminal,a.io_joined,a.channel,a.result,
+ (SELECT count(*) FROM agenteam_account.mail_attempts WHERE job_id=j.id),
+ (SELECT count(*) FROM agenteam_secret.secret_leases WHERE owner_kind='account_delivery_attempt' AND owner_id=a.id),
+ (SELECT count(*) FROM agenteam_secret.secret_leases WHERE owner_kind='account_delivery_attempt' AND owner_id=a.id AND NOT released),
+ (SELECT count(*) FROM agenteam_audit.audit_records WHERE producer='account.mail' AND action='smtp.delivery' AND cause_ref=a.id::text AND ordinal=0 AND outcome='success'),
+ (SELECT from_address FROM agenteam_account.smtp_settings WHERE singleton),i.recipient
+ FROM agenteam_account.mail_jobs j JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id JOIN agenteam_account.delivery_intents i ON i.id=j.intent_id WHERE j.id=$1`, job.JobID.String()).Scan(&terminal, &joined, &channel, &result, &attempts, &leases, &active, &audits, &sender, &recipient)
+			if err != nil || !terminal || !joined || channel != "smtp" || result != "sent" || attempts != 1 || leases != 1 || active != 0 || audits != 1 || !composition.registry.Joined() || sender != row.sender || recipient != row.recipient {
+				t.Fatalf("terminal facts error=%t terminal=%t joined=%t attempts=%d leases=%d active=%d audits=%d canonical=%t registry=%t", err != nil, terminal, joined, attempts, leases, active, audits, sender == row.sender && recipient == row.recipient, composition.registry.Joined())
+			}
+			t.Log("safe exact_wire_mail_rcpt_message=true one_connection_message=true terminal_io_joined=true canonical_persistence=true lease_released=true registry_joined=true")
+		})
+	}
+	if ctx.Err() != nil {
+		t.Fatal("independent B original 2m budget exhausted")
+	}
+}

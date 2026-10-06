@@ -1,0 +1,136 @@
+{
+  "card_sha256": "73c7d5fb8b1a503cb7c27929e717397228973833564d3de5fc895db8a5ed81f4",
+  "checks": {
+    "build01": {
+      "command_sha256": "854efa1440fd87ddfdcd9575d71cd17254cebbea1ff8e1ec991c949cd49d8129",
+      "directory": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/build01",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "seconds": 16.246
+      },
+      "result_sha256": "47e267158cf517551ca400838bbdbdde5fb7a61e1b7163647c956e1d60391548"
+    },
+    "integration-compile01": {
+      "command_sha256": "e5c00696716bb8e45f0bab4590a883556b5a08f490329b2553b95d97c9f19c0c",
+      "directory": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/integration-compile01",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "6e3afd3b3e6331471762d8733926e28f96b4aef3d6d960fcc81181ffb9cbb8d2",
+        "seconds": 10.718
+      },
+      "result_sha256": "c6ee1f3828dbafba57823ec9095fae898edbdd7ed8024432b3950897a7e19d11"
+    },
+    "integration-vet01": {
+      "command_sha256": "dbf0541de23f6fe98e86856c83477834341308f513661f931872547ecffe79a0",
+      "directory": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/integration-vet01",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "seconds": 4.215
+      },
+      "result_sha256": "60cd47f5da5e3a3f6984b97980b76dd6f0779dfaf6644f73e4230bf2ffda0371"
+    },
+    "new-minimal01": {
+      "command_sha256": "9680893d88f0b7253b5c8db19b93cbdea14a2b0a40f4edc5867f9d011f93b996",
+      "directory": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/new-minimal01",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "054fea04ef03738f5d522408ff1dca8a7d28aee1bdcaf6f4e4f76ab48ee0a370",
+        "seconds": 7.361
+      },
+      "result_sha256": "a71b3ae218907ca4068abe8581480dff841166fa4c59367499cdb69261ff6fc4"
+    },
+    "old01": {
+      "command_sha256": "9680893d88f0b7253b5c8db19b93cbdea14a2b0a40f4edc5867f9d011f93b996",
+      "directory": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/old01",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 1,
+        "input_unchanged": true,
+        "raw_sha256": "3c0c89566bb6d255ec2f4195183eb1b7cb690c19bb77a6289bd0f5dbd1aad4ab",
+        "seconds": 32.183
+      },
+      "result_sha256": "3ea5fbb16711c2abab350e20c0c0957812d12290fab1785b895bae74c65217df"
+    },
+    "pure01": {
+      "command_sha256": "893e2b30bd574a704f48cb6be08716b7f7c0449252225ebd638cf2ae0a454ef5",
+      "directory": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/pure01",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 1,
+        "input_unchanged": true,
+        "raw_sha256": "2e6d45edd33d329107af43d2220717b6c22dacbde636acacfc20e04b4699c0be",
+        "seconds": 18.539
+      },
+      "result_sha256": "6e5d4fa179db262c4fc980d2f6d858486929b7d02f775007cd925ad0142c4bd9"
+    },
+    "pure02": {
+      "command_sha256": "82d9822215940d8ba606af3506bece6dce7a34bbb4d2e8fd7e0aaacac3714d46",
+      "directory": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/pure02",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "75fe781d0045f62cc663514c23483aab73c2e89213be0049683b25c03ade91c6",
+        "seconds": 13.995
+      },
+      "result_sha256": "0884025dd8a587e73903dc51454bcbce0f7bdd785621a83a7935a820246c094a"
+    },
+    "race01": {
+      "command_sha256": "410416d325274c0675550aaa7151f27aa482d1028600ec47d31fd5d9ee0b4224",
+      "directory": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/race01",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "6883b86618fd763ccff304ea023cb43d72ec0d9405c8c98b60b8b8da56610240",
+        "seconds": 101.447
+      },
+      "result_sha256": "a7895a687463e000d94aca823262a5aa59e64d6c5602f368ad0fbf75e87341bc"
+    },
+    "vet01": {
+      "command_sha256": "2779d054f35f16d4caa70fd183ce7ad12da2b58d1c6808b7ea252e2d9d93be7f",
+      "directory": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/runs/vet01",
+      "result": {
+        "actual_wait": true,
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "seconds": 14.039
+      },
+      "result_sha256": "d929e1bee67787b9533551d25ee5bd92ca6182a9d5f1b05516d2c15be6faf63e"
+    }
+  },
+  "core_stage_manifest_sha256": "3301a23d5f82c51bfd525d3e2780ecf54e80c281e1aac92b81318103775d1486",
+  "core_stage_six_unchanged": true,
+  "dependencies_manifest": "/workspace/scratch/agenteam-email-canonical-author-s5egqsel/closure03.json",
+  "dependencies_manifest_sha256": "a107e67de135c82eca87ac5bca474d19ffc61993930d7ba14d0c0d7c1c670765",
+  "diff_sha256": "ac25b62b255346f9f057dd6f67514cae4dd58fc69a58a824122f38c79faba181",
+  "files": {
+    "internal/central/account/validation.go": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94",
+    "internal/central/account/validation_test.go": "1141ef16fd32317fc7e5bdfba0c7aeef827b2d641f6f2e848b673774fffe7e99",
+    "internal/central/accountmail/smtp.go": "f509b9b279f2cb49898c01f32d19e86cf617421ac1487354fa4df78de48289b9",
+    "internal/central/accountmail/smtp_address_test.go": "711cbb47191cd5975df316b0dbaaf0bcfe549a933d1b0cd898c5c4998febdd48",
+    "tests/account/email_canonical_roundtrip_test.go": "d26430c0e98eca20799a66d120461fa397a2fd6ac939d9b6aa487e2db11a7024",
+    "tests/account/http_email_canonical_roundtrip_test.go": "dd61dfced5513c70c44aeeb0ae3da9524ed0597ae4fda5fb824b5396f425b347",
+    "tests/accountmail/email_canonical_roundtrip_test.go": "8192427c5089ff2b592b0b5f775b73876f59b670dde092711b83d1ea677168b9",
+    "tests/testsupport/smtp/cmd/server/main.go": "0c67c9cb015e76b5c35c857a4628fdaecdf569516fd8b29c11cf06a47ded2773",
+    "tests/testsupport/smtp/fixture.go": "9555fe9e05d795354a9f7eaec57cb11d20b378c5566ed69a7ca5362dbb907851"
+  },
+  "fixed_dependency_count": 881,
+  "limits": [
+    "No real resource or integration scenario has run.",
+    "integration-compile01 preceded only two explicit SQL type comparison corrections; integration-vet01 and forthcoming runtime discovery bind current nine sources.",
+    "Runtime discovery/driver gate is separate pending evidence."
+  ],
+  "product_base": "819aba1b8f764328f1e2e67b53c274fad0db877d"
+}

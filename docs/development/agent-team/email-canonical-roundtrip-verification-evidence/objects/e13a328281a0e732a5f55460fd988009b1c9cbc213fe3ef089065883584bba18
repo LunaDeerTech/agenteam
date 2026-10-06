@@ -1,0 +1,1 @@
+保留 preparation-ready01 原件。其示例执行命令误写 --run；固定 driver 的真实开关是 --execute-authorized。首次调用由 argparse 实际退出 2，未创建 runs/independent01，未启动 fixture 或任何测试。原 execution/driver/probes 字节不变；不计真实业务首红或双清轮。实际工具结果在 start01-tool-record.json。下一次仅修调用开关，仍需主线程明确续授。

@@ -1,0 +1,26 @@
+{
+  "kind": "CLI invocation prerequisite; no fixture or product test started",
+  "argv": [
+    "python3",
+    "run-independent01.py",
+    "--name",
+    "independent01",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-email-real-independent-7lijrd4n/execution01.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--run"
+  ],
+  "cwd": "/workspace/scratch/agenteam-email-real-independent-7lijrd4n",
+  "actual_exit_code": 2,
+  "tool_actual_completion": true,
+  "process_pid_not_captured": true,
+  "stdout_stderr": "usage: run-independent01.py [-h] --name NAME --group {both,history,wire}\n                            --frozen FROZEN --modcache MODCACHE\n                            (--check-input-only | --execute-authorized)\nrun-independent01.py: error: one of the arguments --check-input-only --execute-authorized is required\n",
+  "run_directory_created": false,
+  "resource_stage_reached": false,
+  "driver_sha256": "8f28faca454889fd77639fb4ae812790dbb96cd14fe2ba76504010f0737d6ef1",
+  "execution_sha256": "46fe6ae1079036944384e827e37944ce8b511793747345991f09197a0632dee1",
+  "correction": "Invocation switch only: --run to --execute-authorized. No source or assertion change. Await root continuation under explicit no-auto-rerun instruction."
+}

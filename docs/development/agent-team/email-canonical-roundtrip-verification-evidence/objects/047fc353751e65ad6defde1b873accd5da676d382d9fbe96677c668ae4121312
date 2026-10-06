@@ -1,0 +1,9 @@
+邮箱独立修后准备 PASS，尚未重跑。
+
+仅把私有 guest.bootstrap() 换正式 GET200、非空匿名 CSRF 与精确 smtp；原匿名管理401、错误CSRF403、历史原body/key和所有DB/wire断言未削。probe01-to02.diff 与 driver01-to02.diff 是完整最小差量，旧输入及原FAIL永久保留。
+
+只重跑 A/http-original-history 和 B/expanded-ipv6；另两子例依据原 independent01 完整PASS复用，formal-test-intent 函数体逐字节一致、B源全文件一致。不把分轮结果冒充原单轮全绿。原9候选/881接受/14私有/3512运行闭包和预算/资源清理契约保持。
+
+执行清单 SHA 25a0a29d5885620646f607391118438d677b94057660c526b49c6ed25a6969d9；driver SHA d8ab4d89d45c6cf2c4c729d53f7b569a39b57cb36d5fcb8e06c49257f9f19f08。race仅编译0/8.823s、两父top发现0/3.968s、闭包冻结0/1.578s、gate0/1.481s，全actual wait与输入不变。Go -list只证明父top；运行子例使用JSON精确分段selector，真实到达必须以后续raw核验。
+
+按JSON run_after_root_window（固定已有 --execute-authorized）等待主线程授窗，未自行重跑。

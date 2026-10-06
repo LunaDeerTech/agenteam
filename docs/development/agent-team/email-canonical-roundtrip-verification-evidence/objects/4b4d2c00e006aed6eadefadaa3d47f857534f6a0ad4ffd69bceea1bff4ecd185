@@ -1,0 +1,14 @@
+{
+  "method": "from exact func signature to closing brace at column 0; excludes following comments",
+  "note": "initial slice ending at next func included following new comment for Normalize test and falsely reported different; corrected boundary here",
+  "functions": {
+    "TestNormalizeEmailCanonicalReentry": {
+      "same_function_bytes": true,
+      "sha256": "bdfec6cafe1b78c59ffcc8b0666d8fce0a27cd9fa5683f81a1a60dd2bd561e11"
+    },
+    "TestSMTPMessageCanonicalReentry": {
+      "same_function_bytes": true,
+      "sha256": "64442722cf30cb4b05a8aa3a16d1c04ed4e381aeb3e459fa93c64ecbeac712de"
+    }
+  }
+}

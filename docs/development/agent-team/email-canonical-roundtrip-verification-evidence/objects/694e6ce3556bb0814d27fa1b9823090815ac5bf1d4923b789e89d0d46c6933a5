@@ -1,0 +1,11 @@
+邮箱独立 A/B 离线准备：PASS，尚未启动真实资源。
+
+固定作者 input01 `e2882f0…ae1c26a` 和 base `819aba1b…877d`；实际 cwd 为作者已停写的私有 workspace，9 候选通过只读 Go overlay 消费，881 接受依赖、14 私有文件与 3512 实际运行依赖纳入前后门禁。没有复制全树。
+
+执行清单 `execution01.json` SHA256 46fe6ae1079036944384e827e37944ce8b511793747345991f09197a0632dee1；driver SHA256 8f28faca454889fd77639fb4ae812790dbb96cd14fe2ba76504010f0737d6ef1。差量仅私有 overlay/闭包映射、两个精确 selector 和相应 7/9 资源拓扑；原真实退出、subreaper、PID/starttime、exact ID 双清及原基线保持不变。
+
+A 核原 HTTP body/key/合法 CSRF、canonical 编辑、历史 applied/current 分离、Account 自身 command digest 与 Audit record ID 的唯一关联及原 MAC不变；另核 TestSMTP 二次正规化、同 key 同 job 与 exact intent/event/job。B 两组独立固定 wire golden 核 MAIL/RCPT整行、完整消息、持久 canonical、实际 socket 关闭、terminal/io_joined、单次投递和租约回收。不重复共同 Account 入口矩阵。
+
+实际离线结果：race 编译 0/96.787s；精确两 top 各一次发现 0/5.075s；vet 0/58.711s；闭包冻结 0/1.977s；check-input-only gate 0/1.698s。全部 actual wait、输入未变，原命令/env/raw/result 在 checks/对应目录。未执行任何真实测试。
+
+预算仍为原每包 6m/race/count1，两代表各显式 2m；HTTP 原 helper 为每请求 20s，准备 helper 的既有 context 不伪称都从新外层继承。待主线程明确独占窗口后，仅按 JSON 中 run_after_root_window 执行一次两 top。

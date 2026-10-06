@@ -1,0 +1,17 @@
+{
+  "stage": "runtime-discovery01",
+  "result": {
+    "exit_code": 0,
+    "actual_wait": true,
+    "seconds": 24.055,
+    "input_unchanged": true,
+    "raw_sha256": "5e26e853be2d9e4dae00eb3f8fb747acb0df71abf00af4f833e1069c61f0c484"
+  },
+  "exact_selected_top_levels": [
+    "TestAccountEmailCanonicalRoundTrip",
+    "TestAccountHTTPEmailCanonicalRoundTrip",
+    "TestAccountMailEmailCanonicalWireRoundTrip",
+    "TestAccountMailSMTPThreeModesUseActualControlledSockets"
+  ],
+  "skip_seen": false
+}

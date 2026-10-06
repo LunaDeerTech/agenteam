@@ -1,0 +1,25 @@
+# Email canonical roundtrip: author result
+
+Author verification PASS on fixed private base `819aba1b8f764328f1e2e67b53c274fad0db877d`. The nine candidates remain byte-identical to `input01/manifest.json` (`e2882f0a9c6458127d09034309540ab04b7c7257f6d92d931c1d832a5ae1c26a`). Shared main is untouched; the separately authorized tenth documentation file is still pending. Final independent acceptance remains required.
+
+The implementation keeps the old NormalizeEmail successful branch and its exact lowercase output, adding only whole-lowercase reentry of former outputs. The worker requires canonical material, derives one strict wire pair and shares it across the SMTP envelope and headers. Fixture changes only record whole MAIL/RCPT line hashes; no write service, public API/schema, migration, lock or runtime budget changes.
+
+## Preserved checks
+
+The fixed [offline report](offline-report.md) records original dynamic failures of both normalization reentry and worker preparation, then the same two probe function bytes passing. Complete affected Account/Accountmail pure/race, vet, Central/Runner and fixture builds, integration vet, full fixed-script package race compilation and exact four-top discovery all passed. The original first complete pure run lacked seven committed assets; that failed input/result remains intact. The old regression launch first collided with the preserved pure `old01` directory and exited before starting resources; [the tool preparation record](old-start01-tool-record.json) is separate from behavioral evidence. Root then authorized the unused `old-smtp01` run name.
+
+## Actual real results
+
+| Fixed run | Actual driver exit / seconds | Completed tests | Resource final state |
+| --- | --- | --- | --- |
+| new-account01 | 0 / 71.344 | TestAccountEmailCanonicalRoundTrip 5.40s; TestAccountHTTPEmailCanonicalRoundTrip 3.35s | 7 exact IDs absent twice; 73 observed owned PID/starttime pairs all ended |
+| new-wire01 | 0 / 67.151 | TestAccountMailEmailCanonicalWireRoundTrip 15.60s | 9 exact IDs absent twice; 78 observed owned PID/starttime pairs all ended |
+| old-smtp01 | 0 / 57.46 | TestAccountMailSMTPThreeModesUseActualControlledSockets 8.71s | 9 exact IDs absent twice; 75 observed owned PID/starttime pairs all ended |
+
+Service coverage includes raw/canonical TestSMTP acceptance and second normalization, exact original command/MAC/intent/event/Audit/job uniqueness, canonical invitation redemption and login/lookup, the real public-pixel challenge with email/browser/key negatives and actual consumption, and reset public-shape equality plus semantic replay. HTTP covers first raw save, canonical GET→host-only edit→new PUT, original first key/body receipt versus current second settings, strict invalid input, authority and CSRF rejection. These are candidate-created historical receipts; no cross-binary upgrade is claimed.
+
+The four wire cases cover ordinary IPv6, prefixed IPv4, mapped text and ordinary domain addresses. Each compares MAIL/RCPT and the complete known message against explicit independent expected bytes using the fixture hashes; logs expose only matching booleans and counts. Each has exactly one connection/message, actual connection close, sent terminal/io_joined, released credential lease and registry join. Original none/STARTTLS/TLS socket regression also passed. This does not claim external mailbox delivery.
+
+All three real rounds used frozen Go1.27.1, script, nine sources, 881 fixed dependencies and 3501 runtime/compiler inputs; before/after input SHA is identical in every round. Original race/count1/package6m, HTTP per-request20s and SMTP budgets stayed unchanged; each new scenario completed within2m. Each round actually waited, preserved the original two containers/four networks, recorded no monitor errors and left no owned process/runtime entries or new resources. Historical PPID1 zombies remained outside ownership.
+
+The exact commands/env/raw/result/cleanup and source bindings are under `runs/<name>/`, indexed with hashes in [author-report.json](author-report.json). [author-delivery9.json](author-delivery9.json) is the precise stopped handoff list. The three new tops passed in two rounds and the old regression in a third; this is not a single all-green round or a full SMTP UI/Account/D27 acceptance. Independent final review and the tenth backend documentation file remain pending.

@@ -1,0 +1,9 @@
+Email core-stage01 独立有界 PASS。固定 manifest 3301a23d5f82c51bfd525d3e2780ecf54e80c281e1aac92b81318103775d1486；六源清单及全部原件 SHA 见 review.json。
+
+两独立离线代表实际 exit 0，actual wait 32.680s（含冷编译），源码前后相同。原 S 的精确函数 oracle、9 组固定旧输出及 70 个规范化边界通过；3 组独立 envelope/header 全报文 golden 与非 canonical/坏材料拒绝通过。原命令、env、输入、raw、退出见 checks/pure01/；raw SHA 1304f98a71baf8bbca4d6926d5916b90cd720bcefc3d54066fc96c42a0925a3d。
+
+静审确认仅原失败输入才走整串 lowercase＋精确 ipv6: literal 兼容分支，旧成功输出不变；SMTP 使用同一已准备 sender/recipient 对构造 envelope/header，错误返回零结果。fixture 仅在原 mutex 分支记录完整 MAIL/RCPT 行的 SHA，协议控制未改。实际 Go 依赖图 357 个模块内输入全部受控，无 integration 包。
+
+作者原两失败与新通过的测试函数逐字节相同；其全包 race/vet/build 复用。独立本轮未运行 HTTP/DB/SMTP/浏览器，不证明实际投递；单元命令非 race。原函数静态提取曾包含后续注释而误报差异，修正提取边界的记录保留于 original-functions.json；独立动态首轮即通过。新 integration 三源不在本阶段范围。
+
+所有列出原件已停写，无活动命令或真实资源。
