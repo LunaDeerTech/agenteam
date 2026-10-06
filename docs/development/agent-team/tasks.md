@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：System Audit 管理 HTTP 规格接受及私有 query 阶段启动
+
+- [正式卡rev1](../work-items/d04-system-audit-management-http.md)已提交推送 `24da141652bbc4c183cd827e767dbdaf2f2f4051`、主线程核远端一致；[规格报告与原件](system-audit-management-http-spec-verification.md)固定f843506／产品213cf5c，技术687c85…6f21原字节。独立有界STATIC PASS，不是实现、编译或动态验收。
+- 14路径（3旧／11新）要求同Tx当前Session/admin与User锁、全部行及哨兵验证、Unknown零候选；975420B＜1MiB仅保守ASCII算术。当前失权选正式Logout撤销Session，普通用户403用正式邀请，不SQL改role或新增降权口。
+- backend已在私有新根实际启动query三源，获前13源实施及无服务离线检查／编译，末14说明另授；独立Audit计划准备已实际启动，尚无独立实现验证；计划未冻不纳原件，native/listener/真实资源未授。12逻辑原件／11对象＋正式卡Git，47独审来源＋5作者链接目标；两辅助静态前提失败仅存叙述，无原command/raw/时长，不补造。
+- 本次只更新报告／入口与卡页首，旧§1–27保持。其他活动任务不扩证据；Object/tools与SPA publication停止、Summary待决、生产未绑定／ready503及完整D08–D28/E01未完／E01未开始保持。
+
 ## 2026-10-06：System 出站规则 UI 规格接受及私有实施启动
 
 - [正式卡 rev1](../work-items/d27-system-outbound-policy-ui.md)已提交推送 `f843506d9ec991be1c334a81b88d5cbacc277467`，主线程核远端一致；[规格报告与原件](system-outbound-policy-ui-spec-verification.md)固定213cf5c及技术343f09…0ab6b。rev2唯一OUI-SPEC-01为STATIC阻断，rev3关闭，未冒充产品RED／动态PASS。

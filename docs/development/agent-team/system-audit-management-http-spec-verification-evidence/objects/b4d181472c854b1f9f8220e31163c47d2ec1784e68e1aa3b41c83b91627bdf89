@@ -1,0 +1,14 @@
+--- private-rev1/d04-system-audit-management-http.md
++++ formal-header01/d04-system-audit-management-http.md
+@@ -1,6 +1,10 @@
+ # D04 / D27：System Audit 管理 HTTP
+ 
+-修订：私有 rev1 候选。状态：主线程已采纳完整结果方向，本稿待独立静态审查；不是产品接受或实施、测试、资源授权。正式拟路径 `docs/development/work-items/d04-system-audit-management-http.md`。固定主线 `f843506d9ec991be1c334a81b88d5cbacc277467`，产品基线 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`；未消费 Outbound UI 活动源码。只在本私有目录起草，十四候选路径均未实施。
++修订：rev1。状态：已获独立有界 STATIC PASS，主线程已采纳规格。被审私稿全文 SHA `91d576400771047c9abda0c5d4fd983d331bfd8c1ff86096701c8edd641756b0`，技术§1–7 SHA `687c85d4a41880828d038251bf6321accc48092aa043a10addb1606ab02c6f21` 原字节保持；固定主线 `f843506d9ec991be1c334a81b88d5cbacc277467`、产品基线 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93` 及十四候选范围不变。仅规格接受；产品作者、实施和动态验收/资源窗口均由主线程另授，尚未实施，未消费 Outbound UI 活动源码。
++
++独立冻结报告：`/workspace/scratch/agenteam-audit-http-spec-independent-dtmkm41p/review.md`，SHA `ed4cc13288cdb39218e68a53a1b92ac0b622e813d81e4534673136ee42befb79`；同目录 `review.json` SHA `17ad628661a4a4fe7e9d9fb0572b7fca91ae8ca2a54118591441146bb08dde22`。该结论证明固定规格的可实施性，不是编译、产品或动态通过。原私稿和依据保留在 `/workspace/scratch/agenteam-system-audit-http-spec-65p1thtl/`。
++
++§7 当前失权代表按独立报告落实为现有正式 Logout（User Exclusive）撤销 Session，分别验证预认证后撤销与 User SH/EX 串行；普通用户403使用正式邀请账户。固定 Account 没有正式降权写入口，本卡不新增该接口或 SQL 改 role。这是原可选代表的工程落实，不改变技术正文、十四路径或权限语义。下文保留被审技术正文及原实施门槛。
+ 
+ ## 1. 完整结果、来源与前置
+ 

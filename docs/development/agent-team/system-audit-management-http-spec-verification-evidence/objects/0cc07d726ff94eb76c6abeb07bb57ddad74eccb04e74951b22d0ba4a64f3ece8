@@ -1,0 +1,317 @@
+{
+  "kind": "private specification static basis, not product or dynamic verification",
+  "fixed_git": "f843506d9ec991be1c334a81b88d5cbacc277467",
+  "product_git": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "full_sha256": "91d576400771047c9abda0c5d4fd983d331bfd8c1ff86096701c8edd641756b0",
+  "technical_sha256": "687c85d4a41880828d038251bf6321accc48092aa043a10addb1606ab02c6f21",
+  "format": {
+    "bytes": 32161,
+    "lines": 159,
+    "encoding": "UTF-8 LF",
+    "trailing_whitespace": false,
+    "local_links_checked": 10,
+    "candidate_paths": 14
+  },
+  "candidates": [
+    {
+      "number": 1,
+      "path": "internal/central/audit/query.go"
+    },
+    {
+      "number": 2,
+      "path": "internal/central/audit/system_query.go"
+    },
+    {
+      "number": 3,
+      "path": "internal/central/audit/system_query_test.go"
+    },
+    {
+      "number": 4,
+      "path": "internal/central/audit/http/handler.go"
+    },
+    {
+      "number": 5,
+      "path": "internal/central/audit/http/wire.go"
+    },
+    {
+      "number": 6,
+      "path": "internal/central/audit/http/handler_test.go"
+    },
+    {
+      "number": 7,
+      "path": "internal/central/app/account.go"
+    },
+    {
+      "number": 8,
+      "path": "internal/central/app/audit_http.go"
+    },
+    {
+      "number": 9,
+      "path": "internal/central/app/audit_http_test.go"
+    },
+    {
+      "number": 10,
+      "path": "api/openapi/audit.json"
+    },
+    {
+      "number": 11,
+      "path": "tests/account/audit_http_test.go"
+    },
+    {
+      "number": 12,
+      "path": "tests/account/audit_http_transaction_test.go"
+    },
+    {
+      "number": 13,
+      "path": "internal/central/app/audit_http_process_test.go"
+    },
+    {
+      "number": 14,
+      "path": "docs/development/backend/audit.md"
+    }
+  ],
+  "link_checks": [
+    {
+      "target": "../../../AGENTS.md",
+      "fixed_path": "AGENTS.md",
+      "sha256": "4d578d8ca5292b2d4c14baa755d04d1580ed74df303f4da92054d2be99d1074d",
+      "fragment_checked": false
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "fixed_path": ".agents/skills/agenteam-design/SKILL.md",
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81",
+      "fragment_checked": false
+    },
+    {
+      "target": "d04-security-design.md",
+      "fixed_path": "docs/development/work-items/d04-security-design.md",
+      "sha256": "f1f8e72d0284038f4c35d989e8d8d8360293976836812fd0e480bb22aae42914",
+      "fragment_checked": false
+    },
+    {
+      "target": "../../architecture/security-governance/audit.md",
+      "fixed_path": "docs/architecture/security-governance/audit.md",
+      "sha256": "c5be8ea4041cebffe6eb4ee994147fcf6c8b7f75d324898a4c90bbd0962e9929",
+      "fragment_checked": false
+    },
+    {
+      "target": "../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置",
+      "fixed_path": "docs/frontend-design/layouts/system-settings.md",
+      "sha256": "41bc84c2a672bce0c107de75f39e2c2365148ed8b5112df2d0abb680d45a23c8",
+      "fragment_checked": true
+    },
+    {
+      "target": "../backend/audit.md",
+      "fixed_path": "docs/development/backend/audit.md",
+      "sha256": "958cf7f575d58645dffebb850eb7196fff6eea551a6faa2ff19a279d1f0ff3fe",
+      "fragment_checked": false
+    },
+    {
+      "target": "d04-system-outbound-policy-http.md",
+      "fixed_path": "docs/development/work-items/d04-system-outbound-policy-http.md",
+      "sha256": "2e1d6963f8be97976f4ef8b52f5d0193637534d46cb6f02c0508e910777ec91f",
+      "fragment_checked": false
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-go-development/SKILL.md",
+      "fixed_path": ".agents/skills/agenteam-go-development/SKILL.md",
+      "sha256": "037910810b78e431d6c477677704cbcc746ea3d9db6448556221800661072b2b",
+      "fragment_checked": false
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-verification/SKILL.md",
+      "fixed_path": ".agents/skills/agenteam-verification/SKILL.md",
+      "sha256": "a982bdc7614bbe2283d690fadf5628775175e0745b4bb2acebf3f5ba4ad1fa61",
+      "fragment_checked": false
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-documentation/SKILL.md",
+      "fixed_path": ".agents/skills/agenteam-documentation/SKILL.md",
+      "sha256": "06f02c889d09f9bce0f0257545dd1f36ce4a387291356b4c694deb64c1a9b023",
+      "fragment_checked": false
+    }
+  ],
+  "fixed_sources": [
+    {
+      "path": "internal/central/audit/query.go",
+      "sha256": "740b8a1385c437b45b635a61e0c56cd8d321b42053e41ea2396d035cf59a19c0",
+      "basis": "Get/List first authorize with Tx{} then independent executor; helper extraction preserves SQL/scanner/cursor/order/errors"
+    },
+    {
+      "path": "internal/central/audit/service.go",
+      "sha256": "0e9efa8c36c0538617a4e499d9224894ebd22f61ec7de49f54ba8cbfce98b689",
+      "basis": "Store WithinTx/Acquire/InTx already present; authorizeHuman consumes provided Tx and registered Session/System ports"
+    },
+    {
+      "path": "internal/central/audit/contract/types.go",
+      "sha256": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d",
+      "basis": "NewEntry System legality, explicit SafeRecord summary versus raw Actor; associations scope restrictions"
+    },
+    {
+      "path": "internal/central/audit/contract/access.go",
+      "sha256": "775a838c03690fef4b709c37975fd23ccfc24e506569d4c3e8684ac32f8abfd1",
+      "basis": "All fourteen Filter fields and existing Validate semantics"
+    },
+    {
+      "path": "internal/central/audit/contract/metadata.go",
+      "sha256": "bdffe42f77fa2525dbbc03a3d3749af7b7665cb6cf2f995d62b82863a2080646",
+      "basis": "Default json.Marshal before 4096 limit; DecodeMetadata rebuilds typed canonical bytes; Object MIME and handler_name limits"
+    },
+    {
+      "path": "internal/central/audit/contract/account.go",
+      "sha256": "ef2b5bc2cca4435161d9b2f543c62b868324e54813581da894bfbfb70e42bfed",
+      "basis": "Default json.Marshal before 4096; exact conditional fields; Avatar object_id optional; legitimate session_id metadata"
+    },
+    {
+      "path": "internal/central/audit/contract/model.go",
+      "sha256": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6",
+      "basis": "Default json.Marshal before 4096; Model action/association and metadata closure"
+    },
+    {
+      "path": "internal/central/audit/error.go",
+      "sha256": "ad980308d48166a978891ad999adbf4309dee28fe201bf40e3629192712a58d8",
+      "basis": "Legacy portError must not be used to downgrade new read-transaction Unknown"
+    },
+    {
+      "path": "internal/central/identity/contract/identity.go",
+      "sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+      "basis": "All thirteen registered ServiceName values; canonical cause_ref ID or Digest; Human actor Session is not public summary"
+    },
+    {
+      "path": "internal/central/foundation/scalar.go",
+      "sha256": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198",
+      "basis": "Canonical Digest sha256: plus 64 lower hex =71 bytes; positive Version and nonnegative Progress"
+    },
+    {
+      "path": "internal/central/foundation/instant.go",
+      "sha256": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+      "basis": "Input normalization and 27-byte canonical UTC microsecond output"
+    },
+    {
+      "path": "internal/central/foundation/tx.go",
+      "sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+      "basis": "CommitResult normal/not-committed/unknown and fault state"
+    },
+    {
+      "path": "internal/central/cursor/cursor.go",
+      "sha256": "c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f",
+      "basis": "MaxTokenBytes8192, base64url token, AuditOrder and typed exact cursor position"
+    },
+    {
+      "path": "internal/central/account/authority.go",
+      "sha256": "4ee6365489ff21bfd629313b658f46f03495fe38a27e640ed4897a43547f14d5",
+      "basis": "Same-Tx current Session/admin requires real held User Shared lock"
+    },
+    {
+      "path": "internal/central/account/http_boundary.go",
+      "sha256": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc",
+      "basis": "Existing public HTTPBoundary only; safe explicit Problem and Cookie/Origin gate"
+    },
+    {
+      "path": "internal/central/app/security.go",
+      "sha256": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7",
+      "basis": "Original auditor already binds Account Sessions/System authority"
+    },
+    {
+      "path": "internal/central/app/account.go",
+      "sha256": "2b8c59aa2d49a96c8f327cd456c44cabaac2cf8ca864a4f82a191cbecacd7dc5",
+      "basis": "Same auditor variable and current Account/Model/Outbound handler composition"
+    },
+    {
+      "path": "internal/central/app/outbound_policy_http.go",
+      "sha256": "cc7fc5c5c0f331283788216ab8865972577ff5404944a1df08c86bcde47d6366",
+      "basis": "Accepted precise full path root dispatch precedent without request rewriting"
+    },
+    {
+      "path": "internal/central/httpapi/problem.go",
+      "sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde",
+      "basis": "Actual HTTP code registry and generic COMMIT_UNKNOWN lookup hint"
+    },
+    {
+      "path": "internal/central/httpapi/middleware.go",
+      "sha256": "3db915b7be11aa978347a434bb22a2c6ae225022b65dac9ca2e1349e3008491c",
+      "basis": "Single RequestID, safe request log and unchanged outer Recover behavior"
+    },
+    {
+      "path": "api/openapi/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "basis": "Shared scalar and Problem components; paths remains empty"
+    },
+    {
+      "path": "api/openapi/outbound-policy.json",
+      "sha256": "b886602a4e8c306d2146051aa417ce9d922c652709ac6ea61fd7b2861ae8ec02",
+      "basis": "Accepted separate OpenAPI GET-only and explicit Session/LocalSession security precedent"
+    },
+    {
+      "path": "tests/account/b02_fixture_test.go",
+      "sha256": "8acf211919f82ddbe01f2836c757a522f474dd188d588ae65ac063db157d2f51",
+      "basis": "Complete real Account core for HTTPBoundary; do not substitute minimal newAccount"
+    },
+    {
+      "path": "tests/account/http_fixture_test.go",
+      "sha256": "f622024fed7d759ea422c3338bcc145818d7683709f109ee79a3413f6ee03d4f",
+      "basis": "Existing formal root HTTP fixture; no fixture mutation"
+    },
+    {
+      "path": "internal/central/app/model_process_test.go",
+      "sha256": "d0da84b5ba533cbfae206caeac0b4631aa62e0b41b9bc8b343b1c0e649c8f1db",
+      "basis": "Existing newModelRootApp formal root fixture; no new Object work required"
+    },
+    {
+      "path": "tests/security/audit_query_test.go",
+      "sha256": "4307432031c51718d98397fa5edb77313773ca9f2d805adbcde07b64241485cd",
+      "basis": "Exact old TestAuditPaginationBindingsFiltersAndRevocation; original SQL index evidence separate"
+    }
+  ],
+  "json_bound": {
+    "method": "conservative Cartesian ASCII envelope arithmetic only; exemplar action/resource/service combination is not claimed valid or producer-reachable; cursor length bound is not claimed reachable by actual AuditOrder position",
+    "shell_bytes": 739,
+    "canonical_escaped_metadata_limit": 4096,
+    "record_bound": 4835,
+    "page_overhead_with_199_commas_and_cursor8192": 8420,
+    "page200_bound": 975420,
+    "success_budget": 1048576,
+    "envelope_exemplar_for_lengths_only": {
+      "audit_id": "01930ff0-0000-7000-8000-000000000000",
+      "created_at": "2026-10-06T00:00:00.000000Z",
+      "scope": "system",
+      "actor": {
+        "kind": "service",
+        "service": "project-initialization",
+        "cause_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "action": "secret.master.rotation.complete",
+      "outcome": "success",
+      "resource": {
+        "kind": "account_settings",
+        "id": "01930ff0-0000-7000-8000-000000000000"
+      },
+      "metadata": null,
+      "associations": {
+        "tool_id": "01930ff0-0000-7000-8000-000000000000",
+        "request_id": "01930ff0-0000-7000-8000-000000000000",
+        "runner_id": "01930ff0-0000-7000-8000-000000000000",
+        "correlation_id": "01930ff0-0000-7000-8000-000000000000",
+        "http_trace_id": "01930ff0-0000-7000-8000-000000000000"
+      },
+      "summary": "Master key rotation completed"
+    },
+    "escape_basis": "Three typed constructors use default json.Marshal before length check; DecodeMetadata reconstructs them. RawMessage appendCompact preserves existing escapes; final encoding is checked. No product JSON test executed."
+  },
+  "scope": {
+    "main_tree_writes": false,
+    "product_writes": false,
+    "git_mutation": false,
+    "test_build_or_resource_execution": false,
+    "unresolved_product_decisions": [],
+    "not_authorized": [
+      "implementation",
+      "dynamic validation",
+      "native listeners",
+      "fixtures",
+      "frontend",
+      "stopped tasks"
+    ]
+  }
+}

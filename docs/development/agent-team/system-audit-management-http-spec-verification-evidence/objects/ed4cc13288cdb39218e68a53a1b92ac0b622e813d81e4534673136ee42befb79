@@ -1,0 +1,27 @@
+# System Audit HTTP rev1：独立静态审查
+
+结论：**STATIC PASS（有界）**。未发现需要修改技术正文、增加公共接口或扩出 14 候选路径的阻断。此结论只证明冻结规格与固定正式代码的可实施性，不是实现、OpenAPI 成品、编译或动态验收，也不授予资源窗口。
+
+被审稿为 `source/d04-system-audit-management-http.md`，全文 SHA-256 `91d576400771047c9abda0c5d4fd983d331bfd8c1ff86096701c8edd641756b0`，§1–7 SHA-256 `687c85d4a41880828d038251bf6321accc48092aa043a10addb1606ab02c6f21`。`basis.json` 为 `0cc07d726ff94eb76c6abeb07bb57ddad74eccb04e74951b22d0ba4a64f3ece8`，`freeze.json` 为 `b500a3855a996e3060003881ab075a3547d6cab919f67076294dfa66b56722af`。以上均实际复核原字节。
+
+正式依据固定在 Git `f843506d9ec991be1c334a81b88d5cbacc277467` / 产品 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`。已读 AGENTS、验证技能和必要设计差量。47 个有限依据文件逐字与固定 Git 对照，完整路径/字节/SHA 见 [review-inputs.json](review-inputs.json)，SHA-256 `50120c4700e4d09f8985e5a38b59a1443868b027993cbeb629460c786862035d`；这是静态依据清单，不是运行闭包或“大树已验证”声明。
+
+| 核项 | 独立静核结果 / 正式依据 |
+| --- | --- |
+| 输出全集 | `audit/contract/types.go`、`account.go`、`model.go` 及 `identity/contract/identity.go` 支持 10 D04 + 3 Object + 1 Outbox + 16 Account + 7 Model = 37 System action、13 注册 Service、17 resource、5 可选 association。Project/Knowledge 构造器和 Object transfer/Artifact 分支明确要求 Project；这些 action 仍属于原 Filter 合法输入，不能在新列表入口擅拒。 |
+| 条件 metadata | 已逐族核正式构造器/DecodeMetadata/NewEntry：Account phase/字段与 reason/channel、Model delete/replacement/affected_count、Object initiator 与 sent_bytes≤byte_size、Outbox stable handler、D04 outcome/resource 均与卡一致。System actor 无 AgentRun，不代表 metadata 的 initiator_kind 禁止 agent_run；secret mutation 和 policy update 不可擅加原构造器没有的 outcome 限制。Human Session 只从 ActorSummary 隐去，logout resource 与 typed metadata 的 Session ID 是允许的审计事实，不能删除。 |
+| JSON 上界 | 三族 metadata 都先默认 `json.Marshal`，后限 4096 B；DecodeMetadata 重建同一闭包，不直接信 DB JSON。独立 ASCII 壳算术为 739 + 4096 = 4835 B；200 项 + 199 逗号 + 页包装/8192 cursor = 975420 B < 1048576 B。见 [static-arithmetic.json](static-arithmetic.json)，SHA-256 `284b8a06d7ad95d77f216fd8d4aafe27e6d5568fd6177400c485df95b6525b00`。这是保守笛卡尔积，不证明该最大组合可由 producer 产生，也未运行 Go JSON 构造器/重编码测试。最终编码仍必须检查长度。 |
+| 查询与 cursor | `contract.Filter` 为 14 字段，加 limit/cursor 恰 16 query；原 `filterDigest` 不含 limit/主体。`cursor.Verify` 绑定 scope/filter/order，Audit position 为 Instant+UUID 且无 OrderGeneration；8192 B 是原上限。新 strict query、GET-only/HEAD405、同路径 404/单段非法 400 可在新边界实现，不更改原 Filter 语义或旧 HTTP 路由数。 |
+| 同事务当前权限 | 原 Audit Store 已公开 WithinTx/Acquire/InTx；`authorizeHuman` 将同 Tx 传给 Sessions/System。正式 Account Authority 在有效 Tx 内先验证 User Shared 已持有，再读当前 Session/User/admin。`foundation.NewRecoveryCause`/UserLock 已有，两个新方法不需要 Account/Reader 公共接口变化。旧 List/Get 的 Tx{} 授权不能替代此新链。 |
+| 正常/未知终局 | `postgres.WithinTx` 在回调、Rows/事务与释放尾部完成后返回 CommitResult；NotCommitted Fault 可直接保留，Unknown 必须由新方法显式映射 COMMIT_UNKNOWN/unknown。旧 `audit.portError` 会将多数此类错误降为 dependency/not_started，规格明确禁止这样处理是必要门槛。完整候选、含哨兵的校验、Close/Err 与游标签名必须都在回调内；任何后段错误、错误 Scope、取消或 Unknown 均不得发布。 |
+| HTTP 期限与尾部 | 私有 boundary/service seam 可覆盖纯检查而不改公开构造。原 HTTPBoundary 可复用真实认证、安全 headers、401 Cookie 清除和常量 `/api/v1` Problem；`httpapi.responseWriter` 的 Unwrap/FlushError 能让局部 ResponseController 到达原生连接。新 handler 须自行落实“入口即 3s/更早 parent、能力失败 abort、完整编码、实际 Flush/Body.Close/取消 callback join 后清期限”，不能仅复制原 Outbound handler 就宣称这些更明确门槛已满足。外层唯一 middleware 保持；本卡不把意外 panic 的旧全局 Recover 尾部冒充新正常路径保证。 |
+| Root 与 schema | `app/account.go:bindAccounts` 的同一 auditor 已供 Account/Secret/Outbound/Model 使用，`app/security.go` 已绑定正式 Account Authority；新增构造直接传该变量和同 core 即可。精确外层分流不改变原请求。common.paths 为 `{}`，公共标量可引用，Session/LocalSession security 可沿既有独立 Outbound schema 定义；条件闭合 action/phase schema 不需修改公共文档或旧 route count。 |
+| 可达的验收形状 | `newB02Account(t).fixture` 已装 Authority/Audit/Secret/events/challenges/process/recovery log；`newHTTPFixture` 使用正式 root，`newModelRootApp` 可复用 PG/MinIO/真实 bindAccounts 和 Account core。三新顶层是待新增的明确交付名；旧 `tests/security/audit_query_test.go:TestAuditPaginationBindingsFiltersAndRevocation` 已实际静读确认存在。无需新 fixture 文件、SQL INSERT Audit 或启动被停止的 Object 工作。 |
+
+当前失权代表的实施选择已与主线程确认：固定 Account **没有正式降权写入口**；§7 的“撤销/降权”在本卡实际选择已有正式 `Logout`（User Exclusive）撤销 Session，分别证明 HTTP 预认证后撤销及 User SH/EX 串行，随后新请求拒绝。普通用户 403 使用正式邀请账户。不得 SQL 改 role，也不新增降权接口；此选择不改变技术稿或 14 路径。旧 backend/audit.md 的“SafeRecord 不返回 SessionID”表述在最后授权局部说明时应准确限定为原 ActorSummary，不扩大成删除正式 logout/metadata Session 身份。
+
+实现验收应保留这些独立关口：旧 query helper 行为等价；新 System 全部行（包括 limit+1 哨兵）Scope/时间/metadata 验证；同 Tx、正常终局和 Unknown 零候选；成功 200/完整条件 schema；3s 与更早 parent 的实际取消/尾部；DB 1s lock timeout 与自然 3s 分列；原生短写/Flush/keep-alive；正式 root producer→同读口。静态可实现不等于这些结果已经发生。
+
+本轮仅读取固定文件并进行 hash/集合提取/ASCII 长度算术，未运行产品、测试、构建、监听器、浏览器、数据库或容器；未修改主树、候选、Git 或任何停止任务。辅助静态检查曾因 common 未定义 securitySchemes、正则漏独立 `const ProjectInitialization` 各失败一次；均为审查工具前提，最终改用现有独立 schema 和完整常量语法核对，没有将它们记为产品失败或测试通过。
+
+本报告及目录输入现冻结；后续实现独立验收仍由主线程另派。

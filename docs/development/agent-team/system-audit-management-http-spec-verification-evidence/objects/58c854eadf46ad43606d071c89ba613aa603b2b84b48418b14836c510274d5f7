@@ -1,0 +1,20 @@
+{
+  "status": "header-only checks passed; no product or dynamic execution",
+  "original_full_sha256": "91d576400771047c9abda0c5d4fd983d331bfd8c1ff86096701c8edd641756b0",
+  "formal_full_sha256": "5fdc1dde616c89840fa583213377e078c636284b79be57e4234095031ac777f0",
+  "technical_sha256": "687c85d4a41880828d038251bf6321accc48092aa043a10addb1606ab02c6f21",
+  "technical_bytes_unchanged": true,
+  "original_private_bytes_unchanged": true,
+  "candidate_paths_same_order": true,
+  "candidate_count": 14,
+  "fixed_bases_unchanged": true,
+  "utf8_lf": true,
+  "trailing_whitespace": false,
+  "technical_link_checks": "reuse original basis.json: 10 unchanged links incl fragment; header adds only literal evidence paths",
+  "independent_report": {
+    "path": "/workspace/scratch/agenteam-audit-http-spec-independent-dtmkm41p/review.md",
+    "sha256": "ed4cc13288cdb39218e68a53a1b92ac0b622e813d81e4534673136ee42befb79",
+    "json_sha256": "17ad628661a4a4fe7e9d9fb0572b7fca91ae8ca2a54118591441146bb08dde22"
+  },
+  "scope": "Only private formal-header01 created; no main/Git/product/build/test/resource operations"
+}

@@ -320,3 +320,15 @@ rev3收窄首次明确拒绝的合法Problem／status-code闭集／commit状态�
 34路径／原预算／四新三旧验收要求不变。主线程已授权唯一frontend作者33源私有实施与离线检查，README第19路径最后；作者在 `/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i` 实际启动#1/2/3/11/12阶段A五源。独立私有计划已实际启动并冻结两原件，API／owner／App各两组合、最终A/B均只是计划；真实资源尚未授权，未读取活动候选或宣称实现通过。21逻辑原件／19对象、57固定Git引用，旧SMTP永久原件直接复用。
 
 SMTP投递已按§26接受。SPA controlled/native已PASS的原调度记录不等于SPA产品接受；后继concurrent-publication因平台内容安全机制停止，无run目录，stage02竞态未闭合，脚本返修／发布继续暂停，不重试／改写／转交。Object/tools原停止、Summary待决、生产未绑定／ready503保持；完整D08–D28/E01未完成，E01未开始。这里只追加规格与行政状态，不扩产品／资源授权。
+
+## 28. System Audit 管理 HTTP 规格采纳与私有 query 阶段启动
+
+§1–27逐字保留。[正式卡rev1](../work-items/d04-system-audit-management-http.md)已由主线程采纳并提交推送 `24da141652bbc4c183cd827e767dbdaf2f2f4051`、远端一致；[规格报告](system-audit-management-http-spec-verification.md)绑定固定f843506／产品213cf5c、被审全文91d576…56b0及技术§1–7 `687c85d4a41880828d038251bf6321accc48092aa043a10addb1606ab02c6f21`。正式页首与本次状态链接更新不改技术，原私稿待审时态和独审原件保留；这里只接受规格。
+
+十四路径（3旧／11新）接两GET-only观察口。同一受保护User事务内核当前Session/admin，全部行与limit+1哨兵完整验证并正常结束后才发布，Unknown／取消／后段失败零候选；原旧List/Get与Filter/cursor语义保持。975420B＜1MiB是保守ASCII组合上界，不证明producer可达最大形状或Go/HTTP动态通过。当前失权代表选已有正式Logout/User Exclusive撤销Session，普通用户来自正式邀请，不SQL改role、不增降权API。
+
+主线程已收到backend在 `/workspace/scratch/agenteam-system-audit-author-0iv75y_i` 实际启动ACK，前13源私有实施与无服务离线检查／编译获授，先query三源同Tx／哨兵／Unknown／helper；第14后端说明最后另授。独立Audit计划准备已实际启动，只读正式卡／固定契约，尚无独立实现验证；计划未冻不纳本档原件，native/listener/真实资源均未授权。本档未读活动实现或宣称编译／产品通过；同期Outbound C独审／D准备不纳本档证据。
+
+12必要逻辑原件以11对象＋正式卡Git保存；独审47项与作者额外5链接目标固定Git去重，不复制全树／依赖或重复分段索引。common无securitySchemes与遗漏独立const两次辅助失败只见原review叙述，没有单独command/raw/退出时长原件，不补造、不称产品RED。
+
+原Object/tools及SPA publication停止不重试／改写／转派，SPA既有scope/native状态不等于产品接受。Summary待决、生产未绑定／ready503保持；完整D08–D28/E01未完成，E01未开始，完整D04/D27／Audit UI／Runtime未由本规格交付。

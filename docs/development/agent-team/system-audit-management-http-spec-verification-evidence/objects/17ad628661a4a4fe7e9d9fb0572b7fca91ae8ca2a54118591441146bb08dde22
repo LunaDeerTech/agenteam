@@ -1,0 +1,44 @@
+{
+  "decision": "STATIC PASS",
+  "scope": "Independent specification review only; no implementation or dynamic acceptance",
+  "spec": {
+    "path": "/workspace/scratch/agenteam-system-audit-http-spec-65p1thtl/d04-system-audit-management-http.md",
+    "sha256": "91d576400771047c9abda0c5d4fd983d331bfd8c1ff86096701c8edd641756b0",
+    "technical_sha256": "687c85d4a41880828d038251bf6321accc48092aa043a10addb1606ab02c6f21",
+    "git": "f843506d9ec991be1c334a81b88d5cbacc277467",
+    "product_git": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93"
+  },
+  "report": {
+    "path": "/workspace/scratch/agenteam-audit-http-spec-independent-dtmkm41p/review.md",
+    "sha256": "ed4cc13288cdb39218e68a53a1b92ac0b622e813d81e4534673136ee42befb79"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/agenteam-audit-http-spec-independent-dtmkm41p/review-inputs.json",
+    "sha256": "50120c4700e4d09f8985e5a38b59a1443868b027993cbeb629460c786862035d",
+    "fixed_git_file_count": 47,
+    "candidate_path_count": 14
+  },
+  "static_arithmetic": {
+    "path": "/workspace/scratch/agenteam-audit-http-spec-independent-dtmkm41p/static-arithmetic.json",
+    "sha256": "284b8a06d7ad95d77f216fd8d4aafe27e6d5568fd6177400c485df95b6525b00",
+    "shell": 739,
+    "record": 4835,
+    "page200": 975420,
+    "budget": 1048576
+  },
+  "blocking_findings": [],
+  "confirmed_implementation_choice": "Use formal Logout/User Exclusive Session revocation for the §7 authority-loss representative; formal invitation for regular-user 403. No formal role-demotion write API exists; no SQL role edits or extra paths. Root confirmed this choice without a technical rewrite.",
+  "new_required_selectors": [
+    "TestSystemAuditHTTPQueryAndProjection",
+    "TestSystemAuditHTTPTransactionAndBudget",
+    "TestSystemAuditHTTPRootProducerBinding"
+  ],
+  "existing_regression_selector": "TestAuditPaginationBindingsFiltersAndRevocation",
+  "limits": [
+    "No Go tests/build/HTTP/native listeners/browser/DB/container run.",
+    "Source set extraction and ASCII arithmetic are static only, not Go constructor/schema acceptance evidence.",
+    "Two auxiliary inspection failures retained in review narrative: missing common securitySchemes and regex omission of standalone const.",
+    "Stopped SPA/Object/tools tasks untouched; no main or Git mutation."
+  ],
+  "frozen": true
+}
