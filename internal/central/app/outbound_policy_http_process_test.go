@@ -1,0 +1,331 @@
+//go:build integration
+
+package app
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
+	"net/netip"
+	"os"
+	"strings"
+	"sync/atomic"
+	"syscall"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
+)
+
+func TestSystemOutboundPolicyHTTPRootSharedInstance(t *testing.T) {
+	if os.Getenv(netfixture.Env) == "" {
+		t.Skip("requires nonce-owned network fixture from scripts/test-security.sh")
+	}
+	started := time.Now()
+	network, err := netfixture.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	trust, err := outbound.LoadTrustStore(network.CAFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var runtime *outboundRuntime
+	var constructed atomic.Int64
+	a := newModelRootApp(t, "3s", func(_ *modelRootApp, deps *dependencies) {
+		deps.outboundConstruct = func(ctx context.Context, _ config.Config, created *outboundRuntime) error {
+			constructed.Add(1)
+			runtime = created
+			// Replace only the still-unconsumed Client's DNS/CA test inputs. The
+			// actual root policy and production NewClient/classifier stay intact.
+			if err := created.client.ForceClose(ctx); err != nil {
+				return err
+			}
+			var err error
+			created.client, err = outbound.NewClient(created.policy, trust, appFixtureResolver{netip.MustParseAddr(network.PrivateIP)})
+			return err
+		}
+	})
+	address := a.address(t)
+	if constructed.Load() != 1 || runtime == nil || a.owned.outbound() != runtime {
+		t.Fatal("root did not retain exactly its one constructed policy/client runtime")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
+	defer cancel()
+	login, err := fixtureAccountLoginResponse(ctx, a.cfg, a.core)
+	if err != nil {
+		t.Fatal("formal root login failed", err)
+	}
+	var cookie sc.SecretMaterial
+	if err = login.UseCookie(func(b []byte) error { var err error; cookie, err = sc.NewSecretMaterial(b); return err }); err != nil {
+		t.Fatal(err)
+	}
+	defer cookie.Destroy()
+	if err = login.Close(ctx); err != nil {
+		t.Fatal(err)
+	}
+	actor, err := a.core.Authenticate(ctx, cookie)
+	if err != nil {
+		t.Fatal(err)
+	}
+	view, err := a.core.GetSession(ctx, cookie)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer view.CSRF.Destroy()
+	var cookieValue, csrf string
+	if err = cookie.Use(func(b []byte) error { cookieValue = string(b); return nil }); err != nil {
+		t.Fatal(err)
+	}
+	if err = view.CSRF.Use(func(b []byte) error { csrf = string(b); return nil }); err != nil {
+		t.Fatal(err)
+	}
+	client := &http.Client{Transport: &http.Transport{Proxy: nil}, Timeout: 5 * time.Second}
+	defer client.CloseIdleConnections()
+	callHTTP := func(method string, body []byte, key string) []byte {
+		t.Helper()
+		r, err := http.NewRequestWithContext(ctx, method, address+"/api/v1/system/outbound-policy", bytes.NewReader(body))
+		if err != nil {
+			t.Fatal(err)
+		}
+		r.Host = "localhost:8080"
+		r.Header.Set("Origin", "http://localhost:8080")
+		r.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: cookieValue})
+		if method == "PUT" {
+			r.Header.Set("Content-Type", "application/json")
+			r.Header.Set("X-CSRF-Token", csrf)
+			r.Header.Set("Idempotency-Key", key)
+		}
+		response, err := client.Do(r)
+		if err != nil {
+			t.Fatal("root policy HTTP request failed", err)
+		}
+		raw, readErr := io.ReadAll(io.LimitReader(response.Body, (1<<20)+1))
+		closeErr := response.Body.Close()
+		if readErr != nil || closeErr != nil || response.StatusCode != 200 || len(raw) > 1<<20 {
+			t.Fatal("root policy request did not yield a complete bounded response", response.StatusCode)
+		}
+		if response.Header.Get("X-Request-ID") == "" || response.Header.Get("Cache-Control") != "no-store" {
+			t.Fatal("root policy lost shared middleware/security")
+		}
+		return raw
+	}
+	if !bytes.Equal(callHTTP("GET", nil, ""), []byte(`{"version":"1","rules":[]}`)) {
+		t.Fatal("new root policy was not empty v1")
+	}
+	scenario, err := network.Create(ctx, netfixture.ScenarioConfig{Body: "owned-policy-http"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	requestTarget := func(wantReason ac.Reason) {
+		t.Helper()
+		key, err := ac.NewAppendKey(ac.AccessProducer, guardID[struct{}](t).String(), 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		call, err := outbound.NewCallContext(actor, identity.SystemScope(), key, ac.Associations{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		profile, err := outbound.NewProfile(outbound.ProfileOptions{Consumer: ac.Model, Context: call, Limits: outbound.Limits{Overall: 3 * time.Second}})
+		if err != nil {
+			t.Fatal(err)
+		}
+		r, err := http.NewRequest("GET", "https://fixture.test:8443/case/"+scenario, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		response, err := runtime.client.Do(ctx, r, profile)
+		if wantReason != "" {
+			if err == nil {
+				_ = response.Close()
+				t.Fatal("denied controlled request reached a response")
+			}
+			var failure *outbound.NetworkError
+			if !errors.As(err, &failure) || failure.Decision().Reason != wantReason || failure.Decision().Sent {
+				t.Fatal("controlled request lost its unsent denial classification")
+			}
+			return
+		}
+		if err != nil {
+			t.Fatal("allowed owned controlled request failed", err)
+		}
+		body, readErr := io.ReadAll(io.LimitReader(response.Body(), 128))
+		closeErr := response.Close()
+		if readErr != nil || closeErr != nil || string(body) != "owned-policy-http" {
+			t.Fatal("real target response incomplete")
+		}
+	}
+	targetCount := func(want int) netfixture.State {
+		t.Helper()
+		state, err := network.State(ctx, scenario)
+		if err != nil || len(state.Requests) != want {
+			t.Fatal("owned target count changed across policy denial", err)
+		}
+		return state
+	}
+	requestTarget(ac.PrivateNotAllowed)
+	targetCount(0)
+	body, err := json.Marshal(map[string]any{"expected_version": "1", "rules": []any{map[string]any{"cidr": network.PrivateIP + "/32", "ports": []int{8443}, "allow_http": false}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	firstKey := guardID[struct{}](t).String()
+	first := callHTTP("PUT", body, firstKey)
+	if status := runtime.policy.Status(); !status.Available || status.Version == nil || *status.Version != 2 {
+		t.Fatal("HTTP update did not publish into the captured root singleton")
+	}
+	requestTarget("")
+	state := targetCount(1)
+	connection := state.Requests[0].Connection
+	clearBody := []byte(`{"expected_version":"2","rules":[]}`)
+	callHTTP("PUT", clearBody, guardID[struct{}](t).String())
+	requestTarget(ac.PrivateNotAllowed)
+	targetCount(1)
+	if !bytes.Equal(first, callHTTP("PUT", body, firstKey)) {
+		t.Fatal("historical root receipt changed")
+	}
+	requestTarget(ac.PrivateNotAllowed)
+	targetCount(1)
+
+	// A real competing advisory lock prevents explicit maintenance Reload.
+	// No policy/receipt row is corrupted to manufacture mirror unavailability.
+	locker := a.db.Connect(t)
+	lockTx, err := locker.Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer lockTx.Rollback(context.Background())
+	lock, _ := foundation.SystemConfigLock("outbound-policy")
+	if _, err = lockTx.Exec(ctx, `SELECT pg_advisory_xact_lock($1)`, lock.AdvisoryKey()); err != nil {
+		t.Fatal(err)
+	}
+	reloadCtx, reloadCancel := context.WithTimeout(ctx, 250*time.Millisecond)
+	reloadDone := make(chan error, 1)
+	reloadFinished := make(chan struct{})
+	t.Cleanup(func() {
+		reloadCancel()
+		select {
+		case <-reloadFinished:
+		case <-time.After(2 * time.Second):
+			t.Error("explicit maintenance Reload callback did not actually join")
+		}
+	})
+	go func() {
+		defer close(reloadFinished)
+		reloadDone <- runtime.policy.Reload(reloadCtx)
+	}()
+	observation, stopObservation := context.WithTimeout(ctx, 200*time.Millisecond)
+	for {
+		var blocked bool
+		err = a.store.QueryRow(observation, `SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND wait_event='advisory' AND $1=ANY(pg_blocking_pids(pid)))`, int64(locker.PgConn().PID())).Scan(&blocked)
+		if err != nil {
+			stopObservation()
+			reloadCancel()
+			<-reloadDone
+			t.Fatal("explicit Reload never reached the owned lock", err)
+		}
+		if blocked {
+			break
+		}
+		select {
+		case <-observation.Done():
+			stopObservation()
+			reloadCancel()
+			<-reloadDone
+			t.Fatal("Reload lock observation expired")
+		case <-time.After(5 * time.Millisecond):
+		}
+	}
+	stopObservation()
+	select {
+	case err = <-reloadDone:
+	case <-time.After(time.Second):
+		reloadCancel()
+		t.Fatal("maintenance Reload did not actually join")
+	}
+	reloadCancel()
+	var fault *foundation.Fault
+	var databaseError *postgres.Error
+	if !errors.As(err, &fault) || fault.CommitState != foundation.NotCommitted || !errors.As(err, &databaseError) || databaseError.Code() != postgres.LockFailed || runtime.policy.Status().Available {
+		t.Fatal("real failed Reload did not retire the mirror")
+	}
+	if err = lockTx.Rollback(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(callHTTP("GET", nil, ""), []byte(`{"version":"3","rules":[]}`)) {
+		t.Fatal("unavailable mirror changed current database GET")
+	}
+	if runtime.policy.Status().Available {
+		t.Fatal("HTTP GET implicitly reloaded the mirror")
+	}
+	if !bytes.Equal(first, callHTTP("PUT", body, firstKey)) || runtime.policy.Status().Available {
+		t.Fatal("old receipt implicitly recovered an unavailable mirror")
+	}
+	requestTarget(ac.PolicyUnavailable)
+	targetCount(1)
+	if err = runtime.policy.Reload(ctx); err != nil {
+		t.Fatal("explicit maintenance recovery failed", err)
+	}
+	if status := runtime.policy.Status(); !status.Available || status.Version == nil || *status.Version != 3 {
+		t.Fatal("maintenance recovery did not restore current v3")
+	}
+	requestTarget(ac.PrivateNotAllowed)
+	targetCount(1)
+	var receipts, audits int
+	if err = a.store.QueryRow(ctx, `SELECT (SELECT count(*) FROM agenteam_outbound.outbound_policy_receipts),(SELECT count(*) FROM agenteam_audit.audit_records WHERE action='outbound.policy.update')`).Scan(&receipts, &audits); err != nil || receipts != 2 || audits != 2 {
+		t.Fatal("read/replay/Reload created policy command facts", err)
+	}
+	r, err := http.NewRequestWithContext(ctx, "GET", address+"/readyz", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ready, err := client.Do(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, _ = io.Copy(io.Discard, ready.Body)
+	_ = ready.Body.Close()
+	if ready.StatusCode != 503 {
+		t.Fatal("this binding incorrectly enabled product readiness")
+	}
+	for _, sensitive := range []string{network.PrivateIP, firstKey, cookieValue, csrf} {
+		if strings.Contains(a.logs.String(), sensitive) {
+			t.Fatal("root ordinary log exposed policy/browser material")
+		}
+	}
+	a.signals <- syscall.SIGTERM
+	await(t, a.done)
+	if a.err != nil || !a.owned.accounts().Joined() {
+		t.Fatal("actual root ownership did not join normally", a.err)
+	}
+	closedCtx, closedCancel := context.WithTimeout(context.Background(), time.Second)
+	defer closedCancel()
+	for {
+		state, err = network.State(closedCtx, scenario)
+		if err != nil {
+			t.Fatal("owned socket closure observation failed", err)
+		}
+		if state.Closed[connection] && state.ActiveHandlers == 0 {
+			break
+		}
+		select {
+		case <-closedCtx.Done():
+			t.Fatal("controlled client socket/callback outlived real root join")
+		case <-time.After(5 * time.Millisecond):
+		}
+	}
+	if constructed.Load() != 1 || time.Since(started) > 2*time.Minute {
+		t.Fatal("root reconstructed policy or exceeded scenario budget")
+	}
+}

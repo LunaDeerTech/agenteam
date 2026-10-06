@@ -1,0 +1,375 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "agenteam System outbound policy HTTP",
+    "version": "0.1.0",
+    "description": "Only GET and PUT at the exact path. All other methods, including HEAD, return 405 with Allow: GET, PUT; HEAD errors have no body. No HEAD fallback, lookup, reload, connectivity probe, pagination or UI. Original Host/Origin/Fetch-Metadata and clean Path/RawPath checks precede routing/auth/body, without redirects, CORS or forwarded-header trust. Exactly one outer RequestID/recovery middleware. Explicit authorized DTOs are the only rule disclosure; ordinary engine formatting remains redacted. Successful response JSON is limited to 1 MiB."
+  },
+  "paths": {
+    "/api/v1/system/outbound-policy": {
+      "get": {
+        "operationId": "getSystemOutboundPolicy",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current System administrator, rechecked in the same policy read transaction. GET-only, no query (including bare ?), body or write CSRF/key. Local 3-second budget starts before HTTP authentication and inherits earlier parent deadlines, with actual I/O completion before return. Current complete DB observation does not certify mirror availability, send success or a command receipt. Does not Reload.",
+        "responses": {
+          "200": {
+            "description": "Current authorized policy. Empty rules is [], never null.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity from the outer middleware; caller input is ignored."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundPolicy"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateSystemOutboundPolicy",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current administrator plus same-origin CSRF; same transaction rechecks current Session/authority. Whole-body replacement with original policy service locks, audit and receipt. Local 30-second budget includes preauthentication, bounded body, send gate, transaction, Unknown verification and response preparation; no renewed phase deadlines. An accepted historical key returns its original four-field result without reverting/reloading the process mirror, even while unavailable. Current observations and historical receipt differ. Canonically equal reordered rules/ports preserve command semantics; same key with different semantics conflicts. No automatic retry or cancellation of in-flight sends.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Single application/json, optional charset=utf-8, no Content-Encoding. UTF-8 serialized bytes including whitespace count toward 1 MiB. Unknown/missing/duplicate fields, nulls, nonobjects and trailing JSON are rejected. No query or caller-supplied identity.",
+          "x-max-json-bytes": 1048576,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutboundPolicyUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Original UpdatePolicy receipt; version starts at 2 on first update. No following GET is appended.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity from the outer middleware; caller input is ignored."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundPolicyUpdateResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Session": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session"
+      },
+      "LocalSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "agenteam_local_session"
+      },
+      "CSRF": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-CSRF-Token"
+      }
+    },
+    "parameters": {
+      "Origin": {
+        "in": "header",
+        "name": "Origin",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": "One exact configured deployment origin; forwarding headers do not override it."
+      },
+      "Key": {
+        "in": "header",
+        "name": "Idempotency-Key",
+        "required": true,
+        "schema": {
+          "$ref": "./common.json#/components/schemas/IdempotencyKey"
+        },
+        "description": "One untrimmed header. Identity is server-owned outbound-policy / current user / update / key. Session and request trace are not command identity."
+      }
+    },
+    "schemas": {
+      "OutboundRuleInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "cidr",
+          "ports"
+        ],
+        "properties": {
+          "cidr": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 43,
+            "description": "Canonical netip prefix, masked network bits, non IPv4-mapped; wholly inside RFC1918 or ULA. Fixed forbidden-address classification still wins."
+          },
+          "ports": {
+            "oneOf": [
+              {
+                "type": "string",
+                "const": "all"
+              },
+              {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 256,
+                "uniqueItems": true,
+                "items": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                }
+              }
+            ],
+            "description": "Literal all or 1–256 distinct integer JSON tokens. Strings, fraction/exponent notation, zero, negative and overflow are rejected. Input order may vary; stored/returned ports are sorted."
+          },
+          "allow_http": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "OutboundRule": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "cidr",
+          "ports",
+          "allow_http"
+        ],
+        "properties": {
+          "cidr": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 43,
+            "description": "Canonical netip prefix, masked network bits, non IPv4-mapped; wholly inside RFC1918 or ULA. Fixed forbidden-address classification still wins."
+          },
+          "ports": {
+            "oneOf": [
+              {
+                "type": "string",
+                "const": "all"
+              },
+              {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 256,
+                "uniqueItems": true,
+                "items": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                }
+              }
+            ],
+            "description": "Literal all or 1–256 distinct integer JSON tokens. Strings, fraction/exponent notation, zero, negative and overflow are rejected. Input order may vary; stored/returned ports are sorted."
+          },
+          "allow_http": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "OutboundPolicy": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "rules"
+        ],
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "rules": {
+            "type": "array",
+            "maxItems": 256,
+            "items": {
+              "$ref": "#/components/schemas/OutboundRule"
+            }
+          }
+        }
+      },
+      "OutboundPolicyUpdateInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "rules"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "rules": {
+            "type": "array",
+            "maxItems": 256,
+            "items": {
+              "$ref": "#/components/schemas/OutboundRuleInput"
+            },
+            "x-max-json-bytes": 524288,
+            "description": "Original raw JSON field is limited to 512 KiB before canonicalization; null, duplicate keys at any depth, invalid depth and duplicate canonical rules are rejected. Canonical rule order is not an evaluation priority."
+          }
+        }
+      },
+      "OutboundPolicyUpdateResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "rule_count",
+          "audit_id",
+          "created_at"
+        ],
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "rule_count": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              },
+              {
+                "pattern": "^(0|[1-9][0-9]?|1[0-9]{2}|2[0-4][0-9]|25[0-6])$"
+              }
+            ],
+            "description": "Canonical decimal string in 0–256."
+          },
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        }
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Safe RFC 9457 Problem. 400 invalid input; 401 unauthenticated/revoked (clear only selected Session cookie); 403 current authority/CSRF/Origin denied; 404 unknown path; 405 with Allow: GET, PUT (HEAD has no body); 409 version/key/state conflict; 413 total JSON body exceeds 1 MiB; 415 unsupported media/encoding; 503 unbound/unavailable/CommitUnknown/shutdown; 500 internal error. COMMIT_UNKNOWN preserves commit_state=unknown and the existing retry_hint=lookup, but this domain has no lookup route: explicitly replay the original PUT/key/body with current legal CSRF. GET is never a command receipt. No private rules, keys or nested causes in a Problem.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "type": "string",
+              "const": "no-store"
+            }
+          },
+          "X-Content-Type-Options": {
+            "schema": {
+              "type": "string",
+              "const": "nosniff"
+            }
+          },
+          "Referrer-Policy": {
+            "schema": {
+              "type": "string",
+              "const": "no-referrer"
+            }
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "description": "One server-owned request identity from the outer middleware; caller input is ignored."
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    }
+  }
+}

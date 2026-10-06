@@ -16,6 +16,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	objectcontract "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	outboundhttp "github.com/LunaDeerTech/agenteam/internal/central/outbound/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
@@ -391,7 +392,13 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	if !accounts.install(ctx, func() { accounts.handler = systemModelRoutes(httpHandler, modelHandler) }) {
+	policyHandler, err := outboundhttp.NewSystemHTTPHandler(transport.policy, core, outboundhttp.SystemHTTPOptions{PublicOrigin: cfg.PublicOrigin()})
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() {
+		accounts.handler = systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler)
+	}) {
 		return context.Canceled
 	}
 	deps.security = func(ctx context.Context, _ config.Config, _ database) (*audit.Service, error) {
