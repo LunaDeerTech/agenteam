@@ -1,6 +1,6 @@
 # D27：System Model 管理、删除影响与替代删除
 
-状态：rev1，2026-10-06 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳本规格；被审稿 SHA256 `d56ba2ab3ecca56058fa614d15d716228e8294ed51fd74ab02308f4064aed9f6`。本次仅更新页首采纳及前置等待状态，技术§1–7保持被审原字节；§6仍为24条候选路径，业务实施与真实资源均未授权。固定已接受前端为 `1c82d888adfef0d8b58ab51c920557ca4e2f084f`，后端为 `9b3201547f9b7b61fd9716a6ba6540084961496c`及迁移1–19。正在实施的Provider UI只按提交 `a8f0135` 中[Provider rev3规格](d27-system-provider-management-ui.md)作为待验接缝，未读取其活动源码；必须等待该完整结果最终接受、固定产品提交与资源清零后，复核实际接口并由主线程另授实施。本卡不写其他规格、后端、迁移或当前归档。
+状态：rev1，2026-10-06 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳本规格；被审稿 SHA256 `d56ba2ab3ecca56058fa614d15d716228e8294ed51fd74ab02308f4064aed9f6`。本次仅更新页首实施前置与固定基线，技术§1–7保持被审原字节及原采纳语义；§6仍为24条路径，只读接缝复核确认均需保留。Provider UI的22路径完整结果已获独立最终PASS，主线程接受提交 `f465f45b899e21c225e7d4107c099b256538239c`并推送main、远端一致；本卡Provider前置已满足，固定产品/前端基线采用该接受提交，后端 `9b3201547f9b7b61fd9716a6ba6540084961496c`及迁移1–19保持。技术正文中的Provider待验表述保留原审稿状态，当前就绪状态以本页首为准。拟由 `directory_frontend`（frontend_worker）担任原24路径唯一作者，待主线程正式下发后实施；后端、迁移、共享基础与锁文件不在授权范围，真实资源窗口由主线程稍后另授，当前不得自行启动。architecture_worker仅更新本卡页首，不改业务、其他文档或当前归档。
 
 ## 1. 完整结果、依赖与未交付边界
 
