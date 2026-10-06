@@ -1,0 +1,110 @@
+#!/usr/bin/python3
+import ctypes, hashlib, json, os, shutil, subprocess, sys, time
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent
+REPO=Path('/workspace/agenteam')
+BASE='63de0ac675e0fd4cd26e2cecde91f417a63d3bca'
+GO='/workspace/toolchains/go1.27.1/bin/go'
+MODCACHE=Path('/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache')
+GOCACHE=Path('/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache')
+DELIVERY=Path('/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/delivery28.json')
+DELIVERY_SHA='bd2421fef1d9000df76c91f08e36f6b083ee044be9c9275d13e18769bea613c9'
+ENV={k:v for k,v in os.environ.items() if not k.startswith('AGENTEAM_')}
+ENV.update(GOTOOLCHAIN='local',GOENV='off',GOWORK='off',GOPROXY='off',GOSUMDB='off',GOMODCACHE=str(MODCACHE),GOCACHE=str(GOCACHE),TMPDIR=str(ROOT/'tmp'),CGO_ENABLED='1',GOMAXPROCS='2',GOFLAGS='-mod=readonly -buildvcs=false -p=1')
+ENV_KEYS=['GOTOOLCHAIN','GOENV','GOWORK','GOPROXY','GOSUMDB','GOMODCACHE','GOCACHE','TMPDIR','CGO_ENABLED','GOMAXPROCS','GOFLAGS']
+FIELDS=['GoFiles','CgoFiles','CFiles','CXXFiles','MFiles','HFiles','FFiles','SFiles','SwigFiles','SwigCXXFiles','SysoFiles','EmbedFiles','TestGoFiles','XTestGoFiles']
+PROFILES=[('account-integration-race',[GO,'list','-race','-deps','-test','-tags=integration','-json','./tests/account']),('app-pure-race',[GO,'list','-race','-deps','-test','-json','./internal/central/app']),('central-runner-build',[GO,'list','-deps','-json','./cmd/agenteam','./cmd/agenteam-runner'])]
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def save(p,x):p.write_text(json.dumps(x,indent=2,sort_keys=True)+'\n')
+def read(argv):return subprocess.check_output(argv,cwd=REPO,env=ENV,timeout=60)
+def group(gid):
+ result={}
+ for p in Path('/proc').iterdir():
+  if not p.name.isdigit():continue
+  try:
+   f=(p/'stat').read_text().rsplit(')',1)[1].split()
+   if int(f[2])==gid:result[p.name+':'+f[19]]={'pid':int(p.name),'starttime':f[19],'ppid':int(f[1]),'state':f[0]}
+  except (OSError,ValueError,IndexError):pass
+ return result
+
+def discover():
+ assert sha(DELIVERY)==DELIVERY_SHA
+ candidates=json.loads(DELIVERY.read_text())['files']
+ assert len(candidates)==28 and all(sha(REPO/n)==h for n,h in candidates.items())
+ raw=read(['git','ls-tree','-r','-z',BASE]);tree={}
+ for row in raw.split(b'\0'):
+  if row:
+   info,n=row.split(b'\t',1);mode,kind,oid=info.decode().split();tree[n.decode()]={'mode':mode,'kind':kind,'git_blob':oid}
+ goenv=json.loads(read([GO,'env','-json','GOVERSION','GOROOT','GOOS','GOARCH','CC','CXX','CGO_CFLAGS','CGO_CPPFLAGS','CGO_CXXFLAGS','CGO_LDFLAGS']))
+ assert goenv['GOVERSION']=='go1.27.1'
+ goroot=Path(goenv['GOROOT']).resolve();decoder=json.JSONDecoder();local=set(['go.mod','go.sum']);external={Path(GO)};packages=set();modules={};generated=set();profile_records=[]
+ for name,argv in PROFILES:
+  text=read(argv).decode();offset=0
+  profile_records.append({'name':name,'argv':argv})
+  while offset<len(text):
+   while offset<len(text) and text[offset].isspace():offset+=1
+   if offset==len(text):break
+   p,offset=decoder.raw_decode(text,offset)
+   assert not p.get('Error') and not p.get('DepsErrors'),p.get('ImportPath')
+   packages.add(p['ImportPath']);module=p.get('Module',{})
+   if module and not module.get('Main'):
+    assert not module.get('Replace')
+    modules[module['Path']]={k:module.get(k) for k in ['Version','Dir','GoMod','Sum','GoModSum']}
+    external.add(Path(module['GoMod']))
+   directory=Path(p.get('Dir',str(REPO)))
+   for field in FIELDS:
+    for n in p.get(field,[]):
+     path=(directory/n).resolve()
+     if path.is_relative_to(REPO):local.add(str(path.relative_to(REPO)))
+     elif path.is_relative_to(GOCACHE) or path.is_relative_to(ROOT/'tmp'):
+      assert p['ImportPath'].endswith('.test');generated.add(p['ImportPath'])
+     else:
+      assert path.is_relative_to(goroot) or path.is_relative_to(MODCACHE),str(path)
+      external.add(path)
+ for tool in ['compile','link','asm','cgo','vet']:external.add(goroot/'pkg/tool/linux_amd64'/tool)
+ for tool in [goenv['CC'],goenv['CXX']]:external.add(Path(shutil.which(tool)).resolve())
+ local_hashes={};base_bindings={}
+ for n in sorted(local):
+  p=REPO/n;assert p.is_file() and not p.is_symlink()
+  data=p.read_bytes();h=hashlib.sha256(data).hexdigest();local_hashes[n]=h
+  if n in candidates:assert h==candidates[n]
+  else:
+   assert n in tree and tree[n]['kind']=='blob' and tree[n]['mode']!='120000',n
+   assert hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()==tree[n]['git_blob'],n
+   base_bindings[n]=tree[n]
+ return {'fixed_base':BASE,'delivery28_sha256':DELIVERY_SHA,'candidate28':candidates,'go_inputs':local_hashes,'accepted_git_inputs':base_bindings,'external_go_inputs':{str(p):sha(p) for p in sorted(external)},'packages':sorted(packages),'generated_test_mains':sorted(generated),'modules':dict(sorted(modules.items())),'go_environment':goenv,'profiles':profile_records,'env':{k:ENV[k] for k in ENV_KEYS},'driver_sha256':sha(Path(__file__))}
+
+def run(name,argv,frozen):
+ path=ROOT/'runs'/name;path.mkdir();before=discover();save(path/'input-before.json',before)
+ if before!=frozen:raise RuntimeError('input drift before '+name)
+ record={'argv':argv,'cwd':str(REPO),'env':{k:ENV[k] for k in ENV_KEYS},'resources_started':False};save(path/'command.json',record)
+ start=time.monotonic();observed={};adopted=[]
+ with (path/'raw.log').open('wb') as raw:
+  child=subprocess.Popen(argv,cwd=REPO,env=ENV,stdout=raw,stderr=subprocess.STDOUT,start_new_session=True)
+  print(json.dumps({'run':name,'pid':child.pid,'phase':'started'}),flush=True)
+  while child.poll() is None:
+   observed.update(group(child.pid));time.sleep(.1)
+  code=child.wait()
+ for row in group(child.pid).values():
+  if row['ppid']==os.getpid() and row['state']=='Z':
+   pid,status=os.waitpid(row['pid'],0);adopted.append({'pid':pid,'starttime':row['starttime'],'actual_wait':True,'exit':os.waitstatus_to_exitcode(status)})
+ first=group(child.pid);time.sleep(.1);second=group(child.pid)
+ elapsed=round(time.monotonic()-start,3);after=discover();save(path/'input-after.json',after)
+ record.update(exit=code,seconds=elapsed,actual_wait=True);save(path/'command.json',record)
+ result={'exit':code,'seconds':elapsed,'actual_wait':True,'inputs_unchanged':before==after==frozen,'observed_PID_starttimes':observed,'adopted_waits':adopted,'first_scan':first,'second_scan':second,'raw_sha256':sha(path/'raw.log'),'resources_started':False};save(path/'result.json',result)
+ print(json.dumps({k:v for k,v in result.items() if k!='observed_PID_starttimes'}),flush=True)
+ return code==0 and before==after==frozen and not first and not second
+
+def main():
+ if ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0)!=0:raise RuntimeError('cannot become task subreaper')
+ start=time.monotonic();frozen=discover();save(ROOT/'input01.json',frozen)
+ save(ROOT/'discovery01.json',{'seconds':round(time.monotonic()-start,3),'cwd':str(REPO),'actual_subprocess_waits':True,'profiles':frozen['profiles'],'env':frozen['env'],'candidate28':len(frozen['candidate28']),'local_go_inputs':len(frozen['go_inputs']),'external_go_inputs':len(frozen['external_go_inputs']),'resources_started':False})
+ print(json.dumps({'phase':'fixed','root':str(ROOT),'input_sha256':sha(ROOT/'input01.json'),'local_go_inputs':len(frozen['go_inputs']),'external_go_inputs':len(frozen['external_go_inputs'])}),flush=True)
+ commands=[('account-race-compile01',[GO,'test','-c','-tags=integration','-race','-o',str(ROOT/'bin/account-integration.test'),'./tests/account']),('app-pure01',[GO,'test','-race','-count=1','-timeout=45s','-v','./internal/central/app','-run','^(TestOutboundPolicyRootRoutePreservationAndSingleMiddleware|TestModelRootRouteOwnershipAndRequestPreservation)$']),('central-runner-build01',[GO,'build','-o',str(ROOT/'bin')+'/', './cmd/agenteam','./cmd/agenteam-runner'])]
+ for name,argv in commands:
+  if not run(name,argv,frozen):return 1
+ final=discover();assert final==frozen
+ save(ROOT/'result.json',{'exit':0,'checks':[n for n,_ in commands],'actual_wait':True,'inputs_unchanged':True,'resources_started':False,'input_sha256':sha(ROOT/'input01.json'),'outputs':{p.name:sha(p) for p in sorted((ROOT/'bin').iterdir()) if p.is_file()}})
+ print(json.dumps({'phase':'completed','exit':0,'resources_started':False,'input_unchanged':True}),flush=True)
+ return 0
+if __name__=='__main__':raise SystemExit(main())

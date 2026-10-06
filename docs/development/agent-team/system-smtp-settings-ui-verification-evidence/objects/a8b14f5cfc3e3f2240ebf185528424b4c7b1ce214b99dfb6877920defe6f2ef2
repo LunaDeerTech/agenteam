@@ -1,0 +1,11 @@
+--- delivery29/docs/development/frontend/README.md
++++ delivery29-v2/docs/development/frontend/README.md
+@@ -313,7 +313,7 @@
+ 
+ 密码留空表示保持，输入新密码表示替换；明确移除认证时用户名须为空。材料只在输入 DOM、私有非响应式 owner 及实际请求所需临时副本中持有，不回显、不进入公开状态、日志、URL 或持久存储。输入 DOM 清空或同 Session 重挂不抹去仍合法的原请求材料；明确放弃或身份失效立即取消恢复资格，实际尾部结束后清理可达引用，不承诺凭据已被物理擦除或在途副作用已撤销。
+ 
+-PUT 与停用返回的 `applied_version` 确认原命令的历史版本，`settings` 是重新授权后的当前观察；两者不能混为同一次配置快照。原 PUT 重放可读到当前已停用，原停用重放也可读到当前重新配置，页面分别显示原操作确认和当前状态，较旧观察不倒退较新版本。没有公开 command lookup；Session 检查、GET 相同值或版本推进均不能确认原写。已派发写的后读失败即使标为 `not_started`，也保留原 method/path/key/body/version/CSRF 与精确密码；仅由用户明确重试原请求，严格匹配结果后才确认。确认后刷新失败只重试读取，不重新保存。
++PUT 与停用返回的 `applied_version` 确认原命令的历史版本，`settings` 是重新授权后的当前观察；两者不能混为同一次配置快照。原 PUT 重放可读到当前已停用，原停用重放也可读到当前重新配置，页面分别显示原操作确认和当前状态，较旧观察不倒退较新版本。没有公开 command lookup；Session 检查、GET 相同值或版本推进均不能确认原写。已派发写的后读失败即使标为 `not_started`，也保留原 method/path/key/body/version 及精确密码；仅由用户明确使用当前合法 CSRF 重试原请求，严格匹配结果后才确认。确认后刷新失败只重试读取，不重新保存。
+ 
+ SMTP 是 Session controller 的第八项依赖，使用独立状态域并共用唯一 Cookie 请求 owner。30 秒可见截止、取消、放弃或身份变化不提前释放实际 fetch/body/read/cancel 尾部；读取取消同步结束失效的 loading，须显式重读，不自动补发。草稿及未确认写受离页/注销确认保护，停用与放弃使用各自常驻 Dialog 和 Promise；同 Session checking/失败恢复保留待决状态，真正身份或权限失效清除旧恢复资格。关闭确认恢复当前可用触发器，旧触发器已卸载时使用当前页标题后备目标；原生焦点与 Tab 顺序已验。
+ 

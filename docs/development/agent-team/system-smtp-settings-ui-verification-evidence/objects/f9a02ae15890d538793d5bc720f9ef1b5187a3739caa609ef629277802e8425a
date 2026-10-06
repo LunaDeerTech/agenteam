@@ -1,0 +1,76 @@
+--- independent-smtp-api.spec.ts@01
++++ independent-smtp-api.spec.ts@02
+@@ -41,15 +41,64 @@
+     expect(failures).toEqual([])
+   })
+ 
+-  it('rejects exactly the represented Go-invalid raw email inputs before dispatch',async()=>{
+-    const mismatches: {name:string;goAccepted:boolean;clientAccepted:boolean;dispatches:number}[]=[]
+-    for(const row of oracle.filter(p=>p.kind==='email')) {
+-      const fetcher=vi.fn<Fetch>(async()=>json(receipt()))
+-      const value=await createSystemSMTPSettingsAPI(fetcher).updateSettings({...draft(),sender_email:row.input},write()).then(()=>true,()=>false)
+-      if(value!==row.accepted || (!row.accepted && fetcher.mock.calls.length!==0))
+-        mismatches.push({name:row.name,goAccepted:row.accepted,clientAccepted:value,dispatches:fetcher.mock.calls.length})
+-    }
+-    expect(mismatches).toEqual([])
++  it('matches f670cb1 raw canonical DTO and original replay material', async () => {
++    type Row = { name: string; input: string; accepted: boolean; canonical: string }
++    const rows: Row[] = JSON.parse(readFileSync(new URL('../../../../accepted-oracle02/vectors.json', import.meta.url), 'utf8'))
++    const material = '  \tindependent-api02-🧩  '
++    for (const row of rows) {
++      const request = { ...draft(), sender_email: row.input, password: material }
++      const fetcher = vi.fn<Fetch>(async () => json(receipt({ ...settings(), sender_email: row.canonical })))
++      const api = createSystemSMTPSettingsAPI(fetcher)
++      const opts = write()
++      if (!row.accepted) {
++        await expect(api.updateSettings(request, opts), row.name).rejects.toMatchObject({ kind: 'invalid-input' })
++        expect(fetcher.mock.calls.length, row.name).toBe(0)
++        expect(request.sender_email === row.input && request.password === material, row.name).toBe(true)
++        continue
++      }
++      const captured = captureSMTPUpdate(request)
++      expect(captured.sender_email === row.input && captured.password === material, row.name).toBe(true)
++      expect(Object.isFrozen(captured), row.name).toBe(true)
++      for (let replay = 0; replay < 2; replay++) {
++        const outcome = await api.updateSettings(captured, opts)
++        expect(outcome.settings.sender_email === row.canonical, row.name).toBe(true)
++        expect(outcome.applied_version === appliedVersion, row.name).toBe(true)
++      }
++      expect(fetcher.mock.calls.length, row.name).toBe(2)
++      for (const [path, init] of fetcher.mock.calls) {
++        expect(path === '/api/v1/system/smtp' && init.method === 'PUT', row.name).toBe(true)
++        expect(init.body === JSON.stringify(captured), row.name).toBe(true)
++        const headers = new Headers(init.headers)
++        expect(headers.get('Idempotency-Key') === opts.key && headers.get('X-CSRF-Token') === opts.csrfToken, row.name).toBe(true)
++        const body = JSON.parse(init.body as string)
++        expect(body.sender_email === row.input && body.password === material, row.name).toBe(true)
++      }
++      const dto = { ...settings(), sender_email: row.canonical }
++      const observed = await createSystemSMTPSettingsAPI(async () => json(dto)).getSettings(signal())
++      expect(observed.sender_email === row.canonical && Object.isFrozen(observed), row.name).toBe(true)
++    }
++    // Current GET and both write receipts must reject noncanonical values,
++    // including values that remain valid raw requests under the accepted S.
++    const noncanonical = [...new Set(rows.filter(r => !r.accepted || r.input !== r.canonical).map(r => r.input))]
++    for (const sender_email of noncanonical) {
++      const invalid = { ...settings(), sender_email }
++      await expect(createSystemSMTPSettingsAPI(async () => json(invalid)).getSettings(signal())).rejects.toMatchObject({ kind: 'invalid-response' })
++      const api = createSystemSMTPSettingsAPI(async () => json(receipt(invalid)))
++      await expect(api.updateSettings(draft(), write())).rejects.toMatchObject({ kind: 'invalid-response' })
++      await expect(api.unconfigure(policy(), write())).rejects.toMatchObject({ kind: 'invalid-response' })
++    }
++    // Canonical parsing is still downstream of the original actual EOF barrier.
++    const dto = { ...settings(), sender_email: 'a@[ipv6:2001:0db8::7]' }
++    let controller!: ReadableStreamDefaultController<Uint8Array>
++    const stream = new ReadableStream<Uint8Array>({ start(c) { controller = c } })
++    let settled = false
++    const pending = createSystemSMTPSettingsAPI(async () => new Response(stream, { headers: { 'Content-Type': 'application/json' } }))
++      .getSettings(signal()).then(value => { settled = true; return value })
++    controller.enqueue(encoder.encode(JSON.stringify(dto)))
++    await turn()
++    expect(settled).toBe(false)
++    controller.close()
++    expect((await pending).sender_email === dto.sender_email && !stream.locked).toBe(true)
+   })
+ 
+   it('accepts canonical email DTOs emitted by Go even where normalization changes literal prefix case',async()=>{

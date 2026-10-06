@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "run",
+    "."
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/oracle",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/go-cache",
+    "GOTMPDIR": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/go-tmp",
+    "NO_COLOR": "1",
+    "CI": "1"
+  },
+  "started_utc": "2026-10-06T15:56:44.242326+00:00",
+  "resource_execution": false
+}

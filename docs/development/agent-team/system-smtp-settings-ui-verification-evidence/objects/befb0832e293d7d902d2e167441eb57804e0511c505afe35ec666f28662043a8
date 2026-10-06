@@ -1,0 +1,67 @@
+package account
+
+import (
+	"encoding/json"
+	"testing"
+)
+
+// This probe calls the unchanged full function in accepted f670cb1.
+func TestSMTPUIEmailCanonicalOracle(t *testing.T) {
+	cases := []struct {
+		Name, Input, Canonical string
+		Accepted               bool
+	}{
+		{"ordinary", "Sender@EXAMPLE.test", "sender@example.test", true},
+		{"dot-atom", "A@domain!TEST", "a@domain!test", true},
+		{"underscore", "A@domain_TEST", "a@domain_test", true},
+		{"ipv4", "A@[192.0.2.7]", "a@[192.0.2.7]", true},
+		{"old-marker", "A@[IPv6:2001:DB8::7]", "a@[ipv6:2001:db8::7]", true},
+		{"canonical", "a@[ipv6:2001:db8::7]", "a@[ipv6:2001:db8::7]", true},
+		{"expanded", "A@[IPv6:2001:0DB8:0000:0000:0000:0000:0000:0007]", "a@[ipv6:2001:0db8:0000:0000:0000:0000:0000:0007]", true},
+		{"old-prefixed-ipv4", "A@[IPv6:192.0.2.7]", "a@[ipv6:192.0.2.7]", true},
+		{"canonical-prefixed-ipv4", "a@[ipv6:192.0.2.7]", "a@[ipv6:192.0.2.7]", true},
+		{"old-prefixed-mapped", "A@[IPv6:::FFFF:192.0.2.7]", "a@[ipv6:::ffff:192.0.2.7]", true},
+		{"canonical-prefixed-mapped", "a@[ipv6:::ffff:192.0.2.7]", "a@[ipv6:::ffff:192.0.2.7]", true},
+		{"mapped", "A@[::FFFF:192.0.2.7]", "a@[::ffff:192.0.2.7]", true},
+		{"expanded-mapped", "A@[0:0:0:0:0:FFFF:C000:207]", "a@[0:0:0:0:0:ffff:c000:207]", true},
+		{"mixed-marker", "a@[iPv6:2001:db8::7]", "", false},
+		{"upper-marker", "a@[IPV6:2001:db8::7]", "", false},
+		{"upper-local-lower-marker", "A@[ipv6:2001:db8::7]", "", false},
+		{"upper-hex-lower-marker", "a@[ipv6:2001:DB8::7]", "", false},
+		{"upper-mapped-lower-marker", "a@[ipv6:::FFFF:192.0.2.7]", "", false},
+		{"unprefixed-ipv6", "a@[2001:db8::7]", "", false},
+		{"unmapped", "a@[::192.0.2.7]", "", false},
+		{"non-mapped-prefix", "a@[::ffff:0:1:2]", "", false},
+		{"zone", "a@[ipv6:fe80::1%lo]", "", false},
+		{"ipv4-leading-zero", "a@[192.000.2.7]", "", false},
+		{"tail", "a@[ipv6:2001:db8::7]tail", "", false},
+		{"extra-at", "a@b@[ipv6:2001:db8::7]", "", false},
+	}
+	type fact struct {
+		Name             string `json:"name"`
+		Accepted         bool   `json:"accepted"`
+		ExpectedAccepted bool   `json:"expected_accepted"`
+		CanonicalMatches bool   `json:"canonical_matches"`
+	}
+	facts := make([]fact, 0, len(cases))
+	for _, c := range cases {
+		got, err := NormalizeEmail(c.Input)
+		accepted := err == nil
+		matches := got == c.Canonical
+		facts = append(facts, fact{c.Name, accepted, c.Accepted, matches})
+		if accepted != c.Accepted || !matches {
+			t.Errorf("oracle mismatch: %s", c.Name)
+		}
+		if accepted {
+			again, e := NormalizeEmail(got)
+			if e != nil || again != got {
+				t.Errorf("canonical reentry mismatch: %s", c.Name)
+			}
+		}
+	}
+	encoded, err := json.Marshal(facts)
+	if err != nil {
+		t.Fatal("safe oracle projection failed")
+	}
+	t.Logf("SMTP_EMAIL_ORACLE_SAFE %s", encoded)
+}

@@ -1,0 +1,20 @@
+# SMTP 页面阶段独立核验
+
+**有界页面阶段 PASS；SMTP UI 整卡未接受。** 固定 web-stage01 manifest `956711b0479cd790a6463ae0bbe56257db66a3941ecab45b3562b80c1055cbb5`，19源与36dist末次逐SHA相同；API三源及useSession等于先前owner-stage01。已知邮箱API旧raw/canonical缺口另由已接受邮箱修复卡处理，本页结果不覆盖该缺口。
+
+只消费固定快照与40c904c接受依赖，私有导入闭包47文件，未复制全web/依赖或读取活动harness。原App、Session owner、API、SMTP controller/View配受控Fetch和memory router运行；非当前其它业务叶子为占位，未重验它们。
+
+`checks/app02` actual wait exit0/2.301s，2/2 PASS（测试577ms），输入前后相同。原probe SHA `926b22ae22016ac34c729c222b7038522795ecbeaf4b922a1a26406b4c97b7b8`；raw `2029028487c1efc1a0848dce566331ec9ece5faa81e9cb6d6c03f9e50df9be3c`；result `ccc887d1e306d6a11adfcaa6d62b4d9cad63a957459796d23101f8bcd80e9b7e`。精确argv/env/cwd和前后指纹在该run；所有受控promise在原finally/afterEach结束，执行进程实际wait。未启动浏览器、端口、PG、Docker或业务fixture。
+
+- 第一组合：公开表单输入私有材料，提交503/not_started后仍unknown/private-retained、DOM材料清空；公开放弃确认清材料/progress并取消新编辑资格，零自动请求。显式GET失败不生成默认表单；随后显式完整GET成功才创建新基线/允许重新配置，材料为空且零额外写。DOM属性、公开owner序列化与storage无该材料。
+- 第二组合：修改重试草稿后公开停用先明确丢弃，停用确认捕获原已存版本10/重试3/间隔60；同时导航叠加第二确认。真正App pageshow listener触发新Session请求，checking与503期两层共同卸载；显式同Session恢复重新建立两层，顶层继续编辑只拒导航并回下层。明确停用单POST保留原版本/已存策略，历史applied11与当前14未配置分开；立即新policy草稿显示普通保存标签，无前次unconfigure成功反馈、不等待2400ms、零额外写。已确认后GET失败保持历史确认并只重读。再次两层待决遇同用户新Session，旧导航false/两层消失/零额外写。
+
+真实消费链静核：View的material.revision与progress.phase两个flush:sync观察者只直接清本地passwordInput.value，无API、事件派发或新请求；controller身份观察者是默认pre。实际公开丢弃动作的上述零请求断言通过。因此owner原额外任意同步watch在abandon栈内发新写的探针继续按root裁定不纳本卡门槛；原owner7例actual exit1没有改写或称全绿。
+
+两个UiDialog在同View末尾常驻，顺序为停用后放弃；normal false走共享关闭恢复，checking/真离页整体unmount不fallback。latest标题fallback需alive/full identity/current/admin/无denied；旧实例异步focus受同门禁。普通已知草稿取消可恢复已有合法观察；未知放弃及取消未完读取则要求显式重读，不能笼统等同全部读失败。kind绑定已避免unconfigure成功传给新policy保存按钮。
+
+限制：jsdom设置明确getClientRects前提，层状态与activeElement只为DOM/状态证据，不冒真实Tab、pointer默认行为、视觉、服务权限或邮件发送。作者13App/43state及完整check按其冻结原件引用，不称本方重跑。旧反馈kind修前作者page-app01 12/13原红由manifest保留。
+
+本方准备前提两次失败另列：初次缺私有checks父目录，runner在建run之前退出1；后次误设/usr/bin/node，Popen在启动子进程前失败（checks/app01的command/input与空raw保留）。实际Node路径修正后原产品/probe/runner/断言不变，app02首次执行测试即2/2。没有补造前两次actual wait或产品红。
+
+本阶段原件与简报现永久停写。后继邮箱接口返修和完整真实UI另验，不因本阶段通过扩大结论。

@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "node",
+    "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "independent.config.mjs"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/fixed/web",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/go-cache",
+    "GOTMPDIR": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/go-tmp",
+    "NO_COLOR": "1",
+    "CI": "1"
+  },
+  "started_utc": "2026-10-06T15:58:02.109241+00:00",
+  "resource_execution": false,
+  "pid": 1555765,
+  "exit_code": 1,
+  "actual_wait": true,
+  "duration_seconds": 0.598,
+  "input_unchanged": true,
+  "raw_sha256": "482f39c89cccc6561da32d5555921dd91b1fec64136fc29ee6d8f3d4742a9738",
+  "ended_utc": "2026-10-06T15:58:02.707256+00:00"
+}

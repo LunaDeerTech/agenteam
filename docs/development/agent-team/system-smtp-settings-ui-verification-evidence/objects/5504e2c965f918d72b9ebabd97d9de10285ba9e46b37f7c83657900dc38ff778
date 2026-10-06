@@ -1,0 +1,848 @@
+--- a/web/src/api/client.ts
++++ b/web/src/api/client.ts
+@@ -91,6 +91,9 @@
+   lookupModelSelectionCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
+   getAccountSecurity: ['GET', '/api/v1/system/account-settings', 200],
+   updateAccountSecurity: ['PUT', '/api/v1/system/account-settings', 200],
++  getSMTPSettings: ['GET', '/api/v1/system/smtp', 200],
++  updateSMTPSettings: ['PUT', '/api/v1/system/smtp', 200],
++  unconfigureSMTP: ['POST', '/api/v1/system/smtp/unconfigure', 200],
+   createModelCredential: ['POST', '/api/v1/system/model-credentials', 200],
+   getModelCredentialMetadata: ['GET', '/api/v1/system/model-credentials/{id}', 200],
+   lookupProviderCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
+@@ -353,7 +356,22 @@
+   'updateAccountSecurity',
+ ]
+ 
++type SMTPEndpoint = 'getSMTPSettings' | 'updateSMTPSettings' | 'unconfigureSMTP'
++type SMTPOptions<E extends SMTPEndpoint> = E extends 'getSMTPSettings'
++  ? { signal: AbortSignal }
++  : { signal: AbortSignal; body: unknown; csrf: string; key: string }
++const smtpEndpoints: readonly SMTPEndpoint[] = [
++  'getSMTPSettings',
++  'updateSMTPSettings',
++  'unconfigureSMTP',
++]
++
+ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
++  function request<T, E extends SMTPEndpoint>(
++    endpoint: E,
++    parse: (value: unknown) => T,
++    options: SMTPOptions<E>,
++  ): Promise<T>
+   function request<T, E extends AccountSecurityEndpoint>(
+     endpoint: E,
+     parse: (value: unknown) => T,
+@@ -399,6 +417,7 @@
+       | ModelEndpoint
+       | SelectionEndpoint
+       | AccountSecurityEndpoint
++      | SMTPEndpoint
+     >,
+     parse: (value: unknown) => T,
+     options: RequestOptions & { users?: never; invitations?: never; target?: never },
+@@ -421,7 +440,8 @@
+       providerEndpoints.includes(endpoint as ProviderEndpoint) ||
+       modelEndpoints.includes(endpoint as ModelEndpoint) ||
+       selectionEndpoints.includes(endpoint as SelectionEndpoint) ||
+-      accountSecurityEndpoints.includes(endpoint as AccountSecurityEndpoint)
++      accountSecurityEndpoints.includes(endpoint as AccountSecurityEndpoint) ||
++      smtpEndpoints.includes(endpoint as SMTPEndpoint)
+     ) {
+       try {
+         const target = basePath.includes('{id}')
+@@ -520,7 +540,9 @@
+       const maximum =
+         endpoint === 'createModelCredential'
+           ? 512 * 1024
+-          : endpoint === 'createProvider' || endpoint === 'updateProvider'
++          : endpoint === 'createProvider' ||
++              endpoint === 'updateProvider' ||
++              endpoint === 'updateSMTPSettings'
+             ? 32 * 1024
+             : 16 * 1024
+       try {
+--- a/web/src/api/system-smtp-settings.ts
++++ b/web/src/api/system-smtp-settings.ts
+@@ -0,0 +1,283 @@
++import { AccountFailure, accountTransport, shape, string, uuid7, type Fetch } from './client'
++import type { WriteOptions } from './account'
++
++export type SMTPSettings = Readonly<{
++  id: string
++  version: string
++  configured: boolean
++  host: string
++  port: number
++  encryption: '' | 'tls' | 'starttls' | 'none'
++  username: string
++  sender_email: string
++  sender_name: string
++  credential_present: boolean
++  auto_retry_count: string
++  retry_interval_seconds: string
++}>
++export type SMTPUnconfigureInput = Readonly<{
++  version: string
++  auto_retry_count: string
++  retry_interval_seconds: string
++}>
++export type SMTPUpdateInput = SMTPUnconfigureInput &
++  Readonly<{
++    host: string
++    port: number
++    encryption: 'tls' | 'starttls' | 'none'
++    username: string
++    sender_email: string
++    sender_name: string
++    credential_action: 'keep' | 'remove'
++    password?: string
++  }>
++export type SMTPResult = Readonly<{ applied_version: string; settings: SMTPSettings }>
++export interface SystemSMTPSettingsAPI {
++  getSettings(signal: AbortSignal): Promise<SMTPSettings>
++  updateSettings(input: SMTPUpdateInput, options: WriteOptions): Promise<SMTPResult>
++  unconfigure(input: SMTPUnconfigureInput, options: WriteOptions): Promise<SMTPResult>
++}
++
++const maximumVersion = 9223372036854775807n
++const encoder = new TextEncoder()
++const retryKeys = ['auto_retry_count', 'retry_interval_seconds'] as const
++const transportKeys = [
++  'host',
++  'port',
++  'encryption',
++  'username',
++  'sender_email',
++  'sender_name',
++] as const
++function requireValue(value: boolean) {
++  if (!value) throw new AccountFailure('invalid-response')
++}
++function input<T>(work: () => T): T {
++  try {
++    return work()
++  } catch {
++    throw new AccountFailure('invalid-input')
++  }
++}
++function decimal(value: unknown, minimum: bigint, maximum: bigint): string {
++  const result = string(value, 1, 19)
++  requireValue(/^(?:0|[1-9][0-9]*)$/.test(result))
++  requireValue(BigInt(result) >= minimum && BigInt(result) <= maximum)
++  return result
++}
++function wellFormed(value: string) {
++  for (let i = 0; i < value.length; i++) {
++    const unit = value.charCodeAt(i)
++    if (unit >= 0xd800 && unit <= 0xdbff) {
++      const next = value.charCodeAt(++i)
++      if (!(next >= 0xdc00 && next <= 0xdfff)) return false
++    } else if (unit >= 0xdc00 && unit <= 0xdfff) return false
++  }
++  return true
++}
++function text(value: unknown, bytes: number, characters = bytes) {
++  const result = string(value, 0, characters)
++  requireValue(
++    wellFormed(result) &&
++      !/[\u0000-\u001f\u007f-\u009f]/.test(result) &&
++      encoder.encode(result).byteLength <= bytes,
++  )
++  return result
++}
++function ipv4(value: string) {
++  return (
++    /^(?:0|[1-9][0-9]{0,2})(?:\.(?:0|[1-9][0-9]{0,2})){3}$/.test(value) &&
++    value.split('.').every((part) => Number(part) <= 255)
++  )
++}
++function ipv6(value: string): string | null {
++  if (!/^[0-9a-f:.]+$/i.test(value) || !value.includes(':')) return null
++  try {
++    return new URL(`http://[${value}]/`).hostname
++  } catch {
++    return null
++  }
++}
++function host(value: unknown) {
++  const result = string(value, 1, 253)
++  if (ipv4(result) || ipv6(result)) return result
++  const dns = result.toLowerCase().replace(/\.$/, '')
++  const labels = dns.split('.'),
++    last = labels.at(-1)!
++  requireValue(!/^(?:[0-9]+|0x[0-9a-f]*)$/.test(last))
++  requireValue(labels.every((label) => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label)))
++  return result
++}
++function email(value: unknown) {
++  const result = string(value, 3, 254)
++  requireValue(/^[\x21-\x7e]+$/.test(result))
++  const parts = result.toLowerCase().split('@')
++  requireValue(parts.length === 2)
++  const atom = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*$/
++  requireValue(atom.test(parts[0]!))
++  const domain = parts[1]!
++  if (domain.startsWith('[') && domain.endsWith(']')) {
++    const literal = domain.slice(1, -1),
++      prefixed = literal.startsWith('ipv6:')
++    const address = prefixed ? literal.slice(5) : literal,
++      parsed = ipv6(address)
++    requireValue(
++      ipv4(address) ||
++        (parsed !== null && (prefixed || /^\[::ffff:[0-9a-f]{1,4}:[0-9a-f]{1,4}\]$/.test(parsed))),
++    )
++  } else requireValue(atom.test(domain))
++  return result
++}
++function retry(value: Record<string, unknown>) {
++  return {
++    auto_retry_count: decimal(value.auto_retry_count, 0n, 5n),
++    retry_interval_seconds: decimal(value.retry_interval_seconds, 10n, 3600n),
++  }
++}
++function transport(value: Record<string, unknown>) {
++  requireValue(
++    typeof value.port === 'number' &&
++      Number.isInteger(value.port) &&
++      value.port >= 1 &&
++      value.port <= 65535,
++  )
++  requireValue(['tls', 'starttls', 'none'].includes(value.encryption as string))
++  return {
++    host: host(value.host),
++    port: value.port as number,
++    encryption: value.encryption as SMTPUpdateInput['encryption'],
++    username: text(value.username, 256),
++    sender_email: email(value.sender_email),
++    sender_name: text(value.sender_name, 320, 80),
++  }
++}
++function settings(value: unknown): SMTPSettings {
++  const v = shape(value, [
++    'id',
++    'version',
++    'configured',
++    ...transportKeys,
++    'credential_present',
++    ...retryKeys,
++  ])
++  const id = string(v.id, 36, 36)
++  requireValue(
++    uuid7.test(id) &&
++      typeof v.configured === 'boolean' &&
++      typeof v.credential_present === 'boolean',
++  )
++  const common = { id, version: decimal(v.version, 1n, maximumVersion), ...retry(v) }
++  if (v.configured) {
++    const fields = transport(v)
++    requireValue((fields.username !== '') === v.credential_present)
++    return Object.freeze({
++      ...common,
++      configured: true,
++      ...fields,
++      credential_present: v.credential_present as boolean,
++    })
++  }
++  requireValue(
++    v.port === 0 &&
++      v.credential_present === false &&
++      transportKeys.filter((k) => k !== 'port').every((k) => v[k] === ''),
++  )
++  return Object.freeze({
++    ...common,
++    configured: false,
++    host: '',
++    port: 0,
++    encryption: '',
++    username: '',
++    sender_email: '',
++    sender_name: '',
++    credential_present: false,
++  })
++}
++// This helper validates material without exposing a material getter or retaining errors.
++export function validateSMTPPassword(value: string) {
++  return input(() => {
++    requireValue(typeof value === 'string' && wellFormed(value) && !/[\0\r\n]/.test(value))
++    requireValue(encoder.encode(value).byteLength >= 1 && encoder.encode(value).byteLength <= 2048)
++  })
++}
++export function captureSMTPUpdate(value: SMTPUpdateInput): SMTPUpdateInput {
++  return input(() => {
++    const v = shape(
++      value,
++      ['version', ...transportKeys, 'credential_action', ...retryKeys],
++      ['password'],
++    )
++    const fields = transport(v)
++    requireValue(v.credential_action === 'keep' || v.credential_action === 'remove')
++    let password: string | undefined
++    if (Object.hasOwn(v, 'password')) {
++      requireValue(typeof v.password === 'string')
++      if (v.password !== '') {
++        validateSMTPPassword(v.password as string)
++        password = v.password as string
++      }
++    }
++    requireValue(
++      v.credential_action !== 'remove' || (fields.username === '' && password === undefined),
++    )
++    requireValue(password === undefined || fields.username !== '')
++    const result = Object.freeze({
++      version: decimal(v.version, 1n, maximumVersion - 1n),
++      ...fields,
++      credential_action: v.credential_action as SMTPUpdateInput['credential_action'],
++      ...retry(v),
++      ...(password === undefined ? {} : { password }),
++    })
++    requireValue(encoder.encode(JSON.stringify(result)).byteLength <= 32 * 1024)
++    return result
++  })
++}
++export function captureSMTPUnconfigure(value: SMTPUnconfigureInput): SMTPUnconfigureInput {
++  return input(() => {
++    const v = shape(value, ['version', ...retryKeys])
++    const result = Object.freeze({
++      version: decimal(v.version, 1n, maximumVersion - 1n),
++      ...retry(v),
++    })
++    requireValue(encoder.encode(JSON.stringify(result)).byteLength <= 16 * 1024)
++    return result
++  })
++}
++function options(value: WriteOptions) {
++  return input(() => {
++    const v = shape(value, ['csrfToken', 'key', 'signal'])
++    return { csrf: v.csrfToken as string, key: v.key as string, signal: v.signal as AbortSignal }
++  })
++}
++function result(value: unknown, version: string): SMTPResult {
++  const v = shape(value, ['applied_version', 'settings'])
++  const applied = decimal(v.applied_version, 1n, maximumVersion),
++    current = settings(v.settings)
++  requireValue(
++    BigInt(applied) === BigInt(version) + 1n && BigInt(current.version) >= BigInt(applied),
++  )
++  // The owner also checks the singleton and full Session identity. Current
++  // settings may describe the opposite state after another accepted command.
++  return Object.freeze({ applied_version: applied, settings: current })
++}
++export function createSystemSMTPSettingsAPI(fetcher?: Fetch): SystemSMTPSettingsAPI {
++  const request = accountTransport(fetcher)
++  return {
++    getSettings: (signal) => request('getSMTPSettings', settings, { signal }),
++    async updateSettings(value, write) {
++      const captured = captureSMTPUpdate(value)
++      return request('updateSMTPSettings', (value) => result(value, captured.version), {
++        ...options(write),
++        body: captured,
++      })
++    },
++    async unconfigure(value, write) {
++      const captured = captureSMTPUnconfigure(value)
++      return request('unconfigureSMTP', (value) => result(value, captured.version), {
++        ...options(write),
++        body: captured,
++      })
++    },
++  }
++}
+--- a/web/src/tests/system-smtp-settings-client.spec.ts
++++ b/web/src/tests/system-smtp-settings-client.spec.ts
+@@ -0,0 +1,495 @@
++import { describe, expect, it, vi } from 'vitest'
++import { flushPromises } from '@vue/test-utils'
++import { accountTransport, type Fetch } from '../api/client'
++import {
++  captureSMTPUpdate,
++  captureSMTPUnconfigure,
++  createSystemSMTPSettingsAPI,
++  validateSMTPPassword,
++  type SMTPSettings,
++  type SMTPUpdateInput,
++  type SMTPUnconfigureInput,
++} from '../api/system-smtp-settings'
++
++const id = '01900000-0000-7000-8000-000000000001'
++const version = '9007199254740993'
++const update = (): SMTPUpdateInput => ({
++  version,
++  host: 'Mail.Example.',
++  port: 587,
++  encryption: 'starttls',
++  username: ' sender ',
++  sender_email: 'Sender@Example.test',
++  sender_name: ' 邮件 ',
++  credential_action: 'keep',
++  auto_retry_count: '3',
++  retry_interval_seconds: '60',
++})
++const unconfigure = (): SMTPUnconfigureInput => ({
++  version,
++  auto_retry_count: '0',
++  retry_interval_seconds: '3600',
++})
++const settings = (current = '9007199254740994', configured = true): SMTPSettings => ({
++  id,
++  version: current,
++  configured,
++  host: configured ? 'mail.example' : '',
++  port: configured ? 587 : 0,
++  encryption: configured ? 'starttls' : '',
++  username: configured ? ' sender ' : '',
++  sender_email: configured ? 'sender@example.test' : '',
++  sender_name: configured ? ' 邮件 ' : '',
++  credential_present: configured,
++  auto_retry_count: '3',
++  retry_interval_seconds: '60',
++})
++const result = (current = settings()) => ({
++  applied_version: '9007199254740994',
++  settings: current,
++})
++const signal = () => new AbortController().signal
++const options = () => ({ signal: signal(), csrfToken: 'S'.repeat(43), key: 'smtp/original:1' })
++const json = (value: unknown) =>
++  new Response(JSON.stringify(value), { headers: { 'Content-Type': 'application/json' } })
++function deferred<T = void>() {
++  let resolve!: (value: T | PromiseLike<T>) => void
++  const promise = new Promise<T>((r) => {
++    resolve = r
++  })
++  return { promise, resolve }
++}
++
++describe('SMTP configuration fixed API and historical applied/current Settings', () => {
++  it('uses only GET, PUT and POST/unconfigure with complete immutable captured inputs', async () => {
++    const fetch = vi.fn<Fetch>(async (_, init) =>
++        json(init.method === 'GET' ? settings() : result()),
++      ),
++      api = createSystemSMTPSettingsAPI(fetch),
++      write = options(),
++      original = update(),
++      captured = captureSMTPUpdate(original)
++    ;(original as { host: string }).host = 'changed.test'
++    const read = await api.getSettings(write.signal),
++      saved = await api.updateSettings(captured, write)
++    await api.unconfigure(unconfigure(), write)
++    expect(
++      Object.isFrozen(read) &&
++        Object.isFrozen(saved) &&
++        Object.isFrozen(saved.settings) &&
++        Object.isFrozen(captured),
++    ).toBe(true)
++    expect(fetch.mock.calls.map(([p, i]) => [p, i.method])).toEqual([
++      ['/api/v1/system/smtp', 'GET'],
++      ['/api/v1/system/smtp', 'PUT'],
++      ['/api/v1/system/smtp/unconfigure', 'POST'],
++    ])
++    for (const [, request] of fetch.mock.calls)
++      expect(request).toMatchObject({
++        credentials: 'same-origin',
++        cache: 'no-store',
++        redirect: 'error',
++        signal: write.signal,
++      })
++    const get = fetch.mock.calls[0]![1],
++      put = fetch.mock.calls[1]![1],
++      post = fetch.mock.calls[2]![1]
++    expect(get.body).toBeUndefined()
++    expect(get.headers).not.toHaveProperty('X-CSRF-Token')
++    expect(get.headers).not.toHaveProperty('Idempotency-Key')
++    expect(put.body === JSON.stringify(captured)).toBe(true)
++    expect(post.body === JSON.stringify(unconfigure())).toBe(true)
++    expect(put.headers).toMatchObject({
++      'X-CSRF-Token': write.csrfToken,
++      'Idempotency-Key': write.key,
++    })
++  })
++
++  it('preserves legal text and material, omits empty password, and requires explicit remove without authentication', async () => {
++    const password = ' \t' + '🧩'.repeat(500) + ' ',
++      captured = captureSMTPUpdate({ ...update(), password })
++    expect(captured.password === password).toBe(true)
++    expect(
++      captured.host === update().host &&
++        captured.username === update().username &&
++        captured.sender_email === update().sender_email &&
++        captured.sender_name === update().sender_name,
++    ).toBe(true)
++    expect(captureSMTPUpdate({ ...update(), password: '' })).not.toHaveProperty('password')
++    expect(
++      captureSMTPUpdate({ ...update(), credential_action: 'remove', username: '', password: '' }),
++    ).toMatchObject({ credential_action: 'remove', username: '' })
++    const unauth = { ...settings(), username: '', credential_present: false }
++    expect(
++      await createSystemSMTPSettingsAPI(async () => json(unauth)).getSettings(signal()),
++    ).toEqual(unauth)
++    for (const password of [' ', 'x'.repeat(2048), '🧩'.repeat(512), '\u0001'.repeat(2048)])
++      expect(() => validateSMTPPassword(password)).not.toThrow()
++    for (const password of [
++      '',
++      'x'.repeat(2049),
++      '🧩'.repeat(513),
++      '\0',
++      '\r',
++      '\n',
++      '\ud800',
++      '\udc00',
++    ])
++      expect(() => validateSMTPPassword(password)).toThrow(
++        expect.objectContaining({ kind: 'invalid-input' }),
++      )
++    for (const bad of [
++      { credential_action: 'replace' },
++      { credential_action: 'remove' },
++      { credential_action: 'remove', username: '', password: 'new' },
++      { username: '', password: 'new' },
++      { password: null },
++      { password: undefined },
++    ])
++      expect(() => captureSMTPUpdate({ ...update(), ...bad } as SMTPUpdateInput)).toThrow(
++        expect.objectContaining({ kind: 'invalid-input' }),
++      )
++  })
++
++  it.each([
++    'mail.example',
++    'MAIL.Example.',
++    'localhost',
++    'xn--bcher-kva.test',
++    '192.0.2.1',
++    '2001:db8::1',
++    '::ffff:192.0.2.1',
++  ])('accepts formal host syntax %s without changing the captured spelling', async (host) => {
++    expect(captureSMTPUpdate({ ...update(), host }).host).toBe(host)
++    expect(
++      (
++        await createSystemSMTPSettingsAPI(async () => json({ ...settings(), host })).getSettings(
++          signal(),
++        )
++      ).host,
++    ).toBe(host)
++  })
++  it.each([
++    'a@EXAMPLE.test',
++    "x+y!#$%&'*-/=?^_`{|}~@domain",
++    'a@[192.0.2.1]',
++    'a@[IPv6:2001:db8::1]',
++    'a@[ipv6:::ffff:192.0.2.1]',
++    'a@[::ffff:192.0.2.1]',
++    'a@[::ffff:c000:201]',
++    'a@[0:0:0:0:0:ffff:c000:201]',
++  ])('accepts bare ASCII email production forms %s', async (sender_email) => {
++    expect(captureSMTPUpdate({ ...update(), sender_email }).sender_email).toBe(sender_email)
++    expect(
++      (
++        await createSystemSMTPSettingsAPI(async () =>
++          json({ ...settings(), sender_email: sender_email.toLowerCase() }),
++        ).getSettings(signal())
++      ).sender_email,
++    ).toBe(sender_email.toLowerCase())
++  })
++  it('rejects ambiguous hosts, invalid email forms, controls and malformed Unicode before any dispatch', async () => {
++    const fetch = vi.fn<Fetch>(),
++      api = createSystemSMTPSettingsAPI(fetch)
++    const bad: Record<string, unknown>[] = [
++      ...[
++        '',
++        'https://mail.test',
++        'name@host',
++        'host/path',
++        'host?x',
++        'host#x',
++        '[::1]',
++        'fe80::1%lo',
++        '127.1',
++        '0177.0.0.1',
++        '0x7f.0.0.1',
++        'host.0x',
++        'host.123',
++        'bad_host',
++        '-bad.test',
++        'bad-.test',
++        'a..test',
++        'a'.repeat(64) + '.test',
++        'é.test',
++        'host ',
++      ].map((host) => ({ host })),
++      ...[
++        ' a@b',
++        'a@b ',
++        'a b@c',
++        'Name<a@b>',
++        'a(comment)@b',
++        '"a"@b',
++        'a@@b',
++        'a..b@c',
++        'a@[::1]',
++        'a@[::192.0.2.1]',
++        'a@[::ffff:0:1:2]',
++        'a@[01.2.3.4]',
++        'a@[IPv6:fe80::1%lo]',
++      ].map((sender_email) => ({ sender_email })),
++      ...['\0', '\n', '\t', '\u007f', '\u0085', '\ud800'].map((username) => ({ username })),
++      { username: '🧩'.repeat(65) },
++      { sender_name: 'x'.repeat(81) },
++      { sender_name: '\udc00' },
++      ...[0, 65536, '587', 1.5, NaN, null].map((port) => ({ port })),
++      { encryption: '' },
++      { encryption: 'ssl' },
++      { extra: true },
++    ]
++    for (const change of bad)
++      await expect(
++        api.updateSettings({ ...update(), ...change } as SMTPUpdateInput, options()),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(fetch).not.toHaveBeenCalled()
++  })
++
++  it('checks exact Settings members, configured consistency, strict numeric encodings and both retry boundaries', async () => {
++    const missing = Object.keys(settings()).map((key) => {
++      const v: Record<string, unknown> = { ...settings() }
++      delete v[key]
++      return v
++    })
++    const bad: unknown[] = [
++      null,
++      [],
++      ...missing,
++      { ...settings(), extra: null },
++      { ...settings(), id: id.replace('-7000-', '-4000-') },
++      { ...settings(), configured: 'true' },
++      { ...settings(), credential_present: 1 },
++      { ...settings(), username: '' },
++      { ...settings(), credential_present: false },
++      { ...settings('1', false), host: 'mail.test' },
++      { ...settings('1', false), port: 25 },
++      { ...settings('1', false), username: 'x' },
++      { ...settings('1', false), encryption: 'tls' },
++      ...['0', '01', '-1', '+1', '1.0', '1e1', ' 1', '9223372036854775808', 1].map((version) => ({
++        ...settings(),
++        version,
++      })),
++      ...['-1', '6', '00', '+1', '1.0', '1e0', ' 1', 1, null].map((auto_retry_count) => ({
++        ...settings(),
++        auto_retry_count,
++      })),
++      ...['9', '3601', '010', '10.0', 10].map((retry_interval_seconds) => ({
++        ...settings(),
++        retry_interval_seconds,
++      })),
++    ]
++    for (const v of bad)
++      await expect(
++        createSystemSMTPSettingsAPI(async () => json(v)).getSettings(signal()),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++    for (const [auto_retry_count, retry_interval_seconds] of [
++      ['0', '10'],
++      ['5', '3600'],
++    ]) {
++      const v = {
++        ...settings('9223372036854775807', false),
++        auto_retry_count: auto_retry_count!,
++        retry_interval_seconds: retry_interval_seconds!,
++      }
++      expect(await createSystemSMTPSettingsAPI(async () => json(v)).getSettings(signal())).toEqual(
++        v,
++      )
++      expect(() =>
++        captureSMTPUnconfigure({
++          version: '9223372036854775806',
++          auto_retry_count: auto_retry_count!,
++          retry_interval_seconds: retry_interval_seconds!,
++        }),
++      ).not.toThrow()
++    }
++    const fetch = vi.fn<Fetch>(),
++      api = createSystemSMTPSettingsAPI(fetch)
++    for (const v of [
++      null,
++      [],
++      { version },
++      { ...unconfigure(), version: '9223372036854775807' },
++      { ...unconfigure(), auto_retry_count: 3 },
++      { ...unconfigure(), retry_interval_seconds: '09' },
++      { ...unconfigure(), configured: false },
++      { ...unconfigure(), password: '' },
++    ])
++      await expect(api.unconfigure(v as SMTPUnconfigureInput, options())).rejects.toMatchObject({
++        kind: 'invalid-input',
++      })
++    expect(fetch).not.toHaveBeenCalled()
++  })
++
++  it('confirms original applied_version with newer and opposite current settings, never with an incomplete receipt', async () => {
++    const api = createSystemSMTPSettingsAPI(async (_, init) =>
++      json(result(settings('9007199254740998', init.method === 'POST'))),
++    )
++    expect((await api.updateSettings(update(), options())).settings.configured).toBe(false)
++    expect((await api.unconfigure(unconfigure(), options())).settings.configured).toBe(true)
++    for (const bad of [
++      null,
++      {},
++      { applied_version: '9007199254740994' },
++      { ...result(), extra: true },
++      { ...result(), applied_version: '9007199254740993' },
++      { ...result(), applied_version: '9007199254740995' },
++      { ...result(), applied_version: 9007199254740994 },
++      result(settings('9007199254740993')),
++      { ...result(), settings: null },
++    ])
++      await expect(
++        createSystemSMTPSettingsAPI(async () => json(bad)).updateSettings(update(), options()),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++  })
++
++  it('closes all endpoint options and isolates the exact UTF-8 PUT 32 KiB / POST 16 KiB request limits', async () => {
++    const fetch = vi.fn<Fetch>(async () => json({})),
++      request = accountTransport(fetch),
++      write = options()
++    for (const extra of [
++      { body: {} },
++      { csrf: write.csrfToken },
++      { key: write.key },
++      { query: '' },
++      { target: id },
++      { headers: {} },
++      { models: {} },
++    ])
++      await expect(
++        request('getSMTPSettings', (v) => v, { signal: write.signal, ...extra }),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    for (const endpoint of ['updateSMTPSettings', 'unconfigureSMTP'] as const)
++      for (const extra of [
++        { target: id },
++        { query: '' },
++        { csrf: '' },
++        { key: '' },
++        { method: 'GET' },
++      ])
++        await expect(
++          request(endpoint, (v) => v, {
++            signal: write.signal,
++            csrf: write.csrfToken,
++            key: write.key,
++            body: {},
++            ...extra,
++          }),
++        ).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(fetch).not.toHaveBeenCalled()
++    for (const [endpoint, max] of [
++      ['updateSMTPSettings', 32768],
++      ['unconfigureSMTP', 16384],
++      ['updateAccountSecurity', 16384],
++      ['updateModelSelection', 16384],
++    ] as const) {
++      const body = { value: '🧩' + 'x'.repeat(max - 16) }
++      expect(new TextEncoder().encode(JSON.stringify(body)).byteLength).toBe(max)
++      const invoke = (body: unknown) => {
++        const options = { signal: write.signal, csrf: write.csrfToken, key: write.key, body }
++        if (endpoint === 'updateSMTPSettings') return request(endpoint, () => true, options)
++        if (endpoint === 'unconfigureSMTP') return request(endpoint, () => true, options)
++        if (endpoint === 'updateAccountSecurity') return request(endpoint, () => true, options)
++        return request(endpoint, () => true, options)
++      }
++      await invoke(body)
++      const count = fetch.mock.calls.length
++      await expect(invoke({ value: body.value + 'x' })).rejects.toMatchObject({
++        kind: 'invalid-input',
++      })
++      expect(fetch).toHaveBeenCalledTimes(count)
++    }
++  })
++
++  it.each(['get', 'put', 'unconfigure'] as const)(
++    'joins %s native EOF and accepts exactly 600000 response bytes',
++    async (mode) => {
++      let controller!: ReadableStreamDefaultController<Uint8Array>
++      const stream = new ReadableStream<Uint8Array>({
++          start(c) {
++            controller = c
++          },
++        }),
++        value = mode === 'get' ? settings() : result(),
++        encoded = new TextEncoder().encode(JSON.stringify(value)),
++        bytes = new Uint8Array(600000)
++      bytes.fill(32)
++      bytes.set(encoded)
++      const api = createSystemSMTPSettingsAPI(
++        async () => new Response(stream, { headers: { 'Content-Type': 'application/json' } }),
++      )
++      let settled = false
++      const read = (
++        mode === 'get'
++          ? api.getSettings(signal())
++          : mode === 'put'
++            ? api.updateSettings(update(), options())
++            : api.unconfigure(unconfigure(), options())
++      ).then((v) => {
++        settled = true
++        return v
++      })
++      controller.enqueue(bytes)
++      await flushPromises()
++      expect(settled).toBe(false)
++      controller.close()
++      expect(await read).toEqual(value)
++    },
++  )
++  it.each(['overflow', 'abort', 'media'] as const)(
++    'does not settle until actual native %s cancellation joins',
++    async (mode) => {
++      const tail = deferred(),
++        cancel = vi.fn(() => tail.promise),
++        abort = new AbortController()
++      const stream = new ReadableStream<Uint8Array>({
++        start(c) {
++          if (mode === 'overflow') c.enqueue(new Uint8Array(600001))
++        },
++        cancel,
++      })
++      const api = createSystemSMTPSettingsAPI(
++        async () =>
++          new Response(stream, {
++            headers: { 'Content-Type': mode === 'media' ? 'text/plain' : 'application/json' },
++          }),
++      )
++      let settled = false
++      const read = api
++        .updateSettings(update(), { ...options(), signal: abort.signal })
++        .catch((e) => {
++          settled = true
++          return e
++        })
++      await flushPromises()
++      if (mode === 'abort') abort.abort()
++      await flushPromises()
++      expect(cancel).toHaveBeenCalledTimes(1)
++      expect(settled).toBe(false)
++      tail.resolve()
++      expect(await read).toMatchObject({
++        kind: mode === 'abort' ? 'cancelled' : 'invalid-response',
++      })
++    },
++  )
++  it('rejects status, malformed UTF-8, truncated JSON and unsafe write options without retaining input material in errors', async () => {
++    for (const response of [
++      new Response(null, { status: 204 }),
++      new Response('{', { headers: { 'Content-Type': 'application/json' } }),
++      new Response(new Uint8Array([255]), { headers: { 'Content-Type': 'application/json' } }),
++    ])
++      await expect(
++        createSystemSMTPSettingsAPI(async () => response).updateSettings(
++          { ...update(), password: 'synthetic-only' },
++          options(),
++        ),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++    const fetch = vi.fn<Fetch>(),
++      api = createSystemSMTPSettingsAPI(fetch)
++    const failure = await api
++      .updateSettings({ ...update(), password: 'synthetic-only' }, { ...options(), key: '' })
++      .catch((e) => e)
++    expect(failure.kind).toBe('invalid-input')
++    expect(JSON.stringify(failure).includes('synthetic-only')).toBe(false)
++    expect(fetch).not.toHaveBeenCalled()
++  })
++})

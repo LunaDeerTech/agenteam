@@ -1,0 +1,106 @@
+{
+  "at": "2026-10-06T17:49:06.075019+00:00",
+  "delivered_source_count": 29,
+  "frozen_input04_unchanged": true,
+  "markdown": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "argv": [
+      "node",
+      "-e",
+      "const fs=require('node:fs');const prettier=require(process.argv[1]);const t=fs.readFileSync(process.argv[2],'utf8');prettier.format(t,{parser:'markdown',proseWrap:'preserve'}).then(()=>{if(!t.endsWith('\\n')||/[\\t ]+$/m.test(t)||/\\r/.test(t)||t.split('\\n').filter(x=>x.startsWith('```')).length%2)throw new Error('format');console.log(JSON.stringify({markdown_parse:true,lf:true,final_newline:true,trailing_whitespace:false,balanced_fences:true}));}).catch(e=>{console.error(e.name);process.exitCode=1;});",
+      "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web/node_modules/prettier",
+      "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/delivery29/source/docs/development/frontend/README.md"
+    ],
+    "checks": {
+      "balanced_fences": true,
+      "final_newline": true,
+      "lf": true,
+      "markdown_parse": true,
+      "trailing_whitespace": false
+    },
+    "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/delivery29",
+    "stderr": "",
+    "stdout": "{\"markdown_parse\":true,\"lf\":true,\"final_newline\":true,\"trailing_whitespace\":false,\"balanced_fences\":true}\n"
+  },
+  "new_or_modified_relative_links": [
+    {
+      "resolved": "api/openapi/account.json",
+      "state": "exists_in_fixed_f670",
+      "target": "../../../api/openapi/account.json"
+    },
+    {
+      "resolved": "docs/development/agent-team/system-smtp-settings-ui-verification.md",
+      "state": "reserved_by_root_for_final_documentation",
+      "target": "../agent-team/system-smtp-settings-ui-verification.md"
+    },
+    {
+      "resolved": "docs/development/work-items/d26-account-authentication.md",
+      "state": "exists_in_fixed_f670",
+      "target": "../work-items/d26-account-authentication.md"
+    },
+    {
+      "resolved": "docs/development/work-items/d26-personal-settings.md",
+      "state": "exists_in_fixed_f670",
+      "target": "../work-items/d26-personal-settings.md"
+    },
+    {
+      "resolved": "docs/development/work-items/d26-public-account-entry.md",
+      "state": "exists_in_fixed_f670",
+      "target": "../work-items/d26-public-account-entry.md"
+    },
+    {
+      "resolved": "docs/development/work-items/d27-system-account-security-ui.md",
+      "state": "exists_in_fixed_f670",
+      "target": "../work-items/d27-system-account-security-ui.md"
+    },
+    {
+      "resolved": "docs/development/work-items/d27-system-invitation-ui.md",
+      "state": "exists_in_fixed_f670",
+      "target": "../work-items/d27-system-invitation-ui.md"
+    },
+    {
+      "resolved": "docs/development/work-items/d27-system-model-management-ui.md",
+      "state": "exists_in_fixed_f670",
+      "target": "../work-items/d27-system-model-management-ui.md"
+    },
+    {
+      "resolved": "docs/development/work-items/d27-system-model-selection-ui.md",
+      "state": "exists_in_fixed_f670",
+      "target": "../work-items/d27-system-model-selection-ui.md"
+    },
+    {
+      "resolved": "docs/development/work-items/d27-system-provider-management-ui.md",
+      "state": "exists_in_fixed_f670",
+      "target": "../work-items/d27-system-provider-management-ui.md"
+    },
+    {
+      "resolved": "docs/development/work-items/d27-system-smtp-settings-ui.md",
+      "state": "exists_in_fixed_f670",
+      "target": "../work-items/d27-system-smtp-settings-ui.md"
+    },
+    {
+      "resolved": "docs/development/work-items/d27-system-user-directory-ui.md",
+      "state": "exists_in_fixed_f670",
+      "target": "../work-items/d27-system-user-directory-ui.md"
+    }
+  ],
+  "runtime_workspace_inventory_unchanged": true,
+  "scope": "README only; no product tests or resources executed",
+  "selector_static_exact_six": [
+    "TestAccountSystemSMTPSettingsWebAuthorityAndIdentity",
+    "TestAccountSystemSMTPSettingsWebConcurrency",
+    "TestAccountSystemSMTPSettingsWebCredentialLifecycle",
+    "TestAccountSystemSMTPSettingsWebLifecycle",
+    "TestAccountSystemSMTPSettingsWebNavigationAndLayouts",
+    "TestAccountSystemSMTPSettingsWebOutcomeRecovery"
+  ],
+  "source_inventory_matches_card": true,
+  "unchanged_dist_count": 36,
+  "unchanged_source_count": 28,
+  "unit_paths_exist": [
+    "src/tests/system-smtp-settings-client.spec.ts",
+    "src/tests/system-smtp-settings-state.spec.ts",
+    "src/tests/system-smtp-settings.spec.ts"
+  ]
+}

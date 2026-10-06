@@ -1,0 +1,28 @@
+{
+  "stage": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage01",
+  "manifest_sha256": "56b4d8593095dc4844eb8eada78ca078d4170e1b6918ee9a3d1b95d4fb16a50a",
+  "base": "40c904c0dd88420fc621f40c0a737d243d514ec1",
+  "sources": {
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage01/source/web/src/api/client.ts": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage01/source/web/src/api/system-smtp-settings.ts": "9649cfd5a737c3a6936152a11a60edff80860fc37cf91150feee1cf9a7abc1c8",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage01/source/web/src/tests/system-smtp-settings-client.spec.ts": "edca572836a7138fbe344a43e4dcc987cd1934395ac349ec96b858acdf065c4e",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage01/dependencies/web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage01/dependencies/web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage01/dependencies/web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage01/dependencies/web/tsconfig.json": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage01/dependencies/web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+  },
+  "oracle_base_files": {
+    "internal/central/outbound/target.go": "0604f808cc4ef5b849b423bc2615d820b61ca2be3333db3d9fdb5ef450446f6d",
+    "internal/central/account/validation.go": "8fcc8faa4ecd908188b4711792373f98cb4551ef75139435c7ca08cc1994a0a3",
+    "NormalizeEmail exact function SHA": "dd7c347f090fa4612532bb4298579ec67a384cccdc9f0efaacfae5f985c6644b",
+    "internal/central/account/smtp_settings.go": "69eb1b8f8f5cf47633f6bdab6c20c1ffcf9624fc0a9d030efb4cc7337aa9a225"
+  },
+  "node_lock_sha256": "b3c46d4d6d7d25282ef60c069e02b181792731f0975e0cd19f62fbb8363ec071",
+  "tools": {
+    "go": "/workspace/toolchains/go1.27.1/bin/go",
+    "node": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "vitest": "/workspace/agenteam/web/node_modules/vitest/vitest.mjs"
+  },
+  "limits": "API only; exact pure syntax functions, no formal Service/HTTP/database/browser execution"
+}

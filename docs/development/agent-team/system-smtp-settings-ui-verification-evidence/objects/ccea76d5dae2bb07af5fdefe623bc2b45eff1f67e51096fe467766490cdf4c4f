@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "node",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/diagnostic03/workspace/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "src/tests/diagnostic-smtp-baseline.spec.ts",
+    "src/tests/diagnostic-smtp-focus.spec.ts",
+    "--maxWorkers=1",
+    "--no-file-parallelism"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/diagnostic03/workspace/web",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "resource_execution": false,
+  "started_utc": "2026-10-06T16:51:16.446297+00:00"
+}

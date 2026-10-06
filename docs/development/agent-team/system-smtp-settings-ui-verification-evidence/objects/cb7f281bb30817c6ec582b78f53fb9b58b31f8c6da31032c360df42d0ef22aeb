@@ -1,0 +1,193 @@
+{
+  "conclusion": "PASS",
+  "fixed_main_head": "63de0ac675e0fd4cd26e2cecde91f417a63d3bca",
+  "accepted_outbound": "a94277982620f01dc15488b09ae6ea9064977b5a",
+  "smtp_real_evidence_base": "f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a",
+  "scope": "Main combined Go integration race compile without executing tests; exactly two pure app route tests; Central and Runner build. No fixture, browser, Docker, server or business resource started.",
+  "main_source_count": 604,
+  "external_go_input_count": 3504,
+  "smtp_candidate_count": 28,
+  "smtp_delivery_count": 29,
+  "inputs_unchanged": true,
+  "actual_wait": true,
+  "checks": [
+    {
+      "name": "account-race-compile01",
+      "seconds": 34.369,
+      "exit": 0,
+      "actual_wait": true,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-tags=integration",
+        "-race",
+        "-o",
+        "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/bin/account-integration.test",
+        "./tests/account"
+      ],
+      "cwd": "/workspace/agenteam",
+      "observed_owned_pid_starttimes": 41,
+      "adopted_waits": 0,
+      "two_scans_empty": true,
+      "artifacts": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/account-race-compile01/command.json",
+          "sha256": "0fa2b9a405978fcc9c27f5348a508ad1c70474305e6ad1d9098a22ad03e34767"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/account-race-compile01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/account-race-compile01/result.json",
+          "sha256": "2ed8caef1ef6ba4a20f05a21fcf27224f47c443ed84762a0b757425356e82aa2"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/account-race-compile01/input-before.json",
+          "sha256": "c5990ffe7d1e5fbb2c254f7b76dad8d803a3dd530842f93812546405a17e0a60"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/account-race-compile01/input-after.json",
+          "sha256": "c5990ffe7d1e5fbb2c254f7b76dad8d803a3dd530842f93812546405a17e0a60"
+        }
+      }
+    },
+    {
+      "name": "app-pure01",
+      "seconds": 3.548,
+      "exit": 0,
+      "actual_wait": true,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "-timeout=45s",
+        "-v",
+        "./internal/central/app",
+        "-run",
+        "^(TestOutboundPolicyRootRoutePreservationAndSingleMiddleware|TestModelRootRouteOwnershipAndRequestPreservation)$"
+      ],
+      "cwd": "/workspace/agenteam",
+      "observed_owned_pid_starttimes": 5,
+      "adopted_waits": 0,
+      "two_scans_empty": true,
+      "artifacts": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/app-pure01/command.json",
+          "sha256": "4cefc58cd341229aa2cde6e5f717942126f259b0fa7037fc7f6c4719a85da54b"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/app-pure01/raw.log",
+          "sha256": "952d62280ef0fcfa2502db70c814b61f228f071c2f97b8bb9562c431a26c520c"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/app-pure01/result.json",
+          "sha256": "6d8cfab2de1b40a2a39b5c99a43e4ad786efbbe94ccc8a467ee09f14c9839e12"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/app-pure01/input-before.json",
+          "sha256": "c5990ffe7d1e5fbb2c254f7b76dad8d803a3dd530842f93812546405a17e0a60"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/app-pure01/input-after.json",
+          "sha256": "c5990ffe7d1e5fbb2c254f7b76dad8d803a3dd530842f93812546405a17e0a60"
+        }
+      }
+    },
+    {
+      "name": "central-runner-build01",
+      "seconds": 17.675,
+      "exit": 0,
+      "actual_wait": true,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/bin/",
+        "./cmd/agenteam",
+        "./cmd/agenteam-runner"
+      ],
+      "cwd": "/workspace/agenteam",
+      "observed_owned_pid_starttimes": 28,
+      "adopted_waits": 0,
+      "two_scans_empty": true,
+      "artifacts": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/central-runner-build01/command.json",
+          "sha256": "344110f45ae25b8e8172ee12d0d221f7d2113e39bbfb70d304889da3c240ebfb"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/central-runner-build01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/central-runner-build01/result.json",
+          "sha256": "51ce0482a53033ffb9841c98d135cbe85e49b3b9e6bb67c2c9a892b58795e7c2"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/central-runner-build01/input-before.json",
+          "sha256": "c5990ffe7d1e5fbb2c254f7b76dad8d803a3dd530842f93812546405a17e0a60"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/runs/central-runner-build01/input-after.json",
+          "sha256": "c5990ffe7d1e5fbb2c254f7b76dad8d803a3dd530842f93812546405a17e0a60"
+        }
+      }
+    }
+  ],
+  "environment": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/tmp"
+  },
+  "artifacts": {
+    "check.py": {
+      "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/check.py",
+      "sha256": "4fffd4564dcd451a0791d6e45d4cab0f329dbd0455ae506b35de2076c2444429"
+    },
+    "input01.json": {
+      "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/input01.json",
+      "sha256": "c5990ffe7d1e5fbb2c254f7b76dad8d803a3dd530842f93812546405a17e0a60"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/result.json",
+      "sha256": "62819464d097b2962ae0e30e5dde027cab8ef4fc2e50fb74c6c2c88186da0bd0"
+    },
+    "delivery29-before.json": {
+      "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/delivery29-before.json",
+      "sha256": "c7dcd6512cf0f89b32e06cb4db399fddba4f79ac143edf09902e8ca0e037e3d6"
+    },
+    "delivery29-after.json": {
+      "path": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/delivery29-after.json",
+      "sha256": "7f6dcc9d96a5dd35bb2b9e2088c4b8f8b40086405cde9f3a86af171eff09ac34"
+    }
+  },
+  "delivery28": {
+    "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/delivery28.json",
+    "sha256": "bd2421fef1d9000df76c91f08e36f6b083ee044be9c9275d13e18769bea613c9"
+  },
+  "delivery29": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/delivery29-v2/manifest.json",
+    "sha256": "0c076538cc01f232b610ca685662401526716de23b90d864442577ab715793d4"
+  },
+  "prior_combination_review": {
+    "path": "/workspace/scratch/agenteam-smtp-independent-startup-review-j0ba18a6/combination-review.md",
+    "sha256": "16286341bfc1b7b7a66d46ae916ad05b7a770da372f857d558d581d5b7ffb022"
+  },
+  "limits": [
+    "SMTP HTTP/browser dynamic evidence remains on fixed f670cb1; this run does not claim SMTP real execution on a942/63de.",
+    "Existing independent both and author new-six/old-nineteen reuse remains governed by frozen combination-review; original failures and the extra out-of-contract owner reentry failure are unchanged.",
+    "README is separately SHA checked among all 29 delivery paths; it is not an input to the Go checks.",
+    "No product edits, Git mutations, source-tree copy or stopped Object/tools probes. Build binaries are private outputs and were not executed."
+  ]
+}

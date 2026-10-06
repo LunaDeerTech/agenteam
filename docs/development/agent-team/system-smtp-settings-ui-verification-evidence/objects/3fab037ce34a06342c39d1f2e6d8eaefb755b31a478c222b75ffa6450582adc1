@@ -1,0 +1,13 @@
+# SMTP UI input04 — frozen offline combination
+
+Product base is fixed accepted f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a, not active HEAD. The private working directory contains 1050 accepted files plus 28 candidates and 36 dist files. From input03, exactly six web candidates changed: SMTP API/client tests and controller/View/state/App tests. The four new Go/browser harness files and all original browser focus/Tab/safe observation assertions remain unchanged.
+
+The stop action now separates business readiness from the two confirmation entry guards. Native disabled uses readiness; controller disable still uses the complete canDisable gate. No manual focus/timer/shared-layer changes. New real-App/jsdom clean/dirty cases first failed on disabled=true, then all 49 state + 15 App cases passed. The original navigation03 native blur-to-BODY and subsequent heading fallback remain failed evidence; repaired native focus has not run.
+
+Email input follows accepted S union lower(S), preserving its raw spelling. Canonical response email must already be lowercase. The old API-stage01 and oracle remain frozen; new API-stage02 has 35 passing pure cases and a 25-vector Go1.27.1 race oracle calling the complete accepted NormalizeEmail through a private test overlay. The owner and captured pending key/body/password/version/CSRF logic are unchanged. The old extra arbitrary synchronous material-consumer reentry failure remains under root's nonblocking applicability ruling.
+
+One final npm check passed all 1214 tests in 35 files, formatting, Vue type checking and build (actual exit0, 33.895s). New-baseline integration race test compilation passed (23.758s), Go vet (7.888s), strict browser TypeScript (4.294s), six exact Playwright lists (one per mode) and six exact compiled Go top-level discoveries passed. These are offline results, not HTTP/browser execution.
+
+Accepted baseline delta is seven mail-management Go files plus nine email Go files, with ten additions total; OpenAPI is a separate fixed reference, not an executed closure file. All 16 changed/new Go blobs and the unchanged closure bind to f670cb1. Driver04 changes only its BASE constant from driver01; resource ownership, 45s/2m/6m budgets, race/count1, one worker/no retry, native wait and exact-resource/PID double cleanup are unchanged.
+
+New01 preparation SQL failure, new02 two passes/four failures, navigation03 failure, all diagnostic and stage originals remain preserved. No repaired browser round, old19 regression, screenshot acceptance, README, SMTP socket/test/jobs UI or complete D27 result is claimed. No resources are running. Any real run requires the next root grant.

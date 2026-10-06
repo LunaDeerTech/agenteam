@@ -1,0 +1,30 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestAccountAuthenticationWebSessionLifecycle|TestAccountPersonalSettingsWebThemeAndNavigation|TestAccountPublicEntryWebIdentityNavigation|TestAccountSystemUserDirectoryWebAuthorityAndIdentity|TestAccountSystemUserDirectoryWebNavigationAndLayouts|TestAccountSystemInvitationsWebOutcomeRecovery|TestAccountSystemInvitationsWebNavigationAndLayouts)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace",
+  "ended_utc": "2026-10-06T17:28:06.397276+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldcore04/images",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtsmtp-dplk8j8q",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldcore04/runtime"
+  },
+  "exit": 0,
+  "seconds": 138.229,
+  "started_utc": "2026-10-06T17:25:48.168100+00:00"
+}

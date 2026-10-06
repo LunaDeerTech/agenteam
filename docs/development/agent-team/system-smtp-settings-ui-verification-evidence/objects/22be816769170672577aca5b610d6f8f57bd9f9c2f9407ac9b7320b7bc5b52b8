@@ -1,0 +1,52 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/run-independent01.py",
+    "--name",
+    "independent01",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input04/manifest.json",
+    "--execution",
+    "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/input02/execution.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt",
+  "sha": {
+    "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/input02/execution.json": "f3cc5c68d97c5ce4e296bad2a8f7c3ae1fc8f677987b7b1a426affdfcc573a90",
+    "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/run-independent01.py": "dcdebc6ddf3bee81c20fd1ff6d36cd5367d8c3b124d32530aec962accdb2c427",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input04/manifest.json": "3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37"
+  },
+  "disks": {
+    "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt": {
+      "available_bytes": 8485060608,
+      "available_inodes": 1721460
+    },
+    "/tmp": {
+      "available_bytes": 9403572224,
+      "available_inodes": 2303895
+    }
+  },
+  "run_name_absent": true,
+  "real_argv": [
+    "python3",
+    "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/run-independent01.py",
+    "--name",
+    "independent01",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input04/manifest.json",
+    "--execution",
+    "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/input02/execution.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+  ],
+  "exit": 0,
+  "seconds": 0.893,
+  "actual_wait": true,
+  "resources_started": false
+}

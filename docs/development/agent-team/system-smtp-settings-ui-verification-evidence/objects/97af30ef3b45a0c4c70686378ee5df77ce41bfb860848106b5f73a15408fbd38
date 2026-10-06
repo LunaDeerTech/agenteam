@@ -1,0 +1,10 @@
+{
+  "phase": "offline private runner process creation",
+  "command_record": "checks/app01/command.json",
+  "python_exit_code": 1,
+  "actual_child_started": false,
+  "actual_child_wait": false,
+  "reason": "FileNotFoundError for assumed /usr/bin/node; checks/app01 raw is empty; no test executed",
+  "resolved_node": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "repair": "only correct executable path in next command; original inputs/probe/runner unchanged"
+}

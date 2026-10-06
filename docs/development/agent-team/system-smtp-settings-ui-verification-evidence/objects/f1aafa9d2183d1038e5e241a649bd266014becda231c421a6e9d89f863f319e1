@@ -1,0 +1,25 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "node",
+    "node_modules/prettier/bin/prettier.cjs",
+    "--check",
+    "src/api/client.ts",
+    "src/api/system-smtp-settings.ts",
+    "src/tests/system-smtp-settings-client.spec.ts"
+  ],
+  "child_pid": 1550373,
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web",
+  "duration_seconds": 0.405,
+  "ended_utc": "2026-10-06T15:52:14.780191+00:00",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "input_after_sha256": "67a259fbc9f39a5d6bc7f23ee2d110c4ff07cfc3558463ec9210f3030e5450c0",
+  "input_before_sha256": "67a259fbc9f39a5d6bc7f23ee2d110c4ff07cfc3558463ec9210f3030e5450c0",
+  "input_unchanged": true,
+  "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+  "resource_execution": false,
+  "started_utc": "2026-10-06T15:52:14.375404+00:00"
+}

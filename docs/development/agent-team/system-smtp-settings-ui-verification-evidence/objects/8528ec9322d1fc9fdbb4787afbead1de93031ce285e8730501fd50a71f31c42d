@@ -1,0 +1,70 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web
+
+ ❯ src/tests/system-smtp-settings-client.spec.ts (35 tests | 2 failed) 83ms
+     × rejects noncanonical email in current and receipt DTOs without silently lowercasing 7ms
+     × rejects ambiguous hosts, invalid email forms, controls and malformed Unicode before any dispatch 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-smtp-settings-client.spec.ts > SMTP configuration fixed API and historical applied/current Settings > rejects noncanonical email in current and receipt DTOs without silently lowercasing
+AssertionError: promise resolved "{ …(12) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "auto_retry_count": "3",
++   "configured": true,
++   "credential_present": true,
++   "encryption": "starttls",
++   "host": "mail.example",
++   "id": "01900000-0000-7000-8000-000000000001",
++   "port": 587,
++   "retry_interval_seconds": "60",
++   "sender_email": "A@example.test",
++   "sender_name": " 邮件 ",
++   "username": " sender ",
++   "version": "9007199254740994",
+  }
+
+ ❯ src/tests/system-smtp-settings-client.spec.ts:231:8
+    229|       await expect(
+    230|         createSystemSMTPSettingsAPI(async () => json(current)).getSett…
+    231|       ).rejects.toMatchObject({ kind: 'invalid-response' })
+       |        ^
+    232|       await expect(
+    233|         createSystemSMTPSettingsAPI(async () => json(result(current)))…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/tests/system-smtp-settings-client.spec.ts > SMTP configuration fixed API and historical applied/current Settings > rejects ambiguous hosts, invalid email forms, controls and malformed Unicode before any dispatch
+AssertionError: expected TypeError: Cannot read properties of unde… to match object { kind: 'invalid-input' }
+
+- Expected
++ Received
+
+- {
+-   "kind": "invalid-input",
++ TypeError {
++   "message": "Cannot read properties of undefined (reading 'body')",
+  }
+
+ ❯ src/tests/system-smtp-settings-client.spec.ts:298:8
+    296|       await expect(
+    297|         api.updateSettings({ ...update(), ...change } as SMTPUpdateInp…
+    298|       ).rejects.toMatchObject({ kind: 'invalid-input' })
+       |        ^
+    299|     expect(fetch).not.toHaveBeenCalled()
+    300|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 33 passed (35)
+   Start at  17:09:00
+   Duration  961ms (transform 96ms, setup 0ms, import 171ms, tests 83ms, environment 512ms)
+

@@ -1,0 +1,11 @@
+# SMTP UI 独立准备 input02 更正
+
+input01、旧 spec、原检查与 preparation-report.md 全部保留。原报告的离线检查实际退出结果有效，但不足以证明 B 的文案前提正确；主线程静审确认两处脏草稿停用点击后的 Dialog 标题期望错误，尚未进行真实运行，不记为产品红例。
+
+固定 input04 `useSystemSMTPSettings.ts:621` 显式调用 `confirmDiscard('放弃草稿并继续停用？')`。新 input02 仅将 B 中两处标题改为该精确文案，cases 模板同步；没有泛化 matcher、删除断言或改变其他行为。差量见 [input01-to02.diff](input01-to02.diff)。
+
+[execution.json](execution.json) SHA `f3cc5c68d97c5ce4e296bad2a8f7c3ae1fc8f677987b7b1a426affdfcc573a90`，10 文件快照在 `source/`；driver SHA `dcdebc6ddf3bee81c20fd1ff6d36cd5367d8c3b124d32530aec962accdb2c427` 未变。其余新文案按固定 View/controller、各 IPC action 与请求/返回字段按固定 fixture 核对，暂未发现第二个明确差异；这项静态结论不替代真实业务验证。
+
+受影响检查实际完成：type03 exit0/0.954s，B discovery exit0/0.961s（恰1），gate02 exit0/0.918s。Go 两源、配置、原生 observer 前缀及 A 链字节不变，复用 race-compile01/vet01/go-list01/config01/browser-list-a01；未重复 Go 检查。门禁再次核 28 源、36 dist、1050 接受依赖及私有运行闭包。
+
+本 stage 执行输入已停写。仍无 Docker、Chromium、服务或端口，真实窗口尚未授予；后续必须使用本 input02，不再使用错误文案的 input01 启动。

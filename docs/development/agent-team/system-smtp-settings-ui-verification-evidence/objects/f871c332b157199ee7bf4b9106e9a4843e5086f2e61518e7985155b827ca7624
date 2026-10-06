@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "independent.config.mjs",
+    "--configLoader",
+    "native",
+    "--testNamePattern",
+    "^independent SMTP fixed Go syntax and strict API boundaries matches f670cb1 raw canonical DTO and original replay material$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-api02-independent-6kv36fux/fixed/web",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "NO_COLOR": "1",
+    "CI": "1",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-api02-independent-6kv36fux/tmp"
+  },
+  "started_utc": "2026-10-06T17:14:37.058973+00:00",
+  "timeout_seconds": 45,
+  "controlled_fetch_only": true,
+  "resource_execution": false,
+  "subreaper": true,
+  "pid": 1771303,
+  "exit_code": 0,
+  "actual_wait": true,
+  "duration_seconds": 0.628,
+  "timed_out": false,
+  "input_unchanged": true,
+  "raw_sha256": "768f03d0f5a28f3aa20229687ff64cdcebf62ea4c2d669db39bdb3a88b68d8f0",
+  "observed_processes": 2,
+  "adopted_waits": 0,
+  "owned_processes_gone": true,
+  "ended_utc": "2026-10-06T17:14:37.857525+00:00"
+}

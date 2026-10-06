@@ -1,0 +1,35 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web
+
+ ❯ src/tests/system-smtp-settings.spec.ts (15 tests | 2 failed | 13 skipped) 240ms
+     × keeps the native disable trigger enabled through its dirty=false confirmation and cancellation 181ms
+     × keeps the native disable trigger enabled through its dirty=true confirmation and cancellation 57ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-smtp-settings.spec.ts > SMTP inline form and two persistent confirmation hosts in the actual App > keeps the native disable trigger enabled through its dirty=false confirmation and cancellation
+ FAIL  src/tests/system-smtp-settings.spec.ts > SMTP inline form and two persistent confirmation hosts in the actual App > keeps the native disable trigger enabled through its dirty=true confirmation and cancellation
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/tests/system-smtp-settings.spec.ts:464:32
+    462|       await click('停用并清除配置')
+    463|       const top = dialogs().top
+    464|       expect(trigger.disabled).toBe(false)
+       |                                ^
+    465|       expect(document.getElementById('app')!.inert).toBe(true)
+    466|       expect(top.contains(document.activeElement)).toBe(true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 13 skipped (15)
+   Start at  17:07:05
+   Duration  1.69s (transform 779ms, setup 0ms, import 933ms, tests 240ms, environment 386ms)
+

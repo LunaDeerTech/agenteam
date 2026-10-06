@@ -1,0 +1,79 @@
+from pathlib import Path
+import argparse, datetime, hashlib, json, os, subprocess, time
+
+root = Path(__file__).resolve().parent
+workspace = root / 'workspace'
+base = json.loads((root / 'accepted-baseline04/manifest.json').read_text())
+previous = json.loads((root / 'input03/manifest.json').read_text())
+parser = argparse.ArgumentParser()
+parser.add_argument('name')
+parser.add_argument('--cwd', default='.')
+parser.add_argument('--extra', action='append', default=[])
+parser.add_argument('argv', nargs=argparse.REMAINDER)
+args = parser.parse_args()
+argv = args.argv[1:] if args.argv[:1] == ['--'] else args.argv
+out = root / 'runs' / args.name
+out.mkdir(parents=True, exist_ok=False)
+cwd = (workspace / args.cwd).resolve()
+assert cwd.is_relative_to(workspace)
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def write(path, value):
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+def snapshot():
+    accepted = {}
+    for name, value in base['files'].items():
+        path = workspace / name
+        assert path.is_file() and not path.is_symlink(), name
+        accepted[name] = sha(path)
+        assert accepted[name] == value['sha256'], name
+    actual = set()
+    ignored = {'web/node_modules', 'web/dist', 'tests/account-captcha-web/node_modules'}
+    for directory, directories, files in os.walk(workspace):
+        directories[:] = [name for name in directories if str((Path(directory) / name).relative_to(workspace)) not in ignored]
+        assert not any((Path(directory) / name).is_symlink() for name in directories)
+        for name in files:
+            path = Path(directory) / name
+            assert not path.is_symlink(), str(path)
+            actual.add(str(path.relative_to(workspace)))
+    assert actual == set(base['files']) | set(previous['files']), 'workspace inventory changed'
+    dependencies = {}
+    for name, value in previous['dependencies'].items():
+        path = Path(name)
+        dependencies[name] = {'realpath': str(path.resolve(strict=True)), 'sha256': sha(path)}
+        assert dependencies[name] == value, name
+    return {'product_base': base['product_base'], 'accepted': accepted,
+            'candidates': {name: sha(workspace / name) for name in previous['files']},
+            'dependencies': dependencies, 'extras': {name: sha(Path(name)) for name in args.extra}}
+
+before = snapshot()
+write(out / 'input-before.json', before)
+environment = os.environ.copy()
+environment.update({'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off', 'GOPROXY': 'off',
+                    'GOSUMDB': 'off', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1',
+                    'GOCACHE': str(root / 'gocache'),
+                    'GOMODCACHE': '/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache',
+                    'TMPDIR': str(root / 'compile-tmp'), 'CGO_ENABLED': '1'})
+selected_env = {key: environment[key] for key in ['PATH', 'GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOFLAGS', 'GOCACHE', 'GOMODCACHE', 'TMPDIR', 'CGO_ENABLED']}
+start = time.monotonic()
+command = {'argv': argv, 'cwd': str(cwd), 'env': selected_env,
+           'started_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+           'resource_execution': False, 'runner_sha256': sha(Path(__file__)),
+           'baseline_manifest_sha256': sha(root / 'accepted-baseline04/manifest.json')}
+write(out / 'command.json', command)
+with (out / 'raw.log').open('w') as log:
+    child = subprocess.Popen(argv, cwd=cwd, env=environment, stdout=log, stderr=subprocess.STDOUT)
+    code = child.wait()
+after = snapshot()
+write(out / 'input-after.json', after)
+result = {**command, 'exit_code': code, 'actual_wait': True, 'child_pid': child.pid,
+          'ended_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+          'duration_seconds': round(time.monotonic() - start, 3), 'input_unchanged': before == after,
+          'input_before_sha256': sha(out / 'input-before.json'), 'input_after_sha256': sha(out / 'input-after.json'),
+          'raw_sha256': sha(out / 'raw.log')}
+write(out / 'result.json', result)
+print(json.dumps(result))
+raise SystemExit(code)

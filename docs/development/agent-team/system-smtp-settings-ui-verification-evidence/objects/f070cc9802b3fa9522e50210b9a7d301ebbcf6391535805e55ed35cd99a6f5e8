@@ -1,0 +1,26 @@
+{
+  "author_input_sha256": "3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37",
+  "driver_sha256": "dcdebc6ddf3bee81c20fd1ff6d36cd5367d8c3b124d32530aec962accdb2c427",
+  "execution_sha256": "f3cc5c68d97c5ce4e296bad2a8f7c3ae1fc8f677987b7b1a426affdfcc573a90",
+  "private": {
+    "files": {
+      "browser/cases.ts.txt": "1468e5dd21731ef657136a1be6e1311441d1cb9f91dd42af3e81bd679e6ad5e9",
+      "browser/independent.config.js": "bb25fe44e4f589a3f57999582dbd86b9a7fba09442b46fb5404e82996c0132ea",
+      "browser/independent.spec.ts": "5ea90e6efeb75faed16779760bfe64c87b8f1c5f8bcc59055f5f4bc69535d221",
+      "browser/package.json": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428",
+      "browser/tsconfig.json": "caebbd2a5419189cb100ed364823c6a6f404c93082fac4568e54739004f7d86d",
+      "overlay.json": "dafcb2c4baf044b2f715d8a19d46ac2a8422f958d2ee505955f900249dd3f213",
+      "overlay/fixture.diff": "24812e6018c3e90236c5a81f1ec424abc8b2d81822767a7a6dad55abfa0ffa9e",
+      "overlay/smtp_independent_test.go": "19acc58b1267ed5923b1376a292a59687fd927220a8dbb64f8d5db1bbd3e68d1",
+      "overlay/system_smtp_settings_web_fixture_test.go": "0ab74c4d57cb33d80bbe288fbd5989669fce1a93f043296a965b196ffa76b535",
+      "run-independent01.py": "dcdebc6ddf3bee81c20fd1ff6d36cd5367d8c3b124d32530aec962accdb2c427"
+    },
+    "go_overlay": {
+      "Replace": {
+        "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/tests/account/smtp_independent_test.go": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/overlay/smtp_independent_test.go",
+        "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/tests/account/system_smtp_settings_web_fixture_test.go": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/overlay/system_smtp_settings_web_fixture_test.go"
+      }
+    },
+    "node_modules": "/workspace/agenteam/tests/account-captcha-web/node_modules"
+  }
+}

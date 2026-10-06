@@ -1,0 +1,8 @@
+{
+  "phase": "offline private runner preparation",
+  "exit_code": 1,
+  "business_probe_started": false,
+  "reason": "run-check.py expected checks parent directory; run.mkdir FileNotFoundError before command/raw creation",
+  "repair": "create private checks directory; no source/probe/runner/assertion change",
+  "original_runner_sha256": "d1a7dd333032447aa9d4d10ce17dbdb38b01d6319071e6181b6155024a7cbf3d"
+}

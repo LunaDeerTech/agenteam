@@ -1,0 +1,120 @@
+--- input03/web/src/composables/useSystemSMTPSettings.ts
++++ focus-stage01/web/src/composables/useSystemSMTPSettings.ts
+@@ -212,15 +212,16 @@
+       !Object.keys(errors.value).length &&
+       progress.value?.phase !== 'rejected',
+   )
+-  const canDisable = computed(
++  const disableReady = computed(
+     () =>
+       observation.phase === 'ready' &&
+       !!observation.value?.configured &&
+       !blocked.value &&
+       !unsettled.value &&
+-      !disableConfirmation.open &&
+-      !confirmation.open &&
+       observation.value.version !== '9223372036854775807',
++  )
++  const canDisable = computed(
++    () => disableReady.value && !disableConfirmation.open && !confirmation.open,
+   )
+   function stopFeedback() {
+     clearTimeout(timer)
+@@ -493,6 +494,7 @@
+     errors,
+     maximumVersion,
+     canSave,
++    disableReady,
+     canDisable,
+     attach() {
+       attached = true
+--- input03/web/src/views/system/SystemSMTPSettingsView.vue
++++ focus-stage01/web/src/views/system/SystemSMTPSettingsView.vue
+@@ -27,7 +27,7 @@
+   locked,
+   errors,
+   canSave,
+-  canDisable,
++  disableReady,
+   maximumVersion,
+ } = page
+ const heading = ref<HTMLElement | null>(null),
+@@ -122,7 +122,7 @@
+       <UiButton v-if="observation.phase === 'loading'" variant="ghost" @click="page.cancelRead"
+         >取消读取</UiButton
+       >
+-      <UiButton v-if="observation.value?.configured" :disabled="!canDisable" @click="page.disable"
++      <UiButton v-if="observation.value?.configured" :disabled="!disableReady" @click="page.disable"
+         >停用并清除配置</UiButton
+       >
+     </div>
+--- input03/web/src/tests/system-smtp-settings-state.spec.ts
++++ focus-stage01/web/src/tests/system-smtp-settings-state.spec.ts
+@@ -872,6 +872,38 @@
+     expect(p.state.confirmed?.kind).toBe('unconfigure')
+     expect(p.state.writeMessage).toContain('SMTP 已停用')
+   })
++  it.each([false, true])(
++    'does not replace the pending disable decision when called again with dirty=%s',
++    async (dirty) => {
++      const f = await pageFixture(),
++        p = f.page
++      if (dirty) p.updateField('auto_retry_count', '0')
++      let settled = false
++      const original = p.disable().then(() => {
++        settled = true
++      })
++      await flushPromises()
++      expect(p.canDisable.value).toBe(false)
++      await p.disable()
++      expect(settled).toBe(false)
++      expect(f.writes()).toHaveLength(0)
++      if (dirty) {
++        expect(p.confirmation.open).toBe(true)
++        p.finishConfirmation(true)
++        await flushPromises()
++      }
++      expect(p.disableConfirmation.open).toBe(true)
++      expect(p.canDisable.value).toBe(false)
++      await p.disable()
++      expect(settled).toBe(false)
++      p.finishDisable(false)
++      await original
++      expect(settled).toBe(true)
++      expect(p.disableConfirmation.open || p.confirmation.open).toBe(false)
++      expect(p.canDisable.value).toBe(true)
++      expect(f.writes()).toHaveLength(0)
++    },
++  )
+   it('keeps the disable Promise while a navigation discard is cancelled, then settles both exactly once on leave', async () => {
+     const f = await pageFixture(),
+       p = f.page
+--- input03/web/src/tests/system-smtp-settings.spec.ts
++++ focus-stage01/web/src/tests/system-smtp-settings.spec.ts
+@@ -452,6 +452,26 @@
+       expect(f.auth.system.smtp.material.present).toBe(false)
+     },
+   )
++  it.each([false, true])(
++    'keeps the native disable trigger enabled through its dirty=%s confirmation and cancellation',
++    async (dirty) => {
++      const f = await page()
++      if (dirty) await change('自动重试次数', '0')
++      const trigger = button('停用并清除配置')
++      trigger.focus()
++      await click('停用并清除配置')
++      const top = dialogs().top
++      expect(trigger.disabled).toBe(false)
++      expect(document.getElementById('app')!.inert).toBe(true)
++      expect(top.contains(document.activeElement)).toBe(true)
++      await click(dirty ? '继续编辑' : '取消停用', top)
++      expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
++      expect(document.activeElement).toBe(trigger)
++      expect(trigger.disabled).toBe(false)
++      expect(f.writes()).toHaveLength(0)
++      if (dirty) expect(field('自动重试次数').value).toBe('0')
++    },
++  )
+   it('keeps both Dialog instances in order through Session recovery and lets only the top confirmation respond', async () => {
+     const f = await page()
+     await click('停用并清除配置')

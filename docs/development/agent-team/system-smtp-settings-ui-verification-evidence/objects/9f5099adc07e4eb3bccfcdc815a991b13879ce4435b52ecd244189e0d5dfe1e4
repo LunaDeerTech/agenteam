@@ -1,0 +1,174 @@
+type OriginalFacts = {
+  commands: number;
+  audits: number;
+  requests: number;
+  same_request_bytes: boolean;
+  original_key_persisted: boolean;
+  command_unchanged: boolean;
+  mac_unchanged: boolean;
+  planned_reference_unchanged: boolean;
+  actor_unchanged: boolean;
+  original_put_password: boolean;
+  original_post_saved_policy: boolean;
+};
+async function originalFacts(page: Page, record = false) {
+  const value = (await ipc(record ? "independent-record" : "independent-facts",
+    record ? await session(page) : {})).facts as OriginalFacts;
+  expect(value.commands === 1 && value.audits === 1 && value.same_request_bytes &&
+    value.original_key_persisted && value.command_unchanged && value.mac_unchanged &&
+    value.planned_reference_unchanged && value.actor_unchanged).toBe(true);
+  return value;
+}
+async function checkedWithoutWrite(page: Page, current: Settings) {
+  const before = (await writes(page)).length;
+  const value = await checkOriginal(page);
+  expect(settingsEqual(value, current)).toBe(true);
+  expect((await writes(page)).length).toBe(before);
+  const privateInputs = await password(page).count();
+  expect(privateInputs <= 1).toBe(true);
+  if (privateInputs) await expect(password(page)).toHaveValue("");
+  await expect(title(page, "请求结果未确认")).toBeVisible();
+}
+
+test("[authority] independent original PUT receipt, opposite current and present authority", async ({ page }) => {
+  await setup(page);
+  await fill(page, { username: "independent-original" });
+  await setPassword(page, 0);
+  const lost = await cutSave(page);
+  let exact = await originalFacts(page, true);
+  expect(exact.requests === 1 && exact.original_put_password).toBe(true);
+  const accepted = await dbFacts();
+  expect(accepted.settings.configured && accepted.reference_count === 1).toBe(true);
+  const later = (await ipc("compete-disable")).result as Receipt;
+  expect(!later.settings.configured && BigInt(later.settings.version) > BigInt(lost.applied_version)).toBe(true);
+  const opposite = await dbFacts();
+  expect(opposite.reference_count === 0 && opposite.previous_cleanup_registered).toBe(true);
+  await checkedWithoutWrite(page, later.settings);
+  expect((await originalFacts(page)).requests).toBe(1);
+  const recovered = await retry(page, "PUT");
+  expect(recovered.applied_version === lost.applied_version && settingsEqual(recovered.settings, later.settings)).toBe(true);
+  await expect(page.getByText("原操作已确认，当前配置已变化。", { exact: true })).toBeVisible();
+  exact = await originalFacts(page);
+  expect(exact.requests === 2 && exact.original_put_password).toBe(true);
+  const replayed = await dbFacts();
+  expect(replayed.commands === opposite.commands && replayed.audits === opposite.audits &&
+    replayed.reference_count === 0 && replayed.same_reference && settingsEqual(replayed.settings, later.settings)).toBe(true);
+
+  const failures = await ipc("failure-facts");
+  await ipc("arm-get-fail");
+  const after = await seq(page), count = (await writes(page)).length;
+  await button(page, "读取当前配置").click();
+  // text/plain is rejected and cancelled before getReader: do not invent EOF.
+  await factAfter(page, after, f => f.path === endpoint && f.method === "GET" && f.status === 503);
+  await expect(title(page, "原操作已确认，当前配置读取失败")).toBeVisible();
+  await expect(button(page, "读取当前配置")).toBeEnabled();
+  expect((await ipc("failure-facts")).read_failures).toBe(failures.read_failures + 1);
+  expect((await writes(page)).length).toBe(count);
+  expect(settingsEqual(await refresh(page), later.settings)).toBe(true);
+
+  await configure(page);
+  await fill(page, { username: "independent-current-authority" });
+  await setPassword(page, 0);
+  const deniedLost = await cutSave(page);
+  await originalFacts(page, true);
+  await checkedWithoutWrite(page, deniedLost.settings);
+  const active = await session(page), beforeDenied = await dbFacts();
+  await ipc("demote", active);
+  const beforeRetry = await seq(page);
+  await button(page, "重试原请求").click();
+  await factAfter(page, beforeRetry, f => f.path === endpoint && f.method === "PUT" && f.status === 403 && f.ended && f.code === "FORBIDDEN");
+  await expect(title(page, "无权访问系统设置")).toBeVisible();
+  await expect(form(page)).toHaveCount(0);
+  exact = await originalFacts(page);
+  expect(exact.requests === 2 && exact.original_put_password).toBe(true);
+  const denied = await dbFacts();
+  expect(denied.commands === beforeDenied.commands && denied.audits === beforeDenied.audits &&
+    denied.reference_count === beforeDenied.reference_count && denied.same_reference && settingsEqual(denied.settings, beforeDenied.settings)).toBe(true);
+  await ipc("promote", active);
+  const restoreAfter = await seq(page);
+  await page.evaluate(() => window.dispatchEvent(new Event("pageshow")));
+  await factAfter(page, restoreAfter, f => f.path === "/api/v1/session" && f.status === 200 && f.ended &&
+    f.session?.user_id === active.user_id && f.session.session_id === active.session_id && f.session.role === "admin");
+  await currentRead(page, restoreAfter);
+  await expect(button(page, "重试原请求")).toHaveCount(0);
+  await expect(password(page)).toHaveValue("");
+  await expect(page.getByText("已保留新密码输入；重挂后不会回显。", { exact: false })).toHaveCount(0);
+  await noPrivateExposure(page);
+  result({ historical_put: true, current_opposite: true, exact_command: true, read_failure: true, current_authority: true, private_safety: true });
+});
+
+test("[navigation] independent captured disable policy, restored layers and historical POST", async ({ page }) => {
+  await setup(page);
+  const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
+  await nav.getByRole("link", { name: "用户", exact: true }).click();
+  await expect(page).toHaveURL(/\/system\/users$/);
+  let after = await seq(page);
+  await nav.getByRole("link", { name: "SMTP", exact: true }).click();
+  const initial = await currentRead(page, after);
+  await fill(page, { sender_name: "independent draft", auto_retry_count: "4", retry_interval_seconds: "120" });
+  await setPassword(page, 0);
+  const failureBase = await ipc("failure-facts");
+  await button(page, "停用并清除配置").click();
+  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
+  await restored(page, 1);
+  await focusContained(page);
+  await top(page).getByRole("button", { name: "继续编辑", exact: true }).click();
+  await fallback(page);
+  await expect(field(page, "auto_retry_count")).toHaveValue("4");
+  await expect(field(page, "retry_interval_seconds")).toHaveValue("120");
+  await expect(password(page)).toHaveValue("");
+  await button(page, "停用并清除配置").click();
+  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
+  await top(page).getByRole("button", { name: "放弃修改", exact: true }).click();
+  await expect(top(page)).toHaveAccessibleName("停用并清除 SMTP 配置？");
+  await expect(top(page)).toContainText(`保留自动重试 ${initial.auto_retry_count} 次`);
+  await expect(top(page)).toContainText(`间隔 ${initial.retry_interval_seconds} 秒`);
+
+  const pendingBack = page.goBack();
+  void pendingBack.catch(() => undefined);
+  await expect(page.locator('[role="dialog"]')).toHaveCount(2);
+  await restored(page, 2);
+  await expect(page.locator('[role="dialog"][aria-hidden="true"][inert]')).toHaveCount(1);
+  await focusContained(page);
+  await top(page).getByRole("button", { name: "继续编辑", exact: true }).click();
+  await pendingBack;
+  await expect(page.locator('[role="dialog"]')).toHaveCount(1);
+  await expect(top(page)).toHaveAccessibleName("停用并清除 SMTP 配置？");
+  await focusContained(page);
+  await top(page).getByRole("button", { name: "取消停用", exact: true }).click();
+  await fallback(page);
+  expect((await ipc("failure-facts")).session_failures).toBe(failureBase.session_failures + 2);
+
+  await button(page, "停用并清除配置").click();
+  await restored(page, 1, false);
+  await expect(top(page)).toContainText(`保留自动重试 ${initial.auto_retry_count} 次`);
+  await expect(top(page)).toContainText(`间隔 ${initial.retry_interval_seconds} 秒`);
+  await ipc("arm-drop");
+  await top(page).getByRole("button", { name: "确认停用并清除", exact: true }).click();
+  await expect(title(page, "请求结果未确认")).toBeVisible();
+  await expect(button(page, "检查当前会话与配置")).toBeEnabled();
+  const cut = await ipc("drop-facts"), lost = cut.result as Receipt;
+  expect(cut.dropped === 1 && cut.armed === false && !lost.settings.configured).toBe(true);
+  let exact = await originalFacts(page, true);
+  expect(exact.requests === 1 && exact.original_post_saved_policy).toBe(true);
+  expect(lost.settings.auto_retry_count === initial.auto_retry_count && lost.settings.retry_interval_seconds === initial.retry_interval_seconds).toBe(true);
+  const later = (await ipc("compete-configure")).result as Receipt;
+  expect(later.settings.configured && BigInt(later.settings.version) > BigInt(lost.applied_version)).toBe(true);
+  const opposite = await dbFacts();
+  expect(opposite.reference_count).toBe(1);
+  // No password input is rendered while the uncertain original is unconfigured.
+  const count = (await writes(page)).length;
+  const observed = await checkOriginal(page);
+  expect(settingsEqual(observed, later.settings) && (await writes(page)).length === count).toBe(true);
+  expect((await originalFacts(page)).requests).toBe(1);
+  const replayed = await retry(page, "POST");
+  expect(replayed.applied_version === lost.applied_version && settingsEqual(replayed.settings, later.settings) && replayed.settings.configured).toBe(true);
+  exact = await originalFacts(page);
+  expect(exact.requests === 2 && exact.original_post_saved_policy).toBe(true);
+  const last = await dbFacts();
+  expect(last.commands === opposite.commands && last.audits === opposite.audits && last.reference_count === 1 &&
+    last.same_reference && settingsEqual(last.settings, later.settings)).toBe(true);
+  await expect(page.getByText("原操作已确认，当前配置已变化。", { exact: true })).toBeVisible();
+  await noPrivateExposure(page);
+  result({ captured_saved_policy: true, restored_confirmations: true, native_focus: true, historical_post: true, current_opposite: true, exact_command: true, private_safety: true });
+});

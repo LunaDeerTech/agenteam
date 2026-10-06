@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "base": "f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a",
+  "stage_manifest_sha256": "975998a01d023658adaddd3adaca86ec94b1f6982452736730d130762fe8443c",
+  "change_scope": [
+    "email raw qualification",
+    "configured Settings canonical assertion"
+  ],
+  "restoring_email_function_and_removing_only_settings_guard_equals_api01": true,
+  "transport_sha256_unchanged": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186",
+  "five_fixed_git_dependencies_unchanged": true,
+  "oracle_vectors": {
+    "total": 25,
+    "accepted": 13,
+    "rejected": 12,
+    "actual_go_raw_matches_declared_vectors": true,
+    "full_accepted_normalizer_sha256": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94"
+  },
+  "author_checks_reused": {
+    "api-revision-green02": {
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 1.084,
+      "raw_sha256": "6ace813ba8eaa406a160c2894884287d17ffebde2c5dbf8b5783d688ec5c8767"
+    },
+    "api-revision-red02": {
+      "exit": 1,
+      "actual_wait": true,
+      "seconds": 1.377,
+      "raw_sha256": "8528ec9322d1fc9fdbb4787afbead1de93031ce285e8730501fd50a71f31c42d"
+    },
+    "email-oracle02": {
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 10.673,
+      "raw_sha256": "a517676d8651bcbc76ca20870f6bb429d63a9ee0ceb4a42fa046553399eb222f"
+    }
+  },
+  "old_independent_11": "Original passing groups retained exactly; new test replaces only the original failed email group and also exercises canonical DTO/EOF, raw body/key/CSRF/password preservation. The 11 groups were skipped this run, not claimed rerun.",
+  "old_api01_raw_sha256": "482f39c89cccc6561da32d5555921dd91b1fec64136fc29ee6d8f3d4742a9738",
+  "old_contract_change": "Lowercase canonical is accepted only after f670cb1. Mixed marker still invalid. Original API01 old-backend RED is immutable."
+}

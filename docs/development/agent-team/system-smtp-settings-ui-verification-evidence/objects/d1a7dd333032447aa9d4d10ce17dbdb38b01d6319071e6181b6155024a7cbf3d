@@ -1,0 +1,35 @@
+import argparse, hashlib, json, os, pathlib, subprocess, time, datetime
+
+ROOT=pathlib.Path(__file__).resolve().parent
+parser=argparse.ArgumentParser()
+parser.add_argument('name')
+parser.add_argument('--cwd',required=True)
+parser.add_argument('argv',nargs=argparse.REMAINDER)
+a=parser.parse_args()
+argv=a.argv[1:] if a.argv and a.argv[0]=='--' else a.argv
+run=ROOT/'checks'/a.name
+run.mkdir()
+fixed=json.loads((ROOT/'fixed-inputs.json').read_text())
+paths=list(fixed['sources'])+[str(p) for root in (ROOT/'fixed/web/src',ROOT/'oracle') for p in root.rglob('*') if p.is_file()]
+paths += [str(ROOT/'fixed/web/independent.config.mjs'),str(ROOT/'run-check.py')]
+for p in [ROOT/'oracle-results.json']:
+ if p.exists(): paths.append(str(p))
+def fingerprints():
+ return {p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in sorted(set(paths))}
+before=fingerprints()
+for p, h in fixed['sources'].items(): assert before[p]==h,p
+(run/'input-before.json').write_text(json.dumps(before,indent=2)+'\n')
+env=os.environ.copy(); env.update({'GOTOOLCHAIN':'local','GOPROXY':'off','GOSUMDB':'off','GOFLAGS':'-mod=readonly','GOCACHE':str(ROOT/'go-cache'),'GOTMPDIR':str(ROOT/'go-tmp'),'NO_COLOR':'1','CI':'1'})
+pathlib.Path(env['GOTMPDIR']).mkdir(exist_ok=True)
+record={'argv':argv,'cwd':a.cwd,'env':{k:env[k] for k in ['PATH','GOTOOLCHAIN','GOPROXY','GOSUMDB','GOFLAGS','GOCACHE','GOTMPDIR','NO_COLOR','CI']},'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'resource_execution':False}
+(run/'command.json').write_text(json.dumps(record,indent=2)+'\n')
+start=time.monotonic()
+with (run/'raw.log').open('wb') as log:
+ p=subprocess.Popen(argv,cwd=a.cwd,env=env,stdout=log,stderr=subprocess.STDOUT)
+ code=p.wait()
+after=fingerprints()
+(run/'input-after.json').write_text(json.dumps(after,indent=2)+'\n')
+record.update({'pid':p.pid,'exit_code':code,'actual_wait':True,'duration_seconds':round(time.monotonic()-start,3),'input_unchanged':before==after,'raw_sha256':hashlib.sha256((run/'raw.log').read_bytes()).hexdigest(),'ended_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()})
+(run/'result.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps({k:record[k] for k in ['pid','exit_code','actual_wait','duration_seconds','input_unchanged','raw_sha256']}),flush=True)
+raise SystemExit(code if code else (0 if before==after else 2))

@@ -1,0 +1,258 @@
+{
+  "stage": "SMTP API-stage02",
+  "verdict": "PASS: static delta + 11 unchanged original PASS groups reused + 1 actual independent contract group",
+  "base": "f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a",
+  "author_manifest_sha256": "975998a01d023658adaddd3adaca86ec94b1f6982452736730d130762fe8443c",
+  "candidate_files": {
+    "web/src/api/system-smtp-settings.ts": "e8068e7f4d4809716f66977e499d2d3425f71fe625dada059a6ed2fb72957527",
+    "web/src/tests/system-smtp-settings-client.spec.ts": "0fa109711f474a99aeb4214e0dcba5886b3537c1bd1cbc66003cf9b8fbe93062"
+  },
+  "transport_unchanged_sha256": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186",
+  "new_contract_vectors": {
+    "total": 25,
+    "accepted": 13,
+    "rejected": 12,
+    "actual_go_raw_matches_declared_vectors": true,
+    "full_accepted_normalizer_sha256": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94"
+  },
+  "independent": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "duration_seconds": 0.628,
+    "executed_pass_groups": 1,
+    "explicit_skipped_prior_groups": 11,
+    "raw_sha256": "768f03d0f5a28f3aa20229687ff64cdcebf62ea4c2d669db39bdb3a88b68d8f0",
+    "input_unchanged": true,
+    "owned_processes": 2,
+    "owned_processes_gone": true,
+    "adopted_waits": 0
+  },
+  "original_api01": {
+    "root": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g",
+    "verdict": "Original old-backend 11 PASS / 1 RED is preserved, not retroactively relabeled",
+    "raw_sha256": "482f39c89cccc6561da32d5555921dd91b1fec64136fc29ee6d8f3d4742a9738",
+    "reused": 11,
+    "modified_originals": false
+  },
+  "author_evidence_reused": {
+    "api-revision-green02": {
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 1.084,
+      "raw_sha256": "6ace813ba8eaa406a160c2894884287d17ffebde2c5dbf8b5783d688ec5c8767"
+    },
+    "api-revision-red02": {
+      "exit": 1,
+      "actual_wait": true,
+      "seconds": 1.377,
+      "raw_sha256": "8528ec9322d1fc9fdbb4787afbead1de93031ce285e8730501fd50a71f31c42d"
+    },
+    "email-oracle02": {
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 10.673,
+      "raw_sha256": "a517676d8651bcbc76ca20870f6bb429d63a9ee0ceb4a42fa046553399eb222f"
+    }
+  },
+  "limits": [
+    "Controlled fetch exercises the production API/transport in Node, not a formal HTTP/service/database/browser result.",
+    "No active owner/page/finalcheck source consumed. Owner singleton, identity, private material destruction, recovery and 30-second scheduling remain outside this stage.",
+    "The 11 skipped groups are reused original passes, not claimed rerun. The new contract replaces the one original failing test in a separate private probe.",
+    "No full web/type/build rerun, no live resources, no main/product/other-agent writes, no Git mutation."
+  ],
+  "artifacts": {
+    "accepted-git/docs/development/work-items/d07-email-canonical-roundtrip.md": {
+      "sha256": "73c7d5fb8b1a503cb7c27929e717397228973833564d3de5fc895db8a5ed81f4",
+      "bytes": 18737
+    },
+    "accepted-git/internal/central/account/validation.go": {
+      "sha256": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94",
+      "bytes": 2228
+    },
+    "accepted-oracle02/baseline-manifest.json": {
+      "sha256": "ca60386ee9fabc970c4c3da0ed5b432868fa6e1960d016b2f61da9a6efc96d3c",
+      "bytes": 269208
+    },
+    "accepted-oracle02/overlay.json": {
+      "sha256": "46086b6c2e944023ad763ff0f185a4ede7eebf11e52a62704cb264bf3e649441",
+      "bytes": 260
+    },
+    "accepted-oracle02/smtp_ui_email_oracle_test.go": {
+      "sha256": "befb0832e293d7d902d2e167441eb57804e0511c505afe35ec666f28662043a8",
+      "bytes": 2779
+    },
+    "accepted-oracle02/validation.go": {
+      "sha256": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94",
+      "bytes": 2228
+    },
+    "accepted-oracle02/vectors.json": {
+      "sha256": "9824ecd8543037706c6ac9ed9f652dfe4ac5f067c3ebc18181675f31feb2e8bc",
+      "bytes": 3234
+    },
+    "api-stage01-to02.diff": {
+      "sha256": "b21c658b5fcd8f261257d5651b61ace0dfcae718c03665cff516579b6989bb8f",
+      "bytes": 1568
+    },
+    "author-api-stage02.json": {
+      "sha256": "975998a01d023658adaddd3adaca86ec94b1f6982452736730d130762fe8443c",
+      "bytes": 6090
+    },
+    "author-checks/api-revision-green02/input-after.json": {
+      "sha256": "54eb763ad001a0eb7879b07e70c5e8c3ee4a4a0d42dd0a574e5860e93c5f2ab7",
+      "bytes": 16632
+    },
+    "author-checks/api-revision-green02/input-before.json": {
+      "sha256": "54eb763ad001a0eb7879b07e70c5e8c3ee4a4a0d42dd0a574e5860e93c5f2ab7",
+      "bytes": 16632
+    },
+    "author-checks/api-revision-green02/raw.log": {
+      "sha256": "6ace813ba8eaa406a160c2894884287d17ffebde2c5dbf8b5783d688ec5c8767",
+      "bytes": 260
+    },
+    "author-checks/api-revision-green02/result.json": {
+      "sha256": "4006510c15e52b2b9e17a1a8dda858b7ec37053c154d2e5e30e8dc5ef9659b7b",
+      "bytes": 1221
+    },
+    "author-checks/api-revision-red02/input-after.json": {
+      "sha256": "e996ba9b4cfdf0be9e5da874a134abec99c0aa8029c6e2edc1df397534397612",
+      "bytes": 16632
+    },
+    "author-checks/api-revision-red02/input-before.json": {
+      "sha256": "e996ba9b4cfdf0be9e5da874a134abec99c0aa8029c6e2edc1df397534397612",
+      "bytes": 16632
+    },
+    "author-checks/api-revision-red02/raw.log": {
+      "sha256": "8528ec9322d1fc9fdbb4787afbead1de93031ce285e8730501fd50a71f31c42d",
+      "bytes": 2682
+    },
+    "author-checks/api-revision-red02/result.json": {
+      "sha256": "8e5ae7e787d7634f84ba8d5ab45b49d33dd379b5d236c14b0eb471e4cb7e24ab",
+      "bytes": 1221
+    },
+    "author-checks/email-oracle02/input-after.json": {
+      "sha256": "a6a9be8c9cbcd875aa29452571b5cece336459bc336d2b9571f353cdcb3ae4ea",
+      "bytes": 129071
+    },
+    "author-checks/email-oracle02/input-before.json": {
+      "sha256": "a6a9be8c9cbcd875aa29452571b5cece336459bc336d2b9571f353cdcb3ae4ea",
+      "bytes": 129071
+    },
+    "author-checks/email-oracle02/raw.log": {
+      "sha256": "a517676d8651bcbc76ca20870f6bb429d63a9ee0ceb4a42fa046553399eb222f",
+      "bytes": 2531
+    },
+    "author-checks/email-oracle02/result.json": {
+      "sha256": "d721af951e00c7e41fc694d1e092e74f18a2ed7eb7843196970b6be111e1c3af",
+      "bytes": 2048
+    },
+    "checks/api02/adopted-waits.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    },
+    "checks/api02/cleanup.json": {
+      "sha256": "7b42df10b35b50ac65cfc9920e4db0f929ba7869988935488d42f28776f01d74",
+      "bytes": 169
+    },
+    "checks/api02/command.json": {
+      "sha256": "6e5a4da1bc66a4969b33decff29d6e26c8f6c17b9f502443137e6924ec4b2829",
+      "bytes": 1245
+    },
+    "checks/api02/input-after.json": {
+      "sha256": "e74bf904ed573cb0567a1135c6b3e6b36d24d81967b858677cef11a94b6dacad",
+      "bytes": 7126
+    },
+    "checks/api02/input-before.json": {
+      "sha256": "e74bf904ed573cb0567a1135c6b3e6b36d24d81967b858677cef11a94b6dacad",
+      "bytes": 7126
+    },
+    "checks/api02/observed-processes.json": {
+      "sha256": "870492e6267480348512b472ed10e17e74879f86569831c2bab55096d5572e86",
+      "bytes": 227
+    },
+    "checks/api02/raw.log": {
+      "sha256": "768f03d0f5a28f3aa20229687ff64cdcebf62ea4c2d669db39bdb3a88b68d8f0",
+      "bytes": 265
+    },
+    "checks/api02/result.json": {
+      "sha256": "f871c332b157199ee7bf4b9106e9a4843e5086f2e61518e7985155b827ca7624",
+      "bytes": 1598
+    },
+    "fixed/web/independent.config.mjs": {
+      "sha256": "fbcbb26742927640b3ee265237ec64964a83518f066f0201c9bfe5b99547f51c",
+      "bytes": 259
+    },
+    "fixed/web/package-lock.json": {
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "bytes": 86893
+    },
+    "fixed/web/package.json": {
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "bytes": 984
+    },
+    "fixed/web/src/api/account.ts": {
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "bytes": 18878
+    },
+    "fixed/web/src/api/client.ts": {
+      "sha256": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186",
+      "bytes": 23705
+    },
+    "fixed/web/src/api/system-smtp-settings.ts": {
+      "sha256": "e8068e7f4d4809716f66977e499d2d3425f71fe625dada059a6ed2fb72957527",
+      "bytes": 9674
+    },
+    "fixed/web/src/tests/independent-smtp-api.spec.ts": {
+      "sha256": "1652c0554f91e8a1e95a585865c1e682a46128318dc8a66420bce1808b8098e0",
+      "bytes": 14010
+    },
+    "fixed/web/src/tests/system-smtp-settings-client.spec.ts": {
+      "sha256": "0fa109711f474a99aeb4214e0dcba5886b3537c1bd1cbc66003cf9b8fbe93062",
+      "bytes": 19884
+    },
+    "fixed/web/tsconfig.json": {
+      "sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+      "bytes": 390
+    },
+    "fixed/web/vite.config.ts": {
+      "sha256": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+      "bytes": 979
+    },
+    "fixed-inputs.json": {
+      "sha256": "6d6726eea70c2e096e7e6b303a5afd6ec88e77d475d9e5ab056ebc689e9055d3",
+      "bytes": 10390
+    },
+    "oracle-results.json": {
+      "sha256": "cb2bf82f99339c2b68dcb2a3d9ba43a8020d15901d7ec72eabdb22cc68509675",
+      "bytes": 4637
+    },
+    "prior-api01/fixed-inputs.json": {
+      "sha256": "bfbc7c5a62937f53878fa2dc8e7fdea4092bdeead602be01dcc42e6ec80c833a",
+      "bytes": 2618
+    },
+    "prior-api01/independent-smtp-api.spec.ts": {
+      "sha256": "e06169fdbdebd8e60c62f1a1f631a6fd34979e6f7d927f9b81134b4d5641d8de",
+      "bytes": 10742
+    },
+    "prior-api01/review.md": {
+      "sha256": "8380e6ce82ffc2d7dc7018de2d10bcc38017516038b6dfc7d1da3d04f40b5f66",
+      "bytes": 3412
+    },
+    "probe-api01-to02.diff": {
+      "sha256": "f9a02ae15890d538793d5bc720f9ef1b5187a3739caa609ef629277802e8425a",
+      "bytes": 5004
+    },
+    "review.md": {
+      "sha256": "7297baf13b8a1da86fcb7e18ecd1a792c35ce8258d0d7bf3369357fdd635ae77",
+      "bytes": 4020
+    },
+    "run-check.py": {
+      "sha256": "7de427402664a08aef7aeffa36e569d55d27275011d53025e844677ab845ff75",
+      "bytes": 5265
+    },
+    "static-review.json": {
+      "sha256": "8cd71c50fa0cb6b4ad0c16410fb17fbc90f862fbc8087ca074ea843a684faa21",
+      "bytes": 1854
+    }
+  },
+  "frozen": true
+}

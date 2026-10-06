@@ -1,0 +1,27 @@
+from pathlib import Path
+import sys,json,hashlib,subprocess,time,datetime,os,re,shutil
+s=Path(__file__).resolve().parent;w=s/'workspace';name=sys.argv[1];relative=sys.argv[2];cmd=sys.argv[3:]
+out=s/'runs'/name;out.mkdir(parents=True,exist_ok=False)
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+allowed=[p for i,p in re.findall(r'^\| (\d+) \| `([^`]+)`',(s/'card.md').read_text(),re.M) if int(i)<=28]
+web=json.loads((s/'web-stage01/manifest.json').read_text());go=json.loads((s/'go-baseline02.json').read_text())
+def snapshot():
+ for p,h in web['files'].items():assert sha(w/p)==h,('web frozen',p)
+ for p,h in web['dist'].items():assert sha(w/p)==h,('dist frozen',p)
+ for p,row in go['files'].items():
+  if p not in allowed:assert sha(w/p)==row['sha256'],('fixed Go baseline',p)
+ return {p:sha(w/p) for p in allowed if (w/p).is_file()}
+before=snapshot()
+for p in before:
+ dest=out/'source'/p;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(w/p,dest)
+(out/'input-before.json').write_text(json.dumps(before,sort_keys=True,indent=2)+'\n')
+env=os.environ.copy();env.update({'GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off','GOPROXY':'off','GOSUMDB':'off','GOMODCACHE':'/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache','GOCACHE':str(s/'gocache'),'TMPDIR':str(s/'compile-tmp'),'GOFLAGS':'-mod=readonly -buildvcs=false -p=1','CGO_ENABLED':'1'})
+(s/'compile-tmp').mkdir(exist_ok=True)
+record={'argv':cmd,'cwd':str(w/relative),'env':{k:env[k] for k in ['PATH','GOTOOLCHAIN','GOENV','GOWORK','GOPROXY','GOSUMDB','GOMODCACHE','GOCACHE','TMPDIR','GOFLAGS','CGO_ENABLED']},'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'real_resource_execution':False}
+(out/'command.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n')
+start=time.monotonic()
+with (out/'raw.log').open('w') as log:
+ child=subprocess.Popen(cmd,cwd=w/relative,env=env,stdout=log,stderr=subprocess.STDOUT);code=child.wait()
+after=snapshot();(out/'input-after.json').write_text(json.dumps(after,sort_keys=True,indent=2)+'\n')
+result={'exit_code':code,'actual_wait':True,'duration_seconds':round(time.monotonic()-start,3),'child_pid':child.pid,'input_unchanged':before==after,'raw_sha256':sha(out/'raw.log'),'command_sha256':sha(out/'command.json'),'ended_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+(out/'result.json').write_text(json.dumps(result,sort_keys=True,indent=2)+'\n');print(json.dumps(result));sys.exit(code)

@@ -1,0 +1,1123 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { type CommitState, type Fetch } from '../api/client'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI } from '../api/system-providers'
+import { createSystemModelAPI } from '../api/system-models'
+import { createSystemModelSelectionAPI } from '../api/system-model-selection'
+import { createSystemAccountSecurityAPI } from '../api/system-account-security'
+import { createSystemSMTPSettingsAPI, type SMTPUpdateInput } from '../api/system-smtp-settings'
+import { createSessionController, type SessionController } from '../composables/useSession'
+import { useTheme } from '../composables/useTheme'
+import {
+  createSystemSMTPSettings,
+  type SystemSMTPSettingsController,
+} from '../composables/useSystemSMTPSettings'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z'
+const view = (sessionID = id(2), role: 'admin' | 'user' = 'admin'): SessionView => ({
+  user: {
+    id: id(1),
+    email: 'admin@example.com',
+    username: 'admin',
+    display_name: 'Admin',
+    role,
+    theme: 'system',
+    version: '1',
+    initial_password_suggestion: false,
+  },
+  session: { id: sessionID, issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const fields = () => ({
+  host: 'mail.example',
+  port: 587,
+  encryption: 'starttls' as const,
+  username: '',
+  sender_email: 'sender@example.test',
+  sender_name: '',
+  auto_retry_count: '3',
+  retry_interval_seconds: '60',
+})
+const input = (): Omit<SMTPUpdateInput, 'password'> => ({
+  version: '1',
+  ...fields(),
+  credential_action: 'keep',
+})
+const settings = (version = '1', configured = true) => ({
+  id: id(10),
+  version,
+  configured,
+  ...fields(),
+  credential_present: false,
+  ...(configured
+    ? {}
+    : { host: '', port: 0, encryption: '', username: '', sender_email: '', sender_name: '' }),
+})
+const receipt = (current = settings('2'), applied_version = '2') => ({
+  applied_version,
+  settings: current,
+})
+const security = () => ({
+  id: id(12),
+  version: '1',
+  session_idle_seconds: '604800',
+  session_absolute_seconds: '2592000',
+  password_reset_seconds: '1800',
+  challenge_after_failures: '5',
+  lifetime_changes_apply_to: 'newly_issued_sessions_and_tokens',
+})
+const json = (value: unknown, status = 200) =>
+  new Response(JSON.stringify(value), {
+    status,
+    headers: {
+      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+      'X-Request-ID': id(9),
+    },
+  })
+const problem = (code: string, status = 503, commit_state: CommitState = 'not_started') =>
+  json(
+    {
+      type: 'urn:agenteam:problem:test',
+      title: 'Failure',
+      status,
+      code,
+      detail: 'safe test',
+      instance: '/api/v1/system/smtp',
+      request_id: id(9),
+      commit_state,
+      retry_hint: 'lookup',
+    },
+    status,
+  )
+function barrier<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((r) => {
+    resolve = r
+  })
+  return { promise, resolve }
+}
+const owners: SessionController[] = []
+const pages: SystemSMTPSettingsController[] = []
+async function fixture() {
+  let current = view(),
+    session: Fetch = async () => json(current),
+    smtp: Fetch = async (_, i) => json(i.method === 'GET' ? settings() : receipt()),
+    other: Fetch = async (path) => {
+      if (path === '/api/v1/me') return json({ user: current.user, avatar: null })
+      if (path === '/api/v1/system/model-selection')
+        return json({ id: id(20), version: '1', configured: null })
+      if (path === '/api/v1/system/account-settings') return json(security())
+      if (path.startsWith('/api/v1/system/users') || path.startsWith('/api/v1/system/invitations'))
+        return json({ items: [] })
+      return json({ items: [], next_cursor: null })
+    }
+  const fetch = vi.fn<Fetch>(async (path, init) => {
+    if (path === '/api/v1/session') return session(path, init)
+    if (path === '/api/v1/auth/bootstrap')
+      return json({
+        csrf_token: 'A'.repeat(43),
+        challenge_modes: ['rotate'],
+        delivery_channel: 'backend_log',
+      })
+    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
+    return path.startsWith('/api/v1/system/smtp') ? smtp(path, init) : other(path, init)
+  })
+  const auth = createSessionController(
+    createAccountAPI(fetch),
+    createSystemAccountAPI(fetch),
+    createSystemInvitationAPI(fetch),
+    createSystemProviderAPI(fetch),
+    createSystemModelAPI(fetch),
+    createSystemModelSelectionAPI(fetch),
+    createSystemAccountSecurityAPI(fetch),
+    createSystemSMTPSettingsAPI(fetch),
+  )
+  owners.push(auth)
+  await auth.restore()
+  return {
+    auth,
+    fetch,
+    setSMTP(value: Fetch) {
+      smtp = value
+    },
+    setOther(value: Fetch) {
+      other = value
+    },
+    setSession(value: SessionView) {
+      current = value
+    },
+    setSessionRequest(value: Fetch) {
+      session = value
+    },
+    writes() {
+      return fetch.mock.calls.filter(
+        ([p, i]) => p.startsWith('/api/v1/system/smtp') && i.method !== 'GET',
+      )
+    },
+  }
+}
+afterEach(() => {
+  for (const page of pages.splice(0)) page.dispose()
+  for (const auth of owners.splice(0)) auth.leave()
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+  useTheme().setTheme('system')
+})
+
+describe('SMTP eighth owner domain and private original material', () => {
+  it('binds the first singleton and never exposes private material, request bytes or key', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtp
+    await expect(api.startUpdate(input())).rejects.toMatchObject({ kind: 'invalid-input' })
+    await api.get()
+    api.setMaterial(' private🧩 ')
+    expect(api.material.present).toBe(true)
+    expect(JSON.stringify(api).includes('private')).toBe(false)
+    await expect(api.startUpdate({ ...input(), username: '' })).rejects.toMatchObject({
+      kind: 'invalid-input',
+    })
+    expect(f.writes()).toHaveLength(0)
+    f.setSMTP(async (_, i) =>
+      json(
+        i.method === 'GET'
+          ? { ...settings(), id: id(99) }
+          : receipt({ ...settings('2'), id: id(99), username: 'auth', credential_present: true }),
+      ),
+    )
+    await expect(api.get()).rejects.toMatchObject({ kind: 'invalid-response' })
+    await expect(api.startUpdate({ ...input(), username: 'auth' })).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+    expect(api.progress?.phase).toBe('uncertain')
+    expect(api.material.present).toBe(true)
+    expect(JSON.stringify(api).includes('private')).toBe(false)
+    api.abandon()
+    expect(api.material.present).toBe(false)
+    await expect(api.get()).rejects.toMatchObject({ kind: 'invalid-response' })
+    f.setSession(view(id(3)))
+    await f.auth.restore()
+    expect((await api.get()).id).toBe(id(99))
+  })
+  it('validates material/input before creating a dispatch, ignores double starts and prevents mutation of a pending original', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtp
+    await api.get()
+    expect(() => api.setMaterial('x'.repeat(2049))).toThrow(
+      expect.objectContaining({ kind: 'invalid-input' }),
+    )
+    await expect(api.startUpdate(input())).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(f.writes()).toHaveLength(0)
+    api.setMaterial(' secret ')
+    const held = barrier<Response>()
+    f.setSMTP(() => held.promise)
+    const pending = api.startUpdate({ ...input(), username: 'auth' })
+    await flushPromises()
+    await expect(api.startUpdate(input())).rejects.toMatchObject({ kind: 'busy' })
+    expect(() => api.setMaterial('changed')).toThrow(expect.objectContaining({ kind: 'busy' }))
+    expect(f.writes()).toHaveLength(1)
+    held.resolve(json(receipt({ ...settings('2'), username: 'auth', credential_present: true })))
+    await pending
+    expect(api.material.present).toBe(false)
+    expect(api.progress?.phase).toBe('confirmed')
+    expect(JSON.stringify(api).includes('secret')).toBe(false)
+    expect(() => api.setMaterial('next')).not.toThrow()
+  })
+  it.each(['UNAVAILABLE', 'RESOURCE_BUSY', 'transport'] as const)(
+    'retains exact password/body/key through %s after dispatch and confirms an opposite later current state',
+    async (code) => {
+      const f = await fixture(),
+        api = f.auth.system.smtp
+      await api.get()
+      api.setMaterial(' staged\t🧩 ')
+      f.setSMTP(async () => {
+        if (code === 'transport') throw new Error('lost')
+        return problem(code, code === 'RESOURCE_BUSY' ? 409 : 503)
+      })
+      await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
+      const first = f.writes()[0]![1]
+      expect(api.progress?.phase).toBe('uncertain')
+      expect(api.material.present).toBe(true)
+      const before = f.fetch.mock.calls.length
+      f.setSMTP(async (_, i) =>
+        json(i.method === 'GET' ? settings('4', false) : receipt(settings('4', false))),
+      )
+      await api.checkOriginal()
+      expect(f.fetch.mock.calls.slice(before).map(([p, i]) => [p, i.method])).toEqual([
+        ['/api/v1/session', 'GET'],
+        ['/api/v1/system/smtp', 'GET'],
+      ])
+      expect(api.progress).toMatchObject({
+        phase: 'uncertain',
+        observation: 'current',
+        result: null,
+        canRetryOriginal: true,
+      })
+      await api.retryOriginal()
+      const second = f.writes()[1]![1]
+      expect(
+        second.body === first.body &&
+          JSON.stringify(second.headers) === JSON.stringify(first.headers),
+      ).toBe(true)
+      expect(api.progress).toMatchObject({
+        phase: 'confirmed',
+        result: { applied_version: '2', settings: { configured: false, version: '4' } },
+      })
+      expect(api.material.present).toBe(false)
+      expect(f.fetch.mock.calls.some(([p]) => /lookup|test|jobs/.test(p))).toBe(false)
+      await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    },
+  )
+  it('preserves POST unconfigure historical policy bytes even when current settings are configured with a newer policy', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtp
+    await api.get()
+    f.setSMTP(async () => problem('UNAVAILABLE'))
+    await api
+      .startUnconfigure({ version: '1', auto_retry_count: '0', retry_interval_seconds: '3600' })
+      .catch(() => undefined)
+    const first = f.writes()[0]!
+    f.setSMTP(async (_, i) => json(i.method === 'GET' ? settings('4') : receipt(settings('4'))))
+    await api.checkOriginal()
+    await api.retryOriginal()
+    const second = f.writes()[1]!
+    expect(first[0]).toBe('/api/v1/system/smtp/unconfigure')
+    expect(first[1].method).toBe('POST')
+    expect(
+      first[1].body === second[1].body &&
+        JSON.stringify(first[1].headers) === JSON.stringify(second[1].headers),
+    ).toBe(true)
+    expect(Object.keys(JSON.parse(first[1].body as string)).sort()).toEqual([
+      'auto_retry_count',
+      'retry_interval_seconds',
+      'version',
+    ])
+    expect(api.progress).toMatchObject({
+      kind: 'unconfigure',
+      phase: 'confirmed',
+      result: { applied_version: '2', settings: { configured: true, auto_retry_count: '3' } },
+    })
+  })
+  it.each([
+    ['VERSION_CONFLICT', 409, 'not_started'],
+    ['INVALID_ARGUMENT', 400, 'not_committed'],
+  ] as const)(
+    'distinguishes first %s from a rejection after uncertainty and preserves staged material for explicit editing',
+    async (code, status, commit) => {
+      const f = await fixture(),
+        api = f.auth.system.smtp
+      await api.get()
+      api.setMaterial('original-private')
+      f.setSMTP(async () => problem(code, status, commit))
+      await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
+      expect(api.progress?.phase).toBe('rejected')
+      expect(api.material.present).toBe(true)
+      api.editRejected()
+      expect(api.progress).toBeNull()
+      expect(api.material.present).toBe(true)
+      f.setSMTP(async () => {
+        throw new Error('lost')
+      })
+      await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
+      f.setSMTP(async (_, i) =>
+        i.method === 'GET' ? json(settings('3', false)) : problem(code, status, commit),
+      )
+      await api.checkOriginal()
+      await api.retryOriginal().catch(() => undefined)
+      expect(api.progress?.phase).toBe('uncertain')
+      expect(() => api.editRejected()).toThrow()
+      const writes = f.writes()
+      expect(
+        writes[1]![1].body === writes[2]![1].body &&
+          JSON.stringify(writes[1]![1].headers) === JSON.stringify(writes[2]![1].headers),
+      ).toBe(true)
+      expect(
+        JSON.parse(writes[0]![1].body as string).password ===
+          JSON.parse(writes[1]![1].body as string).password,
+      ).toBe(true)
+    },
+  )
+  it('locks key conflicts, and a failed Session or observation never manufactures a receipt', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtp
+    await api.get()
+    api.setMaterial('private')
+    f.setSMTP(async () => problem('UNAVAILABLE'))
+    await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
+    f.setSessionRequest(async () => problem('UNAVAILABLE'))
+    const before = f.fetch.mock.calls.length
+    await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'cancelled' })
+    expect(f.fetch.mock.calls.slice(before).map(([p]) => p)).toEqual(['/api/v1/session'])
+    expect(api.progress?.canRetryOriginal).toBe(false)
+    f.setSessionRequest(async () => json(view()))
+    await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'problem' })
+    expect(api.progress).toMatchObject({
+      phase: 'uncertain',
+      observation: 'failed',
+      canRetryOriginal: true,
+      result: null,
+    })
+    expect(api.material.present).toBe(true)
+    f.setSMTP(async () => problem('IDEMPOTENCY_KEY_REUSED', 409))
+    await api.retryOriginal().catch(() => undefined)
+    f.setSMTP(async () => json(settings('3')))
+    await api.checkOriginal()
+    expect(api.progress?.canRetryOriginal).toBe(false)
+    expect(api.material.present).toBe(true)
+  })
+  it.each(['read', 'write'] as const)(
+    'retains native %s EOF/cancel ownership beyond the visible deadline and clears only after actual tail',
+    async (kind) => {
+      const f = await fixture(),
+        api = f.auth.system.smtp
+      await api.get()
+      api.setMaterial('private')
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      const tail = barrier(),
+        cancel = vi.fn(() => tail.promise)
+      let source!: ReadableStreamDefaultController<Uint8Array>
+      f.setSMTP(
+        async () =>
+          new Response(
+            new ReadableStream<Uint8Array>({
+              start(c) {
+                source = c
+              },
+              cancel,
+            }),
+            { headers: { 'Content-Type': 'application/json' } },
+          ),
+      )
+      const task = (
+        kind === 'read' ? api.get() : api.startUpdate({ ...input(), username: 'auth' })
+      ).catch((e) => e)
+      await flushPromises()
+      source.enqueue(
+        new TextEncoder().encode(
+          JSON.stringify(
+            kind === 'read'
+              ? settings()
+              : receipt({ ...settings('2'), username: 'auth', credential_present: true }),
+          ),
+        ),
+      )
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(true)
+      await vi.advanceTimersByTimeAsync(30000)
+      expect(await task).toMatchObject({ kind: 'cancelled' })
+      expect(cancel).toHaveBeenCalledTimes(1)
+      expect(api.material.present).toBe(true)
+      const count = f.fetch.mock.calls.length
+      await f.auth.restore()
+      await f.auth.logout()
+      await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.system.accountSecurity.get()).rejects.toMatchObject({ kind: 'busy' })
+      expect(f.fetch.mock.calls).toHaveLength(count)
+      if (kind === 'read') {
+        api.abandonRead()
+        expect(api.material.present).toBe(true)
+      }
+      api.abandon()
+      expect(api.material.present).toBe(false)
+      expect(f.auth.state.busy).toBe(true)
+      tail.resolve()
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(false)
+      expect(api.progress).toBeNull()
+    },
+  )
+  it('read cancellation preserves a legal original, has no auto GET and keeps the native cancel barrier until explicit reread', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtp
+    await api.get()
+    api.setMaterial('retained')
+    f.setSMTP(async () => problem('UNAVAILABLE'))
+    await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
+    const tail = barrier(),
+      cancel = vi.fn(() => tail.promise)
+    f.setSMTP(
+      async () =>
+        new Response(new ReadableStream<Uint8Array>({ cancel }), {
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    )
+    const read = api.get().catch((e) => e)
+    await flushPromises()
+    const count = f.fetch.mock.calls.length
+    api.abandonRead()
+    expect(await read).toMatchObject({ kind: 'cancelled' })
+    expect(api.progress?.phase).toBe('uncertain')
+    expect(api.material.present).toBe(true)
+    await expect(api.get()).rejects.toMatchObject({ kind: 'busy' })
+    expect(f.fetch.mock.calls).toHaveLength(count)
+    tail.resolve()
+    await flushPromises()
+    expect(f.fetch.mock.calls).toHaveLength(count)
+    f.setSMTP(async (_, i) =>
+      json(i.method === 'GET' ? settings('3', false) : receipt(settings('3', false))),
+    )
+    await api.checkOriginal()
+    await api.retryOriginal()
+    expect(api.progress?.phase).toBe('confirmed')
+  })
+  it('keeps an abort-ignoring fetch owner after leaving and prevents old publication in a new Session', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtp
+    await api.get()
+    api.setMaterial('old')
+    const held = barrier<Response>()
+    f.setSMTP(() => held.promise)
+    const task = api.startUpdate({ ...input(), username: 'auth' }).catch((e) => e)
+    await flushPromises()
+    f.auth.leave()
+    expect(await task).toMatchObject({ kind: 'cancelled' })
+    expect(api.material.present).toBe(false)
+    const count = f.fetch.mock.calls.length
+    f.setSession(view(id(3)))
+    await f.auth.restore()
+    expect(f.fetch.mock.calls).toHaveLength(count)
+    held.resolve(json(receipt({ ...settings('2'), username: 'auth', credential_present: true })))
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+    expect(api.progress).toBeNull()
+    await f.auth.restore()
+    await expect(api.startUpdate(input())).rejects.toMatchObject({ kind: 'invalid-input' })
+  })
+  it.each([
+    'personal',
+    'users',
+    'invitations',
+    'providers',
+    'models',
+    'selection',
+    'accountSecurity',
+  ] as const)(
+    'isolates %s abandonment bidirectionally while retaining one actual Cookie owner',
+    async (domain) => {
+      const f = await fixture(),
+        api = f.auth.system.smtp
+      const read = () =>
+        ({
+          personal: () => f.auth.personal.getProfile(),
+          users: () => f.auth.system.listUsers({}),
+          invitations: () => f.auth.system.listInvitations({}),
+          providers: () => f.auth.system.providers.list({}),
+          models: () => f.auth.system.models.listProviders({}),
+          selection: () => f.auth.system.selection.get(),
+          accountSecurity: () => f.auth.system.accountSecurity.get(),
+        })[domain]()
+      const abandon = () =>
+        ({
+          personal: () => f.auth.personal.abandon(),
+          users: () => f.auth.system.abandon(),
+          invitations: () => f.auth.system.abandonInvitations(),
+          providers: () => f.auth.system.providers.abandon(),
+          models: () => f.auth.system.models.abandon(),
+          selection: () => f.auth.system.selection.abandon(),
+          accountSecurity: () => f.auth.system.accountSecurity.abandon(),
+        })[domain]()
+      const held = barrier<Response>()
+      f.setSMTP(() => held.promise)
+      const current = api.get()
+      await flushPromises()
+      abandon()
+      expect(f.fetch.mock.calls.at(-1)![1].signal?.aborted).toBe(false)
+      await expect(read()).rejects.toMatchObject({ kind: 'busy' })
+      held.resolve(json(settings()))
+      await current
+      const otherTail = barrier<Response>()
+      f.setOther(() => otherTail.promise)
+      const other = read().catch((e) => e)
+      await flushPromises()
+      api.abandon()
+      expect(f.fetch.mock.calls.at(-1)![1].signal?.aborted).toBe(false)
+      await expect(api.get()).rejects.toMatchObject({ kind: 'busy' })
+      otherTail.resolve(
+        domain === 'personal'
+          ? json({ user: view().user, avatar: null })
+          : domain === 'selection'
+            ? json({ id: id(20), version: '1', configured: null })
+            : domain === 'accountSecurity'
+              ? json(security())
+              : json({ items: [], next_cursor: null }),
+      )
+      await other
+      expect(f.auth.state.busy).toBe(false)
+    },
+  )
+  it.each(['CSRF_FAILED', 'SESSION_REVOKED', 'FORBIDDEN'] as const)(
+    'clears current %s material/intent for both write endpoints without rewriting public role',
+    async (code) => {
+      for (const kind of ['configure', 'unconfigure'] as const) {
+        const f = await fixture(),
+          api = f.auth.system.smtp
+        await api.get()
+        api.setMaterial('private')
+        f.auth.system.providers.setMaterial('other-private')
+        f.setSMTP(async () => problem(code, code === 'SESSION_REVOKED' ? 401 : 403))
+        await (
+          kind === 'configure'
+            ? api.startUpdate({ ...input(), username: 'auth' })
+            : api.startUnconfigure({
+                version: '1',
+                auto_retry_count: '3',
+                retry_interval_seconds: '60',
+              })
+        ).catch(() => undefined)
+        expect(api.progress).toBeNull()
+        expect(api.material.present).toBe(false)
+        expect(f.auth.system.providers.material.present).toBe(false)
+        if (code === 'FORBIDDEN') {
+          expect(f.auth.system.denied).toBe(true)
+          expect(f.auth.state.user?.role).toBe('admin')
+          const count = f.fetch.mock.calls.length
+          await expect(api.get()).rejects.toMatchObject({ kind: 'invalid-input' })
+          expect(f.fetch.mock.calls).toHaveLength(count)
+          await f.auth.restore()
+          expect(f.auth.system.denied).toBe(false)
+        } else expect(f.auth.personalContext.identity).toBeNull()
+      }
+    },
+  )
+  it.each([401, 403] as const)(
+    'handles already-parsed late %i only under the old owner and identity boundaries',
+    async (status) => {
+      const f = await fixture(),
+        api = f.auth.system.smtp,
+        tail = barrier(),
+        entered = barrier(),
+        response = problem(status === 401 ? 'SESSION_REVOKED' : 'FORBIDDEN', status)
+      const cancel = response.body!.cancel.bind(response.body)
+      response.body!.cancel = async () => {
+        entered.resolve()
+        await tail.promise
+        return cancel()
+      }
+      f.setSMTP(async () => response)
+      const pending = api.get().catch((e) => e)
+      await entered.promise
+      api.abandonRead()
+      expect(await pending).toMatchObject({ kind: 'cancelled' })
+      expect(f.auth.state.busy).toBe(true)
+      tail.resolve()
+      await flushPromises()
+      expect(f.auth.system.denied).toBe(false)
+      expect(f.auth.personalContext.identity === null).toBe(status === 401)
+    },
+  )
+  it('destroys old recovery on a new Session, changed original CSRF or loss of administrator status', async () => {
+    for (const next of [
+      view(id(3)),
+      { ...view(), csrf_token: 'T'.repeat(43) },
+      view(id(2), 'user'),
+    ]) {
+      const f = await fixture(),
+        api = f.auth.system.smtp
+      await api.get()
+      api.setMaterial('private')
+      f.setSMTP(async () => problem('UNAVAILABLE'))
+      await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
+      f.setSession(next)
+      await f.auth.restore()
+      expect(api.progress).toBeNull()
+      expect(api.material.present).toBe(false)
+      await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    }
+  })
+  it('never clears a synchronous confirmed consumer’s successor material or intent', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtp
+    await api.get()
+    api.setMaterial('first')
+    f.setSMTP(async (_, i) => {
+      const v = JSON.parse(i.body as string).version
+      return json(
+        receipt(
+          { ...settings(String(Number(v) + 1)), username: 'auth', credential_present: true },
+          String(Number(v) + 1),
+        ),
+      )
+    })
+    let successor: Promise<unknown> | null = null
+    const stop = watch(
+      () => api.progress?.phase,
+      (phase) => {
+        if (phase !== 'confirmed' || successor) return
+        stop()
+        api.abandon()
+        api.setMaterial('second')
+        successor = api.startUpdate({ ...input(), version: '2', username: 'auth' })
+      },
+      { flush: 'sync' },
+    )
+    await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
+    await flushPromises()
+    await successor
+    expect(f.writes()).toHaveLength(2)
+    expect(api.progress).toMatchObject({ phase: 'confirmed', result: { applied_version: '3' } })
+    expect(JSON.parse(f.writes()[1]![1].body as string).password === 'second').toBe(true)
+    expect(api.material.present).toBe(false)
+  })
+})
+
+async function pageFixture(configured = true) {
+  const f = await fixture()
+  f.setSMTP(async (_, i) => json(i.method === 'GET' ? settings('1', configured) : receipt()))
+  const page = createSystemSMTPSettings(f.auth)
+  pages.push(page)
+  page.afterNavigation('/system/smtp', '/')
+  page.attach()
+  await flushPromises()
+  return { ...f, page }
+}
+
+describe('SMTP inline controller observations, captured policy and cancellation', () => {
+  it.each([true, false])(
+    'updates the maximum-version gate after explicit adoption, configured=%s',
+    async (configured) => {
+      const f = await pageFixture(configured),
+        p = f.page
+      expect(p.maximumVersion.value).toBe(false)
+      f.setSMTP(async () => json(settings('9223372036854775807', configured)))
+      await p.readLatest()
+      expect(p.observation.value?.version).toBe('9223372036854775807')
+      expect(p.editor.version).toBe('1')
+      const adoption = p.adoptLatest()
+      await flushPromises()
+      expect(p.confirmation.open).toBe(true)
+      p.finishConfirmation(true)
+      await adoption
+      p.updateField(
+        configured ? 'sender_name' : 'auto_retry_count',
+        configured ? 'Next draft' : '0',
+      )
+      expect(p.editor.version).toBe('9223372036854775807')
+      expect(p.maximumVersion.value).toBe(true)
+      expect(p.canSave.value || p.canDisable.value).toBe(false)
+      await p.save()
+      expect(f.writes()).toHaveLength(0)
+    },
+  )
+  it.each([true, false])(
+    'clears the dirty baseline after confirming identical submitted fields, configured=%s',
+    async (configured) => {
+      const f = await pageFixture(configured),
+        p = f.page
+      let observed = settings('1', configured)
+      f.setSMTP(async (_, init) => {
+        if (init.method !== 'GET') {
+          const input = JSON.parse(init.body as string)
+          observed = {
+            ...observed,
+            version: String(BigInt(input.version) + 1n),
+            ...(configured ? { sender_name: input.sender_name } : {}),
+            auto_retry_count: input.auto_retry_count,
+            retry_interval_seconds: input.retry_interval_seconds,
+          }
+          return json({ applied_version: observed.version, settings: observed })
+        }
+        return json(observed)
+      })
+      p.updateField(
+        configured ? 'sender_name' : 'auto_retry_count',
+        configured ? 'Saved name' : '0',
+      )
+      expect(p.changed.value && p.dirty.value && p.canSave.value).toBe(true)
+      await p.save()
+      expect(p.state.confirmed?.applied_version).toBe('2')
+      expect(p.draft.sender_name).toBe(observed.sender_name)
+      expect(p.draft.auto_retry_count).toBe(observed.auto_retry_count)
+      expect([p.changed.value, p.dirty.value, p.canSave.value]).toEqual([false, false, false])
+      const before = f.fetch.mock.calls.length
+      const pending = p.refresh()
+      await flushPromises()
+      try {
+        expect(p.confirmation.open).toBe(false)
+        expect(f.fetch.mock.calls.slice(before).map(([path, init]) => [path, init.method])).toEqual(
+          [['/api/v1/system/smtp', 'GET']],
+        )
+        expect(f.writes()).toHaveLength(1)
+      } finally {
+        p.finishConfirmation(false)
+        await pending
+      }
+    },
+  )
+  it('starts unconfigured without transport defaults, saves only the three policy fields and sends no extra GET', async () => {
+    const f = await pageFixture(false),
+      p = f.page
+    expect(p.editor).toMatchObject({ ready: true, configuring: false, version: '1' })
+    expect(p.draft).toMatchObject({ host: '', port: '', encryption: '', username: '' })
+    await p.save()
+    expect(f.writes()).toHaveLength(0)
+    p.updateField('auto_retry_count', '0')
+    p.updateField('retry_interval_seconds', '3600')
+    f.setSMTP(async () =>
+      json(
+        receipt({ ...settings('2', false), auto_retry_count: '0', retry_interval_seconds: '3600' }),
+      ),
+    )
+    const before = f.fetch.mock.calls.length
+    expect(p.canSave.value).toBe(true)
+    await p.save()
+    expect(f.fetch.mock.calls.slice(before).map(([path, i]) => [path, i.method])).toEqual([
+      ['/api/v1/system/smtp/unconfigure', 'POST'],
+    ])
+    expect(JSON.parse(f.writes()[0]![1].body as string)).toEqual({
+      version: '1',
+      auto_retry_count: '0',
+      retry_interval_seconds: '3600',
+    })
+    expect(p.state.confirmed).toEqual({ kind: 'policy', applied_version: '2' })
+    expect(p.state.writeMessage).toContain('重试策略已保存')
+    p.configure()
+    expect(p.draft).toMatchObject({ host: '', port: '', encryption: '', auto_retry_count: '0' })
+    expect(p.feedback.value).toBe('idle')
+    expect(p.canSave.value).toBe(false)
+    const cancel = p.cancel()
+    p.finishConfirmation(true)
+    await cancel
+    expect(p.editor.configuring).toBe(false)
+    expect(f.writes()).toHaveLength(1)
+  })
+  it.each(['tls', 'starttls', 'none'] as const)(
+    'requires explicit complete %s configuration and rejects a noncanonical port locally',
+    async (encryption) => {
+      const f = await pageFixture(false),
+        p = f.page
+      p.configure()
+      for (const [key, value] of Object.entries({
+        host: 'MAIL.Example.',
+        port: '0587',
+        encryption,
+        sender_email: 'Sender@Example.Test',
+        sender_name: ' Sender ',
+      }))
+        p.updateField(key as keyof typeof p.draft, value)
+      expect(p.canSave.value).toBe(false)
+      await p.save()
+      expect(f.writes()).toHaveLength(0)
+      p.updateField('port', '587')
+      expect(p.canSave.value).toBe(true)
+      f.setSMTP(async () => json(receipt({ ...settings('2'), encryption })))
+      await p.save()
+      const body = JSON.parse(f.writes()[0]![1].body as string)
+      expect(body).toMatchObject({
+        host: 'MAIL.Example.',
+        port: 587,
+        encryption,
+        sender_email: 'Sender@Example.Test',
+        sender_name: ' Sender ',
+        credential_action: 'keep',
+      })
+      expect(Object.hasOwn(body, 'password')).toBe(false)
+      expect(p.state.writeMessage).toContain('未验证连接或发送')
+    },
+  )
+  it('removes credentials explicitly, clears only staged new material, and cancels back to the saved credential', async () => {
+    const f = await pageFixture(),
+      p = f.page
+    f.setSMTP(async () => json({ ...settings(), username: 'auth', credential_present: true }))
+    await p.refresh()
+    p.setMaterial(' private ')
+    expect(p.material.value.present).toBe(true)
+    p.setRemoveCredential(true)
+    expect(p.draft.username).toBe('')
+    expect(p.material.value.present).toBe(false)
+    expect(p.canSave.value).toBe(true)
+    p.setRemoveCredential(false)
+    expect(p.draft.username).toBe('auth')
+    expect(p.canSave.value).toBe(false)
+    p.setRemoveCredential(true)
+    const cancel = p.cancel()
+    p.finishConfirmation(true)
+    await cancel
+    expect(p.editor.removeCredential).toBe(false)
+    expect(p.draft.username).toBe('auth')
+    expect(p.observation.value?.credential_present).toBe(true)
+    expect(f.writes()).toHaveLength(0)
+  })
+  it('requires dirty discard before disable and captures saved policy rather than the unsaved draft', async () => {
+    const f = await pageFixture(),
+      p = f.page
+    p.updateField('auto_retry_count', '0')
+    p.setMaterial('not saved')
+    const disable = p.disable()
+    expect(p.confirmation.open).toBe(true)
+    expect(p.disableConfirmation.open).toBe(false)
+    p.finishConfirmation(true)
+    await flushPromises()
+    expect(p.disableConfirmation).toMatchObject({
+      open: true,
+      version: '1',
+      auto_retry_count: '3',
+      retry_interval_seconds: '60',
+    })
+    expect(p.material.value.present).toBe(false)
+    p.updateField('auto_retry_count', '5')
+    expect(p.draft.auto_retry_count).toBe('3')
+    f.setSMTP(async () => json(receipt(settings('2', false))))
+    p.finishDisable(true)
+    await disable
+    expect(JSON.parse(f.writes()[0]![1].body as string)).toEqual({
+      version: '1',
+      auto_retry_count: '3',
+      retry_interval_seconds: '60',
+    })
+    expect(p.editor.configuring).toBe(false)
+    expect(p.state.confirmed?.kind).toBe('unconfigure')
+    expect(p.state.writeMessage).toContain('SMTP 已停用')
+  })
+  it('keeps the disable Promise while a navigation discard is cancelled, then settles both exactly once on leave', async () => {
+    const f = await pageFixture(),
+      p = f.page
+    const disable = p.disable()
+    await flushPromises()
+    const navigation = p.confirmLeave()
+    expect(p.disableConfirmation.open && p.confirmation.open).toBe(true)
+    p.finishDisable(true)
+    expect(f.writes()).toHaveLength(0)
+    p.finishConfirmation(false)
+    expect(await navigation).toBe(false)
+    expect(p.disableConfirmation.open).toBe(true)
+    const next = p.confirmLeave()
+    p.finishConfirmation(true)
+    expect(await next).toBe(true)
+    await disable
+    p.finishDisable(true)
+    expect(p.disableConfirmation.open || p.confirmation.open).toBe(false)
+    expect(f.writes()).toHaveLength(0)
+  })
+  it('keeps version, fields and new material until explicit conflict adoption', async () => {
+    const f = await pageFixture(),
+      p = f.page
+    p.updateField('username', 'auth')
+    p.setMaterial('original')
+    f.setSMTP(async () => problem('VERSION_CONFLICT', 409))
+    await p.save()
+    expect(p.editor.conflict).toBe(true)
+    f.setSMTP(async () => json({ ...settings('3'), host: 'new.example' }))
+    await p.readLatest()
+    expect(p.observation.value?.version).toBe('3')
+    expect(p.editor.version).toBe('1')
+    expect(p.draft.host).toBe('mail.example')
+    expect(p.material.value.present).toBe(true)
+    const adopt = p.adoptLatest()
+    p.finishConfirmation(true)
+    await adopt
+    expect(p.editor.version).toBe('3')
+    expect(p.draft.host).toBe('new.example')
+    expect(p.material.value.present).toBe(false)
+    expect(p.canSave.value).toBe(false)
+    expect(f.writes()).toHaveLength(1)
+  })
+  it('retains known rejected material privately for a deliberate edit and the next original', async () => {
+    const f = await pageFixture(),
+      p = f.page
+    p.updateField('username', 'auth')
+    p.setMaterial('original')
+    f.setSMTP(async () => problem('INVALID_ARGUMENT', 400))
+    await p.save()
+    expect(p.progress.value?.phase).toBe('rejected')
+    expect(p.material.value.present).toBe(true)
+    p.updateField('host', 'next.example')
+    expect(p.progress.value).toBeNull()
+    expect(p.canSave.value).toBe(true)
+    f.setSMTP(async () =>
+      json(
+        receipt({
+          ...settings('2'),
+          host: 'next.example',
+          username: 'auth',
+          credential_present: true,
+        }),
+      ),
+    )
+    await p.save()
+    expect(f.writes()).toHaveLength(2)
+    expect(JSON.parse(f.writes()[1]![1].body as string).password === 'original').toBe(true)
+    expect(p.material.value.present).toBe(false)
+  })
+  it('separates original applied version from an opposite newer current and preserves confirmation through a later GET failure', async () => {
+    const f = await pageFixture(),
+      p = f.page
+    p.updateField('host', 'first.example')
+    f.setSMTP(async () => problem('UNAVAILABLE'))
+    await p.save()
+    expect(p.progress.value?.phase).toBe('uncertain')
+    f.setSMTP(async (_, i) =>
+      json(i.method === 'GET' ? settings('4', false) : receipt(settings('4', false))),
+    )
+    await p.checkOriginal()
+    expect(p.editor.version).toBe('1')
+    expect(p.state.confirmed).toBeNull()
+    await p.retryOriginal()
+    expect(p.state.confirmed).toEqual({ kind: 'configure', applied_version: '2' })
+    expect(p.observation.value).toMatchObject({ version: '4', configured: false })
+    expect(p.state.writeMessage).toBe('原操作已确认，当前配置已变化。')
+    f.setSMTP(async () => problem('UNAVAILABLE'))
+    await p.readLatest()
+    expect(p.observation.phase).toBe('error')
+    expect(p.state.confirmed?.applied_version).toBe('2')
+    expect(p.state.writeMessage).toContain('不要重复提交')
+    expect(p.canSave.value).toBe(false)
+    expect(f.writes()).toHaveLength(2)
+  })
+  it('keeps an uncertain original across cancelled observation and requires explicit abandon then GET before new editing', async () => {
+    const f = await pageFixture(),
+      p = f.page
+    p.updateField('username', 'auth')
+    p.setMaterial('retained')
+    f.setSMTP(async () => problem('UNAVAILABLE'))
+    await p.save()
+    p.cancelRead()
+    expect(p.progress.value?.phase).toBe('uncertain')
+    expect(p.material.value.present).toBe(true)
+    const cancel = p.cancel()
+    p.finishConfirmation(false)
+    await cancel
+    expect(p.progress.value?.phase).toBe('uncertain')
+    const abandon = p.abandonOperation()
+    p.finishConfirmation(true)
+    await abandon
+    expect(p.material.value.present).toBe(false)
+    expect(p.progress.value).toBeNull()
+    expect(p.state.requiresRead).toBe(true)
+    expect(p.editor.ready).toBe(false)
+    const count = f.fetch.mock.calls.length
+    await flushPromises()
+    expect(f.fetch.mock.calls).toHaveLength(count)
+    f.setSMTP(async () => json(settings('2')))
+    await p.refresh()
+    expect(p.editor.version).toBe('2')
+    expect(p.state.requiresRead).toBe(false)
+    expect(f.writes()).toHaveLength(1)
+  })
+  it.each(['fetch', 'cancel'] as const)(
+    'synchronously retires cancelled %s reads while preserving material and the actual owner tail',
+    async (mode) => {
+      const f = await pageFixture(),
+        p = f.page
+      p.updateField('username', 'auth')
+      p.setMaterial('retained')
+      const tail = barrier(),
+        entered = barrier(),
+        response = barrier<Response>()
+      if (mode === 'fetch')
+        f.setSMTP(() => {
+          entered.resolve()
+          return response.promise
+        })
+      else {
+        const body = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new TextEncoder().encode('{'))
+          },
+          cancel() {
+            entered.resolve()
+            return tail.promise
+          },
+        })
+        f.setSMTP(
+          async () => new Response(body, { headers: { 'Content-Type': 'application/json' } }),
+        )
+      }
+      const pending = p.readLatest()
+      if (mode === 'fetch') await entered.promise
+      else await flushPromises()
+      expect(p.observation.phase).toBe('loading')
+      p.cancelRead()
+      expect(p.observation.phase).toBe('error')
+      if (mode === 'cancel') await entered.promise
+      await pending
+      expect(p.material.value.present).toBe(true)
+      expect(p.draft.username).toBe('auth')
+      expect(f.auth.state.busy).toBe(true)
+      const count = f.fetch.mock.calls.length
+      await f.auth.restore().catch(() => undefined)
+      await f.auth.system.accountSecurity.get().catch(() => undefined)
+      expect(f.fetch.mock.calls).toHaveLength(count)
+      if (mode === 'fetch') response.resolve(json(settings('5')))
+      else tail.resolve()
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(false)
+      expect(p.observation.phase).toBe('error')
+      expect(p.editor.version).toBe('1')
+      expect(f.fetch.mock.calls).toHaveLength(count)
+      f.setSMTP(async () => json(settings('2')))
+      await p.readLatest()
+      expect(p.observation.value?.version).toBe('2')
+      expect(p.editor.version).toBe('1')
+      expect(p.editor.conflict).toBe(true)
+    },
+  )
+  it('discarding a pending read establishes an explicit reread terminal and never keeps loading or publishes its late value', async () => {
+    const f = await pageFixture(),
+      p = f.page
+    p.updateField('host', 'draft.example')
+    const held = barrier<Response>()
+    f.setSMTP(() => held.promise)
+    const pending = p.readLatest()
+    await flushPromises()
+    const cancel = p.cancel()
+    p.finishConfirmation(true)
+    await cancel
+    expect(p.observation.phase).toBe('error')
+    expect(p.state.requiresRead).toBe(true)
+    expect(p.editor.ready).toBe(false)
+    expect(f.auth.state.busy).toBe(true)
+    await pending
+    held.resolve(json(settings('5')))
+    await flushPromises()
+    expect(p.observation.phase).toBe('error')
+    expect(p.canSave.value).toBe(false)
+    expect(f.writes()).toHaveLength(0)
+  })
+  it('preserves same-identity App state across detach, but clears both pending decisions and all private drafts on a new Session', async () => {
+    const f = await pageFixture(),
+      p = f.page
+    const disable = p.disable()
+    await flushPromises()
+    const leave = p.confirmLeave()
+    p.detach()
+    await f.auth.restore()
+    p.attach()
+    await flushPromises()
+    expect(p.disableConfirmation.open && p.confirmation.open).toBe(true)
+    f.setSession(view(id(3)))
+    await f.auth.restore()
+    await flushPromises()
+    expect(await leave).toBe(false)
+    await disable
+    expect(p.disableConfirmation.open || p.confirmation.open).toBe(false)
+    expect(f.writes()).toHaveLength(0)
+    expect(p.material.value.present).toBe(false)
+  })
+  it('never writes an unchanged or maximal-version configuration and marks only genuine draft changes before unload', async () => {
+    const f = await pageFixture(),
+      p = f.page
+    await p.save()
+    expect(f.writes()).toHaveLength(0)
+    p.updateField('sender_name', 'changed')
+    const dirty = new Event('beforeunload', { cancelable: true })
+    window.dispatchEvent(dirty)
+    expect(dirty.defaultPrevented).toBe(true)
+    const cancel = p.cancel()
+    p.finishConfirmation(true)
+    await cancel
+    const clean = new Event('beforeunload', { cancelable: true })
+    window.dispatchEvent(clean)
+    expect(clean.defaultPrevented).toBe(false)
+    f.setSMTP(async () => json(settings('9223372036854775807')))
+    await p.refresh()
+    p.updateField('sender_name', 'changed')
+    expect(p.maximumVersion.value).toBe(true)
+    expect(p.canSave.value || p.canDisable.value).toBe(false)
+    await p.save()
+    expect(f.writes()).toHaveLength(0)
+  })
+})

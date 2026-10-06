@@ -248,3 +248,21 @@ SMTP UI、出站HTTP及完整D07/D27仍各自待验，D08–D28/E01未完成、E
 581逻辑原件用213对象和286个Git引用去重，离线核12交付、431→432源码／420→421依赖、3503／3506运行时指纹和35原检查；只保留必要原件，不复制整个树/cache/依赖/二进制。早期harness-compile01引用的旧附加闭包SHA73ca6172…95884全文未定位，原11候选源/命令/raw/退出及最终完整依赖齐，不补造历史清单。
 
 本次只归位授权报告与入口，不改旧§1–20、SMTP卡或后端说明。SMTP UI及未来出站页面各自待验；完整D08–D28/E01未完成、E01未开始，Summary待决、Object/tools停止、Artifact/Project及生产未绑定／ready503边界保持。
+
+## 22. System SMTP 配置与私有凭据 UI 接受
+
+§1–21保留原阶段事实。[配置首卡rev2](../work-items/d27-system-smtp-settings-ui.md)29路径已获作者检查、独立有界PASS与主线程采纳，提交推送 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`，主线程核远端一致。[正式报告与不可变证据](system-smtp-settings-ui-verification.md)绑定原input01–03及最终input04、独立A/B和第29README；卡技术§1–7 910b51…e269d86原字节保持。
+
+管理员GET／PUT／unconfigure、私有密码保持／替换／移除及重试策略闭合；current GET不是历史写回执，applied与current分离，后读失败不丢未确认password/key/body/version，只能明确用当前合法CSRF重放原请求。第八域actual owner尾部、当前身份／权限清理、双确认同View宿主与最新fallback保持。没有lookup、自动重放、测试发送或连接检查入口。
+
+作者完整1214测试／35文件、type／build／适用Go检查通过。新六组按input04四次受影响PASS＋new02未变Concurrency8.95s／Authority18.66s组合，原new02整轮exit1／180.320s与四FAIL不改；旧19分五批通过。独立input02修正准备标题后首真轮A/B全PASS，actual0／158.636s、7IDs181PID8adopted实际wait双清，原command／Audit各1、历史结果与较新当前配置、真实403、pageshow／Session503／原生Tab／双层门禁到达。身份准备已结束，配置阶段投递任务／intent无新增，不说全部准备从未产生投递事实。
+
+原API旧契约RED与已接受邮箱闭包/API02新契约分列；API02实际1PASS＋旧11显式skip复用。owner原七例exit1仅六契约PASS，额外flush:sync栈内重入按主线程适用性排除，未删例／放宽／返修，不称7PASS。原页面stale反馈、非响应式dirty／maxVersion与disabled trigger产品红，new01错误SQL fixture、new02观察超时、navigation03焦点失败，独立typeRoots／标题静态前提和原静审勘误全部保存。旧现场缺观察不从后诊断倒填。
+
+作者十二轮＋独立一轮均记录原actual退出、7exact资源双absent、所属PID/starttime空、实际adopted wait、runtime空、monitor0及原2容器4网络不变；历史PPID1 Z不触碰、不计已回收。导航八图仅作者逐张查看，主线程未图审；旧回归48图只有原索引／指纹，独立敏感轮关闭图／trace／video。
+
+真实input04及最终独立仍绑定f670cb1／1050依赖，旧new01/new02/navigation03绑定40c904c／1040。后继63de0ac包含a942779的主线＋SMTP29只做604本地／3504外部输入绑定、race编译0／34.369s、两个纯路由0／3.548s、Central Runner构建0／17.675s，没有主线浏览器重跑。README v2只收紧当前合法CSRF句，28源／36dist未变。
+
+834逻辑原件以499对象＋100逻辑Git引用去重，离线核29固定提交路径、2722 Git blobs、76条原运行记录含十三真实轮；不复制全树／dist／依赖／缓存／二进制，不重跑产品。harness-format00缺原完整argv/env／前后绑定，harness-type00缺独立child wait／精确当轮源指纹，照实限界；独立type01三旧原源实际已找到，不列缺件。
+
+本次仅配置首卡接受。发送／投递页面、SMTP连接／认证／外邮箱、生产SPA／Runtime与完整D07/D27另验，D08–D28/E01未完成、E01未开始；Summary待决、Object/tools原停止、Artifact/Project及生产未绑定／ready503边界保持。旧§1–21、其它卡、frontend README及产品均不由本次文档归位改写。

@@ -1,0 +1,29 @@
+# SMTP 配置 UI 独立验证准备
+
+仅计划，尚未消费作者候选或执行动态验证。固定产品 `40c904c0dd88420fc621f40c0a737d243d514ec1`、迁移 1–19；规格 `4621930` rev2，技术 SHA `910b51cf93f8a97e04641f31d9bc1e76f9b9a7c95850b2a72edad7da3e269d86`。逐项所读固定来源见 fixed-inputs.json。作者活动根不读；新管理读口 819aba1 不是此 UI 依赖，也不复测。
+
+## 分阶段独立检查
+
+1. API 三口冻结后：一组严格 wire/DTO 反例与一组必要原生 stream/cancel 屏障。核 GET/PUT/POST 封闭路径、无 lookup；12 字段 Settings、两字段 Result、三字段 unconfigure 与完整输入闭集。配置两分支、认证一致性、空输入省略 password/合法空格保留、keep 非空替换/remove 互斥、UTF-8 2048 字节及未配对 surrogate、NUL/CR/LF；host/邮箱合法集合按固定正式 validator 核，避免自造 URL/RFC 子集。BigInt 版本上界与后继、原 singleton、applied=原 version+1、current>=applied；相反 configured/current 字段合法，错 ID/低 version/半个成功拒绝。
+2. 只给新 PUT 32 KiB 完整 UTF-8 JSON 预算，POST/旧写仍16 KiB；响应/Problem600000B，Provider 成功 list2 MiB 例外不漂移。非法输入在 key/intent/dispatch 前拒绝；原 body read 和 cancel 实际退出前不发布/不释放。未变底层屏障逐 SHA 复用，不重新铺所有旧端点。
+3. owner 冻结后两代表组合：原写后读5xx（包括 not_started/not_committed）与曾未知后明确拒绝，都保留原密码/body/key；首次可确定写前409是已知冲突且保留草稿/材料。显式恢复只能 Session→至多一次 GET，当前值不作receipt；原PUT/POST重放严格确认后分别保存历史applied和当前观察，旧current不得回退。公开state/provide/错误/storage无材料读取接口；确认、放弃及身份失效的引用销毁与实际finally分开验证。
+4. 同 owner native fetch/read/cancel 代表屏障：30秒可见结束、取消/放弃、身份变更均不能让其它域/Session越过原尾部；本批读取同步 loading→error、保留有效观察/applied/仍合法写材料，join 后只能显式重读。静核八依赖顺序和全部七个旧域双向分类；动态选私有材料域 Provider、相邻 Account security、全局 auth/dispose 代表，不机械做全排列。新增PUT/POST分别覆盖当前CSRF护栏；当前403及旧身份/旧代次失败隔离，同步材料/progress通知后的重入活性门禁必须核。
+5. 页面/controller/App 冻结后两代表纯组合：当前观察/普通草稿/历史applied分离，GET失败无默认，known409显式采用不悄改原草稿或expected，立即新草稿不承继旧完成反馈；另从真实按钮分别打开停用与放弃确认，触发生产 pageshow listener，checking/503恢复/同身份恢复/不同身份false及待决导航。两Dialog常驻组件、View卸载不fallback、最新本地标题ref与identity/alive门禁、捕获已保存重试策略，不把jsdom层序当浏览器focus证明。
+
+## 最终真实代表（待作者 frozen fixture/driver 与 root 另授窗口）
+
+A：含私有新密码的真实 PUT 被接受后受限截断响应；另一正式管理员 unconfigure 推进当前。原页 Session/GET只观察、密码不回填、无自动写/key；显式原PUT按相同原body字节/key/合法CSRF重放，确认历史applied而current仍未配置且版本不倒退。旁证精确原命令/Audit唯一、Secret引用/清理登记无重复，并验证严格确认后独立GET失败只恢复读取。末段用既有正式Session撤销或卡许可的精确自有资格机制证明已提交重放仍受当前权限约束、清旧恢复材料；不新造权限表操作。
+
+B：停用前有草稿，先真实统一放弃确认，再捕获已保存策略的停用确认。确认打开后 Session checking→受限503→同完整Session恢复，原生继续/Tab与最新标题fallback；原POST被正式接受后截断，另一正式管理员PUT重新配置。Session/GET不能确认历史停用；原POST按原三字段/body/key/CSRF显式重放，历史applied正确而current仍已配置，命令/引用/Audit不重复。所需额外正式409/凭据生命周期优先按作者固定覆盖复用，不能因此删掉上述双向历史代表。若两个45秒场景需拆Go顶层则保持原预算，不追加矩阵。
+
+原命令旁证使用本域 `foundation.NewCommandIdentity("account.smtp", [UserID], "smtp-settings-update", 原key)`；identity_digest 是正式 `sha256:`+Canonical字节SHA256，typed Audit AppendKey 使用 AccountProducer、真实 command.id、序号0。不套 Model cursor/Digest 或把全库计数当逐命令证明。原body/key/CSRF与密码在自有进程内比较，只输出布尔/安全字段，不输出值或材料hash；Secret只读引用/登记，不解密也不声称物理擦除。
+
+## 执行与复用门槛
+
+冻结后绑定精确源/dist、锁、固定实际Go/脚本/迁移及运行时闭包；各阶段发现缺陷保留原probe/raw后交作者，返修仅核差量。准备不复制全树，不写产品/Git。真实窗口前必须作者 actual退出与双清并由root移交；Go1.27.1 readonly离线锁依赖、race/count1、45秒浏览器/2分钟顶层/6分钟包、worker1/retry0不变。
+
+登录沿固定稳定ID及同浏览器新Session200 EOF身份事实；恢复观察按新请求seq水位，不靠旧CDP body缓存。读取媒体错误可能直接cancel而无EOF，不伪造EOF；安全observer保留原fetch/Response/read/cancel返回身份，无clone/tee/额外读取，观察不代ownerjoin。敏感输入期无trace/录像/含材料截图；正式UI截图仅安全状态。配置动作期不调用test/invite/reset/jobs，不建SMTP listener/CA/新出站放行；准备阶段日志投递全部实际终局后才记录零新增基线。
+
+旧菜单兼容为五个旧browser文件共八个计数点（6→7），七叶/三组/十一精确return，原身份/Tab/焦点/取消恢复强断言保留。作者六新组与必要旧组、八安全布局逐图证据按最终源/语义复用；本方只补上述高风险组合，并精确区分作者视觉报告与亲自view。每轮实际wait、server/browser/自有PID-starttime join、自有exact ID两扫absent、原基线不变；历史PPID1 Z不触。未测外部SMTP/生产SPA/Runtime，不碰停止的Object/tools。
+
+本文件为当前计划，不是API/owner/产品通过声明。当前未建fixture、未开端口/容器/浏览器、未写测试；等待固定stage后才执行授权的定点检查。

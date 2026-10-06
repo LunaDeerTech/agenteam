@@ -1,0 +1,38 @@
+--- system-smtp-settings.ts@01
++++ system-smtp-settings.ts@02
+@@ -111,21 +111,23 @@
+ function email(value: unknown) {
+   const result = string(value, 3, 254)
+   requireValue(/^[\x21-\x7e]+$/.test(result))
+-  const parts = result.toLowerCase().split('@')
++  const parts = result.split('@')
+   requireValue(parts.length === 2)
+   const atom = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*$/
+-  requireValue(atom.test(parts[0]!))
++  requireValue(atom.test(parts[0]!.toLowerCase()))
+   const domain = parts[1]!
+   if (domain.startsWith('[') && domain.endsWith(']')) {
+     const literal = domain.slice(1, -1),
+-      prefixed = literal.startsWith('ipv6:')
++      prefixed =
++        literal.startsWith('IPv6:') ||
++        (result === result.toLowerCase() && literal.startsWith('ipv6:'))
+     const address = prefixed ? literal.slice(5) : literal,
+       parsed = ipv6(address)
+     requireValue(
+       ipv4(address) ||
+         (parsed !== null && (prefixed || /^\[::ffff:[0-9a-f]{1,4}:[0-9a-f]{1,4}\]$/.test(parsed))),
+     )
+-  } else requireValue(atom.test(domain))
++  } else requireValue(atom.test(domain.toLowerCase()))
+   return result
+ }
+ function retry(value: Record<string, unknown>) {
+@@ -169,6 +171,7 @@
+   const common = { id, version: decimal(v.version, 1n, maximumVersion), ...retry(v) }
+   if (v.configured) {
+     const fields = transport(v)
++    requireValue(fields.sender_email === fields.sender_email.toLowerCase())
+     requireValue((fields.username !== '') === v.credential_present)
+     return Object.freeze({
+       ...common,

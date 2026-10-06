@@ -1,0 +1,34 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/compile-tmp/smtp-web04.test",
+    "-test.list",
+    "^TestAccountSystemSMTPSettingsWeb(Lifecycle|CredentialLifecycle|Concurrency|OutcomeRecovery|AuthorityAndIdentity|NavigationAndLayouts)$"
+  ],
+  "baseline_manifest_sha256": "ca60386ee9fabc970c4c3da0ed5b432868fa6e1960d016b2f61da9a6efc96d3c",
+  "child_pid": 1769102,
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace",
+  "duration_seconds": 1.292,
+  "ended_utc": "2026-10-06T17:11:41.134710+00:00",
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/compile-tmp"
+  },
+  "exit_code": 0,
+  "input_after_sha256": "89294cdf6dd71aa5d0ed0116ee6af0256f23abebf2d0bd4fe520cdd8bee3336a",
+  "input_before_sha256": "89294cdf6dd71aa5d0ed0116ee6af0256f23abebf2d0bd4fe520cdd8bee3336a",
+  "input_unchanged": true,
+  "raw_sha256": "c04356485124e6957b94de9f0bc9c0405dab69792cf19af78818b06b5134085a",
+  "resource_execution": false,
+  "runner_sha256": "09b950b4103d888ff976a9ec24fb0335337683297a4f8a61921b23ee2451676d",
+  "started_utc": "2026-10-06T17:11:39.842573+00:00"
+}

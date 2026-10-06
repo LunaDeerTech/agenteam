@@ -1,0 +1,670 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"io"
+	"log/slog"
+	"net"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"sync/atomic"
+	"syscall"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/app"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
+	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+)
+
+// This fixture owns only SMTP settings controls. Its root and helper methods
+// consume the accepted same-origin Account/Secret/Model composition.
+type smtpSettingsWebAttempt struct {
+	key, method, path string
+	body, csrf        [32]byte
+}
+type smtpSettingsWebFixture struct {
+	independent *smtpIndependentState
+	*modelsWebFixture
+	singletonID                   string
+	attempts                      []smtpSettingsWebAttempt
+	lostBody, lostCSRF            [32]byte
+	lostMethod, lostPath          string
+	lostResult                    map[string]any
+	sameOriginal                  bool
+	second                        personalWebCredential
+	secondClient                  *http.Client
+	secondCSRF                    string
+	passwords                     []string
+	previousReference             string
+	baselineIntents, baselineJobs int
+	browserPhase                  atomic.Bool
+	forbiddenCalls                atomic.Int32
+}
+
+func newSMTPSettingsWebRoot(t *testing.T, ctx context.Context, own *smtpSettingsWebFixture) *authenticationWebFixture {
+	t.Helper()
+	db := pgfixture.NewDatabase(t)
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal("owned frontend listener unavailable")
+	}
+	t.Cleanup(func() { _ = listener.Close() })
+	origin := "http://" + listener.Addr().String()
+	inputs := accountenv.New(t)
+	objects, err := objectfixture.Environment(ctx, db.Name)
+	if err != nil {
+		t.Fatal("owned object fixture unavailable")
+	}
+	values := inputs.Values()
+	for _, v := range objects {
+		k, value, _ := strings.Cut(v, "=")
+		values[k] = value
+	}
+	for k, v := range map[string]string{
+		"DATABASE_URL": db.Fixture.URL(db.Name), "DATABASE_CA_FILE": db.Fixture.CAFile,
+		"DATABASE_STARTUP_TIMEOUT": "15s", "HTTP_ADDR": "127.0.0.1:0", "PUBLIC_ORIGIN": origin, "SHUTDOWN_TIMEOUT": "2s",
+		"CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`,
+		"SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`,
+	} {
+		values[config.Prefix+k] = v
+	}
+	var environment []string
+	for k, v := range values {
+		environment = append(environment, k+"="+v)
+	}
+	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, environment)
+	if err != nil {
+		t.Fatal("owned root configuration invalid")
+	}
+	output := &httpFixtureLog{listening: make(chan string, 1)}
+	logger, err := logging.New(logging.Central, slog.LevelInfo, output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rootCtx, cancel := context.WithCancel(ctx)
+	rootDone := make(chan error, 1)
+	go func() { rootDone <- app.Run(rootCtx, cfg, logger, nil) }()
+	t.Cleanup(func() {
+		cancel()
+		select {
+		case err := <-rootDone:
+			if err != nil {
+				t.Error("full Account/Secret/Model root shutdown failed", err)
+			}
+		case <-time.After(5 * time.Second):
+			t.Error("full root did not join within its original shutdown budget")
+		}
+	})
+	var address string
+	select {
+	case address = <-output.listening:
+	case err := <-rootDone:
+		rootDone <- err
+		t.Fatal("full root initialization failed", err)
+	case <-ctx.Done():
+		t.Fatal("shared browser budget ended during root startup")
+	}
+	backend, err := url.Parse("http://" + address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	transport := &http.Transport{Proxy: nil}
+	proxy := httputil.NewSingleHostReverseProxy(backend)
+	proxy.Transport = transport // NewSingleHostReverseProxy preserves the original Host.
+	proxy.ModifyResponse = own.controlResponse
+	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, err error) {
+		var lost *modelsResponseLost
+		if !errors.As(err, &lost) {
+			http.Error(w, "owned API unavailable", 502)
+			return
+		}
+		defer clear(lost.prefix)
+		for name, values := range lost.header {
+			w.Header()[name] = append([]string(nil), values...)
+		}
+		w.Header().Del("Transfer-Encoding")
+		w.Header().Set("Content-Length", strconv.Itoa(lost.length))
+		w.Header().Set("Connection", "close")
+		w.WriteHeader(200)
+		_, _ = w.Write(lost.prefix)
+		_ = http.NewResponseController(w).Flush()
+		if hijacker, ok := w.(http.Hijacker); ok {
+			if conn, _, e := hijacker.Hijack(); e == nil {
+				_ = conn.Close()
+			}
+		}
+	}
+	root, err := filepath.Abs("../../web/dist")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(filepath.Join(root, "index.html")); err != nil {
+		t.Fatal("formal production dist must be built before browser execution")
+	}
+	assets := http.FileServer(http.Dir(root))
+	server := &http.Server{ReadHeaderTimeout: 5 * time.Second, Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" && r.URL.Path == "/api/v1/session" && own.failSession.CompareAndSwap(true, false) {
+			own.sessionFailures.Add(1)
+			http.Error(w, "owned bounded session read unavailable", 503)
+			return
+		}
+		if r.Method == "GET" && own.shouldFailRead(r.URL.Path) {
+			own.readFailures.Add(1)
+			http.Error(w, "owned exact configuration read unavailable", 503)
+			return
+		}
+		if own.browserPhase.Load() && (strings.HasPrefix(r.URL.Path, "/api/v1/system/smtp/test") || strings.HasPrefix(r.URL.Path, "/api/v1/system/mail-jobs") || strings.HasPrefix(r.URL.Path, "/api/v1/system/invitations") || strings.HasPrefix(r.URL.Path, "/api/v1/password/")) {
+			own.forbiddenCalls.Add(1)
+			http.Error(w, "delivery endpoints are outside this owned configuration fixture", 400)
+			return
+		}
+		if r.Method == "PUT" && r.URL.Path == "/api/v1/system/smtp" || r.Method == "POST" && r.URL.Path == "/api/v1/system/smtp/unconfigure" {
+			raw, err := io.ReadAll(io.LimitReader(r.Body, 32769))
+			closeErr := r.Body.Close()
+			defer clear(raw)
+			if err != nil || closeErr != nil || len(raw) > 32768 {
+				http.Error(w, "owned write observation unavailable", 400)
+				return
+			}
+			own.mu.Lock()
+			own.attempts = append(own.attempts, smtpSettingsWebAttempt{key: r.Header.Get("Idempotency-Key"), method: r.Method, path: r.URL.Path, body: sha256.Sum256(raw), csrf: sha256.Sum256([]byte(r.Header.Get("X-CSRF-Token")))})
+			own.independentObserve(r, raw)
+			own.mu.Unlock()
+			r.Body = io.NopCloser(bytes.NewReader(raw))
+		}
+
+		if r.URL.Path == "/api/v1" || strings.HasPrefix(r.URL.Path, "/api/v1/") {
+			proxy.ServeHTTP(w, r)
+			return
+		}
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			http.Error(w, "method unavailable", 405)
+			return
+		}
+		clean := filepath.Clean("/" + r.URL.Path)
+		if info, e := os.Stat(filepath.Join(root, clean)); e == nil && !info.IsDir() {
+			assets.ServeHTTP(w, r)
+			return
+		}
+		if strings.HasPrefix(clean, "/assets/") || filepath.Ext(clean) != "" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Cache-Control", "no-store")
+		http.ServeFile(w, r, filepath.Join(root, "index.html"))
+	})}
+	serverDone := make(chan error, 1)
+	go func() { serverDone <- server.Serve(listener) }()
+	t.Cleanup(func() {
+		shutdown, stop := context.WithTimeout(context.Background(), 2*time.Second)
+		defer stop()
+		if err := server.Shutdown(shutdown); err != nil {
+			t.Error("frontend server did not drain")
+			_ = server.Close()
+		}
+		if err := <-serverDone; !errors.Is(err, http.ErrServerClosed) {
+			t.Error("owned frontend server failed", err)
+		}
+		transport.CloseIdleConnections()
+	})
+	runtimeRoot := os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME")
+	if !filepath.IsAbs(runtimeRoot) || len(runtimeRoot) > 45 {
+		t.Fatal("explicit short task-owned browser runtime is required")
+	}
+	directory, err := os.MkdirTemp(runtimeRoot, "run-")
+	if err != nil {
+		t.Fatal("private browser runtime creation failed")
+	}
+	if err := os.Chmod(directory, 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.RemoveAll(directory); err != nil {
+			t.Error("private browser runtime cleanup failed")
+		}
+		if _, err := os.Stat(directory); !errors.Is(err, os.ErrNotExist) {
+			t.Error("private browser runtime still exists")
+		}
+	})
+	old := &httpFixture{t: t, db: db, config: cfg, address: address, log: output}
+	entry := old.record("bootstrap", "admin@mail.com", "")
+	material, err := json.Marshal(map[string]string{"email": entry.Email, "password": entry.Password})
+	if err != nil {
+		t.Fatal("private bootstrap encoding failed")
+	}
+	defer clear(material)
+	if err := os.WriteFile(filepath.Join(directory, "credentials.json"), material, 0600); err != nil {
+		t.Fatal("private bootstrap transfer failed")
+	}
+	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output, record: old.record, recoveryLogPath: cfg.AccountRecoveryLog()}
+	t.Cleanup(func() {
+		if output.contains(entry.Password) {
+			t.Error("bootstrap material escaped the restricted recovery log")
+		}
+	})
+	return f
+}
+
+func newSMTPSettingsWebFixture(t *testing.T, ctx context.Context, mode string) *smtpSettingsWebFixture {
+	t.Helper()
+	f := &smtpSettingsWebFixture{independent: &smtpIndependentState{}, modelsWebFixture: &modelsWebFixture{mode: mode, ids: map[string]string{}}}
+	f.authenticationWebFixture = newSMTPSettingsWebRoot(t, ctx, f)
+	f.setup = &personalWebFixture{authenticationWebFixture: f.authenticationWebFixture}
+	f.admin = personalWebCredential{Email: f.entry.Email, Password: f.entry.Password, UserID: f.entry.ID}
+	f.adminClient, f.csrf, _ = f.loginCredential(ctx, f.admin)
+	initial := f.request(ctx, "GET", "/api/v1/system/smtp", nil, 200)
+	f.singletonID = httpString(t, initial, "id")
+	if initial["configured"] != false {
+		t.Fatal("owned preparation requires formally unconfigured SMTP")
+	}
+	var invitationIDs [2]string
+	f.member, invitationIDs[0] = f.invitePreparedMember(ctx, "smtp-owned-member@example.com", "smtp-member")
+	f.second, invitationIDs[1] = f.invitePreparedMember(ctx, "smtp-owned-second@example.com", "smtp-second")
+	// Exact task-owned account preparation is the only role mutation here.
+	conn, closeConnection := invitationsWebConnect(t, ctx, f.db)
+	tag, err := conn.Exec(ctx, `UPDATE agenteam_account.users SET role='admin',version=version+1,updated_at=clock_timestamp() WHERE id=$1 AND email=$2 AND role='user'`, f.second.UserID, f.second.Email)
+	closeConnection()
+	if err != nil || tag.RowsAffected() != 1 {
+		t.Fatal("owned second administrator preparation failed")
+	}
+	f.awaitPreparedDeliveries(ctx, invitationIDs)
+	f.secondClient, f.secondCSRF, _ = f.loginCredential(ctx, f.second)
+	f.passwords = []string{" SMTP private 🧩 " + id[struct{}](t).String() + " ", " replacement private " + id[struct{}](t).String() + " "}
+	f.secrets = []string{f.admin.Password, f.member.Password, f.second.Password, f.csrf, f.secondCSRF, f.passwords[0], f.passwords[1]}
+	if mode != "lifecycle" {
+		applied := f.request(ctx, "PUT", "/api/v1/system/smtp", f.configuration(initial["version"], "initial"), 200)
+		initial = httpObject(t, applied, "settings")
+	}
+	baseline := f.smtpFacts(ctx)
+	f.private("smtp-settings-material.json", map[string]any{"admin": f.admin, "member": f.member, "second": f.second, "initial": initial, "passwords": f.passwords, "baseline": baseline})
+	f.browserPhase.Store(true)
+	t.Cleanup(func() {
+		for _, value := range f.secrets {
+			if value != "" && f.log.contains(value) {
+				t.Error("SMTP private material escaped restricted transfer")
+			}
+		}
+		clear(f.passwords)
+		f.passwords = nil
+		f.secrets = nil
+		f.csrf, f.secondCSRF, f.admin.Password, f.member.Password, f.second.Password = "", "", "", "", ""
+		f.mu.Lock()
+		f.lostKey = ""
+		f.attempts = nil
+		f.independent.clear()
+		f.lostResult = nil
+		f.mu.Unlock()
+	})
+	return f
+}
+func (f *smtpSettingsWebFixture) loginCredential(ctx context.Context, credential personalWebCredential) (*http.Client, string, string) {
+	client := f.setup.setupClient()
+	bootstrap := f.setup.setupRequest(ctx, client, "GET", "/api/v1/auth/bootstrap", nil, "", false, 200)
+	f.setup.setupRequest(ctx, client, "POST", "/api/v1/sessions/login", map[string]string{"email": credential.Email, "password": credential.Password}, httpString(f.t, bootstrap, "csrf_token"), true, 200)
+	view := f.setup.setupRequest(ctx, client, "GET", "/api/v1/session", nil, "", false, 200)
+	return client, httpString(f.t, view, "csrf_token"), httpString(f.t, httpObject(f.t, view, "session"), "id")
+}
+func (f *smtpSettingsWebFixture) configuration(version any, label string) map[string]any {
+	return map[string]any{"version": version, "host": "mail.example.com", "port": 587, "encryption": "starttls", "username": "", "sender_email": "sender@example.com", "sender_name": label, "credential_action": "keep", "auto_retry_count": "3", "retry_interval_seconds": "60"}
+}
+func (f *smtpSettingsWebFixture) invitePreparedMember(ctx context.Context, email, username string) (personalWebCredential, string) {
+	// The accepted helper passes the formal create receipt's ID to this read
+	// before redeem removes the invitation row. Retain only that exact ID.
+	local := *f.authenticationWebFixture
+	record := local.record
+	invitationID := ""
+	local.record = func(purpose, recipient, exactID string) httpRecoveryRecord {
+		if purpose != "invitation" || recipient != email || invitationID != "" {
+			f.t.Fatal("owned invitation preparation identity mismatch")
+		}
+		if _, err := foundation.ParseID[struct{}](exactID); err != nil {
+			f.t.Fatal("owned invitation create receipt ID invalid")
+		}
+		entry := record(purpose, recipient, exactID)
+		invitationID = exactID
+		return entry
+	}
+	setup := &personalWebFixture{authenticationWebFixture: &local}
+	member := setup.inviteMember(ctx, f.adminClient, f.csrf, email, username)
+	if invitationID == "" {
+		f.t.Fatal("owned invitation create receipt ID absent")
+	}
+	return member, invitationID
+}
+func (f *smtpSettingsWebFixture) awaitPreparedDeliveries(ctx context.Context, invitationIDs [2]string) {
+	if invitationIDs[0] == "" || invitationIDs[1] == "" || invitationIDs[0] == invitationIDs[1] {
+		f.t.Fatal("two exact owned invitation IDs required")
+	}
+	bounded, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+	tick := time.NewTicker(20 * time.Millisecond)
+	defer tick.Stop()
+	for {
+		conn, closeConnection := invitationsWebConnect(f.t, bounded, f.db)
+		var ready bool
+		var pending int
+		err := conn.QueryRow(bounded, `SELECT
+   (SELECT count(*)=2 AND count(DISTINCT d.link_id)=2 FROM agenteam_account.delivery_intents d
+    JOIN agenteam_account.commands c ON c.id=d.id AND c.namespace='account.invitation' AND c.command_name='invite-create' AND c.phase='committed' AND c.resource_id=d.link_id AND c.attempt_id=d.job_id AND c.owner_id=$1 AND c.user_id=$1
+    JOIN agenteam_account.mail_jobs j ON j.id=d.job_id AND j.intent_id=d.id
+    JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id AND a.job_id=j.id
+    WHERE d.kind='invitation' AND d.link_id IN ($2,$3) AND d.initiator_id=$1 AND d.origin_intent_id=d.id AND j.phase='sent' AND a.channel='log' AND a.result='sent' AND a.terminal AND a.io_joined),
+   (SELECT count(*) FROM agenteam_account.mail_jobs j LEFT JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id AND a.job_id=j.id WHERE j.phase IN ('pending','processing','claimed','sending','retry_wait') OR (a.id IS NOT NULL AND (NOT a.terminal OR NOT a.io_joined))),
+   (SELECT count(*) FROM agenteam_account.delivery_intents),
+   (SELECT count(*) FROM agenteam_account.mail_jobs)`, f.admin.UserID, invitationIDs[0], invitationIDs[1]).Scan(&ready, &pending, &f.baselineIntents, &f.baselineJobs)
+		closeConnection()
+		if err != nil {
+			f.t.Fatal("owned prepared delivery terminal query failed", err)
+		}
+		if ready && pending == 0 && f.baselineIntents == f.baselineJobs {
+			return
+		}
+		select {
+		case <-bounded.Done():
+			f.t.Fatal("owned prepared deliveries did not actually join before configuration")
+		case <-tick.C:
+		}
+	}
+}
+func (f *smtpSettingsWebFixture) shouldFailRead(path string) bool {
+	return path == "/api/v1/system/smtp" && f.failRead.CompareAndSwap(true, false)
+}
+func (f *smtpSettingsWebFixture) controlResponse(response *http.Response) error {
+	r := response.Request
+	if r == nil || response.StatusCode != 200 || !(r.Method == "PUT" && r.URL.Path == "/api/v1/system/smtp" || r.Method == "POST" && r.URL.Path == "/api/v1/system/smtp/unconfigure") {
+		return nil
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	key := r.Header.Get("Idempotency-Key")
+	var attempt smtpSettingsWebAttempt
+	for n := len(f.attempts) - 1; n >= 0; n-- {
+		if f.attempts[n].key == key {
+			attempt = f.attempts[n]
+			break
+		}
+	}
+	if f.lostKey != "" && key == f.lostKey {
+		f.replayed++
+		f.sameOriginal = f.sameOriginal && attempt.body == f.lostBody && attempt.csrf == f.lostCSRF && attempt.method == f.lostMethod && attempt.path == f.lostPath
+	}
+	if !f.dropNext {
+		return nil
+	}
+	f.dropNext = false
+	raw, err := io.ReadAll(io.LimitReader(response.Body, 600001))
+	closeErr := response.Body.Close()
+	defer clear(raw)
+	var result map[string]any
+	if err != nil || closeErr != nil || len(raw) > 600000 || len(raw) < 2 || json.Unmarshal(raw, &result) != nil || len(result) != 2 {
+		return errors.New("owned response cut requires complete formal SMTP result")
+	}
+	settings, ok := result["settings"].(map[string]any)
+	if !ok || len(settings) != 12 || settings["id"] != f.singletonID || result["applied_version"] == nil {
+		return errors.New("owned response cut requires strict SMTP result")
+	}
+	f.lostKey, f.lostBody, f.lostCSRF, f.lostMethod, f.lostPath, f.lostResult = key, attempt.body, attempt.csrf, attempt.method, attempt.path, result
+	f.dropped++
+	return &modelsResponseLost{header: response.Header.Clone(), prefix: append([]byte(nil), raw[:len(raw)/2]...), length: len(raw)}
+}
+func (f *smtpSettingsWebFixture) smtpFacts(ctx context.Context) map[string]any {
+	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+	defer closeConnection()
+	var version, host, encryption, username, email, name, retries, interval, ref string
+	var configured bool
+	var port int
+	if err := conn.QueryRow(ctx, `SELECT version::text,configured,coalesce(host,''),coalesce(port,0),coalesce(tls_mode,''),coalesce(auth_username,''),coalesce(from_address,''),sender_name,auto_retry_count::text,retry_interval_seconds::text,coalesce(password_ref::text,'') FROM agenteam_account.smtp_settings WHERE singleton AND id=$1`, f.singletonID).Scan(&version, &configured, &host, &port, &encryption, &username, &email, &name, &retries, &interval, &ref); err != nil {
+		f.t.Fatal("owned SMTP snapshot unavailable", err)
+	}
+	f.mu.Lock()
+	key := f.lostKey
+	f.mu.Unlock()
+	identityDigest := ""
+	if key != "" {
+		identity, err := foundation.NewCommandIdentity("account.smtp", []string{f.admin.UserID}, "smtp-settings-update", foundation.IdempotencyKey(key))
+		if err != nil {
+			f.t.Fatal("owned SMTP command identity invalid")
+		}
+		digest := sha256.Sum256([]byte(identity.Canonical()))
+		identityDigest = "sha256:" + hex.EncodeToString(digest[:])
+	}
+	var commands, audits, originalCommands, originalAudits, intents, jobs, referenceCount int
+	if err := conn.QueryRow(ctx, `SELECT
+ (SELECT count(*) FROM agenteam_account.commands WHERE namespace='account.smtp' AND command_name='smtp-settings-update' AND resource_id=$1 AND owner_id IN ($2,$3) AND phase='committed'),
+ (SELECT count(*) FROM agenteam_audit.audit_records WHERE scope='system' AND producer='account' AND action='smtp.settings.update' AND resource_kind='smtp_settings' AND resource_id=$1 AND user_id IN ($2,$3) AND outcome='success' AND ordinal=0),
+ (SELECT count(*) FROM agenteam_account.commands WHERE namespace='account.smtp' AND command_name='smtp-settings-update' AND resource_id=$1 AND owner_id=$2 AND identity_digest=$4 AND phase='committed'),
+ (SELECT count(*) FROM agenteam_audit.audit_records WHERE scope='system' AND producer='account' AND action='smtp.settings.update' AND resource_kind='smtp_settings' AND resource_id=$1 AND user_id=$2 AND outcome='success' AND ordinal=0 AND cause_ref IN (SELECT id::text FROM agenteam_account.commands WHERE namespace='account.smtp' AND command_name='smtp-settings-update' AND resource_id=$1 AND owner_id=$2 AND identity_digest=$4 AND phase='committed')),
+ (SELECT count(*) FROM agenteam_account.delivery_intents),(SELECT count(*) FROM agenteam_account.mail_jobs),
+ (SELECT count(*) FROM agenteam_secret.secret_references WHERE owner_id=$1 AND consumer='smtp' AND scope='system')`, f.singletonID, f.admin.UserID, f.second.UserID, identityDigest).Scan(&commands, &audits, &originalCommands, &originalAudits, &intents, &jobs, &referenceCount); err != nil {
+		f.t.Fatal("owned SMTP command reference and audit facts unavailable", err)
+	}
+	currentValid, oldCleanup := ref == "", true
+	if ref != "" {
+		if err := conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_secret.secret_references r JOIN agenteam_secret.secrets s ON s.id=r.credential_id WHERE r.credential_id=$1 AND r.owner_id=$2 AND r.consumer='smtp' AND r.scope='system' AND s.purpose='smtp')`, ref, f.singletonID).Scan(&currentValid); err != nil {
+			f.t.Fatal("owned SMTP current reference fact unavailable", err)
+		}
+	}
+	if f.previousReference != "" && f.previousReference != ref {
+		if err := conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.material_cleanup WHERE owner_kind='smtp_settings' AND owner_id=$1 AND credential_id=$2 AND purpose='smtp')`, f.singletonID, f.previousReference).Scan(&oldCleanup); err != nil {
+			f.t.Fatal("owned SMTP cleanup registration unavailable", err)
+		}
+	}
+	same := f.previousReference == ref
+	f.previousReference = ref
+	return map[string]any{"settings": map[string]any{"id": f.singletonID, "version": version, "configured": configured, "host": host, "port": port, "encryption": encryption, "username": username, "sender_email": email, "sender_name": name, "credential_present": ref != "", "auto_retry_count": retries, "retry_interval_seconds": interval}, "commands": commands, "audits": audits, "original_commands": originalCommands, "original_audits": originalAudits, "reference_count": referenceCount, "current_reference_valid": currentValid, "same_reference": same, "previous_cleanup_registered": oldCleanup, "delivery_unchanged": intents == f.baselineIntents && jobs == f.baselineJobs, "forbidden_calls": f.forbiddenCalls.Load()}
+}
+
+type smtpSettingsWebIPC struct {
+	Sequence  int    `json:"sequence"`
+	Action    string `json:"action"`
+	UserID    string `json:"user_id"`
+	SessionID string `json:"session_id"`
+}
+
+func (f *smtpSettingsWebFixture) smtpIPC(ctx context.Context, r smtpSettingsWebIPC) map[string]any {
+	out := map[string]any{"ok": true, "sequence": r.Sequence}
+	switch r.Action {
+	case "independent-record", "independent-facts":
+		out["facts"] = f.independentFacts(ctx, r)
+	case "facts":
+		out["facts"] = f.smtpFacts(ctx)
+	case "compete-configure", "compete-disable":
+		observed := f.setup.setupRequest(ctx, f.secondClient, "GET", "/api/v1/system/smtp", nil, "", false, 200)
+		if r.Action == "compete-disable" {
+			body := map[string]any{"version": observed["version"], "auto_retry_count": observed["auto_retry_count"], "retry_interval_seconds": observed["retry_interval_seconds"]}
+			out["result"] = f.setup.setupRequest(ctx, f.secondClient, "POST", "/api/v1/system/smtp/unconfigure", body, f.secondCSRF, true, 200)
+		} else {
+			body := f.configuration(observed["version"], "second administrator")
+			body["username"] = "second-auth"
+			body["password"] = f.passwords[1]
+			out["result"] = f.setup.setupRequest(ctx, f.secondClient, "PUT", "/api/v1/system/smtp", body, f.secondCSRF, true, 200)
+		}
+	case "arm-drop":
+		f.mu.Lock()
+		f.independent.clear()
+		f.dropNext = true
+		f.lostKey = ""
+		f.lostResult = nil
+		f.dropped = 0
+		f.replayed = 0
+		f.sameOriginal = true
+		f.mu.Unlock()
+		out["armed"] = true
+	case "drop-facts":
+		f.mu.Lock()
+		out["dropped"], out["replayed"], out["same_original"], out["result"], out["armed"] = f.dropped, f.replayed, f.sameOriginal, f.lostResult, f.dropNext
+		f.mu.Unlock()
+	case "arm-get-fail":
+		f.failRead.Store(true)
+		out["armed"] = true
+	case "arm-session-fail":
+		f.failSession.Store(true)
+		out["armed"] = true
+	case "failure-facts":
+		out["read_failures"], out["session_failures"] = f.readFailures.Load(), f.sessionFailures.Load()
+	case "attempt-facts":
+		f.mu.Lock()
+		keys := map[string]bool{}
+		for _, attempt := range f.attempts {
+			keys[attempt.key] = true
+		}
+		out["attempts"], out["distinct_keys"] = len(f.attempts), len(keys)
+		f.mu.Unlock()
+	case "demote", "promote", "revoke-session":
+		if f.mode != "authority" || r.UserID != f.admin.UserID {
+			f.t.Fatal("exact SMTP settings authority target rejected")
+		}
+		if _, err := foundation.ParseID[struct{}](r.SessionID); err != nil {
+			f.t.Fatal("exact SMTP settings Session invalid")
+		}
+		conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+		defer closeConnection()
+		var exists bool
+		if err := conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL)`, r.SessionID, r.UserID).Scan(&exists); err != nil || !exists {
+			f.t.Fatal("exact active SMTP settings Session absent", err)
+		}
+		if r.Action == "revoke-session" {
+			tag, err := conn.Exec(ctx, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='administrative' WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL`, r.SessionID, r.UserID)
+			if err != nil || tag.RowsAffected() != 1 {
+				f.t.Fatal("exact Session revoke failed", err)
+			}
+		} else {
+			role, previous := "user", "admin"
+			if r.Action == "promote" {
+				role, previous = "admin", "user"
+			}
+			tag, err := conn.Exec(ctx, `UPDATE agenteam_account.users SET role=$1,version=version+1,updated_at=clock_timestamp() WHERE id=$2 AND role=$3`, role, r.UserID, previous)
+			if err != nil || tag.RowsAffected() != 1 {
+				f.t.Fatal("exact owned role transition failed", err)
+			}
+		}
+	default:
+		f.t.Fatal("unknown SMTP settings IPC action")
+	}
+	return out
+}
+
+func (f *smtpSettingsWebFixture) browserSMTPSettings(ctx context.Context) map[string]any {
+	f.t.Helper()
+	root, e := filepath.Abs("../account-captcha-web")
+	if e != nil {
+		f.t.Fatal(e)
+	}
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/browser/independent.config.js")
+	cmd.Dir = root
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	cmd.WaitDelay = time.Second
+	for _, value := range os.Environ() {
+		if !strings.HasPrefix(value, "TMPDIR=") && !strings.HasPrefix(value, "AGENTEAM_AUTH_WEB_") && !strings.HasPrefix(value, "AGENTEAM_SMTP_SETTINGS_WEB_") && !strings.HasPrefix(value, "PLAYWRIGHT_NO_COPY_PROMPT=") && !strings.HasPrefix(value, "DEBUG=") && !strings.HasPrefix(value, "PWDEBUG=") {
+			cmd.Env = append(cmd.Env, value)
+		}
+	}
+	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_SMTP_SETTINGS_WEB_CASE="+f.mode, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "PLAYWRIGHT_NO_COPY_PROMPT=1")
+	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
+		if !filepath.IsAbs(images) {
+			f.t.Fatal("SMTP settings image path must be absolute")
+		}
+		cmd.Env = append(cmd.Env, "AGENTEAM_AUTH_WEB_IMAGES="+images)
+	}
+	var output bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &output, &output
+	if e = cmd.Start(); e != nil {
+		f.t.Fatal("locked SMTP settings browser runner could not start")
+	}
+	done := make(chan error, 1)
+	go func() { done <- cmd.Wait() }()
+	joined := false
+	defer func() {
+		if !joined {
+			_ = cmd.Cancel()
+			<-done
+		}
+		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		cmd.Env = nil
+	}()
+	tick := time.NewTicker(20 * time.Millisecond)
+	defer tick.Stop()
+	sequence := 0
+	var runErr error
+wait:
+	for {
+		select {
+		case runErr = <-done:
+			joined = true
+			break wait
+		case <-tick.C:
+			raw, err := os.ReadFile(filepath.Join(f.directory, "smtp-settings-ipc.json"))
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			var request smtpSettingsWebIPC
+			decode := json.Unmarshal(raw, &request)
+			clear(raw)
+			if err != nil || decode != nil || request.Sequence < 1 || request.Sequence > 128 {
+				f.t.Error("private SMTP settings IPC rejected")
+				_ = cmd.Cancel()
+				continue
+			}
+			if request.Sequence <= sequence {
+				continue
+			}
+			if request.Sequence != sequence+1 {
+				f.t.Error("private SMTP settings IPC sequence invalid")
+				_ = cmd.Cancel()
+				continue
+			}
+			reply := f.smtpIPC(ctx, request)
+			sequence = request.Sequence
+			f.private("smtp-settings-ack-"+strconv.Itoa(sequence)+".json", reply)
+		}
+	}
+	safe := output.String()
+	for _, secret := range f.secrets {
+		if secret != "" {
+			safe = strings.ReplaceAll(safe, secret, "[redacted]")
+		}
+	}
+	f.mu.Lock()
+	if f.lostKey != "" {
+		safe = strings.ReplaceAll(safe, f.lostKey, "[redacted]")
+	}
+	for _, attempt := range f.attempts {
+		if attempt.key != "" {
+			safe = strings.ReplaceAll(safe, attempt.key, "[redacted]")
+		}
+	}
+	f.mu.Unlock()
+	f.t.Log(safe)
+	if runErr != nil {
+		f.t.Fatalf("actual SMTP settings production browser failed: %v", runErr)
+	}
+	raw, e := os.ReadFile(filepath.Join(f.directory, "smtp-settings-result.json"))
+	if e != nil {
+		f.t.Fatal("safe SMTP settings browser result missing")
+	}
+	defer clear(raw)
+	var result map[string]any
+	if json.Unmarshal(raw, &result) != nil || result["completed"] != true {
+		f.t.Fatal("safe SMTP settings browser result invalid")
+	}
+	return result
+}

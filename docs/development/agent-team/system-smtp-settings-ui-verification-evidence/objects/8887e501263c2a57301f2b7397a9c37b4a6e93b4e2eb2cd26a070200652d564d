@@ -1,0 +1,30 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestAccountSystemModelsWebDeletionAndReplacement|TestAccountSystemModelsWebOutcomeRecovery|TestAccountSystemModelsWebNavigationAndLayouts)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace",
+  "ended_utc": "2026-10-06T17:32:10.284773+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldmodels04/images",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtsmtp-q9lv9zgz",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldmodels04/runtime"
+  },
+  "exit": 0,
+  "seconds": 111.891,
+  "started_utc": "2026-10-06T17:30:18.393917+00:00"
+}

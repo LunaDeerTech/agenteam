@@ -1,0 +1,138 @@
+import ctypes
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import threading
+import time
+
+ROOT = Path(__file__).resolve().parent
+RUN = ROOT / 'checks/api02'
+RUN.mkdir(parents=True)
+fixed = json.loads((ROOT / 'fixed-inputs.json').read_text())
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def write(name, value):
+    (RUN / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+paths = {str(ROOT / path) for path in fixed['origins']}
+paths.update(str(ROOT / path) for path in [
+    'fixed-inputs.json', 'run-check.py', 'probe-api01-to02.diff',
+    'fixed/web/src/tests/independent-smtp-api.spec.ts', 'fixed/web/independent.config.mjs',
+])
+paths.update(fixed['tools'])
+
+def fingerprint():
+    return {name: sha(Path(name)) for name in sorted(paths)}
+
+before = fingerprint()
+for name, meta in fixed['origins'].items():
+    assert before[str(ROOT / name)] == meta['sha256'], name
+for name, meta in fixed['tools'].items():
+    assert before[name] == meta['sha256'], name
+write('input-before.json', before)
+for name in ['cache', 'tmp']:
+    (ROOT / name).mkdir(exist_ok=True)
+assert ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0
+argv = [
+    '/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node',
+    '/workspace/agenteam/web/node_modules/vitest/vitest.mjs',
+    'run', '--config', 'independent.config.mjs', '--configLoader', 'native',
+    '--testNamePattern', '^independent SMTP fixed Go syntax and strict API boundaries matches f670cb1 raw canonical DTO and original replay material$',
+]
+environment = dict(os.environ, NO_COLOR='1', CI='1', TMPDIR=str(ROOT / 'tmp'))
+record = {
+    'argv': argv, 'cwd': str(ROOT / 'fixed/web'),
+    'env': {k: environment[k] for k in ['PATH', 'NO_COLOR', 'CI', 'TMPDIR']},
+    'started_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    'timeout_seconds': 45, 'controlled_fetch_only': True, 'resource_execution': False,
+    'subreaper': True,
+}
+write('command.json', record)
+
+def processes():
+    found = {}
+    for entry in Path('/proc').iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            text = (entry / 'stat').read_text()
+            fields = text[text.rindex(')') + 2:].split()
+            found[int(entry.name)] = {
+                'pid': int(entry.name), 'state': fields[0],
+                'ppid': int(fields[1]), 'starttime': int(fields[19]),
+            }
+        except (OSError, ValueError, IndexError):
+            pass
+    return found
+
+observed = {}
+stop = threading.Event()
+
+def observe():
+    while not stop.is_set():
+        current = processes()
+        family = {os.getpid()}
+        changed = True
+        while changed:
+            changed = False
+            for pid, meta in current.items():
+                if meta['ppid'] in family and pid not in family:
+                    family.add(pid)
+                    changed = True
+        for pid in family - {os.getpid()}:
+            if pid in current:
+                meta = current[pid]
+                observed[f'{pid}:{meta["starttime"]}'] = meta
+        stop.wait(0.02)
+
+start = time.monotonic()
+timed_out = False
+with (RUN / 'raw.log').open('wb') as output:
+    child = subprocess.Popen(argv, cwd=record['cwd'], env=environment,
+                             stdout=output, stderr=subprocess.STDOUT, start_new_session=True)
+    thread = threading.Thread(target=observe)
+    thread.start()
+    try:
+        code = child.wait(timeout=45)
+    except subprocess.TimeoutExpired:
+        timed_out = True
+        os.killpg(child.pid, signal.SIGKILL)
+        code = child.wait(timeout=5)
+    finally:
+        stop.set()
+        thread.join()
+duration = round(time.monotonic() - start, 3)
+adopted = []
+while True:
+    try:
+        pid, status = os.waitpid(-1, os.WNOHANG)
+    except ChildProcessError:
+        break
+    if pid == 0:
+        break
+    adopted.append({'pid': pid, 'status': status, 'actual_wait': True})
+scans = []
+for _ in range(2):
+    current = processes()
+    remaining = [meta for meta in observed.values()
+                 if meta['pid'] in current and current[meta['pid']]['starttime'] == meta['starttime']]
+    scans.append({'time': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'owned_remaining': remaining})
+after = fingerprint()
+write('input-after.json', after)
+write('observed-processes.json', observed)
+write('cleanup.json', scans)
+write('adopted-waits.json', adopted)
+result = dict(record, pid=child.pid, exit_code=code, actual_wait=True,
+              duration_seconds=duration, timed_out=timed_out, input_unchanged=before == after,
+              raw_sha256=sha(RUN / 'raw.log'), observed_processes=len(observed),
+              adopted_waits=len(adopted), owned_processes_gone=all(not s['owned_remaining'] for s in scans),
+              ended_utc=datetime.datetime.now(datetime.timezone.utc).isoformat())
+write('result.json', result)
+print(json.dumps({k: result[k] for k in ['pid', 'exit_code', 'actual_wait', 'duration_seconds', 'input_unchanged', 'raw_sha256', 'observed_processes', 'adopted_waits', 'owned_processes_gone']}))
+raise SystemExit(code or (0 if before == after and result['owned_processes_gone'] else 2))

@@ -1,0 +1,9 @@
+SMTP focus-stage01 窄静审 PASS；不是修复后原生焦点已通过，也不闭合仍活动的邮箱 API/最终整卡组合。
+
+固定 manifest SHA c1ad1a675efc1239d1a3f1312ee46a1927fcc1ec47c231917edeb8736d791372，candidate.diff SHA 1ea2d7284f2126df01616da07b94fad3d36ad265685e3c32181ded7bf3334409。四源及其 input03/input01 原版本、三份检查 raw/result/input 前后文件均逐 SHA 核实。没有读取活动 API/最终 workspace。
+
+生产仅将 disableReady 从 canDisable 拆出：保留当前 ready/configured、blocked、unsettled 和最大版本门禁；canDisable 继续额外要求两确认框均关闭，disable() 仍首先检查 canDisable。View 原停用按钮只用 disableReady 决定 disabled，因此打开干净停用确认或脏稿放弃确认本身不再禁用并 blur 原触发器。实际请求/确认 Promise/身份代次复核不变，模态期间背景仍 inert。未改共享层、fallback、手动焦点路径或浏览器原断言。
+
+原 App 同字节探针 SHA 31ddb8cfdcfd8098fd9e5165140b32bbf924ecd058805780c3c25554108b2108：focus-app-red01 实际 exit1/2.119s，clean/dirty 两例均在 trigger.disabled 为 true 失败；focus-page-green01 实际 exit0/4.185s，state49+App15=64 全过。两个运行的完整输入差量仅 controller/View，两测试文件与断言原字节。新增 state 验证确认待决期间重复 disable 不替换 Promise、零写；App 验证原触发器 enabled、背景 inert、最高确认框焦点、取消后零 overlay/原 trigger/零写与草稿保留。前后输入不变、actual_wait=true，无资源运行。
+
+本次复核沿有意义的原 RED→GREEN 及最小源差量，不另跑同套纯测试。尚未为此局部 stage 重建 dist，完整 type/build 与最终新输入需随作者组合绑定；原 navigation03 native RED 保留，修复后的原浏览器 trigger/Tab 强断言仍必须实际执行，不用 jsdom 结果替代。

@@ -1,0 +1,35 @@
+# SMTP 配置 UI 独立最终核验
+
+**固定 input04 的 28 条候选路径有界 PASS。** 独立真实 A/B 已同轮通过并实际双清；与已接受 API/owner/page、作者受影响场景和旧兼容证据组合。第29条 README 另验；后继主线 Outbound 接缝的最终 Go 编译/构建另由主线程安排，本报告不提前声称完成。
+
+作者 [input04](/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input04/manifest.json) SHA `3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37`，实际产品基线 `f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a`。本方 [execution input02](input02/execution.json) SHA `f3cc5c68d97c5ce4e296bad2a8f7c3ae1fc8f677987b7b1a426affdfcc573a90`；[28 路径精确 SHA 清单](delivery28.json) SHA `bd2421fef1d9000df76c91f08e36f6b083ee044be9c9275d13e18769bea613c9`。实际服务36个 dist、1050接受依赖、私有10文件和有界运行工具/Playwright闭包前后逐字节一致，没有使用活动主树或 SMTPUI 之外的未验候选。
+
+## 独立实际结果
+
+| 原顶层 | Go场景 | Playwright | 结果 |
+| --- | ---: | ---: | --- |
+| TestAccountSystemSMTPSettingsIndependentPUTReplay | 12.31s | 6.7s | PASS |
+| TestAccountSystemSMTPSettingsIndependentUnconfigureReplay | 12.77s | 7.3s | PASS |
+
+`independent01` 原安全脚本实际 exit0 / **158.636s**，包括 fixture、编译和实际结束尾部；两个顶层均在原2分钟内，浏览器各在45秒内。原6分钟包、race/count1、worker1/retry0保持。精确 argv/env/cwd 见 [command.json](runs/independent01/command.json)，[raw](runs/independent01/raw.log) SHA `0acae7ba984684e356c1d48df10531c44d1da11d51bf64712f9f016aec862140`、[result](runs/independent01/result.json) SHA `2ccae2e02c293be1d71197c8fba7a42b708687dadf8910e53ee21ae02ec07db2`。
+
+A 实际完成：包含新私有密码的正式 PUT 接受后截断响应；另一个正式管理员停用后，Session/GET仅观察当前false且零自动写。显式原PUT按相同 body字节/key/合法CSRF重放，确认原历史applied且保持更新后的currentfalse。精确原Account command及其Audit各1，原MAC/预备引用/actor不变，当前引用0且旧清理登记已存在，没有重复配置事实。严格确认后单独GET503只显示读取失败并允许明确重读，未伪造 reader EOF。第二个已接受未知PUT在精确自有管理员资格降级后原重放返回真实403/FORBIDDEN，DB/引用/Audit无新写；同Session恢复权限后旧恢复动作和私有材料均清空。
+
+B 实际完成：草稿重试4/120与私有输入先经明确放弃确认，再捕获已保存3/60的停用确认。两种确认恢复经过生产pageshow listener、真实Session503及同完整身份恢复；物理两层只一层可访问，下层inert/aria-hidden，原生Tab、继续编辑及关闭后最新本地标题fallback均通过。正式POST停用接受后截断，第二管理员重新配置；Session/GET仍不能确认旧操作。显式原三字段POST/body/key/CSRF重放得到原历史applied与当前true，版本不倒退；精确原command/Audit各1，MAC/预备引用/actor不变，当前合法引用仍1且不替换。
+
+全部材料比较只在自有进程内，输出安全布尔/计数，未输出原body/key/CSRF/密码或材料hash。原fetch/read Promise及Response/reader/cancel身份保持；没有clone、tee或额外读取。observer结束不代owner join；trace/video/screenshot关闭，未采集材料截图。配置阶段的投递任务与intent计数保持已实际结束准备基线，禁止的test/invite/reset/jobs请求为0。
+
+## 实际终局与证据复用
+
+[cleanup.json](runs/independent01/cleanup.json) SHA `b15f5dcb5b863d47f77f67baf61b528dc3f57c478edb9ea16dbd67382efbbfba`：7个exact ID两扫absent，181个记录PID/starttime全部结束，8个adopted子进程实际wait；原2容器4网络不变，runtime及短浏览器目录为空且后者已删除，monitor error0。原历史PPID1 Z保持原件，不声称本轮回收。input-before/after SHA同为 `941cf339bbf48118f2ccdd874fce7389d961d880fa7b36ea3147a580c83955d3`。driver及顶层均实际退出后已向主线程释放窗口，没有活动命令/资源。
+
+- API02新契约组 actual0/0.628s：1PASS、原11组明确skip并按未变部分复用。邮箱后端直接复用已接受闭包，本方没有自验自己的后端实现。
+- owner原7组整轮 actual exit1保留：6个契约代表PASS，另1个额外flush:sync栈内重入FAIL按主线程适用性裁定排除，不称7PASS，也没有owner产品返修。页面正式消费链与本次真实操作未出现该额外构造；原报告仍永久保留。
+- page为真实App配受控Fetch的2/2 actual0/2.301s；focus差量、API差量和input04完整1214前端check/类型/build/Go编译闭包已有独立核验，不冒称本方重跑这些纯矩阵。
+- 作者 input04 的navigation04/lifecycle04/credential04/outcome04四受影响真实轮及旧19组已通过。Concurrency8.95s和Authority18.66s按独立版本组合审阅复用原new02；原new02整轮exit1/180.320s及另四失败保持，不称六组同轮全绿。
+
+上述阶段准确路径/SHA列在 [verification-report.json](verification-report.json)。[组合审阅](/workspace/scratch/agenteam-smtp-independent-startup-review-j0ba18a6/combination-review.md) SHA `16286341bfc1b7b7a66d46ae916ad05b7a770da372f857d558d581d5b7ffb022`只静核后继 `a94277982620f01dc15488b09ae6ea9064977b5a` 的Outbound路由接缝：本次真实仍是f670，不冒a942动态；最终合并Go检查另封口。
+
+私有准备原type01解析前提失败、旧input01两处错误确认标题及所有原件保留，[独立更正说明](input02/erratum.md)单列。真实启动使用修正后的input02，两条强精确期望保留，本轮没有失败重跑或放宽断言。原产品阶段失败仍见各冻结报告。
+
+没有验证外部邮箱/SMTP连接、认证、发送、收件、生产SPA、Runtime、整D27或Secret立即物理擦除，也不将静态或jsdom结果当原生浏览器证据。本报告、清单与所列本方原件已停止写入；主树、作者目录、Git均零写。

@@ -1,0 +1,15 @@
+# SMTP 独立 A/B 启动点核
+
+**input02 启动 STATIC PASS；尚不构成 SMTP 整卡真实接受。** 固定执行 `/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/input02/execution.json` SHA `f3cc5c68d97c5ce4e296bad2a8f7c3ae1fc8f677987b7b1a426affdfcc573a90`，正式产品仍为前端 `input04`（28候选、36dist、1050固定f670cb1依赖）。本次只读审查，没有编译重跑或资源启动。
+
+input01 的两处 B dirty-disable 断言错误地使用默认“放弃未保存修改？”；固定 controller.disable 明确传“放弃草稿并继续停用？”。这是私有前提阻断，未启动真实浏览器来制造首红。input02 在 cases模板/spec各修两处精确可访问标题，其余八份私有文件、Go overlay、driver、所有动作与强断言逐字节不变，原input01保留。
+
+已实际核私有快照10文件、产品来源映射28源/36dist、1050接受工作闭包、14直接工具和521个已锁Playwright文件SHA。没有读取作者活动私有browser/overlay作为被审输入。原native observer及helpers前26518字节与正式作者原件完全一致：原fetch/Response/reader/read/cancel身份及预算未改；text/plain503只要求新请求状态和可恢复页面，不伪造reader EOF；成功Session恢复仍须新seq200/EOF和同user/session/role。实际CLI与private config解析同一锁定Playwright tree；每mode恰1例，45s/worker1/retry0/noTrace/noVideo/noScreenshot保持。
+
+Go overlay只新增两顶层及对原fixture的内存观察/IPC只读投影：原body字节、key、CSRF、semantic MAC和planned reference只保留在自有进程，不向日志/JSON打印值或hash。正式Account.smtp NewCommandIdentity及SHA256 canonical digest与持久command精确匹配；Audit使用Account自己的recordID cause，未误用其它业务digest。原proxy仍转发原请求；首次实际提交响应后才截断，显式重放与current相反状态、原Actor/Session、唯一command/Audit和无新增delivery均保留强断言。私有SQL全为读取；权限控制只沿已接受fixture精确owned identity机制。
+
+资源driver相对原input04仅收窄两个selector、绑定private输入/runtime和Go overlay、改变任务私有路径；source/dist/依赖前后门禁、subreaper、actualwait、owned PID/starttime、7 exact资源ID两次检查、browser/runtime清理保持。实际cwd如实为作者固定workspace，原产品停写且没有消费最新main；不要求复制全树。启动时仍必须通过driver自身前置门禁，真实终局另审。
+
+已核冻结检查原件：race编译actual0/106.115s、vet0/8.276s、Go发现0/1.016s、A发现0/1.401s；窄修后type03 actual0/.954s、B发现0/.961s。type01缺typeRoots的原exit2保留。本人首个只读指纹脚本误以为input04/source复制了全部复用文件而FileNotFoundError，零资源/产品动作；随即改按已冻结source_resolution逐文件核对通过，未将该工具前提归为产品缺陷。
+
+细目在 `input-review.json`。本报告已停止写入，可归档；此时独立A/B真实结果待执行者终局。

@@ -1,0 +1,223 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { type CommitState, type Fetch } from '../api/client'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI } from '../api/system-providers'
+import { createSystemModelAPI } from '../api/system-models'
+import { createSystemModelSelectionAPI } from '../api/system-model-selection'
+import { createSystemAccountSecurityAPI } from '../api/system-account-security'
+import { createSystemSMTPSettingsAPI, type SMTPUpdateInput } from '../api/system-smtp-settings'
+import { createSessionController, type SessionController } from '../composables/useSession'
+import { useTheme } from '../composables/useTheme'
+import {
+  createSystemSMTPSettings,
+  type SystemSMTPSettingsController,
+} from '../composables/useSystemSMTPSettings'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z'
+const view = (sessionID = id(2), role: 'admin' | 'user' = 'admin'): SessionView => ({
+  user: {
+    id: id(1),
+    email: 'admin@example.com',
+    username: 'admin',
+    display_name: 'Admin',
+    role,
+    theme: 'system',
+    version: '1',
+    initial_password_suggestion: false,
+  },
+  session: { id: sessionID, issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const fields = () => ({
+  host: 'mail.example',
+  port: 587,
+  encryption: 'starttls' as const,
+  username: '',
+  sender_email: 'sender@example.test',
+  sender_name: '',
+  auto_retry_count: '3',
+  retry_interval_seconds: '60',
+})
+const input = (): Omit<SMTPUpdateInput, 'password'> => ({
+  version: '1',
+  ...fields(),
+  credential_action: 'keep',
+})
+const settings = (version = '1', configured = true) => ({
+  id: id(10),
+  version,
+  configured,
+  ...fields(),
+  credential_present: false,
+  ...(configured
+    ? {}
+    : { host: '', port: 0, encryption: '', username: '', sender_email: '', sender_name: '' }),
+})
+const receipt = (current = settings('2'), applied_version = '2') => ({
+  applied_version,
+  settings: current,
+})
+const security = () => ({
+  id: id(12),
+  version: '1',
+  session_idle_seconds: '604800',
+  session_absolute_seconds: '2592000',
+  password_reset_seconds: '1800',
+  challenge_after_failures: '5',
+  lifetime_changes_apply_to: 'newly_issued_sessions_and_tokens',
+})
+const json = (value: unknown, status = 200) =>
+  new Response(JSON.stringify(value), {
+    status,
+    headers: {
+      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+      'X-Request-ID': id(9),
+    },
+  })
+const problem = (code: string, status = 503, commit_state: CommitState = 'not_started') =>
+  json(
+    {
+      type: 'urn:agenteam:problem:test',
+      title: 'Failure',
+      status,
+      code,
+      detail: 'safe test',
+      instance: '/api/v1/system/smtp',
+      request_id: id(9),
+      commit_state,
+      retry_hint: 'lookup',
+    },
+    status,
+  )
+function barrier<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((r) => {
+    resolve = r
+  })
+  return { promise, resolve }
+}
+const owners: SessionController[] = []
+const pages: SystemSMTPSettingsController[] = []
+async function fixture() {
+  let current = view(),
+    session: Fetch = async () => json(current),
+    smtp: Fetch = async (_, i) => json(i.method === 'GET' ? settings() : receipt()),
+    other: Fetch = async (path) => {
+      if (path === '/api/v1/me') return json({ user: current.user, avatar: null })
+      if (path === '/api/v1/system/model-selection')
+        return json({ id: id(20), version: '1', configured: null })
+      if (path === '/api/v1/system/account-settings') return json(security())
+      if (path.startsWith('/api/v1/system/users') || path.startsWith('/api/v1/system/invitations'))
+        return json({ items: [] })
+      return json({ items: [], next_cursor: null })
+    }
+  const fetch = vi.fn<Fetch>(async (path, init) => {
+    if (path === '/api/v1/session') return session(path, init)
+    if (path === '/api/v1/auth/bootstrap')
+      return json({
+        csrf_token: 'A'.repeat(43),
+        challenge_modes: ['rotate'],
+        delivery_channel: 'backend_log',
+      })
+    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
+    return path.startsWith('/api/v1/system/smtp') ? smtp(path, init) : other(path, init)
+  })
+  const auth = createSessionController(
+    createAccountAPI(fetch),
+    createSystemAccountAPI(fetch),
+    createSystemInvitationAPI(fetch),
+    createSystemProviderAPI(fetch),
+    createSystemModelAPI(fetch),
+    createSystemModelSelectionAPI(fetch),
+    createSystemAccountSecurityAPI(fetch),
+    createSystemSMTPSettingsAPI(fetch),
+  )
+  owners.push(auth)
+  await auth.restore()
+  return {
+    auth,
+    fetch,
+    setSMTP(value: Fetch) {
+      smtp = value
+    },
+    setOther(value: Fetch) {
+      other = value
+    },
+    setSession(value: SessionView) {
+      current = value
+    },
+    setSessionRequest(value: Fetch) {
+      session = value
+    },
+    writes() {
+      return fetch.mock.calls.filter(
+        ([p, i]) => p.startsWith('/api/v1/system/smtp') && i.method !== 'GET',
+      )
+    },
+  }
+}
+afterEach(() => {
+  for (const page of pages.splice(0)) page.dispose()
+  for (const auth of owners.splice(0)) auth.leave()
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+  useTheme().setTheme('system')
+})
+
+async function pageFixture(configured = true) {
+  const f = await fixture()
+  f.setSMTP(async (_, i) => json(i.method === 'GET' ? settings('1', configured) : receipt()))
+  const page = createSystemSMTPSettings(f.auth)
+  pages.push(page)
+  page.afterNavigation('/system/smtp', '/')
+  page.attach()
+  await flushPromises()
+  return { ...f, page }
+}
+
+it('diagnostic same-field success retires dirty baseline and refresh dispatches a real GET', async () => {
+  const f = await pageFixture(), p = f.page
+  let observed = { ...settings(), sender_name: '' }
+  f.setSMTP(async (_, init) => {
+    if (init.method !== 'GET') {
+      const body = JSON.parse(init.body as string)
+      observed = { ...settings(String(BigInt(body.version) + 1n)), sender_name: body.sender_name }
+      return json({ applied_version: observed.version, settings: observed })
+    }
+    return json(observed)
+  })
+  p.updateField('sender_name', 'same captured field')
+  expect(p.changed.value && p.dirty.value && p.canSave.value).toBe(true)
+  await p.save()
+  const snapshot = {
+    confirmed: p.state.confirmed?.applied_version === '2',
+    same_fields: p.draft.sender_name === observed.sender_name,
+    changed: p.changed.value, dirty: p.dirty.value, can_save: p.canSave.value,
+  }
+  const before = f.fetch.mock.calls.filter(([path, init]) => path === '/api/v1/system/smtp' && init.method === 'GET').length
+  const pending = p.refresh()
+  await flushPromises()
+  const diagnostic = { ...snapshot,
+    confirmation_open: p.confirmation.open,
+    reads: f.fetch.mock.calls.filter(([path, init]) => path === '/api/v1/system/smtp' && init.method === 'GET').length - before,
+    writes: f.writes().length,
+  }
+  console.log('SMTP_BASELINE_SAFE', JSON.stringify(diagnostic))
+  try {
+    expect.soft(diagnostic.confirmed && diagnostic.same_fields).toBe(true)
+    expect.soft(diagnostic.changed).toBe(false)
+    expect.soft(diagnostic.dirty).toBe(false)
+    expect.soft(diagnostic.can_save).toBe(false)
+    expect.soft(diagnostic.confirmation_open).toBe(false)
+    expect.soft(diagnostic.reads).toBe(1)
+    expect.soft(diagnostic.writes).toBe(1)
+  } finally {
+    p.finishConfirmation(false)
+    await pending
+  }
+})

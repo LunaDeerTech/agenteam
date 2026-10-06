@@ -1,0 +1,34 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web
+
+ ❯ src/tests/system-smtp-settings.spec.ts (13 tests | 1 failed) 1317ms
+     × captures saved retry policy after a real dirty discard, cancels with zero write, and confirms unconfigure explicitly 88ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-smtp-settings.spec.ts > SMTP inline form and two persistent confirmation hosts in the actual App > captures saved retry policy after a real dirty discard, cancels with zero write, and confirms unconfigure explicitly
+AssertionError: button 保存重试策略: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-smtp-settings.spec.ts:255:36
+    253|       )?.trim() === label || node.getAttribute('aria-label') === label,
+    254|   )
+    255|   expect(value, `button ${label}`).toBeTruthy()
+       |                                    ^
+    256|   return value!
+    257| }
+ ❯ src/tests/system-smtp-settings.spec.ts:502:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  16:08:05
+   Duration  2.66s (transform 730ms, setup 0ms, import 861ms, tests 1.32s, environment 356ms)
+

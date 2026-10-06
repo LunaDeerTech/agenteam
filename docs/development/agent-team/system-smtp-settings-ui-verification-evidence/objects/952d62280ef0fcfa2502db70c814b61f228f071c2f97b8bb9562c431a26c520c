@@ -1,0 +1,128 @@
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providers
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providers/
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providers/lookup
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providers/../session
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providers//opaque
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providers-other
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providersx
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models/
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models/lookup
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models/../session
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models//opaque
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models-other
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/modelsx
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selection
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selection/
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selection/lookup
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selection/../session
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selection//opaque
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selection-other
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selectionx
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commands
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commands/
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commands/lookup
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commands/../session
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commands//opaque
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commands-other
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commandsx
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentials
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentials/
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentials/lookup
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentials/../session
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentials//opaque
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentials-other
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentialsx
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commands
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commands/
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commands/lookup
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commands/../session
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commands//opaque
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commands-other
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commandsx
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/session
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//diagnostics
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model
+=== RUN   TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models/opaque/api/v1/system/models%2fopaque
+--- PASS: TestModelRootRouteOwnershipAndRequestPreservation (0.01s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providers (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providers/ (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providers/lookup (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providers/../session (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providers//opaque (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providers-other (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-providersx (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models/ (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models/lookup (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models/../session (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models//opaque (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models-other (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/modelsx (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selection (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selection/ (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selection/lookup (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selection/../session (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selection//opaque (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selection-other (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-selectionx (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commands (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commands/ (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commands/lookup (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commands/../session (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commands//opaque (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commands-other (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-commandsx (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentials (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentials/ (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentials/lookup (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentials/../session (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentials//opaque (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentials-other (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credentialsx (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commands (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commands/ (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commands/lookup (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commands/../session (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commands//opaque (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commands-other (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model-credential-commandsx (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/session (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//diagnostics (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/model (0.00s)
+    --- PASS: TestModelRootRouteOwnershipAndRequestPreservation//api/v1/system/models/opaque/api/v1/system/models%2fopaque (0.00s)
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy/
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy/child
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy//child
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy/../session
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy/child/api/v1/system/outbound-policy%2fchild
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy-other
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policyx
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/session
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/model-providers
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/models/child
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/model-selection
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/model-commands/lookup
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/model-credentials/id
+=== RUN   TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/model-credential-commands/lookup
+--- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy/ (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy/child (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy//child (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy/../session (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy/child/api/v1/system/outbound-policy%2fchild (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policy-other (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/outbound-policyx (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/session (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/model-providers (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/models/child (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/model-selection (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/model-commands/lookup (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/model-credentials/id (0.00s)
+    --- PASS: TestOutboundPolicyRootRoutePreservationAndSingleMiddleware//api/v1/system/model-credential-commands/lookup (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.028s

@@ -1,0 +1,74 @@
+{
+  "result": "bounded page-stage PASS; whole SMTP UI remains unaccepted",
+  "input_manifest": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/web-stage01/manifest.json",
+  "input_sha256": "956711b0479cd790a6463ae0bbe56257db66a3941ecab45b3562b80c1055cbb5",
+  "base": "40c904c0dd88420fc621f40c0a737d243d514ec1",
+  "candidate19_and_dist36_rechecked": true,
+  "reused_files": {
+    "web/src/api/client.ts": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186",
+    "web/src/api/system-smtp-settings.ts": "9649cfd5a737c3a6936152a11a60edff80860fc37cf91150feee1cf9a7abc1c8",
+    "web/src/tests/system-smtp-settings-client.spec.ts": "edca572836a7138fbe344a43e4dcc987cd1934395ac349ec96b858acdf065c4e",
+    "web/src/composables/useSession.ts": "fe066bdcbf6448acf831d5629ea7a0a11a6af2848de723dfabdbffd05c636ea4"
+  },
+  "actual_check": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--config",
+      "independent.config.mjs"
+    ],
+    "cwd": "/workspace/scratch/agenteam-smtp-page-independent-_u8wav26/fixed/web",
+    "env": {
+      "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "GOTOOLCHAIN": "local",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOFLAGS": "-mod=readonly",
+      "GOCACHE": "/workspace/scratch/agenteam-smtp-page-independent-_u8wav26/go-cache",
+      "GOTMPDIR": "/workspace/scratch/agenteam-smtp-page-independent-_u8wav26/go-tmp",
+      "NO_COLOR": "1",
+      "CI": "1"
+    },
+    "started_utc": "2026-10-06T16:19:05.468097+00:00",
+    "resource_execution": false,
+    "pid": 1576756,
+    "exit_code": 0,
+    "actual_wait": true,
+    "duration_seconds": 2.301,
+    "input_unchanged": true,
+    "raw_sha256": "2029028487c1efc1a0848dce566331ec9ece5faa81e9cb6d6c03f9e50df9be3c",
+    "ended_utc": "2026-10-06T16:19:07.768793+00:00"
+  },
+  "independent_tests": {
+    "passed": 2,
+    "failed": 0,
+    "environment": "Vitest 4.1.11 + Vue Test Utils/jsdom; explicit layout spy; accepted locked modules",
+    "scope": "Real App + auth/session/controller/API/View with controlled Fetch and memory router; other leaves are placeholders and not reverified"
+  },
+  "artifacts": {
+    "fixed-inputs.json": "3d43a7aa707cfb47dfbd60d259f4b2a28aa45db6fe765d7524ce45a8faa62413",
+    "fixed/web/src/tests/independent-smtp-page.spec.ts": "926b22ae22016ac34c729c222b7038522795ecbeaf4b922a1a26406b4c97b7b8",
+    "fixed/web/independent.config.mjs": "f790360c9a803f3417ab15e8a2b5959cf6c44d51203be1fa1d73d4dca278e5df",
+    "run-check.py": "d1a7dd333032447aa9d4d10ce17dbdb38b01d6319071e6181b6155024a7cbf3d",
+    "checks/app02/command.json": "119d660866cedda452a76d782efcb030de8ab09859d4528f6e8153148c90e074",
+    "checks/app02/input-before.json": "d92fc888894cd6dbfced1ef8ebf152873db6911ace8eaf4af94e97c46d520d1f",
+    "checks/app02/input-after.json": "d92fc888894cd6dbfced1ef8ebf152873db6911ace8eaf4af94e97c46d520d1f",
+    "checks/app02/raw.log": "2029028487c1efc1a0848dce566331ec9ece5faa81e9cb6d6c03f9e50df9be3c",
+    "checks/app02/result.json": "ccc887d1e306d6a11adfcaa6d62b4d9cad63a957459796d23101f8bcd80e9b7e",
+    "preparation-runner01.json": "a35750989e381bf275249bc0da7df20147c76ccb54fa2ac2655893955900a5bb",
+    "preparation-node01.json": "97af30ef3b45a0c4c70686378ee5df77ce41bfb860848106b5f73a15408fbd38",
+    "checks/app01/command.json": "2556d0577db38cba6075197c87cea86d5cedc826de4ca88f12b16792dad5971d",
+    "checks/app01/input-before.json": "d92fc888894cd6dbfced1ef8ebf152873db6911ace8eaf4af94e97c46d520d1f",
+    "checks/app01/raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "limitations": [
+    "No browser, native Tab/pointer/layout, HTTP/DB/SMTP fixture",
+    "API old raw/canonical acceptance defect unchanged; email engineering card accepted specification only",
+    "Owner01 original exit1 preserved: 6 contract probes PASS, extra synchronous arbitrary reentry FAIL excluded by root; fixed actual page sync observers only clear DOM",
+    "Author full check and 13 App test evidence referenced by stage manifest, not rerun independently",
+    "Two private runner preparation failures happened before any test child started; first only tool traceback + metadata, second command/input/empty raw + metadata, no retroactive child wait claim"
+  ],
+  "writes": "own scratch only",
+  "stopped": true
+}

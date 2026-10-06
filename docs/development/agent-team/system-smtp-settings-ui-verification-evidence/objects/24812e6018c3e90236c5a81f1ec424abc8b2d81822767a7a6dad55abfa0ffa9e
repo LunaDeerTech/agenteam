@@ -1,0 +1,61 @@
+--- fixed-input04/tests/account/system_smtp_settings_web_fixture_test.go
++++ private-overlay/tests/account/system_smtp_settings_web_fixture_test.go
+@@ -41,6 +41,7 @@
+ 	body, csrf        [32]byte
+ }
+ type smtpSettingsWebFixture struct {
++	independent *smtpIndependentState
+ 	*modelsWebFixture
+ 	singletonID                   string
+ 	attempts                      []smtpSettingsWebAttempt
+@@ -185,6 +186,7 @@
+ 			}
+ 			own.mu.Lock()
+ 			own.attempts = append(own.attempts, smtpSettingsWebAttempt{key: r.Header.Get("Idempotency-Key"), method: r.Method, path: r.URL.Path, body: sha256.Sum256(raw), csrf: sha256.Sum256([]byte(r.Header.Get("X-CSRF-Token")))})
++			own.independentObserve(r, raw)
+ 			own.mu.Unlock()
+ 			r.Body = io.NopCloser(bytes.NewReader(raw))
+ 		}
+@@ -263,7 +265,7 @@
+ 
+ func newSMTPSettingsWebFixture(t *testing.T, ctx context.Context, mode string) *smtpSettingsWebFixture {
+ 	t.Helper()
+-	f := &smtpSettingsWebFixture{modelsWebFixture: &modelsWebFixture{mode: mode, ids: map[string]string{}}}
++	f := &smtpSettingsWebFixture{independent: &smtpIndependentState{}, modelsWebFixture: &modelsWebFixture{mode: mode, ids: map[string]string{}}}
+ 	f.authenticationWebFixture = newSMTPSettingsWebRoot(t, ctx, f)
+ 	f.setup = &personalWebFixture{authenticationWebFixture: f.authenticationWebFixture}
+ 	f.admin = personalWebCredential{Email: f.entry.Email, Password: f.entry.Password, UserID: f.entry.ID}
+@@ -307,6 +309,7 @@
+ 		f.mu.Lock()
+ 		f.lostKey = ""
+ 		f.attempts = nil
++		f.independent.clear()
+ 		f.lostResult = nil
+ 		f.mu.Unlock()
+ 	})
+@@ -479,6 +482,8 @@
+ func (f *smtpSettingsWebFixture) smtpIPC(ctx context.Context, r smtpSettingsWebIPC) map[string]any {
+ 	out := map[string]any{"ok": true, "sequence": r.Sequence}
+ 	switch r.Action {
++	case "independent-record", "independent-facts":
++		out["facts"] = f.independentFacts(ctx, r)
+ 	case "facts":
+ 		out["facts"] = f.smtpFacts(ctx)
+ 	case "compete-configure", "compete-disable":
+@@ -494,6 +499,7 @@
+ 		}
+ 	case "arm-drop":
+ 		f.mu.Lock()
++		f.independent.clear()
+ 		f.dropNext = true
+ 		f.lostKey = ""
+ 		f.lostResult = nil
+@@ -562,7 +568,7 @@
+ 	if e != nil {
+ 		f.t.Fatal(e)
+ 	}
+-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "system-smtp-settings.config.js"))
++	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/browser/independent.config.js")
+ 	cmd.Dir = root
+ 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+ 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }

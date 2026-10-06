@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""Create only the private, reviewed test overlay; never alter the author input."""
+import difflib
+import hashlib
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+AUTHOR = Path('/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace')
+fixture_name = 'tests/account/system_smtp_settings_web_fixture_test.go'
+original = (ROOT / 'inputs' / fixture_name).read_text()
+changed = original
+
+def replace(old, new):
+    global changed
+    if changed.count(old) != 1:
+        raise ValueError('exact fixture anchor mismatch')
+    changed = changed.replace(old, new)
+
+replace('type smtpSettingsWebFixture struct {\n', 'type smtpSettingsWebFixture struct {\n\tindependent *smtpIndependentState\n')
+replace('\t\t\town.mu.Unlock()\n\t\t\tr.Body =', '\t\t\town.independentObserve(r, raw)\n\t\t\town.mu.Unlock()\n\t\t\tr.Body =')
+replace('f := &smtpSettingsWebFixture{modelsWebFixture:', 'f := &smtpSettingsWebFixture{independent: &smtpIndependentState{}, modelsWebFixture:')
+replace('\t\tf.attempts = nil\n', '\t\tf.attempts = nil\n\t\tf.independent.clear()\n')
+replace('\tcase "facts":\n', '\tcase "independent-record", "independent-facts":\n\t\tout["facts"] = f.independentFacts(ctx, r)\n\tcase "facts":\n')
+replace('\t\tf.dropNext = true\n', '\t\tf.independent.clear()\n\t\tf.dropNext = true\n')
+replace('filepath.Join(root, "system-smtp-settings.config.js")', json.dumps(str(ROOT / 'browser/independent.config.js')))
+destination = ROOT / 'overlay/system_smtp_settings_web_fixture_test.go'
+destination.write_text(changed)
+(ROOT / 'overlay/fixture.diff').write_text(''.join(difflib.unified_diff(original.splitlines(True), changed.splitlines(True), fromfile='fixed-input04/'+fixture_name, tofile='private-overlay/'+fixture_name)))
+overlay = {'Replace': {
+    str(AUTHOR / fixture_name): str(destination),
+    str(AUTHOR / 'tests/account/smtp_independent_test.go'): str(ROOT / 'overlay/smtp_independent_test.go'),
+}}
+(ROOT / 'overlay.json').write_text(json.dumps(overlay, indent=2)+'\n')
+
+source = (ROOT / 'inputs/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts').read_bytes()
+split = source.index(b'test("[lifecycle]')
+prefix = source[:split]
+cases = (ROOT / 'browser/cases.ts.txt').read_bytes()
+(ROOT / 'browser/independent.spec.ts').write_bytes(prefix+cases)
+config = (ROOT / 'inputs/tests/account-captcha-web/system-smtp-settings.config.js').read_text()
+config = config.replace('testDir: "./e2e"', 'testDir: "."').replace('testMatch: "system-smtp-settings.spec.ts"', 'testMatch: "independent.spec.ts"')
+start = config.index('  ![\n')
+end = config.index('].includes(selected)', start)+len('].includes(selected)')
+config = config[:start] + '  !["authority", "navigation"].includes(selected)' + config[end:]
+(ROOT / 'browser/independent.config.js').write_text(config)
+(ROOT / 'browser/package.json').write_text('{"private":true,"type":"module"}\n')
+(ROOT / 'browser/tsconfig.json').write_text(json.dumps({'compilerOptions': {
+    'target':'ES2022','lib':['ES2022','DOM','DOM.Iterable'],'module':'ESNext','moduleResolution':'Bundler',
+    'strict':True,'skipLibCheck':True,'noEmit':True,'types':['node'],
+    'typeRoots':['/workspace/agenteam/web/node_modules/@types'],
+},'include':['independent.spec.ts']},indent=2)+'\n')
+(ROOT / 'inputs/prefix-binding.json').write_text(json.dumps({
+    'source_sha256': hashlib.sha256(source).hexdigest(),
+    'prefix_bytes':len(prefix),'prefix_sha256':hashlib.sha256(prefix).hexdigest(),
+    'prefix_exact':(ROOT/'browser/independent.spec.ts').read_bytes()[:len(prefix)] == prefix,
+    'observer_unchanged':True,
+    'private_files_only':True,
+},indent=2)+'\n')

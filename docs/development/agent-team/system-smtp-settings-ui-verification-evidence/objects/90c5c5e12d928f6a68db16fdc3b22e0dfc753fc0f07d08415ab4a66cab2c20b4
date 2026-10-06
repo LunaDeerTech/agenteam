@@ -1,0 +1,947 @@
+import { test, expect, type Page, type Locator } from "@playwright/test";
+import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
+import { join } from "node:path";
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
+const endpoint = "/api/v1/system/smtp";
+type Settings = {
+  id: string;
+  version: string;
+  configured: boolean;
+  host: string;
+  port: number;
+  encryption: string;
+  username: string;
+  sender_email: string;
+  sender_name: string;
+  credential_present: boolean;
+  auto_retry_count: string;
+  retry_interval_seconds: string;
+};
+type Receipt = { applied_version: string; settings: Settings };
+type Credential = { email: string; password: string; user_id: string };
+type Fact = {
+  sequence: number;
+  path: string;
+  method: string;
+  status: number;
+  bytes: number;
+  ended: boolean;
+  code?: string;
+  commit_state?: string;
+  settings?: Settings;
+  receipt?: Receipt;
+  session?: { user_id: string; session_id: string; role: string };
+};
+type ObservedWindow = Window & {
+  __smtpFacts?: Fact[];
+  __smtpSequence?: number;
+};
+const material = (): {
+  admin: Credential;
+  member: Credential;
+  second: Credential;
+  passwords: string[];
+  baseline: DBFacts;
+  initial: Settings;
+} =>
+  JSON.parse(
+    readFileSync(join(directory, "smtp-settings-material.json"), "utf8"),
+  );
+function result(value: Record<string, unknown>) {
+  writeFileSync(
+    join(directory, "smtp-settings-result.json"),
+    JSON.stringify({ completed: true, ...value }),
+    { mode: 0o600 },
+  );
+}
+let ipcSequence = 0;
+async function ipc(
+  action: string,
+  fields: Record<string, string> = {},
+): Promise<Record<string, any>> {
+  const sequence = ++ipcSequence,
+    request = join(directory, "smtp-settings-ipc.json"),
+    ack = join(directory, `smtp-settings-ack-${sequence}.json`);
+  writeFileSync(
+    request + ".tmp",
+    JSON.stringify({ sequence, action, ...fields }),
+    { mode: 0o600 },
+  );
+  renameSync(request + ".tmp", request);
+  await expect.poll(() => existsSync(ack), { timeout: 14000 }).toBe(true);
+  const value = JSON.parse(readFileSync(ack, "utf8"));
+  expect(value.ok === true && value.sequence === sequence).toBe(true);
+  return value;
+}
+// Side observations of the application's original fetch/read Promises only.
+// No clone, tee, second read or request; original cancel and abort are untouched.
+// Ended below is a projection marker, never proof of Cookie-owner release.
+function observeNative() {
+  const scope = window as ObservedWindow;
+  scope.__smtpFacts = [];
+  scope.__smtpSequence = 0;
+  const object = (value: unknown): Record<string, unknown> | null =>
+    value !== null && typeof value === "object" && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : null;
+  const closed = (value: Record<string, unknown>, keys: string[]) =>
+    Object.keys(value).length === keys.length &&
+    keys.every((key) => Object.hasOwn(value, key));
+  const id = (value: unknown): value is string =>
+    typeof value === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+      value,
+    );
+  const decimal = (value: unknown, min: bigint, max: bigint): value is string =>
+    typeof value === "string" &&
+    /^(?:0|[1-9][0-9]{0,18})$/.test(value) &&
+    BigInt(value) >= min &&
+    BigInt(value) <= max;
+  const nativeFetch = window.fetch;
+  window.fetch = function (...args: Parameters<typeof fetch>) {
+    const original = Reflect.apply(nativeFetch, this, args) as ReturnType<
+      typeof fetch
+    >;
+    try {
+      const [input, init] = args,
+        url = new URL(
+          input instanceof Request ? input.url : String(input),
+          location.origin,
+        );
+      if (
+        url.origin !== location.origin ||
+        !(
+          url.pathname === "/api/v1/session" ||
+          url.pathname.startsWith("/api/v1/system/")
+        )
+      )
+        return original;
+      const fact: Fact = {
+        sequence: ++scope.__smtpSequence!,
+        path: url.pathname,
+        method:
+          init?.method ?? (input instanceof Request ? input.method : "GET"),
+        status: 0,
+        bytes: 0,
+        ended: false,
+      };
+      scope.__smtpFacts!.push(fact);
+      void original
+        .then(
+          (response) => {
+            fact.status = response.status;
+            if (!(
+              fact.path === "/api/v1/session" ||
+              fact.path === "/api/v1/system/smtp" ||
+              fact.path === "/api/v1/system/smtp/unconfigure"
+            ))
+              return;
+            const body = response.body,
+              media = response.headers
+                .get("Content-Type")
+                ?.split(";", 1)[0]
+                ?.trim()
+                .toLowerCase();
+            if (
+              !body ||
+              media !==
+                (response.status === 200
+                  ? "application/json"
+                  : "application/problem+json")
+            ) {
+              fact.ended = true;
+              return;
+            }
+            let text = "",
+              collect = true;
+            const decoder = new TextDecoder();
+            function project() {
+              if (!collect) return;
+              const value = object(JSON.parse(text + decoder.decode()));
+              if (!value) return;
+              if (response.status !== 200) {
+                if (
+                  typeof value.code === "string" &&
+                  [
+                    "UNAUTHENTICATED",
+                    "SESSION_REVOKED",
+                    "CSRF_FAILED",
+                    "FORBIDDEN",
+                    "VERSION_CONFLICT",
+                    "INVALID_ARGUMENT",
+                    "RESOURCE_BUSY",
+                    "INTERNAL_ERROR",
+                    "UNAVAILABLE",
+                    "IDEMPOTENCY_KEY_REUSED",
+                    "COMMIT_UNKNOWN",
+                  ].includes(value.code)
+                )
+                  fact.code = value.code;
+                if (
+                  typeof value.commit_state === "string" &&
+                  [
+                    "not_started",
+                    "not_committed",
+                    "committed",
+                    "unknown",
+                  ].includes(value.commit_state)
+                )
+                  fact.commit_state = value.commit_state;
+                return;
+              }
+              if (fact.path === "/api/v1/session") {
+                const user = object(value.user),
+                  session = object(value.session);
+                if (
+                  closed(value, ["user", "session", "csrf_token"]) &&
+                  user &&
+                  session &&
+                  id(user.id) &&
+                  id(session.id) &&
+                  (user.role === "admin" || user.role === "user")
+                )
+                  fact.session = {
+                    user_id: user.id,
+                    session_id: session.id,
+                    role: user.role,
+                  };
+                return;
+              }
+              const raw =
+                fact.method === "GET" ? value : object(value.settings);
+              if (
+                !raw ||
+                (fact.method !== "GET" &&
+                  (!closed(value, ["applied_version", "settings"]) ||
+                    !decimal(
+                      value.applied_version,
+                      1n,
+                      9223372036854775807n,
+                    ))) ||
+                !closed(raw, [
+                  "id",
+                  "version",
+                  "configured",
+                  "host",
+                  "port",
+                  "encryption",
+                  "username",
+                  "sender_email",
+                  "sender_name",
+                  "credential_present",
+                  "auto_retry_count",
+                  "retry_interval_seconds",
+                ]) ||
+                !id(raw.id) ||
+                !decimal(raw.version, 1n, 9223372036854775807n) ||
+                typeof raw.configured !== "boolean" ||
+                typeof raw.credential_present !== "boolean" ||
+                ![
+                  "host",
+                  "encryption",
+                  "username",
+                  "sender_email",
+                  "sender_name",
+                ].every((k) => typeof raw[k] === "string") ||
+                typeof raw.port !== "number" ||
+                !Number.isInteger(raw.port) ||
+                !decimal(raw.auto_retry_count, 0n, 5n) ||
+                !decimal(raw.retry_interval_seconds, 10n, 3600n)
+              )
+                return;
+              if (raw.configured) {
+                if (
+                  raw.port < 1 ||
+                  raw.port > 65535 ||
+                  !["tls", "starttls", "none"].includes(
+                    raw.encryption as string,
+                  ) ||
+                  !raw.host ||
+                  !raw.sender_email ||
+                  (raw.username !== "") !== raw.credential_present
+                )
+                  return;
+              } else if (
+                raw.port !== 0 ||
+                raw.credential_present ||
+                [
+                  "host",
+                  "encryption",
+                  "username",
+                  "sender_email",
+                  "sender_name",
+                ].some((k) => raw[k] !== "")
+              )
+                return;
+              const settings: Settings = {
+                id: raw.id,
+                version: raw.version,
+                configured: raw.configured,
+                host: raw.host as string,
+                port: raw.port,
+                encryption: raw.encryption as string,
+                username: raw.username as string,
+                sender_email: raw.sender_email as string,
+                sender_name: raw.sender_name as string,
+                credential_present: raw.credential_present,
+                auto_retry_count: raw.auto_retry_count,
+                retry_interval_seconds: raw.retry_interval_seconds,
+              };
+              if (fact.method === "GET") fact.settings = settings;
+              else if (
+                BigInt(settings.version) >=
+                BigInt(value.applied_version as string)
+              )
+                fact.receipt = {
+                  applied_version: value.applied_version as string,
+                  settings,
+                };
+            }
+            try {
+              const nativeGet = body.getReader;
+              Object.defineProperty(body, "getReader", {
+                configurable: true,
+                writable: true,
+                value: function (
+                  this: ReadableStream<Uint8Array>,
+                  ...args: unknown[]
+                ) {
+                  const reader = Reflect.apply(
+                    nativeGet,
+                    this,
+                    args,
+                  ) as ReadableStreamDefaultReader<Uint8Array>;
+                  try {
+                    Object.defineProperty(body, "getReader", {
+                      value: nativeGet,
+                    });
+                    const nativeRead = reader.read;
+                    Object.defineProperty(reader, "read", {
+                      configurable: true,
+                      writable: true,
+                      value: function (
+                        this: ReadableStreamDefaultReader<Uint8Array>,
+                        ...args: unknown[]
+                      ) {
+                        const original = Reflect.apply(
+                          nativeRead,
+                          this,
+                          args,
+                        ) as Promise<ReadableStreamReadResult<Uint8Array>>;
+                        void original
+                          .then(
+                            ({ done, value }) => {
+                              try {
+                                if (value) {
+                                  fact.bytes += value.byteLength;
+                                  if (fact.bytes > 600000) {
+                                    text = "";
+                                    collect = false;
+                                  } else if (collect)
+                                    text += decoder.decode(value, {
+                                      stream: true,
+                                    });
+                                }
+                                if (done) {
+                                  fact.ended = true;
+                                  try {
+                                    project();
+                                  } finally {
+                                    text = "";
+                                    collect = false;
+                                  }
+                                }
+                              } catch {
+                                text = "";
+                                collect = false;
+                              }
+                            },
+                            () => {
+                              text = "";
+                              collect = false;
+                              fact.ended = true;
+                            },
+                          )
+                          .catch(() => {
+                            text = "";
+                            collect = false;
+                          });
+                        return original;
+                      },
+                    });
+                  } catch {
+                    text = "";
+                    collect = false;
+                  }
+                  return reader;
+                },
+              });
+            } catch {
+              text = "";
+              collect = false;
+            }
+          },
+          () => {
+            fact.ended = true;
+          },
+        )
+        .catch(() => undefined);
+    } catch {
+      /* Observation failures cannot change the native result. */
+    }
+    return original;
+  };
+}
+
+const button = (page: Page, name: string) =>
+  page.getByRole("button", { name, exact: true });
+const title = (page: Page, name: string) =>
+  page.getByRole("heading", { name, exact: true });
+const form = (page: Page) =>
+  page.getByRole("form", { name: "修改 SMTP 配置", exact: true });
+const top = (page: Page) => page.getByRole("dialog");
+const fields = [
+  ["host", "SMTP 主机"],
+  ["port", "端口"],
+  ["username", "认证用户名"],
+  ["sender_email", "发件邮箱"],
+  ["sender_name", "发件显示名"],
+  ["auto_retry_count", "自动重试次数"],
+  ["retry_interval_seconds", "重试间隔（秒）"],
+] as const;
+const field = (page: Page, key: (typeof fields)[number][0]) =>
+  page.getByRole("textbox", {
+    name: fields.find(([k]) => k === key)![1],
+    exact: true,
+  });
+const password = (page: Page) =>
+  page.getByLabel("新密码（仅写入）", { exact: true });
+const facts = (page: Page) =>
+  page.evaluate(() => (window as ObservedWindow).__smtpFacts ?? []);
+const seq = (page: Page) =>
+  page.evaluate(() => (window as ObservedWindow).__smtpSequence ?? 0);
+const writes = async (page: Page) =>
+  (await facts(page)).filter(
+    (f) =>
+      (f.path === endpoint || f.path === endpoint + "/unconfigure") &&
+      f.method !== "GET",
+  );
+async function factAfter(
+  page: Page,
+  after: number,
+  predicate: (fact: Fact) => boolean,
+) {
+  let found: Fact | undefined;
+  await expect
+    .poll(async () => {
+      found = (await facts(page)).find(
+        (f) => f.sequence > after && predicate(f),
+      );
+      return !!found;
+    })
+    .toBe(true);
+  return found!;
+}
+async function session(page: Page) {
+  let value: Fact["session"];
+  await expect
+    .poll(async () => {
+      value = (await facts(page))
+        .filter(
+          (f) => f.path === "/api/v1/session" && f.status === 200 && f.ended,
+        )
+        .at(-1)?.session;
+      return !!value;
+    })
+    .toBe(true);
+  return value!;
+}
+async function login(page: Page, who: "admin" | "member" | "second" = "admin") {
+  const data = material()[who],
+    after = await seq(page);
+  await page.locator("#login-email").fill(data.email);
+  try {
+    await page.locator("#login-password").fill(data.password);
+  } catch {
+    throw new Error("private SMTP login input failed");
+  }
+  await button(page, "登录").click();
+  await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === "/api/v1/session" &&
+      f.status === 200 &&
+      f.ended &&
+      f.session?.user_id === data.user_id &&
+      f.session.role === (who === "member" ? "user" : "admin"),
+  );
+  await expect(button(page, "退出登录")).toBeEnabled();
+  await expect(page).not.toHaveURL(/\/login(?:\?|$)/);
+}
+async function setup(page: Page, who: "admin" | "member" = "admin") {
+  await page.addInitScript(observeNative);
+  await page.goto("/system/smtp");
+  await login(page, who);
+  if (who === "admin") await currentRead(page, 0);
+}
+async function currentRead(page: Page, after: number) {
+  const read = await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === endpoint &&
+      f.method === "GET" &&
+      f.status === 200 &&
+      f.ended &&
+      !!f.settings,
+  );
+  await expect(button(page, "读取当前配置")).toBeEnabled();
+  return read.settings!;
+}
+type DBFacts = {
+  settings: Settings;
+  commands: number;
+  audits: number;
+  original_commands: number;
+  original_audits: number;
+  reference_count: number;
+  current_reference_valid: boolean;
+  same_reference: boolean;
+  previous_cleanup_registered: boolean;
+  delivery_unchanged: boolean;
+  forbidden_calls: number;
+};
+async function dbFacts() {
+  const v = (await ipc("facts")).facts as DBFacts;
+  expect(
+    v.delivery_unchanged &&
+      v.forbidden_calls === 0 &&
+      v.current_reference_valid,
+  ).toBe(true);
+  return v;
+}
+const settingsEqual = (a: Settings, b: Settings) =>
+  Object.keys(a).length === 12 &&
+  Object.keys(b).length === 12 &&
+  Object.keys(a).every(
+    (k) => a[k as keyof Settings] === b[k as keyof Settings],
+  );
+async function matchesForm(page: Page, value: Settings) {
+  await expect(form(page).locator("p code").first()).toHaveText(value.version);
+  for (const [key] of fields) {
+    if (
+      !value.configured &&
+      !["auto_retry_count", "retry_interval_seconds"].includes(key)
+    )
+      continue;
+    await expect(field(page, key)).toHaveValue(String(value[key]));
+  }
+}
+async function fill(
+  page: Page,
+  values: Partial<Record<(typeof fields)[number][0], string | number>>,
+) {
+  for (const [key] of fields)
+    if (values[key] !== undefined)
+      await field(page, key).fill(String(values[key]));
+}
+async function setPassword(page: Page, index: number) {
+  try {
+    await password(page).fill(material().passwords[index]!);
+  } catch {
+    throw new Error("private SMTP input failed");
+  }
+  expect(
+    (await password(page).inputValue()) === material().passwords[index],
+  ).toBe(true);
+}
+async function encryption(page: Page, value: "tls" | "starttls" | "none") {
+  await button(page, "加密方式").click();
+  const label = {
+    tls: "TLS（tls）",
+    starttls: "STARTTLS（starttls）",
+    none: "无加密（none）",
+  }[value];
+  await page.getByRole("option", { name: label, exact: true }).click();
+}
+async function saved(page: Page, after: number, method: "PUT" | "POST") {
+  const write = await factAfter(
+    page,
+    after,
+    (f) =>
+      (f.path === endpoint || f.path === endpoint + "/unconfigure") &&
+      f.method === method &&
+      f.status === 200 &&
+      f.ended &&
+      !!f.receipt,
+  );
+  await expect(button(page, "读取当前配置")).toBeEnabled();
+  await matchesForm(page, write.receipt!.settings);
+  const db = await dbFacts();
+  expect(settingsEqual(write.receipt!.settings, db.settings)).toBe(true);
+  return { ...write.receipt!, evidence: db };
+}
+async function save(page: Page, kind: "configure" | "policy" = "configure") {
+  const after = await seq(page);
+  await button(
+    page,
+    kind === "configure" ? "保存 SMTP 配置" : "保存重试策略",
+  ).click();
+  return saved(page, after, kind === "configure" ? "PUT" : "POST");
+}
+async function refresh(page: Page) {
+  const after = await seq(page);
+  await button(page, "读取当前配置").click();
+  return currentRead(page, after);
+}
+async function discard(page: Page) {
+  await button(page, "取消修改").click();
+  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
+  await top(page)
+    .getByRole("button", { name: "放弃修改", exact: true })
+    .click();
+  await expect(page.locator(".ui-overlay")).toHaveCount(0);
+}
+async function configure(page: Page) {
+  await button(page, "配置 SMTP").click();
+  await fill(page, {
+    host: "mail.example.com",
+    port: "587",
+    sender_email: "sender@example.com",
+  });
+  await encryption(page, "starttls");
+}
+async function disable(page: Page) {
+  await button(page, "停用并清除配置").click();
+  await expect(top(page)).toHaveAccessibleName("停用并清除 SMTP 配置？");
+  const after = await seq(page);
+  await top(page)
+    .getByRole("button", { name: "确认停用并清除", exact: true })
+    .click();
+  return saved(page, after, "POST");
+}
+async function noPrivateExposure(page: Page) {
+  const values = material().passwords;
+  const clean = await page.evaluate((values) => {
+    const readable =
+      document.body.innerText +
+      document.documentElement.outerHTML +
+      JSON.stringify(Object.entries(localStorage)) +
+      JSON.stringify(Object.entries(sessionStorage));
+    return values.every((v) => !readable.includes(v));
+  }, values);
+  expect(clean).toBe(true);
+  expect(
+    (await facts(page)).some((f) => /lookup|smtp\/test|mail-jobs/.test(f.path)),
+  ).toBe(false);
+}
+async function cutSave(
+  page: Page,
+  kind: "configure" | "disable" = "configure",
+) {
+  await ipc("arm-drop");
+  if (kind === "disable") {
+    await button(page, "停用并清除配置").click();
+    await top(page)
+      .getByRole("button", { name: "确认停用并清除", exact: true })
+      .click();
+  } else await button(page, "保存 SMTP 配置").click();
+  await expect(title(page, "请求结果未确认")).toBeVisible();
+  await expect(button(page, "检查当前会话与配置")).toBeEnabled();
+  const drop = await ipc("drop-facts");
+  expect(drop.dropped === 1 && drop.armed === false && !!drop.result).toBe(
+    true,
+  );
+  return drop.result as Receipt;
+}
+async function checkOriginal(page: Page) {
+  const after = await seq(page);
+  await button(page, "检查当前会话与配置").click();
+  const current = await currentRead(page, after);
+  await expect(title(page, "请求结果未确认")).toBeVisible();
+  return current;
+}
+async function retry(page: Page, method: "PUT" | "POST") {
+  const after = await seq(page);
+  await button(page, "重试原请求").click();
+  const receipt = await saved(page, after, method);
+  const drop = await ipc("drop-facts");
+  expect(drop.replayed === 1 && drop.same_original === true).toBe(true);
+  return receipt;
+}
+async function restored(page: Page, count: number, fail = true) {
+  const original = await session(page),
+    after = await seq(page),
+    before = (await writes(page)).length;
+  // This node is intentionally inert below the already-open confirmation.
+  const oldHeading = await page
+    .locator(".system-smtp-settings > h1")
+    .elementHandle();
+  if (fail) await ipc("arm-session-fail");
+  // This deliberately synthetic pageshow observes the existing App restoration listener.
+  const checking = await page.evaluate(async () => {
+    let observer: MutationObserver | undefined;
+    try {
+      return await new Promise<{
+        zero: boolean;
+        unlocked: boolean;
+        operative: boolean;
+      }>((resolve) => {
+        observer = new MutationObserver(() => {
+          const check = document.querySelector<HTMLElement>(".session-check");
+          if (!check) return;
+          resolve({
+            zero: document.querySelectorAll(".ui-overlay").length === 0,
+            unlocked:
+              document.body.style.overflow !== "hidden" &&
+              document.documentElement.style.overflow !== "hidden",
+            operative: check.closest("[inert]") === null,
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        window.dispatchEvent(new Event("pageshow"));
+      });
+    } finally {
+      observer?.disconnect();
+    }
+  });
+  expect(checking).toEqual({ zero: true, unlocked: true, operative: true });
+  if (fail) {
+    await expect(page.locator(".ui-overlay")).toHaveCount(0);
+    await expect(button(page, "检查当前会话")).toBeEnabled();
+    await button(page, "检查当前会话").click();
+  }
+  await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === "/api/v1/session" &&
+      f.status === 200 &&
+      f.ended &&
+      f.session?.user_id === original.user_id &&
+      f.session.session_id === original.session_id &&
+      f.session.role === original.role,
+  );
+  await expect(page.locator('[role="dialog"]')).toHaveCount(count);
+  await expect(top(page)).toHaveCount(count ? 1 : 0);
+  if (count) {
+    expect(
+      await top(page).evaluate(
+        (node) =>
+          !(node as HTMLElement).inert &&
+          node.getAttribute("aria-hidden") !== "true",
+      ),
+    ).toBe(true);
+    await expect
+      .poll(() =>
+        top(page).evaluate((node) => node.contains(document.activeElement)),
+      )
+      .toBe(true);
+  }
+  expect(await oldHeading!.evaluate((node) => node.isConnected)).toBe(false);
+  await oldHeading!.dispose();
+  expect((await writes(page)).length).toBe(before);
+}
+async function focusContained(page: Page) {
+  await expect(top(page)).toHaveCount(1);
+  await expect
+    .poll(() => top(page).evaluate((d) => d.contains(document.activeElement)))
+    .toBe(true);
+  for (let n = 0; n < 6; n++) {
+    await page.keyboard.press("Tab");
+    expect(
+      await top(page).evaluate((d) => d.contains(document.activeElement)),
+    ).toBe(true);
+  }
+  await page.keyboard.press("Shift+Tab");
+  expect(
+    await top(page).evaluate((d) => d.contains(document.activeElement)),
+  ).toBe(true);
+}
+async function fallback(page: Page) {
+  await expect(page.locator(".ui-overlay")).toHaveCount(0);
+  await expect(title(page, "SMTP")).toBeFocused();
+  await page.keyboard.press("Tab");
+  expect(
+    await page.evaluate(
+      () =>
+        document.activeElement instanceof HTMLElement &&
+        document.activeElement !== document.body &&
+        document.activeElement.isConnected &&
+        !document.activeElement.closest('[inert],[aria-hidden="true"]'),
+    ),
+  ).toBe(true);
+}
+
+type OriginalFacts = {
+  commands: number;
+  audits: number;
+  requests: number;
+  same_request_bytes: boolean;
+  original_key_persisted: boolean;
+  command_unchanged: boolean;
+  mac_unchanged: boolean;
+  planned_reference_unchanged: boolean;
+  actor_unchanged: boolean;
+  original_put_password: boolean;
+  original_post_saved_policy: boolean;
+};
+async function originalFacts(page: Page, record = false) {
+  const value = (await ipc(record ? "independent-record" : "independent-facts",
+    record ? await session(page) : {})).facts as OriginalFacts;
+  expect(value.commands === 1 && value.audits === 1 && value.same_request_bytes &&
+    value.original_key_persisted && value.command_unchanged && value.mac_unchanged &&
+    value.planned_reference_unchanged && value.actor_unchanged).toBe(true);
+  return value;
+}
+async function checkedWithoutWrite(page: Page, current: Settings) {
+  const before = (await writes(page)).length;
+  const value = await checkOriginal(page);
+  expect(settingsEqual(value, current)).toBe(true);
+  expect((await writes(page)).length).toBe(before);
+  await expect(password(page)).toHaveValue("");
+  await expect(title(page, "请求结果未确认")).toBeVisible();
+}
+
+test("[authority] independent original PUT receipt, opposite current and present authority", async ({ page }) => {
+  await setup(page);
+  await fill(page, { username: "independent-original" });
+  await setPassword(page, 0);
+  const lost = await cutSave(page);
+  let exact = await originalFacts(page, true);
+  expect(exact.requests === 1 && exact.original_put_password).toBe(true);
+  const accepted = await dbFacts();
+  expect(accepted.settings.configured && accepted.reference_count === 1).toBe(true);
+  const later = (await ipc("compete-disable")).result as Receipt;
+  expect(!later.settings.configured && BigInt(later.settings.version) > BigInt(lost.applied_version)).toBe(true);
+  const opposite = await dbFacts();
+  expect(opposite.reference_count === 0 && opposite.previous_cleanup_registered).toBe(true);
+  await checkedWithoutWrite(page, later.settings);
+  expect((await originalFacts(page)).requests).toBe(1);
+  const recovered = await retry(page, "PUT");
+  expect(recovered.applied_version === lost.applied_version && settingsEqual(recovered.settings, later.settings)).toBe(true);
+  await expect(page.getByText("原操作已确认，当前配置已变化。", { exact: true })).toBeVisible();
+  exact = await originalFacts(page);
+  expect(exact.requests === 2 && exact.original_put_password).toBe(true);
+  const replayed = await dbFacts();
+  expect(replayed.commands === opposite.commands && replayed.audits === opposite.audits &&
+    replayed.reference_count === 0 && replayed.same_reference && settingsEqual(replayed.settings, later.settings)).toBe(true);
+
+  const failures = await ipc("failure-facts");
+  await ipc("arm-get-fail");
+  const after = await seq(page), count = (await writes(page)).length;
+  await button(page, "读取当前配置").click();
+  // text/plain is rejected and cancelled before getReader: do not invent EOF.
+  await factAfter(page, after, f => f.path === endpoint && f.method === "GET" && f.status === 503);
+  await expect(title(page, "原操作已确认，当前配置读取失败")).toBeVisible();
+  await expect(button(page, "读取当前配置")).toBeEnabled();
+  expect((await ipc("failure-facts")).read_failures).toBe(failures.read_failures + 1);
+  expect((await writes(page)).length).toBe(count);
+  expect(settingsEqual(await refresh(page), later.settings)).toBe(true);
+
+  await configure(page);
+  await fill(page, { username: "independent-current-authority" });
+  await setPassword(page, 0);
+  const deniedLost = await cutSave(page);
+  await originalFacts(page, true);
+  await checkedWithoutWrite(page, deniedLost.settings);
+  const active = await session(page), beforeDenied = await dbFacts();
+  await ipc("demote", active);
+  const beforeRetry = await seq(page);
+  await button(page, "重试原请求").click();
+  await factAfter(page, beforeRetry, f => f.path === endpoint && f.method === "PUT" && f.status === 403 && f.ended && f.code === "FORBIDDEN");
+  await expect(title(page, "无权访问系统设置")).toBeVisible();
+  await expect(form(page)).toHaveCount(0);
+  exact = await originalFacts(page);
+  expect(exact.requests === 2 && exact.original_put_password).toBe(true);
+  const denied = await dbFacts();
+  expect(denied.commands === beforeDenied.commands && denied.audits === beforeDenied.audits &&
+    denied.reference_count === beforeDenied.reference_count && denied.same_reference && settingsEqual(denied.settings, beforeDenied.settings)).toBe(true);
+  await ipc("promote", active);
+  const restoreAfter = await seq(page);
+  await page.evaluate(() => window.dispatchEvent(new Event("pageshow")));
+  await factAfter(page, restoreAfter, f => f.path === "/api/v1/session" && f.status === 200 && f.ended &&
+    f.session?.user_id === active.user_id && f.session.session_id === active.session_id && f.session.role === "admin");
+  await currentRead(page, restoreAfter);
+  await expect(button(page, "重试原请求")).toHaveCount(0);
+  await expect(password(page)).toHaveValue("");
+  await expect(page.getByText("已保留新密码输入；重挂后不会回显。", { exact: false })).toHaveCount(0);
+  await noPrivateExposure(page);
+  result({ historical_put: true, current_opposite: true, exact_command: true, read_failure: true, current_authority: true, private_safety: true });
+});
+
+test("[navigation] independent captured disable policy, restored layers and historical POST", async ({ page }) => {
+  await setup(page);
+  const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
+  await nav.getByRole("link", { name: "用户", exact: true }).click();
+  await expect(page).toHaveURL(/\/system\/users$/);
+  let after = await seq(page);
+  await nav.getByRole("link", { name: "SMTP", exact: true }).click();
+  const initial = await currentRead(page, after);
+  await fill(page, { sender_name: "independent draft", auto_retry_count: "4", retry_interval_seconds: "120" });
+  await setPassword(page, 0);
+  const failureBase = await ipc("failure-facts");
+  await button(page, "停用并清除配置").click();
+  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
+  await restored(page, 1);
+  await focusContained(page);
+  await top(page).getByRole("button", { name: "继续编辑", exact: true }).click();
+  await fallback(page);
+  await expect(field(page, "auto_retry_count")).toHaveValue("4");
+  await expect(field(page, "retry_interval_seconds")).toHaveValue("120");
+  await expect(password(page)).toHaveValue("");
+  await button(page, "停用并清除配置").click();
+  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
+  await top(page).getByRole("button", { name: "放弃修改", exact: true }).click();
+  await expect(top(page)).toHaveAccessibleName("停用并清除 SMTP 配置？");
+  await expect(top(page)).toContainText(`保留自动重试 ${initial.auto_retry_count} 次`);
+  await expect(top(page)).toContainText(`间隔 ${initial.retry_interval_seconds} 秒`);
+
+  const pendingBack = page.goBack();
+  await expect(page.locator('[role="dialog"]')).toHaveCount(2);
+  await restored(page, 2);
+  await expect(page.locator('[role="dialog"][aria-hidden="true"][inert]')).toHaveCount(1);
+  await focusContained(page);
+  await top(page).getByRole("button", { name: "继续编辑", exact: true }).click();
+  await pendingBack;
+  await expect(page.locator('[role="dialog"]')).toHaveCount(1);
+  await expect(top(page)).toHaveAccessibleName("停用并清除 SMTP 配置？");
+  await focusContained(page);
+  await top(page).getByRole("button", { name: "取消停用", exact: true }).click();
+  await fallback(page);
+  expect((await ipc("failure-facts")).session_failures).toBe(failureBase.session_failures + 2);
+
+  await button(page, "停用并清除配置").click();
+  await restored(page, 1, false);
+  await expect(top(page)).toContainText(`保留自动重试 ${initial.auto_retry_count} 次`);
+  await expect(top(page)).toContainText(`间隔 ${initial.retry_interval_seconds} 秒`);
+  await ipc("arm-drop");
+  await top(page).getByRole("button", { name: "确认停用并清除", exact: true }).click();
+  await expect(title(page, "请求结果未确认")).toBeVisible();
+  await expect(button(page, "检查当前会话与配置")).toBeEnabled();
+  const cut = await ipc("drop-facts"), lost = cut.result as Receipt;
+  expect(cut.dropped === 1 && cut.armed === false && !lost.settings.configured).toBe(true);
+  let exact = await originalFacts(page, true);
+  expect(exact.requests === 1 && exact.original_post_saved_policy).toBe(true);
+  expect(lost.settings.auto_retry_count === initial.auto_retry_count && lost.settings.retry_interval_seconds === initial.retry_interval_seconds).toBe(true);
+  const later = (await ipc("compete-configure")).result as Receipt;
+  expect(later.settings.configured && BigInt(later.settings.version) > BigInt(lost.applied_version)).toBe(true);
+  const opposite = await dbFacts();
+  expect(opposite.reference_count).toBe(1);
+  // No password input is rendered while the uncertain original is unconfigured.
+  const count = (await writes(page)).length;
+  const observed = await checkOriginal(page);
+  expect(settingsEqual(observed, later.settings) && (await writes(page)).length === count).toBe(true);
+  expect((await originalFacts(page)).requests).toBe(1);
+  const replayed = await retry(page, "POST");
+  expect(replayed.applied_version === lost.applied_version && settingsEqual(replayed.settings, later.settings) && replayed.settings.configured).toBe(true);
+  exact = await originalFacts(page);
+  expect(exact.requests === 2 && exact.original_post_saved_policy).toBe(true);
+  const last = await dbFacts();
+  expect(last.commands === opposite.commands && last.audits === opposite.audits && last.reference_count === 1 &&
+    last.same_reference && settingsEqual(last.settings, later.settings)).toBe(true);
+  await expect(page.getByText("原操作已确认，当前配置已变化。", { exact: true })).toBeVisible();
+  await noPrivateExposure(page);
+  result({ captured_saved_policy: true, restored_confirmations: true, native_focus: true, historical_post: true, current_opposite: true, exact_command: true, private_safety: true });
+});

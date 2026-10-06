@@ -1,0 +1,30 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-c",
+    "-tags=integration",
+    "-race",
+    "-o",
+    "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/bin/account-integration.test",
+    "./tests/account"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-main-combination-o6wteycj/tmp"
+  },
+  "exit": 0,
+  "resources_started": false,
+  "seconds": 34.369
+}

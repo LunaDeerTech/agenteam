@@ -1,0 +1,43 @@
+{
+  "actual_wait": true,
+  "adopted_waits": [],
+  "exit": 0,
+  "first_scan": {},
+  "inputs_unchanged": true,
+  "observed_PID_starttimes": {
+    "1943331:4968782": {
+      "pid": 1943331,
+      "ppid": 1942265,
+      "starttime": "4968782",
+      "state": "S"
+    },
+    "1943350:4968798": {
+      "pid": 1943350,
+      "ppid": 1943331,
+      "starttime": "4968798",
+      "state": "S"
+    },
+    "1943383:4968924": {
+      "pid": 1943383,
+      "ppid": 1943331,
+      "starttime": "4968924",
+      "state": "R"
+    },
+    "1943412:4969007": {
+      "pid": 1943412,
+      "ppid": 1943331,
+      "starttime": "4969007",
+      "state": "R"
+    },
+    "1943420:4969017": {
+      "pid": 1943420,
+      "ppid": 1943331,
+      "starttime": "4969017",
+      "state": "S"
+    }
+  },
+  "raw_sha256": "952d62280ef0fcfa2502db70c814b61f228f071c2f97b8bb9562c431a26c520c",
+  "resources_started": false,
+  "second_scan": {},
+  "seconds": 3.548
+}

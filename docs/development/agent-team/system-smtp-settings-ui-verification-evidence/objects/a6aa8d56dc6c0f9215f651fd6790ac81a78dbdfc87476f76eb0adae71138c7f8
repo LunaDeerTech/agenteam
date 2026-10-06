@@ -1,0 +1,337 @@
+{
+  "active_commands_or_resources": false,
+  "active_source_or_dist_writes": false,
+  "at": "2026-10-06T17:38:31.739999+00:00",
+  "batches": [
+    {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_actual_waits": 28,
+      "baseline_runtime_clear": true,
+      "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya",
+      "exact_resources_double_absent": 7,
+      "group": "old-core",
+      "image_artifacts_count": 16,
+      "input_unchanged": true,
+      "name": "oldcore04",
+      "originals": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldcore04/cleanup.json",
+          "sha256": "fa259ac960e106be409609dbc1e08527a3592903f2e6182cc67392a70c73d84e"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldcore04/command.json",
+          "sha256": "97fa2a719e448f1896cb193f0a4f908b2903e97b0af4bcb9348cdb63dfaf3980"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldcore04/input-after.json",
+          "sha256": "c7a6c33de9a5e10cbf2ba69933775f027c5962277fb87b18efe7336605783a48"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldcore04/input-before.json",
+          "sha256": "c7a6c33de9a5e10cbf2ba69933775f027c5962277fb87b18efe7336605783a48"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldcore04/raw.log",
+          "sha256": "e5d50db9535b949942f45edd0db20c76d54a23260b09576224e00a20a1c1d8d6"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldcore04/result.json",
+          "sha256": "896f89cc66ee4b416de7fd7ce624db00af6222d1427f56787688035468a57cfb"
+        }
+      },
+      "owned_pid_starttime_count": 164,
+      "script_seconds": 138.229,
+      "startup_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldcore04",
+        "--group",
+        "old-core",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ],
+      "top_levels": {
+        "TestAccountAuthenticationWebSessionLifecycle": 5.31,
+        "TestAccountPersonalSettingsWebThemeAndNavigation": 16.16,
+        "TestAccountPublicEntryWebIdentityNavigation": 15.45,
+        "TestAccountSystemInvitationsWebNavigationAndLayouts": 12.41,
+        "TestAccountSystemInvitationsWebOutcomeRecovery": 12.32,
+        "TestAccountSystemUserDirectoryWebAuthorityAndIdentity": 9.44,
+        "TestAccountSystemUserDirectoryWebNavigationAndLayouts": 9.79
+      }
+    },
+    {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_actual_waits": 12,
+      "baseline_runtime_clear": true,
+      "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya",
+      "exact_resources_double_absent": 7,
+      "group": "old-models",
+      "image_artifacts_count": 8,
+      "input_unchanged": true,
+      "name": "oldmodels04",
+      "originals": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldmodels04/cleanup.json",
+          "sha256": "2894d05cd536cf12ec5c0e930ffd8ecf74f202c193ef853bd5b371e549b6415a"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldmodels04/command.json",
+          "sha256": "8887e501263c2a57301f2b7397a9c37b4a6e93b4e2eb2cd26a070200652d564d"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldmodels04/input-after.json",
+          "sha256": "c7a6c33de9a5e10cbf2ba69933775f027c5962277fb87b18efe7336605783a48"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldmodels04/input-before.json",
+          "sha256": "c7a6c33de9a5e10cbf2ba69933775f027c5962277fb87b18efe7336605783a48"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldmodels04/raw.log",
+          "sha256": "d7e22bff9983c826825ad8aae1ad3582f1239dc73f0b1c4d95cf135da7f03a8d"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldmodels04/result.json",
+          "sha256": "1b8f5bf0013181b2b75e31b1cabfbd180e99b48e55d830a4e812303a7ad75dbb"
+        }
+      },
+      "owned_pid_starttime_count": 107,
+      "script_seconds": 111.891,
+      "startup_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldmodels04",
+        "--group",
+        "old-models",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ],
+      "top_levels": {
+        "TestAccountSystemModelsWebDeletionAndReplacement": 26.7,
+        "TestAccountSystemModelsWebNavigationAndLayouts": 17.97,
+        "TestAccountSystemModelsWebOutcomeRecovery": 16.17
+      }
+    },
+    {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_actual_waits": 12,
+      "baseline_runtime_clear": true,
+      "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya",
+      "exact_resources_double_absent": 7,
+      "group": "old-providers",
+      "image_artifacts_count": 8,
+      "input_unchanged": true,
+      "name": "oldproviders04",
+      "originals": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldproviders04/cleanup.json",
+          "sha256": "eae21556a7b155e2d575cbe62c20e74ee217132a692b7ad415e5c732f5e7308b"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldproviders04/command.json",
+          "sha256": "34ad8e0a0be473fa8647c693ff62cf26e8a77ec023b7a498740bedf2b3eafc27"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldproviders04/input-after.json",
+          "sha256": "c7a6c33de9a5e10cbf2ba69933775f027c5962277fb87b18efe7336605783a48"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldproviders04/input-before.json",
+          "sha256": "c7a6c33de9a5e10cbf2ba69933775f027c5962277fb87b18efe7336605783a48"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldproviders04/raw.log",
+          "sha256": "69a622a7a103309e77982ff16cbad01fbfd3e6cbe3d7cf3e5c34b672a0e85bca"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldproviders04/result.json",
+          "sha256": "b0a12708db939fa47e29c8b1790e5d21380f8307a2b636b4d6d5f219491a1f01"
+        }
+      },
+      "owned_pid_starttime_count": 107,
+      "script_seconds": 87.817,
+      "startup_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldproviders04",
+        "--group",
+        "old-providers",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ],
+      "top_levels": {
+        "TestAccountSystemProvidersWebCredentialReplacement": 10.41,
+        "TestAccountSystemProvidersWebNavigationAndLayouts": 15.53,
+        "TestAccountSystemProvidersWebOutcomeRecovery": 12.85
+      }
+    },
+    {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_actual_waits": 12,
+      "baseline_runtime_clear": true,
+      "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya",
+      "exact_resources_double_absent": 7,
+      "group": "old-security",
+      "image_artifacts_count": 8,
+      "input_unchanged": true,
+      "name": "oldsecurity04",
+      "originals": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldsecurity04/cleanup.json",
+          "sha256": "304d5492782df1ca38eb369af6153e996d4cc9f8a4fff8b6b3b8b98839ed940e"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldsecurity04/command.json",
+          "sha256": "89c14a719ad224f447cfeff924993e553ffcec87a2c612835f0225c990aa9c30"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldsecurity04/input-after.json",
+          "sha256": "c7a6c33de9a5e10cbf2ba69933775f027c5962277fb87b18efe7336605783a48"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldsecurity04/input-before.json",
+          "sha256": "c7a6c33de9a5e10cbf2ba69933775f027c5962277fb87b18efe7336605783a48"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldsecurity04/raw.log",
+          "sha256": "0250db1f59e7753ce7d1c6dc9629fe2d038709e592289a32bde2aee4bbfb5b1b"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldsecurity04/result.json",
+          "sha256": "8e83c8f8e24ab8781eb0325eaff4d6ba4b152ddccc6090cb38a55b6e78f6f60a"
+        }
+      },
+      "owned_pid_starttime_count": 108,
+      "script_seconds": 85.674,
+      "startup_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldsecurity04",
+        "--group",
+        "old-security",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ],
+      "top_levels": {
+        "TestAccountSystemAccountSecurityWebAuthorityAndIdentity": 12.43,
+        "TestAccountSystemAccountSecurityWebNavigationAndLayouts": 15.99,
+        "TestAccountSystemAccountSecurityWebOutcomeRecovery": 8.46
+      }
+    },
+    {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_actual_waits": 12,
+      "baseline_runtime_clear": true,
+      "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya",
+      "exact_resources_double_absent": 7,
+      "group": "old-selection",
+      "image_artifacts_count": 8,
+      "input_unchanged": true,
+      "name": "oldselection04",
+      "originals": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldselection04/cleanup.json",
+          "sha256": "6f9778896bc9db472c8609bf6ca64d975cfa9a57aba1ddf5b8d5bb3e2a7e5406"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldselection04/command.json",
+          "sha256": "e1882f896e91bc40f224db27ff48647532f74335c3ee6a76a213e3f643f476b5"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldselection04/input-after.json",
+          "sha256": "c7a6c33de9a5e10cbf2ba69933775f027c5962277fb87b18efe7336605783a48"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldselection04/input-before.json",
+          "sha256": "c7a6c33de9a5e10cbf2ba69933775f027c5962277fb87b18efe7336605783a48"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldselection04/raw.log",
+          "sha256": "12a44e40aef304146d5b440715c42494e40339f89c5da2fc65c9d8d1c68bd1d1"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/oldselection04/result.json",
+          "sha256": "9b4ebfa7e4121e61b29c2879c109ad9db3a814722de8e947a028077d5370074b"
+        }
+      },
+      "owned_pid_starttime_count": 109,
+      "script_seconds": 92.332,
+      "startup_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldselection04",
+        "--group",
+        "old-selection",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ],
+      "top_levels": {
+        "TestAccountSystemModelSelectionWebAuthorityAndIdentity": 15.16,
+        "TestAccountSystemModelSelectionWebNavigationAndLayouts": 16.51,
+        "TestAccountSystemModelSelectionWebOutcomeRecovery": 10.92
+      }
+    }
+  ],
+  "budgets": {
+    "accepted_fixed_files": 1050,
+    "count": 1,
+    "dist_files": 36,
+    "go_package_seconds": 360,
+    "go_top_seconds": 120,
+    "playwright_seconds": 45,
+    "race": true,
+    "retries": 0,
+    "source_candidates": 28,
+    "workers": 1
+  },
+  "completed_count": 19,
+  "driver": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/driver04.py",
+    "sha256": "3b3c876495c6578f5d782d3c6ee8bdf9be90d12108ddbc6475988dca83468928"
+  },
+  "earlier_partial_index": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/old19-progress04-a.json",
+    "sha256": "14482c36c4c2b184268cfb24b9b404e9cdec596e5c23d763af73eefea104e06b"
+  },
+  "input": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input04/manifest.json",
+    "sha256": "3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37"
+  },
+  "limits": [
+    "Concurrency and Authority prior input02 passes are not final-input reruns; final reuse remains under independent review.",
+    "No final independent SMTP A/B acceptance is claimed here.",
+    "No README update or real SMTP connection/delivery claim."
+  ],
+  "new_four_round_index": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/real-input04-summary01.json",
+    "sha256": "48c89734ade890341767f564a8a19d80ca486027cd5cf2efce392f4d66d9a798"
+  },
+  "pending_old_groups": [],
+  "resource_window_released": true,
+  "startup_plan": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/old19-startup04.json",
+    "sha256": "9307436f428315316ffbdea869aa98502fb2bb24ba36a21d1974ef295bca5fb9"
+  },
+  "visual_scope": "SMTP navigation04 eight images were actually viewed by directory_frontend; its visual-review.json records that root visual review was not claimed. Old-group screenshot artifacts are retained; this index claims their browser assertions, not a separate author visual review."
+}

@@ -1,0 +1,102 @@
+{
+  "stage": "api-stage01",
+  "verdict": "RED / integration blocked on formal raw-email vs canonical-input decision",
+  "author_manifest": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage01/manifest.json",
+  "author_manifest_sha256": "56b4d8593095dc4844eb8eada78ca078d4170e1b6918ee9a3d1b95d4fb16a50a",
+  "candidate_files": {
+    "web/src/api/client.ts": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186",
+    "web/src/api/system-smtp-settings.ts": "9649cfd5a737c3a6936152a11a60edff80860fc37cf91150feee1cf9a7abc1c8",
+    "web/src/tests/system-smtp-settings-client.spec.ts": "edca572836a7138fbe344a43e4dcc987cd1934395ac349ec96b858acdf065c4e"
+  },
+  "pure": {
+    "oracle": {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "run",
+        "."
+      ],
+      "cwd": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/oracle",
+      "env": {
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "GOTOOLCHAIN": "local",
+        "GOPROXY": "off",
+        "GOSUMDB": "off",
+        "GOFLAGS": "-mod=readonly",
+        "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/go-cache",
+        "GOTMPDIR": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/go-tmp",
+        "NO_COLOR": "1",
+        "CI": "1"
+      },
+      "started_utc": "2026-10-06T15:56:44.242326+00:00",
+      "resource_execution": false,
+      "pid": 1553763,
+      "exit_code": 0,
+      "actual_wait": true,
+      "duration_seconds": 6.147,
+      "input_unchanged": true,
+      "raw_sha256": "cb2bf82f99339c2b68dcb2a3d9ba43a8020d15901d7ec72eabdb22cc68509675",
+      "ended_utc": "2026-10-06T15:56:50.389596+00:00"
+    },
+    "api": {
+      "argv": [
+        "node",
+        "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--config",
+        "independent.config.mjs"
+      ],
+      "cwd": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/fixed/web",
+      "env": {
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "GOTOOLCHAIN": "local",
+        "GOPROXY": "off",
+        "GOSUMDB": "off",
+        "GOFLAGS": "-mod=readonly",
+        "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/go-cache",
+        "GOTMPDIR": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/go-tmp",
+        "NO_COLOR": "1",
+        "CI": "1"
+      },
+      "started_utc": "2026-10-06T15:58:02.109241+00:00",
+      "resource_execution": false,
+      "pid": 1555765,
+      "exit_code": 1,
+      "actual_wait": true,
+      "duration_seconds": 0.598,
+      "input_unchanged": true,
+      "raw_sha256": "482f39c89cccc6561da32d5555921dd91b1fec64136fc29ee6d8f3d4742a9738",
+      "ended_utc": "2026-10-06T15:58:02.707256+00:00"
+    },
+    "passed": 11,
+    "failed": 1
+  },
+  "finding": "P-SMTP-API-01: raw input parser lowercases the domain-literal prefix before validation; Go consumes case-sensitive IPv6:. Accepted NormalizeEmail itself returns lower-case canonical text which is not valid on re-entry. Request and DTO validation cannot share this condition without an explicit normalization contract.",
+  "limits": [
+    "No formal Service/HTTP/DB/browser/resources executed.",
+    "Go oracle copies accepted outbound target functions and exact NormalizeEmail; only error constructors replaced with generic errors. SMTP name predicates extracted; not a full Service call.",
+    "Canonical DTO checks passed; owner singleton and full identity binding excluded.",
+    "11 passing representative assertions do not constitute final UI acceptance.",
+    "Original code and raw failures are permanent; no product modification."
+  ],
+  "artifacts": {
+    "fixed-inputs.json": "bfbc7c5a62937f53878fa2dc8e7fdea4092bdeead602be01dcc42e6ec80c833a",
+    "oracle-results.json": "cb2bf82f99339c2b68dcb2a3d9ba43a8020d15901d7ec72eabdb22cc68509675",
+    "oracle/main.go": "61daf19d8e25886235f3ba554d50f402a67864098c9cca118a28c59d096320f4",
+    "oracle/target.go": "0cc7d5575fba8e9939bff6c82ef57564a47063944a2d8a33927785a5c4a13094",
+    "oracle/validation.go": "caf1292d433e8836a5585156cdd50f3fe68b46c5a15b5cebb37d515f32b4e1ba",
+    "run-check.py": "d1a7dd333032447aa9d4d10ce17dbdb38b01d6319071e6181b6155024a7cbf3d",
+    "fixed/web/independent.config.mjs": "863fb90d7ec7c4a3eb3bd49b881bf15c92a2eac120c6b2b30c66e027d96fb08f",
+    "fixed/web/src/tests/independent-smtp-api.spec.ts": "e06169fdbdebd8e60c62f1a1f631a6fd34979e6f7d927f9b81134b4d5641d8de",
+    "checks/oracle01/command.json": "96c23ceb3dbde62b6761adf9fac84b1eb4f755e62320ae4632443901bfb2105b",
+    "checks/oracle01/raw.log": "cb2bf82f99339c2b68dcb2a3d9ba43a8020d15901d7ec72eabdb22cc68509675",
+    "checks/oracle01/result.json": "a8932a264b532f1e64f76d40325a943e5f27c46f89ca0bc48a5da70547e447a7",
+    "checks/oracle01/input-before.json": "a667710710955b0660c1d06104f6e57a09e9455ab7fde424322fc2562f0fb7fd",
+    "checks/oracle01/input-after.json": "a667710710955b0660c1d06104f6e57a09e9455ab7fde424322fc2562f0fb7fd",
+    "checks/api01/command.json": "cb50b839f2cf264907e2304ab00d89b0c4508a53e4c51ac1cc5e3e2646cd09d8",
+    "checks/api01/raw.log": "482f39c89cccc6561da32d5555921dd91b1fec64136fc29ee6d8f3d4742a9738",
+    "checks/api01/result.json": "95c047122b90eb05b975e87b0925d572720a02b7b332b66bd14d5822d833511e",
+    "checks/api01/input-before.json": "b9cfc117eff0b1f9ea3e845ffbb843b625fad9ce3876b91e06c41f8f85928406",
+    "checks/api01/input-after.json": "b9cfc117eff0b1f9ea3e845ffbb843b625fad9ce3876b91e06c41f8f85928406"
+  },
+  "frozen": true
+}

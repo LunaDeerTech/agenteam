@@ -1,0 +1,74 @@
+
+> @agenteam/web@0.0.0 check
+> npm run format:check && npm run test:unit && npm run build
+
+
+> @agenteam/web@0.0.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web
+
+
+ Test Files  35 passed (35)
+      Tests  1199 passed (1199)
+   Start at  16:09:07
+   Duration  16.39s (transform 2.92s, setup 0ms, import 6.36s, tests 22.23s, environment 14.88s)
+
+
+> @agenteam/web@0.0.0 build
+> npm run type-check && vite build
+
+
+> @agenteam/web@0.0.0 type-check
+> vue-tsc --noEmit
+
+vite v8.3.1 building client environment for production...
+transforming...
+✓ 202 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                       0.72 kB │ gzip:  0.40 kB
+dist/assets/PersonalSettingsView-BLWru9en.css         0.06 kB │ gzip:  0.08 kB
+dist/assets/SystemSettingsView-BX10visq.css           0.08 kB │ gzip:  0.10 kB
+dist/assets/ProfileSettings-Bofqo8m5.css              0.43 kB │ gzip:  0.25 kB
+dist/assets/ForgotPasswordView-DJSF_FFM.css           0.68 kB │ gzip:  0.35 kB
+dist/assets/ResetPasswordView-DSiu2awb.css            0.68 kB │ gzip:  0.35 kB
+dist/assets/InvitationView-B4wTz1D4.css               0.76 kB │ gzip:  0.37 kB
+dist/assets/SystemSMTPSettingsView-DF71vDX7.css       0.90 kB │ gzip:  0.34 kB
+dist/assets/SystemAccountSecurityView-DDeXsGVz.css    0.93 kB │ gzip:  0.35 kB
+dist/assets/SettingsShell-D9S1S_aF.css                1.21 kB │ gzip:  0.53 kB
+dist/assets/SystemUsersView-B41TxT1D.css              1.44 kB │ gzip:  0.56 kB
+dist/assets/SystemInvitationsView-QSKOYHWH.css        1.74 kB │ gzip:  0.62 kB
+dist/assets/SystemProvidersView-elJ_-cRG.css          2.23 kB │ gzip:  0.62 kB
+dist/assets/SystemModelSelectionView-Dpau881F.css     2.46 kB │ gzip:  0.71 kB
+dist/assets/SystemModelsView-6nzUQodS.css             3.33 kB │ gzip:  0.82 kB
+dist/assets/index-DPFw0syI.css                       29.58 kB │ gzip:  6.62 kB
+dist/assets/UiCheckbox-_5vyyWnx.js                    0.68 kB │ gzip:  0.43 kB
+dist/assets/PersonalSettingsView-BsNNHfcE.js          1.41 kB │ gzip:  0.94 kB
+dist/assets/SystemSettingsView-PnlT0lDk.js            1.71 kB │ gzip:  1.02 kB
+dist/assets/ForgotPasswordView-D-5JYvBS.js            2.94 kB │ gzip:  1.52 kB
+dist/assets/SettingsShell-BkrqgEBa.js                 3.45 kB │ gzip:  1.74 kB
+dist/assets/PasswordSettings-DQJ4C5uG.js              3.56 kB │ gzip:  1.65 kB
+dist/assets/AppearanceSettings-BXu1TBK6.js            3.61 kB │ gzip:  1.63 kB
+dist/assets/ResetPasswordView-BsNNY5MA.js             3.66 kB │ gzip:  1.60 kB
+dist/assets/InvitationView-CWyLbmd_.js                4.68 kB │ gzip:  1.86 kB
+dist/assets/SystemUsersView-T1a5X0zc.js               5.61 kB │ gzip:  2.52 kB
+dist/assets/ProfileSettings-B8TNzjyK.js               6.87 kB │ gzip:  2.65 kB
+dist/assets/SystemAccountSecurityView-DHbLCi4O.js     6.91 kB │ gzip:  3.13 kB
+dist/assets/SystemSMTPSettingsView-D6DYhFGB.js       12.21 kB │ gzip:  4.76 kB
+dist/assets/SystemInvitationsView-J8Zf6mCo.js        12.89 kB │ gzip:  4.31 kB
+dist/assets/SystemModelSelectionView-SaFmjwRi.js     14.39 kB │ gzip:  4.73 kB
+dist/assets/SystemProvidersView-BmnaFu_D.js          15.55 kB │ gzip:  5.12 kB
+dist/assets/UiSelect-Dkgwx09K.js                     21.60 kB │ gzip:  8.77 kB
+dist/assets/SystemModelsView-BA-UbF0w.js             26.95 kB │ gzip:  7.21 kB
+dist/assets/UiButton-Cbz4IajP.js                    159.61 kB │ gzip: 50.42 kB
+dist/assets/index-DrPKFeA8.js                       191.74 kB │ gzip: 59.12 kB
+
+✓ built in 461ms

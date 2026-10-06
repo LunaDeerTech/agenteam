@@ -1,0 +1,35 @@
+# SMTP 配置 UI 独立真实验证准备
+
+结论：离线准备通过，A/B 真实组合尚未执行。主树及作者目录零写；未启动 Docker、Chromium、loopback 或服务。仅本文档与私有探针/overlay，邮箱后端复用已接受证据。
+
+固定作者 input04：`3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37`，产品 Git `f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a`。28 源、36 dist、1050 已提交依赖均经门禁匹配，未复制完整仓库或依赖缓存。
+
+私有执行清单：[input01/execution.json](input01/execution.json)，SHA `e7038174d2ea425305ae5dc301ef703348122f6ee3e392b9955da881180aec5d`；精确源副本位于 `input01/source/`。driver SHA `dcdebc6ddf3bee81c20fd1ff6d36cd5367d8c3b124d32530aec962accdb2c427`，差量见 [driver01.diff](driver01.diff) 和 [fixture.diff](overlay/fixture.diff)。
+
+A：正式 PUT 含私有新密码，接受后截断；第二管理员正式停用；Session/GET 不确认；原请求显式重放确认历史 applied，保持相反当前配置。随后独立 GET503 只变读取状态；另一次已接受未知 PUT 在当前资格降级后原重放必须 403，恢复同身份后旧意图/材料清空。
+
+B：未保存策略与私有输入先触发统一放弃确认，再按已保存策略打开停用确认。确认恢复包含 checking/受限503/同 Session、物理两层仅一层可访问、原生 Tab 与当前本地标题 fallback；原 POST 接受后截断，第二管理员配置，显式原 POST 重放确认历史 applied/current true。
+
+原生 fetch/read observer 与既有 helper 前缀逐字复用（26518 字节）；不 clone/tee/额外读、不伪造 503 EOF，不把 observer 结束当 owner join。新 Go 观察仅保留原 body/key/CSRF/MAC 于自有进程，输出安全布尔及命令/Audit 精确计数；不打印材料或材料 hash。SQL只读精确原 command，资格变更沿已验 fixture 的自有用户门禁。
+
+原 45 秒浏览器、2 分钟顶层、6 分钟包、race/count1、单 worker/零 retry 均未变。原 nonce 7 资源、subreaper/实际 wait、PID/starttime、资源两次清零逻辑保留。driver 前后同时核产品输入、私有 overlay、14 直接工具以及仅执行的三个 Playwright 包共 521 文件；这不是整台机器所有动态库或依赖缓存的全量审计。
+
+离线原命令、raw 与实际退出见 `checks/<name>/{command.json,raw.log,result.json}`：
+
+| 检查 | 实际 exit | 秒 |
+| --- | ---: | ---: |
+| type01 | 2 | 0.5 |
+| type02 | 0 | 0.918 |
+| config01 | 0 | 0.022 |
+| browser-list-a01 | 0 | 1.401 |
+| browser-list-b01 | 0 | 1.245 |
+| race-compile01 | 0 | 106.115 |
+| go-list01 | 0 | 1.016 |
+| vet01 | 0 | 8.276 |
+| gate01 | 0 | 0.999 |
+
+`type01` 为私有壳未指向已安装 Node 类型的准备失败；原件及精确输入保留。只添加已有锁定 `typeRoots`，无安装/下载，`type02` 通过。最早手工组合命令曾输出同 TS2688、随后 node --check 的 shell 最终 exit0；该组合不作为 type 通过证据，单独 type01 实际 exit2 才为类型原记录。早期 recorder 终端摘要的 check 标签被循环变量覆盖为 browser/tsconfig.json；各固定目录的 argv/raw/result 与实际 exit 正确，没有据该标签分类。
+
+Playwright A/B --list 各仅 1 条；Go 二进制 -test.list 精确两顶层。编译/发现均未启动测试资源。仓库无独立 Playwright skill；已读 Vue 测试技能的 Playwright 参考，按主线程明确授权复用锁定 harness。trace/video/screenshot 全关闭。
+
+候选、私有执行输入已停写。下一步仅在主线程明确移交后运行 report.json 所列 argv；当前不作产品/真实通过声明。

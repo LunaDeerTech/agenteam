@@ -1,0 +1,242 @@
+{
+  "batches": [
+    {
+      "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya",
+      "group": "old-core",
+      "name": "oldcore04",
+      "preflight_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldcore04",
+        "--group",
+        "old-core",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--check-input-only"
+      ],
+      "resource_execution_authorized": false,
+      "startup_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldcore04",
+        "--group",
+        "old-core",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ],
+      "target_count": 7,
+      "targets": [
+        "TestAccountAuthenticationWebSessionLifecycle",
+        "TestAccountPersonalSettingsWebThemeAndNavigation",
+        "TestAccountPublicEntryWebIdentityNavigation",
+        "TestAccountSystemUserDirectoryWebAuthorityAndIdentity",
+        "TestAccountSystemUserDirectoryWebNavigationAndLayouts",
+        "TestAccountSystemInvitationsWebOutcomeRecovery",
+        "TestAccountSystemInvitationsWebNavigationAndLayouts"
+      ]
+    },
+    {
+      "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya",
+      "group": "old-models",
+      "name": "oldmodels04",
+      "preflight_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldmodels04",
+        "--group",
+        "old-models",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--check-input-only"
+      ],
+      "resource_execution_authorized": false,
+      "startup_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldmodels04",
+        "--group",
+        "old-models",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ],
+      "target_count": 3,
+      "targets": [
+        "TestAccountSystemModelsWebDeletionAndReplacement",
+        "TestAccountSystemModelsWebOutcomeRecovery",
+        "TestAccountSystemModelsWebNavigationAndLayouts"
+      ]
+    },
+    {
+      "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya",
+      "group": "old-providers",
+      "name": "oldproviders04",
+      "preflight_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldproviders04",
+        "--group",
+        "old-providers",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--check-input-only"
+      ],
+      "resource_execution_authorized": false,
+      "startup_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldproviders04",
+        "--group",
+        "old-providers",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ],
+      "target_count": 3,
+      "targets": [
+        "TestAccountSystemProvidersWebCredentialReplacement",
+        "TestAccountSystemProvidersWebOutcomeRecovery",
+        "TestAccountSystemProvidersWebNavigationAndLayouts"
+      ]
+    },
+    {
+      "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya",
+      "group": "old-security",
+      "name": "oldsecurity04",
+      "preflight_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldsecurity04",
+        "--group",
+        "old-security",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--check-input-only"
+      ],
+      "resource_execution_authorized": false,
+      "startup_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldsecurity04",
+        "--group",
+        "old-security",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ],
+      "target_count": 3,
+      "targets": [
+        "TestAccountSystemAccountSecurityWebOutcomeRecovery",
+        "TestAccountSystemAccountSecurityWebAuthorityAndIdentity",
+        "TestAccountSystemAccountSecurityWebNavigationAndLayouts"
+      ]
+    },
+    {
+      "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya",
+      "group": "old-selection",
+      "name": "oldselection04",
+      "preflight_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldselection04",
+        "--group",
+        "old-selection",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--check-input-only"
+      ],
+      "resource_execution_authorized": false,
+      "startup_argv": [
+        "python3",
+        "driver04.py",
+        "--name",
+        "oldselection04",
+        "--group",
+        "old-selection",
+        "--frozen",
+        "input04/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ],
+      "target_count": 3,
+      "targets": [
+        "TestAccountSystemModelSelectionWebOutcomeRecovery",
+        "TestAccountSystemModelSelectionWebAuthorityAndIdentity",
+        "TestAccountSystemModelSelectionWebNavigationAndLayouts"
+      ]
+    }
+  ],
+  "created_utc": "2026-10-06T17:25:00.331376+00:00",
+  "currently_running": false,
+  "discovery": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "compiled_binary": {
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/compile-tmp/smtp-web04.test",
+      "sha256": "4d96cd701608cdaa079f0368b7658c6f2f65037d2124c424bead051e53bb3753"
+    },
+    "duration_seconds": 1.154,
+    "exact_count": 19,
+    "raw": {
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/old19-discovery04/raw.log",
+      "sha256": "7eec24e8b24f662f0ed3a636d38e34c412dc6d77b0f085ab7584cebb3e7ae97e"
+    },
+    "recompiled": false,
+    "resource_execution": false,
+    "result": {
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/old19-discovery04/result.json",
+      "sha256": "50f110ada76251e0609899b9047c9d783af281d82f29125d755e55bee88bd22a"
+    }
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/driver04.py",
+    "sha256": "3b3c876495c6578f5d782d3c6ee8bdf9be90d12108ddbc6475988dca83468928"
+  },
+  "input": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input04/manifest.json",
+    "sha256": "3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37"
+  },
+  "limits": {
+    "accepted_fixed_files": 1050,
+    "count": 1,
+    "dist_files": 36,
+    "go_package_seconds": 360,
+    "go_top_seconds": 120,
+    "playwright_seconds": 45,
+    "race": true,
+    "retries": 0,
+    "source_candidates": 28,
+    "workers": 1
+  },
+  "notes": "Input04 binary and driver unchanged. The list is exact compiled-Go discovery, not browser execution or a PASS claim for old19.",
+  "previous_four_round_index": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/real-input04-summary01.json",
+    "sha256": "48c89734ade890341767f564a8a19d80ca486027cd5cf2efce392f4d66d9a798"
+  },
+  "real_window_owner": "root transferred to outbound transaction-only round",
+  "required_order": "Root grants the next batch; verify name/disk/fixed gate before start. Actual command wait plus all seven exact resources and owned PID/starttime double absence, adopted child waits, empty runtimes and unchanged baseline/source gate are required before any following batch. Stop after any failure; no independent retry or source edits."
+}

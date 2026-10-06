@@ -1,0 +1,170 @@
+--- author-input04/driver.py
++++ private/run-independent01.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only an explicitly authorized frozen SMTP settings group in a private fixed workspace."""
++"""Run only explicitly authorized independent A/B using immutable input04 plus a private test overlay."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -10,14 +10,16 @@
+ from pathlib import Path
+ import re
+ import subprocess
++import shutil
+ import time
+ 
+ 
+ ROOT = Path(__file__).resolve().parent
+-REPO = ROOT / 'workspace'
++REPO = Path('/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace')
+ GIT_OBJECT_REPO = Path('/workspace/agenteam')
+ BASE = 'f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a'
+ FROZEN = {}
++EXECUTION = {}
+ 
+ 
+ def utc():
+@@ -134,6 +136,41 @@
+     return {'product_base':BASE,'git_tree_sha256':tree_sha,'accepted_count':len(selected),'files':hashes,'missing':missing,'unexpected':unexpected,'mismatches':mismatches,'errors':errors,'accepted':not(missing or unexpected or mismatches or errors)}
+ 
+ 
++def private_input():
++    names = {'run-independent01.py', 'overlay.json'}
++    for folder in ['overlay', 'browser']:
++        names.update(str(path.relative_to(ROOT)) for path in (ROOT/folder).iterdir() if path.is_file())
++    actual = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in sorted(names)}
++    if actual != EXECUTION['private_files']:
++        raise RuntimeError('private overlay/spec/config/driver differ from frozen execution')
++    resolver = ROOT / 'browser/node_modules'
++    if not resolver.is_symlink() or str(resolver.resolve(strict=True)) != EXECUTION['node_modules']:
++        raise RuntimeError('private module resolver differs from exact locked tree')
++    overlay = json.loads((ROOT/'overlay.json').read_text())
++    if overlay != EXECUTION['go_overlay']:
++        raise RuntimeError('private overlay does not match the two allowed test files')
++    return {'files': actual, 'node_modules': str(resolver.resolve()), 'go_overlay': overlay}
++
++
++def runtime_input():
++    resolution = {name: shutil.which(name) for name in EXECUTION['command_resolution']}
++    if resolution != EXECUTION['command_resolution']:
++        raise RuntimeError('command resolution changed from frozen runtime')
++    tools = {name: {'realpath': str(Path(name).resolve(strict=True)),
++                    'sha256': hashlib.sha256(Path(name).read_bytes()).hexdigest()}
++             for name in EXECUTION['tools_runtime']}
++    # Bound only the three executed Playwright packages, not all caches or web dependencies.
++    packages = {}
++    for name in EXECUTION['harness_packages']:
++        root = Path(name)
++        for path in sorted(root.rglob('*')):
++            if path.is_file():
++                packages[str(path)] = {'realpath': str(path.resolve(strict=True)), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
++    if tools != EXECUTION['tools_runtime'] or packages != EXECUTION['harness_runtime']:
++        raise RuntimeError('executed tools or locked Playwright package bytes changed')
++    return {'tools': tools, 'harness': packages, 'command_resolution': resolution}
++
++
+ def source_input():
+     def sha(path):
+         if not path.is_file() or path.is_symlink() or any(parent.is_symlink() for parent in path.parents if parent!=REPO.parent):
+@@ -143,37 +180,35 @@
+     for name,expected in FROZEN['dependencies'].items():
+         path=Path(name)
+         dependencies[name]={'realpath':str(path.resolve(strict=True)),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+-    return {'product_base':BASE,'accepted_baseline':accepted_baseline_input(),'files':{name:sha(REPO/name) for name in FROZEN['files']},'dist':{str(path.relative_to(REPO)):sha(path) for path in sorted((REPO/'web/dist').rglob('*')) if path.is_file()},'dependencies':dependencies}
++    return {'product_base':BASE,'accepted_baseline':accepted_baseline_input(),'files':{name:sha(REPO/name) for name in FROZEN['files']},'dist':{str(path.relative_to(REPO)):sha(path) for path in sorted((REPO/'web/dist').rglob('*')) if path.is_file()},'dependencies':dependencies, 'private':private_input(), 'runtime':runtime_input()}
+ 
+ 
+ def main():
+-    global FROZEN
++    global FROZEN, EXECUTION
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new','lifecycle','credential','concurrency','outcome','authority','navigation','old-core','old-providers','old-models','old-selection','old-security'], required=True)
++    parser.add_argument('--group', choices=['both','put','unconfigure'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
++    parser.add_argument('--execution', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+     args = parser.parse_args()
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+-    smtp_names={'lifecycle':'Lifecycle','credential':'CredentialLifecycle','concurrency':'Concurrency','outcome':'OutcomeRecovery','authority':'AuthorityAndIdentity','navigation':'NavigationAndLayouts'}
+-    groups={key:['TestAccountSystemSMTPSettingsWeb'+value] for key,value in smtp_names.items()}
+-    groups.update({
+-      'new':[v[0] for v in groups.values()],
+-      'old-core':['TestAccountAuthenticationWebSessionLifecycle','TestAccountPersonalSettingsWebThemeAndNavigation','TestAccountPublicEntryWebIdentityNavigation','TestAccountSystemUserDirectoryWebAuthorityAndIdentity','TestAccountSystemUserDirectoryWebNavigationAndLayouts','TestAccountSystemInvitationsWebOutcomeRecovery','TestAccountSystemInvitationsWebNavigationAndLayouts'],
+-      'old-providers':['TestAccountSystemProvidersWeb'+x for x in ['CredentialReplacement','OutcomeRecovery','NavigationAndLayouts']],
+-      'old-models':['TestAccountSystemModelsWeb'+x for x in ['DeletionAndReplacement','OutcomeRecovery','NavigationAndLayouts']],
+-      'old-selection':['TestAccountSystemModelSelectionWeb'+x for x in ['OutcomeRecovery','AuthorityAndIdentity','NavigationAndLayouts']],
+-      'old-security':['TestAccountSystemAccountSecurityWeb'+x for x in ['OutcomeRecovery','AuthorityAndIdentity','NavigationAndLayouts']],
+-    })
++    groups = {'put':['TestAccountSystemSMTPSettingsIndependentPUTReplay'],
++              'unconfigure':['TestAccountSystemSMTPSettingsIndependentUnconfigureReplay']}
++    groups['both'] = groups['put'] + groups['unconfigure']
+     expected = set(groups[args.group])
+     args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
+     frozen_bytes = args.frozen.read_bytes()
++    execution_bytes = args.execution.read_bytes()
++    EXECUTION = json.loads(execution_bytes)
++    if str(args.frozen.resolve()) != EXECUTION['author_manifest'] or hashlib.sha256(frozen_bytes).hexdigest() != EXECUTION['author_manifest_sha256']:
++        raise RuntimeError('wrong exact author input04')
+     FROZEN = json.loads(frozen_bytes)
+     if FROZEN['product_base'] != BASE:
+         raise ValueError('wrong accepted backend baseline')
+-    if hashlib.sha256(Path(__file__).read_bytes()).hexdigest() != FROZEN['driver_sha256']:
++    if hashlib.sha256(Path(__file__).read_bytes()).hexdigest() != EXECUTION['private_files']['run-independent01.py']:
+         raise RuntimeError('driver differs from frozen input')
+     if args.check_input_only:
+         current = source_input()
+@@ -183,7 +218,7 @@
+                           'accepted_count': current['accepted_baseline']['accepted_count'],
+                           'missing': current['accepted_baseline']['missing'], 'unexpected': current['accepted_baseline']['unexpected'],
+                           'mismatches': current['accepted_baseline']['mismatches'], 'errors': current['accepted_baseline']['errors'],
+-                          'product_base': BASE, 'resources_started': False}), flush=True)
++                          'product_base': BASE, 'private_inputs_match': True, 'runtime_match': True, 'resources_started': False}), flush=True)
+         return 0 if same and accepted else 1
+     if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+         raise RuntimeError('cannot become task child subreaper')
+@@ -191,7 +226,8 @@
+     run.mkdir(parents=True, mode=0o700)
+     driver_bytes = Path(__file__).read_bytes()
+     (run / 'driver.py.txt').write_bytes(driver_bytes)
+-    verification_inputs = {'driver_sha256': hashlib.sha256(driver_bytes).hexdigest()}
++    verification_inputs = {'driver_sha256': hashlib.sha256(driver_bytes).hexdigest(), 'execution_sha256': hashlib.sha256(execution_bytes).hexdigest(), 'author_input_sha256': hashlib.sha256(frozen_bytes).hexdigest(), 'private': private_input()}
++    (run/'execution.json').write_bytes(execution_bytes)
+     write(run / 'verification-input.json', verification_inputs)
+     runtime = run / 'runtime'
+     runtime.mkdir(mode=0o700)
+@@ -202,7 +238,7 @@
+     if before['files'] != FROZEN['files'] or before['dist'] != FROZEN['dist'] or before['dependencies'] != FROZEN['dependencies']:
+         raise RuntimeError('candidate source/dist differs from frozen input')
+     (run / 'frozen-input.json').write_bytes(args.frozen.read_bytes())
+-    browser_runtime = Path(tempfile.mkdtemp(prefix='agtsmtp-', dir='/tmp'))
++    browser_runtime = Path(tempfile.mkdtemp(prefix='agtsmtpiv-', dir='/tmp'))
+     if len(str(browser_runtime)) > 45:
+         raise RuntimeError('browser runtime is not short')
+     images = run / 'images'
+@@ -216,7 +252,7 @@
+     baseline = resources()
+     write(run / 'baseline.json', baseline)
+     env = os.environ.copy()
+-    flags = '-mod=readonly -buildvcs=false -p=1 -v'
++    flags = '-mod=readonly -buildvcs=false -p=1 -v -overlay=' + str(ROOT/'overlay.json')
+     env.update({'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+                 'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                 'AGENTEAM_AUTH_WEB_RUNTIME': str(browser_runtime), 'AGENTEAM_AUTH_WEB_IMAGES': str(images),
+@@ -289,11 +325,11 @@
+     after = source_input()
+     write(run / 'input-after.json', after)
+     clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and not row['browser_runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+-    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
++    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'] and before['private'] == after['private'] and before['runtime'] == after['runtime'],
+                'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
+                'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+                'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}
+-    verification_unchanged = Path(__file__).read_bytes() == driver_bytes and args.frozen.read_bytes() == frozen_bytes
++    verification_unchanged = Path(__file__).read_bytes() == driver_bytes and args.frozen.read_bytes() == frozen_bytes and args.execution.read_bytes() == execution_bytes
+     summary['verification_inputs_unchanged'] = verification_unchanged
+     tops = re.findall(r'^--- (PASS|FAIL|SKIP): (\S+)', (run / 'raw.log').read_text(errors='replace'), re.MULTILINE)
+     summary['browser_processes'] = sum(row['name'] in {'chromium', 'chrome', 'chrome_crashpad'} for row in observed_processes.values())

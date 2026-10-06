@@ -1,0 +1,12 @@
+
+> @agenteam/web@0.0.0 type-check
+> vue-tsc --noEmit
+
+src/tests/system-smtp-settings-client.spec.ts(387,21): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '"updateModelSelection" | "updateAccountSecurity" | "updateSMTPSettings" | "unconfigureSMTP"' is not assignable to parameter of type '"avatar" | "bootstrap" | "session" | "login" | "logout" | "challenge" | "verify" | "profile" | "updateProfile" | "preferences" | "setPreferences" | "putAvatar" | "deleteAvatar" | ... 6 more ... | "createSystemInvitation"'.
+      Type '"updateModelSelection"' is not assignable to type '"avatar" | "bootstrap" | "session" | "login" | "logout" | "challenge" | "verify" | "profile" | "updateProfile" | "preferences" | "setPreferences" | "putAvatar" | "deleteAvatar" | ... 6 more ... | "createSystemInvitation"'.
+src/tests/system-smtp-settings-client.spec.ts(395,17): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '"updateModelSelection" | "updateAccountSecurity" | "updateSMTPSettings" | "unconfigureSMTP"' is not assignable to parameter of type '"avatar" | "bootstrap" | "session" | "login" | "logout" | "challenge" | "verify" | "profile" | "updateProfile" | "preferences" | "setPreferences" | "putAvatar" | "deleteAvatar" | ... 6 more ... | "createSystemInvitation"'.
+      Type '"updateModelSelection"' is not assignable to type '"avatar" | "bootstrap" | "session" | "login" | "logout" | "challenge" | "verify" | "profile" | "updateProfile" | "preferences" | "setPreferences" | "putAvatar" | "deleteAvatar" | ... 6 more ... | "createSystemInvitation"'.

@@ -1,0 +1,87 @@
+{
+  "actual_web_closure": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/baseline.json",
+    "sha256": "810f1053a13c7afbaca87f7f00ebde560084499a5e1a4671b5c386891f266b60"
+  },
+  "base": "40c904c0dd88420fc621f40c0a737d243d514ec1",
+  "card": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/card.md",
+    "sha256": "5d5fce8c93f6c0b3b50e343857c39419697d9271347874023a2173c20d284e14"
+  },
+  "checks": {
+    "api-format01": {
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-format01/raw.log",
+        "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-format01/result.json",
+        "sha256": "f1aafa9d2183d1038e5e241a649bd266014becda231c421a6e9d89f863f319e1"
+      }
+    },
+    "api-pure01": {
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-pure01/raw.log",
+        "sha256": "9c8d68c49f6165cfc367fa8f74d2bdfe4758ac1211a82a03cfdb779155e08bf2"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-pure01/result.json",
+        "sha256": "4e7b4ac9d329c551d89683cfdb886d26f03370959338edc23782ba13602963b6"
+      }
+    },
+    "api-pure02": {
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-pure02/raw.log",
+        "sha256": "f4d382f141caa75f50d90ad9c5240129f1fd8a44f2e86d0c00c2d75d8d0b70a4"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-pure02/result.json",
+        "sha256": "8d1a5c61d0ed3d5aca879fab56fd8762963303427517f2f98fa95a0702103a94"
+      }
+    },
+    "api-type01": {
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-type01/raw.log",
+        "sha256": "18d092997c90856c35e7172b986bf098b018d3fc433066f2661542dbf7140b52"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-type01/result.json",
+        "sha256": "d6a5a4149ad09a3761985fa7b9751f4b9bdf7bb1d73f9b1897459ea1fc19d572"
+      }
+    },
+    "api-type02": {
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-type02/raw.log",
+        "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-type02/result.json",
+        "sha256": "1eece2a1b646cff5cb919455941cc35cfcc1365cb97cd693d011a3fa7e994374"
+      }
+    }
+  },
+  "delta": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage01/delta.diff",
+    "sha256": "5504e2c965f918d72b9ebabd97d9de10285ba9e46b37f7c83657900dc38ff778"
+  },
+  "dependencies": {
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "web/tsconfig.json": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+    "web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+  },
+  "files": {
+    "web/src/api/client.ts": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186",
+    "web/src/api/system-smtp-settings.ts": "9649cfd5a737c3a6936152a11a60edff80860fc37cf91150feee1cf9a7abc1c8",
+    "web/src/tests/system-smtp-settings-client.spec.ts": "edca572836a7138fbe344a43e4dcc987cd1934395ac349ec96b858acdf065c4e"
+  },
+  "limits": [
+    "API only; singleton/full identity binding awaits owner stage.",
+    "No real HTTP/DB/browser/SMTP resource execution."
+  ],
+  "passed": "SMTP 28 + unchanged Account/Selection/Provider client tests: 227 in 4 files; type and scoped format PASS.",
+  "retained_failure": "api-type01: new test mixed endpoint union failed overload checking; same assertions retained with literal-narrowed calls in api-type02.",
+  "source_frozen": true,
+  "stage": "api-stage01"
+}

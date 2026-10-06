@@ -1,0 +1,167 @@
+{
+  "conclusion": "STATIC PASS for author ordinary-email new six only; not full SMTP UI acceptance",
+  "manifest": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input01/manifest.json",
+    "sha256": "b6cc573b0b243ebe2f2a50704f20d0e649b6710e9c9fdc775c991049f4f7fb06"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input01/driver.py.txt",
+    "sha256": "e6adae7d589ff3a913dc5b2c8dc3b89f8edf68842b947d0db4da0968638b363a"
+  },
+  "driver_diff": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input01/driver.diff",
+    "sha256": "08bf1b1e7f247ddaf151bbe923b0fddfaf2e41eae80303e1ac80a09879b788e7"
+  },
+  "source_files": {
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts": "20bf89ebd528c012d2acf1cbace4c6a28550e394d008304ee5852883a2159143",
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": "bf6c2a8364ae197b99054e8f712a3565304c5439d4b310dadac934c476f11d3d",
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": "f23c70a6b5ee3f84dac9484b016c1c7a6ffb52677ce2a39ac8c02675a988ea55",
+    "tests/account-captcha-web/e2e/system-models.spec.ts": "3fd24e0de8190998d71160ce2d1325d98fcda715bc6f81623aa2d1b9216c6018",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "6a08b791d206ab95c2fe04da4165bdec79a4166339312e0465f43d185d05a190",
+    "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts": "923530ff67001fdda6e0ff0dbf67c00db7c6bd6dfbacae21f0af5dcb8376692f",
+    "tests/account-captcha-web/system-smtp-settings.config.js": "832cd7a26a9a6a1e6d84c4b7244de9e913281d643a129c7f9d5966b8a1f90d64",
+    "tests/account/system_smtp_settings_web_fixture_test.go": "20133cd0eb892ed7140bdddf04e5b0eac734b7125e8442b24ab6297836338764",
+    "tests/account/system_smtp_settings_web_test.go": "df9fee364590ffe0f8fa9998e341c59e466a8d0b8c65047970b9f4ffb90bbd1b",
+    "web/src/App.vue": "e10c122a18bb0d29f4655e898305f473b5c275cfe6ccb0dcfbb5e04616aad753",
+    "web/src/api/client.ts": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186",
+    "web/src/api/system-smtp-settings.ts": "9649cfd5a737c3a6936152a11a60edff80860fc37cf91150feee1cf9a7abc1c8",
+    "web/src/composables/useSession.ts": "fe066bdcbf6448acf831d5629ea7a0a11a6af2848de723dfabdbffd05c636ea4",
+    "web/src/composables/useSystemSMTPSettings.ts": "e576d0005cc45c6e1ddbc07c5d1c76a88c192dce3643f0149c3fb3d15c76bfdf",
+    "web/src/router/auth.ts": "99a361b8a6408c37ab7fed927225bcb0c6279fac75054a8fe7011d780c1afc1e",
+    "web/src/router/index.ts": "bb28432a695df78498973090cae45d061a416e2c96c95dad7d87d59c2e7543f8",
+    "web/src/tests/personal-settings.spec.ts": "36b98b2fa67d0b0afb3bbd2af72e09392d45ba3a69246519d801923071c9f1dc",
+    "web/src/tests/system-account-security.spec.ts": "57809123ac9297e0006eb186ad8afcf0139645fbe3ffe45359c469f38e97910a",
+    "web/src/tests/system-invitations.spec.ts": "4bb1a51b932980fe2434c8928a11621b08d6fbc926c6543c10b4948bca803a80",
+    "web/src/tests/system-model-selection.spec.ts": "3f5ff3e9659c5e7834789082a4cfd17ae43bfcd6d625df65cdaeed9222a6fd7b",
+    "web/src/tests/system-models.spec.ts": "88767809a6698b5cd744d9c2d489494b093768a149ed639190d8913875da95d1",
+    "web/src/tests/system-providers.spec.ts": "c369b0cddbe506a34e0463fd9a6d39203e7c9ccc97e7e277dfd4ea84a699c385",
+    "web/src/tests/system-smtp-settings-client.spec.ts": "edca572836a7138fbe344a43e4dcc987cd1934395ac349ec96b858acdf065c4e",
+    "web/src/tests/system-smtp-settings-state.spec.ts": "e97e2f2de048ff70505238062fd3500d594f2e4173f387b6fa34ab50722fa39c",
+    "web/src/tests/system-smtp-settings.spec.ts": "55eccfc1d96c2305078b2ea333747791805c53b242115b7f43e0dc111da5b673",
+    "web/src/tests/system-user-directory.spec.ts": "7b97b48644b5a2314c21f48c3911edcfd7bb6e77eba27d126ab62279cba8c54b",
+    "web/src/views/system/SystemSMTPSettingsView.vue": "8de38629e505a39c1fc467ae277cbff05b504c813be82d82c08b0f6c08fbe2cf",
+    "web/src/views/system/SystemSettingsView.vue": "e6394060e06ab44bb9f715f2b403ff1db601792849ee9d7b347b501c646a57c6"
+  },
+  "dist_count": 36,
+  "accepted_baseline_count": 1040,
+  "matched_fixed_inputs": true,
+  "web_stage_same_19": true,
+  "dist_same_36": true,
+  "checks": {
+    "harness-discovery03": {
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/harness-discovery03/result.json",
+      "sha256": "0cf55a02f86c476f42d6995ecd85fc0f78c5c12e73c05c543f9fda9fb1b09de9",
+      "result": {
+        "actual_wait": true,
+        "child_pid": 1602237,
+        "command_sha256": "dfab44efb06c12b3442dadc4c780834afdcb42c90c253c3251c931a6bb181e0f",
+        "duration_seconds": 4.918,
+        "ended_utc": "2026-10-06T16:27:32.073825+00:00",
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "febe1f8eb44a16cc8866d2ec90ad930de542239a01eb271d976e98f8fbae0322"
+      }
+    },
+    "harness-format01": {
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/harness-format01/result.json",
+      "sha256": "4363698bc54f1d863cc2095bb088cb652c89fe9ab26e48ac43b3113077a56f95",
+      "result": {
+        "actual_wait": true,
+        "child_pid": 1602238,
+        "command_sha256": "73eef7455bab4b234439770b5d53794622ea099cff46a19e4e1df7a5efb6ab57",
+        "duration_seconds": 0.688,
+        "ended_utc": "2026-10-06T16:27:27.848440+00:00",
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+      }
+    },
+    "harness-go-compile01": {
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/harness-go-compile01/result.json",
+      "sha256": "78145ec4ce230379a3a2ba735c1115f914a29d756be7ae8b2303cda4f84fc1c3",
+      "result": {
+        "actual_wait": true,
+        "child_pid": 1576918,
+        "command_sha256": "4d667da8903d5f2b60c50ed5a5303b3c82e8a0e85dfa9aafebf7e8f20d77863e",
+        "duration_seconds": 0.219,
+        "ended_utc": "2026-10-06T16:19:16.762465+00:00",
+        "exit_code": 1,
+        "input_unchanged": true,
+        "raw_sha256": "1a77847aaa1fb24c7467dbbf4ee7100c94278f08b00092127a5d0e797438d47f"
+      }
+    },
+    "harness-go-compile02": {
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/harness-go-compile02/result.json",
+      "sha256": "f42c70c8cc9c7a8557312d48452028d49a10a754417c25ad35db6a1a7fd7343a",
+      "result": {
+        "actual_wait": true,
+        "child_pid": 1577590,
+        "command_sha256": "c56352d5d87c78b32bef50d393534a91fdd541962a25d0b2779cfc108186f0c8",
+        "duration_seconds": 92.42,
+        "ended_utc": "2026-10-06T16:21:32.416591+00:00",
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "harness-go-list01": {
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/harness-go-list01/result.json",
+      "sha256": "806d13a3c125e2a39bcf337d43f543dced79757b22bd320a9ae846ee3b4cc5ec",
+      "result": {
+        "actual_wait": true,
+        "child_pid": 1588700,
+        "command_sha256": "55e0af0ae2ca874d71b743f0fac59b14164d9af1fe503c6a18e52a7dda1dc3d9",
+        "duration_seconds": 1.206,
+        "ended_utc": "2026-10-06T16:22:26.423808+00:00",
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "c04356485124e6957b94de9f0bc9c0405dab69792cf19af78818b06b5134085a"
+      }
+    },
+    "harness-go-vet01": {
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/harness-go-vet01/result.json",
+      "sha256": "331a4838afcc26334b235437385b20dd5301924d7607d0de06faf5ebc54ce854",
+      "result": {
+        "actual_wait": true,
+        "child_pid": 1588664,
+        "command_sha256": "1f747b7c8bea8201cb4b59a24e88254bfd655b2527ab02c64a780d9c7ac3a433",
+        "duration_seconds": 69.35,
+        "ended_utc": "2026-10-06T16:23:34.266624+00:00",
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "harness-type04": {
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/harness-type04/result.json",
+      "sha256": "446b95d935f1783f6d365f4ce1e6e41901c7484a8dbde4c1bd8acb2eecced4a2",
+      "result": {
+        "actual_wait": true,
+        "child_pid": 1602244,
+        "command_sha256": "43280c758ea07c44af51605d13050dda61dfbba55f1e560b65dc52d000efc19d",
+        "duration_seconds": 2.589,
+        "ended_utc": "2026-10-06T16:27:29.761544+00:00",
+        "exit_code": 0,
+        "input_unchanged": true,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "findings": [
+    "Actual private cwd is author workspace, fixed product base40c904c; driver validates entire present fixed accepted closure plus candidates/artifacts before and after, rejects unexpected files and regular-source symlinks.",
+    "New selectors are closed to six exact SMTPSettings top-level tests; Playwright config discovers one selected case and retains 45s, workers1, retries0; Go top2m/package6m/race/count1 inherited.",
+    "Formal preparation creates owned identities and awaits exactly two invitation log attempts sent+terminal+io_joined, with no pending/processing and paired job/intent baseline, before configuring SMTP. No SMTP listener or outbound bypass is introduced.",
+    "During browser phase delivery endpoints are rejected and counted; every group checks no new job/intent and zero forbidden calls. This supports no new delivery operations, not SMTP connection or recipient acceptance.",
+    "Same-origin proxy fault controls target only exact Session/SMTP GET and accepted200 PUT/POST response after headers; request bytes/key/CSRF hashes stay private, only equality booleans are emitted.",
+    "Native side observation returns original fetch/read Promise and reader; no clone/tee/second read/cancel replacement. Ended is only a projection marker including media/error paths; success Session/settings require actual closed parsed DTO after read completion.",
+    "Root process actual wait/adopted wait and double owned PID/starttime/exact7-ID absence, baseline unchanged/runtime empty are retained. Historical PPID1 zombies untouched.",
+    "Five accepted old browser files contain exactly eight menu count6-to7 changes; budgets/other assertions unchanged."
+  ],
+  "limits": [
+    "No server/browser/PG/Docker was started by this review; gate result is authors frozen read-only artifact plus independent byte verification.",
+    "Email API known gap remains and these six groups deliberately use ordinary addresses. Full card acceptance still needs accepted email/API integration and actual new/old evidence.",
+    "Existing owner extra flush-sync reentrancy failure remains outside root-defined completion gate; original result is not rewritten.",
+    "Runtime dependencies are the manifest explicit locked CLI/package/lock realpath fingerprints; no claim to independently hash every installed package byte."
+  ],
+  "frozen": true
+}

@@ -1,0 +1,17 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/diagnostic06/workspace/web
+
+stdout | src/tests/diagnostic-smtp-maximum.spec.ts > diagnostic normal to maximum version adoption configured=true
+SMTP_MAXIMUM_SAFE {"configured":true,"adopted_maximum":true,"maximum_version":true,"can_save":false,"save_threw":false,"writes":0}
+
+stdout | src/tests/diagnostic-smtp-maximum.spec.ts > diagnostic normal to maximum version adoption configured=false
+SMTP_MAXIMUM_SAFE {"configured":false,"adopted_maximum":true,"maximum_version":true,"can_save":false,"save_threw":false,"writes":0}
+
+ ✓ src/tests/diagnostic-smtp-maximum.spec.ts > diagnostic normal to maximum version adoption configured=true 35ms
+ ✓ src/tests/diagnostic-smtp-maximum.spec.ts > diagnostic normal to maximum version adoption configured=false 11ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  16:57:17
+   Duration  1.07s (transform 269ms, setup 0ms, import 381ms, tests 47ms, environment 421ms)
+

@@ -1,0 +1,15 @@
+# SMTP 配置 API 阶段独立核验
+
+**有界 RED：P-SMTP-API-01；11 例通过、1 例失败。** 固定作者 api-stage01 manifest `56b4d8593095dc4844eb8eada78ca078d4170e1b6918ee9a3d1b95d4fb16a50a`，三候选与五接受依赖逐字节核对；只读固定40c904c与停写快照，未读活动owner/page。
+
+候选 `system-smtp-settings.ts` 的 email() 先 lowerCase 再判 IPv6 前缀，并用于 request 与 Settings DTO。实际 Go1.27.1 精确 NormalizeEmail oracle 拒绝 `a@[ipv6:2001:db8::7]`、`a@[iPv6:2001:db8::7]`、`a@[ipv6:::ffff:192.0.2.7]`；候选 API 接受三者且各真实调用一次受控 fetch，违反原正式 raw-input 资格。该 fetch 只返回受控严格DTO，不是正式服务成功。
+
+同时有既有后端非幂等事实：合法 `a@[IPv6:2001:DB8::7]` 经 NormalizeEmail 返回小写 `a@[ipv6:2001:db8::7]`，再输入该值却拒绝。正式 smtpFields 每次PUT仍NormalizeEmail；候选 capture/API 原样发送 sender_email。因此合法存量GET后仅改其它字段而沿此API提交，会遇正式输入不合法。没有读取活动页面，不称已执行页面动作。不能只把GET parser改成仅认大写，也不能只禁小写请求就声称编辑往返已修；正式canonical再输入规则或首次intent之前的显式适配须主线程/架构决定，不自行扩后端或改卡。
+
+实际命令与退出：`checks/oracle01` 为私有工作区 Go1.27.1 `go run .`，actual0/6.147s；保留接受target.go及NormalizeEmail精确函数，错误构造器只返回通用error，33条有名syntax记录。非正式Service/HTTP调用。`checks/api01` 为 Node24.19.0 / Vitest4.1.11 原TS API纯测，actual1/0.598s（测试66ms），12项中11过/1红，前后输入一致。完整argv/cwd/环境/raw/result/前后指纹在各目录，原probe与结果不覆盖。
+
+通过范围：13个正式host代表及canonical（数字/0x尾label拒绝有固定outbound.numericLabel依据，IPv6/A-label/尾点/大小写保留）；合法邮箱canonical DTO含mapped与大写前缀输出；sender_name按80 codepoints/UTF-8、合法空格/非character与控制边界；密码2048 UTF-8精确保留/非法Unicode拒绝/空省略/remove互斥；新旧相反configured的历史applied/更高current，严格完整DTO/BigInt上界；PUT32768、POST/Account16384编码预算隔离；GET600000B分段UTF-8且真实EOF后才发布；PUT超限、POST Problem超限、POST错误媒体、GET取消四种native cancel实际Promise屏障，屏障未放行均未结算，释放后零候选/reader解锁。传输预算探针直接调用transport边界，不冒充任意padding均是合法SMTP业务body。
+
+关键原件：probe SHA `e06169fdbdebd8e60c62f1a1f631a6fd34979e6f7d927f9b81134b4d5641d8de`；API raw `482f39c89cccc6561da32d5555921dd91b1fec64136fc29ee6d8f3d4742a9738`；Go原表 `cb2bf82f99339c2b68dcb2a3d9ba43a8020d15901d7ec72eabdb22cc68509675`。`review.json` 给精确命令和有界原件指纹，不复制全树。
+
+作者227/4文件、28新client、类型/格式通过及原type01新测试union overload前提红按原报告保留，不当独立通过。singleton/完整identity/owner私有材料与30s调度、页面和真实HTTP均不在此阶段；本阶段actual transport尾部不代owner验收。全部离线命令已实际结束，无端口/浏览器/PG/Docker或其它真实资源。当前三源/probe/原件及本报告停写；后续返修另存版本。

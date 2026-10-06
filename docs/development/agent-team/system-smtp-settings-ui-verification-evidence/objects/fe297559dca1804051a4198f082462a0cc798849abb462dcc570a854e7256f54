@@ -1,0 +1,23 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/tests/system-smtp-settings-state.spec.ts"
+  ],
+  "child_pid": 1561803,
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web",
+  "duration_seconds": 1.49,
+  "ended_utc": "2026-10-06T16:06:27.024449+00:00",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "input_after_sha256": "ea1feb96b73ba42a3f9a03fc73b4123cc1dfa5d28a245fa4e26e1659e1f66b37",
+  "input_before_sha256": "ea1feb96b73ba42a3f9a03fc73b4123cc1dfa5d28a245fa4e26e1659e1f66b37",
+  "input_unchanged": true,
+  "raw_sha256": "c62a1c613702ea33b44141014d433bfefacb3c1d8598908b4cf45a29e78d46bf",
+  "resource_execution": false,
+  "started_utc": "2026-10-06T16:06:25.534960+00:00"
+}

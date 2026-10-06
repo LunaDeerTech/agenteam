@@ -1,0 +1,98 @@
+{
+  "actual_transport_unchanged_sha256": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186",
+  "checks": {
+    "api-revision-green02": {
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-revision-green02/input-after.json",
+        "sha256": "54eb763ad001a0eb7879b07e70c5e8c3ee4a4a0d42dd0a574e5860e93c5f2ab7"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-revision-green02/input-before.json",
+        "sha256": "54eb763ad001a0eb7879b07e70c5e8c3ee4a4a0d42dd0a574e5860e93c5f2ab7"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-revision-green02/raw.log",
+        "sha256": "6ace813ba8eaa406a160c2894884287d17ffebde2c5dbf8b5783d688ec5c8767"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-revision-green02/result.json",
+        "sha256": "4006510c15e52b2b9e17a1a8dda858b7ec37053c154d2e5e30e8dc5ef9659b7b"
+      }
+    },
+    "api-revision-red02": {
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-revision-red02/input-after.json",
+        "sha256": "e996ba9b4cfdf0be9e5da874a134abec99c0aa8029c6e2edc1df397534397612"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-revision-red02/input-before.json",
+        "sha256": "e996ba9b4cfdf0be9e5da874a134abec99c0aa8029c6e2edc1df397534397612"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-revision-red02/raw.log",
+        "sha256": "8528ec9322d1fc9fdbb4787afbead1de93031ce285e8730501fd50a71f31c42d"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/api-revision-red02/result.json",
+        "sha256": "8e5ae7e787d7634f84ba8d5ab45b49d33dd379b5d236c14b0eb471e4cb7e24ab"
+      }
+    },
+    "email-oracle02": {
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/email-oracle02/input-after.json",
+        "sha256": "a6a9be8c9cbcd875aa29452571b5cece336459bc336d2b9571f353cdcb3ae4ea"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/email-oracle02/input-before.json",
+        "sha256": "a6a9be8c9cbcd875aa29452571b5cece336459bc336d2b9571f353cdcb3ae4ea"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/email-oracle02/raw.log",
+        "sha256": "a517676d8651bcbc76ca20870f6bb429d63a9ee0ceb4a42fa046553399eb222f"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/email-oracle02/result.json",
+        "sha256": "d721af951e00c7e41fc694d1e092e74f18a2ed7eb7843196970b6be111e1c3af"
+      }
+    }
+  },
+  "diff_sha256": "ddbda4b897ab039b209c624ad98fa7b74b41f392a6018070ad10caa6b7967bf1",
+  "dto_rule": "strict lowercase canonical; reject noncanonical current and receipt values",
+  "files": {
+    "web/src/api/system-smtp-settings.ts": {
+      "before_sha256": "9649cfd5a737c3a6936152a11a60edff80860fc37cf91150feee1cf9a7abc1c8",
+      "before_source": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input01/source/web/src/api/system-smtp-settings.ts",
+      "sha256": "e8068e7f4d4809716f66977e499d2d3425f71fe625dada059a6ed2fb72957527",
+      "source": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage02/source/web/src/api/system-smtp-settings.ts"
+    },
+    "web/src/tests/system-smtp-settings-client.spec.ts": {
+      "before_sha256": "edca572836a7138fbe344a43e4dcc987cd1934395ac349ec96b858acdf065c4e",
+      "before_source": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input01/source/web/src/tests/system-smtp-settings-client.spec.ts",
+      "sha256": "0fa109711f474a99aeb4214e0dcba5886b3537c1bd1cbc66003cf9b8fbe93062",
+      "source": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage02/source/web/src/tests/system-smtp-settings-client.spec.ts"
+    }
+  },
+  "input_rule": "S union lower(S); uppercase IPv6 marker or whole-input lowercase canonical only; raw text preserved",
+  "new_oracle": {
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/email-oracle02/overlay.json": "46086b6c2e944023ad763ff0f185a4ede7eebf11e52a62704cb264bf3e649441",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/email-oracle02/smtp_ui_email_oracle_test.go": "befb0832e293d7d902d2e167441eb57804e0511c505afe35ec666f28662043a8",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/email-oracle02/vectors.json": "9824ecd8543037706c6ac9ed9f652dfe4ac5f067c3ebc18181675f31feb2e8bc"
+  },
+  "oracle_accepted_source": {
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/accepted-baseline04/after/internal/central/account/validation.go": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/accepted-baseline04/manifest.json": "ca60386ee9fabc970c4c3da0ed5b432868fa6e1960d016b2f61da9a6efc96d3c"
+  },
+  "original_api_stage": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/api-stage01/manifest.json",
+    "sha256": "56b4d8593095dc4844eb8eada78ca078d4170e1b6918ee9a3d1b95d4fb16a50a"
+  },
+  "original_oracle_preserved": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/oracle-results.json",
+    "sha256": "cb2bf82f99339c2b68dcb2a3d9ba43a8020d15901d7ec72eabdb22cc68509675"
+  },
+  "owner_unchanged_sha256": "fe066bdcbf6448acf831d5629ea7a0a11a6af2848de723dfabdbffd05c636ea4",
+  "pending": "combined full check/build and fixed backend harness compile in progress; no real HTTP/browser proof",
+  "product_base": "f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a",
+  "resource_execution": false,
+  "stage": "api-stage02"
+}

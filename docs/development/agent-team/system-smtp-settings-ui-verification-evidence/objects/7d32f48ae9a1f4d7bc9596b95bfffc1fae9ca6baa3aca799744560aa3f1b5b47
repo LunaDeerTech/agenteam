@@ -1,0 +1,115 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.237.247.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=f632c0467e42a0a08a4d76bbb4a8f826
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=9e96aa4970692f33611fefd8b16596b2
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.030s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.165s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.011s [no tests to run]
+=== RUN   TestAccountSystemSMTPSettingsWebNavigationAndLayouts
+    system_smtp_settings_web_test.go:47: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1751892) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1751892) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-smtp-settings.spec.ts:869:1 › [navigation] seven leaves, two restored confirmations and eight responsive layouts
+        [1A[2Ke2e/system-smtp-settings.spec.ts:869:1 › [navigation] seven leaves, two restored confirmations and eight responsive layouts
+        SMTP_DISABLE_FOCUS_SAFE [{"phase":"before-open","event":"installed","active_tag":"H1","active_trigger":false,"active_heading":true,"active_body":false,"trigger_connected":true,"trigger_disabled":false},{"phase":"before-open","event":"focusin","active_tag":"BUTTON","active_trigger":true,"active_heading":false,"active_body":false,"trigger_connected":true,"trigger_disabled":false},{"phase":"before-open","event":"trigger-blur","active_tag":"BODY","active_trigger":false,"active_heading":false,"active_body":true,"trigger_connected":true,"trigger_disabled":true},{"phase":"before-open","event":"disabled-change","active_tag":"BODY","active_trigger":false,"active_heading":false,"active_body":true,"trigger_connected":true,"trigger_disabled":true},{"phase":"before-open","event":"focusin","active_tag":"BUTTON","active_trigger":false,"active_heading":false,"active_body":false,"trigger_connected":true,"trigger_disabled":true},{"phase":"before-open","event":"focusin","active_tag":"BUTTON","active_trigger":false,"active_heading":false,"active_body":false,"trigger_connected":true,"trigger_disabled":true},{"phase":"before-open","event":"focusin","active_tag":"BUTTON","active_trigger":false,"active_heading":false,"active_body":false,"trigger_connected":true,"trigger_disabled":true},{"phase":"before-open","event":"focusin","active_tag":"BUTTON","active_trigger":false,"active_heading":false,"active_body":false,"trigger_connected":true,"trigger_disabled":true},{"phase":"before-open","event":"focusin","active_tag":"BUTTON","active_trigger":false,"active_heading":false,"active_body":false,"trigger_connected":true,"trigger_disabled":true},{"phase":"before-open","event":"focusin","active_tag":"BUTTON","active_trigger":false,"active_heading":false,"active_body":false,"trigger_connected":true,"trigger_disabled":true},{"phase":"before-open","event":"focusin","active_tag":"BUTTON","active_trigger":false,"active_heading":false,"active_body":false,"trigger_connected":true,"trigger_disabled":true},{"phase":"before-open","event":"focusin","active_tag":"BUTTON","active_trigger":false,"active_heading":false,"active_body":false,"trigger_connected":true,"trigger_disabled":true},{"phase":"before-close","event":"stage","active_tag":"BUTTON","active_trigger":false,"active_heading":false,"active_body":false,"trigger_connected":true,"trigger_disabled":true},{"phase":"before-close","event":"focusin","active_tag":"H1","active_trigger":false,"active_heading":true,"active_body":false,"trigger_connected":true,"trigger_disabled":false},{"phase":"before-close","event":"disabled-change","active_tag":"H1","active_trigger":false,"active_heading":true,"active_body":false,"trigger_connected":true,"trigger_disabled":false},{"phase":"before-close","event":"finished","active_tag":"H1","active_trigger":false,"active_heading":true,"active_body":false,"trigger_connected":true,"trigger_disabled":false}]
+        
+        [1A[2K  1) e2e/system-smtp-settings.spec.ts:869:1 › [navigation] seven leaves, two restored confirmations and eight responsive layouts 
+        
+            Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+        
+            Locator:  getByRole('button', { name: '停用并清除配置', exact: true })
+            Expected: focused
+            Received: inactive
+            Timeout:  5000ms
+        
+            Call log:
+            [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+            [2m  - waiting for getByRole('button', { name: '停用并清除配置', exact: true })[22m
+            [2m    9 × locator resolved to <button type="button" data-v-7453e98a="" class="ui-button default">…</button>[22m
+            [2m      - unexpected value "inactive"[22m
+        
+        
+              1405 |     await page.keyboard.press("Escape");
+              1406 |     await expect(page.locator(".ui-overlay")).toHaveCount(0);
+            > 1407 |     await expect(stop).toBeFocused();
+                   |                        ^
+              1408 |   } finally {
+              1409 |     const safe = await focusObservation.evaluate((observation) =>
+              1410 |       observation.finish(),
+                at /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts:1407:24
+        
+        
+        [1A[2K  1 failed
+            e2e/system-smtp-settings.spec.ts:869:1 › [navigation] seven leaves, two restored confirmations and eight responsive layouts 
+        
+    system_smtp_settings_web_test.go:47: actual SMTP settings production browser failed: exit status 1
+--- FAIL: TestAccountSystemSMTPSettingsWebNavigationAndLayouts (15.52s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	15.551s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.009s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce ed44dd013633d3a525e4edd4c74b4700
+D04 outbound fixture cleanup checked for nonce 9e96aa4970692f33611fefd8b16596b2
+D05 object fixture exact resource cleanup checked nonce=f632c0467e42a0a08a4d76bbb4a8f826

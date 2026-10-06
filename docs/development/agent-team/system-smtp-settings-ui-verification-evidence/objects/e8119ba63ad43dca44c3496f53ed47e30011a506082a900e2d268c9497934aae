@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "node",
+    "/workspace/agenteam/web/node_modules/typescript/bin/tsc",
+    "--project",
+    "browser/tsconfig.json"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt",
+  "env": {},
+  "started_utc": "2026-10-06T17:29:44.763418+00:00",
+  "input_before": {
+    "overlay/smtp_independent_test.go": "19acc58b1267ed5923b1376a292a59687fd927220a8dbb64f8d5db1bbd3e68d1",
+    "overlay/system_smtp_settings_web_fixture_test.go": "0ab74c4d57cb33d80bbe288fbd5989669fce1a93f043296a965b196ffa76b535",
+    "overlay/fixture.diff": "24812e6018c3e90236c5a81f1ec424abc8b2d81822767a7a6dad55abfa0ffa9e",
+    "browser/cases.ts.txt": "d50dc30178b4981a861bd12f7ba53b37e24ae76841591e40469d146223540043",
+    "browser/independent.spec.ts": "90c5c5e12d928f6a68db16fdc3b22e0dfc753fc0f07d08415ab4a66cab2c20b4",
+    "browser/independent.config.js": "bb25fe44e4f589a3f57999582dbd86b9a7fba09442b46fb5404e82996c0132ea",
+    "browser/package.json": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428",
+    "browser/tsconfig.json": "fe429f596e6e9becb2f610e08dc65edcb37f9a39de5f779a48b488a12ab7b2b2"
+  },
+  "exit": 2,
+  "seconds": 0.5,
+  "actual_wait": true,
+  "input_after": {
+    "overlay/smtp_independent_test.go": "19acc58b1267ed5923b1376a292a59687fd927220a8dbb64f8d5db1bbd3e68d1",
+    "overlay/system_smtp_settings_web_fixture_test.go": "0ab74c4d57cb33d80bbe288fbd5989669fce1a93f043296a965b196ffa76b535",
+    "overlay/fixture.diff": "24812e6018c3e90236c5a81f1ec424abc8b2d81822767a7a6dad55abfa0ffa9e",
+    "browser/cases.ts.txt": "d50dc30178b4981a861bd12f7ba53b37e24ae76841591e40469d146223540043",
+    "browser/independent.spec.ts": "90c5c5e12d928f6a68db16fdc3b22e0dfc753fc0f07d08415ab4a66cab2c20b4",
+    "browser/independent.config.js": "bb25fe44e4f589a3f57999582dbd86b9a7fba09442b46fb5404e82996c0132ea",
+    "browser/package.json": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428",
+    "browser/tsconfig.json": "fe429f596e6e9becb2f610e08dc65edcb37f9a39de5f779a48b488a12ab7b2b2"
+  },
+  "resources_started": false
+}

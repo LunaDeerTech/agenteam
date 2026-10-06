@@ -1,0 +1,83 @@
+{
+  "stage": "owner-stage01",
+  "verdict": "bounded contract verification PASS (6 cases); extra synchronous reentry probe FAIL (1), excluded from card gate by root; API-stage01 email issue remains open",
+  "manifest": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/owner-stage01/manifest.json",
+  "manifest_sha256": "3b4e9ad6412d7dd3ff60758beb92715c79c95fe999bce5ba4ebb290008b68220",
+  "candidate_files": {
+    "web/src/api/client.ts": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186",
+    "web/src/api/system-smtp-settings.ts": "9649cfd5a737c3a6936152a11a60edff80860fc37cf91150feee1cf9a7abc1c8",
+    "web/src/composables/useSession.ts": "fe066bdcbf6448acf831d5629ea7a0a11a6af2848de723dfabdbffd05c636ea4",
+    "web/src/tests/system-smtp-settings-client.spec.ts": "edca572836a7138fbe344a43e4dcc987cd1934395ac349ec96b858acdf065c4e",
+    "web/src/tests/system-smtp-settings-state.spec.ts": "fd576cb3619dcc97634745a248271d8f76396d8d3c03373ca1932921a4a618bd"
+  },
+  "api_three_sources_unchanged": true,
+  "actual_run": {
+    "argv": [
+      "node",
+      "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+      "run",
+      "--config",
+      "independent.config.mjs"
+    ],
+    "cwd": "/workspace/scratch/agenteam-smtp-settings-owner-independent-7i2ebpp5/fixed/web",
+    "env": {
+      "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "GOTOOLCHAIN": "local",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOFLAGS": "-mod=readonly",
+      "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-owner-independent-7i2ebpp5/go-cache",
+      "GOTMPDIR": "/workspace/scratch/agenteam-smtp-settings-owner-independent-7i2ebpp5/go-tmp",
+      "NO_COLOR": "1",
+      "CI": "1"
+    },
+    "started_utc": "2026-10-06T16:03:51.582267+00:00",
+    "resource_execution": false,
+    "pid": 1559952,
+    "exit_code": 1,
+    "actual_wait": true,
+    "duration_seconds": 1.125,
+    "input_unchanged": true,
+    "raw_sha256": "87139ddf58f326fb9de86df4db579ccfa189105c602cf347d6a170598dc0ef09",
+    "ended_utc": "2026-10-06T16:03:52.707010+00:00"
+  },
+  "in_scope_passed": 6,
+  "extra_probe_failed": 1,
+  "reentry_classification": {
+    "scope": "private flush:sync material.present watcher, not an established production consumer",
+    "safe_observation": {
+      "started": true,
+      "busy": true,
+      "material": true,
+      "phase": null,
+      "writes": 2,
+      "newBodyMatches": true
+    },
+    "root_decision": "No new atomicity requirement or production repair authorized. Preserve exit1 and original assertions. Verify frozen page buttons/default scheduling later; upgrade only if production reachability is established.",
+    "fixed_consumer_facts": [
+      "40c904c useSystemProviders/useSystemModels/useSystemAccountSecurity identity watchers use default pre scheduling",
+      "40c904c SystemProviderEditor material.revision sync watcher only clears the local textarea; does not start a request",
+      "Card section 5 cancelled-read new-generation rule does not authorize arbitrary synchronous new writes inside abandon",
+      "Probe bypasses the future page explicit-read/edit sequence after abandonment; no such frozen SMTP consumer consumed"
+    ]
+  },
+  "limitations": [
+    "No page/controller/App or actual HTTP/DB/browser/SMTP resources verified.",
+    "Logical30s advanced using fake timers; native read/cancel promises use real JS barriers.",
+    "Current CSRF/403 transport responses are controlled pure fixtures, not real authority evidence.",
+    "API e-mail input/canonical issue remains separate; ordinary valid e-mail used here.",
+    "No product/source/Git changes; no delegation; commands actually ended and barriers released."
+  ],
+  "artifacts": {
+    "fixed-inputs.json": "24e34ff18a29adf556dfb67cc9fede22d9de9ed26e0f35804f2c8a94479662a6",
+    "fixed/web/src/tests/independent-smtp-owner.spec.ts": "7fb05c3759658d74c70d12df787e2b1e5a4264e6582a9d631ef1453cdbe4454c",
+    "fixed/web/independent.config.mjs": "1b032c3b098a0bff70aa3647e497a90c95af07bff0076579abede3928301e4e0",
+    "run-check.py": "d1a7dd333032447aa9d4d10ce17dbdb38b01d6319071e6181b6155024a7cbf3d",
+    "checks/owner01/command.json": "1a1ac65cab0683bea53db7172f464298cbc9eedf5c0e295804d2ebee556100d9",
+    "checks/owner01/raw.log": "87139ddf58f326fb9de86df4db579ccfa189105c602cf347d6a170598dc0ef09",
+    "checks/owner01/result.json": "32cdea052b24aa865b28c1e316ec6981df90897d8b1de093676fcbf121000705",
+    "checks/owner01/input-before.json": "4a17c9e803d8741d63e8a5080e9add048675a6b957377486292a07e42935efa7",
+    "checks/owner01/input-after.json": "4a17c9e803d8741d63e8a5080e9add048675a6b957377486292a07e42935efa7"
+  },
+  "frozen": true
+}

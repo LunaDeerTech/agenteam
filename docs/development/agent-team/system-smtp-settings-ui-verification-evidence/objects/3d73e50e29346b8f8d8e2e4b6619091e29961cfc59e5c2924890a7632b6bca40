@@ -1,0 +1,10 @@
+from pathlib import Path
+import os,subprocess,json,sys,hashlib,time
+s=Path(__file__).resolve().parent;cwd=Path.cwd();directory=s/'discovery-private';directory.mkdir(exist_ok=True)
+for mode in ['lifecycle','credential','concurrency','outcome','authority','navigation']:
+ env=os.environ.copy();env.update({'AGENTEAM_AUTH_WEB_ORIGIN':'http://127.0.0.1:1','AGENTEAM_AUTH_WEB_PRIVATE':str(directory),'AGENTEAM_AUTH_WEB_CHROMIUM':'/usr/bin/chromium','AGENTEAM_SMTP_SETTINGS_WEB_CASE':mode})
+ argv=['node',str(cwd/'node_modules/@playwright/test/cli.js'),'test','--config',str(cwd/'system-smtp-settings.config.js'),'--list']
+ print(json.dumps({'mode':mode,'argv':argv,'cwd':str(cwd),'env':{k:env[k] for k in ['AGENTEAM_AUTH_WEB_ORIGIN','AGENTEAM_AUTH_WEB_PRIVATE','AGENTEAM_AUTH_WEB_CHROMIUM','AGENTEAM_SMTP_SETTINGS_WEB_CASE']},'cli_realpath':str((cwd/'node_modules/@playwright/test/cli.js').resolve()),'locked_package_sha256':hashlib.sha256((cwd/'package-lock.json').read_bytes()).hexdigest()}),flush=True)
+ start=time.monotonic();child=subprocess.Popen(argv,cwd=cwd,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True);output,_=child.communicate();print(output,end='',flush=True)
+ print(json.dumps({'mode':mode,'exit_code':child.returncode,'actual_wait':True,'duration_seconds':round(time.monotonic()-start,3),'only_list':True}),flush=True)
+ if child.returncode or 'Total: 1 test in 1 file' not in output:sys.exit(1)

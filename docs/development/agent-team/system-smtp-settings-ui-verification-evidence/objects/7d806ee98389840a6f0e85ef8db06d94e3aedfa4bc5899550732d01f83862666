@@ -1,0 +1,32 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/tests/system-smtp-settings-state.spec.ts",
+    "src/tests/session.spec.ts",
+    "src/tests/personal-settings-state.spec.ts",
+    "src/tests/account-entry-state.spec.ts",
+    "src/tests/system-user-directory-state.spec.ts",
+    "src/tests/system-invitations-state.spec.ts",
+    "src/tests/system-providers-state.spec.ts",
+    "src/tests/system-models-state.spec.ts",
+    "src/tests/system-model-selection-state.spec.ts",
+    "src/tests/system-account-security-state.spec.ts"
+  ],
+  "child_pid": 1555130,
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web",
+  "duration_seconds": 4.073,
+  "ended_utc": "2026-10-06T15:57:14.886637+00:00",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "input_after_sha256": "02a94fc0da521fd373b7ce8f301753e5bc26fad51290b37c99c078b1aef53047",
+  "input_before_sha256": "02a94fc0da521fd373b7ce8f301753e5bc26fad51290b37c99c078b1aef53047",
+  "input_unchanged": true,
+  "raw_sha256": "8aad9ef8f1d043ab9fef7965d3e19ae34382c7f515acadf2683e55776571b700",
+  "resource_execution": false,
+  "started_utc": "2026-10-06T15:57:10.813753+00:00"
+}

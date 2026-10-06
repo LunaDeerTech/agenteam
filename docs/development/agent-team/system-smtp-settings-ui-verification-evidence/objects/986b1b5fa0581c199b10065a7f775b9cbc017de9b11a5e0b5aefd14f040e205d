@@ -1,0 +1,25 @@
+{
+  "origin": "exec_command output chunk 1d6b99, before formal offline runner; not a source type error",
+  "argv": [
+    "node",
+    "tests/account-captcha-web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "bundler",
+    "--types",
+    "node",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace",
+  "exit_code": 2,
+  "tool_reported_duration_seconds": 0.43095201,
+  "runtime": false,
+  "cause": "Browser lock has no @types/node, accepted web locked @types must be selected explicitly. No lock/dependency install required."
+}

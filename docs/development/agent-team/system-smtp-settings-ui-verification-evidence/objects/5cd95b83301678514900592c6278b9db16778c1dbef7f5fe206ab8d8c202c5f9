@@ -1,0 +1,45 @@
+{
+  "at": "2026-10-06T17:50:13.782818+00:00",
+  "delivery29_original_manifest_and_README_unchanged": true,
+  "exact_replacement": {
+    "after": "也保留原 method/path/key/body/version 及精确密码；仅由用户明确使用当前合法 CSRF 重试原请求，严格匹配结果后才确认。",
+    "before": "也保留原 method/path/key/body/version/CSRF 与精确密码；仅由用户明确重试原请求，严格匹配结果后才确认。"
+  },
+  "frozen_input04": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input04/manifest.json",
+    "sha256": "3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37"
+  },
+  "input04_dist_count_unchanged": 36,
+  "input04_source_count_unchanged": 28,
+  "link_validation_reused_from": {
+    "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/delivery29/validation.json",
+    "sha256": "1862cb1fe72307fba88ab45344c757fcb58613921880302a8c8e46a16a3e9590"
+  },
+  "links_unchanged": true,
+  "local_source_count": 1,
+  "markdown": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "argv": [
+      "node",
+      "-e",
+      "const fs=require('node:fs');const prettier=require(process.argv[1]);const t=fs.readFileSync(process.argv[2],'utf8');prettier.format(t,{parser:'markdown',proseWrap:'preserve'}).then(()=>{if(!t.endsWith('\\n')||/[\\t ]+$/m.test(t)||/\\r/.test(t)||t.split('\\n').filter(x=>x.startsWith('```')).length%2)throw new Error('format');console.log(JSON.stringify({markdown_parse:true,lf:true,final_newline:true,trailing_whitespace:false,balanced_fences:true}));}).catch(e=>{console.error(e.name);process.exitCode=1;});",
+      "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web/node_modules/prettier",
+      "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/delivery29-v2/source/docs/development/frontend/README.md"
+    ],
+    "checks": {
+      "balanced_fences": true,
+      "final_newline": true,
+      "lf": true,
+      "markdown_parse": true,
+      "trailing_whitespace": false
+    },
+    "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/delivery29-v2",
+    "stderr": "",
+    "stdout": "{\"markdown_parse\":true,\"lf\":true,\"final_newline\":true,\"trailing_whitespace\":false,\"balanced_fences\":true}\n"
+  },
+  "one_replacement_only": true,
+  "reserved_report_link_unchanged": true,
+  "resolved_delivery_source_count": 29,
+  "scope": "One README sentence only; no product tests or resources executed"
+}

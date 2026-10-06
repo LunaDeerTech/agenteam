@@ -1,0 +1,132 @@
+{
+  "checks": {
+    "browser-list-a01": {
+      "actual_wait": true,
+      "exit": 0,
+      "inputs_unchanged": true,
+      "raw": {
+        "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/browser-list-a01/raw.log",
+        "sha256": "0a1cb6c8ec9bd7bd04d4e581b6fcdb7dc967030fc29d48054198e68ecd5e8901"
+      },
+      "seconds": 1.401
+    },
+    "browser-list-b01": {
+      "actual_wait": true,
+      "exit": 0,
+      "inputs_unchanged": true,
+      "raw": {
+        "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/browser-list-b01/raw.log",
+        "sha256": "42258235b23d50e7317104a209a0ccf51b593f048356d3de562128cfc454b521"
+      },
+      "seconds": 1.245
+    },
+    "config01": {
+      "actual_wait": true,
+      "exit": 0,
+      "inputs_unchanged": true,
+      "raw": {
+        "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/config01/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "seconds": 0.022
+    },
+    "gate01": {
+      "actual_wait": true,
+      "exit": 0,
+      "inputs_unchanged": true,
+      "raw": {
+        "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/gate01/raw.log",
+        "sha256": "c9d47354c6088ca4b20f12ad29a12e4cf418610c3a5271ce6ac4d63086342ca7"
+      },
+      "seconds": 0.999
+    },
+    "go-list01": {
+      "actual_wait": true,
+      "exit": 0,
+      "inputs_unchanged": true,
+      "raw": {
+        "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/go-list01/raw.log",
+        "sha256": "d4d8711ca6d499e36857576acc7546b60f91af7ee4f3167b705f02933e30769e"
+      },
+      "seconds": 1.016
+    },
+    "race-compile01": {
+      "actual_wait": true,
+      "exit": 0,
+      "inputs_unchanged": true,
+      "raw": {
+        "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/race-compile01/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "seconds": 106.115
+    },
+    "type01": {
+      "actual_wait": true,
+      "exit": 2,
+      "inputs_unchanged": true,
+      "raw": {
+        "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/type01/raw.log",
+        "sha256": "22d754e33e5e414d820e237c9e477c81ec8db495c45ab51f7665351a89a3c783"
+      },
+      "seconds": 0.5
+    },
+    "type02": {
+      "actual_wait": true,
+      "exit": 0,
+      "inputs_unchanged": true,
+      "raw": {
+        "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/type02/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "seconds": 0.918
+    },
+    "vet01": {
+      "actual_wait": true,
+      "exit": 0,
+      "inputs_unchanged": true,
+      "raw": {
+        "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/vet01/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "seconds": 8.276
+    }
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/run-independent01.py",
+    "sha256": "dcdebc6ddf3bee81c20fd1ff6d36cd5367d8c3b124d32530aec962accdb2c427"
+  },
+  "execution": {
+    "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/input01/execution.json",
+    "sha256": "e7038174d2ea425305ae5dc301ef703348122f6ee3e392b9955da881180aec5d"
+  },
+  "future_argv": [
+    "python3",
+    "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/run-independent01.py",
+    "--name",
+    "independent01",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input04/manifest.json",
+    "--execution",
+    "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/input01/execution.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+  ],
+  "gate": {
+    "raw_sha256": "c9d47354c6088ca4b20f12ad29a12e4cf418610c3a5271ce6ac4d63086342ca7",
+    "result_sha256": "3d20492d078c0ad251f0a74ccc5b4335d07da4cfa802c0474fcfce52b768a738"
+  },
+  "main_or_author_writes": false,
+  "resources_started": false,
+  "source_scope": {
+    "accepted_dependencies": 1050,
+    "candidate": 28,
+    "direct_tools": 14,
+    "dist": 36,
+    "executed_playwright_package_files": 521,
+    "private_files": 10
+  },
+  "status": "OFFLINE PREPARATION PASS; real A/B unexecuted",
+  "stopped_writing_runtime_inputs": true
+}

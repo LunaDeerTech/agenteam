@@ -2,6 +2,14 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：System SMTP 配置 UI 完整结果接受
+
+- [配置首卡rev2](../work-items/d27-system-smtp-settings-ui.md)29路径获作者检查、独立有界PASS和主线程采纳，提交推送 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`，主线程核远端一致。[正式报告与最小证据](system-smtp-settings-ui-verification.md)绑定input04／36dist指纹／1050依赖及第29README；卡技术原字节保持。
+- 管理员GET／PUT／unconfigure、密码保持／替换／移除、有限策略和原请求恢复闭合。current与historical applied分离，后读失败不丢原password/key/body/version，无lookup／自动重放；明确重放使用当前合法CSRF，第八域actual owner尾部与同View确认／当前权限清理保持。
+- 作者1214／35前端检查通过，新六组按input04四次PASS＋new02两未变PASS组合；旧19五批通过，独立A/B首真轮actual0／158.636s、7IDs181PID8wait双清。十三轮原退出与失败全部保留，不称最终六组同轮重跑。
+- 主线63de0ac含a942779＋SMTP29经604本地／3504外部输入封口，race编译／两个纯路由／Central Runner构建均actual0；真实input04浏览器仍f670，不改称a942动态。API02新组1PASS／旧11显式skip复用、owner原6PASS＋额外scope-out FAIL、type01原源已定位与两早期harness记录缺口如实保存；八图仅作者查看、主线程未图审。
+- 834逻辑原件／499对象／100逻辑Git复用，离线核固定Git29、原字节／实际wait／双清；无产品重跑。SMTP发送／投递页面、外部邮箱、完整D07/D27及D08–D28/E01不在本次接受；E01未开始，Summary待决、Object/tools原停止及生产未绑定／ready503等边界保持。
+
 ## 2026-10-06：System 出站规则管理 HTTP 完整结果接受
 
 - [D04/D27 工作卡 rev1](../work-items/d04-system-outbound-policy-http.md)十二路径已获作者检查、独立风险验收及主线程采纳，提交推送 `a94277982620f01dc15488b09ae6ea9064977b5a`，远端一致。[正式报告与不可变证据](system-outbound-policy-http-verification.md)固定819aba1、最终十一源与第十二后端说明，技术§1–7 44515e…f8dc原字节保持。

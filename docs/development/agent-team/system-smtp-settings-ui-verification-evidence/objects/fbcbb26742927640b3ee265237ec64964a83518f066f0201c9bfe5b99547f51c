@@ -1,0 +1,1 @@
+export default { cacheDir: new URL('../../cache', import.meta.url).pathname, test: { environment: 'node', include: ['src/tests/independent-smtp-api.spec.ts'], restoreMocks: true, maxWorkers: 1, fileParallelism: false, testTimeout: 5000, hookTimeout: 5000 } }

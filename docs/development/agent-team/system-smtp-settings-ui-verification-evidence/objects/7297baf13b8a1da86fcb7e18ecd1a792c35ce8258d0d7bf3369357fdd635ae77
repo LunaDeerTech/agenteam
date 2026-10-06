@@ -1,0 +1,15 @@
+# SMTP API-stage02 独立窄验
+
+**API 阶段 PASS：固定差量静审＋原11个未变通过组复用＋新契约风险组实际PASS。** 作者 `api-stage02/manifest.json` SHA `975998a01d023658adaddd3adaca86ec94b1f6982452736730d130762fe8443c`；当前SMTP API源 `e8068e7f4d4809716f66977e499d2d3425f71fe625dada059a6ed2fb72957527`、作者client测试 `0fa109711f474a99aeb4214e0dcba5886b3537c1bd1cbc66003cf9b8fbe93062`均来自冻结stage/source。只写本私有目录，不读活动owner/page/finalcheck，不改main或其它agent原件。
+
+基准为已接受email卡rev1§2及Git `f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a`完整NormalizeEmail（SHA `60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94`）。接受集合为原S与其完整小写输出之并，不是任意raw先lower再验。原独立API01在旧后端下11过/1红及其probe/oracle/raw均永久保留；本次另存新probe和明确差量，不改旧判据原文。
+
+静态差量只在email资格与configured Settings的严格小写canonical门禁：raw按原文本拆分，精确`IPv6:`保留旧资格，`ipv6:`只在整个输入已小写时可用；混合marker、大写local/hex搭配小写marker拒绝。capture仍返回原文本，不把响应canonical写回原输入。GET及两写receipt都经同一严格Settings parser。将email函数恢复并移除唯一DTO guard后，文件恰等于API01原字节；传输client.ts SHA `29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186`未变，五项接受依赖逐Git核同。原32KiB/16KiB请求预算、600000B响应限制和实际cancel尾部、版本/历史applied/current规则不变。
+
+新增独立小组使用生产API和原transport、Node原生Response/ReadableStream及受控fetch。25个固定Go向量包括13合法/12非法：混合marker、canonical再输入、prefixed IPv4、mapped/expanded、普通邮箱及错误literal。合法raw逐一两次重放，核原完整body/raw邮箱/password/key/CSRF均不改；非法raw全部在fetch前拒绝。逐一读取合法canonical GET，并对22个非法或非canonical值核GET/PUT receipt/unconfigure receipt拒绝；最后有界阻塞原生reader EOF，canonical JSON到齐但未EOF时仍不发布，实际close后才成功并解锁reader。
+
+实际 `checks/api02`：Node24.19.0 / Vitest4.1.11，`--configLoader native`及私有cache/tmp，45秒外层上限，单组测试5秒上限。**actual exit0 / 0.628s，1 passed / 11 skipped**（12个声明组）；65ms为测试耗时，不是whole command。原11组是明确跳过的历史复用，不能称本轮12组全跑。它们的probe主体逐字节保留，相关传输/host/name/password/version逻辑未变；新组另外覆盖本次改变的raw与DTO行为。原raw SHA `768f03d0f5a28f3aa20229687ff64cdcebf62ea4c2d669db39bdb3a88b68d8f0`；完整argv/cwd/env及实际wait在command/result，前后输入一致。两所属PID/starttime在17:14:37.695118及17:14:37.701378 UTC两扫均空，0 adopted wait，无server、端口、浏览器、PG/Docker/SMTP资源。
+
+作者冻结证据只复用不重跑：新25向量调用接受完整Go函数，actual0/10.673s，逐有名结果与vectors一致并核canonical再输入；作者API原红actual1/1.377s、33过/2红（旧parser未拒非canonical DTO及非法raw已dispatch），随后35例actual0/1.084s。原红/绿/Go原raw、输入清单和退出记录保留。Go oracle是纯调用，作者35例不算独立通过。
+
+本结果没有重新执行旧Go oracle、原11组或整套web，没有正式Service/HTTP/DB/SMTP/浏览器证据。singleton、完整身份/CSRF恢复、私有材料的owner生命周期与销毁、30秒调度、页面确认/导航与真实后端组合另验；实际API reader尾部不代替owner验收。不宣称完整SMTP UI接受或所有邮箱字符串穷举证明。报告及列出原件已停止写入；[固定输入](fixed-inputs.json)、[静态差量复核](static-review.json)、[probe修订](probe-api01-to02.diff)及[原结果](checks/api02/result.json)可直接追溯。

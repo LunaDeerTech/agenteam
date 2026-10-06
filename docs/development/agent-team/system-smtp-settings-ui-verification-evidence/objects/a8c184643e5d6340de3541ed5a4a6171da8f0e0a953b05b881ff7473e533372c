@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-tags=integration",
+    "-race",
+    "-c",
+    "-o",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/compile-tmp/smtp-web04.test",
+    "./tests/account"
+  ],
+  "baseline_manifest_sha256": "ca60386ee9fabc970c4c3da0ed5b432868fa6e1960d016b2f61da9a6efc96d3c",
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace",
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/compile-tmp"
+  },
+  "resource_execution": false,
+  "runner_sha256": "09b950b4103d888ff976a9ec24fb0335337683297a4f8a61921b23ee2451676d",
+  "started_utc": "2026-10-06T17:10:39.969983+00:00"
+}

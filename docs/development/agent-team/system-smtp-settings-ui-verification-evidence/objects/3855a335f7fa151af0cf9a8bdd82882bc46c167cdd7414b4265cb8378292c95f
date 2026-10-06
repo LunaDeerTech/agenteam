@@ -1,0 +1,5 @@
+启动静审勘误（保留 review.md/review.json 原字节）。
+
+input01 的 awaitPreparedDeliveries SQL 使用 i.email，而固定邀请表列为 canonical_email；首次六组在该准备查询报42703，未进入浏览器。原STATIC PASS漏核了这处SQL列名，不能据其表述声称正式准备已实测成立。本条确认静审遗漏，原动态退出/清理由作者和主线程原件单独记录，本文不倒填尚未独立读取的终局。
+
+仅授权作者在实际wait/双清后修此夹具前提并另冻输入；邮箱API已知缺口、owner范围裁定和产品验收状态不变。修正不会回写原简报或原首轮证据；未重跑浏览器。

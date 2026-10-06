@@ -1,0 +1,127 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"net/http"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+)
+
+// This state never leaves the owned process. Only closed booleans and counters
+// cross the existing private IPC; raw body, key, MAC and CSRF are never logged.
+type smtpIndependentState struct {
+	key, method, path, csrf, command, version, reference, user, session string
+	body, mac                                                           []byte
+	requests                                                            int
+	same, recorded                                                      bool
+}
+
+func (s *smtpIndependentState) clear() {
+	clear(s.body)
+	clear(s.mac)
+	*s = smtpIndependentState{}
+}
+
+// The caller holds the existing fixture mutex. Observation leaves r and raw
+// unchanged, and only captures the next explicitly armed browser write.
+func (f *smtpSettingsWebFixture) independentObserve(r *http.Request, raw []byte) {
+	s := f.independent
+	key := r.Header.Get("Idempotency-Key")
+	if s.key == "" && f.dropNext && key != "" {
+		s.key, s.method, s.path, s.csrf = key, r.Method, r.URL.Path, r.Header.Get("X-CSRF-Token")
+		s.body = bytes.Clone(raw)
+		s.same = true
+	}
+	if s.key != "" && s.key == key {
+		s.requests++
+		s.same = s.same && bytes.Equal(s.body, raw) && s.csrf != "" && s.csrf == r.Header.Get("X-CSRF-Token") && s.method == r.Method && s.path == r.URL.Path
+	}
+}
+
+func (f *smtpSettingsWebFixture) independentFacts(ctx context.Context, request smtpSettingsWebIPC) map[string]any {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	s := f.independent
+	if s.key == "" || len(s.body) == 0 || f.lostKey != s.key {
+		f.t.Fatal("independent facts require the exact accepted and cut request")
+	}
+	identity, err := foundation.NewCommandIdentity("account.smtp", []string{f.admin.UserID}, "smtp-settings-update", foundation.IdempotencyKey(s.key))
+	if err != nil {
+		f.t.Fatal("independent exact command identity unavailable")
+	}
+	digest := sha256.Sum256([]byte(identity.Canonical()))
+	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+	defer closeConnection()
+	var command, key, user, session, version, reference, retries, interval string
+	var mac []byte
+	defer func() { clear(mac) }()
+	var commands, audits int
+	err = conn.QueryRow(ctx, `SELECT c.id::text,c.command_key,c.user_id::text,c.session_id::text,c.semantic_mac,c.result_version::text,coalesce(c.planned_secret_ref::text,''),
+ (SELECT count(*) FROM agenteam_account.commands q WHERE q.namespace='account.smtp' AND q.command_name='smtp-settings-update' AND q.owner_id=$2 AND q.resource_id=$1 AND q.identity_digest=$3 AND q.phase='committed'),
+ (SELECT count(*) FROM agenteam_audit.audit_records a WHERE a.producer='account' AND a.scope='system' AND a.action='smtp.settings.update' AND a.resource_kind='smtp_settings' AND a.resource_id=$1 AND a.user_id=$2 AND a.outcome='success' AND a.ordinal=0 AND a.cause_ref=c.id::text),
+ st.auto_retry_count::text,st.retry_interval_seconds::text
+ FROM agenteam_account.commands c JOIN agenteam_account.smtp_settings st ON st.id=c.resource_id
+ WHERE c.namespace='account.smtp' AND c.command_name='smtp-settings-update' AND c.owner_id=$2 AND c.resource_id=$1 AND c.identity_digest=$3 AND c.phase='committed'`, f.singletonID, f.admin.UserID, "sha256:"+hex.EncodeToString(digest[:])).Scan(&command, &key, &user, &session, &mac, &version, &reference, &commands, &audits, &retries, &interval)
+	if err != nil || len(mac) != 32 {
+		f.t.Fatal("independent original committed command facts unavailable")
+	}
+	if request.Action == "independent-record" {
+		if s.recorded || request.UserID != f.admin.UserID || request.SessionID == "" || session != request.SessionID || user != request.UserID {
+			f.t.Fatal("independent original actor snapshot rejected")
+		}
+		s.command, s.version, s.reference, s.user, s.session = command, version, reference, user, session
+		s.mac = bytes.Clone(mac)
+		s.recorded = true
+	}
+	if !s.recorded {
+		f.t.Fatal("independent original snapshot absent")
+	}
+	var body map[string]any
+	if json.Unmarshal(s.body, &body) != nil {
+		f.t.Fatal("independent accepted original JSON unavailable")
+	}
+	defer clear(body)
+	return map[string]any{
+		"commands": commands, "audits": audits, "requests": s.requests,
+		"same_request_bytes": s.same, "original_key_persisted": key == s.key,
+		"command_unchanged": command == s.command && version == s.version,
+		"mac_unchanged":     bytes.Equal(mac, s.mac), "planned_reference_unchanged": reference == s.reference,
+		"actor_unchanged":            user == s.user && session == s.session,
+		"original_put_password":      s.method == "PUT" && s.path == "/api/v1/system/smtp" && body["password"] == f.passwords[0],
+		"original_post_saved_policy": s.method == "POST" && s.path == "/api/v1/system/smtp/unconfigure" && len(body) == 3 && body["auto_retry_count"] == retries && body["retry_interval_seconds"] == interval,
+	}
+}
+
+func runSMTPSettingsIndependent(t *testing.T, mode string, required ...string) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	f := newSMTPSettingsWebFixture(t, ctx, mode)
+	result := f.browserSMTPSettings(ctx)
+	for _, name := range required {
+		if result[name] != true {
+			t.Fatalf("independent SMTP browser evidence incomplete: %s", name)
+		}
+	}
+	facts := f.smtpFacts(ctx)
+	if facts["delivery_unchanged"] != true || facts["forbidden_calls"] != int32(0) {
+		t.Fatal("independent configuration browser created or requested delivery")
+	}
+	t.Logf("independent SMTP %s completed with original command/Audit, safe request equality and no delivery claim", mode)
+}
+
+func TestAccountSystemSMTPSettingsIndependentPUTReplay(t *testing.T) {
+	runSMTPSettingsIndependent(t, "authority", "historical_put", "current_opposite", "exact_command", "read_failure", "current_authority", "private_safety")
+}
+
+func TestAccountSystemSMTPSettingsIndependentUnconfigureReplay(t *testing.T) {
+	runSMTPSettingsIndependent(t, "navigation", "captured_saved_policy", "restored_confirmations", "native_focus", "historical_post", "current_opposite", "exact_command", "private_safety")
+}

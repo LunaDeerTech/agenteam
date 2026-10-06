@@ -1,0 +1,58 @@
+{
+  "0849cb94cf4e2b4bed2852d251f11f841c7aaa6cc495df5ee8f25510ddb17fbf": {
+    "id": "0849cb94cf4e2b4bed2852d251f11f841c7aaa6cc495df5ee8f25510ddb17fbf",
+    "kind": "network",
+    "labels": {
+      "agenteam.d05.objectfixture": "8e522747a93b404c3d66e32a54e7be6f"
+    },
+    "name": "agenteam-d05-object-8e522747a93b404c3d66e32a54e7be6f"
+  },
+  "1180846284df58afcc1538880cc86dfd7a8bd3e4a53a8ab96c9b8967debfba27": {
+    "id": "1180846284df58afcc1538880cc86dfd7a8bd3e4a53a8ab96c9b8967debfba27",
+    "kind": "container",
+    "labels": {
+      "agenteam.d05.objectfixture": "8e522747a93b404c3d66e32a54e7be6f"
+    },
+    "name": "/agenteam-d05-object-8e522747a93b404c3d66e32a54e7be6f"
+  },
+  "53800a9cb1231f8964a6215d4cd1cb10ef994dcf6b3a6ce63b49ad23db8f0776": {
+    "id": "53800a9cb1231f8964a6215d4cd1cb10ef994dcf6b3a6ce63b49ad23db8f0776",
+    "kind": "container",
+    "labels": {
+      "agenteam.d04.networkfixture": "97c7a19ded8e6c20981005a6c15eefac"
+    },
+    "name": "/agenteam-d04-net-97c7a19ded8e6c20981005a6c15eefac"
+  },
+  "894b329a96fd4d667ab5e8ce5cf34310f7ed3aa503b1b24a803025e53877012e": {
+    "id": "894b329a96fd4d667ab5e8ce5cf34310f7ed3aa503b1b24a803025e53877012e",
+    "kind": "container",
+    "labels": {
+      "agenteam.d03.fixture": "257b8f4c81d82786e56e4714f1804796"
+    },
+    "name": "/agenteam-d03-257b8f4c81d82786e56e4714f1804796"
+  },
+  "da63f3183a696265a6a31b50cc29d9f9e4a1eb682d9e72288bc688188bb1340a": {
+    "id": "da63f3183a696265a6a31b50cc29d9f9e4a1eb682d9e72288bc688188bb1340a",
+    "kind": "container",
+    "labels": {
+      "agenteam.d03.fixture": "257b8f4c81d82786e56e4714f1804796"
+    },
+    "name": "/agenteam-d03-257b8f4c81d82786e56e4714f1804796-pg16"
+  },
+  "e2725f68b59d51a1913b724382eb3639848aed8b2b7b4f3bc2707efe79cba1f2": {
+    "id": "e2725f68b59d51a1913b724382eb3639848aed8b2b7b4f3bc2707efe79cba1f2",
+    "kind": "network",
+    "labels": {
+      "agenteam.d04.networkfixture": "97c7a19ded8e6c20981005a6c15eefac"
+    },
+    "name": "agenteam-d04-net-97c7a19ded8e6c20981005a6c15eefac"
+  },
+  "fa80f0cb1c241abe344b606375be67f157eeee85cbd79d1ce96ecba814e72776": {
+    "id": "fa80f0cb1c241abe344b606375be67f157eeee85cbd79d1ce96ecba814e72776",
+    "kind": "network",
+    "labels": {
+      "agenteam.d03.fixture": "257b8f4c81d82786e56e4714f1804796"
+    },
+    "name": "agenteam-d03-257b8f4c81d82786e56e4714f1804796"
+  }
+}

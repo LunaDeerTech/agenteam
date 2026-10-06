@@ -1,0 +1,40 @@
+--- input01/browser/cases.ts.txt
++++ input02/browser/cases.ts.txt
+@@ -109,7 +109,7 @@
+   await setPassword(page, 0);
+   const failureBase = await ipc("failure-facts");
+   await button(page, "停用并清除配置").click();
+-  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
++  await expect(top(page)).toHaveAccessibleName("放弃草稿并继续停用？");
+   await restored(page, 1);
+   await focusContained(page);
+   await top(page).getByRole("button", { name: "继续编辑", exact: true }).click();
+@@ -118,7 +118,7 @@
+   await expect(field(page, "retry_interval_seconds")).toHaveValue("120");
+   await expect(password(page)).toHaveValue("");
+   await button(page, "停用并清除配置").click();
+-  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
++  await expect(top(page)).toHaveAccessibleName("放弃草稿并继续停用？");
+   await top(page).getByRole("button", { name: "放弃修改", exact: true }).click();
+   await expect(top(page)).toHaveAccessibleName("停用并清除 SMTP 配置？");
+   await expect(top(page)).toContainText(`保留自动重试 ${initial.auto_retry_count} 次`);
+--- input01/browser/independent.spec.ts
++++ input02/browser/independent.spec.ts
+@@ -885,7 +885,7 @@
+   await setPassword(page, 0);
+   const failureBase = await ipc("failure-facts");
+   await button(page, "停用并清除配置").click();
+-  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
++  await expect(top(page)).toHaveAccessibleName("放弃草稿并继续停用？");
+   await restored(page, 1);
+   await focusContained(page);
+   await top(page).getByRole("button", { name: "继续编辑", exact: true }).click();
+@@ -894,7 +894,7 @@
+   await expect(field(page, "retry_interval_seconds")).toHaveValue("120");
+   await expect(password(page)).toHaveValue("");
+   await button(page, "停用并清除配置").click();
+-  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
++  await expect(top(page)).toHaveAccessibleName("放弃草稿并继续停用？");
+   await top(page).getByRole("button", { name: "放弃修改", exact: true }).click();
+   await expect(top(page)).toHaveAccessibleName("停用并清除 SMTP 配置？");
+   await expect(top(page)).toContainText(`保留自动重试 ${initial.auto_retry_count} 次`);

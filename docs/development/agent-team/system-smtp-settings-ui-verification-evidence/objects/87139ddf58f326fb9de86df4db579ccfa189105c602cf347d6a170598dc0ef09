@@ -1,0 +1,38 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-settings-owner-independent-7i2ebpp5/fixed/web
+
+stdout | src/tests/independent-smtp-owner.spec.ts > independent SMTP private original and actual owner boundaries > does not overwrite a successor started from the public material-retired notification
+SMTP_NEW_INTENT_SAFE {"started":true,"busy":true,"material":true,"phase":null,"writes":2,"newBodyMatches":true}
+
+ ❯ src/tests/independent-smtp-owner.spec.ts (7 tests | 1 failed) 63ms
+     × does not overwrite a successor started from the public material-retired notification 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/independent-smtp-owner.spec.ts > independent SMTP private original and actual owner boundaries > does not overwrite a successor started from the public material-retired notification
+AssertionError: expected { started: true, busy: true, …(4) } to deeply equal { started: true, busy: true, …(4) }
+
+- Expected
++ Received
+
+  {
+    "busy": true,
+    "material": true,
+    "newBodyMatches": true,
+-   "phase": "submitting",
++   "phase": null,
+    "started": true,
+    "writes": 2,
+  }
+
+ ❯ src/tests/independent-smtp-owner.spec.ts:164:20
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  16:03:51
+   Duration  820ms (transform 162ms, setup 0ms, import 249ms, tests 63ms, environment 384ms)
+

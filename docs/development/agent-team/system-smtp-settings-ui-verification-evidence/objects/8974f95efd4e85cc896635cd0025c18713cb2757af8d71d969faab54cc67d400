@@ -1,0 +1,1093 @@
+--- a/web/src/composables/useSession.ts
++++ b/web/src/composables/useSession.ts
+@@ -78,6 +78,37 @@
+   type AccountSecuritySettings,
+   type AccountSecurityUpdateInput,
+ } from '../api/system-account-security'
++
++import {
++  createSystemSMTPSettingsAPI,
++  captureSMTPUpdate,
++  captureSMTPUnconfigure,
++  validateSMTPPassword,
++  type SystemSMTPSettingsAPI,
++  type SMTPSettings,
++  type SMTPUpdateInput,
++  type SMTPUnconfigureInput,
++  type SMTPResult,
++} from '../api/system-smtp-settings'
++
++type SMTPAction = 'smtp-settings-read' | 'smtp-settings-write'
++export type SystemSMTPKind = 'configure' | 'policy' | 'unconfigure'
++export type SystemSMTPProgress = Readonly<{
++  kind: SystemSMTPKind
++  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
++  result: SMTPResult | null
++  observation: 'none' | 'current' | 'failed'
++  contextValid: boolean
++  canRetryOriginal: boolean
++}>
++type SystemSMTPIntent = Readonly<{
++  kind: SystemSMTPKind
++  payload: { input: SMTPUpdateInput | SMTPUnconfigureInput | null; body: string | null }
++  singletonID: string
++  identity: PersonalIdentity
++  csrf: string
++  key: string
++}>
+ 
+ type AccountSecurityAction = 'account-security-read' | 'account-security-write'
+ export type SystemAccountSecurityProgress = Readonly<{
+@@ -220,6 +251,7 @@
+   | ModelAction
+   | SelectionAction
+   | AccountSecurityAction
++  | SMTPAction
+ interface Operation {
+   generation: number
+   kind: Action
+@@ -322,6 +354,7 @@
+   modelAPI: SystemModelAPI = createSystemModelAPI(),
+   selectionAPI: SystemModelSelectionAPI = createSystemModelSelectionAPI(),
+   accountSecurityAPI: SystemAccountSecurityAPI = createSystemAccountSecurityAPI(),
++  smtpAPI: SystemSMTPSettingsAPI = createSystemSMTPSettingsAPI(),
+ ) {
+   const state = shallowReactive<PublicState>({
+     phase: 'checking',
+@@ -437,6 +470,23 @@
+   const accountSecurityState = shallowReactive<{
+     progress: Omit<SystemAccountSecurityProgress, 'contextValid' | 'canRetryOriginal'> | null
+   }>({ progress: null })
++  const smtpRevisions: Record<SMTPAction, number> = {
++    'smtp-settings-read': 0,
++    'smtp-settings-write': 0,
++  }
++  const isSMTPAction = (kind: Action): kind is SMTPAction => Object.hasOwn(smtpRevisions, kind)
++  let smtpIntent: SystemSMTPIntent | null = null,
++    smtpSingleton: Readonly<{ identity: PersonalIdentity; settings: SMTPSettings }> | null = null,
++    smtpMaterial: string | null = null,
++    smtpUncertain = false,
++    smtpChecked = false,
++    smtpKeyConflict = false
++  const smtpState = shallowReactive<{
++    progress: Omit<SystemSMTPProgress, 'contextValid' | 'canRetryOriginal'> | null
++    hasMaterial: boolean
++    materialInvalid: boolean
++    materialRevision: number
++  }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
+   const systemDenied = () => sameIdentity(systemState.deniedIdentity, personalContext.identity)
+   let identityEpoch = 0,
+     personalRevision = 0
+@@ -475,6 +525,7 @@
+       clearModelState()
+       clearSelectionState()
+       clearAccountSecurityState(true)
++      clearSMTPState(true)
+       ++systemRevision
+       systemState.deniedIdentity = null
+       sessionCSRF = ''
+@@ -576,6 +627,8 @@
+       (accountSecurityIntent && accountSecurityIntent.csrf !== sessionCSRF)
+     )
+       clearAccountSecurityState(true)
++    if (!same || view.user.role !== 'admin' || (smtpIntent && smtpIntent.csrf !== sessionCSRF))
++      clearSMTPState(true)
+     state.notice = ''
+     state.fields = {}
+     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
+@@ -1010,7 +1063,8 @@
+       | ProviderAction
+       | ModelAction
+       | SelectionAction
+-      | AccountSecurityAction = 'personal',
++      | AccountSecurityAction
++      | SMTPAction = 'personal',
+   ): Promise<T> {
+     if (owner) return Promise.reject(new AccountFailure('busy'))
+     const revisionNow = () =>
+@@ -1028,7 +1082,9 @@
+                   ? selectionRevisions[kind]
+                   : isAccountSecurityAction(kind)
+                     ? accountSecurityRevisions[kind]
+-                    : providerRevisions[kind]
++                    : isSMTPAction(kind)
++                      ? smtpRevisions[kind]
++                      : providerRevisions[kind]
+     const revision = revisionNow()
+     const op: Operation = {
+       kind,
+@@ -1280,6 +1336,7 @@
+           'selection-write',
+           'selection-lookup',
+           'account-security-write',
++          'smtp-settings-write',
+         ].includes(op.kind) &&
+           e.problem?.code === 'CSRF_FAILED')
+       ) {
+@@ -1293,6 +1350,7 @@
+         clearModelState()
+         clearSelectionState()
+         clearAccountSecurityState(true)
++        clearSMTPState(true)
+         systemState.deniedIdentity = identity
+       }
+     }
+@@ -2415,7 +2473,296 @@
+       return performAccountSecurity(accountSecurityIntent)
+     },
+   }
++  function clearSMTPMaterial() {
++    smtpMaterial = null
++    smtpState.hasMaterial = smtpState.materialInvalid = false
++    ++smtpState.materialRevision
++  }
++  function clearSMTPPayload(original: SystemSMTPIntent | null) {
++    if (original) {
++      original.payload.input = null
++      original.payload.body = null
++    }
++  }
++  function clearSMTPState(clearSingleton = false) {
++    const retiring = owner && isSMTPAction(owner.kind) ? owner : null
++    ++smtpRevisions['smtp-settings-read']
++    ++smtpRevisions['smtp-settings-write']
++    clearSMTPPayload(smtpIntent)
++    smtpIntent = null
++    smtpUncertain = smtpChecked = smtpKeyConflict = false
++    clearSMTPMaterial()
++    smtpState.progress = null
++    if (clearSingleton) smtpSingleton = null
++    retiring?.abandon?.()
++  }
++  function captureSMTPObservation(identity: PersonalIdentity, value: SMTPSettings) {
++    if (
++      smtpSingleton &&
++      (!sameIdentity(smtpSingleton.identity, identity) || value.id !== smtpSingleton.settings.id)
++    )
++      throw new AccountFailure('invalid-response')
++    if (!smtpSingleton || BigInt(value.version) >= BigInt(smtpSingleton.settings.version))
++      smtpSingleton = Object.freeze({ identity, settings: value })
++  }
++  function readSMTP(): Promise<SMTPSettings> {
++    try {
++      const identity = invitationIdentity()
++      return runAuthorized(
++        identity,
++        async (op, current) => {
++          const value = await smtpAPI.getSettings(op.abort.signal)
++          if (!current()) throw new AccountFailure('cancelled')
++          captureSMTPObservation(identity, value)
++          return value
++        },
++        undefined,
++        'smtp-settings-read',
++      )
++    } catch (error) {
++      return Promise.reject(error)
++    }
++  }
++  function publishSMTP(
++    original: SystemSMTPIntent,
++    phase: SystemSMTPProgress['phase'],
++    result: SMTPResult | null = null,
++  ) {
++    smtpState.progress = Object.freeze({ kind: original.kind, phase, result, observation: 'none' })
++  }
++  function performSMTP(original: SystemSMTPIntent): Promise<SMTPResult> {
++    if (owner) return Promise.reject(new AccountFailure('busy'))
++    if (
++      smtpIntent !== original ||
++      !invitationContext(original) ||
++      !original.payload.input ||
++      !original.payload.body
++    )
++      return Promise.reject(new AccountFailure('invalid-input'))
++    const revision = smtpRevisions['smtp-settings-write']
++    const live = () =>
++      smtpIntent === original &&
++      revision === smtpRevisions['smtp-settings-write'] &&
++      invitationContext(original)
++    let dispatched = false
++    smtpChecked = false
++    publishSMTP(original, 'submitting')
++    if (!live()) return Promise.reject(new AccountFailure('cancelled'))
++    return runAuthorized(
++      original.identity,
++      async (op, current) => {
++        if (!current() || !live()) throw new AccountFailure('cancelled')
++        const captured = original.payload.input
++        if (!captured || JSON.stringify(captured) !== original.payload.body)
++          throw new AccountFailure('invalid-input')
++        const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
++        dispatched = true
++        try {
++          const value =
++            original.kind === 'configure'
++              ? await smtpAPI.updateSettings(captured as SMTPUpdateInput, options)
++              : await smtpAPI.unconfigure(captured, options)
++          if (value.settings.id !== original.singletonID)
++            throw new AccountFailure('invalid-response')
++          return value
++        } finally {
++          // Explicit abandonment already removes recovery access; the API owns
++          // only the temporary original request through its actual I/O tail.
++          if (smtpIntent !== original) clearSMTPPayload(original)
++        }
++      },
++      undefined,
++      'smtp-settings-write',
++    ).then(
++      (value) => {
++        if (!live()) throw new AccountFailure('cancelled')
++        captureSMTPObservation(original.identity, value.settings)
++        // At this point the transport's original EOF/cancel has actually joined.
++        clearSMTPPayload(original)
++        clearSMTPMaterial()
++        if (!live()) throw new AccountFailure('cancelled')
++        publishSMTP(original, 'confirmed', value)
++        // Synchronous consumers may abandon and create a successor here.
++        if (!live()) throw new AccountFailure('cancelled')
++        smtpIntent = null
++        smtpUncertain = smtpChecked = smtpKeyConflict = false
++        return value
++      },
++      (error: unknown) => {
++        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
++        if (
++          smtpIntent === original &&
++          revision === smtpRevisions['smtp-settings-write'] &&
++          sameIdentity(original.identity, personalContext.identity)
++        ) {
++          const p = e.problem
++          const known =
++            !dispatched ||
++            (p &&
++              ['not_started', 'not_committed'].includes(p.commit_state) &&
++              p.status < 500 &&
++              [
++                'INVALID_ARGUMENT',
++                'VERSION_CONFLICT',
++                'NOT_FOUND',
++                'INVALID_STATE',
++                'RATE_LIMITED',
++                'RESOURCE_DELETED',
++              ].includes(p.code))
++          // Both write endpoints perform a separate authorized current GET after
++          // committing. Its 5xx/not_started is not evidence that the write failed.
++          smtpKeyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
++          smtpUncertain ||= !known || smtpKeyConflict
++          smtpChecked = false
++          publishSMTP(original, smtpUncertain ? 'uncertain' : 'rejected')
++        }
++        throw e
++      },
++    )
++  }
++  function startSMTP(kind: SystemSMTPKind, input: SMTPUpdateInput | SMTPUnconfigureInput) {
++    try {
++      const identity = invitationIdentity()
++      if (owner || smtpIntent || personalIntent || pending) throw new AccountFailure('busy')
++      if (!smtpSingleton || !sameIdentity(smtpSingleton.identity, identity))
++        throw new AccountFailure('invalid-input')
++      if (!input || typeof input !== 'object' || Object.hasOwn(input, 'password'))
++        throw new AccountFailure('invalid-input')
++      if (smtpState.materialInvalid) throw new AccountFailure('invalid-input')
++      const captured =
++        kind === 'configure'
++          ? captureSMTPUpdate({
++              ...(input as SMTPUpdateInput),
++              ...(smtpMaterial === null ? {} : { password: smtpMaterial }),
++            })
++          : captureSMTPUnconfigure(input)
++      if (kind === 'configure' && captured.version === smtpSingleton.settings.version) {
++        const update = captured as SMTPUpdateInput
++        const credential =
++          update.credential_action === 'remove'
++            ? false
++            : !!update.password || smtpSingleton.settings.credential_present
++        if ((update.username !== '') !== credential) throw new AccountFailure('invalid-input')
++      }
++      const original: SystemSMTPIntent = Object.freeze({
++        kind,
++        payload: { input: captured, body: JSON.stringify(captured) },
++        singletonID: smtpSingleton.settings.id,
++        identity,
++        csrf: sessionCSRF,
++        key: newKey(),
++      })
++      smtpIntent = original
++      smtpMaterial = null
++      smtpState.hasMaterial = kind === 'configure' && !!(captured as SMTPUpdateInput).password
++      smtpUncertain = smtpChecked = smtpKeyConflict = false
++      return performSMTP(original)
++    } catch (error) {
++      return Promise.reject(error)
++    }
++  }
++  const smtp = {
++    get progress(): SystemSMTPProgress | null {
++      const value = smtpState.progress
++      if (!value) return null
++      const contextValid = !!smtpIntent && invitationContext(smtpIntent)
++      return Object.freeze({
++        ...value,
++        contextValid,
++        canRetryOriginal:
++          !!smtpIntent &&
++          !!smtpIntent.payload.input &&
++          smtpUncertain &&
++          smtpChecked &&
++          !smtpKeyConflict &&
++          contextValid &&
++          !state.busy,
++      })
++    },
++    get material() {
++      return Object.freeze({
++        present: smtpState.hasMaterial,
++        invalid: smtpState.materialInvalid,
++        revision: smtpState.materialRevision,
++      })
++    },
++    setMaterial(value: string) {
++      invitationIdentity()
++      if (smtpIntent) throw new AccountFailure('busy')
++      if (value === '') {
++        clearSMTPMaterial()
++        return
++      }
++      try {
++        validateSMTPPassword(value)
++        smtpMaterial = value
++        smtpState.hasMaterial = true
++        smtpState.materialInvalid = false
++        ++smtpState.materialRevision
++      } catch (error) {
++        clearSMTPMaterial()
++        smtpState.materialInvalid = true
++        throw error
++      }
++    },
++    get: readSMTP,
++    abandonRead() {
++      ++smtpRevisions['smtp-settings-read']
++      if (owner?.kind === 'smtp-settings-read') owner.abandon?.()
++    },
++    abandon() {
++      clearSMTPState()
++    },
++    editRejected() {
++      if (
++        !smtpIntent ||
++        smtpUncertain ||
++        smtpState.progress?.phase !== 'rejected' ||
++        owner ||
++        !invitationContext(smtpIntent)
++      )
++        throw new AccountFailure('invalid-input')
++      smtpMaterial = (smtpIntent.payload.input as SMTPUpdateInput | null)?.password ?? null
++      clearSMTPPayload(smtpIntent)
++      smtpIntent = null
++      smtpState.progress = null
++      smtpUncertain = smtpChecked = smtpKeyConflict = false
++    },
++    startUpdate(input: Omit<SMTPUpdateInput, 'password'>) {
++      return startSMTP('configure', input)
++    },
++    startUnconfigure(input: SMTPUnconfigureInput, kind: 'policy' | 'unconfigure' = 'unconfigure') {
++      if (kind !== 'policy' && kind !== 'unconfigure')
++        return Promise.reject(new AccountFailure('invalid-input'))
++      return startSMTP(kind, input)
++    },
++    async checkOriginal() {
++      const original = smtpIntent
++      if (!original || !smtpUncertain || owner) throw new AccountFailure('invalid-input')
++      smtpChecked = false
++      await restore()
++      if (smtpIntent !== original || !invitationContext(original))
++        throw new AccountFailure('cancelled')
++      smtpChecked = true
++      try {
++        const value = await readSMTP()
++        if (smtpIntent === original && invitationContext(original) && smtpState.progress)
++          smtpState.progress = Object.freeze({ ...smtpState.progress, observation: 'current' })
++        return value
++      } catch (error) {
++        if (smtpIntent === original && invitationContext(original) && smtpState.progress)
++          smtpState.progress = Object.freeze({ ...smtpState.progress, observation: 'failed' })
++        throw error
++      }
++    },
++    retryOriginal() {
++      if (!smtpIntent || !smtp.progress?.canRetryOriginal)
++        return Promise.reject(new AccountFailure('invalid-input'))
++      return performSMTP(smtpIntent)
++    },
++  }
+   const system = {
++    smtp,
+     accountSecurity,
+     selection,
+     models,
+--- a/web/src/tests/system-smtp-settings-state.spec.ts
++++ b/web/src/tests/system-smtp-settings-state.spec.ts
+@@ -0,0 +1,659 @@
++import { afterEach, describe, expect, it, vi } from 'vitest'
++import { flushPromises } from '@vue/test-utils'
++import { watch } from 'vue'
++import { createAccountAPI, type SessionView } from '../api/account'
++import { type CommitState, type Fetch } from '../api/client'
++import { createSystemAccountAPI } from '../api/system-account'
++import { createSystemInvitationAPI } from '../api/system-invitations'
++import { createSystemProviderAPI } from '../api/system-providers'
++import { createSystemModelAPI } from '../api/system-models'
++import { createSystemModelSelectionAPI } from '../api/system-model-selection'
++import { createSystemAccountSecurityAPI } from '../api/system-account-security'
++import { createSystemSMTPSettingsAPI, type SMTPUpdateInput } from '../api/system-smtp-settings'
++import { createSessionController, type SessionController } from '../composables/useSession'
++import { useTheme } from '../composables/useTheme'
++
++const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
++const time = '2026-10-06T12:34:56.123456Z'
++const view = (sessionID = id(2), role: 'admin' | 'user' = 'admin'): SessionView => ({
++  user: {
++    id: id(1),
++    email: 'admin@example.com',
++    username: 'admin',
++    display_name: 'Admin',
++    role,
++    theme: 'system',
++    version: '1',
++    initial_password_suggestion: false,
++  },
++  session: { id: sessionID, issued_at: time, idle_expires_at: time, absolute_expires_at: time },
++  csrf_token: 'S'.repeat(43),
++})
++const fields = () => ({
++  host: 'mail.example',
++  port: 587,
++  encryption: 'starttls' as const,
++  username: '',
++  sender_email: 'sender@example.test',
++  sender_name: '',
++  auto_retry_count: '3',
++  retry_interval_seconds: '60',
++})
++const input = (): Omit<SMTPUpdateInput, 'password'> => ({
++  version: '1',
++  ...fields(),
++  credential_action: 'keep',
++})
++const settings = (version = '1', configured = true) => ({
++  id: id(10),
++  version,
++  configured,
++  ...fields(),
++  credential_present: false,
++  ...(configured
++    ? {}
++    : { host: '', port: 0, encryption: '', username: '', sender_email: '', sender_name: '' }),
++})
++const receipt = (current = settings('2'), applied_version = '2') => ({
++  applied_version,
++  settings: current,
++})
++const security = () => ({
++  id: id(12),
++  version: '1',
++  session_idle_seconds: '604800',
++  session_absolute_seconds: '2592000',
++  password_reset_seconds: '1800',
++  challenge_after_failures: '5',
++  lifetime_changes_apply_to: 'newly_issued_sessions_and_tokens',
++})
++const json = (value: unknown, status = 200) =>
++  new Response(JSON.stringify(value), {
++    status,
++    headers: {
++      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
++      'X-Request-ID': id(9),
++    },
++  })
++const problem = (code: string, status = 503, commit_state: CommitState = 'not_started') =>
++  json(
++    {
++      type: 'urn:agenteam:problem:test',
++      title: 'Failure',
++      status,
++      code,
++      detail: 'safe test',
++      instance: '/api/v1/system/smtp',
++      request_id: id(9),
++      commit_state,
++      retry_hint: 'lookup',
++    },
++    status,
++  )
++function barrier<T = void>() {
++  let resolve!: (value: T | PromiseLike<T>) => void
++  const promise = new Promise<T>((r) => {
++    resolve = r
++  })
++  return { promise, resolve }
++}
++const owners: SessionController[] = []
++async function fixture() {
++  let current = view(),
++    session: Fetch = async () => json(current),
++    smtp: Fetch = async (_, i) => json(i.method === 'GET' ? settings() : receipt()),
++    other: Fetch = async (path) => {
++      if (path === '/api/v1/me') return json({ user: current.user, avatar: null })
++      if (path === '/api/v1/system/model-selection')
++        return json({ id: id(20), version: '1', configured: null })
++      if (path === '/api/v1/system/account-settings') return json(security())
++      if (path.startsWith('/api/v1/system/users') || path.startsWith('/api/v1/system/invitations'))
++        return json({ items: [] })
++      return json({ items: [], next_cursor: null })
++    }
++  const fetch = vi.fn<Fetch>(async (path, init) => {
++    if (path === '/api/v1/session') return session(path, init)
++    if (path === '/api/v1/auth/bootstrap')
++      return json({
++        csrf_token: 'A'.repeat(43),
++        challenge_modes: ['rotate'],
++        delivery_channel: 'backend_log',
++      })
++    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
++    return path.startsWith('/api/v1/system/smtp') ? smtp(path, init) : other(path, init)
++  })
++  const auth = createSessionController(
++    createAccountAPI(fetch),
++    createSystemAccountAPI(fetch),
++    createSystemInvitationAPI(fetch),
++    createSystemProviderAPI(fetch),
++    createSystemModelAPI(fetch),
++    createSystemModelSelectionAPI(fetch),
++    createSystemAccountSecurityAPI(fetch),
++    createSystemSMTPSettingsAPI(fetch),
++  )
++  owners.push(auth)
++  await auth.restore()
++  return {
++    auth,
++    fetch,
++    setSMTP(value: Fetch) {
++      smtp = value
++    },
++    setOther(value: Fetch) {
++      other = value
++    },
++    setSession(value: SessionView) {
++      current = value
++    },
++    setSessionRequest(value: Fetch) {
++      session = value
++    },
++    writes() {
++      return fetch.mock.calls.filter(
++        ([p, i]) => p.startsWith('/api/v1/system/smtp') && i.method !== 'GET',
++      )
++    },
++  }
++}
++afterEach(() => {
++  for (const auth of owners.splice(0)) auth.leave()
++  vi.useRealTimers()
++  vi.restoreAllMocks()
++  useTheme().setTheme('system')
++})
++
++describe('SMTP eighth owner domain and private original material', () => {
++  it('binds the first singleton and never exposes private material, request bytes or key', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtp
++    await expect(api.startUpdate(input())).rejects.toMatchObject({ kind: 'invalid-input' })
++    await api.get()
++    api.setMaterial(' private🧩 ')
++    expect(api.material.present).toBe(true)
++    expect(JSON.stringify(api).includes('private')).toBe(false)
++    await expect(api.startUpdate({ ...input(), username: '' })).rejects.toMatchObject({
++      kind: 'invalid-input',
++    })
++    expect(f.writes()).toHaveLength(0)
++    f.setSMTP(async (_, i) =>
++      json(
++        i.method === 'GET'
++          ? { ...settings(), id: id(99) }
++          : receipt({ ...settings('2'), id: id(99), username: 'auth', credential_present: true }),
++      ),
++    )
++    await expect(api.get()).rejects.toMatchObject({ kind: 'invalid-response' })
++    await expect(api.startUpdate({ ...input(), username: 'auth' })).rejects.toMatchObject({
++      kind: 'invalid-response',
++    })
++    expect(api.progress?.phase).toBe('uncertain')
++    expect(api.material.present).toBe(true)
++    expect(JSON.stringify(api).includes('private')).toBe(false)
++    api.abandon()
++    expect(api.material.present).toBe(false)
++    await expect(api.get()).rejects.toMatchObject({ kind: 'invalid-response' })
++    f.setSession(view(id(3)))
++    await f.auth.restore()
++    expect((await api.get()).id).toBe(id(99))
++  })
++  it('validates material/input before creating a dispatch, ignores double starts and prevents mutation of a pending original', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtp
++    await api.get()
++    expect(() => api.setMaterial('x'.repeat(2049))).toThrow(
++      expect.objectContaining({ kind: 'invalid-input' }),
++    )
++    await expect(api.startUpdate(input())).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(f.writes()).toHaveLength(0)
++    api.setMaterial(' secret ')
++    const held = barrier<Response>()
++    f.setSMTP(() => held.promise)
++    const pending = api.startUpdate({ ...input(), username: 'auth' })
++    await flushPromises()
++    await expect(api.startUpdate(input())).rejects.toMatchObject({ kind: 'busy' })
++    expect(() => api.setMaterial('changed')).toThrow(expect.objectContaining({ kind: 'busy' }))
++    expect(f.writes()).toHaveLength(1)
++    held.resolve(json(receipt({ ...settings('2'), username: 'auth', credential_present: true })))
++    await pending
++    expect(api.material.present).toBe(false)
++    expect(api.progress?.phase).toBe('confirmed')
++    expect(JSON.stringify(api).includes('secret')).toBe(false)
++    expect(() => api.setMaterial('next')).not.toThrow()
++  })
++  it.each(['UNAVAILABLE', 'RESOURCE_BUSY', 'transport'] as const)(
++    'retains exact password/body/key through %s after dispatch and confirms an opposite later current state',
++    async (code) => {
++      const f = await fixture(),
++        api = f.auth.system.smtp
++      await api.get()
++      api.setMaterial(' staged\t🧩 ')
++      f.setSMTP(async () => {
++        if (code === 'transport') throw new Error('lost')
++        return problem(code, code === 'RESOURCE_BUSY' ? 409 : 503)
++      })
++      await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
++      const first = f.writes()[0]![1]
++      expect(api.progress?.phase).toBe('uncertain')
++      expect(api.material.present).toBe(true)
++      const before = f.fetch.mock.calls.length
++      f.setSMTP(async (_, i) =>
++        json(i.method === 'GET' ? settings('4', false) : receipt(settings('4', false))),
++      )
++      await api.checkOriginal()
++      expect(f.fetch.mock.calls.slice(before).map(([p, i]) => [p, i.method])).toEqual([
++        ['/api/v1/session', 'GET'],
++        ['/api/v1/system/smtp', 'GET'],
++      ])
++      expect(api.progress).toMatchObject({
++        phase: 'uncertain',
++        observation: 'current',
++        result: null,
++        canRetryOriginal: true,
++      })
++      await api.retryOriginal()
++      const second = f.writes()[1]![1]
++      expect(
++        second.body === first.body &&
++          JSON.stringify(second.headers) === JSON.stringify(first.headers),
++      ).toBe(true)
++      expect(api.progress).toMatchObject({
++        phase: 'confirmed',
++        result: { applied_version: '2', settings: { configured: false, version: '4' } },
++      })
++      expect(api.material.present).toBe(false)
++      expect(f.fetch.mock.calls.some(([p]) => /lookup|test|jobs/.test(p))).toBe(false)
++      await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++    },
++  )
++  it('preserves POST unconfigure historical policy bytes even when current settings are configured with a newer policy', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtp
++    await api.get()
++    f.setSMTP(async () => problem('UNAVAILABLE'))
++    await api
++      .startUnconfigure({ version: '1', auto_retry_count: '0', retry_interval_seconds: '3600' })
++      .catch(() => undefined)
++    const first = f.writes()[0]!
++    f.setSMTP(async (_, i) => json(i.method === 'GET' ? settings('4') : receipt(settings('4'))))
++    await api.checkOriginal()
++    await api.retryOriginal()
++    const second = f.writes()[1]!
++    expect(first[0]).toBe('/api/v1/system/smtp/unconfigure')
++    expect(first[1].method).toBe('POST')
++    expect(
++      first[1].body === second[1].body &&
++        JSON.stringify(first[1].headers) === JSON.stringify(second[1].headers),
++    ).toBe(true)
++    expect(Object.keys(JSON.parse(first[1].body as string)).sort()).toEqual([
++      'auto_retry_count',
++      'retry_interval_seconds',
++      'version',
++    ])
++    expect(api.progress).toMatchObject({
++      kind: 'unconfigure',
++      phase: 'confirmed',
++      result: { applied_version: '2', settings: { configured: true, auto_retry_count: '3' } },
++    })
++  })
++  it.each([
++    ['VERSION_CONFLICT', 409, 'not_started'],
++    ['INVALID_ARGUMENT', 400, 'not_committed'],
++  ] as const)(
++    'distinguishes first %s from a rejection after uncertainty and preserves staged material for explicit editing',
++    async (code, status, commit) => {
++      const f = await fixture(),
++        api = f.auth.system.smtp
++      await api.get()
++      api.setMaterial('original-private')
++      f.setSMTP(async () => problem(code, status, commit))
++      await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
++      expect(api.progress?.phase).toBe('rejected')
++      expect(api.material.present).toBe(true)
++      api.editRejected()
++      expect(api.progress).toBeNull()
++      expect(api.material.present).toBe(true)
++      f.setSMTP(async () => {
++        throw new Error('lost')
++      })
++      await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
++      f.setSMTP(async (_, i) =>
++        i.method === 'GET' ? json(settings('3', false)) : problem(code, status, commit),
++      )
++      await api.checkOriginal()
++      await api.retryOriginal().catch(() => undefined)
++      expect(api.progress?.phase).toBe('uncertain')
++      expect(() => api.editRejected()).toThrow()
++      const writes = f.writes()
++      expect(
++        writes[1]![1].body === writes[2]![1].body &&
++          JSON.stringify(writes[1]![1].headers) === JSON.stringify(writes[2]![1].headers),
++      ).toBe(true)
++      expect(
++        JSON.parse(writes[0]![1].body as string).password ===
++          JSON.parse(writes[1]![1].body as string).password,
++      ).toBe(true)
++    },
++  )
++  it('locks key conflicts, and a failed Session or observation never manufactures a receipt', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtp
++    await api.get()
++    api.setMaterial('private')
++    f.setSMTP(async () => problem('UNAVAILABLE'))
++    await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
++    f.setSessionRequest(async () => problem('UNAVAILABLE'))
++    const before = f.fetch.mock.calls.length
++    await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'cancelled' })
++    expect(f.fetch.mock.calls.slice(before).map(([p]) => p)).toEqual(['/api/v1/session'])
++    expect(api.progress?.canRetryOriginal).toBe(false)
++    f.setSessionRequest(async () => json(view()))
++    await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'problem' })
++    expect(api.progress).toMatchObject({
++      phase: 'uncertain',
++      observation: 'failed',
++      canRetryOriginal: true,
++      result: null,
++    })
++    expect(api.material.present).toBe(true)
++    f.setSMTP(async () => problem('IDEMPOTENCY_KEY_REUSED', 409))
++    await api.retryOriginal().catch(() => undefined)
++    f.setSMTP(async () => json(settings('3')))
++    await api.checkOriginal()
++    expect(api.progress?.canRetryOriginal).toBe(false)
++    expect(api.material.present).toBe(true)
++  })
++  it.each(['read', 'write'] as const)(
++    'retains native %s EOF/cancel ownership beyond the visible deadline and clears only after actual tail',
++    async (kind) => {
++      const f = await fixture(),
++        api = f.auth.system.smtp
++      await api.get()
++      api.setMaterial('private')
++      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
++      const tail = barrier(),
++        cancel = vi.fn(() => tail.promise)
++      let source!: ReadableStreamDefaultController<Uint8Array>
++      f.setSMTP(
++        async () =>
++          new Response(
++            new ReadableStream<Uint8Array>({
++              start(c) {
++                source = c
++              },
++              cancel,
++            }),
++            { headers: { 'Content-Type': 'application/json' } },
++          ),
++      )
++      const task = (
++        kind === 'read' ? api.get() : api.startUpdate({ ...input(), username: 'auth' })
++      ).catch((e) => e)
++      await flushPromises()
++      source.enqueue(
++        new TextEncoder().encode(
++          JSON.stringify(
++            kind === 'read'
++              ? settings()
++              : receipt({ ...settings('2'), username: 'auth', credential_present: true }),
++          ),
++        ),
++      )
++      await flushPromises()
++      expect(f.auth.state.busy).toBe(true)
++      await vi.advanceTimersByTimeAsync(30000)
++      expect(await task).toMatchObject({ kind: 'cancelled' })
++      expect(cancel).toHaveBeenCalledTimes(1)
++      expect(api.material.present).toBe(true)
++      const count = f.fetch.mock.calls.length
++      await f.auth.restore()
++      await f.auth.logout()
++      await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
++      await expect(f.auth.system.accountSecurity.get()).rejects.toMatchObject({ kind: 'busy' })
++      expect(f.fetch.mock.calls).toHaveLength(count)
++      if (kind === 'read') {
++        api.abandonRead()
++        expect(api.material.present).toBe(true)
++      }
++      api.abandon()
++      expect(api.material.present).toBe(false)
++      expect(f.auth.state.busy).toBe(true)
++      tail.resolve()
++      await flushPromises()
++      expect(f.auth.state.busy).toBe(false)
++      expect(api.progress).toBeNull()
++    },
++  )
++  it('read cancellation preserves a legal original, has no auto GET and keeps the native cancel barrier until explicit reread', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtp
++    await api.get()
++    api.setMaterial('retained')
++    f.setSMTP(async () => problem('UNAVAILABLE'))
++    await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
++    const tail = barrier(),
++      cancel = vi.fn(() => tail.promise)
++    f.setSMTP(
++      async () =>
++        new Response(new ReadableStream<Uint8Array>({ cancel }), {
++          headers: { 'Content-Type': 'application/json' },
++        }),
++    )
++    const read = api.get().catch((e) => e)
++    await flushPromises()
++    const count = f.fetch.mock.calls.length
++    api.abandonRead()
++    expect(await read).toMatchObject({ kind: 'cancelled' })
++    expect(api.progress?.phase).toBe('uncertain')
++    expect(api.material.present).toBe(true)
++    await expect(api.get()).rejects.toMatchObject({ kind: 'busy' })
++    expect(f.fetch.mock.calls).toHaveLength(count)
++    tail.resolve()
++    await flushPromises()
++    expect(f.fetch.mock.calls).toHaveLength(count)
++    f.setSMTP(async (_, i) =>
++      json(i.method === 'GET' ? settings('3', false) : receipt(settings('3', false))),
++    )
++    await api.checkOriginal()
++    await api.retryOriginal()
++    expect(api.progress?.phase).toBe('confirmed')
++  })
++  it('keeps an abort-ignoring fetch owner after leaving and prevents old publication in a new Session', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtp
++    await api.get()
++    api.setMaterial('old')
++    const held = barrier<Response>()
++    f.setSMTP(() => held.promise)
++    const task = api.startUpdate({ ...input(), username: 'auth' }).catch((e) => e)
++    await flushPromises()
++    f.auth.leave()
++    expect(await task).toMatchObject({ kind: 'cancelled' })
++    expect(api.material.present).toBe(false)
++    const count = f.fetch.mock.calls.length
++    f.setSession(view(id(3)))
++    await f.auth.restore()
++    expect(f.fetch.mock.calls).toHaveLength(count)
++    held.resolve(json(receipt({ ...settings('2'), username: 'auth', credential_present: true })))
++    await flushPromises()
++    expect(f.auth.state.busy).toBe(false)
++    expect(api.progress).toBeNull()
++    await f.auth.restore()
++    await expect(api.startUpdate(input())).rejects.toMatchObject({ kind: 'invalid-input' })
++  })
++  it.each([
++    'personal',
++    'users',
++    'invitations',
++    'providers',
++    'models',
++    'selection',
++    'accountSecurity',
++  ] as const)(
++    'isolates %s abandonment bidirectionally while retaining one actual Cookie owner',
++    async (domain) => {
++      const f = await fixture(),
++        api = f.auth.system.smtp
++      const read = () =>
++        ({
++          personal: () => f.auth.personal.getProfile(),
++          users: () => f.auth.system.listUsers({}),
++          invitations: () => f.auth.system.listInvitations({}),
++          providers: () => f.auth.system.providers.list({}),
++          models: () => f.auth.system.models.listProviders({}),
++          selection: () => f.auth.system.selection.get(),
++          accountSecurity: () => f.auth.system.accountSecurity.get(),
++        })[domain]()
++      const abandon = () =>
++        ({
++          personal: () => f.auth.personal.abandon(),
++          users: () => f.auth.system.abandon(),
++          invitations: () => f.auth.system.abandonInvitations(),
++          providers: () => f.auth.system.providers.abandon(),
++          models: () => f.auth.system.models.abandon(),
++          selection: () => f.auth.system.selection.abandon(),
++          accountSecurity: () => f.auth.system.accountSecurity.abandon(),
++        })[domain]()
++      const held = barrier<Response>()
++      f.setSMTP(() => held.promise)
++      const current = api.get()
++      await flushPromises()
++      abandon()
++      expect(f.fetch.mock.calls.at(-1)![1].signal?.aborted).toBe(false)
++      await expect(read()).rejects.toMatchObject({ kind: 'busy' })
++      held.resolve(json(settings()))
++      await current
++      const otherTail = barrier<Response>()
++      f.setOther(() => otherTail.promise)
++      const other = read().catch((e) => e)
++      await flushPromises()
++      api.abandon()
++      expect(f.fetch.mock.calls.at(-1)![1].signal?.aborted).toBe(false)
++      await expect(api.get()).rejects.toMatchObject({ kind: 'busy' })
++      otherTail.resolve(
++        domain === 'personal'
++          ? json({ user: view().user, avatar: null })
++          : domain === 'selection'
++            ? json({ id: id(20), version: '1', configured: null })
++            : domain === 'accountSecurity'
++              ? json(security())
++              : json({ items: [], next_cursor: null }),
++      )
++      await other
++      expect(f.auth.state.busy).toBe(false)
++    },
++  )
++  it.each(['CSRF_FAILED', 'SESSION_REVOKED', 'FORBIDDEN'] as const)(
++    'clears current %s material/intent for both write endpoints without rewriting public role',
++    async (code) => {
++      for (const kind of ['configure', 'unconfigure'] as const) {
++        const f = await fixture(),
++          api = f.auth.system.smtp
++        await api.get()
++        api.setMaterial('private')
++        f.auth.system.providers.setMaterial('other-private')
++        f.setSMTP(async () => problem(code, code === 'SESSION_REVOKED' ? 401 : 403))
++        await (
++          kind === 'configure'
++            ? api.startUpdate({ ...input(), username: 'auth' })
++            : api.startUnconfigure({
++                version: '1',
++                auto_retry_count: '3',
++                retry_interval_seconds: '60',
++              })
++        ).catch(() => undefined)
++        expect(api.progress).toBeNull()
++        expect(api.material.present).toBe(false)
++        expect(f.auth.system.providers.material.present).toBe(false)
++        if (code === 'FORBIDDEN') {
++          expect(f.auth.system.denied).toBe(true)
++          expect(f.auth.state.user?.role).toBe('admin')
++          const count = f.fetch.mock.calls.length
++          await expect(api.get()).rejects.toMatchObject({ kind: 'invalid-input' })
++          expect(f.fetch.mock.calls).toHaveLength(count)
++          await f.auth.restore()
++          expect(f.auth.system.denied).toBe(false)
++        } else expect(f.auth.personalContext.identity).toBeNull()
++      }
++    },
++  )
++  it.each([401, 403] as const)(
++    'handles already-parsed late %i only under the old owner and identity boundaries',
++    async (status) => {
++      const f = await fixture(),
++        api = f.auth.system.smtp,
++        tail = barrier(),
++        entered = barrier(),
++        response = problem(status === 401 ? 'SESSION_REVOKED' : 'FORBIDDEN', status)
++      const cancel = response.body!.cancel.bind(response.body)
++      response.body!.cancel = async () => {
++        entered.resolve()
++        await tail.promise
++        return cancel()
++      }
++      f.setSMTP(async () => response)
++      const pending = api.get().catch((e) => e)
++      await entered.promise
++      api.abandonRead()
++      expect(await pending).toMatchObject({ kind: 'cancelled' })
++      expect(f.auth.state.busy).toBe(true)
++      tail.resolve()
++      await flushPromises()
++      expect(f.auth.system.denied).toBe(false)
++      expect(f.auth.personalContext.identity === null).toBe(status === 401)
++    },
++  )
++  it('destroys old recovery on a new Session, changed original CSRF or loss of administrator status', async () => {
++    for (const next of [
++      view(id(3)),
++      { ...view(), csrf_token: 'T'.repeat(43) },
++      view(id(2), 'user'),
++    ]) {
++      const f = await fixture(),
++        api = f.auth.system.smtp
++      await api.get()
++      api.setMaterial('private')
++      f.setSMTP(async () => problem('UNAVAILABLE'))
++      await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
++      f.setSession(next)
++      await f.auth.restore()
++      expect(api.progress).toBeNull()
++      expect(api.material.present).toBe(false)
++      await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++    }
++  })
++  it('never clears a synchronous confirmed consumer’s successor material or intent', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtp
++    await api.get()
++    api.setMaterial('first')
++    f.setSMTP(async (_, i) => {
++      const v = JSON.parse(i.body as string).version
++      return json(
++        receipt(
++          { ...settings(String(Number(v) + 1)), username: 'auth', credential_present: true },
++          String(Number(v) + 1),
++        ),
++      )
++    })
++    let successor: Promise<unknown> | null = null
++    const stop = watch(
++      () => api.progress?.phase,
++      (phase) => {
++        if (phase !== 'confirmed' || successor) return
++        stop()
++        api.abandon()
++        api.setMaterial('second')
++        successor = api.startUpdate({ ...input(), version: '2', username: 'auth' })
++      },
++      { flush: 'sync' },
++    )
++    await api.startUpdate({ ...input(), username: 'auth' }).catch(() => undefined)
++    await flushPromises()
++    await successor
++    expect(f.writes()).toHaveLength(2)
++    expect(api.progress).toMatchObject({ phase: 'confirmed', result: { applied_version: '3' } })
++    expect(JSON.parse(f.writes()[1]![1].body as string).password === 'second').toBe(true)
++    expect(api.material.present).toBe(false)
++  })
++})

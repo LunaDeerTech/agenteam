@@ -1,0 +1,7 @@
+SMTP UI input03 三路径差量 STATIC PASS，可供作者导航诊断与三受影响业务组启动；不代替完整 UI 或原生焦点验收。
+
+固定 manifest c7b8dbb16e67c3466c15d40fba8fa0c7fe0ca14d125944adcaa61a5b8f45d541，diff f8d7a352f1c36d9684b63312777fdb38a830dd555f379b3502d5c6749a3f2bd4。28候选、36新dist实际字节已逐项核清，恰controller/state spec/browser三路径变化；另25源、1040接受基线、10锁与运行指纹和driver与02一致。
+
+baseline 从普通变量转 ref，使同字段成功 adopt 的末次基线赋值能失效 changed/dirty/canSave 缓存。maximumVersion 从普通base改读已采纳的reactive editor.version，仍不以较新的单独observation替换编辑版本。固定baseline探针9c878cc7…6352在diagnostic03 actual1/2.614s→04 actual0/1.126s字节相同；maximum探针c85ce116…4097在05 actual1/1.198s→06 actual0/1.539s字节相同。独立读取原input/raw/result，原失败没有改写。最终作者60pure、格式、Vue类型/build、browser类型与六mode发现实际0，未声称最终全1203重跑。
+
+browser差量只记录最多32项安全activeTag/trigger/heading/BODY/connected/disabled事实；finally移除listener/observer。原click、Escape、物理overlay0、trigger焦点和后续Tab断言保持，没有focus/timer/秘密值输出。View/共享层/owner/API/Go均不变；原生导航失焦原因仍未知，jsdom通过不能替代它。本轮未运行资源或新增动态。

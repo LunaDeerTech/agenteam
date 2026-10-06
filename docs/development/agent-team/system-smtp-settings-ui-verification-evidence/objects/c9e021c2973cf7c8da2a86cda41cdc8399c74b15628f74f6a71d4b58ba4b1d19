@@ -1,0 +1,52 @@
+diff --git a/internal/central/app/account.go b/internal/central/app/account.go
+index 74e33c5..a89d19d 100644
+--- a/internal/central/app/account.go
++++ b/internal/central/app/account.go
+@@ -16,6 +16,7 @@ import (
+ 	"github.com/LunaDeerTech/agenteam/internal/central/model"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/object"
+ 	objectcontract "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
++	outboundhttp "github.com/LunaDeerTech/agenteam/internal/central/outbound/http"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
+ 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
+@@ -391,7 +392,13 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
+ 	if err != nil {
+ 		return err
+ 	}
+-	if !accounts.install(ctx, func() { accounts.handler = systemModelRoutes(httpHandler, modelHandler) }) {
++	policyHandler, err := outboundhttp.NewSystemHTTPHandler(transport.policy, core, outboundhttp.SystemHTTPOptions{PublicOrigin: cfg.PublicOrigin()})
++	if err != nil {
++		return err
++	}
++	if !accounts.install(ctx, func() {
++		accounts.handler = systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler)
++	}) {
+ 		return context.Canceled
+ 	}
+ 	deps.security = func(ctx context.Context, _ config.Config, _ database) (*audit.Service, error) {
+diff --git a/internal/central/app/outbound_policy_http.go b/internal/central/app/outbound_policy_http.go
+new file mode 100644
+index 0000000..170a2a6
+--- /dev/null
++++ b/internal/central/app/outbound_policy_http.go
+@@ -0,0 +1,19 @@
++package app
++
++import (
++	"net/http"
++	"strings"
++)
++
++// Match the complete root and its slash children without normalizing any part
++// of the request. The child boundary rejects unknown or ambiguous descendants.
++func systemOutboundPolicyRoutes(existing, policy http.Handler) http.Handler {
++	const root = "/api/v1/system/outbound-policy"
++	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		if r.URL.Path == root || strings.HasPrefix(r.URL.Path, root+"/") {
++			policy.ServeHTTP(w, r)
++			return
++		}
++		existing.ServeHTTP(w, r)
++	})
++}

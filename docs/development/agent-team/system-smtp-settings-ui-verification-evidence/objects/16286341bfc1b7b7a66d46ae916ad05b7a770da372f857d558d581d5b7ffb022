@@ -1,0 +1,18 @@
+# SMTP 版本组合与两组历史证据复用
+
+**有界静态结论：可以保留 f670cb1 上的SMTP真实证据，在最终主线合并后完成适用Go编译/构建，不需机械重跑全六组或全部浏览器。** 仍须独立A/B实际通过和资源终局，才能给SMTP整卡接受；目前不是最终接受。
+
+基线界限明确：前端input04、四个受影响场景、旧十九组和本次private A/B都绑定 `f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a`。当前已接受主线 `a94277982620f01dc15488b09ae6ea9064977b5a` 的十二路径是后继Outbound交付，不能把f670结果写成a942实测。
+
+已只读核固定Git差量：生产改动仅新增Outbound HTTP子包，以及app/account.go构造新handler并套精确新路由分派；旧Account/SMTP服务、owner、SMTP API路径、DB迁移、配置与生命周期实现无改变。`systemOutboundPolicyRoutes`只接完整`/api/v1/system/outbound-policy`及其slash子路，其余原Request/ResponseWriter直接传给已有Account/Model分派，没有增加读取body、权限判断、超时或响应改写。新handler使用原transport.policy和同core；Outbound自己已通过真实root同实例及HTTP/事务独立验收，接受十一实现源逐Git SHA与独立交付清单相同。新构造点/导入图由最终合并Go检查封口，不扩成SMTP全部动态重跑理由。
+
+作者new02的Concurrency **8.95s PASS** 和Authority **18.66s PASS** 可以按如下明确范围复用；该轮总体 **exit1/180.320s、另四FAIL** 保持：
+
+- input02→04的`client.ts`、`useSession.ts`、App、router、正式Go fixture/test均同字节；browser第一至第五场景及全部前置helpers（Navigation之前）也是原字节，原两条已通过链路和断言没有变化。
+- API并非全文件不变：仅email输入资格/严格canonical DTO门禁变化，已由独立API02按新正式NormalizeEmail闭包验证。两场景实际使用普通lowercase `sender@example.com`等固定普通邮箱，落在前后相同分支；传输、rawbody/key/CSRF、版本、applied/current、密码与真实tail不变。后端email修复同样不改变这些普通地址的规范结果；新增management读取为不同路由，未改SMTP写服务。此复用不证明新domain-literal场景的真实浏览器覆盖。
+- controller的baseline改为ref修复同字段成功保存后的dirty失效；Concurrency原成功保存位于最后，后续只核正式DB/no-private，不使用原错误dirty去启动下一步。Authority主要走403/401、截断未确认、身份重挂，没有相同字段正常确认后继续操作的失败前提。maximumVersion改读editor.version，原两组使用普通低版本，未触最大版本门槛。
+- focus差量仅把停用按钮的显示禁用条件从canDisable拆为disableReady；实际canDisable/动作仍含双modal门禁。两组不执行停用确认，原authority其它确认及共享层未变；有影响的停用原生焦点另由navigation04重新实测，未复用原失败。
+
+已读取十轮已结束raw/command/result/cleanup：input04四受影响组 navigation04/lifecycle04/credential04/outcome04 分别actual0 **95.489/62.024/61.320/63.663s**；旧十九分五批7+3+3+3+3实际全PASS，各轮actualwait/输入不变/双清成立。它们补齐相关新dirty/focus/历史结果与跨叶兼容风险；没有将作者PASS当成独立A/B结果。证据定位、精确SHA、原new02六项状态及固定Git差量见 `combination-review.json` 和 `f670-to-a942-production-seam.diff`。
+
+本结论以最终SMTP候选、dist、owner及a942接受Outbound差量保持为条件；若后续实际产品变化，应按新差量审查。没有新动态、Git变更或资源动作。本报告及其原件索引已停止写入。

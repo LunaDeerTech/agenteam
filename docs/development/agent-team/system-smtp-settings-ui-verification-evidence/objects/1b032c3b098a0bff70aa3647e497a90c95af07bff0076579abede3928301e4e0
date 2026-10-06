@@ -1,0 +1,2 @@
+import { defineConfig } from 'vitest/config'
+export default defineConfig({cacheDir:'./node_modules/.vite-independent',test:{environment:'jsdom',include:['src/tests/independent-smtp-owner.spec.ts'],restoreMocks:true,maxWorkers:1,fileParallelism:false,testTimeout:5000,hookTimeout:5000}})

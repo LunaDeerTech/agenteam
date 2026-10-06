@@ -1,0 +1,41 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-overlay=/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/email-oracle02/overlay.json",
+    "-race",
+    "-count=1",
+    "-timeout=45s",
+    "-run",
+    "^TestSMTPUIEmailCanonicalOracle$",
+    "-v",
+    "./internal/central/account"
+  ],
+  "baseline_manifest_sha256": "ca60386ee9fabc970c4c3da0ed5b432868fa6e1960d016b2f61da9a6efc96d3c",
+  "child_pid": 1762104,
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace",
+  "duration_seconds": 10.673,
+  "ended_utc": "2026-10-06T17:10:21.712227+00:00",
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/compile-tmp"
+  },
+  "exit_code": 0,
+  "input_after_sha256": "a6a9be8c9cbcd875aa29452571b5cece336459bc336d2b9571f353cdcb3ae4ea",
+  "input_before_sha256": "a6a9be8c9cbcd875aa29452571b5cece336459bc336d2b9571f353cdcb3ae4ea",
+  "input_unchanged": true,
+  "raw_sha256": "a517676d8651bcbc76ca20870f6bb429d63a9ee0ceb4a42fa046553399eb222f",
+  "resource_execution": false,
+  "runner_sha256": "09b950b4103d888ff976a9ec24fb0335337683297a4f8a61921b23ee2451676d",
+  "started_utc": "2026-10-06T17:10:11.039582+00:00"
+}

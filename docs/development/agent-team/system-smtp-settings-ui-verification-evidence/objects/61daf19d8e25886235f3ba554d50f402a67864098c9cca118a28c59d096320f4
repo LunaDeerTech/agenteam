@@ -1,0 +1,77 @@
+package main
+
+import (
+	"encoding/json"
+	"errors"
+	"net"
+	"os"
+	"strings"
+	"unicode"
+	"unicode/utf8"
+)
+
+// Error construction only: the copied accepted parsing functions are unchanged.
+func invalid() error { return errors.New("invalid") }
+func field(_, _ string) error { return invalid() }
+
+type probe struct {
+	Kind string `json:"kind"`
+	Name string `json:"name"`
+	Input string `json:"input"`
+	Accepted bool `json:"accepted"`
+	Canonical string `json:"canonical"`
+}
+
+func main() {
+	var out []probe
+	for _, p := range []probe{
+		{Kind:"host", Name:"dns-case-terminal-dot", Input:"MAIL.Example."},
+		{Kind:"host", Name:"alabel", Input:"xn--bcher-kva.test"},
+		{Kind:"host", Name:"numeric-final", Input:"mail.123"},
+		{Kind:"host", Name:"empty-hex-final", Input:"mail.0x"},
+		{Kind:"host", Name:"non-numeric-final", Input:"mail.0xg"},
+		{Kind:"host", Name:"overflow-hex-final", Input:"mail.0xffffffffffffffffffffffffffffffff"},
+		{Kind:"host", Name:"ipv4", Input:"192.0.2.7"},
+		{Kind:"host", Name:"ipv4-leading-zero", Input:"192.000.2.7"},
+		{Kind:"host", Name:"ipv6", Input:"2001:DB8::7"},
+		{Kind:"host", Name:"ipv6-mapped", Input:"::ffff:192.0.2.7"},
+		{Kind:"host", Name:"ipv6-zone", Input:"fe80::1%lo"},
+		{Kind:"host", Name:"already-bracketed", Input:"[2001:db8::7]"},
+		{Kind:"host", Name:"unicode-dns", Input:"bücher.test"},
+		{Kind:"email", Name:"ordinary-case", Input:"Sender@EXAMPLE.test"},
+		{Kind:"email", Name:"domain-dot-atom", Input:"a@domain!test"},
+		{Kind:"email", Name:"domain-underscore", Input:"a@domain_test"},
+		{Kind:"email", Name:"ipv4-literal", Input:"a@[192.0.2.7]"},
+		{Kind:"email", Name:"IPv6-prefix-ipv6", Input:"a@[IPv6:2001:DB8::7]"},
+		{Kind:"email", Name:"lowercase-ipv6-prefix", Input:"a@[ipv6:2001:db8::7]"},
+		{Kind:"email", Name:"mixed-case-ipv6-prefix", Input:"a@[iPv6:2001:db8::7]"},
+		{Kind:"email", Name:"IPv6-prefix-ipv4", Input:"a@[IPv6:192.0.2.7]"},
+		{Kind:"email", Name:"lowercase-prefix-mapped", Input:"a@[ipv6:::ffff:192.0.2.7]"},
+		{Kind:"email", Name:"no-prefix-mapped", Input:"a@[::ffff:192.0.2.7]"},
+		{Kind:"email", Name:"no-prefix-expanded-mapped", Input:"a@[0:0:0:0:0:ffff:c000:207]"},
+		{Kind:"email", Name:"no-prefix-ipv6", Input:"a@[2001:db8::7]"},
+		{Kind:"email", Name:"literal-leading-zero", Input:"a@[192.000.2.7]"},
+		{Kind:"email", Name:"literal-zone", Input:"a@[IPv6:fe80::1%lo]"},
+		{Kind:"email", Name:"domain-double-dot", Input:"a@b..c"},
+		{Kind:"name", Name:"rune80-byte320", Input:strings.Repeat("🧩",80)},
+		{Kind:"name", Name:"rune81", Input:strings.Repeat("🧩",81)},
+		{Kind:"name", Name:"combining-rune80", Input:strings.Repeat("a\u0301",40)},
+		{Kind:"name", Name:"noncharacter-allowed", Input:"\ufdd0"},
+		{Kind:"name", Name:"control-rejected", Input:"\u0085"},
+	} {
+		switch p.Kind {
+		case "host":
+			t, err := ParseTarget("https://"+net.JoinHostPort(p.Input,"587")+"/")
+			p.Accepted = err == nil
+			if p.Accepted { p.Canonical = t.Origin().Host() }
+		case "email":
+			v, err := NormalizeEmail(p.Input); p.Accepted = err == nil; p.Canonical = v
+		case "name":
+			// Exact accepted smtpFields sender-name predicates; not a Service call.
+			p.Accepted = utf8.ValidString(p.Input) && strings.IndexFunc(p.Input,unicode.IsControl)<0 && utf8.RuneCountInString(p.Input)<=80
+			if p.Accepted { p.Canonical=p.Input }
+		}
+		out=append(out,p)
+	}
+	if err:=json.NewEncoder(os.Stdout).Encode(out); err!=nil { panic(err) }
+}

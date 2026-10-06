@@ -1,0 +1,25 @@
+from pathlib import Path
+import sys,json,hashlib,subprocess,time,datetime,os
+s=Path(__file__).resolve().parent;w=s/'workspace';m=json.loads((s/'baseline.json').read_text())
+name=sys.argv[1];cmd=sys.argv[2:];out=s/'runs'/name;out.mkdir(parents=True,exist_ok=False)
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+allowed=[p for i,p in __import__('re').findall(r'^\| (\d+) \| `([^`]+)`',(s/'card.md').read_text(),__import__('re').M) if int(i)<=28]
+def snapshot():
+ files={p:sha(w/p) for p in sorted(set(m['web_closure'])|set(allowed)) if (w/p).is_file()}
+ for p,h in m['web_closure'].items():
+  if p not in allowed: assert files[p]==h,p
+ assert sha(w/'web/package-lock.json')==m['dependencies']['package_lock_sha256']
+ assert sha(w/'web/node_modules/.package-lock.json')==m['dependencies']['installed_lock_sha256']
+ return files
+before=snapshot()
+for p in allowed:
+ if (w/p).is_file():
+  target=out/'source'/p;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((w/p).read_bytes())
+(out/'input-before.json').write_text(json.dumps(before,sort_keys=True,indent=2)+'\n')
+env={k:os.environ[k] for k in ['PATH','NODE_OPTIONS','GOTOOLCHAIN','GOPROXY','GOSUMDB','GOFLAGS','GOCACHE','GOMODCACHE','TMPDIR'] if k in os.environ}
+start=time.monotonic();started=datetime.datetime.now(datetime.timezone.utc).isoformat()
+with (out/'raw.log').open('w') as log:
+ child=subprocess.Popen(cmd,cwd=w/'web',stdout=log,stderr=subprocess.STDOUT,env=os.environ.copy());exit_code=child.wait()
+after=snapshot();(out/'input-after.json').write_text(json.dumps(after,sort_keys=True,indent=2)+'\n')
+result={'argv':cmd,'cwd':str(w/'web'),'env':env,'started_utc':started,'ended_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'duration_seconds':round(time.monotonic()-start,3),'exit_code':exit_code,'actual_wait':True,'child_pid':child.pid,'resource_execution':False,'input_unchanged':before==after,'input_before_sha256':sha(out/'input-before.json'),'input_after_sha256':sha(out/'input-after.json'),'raw_sha256':sha(out/'raw.log')}
+(out/'result.json').write_text(json.dumps(result,sort_keys=True,indent=2)+'\n');print(json.dumps(result));sys.exit(exit_code)

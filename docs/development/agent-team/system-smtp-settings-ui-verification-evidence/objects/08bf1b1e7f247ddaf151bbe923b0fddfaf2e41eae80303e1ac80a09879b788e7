@@ -1,0 +1,183 @@
+--- /workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/driver.py.txt
++++ /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/driver01.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only the frozen Account/Selection Navigation combination and record actual resources."""
++"""Run only an explicitly authorized frozen SMTP settings group in a private fixed workspace."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -14,8 +14,9 @@
+ 
+ 
+ ROOT = Path(__file__).resolve().parent
+-REPO = Path('/workspace/agenteam')
+-BASE = 'debbb28deb7c883fd0b6b77a75354b9b5d7ece0b'
++REPO = ROOT / 'workspace'
++GIT_OBJECT_REPO = Path('/workspace/agenteam')
++BASE = '40c904c0dd88420fc621f40c0a737d243d514ec1'
+ FROZEN = {}
+ 
+ 
+@@ -86,15 +87,12 @@
+             waited.append({'pid': pid, 'starttime': value['starttime'], 'actual_wait': True, 'exit': os.waitstatus_to_exitcode(status), 'time': utc()})
+ 
+ 
+-# Compile/execution inputs come from this fixed accepted Git object, never HEAD.
+-# Broad product roots include go:embed assets, scripts, browser configs and locks.
+-BASELINE_ROOTS = {'api', 'cmd', 'db', 'deploy', 'internal', 'scripts', 'tests', 'web'}
+-BASELINE_EXCLUDED_DIRS = {'node_modules', 'dist', 'test-results', 'playwright-report', 'coverage'}
+-GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+-
++# This private cwd contains only the compiled/runnable fixed closure plus candidates.
++# All filesystem additions within it are rejected; dependencies are explicit locked links.
++IGNORED_PATHS = {'web/node_modules', 'web/dist', 'tests/account-captcha-web/node_modules'}
+ 
+ def fixed_tree():
+-    raw = subprocess.check_output(['git', 'ls-tree', '-r', '-z', BASE], cwd=REPO, timeout=20)
++    raw = subprocess.check_output(['git', 'ls-tree', '-r', '-z', BASE], cwd=GIT_OBJECT_REPO, timeout=20)
+     entries = {}
+     for record in raw.split(b'\0'):
+         if not record:
+@@ -105,94 +103,70 @@
+     return raw, entries
+ 
+ 
+-def baseline_scope(name, outside_packages):
+-    parts = Path(name).parts
+-    if any(part in BASELINE_EXCLUDED_DIRS or part.startswith('.') for part in parts[:-1]):
+-        return False
+-    return (name == 'docs/frontend-design/styles/colors-and-themes.md' or
+-            Path(name).name in {'go.mod', 'go.sum'} or parts[0] in BASELINE_ROOTS or
+-            Path(name).suffix in GO_INPUT_SUFFIXES or
+-            any(name.startswith(parent + '/') for parent in outside_packages))
+-
+-
+ def accepted_baseline_input():
+     expected = FROZEN['accepted_baseline']
+     raw, tree = fixed_tree()
+-    outside_packages = {str(Path(name).parent) for name in tree
+-                        if name.endswith('.go') and Path(name).parts[0] not in BASELINE_ROOTS}
+-    selected = {name: row for name, row in tree.items()
+-                if baseline_scope(name, outside_packages) and name not in FROZEN['files']}
+     tree_sha = hashlib.sha256(raw).hexdigest()
+     if expected['product_base'] != BASE or expected['git_tree_sha256'] != tree_sha:
+         raise RuntimeError('fixed accepted Git tree differs from frozen baseline')
+-    if set(selected) != set(expected['files']) or any(
+-        any(expected['files'][name][key] != value for key, value in row.items())
+-        for name, row in selected.items()
+-    ):
+-        raise RuntimeError('baseline does not cover the fixed accepted compile/execution scope')
+-    actual, errors = set(), []
+-    for directory, directories, files in os.walk(REPO):
+-        directories[:] = [name for name in directories
+-                          if name not in BASELINE_EXCLUDED_DIRS and not name.startswith('.')]
++    selected = expected['files']
++    if any(name not in tree or any(row[key] != tree[name][key] for key in ['git_blob','mode','kind']) for name,row in selected.items()):
++        raise RuntimeError('accepted input is not a file in the fixed product object')
++    actual,errors=set(),[]
++    for directory,directories,files in os.walk(REPO):
++        directories[:] = [name for name in directories if str((Path(directory)/name).relative_to(REPO)) not in IGNORED_PATHS]
+         for name in directories:
+-            path = Path(directory) / name
+-            relative = str(path.relative_to(REPO))
+-            if path.is_symlink() and baseline_scope(relative, outside_packages):
+-                errors.append({'path': relative, 'reason': 'symlink directory'})
++            path=Path(directory)/name
++            if path.is_symlink():errors.append({'path':str(path.relative_to(REPO)),'reason':'symlink directory'})
+         for name in files:
+-            relative = str((Path(directory) / name).relative_to(REPO))
+-            if baseline_scope(relative, outside_packages) and relative not in FROZEN['files']:
+-                actual.add(relative)
+-    hashes, mismatches = {}, []
+-    for name in sorted(set(selected) & actual):
+-        path = REPO / name
++            relative=str((Path(directory)/name).relative_to(REPO))
++            if relative not in FROZEN['files']:actual.add(relative)
++    hashes,mismatches={},[]
++    for name in sorted(set(selected)&actual):
++        path=REPO/name
+         if path.is_symlink() or not path.is_file():
+-            errors.append({'path': name, 'reason': 'not a regular accepted file'})
+-            continue
+-        data = path.read_bytes()
+-        sha = hashlib.sha256(data).hexdigest()
+-        oid = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+-        hashes[name] = sha
+-        if sha != expected['files'][name]['sha256'] or oid != selected[name]['git_blob']:
+-            mismatches.append(name)
+-    missing, unexpected = sorted(set(selected) - actual), sorted(actual - set(selected))
+-    return {'product_base': BASE, 'git_tree_sha256': tree_sha, 'accepted_count': len(selected),
+-            'files': hashes, 'missing': missing, 'unexpected': unexpected,
+-            'mismatches': mismatches, 'errors': errors,
+-            'accepted': not (missing or unexpected or mismatches or errors)}
++            errors.append({'path':name,'reason':'nonregular accepted input'});continue
++        data=path.read_bytes();sha=hashlib.sha256(data).hexdigest()
++        oid=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
++        hashes[name]=sha
++        if sha!=selected[name]['sha256'] or oid!=selected[name]['git_blob']:mismatches.append(name)
++    missing,unexpected=sorted(set(selected)-actual),sorted(actual-set(selected))
++    return {'product_base':BASE,'git_tree_sha256':tree_sha,'accepted_count':len(selected),'files':hashes,'missing':missing,'unexpected':unexpected,'mismatches':mismatches,'errors':errors,'accepted':not(missing or unexpected or mismatches or errors)}
+ 
+ 
+ def source_input():
+     def sha(path):
+-        if not path.is_file() or path.is_symlink() or any(parent.is_symlink() for parent in path.parents if parent != REPO.parent):
+-            raise RuntimeError('non-regular candidate, artifact or dependency input')
++        if not path.is_file() or path.is_symlink() or any(parent.is_symlink() for parent in path.parents if parent!=REPO.parent):
++            raise RuntimeError('nonregular candidate or artifact')
+         return hashlib.sha256(path.read_bytes()).hexdigest()
+-    return {
+-        'product_base': BASE,
+-        'accepted_baseline': accepted_baseline_input(),
+-        'files': {name: sha(REPO / name) for name in FROZEN['files']},
+-        'dist': {str(path.relative_to(REPO)): sha(path) for path in sorted((REPO / 'web/dist').rglob('*')) if path.is_file()},
+-        'dependencies': {name: sha(REPO / name) for name in FROZEN['dependencies']},
+-    }
++    dependencies={}
++    for name,expected in FROZEN['dependencies'].items():
++        path=Path(name)
++        dependencies[name]={'realpath':str(path.resolve(strict=True)),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
++    return {'product_base':BASE,'accepted_baseline':accepted_baseline_input(),'files':{name:sha(REPO/name) for name in FROZEN['files']},'dist':{str(path.relative_to(REPO)):sha(path) for path in sorted((REPO/'web/dist').rglob('*')) if path.is_file()},'dependencies':dependencies}
+ 
+ 
+ def main():
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['navigation', 'selection-navigation', 'navigation-pair'], required=True)
++    parser.add_argument('--group', choices=['new','lifecycle','credential','concurrency','outcome','authority','navigation','old-core','old-providers','old-models','old-selection','old-security'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+     args = parser.parse_args()
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+-    groups = {
+-        'navigation': ['TestAccountSystemAccountSecurityWebNavigationAndLayouts'],
+-        'selection-navigation': ['TestAccountSystemModelSelectionWebNavigationAndLayouts'],
+-        'navigation-pair': ['TestAccountSystemAccountSecurityWebNavigationAndLayouts',
+-                            'TestAccountSystemModelSelectionWebNavigationAndLayouts'],
+-    }
++    smtp_names={'lifecycle':'Lifecycle','credential':'CredentialLifecycle','concurrency':'Concurrency','outcome':'OutcomeRecovery','authority':'AuthorityAndIdentity','navigation':'NavigationAndLayouts'}
++    groups={key:['TestAccountSystemSMTPSettingsWeb'+value] for key,value in smtp_names.items()}
++    groups.update({
++      'new':[v[0] for v in groups.values()],
++      'old-core':['TestAccountAuthenticationWebSessionLifecycle','TestAccountPersonalSettingsWebThemeAndNavigation','TestAccountPublicEntryWebIdentityNavigation','TestAccountSystemUserDirectoryWebAuthorityAndIdentity','TestAccountSystemUserDirectoryWebNavigationAndLayouts','TestAccountSystemInvitationsWebOutcomeRecovery','TestAccountSystemInvitationsWebNavigationAndLayouts'],
++      'old-providers':['TestAccountSystemProvidersWeb'+x for x in ['CredentialReplacement','OutcomeRecovery','NavigationAndLayouts']],
++      'old-models':['TestAccountSystemModelsWeb'+x for x in ['DeletionAndReplacement','OutcomeRecovery','NavigationAndLayouts']],
++      'old-selection':['TestAccountSystemModelSelectionWeb'+x for x in ['OutcomeRecovery','AuthorityAndIdentity','NavigationAndLayouts']],
++      'old-security':['TestAccountSystemAccountSecurityWeb'+x for x in ['OutcomeRecovery','AuthorityAndIdentity','NavigationAndLayouts']],
++    })
+     expected = set(groups[args.group])
+     args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
+     frozen_bytes = args.frozen.read_bytes()
+@@ -228,7 +202,7 @@
+     if before['files'] != FROZEN['files'] or before['dist'] != FROZEN['dist'] or before['dependencies'] != FROZEN['dependencies']:
+         raise RuntimeError('candidate source/dist differs from frozen input')
+     (run / 'frozen-input.json').write_bytes(args.frozen.read_bytes())
+-    browser_runtime = Path(tempfile.mkdtemp(prefix='agtsecure-', dir='/tmp'))
++    browser_runtime = Path(tempfile.mkdtemp(prefix='agtsmtp-', dir='/tmp'))
+     if len(str(browser_runtime)) > 45:
+         raise RuntimeError('browser runtime is not short')
+     images = run / 'images'

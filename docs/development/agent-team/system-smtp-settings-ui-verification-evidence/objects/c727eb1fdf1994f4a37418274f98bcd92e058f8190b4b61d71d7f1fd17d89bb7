@@ -1,0 +1,89 @@
+{
+  "checks": {
+    "browser-list-b02": {
+      "actual_wait": true,
+      "exit": 0,
+      "files": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/browser-list-b02/command.json",
+          "sha256": "fbcc451f764c2864234c60182a1d667e44db3fe108157dab371006915fdbc2b6"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/browser-list-b02/raw.log",
+          "sha256": "42258235b23d50e7317104a209a0ccf51b593f048356d3de562128cfc454b521"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/browser-list-b02/result.json",
+          "sha256": "2c1ed2b950581141d9c230d8fac977086b32c81ceb4afd79d650d50ad4d2ddb0"
+        }
+      },
+      "seconds": 0.961
+    },
+    "gate02": {
+      "actual_wait": true,
+      "exit": 0,
+      "files": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/gate02/command.json",
+          "sha256": "9305d68364f3bdfbd20f8ca8cc649ad78e5ff7ab872e15697b891518951638c3"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/gate02/raw.log",
+          "sha256": "c9d47354c6088ca4b20f12ad29a12e4cf418610c3a5271ce6ac4d63086342ca7"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/gate02/result.json",
+          "sha256": "a8ce3cd740ae91235a512965ad74fc01193f2243751ca2e05520c58acd971f24"
+        }
+      },
+      "seconds": 0.918
+    },
+    "type03": {
+      "actual_wait": true,
+      "exit": 0,
+      "files": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/type03/command.json",
+          "sha256": "21b81c1f82d25f8e6ca02c9c57f7db898dec7a32d425beb9bd55a097840bb396"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/type03/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/checks/type03/result.json",
+          "sha256": "a729a1f4fc312e4352fc3cc6b849cb3f29b704f2264c7addb53d20078e3dc504"
+        }
+      },
+      "seconds": 0.954
+    }
+  },
+  "delta": {
+    "behavior": "Only two exact dirty-disable confirmation title expectations; no assertion removal or widened matcher.",
+    "changed_files": [
+      "browser/cases.ts.txt",
+      "browser/independent.spec.ts"
+    ],
+    "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/input02/input01-to02.diff",
+    "sha256": "e402083d0a20d7bfec4aee7a681ec44182bc16a330690e5ae28403360ee8c04e"
+  },
+  "driver_sha256": "dcdebc6ddf3bee81c20fd1ff6d36cd5367d8c3b124d32530aec962accdb2c427",
+  "input01_preserved": {
+    "execution_sha256": "e7038174d2ea425305ae5dc301ef703348122f6ee3e392b9955da881180aec5d",
+    "report_sha256": "84866e660f8b9dece6519176ed99593f4b8aa403dc5cca3acce688281c22824a"
+  },
+  "input02": {
+    "path": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/input02/execution.json",
+    "sha256": "f3cc5c68d97c5ce4e296bad2a8f7c3ae1fc8f677987b7b1a426affdfcc573a90"
+  },
+  "reason": "Root static review found two wrong dirty-disable confirmation titles in private B; no real run or product failure.",
+  "resources_started": false,
+  "reused_checks": [
+    "race-compile01",
+    "vet01",
+    "go-list01",
+    "config01",
+    "browser-list-a01"
+  ],
+  "runtime_inputs_stopped": true
+}

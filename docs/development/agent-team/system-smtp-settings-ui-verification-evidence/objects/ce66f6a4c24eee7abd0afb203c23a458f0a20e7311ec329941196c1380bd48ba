@@ -1,0 +1,78 @@
+{
+  "author_actual_view_count": 8,
+  "cleanup_sha256": "946a007b40e422270e188e97517013f6bd56409fa0172f2713e7826ee446c2b2",
+  "findings": "No visual defect found in the eight saved screenshots. Password/material absent. Lower editor requires vertical scrolling.",
+  "images": [
+    {
+      "actually_viewed_by": "directory_frontend via view_image",
+      "author_observation": "Sidebar/current values readable in two columns; long host/email/name wrap within the viewport; no visible horizontal spill, overlap or residual overlay.",
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/navigation04/images/smtp-settings-dark-1024.png",
+      "sha256": "5bfee2fbf667249782828294c1e45e18231e5402cdc359149ea8c0216b5817ca",
+      "width": 1024
+    },
+    {
+      "actually_viewed_by": "directory_frontend via view_image",
+      "author_observation": "Sidebar/current values readable in two columns; long host/email/name wrap within the viewport; no visible horizontal spill, overlap or residual overlay.",
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/navigation04/images/smtp-settings-dark-1440.png",
+      "sha256": "7d50a6efe80b567e656d34bd7ac80c3c062c0642929f87d9e05b5117bb7a67b5",
+      "width": 1440
+    },
+    {
+      "actually_viewed_by": "directory_frontend via view_image",
+      "author_observation": "Collapsed settings navigation and single-column values readable; long host/email wrap; no visible horizontal spill or residual overlay; later fields and editor continue below the viewport.",
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/navigation04/images/smtp-settings-dark-390.png",
+      "sha256": "25882e6f3a2e7f0eb3febeb7b95f73fc3e372830003729f3c5422ac354810ca3",
+      "width": 390
+    },
+    {
+      "actually_viewed_by": "directory_frontend via view_image",
+      "author_observation": "Sidebar/current values readable in two columns; long host/email/name wrap within the viewport; no visible horizontal spill, overlap or residual overlay.",
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/navigation04/images/smtp-settings-dark-834.png",
+      "sha256": "1971329dd0ff3be1caa4c6e976a331544a681cbcc79a8ba2d19782f945a46c78",
+      "width": 834
+    },
+    {
+      "actually_viewed_by": "directory_frontend via view_image",
+      "author_observation": "Sidebar/current values readable in two columns; long host/email/name wrap within the viewport; no visible horizontal spill, overlap or residual overlay.",
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/navigation04/images/smtp-settings-light-1024.png",
+      "sha256": "5d213cd1bced7af32fa494e2a47e1469d2bb8d92673d19337fd1fd6d0fe5f17a",
+      "width": 1024
+    },
+    {
+      "actually_viewed_by": "directory_frontend via view_image",
+      "author_observation": "Sidebar/current values readable in two columns; long host/email/name wrap within the viewport; no visible horizontal spill, overlap or residual overlay.",
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/navigation04/images/smtp-settings-light-1440.png",
+      "sha256": "758dac229d0f6bc82ec0b184fe7c66f7eec4dc04f1cb4304b86cf0a60bec3023",
+      "width": 1440
+    },
+    {
+      "actually_viewed_by": "directory_frontend via view_image",
+      "author_observation": "Collapsed settings navigation and single-column values readable; long host/email wrap; no visible horizontal spill or residual overlay; later fields and editor continue below the viewport.",
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/navigation04/images/smtp-settings-light-390.png",
+      "sha256": "f6db8c85c157c0b01becc6287f0de2765d17e270d23f35bde2955f544c73dc11",
+      "width": 390
+    },
+    {
+      "actually_viewed_by": "directory_frontend via view_image",
+      "author_observation": "Sidebar/current values readable in two columns; long host/email/name wrap within the viewport; no visible horizontal spill, overlap or residual overlay.",
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/runs/navigation04/images/smtp-settings-light-834.png",
+      "sha256": "ee1981025315758e9b7a7ef59eb626e8d6046c01b32f3ef5d18c936c71ee25d0",
+      "width": 834
+    }
+  ],
+  "result_sha256": "bacd867e0b43bdd545319fae4ffe7538d11de970b53917e105ddfed0e8d4842d",
+  "reviewed_utc": "2026-10-06T17:18:57.610091+00:00",
+  "root_image_review": false,
+  "root_status": "Root read raw/result/cleanup and accepted native focus/Tab only; no root visual review claimed.",
+  "run": "navigation04",
+  "scope": "Saved viewport screenshots only, not all offscreen controls. Browser passed original geometry/reachability/keyboard assertions; screenshots do not establish SMTP connection or delivery.",
+  "source_dist_changed": false
+}

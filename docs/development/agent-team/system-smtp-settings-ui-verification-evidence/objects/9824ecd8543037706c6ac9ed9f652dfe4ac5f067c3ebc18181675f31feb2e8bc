@@ -1,0 +1,152 @@
+[
+  {
+    "name": "ordinary",
+    "input": "Sender@EXAMPLE.test",
+    "accepted": true,
+    "canonical": "sender@example.test"
+  },
+  {
+    "name": "dot-atom",
+    "input": "A@domain!TEST",
+    "accepted": true,
+    "canonical": "a@domain!test"
+  },
+  {
+    "name": "underscore",
+    "input": "A@domain_TEST",
+    "accepted": true,
+    "canonical": "a@domain_test"
+  },
+  {
+    "name": "ipv4",
+    "input": "A@[192.0.2.7]",
+    "accepted": true,
+    "canonical": "a@[192.0.2.7]"
+  },
+  {
+    "name": "old-marker",
+    "input": "A@[IPv6:2001:DB8::7]",
+    "accepted": true,
+    "canonical": "a@[ipv6:2001:db8::7]"
+  },
+  {
+    "name": "canonical",
+    "input": "a@[ipv6:2001:db8::7]",
+    "accepted": true,
+    "canonical": "a@[ipv6:2001:db8::7]"
+  },
+  {
+    "name": "expanded",
+    "input": "A@[IPv6:2001:0DB8:0000:0000:0000:0000:0000:0007]",
+    "accepted": true,
+    "canonical": "a@[ipv6:2001:0db8:0000:0000:0000:0000:0000:0007]"
+  },
+  {
+    "name": "old-prefixed-ipv4",
+    "input": "A@[IPv6:192.0.2.7]",
+    "accepted": true,
+    "canonical": "a@[ipv6:192.0.2.7]"
+  },
+  {
+    "name": "canonical-prefixed-ipv4",
+    "input": "a@[ipv6:192.0.2.7]",
+    "accepted": true,
+    "canonical": "a@[ipv6:192.0.2.7]"
+  },
+  {
+    "name": "old-prefixed-mapped",
+    "input": "A@[IPv6:::FFFF:192.0.2.7]",
+    "accepted": true,
+    "canonical": "a@[ipv6:::ffff:192.0.2.7]"
+  },
+  {
+    "name": "canonical-prefixed-mapped",
+    "input": "a@[ipv6:::ffff:192.0.2.7]",
+    "accepted": true,
+    "canonical": "a@[ipv6:::ffff:192.0.2.7]"
+  },
+  {
+    "name": "mapped",
+    "input": "A@[::FFFF:192.0.2.7]",
+    "accepted": true,
+    "canonical": "a@[::ffff:192.0.2.7]"
+  },
+  {
+    "name": "expanded-mapped",
+    "input": "A@[0:0:0:0:0:FFFF:C000:207]",
+    "accepted": true,
+    "canonical": "a@[0:0:0:0:0:ffff:c000:207]"
+  },
+  {
+    "name": "mixed-marker",
+    "input": "a@[iPv6:2001:db8::7]",
+    "accepted": false,
+    "canonical": ""
+  },
+  {
+    "name": "upper-marker",
+    "input": "a@[IPV6:2001:db8::7]",
+    "accepted": false,
+    "canonical": ""
+  },
+  {
+    "name": "upper-local-lower-marker",
+    "input": "A@[ipv6:2001:db8::7]",
+    "accepted": false,
+    "canonical": ""
+  },
+  {
+    "name": "upper-hex-lower-marker",
+    "input": "a@[ipv6:2001:DB8::7]",
+    "accepted": false,
+    "canonical": ""
+  },
+  {
+    "name": "upper-mapped-lower-marker",
+    "input": "a@[ipv6:::FFFF:192.0.2.7]",
+    "accepted": false,
+    "canonical": ""
+  },
+  {
+    "name": "unprefixed-ipv6",
+    "input": "a@[2001:db8::7]",
+    "accepted": false,
+    "canonical": ""
+  },
+  {
+    "name": "unmapped",
+    "input": "a@[::192.0.2.7]",
+    "accepted": false,
+    "canonical": ""
+  },
+  {
+    "name": "non-mapped-prefix",
+    "input": "a@[::ffff:0:1:2]",
+    "accepted": false,
+    "canonical": ""
+  },
+  {
+    "name": "zone",
+    "input": "a@[ipv6:fe80::1%lo]",
+    "accepted": false,
+    "canonical": ""
+  },
+  {
+    "name": "ipv4-leading-zero",
+    "input": "a@[192.000.2.7]",
+    "accepted": false,
+    "canonical": ""
+  },
+  {
+    "name": "tail",
+    "input": "a@[ipv6:2001:db8::7]tail",
+    "accepted": false,
+    "canonical": ""
+  },
+  {
+    "name": "extra-at",
+    "input": "a@b@[ipv6:2001:db8::7]",
+    "accepted": false,
+    "canonical": ""
+  }
+]

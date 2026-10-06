@@ -1,0 +1,13 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/diagnostic03/workspace/web
+
+stdout | src/tests/diagnostic-smtp-focus.spec.ts > diagnostic ordinary disable cancellation restores its still-current original trigger
+SMTP_FOCUS_SAFE_JSDOM_ONLY [{"stage":"focus-before","trigger_connected":true,"trigger_disabled":false,"active_trigger":false,"active_heading":true,"active_body":false,"active_tag":"H1","dialogs":0,"target_trigger":true,"target_heading":false},{"stage":"focus-after","trigger_connected":true,"trigger_disabled":false,"active_trigger":true,"active_heading":false,"active_body":false,"active_tag":"BUTTON","dialogs":0,"target_trigger":true,"target_heading":false},{"stage":"focus-before","trigger_connected":true,"trigger_disabled":true,"active_trigger":true,"active_heading":false,"active_body":false,"active_tag":"BUTTON","dialogs":1,"target_trigger":false,"target_heading":false},{"stage":"focus-after","trigger_connected":true,"trigger_disabled":true,"active_trigger":false,"active_heading":false,"active_body":false,"active_tag":"BUTTON","dialogs":1,"target_trigger":false,"target_heading":false},{"stage":"open","trigger_connected":true,"trigger_disabled":true,"active_trigger":false,"active_heading":false,"active_body":false,"active_tag":"BUTTON","dialogs":1,"target_trigger":false,"target_heading":false},{"stage":"escape-return","trigger_connected":true,"trigger_disabled":true,"active_trigger":false,"active_heading":false,"active_body":false,"active_tag":"BUTTON","dialogs":1,"target_trigger":false,"target_heading":false},{"stage":"focus-before","trigger_connected":true,"trigger_disabled":false,"active_trigger":false,"active_heading":false,"active_body":false,"active_tag":"BUTTON","dialogs":1,"target_trigger":true,"target_heading":false},{"stage":"focus-after","trigger_connected":true,"trigger_disabled":false,"active_trigger":true,"active_heading":false,"active_body":false,"active_tag":"BUTTON","dialogs":1,"target_trigger":true,"target_heading":false},{"stage":"closed","trigger_connected":true,"trigger_disabled":false,"active_trigger":true,"active_heading":false,"active_body":false,"active_tag":"BUTTON","dialogs":0,"target_trigger":false,"target_heading":false}]
+
+ ✓ src/tests/diagnostic-smtp-focus.spec.ts > diagnostic ordinary disable cancellation restores its still-current original trigger 264ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  16:52:03
+   Duration  1.67s (transform 725ms, setup 0ms, import 880ms, tests 265ms, environment 402ms)
+

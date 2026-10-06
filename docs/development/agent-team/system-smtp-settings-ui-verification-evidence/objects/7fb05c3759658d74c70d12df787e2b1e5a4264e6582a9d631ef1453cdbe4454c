@@ -1,0 +1,167 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
+import { createAccountAPI } from '../api/account'
+import { type Fetch } from '../api/client'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI } from '../api/system-providers'
+import { createSystemModelAPI } from '../api/system-models'
+import { createSystemModelSelectionAPI } from '../api/system-model-selection'
+import { createSystemAccountSecurityAPI } from '../api/system-account-security'
+import { createSystemSMTPSettingsAPI } from '../api/system-smtp-settings'
+import { createSessionController, type SessionController } from '../composables/useSession'
+
+const id=(n:number)=>'01900000-0000-7000-8000-'+n.toString(16).padStart(12,'0')
+const instant='2026-10-06T00:00:00.000001Z'
+const session=(n=2)=>({user:{id:id(1),email:'admin@example.test',username:'admin',display_name:'Owner',role:'admin',theme:'system',version:'1',initial_password_suggestion:false},session:{id:id(n),issued_at:instant,idle_expires_at:instant,absolute_expires_at:instant},csrf_token:'S'.repeat(43)})
+const fields=()=>({host:'mail.example.test',port:587,encryption:'starttls' as const,username:'auth',sender_email:'sender@example.test',sender_name:' owner ',auto_retry_count:'2',retry_interval_seconds:'120'})
+const input=(version='1')=>({version,...fields(),credential_action:'keep' as const})
+const settings=(version='1',configured=true)=>({id:id(10),version,configured,...fields(),credential_present:configured,...(configured?{}:{host:'',port:0,encryption:'',username:'',sender_email:'',sender_name:''})})
+const receipt=(version='2',current=settings(version))=>({applied_version:version,settings:current})
+const security=()=>({id:id(11),version:'1',session_idle_seconds:'604800',session_absolute_seconds:'2592000',password_reset_seconds:'1800',challenge_after_failures:'5',lifetime_changes_apply_to:'newly_issued_sessions_and_tokens'})
+const json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status,headers:{'Content-Type':status>=400?'application/problem+json':'application/json','X-Request-ID':id(9)}})
+const problem=(code:string,status=503,commit_state='not_started')=>json({type:'urn:agenteam:problem:independent',title:'Failure',status,detail:'safe',instance:'/api/v1/system/smtp',request_id:id(9),code,commit_state},status)
+function deferred<T=void>() { let resolve!:(value:T|PromiseLike<T>)=>void;const promise=new Promise<T>(r=>{resolve=r});return{promise,resolve} }
+const owners:SessionController[]=[]
+const releases:(()=>void)[]=[]
+async function fixture() {
+  let current=session(),smtp:Fetch=async(_,i)=>json(i.method==='GET'?settings():receipt()),other:Fetch=async(path)=>path==='/api/v1/me'?json({user:current.user,avatar:null}):path==='/api/v1/system/account-settings'?json(security()):json({items:[],next_cursor:null})
+  const fetcher=vi.fn<Fetch>(async(path,init)=>path==='/api/v1/session'?json(current):path.startsWith('/api/v1/system/smtp')?smtp(path,init):other(path,init))
+  const auth=createSessionController(createAccountAPI(fetcher),createSystemAccountAPI(fetcher),createSystemInvitationAPI(fetcher),createSystemProviderAPI(fetcher),createSystemModelAPI(fetcher),createSystemModelSelectionAPI(fetcher),createSystemAccountSecurityAPI(fetcher),createSystemSMTPSettingsAPI(fetcher))
+  owners.push(auth);await auth.restore()
+  return {auth,fetcher,api:auth.system.smtp,setSMTP(v:Fetch){smtp=v},setOther(v:Fetch){other=v},setSession(n:number){current=session(n)},writes(){return fetcher.mock.calls.filter(([p,i])=>p.startsWith('/api/v1/system/smtp')&&i.method!=='GET')}}
+}
+afterEach(async()=>{for(const auth of owners.splice(0))auth.leave();for(const r of releases.splice(0))r();vi.useRealTimers();await flushPromises();vi.restoreAllMocks()})
+
+describe('independent SMTP private original and actual owner boundaries',()=>{
+  it('preserves exact private PUT through post-read failure and non-receipt observations, then keeps higher current separate',async()=>{
+    const f=await fixture();await f.api.get()
+    const material=' private 🧩 \t '
+    f.api.setMaterial(material);f.setSMTP(async()=>problem('UNAVAILABLE',503,'not_started'))
+    await expect(f.api.startUpdate(input())).rejects.toMatchObject({kind:'problem'})
+    expect(f.api.progress).toMatchObject({phase:'uncertain',canRetryOriginal:false})
+    expect(f.api.material.present).toBe(true)
+    const original=f.writes()[0]![1]
+    expect(JSON.stringify(f.api).includes(material)).toBe(false)
+    expect(JSON.parse(String(original.body)).password===material).toBe(true)
+    f.setSMTP(async()=>problem('UNAVAILABLE'))
+    const before=f.fetcher.mock.calls.length
+    await expect(f.api.checkOriginal()).rejects.toMatchObject({kind:'problem'})
+    expect(f.fetcher.mock.calls.slice(before).map(([p])=>p)).toEqual(['/api/v1/session','/api/v1/system/smtp'])
+    expect(f.api.progress).toMatchObject({phase:'uncertain',observation:'failed',canRetryOriginal:true})
+    expect(f.writes()).toHaveLength(1)
+    f.setSMTP(async()=>json(receipt('2',settings('7',false))))
+    const result=await f.api.retryOriginal()
+    const replay=f.writes()[1]![1]
+    expect(replay.body===original.body).toBe(true)
+    expect((replay.headers as Record<string,string>)['Idempotency-Key']===(original.headers as Record<string,string>)['Idempotency-Key']).toBe(true)
+    expect((replay.headers as Record<string,string>)['X-CSRF-Token']===(original.headers as Record<string,string>)['X-CSRF-Token']).toBe(true)
+    expect(result.applied_version==='2'&&result.settings.version==='7'&&!result.settings.configured).toBe(true)
+    expect(f.api.material.present).toBe(false)
+    f.setSMTP(async()=>json(settings('3',true)))
+    await f.api.get()
+    const writeCount=f.writes().length
+    await expect(f.api.startUpdate(input('7'))).rejects.toMatchObject({kind:'invalid-input'})
+    expect(f.writes()).toHaveLength(writeCount)
+    expect(f.api.progress).toMatchObject({phase:'confirmed',result:{applied_version:'2'}})
+  })
+
+  it('distinguishes first known conflict from a later rejection after uncertainty without automatically replacing the intent',async()=>{
+    const f=await fixture();await f.api.get();f.api.setMaterial('held material')
+    f.setSMTP(async()=>problem('VERSION_CONFLICT',409,'not_committed'))
+    await f.api.startUpdate(input()).catch(()=>undefined)
+    expect(f.api.progress).toMatchObject({phase:'rejected',canRetryOriginal:false})
+    expect(f.api.material.present).toBe(true)
+    f.api.editRejected();expect(f.api.progress).toBeNull()
+    f.setSMTP(async()=>problem('UNAVAILABLE'))
+    await f.api.startUpdate(input()).catch(()=>undefined)
+    expect(f.api.progress?.phase).toBe('uncertain')
+    f.setSMTP(async()=>json(settings('4',false)))
+    await f.api.checkOriginal()
+    f.setSMTP(async()=>problem('VERSION_CONFLICT',409,'not_committed'))
+    await f.api.retryOriginal().catch(()=>undefined)
+    expect(f.api.progress?.phase).toBe('uncertain')
+    expect(()=>f.api.editRejected()).toThrow(expect.objectContaining({kind:'invalid-input'}))
+    const writes=f.writes()
+    expect(writes).toHaveLength(3)
+    expect((writes[1]![1].headers as Record<string,string>)['Idempotency-Key']===(writes[2]![1].headers as Record<string,string>)['Idempotency-Key']).toBe(true)
+    expect(writes[1]![1].body===writes[2]![1].body).toBe(true)
+    f.api.abandon();expect(f.api.progress).toBeNull();expect(f.api.material.present).toBe(false)
+  })
+
+  it('holds the native read/cancel tail after 30s and isolates other-domain abandonment until actual join',async()=>{
+    const f=await fixture(),tail=deferred(),entered=deferred()
+    releases.push(()=>tail.resolve())
+    await f.api.get();vi.useFakeTimers()
+    const cancel=vi.fn(()=>{entered.resolve();return tail.promise})
+    const stream=new ReadableStream<Uint8Array>({cancel})
+    f.setSMTP(async()=>new Response(stream,{headers:{'Content-Type':'application/json'}}))
+    const pending=f.api.get().catch(e=>e)
+    await flushPromises()
+    f.auth.personal.abandon();f.auth.system.accountSecurity.abandon()
+    expect(f.fetcher.mock.calls.at(-1)![1].signal?.aborted).toBe(false)
+    await vi.advanceTimersByTimeAsync(30000);await entered.promise
+    expect(await pending).toMatchObject({kind:'cancelled'})
+    expect(f.auth.state.busy).toBe(true)
+    const n=f.fetcher.mock.calls.length
+    f.api.abandonRead()
+    await expect(f.auth.system.accountSecurity.get()).rejects.toMatchObject({kind:'busy'})
+    await expect(f.auth.system.providers.list({})).rejects.toMatchObject({kind:'busy'})
+    expect(f.fetcher.mock.calls).toHaveLength(n)
+    tail.resolve();await flushPromises()
+    expect(f.auth.state.busy).toBe(false);expect(stream.locked).toBe(false)
+    expect(f.fetcher.mock.calls).toHaveLength(n)
+    f.setSMTP(async()=>json(settings('2')));await f.api.get()
+    expect(f.fetcher.mock.calls).toHaveLength(n+1)
+  })
+
+  it('clears recovery on explicit write abandonment while the original body/cancel still owns the Cookie',async()=>{
+    const f=await fixture(),tail=deferred(),entered=deferred()
+    releases.push(()=>tail.resolve());await f.api.get();f.api.setMaterial('private original')
+    const stream=new ReadableStream<Uint8Array>({start(c){c.enqueue(new TextEncoder().encode(JSON.stringify(receipt())))},cancel(){entered.resolve();return tail.promise}})
+    f.setSMTP(async()=>new Response(stream,{headers:{'Content-Type':'application/json'}}))
+    const pending=f.api.startUpdate(input()).catch(e=>e)
+    await flushPromises();f.api.abandon();await entered.promise
+    expect(await pending).toMatchObject({kind:'cancelled'})
+    expect(f.api.progress).toBeNull();expect(f.api.material.present).toBe(false);expect(f.auth.state.busy).toBe(true)
+    await expect(f.api.retryOriginal()).rejects.toMatchObject({kind:'invalid-input'})
+    await expect(f.auth.personal.getProfile()).rejects.toMatchObject({kind:'busy'})
+    tail.resolve();await flushPromises()
+    expect(f.auth.state.busy).toBe(false);expect(f.api.progress).toBeNull();expect(stream.locked).toBe(false)
+    const other=deferred<Response>();releases.push(()=>other.resolve(json({user:session().user,avatar:null})))
+    f.setOther(()=>other.promise)
+    const profile=f.auth.personal.getProfile();await flushPromises();f.api.abandon()
+    expect(f.fetcher.mock.calls.at(-1)![1].signal?.aborted).toBe(false)
+    other.resolve(json({user:session().user,avatar:null}));await profile
+  })
+
+  it.each(['put-csrf','post-forbidden'] as const)('destroys only current recovery under %s and preserves the established auth meaning',async(mode)=>{
+    const f=await fixture();await f.api.get();f.api.setMaterial('smtp private');f.auth.system.providers.setMaterial('provider private')
+    f.setSMTP(async()=>problem(mode==='put-csrf'?'CSRF_FAILED':'FORBIDDEN',403))
+    await (mode==='put-csrf'?f.api.startUpdate(input()):f.api.startUnconfigure({version:'1',auto_retry_count:'2',retry_interval_seconds:'120'})).catch(()=>undefined)
+    expect(f.api.material.present).toBe(false);expect(f.api.progress).toBeNull();expect(f.auth.system.providers.material.present).toBe(false)
+    if(mode==='put-csrf')expect(f.auth.personalContext.identity).toBeNull()
+    else {expect(f.auth.system.denied).toBe(true);expect(f.auth.state.user?.role).toBe('admin')}
+  })
+
+  it('does not overwrite a successor started from the public material-retired notification',async()=>{
+    const f=await fixture();await f.api.get();f.api.setMaterial('old private')
+    f.setSMTP(async()=>problem('UNAVAILABLE'))
+    await f.api.startUpdate(input()).catch(()=>undefined)
+    expect(f.api.progress?.phase).toBe('uncertain');expect(f.auth.state.busy).toBe(false)
+    const next=deferred<Response>();releases.push(()=>next.resolve(json(receipt())))
+    f.setSMTP(()=>next.promise)
+    let successor:Promise<unknown>|null=null
+    const stop=watch(()=>f.api.material.present,(present)=>{
+      if(present || successor)return
+      stop();f.api.setMaterial('new private');successor=f.api.startUpdate(input()).catch(e=>e)
+    },{flush:'sync'})
+    try {
+      f.api.abandon();await flushPromises()
+      const safe={started:successor!==null,busy:f.auth.state.busy,material:f.api.material.present,phase:f.api.progress?.phase??null,writes:f.writes().length,newBodyMatches:JSON.parse(String(f.writes().at(-1)![1].body)).password==='new private'}
+      console.info('SMTP_NEW_INTENT_SAFE',JSON.stringify(safe))
+      expect(safe).toEqual({started:true,busy:true,material:true,phase:'submitting',writes:2,newBodyMatches:true})
+    } finally {stop();next.resolve(json(receipt()));await successor;await flushPromises()}
+  })
+})

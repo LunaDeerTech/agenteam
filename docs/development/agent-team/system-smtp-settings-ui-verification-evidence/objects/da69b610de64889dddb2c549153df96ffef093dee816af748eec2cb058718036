@@ -1,0 +1,26 @@
+## SMTP 配置与私有凭据
+
+[SMTP 配置工作项 rev2](../work-items/d27-system-smtp-settings-ui.md)提供 `/system/smtp`，位于“平台配置 → SMTP”，是第七个系统叶子和第十一个精确登录返回目标；系统菜单仍分三组，`/system` 默认进入用户目录。普通用户没有入口，直链不挂载本页、不发管理请求。
+
+页面只调用 GET/PUT `/api/v1/system/smtp` 与 POST `/api/v1/system/smtp/unconfigure`。已配置时显式编辑主机、端口、`tls`/`starttls`/`none`、发件地址/名称、认证与重试策略；未配置时可单独保存策略，或明确进入完整配置。自动重试次数为 0–5，间隔为 10–3600 秒，输入使用无前导零的十进制字符串。无变化、非法输入和取消不派发写入；版本冲突须明确重读核对，不自动采用新版本覆盖。停用另行确认，清除传输配置并保留确认时捕获的已保存策略；未保存的策略须先处理草稿。
+
+密码留空表示保持，输入新密码表示替换；明确移除认证时用户名须为空。材料只在输入 DOM、私有非响应式 owner 及实际请求所需临时副本中持有，不回显、不进入公开状态、日志、URL 或持久存储。输入 DOM 清空或同 Session 重挂不抹去仍合法的原请求材料；明确放弃或身份失效立即取消恢复资格，实际尾部结束后清理可达引用，不承诺凭据已被物理擦除或在途副作用已撤销。
+
+PUT 与停用返回的 `applied_version` 确认原命令的历史版本，`settings` 是重新授权后的当前观察；两者不能混为同一次配置快照。原 PUT 重放可读到当前已停用，原停用重放也可读到当前重新配置，页面分别显示原操作确认和当前状态，较旧观察不倒退较新版本。没有公开 command lookup；Session 检查、GET 相同值或版本推进均不能确认原写。已派发写的后读失败即使标为 `not_started`，也保留原 method/path/key/body/version/CSRF 与精确密码；仅由用户明确重试原请求，严格匹配结果后才确认。确认后刷新失败只重试读取，不重新保存。
+
+SMTP 是 Session controller 的第八项依赖，使用独立状态域并共用唯一 Cookie 请求 owner。30 秒可见截止、取消、放弃或身份变化不提前释放实际 fetch/body/read/cancel 尾部；读取取消同步结束失效的 loading，须显式重读，不自动补发。草稿及未确认写受离页/注销确认保护，停用与放弃使用各自常驻 Dialog 和 Promise；同 Session checking/失败恢复保留待决状态，真正身份或权限失效清除旧恢复资格。关闭确认恢复当前可用触发器，旧触发器已卸载时使用当前页标题后备目标；原生焦点与 Tab 顺序已验。
+
+最终完整前端检查通过 35 文件、1214 项测试及格式/类型/生产构建，Go1.27.1 integration-tag race 编译与 vet 通过。作者六个新增组由 `input04` 的 Lifecycle、CredentialLifecycle、OutcomeRecovery、NavigationAndLayouts 与 `input02/new02` 的 Concurrency、AuthorityAndIdentity 按未变语义组合通过；旧十九组在 `input04` 分 core7、Provider3、Model3、Selection3、账号安全3 五批通过。独立真实 A/B 与最终差量复核通过，原失败和复用边界保留于[SMTP 配置验收记录](../agent-team/system-smtp-settings-ui-verification.md)。`input04` 真实基线为 `f670cb1`；后续 `a942779` 组合仅按 Outbound 接缝静态复核，最终主树 Go 编译由整合执行，不作为 `a942779` 的浏览器实测。
+
+定点检查沿前述锁依赖、生产 dist、Go1.27.1、MinIO 与独占短 runtime 准备；真实验收按固定输入分批执行，保持浏览器 45 秒、顶层 2 分钟、每包 6 分钟、race/count1、workers=1/retries=0，并等待实际退出与自有资源双查清零：
+
+```sh
+npm run check --prefix web
+npm run test:unit --prefix web -- src/tests/system-smtp-settings-client.spec.ts src/tests/system-smtp-settings-state.spec.ts src/tests/system-smtp-settings.spec.ts
+sh scripts/test-security.sh -run '^TestAccountSystemSMTPSettingsWeb(Lifecycle|CredentialLifecycle|Concurrency|OutcomeRecovery|AuthorityAndIdentity|NavigationAndLayouts)$'
+```
+
+`navigation04` 的 light/dark × 1440/1024/834/390 八张 900px 高视口图由作者逐张查看，主线程未作图审；窄屏下方表单仍需滚动。截图仅在材料输入清空后采集，禁用 trace/video 与请求 body 收集。响应截断、精确读取/Session 503 和合成 `pageshow` 是自有 fixture 控制，不代表真实 BFCache；reader 旁路不代替实际 owner 尾部证明。
+
+保存只确认配置持久化，不证明 SMTP 连接、认证、发送或外部邮箱收件成功。本页没有测试发送、连接检查或投递任务管理入口，不调用 Runtime；生产 SPA 托管、真实 Vite 代理浏览器、原生缩放、ready503 和完整 D27 的边界保持。
+

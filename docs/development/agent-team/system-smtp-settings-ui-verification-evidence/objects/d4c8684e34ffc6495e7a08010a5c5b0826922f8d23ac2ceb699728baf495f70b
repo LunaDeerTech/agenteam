@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parent
+name, cwd, *argv = sys.argv[1:]
+run = ROOT / 'checks' / name
+run.mkdir(mode=0o700)
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+def inputs():
+    return {str(p.relative_to(ROOT)):sha(p) for folder in ['overlay','browser']
+            for p in (ROOT/folder).iterdir() if p.is_file()}
+before = inputs()
+for relative, digest in before.items():
+    target = run / 'source' / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes((ROOT/relative).read_bytes())
+env = {key:os.environ[key] for key in ['GOTOOLCHAIN','GOENV','GOWORK','GOPROXY','GOSUMDB','GOMODCACHE','GOCACHE','TMPDIR','CGO_ENABLED','GOFLAGS',
+    'AGENTEAM_AUTH_WEB_ORIGIN','AGENTEAM_AUTH_WEB_PRIVATE','AGENTEAM_AUTH_WEB_CHROMIUM','AGENTEAM_SMTP_SETTINGS_WEB_CASE'] if key in os.environ}
+record = {'argv':argv,'cwd':cwd,'env':env,'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'input_before':before}
+(run/'command.json').write_text(json.dumps(record,indent=2)+'\n')
+start = time.monotonic()
+with (run/'raw.log').open('wb') as raw:
+    process = subprocess.Popen(argv,cwd=cwd,stdout=raw,stderr=subprocess.STDOUT)
+    code = process.wait()
+record.update({'exit':code,'seconds':round(time.monotonic()-start,3),'actual_wait':True,'input_after':inputs(),'resources_started':False})
+(run/'result.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps({'check':name,'exit':code,'seconds':record['seconds'],'unchanged':before==record['input_after']}),flush=True)
+raise SystemExit(code)

@@ -1,0 +1,200 @@
+--- input02/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts
++++ input03/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts
+@@ -1354,11 +1354,64 @@
+   await nav.getByRole("link", { name: "SMTP", exact: true }).click();
+   await currentRead(page, after);
+   const stop = button(page, "停用并清除配置");
+-  await stop.click();
+-  await focusContained(page);
+-  await page.keyboard.press("Escape");
+-  await expect(page.locator(".ui-overlay")).toHaveCount(0);
+-  await expect(stop).toBeFocused();
++  const focusObservation = await stop.evaluateHandle((element) => {
++    const trigger = element as HTMLButtonElement;
++    const heading = document.querySelector(".system-smtp-settings > h1");
++    let phase = "before-open";
++    const events: Record<string, string | boolean | null>[] = [];
++    const record = (event: string) => {
++      if (events.length >= 32) return;
++      events.push({
++        phase,
++        event,
++        active_tag: document.activeElement?.tagName ?? null,
++        active_trigger: document.activeElement === trigger,
++        active_heading: document.activeElement === heading,
++        active_body: document.activeElement === document.body,
++        trigger_connected: trigger.isConnected,
++        trigger_disabled: trigger.disabled,
++      });
++    };
++    const focus = () => record("focusin");
++    const blur = () => record("trigger-blur");
++    const disabled = new MutationObserver(() => record("disabled-change"));
++    document.addEventListener("focusin", focus, true);
++    trigger.addEventListener("blur", blur);
++    disabled.observe(trigger, {
++      attributes: true,
++      attributeFilter: ["disabled"],
++    });
++    record("installed");
++    return {
++      mark(value: string) {
++        phase = value;
++        record("stage");
++      },
++      finish() {
++        record("finished");
++        document.removeEventListener("focusin", focus, true);
++        trigger.removeEventListener("blur", blur);
++        disabled.disconnect();
++        return events;
++      },
++    };
++  });
++  try {
++    await stop.click();
++    await focusContained(page);
++    await focusObservation.evaluate((observation) =>
++      observation.mark("before-close"),
++    );
++    await page.keyboard.press("Escape");
++    await expect(page.locator(".ui-overlay")).toHaveCount(0);
++    await expect(stop).toBeFocused();
++  } finally {
++    const safe = await focusObservation.evaluate((observation) =>
++      observation.finish(),
++    );
++    console.log("SMTP_DISABLE_FOCUS_SAFE", JSON.stringify(safe));
++    await focusObservation.dispose();
++  }
+   await stop.click();
+   // Browser history remains available while the page behind a modal is inert.
+   const layeredBack = page.goBack();
+--- input02/web/src/composables/useSystemSMTPSettings.ts
++++ input03/web/src/composables/useSystemSMTPSettings.ts
+@@ -116,8 +116,8 @@
+   )
+   let base: SMTPSettings | null = null,
+     latest: SMTPSettings | null = null,
+-    baseline = '',
+     usernameBeforeRemoval = ''
++  const baseline = ref('')
+   let identity = auth.personalContext.identity,
+     revision = 0,
+     readRevision = 0,
+@@ -138,7 +138,7 @@
+   const changed = computed(
+     () =>
+       editor.ready &&
+-      (editorSnapshot() !== baseline || material.value.present || material.value.invalid),
++      (editorSnapshot() !== baseline.value || material.value.present || material.value.invalid),
+   )
+   const dirty = computed(
+     () => changed.value || editor.conflict || unsettled.value || disableConfirmation.open,
+@@ -155,7 +155,7 @@
+     own === revision &&
+     authorized() &&
+     same(captured, auth.personalContext.identity)
+-  const maximumVersion = computed(() => !!base && base.version === '9223372036854775807')
++  const maximumVersion = computed(() => editor.version === '9223372036854775807')
+   const capturedUpdate = (): Omit<SMTPUpdateInput, 'password'> => ({
+     version: editor.version,
+     host: draft.host,
+@@ -276,7 +276,7 @@
+       conflict: false,
+       message: '',
+     })
+-    baseline = editorSnapshot()
++    baseline.value = editorSnapshot()
+     usernameBeforeRemoval = ''
+   }
+   function adopt(value: SMTPSettings) {
+@@ -290,7 +290,7 @@
+       conflict: false,
+       message: '',
+     })
+-    baseline = editorSnapshot()
++    baseline.value = editorSnapshot()
+     usernameBeforeRemoval = ''
+     state.requiresRead = false
+     state.materialMessage = ''
+--- input02/web/src/tests/system-smtp-settings-state.spec.ts
++++ input03/web/src/tests/system-smtp-settings-state.spec.ts
+@@ -676,6 +676,77 @@
+ }
+ 
+ describe('SMTP inline controller observations, captured policy and cancellation', () => {
++  it.each([true, false])(
++    'updates the maximum-version gate after explicit adoption, configured=%s',
++    async (configured) => {
++      const f = await pageFixture(configured),
++        p = f.page
++      expect(p.maximumVersion.value).toBe(false)
++      f.setSMTP(async () => json(settings('9223372036854775807', configured)))
++      await p.readLatest()
++      expect(p.observation.value?.version).toBe('9223372036854775807')
++      expect(p.editor.version).toBe('1')
++      const adoption = p.adoptLatest()
++      await flushPromises()
++      expect(p.confirmation.open).toBe(true)
++      p.finishConfirmation(true)
++      await adoption
++      p.updateField(
++        configured ? 'sender_name' : 'auto_retry_count',
++        configured ? 'Next draft' : '0',
++      )
++      expect(p.editor.version).toBe('9223372036854775807')
++      expect(p.maximumVersion.value).toBe(true)
++      expect(p.canSave.value || p.canDisable.value).toBe(false)
++      await p.save()
++      expect(f.writes()).toHaveLength(0)
++    },
++  )
++  it.each([true, false])(
++    'clears the dirty baseline after confirming identical submitted fields, configured=%s',
++    async (configured) => {
++      const f = await pageFixture(configured),
++        p = f.page
++      let observed = settings('1', configured)
++      f.setSMTP(async (_, init) => {
++        if (init.method !== 'GET') {
++          const input = JSON.parse(init.body as string)
++          observed = {
++            ...observed,
++            version: String(BigInt(input.version) + 1n),
++            ...(configured ? { sender_name: input.sender_name } : {}),
++            auto_retry_count: input.auto_retry_count,
++            retry_interval_seconds: input.retry_interval_seconds,
++          }
++          return json({ applied_version: observed.version, settings: observed })
++        }
++        return json(observed)
++      })
++      p.updateField(
++        configured ? 'sender_name' : 'auto_retry_count',
++        configured ? 'Saved name' : '0',
++      )
++      expect(p.changed.value && p.dirty.value && p.canSave.value).toBe(true)
++      await p.save()
++      expect(p.state.confirmed?.applied_version).toBe('2')
++      expect(p.draft.sender_name).toBe(observed.sender_name)
++      expect(p.draft.auto_retry_count).toBe(observed.auto_retry_count)
++      expect([p.changed.value, p.dirty.value, p.canSave.value]).toEqual([false, false, false])
++      const before = f.fetch.mock.calls.length
++      const pending = p.refresh()
++      await flushPromises()
++      try {
++        expect(p.confirmation.open).toBe(false)
++        expect(f.fetch.mock.calls.slice(before).map(([path, init]) => [path, init.method])).toEqual(
++          [['/api/v1/system/smtp', 'GET']],
++        )
++        expect(f.writes()).toHaveLength(1)
++      } finally {
++        p.finishConfirmation(false)
++        await pending
++      }
++    },
++  )
+   it('starts unconfigured without transport defaults, saves only the three policy fields and sends no extra GET', async () => {
+     const f = await pageFixture(false),
+       p = f.page

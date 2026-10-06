@@ -1,0 +1,9 @@
+SMTP input04 执行闭包 STATIC PASS，支持主线程安排 navigation04；API 两文件的契约复验由 documentation 独立负责，本报告不替代该结论或修复后 native 结果。
+
+manifest SHA 3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37；driver04 SHA 3b3c876495c6578f5d782d3c6ee8bdf9be90d12108ddbc6475988dca83468928。28 源、36 dist、10 锁/运行依赖逐项当前 SHA 匹配。对 input03 精确六文件差量为已审 focus-stage01 四源原字节，加 API/client-test 两源；browser/Go/owner 等 22 源未变。最终 dist 来自同次完整 check/build，不沿用旧焦点产物。
+
+1050 实际固定依赖全量哈希匹配；相对旧 1040 闭包仅 16 项变化/新增、净增 10、无删项，正好是 7 个 mail-management-read 与 9 个 email-canonical 文件。16 项逐一与固定 f670cb1 Git 内容核验，未混入活动 outbound。driver 对已审原版除 BASE 从 40c904c 换 f670cb1 外逐字节相同；原唯一 selector/45s-2m-6m/race/count1/单 worker/零 retries 与实际 wait/subreaper/精确7-ID及PID-starttime双清没有改变。
+
+六项冻结 raw/result/input 前后 SHA 核验通过：完整 web check1214/35（format/type/build）actual0/33.895s；racecompile0/23.758s、vet0/7.888s、Go发现0/1.292s、browser type0/4.294s、六mode发现0/6.509s。均 actual_wait=true、input_unchanged=true、resource_execution=false。原 failures 和 native navigation03 失焦保留；本次只读、不新增动态或重跑整套。最终 native 焦点、布局与旧回归仍按主线程移交窗口执行。
+
+独立只读辅助比较首次误把 manifest.driver_origin 指向的说明 JSON 当作 driver 源，断言退出1；改为现存已冻 driver01.py 后实际退出0，精确只差上述 BASE 常量。此为本次比较脚本的输入定位错误，无产品/测试或资源执行。

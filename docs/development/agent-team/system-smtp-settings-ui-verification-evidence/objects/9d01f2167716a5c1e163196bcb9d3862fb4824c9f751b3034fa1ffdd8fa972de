@@ -1,0 +1,13 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/diagnostic04/workspace/web
+
+stdout | src/tests/diagnostic-smtp-baseline.spec.ts > diagnostic same-field success retires dirty baseline and refresh dispatches a real GET
+SMTP_BASELINE_SAFE {"confirmed":true,"same_fields":true,"changed":false,"dirty":false,"can_save":false,"confirmation_open":false,"reads":1,"writes":1}
+
+ ✓ src/tests/diagnostic-smtp-baseline.spec.ts > diagnostic same-field success retires dirty baseline and refresh dispatches a real GET 31ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  16:54:30
+   Duration  768ms (transform 198ms, setup 0ms, import 274ms, tests 33ms, environment 343ms)
+

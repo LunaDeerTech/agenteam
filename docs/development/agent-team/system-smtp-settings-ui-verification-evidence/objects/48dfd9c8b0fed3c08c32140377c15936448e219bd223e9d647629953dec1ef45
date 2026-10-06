@@ -1,0 +1,269 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.101.229.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=55490f0a02bad88103104684b53c8f29
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=3652f93bb455ab3963541f9011b2d553
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.347s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+=== RUN   TestAccountSystemSMTPSettingsWebLifecycle
+    system_smtp_settings_web_test.go:32: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1683804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1683804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-smtp-settings.spec.ts:465:1 › [lifecycle] three explicit transports, unconfigured policy and saved disable policy
+        [1A[2K  1) e2e/system-smtp-settings.spec.ts:465:1 › [lifecycle] three explicit transports, unconfigured policy and saved disable policy 
+        
+            Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+        
+            Expected: [32mtrue[39m
+            Received: [31mfalse[39m
+        
+            Call Log:
+            - Timeout 5000ms exceeded while waiting on the predicate
+        
+              433 | ) {
+              434 |   let found: Fact | undefined;
+            > 435 |   await expect
+                  |   ^
+              436 |     .poll(async () => {
+              437 |       found = (await facts(page)).find(
+              438 |         (f) => f.sequence > after && predicate(f),
+                at factAfter (/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts:435:3)
+                at currentRead (/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts:489:16)
+                at /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts:826:5
+        
+        
+        [1A[2K  1 failed
+            e2e/system-smtp-settings.spec.ts:465:1 › [lifecycle] three explicit transports, unconfigured policy and saved disable policy 
+        
+    system_smtp_settings_web_test.go:32: actual SMTP settings production browser failed: exit status 1
+--- FAIL: TestAccountSystemSMTPSettingsWebLifecycle (15.73s)
+=== RUN   TestAccountSystemSMTPSettingsWebCredentialLifecycle
+    system_smtp_settings_web_test.go:35: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1685698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1685698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-smtp-settings.spec.ts:543:1 › [credential] private new/keep/replace/remove material and exact Secret references
+        [1A[2K  1) e2e/system-smtp-settings.spec.ts:543:1 › [credential] private new/keep/replace/remove material and exact Secret references 
+        
+            Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAccessibleName[2m([22m[32mexpected[39m[2m)[22m failed
+        
+            Locator:  getByRole('dialog')
+            Expected: [32m"[7m停用并清除 SMTP 配置[27m？"[39m
+            Received: [31m"[7m放弃草稿并继续停用[27m？"[39m
+            Timeout:  5000ms
+        
+            Call log:
+            [2m  - Expect "toHaveAccessibleName" with timeout 5000ms[22m
+            [2m  - waiting for getByRole('dialog')[22m
+            [2m    9 × locator resolved to <section role="dialog" tabindex="-1" aria-modal="true" class="ui-dialog" aria-labelledby="v-42">…</section>[22m
+            [2m      - unexpected value "放弃草稿并继续停用？"[22m
+        
+        
+              615 | async function disable(page: Page) {
+              616 |   await button(page, "停用并清除配置").click();
+            > 617 |   await expect(top(page)).toHaveAccessibleName("停用并清除 SMTP 配置？");
+                  |                           ^
+              618 |   const after = await seq(page);
+              619 |   await top(page)
+              620 |     .getByRole("button", { name: "确认停用并清除", exact: true })
+                at disable (/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts:617:27)
+                at /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts:934:20
+        
+        
+        [1A[2K  1 failed
+            e2e/system-smtp-settings.spec.ts:543:1 › [credential] private new/keep/replace/remove material and exact Secret references 
+        
+    system_smtp_settings_web_test.go:35: actual SMTP settings production browser failed: exit status 1
+--- FAIL: TestAccountSystemSMTPSettingsWebCredentialLifecycle (15.79s)
+=== RUN   TestAccountSystemSMTPSettingsWebConcurrency
+    system_smtp_settings_web_test.go:38: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1687627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1687627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-smtp-settings.spec.ts:618:1 › [concurrency] two real administrators, original version conflict and explicit adoption
+        [1A[2K  1 passed (3.5s)
+        
+    system_smtp_settings_web_test.go:38: real SMTP configuration browser group=concurrency completed; no connection, authentication, delivery or recipient acceptance claim
+--- PASS: TestAccountSystemSMTPSettingsWebConcurrency (8.95s)
+=== RUN   TestAccountSystemSMTPSettingsWebOutcomeRecovery
+    system_smtp_settings_web_test.go:41: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1688924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1688924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-smtp-settings.spec.ts:675:1 › [outcome] accepted lost PUT and POST replay with original material and opposite current settings
+        [1A[2K  1) e2e/system-smtp-settings.spec.ts:675:1 › [outcome] accepted lost PUT and POST replay with original material and opposite current settings 
+        
+            [31mTest timeout of 45000ms exceeded.[39m
+        
+            Error: locator.click: Test timeout of 45000ms exceeded.
+            Call log:
+            [2m  - waiting for getByRole('dialog').getByRole('button', { name: '确认停用并清除', exact: true })[22m
+        
+        
+              646 |     await top(page)
+              647 |       .getByRole("button", { name: "确认停用并清除", exact: true })
+            > 648 |       .click();
+                  |        ^
+              649 |   } else await button(page, "保存 SMTP 配置").click();
+              650 |   await expect(title(page, "请求结果未确认")).toBeVisible();
+              651 |   await expect(button(page, "检查当前会话与配置")).toBeEnabled();
+                at cutSave (/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts:648:8)
+                at /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts:1064:20
+        
+        
+        [1A[2K  1 failed
+            e2e/system-smtp-settings.spec.ts:675:1 › [outcome] accepted lost PUT and POST replay with original material and opposite current settings 
+        
+    system_smtp_settings_web_test.go:41: actual SMTP settings production browser failed: exit status 1
+--- FAIL: TestAccountSystemSMTPSettingsWebOutcomeRecovery (51.69s)
+=== RUN   TestAccountSystemSMTPSettingsWebAuthorityAndIdentity
+    system_smtp_settings_web_test.go:44: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1696963) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1696963) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-smtp-settings.spec.ts:740:1 › [authority] real role and Session revocation isolate both configuration and original recovery
+        [1A[2K  1 passed (10.2s)
+        
+    system_smtp_settings_web_test.go:44: real SMTP configuration browser group=authority completed; no connection, authentication, delivery or recipient acceptance claim
+--- PASS: TestAccountSystemSMTPSettingsWebAuthorityAndIdentity (18.66s)
+=== RUN   TestAccountSystemSMTPSettingsWebNavigationAndLayouts
+    system_smtp_settings_web_test.go:47: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1699920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1699920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-smtp-settings.spec.ts:869:1 › [navigation] seven leaves, two restored confirmations and eight responsive layouts
+        [1A[2K  1) e2e/system-smtp-settings.spec.ts:869:1 › [navigation] seven leaves, two restored confirmations and eight responsive layouts 
+        
+            Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+        
+            Locator:  getByRole('button', { name: '停用并清除配置', exact: true })
+            Expected: focused
+            Received: inactive
+            Timeout:  5000ms
+        
+            Call log:
+            [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+            [2m  - waiting for getByRole('button', { name: '停用并清除配置', exact: true })[22m
+            [2m    9 × locator resolved to <button type="button" data-v-7453e98a="" class="ui-button default">…</button>[22m
+            [2m      - unexpected value "inactive"[22m
+        
+        
+              1359 |   await page.keyboard.press("Escape");
+              1360 |   await expect(page.locator(".ui-overlay")).toHaveCount(0);
+            > 1361 |   await expect(stop).toBeFocused();
+                   |                      ^
+              1362 |   await stop.click();
+              1363 |   // Browser history remains available while the page behind a modal is inert.
+              1364 |   const layeredBack = page.goBack();
+                at /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts:1361:22
+        
+        
+        [1A[2K  1 failed
+            e2e/system-smtp-settings.spec.ts:869:1 › [navigation] seven leaves, two restored confirmations and eight responsive layouts 
+        
+    system_smtp_settings_web_test.go:47: actual SMTP settings production browser failed: exit status 1
+--- FAIL: TestAccountSystemSMTPSettingsWebNavigationAndLayouts (20.68s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	131.582s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.011s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce a21acd81210cb8ce7413764c4695075c
+D04 outbound fixture cleanup checked for nonce 3652f93bb455ab3963541f9011b2d553
+D05 object fixture exact resource cleanup checked nonce=55490f0a02bad88103104684b53c8f29

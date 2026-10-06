@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-tags=integration",
+    "-c",
+    "-o",
+    "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/compile-tmp/smtp-independent.test",
+    "./tests/account"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/compile-tmp",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/agenteam-smtp-ui-real-independent-ntjwunmt/overlay.json"
+  },
+  "started_utc": "2026-10-06T17:30:23.890151+00:00",
+  "input_before": {
+    "overlay/smtp_independent_test.go": "19acc58b1267ed5923b1376a292a59687fd927220a8dbb64f8d5db1bbd3e68d1",
+    "overlay/system_smtp_settings_web_fixture_test.go": "0ab74c4d57cb33d80bbe288fbd5989669fce1a93f043296a965b196ffa76b535",
+    "overlay/fixture.diff": "24812e6018c3e90236c5a81f1ec424abc8b2d81822767a7a6dad55abfa0ffa9e",
+    "browser/cases.ts.txt": "9f5099adc07e4eb3bccfcdc815a991b13879ce4435b52ecd244189e0d5dfe1e4",
+    "browser/independent.spec.ts": "d8aed601fc7885bb857121c96a33f7c06efd839b1ecb6dc76ee1ee07cc47a56a",
+    "browser/independent.config.js": "bb25fe44e4f589a3f57999582dbd86b9a7fba09442b46fb5404e82996c0132ea",
+    "browser/package.json": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428",
+    "browser/tsconfig.json": "caebbd2a5419189cb100ed364823c6a6f404c93082fac4568e54739004f7d86d"
+  }
+}

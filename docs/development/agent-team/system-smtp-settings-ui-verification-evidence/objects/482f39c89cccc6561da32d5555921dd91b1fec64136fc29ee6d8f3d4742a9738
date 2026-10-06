@@ -1,0 +1,52 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-settings-api-independent-2u508r5g/fixed/web
+
+ ❯ src/tests/independent-smtp-api.spec.ts (12 tests | 1 failed) 66ms
+     × rejects exactly the represented Go-invalid raw email inputs before dispatch 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/independent-smtp-api.spec.ts > independent SMTP fixed Go syntax and strict API boundaries > rejects exactly the represented Go-invalid raw email inputs before dispatch
+AssertionError: expected [ { …(4) }, { …(4) }, { …(4) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "clientAccepted": true,
++     "dispatches": 1,
++     "goAccepted": false,
++     "name": "lowercase-ipv6-prefix",
++   },
++   {
++     "clientAccepted": true,
++     "dispatches": 1,
++     "goAccepted": false,
++     "name": "mixed-case-ipv6-prefix",
++   },
++   {
++     "clientAccepted": true,
++     "dispatches": 1,
++     "goAccepted": false,
++     "name": "lowercase-prefix-mapped",
++   },
++ ]
+
+ ❯ src/tests/independent-smtp-api.spec.ts:52:24
+     50|         mismatches.push({name:row.name,goAccepted:row.accepted,clientA…
+     51|     }
+     52|     expect(mismatches).toEqual([])
+       |                        ^
+     53|   })
+     54|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  15:58:02
+   Duration  279ms (transform 63ms, setup 0ms, import 87ms, tests 66ms, environment 0ms)
+

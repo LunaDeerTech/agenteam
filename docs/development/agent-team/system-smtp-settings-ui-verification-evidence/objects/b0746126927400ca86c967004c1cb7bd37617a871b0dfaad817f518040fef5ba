@@ -1,0 +1,82 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/diagnostic05/workspace/web
+
+stdout | src/tests/diagnostic-smtp-maximum.spec.ts > diagnostic normal to maximum version adoption configured=true
+SMTP_MAXIMUM_SAFE {"configured":true,"adopted_maximum":true,"maximum_version":false,"can_save":false,"save_threw":false,"writes":0}
+
+stdout | src/tests/diagnostic-smtp-maximum.spec.ts > diagnostic normal to maximum version adoption configured=false
+SMTP_MAXIMUM_SAFE {"configured":false,"adopted_maximum":true,"maximum_version":false,"can_save":true,"save_threw":true,"writes":0}
+
+ × src/tests/diagnostic-smtp-maximum.spec.ts > diagnostic normal to maximum version adoption configured=true 29ms
+   → expected false to be true // Object.is equality
+ × src/tests/diagnostic-smtp-maximum.spec.ts > diagnostic normal to maximum version adoption configured=false 5ms
+   → expected false to be true // Object.is equality
+   → expected true to be false // Object.is equality
+   → expected true to be false // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/diagnostic-smtp-maximum.spec.ts > diagnostic normal to maximum version adoption configured=true
+ FAIL  src/tests/diagnostic-smtp-maximum.spec.ts > diagnostic normal to maximum version adoption configured=false
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/tests/diagnostic-smtp-maximum.spec.ts:205:43
+    203|   console.log('SMTP_MAXIMUM_SAFE', JSON.stringify(diagnostic))
+    204|   expect.soft(diagnostic.adopted_maximum).toBe(true)
+    205|   expect.soft(diagnostic.maximum_version).toBe(true)
+       |                                           ^
+    206|   expect.soft(diagnostic.can_save).toBe(false)
+    207|   expect.soft(diagnostic.save_threw).toBe(false)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/tests/diagnostic-smtp-maximum.spec.ts > diagnostic normal to maximum version adoption configured=false
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/tests/diagnostic-smtp-maximum.spec.ts:206:36
+    204|   expect.soft(diagnostic.adopted_maximum).toBe(true)
+    205|   expect.soft(diagnostic.maximum_version).toBe(true)
+    206|   expect.soft(diagnostic.can_save).toBe(false)
+       |                                    ^
+    207|   expect.soft(diagnostic.save_threw).toBe(false)
+    208|   expect.soft(diagnostic.writes).toBe(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/tests/diagnostic-smtp-maximum.spec.ts > diagnostic normal to maximum version adoption configured=false
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/tests/diagnostic-smtp-maximum.spec.ts:207:38
+    205|   expect.soft(diagnostic.maximum_version).toBe(true)
+    206|   expect.soft(diagnostic.can_save).toBe(false)
+    207|   expect.soft(diagnostic.save_threw).toBe(false)
+       |                                      ^
+    208|   expect.soft(diagnostic.writes).toBe(0)
+    209| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  16:56:09
+   Duration  845ms (transform 179ms, setup 0ms, import 264ms, tests 35ms, environment 419ms)
+

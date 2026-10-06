@@ -1,0 +1,15 @@
+主线组合检查 PASS。固定 `/workspace/agenteam` HEAD `63de0ac675e0fd4cd26e2cecde91f417a63d3bca`（含已接受 Outbound `a942779`）加精确 SMTP 29 路径，三条命令均实际退出 0。
+
+| 检查 | 实际 exit | 秒 |
+| --- | --- | --- |
+| account-race-compile01 | 0 | 34.369 |
+| app-pure01 | 0 | 3.548 |
+| central-runner-build01 | 0 | 17.675 |
+
+account 为 integration + race 的 `go test -c`，零业务测试执行；app 仅执行 `TestOutboundPolicyRootRoutePreservationAndSingleMiddleware` 与 `TestModelRootRouteOwnershipAndRequestPreservation` 两个纯路由顶层；Central/Runner 只构建至本目录 `bin/`。完整 argv/env、原 raw、实际 wait、PID/starttime 与两次空扫描在各 `runs/<name>/`，无 fixture、浏览器、Docker、业务进程或端口资源。
+
+Go 1.27.1、readonly/offline、无 overlay；复用既有 GOCACHE。按实际三命令导入图绑定的 604 个本地 Go/Embed/锁输入和 3504 个外部模块/工具输入，逐命令前后指纹一致。`input01.json` SHA `c5990ffe7d1e5fbb2c254f7b76dad8d803a3dd530842f93812546405a17e0a60`。主树全部 29 路径与 delivery29-v2 完全一致，其中原 28 与独立 delivery28 一致；`delivery29-after.json` SHA `7f6dcc9d96a5dd35bb2b9e2088c4b8f8b40086405cde9f3a86af171eff09ac34`。README 只作为交付指纹，不属于 Go 输入。
+
+总结果 `result.json` SHA `62819464d097b2962ae0e30e5dde027cab8ef4fc2e50fb74c6c2c88186da0bd0`；精确命令、原日志和输入清单索引见 `verification-report.json` SHA `cb7f281bb30817c6ec582b78f53fb9b58b31f8c6da31032c360df42d0ef22aeb`。候选列表直接复用固定 delivery28/delivery29-v2，不复制全树或缓存。
+
+SMTP 真实 HTTP/浏览器证据仍属于固定 `f670cb1`；`a942779`/当前主线的组合证据是既有静态接缝审查加本次编译和两个纯路由测试。既有作者新六组、旧十九组与独立 A/B 的复用边界保持于原 combination-review；不把本次检查表述为重跑真实业务。所有原失败与额外非卡内 owner 重入探针 FAIL 保留。本次未改产品、未作 Git 变更、未运行停止的 Object/tools 探针。

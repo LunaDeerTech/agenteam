@@ -1,0 +1,17 @@
+package main
+import ("net/mail"; "strings")
+func NormalizeEmail(input string) (string, error) {
+	if len(input) == 0 || len(input) > 254 || strings.TrimSpace(input) != input {
+		return "", field("/email", "EMAIL_INVALID")
+	}
+	for i := range len(input) {
+		if input[i] < 33 || input[i] > 126 {
+			return "", field("/email", "EMAIL_INVALID")
+		}
+	}
+	a, e := mail.ParseAddress(input)
+	if e != nil || a.Name != "" || a.Address != input || strings.ContainsAny(input, "()<>,;\\\"") {
+		return "", field("/email", "EMAIL_INVALID")
+	}
+	return strings.ToLower(input), nil
+}

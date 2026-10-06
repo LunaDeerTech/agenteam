@@ -1,0 +1,704 @@
+import {
+  computed,
+  inject,
+  reactive,
+  readonly,
+  ref,
+  shallowReactive,
+  watch,
+  type InjectionKey,
+} from 'vue'
+import { AccountFailure } from '../api/client'
+import {
+  captureSMTPUpdate,
+  captureSMTPUnconfigure,
+  type SMTPSettings,
+  type SMTPResult,
+  type SMTPUpdateInput,
+} from '../api/system-smtp-settings'
+import {
+  useSession,
+  type PersonalIdentity,
+  type SessionController,
+  type SystemSMTPKind,
+} from './useSession'
+
+export const smtpFields = [
+  { key: 'host', label: 'SMTP 主机', hint: 'ASCII DNS 名称或 IP；不含协议、端口、路径或 zone。' },
+  { key: 'port', label: '端口', hint: '1–65535 的整数。' },
+  { key: 'username', label: '认证用户名', hint: '最多 256 UTF-8 字节；无认证时保持为空。' },
+  { key: 'sender_email', label: '发件邮箱', hint: '最多 254 字节的裸 ASCII 邮箱地址。' },
+  { key: 'sender_name', label: '发件显示名', hint: '可为空，最多 80 个字符、320 UTF-8 字节。' },
+] as const
+export const smtpRetryFields = [
+  {
+    key: 'auto_retry_count',
+    label: '自动重试次数',
+    hint: '0–5 次，指首次投递之外的最大自动尝试；0 不会禁止首次投递。',
+  },
+  {
+    key: 'retry_interval_seconds',
+    label: '重试间隔（秒）',
+    hint: '10–3600 秒。新策略影响随后 attempt，不重置已有用量。',
+  },
+] as const
+type Field =
+  (typeof smtpFields)[number]['key'] | (typeof smtpRetryFields)[number]['key'] | 'encryption'
+type Draft = Record<Field, string>
+const emptyDraft = (): Draft => ({
+  host: '',
+  port: '',
+  encryption: '',
+  username: '',
+  sender_email: '',
+  sender_name: '',
+  auto_retry_count: '',
+  retry_interval_seconds: '',
+})
+const same = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
+  !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
+const values = (v: SMTPSettings): Draft => ({
+  host: v.host,
+  port: v.port ? String(v.port) : '',
+  encryption: v.encryption,
+  username: v.username,
+  sender_email: v.sender_email,
+  sender_name: v.sender_name,
+  auto_retry_count: v.auto_retry_count,
+  retry_interval_seconds: v.retry_interval_seconds,
+})
+
+export function createSystemSMTPSettings(auth: SessionController = useSession()) {
+  const api = auth.system.smtp
+  const observation = shallowReactive({
+    phase: 'inactive' as 'inactive' | 'loading' | 'ready' | 'error',
+    value: null as SMTPSettings | null,
+    message: '',
+  })
+  const draft = reactive(emptyDraft()),
+    editor = reactive({
+      ready: false,
+      version: '',
+      configuring: false,
+      removeCredential: false,
+      conflict: false,
+      message: '',
+    })
+  const state = shallowReactive({
+    confirmed: null as Readonly<{ kind: SystemSMTPKind; applied_version: string }> | null,
+    writeMessage: '',
+    materialMessage: '',
+    requiresRead: false,
+  })
+  const confirmation = reactive({ open: false, title: '', message: '' })
+  const disableConfirmation = reactive({
+    open: false,
+    version: '',
+    auto_retry_count: '',
+    retry_interval_seconds: '',
+  })
+  const feedback = ref<'idle' | 'loading' | 'success'>('idle'),
+    checking = ref(false)
+  const progress = computed(() => api.progress),
+    material = computed(() => api.material)
+  const blocked = computed(() => auth.state.busy || checking.value)
+  const unsettled = computed(() =>
+    ['submitting', 'uncertain'].includes(progress.value?.phase ?? ''),
+  )
+  const locked = computed(
+    () =>
+      unsettled.value ||
+      editor.conflict ||
+      state.requiresRead ||
+      !editor.ready ||
+      disableConfirmation.open ||
+      confirmation.open,
+  )
+  let base: SMTPSettings | null = null,
+    latest: SMTPSettings | null = null,
+    usernameBeforeRemoval = ''
+  const baseline = ref('')
+  let identity = auth.personalContext.identity,
+    revision = 0,
+    readRevision = 0,
+    reading = false,
+    attached = false,
+    activeRoute = false,
+    disposed = false,
+    initial = true
+  let timer: ReturnType<typeof setTimeout> | undefined
+  let confirmationResult: ((value: boolean) => void) | null = null,
+    disableResult: ((value: boolean) => void) | null = null
+  const editorSnapshot = () =>
+    JSON.stringify({
+      draft,
+      configuring: editor.configuring,
+      removeCredential: editor.removeCredential,
+    })
+  const changed = computed(
+    () =>
+      editor.ready &&
+      (editorSnapshot() !== baseline.value || material.value.present || material.value.invalid),
+  )
+  const dirty = computed(
+    () => changed.value || editor.conflict || unsettled.value || disableConfirmation.open,
+  )
+  const authorized = () =>
+    auth.state.phase === 'authenticated' &&
+    auth.personalContext.phase === 'current' &&
+    !!auth.personalContext.identity &&
+    auth.state.user?.role === 'admin' &&
+    !auth.system.denied
+  const current = (own: number, captured: PersonalIdentity | null) =>
+    !disposed &&
+    activeRoute &&
+    own === revision &&
+    authorized() &&
+    same(captured, auth.personalContext.identity)
+  const maximumVersion = computed(() => !!base && base.version === '9223372036854775807')
+  const capturedUpdate = (): Omit<SMTPUpdateInput, 'password'> => ({
+    version: editor.version,
+    host: draft.host,
+    port: Number(draft.port),
+    encryption: draft.encryption as SMTPUpdateInput['encryption'],
+    username: draft.username,
+    sender_email: draft.sender_email,
+    sender_name: draft.sender_name,
+    credential_action: editor.removeCredential ? 'remove' : 'keep',
+    auto_retry_count: draft.auto_retry_count,
+    retry_interval_seconds: draft.retry_interval_seconds,
+  })
+  const errors = computed(() => {
+    const result: Partial<Record<Field | 'transport' | 'password', string>> = {}
+    if (!editor.ready) return result
+    for (const [key, min, max] of [
+      ['auto_retry_count', 0, 5],
+      ['retry_interval_seconds', 10, 3600],
+    ] as const) {
+      const v = draft[key]
+      if (!/^(?:0|[1-9][0-9]*)$/.test(v) || v.length > 4 || Number(v) < min || Number(v) > max)
+        result[key] = `请输入 ${min}–${max} 的整数，不加空格或前导零。`
+    }
+    if (editor.configuring) {
+      if (!/^[1-9][0-9]{0,4}$/.test(draft.port) || Number(draft.port) > 65535)
+        result.port = '请输入 1–65535 的整数端口，不加空格或前导零。'
+      if (!['tls', 'starttls', 'none'].includes(draft.encryption))
+        result.encryption = '请明确选择加密方式。'
+      if (material.value.invalid)
+        result.password =
+          state.materialMessage ||
+          '新密码必须是合法 Unicode，1–2048 UTF-8 字节，不含 NUL、CR 或 LF。'
+      const credential = editor.removeCredential
+        ? false
+        : material.value.present || !!base?.credential_present
+      if ((draft.username !== '') !== credential)
+        result.username = '用户名与凭据必须同时存在，或同时为空；新建认证需要输入新密码。'
+      try {
+        captureSMTPUpdate(capturedUpdate())
+      } catch {
+        result.transport = '请核对主机、端口、加密、发件信息与重试策略的格式及范围。'
+      }
+    }
+    return result
+  })
+  const canSave = computed(
+    () =>
+      !!base &&
+      changed.value &&
+      !blocked.value &&
+      !locked.value &&
+      !maximumVersion.value &&
+      observation.phase === 'ready' &&
+      !Object.keys(errors.value).length &&
+      progress.value?.phase !== 'rejected',
+  )
+  const canDisable = computed(
+    () =>
+      observation.phase === 'ready' &&
+      !!observation.value?.configured &&
+      !blocked.value &&
+      !unsettled.value &&
+      !disableConfirmation.open &&
+      !confirmation.open &&
+      observation.value.version !== '9223372036854775807',
+  )
+  function stopFeedback() {
+    clearTimeout(timer)
+    timer = undefined
+    feedback.value = 'idle'
+  }
+  function finishConfirmation(value: boolean) {
+    confirmation.open = false
+    const done = confirmationResult
+    confirmationResult = null
+    done?.(value)
+  }
+  function finishDisable(value: boolean) {
+    if (value && confirmation.open) return
+    disableConfirmation.open = false
+    const done = disableResult
+    disableResult = null
+    done?.(value)
+  }
+  function requestConfirmation(title: string) {
+    if (confirmationResult) return Promise.resolve(false)
+    Object.assign(confirmation, {
+      open: true,
+      title,
+      message:
+        '将清除本地草稿、新密码输入和原请求的追踪。此前请求仍可能生效；放弃不会撤销服务器已经保存的配置。',
+    })
+    return new Promise<boolean>((resolve) => {
+      confirmationResult = resolve
+    })
+  }
+  function clearRead() {
+    ++readRevision
+    if (reading) api.abandonRead()
+    reading = false
+    // Retiring this read owns its visible terminal state; an invalidated async
+    // catch/finally must not leave a retained same-identity page loading forever.
+    if (observation.phase === 'loading')
+      Object.assign(observation, {
+        phase: 'error',
+        value: null,
+        message: '读取已取消，请在当前请求结束后明确重读。',
+      })
+  }
+  function clearEditor() {
+    base = null
+    Object.assign(draft, emptyDraft())
+    Object.assign(editor, {
+      ready: false,
+      version: '',
+      configuring: false,
+      removeCredential: false,
+      conflict: false,
+      message: '',
+    })
+    baseline.value = editorSnapshot()
+    usernameBeforeRemoval = ''
+  }
+  function adopt(value: SMTPSettings) {
+    base = value
+    Object.assign(draft, values(value))
+    Object.assign(editor, {
+      ready: true,
+      version: value.version,
+      configuring: value.configured,
+      removeCredential: false,
+      conflict: false,
+      message: '',
+    })
+    baseline.value = editorSnapshot()
+    usernameBeforeRemoval = ''
+    state.requiresRead = false
+    state.materialMessage = ''
+  }
+  function discard(requireRead: boolean) {
+    ++revision
+    clearRead()
+    api.abandon()
+    clearEditor()
+    stopFeedback()
+    state.writeMessage = ''
+    state.materialMessage = ''
+    state.requiresRead = requireRead
+    finishDisable(false)
+  }
+  function invalidate() {
+    discard(false)
+    Object.assign(observation, { phase: 'inactive', value: null, message: '' })
+    latest = null
+    state.confirmed = null
+    checking.value = false
+    initial = true
+    finishConfirmation(false)
+  }
+  function observe(value: SMTPSettings, initialize: boolean) {
+    if (!latest || BigInt(value.version) >= BigInt(latest.version)) latest = value
+    Object.assign(observation, { phase: 'ready', value: latest, message: '' })
+    if (base && latest.version !== base.version) {
+      editor.conflict = true
+      editor.message =
+        '当前观察版本已变化，原草稿、私有新密码和编辑版本仍保留。请核对后明确采用最新值。'
+    }
+    if (!base && initialize && !unsettled.value) adopt(latest)
+    return latest
+  }
+  function readMessage(error: unknown) {
+    return error instanceof AccountFailure && error.kind === 'cancelled'
+      ? '读取已取消或等待超时，请在请求结束后明确重试。'
+      : '未取得完整当前配置，请明确重新读取；保留草稿不代表服务器当前配置。'
+  }
+  async function readCurrent(initialize = true): Promise<SMTPSettings | null> {
+    if (!attached || !authorized() || blocked.value) return null
+    initial = false
+    const own = revision,
+      captured = auth.personalContext.identity,
+      read = ++readRevision
+    reading = true
+    const valid = () => attached && current(own, captured) && read === readRevision
+    Object.assign(observation, { phase: 'loading', value: null, message: '' })
+    try {
+      const value = await api.get()
+      if (!valid()) return null
+      return observe(value, initialize)
+    } catch (error) {
+      if (valid()) {
+        Object.assign(observation, { phase: 'error', value: null, message: readMessage(error) })
+        if (state.confirmed)
+          state.writeMessage = '原操作已确认，当前配置读取失败。请仅重试读取，不要重复提交。'
+      }
+      return null
+    } finally {
+      if (read === readRevision) reading = false
+    }
+  }
+  async function confirmDiscard(title = '放弃未保存修改？') {
+    if (!dirty.value) return true
+    const own = revision,
+      captured = auth.personalContext.identity
+    return (await requestConfirmation(title)) && current(own, captured)
+  }
+  async function confirmLeave() {
+    if (!(await confirmDiscard())) return false
+    if (!authorized() || disposed || !activeRoute) return !dirty.value
+    discard(unsettled.value)
+    return true
+  }
+  function prepareEditing() {
+    if (progress.value?.phase === 'rejected') api.editRejected()
+    stopFeedback()
+    state.writeMessage = ''
+  }
+  function errorMessage(error: unknown) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    if (progress.value?.phase === 'uncertain')
+      return e.problem?.code === 'IDEMPOTENCY_KEY_REUSED'
+        ? '原请求标识与输入冲突。原请求和材料保持不变，请明确放弃后重新读取。'
+        : '请求结果未确认。请检查当前会话与配置，再显式重试原请求；当前读取不能确认原请求。'
+    if (e.problem?.code === 'VERSION_CONFLICT') {
+      editor.conflict = true
+      return '配置版本冲突。原草稿、新密码和版本已保留，请读取、核对并明确采用最新值后重新编辑。'
+    }
+    if (e.problem?.code === 'INVALID_ARGUMENT')
+      return '请核对配置字段、认证一致性和重试策略，修改后重新保存。'
+    return '操作未完成，草稿和私有新密码已保留。请核对字段或明确重新读取配置。'
+  }
+  async function mutate(kind: SystemSMTPKind, work: () => Promise<SMTPResult>) {
+    const own = revision,
+      captured = auth.personalContext.identity
+    stopFeedback()
+    feedback.value = 'loading'
+    state.writeMessage = ''
+    state.confirmed = null
+    editor.message = ''
+    try {
+      const result = await work()
+      if (!current(own, captured)) return
+      state.confirmed = Object.freeze({ kind, applied_version: result.applied_version })
+      const value = observe(result.settings, false)
+      adopt(value)
+      feedback.value = 'success'
+      const changed =
+        BigInt(value.version) > BigInt(result.applied_version) ||
+        (kind === 'configure' ? !value.configured : value.configured)
+      state.writeMessage = changed
+        ? '原操作已确认，当前配置已变化。'
+        : kind === 'configure'
+          ? 'SMTP 配置已保存；未验证连接或发送。'
+          : kind === 'policy'
+            ? '未配置 SMTP 的重试策略已保存。'
+            : 'SMTP 已停用并清除传输配置；已保存的重试策略保持不变。'
+      timer = setTimeout(() => {
+        if (current(own, captured)) feedback.value = 'idle'
+      }, 2400)
+      // Both write responses already contain a currently authorized Settings read.
+      // No automatic GET or inferred receipt from current fields follows success.
+    } catch (error) {
+      if (current(own, captured)) {
+        feedback.value = 'idle'
+        state.writeMessage = errorMessage(error)
+      }
+    }
+  }
+  async function resume() {
+    if (
+      disposed ||
+      !attached ||
+      !activeRoute ||
+      !authorized() ||
+      blocked.value ||
+      !initial ||
+      state.requiresRead
+    )
+      return
+    initial = false
+    await readCurrent(!base)
+  }
+  function afterNavigation(to: string, from: string) {
+    const isPage = (p: string) => p.split(/[?#]/, 1)[0] === '/system/smtp'
+    if (isPage(from) && !isPage(to)) {
+      activeRoute = false
+      invalidate()
+    } else if (isPage(to)) activeRoute = true
+  }
+  const stopIdentity = watch(
+    () =>
+      [
+        auth.personalContext.phase,
+        auth.personalContext.identity,
+        auth.state.user?.role,
+        auth.system.denied,
+        auth.state.busy,
+      ] as const,
+    ([phase, value]) => {
+      if (phase === 'checking') return
+      if (
+        phase === 'invalid' ||
+        !same(identity, value) ||
+        auth.state.user?.role !== 'admin' ||
+        auth.system.denied
+      ) {
+        invalidate()
+        identity = value
+      }
+      void resume()
+    },
+  )
+  function beforeUnload(event: BeforeUnloadEvent) {
+    if (dirty.value) {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+  }
+  window.addEventListener('beforeunload', beforeUnload)
+  return {
+    auth,
+    observation: readonly(observation),
+    draft: readonly(draft),
+    editor: readonly(editor),
+    state: readonly(state),
+    confirmation: readonly(confirmation),
+    disableConfirmation: readonly(disableConfirmation),
+    feedback,
+    checking,
+    progress,
+    material,
+    blocked,
+    locked,
+    changed,
+    dirty,
+    errors,
+    maximumVersion,
+    canSave,
+    canDisable,
+    attach() {
+      attached = true
+      activeRoute = true
+      void resume()
+    },
+    detach() {
+      attached = false
+      clearRead()
+      initial = true
+    },
+    afterNavigation,
+    confirmLeave,
+    finishConfirmation,
+    finishDisable,
+    updateField(field: Field, value: string) {
+      if (
+        !Object.hasOwn(draft, field) ||
+        !authorized() ||
+        blocked.value ||
+        locked.value ||
+        draft[field] === value
+      )
+        return
+      prepareEditing()
+      draft[field] = value
+    },
+    configure() {
+      if (
+        !authorized() ||
+        blocked.value ||
+        locked.value ||
+        !base ||
+        base.configured ||
+        editor.configuring
+      )
+        return
+      prepareEditing()
+      editor.configuring = true
+    },
+    setRemoveCredential(value: boolean) {
+      if (
+        !authorized() ||
+        blocked.value ||
+        locked.value ||
+        !editor.configuring ||
+        editor.removeCredential === value
+      )
+        return
+      prepareEditing()
+      api.setMaterial('')
+      state.materialMessage = ''
+      if (value) {
+        usernameBeforeRemoval = draft.username
+        draft.username = ''
+      } else draft.username = usernameBeforeRemoval
+      editor.removeCredential = value
+    },
+    setMaterial(value: string) {
+      if (
+        !authorized() ||
+        blocked.value ||
+        locked.value ||
+        !editor.configuring ||
+        editor.removeCredential
+      )
+        return
+      prepareEditing()
+      try {
+        api.setMaterial(value)
+        state.materialMessage = ''
+      } catch {
+        state.materialMessage = '新密码必须是合法 Unicode，1–2048 UTF-8 字节，不含 NUL、CR 或 LF。'
+      }
+    },
+    save() {
+      if (!canSave.value || !base) return Promise.resolve()
+      if (editor.configuring) {
+        const captured = captureSMTPUpdate(capturedUpdate())
+        return mutate('configure', () => api.startUpdate(captured))
+      }
+      const captured = captureSMTPUnconfigure({
+        version: base.version,
+        auto_retry_count: draft.auto_retry_count,
+        retry_interval_seconds: draft.retry_interval_seconds,
+      })
+      return mutate('policy', () => api.startUnconfigure(captured, 'policy'))
+    },
+    async cancel() {
+      const pending = unsettled.value,
+        hadRead = reading
+      if (!(await confirmDiscard())) return
+      if (!authorized() || disposed || !activeRoute) return
+      discard(pending || hadRead)
+      if (!pending && !hadRead && observation.phase === 'ready' && observation.value)
+        adopt(observation.value)
+      else state.requiresRead = true
+    },
+    cancelRead() {
+      clearRead()
+      initial = false
+    },
+    async refresh() {
+      if (blocked.value || !(await confirmDiscard())) return
+      if (!authorized() || disposed || !activeRoute || blocked.value) return
+      discard(false)
+      await readCurrent()
+    },
+    readLatest() {
+      return !unsettled.value && !blocked.value ? readCurrent(false) : Promise.resolve(null)
+    },
+    async adoptLatest() {
+      if (blocked.value || unsettled.value || observation.phase !== 'ready' || !observation.value)
+        return
+      const value = observation.value
+      if (!(await confirmDiscard('放弃草稿并采用最新值？'))) return
+      if (!authorized() || disposed || !activeRoute || blocked.value || observation.value !== value)
+        return
+      discard(false)
+      adopt(value)
+    },
+    async disable() {
+      if (!canDisable.value) return
+      if (!(await confirmDiscard('放弃草稿并继续停用？'))) return
+      if (
+        !authorized() ||
+        disposed ||
+        !activeRoute ||
+        blocked.value ||
+        observation.phase !== 'ready' ||
+        !observation.value?.configured
+      )
+        return
+      const target = observation.value
+      discard(false)
+      adopt(target)
+      const own = revision,
+        captured = auth.personalContext.identity
+      Object.assign(disableConfirmation, {
+        open: true,
+        version: target.version,
+        auto_retry_count: target.auto_retry_count,
+        retry_interval_seconds: target.retry_interval_seconds,
+      })
+      const answer = await new Promise<boolean>((resolve) => {
+        disableResult = resolve
+      })
+      if (!answer || !current(own, captured) || blocked.value) return
+      const input = captureSMTPUnconfigure({
+        version: target.version,
+        auto_retry_count: target.auto_retry_count,
+        retry_interval_seconds: target.retry_interval_seconds,
+      })
+      await mutate('unconfigure', () => api.startUnconfigure(input))
+    },
+    async checkOriginal() {
+      if (blocked.value || progress.value?.phase !== 'uncertain') return
+      const own = revision,
+        captured = auth.personalContext.identity
+      checking.value = true
+      try {
+        const value = await api.checkOriginal()
+        if (current(own, captured)) {
+          observe(value, false)
+          state.writeMessage = '已读取当前配置；这不能确认原请求是否接受，请显式重试原请求。'
+        }
+      } catch (error) {
+        if (current(own, captured)) {
+          Object.assign(observation, { phase: 'error', value: null, message: readMessage(error) })
+          state.writeMessage =
+            '原请求仍未确认，配置读取失败不证明写入未接受。会话确认后可显式重试原请求。'
+        }
+      } finally {
+        if (own === revision) {
+          checking.value = false
+          initial = false
+        }
+      }
+    },
+    retryOriginal() {
+      return !blocked.value && progress.value?.canRetryOriginal
+        ? mutate(progress.value.kind, () => api.retryOriginal())
+        : Promise.resolve()
+    },
+    async abandonOperation() {
+      const own = revision,
+        captured = auth.personalContext.identity
+      if ((await requestConfirmation('放弃本次操作的追踪？')) && current(own, captured)) {
+        discard(true)
+        state.writeMessage = '已放弃本地追踪。此前请求仍可能生效，请在当前请求结束后明确读取配置。'
+      }
+    },
+    dispose() {
+      if (disposed) return
+      disposed = true
+      stopIdentity()
+      invalidate()
+      window.removeEventListener('beforeunload', beforeUnload)
+    },
+  }
+}
+export type SystemSMTPSettingsController = ReturnType<typeof createSystemSMTPSettings>
+export const systemSMTPSettingsKey: InjectionKey<SystemSMTPSettingsController> =
+  Symbol('system-smtp-settings')
+export function useSystemSMTPSettings() {
+  const page = inject(systemSMTPSettingsKey)
+  if (!page) throw new Error('SMTP settings require the App controller')
+  return page
+}

@@ -1,0 +1,24 @@
+# SMTP 配置 owner 阶段独立核验
+
+**有界契约结果：6 个代表通过。另 1 个额外同步重入探针失败，按主线程裁定不纳本卡完成门槛、不授权产品返修。** 原 7 例整轮 actual exit1 保持；没有改原期望、删例重跑或称7例全绿。API阶段邮箱 raw/canonical 非幂等问题仍独立未闭合，owner有界结果不接受整卡。
+
+输入为作者 owner-stage01 manifest `3b4e9ad6412d7dd3ff60758beb92715c79c95fe999bce5ba4ebb290008b68220`；5候选与12接受依赖逐字节绑定40c904c，API三源逐字节与api-stage01相同。只读固定副本；作者活动controller/View/harness未读取。本方只写私有验证源及证据。
+
+`checks/owner01` 实际 Node24.19.0 / Vitest4.1.11 / jsdom，actual wait exit1/1.125s（测试63ms），输入前后相同，6PASS/1FAIL。所有受控请求和native cancel屏障均在原finally/afterEach释放，执行进程实际结束；未启动端口、浏览器、PG、Docker、SMTP或业务fixture。
+
+六个契约内代表的实际到达：
+
+- PUT写后503/not_started保留私有密码/原body/key/CSRF；显式检查严格Session→单GET，后者失败不冒receipt，仍能按原字节重放。严格回执原applied=2/current=7未配置分别保留、材料清除；随后较低v3已配置GET不能替换owner高版本凭据观察，v7无密码的新认证配置零派发。
+- 首次正式型409为known rejected，显式editRejected保留材料；先未知再409仍uncertain，原key/body不变且拒用editRejected替换旧意图；明确abandon清恢复资格。
+- 30秒可见计时使用fake timers，不冒称墙钟30秒。原native ReadableStream取消promise被真实屏障持有：可见cancel后owner仍busy，Provider与Account security不能越过，旧personal/Account security abandon不撤SMTP；放行实际cancel后才解锁且零自动GET，显式读取可恢复。
+- 写入原生body已收到完整JSON但尚未EOF时明确abandon，立即清材料/progress、禁止原重放，personal不得越过cancel尾部；放行后零旧发布。反向SMTP abandon不撤仍在进行的personal读取。
+- 当前PUT CSRF_FAILED销毁SMTP和其它系统私有材料/原意图并失效身份。
+- 当前POST/unconfigure FORBIDDEN清材料与恢复状态、保留原User.role=admin且发布system denied，不把此纯受控Problem当真实权限证明。
+
+额外探针的原观察：原uncertain写已实际结束，私有 `watch(material.present, ..., {flush:'sync'})` 在abandon尚未返回时setMaterial/startUpdate新写。新操作已派发、busy/新材料/newBody均正确，但旧clearSMTPState在clearSMTPMaterial同步通知之后置progress=null。原安全日志为 started=true,busy=true,material=true,phase=null,writes=2,newBodyMatches=true；没有材料泄漏、跨owner派发或新intent被销毁证据。
+
+适用性静核：此watch由本方额外构造，不是已证的正式消费链。固定40c904c的Provider/Model/Account security controller身份watch均默认pre；ProviderEditor的material.revision同步watch只清本地textarea。卡§5“旧续体不清/覆盖新代次”处于本批读取取消规则，§7未承诺任意材料消费者可在abandon栈内启动新写；本探针也未走未来页面“放弃后显式重读/重新编辑”的完整动作。因此主线程明确不把它作为产品阻断、不授owner返修。仍保留原source/raw/exit1；最终固定页面必须核真实按钮/默认调度，材料revision同步消费只清DOM不泄漏，若实际出现同步发写再升级。
+
+纯probe SHA `7fb05c3759658d74c70d12df787e2b1e5a4264e6582a9d631ef1453cdbe4454c`；raw `87139ddf58f326fb9de86df4db579ccfa189105c602cf347d6a170598dc0ef09`；result `32cdea052b24aa865b28c1e316ec6981df90897d8b1de093676fcbf121000705`。同目录原command记录精确argv/env/cwd，前后指纹及机器报告review.json可复核。
+
+静审另核第八依赖不改旧顺序、明确SMTP分域/独立revision、单Cookie owner、两写CSRF分类、全局身份/403清理、singleton ID匹配、严格API后才发布、安全材料getter只布尔/代次。作者27/旧344与类型/格式原证据按精确冻结源复用，未称本方重跑这些集合。暂未验证当前/迟到权限的真实服务效果、页面loading终态、双确认/fallback和完整UI；API邮箱问题待主线程工程契约修复。报告及本阶段全部原件现停写。

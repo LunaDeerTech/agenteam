@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+import hashlib
+import json
+from pathlib import Path
+import shutil
+
+ROOT = Path(__file__).resolve().parent
+AUTHOR = Path('/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input04/manifest.json')
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+assert sha(AUTHOR) == '3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37'
+stage = ROOT/'input01'
+stage.mkdir(mode=0o700)
+names = {'run-independent01.py','overlay.json'}
+for folder in ['overlay','browser']:
+    names.update(str(p.relative_to(ROOT)) for p in (ROOT/folder).iterdir() if p.is_file())
+private = {name:sha(ROOT/name) for name in sorted(names)}
+for name in private:
+    target = stage/'source'/name
+    target.parent.mkdir(parents=True,exist_ok=True)
+    target.write_bytes((ROOT/name).read_bytes())
+commands = {name:shutil.which(name) for name in ['node','python3','sh','docker','cc']}
+assert all(commands.values())
+tool_names = set(commands.values()) | {
+    '/workspace/toolchains/go1.27.1/bin/go',
+    '/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/compile',
+    '/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/asm',
+    '/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link',
+    '/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/cgo',
+    '/usr/bin/chromium','/usr/lib/chromium/chromium','/usr/lib/chromium/chrome_crashpad_handler',
+    '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+}
+def fingerprint(path):
+    return {'realpath':str(path.resolve(strict=True)),'sha256':sha(path)}
+tools = {name:fingerprint(Path(name)) for name in sorted(tool_names)}
+node_modules = '/workspace/agenteam/tests/account-captcha-web/node_modules'
+packages = [node_modules+'/'+name for name in ['@playwright/test','playwright','playwright-core']]
+harness = {str(p):fingerprint(p) for name in packages for p in sorted(Path(name).rglob('*')) if p.is_file()}
+evidence = {}
+for name in ['type01','type02','config01','browser-list-a01','browser-list-b01','race-compile01','go-list01','vet01']:
+    evidence[name] = {kind:{'path':str(ROOT/'checks'/name/kind),'sha256':sha(ROOT/'checks'/name/kind)} for kind in ['command.json','raw.log','result.json']}
+value = {
+    'author_manifest':str(AUTHOR),'author_manifest_sha256':sha(AUTHOR),
+    'product_base':'f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a',
+    'private_files':private,'private_source_snapshot':str(stage/'source'),
+    'go_overlay':json.loads((ROOT/'overlay.json').read_text()),
+    'node_modules':node_modules,'command_resolution':commands,
+    'tools_runtime':tools,'harness_packages':packages,'harness_runtime':harness,
+    'compiled_test_binary':{'path':str(ROOT/'compile-tmp/smtp-independent.test'),'sha256':sha(ROOT/'compile-tmp/smtp-independent.test')},
+    'checks':evidence,
+    'original_plan':{'path':str(ROOT/'inputs/original-plan.md'),'sha256':sha(ROOT/'inputs/original-plan.md')},
+    'native_observer':json.loads((ROOT/'inputs/prefix-binding.json').read_text()),
+    'driver_diff':{'path':str(ROOT/'driver01.diff'),'sha256':sha(ROOT/'driver01.diff')},
+    'limits':['Offline preparation only; no Docker/browser/server/loopback was started.',
+              'Only existing formal writes and accepted exact owned role control; private SQL is read-only.',
+              'Original 45s browser/2m top/6m package, race/count1, worker1/retry0 unchanged.',
+              'The email backend and API/owner/page matrices are reused, not self-verified here.',
+              'The bounded runtime inventory covers executed Playwright packages and direct tools, without copying dependency caches.'],
+}
+(stage/'execution.json').write_text(json.dumps(value,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'execution':str(stage/'execution.json'),'sha256':sha(stage/'execution.json'),'private_files':len(private),'tools':len(tools),'harness_runtime_files':len(harness)}))

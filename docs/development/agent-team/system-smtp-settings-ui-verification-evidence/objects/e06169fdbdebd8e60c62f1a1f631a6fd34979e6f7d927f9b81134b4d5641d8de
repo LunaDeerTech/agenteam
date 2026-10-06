@@ -1,0 +1,160 @@
+import { readFileSync } from 'node:fs'
+import { describe, expect, it, vi } from 'vitest'
+import { accountTransport, type Fetch } from '../api/client'
+import { captureSMTPUpdate, createSystemSMTPSettingsAPI, validateSMTPPassword, type SMTPSettings, type SMTPUpdateInput } from '../api/system-smtp-settings'
+
+type Oracle = { kind: string; name: string; input: string; accepted: boolean; canonical: string }
+const oracle: Oracle[] = JSON.parse(readFileSync(new URL('../../../../oracle-results.json', import.meta.url), 'utf8'))
+const singleton = '01900000-0000-7000-8000-000000000019'
+const originalVersion = '9007199254740993'
+const appliedVersion = '9007199254740994'
+const encoder = new TextEncoder()
+const signal = () => new AbortController().signal
+const write = () => ({ signal: signal(), csrfToken: 'S'.repeat(43), key: 'independent-smtp:1' })
+const draft = (): SMTPUpdateInput => ({version:originalVersion,host:'mail.example.test',port:587,encryption:'starttls',username:' sender ',sender_email:'Sender@EXAMPLE.test',sender_name:' mail ',credential_action:'keep',auto_retry_count:'2',retry_interval_seconds:'120'})
+const policy = () => ({version:originalVersion,auto_retry_count:'2',retry_interval_seconds:'120'})
+const settings = (configured = true, version = appliedVersion): SMTPSettings => ({id:singleton,version,configured,host:configured?'mail.example.test':'',port:configured?587:0,encryption:configured?'starttls':'',username:configured?' sender ':'',sender_email:configured?'sender@example.test':'',sender_name:configured?' mail ':'',credential_present:configured,auto_retry_count:'2',retry_interval_seconds:'120'})
+const json = (value: unknown) => new Response(JSON.stringify(value), {headers:{'Content-Type':'application/json'}})
+const receipt = (current = settings()) => ({applied_version:appliedVersion,settings:current})
+function deferred<T=void>() {
+  let resolve!: (value:T|PromiseLike<T>)=>void
+  const promise = new Promise<T>(r=>{resolve=r})
+  return {promise,resolve}
+}
+async function turn() { await new Promise<void>(r=>setImmediate(r)) }
+function captured(change: Record<string,unknown>) {
+  try { captureSMTPUpdate({...draft(),...change} as SMTPUpdateInput); return true }
+  catch { return false }
+}
+
+describe('independent SMTP fixed Go syntax and strict API boundaries',()=>{
+  it('matches accepted host parsing including numeric-final DNS, IPv6 and canonical output',async()=>{
+    const failures:string[]=[]
+    for(const row of oracle.filter(p=>p.kind==='host')) {
+      if(captured({host:row.input})!==row.accepted) failures.push(row.name)
+      if(row.accepted) {
+        const value={...settings(),host:row.canonical}
+        expect(await createSystemSMTPSettingsAPI(async()=>json(value)).getSettings(signal())).toEqual(value)
+        expect(captureSMTPUpdate({...draft(),host:row.input}).host===row.input).toBe(true)
+      }
+    }
+    expect(failures).toEqual([])
+  })
+
+  it('rejects exactly the represented Go-invalid raw email inputs before dispatch',async()=>{
+    const mismatches: {name:string;goAccepted:boolean;clientAccepted:boolean;dispatches:number}[]=[]
+    for(const row of oracle.filter(p=>p.kind==='email')) {
+      const fetcher=vi.fn<Fetch>(async()=>json(receipt()))
+      const value=await createSystemSMTPSettingsAPI(fetcher).updateSettings({...draft(),sender_email:row.input},write()).then(()=>true,()=>false)
+      if(value!==row.accepted || (!row.accepted && fetcher.mock.calls.length!==0))
+        mismatches.push({name:row.name,goAccepted:row.accepted,clientAccepted:value,dispatches:fetcher.mock.calls.length})
+    }
+    expect(mismatches).toEqual([])
+  })
+
+  it('accepts canonical email DTOs emitted by Go even where normalization changes literal prefix case',async()=>{
+    for(const row of oracle.filter(p=>p.kind==='email' && p.accepted)) {
+      const value={...settings(),sender_email:row.canonical}
+      const got=await createSystemSMTPSettingsAPI(async()=>json(value)).getSettings(signal())
+      expect(got.sender_email===row.canonical).toBe(true)
+    }
+  })
+
+  it('counts sender-name codepoints and UTF-8 material without trimming or retaining invalid material',()=>{
+    for(const row of oracle.filter(p=>p.kind==='name')) expect(captured({sender_name:row.input})).toBe(row.accepted)
+    const secret=' \t'+'🧩'.repeat(511)+'  '
+    expect(encoder.encode(secret).length).toBe(2048)
+    expect(captureSMTPUpdate({...draft(),password:secret}).password===secret).toBe(true)
+    expect(captureSMTPUpdate({...draft(),password:''})).not.toHaveProperty('password')
+    expect(captureSMTPUpdate({...draft(),username:'',credential_action:'remove',password:''})).not.toHaveProperty('password')
+    for(const value of [secret+'x','\ud800','\udc00','\0','\r','\n']) {
+      let failure:unknown
+      try { validateSMTPPassword(value) } catch(e) { failure=e }
+      expect(failure).toMatchObject({kind:'invalid-input'})
+      expect(JSON.stringify(failure).includes(secret)).toBe(false)
+    }
+    for(const change of [{credential_action:'replace'},{credential_action:'remove',password:'x'},{username:'',password:'x'},{password:null},{password:undefined}]) expect(captured(change)).toBe(false)
+  })
+
+  it('separates original applied version from newer opposite current settings and rejects partial receipts',async()=>{
+    const input=draft(), options=write(), calls:{path:string;init:RequestInit}[]=[]
+    const api=createSystemSMTPSettingsAPI(async(path,init)=>{
+      calls.push({path,init})
+      return json(receipt(settings(init.method==='POST','9007199254740999')))
+    })
+    const put=await api.updateSettings(input,options), post=await api.unconfigure(policy(),options)
+    expect(put.applied_version).toBe(appliedVersion)
+    expect(put.settings.configured).toBe(false)
+    expect(post.settings.configured).toBe(true)
+    expect(Object.isFrozen(put)&&Object.isFrozen(put.settings)).toBe(true)
+    expect(calls.map(v=>[v.path,v.init.method])).toEqual([['/api/v1/system/smtp','PUT'],['/api/v1/system/smtp/unconfigure','POST']])
+    expect(calls[0]!.init.body===JSON.stringify(captureSMTPUpdate(input))).toBe(true)
+    for(const value of [
+      {applied_version:appliedVersion},
+      {...receipt(),applied_version:originalVersion},
+      {...receipt(),applied_version:'9007199254740995'},
+      receipt(settings(false,originalVersion)),
+      {...receipt(),settings:{...settings(false),credential_present:true}},
+      {...receipt(),settings:{...settings(),secret_ref:'not-allowed'}},
+    ]) await expect(createSystemSMTPSettingsAPI(async()=>json(value)).updateSettings(draft(),write())).rejects.toMatchObject({kind:'invalid-response'})
+  })
+
+  it('allows maximum readable version but no overflowing new write or option widening',async()=>{
+    const maximum=settings(false,'9223372036854775807')
+    expect(await createSystemSMTPSettingsAPI(async()=>json(maximum)).getSettings(signal())).toEqual(maximum)
+    const fetcher=vi.fn<Fetch>(async()=>json(receipt())),api=createSystemSMTPSettingsAPI(fetcher)
+    await expect(api.updateSettings({...draft(),version:maximum.version},write())).rejects.toMatchObject({kind:'invalid-input'})
+    await expect(api.unconfigure({...policy(),version:maximum.version},write())).rejects.toMatchObject({kind:'invalid-input'})
+    await expect(accountTransport(fetcher)('getSMTPSettings',v=>v,{signal:signal(),body:{}} as never)).rejects.toMatchObject({kind:'invalid-input'})
+    expect(fetcher).toHaveBeenCalledTimes(0)
+  })
+})
+
+describe('independent SMTP transport byte budgets and actual native tails',()=>{
+  it('isolates exact serialized UTF-8 request limits from old and new non-PUT endpoints',async()=>{
+    const fetcher=vi.fn<Fetch>(async()=>json({})), request=accountTransport(fetcher), options=write()
+    for(const [endpoint,max] of [['updateSMTPSettings',32768],['unconfigureSMTP',16384],['updateAccountSecurity',16384]] as const) {
+      const body={v:'🧩'+'x'.repeat(max-12)}
+      expect(encoder.encode(JSON.stringify(body)).length).toBe(max)
+      const invoke=(value:unknown)=>{
+        const opt={signal:options.signal,key:options.key,csrf:options.csrfToken,body:value}
+        if(endpoint==='updateSMTPSettings')return request(endpoint,()=>true,opt)
+        if(endpoint==='unconfigureSMTP')return request(endpoint,()=>true,opt)
+        return request(endpoint,()=>true,opt)
+      }
+      await expect(invoke(body)).resolves.toBe(true)
+      const count=fetcher.mock.calls.length
+      await expect(invoke({v:body.v+'x'})).rejects.toMatchObject({kind:'invalid-input'})
+      expect(fetcher.mock.calls.length).toBe(count)
+    }
+  })
+
+  it('publishes exactly 600000 bytes only after real EOF, preserving split UTF-8',async()=>{
+    const value={...settings(),sender_name:'🧩'}, encoded=encoder.encode(JSON.stringify(value)), bytes=new Uint8Array(600000)
+    bytes.fill(32); bytes.set(encoded)
+    let controller!:ReadableStreamDefaultController<Uint8Array>
+    const stream=new ReadableStream<Uint8Array>({start(c){controller=c}})
+    let settled=false
+    const pending=createSystemSMTPSettingsAPI(async()=>new Response(stream,{headers:{'Content-Type':'application/json'}})).getSettings(signal()).then(v=>{settled=true;return v})
+    const split=bytes.indexOf(0xf0)+2
+    controller.enqueue(bytes.subarray(0,split)); controller.enqueue(bytes.subarray(split))
+    await turn(); expect(settled).toBe(false)
+    controller.close(); expect(await pending).toEqual(value)
+  })
+
+  it.each(['put-overflow','post-problem-overflow','post-media','get-abort'] as const)('joins the original native cancel promise for %s',async(mode)=>{
+    const cancelEntered=deferred(),tail=deferred(),abort=new AbortController()
+    let settled=false
+    const cancel=vi.fn(()=>{cancelEntered.resolve();return tail.promise})
+    const stream=new ReadableStream<Uint8Array>({start(c){if(mode.includes('overflow'))c.enqueue(new Uint8Array(600001))},cancel})
+    const response=new Response(stream,{status:mode.startsWith('post-')?503:200,headers:{'Content-Type':mode==='post-media'?'text/plain':mode==='post-problem-overflow'?'application/problem+json':'application/json'}})
+    const api=createSystemSMTPSettingsAPI(async()=>response)
+    const pending=(mode==='get-abort'?api.getSettings(abort.signal):mode.startsWith('post-')?api.unconfigure(policy(),{...write(),signal:abort.signal}):api.updateSettings(draft(),{...write(),signal:abort.signal})).then(()=>{settled=true;return null},e=>{settled=true;return e})
+    await turn();if(mode==='get-abort')abort.abort()
+    await cancelEntered.promise
+    await turn();expect(settled).toBe(false);expect(cancel).toHaveBeenCalledTimes(1)
+    tail.resolve()
+    expect(await pending).toMatchObject({kind:mode==='get-abort'?'cancelled':'invalid-response'})
+    expect(stream.locked).toBe(false)
+  })
+})

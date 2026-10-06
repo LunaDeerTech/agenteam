@@ -1,0 +1,9 @@
+SMTP UI input02 夹具差量独立静审：STATIC PASS，仅支持作者下一轮普通邮箱场景启动，不代表 SQL 或页面已真实通过。
+
+固定输入为作者 input02/manifest.json，SHA256 c92d749cf3fd86b828501f44cf47c6a06a6e4b37cfca1d244c15bb28b63c1b44；fixture.diff 为 0cd6a379985cd4ed4b611c060839304b265b5462258dcf68e0fd7a972b0edbaf。只有 tests/account/system_smtp_settings_web_fixture_test.go 改变；另 27 源、36 dist、1040 接受依赖及 driver 保持 input01 字节。
+
+固定 inviteMember 在正式创建后、inspect/redeem 前把 create receipt ID 传入 record。局部浅拷贝仅包装此读取回调，核 purpose、recipient、UUID 及一次性捕获，再调用原 record；不改旧 helper，不新增请求。redeem 删除 live invitation 后仍保留 delivery_intent、command、job 和 attempt，因此改用两个原创建 ID 查持久链。查询把原 invite-create committed command、owner/user/initiator、link/job/origin 和 current attempt 逐一关联，要求两行及两个 distinct link，sent/log/sent/terminal/io_joined，并保留零在途、intent/job 总数相等和原 15 秒准备上界。
+
+独立读取了固定 helper、invitation producer、delivery_intent、cleanup 和相关迁移，字段与关联符合接受实现。作者 compile03 actual exit 0 / 7.320s 与输入不变可证明编译；本次未运行修后 SQL、浏览器或任何真实资源。后续真实 SQL 和终局仍需作者独占窗口验证。
+
+原 review.md/review.json、erratum01.md 及 new01 六组准备 42703 首红保留。原静审漏核列名属已确认遗漏；redeem 后 live row 消失是另一个静态准备前提，原失败未动态到达它。邮箱 API 已知兼容缺口及 owner 额外同步重入探针的适用边界不变。
