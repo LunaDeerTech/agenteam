@@ -1,0 +1,42 @@
+{
+  "checked_utc": "2026-10-06T01:03:16.482711+00:00",
+  "source_commit": "ecd733711caff5df46e423cadab52b32c34f785e",
+  "relative_markdown_check": {
+    "files": [
+      "docs/development/agent-team/system-model-management-reads-verification.md",
+      "docs/development/agent-team/tasks.md",
+      "docs/development/agent-team/recovery-2026-10-06.md",
+      "docs/development/agent-team/evidence/system-model-management-reads-verification/README.md",
+      "AGENTS.md",
+      "docs/development/backend/README.md"
+    ],
+    "local_links": 178,
+    "fragments": 16,
+    "errors": []
+  },
+  "old_tasks_bytes_preserved": true,
+  "recovery_history_preserved": true,
+  "original_records": 71,
+  "reconstructed_inputs": {
+    "input01.json": 9,
+    "input02.json": 9,
+    "input03.json": 13,
+    "input04.json": 13,
+    "input05.json": 13
+  },
+  "tracked_diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "docs/development/agent-team/tasks.md",
+      "docs/development/agent-team/recovery-2026-10-06.md",
+      "docs/development/agent-team/system-model-management-reads-verification.md"
+    ],
+    "exit": 0
+  },
+  "new_authored_whitespace": "PASS; original patch exception is bound in whitespace-exceptions.json",
+  "archive_phase_product_tests": false,
+  "archive_phase_fixture_runs": false
+}

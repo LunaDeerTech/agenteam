@@ -2,6 +2,12 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：System Model 管理读口验收提交
+
+- [管理读口 rev1](../work-items/recovery-d09-system-model-management-reads.md)精确 13 源已独立 PASS，主线程采纳提交推送 `ecd733711caff5df46e423cadab52b32c34f785e`、远端一致；[正式报告与证据](system-model-management-reads-verification.md)固定 c54 + input05。GET/HEAD 当前 Credential metadata、有限精确删除影响及 Secret.Metadata 同事务/Project Read 兼容已验；预览不授权删除。
+- 作者 5 新 + 12 旧顶层为 real01 的 16 PASS 与 real02 的预算 1 顶层/13 子例组合；原 pure 红、real01 三个错误时长断言及修正差量保留，不称单轮 17 顶层全绿。独立 2 顶层/3 子例全 PASS，覆盖当前身份与实际 metadata 同 Tx、确认后失败零数据、引用变化后的正式删除。作者两轮及独立一轮均完成资源双清、原基线不变、所属进程/runtime 清零。
+- 本组 13 源已停止写入并交付；此前恢复快照中的“未恢复/实施中”保留为当时事实。ledger 与公开入口仍未完成当前验收；Summary 待决、Object 原停止任务、Artifact/Project 阻塞及完整 D08–D28/E01 未完成的边界不变，E01 尚未开始。
+
 ## 2026-10-06：恢复交接与当前所有权
 
 - 本轮初始为干净的 `work / 1613583`，`origin/main` 本地缓存仍为 `fe5b833`；主线程实际查询远端、fetch 后确认 `bfae86b`、`846f1d4`、`d09e8ef` 三个后续提交，创建 `main` 并 ff-only 到 `d09e8ef294d8c51a8f82ec7d536fb573753ed42a`，与远端一致、无未推送提交。详细固定输入与交接见[本轮恢复记录](recovery-2026-10-06.md)。

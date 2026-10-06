@@ -1,0 +1,70 @@
+{
+  "review.md": {
+    "sha256": "a7ee19dfb0499d374a52d642f873aad4df173de9cb4e3d2d1a852615e0b9974f",
+    "bytes": 3789
+  },
+  "input05.json": {
+    "sha256": "0208b2dcdce8623f65f2d7c2364a3daf083994f6271aeb63c02ca6fba7915a27",
+    "bytes": 1586
+  },
+  "management_independent_test.go": {
+    "sha256": "70dc424d78d744a1ae518a345b303d05ec549f451f3f9ca9c052918d565f8579",
+    "bytes": 14091
+  },
+  "overlay.json": {
+    "sha256": "7f254768520c3d516f7908e616c313a6cd8276c69aff5421df0d25c6d77f57d3",
+    "bytes": 217
+  },
+  "compile01.json": {
+    "sha256": "52738aa5eef235c0df609e6b4b46834120652d35e297d2082a4ad6c4f6f84163",
+    "bytes": 1105
+  },
+  "logs/compile01.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "run.py": {
+    "sha256": "493a84c0cc722e574bfa02fdd90aed45b0657f9e86bcdcbcf6a033eb9cade165",
+    "bytes": 6797
+  },
+  "static-input-checks.json": {
+    "sha256": "1a7e1706b3cddd8c319723d0cb1c660f04de946d407602e0f0c4076bc15bf010",
+    "bytes": 3472
+  },
+  "author-checks-reviewed.json": {
+    "sha256": "7293d7b8f33d86fc854a25a3edfbf51fac3a5b4a2ff452bd09c3ca611dccf9bd",
+    "bytes": 8300
+  },
+  "final-checks.json": {
+    "sha256": "d7dee68f2c0888ce69f548b25eb03eb452c547ed9f9976eceb193b46a60a6e85",
+    "bytes": 4892
+  },
+  "real01/command.json": {
+    "sha256": "71ff61423161c729c4b0f04f14d36e30e1cd0c0e98b02d664c035af08d5027e3",
+    "bytes": 1447
+  },
+  "real01/raw.log": {
+    "sha256": "759acb9f82fd3bfd8d3caf5753bb7be3cc4757acbb06041b1b2e0ed0718b35f3",
+    "bytes": 13525
+  },
+  "real01/baseline.json": {
+    "sha256": "3f2cf03fac6efec21116397f6915bf33e85c156b84e0de00cdcbf50a9e83875d",
+    "bytes": 3240
+  },
+  "real01/observed-resources.json": {
+    "sha256": "c2bebd45ed39489cc7542c7715b12652db1ce17f1faae18cb864f632db60e7c1",
+    "bytes": 2614
+  },
+  "real01/observed-processes.json": {
+    "sha256": "261178e9d640fa9f298659cf612ba8873476e143eeba91d70b35fd1f095d7b3e",
+    "bytes": 18420
+  },
+  "real01/cleanup.json": {
+    "sha256": "93fc7d22293bb695522c8729664cc1863c9da38ebb05221db81f061ab5ba25be",
+    "bytes": 2170
+  },
+  "real01/monitor-errors.json": {
+    "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "bytes": 3
+  }
+}

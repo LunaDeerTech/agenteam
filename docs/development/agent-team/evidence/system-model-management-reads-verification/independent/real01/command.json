@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestIndependentSystemModelManagementMetadataPublication|TestIndependentSystemModelManagementPreviewFreshFacts)$"
+  ],
+  "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -v -overlay=/workspace/scratch/agenteam-management-independent-yB9JMR/overlay.json",
+    "GOCACHE": "/workspace/scratch/agenteam-management-independent-yB9JMR/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-management-independent-yB9JMR/tmp"
+  },
+  "window": "management-independent-01",
+  "manifest_path": "/workspace/agenteam-management-reads-yjfb7qdi/input05.json",
+  "manifest_sha256": "0208b2dcdce8623f65f2d7c2364a3daf083994f6271aeb63c02ca6fba7915a27",
+  "probe_sha256": "70dc424d78d744a1ae518a345b303d05ec549f451f3f9ca9c052918d565f8579",
+  "overlay_sha256": "7f254768520c3d516f7908e616c313a6cd8276c69aff5421df0d25c6d77f57d3",
+  "started": 1791248015.7063365,
+  "driver_pid": 116658,
+  "exit": 0,
+  "finished": 1791248192.5622153,
+  "final_manifest_matches": true
+}

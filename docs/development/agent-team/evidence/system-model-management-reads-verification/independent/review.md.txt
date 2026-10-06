@@ -1,0 +1,18 @@
+# System Model 管理读口独立验收
+
+结论：**PASS，仅限已采纳 rev1 的精确 13 路径管理读取能力**。验证者未参与实现；无产品源码或 Git 写操作。
+
+- 固定业务 `c54f73f3324caa11608d84e5d207141985eb6074` + [input05 清单](input05.json)，SHA-256 `0208b2dcdce8623f65f2d7c2364a3daf083994f6271aeb63c02ca6fba7915a27`；13 源 private/live 末检匹配，见 [末检](final-checks.json)。未消费活动 ledger、00018 或 web。
+- 前 9 路径 input02 与最终输入相同。静审核同 Store/Tx 当前权限与完整锁、scope 兼容、references EX、平台 LIMIT5、目标输入 LIMIT10001 后聚合、闭合 DTO、预算与失败零结果。15 个关键稳定依赖与基线相同；旧 OpenAPI 操作未改，139 个引用解析通过，见 [静态输入核对](static-input-checks.json)。
+- 作者 Model/Secret unit/race/vet、三 integration 包编译及两 cmd build 的 argv/env/exit/raw 已核，见 [作者命令索引](author-checks-reviewed.json)。input01 原 pure 红由两处测试设置引起，input02 修正未改生产或削弱锁断言。
+- 作者真实覆盖为 input04 real01 的 **16 个通过顶层 + input05 real02 的预算 1 顶层/13 子例**，合计覆盖卡内 5 新 + 12 旧；不是同输入一次 17 顶层全绿。原 real01 exit1、三个预算子例红及 input04 原源/修复差量保留。
+- 原 fixture lock_timeout=1s 先于 3s 业务上界触发；input05 保留实际 pg_locks 等待及 InternalError/NotCommitted→DATABASE_LOCK_FAILED/55P03，同时补真实授权/SQL 后 3s context 到期、HTTP account.session 预算和更早 caller。生产与 fixture 预算未变。两轮作者每轮 4 容器/3 网络双清、基线不变、所属进程 0/runtime 空已核。
+
+独立使用 [私有 probe](management_independent_test.go) 与 [Go overlay](overlay.json)，仅复用 c54 原真实 fixture，未调用作者新增 management helpers。离线 race integration [编译](compile01.json) exit0。独占窗口 `management-independent-01` 按原 `scripts/test-security.sh`、race/count1/6m 运行两个确切顶层，见 [命令](real01/command.json)及[原始日志](real01/raw.log)：
+
+1. `TestIndependentSystemModelManagementMetadataPublication`：3 子例通过。HTTP 预授权后正式 Logout 持久撤销；Secret 在同 Store/Tx、完整 User/Credential SH 内重新核真实当前身份，metadata SQL=0。其余两例实际授权并读取 version=2、底层 Committed 后分别投影 Unknown 或取消 caller，HTTP503、零 DTO、单次读取、nonce 与业务事实不变。Unknown 为正式结果装饰，未模拟物理网络故障。
+2. `TestIndependentSystemModelManagementPreviewFreshFacts`：通过。count=0 预览后正式 selector 添加 required 引用，Model.version 不变；原版本无 replacement 删除依据当前事实拒绝，业务事实不变；合法 replacement 删除后 selector/引用收敛，目标与其 impact 均 404。
+
+独立共 **2 顶层/3 子例、5 个命名结果全 PASS，无 skip**；tests/model 13.634s，driver exit0。其他包 no-tests-to-run 不计通过。[资源观察](real01/observed-resources.json)、[两次清理](real01/cleanup.json)及[监视错误](real01/monitor-errors.json)证明 4 容器/3 网络 exact ID 均 absent，原 2 容器/4 网络 ID/name/labels 不变，无剩余新资源、所属进程或 runtime 内容。已实际交还窗口；无关联命令继续运行。
+
+范围不涵盖管理 UI、实际 Agent/project_summary adapter、Provider 调用、完整 D09、Summary 产品待决或暂停的 Object 修复。已验证的是既定服务/HTTP handler 与真实受控数据库组合；未新增中央进程/浏览器验收或恢复网络/ROLLBACK 探针。源码与验收范围均已停止写入，交主线程整合。

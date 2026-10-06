@@ -1,0 +1,429 @@
+{
+  "100794": {
+    "pid": 100794,
+    "ppid": 100715,
+    "ticks": 165436,
+    "comm": "sh",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "100819": {
+    "pid": 100819,
+    "ppid": 100794,
+    "ticks": 165438,
+    "comm": "go",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "100938": {
+    "pid": 100938,
+    "ppid": 100794,
+    "ticks": 165495,
+    "comm": "fixture",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "101047": {
+    "pid": 101047,
+    "ppid": 100938,
+    "ticks": 165549,
+    "comm": "docker",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "101425": {
+    "pid": 101425,
+    "ppid": 100938,
+    "ticks": 165736,
+    "comm": "sh",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "101463": {
+    "pid": 101463,
+    "ppid": 101433,
+    "ticks": 165748,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "101433": {
+    "pid": 101433,
+    "ppid": 101425,
+    "ticks": 165737,
+    "comm": "go",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "101650": {
+    "pid": 101650,
+    "ppid": 101567,
+    "ticks": 165820,
+    "comm": "docker",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "101567": {
+    "pid": 101567,
+    "ppid": 101425,
+    "ticks": 165785,
+    "comm": "fixture",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "101956": {
+    "pid": 101956,
+    "ppid": 101948,
+    "ticks": 165945,
+    "comm": "go",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "102009": {
+    "pid": 102009,
+    "ppid": 101956,
+    "ticks": 165956,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "101948": {
+    "pid": 101948,
+    "ppid": 101567,
+    "ticks": 165945,
+    "comm": "sh",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "102146": {
+    "pid": 102146,
+    "ppid": 102100,
+    "ticks": 166021,
+    "comm": "docker",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "102100": {
+    "pid": 102100,
+    "ppid": 101948,
+    "ticks": 165995,
+    "comm": "fixture",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "102962": {
+    "pid": 102962,
+    "ppid": 102100,
+    "ticks": 166256,
+    "comm": "docker",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "103059": {
+    "pid": 103059,
+    "ppid": 102100,
+    "ticks": 166279,
+    "comm": "docker",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "103521": {
+    "pid": 103521,
+    "ppid": 102100,
+    "ticks": 166413,
+    "comm": "docker",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "103900": {
+    "pid": 103900,
+    "ppid": 102100,
+    "ticks": 166484,
+    "comm": "go",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "104075": {
+    "pid": 104075,
+    "ppid": 103900,
+    "ticks": 166554,
+    "comm": "postgres.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/internal/central/postgres"
+  },
+  "104372": {
+    "pid": 104372,
+    "ppid": 103900,
+    "ticks": 166698,
+    "comm": "database.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/tests/database"
+  },
+  "104573": {
+    "pid": 104573,
+    "ppid": 103900,
+    "ticks": 166803,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "104727": {
+    "pid": 104727,
+    "ppid": 103900,
+    "ticks": 166878,
+    "comm": "app.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/internal/central/app"
+  },
+  "105016": {
+    "pid": 105016,
+    "ppid": 103900,
+    "ticks": 166980,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "105031": {
+    "pid": 105031,
+    "ppid": 103900,
+    "ticks": 167030,
+    "comm": "process.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/tests/process"
+  },
+  "105151": {
+    "pid": 105151,
+    "ppid": 105044,
+    "ticks": 167047,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "105044": {
+    "pid": 105044,
+    "ppid": 105031,
+    "ticks": 167032,
+    "comm": "go",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "105317": {
+    "pid": 105317,
+    "ppid": 105256,
+    "ticks": 167121,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "105256": {
+    "pid": 105256,
+    "ppid": 105031,
+    "ticks": 167115,
+    "comm": "go",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "105543": {
+    "pid": 105543,
+    "ppid": 103900,
+    "ticks": 167236,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "105687": {
+    "pid": 105687,
+    "ppid": 103900,
+    "ticks": 167282,
+    "comm": "security.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/tests/security"
+  },
+  "105849": {
+    "pid": 105849,
+    "ppid": 103900,
+    "ticks": 167384,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "105990": {
+    "pid": 105990,
+    "ppid": 103900,
+    "ticks": 167438,
+    "comm": "outbox.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/tests/outbox"
+  },
+  "106182": {
+    "pid": 106182,
+    "ppid": 103900,
+    "ticks": 167540,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "106307": {
+    "pid": 106307,
+    "ppid": 103900,
+    "ticks": 167577,
+    "comm": "outbox.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/internal/central/outbox"
+  },
+  "106484": {
+    "pid": 106484,
+    "ppid": 103900,
+    "ticks": 167678,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "106592": {
+    "pid": 106592,
+    "ppid": 103900,
+    "ticks": 167698,
+    "comm": "contract.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/internal/central/outbox/contract"
+  },
+  "106755": {
+    "pid": 106755,
+    "ppid": 103900,
+    "ticks": 167800,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "106897": {
+    "pid": 106897,
+    "ppid": 103900,
+    "ticks": 167865,
+    "comm": "account.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/tests/account"
+  },
+  "107156": {
+    "pid": 107156,
+    "ppid": 103900,
+    "ticks": 167968,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "107221": {
+    "pid": 107221,
+    "ppid": 103900,
+    "ticks": 168025,
+    "comm": "accountmail.tes",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/tests/accountmail"
+  },
+  "107564": {
+    "pid": 107564,
+    "ppid": 103900,
+    "ticks": 168174,
+    "comm": "accountmail.tes",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/internal/central/accountmail"
+  },
+  "107789": {
+    "pid": 107789,
+    "ppid": 103900,
+    "ticks": 168276,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "107937": {
+    "pid": 107937,
+    "ppid": 103900,
+    "ticks": 168338,
+    "comm": "recoverylog.tes",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/internal/central/recoverylog"
+  },
+  "108100": {
+    "pid": 108100,
+    "ppid": 103900,
+    "ticks": 168440,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "108245": {
+    "pid": 108245,
+    "ppid": 103900,
+    "ticks": 168503,
+    "comm": "project.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/tests/project"
+  },
+  "108543": {
+    "pid": 108543,
+    "ppid": 103900,
+    "ticks": 168605,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "108554": {
+    "pid": 108554,
+    "ppid": 103900,
+    "ticks": 168654,
+    "comm": "model.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/internal/central/model"
+  },
+  "108852": {
+    "pid": 108852,
+    "ppid": 103900,
+    "ticks": 168797,
+    "comm": "adapter.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/internal/central/model/adapter"
+  },
+  "109158": {
+    "pid": 109158,
+    "ppid": 103900,
+    "ticks": 168927,
+    "comm": "contract.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/internal/central/model/contract"
+  },
+  "109458": {
+    "pid": 109458,
+    "ppid": 103900,
+    "ticks": 169028,
+    "comm": "compile",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "109887": {
+    "pid": 109887,
+    "ppid": 103900,
+    "ticks": 169241,
+    "comm": "compile",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "110007": {
+    "pid": 110007,
+    "ppid": 103900,
+    "ticks": 169308,
+    "comm": "vet",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/tests/model"
+  },
+  "110052": {
+    "pid": 110052,
+    "ppid": 103900,
+    "ticks": 169323,
+    "comm": "model.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/tests/model"
+  },
+  "113906": {
+    "pid": 113906,
+    "ppid": 103900,
+    "ticks": 171161,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "114051": {
+    "pid": 114051,
+    "ppid": 103900,
+    "ticks": 171223,
+    "comm": "objects.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/tests/objects"
+  },
+  "114211": {
+    "pid": 114211,
+    "ppid": 103900,
+    "ticks": 171325,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "114353": {
+    "pid": 114353,
+    "ppid": 103900,
+    "ticks": 171376,
+    "comm": "object.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/internal/central/object"
+  },
+  "114541": {
+    "pid": 114541,
+    "ppid": 103900,
+    "ticks": 171478,
+    "comm": "link",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "114666": {
+    "pid": 114666,
+    "ppid": 103900,
+    "ticks": 171511,
+    "comm": "contract.test",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source/internal/central/object/contract"
+  },
+  "114825": {
+    "pid": 114825,
+    "ppid": 102100,
+    "ticks": 171615,
+    "comm": "docker",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  },
+  "115369": {
+    "pid": 115369,
+    "ppid": 100938,
+    "ticks": 171751,
+    "comm": "docker",
+    "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source"
+  }
+}

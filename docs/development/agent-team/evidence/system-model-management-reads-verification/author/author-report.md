@@ -1,0 +1,40 @@
+# System Model management reads author evidence
+
+Fixed implementation contract: `docs/development/work-items/recovery-d09-system-model-management-reads.md` rev1. Author baseline is `c54f73f3324caa11608d84e5d207141985eb6074` plus the exact 13 authorized paths. The related committed Go/API/migration/script/test dependency delta through `d09e8ef` was empty. The private source root was made from the recorded baseline archive of Go sources and required assets; it never consumed the concurrent ledger's migration 00018 or identity edits.
+
+The implementation supplies GET/HEAD current System Model Credential metadata and exact Model deletion impact. Secret metadata now owns one read transaction with User/Credential and, for Project, Project SH locks and current scope authority. Impact takes User/Model/selection SH plus references EX once, validates the canonical platform index through an SQL LIMIT 5 input, and aggregates only an SQL-materialized LIMIT 10001 reverse-reference input into seven closed kind/role counts. Both APIs cap reads at 3 seconds, inherit earlier cancellation and publish no candidate data after failure, unknown result or post-commit cancellation. Existing write/replay/lookup semantics and deletion revalidation remain in place.
+
+Only the 13 paths listed in `authorized-paths.json` were edited by this author. No shared task/status documentation, root binding, migrations, identity contract, dependency files or old fixture files were edited. The only original test assertion changed is HTTP route count 22 to 26.
+
+## Stable inputs and checks
+
+- `baseline.json`: exact baseline archive arguments and SHA-256.
+- `input01.json`, `input01-sources.tar`, `input01-unit.json`, `logs/input01-unit.log`: first pure run failed in new test setup only. It compared opaque LockKey closures with reflect.DeepEqual and reused a counter-sensitive metadata fixture for a second call.
+- `input02.json`: corrected canonical-key/mode/length comparison and a fresh second fixture; no production change. `input02-unit.json`, `input02-race.json`, `input02-vet.json` and matching raw logs all exit 0. These cover both Model and Secret package trees. The first nine authorized paths have remained identical since input02.
+- `input03.json`: first full 13-path snapshot. All three integration packages (Model, Project, Security) compiled and both Central/Runner commands built, with exact argv/env/exit in `input03-*.json` and raw logs.
+- `input04.json`: only the new boundary tests changed: NotCommitted is now an actual callback failure after authorized real SQL; revoked HTTP reads assert zero protected SQL; preview/deletion test explicitly proves Model.version stays unchanged while references change. `input04-compile-model.json` exits 0. `input03-system_management_boundaries_test.go` preserves the prior test source.
+- `input05.json`: only the new boundary test changes again; `input04-system_management_boundaries_test.go` and `input04-to05.diff` preserve the failure input and exact repair. Integration Model compilation exits 0 in `input05-compile-model.json`. No unchanged pure checks were mechanically repeated.
+
+All commands use Go 1.27.1, offline verified modules, readonly go.mod, and private GOCACHE/TMPDIR. Exact environment and raw output are recorded with each check.
+
+## Real run 01 and diagnosis
+
+`real01/command.json` records the original `sh scripts/test-security.sh -run <17 exact top-level names>` invocation, environment, source fingerprint binding, driver PID and actual exit 1. Its original race/count1/6m settings were preserved. `real-selector.txt` names the five new top levels, ten original System HTTP tests and the two required Project/Secret regressions.
+
+Actual PostgreSQL 17.8/vector 0.8.1 was observed. PostgreSQL 16.12 was only the original unsupported fixture, never a positive migration target. `real01/raw.log` and `real01/summary.json` preserve 16 PASS / 1 FAIL top levels and 100 PASS / 3 FAIL named subtests. All four other new top levels and all twelve old regressions passed. The sole failing top level was `TestSystemModelManagementReadBudgetAndUncertainResult`: its six Unknown, actual NotCommitted, and post-commit cancellation cases passed, but three new lock-wait tests incorrectly required at least two seconds.
+
+The fixed original fixture sets `LOCK_TIMEOUT="1s"` in `tests/testsupport/postgres/fixture.go:149`. Actual waits returned the original InternalError/HTTP 500 at approximately 1.03 seconds. This is an earlier database budget, not evidence that the three-second maximum failed. Production and fixture budgets remain unchanged. The repair separately proves ordinary pg_locks wait plus the full InternalError/NotCommitted → DATABASE_LOCK_FAILED → SQLSTATE 55P03 chain, and real authorized SQL followed by read context expiry at 3 seconds while the original caller remains alive. HTTP authentication is selected by the formal `account.session` cause and receives the same bounded context; the earlier caller cancellation case remains required.
+
+`real01/observed-resources.json` records four owned containers and three owned networks, with exact IDs and nonce labels. Both checks in `real01/cleanup.json` confirm every owned exact ID absent, the original two-container/four-network ID/name/label baseline unchanged, no remaining new resources, zero owned processes and an empty private runtime directory. The driver actually exited; `monitor-errors.json` is empty. The coordinator also independently accepted the resource handback.
+
+## Real run 02 and final author handoff
+
+`real02/command.json` records the original driver with only `^TestSystemModelManagementReadBudgetAndUncertainResult$`, the same environment and fixture budgets, final input05 fingerprint match, actual exit 0 and driver termination. `real02/summary.json` records one PASS top level and thirteen PASS named subtests with no skips; `real02/raw.log` has SHA-256 `22a0694ef3c0a61b9d8826ab3dfa180452f3c81a6ec07363f29e18565ea59a30`.
+
+The two actual ordinary lock waits were observed in PostgreSQL and returned after 1.033 and 1.018 seconds with a still-live caller, NotCommitted and the complete DATABASE_LOCK_FAILED/55P03 chain. The two real authorized SQL observers saw initial read-context budgets of 2.997 and 2.991 seconds, then the same context expired after 3.009 seconds; the original caller remained live and the final DTO was zero. Both HTTP semantic account.session observers inherited approximately 2.998 seconds and returned after approximately 3.002 seconds with zero protected SQL. The 100 ms earlier caller case and all six actual/uncertain/post-commit-cancel cases passed.
+
+`real02/observed-resources.json`, `real02/cleanup.json`, `real02/observed-processes.json` and `real02/monitor-errors.json` record the second window's ownership and cleanup. Both cleanup observations independently show all seven exact IDs absent, the trusted two-container/four-network baseline unchanged, no new resources, no owned processes, and an empty private runtime directory; monitoring reported no error. The author explicitly returned the Docker window to the coordinator immediately after completion.
+
+Final candidate is `input05.json`, SHA-256 `0208b2dcdce8623f65f2d7c2364a3daf083994f6271aeb63c02ca6fba7915a27`. `final-manifest-check.json` confirms all thirteen live files and private source files match the manifest. Production, OpenAPI and pure tests stayed unchanged since input02; only the new boundary test changed after real01. Coverage for the seventeen required top levels comprises the sixteen valid passes from real01 plus the repaired budget top level from real02; this is not a claim of a single all-green seventeen-test invocation. The original failed run, source and exact repair diff remain preserved.
+
+The implementation and author checks are ready for independent verification. No source writes or fixture processes remain active. Independent verification remains separate from this author evidence. This task does not deliver management UI, foreign reference adapters, provider invocation, the entire D09 module, or repair the stopped Object runtime issue.

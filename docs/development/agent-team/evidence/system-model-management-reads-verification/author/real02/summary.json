@@ -1,0 +1,104 @@
+{
+  "input": "input05.json",
+  "selector": "real02-selector.txt",
+  "actual_driver_exit": 0,
+  "raw_sha256": "22a0694ef3c0a61b9d8826ab3dfa180452f3c81a6ec07363f29e18565ea59a30",
+  "results": [
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult",
+      "status": "PASS",
+      "elapsed": "17.34s",
+      "top_level": true
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/metadata/unknown",
+      "status": "PASS",
+      "elapsed": "0.02s",
+      "top_level": false
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/metadata/not-committed",
+      "status": "PASS",
+      "elapsed": "0.02s",
+      "top_level": false
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/metadata/cancel-committed",
+      "status": "PASS",
+      "elapsed": "0.02s",
+      "top_level": false
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/model/unknown",
+      "status": "PASS",
+      "elapsed": "0.02s",
+      "top_level": false
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/model/not-committed",
+      "status": "PASS",
+      "elapsed": "0.02s",
+      "top_level": false
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/model/cancel-committed",
+      "status": "PASS",
+      "elapsed": "0.03s",
+      "top_level": false
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/metadata-earlier-database-lock-timeout",
+      "status": "PASS",
+      "elapsed": "1.03s",
+      "top_level": false
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/metadata-actual-three-second-read-context",
+      "status": "PASS",
+      "elapsed": "3.01s",
+      "top_level": false
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/model-earlier-database-lock-timeout",
+      "status": "PASS",
+      "elapsed": "1.02s",
+      "top_level": false
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/model-actual-three-second-read-context",
+      "status": "PASS",
+      "elapsed": "3.01s",
+      "top_level": false
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/http-earlier-lock-timeout-and-caller",
+      "status": "PASS",
+      "elapsed": "1.13s",
+      "top_level": false
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/metadata-http-budget-includes-authentication",
+      "status": "PASS",
+      "elapsed": "3.00s",
+      "top_level": false
+    },
+    {
+      "name": "TestSystemModelManagementReadBudgetAndUncertainResult/model-http-budget-includes-authentication",
+      "status": "PASS",
+      "elapsed": "3.00s",
+      "top_level": false
+    }
+  ],
+  "counts": {
+    "top_level": {
+      "PASS": 1,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    "named_subtests": {
+      "PASS": 13,
+      "FAIL": 0,
+      "SKIP": 0
+    }
+  }
+}

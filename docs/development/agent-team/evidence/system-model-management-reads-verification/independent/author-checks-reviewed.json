@@ -1,0 +1,205 @@
+[
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/input01-unit.json",
+    "sha256": "4ad31681a9503082b063d702bc021061ebb85cf7459b736dedef731c8c25c48e",
+    "exit": 1,
+    "input": "input01.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input01-unit.log",
+    "log_sha256": "e6abf67fc82e70032574df8da80941e9a537eceaf0615ea455086aa8481c9f2e",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-count=1",
+      "./internal/central/model/...",
+      "./internal/central/secret/..."
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/input02-unit.json",
+    "sha256": "c153dce2c23148244587ea95a7d2e24ecd4502ff04f60ef023719e23e72c395b",
+    "exit": 0,
+    "input": "input02.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input02-unit.log",
+    "log_sha256": "510f53b22c79c1c811f3269c258196916f2bfefd961c3ea0d8cfce29ea76e174",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-count=1",
+      "./internal/central/model/...",
+      "./internal/central/secret/..."
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/input02-race.json",
+    "sha256": "ab41bdc3b5f9b825360fc3164bfb4df7a0a4b65cb3ab2115bf3ecfcfad64243b",
+    "exit": 0,
+    "input": "input02.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input02-race.log",
+    "log_sha256": "9f8f8d8796c8a63bd3a4aa2585689b1e9fc2aef348f3e7f1f04ffd4b0f6b09ef",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-race",
+      "-count=1",
+      "./internal/central/model/...",
+      "./internal/central/secret/..."
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/input02-vet.json",
+    "sha256": "7d31707d2c56d53b8fb2e8a1edeaa13031f9b970c0dca542214b1656b8ed4e7d",
+    "exit": 0,
+    "input": "input02.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input02-vet.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "./internal/central/model/...",
+      "./internal/central/secret/..."
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/input03-compile-model.json",
+    "sha256": "47b0c9cc60a9685e39d319c377b51f23a65a338317f09b61ed385ab6bc83530e",
+    "exit": 0,
+    "input": "input03.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input03-compile-model.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-c",
+      "-tags=integration",
+      "-o",
+      "/workspace/agenteam-management-reads-yjfb7qdi/build/model.test",
+      "./tests/model"
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/input03-compile-project.json",
+    "sha256": "85a9f3f24b2a302e8da524721dcbfbff1d1e34820209246941854911779fe69b",
+    "exit": 0,
+    "input": "input03.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input03-compile-project.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-c",
+      "-tags=integration",
+      "-o",
+      "/workspace/agenteam-management-reads-yjfb7qdi/build/project.test",
+      "./tests/project"
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/input03-compile-security.json",
+    "sha256": "c5899e74a627d5d7a93859a635a86b79a33c8ece8653f2dd3caf666372643612",
+    "exit": 0,
+    "input": "input03.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input03-compile-security.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-c",
+      "-tags=integration",
+      "-o",
+      "/workspace/agenteam-management-reads-yjfb7qdi/build/security.test",
+      "./tests/security"
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/input03-build-central.json",
+    "sha256": "d8b590acff2fabfe1b6a53f5642524853a31e93b58127b63dba09fb5fb9100b7",
+    "exit": 0,
+    "input": "input03.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input03-build-central.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "build",
+      "-o",
+      "/workspace/agenteam-management-reads-yjfb7qdi/build/agenteam",
+      "./cmd/agenteam"
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/input03-build-runner.json",
+    "sha256": "a8424f38657878587768b723ec513aa48998f758f259cd28796a096a4bd2f8a9",
+    "exit": 0,
+    "input": "input03.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input03-build-runner.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "build",
+      "-o",
+      "/workspace/agenteam-management-reads-yjfb7qdi/build/agenteam-runner",
+      "./cmd/agenteam-runner"
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/input04-compile-model.json",
+    "sha256": "cb4747baba32d144cac8e8e8f17a9f5e1ed9f7db74907f596219625807ef1dd9",
+    "exit": 0,
+    "input": "input04.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input04-compile-model.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-c",
+      "-tags=integration",
+      "-o",
+      "/workspace/agenteam-management-reads-yjfb7qdi/build/model.test",
+      "./tests/model"
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/input05-compile-model.json",
+    "sha256": "2d252ed2519be3bac9864988fa3e90c58778eb2a6ccf945bd10fc7ad9091ba8d",
+    "exit": 0,
+    "input": "input05.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input05-compile-model.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-c",
+      "-tags=integration",
+      "-o",
+      "/workspace/agenteam-management-reads-yjfb7qdi/build/model.test",
+      "./tests/model"
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/real01/command.json",
+    "sha256": "96a3d493cf6858cdaa19bb7fc113aca83b6f298db61742f99cbd714ede701e80",
+    "exit": 1,
+    "input": "input04.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/real01/raw.log",
+    "log_sha256": "6dcac8362c1bfccf8f014fbb78397987f85c82e3ed7b71783ebf2295c623c451",
+    "argv": [
+      "sh",
+      "scripts/test-security.sh",
+      "-run",
+      "^(TestSystemModelManagementMetadata|TestSystemModelManagementDeletionImpact|TestSystemModelManagementReadAuthorityAndAtomicity|TestSystemModelManagementReadBudgetAndUncertainResult|TestProjectSecretMetadataReadCompatibility|TestModelSystemHTTPConfigurationCRUD|TestModelSystemHTTPSelectionAndReferenceDeletion|TestModelSystemHTTPCurrentAdministrator|TestModelSystemHTTPBoundaryAndStrictWire|TestModelSystemHTTPPaginationAndSafeProjection|TestModelSystemHTTPAtomicEffects|TestModelSystemHTTPCredentialWritesAndBinding|TestModelSystemHTTPPassiveCredentialLookup|TestModelSystemHTTPPassiveLookupLocksAndFailures|TestModelSystemHTTPUnknownAndHistoricalResults|TestProjectSecretAuditBindingFactRejection|TestSecretBindingsAuthorizationAndReadAuditBoundary)$"
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-management-reads-yjfb7qdi/real02/command.json",
+    "sha256": "9f20245538631f3774d66dec2ee2ac5af64d275c6fc08cfa9d154bbe90b21e2f",
+    "exit": 0,
+    "input": "input05.json",
+    "log": "/workspace/agenteam-management-reads-yjfb7qdi/real02/raw.log",
+    "log_sha256": "22a0694ef3c0a61b9d8826ab3dfa180452f3c81a6ec07363f29e18565ea59a30",
+    "argv": [
+      "sh",
+      "scripts/test-security.sh",
+      "-run",
+      "^TestSystemModelManagementReadBudgetAndUncertainResult$"
+    ]
+  }
+]

@@ -1,0 +1,69 @@
+--- FAIL: TestModelManagementImpactClosedGroupsAndBoundedSQL (0.00s)
+    --- FAIL: TestModelManagementImpactClosedGroupsAndBoundedSQL/empty (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementImpactClosedGroupsAndBoundedSQL/optional (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementImpactClosedGroupsAndBoundedSQL/all-seven (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementImpactClosedGroupsAndBoundedSQL/cap (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementImpactClosedGroupsAndBoundedSQL/sentinel (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementImpactClosedGroupsAndBoundedSQL/unknown-kind-role (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementImpactClosedGroupsAndBoundedSQL/negative (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementImpactClosedGroupsAndBoundedSQL/wrong-total (0.00s)
+        management_read_test.go:75: incomplete lock union
+--- FAIL: TestModelManagementCanonicalSelectionRejectsDrift (0.00s)
+    --- FAIL: TestModelManagementCanonicalSelectionRejectsDrift/missing-reference (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementCanonicalSelectionRejectsDrift/extra-owner (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementCanonicalSelectionRejectsDrift/wrong-version (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementCanonicalSelectionRejectsDrift/wrong-role (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementCanonicalSelectionRejectsDrift/wrong-model (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementCanonicalSelectionRejectsDrift/wrong-project (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementCanonicalSelectionRejectsDrift/wrong-effort (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementCanonicalSelectionRejectsDrift/fifth-row (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementCanonicalSelectionRejectsDrift/unconfigured-extra (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementCanonicalSelectionRejectsDrift/bad-singleton (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementCanonicalSelectionRejectsDrift/bad-version (0.00s)
+        management_read_test.go:75: incomplete lock union
+--- FAIL: TestModelManagementAuthorityAndResults (0.00s)
+    --- FAIL: TestModelManagementAuthorityAndResults/session (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementAuthorityAndResults/grant (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementAuthorityAndResults/acquire (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementAuthorityAndResults/held (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementAuthorityAndResults/executor (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementAuthorityAndResults/missing (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementAuthorityAndResults/unknown (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementAuthorityAndResults/not-committed (0.00s)
+        management_read_test.go:75: incomplete lock union
+    --- FAIL: TestModelManagementAuthorityAndResults/committed-cancel (0.00s)
+        management_read_test.go:75: incomplete lock union
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model	0.016s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.119s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	0.006s
+--- FAIL: TestSecretMetadataBudgetAndCommittedCancellation (0.00s)
+    write_lookup_test.go:142: Session outside held same Tx
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/secret	0.010s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret/contract	0.005s
+FAIL

@@ -1,0 +1,85 @@
+{
+  "baseline": "c54f73f3324caa11608d84e5d207141985eb6074",
+  "candidate_manifest_sha256": "0208b2dcdce8623f65f2d7c2364a3daf083994f6271aeb63c02ca6fba7915a27",
+  "candidate_paths": [
+    "internal/central/secret/write.go",
+    "internal/central/model/http.go",
+    "internal/central/model/management_read.go",
+    "internal/central/model/http_management.go",
+    "api/openapi/model-system.json",
+    "internal/central/model/http_test.go",
+    "internal/central/secret/metadata_test.go",
+    "internal/central/model/management_read_test.go",
+    "internal/central/model/http_management_test.go",
+    "tests/model/system_management_metadata_test.go",
+    "tests/model/system_management_impact_test.go",
+    "tests/model/system_management_boundaries_test.go",
+    "tests/project/secret_metadata_read_test.go"
+  ],
+  "fixed_source_matches": true,
+  "probe_sha256": "70dc424d78d744a1ae518a345b303d05ec549f451f3f9ca9c052918d565f8579",
+  "unchanged_dependencies": {
+    "internal/central/model/service.go": {
+      "sha256": "537c750a0cab179ec7b7e309b7325e26978d147224f580a6d5bb75bdb16e4d94",
+      "matches_baseline": true
+    },
+    "internal/central/model/store.go": {
+      "sha256": "726c777e5b549ff091e4134f1b82930a643197d24497b6cabb2813191c7657da",
+      "matches_baseline": true
+    },
+    "internal/central/model/authority.go": {
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba",
+      "matches_baseline": true
+    },
+    "internal/central/model/references.go": {
+      "sha256": "880234288ab809df8ef1ad2af20d555ccd79ed6a6c31cd4a86d6883b3bd5c642",
+      "matches_baseline": true
+    },
+    "internal/central/model/query.go": {
+      "sha256": "bcc0f680b3f45299249b405b69a64370a3a97699aae3232b36bc1c7b068d15fd",
+      "matches_baseline": true
+    },
+    "internal/central/model/configuration.go": {
+      "sha256": "2f09ab296c592c207fe63705e8b2a26ce7089130ae3d40e0071856b77a7d410a",
+      "matches_baseline": true
+    },
+    "internal/central/secret/service.go": {
+      "sha256": "26f6f876e502e7d26afe9b43c11732d72356826d787baa4950b44ed15dac6906",
+      "matches_baseline": true
+    },
+    "internal/central/secret/storage.go": {
+      "sha256": "4f7c6834297c66fe70cfeaa814ede1e0a3c16d9b49647013a5c04fd6aa82e581",
+      "matches_baseline": true
+    },
+    "internal/central/secret/error.go": {
+      "sha256": "3935d74c6c49d00be8f942b72c15114c208c07c4855ef2e285bfbcf57572f651",
+      "matches_baseline": true
+    },
+    "internal/central/secret/write_lookup.go": {
+      "sha256": "971e0e65373200a5b0653785e663a20a94da7d6682a765f950cd07414ef430e6",
+      "matches_baseline": true
+    },
+    "internal/central/postgres/transaction.go": {
+      "sha256": "aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3",
+      "matches_baseline": true
+    },
+    "internal/central/postgres/sql.go": {
+      "sha256": "2a1357b60da8693124b0cdf3d863589604853b44beb5262e43995f0271f5484e",
+      "matches_baseline": true
+    },
+    "api/openapi/common.json": {
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "matches_baseline": true
+    },
+    "go.mod": {
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "matches_baseline": true
+    },
+    "go.sum": {
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "matches_baseline": true
+    }
+  },
+  "original_http_operations_unchanged": true,
+  "openapi_refs_resolved": 139
+}

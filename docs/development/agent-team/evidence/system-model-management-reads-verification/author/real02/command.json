@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^TestSystemModelManagementReadBudgetAndUncertainResult$"
+  ],
+  "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -v",
+    "GOCACHE": "/workspace/agenteam-management-reads-yjfb7qdi/gocache",
+    "TMPDIR": "/workspace/agenteam-management-reads-yjfb7qdi/tmp"
+  },
+  "selector": "^TestSystemModelManagementReadBudgetAndUncertainResult$",
+  "input": "input05.json",
+  "started": 1791247895.2360399,
+  "window": "management-author-02",
+  "driver_pid": 100794,
+  "exit": 0,
+  "finished": 1791247958.9062538,
+  "final_manifest_matches": true
+}

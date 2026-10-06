@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-count=1",
+    "./internal/central/model/...",
+    "./internal/central/secret/..."
+  ],
+  "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOCACHE": "/workspace/agenteam-management-reads-yjfb7qdi/gocache",
+    "TMPDIR": "/workspace/agenteam-management-reads-yjfb7qdi/tmp"
+  },
+  "started": 1791247081.6996355,
+  "input": "input02.json",
+  "exit": 0,
+  "finished": 1791247190.8702238,
+  "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input02-race.log"
+}

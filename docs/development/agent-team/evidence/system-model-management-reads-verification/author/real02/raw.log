@@ -1,0 +1,107 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.163.5.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=2443fc5acc7b077b462282950e3c7f5e
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=2e25011ec573bbef28160fe67e9eee7b
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.062s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/metadata/unknown
+    system_management_boundaries_test.go:397: management read owner=secret-metadata actual=committed projected=unknown authorizedSQL=1
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/metadata/not-committed
+    system_management_boundaries_test.go:397: management read owner=secret-metadata actual=not_committed projected=not-committed authorizedSQL=1
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/metadata/cancel-committed
+    system_management_boundaries_test.go:397: management read owner=secret-metadata actual=committed projected=cancel-committed authorizedSQL=1
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/model/unknown
+    system_management_boundaries_test.go:397: management read owner=model.management-impact actual=committed projected=unknown authorizedSQL=1
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/model/not-committed
+    system_management_boundaries_test.go:397: management read owner=model.management-impact actual=not_committed projected=not-committed authorizedSQL=1
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/model/cancel-committed
+    system_management_boundaries_test.go:397: management read owner=model.management-impact actual=committed projected=cancel-committed authorizedSQL=1
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/metadata-earlier-database-lock-timeout
+    system_management_boundaries_test.go:467: ordinary database lock wait observed; fixture_timeout=1s elapsed=1.033131975s caller_live=true state=not_committed postgres=DATABASE_LOCK_FAILED SQLSTATE=55P03
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/metadata-actual-three-second-read-context
+    system_management_boundaries_test.go:511: actual authorized SQL read; initial_remaining=2.997483867s elapsed=3.009218646s read_deadline_exceeded=true caller_live=true actual=not_committed zero_DTO=true
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/model-earlier-database-lock-timeout
+    system_management_boundaries_test.go:467: ordinary database lock wait observed; fixture_timeout=1s elapsed=1.018320962s caller_live=true state=not_committed postgres=DATABASE_LOCK_FAILED SQLSTATE=55P03
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/model-actual-three-second-read-context
+    system_management_boundaries_test.go:511: actual authorized SQL read; initial_remaining=2.990644315s elapsed=3.008655792s read_deadline_exceeded=true caller_live=true actual=not_committed zero_DTO=true
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/http-earlier-lock-timeout-and-caller
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/metadata-http-budget-includes-authentication
+    system_management_boundaries_test.go:578: HTTP account.session budget remaining=2.998617096s elapsed=3.002200611s caller_live=true protected_SQL=0
+=== RUN   TestSystemModelManagementReadBudgetAndUncertainResult/model-http-budget-includes-authentication
+    system_management_boundaries_test.go:578: HTTP account.session budget remaining=2.99799827s elapsed=3.001572634s caller_live=true protected_SQL=0
+--- PASS: TestSystemModelManagementReadBudgetAndUncertainResult (17.34s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/metadata/unknown (0.02s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/metadata/not-committed (0.02s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/metadata/cancel-committed (0.02s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/model/unknown (0.02s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/model/not-committed (0.02s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/model/cancel-committed (0.03s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/metadata-earlier-database-lock-timeout (1.03s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/metadata-actual-three-second-read-context (3.01s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/model-earlier-database-lock-timeout (1.02s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/model-actual-three-second-read-context (3.01s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/http-earlier-lock-timeout-and-caller (1.13s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/metadata-http-budget-includes-authentication (3.00s)
+    --- PASS: TestSystemModelManagementReadBudgetAndUncertainResult/model-http-budget-includes-authentication (3.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	18.372s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.011s [no tests to run]
+D03 fixture cleanup checked for nonce 9c3e8ba884e4a4fa78d2be18e87ec7f2
+D04 outbound fixture cleanup checked for nonce 2e25011ec573bbef28160fe67e9eee7b
+D05 object fixture exact resource cleanup checked nonce=2443fc5acc7b077b462282950e3c7f5e

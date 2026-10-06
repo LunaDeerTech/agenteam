@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestSystemModelManagementMetadata|TestSystemModelManagementDeletionImpact|TestSystemModelManagementReadAuthorityAndAtomicity|TestSystemModelManagementReadBudgetAndUncertainResult|TestProjectSecretMetadataReadCompatibility|TestModelSystemHTTPConfigurationCRUD|TestModelSystemHTTPSelectionAndReferenceDeletion|TestModelSystemHTTPCurrentAdministrator|TestModelSystemHTTPBoundaryAndStrictWire|TestModelSystemHTTPPaginationAndSafeProjection|TestModelSystemHTTPAtomicEffects|TestModelSystemHTTPCredentialWritesAndBinding|TestModelSystemHTTPPassiveCredentialLookup|TestModelSystemHTTPPassiveLookupLocksAndFailures|TestModelSystemHTTPUnknownAndHistoricalResults|TestProjectSecretAuditBindingFactRejection|TestSecretBindingsAuthorizationAndReadAuditBoundary)$"
+  ],
+  "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -v",
+    "GOCACHE": "/workspace/agenteam-management-reads-yjfb7qdi/gocache",
+    "TMPDIR": "/workspace/agenteam-management-reads-yjfb7qdi/tmp"
+  },
+  "selector": "^(TestSystemModelManagementMetadata|TestSystemModelManagementDeletionImpact|TestSystemModelManagementReadAuthorityAndAtomicity|TestSystemModelManagementReadBudgetAndUncertainResult|TestProjectSecretMetadataReadCompatibility|TestModelSystemHTTPConfigurationCRUD|TestModelSystemHTTPSelectionAndReferenceDeletion|TestModelSystemHTTPCurrentAdministrator|TestModelSystemHTTPBoundaryAndStrictWire|TestModelSystemHTTPPaginationAndSafeProjection|TestModelSystemHTTPAtomicEffects|TestModelSystemHTTPCredentialWritesAndBinding|TestModelSystemHTTPPassiveCredentialLookup|TestModelSystemHTTPPassiveLookupLocksAndFailures|TestModelSystemHTTPUnknownAndHistoricalResults|TestProjectSecretAuditBindingFactRejection|TestSecretBindingsAuthorizationAndReadAuditBoundary)$",
+  "input": "input04.json",
+  "started": 1791247363.5278523,
+  "window": "management-author-01",
+  "driver_pid": 42195,
+  "exit": 1,
+  "finished": 1791247516.0146708,
+  "final_manifest_matches": true
+}

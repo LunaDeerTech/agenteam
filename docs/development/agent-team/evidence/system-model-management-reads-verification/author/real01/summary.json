@@ -1,0 +1,611 @@
+{
+  "top": [
+    {
+      "status": "PASS",
+      "test": "TestSecretBindingsAuthorizationAndReadAuditBoundary",
+      "duration": "1.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection",
+      "duration": "1.37s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretMetadataReadCompatibility",
+      "duration": "4.57s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPConfigurationCRUD",
+      "duration": "3.52s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPSelectionAndReferenceDeletion",
+      "duration": "2.68s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPCurrentAdministrator",
+      "duration": "4.19s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire",
+      "duration": "1.92s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPPaginationAndSafeProjection",
+      "duration": "2.77s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPAtomicEffects",
+      "duration": "2.03s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPCredentialWritesAndBinding",
+      "duration": "2.20s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPPassiveCredentialLookup",
+      "duration": "2.98s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPPassiveLookupLocksAndFailures",
+      "duration": "2.66s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPUnknownAndHistoricalResults",
+      "duration": "2.11s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity",
+      "duration": "8.45s"
+    },
+    {
+      "status": "FAIL",
+      "test": "TestSystemModelManagementReadBudgetAndUncertainResult",
+      "duration": "6.42s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementDeletionImpact",
+      "duration": "5.56s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementMetadata",
+      "duration": "4.16s"
+    }
+  ],
+  "subtests": [
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/no-witness",
+      "duration": "0.02s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/resource",
+      "duration": "0.02s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/session",
+      "duration": "0.02s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/metadata",
+      "duration": "0.02s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/action",
+      "duration": "0.02s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/cause",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/ordinal",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/producer",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/association",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/scope",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/outcome",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/direct-append",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/captured-new-tx",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretAuditBindingFactRejection/captured-other-store",
+      "duration": "0.03s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretMetadataReadCompatibility/scope-specific-ports-and-complete-lock-union",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretMetadataReadCompatibility/system-admin-does-not-own-project",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretMetadataReadCompatibility/missing-lock-or-foreign-store",
+      "duration": "0.03s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretMetadataReadCompatibility/revoked-current-session-precedes-project-existence",
+      "duration": "0.02s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretMetadataReadCompatibility/original-read-gate-archiving",
+      "duration": "1.11s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretMetadataReadCompatibility/original-read-gate-archived",
+      "duration": "1.12s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestProjectSecretMetadataReadCompatibility/original-read-gate-deleting",
+      "duration": "1.19s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPConfigurationCRUD/openai-chat-completions",
+      "duration": "0.33s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPConfigurationCRUD/anthropic-messages",
+      "duration": "0.35s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPConfigurationCRUD/openai-embeddings",
+      "duration": "0.33s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPConfigurationCRUD/jina-rerank",
+      "duration": "0.35s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPConfigurationCRUD/openai-images-generations",
+      "duration": "0.33s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPCurrentAdministrator/role",
+      "duration": "0.45s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPCurrentAdministrator/session",
+      "duration": "0.41s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/host",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/origin",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-origin",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/csrf",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-csrf",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-cookie",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-key",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/fetch",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/raw-path",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/unclean",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/query",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/nested-duplicate",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/unknown",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/null",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/trailing",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/utf8",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/media",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/encoding",
+      "duration": "0.00s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPBoundaryAndStrictWire/large",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPAtomicEffects/model-audit",
+      "duration": "0.04s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPAtomicEffects/model-event",
+      "duration": "0.05s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPAtomicEffects/secret-audit",
+      "duration": "0.02s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPCredentialWritesAndBinding/non-model-PUT",
+      "duration": "0.03s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPCredentialWritesAndBinding/non-model-DELETE",
+      "duration": "0.02s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-purpose",
+      "duration": "0.04s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-version",
+      "duration": "0.04s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPPassiveLookupLocksAndFailures/uninitialized-read",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-command",
+      "duration": "0.16s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-user",
+      "duration": "0.16s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPPassiveLookupLocksAndFailures/not-committed",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPPassiveLookupLocksAndFailures/unknown",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-present",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-absent",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPPassiveLookupLocksAndFailures/current-after-entry",
+      "duration": "0.41s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPUnknownAndHistoricalResults/model-confirmed",
+      "duration": "0.06s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestModelSystemHTTPUnknownAndHistoricalResults/model-still-unknown",
+      "duration": "0.06s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/metadata-revoke-after-http-authority",
+      "duration": "0.61s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/metadata-user-lock-revoke",
+      "duration": "0.79s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/metadata-user-lock-role",
+      "duration": "0.69s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/model-revoke-after-http-authority",
+      "duration": "0.58s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/model-user-lock-revoke",
+      "duration": "0.69s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/model-user-lock-role",
+      "duration": "0.56s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/complete-ordinary-lock-unions",
+      "duration": "1.02s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/complete-ordinary-lock-unions/credential",
+      "duration": "0.17s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/complete-ordinary-lock-unions/credential-user",
+      "duration": "0.17s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/complete-ordinary-lock-unions/model",
+      "duration": "0.16s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/complete-ordinary-lock-unions/model-user",
+      "duration": "0.16s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/complete-ordinary-lock-unions/selector",
+      "duration": "0.17s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/complete-ordinary-lock-unions/references-writer-shared",
+      "duration": "0.18s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadAuthorityAndAtomicity/preview-does-not-authorize-later-write",
+      "duration": "1.42s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadBudgetAndUncertainResult/metadata/unknown",
+      "duration": "0.03s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadBudgetAndUncertainResult/metadata/not-committed",
+      "duration": "0.02s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadBudgetAndUncertainResult/metadata/cancel-committed",
+      "duration": "0.03s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadBudgetAndUncertainResult/model/unknown",
+      "duration": "0.03s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadBudgetAndUncertainResult/model/not-committed",
+      "duration": "0.03s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementReadBudgetAndUncertainResult/model/cancel-committed",
+      "duration": "0.02s"
+    },
+    {
+      "status": "FAIL",
+      "test": "TestSystemModelManagementReadBudgetAndUncertainResult/metadata-actual-read-budget",
+      "duration": "1.04s"
+    },
+    {
+      "status": "FAIL",
+      "test": "TestSystemModelManagementReadBudgetAndUncertainResult/model-actual-read-budget",
+      "duration": "1.04s"
+    },
+    {
+      "status": "FAIL",
+      "test": "TestSystemModelManagementReadBudgetAndUncertainResult/http-budget-includes-authentication-and-earlier-caller",
+      "duration": "1.02s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementDeletionImpact/empty-and-head",
+      "duration": "0.02s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementDeletionImpact/required-optional-and-seven-groups",
+      "duration": "0.05s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementDeletionImpact/large-version-is-string",
+      "duration": "0.03s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementDeletionImpact/canonical-corruption",
+      "duration": "0.05s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementDeletionImpact/canonical-corruption/missing-index",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementDeletionImpact/canonical-corruption/owner",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementDeletionImpact/canonical-corruption/version",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementDeletionImpact/canonical-corruption/extra-owner",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementDeletionImpact/canonical-corruption/missing-singleton",
+      "duration": "0.01s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementDeletionImpact/bounded-exact-count-and-sentinel",
+      "duration": "1.38s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementDeletionImpact/protected-existence",
+      "duration": "0.82s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementMetadata/create-and-refresh",
+      "duration": "0.03s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementMetadata/current-not-receipt",
+      "duration": "0.03s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementMetadata/strict-wire-and-current-admin",
+      "duration": "0.71s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementMetadata/other-purpose-and-unknown",
+      "duration": "0.03s"
+    },
+    {
+      "status": "PASS",
+      "test": "TestSystemModelManagementMetadata/deleted-current-and-historical-replay",
+      "duration": "0.10s"
+    }
+  ],
+  "top_pass": 16,
+  "top_fail": 1,
+  "sub_pass": 100,
+  "sub_fail": 3,
+  "raw_sha256": "6dcac8362c1bfccf8f014fbb78397987f85c82e3ed7b71783ebf2295c623c451"
+}

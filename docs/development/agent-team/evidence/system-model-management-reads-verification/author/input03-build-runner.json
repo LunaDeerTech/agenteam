@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "build",
+    "-o",
+    "/workspace/agenteam-management-reads-yjfb7qdi/build/agenteam-runner",
+    "./cmd/agenteam-runner"
+  ],
+  "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOCACHE": "/workspace/agenteam-management-reads-yjfb7qdi/gocache",
+    "TMPDIR": "/workspace/agenteam-management-reads-yjfb7qdi/tmp"
+  },
+  "started": 1791247194.0597603,
+  "input": "input03.json",
+  "exit": 0,
+  "finished": 1791247194.42894,
+  "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input03-build-runner.log"
+}

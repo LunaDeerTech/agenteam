@@ -1,0 +1,202 @@
+--- /workspace/agenteam-management-reads-yjfb7qdi/input04-system_management_boundaries_test.go	2026-10-06 00:49:00.385218312 +0000
++++ /workspace/agenteam-management-reads-yjfb7qdi/source/tests/model/system_management_boundaries_test.go	2026-10-06 00:49:00.385325882 +0000
+@@ -22,6 +22,7 @@
+ 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+ 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++	"github.com/jackc/pgx/v5/pgconn"
+ )
+ 
+ // This observer delegates every SQL operation and transaction. Hooks run only
+@@ -429,55 +430,162 @@
+ 			})
+ 		}
+ 	}
++	if v.db.Config(t, nil).LockTimeout() != time.Second {
++		t.Fatal("fixture no longer supplies its original one-second lock timeout")
++	}
++	type readResult struct {
++		err  error
++		zero bool
++	}
++	read := func(ctx context.Context, kind string, core *model.Service, secrets *secret.Service) readResult {
++		if kind == "metadata" {
++			out, err := secrets.Metadata(ctx, v.admin, managementRef(t, credential))
++			return readResult{err, reflect.DeepEqual(out, sc.Metadata{})}
++		}
++		out, err := core.GetModelDeletionImpact(ctx, v.admin, managementModel(t, modelKey))
++		return readResult{err, reflect.DeepEqual(out, model.ModelDeletionImpact{})}
++	}
+ 	for _, kind := range []string{"metadata", "model"} {
+-		t.Run(kind+"-actual-read-budget", func(t *testing.T) {
++		t.Run(kind+"-earlier-database-lock-timeout", func(t *testing.T) {
+ 			key, _ := f.AggregateLock(f.CredentialRefAggregate, credential)
+ 			if kind == "model" {
+ 				key, _ = f.AggregateLock(f.ModelConfigAggregate, modelKey)
+ 			}
+ 			release := managementHold(t, v, key, f.Exclusive)
++			caller := testContext(t)
+ 			started := time.Now()
+-			var err error
+-			if kind == "metadata" {
+-				out, e := v.secrets.Metadata(testContext(t), v.admin, managementRef(t, credential))
+-				err = e
+-				if !reflect.DeepEqual(out, sc.Metadata{}) {
+-					t.Fatal("timed-out metadata")
+-				}
+-			} else {
+-				out, e := v.service.GetModelDeletionImpact(testContext(t), v.admin, managementModel(t, modelKey))
+-				err = e
+-				if !reflect.DeepEqual(out, model.ModelDeletionImpact{}) {
+-					t.Fatal("timed-out impact")
+-				}
+-			}
++			done := make(chan readResult, 1)
++			go func() { done <- read(caller, kind, v.service, v.secrets) }()
++			managementWaitBlocked(t, v, key)
++			out := <-done
+ 			elapsed := time.Since(started)
+ 			release()
+-			if err == nil || elapsed < 2*time.Second || elapsed > 5*time.Second {
+-				t.Fatal("library read did not retain three-second budget", elapsed, err)
++			if !out.zero || caller.Err() != nil || elapsed > 5*time.Second {
++				t.Fatal("earlier lock timeout published data or extended read", elapsed, out.err)
++			}
++			managementLockFault(t, out.err)
++			t.Logf("ordinary database lock wait observed; fixture_timeout=1s elapsed=%s caller_live=true state=not_committed postgres=DATABASE_LOCK_FAILED SQLSTATE=55P03", elapsed)
++		})
++		t.Run(kind+"-actual-three-second-read-context", func(t *testing.T) {
++			store, core, secrets := managementReaders(t, v)
++			caller := testContext(t)
++			owner, stage := "secret-metadata", "metadata"
++			if kind == "model" {
++				owner, stage = "model.management-impact", "counts"
++			}
++			reached := false
++			var remaining time.Duration
++			store.afterRead = func(ctx context.Context, observed string) error {
++				if observed != stage {
++					return nil
++				}
++				deadline, ok := ctx.Deadline()
++				remaining = time.Until(deadline)
++				if !ok || remaining <= 2*time.Second || remaining > 3*time.Second || caller.Err() != nil || store.count(kind) != 1 {
++					t.Fatal("read context budget or actual SQL precondition")
++				}
++				reached = true
++				<-ctx.Done()
++				if !errors.Is(ctx.Err(), context.DeadlineExceeded) || caller.Err() != nil {
++					t.Fatal("read did not expire independently of caller")
++				}
++				return ctx.Err()
+ 			}
+-			var pg *postgres.Error
+-			if !errors.As(err, &pg) {
+-				t.Fatal("database lock error chain lost", err)
++			actual := f.CommitState("")
++			v.tracked.setHooks(nil, func(_ context.Context, _ f.TransactionCause, trace systemHTTPTrace, result f.CommitResult) f.CommitResult {
++				if trace.owner == owner {
++					actual = result.State()
++					if trace.held == 0 || store.count(kind) != 1 {
++						t.Fatal("deadline observation without authorized SQL")
++					}
++				}
++				return result
++			})
++			started := time.Now()
++			out := read(caller, kind, core, secrets)
++			elapsed := time.Since(started)
++			v.tracked.setHooks(nil, nil)
++			if !reached || out.err == nil || !out.zero || actual != f.NotCommitted || caller.Err() != nil || elapsed < 2*time.Second || elapsed > 5*time.Second {
++				t.Fatal("three-second read context did not terminate with zero DTO", elapsed, actual, out.err)
+ 			}
++			t.Logf("actual authorized SQL read; initial_remaining=%s elapsed=%s read_deadline_exceeded=true caller_live=true actual=%s zero_DTO=true", remaining, elapsed, actual)
+ 		})
+ 	}
+-	t.Run("http-budget-includes-authentication-and-earlier-caller", func(t *testing.T) {
++	t.Run("http-earlier-lock-timeout-and-caller", func(t *testing.T) {
+ 		user, _ := f.UserLock(v.admin.Details().UserID)
+ 		release := managementHold(t, v, user, f.Exclusive)
+-		started := time.Now()
+-		r := v.request(t, v.adminBrowser, "GET", "/api/v1/system/model-credentials/"+credential, "", nil)
+-		elapsed := time.Since(started)
+-		if r.status == 200 || elapsed < 2*time.Second || elapsed > 5*time.Second {
+-			t.Fatal("HTTP authentication escaped request budget", elapsed, r.status)
+-		}
++		var authErr error
++		v.tracked.setHooks(nil, func(_ context.Context, _ f.TransactionCause, trace systemHTTPTrace, result f.CommitResult) f.CommitResult {
++			if trace.owner == "account.session" {
++				authErr = result.Fault()
++			}
++			return result
++		})
++		done := make(chan systemHTTPResponse, 1)
++		go func() {
++			done <- v.request(t, v.adminBrowser, "GET", "/api/v1/system/model-credentials/"+credential, "", nil)
++		}()
++		managementWaitBlocked(t, v, user)
++		r := <-done
++		v.tracked.setHooks(nil, nil)
++		r.problem(t, 500, f.InternalError)
++		managementLockFault(t, authErr)
+ 		ctx, cancel := context.WithTimeout(testContext(t), 100*time.Millisecond)
+ 		defer cancel()
+-		started = time.Now()
++		started := time.Now()
+ 		r = v.rawRequest(ctx, v.adminBrowser, "GET", "/api/v1/system/models/"+modelKey+"/deletion-impact", "", nil, nil)
+-		if r.status == 200 || time.Since(started) > time.Second {
++		if r.status == 200 || time.Since(started) > time.Second || !errors.Is(ctx.Err(), context.DeadlineExceeded) {
+ 			t.Fatal("HTTP extended earlier caller")
+ 		}
+ 		release()
+ 	})
++	for _, kind := range []string{"metadata", "model"} {
++		t.Run(kind+"-http-budget-includes-authentication", func(t *testing.T) {
++			store, core, secrets := managementReaders(t, v)
++			managementInstall(t, v, core, secrets)
++			defer v.install(t, v.secrets)
++			caller := testContext(t)
++			var reached int
++			var remaining time.Duration
++			v.tracked.setHooks(func(ctx context.Context, cause f.TransactionCause) error {
++				if cause.Details().Owner != "account.session" {
++					return nil
++				}
++				reached++
++				deadline, ok := ctx.Deadline()
++				remaining = time.Until(deadline)
++				if !ok || remaining <= 2*time.Second || remaining > 3*time.Second || caller.Err() != nil {
++					t.Fatal("authentication did not inherit new-read budget")
++				}
++				<-ctx.Done()
++				if !errors.Is(ctx.Err(), context.DeadlineExceeded) || caller.Err() != nil {
++					t.Fatal("authentication did not expire independently of caller")
++				}
++				return ctx.Err()
++			}, nil)
++			path := "/api/v1/system/model-credentials/" + credential
++			if kind == "model" {
++				path = "/api/v1/system/models/" + modelKey + "/deletion-impact"
++			}
++			started := time.Now()
++			r := v.rawRequest(caller, v.adminBrowser, "GET", path, "", nil, nil)
++			elapsed := time.Since(started)
++			v.tracked.setHooks(nil, nil)
++			if reached != 1 || store.count(kind) != 0 || caller.Err() != nil || elapsed < 2*time.Second || elapsed > 5*time.Second {
++				t.Fatal("authentication budget or zero protected SQL boundary", elapsed)
++			}
++			r.problem(t, 503, f.DependencyUnavailable)
++			t.Logf("HTTP account.session budget remaining=%s elapsed=%s caller_live=true protected_SQL=0", remaining, elapsed)
++		})
++	}
++}
++
++func managementLockFault(t *testing.T, err error) {
++	t.Helper()
++	var fault *f.Fault
++	var pg *postgres.Error
++	var sql *pgconn.PgError
++	if !errors.As(err, &fault) || fault.Code != f.InternalError || fault.CommitState != f.NotCommitted || !errors.As(err, &pg) || pg.Code() != postgres.LockFailed || pg.SQLState() != "55P03" || !errors.As(err, &sql) || sql.Code != "55P03" {
++		t.Fatal("original database lock fault/SQLSTATE chain changed", err)
++	}
+ }

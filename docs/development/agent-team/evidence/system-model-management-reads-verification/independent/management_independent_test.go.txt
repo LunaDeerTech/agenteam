@@ -1,0 +1,329 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+	"reflect"
+	"strings"
+	"testing"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/model"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+)
+
+// The verifier owns only this overlay. All authority, transactions and SQL
+// delegate to the existing real fixture; no permission is granted here.
+type independentMetadataStore struct {
+	*postgres.Store
+	actor                                                    id.Actor
+	ref                                                      sc.CredentialRef
+	tx                                                       f.Tx
+	before                                                   func() error
+	after                                                    func(f.TransactionCause, f.CommitResult) f.CommitResult
+	transactions, callbacks, sessions, systems, metadataRows int
+	sessionAllowed, systemAllowed                            bool
+	version                                                  int64
+	actual, projected                                        f.CommitState
+}
+
+func (s *independentMetadataStore) WithinTx(ctx context.Context, cause f.TransactionCause, callback func(context.Context, f.Tx) error) f.CommitResult {
+	s.transactions++
+	if cause.Details().Owner != "secret-metadata" {
+		return f.NotCommittedResult(f.NewFault(f.InvalidState, f.NotStarted))
+	}
+	if s.before != nil {
+		if err := s.before(); err != nil {
+			var fault *f.Fault
+			if !errors.As(err, &fault) {
+				fault = f.NewFault(f.DependencyUnavailable, f.NotStarted).WithCause(err)
+			}
+			return f.NotCommittedResult(fault)
+		}
+	}
+	result := s.Store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		s.callbacks++
+		s.tx = tx
+		return callback(ctx, tx)
+	})
+	s.actual = result.State()
+	if s.after != nil {
+		result = s.after(cause, result)
+	}
+	s.projected = result.State()
+	return result
+}
+func (s *independentMetadataStore) witness(ctx context.Context, tx f.Tx, actor id.Actor) error {
+	if tx != s.tx || !actor.Equal(s.actor) {
+		return f.NewFault(f.InvalidState, f.NotStarted)
+	}
+	if _, err := s.Store.InTx(tx); err != nil {
+		return err
+	}
+	user, _ := f.UserLock(actor.Details().UserID)
+	credential, _ := f.AggregateLock(f.CredentialRefAggregate, s.ref.Details().ID.String())
+	return s.Store.RequireHeldLocks(ctx, tx, []f.LockRequest{
+		{Key: user, Mode: f.Shared}, {Key: credential, Mode: f.Shared},
+	})
+}
+func (s *independentMetadataStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
+	if tx != s.tx {
+		return nil, f.NewFault(f.InvalidState, f.NotStarted)
+	}
+	x, err := s.Store.InTx(tx)
+	if err != nil {
+		return nil, err
+	}
+	return independentMetadataExecutor{x, s}, nil
+}
+
+type independentMetadataExecutor struct {
+	postgres.SQLExecutor
+	store *independentMetadataStore
+}
+type independentMetadataRow struct {
+	postgres.Row
+	store    *independentMetadataStore
+	rejected error
+}
+
+func (x independentMetadataExecutor) QueryRow(ctx context.Context, query string, args ...any) postgres.Row {
+	// Metadata is the only SQL issued by the new reader. The real Account
+	// authorities use their own executor in this same underlying transaction.
+	if !x.store.sessionAllowed || !x.store.systemAllowed ||
+		!strings.Contains(query, "SELECT purpose,version,current_payload_id::text FROM agenteam_secret.secrets WHERE id=$1 AND scope=$2 AND scope_key=$3") ||
+		len(args) != 3 || args[0] != x.store.ref.Details().ID.String() || args[1] != "system" || args[2] != "system" {
+		return independentMetadataRow{rejected: f.NewFault(f.InvalidState, f.NotStarted)}
+	}
+	return independentMetadataRow{Row: x.SQLExecutor.QueryRow(ctx, query, args...), store: x.store}
+}
+func (r independentMetadataRow) Scan(values ...any) error {
+	if r.rejected != nil {
+		return r.rejected
+	}
+	if err := r.Row.Scan(values...); err != nil {
+		return err
+	}
+	if len(values) != 3 {
+		return f.NewFault(f.InvalidState, f.NotStarted)
+	}
+	version, ok := values[1].(*int64)
+	if !ok {
+		return f.NewFault(f.InvalidState, f.NotStarted)
+	}
+	r.store.metadataRows++
+	r.store.version = *version
+	return nil
+}
+
+type independentMetadataSessions struct {
+	id.SessionAuthority
+	store *independentMetadataStore
+}
+
+func (a independentMetadataSessions) RequireCurrentSession(ctx context.Context, tx f.Tx, actor id.Actor) error {
+	a.store.sessions++
+	if err := a.store.witness(ctx, tx, actor); err != nil {
+		return err
+	}
+	err := a.SessionAuthority.RequireCurrentSession(ctx, tx, actor)
+	a.store.sessionAllowed = err == nil
+	return err
+}
+
+type independentMetadataSystem struct {
+	id.SystemAuthority
+	store *independentMetadataStore
+}
+
+func (a independentMetadataSystem) AuthorizeSystem(ctx context.Context, tx f.Tx, actor id.Actor, intent id.AccessIntent) (id.AccessGrant, error) {
+	a.store.systems++
+	if err := a.store.witness(ctx, tx, actor); err != nil {
+		return id.AccessGrant{}, err
+	}
+	if intent != id.Read {
+		return id.AccessGrant{}, f.NewFault(f.InvalidState, f.NotStarted)
+	}
+	grant, err := a.SystemAuthority.AuthorizeSystem(ctx, tx, actor, intent)
+	a.store.systemAllowed = err == nil && grant.Matches(actor, id.SystemScope(), id.Read)
+	return grant, err
+}
+
+func independentMetadataReader(t *testing.T, v *systemHTTPFixture, actor id.Actor, credential string) (*independentMetadataStore, *secret.Service) {
+	t.Helper()
+	key, err := f.ParseID[sc.Credential](credential)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ref, err := sc.NewCredentialRef(key, id.SystemScope())
+	if err != nil {
+		t.Fatal(err)
+	}
+	store := &independentMetadataStore{Store: v.raw, actor: actor, ref: ref}
+	_, _, keys := testKeys(t)
+	reader, err := secret.New(store, keys, v.aud, secret.Authorizations{
+		Sessions: independentMetadataSessions{v.accounts, store},
+		System:   independentMetadataSystem{v.accounts, store},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return store, reader
+}
+
+func TestIndependentSystemModelManagementMetadataPublication(t *testing.T) {
+	v := newSystemHTTPFixture(t)
+	credential := v.credential(t, newID[struct{}](t).String(), "independent-metadata-private-canary")
+	path := "/api/v1/system/model-credentials/" + credential
+	v.request(t, v.adminBrowser, "PUT", path, newID[struct{}](t).String(),
+		map[string]any{"expected_version": "1", "value": "independent-current-version-canary"}).want(t, http.StatusOK)
+
+	t.Run("current-session-after-http-authorization", func(t *testing.T) {
+		browser := v.addBrowser(t, "admin")
+		store, reader := independentMetadataReader(t, v, browser.actor, credential)
+		v.install(t, reader)
+		defer v.install(t, v.secrets)
+		store.before = func() error {
+			return v.account.Logout(testContext(t), account.LogoutRequest{
+				Actor: browser.actor, Key: f.IdempotencyKey(newID[struct{}](t).String()),
+			})
+		}
+		response := v.request(t, browser, "GET", path, "", nil)
+		response.problem(t, http.StatusUnauthorized, f.SessionRevoked)
+		if store.transactions != 1 || store.callbacks != 1 || store.sessions != 1 || store.systems != 0 ||
+			store.metadataRows != 0 || store.actual != f.NotCommitted {
+			t.Fatal("revoked actor reached metadata or escaped the same-transaction check")
+		}
+		var fault *f.Fault
+		err := v.accounts.RequireCurrentSession(testContext(t), f.Tx{}, browser.actor)
+		if !errors.As(err, &fault) || fault.Code != f.SessionRevoked {
+			t.Fatal("formal logout was not durable", err)
+		}
+		t.Log("HTTP preauthorization followed by durable Logout: same Store/Tx and complete User/Credential locks; metadata rows=0")
+	})
+	for _, outcome := range []string{"unknown", "cancel"} {
+		t.Run("actual-commit-before-"+outcome, func(t *testing.T) {
+			store, reader := independentMetadataReader(t, v, v.admin, credential)
+			v.install(t, reader)
+			defer v.install(t, v.secrets)
+			before, nonce := v.facts(t), v.nonce(t)
+			ctx, cancel := context.WithCancel(testContext(t))
+			defer cancel()
+			store.after = func(cause f.TransactionCause, actual f.CommitResult) f.CommitResult {
+				if actual.State() != f.Committed || store.metadataRows != 1 || store.version != 2 {
+					return actual
+				}
+				if outcome == "unknown" {
+					return f.UnknownResult(newID[f.TransactionAttempt](t), cause)
+				}
+				cancel()
+				return actual
+			}
+			response := v.rawRequest(ctx, v.adminBrowser, "GET", path, "", nil, nil)
+			code, projected := f.DependencyUnavailable, f.Committed
+			if outcome == "unknown" {
+				code, projected = f.CommitUnknown, f.Unknown
+			}
+			response.problem(t, http.StatusServiceUnavailable, code)
+			if store.actual != f.Committed || store.projected != projected ||
+				store.transactions != 1 || store.callbacks != 1 || store.sessions != 1 ||
+				store.systems != 1 || !store.sessionAllowed || !store.systemAllowed ||
+				store.metadataRows != 1 || store.version != 2 {
+				t.Fatal("result decoration bypassed actual same-transaction current authority/SQL or retried")
+			}
+			body := response.object(t)
+			for _, field := range []string{"credential_id", "purpose", "version", "metadata", "result"} {
+				if _, exists := body[field]; exists {
+					t.Fatal("unpublished current metadata escaped", field)
+				}
+			}
+			if fmt.Sprint(body["commit_state"]) != string(projected) {
+				t.Fatal("read commit-state projection changed")
+			}
+			httpSameFacts(t, before, v.facts(t))
+			if nonce != v.nonce(t) {
+				t.Fatal("read allocated nonce")
+			}
+			t.Logf("same Store/Tx authority and metadata version=2; actual=%s projected=%s; one read, zero output/material/business changes", store.actual, store.projected)
+		})
+	}
+}
+
+func independentImpact(t *testing.T, v *systemHTTPFixture, target string) model.ModelDeletionImpact {
+	t.Helper()
+	response := v.request(t, v.adminBrowser, "GET", "/api/v1/system/models/"+target+"/deletion-impact", "", nil).want(t, http.StatusOK)
+	var impact model.ModelDeletionImpact
+	if err := json.Unmarshal(response.body, &impact); err != nil {
+		t.Fatal(err)
+	}
+	if len(response.object(t)) != 6 || impact.ReferenceGroups == nil {
+		t.Fatal("impact is not the closed DTO")
+	}
+	return impact
+}
+
+func TestIndependentSystemModelManagementPreviewFreshFacts(t *testing.T) {
+	v := newSystemHTTPFixture(t)
+	provider := v.provider(t, mc.OpenAIEmbeddings)
+	target := v.model(t, provider, mc.EmbeddingModel)
+	replacement := v.model(t, provider, mc.EmbeddingModel)
+	memoryBody := httpModelBody(v.provider(t, mc.OpenAIChat), mc.ChatModel)
+	memoryBody["input"].(map[string]any)["capabilities"].(map[string]any)["structured_output_modes"] = []string{"text", "json_schema"}
+	memory := v.request(t, v.adminBrowser, "POST", "/api/v1/system/models", newID[struct{}](t).String(), memoryBody).want(t, http.StatusOK).object(t)["resource_id"]
+
+	preview := independentImpact(t, v, target)
+	if preview.ReferenceCount != 0 || len(preview.ReferenceGroups) != 0 || preview.ReplacementRequirement != "none" || preview.DeleteBlocker != nil {
+		t.Fatal("empty preview precondition")
+	}
+	selection := v.request(t, v.adminBrowser, "GET", "/api/v1/system/model-selection", "", nil).want(t, http.StatusOK).object(t)
+	v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-selection", newID[struct{}](t).String(),
+		map[string]any{"id": selection["id"], "expected_version": selection["version"],
+			"embedding": target, "memory": memory, "reranker": nil, "image": nil}).want(t, http.StatusOK)
+
+	current := independentImpact(t, v, target)
+	if current.Version != preview.Version || current.ReferenceCount != 1 ||
+		current.ReplacementRequirement != "required" || current.DeleteBlocker != nil ||
+		len(current.ReferenceGroups) != 1 || current.ReferenceGroups[0].OwnerKind != "platform_selector" ||
+		current.ReferenceGroups[0].Role != "embedding" || current.ReferenceGroups[0].Count != 1 {
+		t.Fatal("new required reference was not observed with unchanged model version")
+	}
+	beforeRejectedDelete := v.facts(t)
+	v.request(t, v.adminBrowser, "DELETE", "/api/v1/system/models/"+target, newID[struct{}](t).String(),
+		map[string]any{"expected_version": preview.Version, "replacement": nil}).problem(t, http.StatusConflict, f.InvalidState)
+	httpSameFacts(t, beforeRejectedDelete, v.facts(t))
+	if after := independentImpact(t, v, target); !reflect.DeepEqual(after, current) {
+		t.Fatal("rejected stale preview changed current model/reference observation")
+	}
+
+	receipt := v.request(t, v.adminBrowser, "DELETE", "/api/v1/system/models/"+target, newID[struct{}](t).String(),
+		map[string]any{"expected_version": preview.Version, "replacement": replacement}).want(t, http.StatusOK).object(t)
+	if receipt["affected_references"] != "1" {
+		t.Fatal("formal delete did not replace the current reference")
+	}
+	v.request(t, v.adminBrowser, "GET", "/api/v1/system/models/"+target, "", nil).problem(t, http.StatusNotFound, f.NotFound)
+	v.request(t, v.adminBrowser, "GET", "/api/v1/system/models/"+target+"/deletion-impact", "", nil).problem(t, http.StatusNotFound, f.NotFound)
+	finalSelection := v.request(t, v.adminBrowser, "GET", "/api/v1/system/model-selection", "", nil).want(t, http.StatusOK).object(t)
+	selectionRaw, err := json.Marshal(finalSelection)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(selectionRaw), target) || !strings.Contains(string(selectionRaw), replacement) {
+		t.Fatal("selector retained deleted target or lost replacement")
+	}
+	finalImpact := independentImpact(t, v, replacement)
+	if finalImpact.ReferenceCount != 1 || finalImpact.ReplacementRequirement != "required" ||
+		len(finalImpact.ReferenceGroups) != 1 || finalImpact.ReferenceGroups[0].Role != "embedding" {
+		t.Fatal("replacement reference facts did not converge")
+	}
+	t.Log("preview count=0; formal selector adds required edge without changing Model.version; stale no-replacement delete rejected without business changes; valid replacement converges and target is 404")
+}

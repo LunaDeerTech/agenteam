@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-c",
+    "-tags=integration",
+    "-o",
+    "/workspace/agenteam-management-reads-yjfb7qdi/build/model.test",
+    "./tests/model"
+  ],
+  "cwd": "/workspace/agenteam-management-reads-yjfb7qdi/source",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOCACHE": "/workspace/agenteam-management-reads-yjfb7qdi/gocache",
+    "TMPDIR": "/workspace/agenteam-management-reads-yjfb7qdi/tmp"
+  },
+  "started": 1791247740.4227636,
+  "input": "input05.json",
+  "exit": 0,
+  "finished": 1791247744.6772828,
+  "log": "/workspace/agenteam-management-reads-yjfb7qdi/logs/input05-compile-model.log"
+}

@@ -1,0 +1,72 @@
+{
+  "checked_utc": "2026-10-06T00:53:17.459411+00:00",
+  "input05_sha256": "0208b2dcdce8623f65f2d7c2364a3daf083994f6271aeb63c02ca6fba7915a27",
+  "all_13_live_and_fixed_match": true,
+  "paths": {
+    "internal/central/secret/write.go": {
+      "expected": "75da5bef79eb6958d0fc5cfa2b862360c8e34f53eb66ce4f22e787cfe35d7c0f",
+      "live": "75da5bef79eb6958d0fc5cfa2b862360c8e34f53eb66ce4f22e787cfe35d7c0f",
+      "fixed": "75da5bef79eb6958d0fc5cfa2b862360c8e34f53eb66ce4f22e787cfe35d7c0f"
+    },
+    "internal/central/model/http.go": {
+      "expected": "cfd317a2df00e1307ee01e9f51e3b97f1ba941e267000787ecc33c75be71d6bc",
+      "live": "cfd317a2df00e1307ee01e9f51e3b97f1ba941e267000787ecc33c75be71d6bc",
+      "fixed": "cfd317a2df00e1307ee01e9f51e3b97f1ba941e267000787ecc33c75be71d6bc"
+    },
+    "internal/central/model/management_read.go": {
+      "expected": "18d4324e23ab017d60c00d16c56acc13d4441be8c912d74e9b5c0a4f6c146820",
+      "live": "18d4324e23ab017d60c00d16c56acc13d4441be8c912d74e9b5c0a4f6c146820",
+      "fixed": "18d4324e23ab017d60c00d16c56acc13d4441be8c912d74e9b5c0a4f6c146820"
+    },
+    "internal/central/model/http_management.go": {
+      "expected": "9865c1d4172c7903eb2c7ee37d5037a93065d0819e546c63f5c33c689c56f6cc",
+      "live": "9865c1d4172c7903eb2c7ee37d5037a93065d0819e546c63f5c33c689c56f6cc",
+      "fixed": "9865c1d4172c7903eb2c7ee37d5037a93065d0819e546c63f5c33c689c56f6cc"
+    },
+    "api/openapi/model-system.json": {
+      "expected": "592c80a1cf6d3d76f93d1c9f9de9408ed58cb47b01b54d60c939012d7b9a3c43",
+      "live": "592c80a1cf6d3d76f93d1c9f9de9408ed58cb47b01b54d60c939012d7b9a3c43",
+      "fixed": "592c80a1cf6d3d76f93d1c9f9de9408ed58cb47b01b54d60c939012d7b9a3c43"
+    },
+    "internal/central/model/http_test.go": {
+      "expected": "e3271b0a5425e54b2c383650bed3918a6eff09acce29fb8e4ce4b53f58fb0a98",
+      "live": "e3271b0a5425e54b2c383650bed3918a6eff09acce29fb8e4ce4b53f58fb0a98",
+      "fixed": "e3271b0a5425e54b2c383650bed3918a6eff09acce29fb8e4ce4b53f58fb0a98"
+    },
+    "internal/central/secret/metadata_test.go": {
+      "expected": "f56637bc29c9ff9f55d9c71b176c7f15195efff31bd2d94043921d332eebd579",
+      "live": "f56637bc29c9ff9f55d9c71b176c7f15195efff31bd2d94043921d332eebd579",
+      "fixed": "f56637bc29c9ff9f55d9c71b176c7f15195efff31bd2d94043921d332eebd579"
+    },
+    "internal/central/model/management_read_test.go": {
+      "expected": "9931358a553e6d5d50e7fc684a52e847a590905c43fc3c2603c87f03ae3a8634",
+      "live": "9931358a553e6d5d50e7fc684a52e847a590905c43fc3c2603c87f03ae3a8634",
+      "fixed": "9931358a553e6d5d50e7fc684a52e847a590905c43fc3c2603c87f03ae3a8634"
+    },
+    "internal/central/model/http_management_test.go": {
+      "expected": "d43cd46e501af46bae0dba0270d07082fd83d94f1f94dd60f5de85df3a078615",
+      "live": "d43cd46e501af46bae0dba0270d07082fd83d94f1f94dd60f5de85df3a078615",
+      "fixed": "d43cd46e501af46bae0dba0270d07082fd83d94f1f94dd60f5de85df3a078615"
+    },
+    "tests/model/system_management_metadata_test.go": {
+      "expected": "540cc36303329276ba1f652e9d5fda42f376aa3ade4740b2233826675245db12",
+      "live": "540cc36303329276ba1f652e9d5fda42f376aa3ade4740b2233826675245db12",
+      "fixed": "540cc36303329276ba1f652e9d5fda42f376aa3ade4740b2233826675245db12"
+    },
+    "tests/model/system_management_impact_test.go": {
+      "expected": "6a1b8dfaa56025f88e9e7684dfec043802de17a1cf32fad9204d7fe72c7234d6",
+      "live": "6a1b8dfaa56025f88e9e7684dfec043802de17a1cf32fad9204d7fe72c7234d6",
+      "fixed": "6a1b8dfaa56025f88e9e7684dfec043802de17a1cf32fad9204d7fe72c7234d6"
+    },
+    "tests/model/system_management_boundaries_test.go": {
+      "expected": "71f77d593d433131a1d99c0b8baed46081cf2c12696b4cda21fbe2f6d660b01c",
+      "live": "71f77d593d433131a1d99c0b8baed46081cf2c12696b4cda21fbe2f6d660b01c",
+      "fixed": "71f77d593d433131a1d99c0b8baed46081cf2c12696b4cda21fbe2f6d660b01c"
+    },
+    "tests/project/secret_metadata_read_test.go": {
+      "expected": "cb0d7f1054268bab1c70355290b550b18dd15ade05e1510138ee45ec41f660b8",
+      "live": "cb0d7f1054268bab1c70355290b550b18dd15ade05e1510138ee45ec41f660b8",
+      "fixed": "cb0d7f1054268bab1c70355290b550b18dd15ade05e1510138ee45ec41f660b8"
+    }
+  }
+}
