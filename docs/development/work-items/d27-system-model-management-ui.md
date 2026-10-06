@@ -1,6 +1,6 @@
 # D27：System Model 管理、删除影响与替代删除
 
-状态：rev1，2026-10-06 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳本规格；被审稿 SHA256 `d56ba2ab3ecca56058fa614d15d716228e8294ed51fd74ab02308f4064aed9f6`。本次仅更新页首实施前置与固定基线，技术§1–7保持被审原字节及原采纳语义；§6仍为24条路径，只读接缝复核确认均需保留。Provider UI的22路径完整结果已获独立最终PASS，主线程接受提交 `f465f45b899e21c225e7d4107c099b256538239c`并推送main、远端一致；本卡Provider前置已满足，固定产品/前端基线采用该接受提交，后端 `9b3201547f9b7b61fd9716a6ba6540084961496c`及迁移1–19保持。技术正文中的Provider待验表述保留原审稿状态，当前就绪状态以本页首为准。拟由 `directory_frontend`（frontend_worker）担任原24路径唯一作者，待主线程正式下发后实施；后端、迁移、共享基础与锁文件不在授权范围，真实资源窗口由主线程稍后另授，当前不得自行启动。architecture_worker仅更新本卡页首，不改业务、其他文档或当前归档。
+状态：rev2，2026-10-06 已获 `recovery_verification`（verification_worker）独立静审通过（STATIC PASS）并由主线程采纳，被审稿 SHA256 `1aac031f0619ca440c629229f05f49122eee3828a043ebf62d7fb1b05d287e91`。rev1已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳原规格；被审稿 SHA256 `d56ba2ab3ecca56058fa614d15d716228e8294ed51fd74ab02308f4064aed9f6`。本修订仅增第25、26条旧浏览器导航数量适配路径、§6计数及§7对应验收说明，原24路径编号/用途与其他技术规则不变。Provider UI的22路径完整结果已获独立最终PASS，主线程接受提交 `f465f45b899e21c225e7d4107c099b256538239c`并推送main、远端一致；本卡Provider前置已满足，固定产品/前端基线采用该接受提交，后端 `9b3201547f9b7b61fd9716a6ba6540084961496c`及迁移1–19保持。原正文记录的前置等待按本页首当前接受与授权状态执行。`directory_frontend`（frontend_worker）已获原24路径唯一实施授权，当前六源阶段继续，不因本修订等待而阻断；新增第25、26路径范围已由主线程采纳，待本次卡提交后由主线程正式授予原作者；原24路径继续实施。本修订不新增真实资源授权，既有实施与窗口安排保持；后端、迁移、共享基础与锁文件不在授权范围。architecture_worker仅修改本卡规格，不写产品、其他文档或当前归档。
 
 ## 1. 完整结果、依赖与未交付边界
 
@@ -119,7 +119,7 @@ App创建/provide `createSystemModels`，保存页面草稿、选择、未确认
 
 可见超时、取消或放弃不释放实际owner；fetch/body/read/cancel全部实际join、finally结束后才释放。各域abandon双向隔离，包括个人、Provider两步、邀请、users及Model；Model分类不能落入personal或Provider的revision默认分支。正常业务清理不干扰restore/登录/注销/改密，App.dispose/auth.leave全局清理语义保留。当前Model写与POST lookup的CSRF_FAILED按完整identity+owner generation失效；当前401仍处理迟到Cookie后果，当前403 FORBIDDEN清所有系统域私有状态并设置身份绑定拒绝，不改role、不自动注销，成功Session重验后才恢复。旧identity/代次错误不污染新身份；旧请求尾部未结束时新身份请求仍不能越过，无晚到发布或自动后续写。
 
-## 6. 二十四条候选路径与所有权
+## 6. 二十六条候选路径与所有权
 
 本卡只授规格写入。以下路径须Provider最终独立接受、固定实际产品与资源移交且本规格静审采纳后，由主线程唯一指派frontend_worker；与Provider活动共享文件不得并行实施。若上游最终已导出所需纯解析器，可由主线程在移交时删去第2候选，不为达到数量而改它；缺口或其他路径扩张必须先报告。
 
@@ -149,6 +149,8 @@ App创建/provide `createSystemModels`，保存页面草稿、选择、未确认
 | 22 | `tests/account-captcha-web/system-models.config.js`（新） | 固定Playwright、精确场景/预算、私有输出。 |
 | 23 | `tests/account-captcha-web/e2e/system-models.spec.ts`（新） | 生产dist+真实backend的管理/删除/恢复/权限/布局。 |
 | 24 | `docs/development/frontend/README.md` | 接受后同步窄Models能力、第八return、实际命令与全部未交付边界。 |
+| 25 | `tests/account-captcha-web/e2e/system-invitations.spec.ts` | 仅NavigationAndLayouts的390px Drawer全部link数量断言3→4（固定 `f465f45:1528`），适配Models第四叶子；其余动作/断言/预算保持。 |
+| 26 | `tests/account-captcha-web/e2e/system-providers.spec.ts` | 仅NavigationAndLayouts起始系统设置navigation全部link数量断言3→4（固定 `f465f45:1192`），适配Models第四叶子；其余动作/断言/预算保持。 |
 
 必读[Vue开发技能](../../../.agents/skills/agenteam-vue-development/SKILL.md)、[Vue测试技能](../../../.agents/skills/vue-testing-best-practices/SKILL.md)；独立验收读[验证技能](../../../.agents/skills/agenteam-verification/SKILL.md)，浏览器使用环境可用Playwright技能，缺失如实记录。SettingsShell/Ui/useLayer、全局CSS、旧个人/公开/邀请/Providercontroller与页面、后端/OpenAPI、迁移、旧fixture/driver、锁及当前归档均只读。零DDL，无新依赖；停止任务不解冻。
 
@@ -178,5 +180,7 @@ App创建/provide `createSystemModels`，保存页面草稿、选择、未确认
 真实执行可按精确名称分组：`scripts/test-security.sh -run '^TestAccountSystemModelsWeb(Lifecycle|DeletionAndReplacement|OutcomeRecovery|ReadAndPagination|AuthorityAndIdentity|NavigationAndLayouts)$'`。保持Playwright每test45秒、Go顶层2分钟、workers=1/retries=0、race/count1/每包6分钟；分组依据实际耗时，不加时/削断言/把no-tests算通过。仅任务自有PG17.x（最低17.8）、MinIO、Central与冻结生产dist同源服务器，禁止外部Provider请求或既有基础设施；不引SMTP/新的外部依赖。
 
 共享App/router/owner的必要旧真实回归：`TestAccountAuthenticationWebSessionLifecycle`、`TestAccountPersonalSettingsWebThemeAndNavigation`、`TestAccountPublicEntryWebIdentityNavigation`、`TestAccountSystemUserDirectoryWebAuthorityAndIdentity`、`TestAccountSystemUserDirectoryWebNavigationAndLayouts`、`TestAccountSystemInvitationsWebOutcomeRecovery`、`TestAccountSystemInvitationsWebNavigationAndLayouts`，以及Provider最终接受的 `TestAccountSystemProvidersWebCredentialReplacement`、`TestAccountSystemProvidersWebOutcomeRecovery`、`TestAccountSystemProvidersWebNavigationAndLayouts`。按最终固定差量复用未变证据；原敏感材料/请求body不进入日志、截图、trace或归档，Provider回归继续沿其保护纪律。
+
+旧导航适配只含§6第25、26路径的两个精确 `toHaveCount(3)`→`toHaveCount(4)`，保留邀请Drawer原6次Tab困陷、Escape/遮罩关闭与触发焦点、待注册邀请链接点击，以及Provider原用户/邀请/Providers导航、dirty/未确认/cohost与布局强断言；其余动作、断言与预算原样保留，不改旧fixture/driver。第24路径README编号/用途保持，仍在接受后最后写；新增候选未获正式授权前不修改这两份旧browser源码。
 
 Provider作者/独立验收实际停止、资源清零并接受后，由主线程另授本卡独占窗口。作者冻结输入/dist/锁/环境、保留原失败、实际argv/env/退出与安全日志，再向未参与实现的verification_worker移交独立权限/恢复/引用竞态及真实浏览器验收。命令实际wait、server/browser/所属进程join、自有exact-ID两次absent且旧基线不变后交回；不并发共用fixture、不占当前归档。主线程核证据后才接受/同步文档/提交窄完整结果，未交付边界始终保留。
