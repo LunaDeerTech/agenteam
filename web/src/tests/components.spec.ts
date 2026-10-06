@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { defineComponent, nextTick, ref } from 'vue'
 import {
@@ -16,14 +16,16 @@ import { useActionFeedback } from '../composables/useActionFeedback'
 import { initializeTheme, useTheme } from '../composables/useTheme'
 
 beforeAll(() => {
-  // jsdom has no layout; expose focusable elements to the layer's visibility check.
-  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
-    () => [{ width: 10, height: 10 }] as unknown as DOMRectList,
-  )
   vi.stubGlobal('CSS', { escape: (value: string) => value })
   window.matchMedia = vi
     .fn()
     .mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })
+})
+beforeEach(() => {
+  // jsdom has no layout; expose focusable elements to the layer's visibility check.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+    () => [{ width: 10, height: 10 }] as unknown as DOMRectList,
+  )
 })
 afterEach(() => {
   document.body.innerHTML = ''

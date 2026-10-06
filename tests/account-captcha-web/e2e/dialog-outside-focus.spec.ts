@@ -8,6 +8,7 @@ import { pathToFileURL } from 'node:url'
 const closure = [
   'src/components/ui/UiDialog.vue',
   'src/components/ui/UiDrawer.vue',
+  'src/components/ui/UiPopover.vue',
   'src/components/ui/UiButton.vue',
   'src/components/ui/UiIcon.vue',
   'src/components/ui/UiSpinner.vue',
@@ -19,22 +20,42 @@ const closure = [
 ]
 
 const shell = `<script setup lang="ts">
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 import UiDialog from './src/components/ui/UiDialog.vue'
 import UiDrawer from './src/components/ui/UiDrawer.vue'
+import UiPopover from './src/components/ui/UiPopover.vue'
 const query = new URLSearchParams(location.search)
 const Surface = query.get('kind') === 'drawer' ? UiDrawer : UiDialog
+const mode = query.get('mode') || 'ordinary'
+const nativeTarget = query.get('target')
 const outside = query.get('outside') !== 'false'
 const escape = query.get('escape') !== 'false'
 const open = ref(false), nested = ref(false), clicks = ref(0)
 const events = ref<string[]>([])
+const mounted = ref(true), lower = ref(mode === 'initial'), confirmation = ref(mode === 'initial')
+const popover = ref(false), disabled = ref(false), generation = ref(0), detached = ref(false)
+const nativeTrigger = ref<HTMLElement|null>(null), invalidTarget = ref(false), captured = ref(false)
+function confirmNative() {
+  captured.value = document.activeElement === nativeTrigger.value
+  confirmation.value = true
+}
+async function remount() {
+  const oldTrigger = document.querySelector('[data-testid="confirmation-launch"]')
+  mounted.value = false
+  await nextTick()
+  detached.value = oldTrigger?.isConnected === false
+  lower.value = true
+  confirmation.value = true
+  mounted.value = true
+  generation.value++
+}
 </script>
 <template>
   <main style="padding:24px">
-    <button data-testid="launch" @click="open = true">Open surface</button>
+    <button data-testid="launch" @click="mode === 'ordinary' ? open = true : lower = true">Open surface</button>
     <label>Later input <input data-testid="later-input" /></label>
     <output data-testid="events">{{ JSON.stringify(events) }}</output>
-    <Surface v-model:open="open" title="Focus surface" :close-on-outside="outside" :close-on-escape="escape"
+    <Surface v-if="mode === 'ordinary'" v-model:open="open" title="Focus surface" :close-on-outside="outside" :close-on-escape="escape"
       @update:open="value => events.push('update:' + value)" @close="reason => events.push('close:' + reason)">
       <label>Inside input <input data-testid="inside-input" data-autofocus /></label>
       <button data-testid="inside-button" @click="clicks++">Clicked {{ clicks }}</button>
@@ -47,7 +68,39 @@ const events = ref<string[]>([])
       </UiDialog>
       <template #footer="{ close }"><button data-testid="footer-close" @click="close">Done</button></template>
     </Surface>
+    <UiPopover v-if="mode === 'popover-page'" v-model:open="popover" label="Page popover" data-testid="page-anchor">
+      <template #default="{ close }"><button data-testid="page-popover-close" @click="close">Close page popover</button></template>
+    </UiPopover>
   </main>
+  <template v-if="mode !== 'ordinary' && mode !== 'popover-page' && mounted">
+    <Surface v-model:open="lower" title="Remaining modal">
+      <input data-testid="lower-input" data-autofocus />
+      <div v-if="mode === 'native-target'" :contenteditable="nativeTarget === 'editable-child' && invalidTarget ? 'true' : undefined">
+        <span ref="nativeTrigger" data-testid="native-trigger"
+          :tabindex="nativeTarget === 'editable-child' && !invalidTarget ? 0 : undefined"
+          :contenteditable="nativeTarget === 'editable-host' ? 'true' : undefined"
+          style="display:inline-block;padding:8px;border:1px solid currentColor" @click="confirmNative">Open confirmation</span>
+      </div>
+      <button v-else data-testid="confirmation-launch" @click="confirmation = true">Open confirmation</button>
+      <UiPopover v-model:open="popover" label="Modal popover" data-testid="modal-anchor" :disabled="disabled">
+        <template #default="{ close }">
+          <button data-testid="disable-anchor" @click="disabled = true">Disable old anchor</button>
+          <button data-testid="modal-popover-close" @click="close">Close modal popover</button>
+        </template>
+      </UiPopover>
+      <input data-testid="lower-later" />
+    </Surface>
+    <UiDialog v-model:open="confirmation" title="Confirmation">
+      <input data-testid="confirmation-input" data-autofocus />
+      <template v-if="mode === 'native-target'">
+        <button data-testid="invalidate-native" @click="invalidTarget = true">Change trigger state</button>
+        <output data-testid="native-capture">{{ captured }}</output>
+      </template>
+      <button data-testid="remount" @click="remount">Unmount and restore both</button>
+      <output data-testid="generation">{{ generation }}:{{ detached }}</output>
+      <template #footer="{ close }"><button data-testid="confirmation-close" @click="close">Close confirmation</button></template>
+    </UiDialog>
+  </template>
 </template>`
 
 type Harness = { origin: string; nonce: string }
@@ -57,6 +110,10 @@ const test = base.extend<{ ownOrigin: void }, { harness: Harness }>({
       const webRoot = process.env.AGENTEAM_DIALOG_WEB_ROOT!
       const runDir = process.env.AGENTEAM_DIALOG_RUN_DIR!
       const webRequire = createRequire(join(webRoot, 'package.json'))
+      const floatingPackage = webRequire.resolve('@floating-ui/vue/package.json')
+      const floating = JSON.parse(await readFile(floatingPackage, 'utf8')) as {
+        module: string
+      }
       const { createServer } = await import(pathToFileURL(webRequire.resolve('vite')).href)
       const { default: vue } = await import(
         pathToFileURL(webRequire.resolve('@vitejs/plugin-vue')).href
@@ -92,7 +149,10 @@ document.body.style.overflow = 'auto'; createApp(Harness).mount('#app');`,
         logLevel: 'error',
         plugins: [vue()],
         resolve: {
-          alias: { vue: webRequire.resolve('vue/dist/vue.esm-bundler.js') },
+          alias: {
+            vue: webRequire.resolve('vue/dist/vue.esm-bundler.js'),
+            '@floating-ui/vue': join(dirname(floatingPackage), floating.module),
+          },
           dedupe: ['vue'],
         },
         server: {
@@ -121,7 +181,13 @@ document.body.style.overflow = 'auto'; createApp(Harness).mount('#app');`,
         await writeFile(
           lifecycle,
           JSON.stringify(
-            { pid: process.pid, origin, nonce, inputs, closed: !server.httpServer?.listening },
+            {
+              pid: process.pid,
+              origin,
+              nonce,
+              inputs,
+              closed: !server.httpServer?.listening,
+            },
             null,
             2,
           ),
@@ -323,3 +389,143 @@ test('two modal layers close only the top and restore the lower trigger', async 
     '["nested:outside","update:false","close:escape"]',
   )
 })
+
+async function insideRemainingModal(page: Page) {
+  const panel = page.getByRole('dialog', {
+    name: 'Remaining modal',
+    exact: true,
+  })
+  await expect(panel).toBeVisible()
+  await expect(panel).toHaveJSProperty('inert', false)
+  await expect
+    .poll(() => panel.evaluate((node) => node.contains(document.activeElement)))
+    .toBe(true)
+  await expect(page.locator('#app')).toHaveJSProperty('inert', true)
+  await expect(page.locator('body')).toHaveCSS('overflow', 'hidden')
+}
+
+for (const kind of ['dialog', 'drawer']) {
+  for (const width of [390, 1440]) {
+    for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+      for (const mode of ['initial', 'remount']) {
+        test(`${kind} ${width} ${reducedMotion}: ${mode} modal restoration`, async ({
+          page,
+          harness,
+        }) => {
+          await page.setViewportSize({ width, height: 900 })
+          await page.emulateMedia({ reducedMotion })
+          for (const action of ['escape', 'action', 'outside']) {
+            await visit(page, harness, kind, `&mode=${mode}`)
+            if (mode === 'remount') {
+              await page.getByTestId('launch').click()
+              await page.getByTestId('confirmation-launch').click()
+              await expect(page.getByTestId('confirmation-input')).toBeFocused()
+              await page.getByTestId('remount').click()
+              await expect(page.getByTestId('generation')).toHaveText('1:true')
+            }
+            await expect(page.getByTestId('confirmation-input')).toBeFocused()
+            await expect(page.locator('.ui-dialog')).toHaveCount(2)
+            // The controlled host registers/renders the confirmation last. A
+            // wrong visual order must not be mistaken for a restoration defect.
+            await expect(page.locator('.ui-dialog').last()).toContainText('Confirmation')
+            await expect(page.locator('.ui-dialog').last()).toHaveJSProperty('inert', false)
+            if (action === 'escape') await page.keyboard.press('Escape')
+            else if (action === 'action') await page.getByTestId('confirmation-close').click()
+            else await clickOverlay(page)
+            await expect(page.locator('.ui-dialog')).toHaveCount(1)
+            await insideRemainingModal(page)
+            for (const key of ['Tab', 'Shift+Tab']) {
+              await page.keyboard.press(key)
+              await insideRemainingModal(page)
+            }
+            await page.getByTestId('lower-later').click()
+            await page.waitForTimeout(250)
+            await expect(page.getByTestId('lower-later')).toBeFocused()
+            await page.keyboard.press('Escape')
+            await expect(page.locator('.ui-dialog')).toHaveCount(0)
+            await expect(page.locator('#app')).toHaveJSProperty('inert', false)
+            await expect(page.locator('body')).toHaveCSS('overflow', 'auto')
+          }
+        })
+      }
+    }
+  }
+}
+
+test('popover without a modal retains its original anchor on Escape and action', async ({
+  page,
+  harness,
+}) => {
+  await visit(page, harness, 'dialog', '&mode=popover-page')
+  for (const action of ['escape', 'action']) {
+    await page.getByTestId('page-anchor').click()
+    await expect(page.getByTestId('page-popover-close')).toBeFocused()
+    if (action === 'escape') await page.keyboard.press('Escape')
+    else await page.getByTestId('page-popover-close').click()
+    await expect(page.locator('.ui-popover')).toHaveCount(0)
+    await expect(page.getByTestId('page-anchor')).toBeFocused()
+    await expect(page.locator('#app')).toHaveJSProperty('inert', false)
+  }
+})
+
+test('top nonmodal popover restores its valid modal anchor and keeps Tab inside', async ({
+  page,
+  harness,
+}) => {
+  await visit(page, harness, 'dialog', '&mode=popover-modal')
+  await page.getByTestId('launch').click()
+  for (const action of ['escape', 'action', 'tab']) {
+    await page.getByTestId('modal-anchor').click()
+    await expect(page.getByTestId('disable-anchor')).toBeFocused()
+    if (action === 'escape') await page.keyboard.press('Escape')
+    else if (action === 'action') await page.getByTestId('modal-popover-close').click()
+    else await page.keyboard.press('Tab')
+    await expect(page.locator('.ui-popover')).toHaveCount(0)
+    if (action !== 'tab') await expect(page.getByTestId('modal-anchor')).toBeFocused()
+    await insideRemainingModal(page)
+  }
+  await page.keyboard.press('Escape')
+  await restored(page)
+})
+
+test('top nonmodal popover with a disabled anchor falls back within its remaining modal', async ({
+  page,
+  harness,
+}) => {
+  await visit(page, harness, 'drawer', '&mode=popover-modal')
+  await page.getByTestId('launch').click()
+  await page.getByTestId('modal-anchor').click()
+  await page.getByTestId('disable-anchor').click()
+  await expect(page.getByTestId('modal-anchor')).toBeDisabled()
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.ui-popover')).toHaveCount(0)
+  await insideRemainingModal(page)
+  await expect(page.getByTestId('modal-anchor')).not.toBeFocused()
+  await page.keyboard.press('Escape')
+  await restored(page)
+})
+
+for (const kind of ['dialog', 'drawer']) {
+  for (const target of ['editable-child', 'editable-host']) {
+    test(`${kind}: native ${target} focus restoration`, async ({ page, harness }) => {
+      await visit(page, harness, kind, `&mode=native-target&target=${target}`)
+      await page.getByTestId('launch').click()
+      await expect(page.getByTestId('lower-input')).toBeFocused()
+      await page.getByTestId('native-trigger').click()
+      await expect(page.getByTestId('native-capture')).toHaveText('true')
+      await expect(page.getByTestId('confirmation-input')).toBeFocused()
+      await page.getByTestId('invalidate-native').click()
+      const trigger = page.getByTestId('native-trigger')
+      await expect(trigger).toHaveJSProperty('isContentEditable', true)
+      await expect(trigger).toHaveJSProperty('tabIndex', -1)
+      expect(await trigger.getAttribute('tabindex')).toBeNull()
+      await page.keyboard.press('Escape')
+      await expect(page.locator('.ui-dialog')).toHaveCount(1)
+      await insideRemainingModal(page)
+      if (target === 'editable-host') await expect(trigger).toBeFocused()
+      else await expect(page.locator('.dialog-header button')).toBeFocused()
+      await page.keyboard.press('Escape')
+      await restored(page)
+    })
+  }
+}

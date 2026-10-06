@@ -14,6 +14,63 @@ export function focusable(root: HTMLElement) {
     (el) => !el.closest('[inert]') && el.getClientRects().length,
   )
 }
+function restorationVisible(element: HTMLElement) {
+  if (
+    !element.isConnected ||
+    !Array.from(element.getClientRects()).some((rect) => rect.width > 0 && rect.height > 0)
+  )
+    return false
+  for (let node: HTMLElement | null = element; node; node = node.parentElement) {
+    if (
+      node.inert ||
+      node.hasAttribute('inert') ||
+      node.hidden ||
+      node.getAttribute('aria-hidden')?.toLowerCase() === 'true'
+    )
+      return false
+    const style = getComputedStyle(node)
+    if (
+      style.display === 'none' ||
+      style.visibility === 'hidden' ||
+      style.visibility === 'collapse'
+    )
+      return false
+  }
+  return true
+}
+function restorationTarget(element: HTMLElement) {
+  const tabindex = element.getAttribute('tabindex')
+  return (
+    restorationVisible(element) &&
+    !element.matches(':disabled') &&
+    (element.tabIndex >= 0 ||
+      (tabindex !== null && /^[+-]?\d+$/.test(tabindex.trim())) ||
+      element.isContentEditable)
+  )
+}
+function restoreFocus(element: HTMLElement) {
+  if (!restorationTarget(element)) return false
+  element.focus({ preventScroll: true })
+  return element.ownerDocument.activeElement === element
+}
+function restoreWithinModal(trigger: HTMLElement | null, allowed: Layer[]) {
+  if (
+    trigger &&
+    allowed.some((layer) => {
+      const panel = layer.panel.value
+      return panel && restorationVisible(panel) && panel.contains(trigger)
+    }) &&
+    restoreFocus(trigger)
+  )
+    return
+  for (const layer of [...allowed].reverse()) {
+    const panel = layer.panel.value
+    if (!panel || !restorationVisible(panel)) continue
+    for (const target of [...focusable(panel), panel]) {
+      if (target !== trigger && restoreFocus(target)) return
+    }
+  }
+}
 let previousInert = false
 let previousOverflow = ''
 function syncBackground() {
@@ -88,8 +145,12 @@ export function useLayer(
     layers.splice(index, 1)
     record = undefined
     syncBackground()
-    if (restore && wasTop && active.trigger?.isConnected)
-      active.trigger.focus({ preventScroll: true })
+    if (restore && wasTop) {
+      const lastModal = layers.map((layer) => layer.modal).lastIndexOf(true)
+      if (lastModal === -1) {
+        if (active.trigger?.isConnected) active.trigger.focus({ preventScroll: true })
+      } else restoreWithinModal(active.trigger, layers.slice(lastModal))
+    }
     if (!layers.length) {
       document.removeEventListener('keydown', keydown, true)
       document.removeEventListener('pointerdown', pointerdown, true)
