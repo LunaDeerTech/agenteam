@@ -84,6 +84,7 @@ func (h *accountHTTP) httpRoutes() []accountHTTPRoute {
 		{"PUT", "/me/avatar", "session", true, h.httpPutAvatar},
 		{"DELETE", "/me/avatar", "session", true, h.httpDeleteAvatar},
 		{"GET", "/system/users", "admin", false, h.httpListUsers},
+		{"HEAD", "/system/users", "admin", false, h.httpListUsers},
 		{"GET", "/system/invitations", "admin", false, h.httpListInvitations},
 		{"POST", "/system/invitations", "admin", true, h.httpCreateInvitation},
 		{"POST", "/system/invitations/{id}/resend", "admin", true, h.httpResendInvitation},
@@ -166,6 +167,7 @@ func (h *accountHTTP) httpDispatch(w http.ResponseWriter, r *http.Request, route
 		}
 	}
 	list := route.method == http.MethodGet && (route.path == "/system/users" || route.path == "/system/invitations" || route.path == "/system/mail-jobs")
+	list = list || route.method == http.MethodHead && route.path == "/system/users"
 	if !list && (r.URL.RawQuery != "" || r.URL.ForceQuery) {
 		httpProblem(w, r, invalid())
 		return

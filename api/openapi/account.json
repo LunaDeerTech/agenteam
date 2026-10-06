@@ -1854,7 +1854,7 @@
             "LocalSession": []
           }
         ],
-        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "description": "Requires a current administrator on every request and again in the domain transaction. Each item includes its persisted registration time as created_at. HEAD executes the same authentication, query, validation, encoding and error handling as GET; it returns no body and preserves the safety headers and Content-Length of the encoded representation.",
         "responses": {
           "200": {
             "description": "Success",
@@ -1906,6 +1906,92 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ]
+      },
+      "head": {
+        "operationId": "headUsers",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction. Executes the same user directory query, pagination, registration-time validation and encoding as GET, with the same success/error statuses and headers but no response body.",
+        "responses": {
+          "200": {
+            "description": "Success No response body. Content-Type and Content-Length describe the corresponding encoded GET representation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Content-Type": {
+                "schema": {
+                  "const": "application/json"
+                }
+              },
+              "Content-Length": {
+                "description": "Byte length of the encoded representation that GET would return; HEAD sends no body.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key. No response body. Content-Type and Content-Length describe the corresponding encoded GET representation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Content-Type": {
+                "schema": {
+                  "const": "application/problem+json"
+                }
+              },
+              "Content-Length": {
+                "description": "Byte length of the encoded representation that GET would return; HEAD sends no body.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
                 }
               }
             }
@@ -3174,6 +3260,67 @@
         ],
         "additionalProperties": false
       },
+      "SystemUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "format": "email",
+            "description": "Bare ASCII addr-spec; no surrounding whitespace, display name, comments, or controls. Canonicalized to lowercase."
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "At most 80 code points / 320 UTF-8 bytes; no controls. Empty means use email; whitespace is retained."
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "user"
+            ]
+          },
+          "theme": {
+            "type": "string",
+            "enum": [
+              "system",
+              "light",
+              "dark"
+            ]
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "initial_password_suggestion": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant",
+            "description": "Registration time from the user record, canonical UTC at microsecond precision."
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "username",
+          "display_name",
+          "role",
+          "theme",
+          "version",
+          "initial_password_suggestion",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
       "Session": {
         "type": "object",
         "properties": {
@@ -4280,7 +4427,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/User"
+              "$ref": "#/components/schemas/SystemUser"
             },
             "maxItems": 100
           },

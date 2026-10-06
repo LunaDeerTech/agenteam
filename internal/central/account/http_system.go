@@ -39,6 +39,12 @@ func httpListQuery(r *http.Request) (HTTPListRequest, error) {
 	}
 	return out, nil
 }
+
+type httpSystemUser struct {
+	httpUser
+	CreatedAt foundation.Instant `json:"created_at"`
+}
+
 func (h *accountHTTP) httpListUsers(w http.ResponseWriter, r *http.Request, input httpRequest) {
 	query, e := httpListQuery(r)
 	if e != nil {
@@ -50,13 +56,13 @@ func (h *accountHTTP) httpListUsers(w http.ResponseWriter, r *http.Request, inpu
 		h.httpProblem(w, r, e, true)
 		return
 	}
-	items := make([]httpUser, 0, len(out.Items))
-	for _, u := range out.Items {
-		items = append(items, httpUserDTO(u))
+	items := make([]httpSystemUser, 0, len(out.Items))
+	for _, item := range out.Items {
+		items = append(items, httpSystemUser{httpUserDTO(item.User), item.CreatedAt})
 	}
 	httpJSON(w, r, http.StatusOK, struct {
-		Items []httpUser `json:"items"`
-		Next  string     `json:"next_cursor,omitempty"`
+		Items []httpSystemUser `json:"items"`
+		Next  string           `json:"next_cursor,omitempty"`
 	}{items, out.NextCursor})
 }
 

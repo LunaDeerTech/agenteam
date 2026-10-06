@@ -42,8 +42,12 @@ type HTTPListRequest struct {
 	Cursor string
 	Limit  int
 }
+type HTTPUserListItem struct {
+	User      c.User
+	CreatedAt foundation.Instant
+}
 type HTTPUserList struct {
-	Items      []c.User
+	Items      []HTTPUserListItem
 	NextCursor string
 }
 type HTTPInvitation struct {
@@ -347,7 +351,7 @@ func httpPositionArgs(created time.Time, id string) (any, any) {
 }
 
 func (f *SystemHTTPFacade) ListUsers(ctx context.Context, actor identity.Actor, q HTTPListRequest) (HTTPUserList, error) {
-	out := HTTPUserList{Items: []c.User{}}
+	var out HTTPUserList
 	e := f.httpRead(ctx, actor, "users", []foundation.LockRequest{configLock("account-directory", foundation.Shared)}, func(ctx context.Context, x postgres.SQLExecutor) error {
 		limit, created, id, e := f.httpListPosition("users", q)
 		if e != nil {
@@ -358,40 +362,63 @@ func (f *SystemHTTPFacade) ListUsers(ctx context.Context, actor identity.Actor, 
 		if e != nil {
 			return unavailable(e)
 		}
-		defer rows.Close()
-		var last time.Time
-		var lastID string
-		for rows.Next() {
-			var u c.User
-			var raw string
-			var version int64
-			var at time.Time
-			if e = rows.Scan(&raw, &u.Email, &u.Username, &u.DisplayName, &u.Role, &u.Theme, &version, &u.InitialPasswordSuggestion, &at); e != nil {
-				return unavailable(e)
-			}
-			u.ID, e = parseID[identity.User](raw)
-			u.Version = foundation.Version(version)
-			if e != nil || u.Version.Validate() != nil || !u.Role.Valid() || !u.Theme.Valid() {
-				return unavailable(e)
-			}
-			if len(out.Items) == limit {
-				out.NextCursor, e = f.httpNextCursor("users", last, lastID)
-				if e != nil {
-					return e
-				}
-				break
-			}
-			out.Items = append(out.Items, u)
-			last = at
-			lastID = raw
-		}
-		return portError(rows.Err())
+		out, e = f.httpScanUserList(rows, limit)
+		return e
 	})
 	if e != nil {
 		return HTTPUserList{}, e
 	}
 	return out, nil
 }
+
+type httpUserListRows interface {
+	Next() bool
+	Scan(...any) error
+	Err() error
+	Close()
+}
+
+func (f *SystemHTTPFacade) httpScanUserList(rows httpUserListRows, limit int) (HTTPUserList, error) {
+	defer rows.Close()
+	out := HTTPUserList{Items: []HTTPUserListItem{}}
+	var last time.Time
+	var lastID string
+	for rows.Next() {
+		var item HTTPUserListItem
+		u := &item.User
+		var raw string
+		var version int64
+		var at time.Time
+		if e := rows.Scan(&raw, &u.Email, &u.Username, &u.DisplayName, &u.Role, &u.Theme, &version, &u.InitialPasswordSuggestion, &at); e != nil {
+			return HTTPUserList{}, unavailable(e)
+		}
+		var e error
+		u.ID, e = parseID[identity.User](raw)
+		u.Version = foundation.Version(version)
+		if e != nil || u.Version.Validate() != nil || !u.Role.Valid() || !u.Theme.Valid() {
+			return HTTPUserList{}, unavailable(e)
+		}
+		item.CreatedAt, e = foundation.NewInstant(at)
+		if e != nil {
+			return HTTPUserList{}, unavailable(e)
+		}
+		if len(out.Items) == limit {
+			out.NextCursor, e = f.httpNextCursor("users", last, lastID)
+			if e != nil {
+				return HTTPUserList{}, e
+			}
+			break
+		}
+		out.Items = append(out.Items, item)
+		last = at
+		lastID = raw
+	}
+	if e := portError(rows.Err()); e != nil {
+		return HTTPUserList{}, e
+	}
+	return out, nil
+}
+
 func (f *SystemHTTPFacade) ListInvitations(ctx context.Context, actor identity.Actor, q HTTPListRequest) (HTTPInvitationList, error) {
 	out := HTTPInvitationList{Items: []HTTPInvitation{}}
 	e := f.httpRead(ctx, actor, "invitations", []foundation.LockRequest{configLock("account-directory", foundation.Shared)}, func(ctx context.Context, x postgres.SQLExecutor) error {
