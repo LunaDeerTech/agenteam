@@ -130,6 +130,9 @@ function email(value: unknown) {
   } else requireValue(atom.test(domain.toLowerCase()))
   return result
 }
+export function captureSMTPEmail(value: unknown): string {
+  return input(() => email(value))
+}
 function retry(value: Record<string, unknown>) {
   return {
     auto_retry_count: decimal(value.auto_retry_count, 0n, 5n),

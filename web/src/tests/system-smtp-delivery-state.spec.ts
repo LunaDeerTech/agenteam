@@ -1,0 +1,811 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { type CommitState, type Fetch } from '../api/client'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI } from '../api/system-providers'
+import { createSystemModelAPI } from '../api/system-models'
+import { createSystemModelSelectionAPI } from '../api/system-model-selection'
+import { createSystemAccountSecurityAPI } from '../api/system-account-security'
+import { createSystemSMTPSettingsAPI } from '../api/system-smtp-settings'
+import { createSystemSMTPDeliveryAPI } from '../api/system-smtp-delivery'
+import { createSessionController, type SessionController } from '../composables/useSession'
+import { useTheme } from '../composables/useTheme'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z'
+const recipient = 'Sender@[IPv6:2001:DB8::7]'
+const view = (sessionID = id(2), role: 'admin' | 'user' = 'admin'): SessionView => ({
+  user: {
+    id: id(1),
+    email: 'admin@example.test',
+    username: 'admin',
+    display_name: 'Admin',
+    role,
+    theme: 'system',
+    version: '1',
+    initial_password_suggestion: false,
+  },
+  session: { id: sessionID, issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const settings = () => ({
+  id: id(10),
+  version: '1',
+  configured: true,
+  host: 'mail.example',
+  port: 25,
+  encryption: 'none',
+  username: '',
+  sender_email: 'sender@example.test',
+  sender_name: '',
+  credential_present: false,
+  auto_retry_count: '0',
+  retry_interval_seconds: '10',
+})
+const job = (jobID = id(20), version = '1') => ({
+  job_id: jobID,
+  kind: 'test',
+  phase: 'sent',
+  attempts: '1',
+  version,
+  channel: 'smtp',
+  created_at: time,
+  attempt_channel: 'smtp',
+  attempt_result: 'sent',
+  reason: 'sent',
+})
+const json = (value: unknown, status = 200) =>
+  new Response(JSON.stringify(value), {
+    status,
+    headers: {
+      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+      'X-Request-ID': id(9),
+    },
+  })
+const problem = (code: string, status = 503, commit_state: CommitState = 'not_started') =>
+  json(
+    {
+      type: 'urn:agenteam:problem:test',
+      title: 'Failure',
+      status,
+      code,
+      detail: '',
+      instance: '/api/v1/system/smtp/test',
+      request_id: id(9),
+      commit_state,
+    },
+    status,
+  )
+function barrier<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((r) => {
+    resolve = r
+  })
+  return { promise, resolve }
+}
+const owners: SessionController[] = []
+async function fixture() {
+  let current = view(),
+    session: Fetch = async () => json(current),
+    smtp: Fetch = async () => json(settings()),
+    delivery: Fetch = async (path, init) =>
+      init.method === 'POST'
+        ? json(path.endsWith('/test') ? { job_id: id(21) } : { job_id: id(21), version: '7' }, 202)
+        : json(path.includes('?') ? { items: [job()] } : job()),
+    other: Fetch = async (path) => {
+      if (path === '/api/v1/me') return json({ user: current.user, avatar: null })
+      if (path.startsWith('/api/v1/system/model-providers'))
+        return json({ items: [], next_cursor: null })
+      return json({ items: [] })
+    }
+  const fetch = vi.fn<Fetch>(async (path, init) => {
+    if (path === '/api/v1/session') return session(path, init)
+    if (path === '/api/v1/auth/bootstrap')
+      return json({
+        csrf_token: 'A'.repeat(43),
+        challenge_modes: ['rotate'],
+        delivery_channel: 'backend_log',
+      })
+    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
+    if (path === '/api/v1/system/smtp/test' || path.startsWith('/api/v1/system/mail-jobs/'))
+      return delivery(path, init)
+    if (path.startsWith('/api/v1/system/smtp')) return smtp(path, init)
+    return other(path, init)
+  })
+  const auth = createSessionController(
+    createAccountAPI(fetch),
+    createSystemAccountAPI(fetch),
+    createSystemInvitationAPI(fetch),
+    createSystemProviderAPI(fetch),
+    createSystemModelAPI(fetch),
+    createSystemModelSelectionAPI(fetch),
+    createSystemAccountSecurityAPI(fetch),
+    createSystemSMTPSettingsAPI(fetch),
+    createSystemSMTPDeliveryAPI(fetch),
+  )
+  owners.push(auth)
+  await auth.restore()
+  return {
+    auth,
+    fetch,
+    setDelivery(value: Fetch) {
+      delivery = value
+    },
+    setSMTP(value: Fetch) {
+      smtp = value
+    },
+    setOther(value: Fetch) {
+      other = value
+    },
+    setSession(value: SessionView) {
+      current = value
+    },
+    setSessionRequest(value: Fetch) {
+      session = value
+    },
+    writes() {
+      return fetch.mock.calls.filter(
+        ([path, init]) =>
+          (path === '/api/v1/system/smtp/test' || path.endsWith('/retry')) &&
+          init.method === 'POST',
+      )
+    },
+  }
+}
+afterEach(() => {
+  for (const auth of owners.splice(0)) auth.leave()
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+  useTheme().setTheme('system')
+})
+
+describe('SMTP delivery ninth Cookie owner domain', () => {
+  it('captures before key/dispatch, blocks double starts and publishes only safe confirmations', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtpDelivery
+    const random = vi.spyOn(crypto, 'randomUUID')
+    await expect(api.startTest({ recipient: '' })).rejects.toMatchObject({ kind: 'invalid-input' })
+    await expect(
+      api.startRetry({ job_id: id(20), version: '9223372036854775807' }),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(random).not.toHaveBeenCalled()
+    expect(f.writes()).toHaveLength(0)
+    const held = barrier<Response>(),
+      input = { recipient }
+    f.setDelivery(() => held.promise)
+    const started = api.startTest(input)
+    input.recipient = 'later@example.test'
+    await flushPromises()
+    const generated = random.mock.calls.length
+    expect(generated).toBe(1)
+    await expect(api.startTest({ recipient })).rejects.toMatchObject({ kind: 'busy' })
+    expect(random).toHaveBeenCalledTimes(generated)
+    expect(f.writes()).toHaveLength(1)
+    expect(f.writes()[0]![1].body === JSON.stringify({ recipient })).toBe(true)
+    expect(JSON.stringify(api).includes(recipient)).toBe(false)
+    held.resolve(json({ job_id: id(21) }, 202))
+    expect(await started).toEqual({ kind: 'test', value: { job_id: id(21) } })
+    expect(api.progress).toMatchObject({
+      phase: 'confirmed',
+      result: { kind: 'test', value: { job_id: id(21) } },
+      canRetryOriginal: false,
+    })
+    expect(f.fetch.mock.calls.some(([path]) => path.includes('management'))).toBe(false)
+    await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+  })
+
+  it.each([
+    ['NOT_FOUND', 404, 'not_started'],
+    ['UNAVAILABLE', 503, 'not_committed'],
+    ['RESOURCE_BUSY', 409, 'not_started'],
+    ['COMMIT_UNKNOWN', 503, 'unknown'],
+    ['INVALID_ARGUMENT', 400, 'committed'],
+    ['OTHER_CODE', 400, 'not_started'],
+    ['transport', 0, 'not_started'],
+  ] as const)(
+    'keeps dispatched %s uncertain and replays exact original bytes after observation failure',
+    async (code, status, commit) => {
+      const f = await fixture(),
+        api = f.auth.system.smtpDelivery
+      f.setDelivery(async () => {
+        if (code === 'transport') throw new Error('lost')
+        return problem(code, status, commit)
+      })
+      await api.startTest({ recipient }).catch(() => undefined)
+      const first = f.writes()[0]!
+      expect(api.progress).toMatchObject({
+        phase: 'uncertain',
+        result: null,
+        canRetryOriginal: false,
+      })
+      f.setSMTP(async () =>
+        json({
+          ...settings(),
+          configured: false,
+          host: '',
+          port: 0,
+          encryption: '',
+          sender_email: '',
+        }),
+      )
+      expect((await f.auth.system.smtp.get()).configured).toBe(false)
+      const from = f.fetch.mock.calls.length
+      f.setDelivery(async (_, init) =>
+        init.method === 'GET' ? problem('NOT_FOUND', 404) : json({ job_id: id(21) }, 202),
+      )
+      await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'problem' })
+      expect(f.fetch.mock.calls.slice(from).map(([p, i]) => [p, i.method])).toEqual([
+        ['/api/v1/session', 'GET'],
+        ['/api/v1/system/mail-jobs/management?limit=25', 'GET'],
+      ])
+      expect(api.progress).toMatchObject({
+        phase: 'uncertain',
+        observation: 'failed',
+        result: null,
+        canRetryOriginal: true,
+      })
+      await api.retryOriginal()
+      const second = f.writes()[1]!
+      expect(
+        first[0] === second[0] &&
+          first[1].body === second[1].body &&
+          JSON.stringify(first[1].headers) === JSON.stringify(second[1].headers),
+      ).toBe(true)
+      expect(api.progress?.phase).toBe('confirmed')
+      expect(f.fetch.mock.calls.some(([path]) => path.includes('lookup'))).toBe(false)
+    },
+  )
+
+  it.each([
+    ['INVALID_ARGUMENT', 400],
+    ['VERSION_CONFLICT', 409],
+    ['INVALID_STATE', 409],
+    ['RATE_LIMITED', 429],
+    ['RESOURCE_DELETED', 410],
+  ] as const)(
+    'allows explicit editing after first %s but never clears older uncertainty on that rejection',
+    async (code, status) => {
+      const f = await fixture(),
+        api = f.auth.system.smtpDelivery
+      f.setDelivery(async () => problem(code, status, 'not_committed'))
+      await api.startRetry({ job_id: id(20), version: '5' }).catch(() => undefined)
+      expect(api.progress?.phase).toBe('rejected')
+      api.editRejected()
+      expect(api.progress).toBeNull()
+      f.setDelivery(async () => problem('NOT_FOUND', 404))
+      await api.startRetry({ job_id: id(20), version: '5' }).catch(() => undefined)
+      f.setDelivery(async (_, init) =>
+        init.method === 'GET' ? json(job(id(20), '19')) : problem(code, status),
+      )
+      const before = f.fetch.mock.calls.length
+      const observed = await api.checkOriginal()
+      expect(observed).toMatchObject({ kind: 'detail', value: { job_id: id(20), version: '19' } })
+      expect(f.fetch.mock.calls.slice(before).map(([p]) => p)).toEqual([
+        '/api/v1/session',
+        `/api/v1/system/mail-jobs/${id(20)}/management`,
+      ])
+      await api.retryOriginal().catch(() => undefined)
+      expect(api.progress?.phase).toBe('uncertain')
+      expect(() => api.editRejected()).toThrow()
+      const writes = f.writes()
+      expect(
+        writes[1]![1].body === writes[2]![1].body &&
+          JSON.stringify(writes[1]![1].headers) === JSON.stringify(writes[2]![1].headers),
+      ).toBe(true)
+      f.setDelivery(async (_, init) =>
+        init.method === 'GET'
+          ? problem('NOT_FOUND', 404)
+          : json({ job_id: id(21), version: '27' }, 202),
+      )
+      await api.checkOriginal().catch(() => undefined)
+      expect((await api.retryOriginal()).value).toEqual({ job_id: id(21), version: '27' })
+      expect(f.writes()[3]![1].body === writes[1]![1].body).toBe(true)
+    },
+  )
+
+  it('keeps failed Session checks unqualified, locks key reuse and lets explicit abandon end only tracking', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtpDelivery
+    f.setDelivery(async () => problem('UNAVAILABLE'))
+    await api.startTest({ recipient }).catch(() => undefined)
+    f.setSessionRequest(async () => problem('UNAVAILABLE'))
+    const count = f.fetch.mock.calls.length
+    await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'cancelled' })
+    expect(f.fetch.mock.calls.slice(count).map(([path]) => path)).toEqual(['/api/v1/session'])
+    expect(api.progress?.canRetryOriginal).toBe(false)
+    f.setSessionRequest(async () => json(view()))
+    f.setDelivery(async (_, init) =>
+      init.method === 'GET' ? json({ items: [] }) : problem('IDEMPOTENCY_KEY_REUSED', 409),
+    )
+    await api.checkOriginal()
+    await api.retryOriginal().catch(() => undefined)
+    await api.checkOriginal()
+    expect(api.progress).toMatchObject({
+      phase: 'uncertain',
+      result: null,
+      canRetryOriginal: false,
+    })
+    const sent = f.writes().length
+    api.abandon()
+    expect(api.progress).toBeNull()
+    expect(f.writes()).toHaveLength(sent)
+  })
+
+  it.each(['test', 'retry'] as const)(
+    'requires complete %s native EOF and holds actual cancel after 30 seconds',
+    async (kind) => {
+      const f = await fixture(),
+        api = f.auth.system.smtpDelivery
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      const tail = barrier(),
+        cancel = vi.fn(() => tail.promise)
+      let stream!: ReadableStreamDefaultController<Uint8Array>
+      f.setDelivery(
+        async () =>
+          new Response(
+            new ReadableStream<Uint8Array>({
+              start(c) {
+                stream = c
+              },
+              cancel,
+            }),
+            {
+              status: 202,
+              headers: { 'Content-Type': 'application/json' },
+            },
+          ),
+      )
+      const task = (
+        kind === 'test'
+          ? api.startTest({ recipient })
+          : api.startRetry({ job_id: id(20), version: '5' })
+      ).catch((e) => e)
+      await flushPromises()
+      stream.enqueue(
+        new TextEncoder().encode(
+          JSON.stringify(kind === 'test' ? { job_id: id(21) } : { job_id: id(21), version: '7' }),
+        ),
+      )
+      try {
+        await flushPromises()
+        expect(api.progress?.phase).toBe('submitting')
+        await vi.advanceTimersByTimeAsync(30000)
+        expect(await task).toMatchObject({ kind: 'cancelled' })
+        expect(api.progress?.phase).toBe('uncertain')
+        expect(cancel).toHaveBeenCalledTimes(1)
+        expect(f.auth.state.busy).toBe(true)
+        const count = f.fetch.mock.calls.length
+        await f.auth.restore()
+        await f.auth.logout()
+        await expect(f.auth.system.smtp.get()).rejects.toMatchObject({ kind: 'busy' })
+        await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
+        await expect(api.list()).rejects.toMatchObject({ kind: 'busy' })
+        expect(f.fetch.mock.calls).toHaveLength(count)
+      } finally {
+        tail.resolve()
+      }
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(false)
+      expect(api.progress?.phase).toBe('uncertain')
+    },
+  )
+
+  it('keeps fetch ownership when cancellation is ignored and never publishes the late accepted response', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtpDelivery,
+      held = barrier<Response>()
+    f.setDelivery(() => held.promise)
+    const task = api.startTest({ recipient }).catch((e) => e)
+    await flushPromises()
+    api.abandon()
+    expect(await task).toMatchObject({ kind: 'cancelled' })
+    expect(api.progress).toBeNull()
+    expect(f.auth.state.busy).toBe(true)
+    await expect(f.auth.system.smtp.get()).rejects.toMatchObject({ kind: 'busy' })
+    held.resolve(json({ job_id: id(21) }, 202))
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+    expect(api.progress).toBeNull()
+  })
+
+  it('keeps replay disabled until the failed observation body cancellation actually joins', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtpDelivery
+    f.setDelivery(async () => problem('NOT_FOUND', 404))
+    await api.startRetry({ job_id: id(20), version: '5' }).catch(() => undefined)
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    const tail = barrier(),
+      cancel = vi.fn(() => tail.promise)
+    f.setDelivery(
+      async () =>
+        new Response(new ReadableStream<Uint8Array>({ cancel }), {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain' },
+        }),
+    )
+    const checked = api.checkOriginal().catch((e) => e)
+    try {
+      await flushPromises()
+      expect(cancel).toHaveBeenCalledTimes(1)
+      expect(api.progress?.canRetryOriginal).toBe(false)
+      await vi.advanceTimersByTimeAsync(30000)
+      expect(await checked).toMatchObject({ kind: 'cancelled' })
+      expect(api.progress).toMatchObject({
+        phase: 'uncertain',
+        observation: 'failed',
+        canRetryOriginal: false,
+      })
+      const count = f.writes().length
+      await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+      expect(f.writes()).toHaveLength(count)
+    } finally {
+      tail.resolve()
+    }
+    await flushPromises()
+    expect(api.progress?.canRetryOriginal).toBe(true)
+  })
+
+  it('isolates configuration and delivery abandon in both directions without releasing their native tails', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtpDelivery,
+      smtp = f.auth.system.smtp
+    await smtp.get()
+    smtp.setMaterial('synthetic-private')
+    let close!: ReadableStreamDefaultController<Uint8Array>
+    f.setDelivery(
+      async () =>
+        new Response(
+          new ReadableStream<Uint8Array>({
+            start(c) {
+              close = c
+            },
+          }),
+          { headers: { 'Content-Type': 'application/json' } },
+        ),
+    )
+    const read = api.list()
+    await flushPromises()
+    close.enqueue(new TextEncoder().encode(JSON.stringify({ items: [] })))
+    smtp.abandon()
+    expect(f.auth.state.busy).toBe(true)
+    expect(smtp.material.present).toBe(false)
+    close.close()
+    expect(await read).toEqual({ items: [] })
+    const tail = barrier(),
+      cancel = vi.fn(() => tail.promise)
+    f.setSMTP(
+      async () =>
+        new Response(new ReadableStream<Uint8Array>({ cancel }), {
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    )
+    const old = smtp.get().catch((e) => e)
+    await flushPromises()
+    api.abandon()
+    expect(cancel).not.toHaveBeenCalled()
+    expect(f.auth.state.busy).toBe(true)
+    smtp.abandonRead()
+    try {
+      expect(await old).toMatchObject({ kind: 'cancelled' })
+      await expect(api.list()).rejects.toMatchObject({ kind: 'busy' })
+      expect(cancel).toHaveBeenCalledTimes(1)
+    } finally {
+      tail.resolve()
+    }
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+  })
+
+  it('cancels a delivery read without deleting a pending original request', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtpDelivery
+    f.setDelivery(async () => problem('NOT_FOUND', 404))
+    await api.startTest({ recipient }).catch(() => undefined)
+    const first = f.writes()[0]![1],
+      tail = barrier()
+    f.setDelivery(
+      async () =>
+        new Response(new ReadableStream<Uint8Array>({ cancel: () => tail.promise }), {
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    )
+    const read = api.list().catch((e) => e)
+    await flushPromises()
+    api.abandonRead()
+    try {
+      expect(await read).toMatchObject({ kind: 'cancelled' })
+      expect(api.progress?.phase).toBe('uncertain')
+      expect(f.auth.state.busy).toBe(true)
+    } finally {
+      tail.resolve()
+    }
+    await flushPromises()
+    f.setDelivery(async (_, init) =>
+      init.method === 'GET' ? json({ items: [] }) : json({ job_id: id(21) }, 202),
+    )
+    await api.checkOriginal()
+    await api.retryOriginal()
+    expect(
+      f.writes()[1]![1].body === first.body &&
+        JSON.stringify(f.writes()[1]![1].headers) === JSON.stringify(first.headers),
+    ).toBe(true)
+  })
+
+  it.each([
+    'personal',
+    'users',
+    'invitations',
+    'providers',
+    'models',
+    'selection',
+    'accountSecurity',
+  ] as const)(
+    'keeps %s abandonment and actual ownership independent in both directions',
+    async (domain) => {
+      const f = await fixture(),
+        api = f.auth.system.smtpDelivery
+      const read = () =>
+        ({
+          personal: () => f.auth.personal.getProfile(),
+          users: () => f.auth.system.listUsers({}),
+          invitations: () => f.auth.system.listInvitations({}),
+          providers: () => f.auth.system.providers.list({}),
+          models: () => f.auth.system.models.listProviders({}),
+          selection: () => f.auth.system.selection.get(),
+          accountSecurity: () => f.auth.system.accountSecurity.get(),
+        })[domain]()
+      const abandon = () =>
+        ({
+          personal: () => f.auth.personal.abandon(),
+          users: () => f.auth.system.abandon(),
+          invitations: () => f.auth.system.abandonInvitations(),
+          providers: () => f.auth.system.providers.abandon(),
+          models: () => f.auth.system.models.abandon(),
+          selection: () => f.auth.system.selection.abandon(),
+          accountSecurity: () => f.auth.system.accountSecurity.abandon(),
+        })[domain]()
+      const held = barrier<Response>()
+      f.setDelivery(() => held.promise)
+      const current = api.list()
+      await flushPromises()
+      abandon()
+      expect(f.fetch.mock.calls.at(-1)![1].signal?.aborted).toBe(false)
+      await expect(read()).rejects.toMatchObject({ kind: 'busy' })
+      held.resolve(json({ items: [] }))
+      await current
+      const otherTail = barrier(),
+        cancelled = vi.fn(() => otherTail.promise)
+      f.setOther(
+        async () =>
+          new Response(new ReadableStream<Uint8Array>({ cancel: cancelled }), {
+            headers: { 'Content-Type': 'application/json' },
+          }),
+      )
+      const other = read().catch((e) => e)
+      await flushPromises()
+      api.abandon()
+      expect(cancelled).not.toHaveBeenCalled()
+      expect(f.auth.state.busy).toBe(true)
+      abandon()
+      try {
+        expect(await other).toMatchObject({ kind: 'cancelled' })
+        expect(cancelled).toHaveBeenCalledTimes(1)
+        await expect(api.list()).rejects.toMatchObject({ kind: 'busy' })
+      } finally {
+        otherTail.resolve()
+      }
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(false)
+    },
+  )
+
+  it('holds both native Provider stages against delivery and preserves staged material during delivery', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtpDelivery,
+      providers = f.auth.system.providers
+    const command = {
+      kind: 'provider.create' as const,
+      input: {
+        name: 'Provider',
+        protocol: 'openai-chat-completions' as const,
+        base_url: 'https://provider.example/v1',
+        enabled: true,
+        credential_ref: null,
+        options: {},
+      },
+    }
+    const first = barrier<Response>()
+    providers.setMaterial('synthetic-provider-only')
+    f.setDelivery(() => first.promise)
+    const delivery = api.startTest({ recipient })
+    await flushPromises()
+    await expect(providers.start(command)).rejects.toMatchObject({ kind: 'busy' })
+    expect(providers.material.present).toBe(true)
+    first.resolve(json({ job_id: id(21) }, 202))
+    await delivery
+    let credentialStream!: ReadableStreamDefaultController<Uint8Array>
+    const nativeTail = barrier(),
+      cancel = vi.fn(() => nativeTail.promise)
+    f.setOther(async (path) =>
+      path.endsWith('/model-credentials')
+        ? new Response(
+            new ReadableStream<Uint8Array>({
+              start(c) {
+                credentialStream = c
+              },
+            }),
+            { headers: { 'Content-Type': 'application/json' } },
+          )
+        : new Response(new ReadableStream<Uint8Array>({ cancel }), {
+            headers: { 'Content-Type': 'application/json' },
+          }),
+    )
+    const provider = providers.start(command).catch((e) => e)
+    await flushPromises()
+    credentialStream.enqueue(
+      new TextEncoder().encode(
+        JSON.stringify({ credential_id: id(11), purpose: 'model', version: '1', deleted: false }),
+      ),
+    )
+    api.abandon()
+    expect(providers.material.present).toBe(true)
+    expect(providers.progress?.stage).toBe('credential')
+    await expect(api.list()).rejects.toMatchObject({ kind: 'busy' })
+    expect(
+      f.fetch.mock.calls.filter(([p, i]) => p.endsWith('/model-providers') && i.method === 'POST'),
+    ).toHaveLength(0)
+    credentialStream.close()
+    await flushPromises()
+    expect(providers.material.present).toBe(false)
+    expect(providers.progress?.stage).toBe('provider')
+    expect(
+      f.fetch.mock.calls.filter(([p, i]) => p.endsWith('/model-providers') && i.method === 'POST'),
+    ).toHaveLength(1)
+    api.abandon()
+    expect(cancel).not.toHaveBeenCalled()
+    providers.abandon()
+    try {
+      expect(await provider).toMatchObject({ kind: 'cancelled' })
+      expect(cancel).toHaveBeenCalledTimes(1)
+      expect(f.auth.state.busy).toBe(true)
+      await expect(api.startTest({ recipient })).rejects.toMatchObject({ kind: 'busy' })
+    } finally {
+      nativeTail.resolve()
+    }
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+  })
+
+  it.each([401, 403] as const)(
+    'handles already-parsed late %i only for the same identity and current revision',
+    async (status) => {
+      const f = await fixture(),
+        api = f.auth.system.smtpDelivery,
+        tail = barrier(),
+        entered = barrier()
+      const response = problem(status === 401 ? 'SESSION_REVOKED' : 'FORBIDDEN', status)
+      const cancel = response.body!.cancel.bind(response.body)
+      response.body!.cancel = async () => {
+        entered.resolve()
+        await tail.promise
+        return cancel()
+      }
+      f.setDelivery(async () => response)
+      const pending = api.list().catch((e) => e)
+      await entered.promise
+      api.abandonRead()
+      try {
+        expect(await pending).toMatchObject({ kind: 'cancelled' })
+        expect(f.auth.state.busy).toBe(true)
+      } finally {
+        tail.resolve()
+      }
+      await flushPromises()
+      expect(f.auth.system.denied).toBe(false)
+      expect(f.auth.personalContext.identity === null).toBe(status === 401)
+    },
+  )
+
+  it.each(['session', 'csrf', 'role'] as const)(
+    'destroys recovery on %s change without replacing the original context',
+    async (kind) => {
+      const f = await fixture(),
+        api = f.auth.system.smtpDelivery
+      f.setDelivery(async () => problem('NOT_FOUND', 404))
+      await api.startTest({ recipient }).catch(() => undefined)
+      f.setSession(
+        kind === 'session'
+          ? view(id(3))
+          : kind === 'role'
+            ? view(id(2), 'user')
+            : { ...view(), csrf_token: 'N'.repeat(43) },
+      )
+      await f.auth.restore()
+      expect(api.progress).toBeNull()
+      await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+      expect(f.writes()).toHaveLength(1)
+    },
+  )
+
+  it.each(['test', 'retry', 'read'] as const)(
+    'clears every system domain on current %s 403 and requires successful Session recheck',
+    async (kind) => {
+      const f = await fixture(),
+        api = f.auth.system.smtpDelivery
+      await f.auth.system.smtp.get()
+      f.auth.system.smtp.setMaterial('synthetic-private')
+      f.auth.system.providers.setMaterial('provider-private')
+      f.setDelivery(async () => problem('FORBIDDEN', 403))
+      await (
+        kind === 'test'
+          ? api.startTest({ recipient })
+          : kind === 'retry'
+            ? api.startRetry({ job_id: id(20), version: '5' })
+            : api.list()
+      ).catch(() => undefined)
+      expect(api.progress).toBeNull()
+      expect(f.auth.system.smtp.material.present).toBe(false)
+      expect(f.auth.system.providers.material.present).toBe(false)
+      expect(f.auth.system.denied).toBe(true)
+      expect(f.auth.state.user?.role).toBe('admin')
+      expect(f.auth.state.phase).toBe('authenticated')
+      await expect(api.list()).rejects.toMatchObject({ kind: 'invalid-input' })
+      await f.auth.restore()
+      expect(f.auth.system.denied).toBe(false)
+    },
+  )
+
+  it.each(['test', 'retry'] as const)(
+    'handles current %s CSRF failure through the shared identity guard',
+    async (kind) => {
+      const f = await fixture(),
+        api = f.auth.system.smtpDelivery
+      f.setDelivery(async () => problem('CSRF_FAILED', 403))
+      await (
+        kind === 'test'
+          ? api.startTest({ recipient })
+          : api.startRetry({ job_id: id(20), version: '5' })
+      ).catch(() => undefined)
+      expect(api.progress).toBeNull()
+      expect(f.auth.personalContext.identity).toBeNull()
+      expect(f.auth.state.phase).toBe('unavailable')
+    },
+  )
+
+  it('does not let a retiring confirmed continuation clear a synchronously started successor', async () => {
+    const f = await fixture(),
+      api = f.auth.system.smtpDelivery,
+      held = barrier<Response>()
+    let count = 0,
+      successor: Promise<unknown> | null = null
+    f.setDelivery(async () => (++count === 1 ? json({ job_id: id(21) }, 202) : held.promise))
+    const stop = watch(
+      () => api.progress?.phase,
+      (phase) => {
+        if (phase === 'confirmed' && !successor) {
+          api.abandon()
+          successor = api.startTest({ recipient: 'next@example.test' })
+        }
+      },
+      { flush: 'sync' },
+    )
+    try {
+      await api.startTest({ recipient }).catch(() => undefined)
+      await flushPromises()
+      expect(f.writes()).toHaveLength(2)
+      expect(api.progress?.phase).toBe('submitting')
+      held.resolve(json({ job_id: id(22) }, 202))
+      await successor
+      expect(api.progress).toMatchObject({
+        phase: 'confirmed',
+        result: { value: { job_id: id(22) } },
+      })
+    } finally {
+      stop()
+      held.resolve(json({ job_id: id(22) }, 202))
+    }
+  })
+})

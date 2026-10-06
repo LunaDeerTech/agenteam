@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, provide, watch } from 'vue'
+import { computed, onMounted, onUnmounted, provide, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppShell from './components/layout/AppShell.vue'
 import UiButton from './components/ui/UiButton.vue'
 import UiState from './components/ui/UiState.vue'
 import UiDialog from './components/ui/UiDialog.vue'
-import { useSession } from './composables/useSession'
+import { useSession, type PersonalIdentity } from './composables/useSession'
 import { createPersonalSettings, personalSettingsKey } from './composables/usePersonalSettings'
 import {
   installPersonalNavigation,
@@ -33,6 +33,12 @@ import {
   createSystemSMTPSettings,
   systemSMTPSettingsKey,
 } from './composables/useSystemSMTPSettings'
+import {
+  createSystemSMTPDelivery,
+  createSMTPSections,
+  systemSMTPDeliveryKey,
+  smtpSectionsKey,
+} from './composables/useSystemSMTPDelivery'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
@@ -60,7 +66,33 @@ provide(systemAccountSecurityKey, accountSecurity)
 const stopAccountSecurityNavigation = installAccountSecurityNavigation(router, accountSecurity)
 const smtp = createSystemSMTPSettings(auth)
 provide(systemSMTPSettingsKey, smtp)
-const stopSMTPNavigation = installSMTPSettingsNavigation(router, smtp)
+const smtpObservationIdentity = shallowRef<PersonalIdentity | null>(null)
+const stopSMTPAvailability = watch(
+  () => smtp.observation.value,
+  (value) => {
+    smtpObservationIdentity.value = value ? auth.personalContext.identity : null
+  },
+  { flush: 'sync' },
+)
+const smtpAvailability = computed(() => {
+  const observed = smtpObservationIdentity.value,
+    current = auth.personalContext.identity
+  return Object.freeze({
+    ready:
+      smtp.observation.phase === 'ready' &&
+      !!observed &&
+      !!current &&
+      observed.userID === current.userID &&
+      observed.sessionID === current.sessionID &&
+      observed.epoch === current.epoch,
+    configured: smtp.observation.value?.configured === true,
+  })
+})
+const smtpDelivery = createSystemSMTPDelivery(auth, () => smtpAvailability.value)
+provide(systemSMTPDeliveryKey, smtpDelivery)
+const smtpSections = createSMTPSections(auth, smtp, smtpDelivery)
+provide(smtpSectionsKey, smtpSections)
+const stopSMTPNavigation = installSMTPSettingsNavigation(router, smtpSections)
 async function logout() {
   if (
     (await settings.confirmLeave()) &&
@@ -69,7 +101,7 @@ async function logout() {
     (await models.confirmLeave()) &&
     (await selection.confirmLeave()) &&
     (await accountSecurity.confirmLeave()) &&
-    (await smtp.confirmLeave())
+    (await smtpSections.confirmLeave())
   )
     await auth.logout()
 }
@@ -104,7 +136,7 @@ onMounted(() => {
   models.afterNavigation(route.fullPath, '')
   selection.afterNavigation(route.fullPath, '')
   accountSecurity.afterNavigation(route.fullPath, '')
-  smtp.afterNavigation(route.fullPath, '')
+  smtpSections.afterNavigation(route.fullPath, '')
   document.addEventListener('visibilitychange', refreshVisible)
   window.addEventListener('pageshow', refreshVisible)
 })
@@ -119,7 +151,8 @@ onUnmounted(() => {
   stopSelectionNavigation()
   stopAccountSecurityNavigation()
   stopSMTPNavigation()
-  smtp.dispose()
+  stopSMTPAvailability()
+  smtpSections.dispose()
   accountSecurity.dispose()
   selection.dispose()
   models.dispose()

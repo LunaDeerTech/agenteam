@@ -94,6 +94,9 @@ const endpoints = {
   getSMTPSettings: ['GET', '/api/v1/system/smtp', 200],
   updateSMTPSettings: ['PUT', '/api/v1/system/smtp', 200],
   unconfigureSMTP: ['POST', '/api/v1/system/smtp/unconfigure', 200],
+  testSMTP: ['POST', '/api/v1/system/smtp/test', 202],
+  listMailJobManagement: ['GET', '/api/v1/system/mail-jobs/management', 200],
+  getMailJobManagement: ['GET', '/api/v1/system/mail-jobs/{id}/management', 200],
   createModelCredential: ['POST', '/api/v1/system/model-credentials', 200],
   getModelCredentialMetadata: ['GET', '/api/v1/system/model-credentials/{id}', 200],
   lookupProviderCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
@@ -366,7 +369,24 @@ const smtpEndpoints: readonly SMTPEndpoint[] = [
   'unconfigureSMTP',
 ]
 
+type SMTPDeliveryEndpoint = 'testSMTP' | 'listMailJobManagement' | 'getMailJobManagement'
+type SMTPDeliveryOptions<E extends SMTPDeliveryEndpoint> = E extends 'listMailJobManagement'
+  ? { signal: AbortSignal; mailJobs: Readonly<{ cursor?: string }> }
+  : E extends 'getMailJobManagement'
+    ? { signal: AbortSignal; target: string }
+    : { signal: AbortSignal; body: unknown; csrf: string; key: string }
+const smtpDeliveryEndpoints: readonly SMTPDeliveryEndpoint[] = [
+  'testSMTP',
+  'listMailJobManagement',
+  'getMailJobManagement',
+]
+
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends SMTPDeliveryEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: SMTPDeliveryOptions<E>,
+  ): Promise<T>
   function request<T, E extends SMTPEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -418,6 +438,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       | SelectionEndpoint
       | AccountSecurityEndpoint
       | SMTPEndpoint
+      | SMTPDeliveryEndpoint
     >,
     parse: (value: unknown) => T,
     options: RequestOptions & { users?: never; invitations?: never; target?: never },
@@ -430,6 +451,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       invitations?: Readonly<{ cursor?: string }>
       providers?: Readonly<{ cursor?: string }>
       models?: Readonly<{ provider_id: string; cursor?: string }>
+      mailJobs?: Readonly<{ cursor?: string }>
       target?: string
     },
   ): Promise<T> {
@@ -441,7 +463,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       modelEndpoints.includes(endpoint as ModelEndpoint) ||
       selectionEndpoints.includes(endpoint as SelectionEndpoint) ||
       accountSecurityEndpoints.includes(endpoint as AccountSecurityEndpoint) ||
-      smtpEndpoints.includes(endpoint as SMTPEndpoint)
+      smtpEndpoints.includes(endpoint as SMTPEndpoint) ||
+      smtpDeliveryEndpoints.includes(endpoint as SMTPDeliveryEndpoint)
     ) {
       try {
         const target = basePath.includes('{id}')
@@ -450,7 +473,9 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             ? 'providers'
             : endpoint === 'listProviderModels'
               ? 'models'
-              : undefined
+              : endpoint === 'listMailJobManagement'
+                ? 'mailJobs'
+                : undefined
         shape(options, [
           'signal',
           ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
@@ -472,7 +497,12 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             params.set('provider_id', provider)
           }
           params.set('limit', '25')
-          if (Object.hasOwn(query, 'cursor')) params.set('cursor', string(query.cursor, 1, 8192))
+          if (Object.hasOwn(query, 'cursor')) {
+            const cursor = string(query.cursor, 1, 8192)
+            if (queryKey === 'mailJobs' && new TextEncoder().encode(cursor).byteLength > 8192)
+              throw new Error()
+            params.set('cursor', cursor)
+          }
           path += '?' + params.toString()
         }
         if (
@@ -519,6 +549,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       Object.hasOwn(options, 'invitations') ||
       Object.hasOwn(options, 'providers') ||
       Object.hasOwn(options, 'models') ||
+      Object.hasOwn(options, 'mailJobs') ||
       Object.hasOwn(options, 'target')
     ) {
       throw new AccountFailure('invalid-input')

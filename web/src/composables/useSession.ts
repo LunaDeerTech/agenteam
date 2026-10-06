@@ -90,6 +90,38 @@ import {
   type SMTPUnconfigureInput,
   type SMTPResult,
 } from '../api/system-smtp-settings'
+import {
+  createSystemSMTPDeliveryAPI,
+  captureSMTPDeliveryCommand,
+  type SystemSMTPDeliveryAPI,
+  type SMTPDeliveryCommand,
+  type SMTPDeliveryResult,
+  type SMTPDeliveryQuery,
+  type SMTPDeliveryPage,
+  type SMTPDeliveryJob,
+  type SMTPTestInput,
+  type SMTPRetryInput,
+} from '../api/system-smtp-delivery'
+
+type SMTPDeliveryAction = 'smtp-delivery-read' | 'smtp-delivery-write'
+export type SystemSMTPDeliveryProgress = Readonly<{
+  kind: SMTPDeliveryCommand['kind']
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  result: SMTPDeliveryResult | null
+  observation: 'none' | 'current' | 'failed'
+  contextValid: boolean
+  canRetryOriginal: boolean
+}>
+export type SMTPDeliveryObservation =
+  | Readonly<{ kind: 'list'; value: SMTPDeliveryPage }>
+  | Readonly<{ kind: 'detail'; value: SMTPDeliveryJob }>
+type SystemSMTPDeliveryIntent = Readonly<{
+  kind: SMTPDeliveryCommand['kind']
+  payload: { command: SMTPDeliveryCommand | null; body: string | null }
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+}>
 
 type SMTPAction = 'smtp-settings-read' | 'smtp-settings-write'
 export type SystemSMTPKind = 'configure' | 'policy' | 'unconfigure'
@@ -252,6 +284,7 @@ type Action =
   | SelectionAction
   | AccountSecurityAction
   | SMTPAction
+  | SMTPDeliveryAction
 interface Operation {
   generation: number
   kind: Action
@@ -355,6 +388,7 @@ export function createSessionController(
   selectionAPI: SystemModelSelectionAPI = createSystemModelSelectionAPI(),
   accountSecurityAPI: SystemAccountSecurityAPI = createSystemAccountSecurityAPI(),
   smtpAPI: SystemSMTPSettingsAPI = createSystemSMTPSettingsAPI(),
+  smtpDeliveryAPI: SystemSMTPDeliveryAPI = createSystemSMTPDeliveryAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -418,6 +452,19 @@ export function createSessionController(
     materialInvalid: boolean
     materialRevision: number
   }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
+  const smtpDeliveryRevisions: Record<SMTPDeliveryAction, number> = {
+    'smtp-delivery-read': 0,
+    'smtp-delivery-write': 0,
+  }
+  const isSMTPDeliveryAction = (kind: Action): kind is SMTPDeliveryAction =>
+    Object.hasOwn(smtpDeliveryRevisions, kind)
+  let smtpDeliveryIntent: SystemSMTPDeliveryIntent | null = null,
+    smtpDeliveryUncertain = false,
+    smtpDeliveryChecked = false,
+    smtpDeliveryKeyConflict = false
+  const smtpDeliveryState = shallowReactive<{
+    progress: Omit<SystemSMTPDeliveryProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
   const modelRevisions: Record<ModelAction, number> = {
     'model-providers': 0,
     'model-provider': 0,
@@ -526,6 +573,7 @@ export function createSessionController(
       clearSelectionState()
       clearAccountSecurityState(true)
       clearSMTPState(true)
+      clearSMTPDeliveryState()
       ++systemRevision
       systemState.deniedIdentity = null
       sessionCSRF = ''
@@ -629,6 +677,12 @@ export function createSessionController(
       clearAccountSecurityState(true)
     if (!same || view.user.role !== 'admin' || (smtpIntent && smtpIntent.csrf !== sessionCSRF))
       clearSMTPState(true)
+    if (
+      !same ||
+      view.user.role !== 'admin' ||
+      (smtpDeliveryIntent && smtpDeliveryIntent.csrf !== sessionCSRF)
+    )
+      clearSMTPDeliveryState()
     state.notice = ''
     state.fields = {}
     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
@@ -1064,7 +1118,8 @@ export function createSessionController(
       | ModelAction
       | SelectionAction
       | AccountSecurityAction
-      | SMTPAction = 'personal',
+      | SMTPAction
+      | SMTPDeliveryAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
@@ -1084,7 +1139,9 @@ export function createSessionController(
                     ? accountSecurityRevisions[kind]
                     : isSMTPAction(kind)
                       ? smtpRevisions[kind]
-                      : providerRevisions[kind]
+                      : isSMTPDeliveryAction(kind)
+                        ? smtpDeliveryRevisions[kind]
+                        : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1337,6 +1394,7 @@ export function createSessionController(
           'selection-lookup',
           'account-security-write',
           'smtp-settings-write',
+          'smtp-delivery-write',
         ].includes(op.kind) &&
           e.problem?.code === 'CSRF_FAILED')
       ) {
@@ -1351,6 +1409,7 @@ export function createSessionController(
         clearSelectionState()
         clearAccountSecurityState(true)
         clearSMTPState(true)
+        clearSMTPDeliveryState()
         systemState.deniedIdentity = identity
       }
     }
@@ -2761,7 +2820,242 @@ export function createSessionController(
       return performSMTP(smtpIntent)
     },
   }
+  function clearSMTPDeliveryPayload(original: SystemSMTPDeliveryIntent | null) {
+    if (!original) return
+    original.payload.command = null
+    original.payload.body = null
+  }
+  function clearSMTPDeliveryState() {
+    const retiring = owner && isSMTPDeliveryAction(owner.kind) ? owner : null
+    ++smtpDeliveryRevisions['smtp-delivery-read']
+    ++smtpDeliveryRevisions['smtp-delivery-write']
+    clearSMTPDeliveryPayload(smtpDeliveryIntent)
+    smtpDeliveryIntent = null
+    smtpDeliveryUncertain = smtpDeliveryChecked = smtpDeliveryKeyConflict = false
+    smtpDeliveryState.progress = null
+    retiring?.abandon?.()
+  }
+  function readSMTPDelivery<T>(work: (signal: AbortSignal) => Promise<T>): Promise<T> {
+    try {
+      return runAuthorized(
+        invitationIdentity(),
+        (op) => work(op.abort.signal),
+        undefined,
+        'smtp-delivery-read',
+      )
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  function smtpDeliveryBody(command: SMTPDeliveryCommand) {
+    return JSON.stringify(
+      command.kind === 'test' ? command.input : { version: command.input.version },
+    )
+  }
+  function publishSMTPDelivery(
+    original: SystemSMTPDeliveryIntent,
+    phase: SystemSMTPDeliveryProgress['phase'],
+    result: SMTPDeliveryResult | null = null,
+  ) {
+    smtpDeliveryState.progress = Object.freeze({
+      kind: original.kind,
+      phase,
+      result,
+      observation: 'none',
+    })
+  }
+  function performSMTPDelivery(original: SystemSMTPDeliveryIntent): Promise<SMTPDeliveryResult> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (
+      smtpDeliveryIntent !== original ||
+      !original.payload.command ||
+      !original.payload.body ||
+      !invitationContext(original)
+    )
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const revision = smtpDeliveryRevisions['smtp-delivery-write']
+    const live = () =>
+      smtpDeliveryIntent === original &&
+      revision === smtpDeliveryRevisions['smtp-delivery-write'] &&
+      invitationContext(original)
+    let dispatched = false
+    smtpDeliveryChecked = false
+    publishSMTPDelivery(original, 'submitting')
+    if (!live()) return Promise.reject(new AccountFailure('cancelled'))
+    return runAuthorized<SMTPDeliveryResult>(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        const command = original.payload.command
+        if (!command || smtpDeliveryBody(command) !== original.payload.body)
+          throw new AccountFailure('invalid-input')
+        const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+        dispatched = true
+        try {
+          return command.kind === 'test'
+            ? { kind: 'test', value: await smtpDeliveryAPI.testSMTP(command.input, options) }
+            : { kind: 'retry', value: await smtpDeliveryAPI.retryJob(command.input, options) }
+        } finally {
+          if (smtpDeliveryIntent !== original) clearSMTPDeliveryPayload(original)
+        }
+      },
+      undefined,
+      'smtp-delivery-write',
+    ).then(
+      (result) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        clearSMTPDeliveryPayload(original)
+        publishSMTPDelivery(original, 'confirmed', result)
+        if (!live()) throw new AccountFailure('cancelled')
+        smtpDeliveryIntent = null
+        smtpDeliveryUncertain = smtpDeliveryChecked = smtpDeliveryKeyConflict = false
+        return result
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          smtpDeliveryIntent === original &&
+          revision === smtpDeliveryRevisions['smtp-delivery-write'] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          const known =
+            !dispatched ||
+            (p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.status < 500 &&
+              [
+                'INVALID_ARGUMENT',
+                'VERSION_CONFLICT',
+                'INVALID_STATE',
+                'RATE_LIMITED',
+                'RESOURCE_DELETED',
+              ].includes(p.code))
+          // Test and retry both read the current job after a commit or historical
+          // match. In particular 404/not_started does not reject that command.
+          smtpDeliveryKeyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+          smtpDeliveryUncertain ||= !known || smtpDeliveryKeyConflict
+          smtpDeliveryChecked = false
+          publishSMTPDelivery(original, smtpDeliveryUncertain ? 'uncertain' : 'rejected')
+        }
+        throw e
+      },
+    )
+  }
+  function startSMTPDelivery(command: SMTPDeliveryCommand) {
+    try {
+      const identity = invitationIdentity()
+      if (owner || smtpDeliveryIntent || personalIntent || pending) throw new AccountFailure('busy')
+      const captured = captureSMTPDeliveryCommand(command)
+      const original: SystemSMTPDeliveryIntent = Object.freeze({
+        kind: captured.kind,
+        payload: { command: captured, body: smtpDeliveryBody(captured) },
+        identity,
+        csrf: sessionCSRF,
+        key: newKey(),
+      })
+      smtpDeliveryIntent = original
+      smtpDeliveryUncertain = smtpDeliveryChecked = smtpDeliveryKeyConflict = false
+      return performSMTPDelivery(original)
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  const smtpDelivery = {
+    get progress(): SystemSMTPDeliveryProgress | null {
+      const value = smtpDeliveryState.progress
+      if (!value) return null
+      const contextValid = !!smtpDeliveryIntent && invitationContext(smtpDeliveryIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!smtpDeliveryIntent?.payload.command &&
+          smtpDeliveryUncertain &&
+          smtpDeliveryChecked &&
+          !smtpDeliveryKeyConflict &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    list(query: SMTPDeliveryQuery = {}) {
+      return readSMTPDelivery((signal) => smtpDeliveryAPI.listJobs(query, signal))
+    },
+    get(jobID: string) {
+      return readSMTPDelivery((signal) => smtpDeliveryAPI.getJob(jobID, signal))
+    },
+    abandonRead() {
+      ++smtpDeliveryRevisions['smtp-delivery-read']
+      if (owner?.kind === 'smtp-delivery-read') owner.abandon?.()
+    },
+    abandon: clearSMTPDeliveryState,
+    editRejected() {
+      if (
+        !smtpDeliveryIntent ||
+        smtpDeliveryUncertain ||
+        smtpDeliveryState.progress?.phase !== 'rejected' ||
+        owner ||
+        !invitationContext(smtpDeliveryIntent)
+      )
+        throw new AccountFailure('invalid-input')
+      clearSMTPDeliveryState()
+    },
+    startTest(input: SMTPTestInput) {
+      return startSMTPDelivery({ kind: 'test', input })
+    },
+    startRetry(input: SMTPRetryInput) {
+      return startSMTPDelivery({ kind: 'retry', input })
+    },
+    async checkOriginal(): Promise<SMTPDeliveryObservation> {
+      const original = smtpDeliveryIntent
+      if (!original?.payload.command || !smtpDeliveryUncertain || owner)
+        throw new AccountFailure('invalid-input')
+      smtpDeliveryChecked = false
+      await restore()
+      if (
+        smtpDeliveryIntent !== original ||
+        !original.payload.command ||
+        !invitationContext(original)
+      )
+        throw new AccountFailure('cancelled')
+      smtpDeliveryChecked = true
+      try {
+        const command = original.payload.command
+        const value: SMTPDeliveryObservation =
+          command.kind === 'test'
+            ? Object.freeze({ kind: 'list', value: await smtpDelivery.list() })
+            : Object.freeze({ kind: 'detail', value: await smtpDelivery.get(command.input.job_id) })
+        if (
+          smtpDeliveryIntent === original &&
+          invitationContext(original) &&
+          smtpDeliveryState.progress
+        )
+          smtpDeliveryState.progress = Object.freeze({
+            ...smtpDeliveryState.progress,
+            observation: 'current',
+          })
+        return value
+      } catch (error) {
+        if (
+          smtpDeliveryIntent === original &&
+          invitationContext(original) &&
+          smtpDeliveryState.progress
+        )
+          smtpDeliveryState.progress = Object.freeze({
+            ...smtpDeliveryState.progress,
+            observation: 'failed',
+          })
+        throw error
+      }
+    },
+    retryOriginal() {
+      if (!smtpDeliveryIntent || !smtpDelivery.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performSMTPDelivery(smtpDeliveryIntent)
+    },
+  }
   const system = {
+    smtpDelivery,
     smtp,
     accountSecurity,
     selection,
