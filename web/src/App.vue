@@ -13,11 +13,16 @@ import {
   installInvitationNavigation,
   installProviderNavigation,
   installModelNavigation,
+  installModelSelectionNavigation,
 } from './router/auth'
 import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'
 import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'
 import { createSystemProviders, systemProvidersKey } from './composables/useSystemProviders'
 import { createSystemModels, systemModelsKey } from './composables/useSystemModels'
+import {
+  createSystemModelSelection,
+  systemModelSelectionKey,
+} from './composables/useSystemModelSelection'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
@@ -37,12 +42,16 @@ const stopProviderNavigation = installProviderNavigation(router, providers)
 const models = createSystemModels(auth)
 provide(systemModelsKey, models)
 const stopModelNavigation = installModelNavigation(router, models)
+const selection = createSystemModelSelection(auth)
+provide(systemModelSelectionKey, selection)
+const stopSelectionNavigation = installModelSelectionNavigation(router, selection)
 async function logout() {
   if (
     (await settings.confirmLeave()) &&
     (await invitations.confirmLeave()) &&
     (await providers.confirmLeave()) &&
-    (await models.confirmLeave())
+    (await models.confirmLeave()) &&
+    (await selection.confirmLeave())
   )
     await auth.logout()
 }
@@ -75,6 +84,7 @@ onMounted(() => {
   invitations.afterNavigation(route.fullPath, '')
   providers.afterNavigation(route.fullPath, '')
   models.afterNavigation(route.fullPath, '')
+  selection.afterNavigation(route.fullPath, '')
   document.addEventListener('visibilitychange', refreshVisible)
   window.addEventListener('pageshow', refreshVisible)
 })
@@ -86,6 +96,8 @@ onUnmounted(() => {
   stopInvitationNavigation()
   stopProviderNavigation()
   stopModelNavigation()
+  stopSelectionNavigation()
+  selection.dispose()
   models.dispose()
   providers.dispose()
   invitations.dispose()

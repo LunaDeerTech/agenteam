@@ -60,6 +60,10 @@ export const router = createRouter({
         },
         { path: 'providers', component: () => import('../views/system/SystemProvidersView.vue') },
         { path: 'models', component: () => import('../views/system/SystemModelsView.vue') },
+        {
+          path: 'model-selection',
+          component: () => import('../views/system/SystemModelSelectionView.vue'),
+        },
       ],
     },
     {

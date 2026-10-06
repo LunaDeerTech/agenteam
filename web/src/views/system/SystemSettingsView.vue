@@ -26,6 +26,7 @@ const groups = [
     children: [
       { label: 'Providers', path: '/system/providers' },
       { label: 'Models', path: '/system/models' },
+      { label: '平台模型用途', path: '/system/model-selection' },
     ],
   },
 ]

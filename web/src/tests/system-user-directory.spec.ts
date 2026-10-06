@@ -198,7 +198,7 @@ async function click(label: string) {
 }
 
 describe('System user directory page and shared shells', () => {
-  it('opens users from the four-leaf administrator entry with separately labelled fields', async () => {
+  it('opens users from the five-leaf administrator entry with separately labelled fields', async () => {
     const p = await page('/')
     await p.wrapper.get('nav[aria-label="系统导航"] a[href="/system"]').trigger('click')
     await flushPromises()
@@ -212,6 +212,7 @@ describe('System user directory page and shared shells', () => {
       '待注册邀请',
       'Providers',
       'Models',
+      '平台模型用途',
     ])
     expect(menu.get('a').attributes('aria-current')).toBe('page')
     expect(menu.findAll('button').map((b) => b.text())).not.toContain('退出登录')
