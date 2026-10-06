@@ -1,0 +1,18 @@
+{
+  "verdict": "STATIC PASS",
+  "blocking_findings": [],
+  "spec_full": "bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b",
+  "spec_technical": "aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab",
+  "baseline": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "source_count": 31,
+  "paths_count": 14,
+  "files": {
+    "review.md": "a6b00fdb0cc6060434631f02ad1cc0085b1506435f7098768a30f5a7f4ccb727",
+    "inputs03.json": "04ba28bdbda2398149b3f33784e5a66c6325c6ee7d261d878cc7b1b755abdb5d",
+    "static-checks01.json": "a9a83779d465c7bef01ae312d8bb304ec17604c5e7bcad37ef9e49160fd5045d",
+    "preparation-note01.json": "c6e59b136077ce17e7ec056d314dc86e9571abd17d9dfe9d31ed3543fadadf3c"
+  },
+  "product_compilation_or_tests": false,
+  "real_resources": false,
+  "product_or_git_mutations": false
+}

@@ -1,0 +1,82 @@
+{
+  "mode": "STATIC only",
+  "baseline": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "files": {
+    "internal/central/app/app.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "16d03bee7c067afd57119d3d318f94119bf2cf3db033ed52afd9d380a39cf005"
+    },
+    "internal/central/app/account.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "be95ac04214983a95ed9b63d845bc8aa622c3b926ea16328a492d908001e463c"
+    },
+    "internal/central/app/health.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "f6f80d804f65ee8c036fb45697d5d47176d7cd4a5cf579da28af1c97e2672ff5"
+    },
+    "internal/central/app/diagnostics.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "05fbac74ffc67dc9499130eff386ef253881ce5c3c8504d2cd3f0244f4993164"
+    },
+    "internal/central/app/app_test.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "5cb36eb4c721d0674f297fa6e93e4a828a80225735d096edcb7202d1b6b3edc6"
+    },
+    "internal/central/app/health_sampling_test.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "7651147e7189f79e8ff0d1de2f43c99dc5db81b6c52a11aba6e5616ece702abf"
+    },
+    "internal/central/app/audit_http.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "b2a547db23854de76a9d456152edc6a0c0a0c9e88f3741d89ced580179fde26b"
+    },
+    "internal/central/app/resources.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "b1560671393b44a7911adf3baa8f4433da036d89e9478e225051dbbadfde07a5"
+    },
+    "internal/central/postgres/health.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "9c0a7b6c9627b4e8f54bfeb84844ad699e464fa20175b2a834647051b6695de0"
+    },
+    "internal/central/account/authority.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "4ee6365489ff21bfd629313b658f46f03495fe38a27e640ed4897a43547f14d5"
+    },
+    "internal/central/account/http_boundary.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc"
+    },
+    "internal/central/audit/system_query.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "b84646b38e6810d02e3c6b259c1ee1e88b26aa79af406ebb5c504b58abd2014f"
+    },
+    "internal/central/audit/http/handler.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "b13e6a0885c155ff4eff737790be0fb4f06191abb0d0409701f510cd6441a039"
+    },
+    "internal/central/audit/http/wire.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "4a42524d07301277350ed57d0a15901e2dfa6a541e16e14bbd145563adb593b4"
+    },
+    "internal/central/object/initialize.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "16d2e6b645c3342e863d65226a9b54cebdcb9088eb40e0289f9e1235ce716cd8"
+    },
+    "internal/central/object/runtime.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "1c16810426b77c01ea230bcd0c8b56d532081e6851ad4f34dd6b2a5a47f13485"
+    },
+    "cmd/agenteam/main.go": {
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "sha256": "4412cc0e4d838b076d1447ea3ec9137f1eb0dffc01f95d8ff54c5756e305198a"
+    },
+    "spec/rev2/d28-system-runtime-information-http.md": {
+      "source": "/workspace/scratch/agenteam-runtime-information-spec-kk8v722_/rev2/d28-system-runtime-information-http.md",
+      "sha256": "bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b"
+    },
+    "spec/rev1-to-rev2.diff": {
+      "source": "/workspace/scratch/agenteam-runtime-information-spec-kk8v722_/rev1-to-rev2.diff",
+      "sha256": "4de07be04461c684530ecb630017c027f1bf816fd6bd5012dd5e009e8d9c18a2"
+    }
+  }
+}

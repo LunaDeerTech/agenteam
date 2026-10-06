@@ -364,3 +364,15 @@ Audit UI规格独审接受与作者私有实施／独立计划分列，未验产
 主线程已授权唯一frontend私有35源分阶段实施，README第19路径最后；A五源作者最终180测试／type／format已通过并冻结，MIME追加绑定fa2d775。独立A离线验证已实际启动、尚无终局，B未开始，无真实资源或UI产品PASS。阶段事实仅按主线程移交记录，原件以后单立产品档案。 原静审和plan绑定b124650的事实不改；后继MIME修复fa2d775见§30及HTTP永久档案，当前API追加依赖与原技术Go接受集一致，不把新结果回填旧规格检查。
 
 原Object/tools／SPA publication停止不重试／改写／转派，SPA既有scope/native通过不等于产品接受。Summary待决、生产未绑定／ready503保持；完整D08–D28/E01未完成、E01未开始。本次不扩大到Audit UI产品或其他后继Runtime规格归档。
+
+## 32. System运行信息HTTP规格接受与service草稿阶段
+
+§1–31逐字保留。[正式卡rev1](../work-items/d28-system-runtime-information-http.md)技术沿独审私稿rev2，主线程已采纳、提交推送`1cf08c70db1b88e7e8dd5f635193b5752fef4452`并核远端一致；技术§1–7`aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab`不变。[永久规格记录](system-runtime-information-http-spec-verification.md)固定原rev1／rev2、三段原diff、两轮formal页首与独立31源码，16逻辑原件去重13对象，32固定Git引用不复制完整树。
+
+原rev1尾斜线404与既有Boundary冲突由主线程发现；rev2在浏览器安全边界后先400拒绝非规范路径、规范未知子路径404，后获独立STATIC PASS。这是规格修正，不是产品RED。首次只读猜错diagnostics_test.go的Git128／外层1仅原说明记录，随后定位app_test.go，不补造command/raw。formal-header01临时scratch链接已在02正式提交前移除，本次替永久原件链接，技术不变。
+
+唯一GET只读同root缓存，当前同Tx授权与实际终局先于发布；同T／monotonic／历史成功／聚合观测与版本未知均沿真实来源，GET200不等于ready。3690B编码上界是静态算术，pure／native／PG1s与两真实顶层只是分层验收要求，不互相冒充。独审31源码在fa2d775仍相同，无活动Audit UI输入。
+
+唯一backend作者的service阶段A两源已冻结，pure／race各7顶层58子例及vet／format通过，但尚非独立接受。独立已复现跨字段校验缺口，返修中；尚未独立接受，HTTP／root／资源未开始，产品未接受，后端说明第14最后另授。 本档不读取该私有活动根，不增加动态资源授权。D28管理读口与后继页面／生产版本／完整平台分列；Object/tools与SPA publication停止不重试／改写／转派，SPA既有scope/native通过不等于接受，Summary待决、生产未绑定／ready503保持；完整D08–D28/E01未完成，E01未开始。
+
+同期Audit UI阶段A已接受，阶段B已实际开始；这是主线程移交的阶段行政事实，不回改§31或旧Audit卡，不扩本次Runtime规格证据。

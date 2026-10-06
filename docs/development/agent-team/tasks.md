@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-06：System运行信息HTTP规格采纳与私有service阶段启动
+
+- [正式卡rev1](../work-items/d28-system-runtime-information-http.md)沿独审私稿rev2技术，已提交推送`1cf08c70db1b88e7e8dd5f635193b5752fef4452`并核远端一致，技术aeb4222…d2bab保持。[规格档案](system-runtime-information-http-spec-verification.md)保存rev1路径冲突、rev2修400、两轮正式页首与独立31源码STATIC PASS，不是产品验收。
+- 唯一backend作者的service阶段A两源已冻结，pure／race各7顶层58子例及vet／format通过，但尚非独立接受。独立已复现跨字段校验缺口，返修中；尚未独立接受，HTTP／root／资源未开始，产品未接受，后端说明第14最后另授。 本次只记录主线程移交事实，不读取活动实现。
+- 一个GET只观察原缓存，同Tx当前授权与实际终局门禁；版本未知／历史成功／Object聚合／ready503分列。3690B＜16KiB只静态算术，受控/native/PG要求尚待验。Object/tools／SPA publication停止、Summary待决及完整平台未完成保持。
+
 ## 2026-10-06：System Audit只读UI规格采纳与API阶段状态
 
 - [正式卡rev1](../work-items/d27-system-audit-ui.md)已提交推送`a7a29c34acbe392d9a1375967309123b9a74ec16`，远端一致；技术e7c96b…bd8d5不变。[规格档案](system-audit-ui-spec-verification.md)保留私稿、正式页首diff、独立46项STATIC PASS及冻结计划，不是产品验收。

@@ -1,0 +1,68 @@
+{
+  "mode": "STATIC; arithmetic and source comparison only",
+  "full_sha256": "bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b",
+  "tech_sha256": "aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab",
+  "candidate_paths": [
+    [
+      "1",
+      "internal/central/runtimeinfo/service.go"
+    ],
+    [
+      "2",
+      "internal/central/runtimeinfo/service_test.go"
+    ],
+    [
+      "3",
+      "internal/central/runtimeinfo/http/handler.go"
+    ],
+    [
+      "4",
+      "internal/central/runtimeinfo/http/wire.go"
+    ],
+    [
+      "5",
+      "internal/central/runtimeinfo/http/handler_test.go"
+    ],
+    [
+      "6",
+      "api/openapi/runtime-information.json"
+    ],
+    [
+      "7",
+      "internal/central/app/runtime_information.go"
+    ],
+    [
+      "8",
+      "internal/central/app/runtime_information_test.go"
+    ],
+    [
+      "9",
+      "internal/central/app/runtime_information_process_test.go"
+    ],
+    [
+      "10",
+      "internal/central/app/diagnostics.go"
+    ],
+    [
+      "11",
+      "internal/central/app/app.go"
+    ],
+    [
+      "12",
+      "internal/central/app/account.go"
+    ],
+    [
+      "13",
+      "tests/account/runtime_information_http_test.go"
+    ],
+    [
+      "14",
+      "docs/development/backend/README.md"
+    ]
+  ],
+  "max_fixed_shell_bytes": 618,
+  "max_version_escape_bytes": 3072,
+  "upper_bound_bytes": 3690,
+  "success_limit_bytes": 16384,
+  "compiled_or_executed_product": false
+}

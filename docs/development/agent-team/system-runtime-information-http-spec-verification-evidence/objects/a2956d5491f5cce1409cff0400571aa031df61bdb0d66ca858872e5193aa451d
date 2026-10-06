@@ -1,10 +1,6 @@
 # D28 / D27：System 运行信息 HTTP 只读快照
 
-修订：rev1（正式规格，技术沿独立审查的私稿rev2）。状态：独立有界STATIC PASS，主线程已采纳规格、提交推送`1cf08c70db1b88e7e8dd5f635193b5752fef4452`并核远端一致；[永久规格记录](../agent-team/system-runtime-information-http-spec-verification.md)保存原稿、修订与当前阶段。UI／后端产品均不由本规格验收。被审私稿全文SHA `bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b`，技术§1–7 SHA `aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab`原字节保持。
-
-固定已接受后端`b124650aee095b26191bc181dc8cf5d6e0f977f5`，文档/前端基线`a7a29c34acbe392d9a1375967309123b9a74ec16`；后续MIME修正fa2d775不改变本卡31项固定源码依赖。独立[STATIC PASS原报告](../agent-team/system-runtime-information-http-spec-verification-evidence/objects/a6b00fdb0cc6060434631f02ad1cc0085b1506435f7098768a30f5a7f4ccb727)，SHA `a6b00fdb0cc6060434631f02ad1cc0085b1506435f7098768a30f5a7f4ccb727`；[原JSON](../agent-team/system-runtime-information-http-spec-verification-evidence/objects/19a660f7afa352f38531f7ca8a1dc6ac2d75cef0c9df4a6fae9e74e75b22b063)保存有限静审边界，不代表实际运行通过。
-
-这是D28运行观测受限管理读口，由D27后续页面消费；D05只提供既有Object Storage观测来源。十四候选路径不变。唯一backend作者的service阶段A两源已冻结，pure／race各7顶层58子例及vet／format通过，但尚非独立接受。独立已复现跨字段校验缺口，返修中；尚未独立接受，HTTP／root／资源未开始，产品未接受，后端说明第14最后另授。 没有新增产品待决，不消费活动Audit UI，不改变停止任务。技术正文保留被审时的实施门槛和阶段时态，当前行政状态以本页首为准。
+修订：rev1 私有候选，待独立静审与主线程采纳。固定已接受后端 `b124650aee095b26191bc181dc8cf5d6e0f977f5`，文档/前端基线 `a7a29c34acbe392d9a1375967309123b9a74ec16`；源码按这两个固定 Git 读取，不消费活动 Audit UI。拟正式路径 `docs/development/work-items/d28-system-runtime-information-http.md`。这是 D28 运行观测的受限管理读口，由 D27 后续页面消费；D05 只提供既有 Object Storage 观测来源。本稿只有私有文档写权，十四条路径均为候选，没有产品实现、构建、原生监听或真实资源授权。没有新增产品待决。
 
 ## 1. 完整结果、依据与真实前置
 
@@ -24,7 +20,7 @@
 
 ## 2. 唯一路由与安全响应契约
 
-新增且仅新增 `GET /api/v1/system/runtime-information`，operationId `getSystemRuntimeInformation`。GET-only；精确路径的其他方法405且 `Allow: GET`，HEAD 错误无 body，不依赖 ServeMux 的隐式 GET→HEAD。任意 query（包括裸 `?`）、body、scope/身份选择均不支持。先沿 HTTPBoundary 检查 canonical Host/Origin/Fetch-Metadata、Path/RawPath，再判精确资源/方法及当前身份。在浏览器安全边界通过的前提下，`Path!=path.Clean(Path)`（含尾斜线、重复斜线和dot段）、反斜线/NUL或非空RawPath先返回400 INVALID_ARGUMENT；只有通过这些检查的规范未知子路径才返回404 NOT_FOUND。近似前缀不接管，不规范化、重定向或绕过HTTPBoundary去实现404；更早的Host/Origin/Fetch-Metadata拒绝保持原错误。有效 GET 先当前预认证，随后严格拒绝 `RawQuery!=""` 或 ForceQuery；ContentLength 非0、TransferEncoding 非空直接400，未知纯 reader 最多读1字节以区分空体 EOF/额外内容，禁止无界 drain。无写 CSRF、幂等键、lookup、缓存验证/304或流式事件口。
+新增且仅新增 `GET /api/v1/system/runtime-information`，operationId `getSystemRuntimeInformation`。GET-only；精确路径的其他方法405且 `Allow: GET`，HEAD 错误无 body，不依赖 ServeMux 的隐式 GET→HEAD。任意 query（包括裸 `?`）、body、scope/身份选择均不支持。先沿 HTTPBoundary 检查 canonical Host/Origin/Fetch-Metadata、Path/RawPath；尾斜线和其他子路径404，近似前缀不接管，不规范化或重定向。有效 GET 先当前预认证，随后严格拒绝 `RawQuery!=""` 或 ForceQuery；ContentLength 非0、TransferEncoding 非空直接400，未知纯 reader 最多读1字节以区分空体 EOF/额外内容，禁止无界 drain。无写 CSRF、幂等键、lookup、缓存验证/304或流式事件口。
 
 成功200为下表闭合 DTO，所有字段必需，所有对象 `additionalProperties:false`；没有未声明省略字段、任意 map、错误正文或部署信息。瞬时值由 §3 一次观察产生；安全投影/编码失败整份零发布，不降为200带空对象。
 
@@ -112,7 +108,7 @@ HTTPBoundary 先以现有浏览器安全规则认证；Service 再在同一最�
 | --- | --- |
 | 纯观测与编码 | 同一T下19.999999s/20s/20s+1ns边界，失败优先于陈旧、失败保留last_success/版本、真正新成功才恢复；读取不改时间/flags且零Check/probe。DB聚合失败不变成pgvector或MinIO精细归因；Central版本严格null，坏/零历史样本不是unknown成功。两版本最大合法默认JSON转义、完整编码3690B保守界/16KiB门禁及非法/超长拒绝；schema闭集/required/security/method与wire双向一致。合成最大字符串只证明编码上界，不称正式生产版本。 |
 | 纯事务 / I/O | 预认证预算起点、同一非零Tx的User SH→当前Session/admin→Source一次→实际终局；伪grant/错误scope/缺依赖、NotCommitted/Unknown、Source错误/迟到完成、取消全部零候选。原调用与取消callback/Body.Close用实际屏障证明均已返回才释放；受控自然3s保持严格DeadlineExceeded，更早parent先约束。期限不靠goroutine抢先返回伪通过。 |
-| 新root与旧诊断纯回归 | factory恰一次/同core Authority与Store，startupResult真实传回；monitor仅原一个、原startup sample未续命，GET不重建/启动服务。合法新路由与相似前缀/歧义路径分流；合法浏览器边界下，尾斜线/重复斜线/dot段/非空RawPath精确断言400 INVALID_ARGUMENT，规范未知子路径404 NOT_FOUND，精确根的非GET405；另核Host/Origin拒绝先于路径判定，不以重写请求或绕过HTTPBoundary得到预期码。Body/URL/Host/Context原样、单RequestID/单日志。后置构造失败用受控已取得listener/资源证明必须执行原cleanup且不启动Serve/health调度，不开实际端口、不复演停止的Object任务。原readyz同源predicate所有六基础项失败优先级；复用原 `TestHealthSnapshotsExpireRecoverAndRejectLateSuccess`，不弱化原断言。 |
+| 新root与旧诊断纯回归 | factory恰一次/同core Authority与Store，startupResult真实传回；monitor仅原一个、原startup sample未续命，GET不重建/启动服务。合法新路由与相似前缀/歧义路径分流，Body/URL/Host/Context原样、单RequestID/单日志。后置构造失败用受控已取得listener/资源证明必须执行原cleanup且不启动Serve/health调度，不开实际端口、不复演停止的Object任务。原readyz同源predicate所有六基础项失败优先级；复用原 `TestHealthSnapshotsExpireRecoverAndRejectLateSuccess`，不弱化原断言。 |
 | 最小native代表 | 自有loopback临时listener/单client连接，慢不允许的body/EOF、3s或更早parent、响应Flush/短写、actual callback/Close与下一请求deadline清除。native net/http同deadline会先触发请求cancel，不能只认DeadlineExceeded：自然期限场景入口记录min(parent,3s)，终局Done且不早于应到deadline，Err仅Canceled/DeadlineExceeded，保留实际耗时上限/零Source或零发布/Close和连接join；显式取消可早于deadline，另以真实取消屏障及实际尾部证明。pure自然期限仍单独严格。所有server/client/conns/callback实际关闭，Recorder证据不冒充native。 |
 | 真实 CurrentAuthorityAndTerminal | `TestSystemRuntimeInformationCurrentAuthorityAndTerminal`，tests/account，复用完整 `newB02Account(t).fixture`，正式bootstrap/login/邀请兑换普通用户/Logout。预认证后撤销→新事务拒绝；SH已持有→正式Logout EX等待实际读终局、随后新请求拒绝；正常Source/候选不能越过真实WithinTx结束。此组Source为受控内存值，只证明授权/事务，不称真实健康来源。SQL仅任务自有锁屏障/读旁证，不改role/Session/健康/业务表。LOCK_TIMEOUT=1s时验证min(parent,3s,DB1s)和typed安全失败/零候选，不冒称真实PG等3s自然到期。 |
 | 真实 RootSnapshotBinding | `TestSystemRuntimeInformationRootSnapshotBinding`，app，复用正式 `newModelRootApp`/PG+MinIO配置及实际绑定/首次检查，正式登录后GET。PG两版本与正式只读查询/原成功样本一致，Object值来自已接受聚合缓存，版本未知如实；检查原me/Model/Outbound/Audit读取和livez/diagnostics/ready503保持。只读计数/构造证据证明GET零probe；可以在本地测试协作者用原healthTiming固定采样窗口隔离后台tick，但不改生产10s/2s/20s，不声称做了MinIO故障注入。正常停服务实际收尾，不新增Object work/外部请求/停止任务代表。 |

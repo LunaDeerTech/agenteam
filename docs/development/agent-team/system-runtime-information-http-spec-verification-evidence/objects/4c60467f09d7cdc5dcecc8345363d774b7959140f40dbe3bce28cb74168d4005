@@ -1,0 +1,14 @@
+--- rev2/d28-system-runtime-information-http.md
++++ formal-header01/d28-system-runtime-information-http.md
+@@ -1,6 +1,10 @@
+ # D28 / D27：System 运行信息 HTTP 只读快照
+ 
+-修订：rev2 私有候选，待独立静审与主线程采纳。本轮仅校正既有 HTTPBoundary 先判路径的尾斜线400与规范未知子路径404及对应验收；rev1原件保留，其他技术范围不变。固定已接受后端 `b124650aee095b26191bc181dc8cf5d6e0f977f5`，文档/前端基线 `a7a29c34acbe392d9a1375967309123b9a74ec16`；源码按这两个固定 Git 读取，不消费活动 Audit UI。拟正式路径 `docs/development/work-items/d28-system-runtime-information-http.md`。这是 D28 运行观测的受限管理读口，由 D27 后续页面消费；D05 只提供既有 Object Storage 观测来源。本稿只有私有文档写权，十四条路径均为候选，没有产品实现、构建、原生监听或真实资源授权。没有新增产品待决。
++修订：rev1（正式规格，技术沿独立审查的私稿rev2）。状态：独立有界 STATIC PASS，主线程已采纳规格；尚无本卡产品实现、编译或动态验收。被审私稿全文 SHA `bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b`，技术§1–7 SHA `aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab` 原字节保持。
++
++固定已接受后端 `b124650aee095b26191bc181dc8cf5d6e0f977f5`，文档/前端基线 `a7a29c34acbe392d9a1375967309123b9a74ec16`；后续 MIME schema 文档修订 `fa2d775` 不改变本卡31项固定源码依赖。独立[STATIC报告](/workspace/scratch/agenteam-runtime-information-independent-ryn_i3n7/review.md) SHA `a6b00fdb0cc6060434631f02ad1cc0085b1506435f7098768a30f5a7f4ccb727`；该结论证明规格在固定接缝上可实施，不代表实际运行通过。
++
++这是 D28 运行观测的受限管理读口，由 D27 后续页面消费；D05 只提供既有 Object Storage 观测来源。十四候选路径不变，唯一backend作者的前十三源实施、原生监听与真实资源均由主线程另授，第十四后端说明为产品接受后的末件。没有新增产品待决，不消费活动 Audit UI，不改变停止任务。技术正文保留被审时的实施门槛和阶段时态，当前采纳状态以页首为准。
+ 
+ ## 1. 完整结果、依据与真实前置
+ 

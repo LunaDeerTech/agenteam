@@ -1,0 +1,452 @@
+{
+  "administrative_base": "ddb5044109d0c701b99a60f8f9ab0af7c937469d",
+  "artifacts": {
+    "author/formal-header01/d28-system-runtime-information-http.md": {
+      "bytes": 29003,
+      "object": "objects/052d2fb789b06642624d2882c021c7186cea975c52b96e617bf2b5b836a3e358",
+      "origin": "/workspace/scratch/agenteam-runtime-information-spec-kk8v722_/formal-header01/d28-system-runtime-information-http.md",
+      "sha256": "052d2fb789b06642624d2882c021c7186cea975c52b96e617bf2b5b836a3e358"
+    },
+    "author/formal-header01/header.diff": {
+      "bytes": 2345,
+      "object": "objects/4c60467f09d7cdc5dcecc8345363d774b7959140f40dbe3bce28cb74168d4005",
+      "origin": "/workspace/scratch/agenteam-runtime-information-spec-kk8v722_/formal-header01/header.diff",
+      "sha256": "4c60467f09d7cdc5dcecc8345363d774b7959140f40dbe3bce28cb74168d4005"
+    },
+    "author/formal-header02/d28-system-runtime-information-http.md": {
+      "bytes": 28967,
+      "git_ref": "1cf08c70db1b88e7e8dd5f635193b5752fef4452:docs/development/work-items/d28-system-runtime-information-http.md",
+      "origin": "/workspace/scratch/agenteam-runtime-information-spec-kk8v722_/formal-header02/d28-system-runtime-information-http.md",
+      "sha256": "e4cbf79d922c1b1456024e7cbf64fefa73937c75b5916e29c4e18fe66868bdfb"
+    },
+    "author/formal-header02/header01-to-header02.diff": {
+      "bytes": 1906,
+      "object": "objects/f2d88c8d50a34ef697a91ad619e31c2abfdeb071b93cb6760f4908dd8c32e257",
+      "origin": "/workspace/scratch/agenteam-runtime-information-spec-kk8v722_/formal-header02/header01-to-header02.diff",
+      "sha256": "f2d88c8d50a34ef697a91ad619e31c2abfdeb071b93cb6760f4908dd8c32e257"
+    },
+    "author/rev1-to-rev2.diff": {
+      "bytes": 8362,
+      "object": "objects/4de07be04461c684530ecb630017c027f1bf816fd6bd5012dd5e009e8d9c18a2",
+      "origin": "/workspace/scratch/agenteam-runtime-information-spec-kk8v722_/rev1-to-rev2.diff",
+      "sha256": "4de07be04461c684530ecb630017c027f1bf816fd6bd5012dd5e009e8d9c18a2"
+    },
+    "author/rev1/d28-system-runtime-information-http.md": {
+      "bytes": 27691,
+      "object": "objects/a2956d5491f5cce1409cff0400571aa031df61bdb0d66ca858872e5193aa451d",
+      "origin": "/workspace/scratch/agenteam-runtime-information-spec-kk8v722_/rev1/d28-system-runtime-information-http.md",
+      "sha256": "a2956d5491f5cce1409cff0400571aa031df61bdb0d66ca858872e5193aa451d"
+    },
+    "author/rev2/d28-system-runtime-information-http.md": {
+      "bytes": 28461,
+      "object": "objects/bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b",
+      "origin": "/workspace/scratch/agenteam-runtime-information-spec-kk8v722_/rev2/d28-system-runtime-information-http.md",
+      "sha256": "bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b"
+    },
+    "review/inputs01.json": {
+      "bytes": 3898,
+      "object": "objects/1edd4e33b9df833464ffa49b8865a27ab14dff331181a36fd4654631dc1e4849",
+      "origin": "/workspace/scratch/agenteam-runtime-information-independent-ryn_i3n7/inputs01.json",
+      "sha256": "1edd4e33b9df833464ffa49b8865a27ab14dff331181a36fd4654631dc1e4849"
+    },
+    "review/inputs02.json": {
+      "bytes": 6264,
+      "object": "objects/3abd7113039c93b0862f3f465a5ad3b606e73afc9f3e4cf6ad6be095bc6f603c",
+      "origin": "/workspace/scratch/agenteam-runtime-information-independent-ryn_i3n7/inputs02.json",
+      "sha256": "3abd7113039c93b0862f3f465a5ad3b606e73afc9f3e4cf6ad6be095bc6f603c"
+    },
+    "review/inputs03.json": {
+      "bytes": 6655,
+      "object": "objects/04ba28bdbda2398149b3f33784e5a66c6325c6ee7d261d878cc7b1b755abdb5d",
+      "origin": "/workspace/scratch/agenteam-runtime-information-independent-ryn_i3n7/inputs03.json",
+      "sha256": "04ba28bdbda2398149b3f33784e5a66c6325c6ee7d261d878cc7b1b755abdb5d"
+    },
+    "review/preparation-note01.json": {
+      "bytes": 307,
+      "object": "objects/c6e59b136077ce17e7ec056d314dc86e9571abd17d9dfe9d31ed3543fadadf3c",
+      "origin": "/workspace/scratch/agenteam-runtime-information-independent-ryn_i3n7/preparation-note01.json",
+      "sha256": "c6e59b136077ce17e7ec056d314dc86e9571abd17d9dfe9d31ed3543fadadf3c"
+    },
+    "review/review.json": {
+      "bytes": 821,
+      "object": "objects/19a660f7afa352f38531f7ca8a1dc6ac2d75cef0c9df4a6fae9e74e75b22b063",
+      "origin": "/workspace/scratch/agenteam-runtime-information-independent-ryn_i3n7/review.json",
+      "sha256": "19a660f7afa352f38531f7ca8a1dc6ac2d75cef0c9df4a6fae9e74e75b22b063"
+    },
+    "review/review.md": {
+      "bytes": 4833,
+      "object": "objects/a6b00fdb0cc6060434631f02ad1cc0085b1506435f7098768a30f5a7f4ccb727",
+      "origin": "/workspace/scratch/agenteam-runtime-information-independent-ryn_i3n7/review.md",
+      "sha256": "a6b00fdb0cc6060434631f02ad1cc0085b1506435f7098768a30f5a7f4ccb727"
+    },
+    "review/spec/rev1-to-rev2.diff": {
+      "bytes": 8362,
+      "object": "objects/4de07be04461c684530ecb630017c027f1bf816fd6bd5012dd5e009e8d9c18a2",
+      "origin": "/workspace/scratch/agenteam-runtime-information-independent-ryn_i3n7/spec/rev1-to-rev2.diff",
+      "sha256": "4de07be04461c684530ecb630017c027f1bf816fd6bd5012dd5e009e8d9c18a2"
+    },
+    "review/spec/rev2/d28-system-runtime-information-http.md": {
+      "bytes": 28461,
+      "object": "objects/bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b",
+      "origin": "/workspace/scratch/agenteam-runtime-information-independent-ryn_i3n7/spec/rev2/d28-system-runtime-information-http.md",
+      "sha256": "bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b"
+    },
+    "review/static-checks01.json": {
+      "bytes": 1469,
+      "object": "objects/a9a83779d465c7bef01ae312d8bb304ec17604c5e7bcad37ef9e49160fd5045d",
+      "origin": "/workspace/scratch/agenteam-runtime-information-independent-ryn_i3n7/static-checks01.json",
+      "sha256": "a9a83779d465c7bef01ae312d8bb304ec17604c5e7bcad37ef9e49160fd5045d"
+    }
+  },
+  "backend_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "baseline": {
+    "AGENTS.md": {
+      "bytes": 34324,
+      "sha256": "38a40e8e2cdf6253f2f720d8ac18a7312caead5648aaa60ef5cdee5e74c697f0"
+    },
+    "docs/development/agent-team/recovery-2026-10-06-continuation.md": {
+      "bytes": 75164,
+      "sha256": "01f3b1fdbc7327d9de7d06827e27cbe3f5f5dd0873e423c692c9e4d38a13965d"
+    },
+    "docs/development/agent-team/tasks.md": {
+      "bytes": 265763,
+      "sha256": "1920e052519f83e6377af5714e4578d36dc8b24abeb0a4ba6940aea9931a39ea"
+    },
+    "docs/development/work-items/d28-system-runtime-information-http.md": {
+      "bytes": 28967,
+      "sha256": "e4cbf79d922c1b1456024e7cbf64fefa73937c75b5916e29c4e18fe66868bdfb"
+    }
+  },
+  "card": "docs/development/work-items/d28-system-runtime-information-http.md",
+  "counts": {
+    "candidate_paths": 14,
+    "git_refs": 32,
+    "implementation_sources": 13,
+    "last_document": 1,
+    "latest_input_entries": 33,
+    "logical_originals": 16,
+    "object_bytes": 122015,
+    "objects": 13,
+    "static_sources": 31
+  },
+  "formal_commit": "1cf08c70db1b88e7e8dd5f635193b5752fef4452",
+  "formal_full_sha256": "e4cbf79d922c1b1456024e7cbf64fefa73937c75b5916e29c4e18fe66868bdfb",
+  "git_refs": {
+    "1cf08c70db1b88e7e8dd5f635193b5752fef4452:docs/development/work-items/d28-system-runtime-information-http.md": {
+      "bytes": 28967,
+      "commit": "1cf08c70db1b88e7e8dd5f635193b5752fef4452",
+      "path": "docs/development/work-items/d28-system-runtime-information-http.md",
+      "role": "formal-specification",
+      "sha256": "e4cbf79d922c1b1456024e7cbf64fefa73937c75b5916e29c4e18fe66868bdfb"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:cmd/agenteam/main.go": {
+      "bytes": 3825,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "cmd/agenteam/main.go",
+      "role": "bounded-static-source",
+      "sha256": "4412cc0e4d838b076d1447ea3ec9137f1eb0dffc01f95d8ff54c5756e305198a"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/account/authority.go": {
+      "bytes": 3404,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/account/authority.go",
+      "role": "bounded-static-source",
+      "sha256": "4ee6365489ff21bfd629313b658f46f03495fe38a27e640ed4897a43547f14d5"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/account/http_boundary.go": {
+      "bytes": 2525,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/account/http_boundary.go",
+      "role": "bounded-static-source",
+      "sha256": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/account/logout.go": {
+      "bytes": 11228,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/account/logout.go",
+      "role": "bounded-static-source",
+      "sha256": "f1db049b537254dfa044d8dca49873d26061196fa534882fe81c505af753e5a2"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/account/repository.go": {
+      "bytes": 5210,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/account/repository.go",
+      "role": "bounded-static-source",
+      "sha256": "56f1e009468c07ca84d41377787f9e502c06ca4a5bfc34a895fbcef5953279d1"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/account/service.go": {
+      "bytes": 6163,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/account/service.go",
+      "role": "bounded-static-source",
+      "sha256": "0ef5a16b15079dcc718c4bdb7d10c95bf9817e3047060ddf05475c372be2f537"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/app/account.go": {
+      "bytes": 13909,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/account.go",
+      "role": "bounded-static-source",
+      "sha256": "be95ac04214983a95ed9b63d845bc8aa622c3b926ea16328a492d908001e463c"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/app/app.go": {
+      "bytes": 20242,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/app.go",
+      "role": "bounded-static-source",
+      "sha256": "16d03bee7c067afd57119d3d318f94119bf2cf3db033ed52afd9d380a39cf005"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/app/app_test.go": {
+      "bytes": 14985,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/app_test.go",
+      "role": "bounded-static-source",
+      "sha256": "5cb36eb4c721d0674f297fa6e93e4a828a80225735d096edcb7202d1b6b3edc6"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/app/audit_http.go": {
+      "bytes": 523,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/audit_http.go",
+      "role": "bounded-static-source",
+      "sha256": "b2a547db23854de76a9d456152edc6a0c0a0c9e88f3741d89ced580179fde26b"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/app/audit_http_process_test.go": {
+      "bytes": 6318,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/audit_http_process_test.go",
+      "role": "bounded-static-source",
+      "sha256": "b44be5136db527ebcb39da30da760b49bc794937c32db3f44d02c07e01f9d1ba"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/app/database_test.go": {
+      "bytes": 7715,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/database_test.go",
+      "role": "bounded-static-source",
+      "sha256": "e4848d8dcee5ef4192e4dccd2a78dd541742d4d5e10216ac2b1c9952d9ea0654"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/app/diagnostics.go": {
+      "bytes": 4767,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/diagnostics.go",
+      "role": "bounded-static-source",
+      "sha256": "05fbac74ffc67dc9499130eff386ef253881ce5c3c8504d2cd3f0244f4993164"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/app/health.go": {
+      "bytes": 7504,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/health.go",
+      "role": "bounded-static-source",
+      "sha256": "f6f80d804f65ee8c036fb45697d5d47176d7cd4a5cf579da28af1c97e2672ff5"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/app/health_sampling_test.go": {
+      "bytes": 5458,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/health_sampling_test.go",
+      "role": "bounded-static-source",
+      "sha256": "7651147e7189f79e8ff0d1de2f43c99dc5db81b6c52a11aba6e5616ece702abf"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/app/model_process_test.go": {
+      "bytes": 17632,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/model_process_test.go",
+      "role": "bounded-static-source",
+      "sha256": "d0da84b5ba533cbfae206caeac0b4631aa62e0b41b9bc8b343b1c0e649c8f1db"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/app/resources.go": {
+      "bytes": 8722,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/resources.go",
+      "role": "bounded-static-source",
+      "sha256": "b1560671393b44a7911adf3baa8f4433da036d89e9478e225051dbbadfde07a5"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/http/handler.go": {
+      "bytes": 6633,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/http/handler.go",
+      "role": "bounded-static-source",
+      "sha256": "b13e6a0885c155ff4eff737790be0fb4f06191abb0d0409701f510cd6441a039"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/http/wire.go": {
+      "bytes": 11980,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/http/wire.go",
+      "role": "bounded-static-source",
+      "sha256": "4a42524d07301277350ed57d0a15901e2dfa6a541e16e14bbd145563adb593b4"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/system_query.go": {
+      "bytes": 4269,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/system_query.go",
+      "role": "bounded-static-source",
+      "sha256": "b84646b38e6810d02e3c6b259c1ee1e88b26aa79af406ebb5c504b58abd2014f"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/foundation/cause.go": {
+      "bytes": 5490,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/foundation/cause.go",
+      "role": "bounded-static-source",
+      "sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/foundation/instant.go": {
+      "bytes": 1751,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/foundation/instant.go",
+      "role": "bounded-static-source",
+      "sha256": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/foundation/lock.go": {
+      "bytes": 5196,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/foundation/lock.go",
+      "role": "bounded-static-source",
+      "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/foundation/tx.go": {
+      "bytes": 2339,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/foundation/tx.go",
+      "role": "bounded-static-source",
+      "sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/object/initialize.go": {
+      "bytes": 4516,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/object/initialize.go",
+      "role": "bounded-static-source",
+      "sha256": "16d2e6b645c3342e863d65226a9b54cebdcb9088eb40e0289f9e1235ce716cd8"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/object/runtime.go": {
+      "bytes": 9214,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/object/runtime.go",
+      "role": "bounded-static-source",
+      "sha256": "1c16810426b77c01ea230bcd0c8b56d532081e6851ad4f34dd6b2a5a47f13485"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/outbound/policy.go": {
+      "bytes": 16094,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/outbound/policy.go",
+      "role": "bounded-static-source",
+      "sha256": "50056c5f6cdf14acaaa93dd463a50b948a1ba93da9b01d9eb421cd025379febc"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/postgres/health.go": {
+      "bytes": 3972,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/postgres/health.go",
+      "role": "bounded-static-source",
+      "sha256": "9c0a7b6c9627b4e8f54bfeb84844ad699e464fa20175b2a834647051b6695de0"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/postgres/transaction.go": {
+      "bytes": 9811,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/postgres/transaction.go",
+      "role": "bounded-static-source",
+      "sha256": "aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/secret/service.go": {
+      "bytes": 7496,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/secret/service.go",
+      "role": "bounded-static-source",
+      "sha256": "26f6f876e502e7d26afe9b43c11732d72356826d787baa4950b44ed15dac6906"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:tests/account/b02_fixture_test.go": {
+      "bytes": 3750,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "tests/account/b02_fixture_test.go",
+      "role": "bounded-static-source",
+      "sha256": "8acf211919f82ddbe01f2836c757a522f474dd188d588ae65ac063db157d2f51"
+    }
+  },
+  "limits": [
+    "Rev1 trailing-slash404 was a specification conflict found by root, corrected to Boundary400 in private rev2; no product RED/run is claimed.",
+    "Formal-header01 scratch review link was removed in formal-header02 before the formal commit; both original versions and exact diff remain.",
+    "The missing diagnostics_test.go read-only preparation error has a frozen note recording git128/outer1, not separate command/raw/wait files.",
+    "31 source files plus rev2/diff form33 entries in inputs03; these are limited static inputs, not an execution closure.",
+    "3690B bound and all service/native/PG assertions are specification/static results or future verification requirements, not executed product evidence."
+  ],
+  "objects": {
+    "04ba28bdbda2398149b3f33784e5a66c6325c6ee7d261d878cc7b1b755abdb5d": {
+      "bytes": 6655,
+      "path": "objects/04ba28bdbda2398149b3f33784e5a66c6325c6ee7d261d878cc7b1b755abdb5d"
+    },
+    "052d2fb789b06642624d2882c021c7186cea975c52b96e617bf2b5b836a3e358": {
+      "bytes": 29003,
+      "path": "objects/052d2fb789b06642624d2882c021c7186cea975c52b96e617bf2b5b836a3e358"
+    },
+    "19a660f7afa352f38531f7ca8a1dc6ac2d75cef0c9df4a6fae9e74e75b22b063": {
+      "bytes": 821,
+      "path": "objects/19a660f7afa352f38531f7ca8a1dc6ac2d75cef0c9df4a6fae9e74e75b22b063"
+    },
+    "1edd4e33b9df833464ffa49b8865a27ab14dff331181a36fd4654631dc1e4849": {
+      "bytes": 3898,
+      "path": "objects/1edd4e33b9df833464ffa49b8865a27ab14dff331181a36fd4654631dc1e4849"
+    },
+    "3abd7113039c93b0862f3f465a5ad3b606e73afc9f3e4cf6ad6be095bc6f603c": {
+      "bytes": 6264,
+      "path": "objects/3abd7113039c93b0862f3f465a5ad3b606e73afc9f3e4cf6ad6be095bc6f603c"
+    },
+    "4c60467f09d7cdc5dcecc8345363d774b7959140f40dbe3bce28cb74168d4005": {
+      "bytes": 2345,
+      "path": "objects/4c60467f09d7cdc5dcecc8345363d774b7959140f40dbe3bce28cb74168d4005"
+    },
+    "4de07be04461c684530ecb630017c027f1bf816fd6bd5012dd5e009e8d9c18a2": {
+      "bytes": 8362,
+      "path": "objects/4de07be04461c684530ecb630017c027f1bf816fd6bd5012dd5e009e8d9c18a2"
+    },
+    "a2956d5491f5cce1409cff0400571aa031df61bdb0d66ca858872e5193aa451d": {
+      "bytes": 27691,
+      "path": "objects/a2956d5491f5cce1409cff0400571aa031df61bdb0d66ca858872e5193aa451d"
+    },
+    "a6b00fdb0cc6060434631f02ad1cc0085b1506435f7098768a30f5a7f4ccb727": {
+      "bytes": 4833,
+      "path": "objects/a6b00fdb0cc6060434631f02ad1cc0085b1506435f7098768a30f5a7f4ccb727"
+    },
+    "a9a83779d465c7bef01ae312d8bb304ec17604c5e7bcad37ef9e49160fd5045d": {
+      "bytes": 1469,
+      "path": "objects/a9a83779d465c7bef01ae312d8bb304ec17604c5e7bcad37ef9e49160fd5045d"
+    },
+    "bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b": {
+      "bytes": 28461,
+      "path": "objects/bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b"
+    },
+    "c6e59b136077ce17e7ec056d314dc86e9571abd17d9dfe9d31ed3543fadadf3c": {
+      "bytes": 307,
+      "path": "objects/c6e59b136077ce17e7ec056d314dc86e9571abd17d9dfe9d31ed3543fadadf3c"
+    },
+    "f2d88c8d50a34ef697a91ad619e31c2abfdeb071b93cb6760f4908dd8c32e257": {
+      "bytes": 1906,
+      "path": "objects/f2d88c8d50a34ef697a91ad619e31c2abfdeb071b93cb6760f4908dd8c32e257"
+    }
+  },
+  "origins": {
+    "author": "/workspace/scratch/agenteam-runtime-information-spec-kk8v722_",
+    "review": "/workspace/scratch/agenteam-runtime-information-independent-ryn_i3n7"
+  },
+  "report": "docs/development/agent-team/system-runtime-information-http-spec-verification.md",
+  "root_confirmed_stage": {
+    "actual_start": true,
+    "author_service_frozen": true,
+    "authorized_implementation_sources": 13,
+    "checks_completed": true,
+    "checks_scope": "author service A only; pure/race each7 tops58 subcases, vet/format; not independent acceptance",
+    "first_drafts": [
+      "internal/central/runtimeinfo/service.go",
+      "internal/central/runtimeinfo/service_test.go"
+    ],
+    "http_stage_started": false,
+    "independent_implementation_verification": true,
+    "independent_reproduction_final": true,
+    "independent_stage_started": true,
+    "independent_static_finding": "DB/Object stale or unavailable can retain DEPENDENCY_UNBOUND; card requires DEPENDENCY_UNAVAILABLE",
+    "private_author_root": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk",
+    "product_accepted": false,
+    "repair_accepted": false,
+    "resources_started": false,
+    "root_stage_started": false,
+    "source": "root handoff only; no active implementation source consumed"
+  },
+  "schema": 1,
+  "scope": "accepted Runtime Information specification; no implementation acceptance",
+  "technical_sha256": "aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab",
+  "unchanged_sources_at_mime_git": "fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5"
+}

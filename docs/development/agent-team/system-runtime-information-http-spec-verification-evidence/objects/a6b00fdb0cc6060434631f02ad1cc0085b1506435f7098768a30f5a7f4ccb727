@@ -1,0 +1,14 @@
+# Runtime information rev2 独立静审
+
+**STATIC PASS，无阻断。** 审查对象为冻结 rev2 全文 `bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b`，技术 §1–7 `aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab`。依据固定后端 `b124650aee095b26191bc181dc8cf5d6e0f977f5` 的 31 个必要源码；精确私有副本和 SHA 见 `inputs03.json`。本次没有实现、编译、测试、监听或业务资源，也未读取活动 Audit UI。
+
+1. **缓存与原 ready 语义匹配。** `app/health.go` 的失败分支只更新 available，成功才更新对应 received；DB 成功才更新 last。原快照使用 `now.Sub(received) <= stale`，默认 20s，故恰 20s 可用、失败优先于陈旧与保留历史样本均有依据。新增一次 RLock 复制、一份 T、解锁后只读值投影可在新 app 文件实现，不需改 health 写入/调度。`diagnostics.go` 的六项任一失败仍为 DEPENDENCY_UNAVAILABLE，全部健康仍为 DEPENDENCY_UNBOUND；新 predicate 可复用此判定。新管理 Source 的严格完整性校验与旧 ready predicate 应保持规格已写明的区别，不把新版本/时间校验套到旧 package-local 诊断替身。
+2. **来源事实与安全 DTO 清楚。** `postgres/health.go` 成功值来自真实检查且事务回滚；`object/initialize.go` 和 `object/runtime.go` 是 bucket/control/transfer/maintenance 聚合，不足以声称 MinIO server-version 或逐项故障。Secret/Outbound Status 均取内存锁内值；各采一次 Available 不需网络。CLI 的 development (D05) 不是构建版本。`foundation/instant.go` 的 Validate 本身允许零值，卡明确额外拒绝零时间正确；monotonic 年龄应在转换 UTC 展示之前计算。闭合 DTO 算术独核为固定壳 618B＋两份 256×6B 转义版本＝3690B，低于16384B；仅为静态上界，不是已执行 Go 编码/HTTP 最大包络试验。
+3. **授权和终局接缝可实施。** `HTTPBoundary.RequireSystem` 使用 Tx{}，不可替代新事务内检查；`account/authority.go` 要求真实同 Tx User SH，正式 Logout 使用 User EX。最小 runtimeinfo Store 单独声明 Acquire 可由真实 postgres.Store 满足；固定 Account.Store 仅公开 AcquireAll，卡要求另从同 db 断言准确。随机 recovery cause 名称符合 foundation 规则。CurrentSession/SystemRead/grant.Matches、Source 一次、完整 callback 与 WithinTx 实际 Committed/ctx 有效共同放行，沿已接受 `audit/system_query.go` 可实现；Unknown 零候选保留，不需要任何写口/receipt/lookup。
+4. **启动工厂及失败出口覆盖真实顺序。** 固定 `bindAccounts` 构造 core/Authority/Store；`initialize` 按值接 dependencies，且先取得 listener 后返回 startupResult。工厂必须经 startupResult 显式传回，run 填入原初始样本的唯一 monitor 后只调用一次，并在 health/Serve 启动前完成绑定。纯构造失败走原 initial.err 同等 cleanup 出口，可关闭已取得 listener 并沿既有资源所有者处理，无需改 Account 公开口、Object 或健康算法。这里确认新增分支接线可实施，不重判或关闭既有 Object 生命周期停止事项。
+5. **HTTP 形状、预算和范围一致。** rev2 先沿固定 Boundary 校验 Host/Origin/Fetch-Metadata 再判 canonical Path/RawPath，尾斜线等400、规范未知子路径404、精确路径非GET405，符合实际源码。根精确 root/root+slash 分流可沿现 Audit route helper 保留请求原字段与单外层 RequestID。预认证前3s/更早parent、实际 Body.Close/AfterFunc join/清 deadline、短写/Flush中止均有冻结 Audit handler 接缝；卡已分别限定 pure/natively canceled/PG1s 的证据，不误把 ctx.Done 或 client timeout 当实际尾部结束。
+6. **14路径和验收可落地。** 新包、HTTP/schema、app新文件及 app.go/account.go/diagnostics.go 三处已有生产接缝足够；README 最后另授。两个真实顶层分别用完整 newB02Account 与 newModelRootApp，当前权限/受控Source和真实缓存来源分列。现 `TestDiagnosticRoutes` 确会监听，卡要求另授 native 窗口准确；已有健康边界测试存在，强断言可复用。45s场景/2m真实/6m包和精确资源终局仍待实际实施验证。
+
+没有要求扩大候选范围或修改现有契约。上述实施要点已经包含在卡内，不是新加完成门槛。主树、Git、公共 fixture 和所有停止任务均未变。
+
+附带保留 `preparation-note01.json`：首次固定源码发现误写不存在的 diagnostics_test.go，git show 返回128/读取命令退出1；随后通过固定 Git tree 定位实际 app_test.go。仅只读定位前提，未执行任何产品测试。`static-checks01.json` 记录全文/技术 SHA、14精确路径和上界算术。
