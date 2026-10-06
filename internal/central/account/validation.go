@@ -16,11 +16,25 @@ func NormalizeEmail(input string) (string, error) {
 			return "", field("/email", "EMAIL_INVALID")
 		}
 	}
-	a, e := mail.ParseAddress(input)
-	if e != nil || a.Name != "" || a.Address != input || strings.ContainsAny(input, "()<>,;\\\"") {
-		return "", field("/email", "EMAIL_INVALID")
+	canonical := strings.ToLower(input)
+	if bareEmailAddress(input) {
+		return canonical, nil
 	}
-	return strings.ToLower(input), nil
+	// Preserve the old accepted set, adding only its complete lowercase
+	// outputs. Go's parser requires this one domain-literal marker's case.
+	local, domain, ok := strings.Cut(input, "@")
+	if input == canonical && ok && !strings.Contains(domain, "@") && strings.HasPrefix(domain, "[ipv6:") && strings.HasSuffix(domain, "]") {
+		wire := local + "@[IPv6:" + domain[len("[ipv6:"):]
+		if bareEmailAddress(wire) {
+			return canonical, nil
+		}
+	}
+	return "", field("/email", "EMAIL_INVALID")
+}
+
+func bareEmailAddress(input string) bool {
+	a, err := mail.ParseAddress(input)
+	return err == nil && a.Name == "" && a.Address == input && !strings.ContainsAny(input, "()<>,;\\\"")
 }
 
 var reservedNames = map[string]bool{"api": true, "assets": true, "auth": true, "login": true, "logout": true, "invite": true, "reset": true, "settings": true, "system": true, "personal": true, "diagnostics": true, "livez": true, "readyz": true, "debug": true, "support": true, "root": true, "admin": true}

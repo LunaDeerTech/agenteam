@@ -52,6 +52,7 @@ type State struct {
 	Phase                                                      string
 	MessageBytes                                               int
 	MessageSHA, MessageID                                      string
+	MailFromSHA, RCPTToSHA                                     string
 }
 type Endpoint struct {
 	ID   string

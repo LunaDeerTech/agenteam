@@ -51,6 +51,12 @@ email 只读，本人可改 username/display_name/theme；username 按当前 DB 
 
 Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算。健康采样核真实技术状态，不发送邮件。停机先停全部准入，Mail 的 FinishDelivery 和 actual join 必须先于 Core 最终排空；LoginResponse.UseCookie、头像解码/reader 和整个恢复日志 Sink 未 join 时保留共享 guard，DB 最后关闭，详见[生命周期](README.md#停止与退出)。
 
+## 邮箱 canonical 与 SMTP wire
+
+邮箱仍采用1–254字节的裸 ASCII addr-spec，整体小写，不 trim、去点、去 tag、IDNA 或压缩 IP 文本。令 `S` 为本次修复前正式 `NormalizeEmail` 接受的集合，现在只接受 `S ∪ lower(S)`：旧合法输入的 canonical 字节不变，并允许其完整小写结果再次输入。原 `IPv6:` literal 的小写 canonical 可往返；如 `iPv6:`、`IPV6:` 的其他标记，以及使用 `ipv6:` 标记但其他部分未全部小写等原不合法输入仍拒绝，详见[闭包修复规格](../work-items/d07-email-canonical-roundtrip.md)。
+
+数据库身份、SMTP GET 和命令语义始终保留小写 canonical。worker 在原消息准备边界验证材料，只在私有 SMTP wire 副本将实际 literal 标记 `ipv6:` 改为 `IPv6:`；MAIL FROM、RCPT TO、From、To 共用同一对已验证地址，其余字节与显示名安全编码保持。wire 不回写身份或持久材料，旧唯一性、命令 MAC、历史回执和发送预算不变；合法输入等价不能用于改写前端已冻结的 pending 请求。
+
 ## 邀请、找回与恢复
 
 `CreateInvitation` 与 `ResendInvitation` 只接受当前管理员。重发保持同一 token/ID 和首次 24h 到期时刻；每链接 60s 一次新意图，原命令重放不重复计次。receipt 只有安全 ID/version；token 只进入 Secret。`InspectInvitation` 返回当前链接 email/期限，拒绝提供了另一当前身份的检查；`RedeemInvitation` 原子创建普通用户、消费链接、取消未开始任务、撤引用、建立材料清理、Audit 和命令 receipt，不自动登录。
@@ -80,3 +86,5 @@ AGENTEAM_MINIO_BINARY=/task-owned/cache/minio GOFLAGS=-p=1 \
 普通检查不使用 Docker。真实 suite 校验 nonce/label/exact-ID 的 PG、MinIO 和网络资源，结束只清本轮资源；固定 MinIO 来源见[后端入口](README.md)。脚本默认 `all`，顺序运行 `mutations`、`identity`、`mail`、`profile`、`avatar`、`avatar-recovery`、`http`、`app`、`library` 九组，也可传单个组名。前八组沿原 fixture 选择，`library` 完整执行 `internal/central/account/...`；保留原 `-race -count=1 -timeout=6m`，包级 `-p=1` 不改变内部并发。
 
 D07 组合验收按实际 build tags 固定 Account 95 顶层库存、Mail 31 选择、library 67 和 app 12（11 功能加 1 child helper），另保旧域完整包与普通 check-go 的覆盖。HTTP 六项采用已核的四个完整未失败函数、修后邀请单项与受 artwork adapter 影响的挑战单项，不重复跑绿覆盖原失败。原独立五 probe 和 Sink 专用 overlay 只存在其固定测试输入，裸 helper/no-tests 不算功能通过；实际证据与历史限制见[主卡](../work-items/d07-account-session-smtp.md#当前进度)。不要将测试图片、密码、proof、完整链接、受限日志正文或浏览器环境凭据写入普通日志和报告。
+
+邮箱闭包的补验包括受影响 Account/Accountmail 纯测与 race、正式 SMTP PUT→GET→仅编辑 host→PUT、原命令重放与当前配置区分、TestSMTP 二次规范化、邀请/登录/真实挑战/reset 代表，以及四种地址的实际 SMTP 信封/邮件头与材料释放；原 none/STARTTLS/TLS 三模式回归保留。作者三个新顶层在 `new-account01` 与 `new-wire01` 两轮通过，旧回归另在 `old-smtp01` 通过；独立验收组合原轮已通过子例与修正私有夹具前提后的复跑，不称同轮全绿，原失败永久保留。精确命令、输入和实际退出/双清见[邮箱闭包验收记录](../agent-team/email-canonical-roundtrip-verification.md)。历史回执在候选版本内创建，不是跨二进制升级实证；受控 SMTP 接受不等于外部邮箱送达，本次也不证明 SMTP UI 或整个 D27 已通过。

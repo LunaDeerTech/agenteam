@@ -233,6 +233,8 @@ func (c *scenario) serve(raw net.Conn) {
 		case "MAIL":
 			c.mu.Lock()
 			c.state.Mail++
+			sum := sha256.Sum256([]byte(line))
+			c.state.MailFromSHA = hex.EncodeToString(sum[:])
 			c.mu.Unlock()
 			if !c.phase("mail") || !write(c.config.MailCode) {
 				return
@@ -240,6 +242,8 @@ func (c *scenario) serve(raw net.Conn) {
 		case "RCPT":
 			c.mu.Lock()
 			c.state.RCPT++
+			sum := sha256.Sum256([]byte(line))
+			c.state.RCPTToSHA = hex.EncodeToString(sum[:])
 			c.mu.Unlock()
 			if !c.phase("rcpt") || !write(c.config.RCPTCode) {
 				return

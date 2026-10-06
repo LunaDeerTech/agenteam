@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -327,11 +328,11 @@ func (w *Worker) sendSMTP(parent context.Context, f c.DeliveryMaterialFields) (o
 	if e != nil {
 		return smtpError(e, false)
 	}
-	defer clear(message)
+	defer clear(message.body)
 	if e = begin(c.SMTPMail); e != nil {
 		return smtpError(e, false)
 	}
-	for _, cmd := range []string{"MAIL FROM:<" + f.SenderEmail + ">", "RCPT TO:<" + f.Recipient + ">"} {
+	for _, cmd := range []string{"MAIL FROM:<" + message.sender + ">", "RCPT TO:<" + message.recipient + ">"} {
 		code, _, e = p.command(cmd)
 		if e != nil {
 			return smtpError(e, false)
@@ -352,7 +353,7 @@ func (w *Worker) sendSMTP(parent context.Context, f c.DeliveryMaterialFields) (o
 	}
 	// Once DATA has begun, an interrupted stream or absent final acceptance is
 	// unknown. No retry occurs on this connection or with this attempt handle.
-	if e = p.write(message); e != nil {
+	if e = p.write(message.body); e != nil {
 		return smtpError(e, true)
 	}
 	if e = w.data().Port.CheckpointDelivery(ctx, attempt, c.AwaitingAcceptance); e != nil {
@@ -371,40 +372,67 @@ func (w *Worker) sendSMTP(parent context.Context, f c.DeliveryMaterialFields) (o
 	_ = raw.EndSend() // No QUIT or any other protocol write after EndSend.
 	return c.DeliveryOutcome{Result: c.DeliverySent, Reason: c.ReasonSent}, nil
 }
-func (w *Worker) message(f c.DeliveryMaterialFields) ([]byte, error) {
+
+// smtpMessage holds the single prepared pair used by both envelope and headers.
+// These wire spellings never replace canonical persistent account facts.
+type smtpMessage struct {
+	sender, recipient string
+	body              []byte
+}
+
+func smtpWireAddress(input string) (string, error) {
+	canonical, err := account.NormalizeEmail(input)
+	if err != nil || canonical != input {
+		return "", invalid()
+	}
+	local, domain, _ := strings.Cut(input, "@")
+	wire := input
+	if strings.HasPrefix(domain, "[ipv6:") {
+		wire = local + "@[IPv6:" + domain[len("[ipv6:"):]
+	}
+	parsed, err := mail.ParseAddress(wire)
+	if err != nil || parsed.Name != "" || parsed.Address != wire {
+		return "", invalid()
+	}
+	return wire, nil
+}
+
+func (w *Worker) message(f c.DeliveryMaterialFields) (smtpMessage, error) {
 	for _, s := range []string{f.Recipient, f.SenderEmail, f.SenderName} {
 		if strings.ContainsAny(s, "\r\n\x00") {
-			return nil, invalid()
+			return smtpMessage{}, invalid()
 		}
 	}
-	for _, s := range []string{f.Recipient, f.SenderEmail} {
-		a, e := mail.ParseAddress(s)
-		if e != nil || a.Address != s || a.Name != "" {
-			return nil, invalid()
-		}
+	sender, e := smtpWireAddress(f.SenderEmail)
+	if e != nil {
+		return smtpMessage{}, e
 	}
-	from := (&mail.Address{Name: f.SenderName, Address: f.SenderEmail}).String()
+	recipient, e := smtpWireAddress(f.Recipient)
+	if e != nil {
+		return smtpMessage{}, e
+	}
+	from := (&mail.Address{Name: f.SenderName, Address: sender}).String()
 	origin, e := url.Parse(w.data().PublicOrigin)
 	if e != nil {
-		return nil, invalid()
+		return smtpMessage{}, invalid()
 	}
-	header := "From: " + from + "\r\nTo: <" + f.Recipient + ">\r\nMessage-ID: <" + f.Attempt.Details().JobID.String() + "@" + origin.Hostname() + ">\r\nSubject: Agenteam account\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n"
+	header := "From: " + from + "\r\nTo: <" + recipient + ">\r\nMessage-ID: <" + f.Attempt.Details().JobID.String() + "@" + origin.Hostname() + ">\r\nSubject: Agenteam account\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n"
 	body := "Agenteam SMTP test.\r\n"
 	if f.Attempt.Details().Kind != c.TestDelivery {
 		link, e := w.link(f)
 		if e != nil {
-			return nil, e
+			return smtpMessage{}, e
 		}
 		defer link.Destroy()
 		e = link.Use(func(b []byte) error { body = string(b) + "\r\n"; return nil })
 		if e != nil {
-			return nil, e
+			return smtpMessage{}, e
 		}
 	}
 	message := []byte(header + strings.ReplaceAll(body, "\r\n.", "\r\n.."))
 	if len(message) > 64<<10 {
 		clear(message)
-		return nil, invalid()
+		return smtpMessage{}, invalid()
 	}
-	return message, nil
+	return smtpMessage{sender: sender, recipient: recipient, body: message}, nil
 }
