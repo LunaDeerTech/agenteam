@@ -1,0 +1,15 @@
+{
+  "baseline": "ecd733711caff5df46e423cadab52b32c34f785e",
+  "paths": [
+    "tests/database",
+    "tests/process",
+    "tests/security",
+    "tests/outbox",
+    "tests/account",
+    "tests/accountmail",
+    "tests/project",
+    "tests/objects"
+  ],
+  "reason": "original tests/testsupport/postgres/cmd/fixture fixed go test package argv closure; no live candidate sources",
+  "archive_sha256": "1abbf1647e5ed001308f4ce8d808f4af7fffddaa223ca9b0123df6f408fbca6a"
+}

@@ -1,0 +1,5 @@
+# github.com/LunaDeerTech/agenteam/internal/central/model/adapter [github.com/LunaDeerTech/agenteam/internal/central/model/adapter.test]
+internal/central/model/adapter/openai_chat_tools_test.go:272:82: m.Protocol undefined (type struct{Revision string; Commit string; Sources []struct{Path string; URL string; SHA256 string; GitBlob string}; Adopted []string; Rejected []string; Tests []string} has no field or method Protocol)
+internal/central/model/adapter/openai_chat_tools_test.go:272:121: m.Profile undefined (type struct{Revision string; Commit string; Sources []struct{Path string; URL string; SHA256 string; GitBlob string}; Adopted []string; Rejected []string; Tests []string} has no field or method Profile)
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model/adapter [build failed]
+FAIL

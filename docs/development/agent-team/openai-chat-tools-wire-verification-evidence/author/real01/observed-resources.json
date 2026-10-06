@@ -1,0 +1,65 @@
+{
+  "b382746db7d84b5863a1061d1d2b36b05e6b67d8da9d74c90b070f1179b9f461": {
+    "id": "b382746db7d84b5863a1061d1d2b36b05e6b67d8da9d74c90b070f1179b9f461",
+    "name": "agenteam-d05-object-11ad893569afda09cfb21d4802646c71",
+    "labels": {
+      "agenteam.d05.objectfixture": "11ad893569afda09cfb21d4802646c71"
+    },
+    "kind": "network",
+    "first_seen": 1791251260.1669457
+  },
+  "a334eb1c8114c5a20b023c11b1117cbd23649c7a65143d4cb268d2399d4726b1": {
+    "id": "a334eb1c8114c5a20b023c11b1117cbd23649c7a65143d4cb268d2399d4726b1",
+    "name": "/agenteam-d05-object-11ad893569afda09cfb21d4802646c71",
+    "labels": {
+      "agenteam.d05.objectfixture": "11ad893569afda09cfb21d4802646c71"
+    },
+    "kind": "container",
+    "first_seen": 1791251264.0011673
+  },
+  "50610bca8747d16ce151c1df46350b1cf2e2224c1ddb368bd037f22da7d5e139": {
+    "id": "50610bca8747d16ce151c1df46350b1cf2e2224c1ddb368bd037f22da7d5e139",
+    "name": "agenteam-d04-net-3b5dffc96427dc880d10815e0e29480e",
+    "labels": {
+      "agenteam.d04.networkfixture": "3b5dffc96427dc880d10815e0e29480e"
+    },
+    "kind": "network",
+    "first_seen": 1791251268.9384356
+  },
+  "4a41a75682cc1b3de67fd6d956409279d037b6a9e1d76348b1e75cf781aff7bc": {
+    "id": "4a41a75682cc1b3de67fd6d956409279d037b6a9e1d76348b1e75cf781aff7bc",
+    "name": "/agenteam-d04-net-3b5dffc96427dc880d10815e0e29480e",
+    "labels": {
+      "agenteam.d04.networkfixture": "3b5dffc96427dc880d10815e0e29480e"
+    },
+    "kind": "container",
+    "first_seen": 1791251271.2757165
+  },
+  "9ae2182c9dfc76e09b23e847d61c1bee95467d184bba8f3f443b5ae7d5b69257": {
+    "id": "9ae2182c9dfc76e09b23e847d61c1bee95467d184bba8f3f443b5ae7d5b69257",
+    "name": "agenteam-d03-0262f6e6682981c79574db3756422273",
+    "labels": {
+      "agenteam.d03.fixture": "0262f6e6682981c79574db3756422273"
+    },
+    "kind": "network",
+    "first_seen": 1791251272.0171082
+  },
+  "373746c49c0df07894188c64131c20fc30d5c59645f4323ff9ca180cef0d0ad4": {
+    "id": "373746c49c0df07894188c64131c20fc30d5c59645f4323ff9ca180cef0d0ad4",
+    "name": "/agenteam-d03-0262f6e6682981c79574db3756422273",
+    "labels": {
+      "agenteam.d03.fixture": "0262f6e6682981c79574db3756422273"
+    },
+    "kind": "container",
+    "first_seen": 1791251273.5657194
+  },
+  "83f1ec6bac943875c987fec525901a568c817ef7d1f24657fa1f11eb1e650fab": {
+    "id": "83f1ec6bac943875c987fec525901a568c817ef7d1f24657fa1f11eb1e650fab",
+    "name": "/agenteam-d03-0262f6e6682981c79574db3756422273-pg16",
+    "labels": {
+      "agenteam.d03.fixture": "0262f6e6682981c79574db3756422273"
+    },
+    "kind": "container",
+    "first_seen": 1791251276.633032
+  }
+}

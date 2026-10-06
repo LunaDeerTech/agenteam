@@ -1,0 +1,51 @@
+# OpenAI Chat tools wire 作者交付（作者完成；独立动态阻塞；14产品路径未提交）
+
+授权为 rev1 卡 §8 的14路径，固定业务输入 ecd733711caff5df46e423cadab52b32c34f785e，规格提交 b2be334cd8a78b904878bdbc388a43805390f7b7。未消费 ledger00018/活动公开入口候选；固定归档路径及原 driver 编译闭包见 baseline.json、closure-extension.json。官方21源来自规格作者已固定 SDK becc1d20eed83c1b8d85e15dc131a372d9dc7813；新 manifest 含逐源 SHA/Git blob/官方 URL，无 SDK 执行或 Provider 账号实测。
+
+当前作者输入为 input08.json，SHA256 6f48676f7e30f37b60a92777fdf80eb674af8d4baae349a6b6274aeeeefad5f9。14路径已停写；ready08.json 绑定 live/private 末检、定向1顶层 selector、原预算 driver、无00018、tmp空和源目录所属PID0。相对真实首轮 input07 唯一差量为第14路径的新预算测试 barrier；6生产、manifest、4pure和其他2真实文件未变。input07-sources.tar及原始失败完全保留。作者定向 real02 已完成，协调者接收资源归还；当前无运行命令或fixture。
+
+## 已执行检查与原失败
+
+所有 Go 命令固定 Go1.27.1、GOTOOLCHAIN=local、GOENV/GOWORK=off、GOPROXY/GOSUMDB=off、readonly模组、自有GOCACHE/TMPDIR。每个同名 JSON 保存 argv/cwd/env/exit/raw 定位及适用输入；后续 run-evidence 命令还核输入前后指纹与 raw SHA。
+
+- compile01：旧 adapter 全包 unit PASS；unit02：新旧全包 unit PASS3.924s。
+- race03：原工具16MiB两个分支均 FAIL。新 helper 当时复用只读旧 localExchange 的10s期限；两个私有诊断 overlay 均确认 original context deadline exceeded、timeout/wire_transport_error（10.82s/10.79s）。race03-diagnostic-input-check.json 逐SHA证明诊断使用原11源，live F1 未复制入执行源。原红/overlay/输入保留。
+- 独立 F1 指出非法超长 Tool.Name 在验证前被 policy clone。core01-F1.diff 将所有工具的 native name/C0/schema 验证放到克隆前。core01/core02小副本、精确manifest及差量保留。
+- unit04：全包 PASS4.480s。仅本卡新 pure helper 使用正式允许的120s，旧helper/生产/真实fixture预算不改。1MiB非法工具名 prepare 分配1888B；三个相位分别在 UTF16 escape 扫描、受ctx约束的 decoder Read、逐节点递归闭包的第64检查触发原ctx取消（仅测试按实际调用栈识别，没有生产hook）。
+- race04：新工具测试全部 PASS，包括完整1MiB、16MiB精确/+1（实际15.53s/13.09s）、三相位取消、非法name分配2184B；全包唯一 FAIL 为旧 TestOpenAIChatSSECumulativeTextBound（10.02s）。原整包 exit1 不改写为 PASS。
+- race04-old-isolated：同 input04、无并行编译时仅旧失败顶层 -race -count=3，三次实际 PASS（8.78/8.26/7.76s），旧源/断言/10s期限均未修改。主线程采纳该分组证据；原失败原因没有确定为并发负载。旧 unicodeEscapes 现在委派到共享 ctx-aware 扫描，增加热路径检查成本，这是明确的生产差量；未据三次成功宣称该成本为零。
+- vet04、model-compile04、compile04（integration -race -c）、build-central04、build-runner04：均 exit0。
+- input05 仅修新真实 stream 测试的 DisconnectAfter/Hijack 预期为既有 network/wire_transport_error，依据只读旧 wire_stream_test.go:161；此前未运行真实。compile05 integration race编译 PASS，binary -test.list 精确9顶层。input04-sources.tar/input05-sources.tar保留原14源。
+- input06 对新manifest纠正 protocol/profile，但纯测试漏声明字段导致编译 FAIL；原JSON/raw/测试原件保留。input07 补声明后 manifest07 定向 -race -count=1 PASS1.014s。input05-to07.diff精确只有新manifest与同一新pure文件；生产6路径及真实3路径均未变，其余已通过检查按闭包复用。
+
+## 已执行真实首轮与窄修
+
+real01/command.json 记录 tools-author-01 的原命令、env、开始/结束、实际 exit1、执行后14路径一致。沿原 scripts/test-security.sh 的 race/count1/每包6m，原9顶层 selector；缓存与 MinIO 均为 verification_recovery 已核准备物，自有tmp/cache。首轮用 input07，未消费 ledger00018。driver 始于 2026-10-06 01:47:38.170210 UTC。
+
+| 首轮顶层 | 实际结果 |
+| --- | --- |
+| TestModelOpenAIChatToolsHTTP | PASS 2.05s |
+| TestModelOpenAIChatToolsStream | PASS 1.80s |
+| TestModelOpenAIChatToolsCloseAndBudget | FAIL 6.71s；下述新 barrier 问题 |
+| TestModelOpenAIChatStructuredHTTP | PASS 1.69s |
+| TestModelOpenAIChatStructuredStream | PASS 1.54s |
+| TestModelOpenAIChatStructuredCloseAndBudget | PASS 1.33s |
+| TestModelOpenAIChatWireHTTP | PASS 2.01s |
+| TestModelOpenAIChatWireStream | PASS 1.62s |
+| TestModelOpenAIChatWireJoinAndBudget | PASS 1.37s |
+
+唯一失败子例 headers_and_partial_body_hold_cancel_without_end 等待 GotFirstResponseByte 5.03s 到达原5s观察上界；只读 D04 实现手动读取/解析响应头，不调用该 httptrace callback，因此原测试假设错误。此失败尚未进入原取消断言，不能当作生产取消失效。三个同顶层未变子例已实际 PASS：工具片段背压0.22s、真实阻塞writer与同一过期关闭ctx0.14s、三修订同一64/8 Budget0.19s。tests/model 总20.163s、原driver exit1/raw完整保留，不冒称整轮通过。原脚本所列其它未被selector选中的包为 no tests to run，不计为额外验收或跳过场景。
+
+input07-to08.diff 只将首个子例换成正式成功 Decision（非nil、Sent、Reason空串）与同一 owned server 的1请求/active1/completed0/连接未闭共同确认；原服务先flush头再HoldAfter0，不能在解除hold前发送正文。HoldAfter1另外实际 Next 到非空 ToolDelta。保持原未Joined、取消类别、PartialOutput(false/true)、一次错误后EOF、wireClose和settled actual join及一次请求；加入阶段日志和清理defer cancel。未改生产、D04、fixture或任何预算。compile08 integration -race -c exit0，固定输入前后SHA一致；独立 input08-delta-review.json 已给静审PASS，真实定向仍待。
+
+首轮 observer 实际记录4容器+3网络。real01/cleanup.json 两次均7个exact-ID absent，原2容器/4网络的ID/name/labels不变，remaining_new空、所属PID0、runtime空；monitor-errors为空。窗口已显式交还 coordinator，清理不能据脚本一句success替代这些观测。
+
+## 定向补验实际通过与剩余阻塞
+
+run-real02.py SHA256 60cc8c390ea17fb4a5b98907fada8a36fb453bc91b411d9c807215fa9e7abb97 绑定 input08；real02-selector.txt SHA256 3165c6b9bbde4470a4afcf2885edde147f47c06e9d85be6c551bc1bd82cf7fa3 仅选 ^TestModelOpenAIChatToolsCloseAndBudget$。相对原driver只更换输入、输出目录、selector和窗口名，env/race/count1/每包6m与观察/双清规则不变。ready08中编译后的binary -test.list精确1顶层。实际已获 tools-author-02，driver540202 于2026-10-06 02:03:01.390025 UTC启动、02:03:57.731079 UTC结束，原命令exit0。该顶层及4子例全部PASS，tests/model 2.857s；日志分别确认hold0未交工具片段、hold1已实际交非空ToolDelta，两个分支caller仍live、Decision成功、服务端1请求/active1/completed0/连接未闭且未Joined。原取消/PartialOutput/EOF/actual join断言通过，真实阻塞writer共享原过期关闭ctx及64/8混用再次通过。
+
+已通过的8个其它真实顶层及 pure/build 检查仅按输入与语义未变复用；独立动态A/B使用其私有固定input07产品，作者input08只改测试barrier。主线程告知：独立A/B启动被自动安全筛查以 possible cybersecurity risk 中断；保持 NOT RUN，不重试、不改派、不改写执行。作者结果不能代替它，完整14路径尚未业务验收/未提交。独立F1原probe在core01分配8,392,792B为红、core02同probe4,232B为绿，原材料位于独立任务目录，不由作者改写。
+
+边界保持：无 Runtime、Resolver tools 绑定、Secret credential分派/读取授权、工具执行grant/自动执行、Invocation/Usage消费、Object修复、Summary产品决定或完整D09完成声明。真实网络参数320KiB、完整1MiB/16MiB上限为纯parser证据，不声称突破原fixture512KiB预算的网络验收。
+
+real02/cleanup.json 两次1791252237.9325411与1791252238.894396均观测7个exact-ID absent、原2c4n基线ID/name/labels不变、remaining_new空、ownedPID0及runtime空，monitor-errors=[]。协调者于2026-10-06 02:04:30 UTC复核接收归还。final-author-checks.json再次核14路径live/private匹配，固定源实际877文件由863个ecd原blob与14候选组成，无额外路径/基线差异，源目录所属PID0/tmp空。此为有限作者交付，不是独立动态或完整D09通过。

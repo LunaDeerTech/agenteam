@@ -1,0 +1,8 @@
+{
+  "stage": "closure collection before go test",
+  "exception": "ValueError: absolute generated test-main GoFiles path in GOCACHE is outside SOURCE",
+  "source": "go list -deps -test template includes generated absolute GoFiles; ignore paths outside the fixed source tree",
+  "product_test_started": false,
+  "go_list_exit": 0,
+  "runner_sha256": "c6531d964f07ddb57718005295745f7f88477187b34aea78eb463a94717e3d23"
+}

@@ -1,0 +1,66 @@
+import os,pathlib,json,subprocess,time,threading,hashlib
+base=pathlib.Path('/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq');run=base/'real02';run.mkdir(exist_ok=False)
+source=base/'source';manifest=json.loads((base/'input08.json').read_text())
+for p,h in manifest['paths'].items():
+ if hashlib.sha256((source/p).read_bytes()).hexdigest()!=h:raise SystemExit('fixed source changed')
+fixed={'AGENTEAM_GO':'/workspace/toolchains/go1.27.1/bin/go','AGENTEAM_MINIO_BINARY':'/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio','GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off','GOMODCACHE':'/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache','GOPROXY':'off','GOSUMDB':'off','GOFLAGS':'-mod=readonly -p=1 -v','GOCACHE':str(base/'gocache'),'TMPDIR':str(base/'tmp')}
+env=os.environ.copy();env.update(fixed)
+for k in ['AGENTEAM_OBJECT_FIXTURE','AGENTEAM_POSTGRES_FIXTURE','AGENTEAM_POSTGRES_UNSUPPORTED_FIXTURE','AGENTEAM_OUTBOUND_FIXTURE']:env.pop(k,None)
+selector=(base/'real02-selector.txt').read_text().strip();argv=['sh','scripts/test-security.sh','-run',selector]
+def save(name,value):(run/name).write_text(json.dumps(value,indent=2)+'\n')
+def command(argv):return subprocess.run(argv,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=10)
+def resources():
+ out={}
+ for kind in ['container','network']:
+  args=['docker','ps','-aq','--no-trunc'] if kind=='container' else ['docker','network','ls','-q','--no-trunc']
+  result=command(args)
+  if result.returncode:raise RuntimeError('Docker resource list unavailable')
+  for key in result.stdout.split():
+   fmt='{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Config.Labels}}}' if kind=='container' else '{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Labels}}}'
+   result=command(['docker',kind,'inspect','--format',fmt,key])
+   if result.returncode:continue
+   row=json.loads(result.stdout);row['kind']=kind;out[row['id']]=row
+ return out
+baseline=resources();save('baseline.json',baseline)
+seen={};pids={};errors=[];stop=threading.Event()
+def process_sample():
+ current={}
+ for path in pathlib.Path('/proc').iterdir():
+  if not path.name.isdigit():continue
+  try:
+   raw=(path/'stat').read_text();tail=raw[raw.rfind(')')+2:].split();pid=int(path.name);ppid=int(tail[1]);ticks=int(tail[19]);cwd=os.readlink(path/'cwd')
+   current[pid]={'pid':pid,'ppid':ppid,'ticks':ticks,'comm':raw[raw.find('(')+1:raw.rfind(')')],'cwd':cwd}
+  except (OSError,ValueError,IndexError):continue
+ owned=set(pid for pid,v in current.items() if v['cwd']==str(source) or v['cwd'].startswith(str(base/'tmp')) or pid in pids and pids[pid]['ticks']==v['ticks'])
+ while True:
+  expanded=owned|{pid for pid,v in current.items() if v['ppid'] in owned}
+  if expanded==owned:break
+  owned=expanded
+ for pid in owned:pids[pid]=current[pid]
+ return {str(pid):current[pid] for pid in owned}
+def monitor():
+ while not stop.is_set():
+  try:
+   now=resources()
+   for key,row in now.items():
+    if key not in baseline:seen.setdefault(key,dict(row,first_seen=time.time()))
+   process_sample();save('observed-resources.json',seen);save('observed-processes.json',pids)
+  except Exception as e:errors.append(type(e).__name__+': '+str(e))
+  stop.wait(.5)
+record={'argv':argv,'cwd':str(source),'env':fixed,'selector':selector,'input':'input08.json','started':time.time(),'window':'tools-author-02'}
+with (run/'raw.log').open('w') as log:
+ proc=subprocess.Popen(argv,cwd=source,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+ record['driver_pid']=proc.pid;save('command.json',record)
+ thread=threading.Thread(target=monitor);thread.start();code=proc.wait();stop.set();thread.join()
+record.update(exit=code,finished=time.time());save('command.json',record)
+cleanup=[]
+for check in [1,2]:
+ current=resources();absent={}
+ for key,row in seen.items():
+  r=command(['docker',row['kind'],'inspect','--format','{{.Id}}',key]);absent[key]={'exit':r.returncode,'absent':r.returncode!=0 and ('No such' in r.stderr or 'not found' in r.stderr)}
+ alive=process_sample();runtime=[str(p.relative_to(base/'tmp')) for p in (base/'tmp').rglob('*')]
+ cleanup.append({'check':check,'time':time.time(),'exact_absent':absent,'baseline_unchanged':all(current.get(k)==v for k,v in baseline.items()),'remaining_new':sorted(set(current)-set(baseline)),'owned_processes':alive,'runtime_entries':runtime})
+ if check==1:threading.Event().wait(.75)
+save('cleanup.json',cleanup);save('monitor-errors.json',errors)
+record['final_manifest_matches']=all(hashlib.sha256((source/p).read_bytes()).hexdigest()==h for p,h in manifest['paths'].items());save('command.json',record)
+print(json.dumps({'exit':code,'resources_seen':len(seen),'cleanup_checks':[{k:v for k,v in c.items() if k not in ['exact_absent','owned_processes']}|{'owned_process_count':len(c['owned_processes']),'all_exact_absent':all(v['absent'] for v in c['exact_absent'].values())} for c in cleanup],'monitor_errors':errors,'record':str(run/'command.json')}),flush=True)

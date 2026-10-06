@@ -1,0 +1,14 @@
+internal/central/model/adapter/openai_chat.go
+internal/central/model/adapter/errors.go
+internal/central/model/adapter/sse.go
+internal/central/model/adapter/transport.go
+internal/central/model/adapter/openai_chat_tools.go
+internal/central/model/adapter/tools_stream.go
+internal/central/model/adapter/testdata/openai-chat-tools-v1.json
+internal/central/model/adapter/openai_chat_tools_test.go
+internal/central/model/adapter/tools_stream_test.go
+internal/central/model/adapter/tools_limits_test.go
+internal/central/model/adapter/tools_transport_test.go
+tests/model/openai_chat_tools_http_test.go
+tests/model/openai_chat_tools_stream_test.go
+tests/model/openai_chat_tools_budget_test.go

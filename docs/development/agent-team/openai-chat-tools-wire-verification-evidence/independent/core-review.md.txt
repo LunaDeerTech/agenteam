@@ -1,0 +1,29 @@
+# Tools wire 核心独立审查
+
+核心静审及 F1 独立纯测试闭环通过；完整 14 路径的真实业务验收尚未完成。审查者未参与实现，只写本私有目录；产品、作者测试、仓库文档和 Git 均未修改。本记录止于 input07 和独立离线编译，不把作者活动真实日志算作通过。
+
+固定依赖是 `ecd733711caff5df46e423cadab52b32c34f785e`；规格是 `b2be334cd8a78b904878bdbc388a43805390f7b7`。核心输入 core01 SHA `ca807074bf3a4566d5da7e9692987a5e9f99018c65f5f2d00a07fcbff3b37274`、core02 SHA `476add38f8c992f81c98f7c26e939664207365658d2318384bea7bb6c7d53fa4`。完整最终候选 input07 SHA `45a9cd7ca0f0e92cd8609a2495c3f77f515cafca82c8fc21a1622d28a4128543`，见本目录各 input JSON、`core01-identity-checks.json`、`core02-identity-checks.json` 和 `ready07.json`。
+
+| 风险 | 已核事实和结论 |
+| --- | --- |
+| 准入与有界分配 | 发现 core01 在工具名称校验之前执行 policy `strings.Clone`。同一个独立 8 MiB 非法名称探针在 core01 实际分配 8,392,792 B 并失败；core02 先验证名称/schema 后创建 policy，原探针实际分配 4,232 B 并通过。两次均 `-race -count=1 -timeout=30s`，151 源闭包前后相符；探针只复用 ecd 的旧 `unitInput`，未调用作者新测试 helper。原红没有删除。 |
+| native 与 C0 | 请求工具定义/choice/parallel/history先验证再编码；InputSchema 保留数字词法且 strict=false，OutputSchema/IsError 不伪造 native 字段。普通响应先取得可靠 usage，再核完整 C0、工具集合、ID和选择关系，失败零结果；refusal/null content 仍沿 content_filter。21 SDK 来源指纹与固定来源相符。 |
+| SSE 与内存 | 同 index 原生 entry 顺序 append；稀疏/重复ID/缺function或错误选择失败。参数增量在分配前核1 MiB/16 MiB，几何 buffer 的 capacity 有硬上限；全部工具校验完成后才发第一个 ToolComplete，且在发标记前释放参数累积。队列仍32项/256 KiB，全新字符串及标量计量，≤64 KiB fragment 独立克隆，无参数取回端口。 |
+| 完成与所有权 | finish、ToolComplete、usage 均不替代 DONE 或 actual join；新增 payload 保持原 Exchange/parser/client 关闭链和具体 Budget。PartialOutput 只按实际 Next 交付，零 Tool grant、Runtime调用或账本写入。真实取消/两工具完成门槛继续由独立 A/B 验证。 |
+| 旧修订兼容 | text/structured闭集与错误分派保留。共享旧 text 路径的实质热循环差量是 unicode scanner 每4096字节检查 ctx；tools 分支在旧修订为nil，不新增文本累计或全文clone。作者原整包 race04 有旧10s顶层超时，不能计整包PASS或先认定负载根因；同输入、同旧helper、精确旧顶层 `-race -count=3` 分别8.78/8.26/7.76s通过，仅证明原门槛可满足，不是性能无回归基准。 |
+
+新工具纯 parser 原先误复用了旧10s `localExchange`。原 race03 两个16 MiB分支实际失败；只增加诊断日志的 overlay 与其原11源绑定，两个分支都观察到 `context deadline exceeded`、`timeout/wire_transport_error`（10.82/10.79s）。core02 仅把新 `parseToolsStream` helper 设置到规格允许的120s，未改旧helper、产品或真实fixture。精确16 MiB/+1断言保留，race04两分支15.53/13.09s通过。三个取消纯测分别确定命中 unicode、reader、逐节点第64次ctx检查，原上下文实际取消；不是未进入扫描的早取消。详见 `core02-evidence-review.json` 和保留的诊断差量。
+
+作者后续窄修已核：input04→05仅把真正 DisconnectAfter/Hijack 的测试预期改回旧 `network/wire_transport_error`；input05→07仅纠正新manifest Protocol/Profile及其纯测字段绑定。input06 漏声明造成编译失败，作者保留原 JSON/raw/测试原件；input07 定向manifest race通过。所有6生产、其余pure、3真实输入不因此改变，原相关验证按输入关系复用；不能把这些窄修称为新增产品验证。
+
+作者证据根 `/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq`：`unit04`、`vet04`、`model-compile04`、`compile05`、两个 `build-*-04` 和 `manifest07` 的命令、输入及实际退出值已核。`race04` 保留整包 exit1，并单列新工具组及旧失败顶层的受影响复验；原 `race03` 和 `manifest06` 红仍留存。
+
+独立证据索引：
+
+- `core01-name-red02/{command.json,raw.log,closure.json}`：F1 原红；raw SHA `e884705b19ed10b367029d392158e15ee263773e1d403479ae66e5f2592e8144`。
+- `core02-name-green01/{command.json,raw.log,closure.json}`：相同 probe 闭环；raw SHA `816650c6392ad028215bbce94030c884d877804198b457040a1d4ae53cd18370`。
+- `core01-name-red/preparation-error.json`：最早 closure runner 误处理生成 test-main 绝对路径，发生在测试前；明确不计产品红，修正runner和原件均保留。
+- `tools_independent_test.go`、`overlay.json`、`execution-closure07.json`、`compile02.json`、`compile02.log`：独立 A/B 两顶层四子例离线race编译通过，私有物理cwd，不与作者PID归属交叉；真实尚未运行。
+- `ready07.json`：上述输入/probe/overlay/selector/driver/编译指纹及资源候补状态。未启动 Docker。
+
+`36e5ff1` 接缝另核于 `main-integration-checks.json`：共享 identity 仅增加 ModelRuntime service 注册值，其余账本代码为新独立 package/migration/测试；adapter没有调用它们，不新增任何运行授权。本卡继续固定ecd真实输入，未冒称账本/工具组合运行通过，也不因后续纯文档提交重跑产品。

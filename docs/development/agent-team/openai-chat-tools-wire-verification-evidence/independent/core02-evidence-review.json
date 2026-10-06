@@ -1,0 +1,29 @@
+{
+  "core02_identity_checks_sha256": "b57bc9227881a036b8c650f001b9bd24d8d616cb2779444e745138e3dc5dbd72",
+  "diagnostic_overlay_sha256": "7ada2d0f9d87ca2f67042af6768c361891fe0c826be34054f819e33151ad9b71",
+  "diagnostic_source_sha256": "39376313aae609f83b1e136d9b4ead9e76744537c1cb9a4c3559a942868c3569",
+  "diagnostic_diff_sha256": "3266a37c077067809ef3aac85bcfef0cf13d1094eb119465c1a8f9ccf1e11c06",
+  "diagnostic_source_manifest": "8f3c37771c123f81c64b6232c15850c7f67b8e45c12c462d2b6e833e248d266d",
+  "diagnostic_contemporaneous_input_check": "fd95d106130597b87a42e576e056a4a7fc7f1e59ff7570b5218b5f8537dad6e6",
+  "two_branches": {
+    "race03-diagnosis": {
+      "command_sha256": "6d269814b2d2c1c0a7de6d8829adeafc53bdc414e3a8573c93c8ccc98f1b0d31",
+      "raw_sha256": "83d5bcbc15fb7f8f5d719e76f88f4a058d8a71dc151d02a1ebf914d9a6514368",
+      "exit": 1,
+      "source_binding": "author original race03-input.json and contemporaneous 11-SHA check; explicit diagnostic overlay delta retained"
+    },
+    "race03-diagnosis-extra1": {
+      "command_sha256": "8695f17c5925d76b1c3857c1facfc26c87dffdb90c55714654a12bef21cd10db",
+      "raw_sha256": "b86dd8b4fd093204909c3b8330479d4f3bdc319920743fe900a741323b3058ac",
+      "exit": 1,
+      "source_binding": "author original race03-input.json and contemporaneous 11-SHA check; explicit diagnostic overlay delta retained"
+    }
+  },
+  "pure_helper_change": "only new parseToolsStream now calls Budget.accept with original legal maximum 120s; baseline localExchange remains 10s",
+  "three_phase_cancel_evidence": "unit04/race04 raw each show phase_checks=64 and original_context_error=context canceled for unicodeEscapesContext/toolJSONReader.Read/toolObjectJSON.func1",
+  "race04_whole_package_exit": 1,
+  "race04_old_failure_retained": "TestOpenAIChatSSECumulativeTextBound 10.02s; no causal attribution or relaxed old deadline",
+  "f1_original_red_raw": "e884705b19ed10b367029d392158e15ee263773e1d403479ae66e5f2592e8144",
+  "f1_same_probe_green_raw": "816650c6392ad028215bbce94030c884d877804198b457040a1d4ae53cd18370",
+  "f1_probe_sha256": "50a242728b9daf87725a27e1407c2ed381a99bd5596a23e6970c939f06827927"
+}

@@ -1,0 +1,39 @@
+{
+  "baseline": "ecd733711caff5df46e423cadab52b32c34f785e",
+  "spec_commit": "b2be334cd8a78b904878bdbc388a43805390f7b7",
+  "scope": "6 production + manifest + 4 pure tests frozen; 3 integration tests remain author-owned and active",
+  "paths": {
+    "internal/central/model/adapter/openai_chat.go": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+    "internal/central/model/adapter/errors.go": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+    "internal/central/model/adapter/sse.go": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+    "internal/central/model/adapter/transport.go": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+    "internal/central/model/adapter/openai_chat_tools.go": "d976cc893bd7b03ac65feb47a56225947247a209d1f9daed7563838fefdee985",
+    "internal/central/model/adapter/tools_stream.go": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+    "internal/central/model/adapter/testdata/openai-chat-tools-v1.json": "a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2",
+    "internal/central/model/adapter/openai_chat_tools_test.go": "cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116",
+    "internal/central/model/adapter/tools_stream_test.go": "846dff7c6fd3730657798b5874456345b64404c9f596b5e3120b062c4a546a31",
+    "internal/central/model/adapter/tools_limits_test.go": "127182f49c5620d561489bcfc2c4927047b901b1c69207c9409a50456cdd3e79",
+    "internal/central/model/adapter/tools_transport_test.go": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa"
+  },
+  "fixed_execution_source": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source",
+  "evidence": [
+    "compile01.json",
+    "unit02.json",
+    "race03.json (running at freeze)"
+  ],
+  "prior_pass_delta": "unit02 -> core01 only content_filter priority for nonempty tool array; cancellation checked before C0 failure projection; pure accounting assertion simplified",
+  "fixed_dependencies": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "internal/central/model/adapter/budget.go": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a",
+    "internal/central/model/adapter/structured_schema.go": "061e45a59fc575b8d7bdbcf9b1837bbe247b7e5ac9d382b32be9c7b77ebab575",
+    "internal/central/model/contract/chat.go": "01f2abe8a8d5be54ed3193f22be75094f3868e2b09a6d8ca5dab6fb70aac2d88",
+    "internal/central/model/contract/types.go": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+    "internal/central/identity/contract/identity.go": "845794400c185b5f00ef673007661ec1382d19b54ec82329d565567daa073ef4",
+    "tests/model/openai_chat_wire_fixture_test.go": "cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8",
+    "scripts/test-security.sh": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be",
+    "scripts/test-objects.sh": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+    "tests/testsupport/outbound/cmd/fixture/main.go": "46da1f582264c5799b509e5d3f5002ed588628b1d12b9b589ab8064fc3cdf683",
+    "tests/testsupport/postgres/cmd/fixture/main.go": "55ae7da25e69c4f4f29ca516748d8cc837913016e9fc381fc96abc11f37298de"
+  }
+}

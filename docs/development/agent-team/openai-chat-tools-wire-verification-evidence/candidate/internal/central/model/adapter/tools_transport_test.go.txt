@@ -1,0 +1,163 @@
+package adapter
+
+import (
+	"context"
+	"encoding/json"
+	"io"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+)
+
+func TestToolsQueueAccountingAndCopies(t *testing.T) {
+	x := localExchange(t, SSEResponse)
+	fragment := &ToolDeltaEvent{Index: 3, ArgumentsFragment: strings.Repeat("x", 64<<10)}
+	marker := &ToolCompleteEvent{Index: 3, ID: "a", Name: "lookup", ArgumentsBytes: 1 << 20}
+	if eventBytes(Event{Kind: ToolDelta, ToolDelta: fragment}) != len(ToolDelta)+8+(64<<10) {
+		t.Fatal("delta scalar/string accounting")
+	}
+	if eventBytes(Event{Kind: ToolComplete, ToolComplete: marker}) != len(ToolComplete)+16+1+6 {
+		t.Fatal("complete scalar/string accounting")
+	}
+	if err := x.emit(Event{Kind: ToolDelta, ToolDelta: fragment}); err != nil {
+		t.Fatal(err)
+	}
+	if err := x.emit(Event{Kind: ToolComplete, ToolComplete: marker}); err != nil {
+		t.Fatal(err)
+	}
+	fragment.Index = 99
+	fragment.ArgumentsFragment = "changed"
+	marker.ID = "changed"
+	marker.ArgumentsBytes = 0
+	first, err := x.Next(context.Background())
+	if err != nil || first.ToolDelta.Index != 3 || len(first.ToolDelta.ArgumentsFragment) != 64<<10 {
+		t.Fatal("delta alias", err)
+	}
+	second, err := x.Next(context.Background())
+	if err != nil || second.ToolComplete.ID != "a" || second.ToolComplete.ArgumentsBytes != 1<<20 {
+		t.Fatal("marker alias", err)
+	}
+	if x.queueBytes != 0 {
+		t.Fatal("payload debit mismatch")
+	}
+	finishLocal(x, Result{}, protocolFailure())
+	if _, err := x.Next(context.Background()); err == nil {
+		t.Fatal("invalid completion")
+	}
+	y := localExchange(t, JSONResponse)
+	raw := json.RawMessage(`{"n":1}`)
+	finishLocal(y, Result{ToolCalls: []mc.ToolCallPart{{ID: "a", Name: "lookup", Arguments: raw}}}, nil)
+	result, err := y.Result(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	result.ToolCalls[0].Arguments[0] = 'x'
+	if raw[0] != '{' {
+		t.Fatal("Result raw aliases owner")
+	}
+}
+
+type toolsWaitSignal struct {
+	context.Context
+	entered chan struct{}
+	once    sync.Once
+}
+
+func (c *toolsWaitSignal) Done() <-chan struct{} {
+	c.once.Do(func() { close(c.entered) })
+	return c.Context.Done()
+}
+func TestToolsBackpressureCancellationAndUnjoinedSlot(t *testing.T) {
+	x := localExchange(t, SSEResponse)
+	x.observation.Decision = &outbound.Decision{Sent: true}
+	for i := 0; i < 3; i++ {
+		if err := x.emit(Event{Kind: ToolDelta, ToolDelta: &ToolDeltaEvent{ArgumentsFragment: strings.Repeat("x", 64<<10)}}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	blocked := &toolsWaitSignal{Context: x.ctx, entered: make(chan struct{})}
+	x.ctx = blocked
+	done := make(chan error, 1)
+	go func() {
+		done <- x.emit(Event{Kind: ToolDelta, ToolDelta: &ToolDeltaEvent{ArgumentsFragment: strings.Repeat("x", 64<<10)}})
+	}()
+	select {
+	case <-blocked.entered:
+	case <-time.After(time.Second):
+		t.Fatal("producer never entered original queue wait")
+	}
+	x.mu.Lock()
+	count, size := len(x.queue), x.queueBytes
+	x.mu.Unlock()
+	if count != 3 || size > 256<<10 {
+		t.Fatal("unbounded queue")
+	}
+	x.cancel()
+	select {
+	case err := <-done:
+		requireModel(t, err, "cancelled", "wire_cancelled")
+	case <-time.After(time.Second):
+		t.Fatal("queue producer not joined")
+	}
+	if x.Joined() {
+		t.Fatal("cancel is not parser/client join")
+	}
+	active, _ := x.budget.snapshot()
+	if len(active) != 1 {
+		t.Fatal("unjoined slot released")
+	}
+	_, err := x.Next(context.Background())
+	m := requireModel(t, err, "cancelled", "wire_cancelled")
+	if m.PartialOutput {
+		t.Fatal("queue is not delivered output")
+	}
+	finishLocal(x, Result{}, contextFailure(context.Canceled))
+	if !x.Joined() {
+		t.Fatal("actual local join failed")
+	}
+	active, _ = x.budget.snapshot()
+	if len(active) != 0 {
+		t.Fatal("actual join did not retire slot")
+	}
+	if _, err := x.Next(context.Background()); err != io.EOF {
+		t.Fatal("late end after cancel")
+	}
+}
+func TestToolsDeliveredMarkerCancellationAndUsageOnly(t *testing.T) {
+	for _, kind := range []EventKind{ToolDelta, ToolComplete, UsageUpdate} {
+		t.Run(string(kind), func(t *testing.T) {
+			x := localExchange(t, SSEResponse)
+			x.observation.Decision = &outbound.Decision{Sent: true}
+			n := mc.TokenCount(7)
+			e := Event{Kind: kind}
+			switch kind {
+			case ToolDelta:
+				e.ToolDelta = &ToolDeltaEvent{IDFragment: "a"}
+			case ToolComplete:
+				e.ToolComplete = &ToolCompleteEvent{ID: "a", Name: "lookup", ArgumentsBytes: 2}
+			case UsageUpdate:
+				e.Usage = &mc.Usage{Source: mc.ProviderUsage, TotalTokens: &n}
+			}
+			if err := x.emit(e); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := x.Next(context.Background()); err != nil {
+				t.Fatal(err)
+			}
+			x.cancel()
+			finishLocal(x, Result{End: End{FinishReason: "tool_calls"}}, nil)
+			_, err := x.Next(context.Background())
+			m := requireModel(t, err, "cancelled", "wire_cancelled")
+			if m.PartialOutput != (kind != UsageUpdate) {
+				t.Fatal("incorrect delivered fact")
+			}
+			if _, err := x.Next(context.Background()); err != io.EOF {
+				t.Fatal("late successful end")
+			}
+		})
+	}
+}

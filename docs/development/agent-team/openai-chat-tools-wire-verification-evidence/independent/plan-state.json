@@ -1,0 +1,31 @@
+{
+  "state": "plan frozen; awaiting author core freeze; no current product review or runtime check",
+  "plan_sha256": "1775d033ba23e3e43b8cb17f660ffc9e73723588494df0bc20245316ea317393",
+  "spec_commit": "b2be334cd8a78b904878bdbc388a43805390f7b7",
+  "spec_archive_commit": "55f1447a4c382026dfe5468bc2ddabcce3e0fe5f",
+  "technical_spec_sha256": "5c9656cb8fa3f9a4785b701cee433f34f44fb244e0e4580c90920913ff33addb",
+  "business_baseline": "ecd733711caff5df46e423cadab52b32c34f785e",
+  "author": "management_reads",
+  "independent": "recovery_documentation",
+  "resource_coordinator": "verification_recovery",
+  "implementation_paths": [
+    "internal/central/model/adapter/openai_chat.go",
+    "internal/central/model/adapter/errors.go",
+    "internal/central/model/adapter/sse.go",
+    "internal/central/model/adapter/transport.go",
+    "internal/central/model/adapter/openai_chat_tools.go",
+    "internal/central/model/adapter/tools_stream.go",
+    "internal/central/model/adapter/testdata/openai-chat-tools-v1.json",
+    "internal/central/model/adapter/openai_chat_tools_test.go",
+    "internal/central/model/adapter/tools_stream_test.go",
+    "internal/central/model/adapter/tools_limits_test.go",
+    "internal/central/model/adapter/tools_transport_test.go",
+    "tests/model/openai_chat_tools_http_test.go",
+    "tests/model/openai_chat_tools_stream_test.go",
+    "tests/model/openai_chat_tools_budget_test.go"
+  ],
+  "active_writes": false,
+  "active_commands": false,
+  "resource_window": null,
+  "go_docker_sql_network_executed": false
+}

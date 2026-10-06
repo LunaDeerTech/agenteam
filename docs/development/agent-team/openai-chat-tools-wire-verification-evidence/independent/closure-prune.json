@@ -1,0 +1,516 @@
+{
+  "reason": "GoFiles/EmbedFiles in actual -test package variants already include selected tests; unused TestGoFiles of transitive dependency packages were conservatively copied in discovery and are now omitted",
+  "removed_noncompiled_fixed_files": {
+    "internal/central/foundation/cause_test.go": {
+      "sha256": "33dfa3128d34c2bb922f0cec55147e9a8c8531df22fe651d52abaad5beacf5b5",
+      "size": 2123,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/foundation/lock_test.go": {
+      "sha256": "bef76346f06b4869451348632f2f3cd3646170fe84952dd4e6c2a568bc5dca7c",
+      "size": 2786,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/foundation/scalar_test.go": {
+      "sha256": "f8c57c65678b27ed2a11f0248bac41c776f369e9db7b23854a8a67f3d91ff426",
+      "size": 13287,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/foundation/tx_test.go": {
+      "sha256": "a952a354cc6fd9422f13ed93c790ef2abdaec5c1724bc8ee9fa716716717fe6a",
+      "size": 1498,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/event/contract/event_test.go": {
+      "sha256": "81f187bb24e995668fb562926a475c5bb209219dc4e5370110a72da3e5aa179c",
+      "size": 9695,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/identity/contract/account_test.go": {
+      "sha256": "84ba587587679d82e88cd6a10fa38bef7676ccd4a95d00358324e35eb61e9bd1",
+      "size": 711,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/identity/contract/identity_test.go": {
+      "sha256": "34b5dc25497a780e0c5f62f23bfd7a5eb7aae9bfb999d00b71a08c5c450113f4",
+      "size": 2826,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/identity/contract/outbox_test.go": {
+      "sha256": "3542a1770006047e05d52265cb3ab029f9b16a1eaf0b6636e2475f808820b51e",
+      "size": 802,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/identity/contract/project_initialization_test.go": {
+      "sha256": "8c6248e64fa473031e6055ec50ae4ab1ce649d64ae9ab8f5c6bf680f5ac87ea1",
+      "size": 832,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/secret/contract/account_test.go": {
+      "sha256": "e6d249e35d99aea1ab32c2567c18a70b4262c6e00981baa379bb8c50f8d4e75c",
+      "size": 6218,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/secret/contract/material_test.go": {
+      "sha256": "5ff505e2dcfaed20abc1088299ebf8d2ee6a5706a97e1adc5d99d60e0049aa55",
+      "size": 1892,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/secret/contract/model_test.go": {
+      "sha256": "c449d978b130dfa4d84b3118369a2c962a3e53504660a21f33ffc3b1a470a8a8",
+      "size": 4204,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/secret/contract/types_test.go": {
+      "sha256": "56a95cb489c309ae7ded891514abb3f67002ab41268782969b0359e90ece61db",
+      "size": 2002,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/secret/contract/write_lookup_test.go": {
+      "sha256": "2b275124816a7f468f42e9a06bd20b00fb2acf7a28f3e0d96c9508e524eb421e",
+      "size": 3306,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/contract/b02_test.go": {
+      "sha256": "e838d6c21da75455ddd1421aff5705585e74d72e058ce4db46db9f59ebc61cdf",
+      "size": 4668,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/contract/delivery_test.go": {
+      "sha256": "12c495f3c6559cb4ac6c6954c77afb9753c18be0c6f289e962ab0a7fa36708b1",
+      "size": 4903,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/contract/events_test.go": {
+      "sha256": "510982c956adc8d4c2f8f39b142f6ad4194cf70a66d87e508bf9cea87b06ecf0",
+      "size": 1436,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/contract/profile_test.go": {
+      "sha256": "cab18c1fc649a031278276e1a04a33b279acc8c4af466d95012f2348c69538b6",
+      "size": 11255,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/audit/contract/account_test.go": {
+      "sha256": "1fee7c719d05fa18a28a1c21251109be133aa84ef5cbf323baab40da43189644",
+      "size": 7729,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/audit/contract/content_test.go": {
+      "sha256": "831594be6cff98179a76d4af92173fe14754f325cd384b38149a6b591a99f3eb",
+      "size": 10144,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/audit/contract/knowledge_test.go": {
+      "sha256": "596ec014205a53d28bafc2d5777947a495743958715777c027fc57e632fb1b4e",
+      "size": 7350,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/audit/contract/metadata_test.go": {
+      "sha256": "43f422e06f86ebf269281b09e66db53af2d2b4528a51db5e14d8e6d9c2785f1e",
+      "size": 3867,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/audit/contract/model_test.go": {
+      "sha256": "546293445ea06ef5198ff5f4699d6517fb38792a218026d7d8ca4549d2b972df",
+      "size": 4109,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/audit/contract/outbox_test.go": {
+      "sha256": "e57f0030a3ed0a50a23ed6d219e283e9ffed4e66baff4f43b7d01436e33ed57d",
+      "size": 2526,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/audit/contract/project_test.go": {
+      "sha256": "b507cf8baa6fad4fd1c86ac842936974c467ff165e56efd2fd63218995535acb",
+      "size": 5202,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/audit/contract/project_fact_authority_test.go": {
+      "sha256": "cb0f8ac4d8d5f9808156c1ba9adacdb87ae4fe2de9f84fada4ffee7f05d0d966",
+      "size": 678,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/cursor/cursor_test.go": {
+      "sha256": "b2b5344061546cfb0bf3bddef74745a80fdd89edb274d342cc0eceaa1ef08b2e",
+      "size": 9839,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/cursor/text_test.go": {
+      "sha256": "8f1dff80daf4d41c45cd9921467b15f1078493b8fa57f434d8ed555f6bc50d3e",
+      "size": 5394,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/httpapi/account_test.go": {
+      "sha256": "90981653a572c71d5c4920f4b0ec0120c73b2a22bd4d6077c11c0039cd90222f",
+      "size": 1032,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/httpapi/httpapi_test.go": {
+      "sha256": "82870296b112a35f6934fffbddb35bbf0aaf0dccb93f610195a557699fc63dfe",
+      "size": 10252,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/httpapi/json_test.go": {
+      "sha256": "641aebf676b93ad68e869ba32b2b481e8c4824c3049a4be6a59fc575ac71f49c",
+      "size": 8501,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/httpapi/response_writer_test.go": {
+      "sha256": "4d7714173e12ea819449f0d47f74a0abcbc1aeee46dc122354da826c007776b0",
+      "size": 4133,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/httpapi/schema_test.go": {
+      "sha256": "3fcef9f496b4b90c734aae449f286f5c7471169d0ffaba25906fe998d8c74083",
+      "size": 5256,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/httpapi/stream_test.go": {
+      "sha256": "082558fafd2ad55b68995eed3fcfa361eb9a0527ccf38ba27eff6c577cae842d",
+      "size": 7500,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/audit/model_test.go": {
+      "sha256": "684003984faef1affa2dba5dc5e0459a39721b6bd950ffab22247fdbd02857b9",
+      "size": 2633,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/audit/project_test.go": {
+      "sha256": "3457b2dd350589f62f9981927d95ea932b59c96cd2b266c3f51a03d415dc47c4",
+      "size": 2498,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/audit/service_test.go": {
+      "sha256": "b38301adb0823f781b8c68f60c285affdf351b8b638cb998b13a94c35c21725a",
+      "size": 12423,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/secret/envelope_test.go": {
+      "sha256": "165a6aaad4bf8274779f8ceb3d9414d1ce770db9cc5b3bfa0c290328b3b33328",
+      "size": 8661,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/secret/keyring_material_test.go": {
+      "sha256": "7137224562f0f3b3692a2e81852106174556dcf6998129f63fb6e661d040b874",
+      "size": 1192,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/secret/metadata_test.go": {
+      "sha256": "f56637bc29c9ff9f55d9c71b176c7f15195efff31bd2d94043921d332eebd579",
+      "size": 7554,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/secret/model_usage_test.go": {
+      "sha256": "3bc0fb92f7c194c474286d7d22720cc385c85ab8ab8eabe3b887627b17ec23f2",
+      "size": 8908,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/secret/project_audit_test.go": {
+      "sha256": "ad3734d49d5c17a286d690eb2c24c8cf26ffffc4f8fb3e3ddb2975386caf32ef",
+      "size": 9485,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/secret/project_audit_witness_test.go": {
+      "sha256": "585dcffa23bcc34db213eb107c1abbdb00b223e0cde31ea611fcf06b888b8e29",
+      "size": 10773,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/secret/write_lookup_test.go": {
+      "sha256": "38f1b7a06e019e37ea93917e3e5b0ddba092589c42ae32f8b51157fcec82f5f7",
+      "size": 9765,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/outbound/boundary_test.go": {
+      "sha256": "e8b8a234e9a9464efa43f486e5c25b4824d848eadcd55795810340734054824b",
+      "size": 9476,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/outbound/dns_test.go": {
+      "sha256": "3141ddf9ebd486ff88276b68bcd876532bf8e6ec5f603ba4fac6db721ee6c5b3",
+      "size": 15966,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/outbound/gate_test.go": {
+      "sha256": "b9f1a647bc4bbdbeedbe98b1bed39429d63af7f9455934e0044bfda2f407e236",
+      "size": 1628,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/outbound/http_test.go": {
+      "sha256": "40df7bfa7c088e91f3b83cf139013a19534951755a6fb54017d909709fd76d91",
+      "size": 16171,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/outbound/smtp_cancel_test.go": {
+      "sha256": "106a98f47258b2ce85c1613fdc8d41f5521848065df2748933167ec89e361bdb",
+      "size": 5451,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/outbound/smtp_tls_test.go": {
+      "sha256": "4a27fa556c1c91429f1cc6a8f38031d4c29b22066d37136b3e23bc5e0ab8c33a",
+      "size": 970,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/avatar_codec_test.go": {
+      "sha256": "9703ff04f762959a58a65ba67977d26b8605cbcb85fe923631df6d69c2becbb2",
+      "size": 15719,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/challenge_artwork_test.go": {
+      "sha256": "8a3975ad4301a73f9ad54e564dbee520aac7a27af5d6844db5968f8285bf83f7",
+      "size": 8002,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/challenge_test.go": {
+      "sha256": "dc791d4d5fa0dc4331c57b633c18a87482f0f51eea2b6ece2130d702b5f69aed",
+      "size": 796,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/csrf_test.go": {
+      "sha256": "2556ea3d862f269b60cc054580710c55b646e58c74be5cc710600d1cb3945b91",
+      "size": 6806,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/error_unknown_test.go": {
+      "sha256": "c98df882eb4d7e6294bb41e560a253cd8dd708eb08adf8e9177d12d2d6e7bf33",
+      "size": 2066,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/http_boundary_test.go": {
+      "sha256": "b06d9d913085c83a04e1614bdcc5b3d5ff07f2cbf87bdf5f4ab6583f9c0dd2b5",
+      "size": 3429,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/http_facade_test.go": {
+      "sha256": "99da6b4c14f68257dc46c348116e61b812eb9720bc4f401b2c9aade48b8ee40e",
+      "size": 8521,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/http_test.go": {
+      "sha256": "6b03f268c268a879283300b8674aeba0f1546320474bce51f6f198388080206a",
+      "size": 27053,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/keyring_test.go": {
+      "sha256": "f4af826178048a3c756e649cbfc20e59a2abedb6ca3e55d465585cde21206105",
+      "size": 3921,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/local_recovery_test.go": {
+      "sha256": "7ece585f5eb346de7e0bbe869f533b8afd55087a4a58db0aa2cfd6e3c2fb3fb2",
+      "size": 4082,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/mail_admission_test.go": {
+      "sha256": "deb76ca8296ffbaeca334733b90d204762d9e5f7e24162adbc9a8569cb37dd28",
+      "size": 2357,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/password_change_test.go": {
+      "sha256": "697fc570074282de57539945208eb0f5393e9f4dfcab71562327a11238e47c35",
+      "size": 2546,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/password_test.go": {
+      "sha256": "098c4fbc607ea89f5d45430deec8d26e76501588cb6f857955b81b98741d2dee",
+      "size": 4351,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/profile_commands_test.go": {
+      "sha256": "c5075205860478b3fdd4abcb6fb2a17e945107f54a99acb5deb5933e12eef2e7",
+      "size": 1788,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/profile_test.go": {
+      "sha256": "20d20ae6af860256aa48794ff173e11226ed9a028d111cd4d20e90b73a72c35e",
+      "size": 6278,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/runtime_test.go": {
+      "sha256": "1cc6d7f2c64eadb8ef741a03094d89f4bc1794c6e31b64c29b4c88f2a8041d23",
+      "size": 4221,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/account/validation_test.go": {
+      "sha256": "197f4182264278dfef352c1ca325875bfabac948566ce0eabc794d24dc2a8491",
+      "size": 1012,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/config/account_test.go": {
+      "sha256": "5e4166bf7078686ac3271178f3d1619d2ce9b996294a03e215dbc4ba5fc5f8c3",
+      "size": 6228,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/config/config_test.go": {
+      "sha256": "8e0d7e790dc17b1200afe6574bfe4dae9f354464d83a13b963dd339ac45e0a41",
+      "size": 10071,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/config/object_test.go": {
+      "sha256": "15555273b174de4268b3d5481cab4fa44f7760085a10fa32b4a7eebbb7a3ab36",
+      "size": 2425,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/config/outbound_test.go": {
+      "sha256": "b33fbe7fede1934c89cdd7773c938b97be733817e463f30b13b757700544b0aa",
+      "size": 2100,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/config/security_test.go": {
+      "sha256": "af1fd397249f0105138a854ffbea7e5134c7ec01fdd06a36acc0aead73b6879f",
+      "size": 2474,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/platform/lifecycle/lifecycle_test.go": {
+      "sha256": "76e1f1dd2090fdfd5c20d4c1c128ca974dde9a19940816a47a08f1570bcbdbf1",
+      "size": 3083,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/platform/logging/database_test.go": {
+      "sha256": "fda5572c180f848681fd463b58501e5e85bcded61779bf5375e4c9b495c730e1",
+      "size": 1673,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/platform/logging/logging_test.go": {
+      "sha256": "3a8a65198cd9b045574d8c1238ba3e2e9115ed074accf443a9b543ca4e5f2271",
+      "size": 2229,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/platform/logging/security_test.go": {
+      "sha256": "905058ba2596d2537cf9ea72612dcb854a111122c352fe0b325a60422da46825",
+      "size": 992,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "tests/testsupport/accountenv/environment_test.go": {
+      "sha256": "a13bff7a01648eb1990406685a8619a31b008c898b0e8c869df26a3d7d9bab34",
+      "size": 4219,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/contract/commands_test.go": {
+      "sha256": "c8030fdff969e32a9895544c670850a83d9967978185c1f208099661061c220c",
+      "size": 9322,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/contract/events_test.go": {
+      "sha256": "fd390e332d2e7f5748e48770db4dd7210f645f6e1f7bc867547f46408273472a",
+      "size": 7173,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/contract/initialization_test.go": {
+      "sha256": "1457ad4b7a067c334731643a6495966fa7bb6a9c010b450084984fab49fc2ddd",
+      "size": 8333,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/contract/lifecycle_test.go": {
+      "sha256": "f820286c701da825763f4c57ec7626a5907fa9b29cde00644761500ab41748bf",
+      "size": 13576,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/contract/types_test.go": {
+      "sha256": "74fb9f8b770379240dbfa5ef194fe41970ec57312b8588f4a1304fa2bc8fccf0",
+      "size": 7046,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/contract/validation_test.go": {
+      "sha256": "2e92163f97ae82866b436ecf5775459e6f5aabda7d81c365293ec116932eca75",
+      "size": 5920,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/audit_facts_test.go": {
+      "sha256": "fb908fe8cd19bd22aad8ee334f1347a25001640b2f7e72eef54e3abc33b945ee",
+      "size": 9261,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/authority_test.go": {
+      "sha256": "1716e35f980079f94ac25ad8233127898bfd30092b92090a6605cf3b589ba2a2",
+      "size": 6785,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/commands_test.go": {
+      "sha256": "ed6687651178f3632a223779ec783df90f33899a22acf740e6a59916105282f3",
+      "size": 7397,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/creation_test.go": {
+      "sha256": "bc49a55b72c44719d8dc4cb30fd9dbc450858301e1ceb1b5b9686d4bbb581073",
+      "size": 4546,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/events_test.go": {
+      "sha256": "7847e47d711590f4ff242db9e0ee1c30c5bb36e9469508f492a7f0bbd3996776",
+      "size": 2383,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/external_event_authority_test.go": {
+      "sha256": "fc4c20657003ca7285fc928ba297e2cbccc8915e26bda1c1de7db144c14f6452",
+      "size": 5065,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/lifecycle_audit_test.go": {
+      "sha256": "d96136e6ac2241490a98b0016afea77671be01b51fc303d768141917d0a2e6a8",
+      "size": 1194,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/lifecycle_authority_test.go": {
+      "sha256": "09bdf522c8ac4d114800d4cb9d119bfff1f9ebe9eacfc1e58981ddb2fb4c0977",
+      "size": 2960,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/lifecycle_events_test.go": {
+      "sha256": "c4fb67d99ae5ca97ac1b040efc21a24b86b81a922f7903dda38241cd7062eb48",
+      "size": 1274,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/lifecycle_store_test.go": {
+      "sha256": "f622ad62f9a63b059b909c8352fe4698721d18a25967d2fa2ae038b3617ba065",
+      "size": 5210,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/lifecycle_test.go": {
+      "sha256": "5d3d58ba898dd23e2f13dc9ee6b920adbcddde082bc5afcbe1d8581dc2599a9e",
+      "size": 1546,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/object_stop_authority_test.go": {
+      "sha256": "71149577c69e8bad2ffe3fae48fba58de21e602479bfbacca5d014e25e767f0f",
+      "size": 2096,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/outbox_lifecycle_authority_test.go": {
+      "sha256": "c213f98dfe45148095b3f669846da882f63fa8263834e81a4d492d54152de055",
+      "size": 1767,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/participants_test.go": {
+      "sha256": "f3386b187e4c751976ba8d147eb43d5b0c717bf19394e53a822aaf7ee0968b57",
+      "size": 23542,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/recovery_test.go": {
+      "sha256": "f97e12f3991bd095e8d5584f1b8913b3741ddd6924b5127480c7f12274213b3f",
+      "size": 19120,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/project/secret_authority_test.go": {
+      "sha256": "2f582beebdf78a5d3bbd5120344cb087fcc28eba0d514bf62146657f08a2d004",
+      "size": 3466,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/artifact/contract/types_test.go": {
+      "sha256": "7c98bd4bad485624afbd49e58eca63f22b94ff745460b38923895694ec52e8f4",
+      "size": 4902,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/artifact/commands_test.go": {
+      "sha256": "947211a55242ade4c701b11f5afd41d6e61f77c0b4e6dc702f504eff4a25b470",
+      "size": 5055,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    },
+    "internal/central/artifact/read_test.go": {
+      "sha256": "1528ad05115451b8419aebc331e09e77ab7ee5097f2c548b3518dd5b26f9d6d4",
+      "size": 1512,
+      "provenance": "ecd733711caff5df46e423cadab52b32c34f785e"
+    }
+  },
+  "previous_closure_sha256": "ece56113ee5a44c6a1d78268d06c1363bbccc9d5987d380f1a3db250eb17c0c0"
+}

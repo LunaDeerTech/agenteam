@@ -1,0 +1,44 @@
+# Tools wire 14 源独立验收计划
+
+状态：只完成规格/稳定依赖准备；等待作者核心冻结。规格提交 `b2be334cd8a78b904878bdbc388a43805390f7b7`，规格归档提交 `55f1447a4c382026dfe5468bc2ddabcce3e0fe5f`。已审技术稿 SHA-256 `5c9656cb8fa3f9a4785b701cee433f34f44fb244e0e4580c90920913ff33addb`，业务依赖基线 `ecd733711caff5df46e423cadab52b32c34f785e`。当前没有产品静审、Go 编译或行为 PASS，也没有活动资源窗口。
+
+唯一实施者 `management_reads`；独立验收者 `recovery_documentation` 未参与产品实现；资源协调者 `verification_recovery`。不再委派。文档归档写入已经结束，不改已归档原件。除本私有目录中的计划/独立测试 overlay/报告证据外没有写权；产品、作者测试、C0、旧测试/fixture/manifest、迁移和依赖均只读。
+
+## 固定输入与阶段门槛
+
+1. 接收冻结 manifest、精确私有源目录及写入停止声明。先核 6 个生产源与新 profile manifest；若测试仍写，只对前述固定集合形成静态发现，不提前宣布全部 14 源验收。核 14 路径实际 SHA、旧基线、适用编译闭包及固定模块/fixture。不得消费活动主树或未验 ledger。
+2. 稳定依赖复用规格归档中的 14 项 baseline-inputs：text/structured 已验接缝、C0、Resolution 明确拒绝 tools、原 D04 与 fixture。复用作者已有固定私有基线，只增加独立 overlay；不再复制完整树。缺少实际编译输入时先定位最小缺口，不用当前活动源码填充。
+3. 静审按下表报告确定需修问题，立即发送主线程和作者；修复只由作者完成，保留旧输入/失败及精确 delta。保持旧修订闭集、错误分类与断言。
+4. 作者完整 14 源冻结后，核其 unit/race/vet、integration compile、两 cmd build、3 新 + 6 旧真实顶层的实际命令、输入、退出值和 raw。只编译不算行为；no-tests/skip 不算通过；修后按受影响输入匹配结果。
+5. 依据静审与作者覆盖缺口冻结最小独立 probe/overlay/selector，使用原 fixture 和原 helper，不依赖作者新增测试 helper；独立 offline race compile 后向协调者申请窗口。没有授窗不启动 fixture。当前阶段不运行任何 Go/Docker。
+6. 独立真实运行沿原 test-security.sh 的 race/count1/每包 6m、固定 Go1.27.1/离线 readonly 依赖和自有 cache/runtime；不得增加产品或测试等待预算。保留 argv/env/exit/raw/输入 SHA、现场 nonce exact IDs 与 owned PID。结束两次 exact-ID absent、基线 IDs/name/labels 不变、所属进程 0/runtime 空后立即交窗，再写报告。
+
+## 路径与风险矩阵
+
+| 固定审查对象 | 核心风险与可观察门槛 |
+| --- | --- |
+| `openai_chat.go`、`openai_chat_tools.go` | 独立 revision 分派，旧方法和 nil 新字段兼容；全部非法/unsupported/累计超限先于 Budget/worker/Do；工具集合与 choice/parallel 冻结；InputSchema 只投影 strict=false，OutputSchema/IsError 不伪造 native 字段；历史组匹配且不把本次工具集合追溯约束旧消息；16 MiB 编码分配前计量。 |
+| `errors.go`、`openai_chat_tools.go` | 普通 JSON envelope/usage 可靠性与工具语义分层；合法 refusal + null/缺 content 仍 content_filter；全部 Result.ToolCalls 通过 C0、native 名称/ID/选择约束，失败零结果。数字保原词法、C0 root=1/含标量32、1e400/NUL 反例；不改原 text/structured 分类。 |
+| `sse.go`、`tools_stream.go` | 同 chunk 同 index 多 entry 顺序 append、交错/null/重复 function；dense 0..N-1，128 distinct/256 entry/1 MiB event 界限；ID/name/argument 分别拼接；全部工具成功才允许第一个 ToolComplete。finish 后迟到增量/第二 finish 拒绝，DONE 必需。 |
+| `tools_stream.go`、`transport.go` | 每工具 ≤1 MiB、text+arguments ≤16 MiB，接受前计量，无 128×1 MiB 预分配或反复完整前缀复制；≤64 KiB UTF-8 fragment 独立 clone；全部 payload 字节/标量进入32项/256 KiB队列。完成标记无 Arguments、缓存指针或取回端口，最多一个临时1 MiB验证副本。 |
+| `transport.go` | 实际 Next 交付才 PartialOutput，UsageUpdate/index-only/未交付队列不算；坏参数/截断/refusal 后保可靠 usage；Close/Force 取消背压和扫描，错误后单次 EOF，无迟到 End；真正 body/parser/Client.Drain 后才 slot/借用材料终局，成功出口复核 caller/attempt ctx。 |
+| `testdata/openai-chat-tools-v1.json` | 采用/拒绝字段、固定SDK commit/Blob/SHA与真实测试定位一致；不能把公开 SDK 类型或库通过扩大成 Provider/consumer/Tool 权限通过。 |
+| `openai_chat_tools_test.go`、`tools_stream_test.go` | 请求编码、历史、ordinary/SSE C0 正反例和安全格式不靠早期错误短路；结果/请求可变载体克隆；repeat-index 真正命中原生输入；ToolComplete-before-terminal 事实分开。 |
+| `tools_limits_test.go`、`tools_transport_test.go` | 精确1 MiB/+1、16 MiB/+1、128/129、256 event entry、name/ID/depth/NUL/数值、schema/request边界；超过队列的完整参数仍通过碎片交付；可取消长扫描实际已进入，确定 barrier/channel，不新增产品回调/每片段goroutine，不扩旧fixture。 |
+| `openai_chat_tools_http_test.go` | 真实 POST/Bearer/native schema/choice/parallel、零请求准入反例、合法 envelope 内工具语义反例、refusal/可靠 usage/精确 int64、零 canary 外泄；一个 Start 无 adapter 重发。 |
+| `openai_chat_tools_stream_test.go` | 真正320 KiB解码参数、≤64 KiB输出分片且逐字重建；累计输出跨256 KiB；多工具交错/重复index与缺DONE/late/refusal/length失败；已交付partial、合法usage后断流。 |
+| `openai_chat_tools_budget_test.go` | 三 revision 共具体64/8预算、超限零Do；headers/body/backpressure/真实writer尾部取消；handler/connection 与Client.Drain双观察；未join保槽材料、真实join再复用，正常/Force沿原剩余预算。 |
+
+## 最小独立真实增量（冻结实现后确定 selector）
+
+A. 合法 ordinary envelope 内的参数/选择闭合。构造有效工具定义、snapshot、身份与单次真实 POST；响应提供可靠 usage，再分别送 C0 拒绝的 `1e400` 参数或本次 ToolChoice 不允许的工具。断言预期安全错误、零 Result.ToolCalls/Text、Observe 的0/大整数/NULL语义、单次发送、无 canary 泄露、actual join 后材料销毁。用既有正式 Account/Audit/PolicyService/D04 fixture，不签发工具执行 grant。
+
+B. 工具完成不等于流成功。先让完整工具片段与 ToolComplete 从 Next 实际返回，再交可靠 usage，并在 DONE 前设置服务器 hold/断流分支：取消或缺 DONE 必须错误一次后 EOF、零 StreamEnd、真实 Dispatched/PartialOutput、usage保留。另按作者覆盖情况补两工具中第二工具无效：第一工具合法且其片段已交付，finish 时仍必须零 ToolComplete，证明全工具完成门槛。不能只等待 buffer/队列状态代替实际交付。
+
+共享 Budget 未 join 保槽及真实 writer 尾部已有强旧证据；本轮先核生产关闭链有无改动及作者三修订覆盖，再决定是否需要独立重补该窗口。不要为机械重复扩大 selector 或资源成本。若新 clone/扫描实现仍存在关键证据缺口，再补最小纯测试；不以接口形状镜像测试替代内存/取消行为证据。
+
+## 结果口径
+
+真实320 KiB只证明原512 KiB场景可覆盖超过队列的参数；1 MiB/16 MiB极限只计纯 parser/transport实测，精确1 MiB参数应分多个native event以保外层1 MiB event预算。ToolComplete与成功wire终局均没有 Tool执行或持久DB终态授权；Resolver仍拒绝tools，Runtime/consumer/Secret grant/ledger/Provider/root保持各自任务。
+
+最终结论分列通过、失败、未验证与复用证据；绑定最终14源/新manifest/独立overlay和编译闭包、原失败及修复差量、真实资源双清。不把SDK/规格静审、空编译或旧阶段局部绿写成当前产品通过。当前计划冻结后等待作者固定核心，不改源码、不启动工具链或资源。

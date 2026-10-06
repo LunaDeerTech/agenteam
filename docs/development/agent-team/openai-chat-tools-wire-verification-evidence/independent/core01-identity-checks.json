@@ -1,0 +1,122 @@
+{
+  "core_manifest_sha256": "ca807074bf3a4566d5da7e9692987a5e9f99018c65f5f2d00a07fcbff3b37274",
+  "checks": [
+    {
+      "path": "internal/central/model/adapter/openai_chat.go",
+      "sha256": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+      "source": "core01 frozen copy"
+    },
+    {
+      "path": "internal/central/model/adapter/errors.go",
+      "sha256": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+      "source": "core01 frozen copy"
+    },
+    {
+      "path": "internal/central/model/adapter/sse.go",
+      "sha256": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+      "source": "core01 frozen copy"
+    },
+    {
+      "path": "internal/central/model/adapter/transport.go",
+      "sha256": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+      "source": "core01 frozen copy"
+    },
+    {
+      "path": "internal/central/model/adapter/openai_chat_tools.go",
+      "sha256": "d976cc893bd7b03ac65feb47a56225947247a209d1f9daed7563838fefdee985",
+      "source": "core01 frozen copy"
+    },
+    {
+      "path": "internal/central/model/adapter/tools_stream.go",
+      "sha256": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+      "source": "core01 frozen copy"
+    },
+    {
+      "path": "internal/central/model/adapter/testdata/openai-chat-tools-v1.json",
+      "sha256": "a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2",
+      "source": "core01 frozen copy"
+    },
+    {
+      "path": "internal/central/model/adapter/openai_chat_tools_test.go",
+      "sha256": "cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116",
+      "source": "core01 frozen copy"
+    },
+    {
+      "path": "internal/central/model/adapter/tools_stream_test.go",
+      "sha256": "846dff7c6fd3730657798b5874456345b64404c9f596b5e3120b062c4a546a31",
+      "source": "core01 frozen copy"
+    },
+    {
+      "path": "internal/central/model/adapter/tools_limits_test.go",
+      "sha256": "127182f49c5620d561489bcfc2c4927047b901b1c69207c9409a50456cdd3e79",
+      "source": "core01 frozen copy"
+    },
+    {
+      "path": "internal/central/model/adapter/tools_transport_test.go",
+      "sha256": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa",
+      "source": "core01 frozen copy"
+    },
+    {
+      "path": "go.mod",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "source": "fixed ecd7337 dependency"
+    },
+    {
+      "path": "go.sum",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "source": "fixed ecd7337 dependency"
+    },
+    {
+      "path": "internal/central/model/adapter/budget.go",
+      "sha256": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a",
+      "source": "fixed ecd7337 dependency"
+    },
+    {
+      "path": "internal/central/model/adapter/structured_schema.go",
+      "sha256": "061e45a59fc575b8d7bdbcf9b1837bbe247b7e5ac9d382b32be9c7b77ebab575",
+      "source": "fixed ecd7337 dependency"
+    },
+    {
+      "path": "internal/central/model/contract/chat.go",
+      "sha256": "01f2abe8a8d5be54ed3193f22be75094f3868e2b09a6d8ca5dab6fb70aac2d88",
+      "source": "fixed ecd7337 dependency"
+    },
+    {
+      "path": "internal/central/model/contract/types.go",
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+      "source": "fixed ecd7337 dependency"
+    },
+    {
+      "path": "internal/central/identity/contract/identity.go",
+      "sha256": "845794400c185b5f00ef673007661ec1382d19b54ec82329d565567daa073ef4",
+      "source": "fixed ecd7337 dependency"
+    },
+    {
+      "path": "tests/model/openai_chat_wire_fixture_test.go",
+      "sha256": "cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8",
+      "source": "fixed ecd7337 dependency"
+    },
+    {
+      "path": "scripts/test-security.sh",
+      "sha256": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be",
+      "source": "fixed ecd7337 dependency"
+    },
+    {
+      "path": "scripts/test-objects.sh",
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+      "source": "fixed ecd7337 dependency"
+    },
+    {
+      "path": "tests/testsupport/outbound/cmd/fixture/main.go",
+      "sha256": "46da1f582264c5799b509e5d3f5002ed588628b1d12b9b589ab8064fc3cdf683",
+      "source": "fixed ecd7337 dependency"
+    },
+    {
+      "path": "tests/testsupport/postgres/cmd/fixture/main.go",
+      "sha256": "55ae7da25e69c4f4f29ca516748d8cc837913016e9fc381fc96abc11f37298de",
+      "source": "fixed ecd7337 dependency"
+    }
+  ],
+  "sdk_sources_21_match": true,
+  "no_active_integration_source_read": true
+}

@@ -1,0 +1,15 @@
+--- input06/internal/central/model/adapter/openai_chat_tools_test.go
++++ input07/internal/central/model/adapter/openai_chat_tools_test.go
+@@ -265,9 +265,9 @@
+ 		t.Fatal(err)
+ 	}
+ 	var m struct {
+-		Revision, Commit         string
+-		Sources                  []struct{ Path, URL, SHA256, GitBlob string }
+-		Adopted, Rejected, Tests []string
++		Revision, Commit, Protocol, Profile string
++		Sources                             []struct{ Path, URL, SHA256, GitBlob string }
++		Adopted, Rejected, Tests            []string
+ 	}
+ 	if json.Unmarshal(raw, &m) != nil || m.Revision != OpenAIChatToolsRevision || m.Protocol != string(mc.OpenAIChat) || m.Profile != string(mc.OpenAIChatV1) || m.Commit != "becc1d20eed83c1b8d85e15dc131a372d9dc7813" || len(m.Sources) != 21 || len(m.Adopted) == 0 || len(m.Rejected) == 0 || len(m.Tests) == 0 {
+ 		t.Fatal("tools provenance manifest")

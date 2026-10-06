@@ -1,0 +1,192 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"io"
+	"testing"
+
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+// These probes use only the unchanged ecd7337 real fixture/helpers. New author
+// test helpers are not part of the oracle or scenario construction.
+func independentToolsInput(t *testing.T, v *wireFixture, key string, mode wire.ResponseMode) (wire.Request, wire.CallOptions) {
+	t.Helper()
+	r, o := v.input(t, key, mode)
+	r.Snapshot.Identity.AdapterRevision = wire.OpenAIChatToolsRevision
+	r.Snapshot.Capabilities.ToolCalls = true
+	r.Snapshot.Capabilities.ParallelToolCalls = true
+	r.Tools = []mc.Tool{{Name: "read", InputSchema: json.RawMessage(`{}`)}, {Name: "write", InputSchema: json.RawMessage(`{}`)}}
+	r.ToolChoice = mc.ToolChoice{Kind: "auto"}
+	return r, o
+}
+
+func independentToolEntry(index int, name, args string) map[string]any {
+	return map[string]any{"index": index, "id": []string{"call_a", "call_b"}[index], "type": "function", "function": map[string]any{"name": name, "arguments": args}}
+}
+
+func independentToolsRetire(t *testing.T, v *wireFixture, key string, x *wire.Exchange, o wire.CallOptions) {
+	t.Helper()
+	wireClose(t, x)
+	v.settled(t, key)
+	if !x.Joined() || len(v.state(t, key).Requests) != 1 {
+		t.Fatal("single actual request/client join not established")
+	}
+	if err := o.Credential.Use(func([]byte) error { return nil }); err != nil {
+		t.Fatal("adapter destroyed borrowed material")
+	}
+	o.Credential.Destroy()
+	if err := o.Credential.Use(func([]byte) error { return nil }); err == nil {
+		t.Fatal("caller retirement after actual join did not destroy material")
+	}
+}
+
+func TestIndependentToolsOrdinaryCompletionGate(t *testing.T) {
+	v := newWireFixture(t)
+	v.allow(t, true)
+	for _, kind := range []string{"c0_nonfinite", "named_choice_mismatch"} {
+		t.Run(kind, func(t *testing.T) {
+			name, args := "read", `{"v":1e400,"private":"`+wireBodyCanary+`"}`
+			if kind == "named_choice_mismatch" {
+				name, args = "write", `{"private":"`+wireBodyCanary+`"}`
+			}
+			body, err := json.Marshal(map[string]any{
+				"id": "independent", "object": "chat.completion", "created": 1, "model": "fixture-native-model",
+				"usage": json.RawMessage(`{"prompt_tokens":9007199254740993,"completion_tokens":0,"total_tokens":null}`),
+				"choices": []any{map[string]any{"index": 0, "finish_reason": "tool_calls", "message": map[string]any{
+					"role": "assistant", "content": "must not escape", "tool_calls": []any{map[string]any{"id": "call_a", "type": "function", "function": map[string]any{"name": name, "arguments": args}}},
+				}}},
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			key := v.scenario(t, wireJSON(body))
+			r, o := independentToolsInput(t, v, key, wire.JSONResponse)
+			if kind == "named_choice_mismatch" {
+				r.ToolChoice = mc.ToolChoice{Kind: "named", Name: "read"}
+			}
+			x := v.start(t, testContext(t), v.adapter, r, o)
+			result, err := x.Result(testContext(t))
+			wireModelError(t, err, "provider_error", "wire_protocol_invalid", true, false)
+			if result.Text != "" || result.ToolCalls != nil || result.End.FinishReason != "" {
+				t.Fatal("invalid complete response leaked a partial result")
+			}
+			u := x.Observe().Usage
+			if u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 9007199254740993 || u.OutputTokens == nil || *u.OutputTokens != 0 || u.TotalTokens != nil {
+				t.Fatal("reliable envelope usage lost or rounded")
+			}
+			wireNoLeak(t, result)
+			wireNoLeak(t, x.Observe())
+			independentToolsRetire(t, v, key, x, o)
+		})
+	}
+}
+
+func TestIndependentToolsStreamCompletionGate(t *testing.T) {
+	v := newWireFixture(t)
+	v.allow(t, true)
+	t.Run("second_invalid_tool_prevents_every_completion_marker", func(t *testing.T) {
+		first := wireChunk(map[string]any{"tool_calls": []any{
+			independentToolEntry(0, "read", `{"valid":true}`),
+			independentToolEntry(1, "write", `{"v":1e400}`),
+		}}, nil, nil, nil, false)
+		cfg := wireSSE(first, wireChunk(map[string]any{}, "tool_calls", nil, nil, false), []byte("data: [DONE]\n\n"))
+		hold := 1
+		cfg.HoldAfter = &hold
+		key := v.scenario(t, cfg)
+		r, o := independentToolsInput(t, v, key, wire.SSEResponse)
+		x := v.start(t, testContext(t), v.adapter, r, o)
+		calls := [2]mc.ToolCallPart{}
+		for n := 0; n < 16 && (len(calls[0].Arguments) == 0 || len(calls[1].Arguments) == 0); n++ {
+			e, err := x.Next(testContext(t))
+			if err != nil || e.Kind != wire.ToolDelta || e.ToolDelta == nil {
+				t.Fatal("expected actual tool prefix before finish", err)
+			}
+			d := e.ToolDelta
+			if d.Index < 0 || d.Index >= len(calls) {
+				t.Fatal("invalid delivered tool index")
+			}
+			calls[d.Index].ID += d.IDFragment
+			calls[d.Index].Name += d.NameFragment
+			calls[d.Index].Arguments = append(calls[d.Index].Arguments, d.ArgumentsFragment...)
+			wireNoLeak(t, e)
+		}
+		if calls[0].Validate() != nil || calls[1].Validate() == nil || string(calls[1].Arguments) != `{"v":1e400}` || x.Joined() {
+			t.Fatal("did not observe valid first and invalid second C0 before finish")
+		}
+		if err := v.net.Release(testContext(t), key); err != nil {
+			t.Fatal(err)
+		}
+		events, err := wireDrain(t, x)
+		wireModelError(t, err, "provider_error", "wire_protocol_invalid", true, true)
+		for _, e := range events {
+			if e.Kind == wire.ToolComplete || e.Kind == wire.StreamEnd {
+				t.Fatal("early successful tool marker escaped all-tool validation")
+			}
+		}
+		independentToolsRetire(t, v, key, x, o)
+	})
+	t.Run("delivered_complete_and_usage_do_not_authorize_success_without_DONE", func(t *testing.T) {
+		cfg := wireSSE(
+			wireChunk(map[string]any{"tool_calls": []any{independentToolEntry(0, "read", `{"ready":true}`)}}, "tool_calls", nil, nil, false),
+			wireChunk(nil, nil, json.RawMessage(`{"prompt_tokens":9007199254740993,"completion_tokens":0}`), nil, true),
+			[]byte("data: [DONE]\n\n"),
+		)
+		hold := 2
+		cfg.HoldAfter = &hold
+		key := v.scenario(t, cfg)
+		r, o := independentToolsInput(t, v, key, wire.SSEResponse)
+		ctx, cancel := context.WithCancel(testContext(t))
+		defer cancel()
+		x := v.start(t, ctx, v.adapter, r, o)
+		var call mc.ToolCallPart
+		markers, usages := 0, 0
+		for n := 0; n < 16 && usages == 0; n++ {
+			e, err := x.Next(testContext(t))
+			if err != nil {
+				t.Fatal(err)
+			}
+			wireNoLeak(t, e)
+			switch e.Kind {
+			case wire.ToolDelta:
+				if e.ToolDelta == nil || e.ToolDelta.Index != 0 {
+					t.Fatal("invalid tool prefix")
+				}
+				call.ID += e.ToolDelta.IDFragment
+				call.Name += e.ToolDelta.NameFragment
+				call.Arguments = append(call.Arguments, e.ToolDelta.ArgumentsFragment...)
+			case wire.ToolComplete:
+				markers++
+				c := e.ToolComplete
+				if c == nil || c.Index != 0 || c.ID != call.ID || c.Name != call.Name || c.ArgumentsBytes != len(call.Arguments) || call.Validate() != nil {
+					t.Fatal("completion metadata not backed by delivered C0")
+				}
+			case wire.UsageUpdate:
+				usages++
+			default:
+				t.Fatal("terminal output before held DONE")
+			}
+		}
+		if markers != 1 || usages != 1 || x.Joined() {
+			t.Fatal("completion or usage substituted for actual stream termination")
+		}
+		cancel()
+		e, err := x.Next(testContext(t))
+		wireModelError(t, err, "cancelled", "wire_cancelled", true, true)
+		if e.Kind != "" {
+			t.Fatal("late event after cancellation")
+		}
+		if _, err := x.Next(testContext(t)); err != io.EOF {
+			t.Fatal("terminal error must be followed by EOF once")
+		}
+		u := x.Observe().Usage
+		if u.InputTokens == nil || *u.InputTokens != 9007199254740993 || u.OutputTokens == nil || *u.OutputTokens != 0 || u.TotalTokens != nil {
+			t.Fatal("delivered reliable usage changed after cancellation")
+		}
+		independentToolsRetire(t, v, key, x, o)
+	})
+}

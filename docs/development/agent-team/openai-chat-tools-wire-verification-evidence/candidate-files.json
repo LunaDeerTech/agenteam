@@ -1,0 +1,105 @@
+{
+  "baseline": "ecd733711caff5df46e423cadab52b32c34f785e",
+  "input08_sha256": "6f48676f7e30f37b60a92777fdf80eb674af8d4baae349a6b6274aeeeefad5f9",
+  "state": "UNCOMMITTED CANDIDATE; independent dynamic BLOCKED / NOT RUN",
+  "paths": [
+    {
+      "path": "internal/central/model/adapter/openai_chat.go",
+      "archive": "candidate/internal/central/model/adapter/openai_chat.go.txt",
+      "sha256": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+      "bytes": 13017,
+      "baseline_git_blob": "86d47d135cea76014afefaaf4a0aca7a23bce73f"
+    },
+    {
+      "path": "internal/central/model/adapter/errors.go",
+      "archive": "candidate/internal/central/model/adapter/errors.go.txt",
+      "sha256": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+      "bytes": 12147,
+      "baseline_git_blob": "f3977d242224faa70dc4644dcae62f7559d52a7c"
+    },
+    {
+      "path": "internal/central/model/adapter/sse.go",
+      "archive": "candidate/internal/central/model/adapter/sse.go.txt",
+      "sha256": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+      "bytes": 4065,
+      "baseline_git_blob": "21cc70275ba869f923e1113d69cbbb29b7f3c6b5"
+    },
+    {
+      "path": "internal/central/model/adapter/transport.go",
+      "archive": "candidate/internal/central/model/adapter/transport.go.txt",
+      "sha256": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+      "bytes": 13162,
+      "baseline_git_blob": "b3dd84b0ece9f2e9fa6129c06dda0e18fafb949b"
+    },
+    {
+      "path": "internal/central/model/adapter/openai_chat_tools.go",
+      "archive": "candidate/internal/central/model/adapter/openai_chat_tools.go.txt",
+      "sha256": "98e9aefa1968c75c3ed74a6021b07334617f7771979cb10561f39dbfee9e6b01",
+      "bytes": 14505,
+      "baseline_git_blob": null
+    },
+    {
+      "path": "internal/central/model/adapter/tools_stream.go",
+      "archive": "candidate/internal/central/model/adapter/tools_stream.go.txt",
+      "sha256": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+      "bytes": 4486,
+      "baseline_git_blob": null
+    },
+    {
+      "path": "internal/central/model/adapter/testdata/openai-chat-tools-v1.json",
+      "archive": "candidate/internal/central/model/adapter/testdata/openai-chat-tools-v1.json.txt",
+      "sha256": "62413a8f7274005a505f17d694922589ad469fbff82d8058d34a108738419019",
+      "bytes": 9973,
+      "baseline_git_blob": null
+    },
+    {
+      "path": "internal/central/model/adapter/openai_chat_tools_test.go",
+      "archive": "candidate/internal/central/model/adapter/openai_chat_tools_test.go.txt",
+      "sha256": "39124e4ea60eb1084d0859bb4ddbfbaade734d4526329de01e003a49f0e63512",
+      "bytes": 13043,
+      "baseline_git_blob": null
+    },
+    {
+      "path": "internal/central/model/adapter/tools_stream_test.go",
+      "archive": "candidate/internal/central/model/adapter/tools_stream_test.go.txt",
+      "sha256": "dd13332835bb53936fa73a301ce58d170b386d044cb1602c67670eab020252bf",
+      "bytes": 8341,
+      "baseline_git_blob": null
+    },
+    {
+      "path": "internal/central/model/adapter/tools_limits_test.go",
+      "archive": "candidate/internal/central/model/adapter/tools_limits_test.go.txt",
+      "sha256": "57e3dc91e8bf6c11339578503c5986fa0fb515f1eb6878eeacebba143fd6e77c",
+      "bytes": 11033,
+      "baseline_git_blob": null
+    },
+    {
+      "path": "internal/central/model/adapter/tools_transport_test.go",
+      "archive": "candidate/internal/central/model/adapter/tools_transport_test.go.txt",
+      "sha256": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa",
+      "bytes": 5053,
+      "baseline_git_blob": null
+    },
+    {
+      "path": "tests/model/openai_chat_tools_http_test.go",
+      "archive": "candidate/tests/model/openai_chat_tools_http_test.go.txt",
+      "sha256": "33963d91abdc059517413164343a3eee471b3baa132f45bf4c152be59e4fd425",
+      "bytes": 11672,
+      "baseline_git_blob": null
+    },
+    {
+      "path": "tests/model/openai_chat_tools_stream_test.go",
+      "archive": "candidate/tests/model/openai_chat_tools_stream_test.go.txt",
+      "sha256": "4093644c1b77a4c1be1f05dc2dc8c80ff014ad8a819e2b4bb01f92b82d23ec83",
+      "bytes": 8763,
+      "baseline_git_blob": null
+    },
+    {
+      "path": "tests/model/openai_chat_tools_budget_test.go",
+      "archive": "candidate/tests/model/openai_chat_tools_budget_test.go.txt",
+      "sha256": "8d407e0776ba07f1ba0b95aa1ab2ea26c54956ef112764f6a3869e72589410a8",
+      "bytes": 9914,
+      "baseline_git_blob": null
+    }
+  ]
+}

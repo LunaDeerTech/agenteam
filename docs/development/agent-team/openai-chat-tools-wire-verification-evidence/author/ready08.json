@@ -1,0 +1,39 @@
+{
+  "checked_at": 1791251678.853671,
+  "input08_sha256": "6f48676f7e30f37b60a92777fdf80eb674af8d4baae349a6b6274aeeeefad5f9",
+  "source_and_live_match": true,
+  "delta_from07": [
+    "tests/model/openai_chat_tools_budget_test.go"
+  ],
+  "production_pure_manifest_unchanged": true,
+  "reused_passes": [
+    "all8 other real01 top-level groups",
+    "three unchanged real01 budget subcases",
+    "pure checks as input07"
+  ],
+  "new_pass": "compile08 integration -race compile exit0",
+  "no_migration00018": true,
+  "tmp_entries": [],
+  "owned_source_tmp_processes": [],
+  "gofmt": {
+    "exit": 0,
+    "output": ""
+  },
+  "diff_check": {
+    "exit": 0,
+    "output": ""
+  },
+  "test_list": {
+    "argv": [
+      "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/build/model.test",
+      "-test.list",
+      "^TestModelOpenAIChatToolsCloseAndBudget$"
+    ],
+    "exit": 0,
+    "stdout": "TestModelOpenAIChatToolsCloseAndBudget\n"
+  },
+  "selector_sha256": "3165c6b9bbde4470a4afcf2885edde147f47c06e9d85be6c551bc1bd82cf7fa3",
+  "driver_sha256": "60cc8c390ea17fb4a5b98907fada8a36fb453bc91b411d9c807215fa9e7abb97",
+  "compile_record_sha256": "7b42fcedc3208c305262689fc512e6a7551362c5d5d37aee59d8554cadb622bf",
+  "original_red": "real01/command.json exit1; real01/raw.log unchanged"
+}

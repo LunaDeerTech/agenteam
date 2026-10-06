@@ -1,0 +1,38 @@
+{
+  "baseline": "ecd733711caff5df46e423cadab52b32c34f785e",
+  "accepted_ledger_commit": "36e5ff1a124c957d200888ad2e40bdc4ecb01305",
+  "changed_program_paths": [
+    "db/migrations/00018_model_invocation_usage.sql",
+    "internal/central/identity/contract/identity.go",
+    "internal/central/identity/contract/identity_test.go",
+    "internal/central/usage/authority.go",
+    "internal/central/usage/authority_test.go",
+    "internal/central/usage/contract/authority.go",
+    "internal/central/usage/contract/invocations.go",
+    "internal/central/usage/contract/invocations_test.go",
+    "internal/central/usage/invocations.go",
+    "internal/central/usage/query.go",
+    "internal/central/usage/service.go",
+    "internal/central/usage/store.go",
+    "internal/central/usage/summary.go",
+    "internal/central/usage/summary_test.go",
+    "tests/model/usage_authorization_test.go",
+    "tests/model/usage_fixture_test.go",
+    "tests/model/usage_ledger_test.go",
+    "tests/model/usage_query_test.go",
+    "tests/model/usage_schema_test.go",
+    "tests/model/usage_unknown_test.go"
+  ],
+  "intersection_with_independent_pure_production_closure": [
+    "internal/central/identity/contract/identity.go"
+  ],
+  "identity_diff_sha256": "4a81ae41f7fe8f81818deffbc723ccf0167ac3e9fc62c711bc2902b25d74746c",
+  "identity_after_sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+  "identity_effect": "only adds ModelRuntime constant and its RegisterService admission; existing identities and adapter/outbound callers unchanged",
+  "new_migration_sha256": "b5d3f487853ff26bc2964a5c0958198c65f5048896935ed3fbfffc667c16a101",
+  "migration_effect": "new invocation/observation/summary tables and their own indexes, including FKs to existing provider/model/snapshot facts; no existing table/function/trigger alteration",
+  "adapter_production_count": 6,
+  "adapter_has_no_usage_import": true,
+  "conclusion": "no adapter dependency behavior seam requiring rerun discovered; does not claim combined ledger/tools fixture PASS",
+  "docs_commits_do_not_change_this_source_review": true
+}

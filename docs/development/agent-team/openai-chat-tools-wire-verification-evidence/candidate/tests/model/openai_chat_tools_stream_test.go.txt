@@ -1,0 +1,238 @@
+//go:build integration
+
+package model_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"io"
+	"strings"
+	"testing"
+	"unicode/utf8"
+
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+func toolsWireDelta(index int, id, name, args string) map[string]any {
+	return map[string]any{"index": index, "id": id, "type": "function", "function": map[string]any{"name": name, "arguments": args}}
+}
+func toolsWireChunk(entries []any, finish any) []byte {
+	return wireChunk(map[string]any{"tool_calls": entries}, finish, nil, nil, false)
+}
+func toolsWireEvents(t *testing.T, events []wire.Event) ([]mc.ToolCallPart, int, int) {
+	t.Helper()
+	calls := map[int]mc.ToolCallPart{}
+	var complete []mc.ToolCallPart
+	usages, ends := 0, 0
+	for _, e := range events {
+		wireNoLeak(t, e)
+		switch e.Kind {
+		case wire.ToolDelta:
+			v := e.ToolDelta
+			if v == nil || e.ToolComplete != nil || e.Text != "" || e.End != nil || e.Usage != nil {
+				t.Fatal("delta union")
+			}
+			wireNoLeak(t, *v)
+			n := 0
+			for _, s := range []string{v.IDFragment, v.NameFragment, v.ArgumentsFragment} {
+				if s != "" {
+					n++
+					if len(s) > 64<<10 || !utf8.ValidString(s) {
+						t.Fatal("unbounded/invalid fragment")
+					}
+				}
+			}
+			if n != 1 {
+				t.Fatal("combined delta")
+			}
+			call := calls[v.Index]
+			call.ID += v.IDFragment
+			call.Name += v.NameFragment
+			call.Arguments = append(call.Arguments, v.ArgumentsFragment...)
+			calls[v.Index] = call
+		case wire.ToolComplete:
+			v := e.ToolComplete
+			if v == nil || e.ToolDelta != nil || e.Text != "" || e.End != nil || e.Usage != nil {
+				t.Fatal("marker union")
+			}
+			wireNoLeak(t, *v)
+			call := calls[v.Index]
+			if ends != 0 || v.Index != len(complete) || call.ID != v.ID || call.Name != v.Name || len(call.Arguments) != v.ArgumentsBytes || call.Validate() != nil {
+				t.Fatal("marker is not exact complete C0")
+			}
+			complete = append(complete, call)
+		case wire.UsageUpdate:
+			usages++
+		case wire.StreamEnd:
+			ends++
+		}
+	}
+	return complete, usages, ends
+}
+func TestModelOpenAIChatToolsStream(t *testing.T) {
+	v := newWireFixture(t)
+	v.allow(t, true)
+	t.Run("interleaved_repeated_index_and_utf8_network_boundaries", func(t *testing.T) {
+		first := wireChunk(map[string]any{"content": "text", "tool_calls": []any{toolsWireDelta(1, "ca", "wr", `{"x":"世`), toolsWireDelta(0, "ca", "look", `{"n":`), map[string]any{"index": 1, "id": "ll_b", "function": map[string]any{"name": "ite", "arguments": `界\"quote"}`}}, map[string]any{"index": 0, "id": "ll_a", "function": map[string]any{"name": "up", "arguments": "9007199254740993"}}, map[string]any{"index": 0, "id": nil, "type": "function", "function": map[string]any{"arguments": "}"}}}}, nil, nil, wireBodyCanary, false)
+		var chunks [][]byte
+		cut := bytes.Index(first, []byte("世")) + 1
+		if cut <= 0 {
+			t.Fatal("UTF8 fixture token")
+		}
+		chunks = append(chunks, first[:cut], first[cut:])
+		chunks = append(chunks, toolsWireChunk(nil, "tool_calls"), wireChunk(nil, nil, json.RawMessage(`{"prompt_tokens":9007199254740993,"completion_tokens":0}`), nil, true), []byte("data: [DONE]\n\n"))
+		cfg := wireSSE(chunks...)
+		hold := len(chunks)
+		cfg.HoldAfter = &hold
+		key := v.scenario(t, cfg)
+		r, o := toolsWireInput(t, v, key, wire.SSEResponse)
+		x := v.start(t, testContext(t), v.adapter, r, o)
+		events, err := wireDrain(t, x)
+		if err != nil {
+			t.Fatal(err)
+		}
+		calls, usages, ends := toolsWireEvents(t, events)
+		if len(calls) != 2 || usages != 1 || ends != 1 || events[0].Kind != wire.TextDelta || calls[0].ID != "call_a" || calls[1].ID != "call_b" || string(calls[0].Arguments) != `{"n":9007199254740993}` || string(calls[1].Arguments) != `{"x":"世界\"quote"}` || !x.Joined() {
+			t.Fatal("interleaved stream changed")
+		}
+		if *x.Observe().Usage.InputTokens != 9007199254740993 || *x.Observe().Usage.OutputTokens != 0 {
+			t.Fatal("SSE usage precision")
+		}
+		wireClose(t, x)
+		v.settled(t, key)
+		if len(v.state(t, key).Requests) != 1 {
+			t.Fatal("stream retried")
+		}
+	})
+	t.Run("actual_320KiB_argument_exceeds_queue_without_reducing_cap", func(t *testing.T) {
+		args := `{"x":"` + strings.Repeat("x", (320<<10)-8) + `"}`
+		if len(args) != 320<<10 {
+			t.Fatal("argument fixture size")
+		}
+		key := v.scenario(t, wireSSE(toolsWireChunk([]any{toolsWireDelta(0, "a", "lookup", args)}, "tool_calls"), []byte("data: [DONE]\n\n")))
+		r, o := toolsWireInput(t, v, key, wire.SSEResponse)
+		x := v.start(t, testContext(t), v.adapter, r, o)
+		events, err := wireDrain(t, x)
+		if err != nil {
+			t.Fatal(err)
+		}
+		calls, _, ends := toolsWireEvents(t, events)
+		if len(calls) != 1 || string(calls[0].Arguments) != args || ends != 1 || !x.Joined() {
+			t.Fatal("large argument incomplete")
+		}
+		fragments := 0
+		for _, e := range events {
+			if e.ToolDelta != nil && e.ToolDelta.ArgumentsFragment != "" {
+				fragments++
+			}
+		}
+		if fragments < 5 {
+			t.Fatal("parameter not bounded into fragments")
+		}
+		t.Logf("decoded_arguments=%d argument_fragments=%d fragment_cap=%d", len(args), fragments, 64<<10)
+		wireClose(t, x)
+		v.settled(t, key)
+		if len(v.state(t, key).Requests) != 1 {
+			t.Fatal("large stream retried")
+		}
+	})
+	t.Run("partial_tools_never_become_success_on_failure", func(t *testing.T) {
+		for _, kind := range []string{"missing_done", "half_json", "late_delta", "duplicate_finish", "refusal", "length", "usage_disconnect"} {
+			t.Run(kind, func(t *testing.T) {
+				args := `{}`
+				finish := "tool_calls"
+				if kind == "half_json" {
+					args = `{"x":`
+				}
+				if kind == "length" {
+					finish = "length"
+				}
+				chunks := [][]byte{toolsWireChunk([]any{toolsWireDelta(0, "a", "lookup", args)}, nil)}
+				if kind == "refusal" {
+					chunks = append(chunks, wireChunk(map[string]any{"refusal": wireBodyCanary}, nil, nil, nil, false))
+				} else {
+					chunks = append(chunks, toolsWireChunk(nil, finish))
+				}
+				switch kind {
+				case "late_delta":
+					chunks = append(chunks, toolsWireChunk([]any{map[string]any{"index": 0}}, nil))
+				case "duplicate_finish":
+					chunks = append(chunks, toolsWireChunk(nil, "tool_calls"))
+				case "usage_disconnect":
+					chunks = append(chunks, wireChunk(nil, nil, json.RawMessage(`{"completion_tokens":0,"total_tokens":7}`), nil, true))
+				}
+				cfg := wireSSE(chunks...)
+				if kind == "usage_disconnect" {
+					n := len(chunks)
+					cfg.DisconnectAfter = &n
+				}
+				key := v.scenario(t, cfg)
+				r, o := toolsWireInput(t, v, key, wire.SSEResponse)
+				x := v.start(t, testContext(t), v.adapter, r, o)
+				events, err := wireDrain(t, x)
+				category, code := "provider_error", "wire_protocol_invalid"
+				if kind == "refusal" {
+					category, code = "content_filter", ""
+				}
+				if kind == "usage_disconnect" {
+					category, code = "network", "wire_transport_error"
+				}
+				wireModelError(t, err, mc.ErrorCategory(category), code, true, true)
+				calls, usages, ends := toolsWireEvents(t, events)
+				want := 1
+				if kind == "half_json" || kind == "length" || kind == "refusal" {
+					want = 0
+				}
+				if len(calls) != want || ends != 0 {
+					t.Fatal("false complete/end")
+				}
+				if kind == "usage_disconnect" && (usages != 1 || x.Observe().Usage.TotalTokens == nil || *x.Observe().Usage.TotalTokens != 7) {
+					t.Fatal("reliable usage lost on disconnect")
+				}
+				wireClose(t, x)
+				v.settled(t, key)
+				if len(v.state(t, key).Requests) != 1 {
+					t.Fatal("failure retried")
+				}
+			})
+		}
+	})
+	t.Run("delivered_completion_and_usage_still_need_DONE_and_live_context", func(t *testing.T) {
+		cfg := wireSSE(toolsWireChunk([]any{toolsWireDelta(0, "a", "lookup", `{}`)}, "tool_calls"), wireChunk(nil, nil, json.RawMessage(`{"total_tokens":7}`), nil, true), []byte("data: [DONE]\n\n"))
+		hold := 2
+		cfg.HoldAfter = &hold
+		key := v.scenario(t, cfg)
+		r, o := toolsWireInput(t, v, key, wire.SSEResponse)
+		ctx, cancel := context.WithCancel(testContext(t))
+		defer cancel()
+		x := v.start(t, ctx, v.adapter, r, o)
+		var events []wire.Event
+		for {
+			e, err := x.Next(testContext(t))
+			if err != nil {
+				t.Fatal(err)
+			}
+			events = append(events, e)
+			if e.Kind == wire.UsageUpdate {
+				break
+			}
+		}
+		calls, usages, ends := toolsWireEvents(t, events)
+		if len(calls) != 1 || usages != 1 || ends != 0 || x.Joined() {
+			t.Fatal("held pre-DONE result")
+		}
+		cancel()
+		_, err := x.Next(testContext(t))
+		wireModelError(t, err, "cancelled", "wire_cancelled", true, true)
+		if _, err := x.Next(testContext(t)); err != io.EOF {
+			t.Fatal("late StreamEnd")
+		}
+		wireClose(t, x)
+		v.settled(t, key)
+		if x.Observe().Usage.TotalTokens == nil || *x.Observe().Usage.TotalTokens != 7 || len(v.state(t, key).Requests) != 1 {
+			t.Fatal("cancelled completion facts")
+		}
+	})
+}

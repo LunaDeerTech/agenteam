@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "list",
+    "-deps",
+    "-test",
+    "-overlay=/workspace/scratch/agenteam-tools-wire-independent-bwzxmqzl/core01-name-red02/overlay.json",
+    "-f",
+    "{{if not .Standard}}{{.Dir}}{{\"\\t\"}}{{join .GoFiles \",\"}}{{\"\\t\"}}{{join .TestGoFiles \",\"}}{{\"\\t\"}}{{join .XTestGoFiles \",\"}}{{\"\\n\"}}{{end}}",
+    "./internal/central/model/adapter"
+  ],
+  "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOCACHE": "/workspace/scratch/agenteam-management-independent-yB9JMR/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-tools-wire-independent-bwzxmqzl/tmp"
+  },
+  "exit": 0
+}

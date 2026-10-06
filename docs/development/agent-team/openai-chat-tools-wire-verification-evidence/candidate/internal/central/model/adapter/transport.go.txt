@@ -1,0 +1,459 @@
+package adapter
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"log/slog"
+	"mime"
+	"net/http"
+	"strings"
+	"sync"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+)
+
+type Exchange struct {
+	mu                                         sync.Mutex
+	ctx                                        context.Context
+	cancel                                     context.CancelFunc
+	budget                                     *Budget
+	mode                                       ResponseMode
+	client                                     *outbound.Client
+	ioDone                                     chan struct{}
+	changed                                    chan struct{}
+	done, joined, reading, consumed, delivered bool
+	observation                                Observation
+	requestID                                  string
+	queue                                      []Event
+	queueBytes                                 int
+	result                                     Result
+	err                                        error
+	schema                                     *structuredSchema
+	tools                                      *toolPolicy
+}
+
+func newExchange(ctx context.Context, mode ResponseMode, overall time.Duration, budget *Budget) *Exchange {
+	ctx, cancel := context.WithTimeout(ctx, overall)
+	return &Exchange{ctx: ctx, cancel: cancel, budget: budget, mode: mode, ioDone: make(chan struct{}), changed: make(chan struct{}), observation: Observation{Usage: mc.Usage{Source: mc.UnknownUsage}}}
+}
+func (x *Exchange) notify() { close(x.changed); x.changed = make(chan struct{}) }
+func (x *Exchange) run(t Transport, req *http.Request, profile outbound.Profile) {
+	result, err := x.perform(t, req, profile)
+	// perform has returned from Do, parser and every body Close. Cancellation
+	// can still leave a D04 writer: only the formal Drain below can retire it.
+	x.mu.Lock()
+	client := x.client
+	x.mu.Unlock()
+	if client != nil {
+		client.StopAdmission()
+	}
+	x.mu.Lock()
+	x.result, x.err, x.done = result, err, true
+	close(x.ioDone)
+	x.notify()
+	x.mu.Unlock()
+	// This uses the original attempt budget. A late writer is retained, never
+	// handed to an unbounded background waiter or given a fresh timeout.
+	_ = x.waitJoined(x.ctx)
+}
+func (x *Exchange) perform(t Transport, req *http.Request, profile outbound.Profile) (Result, error) {
+	defer req.Body.Close()
+	client, err := outbound.NewClient(t.Policy, t.Trust, t.Resolver)
+	if err != nil {
+		return Result{}, failure("unknown", "wire_transport_error")
+	}
+	x.mu.Lock()
+	x.client = client
+	x.observation.DoStarted = true
+	x.mu.Unlock()
+	response, err := client.Do(x.ctx, req, profile)
+	if err != nil {
+		x.observeNetworkError(err)
+		return Result{}, transportFailure(err)
+	}
+	defer response.Close()
+	d := response.Decision()
+	x.mu.Lock()
+	x.observation.Decision = &d
+	x.requestID = requestID(response.Headers().Get("X-Request-Id"))
+	x.mu.Unlock()
+	if response.StatusCode() != http.StatusOK {
+		// Even malformed errors are discarded, never carried by an error cause.
+		_, _ = io.Copy(io.Discard, io.LimitReader(response.Body(), 64<<10))
+		return Result{}, statusFailure(response.StatusCode())
+	}
+	contentType, _, err := mime.ParseMediaType(response.Headers().Get("Content-Type"))
+	want := "application/json"
+	if x.mode == SSEResponse {
+		want = "text/event-stream"
+	}
+	if err != nil || contentType != want {
+		return Result{}, protocolFailure()
+	}
+	if x.mode == SSEResponse {
+		end, err := x.stream(response.Body())
+		return Result{End: end}, err
+	}
+	raw, err := io.ReadAll(io.LimitReader(response.Body(), maxTextBytes+1))
+	if err != nil {
+		x.observeNetworkError(err)
+		return Result{}, transportFailure(err)
+	}
+	if len(raw) > maxTextBytes {
+		return Result{}, limitFailure()
+	}
+	value, err := decodeNativeMode(raw, false, x.tools != nil)
+	if err != nil {
+		return Result{}, err
+	}
+	x.observeUsage(value.usage)
+	if value.refusal {
+		return Result{}, failure("content_filter", "")
+	}
+	var calls []mc.ToolCallPart
+	if x.tools != nil {
+		calls, err = x.tools.response(x.ctx, value)
+		if err != nil {
+			return Result{}, err
+		}
+	}
+	if x.schema != nil {
+		if err := x.schema.complete(x.ctx, value.text, value.finish); err != nil {
+			return Result{}, err
+		}
+	}
+	return Result{Text: value.text, ToolCalls: calls, End: End{FinishReason: value.finish, Usage: value.usage.Clone(), ProviderRequestID: x.requestID}}, nil
+}
+func (x *Exchange) observeNetworkError(err error) {
+	var n *outbound.NetworkError
+	if !errors.As(err, &n) {
+		return
+	}
+	d := n.Decision()
+	x.mu.Lock()
+	x.observation.Decision = &d
+	x.mu.Unlock()
+}
+func (x *Exchange) observeUsage(u mc.Usage) {
+	x.mu.Lock()
+	x.observation.Usage = u.Clone()
+	x.mu.Unlock()
+}
+func (x *Exchange) Observe() Observation {
+	if x == nil {
+		return Observation{Usage: mc.Usage{Source: mc.UnknownUsage}}
+	}
+	x.mu.Lock()
+	defer x.mu.Unlock()
+	o := x.observation
+	o.Usage = o.Usage.Clone()
+	if o.Decision != nil {
+		d := *o.Decision
+		if d.PolicyVersion != nil {
+			v := *d.PolicyVersion
+			d.PolicyVersion = &v
+		}
+		o.Decision = &d
+	}
+	return o
+}
+func (x *Exchange) waitJoined(ctx context.Context) error {
+	if x == nil || ctx == nil {
+		return invalid()
+	}
+	select {
+	case <-x.ioDone:
+	default:
+		select {
+		case <-x.ioDone:
+		case <-ctx.Done():
+			return contextFailure(ctx.Err())
+		}
+	}
+	x.mu.Lock()
+	client, joined := x.client, x.joined
+	x.mu.Unlock()
+	if joined {
+		return nil
+	}
+	if client != nil {
+		if err := client.Drain(ctx); err != nil {
+			if ctx.Err() != nil {
+				return contextFailure(ctx.Err())
+			}
+			return failure("unknown", "wire_transport_error")
+		}
+	}
+	x.mu.Lock()
+	if !x.joined {
+		x.joined = true
+		x.budget.release(x)
+		x.notify()
+	}
+	x.mu.Unlock()
+	return nil
+}
+func (x *Exchange) Joined() bool {
+	if x == nil {
+		return false
+	}
+	// Drain checks its actual sets before examining cancellation. A cancelled
+	// probe has no waiting budget and cannot pretend unfinished work joined.
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	return x.waitJoined(ctx) == nil
+}
+func (x *Exchange) Close(ctx context.Context) error {
+	if x == nil || ctx == nil {
+		return invalid()
+	}
+	x.cancel()
+	return x.waitJoined(ctx)
+}
+func (x *Exchange) beginRead(mode ResponseMode) error {
+	if x == nil {
+		return invalid()
+	}
+	x.mu.Lock()
+	defer x.mu.Unlock()
+	if x.mode != mode || x.reading {
+		return f.NewFault(f.InvalidState, f.NotStarted)
+	}
+	x.reading = true
+	return nil
+}
+func (x *Exchange) endRead() { x.mu.Lock(); x.reading = false; x.mu.Unlock() }
+func (x *Exchange) readError(err error) error {
+	x.mu.Lock()
+	defer x.mu.Unlock()
+	var model *mc.ModelError
+	if !errors.As(err, &model) {
+		model = failure("unknown", "wire_transport_error")
+	}
+	v := *model
+	v.ProviderRequestID = x.requestID
+	v.Dispatched = x.observation.Decision != nil && x.observation.Decision.Sent
+	v.PartialOutput = x.delivered && v.Dispatched
+	return &v
+}
+func (x *Exchange) consumerJoin(ctx context.Context) error {
+	// Both the original attempt and this consumer's wait can cancel. This is a
+	// result-consumer control, not new I/O, and never extends either deadline.
+	wait, cancel := context.WithCancel(x.ctx)
+	stop := context.AfterFunc(ctx, cancel)
+	defer stop()
+	defer cancel()
+	if ctx.Err() != nil {
+		cancel()
+	}
+	err := x.waitJoined(wait)
+	// An actually joined client may return nil even with a cancelled wait.
+	// Join still retires its real slot first; it never authorizes publication.
+	if ctx.Err() != nil {
+		return contextFailure(ctx.Err())
+	}
+	if x.ctx.Err() != nil {
+		return contextFailure(x.ctx.Err())
+	}
+	return err
+}
+func (x *Exchange) Result(ctx context.Context) (Result, error) {
+	if ctx == nil {
+		return Result{}, invalid()
+	}
+	if err := x.beginRead(JSONResponse); err != nil {
+		return Result{}, err
+	}
+	defer x.endRead()
+	x.mu.Lock()
+	if x.consumed {
+		x.mu.Unlock()
+		return Result{}, f.NewFault(f.InvalidState, f.NotStarted)
+	}
+	x.consumed = true
+	x.mu.Unlock()
+	defer x.cancel()
+	select {
+	case <-x.ioDone:
+	case <-ctx.Done():
+		x.cancel()
+		return Result{}, x.readError(contextFailure(ctx.Err()))
+	case <-x.ctx.Done():
+		return Result{}, x.readError(contextFailure(x.ctx.Err()))
+	}
+	x.mu.Lock()
+	result, err := x.result, x.err
+	x.result = Result{}
+	x.mu.Unlock()
+	if err != nil {
+		return Result{}, x.readError(err)
+	}
+	if ctx.Err() != nil {
+		x.cancel()
+		return Result{}, x.readError(contextFailure(ctx.Err()))
+	}
+	if x.ctx.Err() != nil {
+		return Result{}, x.readError(contextFailure(x.ctx.Err()))
+	}
+	if err := x.consumerJoin(ctx); err != nil {
+		x.cancel()
+		return Result{}, x.readError(err)
+	}
+	result.End.Usage = result.End.Usage.Clone()
+	if result.ToolCalls != nil {
+		calls := make([]mc.ToolCallPart, len(result.ToolCalls))
+		for i, call := range result.ToolCalls {
+			calls[i] = call.Clone()
+		}
+		result.ToolCalls = calls
+	}
+	return result, nil
+}
+
+func cloneEvent(e Event) Event {
+	if e.ToolDelta != nil {
+		v := *e.ToolDelta
+		v.IDFragment, v.NameFragment, v.ArgumentsFragment = strings.Clone(v.IDFragment), strings.Clone(v.NameFragment), strings.Clone(v.ArgumentsFragment)
+		e.ToolDelta = &v
+	}
+	if e.ToolComplete != nil {
+		v := *e.ToolComplete
+		v.ID, v.Name = strings.Clone(v.ID), strings.Clone(v.Name)
+		e.ToolComplete = &v
+	}
+	if e.Usage != nil {
+		u := e.Usage.Clone()
+		e.Usage = &u
+	}
+	if e.End != nil {
+		end := *e.End
+		end.Usage = end.Usage.Clone()
+		e.End = &end
+	}
+	return e
+}
+func eventBytes(e Event) int {
+	n := len(e.Text) + len(e.Kind)
+	if e.ToolDelta != nil {
+		n += 8 + len(e.ToolDelta.IDFragment) + len(e.ToolDelta.NameFragment) + len(e.ToolDelta.ArgumentsFragment)
+	}
+	if e.ToolComplete != nil {
+		n += 16 + len(e.ToolComplete.ID) + len(e.ToolComplete.Name)
+	}
+	if e.Usage != nil {
+		n += 6*8 + len(e.Usage.Source)
+	}
+	if e.End != nil {
+		n += 6*8 + len(e.End.Usage.Source) + len(e.End.FinishReason) + len(e.End.ProviderRequestID)
+	}
+	return n
+}
+func (x *Exchange) emit(e Event) error {
+	e = cloneEvent(e)
+	e.Text = strings.Clone(e.Text)
+	n := eventBytes(e)
+	if n > 256<<10 {
+		return limitFailure()
+	}
+	for {
+		if err := x.ctx.Err(); err != nil {
+			return contextFailure(err)
+		}
+		x.mu.Lock()
+		if len(x.queue) < 32 && x.queueBytes+n <= 256<<10 {
+			x.queue = append(x.queue, e)
+			x.queueBytes += n
+			x.notify()
+			x.mu.Unlock()
+			return nil
+		}
+		changed := x.changed
+		x.mu.Unlock()
+		select {
+		case <-changed:
+		case <-x.ctx.Done():
+			return contextFailure(x.ctx.Err())
+		}
+	}
+}
+func (x *Exchange) Next(ctx context.Context) (Event, error) {
+	if ctx == nil {
+		return Event{}, invalid()
+	}
+	if err := x.beginRead(SSEResponse); err != nil {
+		return Event{}, err
+	}
+	defer x.endRead()
+	for {
+		x.mu.Lock()
+		if x.consumed {
+			x.mu.Unlock()
+			return Event{}, io.EOF
+		}
+		if ctx.Err() != nil || x.ctx.Err() != nil {
+			x.consumed = true
+			x.queue, x.queueBytes = nil, 0
+			x.notify()
+			x.mu.Unlock()
+			err := ctx.Err()
+			if err == nil {
+				err = x.ctx.Err()
+			}
+			x.cancel()
+			return Event{}, x.readError(contextFailure(err))
+		}
+		if len(x.queue) > 0 {
+			e := x.queue[0]
+			x.queue[0] = Event{}
+			x.queue = x.queue[1:]
+			x.queueBytes -= eventBytes(e)
+			if e.Kind == TextDelta && e.Text != "" || e.Kind == ToolDelta && e.ToolDelta != nil && (e.ToolDelta.IDFragment != "" || e.ToolDelta.NameFragment != "" || e.ToolDelta.ArgumentsFragment != "") || e.Kind == ToolComplete && e.ToolComplete != nil {
+				x.delivered = true
+			}
+			x.notify()
+			x.mu.Unlock()
+			return cloneEvent(e), nil
+		}
+		if x.done {
+			x.consumed = true
+			end, err := x.result.End, x.err
+			x.result = Result{}
+			x.mu.Unlock()
+			defer x.cancel()
+			if err != nil {
+				return Event{}, x.readError(err)
+			}
+			if err := x.consumerJoin(ctx); err != nil {
+				x.cancel()
+				return Event{}, x.readError(err)
+			}
+			end.Usage = end.Usage.Clone()
+			return Event{Kind: StreamEnd, End: &end}, nil
+		}
+		changed := x.changed
+		x.mu.Unlock()
+		select {
+		case <-changed:
+		case <-ctx.Done():
+		case <-x.ctx.Done():
+		}
+	}
+}
+
+func (*Exchange) Format(w fmt.State, _ rune)     { safeFormat(w, "model_wire_exchange") }
+func (*Exchange) MarshalJSON() ([]byte, error)   { return []byte(`"model_wire_exchange"`), nil }
+func (*Exchange) LogValue() slog.Value           { return slog.StringValue("model_wire_exchange") }
+func (*OpenAIChat) Format(w fmt.State, _ rune)   { safeFormat(w, "model_wire_adapter") }
+func (*OpenAIChat) MarshalJSON() ([]byte, error) { return []byte(`"model_wire_adapter"`), nil }
+func (*OpenAIChat) LogValue() slog.Value         { return slog.StringValue("model_wire_adapter") }
+func (*Budget) Format(w fmt.State, _ rune)       { safeFormat(w, "model_wire_budget") }
+func (*Budget) MarshalJSON() ([]byte, error)     { return []byte(`"model_wire_budget"`), nil }
+func (*Budget) LogValue() slog.Value             { return slog.StringValue("model_wire_budget") }
+func (Transport) Format(w fmt.State, _ rune)     { safeFormat(w, "model_wire_transport") }
+func (Transport) MarshalJSON() ([]byte, error)   { return []byte(`"model_wire_transport"`), nil }
+func (Transport) LogValue() slog.Value           { return slog.StringValue("model_wire_transport") }

@@ -1,0 +1,40 @@
+--- core01/openai_chat_tools.go
++++ F1/openai_chat_tools.go
+@@ -175,23 +175,23 @@
+ 			return fail(invalid())
+ 		}
+ 	}
++	for _, t := range r.Tools {
++		if err := ctx.Err(); err != nil {
++			return fail(contextFailure(err))
++		}
++		if t.Validate() != nil || !nativeToolName(t.Name) {
++			return fail(invalid())
++		}
++		if err := toolObjectJSON(ctx, t.InputSchema); err != nil {
++			if ctx.Err() != nil {
++				return fail(contextFailure(ctx.Err()))
++			}
++			return fail(invalid())
++		}
++	}
+ 	p := newToolPolicy(r)
+ 	if len(p.names) != len(r.Tools) || r.ToolChoice.Kind == "named" && !p.names[r.ToolChoice.Name] || len(r.Tools) == 0 && r.ToolChoice.Kind != "none" && r.ToolChoice.Kind != "auto" {
+ 		return fail(invalid())
+-	}
+-	for _, t := range r.Tools {
+-		if err := ctx.Err(); err != nil {
+-			return fail(contextFailure(err))
+-		}
+-		if t.Validate() != nil || !nativeToolName(t.Name) {
+-			return fail(invalid())
+-		}
+-		if err := toolObjectJSON(ctx, t.InputSchema); err != nil {
+-			if ctx.Err() != nil {
+-				return fail(contextFailure(ctx.Err()))
+-			}
+-			return fail(invalid())
+-		}
+ 	}
+ 	w := toolRequestEncoder{ctx: ctx}
+ 	w.literal(`{"model":`)

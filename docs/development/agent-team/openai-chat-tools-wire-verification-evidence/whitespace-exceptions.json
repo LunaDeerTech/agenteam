@@ -1,0 +1,175 @@
+{
+  "scope": "Only byte-preserved originals; all generated text checked clean",
+  "exceptions": [
+    {
+      "path": "author/core01-to02.diff",
+      "sha256": "561af759fe9cb2e7b76e68a8ef16fcf38ed2639b03f71be92323e0761c0c5c8c",
+      "reason": "verbatim original evidence; preserved, not normalized",
+      "issues": [
+        {
+          "trailing_whitespace_lines": [
+            52,
+            81,
+            99,
+            111
+          ]
+        }
+      ]
+    },
+    {
+      "path": "author/ledger-identity-seam.diff",
+      "sha256": "4a81ae41f7fe8f81818deffbc723ccf0167ac3e9fc62c711bc2902b25d74746c",
+      "reason": "verbatim original evidence; preserved, not normalized",
+      "issues": [
+        {
+          "trailing_whitespace_lines": [
+            11,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "path": "independent/core01-name-red/list.stdout",
+      "sha256": "10f8cc660319241752bada77f7fff89a634ff27ba587adb60b89d9b754a208fe",
+      "reason": "verbatim original evidence; preserved, not normalized",
+      "issues": [
+        {
+          "trailing_whitespace_lines": [
+            1,
+            2,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            12,
+            19,
+            20,
+            21,
+            23,
+            28,
+            29,
+            31,
+            33,
+            35,
+            40,
+            41,
+            43,
+            44,
+            45,
+            50,
+            52,
+            53,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60
+          ]
+        }
+      ]
+    },
+    {
+      "path": "independent/core01-name-red02/list.stdout",
+      "sha256": "10f8cc660319241752bada77f7fff89a634ff27ba587adb60b89d9b754a208fe",
+      "reason": "verbatim original evidence; preserved, not normalized",
+      "issues": [
+        {
+          "trailing_whitespace_lines": [
+            1,
+            2,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            12,
+            19,
+            20,
+            21,
+            23,
+            28,
+            29,
+            31,
+            33,
+            35,
+            40,
+            41,
+            43,
+            44,
+            45,
+            50,
+            52,
+            53,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60
+          ]
+        }
+      ]
+    },
+    {
+      "path": "independent/core02-name-green01/list.stdout",
+      "sha256": "a16c1df451e894f12ac372107a0165954f27d6f509a7a6bc75d341a6c3bddf1d",
+      "reason": "verbatim original evidence; preserved, not normalized",
+      "issues": [
+        {
+          "trailing_whitespace_lines": [
+            1,
+            2,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            12,
+            19,
+            20,
+            21,
+            23,
+            28,
+            29,
+            31,
+            33,
+            35,
+            40,
+            41,
+            43,
+            44,
+            45,
+            50,
+            52,
+            53,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60
+          ]
+        }
+      ]
+    },
+    {
+      "path": "independent/main-identity-reviewed.diff",
+      "sha256": "4a81ae41f7fe8f81818deffbc723ccf0167ac3e9fc62c711bc2902b25d74746c",
+      "reason": "verbatim original evidence; preserved, not normalized",
+      "issues": [
+        {
+          "trailing_whitespace_lines": [
+            11,
+            14
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+import pathlib,sys,subprocess,json,os,time,hashlib,shutil
+base=pathlib.Path(__file__).parent; repo=pathlib.Path('/workspace/agenteam'); label=sys.argv[1]; args=sys.argv[2:]
+fixed={'GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off','GOMODCACHE':'/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache','GOPROXY':'off','GOSUMDB':'off','GOFLAGS':'-mod=readonly -p=1','GOCACHE':str(base/'gocache'),'TMPDIR':str(base/'tmp')};env=os.environ.copy();env.update(fixed)
+argv=['/workspace/toolchains/go1.27.1/bin/go',*args];record={'argv':argv,'cwd':str(base/'source'),'env':fixed,'started':time.time(),'input':'race03-input.json with explicit overlay if argv specifies one'};log=base/'logs'/(label+'.log')
+with log.open('w') as out:r=subprocess.run(argv,cwd=base/'source',env=env,stdout=out,stderr=subprocess.STDOUT)
+record.update(exit=r.returncode,finished=time.time(),log=str(log));(base/(label+'.json')).write_text(json.dumps(record,indent=2)+'\n');print(label,r.returncode,flush=True);print(log.read_text(),flush=True)

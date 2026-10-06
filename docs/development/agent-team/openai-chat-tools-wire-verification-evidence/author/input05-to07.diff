@@ -1,0 +1,31 @@
+--- input05/internal/central/model/adapter/testdata/openai-chat-tools-v1.json
++++ input07/internal/central/model/adapter/testdata/openai-chat-tools-v1.json
+@@ -1,7 +1,7 @@
+ {
+   "revision": "openai-chat-tools-v1",
+-  "protocol": "openai-chat",
+-  "profile": "openai-chat-v1",
++  "protocol": "openai-chat-completions",
++  "profile": "openai-chat-completions-v1",
+   "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+   "sdk_version": "3.24.0",
+   "commit_object_sha256": "4a18fa5995a190f5cbff6f3313422abbae18861e401e2251ba73e7c8a59a9702",
+--- input05/internal/central/model/adapter/openai_chat_tools_test.go
++++ input07/internal/central/model/adapter/openai_chat_tools_test.go
+@@ -265,11 +265,11 @@
+ 		t.Fatal(err)
+ 	}
+ 	var m struct {
+-		Revision, Commit         string
+-		Sources                  []struct{ Path, URL, SHA256, GitBlob string }
+-		Adopted, Rejected, Tests []string
+-	}
+-	if json.Unmarshal(raw, &m) != nil || m.Revision != OpenAIChatToolsRevision || m.Commit != "becc1d20eed83c1b8d85e15dc131a372d9dc7813" || len(m.Sources) != 21 || len(m.Adopted) == 0 || len(m.Rejected) == 0 || len(m.Tests) == 0 {
++		Revision, Commit, Protocol, Profile string
++		Sources                             []struct{ Path, URL, SHA256, GitBlob string }
++		Adopted, Rejected, Tests            []string
++	}
++	if json.Unmarshal(raw, &m) != nil || m.Revision != OpenAIChatToolsRevision || m.Protocol != string(mc.OpenAIChat) || m.Profile != string(mc.OpenAIChatV1) || m.Commit != "becc1d20eed83c1b8d85e15dc131a372d9dc7813" || len(m.Sources) != 21 || len(m.Adopted) == 0 || len(m.Rejected) == 0 || len(m.Tests) == 0 {
+ 		t.Fatal("tools provenance manifest")
+ 	}
+ 	for _, s := range m.Sources {

@@ -1,0 +1,307 @@
+package adapter
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"strings"
+	"sync/atomic"
+	"testing"
+	"unicode/utf8"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+func argumentChunks(index int, id, name, args string) string {
+	var b strings.Builder
+	first := true
+	for first || args != "" {
+		n := min(len(args), 32<<10)
+		if n < len(args) {
+			for n > 0 && !utf8.RuneStart(args[n]) {
+				n--
+			}
+		}
+		v := map[string]any{"index": index, "function": map[string]any{"arguments": args[:n]}}
+		if first {
+			v["id"] = id
+			v["type"] = "function"
+			v["function"].(map[string]any)["name"] = name
+			first = false
+		}
+		b.WriteString(toolsChunk([]any{v}, nil))
+		args = args[n:]
+	}
+	return b.String()
+}
+func checkArgumentsBoth(t *testing.T, id, name, args string, p *toolPolicy, wantCode string) {
+	t.Helper()
+	v, err := decodeNativeMode(toolsReply(nil, []any{nativeTool(id, name, args)}, "tool_calls", nil), false, true)
+	if err != nil {
+		t.Fatal("invalid native envelope", err)
+	}
+	calls, err := p.response(context.Background(), v)
+	if wantCode == "" {
+		if err != nil || len(calls) != 1 || string(calls[0].Arguments) != args || calls[0].Validate() != nil {
+			t.Fatal("ordinary C0 boundary", err)
+		}
+	} else {
+		requireModel(t, err, "provider_error", wantCode)
+		if calls != nil {
+			t.Fatal("ordinary partial result")
+		}
+	}
+	input := argumentChunks(0, id, name, args) + toolsChunk(nil, "tool_calls") + "data: [DONE]\n\n"
+	events, err, _ := parseToolsStream(t, strings.NewReader(input), p)
+	complete, ends := reconstructTools(t, events)
+	if wantCode == "" {
+		if err != nil || len(complete) != 1 || ends != 1 || string(complete[0].Arguments) != args {
+			t.Fatal("SSE C0 boundary", err)
+		}
+	} else {
+		requireModel(t, err, "provider_error", wantCode)
+		if len(complete) != 0 || ends != 0 {
+			t.Fatal("invalid SSE completion")
+		}
+	}
+}
+func TestToolsArgumentsC0AndByteBoundaries(t *testing.T) {
+	r, _ := toolsUnitInput(t)
+	p := newToolPolicy(r)
+	for _, tc := range []struct{ name, id, args, code string }{
+		{"finite_precision", "a", ` {"n":90071992547409931234567890123456789,"e":1e100} `, ""},
+		{"depth32", "a", strings.Repeat(`{"v":`, 31) + "0" + strings.Repeat("}", 31), ""},
+		{"depth33_scalar", "a", strings.Repeat(`{"v":`, 32) + "0" + strings.Repeat("}", 32), "wire_limit_exceeded"},
+		{"overflow_number", "a", `{"n":1e400}`, "wire_protocol_invalid"},
+		{"duplicate", "a", `{"v":1,"v":2}`, "wire_protocol_invalid"},
+		{"trailing", "a", `{} {}`, "wire_protocol_invalid"},
+		{"nonobject", "a", `[1]`, "wire_protocol_invalid"},
+		{"half", "a", `{"v":`, "wire_protocol_invalid"},
+		{"surrogate", "a", `{"v":"\ud800"}`, "wire_protocol_invalid"},
+		{"nul_id", "a\x00b", `{}`, "wire_protocol_invalid"},
+		{"id256", strings.Repeat("世", 85) + "a", `{}`, ""},
+		{"id257", strings.Repeat("x", 257), `{}`, "wire_limit_exceeded"},
+		{"args1MiB", "a", `{"v":"` + strings.Repeat("x", maxToolArguments-8) + `"}`, ""},
+		{"args1MiB_plus1", "a", `{"v":"` + strings.Repeat("x", maxToolArguments-7) + `"}`, "wire_limit_exceeded"},
+	} {
+		t.Run(tc.name, func(t *testing.T) { checkArgumentsBoth(t, tc.id, "lookup", tc.args, p, tc.code) })
+	}
+	for _, n := range []int{64, 65} {
+		t.Run(fmt.Sprint("name", n), func(t *testing.T) {
+			r, _ := toolsUnitInput(t)
+			name := strings.Repeat("a", n)
+			r.Tools[0].Name = name
+			code := ""
+			if n == 65 {
+				code = "wire_limit_exceeded"
+			}
+			checkArgumentsBoth(t, "a", name, `{}`, newToolPolicy(r), code)
+		})
+	}
+}
+func TestToolsCountsAndEntryBounds(t *testing.T) {
+	r, _ := toolsUnitInput(t)
+	p := newToolPolicy(r)
+	for _, n := range []int{128, 129} {
+		t.Run(fmt.Sprint("tools", n), func(t *testing.T) {
+			var native, delta []any
+			for i := 0; i < n; i++ {
+				id := fmt.Sprint("id", i)
+				native = append(native, nativeTool(id, "lookup", `{}`))
+				delta = append(delta, toolDelta(i, id, "lookup", `{}`))
+			}
+			v, err := decodeNativeMode(toolsReply(nil, native, "tool_calls", nil), false, true)
+			if err != nil {
+				t.Fatal(err)
+			}
+			calls, err := p.response(context.Background(), v)
+			if n == 128 {
+				if err != nil || len(calls) != n {
+					t.Fatal(err)
+				}
+			} else {
+				requireModel(t, err, "provider_error", "wire_limit_exceeded")
+				if calls != nil {
+					t.Fatal("partial tools")
+				}
+			}
+			events, err, _ := parseToolsStream(t, strings.NewReader(toolsChunk(delta, "tool_calls")+"data: [DONE]\n\n"), p)
+			complete, end := reconstructTools(t, events)
+			if n == 128 {
+				if err != nil || len(complete) != n || end != 1 {
+					t.Fatal(err)
+				}
+			} else {
+				requireModel(t, err, "provider_error", "wire_limit_exceeded")
+				if len(complete) != 0 || end != 0 {
+					t.Fatal("extra tool accepted")
+				}
+			}
+		})
+	}
+	for _, n := range []int{256, 257} {
+		t.Run(fmt.Sprint("entries", n), func(t *testing.T) {
+			entries := []any{toolDelta(0, "a", "lookup", `{}`)}
+			for len(entries) < n {
+				entries = append(entries, map[string]any{"index": 0, "type": "function"})
+			}
+			events, err, _ := parseToolsStream(t, strings.NewReader(toolsChunk(entries, "tool_calls")+"data: [DONE]\n\n"), p)
+			calls, ends := reconstructTools(t, events)
+			if n == 256 {
+				if err != nil || len(calls) != 1 || ends != 1 {
+					t.Fatal(err)
+				}
+			} else {
+				requireModel(t, err, "provider_error", "wire_limit_exceeded")
+				if len(calls) != 0 || ends != 0 {
+					t.Fatal("entry cap")
+				}
+			}
+		})
+	}
+}
+func TestToolsCumulative16MiBIncludesText(t *testing.T) {
+	r, _ := toolsUnitInput(t)
+	p := newToolPolicy(r)
+	for _, extra := range []int{0, 1} {
+		t.Run(fmt.Sprint("extra", extra), func(t *testing.T) {
+			readers := []io.Reader{strings.NewReader(chunk(map[string]any{"content": "x"}, nil, nil))}
+			for i := 0; i < 16; i++ {
+				size := maxToolArguments
+				if i == 0 {
+					size--
+				}
+				args := `{"v":"` + strings.Repeat("x", size-8) + `"}`
+				readers = append(readers, strings.NewReader(argumentChunks(i, fmt.Sprint("id", i), "lookup", args)))
+			}
+			if extra != 0 {
+				readers = append(readers, strings.NewReader(chunk(map[string]any{"content": "x"}, nil, nil)))
+			}
+			readers = append(readers, strings.NewReader(toolsChunk(nil, "tool_calls")+"data: [DONE]\n\n"))
+			events, err, x := parseToolsStream(t, io.MultiReader(readers...), p)
+			if err != nil { t.Logf("original_context_error=%v", x.ctx.Err()); if m, ok := err.(*mc.ModelError); ok { t.Logf("category=%s code=%s", m.Category, m.Code) } }
+			calls, ends := reconstructTools(t, events)
+			if extra == 0 {
+				if err != nil || len(calls) != 16 || ends != 1 {
+					t.Fatal("exact 16MiB rejected", err)
+				}
+				total := 1
+				for _, c := range calls {
+					total += len(c.Arguments)
+				}
+				if total != maxTextBytes {
+					t.Fatal(total)
+				}
+			} else {
+				requireModel(t, err, "provider_error", "wire_limit_exceeded")
+				if len(calls) != 0 || ends != 0 {
+					t.Fatal("cumulative overflow completion")
+				}
+			}
+		})
+	}
+}
+func TestToolsRequestSizeAndContractLimits(t *testing.T) {
+	r, o := toolsUnitInput(t)
+	r.Tools = nil
+	r.ToolChoice.Kind = "none"
+	r.Messages[0].Parts[0].Text.Text = ""
+	req, _, err := prepare(r, o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, _ := io.ReadAll(req.Body)
+	req.Body.Close()
+	for _, extra := range []int{0, 1} {
+		r.Messages[0].Parts[0].Text.Text = strings.Repeat("x", maxTextBytes-len(body)+extra)
+		req, _, err := prepare(r, o)
+		if extra == 0 {
+			if err != nil {
+				t.Fatal("exact encoded body", err)
+			}
+			raw, _ := io.ReadAll(req.Body)
+			req.Body.Close()
+			if len(raw) != maxTextBytes {
+				t.Fatal(len(raw))
+			}
+		} else {
+			requireModel(t, err, "provider_error", "wire_limit_exceeded")
+			if req != nil {
+				t.Fatal("over encoded cap")
+			}
+		}
+	}
+	for _, n := range []int{256, 257} {
+		r, o := toolsUnitInput(t)
+		r.Messages = nil
+		for i := 0; i < n; i++ {
+			r.Messages = append(r.Messages, mc.Message{Role: "user", Parts: []mc.MessagePart{{Text: &mc.TextPart{Text: "x"}}}})
+		}
+		req, _, err := prepare(r, o)
+		if n == 256 {
+			if err != nil {
+				t.Fatal(err)
+			}
+			req.Body.Close()
+		} else {
+			requireFault(t, err, f.InvalidArgument)
+		}
+	}
+	for _, n := range []int{128, 129} {
+		r, o := toolsUnitInput(t)
+		r.Tools = nil
+		for i := 0; i < n; i++ {
+			r.Tools = append(r.Tools, mc.Tool{Name: fmt.Sprint("tool", i), InputSchema: json.RawMessage(`{}`)})
+		}
+		req, _, err := prepare(r, o)
+		if n == 128 {
+			if err != nil {
+				t.Fatal(err)
+			}
+			req.Body.Close()
+		} else {
+			requireFault(t, err, f.InvalidArgument)
+		}
+	}
+	for _, n := range []int{64 << 10, (64 << 10) + 1} {
+		r, o := toolsUnitInput(t)
+		r.Tools[0].InputSchema = json.RawMessage("{" + strings.Repeat(" ", n-2) + "}")
+		req, _, err := prepare(r, o)
+		if n == 64<<10 {
+			if err != nil {
+				t.Fatal(err)
+			}
+			req.Body.Close()
+		} else {
+			requireFault(t, err, f.InvalidArgument)
+		}
+	}
+}
+
+type toolsScanCancellation struct {
+	context.Context
+	cancel context.CancelFunc
+	checks atomic.Int64
+	at     int64
+}
+
+func (c *toolsScanCancellation) Err() error {
+	if c.checks.Add(1) == c.at {
+		c.cancel()
+	}
+	return c.Context.Err()
+}
+func TestToolsCancellationDuringArgumentScan(t *testing.T) {
+	for _, args := range []string{`{"v":"` + strings.Repeat("x", maxToolArguments-8) + `"}`, `{"v":[` + strings.Repeat("0,", 10000) + `0]}`} {
+		base, cancel := context.WithCancel(context.Background())
+		ctx := &toolsScanCancellation{Context: base, cancel: cancel, at: 64}
+		err := validateToolCall(ctx, mc.ToolCallPart{ID: "a", Name: "lookup", Arguments: json.RawMessage(args)})
+		requireModel(t, err, "cancelled", "wire_cancelled")
+		if ctx.checks.Load() < 64 || base.Err() != context.Canceled {
+			t.Fatal("only entry cancellation checked")
+		}
+		cancel()
+	}
+}

@@ -1,0 +1,80 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.241.119.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=fd2a8702e84fe8d3126a8b225a8df185
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=e7e0e2a97046429de6bf6fd85d756912
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.040s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.593s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+=== RUN   TestModelOpenAIChatToolsCloseAndBudget
+=== RUN   TestModelOpenAIChatToolsCloseAndBudget/headers_and_partial_body_hold_cancel_without_end
+    openai_chat_tools_budget_test.go:64: hold_after=0 parsed_headers=true decision_sent=true decision_reason=empty requests=1 active_handlers=1 completed_handlers=0 connection_closed=false delivered_tool_fragment=false joined=false caller_live=true
+    openai_chat_tools_budget_test.go:64: hold_after=1 parsed_headers=true decision_sent=true decision_reason=empty requests=1 active_handlers=1 completed_handlers=0 connection_closed=false delivered_tool_fragment=true joined=false caller_live=true
+=== RUN   TestModelOpenAIChatToolsCloseAndBudget/tool_fragment_backpressure_retains_parser_and_material
+=== RUN   TestModelOpenAIChatToolsCloseAndBudget/real_writer_late_return_keeps_slot_and_same_remaining_shutdown_budget
+    openai_chat_tools_budget_test.go:173: same_shutdown_deadline=2026-10-06T02:03:49.955198509Z expired_context=context deadline exceeded requests=9 late_writer_joined=false
+=== RUN   TestModelOpenAIChatToolsCloseAndBudget/three_revisions_share_exact_global64_and_project8
+--- PASS: TestModelOpenAIChatToolsCloseAndBudget (1.84s)
+    --- PASS: TestModelOpenAIChatToolsCloseAndBudget/headers_and_partial_body_hold_cancel_without_end (0.09s)
+    --- PASS: TestModelOpenAIChatToolsCloseAndBudget/tool_fragment_backpressure_retains_parser_and_material (0.16s)
+    --- PASS: TestModelOpenAIChatToolsCloseAndBudget/real_writer_late_return_keeps_slot_and_same_remaining_shutdown_budget (0.13s)
+    --- PASS: TestModelOpenAIChatToolsCloseAndBudget/three_revisions_share_exact_global64_and_project8 (0.21s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	2.857s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.013s [no tests to run]
+D03 fixture cleanup checked for nonce e98f9ff49d9a46dbf081dff224b8c89b
+D04 outbound fixture cleanup checked for nonce e7e0e2a97046429de6bf6fd85d756912
+D05 object fixture exact resource cleanup checked nonce=fd2a8702e84fe8d3126a8b225a8df185

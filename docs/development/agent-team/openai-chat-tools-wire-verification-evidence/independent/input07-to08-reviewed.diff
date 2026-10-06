@@ -1,0 +1,34 @@
+--- input07/tests/model/openai_chat_tools_budget_test.go
++++ input08/tests/model/openai_chat_tools_budget_test.go
+@@ -42,20 +42,26 @@
+ 			key := v.scenario(t, cfg)
+ 			r, o := toolsWireInput(t, v, key, wire.SSEResponse)
+ 			ctx, cancel := context.WithCancel(testContext(t))
+-			headers := make(chan struct{})
+-			var once sync.Once
+-			ctx = httptrace.WithClientTrace(ctx, &httptrace.ClientTrace{GotFirstResponseByte: func() { once.Do(func() { close(headers) }) }})
++			defer cancel()
+ 			x := v.start(t, ctx, v.adapter, r, o)
+-			waitSignal(t, headers)
++			// D04 reads headers itself and does not emit GotFirstResponseByte.
++			// Its successful Response.Decision is published only after Do has
++			// returned the parsed headers. The owned server flushes those headers
++			// before HoldAfter=0; it cannot send body bytes until released.
++			wireWait(t, "parsed headers and owned held response not observed", func() bool {
++				observation, state := x.Observe(), v.state(t, key)
++				return ctx.Err() == nil && observation.DoStarted && observation.Decision != nil && observation.Decision.Sent && observation.Decision.Reason == "" && len(state.Requests) == 1 && state.ActiveHandlers == 1 && state.CompletedHandlers == 0 && !state.Closed[state.Requests[0].Connection]
++			})
+ 			if hold == 1 {
+ 				e, err := x.Next(testContext(t))
+-				if err != nil || e.Kind != wire.ToolDelta {
++				if err != nil || e.Kind != wire.ToolDelta || e.ToolDelta == nil || e.ToolDelta.IDFragment == "" && e.ToolDelta.NameFragment == "" && e.ToolDelta.ArgumentsFragment == "" {
+ 					t.Fatal("no delivered held tool prefix", err)
+ 				}
+ 			}
+ 			if x.Joined() {
+ 				t.Fatal("held body considered joined")
+ 			}
++			t.Logf("hold_after=%d parsed_headers=true decision_sent=true decision_reason=empty requests=1 active_handlers=1 completed_handlers=0 connection_closed=false delivered_tool_fragment=%v joined=false caller_live=%v", hold, hold == 1, ctx.Err() == nil)
+ 			cancel()
+ 			_, err := x.Next(testContext(t))
+ 			wireModelError(t, err, "cancelled", "wire_cancelled", true, hold == 1)

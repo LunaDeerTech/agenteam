@@ -1,0 +1,422 @@
+{
+  "540202": {
+    "pid": 540202,
+    "ppid": 540126,
+    "ticks": 594052,
+    "comm": "sh",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "540226": {
+    "pid": 540226,
+    "ppid": 540202,
+    "ticks": 594053,
+    "comm": "go",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "540325": {
+    "pid": 540325,
+    "ppid": 540202,
+    "ticks": 594115,
+    "comm": "fixture",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "540457": {
+    "pid": 540457,
+    "ppid": 540325,
+    "ticks": 594175,
+    "comm": "docker",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "541286": {
+    "pid": 541286,
+    "ppid": 540325,
+    "ticks": 594681,
+    "comm": "sh",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "541324": {
+    "pid": 541324,
+    "ppid": 541294,
+    "ticks": 594693,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "541294": {
+    "pid": 541294,
+    "ppid": 541286,
+    "ticks": 594682,
+    "comm": "go",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "541422": {
+    "pid": 541422,
+    "ppid": 541286,
+    "ticks": 594732,
+    "comm": "fixture",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "541496": {
+    "pid": 541496,
+    "ppid": 541422,
+    "ticks": 594772,
+    "comm": "docker",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "542241": {
+    "pid": 542241,
+    "ppid": 541422,
+    "ticks": 595150,
+    "comm": "sh",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "542249": {
+    "pid": 542249,
+    "ppid": 542241,
+    "ticks": 595151,
+    "comm": "go",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "542284": {
+    "pid": 542284,
+    "ppid": 542249,
+    "ticks": 595161,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "542468": {
+    "pid": 542468,
+    "ppid": 542422,
+    "ticks": 595227,
+    "comm": "docker",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "542422": {
+    "pid": 542422,
+    "ppid": 542241,
+    "ticks": 595205,
+    "comm": "fixture",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "543034": {
+    "pid": 543034,
+    "ppid": 542422,
+    "ticks": 595423,
+    "comm": "docker",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "543269": {
+    "pid": 543269,
+    "ppid": 542422,
+    "ticks": 595513,
+    "comm": "docker",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "543613": {
+    "pid": 543613,
+    "ppid": 542422,
+    "ticks": 595661,
+    "comm": "docker",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "543885": {
+    "pid": 543885,
+    "ppid": 542422,
+    "ticks": 595779,
+    "comm": "docker",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "544038": {
+    "pid": 544038,
+    "ppid": 542422,
+    "ticks": 595866,
+    "comm": "go",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "544226": {
+    "pid": 544226,
+    "ppid": 544038,
+    "ticks": 595966,
+    "comm": "postgres.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres"
+  },
+  "544387": {
+    "pid": 544387,
+    "ppid": 544038,
+    "ticks": 596068,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "544496": {
+    "pid": 544496,
+    "ppid": 544038,
+    "ticks": 596125,
+    "comm": "database.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/tests/database"
+  },
+  "544679": {
+    "pid": 544679,
+    "ppid": 544038,
+    "ticks": 596232,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "544842": {
+    "pid": 544842,
+    "ppid": 544038,
+    "ticks": 596346,
+    "comm": "app.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/app"
+  },
+  "545011": {
+    "pid": 545011,
+    "ppid": 544038,
+    "ticks": 596450,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "545185": {
+    "pid": 545185,
+    "ppid": 545172,
+    "ticks": 596547,
+    "comm": "go",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "545231": {
+    "pid": 545231,
+    "ppid": 545185,
+    "ticks": 596573,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "545172": {
+    "pid": 545172,
+    "ppid": 544038,
+    "ticks": 596539,
+    "comm": "process.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/tests/process"
+  },
+  "545599": {
+    "pid": 545599,
+    "ppid": 544038,
+    "ticks": 596799,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "545698": {
+    "pid": 545698,
+    "ppid": 544038,
+    "ticks": 596870,
+    "comm": "security.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/tests/security"
+  },
+  "545877": {
+    "pid": 545877,
+    "ppid": 544038,
+    "ticks": 596972,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "546011": {
+    "pid": 546011,
+    "ppid": 544038,
+    "ticks": 597030,
+    "comm": "outbox.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/tests/outbox"
+  },
+  "546291": {
+    "pid": 546291,
+    "ppid": 544038,
+    "ticks": 597132,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "546318": {
+    "pid": 546318,
+    "ppid": 544038,
+    "ticks": 597169,
+    "comm": "outbox.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbox"
+  },
+  "546557": {
+    "pid": 546557,
+    "ppid": 544038,
+    "ticks": 597270,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "546603": {
+    "pid": 546603,
+    "ppid": 544038,
+    "ticks": 597290,
+    "comm": "contract.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbox/contract"
+  },
+  "546769": {
+    "pid": 546769,
+    "ppid": 544038,
+    "ticks": 597391,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "546914": {
+    "pid": 546914,
+    "ppid": 544038,
+    "ticks": 597464,
+    "comm": "account.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/tests/account"
+  },
+  "547328": {
+    "pid": 547328,
+    "ppid": 544038,
+    "ticks": 597629,
+    "comm": "accountmail.tes",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/tests/accountmail"
+  },
+  "547502": {
+    "pid": 547502,
+    "ppid": 544038,
+    "ticks": 597731,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "547668": {
+    "pid": 547668,
+    "ppid": 544038,
+    "ticks": 597790,
+    "comm": "accountmail.tes",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/accountmail"
+  },
+  "547808": {
+    "pid": 547808,
+    "ppid": 544038,
+    "ticks": 597892,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "547971": {
+    "pid": 547971,
+    "ppid": 544038,
+    "ticks": 597959,
+    "comm": "recoverylog.tes",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/recoverylog"
+  },
+  "548358": {
+    "pid": 548358,
+    "ppid": 544038,
+    "ticks": 598131,
+    "comm": "project.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/tests/project"
+  },
+  "548558": {
+    "pid": 548558,
+    "ppid": 544038,
+    "ticks": 598233,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "548700": {
+    "pid": 548700,
+    "ppid": 544038,
+    "ticks": 598298,
+    "comm": "model.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model"
+  },
+  "548871": {
+    "pid": 548871,
+    "ppid": 544038,
+    "ticks": 598400,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "549006": {
+    "pid": 549006,
+    "ppid": 544038,
+    "ticks": 598446,
+    "comm": "adapter.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/adapter"
+  },
+  "549185": {
+    "pid": 549185,
+    "ppid": 544038,
+    "ticks": 598547,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "549295": {
+    "pid": 549295,
+    "ppid": 544038,
+    "ticks": 598577,
+    "comm": "contract.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract"
+  },
+  "549462": {
+    "pid": 549462,
+    "ppid": 544038,
+    "ticks": 598682,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "549603": {
+    "pid": 549603,
+    "ppid": 544038,
+    "ticks": 598752,
+    "comm": "model.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/tests/model"
+  },
+  "550354": {
+    "pid": 550354,
+    "ppid": 544038,
+    "ticks": 599038,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "550498": {
+    "pid": 550498,
+    "ppid": 544038,
+    "ticks": 599105,
+    "comm": "objects.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/tests/objects"
+  },
+  "550722": {
+    "pid": 550722,
+    "ppid": 544038,
+    "ticks": 599208,
+    "comm": "link",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "550803": {
+    "pid": 550803,
+    "ppid": 544038,
+    "ticks": 599260,
+    "comm": "object.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object"
+  },
+  "551089": {
+    "pid": 551089,
+    "ppid": 544038,
+    "ticks": 599390,
+    "comm": "contract.test",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract"
+  },
+  "551345": {
+    "pid": 551345,
+    "ppid": 542422,
+    "ticks": 599494,
+    "comm": "docker",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "551654": {
+    "pid": 551654,
+    "ppid": 542422,
+    "ticks": 599572,
+    "comm": "docker",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  },
+  "551916": {
+    "pid": 551916,
+    "ppid": 540325,
+    "ticks": 599637,
+    "comm": "docker",
+    "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source"
+  }
+}

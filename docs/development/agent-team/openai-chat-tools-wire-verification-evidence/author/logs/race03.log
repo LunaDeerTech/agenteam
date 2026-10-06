@@ -1,0 +1,8 @@
+--- FAIL: TestToolsCumulative16MiBIncludesText (21.37s)
+    --- FAIL: TestToolsCumulative16MiBIncludesText/extra0 (10.72s)
+        tools_limits_test.go:187: exact 16MiB rejected model_model_error
+    --- FAIL: TestToolsCumulative16MiBIncludesText/extra1 (10.65s)
+        tools_limits_test.go:197: model error got model_model_error, want provider_error/wire_limit_exceeded
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	43.909s
+FAIL

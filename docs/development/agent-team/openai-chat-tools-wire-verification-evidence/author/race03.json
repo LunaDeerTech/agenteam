@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-count=1",
+    "./internal/central/model/adapter"
+  ],
+  "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOCACHE": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/tmp"
+  },
+  "started": 1791250195.7366164,
+  "input": "race03-input.json",
+  "exit": 1,
+  "finished": 1791250307.4135582,
+  "log": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/logs/race03.log"
+}

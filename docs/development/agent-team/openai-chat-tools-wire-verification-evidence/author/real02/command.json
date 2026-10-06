@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^TestModelOpenAIChatToolsCloseAndBudget$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -v",
+    "GOCACHE": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/tmp"
+  },
+  "selector": "^TestModelOpenAIChatToolsCloseAndBudget$",
+  "input": "input08.json",
+  "started": 1791252181.3900247,
+  "window": "tools-author-02",
+  "driver_pid": 540202,
+  "exit": 0,
+  "finished": 1791252237.7310786,
+  "final_manifest_matches": true
+}

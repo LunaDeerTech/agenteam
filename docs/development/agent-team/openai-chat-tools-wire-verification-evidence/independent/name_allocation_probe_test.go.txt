@@ -1,0 +1,43 @@
+package adapter
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"runtime"
+	"runtime/debug"
+	"strings"
+	"testing"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+func TestIndependentToolsRejectOversizeNameBeforeClone(t *testing.T) {
+	r, o := unitInput(t) // Unchanged ecd7337 helper; no provider or network work.
+	r.Snapshot.Identity.AdapterRevision = OpenAIChatToolsRevision
+	r.Snapshot.Capabilities.ToolCalls = true
+	r.ToolChoice = mc.ToolChoice{Kind: "auto"}
+	r.Tools = []mc.Tool{{Name: strings.Repeat("x", 8<<20), InputSchema: json.RawMessage(`{}`)}}
+
+	// Build the caller-owned invalid value before measuring rejected admission.
+	// The 1 MiB allowance dwarfs normal fixed validation overhead; copying the
+	// 8 MiB invalid name must fail without relying on an exact allocation count.
+	runtime.GC()
+	previous := debug.SetGCPercent(-1)
+	defer debug.SetGCPercent(previous)
+	var before, after runtime.MemStats
+	runtime.ReadMemStats(&before)
+	req, _, err := prepareTools(context.Background(), r, o)
+	runtime.ReadMemStats(&after)
+	runtime.KeepAlive(r)
+	var fault *f.Fault
+	if req != nil || !errors.As(err, &fault) || fault.Code != f.InvalidArgument || fault.CommitState != f.NotStarted {
+		t.Fatalf("invalid name did not fail before admission: request=%t error=%T", req != nil, err)
+	}
+	allocated := after.TotalAlloc - before.TotalAlloc
+	t.Logf("rejected_name_bytes=%d allocated_bytes=%d allowance_bytes=%d", len(r.Tools[0].Name), allocated, 1<<20)
+	if allocated > 1<<20 {
+		t.Fatalf("invalid tool name copied before bounded validation: %d bytes allocated", allocated)
+	}
+}

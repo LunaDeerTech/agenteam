@@ -1,0 +1,247 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"io"
+	"net/http/httptrace"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+)
+
+func toolsMixedInput(t *testing.T, v *wireFixture, key string, n int) (wire.Request, wire.CallOptions) {
+	t.Helper()
+	switch n % 3 {
+	case 0:
+		return toolsWireInput(t, v, key, wire.JSONResponse)
+	case 1:
+		return v.input(t, key, wire.JSONResponse)
+	default:
+		r, o := structuredWireInput(t, v, key, wire.JSONResponse)
+		r.ResponseFormat.Schema = json.RawMessage(structuredScalarSchema)
+		return r, o
+	}
+}
+func TestModelOpenAIChatToolsCloseAndBudget(t *testing.T) {
+	v := newWireFixture(t)
+	v.allow(t, true)
+	t.Run("headers_and_partial_body_hold_cancel_without_end", func(t *testing.T) {
+		for _, hold := range []int{0, 1} {
+			cfg := wireSSE(toolsWireChunk([]any{toolsWireDelta(0, "a", "lookup", `{`)}, nil), toolsWireChunk([]any{map[string]any{"index": 0, "function": map[string]any{"arguments": "}"}}}, "tool_calls"), []byte("data: [DONE]\n\n"))
+			n := hold
+			cfg.HoldAfter = &n
+			key := v.scenario(t, cfg)
+			r, o := toolsWireInput(t, v, key, wire.SSEResponse)
+			ctx, cancel := context.WithCancel(testContext(t))
+			defer cancel()
+			x := v.start(t, ctx, v.adapter, r, o)
+			// D04 reads headers itself and does not emit GotFirstResponseByte.
+			// Its successful Response.Decision is published only after Do has
+			// returned the parsed headers. The owned server flushes those headers
+			// before HoldAfter=0; it cannot send body bytes until released.
+			wireWait(t, "parsed headers and owned held response not observed", func() bool {
+				observation, state := x.Observe(), v.state(t, key)
+				return ctx.Err() == nil && observation.DoStarted && observation.Decision != nil && observation.Decision.Sent && observation.Decision.Reason == "" && len(state.Requests) == 1 && state.ActiveHandlers == 1 && state.CompletedHandlers == 0 && !state.Closed[state.Requests[0].Connection]
+			})
+			if hold == 1 {
+				e, err := x.Next(testContext(t))
+				if err != nil || e.Kind != wire.ToolDelta || e.ToolDelta == nil || e.ToolDelta.IDFragment == "" && e.ToolDelta.NameFragment == "" && e.ToolDelta.ArgumentsFragment == "" {
+					t.Fatal("no delivered held tool prefix", err)
+				}
+			}
+			if x.Joined() {
+				t.Fatal("held body considered joined")
+			}
+			t.Logf("hold_after=%d parsed_headers=true decision_sent=true decision_reason=empty requests=1 active_handlers=1 completed_handlers=0 connection_closed=false delivered_tool_fragment=%v joined=false caller_live=%v", hold, hold == 1, ctx.Err() == nil)
+			cancel()
+			_, err := x.Next(testContext(t))
+			wireModelError(t, err, "cancelled", "wire_cancelled", true, hold == 1)
+			if _, err := x.Next(testContext(t)); err != io.EOF {
+				t.Fatal("late end")
+			}
+			wireClose(t, x)
+			v.settled(t, key)
+			if len(v.state(t, key).Requests) != 1 {
+				t.Fatal("hold cancellation retried")
+			}
+		}
+	})
+	t.Run("tool_fragment_backpressure_retains_parser_and_material", func(t *testing.T) {
+		args := `{"x":"` + strings.Repeat("x", (320<<10)-8) + `"}`
+		key := v.scenario(t, wireSSE(toolsWireChunk([]any{toolsWireDelta(0, "a", "lookup", args)}, "tool_calls"), []byte("data: [DONE]\n\n")))
+		r, o := toolsWireInput(t, v, key, wire.SSEResponse)
+		b := wire.NewBudget()
+		a := v.newAdapter(t, b)
+		x := v.start(t, testContext(t), a, r, o)
+		wireWait(t, "server did not finish bounded tool payload", func() bool { return v.state(t, key).CompletedHandlers == 1 })
+		if x.Joined() {
+			t.Fatal("unconsumed tools escaped queue backpressure")
+		}
+		short, cancel := context.WithTimeout(context.Background(), 30*time.Millisecond)
+		err := b.Drain(short)
+		cancel()
+		wireModelError(t, err, "timeout", "wire_transport_error", false, false)
+		if x.Joined() {
+			t.Fatal("wait expiry became join")
+		}
+		if err := o.Credential.Use(func([]byte) error { return nil }); err != nil {
+			t.Fatal("borrowed material retired before parser")
+		}
+		wireClose(t, x)
+		_, err = x.Next(testContext(t))
+		wireModelError(t, err, "cancelled", "wire_cancelled", true, false)
+		if _, err := x.Next(testContext(t)); err != io.EOF {
+			t.Fatal("late tools end")
+		}
+		if err := o.Credential.Use(func([]byte) error { return nil }); err != nil {
+			t.Fatal("adapter destroyed caller material")
+		}
+		b.StopAdmission()
+		if !b.Joined() {
+			t.Fatal("actual parser/client join did not retire slot")
+		}
+		v.settled(t, key)
+		if len(v.state(t, key).Requests) != 1 {
+			t.Fatal("backpressure retry")
+		}
+	})
+	t.Run("real_writer_late_return_keeps_slot_and_same_remaining_shutdown_budget", func(t *testing.T) {
+		b := wire.NewBudget()
+		a := v.newAdapter(t, b)
+		cfg := wireJSON(wireReply(`{"v":1}`, "stop", nil, nil))
+		hold := 0
+		cfg.HoldAfter = &hold
+		key := v.scenario(t, cfg)
+		entered, released, returned := make(chan struct{}), make(chan struct{}), make(chan struct{})
+		var once sync.Once
+		release := func() { once.Do(func() { close(released) }) }
+		defer release()
+		ctx, cancel := context.WithCancel(testContext(t))
+		defer cancel()
+		ctx = httptrace.WithClientTrace(ctx, &httptrace.ClientTrace{WroteRequest: func(httptrace.WroteRequestInfo) { close(entered); <-released; close(returned) }})
+		r, o := toolsWireInput(t, v, key, wire.JSONResponse)
+		project, material := o.ProjectID, o.Credential
+		x := v.start(t, ctx, a, r, o)
+		waitSignal(t, entered)
+		wireWait(t, "late tools writer not observed", func() bool { return len(v.state(t, key).Requests) == 1 })
+		cancel()
+		short, stop := context.WithTimeout(context.Background(), 30*time.Millisecond)
+		err := x.Close(short)
+		stop()
+		wireModelError(t, err, "timeout", "wire_transport_error", false, false)
+		wireWait(t, "cancelled tools Decision absent", func() bool { return x.Observe().Decision != nil })
+		if x.Joined() || !x.Observe().Decision.Sent || x.Observe().Decision.Reason != ac.Cancelled {
+			t.Fatal("cancellation falsely joined writer")
+		}
+		for i := 0; i < 7; i++ {
+			r, o := toolsMixedInput(t, v, key, i)
+			o.ProjectID = project
+			v.start(t, testContext(t), a, r, o)
+		}
+		r, o = toolsWireInput(t, v, key, wire.JSONResponse)
+		o.ProjectID = project
+		if rejected, err := a.Start(testContext(t), r, o); rejected != nil {
+			t.Fatal("unjoined slot reused")
+		} else {
+			wireFault(t, err, f.ResourceBusy)
+		}
+		otherR, otherO := toolsWireInput(t, v, key, wire.JSONResponse)
+		v.start(t, testContext(t), a, otherR, otherO)
+		wireWait(t, "accepted mixed calls absent", func() bool { return len(v.state(t, key).Requests) == 9 })
+		if err := material.Use(func([]byte) error { return nil }); err != nil {
+			t.Fatal("unjoined borrowed material unavailable")
+		}
+		shared, sharedStop := context.WithTimeout(context.Background(), 30*time.Millisecond)
+		defer sharedStop()
+		deadline, _ := shared.Deadline()
+		err = b.Drain(shared)
+		wireModelError(t, err, "timeout", "wire_transport_error", false, false)
+		err = b.Force(shared)
+		wireModelError(t, err, "timeout", "wire_transport_error", false, false)
+		if x.Joined() || b.Joined() {
+			t.Fatal("Force extended expired caller budget or joined late writer")
+		}
+		t.Logf("same_shutdown_deadline=%s expired_context=%v requests=9 late_writer_joined=false", deadline.UTC().Format(time.RFC3339Nano), shared.Err())
+		release()
+		waitSignal(t, returned)
+		cleanup, cleanupCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cleanupCancel()
+		if err := b.Force(cleanup); err != nil || !b.Joined() || !x.Joined() {
+			t.Fatal("actual writer/client cleanup", err)
+		}
+		if len(v.state(t, key).Requests) != 9 {
+			t.Fatal("ninth same-project queued or retried")
+		}
+		if err := material.Use(func([]byte) error { return nil }); err != nil {
+			t.Fatal("wire destroyed borrowed material")
+		}
+		v.settled(t, key)
+	})
+	t.Run("three_revisions_share_exact_global64_and_project8", func(t *testing.T) {
+		b := wire.NewBudget()
+		copyBudget := *b
+		adapters := []*wire.OpenAIChat{v.newAdapter(t, b), v.newAdapter(t, &copyBudget), v.newAdapter(t, b)}
+		cfg := wireJSON(wireReply(`{"v":1}`, "stop", nil, nil))
+		hold := 0
+		cfg.HoldAfter = &hold
+		key := v.scenario(t, cfg)
+		var handles []*wire.Exchange
+		for p := 0; p < 8; p++ {
+			project := newID[id.Project](t)
+			for i := 0; i < 8; i++ {
+				r, o := toolsMixedInput(t, v, key, i)
+				o.ProjectID = project
+				o.Limits.Overall = 120 * time.Second
+				handles = append(handles, v.start(t, testContext(t), adapters[i%3], r, o))
+			}
+			r, o := toolsWireInput(t, v, key, wire.JSONResponse)
+			o.ProjectID = project
+			if x, err := adapters[0].Start(testContext(t), r, o); x != nil {
+				t.Fatal("project ninth admitted")
+			} else {
+				wireFault(t, err, f.ResourceBusy)
+			}
+		}
+		r, o := toolsWireInput(t, v, key, wire.JSONResponse)
+		if x, err := adapters[1].Start(testContext(t), r, o); x != nil {
+			t.Fatal("global 65th admitted")
+		} else {
+			wireFault(t, err, f.ResourceBusy)
+		}
+		wireWait(t, "64 mixed accepted requests not observed", func() bool { return len(v.state(t, key).Requests) == 64 })
+		for _, x := range handles {
+			if x.Joined() {
+				t.Fatal("held mixed body retired slot")
+			}
+		}
+		b.StopAdmission()
+		if x, err := adapters[2].Start(testContext(t), r, o); x != nil {
+			t.Fatal("sealed tools admitted")
+		} else {
+			wireFault(t, err, f.ShuttingDown)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := b.Force(ctx); err != nil || !b.Joined() {
+			t.Fatal("mixed Force/join", err)
+		}
+		for _, x := range handles {
+			if !x.Joined() {
+				t.Fatal("handle escaped concrete owner")
+			}
+		}
+		if len(v.state(t, key).Requests) != 64 {
+			t.Fatal("excess or retry reached provider")
+		}
+		v.settled(t, key)
+	})
+}

@@ -1,0 +1,21 @@
+diff --git a/internal/central/identity/contract/identity.go b/internal/central/identity/contract/identity.go
+index fc92995..fd13667 100644
+--- a/internal/central/identity/contract/identity.go
++++ b/internal/central/identity/contract/identity.go
+@@ -64,6 +64,7 @@ const (
+ 	AccountAuth        ServiceName = "account-auth"
+ 	AccountMaintenance ServiceName = "account-maintenance"
+ 	AccountMail        ServiceName = "account-mail"
++	ModelRuntime       ServiceName = "model-runtime"
+ )
+ 
+ const ProjectInitialization ServiceName = "project-initialization"
+@@ -169,7 +170,7 @@ type ServiceRegistration struct{ data func() ServiceName }
+ 
+ func RegisterService(name ServiceName) (ServiceRegistration, error) {
+ 	switch name {
+-	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, ProjectInitialization, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail:
++	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, ProjectInitialization, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail, ModelRuntime:
+ 	default:
+ 		return ServiceRegistration{}, invalid()
+ 	}

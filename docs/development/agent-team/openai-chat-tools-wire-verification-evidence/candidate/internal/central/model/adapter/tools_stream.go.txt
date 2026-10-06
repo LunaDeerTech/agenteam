@@ -1,0 +1,180 @@
+package adapter
+
+import (
+	"bytes"
+	"encoding/json"
+	"strings"
+	"unicode/utf8"
+
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+type streamedTool struct {
+	id, name  string
+	arguments []byte
+	function  bool
+}
+type toolStreamState struct {
+	tools      [128]*streamedTool
+	count      int
+	totalBytes int
+}
+
+func (s *toolStreamState) addText(n int) error {
+	if n > maxTextBytes-s.totalBytes {
+		return limitFailure()
+	}
+	s.totalBytes += n
+	return nil
+}
+func (s *toolStreamState) consume(x *Exchange, raw []byte) error {
+	if null(raw) {
+		return nil
+	}
+	d := json.NewDecoder(bytes.NewReader(raw))
+	if token, err := d.Token(); err != nil || token != json.Delim('[') {
+		return protocolFailure()
+	}
+	entries := 0
+	for d.More() {
+		if err := x.ctx.Err(); err != nil {
+			return contextFailure(err)
+		}
+		entries++
+		if entries > 256 {
+			return limitFailure()
+		}
+		var entry json.RawMessage
+		if d.Decode(&entry) != nil {
+			return protocolFailure()
+		}
+		o, err := object(entry, "index id type function custom")
+		if err != nil {
+			return err
+		}
+		index, err := count(o["index"])
+		if err != nil || index == nil {
+			return protocolFailure()
+		}
+		if *index >= 128 {
+			return limitFailure()
+		}
+		i := int(*index)
+		typ, err := nativeString(o["type"], 32, false)
+		if err != nil {
+			return err
+		}
+		if typ == "custom" || !null(o["custom"]) {
+			return unsupported()
+		}
+		if !null(o["type"]) && typ != "function" {
+			return protocolFailure()
+		}
+		id, err := nativeString(o["id"], 256, false)
+		if err != nil {
+			return err
+		}
+		name, args := "", ""
+		if !null(o["function"]) {
+			fn, err := object(o["function"], "name arguments")
+			if err != nil {
+				return err
+			}
+			name, err = nativeString(fn["name"], 64, false)
+			if err != nil {
+				return err
+			}
+			args, err = nativeString(fn["arguments"], maxToolArguments, false)
+			if err != nil {
+				return err
+			}
+		}
+		v := s.tools[i]
+		if v == nil {
+			v = &streamedTool{}
+			s.tools[i] = v
+			s.count++
+		}
+		if len(id) > 256-len(v.id) || len(name) > 64-len(v.name) || len(args) > maxToolArguments-len(v.arguments) {
+			return limitFailure()
+		}
+		if strings.ContainsRune(id, 0) {
+			return protocolFailure()
+		}
+		if err := s.addText(len(args)); err != nil {
+			return err
+		}
+		v.id += id
+		v.name += name
+		v.function = v.function || typ == "function"
+		// Grow only this tool, at most to its individual cap. No sparse index
+		// allocation and no quadratic whole-prefix copy on each small fragment.
+		if len(v.arguments)+len(args) > cap(v.arguments) {
+			buf := make([]byte, len(v.arguments), min(maxToolArguments, max(len(v.arguments)+len(args), 2*cap(v.arguments))))
+			copy(buf, v.arguments)
+			v.arguments = buf
+		}
+		v.arguments = append(v.arguments, args...)
+		for field, value := range []string{id, name, args} {
+			for value != "" {
+				n := min(len(value), 64<<10)
+				if n < len(value) {
+					for n > 0 && !utf8.RuneStart(value[n]) {
+						n--
+					}
+				}
+				if n == 0 {
+					return protocolFailure()
+				}
+				fragment := &ToolDeltaEvent{Index: i}
+				switch field {
+				case 0:
+					fragment.IDFragment = value[:n]
+				case 1:
+					fragment.NameFragment = value[:n]
+				case 2:
+					fragment.ArgumentsFragment = value[:n]
+				}
+				if err := x.emit(Event{Kind: ToolDelta, ToolDelta: fragment}); err != nil {
+					return err
+				}
+				value = value[n:]
+			}
+		}
+	}
+	if _, err := d.Token(); err != nil {
+		return protocolFailure()
+	}
+	return nil
+}
+
+func (s *toolStreamState) complete(x *Exchange, reason mc.FinishReason) error {
+	if err := x.tools.finish(reason, s.count); err != nil {
+		return err
+	}
+	seen := make(map[string]bool, s.count)
+	markers := make([]ToolCompleteEvent, 0, s.count)
+	for i := 0; i < s.count; i++ {
+		v := s.tools[i]
+		if v == nil || !v.function || seen[v.id] || !x.tools.permits(v.name) {
+			return protocolFailure()
+		}
+		call := mc.ToolCallPart{ID: v.id, Name: v.name, Arguments: v.arguments}
+		if err := validateToolCall(x.ctx, call); err != nil {
+			return err
+		}
+		seen[v.id] = true
+		markers = append(markers, ToolCompleteEvent{Index: i, ID: v.id, Name: v.name, ArgumentsBytes: len(v.arguments)})
+	}
+	// Every tool passed, before the first marker can escape. These events own
+	// metadata only; argument storage is retired before backpressure can wait.
+	for i := range s.tools {
+		s.tools[i] = nil
+	}
+	for i := range markers {
+		if err := x.emit(Event{Kind: ToolComplete, ToolComplete: &markers[i]}); err != nil {
+			return err
+		}
+	}
+	return nil
+}

@@ -1,0 +1,21 @@
+{
+  "input07_sha256": "45a9cd7ca0f0e92cd8609a2495c3f77f515cafca82c8fc21a1622d28a4128543",
+  "input08_sha256": "6f48676f7e30f37b60a92777fdf80eb674af8d4baae349a6b6274aeeeefad5f9",
+  "changed_paths": [
+    "tests/model/openai_chat_tools_budget_test.go"
+  ],
+  "source_sha256": "8d407e0776ba07f1ba0b95aa1ab2ea26c54956ef112764f6a3869e72589410a8",
+  "diff_sha256": "85381bb01ac0c0bb8b3a1e7b9615c29b38c2742dd88f6922ad46b03d190eb3b3",
+  "author_compile_sha256": "7b42fcedc3208c305262689fc512e6a7551362c5d5d37aee59d8554cadb622bf",
+  "author_compile_exit": 0,
+  "d04_http_sha256": "f55b178fef52c4ea19e897835c64679c703045ccb86ea3863959953152ff3eb6",
+  "server_fixture_sha256": "2ca0951c43f5dede7defd35443b67c31aa7e910f36ecdfe9fbb8212070ef6071",
+  "findings": [
+    "D04 manually reads response headers and never invokes GotFirstResponseByte; original new test signal is unsupported, not a product timeout",
+    "success Decision has Reason empty; combined DoStarted/Sent/server single open active handler proves flushed held response headers",
+    "HoldAfter=0 fixture has sent no body; hold1 additionally requires an actually delivered nonempty ToolDelta",
+    "same five-second observation budget; ctx remains live before cancel; original cancelled/PartialOutput/EOF/actual join/single request assertions retained"
+  ],
+  "static_delta_result": "PASS; focused real budget revalidation still required",
+  "independent_AB_reuse": "input07 production and fixture identical; this changed unselected author test is not referenced by independent probes; no AB source mutation needed"
+}

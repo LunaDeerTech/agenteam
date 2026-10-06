@@ -1,0 +1,26 @@
+{
+  "kind": "read-only static seam assessment; no additional test claim",
+  "fixed_product_input": "input08.json",
+  "accepted_ledger_commit": "36e5ff1a124c957d200888ad2e40bdc4ecb01305",
+  "consumed_source_baseline": "ecd733711caff5df46e423cadab52b32c34f785e",
+  "identity_path": "internal/central/identity/contract/identity.go",
+  "baseline_sha256": "845794400c185b5f00ef673007661ec1382d19b54ec82329d565567daa073ef4",
+  "accepted_sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+  "diff_sha256": "4a81ae41f7fe8f81818deffbc723ccf0167ac3e9fc62c711bc2902b25d74746c",
+  "change": "adds ModelRuntime ServiceName and allows RegisterService(ModelRuntime), no existing enum/value/signature changed",
+  "production_identity_uses": [
+    {
+      "path": "internal/central/model/adapter/openai_chat.go",
+      "line": 50,
+      "text": "ProjectID  identity.ProjectID"
+    },
+    {
+      "path": "internal/central/model/adapter/sse.go",
+      "line": 65,
+      "text": "case \"id\", \"retry\": // Transport metadata is not a Model call identity."
+    }
+  ],
+  "no_usage_import_or_model_runtime_reference": true,
+  "main_author_fixture_still_ecd_without00018": true,
+  "conclusion": "additive identity registration does not change the actor values used by tools wire; ledger SQL/services are not consumed by this task; author validation input unchanged"
+}

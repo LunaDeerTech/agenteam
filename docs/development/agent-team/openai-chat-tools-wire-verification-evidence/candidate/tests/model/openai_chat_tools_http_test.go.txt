@@ -1,0 +1,247 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"strings"
+	"testing"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+func toolsWireInput(t *testing.T, v *wireFixture, key string, mode wire.ResponseMode) (wire.Request, wire.CallOptions) {
+	t.Helper()
+	r, o := v.input(t, key, mode)
+	r.Snapshot.Identity.AdapterRevision = wire.OpenAIChatToolsRevision
+	r.Snapshot.Capabilities.ToolCalls = true
+	r.Snapshot.Capabilities.ParallelToolCalls = true
+	r.Tools = []mc.Tool{{Name: "lookup", Description: wireBodyCanary, InputSchema: json.RawMessage(`{"type":"object","default":9007199254740993}`), OutputSchema: json.RawMessage(`{"output_only":true}`)}, {Name: "write", InputSchema: json.RawMessage(`{}`)}}
+	r.ToolChoice = mc.ToolChoice{Kind: "auto"}
+	return r, o
+}
+func toolsWireCall(id, name, args string) map[string]any {
+	return map[string]any{"id": id, "type": "function", "function": map[string]any{"name": name, "arguments": args}}
+}
+func toolsWireReply(content any, calls any, finish string, refusal any, omitContent bool) []byte {
+	message := map[string]any{"role": "assistant", "tool_calls": calls, "refusal": refusal}
+	if !omitContent {
+		message["content"] = content
+	}
+	b, _ := json.Marshal(map[string]any{"id": "native-tools", "object": "chat.completion", "created": 1, "model": "fixture-native-model", "usage": json.RawMessage(`{"prompt_tokens":9007199254740993,"completion_tokens":0,"total_tokens":null,"prompt_tokens_details":{"cached_tokens":3,"cache_write_tokens":2},"completion_tokens_details":{"reasoning_tokens":4}}`), "choices": []any{map[string]any{"index": 0, "message": message, "finish_reason": finish}}})
+	return b
+}
+func toolsWireHistory() []mc.Message {
+	return []mc.Message{
+		{Role: "assistant", Parts: []mc.MessagePart{{ToolCall: &mc.ToolCallPart{ID: "a", Name: "previous_tool", Arguments: json.RawMessage(` {"n":9007199254740993} `)}}, {Text: &mc.TextPart{Text: "history"}}, {ToolCall: &mc.ToolCallPart{ID: "b", Name: "previous_tool", Arguments: json.RawMessage(`{}`)}}}},
+		{Role: "tool", Parts: []mc.MessagePart{{ToolResult: &mc.ToolResultPart{CallID: "b", IsError: true, Parts: []mc.ResultPart{{Text: &mc.TextPart{Text: "caller error"}}, {Text: &mc.TextPart{Text: "tail"}}}}}, {ToolResult: &mc.ToolResultPart{CallID: "a"}}}},
+		{Role: "user", Parts: []mc.MessagePart{{Text: &mc.TextPart{Text: "continue"}}}},
+	}
+}
+func TestModelOpenAIChatToolsHTTP(t *testing.T) {
+	v := newWireFixture(t)
+	v.allow(t, true)
+	t.Run("native_choice_parallel_history_and_frozen_input", func(t *testing.T) {
+		for _, choice := range []string{"none", "auto", "required", "named"} {
+			for _, parallel := range []bool{false, true} {
+				name := choice + "_serial"
+				if parallel {
+					name = choice + "_parallel"
+				}
+				t.Run(name, func(t *testing.T) {
+					args := ` {"n":9007199254740993,"text":"` + wireBodyCanary + `"} `
+					calls := []any{toolsWireCall("a", "lookup", args)}
+					var content any = "prefix"
+					finish := "tool_calls"
+					if choice == "none" {
+						calls = nil
+						finish = "stop"
+					} else if choice == "auto" && parallel {
+						calls = append(calls, toolsWireCall("b", "write", `{}`))
+					} else {
+						content = nil
+					}
+					cfg := wireJSON(toolsWireReply(content, calls, finish, nil, false))
+					hold := 0
+					cfg.HoldAfter = &hold
+					key := v.scenario(t, cfg)
+					r, o := toolsWireInput(t, v, key, wire.JSONResponse)
+					r.ToolChoice.Kind = choice
+					if choice == "named" {
+						r.ToolChoice.Name = "lookup"
+					}
+					r.Snapshot.Capabilities.ParallelToolCalls = parallel
+					r.Messages = toolsWireHistory()
+					r.Messages[1].Parts[0].ToolResult.IsError = parallel
+					x := v.start(t, testContext(t), v.adapter, r, o)
+					wireWait(t, "tools request not held", func() bool { return len(v.state(t, key).Requests) == 1 })
+					r.Tools[0].Name = "changed"
+					for i := range r.Tools[0].InputSchema {
+						r.Tools[0].InputSchema[i] = 'x'
+					}
+					r.Messages[0].Parts[0].ToolCall.Arguments[0] = 'x'
+					if err := v.net.Release(testContext(t), key); err != nil {
+						t.Fatal(err)
+					}
+					result, err := x.Result(testContext(t))
+					if err != nil || string(result.End.FinishReason) != finish || len(result.ToolCalls) != len(calls) || !x.Joined() {
+						t.Fatal("ordinary tools result", err)
+					}
+					if len(calls) > 0 && (string(result.ToolCalls[0].Arguments) != args || result.ToolCalls[0].Validate() != nil) {
+						t.Fatal("C0/lexical tool result")
+					}
+					u := result.End.Usage
+					if u.InputTokens == nil || *u.InputTokens != 9007199254740993 || u.OutputTokens == nil || *u.OutputTokens != 0 || u.TotalTokens != nil || *u.CachedInputTokens != 3 || *u.CacheWriteTokens != 2 || *u.ReasoningTokens != 4 {
+						t.Fatal("usage projection")
+					}
+					state := v.state(t, key)
+					if len(state.Requests) != 1 {
+						t.Fatal("tools retried")
+					}
+					request := state.Requests[0]
+					if request.Method != "POST" || request.Headers.Get("Authorization") != "Bearer "+wireCredentialCanary || request.RequestURI != "/case/"+key+"/chat/completions" {
+						t.Fatal("path/origin binding")
+					}
+					var body map[string]json.RawMessage
+					if json.Unmarshal([]byte(request.Body), &body) != nil || body["response_format"] != nil || strings.Contains(request.Body, "changed") || strings.Contains(request.Body, "output_only") || strings.Contains(request.Body, "is_error") {
+						t.Fatal("native fields/immutable input")
+					}
+					var gotParallel bool
+					json.Unmarshal(body["parallel_tool_calls"], &gotParallel)
+					if gotParallel != parallel {
+						t.Fatal("explicit parallel field")
+					}
+					want := `"` + choice + `"`
+					if choice == "named" {
+						want = `{"type":"function","function":{"name":"lookup"}}`
+					}
+					if string(body["tool_choice"]) != want {
+						t.Fatal("native choice")
+					}
+					var tools []struct {
+						Type     string
+						Function struct {
+							Name, Description string
+							Parameters        json.RawMessage
+							Strict            *bool
+						}
+					}
+					if json.Unmarshal(body["tools"], &tools) != nil || len(tools) != 2 || tools[0].Function.Strict == nil || *tools[0].Function.Strict || !strings.Contains(string(tools[0].Function.Parameters), "9007199254740993") {
+						t.Fatal("native schema and strict=false")
+					}
+					var messages []struct {
+						Role       string
+						Content    json.RawMessage
+						ToolCallID string `json:"tool_call_id"`
+						ToolCalls  []struct {
+							Function struct{ Name, Arguments string }
+						} `json:"tool_calls"`
+					}
+					if json.Unmarshal(body["messages"], &messages) != nil || len(messages) != 4 || messages[0].ToolCalls[0].Function.Arguments != ` {"n":9007199254740993} ` || messages[1].ToolCallID != "b" || messages[2].ToolCallID != "a" || string(messages[2].Content) != `""` || string(messages[1].Content) != `[{"type":"text","text":"caller error"},{"type":"text","text":"tail"}]` {
+						t.Fatal("history/result correspondence")
+					}
+					wireNoLeak(t, result)
+					wireNoLeak(t, r)
+					wireClose(t, x)
+					v.settled(t, key)
+				})
+			}
+		}
+	})
+	t.Run("invalid_inputs_are_before_admission_and_zero_server_requests", func(t *testing.T) {
+		key := v.scenario(t, wireJSON(wireReply("unused", "stop", nil, nil)))
+		b := wire.NewBudget()
+		a := v.newAdapter(t, b)
+		b.StopAdmission()
+		for _, kind := range []string{"duplicate_tool", "bad_name", "orphan", "missing_result", "named_missing", "empty_required", "structured", "old_revision", "cancelled"} {
+			r, o := toolsWireInput(t, v, key, wire.JSONResponse)
+			ctx := testContext(t)
+			switch kind {
+			case "duplicate_tool":
+				r.Tools[1].Name = "lookup"
+			case "bad_name":
+				r.Tools[0].Name = "bad.name"
+			case "orphan":
+				r.Messages = toolsWireHistory()[1:]
+			case "missing_result":
+				r.Messages = toolsWireHistory()[:1]
+			case "named_missing":
+				r.ToolChoice = mc.ToolChoice{Kind: "named", Name: "missing"}
+			case "empty_required":
+				r.Tools = nil
+				r.ToolChoice.Kind = "required"
+			case "structured":
+				r.ResponseFormat = mc.ResponseFormat{Kind: "json_schema", Name: "format", Schema: json.RawMessage(`{}`)}
+			case "old_revision":
+				r.Snapshot.Identity.AdapterRevision = wire.OpenAIChatStructuredRevision
+				r.Snapshot.Capabilities.StructuredOutputModes = []string{"json_schema"}
+			case "cancelled":
+				c, cancel := context.WithCancel(ctx)
+				cancel()
+				ctx = c
+			}
+			x, err := a.Start(ctx, r, o)
+			if x != nil || !b.Joined() {
+				t.Fatal("rejection acquired owner")
+			}
+			switch kind {
+			case "structured", "old_revision":
+				wireModelError(t, err, "unsupported_feature", "wire_unsupported_feature", false, false)
+			case "cancelled":
+				wireModelError(t, err, "cancelled", "wire_cancelled", false, false)
+			default:
+				wireFault(t, err, f.InvalidArgument)
+			}
+		}
+		if len(v.state(t, key).Requests) != 0 {
+			t.Fatal("invalid request reached server")
+		}
+	})
+	t.Run("valid_envelopes_reject_tools_and_preserve_reliable_usage", func(t *testing.T) {
+		for _, tc := range []struct {
+			name, args, id, tool, finish, choice string
+			extra                                bool
+			refusal                              any
+			omit                                 bool
+			category, code                       string
+		}{
+			{"malformed", `{"x":`, "a", "lookup", "tool_calls", "auto", false, nil, false, "provider_error", "wire_protocol_invalid"},
+			{"nonobject", `[]`, "a", "lookup", "tool_calls", "auto", false, nil, false, "provider_error", "wire_protocol_invalid"},
+			{"nonfinite", `{"x":1e400}`, "a", "lookup", "tool_calls", "auto", false, nil, false, "provider_error", "wire_protocol_invalid"},
+			{"unknown_name", `{}`, "a", "missing", "tool_calls", "auto", false, nil, false, "provider_error", "wire_protocol_invalid"},
+			{"nul_id", `{}`, "a\x00b", "lookup", "tool_calls", "auto", false, nil, false, "provider_error", "wire_protocol_invalid"},
+			{"duplicate_id", `{}`, "a", "lookup", "tool_calls", "auto", true, nil, false, "provider_error", "wire_protocol_invalid"},
+			{"choice_none", `{}`, "a", "lookup", "tool_calls", "none", false, nil, false, "provider_error", "wire_protocol_invalid"},
+			{"length_tools", `{}`, "a", "lookup", "length", "auto", false, nil, false, "provider_error", "wire_protocol_invalid"},
+			{"refusal_null", "", "", "", "stop", "auto", false, wireBodyCanary, false, "content_filter", ""},
+			{"refusal_omitted", "", "", "", "stop", "auto", false, wireBodyCanary, true, "content_filter", ""},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				var calls []any
+				if tc.tool != "" {
+					calls = []any{toolsWireCall(tc.id, tc.tool, tc.args)}
+				}
+				if tc.extra {
+					calls = append(calls, toolsWireCall(tc.id, "write", `{}`))
+				}
+				key := v.scenario(t, wireJSON(toolsWireReply(nil, calls, tc.finish, tc.refusal, tc.omit)))
+				r, o := toolsWireInput(t, v, key, wire.JSONResponse)
+				r.ToolChoice.Kind = tc.choice
+				x := v.start(t, testContext(t), v.adapter, r, o)
+				result, err := x.Result(testContext(t))
+				wireModelError(t, err, mc.ErrorCategory(tc.category), tc.code, true, false)
+				if result.Text != "" || result.ToolCalls != nil || result.End.FinishReason != "" || x.Observe().Usage.InputTokens == nil || *x.Observe().Usage.InputTokens != 9007199254740993 || x.Observe().Usage.OutputTokens == nil || *x.Observe().Usage.OutputTokens != 0 {
+					t.Fatal("unsafe partial result or lost reliable usage")
+				}
+				wireClose(t, x)
+				if len(v.state(t, key).Requests) != 1 {
+					t.Fatal("error retried")
+				}
+				v.settled(t, key)
+			})
+		}
+	})
+}

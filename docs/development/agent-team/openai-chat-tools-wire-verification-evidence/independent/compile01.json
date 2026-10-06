@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-c",
+    "-race",
+    "-tags=integration",
+    "-o",
+    "/workspace/scratch/agenteam-tools-wire-independent-bwzxmqzl/bin/tools-independent.test",
+    "./tests/model"
+  ],
+  "cwd": "/workspace/scratch/agenteam-tools-wire-independent-bwzxmqzl/source",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/agenteam-tools-wire-independent-bwzxmqzl/overlay.json",
+    "GOCACHE": "/workspace/scratch/agenteam-management-independent-yB9JMR/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-tools-wire-independent-bwzxmqzl/tmp"
+  },
+  "started_utc": "2026-10-06T01:47:05.544673+00:00",
+  "input_manifest_sha256": "45a9cd7ca0f0e92cd8609a2495c3f77f515cafca82c8fc21a1622d28a4128543",
+  "probe_sha256": "b621c20e8d31b6f275905735f62f293f9f230841e4b1ccaad28666abd227980e",
+  "overlay_sha256": "5eac265f47a3ca317908d8bf342869cc5b8075a86ca99b1736c043f027679e27",
+  "source_closure_sha256": "ece56113ee5a44c6a1d78268d06c1363bbccc9d5987d380f1a3db250eb17c0c0",
+  "runner_sha256": "42a4240c355c018da54e4fa2b9d9917861d3c60e116eced5aaacf4aa59dad751",
+  "no_network_or_docker": true,
+  "author_source_cwd_used": false,
+  "pid": 474534,
+  "exit": 0,
+  "ended_utc": "2026-10-06T01:47:37.522878+00:00",
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "input_after_matches": true
+}

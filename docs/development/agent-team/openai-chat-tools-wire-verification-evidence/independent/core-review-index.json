@@ -1,0 +1,66 @@
+{
+  "core-review.md": {
+    "sha256": "89a96491c3ce98a255fe170fb935ddd39b5f92446fc0e076cc7fb361ce5542ce",
+    "bytes": 5643
+  },
+  "core01-identity-checks.json": {
+    "sha256": "41132b196d7b9a99418fde8d6c9b2172fa50745200346a13a613d9f983e4484e",
+    "bytes": 4710
+  },
+  "core02-identity-checks.json": {
+    "sha256": "b57bc9227881a036b8c650f001b9bd24d8d616cb2779444e745138e3dc5dbd72",
+    "bytes": 3367
+  },
+  "core02-evidence-review.json": {
+    "sha256": "2cbbfa0d872c0db8be57a4af11ae3dac8b88865bb84c05a0ada93223b28c956f",
+    "bytes": 2153
+  },
+  "author-checks-reviewed.json": {
+    "sha256": "b3a732c96cba6502805a4227efaa0a5a87d1d6519513576e58625ef91fad3314",
+    "bytes": 3971
+  },
+  "main-integration-checks.json": {
+    "sha256": "bd7570da811330a12139e92d746d0cf973701216d1ef4d5ab72854746254154d",
+    "bytes": 2095
+  },
+  "main-identity-reviewed.diff": {
+    "sha256": "4a81ae41f7fe8f81818deffbc723ccf0167ac3e9fc62c711bc2902b25d74746c",
+    "bytes": 1218
+  },
+  "ready07.json": {
+    "sha256": "f50a0983eb9c03b0861cd0461218293d855b1ffb40eee15b5b41ac4f116308de",
+    "bytes": 1078
+  },
+  "input07-input.json": {
+    "sha256": "45a9cd7ca0f0e92cd8609a2495c3f77f515cafca82c8fc21a1622d28a4128543",
+    "bytes": 2596
+  },
+  "execution-closure07.json": {
+    "sha256": "ed5f043f2d2516af9244a4542422451f9a3919bf7a86527f0491e86a788b1e4a",
+    "bytes": 160454
+  },
+  "tools_independent_test.go": {
+    "sha256": "b621c20e8d31b6f275905735f62f293f9f230841e4b1ccaad28666abd227980e",
+    "bytes": 7755
+  },
+  "overlay.json": {
+    "sha256": "5eac265f47a3ca317908d8bf342869cc5b8075a86ca99b1736c043f027679e27",
+    "bytes": 223
+  },
+  "compile02.json": {
+    "sha256": "05866a84d97194fa09fc2341ec647d61e7cf2eabb4eed87c3983baeb9b3c8d25",
+    "bytes": 1686
+  },
+  "compile02.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "run_real.py": {
+    "sha256": "223082268385af9bae79f87b40c0136c6c618b84466cac53e465735c569d7e71",
+    "bytes": 7314
+  },
+  "real-selector.txt": {
+    "sha256": "fcc84c51860f3b050d630d5a4f46cc0c6d4951edc06833d4a265e630d597c8fc",
+    "bytes": 68
+  }
+}

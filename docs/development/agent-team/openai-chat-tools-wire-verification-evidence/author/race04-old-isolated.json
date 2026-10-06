@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-count=3",
+    "-v",
+    "-run",
+    "^TestOpenAIChatSSECumulativeTextBound$",
+    "./internal/central/model/adapter"
+  ],
+  "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOCACHE": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/tmp"
+  },
+  "started": 1791250834.3655214,
+  "input": "unit04-input.json",
+  "input_sha256": "061572b0eb56a42233798d4752faa026c7b840f616c19c6407738ca2640596bc",
+  "exit": 0,
+  "finished": 1791250861.2292564,
+  "log": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/logs/race04-old-isolated.log",
+  "source_matches_after": true,
+  "log_sha256": "43a8e1d653e04552e93cde00d8c5c48d94a15a8aef470b5429fab8b55783b80b"
+}

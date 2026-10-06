@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-count=1",
+    "-v",
+    "-run",
+    "^TestToolsSafeViewsAndManifest$",
+    "./internal/central/model/adapter"
+  ],
+  "cwd": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOCACHE": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/tmp"
+  },
+  "started": 1791251119.6387317,
+  "input": "input07.json",
+  "input_sha256": "45a9cd7ca0f0e92cd8609a2495c3f77f515cafca82c8fc21a1622d28a4128543",
+  "exit": 0,
+  "finished": 1791251122.5625756,
+  "log": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/logs/manifest07.log",
+  "source_matches_after": true,
+  "log_sha256": "2caf09930981be2349e5615c56aabd2e825d2c0881ec1c7826dd863c52d0ae29"
+}

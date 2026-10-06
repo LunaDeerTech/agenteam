@@ -1,0 +1,12 @@
+--- input04/tests/model/openai_chat_tools_stream_test.go
++++ input05/tests/model/openai_chat_tools_stream_test.go
+@@ -175,6 +175,9 @@
+ 				category, code := "provider_error", "wire_protocol_invalid"
+ 				if kind == "refusal" {
+ 					category, code = "content_filter", ""
++				}
++				if kind == "usage_disconnect" {
++					category, code = "network", "wire_transport_error"
+ 				}
+ 				wireModelError(t, err, mc.ErrorCategory(category), code, true, true)
+ 				calls, usages, ends := toolsWireEvents(t, events)

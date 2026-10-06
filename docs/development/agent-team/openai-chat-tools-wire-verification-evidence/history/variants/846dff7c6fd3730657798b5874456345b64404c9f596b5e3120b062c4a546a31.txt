@@ -1,0 +1,183 @@
+package adapter
+
+import (
+	"context"
+	"encoding/json"
+	"io"
+	"strings"
+	"testing"
+
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+)
+
+func toolDelta(index int, id, name, args string) map[string]any {
+	return map[string]any{"index": index, "id": id, "type": "function", "function": map[string]any{"name": name, "arguments": args}}
+}
+func toolsChunk(entries []any, finish any) string {
+	return chunk(map[string]any{"tool_calls": entries}, finish, nil)
+}
+func parseToolsStream(t *testing.T, r io.Reader, policy *toolPolicy) ([]Event, error, *Exchange) {
+	t.Helper()
+	x := localExchange(t, SSEResponse)
+	x.tools = policy
+	x.observation.Decision = &outbound.Decision{Sent: true}
+	go func() { end, err := x.stream(r); finishLocal(x, Result{End: end}, err) }()
+	var events []Event
+	for {
+		e, err := x.Next(context.Background())
+		if err != nil {
+			if err == io.EOF {
+				return events, nil, x
+			}
+			return events, err, x
+		}
+		events = append(events, e)
+	}
+}
+func reconstructTools(t *testing.T, events []Event) ([]mc.ToolCallPart, int) {
+	t.Helper()
+	calls := make(map[int]mc.ToolCallPart)
+	var complete []mc.ToolCallPart
+	end := 0
+	for _, e := range events {
+		switch e.Kind {
+		case ToolDelta:
+			if e.ToolDelta == nil || e.ToolComplete != nil || e.End != nil || e.Usage != nil || e.Text != "" {
+				t.Fatal("tool delta union")
+			}
+			v := e.ToolDelta
+			n := 0
+			for _, fragment := range []string{v.IDFragment, v.NameFragment, v.ArgumentsFragment} {
+				if fragment != "" {
+					n++
+					if len(fragment) > 64<<10 {
+						t.Fatal("oversize tool fragment")
+					}
+				}
+			}
+			if n != 1 {
+				t.Fatal("empty or combined fragment")
+			}
+			call := calls[v.Index]
+			call.ID += v.IDFragment
+			call.Name += v.NameFragment
+			call.Arguments = append(call.Arguments, v.ArgumentsFragment...)
+			calls[v.Index] = call
+		case ToolComplete:
+			if e.ToolComplete == nil || e.ToolDelta != nil || e.End != nil || e.Usage != nil || e.Text != "" {
+				t.Fatal("complete union")
+			}
+			v := e.ToolComplete
+			call := calls[v.Index]
+			if end != 0 || v.Index != len(complete) || call.ID != v.ID || call.Name != v.Name || len(call.Arguments) != v.ArgumentsBytes || call.Validate() != nil {
+				t.Fatal("completion is not exact C0 metadata")
+			}
+			complete = append(complete, call)
+		case StreamEnd:
+			end++
+		}
+		if eventBytes(e) > 256<<10 {
+			t.Fatal("queue payload cap")
+		}
+	}
+	return complete, end
+}
+func TestToolsSSEInterleavingRepeatedIndexAndUTF8(t *testing.T) {
+	r, _ := toolsUnitInput(t)
+	p := newToolPolicy(r)
+	input := chunk(map[string]any{"content": "text", "tool_calls": []any{
+		toolDelta(1, "ca", "wr", `{"x":"世`),
+		toolDelta(0, "ca", "look", `{"n":`),
+		map[string]any{"index": 1, "id": "ll_b", "function": map[string]any{"name": "ite", "arguments": `界\"quote"}`}},
+		map[string]any{"index": 0, "id": "ll_a", "type": "function", "function": map[string]any{"name": "up", "arguments": "9007199254740993"}},
+		map[string]any{"index": 0, "id": nil, "function": map[string]any{"name": nil, "arguments": "}"}},
+	}}, nil, nil) + toolsChunk(nil, "tool_calls") + chunk(nil, nil, map[string]any{"prompt_tokens": json.Number("9007199254740993"), "completion_tokens": 0}) + "data: [DONE]\n\n"
+	events, err, x := parseToolsStream(t, splitReader{strings.NewReader(input)}, p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	calls, ends := reconstructTools(t, events)
+	if ends != 1 || len(calls) != 2 || calls[0].ID != "call_a" || calls[1].ID != "call_b" || string(calls[0].Arguments) != `{"n":9007199254740993}` || string(calls[1].Arguments) != `{"x":"世界\"quote"}` || events[0].Kind != TextDelta || *x.Observe().Usage.InputTokens != 9007199254740993 || !x.Joined() {
+		t.Fatal("interleaved completion changed")
+	}
+}
+func TestToolsSSETerminationAndActualPartialOutput(t *testing.T) {
+	r, _ := toolsUnitInput(t)
+	p := newToolPolicy(r)
+	valid := toolsChunk([]any{toolDelta(0, "a", "lookup", `{}`)}, "tool_calls")
+	for _, tc := range []struct {
+		name, input, category, code string
+		markers                     int
+		partial                     bool
+		usage                       bool
+	}{
+		{"missing_done", valid, "provider_error", "wire_protocol_invalid", 1, true, false},
+		{"late_tool", valid + toolsChunk([]any{map[string]any{"index": 0}}, nil), "provider_error", "wire_protocol_invalid", 1, true, false},
+		{"late_text", valid + chunk(map[string]any{"content": "late"}, nil, nil), "provider_error", "wire_protocol_invalid", 1, true, false},
+		{"duplicate_finish", valid + toolsChunk(nil, "tool_calls"), "provider_error", "wire_protocol_invalid", 1, true, false},
+		{"length", toolsChunk([]any{toolDelta(0, "a", "lookup", `{}`)}, "length"), "provider_error", "wire_protocol_invalid", 0, true, false},
+		{"refusal", toolsChunk([]any{toolDelta(0, "a", "lookup", `{`)}, nil) + chunk(map[string]any{"refusal": "private-canary"}, nil, nil), "content_filter", "", 0, true, false},
+		{"filter", toolsChunk([]any{toolDelta(0, "a", "lookup", `{}`)}, "content_filter"), "content_filter", "", 0, true, false},
+		{"usage_then_broken", valid + chunk(nil, nil, map[string]any{"total_tokens": 7}) + "data: {\n\n", "provider_error", "wire_protocol_invalid", 1, true, true},
+		{"index_only", toolsChunk([]any{map[string]any{"index": 0}}, nil), "provider_error", "wire_protocol_invalid", 0, false, false},
+		{"missing_type", toolsChunk([]any{map[string]any{"index": 0, "id": "a", "function": map[string]any{"name": "lookup", "arguments": "{}"}}}, "tool_calls"), "provider_error", "wire_protocol_invalid", 0, true, false},
+		{"sparse", toolsChunk([]any{toolDelta(1, "a", "lookup", `{}`)}, "tool_calls"), "provider_error", "wire_protocol_invalid", 0, true, false},
+		{"second_invalid_no_markers", toolsChunk([]any{toolDelta(0, "a", "lookup", `{}`), toolDelta(1, "b", "write", `{"bad":`)}, "tool_calls"), "provider_error", "wire_protocol_invalid", 0, true, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			events, err, x := parseToolsStream(t, strings.NewReader(tc.input), p)
+			m := requireModel(t, err, mc.ErrorCategory(tc.category), tc.code)
+			complete, end := reconstructTools(t, events)
+			if end != 0 || len(complete) != tc.markers || m.PartialOutput != tc.partial || !m.Dispatched {
+				t.Fatal("incorrect delivered prefix/terminal")
+			}
+			if tc.usage && (x.Observe().Usage.TotalTokens == nil || *x.Observe().Usage.TotalTokens != 7) {
+				t.Fatal("reliable usage discarded")
+			}
+			if _, err := x.Next(context.Background()); err != io.EOF {
+				t.Fatal("repeated error")
+			}
+			if !x.Joined() {
+				t.Fatal("parser did not join")
+			}
+		})
+	}
+}
+func TestToolsSSELargeArgumentsAndChoice(t *testing.T) {
+	r, _ := toolsUnitInput(t)
+	p := newToolPolicy(r)
+	args := `{"text":"` + strings.Repeat("世", 110000) + `"}`
+	input := toolsChunk([]any{toolDelta(0, "a", "lookup", args)}, "tool_calls") + "data: [DONE]\n\n"
+	events, err, _ := parseToolsStream(t, strings.NewReader(input), p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	calls, ends := reconstructTools(t, events)
+	if len(calls) != 1 || ends != 1 || string(calls[0].Arguments) != args {
+		t.Fatal("large parameters truncated to queue cap")
+	}
+	for _, kind := range []string{"none", "named", "required", "parallel"} {
+		t.Run(kind, func(t *testing.T) {
+			r, _ := toolsUnitInput(t)
+			r.ToolChoice.Kind = kind
+			stream := toolsChunk([]any{toolDelta(0, "a", "write", `{}`)}, "tool_calls")
+			switch kind {
+			case "named":
+				r.ToolChoice.Name = "lookup"
+			case "required":
+				stream = chunk(map[string]any{"content": "text"}, "stop", nil)
+			case "parallel":
+				r.ToolChoice.Kind = "auto"
+				r.Snapshot.Capabilities.ParallelToolCalls = false
+				stream = toolsChunk([]any{toolDelta(0, "a", "lookup", `{}`), toolDelta(1, "b", "write", `{}`)}, "tool_calls")
+			}
+			events, err, _ := parseToolsStream(t, strings.NewReader(stream+"data: [DONE]\n\n"), newToolPolicy(r))
+			requireModel(t, err, "provider_error", "wire_protocol_invalid")
+			calls, ends := reconstructTools(t, events)
+			if len(calls) != 0 || ends != 0 {
+				t.Fatal("choice violation completion")
+			}
+		})
+	}
+}

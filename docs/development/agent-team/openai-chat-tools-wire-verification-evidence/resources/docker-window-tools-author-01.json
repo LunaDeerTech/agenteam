@@ -1,0 +1,64 @@
+{
+  "window": "tools-author-01",
+  "owner": "/root/management_reads",
+  "state": "returned; actual driver exit1; eight tops pass, one new header-checkpoint test failure",
+  "granted_utc": "2026-10-06T01:47:23.440404+00:00",
+  "source": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source",
+  "input_manifest": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/input07.json",
+  "input_manifest_sha256": "45a9cd7ca0f0e92cd8609a2495c3f77f515cafca82c8fc21a1622d28a4128543",
+  "checked_owned": 14,
+  "checked_baseline_blobs": 863,
+  "checked_source_total": 877,
+  "no_extra_source_paths": true,
+  "baseline_commit": "ecd733711caff5df46e423cadab52b32c34f785e",
+  "no_migration00018": true,
+  "selector": "^TestModelOpenAIChat(WireHTTP|WireStream|WireJoinAndBudget|StructuredHTTP|StructuredStream|StructuredCloseAndBudget|ToolsHTTP|ToolsStream|ToolsCloseAndBudget)$",
+  "selector_sha256": "748b0bd4a933c18b00ff15e745e24b37818a6a56fef84e6c181bb8050b239dee",
+  "observer": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/run-real01.py",
+  "observer_sha256": "b4024eed60cb8a6037be930f9681ae7803e02db451b180de41077ffd207e8036",
+  "ready_evidence": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/ready07.json",
+  "baseline": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/trusted-baseline.json",
+  "coordinator_baseline_checked": true,
+  "root_authorization": "input07 original9tops real fixture; no previous input05 or06 run",
+  "budget": "original test-security.sh race/count1/6m; fixed Go1.27.1/MinIO/offline-readonly/-p1/-v; private tools cache/tmp",
+  "returned_utc": "2026-10-06T01:51:40.985713+00:00",
+  "evidence": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/real01",
+  "coordinator_exact_id_absent": {
+    "b382746db7d84b5863a1061d1d2b36b05e6b67d8da9d74c90b070f1179b9f461": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "a334eb1c8114c5a20b023c11b1117cbd23649c7a65143d4cb268d2399d4726b1": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "50610bca8747d16ce151c1df46350b1cf2e2224c1ddb368bd037f22da7d5e139": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "4a41a75682cc1b3de67fd6d956409279d037b6a9e1d76348b1e75cf781aff7bc": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "9ae2182c9dfc76e09b23e847d61c1bee95467d184bba8f3f443b5ae7d5b69257": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "373746c49c0df07894188c64131c20fc30d5c59645f4323ff9ca180cef0d0ad4": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "83f1ec6bac943875c987fec525901a568c817ef7d1f24657fa1f11eb1e650fab": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    }
+  },
+  "coordinator_baseline_unchanged": true
+}

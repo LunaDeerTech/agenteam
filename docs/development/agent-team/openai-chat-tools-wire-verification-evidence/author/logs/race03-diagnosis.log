@@ -1,0 +1,10 @@
+=== RUN   TestToolsCumulative16MiBIncludesText
+=== RUN   TestToolsCumulative16MiBIncludesText/extra0
+    tools_limits_test.go:184: original_context_error=context deadline exceeded
+    tools_limits_test.go:184: category=timeout code=wire_transport_error
+    tools_limits_test.go:188: exact 16MiB rejected model_model_error
+--- FAIL: TestToolsCumulative16MiBIncludesText (10.82s)
+    --- FAIL: TestToolsCumulative16MiBIncludesText/extra0 (10.82s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	10.846s
+FAIL

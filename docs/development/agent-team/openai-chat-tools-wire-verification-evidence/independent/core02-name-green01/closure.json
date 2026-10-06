@@ -1,0 +1,606 @@
+{
+  "internal/central/foundation/cause.go": {
+    "sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/cause.go"
+  },
+  "internal/central/foundation/fault.go": {
+    "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/fault.go"
+  },
+  "internal/central/foundation/id.go": {
+    "sha256": "40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/id.go"
+  },
+  "internal/central/foundation/instant.go": {
+    "sha256": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/instant.go"
+  },
+  "internal/central/foundation/integer.go": {
+    "sha256": "6b415d63e04d63e46428bf3b19f545f5a289575c0f375192875a40405b39d215",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/integer.go"
+  },
+  "internal/central/foundation/lock.go": {
+    "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/lock.go"
+  },
+  "internal/central/foundation/page.go": {
+    "sha256": "3be782a4c61729a5a2b13e195e5653ad1070e883765035b5cbb1f4f9e85c3c52",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/page.go"
+  },
+  "internal/central/foundation/scalar.go": {
+    "sha256": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/scalar.go"
+  },
+  "internal/central/foundation/tx.go": {
+    "sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/tx.go"
+  },
+  "internal/central/foundation/cause_test.go": {
+    "sha256": "33dfa3128d34c2bb922f0cec55147e9a8c8531df22fe651d52abaad5beacf5b5",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/cause_test.go"
+  },
+  "internal/central/foundation/lock_test.go": {
+    "sha256": "bef76346f06b4869451348632f2f3cd3646170fe84952dd4e6c2a568bc5dca7c",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/lock_test.go"
+  },
+  "internal/central/foundation/scalar_test.go": {
+    "sha256": "f8c57c65678b27ed2a11f0248bac41c776f369e9db7b23854a8a67f3d91ff426",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/scalar_test.go"
+  },
+  "internal/central/foundation/tx_test.go": {
+    "sha256": "a952a354cc6fd9422f13ed93c790ef2abdaec5c1724bc8ee9fa716716717fe6a",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/foundation/tx_test.go"
+  },
+  "internal/central/identity/contract/identity.go": {
+    "sha256": "845794400c185b5f00ef673007661ec1382d19b54ec82329d565567daa073ef4",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/identity/contract/identity.go"
+  },
+  "internal/central/identity/contract/account_test.go": {
+    "sha256": "84ba587587679d82e88cd6a10fa38bef7676ccd4a95d00358324e35eb61e9bd1",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/identity/contract/account_test.go"
+  },
+  "internal/central/identity/contract/identity_test.go": {
+    "sha256": "34b5dc25497a780e0c5f62f23bfd7a5eb7aae9bfb999d00b71a08c5c450113f4",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/identity/contract/identity_test.go"
+  },
+  "internal/central/identity/contract/outbox_test.go": {
+    "sha256": "3542a1770006047e05d52265cb3ab029f9b16a1eaf0b6636e2475f808820b51e",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/identity/contract/outbox_test.go"
+  },
+  "internal/central/identity/contract/project_initialization_test.go": {
+    "sha256": "8c6248e64fa473031e6055ec50ae4ab1ce649d64ae9ab8f5c6bf680f5ac87ea1",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/identity/contract/project_initialization_test.go"
+  },
+  "internal/central/audit/contract/access.go": {
+    "sha256": "775a838c03690fef4b709c37975fd23ccfc24e506569d4c3e8684ac32f8abfd1",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/access.go"
+  },
+  "internal/central/audit/contract/account.go": {
+    "sha256": "ef2b5bc2cca4435161d9b2f543c62b868324e54813581da894bfbfb70e42bfed",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/account.go"
+  },
+  "internal/central/audit/contract/knowledge.go": {
+    "sha256": "270e1943c9539dda9dc2ae9bb1013a0a48bf2309578b2da8d36c1a432a4d8372",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/knowledge.go"
+  },
+  "internal/central/audit/contract/metadata.go": {
+    "sha256": "bdffe42f77fa2525dbbc03a3d3749af7b7665cb6cf2f995d62b82863a2080646",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/metadata.go"
+  },
+  "internal/central/audit/contract/model.go": {
+    "sha256": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/model.go"
+  },
+  "internal/central/audit/contract/project.go": {
+    "sha256": "526e8c86d72f45b2584572c159586b59a360e1029269b4304d68ffa55f26083b",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/project.go"
+  },
+  "internal/central/audit/contract/project_fact_authority.go": {
+    "sha256": "583ad2f7030a6a5fd84c5174ae260b8a317110abf4afeb69f906e4b9a9ac60ae",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/project_fact_authority.go"
+  },
+  "internal/central/audit/contract/types.go": {
+    "sha256": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/types.go"
+  },
+  "internal/central/audit/contract/account_test.go": {
+    "sha256": "1fee7c719d05fa18a28a1c21251109be133aa84ef5cbf323baab40da43189644",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/account_test.go"
+  },
+  "internal/central/audit/contract/content_test.go": {
+    "sha256": "831594be6cff98179a76d4af92173fe14754f325cd384b38149a6b591a99f3eb",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/content_test.go"
+  },
+  "internal/central/audit/contract/knowledge_test.go": {
+    "sha256": "596ec014205a53d28bafc2d5777947a495743958715777c027fc57e632fb1b4e",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/knowledge_test.go"
+  },
+  "internal/central/audit/contract/metadata_test.go": {
+    "sha256": "43f422e06f86ebf269281b09e66db53af2d2b4528a51db5e14d8e6d9c2785f1e",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/metadata_test.go"
+  },
+  "internal/central/audit/contract/model_test.go": {
+    "sha256": "546293445ea06ef5198ff5f4699d6517fb38792a218026d7d8ca4549d2b972df",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/model_test.go"
+  },
+  "internal/central/audit/contract/outbox_test.go": {
+    "sha256": "e57f0030a3ed0a50a23ed6d219e283e9ffed4e66baff4f43b7d01436e33ed57d",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/outbox_test.go"
+  },
+  "internal/central/audit/contract/project_test.go": {
+    "sha256": "b507cf8baa6fad4fd1c86ac842936974c467ff165e56efd2fd63218995535acb",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/project_test.go"
+  },
+  "internal/central/audit/contract/project_fact_authority_test.go": {
+    "sha256": "cb0f8ac4d8d5f9808156c1ba9adacdb87ae4fe2de9f84fada4ffee7f05d0d966",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/contract/project_fact_authority_test.go"
+  },
+  "internal/central/object/contract/access.go": {
+    "sha256": "6257b7bb96b7f83c39b322c75a66ea66c4865194d4c637029c57a8b518a7f6a4",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/access.go"
+  },
+  "internal/central/object/contract/authority.go": {
+    "sha256": "96e2e54596e7d9302a5733e3eeee746eaae5434b718d905703ca36055534fdfe",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/authority.go"
+  },
+  "internal/central/object/contract/download.go": {
+    "sha256": "8986309ca500a3c0df2f3f141357ef3c7e692edbc26e6d145fcb724f123fec17",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/download.go"
+  },
+  "internal/central/object/contract/download_cleanup.go": {
+    "sha256": "3c08add16b506d64d2ecc4226581d3def2b27a9d0c797e6c44780865f51977c7",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/download_cleanup.go"
+  },
+  "internal/central/object/contract/project_lifecycle.go": {
+    "sha256": "91c600a0600f26d23570d73ab5ec47839e0e6e2c11338a75b950e9a94500fe0e",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/project_lifecycle.go"
+  },
+  "internal/central/object/contract/reference_cleanup.go": {
+    "sha256": "4cc8aeff4d0278f64ef5d3cd2ea75a350314d89af02ad072bdf36c04b7f0b196",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/reference_cleanup.go"
+  },
+  "internal/central/object/contract/source.go": {
+    "sha256": "444c04fc677d88d026a2211812757ce15108527786ea5ba0c874457c398d5e82",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/source.go"
+  },
+  "internal/central/object/contract/source_lease.go": {
+    "sha256": "0669b5bd38d3cc9ff80d7af8519f36d66f76916ebb506775a7ad11e4c7c2fce3",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/source_lease.go"
+  },
+  "internal/central/object/contract/transfer.go": {
+    "sha256": "ce8169c2626e6e9a4879a34fcf74a42c2c1a1ba5b7226c69c7babdd34dbb2c31",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/transfer.go"
+  },
+  "internal/central/object/contract/transfer_authority.go": {
+    "sha256": "3806be2183c1f7c299f30c27b7c9bf0db152b3400721d5e6165c8f6d82d5a05e",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/transfer_authority.go"
+  },
+  "internal/central/object/contract/types.go": {
+    "sha256": "9021d1aefe210a84677497e02297791b0eb980c30c8be4a2330e27198c24f194",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/types.go"
+  },
+  "internal/central/object/contract/access_test.go": {
+    "sha256": "94e17964a390a35dee093920d2b7b18b711703bf0221648e4de5201389b74be1",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/access_test.go"
+  },
+  "internal/central/object/contract/download_test.go": {
+    "sha256": "a51f965d28515c039e855cd34ca8dac41a07e67ac49c097f9190b9c0639e6b1f",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/download_test.go"
+  },
+  "internal/central/object/contract/knowledge_cleanup_test.go": {
+    "sha256": "0cf82af177e041172c80a60739e19d79a08acb83e7c7f364e972a728b5403a0d",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/knowledge_cleanup_test.go"
+  },
+  "internal/central/object/contract/project_lifecycle_test.go": {
+    "sha256": "9ef6a02c5e603251469dce2480f1f1a121366695b107be95b10526e6e598c2e0",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/project_lifecycle_test.go"
+  },
+  "internal/central/object/contract/project_prepare_read_test.go": {
+    "sha256": "5b32bd5219797e0caa4e8bd3317d9be016b1acd880ae43b1b68b9b0a1b977cca",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/project_prepare_read_test.go"
+  },
+  "internal/central/object/contract/reference_cleanup_test.go": {
+    "sha256": "6776f644ffe768ed9f35309a9696f7f25c2b09cccd49f610e040bedbd5b3de98",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/reference_cleanup_test.go"
+  },
+  "internal/central/object/contract/source_lease_test.go": {
+    "sha256": "165e0091f1d676723874783ca7ae5a6259462feefd858b8b91da4b52868db9a4",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/source_lease_test.go"
+  },
+  "internal/central/object/contract/transfer_test.go": {
+    "sha256": "b6d91c7c2d462b661d4eb038421c76a0ff18428e0d8e39252f6d4e25da9729b9",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/transfer_test.go"
+  },
+  "internal/central/object/contract/types_test.go": {
+    "sha256": "29e46a7ea69301753c8b59e5849a1100512f58bfb156499bfbc7664259af4b90",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/object/contract/types_test.go"
+  },
+  "internal/central/secret/contract/account.go": {
+    "sha256": "389eb3472f5684892f5e41c036bb904f9218d5892fac0f6cc19701ddf5c5e6a9",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/secret/contract/account.go"
+  },
+  "internal/central/secret/contract/material.go": {
+    "sha256": "a83f362b2d163ea0f7a9ea320670beb0bba7d046361a8f45590b8aca8ecd4a9f",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/secret/contract/material.go"
+  },
+  "internal/central/secret/contract/model.go": {
+    "sha256": "f8bf949c3ac35a02351b61a7510609b2e86861b5ceffdddbf8fc54aa1dac2821",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/secret/contract/model.go"
+  },
+  "internal/central/secret/contract/types.go": {
+    "sha256": "2e9109c3278ef461166d41e4def3f6c76b0fde2cdd11fff7b755bdbcd1052cd7",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/secret/contract/types.go"
+  },
+  "internal/central/secret/contract/write_lookup.go": {
+    "sha256": "805e1f99c643cd574e6f9a18c9b99d0fba2ff27ec9276116636896e127d84558",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/secret/contract/write_lookup.go"
+  },
+  "internal/central/secret/contract/account_test.go": {
+    "sha256": "e6d249e35d99aea1ab32c2567c18a70b4262c6e00981baa379bb8c50f8d4e75c",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/secret/contract/account_test.go"
+  },
+  "internal/central/secret/contract/material_test.go": {
+    "sha256": "5ff505e2dcfaed20abc1088299ebf8d2ee6a5706a97e1adc5d99d60e0049aa55",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/secret/contract/material_test.go"
+  },
+  "internal/central/secret/contract/model_test.go": {
+    "sha256": "c449d978b130dfa4d84b3118369a2c962a3e53504660a21f33ffc3b1a470a8a8",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/secret/contract/model_test.go"
+  },
+  "internal/central/secret/contract/types_test.go": {
+    "sha256": "56a95cb489c309ae7ded891514abb3f67002ab41268782969b0359e90ece61db",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/secret/contract/types_test.go"
+  },
+  "internal/central/secret/contract/write_lookup_test.go": {
+    "sha256": "2b275124816a7f468f42e9a06bd20b00fb2acf7a28f3e0d96c9508e524eb421e",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/secret/contract/write_lookup_test.go"
+  },
+  "internal/central/model/contract/authority.go": {
+    "sha256": "358a96356382a651e5668a73962699ecfc39e2fbe27512af880e1ce3aef7e77a",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/authority.go"
+  },
+  "internal/central/model/contract/chat.go": {
+    "sha256": "01f2abe8a8d5be54ed3193f22be75094f3868e2b09a6d8ca5dab6fb70aac2d88",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/chat.go"
+  },
+  "internal/central/model/contract/configuration.go": {
+    "sha256": "a318e6cc6fb3697d407569f8b3ecb9a441817b8ea1d7e2d0dd1b567d1ced4d14",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/configuration.go"
+  },
+  "internal/central/model/contract/events.go": {
+    "sha256": "b68f21edf228c85a7b9243e44a0e8fad2789206bff14555c518115ddf38e1e10",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/events.go"
+  },
+  "internal/central/model/contract/nonchat.go": {
+    "sha256": "45c655ec6778279ec92aa06e045f1ca370a6306e35ae1d8e376088ad517e451d",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/nonchat.go"
+  },
+  "internal/central/model/contract/references.go": {
+    "sha256": "6728cd6830d72988a91082d886e5a12843077381a53e38e7826665f1d4a09740",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/references.go"
+  },
+  "internal/central/model/contract/resolution.go": {
+    "sha256": "151f89787aa0d35d016dd8d77b03f957548fd2f1c9b81cf44e646441867f9a64",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/resolution.go"
+  },
+  "internal/central/model/contract/types.go": {
+    "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/types.go"
+  },
+  "internal/central/model/contract/authority_test.go": {
+    "sha256": "4487ec145381c6ef276b0a9f99402ada02925722323c829692d4034cc572567b",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/authority_test.go"
+  },
+  "internal/central/model/contract/chat_test.go": {
+    "sha256": "52279b0c03abeeb3eb07166f7cdb9aa68db80c27979b52d800589cbe375c2b97",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/chat_test.go"
+  },
+  "internal/central/model/contract/configuration_test.go": {
+    "sha256": "1c361e957c709f3cbaee75594ff9dbd0b93e8935cf52d0481f7fc5a500e2d12c",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/configuration_test.go"
+  },
+  "internal/central/model/contract/events_test.go": {
+    "sha256": "63d07cb777b373ce1a37c8908dc634ce72c8415c00928a9f37f1e285a05854be",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/events_test.go"
+  },
+  "internal/central/model/contract/nonchat_test.go": {
+    "sha256": "a5911b83882e81c3900dadfefc27f58f417dab2563712ab61e3c0132b98a9c99",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/nonchat_test.go"
+  },
+  "internal/central/model/contract/references_test.go": {
+    "sha256": "13a46f79236fbd614087688ba7aac2e824e3b092899bbfde6fe778da91504ff6",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/references_test.go"
+  },
+  "internal/central/model/contract/resolution_test.go": {
+    "sha256": "1d67a96398dec15e4c7c1937defedb4314e04d90ea5b96b5aeb4874615f15dab",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/resolution_test.go"
+  },
+  "internal/central/model/contract/types_test.go": {
+    "sha256": "d1371f97d0a6467f7f318eeabc953c7590b4b013f8484edb9aef9acdea954d08",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/contract/types_test.go"
+  },
+  "internal/central/cursor/canonical.go": {
+    "sha256": "1c3a9cab07b385301f27126f4794bf4439e1a97022a3d630013b598d3a7a5836",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/cursor/canonical.go"
+  },
+  "internal/central/cursor/cursor.go": {
+    "sha256": "c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/cursor/cursor.go"
+  },
+  "internal/central/cursor/keyring.go": {
+    "sha256": "76199cd840e179a3a7dc993e91d89cacdc140c59ba99d158a9b294c57f01cb8f",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/cursor/keyring.go"
+  },
+  "internal/central/cursor/cursor_test.go": {
+    "sha256": "b2b5344061546cfb0bf3bddef74745a80fdd89edb274d342cc0eceaa1ef08b2e",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/cursor/cursor_test.go"
+  },
+  "internal/central/cursor/text_test.go": {
+    "sha256": "8f1dff80daf4d41c45cd9921467b15f1078493b8fa57f434d8ed555f6bc50d3e",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/cursor/text_test.go"
+  },
+  "db/migrations/embed.go": {
+    "sha256": "ec8dfa638b97c1456b5d04e536b319c5d7d4f8faea755c194796ea69be1ad578",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/db/migrations/embed.go"
+  },
+  "internal/central/postgres/config.go": {
+    "sha256": "3b0847fdb772bf480782717cdb1a4c605648a2a0dd0c59fd53500813e0bb0de7",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/config.go"
+  },
+  "internal/central/postgres/error.go": {
+    "sha256": "a4178ea73021d77eeda20ba92a8c72f7363c6df97b0b92b3c258bdcf5b692b76",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/error.go"
+  },
+  "internal/central/postgres/health.go": {
+    "sha256": "9c0a7b6c9627b4e8f54bfeb84844ad699e464fa20175b2a834647051b6695de0",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/health.go"
+  },
+  "internal/central/postgres/journal.go": {
+    "sha256": "33bad7f0b208d301e467bab9abc3f12fc0464880034e3664620da6a3a05e5f4e",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/journal.go"
+  },
+  "internal/central/postgres/migrate.go": {
+    "sha256": "30ab4e935be2954c680bd1cb27a04ec8f9b234c0c3097131c0850695933a194b",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/migrate.go"
+  },
+  "internal/central/postgres/pool_cancellation.go": {
+    "sha256": "ee6c5757fedd549b2d04695c42fb1d596565fad198648a3d8cb315e99eae6989",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/pool_cancellation.go"
+  },
+  "internal/central/postgres/source.go": {
+    "sha256": "60bdd9ee3f8e0e166c10680c2cdcb88862bb85d9fd66d7aad3b695c1debb7662",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/source.go"
+  },
+  "internal/central/postgres/sql.go": {
+    "sha256": "2a1357b60da8693124b0cdf3d863589604853b44beb5262e43995f0271f5484e",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/sql.go"
+  },
+  "internal/central/postgres/store.go": {
+    "sha256": "6c2f607fd3c85aa9c5d65ff9c909c1b9012f10a2f62a340a34f6d17371798072",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/store.go"
+  },
+  "internal/central/postgres/transaction.go": {
+    "sha256": "aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/transaction.go"
+  },
+  "internal/central/postgres/config_test.go": {
+    "sha256": "3d9b532106bf8b6ba412cc76fb909c1d9f95157a927251745130d9831469f6f1",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/config_test.go"
+  },
+  "internal/central/postgres/pool_attribution_test.go": {
+    "sha256": "ebe7ffa80837aae6804e91a9bc9b3f60878a46258997de5fd86206728ea333c6",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/pool_attribution_test.go"
+  },
+  "internal/central/postgres/pool_cancellation_test.go": {
+    "sha256": "890696a1188152193bc0986f0a375b4c091e0cb12e42b1f4dff85f05366628dd",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/pool_cancellation_test.go"
+  },
+  "internal/central/postgres/require_held_test.go": {
+    "sha256": "af97fddf071c9748d04fae4cc1d7e903adf8de55f226be34c467a4d8b48e7ed1",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/require_held_test.go"
+  },
+  "internal/central/postgres/source_test.go": {
+    "sha256": "b4dc4b1272c93c7dae4263d1cfecdf8ab1de07b64f4cb6e4ba25e15a62e8bc4a",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/postgres/source_test.go"
+  },
+  "internal/central/audit/cleanup.go": {
+    "sha256": "8b9c9812d1855b3f554a4fadb0b41573a53a18e6ab8ccb4e4bff7f76b2e169a1",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/cleanup.go"
+  },
+  "internal/central/audit/error.go": {
+    "sha256": "ad980308d48166a978891ad999adbf4309dee28fe201bf40e3629192712a58d8",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/error.go"
+  },
+  "internal/central/audit/query.go": {
+    "sha256": "740b8a1385c437b45b635a61e0c56cd8d321b42053e41ea2396d035cf59a19c0",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/query.go"
+  },
+  "internal/central/audit/service.go": {
+    "sha256": "0e9efa8c36c0538617a4e499d9224894ebd22f61ec7de49f54ba8cbfce98b689",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/service.go"
+  },
+  "internal/central/audit/model_test.go": {
+    "sha256": "684003984faef1affa2dba5dc5e0459a39721b6bd950ffab22247fdbd02857b9",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/model_test.go"
+  },
+  "internal/central/audit/project_test.go": {
+    "sha256": "3457b2dd350589f62f9981927d95ea932b59c96cd2b266c3f51a03d415dc47c4",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/project_test.go"
+  },
+  "internal/central/audit/service_test.go": {
+    "sha256": "b38301adb0823f781b8c68f60c285affdf351b8b638cb998b13a94c35c21725a",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/audit/service_test.go"
+  },
+  "internal/central/outbound/classify.go": {
+    "sha256": "61c3d8aeb194faaf7422faf0be74ab1faa71a1758dcfdcfdb738642641b5ed43",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/classify.go"
+  },
+  "internal/central/outbound/client.go": {
+    "sha256": "127467315ed1798db92d4785d856880b46b7e2b723c2dc723d3fbf7b1dcc4816",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/client.go"
+  },
+  "internal/central/outbound/dns.go": {
+    "sha256": "99569054ed65f4080bdb21eae431db9847598fa7fd381a8f943d007259f54487",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/dns.go"
+  },
+  "internal/central/outbound/error.go": {
+    "sha256": "78db79258b5fe522909bdb2a85c30c7a04f6ea888645e5ca66f8cb685216759c",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/error.go"
+  },
+  "internal/central/outbound/gate.go": {
+    "sha256": "660873aa833e0fbb63cc213d24a3b822b130df513869d821fa4cf699421acafc",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/gate.go"
+  },
+  "internal/central/outbound/http.go": {
+    "sha256": "f55b178fef52c4ea19e897835c64679c703045ccb86ea3863959953152ff3eb6",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/http.go"
+  },
+  "internal/central/outbound/network_error.go": {
+    "sha256": "0dc20f791a984a283f127ade3cee16ea4f18f8a47ba1bdcacdbe4ef2c1fb7b87",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/network_error.go"
+  },
+  "internal/central/outbound/policy.go": {
+    "sha256": "50056c5f6cdf14acaaa93dd463a50b948a1ba93da9b01d9eb421cd025379febc",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/policy.go"
+  },
+  "internal/central/outbound/profile.go": {
+    "sha256": "a2d9000c8cf1b8df4bf5450ab67cf4575b35763dd85765307b7e9f433d73dca0",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/profile.go"
+  },
+  "internal/central/outbound/rules.go": {
+    "sha256": "a5c8833c7e68c0abf2dbed07829af8851728f071c68b82050b88c41db6bbb4c4",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/rules.go"
+  },
+  "internal/central/outbound/sdk.go": {
+    "sha256": "98b6f6fa1e6d6084d57a5629e434ba3c2148d50998e5494598a58e1aca52b7ea",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/sdk.go"
+  },
+  "internal/central/outbound/smtp.go": {
+    "sha256": "109da2aec676f729b05cb5b44b219b7294526fdd084ddb79c4792da3bd1faa2c",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/smtp.go"
+  },
+  "internal/central/outbound/smtp_tls.go": {
+    "sha256": "77007005fb73668c6307d79120d96ee6ae1a4457f34791ee4dd263272400d53b",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/smtp_tls.go"
+  },
+  "internal/central/outbound/target.go": {
+    "sha256": "0604f808cc4ef5b849b423bc2615d820b61ca2be3333db3d9fdb5ef450446f6d",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/target.go"
+  },
+  "internal/central/outbound/trace.go": {
+    "sha256": "12fe0bb3b5f708133a2bb9b44fadee3df91255f06bf7916147e12bdfaf5c581d",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/trace.go"
+  },
+  "internal/central/outbound/boundary_test.go": {
+    "sha256": "e8b8a234e9a9464efa43f486e5c25b4824d848eadcd55795810340734054824b",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/boundary_test.go"
+  },
+  "internal/central/outbound/dns_test.go": {
+    "sha256": "3141ddf9ebd486ff88276b68bcd876532bf8e6ec5f603ba4fac6db721ee6c5b3",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/dns_test.go"
+  },
+  "internal/central/outbound/gate_test.go": {
+    "sha256": "b9f1a647bc4bbdbeedbe98b1bed39429d63af7f9455934e0044bfda2f407e236",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/gate_test.go"
+  },
+  "internal/central/outbound/http_test.go": {
+    "sha256": "40df7bfa7c088e91f3b83cf139013a19534951755a6fb54017d909709fd76d91",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/http_test.go"
+  },
+  "internal/central/outbound/smtp_cancel_test.go": {
+    "sha256": "106a98f47258b2ce85c1613fdc8d41f5521848065df2748933167ec89e361bdb",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/smtp_cancel_test.go"
+  },
+  "internal/central/outbound/smtp_tls_test.go": {
+    "sha256": "4a27fa556c1c91429f1cc6a8f38031d4c29b22066d37136b3e23bc5e0ab8c33a",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/outbound/smtp_tls_test.go"
+  },
+  "internal/central/model/adapter/budget.go": {
+    "sha256": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/adapter/budget.go"
+  },
+  "internal/central/model/adapter/errors.go": {
+    "sha256": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/core02/internal/central/model/adapter/errors.go"
+  },
+  "internal/central/model/adapter/openai_chat.go": {
+    "sha256": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/core02/internal/central/model/adapter/openai_chat.go"
+  },
+  "internal/central/model/adapter/openai_chat_tools.go": {
+    "sha256": "98e9aefa1968c75c3ed74a6021b07334617f7771979cb10561f39dbfee9e6b01",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/core02/internal/central/model/adapter/openai_chat_tools.go"
+  },
+  "internal/central/model/adapter/sse.go": {
+    "sha256": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/core02/internal/central/model/adapter/sse.go"
+  },
+  "internal/central/model/adapter/structured_schema.go": {
+    "sha256": "061e45a59fc575b8d7bdbcf9b1837bbe247b7e5ac9d382b32be9c7b77ebab575",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/adapter/structured_schema.go"
+  },
+  "internal/central/model/adapter/tools_stream.go": {
+    "sha256": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/core02/internal/central/model/adapter/tools_stream.go"
+  },
+  "internal/central/model/adapter/transport.go": {
+    "sha256": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/core02/internal/central/model/adapter/transport.go"
+  },
+  "internal/central/model/adapter/budget_test.go": {
+    "sha256": "4f2d0babcd7f67e65ca303a5a128756ac9f082b3500346512baea28a4e0d9b30",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/adapter/budget_test.go"
+  },
+  "internal/central/model/adapter/errors_test.go": {
+    "sha256": "e8e345373f8706abb13ec9866fe83fa9a40d13eb62f567d9dbfcd8f8063bafcd",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/adapter/errors_test.go"
+  },
+  "internal/central/model/adapter/independent_name_allocation_test.go": {
+    "sha256": "50a242728b9daf87725a27e1407c2ed381a99bd5596a23e6970c939f06827927",
+    "physical": "/workspace/scratch/agenteam-tools-wire-independent-bwzxmqzl/name_allocation_probe_test.go"
+  },
+  "internal/central/model/adapter/openai_chat_structured_test.go": {
+    "sha256": "adef9371a5a6305efc37d5bd3e0baf8b13a78e36d1a9710fd9577b8f5f835145",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/adapter/openai_chat_structured_test.go"
+  },
+  "internal/central/model/adapter/openai_chat_test.go": {
+    "sha256": "a175e4aeb91c16a0ae28f7187351ddbf651b4c457ccb624ba141cd7a73523bc0",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/adapter/openai_chat_test.go"
+  },
+  "internal/central/model/adapter/openai_chat_tools_test.go": {
+    "sha256": "cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/core02/internal/central/model/adapter/openai_chat_tools_test.go"
+  },
+  "internal/central/model/adapter/sse_test.go": {
+    "sha256": "fd72da07db261253e7fda1a257d8afede23602882eb68551f14de189e3698859",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/adapter/sse_test.go"
+  },
+  "internal/central/model/adapter/structured_schema_test.go": {
+    "sha256": "d2af452d12a541c22f96cb8235aba2b5ae76acbbd683ceddc834b4ad9d993bb2",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/adapter/structured_schema_test.go"
+  },
+  "internal/central/model/adapter/structured_stream_test.go": {
+    "sha256": "194af0abec900add91bd1d923e3fb9e08b4da609ef2cb76fb322576ed9e6591b",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/adapter/structured_stream_test.go"
+  },
+  "internal/central/model/adapter/tools_limits_test.go": {
+    "sha256": "57e3dc91e8bf6c11339578503c5986fa0fb515f1eb6878eeacebba143fd6e77c",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/core02/internal/central/model/adapter/tools_limits_test.go"
+  },
+  "internal/central/model/adapter/tools_stream_test.go": {
+    "sha256": "dd13332835bb53936fa73a301ce58d170b386d044cb1602c67670eab020252bf",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/core02/internal/central/model/adapter/tools_stream_test.go"
+  },
+  "internal/central/model/adapter/tools_transport_test.go": {
+    "sha256": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/core02/internal/central/model/adapter/tools_transport_test.go"
+  },
+  "internal/central/model/adapter/transport_test.go": {
+    "sha256": "c9be8f7f49bf6e460bad132cb55bf5567949d834c8060feb2527ebc6e824cc15",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source/internal/central/model/adapter/transport_test.go"
+  },
+  "internal/central/model/adapter/testdata/openai-chat-tools-v1.json": {
+    "sha256": "a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2",
+    "physical": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/core02/internal/central/model/adapter/testdata/openai-chat-tools-v1.json"
+  }
+}

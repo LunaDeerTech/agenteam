@@ -1,0 +1,50 @@
+from pathlib import Path
+import datetime
+import hashlib
+import json
+import os
+import subprocess
+
+ROOT=Path(__file__).parent
+SOURCE=ROOT/'source'
+AUTHOR=Path('/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq')
+def sha(raw): return hashlib.sha256(raw).hexdigest()
+raw=(AUTHOR/'input07.json').read_bytes()
+assert sha(raw)=='45a9cd7ca0f0e92cd8609a2495c3f77f515cafca82c8fc21a1622d28a4128543'
+manifest=json.loads(raw)
+old=json.loads((ROOT/'input05-input.json').read_bytes())
+delta=[p for p,h in manifest['paths'].items() if old['paths'][p]!=h]
+assert set(delta)=={'internal/central/model/adapter/testdata/openai-chat-tools-v1.json','internal/central/model/adapter/openai_chat_tools_test.go'}
+closure=json.loads((ROOT/'source-closure05.json').read_bytes())
+for path in delta:
+    content=(AUTHOR/'source'/path).read_bytes()
+    assert sha(content)==manifest['paths'][path]
+    (SOURCE/path).write_bytes(content)
+    closure['files'][path]={'sha256':sha(content),'size':len(content),'provenance':'frozen input07 narrow metadata/test delta'}
+for path, expected in manifest['paths'].items(): assert sha((SOURCE/path).read_bytes())==expected
+(ROOT/'input07-input.json').write_bytes(raw)
+closure['input_manifest_sha256']=sha(raw)
+(ROOT/'source-closure07.json').write_text(json.dumps(closure,indent=2)+'\n')
+overlay={'Replace':{str(SOURCE/'tests/model/tools_independent_test.go'):str(ROOT/'tools_independent_test.go')}}
+(ROOT/'overlay.json').write_text(json.dumps(overlay,indent=2)+'\n')
+(ROOT/'bin').mkdir(exist_ok=True)
+fixed={
+    'GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off',
+    'GOMODCACHE':'/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache',
+    'GOPROXY':'off','GOSUMDB':'off','GOFLAGS':'-mod=readonly -p=1 -overlay='+str(ROOT/'overlay.json'),
+    'GOCACHE':'/workspace/scratch/agenteam-management-independent-yB9JMR/gocache',
+    'TMPDIR':str(ROOT/'tmp'),
+}
+argv=['/workspace/toolchains/go1.27.1/bin/go','test','-c','-race','-tags=integration','-o',str(ROOT/'bin/tools-independent.test'),'./tests/model']
+record={'argv':argv,'cwd':str(SOURCE),'env':fixed,'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'input_manifest_sha256':sha(raw),'probe_sha256':sha((ROOT/'tools_independent_test.go').read_bytes()),'overlay_sha256':sha((ROOT/'overlay.json').read_bytes()),'source_closure_sha256':sha((ROOT/'source-closure07.json').read_bytes()),'runner_sha256':sha(Path(__file__).read_bytes()),'no_network_or_docker':True,'author_source_cwd_used':False}
+assert all(sha((SOURCE/p).read_bytes())==r['sha256'] for p,r in closure['files'].items())
+with (ROOT/'compile01.log').open('wb') as output:
+    child=subprocess.Popen(argv,cwd=SOURCE,env=dict(os.environ,**fixed),stdout=output,stderr=subprocess.STDOUT)
+    record['pid']=child.pid
+    (ROOT/'compile01.json').write_text(json.dumps(record,indent=2)+'\n')
+    code=child.wait()
+record.update(exit=code,ended_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),raw_sha256=sha((ROOT/'compile01.log').read_bytes()),input_after_matches=all(sha((SOURCE/p).read_bytes())==r['sha256'] for p,r in closure['files'].items()))
+(ROOT/'compile01.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps({'exit':code,'physical_source':str(SOURCE),'closure_files':len(closure['files']),'input_after_matches':record['input_after_matches'],'raw_sha256':record['raw_sha256']}))
+print((ROOT/'compile01.log').read_text())
+raise SystemExit(code)

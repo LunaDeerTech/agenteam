@@ -1,0 +1,20 @@
+{
+  "source": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/source",
+  "manifest": "race03-input.json",
+  "matches": {
+    "internal/central/model/adapter/openai_chat.go": true,
+    "internal/central/model/adapter/errors.go": true,
+    "internal/central/model/adapter/sse.go": true,
+    "internal/central/model/adapter/transport.go": true,
+    "internal/central/model/adapter/openai_chat_tools.go": true,
+    "internal/central/model/adapter/tools_stream.go": true,
+    "internal/central/model/adapter/testdata/openai-chat-tools-v1.json": true,
+    "internal/central/model/adapter/openai_chat_tools_test.go": true,
+    "internal/central/model/adapter/tools_stream_test.go": true,
+    "internal/central/model/adapter/tools_limits_test.go": true,
+    "internal/central/model/adapter/tools_transport_test.go": true
+  },
+  "diagnostic_overlay_sha256": "7ada2d0f9d87ca2f67042af6768c361891fe0c826be34054f819e33151ad9b71",
+  "diagnostic_limits_sha256": "39376313aae609f83b1e136d9b4ead9e76744537c1cb9a4c3559a942868c3569",
+  "live_F1_not_copied_to_execution_source": true
+}

@@ -1,0 +1,7 @@
+=== RUN   TestIndependentToolsRejectOversizeNameBeforeClone
+    independent_name_allocation_test.go:39: rejected_name_bytes=8388608 allocated_bytes=8392792 allowance_bytes=1048576
+    independent_name_allocation_test.go:41: invalid tool name copied before bounded validation: 8392792 bytes allocated
+--- FAIL: TestIndependentToolsRejectOversizeNameBeforeClone (0.04s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	0.049s
+FAIL

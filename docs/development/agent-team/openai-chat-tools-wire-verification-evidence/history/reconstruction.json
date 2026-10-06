@@ -1,0 +1,496 @@
+{
+  "purpose": "Read-only original bytes for fixed red/final inputs; no test execution or automatic reconstruction",
+  "inputs": {
+    "race03-input.json": {
+      "internal/central/model/adapter/openai_chat.go": {
+        "sha256": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+        "archive": "candidate/internal/central/model/adapter/openai_chat.go.txt"
+      },
+      "internal/central/model/adapter/errors.go": {
+        "sha256": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+        "archive": "candidate/internal/central/model/adapter/errors.go.txt"
+      },
+      "internal/central/model/adapter/sse.go": {
+        "sha256": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+        "archive": "candidate/internal/central/model/adapter/sse.go.txt"
+      },
+      "internal/central/model/adapter/transport.go": {
+        "sha256": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+        "archive": "candidate/internal/central/model/adapter/transport.go.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools.go": {
+        "sha256": "d976cc893bd7b03ac65feb47a56225947247a209d1f9daed7563838fefdee985",
+        "archive": "history/variants/d976cc893bd7b03ac65feb47a56225947247a209d1f9daed7563838fefdee985.txt"
+      },
+      "internal/central/model/adapter/tools_stream.go": {
+        "sha256": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+        "archive": "candidate/internal/central/model/adapter/tools_stream.go.txt"
+      },
+      "internal/central/model/adapter/testdata/openai-chat-tools-v1.json": {
+        "sha256": "a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2",
+        "archive": "history/variants/a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools_test.go": {
+        "sha256": "cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116",
+        "archive": "history/variants/cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116.txt"
+      },
+      "internal/central/model/adapter/tools_stream_test.go": {
+        "sha256": "846dff7c6fd3730657798b5874456345b64404c9f596b5e3120b062c4a546a31",
+        "archive": "history/variants/846dff7c6fd3730657798b5874456345b64404c9f596b5e3120b062c4a546a31.txt"
+      },
+      "internal/central/model/adapter/tools_limits_test.go": {
+        "sha256": "127182f49c5620d561489bcfc2c4927047b901b1c69207c9409a50456cdd3e79",
+        "archive": "history/variants/127182f49c5620d561489bcfc2c4927047b901b1c69207c9409a50456cdd3e79.txt"
+      },
+      "internal/central/model/adapter/tools_transport_test.go": {
+        "sha256": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa",
+        "archive": "candidate/internal/central/model/adapter/tools_transport_test.go.txt"
+      }
+    },
+    "unit04-input.json": {
+      "internal/central/model/adapter/openai_chat.go": {
+        "sha256": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+        "archive": "candidate/internal/central/model/adapter/openai_chat.go.txt"
+      },
+      "internal/central/model/adapter/errors.go": {
+        "sha256": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+        "archive": "candidate/internal/central/model/adapter/errors.go.txt"
+      },
+      "internal/central/model/adapter/sse.go": {
+        "sha256": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+        "archive": "candidate/internal/central/model/adapter/sse.go.txt"
+      },
+      "internal/central/model/adapter/transport.go": {
+        "sha256": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+        "archive": "candidate/internal/central/model/adapter/transport.go.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools.go": {
+        "sha256": "98e9aefa1968c75c3ed74a6021b07334617f7771979cb10561f39dbfee9e6b01",
+        "archive": "candidate/internal/central/model/adapter/openai_chat_tools.go.txt"
+      },
+      "internal/central/model/adapter/tools_stream.go": {
+        "sha256": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+        "archive": "candidate/internal/central/model/adapter/tools_stream.go.txt"
+      },
+      "internal/central/model/adapter/testdata/openai-chat-tools-v1.json": {
+        "sha256": "a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2",
+        "archive": "history/variants/a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools_test.go": {
+        "sha256": "cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116",
+        "archive": "history/variants/cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116.txt"
+      },
+      "internal/central/model/adapter/tools_stream_test.go": {
+        "sha256": "dd13332835bb53936fa73a301ce58d170b386d044cb1602c67670eab020252bf",
+        "archive": "candidate/internal/central/model/adapter/tools_stream_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_limits_test.go": {
+        "sha256": "57e3dc91e8bf6c11339578503c5986fa0fb515f1eb6878eeacebba143fd6e77c",
+        "archive": "candidate/internal/central/model/adapter/tools_limits_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_transport_test.go": {
+        "sha256": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa",
+        "archive": "candidate/internal/central/model/adapter/tools_transport_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_http_test.go": {
+        "sha256": "33963d91abdc059517413164343a3eee471b3baa132f45bf4c152be59e4fd425",
+        "archive": "candidate/tests/model/openai_chat_tools_http_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_stream_test.go": {
+        "sha256": "3ada74194850c2014b11d75bcd7f8f8e98c516a7da2bcb8af83b09a28912f76d",
+        "archive": "history/variants/3ada74194850c2014b11d75bcd7f8f8e98c516a7da2bcb8af83b09a28912f76d.txt"
+      },
+      "tests/model/openai_chat_tools_budget_test.go": {
+        "sha256": "5ca8957472c94d49adb6f60a83716b019b04ee19ec411f4d0fd0b8b88542baad",
+        "archive": "history/variants/5ca8957472c94d49adb6f60a83716b019b04ee19ec411f4d0fd0b8b88542baad.txt"
+      }
+    },
+    "core01.json": {
+      "internal/central/model/adapter/openai_chat.go": {
+        "sha256": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+        "archive": "candidate/internal/central/model/adapter/openai_chat.go.txt"
+      },
+      "internal/central/model/adapter/errors.go": {
+        "sha256": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+        "archive": "candidate/internal/central/model/adapter/errors.go.txt"
+      },
+      "internal/central/model/adapter/sse.go": {
+        "sha256": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+        "archive": "candidate/internal/central/model/adapter/sse.go.txt"
+      },
+      "internal/central/model/adapter/transport.go": {
+        "sha256": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+        "archive": "candidate/internal/central/model/adapter/transport.go.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools.go": {
+        "sha256": "d976cc893bd7b03ac65feb47a56225947247a209d1f9daed7563838fefdee985",
+        "archive": "history/variants/d976cc893bd7b03ac65feb47a56225947247a209d1f9daed7563838fefdee985.txt"
+      },
+      "internal/central/model/adapter/tools_stream.go": {
+        "sha256": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+        "archive": "candidate/internal/central/model/adapter/tools_stream.go.txt"
+      },
+      "internal/central/model/adapter/testdata/openai-chat-tools-v1.json": {
+        "sha256": "a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2",
+        "archive": "history/variants/a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools_test.go": {
+        "sha256": "cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116",
+        "archive": "history/variants/cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116.txt"
+      },
+      "internal/central/model/adapter/tools_stream_test.go": {
+        "sha256": "846dff7c6fd3730657798b5874456345b64404c9f596b5e3120b062c4a546a31",
+        "archive": "history/variants/846dff7c6fd3730657798b5874456345b64404c9f596b5e3120b062c4a546a31.txt"
+      },
+      "internal/central/model/adapter/tools_limits_test.go": {
+        "sha256": "127182f49c5620d561489bcfc2c4927047b901b1c69207c9409a50456cdd3e79",
+        "archive": "history/variants/127182f49c5620d561489bcfc2c4927047b901b1c69207c9409a50456cdd3e79.txt"
+      },
+      "internal/central/model/adapter/tools_transport_test.go": {
+        "sha256": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa",
+        "archive": "candidate/internal/central/model/adapter/tools_transport_test.go.txt"
+      }
+    },
+    "core02.json": {
+      "internal/central/model/adapter/openai_chat.go": {
+        "sha256": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+        "archive": "candidate/internal/central/model/adapter/openai_chat.go.txt"
+      },
+      "internal/central/model/adapter/errors.go": {
+        "sha256": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+        "archive": "candidate/internal/central/model/adapter/errors.go.txt"
+      },
+      "internal/central/model/adapter/sse.go": {
+        "sha256": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+        "archive": "candidate/internal/central/model/adapter/sse.go.txt"
+      },
+      "internal/central/model/adapter/transport.go": {
+        "sha256": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+        "archive": "candidate/internal/central/model/adapter/transport.go.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools.go": {
+        "sha256": "98e9aefa1968c75c3ed74a6021b07334617f7771979cb10561f39dbfee9e6b01",
+        "archive": "candidate/internal/central/model/adapter/openai_chat_tools.go.txt"
+      },
+      "internal/central/model/adapter/tools_stream.go": {
+        "sha256": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+        "archive": "candidate/internal/central/model/adapter/tools_stream.go.txt"
+      },
+      "internal/central/model/adapter/testdata/openai-chat-tools-v1.json": {
+        "sha256": "a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2",
+        "archive": "history/variants/a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools_test.go": {
+        "sha256": "cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116",
+        "archive": "history/variants/cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116.txt"
+      },
+      "internal/central/model/adapter/tools_stream_test.go": {
+        "sha256": "dd13332835bb53936fa73a301ce58d170b386d044cb1602c67670eab020252bf",
+        "archive": "candidate/internal/central/model/adapter/tools_stream_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_limits_test.go": {
+        "sha256": "57e3dc91e8bf6c11339578503c5986fa0fb515f1eb6878eeacebba143fd6e77c",
+        "archive": "candidate/internal/central/model/adapter/tools_limits_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_transport_test.go": {
+        "sha256": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa",
+        "archive": "candidate/internal/central/model/adapter/tools_transport_test.go.txt"
+      }
+    },
+    "input04.json": {
+      "internal/central/model/adapter/openai_chat.go": {
+        "sha256": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+        "archive": "candidate/internal/central/model/adapter/openai_chat.go.txt"
+      },
+      "internal/central/model/adapter/errors.go": {
+        "sha256": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+        "archive": "candidate/internal/central/model/adapter/errors.go.txt"
+      },
+      "internal/central/model/adapter/sse.go": {
+        "sha256": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+        "archive": "candidate/internal/central/model/adapter/sse.go.txt"
+      },
+      "internal/central/model/adapter/transport.go": {
+        "sha256": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+        "archive": "candidate/internal/central/model/adapter/transport.go.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools.go": {
+        "sha256": "98e9aefa1968c75c3ed74a6021b07334617f7771979cb10561f39dbfee9e6b01",
+        "archive": "candidate/internal/central/model/adapter/openai_chat_tools.go.txt"
+      },
+      "internal/central/model/adapter/tools_stream.go": {
+        "sha256": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+        "archive": "candidate/internal/central/model/adapter/tools_stream.go.txt"
+      },
+      "internal/central/model/adapter/testdata/openai-chat-tools-v1.json": {
+        "sha256": "a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2",
+        "archive": "history/variants/a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools_test.go": {
+        "sha256": "cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116",
+        "archive": "history/variants/cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116.txt"
+      },
+      "internal/central/model/adapter/tools_stream_test.go": {
+        "sha256": "dd13332835bb53936fa73a301ce58d170b386d044cb1602c67670eab020252bf",
+        "archive": "candidate/internal/central/model/adapter/tools_stream_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_limits_test.go": {
+        "sha256": "57e3dc91e8bf6c11339578503c5986fa0fb515f1eb6878eeacebba143fd6e77c",
+        "archive": "candidate/internal/central/model/adapter/tools_limits_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_transport_test.go": {
+        "sha256": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa",
+        "archive": "candidate/internal/central/model/adapter/tools_transport_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_http_test.go": {
+        "sha256": "33963d91abdc059517413164343a3eee471b3baa132f45bf4c152be59e4fd425",
+        "archive": "candidate/tests/model/openai_chat_tools_http_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_stream_test.go": {
+        "sha256": "3ada74194850c2014b11d75bcd7f8f8e98c516a7da2bcb8af83b09a28912f76d",
+        "archive": "history/variants/3ada74194850c2014b11d75bcd7f8f8e98c516a7da2bcb8af83b09a28912f76d.txt"
+      },
+      "tests/model/openai_chat_tools_budget_test.go": {
+        "sha256": "5ca8957472c94d49adb6f60a83716b019b04ee19ec411f4d0fd0b8b88542baad",
+        "archive": "history/variants/5ca8957472c94d49adb6f60a83716b019b04ee19ec411f4d0fd0b8b88542baad.txt"
+      }
+    },
+    "input05.json": {
+      "internal/central/model/adapter/openai_chat.go": {
+        "sha256": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+        "archive": "candidate/internal/central/model/adapter/openai_chat.go.txt"
+      },
+      "internal/central/model/adapter/errors.go": {
+        "sha256": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+        "archive": "candidate/internal/central/model/adapter/errors.go.txt"
+      },
+      "internal/central/model/adapter/sse.go": {
+        "sha256": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+        "archive": "candidate/internal/central/model/adapter/sse.go.txt"
+      },
+      "internal/central/model/adapter/transport.go": {
+        "sha256": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+        "archive": "candidate/internal/central/model/adapter/transport.go.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools.go": {
+        "sha256": "98e9aefa1968c75c3ed74a6021b07334617f7771979cb10561f39dbfee9e6b01",
+        "archive": "candidate/internal/central/model/adapter/openai_chat_tools.go.txt"
+      },
+      "internal/central/model/adapter/tools_stream.go": {
+        "sha256": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+        "archive": "candidate/internal/central/model/adapter/tools_stream.go.txt"
+      },
+      "internal/central/model/adapter/testdata/openai-chat-tools-v1.json": {
+        "sha256": "a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2",
+        "archive": "history/variants/a8665767d9c881c8e8d2c66a1ee6bc7e745de3fc4d9e34c6547277378b07e2c2.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools_test.go": {
+        "sha256": "cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116",
+        "archive": "history/variants/cba48d2c121c2660e2c1f3e56987553b925f28a3ec9b7103e31b3bc71d003116.txt"
+      },
+      "internal/central/model/adapter/tools_stream_test.go": {
+        "sha256": "dd13332835bb53936fa73a301ce58d170b386d044cb1602c67670eab020252bf",
+        "archive": "candidate/internal/central/model/adapter/tools_stream_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_limits_test.go": {
+        "sha256": "57e3dc91e8bf6c11339578503c5986fa0fb515f1eb6878eeacebba143fd6e77c",
+        "archive": "candidate/internal/central/model/adapter/tools_limits_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_transport_test.go": {
+        "sha256": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa",
+        "archive": "candidate/internal/central/model/adapter/tools_transport_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_http_test.go": {
+        "sha256": "33963d91abdc059517413164343a3eee471b3baa132f45bf4c152be59e4fd425",
+        "archive": "candidate/tests/model/openai_chat_tools_http_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_stream_test.go": {
+        "sha256": "4093644c1b77a4c1be1f05dc2dc8c80ff014ad8a819e2b4bb01f92b82d23ec83",
+        "archive": "candidate/tests/model/openai_chat_tools_stream_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_budget_test.go": {
+        "sha256": "5ca8957472c94d49adb6f60a83716b019b04ee19ec411f4d0fd0b8b88542baad",
+        "archive": "history/variants/5ca8957472c94d49adb6f60a83716b019b04ee19ec411f4d0fd0b8b88542baad.txt"
+      }
+    },
+    "input06.json": {
+      "internal/central/model/adapter/openai_chat.go": {
+        "sha256": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+        "archive": "candidate/internal/central/model/adapter/openai_chat.go.txt"
+      },
+      "internal/central/model/adapter/errors.go": {
+        "sha256": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+        "archive": "candidate/internal/central/model/adapter/errors.go.txt"
+      },
+      "internal/central/model/adapter/sse.go": {
+        "sha256": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+        "archive": "candidate/internal/central/model/adapter/sse.go.txt"
+      },
+      "internal/central/model/adapter/transport.go": {
+        "sha256": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+        "archive": "candidate/internal/central/model/adapter/transport.go.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools.go": {
+        "sha256": "98e9aefa1968c75c3ed74a6021b07334617f7771979cb10561f39dbfee9e6b01",
+        "archive": "candidate/internal/central/model/adapter/openai_chat_tools.go.txt"
+      },
+      "internal/central/model/adapter/tools_stream.go": {
+        "sha256": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+        "archive": "candidate/internal/central/model/adapter/tools_stream.go.txt"
+      },
+      "internal/central/model/adapter/testdata/openai-chat-tools-v1.json": {
+        "sha256": "62413a8f7274005a505f17d694922589ad469fbff82d8058d34a108738419019",
+        "archive": "candidate/internal/central/model/adapter/testdata/openai-chat-tools-v1.json.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools_test.go": {
+        "sha256": "c70ae90607f208cbf989eefb6482f79ab63472a272ed8f42d73947d90a13816b",
+        "archive": "history/variants/c70ae90607f208cbf989eefb6482f79ab63472a272ed8f42d73947d90a13816b.txt"
+      },
+      "internal/central/model/adapter/tools_stream_test.go": {
+        "sha256": "dd13332835bb53936fa73a301ce58d170b386d044cb1602c67670eab020252bf",
+        "archive": "candidate/internal/central/model/adapter/tools_stream_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_limits_test.go": {
+        "sha256": "57e3dc91e8bf6c11339578503c5986fa0fb515f1eb6878eeacebba143fd6e77c",
+        "archive": "candidate/internal/central/model/adapter/tools_limits_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_transport_test.go": {
+        "sha256": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa",
+        "archive": "candidate/internal/central/model/adapter/tools_transport_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_http_test.go": {
+        "sha256": "33963d91abdc059517413164343a3eee471b3baa132f45bf4c152be59e4fd425",
+        "archive": "candidate/tests/model/openai_chat_tools_http_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_stream_test.go": {
+        "sha256": "4093644c1b77a4c1be1f05dc2dc8c80ff014ad8a819e2b4bb01f92b82d23ec83",
+        "archive": "candidate/tests/model/openai_chat_tools_stream_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_budget_test.go": {
+        "sha256": "5ca8957472c94d49adb6f60a83716b019b04ee19ec411f4d0fd0b8b88542baad",
+        "archive": "history/variants/5ca8957472c94d49adb6f60a83716b019b04ee19ec411f4d0fd0b8b88542baad.txt"
+      }
+    },
+    "input07.json": {
+      "internal/central/model/adapter/openai_chat.go": {
+        "sha256": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+        "archive": "candidate/internal/central/model/adapter/openai_chat.go.txt"
+      },
+      "internal/central/model/adapter/errors.go": {
+        "sha256": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+        "archive": "candidate/internal/central/model/adapter/errors.go.txt"
+      },
+      "internal/central/model/adapter/sse.go": {
+        "sha256": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+        "archive": "candidate/internal/central/model/adapter/sse.go.txt"
+      },
+      "internal/central/model/adapter/transport.go": {
+        "sha256": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+        "archive": "candidate/internal/central/model/adapter/transport.go.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools.go": {
+        "sha256": "98e9aefa1968c75c3ed74a6021b07334617f7771979cb10561f39dbfee9e6b01",
+        "archive": "candidate/internal/central/model/adapter/openai_chat_tools.go.txt"
+      },
+      "internal/central/model/adapter/tools_stream.go": {
+        "sha256": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+        "archive": "candidate/internal/central/model/adapter/tools_stream.go.txt"
+      },
+      "internal/central/model/adapter/testdata/openai-chat-tools-v1.json": {
+        "sha256": "62413a8f7274005a505f17d694922589ad469fbff82d8058d34a108738419019",
+        "archive": "candidate/internal/central/model/adapter/testdata/openai-chat-tools-v1.json.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools_test.go": {
+        "sha256": "39124e4ea60eb1084d0859bb4ddbfbaade734d4526329de01e003a49f0e63512",
+        "archive": "candidate/internal/central/model/adapter/openai_chat_tools_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_stream_test.go": {
+        "sha256": "dd13332835bb53936fa73a301ce58d170b386d044cb1602c67670eab020252bf",
+        "archive": "candidate/internal/central/model/adapter/tools_stream_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_limits_test.go": {
+        "sha256": "57e3dc91e8bf6c11339578503c5986fa0fb515f1eb6878eeacebba143fd6e77c",
+        "archive": "candidate/internal/central/model/adapter/tools_limits_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_transport_test.go": {
+        "sha256": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa",
+        "archive": "candidate/internal/central/model/adapter/tools_transport_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_http_test.go": {
+        "sha256": "33963d91abdc059517413164343a3eee471b3baa132f45bf4c152be59e4fd425",
+        "archive": "candidate/tests/model/openai_chat_tools_http_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_stream_test.go": {
+        "sha256": "4093644c1b77a4c1be1f05dc2dc8c80ff014ad8a819e2b4bb01f92b82d23ec83",
+        "archive": "candidate/tests/model/openai_chat_tools_stream_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_budget_test.go": {
+        "sha256": "5ca8957472c94d49adb6f60a83716b019b04ee19ec411f4d0fd0b8b88542baad",
+        "archive": "history/variants/5ca8957472c94d49adb6f60a83716b019b04ee19ec411f4d0fd0b8b88542baad.txt"
+      }
+    },
+    "input08.json": {
+      "internal/central/model/adapter/openai_chat.go": {
+        "sha256": "191952daa271ea39d18c0e6918e3d8b619db3348a23ada4d80808691b9d50122",
+        "archive": "candidate/internal/central/model/adapter/openai_chat.go.txt"
+      },
+      "internal/central/model/adapter/errors.go": {
+        "sha256": "af0345e525559a09c948a29ed62bd3d358b50775a139e77ce83cc820a99239fc",
+        "archive": "candidate/internal/central/model/adapter/errors.go.txt"
+      },
+      "internal/central/model/adapter/sse.go": {
+        "sha256": "96914b77727607481552672bd654c35fb4e2526f8511d7cd1a3892adc04ea0e9",
+        "archive": "candidate/internal/central/model/adapter/sse.go.txt"
+      },
+      "internal/central/model/adapter/transport.go": {
+        "sha256": "1636a7a7dc343b0421981e0b8d47b323f551857035ee52d4d54400bcb428a1e2",
+        "archive": "candidate/internal/central/model/adapter/transport.go.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools.go": {
+        "sha256": "98e9aefa1968c75c3ed74a6021b07334617f7771979cb10561f39dbfee9e6b01",
+        "archive": "candidate/internal/central/model/adapter/openai_chat_tools.go.txt"
+      },
+      "internal/central/model/adapter/tools_stream.go": {
+        "sha256": "ddb0563fe3e01e850880497405591fd928366c30e71c002a33ce7c5fb7529a15",
+        "archive": "candidate/internal/central/model/adapter/tools_stream.go.txt"
+      },
+      "internal/central/model/adapter/testdata/openai-chat-tools-v1.json": {
+        "sha256": "62413a8f7274005a505f17d694922589ad469fbff82d8058d34a108738419019",
+        "archive": "candidate/internal/central/model/adapter/testdata/openai-chat-tools-v1.json.txt"
+      },
+      "internal/central/model/adapter/openai_chat_tools_test.go": {
+        "sha256": "39124e4ea60eb1084d0859bb4ddbfbaade734d4526329de01e003a49f0e63512",
+        "archive": "candidate/internal/central/model/adapter/openai_chat_tools_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_stream_test.go": {
+        "sha256": "dd13332835bb53936fa73a301ce58d170b386d044cb1602c67670eab020252bf",
+        "archive": "candidate/internal/central/model/adapter/tools_stream_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_limits_test.go": {
+        "sha256": "57e3dc91e8bf6c11339578503c5986fa0fb515f1eb6878eeacebba143fd6e77c",
+        "archive": "candidate/internal/central/model/adapter/tools_limits_test.go.txt"
+      },
+      "internal/central/model/adapter/tools_transport_test.go": {
+        "sha256": "817a7bd047323f2db7f7d1178e4eaf1262e7afb670f2e71b227631f55c033efa",
+        "archive": "candidate/internal/central/model/adapter/tools_transport_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_http_test.go": {
+        "sha256": "33963d91abdc059517413164343a3eee471b3baa132f45bf4c152be59e4fd425",
+        "archive": "candidate/tests/model/openai_chat_tools_http_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_stream_test.go": {
+        "sha256": "4093644c1b77a4c1be1f05dc2dc8c80ff014ad8a819e2b4bb01f92b82d23ec83",
+        "archive": "candidate/tests/model/openai_chat_tools_stream_test.go.txt"
+      },
+      "tests/model/openai_chat_tools_budget_test.go": {
+        "sha256": "8d407e0776ba07f1ba0b95aa1ab2ea26c54956ef112764f6a3869e72589410a8",
+        "archive": "candidate/tests/model/openai_chat_tools_budget_test.go.txt"
+      }
+    }
+  },
+  "earlier_pass_records_only": [
+    "compile01-input.json",
+    "unit02-input.json"
+  ],
+  "earlier_pass_limit": "Two pre-core01 source versions are not retained as full bytes; their original manifests/logs remain historical PASS only. Final acceptance evidence relies on later unit04 and affected checks, not reconstruction of these earlier passes."
+}

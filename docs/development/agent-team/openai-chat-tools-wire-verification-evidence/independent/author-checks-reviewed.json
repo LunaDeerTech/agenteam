@@ -1,0 +1,74 @@
+{
+  "unit04": {
+    "command_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/unit04.json",
+    "command_sha256": "a18489aac12c45759cacc7cd238a9894c186872742c02dcb2653d19cc365e97b",
+    "input": "unit04-input.json",
+    "exit": 0,
+    "raw_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/logs/unit04.log",
+    "raw_sha256": "9979c0f817f8a45fe71507c0201f706b2ad1ca7f7f40cfa202d60a62dbbaf8a7"
+  },
+  "vet04": {
+    "command_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/vet04.json",
+    "command_sha256": "841208b017b4ac79764164c7491d8fc7e5415d083d43396f7fe667602f1a808e",
+    "input": "unit04-input.json",
+    "exit": 0,
+    "raw_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/logs/vet04.log",
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "model-compile04": {
+    "command_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/model-compile04.json",
+    "command_sha256": "132ced28bd5ba3a889a0638a5c5aee5842b3c7aee70b9ed425a041807ae9441c",
+    "input": "unit04-input.json",
+    "exit": 0,
+    "raw_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/logs/model-compile04.log",
+    "raw_sha256": "8edfcccc3bfbc1e9770e96e2abe9ae955eab12956e9b67f337dc097911eb6df3"
+  },
+  "compile05": {
+    "command_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/compile05.json",
+    "command_sha256": "367a7df86f8b4a054456ea499d496c99b907120ba0cb86737d6af26b42c8f1fc",
+    "input": "input05.json",
+    "exit": 0,
+    "raw_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/logs/compile05.log",
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "build-central04": {
+    "command_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/build-central04.json",
+    "command_sha256": "40601e36dfef0b0f4c70ccd1b0d95cce31adfec2af602b3fda9b507a5a1c3b3f",
+    "input": "unit04-input.json",
+    "exit": 0,
+    "raw_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/logs/build-central04.log",
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "build-runner04": {
+    "command_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/build-runner04.json",
+    "command_sha256": "f05da3cfbb61d90caa4f2aeb37129c83443a76b1d141e845563552f3732db796",
+    "input": "unit04-input.json",
+    "exit": 0,
+    "raw_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/logs/build-runner04.log",
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "manifest07": {
+    "command_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/manifest07.json",
+    "command_sha256": "99c1600f74142149feeecadf637bb87f8856a997bed376c73fb20141693316e5",
+    "input": "input07.json",
+    "exit": 0,
+    "raw_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/logs/manifest07.log",
+    "raw_sha256": "2caf09930981be2349e5615c56aabd2e825d2c0881ec1c7826dd863c52d0ae29"
+  },
+  "race04": {
+    "command_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/race04.json",
+    "command_sha256": "02535a72a3ac42f8d09432e60da6c33e225c1aff9625543981568c4e0f1fe2fd",
+    "input": "unit04-input.json",
+    "exit": 1,
+    "raw_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/logs/race04.log",
+    "raw_sha256": "80a09828c75cadc4f9728732c76fb165b81a59a32e222d1e3366e7bf0895b158"
+  },
+  "race04-old-isolated": {
+    "command_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/race04-old-isolated.json",
+    "command_sha256": "341961107b082c0f8505995269c41dc233dc883fff826f746ae228756f1840ea",
+    "input": "unit04-input.json",
+    "exit": 0,
+    "raw_path": "/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq/logs/race04-old-isolated.log",
+    "raw_sha256": "43a8e1d653e04552e93cde00d8c5c48d94a15a8aef470b5429fab8b55783b80b"
+  }
+}

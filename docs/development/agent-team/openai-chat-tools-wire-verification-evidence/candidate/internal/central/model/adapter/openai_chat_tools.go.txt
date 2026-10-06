@@ -1,0 +1,556 @@
+package adapter
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"io"
+	"math"
+	"net/http"
+	"strconv"
+	"strings"
+	"unicode/utf8"
+
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+)
+
+const maxToolArguments = 1 << 20
+
+type toolPolicy struct {
+	names    map[string]bool
+	choice   mc.ToolChoice
+	parallel bool
+}
+
+func newToolPolicy(r Request) *toolPolicy {
+	p := &toolPolicy{names: make(map[string]bool, len(r.Tools)), choice: r.ToolChoice, parallel: r.Snapshot.Capabilities.ParallelToolCalls}
+	p.choice.Name = strings.Clone(p.choice.Name)
+	for _, t := range r.Tools {
+		p.names[strings.Clone(t.Name)] = true
+	}
+	return p
+}
+func nativeToolName(s string) bool {
+	if len(s) == 0 || len(s) > 64 {
+		return false
+	}
+	for _, c := range s {
+		if !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_' || c == '-') {
+			return false
+		}
+	}
+	return true
+}
+func (p *toolPolicy) permits(name string) bool {
+	return p.names[name] && p.choice.Kind != "none" && (p.choice.Kind != "named" || p.choice.Name == name)
+}
+func (p *toolPolicy) finish(reason mc.FinishReason, n int) error {
+	if n > 128 {
+		return limitFailure()
+	}
+	if n > 0 {
+		if reason == "content_filter" {
+			return failure("content_filter", "")
+		}
+		if reason != "tool_calls" || p.choice.Kind == "none" || !p.parallel && n > 1 {
+			return protocolFailure()
+		}
+	} else if reason == "tool_calls" || p.choice.Kind == "required" || p.choice.Kind == "named" {
+		return protocolFailure()
+	}
+	return nil
+}
+
+// The encoder bounds each append before allocating. JSON strings are sized
+// exactly, including escaping, and schemas retain their original number tokens.
+// No caller-owned RawMessage or part remains attached to the accepted request.
+type toolRequestEncoder struct {
+	ctx context.Context
+	buf []byte
+	err error
+}
+
+func (w *toolRequestEncoder) raw(b []byte) {
+	if w.err != nil {
+		return
+	}
+	if err := w.ctx.Err(); err != nil {
+		w.err = contextFailure(err)
+		return
+	}
+	if len(b) > maxTextBytes-len(w.buf) {
+		w.err = limitFailure()
+		return
+	}
+	if len(w.buf)+len(b) > cap(w.buf) {
+		v := make([]byte, len(w.buf), min(maxTextBytes, max(len(w.buf)+len(b), 2*cap(w.buf))))
+		copy(v, w.buf)
+		w.buf = v
+	}
+	w.buf = append(w.buf, b...)
+}
+func (w *toolRequestEncoder) literal(s string) { w.raw([]byte(s)) }
+func (w *toolRequestEncoder) quoted(s string) {
+	if w.err != nil {
+		return
+	}
+	n := 2
+	for i := 0; i < len(s); i++ {
+		if i%4096 == 0 {
+			if err := w.ctx.Err(); err != nil {
+				w.err = contextFailure(err)
+				return
+			}
+		}
+		switch s[i] {
+		case '"', '\\', '\n', '\r', '\t', '\b', '\f':
+			n += 2
+		case '<', '>', '&':
+			n += 6
+		default:
+			if s[i] < 32 {
+				n += 6
+			} else if s[i] == 0xe2 && i+2 < len(s) && s[i+1] == 0x80 && (s[i+2] == 0xa8 || s[i+2] == 0xa9) {
+				n += 6
+				i += 2
+			} else {
+				n++
+			}
+		}
+		if n > maxTextBytes-len(w.buf) {
+			w.err = limitFailure()
+			return
+		}
+	}
+	b, err := json.Marshal(s)
+	if err != nil {
+		w.err = invalid()
+		return
+	}
+	w.raw(b)
+}
+
+func prepareTools(ctx context.Context, r Request, o CallOptions) (*http.Request, outbound.Profile, error) {
+	fail := func(err error) (*http.Request, outbound.Profile, error) { return nil, outbound.Profile{}, err }
+	if ctx == nil || r.Mode != JSONResponse && r.Mode != SSEResponse || r.Snapshot.Validate() != nil || r.ToolChoice.Validate() != nil || r.ResponseFormat.Validate() != nil || len(r.Messages) == 0 || len(r.Messages) > 256 || len(r.Tools) > 128 || o.ProjectID.Validate() != nil {
+		return fail(invalid())
+	}
+	s, c := r.Snapshot.Identity, r.Snapshot.Capabilities
+	if s.Profile != mc.OpenAIChatV1 || s.Protocol != mc.OpenAIChat || s.ModelType != mc.ChatModel || !c.ToolCalls || !emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 || c.Reasoning || len(c.ReasoningEfforts) != 0 || !onlyText(c.InputModalities) || !onlyText(c.OutputModalities) || r.Mode == SSEResponse && !c.Streaming || len(c.StructuredOutputModes) > 0 && !onlyText(c.StructuredOutputModes) || r.ResponseFormat.Kind != "text" {
+		return fail(unsupported())
+	}
+	// Reject oversized part collections and raw text totals before the C0 scans.
+	parts, textSize := 0, 0
+	for _, m := range r.Messages {
+		parts += len(m.Parts)
+		if parts > 256 {
+			return fail(invalid())
+		}
+		for _, part := range m.Parts {
+			if part.Text != nil {
+				textSize += len(part.Text.Text)
+			}
+			if part.ToolCall != nil {
+				textSize += len(part.ToolCall.Arguments)
+			}
+			if part.ToolResult != nil {
+				if len(part.ToolResult.Parts) > 256 {
+					return fail(invalid())
+				}
+				for _, result := range part.ToolResult.Parts {
+					if result.Text != nil {
+						textSize += len(result.Text.Text)
+					}
+				}
+			}
+			if textSize > maxTextBytes {
+				return fail(limitFailure())
+			}
+		}
+		if err := ctx.Err(); err != nil {
+			return fail(contextFailure(err))
+		}
+		if m.Validate() != nil {
+			return fail(invalid())
+		}
+	}
+	for _, t := range r.Tools {
+		if err := ctx.Err(); err != nil {
+			return fail(contextFailure(err))
+		}
+		if t.Validate() != nil || !nativeToolName(t.Name) {
+			return fail(invalid())
+		}
+		if err := toolObjectJSON(ctx, t.InputSchema); err != nil {
+			if ctx.Err() != nil {
+				return fail(contextFailure(ctx.Err()))
+			}
+			return fail(invalid())
+		}
+	}
+	p := newToolPolicy(r)
+	if len(p.names) != len(r.Tools) || r.ToolChoice.Kind == "named" && !p.names[r.ToolChoice.Name] || len(r.Tools) == 0 && r.ToolChoice.Kind != "none" && r.ToolChoice.Kind != "auto" {
+		return fail(invalid())
+	}
+	w := toolRequestEncoder{ctx: ctx}
+	w.literal(`{"model":`)
+	w.quoted(s.ProviderModelID)
+	w.literal(`,"messages":[`)
+	pending := map[string]bool{}
+	messages := 0
+	startMessage := func() {
+		if messages > 0 {
+			w.literal(",")
+		}
+		messages++
+		if messages > 256 {
+			w.err = limitFailure()
+		}
+	}
+	for _, m := range r.Messages {
+		if m.Role != "tool" && len(pending) != 0 {
+			return fail(invalid())
+		}
+		if m.Role == "tool" {
+			for _, part := range m.Parts {
+				v := part.ToolResult
+				if v == nil {
+					return fail(unsupported())
+				}
+				if !pending[v.CallID] {
+					return fail(invalid())
+				}
+				delete(pending, v.CallID)
+				startMessage()
+				w.literal(`{"role":"tool","tool_call_id":`)
+				w.quoted(v.CallID)
+				w.literal(`,"content":`)
+				if len(v.Parts) == 0 {
+					w.quoted("")
+				} else {
+					w.literal("[")
+					for i, result := range v.Parts {
+						if result.Text == nil {
+							return fail(unsupported())
+						}
+						if i > 0 {
+							w.literal(",")
+						}
+						w.literal(`{"type":"text","text":`)
+						w.quoted(result.Text.Text)
+						w.literal("}")
+					}
+					w.literal("]")
+				}
+				w.literal("}")
+			}
+			continue
+		}
+		startMessage()
+		w.literal(`{"role":`)
+		w.quoted(m.Role)
+		w.literal(`,"content":`)
+		var text *mc.TextPart
+		var calls []*mc.ToolCallPart
+		for _, part := range m.Parts {
+			if part.Text != nil {
+				if text != nil {
+					return fail(unsupported())
+				}
+				text = part.Text
+			} else if part.ToolCall != nil && m.Role == "assistant" {
+				v := part.ToolCall
+				if !nativeToolName(v.Name) || pending[v.ID] {
+					return fail(invalid())
+				}
+				if err := validateToolCall(ctx, *v); err != nil {
+					if ctx.Err() != nil {
+						return fail(contextFailure(ctx.Err()))
+					}
+					return fail(invalid())
+				}
+				pending[v.ID] = true
+				calls = append(calls, v)
+			} else {
+				return fail(unsupported())
+			}
+		}
+		if text != nil {
+			w.quoted(text.Text)
+		} else {
+			w.literal("null")
+		}
+		if m.Role != "assistant" && (len(m.Parts) != 1 || text == nil) {
+			return fail(unsupported())
+		}
+		if len(calls) > 128 {
+			return fail(invalid())
+		}
+		if len(calls) > 0 {
+			w.literal(`,"tool_calls":[`)
+			for i, v := range calls {
+				if i > 0 {
+					w.literal(",")
+				}
+				w.literal(`{"id":`)
+				w.quoted(v.ID)
+				w.literal(`,"type":"function","function":{"name":`)
+				w.quoted(v.Name)
+				w.literal(`,"arguments":`)
+				w.quoted(string(v.Arguments))
+				w.literal("}}")
+			}
+			w.literal("]")
+		}
+		w.literal("}")
+		if w.err != nil {
+			return fail(w.err)
+		}
+	}
+	if len(pending) != 0 {
+		return fail(invalid())
+	}
+	w.literal(`],"stream":`)
+	w.literal(strconv.FormatBool(r.Mode == SSEResponse))
+	if r.Mode == SSEResponse {
+		w.literal(`,"stream_options":{"include_usage":true}`)
+	}
+	if c.MaxOutput != nil {
+		w.literal(`,"max_completion_tokens":`)
+		w.literal(strconv.FormatInt(int64(*c.MaxOutput), 10))
+	}
+	if len(r.Tools) > 0 {
+		w.literal(`,"tools":[`)
+		for i, t := range r.Tools {
+			if i > 0 {
+				w.literal(",")
+			}
+			w.literal(`{"type":"function","function":{"name":`)
+			w.quoted(t.Name)
+			w.literal(`,"description":`)
+			w.quoted(t.Description)
+			w.literal(`,"parameters":`)
+			w.raw(t.InputSchema)
+			w.literal(`,"strict":false}}`)
+		}
+		w.literal(`],"tool_choice":`)
+		if r.ToolChoice.Kind == "named" {
+			w.literal(`{"type":"function","function":{"name":`)
+			w.quoted(r.ToolChoice.Name)
+			w.literal("}}")
+		} else {
+			w.quoted(r.ToolChoice.Kind)
+		}
+		w.literal(`,"parallel_tool_calls":`)
+		w.literal(strconv.FormatBool(c.ParallelToolCalls))
+	}
+	w.literal("}")
+	if w.err != nil {
+		return fail(w.err)
+	}
+	return prepareHTTP(r, o, w.buf)
+}
+
+// The raw envelope has already passed strict native JSON checks. Decode one
+// tool at a time and check cardinality before growing the result collection.
+func (p *toolPolicy) response(ctx context.Context, v decoded) ([]mc.ToolCallPart, error) {
+	if v.refusal {
+		return nil, failure("content_filter", "")
+	}
+	var calls []mc.ToolCallPart
+	total := len(v.text)
+	if !null(v.tools) {
+		d := json.NewDecoder(bytes.NewReader(v.tools))
+		if token, err := d.Token(); err != nil || token != json.Delim('[') {
+			return nil, protocolFailure()
+		}
+		seen := map[string]bool{}
+		if d.More() && v.finish == "content_filter" {
+			return nil, failure("content_filter", "")
+		}
+		for d.More() {
+			if len(calls) == 128 {
+				return nil, limitFailure()
+			}
+			if err := ctx.Err(); err != nil {
+				return nil, contextFailure(err)
+			}
+			var raw json.RawMessage
+			if d.Decode(&raw) != nil {
+				return nil, protocolFailure()
+			}
+			o, err := object(raw, "id type function custom")
+			if err != nil {
+				return nil, err
+			}
+			typ, err := nativeString(o["type"], 32, true)
+			if err != nil {
+				return nil, err
+			}
+			if typ == "custom" || !null(o["custom"]) {
+				return nil, unsupported()
+			}
+			if typ != "function" {
+				return nil, protocolFailure()
+			}
+			id, err := nativeString(o["id"], 256, true)
+			if err != nil {
+				return nil, err
+			}
+			fn, err := object(o["function"], "name arguments")
+			if err != nil {
+				return nil, err
+			}
+			name, err := nativeString(fn["name"], 64, true)
+			if err != nil {
+				return nil, err
+			}
+			args, err := nativeString(fn["arguments"], maxToolArguments, true)
+			if err != nil {
+				return nil, err
+			}
+			call := mc.ToolCallPart{ID: id, Name: name, Arguments: json.RawMessage(args)}
+			if seen[id] || !p.permits(name) {
+				return nil, protocolFailure()
+			}
+			if err := validateToolCall(ctx, call); err != nil {
+				return nil, err
+			}
+			total += len(args)
+			if total > maxTextBytes {
+				return nil, limitFailure()
+			}
+			seen[id] = true
+			calls = append(calls, call)
+		}
+		if _, err := d.Token(); err != nil {
+			return nil, protocolFailure()
+		}
+	}
+	if err := p.finish(v.finish, len(calls)); err != nil {
+		return nil, err
+	}
+	if len(calls) == 0 && v.contentMissing {
+		return nil, protocolFailure()
+	}
+	return calls, nil
+}
+
+func validateToolCall(ctx context.Context, call mc.ToolCallPart) error {
+	if !nativeToolName(call.Name) || call.ID == "" || len(call.ID) > 256 || !utf8.ValidString(call.ID) || strings.ContainsRune(call.ID, 0) {
+		return protocolFailure()
+	}
+	if err := toolObjectJSON(ctx, call.Arguments); err != nil {
+		return err
+	}
+	// C0 is the final contract gate. Its bounded validation cannot publish a
+	// value if cancellation happens during that final synchronous check.
+	validation := call.Validate()
+	if err := ctx.Err(); err != nil {
+		return contextFailure(err)
+	}
+	if validation != nil {
+		return protocolFailure()
+	}
+	return nil
+}
+
+// Limit decoder reads as well as per-node work so a long scalar also checks
+// the original context. This reader owns no goroutine and never extends it.
+type toolJSONReader struct {
+	ctx context.Context
+	r   *bytes.Reader
+}
+
+func (r toolJSONReader) Read(p []byte) (int, error) {
+	if err := r.ctx.Err(); err != nil {
+		return 0, err
+	}
+	return r.r.Read(p[:min(len(p), 4096)])
+}
+func toolObjectJSON(ctx context.Context, raw []byte) error {
+	if len(raw) > maxToolArguments {
+		return limitFailure()
+	}
+	if err := ctx.Err(); err != nil {
+		return contextFailure(err)
+	}
+	if !utf8.Valid(raw) {
+		return protocolFailure()
+	}
+	if ok, err := unicodeEscapesContext(ctx, raw); err != nil {
+		return err
+	} else if !ok {
+		return protocolFailure()
+	}
+	d := json.NewDecoder(toolJSONReader{ctx, bytes.NewReader(raw)})
+	d.UseNumber()
+	token, err := d.Token()
+	if err != nil || token != json.Delim('{') {
+		if ctx.Err() != nil {
+			return contextFailure(ctx.Err())
+		}
+		return protocolFailure()
+	}
+	var value func(json.Token, int) error
+	value = func(token json.Token, depth int) error {
+		if err := ctx.Err(); err != nil {
+			return contextFailure(err)
+		}
+		if depth > 32 {
+			return limitFailure()
+		}
+		switch token := token.(type) {
+		case json.Delim:
+			if token != '{' && token != '[' {
+				return protocolFailure()
+			}
+			var seen map[string]bool
+			if token == '{' {
+				seen = map[string]bool{}
+			}
+			for d.More() {
+				if token == '{' {
+					key, err := d.Token()
+					name, ok := key.(string)
+					if err != nil || !ok || seen[name] {
+						return protocolFailure()
+					}
+					seen[name] = true
+				}
+				next, err := d.Token()
+				if err != nil {
+					return protocolFailure()
+				}
+				if err := value(next, depth+1); err != nil {
+					return err
+				}
+			}
+			end, err := d.Token()
+			if err != nil || token == '{' && end != json.Delim('}') || token == '[' && end != json.Delim(']') {
+				return protocolFailure()
+			}
+		case json.Number:
+			n, err := strconv.ParseFloat(string(token), 64)
+			if err != nil || math.IsInf(n, 0) || math.IsNaN(n) {
+				return protocolFailure()
+			}
+		}
+		return nil
+	}
+	err = value(token, 1)
+	if ctx.Err() != nil {
+		return contextFailure(ctx.Err())
+	}
+	if err != nil {
+		return err
+	}
+	if _, err := d.Token(); err != io.EOF {
+		if ctx.Err() != nil {
+			return contextFailure(ctx.Err())
+		}
+		return protocolFailure()
+	}
+	return nil
+}

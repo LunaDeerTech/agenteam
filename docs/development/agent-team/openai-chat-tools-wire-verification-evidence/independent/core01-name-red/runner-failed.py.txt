@@ -1,0 +1,82 @@
+from pathlib import Path
+import datetime
+import hashlib
+import json
+import os
+import subprocess
+import sys
+
+HERE = Path(__file__).parent
+AUTHOR = Path('/workspace/scratch/agenteam-openai-tools-author-1a0dz6nq')
+SOURCE = AUTHOR / 'source'
+REPO = Path('/workspace/agenteam')
+GO = '/workspace/toolchains/go1.27.1/bin/go'
+manifest = json.loads((HERE / 'core01-input.json').read_bytes())
+label = sys.argv[1]
+result_dir = HERE / label
+result_dir.mkdir()
+(HERE / 'tmp').mkdir(exist_ok=True)
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+replacements = {str(SOURCE / p): str(AUTHOR / 'core01' / p) for p in manifest['paths']}
+virtual_probe = SOURCE / 'internal/central/model/adapter/independent_name_allocation_test.go'
+replacements[str(virtual_probe)] = str(HERE / 'name_allocation_probe_test.go')
+overlay = result_dir / 'overlay.json'
+overlay.write_text(json.dumps({'Replace': replacements}, indent=2) + '\n')
+fixed = {
+    'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+    'GOMODCACHE': '/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache',
+    'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOFLAGS': '-mod=readonly -p=1',
+    'GOCACHE': '/workspace/scratch/agenteam-management-independent-yB9JMR/gocache',
+    'TMPDIR': str(HERE / 'tmp'),
+}
+env = dict(os.environ, **fixed)
+template = '{{if not .Standard}}{{.Dir}}{{"\\t"}}{{join .GoFiles ","}}{{"\\t"}}{{join .TestGoFiles ","}}{{"\\t"}}{{join .XTestGoFiles ","}}{{"\\n"}}{{end}}'
+list_argv = [GO, 'list', '-deps', '-test', '-overlay=' + str(overlay), '-f', template, './internal/central/model/adapter']
+listed = subprocess.run(list_argv, cwd=SOURCE, env=env, capture_output=True)
+(result_dir / 'list.stdout').write_bytes(listed.stdout)
+(result_dir / 'list.stderr').write_bytes(listed.stderr)
+(result_dir / 'list.json').write_text(json.dumps({'argv': list_argv, 'cwd': str(SOURCE), 'env': fixed, 'exit': listed.returncode}, indent=2) + '\n')
+if listed.returncode:
+    sys.stdout.buffer.write(listed.stderr)
+    sys.exit(listed.returncode)
+
+closure = {}
+for line in listed.stdout.decode().splitlines():
+    if not line.strip():
+        continue
+    directory, *groups = line.split('\t')
+    directory = Path(directory)
+    if not directory.is_relative_to(SOURCE):
+        continue
+    for group in groups:
+        for name in filter(None, group.split(',')):
+            logical = directory / name
+            physical = Path(replacements.get(str(logical), str(logical)))
+            if not physical.is_file():
+                continue
+            relative = str(logical.relative_to(SOURCE))
+            raw = physical.read_bytes()
+            if str(logical) not in replacements:
+                expected = subprocess.check_output(['git', 'show', manifest['baseline'] + ':' + relative], cwd=REPO)
+                assert raw == expected, relative
+            closure[relative] = {'sha256': sha(raw), 'physical': str(physical)}
+for path, expected in manifest['paths'].items():
+    assert sha((AUTHOR / 'core01' / path).read_bytes()) == expected
+    closure[path] = {'sha256': expected, 'physical': str(AUTHOR / 'core01' / path)}
+(result_dir / 'closure.json').write_text(json.dumps(closure, indent=2) + '\n')
+argv = [GO, 'test', '-race', '-count=1', '-timeout=30s', '-overlay=' + str(overlay), '-run', '^TestIndependentToolsRejectOversizeNameBeforeClone$', '-v', './internal/central/model/adapter']
+record = {'argv': argv, 'cwd': str(SOURCE), 'env': fixed, 'started_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'core_manifest_sha256': sha((HERE / 'core01-input.json').read_bytes()), 'probe_sha256': sha((HERE / 'name_allocation_probe_test.go').read_bytes()), 'overlay_sha256': sha(overlay.read_bytes()), 'closure_sha256': sha((result_dir / 'closure.json').read_bytes()), 'author_active_integration_sources_consumed': False, 'network_or_docker': False}
+with (result_dir / 'raw.log').open('wb') as output:
+    child = subprocess.Popen(argv, cwd=SOURCE, env=env, stdout=output, stderr=subprocess.STDOUT)
+    record['pid'] = child.pid
+    (result_dir / 'command.json').write_text(json.dumps(record, indent=2) + '\n')
+    code = child.wait()
+record.update(exit=code, ended_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(), raw_sha256=sha((result_dir / 'raw.log').read_bytes()))
+record['input_after_matches'] = all(sha(Path(item['physical']).read_bytes()) == item['sha256'] for item in closure.values())
+(result_dir / 'command.json').write_text(json.dumps(record, indent=2) + '\n')
+print(json.dumps({'label': label, 'exit': code, 'closure_files': len(closure), 'input_after_matches': record['input_after_matches'], 'raw_sha256': record['raw_sha256']}))
+print((result_dir / 'raw.log').read_text())
+sys.exit(code)

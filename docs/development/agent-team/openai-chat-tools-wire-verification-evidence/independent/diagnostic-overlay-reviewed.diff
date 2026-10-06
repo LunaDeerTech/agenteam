@@ -1,0 +1,12 @@
+--- core01/tools_limits_test.go
++++ diagnostic-limits_test.go
+@@ -180,7 +180,8 @@
+ 				readers = append(readers, strings.NewReader(chunk(map[string]any{"content": "x"}, nil, nil)))
+ 			}
+ 			readers = append(readers, strings.NewReader(toolsChunk(nil, "tool_calls")+"data: [DONE]\n\n"))
+-			events, err, _ := parseToolsStream(t, io.MultiReader(readers...), p)
++			events, err, x := parseToolsStream(t, io.MultiReader(readers...), p)
++			if err != nil { t.Logf("original_context_error=%v", x.ctx.Err()); if m, ok := err.(*mc.ModelError); ok { t.Logf("category=%s code=%s", m.Category, m.Code) } }
+ 			calls, ends := reconstructTools(t, events)
+ 			if extra == 0 {
+ 				if err != nil || len(calls) != 16 || ends != 1 {
