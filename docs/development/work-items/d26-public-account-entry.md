@@ -1,5 +1,7 @@
 # D26 邀请兑换与找回、重置密码公开入口
 
+修订：rev4，2026-10-06，仅增加 §13 的第二个既败旧响应观察点补遗，路径总数仍为25。原rev1–3正文与记录保留；新增范围只涉及旧密码拒绝登录的单次401 JSON采样，原产品规则、业务断言、预算和资源门槛保持。补遗及精确候选仍先交主线程审阅。
+
 修订：rev3，2026-10-06，仅增加 §12 的旧主题回归响应采样补遗：在rev2的24路径上加一条旧浏览器测试，共25路径。下列rev1/rev2正文与冻结记录保留；本次只允许单个已失败409观察点的测试采样修复，不改产品、业务断言或预算。本补遗及候选差量先交主线程审阅，再归位受影响测试。
 
 修订：rev2，2026-10-06，仅增加 §11 的测试接缝补遗：原23路径加一条旧测试fixture的私有日志路径元数据，共24路径。下文 rev1 授权与 §1–10 保留原冻结记录；当前窄例外以 §11 为准，产品规则与既有验收门槛不变。本补遗及精确候选差量先交主线程审阅，再归位新测试输入；不宣告页面或整卡验收完成。
@@ -266,3 +268,13 @@ backend_log为本卡真实浏览器交付渠道。smtp UI分支在严格DTO/组�
 clone会分出新的body读取分支，属于测试instrumentation；该观察只证明上述真实409及Problem code，不能证明未观测原始stream或共享owner的实际尾部时序。原后续radio/预览保留、取消预览、重新保存、系统浅深色、dirty导航和保护页返回行为，以及Go侧原精确三次持久写入、三条Audit与用户/版本/主题事实全部保持。不得改成仅检查409或UI文字，不删原code字面断言，不修改其它旧响应观察点、旧fixture、生产client或controller。
 
 候选在私有冻结输入中提供25路径manifest及该旧spec精确差量，先由独立验收核范围、原请求与断言保持、隐私和实际清理，再交主线程审阅归位。受影响 `TestAccountPersonalSettingsWebThemeAndNavigation` 按原selector定向复验；其余输入语义不变的已通过证据按 §9明确复用。原单例45s、workers=1/retries=0、Go顶层2分钟、driver race/count1/每包6m及独占资源双清门槛保持，§11单20s恢复链接握手不变。禁止trace/video/request-body日志与秘密输出，本补遗不增加产品、后端、SQL、依赖或其它旧测试路径范围。
+
+## 13. rev4 旧密码拒绝观察点补遗（2026-10-06）
+
+原 `TestAccountPersonalSettingsWebPasswordRotation` 复验已在正常修改密码、替换Session及新密码登录后，以旧密码执行真实 `POST /api/v1/sessions/login` 并得到401。旧 `personal-settings.spec.ts` 的 `refused.json()` 再次出现CDP取body失败，原 `code === 'UNAUTHENTICATED'` 及该点之后的浏览器/Go后态断言未完成，故原轮仍为失败。原 `AuthorityAndProduction` 已通过，按不变范围复用；首红日志及双清记录保留，不将其原因写成产品body丢失或已确定的CDP根因。
+
+主线程仅扩展 §12 已授权的第25路径，增加上述第二个实际失败观察点。可将 §12 单次clone helper参数化为两个闭集目标：`PUT /api/v1/me/preferences` 的409与 `POST /api/v1/sessions/login` 的401；不得成为自由URL/任意状态采样器，也不修改其它旧 `.json()` 观察点。两者均限定同源、原真实用户动作的一次fetch与对应响应，保留原Playwright状态断言，从原响应的clone读JSON；旧密码拒绝继续精确断言 `UNAUTHENTICATED`。沿 §12 同一原生Promise/Response、bounded读取、错误显式失败、实际join/cancel/release/restore/delete及tee边界，不重发或替换请求，不读取/记录密码请求体。
+
+该点之后原密码输入清空、初始密码提示清除、敏感材料缺席、最终User/Session/version和两次写入结果保持；Go侧精确两次命令/Audit、两条原Session以 `password_changed` 撤销、替换Session仍有效及其后CSRF写入事实全部保持。不得以仅401状态或UI错误文字替代原Problem code，不放宽Session或持久状态断言。
+
+新候选保留原input11及失败原件，提供25路径manifest与旧spec相对input11的精确差量，并完成受影响type/Go检查。独立核闭集两个观察点及未改断言后，由主线程审阅归位，定向复验受影响 `PasswordRotation`；§12的Theme及 §11的Privacy仍须完成各自受影响验证。允许沿主线程核准的原selector合并分组，原45s/2分钟/每包6m、race/count1、workers=1/retries=0及独占双清不变。此补遗不增加第26路径，不改变已验组合生产输入，也不新增产品、后端、SQL或依赖范围。
