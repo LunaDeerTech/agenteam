@@ -2018,7 +2018,7 @@
             "LocalSession": []
           }
         ],
-        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "description": "Requires a current administrator on every request and again in the domain transaction. Returns only invitations whose expiry is later than one database cutoff captured by the list statement, with each latest accepted delivery task and its current attempt facts. A local three-second facade budget covers current authorization, locks and the single list statement; it excludes prior HTTP authentication and response encoding.",
         "responses": {
           "200": {
             "description": "Success",
@@ -3942,6 +3942,9 @@
           },
           "expires_at": {
             "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "latest_delivery": {
+            "$ref": "#/components/schemas/InvitationDelivery"
           }
         },
         "required": [
@@ -3949,7 +3952,8 @@
           "email",
           "version",
           "created_at",
-          "expires_at"
+          "expires_at",
+          "latest_delivery"
         ],
         "additionalProperties": false
       },
@@ -4480,6 +4484,86 @@
           "items"
         ],
         "additionalProperties": false
+      },
+      "InvitationDelivery": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "enqueue_pending",
+              "pending",
+              "claimed",
+              "sending",
+              "retry_wait",
+              "sent",
+              "failed",
+              "unknown",
+              "cancelled"
+            ]
+          },
+          "attempts": {
+            "$ref": "./common.json#/components/schemas/Progress"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "sent",
+              "token_invalid",
+              "configuration_invalid",
+              "policy_rejected",
+              "network_failed",
+              "smtp_rejected",
+              "timeout",
+              "cancelled",
+              "unknown"
+            ]
+          },
+          "accepted_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "channel": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "smtp",
+              "backend_log",
+              null
+            ]
+          },
+          "attempt_result": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "sent",
+              "failed",
+              "unknown",
+              "cancelled",
+              null
+            ]
+          }
+        },
+        "required": [
+          "job_id",
+          "accepted_at",
+          "phase",
+          "attempts",
+          "version",
+          "channel",
+          "attempt_result"
+        ],
+        "additionalProperties": false,
+        "description": "Latest accepted invitation task across all resend and manual retry roots, ordered by command completed_at then job_id descending. accepted_at is the recorded final transaction completion time, not a commit sequence or delivery time. channel and attempt_result reflect only the persisted current attempt and are null when not recorded. retry_wait may retain an unknown result; legacy processing projects unknown. sent means SMTP acceptance or a durable backend log write, not inbox arrival."
       }
     }
   }

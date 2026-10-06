@@ -50,11 +50,19 @@ type HTTPUserList struct {
 	Items      []HTTPUserListItem
 	NextCursor string
 }
+type HTTPInvitationDelivery struct {
+	Status        c.MailJobStatus
+	AcceptedAt    foundation.Instant
+	Channel       *string
+	AttemptResult *c.DeliveryResult
+}
+
 type HTTPInvitation struct {
 	ID                   c.InvitationID
 	Email                string
 	Version              foundation.Version
 	CreatedAt, ExpiresAt foundation.Instant
+	LatestDelivery       HTTPInvitationDelivery
 }
 type HTTPInvitationList struct {
 	Items      []HTTPInvitation
@@ -419,53 +427,223 @@ func (f *SystemHTTPFacade) httpScanUserList(rows httpUserListRows, limit int) (H
 	return out, nil
 }
 
+// One materialized database clock is captured after authorization/lock waits.
+// Keep malformed newest provenance visible to validation instead of falling
+// back to an older accepted/successful cycle.
+const accountHTTPInvitationSelect = `WITH cutoff AS MATERIALIZED (SELECT clock_timestamp() AS at),
+page AS MATERIALIZED (
+ SELECT v.id,v.canonical_email,v.version,v.created_at,v.expires_at
+ FROM agenteam_account.invitations v CROSS JOIN cutoff
+ WHERE v.expires_at>cutoff.at AND ($1::timestamptz IS NULL OR (v.created_at,v.id)<($1,$2::uuid))
+ ORDER BY v.created_at DESC,v.id DESC LIMIT $3
+)
+SELECT v.id::text,v.canonical_email,v.version,v.created_at,v.expires_at,
+ coalesce(i.job_id::text,''),i.completed_at,
+ ARRAY[i.id::text,i.origin_intent_id::text,i.initiator_id::text,r.job_id::text,r.initiator_id::text,i.resource_id::text],
+ (i.phase='committed' AND i.attempt_id=i.job_id AND i.command_created=i.created_at
+  AND i.actor_kind='human' AND i.user_id=i.initiator_id
+  AND r.id=i.origin_intent_id AND r.origin_intent_id=r.id AND r.kind='invitation' AND r.link_id=v.id
+  AND rc.phase='committed' AND rc.command_name='invite-create' AND rc.attempt_id=r.job_id
+  AND rc.actor_kind='human' AND rc.user_id=r.initiator_id AND rc.resource_id=v.id AND rc.created_at=r.created_at
+  AND ((i.id=r.id AND i.command_name='invite-create' AND i.resource_id=v.id)
+    OR (i.id<>r.id AND i.command_name='mail-retry' AND EXISTS (
+      SELECT 1 FROM agenteam_account.mail_jobs parent_job
+      JOIN agenteam_account.delivery_intents parent_intent ON parent_intent.id=parent_job.intent_id
+      WHERE parent_job.id=i.resource_id AND parent_job.id=parent_intent.job_id
+       AND parent_intent.origin_intent_id=r.id AND parent_intent.kind='invitation' AND parent_intent.link_id=v.id
+    )))) IS TRUE,
+ ((j.id IS NULL AND exact_job.id IS NULL) OR (j.id=i.job_id AND exact_job.intent_id=i.id)) IS TRUE,
+ j.id IS NOT NULL,coalesce(j.phase,'enqueue_pending'),coalesce(j.attempts,0),coalesce(j.version,1),coalesce(j.reason,''),coalesce(j.fence,0),
+ coalesce(j.current_attempt_id::text,''),coalesce(a.id::text,''),coalesce(a.job_id::text,''),coalesce(a.fence,0),
+ coalesce(a.phase,''),a.channel,a.result,coalesce(a.terminal,false),coalesce(a.io_joined,false)
+FROM page v
+LEFT JOIN LATERAL (
+ SELECT i.id,i.origin_intent_id,i.job_id,i.initiator_id,i.created_at,
+  c.completed_at,c.phase,c.attempt_id,c.created_at AS command_created,c.command_name,c.actor_kind,c.user_id,c.resource_id
+ FROM agenteam_account.delivery_intents i LEFT JOIN agenteam_account.commands c ON c.id=i.id
+ WHERE i.kind='invitation' AND i.link_id=v.id
+ ORDER BY c.completed_at DESC NULLS FIRST,i.job_id DESC LIMIT 1
+) i ON true
+LEFT JOIN agenteam_account.delivery_intents r ON r.id=i.origin_intent_id
+LEFT JOIN agenteam_account.commands rc ON rc.id=r.id
+LEFT JOIN agenteam_account.mail_jobs j ON j.intent_id=i.id
+LEFT JOIN agenteam_account.mail_jobs exact_job ON exact_job.id=i.job_id
+LEFT JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id
+ORDER BY v.created_at DESC,v.id DESC`
+
 func (f *SystemHTTPFacade) ListInvitations(ctx context.Context, actor identity.Actor, q HTTPListRequest) (HTTPInvitationList, error) {
-	out := HTTPInvitationList{Items: []HTTPInvitation{}}
-	e := f.httpRead(ctx, actor, "invitations", []foundation.LockRequest{configLock("account-directory", foundation.Shared)}, func(ctx context.Context, x postgres.SQLExecutor) error {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+	var out HTTPInvitationList
+	e := f.httpRead(ctx, actor, "invitations", []foundation.LockRequest{
+		configLock("account-directory", foundation.Shared), configLock("account-mail", foundation.Shared),
+	}, func(ctx context.Context, x postgres.SQLExecutor) error {
 		limit, created, id, e := f.httpListPosition("invitations", q)
 		if e != nil {
 			return e
 		}
 		dateArg, idArg := httpPositionArgs(created, id)
-		rows, e := x.Query(ctx, `SELECT id::text,canonical_email,version,created_at,expires_at FROM agenteam_account.invitations WHERE ($1::timestamptz IS NULL OR (created_at,id)<($1,$2::uuid)) ORDER BY created_at DESC,id DESC LIMIT $3`, dateArg, idArg, limit+1)
+		rows, e := x.Query(ctx, accountHTTPInvitationSelect, dateArg, idArg, limit+1)
 		if e != nil {
 			return unavailable(e)
 		}
-		defer rows.Close()
-		var last time.Time
-		var lastID string
-		for rows.Next() {
-			var v HTTPInvitation
-			var raw string
-			var version int64
-			var at, expires time.Time
-			if e = rows.Scan(&raw, &v.Email, &version, &at, &expires); e != nil {
-				return unavailable(e)
-			}
-			v.ID, e = parseID[c.Invitation](raw)
-			v.Version = foundation.Version(version)
-			v.CreatedAt = instant(at)
-			v.ExpiresAt = instant(expires)
-			if e != nil || v.Version.Validate() != nil || v.CreatedAt.Validate() != nil || v.ExpiresAt.Validate() != nil {
-				return unavailable(e)
-			}
-			if len(out.Items) == limit {
-				out.NextCursor, e = f.httpNextCursor("invitations", last, lastID)
-				if e != nil {
-					return e
-				}
-				break
-			}
-			out.Items = append(out.Items, v)
-			last = at
-			lastID = raw
-		}
-		return portError(rows.Err())
+		out, e = f.httpScanInvitationList(ctx, rows, limit)
+		return e
 	})
 	if e != nil {
 		return HTTPInvitationList{}, e
 	}
+	if e = ctx.Err(); e != nil {
+		return HTTPInvitationList{}, unavailable(e)
+	}
 	return out, nil
+}
+
+type httpInvitationRows interface {
+	Next() bool
+	Scan(...any) error
+	Err() error
+	Close()
+}
+
+func (f *SystemHTTPFacade) httpScanInvitationList(ctx context.Context, rows httpInvitationRows, limit int) (out HTTPInvitationList, err error) {
+	defer func() {
+		rows.Close()
+		if e := rows.Err(); e != nil {
+			err = unavailable(e)
+		}
+		if e := ctx.Err(); e != nil {
+			err = unavailable(e)
+		}
+		if err != nil {
+			out = HTTPInvitationList{}
+		}
+	}()
+	out.Items = []HTTPInvitation{}
+	var last HTTPInvitation
+	for rows.Next() {
+		item, e := httpScanInvitation(rows)
+		if e != nil {
+			return HTTPInvitationList{}, e
+		}
+		if len(out.Items) == limit {
+			out.NextCursor, err = f.httpNextCursor("invitations", last.CreatedAt.Time(), last.ID.String())
+			return out, err
+		}
+		out.Items = append(out.Items, item)
+		last = item
+	}
+	return out, nil
+}
+
+func httpScanInvitation(row httpRowScanner) (HTTPInvitation, error) {
+	var item HTTPInvitation
+	delivery := &item.LatestDelivery
+	var raw, job, phase, current, attempt, attemptJob, protocol string
+	var version, attempts, jobVersion, fence, attemptFence int64
+	var created, expires time.Time
+	var accepted *time.Time
+	var ids []string
+	var provenance, mapping, hasJob, terminal, joined bool
+	var channel, result *string
+	if e := row.Scan(&raw, &item.Email, &version, &created, &expires, &job, &accepted, &ids, &provenance, &mapping, &hasJob,
+		&phase, &attempts, &jobVersion, &delivery.Status.Reason, &fence, &current, &attempt, &attemptJob, &attemptFence,
+		&protocol, &channel, &result, &terminal, &joined); e != nil {
+		return HTTPInvitation{}, unavailable(e)
+	}
+	var e error
+	item.ID, e = parseID[c.Invitation](raw)
+	if e != nil {
+		return HTTPInvitation{}, unavailable(e)
+	}
+	delivery.Status.JobID, e = parseID[c.MailJob](job)
+	if e != nil {
+		return HTTPInvitation{}, unavailable(e)
+	}
+	item.Version = foundation.Version(version)
+	delivery.Status.Version = foundation.Version(jobVersion)
+	delivery.Status.Attempts = foundation.Progress(attempts)
+	if !provenance || !mapping || len(ids) != 6 || accepted == nil || item.Version.Validate() != nil ||
+		delivery.Status.Version.Validate() != nil || attempts < 0 || attempts > 6 || fence < 0 ||
+		delivery.Status.Reason != "" && !delivery.Status.Reason.Valid() {
+		return HTTPInvitation{}, unavailable(nil)
+	}
+	for _, id := range ids {
+		if _, e = parseID[struct{}](id); e != nil {
+			return HTTPInvitation{}, unavailable(e)
+		}
+	}
+	item.CreatedAt, e = foundation.NewInstant(created)
+	if e != nil {
+		return HTTPInvitation{}, unavailable(e)
+	}
+	item.ExpiresAt, e = foundation.NewInstant(expires)
+	if e != nil {
+		return HTTPInvitation{}, unavailable(e)
+	}
+	delivery.AcceptedAt, e = foundation.NewInstant(*accepted)
+	if e != nil {
+		return HTTPInvitation{}, unavailable(e)
+	}
+	if !hasJob {
+		if phase != "enqueue_pending" || attempts != 0 || jobVersion != 1 || fence != 0 || delivery.Status.Reason != "" || current != "" {
+			return HTTPInvitation{}, unavailable(nil)
+		}
+	} else {
+		switch phase {
+		case "pending", "claimed", "sending", "retry_wait", "sent", "failed", "unknown", "cancelled", "processing":
+		default:
+			return HTTPInvitation{}, unavailable(nil)
+		}
+	}
+	if current == "" {
+		if attempt != "" || attemptJob != "" || attemptFence != 0 || protocol != "" || channel != nil || result != nil || terminal || joined {
+			return HTTPInvitation{}, unavailable(nil)
+		}
+		switch phase {
+		case "claimed", "sending", "retry_wait", "sent", "failed":
+			return HTTPInvitation{}, unavailable(nil)
+		}
+	} else {
+		if _, e = parseID[struct{}](current); e != nil || current != attempt || attemptJob != job || !hasJob || attempts < 1 || fence < 1 || fence != attemptFence || channel == nil {
+			return HTTPInvitation{}, unavailable(e)
+		}
+		switch protocol {
+		case "negotiation", "auth", "envelope", "data", "awaiting_acceptance", "closed":
+		default:
+			return HTTPInvitation{}, unavailable(nil)
+		}
+		switch *channel {
+		case "smtp":
+			delivery.Channel = channel
+		case "log":
+			value := "backend_log"
+			delivery.Channel = &value
+		default:
+			return HTTPInvitation{}, unavailable(nil)
+		}
+		if result == nil {
+			if protocol == "closed" || terminal {
+				return HTTPInvitation{}, unavailable(nil)
+			}
+		} else {
+			if protocol != "closed" || !terminal || !joined {
+				return HTTPInvitation{}, unavailable(nil)
+			}
+			value := c.DeliveryResult(*result)
+			switch value {
+			case c.DeliverySent, c.DeliveryFailed, c.DeliveryUnknown, c.DeliveryCancelled:
+			default:
+				return HTTPInvitation{}, unavailable(nil)
+			}
+			delivery.AttemptResult = &value
+		}
+	}
+	if phase == "processing" {
+		phase = "unknown"
+	}
+	delivery.Status.Phase = phase
+	return item, nil
 }
 
 const accountHTTPMailSelect = `SELECT i.job_id::text,coalesce(j.phase,'enqueue_pending'),coalesce(j.attempts,0),coalesce(j.version,1),coalesce(j.reason,''),coalesce(a.channel,CASE WHEN cfg.configured THEN 'smtp' ELSE 'log' END),i.created_at FROM agenteam_account.delivery_intents i LEFT JOIN agenteam_account.mail_jobs j ON j.intent_id=i.id LEFT JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id CROSS JOIN agenteam_account.smtp_settings cfg `

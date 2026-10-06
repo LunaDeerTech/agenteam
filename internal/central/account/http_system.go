@@ -66,12 +66,20 @@ func (h *accountHTTP) httpListUsers(w http.ResponseWriter, r *http.Request, inpu
 	}{items, out.NextCursor})
 }
 
+type httpInvitationDelivery struct {
+	c.MailJobStatus
+	AcceptedAt    foundation.Instant `json:"accepted_at"`
+	Channel       *string            `json:"channel"`
+	AttemptResult *c.DeliveryResult  `json:"attempt_result"`
+}
+
 type httpInvitation struct {
-	ID      c.InvitationID     `json:"id"`
-	Email   string             `json:"email"`
-	Version foundation.Version `json:"version"`
-	Created foundation.Instant `json:"created_at"`
-	Expires foundation.Instant `json:"expires_at"`
+	ID             c.InvitationID         `json:"id"`
+	Email          string                 `json:"email"`
+	Version        foundation.Version     `json:"version"`
+	Created        foundation.Instant     `json:"created_at"`
+	Expires        foundation.Instant     `json:"expires_at"`
+	LatestDelivery httpInvitationDelivery `json:"latest_delivery"`
 }
 
 func (h *accountHTTP) httpListInvitations(w http.ResponseWriter, r *http.Request, input httpRequest) {
@@ -87,7 +95,7 @@ func (h *accountHTTP) httpListInvitations(w http.ResponseWriter, r *http.Request
 	}
 	items := make([]httpInvitation, 0, len(out.Items))
 	for _, v := range out.Items {
-		items = append(items, httpInvitation{v.ID, v.Email, v.Version, v.CreatedAt, v.ExpiresAt})
+		items = append(items, httpInvitation{v.ID, v.Email, v.Version, v.CreatedAt, v.ExpiresAt, httpInvitationDelivery{v.LatestDelivery.Status, v.LatestDelivery.AcceptedAt, v.LatestDelivery.Channel, v.LatestDelivery.AttemptResult}})
 	}
 	httpJSON(w, r, http.StatusOK, struct {
 		Items []httpInvitation `json:"items"`
