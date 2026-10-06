@@ -2,6 +2,23 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：项目快速模式配置
+
+- 用户新增要求：默认开启 Codex 快速模式。合并前阶段基线 `work / fecd5c1`，工作区干净；最终与下述默认模型配置合并交付。
+- 范围与结果：`.codex/config.toml` 顶层新增 `service_tier = "priority"`，同步团队 README 与本记录。保持 `gpt-6-astra / ultra` 及已有子线程配置。
+- 配置依据：本机 `codex features list` 显示 `fast_mode` 为 stable 且已开启；模型目录中 `gpt-6-astra` 的 Fast 档位 id 为 `priority`。官方 `codex-rs/protocol/src/config_types.rs` 的 `ServiceTier::Fast.request_value()` 同样返回 `priority`，配置解析兼容 `fast` 和 `priority`，本次使用目录中的规范值。
+- 验证：合并前阶段的 Python `tomllib` 解析与配置最小差异检查通过，移除新增 `service_tier` 后与默认模型配置阶段一致；UTF-8/LF 与 `git diff --check` 通过。严格 `config/read` 识别实际项目层 `gpt-6-astra / ultra / priority`，输入版本 `sha256:b1b3d5a2f5c877a24eac0609356d5a549f9068dc25080a584ab6346a236266c2`，因未受信任 effective 三项仍为空。检查进程全部退出。
+- 生效边界：沿用下文的项目未受信任限制；未修改持久信任，未声称当前会话已切换服务档位，未执行真实模型请求。Git 交付与下述默认模型配置统一记录。
+
+## 2026-10-06：项目主线程默认模型配置
+
+- 用户目标：通过项目 Codex 配置，将主线程默认模型和思考强度设为 `gpt-6-astra / ultra`。本次为工具配置调整，不推进产品模块。
+- 基线：`work / 1613583`，开始时工作区干净。范围仅为 `.codex/config.toml`、团队 README 与本记录；未切换分支。
+- 结果：项目 TOML 顶层新增 `model` 与 `model_reasoning_effort`；子线程默认、六个角色和并发配置保持原值。团队运行时说明同步主线程与子线程的区别。
+- 验证：Python `tomllib` 解析通过，顶层值精确匹配，去掉新增两项后与原配置一致，六个角色仍为 `gpt-6-astra / max`。本机 `codex-cli 0.159.0-alpha.3` 的 `codex debug models --bundled` 列出 `gpt-6-astra` 并明确支持 `ultra`；`codex --strict-config app-server` 的 `config/read` 能读到项目层两项配置。另以进程内 `-c 'model="gpt-6-astra"' -c 'model_reasoning_effort="ultra"'` 验证严格解析与 effective 值通过，两项来源为 `sessionFlags`，未持久化启动参数。两份文档的 UTF-8/LF、118 个相对链接及 `git diff --check` 通过，检查启动的 app-server 均已退出并回收。
+- 生效限制：当前项目层因未受信任被禁用，正常读取的 effective `model` / `model_reasoning_effort` 均为空；本次未修改全局 trust。需由运行时信任项目后加载，显式启动或会话设置可覆盖默认值；不代表当前会话已切换模型，也未运行真实模型请求或无关产品测试。
+- 交付：用户要求将默认模型与快速模式两个提交合并为一个 Conventional Commit 并推送。主线程审查后合并，将配置提交接到远端 `main / 846f1d4` 上，保留原基线 `1613583` 之后的两个远端文档提交，正常推送至 `origin/main`；最终提交和推送状态以 Git 为准，通过本记录文件历史定位。后续产品恢复点仍见下文。
+
 ## 当前恢复点与并行所有权
 
 2026-10-05 中断恢复以 `main = origin/main = 8872110099c84cf0600bb5b62cdcd6c0c6c843e3` 为初始基线，工作区当时干净、无未推送提交。主线程已实际核对远端并建立同提交的本地 `main`；详细现存源码、缺失产物和下一步见[本次恢复记录](recovery-2026-10-05.md)。

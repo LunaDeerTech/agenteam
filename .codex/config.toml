@@ -1,3 +1,7 @@
+model = "gpt-6-astra"
+model_reasoning_effort = "ultra"
+service_tier = "priority"
+
 [agents]
 enabled = true
 max_concurrent_threads_per_session = 7
