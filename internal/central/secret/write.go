@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"slices"
 	"strconv"
+	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
@@ -456,12 +457,74 @@ func (s *Service) LookupWrite(ctx context.Context, prepared PreparedWrite) (Muta
 	return MutationLookup{Observed: true, Result: &result}, nil
 }
 func (s *Service) Metadata(ctx context.Context, actor identity.Actor, ref sc.CredentialRef) (sc.Metadata, error) {
+	var zero sc.Metadata
 	if ref.Validate() != nil {
-		return sc.Metadata{}, invalid()
+		return zero, invalid()
 	}
-	if err := s.authorize(ctx, foundation.Tx{}, actor, ref.Details().Scope, identity.Read); err != nil {
-		return sc.Metadata{}, err
+	if ctx == nil {
+		return zero, invalid()
 	}
-	metadata, _, err := loadMetadata(ctx, s.state().store, ref)
-	return metadata, err
+	if s == nil || s.data == nil {
+		return zero, failure(AuthorizationUnbound, foundation.DependencyUnbound, nil)
+	}
+	state := s.state()
+	if state == nil {
+		return zero, failure(AuthorizationUnbound, foundation.DependencyUnbound, nil)
+	}
+	scope := ref.Details().Scope
+	if actor.Validate() != nil || actor.Details().Kind != identity.Human || !validScope(scope) {
+		return zero, failure(AuthorizationRejected, foundation.Forbidden, nil)
+	}
+	if lookupNil(state.store) || lookupNil(state.auth.Sessions) {
+		return zero, failure(AuthorizationUnbound, foundation.DependencyUnbound, nil)
+	}
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+	cause, err := recoveryCause("secret-metadata")
+	if err != nil {
+		return zero, err
+	}
+	user, _ := foundation.UserLock(actor.Details().UserID)
+	credential, _ := foundation.AggregateLock(foundation.CredentialRefAggregate, ref.Details().ID.String())
+	locks := []foundation.LockRequest{{Key: user, Mode: foundation.Shared}, {Key: credential, Mode: foundation.Shared}}
+	if scope.Details().Kind == identity.ProjectScope {
+		project, _ := foundation.ProjectLock(scope.Details().ProjectID)
+		locks = append(locks, foundation.LockRequest{Key: project, Mode: foundation.Shared})
+	}
+	var metadata sc.Metadata
+	result := state.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+		if err := state.store.AcquireAll(ctx, tx, locks); err != nil {
+			return lookupError(err)
+		}
+		x, err := state.store.InTx(tx)
+		if err != nil {
+			return lookupError(err)
+		}
+		if lookupNil(x) {
+			return unavailable(nil)
+		}
+		if err = state.store.RequireHeldLocks(ctx, tx, locks); err != nil {
+			return lookupError(err)
+		}
+		// Preserve Session rejection precedence even when the scope port is
+		// missing, including a named nil channel that authorize cannot inspect.
+		if scope.Details().Kind == identity.System && lookupNil(state.auth.System) || scope.Details().Kind == identity.ProjectScope && lookupNil(state.auth.Projects) {
+			if err = state.auth.Sessions.RequireCurrentSession(ctx, tx, actor); err != nil {
+				return authorization(err)
+			}
+			return failure(AuthorizationUnbound, foundation.DependencyUnbound, nil)
+		}
+		if err = s.authorize(ctx, tx, actor, scope, identity.Read); err != nil {
+			return err
+		}
+		metadata, _, err = loadMetadata(ctx, x, ref)
+		return err
+	})
+	if err = commitError(result); err != nil {
+		return zero, err
+	}
+	if err = ctx.Err(); err != nil {
+		return zero, foundation.NewFault(foundation.DependencyUnavailable, foundation.Committed).WithCause(err)
+	}
+	return metadata, nil
 }

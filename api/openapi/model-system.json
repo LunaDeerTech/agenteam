@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "agenteam System Model configuration HTTP",
-    "version": "0.1.0",
-    "description": "Library composition only; production root and Provider calls remain unbound. Canonical Host/Origin/Fetch-Metadata checked before route/auth/body; ambiguous paths rejected without redirects, no X-Forwarded trust or CORS. Current real Account Session/admin required. System scope and Purpose=Model are server-owned. Secret writes and later Provider binding are independent commands. Required embedding/memory cannot be cleared. All integers above int32 use canonical decimal strings; UUIDs canonical v7. All success is 200; unknown path404, unsupported method405 with exact Allow. Invalid sessions clear only the selected Session cookie."
+    "version": "0.2.0",
+    "description": "System configuration is bound in the default Central root; Provider calls remain unbound. Current Credential metadata and bounded Model deletion-impact reads are available. Canonical Host/Origin/Fetch-Metadata checked before route/auth/body; ambiguous paths rejected without redirects, no X-Forwarded trust or CORS. Current real Account Session/admin required. System scope and Purpose=Model are server-owned. Secret writes and later Provider binding are independent commands. Required embedding/memory cannot be cleared. All integers above int32 use canonical decimal strings; UUIDs canonical v7. All success is 200; unknown path404, unsupported method405 with exact Allow. Invalid sessions clear only the selected Session cookie."
   },
   "paths": {
     "/api/v1/system/model-providers": {
@@ -1867,6 +1867,155 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "get_system_model_credential_metadata",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current System administrator only; recheck the current Session/admin in the same read transaction. No query string (including empty ?), request body, cursor, limit or replacement input. No CSRF token or Idempotency-Key is required for GET/HEAD. The total request budget, including authentication and lock wait, is at most 3 seconds and inherits earlier caller cancellation. Publish only after the read transaction is actually Committed and the caller is still active. No automatic retry, ETag, 304 or cache. Return only the current System Purpose=Model Credential metadata. Absent, deleted, wrong scope or another purpose is 404. No material, digest, payload, lease, historical receipt or deleted flag.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed current read observation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialMetadata"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument; 401 Unauthenticated/SessionRevoked; 403 Forbidden/OriginDenied; 404 NotFound; 405 MethodNotAllowed; 409 ResourceBusy only when the reference count exceeds 10000; 503 DependencyUnbound/DependencyUnavailable/CommitUnknown; original database/lock/cancellation faults may project as 500 InternalError. Failures return no candidate metadata or count. CommitUnknown describes this read transaction, preserves the existing public Problem projection, and supplies no command identity. A new GET is a new observation: do not invent an idempotency key or use command lookup, and do not infer an old writer terminal state.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "head_system_model_credential_metadata",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current System administrator only; recheck the current Session/admin in the same read transaction. No query string (including empty ?), request body, cursor, limit or replacement input. No CSRF token or Idempotency-Key is required for GET/HEAD. The total request budget, including authentication and lock wait, is at most 3 seconds and inherits earlier caller cancellation. Publish only after the read transaction is actually Committed and the caller is still active. No automatic retry, ETag, 304 or cache. Return only the current System Purpose=Model Credential metadata. Absent, deleted, wrong scope or another purpose is 404. No material, digest, payload, lease, historical receipt or deleted flag. HEAD executes the same authorization/read/error checks and emits no success body.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed current read observation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument; 401 Unauthenticated/SessionRevoked; 403 Forbidden/OriginDenied; 404 NotFound; 405 MethodNotAllowed; 409 ResourceBusy only when the reference count exceeds 10000; 503 DependencyUnbound/DependencyUnavailable/CommitUnknown; original database/lock/cancellation faults may project as 500 InternalError. Failures return no candidate metadata or count. CommitUnknown describes this read transaction, preserves the existing public Problem projection, and supplies no command identity. A new GET is a new observation: do not invent an idempotency key or use command lookup, and do not infer an old writer terminal state.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/system/model-credential-commands/lookup": {
@@ -1957,6 +2106,157 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CredentialLookupInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/models/{id}/deletion-impact": {
+      "get": {
+        "operationId": "get_system_model_deletion_impact",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current System administrator only; recheck the current Session/admin in the same read transaction. No query string (including empty ?), request body, cursor, limit or replacement input. No CSRF token or Idempotency-Key is required for GET/HEAD. The total request budget, including authentication and lock wait, is at most 3 seconds and inherits earlier caller cancellation. Publish only after the read transaction is actually Committed and the caller is still active. No automatic retry, ETag, 304 or cache. Exact registered reference edges, grouped in owner_kind/role lexical order; counts are not distinct owners or current foreign-domain facts. The index input is bounded at 10001 before aggregation: 10000 is exact, 10001 rejects the entire result with 409. Platform references must exactly match the canonical selector, checked with at most 5 rows. No owner/project/agent identities are returned. Unbound foreign adapters appear as a known blocker with HTTP 200. This is an observation, not a deletion grant or replacement validation; DeleteModel rediscovers and validates current references and replacement facts under its write locks.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed current read observation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelDeletionImpact"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument; 401 Unauthenticated/SessionRevoked; 403 Forbidden/OriginDenied; 404 NotFound; 405 MethodNotAllowed; 409 ResourceBusy only when the reference count exceeds 10000; 503 DependencyUnbound/DependencyUnavailable/CommitUnknown; original database/lock/cancellation faults may project as 500 InternalError. Failures return no candidate metadata or count. CommitUnknown describes this read transaction, preserves the existing public Problem projection, and supplies no command identity. A new GET is a new observation: do not invent an idempotency key or use command lookup, and do not infer an old writer terminal state.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "head_system_model_deletion_impact",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current System administrator only; recheck the current Session/admin in the same read transaction. No query string (including empty ?), request body, cursor, limit or replacement input. No CSRF token or Idempotency-Key is required for GET/HEAD. The total request budget, including authentication and lock wait, is at most 3 seconds and inherits earlier caller cancellation. Publish only after the read transaction is actually Committed and the caller is still active. No automatic retry, ETag, 304 or cache. Exact registered reference edges, grouped in owner_kind/role lexical order; counts are not distinct owners or current foreign-domain facts. The index input is bounded at 10001 before aggregation: 10000 is exact, 10001 rejects the entire result with 409. Platform references must exactly match the canonical selector, checked with at most 5 rows. No owner/project/agent identities are returned. Unbound foreign adapters appear as a known blocker with HTTP 200. This is an observation, not a deletion grant or replacement validation; DeleteModel rediscovers and validates current references and replacement facts under its write locks. HEAD executes the same authorization/read/error checks and emits no success body.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed current read observation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument; 401 Unauthenticated/SessionRevoked; 403 Forbidden/OriginDenied; 404 NotFound; 405 MethodNotAllowed; 409 ResourceBusy only when the reference count exceeds 10000; 503 DependencyUnbound/DependencyUnavailable/CommitUnknown; original database/lock/cancellation faults may project as 500 InternalError. Failures return no candidate metadata or count. CommitUnknown describes this read transaction, preserves the existing public Problem projection, and supplies no command identity. A new GET is a new observation: do not invent an idempotency key or use command lookup, and do not infer an old writer terminal state.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
               }
             }
           }
@@ -2710,6 +3010,147 @@
             ]
           }
         }
+      },
+      "CredentialMetadata": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "credential_id",
+          "purpose",
+          "version"
+        ],
+        "properties": {
+          "credential_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "purpose": {
+            "const": "model"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        }
+      },
+      "ModelReferenceCount": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "owner_kind",
+          "role",
+          "count"
+        ],
+        "properties": {
+          "owner_kind": {
+            "enum": [
+              "agent",
+              "platform_selector",
+              "project_summary"
+            ]
+          },
+          "role": {
+            "enum": [
+              "agent_model",
+              "approval_model",
+              "embedding",
+              "image",
+              "memory",
+              "reranker",
+              "meeting_summary"
+            ]
+          },
+          "count": {
+            "type": "string",
+            "pattern": "^([1-9][0-9]{0,3}|10000)$"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "owner_kind": {
+                "const": "agent"
+              },
+              "role": {
+                "enum": [
+                  "agent_model",
+                  "approval_model"
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "owner_kind": {
+                "const": "platform_selector"
+              },
+              "role": {
+                "enum": [
+                  "embedding",
+                  "image",
+                  "memory",
+                  "reranker"
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "owner_kind": {
+                "const": "project_summary"
+              },
+              "role": {
+                "const": "meeting_summary"
+              }
+            }
+          }
+        ]
+      },
+      "ModelDeletionImpact": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "model_id",
+          "version",
+          "reference_count",
+          "reference_groups",
+          "replacement_requirement",
+          "delete_blocker"
+        ],
+        "properties": {
+          "model_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "reference_count": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,3}|10000)$",
+            "description": "Canonical decimal string, 0 through 10000."
+          },
+          "reference_groups": {
+            "type": "array",
+            "maxItems": 7,
+            "items": {
+              "$ref": "#/components/schemas/ModelReferenceCount"
+            },
+            "description": "Positive groups only, each kind/role at most once, sorted lexically; their counts sum exactly to reference_count. Empty is [] not null."
+          },
+          "replacement_requirement": {
+            "enum": [
+              "none",
+              "optional",
+              "required"
+            ]
+          },
+          "delete_blocker": {
+            "enum": [
+              null,
+              "reference_adapter_unbound"
+            ],
+            "description": "Null only means absence of this known adapter blocker; it does not mean deletion is allowed."
+          }
+        },
+        "description": "Zero references implies none and null blocker. Any agent, project_summary, platform embedding or memory requires replacement. Otherwise nonempty platform image/reranker is optional. Any agent/project_summary group sets reference_adapter_unbound."
       }
     }
   }
