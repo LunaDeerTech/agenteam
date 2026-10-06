@@ -1,0 +1,11 @@
+--- input01/tests/account-captcha-web/e2e/system-invitations.spec.ts
++++ input02/tests/account-captcha-web/e2e/system-invitations.spec.ts
+@@ -1525,7 +1525,7 @@
+           name: "系统设置栏目",
+           exact: true,
+         });
+-        await expect(drawer.getByRole("link")).toHaveCount(2);
++        await expect(drawer.getByRole("link")).toHaveCount(3);
+         for (let n = 0; n < 6; n++) {
+           await page.keyboard.press("Tab");
+           expect(

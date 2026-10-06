@@ -1,0 +1,11 @@
+--- independent01/independent-fixture.go
++++ independent02/independent-fixture.go
+@@ -660,7 +660,7 @@
+ 	if e != nil {
+ 		f.t.Fatal(e)
+ 	}
+-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/independent.config.js")
++	cmd := exec.CommandContext(ctx, "node", "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/independent.config.js")
+ 	cmd.Dir = root
+ 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+ 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }

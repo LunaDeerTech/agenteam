@@ -1,0 +1,28 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-provider-api02-verification-8v9jkq0f/candidate/web
+
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'ordinary' 32ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'ipv6' 1ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'ipv6-zone' 1ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'numeric-looking-host' 1ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'bracket-nonip' 1ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'upper-scheme' 1ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'leading-zero-port' 1ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'path-backslash' 1ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'path-escaped-control' 1ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'host-encoded-unicode' 1ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'empty-port' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'port-zero' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'bad-escape' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'userinfo' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'query-empty' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'fragment' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'port-overflow' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > accepts exactly 2MiB of actual successful list bytes without trusting Content-Length 6ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > joins overflow cancellation after accumulated chunks and never publishes a candidate 2ms
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  08:51:34
+   Duration  308ms (transform 99ms, setup 0ms, import 127ms, tests 51ms, environment 0ms)
+

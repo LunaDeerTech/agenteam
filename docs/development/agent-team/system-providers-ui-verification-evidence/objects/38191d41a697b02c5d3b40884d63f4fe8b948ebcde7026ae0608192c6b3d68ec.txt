@@ -1,0 +1,60 @@
+--- run-real02.py
++++ run-real03.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run exactly two independent Provider composites on fixed inputs; preserve actual waits and cleanup."""
++"""Rerun only independent Partial on fixed inputs; preserve actual waits and cleanup."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -100,14 +100,14 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['independent'], required=True)
++    parser.add_argument('--group', choices=['partial'], required=True)
+     parser.add_argument('--preflight', action='store_true')
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     args = parser.parse_args()
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+-    groups = {'independent': ['TestAccountSystemProvidersIndependentPartial', 'TestAccountSystemProvidersIndependentReplay']}
++    groups = {'partial': ['TestAccountSystemProvidersIndependentPartial']}
+     expected = set(groups[args.group])
+     args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
+     FROZEN = json.loads(args.frozen.read_text())
+@@ -116,20 +116,17 @@
+     binding = json.loads((ROOT / 'product-binding07.json').read_text())
+     if hashlib.sha256(args.frozen.read_bytes()).hexdigest() != binding['product_manifest_sha256']:
+         raise RuntimeError('final product manifest mismatch')
+-    prepared = json.loads((ROOT / 'preparation03-report.json').read_text())
+-    if hashlib.sha256((ROOT / 'e2e/independent-providers.spec.ts').read_bytes()).hexdigest() != prepared['source_sha256']:
+-        raise RuntimeError('private probe03 changed')
+-    execution = json.loads((ROOT / 'execution02.json').read_text())
++    execution = json.loads((ROOT / 'execution03.json').read_text())
+     if execution['product_manifest_sha256'] != binding['product_manifest_sha256']:
+-        raise RuntimeError('independent02 product binding mismatch')
++        raise RuntimeError('independent03 product binding mismatch')
+     for name, value in execution['files'].items():
+         if hashlib.sha256((ROOT/name).read_bytes()).hexdigest() != value:
+-            raise RuntimeError('independent02 private input mismatch: '+name)
++            raise RuntimeError('independent03 private input mismatch: '+name)
+     check = source_input()
+     if any(check[key] != FROZEN[key] for key in ['files','dist','dependencies']):
+         raise RuntimeError('final runtime inputs mismatch')
+     if args.preflight:
+-        print(json.dumps({'preflight':'PASS','product_manifest_sha256':binding['product_manifest_sha256'],'private_probe_sha256':prepared['source_sha256'],'expected_tops':groups['independent'],'runtime_started':False}),flush=True)
++        print(json.dumps({'preflight':'PASS','product_manifest_sha256':binding['product_manifest_sha256'],'private_probe_sha256':execution['files']['e2e/independent-providers.spec.ts'],'expected_tops':groups[args.group],'runtime_started':False}),flush=True)
+         return 0
+     if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+         raise RuntimeError('cannot become task child subreaper')
+@@ -137,7 +134,7 @@
+     run.mkdir(parents=True, mode=0o700)
+     driver_bytes = Path(__file__).read_bytes()
+     (run / 'driver.py.txt').write_bytes(driver_bytes)
+-    private_names = ['e2e/fixed-helpers.ts','e2e/independent-providers.spec.ts','independent.config.js','independent-fixture.go','independent-tops.go','overlay.json','preparation.json','preparation03-report.json','product-binding07.json','execution02.json','fixture-cli01-to02.diff','logs/discovery02/binding.json']
++    private_names = ['e2e/fixed-helpers.ts','e2e/independent-providers.spec.ts','independent.config.js','independent-fixture.go','independent-tops.go','overlay.json','preparation.json','preparation03-report.json','product-binding07.json','execution03.json','fixture-cli01-to02.diff','logs/discovery02/binding.json','probe03-to04.diff','driver02-to03.diff']
+     verification_inputs = {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in private_names}
+     verification_inputs['driver_sha256'] = hashlib.sha256(driver_bytes).hexdigest()
+     for name in private_names:

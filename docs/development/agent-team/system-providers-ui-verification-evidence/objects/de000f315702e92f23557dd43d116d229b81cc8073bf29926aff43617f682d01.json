@@ -1,0 +1,121 @@
+{
+  "verdict": "PASS for owner-stage02 only; whole Provider UI not accepted",
+  "owner_manifest": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/owner-stage02.json",
+  "owner_manifest_sha256": "28dfe7931d1101c578e8070cf28a2bbca4f7031e4c93652f15f40747fbebf29e",
+  "base": "1c82d888adfef0d8b58ab51c920557ca4e2f084f",
+  "owner_files": {
+    "web/src/composables/useSession.ts": "34214b8005169fc552d0900efeaa0584940e67034d167f121b17704a89bd6234",
+    "web/src/tests/system-providers-state.spec.ts": "be2363b91443adef127366469904c537b4c54625b664156dfe80c453266f56d4"
+  },
+  "api_manifest_sha256": "61c86175161023fc6d4b107bb324dbdb737f7fbd2c54c338a1d87f0671a76511",
+  "static_delta": [
+    "After public material-clear notification, assertLive rechecks actual owner/current revision, AbortSignal, exact private intent, identity/admin/context before reference capture, stage publication or second write.",
+    "After public confirmed publication, exact intent/revision/context guard prevents a retired continuation from clearing a synchronously started replacement workflow.",
+    "No endpoint, 30-second visible timeout, actual transport-tail release, private key/body capture, or authority-mapper change in this repair."
+  ],
+  "toolchain": {
+    "node": "v24.19.0",
+    "vitest": "4.1.11",
+    "environment": "jsdom; injected fetch with production API and Session controller; native ReadableStream gates"
+  },
+  "checks": {
+    "independent01": {
+      "argv": [
+        "node",
+        "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--config",
+        "vitest.config.mjs",
+        "src/tests/independent-owner.spec.ts",
+        "--reporter=verbose"
+      ],
+      "cwd": "/workspace/scratch/agenteam-provider-owner02-verification-feilkmmi/candidate/web",
+      "env_overrides": {
+        "CI": "1",
+        "NO_COLOR": "1",
+        "FORCE_COLOR": "0"
+      },
+      "pid": 619417,
+      "exit_code": 0,
+      "elapsed_seconds": 1.071,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "ad822d4ffa05ba20c1be330481de019c660b62ca73778e10cd5937f8e512db3b"
+    },
+    "independent02": {
+      "argv": [
+        "node",
+        "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--config",
+        "vitest.config.mjs",
+        "src/tests/independent-confirmed.spec.ts",
+        "--reporter=verbose"
+      ],
+      "cwd": "/workspace/scratch/agenteam-provider-owner02-verification-feilkmmi/candidate/web",
+      "env_overrides": {
+        "CI": "1",
+        "NO_COLOR": "1",
+        "FORCE_COLOR": "0"
+      },
+      "pid": 619514,
+      "exit_code": 0,
+      "elapsed_seconds": 1.017,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "c5ccda99d14d93ce9d8e389579f65a9ba75fabe4b913a33cfc545bf8e530f2cb"
+    }
+  },
+  "independent01": {
+    "cases": 5,
+    "probe_unchanged": true,
+    "scope": "Original stage01 independent probe, including native EOF/cancel tail, lookup versus receipt/exact replay/rebase, synchronous material-clear abandonment, current authority/CSRF, old-identity actual tail."
+  },
+  "independent02": {
+    "cases": 1,
+    "scope": "Synchronous confirmed notification retires old create and starts different target update. Full strict Credential JSON is withheld at native EOF. New intent/material/owner survive old continuation; zero new binding before EOF, exact new target/version/ref after EOF; three distinct keys, original CSRF, material only in Credential body.",
+    "old_version_red_claimed": false,
+    "safe_output": "Only enum/state booleans/counts and generated non-secret fixture IDs; key/body/CSRF/material comparisons emit booleans only."
+  },
+  "preserved_red": {
+    "root": "/workspace/scratch/agenteam-provider-owner-verification-kpen9k8j",
+    "raw": "logs/independent01/raw.log",
+    "raw_sha256": "1092b621b76b3a2d57b96bbafebaf919a03532916216d71d7ba75b14770ed5d0",
+    "finding": "P-OWNER-01: old progress resurrected after synchronous material-clear abandon. Original 4 PASS / 1 FAIL unchanged. No material leak or second Provider write was observed."
+  },
+  "reused_evidence": {
+    "api_stage02_report": "/workspace/scratch/agenteam-provider-api02-verification-8v9jkq0f/api-stage02-report.json",
+    "api_stage02_report_sha256": "0794410b0e5a8776051feeab21ef5f45b8f312b9624091a67a29762494eb4d36",
+    "reason": "All fixed API and accepted baseline dependencies match prior hashes; no budget/parser rerun."
+  },
+  "resource_boundary": {
+    "real_services_started": false,
+    "browser_started": false,
+    "network_used": false,
+    "commands_actually_waited": true,
+    "recorded_main_pids_absent": true,
+    "product_or_git_mutations": false
+  },
+  "limits": [
+    "No active controller/View/harness read; only frozen owner/API snapshots and accepted dependency bytes consumed.",
+    "No real backend, Cookie/browser, database, DOM focus, App workflow, actual secret handling or formal service Create-to-List verification.",
+    "Native-stream/injected-fetch pure composition does not substitute for formal service and browser acceptance.",
+    "Late aborted real transport discards wire body; this result does not prove mapping of a replacement Cookie from an aborted late body.",
+    "The new confirmed replacement case is candidate green only; no old-version RED is asserted."
+  ],
+  "artifact_hashes": {
+    "input.json": "0458669761f781bd9f910bd42020f5318c2d54a347480f6471d553f2e30fa8e9",
+    "run-pure.py": "c7ff1d2c926744e28852830b0b172e565b6ea184f18c0be005015704182e36ba",
+    "owner01-to02.diff": "7e783c6ee3e0696d193776512d33a0503a3e70bd826d6ac176381131acbc292d",
+    "candidate/web/vitest.config.mjs": "5f09e60f6aed7b23fdad50eff43cbe7ca8af29e0308d345f36d38a710cee1f5c",
+    "candidate/web/src/tests/independent-owner.spec.ts": "5185838f755c0a3bda79682c09096263130811cded17799651f8d7ee9b491975",
+    "candidate/web/src/tests/independent-confirmed.spec.ts": "9b1b342556a524e10051a4abbd20fa797168c53c2ee37342fea728d3b4d8f097",
+    "logs/independent01/command.json": "a4af5b86971a7b2de08ce63621b8aff937a4b08072e021bae07299e7d7cabc79",
+    "logs/independent01/raw.log": "ad822d4ffa05ba20c1be330481de019c660b62ca73778e10cd5937f8e512db3b",
+    "logs/independent01/result.json": "8be07f06cf27a7e08c011f743c0c79eb7995413d246a7bad262c6a2d974f5533",
+    "logs/independent02/command.json": "f06162b1c9282549da90c4cecbc121372efd69f23a6b64c9873488ed59e231c8",
+    "logs/independent02/raw.log": "c5ccda99d14d93ce9d8e389579f65a9ba75fabe4b913a33cfc545bf8e530f2cb",
+    "logs/independent02/result.json": "0e9d92f7d277880c3c307777148faca504d9495762b157568cea0cb675fe66c1"
+  },
+  "stopped_writing": true
+}

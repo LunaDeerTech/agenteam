@@ -1,0 +1,58 @@
+{
+  "argv": [
+    "node",
+    "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "vitest.config.mjs",
+    "src/tests/independent-owner.spec.ts",
+    "--reporter=verbose"
+  ],
+  "cwd": "/workspace/scratch/agenteam-provider-owner-verification-kpen9k8j/candidate/web",
+  "env_overrides": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "FORCE_COLOR": "0"
+  },
+  "before": {
+    "candidate/web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "candidate/web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "candidate/web/vitest.config.mjs": "532c2e99a3969a1e3842de99ddde8c785dcb9b992a5a76bc8b864b3404630215",
+    "candidate/web/src/composables/useSession.ts": "50758b82b0c5c3cf9d934e7174ec4dd656ed14e4f9f1c7f1ad6a24aa1b5f8564",
+    "candidate/web/src/composables/useTheme.ts": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+    "candidate/web/src/tests/system-providers-state.spec.ts": "021113f22c698f2eaccf2e08c4003a90696525a4d4cb344dcba1e0687d7f9867",
+    "candidate/web/src/tests/system-providers-client.spec.ts": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c",
+    "candidate/web/src/tests/independent-owner.spec.ts": "5185838f755c0a3bda79682c09096263130811cded17799651f8d7ee9b491975",
+    "candidate/web/src/api/client.ts": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6",
+    "candidate/web/src/api/system-providers.ts": "1c4fbe9db5158e7d46908b40a95a4eacc26e4b8725efd4ff6cfe3f9acb5352a4",
+    "candidate/web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "candidate/web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "candidate/web/src/api/system-invitations.ts": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+    "run-pure.py": "7cd21aa96edc3b929bf4fe6dc422e49de4c67d543cc546b22869abd01a83bccb",
+    "input.json": "fe50828ec8a2e7764bfcbe98e1909a43e068f3ed1f18440d3f4051ac58a78573"
+  },
+  "limit_seconds": 45,
+  "pid": 615669,
+  "exit_code": 1,
+  "elapsed_seconds": 1.068,
+  "actual_wait": true,
+  "after": {
+    "candidate/web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "candidate/web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "candidate/web/vitest.config.mjs": "532c2e99a3969a1e3842de99ddde8c785dcb9b992a5a76bc8b864b3404630215",
+    "candidate/web/src/composables/useSession.ts": "50758b82b0c5c3cf9d934e7174ec4dd656ed14e4f9f1c7f1ad6a24aa1b5f8564",
+    "candidate/web/src/composables/useTheme.ts": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+    "candidate/web/src/tests/system-providers-state.spec.ts": "021113f22c698f2eaccf2e08c4003a90696525a4d4cb344dcba1e0687d7f9867",
+    "candidate/web/src/tests/system-providers-client.spec.ts": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c",
+    "candidate/web/src/tests/independent-owner.spec.ts": "5185838f755c0a3bda79682c09096263130811cded17799651f8d7ee9b491975",
+    "candidate/web/src/api/client.ts": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6",
+    "candidate/web/src/api/system-providers.ts": "1c4fbe9db5158e7d46908b40a95a4eacc26e4b8725efd4ff6cfe3f9acb5352a4",
+    "candidate/web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "candidate/web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "candidate/web/src/api/system-invitations.ts": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+    "run-pure.py": "7cd21aa96edc3b929bf4fe6dc422e49de4c67d543cc546b22869abd01a83bccb",
+    "input.json": "fe50828ec8a2e7764bfcbe98e1909a43e068f3ed1f18440d3f4051ac58a78573"
+  },
+  "raw_sha256": "1092b621b76b3a2d57b96bbafebaf919a03532916216d71d7ba75b14770ed5d0",
+  "inputs_unchanged": true
+}

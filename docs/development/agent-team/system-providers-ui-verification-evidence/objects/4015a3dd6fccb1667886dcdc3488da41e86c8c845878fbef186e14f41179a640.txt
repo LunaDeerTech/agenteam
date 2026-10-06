@@ -1,0 +1,34 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-providers.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace/web
+
+ ❯ src/tests/system-providers.spec.ts (14 tests | 1 failed) 1764ms
+     × pending confirmation is settled false on dispose, never carried into replacement identity 88ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > pending confirmation is settled false on dispose, never carried into replacement identity
+AssertionError: expected '/' to be '/system/providers' // Object.is equality
+
+Expected: "/system/providers"
+Received: "/"
+
+ ❯ src/tests/system-providers.spec.ts:518:48
+    516|       }
+    517|       await navigation
+    518|       expect(f.router.currentRoute.value.path).toBe('/system/providers…
+       |                                                ^
+    519|       expect(document.querySelectorAll('[role="dialog"]')).toHaveLengt…
+    520|       expect(f.auth.system.providers.material.present).toBe(false)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  08:53:33
+   Duration  3.16s (transform 713ms, setup 0ms, import 843ms, tests 1.76s, environment 402ms)
+

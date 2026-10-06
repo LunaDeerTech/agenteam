@@ -1,0 +1,11 @@
+{
+  "api-stage02": {
+    "web/src/api/client.ts": true,
+    "web/src/api/system-providers.ts": true,
+    "web/src/tests/system-providers-client.spec.ts": true
+  },
+  "owner-stage02": {
+    "web/src/composables/useSession.ts": true,
+    "web/src/tests/system-providers-state.spec.ts": false
+  }
+}

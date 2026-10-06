@@ -1,0 +1,18 @@
+{
+  "exit": 1,
+  "actual_wait_completed": true,
+  "seconds": 5.929360756999813,
+  "timed_out": false,
+  "input_unchanged": true,
+  "raw_sha256": "b9f87c197a9d38b73bbc221286d719257d7297a968081fab6ce032730339be22",
+  "owned_pid_count": 12,
+  "adopted_wait_count": 4,
+  "double_clean": true,
+  "tmpdir_removed": true,
+  "closed": {
+    "closedBrowser": true,
+    "closedServer": true,
+    "timedOut": false
+  },
+  "evidence_kind": "isolated layout diagnosis; no backend/Docker; synthetic read DTOs"
+}

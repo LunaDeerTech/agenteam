@@ -131,3 +131,15 @@ input01作者287项完整纯测及30项真实矩阵通过后，独立仍发现�
 作者七轮与独立两轮真实命令实际wait、各自exact资源双absent、原2容器/4网络基线不变、所属PID/runtime清零。独立最终7资源/86PID-starttime/4 adopted wait/monitor0，窗口释放；pure实际wait范围和保留编译缓存分别记录。旧共享任务两个PPID1 Z限制不计本轮清理。按SHA去重保留七输入、全部原红/分版复用与原命令/退出/清理；dist仅哈希与构建记录，不复制全树、依赖或二进制，文档负责人仅离线核原件/Git。
 
 本次只接受邀请管理完整卡；Provider后继独立推进，生产SPA、真实Vite代理、其他浏览器、native zoom及真实BFCache未验。卡技术正文保持，旧档、AGENTS与指南不作大块同步。完整D26/D27及D08–D28/E01未完成、E01未开始；Summary待决、Object/tools原任务停止、Artifact/Project与生产未绑定、ready503等边界保持。
+
+## 13. System Provider 管理 UI 完整卡接受
+
+§1–12保留各阶段原事实。[Provider rev4](../work-items/d27-system-provider-management-ui.md)已由作者完成、独立最终PASS并获主线程采纳，22路径提交推送 `f465f45b899e21c225e7d4107c099b256538239c`，主线程核远端一致。[正式报告与最小证据](system-providers-ui-verification.md)绑定input07 `e758cfd704f8677fe23cc57c8a41a23adff769fd85461a07092bedf1c6b26428`的21源/26dist指纹与后补README第22路径；固定1c82d88、后端9b32015/迁移1–19及1016只读依赖，卡技术§1–7保持原字节。
+
+接受Provider管理、Credential创建后独立绑定与安全恢复、Models只读子列表。API原WHATWG拒绝Go合法URL两项、owner清材料通知同步重入一项产品红保留，原probe返修后分别19/19、5/5通过，另有补充probe和App纯组合；实际read/cancel尾部沿未变生产字节的纯屏障。完整603测试/format/type/build通过，caption局部CSS后做受影响检查；新6按new02/new03/new05精确差量组合，旧7在input07通过，不称最终一次全量重跑。
+
+作者new01 label前提原红、有界中断和原cleanup=false不改，精确私有目录另次清理后双核true；new02登录完成/可访问与物理层数前提红保留，不补造未记录DOM。new03缺sr-only、new04caption定位与取景问题使原图被拒，input07局部定位和取景门禁后new05八图接受，作者逐张、主线程实际看light1440/dark390。固定CSS/简化DOM诊断与正式业务分列；pure03/04缺完整旧源只保留原指纹/失败，不补造。
+
+独立真实01因两物理Playwright副本注册失败，未进入浏览器业务；02 Replay PASS而Partial错要求text/plain503 reader EOF，原失败不记产品红。私有probe只删不可能的503EOF前提，成功恢复200仍需新seq EOF与精确身份；03仅Partial实际exit0/56.399s、top9.93/browser5.6，复用未变02 Replay11.35/browser7.5组成最终PASS。覆盖两阶段接受回执截断与原key/body/CSRF重放、唯一DB事实、确认后GET503、部分成功材料销毁、same Session503/200共同宿主恢复、真实焦点/Tab及只重基Provider，未以lookup或列表代receipt。
+
+九真实轮各自actual wait/输入不变/原2容器4网络基线不变、exact资源和PID-starttime终局保留；最终独立7IDs双absent、82所属PIDgone、4adopted wait、monitor0/runtime空，窗口释放。历史非自有PPID1 Z未触碰且不称已wait。归档676逻辑/409物理原件与16Git引用，离线verify核固定f465f45的22路径和原字节，不读活动Model树、不复制dist/依赖/二进制、不重跑产品。Model后继按其独立卡推进；完整D09/D26/D27及D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503及生产SPA/Vite/Runtime/其他浏览器等边界保持。

@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "node",
+    "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/independent.config.js",
+    "--list"
+  ],
+  "cwd": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01",
+  "env_overrides": {
+    "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1",
+    "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/list-independent-replay/not-started",
+    "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+    "AGENTEAM_PROVIDERS_WEB_CASE": "independent-replay",
+    "TMPDIR": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/tmp",
+    "CI": "1",
+    "npm_config_offline": "true"
+  },
+  "before": {
+    "e2e/fixed-helpers.ts": "705964a0d89f2b21a50f240cf76601b1351831c9241bb270f43d274b09a064b5",
+    "e2e/independent-providers.spec.ts": "be7f59e973dca81ba59346356cd754ade6c978bf9eba71a5e9ca90c47c0edc90",
+    "independent.config.js": "068133d505cb1a61a5a09f64db6c735dd236a6a384024d2d387a42a537ff1c94",
+    "list-source.py": "20723bcf46d0fdb5a7bbc60f9a4a46e669306f0d3f2c6c9c5e6ee4f12cf2a75c"
+  },
+  "intent": "Discovery only; no fixture, browser, server, or request is started",
+  "pid": 695769,
+  "exit_code": 0,
+  "actual_wait": true,
+  "elapsed_seconds": 0.666,
+  "raw_sha256": "b8d623830560002f0aa6fa4b79b0a568ead13a4eac49dd18680e93046f231dc1",
+  "after": {
+    "e2e/fixed-helpers.ts": "705964a0d89f2b21a50f240cf76601b1351831c9241bb270f43d274b09a064b5",
+    "e2e/independent-providers.spec.ts": "be7f59e973dca81ba59346356cd754ade6c978bf9eba71a5e9ca90c47c0edc90",
+    "independent.config.js": "068133d505cb1a61a5a09f64db6c735dd236a6a384024d2d387a42a537ff1c94",
+    "list-source.py": "20723bcf46d0fdb5a7bbc60f9a4a46e669306f0d3f2c6c9c5e6ee4f12cf2a75c"
+  },
+  "exact_one_test": true,
+  "inputs_unchanged": true
+}

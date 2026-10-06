@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-c",
+    "-race",
+    "-tags=integration",
+    "-o",
+    "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/compile01/account.test",
+    "./tests/account"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOCACHE": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/gocache",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "TMPDIR": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/tmp",
+    "npm_config_offline": "true"
+  }
+}

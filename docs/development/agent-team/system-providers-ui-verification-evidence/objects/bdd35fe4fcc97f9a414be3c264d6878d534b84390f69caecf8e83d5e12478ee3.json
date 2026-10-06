@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "node",
+    "web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--strict",
+    "--skipLibCheck",
+    "--types",
+    "node",
+    "--typeRoots",
+    "web/node_modules/@types",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace",
+  "env": {
+    "npm_config_offline": "true",
+    "TMPDIR": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/tmp"
+  },
+  "spec_sha256": "44e1017990f16e475eea95423f74f4647e598f7effe47251326e5b6c3342a8cb"
+}

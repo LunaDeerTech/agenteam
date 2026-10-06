@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace/web",
+  "env": {
+    "npm_config_offline": "true",
+    "TMPDIR": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/tmp"
+  },
+  "source_sha256": {
+    "web/src/views/system/SystemProvidersView.vue": "7a220565bfca21d70f56f087a66ff713e5cee9d53546bcce73a4eadf347b3b89",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "54dc2bf273b11673601af69ff7af096062a9b692c36afc0eff3e1b53e8133241"
+  }
+}

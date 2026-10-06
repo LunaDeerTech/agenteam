@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "node",
+    "web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--strict",
+    "--skipLibCheck",
+    "--types",
+    "node",
+    "--typeRoots",
+    "web/node_modules/@types",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOCACHE": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/gocache",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "TMPDIR": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/tmp",
+    "npm_config_offline": "true"
+  }
+}

@@ -1,0 +1,90 @@
+import { afterEach, describe, expect, it } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI, type ProviderInput } from '../api/system-providers'
+import { type Fetch } from '../api/client'
+import { createSessionController, type SessionController } from '../composables/useSession'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const instant = '2026-10-06T12:34:56.123456Z'
+const csrf = 'S'.repeat(43)
+const session: SessionView = {
+  user: { id: id(1), email: 'admin@example.invalid', username: 'admin', display_name: 'Admin', role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false },
+  session: { id: id(2), issued_at: instant, idle_expires_at: instant, absolute_expires_at: instant },
+  csrf_token: csrf,
+}
+const input = (name: string): ProviderInput => ({ name, protocol: 'openai-chat-completions', base_url: 'https://provider.invalid/v1', enabled: true, credential_ref: null, options: {} })
+const json = (value: unknown) => new Response(JSON.stringify(value), { headers: { 'Content-Type': 'application/json' } })
+const owners: SessionController[] = []
+afterEach(() => { for (const owner of owners.splice(0)) owner.leave() })
+
+describe('Independent confirmation reentrancy', () => {
+  it('preserves a different replacement intent through native Credential EOF after retiring the confirmed old intent', async () => {
+    const writes: { path: string; init: RequestInit }[] = []
+    const material = 'generated-' + crypto.randomUUID()
+    let credentialController!: ReadableStreamDefaultController<Uint8Array>
+    let released = false
+    const credentialStream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        credentialController = controller
+        controller.enqueue(new TextEncoder().encode(JSON.stringify({ credential_id: id(11), purpose: 'model', version: '1', deleted: false })))
+      },
+    })
+    const fetcher: Fetch = async (path, init) => {
+      if (path === '/api/v1/session') return json(session)
+      writes.push({ path, init })
+      if (path === '/api/v1/system/model-credentials') return new Response(credentialStream, { headers: { 'Content-Type': 'application/json' } })
+      if (path === '/api/v1/system/model-providers' && init.method === 'POST') return json({ kind: 'provider.create', resource_id: id(10), version: '1', affected_references: '0' })
+      if (path === '/api/v1/system/model-providers/' + id(20) && init.method === 'PUT') return json({ kind: 'provider.update', resource_id: id(20), version: '8', affected_references: '0' })
+      throw new Error('unexpected-independent-request')
+    }
+    const auth = createSessionController(createAccountAPI(fetcher), createSystemAccountAPI(fetcher), createSystemInvitationAPI(fetcher), createSystemProviderAPI(fetcher))
+    owners.push(auth)
+    await auth.restore()
+    let next: Promise<unknown> | undefined
+    let replacements = 0
+    const stop = watch(() => auth.system.providers.progress?.phase, (phase) => {
+      if (phase !== 'confirmed' || replacements !== 0) return
+      replacements++
+      auth.system.providers.abandon()
+      auth.system.providers.setMaterial(material)
+      next = auth.system.providers.start({ kind: 'provider.update', id: id(20), expected_version: '7', input: input('Replacement') }).catch((error: unknown) => error)
+    }, { flush: 'sync' })
+    try {
+      await expect(auth.system.providers.start({ kind: 'provider.create', input: input('Original') })).rejects.toMatchObject({ kind: 'cancelled' })
+      await flushPromises()
+      expect({ replacements, writes: writes.length, busy: auth.state.busy, kind: auth.system.providers.progress?.kind, stage: auth.system.providers.progress?.stage, phase: auth.system.providers.progress?.phase, material: auth.system.providers.material.present }).toEqual({ replacements: 1, writes: 2, busy: true, kind: 'provider.update', stage: 'credential', phase: 'submitting', material: true })
+      const noReplacementBindingBeforeEOF = !writes.some((write) => write.init.method === 'PUT')
+      const publicState = JSON.stringify([auth.state, auth.system.providers.progress, auth.system.providers.material])
+      expect(noReplacementBindingBeforeEOF).toBe(true)
+      expect(publicState.includes(material) || publicState.includes(csrf)).toBe(false)
+      credentialController.close()
+      released = true
+      expect(await next).toMatchObject({ kind: 'provider.update', resource_id: id(20), version: '8', affected_references: '0' })
+      await flushPromises()
+      expect({ writes: writes.length, busy: auth.state.busy, phase: auth.system.providers.progress?.phase, target: auth.system.providers.progress?.receipt?.resource_id === id(20), material: auth.system.providers.material.present }).toEqual({ writes: 3, busy: false, phase: 'confirmed', target: true, material: false })
+      const credential = writes[1]!
+      const replacement = writes[2]!
+      const body = JSON.parse(String(replacement.init.body))
+      const keys = writes.map((write) => new Headers(write.init.headers).get('Idempotency-Key'))
+      const safeFacts = {
+        credentialValueMatches: JSON.parse(String(credential.init.body)).value === material,
+        replacementTargetMatches: replacement.path === '/api/v1/system/model-providers/' + id(20),
+        replacementCommandMatches: body.expected_version === '7' && body.input.name === 'Replacement' && body.input.credential_ref === id(11),
+        threeDistinctKeys: keys.every(Boolean) && new Set(keys).size === 3,
+        sameOriginalCSRF: writes.every((write) => new Headers(write.init.headers).get('X-CSRF-Token') === csrf),
+        materialNotInProviderBodies: writes.filter((write) => write.path.includes('/model-providers')).every((write) => !String(write.init.body).includes(material)),
+      }
+      expect(safeFacts).toEqual({ credentialValueMatches: true, replacementTargetMatches: true, replacementCommandMatches: true, threeDistinctKeys: true, sameOriginalCSRF: true, materialNotInProviderBodies: true })
+      console.log('confirmation-replacement-safe-facts', JSON.stringify(safeFacts))
+    } finally {
+      stop()
+      if (!released) credentialController.close()
+      await next
+      await flushPromises()
+    }
+  })
+})

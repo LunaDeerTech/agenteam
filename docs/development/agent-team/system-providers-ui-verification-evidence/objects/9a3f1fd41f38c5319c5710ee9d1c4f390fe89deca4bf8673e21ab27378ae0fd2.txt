@@ -1,0 +1,13 @@
+# Provider owner stage01 independent review
+
+**BLOCKED — P-OWNER-01: synchronous cancellation can revive cleared progress.**
+
+Fixed owner manifest `20053b65e651fac3e47e2ba34a8ce30410addcc0d96e927d08ae7ac06d7a4cf8`, API-stage02 `61c86175…`, base `1c82d88`. Only the frozen Session/API closure was read; active page controller/View were not consumed.
+
+After a strict Credential receipt, `clearProviderMaterial()` notifies a public synchronous watcher. If it calls `providers.abandon()`, intent/progress are cleared, but old work proceeds to publish `submitting` progress before its next `assertLive()`. The independent probe actually returned cancelled with one abandonment, owner no longer busy, material flag false and **zero second Provider POST**, yet `progress !== null`. The raw log reports only these safe booleans/counts; the old submitting/ref attribution follows the fixed source. No material exposure or unauthorized binding was observed.
+
+One independent run: **4 PASS / 1 FAIL**, actual exit 1 / 1.068s, all input hashes unchanged. Passed combinations cover native first EOF and second cancellation tail under one owner/30s visible budget; lookup missing/503/found versus exact original Credential replay and prepared-ref rebase; current403/CSRF cleanup; old-identity real transport tail blocking new Session until actual join. Original body/key/CSRF comparisons remain private booleans, not logged values.
+
+All gates were released, watchers stopped and owners left; the command actually waited/exited. No real resource, external network, product or Git action. Source/probe/command/raw hashes and exact boundaries are in `owner-stage01-report.json`. The failed assertion is retained for same-byte regression after author repair; four passing combinations may be reused only after reviewing the next delta.
+
+This is a stage review, not whole Provider acceptance. App/DOM material handling and real backend/browser workflows remain pending. A separate final-confirmation publication/cleanup reentry point was flagged to the author for static inspection, without claiming a second measured failure.

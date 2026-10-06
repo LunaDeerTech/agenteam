@@ -1,0 +1,405 @@
+<script setup lang="ts">
+import { nextTick, onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue'
+import UiButton from '../../components/ui/UiButton.vue'
+import UiDialog from '../../components/ui/UiDialog.vue'
+import UiState from '../../components/ui/UiState.vue'
+import SystemProviderEditor from './SystemProviderEditor.vue'
+import { useSystemProviders } from '../../composables/useSystemProviders'
+const page = useSystemProviders()
+const {
+  list,
+  detail,
+  models,
+  metadata,
+  editor,
+  dialogs,
+  state,
+  confirmation,
+  progress,
+  blocked,
+  locked,
+  canDelete,
+  feedback,
+} = page
+const heading = ref<HTMLElement | null>(null),
+  actions = ref<HTMLElement | null>(null)
+let alive = true
+const businessOpen = () => editor.mode !== null || dialogs.deletion !== null
+function operable(node: HTMLElement) {
+  if (!node.isConnected || node.matches(':disabled') || !node.getClientRects().length) return false
+  for (let current: HTMLElement | null = node; current; current = current.parentElement)
+    if (current.inert || current.hidden || current.getAttribute('aria-hidden') === 'true')
+      return false
+  return true
+}
+async function perform(work: () => Promise<void>, event: Event) {
+  const previous = event.currentTarget
+  await work()
+  if (!alive || !heading.value?.isConnected) return
+  await nextTick()
+  if (!alive || confirmation.open || businessOpen() || blocked.value) return
+  const target =
+    previous instanceof HTMLElement && operable(previous)
+      ? previous
+      : (actions.value?.querySelector<HTMLButtonElement>('button:not(:disabled)') ?? heading.value)
+  if (target && operable(target)) target.focus()
+}
+onMounted(async () => {
+  page.attach()
+  await nextTick()
+  if (alive && !businessOpen() && !confirmation.open && heading.value && operable(heading.value))
+    heading.value.focus()
+})
+onBeforeUnmount(() => {
+  alive = false
+})
+onUnmounted(page.detach)
+</script>
+<template>
+  <div class="system-providers">
+    <h1 ref="heading" tabindex="-1">Providers</h1>
+    <p class="meta">管理系统 Provider 配置与凭据引用。Model 列表仅供查看；保存不代表已验证连接。</p>
+    <div ref="actions" class="provider-actions" aria-label="Provider操作与分页">
+      <UiButton
+        :disabled="locked"
+        :state="
+          feedback === 'success' && state.confirmed?.kind === 'provider.create' ? 'success' : 'idle'
+        "
+        success-label="操作已确认"
+        @click="page.openCreate"
+        >创建 Provider</UiButton
+      >
+      <UiButton :disabled="blocked" @click="perform(page.refresh, $event)">刷新</UiButton>
+      <UiButton :disabled="blocked || !list.hasPrevious" @click="perform(page.previous, $event)"
+        >上一页</UiButton
+      >
+      <UiButton :disabled="blocked || !list.hasNext" @click="perform(page.next, $event)"
+        >下一页</UiButton
+      >
+    </div>
+    <p v-if="state.writeMessage && !businessOpen()" role="status">{{ state.writeMessage }}</p>
+    <p v-if="page.auth.state.busy" class="meta" role="status">正在等待当前请求结束。</p>
+    <UiState
+      v-if="state.requiresReload"
+      kind="error"
+      title="请重新读取当前列表"
+      description="本地追踪已停止，此前请求仍可能生效。"
+    />
+    <UiState v-if="list.phase === 'loading'" kind="loading" title="正在读取 Providers" />
+    <UiState
+      v-else-if="list.phase === 'error'"
+      kind="error"
+      title="Provider列表读取失败"
+      :description="list.message"
+    >
+      <UiButton :disabled="blocked" @click="perform(page.retryList, $event)">{{
+        list.cursorInvalid ? '返回首页重新加载' : '重新读取列表'
+      }}</UiButton>
+    </UiState>
+    <UiState v-else-if="list.phase === 'empty'" kind="empty" title="暂无 Provider" />
+    <div
+      v-else-if="list.phase === 'ready'"
+      class="provider-table"
+      role="region"
+      aria-label="Providers列表"
+      tabindex="0"
+    >
+      <table>
+        <caption class="sr-only">
+          Providers配置
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">名称</th>
+            <th scope="col">协议</th>
+            <th scope="col">Base URL</th>
+            <th scope="col">状态</th>
+            <th scope="col">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in list.rows" :key="row.id">
+            <td data-label="名称">{{ row.input.name }}</td>
+            <td data-label="协议">{{ row.input.protocol }}</td>
+            <td data-label="Base URL">{{ row.input.base_url }}</td>
+            <td data-label="状态">{{ row.input.enabled ? '启用' : '禁用' }}</td>
+            <td data-label="操作">
+              <UiButton
+                variant="ghost"
+                :disabled="blocked"
+                :aria-label="`查看 ${row.input.name}`"
+                @click="perform(() => page.select(row), $event)"
+                >查看</UiButton
+              >
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <section v-if="detail.phase !== 'inactive'" class="provider-detail" aria-label="Provider详情">
+      <div class="provider-actions">
+        <h2>Provider 详情</h2>
+        <UiButton variant="ghost" :disabled="blocked" @click="perform(page.back, $event)"
+          >返回列表</UiButton
+        >
+      </div>
+      <UiState v-if="detail.phase === 'loading'" kind="loading" title="正在读取当前配置" />
+      <UiState
+        v-else-if="detail.phase === 'error'"
+        kind="error"
+        title="当前配置读取失败"
+        :description="detail.message"
+        ><UiButton :disabled="blocked" @click="perform(page.retryDetail, $event)"
+          >重新读取当前配置</UiButton
+        ></UiState
+      >
+      <template v-else-if="detail.value">
+        <dl class="provider-facts">
+          <dt>名称</dt>
+          <dd>{{ detail.value.input.name }}</dd>
+          <dt>协议</dt>
+          <dd>{{ detail.value.input.protocol }}</dd>
+          <dt>Base URL</dt>
+          <dd>{{ detail.value.input.base_url }}</dd>
+          <dt>启用状态</dt>
+          <dd>{{ detail.value.input.enabled ? '启用' : '禁用' }}</dd>
+          <dt>版本</dt>
+          <dd>{{ detail.value.version }}</dd>
+          <dt>创建时间（UTC）</dt>
+          <dd>
+            <time :datetime="detail.value.created_at">{{ detail.value.created_at }}</time>
+          </dd>
+          <dt>更新时间（UTC）</dt>
+          <dd>
+            <time :datetime="detail.value.updated_at">{{ detail.value.updated_at }}</time>
+          </dd>
+        </dl>
+        <div class="provider-actions">
+          <UiButton :disabled="locked" @click="page.openEdit">编辑 Provider</UiButton
+          ><UiButton variant="danger" :disabled="!canDelete" @click="page.openDelete"
+            >删除 Provider</UiButton
+          >
+        </div>
+        <section aria-label="凭据状态">
+          <h3>凭据状态</h3>
+          <UiButton
+            v-if="detail.value.input.credential_ref !== null && metadata.phase === 'ready'"
+            variant="ghost"
+            :disabled="blocked"
+            @click="perform(page.retryMetadata, $event)"
+            >刷新凭据状态</UiButton
+          >
+          <p v-if="metadata.phase === 'unconfigured'">未配置</p>
+          <p v-else-if="metadata.phase === 'loading'">正在读取凭据状态…</p>
+          <p v-else-if="metadata.phase === 'ready'">已配置 · 版本 {{ metadata.value?.version }}</p>
+          <p v-else-if="metadata.phase === 'missing' || metadata.phase === 'error'" role="status">
+            {{ metadata.message }}
+            <UiButton
+              variant="ghost"
+              :disabled="blocked"
+              @click="perform(page.retryMetadata, $event)"
+              >重新读取凭据状态</UiButton
+            >
+          </p>
+          <p class="meta">仅观察当前引用，不展示凭据内容。</p>
+        </section>
+        <section aria-label="只读 Models">
+          <h3>Models</h3>
+          <p class="meta">仅供查看。需先删除或替换所有 Models，才能删除 Provider。</p>
+          <div class="provider-actions">
+            <UiButton
+              :disabled="blocked || !models.hasPrevious"
+              @click="perform(page.previousModels, $event)"
+              >Models上一页</UiButton
+            ><UiButton
+              :disabled="blocked || !models.hasNext"
+              @click="perform(page.nextModels, $event)"
+              >Models下一页</UiButton
+            >
+          </div>
+          <UiState v-if="models.phase === 'loading'" kind="loading" title="正在读取 Models" />
+          <UiState
+            v-else-if="models.phase === 'error'"
+            kind="error"
+            title="Models读取失败，暂不能删除Provider"
+            :description="models.message"
+            ><UiButton :disabled="blocked" @click="perform(page.retryModels, $event)">{{
+              models.cursorInvalid ? 'Models返回首页' : '重新读取 Models'
+            }}</UiButton></UiState
+          >
+          <p v-else-if="models.phase === 'empty'">
+            {{
+              models.firstEmpty
+                ? '当前首项未发现 Models。'
+                : '当前页没有 Models，不代表 Provider 为空。'
+            }}
+          </p>
+          <div v-else-if="models.phase === 'ready'" class="provider-table">
+            <table>
+              <caption class="sr-only">
+                当前Provider的Models
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">名称</th>
+                  <th scope="col">原生模型ID</th>
+                  <th scope="col">类型</th>
+                  <th scope="col">状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in models.rows" :key="row.id">
+                  <td data-label="名称">{{ row.input.name }}</td>
+                  <td data-label="原生模型ID">{{ row.input.provider_model_id }}</td>
+                  <td data-label="类型">{{ row.input.type }}</td>
+                  <td data-label="状态">{{ row.input.enabled ? '启用' : '禁用' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </template>
+    </section>
+    <SystemProviderEditor />
+    <UiDialog
+      :open="dialogs.deletion !== null"
+      title="删除 Provider？"
+      @update:open="!$event && page.closeDelete()"
+    >
+      <p>
+        确认删除“{{ dialogs.deletion?.name }}”？仅删除 Provider，不删除凭据，也不级联删除 Models。
+      </p>
+      <p v-if="state.writeMessage" role="status">{{ state.writeMessage }}</p>
+      <div v-if="progress?.phase === 'uncertain'" class="provider-actions">
+        <UiButton :disabled="blocked" @click="page.checkOriginal">检查原请求</UiButton
+        ><UiButton :disabled="blocked || !progress.canRetryOriginal" @click="page.retryOriginal"
+          >重试原请求</UiButton
+        ><UiButton variant="ghost" @click="page.abandonOperation">放弃本次操作</UiButton>
+      </div>
+      <template #footer
+        ><UiButton variant="ghost" @click="page.closeDelete">取消</UiButton
+        ><UiButton
+          variant="danger"
+          :disabled="locked || !canDelete"
+          :state="feedback"
+          @click="perform(page.remove, $event)"
+          >确认删除</UiButton
+        ></template
+      >
+    </UiDialog>
+    <!-- This is deliberately the last Provider layer in the same page subtree. -->
+    <UiDialog
+      :open="confirmation.open"
+      :title="confirmation.title"
+      @update:open="!$event && page.finishConfirmation(false)"
+    >
+      <p>{{ confirmation.message }}</p>
+      <template #footer
+        ><UiButton variant="ghost" @click="page.finishConfirmation(false)">继续编辑</UiButton
+        ><UiButton @click="page.finishConfirmation(true)">放弃修改</UiButton></template
+      >
+    </UiDialog>
+  </div>
+</template>
+<style scoped>
+.system-providers {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.system-providers p,
+.system-providers h2,
+.system-providers h3 {
+  overflow-wrap: anywhere;
+}
+.provider-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+.provider-actions :deep(button) {
+  white-space: normal;
+  max-width: 100%;
+}
+.provider-table {
+  min-width: 0;
+  max-width: 100%;
+}
+.provider-table table {
+  width: 100%;
+  table-layout: fixed;
+}
+.provider-table th,
+.provider-table td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.provider-detail {
+  display: grid;
+  gap: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  min-width: 0;
+}
+.provider-detail section {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.provider-facts {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) minmax(0, 4fr);
+  gap: 10px 20px;
+  margin: 0;
+}
+.provider-facts dt {
+  color: var(--muted);
+}
+.provider-facts dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .provider-table thead {
+    display: none;
+  }
+  .provider-table table,
+  .provider-table tbody,
+  .provider-table tr,
+  .provider-table td {
+    display: block;
+    width: 100%;
+  }
+  .provider-table tr {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .provider-table td {
+    border: 0;
+    padding: 6px 0;
+  }
+  .provider-table td::before {
+    display: block;
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .provider-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  .provider-facts dd {
+    margin-bottom: 10px;
+  }
+}
+</style>

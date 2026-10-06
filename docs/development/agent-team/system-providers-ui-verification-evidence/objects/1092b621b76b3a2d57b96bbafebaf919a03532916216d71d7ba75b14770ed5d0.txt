@@ -1,0 +1,38 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-provider-owner-verification-kpen9k8j/candidate/web
+
+ ✓ src/tests/independent-owner.spec.ts > Independent Provider owner boundaries > joins first native EOF then keeps prepared ref and second cancel tail under one owner 22ms
+ ✓ src/tests/independent-owner.spec.ts > Independent Provider owner boundaries > does not promote lookup or rejected replay and reuses one confirmed Credential after explicit Provider rebase 8ms
+ × src/tests/independent-owner.spec.ts > Independent Provider owner boundaries > keeps explicit abandonment terminal when the write-only material-cleared notification fires synchronously 6ms
+   → expected { abandons: 1, busy: false, …(3) } to deeply equal { abandons: 1, busy: false, …(3) }
+ ✓ src/tests/independent-owner.spec.ts > Independent Provider owner boundaries > uses current lookup Forbidden to clear prepared state and retain identity-bound denial only 3ms
+ ✓ src/tests/independent-owner.spec.ts > Independent Provider owner boundaries > keeps an abandoned old-identity real transport tail ahead of replacement Session establishment 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/independent-owner.spec.ts > Independent Provider owner boundaries > keeps explicit abandonment terminal when the write-only material-cleared notification fires synchronously
+AssertionError: expected { abandons: 1, busy: false, …(3) } to deeply equal { abandons: 1, busy: false, …(3) }
+
+- Expected
++ Received
+
+  {
+    "abandons": 1,
+    "busy": false,
+    "material": false,
+-   "progressCleared": true,
++   "progressCleared": false,
+    "providerWrites": 0,
+  }
+
+ ❯ src/tests/independent-owner.spec.ts:120:231
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  08:58:03
+   Duration  728ms (transform 137ms, setup 0ms, import 205ms, tests 42ms, environment 367ms)
+

@@ -1,0 +1,58 @@
+{
+  "1e80335d78cd36cceb1c189a72ff50b9c3c2eb35889d863f8d0d9eeeb1925ed9": {
+    "id": "1e80335d78cd36cceb1c189a72ff50b9c3c2eb35889d863f8d0d9eeeb1925ed9",
+    "kind": "network",
+    "labels": {
+      "agenteam.d03.fixture": "09ce61471d7fc41cf63c7a0bc42a4438"
+    },
+    "name": "agenteam-d03-09ce61471d7fc41cf63c7a0bc42a4438"
+  },
+  "25fd80fee72f7a2949c028ed483bf7b1e9a716e72184408e884a115d04560378": {
+    "id": "25fd80fee72f7a2949c028ed483bf7b1e9a716e72184408e884a115d04560378",
+    "kind": "container",
+    "labels": {
+      "agenteam.d04.networkfixture": "b350a117a3707e616fc93ef7f7fe36ea"
+    },
+    "name": "/agenteam-d04-net-b350a117a3707e616fc93ef7f7fe36ea"
+  },
+  "2c8ffac42d645a442afe7cb00fb0248aee50dceef203d50330bc71a19d4509ac": {
+    "id": "2c8ffac42d645a442afe7cb00fb0248aee50dceef203d50330bc71a19d4509ac",
+    "kind": "network",
+    "labels": {
+      "agenteam.d04.networkfixture": "b350a117a3707e616fc93ef7f7fe36ea"
+    },
+    "name": "agenteam-d04-net-b350a117a3707e616fc93ef7f7fe36ea"
+  },
+  "54f91ad5beb051b6b20fd2f018df57345c486f66ef8e329c49664f6614411b49": {
+    "id": "54f91ad5beb051b6b20fd2f018df57345c486f66ef8e329c49664f6614411b49",
+    "kind": "container",
+    "labels": {
+      "agenteam.d05.objectfixture": "11e52326289fe98666127816df469c23"
+    },
+    "name": "/agenteam-d05-object-11e52326289fe98666127816df469c23"
+  },
+  "703262cf48721e8223d6aa86184656f9719446cf458722c23285c0f1233e4103": {
+    "id": "703262cf48721e8223d6aa86184656f9719446cf458722c23285c0f1233e4103",
+    "kind": "container",
+    "labels": {
+      "agenteam.d03.fixture": "09ce61471d7fc41cf63c7a0bc42a4438"
+    },
+    "name": "/agenteam-d03-09ce61471d7fc41cf63c7a0bc42a4438-pg16"
+  },
+  "73e99be24770ed5d3f943c2f6a64c75c6dbc8f2a3fa307b0c20c1b2563c6a56a": {
+    "id": "73e99be24770ed5d3f943c2f6a64c75c6dbc8f2a3fa307b0c20c1b2563c6a56a",
+    "kind": "network",
+    "labels": {
+      "agenteam.d05.objectfixture": "11e52326289fe98666127816df469c23"
+    },
+    "name": "agenteam-d05-object-11e52326289fe98666127816df469c23"
+  },
+  "d5a3cbd9402339fe42c6b21e74a1ba856308a6a051e5dbd321f7485fe4c66109": {
+    "id": "d5a3cbd9402339fe42c6b21e74a1ba856308a6a051e5dbd321f7485fe4c66109",
+    "kind": "container",
+    "labels": {
+      "agenteam.d03.fixture": "09ce61471d7fc41cf63c7a0bc42a4438"
+    },
+    "name": "/agenteam-d03-09ce61471d7fc41cf63c7a0bc42a4438"
+  }
+}

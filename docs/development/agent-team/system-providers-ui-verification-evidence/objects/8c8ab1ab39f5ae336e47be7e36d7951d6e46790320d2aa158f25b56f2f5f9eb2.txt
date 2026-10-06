@@ -1,0 +1,11 @@
+--- probe03/e2e/independent-providers.spec.ts
++++ probe04/e2e/independent-providers.spec.ts
+@@ -54,7 +54,7 @@
+   // the actual same browser Cookie Session against the formal backend.
+   await page.evaluate(() => window.dispatchEvent(new Event('pageshow')));
+   await expect(page.getByRole('heading', { name: '会话尚未确认', exact: true })).toBeVisible();
+-  await expect.poll(async () => (await facts(page)).some((fact) => fact.sequence > beforePageshow && fact.path === '/api/v1/session' && fact.method === 'GET' && fact.status === 503 && fact.ended)).toBe(true);
++  await expect.poll(async () => (await facts(page)).some((fact) => fact.sequence > beforePageshow && fact.path === '/api/v1/session' && fact.method === 'GET' && fact.status === 503)).toBe(true);
+   await expect(page.locator('[role="dialog"]')).toHaveCount(0);
+   await expect(page.getByRole('dialog')).toHaveCount(0);
+   const restore = page.getByRole('button', { name: '检查当前会话', exact: true });

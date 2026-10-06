@@ -1,0 +1,22 @@
+package main
+import ("encoding/json";"os";"net/url";"strconv";"strings";"unicode/utf8")
+func text(s string, n int) bool {
+	return s != "" && len(s) <= n && utf8.ValidString(s) && !strings.ContainsRune(s, 0)
+}
+func endpoint(s string) bool {
+	if !text(s, 8192) || strings.ContainsAny(s, "\r\n\t #") {
+		return false
+	}
+	u, e := url.Parse(s)
+	if e != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.ForceQuery || u.Fragment != "" || u.Opaque != "" || strings.HasSuffix(u.Host, ":") {
+		return false
+	}
+	if port := u.Port(); port != "" {
+		n, err := strconv.ParseUint(port, 10, 16)
+		if err != nil || n == 0 {
+			return false
+		}
+	}
+	return true
+}
+func main(){ var cases []struct{Case string `json:"case"`; URL string `json:"url"`}; if err:=json.NewDecoder(os.Stdin).Decode(&cases);err!=nil{panic(err)}; out:=make([]map[string]any,0,len(cases)); for _,c:=range cases{out=append(out,map[string]any{"case":c.Case,"go_accepted":endpoint(c.URL)})}; if err:=json.NewEncoder(os.Stdout).Encode(out);err!=nil{panic(err)}}

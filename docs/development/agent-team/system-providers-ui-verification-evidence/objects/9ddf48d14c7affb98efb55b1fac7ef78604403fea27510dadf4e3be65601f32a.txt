@@ -1,0 +1,3 @@
+独立independent01因私有CLI与spec加载不同物理Playwright模块在注册test时失败，两个浏览器场景均未开始；fixture/种子建立后正常清理。原轮actual1/143.610s，7IDs及185PID双清、browser0、monitor0，原件保留。
+
+修复仅私有Go fixture启动CLI的一行路径；spec、业务断言、产品21源26dist与45s/2m/6m预算不变。按Go实际cwd与argv做--list，两mode各一例（0.788s/0.733s），模块解析及test对象严格同一实例Playwright1.56.1。精确差量fixture-cli01-to02.diff，发现原件logs/discovery02/，冻结输入execution02.json。新runner仅增加私有输入指纹门禁与快照，不改真实资源规则；尚未开始复跑。

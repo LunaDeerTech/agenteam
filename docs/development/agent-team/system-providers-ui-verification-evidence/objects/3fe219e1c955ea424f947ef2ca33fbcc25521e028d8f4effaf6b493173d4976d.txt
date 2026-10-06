@@ -1,0 +1,42 @@
+from pathlib import Path
+import hashlib
+import json
+import os
+import subprocess
+import time
+
+root = Path(__file__).resolve().parent
+run = root / 'logs/discovery02'
+run.mkdir(exist_ok=False)
+cwd = Path('/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace/tests/account-captcha-web')
+cli = root / 'node_modules/@playwright/test/cli.js'
+config = root / 'independent.config.js'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+sources = [root / name for name in ['independent-fixture.go','e2e/independent-providers.spec.ts','e2e/fixed-helpers.ts','independent.config.js','discovery02.py']]
+before = {str(p.relative_to(root)):sha(p) for p in sources}
+js = """const {createRequire}=require('node:module');const fs=require('node:fs');const a=createRequire(process.argv[1]);const b=createRequire(process.argv[2]);const ap=a.resolve('@playwright/test');const bp=b.resolve('@playwright/test');const av=a('@playwright/test'),bv=b('@playwright/test');const p=a('@playwright/test/package.json');console.log(JSON.stringify({cli:fs.realpathSync(process.argv[1]),specModule:ap,cliModule:bp,sameTestIdentity:av.test===bv.test,version:p.version}));if(av.test!==bv.test)process.exit(1);"""
+resolve_argv = ['node','-e',js,str(cli),str(root/'e2e/independent-providers.spec.ts')]
+resolved = subprocess.run(resolve_argv,cwd=cwd,capture_output=True,text=True,timeout=20)
+(run/'module-resolution.log').write_text(resolved.stdout+resolved.stderr)
+assert resolved.returncode == 0
+identity = json.loads(resolved.stdout)
+assert identity['sameTestIdentity'] and identity['version']=='1.56.1'
+results=[]
+for mode in ['independent-partial','independent-replay']:
+    changes={'AGENTEAM_AUTH_WEB_ORIGIN':'http://127.0.0.1:1','AGENTEAM_AUTH_WEB_PRIVATE':str(run/'not-started'),'AGENTEAM_AUTH_WEB_CHROMIUM':'/usr/bin/chromium','AGENTEAM_PROVIDERS_WEB_CASE':mode,'TMPDIR':str(root/'tmp'),'CI':'1'}
+    env={k:v for k,v in os.environ.items() if not k.startswith('AGENTEAM_')}
+    env.update(changes)
+    argv=['node',str(cli),'test','--config',str(config),'--list']
+    start=time.monotonic()
+    outcome=subprocess.run(argv,cwd=cwd,env=env,capture_output=True,text=True,timeout=30)
+    raw=outcome.stdout+outcome.stderr
+    raw_path=run/(mode+'.log');raw_path.write_text(raw)
+    record={'mode':mode,'argv':argv,'cwd':str(cwd),'env_overrides':changes,'actual_wait':True,'exit_code':outcome.returncode,'seconds':round(time.monotonic()-start,3),'raw_sha256':sha(raw_path),'one_test':'Total: 1 test in 1 file' in raw}
+    results.append(record)
+    (run/'results.json').write_text(json.dumps(results,indent=2)+'\n')
+    assert outcome.returncode==0 and record['one_test']
+after={str(p.relative_to(root)):sha(p) for p in sources}
+assert before==after
+binding={'purpose':'Go fixture exact CLI path and cwd reproduced by discovery only; no browser/service started','before':before,'after':after,'inputs_unchanged':True,'module_resolution_argv':resolve_argv,'module_resolution_cwd':str(cwd),'module_resolution_exit':resolved.returncode,'module_resolution':identity,'module_resolution_log_sha256':sha(run/'module-resolution.log'),'results':results}
+(run/'binding.json').write_text(json.dumps(binding,indent=2)+'\n')
+print(json.dumps({'module_resolution':identity,'discoveries':[{'mode':v['mode'],'exit_code':v['exit_code'],'seconds':v['seconds'],'one_test':v['one_test']} for v in results],'binding_sha256':sha(run/'binding.json'),'runtime_started':False}))

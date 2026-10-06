@@ -1,0 +1,23 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-provider-api02-verification-8v9jkq0f/candidate/web
+
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'ip4-tail-full-six' 31ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'ip4-tail-too-many' 1ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'ip4-before-compression' 1ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'ip4-compatible' 0ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'zone-raw-colon' 1ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'zone-escaped-at' 0ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'zone-escaped-nul' 0ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'literal-escaped-colon' 0ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'host-idna-joiner' 1ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'port-long-leading-zero' 1ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'port-nonascii-digit' 0ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'path-c1-unicode' 0ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'url-8192-bytes' 1ms
+ ✓ src/tests/independent-url-extra.spec.ts > Independent new URL branches > matches the exact fixed Go branch for 'url-8193-bytes' 1ms
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  08:52:05
+   Duration  263ms (transform 92ms, setup 0ms, import 113ms, tests 39ms, environment 0ms)
+

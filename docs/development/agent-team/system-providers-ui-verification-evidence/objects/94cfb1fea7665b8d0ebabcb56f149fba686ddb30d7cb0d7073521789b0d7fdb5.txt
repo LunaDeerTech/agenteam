@@ -1,0 +1,99 @@
+--- input02/tests/account-captcha-web/e2e/system-providers.spec.ts
++++ input03/tests/account-captcha-web/e2e/system-providers.spec.ts
+@@ -507,11 +507,8 @@
+ ) {
+   await page.addInitScript(observeNative);
+   await page.goto(path);
+-  await page.getByLabel("邮箱", { exact: true }).fill(material()[who].email);
+-  await privateFill(
+-    page.getByLabel("密码", { exact: true }),
+-    material()[who].password,
+-  );
++  await page.locator("#login-email").fill(material()[who].email);
++  await privateFill(page.locator("#login-password"), material()[who].password);
+   await page.getByRole("button", { name: "登录", exact: true }).click();
+   await expect(page).toHaveURL(new RegExp(path + "$"));
+   if (who === "admin")
+@@ -536,8 +533,10 @@
+   enabled = true,
+ ) {
+   const dialog = top(page);
+-  await dialog.getByLabel("名称", { exact: true }).fill(name);
+-  await dialog.getByLabel("Base URL", { exact: true }).fill(url);
++  await dialog.getByRole("textbox", { name: "名称", exact: true }).fill(name);
++  await dialog
++    .getByRole("textbox", { name: "Base URL", exact: true })
++    .fill(url);
+   await dialog.getByRole("button", { name: "协议", exact: true }).click();
+   await page
+     .getByRole("option", { name: "openai-chat-completions", exact: true })
+@@ -622,17 +621,16 @@
+       !current.input.enabled,
+   ).toBe(true);
+   await edit(page);
+-  await expect(top(page).getByLabel("协议", { exact: true })).toHaveAttribute(
+-    "readonly",
+-    "",
+-  );
++  await expect(
++    top(page).getByRole("textbox", { name: "协议", exact: true }),
++  ).toHaveAttribute("readonly", "");
+   expect(
+     await top(page)
+       .getByRole("button", { name: "保存配置", exact: true })
+       .isDisabled(),
+   ).toBe(true);
+   await top(page)
+-    .getByLabel("Base URL", { exact: true })
++    .getByRole("textbox", { name: "Base URL", exact: true })
+     .fill("http://1.2.3.999/v1");
+   await save(page);
+   await confirmed(page);
+@@ -991,11 +989,8 @@
+   ).toBe(false);
+   await page.getByRole("button", { name: "退出登录", exact: true }).click();
+   await expect(page).toHaveURL(/\/login$/);
+-  await page.getByLabel("邮箱", { exact: true }).fill(material().admin.email);
+-  await privateFill(
+-    page.getByLabel("密码", { exact: true }),
+-    material().admin.password,
+-  );
++  await page.locator("#login-email").fill(material().admin.email);
++  await privateFill(page.locator("#login-password"), material().admin.password);
+   await page.getByRole("button", { name: "登录", exact: true }).click();
+   await page.goto("/system/providers");
+   await expect(
+@@ -1043,11 +1038,8 @@
+     .click();
+   await expect(page.getByRole("dialog")).toHaveCount(0);
+   await expect(page).toHaveURL(/\/login(?:\?|$)/);
+-  await page.getByLabel("邮箱", { exact: true }).fill(material().admin.email);
+-  await privateFill(
+-    page.getByLabel("密码", { exact: true }),
+-    material().admin.password,
+-  );
++  await page.locator("#login-email").fill(material().admin.email);
++  await privateFill(page.locator("#login-password"), material().admin.password);
+   await page.getByRole("button", { name: "登录", exact: true }).click();
+   await page.goto("/system/providers");
+   await expect(
+@@ -1065,14 +1057,16 @@
+       .inputValue()) === "",
+   ).toBe(true);
+   expect(
+-    (await top(page).getByLabel("名称", { exact: true }).inputValue()) === "",
++    (await top(page)
++      .getByRole("textbox", { name: "名称", exact: true })
++      .inputValue()) === "",
+   ).toBe(true);
+   await top(page).getByRole("button", { name: "取消", exact: true }).click();
+   await page.getByRole("button", { name: "退出登录", exact: true }).click();
+   await expect(page).toHaveURL(/\/login$/);
+-  await page.getByLabel("邮箱", { exact: true }).fill(material().member.email);
++  await page.locator("#login-email").fill(material().member.email);
+   await privateFill(
+-    page.getByLabel("密码", { exact: true }),
++    page.locator("#login-password"),
+     material().member.password,
+   );
+   await page.getByRole("button", { name: "登录", exact: true }).click();

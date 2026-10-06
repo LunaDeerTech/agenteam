@@ -1,0 +1,46 @@
+--- preparation02/e2e/independent-providers.spec.ts
++++ preparation03/e2e/independent-providers.spec.ts
+@@ -6,6 +6,14 @@
+     const retained = [location.href, history.state, Object.fromEntries(Object.entries(localStorage)), Object.fromEntries(Object.entries(sessionStorage))];
+     return !JSON.stringify(retained).includes(secret);
+   }, value);
++}
++
++async function freshSameSession(page: Page, after: number, expected: { user_id: string; session_id: string; role: string }) {
++  await expect.poll(async () => (await facts(page)).some((fact) =>
++    fact.sequence > after && fact.path === '/api/v1/session' && fact.method === 'GET' &&
++    fact.status === 200 && fact.ended && fact.session?.user_id === expected.user_id &&
++    fact.session.session_id === expected.session_id && fact.session.role === expected.role,
++  )).toBe(true);
+ }
+ 
+ async function confirmationLayers(page: Page) {
+@@ -41,16 +49,20 @@
+   await expect(top(page)).toHaveAccessibleName('放弃未保存修改？');
+   const beforeChecking = (await writes(page)).length;
+   await ipc('arm-session-fail');
++  const beforePageshow = Math.max(0, ...(await facts(page)).map((fact) => fact.sequence));
+   // Explicit synthetic pageshow triggers production App listener; the retry is
+   // the actual same browser Cookie Session against the formal backend.
+   await page.evaluate(() => window.dispatchEvent(new Event('pageshow')));
+   await expect(page.getByRole('heading', { name: '会话尚未确认', exact: true })).toBeVisible();
++  await expect.poll(async () => (await facts(page)).some((fact) => fact.sequence > beforePageshow && fact.path === '/api/v1/session' && fact.method === 'GET' && fact.status === 503 && fact.ended)).toBe(true);
+   await expect(page.locator('[role="dialog"]')).toHaveCount(0);
+   await expect(page.getByRole('dialog')).toHaveCount(0);
+   const restore = page.getByRole('button', { name: '检查当前会话', exact: true });
+   await expect(restore).toBeEnabled();
+   expect(await restore.evaluate((node) => node.closest('[inert]') === null)).toBe(true);
++  const beforeRestore = Math.max(0, ...(await facts(page)).map((fact) => fact.sequence));
+   await restore.click();
++  await freshSameSession(page, beforeRestore, originalSession);
+   await confirmationLayers(page);
+   await expect(top(page)).toHaveAccessibleName('放弃未保存修改？');
+   expect(await top(page).evaluate((node) => node instanceof HTMLElement && !node.inert && node.getAttribute('aria-hidden') !== 'true')).toBe(true);
+@@ -111,6 +123,7 @@
+     const originalSession = await session(page);
+     await top(page).getByRole('button', { name: '检查原请求', exact: true }).click();
+     await expect(top(page)).toContainText('已观察到历史回执，当前对象或绑定仍未确认');
++    await freshSameSession(page, after, originalSession);
+     const lookupPath = stage === 'credential' ? '/api/v1/system/model-credential-commands/lookup' : '/api/v1/system/model-commands/lookup';
+     await expect.poll(async () => (await facts(page)).some((f) => f.sequence > after && f.path === lookupPath && f.status === 200 && f.ended && f.found === true)).toBe(true);
+     // The real App restore also remounts the page and refreshes its list. Neither

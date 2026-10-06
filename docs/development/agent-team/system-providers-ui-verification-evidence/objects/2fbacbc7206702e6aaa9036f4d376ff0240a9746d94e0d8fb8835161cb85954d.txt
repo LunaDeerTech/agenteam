@@ -1,0 +1,13 @@
+# Provider API stage02 independent delta
+
+**PASS for the API delta; P-API-01 closed.** Fixed manifest `61c86175161023fc6d4b107bb324dbdb737f7fbd2c54c338a1d87f0671a76511` and all three source hashes match. No owner/UI candidate was read.
+
+The replacement preserves raw URLs and follows accepted Go1.27.1 host/escape/IPv6-zone/port conditions without WHATWG numeric-host or IDNA mapping. No remaining blocking mismatch was found by static branch review.
+
+- Original independent probe and URL oracle remained byte-for-byte unchanged: **19/19 PASS**, actual exit 0 / 0.971s; this includes both original RED cases and the two existing stream assertions.
+- Additional **14/14 PASS**, actual exit 0 / 0.568s, cover new IPv4 tail, zone, host, long-port and UTF8 byte-boundary branches. Expected results came from the exact fixed Go validators, actual exit 0 / 5.202s.
+- Unchanged client SHA `7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6` permits reuse of stage01 endpoint/budget/cancel evidence; no broad repeat was run.
+
+Original stage01 failures remain frozen. All commands actually waited/exited, and input hashes remain fixed. No network, real resources, product or Git change. This is API-stage acceptance only: finite pure/oracle evidence does not establish real Create→List or the future owner, material lifecycle and UI workflow.
+
+`api-stage02-report.json` contains exact command/env/result/raw paths, hashes and reuse boundaries. Cache and node_modules are excluded from artifacts.

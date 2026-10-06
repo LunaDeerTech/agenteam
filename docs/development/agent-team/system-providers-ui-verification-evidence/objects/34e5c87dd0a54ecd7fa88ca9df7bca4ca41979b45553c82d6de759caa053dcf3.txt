@@ -1,0 +1,11 @@
+--- app01/independent-app.spec.ts
++++ app02/independent-app.spec.ts
+@@ -136,7 +136,7 @@
+     await click('重新读取当前配置')
+     expect(f.writes().length).toBe(3)
+     await click('创建 Provider')
+-    expect({ emptyName: field('名称').value === '', emptyMaterial: field('新凭据（仅写入）').value === '', progressCleared: f.auth.system.providers.progress === null, ordinarySave: button('保存配置', top()).disabled, oldSuccessAbsent: !top().textContent?.includes('配置已保存'), writes: f.writes().length }).toEqual({ emptyName: true, emptyMaterial: true, progressCleared: true, ordinarySave: true, oldSuccessAbsent: true, writes: 3 })
++    expect({ emptyName: field('名称').value === '', emptyMaterial: field('新凭据（仅写入）').value === '', progressCleared: f.auth.system.providers.progress === null, ordinarySave: button('保存配置', top()).disabled, oldSuccessAbsent: ![...top().querySelectorAll('.button-label[aria-hidden="false"]')].some((label) => label.textContent?.includes('配置已保存')) && button('保存配置', top()).getAttribute('aria-label') === null && button('保存配置', top()).getAttribute('aria-busy') === null, writes: f.writes().length }).toEqual({ emptyName: true, emptyMaterial: true, progressCleared: true, ordinarySave: true, oldSuccessAbsent: true, writes: 3 })
+     console.log('independent-app-safe-partial-facts', JSON.stringify(safeFacts))
+   })
+ 

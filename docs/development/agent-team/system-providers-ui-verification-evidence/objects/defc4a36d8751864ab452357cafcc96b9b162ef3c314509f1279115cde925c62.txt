@@ -1,0 +1,35 @@
+--- input04/tests/account-captcha-web/e2e/system-providers.spec.ts
++++ input05/tests/account-captcha-web/e2e/system-providers.spec.ts
+@@ -1112,6 +1112,10 @@
+ 
+ async function checkingConfirmation(page: Page, fail: boolean) {
+   const originalWrites = (await writes(page)).length;
++  const before = await session(page);
++  const after = await page.evaluate(
++    () => (window as ObservedWindow).__providerSequence ?? 0,
++  );
+   if (fail) await ipc("arm-session-fail");
+   // Explicit synthetic App lifecycle trigger; subsequent Session is real backend.
+   await page.evaluate(() => window.dispatchEvent(new Event("pageshow")));
+@@ -1127,6 +1131,21 @@
+     ).toBe(true);
+     await restore.click();
+   }
++  await expect
++    .poll(async () =>
++      (await facts(page)).some(
++        (fact) =>
++          fact.sequence > after &&
++          fact.path === "/api/v1/session" &&
++          fact.method === "GET" &&
++          fact.status === 200 &&
++          fact.ended &&
++          fact.session?.user_id === before.user_id &&
++          fact.session.session_id === before.session_id &&
++          fact.session.role === before.role,
++      ),
++    )
++    .toBe(true);
+   const physical = page.locator('[role="dialog"]');
+   await expect(physical).toHaveCount(2);
+   await expect(page.getByRole("dialog")).toHaveCount(1);

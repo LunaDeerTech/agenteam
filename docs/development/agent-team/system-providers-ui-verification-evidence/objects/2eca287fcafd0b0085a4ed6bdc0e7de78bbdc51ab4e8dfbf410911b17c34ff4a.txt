@@ -1,0 +1,22 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-provider-api-verification-xuqvo6eh/candidate/web
+
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > uses exactly ten fixed paths, methods, target/query shapes and original command headers 35ms
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > closes every endpoint options object and forbids parameters on old endpoints 7ms
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > validates the entire immutable Provider page, calendar, precise order and required null cursor 7ms
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > parses all Model fields and provider/protocol relationships without silently dropping a bad row 5ms
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > checks exact receipts, lookup nullability and metadata independently of current versions 5ms
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > keeps raw fields, permits JSON expansion and rejects local limits before any request 8ms
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > limits the three request exceptions internally and keeps every other request at 16 KiB 4ms
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > accepts a real streamed Go-escaped full 25 row page above the old cap 31ms
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > joins delayed stream cancellation after actual-byte overflow and never parses a candidate 1ms
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > keeps the 600000B cap for problem responses 1ms
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > keeps the 600000B cap for get responses 0ms
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > keeps the 600000B cap for models responses 0ms
+ ✓ src/tests/system-providers-client.spec.ts > System Provider closed transport and strict contract > keeps the 600000B cap for account responses 0ms
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  08:43:58
+   Duration  461ms (transform 118ms, setup 0ms, import 165ms, tests 108ms, environment 0ms)
+

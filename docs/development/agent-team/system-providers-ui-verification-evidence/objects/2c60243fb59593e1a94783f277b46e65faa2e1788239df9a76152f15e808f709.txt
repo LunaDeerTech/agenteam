@@ -1,0 +1,765 @@
+--- input01/tests/account-captcha-web/e2e/system-providers.spec.ts
++++ input02/tests/account-captcha-web/e2e/system-providers.spec.ts
+@@ -1,4 +1,4 @@
+-import { test, expect, type Page } from "@playwright/test";
++import { test, expect, type Page, type Locator } from "@playwright/test";
+ import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
+ import { join } from "node:path";
+ const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
+@@ -24,6 +24,7 @@
+   affected_references: string;
+ };
+ type Fact = {
++  sequence: number;
+   path: string;
+   method: string;
+   status: number;
+@@ -37,7 +38,10 @@
+   session?: { user_id: string; session_id: string; role: string };
+   found?: boolean;
+ };
+-type ObservedWindow = Window & { __providerFacts?: Fact[] };
++type ObservedWindow = Window & {
++  __providerFacts?: Fact[];
++  __providerSequence?: number;
++};
+ const material = (): {
+   admin: Credential;
+   member: Credential;
+@@ -80,108 +84,325 @@
+ function observeNative() {
+   const scope = window as ObservedWindow;
+   scope.__providerFacts = [];
+-  const fetch = window.fetch.bind(window);
+-  window.fetch = (input, init) => {
+-    const path =
+-      typeof input === "string"
+-        ? input
+-        : input instanceof URL
+-          ? input.pathname + input.search
+-          : new URL(input.url).pathname;
+-    const watched =
+-      path.startsWith("/api/v1/system/model") || path === "/api/v1/session";
+-    return fetch(input, init).then((response) => {
+-      if (!watched) return response;
++  scope.__providerSequence = 0;
++  const uuid =
++    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
++  const protocols = new Set([
++    "openai-chat-completions",
++    "anthropic-messages",
++    "openai-embeddings",
++    "jina-rerank",
++    "openai-images-generations",
++  ]);
++  const kinds = new Set([
++    "provider.create",
++    "provider.update",
++    "provider.delete",
++  ]);
++  const codes = new Set([
++    "UNAUTHENTICATED",
++    "SESSION_REVOKED",
++    "CSRF_FAILED",
++    "FORBIDDEN",
++    "CURSOR_INVALID",
++    "VERSION_CONFLICT",
++    "INVALID_ARGUMENT",
++    "NOT_FOUND",
++    "RESOURCE_BUSY",
++    "INTERNAL_ERROR",
++    "IDEMPOTENCY_KEY_REUSED",
++  ]);
++  const object = (value: unknown): Record<string, unknown> | null =>
++    value !== null && typeof value === "object" && !Array.isArray(value)
++      ? (value as Record<string, unknown>)
++      : null;
++  const id = (value: unknown): value is string =>
++    typeof value === "string" && uuid.test(value);
++  const version = (value: unknown): value is string =>
++    typeof value === "string" &&
++    /^[1-9][0-9]{0,18}$/.test(value) &&
++    BigInt(value) <= 9223372036854775807n;
++  const bounded = (value: unknown, bytes: number): value is string =>
++    typeof value === "string" &&
++    new TextEncoder().encode(value).byteLength <= bytes;
++  const instant = (value: unknown): value is string =>
++    typeof value === "string" &&
++    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(value);
++  function projectProvider(value: unknown): Provider | null {
++    const row = object(value),
++      input = object(row?.input);
++    if (
++      !row ||
++      !input ||
++      !id(row.id) ||
++      !version(row.version) ||
++      !instant(row.created_at) ||
++      !instant(row.updated_at) ||
++      !bounded(input.name, 512) ||
++      Array.from(input.name).length > 128 ||
++      typeof input.protocol !== "string" ||
++      !protocols.has(input.protocol) ||
++      !bounded(input.base_url, 8192) ||
++      typeof input.enabled !== "boolean" ||
++      !(input.credential_ref === null || id(input.credential_ref)) ||
++      !object(input.options) ||
++      Object.keys(input.options as object).length !== 0
++    )
++      return null;
++    return {
++      id: row.id,
++      input: {
++        name: input.name,
++        protocol: input.protocol,
++        base_url: input.base_url,
++        enabled: input.enabled,
++        credential_ref: input.credential_ref,
++        options: {},
++      },
++      version: row.version,
++      created_at: row.created_at,
++      updated_at: row.updated_at,
++    };
++  }
++  const nativeFetch = window.fetch;
++  window.fetch = function (this: unknown, ...args) {
++    const pending = Reflect.apply(nativeFetch, this, args) as Promise<Response>;
++    try {
++      const [input, init] = args;
++      const request = input instanceof Request ? input : null;
++      const url = new URL(
++        request ? request.url : String(input),
++        window.location.href,
++      );
++      const path = url.pathname,
++        method = init?.method ?? request?.method ?? "GET";
++      const providerList = path === "/api/v1/system/model-providers";
++      const providerID =
++        path.startsWith("/api/v1/system/model-providers/") &&
++        id(path.slice("/api/v1/system/model-providers/".length));
++      const credentialID =
++        path.startsWith("/api/v1/system/model-credentials/") &&
++        id(path.slice("/api/v1/system/model-credentials/".length));
++      const models = path === "/api/v1/system/models";
++      const isSession = path === "/api/v1/session";
++      const providerLookup = path === "/api/v1/system/model-commands/lookup";
++      const credentialLookup =
++        path === "/api/v1/system/model-credential-commands/lookup";
++      const credentialCreate = path === "/api/v1/system/model-credentials";
++      const watched =
++        url.origin === window.location.origin &&
++        ((method === "GET" &&
++          (providerList ||
++            providerID ||
++            models ||
++            credentialID ||
++            isSession)) ||
++          (method === "POST" &&
++            (providerList ||
++              credentialCreate ||
++              providerLookup ||
++              credentialLookup)) ||
++          ((method === "PUT" || method === "DELETE") && providerID));
++      const allowedQuery =
++        providerList && method === "GET"
++          ? ["limit", "cursor"]
++          : models && method === "GET"
++            ? ["provider_id", "limit", "cursor"]
++            : [];
++      const keys = [...url.searchParams.keys()];
++      if (
++        !watched ||
++        keys.some((key) => !allowedQuery.includes(key)) ||
++        new Set(keys).size !== keys.length
++      )
++        return pending;
+       const fact: Fact = {
+-        path,
+-        method: init?.method ?? "GET",
+-        status: response.status,
++        sequence: ++scope.__providerSequence!,
++        path: path + url.search,
++        method,
++        status: 0,
+         bytes: 0,
+         ended: false,
+       };
+       scope.__providerFacts!.push(fact);
+-      const body = response.body;
+-      if (!body) {
+-        fact.ended = true;
+-        return response;
+-      }
+-      const get = body.getReader.bind(body);
+-      let text = "";
+-      const decoder = new TextDecoder();
+-      Object.defineProperty(body, "getReader", {
+-        value: () => {
+-          const reader = get(),
+-            read = reader.read.bind(reader);
+-          Object.defineProperty(reader, "read", {
+-            value: () => {
+-              const original = read();
+-              void original.then(
+-                ({ done, value }) => {
+-                  if (value) {
+-                    fact.bytes += value.byteLength;
+-                    if (fact.bytes <= 2097152)
+-                      text += decoder.decode(value, { stream: true });
+-                    else text = "";
+-                  }
+-                  if (!done) return;
+-                  fact.ended = true;
+-                  try {
+-                    const value = JSON.parse(text + decoder.decode());
+-                    if (path === "/api/v1/session") {
+-                      if (response.status === 200)
+-                        fact.session = {
+-                          user_id: value.user.id,
+-                          session_id: value.session.id,
+-                          role: value.user.role,
+-                        };
+-                    } else if (response.status !== 200) {
+-                      if (typeof value.code === "string")
+-                        fact.code = value.code;
+-                    } else if (Array.isArray(value.items))
+-                      fact.page = {
+-                        items: value.items,
+-                        next_cursor: value.next_cursor,
+-                      };
+-                    else if (
+-                      typeof value.kind === "string" &&
+-                      typeof value.resource_id === "string"
+-                    )
+-                      fact.receipt = {
+-                        kind: value.kind,
+-                        resource_id: value.resource_id,
+-                        version: value.version,
+-                        affected_references: value.affected_references,
+-                      };
+-                    else if (typeof value.credential_id === "string")
+-                      fact.credential = {
+-                        credential_id: value.credential_id,
+-                        version: value.version,
+-                      };
+-                    else if (typeof value.id === "string" && value.input)
+-                      fact.provider = value;
+-                    else if (typeof value.found === "boolean")
+-                      fact.found = value.found;
+-                    else if (typeof value.observed === "boolean")
+-                      fact.found = value.observed;
+-                  } catch {
+-                    /* A lost receipt is intentionally not promoted to success. */
+-                  } finally {
+-                    text = "";
+-                  }
++      void pending
++        .then(
++          (response) => {
++            fact.status = response.status;
++            const body = response.body;
++            if (!body) {
++              fact.ended = true;
++              return;
++            }
++            const max =
++              providerList &&
++              method === "GET" &&
++              response.status === 200 &&
++              response.headers
++                .get("Content-Type")
++                ?.split(";", 1)[0]
++                ?.trim()
++                .toLowerCase() === "application/json"
++                ? 2097152
++                : 600000;
++            let text = "",
++              collect = !models;
++            const decoder = new TextDecoder();
++            function project() {
++              if (!collect) return;
++              const value = object(JSON.parse(text + decoder.decode()));
++              if (!value) return;
++              if (response.status !== 200) {
++                if (typeof value.code === "string" && codes.has(value.code))
++                  fact.code = value.code;
++                return;
++              }
++              if (isSession) {
++                const user = object(value.user),
++                  session = object(value.session);
++                if (
++                  id(user?.id) &&
++                  id(session?.id) &&
++                  (user?.role === "admin" || user?.role === "user")
++                )
++                  fact.session = {
++                    user_id: user.id,
++                    session_id: session.id,
++                    role: user.role,
++                  };
++              } else if (providerList && method === "GET") {
++                if (
++                  !Array.isArray(value.items) ||
++                  value.items.length > 25 ||
++                  !(
++                    value.next_cursor === null ||
++                    bounded(value.next_cursor, 8192)
++                  )
++                )
++                  return;
++                const rows = value.items.map(projectProvider);
++                if (rows.every((row): row is Provider => row !== null))
++                  fact.page = { items: rows, next_cursor: value.next_cursor };
++              } else if (providerID && method === "GET") {
++                const provider = projectProvider(value);
++                if (provider) fact.provider = provider;
++              } else if ((providerList || providerID) && method !== "GET") {
++                if (
++                  typeof value.kind === "string" &&
++                  kinds.has(value.kind) &&
++                  id(value.resource_id) &&
++                  version(value.version) &&
++                  value.affected_references === "0"
++                )
++                  fact.receipt = {
++                    kind: value.kind,
++                    resource_id: value.resource_id,
++                    version: value.version,
++                    affected_references: "0",
++                  };
++              } else if (credentialCreate || credentialID) {
++                if (
++                  id(value.credential_id) &&
++                  value.purpose === "model" &&
++                  version(value.version)
++                )
++                  fact.credential = {
++                    credential_id: value.credential_id,
++                    version: value.version,
++                  };
++              } else if (providerLookup && typeof value.found === "boolean")
++                fact.found = value.found;
++              else if (credentialLookup && typeof value.observed === "boolean")
++                fact.found = value.observed;
++            }
++            try {
++              const nativeGet = body.getReader;
++              Object.defineProperty(body, "getReader", {
++                configurable: true,
++                writable: true,
++                value: function (
++                  this: ReadableStream<Uint8Array>,
++                  ...getArgs: unknown[]
++                ) {
++                  const reader = Reflect.apply(
++                    nativeGet,
++                    this,
++                    getArgs,
++                  ) as ReadableStreamDefaultReader<Uint8Array>;
++                  Object.defineProperty(body, "getReader", {
++                    value: nativeGet,
++                  });
++                  const nativeRead = reader.read;
++                  Object.defineProperty(reader, "read", {
++                    configurable: true,
++                    writable: true,
++                    value: function (
++                      this: ReadableStreamDefaultReader<Uint8Array>,
++                      ...readArgs: unknown[]
++                    ) {
++                      const original = Reflect.apply(
++                        nativeRead,
++                        this,
++                        readArgs,
++                      ) as Promise<ReadableStreamReadResult<Uint8Array>>;
++                      void original
++                        .then(
++                          ({ done, value }) => {
++                            try {
++                              if (value) {
++                                fact.bytes += value.byteLength;
++                                if (fact.bytes > max) {
++                                  collect = false;
++                                  text = "";
++                                } else if (collect)
++                                  text += decoder.decode(value, {
++                                    stream: true,
++                                  });
++                              }
++                              if (done) {
++                                fact.ended = true;
++                                try {
++                                  project();
++                                } finally {
++                                  text = "";
++                                  collect = false;
++                                }
++                              }
++                            } catch {
++                              text = "";
++                              collect = false;
++                            }
++                          },
++                          () => {
++                            text = "";
++                            collect = false;
++                            fact.ended = true;
++                          },
++                        )
++                        .catch(() => {
++                          text = "";
++                          collect = false;
++                        });
++                      return original;
++                    },
++                  });
++                  return reader;
+                 },
+-                () => {
+-                  text = "";
+-                  fact.ended = true;
+-                },
+-              );
+-              return original;
+-            },
+-          });
+-          return reader;
+-        },
+-      });
+-      return response;
+-    });
++              });
++            } catch {
++              text = "";
++              collect = false;
++            }
++          },
++          () => {
++            fact.ended = true;
++          },
++        )
++        .catch(() => {});
++    } catch {
++      /* Observation cannot change the application's original fetch. */
++    }
++    return pending;
+   };
+ }
+ async function facts(page: Page) {
+@@ -203,19 +424,76 @@
+     ]),
+   );
+ }
++const writeWatermarks = new WeakMap<Page, number>();
++const confirmedTargets = new WeakMap<Page, { id: string; after: number }>();
++async function beginWrite(page: Page, label: string) {
++  writeWatermarks.set(
++    page,
++    await page.evaluate(
++      () => (window as ObservedWindow).__providerSequence ?? 0,
++    ),
++  );
++  await top(page).getByRole("button", { name: label, exact: true }).click();
++}
++async function receiptFact(page: Page, kind?: string) {
++  const after = writeWatermarks.get(page);
++  expect(after !== undefined).toBe(true);
++  let result: Fact | undefined;
++  await expect
++    .poll(async () => {
++      result = (await facts(page)).find(
++        (f) =>
++          f.sequence > after! &&
++          f.status === 200 &&
++          f.ended &&
++          !!f.receipt &&
++          (!kind || f.receipt.kind === kind) &&
++          ((f.receipt.kind === "provider.create" &&
++            f.method === "POST" &&
++            f.path === "/api/v1/system/model-providers") ||
++            (f.receipt.kind === "provider.update" &&
++              f.method === "PUT" &&
++              f.path ===
++                "/api/v1/system/model-providers/" + f.receipt.resource_id) ||
++            (f.receipt.kind === "provider.delete" &&
++              f.method === "DELETE" &&
++              f.path ===
++                "/api/v1/system/model-providers/" + f.receipt.resource_id)),
++      );
++      return !!result;
++    })
++    .toBe(true);
++  return result!;
++}
+ async function latestProvider(page: Page) {
+-  const rows = await facts(page);
+-  const value = rows.filter((f) => f.provider).at(-1)?.provider;
+-  expect(!!value).toBe(true);
++  const target = confirmedTargets.get(page);
++  expect(!!target).toBe(true);
++  let value: Provider | undefined;
++  await expect
++    .poll(async () => {
++      value = (await facts(page)).find(
++        (f) =>
++          f.sequence > target!.after &&
++          f.method === "GET" &&
++          f.path === "/api/v1/system/model-providers/" + target!.id &&
++          f.status === 200 &&
++          f.ended &&
++          f.provider?.id === target!.id,
++      )?.provider;
++      return !!value;
++    })
++    .toBe(true);
+   return value!;
+ }
+-async function latestReceipt(page: Page, kind?: string) {
+-  const rows = await facts(page);
+-  const value = rows
+-    .filter((f) => f.receipt && (!kind || f.receipt.kind === kind))
+-    .at(-1)?.receipt;
+-  expect(!!value).toBe(true);
+-  return value!;
++async function latestReceipt(page: Page, kind: string) {
++  return (await receiptFact(page, kind)).receipt!;
++}
++async function privateFill(input: Locator, value: string) {
++  try {
++    await input.fill(value);
++  } catch {
++    throw new Error("private Provider input failed");
++  }
+ }
+ async function writes(page: Page) {
+   return (await facts(page)).filter(
+@@ -230,7 +508,10 @@
+   await page.addInitScript(observeNative);
+   await page.goto(path);
+   await page.getByLabel("邮箱", { exact: true }).fill(material()[who].email);
+-  await page.getByLabel("密码", { exact: true }).fill(material()[who].password);
++  await privateFill(
++    page.getByLabel("密码", { exact: true }),
++    material()[who].password,
++  );
+   await page.getByRole("button", { name: "登录", exact: true }).click();
+   await expect(page).toHaveURL(new RegExp(path + "$"));
+   if (who === "admin")
+@@ -267,9 +548,7 @@
+     .click();
+ }
+ async function save(page: Page) {
+-  await top(page)
+-    .getByRole("button", { name: "保存配置", exact: true })
+-    .click();
++  await beginWrite(page, "保存配置");
+ }
+ async function confirmed(page: Page) {
+   await expect(
+@@ -278,6 +557,12 @@
+     }),
+   ).toBeVisible();
+   await expect(page.getByRole("dialog")).toHaveCount(0);
++  const completed = await receiptFact(page);
++  confirmedTargets.set(page, {
++    id: completed.receipt!.resource_id,
++    after: completed.sequence,
++  });
++  await latestProvider(page);
+ }
+ async function edit(page: Page) {
+   await page
+@@ -373,9 +658,7 @@
+   await page
+     .getByRole("button", { name: "删除 Provider", exact: true })
+     .click();
+-  await top(page)
+-    .getByRole("button", { name: "确认删除", exact: true })
+-    .click();
++  await beginWrite(page, "确认删除");
+   await expect(
+     page.getByText("Provider 已删除，凭据保持不变。", { exact: true }),
+   ).toBeVisible();
+@@ -395,9 +678,7 @@
+     .getByRole("button", { name: "删除 Provider", exact: true })
+     .click();
+   await ipc("add-model", { id: current.id });
+-  await top(page)
+-    .getByRole("button", { name: "确认删除", exact: true })
+-    .click();
++  await beginWrite(page, "确认删除");
+   await expect(
+     top(page).getByText("操作未完成，请检查当前配置。", { exact: true }),
+   ).toBeVisible();
+@@ -433,9 +714,10 @@
+   const baseline = await ipc("facts");
+   await openCreate(page);
+   await fillCreate(page, "Credential created Provider");
+-  await top(page)
+-    .getByLabel("新凭据（仅写入）", { exact: true })
+-    .fill(data.value);
++  await privateFill(
++    top(page).getByLabel("新凭据（仅写入）", { exact: true }),
++    data.value,
++  );
+   await save(page);
+   await confirmed(page);
+   const createdProvider = await latestProvider(page);
+@@ -445,9 +727,10 @@
+   ).toBe(true);
+   await select(page, "Owned primary");
+   await edit(page);
+-  await top(page)
+-    .getByLabel("新凭据（仅写入）", { exact: true })
+-    .fill(data.value);
++  await privateFill(
++    top(page).getByLabel("新凭据（仅写入）", { exact: true }),
++    data.value,
++  );
+   await save(page);
+   await confirmed(page);
+   let current = await latestProvider(page);
+@@ -465,9 +748,10 @@
+   expect(old.credential_exists && old.references === 1).toBe(true);
+   await edit(page);
+   await ipc("compete", { id: current.id });
+-  await top(page)
+-    .getByLabel("新凭据（仅写入）", { exact: true })
+-    .fill(data.value);
++  await privateFill(
++    top(page).getByLabel("新凭据（仅写入）", { exact: true }),
++    data.value,
++  );
+   await save(page);
+   await expect(top(page)).toContainText("新凭据已创建，Provider尚未确认保存");
+   expect(
+@@ -495,9 +779,7 @@
+   await page
+     .getByRole("button", { name: "删除 Provider", exact: true })
+     .click();
+-  await top(page)
+-    .getByRole("button", { name: "确认删除", exact: true })
+-    .click();
++  await beginWrite(page, "确认删除");
+   await expect(
+     page.getByText("Provider 已删除，凭据保持不变。", { exact: true }),
+   ).toBeVisible();
+@@ -523,9 +805,10 @@
+     await openCreate(page);
+     await fillCreate(page, `Recovery ${stage}`);
+     if (stage === "credential")
+-      await top(page)
+-        .getByLabel("新凭据（仅写入）", { exact: true })
+-        .fill(data.value);
++      await privateFill(
++        top(page).getByLabel("新凭据（仅写入）", { exact: true }),
++        data.value,
++      );
+     await ipc("arm-drop", { stage });
+     await save(page);
+     await expect(top(page)).toContainText("本次结果尚未确认");
+@@ -543,9 +826,7 @@
+     expect((await ipc("drop-facts")).replayed).toBe(0);
+     if (stage === "credential")
+       expect((await ipc("facts")).providers).toBe(before.providers);
+-    await top(page)
+-      .getByRole("button", { name: "重试原请求", exact: true })
+-      .click();
++    await beginWrite(page, "重试原请求");
+     await confirmed(page);
+     const replay = await ipc("drop-facts");
+     expect(
+@@ -711,9 +992,10 @@
+   await page.getByRole("button", { name: "退出登录", exact: true }).click();
+   await expect(page).toHaveURL(/\/login$/);
+   await page.getByLabel("邮箱", { exact: true }).fill(material().admin.email);
+-  await page
+-    .getByLabel("密码", { exact: true })
+-    .fill(material().admin.password);
++  await privateFill(
++    page.getByLabel("密码", { exact: true }),
++    material().admin.password,
++  );
+   await page.getByRole("button", { name: "登录", exact: true }).click();
+   await page.goto("/system/providers");
+   await expect(
+@@ -721,9 +1003,10 @@
+   ).toBeVisible();
+   await openCreate(page);
+   await fillCreate(page, "Authority draft");
+-  await top(page)
+-    .getByLabel("新凭据（仅写入）", { exact: true })
+-    .fill(material().value);
++  await privateFill(
++    top(page).getByLabel("新凭据（仅写入）", { exact: true }),
++    material().value,
++  );
+   const original = await session(page);
+   await ipc("demote", {
+     user_id: original.user_id,
+@@ -761,9 +1044,10 @@
+   await expect(page.getByRole("dialog")).toHaveCount(0);
+   await expect(page).toHaveURL(/\/login(?:\?|$)/);
+   await page.getByLabel("邮箱", { exact: true }).fill(material().admin.email);
+-  await page
+-    .getByLabel("密码", { exact: true })
+-    .fill(material().admin.password);
++  await privateFill(
++    page.getByLabel("密码", { exact: true }),
++    material().admin.password,
++  );
+   await page.getByRole("button", { name: "登录", exact: true }).click();
+   await page.goto("/system/providers");
+   await expect(
+@@ -787,9 +1071,10 @@
+   await page.getByRole("button", { name: "退出登录", exact: true }).click();
+   await expect(page).toHaveURL(/\/login$/);
+   await page.getByLabel("邮箱", { exact: true }).fill(material().member.email);
+-  await page
+-    .getByLabel("密码", { exact: true })
+-    .fill(material().member.password);
++  await privateFill(
++    page.getByLabel("密码", { exact: true }),
++    material().member.password,
++  );
+   await page.getByRole("button", { name: "登录", exact: true }).click();
+   await page.goto("/system/providers");
+   await expect(
+@@ -857,9 +1142,10 @@
+   ).toBeVisible();
+   await openCreate(page);
+   await fillCreate(page, "Navigation draft");
+-  await top(page)
+-    .getByLabel("新凭据（仅写入）", { exact: true })
+-    .fill(material().value);
++  await privateFill(
++    top(page).getByLabel("新凭据（仅写入）", { exact: true }),
++    material().value,
++  );
+   await top(page).getByRole("button", { name: "取消", exact: true }).click();
+   await checkingConfirmation(page, true);
+   expect(
+@@ -884,9 +1170,10 @@
+   await select(page, target.input.name);
+   await edit(page);
+   await ipc("compete", { id: target.id });
+-  await top(page)
+-    .getByLabel("新凭据（仅写入）", { exact: true })
+-    .fill(material().value);
++  await privateFill(
++    top(page).getByLabel("新凭据（仅写入）", { exact: true }),
++    material().value,
++  );
+   await save(page);
+   await expect(top(page)).toContainText("新凭据已创建，Provider尚未确认保存");
+   await top(page).getByRole("button", { name: "取消", exact: true }).click();
+@@ -944,6 +1231,7 @@
+           page.getByRole("button", { name: "系统设置栏目", exact: true }),
+         ).toBeFocused();
+       }
++      await expect(page.locator(".ui-overlay")).toHaveCount(0);
+       const images = process.env.AGENTEAM_AUTH_WEB_IMAGES;
+       if (images)
+         await page.screenshot({

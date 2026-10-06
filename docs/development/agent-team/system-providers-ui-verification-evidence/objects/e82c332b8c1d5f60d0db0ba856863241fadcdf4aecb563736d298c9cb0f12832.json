@@ -1,0 +1,211 @@
+{
+  "evidence_kind": "reduced static DOM/exact input06 CSS diagnosis; not App/backend/business evidence",
+  "results": [
+    {
+      "width": 1440,
+      "before": {
+        "compatMode": "CSS1Compat",
+        "scrollingElement": "HTML",
+        "innerHeight": 900,
+        "documentHeight": 1789,
+        "bodyHeight": 900,
+        "main": {
+          "clientHeight": 854,
+          "scrollHeight": 1803,
+          "scrollTop": 0
+        },
+        "captions": [
+          {
+            "offsetParent": "BODY",
+            "offsetParentClass": "",
+            "anchored": false,
+            "rect": {
+              "x": 264,
+              "y": 168.484375,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 264,
+              "y": 125.09375,
+              "width": 800,
+              "height": 1228.703125
+            },
+            "clip": "inset(50%)"
+          },
+          {
+            "offsetParent": "BODY",
+            "offsetParentClass": "",
+            "anchored": false,
+            "rect": {
+              "x": 264,
+              "y": 1781.375,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 264,
+              "y": 1737.984375,
+              "width": 800,
+              "height": 86.78125
+            },
+            "clip": "inset(50%)"
+          }
+        ]
+      },
+      "after": {
+        "compatMode": "CSS1Compat",
+        "scrollingElement": "HTML",
+        "innerHeight": 900,
+        "documentHeight": 900,
+        "bodyHeight": 900,
+        "main": {
+          "clientHeight": 854,
+          "scrollHeight": 1803,
+          "scrollTop": 0
+        },
+        "captions": [
+          {
+            "offsetParent": "DIV",
+            "offsetParentClass": "provider-table",
+            "anchored": true,
+            "rect": {
+              "x": 264,
+              "y": 168.484375,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 264,
+              "y": 125.09375,
+              "width": 800,
+              "height": 1228.703125
+            },
+            "clip": "inset(50%)"
+          },
+          {
+            "offsetParent": "DIV",
+            "offsetParentClass": "provider-table",
+            "anchored": true,
+            "rect": {
+              "x": 264,
+              "y": 1781.375,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 264,
+              "y": 1737.984375,
+              "width": 800,
+              "height": 86.78125
+            },
+            "clip": "inset(50%)"
+          }
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "before": {
+        "compatMode": "CSS1Compat",
+        "scrollingElement": "HTML",
+        "innerHeight": 900,
+        "documentHeight": 1680,
+        "bodyHeight": 900,
+        "main": {
+          "clientHeight": 854,
+          "scrollHeight": 1813,
+          "scrollTop": 0
+        },
+        "captions": [
+          {
+            "offsetParent": "BODY",
+            "offsetParentClass": "",
+            "anchored": false,
+            "rect": {
+              "x": 24,
+              "y": 189.4375,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 24,
+              "y": 189.4375,
+              "width": 342,
+              "height": 836.265625
+            },
+            "clip": "inset(50%)"
+          },
+          {
+            "offsetParent": "BODY",
+            "offsetParentClass": "",
+            "anchored": false,
+            "rect": {
+              "x": 24,
+              "y": 1672.1875,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 24,
+              "y": 1672.1875,
+              "width": 342,
+              "height": 162.5625
+            },
+            "clip": "inset(50%)"
+          }
+        ]
+      },
+      "after": {
+        "compatMode": "CSS1Compat",
+        "scrollingElement": "HTML",
+        "innerHeight": 900,
+        "documentHeight": 900,
+        "bodyHeight": 900,
+        "main": {
+          "clientHeight": 854,
+          "scrollHeight": 1813,
+          "scrollTop": 0
+        },
+        "captions": [
+          {
+            "offsetParent": "DIV",
+            "offsetParentClass": "provider-table",
+            "anchored": true,
+            "rect": {
+              "x": 24,
+              "y": 189.4375,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 24,
+              "y": 189.4375,
+              "width": 342,
+              "height": 836.265625
+            },
+            "clip": "inset(50%)"
+          },
+          {
+            "offsetParent": "DIV",
+            "offsetParentClass": "provider-table",
+            "anchored": true,
+            "rect": {
+              "x": 24,
+              "y": 1672.1875,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 24,
+              "y": 1672.1875,
+              "width": 342,
+              "height": 162.5625
+            },
+            "clip": "inset(50%)"
+          }
+        ]
+      }
+    }
+  ]
+}

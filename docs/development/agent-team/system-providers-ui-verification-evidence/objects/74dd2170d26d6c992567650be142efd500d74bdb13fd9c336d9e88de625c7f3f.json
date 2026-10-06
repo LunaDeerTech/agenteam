@@ -1,0 +1,102 @@
+{
+  "status": "STATIC PREPARATION PASS; real tests NOT RUN",
+  "frozen_at": "2026-10-06T09:31:09.522312+00:00",
+  "root": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01",
+  "product_manifest": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/input02.json",
+  "product_manifest_sha256": "1d6a5fa4b4ee3a26d00548e875afb187f42b16e93357c06dd44a4d181d9e2ff6",
+  "later_author_input03_selector_only_acknowledged": "a3fc5b4de5f7a1511901c9b3809e1949f046275d14bffb238bc11c5c9ff58fe3",
+  "source_hashes": {
+    "e2e/fixed-helpers.ts": "705964a0d89f2b21a50f240cf76601b1351831c9241bb270f43d274b09a064b5",
+    "e2e/independent-providers.spec.ts": "f98aff3c8051eedbd1b758d886f22b774cdf4233ae24d3777e9f3e1852bab4f9",
+    "independent.config.js": "068133d505cb1a61a5a09f64db6c735dd236a6a384024d2d387a42a537ff1c94",
+    "independent-fixture.go": "48dc38dab90565a2dcebba193a402f5fed9b919a443d17ed34d7055f2a33c1b9",
+    "independent-tops.go": "4b3848f0a1a66e41e374d15f3fa26cd9a8e91e592bde79b21f92bfce75fbce39",
+    "overlay.json": "ddae20b0b2ccd560bfbe1e69b6a7ea869e3df9781f9f1abeb6b19e03ffc180f9",
+    "preparation.json": "08b69fcddf8c9469f8ee96a7ef12b6f12fd15c6ace3b82d89a3e26dfb6b79135",
+    "check-source.py": "3b747e006cfb4dcc52cc4aa95ca013fca5f31560853d1379030f622787b263f3",
+    "check-source02.py": "4d2d7f09a81c044ac9d8b931f4944b3dcdcea571bf3569276ef720d44cc4592c",
+    "list-source.py": "20723bcf46d0fdb5a7bbc60f9a4a46e669306f0d3f2c6c9c5e6ee4f12cf2a75c",
+    "preparation01-to02.diff": "92e537747498c8162720a6ae21de6400f4308592ff6d0c977327c87837ab983a",
+    "logs/preparation01-source/independent-providers.spec.ts": "be7f59e973dca81ba59346356cd754ade6c978bf9eba71a5e9ca90c47c0edc90",
+    "logs/compile01/fixed-go-inputs.json": "916b688f0902b1d4e9ce00fa53cad7afe6be4e919b856998065d472902f3973c"
+  },
+  "compiled_binary": {
+    "path": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/independent-account.test",
+    "sha256": "56016ba2ef07cf9784079c4ca40aa8238daa8692d7279358d2212900cb3bd663",
+    "executed": false
+  },
+  "checks": {
+    "type01": {
+      "record": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/type01/result.json",
+      "record_sha256": "b94a4172d35d94e63ad6916de124be73b72ba831f0960f37e20e1e9f7323d4f5",
+      "raw": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/type01/raw.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "elapsed_seconds": 1.281,
+      "actual_wait": true,
+      "pid_absent_now": true
+    },
+    "config01": {
+      "record": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/config01/result.json",
+      "record_sha256": "3ad0143672a10e7444277fe5f89fa100a0aa7031b166d485be14882ebc0ce0ae",
+      "raw": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/config01/raw.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "elapsed_seconds": 0.033,
+      "actual_wait": true,
+      "pid_absent_now": true
+    },
+    "compile01": {
+      "record": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/compile01/result.json",
+      "record_sha256": "dee3843365c99b05fc07eebe39928505dd45a796dfb3b3ee37df7fe0e4813b3f",
+      "raw": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/compile01/raw.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "elapsed_seconds": 46.466,
+      "actual_wait": true,
+      "pid_absent_now": true
+    },
+    "list-independent-partial": {
+      "record": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/list-independent-partial/result.json",
+      "record_sha256": "792e22f613aa3a4fc1791ed025ba878aa9590f258aee36496ee1710d656b5dc0",
+      "raw": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/list-independent-partial/raw.log",
+      "raw_sha256": "cae1802cd2732de9cabad467f6b93d3bafc99d959e6cf93006582ab108386655",
+      "elapsed_seconds": 0.917,
+      "actual_wait": true,
+      "pid_absent_now": true
+    },
+    "list-independent-replay": {
+      "record": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/list-independent-replay/result.json",
+      "record_sha256": "a2492e9772f185ed0cceab992968321bee7c65f571936e633b3df06d5935a72c",
+      "raw": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/list-independent-replay/raw.log",
+      "raw_sha256": "b8d623830560002f0aa6fa4b79b0a568ead13a4eac49dd18680e93046f231dc1",
+      "elapsed_seconds": 0.666,
+      "actual_wait": true,
+      "pid_absent_now": true
+    },
+    "type02": {
+      "record": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/type02/result.json",
+      "record_sha256": "a5258c04f9280429ec6b5bca1ca8526b3dbcfe22d4a029e5e312eabb12f76f52",
+      "raw": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/type02/raw.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "elapsed_seconds": 1.071,
+      "actual_wait": true,
+      "pid_absent_now": true
+    }
+  },
+  "cases": [
+    "prepared ref + actual same-Session 503 recovery of pending confirmation + explicit Provider-only rebase + old shared credential retained + immediately clean new editor",
+    "Credential and Provider accepted response cut + explicit same key/body/CSRF replay + independent DB uniqueness + Session/list/lookup not Execute receipt + confirmed write followed by detail GET503"
+  ],
+  "private_fixture_delta": [
+    "two exact independent modes and original fixture resource primitives",
+    "one-shot Session503 arm restricted to independent-partial",
+    "request-body observer forwards actual reverse proxy Read and Close; copies at most 524288 bytes; original body/key/CSRF remain private; only comparisons and safe IDs/counters output",
+    "original real formal success receipt required before truncation; original 45s browser, 2m top and future 6m outer limit unchanged"
+  ],
+  "assertion_revision": "No dynamic RED claimed: unrun default-role count2 replaced with physical2/accessibility1 plus lower inert/aria-hidden and top active assertions, following accepted useLayer. Original source retained. Type02 rerun; discovery reused because case declarations and config unchanged.",
+  "limits": [
+    "No browser, server, PostgreSQL, MinIO or Docker execution. Author retains exclusive real resource window.",
+    "Go binary was only compiled offline/readonly; it has not run and cannot establish actual fixture cleanup or behavior.",
+    "No generated material, key, CSRF value or hash output. Native read observer is an observation only, not owner actual-tail proof; existing independent owner barriers are reused.",
+    "Before real execution, bind final author product/dist/Go inputs and exact private delta; current input03 product/dist match input02 by parent-author fixed declaration, not a new full acceptance."
+  ],
+  "immutable_preparation": true
+}

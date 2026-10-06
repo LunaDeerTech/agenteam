@@ -1,0 +1,21 @@
+{
+  "run": "runs/new03",
+  "input": "input05.json",
+  "finding": "Provider and Model captions use sr-only class without a local or global definition. Actual dark390 screenshot shows wrapped vertical caption. New03 functional PASS remains valid; its visual matrix is not accepted.",
+  "image_sha256": {
+    "providers-dark-1024.png": "a50202eb5f94b688edd8556986beadf2b331cabc85b697defd44a2de9ed12a23",
+    "providers-dark-1440.png": "1196d68e6c5e28acc2ed80c901c461c90ce987f06d6e03444f521d13d24c952f",
+    "providers-dark-390.png": "f33de3e50e10197f518543d79499a57a40283cebe7cfbb548be0452d44f37a4a",
+    "providers-dark-834.png": "f221f30279b630c334d887746c0a865955f411fd9763e11331a967d773f04679",
+    "providers-light-1024.png": "d0e7dc883aaa686e0638dfb6340f28616262943e56c522fafb618ca36503a5c9",
+    "providers-light-1440.png": "bc26663b96567057bb09ff8963ff200291f1a8a2090c14bfe5aeffc29a4f6ecf",
+    "providers-light-390.png": "6bbb2ad039f5ce2fcc57744cbdb3ff986dc7534a100ffe8a41c0ee17c7a5231d",
+    "providers-light-834.png": "652842409701b6a6a239191e8ec64051f0c19627f54e3ee3033f963305c1af9f"
+  },
+  "fixed_dependency_reference": "Git1c82d888adfef0d8b58ab51c920557ca4e2f084f web/src/views/system/SystemInvitationsView.vue local sr-only style",
+  "repair_scope": [
+    "web/src/views/system/SystemProvidersView.vue",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts"
+  ],
+  "old_run_unchanged": true
+}

@@ -1,0 +1,18 @@
+# Provider API stage01 independent review
+
+**BLOCKED — P-API-01: valid backend URL rejected by the frontend.**
+
+Fixed manifest: `e6a2da8ea9e8773f3084dcc7125453d618600717756a1884e5a716633361a848` (three API/test sources; base `1c82d88`, card `a8f0135`). No owner/UI candidate was read.
+
+`system-providers.ts` uses WHATWG `new URL` inside its common input/response parser. The exact accepted Go endpoint/text functions accept `http://[fe80::1%25eth0]/v1` and `http://1.2.3.999/v1`; fixed API capture and successful getProvider DTO both reject them. This can hide an otherwise valid Provider row/page. Preserve the raw value and match accepted Go host/escape/port constraints; do not use browser IPv4/IDNA mapping as a required condition.
+
+Actual pure results:
+
+- Fixed author API suite: **13/13 PASS**, exit 0, 0.986s.
+- Standalone Go1.27.1 standard-library oracle: exit 0, 5.771s; 17 URL boundary cases, exact fixed validator function bodies. This is not a service or DB test.
+- Independent API probe: **17 PASS / 2 FAIL**, exit 1, 0.566s; both failures are the compatibility defect above.
+- Independent exact 2MiB successful list accepted. Three-chunk 2MiB+1 actual overflow held transport pending until native cancel gate release; no parser candidate published. Author >600000B full-page and delayed-cancel tests also passed. These prove transport behavior only, not the future owner/workflow join.
+
+Static review found no additional blocker in ten closed endpoints, three request exceptions, 65536-byte Unicode material/serialized budgets, non-list and Problem600000B cap, exact DTO/receipt/lookup/metadata rules. Final owner, material lifecycle, identity, UI and true backend/browser acceptance remain pending.
+
+All commands actually waited/exited, inputs unchanged. No resource/network/product/Git actions. Original failure retained. Minimal source/probe/command/raw hashes and exact paths are in `api-stage01-report.json`; cache and node_modules are excluded.

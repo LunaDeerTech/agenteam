@@ -1,0 +1,34 @@
+import pathlib,json,hashlib,subprocess,time,os,sys,signal
+r=pathlib.Path(__file__).resolve().parent;a=pathlib.Path('/workspace/scratch/agenteam-system-providers-author-_swp7klj');name=sys.argv[1];p=r/'logs'/name;p.mkdir(exist_ok=False)
+manifest=json.loads((a/'input02.json').read_text());sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+files=[r/'e2e/fixed-helpers.ts',r/'e2e/independent-providers.spec.ts',r/'independent.config.js',r/'independent-fixture.go',r/'independent-tops.go',r/'overlay.json',r/'preparation.json',r/'check-source.py']
+before={str(f.relative_to(r)):sha(f) for f in files}
+(r/'gocache').mkdir(exist_ok=True);(r/'tmp').mkdir(exist_ok=True)
+env=os.environ.copy();changes={'GOTOOLCHAIN':'local','GOPROXY':'off','GOSUMDB':'off','GOFLAGS':'-mod=readonly','GOMODCACHE':'/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache','GOCACHE':str(r/'gocache'),'GOTMPDIR':str(r/'tmp'),'TMPDIR':str(r/'tmp'),'npm_config_offline':'true','CI':'1'};env.update(changes)
+if name=='type01':
+ argv=['node','/workspace/agenteam/web/node_modules/typescript/bin/tsc','--noEmit','--target','ES2022','--module','ESNext','--moduleResolution','Bundler','--strict','--skipLibCheck','--types','node','--typeRoots','/workspace/agenteam/web/node_modules/@types','e2e/independent-providers.spec.ts','e2e/fixed-helpers.ts'];cwd=r
+elif name=='config01':argv=['node','--check','independent.config.js'];cwd=r
+elif name=='compile01':
+ # Do not consume live browser or docs inputs. These Go/embedded dependencies
+ # are fixed author workspace bytes from the accepted base; only our two
+ # explicitly mapped test inputs differ.
+ checked={}
+ for rel,v in {**manifest['dependencies'],**manifest['files']}.items():
+  if rel.startswith(('internal/','db/','tests/testsupport/','tests/account/')) or rel in ['go.mod','go.sum']:
+   actual=a/'workspace'/rel;assert sha(actual)==v,rel;checked[rel]=v
+ (p/'fixed-go-inputs.json').write_text(json.dumps(checked,indent=2)+'\n')
+ files.append(p/'fixed-go-inputs.json');before[str(files[-1].relative_to(r))]=sha(files[-1])
+ argv=['/workspace/toolchains/go1.27.1/bin/go','test','-c','-race','-tags=integration','-overlay',str(r/'overlay.json'),'-o',str(r/'independent-account.test'),'./tests/account'];cwd=a/'workspace'
+else:raise ValueError('unknown static check')
+meta={'argv':argv,'cwd':str(cwd),'env_overrides':changes,'before':before,'intent':'static source preparation only; compiled binary not executed','limit_seconds':120}
+(p/'command.json').write_text(json.dumps(meta,indent=2)+'\n');t=time.monotonic()
+with (p/'raw.log').open('wb') as out:
+ process=subprocess.Popen(argv,cwd=cwd,env=env,stdin=subprocess.DEVNULL,stdout=out,stderr=subprocess.STDOUT,start_new_session=True)
+ try:process.wait(timeout=120)
+ except subprocess.TimeoutExpired:
+  os.killpg(process.pid,signal.SIGTERM)
+  try:process.wait(timeout=5)
+  except subprocess.TimeoutExpired:os.killpg(process.pid,signal.SIGKILL);process.wait()
+  meta['timed_out']=True
+meta.update({'pid':process.pid,'exit_code':process.returncode,'elapsed_seconds':round(time.monotonic()-t,3),'actual_wait':True,'after':{str(f.relative_to(r)):sha(f) for f in files},'raw_sha256':sha(p/'raw.log')});meta['inputs_unchanged']=meta['before']==meta['after']
+(p/'result.json').write_text(json.dumps(meta,indent=2)+'\n');print(json.dumps({k:meta[k] for k in ['pid','exit_code','elapsed_seconds','actual_wait','inputs_unchanged','raw_sha256']}));print((p/'raw.log').read_text());sys.exit(process.returncode)

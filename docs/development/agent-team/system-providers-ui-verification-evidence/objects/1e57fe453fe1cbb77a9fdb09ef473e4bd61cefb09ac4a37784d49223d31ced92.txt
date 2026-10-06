@@ -1,0 +1,574 @@
+import { AccountFailure, accountTransport, shape, string, uuid7, type Fetch } from './client'
+import type { WriteOptions } from './account'
+import { parseSystemInstant } from './system-account'
+
+export const providerProtocols = [
+  'openai-chat-completions',
+  'anthropic-messages',
+  'openai-embeddings',
+  'jina-rerank',
+  'openai-images-generations',
+] as const
+export type ProviderProtocol = (typeof providerProtocols)[number]
+export type ModelType = 'chat' | 'embedding' | 'reranker' | 'image_generation'
+export type ProviderInput = Readonly<{
+  name: string
+  protocol: ProviderProtocol
+  base_url: string
+  enabled: boolean
+  credential_ref: string | null
+  options: Readonly<Record<string, never>>
+}>
+export type Provider = Readonly<{
+  id: string
+  input: ProviderInput
+  version: string
+  created_at: string
+  updated_at: string
+}>
+export type ModelCapabilities = Readonly<{
+  tool_calls: boolean
+  parallel_tool_calls: boolean
+  streaming: boolean
+  reasoning: boolean
+  input_modalities: readonly string[]
+  output_modalities: readonly string[]
+  reasoning_efforts: readonly string[]
+  structured_output_modes: readonly string[]
+  context_length: string | null
+  max_output: string | null
+}>
+export type ProviderModel = Readonly<{
+  id: string
+  provider_id: string
+  input: Readonly<{
+    name: string
+    provider_model_id: string
+    type: ModelType
+    enabled: boolean
+    parameters: Readonly<Record<string, never>>
+    request_overwrite: Readonly<Record<string, never>>
+    header_overwrite: Readonly<Record<string, never>>
+    capabilities: ModelCapabilities
+  }>
+  version: string
+  created_at: string
+  updated_at: string
+}>
+export type ConfigurationPage<T> = Readonly<{ items: readonly T[]; next_cursor: string | null }>
+export type ProviderQuery = Readonly<{ cursor?: string }>
+// Protocol is local validation context from the selected Provider. It never
+// becomes a query member, and protocol cannot change on the backend.
+export type ProviderModelQuery = Readonly<{
+  provider_id: string
+  protocol: ProviderProtocol
+  cursor?: string
+}>
+export type ProviderCommand =
+  | Readonly<{ kind: 'provider.create'; input: ProviderInput }>
+  | Readonly<{
+      kind: 'provider.update'
+      id: string
+      expected_version: string
+      input: ProviderInput
+    }>
+  | Readonly<{ kind: 'provider.delete'; id: string; expected_version: string }>
+export type ProviderReceipt = Readonly<{
+  kind: ProviderCommand['kind']
+  resource_id: string
+  version: string
+  affected_references: '0'
+}>
+export type CredentialMetadata = Readonly<{
+  credential_id: string
+  purpose: 'model'
+  version: string
+}>
+export type CredentialCreated = Readonly<CredentialMetadata & { version: '1'; deleted: false }>
+export type ProviderObservation =
+  Readonly<{ found: false; receipt: null }> | Readonly<{ found: true; receipt: ProviderReceipt }>
+export type CredentialObservation =
+  | Readonly<{ observed: false; result: null }>
+  | Readonly<{ observed: true; result: CredentialCreated }>
+export interface SystemProviderAPI {
+  listProviders(query: ProviderQuery, signal: AbortSignal): Promise<ConfigurationPage<Provider>>
+  getProvider(id: string, signal: AbortSignal): Promise<Provider>
+  createProvider(input: ProviderInput, options: WriteOptions): Promise<ProviderReceipt>
+  updateProvider(
+    id: string,
+    expectedVersion: string,
+    input: ProviderInput,
+    options: WriteOptions,
+  ): Promise<ProviderReceipt>
+  deleteProvider(
+    id: string,
+    expectedVersion: string,
+    options: WriteOptions,
+  ): Promise<ProviderReceipt>
+  listModels(
+    query: ProviderModelQuery,
+    signal: AbortSignal,
+  ): Promise<ConfigurationPage<ProviderModel>>
+  createCredential(value: string, options: WriteOptions): Promise<CredentialCreated>
+  getCredentialMetadata(id: string, signal: AbortSignal): Promise<CredentialMetadata>
+  lookupProviderCommand(
+    command: ProviderCommand,
+    options: WriteOptions,
+  ): Promise<ProviderObservation>
+  lookupCredentialCreate(options: WriteOptions): Promise<CredentialObservation>
+}
+const maximumVersion = 9223372036854775807n
+const encoder = new TextEncoder()
+const reservedCredentialID = '00000000-0000-7000-8000-000000000000'
+function requireValue(value: boolean) {
+  if (!value) throw new AccountFailure('invalid-response')
+}
+function input<T>(work: () => T): T {
+  try {
+    return work()
+  } catch {
+    throw new AccountFailure('invalid-input')
+  }
+}
+function wellFormed(value: string) {
+  for (let i = 0; i < value.length; i++) {
+    const unit = value.charCodeAt(i)
+    if (unit >= 0xd800 && unit <= 0xdbff) {
+      const next = value.charCodeAt(++i)
+      if (!(next >= 0xdc00 && next <= 0xdfff)) return false
+    } else if (unit >= 0xdc00 && unit <= 0xdfff) return false
+  }
+  return true
+}
+function text(value: unknown, bytes: number, characters = bytes) {
+  const result = string(value, 1, characters)
+  requireValue(
+    wellFormed(result) && !result.includes('\0') && encoder.encode(result).byteLength <= bytes,
+  )
+  return result
+}
+function id(value: unknown) {
+  const result = string(value, 36, 36)
+  requireValue(uuid7.test(result))
+  return result
+}
+function version(value: unknown) {
+  const result = string(value, 1, 19)
+  requireValue(/^[1-9][0-9]*$/.test(result) && BigInt(result) <= maximumVersion)
+  return result
+}
+function bool(value: unknown) {
+  requireValue(typeof value === 'boolean')
+  return value as boolean
+}
+function member<T extends string>(value: unknown, choices: readonly T[]): T {
+  requireValue(typeof value === 'string' && choices.includes(value as T))
+  return value as T
+}
+function empty(value: unknown): Readonly<Record<string, never>> {
+  shape(value, [])
+  return Object.freeze({})
+}
+function endpoint(value: unknown) {
+  const result = text(value, 8192)
+  requireValue(
+    /^https?:\/\//i.test(result) &&
+      !/[\x00-\x20\x7f?#]/.test(result) &&
+      !/%(?![0-9a-f]{2})/i.test(result),
+  )
+  const authority = result.slice(result.indexOf('//') + 2).split('/')[0]!
+  requireValue(!authority.includes('@') && !authority.includes('\\') && !authority.endsWith(':'))
+  let url: URL
+  try {
+    url = new URL(result)
+  } catch {
+    throw new AccountFailure('invalid-response')
+  }
+  requireValue(
+    ['http:', 'https:'].includes(url.protocol) &&
+      !!url.hostname &&
+      !url.username &&
+      !url.password &&
+      !url.search &&
+      !url.hash &&
+      (url.port === '' || Number(url.port) > 0),
+  )
+  return result
+}
+function providerInput(value: unknown): ProviderInput {
+  const v = shape(value, ['name', 'protocol', 'base_url', 'enabled', 'credential_ref', 'options'])
+  return Object.freeze({
+    name: text(v.name, 512, 128),
+    protocol: member(v.protocol, providerProtocols),
+    base_url: endpoint(v.base_url),
+    enabled: bool(v.enabled),
+    credential_ref: v.credential_ref === null ? null : id(v.credential_ref),
+    options: empty(v.options),
+  })
+}
+function times(value: Record<string, unknown>) {
+  const created_at = parseSystemInstant(value.created_at),
+    updated_at = parseSystemInstant(value.updated_at)
+  requireValue(updated_at >= created_at)
+  return { created_at, updated_at }
+}
+function provider(value: unknown): Provider {
+  const v = shape(value, ['id', 'input', 'version', 'created_at', 'updated_at'])
+  return Object.freeze({
+    id: id(v.id),
+    input: providerInput(v.input),
+    version: version(v.version),
+    ...times(v),
+  })
+}
+function strings(value: unknown, choices: readonly string[]) {
+  requireValue(Array.isArray(value) && value.length <= choices.length)
+  const items = (value as unknown[]).map((item) => member(item, choices))
+  requireValue(new Set(items).size === items.length)
+  return Object.freeze(items)
+}
+function capabilities(
+  value: unknown,
+  type: ModelType,
+  protocol: ProviderProtocol,
+): ModelCapabilities {
+  const v = shape(value, [
+    'tool_calls',
+    'parallel_tool_calls',
+    'streaming',
+    'reasoning',
+    'input_modalities',
+    'output_modalities',
+    'reasoning_efforts',
+    'structured_output_modes',
+    'context_length',
+    'max_output',
+  ])
+  const result = Object.freeze({
+    tool_calls: bool(v.tool_calls),
+    parallel_tool_calls: bool(v.parallel_tool_calls),
+    streaming: bool(v.streaming),
+    reasoning: bool(v.reasoning),
+    input_modalities: strings(v.input_modalities, ['text', 'image', 'file', 'vector']),
+    output_modalities: strings(v.output_modalities, ['text', 'image', 'file', 'vector']),
+    reasoning_efforts: strings(v.reasoning_efforts, []),
+    structured_output_modes: strings(v.structured_output_modes, ['text', 'json_schema']),
+    context_length: v.context_length === null ? null : version(v.context_length),
+    max_output: v.max_output === null ? null : version(v.max_output),
+  })
+  requireValue(!result.parallel_tool_calls || result.tool_calls)
+  requireValue(
+    result.context_length === null ||
+      result.max_output === null ||
+      BigInt(result.max_output) <= BigInt(result.context_length),
+  )
+  if (type !== 'chat') {
+    requireValue(
+      !result.tool_calls &&
+        !result.parallel_tool_calls &&
+        !result.streaming &&
+        !result.reasoning &&
+        !result.structured_output_modes.length,
+    )
+    requireValue(result.input_modalities.every((m) => m === 'text'))
+  }
+  requireValue(
+    result.output_modalities.every(
+      (m) =>
+        (type === 'chat' && m === 'text') ||
+        (type === 'embedding' && m === 'vector') ||
+        (type === 'image_generation' && m === 'image'),
+    ),
+  )
+  requireValue(
+    protocol !== 'anthropic-messages' || !result.structured_output_modes.includes('json_schema'),
+  )
+  return result
+}
+function model(value: unknown, providerID: string, protocol: ProviderProtocol): ProviderModel {
+  const v = shape(value, ['id', 'provider_id', 'input', 'version', 'created_at', 'updated_at'])
+  requireValue(v.provider_id === providerID)
+  const p = shape(v.input, [
+    'name',
+    'provider_model_id',
+    'type',
+    'enabled',
+    'parameters',
+    'request_overwrite',
+    'header_overwrite',
+    'capabilities',
+  ])
+  const type = member(p.type, ['chat', 'embedding', 'reranker', 'image_generation'] as const)
+  const supported = {
+    'openai-chat-completions': 'chat',
+    'anthropic-messages': 'chat',
+    'openai-embeddings': 'embedding',
+    'jina-rerank': 'reranker',
+    'openai-images-generations': 'image_generation',
+  }
+  requireValue(supported[protocol] === type)
+  return Object.freeze({
+    id: id(v.id),
+    provider_id: id(v.provider_id),
+    version: version(v.version),
+    ...times(v),
+    input: Object.freeze({
+      name: text(p.name, 512, 128),
+      provider_model_id: text(p.provider_model_id, 256),
+      type,
+      enabled: bool(p.enabled),
+      parameters: empty(p.parameters),
+      request_overwrite: empty(p.request_overwrite),
+      header_overwrite: empty(p.header_overwrite),
+      capabilities: capabilities(p.capabilities, type, protocol),
+    }),
+  })
+}
+function page<T extends { id: string; created_at: string }>(
+  value: unknown,
+  parse: (value: unknown) => T,
+): ConfigurationPage<T> {
+  const v = shape(value, ['items', 'next_cursor'])
+  requireValue(Array.isArray(v.items) && v.items.length <= 25)
+  const seen = new Set<string>()
+  let previous: T | undefined
+  const items = (v.items as unknown[]).map((item) => {
+    const result = parse(item)
+    requireValue(
+      !seen.has(result.id) &&
+        (!previous ||
+          result.created_at < previous.created_at ||
+          (result.created_at === previous.created_at && result.id < previous.id)),
+    )
+    seen.add(result.id)
+    previous = result
+    return result
+  })
+  const cursor = v.next_cursor === null ? null : string(v.next_cursor, 1, 8192)
+  requireValue(cursor === null || (wellFormed(cursor) && items.length === 25))
+  return Object.freeze({ items: Object.freeze(items), next_cursor: cursor })
+}
+function budget(value: unknown, maximum: number) {
+  requireValue(encoder.encode(JSON.stringify(value)).byteLength <= maximum)
+}
+export function providerCommandBody(command: ProviderCommand) {
+  if (command.kind === 'provider.create') return { input: command.input }
+  if (command.kind === 'provider.update')
+    return { expected_version: command.expected_version, input: command.input }
+  return { expected_version: command.expected_version }
+}
+// No intent/key is allocated until both original field and encoded-body limits
+// pass, including the as-yet-unknown UUID returned by Credential creation.
+export function captureProviderCommand(
+  command: ProviderCommand,
+  newCredential = false,
+): ProviderCommand {
+  return input(() => {
+    const kind = member(shape(command, ['kind'], ['id', 'expected_version', 'input']).kind, [
+      'provider.create',
+      'provider.update',
+      'provider.delete',
+    ] as const)
+    const v = shape(
+      command,
+      kind === 'provider.create'
+        ? ['kind', 'input']
+        : kind === 'provider.update'
+          ? ['kind', 'id', 'expected_version', 'input']
+          : ['kind', 'id', 'expected_version'],
+    )
+    let result: ProviderCommand
+    if (kind === 'provider.create') result = Object.freeze({ kind, input: providerInput(v.input) })
+    else {
+      const expected_version = version(v.expected_version)
+      requireValue(BigInt(expected_version) < maximumVersion)
+      result =
+        kind === 'provider.update'
+          ? Object.freeze({ kind, id: id(v.id), expected_version, input: providerInput(v.input) })
+          : Object.freeze({ kind, id: id(v.id), expected_version })
+    }
+    const reserved =
+      newCredential && result.kind !== 'provider.delete'
+        ? { ...result, input: { ...result.input, credential_ref: reservedCredentialID } }
+        : result
+    budget(providerCommandBody(reserved), result.kind === 'provider.delete' ? 16 * 1024 : 32 * 1024)
+    return result
+  })
+}
+export function validateCredentialValue(value: string): string {
+  return input(() => {
+    requireValue(
+      typeof value === 'string' &&
+        value.length > 0 &&
+        wellFormed(value) &&
+        encoder.encode(value).byteLength <= 65536,
+    )
+    budget({ value }, 512 * 1024)
+    return value
+  })
+}
+function options(value: WriteOptions) {
+  return input(() => {
+    const v = shape(value, ['csrfToken', 'key'], ['signal'])
+    const csrf = string(v.csrfToken, 43, 43),
+      key = string(v.key, 1, 128)
+    requireValue(/^[A-Za-z0-9_-]{43}$/.test(csrf) && /^[A-Za-z0-9._:/-]{1,128}$/.test(key))
+    return { csrf, key, signal: value.signal ?? new AbortController().signal }
+  })
+}
+function receipt(value: unknown, command: ProviderCommand): ProviderReceipt {
+  const v = shape(value, ['kind', 'resource_id', 'version', 'affected_references'])
+  const result = Object.freeze({
+    kind: member(v.kind, [command.kind]),
+    resource_id: id(v.resource_id),
+    version: version(v.version),
+    affected_references: member(v.affected_references, ['0'] as const),
+  })
+  requireValue(
+    command.kind === 'provider.create'
+      ? result.version === '1'
+      : result.resource_id === command.id &&
+          BigInt(result.version) === BigInt(command.expected_version) + 1n,
+  )
+  return result
+}
+function created(value: unknown): CredentialCreated {
+  const v = shape(value, ['credential_id', 'purpose', 'version', 'deleted'])
+  requireValue(v.purpose === 'model' && v.version === '1' && v.deleted === false)
+  return Object.freeze({
+    credential_id: id(v.credential_id),
+    purpose: 'model',
+    version: '1',
+    deleted: false,
+  })
+}
+function query(value: ProviderQuery) {
+  return input(() => {
+    const v = shape(value, [], ['cursor'])
+    if (!Object.hasOwn(v, 'cursor')) return Object.freeze({})
+    const cursor = string(v.cursor, 1, 8192)
+    requireValue(wellFormed(cursor))
+    return Object.freeze({ cursor })
+  })
+}
+export function createSystemProviderAPI(fetcher?: Fetch): SystemProviderAPI {
+  const request = accountTransport(fetcher)
+  return {
+    async listProviders(value, signal) {
+      return request('listProviders', (v) => page(v, provider), { signal, providers: query(value) })
+    },
+    async getProvider(value, signal) {
+      const target = input(() => id(value))
+      return request(
+        'getProvider',
+        (v) => {
+          const result = provider(v)
+          requireValue(result.id === target)
+          return result
+        },
+        { signal, target },
+      )
+    },
+    async createProvider(value, write) {
+      const command = captureProviderCommand({ kind: 'provider.create', input: value })
+      return request('createProvider', (v) => receipt(v, command), {
+        ...options(write),
+        body: providerCommandBody(command),
+      })
+    },
+    async updateProvider(target, expected_version, value, write) {
+      const command = captureProviderCommand({
+        kind: 'provider.update',
+        id: target,
+        expected_version,
+        input: value,
+      })
+      return request('updateProvider', (v) => receipt(v, command), {
+        ...options(write),
+        target,
+        body: providerCommandBody(command),
+      })
+    },
+    async deleteProvider(target, expected_version, write) {
+      const command = captureProviderCommand({
+        kind: 'provider.delete',
+        id: target,
+        expected_version,
+      })
+      return request('deleteProvider', (v) => receipt(v, command), {
+        ...options(write),
+        target,
+        body: providerCommandBody(command),
+      })
+    },
+    async listModels(value, signal) {
+      const captured = input(() => {
+        const v = shape(value, ['provider_id', 'protocol'], ['cursor'])
+        return {
+          provider_id: id(v.provider_id),
+          protocol: member(v.protocol, providerProtocols),
+          ...query(Object.hasOwn(v, 'cursor') ? { cursor: v.cursor as string } : {}),
+        }
+      })
+      const { protocol, ...models } = captured
+      return request(
+        'listProviderModels',
+        (v) => page(v, (row) => model(row, models.provider_id, protocol)),
+        { signal, models },
+      )
+    },
+    async createCredential(value, write) {
+      return request('createModelCredential', created, {
+        ...options(write),
+        body: { value: validateCredentialValue(value) },
+      })
+    },
+    async getCredentialMetadata(value, signal) {
+      const target = input(() => id(value))
+      return request(
+        'getModelCredentialMetadata',
+        (raw) => {
+          const v = shape(raw, ['credential_id', 'purpose', 'version'])
+          requireValue(v.credential_id === target && v.purpose === 'model')
+          return Object.freeze({
+            credential_id: id(v.credential_id),
+            purpose: 'model' as const,
+            version: version(v.version),
+          })
+        },
+        { signal, target },
+      )
+    },
+    async lookupProviderCommand(original, write) {
+      const command = captureProviderCommand(original)
+      return request(
+        'lookupProviderCommand',
+        (raw): ProviderObservation => {
+          const v = shape(raw, ['found', 'receipt'])
+          if (v.found === false) {
+            requireValue(v.receipt === null)
+            return Object.freeze({ found: false, receipt: null })
+          }
+          requireValue(v.found === true)
+          return Object.freeze({ found: true, receipt: receipt(v.receipt, command) })
+        },
+        { ...options(write), body: { command: command.kind } },
+      )
+    },
+    async lookupCredentialCreate(write) {
+      return request(
+        'lookupModelCredentialCreate',
+        (raw): CredentialObservation => {
+          const v = shape(raw, ['observed', 'result'])
+          if (v.observed === false) {
+            requireValue(v.result === null)
+            return Object.freeze({ observed: false, result: null })
+          }
+          requireValue(v.observed === true)
+          return Object.freeze({ observed: true, result: created(v.result) })
+        },
+        { ...options(write), body: { kind: 'create' } },
+      )
+    },
+  }
+}

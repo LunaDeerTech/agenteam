@@ -1,0 +1,203 @@
+{
+  "evidence_kind": "reduced static DOM/exact input06 CSS diagnosis; not App/backend/business evidence",
+  "results": [
+    {
+      "width": 1440,
+      "before": {
+        "innerHeight": 900,
+        "documentHeight": 900,
+        "bodyHeight": 2428,
+        "main": {
+          "clientHeight": 854,
+          "scrollHeight": 2443,
+          "scrollTop": 0
+        },
+        "captions": [
+          {
+            "offsetParent": "BODY",
+            "offsetParentClass": "",
+            "anchored": false,
+            "rect": {
+              "x": 264,
+              "y": 170.09375,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 264,
+              "y": 125.09375,
+              "width": 800,
+              "height": 1866
+            },
+            "clip": "inset(50%)"
+          },
+          {
+            "offsetParent": "BODY",
+            "offsetParentClass": "",
+            "anchored": false,
+            "rect": {
+              "x": 264,
+              "y": 2420.28125,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 264,
+              "y": 2375.28125,
+              "width": 800,
+              "height": 90
+            },
+            "clip": "inset(50%)"
+          }
+        ]
+      },
+      "after": {
+        "innerHeight": 900,
+        "documentHeight": 900,
+        "bodyHeight": 900,
+        "main": {
+          "clientHeight": 854,
+          "scrollHeight": 2443,
+          "scrollTop": 0
+        },
+        "captions": [
+          {
+            "offsetParent": "DIV",
+            "offsetParentClass": "provider-table",
+            "anchored": true,
+            "rect": {
+              "x": 264,
+              "y": 170.09375,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 264,
+              "y": 125.09375,
+              "width": 800,
+              "height": 1866
+            },
+            "clip": "inset(50%)"
+          },
+          {
+            "offsetParent": "DIV",
+            "offsetParentClass": "provider-table",
+            "anchored": true,
+            "rect": {
+              "x": 264,
+              "y": 2420.28125,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 264,
+              "y": 2375.28125,
+              "width": 800,
+              "height": 90
+            },
+            "clip": "inset(50%)"
+          }
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "before": {
+        "innerHeight": 900,
+        "documentHeight": 900,
+        "bodyHeight": 1695,
+        "main": {
+          "clientHeight": 854,
+          "scrollHeight": 1816,
+          "scrollTop": 0
+        },
+        "captions": [
+          {
+            "offsetParent": "BODY",
+            "offsetParentClass": "",
+            "anchored": false,
+            "rect": {
+              "x": 24,
+              "y": 189.4375,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 24,
+              "y": 189.4375,
+              "width": 342,
+              "height": 851
+            },
+            "clip": "inset(50%)"
+          },
+          {
+            "offsetParent": "BODY",
+            "offsetParentClass": "",
+            "anchored": false,
+            "rect": {
+              "x": 24,
+              "y": 1686.921875,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 24,
+              "y": 1686.921875,
+              "width": 342,
+              "height": 151
+            },
+            "clip": "inset(50%)"
+          }
+        ]
+      },
+      "after": {
+        "innerHeight": 900,
+        "documentHeight": 900,
+        "bodyHeight": 900,
+        "main": {
+          "clientHeight": 854,
+          "scrollHeight": 1816,
+          "scrollTop": 0
+        },
+        "captions": [
+          {
+            "offsetParent": "DIV",
+            "offsetParentClass": "provider-table",
+            "anchored": true,
+            "rect": {
+              "x": 24,
+              "y": 189.4375,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 24,
+              "y": 189.4375,
+              "width": 342,
+              "height": 851
+            },
+            "clip": "inset(50%)"
+          },
+          {
+            "offsetParent": "DIV",
+            "offsetParentClass": "provider-table",
+            "anchored": true,
+            "rect": {
+              "x": 24,
+              "y": 1686.921875,
+              "width": 1,
+              "height": 8
+            },
+            "wrapperRect": {
+              "x": 24,
+              "y": 1686.921875,
+              "width": 342,
+              "height": 151
+            },
+            "clip": "inset(50%)"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "purpose": "Go fixture exact CLI path and cwd reproduced by discovery only; no browser/service started",
+  "before": {
+    "independent-fixture.go": "2181cf015edc5540ffe595cc497a4c3572137423597ece6aafc14a5b949de256",
+    "e2e/independent-providers.spec.ts": "851b9bfce27e7a6cac9f9b0ab8b6d344940364d9c681ca44ca1b6271217f9c32",
+    "e2e/fixed-helpers.ts": "705964a0d89f2b21a50f240cf76601b1351831c9241bb270f43d274b09a064b5",
+    "independent.config.js": "068133d505cb1a61a5a09f64db6c735dd236a6a384024d2d387a42a537ff1c94",
+    "discovery02.py": "3fe219e1c955ea424f947ef2ca33fbcc25521e028d8f4effaf6b493173d4976d"
+  },
+  "after": {
+    "independent-fixture.go": "2181cf015edc5540ffe595cc497a4c3572137423597ece6aafc14a5b949de256",
+    "e2e/independent-providers.spec.ts": "851b9bfce27e7a6cac9f9b0ab8b6d344940364d9c681ca44ca1b6271217f9c32",
+    "e2e/fixed-helpers.ts": "705964a0d89f2b21a50f240cf76601b1351831c9241bb270f43d274b09a064b5",
+    "independent.config.js": "068133d505cb1a61a5a09f64db6c735dd236a6a384024d2d387a42a537ff1c94",
+    "discovery02.py": "3fe219e1c955ea424f947ef2ca33fbcc25521e028d8f4effaf6b493173d4976d"
+  },
+  "inputs_unchanged": true,
+  "module_resolution_argv": [
+    "node",
+    "-e",
+    "const {createRequire}=require('node:module');const fs=require('node:fs');const a=createRequire(process.argv[1]);const b=createRequire(process.argv[2]);const ap=a.resolve('@playwright/test');const bp=b.resolve('@playwright/test');const av=a('@playwright/test'),bv=b('@playwright/test');const p=a('@playwright/test/package.json');console.log(JSON.stringify({cli:fs.realpathSync(process.argv[1]),specModule:ap,cliModule:bp,sameTestIdentity:av.test===bv.test,version:p.version}));if(av.test!==bv.test)process.exit(1);",
+    "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/node_modules/@playwright/test/cli.js",
+    "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/e2e/independent-providers.spec.ts"
+  ],
+  "module_resolution_cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace/tests/account-captcha-web",
+  "module_resolution_exit": 0,
+  "module_resolution": {
+    "cli": "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+    "specModule": "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/index.js",
+    "cliModule": "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/index.js",
+    "sameTestIdentity": true,
+    "version": "1.56.1"
+  },
+  "module_resolution_log_sha256": "d42f1e015d1f181d6935a268fada5a2718aca3f793024375f2e62a92ef86f878",
+  "results": [
+    {
+      "mode": "independent-partial",
+      "argv": [
+        "node",
+        "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/independent.config.js",
+        "--list"
+      ],
+      "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace/tests/account-captcha-web",
+      "env_overrides": {
+        "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1",
+        "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/discovery02/not-started",
+        "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+        "AGENTEAM_PROVIDERS_WEB_CASE": "independent-partial",
+        "TMPDIR": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/tmp",
+        "CI": "1"
+      },
+      "actual_wait": true,
+      "exit_code": 0,
+      "seconds": 0.788,
+      "raw_sha256": "6fcfe187819d0f2262ca44304c51841949ee4b0d0d589a639da5cdfc7b5e6d52",
+      "one_test": true
+    },
+    {
+      "mode": "independent-replay",
+      "argv": [
+        "node",
+        "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/independent.config.js",
+        "--list"
+      ],
+      "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace/tests/account-captcha-web",
+      "env_overrides": {
+        "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1",
+        "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/discovery02/not-started",
+        "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+        "AGENTEAM_PROVIDERS_WEB_CASE": "independent-replay",
+        "TMPDIR": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/tmp",
+        "CI": "1"
+      },
+      "actual_wait": true,
+      "exit_code": 0,
+      "seconds": 0.733,
+      "raw_sha256": "ab4c320dc34a29f5cba47e6c67d774149566da53a73d639752b87f61a7a84c10",
+      "one_test": true
+    }
+  ]
+}

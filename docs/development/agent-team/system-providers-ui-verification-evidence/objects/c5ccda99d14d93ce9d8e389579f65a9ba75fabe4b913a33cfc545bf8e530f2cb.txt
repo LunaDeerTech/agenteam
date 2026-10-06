@@ -1,0 +1,13 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-provider-owner02-verification-feilkmmi/candidate/web
+
+stdout | src/tests/independent-confirmed.spec.ts > Independent confirmation reentrancy > preserves a different replacement intent through native Credential EOF after retiring the confirmed old intent
+confirmation-replacement-safe-facts {"credentialValueMatches":true,"replacementTargetMatches":true,"replacementCommandMatches":true,"threeDistinctKeys":true,"sameOriginalCSRF":true,"materialNotInProviderBodies":true}
+
+ ✓ src/tests/independent-confirmed.spec.ts > Independent confirmation reentrancy > preserves a different replacement intent through native Credential EOF after retiring the confirmed old intent 64ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  09:04:04
+   Duration  731ms (transform 125ms, setup 0ms, import 190ms, tests 65ms, environment 361ms)
+

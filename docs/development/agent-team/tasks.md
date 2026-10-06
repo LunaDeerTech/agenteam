@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：System Provider 管理 UI 完整卡接受
+
+- [Provider rev4](../work-items/d27-system-provider-management-ui.md)22路径已由 `directory_backend`（frontend_worker）完成、`recovery_verification` 独立最终PASS，主线程采纳提交推送 `f465f45b899e21c225e7d4107c099b256538239c`，远端一致。[正式报告与最小证据](system-providers-ui-verification.md)固定input07 `e758cfd7…b26428`的21源/26dist指纹及独立通过后README末件；消费1c82d88/后端9b32015与迁移1–19，卡技术§1–7不变。
+- 作者完整603测试/format/type/build通过，后续caption局部CSS按受影响检查；新6按差量组合、旧7在最终input07通过。API01两项及owner01一项产品红保留，原独立probe返修后全通过；App纯组合及实际owner尾部屏障沿固定字节复用。
+- 独立02 Replay PASS、03仅Partial PASS（actual0/56.399s），组合接受，不称同轮全绿；01双Playwright装配红及02错误503EOF前提保留。最终7exact IDs/82PID/4实际wait双清、monitor0，窗口释放。作者new01原cleanup=false及另次补清分列，两版图片拒收后new05八图接受；历史非自有PPID1 Z不纳入清理声明。
+- 本次只归档/离线核固定Git和原字节，不重跑产品。后继Model管理不在本次接受内；完整D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503、生产SPA/Vite/Runtime等限制保持。以下旧记录保留当时事实。
+
 ## 2026-10-06：系统待注册邀请 UI 完整卡接受
 
 - [邀请 UI rev4](../work-items/d27-system-invitation-ui.md)22路径已由 `directory_frontend` 完成、`recovery_verification` 独立最终PASS，主线程采纳提交推送 `1c82d888adfef0d8b58ab51c920557ca4e2f084f`，远端一致。[正式报告与最小证据](system-invitations-ui-verification.md)绑定input07 `5a0de8fd…2dfa6`、后端9b32015/迁移1–19与共享79f922；第22路径README在通过后单独审查。卡技术§1–7保持原字节，历史依赖等待由页首先行接受状态覆盖。

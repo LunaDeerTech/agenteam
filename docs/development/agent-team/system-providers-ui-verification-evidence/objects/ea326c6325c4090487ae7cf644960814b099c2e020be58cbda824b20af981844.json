@@ -1,0 +1,70 @@
+[
+  {
+    "case": "ordinary",
+    "url": "https://provider.invalid/v1"
+  },
+  {
+    "case": "ipv6",
+    "url": "https://[2001:db8::1]/v1"
+  },
+  {
+    "case": "ipv6-zone",
+    "url": "http://[fe80::1%25eth0]/v1"
+  },
+  {
+    "case": "numeric-looking-host",
+    "url": "http://1.2.3.999/v1"
+  },
+  {
+    "case": "bracket-nonip",
+    "url": "http://[opaque]/v1"
+  },
+  {
+    "case": "upper-scheme",
+    "url": "HTTP://provider.invalid/v1"
+  },
+  {
+    "case": "leading-zero-port",
+    "url": "http://provider.invalid:00080/v1"
+  },
+  {
+    "case": "path-backslash",
+    "url": "https://provider.invalid/v1\\model"
+  },
+  {
+    "case": "path-escaped-control",
+    "url": "https://provider.invalid/%00"
+  },
+  {
+    "case": "host-encoded-unicode",
+    "url": "https://%e4%be%8b.invalid/v1"
+  },
+  {
+    "case": "empty-port",
+    "url": "http://provider.invalid:/v1"
+  },
+  {
+    "case": "port-zero",
+    "url": "http://provider.invalid:0/v1"
+  },
+  {
+    "case": "bad-escape",
+    "url": "http://provider.invalid/%zz"
+  },
+  {
+    "case": "userinfo",
+    "url": "http://u@provider.invalid/v1"
+  },
+  {
+    "case": "query-empty",
+    "url": "http://provider.invalid/v1?"
+  },
+  {
+    "case": "fragment",
+    "url": "http://provider.invalid/v1#x"
+  },
+  {
+    "case": "port-overflow",
+    "url": "http://provider.invalid:65536/v1"
+  }
+]

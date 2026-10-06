@@ -1,0 +1,25 @@
+{
+  "status": "STATIC PREPARATION03 PASS; no real execution",
+  "prior_report_sha256": "74dd2170d26d6c992567650be142efd500d74bdb13fd9c336d9e88de625c7f3f",
+  "source": "e2e/independent-providers.spec.ts",
+  "source_sha256": "851b9bfce27e7a6cac9f9b0ab8b6d344940364d9c681ca44ca1b6271217f9c32",
+  "preserved_preparation02_source": "logs/preparation02-source/independent-providers.spec.ts",
+  "preserved_source_sha256": "f98aff3c8051eedbd1b758d886f22b774cdf4233ae24d3777e9f3e1852bab4f9",
+  "delta": "preparation02-to03.diff",
+  "delta_sha256": "fabead1414eb03a87f232d9f768639a392a15a022efbfdb34963c868969bae88",
+  "driver_sha256": "06f84d66820acbff609bf1a95fff63fe513fc40acc4fc6182cfc6a1773a809da",
+  "type_result": "logs/type03/result.json",
+  "type_result_sha256": "c39cadbfa9a52ea4027c00a2871d1f106653aee3631b385e7b744ec53002e2d7",
+  "actual_exit": 0,
+  "elapsed_seconds": 0.973,
+  "actual_wait": true,
+  "inputs_unchanged": true,
+  "pid_absent_now": true,
+  "rules": [
+    "partial: monotonic watermark before pageshow; require later exact GET Session503 actual original reader end plus error page and physical zero dialogs",
+    "partial: watermark immediately before explicit restore; require later GET Session200 original reader EOF with original user_id/session_id/role before checking physical2/accessibility1",
+    "replay: original lookup watermark also requires a fresh Session200 EOF with exact prior identity; then lookup/list and zero extra writes remain strict"
+  ],
+  "reuse": "Go overlay, two top declarations/config/discovery, native observer, fixtures and compiled binary unchanged; no repeated Go compile or discovery",
+  "resource_window": "author only; no browser/service/PostgreSQL/MinIO/Docker started"
+}

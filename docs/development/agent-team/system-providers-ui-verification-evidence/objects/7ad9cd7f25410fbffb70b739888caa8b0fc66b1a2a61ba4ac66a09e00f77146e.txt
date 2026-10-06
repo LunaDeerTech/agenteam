@@ -1,0 +1,71 @@
+import ctypes, hashlib, importlib.util, json, os, pathlib, shutil, signal, socket, subprocess, tempfile, time
+
+root = pathlib.Path(__file__).resolve().parent
+spec = importlib.util.spec_from_file_location('resources', root/'run_provider_fixture03.py')
+helpers = importlib.util.module_from_spec(spec); spec.loader.exec_module(helpers)
+if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+    raise OSError('cannot establish child subreaper')
+run = root/'runs/caption-layout04';run.mkdir(mode=0o700)
+tmp = pathlib.Path(tempfile.mkdtemp(prefix='prvl-', dir='/tmp'))
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+write = lambda p, value: p.write_text(json.dumps(value, indent=2)+'\n')
+frozen = json.loads((root/'input06.json').read_text())
+def inputs():
+    return {'dist': {path:sha(root/'input06'/path) for path in frozen['dist']},
+            'probe':sha(root/'caption-layout-probe04.mjs'), 'driver':sha(pathlib.Path(__file__)),
+            'helper':sha(root/'run_provider_fixture03.py'),
+            'harness_lock':sha(root/'workspace/tests/account-captcha-web/package-lock.json')}
+before = inputs();assert before['dist'] == frozen['dist']
+write(run/'input-before.json', before)
+shutil.copyfile(root/'caption-layout-probe04.mjs', run/'probe.mjs.txt')
+shutil.copyfile(pathlib.Path(__file__), run/'driver.py.txt')
+baseline = helpers.processes()
+write(run/'process-baseline.json',{pid:{k:v for k,v in row.items() if k!='raw'} for pid,row in baseline.items()})
+(run/'ports-before.txt').write_text(subprocess.run(['ss','-lntp'],capture_output=True,text=True,check=True).stdout)
+env_add = {'TMPDIR':str(tmp),'PROBE_RUN':str(run),'CI':'1','NO_COLOR':'1'}
+env = os.environ.copy();env.update(env_add)
+argv = ['node','caption-layout-probe04.mjs']
+command = {'argv':argv,'cwd':str(root),'env':env_add};write(run/'command.json',command)
+observed={};waited=[];started=time.monotonic();timed_out=False
+with (run/'raw.log').open('wb') as raw:
+    process=subprocess.Popen(argv,cwd=root,env=env,stdout=raw,stderr=subprocess.STDOUT,start_new_session=True)
+    while process.poll() is None:
+        current=helpers.processes();owned={process.pid}|{row['pid'] for row in observed.values()}
+        for _ in range(10):
+            added={pid for pid,row in current.items() if row['ppid'] in owned or row['ppid']==os.getpid()}
+            if added<=owned:break
+            owned|=added
+        for pid in owned:
+            if pid in current and (pid not in baseline or baseline[pid]['starttime']!=current[pid]['starttime']):
+                observed[pid]={'pid':pid,**{k:v for k,v in current[pid].items() if k!='raw'}}
+        helpers.reap_adopted(observed,process.pid,waited)
+        if time.monotonic()-started>55:
+            timed_out=True;os.killpg(process.pid,signal.SIGTERM);break
+        time.sleep(.04)
+    try:code=process.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        os.killpg(process.pid,signal.SIGKILL);code=process.wait(timeout=10)
+command.update({'actual_wait_completed':True,'exit':code,'seconds':time.monotonic()-started});write(run/'command.json',command)
+for _ in range(50):
+    helpers.reap_adopted(observed,process.pid,waited)
+    current=helpers.processes()
+    remaining=[row for row in observed.values() if row['pid'] in current and current[row['pid']]['starttime']==row['starttime']]
+    if not remaining:break
+    time.sleep(.04)
+server=json.loads((run/'server.json').read_text()) if (run/'server.json').exists() else None
+cleanup=[]
+for _ in range(2):
+    current=helpers.processes()
+    remaining=[row for row in observed.values() if row['pid'] in current and current[row['pid']]['starttime']==row['starttime']]
+    closed_port=True
+    if server:
+        with socket.socket() as sock:sock.settimeout(1);closed_port=sock.connect_ex((server['host'],server['port']))!=0
+    cleanup.append({'owned_processes':remaining,'server_port_closed':closed_port});time.sleep(.25)
+if all(not row['owned_processes'] for row in cleanup):shutil.rmtree(tmp)
+write(run/'cleanup.json',cleanup);write(run/'observed-processes.json',observed);write(run/'adopted-waits.json',waited)
+(run/'ports-after.txt').write_text(subprocess.run(['ss','-lntp'],capture_output=True,text=True,check=True).stdout)
+after=inputs();write(run/'input-after.json',after)
+closed=json.loads((run/'closed.json').read_text()) if (run/'closed.json').exists() else {}
+result={'exit':code,'actual_wait_completed':True,'seconds':command['seconds'],'timed_out':timed_out,'input_unchanged':before==after,'raw_sha256':sha(run/'raw.log'),'owned_pid_count':len(observed),'adopted_wait_count':len(waited),'double_clean':all(not row['owned_processes'] and row['server_port_closed'] for row in cleanup),'tmpdir_removed':not tmp.exists(),'closed':closed,'evidence_kind':'reduced static DOM and exact input06 CSS; no server/backend/Docker; not business evidence'}
+write(run/'result.json',result);print(json.dumps(result));print((run/'raw.log').read_text())
+raise SystemExit(0 if code==0 and result['double_clean'] and result['input_unchanged'] and result['tmpdir_removed'] and closed.get('closedBrowser') and closed.get('server_started') is False else 1)

@@ -1,0 +1,87 @@
+[
+  {
+    "case": "ordinary",
+    "url": "https://provider.invalid/v1",
+    "go_accepted": true
+  },
+  {
+    "case": "ipv6",
+    "url": "https://[2001:db8::1]/v1",
+    "go_accepted": true
+  },
+  {
+    "case": "ipv6-zone",
+    "url": "http://[fe80::1%25eth0]/v1",
+    "go_accepted": true
+  },
+  {
+    "case": "numeric-looking-host",
+    "url": "http://1.2.3.999/v1",
+    "go_accepted": true
+  },
+  {
+    "case": "bracket-nonip",
+    "url": "http://[opaque]/v1",
+    "go_accepted": false
+  },
+  {
+    "case": "upper-scheme",
+    "url": "HTTP://provider.invalid/v1",
+    "go_accepted": true
+  },
+  {
+    "case": "leading-zero-port",
+    "url": "http://provider.invalid:00080/v1",
+    "go_accepted": true
+  },
+  {
+    "case": "path-backslash",
+    "url": "https://provider.invalid/v1\\model",
+    "go_accepted": true
+  },
+  {
+    "case": "path-escaped-control",
+    "url": "https://provider.invalid/%00",
+    "go_accepted": true
+  },
+  {
+    "case": "host-encoded-unicode",
+    "url": "https://%e4%be%8b.invalid/v1",
+    "go_accepted": true
+  },
+  {
+    "case": "empty-port",
+    "url": "http://provider.invalid:/v1",
+    "go_accepted": false
+  },
+  {
+    "case": "port-zero",
+    "url": "http://provider.invalid:0/v1",
+    "go_accepted": false
+  },
+  {
+    "case": "bad-escape",
+    "url": "http://provider.invalid/%zz",
+    "go_accepted": false
+  },
+  {
+    "case": "userinfo",
+    "url": "http://u@provider.invalid/v1",
+    "go_accepted": false
+  },
+  {
+    "case": "query-empty",
+    "url": "http://provider.invalid/v1?",
+    "go_accepted": false
+  },
+  {
+    "case": "fragment",
+    "url": "http://provider.invalid/v1#x",
+    "go_accepted": false
+  },
+  {
+    "case": "port-overflow",
+    "url": "http://provider.invalid:65536/v1",
+    "go_accepted": false
+  }
+]

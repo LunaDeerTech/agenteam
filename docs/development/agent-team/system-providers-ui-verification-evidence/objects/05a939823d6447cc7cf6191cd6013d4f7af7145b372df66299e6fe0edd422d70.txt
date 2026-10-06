@@ -1,0 +1,66 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import ts from './workspace/web/node_modules/typescript/lib/typescript.js';
+const sourcePath = new URL('./workspace/tests/account-captcha-web/e2e/system-providers.spec.ts', import.meta.url);
+const source = readFileSync(sourcePath, 'utf8');
+const parsed = ts.createSourceFile('observer.ts', source, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TS);
+const declaration = parsed.statements.find((node) => ts.isFunctionDeclaration(node) && node.name?.text === 'observeNative');
+assert(declaration);
+const extracted = declaration.getFullText(parsed);
+const code = ts.transpileModule(extracted, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None } }).outputText;
+const install = (scope) => Function('window', code + ';return observeNative;')(scope)();
+const id = '01900000-0000-7000-8000-000000000001', secret = 'fixture-extra-must-not-be-retained';
+const provider = { id, input: { name:'Name', protocol:'openai-chat-completions',base_url:'https://provider.invalid/v1',enabled:true,credential_ref:null,options:{},private_extra:secret },version:'1',created_at:'2026-10-06T12:34:56.123456Z',updated_at:'2026-10-06T12:34:56.123456Z',private_extra:secret };
+const page = {items:[provider],next_cursor:null,private_extra:secret};
+let assertions = 0;
+const check = (condition) => {assert.equal(condition,true);assertions++;};
+async function owned(path, {status=200,method='GET',contentType='application/json'}={}) {
+ let accept, reject, controller, nativeReader, nativeReadPromise, nativeCancel, calls=0;
+ const pending = new Promise((yes,no)=>{accept=yes;reject=no});
+ const scope = {location:{href:'http://127.0.0.1:32123/system/providers',origin:'http://127.0.0.1:32123'},fetch:function(input,init){check(this===scope);check(input===path&&init===options);calls++;return pending;}};
+ const options={method}; install(scope);
+ const returned=scope.fetch(path,options);check(returned===pending);check(calls===1);
+ const stream=new ReadableStream({start(c){controller=c;}}), response=new Response(stream,{status,headers:{'Content-Type':contentType}});
+ const get=response.body.getReader;
+ response.body.getReader=function(...args){nativeReader=Reflect.apply(get,this,args);nativeCancel=nativeReader.cancel;const read=nativeReader.read;nativeReader.read=function(...args){nativeReadPromise=Reflect.apply(read,this,args);return nativeReadPromise;};return nativeReader;};
+ const capturedGet=response.body.getReader;
+ accept(response);check(await returned===response);
+ const reader=response.body.getReader();check(reader===nativeReader&&reader.cancel===nativeCancel);
+ return {scope,reader,controller,response,capturedGet,reject,async chunk(bytes){const read=reader.read();check(read===nativeReadPromise);controller.enqueue(bytes);await read;},async done(){const read=reader.read();check(read===nativeReadPromise);controller.close();await read;await Promise.resolve();},async error(){const error=new Error('owned read failure');const read=reader.read();check(read===nativeReadPromise);controller.error(error);check(await read.catch((e)=>e)===error);await Promise.resolve();}};
+}
+async function collect(path,text,options){const f=await owned(path,options);const bytes=new TextEncoder().encode(text);for(let start=0;start<bytes.length;start+=65536)await f.chunk(bytes.subarray(start,start+65536));await f.done();return f;}
+function padded(value,size){const text=JSON.stringify(value);return text+' '.repeat(size-Buffer.byteLength(text));}
+const results=[];
+{
+ const f=await collect('/api/v1/system/model-providers?limit=25',JSON.stringify(page));
+ const fact=f.scope.__providerFacts[0];check(fact.sequence===1&&fact.ended&&fact.status===200&&fact.page.items.length===1);check(!JSON.stringify(fact).includes(secret));check(Object.keys(fact.page.items[0]).join(',')==='id,input,version,created_at,updated_at');check(Object.keys(fact.page.items[0].input).join(',')==='name,protocol,base_url,enabled,credential_ref,options');results.push('original fetch/Response/reader/read Promise/cancel identity; closed Provider projection');
+}
+for(const path of ['/api/v1/system/model-other','/api/v1/system/model-providers?secret=x','https://external.invalid/api/v1/system/model-providers']){const f=await collect(path,JSON.stringify(page));check(f.scope.__providerFacts.length===0);results.push('unwatched endpoint retains no fact');}
+{
+ const f=await collect('/api/v1/system/models?provider_id='+id+'&limit=25',JSON.stringify({items:[{value:secret}],next_cursor:null}));const fact=f.scope.__providerFacts[0];check(fact.ended&&fact.bytes>0&&!Object.hasOwn(fact,'page')&&!JSON.stringify(fact).includes(secret));results.push('Models status/bytes only');
+}
+for (const [name,path,status,size,value,field,want] of [
+ ['list success above old cap','/api/v1/system/model-providers?limit=25',200,600001,page,'page',true],
+ ['list actual over 2MiB','/api/v1/system/model-providers?limit=25',200,2097153,page,'page',false],
+ ['list Problem old cap','/api/v1/system/model-providers?limit=25',403,600001,{code:'FORBIDDEN'},'code',false],
+ ['detail old cap','/api/v1/system/model-providers/'+id,200,600001,provider,'provider',false],
+ ['non-JSON list old cap','/api/v1/system/model-providers?limit=25',200,600001,page,'page',false],
+]){const f=await collect(path,padded(value,size),{status,contentType:name.startsWith('non-JSON')?'text/plain':'application/json'});const fact=f.scope.__providerFacts[0];check(fact.ended&&fact.bytes===size);check(Object.hasOwn(fact,field)===want);results.push(name);}
+for(const [path,value,method,field] of [
+ ['/api/v1/session',{user:{id,role:'admin',password:secret},session:{id},csrf_token:secret},'GET','session'],
+ ['/api/v1/system/model-providers',{kind:'provider.create',resource_id:id,version:'1',affected_references:'0',value:secret},'POST','receipt'],
+ ['/api/v1/system/model-credentials',{credential_id:id,purpose:'model',version:'1',deleted:false,value:secret},'POST','credential'],
+ ['/api/v1/system/model-commands/lookup',{found:true,receipt:{value:secret}},'POST','found'],
+ ['/api/v1/system/model-credential-commands/lookup',{observed:true,result:{value:secret}},'POST','found'],
+]){const f=await collect(path,JSON.stringify(value),{method});check(Object.hasOwn(f.scope.__providerFacts[0],field));check(!JSON.stringify(f.scope.__providerFacts).includes(secret));results.push('closed '+field+' projection');}
+{
+ const f=await owned('/api/v1/system/model-providers/'+id);await f.chunk(new TextEncoder().encode('{"private":"'+secret));await f.error();check(f.scope.__providerFacts[0].ended&&!Object.hasOwn(f.scope.__providerFacts[0],'provider'));check(!JSON.stringify(f.scope.__providerFacts).includes(secret));results.push('read rejection retains original error and no partial data');
+}
+{
+ const f=await collect('/api/v1/system/model-providers/'+id,'{invalid');check(f.scope.__providerFacts[0].ended&&!Object.hasOwn(f.scope.__providerFacts[0],'provider'));results.push('malformed EOF leaves no candidate');
+}
+{
+ let reject;const pending=new Promise((_resolve,no)=>{reject=no});const scope={location:{href:'http://127.0.0.1:32123',origin:'http://127.0.0.1:32123'},fetch:()=>pending};install(scope);const returned=scope.fetch('/api/v1/session');check(returned===pending);const error=new Error('owned fetch failure');reject(error);check(await returned.catch(e=>e)===error);await Promise.resolve();check(scope.__providerFacts[0].ended&&scope.__providerFacts[0].status===0);results.push('fetch rejection retains original Promise/error');
+}
+console.log(JSON.stringify({source_sha256:createHash('sha256').update(source).digest('hex'),extracted_sha256:createHash('sha256').update(extracted).digest('hex'),cases:results.length,assertions,passed:results},null,2));

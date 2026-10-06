@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "node",
+    "web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--strict",
+    "--skipLibCheck",
+    "--types",
+    "node",
+    "--typeRoots",
+    "web/node_modules/@types",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace",
+  "env": {
+    "npm_config_offline": "true",
+    "TMPDIR": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/tmp"
+  },
+  "source_sha256": {
+    "web/src/views/system/SystemProvidersView.vue": "9067355a8fc1f866131874765cd1ef99fb4faf2d5fb48744695b0afcd6245369",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "ac0ded50b6687b6a5d2c7bb1bfe2778796cc9a57ddb08c9c07186beab0e9bdb5"
+  }
+}

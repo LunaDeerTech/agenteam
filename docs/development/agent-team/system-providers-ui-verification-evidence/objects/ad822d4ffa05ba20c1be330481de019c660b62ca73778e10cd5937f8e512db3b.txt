@@ -1,0 +1,14 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-provider-owner02-verification-feilkmmi/candidate/web
+
+ ✓ src/tests/independent-owner.spec.ts > Independent Provider owner boundaries > joins first native EOF then keeps prepared ref and second cancel tail under one owner 25ms
+ ✓ src/tests/independent-owner.spec.ts > Independent Provider owner boundaries > does not promote lookup or rejected replay and reuses one confirmed Credential after explicit Provider rebase 10ms
+ ✓ src/tests/independent-owner.spec.ts > Independent Provider owner boundaries > keeps explicit abandonment terminal when the write-only material-cleared notification fires synchronously 3ms
+ ✓ src/tests/independent-owner.spec.ts > Independent Provider owner boundaries > uses current lookup Forbidden to clear prepared state and retain identity-bound denial only 3ms
+ ✓ src/tests/independent-owner.spec.ts > Independent Provider owner boundaries > keeps an abandoned old-identity real transport tail ahead of replacement Session establishment 2ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  09:03:59
+   Duration  764ms (transform 131ms, setup 0ms, import 207ms, tests 44ms, environment 397ms)
+

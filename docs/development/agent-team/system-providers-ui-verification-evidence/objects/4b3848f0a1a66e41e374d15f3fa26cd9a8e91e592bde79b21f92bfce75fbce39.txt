@@ -1,0 +1,29 @@
+//go:build integration
+
+package account_test
+
+import (
+	"context"
+	"testing"
+	"time"
+)
+
+func runIndependentProvider(t *testing.T, mode string, required ...string) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	f := newProvidersWebFixture(t, ctx, mode)
+	result := f.browserProviders(ctx)
+	for _, key := range required {
+		if result[key] != true {
+			t.Fatalf("independent Provider evidence absent: %s", key)
+		}
+	}
+	t.Logf("independent Provider group=%s complete; original 45s browser/2m top; safe Boolean facts only", mode)
+}
+func TestAccountSystemProvidersIndependentPartial(t *testing.T) {
+	runIndependentProvider(t, "independent-partial", "prepared_once", "same_session_recovery", "pending_confirmation", "only_provider_rebased", "shared_old_ref_preserved", "immediate_form_clean")
+}
+func TestAccountSystemProvidersIndependentReplay(t *testing.T) {
+	runIndependentProvider(t, "independent-replay", "credential_exact_replay", "provider_exact_replay", "unique_facts", "reads_not_receipts", "confirmed_read_failure", "no_secret_deletion")
+}

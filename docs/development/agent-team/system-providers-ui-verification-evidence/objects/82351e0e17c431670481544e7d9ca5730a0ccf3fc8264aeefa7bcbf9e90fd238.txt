@@ -1,0 +1,11 @@
+# Provider 独立真实验证准备
+
+状态：静态准备通过；两个真实顶层均未运行。
+
+固定产品 input02 `1d6a5fa4b4ee3a26d00548e875afb187f42b16e93357c06dd44a4d181d9e2ff6`。私有 fixture 保留原资源与预算，只加两个独立 mode、限定一次 Session503，以及仅输出布尔比较的原请求正文/CSRF 观察。Go 二进制只编译，未执行。
+
+实际检查：type01 1.281s、config01 0.033s、Go race integration compile01 46.466s、两个 discovery 各仅一例（0.917s/0.666s）、物理/可访问层断言修正后 type02 1.071s；全部 exit0、实际 wait、输入未变，记录中的 PID 当前均不存在。
+
+原未运行的 count2 准备源码和精确差量保留；新断言分别要求物理两层、仅顶层可访问，下层 inert/aria-hidden。此项没有真实旧红或新绿声明。
+
+精确源、命令、原日志、二进制及固定 Go 输入 SHA 见同目录 preparation-report.json；缓存/二进制不复制入归档。作者仍持真实窗口，后续必须先核最终冻结组合，再按授权运行和记录实际双清。

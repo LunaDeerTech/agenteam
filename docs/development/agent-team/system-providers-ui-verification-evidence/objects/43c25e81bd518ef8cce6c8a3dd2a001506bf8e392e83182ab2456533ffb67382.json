@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "run",
+    "/workspace/scratch/agenteam-provider-api-verification-xuqvo6eh/go-url-probe.go"
+  ],
+  "cwd": "/workspace/scratch/agenteam-provider-api-verification-xuqvo6eh",
+  "env_overrides": {
+    "GO111MODULE": "off",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOCACHE": "/workspace/scratch/agenteam-provider-api-verification-xuqvo6eh/gocache",
+    "GOTMPDIR": "/workspace/scratch/agenteam-provider-api-verification-xuqvo6eh/gotmp"
+  },
+  "input_sha256": "9c9962a33038a4131bd49280f7f93b4a7183290b38cba920b6eb0e7fb2b68446",
+  "before": {
+    "candidate/web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "candidate/web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "candidate/web/vitest.config.mjs": "693f0bc9433a56e4e385fe793ff3733dfc5cc9fc663681d6f6e7e8970c365a90",
+    "candidate/web/src/tests/system-providers-client.spec.ts": "5409233f7f4521ef7b70e678780457a4d162f81fd0a6bf047dff26511280c3ab",
+    "candidate/web/src/api/client.ts": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6",
+    "candidate/web/src/api/system-providers.ts": "1e57fe453fe1cbb77a9fdb09ef473e4bd61cefb09ac4a37784d49223d31ced92",
+    "candidate/web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "candidate/web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+  },
+  "limit_seconds": 120
+}

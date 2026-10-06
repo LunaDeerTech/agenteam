@@ -1,0 +1,61 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-provider-api-verification-xuqvo6eh/candidate/web
+
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'ordinary' 25ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'ipv6' 1ms
+ × src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'ipv6-zone' 4ms
+   → expected { localAccepted: false, …(3) } to deeply equal { localAccepted: true, …(3) }
+ × src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'numeric-looking-host' 1ms
+   → expected { localAccepted: false, …(3) } to deeply equal { localAccepted: true, …(3) }
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'bracket-nonip' 1ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'upper-scheme' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'leading-zero-port' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'path-backslash' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'path-escaped-control' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'host-encoded-unicode' 1ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'empty-port' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'port-zero' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'bad-escape' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'userinfo' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'query-empty' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'fragment' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'port-overflow' 0ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > accepts exactly 2MiB of actual successful list bytes without trusting Content-Length 6ms
+ ✓ src/tests/independent-api.spec.ts > Independent fixed API boundary > joins overflow cancellation after accumulated chunks and never publishes a candidate 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'ipv6-zone'
+ FAIL  src/tests/independent-api.spec.ts > Independent fixed API boundary > agrees with fixed Go endpoint on 'numeric-looking-host'
+AssertionError: expected { localAccepted: false, …(3) } to deeply equal { localAccepted: true, …(3) }
+
+- Expected
++ Received
+
+  {
+-   "localAccepted": true,
+-   "localExact": true,
+-   "responseAccepted": true,
+-   "responseExact": true,
++   "localAccepted": false,
++   "localExact": false,
++   "responseAccepted": false,
++   "responseExact": false,
+  }
+
+ ❯ src/tests/independent-api.spec.ts:18:71
+     16|     try{const v=await createSystemProviderAPI(async()=>json(row(c.url)…
+     17|     // Safe booleans only: all addresses are public synthetic input; n…
+     18|     expect({localAccepted,responseAccepted,localExact,responseExact}).…
+       |                                                                       ^
+     19|   })
+     20|   it('accepts exactly 2MiB of actual successful list bytes without tru…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 17 passed (19)
+   Start at  08:44:45
+   Duration  260ms (transform 77ms, setup 0ms, import 96ms, tests 46ms, environment 0ms)
+

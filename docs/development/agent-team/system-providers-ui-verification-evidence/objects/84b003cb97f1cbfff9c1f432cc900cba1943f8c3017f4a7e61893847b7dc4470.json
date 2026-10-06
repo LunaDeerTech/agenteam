@@ -1,0 +1,18 @@
+{
+  "status": "delta core STATIC PASS; success-recovery freshness observation gap sent to root and accepted for test-only input05",
+  "input04_manifest_sha256": "10520a311fd081b503f8fbc2ec6a2ae6d3a863530acb11e1983ec36118944d93",
+  "delta_sha256": "fed0041e6d84f523b1d8cb68e5c5136b09a17da82b3559c62cdacc085c825f88",
+  "fixed_source_root": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/input04",
+  "source_hash": "7393c1faf18b31d817eaf7bb3e1687c1b29213ca846dcdfb3d2ae368495ee1b2",
+  "source_scope": "only Provider browser spec changes; 21 exact files checked, dist/dependency manifests equal input03",
+  "passed": [
+    "loginReady captures pre-click request watermark, exact current user+role in new GET Session200 native EOF, enabled logout and route leaving login before reload",
+    "physical dialog2/accessibility1 with inert/aria-hidden lower and precise titles/operable top matches accepted useLayer; original focus/Tab/zero-write assertions retained"
+  ],
+  "gap": "successful checkingConfirmation(false) could satisfy unchanged prior layers without proving pageshow was accepted; bind a new exact same-user/session/role Session200 EOF to pre-dispatch watermark",
+  "limits": [
+    "No browser or other real resource run",
+    "new02 lacked physical DOM record; no retrospective physical2 claim",
+    "input04 fixed snapshot actually under input04/, not sourceinput04/"
+  ]
+}

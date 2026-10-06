@@ -1,0 +1,42 @@
+{
+  "product_manifest_sha256": "e758cfd704f8677fe23cc57c8a41a23adff769fd85461a07092bedf1c6b26428",
+  "files": {
+    "independent-fixture.go": "2181cf015edc5540ffe595cc497a4c3572137423597ece6aafc14a5b949de256",
+    "independent-tops.go": "4b3848f0a1a66e41e374d15f3fa26cd9a8e91e592bde79b21f92bfce75fbce39",
+    "e2e/fixed-helpers.ts": "705964a0d89f2b21a50f240cf76601b1351831c9241bb270f43d274b09a064b5",
+    "e2e/independent-providers.spec.ts": "f7e2852f16016e7bf9fcc497f3682a575068adc01222636057621401249a3d21",
+    "independent.config.js": "068133d505cb1a61a5a09f64db6c735dd236a6a384024d2d387a42a537ff1c94",
+    "overlay.json": "ddae20b0b2ccd560bfbe1e69b6a7ea869e3df9781f9f1abeb6b19e03ffc180f9",
+    "fixture-cli01-to02.diff": "5ef02062dc6eb7d3524ba77b2f251629403c8d82d0ebf527ffffca5112115260",
+    "discovery02.py": "3fe219e1c955ea424f947ef2ca33fbcc25521e028d8f4effaf6b493173d4976d",
+    "logs/discovery02/binding.json": "819366edd920f2478fa7a1d9a620dcce9bdd96983e85c85e4c8711b4660e003d",
+    "run-real03.py": "743027d7bbdf4a81357d4ab4d10ae373e0a4bb5d0a8e261644c1048038d17b9d",
+    "probe03-to04.diff": "8c8ab1ab39f5ae336e47be7e36d7951d6e46790320d2aa158f25b56f2f5f9eb2",
+    "driver02-to03.diff": "38191d41a697b02c5d3b40884d63f4fe8b948ebcde7026ae0608192c6b3d68ec"
+  },
+  "change": "Only Partial removes the impossible read EOF condition from fresh GET Session text/plain503 observation; the client rejects Content-Type then awaits body.cancel without a reader. Successful recovery still requires fresh 200 EOF and exact user/session/role. No cancel wrapping or product/fixture/helper change.",
+  "selector": "^(TestAccountSystemProvidersIndependentPartial)$",
+  "budgets": "45s browser /2m top /6m actual Go test; worker1 retry0",
+  "product_change": false,
+  "independent02": {
+    "command.json_sha256": "adf134c7608c7dcefd4aeca0206197ab2a07374bf9b599aec30846e0661c6a6a",
+    "raw.log_sha256": "5bc2d0d7b8b1deae2cd8409893e3b8252fdafefc2f120ea9a8af843c2a6fc551",
+    "result.json_sha256": "a8b675b27e25160c51561367c270a876248f1da110ab2ffbf960d8e73db4eb6d",
+    "cleanup.json_sha256": "0a9c6555a528d26b833c5e9f57bff08ffdb6081fafc352eb310dda4c436962e0",
+    "verification-input.json_sha256": "5fb1a3e2ba86a28f18df5d6455fb0b31a60aad3057c5db41a411f5d21d5fd61f"
+  },
+  "prior_actual": {
+    "exit": 1,
+    "seconds": 74.579,
+    "double_cleanup": true,
+    "replay": "PASS 11.35s / browser7.5s",
+    "partial": "FAIL 12.56s: private 503 EOF premise; not product RED"
+  },
+  "replay_reuse": {
+    "unchanged_suffix_sha256": "e1c677f722df1c2a16111a03038c1a18b6682a40fff0cc1bdb27bcf270479364",
+    "helper_fixture_config_unchanged": true,
+    "assertions_rerun": false
+  },
+  "runtime_status": "frozen; awaiting root delta review before only Partial rerun",
+  "actual_join_evidence": "Reuse fixed API02/owner02 native stream/cancel tail barriers; status503 or UI visibility alone is not claimed as transport join."
+}

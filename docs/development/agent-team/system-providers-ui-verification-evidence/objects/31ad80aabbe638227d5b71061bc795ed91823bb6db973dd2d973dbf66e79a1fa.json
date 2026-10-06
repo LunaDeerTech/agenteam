@@ -1,0 +1,35 @@
+[
+  {
+    "argv": [
+      "npm",
+      "run",
+      "test:unit",
+      "--",
+      "src/tests/system-providers.spec.ts",
+      "src/tests/system-user-directory.spec.ts",
+      "src/tests/system-invitations.spec.ts",
+      "src/tests/personal-settings.spec.ts"
+    ],
+    "exit_code": 1,
+    "seconds": 4.323501810999005,
+    "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace/web",
+    "env": {
+      "npm_config_offline": "true",
+      "TMPDIR": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/tmp"
+    }
+  },
+  {
+    "argv": [
+      "npm",
+      "run",
+      "type-check"
+    ],
+    "exit_code": 0,
+    "seconds": 5.100526665999496,
+    "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace/web",
+    "env": {
+      "npm_config_offline": "true",
+      "TMPDIR": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/tmp"
+    }
+  }
+]

@@ -1,0 +1,22 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/candidate/web
+
+stderr | src/tests/independent-app.spec.ts > Independent Provider App composition > preserves partial success and pending navigation through real pageshow failure/recovery, then rebases only Provider and starts an immediate clean form
+[Vue Router warn]: No match found for location with path "/settings/profile"
+[Vue Router warn]: No match found for location with path "/system/invitations"
+
+stderr | src/tests/independent-app.spec.ts > Independent Provider App composition > preserves partial success and pending navigation through real pageshow failure/recovery, then rebases only Provider and starts an immediate clean form
+[Vue Router warn]: No match found for location with path "/system/invitations"
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stdout | src/tests/independent-app.spec.ts > Independent Provider App composition > preserves partial success and pending navigation through real pageshow failure/recovery, then rebases only Provider and starts an immediate clean form
+independent-app-safe-partial-facts {"oneCredential":true,"twoProvider":true,"exactDraftPreserved":true,"preparedRefOnly":true,"rebasedVersion":true,"newProviderKey":true,"noDeletes":true,"noPublicMaterial":true}
+
+ ✓ src/tests/independent-app.spec.ts > Independent Provider App composition > preserves partial success and pending navigation through real pageshow failure/recovery, then rebases only Provider and starts an immediate clean form 486ms
+ ↓ src/tests/independent-app.spec.ts > Independent Provider App composition > keeps a no-editor logout confirmation pending across same-Session checking, then rejects it on new identity and rejects a later route on App disposal
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 1 skipped (2)
+   Start at  09:15:18
+   Duration  1.91s (transform 698ms, setup 0ms, import 850ms, tests 488ms, environment 415ms)
+

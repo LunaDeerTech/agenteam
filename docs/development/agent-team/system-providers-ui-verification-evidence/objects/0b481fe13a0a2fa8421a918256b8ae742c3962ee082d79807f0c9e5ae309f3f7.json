@@ -1,0 +1,65 @@
+{
+  "status": "STATIC DELTA PASS; visual/browser rerun remains pending",
+  "manifest": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/input06.json",
+  "manifest_sha256": "7ef86b16066fc7b7050423800cabbf52fb27059857408820616ddcb3d51d2298",
+  "delta": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/input05-to06.diff",
+  "delta_sha256": "9a93b4b81c92eb6612fe1732362e227de5f81523b6e3381b5383cda203bd273b",
+  "changed_sources": [
+    "web/src/views/system/SystemProvidersView.vue",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts"
+  ],
+  "source_count": 21,
+  "dist_count": 26,
+  "all_frozen_source_dist_hashes_match": true,
+  "dependencies_unchanged": true,
+  "findings": [
+    "Only scoped .sr-only five declarations; exact accepted invitation rule. No display:none/aria-hidden on captions, so accessible table names remain while absolute+1px+clip removes visible caption layout.",
+    "Browser invokes original formal add-model(99) under owned Provider, then selected Models native-99 is ready before inspecting both captions. Prior compete only flips enabled, leaves target name valid.",
+    "Every light/dark and 1440/1024/834/390 combination requires exact two accessible table names and exactly two caption computed style successes; physical overlay0 and narrow drawer focus requirements retained.",
+    "input05 preceding delta binds new post-pageshow GET Session200 native EOF to original user/session/role before layer checks; closes static observation gap."
+  ],
+  "author_checks_read_only": {
+    "format": {
+      "result": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-check01/format/result.json",
+      "result_sha256": "38364a9056c0a1bc4c109e711ecce02d18e23c7b52d4fda7156116235d5def7e",
+      "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "command_sha256": "2024e200ab6ac8137ae68157dd34e33e96588a5c4cec66cc372e4228d2a08011",
+      "exit_code": 0,
+      "seconds": 0.5608649679998052
+    },
+    "component": {
+      "result": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-check01/component/result.json",
+      "result_sha256": "c34c79dac7450bda38183d6541cd187956d2fa488117f12e979ec5d8f3c06a72",
+      "raw_sha256": "f2bcefcba2d4eece51ef0a6de0748abbb9143186b448e2d5157ba68cfd1deca8",
+      "command_sha256": "2e9a363b87748f8e7784aa47a20404edef846acc7356159405be3a5bafd0f347",
+      "exit_code": 0,
+      "seconds": 3.788707729003363
+    },
+    "build": {
+      "result": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-check01/build/result.json",
+      "result_sha256": "e60db3a5c1b58dde46fde83c147b2bd336ef114fd52ae58160ef42368a30e718",
+      "raw_sha256": "69ba82b5007b78afab2e12a1303b06014f059ace141aafba3452e450154f9ae8",
+      "command_sha256": "d3198908a331c4d7227437bcf615ac33b41752d69958500ae8944bc1b3b0709a",
+      "exit_code": 0,
+      "seconds": 5.939744327999506
+    },
+    "browser-type": {
+      "result": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-check01/browser-type/result.json",
+      "result_sha256": "cd9e4ab27c50bf96c74c77aa5d4aa55b7e580bd001812a2f49056edca89f0c78",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_sha256": "e8ba3826bcc3aa7ab644990a98d705d9e2491ca8014b1d167716ae501351aa88",
+      "exit_code": 0,
+      "seconds": 0.9852119730021514
+    }
+  },
+  "reuse": [
+    "API/client/owner/controller/App/Editor sources unchanged since fixed input02; prior independent API/owner/App evidence applies",
+    "All Go compiler input hashes match fixed input02 compile01, and private Go overlay/probe03 unchanged; no recompilation or test rerun needed for this CSS delta"
+  ],
+  "limits": [
+    "No browser/PG/MinIO/Docker or server executed by verifier",
+    "new03 behavioral PASS does not make its broken caption screenshots visually accepted",
+    "Computed style checks are candidate assertions; their real outcomes and replacement screenshot review are pending author new04",
+    "Production hosting/provider connectivity/model invocation remain outside this card; no new scope claimed"
+  ]
+}

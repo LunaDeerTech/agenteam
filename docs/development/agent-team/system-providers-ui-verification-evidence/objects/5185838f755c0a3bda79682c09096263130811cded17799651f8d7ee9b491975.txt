@@ -1,0 +1,152 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI, type ProviderInput } from '../api/system-providers'
+import { type Fetch, type CommitState } from '../api/client'
+import { createSessionController, type SessionController } from '../composables/useSession'
+
+const id=(n:number)=>'01900000-0000-7000-8000-'+n.toString(16).padStart(12,'0')
+const instant='2026-10-06T12:34:56.123456Z'
+const csrf='S'.repeat(43)
+const session=(n=2):SessionView=>({user:{id:id(1),email:'admin@example.invalid',username:'admin',display_name:'Admin',role:'admin',theme:'system',version:'1',initial_password_suggestion:false},session:{id:id(n),issued_at:instant,idle_expires_at:instant,absolute_expires_at:instant},csrf_token:csrf})
+const input=(ref:string|null=null):ProviderInput=>({name:'Provider',protocol:'openai-chat-completions',base_url:'https://provider.invalid/v1',enabled:true,credential_ref:ref,options:{}})
+const created=()=>({credential_id:id(11),purpose:'model',version:'1',deleted:false})
+const receipt=(kind='provider.create',version='1')=>({kind,resource_id:id(10),version,affected_references:'0'})
+const row=(version='1')=>({id:id(10),input:input(),version,created_at:instant,updated_at:instant})
+const json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status,headers:{'Content-Type':status>=400?'application/problem+json':'application/json','X-Request-ID':id(9)}})
+const problem=(code:string,status=503,commit_state:CommitState='not_started')=>json({type:'urn:agenteam:problem:test',title:'Failure',status,code,detail:'',instance:'/api/v1/system/model-providers',request_id:id(9),commit_state},status)
+function gate<T=void>(){let resolve!:(v:T)=>void;const promise=new Promise<T>(r=>resolve=r);return{promise,resolve}}
+const owners:SessionController[]=[]
+const systemWrite=(path:string,init:RequestInit)=>path.startsWith('/api/v1/system/model-')&&init.method!=='GET'
+async function harness(){
+ let view=session(),handle:Fetch=async(p,i)=>i.method==='GET'?json(p.includes('?')?{items:[],next_cursor:null}:row()):json(p.endsWith('/model-credentials')?created():receipt())
+ const calls:{path:string;init:RequestInit}[]=[]
+ const fetcher:Fetch=async(path,init)=>{
+  calls.push({path,init})
+  if(path==='/api/v1/session')return json(view)
+  if(path.startsWith('/api/v1/system/users?')||path.startsWith('/api/v1/system/invitations?'))return json({items:[]})
+  if(path==='/api/v1/me')return json({user:view.user,avatar:null})
+  if(path==='/api/v1/auth/bootstrap')return json({csrf_token:'A'.repeat(43),challenge_modes:['rotate'],delivery_channel:'backend_log'})
+  return handle(path,init)
+ }
+ const auth=createSessionController(createAccountAPI(fetcher),createSystemAccountAPI(fetcher),createSystemInvitationAPI(fetcher),createSystemProviderAPI(fetcher));owners.push(auth);await auth.restore()
+ return{auth,calls,set:(value:Fetch)=>{handle=value},setSession:(n:number)=>{view=session(n)},writes:()=>calls.filter(c=>systemWrite(c.path,c.init))}
+}
+afterEach(()=>{for(const a of owners.splice(0))a.leave();vi.useRealTimers();vi.restoreAllMocks()})
+
+describe('Independent Provider owner boundaries',()=>{
+ it('joins first native EOF then keeps prepared ref and second cancel tail under one owner',async()=>{
+  vi.useFakeTimers()
+  const f=await harness(),secondEntered=gate(),secondTail=gate()
+  let firstController!:ReadableStreamDefaultController<Uint8Array>,secondSignal!:AbortSignal
+  const firstStream=new ReadableStream<Uint8Array>({start(c){firstController=c;c.enqueue(new TextEncoder().encode(JSON.stringify(created())))}})
+  const secondStream=new ReadableStream<Uint8Array>({start(c){c.enqueue(new Uint8Array([1]))},cancel(){secondEntered.resolve();return secondTail.promise}})
+  f.set(async(path,init)=>{if(path.endsWith('/model-credentials'))return new Response(firstStream,{headers:{'Content-Type':'application/json'}});secondSignal=init.signal as AbortSignal;return new Response(secondStream,{headers:{'Content-Type':'text/plain'}})})
+  f.auth.system.providers.setMaterial('generated-'+crypto.randomUUID())
+  const visible=f.auth.system.providers.start({kind:'provider.create',input:input()}).catch((e:unknown)=>e)
+  try{
+   await flushPromises()
+   expect({busy:f.auth.state.busy,writes:f.writes().length,stage:f.auth.system.providers.progress?.stage,material:f.auth.system.providers.material.present}).toEqual({busy:true,writes:1,stage:'credential',material:true})
+   const prior=f.calls.length
+   f.auth.personal.abandon();f.auth.system.abandon();f.auth.system.abandonInvitations()
+   await expect(f.auth.system.listUsers({})).rejects.toMatchObject({kind:'busy'})
+   expect(f.calls.length===prior).toBe(true)
+   firstController.close()
+   await secondEntered.promise
+   expect({busy:f.auth.state.busy,writes:f.writes().length,stage:f.auth.system.providers.progress?.stage,material:f.auth.system.providers.material.present,ref:f.auth.system.providers.progress?.credential?.credential_id===id(11)}).toEqual({busy:true,writes:2,stage:'provider',material:false,ref:true})
+   f.auth.personal.abandon()
+   expect(secondSignal.aborted).toBe(false)
+   await vi.advanceTimersByTimeAsync(30000)
+   expect(await visible).toMatchObject({kind:'cancelled'})
+   expect({busy:f.auth.state.busy,phase:f.auth.system.providers.progress?.phase,ref:f.auth.system.providers.progress?.credential?.credential_id===id(11)}).toEqual({busy:true,phase:'uncertain',ref:true})
+   const count=f.calls.length
+   await f.auth.restore();await f.auth.logout()
+   await expect(f.auth.personal.getProfile()).rejects.toMatchObject({kind:'busy'})
+   expect(f.calls.length===count).toBe(true)
+  }finally{secondTail.resolve();await flushPromises();await visible}
+  expect(f.auth.state.busy).toBe(false)
+  expect(f.auth.system.providers.progress?.phase).toBe('uncertain')
+  expect(f.auth.system.providers.material.present).toBe(false)
+ })
+
+ it('does not promote lookup or rejected replay and reuses one confirmed Credential after explicit Provider rebase',async()=>{
+  const f=await harness();let credentialCalls=0,providerCalls=0,lookupCalls=0
+  f.set(async(path,init)=>{
+   if(path.endsWith('/model-credential-commands/lookup')){
+    lookupCalls++
+    return lookupCalls===1?json({observed:false,result:null}):lookupCalls===2?problem('INTERNAL_ERROR'):json({observed:true,result:created()})
+   }
+   if(path.endsWith('/model-credentials')){credentialCalls++;if(credentialCalls===1)throw new Error('test-response-loss');return credentialCalls===2?problem('INVALID_ARGUMENT',400,'not_committed'):json(created())}
+   if(init.method==='GET')return providerCalls<2?json(row('2')):problem('INTERNAL_ERROR')
+   providerCalls++;return providerCalls===1?problem('VERSION_CONFLICT',409,'not_committed'):json(receipt('provider.update','3'))
+  })
+  const material='generated-'+crypto.randomUUID()+'\0'
+  f.auth.system.providers.setMaterial(material)
+  await expect(f.auth.system.providers.start({kind:'provider.update',id:id(10),expected_version:'1',input:input()})).rejects.toMatchObject({kind:'transport'})
+  await f.auth.system.providers.checkOriginal()
+  expect({phase:f.auth.system.providers.progress?.phase,observation:f.auth.system.providers.progress?.observation,credential:f.auth.system.providers.progress?.credential,providerCalls}).toEqual({phase:'uncertain',observation:'missing',credential:null,providerCalls:0})
+  await expect(f.auth.system.providers.checkOriginal()).rejects.toMatchObject({kind:'problem'})
+  expect(f.auth.system.providers.progress?.observation).toBe('failed')
+  await expect(f.auth.system.providers.retryOriginal()).rejects.toMatchObject({kind:'problem'})
+  expect({phase:f.auth.system.providers.progress?.phase,stage:f.auth.system.providers.progress?.stage,rebase:f.auth.system.providers.progress?.canRebase,providerCalls}).toEqual({phase:'uncertain',stage:'credential',rebase:false,providerCalls:0})
+  await f.auth.system.providers.checkOriginal()
+  expect({phase:f.auth.system.providers.progress?.phase,observation:f.auth.system.providers.progress?.observation,providerCalls}).toEqual({phase:'uncertain',observation:'found',providerCalls:0})
+  await expect(f.auth.system.providers.retryOriginal()).rejects.toMatchObject({kind:'problem'})
+  expect({phase:f.auth.system.providers.progress?.phase,stage:f.auth.system.providers.progress?.stage,rebase:f.auth.system.providers.progress?.canRebase,ref:f.auth.system.providers.progress?.credential?.credential_id===id(11),material:f.auth.system.providers.material.present}).toEqual({phase:'rejected',stage:'provider',rebase:true,ref:true,material:false})
+  const secretWrites=f.writes().filter(c=>c.path.endsWith('/model-credentials'))
+  const first=secretWrites[0]!
+  expect(secretWrites.length===3&&secretWrites.every(c=>c.init.body===first.init.body&&new Headers(c.init.headers).get('Idempotency-Key')===new Headers(first.init.headers).get('Idempotency-Key')&&new Headers(c.init.headers).get('X-CSRF-Token')===csrf)).toBe(true)
+  const publicProjection=JSON.stringify([f.auth.state,f.auth.personalContext,f.auth.system.providers.progress,f.auth.system.providers.material])
+  expect(publicProjection.includes(material)||publicProjection.includes(csrf)||publicProjection.includes(new Headers(first.init.headers).get('Idempotency-Key')!)).toBe(false)
+  await f.auth.system.providers.readForRebase()
+  await f.auth.system.providers.rebase(input(id(11)))
+  const bindingWrites=f.writes().filter(c=>c.path.includes('/model-providers/'))
+  expect(bindingWrites.length===2&&new Headers(bindingWrites[0]!.init.headers).get('Idempotency-Key')!==new Headers(bindingWrites[1]!.init.headers).get('Idempotency-Key')).toBe(true)
+  expect(credentialCalls===3&&f.writes().every(c=>c.init.method!=='DELETE')).toBe(true)
+  await expect(f.auth.system.providers.get(id(10))).rejects.toMatchObject({kind:'problem'})
+  expect({phase:f.auth.system.providers.progress?.phase,receipt:f.auth.system.providers.progress?.receipt?.version,retry:f.auth.system.providers.progress?.canRetryOriginal}).toEqual({phase:'confirmed',receipt:'3',retry:false})
+ })
+
+ it('keeps explicit abandonment terminal when the write-only material-cleared notification fires synchronously',async()=>{
+  const f=await harness();f.auth.system.providers.setMaterial('generated-'+crypto.randomUUID())
+  let abandons=0
+  const stop=watch(()=>f.auth.system.providers.material.present,(present)=>{if(!present){abandons++;f.auth.system.providers.abandon()}},{flush:'sync'})
+  let result:unknown
+  try{result=await f.auth.system.providers.start({kind:'provider.create',input:input()}).catch((e:unknown)=>e);await flushPromises()}finally{stop()}
+  expect(result).toMatchObject({kind:'cancelled'})
+  expect({abandons,busy:f.auth.state.busy,providerWrites:f.writes().filter(c=>c.path.endsWith('/model-providers')).length,progressCleared:f.auth.system.providers.progress===null,material:f.auth.system.providers.material.present}).toEqual({abandons:1,busy:false,providerWrites:0,progressCleared:true,material:false})
+ })
+
+ it('uses current lookup Forbidden to clear prepared state and retain identity-bound denial only',async()=>{
+  const f=await harness();f.auth.system.providers.setMaterial('generated-'+crypto.randomUUID())
+  f.set(async(path)=>{if(path.endsWith('/model-credentials'))return json(created());if(path.endsWith('/model-commands/lookup'))return problem('FORBIDDEN',403);throw new Error('test-response-loss')})
+  await f.auth.system.providers.start({kind:'provider.create',input:input()}).catch(()=>undefined)
+  expect(f.auth.system.providers.progress?.credential?.credential_id===id(11)).toBe(true)
+  await f.auth.system.providers.checkOriginal().catch(()=>undefined)
+  expect({phase:f.auth.state.phase,role:f.auth.state.user?.role,denied:f.auth.system.denied,cleared:f.auth.system.providers.progress===null,material:f.auth.system.providers.material.present}).toEqual({phase:'authenticated',role:'admin',denied:true,cleared:true,material:false})
+  await f.auth.restore()
+  expect(f.auth.system.denied).toBe(false)
+  f.auth.system.providers.setMaterial('generated-'+crypto.randomUUID())
+  f.set(async()=>problem('CSRF_FAILED',403))
+  await f.auth.system.providers.start({kind:'provider.create',input:input()}).catch(()=>undefined)
+  expect({phase:f.auth.state.phase,identity:f.auth.personalContext.identity,cleared:f.auth.system.providers.progress===null,material:f.auth.system.providers.material.present}).toEqual({phase:'unavailable',identity:null,cleared:true,material:false})
+ })
+
+ it('keeps an abandoned old-identity real transport tail ahead of replacement Session establishment',async()=>{
+  const f=await harness(),held=gate<Response>()
+  f.set(()=>held.promise);f.auth.system.providers.setMaterial('generated-'+crypto.randomUUID())
+  const old=f.auth.system.providers.start({kind:'provider.create',input:input()}).catch((e:unknown)=>e)
+  await flushPromises();f.auth.leave();f.setSession(3)
+  try{
+   const calls=f.calls.length
+   await f.auth.restore()
+   expect({busy:f.auth.state.busy,newCalls:f.calls.length-calls,identity:f.auth.personalContext.identity,progress:f.auth.system.providers.progress}).toEqual({busy:true,newCalls:0,identity:null,progress:null})
+  }finally{held.resolve(problem('SESSION_REVOKED',401));await old;await flushPromises()}
+  expect(f.auth.state.busy).toBe(false)
+  await f.auth.restore()
+  expect({session:f.auth.state.session?.id===id(3),denied:f.auth.system.denied,progress:f.auth.system.providers.progress,material:f.auth.system.providers.material.present}).toEqual({session:true,denied:false,progress:null,material:false})
+ })
+})

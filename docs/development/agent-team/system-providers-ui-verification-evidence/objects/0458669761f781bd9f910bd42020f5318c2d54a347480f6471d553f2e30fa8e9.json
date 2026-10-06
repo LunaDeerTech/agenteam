@@ -1,0 +1,53 @@
+{
+  "base": "1c82d888adfef0d8b58ab51c920557ca4e2f084f",
+  "owner_manifest_sha256": "28dfe7931d1101c578e8070cf28a2bbca4f7031e4c93652f15f40747fbebf29e",
+  "api_manifest_sha256": "61c86175161023fc6d4b107bb324dbdb737f7fbd2c54c338a1d87f0671a76511",
+  "files": {
+    "web/src/composables/useSession.ts": {
+      "sha256": "34214b8005169fc552d0900efeaa0584940e67034d167f121b17704a89bd6234",
+      "source": "owner-stage02"
+    },
+    "web/src/tests/system-providers-state.spec.ts": {
+      "sha256": "be2363b91443adef127366469904c537b4c54625b664156dfe80c453266f56d4",
+      "source": "owner-stage02"
+    },
+    "web/src/api/client.ts": {
+      "sha256": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6",
+      "source": "api-stage02"
+    },
+    "web/src/api/system-providers.ts": {
+      "sha256": "1c4fbe9db5158e7d46908b40a95a4eacc26e4b8725efd4ff6cfe3f9acb5352a4",
+      "source": "api-stage02"
+    },
+    "web/src/tests/system-providers-client.spec.ts": {
+      "sha256": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c",
+      "source": "api-stage02"
+    },
+    "web/src/api/account.ts": {
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "source": "1c82d888adfef0d8b58ab51c920557ca4e2f084f"
+    },
+    "web/src/api/system-account.ts": {
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+      "source": "1c82d888adfef0d8b58ab51c920557ca4e2f084f"
+    },
+    "web/src/api/system-invitations.ts": {
+      "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+      "source": "1c82d888adfef0d8b58ab51c920557ca4e2f084f"
+    },
+    "web/src/composables/useTheme.ts": {
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+      "source": "1c82d888adfef0d8b58ab51c920557ca4e2f084f"
+    },
+    "web/package.json": {
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "source": "1c82d888adfef0d8b58ab51c920557ca4e2f084f"
+    },
+    "web/package-lock.json": {
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "source": "1c82d888adfef0d8b58ab51c920557ca4e2f084f"
+    }
+  },
+  "original_probe_sha256": "5185838f755c0a3bda79682c09096263130811cded17799651f8d7ee9b491975",
+  "scope": "Fixed owner02/API02 minimal pure closure; no live controller/View/harness"
+}

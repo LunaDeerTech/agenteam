@@ -1,0 +1,19 @@
+{
+  "base": "1c82d888adfef0d8b58ab51c920557ca4e2f084f",
+  "card": "a8f0135ba0c82112efde62950a1027a382ec4c86",
+  "manifest_sha256": "61c86175161023fc6d4b107bb324dbdb737f7fbd2c54c338a1d87f0671a76511",
+  "files": {
+    "web/src/api/client.ts": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6",
+    "web/src/api/system-providers.ts": "1c4fbe9db5158e7d46908b40a95a4eacc26e4b8725efd4ff6cfe3f9acb5352a4",
+    "web/src/tests/system-providers-client.spec.ts": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c",
+    "web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "web/vitest.config.mjs": "693f0bc9433a56e4e385fe793ff3733dfc5cc9fc663681d6f6e7e8970c365a90",
+    "web/src/tests/independent-api.spec.ts": "28b97b045901ee19bdd37fd2c22fd91e3cb7d83ff6d132875599d2bea9f6f96b",
+    "web/src/tests/url-oracle.json": "fd0f57765bec9c54c377ce56c8f92fefdfeb6c4949b4d839d4c50e822d790b1d"
+  },
+  "probe_reuse_sha256": "28b97b045901ee19bdd37fd2c22fd91e3cb7d83ff6d132875599d2bea9f6f96b",
+  "boundary": "API stage only; no owner/UI read, no service/network; client budget/cancel evidence reused except unchanged 19-case probe requested"
+}

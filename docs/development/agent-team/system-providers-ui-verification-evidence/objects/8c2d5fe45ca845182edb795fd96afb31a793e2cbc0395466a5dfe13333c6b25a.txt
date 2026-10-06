@@ -1,0 +1,39 @@
+# Provider UI 作者交接索引
+
+作者检查已闭合，产品仍待独立最终验收。候选源码停写，README 尚未修改，未执行 Git 写操作。真实资源已归零，可由主线程移交独立窗口。
+
+固定产品基线 `1c82d888adfef0d8b58ab51c920557ca4e2f084f`，规格 rev4 `c65262c68513eb7651a39cd89b1bd950fa7bb4ad`。最终候选为 [input07.json](input07.json) 与 [input07/](input07/)：21 源、26 dist、1016 固定依赖；全清单及 SHA 在 manifest。原 input01–07、API/owner 阶段输入和全部失败保留。依赖1017→1016仅为已授权邀请 browser count2→3 从依赖移入候选源，无其他依赖变化。
+
+## 检查结果
+
+- [check01](runs/check01/)：完整离线 npm check，23 文件/603 项，格式、类型、构建全部通过，actual0/19.349s。后续仅局部 caption CSS 产品变动，相关16组件、格式及两次类型/构建按受影响范围通过；末次 [caption-check02](runs/caption-check02/) build0/5.864s、browser type0/.966s。不将重复运行累加为独立用例数量。
+- [compile01](runs/compile01/)：Go1.27.1 race integration compile0/44.605s、vet0/25.553s、browser config语法0；最初browser类型错误保留，由后续类型检查关闭。Go、锁依赖及fixture预算未改。
+- [observer01](runs/observer01/)：18 cases/239 assertions，actual0/.355s。只证明原fetch/read Promise、Response/reader/cancel身份、闭合安全响应与分端点预算，不作为owner真实尾部证明。
+- API02与owner02生产字节复用独立阶段PASS。owner阶段以后新增3个代次边界测试已在最终603中运行，阶段旧测试源不同不冒称全字节相同。
+
+## 真实运行与失败保留
+
+| 运行 | 实际退出/用时 | 顶层结果 | 原轮双清 |
+| --- | --- | --- | --- |
+| `new01` | 255 / 192.639s | FAIL SystemProvidersWebLifecycle, FAIL SystemProvidersWebCredentialReplacement, FAIL SystemProvidersWebOutcomeRecovery | False |
+| `new02` | 1 / 158.810s | PASS SystemProvidersWebLifecycle, PASS SystemProvidersWebCredentialReplacement, PASS SystemProvidersWebOutcomeRecovery, PASS SystemProvidersWebReadAndPagination, FAIL SystemProvidersWebAuthorityAndIdentity, FAIL SystemProvidersWebNavigationAndLayouts | True |
+| `new03` | 0 / 74.146s | PASS SystemProvidersWebAuthorityAndIdentity, PASS SystemProvidersWebNavigationAndLayouts | True |
+| `new04` | 0 / 64.226s | PASS SystemProvidersWebNavigationAndLayouts | True |
+| `new05` | 0 / 62.511s | PASS SystemProvidersWebNavigationAndLayouts | True |
+| `old01` | 0 / 127.681s | PASS PublicEntryWebIdentityNavigation, PASS AuthenticationWebSessionLifecycle, PASS PersonalSettingsWebThemeAndNavigation, PASS SystemInvitationsWebOutcomeRecovery, PASS SystemInvitationsWebNavigationAndLayouts, PASS SystemUserDirectoryWebAuthorityAndIdentity, PASS SystemUserDirectoryWebNavigationAndLayouts | True |
+
+所有真实轮的 `command.json` 含实际argv/env/wait/退出，`raw.log`、输入前后、driver、精确资源与PID/starttime、双清、adopted waits均在各自目录；安全文件SHA汇总见 [author-report.json](author-report.json)。原45秒browser、2分钟顶层、race/count1/每包6分钟、worker1/retry0不变。无匹配测试的包不计通过。
+
+new01 三组因required label精确匹配失败阻断，Read准备被有界中断，另两组未执行；不得作为业务证据。原cleanup=false及后续 [cleanup-followup.json](runs/new01/cleanup-followup.json) 分列。new02前4组真实通过；Authority登录后缺完成门禁与Nav将可访问层数误当物理层数的原红保留。后续同真实断言增强通过，不回填原轮未记录的物理DOM。
+
+new03功能通过后作者看图发现未定义sr-only；new04正确裁剪却未定位的caption使外层出现空白，主线程均拒收原图。input07局部修复后new05八张900高图获主线程确认，作者已逐张查看：[最终图片](runs/new05/images/)。两caption可访问名称、实际clip/offsetParent、标准scrollingElement/body界限、main/doc归零及标题入viewport均由固定原spec实际断言。
+
+[caption-layout04](runs/caption-layout04/) 仅是固定input06 CSS与简化DOM的真实Chromium定位诊断：标准模式1440高度1789→900、390为1680→900，BODY→本table容器，main滚动范围未变；不冒称正式App/后端业务。前三诊断前提失败与quirks末断言均保留，非产品新红。选择行引起main滚动属于取景准备，未改产品焦点算法。
+
+## 产品与边界
+
+提供Providers第三叶子、分页/详情/只读Models与Credential metadata，以及新增、修改、启停、删除、Credential→Provider两步提交和未确认恢复。原文URL/私有材料边界、严格DTO/receipt、同key重放、lookup非回执、部分成功无补偿、当前权限与分域owner、30秒可见截止后actual join沿固定卡实现。App确认Promise/View cohost生命周期和即时干净新表单已由独立纯组合阶段验证。
+
+新业务证据按未变语义复用：Lifecycle/Credential/Outcome/Read在input03，Authority在input05，最终Nav与旧7在input07；中间产品仅局部caption样式改变。Lifecycle真实正式Create→GET同时覆盖Go合法zone与非WHATWG数值host原文。Read正式26 Providers/26 Models与>600000B合法页通过；无外部Provider调用。自动trace/video/失败截图/请求body收集关闭，布局图只在textarea为0及overlay物理离场后采集。
+
+前期独立API01/owner01真红及API02/owner02关闭报告、完整产品静审/App纯阶段报告的原路径与SHA见JSON索引。早期pure03/04保留原输入哈希与失败，不补造缺失历史源码。历史非自有PPID1 Z未触碰、未声称回收。未扩大生产SPA、真实Vite代理、Runtime或完整D09/D27验收，也未运行已停止的Object/tools测试。

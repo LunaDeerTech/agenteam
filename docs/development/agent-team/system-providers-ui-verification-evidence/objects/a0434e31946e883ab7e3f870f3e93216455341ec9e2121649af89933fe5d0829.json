@@ -1,0 +1,30 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestAccountAuthenticationWebSessionLifecycle|TestAccountPersonalSettingsWebThemeAndNavigation|TestAccountPublicEntryWebIdentityNavigation|TestAccountSystemUserDirectoryWebAuthorityAndIdentity|TestAccountSystemUserDirectoryWebNavigationAndLayouts|TestAccountSystemInvitationsWebOutcomeRecovery|TestAccountSystemInvitationsWebNavigationAndLayouts)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace",
+  "ended_utc": "2026-10-06T09:52:15.245706+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/old01/images",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtprov-80cbpwum",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/old01/runtime"
+  },
+  "exit": 0,
+  "seconds": 127.681,
+  "started_utc": "2026-10-06T09:50:07.564555+00:00"
+}

@@ -1,0 +1,17 @@
+{
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/v1/session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system/model-providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system/model-providers"
+    }
+  ],
+  "text": "Providers\n\n管理系统 Provider 配置与凭据引用。Model 列表仅供查看；保存不代表已验证连接。\n\n创建 Provider\n刷新\n上一页\n下一页\nProviders配置\n名称\t协议\tBase URL\t状态\t操作\nOwned 长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称长名称\topenai-chat-completions\thttps://provider.invalid/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/\t启用\t\n查看"
+}

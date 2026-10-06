@@ -1,0 +1,91 @@
+--- owner-stage01/web/src/composables/useSession.ts
++++ owner-stage02/web/src/composables/useSession.ts
+@@ -1317,6 +1317,9 @@
+           // No copy of the write-only value survives for Provider recovery.
+           original.value = null
+           clearProviderMaterial()
++          // Clearing the public presence flag can synchronously abandon this
++          // workflow. Never publish its old reference after that notification.
++          assertLive()
+           original.credential = created
+           const command = original.command
+           if (command.kind === 'provider.delete') throw new AccountFailure('invalid-input')
+@@ -1362,6 +1365,14 @@
+         )
+           throw new AccountFailure('cancelled')
+         publishProvider(original, 'confirmed', receipt)
++        // A synchronous receipt consumer may abandon and start a new intent.
++        // The old continuation must not erase that new intent or its material.
++        if (
++          providerIntent !== original ||
++          revision !== providerRevisions['provider-write'] ||
++          !providerContext(original)
++        )
++          throw new AccountFailure('cancelled')
+         original.value = null
+         providerIntent = null
+         clearProviderMaterial()
+--- owner-stage01/web/src/tests/system-providers-state.spec.ts
++++ owner-stage02/web/src/tests/system-providers-state.spec.ts
+@@ -154,6 +154,61 @@
+ })
+ 
+ describe('Provider workflow on the sole Cookie owner', () => {
++  it('does not resurrect the old stage when material-clear notification synchronously abandons', async () => {
++    const f = await fixture()
++    f.auth.system.providers.setMaterial('generated-only')
++    const stop = watch(
++      () => f.auth.system.providers.material.present,
++      (present) => {
++        if (!present) f.auth.system.providers.abandon()
++      },
++      { flush: 'sync' },
++    )
++    await expect(f.auth.system.providers.start(command())).rejects.toMatchObject({
++      kind: 'cancelled',
++    })
++    stop()
++    expect(f.auth.system.providers.progress).toBeNull()
++    expect(f.auth.system.providers.material.present).toBe(false)
++    expect(f.auth.state.busy).toBe(false)
++    expect(f.writes()).toHaveLength(1)
++  })
++  it('cannot clear a replacement workflow started synchronously from the old confirmation', async () => {
++    const f = await fixture(),
++      credentialTail = barrier<Response>()
++    let next: Promise<unknown> | undefined,
++      replaced = false
++    f.setPerform(async (path) =>
++      path.endsWith('/model-credentials') ? credentialTail.promise : json(receipt()),
++    )
++    const stop = watch(
++      () => f.auth.system.providers.progress?.phase,
++      (phase) => {
++        if (phase !== 'confirmed' || replaced) return
++        replaced = true
++        f.auth.system.providers.abandon()
++        f.auth.system.providers.setMaterial('generated-replacement')
++        next = f.auth.system.providers.start(command())
++      },
++      { flush: 'sync' },
++    )
++    await expect(f.auth.system.providers.start(command())).rejects.toMatchObject({
++      kind: 'cancelled',
++    })
++    await flushPromises()
++    expect(f.auth.system.providers.progress).toMatchObject({
++      phase: 'submitting',
++      stage: 'credential',
++    })
++    expect(f.auth.system.providers.material.present).toBe(true)
++    expect(f.auth.state.busy).toBe(true)
++    credentialTail.resolve(json(created()))
++    await next
++    stop()
++    expect(f.auth.system.providers.progress?.phase).toBe('confirmed')
++    expect(f.writes()).toHaveLength(3)
++    expect(f.auth.state.busy).toBe(false)
++  })
+   it.each([
+     'read-fetch',
+     'credential-fetch',

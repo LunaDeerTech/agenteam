@@ -1,0 +1,26 @@
+{
+  "source_sha256": "e079a9e5978b386a1015ed76e630db8b44ba47090a734cebfcf98290fbe49f1d",
+  "extracted_sha256": "6d12c9060ad179a5a7a2628248f3d030139ef3f4ce59bca6fe1023af125afd0c",
+  "cases": 18,
+  "assertions": 239,
+  "passed": [
+    "original fetch/Response/reader/read Promise/cancel identity; closed Provider projection",
+    "unwatched endpoint retains no fact",
+    "unwatched endpoint retains no fact",
+    "unwatched endpoint retains no fact",
+    "Models status/bytes only",
+    "list success above old cap",
+    "list actual over 2MiB",
+    "list Problem old cap",
+    "detail old cap",
+    "non-JSON list old cap",
+    "closed session projection",
+    "closed receipt projection",
+    "closed credential projection",
+    "closed found projection",
+    "closed found projection",
+    "read rejection retains original error and no partial data",
+    "malformed EOF leaves no candidate",
+    "fetch rejection retains original Promise/error"
+  ]
+}

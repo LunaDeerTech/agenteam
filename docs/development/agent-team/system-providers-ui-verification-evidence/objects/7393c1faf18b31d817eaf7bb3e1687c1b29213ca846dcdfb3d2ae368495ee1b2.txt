@@ -1,0 +1,1294 @@
+import { test, expect, type Page, type Locator } from "@playwright/test";
+import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
+import { join } from "node:path";
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
+type Credential = { email: string; password: string; user_id: string };
+type Provider = {
+  id: string;
+  input: {
+    name: string;
+    protocol: string;
+    base_url: string;
+    enabled: boolean;
+    credential_ref: string | null;
+    options: object;
+  };
+  version: string;
+  created_at: string;
+  updated_at: string;
+};
+type Receipt = {
+  kind: string;
+  resource_id: string;
+  version: string;
+  affected_references: string;
+};
+type Fact = {
+  sequence: number;
+  path: string;
+  method: string;
+  status: number;
+  bytes: number;
+  ended: boolean;
+  code?: string;
+  receipt?: Receipt;
+  credential?: { credential_id: string; version: string };
+  page?: { items: Provider[]; next_cursor: string | null };
+  provider?: Provider;
+  session?: { user_id: string; session_id: string; role: string };
+  found?: boolean;
+};
+type ObservedWindow = Window & {
+  __providerFacts?: Fact[];
+  __providerSequence?: number;
+};
+const material = (): {
+  admin: Credential;
+  member: Credential;
+  value: string;
+  target_id: string;
+  shared_id: string;
+  old_ref: string;
+  expected: Provider[];
+} =>
+  JSON.parse(readFileSync(join(directory, "providers-material.json"), "utf8"));
+function result(value: Record<string, unknown>) {
+  writeFileSync(
+    join(directory, "providers-result.json"),
+    JSON.stringify({ completed: true, ...value }),
+    { mode: 0o600 },
+  );
+}
+let sequence = 0;
+async function ipc(
+  action: string,
+  fields: Record<string, string> = {},
+): Promise<Record<string, any>> {
+  const next = ++sequence,
+    request = join(directory, "providers-ipc.json"),
+    ack = join(directory, `providers-ack-${next}.json`);
+  writeFileSync(
+    request + ".tmp",
+    JSON.stringify({ sequence: next, action, ...fields }),
+    { mode: 0o600 },
+  );
+  renameSync(request + ".tmp", request);
+  await expect.poll(() => existsSync(ack), { timeout: 14_000 }).toBe(true);
+  const value = JSON.parse(readFileSync(ack, "utf8"));
+  expect(value.ok === true && value.sequence === next).toBe(true);
+  return value;
+}
+// Observe bounded safe projections from the application's original native
+// reader. No body clone/tee, no request body/header collection, no abort delay.
+// Actual joining is covered by the transport/owner barrier tests, not this hook.
+function observeNative() {
+  const scope = window as ObservedWindow;
+  scope.__providerFacts = [];
+  scope.__providerSequence = 0;
+  const uuid =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  const protocols = new Set([
+    "openai-chat-completions",
+    "anthropic-messages",
+    "openai-embeddings",
+    "jina-rerank",
+    "openai-images-generations",
+  ]);
+  const kinds = new Set([
+    "provider.create",
+    "provider.update",
+    "provider.delete",
+  ]);
+  const codes = new Set([
+    "UNAUTHENTICATED",
+    "SESSION_REVOKED",
+    "CSRF_FAILED",
+    "FORBIDDEN",
+    "CURSOR_INVALID",
+    "VERSION_CONFLICT",
+    "INVALID_ARGUMENT",
+    "NOT_FOUND",
+    "RESOURCE_BUSY",
+    "INTERNAL_ERROR",
+    "IDEMPOTENCY_KEY_REUSED",
+  ]);
+  const object = (value: unknown): Record<string, unknown> | null =>
+    value !== null && typeof value === "object" && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : null;
+  const id = (value: unknown): value is string =>
+    typeof value === "string" && uuid.test(value);
+  const version = (value: unknown): value is string =>
+    typeof value === "string" &&
+    /^[1-9][0-9]{0,18}$/.test(value) &&
+    BigInt(value) <= 9223372036854775807n;
+  const bounded = (value: unknown, bytes: number): value is string =>
+    typeof value === "string" &&
+    new TextEncoder().encode(value).byteLength <= bytes;
+  const instant = (value: unknown): value is string =>
+    typeof value === "string" &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(value);
+  function projectProvider(value: unknown): Provider | null {
+    const row = object(value),
+      input = object(row?.input);
+    if (
+      !row ||
+      !input ||
+      !id(row.id) ||
+      !version(row.version) ||
+      !instant(row.created_at) ||
+      !instant(row.updated_at) ||
+      !bounded(input.name, 512) ||
+      Array.from(input.name).length > 128 ||
+      typeof input.protocol !== "string" ||
+      !protocols.has(input.protocol) ||
+      !bounded(input.base_url, 8192) ||
+      typeof input.enabled !== "boolean" ||
+      !(input.credential_ref === null || id(input.credential_ref)) ||
+      !object(input.options) ||
+      Object.keys(input.options as object).length !== 0
+    )
+      return null;
+    return {
+      id: row.id,
+      input: {
+        name: input.name,
+        protocol: input.protocol,
+        base_url: input.base_url,
+        enabled: input.enabled,
+        credential_ref: input.credential_ref,
+        options: {},
+      },
+      version: row.version,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+    };
+  }
+  const nativeFetch = window.fetch;
+  window.fetch = function (this: unknown, ...args) {
+    const pending = Reflect.apply(nativeFetch, this, args) as Promise<Response>;
+    try {
+      const [input, init] = args;
+      const request = input instanceof Request ? input : null;
+      const url = new URL(
+        request ? request.url : String(input),
+        window.location.href,
+      );
+      const path = url.pathname,
+        method = init?.method ?? request?.method ?? "GET";
+      const providerList = path === "/api/v1/system/model-providers";
+      const providerID =
+        path.startsWith("/api/v1/system/model-providers/") &&
+        id(path.slice("/api/v1/system/model-providers/".length));
+      const credentialID =
+        path.startsWith("/api/v1/system/model-credentials/") &&
+        id(path.slice("/api/v1/system/model-credentials/".length));
+      const models = path === "/api/v1/system/models";
+      const isSession = path === "/api/v1/session";
+      const providerLookup = path === "/api/v1/system/model-commands/lookup";
+      const credentialLookup =
+        path === "/api/v1/system/model-credential-commands/lookup";
+      const credentialCreate = path === "/api/v1/system/model-credentials";
+      const watched =
+        url.origin === window.location.origin &&
+        ((method === "GET" &&
+          (providerList ||
+            providerID ||
+            models ||
+            credentialID ||
+            isSession)) ||
+          (method === "POST" &&
+            (providerList ||
+              credentialCreate ||
+              providerLookup ||
+              credentialLookup)) ||
+          ((method === "PUT" || method === "DELETE") && providerID));
+      const allowedQuery =
+        providerList && method === "GET"
+          ? ["limit", "cursor"]
+          : models && method === "GET"
+            ? ["provider_id", "limit", "cursor"]
+            : [];
+      const keys = [...url.searchParams.keys()];
+      if (
+        !watched ||
+        keys.some((key) => !allowedQuery.includes(key)) ||
+        new Set(keys).size !== keys.length
+      )
+        return pending;
+      const fact: Fact = {
+        sequence: ++scope.__providerSequence!,
+        path: path + url.search,
+        method,
+        status: 0,
+        bytes: 0,
+        ended: false,
+      };
+      scope.__providerFacts!.push(fact);
+      void pending
+        .then(
+          (response) => {
+            fact.status = response.status;
+            const body = response.body;
+            if (!body) {
+              fact.ended = true;
+              return;
+            }
+            const max =
+              providerList &&
+              method === "GET" &&
+              response.status === 200 &&
+              response.headers
+                .get("Content-Type")
+                ?.split(";", 1)[0]
+                ?.trim()
+                .toLowerCase() === "application/json"
+                ? 2097152
+                : 600000;
+            let text = "",
+              collect = !models;
+            const decoder = new TextDecoder();
+            function project() {
+              if (!collect) return;
+              const value = object(JSON.parse(text + decoder.decode()));
+              if (!value) return;
+              if (response.status !== 200) {
+                if (typeof value.code === "string" && codes.has(value.code))
+                  fact.code = value.code;
+                return;
+              }
+              if (isSession) {
+                const user = object(value.user),
+                  session = object(value.session);
+                if (
+                  id(user?.id) &&
+                  id(session?.id) &&
+                  (user?.role === "admin" || user?.role === "user")
+                )
+                  fact.session = {
+                    user_id: user.id,
+                    session_id: session.id,
+                    role: user.role,
+                  };
+              } else if (providerList && method === "GET") {
+                if (
+                  !Array.isArray(value.items) ||
+                  value.items.length > 25 ||
+                  !(
+                    value.next_cursor === null ||
+                    bounded(value.next_cursor, 8192)
+                  )
+                )
+                  return;
+                const rows = value.items.map(projectProvider);
+                if (rows.every((row): row is Provider => row !== null))
+                  fact.page = { items: rows, next_cursor: value.next_cursor };
+              } else if (providerID && method === "GET") {
+                const provider = projectProvider(value);
+                if (provider) fact.provider = provider;
+              } else if ((providerList || providerID) && method !== "GET") {
+                if (
+                  typeof value.kind === "string" &&
+                  kinds.has(value.kind) &&
+                  id(value.resource_id) &&
+                  version(value.version) &&
+                  value.affected_references === "0"
+                )
+                  fact.receipt = {
+                    kind: value.kind,
+                    resource_id: value.resource_id,
+                    version: value.version,
+                    affected_references: "0",
+                  };
+              } else if (credentialCreate || credentialID) {
+                if (
+                  id(value.credential_id) &&
+                  value.purpose === "model" &&
+                  version(value.version)
+                )
+                  fact.credential = {
+                    credential_id: value.credential_id,
+                    version: value.version,
+                  };
+              } else if (providerLookup && typeof value.found === "boolean")
+                fact.found = value.found;
+              else if (credentialLookup && typeof value.observed === "boolean")
+                fact.found = value.observed;
+            }
+            try {
+              const nativeGet = body.getReader;
+              Object.defineProperty(body, "getReader", {
+                configurable: true,
+                writable: true,
+                value: function (
+                  this: ReadableStream<Uint8Array>,
+                  ...getArgs: unknown[]
+                ) {
+                  const reader = Reflect.apply(
+                    nativeGet,
+                    this,
+                    getArgs,
+                  ) as ReadableStreamDefaultReader<Uint8Array>;
+                  Object.defineProperty(body, "getReader", {
+                    value: nativeGet,
+                  });
+                  const nativeRead = reader.read;
+                  Object.defineProperty(reader, "read", {
+                    configurable: true,
+                    writable: true,
+                    value: function (
+                      this: ReadableStreamDefaultReader<Uint8Array>,
+                      ...readArgs: unknown[]
+                    ) {
+                      const original = Reflect.apply(
+                        nativeRead,
+                        this,
+                        readArgs,
+                      ) as Promise<ReadableStreamReadResult<Uint8Array>>;
+                      void original
+                        .then(
+                          ({ done, value }) => {
+                            try {
+                              if (value) {
+                                fact.bytes += value.byteLength;
+                                if (fact.bytes > max) {
+                                  collect = false;
+                                  text = "";
+                                } else if (collect)
+                                  text += decoder.decode(value, {
+                                    stream: true,
+                                  });
+                              }
+                              if (done) {
+                                fact.ended = true;
+                                try {
+                                  project();
+                                } finally {
+                                  text = "";
+                                  collect = false;
+                                }
+                              }
+                            } catch {
+                              text = "";
+                              collect = false;
+                            }
+                          },
+                          () => {
+                            text = "";
+                            collect = false;
+                            fact.ended = true;
+                          },
+                        )
+                        .catch(() => {
+                          text = "";
+                          collect = false;
+                        });
+                      return original;
+                    },
+                  });
+                  return reader;
+                },
+              });
+            } catch {
+              text = "";
+              collect = false;
+            }
+          },
+          () => {
+            fact.ended = true;
+          },
+        )
+        .catch(() => {});
+    } catch {
+      /* Observation cannot change the application's original fetch. */
+    }
+    return pending;
+  };
+}
+async function facts(page: Page) {
+  return page.evaluate(() => (window as ObservedWindow).__providerFacts ?? []);
+}
+function canonicalProviders(rows: Provider[]) {
+  return JSON.stringify(
+    rows.map((p) => [
+      p.id,
+      p.input.name,
+      p.input.protocol,
+      p.input.base_url,
+      p.input.enabled,
+      p.input.credential_ref,
+      Object.keys(p.input.options).length,
+      p.version,
+      p.created_at,
+      p.updated_at,
+    ]),
+  );
+}
+const writeWatermarks = new WeakMap<Page, number>();
+const confirmedTargets = new WeakMap<Page, { id: string; after: number }>();
+async function beginWrite(page: Page, label: string) {
+  writeWatermarks.set(
+    page,
+    await page.evaluate(
+      () => (window as ObservedWindow).__providerSequence ?? 0,
+    ),
+  );
+  await top(page).getByRole("button", { name: label, exact: true }).click();
+}
+async function receiptFact(page: Page, kind?: string) {
+  const after = writeWatermarks.get(page);
+  expect(after !== undefined).toBe(true);
+  let result: Fact | undefined;
+  await expect
+    .poll(async () => {
+      result = (await facts(page)).find(
+        (f) =>
+          f.sequence > after! &&
+          f.status === 200 &&
+          f.ended &&
+          !!f.receipt &&
+          (!kind || f.receipt.kind === kind) &&
+          ((f.receipt.kind === "provider.create" &&
+            f.method === "POST" &&
+            f.path === "/api/v1/system/model-providers") ||
+            (f.receipt.kind === "provider.update" &&
+              f.method === "PUT" &&
+              f.path ===
+                "/api/v1/system/model-providers/" + f.receipt.resource_id) ||
+            (f.receipt.kind === "provider.delete" &&
+              f.method === "DELETE" &&
+              f.path ===
+                "/api/v1/system/model-providers/" + f.receipt.resource_id)),
+      );
+      return !!result;
+    })
+    .toBe(true);
+  return result!;
+}
+async function latestProvider(page: Page) {
+  const target = confirmedTargets.get(page);
+  expect(!!target).toBe(true);
+  let value: Provider | undefined;
+  await expect
+    .poll(async () => {
+      value = (await facts(page)).find(
+        (f) =>
+          f.sequence > target!.after &&
+          f.method === "GET" &&
+          f.path === "/api/v1/system/model-providers/" + target!.id &&
+          f.status === 200 &&
+          f.ended &&
+          f.provider?.id === target!.id,
+      )?.provider;
+      return !!value;
+    })
+    .toBe(true);
+  return value!;
+}
+async function latestReceipt(page: Page, kind: string) {
+  return (await receiptFact(page, kind)).receipt!;
+}
+async function privateFill(input: Locator, value: string) {
+  try {
+    await input.fill(value);
+  } catch {
+    throw new Error("private Provider input failed");
+  }
+}
+async function writes(page: Page) {
+  return (await facts(page)).filter(
+    (f) => f.method !== "GET" && !f.path.endsWith("/lookup"),
+  );
+}
+// Identity-switch branches must finish the real login -> Session restore and
+// router transition before deliberately reloading this protected page.
+async function loginReady(page: Page, who: "admin" | "member") {
+  const after = await page.evaluate(
+    () => (window as ObservedWindow).__providerSequence ?? 0,
+  );
+  const expected = material()[who].user_id;
+  await page.getByRole("button", { name: "登录", exact: true }).click();
+  await expect
+    .poll(async () =>
+      (await facts(page)).some(
+        (fact) =>
+          fact.sequence > after &&
+          fact.path === "/api/v1/session" &&
+          fact.method === "GET" &&
+          fact.status === 200 &&
+          fact.ended &&
+          fact.session?.user_id === expected &&
+          fact.session.role === (who === "admin" ? "admin" : "user"),
+      ),
+    )
+    .toBe(true);
+  await expect(
+    page.getByRole("button", { name: "退出登录", exact: true }),
+  ).toBeEnabled();
+  await expect(page).not.toHaveURL(/\/login(?:\?|$)/);
+}
+async function setup(
+  page: Page,
+  who: "admin" | "member" = "admin",
+  path = "/system/providers",
+) {
+  await page.addInitScript(observeNative);
+  await page.goto(path);
+  await page.locator("#login-email").fill(material()[who].email);
+  await privateFill(page.locator("#login-password"), material()[who].password);
+  await page.getByRole("button", { name: "登录", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(path + "$"));
+  if (who === "admin")
+    await expect(
+      page.getByRole("heading", {
+        name: path.endsWith("users") ? "用户" : "Providers",
+        exact: true,
+      }),
+    ).toBeVisible();
+}
+const top = (page: Page) => page.getByRole("dialog").last();
+async function openCreate(page: Page) {
+  await page
+    .getByRole("button", { name: /^(创建 Provider|操作已确认)$/ })
+    .click();
+  await expect(top(page)).toHaveAccessibleName("创建 Provider");
+}
+async function fillCreate(
+  page: Page,
+  name: string,
+  url = "https://provider.invalid/v1",
+  enabled = true,
+) {
+  const dialog = top(page);
+  await dialog.getByRole("textbox", { name: "名称", exact: true }).fill(name);
+  await dialog
+    .getByRole("textbox", { name: "Base URL", exact: true })
+    .fill(url);
+  await dialog.getByRole("button", { name: "协议", exact: true }).click();
+  await page
+    .getByRole("option", { name: "openai-chat-completions", exact: true })
+    .click();
+  await dialog.getByRole("button", { name: "启用状态", exact: true }).click();
+  await page
+    .getByRole("option", { name: enabled ? "启用" : "禁用", exact: true })
+    .click();
+}
+async function save(page: Page) {
+  await beginWrite(page, "保存配置");
+}
+async function confirmed(page: Page) {
+  await expect(
+    page.getByText("Provider 配置已保存。此结果仅确认配置，不证明连接可用。", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  const completed = await receiptFact(page);
+  confirmedTargets.set(page, {
+    id: completed.receipt!.resource_id,
+    after: completed.sequence,
+  });
+  await latestProvider(page);
+}
+async function edit(page: Page) {
+  await page
+    .getByRole("button", { name: "编辑 Provider", exact: true })
+    .click();
+  await expect(top(page)).toHaveAccessibleName("编辑 Provider");
+}
+async function select(page: Page, name: string) {
+  await page.getByRole("button", { name: `查看 ${name}`, exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Provider 详情", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "编辑 Provider", exact: true }),
+  ).toBeEnabled();
+}
+async function discard(page: Page) {
+  await top(page).getByRole("button", { name: "取消", exact: true }).click();
+  await top(page)
+    .getByRole("button", { name: "放弃修改", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+async function unchangedFacts() {
+  return ipc("facts");
+}
+async function session(page: Page) {
+  const value = (await facts(page)).filter((f) => f.session).at(-1)?.session;
+  expect(!!value).toBe(true);
+  return value!;
+}
+async function focusContained(page: Page) {
+  for (const key of ["Tab", "Tab", "Shift+Tab", "Shift+Tab"]) {
+    await page.keyboard.press(key);
+    expect(
+      await top(page).evaluate((node) => node.contains(document.activeElement)),
+    ).toBe(true);
+  }
+}
+
+test("[lifecycle] formal configuration lifecycle, URL compatibility and Model deletion fence", async ({
+  page,
+}) => {
+  await setup(page);
+  await openCreate(page);
+  await fillCreate(
+    page,
+    "Lifecycle Provider",
+    "http://[fe80::1%25eth0]/v1",
+    false,
+  );
+  await save(page);
+  await confirmed(page);
+  let current = await latestProvider(page);
+  expect(
+    current.input.base_url === "http://[fe80::1%25eth0]/v1" &&
+      !current.input.enabled,
+  ).toBe(true);
+  await edit(page);
+  await expect(
+    top(page).getByRole("textbox", { name: "协议", exact: true }),
+  ).toHaveAttribute("readonly", "");
+  expect(
+    await top(page)
+      .getByRole("button", { name: "保存配置", exact: true })
+      .isDisabled(),
+  ).toBe(true);
+  await top(page)
+    .getByRole("textbox", { name: "Base URL", exact: true })
+    .fill("http://1.2.3.999/v1");
+  await save(page);
+  await confirmed(page);
+  current = await latestProvider(page);
+  expect(
+    current.input.base_url === "http://1.2.3.999/v1" && current.version === "2",
+  ).toBe(true);
+  for (const label of ["启用", "禁用"]) {
+    await edit(page);
+    await top(page)
+      .getByRole("button", { name: "启用状态", exact: true })
+      .click();
+    await page.getByRole("option", { name: label, exact: true }).click();
+    await save(page);
+    await confirmed(page);
+  }
+  const before = await unchangedFacts();
+  await page
+    .getByRole("button", { name: "删除 Provider", exact: true })
+    .click();
+  await top(page).getByRole("button", { name: "取消", exact: true }).click();
+  expect((await unchangedFacts()).commands).toBe(before.commands);
+  await page
+    .getByRole("button", { name: "删除 Provider", exact: true })
+    .click();
+  await beginWrite(page, "确认删除");
+  await expect(
+    page.getByText("Provider 已删除，凭据保持不变。", { exact: true }),
+  ).toBeVisible();
+  const removed = await latestReceipt(page, "provider.delete");
+  expect(removed.resource_id).toBe(current.id);
+  expect((await ipc("snapshot")).items.length).toBe(0);
+  await ipc("provider-missing", { id: current.id });
+  await openCreate(page);
+  await fillCreate(page, "Modeled Provider");
+  await save(page);
+  await confirmed(page);
+  current = await latestProvider(page);
+  await expect(
+    page.getByRole("button", { name: "删除 Provider", exact: true }),
+  ).toBeEnabled();
+  await page
+    .getByRole("button", { name: "删除 Provider", exact: true })
+    .click();
+  await ipc("add-model", { id: current.id });
+  await beginWrite(page, "确认删除");
+  await expect(
+    top(page).getByText("操作未完成，请检查当前配置。", { exact: true }),
+  ).toBeVisible();
+  expect(
+    (await facts(page)).some((f) => f.method === "DELETE" && f.status >= 400),
+  ).toBe(true);
+  await discard(page);
+  await page.getByRole("button", { name: "刷新", exact: true }).click();
+  await select(page, "Modeled Provider");
+  await expect(
+    page.getByRole("button", { name: "删除 Provider", exact: true }),
+  ).toBeDisabled();
+  await expect(page.getByText("native-99", { exact: true })).toBeVisible();
+  const final = await ipc("facts");
+  expect(
+    final.providers === 1 && final.models === 1 && final.invocations === 0,
+  ).toBe(true);
+  result({
+    created: true,
+    edited: true,
+    enabled: true,
+    deleted: true,
+    model_fence: true,
+    url_compatible: true,
+  });
+});
+
+test("[credential] new and replacement credentials, preserved shared ref, partial success and reviewed rebase", async ({
+  page,
+}) => {
+  await setup(page);
+  const data = material();
+  const baseline = await ipc("facts");
+  await openCreate(page);
+  await fillCreate(page, "Credential created Provider");
+  await privateFill(
+    top(page).getByLabel("新凭据（仅写入）", { exact: true }),
+    data.value,
+  );
+  await save(page);
+  await confirmed(page);
+  const createdProvider = await latestProvider(page);
+  expect(
+    !!createdProvider.input.credential_ref &&
+      createdProvider.input.credential_ref !== data.old_ref,
+  ).toBe(true);
+  await select(page, "Owned primary");
+  await edit(page);
+  await privateFill(
+    top(page).getByLabel("新凭据（仅写入）", { exact: true }),
+    data.value,
+  );
+  await save(page);
+  await confirmed(page);
+  let current = await latestProvider(page);
+  const replacedRef = current.input.credential_ref!;
+  expect(
+    replacedRef !== data.old_ref &&
+      replacedRef !== createdProvider.input.credential_ref,
+  ).toBe(true);
+  let observed = await ipc("snapshot");
+  expect(
+    observed.items.find((p: Provider) => p.id === data.shared_id).input
+      .credential_ref,
+  ).toBe(data.old_ref);
+  const old = await ipc("facts", { id: data.old_ref });
+  expect(old.credential_exists && old.references === 1).toBe(true);
+  await edit(page);
+  await ipc("compete", { id: current.id });
+  await privateFill(
+    top(page).getByLabel("新凭据（仅写入）", { exact: true }),
+    data.value,
+  );
+  await save(page);
+  await expect(top(page)).toContainText("新凭据已创建，Provider尚未确认保存");
+  expect(
+    (await top(page)
+      .getByLabel("新凭据（仅写入）", { exact: true })
+      .inputValue()) === "",
+  ).toBe(true);
+  const partial = await ipc("facts");
+  expect(partial.credential_creates === baseline.credential_creates + 3).toBe(
+    true,
+  );
+  await top(page)
+    .getByRole("button", { name: "读取当前配置并核对", exact: true })
+    .click();
+  await expect(top(page)).toContainText("不会再次创建凭据");
+  await save(page);
+  await confirmed(page);
+  current = await latestProvider(page);
+  expect(
+    current.input.credential_ref !== replacedRef && current.version === "4",
+  ).toBe(true);
+  expect((await ipc("facts")).credential_creates).toBe(
+    partial.credential_creates,
+  );
+  await page
+    .getByRole("button", { name: "删除 Provider", exact: true })
+    .click();
+  await beginWrite(page, "确认删除");
+  await expect(
+    page.getByText("Provider 已删除，凭据保持不变。", { exact: true }),
+  ).toBeVisible();
+  for (const ref of [data.old_ref, replacedRef, current.input.credential_ref!])
+    expect((await ipc("facts", { id: ref })).credential_exists).toBe(true);
+  expect((await ipc("facts")).credentials).toBe(partial.credentials);
+  result({
+    created: true,
+    replaced: true,
+    shared_preserved: true,
+    partial: true,
+    rebase: true,
+    credential_retained: true,
+  });
+});
+
+test("[outcome] actual accepted response loss, bounded historical lookup and explicit exact Execute recovery", async ({
+  page,
+}) => {
+  await setup(page);
+  const data = material();
+  for (const stage of ["credential", "provider"] as const) {
+    await openCreate(page);
+    await fillCreate(page, `Recovery ${stage}`);
+    if (stage === "credential")
+      await privateFill(
+        top(page).getByLabel("新凭据（仅写入）", { exact: true }),
+        data.value,
+      );
+    await ipc("arm-drop", { stage });
+    await save(page);
+    await expect(top(page)).toContainText("本次结果尚未确认");
+    const lost = await ipc("drop-facts");
+    expect(
+      lost.dropped === 1 && lost.replayed === 0 && lost.armed === false,
+    ).toBe(true);
+    const before = await ipc("facts");
+    const writeCount = (await writes(page)).length;
+    await top(page)
+      .getByRole("button", { name: "检查原请求", exact: true })
+      .click();
+    await expect(top(page)).toContainText("已观察到历史回执");
+    expect((await writes(page)).length).toBe(writeCount);
+    expect((await ipc("drop-facts")).replayed).toBe(0);
+    if (stage === "credential")
+      expect((await ipc("facts")).providers).toBe(before.providers);
+    await beginWrite(page, "重试原请求");
+    await confirmed(page);
+    const replay = await ipc("drop-facts");
+    expect(
+      replay.dropped === 1 &&
+        replay.replayed === 1 &&
+        replay.target === lost.target,
+    ).toBe(true);
+    const after = await ipc("facts");
+    expect(after.credential_creates).toBe(before.credential_creates);
+    expect(after.providers).toBe(
+      before.providers + (stage === "credential" ? 1 : 0),
+    );
+  }
+  await openCreate(page);
+  await fillCreate(page, "Confirmed read failure");
+  await ipc("arm-get-fail");
+  await save(page);
+  await expect(
+    page.getByText("操作已确认，当前配置读取失败。请仅重读当前配置。", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  const count = (await writes(page)).length;
+  await page
+    .getByRole("button", { name: "重新读取当前配置", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "编辑 Provider", exact: true }),
+  ).toBeEnabled();
+  expect((await writes(page)).length).toBe(count);
+  await openCreate(page);
+  await fillCreate(page, "Abandoned accepted Provider");
+  await ipc("arm-drop", { stage: "provider" });
+  await save(page);
+  await expect(top(page)).toContainText("本次结果尚未确认");
+  await top(page)
+    .getByRole("button", { name: "放弃本次操作", exact: true })
+    .click();
+  await top(page)
+    .getByRole("button", { name: "放弃修改", exact: true })
+    .click();
+  await page.getByRole("button", { name: "刷新", exact: true }).click();
+  await expect(
+    page.getByRole("button", {
+      name: "查看 Abandoned accepted Provider",
+      exact: true,
+    }),
+  ).toBeVisible();
+  expect(
+    (await writes(page)).some(
+      (f) => f.method === "DELETE" && f.path.includes("model-credentials"),
+    ),
+  ).toBe(false);
+  result({
+    credential_replayed: true,
+    provider_replayed: true,
+    historical_only: true,
+    abandoned: true,
+    confirmed_read_failure: true,
+  });
+});
+
+test("[read] full Go-escaped pages, independent Model cursors and current credential metadata", async ({
+  page,
+}) => {
+  await setup(page);
+  const data = material();
+  await expect(
+    page.locator(".provider-table").first().locator("tbody tr"),
+  ).toHaveCount(25);
+  let observations = (await facts(page)).filter(
+    (f) => f.path.startsWith("/api/v1/system/model-providers?") && f.page,
+  );
+  const first = observations.at(-1)!;
+  expect(first.bytes > 600000 && first.bytes <= 2097152).toBe(true);
+  expect(
+    canonicalProviders(first.page!.items) ===
+      canonicalProviders(data.expected.slice(0, 25)),
+  ).toBe(true);
+  await page.getByRole("button", { name: "下一页", exact: true }).click();
+  await expect(
+    page.locator(".provider-table").first().locator("tbody tr"),
+  ).toHaveCount(1);
+  observations = (await facts(page)).filter(
+    (f) => f.path.startsWith("/api/v1/system/model-providers?") && f.page,
+  );
+  expect(
+    canonicalProviders(observations.at(-1)!.page!.items) ===
+      canonicalProviders(data.expected.slice(25)),
+  ).toBe(true);
+  await page.getByRole("button", { name: "上一页", exact: true }).click();
+  await expect(
+    page.locator(".provider-table").first().locator("tbody tr"),
+  ).toHaveCount(25);
+  const target = data.expected.find((p) => p.id === data.target_id)!;
+  await select(page, target.input.name);
+  const modelSection = page.locator('section[aria-label="只读 Models"]');
+  await expect(modelSection.locator("tbody tr")).toHaveCount(25);
+  await page.getByRole("button", { name: "Models下一页", exact: true }).click();
+  await expect(modelSection.locator("tbody tr")).toHaveCount(1);
+  await page.getByRole("button", { name: "Models上一页", exact: true }).click();
+  await expect(modelSection.locator("tbody tr")).toHaveCount(25);
+  await ipc("rotate", { id: data.old_ref });
+  await page.getByRole("button", { name: "刷新凭据状态", exact: true }).click();
+  await expect(page.locator('section[aria-label="凭据状态"]')).toContainText(
+    "已配置 · 版本 2",
+  );
+  await ipc("replace-delete-old", { id: data.target_id });
+  await page.getByRole("button", { name: "刷新凭据状态", exact: true }).click();
+  await expect(page.locator('section[aria-label="凭据状态"]')).toContainText(
+    "引用不存在或不可读取",
+  );
+  expect(
+    await page.locator('section[aria-label="凭据状态"]').textContent(),
+  ).not.toContain("未配置");
+  // Corrupt only this outbound cursor. The actual backend supplies the rejection.
+  let altered = false;
+  await page.route("**/api/v1/system/model-providers?*", async (route) => {
+    const url = new URL(route.request().url());
+    if (!altered && url.searchParams.has("cursor")) {
+      altered = true;
+      url.searchParams.set("cursor", "owned-invalid-cursor");
+      await route.continue({ url: url.toString() });
+    } else await route.continue();
+  });
+  await page.getByRole("button", { name: "下一页", exact: true }).click();
+  await expect(
+    page.getByText("分页链接已失效，请返回首页重新加载。", { exact: true }),
+  ).toBeVisible();
+  expect((await facts(page)).some((f) => f.code === "CURSOR_INVALID")).toBe(
+    true,
+  );
+  await page.unroute("**/api/v1/system/model-providers?*");
+  await page
+    .getByRole("button", { name: "返回首页重新加载", exact: true })
+    .click();
+  await expect(
+    page.locator(".provider-table").first().locator("tbody tr"),
+  ).toHaveCount(25);
+  expect((await ipc("facts")).invocations).toBe(0);
+  result({
+    canonical: true,
+    bad_cursor: true,
+    metadata_version: true,
+    metadata_missing: true,
+    large_page: true,
+    providers: 26,
+    models: 26,
+    large_bytes: first.bytes,
+  });
+});
+
+test("[authority] real authorization loss, revoked Session and explicit identity changes destroy old tracking", async ({
+  page,
+}) => {
+  await setup(page, "member");
+  await expect(
+    page.getByRole("heading", { name: "无权访问系统设置", exact: true }),
+  ).toBeVisible();
+  expect(
+    (await facts(page)).some((f) => f.path.startsWith("/api/v1/system/model")),
+  ).toBe(false);
+  await page.getByRole("button", { name: "退出登录", exact: true }).click();
+  await expect(page).toHaveURL(/\/login$/);
+  await page.locator("#login-email").fill(material().admin.email);
+  await privateFill(page.locator("#login-password"), material().admin.password);
+  await loginReady(page, "admin");
+  await page.goto("/system/providers");
+  await expect(
+    page.getByRole("heading", { name: "Providers", exact: true }),
+  ).toBeVisible();
+  await openCreate(page);
+  await fillCreate(page, "Authority draft");
+  await privateFill(
+    top(page).getByLabel("新凭据（仅写入）", { exact: true }),
+    material().value,
+  );
+  const original = await session(page);
+  await ipc("demote", {
+    user_id: original.user_id,
+    session_id: original.session_id,
+  });
+  await save(page);
+  await expect(
+    page.getByRole("heading", { name: "无权访问系统设置", exact: true }),
+  ).toBeVisible();
+  expect(
+    (await facts(page)).some((f) => f.status === 403 && f.code === "FORBIDDEN"),
+  ).toBe(true);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await ipc("promote", {
+    user_id: original.user_id,
+    session_id: original.session_id,
+  });
+  await page.getByRole("button", { name: "重新检查权限", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Providers", exact: true }),
+  ).toBeVisible();
+  await openCreate(page);
+  await fillCreate(page, "Revoked draft");
+  await ipc("arm-drop", { stage: "provider" });
+  await save(page);
+  await expect(top(page)).toContainText("本次结果尚未确认");
+  const active = await session(page);
+  await ipc("revoke-session", {
+    user_id: active.user_id,
+    session_id: active.session_id,
+  });
+  await top(page)
+    .getByRole("button", { name: "检查原请求", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page).toHaveURL(/\/login(?:\?|$)/);
+  await page.locator("#login-email").fill(material().admin.email);
+  await privateFill(page.locator("#login-password"), material().admin.password);
+  await loginReady(page, "admin");
+  await page.goto("/system/providers");
+  await expect(
+    page.getByRole("heading", { name: "Providers", exact: true }),
+  ).toBeVisible();
+  const replacement = await session(page);
+  expect(
+    replacement.user_id === active.user_id &&
+      replacement.session_id !== active.session_id,
+  ).toBe(true);
+  await openCreate(page);
+  expect(
+    (await top(page)
+      .getByLabel("新凭据（仅写入）", { exact: true })
+      .inputValue()) === "",
+  ).toBe(true);
+  expect(
+    (await top(page)
+      .getByRole("textbox", { name: "名称", exact: true })
+      .inputValue()) === "",
+  ).toBe(true);
+  await top(page).getByRole("button", { name: "取消", exact: true }).click();
+  await page.getByRole("button", { name: "退出登录", exact: true }).click();
+  await expect(page).toHaveURL(/\/login$/);
+  await page.locator("#login-email").fill(material().member.email);
+  await privateFill(
+    page.locator("#login-password"),
+    material().member.password,
+  );
+  await loginReady(page, "member");
+  await page.goto("/system/providers");
+  await expect(
+    page.getByRole("heading", { name: "无权访问系统设置", exact: true }),
+  ).toBeVisible();
+  result({
+    denied: true,
+    forbidden: true,
+    revoked: true,
+    new_session: true,
+    switched: true,
+  });
+});
+
+async function checkingConfirmation(page: Page, fail: boolean) {
+  const originalWrites = (await writes(page)).length;
+  if (fail) await ipc("arm-session-fail");
+  // Explicit synthetic App lifecycle trigger; subsequent Session is real backend.
+  await page.evaluate(() => window.dispatchEvent(new Event("pageshow")));
+  if (fail) {
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    const restore = page.getByRole("button", {
+      name: "检查当前会话",
+      exact: true,
+    });
+    await expect(restore).toBeEnabled();
+    expect(
+      await restore.evaluate((node) => node.closest("[inert]") === null),
+    ).toBe(true);
+    await restore.click();
+  }
+  const physical = page.locator('[role="dialog"]');
+  await expect(physical).toHaveCount(2);
+  await expect(page.getByRole("dialog")).toHaveCount(1);
+  const structure = await physical.evaluateAll((nodes) => ({
+    physical_two: nodes.length === 2,
+    lower_inert: nodes[0] instanceof HTMLElement && nodes[0].inert,
+    lower_aria_hidden: nodes[0]?.getAttribute("aria-hidden") === "true",
+    lower_business_title: ["创建 Provider", "编辑 Provider"].includes(
+      nodes[0]?.querySelector("h2")?.textContent ?? "",
+    ),
+    top_confirmation_title:
+      nodes[1]?.querySelector("h2")?.textContent === "放弃未保存修改？",
+    top_operable:
+      nodes[1] instanceof HTMLElement &&
+      !nodes[1].inert &&
+      nodes[1].getAttribute("aria-hidden") !== "true",
+  }));
+  console.log("owned Provider modal structure", JSON.stringify(structure));
+  expect(Object.values(structure).every(Boolean)).toBe(true);
+  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
+  expect(
+    await top(page).evaluate(
+      (node) =>
+        node instanceof HTMLElement &&
+        !node.inert &&
+        node.getAttribute("aria-hidden") !== "true",
+    ),
+  ).toBe(true);
+  await top(page)
+    .getByRole("button", { name: "继续编辑", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toHaveCount(1);
+  await focusContained(page);
+  expect((await writes(page)).length).toBe(originalWrites);
+}
+test("[navigation] App checking cohost, dirty and uncertain transitions, keyboard and responsive layouts", async ({
+  page,
+}) => {
+  await setup(page, "admin", "/system/users");
+  await expect(
+    page
+      .getByRole("navigation", { name: "系统设置", exact: true })
+      .getByRole("link"),
+  ).toHaveCount(3);
+  await page.getByRole("link", { name: "待注册邀请", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "待注册邀请", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Providers", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Providers", exact: true }),
+  ).toBeVisible();
+  await openCreate(page);
+  await fillCreate(page, "Navigation draft");
+  await privateFill(
+    top(page).getByLabel("新凭据（仅写入）", { exact: true }),
+    material().value,
+  );
+  await top(page).getByRole("button", { name: "取消", exact: true }).click();
+  await checkingConfirmation(page, true);
+  expect(
+    (await top(page)
+      .getByLabel("新凭据（仅写入）", { exact: true })
+      .inputValue()) === "",
+  ).toBe(true);
+  await expect(top(page)).toContainText("已保留新凭据输入");
+  await discard(page);
+  await openCreate(page);
+  await fillCreate(page, "Navigation uncertain");
+  await ipc("arm-drop", { stage: "provider" });
+  await save(page);
+  await expect(top(page)).toContainText("本次结果尚未确认");
+  await top(page).getByRole("button", { name: "取消", exact: true }).click();
+  await checkingConfirmation(page, false);
+  await discard(page);
+  await page.getByRole("button", { name: "刷新", exact: true }).click();
+  const target = (await ipc("snapshot")).items.find(
+    (p: Provider) => p.id === material().target_id,
+  ) as Provider;
+  await select(page, target.input.name);
+  await edit(page);
+  await ipc("compete", { id: target.id });
+  await privateFill(
+    top(page).getByLabel("新凭据（仅写入）", { exact: true }),
+    material().value,
+  );
+  await save(page);
+  await expect(top(page)).toContainText("新凭据已创建，Provider尚未确认保存");
+  await top(page).getByRole("button", { name: "取消", exact: true }).click();
+  await checkingConfirmation(page, false);
+  await discard(page);
+  await page.getByRole("button", { name: "刷新", exact: true }).click();
+  await openCreate(page);
+  await fillCreate(page, "Escape draft");
+  await page.keyboard.press("Escape");
+  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
+  await top(page)
+    .getByRole("button", { name: "继续编辑", exact: true })
+    .click();
+  await focusContained(page);
+  await page
+    .locator(".ui-overlay")
+    .last()
+    .click({ position: { x: 3, y: 3 } });
+  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
+  await top(page)
+    .getByRole("button", { name: "放弃修改", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.getByRole("link", { name: "用户", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "用户", exact: true }),
+  ).toBeVisible();
+  await page.goBack();
+  await expect(
+    page.getByRole("heading", { name: "Providers", exact: true }),
+  ).toBeVisible();
+  let layouts = 0;
+  for (const theme of ["light", "dark"] as const) {
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+    for (const width of [1440, 1024, 834, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expect(
+        page.getByRole("heading", { name: "Providers", exact: true }),
+      ).toBeVisible();
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth + 1,
+        ),
+      ).toBe(true);
+      expect(await page.locator("textarea").count()).toBe(0);
+      if (width === 390) {
+        await page
+          .getByRole("button", { name: "系统设置栏目", exact: true })
+          .click();
+        await expect(top(page)).toBeVisible();
+        await page.keyboard.press("Escape");
+        await expect(page.getByRole("dialog")).toHaveCount(0);
+        await expect(
+          page.getByRole("button", { name: "系统设置栏目", exact: true }),
+        ).toBeFocused();
+      }
+      await expect(page.locator(".ui-overlay")).toHaveCount(0);
+      const images = process.env.AGENTEAM_AUTH_WEB_IMAGES;
+      if (images)
+        await page.screenshot({
+          path: join(images, `providers-${theme}-${width}.png`),
+          fullPage: true,
+        });
+      layouts++;
+    }
+  }
+  const failures = await ipc("failure-facts");
+  expect(failures.session_failures).toBe(1);
+  result({
+    navigation: true,
+    dirty: true,
+    checking: true,
+    dialogs: true,
+    partial: true,
+    uncertain: true,
+    layouts,
+  });
+});

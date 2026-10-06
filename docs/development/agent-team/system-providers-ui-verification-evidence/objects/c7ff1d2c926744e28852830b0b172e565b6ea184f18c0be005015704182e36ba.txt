@@ -1,0 +1,24 @@
+import os,sys,json,time,subprocess,hashlib,pathlib,signal
+r=pathlib.Path(__file__).resolve().parent
+name=sys.argv[1];log=r/"logs"/name;log.mkdir(exist_ok=False)
+argv=["node","/workspace/agenteam/web/node_modules/vitest/vitest.mjs","run","--config","vitest.config.mjs",(sys.argv[2] if len(sys.argv)>2 else "src/tests/independent-owner.spec.ts"),"--reporter=verbose"]
+env=os.environ.copy();env.update({"CI":"1","NO_COLOR":"1","FORCE_COLOR":"0"})
+files=[p for p in (r/"candidate").rglob("*") if p.is_file() and "node_modules" not in p.parts and ".vite" not in p.parts]+[r/"run-pure.py",r/"input.json"]
+before={str(p.relative_to(r)):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+meta={"argv":argv,"cwd":str(r/"candidate/web"),"env_overrides":{k:env[k] for k in ["CI","NO_COLOR","FORCE_COLOR"]},"before":before,"limit_seconds":45}
+(log/"command.json").write_text(json.dumps(meta,indent=2)+"\n")
+t=time.monotonic()
+with (log/"raw.log").open("wb") as out:
+ p=subprocess.Popen(argv,cwd=meta["cwd"],env=env,stdin=subprocess.DEVNULL,stdout=out,stderr=subprocess.STDOUT,start_new_session=True)
+ try:p.wait(timeout=45)
+ except subprocess.TimeoutExpired:
+  os.killpg(p.pid,signal.SIGTERM)
+  try:p.wait(timeout=5)
+  except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);p.wait()
+  meta["timed_out"]=True
+meta.update({"pid":p.pid,"exit_code":p.returncode,"elapsed_seconds":round(time.monotonic()-t,3),"actual_wait":True,"after":{str(x.relative_to(r)):hashlib.sha256(x.read_bytes()).hexdigest() for x in files},"raw_sha256":hashlib.sha256((log/"raw.log").read_bytes()).hexdigest()})
+meta["inputs_unchanged"]=meta["before"]==meta["after"]
+(log/"result.json").write_text(json.dumps(meta,indent=2)+"\n")
+print(json.dumps({k:meta[k] for k in ["pid","exit_code","elapsed_seconds","actual_wait","inputs_unchanged","raw_sha256"]}))
+print((log/"raw.log").read_text())
+sys.exit(p.returncode)

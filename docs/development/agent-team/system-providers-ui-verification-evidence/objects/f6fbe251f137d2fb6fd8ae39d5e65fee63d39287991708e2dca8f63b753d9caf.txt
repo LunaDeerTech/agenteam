@@ -1,0 +1,56 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/candidate/web
+
+stderr | src/tests/independent-app.spec.ts > Independent Provider App composition > preserves partial success and pending navigation through real pageshow failure/recovery, then rebases only Provider and starts an immediate clean form
+[Vue Router warn]: No match found for location with path "/settings/profile"
+[Vue Router warn]: No match found for location with path "/system/invitations"
+
+stderr | src/tests/independent-app.spec.ts > Independent Provider App composition > preserves partial success and pending navigation through real pageshow failure/recovery, then rebases only Provider and starts an immediate clean form
+[Vue Router warn]: No match found for location with path "/system/invitations"
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stderr | src/tests/independent-app.spec.ts > Independent Provider App composition > keeps a no-editor logout confirmation pending across same-Session checking, then rejects it on new identity and rejects a later route on App disposal
+[Vue Router warn]: No match found for location with path "/settings/profile"
+[Vue Router warn]: No match found for location with path "/system/invitations"
+
+stderr | src/tests/independent-app.spec.ts > Independent Provider App composition > keeps a no-editor logout confirmation pending across same-Session checking, then rejects it on new identity and rejects a later route on App disposal
+[Vue Router warn]: No match found for location with path "/system/invitations"
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stderr | src/tests/independent-app.spec.ts > Independent Provider App composition > keeps a no-editor logout confirmation pending across same-Session checking, then rejects it on new identity and rejects a later route on App disposal
+[Vue Router warn]: No match found for location with path "/system/invitations"
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+ × src/tests/independent-app.spec.ts > Independent Provider App composition > preserves partial success and pending navigation through real pageshow failure/recovery, then rebases only Provider and starts an immediate clean form 489ms
+   → expected { emptyName: true, …(5) } to deeply equal { emptyName: true, …(5) }
+ ✓ src/tests/independent-app.spec.ts > Independent Provider App composition > keeps a no-editor logout confirmation pending across same-Session checking, then rejects it on new identity and rejects a later route on App disposal 87ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/independent-app.spec.ts > Independent Provider App composition > preserves partial success and pending navigation through real pageshow failure/recovery, then rebases only Provider and starts an immediate clean form
+AssertionError: expected { emptyName: true, …(5) } to deeply equal { emptyName: true, …(5) }
+
+- Expected
++ Received
+
+  {
+    "emptyMaterial": true,
+    "emptyName": true,
+-   "oldSuccessAbsent": true,
++   "oldSuccessAbsent": false,
+    "ordinarySave": true,
+    "progressCleared": true,
+    "writes": 3,
+  }
+
+ ❯ src/tests/independent-app.spec.ts:139:290
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  09:14:42
+   Duration  1.96s (transform 714ms, setup 0ms, import 854ms, tests 578ms, environment 411ms)
+

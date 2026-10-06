@@ -1,0 +1,106 @@
+// Isolated layout diagnosis with fixed production dist and synthetic read-only
+// DTOs. This is not backend, authorization, owner, or business evidence.
+import { createServer } from 'node:http';
+import { readFile, writeFile } from 'node:fs/promises';
+import { resolve, extname } from 'node:path';
+import { createRequire } from 'node:module';
+import assert from 'node:assert/strict';
+const require = createRequire(resolve('workspace/tests/account-captcha-web/package.json'));
+const { chromium } = require('playwright');
+const dist = resolve('input06/web/dist'), run = process.env.PROBE_RUN;
+const id = (n) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0');
+const time = '2026-10-06T12:34:56.123456Z';
+const provider = { id: id(100), version: '1', created_at: time, updated_at: time,
+  input: { name: 'Owned ' + '长名称'.repeat(35), protocol: 'openai-chat-completions',
+    base_url: 'https://provider.invalid/' + 'long-path/'.repeat(100), enabled: true,
+    credential_ref: null, options: {} } };
+const model = { id: id(101), provider_id: provider.id, version: '1', created_at: time, updated_at: time,
+  input: { name: 'Model', provider_model_id: 'native-99', type: 'chat', enabled: true,
+    parameters: {}, request_overwrite: {}, header_overwrite: {}, capabilities: {
+      tool_calls: true, parallel_tool_calls: true, streaming: true, reasoning: false,
+      input_modalities: ['text'], output_modalities: ['text'], reasoning_efforts: [],
+      structured_output_modes: ['text'], context_length: '8192', max_output: '4096' } } };
+const session = { user: { id: id(1), email: 'layout@example.com', username: 'layout',
+  display_name: 'Layout fixture', role: 'admin', theme: 'light', version: '1',
+  initial_password_suggestion: false }, session: { id: id(2), issued_at: time,
+  idle_expires_at: time, absolute_expires_at: time }, csrf_token: 'S'.repeat(43) };
+let browser, closedBrowser = false, closedServer = false, timedOut = false;
+const requests = [];
+const server = createServer(async (req, res) => {
+  const url = new URL(req.url, 'http://127.0.0.1');
+  if (url.pathname.startsWith('/api/')) {
+    requests.push({ method: req.method, path: url.pathname });
+    let value;
+    if (req.method === 'GET' && url.pathname === '/api/v1/session') value = session;
+    if (req.method === 'GET' && url.pathname === '/api/v1/system/model-providers') value = { items: [provider], next_cursor: null };
+    if (req.method === 'GET' && url.pathname === '/api/v1/system/model-providers/' + provider.id) value = provider;
+    if (req.method === 'GET' && url.pathname === '/api/v1/system/models') value = { items: [model], next_cursor: null };
+    res.writeHead(value ? 200 : 500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(value ?? { error: 'unexpected layout request' }));
+    return;
+  }
+  try {
+    const path = url.pathname.startsWith('/assets/') ? resolve(dist, '.' + url.pathname) : resolve(dist, 'index.html');
+    if (!path.startsWith(dist + '/')) throw new Error('path outside dist');
+    const content = await readFile(path);
+    res.writeHead(200, { 'Content-Type': ({ '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' })[extname(path)] ?? 'application/octet-stream' });
+    res.end(content);
+  } catch { res.writeHead(404); res.end(); }
+});
+const timeout = setTimeout(() => { timedOut = true; void browser?.close(); }, 45_000);
+try {
+  await new Promise((done, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', done); });
+  const port = server.address().port;
+  await writeFile(resolve(run, 'server.json'), JSON.stringify({ host: '127.0.0.1', port }));
+  browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true, timeout: 10_000,
+    args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  page.setDefaultTimeout(5000);
+  await page.goto(`http://127.0.0.1:${port}/system/providers`);
+  await page.getByRole('heading', { name: 'Providers', exact: true }).waitFor();
+  await page.getByRole('button', { name: '查看', exact: true }).click();
+  await page.getByText('native-99', { exact: true }).waitFor();
+  const metrics = () => page.evaluate(() => {
+    const rect = (node) => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; };
+    const main = document.querySelector('main.app-content');
+    return { innerHeight, documentHeight: document.documentElement.scrollHeight, bodyHeight: document.body.scrollHeight,
+      main: { clientHeight: main.clientHeight, scrollHeight: main.scrollHeight, scrollTop: main.scrollTop },
+      captions: Array.from(document.querySelectorAll('.provider-table caption'), node => ({
+        offsetParent: node.offsetParent?.tagName ?? null,
+        offsetParentClass: node.offsetParent?.className ?? null,
+        anchored: node.offsetParent === node.closest('.provider-table'),
+        rect: rect(node), wrapperRect: rect(node.closest('.provider-table')),
+        clip: getComputedStyle(node).clipPath,
+      })) };
+  });
+  const settle = () => page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))));
+  const results = [];
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await settle();
+    const before = await metrics();
+    const style = await page.addStyleTag({ content: '.provider-table { position: relative !important; }' });
+    await settle();
+    const after = await metrics();
+    results.push({ width, before, after });
+    await style.evaluate(node => node.remove());
+    await settle();
+  }
+  await writeFile(resolve(run, 'metrics.json'), JSON.stringify({ evidence_kind: 'isolated layout diagnosis; synthetic read-only DTOs; not business evidence', results, requests }, null, 2) + '\n');
+  assert.equal(requests.every(row => row.method === 'GET'), true);
+  for (const row of results) {
+    assert.equal(row.before.captions.length, 2);
+    assert.equal(row.before.captions.every(c => !c.anchored), true);
+    assert.ok(row.before.documentHeight > row.before.innerHeight);
+    assert.equal(row.after.captions.every(c => c.anchored), true);
+    assert.ok(row.after.documentHeight <= row.after.innerHeight + 1);
+  }
+  assert.equal(timedOut, false);
+  console.log(JSON.stringify({ diagnosis: 'PASS', viewports: results.map(row => ({ width: row.width, old_document_height: row.before.documentHeight, new_document_height: row.after.documentHeight, old_parents: row.before.captions.map(c => c.offsetParent), new_anchors: row.after.captions.map(c => c.anchored) })), backend_requests: 0 }));
+} finally {
+  clearTimeout(timeout);
+  if (browser) { await browser.close(); closedBrowser = true; }
+  await new Promise((done, reject) => { server.close(error => error ? reject(error) : done()); server.closeAllConnections(); });
+  closedServer = true;
+  await writeFile(resolve(run, 'closed.json'), JSON.stringify({ closedBrowser, closedServer, timedOut }) + '\n');
+}

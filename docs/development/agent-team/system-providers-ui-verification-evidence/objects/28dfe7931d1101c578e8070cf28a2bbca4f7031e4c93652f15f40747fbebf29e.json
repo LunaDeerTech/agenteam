@@ -1,0 +1,10 @@
+{
+  "base": "1c82d888adfef0d8b58ab51c920557ca4e2f084f",
+  "api_dependency": "api-stage02.json",
+  "files": {
+    "web/src/composables/useSession.ts": "34214b8005169fc552d0900efeaa0584940e67034d167f121b17704a89bd6234",
+    "web/src/tests/system-providers-state.spec.ts": "be2363b91443adef127366469904c537b4c54625b664156dfe80c453266f56d4"
+  },
+  "checks": "runs/owner02/",
+  "scope": "Owner stage only; controller and View still active; no product acceptance"
+}

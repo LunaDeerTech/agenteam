@@ -1,0 +1,45 @@
+import hashlib
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import time
+
+root = Path(__file__).resolve().parent
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+paths = [root / 'e2e/fixed-helpers.ts', root / 'e2e/independent-providers.spec.ts', root / 'independent.config.js', Path(__file__).resolve()]
+for mode in ['independent-partial', 'independent-replay']:
+    run = root / 'logs' / ('list-' + mode)
+    run.mkdir(exist_ok=False)
+    changes = {
+        'AGENTEAM_AUTH_WEB_ORIGIN': 'http://127.0.0.1:1',
+        'AGENTEAM_AUTH_WEB_PRIVATE': str(run / 'not-started'),
+        'AGENTEAM_AUTH_WEB_CHROMIUM': '/usr/bin/chromium',
+        'AGENTEAM_PROVIDERS_WEB_CASE': mode,
+        'TMPDIR': str(root / 'tmp'),
+        'CI': '1',
+        'npm_config_offline': 'true',
+    }
+    env = os.environ.copy()
+    env.update(changes)
+    argv = ['node', '/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js', 'test', '--config', str(root / 'independent.config.js'), '--list']
+    record = {'argv': argv, 'cwd': str(root), 'env_overrides': changes, 'before': {str(p.relative_to(root)): sha(p) for p in paths}, 'intent': 'Discovery only; no fixture, browser, server, or request is started'}
+    (run / 'command.json').write_text(json.dumps(record, indent=2) + '\n')
+    start = time.monotonic()
+    with (run / 'raw.log').open('wb') as out:
+        child = subprocess.Popen(argv, cwd=root, env=env, stdout=out, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
+        try:
+            child.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            os.killpg(child.pid, signal.SIGKILL)
+            child.wait()
+            record['timed_out'] = True
+    raw = (run / 'raw.log').read_text()
+    record.update({'pid': child.pid, 'exit_code': child.returncode, 'actual_wait': True, 'elapsed_seconds': round(time.monotonic() - start, 3), 'raw_sha256': sha(run / 'raw.log'), 'after': {str(p.relative_to(root)): sha(p) for p in paths}, 'exact_one_test': 'Total: 1 test in 1 file' in raw})
+    record['inputs_unchanged'] = record['before'] == record['after']
+    (run / 'result.json').write_text(json.dumps(record, indent=2) + '\n')
+    print(json.dumps({'mode': mode, **{k: record[k] for k in ['pid', 'exit_code', 'actual_wait', 'elapsed_seconds', 'raw_sha256', 'inputs_unchanged', 'exact_one_test']}}))
+    print(raw)
+    if child.returncode != 0 or not record['exact_one_test']:
+        raise SystemExit(1)

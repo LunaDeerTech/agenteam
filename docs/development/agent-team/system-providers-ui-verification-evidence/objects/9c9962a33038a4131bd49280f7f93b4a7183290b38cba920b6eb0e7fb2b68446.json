@@ -1,0 +1,36 @@
+{
+  "base": "1c82d888adfef0d8b58ab51c920557ca4e2f084f",
+  "card": "a8f0135ba0c82112efde62950a1027a382ec4c86",
+  "api_stage_manifest_sha256": "e6a2da8ea9e8773f3084dcc7125453d618600717756a1884e5a716633361a848",
+  "files": {
+    "web/src/api/client.ts": {
+      "sha256": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6",
+      "origin": "api-stage01"
+    },
+    "web/src/api/system-providers.ts": {
+      "sha256": "1e57fe453fe1cbb77a9fdb09ef473e4bd61cefb09ac4a37784d49223d31ced92",
+      "origin": "api-stage01"
+    },
+    "web/src/tests/system-providers-client.spec.ts": {
+      "sha256": "5409233f7f4521ef7b70e678780457a4d162f81fd0a6bf047dff26511280c3ab",
+      "origin": "api-stage01"
+    },
+    "web/src/api/account.ts": {
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "origin": "1c82d888adfef0d8b58ab51c920557ca4e2f084f"
+    },
+    "web/src/api/system-account.ts": {
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+      "origin": "1c82d888adfef0d8b58ab51c920557ca4e2f084f"
+    },
+    "web/package.json": {
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "origin": "1c82d888adfef0d8b58ab51c920557ca4e2f084f"
+    },
+    "web/package-lock.json": {
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "origin": "1c82d888adfef0d8b58ab51c920557ca4e2f084f"
+    }
+  },
+  "boundary": "only fixed API stage + fixed Git dependencies; extracted Go endpoint and text functions with exact bodies, no service or fixture"
+}

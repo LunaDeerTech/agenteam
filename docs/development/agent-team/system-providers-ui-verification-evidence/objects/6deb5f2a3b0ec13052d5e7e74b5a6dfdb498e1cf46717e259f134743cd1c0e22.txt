@@ -1,0 +1,22 @@
+# Provider owner-stage02 independent verification
+
+PASS for this fixed owner stage. The complete Provider UI remains unaccepted.
+
+Input: `owner-stage02.json` SHA `28dfe7931d1101c578e8070cf28a2bbca4f7031e4c93652f15f40747fbebf29e`; fixed API-stage02 SHA `61c86175161023fc6d4b107bb324dbdb737f7fbd2c54c338a1d87f0671a76511`; accepted dependency base `1c82d888adfef0d8b58ab51c920557ca4e2f084f`. `input.json` binds every consumed source/lock. No active controller, View or harness was read.
+
+The production delta adds two checks after synchronous public notifications. Material-clear must retain the same live owner, intent and authorized identity before advancing to Provider. Confirmed publication must retain the exact intent/revision/context before clearing private state. The original timeout, actual transport join and HTTP paths are unchanged. `owner01-to02.diff` preserves the two-file delta.
+
+| Independent run | Actual result | Evidence |
+| --- | --- | --- |
+| Original five groups, unchanged probe | 5/5 PASS; exit 0; 1.071 s; PID 619417 actually waited | `logs/independent01/{command.json,raw.log,result.json}` |
+| Confirmation starts a different replacement workflow | 1/1 PASS; exit 0; 1.017 s; PID 619514 actually waited | `logs/independent02/{command.json,raw.log,result.json}` |
+
+Both runs used production Session and API code with injected fetch and native streams in jsdom. Source hashes before/after match and both main PIDs are absent. No browser, service, network, database, product edit or Git mutation occurred.
+
+The original five-probe SHA remains `5185838f755c0a3bda79682c09096263130811cded17799651f8d7ee9b491975`. P-OWNER-01 is green under the identical abandonment assertion: material is absent, progress stays null, no second Provider write occurs, and actual owner is released after its tail. Previous native EOF/cancel-tail, lookup/replay/rebase, current authorization and old-identity barriers also pass.
+
+The additional probe retires a confirmed create in a synchronous public watcher and starts an update for a different Provider/version with new private material. A full Credential DTO is held before actual native EOF. The new intent, material and owner survive the old continuation; no Provider binding starts early. After EOF, only the new target/version/reference is written and the new receipt becomes confirmed. Key separation, original CSRF and material-only-in-Credential checks emit safe booleans. This is new candidate-green evidence; no old-version RED is asserted for this additional scenario.
+
+The original stage01 4-PASS/1-FAIL evidence remains frozen at `/workspace/scratch/agenteam-provider-owner-verification-kpen9k8j`; its raw SHA is `1092b621b76b3a2d57b96bbafebaf919a03532916216d71d7ba75b14770ed5d0`. It established progress resurrection, not material exposure or a second write. Fixed API-stage02 results are reused by exact hashes; no unrelated parser/budget suite was rerun.
+
+This result does not verify App/controller/View integration, DOM focus, real Cookie behavior, formal backend operations or real secret storage. Actual aborted transport discards its late body, so these probes do not assert a late-body mapper outcome. Exact commands, selected environment, inputs, original logs and artifact hashes are in `owner-stage02-report.json`. This private root is now frozen; no command remains active.

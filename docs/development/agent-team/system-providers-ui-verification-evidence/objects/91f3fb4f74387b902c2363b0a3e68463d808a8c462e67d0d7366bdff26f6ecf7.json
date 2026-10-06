@@ -1,0 +1,26 @@
+{
+  "UiField": {
+    "path": "web/src/components/ui/UiField.vue",
+    "sha256": "9e40a4c00994826f9a65ed0c1cf095f7e6d5e44b93a95a4788b82ab1b9f3e0a1",
+    "required_label_text": "label + aria-hidden span containing space and *"
+  },
+  "LoginView": {
+    "path": "web/src/views/auth/LoginView.vue",
+    "sha256": "58197b6ca69b7e1b4fc2f94a1990a21497d9a0ace613f1a222b8e8e6715f7643",
+    "stable_ids": [
+      "login-email",
+      "login-password"
+    ]
+  },
+  "Editor": {
+    "path": "web/src/views/system/SystemProviderEditor.vue",
+    "sha256": "f26c44baefa94dfdc9c6d7337a6bbc25f026e8431a50bac810522feb452b93ae",
+    "required_labels": [
+      "名称",
+      "协议",
+      "Base URL",
+      "启用状态"
+    ],
+    "fix": "name/base_url/readonly protocol via strict accessible textbox name; protocol/enabled selectors already explicit aria-label; textarea nonrequired label unchanged"
+  }
+}

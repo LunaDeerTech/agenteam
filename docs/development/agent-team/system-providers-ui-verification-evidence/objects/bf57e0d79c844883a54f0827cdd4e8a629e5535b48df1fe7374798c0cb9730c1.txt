@@ -1,0 +1,3 @@
+Provider 私有准备03通过类型检查（actual exit0 / 0.973s，PID已wait且不存在），尚未运行真实场景。
+
+仅补Session观察水位：pageshow之后真实503和显式恢复之后200 EOF必须来自新的请求；user/session/role精确保持。重放查证同样要求新Session事实，不能重用旧观察值。原准备02源码与差量保留。Go overlay、fixture、observer、config和二进制未变，复用已过静态检查；作者继续独占真实窗口。精确路径和SHA见同名JSON。

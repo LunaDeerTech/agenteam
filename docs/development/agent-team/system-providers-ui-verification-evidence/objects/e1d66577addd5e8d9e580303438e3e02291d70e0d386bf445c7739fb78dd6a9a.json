@@ -1,0 +1,204 @@
+{
+  "stage_verdict": "PASS for product static review and two independent App pure compositions; test-only harness corrections pending; not whole Provider acceptance",
+  "input_manifest": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/input01.json",
+  "input_manifest_sha256": "a6d42c484e2c761402c38f399bcde417ec71a2b219e69e8a051590f7aa853bee",
+  "product_base": "1c82d888adfef0d8b58ab51c920557ca4e2f084f",
+  "backend_accepted": "9b3201547f9b7b61fd9716a6ba6540084961496c",
+  "files": {
+    "web/src/api/client.ts": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6",
+    "web/src/api/system-providers.ts": "1c4fbe9db5158e7d46908b40a95a4eacc26e4b8725efd4ff6cfe3f9acb5352a4",
+    "web/src/composables/useSession.ts": "34214b8005169fc552d0900efeaa0584940e67034d167f121b17704a89bd6234",
+    "web/src/composables/useSystemProviders.ts": "79e92bc3f18a9045d5eacf0de425df128997940b31958aee65ae795728ff7488",
+    "web/src/App.vue": "6fe33517e88485b48ce2d11fd1804821b27eec42a01a9146b42a9a4b8fb91459",
+    "web/src/router/index.ts": "1da9f4e0b3c2c0e6b3b2bfb6ceb953e2e03b8e250682fb64cc34a1d6ea288fd8",
+    "web/src/router/auth.ts": "af9314b616a7b7c75480aa816c7cea2c0889bbee2d605451ad54d3855770b0bb",
+    "web/src/views/system/SystemSettingsView.vue": "1122ccf188a868e66efb2df0df4cf99c2169b7014d8db9c3d6e5a275a01f3b99",
+    "web/src/views/system/SystemProvidersView.vue": "ca7ffb5d348363369e236ba0c16fe5f94c9a63a132c57758946a2ada84619657",
+    "web/src/views/system/SystemProviderEditor.vue": "f26c44baefa94dfdc9c6d7337a6bbc25f026e8431a50bac810522feb452b93ae",
+    "web/src/tests/system-providers-client.spec.ts": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c",
+    "web/src/tests/system-providers-state.spec.ts": "eaefcd259350221b3cf912813704d93c7076f10ae5d60d8525fd096c5924c246",
+    "web/src/tests/system-providers.spec.ts": "90641e15c55825d0cd719809d43682ddda04eea2e10556f3cb509108bb1b5631",
+    "web/src/tests/system-user-directory.spec.ts": "d1443fb6285f03cbdd6cd8f8d109daa100001a14ef8ebbd441e4610017e94b70",
+    "web/src/tests/system-invitations.spec.ts": "7fec8bc35f236c06439093589de224912d02193dcb0b0eeecfd35e4f29de1e4c",
+    "web/src/tests/personal-settings.spec.ts": "5822218206cd6a0017d027765e5b8789fdf1ba735b370d76875eb156e96f4610",
+    "tests/account/system_providers_web_test.go": "1082f1a9e7bb38d9655c0a4d3fcf3dcdd62d63aac60b14472b6cebd7873f48cd",
+    "tests/account/system_providers_web_fixture_test.go": "7018166ea9f4da658bb6e5b7d95584d4326d28e99fa91aeffc104ce9389202be",
+    "tests/account-captcha-web/system-providers.config.js": "8e1cf9ca0e7723766292e941bca0a264290ba41118d254c840de54d3cd391a58",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "44e1017990f16e475eea95423f74f4647e598f7effe47251326e5b6c3342a8cb"
+  },
+  "dist_count": 26,
+  "git_dependencies_checked": 1017,
+  "reused_stages": [
+    {
+      "stage": "api-stage02",
+      "unchanged": [
+        "web/src/api/client.ts",
+        "web/src/api/system-providers.ts",
+        "web/src/tests/system-providers-client.spec.ts"
+      ],
+      "report": "/workspace/scratch/agenteam-provider-api02-verification-8v9jkq0f/api-stage02-report.json",
+      "sha256": "0794410b0e5a8776051feeab21ef5f45b8f312b9624091a67a29762494eb4d36"
+    },
+    {
+      "stage": "owner-stage02",
+      "unchanged": [
+        "web/src/composables/useSession.ts"
+      ],
+      "report": "/workspace/scratch/agenteam-provider-owner02-verification-feilkmmi/owner-stage02-report.json",
+      "sha256": "de000f315702e92f23557dd43d116d229b81cc8073bf29926aff43617f682d01",
+      "test_only_delta": "Existing controlled late-error test correctly relabelled as still-current identity; adds retired generation/new Session restore cases. No owner production change."
+    }
+  ],
+  "static_findings": [
+    "App owns Provider controller and confirmation promise; View hosts Editor/deletion then confirmation as last sibling. Checking/failed removes entire Provider subtree while controller preserves same-identity ordinary draft/private owner material and pending answer. Invalidation/dispose resolves false.",
+    "View and Editor use alive/isConnected checks after async work and nextTick before focus; confirmation/business-open/operability gates protect restored layers. Shared useLayer bytes are accepted dependency; no native focus conclusion from jsdom.",
+    "Editor has no value prop or v-model for secret; DOM input forwards only to write-only owner setter, owner revision synchronously clears DOM, unmount clears DOM. Public draft/state omit material, keys and CSRF.",
+    "Ordinary input is frozen through owner; prepared ref retained on Provider failure; explicit review obtains current version before rebase; confirmed receipt survives independent read failure. Opening create/edit/delete clears old feedback before new intent.",
+    "Route diff adds only providers leaf, seventh exact return and scoped navigation/dispose; settings menu appends one group/leaf. Existing test deltas only corresponding expected menu/return values.",
+    "Formal fixture runs accepted full root/Secret/Model with task-owned database/MinIO and loopback origin. Provider/Model/Credential preparations, version competition, replacement and metadata deletion use formal HTTP. DB writes only exact owned authority/revoke preparation.",
+    "Response-loss control first consumes bounded real successful receipt, captures safe target/key privately, then forwards real success headers with incomplete body; subsequent explicit Execute count and unique DB facts are checked. This is owned response loss, not DB commit-fault injection.",
+    "Original browser 45s/top2m and workers1/retries0 remain. Screenshots/trace/video off automatically; manual layouts only after textarea absent; fixture private transfers mode0600 and runtime cleanup. No resource started during this review."
+  ],
+  "independent_commands": {
+    "app01": {
+      "argv": [
+        "node",
+        "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--config",
+        "vitest.config.mjs",
+        "src/tests/independent-app.spec.ts",
+        "--reporter=verbose"
+      ],
+      "cwd": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/candidate/web",
+      "env_overrides": {
+        "CI": "1",
+        "NO_COLOR": "1",
+        "FORCE_COLOR": "0"
+      },
+      "pid": 636681,
+      "exit_code": 1,
+      "elapsed_seconds": 2.43,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "f6fbe251f137d2fb6fd8ae39d5e65fee63d39287991708e2dca8f63b753d9caf"
+    },
+    "app02": {
+      "argv": [
+        "node",
+        "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--config",
+        "vitest.config.mjs",
+        "src/tests/independent-app.spec.ts",
+        "--reporter=verbose",
+        "-t",
+        "preserves partial success"
+      ],
+      "cwd": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/candidate/web",
+      "env_overrides": {
+        "CI": "1",
+        "NO_COLOR": "1",
+        "FORCE_COLOR": "0"
+      },
+      "pid": 637102,
+      "exit_code": 0,
+      "elapsed_seconds": 2.329,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "5a6ba5f382751eafa6715b1e1de99b21a8a4b6b77bcad8d4fd0598d943c18b82"
+    }
+  },
+  "app01_classification": {
+    "actual_exit": 1,
+    "case2": "PASS: no-Editor pending logout across same-Session pageshow, new Session invalidates pending answer without logout; later App dispose aborts route and clears material/intent.",
+    "case1": "Only final private assertion failed: broad dialog.textContent includes permanent aria-hidden success label. All preceding partial success/session failure/rebase/confirmed GET-failure assertions executed successfully.",
+    "original_probe_sha256": "eef7d09abbe775509a2ff8e9898fc5881d8d83e17cf4a39d50592fc5af7ebad7",
+    "preserved": true
+  },
+  "app02_classification": {
+    "actual_exit": 0,
+    "case1": "PASS under precise aria-visible label, no success aria-label/busy state, disabled empty normal save, no new POST, null old progress and empty material; no timer advancement. Entire preceding composition rerun.",
+    "case2": "Not rerun; selected out and reused app01 exact unchanged test section.",
+    "unchanged_case2_suffix_sha256": "a2d638fff4115f16c71ffa5f0da234619ea394d2932d0701bbb8dfa26741742c",
+    "cases_total_passed_across_runs": 2,
+    "whole_file_green_run_claimed": false
+  },
+  "author_checks_reviewed": [
+    {
+      "run": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/check01",
+      "result_sha256": "1ed633c3f368eb0ab1d28d4c6cb7b5140ce6111e603a8519fb0432c349846799",
+      "exit_code": 0,
+      "seconds": 19.349077738999767,
+      "raw_sha256": "936a031d9e2302f09500714df34105564e94e5d2521d7726602cfbbd79196c0b"
+    },
+    {
+      "run": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/compile01/race-compile",
+      "result_sha256": "090b27036a6dc12f88fd8cc444cdd2bd5e650c0cfe83b3ca669b4faf9bc0532a",
+      "exit_code": 0,
+      "seconds": 44.60457335599858,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/compile01/vet",
+      "result_sha256": "d9663cc354b3158c0a8dc632c95adda5bc67026003bc3169b7265aba93b5d9f2",
+      "exit_code": 0,
+      "seconds": 25.55344730499928,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/compile01/browser-config",
+      "result_sha256": "a9b989af1987eefbd6c974251fb9b890712dfc15d34744ffd0fefa58735ba881",
+      "exit_code": 0,
+      "seconds": 0.023700595000264002,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/browser-type02",
+      "result_sha256": "625e6c3da5a75cdcb173283305c7fe134cbefb82dfb4737d36e1dc4290aca447",
+      "exit_code": 0,
+      "seconds": 0.8850209929987614,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "pending_harness_corrections": [
+    "Root-authorized Provider Navigation screenshot readiness: await physical .ui-overlay absence before export, preserve original budgets.",
+    "Root-authorized native observer: return original fetch pending; preserve response/read/cancel identity; closed needed safe DTO projections, exact endpoint-dependent response caps, cleanup buffered text; source is active elsewhere and was not read.",
+    "Current latestProvider/latestReceipt helper can observe prior completed response before follow-up detail read. Add request issue sequence/watermark, exact endpoint/target/status/ended matching within existing timeout.",
+    "Accepted rev4 adds only old invitations browser Navigation expected link count2-to3 as path22. That later test-only delta is absent from input01 and needs separate hash review."
+  ],
+  "limits": [
+    "Injected-fetch jsdom tests establish actual production App/controller/Session state and DOM layer order, not native pointer/default focus/Tab, network Cookie or formal database behavior.",
+    "Private router contains real Home/Login/System/Users/Providers pages and real authentication/navigation guards. Unvisited profile/invitations links emit known no-route warnings; actual full route/menu compatibility is statically reviewed and author full suite evidence reused, not claimed independently browser-verified.",
+    "Author 603-test check, build/type, Go race compile/vet and browser syntax/type records are read-only evidence, not independent dynamic service results.",
+    "Real partial-success and accepted-response-loss browser compositions, private exact replay body/key/CSRF comparison, real authority, cleanup and visuals remain pending a separately authorized resource window.",
+    "No product, Git, shared dependency or active author source modified; private probe/records only. Historical P-API-01/P-OWNER-01 and private App assertion failure retained."
+  ],
+  "resources": {
+    "browser": false,
+    "backend": false,
+    "docker": false,
+    "network": false,
+    "actual_wait": true,
+    "recorded_pids_absent": true
+  },
+  "artifact_hashes": {
+    "input-verification.json": "949dad425943415b8007bd378eddb2992d7bcef0bb54b3a867ce52aca6c0e501",
+    "closure-input.json": "d5cc831b16b473f700f32bbc714b717a8a8cdd8c78298e3a3bc3ee6a46fec1f4",
+    "accepted-to-input01-seams.diff": "cb7d022bf0e6c0bd8efda75bd527227bcf9fb71edd3dfb5201afcda1c833617e",
+    "owner-stage02-delta.diff": "2cdf198e816bd88fffe3166bc9fdf23d507404911c352a4979c4a5105ea25062",
+    "probe01-to02.diff": "34e5c87dd0a54ecd7fa88ca9df7bca4ca41979b45553c82d6de759caa053dcf3",
+    "run-pure.py": "a10d22d9de494b93ebbc4a2ead892c2bbfc52a8b51124d1e0e38f0e6b71b1496",
+    "candidate/web/vitest.config.mjs": "6d94513e1f98e57b5ab32fc9c38c7a569057d257f8adf27f01d2a3326cc3239f",
+    "candidate/web/src/tests/independent-app.spec.ts": "f14f27137ab6fba4a0e7088bac43463cf39557e1059bbb6f72daea0967dcec0a",
+    "logs/app01/independent-app.spec.ts": "eef7d09abbe775509a2ff8e9898fc5881d8d83e17cf4a39d50592fc5af7ebad7",
+    "logs/app01/driver.py.txt": "c80300a0245986bbfca317e1972dd9422fda9ac62494a8d2b3aa606ed43eb0c6",
+    "logs/app01/command.json": "3978cafdcfe0c56bbd6f446c9aee0babd74f3918b77fc35dc152f78552ecb8cf",
+    "logs/app01/raw.log": "f6fbe251f137d2fb6fd8ae39d5e65fee63d39287991708e2dca8f63b753d9caf",
+    "logs/app01/result.json": "cf1dca123ab18eafb8167b09db14e54c1fe3b955a7330a51bc317f34bfc20968",
+    "logs/app02/command.json": "ff55bd2bf2b59591fdaa9798bea0dc84f8752d32f14f5b4d1a82651709dac944",
+    "logs/app02/raw.log": "5a6ba5f382751eafa6715b1e1de99b21a8a4b6b77bcad8d4fd0598d943c18b82",
+    "logs/app02/result.json": "af475478e4001a120b6430fda5397324285e4251cc23e967712ce1c43a1ac49d"
+  },
+  "frozen_scope": "All files referenced by this stage report; future separate report/run directories may be appended without modifying these originals."
+}

@@ -1,0 +1,49 @@
+{
+  "argv": [
+    "node",
+    "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "vitest.config.mjs",
+    "src/tests/independent-api.spec.ts",
+    "--reporter=verbose"
+  ],
+  "cwd": "/workspace/scratch/agenteam-provider-api-verification-xuqvo6eh/candidate/web",
+  "env_overrides": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "FORCE_COLOR": "0"
+  },
+  "input_sha256": "9c9962a33038a4131bd49280f7f93b4a7183290b38cba920b6eb0e7fb2b68446",
+  "before": {
+    "candidate/web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "candidate/web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "candidate/web/vitest.config.mjs": "693f0bc9433a56e4e385fe793ff3733dfc5cc9fc663681d6f6e7e8970c365a90",
+    "candidate/web/src/tests/system-providers-client.spec.ts": "5409233f7f4521ef7b70e678780457a4d162f81fd0a6bf047dff26511280c3ab",
+    "candidate/web/src/tests/independent-api.spec.ts": "28b97b045901ee19bdd37fd2c22fd91e3cb7d83ff6d132875599d2bea9f6f96b",
+    "candidate/web/src/tests/url-oracle.json": "fd0f57765bec9c54c377ce56c8f92fefdfeb6c4949b4d839d4c50e822d790b1d",
+    "candidate/web/src/api/client.ts": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6",
+    "candidate/web/src/api/system-providers.ts": "1e57fe453fe1cbb77a9fdb09ef473e4bd61cefb09ac4a37784d49223d31ced92",
+    "candidate/web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "candidate/web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+  },
+  "limit_seconds": 45,
+  "pid": 605420,
+  "exit_code": 1,
+  "elapsed_seconds": 0.566,
+  "after": {
+    "candidate/web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "candidate/web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "candidate/web/vitest.config.mjs": "693f0bc9433a56e4e385fe793ff3733dfc5cc9fc663681d6f6e7e8970c365a90",
+    "candidate/web/src/tests/system-providers-client.spec.ts": "5409233f7f4521ef7b70e678780457a4d162f81fd0a6bf047dff26511280c3ab",
+    "candidate/web/src/tests/independent-api.spec.ts": "28b97b045901ee19bdd37fd2c22fd91e3cb7d83ff6d132875599d2bea9f6f96b",
+    "candidate/web/src/tests/url-oracle.json": "fd0f57765bec9c54c377ce56c8f92fefdfeb6c4949b4d839d4c50e822d790b1d",
+    "candidate/web/src/api/client.ts": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6",
+    "candidate/web/src/api/system-providers.ts": "1e57fe453fe1cbb77a9fdb09ef473e4bd61cefb09ac4a37784d49223d31ced92",
+    "candidate/web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "candidate/web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+  },
+  "raw_sha256": "4158b09ef762eec2c642a61a32696e49799c874a26e177e82cb33b8a20cd9195",
+  "actual_wait": true,
+  "inputs_unchanged": true
+}

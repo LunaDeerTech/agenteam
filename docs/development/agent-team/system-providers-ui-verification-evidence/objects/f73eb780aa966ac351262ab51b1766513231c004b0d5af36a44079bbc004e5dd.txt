@@ -1,0 +1,13 @@
+# Provider UI author input01
+
+Fixed product dependency: `1c82d888adfef0d8b58ab51c920557ca4e2f084f`. Twenty authorized source/test paths and the isolated production dist are stopped; `input01.json` binds them and the committed dependency closure. README is deliberately deferred until real/independent validation.
+
+Completed checks: `runs/check01` records full offline npm check, actual exit 0, 603/603 tests, format/type/build; `runs/compile01/{race-compile,vet,browser-config}` record actual exits 0; `runs/browser-type02` records the new browser spec type check after its HTMLElement guard, exit 0. The prior type error remains in `runs/compile01/browser-type`. The Go compile command is compilation evidence only, with no claim of real integration execution.
+
+Historical failures remain unchanged in `runs/pure03` and `runs/pure04` (new test selector/dispose assumptions), API-stage01 independent evidence, and owner-stage01 independent evidence. API-stage02 and owner-stage02 independent delta passes are reusable; neither substitutes for the pending full product verification. The independent confirmed-syncwatch case was a candidate green, not a second old-version RED.
+
+Pending narrow specification change: the committed invitations browser navigation checks exactly two links; Provider legitimately adds the third. Root agreed to the single 2-to-3 adjustment, but that existing browser source has not yet been edited. Await rev4 write authorization before freezing the combined input.
+
+Real-run plan, not yet executed: `run_provider_fixture.py --name new01 --group new --frozen INPUT.json --modcache /workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache`, followed only after actual cleanup by `--name old01 --group old`. Each invokes unchanged `scripts/test-security.sh` and its exact six/seven top-level selectors from the private committed-source workspace. Budgets remain browser45s / top2m / package6m, worker1, retry0, race/count1, Go1.27.1 offline/readonly. The accepted fixed PostgreSQL digests and SHA-verified MinIO binary are used only under fresh official nonce/exact-ID fixtures. Subreaper is installed before starting children; actual child waits and two owned PID/starttime/container-ID absence scans determine cleanup. Existing PPID1 zombies are baseline-only and never treated as recovered.
+
+`PLAYWRIGHT_NO_COPY_PROMPT=1` disables Playwright error-page snapshots; screenshot/video/trace are off. No request bodies, Cookies, CSRF or idempotency keys are recorded. The bounded native-response observer retains only safe DTO/receipt/status/byte-count projections; no clone/tee or synthetic write receipt. Layout images may be taken only after material and its DOM input have been cleared. No external Provider call is made.

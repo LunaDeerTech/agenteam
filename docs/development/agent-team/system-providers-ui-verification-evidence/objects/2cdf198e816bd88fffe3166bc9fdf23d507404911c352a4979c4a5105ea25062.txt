@@ -1,0 +1,89 @@
+--- owner-stage02/web/src/tests/system-providers-state.spec.ts
++++ input01/web/src/tests/system-providers-state.spec.ts
+@@ -621,25 +621,21 @@
+   })
+ 
+   it.each(['SESSION_REVOKED', 'CSRF_FAILED', 'FORBIDDEN'])(
+-    'handles late %s under original identity/generation and never lets an old tail touch replacement state',
++    'handles late %s under the still-current original identity and actual owner',
+     async (code) => {
+       vi.useFakeTimers()
+-      const f = await fixture(),
+-        held = barrier<Response>()
+       // A controlled API rejection after timeout exercises late failure mapping;
+       // transport cancellation itself intentionally discards late wire bodies.
+       const providerAPI = createSystemProviderAPI(async () => {
+         throw new Error('unused')
+       })
+-      const late = barrier<never>()
+       let reject!: (error: unknown) => void
+       const pending = new Promise<never>((_done, failure) => {
+         reject = failure
+       })
+       const { AccountFailure } = await import('../api/client')
+       providerAPI.createProvider = () => pending
+-      const fetch: Fetch = async (path) =>
+-        path === '/api/v1/session' ? json(view()) : held.promise
++      const fetch: Fetch = async () => json(view())
+       const auth = createSessionController(
+         createAccountAPI(fetch),
+         undefined,
+@@ -667,8 +663,56 @@
+       await flushPromises()
+       expect(auth.state.phase).toBe(code === 'FORBIDDEN' ? 'authenticated' : 'unavailable')
+       expect(auth.system.denied).toBe(false)
+-      void late
+-      void f
++      expect(auth.state.busy).toBe(false)
++    },
++  )
++  it.each(['SESSION_REVOKED', 'CSRF_FAILED', 'FORBIDDEN'])(
++    'retired global generation ignores late %s and restores a new Session only after actual join',
++    async (code) => {
++      let reject!: (error: unknown) => void
++      const pending = new Promise<never>((_done, failure) => {
++        reject = failure
++      })
++      const api = createSystemProviderAPI(async () => {
++        throw new Error('unused')
++      })
++      api.createProvider = () => pending
++      let current = view()
++      const fetch = vi.fn<Fetch>(async () => json(current))
++      const auth = createSessionController(createAccountAPI(fetch), undefined, undefined, api)
++      owners.push(auth)
++      await auth.restore()
++      const visible = auth.system.providers.start(command()).catch((error: unknown) => error)
++      await flushPromises()
++      auth.leave()
++      await visible
++      expect(auth.state.busy).toBe(true)
++      current = view(id(3))
++      await auth.restore()
++      expect(fetch).toHaveBeenCalledTimes(1)
++      const { AccountFailure } = await import('../api/client')
++      reject(
++        new AccountFailure('problem', {
++          type: 'urn:agenteam:problem:test',
++          title: '',
++          status: code === 'SESSION_REVOKED' ? 401 : 403,
++          code,
++          detail: '',
++          instance: '/api/v1/system/model-providers',
++          request_id: id(9),
++          commit_state: 'not_started',
++        }),
++      )
++      await flushPromises()
++      expect(auth.state.phase).toBe('checking')
++      expect(auth.state.busy).toBe(false)
++      expect(auth.system.denied).toBe(false)
++      expect(auth.system.providers.progress).toBeNull()
++      await auth.restore()
++      expect(auth.state.session?.id).toBe(id(3))
++      auth.system.providers.setMaterial('new-session-only')
++      expect(auth.system.providers.material.present).toBe(true)
++      expect(auth.system.denied).toBe(false)
+     },
+   )
+ })

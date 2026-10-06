@@ -1,0 +1,62 @@
+{
+  "root": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz",
+  "input_manifest": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/input01.json",
+  "input_manifest_sha256": "a6d42c484e2c761402c38f399bcde417ec71a2b219e69e8a051590f7aa853bee",
+  "base": "1c82d888adfef0d8b58ab51c920557ca4e2f084f",
+  "files": {
+    "web/src/api/client.ts": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6",
+    "web/src/api/system-providers.ts": "1c4fbe9db5158e7d46908b40a95a4eacc26e4b8725efd4ff6cfe3f9acb5352a4",
+    "web/src/composables/useSession.ts": "34214b8005169fc552d0900efeaa0584940e67034d167f121b17704a89bd6234",
+    "web/src/composables/useSystemProviders.ts": "79e92bc3f18a9045d5eacf0de425df128997940b31958aee65ae795728ff7488",
+    "web/src/App.vue": "6fe33517e88485b48ce2d11fd1804821b27eec42a01a9146b42a9a4b8fb91459",
+    "web/src/router/index.ts": "1da9f4e0b3c2c0e6b3b2bfb6ceb953e2e03b8e250682fb64cc34a1d6ea288fd8",
+    "web/src/router/auth.ts": "af9314b616a7b7c75480aa816c7cea2c0889bbee2d605451ad54d3855770b0bb",
+    "web/src/views/system/SystemSettingsView.vue": "1122ccf188a868e66efb2df0df4cf99c2169b7014d8db9c3d6e5a275a01f3b99",
+    "web/src/views/system/SystemProvidersView.vue": "ca7ffb5d348363369e236ba0c16fe5f94c9a63a132c57758946a2ada84619657",
+    "web/src/views/system/SystemProviderEditor.vue": "f26c44baefa94dfdc9c6d7337a6bbc25f026e8431a50bac810522feb452b93ae",
+    "web/src/tests/system-providers-client.spec.ts": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c",
+    "web/src/tests/system-providers-state.spec.ts": "eaefcd259350221b3cf912813704d93c7076f10ae5d60d8525fd096c5924c246",
+    "web/src/tests/system-providers.spec.ts": "90641e15c55825d0cd719809d43682ddda04eea2e10556f3cb509108bb1b5631",
+    "web/src/tests/system-user-directory.spec.ts": "d1443fb6285f03cbdd6cd8f8d109daa100001a14ef8ebbd441e4610017e94b70",
+    "web/src/tests/system-invitations.spec.ts": "7fec8bc35f236c06439093589de224912d02193dcb0b0eeecfd35e4f29de1e4c",
+    "web/src/tests/personal-settings.spec.ts": "5822218206cd6a0017d027765e5b8789fdf1ba735b370d76875eb156e96f4610",
+    "tests/account/system_providers_web_test.go": "1082f1a9e7bb38d9655c0a4d3fcf3dcdd62d63aac60b14472b6cebd7873f48cd",
+    "tests/account/system_providers_web_fixture_test.go": "7018166ea9f4da658bb6e5b7d95584d4326d28e99fa91aeffc104ce9389202be",
+    "tests/account-captcha-web/system-providers.config.js": "8e1cf9ca0e7723766292e941bca0a264290ba41118d254c840de54d3cd391a58",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "44e1017990f16e475eea95423f74f4647e598f7effe47251326e5b6c3342a8cb"
+  },
+  "dist_count": 26,
+  "deps_checked_against_git": 1017,
+  "deps_mismatches": [],
+  "stage_reuse": {
+    "api-stage02": {
+      "web/src/api/client.ts": {
+        "same": true,
+        "stage_sha": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6",
+        "candidate_sha": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6"
+      },
+      "web/src/api/system-providers.ts": {
+        "same": true,
+        "stage_sha": "1c4fbe9db5158e7d46908b40a95a4eacc26e4b8725efd4ff6cfe3f9acb5352a4",
+        "candidate_sha": "1c4fbe9db5158e7d46908b40a95a4eacc26e4b8725efd4ff6cfe3f9acb5352a4"
+      },
+      "web/src/tests/system-providers-client.spec.ts": {
+        "same": true,
+        "stage_sha": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c",
+        "candidate_sha": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c"
+      }
+    },
+    "owner-stage02": {
+      "web/src/composables/useSession.ts": {
+        "same": true,
+        "stage_sha": "34214b8005169fc552d0900efeaa0584940e67034d167f121b17704a89bd6234",
+        "candidate_sha": "34214b8005169fc552d0900efeaa0584940e67034d167f121b17704a89bd6234"
+      },
+      "web/src/tests/system-providers-state.spec.ts": {
+        "same": false,
+        "stage_sha": "be2363b91443adef127366469904c537b4c54625b664156dfe80c453266f56d4",
+        "candidate_sha": "eaefcd259350221b3cf912813704d93c7076f10ae5d60d8525fd096c5924c246"
+      }
+    }
+  }
+}

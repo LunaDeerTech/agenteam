@@ -1,0 +1,17 @@
+Provider UI 独立验收：PASS，固定 input07 `e758cfd704f8677fe23cc57c8a41a23adff769fd85461a07092bedf1c6b26428`。精确 21 路径及 SHA 见同名 JSON 的 `deliverables_exact_21`；26 dist、1016 只读依赖在原 manifest。README 第 22 路径由作者与主线程另核。
+
+API01 的 2 项产品 RED、owner01 的 1 项产品 RED 均保留；原独立 probe 不改断言后分别 19/19、5/5 PASS，另有 API 14 JS/14 Go oracle、owner 1、App 2 个代表组合通过。API 三源和生产 useSession 按 SHA 与最终输入一致；owner 测试后来新增三例单列，不冒称所有测试源不变。阶段报告、App 原文本断言错误及 input02–07 静审差量均由 JSON 精确链接。
+
+| 独立真实轮 | 实际终局 | 行为与资源 |
+| --- | --- | --- |
+| independent01 | exit1 / 143.610s | 两个 Playwright 实例导致测试注册失败，未进入浏览器业务；7 IDs /185 owned PID 双清，0 adopted waits |
+| independent02 | exit1 / 74.579s | Replay PASS 11.35s，browser7.5s；Partial 错要求 text/plain503 的 reader EOF；7 IDs /99 PID 双清，8 waits |
+| independent03 | exit0 / 56.399s | 仅 Partial PASS 9.93s，browser5.6s；7 IDs /82 PID 双清，4 waits |
+
+Replay 真实覆盖两阶段已接受回执截断、原 key/body/CSRF 重放和唯一 DB 事实，Session/list/lookup 不替代执行回执，以及已确认写入后的 GET503 只读恢复。Partial 覆盖凭据只准备一次、Provider409 后材料销毁与引用保留、确认框在 Session503 期间共同卸载、新 Session200 EOF 精确同身份恢复、层顺序/焦点/Tab、只重基 Provider、共享旧引用及立即新表单零 POST。
+
+independent03 只删 503 断言的 `fact.ended`：该响应在 Content-Type 检查后 await cancel，没有 reader EOF。成功恢复仍要求新 seq200 EOF 精确 user/session/role；原错误页/物理0/恢复可用/控制1 不变。Replay 后缀、helper、fixture、config 和产品均未变，复用 independent02，不重跑。两次真实失败均为私有测试前提错误，原件完整保留，不记产品 RED。
+
+各轮实际 wait、两遍 exact-ID/PID+starttime 清理、baseline/runtime、命令 argv/env/raw、前后输入见 JSON 原件索引。终局 monitor0，输入未变；45s/2m/6m 原预算未扩大。浏览器观察不作 owner join 证明，实际 read/cancel 尾部沿未变 API/owner 纯屏障证据。历史 PPID1 Z 不触碰、不冒称回收。
+
+敏感材料不输出值或 hash，独立截图/trace/video 关闭。最终视觉沿作者 new05 八图与主线程实际审阅；不新增独立截图。所有任务自有资源已交回，无活动命令，不再动态。未改产品或 Git；停止的 Object/tools 任务未运行。JSON 同时给出作者最终报告及去重归档边界，无需复制全树/依赖/缓存/二进制。

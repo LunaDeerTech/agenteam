@@ -1,0 +1,149 @@
+{
+  "commands": [
+    {
+      "name": "whitespace",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "docs/development/frontend/README.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "seconds": 0.005514071002835408,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "markdown",
+      "argv": [
+        "node",
+        "--input-type=module",
+        "-e",
+        "const p=await import('/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace/web/node_modules/prettier/index.mjs');const fs=await import('node:fs/promises');await p.format(await fs.readFile(process.argv[1],'utf8'),{parser:'markdown'});console.log('Markdown parser PASS');",
+        "/workspace/agenteam/docs/development/frontend/README.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "seconds": 0.31847878099870286,
+      "raw_sha256": "ecbf94d96ef65652d2a640ce5c81d8987abd1201b6242ebecda50d7ef3ba6c44"
+    }
+  ],
+  "relative_links": [
+    {
+      "href": "../work-items/d26-account-authentication.md",
+      "exists": true
+    },
+    {
+      "href": "../work-items/d26-personal-settings.md",
+      "exists": true
+    },
+    {
+      "href": "../work-items/d26-public-account-entry.md",
+      "exists": true
+    },
+    {
+      "href": "../work-items/d27-system-user-directory-ui.md",
+      "exists": true
+    },
+    {
+      "href": "../work-items/d27-system-invitation-ui.md",
+      "exists": true
+    },
+    {
+      "href": "../work-items/d27-system-provider-management-ui.md",
+      "exists": true
+    },
+    {
+      "href": "../backend/README.md",
+      "exists": true
+    },
+    {
+      "href": "../work-items/d26-account-authentication.md",
+      "exists": true
+    },
+    {
+      "href": "../work-items/d26-personal-settings.md",
+      "exists": true
+    },
+    {
+      "href": "../../../api/openapi/account.json",
+      "exists": true
+    },
+    {
+      "href": "../agent-team/personal-settings-verification.md",
+      "exists": true
+    },
+    {
+      "href": "../agent-team/public-account-entry-verification.md",
+      "exists": true
+    },
+    {
+      "href": "../work-items/d27-system-user-directory-ui.md",
+      "exists": true
+    },
+    {
+      "href": "../agent-team/system-user-directory-read-verification.md",
+      "exists": true
+    },
+    {
+      "href": "../agent-team/dialog-outside-focus-repair-verification.md",
+      "exists": true
+    },
+    {
+      "href": "../backend/README.md",
+      "exists": true
+    },
+    {
+      "href": "../work-items/d27-system-invitation-ui.md",
+      "exists": true
+    },
+    {
+      "href": "../agent-team/system-invitation-delivery-read-verification.md",
+      "exists": true
+    },
+    {
+      "href": "../agent-team/modal-focus-restoration-verification.md",
+      "exists": true
+    },
+    {
+      "href": "../work-items/d27-system-provider-management-ui.md",
+      "exists": true
+    },
+    {
+      "href": "../../../api/openapi/model-system.json",
+      "exists": true
+    },
+    {
+      "href": "../../frontend-design/styles/README.md",
+      "exists": true
+    },
+    {
+      "href": "components.md",
+      "exists": true
+    },
+    {
+      "href": "verification.md",
+      "exists": true
+    }
+  ],
+  "selector": "^TestAccount(SystemProvidersWeb(Lifecycle|CredentialReplacement|OutcomeRecovery|ReadAndPagination|AuthorityAndIdentity|NavigationAndLayouts)|AuthenticationWebSessionLifecycle|PersonalSettingsWebThemeAndNavigation|PublicEntryWebIdentityNavigation|SystemUserDirectoryWeb(AuthorityAndIdentity|NavigationAndLayouts)|SystemInvitationsWeb(OutcomeRecovery|NavigationAndLayouts))$",
+  "selected_top_levels": [
+    "TestAccountAuthenticationWebSessionLifecycle",
+    "TestAccountPersonalSettingsWebThemeAndNavigation",
+    "TestAccountPublicEntryWebIdentityNavigation",
+    "TestAccountSystemInvitationsWebNavigationAndLayouts",
+    "TestAccountSystemInvitationsWebOutcomeRecovery",
+    "TestAccountSystemProvidersWebAuthorityAndIdentity",
+    "TestAccountSystemProvidersWebCredentialReplacement",
+    "TestAccountSystemProvidersWebLifecycle",
+    "TestAccountSystemProvidersWebNavigationAndLayouts",
+    "TestAccountSystemProvidersWebOutcomeRecovery",
+    "TestAccountSystemProvidersWebReadAndPagination",
+    "TestAccountSystemUserDirectoryWebAuthorityAndIdentity",
+    "TestAccountSystemUserDirectoryWebNavigationAndLayouts"
+  ],
+  "input07_21_sources_unchanged": true,
+  "readme_sha256": "16ec1f74dc723537a187161abc5b93f9c509a4a1b3c2bdaf07c859ddfa61a340",
+  "note": "Markdown parsed successfully and git diff whitespace checked; no whole-file formatting rewrite or product/resource tests."
+}

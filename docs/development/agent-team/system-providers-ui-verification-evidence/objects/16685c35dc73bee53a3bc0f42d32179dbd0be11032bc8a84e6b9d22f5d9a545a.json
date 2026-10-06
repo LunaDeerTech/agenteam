@@ -1,0 +1,52 @@
+[
+  {
+    "mode": "independent-partial",
+    "argv": [
+      "node",
+      "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/independent.config.js",
+      "--list"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace/tests/account-captcha-web",
+    "env_overrides": {
+      "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1",
+      "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/discovery02/not-started",
+      "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+      "AGENTEAM_PROVIDERS_WEB_CASE": "independent-partial",
+      "TMPDIR": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/tmp",
+      "CI": "1"
+    },
+    "actual_wait": true,
+    "exit_code": 0,
+    "seconds": 0.788,
+    "raw_sha256": "6fcfe187819d0f2262ca44304c51841949ee4b0d0d589a639da5cdfc7b5e6d52",
+    "one_test": true
+  },
+  {
+    "mode": "independent-replay",
+    "argv": [
+      "node",
+      "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/independent.config.js",
+      "--list"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace/tests/account-captcha-web",
+    "env_overrides": {
+      "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1",
+      "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/logs/discovery02/not-started",
+      "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+      "AGENTEAM_PROVIDERS_WEB_CASE": "independent-replay",
+      "TMPDIR": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/tmp",
+      "CI": "1"
+    },
+    "actual_wait": true,
+    "exit_code": 0,
+    "seconds": 0.733,
+    "raw_sha256": "ab4c320dc34a29f5cba47e6c67d774149566da53a73d639752b87f61a7a84c10",
+    "one_test": true
+  }
+]

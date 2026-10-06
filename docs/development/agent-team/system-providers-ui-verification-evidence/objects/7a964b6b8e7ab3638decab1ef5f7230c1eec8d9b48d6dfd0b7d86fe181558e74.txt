@@ -1,0 +1,16 @@
+web/src/api/client.ts 145ms (unchanged)
+web/src/api/system-providers.ts 76ms (unchanged)
+web/src/composables/useSession.ts 202ms (unchanged)
+web/src/composables/useSystemProviders.ts 61ms
+web/src/App.vue 112ms
+web/src/router/index.ts 8ms (unchanged)
+web/src/router/auth.ts 12ms
+web/src/views/system/SystemSettingsView.vue 12ms
+web/src/views/system/SystemProvidersView.vue 91ms
+web/src/views/system/SystemProviderEditor.vue 50ms
+web/src/tests/system-providers-client.spec.ts 71ms (unchanged)
+web/src/tests/system-providers-state.spec.ts 66ms (unchanged)
+web/src/tests/system-providers.spec.ts 41ms
+web/src/tests/system-user-directory.spec.ts 41ms (unchanged)
+web/src/tests/system-invitations.spec.ts 69ms (unchanged)
+web/src/tests/personal-settings.spec.ts 46ms (unchanged)

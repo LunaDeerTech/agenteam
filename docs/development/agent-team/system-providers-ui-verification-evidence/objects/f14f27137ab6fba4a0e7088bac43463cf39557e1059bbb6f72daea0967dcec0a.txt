@@ -1,0 +1,168 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { createMemoryHistory, createRouter, isNavigationFailure, NavigationFailureType } from 'vue-router'
+import type { SessionController } from '../composables/useSession'
+const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
+vi.mock('../composables/useSession', async (original) => ({
+  ...(await original<typeof import('../composables/useSession')>()),
+  useSession: () => selected.auth!,
+}))
+import { createSessionController } from '../composables/useSession'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI, type ProviderInput } from '../api/system-providers'
+import type { Fetch } from '../api/client'
+import { installAuthentication } from '../router/auth'
+import App from '../App.vue'
+import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/auth/LoginView.vue'
+import SystemSettingsView from '../views/system/SystemSettingsView.vue'
+import SystemUsersView from '../views/system/SystemUsersView.vue'
+import SystemProvidersView from '../views/system/SystemProvidersView.vue'
+import { useTheme } from '../composables/useTheme'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z'
+const csrf = 'S'.repeat(43)
+const view = (sessionID = 2): SessionView => ({
+  user: { id: id(1), email: 'admin@example.invalid', username: 'admin', display_name: 'Admin', role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false },
+  session: { id: id(sessionID), issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: csrf,
+})
+const input = (): ProviderInput => ({ name: 'Original', protocol: 'openai-chat-completions', base_url: 'https://provider.invalid/v1', enabled: true, credential_ref: id(60), options: {} })
+const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', 'X-Request-ID': id(9) } })
+const problem = (code = 'INTERNAL_ERROR', status = 503) => json({ type: 'urn:agenteam:problem:probe', title: 'Failure', status, code, detail: '', instance: '/api/v1/system/model-providers', request_id: id(9), commit_state: status >= 500 ? 'not_started' : 'not_committed' }, status)
+function gate<T>() { let resolve!: (value: T) => void; const promise = new Promise<T>((done) => { resolve = done }); return { promise, resolve } }
+let mounted: VueWrapper | undefined
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', (media: string) => ({ media, matches: false, addEventListener() {}, removeEventListener() {} }))
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(() => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList)
+})
+afterEach(() => {
+  mounted?.unmount(); mounted = undefined
+  selected.auth?.leave(); selected.auth = null
+  document.body.innerHTML = ''
+  vi.unstubAllGlobals(); vi.restoreAllMocks(); useTheme().setTheme('system')
+})
+function button(label: string, root: ParentNode = document) {
+  const found = [...root.querySelectorAll<HTMLButtonElement>('button')].find((b) => (b.querySelector('.button-label[aria-hidden="false"]')?.textContent ?? b.textContent)?.trim() === label || b.getAttribute('aria-label') === label)
+  if (!found) throw new Error('independent button missing: ' + label)
+  return found
+}
+async function click(label: string, root: ParentNode = document) { const b = button(label, root); expect(b.disabled).toBe(false); b.click(); await flushPromises() }
+const layers = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"]')]
+function top() { const item = layers().at(-1); if (!item) throw new Error('independent dialog missing'); return item }
+function field(label: string) {
+  const item = [...document.querySelectorAll<HTMLLabelElement>('label')].find((l) => l.textContent?.replace(' *', '').trim() === label)
+  if (!item) throw new Error('independent field missing: ' + label)
+  return document.getElementById(item.htmlFor) as HTMLInputElement | HTMLTextAreaElement
+}
+async function set(label: string, value: string) { const node = field(label); node.value = value; node.dispatchEvent(new Event('input', { bubbles: true })); await flushPromises() }
+async function fixture() {
+  let session = view(), item = { id: id(40), input: input(), version: '1', created_at: time, updated_at: time }
+  let sessionReply: Fetch = async () => json(session)
+  let failRead = false, conflict = false, lost = false
+  const calls: { path: string; init: RequestInit }[] = []
+  const fetcher: Fetch = async (path, init) => {
+    calls.push({ path, init })
+    if (path === '/api/v1/session') return sessionReply(path, init)
+    if (path.startsWith('/api/v1/system/model-providers?')) return json({ items: [item], next_cursor: null })
+    if (path === '/api/v1/system/model-providers/' + id(40) && init.method === 'GET') {
+      if (failRead) { failRead = false; return problem() }
+      return json(item)
+    }
+    if (path.startsWith('/api/v1/system/models?')) return json({ items: [], next_cursor: null })
+    if (path.startsWith('/api/v1/system/model-credentials/') && init.method === 'GET') return json({ credential_id: item.input.credential_ref, purpose: 'model', version: '1' })
+    if (path === '/api/v1/system/model-credentials') return json({ credential_id: id(61), purpose: 'model', version: '1', deleted: false })
+    if (path.startsWith('/api/v1/system/model-providers') && init.method !== 'GET') {
+      if (lost) throw new Error('private controlled response loss')
+      if (conflict) { conflict = false; item = { ...item, version: '2' }; return problem('VERSION_CONFLICT', 409) }
+      const body = JSON.parse(String(init.body))
+      item = { ...item, input: body.input, version: String(BigInt(body.expected_version ?? '0') + 1n) }
+      return json({ kind: init.method === 'PUT' ? 'provider.update' : 'provider.create', resource_id: item.id, version: item.version, affected_references: '0' })
+    }
+    if (path.startsWith('/api/v1/system/users?')) return json({ items: [] })
+    if (path === '/api/v1/auth/bootstrap') return json({ csrf_token: 'A'.repeat(43), challenge_modes: ['rotate'], delivery_channel: 'backend_log' })
+    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
+    throw new Error('independent unexpected route')
+  }
+  const auth = createSessionController(createAccountAPI(fetcher), createSystemAccountAPI(fetcher), createSystemInvitationAPI(fetcher), createSystemProviderAPI(fetcher))
+  selected.auth = auth
+  const router = createRouter({ history: createMemoryHistory(), routes: [
+    { path: '/', component: HomeView, meta: { authentication: true, protected: true } },
+    { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+    { path: '/system', component: SystemSettingsView, redirect: '/system/users', meta: { authentication: true, protected: true, systemAdmin: true, navigation: { label: '系统设置', order: 20 } }, children: [{ path: 'users', component: SystemUsersView }, { path: 'providers', component: SystemProvidersView }] },
+  ] })
+  installAuthentication(router, auth)
+  await router.push('/system/providers'); await router.isReady()
+  const host = document.createElement('div'); host.id = 'app'; document.body.append(host)
+  mounted = mount(App, { attachTo: host, global: { plugins: [router] } }); await flushPromises()
+  return { auth, router, calls, setSessionRequest: (reply: Fetch) => { sessionReply = reply }, resetSession: (n = 2) => { session = view(n); sessionReply = async () => json(session) }, conflict: () => { conflict = true }, lose: () => { lost = true }, failNextRead: () => { failRead = true }, writes: () => calls.filter((c) => c.path.startsWith('/api/v1/system/model-') && c.init.method !== 'GET') }
+}
+
+describe('Independent Provider App composition', () => {
+  it('preserves partial success and pending navigation through real pageshow failure/recovery, then rebases only Provider and starts an immediate clean form', async () => {
+    const f = await fixture(), held = gate<Response>()
+    const material = 'generated-private-' + crypto.randomUUID()
+    await click('查看 Original'); await click('编辑 Provider')
+    await set('名称', 'Preserved ordinary draft'); await set('新凭据（仅写入）', material)
+    f.conflict(); await click('保存配置', top())
+    expect({ phase: f.auth.system.providers.progress?.phase, prepared: f.auth.system.providers.progress?.credential?.credential_id === id(61), material: f.auth.system.providers.material.present, domEmpty: field('新凭据（仅写入）').value === '', writes: f.writes().length }).toEqual({ phase: 'rejected', prepared: true, material: false, domEmpty: true, writes: 2 })
+    let settled = 0
+    const navigation = f.router.push('/system/users').then((value) => { settled++; return value })
+    await flushPromises()
+    expect(layers().length).toBe(2)
+    const oldEditor = layers()[0]!
+    f.setSessionRequest(() => held.promise)
+    window.dispatchEvent(new Event('pageshow'))
+    await flushPromises()
+    expect({ phase: f.auth.state.phase, dialogs: layers().length, oldDetached: !oldEditor.isConnected, settled }).toEqual({ phase: 'checking', dialogs: 0, oldDetached: true, settled: 0 })
+    held.resolve(problem()); await flushPromises()
+    const restore = button('检查当前会话')
+    expect({ enabled: !restore.disabled, notInert: restore.closest('[inert]') === null, settled }).toEqual({ enabled: true, notInert: true, settled: 0 })
+    f.resetSession(); await click('检查当前会话')
+    expect({ layers: layers().length, lowerInert: layers()[0]!.inert, topInert: top().inert, topHidden: top().getAttribute('aria-hidden'), retainedDraft: field('名称').value === 'Preserved ordinary draft', blankMaterial: field('新凭据（仅写入）').value === '', writes: f.writes().length, settled }).toEqual({ layers: 2, lowerInert: true, topInert: false, topHidden: null, retainedDraft: true, blankMaterial: true, writes: 2, settled: 0 })
+    await click('继续编辑', top())
+    expect(isNavigationFailure(await navigation, NavigationFailureType.aborted)).toBe(true)
+    expect({ path: f.router.currentRoute.value.path, layers: layers().length, settled, prepared: f.auth.system.providers.progress?.credential?.credential_id === id(61) }).toEqual({ path: '/system/providers', layers: 1, settled: 1, prepared: true })
+    await click('读取当前配置并核对', top())
+    f.failNextRead(); await click('保存配置', top())
+    expect({ phase: f.auth.system.providers.progress?.phase, version: f.auth.system.providers.progress?.receipt?.version, dialogs: layers().length, confirmedReadFailure: document.body.textContent?.includes('操作已确认，当前配置读取失败。请仅重读当前配置。') }).toEqual({ phase: 'confirmed', version: '3', dialogs: 0, confirmedReadFailure: true })
+    const writes = f.writes(), first = writes[1]!, next = writes[2]!
+    const before = JSON.parse(String(first.init.body)), after = JSON.parse(String(next.init.body))
+    const safeFacts = { oneCredential: writes.filter((w) => w.path.endsWith('/model-credentials')).length === 1, twoProvider: writes.filter((w) => w.path.includes('/model-providers')).length === 2, exactDraftPreserved: before.input.name === after.input.name && after.input.name === 'Preserved ordinary draft', preparedRefOnly: after.input.credential_ref === id(61), rebasedVersion: before.expected_version === '1' && after.expected_version === '2', newProviderKey: new Headers(first.init.headers).get('Idempotency-Key') !== new Headers(next.init.headers).get('Idempotency-Key'), noDeletes: writes.every((w) => w.init.method !== 'DELETE'), noPublicMaterial: !JSON.stringify([f.auth.state, f.auth.system.providers.progress, f.auth.system.providers.material]).includes(material) }
+    expect(Object.values(safeFacts).every(Boolean)).toBe(true)
+    await click('重新读取当前配置')
+    expect(f.writes().length).toBe(3)
+    await click('创建 Provider')
+    expect({ emptyName: field('名称').value === '', emptyMaterial: field('新凭据（仅写入）').value === '', progressCleared: f.auth.system.providers.progress === null, ordinarySave: button('保存配置', top()).disabled, oldSuccessAbsent: ![...top().querySelectorAll('.button-label[aria-hidden="false"]')].some((label) => label.textContent?.includes('配置已保存')) && button('保存配置', top()).getAttribute('aria-label') === null && button('保存配置', top()).getAttribute('aria-busy') === null, writes: f.writes().length }).toEqual({ emptyName: true, emptyMaterial: true, progressCleared: true, ordinarySave: true, oldSuccessAbsent: true, writes: 3 })
+    console.log('independent-app-safe-partial-facts', JSON.stringify(safeFacts))
+  })
+
+  it('keeps a no-editor logout confirmation pending across same-Session checking, then rejects it on new identity and rejects a later route on App disposal', async () => {
+    const f = await fixture(), held = gate<Response>()
+    f.lose()
+    await f.auth.system.providers.start({ kind: 'provider.create', input: { ...input(), credential_ref: null } }).catch(() => undefined)
+    await flushPromises()
+    expect(layers().length).toBe(0)
+    await click('退出登录')
+    expect({ layers: layers().length, uncertain: f.auth.system.providers.progress?.phase }).toEqual({ layers: 1, uncertain: 'uncertain' })
+    f.setSessionRequest(() => held.promise)
+    window.dispatchEvent(new Event('pageshow')); await flushPromises()
+    expect(layers().length).toBe(0)
+    held.resolve(json(view())); await flushPromises()
+    expect({ layers: layers().length, topInert: top().inert, oldStillPending: !f.calls.some((c) => c.path.endsWith('/logout')), uncertain: f.auth.system.providers.progress?.phase }).toEqual({ layers: 1, topInert: false, oldStillPending: true, uncertain: 'uncertain' })
+    f.resetSession(3)
+    window.dispatchEvent(new Event('pageshow')); await flushPromises()
+    expect({ layers: layers().length, newSession: f.auth.state.session?.id === id(3), cleared: f.auth.system.providers.progress === null, noLogout: !f.calls.some((c) => c.path.endsWith('/logout')), writes: f.writes().length }).toEqual({ layers: 0, newSession: true, cleared: true, noLogout: true, writes: 1 })
+    await click('创建 Provider'); await set('名称', 'Disposed ordinary draft')
+    await set('新凭据（仅写入）', 'generated-private-' + crypto.randomUUID())
+    const leaving = f.router.push('/')
+    await flushPromises(); expect(layers().length).toBe(2)
+    mounted!.unmount(); mounted = undefined
+    expect(isNavigationFailure(await leaving, NavigationFailureType.aborted)).toBe(true)
+    await flushPromises()
+    expect({ layers: layers().length, material: f.auth.system.providers.material.present, progress: f.auth.system.providers.progress, noLogout: !f.calls.some((c) => c.path.endsWith('/logout')), busy: f.auth.state.busy }).toEqual({ layers: 0, material: false, progress: null, noLogout: true, busy: false })
+  })
+})

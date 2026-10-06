@@ -1,0 +1,70 @@
+{
+  "verdict": "STATIC PASS for input02 test-only delta; root may separately authorize author real runs",
+  "manifest": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/input02.json",
+  "manifest_sha256": "1d6a5fa4b4ee3a26d00548e875afb187f42b16e93357c06dd44a4d181d9e2ff6",
+  "changed_files": {
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "e079a9e5978b386a1015ed76e630db8b44ba47090a734cebfcf98290fbe49f1d",
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": "ecf3bb706538b6b360e6e5b2d3f8139dd89ac482055f1d4d2116c7f4ddf42366"
+  },
+  "unchanged_previous_sources": 19,
+  "dist_unchanged": 26,
+  "dependency_change": "Only old invitations spec moved from readonly dependencies into authorized candidate files; every other dependency fingerprint unchanged.",
+  "review": [
+    "Old invitation browser change is exactly Navigation link count 2 to 3; other assertions and actions unchanged.",
+    "Fetch calls native once and returns its exact pending Promise; observer attaches a caught side reaction. Native this/args, Response, same reader, original read Promise/error and cancel method are preserved; no clone/tee, body reread or cancellation wait is introduced.",
+    "Only same-origin supported method/path pairs for ten endpoints plus Session are observed; queries reject unknown/duplicate keys. Sequence is assigned at issue, before response/body. Bodies of Models are not collected.",
+    "Only successful application/json Provider-list observation gets 2097152 bytes; every other observation gets 600000. Cumulative native chunks enforce bound; overflow disables collection; done/error/parse-failure releases text, and only safe projected fields are retained in public facts.",
+    "Provider, nested input and page are constructed field by field without unknown fields; receipt/credential/session IDs and enum/code/lookup fields are filtered. Session CSRF, write-only material, keys, request body and headers are not retained as facts. This observer is a safe projection, not a replacement for strict product DTO validation (e.g. calendar, canonical URL and receipt successor relations).",
+    "beginWrite captures an issue watermark. receiptFact requires later request, success200, body ended, and corresponding operation/method/path; confirmedTargets captures that receipt resource ID and issue sequence. latestProvider waits for a later GET to precisely that ID with success200/ended and matching projected ID. Old completed DTOs cannot satisfy it.",
+    "All password and new-material fill calls use privateFill that replaces Playwright error details with a fixed safe error. Trace/video/automatic screenshots remain off; temporary diagnostics stay under owned restricted runtime cleanup. Manual screenshots only after zero textarea and zero physical overlays.",
+    "Budgets remain 45s/browser, 2m/top, workers1/retries0. No source/endpoint/wire/production budget change."
+  ],
+  "author_observer_evidence": {
+    "probe": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/observer-contract.mjs",
+    "probe_sha256": "05a939823d6447cc7cf6191cd6013d4f7af7145b372df66299e6fe0edd422d70",
+    "source_sha256": "e079a9e5978b386a1015ed76e630db8b44ba47090a734cebfcf98290fbe49f1d",
+    "extracted_sha256": "6d12c9060ad179a5a7a2628248f3d030139ef3f4ce59bca6fe1023af125afd0c",
+    "cases": 18,
+    "assertions": 239,
+    "note": "Read-only reviewed author AST extraction and actual raw/result bindings. Not independently rerun here; no owner actual-join or real business inference."
+  },
+  "author_checks": {
+    "browser-type03": {
+      "command": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/browser-type03/command.json",
+      "command_sha256": "60c9595386a215b96948ff213e65a84de2676a0e99b4380fdb2d6dae1bc925ac",
+      "result": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/browser-type03/result.json",
+      "result_sha256": "34a60819afc11de955e3f1c30356a0f9fb03acd36252945b81917b3f900e566c",
+      "raw": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/browser-type03/raw.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "seconds": 1.072889977000159
+    },
+    "observer01": {
+      "command": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/observer01/command.json",
+      "command_sha256": "58ec0fd5e6fe9567c0a0de12b4e2b492ae3191940948b1207aabcd053babb87e",
+      "result": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/observer01/result.json",
+      "result_sha256": "e05459c8c67828096adee26cee9f5e0dc7b06155b9eeb8a11fd067c8838136dc",
+      "raw": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/observer01/raw.log",
+      "raw_sha256": "95d41d91d3cdce0f76eb1145ac25e937afbff02175744440dfc790261723d659",
+      "exit_code": 0,
+      "seconds": 0.35502273900056025
+    }
+  },
+  "reuse": {
+    "static_app_report": "../static-app01-report.json",
+    "sha256": "e1d66577addd5e8d9e580303438e3e02291d70e0d386bf445c7739fb78dd6a9a",
+    "api_owner_app_rerun": false,
+    "reason": "Production and App closure unchanged."
+  },
+  "limitations": [
+    "No browser/backend/PG/Docker/network started and no dynamic business verdict.",
+    "The observation flag ended can also denote failed read/fetch; helpers additionally require success status and completed safe DTO. It is not owner resource-join evidence.",
+    "Native pointer/focus, layout and real service response-loss/replay remain pending.",
+    "PrivateFill/error redaction and runtime cleanup reduce evidence exposure; JavaScript strings are not claimed physically erased."
+  ],
+  "artifacts": {
+    "system-providers.spec.ts.diff": "2c60243fb59593e1a94783f277b46e65faa2e1788239df9a76152f15e808f709",
+    "system-invitations.spec.ts.diff": "ed1cc13648deb26c2beda569cf93e71dbd39837880bbbaca2e1d2b3037da0c1a"
+  },
+  "frozen": true
+}

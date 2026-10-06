@@ -1,0 +1,53 @@
+--- input05/web/src/views/system/SystemProvidersView.vue
++++ input06/web/src/views/system/SystemProvidersView.vue
+@@ -336,6 +336,13 @@
+   white-space: normal;
+   overflow-wrap: anywhere;
+ }
++.sr-only {
++  position: absolute;
++  width: 1px;
++  height: 1px;
++  overflow: hidden;
++  clip-path: inset(50%);
++}
+ .provider-detail {
+   display: grid;
+   gap: 20px;
+--- input05/tests/account-captcha-web/e2e/system-providers.spec.ts
++++ input06/tests/account-captcha-web/e2e/system-providers.spec.ts
+@@ -1263,6 +1263,9 @@
+   await expect(
+     page.getByRole("heading", { name: "Providers", exact: true }),
+   ).toBeVisible();
++  await ipc("add-model", { id: target.id });
++  await select(page, target.input.name);
++  await expect(page.getByText("native-99", { exact: true })).toBeVisible();
+   let layouts = 0;
+   for (const theme of ["light", "dark"] as const) {
+     await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+@@ -1278,6 +1281,24 @@
+         ),
+       ).toBe(true);
+       expect(await page.locator("textarea").count()).toBe(0);
++      for (const name of ["Providers配置", "当前Provider的Models"]) {
++        await expect(
++          page.getByRole("table", { name, exact: true }),
++        ).toHaveCount(1);
++      }
++      expect(
++        await page.locator(".provider-table caption").evaluateAll((nodes) =>
++          nodes.map((node) => {
++            const style = getComputedStyle(node);
++            return (
++              style.position === "absolute" &&
++              style.width === "1px" &&
++              style.overflow === "hidden" &&
++              style.clipPath === "inset(50%)"
++            );
++          }),
++        ),
++      ).toEqual([true, true]);
+       if (width === 390) {
+         await page
+           .getByRole("button", { name: "系统设置栏目", exact: true })

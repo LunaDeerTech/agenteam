@@ -1,0 +1,51 @@
+--- preparation01/e2e/independent-providers.spec.ts
++++ preparation02/e2e/independent-providers.spec.ts
+@@ -6,6 +6,17 @@
+     const retained = [location.href, history.state, Object.fromEntries(Object.entries(localStorage)), Object.fromEntries(Object.entries(sessionStorage))];
+     return !JSON.stringify(retained).includes(secret);
+   }, value);
++}
++
++async function confirmationLayers(page: Page) {
++  // Shared accepted useLayer marks the lower modal inert + aria-hidden.
++  // Physical existence and the accessible top are separate assertions.
++  await expect(page.locator('[role="dialog"]')).toHaveCount(2);
++  await expect(page.getByRole('dialog')).toHaveCount(1);
++  expect(await page.locator('[role="dialog"]').evaluateAll((nodes) => nodes.map((node) => ({
++    inert: node instanceof HTMLElement && node.inert,
++    hidden: node.getAttribute('aria-hidden') === 'true',
++  })))).toEqual([{ inert: true, hidden: true }, { inert: false, hidden: false }]);
+ }
+ 
+ test('[independent-partial] prepared ref survives failed same-Session confirmation and only Provider is rebased', async ({ page }) => {
+@@ -26,7 +37,7 @@
+   expect(!!created && created.credential_id !== data.old_ref).toBe(true);
+   expect((await facts(page)).some((f) => f.method === 'PUT' && f.status === 409 && f.code === 'VERSION_CONFLICT')).toBe(true);
+   await top(page).getByRole('button', { name: '取消', exact: true }).click();
+-  await expect(page.getByRole('dialog')).toHaveCount(2);
++  await confirmationLayers(page);
+   await expect(top(page)).toHaveAccessibleName('放弃未保存修改？');
+   const beforeChecking = (await writes(page)).length;
+   await ipc('arm-session-fail');
+@@ -34,18 +45,20 @@
+   // the actual same browser Cookie Session against the formal backend.
+   await page.evaluate(() => window.dispatchEvent(new Event('pageshow')));
+   await expect(page.getByRole('heading', { name: '会话尚未确认', exact: true })).toBeVisible();
++  await expect(page.locator('[role="dialog"]')).toHaveCount(0);
+   await expect(page.getByRole('dialog')).toHaveCount(0);
+   const restore = page.getByRole('button', { name: '检查当前会话', exact: true });
+   await expect(restore).toBeEnabled();
+   expect(await restore.evaluate((node) => node.closest('[inert]') === null)).toBe(true);
+   await restore.click();
+-  await expect(page.getByRole('dialog')).toHaveCount(2);
++  await confirmationLayers(page);
+   await expect(top(page)).toHaveAccessibleName('放弃未保存修改？');
+   expect(await top(page).evaluate((node) => node instanceof HTMLElement && !node.inert && node.getAttribute('aria-hidden') !== 'true')).toBe(true);
+   const restoredSession = await session(page);
+   expect(restoredSession.user_id === originalSession.user_id && restoredSession.session_id === originalSession.session_id).toBe(true);
+   expect((await writes(page)).length).toBe(beforeChecking);
+   await top(page).getByRole('button', { name: '继续编辑', exact: true }).click();
++  await expect(page.locator('[role="dialog"]')).toHaveCount(1);
+   await expect(page.getByRole('dialog')).toHaveCount(1);
+   expect((await top(page).getByRole('textbox', { name: '名称', exact: true }).inputValue()) === 'Independent retained ordinary draft').toBe(true);
+   expect((await top(page).getByRole('textbox', { name: '新凭据（仅写入）', exact: true }).inputValue()) === '').toBe(true);

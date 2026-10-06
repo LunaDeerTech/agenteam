@@ -1,0 +1,24 @@
+{
+  "reason": "root-authorized cancellation after shared login-selector red; remaining scenarios unverified",
+  "time": "2026-10-06T09:23:23.621905+00:00",
+  "root": {
+    "pid": 640295,
+    "ppid": 640219,
+    "pgid": 640295,
+    "starttime": "1896595",
+    "name": "sh",
+    "executable": "dash"
+  },
+  "signals": [
+    {
+      "target": "owned outer fixture shell, existing trap forwards and waits",
+      "signal": "SIGTERM",
+      "pid": 640295,
+      "ppid": 640219,
+      "pgid": 640295,
+      "starttime": "1896595",
+      "name": "sh",
+      "executable": "dash"
+    }
+  ]
+}

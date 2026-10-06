@@ -1,0 +1,12 @@
+{
+  "base": "1c82d888adfef0d8b58ab51c920557ca4e2f084f",
+  "scope": "API stage only; owner/UI not frozen",
+  "files": {
+    "web/src/api/client.ts": "7ca5cbdaf473db5e538c60a0fac254cf83eb33c23f035c72ecdfc57c4b390de6",
+    "web/src/api/system-providers.ts": "1c4fbe9db5158e7d46908b40a95a4eacc26e4b8725efd4ff6cfe3f9acb5352a4",
+    "web/src/tests/system-providers-client.spec.ts": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c"
+  },
+  "go_oracle": "runs/url02/",
+  "checks": "runs/pure02/",
+  "independent_probe": "unchanged bytes of independent-api.spec.ts and url-oracle.json from verification stage01 copied into isolated workspace only"
+}

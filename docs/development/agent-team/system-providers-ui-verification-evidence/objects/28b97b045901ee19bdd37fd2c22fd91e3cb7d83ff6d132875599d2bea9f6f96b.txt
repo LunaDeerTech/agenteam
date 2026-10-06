@@ -1,0 +1,44 @@
+import { describe, it, expect, vi } from 'vitest'
+import { createSystemProviderAPI, captureProviderCommand } from '../api/system-providers'
+import { accountTransport } from '../api/client'
+import cases from './url-oracle.json'
+const target='01900000-0000-7000-8000-000000000001'
+const time='2026-10-06T12:34:56.123456Z'
+const makeInput=(base_url:string)=>({name:'Provider',protocol:'openai-chat-completions' as const,base_url,enabled:false,credential_ref:null,options:{}})
+const row=(base_url:string)=>({id:target,input:makeInput(base_url),version:'1',created_at:time,updated_at:time})
+const json=(v:unknown)=>new Response(JSON.stringify(v),{headers:{'Content-Type':'application/json'}})
+const signal=()=>new AbortController().signal
+
+describe('Independent fixed API boundary',()=>{
+  it.each(cases)('agrees with fixed Go endpoint on $case',async(c)=>{
+    let localAccepted=false,localExact=false,responseAccepted=false,responseExact=false
+    try{const v=captureProviderCommand({kind:'provider.create',input:makeInput(c.url)});localAccepted=true;localExact=v.kind==='provider.create'&&v.input.base_url===c.url}catch{}
+    try{const v=await createSystemProviderAPI(async()=>json(row(c.url))).getProvider(target,signal());responseAccepted=true;responseExact=v.input.base_url===c.url}catch{}
+    // Safe booleans only: all addresses are public synthetic input; never credential material.
+    expect({localAccepted,responseAccepted,localExact,responseExact}).toEqual({localAccepted:c.go_accepted,responseAccepted:c.go_accepted,localExact:c.go_accepted,responseExact:c.go_accepted})
+  })
+  it('accepts exactly 2MiB of actual successful list bytes without trusting Content-Length',async()=>{
+    const dto=JSON.stringify({items:[],next_cursor:null})
+    const text=dto+' '.repeat(2097152-new TextEncoder().encode(dto).byteLength)
+    const bytes=new TextEncoder().encode(text)
+    const stream=new ReadableStream<Uint8Array>({start(c){for(let at=0;at<bytes.length;at+=32749)c.enqueue(bytes.slice(at,at+32749));c.close()}})
+    const result=await createSystemProviderAPI(async()=>new Response(stream,{headers:{'Content-Type':'application/json','Content-Length':'1'}})).listProviders({},signal())
+    expect(result.items.length===0&&result.next_cursor===null).toBe(true)
+  })
+  it('joins overflow cancellation after accumulated chunks and never publishes a candidate',async()=>{
+    let release!:()=>void, entered!:()=>void
+    const gate=new Promise<void>(r=>release=r), cancelling=new Promise<void>(r=>entered=r)
+    let cancelCount=0
+    const stream=new ReadableStream<Uint8Array>({start(c){c.enqueue(new Uint8Array(1048576));c.enqueue(new Uint8Array(1048576));c.enqueue(new Uint8Array(1))},cancel(){cancelCount++;entered();return gate}})
+    const parse=vi.fn(), request=accountTransport(async()=>new Response(stream,{headers:{'Content-Type':'application/json','Content-Length':'1'}}))
+    let settled=false
+    const actual=request('listProviders',parse,{signal:signal(),providers:{}}).then(()=>{settled=true;return 'unexpected-success'},(e:unknown)=>{settled=true;return e instanceof Error?e.message:'unknown'})
+    await cancelling
+    let before:boolean
+    try{before=!settled&&parse.mock.calls.length===0&&cancelCount===1}finally{release()}
+    const result=await actual
+    expect(before).toBe(true)
+    expect(result).toBe('invalid-response')
+    expect(parse).not.toHaveBeenCalled()
+  })
+})

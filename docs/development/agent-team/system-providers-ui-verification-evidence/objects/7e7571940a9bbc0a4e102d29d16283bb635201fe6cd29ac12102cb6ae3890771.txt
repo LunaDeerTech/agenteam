@@ -1,0 +1,5 @@
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                
+LISTEN 0      0          127.0.0.1:9001      0.0.0.0:*                                          
+LISTEN 0      0          127.0.0.1:9000      0.0.0.0:*                                          
+LISTEN 0      0            0.0.0.0:1040      0.0.0.0:*    users:(("caas-prefix-tra",pid=2,fd=3))
+LISTEN 0      0          127.0.0.1:5432      0.0.0.0:*                                          

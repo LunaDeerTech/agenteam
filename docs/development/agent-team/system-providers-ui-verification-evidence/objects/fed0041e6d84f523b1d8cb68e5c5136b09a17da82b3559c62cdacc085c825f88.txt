@@ -1,0 +1,90 @@
+--- input03/tests/account-captcha-web/e2e/system-providers.spec.ts
++++ input04/tests/account-captcha-web/e2e/system-providers.spec.ts
+@@ -500,6 +500,33 @@
+     (f) => f.method !== "GET" && !f.path.endsWith("/lookup"),
+   );
+ }
++// Identity-switch branches must finish the real login -> Session restore and
++// router transition before deliberately reloading this protected page.
++async function loginReady(page: Page, who: "admin" | "member") {
++  const after = await page.evaluate(
++    () => (window as ObservedWindow).__providerSequence ?? 0,
++  );
++  const expected = material()[who].user_id;
++  await page.getByRole("button", { name: "登录", exact: true }).click();
++  await expect
++    .poll(async () =>
++      (await facts(page)).some(
++        (fact) =>
++          fact.sequence > after &&
++          fact.path === "/api/v1/session" &&
++          fact.method === "GET" &&
++          fact.status === 200 &&
++          fact.ended &&
++          fact.session?.user_id === expected &&
++          fact.session.role === (who === "admin" ? "admin" : "user"),
++      ),
++    )
++    .toBe(true);
++  await expect(
++    page.getByRole("button", { name: "退出登录", exact: true }),
++  ).toBeEnabled();
++  await expect(page).not.toHaveURL(/\/login(?:\?|$)/);
++}
+ async function setup(
+   page: Page,
+   who: "admin" | "member" = "admin",
+@@ -991,7 +1018,7 @@
+   await expect(page).toHaveURL(/\/login$/);
+   await page.locator("#login-email").fill(material().admin.email);
+   await privateFill(page.locator("#login-password"), material().admin.password);
+-  await page.getByRole("button", { name: "登录", exact: true }).click();
++  await loginReady(page, "admin");
+   await page.goto("/system/providers");
+   await expect(
+     page.getByRole("heading", { name: "Providers", exact: true }),
+@@ -1040,7 +1067,7 @@
+   await expect(page).toHaveURL(/\/login(?:\?|$)/);
+   await page.locator("#login-email").fill(material().admin.email);
+   await privateFill(page.locator("#login-password"), material().admin.password);
+-  await page.getByRole("button", { name: "登录", exact: true }).click();
++  await loginReady(page, "admin");
+   await page.goto("/system/providers");
+   await expect(
+     page.getByRole("heading", { name: "Providers", exact: true }),
+@@ -1069,7 +1096,7 @@
+     page.locator("#login-password"),
+     material().member.password,
+   );
+-  await page.getByRole("button", { name: "登录", exact: true }).click();
++  await loginReady(page, "member");
+   await page.goto("/system/providers");
+   await expect(
+     page.getByRole("heading", { name: "无权访问系统设置", exact: true }),
+@@ -1100,7 +1127,25 @@
+     ).toBe(true);
+     await restore.click();
+   }
+-  await expect(page.getByRole("dialog")).toHaveCount(2);
++  const physical = page.locator('[role="dialog"]');
++  await expect(physical).toHaveCount(2);
++  await expect(page.getByRole("dialog")).toHaveCount(1);
++  const structure = await physical.evaluateAll((nodes) => ({
++    physical_two: nodes.length === 2,
++    lower_inert: nodes[0] instanceof HTMLElement && nodes[0].inert,
++    lower_aria_hidden: nodes[0]?.getAttribute("aria-hidden") === "true",
++    lower_business_title: ["创建 Provider", "编辑 Provider"].includes(
++      nodes[0]?.querySelector("h2")?.textContent ?? "",
++    ),
++    top_confirmation_title:
++      nodes[1]?.querySelector("h2")?.textContent === "放弃未保存修改？",
++    top_operable:
++      nodes[1] instanceof HTMLElement &&
++      !nodes[1].inert &&
++      nodes[1].getAttribute("aria-hidden") !== "true",
++  }));
++  console.log("owned Provider modal structure", JSON.stringify(structure));
++  expect(Object.values(structure).every(Boolean)).toBe(true);
+   await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
+   expect(
+     await top(page).evaluate(

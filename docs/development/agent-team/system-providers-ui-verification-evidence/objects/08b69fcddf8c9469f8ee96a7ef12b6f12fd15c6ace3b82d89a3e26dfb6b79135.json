@@ -1,0 +1,14 @@
+{
+  "product_manifest": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/input02.json",
+  "product_manifest_sha256": "1d6a5fa4b4ee3a26d00548e875afb187f42b16e93357c06dd44a4d181d9e2ff6",
+  "fixed_helper_prefix_sha256": "988e0e4870f98f2d9218b4a3c05919035a629c28a095973f71dbfafc546f88a7",
+  "private_modifications": [
+    "stable accepted login IDs instead of failed exact getByLabel",
+    "required Provider textboxes selected by accessible role/name",
+    "two exact independent fixture modes",
+    "bounded native-read request capture only for independent replay path; values/key/CSRF kept private and no value or hash output",
+    "Session503 armed only independent-partial",
+    "private config/test paths; unchanged fixture resource primitives and original budgets"
+  ],
+  "runtime_status": "source preparation only; no fixture/browser/service/PG/Docker executed"
+}

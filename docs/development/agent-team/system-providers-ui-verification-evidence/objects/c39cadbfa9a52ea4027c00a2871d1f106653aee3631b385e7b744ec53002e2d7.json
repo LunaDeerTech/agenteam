@@ -1,0 +1,62 @@
+{
+  "argv": [
+    "node",
+    "/workspace/agenteam/web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--strict",
+    "--skipLibCheck",
+    "--types",
+    "node",
+    "--typeRoots",
+    "/workspace/agenteam/web/node_modules/@types",
+    "e2e/independent-providers.spec.ts",
+    "e2e/fixed-helpers.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01",
+  "env_overrides": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/gocache",
+    "GOTMPDIR": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/tmp",
+    "TMPDIR": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/tmp",
+    "npm_config_offline": "true",
+    "CI": "1"
+  },
+  "before": {
+    "e2e/fixed-helpers.ts": "705964a0d89f2b21a50f240cf76601b1351831c9241bb270f43d274b09a064b5",
+    "e2e/independent-providers.spec.ts": "851b9bfce27e7a6cac9f9b0ab8b6d344940364d9c681ca44ca1b6271217f9c32",
+    "independent.config.js": "068133d505cb1a61a5a09f64db6c735dd236a6a384024d2d387a42a537ff1c94",
+    "independent-fixture.go": "48dc38dab90565a2dcebba193a402f5fed9b919a443d17ed34d7055f2a33c1b9",
+    "independent-tops.go": "4b3848f0a1a66e41e374d15f3fa26cd9a8e91e592bde79b21f92bfce75fbce39",
+    "overlay.json": "ddae20b0b2ccd560bfbe1e69b6a7ea869e3df9781f9f1abeb6b19e03ffc180f9",
+    "preparation.json": "08b69fcddf8c9469f8ee96a7ef12b6f12fd15c6ace3b82d89a3e26dfb6b79135",
+    "check-source03.py": "06f84d66820acbff609bf1a95fff63fe513fc40acc4fc6182cfc6a1773a809da"
+  },
+  "intent": "static source preparation only; compiled binary not executed",
+  "limit_seconds": 120,
+  "pid": 698405,
+  "exit_code": 0,
+  "elapsed_seconds": 0.973,
+  "actual_wait": true,
+  "after": {
+    "e2e/fixed-helpers.ts": "705964a0d89f2b21a50f240cf76601b1351831c9241bb270f43d274b09a064b5",
+    "e2e/independent-providers.spec.ts": "851b9bfce27e7a6cac9f9b0ab8b6d344940364d9c681ca44ca1b6271217f9c32",
+    "independent.config.js": "068133d505cb1a61a5a09f64db6c735dd236a6a384024d2d387a42a537ff1c94",
+    "independent-fixture.go": "48dc38dab90565a2dcebba193a402f5fed9b919a443d17ed34d7055f2a33c1b9",
+    "independent-tops.go": "4b3848f0a1a66e41e374d15f3fa26cd9a8e91e592bde79b21f92bfce75fbce39",
+    "overlay.json": "ddae20b0b2ccd560bfbe1e69b6a7ea869e3df9781f9f1abeb6b19e03ffc180f9",
+    "preparation.json": "08b69fcddf8c9469f8ee96a7ef12b6f12fd15c6ace3b82d89a3e26dfb6b79135",
+    "check-source03.py": "06f84d66820acbff609bf1a95fff63fe513fc40acc4fc6182cfc6a1773a809da"
+  },
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "inputs_unchanged": true
+}

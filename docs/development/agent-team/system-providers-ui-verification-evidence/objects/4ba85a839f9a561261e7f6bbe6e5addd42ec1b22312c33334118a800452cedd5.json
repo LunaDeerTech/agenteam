@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "node",
+    "--check",
+    "independent.config.js"
+  ],
+  "cwd": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01",
+  "env_overrides": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/gocache",
+    "GOTMPDIR": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/tmp",
+    "TMPDIR": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/tmp",
+    "npm_config_offline": "true",
+    "CI": "1"
+  },
+  "before": {
+    "e2e/fixed-helpers.ts": "705964a0d89f2b21a50f240cf76601b1351831c9241bb270f43d274b09a064b5",
+    "e2e/independent-providers.spec.ts": "be7f59e973dca81ba59346356cd754ade6c978bf9eba71a5e9ca90c47c0edc90",
+    "independent.config.js": "068133d505cb1a61a5a09f64db6c735dd236a6a384024d2d387a42a537ff1c94",
+    "independent-fixture.go": "48dc38dab90565a2dcebba193a402f5fed9b919a443d17ed34d7055f2a33c1b9",
+    "independent-tops.go": "4b3848f0a1a66e41e374d15f3fa26cd9a8e91e592bde79b21f92bfce75fbce39",
+    "overlay.json": "ddae20b0b2ccd560bfbe1e69b6a7ea869e3df9781f9f1abeb6b19e03ffc180f9",
+    "preparation.json": "08b69fcddf8c9469f8ee96a7ef12b6f12fd15c6ace3b82d89a3e26dfb6b79135",
+    "check-source.py": "3b747e006cfb4dcc52cc4aa95ca013fca5f31560853d1379030f622787b263f3"
+  },
+  "intent": "static source preparation only; compiled binary not executed",
+  "limit_seconds": 120
+}

@@ -1,0 +1,99 @@
+{
+  "status": "STATIC DELTA PASS; final business layout remains pending author new05",
+  "manifest": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/input07.json",
+  "manifest_sha256": "e758cfd704f8677fe23cc57c8a41a23adff769fd85461a07092bedf1c6b26428",
+  "delta_sha256": "2d617d8cb7bc04c76296b0a2cf8dd4a88c38f65f86f06eef432e10d474aba365",
+  "changed_sources": [
+    "web/src/views/system/SystemProvidersView.vue",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts"
+  ],
+  "exact_21_sources_26_dist_hashes_match": true,
+  "deps_unchanged": true,
+  "findings": [
+    "Production only adds position:relative to scoped .provider-table. It provides each absolute caption with the intended containing block inside main.app-content and no new z-index stacking context.",
+    "Browser requires caption.offsetParent===closest(.provider-table), exact accessible table names and original clipping styles.",
+    "Standard-mode scrollingElement and body heights must not exceed viewport; screenshot preparation resets both main and document scrollTop then requires heading in viewport. This capture condition is distinct from product focus behavior."
+  ],
+  "isolated_diagnosis": {
+    "evidence_kind": "reduced static DOM and exact input06 CSS; no server/backend/Docker; not business evidence",
+    "actual_exit": 0,
+    "seconds": 1.0773477399998228,
+    "owned_pid_count": 12,
+    "adopted_wait_count": 4,
+    "double_clean": true,
+    "artifacts": {
+      "probe.mjs.txt": {
+        "path": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-layout04/probe.mjs.txt",
+        "sha256": "135dcb7de391c64893c6b6c2e5ecc94816cae7ec582db6d46a89d6aaddb684c1"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-layout04/command.json",
+        "sha256": "5564b2d9cf3f61378f4078ea1eb3ae67626f57b1067fd6cccfeac10219904a61"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-layout04/raw.log",
+        "sha256": "2aac822860d34f0cea081470b22cb5396c1ade724ce0ad9a7a5506bb252e1601"
+      },
+      "metrics.json": {
+        "path": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-layout04/metrics.json",
+        "sha256": "e82c332b8c1d5f60d0db0ba856863241fadcdf4aecb563736d298c9cb0f12832"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-layout04/result.json",
+        "sha256": "96140bf2fd79ce27782fbabfcd9616c9cc88d4edd4adeed36ae3dcb6318f1d29"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-layout04/cleanup.json",
+        "sha256": "51126628102c5be29e574eb3116864922ec8f4d3f76c88de528aa75159289896"
+      },
+      "closed.json": {
+        "path": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-layout04/closed.json",
+        "sha256": "95971202e185aeef14dbbb955217b74bf622fbcdbfe8827a1201067b01f19890"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-layout04/input-before.json",
+        "sha256": "ff1e86d497c137de2c76f00036cb7048d7344e7c831a733d4f16cb7956f6746a"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-layout04/input-after.json",
+        "sha256": "ff1e86d497c137de2c76f00036cb7048d7344e7c831a733d4f16cb7956f6746a"
+      }
+    },
+    "observed": "1440: HTML scrollHeight1789→900;390:1680→900; both captions BODY→DIV.provider-table; main client/scrollHeight/scrollTop unchanged at each width"
+  },
+  "author_checks_read_only": {
+    "format": {
+      "result_path": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-check02/format/result.json",
+      "result_sha256": "24b6ae37e9285b5c2d5832fe349d2af1e3ba9c27f9547b5c65ed8f6c9f58f79f",
+      "command_sha256": "9fad200b91045f4195146e34478038cdf1907bad9d5bce082130397ed3de0889",
+      "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "exit_code": 0,
+      "seconds": 0.5570524969989492
+    },
+    "build": {
+      "result_path": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-check02/build/result.json",
+      "result_sha256": "d327f0197f0c2df288b7ea610b424a9cfef9d328161cd1d9ccf0b82749be18e0",
+      "command_sha256": "65b99afe9af20149087b2fa9143b87006e1571a21a0367f2d155ca3cceb1648e",
+      "raw_sha256": "a9ad4118eb2a431cc60a5900664946fbaafc20a3c2ae124c68f6cc902f2fe2a1",
+      "exit_code": 0,
+      "seconds": 5.863697188997321
+    },
+    "browser-type": {
+      "result_path": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/runs/caption-check02/browser-type/result.json",
+      "result_sha256": "1167013336b37e2550111d4c1501eea9f7f3707ed6c2a029d46490e2a876fc85",
+      "command_sha256": "978ed04a1a0ba09d63763e75f9718b28f99e491b67223345da1b22dc37734b3b",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "seconds": 0.9664081890005036
+    }
+  },
+  "reuse": [
+    "All Go compiler dependency manifest entries still match compile01; private Go overlays and probe03 not changed",
+    "Previous independent API/owner/App pure evidence unaffected; only final browser asset binding advances to input07"
+  ],
+  "limits": [
+    "Verifier started no resources and ran no browser/tests for this static delta",
+    "Diagnostic01/02 assembly selector failures and diagnostic03 quirks-mode final assertion failure remain original author artifacts; none is described as a product RED",
+    "new04 behavior PASS and rejected fullpage screenshots retained; independent final2 and author replacement business images still pending"
+  ]
+}

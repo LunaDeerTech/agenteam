@@ -1,0 +1,18 @@
+{
+  "exit": 1,
+  "actual_wait_completed": true,
+  "seconds": 0.9961605099997541,
+  "timed_out": false,
+  "input_unchanged": true,
+  "raw_sha256": "27e4999ab0062991aab6b8db2b35e449fc38a46ca5e594e94b0841547c3adcd6",
+  "owned_pid_count": 12,
+  "adopted_wait_count": 4,
+  "double_clean": true,
+  "tmpdir_removed": true,
+  "closed": {
+    "closedBrowser": true,
+    "server_started": false,
+    "timedOut": false
+  },
+  "evidence_kind": "reduced static DOM and exact input06 CSS; no server/backend/Docker; not business evidence"
+}

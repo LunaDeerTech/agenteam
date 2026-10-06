@@ -1,0 +1,207 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-providers.spec.ts src/tests/system-user-directory.spec.ts src/tests/system-invitations.spec.ts src/tests/personal-settings.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace/web
+
+stderr | src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > returns through login to Providers and requires explicit protocol and enabled selection
+[Vue Router warn]: No match found for location with path "/forgot-password"
+
+ ❯ src/tests/system-providers.spec.ts (14 tests | 12 failed) 617ms
+     × returns through login to Providers and requires explicit protocol and enabled selection 60ms
+     × gets current edit version, keeps protocol readonly, zero-writes unchanged edits and preserves the old ref on blank material 72ms
+     × clears DOM material at strict Credential confirmation and retains partial success on Provider rejection 41ms
+     × metadata404 is not unconfigured and a failed read does not clear ordinary editor fields 47ms
+     × only an empty successful first Model page permits delete and cancelled deletion dispatches nothing 33ms
+     × confirmed write remains confirmed after independent GET failure 22ms
+     × dirty close confirmation is cohosted last and checking failure/recovery preserves its pending answer 22ms
+     × dirty route confirmation is cohosted last and checking failure/recovery preserves its pending answer 21ms
+     × dirty logout confirmation is cohosted last and checking failure/recovery preserves its pending answer 30ms
+     × pending confirmation is settled false on new-session, never carried into replacement identity 18ms
+     × pending confirmation is settled false on lost-role, never carried into replacement identity 17ms
+     × pending confirmation is settled false on dispose, never carried into replacement identity 18ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > returns through login to Providers and requires explicit protocol and enabled selection
+AssertionError: button 创建 Provider: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-providers.spec.ts:272:36
+    270|     (b) => b.textContent?.trim() === label || b.getAttribute('aria-lab…
+    271|   )
+    272|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    273|   return found!
+    274| }
+ ❯ click src/tests/system-providers.spec.ts:276:3
+ ❯ src/tests/system-providers.spec.ts:352:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > gets current edit version, keeps protocol readonly, zero-writes unchanged edits and preserves the old ref on blank material
+AssertionError: button 编辑 Provider: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-providers.spec.ts:272:36
+    270|     (b) => b.textContent?.trim() === label || b.getAttribute('aria-lab…
+    271|   )
+    272|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    273|   return found!
+    274| }
+ ❯ click src/tests/system-providers.spec.ts:276:3
+ ❯ src/tests/system-providers.spec.ts:376:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > clears DOM material at strict Credential confirmation and retains partial success on Provider rejection
+AssertionError: button 创建 Provider: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-providers.spec.ts:272:36
+    270|     (b) => b.textContent?.trim() === label || b.getAttribute('aria-lab…
+    271|   )
+    272|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    273|   return found!
+    274| }
+ ❯ click src/tests/system-providers.spec.ts:276:3
+ ❯ openDirty src/tests/system-providers.spec.ts:306:9
+ ❯ src/tests/system-providers.spec.ts:400:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > metadata404 is not unconfigured and a failed read does not clear ordinary editor fields
+AssertionError: button 编辑 Provider: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-providers.spec.ts:272:36
+    270|     (b) => b.textContent?.trim() === label || b.getAttribute('aria-lab…
+    271|   )
+    272|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    273|   return found!
+    274| }
+ ❯ click src/tests/system-providers.spec.ts:276:3
+ ❯ src/tests/system-providers.spec.ts:417:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > only an empty successful first Model page permits delete and cancelled deletion dispatches nothing
+AssertionError: button 删除 Provider: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-providers.spec.ts:272:36
+    270|     (b) => b.textContent?.trim() === label || b.getAttribute('aria-lab…
+    271|   )
+    272|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    273|   return found!
+    274| }
+ ❯ src/tests/system-providers.spec.ts:425:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > confirmed write remains confirmed after independent GET failure
+AssertionError: button 创建 Provider: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-providers.spec.ts:272:36
+    270|     (b) => b.textContent?.trim() === label || b.getAttribute('aria-lab…
+    271|   )
+    272|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    273|   return found!
+    274| }
+ ❯ click src/tests/system-providers.spec.ts:276:3
+ ❯ openDirty src/tests/system-providers.spec.ts:306:9
+ ❯ src/tests/system-providers.spec.ts:437:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > dirty close confirmation is cohosted last and checking failure/recovery preserves its pending answer
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > dirty route confirmation is cohosted last and checking failure/recovery preserves its pending answer
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > dirty logout confirmation is cohosted last and checking failure/recovery preserves its pending answer
+AssertionError: button 创建 Provider: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-providers.spec.ts:272:36
+    270|     (b) => b.textContent?.trim() === label || b.getAttribute('aria-lab…
+    271|   )
+    272|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    273|   return found!
+    274| }
+ ❯ click src/tests/system-providers.spec.ts:276:3
+ ❯ openDirty src/tests/system-providers.spec.ts:306:9
+ ❯ src/tests/system-providers.spec.ts:451:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > pending confirmation is settled false on new-session, never carried into replacement identity
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > pending confirmation is settled false on lost-role, never carried into replacement identity
+ FAIL  src/tests/system-providers.spec.ts > Provider actual App/router/controller composition > pending confirmation is settled false on dispose, never carried into replacement identity
+AssertionError: button 创建 Provider: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-providers.spec.ts:272:36
+    270|     (b) => b.textContent?.trim() === label || b.getAttribute('aria-lab…
+    271|   )
+    272|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    273|   return found!
+    274| }
+ ❯ click src/tests/system-providers.spec.ts:276:3
+ ❯ openDirty src/tests/system-providers.spec.ts:306:9
+ ❯ src/tests/system-providers.spec.ts:497:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  12 failed | 56 passed (68)
+   Start at  08:52:58
+   Duration  3.84s (transform 2.51s, setup 0ms, import 3.32s, tests 4.48s, environment 1.81s)
+

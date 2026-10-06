@@ -1,0 +1,160 @@
+import { test, expect, type Page } from '@playwright/test';
+import { material, result, ipc, facts, writes, setup, top, openCreate, fillCreate, save, confirmed, latestProvider, privateFill, edit, select, session, focusContained, beginWrite, type Provider } from './fixed-helpers';
+
+async function safeStorageEmpty(page: Page, value: string) {
+  return page.evaluate((secret) => {
+    const retained = [location.href, history.state, Object.fromEntries(Object.entries(localStorage)), Object.fromEntries(Object.entries(sessionStorage))];
+    return !JSON.stringify(retained).includes(secret);
+  }, value);
+}
+
+async function freshSameSession(page: Page, after: number, expected: { user_id: string; session_id: string; role: string }) {
+  await expect.poll(async () => (await facts(page)).some((fact) =>
+    fact.sequence > after && fact.path === '/api/v1/session' && fact.method === 'GET' &&
+    fact.status === 200 && fact.ended && fact.session?.user_id === expected.user_id &&
+    fact.session.session_id === expected.session_id && fact.session.role === expected.role,
+  )).toBe(true);
+}
+
+async function confirmationLayers(page: Page) {
+  // Shared accepted useLayer marks the lower modal inert + aria-hidden.
+  // Physical existence and the accessible top are separate assertions.
+  await expect(page.locator('[role="dialog"]')).toHaveCount(2);
+  await expect(page.getByRole('dialog')).toHaveCount(1);
+  expect(await page.locator('[role="dialog"]').evaluateAll((nodes) => nodes.map((node) => ({
+    inert: node instanceof HTMLElement && node.inert,
+    hidden: node.getAttribute('aria-hidden') === 'true',
+  })))).toEqual([{ inert: true, hidden: true }, { inert: false, hidden: false }]);
+}
+
+test('[independent-partial] prepared ref survives failed same-Session confirmation and only Provider is rebased', async ({ page }) => {
+  await setup(page);
+  const data = material(), baseline = await ipc('facts');
+  const originalSession = await session(page);
+  await select(page, 'Owned primary');
+  await edit(page);
+  await top(page).getByRole('textbox', { name: '名称', exact: true }).fill('Independent retained ordinary draft');
+  await ipc('compete', { id: data.target_id });
+  await privateFill(top(page).getByRole('textbox', { name: '新凭据（仅写入）', exact: true }), data.value);
+  await save(page);
+  await expect(top(page)).toContainText('新凭据已创建，Provider尚未确认保存');
+  expect((await top(page).getByRole('textbox', { name: '新凭据（仅写入）', exact: true }).inputValue()) === '').toBe(true);
+  const partial = await ipc('facts');
+  expect(partial.credential_creates === baseline.credential_creates + 1).toBe(true);
+  const created = (await facts(page)).find((f) => f.path === '/api/v1/system/model-credentials' && f.method === 'POST' && f.status === 200 && f.ended && f.credential)?.credential;
+  expect(!!created && created.credential_id !== data.old_ref).toBe(true);
+  expect((await facts(page)).some((f) => f.method === 'PUT' && f.status === 409 && f.code === 'VERSION_CONFLICT')).toBe(true);
+  await top(page).getByRole('button', { name: '取消', exact: true }).click();
+  await confirmationLayers(page);
+  await expect(top(page)).toHaveAccessibleName('放弃未保存修改？');
+  const beforeChecking = (await writes(page)).length;
+  await ipc('arm-session-fail');
+  const beforePageshow = Math.max(0, ...(await facts(page)).map((fact) => fact.sequence));
+  // Explicit synthetic pageshow triggers production App listener; the retry is
+  // the actual same browser Cookie Session against the formal backend.
+  await page.evaluate(() => window.dispatchEvent(new Event('pageshow')));
+  await expect(page.getByRole('heading', { name: '会话尚未确认', exact: true })).toBeVisible();
+  await expect.poll(async () => (await facts(page)).some((fact) => fact.sequence > beforePageshow && fact.path === '/api/v1/session' && fact.method === 'GET' && fact.status === 503)).toBe(true);
+  await expect(page.locator('[role="dialog"]')).toHaveCount(0);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const restore = page.getByRole('button', { name: '检查当前会话', exact: true });
+  await expect(restore).toBeEnabled();
+  expect(await restore.evaluate((node) => node.closest('[inert]') === null)).toBe(true);
+  const beforeRestore = Math.max(0, ...(await facts(page)).map((fact) => fact.sequence));
+  await restore.click();
+  await freshSameSession(page, beforeRestore, originalSession);
+  await confirmationLayers(page);
+  await expect(top(page)).toHaveAccessibleName('放弃未保存修改？');
+  expect(await top(page).evaluate((node) => node instanceof HTMLElement && !node.inert && node.getAttribute('aria-hidden') !== 'true')).toBe(true);
+  const restoredSession = await session(page);
+  expect(restoredSession.user_id === originalSession.user_id && restoredSession.session_id === originalSession.session_id).toBe(true);
+  expect((await writes(page)).length).toBe(beforeChecking);
+  await top(page).getByRole('button', { name: '继续编辑', exact: true }).click();
+  await expect(page.locator('[role="dialog"]')).toHaveCount(1);
+  await expect(page.getByRole('dialog')).toHaveCount(1);
+  expect((await top(page).getByRole('textbox', { name: '名称', exact: true }).inputValue()) === 'Independent retained ordinary draft').toBe(true);
+  expect((await top(page).getByRole('textbox', { name: '新凭据（仅写入）', exact: true }).inputValue()) === '').toBe(true);
+  await focusContained(page);
+  await top(page).getByRole('button', { name: '读取当前配置并核对', exact: true }).click();
+  await expect(top(page)).toContainText('本次核对版本：2');
+  await save(page);
+  await confirmed(page);
+  const current = await latestProvider(page);
+  expect(current.id === data.target_id && current.version === '3' && current.input.credential_ref === created!.credential_id && current.input.name === 'Independent retained ordinary draft').toBe(true);
+  const saved = await ipc('facts');
+  expect(saved.credential_creates === partial.credential_creates && saved.credentials === partial.credentials && saved.commands === partial.commands + 1).toBe(true);
+  const snapshot = await ipc('snapshot');
+  expect(snapshot.items.find((p: Provider) => p.id === data.shared_id).input.credential_ref === data.old_ref).toBe(true);
+  const old = await ipc('facts', { id: data.old_ref });
+  expect(old.credential_exists === true && old.references === 1).toBe(true);
+  const noNewWrite = (await writes(page)).length;
+  await openCreate(page);
+  await expect(top(page).getByRole('button', { name: '保存配置', exact: true })).toBeDisabled();
+  expect((await top(page).getByRole('textbox', { name: '名称', exact: true }).inputValue()) === '').toBe(true);
+  expect((await top(page).getByRole('textbox', { name: '新凭据（仅写入）', exact: true }).inputValue()) === '').toBe(true);
+  expect(await top(page).getByRole('button', { name: '配置已保存', exact: true }).count()).toBe(0);
+  expect((await writes(page)).length).toBe(noNewWrite);
+  expect(await safeStorageEmpty(page, data.value)).toBe(true);
+  await top(page).getByRole('button', { name: '取消', exact: true }).click();
+  await expect(page.locator('.ui-overlay')).toHaveCount(0);
+  expect((await ipc('failure-facts')).session_failures).toBe(1);
+  expect((await writes(page)).some((f) => f.method === 'DELETE')).toBe(false);
+  result({ prepared_once: true, same_session_recovery: true, pending_confirmation: true, only_provider_rebased: true, shared_old_ref_preserved: true, immediate_form_clean: true });
+});
+
+test('[independent-replay] accepted response cuts preserve original body key CSRF and unique formal facts', async ({ page }) => {
+  await setup(page);
+  const data = material();
+  for (const stage of ['credential', 'provider'] as const) {
+    const baseline = await ipc('facts');
+    await openCreate(page);
+    await fillCreate(page, 'Independent replay ' + stage);
+    if (stage === 'credential') await privateFill(top(page).getByRole('textbox', { name: '新凭据（仅写入）', exact: true }), data.value);
+    await ipc('arm-drop', { stage });
+    await save(page);
+    await expect(top(page)).toContainText('本次结果尚未确认');
+    await expect(top(page).getByRole('button', { name: '检查原请求', exact: true })).toBeEnabled();
+    const lost = await ipc('drop-facts');
+    expect(lost.captured === true && lost.dropped === 1 && lost.replayed === 0 && lost.armed === false).toBe(true);
+    const accepted = await ipc('facts');
+    expect(accepted.credential_creates === baseline.credential_creates + (stage === 'credential' ? 1 : 0) && accepted.providers === baseline.providers + (stage === 'provider' ? 1 : 0)).toBe(true);
+    const beforeLookup = await facts(page), writeCount = (await writes(page)).length;
+    const after = Math.max(0, ...beforeLookup.map((f) => f.sequence));
+    const originalSession = await session(page);
+    await top(page).getByRole('button', { name: '检查原请求', exact: true }).click();
+    await expect(top(page)).toContainText('已观察到历史回执，当前对象或绑定仍未确认');
+    await freshSameSession(page, after, originalSession);
+    const lookupPath = stage === 'credential' ? '/api/v1/system/model-credential-commands/lookup' : '/api/v1/system/model-commands/lookup';
+    await expect.poll(async () => (await facts(page)).some((f) => f.sequence > after && f.path === lookupPath && f.status === 200 && f.ended && f.found === true)).toBe(true);
+    // The real App restore also remounts the page and refreshes its list. Neither
+    // that list nor successful Session/lookup constitutes the original Execute.
+    await expect.poll(async () => (await facts(page)).some((f) => f.sequence > after && f.method === 'GET' && f.path.startsWith('/api/v1/system/model-providers?') && f.status === 200 && f.ended && !!f.page)).toBe(true);
+    const checkedSession = await session(page);
+    expect(checkedSession.user_id === originalSession.user_id && checkedSession.session_id === originalSession.session_id).toBe(true);
+    expect((await writes(page)).length).toBe(writeCount);
+    expect((await ipc('drop-facts')).replayed).toBe(0);
+    expect((await ipc('facts')).providers).toBe(accepted.providers);
+    await expect(top(page).getByRole('button', { name: '重试原请求', exact: true })).toBeEnabled();
+    await beginWrite(page, '重试原请求');
+    await confirmed(page);
+    const replay = await ipc('drop-facts'), current = await latestProvider(page), completed = await ipc('facts');
+    expect(replay.dropped === 1 && replay.replayed === 1 && replay.target === lost.target && replay.same_body === true && replay.same_csrf === true).toBe(true);
+    expect(stage === 'credential' ? current.input.credential_ref === lost.target && replay.separate_step_keys === true : current.id === lost.target).toBe(true);
+    expect(completed.credential_creates === accepted.credential_creates && completed.providers === accepted.providers + (stage === 'credential' ? 1 : 0) && completed.commands === accepted.commands + (stage === 'credential' ? 1 : 0)).toBe(true);
+    expect(await safeStorageEmpty(page, data.value)).toBe(true);
+  }
+  await openCreate(page);
+  await fillCreate(page, 'Independent confirmed read failure');
+  await ipc('arm-get-fail');
+  await save(page);
+  await expect(page.getByText('操作已确认，当前配置读取失败。请仅重读当前配置。', { exact: true })).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const beforeReadRetry = (await writes(page)).length;
+  await page.getByRole('button', { name: '重新读取当前配置', exact: true }).click();
+  await expect(page.getByRole('button', { name: '编辑 Provider', exact: true })).toBeEnabled();
+  expect((await writes(page)).length).toBe(beforeReadRetry);
+  expect((await ipc('failure-facts')).read_failures).toBe(1);
+  expect((await writes(page)).some((f) => f.method === 'DELETE' && f.path.includes('model-credentials'))).toBe(false);
+  expect((await ipc('facts')).invocations).toBe(0);
+  result({ credential_exact_replay: true, provider_exact_replay: true, unique_facts: true, reads_not_receipts: true, confirmed_read_failure: true, no_secret_deletion: true });
+});

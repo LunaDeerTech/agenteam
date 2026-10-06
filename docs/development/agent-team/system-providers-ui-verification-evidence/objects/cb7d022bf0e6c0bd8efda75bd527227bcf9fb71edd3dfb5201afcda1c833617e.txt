@@ -1,0 +1,163 @@
+--- 1c82d88/web/src/App.vue
++++ input01/web/src/App.vue
+@@ -11,9 +11,11 @@
+   installPersonalNavigation,
+   installAccountEntryNavigation,
+   installInvitationNavigation,
++  installProviderNavigation,
+ } from './router/auth'
+ import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'
+ import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'
++import { createSystemProviders, systemProvidersKey } from './composables/useSystemProviders'
+ const auth = useSession(),
+   state = auth.state,
+   route = useRoute(),
+@@ -27,8 +29,16 @@
+ const invitations = createSystemInvitations(auth)
+ provide(systemInvitationsKey, invitations)
+ const stopInvitationNavigation = installInvitationNavigation(router, invitations)
++const providers = createSystemProviders(auth)
++provide(systemProvidersKey, providers)
++const stopProviderNavigation = installProviderNavigation(router, providers)
+ async function logout() {
+-  if ((await settings.confirmLeave()) && (await invitations.confirmLeave())) await auth.logout()
++  if (
++    (await settings.confirmLeave()) &&
++    (await invitations.confirmLeave()) &&
++    (await providers.confirmLeave())
++  )
++    await auth.logout()
+ }
+ async function refreshVisible() {
+   if (
+@@ -57,6 +67,7 @@
+ onMounted(() => {
+   entry.afterNavigation(route.fullPath, '')
+   invitations.afterNavigation(route.fullPath, '')
++  providers.afterNavigation(route.fullPath, '')
+   document.addEventListener('visibilitychange', refreshVisible)
+   window.addEventListener('pageshow', refreshVisible)
+ })
+@@ -66,6 +77,8 @@
+   stopPersonalNavigation()
+   stopEntryNavigation()
+   stopInvitationNavigation()
++  stopProviderNavigation()
++  providers.dispose()
+   invitations.dispose()
+   entry.dispose()
+   settings.dispose()
+--- 1c82d88/web/src/router/index.ts
++++ input01/web/src/router/index.ts
+@@ -58,6 +58,7 @@
+           path: 'invitations',
+           component: () => import('../views/system/SystemInvitationsView.vue'),
+         },
++        { path: 'providers', component: () => import('../views/system/SystemProvidersView.vue') },
+       ],
+     },
+     {
+--- 1c82d88/web/src/router/auth.ts
++++ input01/web/src/router/auth.ts
+@@ -8,6 +8,7 @@
+   '/settings/password',
+   '/system/users',
+   '/system/invitations',
++  '/system/providers',
+ ] as const
+ type ReturnTarget = (typeof returnTargets)[number]
+ export function safeReturnTarget(value: unknown): ReturnTarget {
+@@ -59,6 +60,12 @@
+   router.beforeEach(async (to, from) => {
+     // Ask before Session revalidation can temporarily unmount the dirty page.
+     if (
++      from.path === '/system/providers' &&
++      to.fullPath !== from.fullPath &&
++      !((await providerNavigation.get(router)?.confirmLeave()) ?? true)
++    )
++      return false
++    if (
+       from.path === '/system/invitations' &&
+       to.fullPath !== from.fullPath &&
+       !((await invitationNavigation.get(router)?.confirmLeave()) ?? true)
+@@ -94,6 +101,7 @@
+     return true
+   })
+   router.afterEach((to, from, failure) => {
++    if (!failure) providerNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+     if (!failure) invitationNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+     if (!failure) personalNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+     if (!failure && from.meta.authentication && !to.meta.authentication) auth.leave()
+@@ -120,3 +128,23 @@
+     if (invitationNavigation.get(router) === owner) invitationNavigation.delete(router)
+   }
+ }
++
++const providerNavigation = new WeakMap<
++  Router,
++  {
++    confirmLeave: () => Promise<boolean>
++    afterNavigation: (to: string, from: string) => void
++  }
++>()
++export function installProviderNavigation(
++  router: Router,
++  owner: {
++    confirmLeave: () => Promise<boolean>
++    afterNavigation: (to: string, from: string) => void
++  },
++) {
++  providerNavigation.set(router, owner)
++  return () => {
++    if (providerNavigation.get(router) === owner) providerNavigation.delete(router)
++  }
++}
+--- 1c82d88/web/src/views/system/SystemSettingsView.vue
++++ input01/web/src/views/system/SystemSettingsView.vue
+@@ -19,6 +19,11 @@
+       { label: '用户', path: '/system/users' },
+       { label: '待注册邀请', path: '/system/invitations' },
+     ],
++  },
++  {
++    key: 'models-providers',
++    label: '模型与提供商',
++    children: [{ label: 'Providers', path: '/system/providers' }],
+   },
+ ]
+ const heading = ref<HTMLElement | null>(null)
+--- 1c82d88/web/src/tests/system-user-directory.spec.ts
++++ input01/web/src/tests/system-user-directory.spec.ts
+@@ -207,7 +207,7 @@
+     expect(p.wrapper.find('nav[aria-label="个人设置"]').exists()).toBe(false)
+     const menu = p.wrapper.get('nav[aria-label="系统设置"]')
+     expect(menu.text()).toContain('用户与邀请')
+-    expect(menu.findAll('a').map((a) => a.text())).toEqual(['用户', '待注册邀请'])
++    expect(menu.findAll('a').map((a) => a.text())).toEqual(['用户', '待注册邀请', 'Providers'])
+     expect(menu.get('a').attributes('aria-current')).toBe('page')
+     expect(menu.findAll('button').map((b) => b.text())).not.toContain('退出登录')
+     expect(p.wrapper.findAll('thead th').map((th) => th.text())).toEqual([
+--- 1c82d88/web/src/tests/system-invitations.spec.ts
++++ input01/web/src/tests/system-invitations.spec.ts
+@@ -277,7 +277,7 @@
+     expect(f.wrapper.get('nav[aria-label="系统设置"] [aria-current="page"]').text()).toBe(
+       '待注册邀请',
+     )
+-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(1)
++    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
+     expect(f.reads()).toHaveLength(1)
+     expect(f.wrapper.findAll('th').map((n) => n.text())).toEqual([
+       '邮箱',
+--- 1c82d88/web/src/tests/personal-settings.spec.ts
++++ input01/web/src/tests/personal-settings.spec.ts
+@@ -471,8 +471,9 @@
+       expect(p.api.login.mock.calls.length).toBe(1)
+     },
+   )
+-  it('only permits the six exact return targets and clears dirty previews on real context invalidation', async () => {
++  it('only permits the seven exact return targets and clears dirty previews on real context invalidation', async () => {
+     expect(safeReturnTarget('/system/invitations')).toBe('/system/invitations')
++    expect(safeReturnTarget('/system/providers')).toBe('/system/providers')
+     expect(safeReturnTarget('/system/users')).toBe('/system/users')
+     for (const target of [
+       '/settings',

@@ -1,0 +1,29 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestAccountSystemProvidersIndependentPartial|TestAccountSystemProvidersIndependentReplay)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-providers-author-_swp7klj/workspace",
+  "ended_utc": "2026-10-06T09:59:06.174226+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtprvind-w7q6tt4m",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/overlay.json",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/runs/independent02/runtime"
+  },
+  "exit": 1,
+  "seconds": 74.579,
+  "started_utc": "2026-10-06T09:57:51.595289+00:00"
+}
