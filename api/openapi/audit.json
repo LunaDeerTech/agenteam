@@ -1,0 +1,5283 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "agenteam System Audit management reads",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/system/audit": {
+      "get": {
+        "operationId": "listSystemAudit",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Administrator with current Session. One maximum 3-second context starts before authentication, inherits earlier parent cancellation, and retains actual I/O/transaction ownership through completion. No request body, CSRF, idempotency key, scope or identity override. GET-only; all other methods return 405 and HEAD error has no body. Strict single-valued query: unknown/duplicate/array/malformed keys and bare ? rejected; RawQuery at most 32768 bytes. Explicit Problems use constant /api/v1 instance.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^([1-9]|[1-9][0-9]|1[0-9]{2}|200)$",
+              "default": "50"
+            },
+            "description": "Canonical decimal 1–200; empty, leading zero, sign, exponent and overflow are invalid."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 8192
+            },
+            "description": "Empty/omitted means first page. Signed System scope + canonical full Filter + fixed order; limit and current subject are not cursor bindings. Every page reauthorizes."
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": ""
+                },
+                {
+                  "$ref": "./common.json#/components/schemas/InstantInput"
+                }
+              ]
+            },
+            "description": "Optional [from,to) bound; canonical filter normalizes legal offsets/fractions to UTC. Both present require from < to."
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": ""
+                },
+                {
+                  "$ref": "./common.json#/components/schemas/InstantInput"
+                }
+              ]
+            },
+            "description": "Optional [from,to) bound; canonical filter normalizes legal offsets/fractions to UTC. Both present require from < to."
+          },
+          {
+            "name": "actor_kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "",
+                "human",
+                "agent_run",
+                "service"
+              ]
+            },
+            "description": "Existing Filter input set; legal Project-only values remain accepted and may yield an empty System page. Nonempty actor_id with service actor_kind is invalid."
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "",
+                "account.avatar.update",
+                "account.bootstrap",
+                "account.invite.create",
+                "account.invite.redeem",
+                "account.invite.revoke",
+                "account.login",
+                "account.logout",
+                "account.password.change",
+                "account.password.reset.complete",
+                "account.password.reset.request",
+                "account.profile.update",
+                "account.settings.update",
+                "artifact.create",
+                "artifact.download",
+                "artifact.list",
+                "artifact.read",
+                "knowledge.delete_subtree",
+                "model.create",
+                "model.delete",
+                "model.selection.update",
+                "model.update",
+                "object.delete",
+                "object.transfer.complete",
+                "object.transfer.issue",
+                "object.transfer.revoke",
+                "object.upload.complete",
+                "object.upload.failed",
+                "outbound.access.deny",
+                "outbound.policy.update",
+                "outbox.delivery.requeue",
+                "project.archive.accepted",
+                "project.archive.completed",
+                "project.create.accepted",
+                "project.create.completed",
+                "project.delete.accepted",
+                "project.lifecycle.retry",
+                "project.restore",
+                "project.update",
+                "provider.create",
+                "provider.delete",
+                "provider.update",
+                "secret.create",
+                "secret.delete",
+                "secret.master.register",
+                "secret.master.rotation.complete",
+                "secret.master.rotation.failed",
+                "secret.master.rotation.start",
+                "secret.resolve",
+                "secret.update",
+                "smtp.delivery",
+                "smtp.delivery.retry",
+                "smtp.settings.update",
+                "smtp.test.request"
+              ]
+            },
+            "description": "Existing Filter input set; legal Project-only values remain accepted and may yield an empty System page. Nonempty actor_id with service actor_kind is invalid."
+          },
+          {
+            "name": "outcome",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "",
+                "success",
+                "denied",
+                "failed",
+                "unknown"
+              ]
+            },
+            "description": "Existing Filter input set; legal Project-only values remain accepted and may yield an empty System page. Nonempty actor_id with service actor_kind is invalid."
+          },
+          {
+            "name": "resource_kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "",
+                "account_attempt",
+                "account_settings",
+                "agent",
+                "artifact",
+                "artifact_collection",
+                "invitation",
+                "knowledge_document",
+                "mail_job",
+                "model_config",
+                "model_provider",
+                "model_selection",
+                "object_transfer",
+                "outbound_policy",
+                "outbox_delivery",
+                "password_reset",
+                "project",
+                "project_creation",
+                "project_operation",
+                "secret",
+                "secret_master",
+                "secret_rotation",
+                "session",
+                "smtp_settings",
+                "stored_object",
+                "user"
+              ]
+            },
+            "description": "Existing Filter input set; legal Project-only values remain accepted and may yield an empty System page. Nonempty actor_id with service actor_kind is invalid."
+          },
+          {
+            "name": "actor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": ""
+                },
+                {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              ]
+            },
+            "description": "Empty/omitted means no filter; otherwise canonical UUIDv7. agent_id retains the original actor-agent OR resource-agent expression, AND other filters."
+          },
+          {
+            "name": "resource_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": ""
+                },
+                {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              ]
+            },
+            "description": "Empty/omitted means no filter; otherwise canonical UUIDv7. agent_id retains the original actor-agent OR resource-agent expression, AND other filters."
+          },
+          {
+            "name": "tool_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": ""
+                },
+                {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              ]
+            },
+            "description": "Empty/omitted means no filter; otherwise canonical UUIDv7. agent_id retains the original actor-agent OR resource-agent expression, AND other filters."
+          },
+          {
+            "name": "execution_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": ""
+                },
+                {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              ]
+            },
+            "description": "Empty/omitted means no filter; otherwise canonical UUIDv7. agent_id retains the original actor-agent OR resource-agent expression, AND other filters."
+          },
+          {
+            "name": "operation_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": ""
+                },
+                {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              ]
+            },
+            "description": "Empty/omitted means no filter; otherwise canonical UUIDv7. agent_id retains the original actor-agent OR resource-agent expression, AND other filters."
+          },
+          {
+            "name": "approval_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": ""
+                },
+                {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              ]
+            },
+            "description": "Empty/omitted means no filter; otherwise canonical UUIDv7. agent_id retains the original actor-agent OR resource-agent expression, AND other filters."
+          },
+          {
+            "name": "runner_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": ""
+                },
+                {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              ]
+            },
+            "description": "Empty/omitted means no filter; otherwise canonical UUIDv7. agent_id retains the original actor-agent OR resource-agent expression, AND other filters."
+          },
+          {
+            "name": "agent_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": ""
+                },
+                {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              ]
+            },
+            "description": "Empty/omitted means no filter; otherwise canonical UUIDv7. agent_id retains the original actor-agent OR resource-agent expression, AND other filters."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete UTF-8 JSON, at most 1048576 bytes, encoded and checked before 200 headers. Current observation only.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemAuditPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_ARGUMENT or CURSOR_INVALID.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED or SESSION_REVOKED; clear Session cookie.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN or ORIGIN_DENIED, including existing boundary classification.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Absent, other scope, or unknown resource; existence is not disclosed.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "GET-only. Allow: GET. HEAD has no response body.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DEPENDENCY_UNBOUND, DEPENDENCY_UNAVAILABLE or COMMIT_UNKNOWN. Read-transaction Unknown publishes no candidate. The common retry_hint=lookup is retained for compatibility, but this domain has no command/lookup endpoint; a later GET is a new observation.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-max-success-bytes": 1048576
+      }
+    },
+    "/api/v1/system/audit/{id}": {
+      "get": {
+        "operationId": "getSystemAudit",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Administrator with current Session. One maximum 3-second context starts before authentication, inherits earlier parent cancellation, and retains actual I/O/transaction ownership through completion. No request body, CSRF, idempotency key, scope or identity override. GET-only; all other methods return 405 and HEAD error has no body. Strict single-valued query: unknown/duplicate/array/malformed keys and bare ? rejected; RawQuery at most 32768 bytes. Explicit Problems use constant /api/v1 instance.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "description": "One canonical UUIDv7 segment. Invalid single segment is 400; extra/trailing segments are 404. Any query, including bare ?, is invalid."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete UTF-8 JSON, at most 1048576 bytes, encoded and checked before 200 headers. Current observation only.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemAuditRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_ARGUMENT or CURSOR_INVALID.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHENTICATED or SESSION_REVOKED; clear Session cookie.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN or ORIGIN_DENIED, including existing boundary classification.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Absent, other scope, or unknown resource; existence is not disclosed.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "GET-only. Allow: GET. HEAD has no response body.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DEPENDENCY_UNBOUND, DEPENDENCY_UNAVAILABLE or COMMIT_UNKNOWN. Read-transaction Unknown publishes no candidate. The common retry_hint=lookup is retained for compatibility, but this domain has no command/lookup endpoint; a later GET is a new observation.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-max-success-bytes": 1048576
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Session": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session"
+      },
+      "LocalSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "agenteam_local_session"
+      }
+    },
+    "schemas": {
+      "HumanActor": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "human"
+          },
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        "required": [
+          "kind",
+          "id"
+        ]
+      },
+      "ServiceActor": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "service"
+          },
+          "service": {
+            "type": "string",
+            "enum": [
+              "secret",
+              "secret-maintenance",
+              "outbound",
+              "object",
+              "object-maintenance",
+              "project-lifecycle",
+              "outbox-delivery",
+              "account-bootstrap",
+              "account-auth",
+              "account-maintenance",
+              "account-mail",
+              "model-runtime",
+              "project-initialization"
+            ]
+          },
+          "cause_ref": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "$ref": "./common.json#/components/schemas/Digest"
+              }
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "service",
+          "cause_ref"
+        ]
+      },
+      "Actor": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          {
+            "$ref": "#/components/schemas/ServiceActor"
+          }
+        ]
+      },
+      "Associations": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tool_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "request_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "runner_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "correlation_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "http_trace_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        "required": []
+      },
+      "ModelAssociations": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "correlation_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "http_trace_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        "required": []
+      },
+      "SecretCreateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "secret.create"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "success",
+              "denied",
+              "failed",
+              "unknown"
+            ]
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "secret"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "changed_fields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "purpose",
+                    "value"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 2,
+                "uniqueItems": true,
+                "description": "Canonical sorted unique field names; never configuration values."
+              }
+            },
+            "required": [
+              "version",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Secret created"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "SecretUpdateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "secret.update"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "success",
+              "denied",
+              "failed",
+              "unknown"
+            ]
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "secret"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "changed_fields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "purpose",
+                    "value"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 2,
+                "uniqueItems": true,
+                "description": "Canonical sorted unique field names; never configuration values."
+              }
+            },
+            "required": [
+              "version",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Secret updated"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "SecretDeleteRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "secret.delete"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "success",
+              "denied",
+              "failed",
+              "unknown"
+            ]
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "secret"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              }
+            },
+            "required": [
+              "version"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Secret deleted"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "SecretResolveRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "secret.resolve"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "success",
+              "denied",
+              "failed",
+              "unknown"
+            ]
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "secret"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lease_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "consumer": {
+                "type": "string",
+                "enum": [
+                  "model",
+                  "mcp",
+                  "runner",
+                  "smtp",
+                  "object_storage",
+                  "system"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "permission_denied",
+                  "scope_mismatch",
+                  "lease_invalid",
+                  "decrypt_failed",
+                  "key_unavailable",
+                  "ciphertext_invalid",
+                  "rotation_failed",
+                  "invalid_target",
+                  "address_forbidden",
+                  "private_not_allowed",
+                  "port_denied",
+                  "http_denied",
+                  "tls_failed",
+                  "dns_failed",
+                  "redirect_denied",
+                  "policy_unavailable",
+                  "binding_invalid",
+                  "consumer_denied",
+                  "credential_denied",
+                  "origin_denied",
+                  "response_limit",
+                  "timeout",
+                  "cancelled",
+                  "internal_error",
+                  "storage_unavailable",
+                  "payload_missing",
+                  "integrity_mismatch"
+                ]
+              }
+            },
+            "required": [
+              "lease_id",
+              "consumer"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Secret use recorded"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "SecretMasterRegisterRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "secret.master.register"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "secret_master"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              }
+            },
+            "required": [
+              "version"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Master key registered"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "SecretMasterRotationStartRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "secret.master.rotation.start"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "secret_rotation"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "rotation_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "count": {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            },
+            "required": [
+              "version",
+              "rotation_id",
+              "count"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Master key rotation started"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "SecretMasterRotationCompleteRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "secret.master.rotation.complete"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "secret_rotation"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "rotation_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "count": {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            },
+            "required": [
+              "version",
+              "rotation_id",
+              "count"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Master key rotation completed"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "SecretMasterRotationFailedRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "secret.master.rotation.failed"
+          },
+          "outcome": {
+            "const": "failed"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "secret_rotation"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "rotation_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "count": {
+                "$ref": "./common.json#/components/schemas/Progress"
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "permission_denied",
+                  "scope_mismatch",
+                  "lease_invalid",
+                  "decrypt_failed",
+                  "key_unavailable",
+                  "ciphertext_invalid",
+                  "rotation_failed",
+                  "invalid_target",
+                  "address_forbidden",
+                  "private_not_allowed",
+                  "port_denied",
+                  "http_denied",
+                  "tls_failed",
+                  "dns_failed",
+                  "redirect_denied",
+                  "policy_unavailable",
+                  "binding_invalid",
+                  "consumer_denied",
+                  "credential_denied",
+                  "origin_denied",
+                  "response_limit",
+                  "timeout",
+                  "cancelled",
+                  "internal_error",
+                  "storage_unavailable",
+                  "payload_missing",
+                  "integrity_mismatch"
+                ]
+              }
+            },
+            "required": [
+              "version",
+              "rotation_id",
+              "count",
+              "reason"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Master key rotation failed"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "OutboundPolicyUpdateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "outbound.policy.update"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "success",
+              "denied",
+              "failed",
+              "unknown"
+            ]
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "outbound_policy"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "rule_count": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]?|1[0-9]{2}|2[0-4][0-9]|25[0-6])$"
+              }
+            },
+            "required": [
+              "version",
+              "rule_count"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Outbound policy updated"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "OutboundAccessDenyRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "outbound.access.deny"
+          },
+          "outcome": {
+            "const": "denied"
+          },
+          "resource": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "outbound_policy"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "secret"
+                  },
+                  "id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id"
+                ]
+              }
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "consumer": {
+                "type": "string",
+                "enum": [
+                  "model",
+                  "mcp",
+                  "runner",
+                  "smtp",
+                  "object_storage",
+                  "system"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "permission_denied",
+                  "scope_mismatch",
+                  "lease_invalid",
+                  "decrypt_failed",
+                  "key_unavailable",
+                  "ciphertext_invalid",
+                  "rotation_failed",
+                  "invalid_target",
+                  "address_forbidden",
+                  "private_not_allowed",
+                  "port_denied",
+                  "http_denied",
+                  "tls_failed",
+                  "dns_failed",
+                  "redirect_denied",
+                  "policy_unavailable",
+                  "binding_invalid",
+                  "consumer_denied",
+                  "credential_denied",
+                  "origin_denied",
+                  "response_limit",
+                  "timeout",
+                  "cancelled",
+                  "internal_error",
+                  "storage_unavailable",
+                  "payload_missing",
+                  "integrity_mismatch"
+                ]
+              },
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              }
+            },
+            "required": [
+              "consumer",
+              "reason",
+              "version"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Outbound access denied"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "ObjectUploadCompleteRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ServiceActor"
+              },
+              {
+                "properties": {
+                  "service": {
+                    "type": "string",
+                    "enum": [
+                      "object",
+                      "object-maintenance"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "action": {
+            "const": "object.upload.complete"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "stored_object"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "object_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "initiator_kind": {
+                    "const": "human"
+                  },
+                  "initiator_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "media_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+                    "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                  },
+                  "byte_size": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "sent_bytes": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "phase": {
+                    "const": "published"
+                  }
+                },
+                "required": [
+                  "object_id",
+                  "initiator_kind",
+                  "initiator_id",
+                  "media_type",
+                  "byte_size",
+                  "sent_bytes",
+                  "phase"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "object_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "initiator_kind": {
+                    "const": "agent_run"
+                  },
+                  "initiator_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "media_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+                    "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                  },
+                  "byte_size": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "sent_bytes": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "phase": {
+                    "const": "published"
+                  },
+                  "initiator_execution_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                },
+                "required": [
+                  "object_id",
+                  "initiator_kind",
+                  "initiator_id",
+                  "media_type",
+                  "byte_size",
+                  "sent_bytes",
+                  "phase",
+                  "initiator_execution_id"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "object_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "initiator_kind": {
+                    "const": "service"
+                  },
+                  "initiator_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "media_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+                    "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                  },
+                  "byte_size": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "sent_bytes": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "phase": {
+                    "const": "published"
+                  }
+                },
+                "required": [
+                  "object_id",
+                  "initiator_kind",
+                  "initiator_id",
+                  "media_type",
+                  "byte_size",
+                  "sent_bytes",
+                  "phase"
+                ]
+              }
+            ],
+            "description": "sent_bytes must be <= byte_size; complete does not require equality."
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "ObjectUploadFailedRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ServiceActor"
+              },
+              {
+                "properties": {
+                  "service": {
+                    "type": "string",
+                    "enum": [
+                      "object",
+                      "object-maintenance"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "action": {
+            "const": "object.upload.failed"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "failed",
+              "unknown"
+            ]
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "stored_object"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "object_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "initiator_kind": {
+                    "const": "human"
+                  },
+                  "initiator_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "media_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+                    "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                  },
+                  "byte_size": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "sent_bytes": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "phase": {
+                    "const": "failed"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "permission_denied",
+                      "scope_mismatch",
+                      "lease_invalid",
+                      "decrypt_failed",
+                      "key_unavailable",
+                      "ciphertext_invalid",
+                      "rotation_failed",
+                      "invalid_target",
+                      "address_forbidden",
+                      "private_not_allowed",
+                      "port_denied",
+                      "http_denied",
+                      "tls_failed",
+                      "dns_failed",
+                      "redirect_denied",
+                      "policy_unavailable",
+                      "binding_invalid",
+                      "consumer_denied",
+                      "credential_denied",
+                      "origin_denied",
+                      "response_limit",
+                      "timeout",
+                      "cancelled",
+                      "internal_error",
+                      "storage_unavailable",
+                      "payload_missing",
+                      "integrity_mismatch"
+                    ]
+                  }
+                },
+                "required": [
+                  "object_id",
+                  "initiator_kind",
+                  "initiator_id",
+                  "media_type",
+                  "byte_size",
+                  "sent_bytes",
+                  "phase",
+                  "reason"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "object_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "initiator_kind": {
+                    "const": "agent_run"
+                  },
+                  "initiator_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "media_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+                    "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                  },
+                  "byte_size": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "sent_bytes": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "phase": {
+                    "const": "failed"
+                  },
+                  "initiator_execution_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "permission_denied",
+                      "scope_mismatch",
+                      "lease_invalid",
+                      "decrypt_failed",
+                      "key_unavailable",
+                      "ciphertext_invalid",
+                      "rotation_failed",
+                      "invalid_target",
+                      "address_forbidden",
+                      "private_not_allowed",
+                      "port_denied",
+                      "http_denied",
+                      "tls_failed",
+                      "dns_failed",
+                      "redirect_denied",
+                      "policy_unavailable",
+                      "binding_invalid",
+                      "consumer_denied",
+                      "credential_denied",
+                      "origin_denied",
+                      "response_limit",
+                      "timeout",
+                      "cancelled",
+                      "internal_error",
+                      "storage_unavailable",
+                      "payload_missing",
+                      "integrity_mismatch"
+                    ]
+                  }
+                },
+                "required": [
+                  "object_id",
+                  "initiator_kind",
+                  "initiator_id",
+                  "media_type",
+                  "byte_size",
+                  "sent_bytes",
+                  "phase",
+                  "initiator_execution_id",
+                  "reason"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "object_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "initiator_kind": {
+                    "const": "service"
+                  },
+                  "initiator_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "media_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+                    "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                  },
+                  "byte_size": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "sent_bytes": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "phase": {
+                    "const": "failed"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "permission_denied",
+                      "scope_mismatch",
+                      "lease_invalid",
+                      "decrypt_failed",
+                      "key_unavailable",
+                      "ciphertext_invalid",
+                      "rotation_failed",
+                      "invalid_target",
+                      "address_forbidden",
+                      "private_not_allowed",
+                      "port_denied",
+                      "http_denied",
+                      "tls_failed",
+                      "dns_failed",
+                      "redirect_denied",
+                      "policy_unavailable",
+                      "binding_invalid",
+                      "consumer_denied",
+                      "credential_denied",
+                      "origin_denied",
+                      "response_limit",
+                      "timeout",
+                      "cancelled",
+                      "internal_error",
+                      "storage_unavailable",
+                      "payload_missing",
+                      "integrity_mismatch"
+                    ]
+                  }
+                },
+                "required": [
+                  "object_id",
+                  "initiator_kind",
+                  "initiator_id",
+                  "media_type",
+                  "byte_size",
+                  "sent_bytes",
+                  "phase",
+                  "reason"
+                ]
+              }
+            ],
+            "description": "sent_bytes must be <= byte_size; complete does not require equality."
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "ObjectDeleteRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ServiceActor"
+              },
+              {
+                "properties": {
+                  "service": {
+                    "type": "string",
+                    "enum": [
+                      "object",
+                      "object-maintenance"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "action": {
+            "const": "object.delete"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "stored_object"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "object_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "initiator_kind": {
+                    "const": "human"
+                  },
+                  "initiator_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "media_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+                    "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                  },
+                  "byte_size": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "sent_bytes": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "phase": {
+                    "const": "deleted"
+                  }
+                },
+                "required": [
+                  "object_id",
+                  "initiator_kind",
+                  "initiator_id",
+                  "media_type",
+                  "byte_size",
+                  "sent_bytes",
+                  "phase"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "object_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "initiator_kind": {
+                    "const": "agent_run"
+                  },
+                  "initiator_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "media_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+                    "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                  },
+                  "byte_size": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "sent_bytes": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "phase": {
+                    "const": "deleted"
+                  },
+                  "initiator_execution_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                },
+                "required": [
+                  "object_id",
+                  "initiator_kind",
+                  "initiator_id",
+                  "media_type",
+                  "byte_size",
+                  "sent_bytes",
+                  "phase",
+                  "initiator_execution_id"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "object_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "initiator_kind": {
+                    "const": "service"
+                  },
+                  "initiator_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "media_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[!#$%&'*+.^_`|~0-9a-z-]+/[!#$%&'*+.^_`|~0-9a-z-]+(; charset=(utf-8|us-ascii))?$",
+                    "description": "Canonical MIME as accepted by the formal constructor; at most 256 UTF-8 bytes. No filename/path; only the allowed charset parameter."
+                  },
+                  "byte_size": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "sent_bytes": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "phase": {
+                    "const": "deleted"
+                  }
+                },
+                "required": [
+                  "object_id",
+                  "initiator_kind",
+                  "initiator_id",
+                  "media_type",
+                  "byte_size",
+                  "sent_bytes",
+                  "phase"
+                ]
+              }
+            ],
+            "description": "sent_bytes must be <= byte_size; complete does not require equality."
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "OutboxDeliveryRequeueRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "outbox.delivery.requeue"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "outbox_delivery"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "delivery_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "event_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "handler_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9_.-]{0,127}$"
+              },
+              "from_state": {
+                "type": "string",
+                "enum": [
+                  "failed",
+                  "dead_letter"
+                ]
+              },
+              "redrive_cycle": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "reason_code": {
+                "type": "string",
+                "enum": [
+                  "operator_retry",
+                  "schema_available",
+                  "dependency_restored"
+                ]
+              }
+            },
+            "required": [
+              "delivery_id",
+              "event_id",
+              "handler_id",
+              "from_state",
+              "redrive_cycle",
+              "reason_code"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "AccountBootstrapRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "account.bootstrap"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "user"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "created"
+              },
+              "user_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "user_id"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "AccountLoginRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "account.login"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "success",
+              "denied"
+            ]
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "account_attempt"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "version": {
+                    "$ref": "./common.json#/components/schemas/Version"
+                  },
+                  "phase": {
+                    "const": "authenticated"
+                  },
+                  "attempt_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "user_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "session_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                },
+                "required": [
+                  "version",
+                  "phase",
+                  "attempt_id",
+                  "user_id",
+                  "session_id"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "version": {
+                    "$ref": "./common.json#/components/schemas/Version"
+                  },
+                  "phase": {
+                    "const": "rejected"
+                  },
+                  "attempt_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "credentials_rejected",
+                      "challenge_required",
+                      "challenge_invalid",
+                      "session_invalid"
+                    ]
+                  },
+                  "user_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                },
+                "required": [
+                  "version",
+                  "phase",
+                  "attempt_id",
+                  "reason"
+                ]
+              }
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations.",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "metadata": {
+                  "properties": {
+                    "phase": {
+                      "const": "authenticated"
+                    }
+                  },
+                  "required": [
+                    "phase"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "outcome": {
+                  "const": "success"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "metadata": {
+                  "properties": {
+                    "phase": {
+                      "const": "rejected"
+                    }
+                  },
+                  "required": [
+                    "phase"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "outcome": {
+                  "const": "denied"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "AccountLogoutRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "account.logout"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "session"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "revoked"
+              },
+              "user_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "session_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "user_id",
+              "session_id"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "AccountInviteCreateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "account.invite.create"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "invitation"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "created"
+              },
+              "invitation_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "initiator_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "channel": {
+                "type": "string",
+                "enum": [
+                  "smtp",
+                  "log"
+                ]
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "invitation_id"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "AccountInviteRevokeRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "account.invite.revoke"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "invitation"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "revoked"
+              },
+              "invitation_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "initiator_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "invitation_id"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "AccountInviteRedeemRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "account.invite.redeem"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "user"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "redeemed"
+              },
+              "user_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "invitation_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "user_id",
+              "invitation_id"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "AccountPasswordResetRequestRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "account.password.reset.request"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "account_attempt"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "accepted"
+              },
+              "attempt_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "user_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "attempt_id"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "AccountPasswordResetCompleteRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "account.password.reset.complete"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "password_reset"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "redeemed"
+              },
+              "user_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "reset_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "user_id",
+              "reset_id"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "AccountPasswordChangeRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "account.password.change"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "user"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "updated"
+              },
+              "user_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "changed_fields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "password"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 1,
+                "uniqueItems": true,
+                "description": "Canonical sorted unique field names; never configuration values."
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "user_id",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "AccountProfileUpdateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "account.profile.update"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "user"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "updated"
+              },
+              "user_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "changed_fields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "username",
+                    "display_name",
+                    "theme"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 3,
+                "uniqueItems": true,
+                "description": "Canonical sorted unique field names; never configuration values."
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "user_id",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "AccountAvatarUpdateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "account.avatar.update"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "user"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "updated"
+              },
+              "user_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "changed_fields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "avatar"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 1,
+                "uniqueItems": true,
+                "description": "Canonical sorted unique field names; never configuration values."
+              },
+              "object_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "user_id",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "AccountSettingsUpdateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "account.settings.update"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "account_settings"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "updated"
+              },
+              "changed_fields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "session_idle_seconds",
+                    "session_absolute_seconds",
+                    "password_reset_seconds",
+                    "challenge_after_failures"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 4,
+                "uniqueItems": true,
+                "description": "Canonical sorted unique field names; never configuration values."
+              },
+              "initiator_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "SmtpSettingsUpdateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "smtp.settings.update"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "smtp_settings"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "updated"
+              },
+              "changed_fields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "host",
+                    "port",
+                    "tls_mode",
+                    "auth_username",
+                    "password",
+                    "from",
+                    "enabled",
+                    "sender_name",
+                    "auto_retry_count",
+                    "retry_interval_seconds"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 10,
+                "uniqueItems": true,
+                "description": "Canonical sorted unique field names; never configuration values."
+              },
+              "initiator_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "SmtpTestRequestRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "smtp.test.request"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "mail_job"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "accepted"
+              },
+              "job_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "initiator_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "channel": {
+                "type": "string",
+                "enum": [
+                  "smtp",
+                  "log"
+                ]
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "job_id"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "SmtpDeliveryRetryRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "smtp.delivery.retry"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "mail_job"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "phase": {
+                "const": "accepted"
+              },
+              "job_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "initiator_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "version",
+              "phase",
+              "job_id",
+              "initiator_id"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "SmtpDeliveryRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "action": {
+            "const": "smtp.delivery"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "success",
+              "failed",
+              "unknown"
+            ]
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "mail_job"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "version": {
+                    "$ref": "./common.json#/components/schemas/Version"
+                  },
+                  "phase": {
+                    "const": "sent"
+                  },
+                  "job_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "attempt_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "channel": {
+                    "type": "string",
+                    "enum": [
+                      "smtp",
+                      "log"
+                    ]
+                  },
+                  "initiator_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                },
+                "required": [
+                  "version",
+                  "phase",
+                  "job_id",
+                  "attempt_id",
+                  "channel"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "version": {
+                    "$ref": "./common.json#/components/schemas/Version"
+                  },
+                  "phase": {
+                    "const": "failed"
+                  },
+                  "job_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "attempt_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "channel": {
+                    "type": "string",
+                    "enum": [
+                      "smtp",
+                      "log"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "delivery_rejected",
+                      "timeout",
+                      "cancelled",
+                      "delivery_unknown"
+                    ]
+                  },
+                  "initiator_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                },
+                "required": [
+                  "version",
+                  "phase",
+                  "job_id",
+                  "attempt_id",
+                  "channel",
+                  "reason"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "version": {
+                    "$ref": "./common.json#/components/schemas/Version"
+                  },
+                  "phase": {
+                    "const": "unknown"
+                  },
+                  "job_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "attempt_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "channel": {
+                    "type": "string",
+                    "enum": [
+                      "smtp",
+                      "log"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "delivery_rejected",
+                      "timeout",
+                      "cancelled",
+                      "delivery_unknown"
+                    ]
+                  },
+                  "initiator_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                },
+                "required": [
+                  "version",
+                  "phase",
+                  "job_id",
+                  "attempt_id",
+                  "channel",
+                  "reason"
+                ]
+              }
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/Associations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations.",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "metadata": {
+                  "properties": {
+                    "phase": {
+                      "const": "sent"
+                    }
+                  },
+                  "required": [
+                    "phase"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "outcome": {
+                  "const": "success"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "metadata": {
+                  "properties": {
+                    "phase": {
+                      "const": "failed"
+                    }
+                  },
+                  "required": [
+                    "phase"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "outcome": {
+                  "const": "failed"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "metadata": {
+                  "properties": {
+                    "phase": {
+                      "const": "unknown"
+                    }
+                  },
+                  "required": [
+                    "phase"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "outcome": {
+                  "const": "unknown"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ProviderCreateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "provider.create"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "model_provider"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "provider_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "changed_fields": {
+                "const": [
+                  "created"
+                ]
+              }
+            },
+            "required": [
+              "version",
+              "provider_id",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/ModelAssociations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "ProviderUpdateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "provider.update"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "model_provider"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "provider_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "changed_fields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "name",
+                    "enabled",
+                    "base_url",
+                    "credential_ref",
+                    "provider_options"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 5,
+                "uniqueItems": true,
+                "description": "Canonical sorted unique field names; never configuration values."
+              }
+            },
+            "required": [
+              "version",
+              "provider_id",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/ModelAssociations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "ProviderDeleteRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "provider.delete"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "model_provider"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "provider_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "changed_fields": {
+                "const": [
+                  "deleted"
+                ]
+              }
+            },
+            "required": [
+              "version",
+              "provider_id",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/ModelAssociations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "ModelCreateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "model.create"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "model_config"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "provider_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "model_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "changed_fields": {
+                "const": [
+                  "created"
+                ]
+              }
+            },
+            "required": [
+              "version",
+              "provider_id",
+              "model_id",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/ModelAssociations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "ModelUpdateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "model.update"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "model_config"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "provider_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "model_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "changed_fields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "name",
+                    "enabled",
+                    "model_id",
+                    "parameters",
+                    "request_overwrite",
+                    "header_overwrite",
+                    "capabilities"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 7,
+                "uniqueItems": true,
+                "description": "Canonical sorted unique field names; never configuration values."
+              }
+            },
+            "required": [
+              "version",
+              "provider_id",
+              "model_id",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/ModelAssociations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "ModelDeleteRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "model.delete"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "model_config"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "version": {
+                    "$ref": "./common.json#/components/schemas/Version"
+                  },
+                  "provider_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "model_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "changed_fields": {
+                    "const": [
+                      "deleted"
+                    ]
+                  },
+                  "affected_count": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  }
+                },
+                "required": [
+                  "version",
+                  "provider_id",
+                  "model_id",
+                  "changed_fields",
+                  "affected_count"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "version": {
+                    "$ref": "./common.json#/components/schemas/Version"
+                  },
+                  "provider_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "model_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "changed_fields": {
+                    "const": [
+                      "deleted",
+                      "replacement"
+                    ]
+                  },
+                  "affected_count": {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  "replacement_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                },
+                "required": [
+                  "version",
+                  "provider_id",
+                  "model_id",
+                  "changed_fields",
+                  "affected_count",
+                  "replacement_id"
+                ]
+              }
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/ModelAssociations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "ModelSelectionUpdateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "system"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "model.selection.update"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "model_selection"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "selection_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "selector_kind": {
+                "const": "platform"
+              },
+              "changed_fields": {
+                "const": [
+                  "selection"
+                ]
+              }
+            },
+            "required": [
+              "version",
+              "selection_id",
+              "selector_kind",
+              "changed_fields"
+            ]
+          },
+          "associations": {
+            "$ref": "#/components/schemas/ModelAssociations"
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Metadata is produced by the matching formal typed constructor (default JSON escaping, at most 4096 encoded UTF-8 bytes). Resource ID must equal the action-specific metadata identity where defined; scanner/constructor enforce cross-field equality and numeric relations."
+      },
+      "SystemAuditRecord": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/SecretCreateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/SecretUpdateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/SecretDeleteRecord"
+          },
+          {
+            "$ref": "#/components/schemas/SecretResolveRecord"
+          },
+          {
+            "$ref": "#/components/schemas/SecretMasterRegisterRecord"
+          },
+          {
+            "$ref": "#/components/schemas/SecretMasterRotationStartRecord"
+          },
+          {
+            "$ref": "#/components/schemas/SecretMasterRotationCompleteRecord"
+          },
+          {
+            "$ref": "#/components/schemas/SecretMasterRotationFailedRecord"
+          },
+          {
+            "$ref": "#/components/schemas/OutboundPolicyUpdateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/OutboundAccessDenyRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ObjectUploadCompleteRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ObjectUploadFailedRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ObjectDeleteRecord"
+          },
+          {
+            "$ref": "#/components/schemas/OutboxDeliveryRequeueRecord"
+          },
+          {
+            "$ref": "#/components/schemas/AccountBootstrapRecord"
+          },
+          {
+            "$ref": "#/components/schemas/AccountLoginRecord"
+          },
+          {
+            "$ref": "#/components/schemas/AccountLogoutRecord"
+          },
+          {
+            "$ref": "#/components/schemas/AccountInviteCreateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/AccountInviteRevokeRecord"
+          },
+          {
+            "$ref": "#/components/schemas/AccountInviteRedeemRecord"
+          },
+          {
+            "$ref": "#/components/schemas/AccountPasswordResetRequestRecord"
+          },
+          {
+            "$ref": "#/components/schemas/AccountPasswordResetCompleteRecord"
+          },
+          {
+            "$ref": "#/components/schemas/AccountPasswordChangeRecord"
+          },
+          {
+            "$ref": "#/components/schemas/AccountProfileUpdateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/AccountAvatarUpdateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/AccountSettingsUpdateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/SmtpSettingsUpdateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/SmtpTestRequestRecord"
+          },
+          {
+            "$ref": "#/components/schemas/SmtpDeliveryRetryRecord"
+          },
+          {
+            "$ref": "#/components/schemas/SmtpDeliveryRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ProviderCreateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ProviderUpdateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ProviderDeleteRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ModelCreateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ModelUpdateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ModelDeleteRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ModelSelectionUpdateRecord"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "action",
+          "mapping": {
+            "secret.create": "#/components/schemas/SecretCreateRecord",
+            "secret.update": "#/components/schemas/SecretUpdateRecord",
+            "secret.delete": "#/components/schemas/SecretDeleteRecord",
+            "secret.resolve": "#/components/schemas/SecretResolveRecord",
+            "secret.master.register": "#/components/schemas/SecretMasterRegisterRecord",
+            "secret.master.rotation.start": "#/components/schemas/SecretMasterRotationStartRecord",
+            "secret.master.rotation.complete": "#/components/schemas/SecretMasterRotationCompleteRecord",
+            "secret.master.rotation.failed": "#/components/schemas/SecretMasterRotationFailedRecord",
+            "outbound.policy.update": "#/components/schemas/OutboundPolicyUpdateRecord",
+            "outbound.access.deny": "#/components/schemas/OutboundAccessDenyRecord",
+            "object.upload.complete": "#/components/schemas/ObjectUploadCompleteRecord",
+            "object.upload.failed": "#/components/schemas/ObjectUploadFailedRecord",
+            "object.delete": "#/components/schemas/ObjectDeleteRecord",
+            "outbox.delivery.requeue": "#/components/schemas/OutboxDeliveryRequeueRecord",
+            "account.bootstrap": "#/components/schemas/AccountBootstrapRecord",
+            "account.login": "#/components/schemas/AccountLoginRecord",
+            "account.logout": "#/components/schemas/AccountLogoutRecord",
+            "account.invite.create": "#/components/schemas/AccountInviteCreateRecord",
+            "account.invite.revoke": "#/components/schemas/AccountInviteRevokeRecord",
+            "account.invite.redeem": "#/components/schemas/AccountInviteRedeemRecord",
+            "account.password.reset.request": "#/components/schemas/AccountPasswordResetRequestRecord",
+            "account.password.reset.complete": "#/components/schemas/AccountPasswordResetCompleteRecord",
+            "account.password.change": "#/components/schemas/AccountPasswordChangeRecord",
+            "account.profile.update": "#/components/schemas/AccountProfileUpdateRecord",
+            "account.avatar.update": "#/components/schemas/AccountAvatarUpdateRecord",
+            "account.settings.update": "#/components/schemas/AccountSettingsUpdateRecord",
+            "smtp.settings.update": "#/components/schemas/SmtpSettingsUpdateRecord",
+            "smtp.test.request": "#/components/schemas/SmtpTestRequestRecord",
+            "smtp.delivery.retry": "#/components/schemas/SmtpDeliveryRetryRecord",
+            "smtp.delivery": "#/components/schemas/SmtpDeliveryRecord",
+            "provider.create": "#/components/schemas/ProviderCreateRecord",
+            "provider.update": "#/components/schemas/ProviderUpdateRecord",
+            "provider.delete": "#/components/schemas/ProviderDeleteRecord",
+            "model.create": "#/components/schemas/ModelCreateRecord",
+            "model.update": "#/components/schemas/ModelUpdateRecord",
+            "model.delete": "#/components/schemas/ModelDeleteRecord",
+            "model.selection.update": "#/components/schemas/ModelSelectionUpdateRecord"
+          }
+        }
+      },
+      "SystemAuditPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SystemAuditRecord"
+            },
+            "maxItems": 200
+          },
+          "next_cursor": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8192,
+                "pattern": "^[A-Za-z0-9_.-]+$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ]
+      }
+    }
+  }
+}

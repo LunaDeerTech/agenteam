@@ -10,6 +10,7 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/accountmail"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	audithttp "github.com/LunaDeerTech/agenteam/internal/central/audit/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -396,8 +397,12 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	auditHandler, err := audithttp.NewSystemHTTPHandler(auditor, core, audithttp.SystemHTTPOptions{PublicOrigin: cfg.PublicOrigin()})
+	if err != nil {
+		return err
+	}
 	if !accounts.install(ctx, func() {
-		accounts.handler = systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler)
+		accounts.handler = systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler)
 	}) {
 		return context.Canceled
 	}

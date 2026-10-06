@@ -12,6 +12,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -152,15 +153,26 @@ func (s *Service) Get(ctx context.Context, actor identity.Actor, scope identity.
 	if err := s.authorizeHuman(ctx, foundation.Tx{}, actor, scope, identity.Read); err != nil {
 		return contract.SafeRecord{}, err
 	}
+	return getRecord(ctx, s.store, scope, id, nil)
+}
+
+// The optional check belongs to the new System facade; old readers retain
+// their original authorization, validation and error projection.
+func getRecord(ctx context.Context, sql postgres.SQLExecutor, scope identity.Scope, id contract.ID, check func(contract.SafeRecord) error) (contract.SafeRecord, error) {
 	if id.Validate() != nil {
 		return contract.SafeRecord{}, invalid("audit_id")
 	}
-	r, err := scanRecord(s.store.QueryRow(ctx, `SELECT `+recordColumns+` FROM agenteam_audit.audit_records WHERE scope=$1 AND scope_key=$2 AND id=$3`, string(scope.Details().Kind), scopeKey(scope), id.String()))
+	r, err := scanRecord(sql.QueryRow(ctx, `SELECT `+recordColumns+` FROM agenteam_audit.audit_records WHERE scope=$1 AND scope_key=$2 AND id=$3`, string(scope.Details().Kind), scopeKey(scope), id.String()))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return contract.SafeRecord{}, failure(foundation.NotFound, "audit_not_found", nil)
 	}
 	if err != nil {
 		return contract.SafeRecord{}, unavailable(err)
+	}
+	if check != nil {
+		if err = check(r); err != nil {
+			return contract.SafeRecord{}, err
+		}
 	}
 	return r, nil
 }
@@ -169,6 +181,11 @@ func (s *Service) List(ctx context.Context, actor identity.Actor, scope identity
 	if err := s.authorizeHuman(ctx, foundation.Tx{}, actor, scope, identity.Read); err != nil {
 		return empty, err
 	}
+	return s.listRecords(ctx, s.store, scope, f, page, nil)
+}
+
+func (s *Service) listRecords(ctx context.Context, sql postgres.SQLExecutor, scope identity.Scope, f contract.Filter, page foundation.PageRequest, check func(contract.SafeRecord) error) (foundation.Page[contract.SafeRecord], error) {
+	empty := foundation.Page[contract.SafeRecord]{}
 	if f.Validate() != nil || page.Validate() != nil {
 		return empty, invalid("page_filter")
 	}
@@ -216,28 +233,61 @@ func (s *Service) List(ctx context.Context, actor identity.Actor, scope identity
 		where = append(where, fmt.Sprintf("(created_at,id)<($%d,$%d)", len(args)-1, len(args)))
 	}
 	args = append(args, page.Limit+1)
-	rows, err := s.store.Query(ctx, `SELECT `+recordColumns+` FROM agenteam_audit.audit_records WHERE `+strings.Join(where, " AND ")+fmt.Sprintf(" ORDER BY created_at DESC,id DESC LIMIT $%d", len(args)), args...)
+	rows, err := sql.Query(ctx, `SELECT `+recordColumns+` FROM agenteam_audit.audit_records WHERE `+strings.Join(where, " AND ")+fmt.Sprintf(" ORDER BY created_at DESC,id DESC LIMIT $%d", len(args)), args...)
 	if err != nil {
 		return empty, unavailable(err)
 	}
-	defer rows.Close()
-	items := make([]contract.SafeRecord, 0, page.Limit+1)
+	return s.recordPage(rows, binding, page.Limit, check)
+}
+
+// recordRows is local to the bounded query scanner, not a second Store port.
+type recordRows interface {
+	scanner
+	Next() bool
+	Err() error
+	Close()
+}
+
+func (s *Service) recordPage(rows recordRows, binding cursor.Binding, limit int, check func(contract.SafeRecord) error) (foundation.Page[contract.SafeRecord], error) {
+	empty := foundation.Page[contract.SafeRecord]{}
+	closed := false
+	defer func() {
+		if !closed {
+			rows.Close()
+		}
+	}()
+	items := make([]contract.SafeRecord, 0, limit+1)
 	for rows.Next() {
 		r, e := scanRecord(rows)
 		if e != nil {
 			return empty, unavailable(e)
 		}
+		if check != nil {
+			if e = check(r); e != nil {
+				return empty, e
+			}
+			if len(items) >= limit+1 {
+				return empty, unavailable(nil)
+			}
+		}
 		items = append(items, r)
 	}
-	if err = rows.Err(); err != nil {
+	if check != nil {
+		// A strict read publishes nothing until Close and its final error have
+		// been observed. This includes the extra pagination row.
+		rows.Close()
+		closed = true
+	}
+	if err := rows.Err(); err != nil {
 		return empty, unavailable(err)
 	}
 	out := foundation.Page[contract.SafeRecord]{Items: items}
-	if len(items) > page.Limit {
-		out.Items = items[:page.Limit]
+	if len(items) > limit {
+		out.Items = items[:limit]
 		last := out.Items[len(out.Items)-1]
 		at, _ := cursor.Instant(last.CreatedAt)
 		id, _ := cursor.UUID(last.AuditID.String())
+		var err error
 		out.NextCursor, err = s.keys.Sign(binding, cursor.Position{Scalars: []cursor.Scalar{at, id}})
 		if err != nil {
 			return empty, err
