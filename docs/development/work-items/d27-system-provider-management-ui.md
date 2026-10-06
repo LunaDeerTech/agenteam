@@ -1,8 +1,10 @@
 # D27：System Provider 管理、凭据替换与 Models 只读子列表
 
-状态：rev3，2026-10-06 已获 `recovery_verification`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳；被审稿 SHA256 `c859524983cfb0c51f96d7cd20ee2871d0fc013498eff1cbbd109590615395c4`。rev2 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS）并由主线程采纳，被审稿 SHA256 `634af3d0b2fa337cfd6a60aa568c6e8825b3f9238cc24c6f12325131847a3580`。邀请 UI 已独立最终 PASS、主线程采纳并提交推送 `1c82d888adfef0d8b58ab51c920557ca4e2f084f`（六组新真实顶层、五组旧真实回归及453项纯测通过），所属真实资源已双次清零交回；本卡前端固定消费该提交，后端仍为 `9b3201547f9b7b61fd9716a6ba6540084961496c`及迁移1–19的已接受兼容组合。主线程已确定 `directory_backend`（改任frontend_worker）为§6原二十一条路径的唯一作者；待本卡提交后再由主线程正式下发产品写入与独占真实窗口，当前不自行启动。本次仅更新页首采纳及实施安排，技术§1–7保持被审原字节；下文设计冻结时的待授叙述以本页首为准。规格通过和上游接受不代表本卡产品通过。
+状态：rev4，2026-10-06 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS）并由主线程采纳，被审稿 SHA256 `fbfad26d4105d0932c67b957185aa2a0f6685c21a0fb4d27016567adf53f079c`。rev3已获 `recovery_verification`（verification_worker）独立静审通过（STATIC PASS）并由主线程采纳，被审稿 SHA256 `c859524983cfb0c51f96d7cd20ee2871d0fc013498eff1cbbd109590615395c4`；rev2已获 `recovery_documentation` 独立STATIC PASS并采纳，被审稿 SHA256 `634af3d0b2fa337cfd6a60aa568c6e8825b3f9238cc24c6f12325131847a3580`。邀请UI已独立最终PASS并接受提交 `1c82d888adfef0d8b58ab51c920557ca4e2f084f`；固定前端及后端 `9b3201547f9b7b61fd9716a6ba6540084961496c`、迁移1–19组合保持。原21路径由 `directory_backend`（改任frontend_worker）唯一实施，当前20源候选已冻结；本修订仅将旧邀请浏览器菜单数量适配列为第22候选，该范围已由主线程采纳，待本卡提交后由主线程正式授予原作者；原21路径授权保持，当前第22路径源码与真实资源均未扩授。architecture_worker仅改本卡，不启动产品或资源；原实施与窗口安排保持。规格通过和上游接受不代表本卡产品通过。
 
 rev1独立静审为BLOCKED：合法Provider页经Go默认JSON转义可超过600000B；未发现其他规格阻断。rev2仅将listProviders成功JSON响应窄扩为2MiB，补完整上界、限定路径用途及相应验收；该修订已独立复审通过。rev3仅固定邀请已接受接缝，明确App期状态/Promise与View末尾确认宿主分工、checking失败恢复和旧实例焦点门禁，补已定分域/CSRF规则的固定接入注意与对应验收；API、请求/响应预算、二十一条路径、两步提交与敏感材料恢复规则不变。
+
+rev4仅补既定Providers第三叶子对旧真实回归的数量影响：固定 `1c82d88` 的 `tests/account-captcha-web/e2e/system-invitations.spec.ts:1528` 在NavigationAndLayouts窄屏Drawer断言全部link数量为2；本卡菜单接受后应为3。仅该count的2→3列入新增路径，用户/邀请链接、焦点/键盘/关闭及其余断言和预算保持；§1–5、§7技术规则与原21路径用途不变。
 
 ## 1. 完整结果与真实依赖
 
@@ -108,7 +110,7 @@ dirty包括普通字段变化、新材料、进行中/未确认写及尚未完�
 
 ## 6. 精确候选路径与所有权
 
-下列21路径保持候选范围，拟由directory_backend改任frontend_worker实施；邀请UI及共享焦点前置已在 `1c82d88` 接受，但本修订独立静审采纳与主线程明确移交前，仍无源码/测试写权、无真实资源窗口。以该固定输入保留共享App/router/Session/client/设置菜单/旧测试和README中的已接受能力，不覆盖邀请成果。当前仅本卡由architecture_worker写。
+下列22路径由原21路径与新增第22候选组成，原作者/实施安排保持；新增路径在本修订独立静审采纳与主线程明确扩权前无写权，本修订不扩大真实资源。邀请UI及共享焦点前置已在 `1c82d88` 接受；以该固定输入保留共享App/router/Session/client/设置菜单/旧测试和README中的已接受能力，不覆盖邀请成果。architecture_worker当前仅写本卡。
 
 | # | 路径 | 限定用途 |
 | --- | --- | --- |
@@ -133,6 +135,7 @@ dirty包括普通字段变化、新材料、进行中/未确认写及尚未完�
 | 19 | `tests/account-captcha-web/system-providers.config.js`（新） | 锁定Playwright场景/预算、独占私有输出与敏感输入证据保护。 |
 | 20 | `tests/account-captcha-web/e2e/system-providers.spec.ts`（新） | 固定生产dist+真实backend的页面、恢复、权限及布局。 |
 | 21 | `docs/development/frontend/README.md` | 产品接受后同步新叶子/七项return、实际命令与能力限制。 |
+| 22 | `tests/account-captcha-web/e2e/system-invitations.spec.ts` | 仅NavigationAndLayouts窄屏Drawer的 `getByRole('link').toHaveCount(2)` 改为count3（固定 `1c82d88:1528`）；原用户/邀请链接、Tab困陷、Escape/遮罩与触发焦点、后续链接点击以及全部其他断言/动作/预算保持，不扩大fixture或driver。 |
 
 必读[Vue开发技能](../../../.agents/skills/agenteam-vue-development/SKILL.md)、[Vue测试技能](../../../.agents/skills/vue-testing-best-practices/SKILL.md)；独立验收读[验证技能](../../../.agents/skills/agenteam-verification/SKILL.md)，真实浏览器按环境使用Playwright技能，缺失如实记录。不新增npm依赖。SettingsShell/Ui公共组件、全局CSS、旧个人/公开/邀请controller与API、后端生产/OpenAPI、迁移1–19、旧浏览器fixture/driver、锁文件和当前归档路径只读。零DDL，不占下一迁移；若发现后端缺口、共享契约冲突或需扩大路径，保留证据交主线程修卡，不打stub或扩大旧任务。
 
