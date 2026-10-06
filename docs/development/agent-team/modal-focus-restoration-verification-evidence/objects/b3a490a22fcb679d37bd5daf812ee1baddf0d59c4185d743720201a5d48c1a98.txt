@@ -1,0 +1,52 @@
+
+Running 1 test using 1 worker
+
+[1A[2K(node:464819) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:464819) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/1] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:469:5 › dialog: native editable-child focus restoration
+[1A[2K  1) tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:469:5 › dialog: native editable-child focus restoration 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+    Call Log:
+    - Timeout 3000ms exceeded while waiting on the predicate
+
+      398 |   await expect(panel).toBeVisible()
+      399 |   await expect(panel).toHaveJSProperty('inert', false)
+    > 400 |   await expect
+          |   ^
+      401 |     .poll(() => panel.evaluate((node) => node.contains(document.activeElement)))
+      402 |     .toBe(true)
+      403 |   await expect(page.locator('#app')).toHaveJSProperty('inert', true)
+        at insideRemainingModal (/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate02/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:400:3)
+        at /workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate02/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:524:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../runs/repair-old01/results/dialog-outside-focus-dialo-7584e-ble-child-focus-restoration/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../runs/repair-old01/results/dialog-outside-focus-dialo-7584e-ble-child-focus-restoration/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../runs/repair-old01/results/dialog-outside-focus-dialo-7584e-ble-child-focus-restoration/trace.zip
+    Usage:
+
+        npx playwright show-trace ../runs/repair-old01/results/dialog-outside-focus-dialo-7584e-ble-child-focus-restoration/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2KTesting stopped early after 1 maximum allowed failures.
+
+[1A[2K  1 failed
+    tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:469:5 › dialog: native editable-child focus restoration 
+  1 error was not a part of any test, see above for details

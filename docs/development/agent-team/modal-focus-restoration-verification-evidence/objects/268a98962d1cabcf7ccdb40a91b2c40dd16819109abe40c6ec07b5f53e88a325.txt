@@ -1,0 +1,275 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/dialog-outside-focus.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/web
+
+ ❯ src/tests/dialog-outside-focus.spec.ts (53 tests | 34 failed) 906ms
+     × prefers the exact still-valid trigger over another focusable 23ms
+     × rejects the now-disabled trigger and finds a legal modal target 9ms
+     × rejects the now-fieldset trigger and finds a legal modal target 10ms
+     × rejects the now-hidden trigger and finds a legal modal target 11ms
+     × rejects the now-inert trigger and finds a legal modal target 9ms
+     × rejects the now-aria-hidden trigger and finds a legal modal target 8ms
+     × rejects the now-display trigger and finds a legal modal target 8ms
+     × rejects the now-visibility trigger and finds a legal modal target 8ms
+     × rejects the now-collapse trigger and finds a legal modal target 8ms
+     × rejects the now-disconnected trigger and finds a legal modal target 8ms
+     × rejects the now-non-focusable trigger and finds a legal modal target 8ms
+     × rejects the now-no-layout trigger and finds a legal modal target 9ms
+     × rejects the now-empty-region trigger and finds a legal modal target 9ms
+     × uses the remaining panel when all its controls are disabled 10ms
+     × restores inside the new lower panel after both real components remount open 9ms
+     × does not focus any background target when the allowed panel is unavailable 9ms
+     × does not steal focus when a non-top modal unmounts 9ms
+     × prefers the exact still-valid trigger over another focusable 9ms
+     × rejects the now-disabled trigger and finds a legal modal target 8ms
+     × rejects the now-fieldset trigger and finds a legal modal target 8ms
+     × rejects the now-hidden trigger and finds a legal modal target 7ms
+     × rejects the now-inert trigger and finds a legal modal target 9ms
+     × rejects the now-aria-hidden trigger and finds a legal modal target 9ms
+     × rejects the now-display trigger and finds a legal modal target 10ms
+     × rejects the now-visibility trigger and finds a legal modal target 9ms
+     × rejects the now-collapse trigger and finds a legal modal target 10ms
+     × rejects the now-disconnected trigger and finds a legal modal target 9ms
+     × rejects the now-non-focusable trigger and finds a legal modal target 10ms
+     × rejects the now-no-layout trigger and finds a legal modal target 9ms
+     × rejects the now-empty-region trigger and finds a legal modal target 10ms
+     × uses the remaining panel when all its controls are disabled 10ms
+     × restores inside the new lower panel after both real components remount open 9ms
+     × does not focus any background target when the allowed panel is unavailable 11ms
+     × does not steal focus when a non-top modal unmounts 9ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 34 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > prefers the exact still-valid trigger over another focusable
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > prefers the exact still-valid trigger over another focusable
+AssertionError: expected <button …(2)></button> to be <input …(2)></input> // Object.is equality
+
+- Expected
++ Received
+
+- <input
+-   data-autofocus=""
+-   data-confirmation-input=""
+- />
++ <button
++   data-recovery-trigger=""
++   tabindex="0"
++ >
++   Confirm
++ </button>
+
+ ❯ openConfirmation src/tests/dialog-outside-focus.spec.ts:227:34
+    225|   trigger.click()
+    226|   await nextTick()
+    227|   expect(document.activeElement).toBe(document.querySelector('[data-co…
+       |                                  ^
+    228|   return trigger
+    229| }
+ ❯ src/tests/dialog-outside-focus.spec.ts:250:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/34]⎯
+
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-disabled trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-fieldset trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-hidden trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-inert trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-aria-hidden trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-display trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-visibility trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-collapse trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-disconnected trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-no-layout trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-empty-region trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-disabled trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-fieldset trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-hidden trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-inert trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-aria-hidden trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-display trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-visibility trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-collapse trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-disconnected trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-no-layout trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-empty-region trigger and finds a legal modal target
+AssertionError: expected <button …(2)></button> to be <input …(2)></input> // Object.is equality
+
+- Expected
++ Received
+
+- <input
+-   data-autofocus=""
+-   data-confirmation-input=""
+- />
++ <button
++   data-recovery-trigger=""
++   tabindex="0"
++ >
++   Confirm
++ </button>
+
+ ❯ openConfirmation src/tests/dialog-outside-focus.spec.ts:227:34
+    225|   trigger.click()
+    226|   await nextTick()
+    227|   expect(document.activeElement).toBe(document.querySelector('[data-co…
+       |                                  ^
+    228|   return trigger
+    229| }
+ ❯ src/tests/dialog-outside-focus.spec.ts:286:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/34]⎯
+
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-non-focusable trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-non-focusable trigger and finds a legal modal target
+AssertionError: expected <span data-recovery-trigger …(2)></span> to be <input …(2)></input> // Object.is equality
+
+- Expected
++ Received
+
+- <input
+-   data-autofocus=""
+-   data-confirmation-input=""
+- />
++ <span
++   data-recovery-trigger=""
++   disabled="false"
++   tabindex="0"
++ >
++   Confirm
++ </span>
+
+ ❯ openConfirmation src/tests/dialog-outside-focus.spec.ts:227:34
+    225|   trigger.click()
+    226|   await nextTick()
+    227|   expect(document.activeElement).toBe(document.querySelector('[data-co…
+       |                                  ^
+    228|   return trigger
+    229| }
+ ❯ src/tests/dialog-outside-focus.spec.ts:286:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/34]⎯
+
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > uses the remaining panel when all its controls are disabled
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > uses the remaining panel when all its controls are disabled
+AssertionError: expected <button …(2)></button> to be <input …(2)></input> // Object.is equality
+
+- Expected
++ Received
+
+- <input
+-   data-autofocus=""
+-   data-confirmation-input=""
+- />
++ <button
++   data-recovery-trigger=""
++   tabindex="0"
++ >
++   Confirm
++ </button>
+
+ ❯ openConfirmation src/tests/dialog-outside-focus.spec.ts:227:34
+    225|   trigger.click()
+    226|   await nextTick()
+    227|   expect(document.activeElement).toBe(document.querySelector('[data-co…
+       |                                  ^
+    228|   return trigger
+    229| }
+ ❯ src/tests/dialog-outside-focus.spec.ts:302:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/34]⎯
+
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > restores inside the new lower panel after both real components remount open
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > restores inside the new lower panel after both real components remount open
+AssertionError: expected <button …(2)></button> to be <input …(2)></input> // Object.is equality
+
+- Expected
++ Received
+
+- <input
+-   data-autofocus=""
+-   data-confirmation-input=""
+- />
++ <button
++   data-recovery-trigger=""
++   tabindex="0"
++ >
++   Confirm
++ </button>
+
+ ❯ openConfirmation src/tests/dialog-outside-focus.spec.ts:227:34
+    225|   trigger.click()
+    226|   await nextTick()
+    227|   expect(document.activeElement).toBe(document.querySelector('[data-co…
+       |                                  ^
+    228|   return trigger
+    229| }
+ ❯ src/tests/dialog-outside-focus.spec.ts:313:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/34]⎯
+
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > does not focus any background target when the allowed panel is unavailable
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > does not focus any background target when the allowed panel is unavailable
+AssertionError: expected <button …(2)></button> to be <input …(2)></input> // Object.is equality
+
+- Expected
++ Received
+
+- <input
+-   data-autofocus=""
+-   data-confirmation-input=""
+- />
++ <button
++   data-recovery-trigger=""
++   tabindex="0"
++ >
++   Confirm
++ </button>
+
+ ❯ openConfirmation src/tests/dialog-outside-focus.spec.ts:227:34
+    225|   trigger.click()
+    226|   await nextTick()
+    227|   expect(document.activeElement).toBe(document.querySelector('[data-co…
+       |                                  ^
+    228|   return trigger
+    229| }
+ ❯ src/tests/dialog-outside-focus.spec.ts:324:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/34]⎯
+
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > does not steal focus when a non-top modal unmounts
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > does not steal focus when a non-top modal unmounts
+AssertionError: expected <button …(2)></button> to be <input …(2)></input> // Object.is equality
+
+- Expected
++ Received
+
+- <input
+-   data-autofocus=""
+-   data-confirmation-input=""
+- />
++ <button
++   data-recovery-trigger=""
++   tabindex="0"
++ >
++   Confirm
++ </button>
+
+ ❯ openConfirmation src/tests/dialog-outside-focus.spec.ts:227:34
+    225|   trigger.click()
+    226|   await nextTick()
+    227|   expect(document.activeElement).toBe(document.querySelector('[data-co…
+       |                                  ^
+    228|   return trigger
+    229| }
+ ❯ src/tests/dialog-outside-focus.spec.ts:334:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/34]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  34 failed | 19 passed (53)
+   Start at  07:20:19
+   Duration  1.85s (transform 323ms, setup 0ms, import 399ms, tests 906ms, environment 411ms)
+

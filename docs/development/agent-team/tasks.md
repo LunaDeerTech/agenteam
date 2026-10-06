@@ -2,6 +2,12 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：共享模态关闭焦点恢复接受
+
+- [共享修复 rev2](../work-items/d27-modal-focus-restoration.md)四路径已由 `directory_backend` 完成、`recovery_verification` 独立最终 PASS；主线程采纳提交推送 `79f922ec259d2838052a903612e2a27005618c11`，远端一致。[正式报告与最小证据](modal-focus-restoration-verification.md)绑定 input02 `584a9de02239ca17c6bea8834c2cf262aec255cff690780bd0a9c97ffe78c4a6`，四源与Git相同。关闭顶层时合法trigger失败会继续剩余模态内回退，不放宽隐藏/inert/disabled门禁或改变无modal原规则。
+- input01独立 inherited-editable 产品红保留；返修原probe3项及真正编辑宿主1项真实PASS、独立纯测3项PASS。作者返修52项恢复纯测、旧nested-menu1项与10项浏览器、格式/类型/构建通过；旧287/30完整矩阵按未变部分复用，不称input02重新全量执行。旧new01只证明保存spec副本同字节，缺运行时spec指纹；返修两轮原输入已前后绑定。
+- 作者170、独立68个所属PID/starttime双扫空，独立18次adopted wait实际完成、server/TMP/监听终局正常；历史PPID1 Z限制不被覆盖。邀请rev4已恢复22路径实施和业务窗口，仍未接受；组件共同重挂不等于邀请真实Session/pageshow。Summary待决、Object/tools原停止、Artifact/Project阻塞、ready503、完整D08–D28/E01未完成及E01未开始保持。以下旧记录保留当时事实。
+
 ## 2026-10-06：系统邀请最近投递读口与 00019 接受
 
 - [邀请读口 rev1](../work-items/d27-system-invitation-delivery-read.md)八路径由 `directory_backend` 完成、`recovery_verification` 独立最终 PASS；主线程采纳提交推送 `9b3201547f9b7b61fd9716a6ba6540084961496c`，远端一致。[正式报告与最小证据](system-invitation-delivery-read-verification.md)绑定 input04 `41382f9f482ddad686d76ae1492361031fe6a2485fa012c2a10708ee09b9fe12`；八源与交付 Git 相同，两锁及迁移00001–00018不变，00019仅增加既定 invitation link 部分索引。

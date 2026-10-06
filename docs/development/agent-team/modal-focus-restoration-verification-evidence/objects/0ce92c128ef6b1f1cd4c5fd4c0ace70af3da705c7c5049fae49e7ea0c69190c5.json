@@ -1,0 +1,242 @@
+{
+  "actual_wait_completed": true,
+  "subreaper_enabled_before_launch": true,
+  "adopted_waits": [
+    {
+      "pid": 468671,
+      "status": 0,
+      "tracked_starttime": 1300019
+    },
+    {
+      "pid": 468674,
+      "status": 0,
+      "tracked_starttime": 1300019
+    },
+    {
+      "pid": 468676,
+      "status": 0,
+      "tracked_starttime": 1300019
+    },
+    {
+      "pid": 468677,
+      "status": 0,
+      "tracked_starttime": 1300019
+    }
+  ],
+  "owned_processes": [
+    {
+      "pid": 468589,
+      "ppid": 468581,
+      "state": "Z",
+      "session": 468589,
+      "starttime": 1299851,
+      "comm": "MainThread"
+    },
+    {
+      "pid": 468654,
+      "ppid": 468589,
+      "state": "S",
+      "session": 468589,
+      "starttime": 1299949,
+      "comm": "MainThread"
+    },
+    {
+      "pid": 468669,
+      "ppid": 468654,
+      "state": "Z",
+      "session": 468669,
+      "starttime": 1300015,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468674,
+      "ppid": 468581,
+      "state": "Z",
+      "session": 468672,
+      "starttime": 1300019,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 468676,
+      "ppid": 468581,
+      "state": "Z",
+      "session": 468669,
+      "starttime": 1300019,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468677,
+      "ppid": 468581,
+      "state": "Z",
+      "session": 468669,
+      "starttime": 1300019,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468671,
+      "ppid": 468581,
+      "state": "Z",
+      "session": 468670,
+      "starttime": 1300019,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 468713,
+      "ppid": 468677,
+      "state": "S",
+      "session": 468669,
+      "starttime": 1300029,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468697,
+      "ppid": 468676,
+      "state": "S",
+      "session": 468669,
+      "starttime": 1300024,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468700,
+      "ppid": 468669,
+      "state": "S",
+      "session": 468669,
+      "starttime": 1300025,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468744,
+      "ppid": 468677,
+      "state": "Z",
+      "session": 468669,
+      "starttime": 1300036,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468753,
+      "ppid": 468677,
+      "state": "Z",
+      "session": 468669,
+      "starttime": 1300038,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468754,
+      "ppid": 468677,
+      "state": "S",
+      "session": 468669,
+      "starttime": 1300038,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468834,
+      "ppid": 468677,
+      "state": "S",
+      "session": 468669,
+      "starttime": 1300385,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468843,
+      "ppid": 468677,
+      "state": "S",
+      "session": 468669,
+      "starttime": 1300386,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468845,
+      "ppid": 468677,
+      "state": "S",
+      "session": 468669,
+      "starttime": 1300387,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468912,
+      "ppid": 468677,
+      "state": "Z",
+      "session": 468669,
+      "starttime": 1300863,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468921,
+      "ppid": 468677,
+      "state": "Z",
+      "session": 468669,
+      "starttime": 1300865,
+      "comm": "chromium"
+    },
+    {
+      "pid": 468922,
+      "ppid": 468677,
+      "state": "R",
+      "session": 468669,
+      "starttime": 1300865,
+      "comm": "chromium"
+    }
+  ],
+  "remaining_first": [],
+  "remaining_second": [],
+  "tmpdir": "/tmp/mfv-a43nl6fw",
+  "tmp_absent": true,
+  "servers": [
+    {
+      "pid": 468654,
+      "origin": "http://127.0.0.1:43707",
+      "nonce": "51cbf2e7-3b54-4f37-9605-23e90b1cac0d",
+      "inputs": {
+        "src/components/ui/UiDialog.vue": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065",
+        "src/components/ui/UiDrawer.vue": "e62cc686f6fe8c3981680c3c88ec4880effbb9e84aedf80a5aff9978939a2def",
+        "src/components/ui/UiPopover.vue": "d41aae39719cab8ce3cd7b4924d9e1db4c9ab450fe423a9397b45f752db1970c",
+        "src/components/ui/UiButton.vue": "af03eda76b9d74f9c74e788f239397bfac9bdb67f9c7454ac8bf1a29e5e5abf9",
+        "src/components/ui/UiIcon.vue": "180fd280018366204978a388b933543be597c9f8c654c5af1b6eb8f9d262e280",
+        "src/components/ui/UiSpinner.vue": "b8568ad14952ddb87bf13e8877c89d30e5c69f23fd38bc7c72c44562f602689c",
+        "src/components/ui/types.ts": "5cde2f860f7088f599aa86a485787d79c5f0f8886e5bfb766dfccac8e0b29ec7",
+        "src/composables/useLayer.ts": "92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f",
+        "src/styles/tokens.css": "e71b59daf59c53187796c061bc8486649e2aa0ad92d5b9c9c292165613a466b8",
+        "src/styles/base.css": "95406edff72418d7ca07d37f638b0718ec8ad711eab9b6c579cd4e1cebe55b72",
+        "src/styles/components.css": "0f8289238b3f4af109e233cea7f76a3759d79c45f737c575467af771b05d96eb"
+      },
+      "closed": true
+    }
+  ],
+  "server_all_closed": true,
+  "ports_unchanged": true,
+  "ports_after": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                \nLISTEN 0      0          127.0.0.1:9001      0.0.0.0:*                                          \nLISTEN 0      0          127.0.0.1:9000      0.0.0.0:*                                          \nLISTEN 0      0            0.0.0.0:1040      0.0.0.0:*    users:((\"caas-prefix-tra\",pid=2,fd=3))\nLISTEN 0      0          127.0.0.1:5432      0.0.0.0:*                                          \n",
+  "historical_baseline_not_owned": [
+    {
+      "pid": 180180,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180179,
+      "starttime": 408854,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 180182,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180178,
+      "starttime": 408854,
+      "comm": "chromium"
+    },
+    {
+      "pid": 180184,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180183,
+      "starttime": 408854,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 180185,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180178,
+      "starttime": 408854,
+      "comm": "chromium"
+    }
+  ]
+}

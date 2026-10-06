@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "node",
+    "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--target",
+    "ES2022",
+    "--module",
+    "NodeNext",
+    "--moduleResolution",
+    "NodeNext",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--types",
+    "node",
+    "--typeRoots",
+    "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/web/node_modules/@types",
+    "--skipLibCheck",
+    "candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-modal-focus-verification-jd6agsku",
+  "exit": 0,
+  "actual_wait_completed": true,
+  "seconds": 1.019,
+  "browser_source_sha256": "72161eda5158e429dd7051c96538b651c45bb3e27ba58fae5705d770c4b8ed72",
+  "input_unchanged": true,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

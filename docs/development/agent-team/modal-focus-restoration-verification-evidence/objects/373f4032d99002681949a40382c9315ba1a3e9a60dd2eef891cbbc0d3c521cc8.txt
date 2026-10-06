@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/dialog-outside-focus.spec.ts -t modal restoration|inert lower modal|highest allowed popover
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate02/web
+
+
+ Test Files  1 passed (1)
+      Tests  52 passed | 10 skipped (62)
+   Start at  07:37:03
+   Duration  2.22s (transform 317ms, setup 0ms, import 396ms, tests 1.28s, environment 414ms)
+

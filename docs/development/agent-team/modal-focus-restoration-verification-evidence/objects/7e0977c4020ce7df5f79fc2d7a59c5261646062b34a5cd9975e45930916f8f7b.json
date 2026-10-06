@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "npm",
+    "--prefix",
+    "web",
+    "run",
+    "check"
+  ],
+  "cwd": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate",
+  "env": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TMPDIR": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/tmp"
+  },
+  "inputs": {
+    "web/src/composables/useLayer.ts": "86966bc70f7bb8c8875c84ae7c84df5152ac12050bcc2d3bbc3c142c35e37b2c",
+    "web/src/tests/dialog-outside-focus.spec.ts": "cd73359f2939f370884d6be9ba392860781a82a0946efd93d8419ab95a6068e4",
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": "e93fca2ace5d6de5abf209aa24923b64f756c4af32858e92d45a1b6a7aa0d990"
+  }
+}

@@ -1,0 +1,18 @@
+
+Running 1 test using 1 worker
+
+[1A[2K(node:469354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:469354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/1] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:319:1 › independent genuine editing host without tabindex restores exactly
+[1A[2Ktests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:319:1 › independent genuine editing host without tabindex restores exactly
+INDEPENDENT_NATIVE_EDITING_HOST {"kind":"dialog","connected":true,"tabIndex":-1,"tabAttribute":null,"selfEditable":"true","editable":true,"focused":true,"lowerContains":true}
+
+[1A[2KINDEPENDENT_NATIVE_EDITING_HOST {"kind":"drawer","connected":true,"tabIndex":-1,"tabAttribute":null,"selfEditable":"true","editable":true,"focused":true,"lowerContains":true}
+
+[1A[2K  1 passed (3.8s)

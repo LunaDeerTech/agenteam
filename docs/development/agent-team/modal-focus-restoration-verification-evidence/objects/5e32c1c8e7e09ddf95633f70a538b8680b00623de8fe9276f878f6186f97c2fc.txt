@@ -1,0 +1,17 @@
+import json,os,pathlib,subprocess,sys,time,hashlib,shutil
+root=pathlib.Path(__file__).parent
+name=sys.argv[1];argv=sys.argv[2:];run=root/'runs'/name;run.mkdir()
+env=dict(os.environ,CI='1',NO_COLOR='1',TMPDIR=str(root/'tmp'))
+owned=['web/src/composables/useLayer.ts','web/src/tests/dialog-outside-focus.spec.ts','tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts','web/src/tests/components.spec.ts']
+for p in owned:
+ target=run/'input'/p;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(root/'candidate02'/p,target)
+inputs={p:hashlib.sha256((root/'candidate02'/p).read_bytes()).hexdigest() for p in owned}
+record={'argv':argv,'cwd':str(root/'candidate02'),'env':{k:env[k] for k in ['CI','NO_COLOR','TMPDIR']},'inputs':inputs}
+(run/'command.json').write_text(json.dumps(record,indent=2)+'\n')
+(run/'runner.py.txt').write_text(pathlib.Path(__file__).read_text())
+started=time.monotonic()
+with (run/'raw.log').open('wb') as raw:r=subprocess.run(argv,cwd=root/'candidate02',env=env,stdout=raw,stderr=subprocess.STDOUT)
+record['input_unchanged']=all(hashlib.sha256((root/'candidate02'/p).read_bytes()).hexdigest()==sha for p,sha in inputs.items())
+record.update(exit=r.returncode,actual_wait_completed=True,seconds=round(time.monotonic()-started,3),raw_sha256=hashlib.sha256((run/'raw.log').read_bytes()).hexdigest())
+(run/'terminal.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps(record));print((run/'raw.log').read_text());sys.exit(r.returncode)

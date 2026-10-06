@@ -1,0 +1,33 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - main [ref=e3]:
+    - button "Open lower" [ref=e4] [cursor=pointer]
+    - textbox "Background input" [ref=e5]
+  - dialog [ref=e7]:
+    - banner [ref=e8]:
+      - heading [level=2] [ref=e9]: Independent lower
+      - button [ref=e10] [cursor=pointer]:
+        - img [ref=e13]
+    - generic [ref=e15]:
+      - textbox [ref=e16]
+      - group [ref=e17]:
+        - generic [ref=e19]: Confirm lower
+      - button [ref=e20] [cursor=pointer]: Lower tools
+      - textbox [ref=e21]
+  - dialog "Independent confirmation" [ref=e23]:
+    - banner [ref=e24]:
+      - heading "Independent confirmation" [level=2] [ref=e25]
+      - button "关闭" [ref=e26] [cursor=pointer]:
+        - img [ref=e29]
+    - generic [ref=e31]:
+      - textbox "Confirmation input" [active] [ref=e32]
+      - button "Change trigger state" [ref=e33] [cursor=pointer]
+      - button "Remount both" [ref=e34] [cursor=pointer]
+      - button "Remove lower" [ref=e35] [cursor=pointer]
+      - status [ref=e36]: "false"
+      - status [ref=e37]: 0:false
+    - contentinfo [ref=e38]:
+      - button "Continue editing" [ref=e39] [cursor=pointer]
+```

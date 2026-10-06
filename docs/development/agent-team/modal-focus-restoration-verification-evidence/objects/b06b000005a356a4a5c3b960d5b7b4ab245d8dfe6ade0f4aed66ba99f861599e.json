@@ -1,0 +1,65 @@
+{
+  "utc": "2026-10-06T07:28:13.291814+00:00",
+  "all_real_runs": {
+    "old01": {
+      "actual_wait_completed": true,
+      "server_closed": [],
+      "remaining_first": [],
+      "remaining_second": [],
+      "tmp_absent": true,
+      "terminal_sha256": "35a7cb62c722d8f168c8fc5a06bd43beca674580613871f4c1bd497fd61a9b71"
+    },
+    "old02": {
+      "actual_wait_completed": true,
+      "server_closed": [
+        true
+      ],
+      "remaining_first": [],
+      "remaining_second": [],
+      "tmp_absent": true,
+      "terminal_sha256": "d89ab7e28541b148aeeb404e5184936e47f178839f3e2240aeecd087b188acac"
+    },
+    "new01": {
+      "actual_wait_completed": true,
+      "server_closed": [
+        true
+      ],
+      "remaining_first": [],
+      "remaining_second": [],
+      "tmp_absent": true,
+      "terminal_sha256": "2f583369773d5a31df588a4cba3b332e20938d92d62ccd2f3f6df95b05da7865"
+    },
+    "new02": {
+      "actual_wait_completed": true,
+      "server_closed": [
+        true
+      ],
+      "remaining_first": [],
+      "remaining_second": [],
+      "tmp_absent": true,
+      "terminal_sha256": "08f9548f58a13706ac597169d721a729d8d96df758f3500ac9294bac13400930"
+    }
+  },
+  "owned_pid_starttime_count": 121,
+  "remaining_first": [],
+  "remaining_second": [],
+  "ports_unchanged_from_new02": true,
+  "ports": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                \nLISTEN 0      0          127.0.0.1:9001      0.0.0.0:*                                          \nLISTEN 0      0          127.0.0.1:9000      0.0.0.0:*                                          \nLISTEN 0      0            0.0.0.0:1040      0.0.0.0:*    users:((\"caas-prefix-tra\",pid=2,fd=3))\nLISTEN 0      0          127.0.0.1:5432      0.0.0.0:*                                          \n",
+  "historical_not_owned_and_not_signalled": [
+    {
+      "pid": 180182,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": 408854,
+      "comm": "chromium"
+    },
+    {
+      "pid": 180185,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": 408854,
+      "comm": "chromium"
+    }
+  ],
+  "browser_window_released": true
+}

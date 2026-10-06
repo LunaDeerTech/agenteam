@@ -1,0 +1,34 @@
+import { afterEach,beforeEach,expect,it,vi } from 'vitest'
+import { mount,flushPromises,type VueWrapper } from '@vue/test-utils'
+import { defineComponent,ref } from 'vue'
+import UiDialog from '../candidate/web/src/components/ui/UiDialog.vue'
+let wrapper:VueWrapper|undefined
+let app:HTMLElement
+beforeEach(()=>{
+  app=document.createElement('div');app.id='app';document.body.append(app)
+  vi.spyOn(HTMLElement.prototype,'getClientRects').mockImplementation(()=>[{width:12,height:10}] as unknown as DOMRectList)
+})
+afterEach(()=>{wrapper?.unmount();wrapper=undefined;app.remove();document.body.style.overflow='';vi.restoreAllMocks()})
+it.each([false,true])('native disabled fieldset respects first-legend exception=%s',async legend=>{
+  wrapper=mount(defineComponent({components:{UiDialog},setup:()=>({low:ref(false),top:ref(false),disabled:ref(false),legend}),
+    template:`<button data-launch @click="low=true">Open</button><UiDialog v-model:open="low" title="Lower">
+      <fieldset :disabled="disabled"><legend v-if="legend"><button data-trigger @click="top=true">Confirm</button></legend>
+      <button v-else data-trigger @click="top=true">Confirm</button></fieldset><input data-later />
+      </UiDialog><UiDialog v-model:open="top" title="Top"><button data-disable @click="disabled=true">Disable fieldset</button></UiDialog>`}),{attachTo:app})
+  const launch=wrapper.get('[data-launch]').element as HTMLElement;launch.focus();launch.click();await flushPromises()
+  const trigger=document.querySelector<HTMLButtonElement>('[data-trigger]')!;trigger.focus();trigger.click();await flushPromises()
+  document.querySelector<HTMLButtonElement>('[data-disable]')!.click();await flushPromises()
+  expect(trigger.disabled).toBe(false);expect(trigger.matches(':disabled')).toBe(!legend)
+  document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await flushPromises()
+  const lower=document.querySelector<HTMLElement>('.ui-dialog')!
+  expect(lower.contains(document.activeElement)).toBe(true)
+  expect(document.activeElement).toBe(legend?trigger:lower.querySelector('.dialog-header button'))
+})
+it('unavailable surviving modal never attempts background restoration',async()=>{
+  wrapper=mount(defineComponent({components:{UiDialog},setup:()=>({low:ref(true),top:ref(true)}),template:`<UiDialog v-model:open="low" title="Lower"><input /></UiDialog><UiDialog v-model:open="top" title="Top"><input /></UiDialog>`}),{attachTo:app})
+  await flushPromises()
+  const lower=document.querySelector<HTMLElement>('.ui-dialog')!;lower.hidden=true
+  const focused=vi.spyOn(HTMLElement.prototype,'focus')
+  document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await flushPromises()
+  expect(focused).not.toHaveBeenCalled();expect(app.inert).toBe(true);expect(document.body.style.overflow).toBe('hidden')
+})

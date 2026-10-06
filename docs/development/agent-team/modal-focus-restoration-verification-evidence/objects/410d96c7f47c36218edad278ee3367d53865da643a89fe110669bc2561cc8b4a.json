@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "node",
+    "/workspace/scratch/agenteam-modal-focus-verification-jd6agsku/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "vitest02.config.mjs"
+  ],
+  "cwd": "/workspace/scratch/agenteam-modal-focus-verification-jd6agsku",
+  "budget_seconds": 45,
+  "subreaper_enabled_before_launch": true,
+  "env": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TMPDIR": "/tmp/mfv-tb7ywcif",
+    "AGENTEAM_DIALOG_WEB_ROOT": "/workspace/scratch/agenteam-modal-focus-verification-jd6agsku/candidate02/web",
+    "AGENTEAM_DIALOG_RUN_DIR": "/workspace/scratch/agenteam-modal-focus-verification-jd6agsku/runs/pure02",
+    "AGENTEAM_DIALOG_CHROMIUM": "/usr/lib/chromium/chromium"
+  }
+}

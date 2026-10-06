@@ -1,0 +1,28 @@
+# 共享模态焦点恢复独立验收
+
+**PASS，限规格 rev2 的固定 input02；邀请 UI 仍需其独立组合验收。** 作者 manifest SHA256 `584a9de02239ca17c6bea8834c2cf262aec255cff690780bd0a9c97ffe78c4a6`，基线 Git `6be5321c51f24108d886a139c7a31bb0aab92db3`、规格 `5266a49`。未读取邀请活动候选；没有产品写入或 Git 操作。
+
+| 最终独立检查 | 实际结果 |
+| --- | --- |
+| pure02 | 3/3，exit0，2.002s。原生 fieldset 禁用与首 legend 例外、无可用剩余 panel 不尝试背景焦点。 |
+| browser03 | 原失败 browser02 **完整 probe 字节未变**，仅换 useLayer，3/3，exit0，13.750s。重挂/真实 Escape、action、可达遮罩关闭/双向 Tab、无晚焦点抢夺；当前触发器合法性；Popover 合法/禁用 anchor、最高允许层精确恢复、非顶层移除和无模态兼容。 |
+| browser04 | 1/1，exit0，5.019s。Dialog1440、Drawer390 的真正编辑宿主在无 tabindex、tabIndex=-1 时仍精确恢复，Tab/ShiftTab 留在模态内。 |
+
+input01 原生失败：正常 tabindex span 捕获成功后，打开顶层期间撤 tabindex 并令祖先可编辑；目标连接、可见、isContentEditable=true，但 focus 无效，activeElement=BODY、lowerContains=false。input02 在同一原 probe 下恢复为合法 BUTTON、lowerContains=true。真正编辑宿主正例则 focused=true，说明修复保留实际可聚焦内容。实现只有同步 focus 成功才结束；失败继续当前允许层的后续控件/panel，再到允许的下一层。
+
+四源与冻结清单一致。生产 `restore && wasTop`、无 modal 原分支、最高 modal 允许范围，以及祖先隐藏/inert/aria-hidden/样式/布局和原生禁用门禁均保留；背景、键盘、pointer、注册/移除主体与 input01 同字节。公共组件、样式、锁、全局 focusable/Tab 没有改变。components.spec 仅保留 rev2 授权的 beforeEach 布局 spy 修正。
+
+作者最终针对性证据为 52 项恢复纯测、原 nested-menu 回归、format/type/build/浏览器 tsc、10 项真实浏览器；复用先前完整 287 项 pure02 与 30 项 new02 中未变部分，不声称在 input02 重跑了完整矩阵。repair-old01/new01 已在实际运行前后绑定同 spec、config、锁、四源和闭包。更早 old02/new01 的保存 spec 副本相同，但 new01 无运行时 spec SHA 绑定；这一历史限制保留，不倒填。独立原 browser01 装配红与 browser02 产品红均保留，原始失败未改写为通过。
+
+所有独立命令已实际 wait，server.close 完成；68 个所属 PID/starttime 联集两次 absent，18 次 adopted wait 实际完成，任务 TMP 与组件运行壳消失，监听基线不变。历史 PPID1 Z 180182/180185 不属于本轮，未触碰或称清理。窗口已交回，无后续运行计划。
+
+交付四路径及 SHA：
+
+- `web/src/composables/useLayer.ts` — `92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f`
+- `web/src/tests/dialog-outside-focus.spec.ts` — `69619799902edb157896712634e2678fc7bc3c2ed16e0b78e5a983347ba8d0e0`
+- `tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts` — `ab6f5b4e33d8d554a42ed64a9b874accc9c94bc67f2dc63626db94e96b089d1a`
+- `web/src/tests/components.spec.ts` — `e1ff77d553da35bbdb9ad70763e49ff8a0dec46773a3272ac6c54085d0d83014`
+
+实际 argv/env、raw、input-before/after、result/cleanup 见 `runs/{pure01,pure02,browser01,browser02,browser03,browser04}/`。每轮 `source/` 保留原探针/driver/config；只读 Git+作者四源可重建组件输入。精确原件 SHA 与最小去重归档建议见 `verification-report.json`；无需复制依赖、dist、缓存、二进制或全 web。
+
+本结论只覆盖 Chromium 最小组件壳；不证明邀请 App/Session/pageshow、生产托管或其他浏览器。jsdom 布局前提不冒充原生聚焦；restore=false 仅静态保留。首次私有 tsc typeRoots 错误及一次旧证据文件名定位错误已记录，修正后未改变产品。Playwright 技能不可用的已知限制沿主线程授权使用锁定仓库 harness。

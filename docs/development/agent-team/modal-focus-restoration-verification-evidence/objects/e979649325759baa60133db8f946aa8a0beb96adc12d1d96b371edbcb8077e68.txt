@@ -1,0 +1,25 @@
+# Modal focus restoration author handoff
+
+Final four paths are frozen in `input01/`, exact hashes in `input01.json`. No further product writes or resource starts by this author. No Git mutation or delegation. Browser window released after actual exit and final double PID/starttime scan.
+
+## Result and input
+
+Production only changes synchronous `remove` restoration under `restore && wasTop`: legal trigger inside the remaining last-modal region first, otherwise highest usable allowed panel's first legal focusable or panel. No-modal connected-trigger behavior, registration, exported focusable, key/pointer handlers, UiDialog/Drawer/Popover, props and styles remain unchanged. Native disabled (including fieldset), hidden/aria-hidden/inert ancestors, disconnection and absent/zero layout are excluded. No deferred focus is added.
+
+All source/dependency inputs are from committed 6be5321 plus the authorized four files, verified in `isolated-input.json`; no active invitation source or dist consumed. Whole committed web is used only for pure/type/build; Chromium uses the 11-file component closure in `closure-input.json`. npm locks remain exact. `popover-dependencies.json` records Floating UI/Vue resolution including nested vue-demi. `toolchain.json` records installed tools and Chromium hash. A missing styles-test documentation dependency was copied from that same fixed commit into private roots and recorded separately.
+
+## Evidence
+
+- old02: genuine fixed-old browser red, focus containment fails after top Escape. new01: same byte-identical test/selector, only candidate useLayer replaces old, passes.
+- new02: final production/spec passes all 30 Chromium cases, original worker1/retry0/test45s/expect3s budgets; original11 assertions preserved byte-for-byte. Covers Dialog/Drawer, 390/1440, normal/reduced motion, initial shared capture and common unmount/remount, real Escape/action/pointer close, Tab/ShiftTab, no delayed theft, modal/nonmodal Popover valid/disabled anchors.
+- pure02: complete isolated npm check exits0, format + 16 files/287 tests + vue-tsc + Vite build. Original10 unit helpers/assertions and existing components cleanup/assertions remain byte-identical. Authorized fourth-file delta only moves layout spy from beforeAll to beforeEach; CSS/matchMedia remain in beforeAll.
+- browser-types02: browser spec standalone strict tsc exits0.
+- All earlier failures and command errors remain under runs/; exact exit/hash/classification in run-index.json. No failure was rewritten as PASS.
+
+## Cleanup and limits
+
+Each browser run uses PR_SET_CHILD_SUBREAPER before Playwright launch. Playwright managed context/browser teardown completes with actual subprocess wait; the fixture awaits server.close and records closed=true. Adopted children are actually waitpid-reaped; every owned PID/starttime is absent in two scans, private Chromium TMP paths removed, loopback port baseline unchanged. `cleanup-final.json` repeats the union scan after all checks. Historical PPID1 Z 180182/180185 belong to an earlier task and remain explicitly outside ownership; they were not signalled or claimed cleaned. No Docker/backend/account API used.
+
+The harness is deterministic component lifecycle evidence, not invitation App/session/pageshow acceptance. Pure focus measurement supplies jsdom layout; real browser behavior is separately proven by new02. Non-top synthetic dispatch stays a gate test. Restore=false is preserved statically, not claimed as a public component runtime test.
+
+Preparation limitations: the first dependency-recording attempt assumed vue-demi at the top node_modules and failed; resolution was corrected to the actual Floating UI nested dependency before browser runs. There is no separate raw log for that preparation exception. Early browser runner old01 records a selector mistake rather than any product result. Browser-types01 records an incomplete standalone compiler lib invocation. These are distinguished in run-index.json.

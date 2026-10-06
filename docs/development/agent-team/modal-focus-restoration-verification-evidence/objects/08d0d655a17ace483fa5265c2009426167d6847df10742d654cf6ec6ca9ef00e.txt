@@ -1,0 +1,64 @@
+
+Running 2 tests using 1 worker
+
+[1A[2K(node:463053) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:463053) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/2] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:234:1 › independent current trigger eligibility uses native DOM focus behavior
+[1A[2Ktests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:234:1 › independent current trigger eligibility uses native DOM focus behavior
+INDEPENDENT_NATIVE_TRIGGER {"fault":"fieldset","connected":true,"tabIndex":0,"tabAttribute":"0","editable":false,"disabled":true,"rects":1,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2KINDEPENDENT_NATIVE_TRIGGER {"fault":"hidden","connected":true,"tabIndex":0,"tabAttribute":"0","editable":false,"disabled":false,"rects":0,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2KINDEPENDENT_NATIVE_TRIGGER {"fault":"visibility","connected":true,"tabIndex":0,"tabAttribute":"0","editable":false,"disabled":false,"rects":1,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2KINDEPENDENT_NATIVE_TRIGGER {"fault":"nonfocusable","connected":true,"tabIndex":-1,"tabAttribute":null,"editable":false,"disabled":false,"rects":1,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2KINDEPENDENT_NATIVE_TRIGGER {"fault":"editable-child","connected":true,"tabIndex":-1,"tabAttribute":null,"editable":true,"disabled":false,"rects":1,"focused":false,"active":"BODY","lowerContains":false}
+
+[1A[2K  1) tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:234:1 › independent current trigger eligibility uses native DOM focus behavior 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+    Call Log:
+    - Timeout 3000ms exceeded while waiting on the predicate
+
+      202 |   await expect(lower).toBeVisible()
+      203 |   await expect(lower).toHaveJSProperty('inert', false)
+    > 204 |   await expect.poll(() => lower.evaluate(node => node.contains(document.activeElement))).toBe(true)
+          |   ^
+      205 |   await expect(page.locator('#app')).toHaveJSProperty('inert', true)
+      206 |   await expect(page.locator('body')).toHaveCSS('overflow','hidden')
+      207 |   return lower
+        at lowerOwnsFocus (/workspace/scratch/agenteam-modal-focus-verification-jd6agsku/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:204:3)
+        at /workspace/scratch/agenteam-modal-focus-verification-jd6agsku/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:259:7
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../runs/browser02/results/dialog-outside-focus-indep-d6ffb-s-native-DOM-focus-behavior/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../runs/browser02/results/dialog-outside-focus-indep-d6ffb-s-native-DOM-focus-behavior/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../runs/browser02/results/dialog-outside-focus-indep-d6ffb-s-native-DOM-focus-behavior/trace.zip
+    Usage:
+
+        npx playwright show-trace ../runs/browser02/results/dialog-outside-focus-indep-d6ffb-s-native-DOM-focus-behavior/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2KTesting stopped early after 1 maximum allowed failures.
+
+[1A[2K  1 failed
+    tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:234:1 › independent current trigger eligibility uses native DOM focus behavior 
+  1 did not run
+  1 error was not a part of any test, see above for details

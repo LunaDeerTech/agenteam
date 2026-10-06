@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "tests/account-captcha-web/node_modules/.bin/playwright",
+    "test",
+    "--config",
+    "tests/account-captcha-web/dialog-outside-focus.config.js"
+  ],
+  "cwd": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate",
+  "env": {
+    "AGENTEAM_DIALOG_WEB_ROOT": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/web",
+    "AGENTEAM_DIALOG_RUN_DIR": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/runs/new02",
+    "AGENTEAM_DIALOG_CHROMIUM": "/usr/lib/chromium/chromium",
+    "TMPDIR": "/tmp/df-1j2y_vla",
+    "CI": "1",
+    "NO_COLOR": "1"
+  }
+}

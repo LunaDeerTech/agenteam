@@ -1,0 +1,134 @@
+{
+  "exit": 1,
+  "actual_wait_completed": true,
+  "timed_out": false,
+  "elapsed_seconds": 7.096,
+  "reaped": [
+    {
+      "pid": 464854,
+      "status": 0
+    },
+    {
+      "pid": 464857,
+      "status": 0
+    },
+    {
+      "pid": 464858,
+      "status": 0
+    },
+    {
+      "pid": 464860,
+      "status": 0
+    },
+    {
+      "pid": 464819,
+      "status": 0
+    }
+  ],
+  "tracked_processes": [
+    {
+      "pid": 464806,
+      "state": "S",
+      "ppid": 464790,
+      "session": 464806,
+      "starttime": 1270724,
+      "command": "node tests/account-captcha-web/node_modules/.bin/playwright test --config tests/account-captcha-web/dialog-outside-focus.config.js --grep dialog: native editable-child focus restoration --max-failures 1 "
+    },
+    {
+      "pid": 464819,
+      "state": "R",
+      "ppid": 464806,
+      "session": 464806,
+      "starttime": 1270812,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node /workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/tests/account-captcha-web/node_modules/playwright/lib/common/process.js "
+    },
+    {
+      "pid": 464852,
+      "state": "R",
+      "ppid": 464819,
+      "session": 464852,
+      "starttime": 1270864,
+      "command": "/usr/lib/chromium/chromium --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --no-sandbox --disable-dev-shm-usage --user-data-dir=/tmp/df-b8zuh0im/playwright_chromiumdev_profile-XYLOi8 --remote-debugging-pipe --no-startup-window "
+    },
+    {
+      "pid": 464880,
+      "state": "S",
+      "ppid": 464858,
+      "session": 464852,
+      "starttime": 1270873,
+      "command": "/usr/lib/chromium/chromium --type=gpu-process --no-sandbox --disable-dev-shm-usage --disable-breakpad --headless --ozone-platform=headless --use-angle=swiftshader-webgl --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/tmp/df-b8zuh0im/playwright_chromiumdev_profile-XYLOi8 --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAAAEAAAAAAAAAAAAAGAASAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --field-trial-handle=3,i,666995067837680661,11442048775653845394,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,12576989708143996708,10539558577673275810,4 --trace-process-track-uuid=3190708988185955192 "
+    },
+    {
+      "pid": 464889,
+      "state": "S",
+      "ppid": 464852,
+      "session": 464852,
+      "starttime": 1270874,
+      "command": "/usr/lib/chromium/chromium --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-sandbox --disable-dev-shm-usage --use-angle=swiftshader-webgl --mute-audio --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/tmp/df-b8zuh0im/playwright_chromiumdev_profile-XYLOi8 --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,666995067837680661,11442048775653845394,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,12576989708143996708,10539558577673275810,4 --trace-process-track-uuid=3190708989122997041 "
+    },
+    {
+      "pid": 464858,
+      "state": "Z",
+      "ppid": 464790,
+      "session": 464852,
+      "starttime": 1270868,
+      "command": ""
+    },
+    {
+      "pid": 464860,
+      "state": "Z",
+      "ppid": 464790,
+      "session": 464852,
+      "starttime": 1270868,
+      "command": ""
+    },
+    {
+      "pid": 464896,
+      "state": "S",
+      "ppid": 464860,
+      "session": 464852,
+      "starttime": 1270877,
+      "command": "/usr/lib/chromium/chromium --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=utility --no-sandbox --disable-dev-shm-usage --use-angle=swiftshader-webgl --mute-audio --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/tmp/df-b8zuh0im/playwright_chromiumdev_profile-XYLOi8 --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,666995067837680661,11442048775653845394,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,12576989708143996708,10539558577673275810,4 --trace-process-track-uuid=3190708990060038890 "
+    },
+    {
+      "pid": 464927,
+      "state": "Z",
+      "ppid": 464860,
+      "session": 464852,
+      "starttime": 1270884,
+      "command": ""
+    },
+    {
+      "pid": 464936,
+      "state": "Z",
+      "ppid": 464860,
+      "session": 464852,
+      "starttime": 1270886,
+      "command": ""
+    },
+    {
+      "pid": 464937,
+      "state": "R",
+      "ppid": 464860,
+      "session": 464852,
+      "starttime": 1270886,
+      "command": "/usr/lib/chromium/chromium --type=renderer --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/tmp/df-b8zuh0im/playwright_chromiumdev_profile-XYLOi8 --disable-print-preview --change-stack-guard-on-fork=enable --no-sandbox --disable-dev-shm-usage --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --enable-automation --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --ozone-platform=headless --disable-gpu-compositing --lang=en-US --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=6 --time-ticks-at-unix-epoch=-1791259447040894 --launch-time-ticks=12708866535 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,666995067837680661,11442048775653845394,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,12576989708143996708,10539558577673275810,4 --trace-process-track-uuid=3190708991934122588 "
+    }
+  ],
+  "remaining_first": [],
+  "remaining_second": [],
+  "ports_after": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                \nLISTEN 0      0          127.0.0.1:9001      0.0.0.0:*                                          \nLISTEN 0      0          127.0.0.1:9000      0.0.0.0:*                                          \nLISTEN 0      0            0.0.0.0:1040      0.0.0.0:*    users:((\"caas-prefix-tra\",pid=2,fd=3))\nLISTEN 0      0          127.0.0.1:5432      0.0.0.0:*                                          \n",
+  "tmpdir": "/tmp/df-b8zuh0im",
+  "tmp_contents_before_cleanup": [
+    "playwright-transform-cache-1000",
+    "playwright-transform-cache-1000/f6",
+    "playwright-transform-cache-1000/18",
+    "playwright-transform-cache-1000/f6/f62771efbc_ebf6387_dialogoutsidefocusspec.js",
+    "playwright-transform-cache-1000/f6/f62771efbc_ebf6387_dialogoutsidefocusspec.map",
+    "playwright-transform-cache-1000/18/18fa48e988_6961858_dialogoutsidefocusconfig.js",
+    "playwright-transform-cache-1000/18/18fa48e988_6961858_dialogoutsidefocusconfig.map"
+  ],
+  "tmp_contents": [],
+  "raw_sha256": "b3a490a22fcb679d37bd5daf812ee1baddf0d59c4185d743720201a5d48c1a98",
+  "input_unchanged": true
+}

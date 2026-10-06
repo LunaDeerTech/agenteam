@@ -1,0 +1,71 @@
+
+Running 4 tests using 1 worker
+
+[1A[2K(node:462141) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:462141) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/4] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:188:3 › independent dialog: remount, actual close and legal focus continuity
+[1A[2K[2/4] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:188:3 › independent drawer: remount, actual close and legal focus continuity
+[1A[2K[3/4] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:234:1 › independent current trigger eligibility uses native DOM focus behavior
+[1A[2Ktests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:234:1 › independent current trigger eligibility uses native DOM focus behavior
+INDEPENDENT_NATIVE_TRIGGER {"fault":"fieldset","connected":true,"tabIndex":0,"tabAttribute":"0","editable":false,"disabled":true,"rects":1,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2KINDEPENDENT_NATIVE_TRIGGER {"fault":"hidden","connected":true,"tabIndex":0,"tabAttribute":"0","editable":false,"disabled":false,"rects":0,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2KINDEPENDENT_NATIVE_TRIGGER {"fault":"visibility","connected":true,"tabIndex":0,"tabAttribute":"0","editable":false,"disabled":false,"rects":1,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2KINDEPENDENT_NATIVE_TRIGGER {"fault":"nonfocusable","connected":true,"tabIndex":-1,"tabAttribute":null,"editable":false,"disabled":false,"rects":1,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2K  1) tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:234:1 › independent current trigger eligibility uses native DOM focus behavior 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByTestId('capture')
+    Expected: [32m"[7mtru[27me"[39m
+    Received: [31m"[7mfals[27me"[39m
+    Timeout:  3000ms
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 3000ms[22m
+    [2m  - waiting for getByTestId('capture')[22m
+    [2m    7 × locator resolved to <output data-testid="capture">false</output>[22m
+    [2m      - unexpected value "false"[22m
+
+
+      196 |   await page.getByTestId('confirm-trigger').click()
+      197 |   await expect(page.getByTestId('upper-first')).toBeFocused()
+    > 198 |   await expect(page.getByTestId('capture')).toHaveText('true')
+          |                                             ^
+      199 | }
+      200 | async function lowerOwnsFocus(page: Page) {
+      201 |   const lower = page.getByRole('dialog', { name:'Independent lower', exact:true })
+        at openBoth (/workspace/scratch/agenteam-modal-focus-verification-jd6agsku/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:198:45)
+        at /workspace/scratch/agenteam-modal-focus-verification-jd6agsku/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:246:54
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../runs/browser01/results/dialog-outside-focus-indep-d6ffb-s-native-DOM-focus-behavior/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../runs/browser01/results/dialog-outside-focus-indep-d6ffb-s-native-DOM-focus-behavior/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../runs/browser01/results/dialog-outside-focus-indep-d6ffb-s-native-DOM-focus-behavior/trace.zip
+    Usage:
+
+        npx playwright show-trace ../runs/browser01/results/dialog-outside-focus-indep-d6ffb-s-native-DOM-focus-behavior/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2KTesting stopped early after 1 maximum allowed failures.
+
+[1A[2K  1 failed
+    tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:234:1 › independent current trigger eligibility uses native DOM focus behavior 
+  1 did not run
+  2 passed (13.4s)
+  1 error was not a part of any test, see above for details

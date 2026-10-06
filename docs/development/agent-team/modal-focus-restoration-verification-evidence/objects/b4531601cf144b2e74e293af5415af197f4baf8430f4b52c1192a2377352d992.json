@@ -1,0 +1,58 @@
+[
+  {
+    "run": "repair-browser-types01",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "input_unchanged": true,
+    "seconds": 1.176,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "run": "repair-build01",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "input_unchanged": true,
+    "seconds": 5.779,
+    "raw_sha256": "20e2a6dd467e6a3eb5e706f676d31a5512f36b79a98ea3e190992b5b52e37a9b"
+  },
+  {
+    "run": "repair-components01",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "input_unchanged": true,
+    "seconds": 2.291,
+    "raw_sha256": "b7c892da595513a93a0e78d064bb92409fe7bd22ef3cbdc6e8363fbfc17197b8"
+  },
+  {
+    "run": "repair-format01",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "input_unchanged": true,
+    "seconds": 0.51,
+    "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+  },
+  {
+    "run": "repair-new01",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "input_unchanged": true,
+    "seconds": 30.344,
+    "raw_sha256": "8c8879365e320e32029557a06c9d953bdd72d7693ebcd997352a16bb8b86dd65"
+  },
+  {
+    "run": "repair-old01",
+    "exit": 1,
+    "actual_wait_completed": true,
+    "input_unchanged": true,
+    "seconds": 7.096,
+    "raw_sha256": "b3a490a22fcb679d37bd5daf812ee1baddf0d59c4185d743720201a5d48c1a98"
+  },
+  {
+    "run": "repair-unit01",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "input_unchanged": true,
+    "seconds": 2.692,
+    "raw_sha256": "373f4032d99002681949a40382c9315ba1a3e9a60dd2eef891cbbc0d3c521cc8"
+  }
+]

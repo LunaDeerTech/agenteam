@@ -1,0 +1,25 @@
+# Modal focus restoration repair: input02
+
+Four paths are frozen in input02/, exact SHA256 values in input02.json. Product writes stopped and component browser window released after actual wait and final double cleanup. input01/, candidate/, prior reports and all first-round evidence remain unchanged. Only useLayer and its two existing test files differ from input01; components.spec.ts remains byte-identical.
+
+The independent browser02 product red showed that inherited isContentEditable does not prove programmatic focus capability: a connected visible span loses tabindex, its ancestor becomes editable, and its focus() is a no-op. The original candidate returned early and left BODY active. Independent raw SHA256: 08d0d655a17ace483fa5265c2009426167d6847df10742d654cf6ec6ca9ef00e at /workspace/scratch/agenteam-modal-focus-verification-jd6agsku/runs/browser02/raw.log.
+
+The private restoreFocus now calls focus synchronously only after existing eligibility checks and succeeds only when ownerDocument.activeElement is exactly the requested element. Failed trigger restoration proceeds through remaining allowed panel candidates, then panel, then the next allowed layer. The failed original trigger is not retried in fallback. All selection remains inside the existing last-modal allowed region. No delay, new public API, global focusable, Tab, no-modal behavior, registration or layer algorithm change. unchanged-contract02.json records byte equality of unaffected production sections.
+
+## Actual validation
+
+- repair-old01: new real editable-child assertion on input01 production fails as expected, exit1/7.096s. True pointer capture, connected/visible inherited editable span, no tabindex, then real Escape reproduces loss of lower-modal focus.
+- repair-new01: same bound browser spec and fixed component closure, input02 useLayer, 10/10 PASS, exit0/30.344s. Dialog and Drawer each cover inherited editable child fallback and a genuinely focusable editing host exact restoration; selected initial/remount cases cover desktop/phone and normal/reduced motion, plus valid/disabled top nonmodal Popover restoration. Worker1/retry0/test45s/expect3s unchanged.
+- repair-unit01: 52 affected restoration tests PASS (43 prior cases plus 9 new); 10 unchanged outside mechanism tests intentionally not selected. New pure cases include focus no-op continuing to next control, then panel, and highest allowed panel declining focus continuing to lower legal modal. Actual components remain mounted; only jsdom's missing editable fact and specific element focus no-op are controlled. Native editable behavior is separately exercised in Chromium.
+- repair-components01: existing modal/nested-menu exact focus regression PASS; remaining 11 unrelated cases not selected.
+- repair-format01, repair-build01 (vue-tsc + Vite build), repair-browser-types01 all actual exit0.
+
+All commands, original logs, fixed input copies, input-before/after and terminals are under runs/repair-*. run-index02.json lists exact raw hashes and exits. Full original pure02 check and new02 30-test run remain prior-input evidence; this repair does not claim a fresh full-suite/34-browser-test execution. Unaffected outside and no-modal assertions are retained and reused.
+
+Historical precision: old02/new01 have identical retained spec copies, but the original new01 runner did not bind running spec SHA before/after. The prior report's same-byte statement therefore describes retained copies, not a cryptographic runtime binding. No historical metadata was backfilled. Both repair-old01 and repair-new01 bind actual spec/config/locks/four-source/11-component inputs before and after execution.
+
+## Resources and scope
+
+Each repair browser run sets subreaper before Playwright, actually waits for completion, awaits fixture server.close, reaps adopted children and performs two owned PID/starttime scans. cleanup-final02.json repeats a union scan of all six author browser runs; all owned processes and private Chromium TMP paths are absent and port baseline unchanged. Historical PPID1 Z 180182/180185 remain unowned, untouched and explicitly not claimed cleaned. No backend/Docker/account API, no Git mutation/delegation, and no active invitation sources consumed.
+
+The isolated repair tree candidate02 is fixed committed 6be5321 plus the four authorized paths. isolated-input02.json and closure-input02.json bind its full input and unchanged dependency closure. Existing locks/dependency/toolchain records remain valid. This is shared-component evidence and does not accept invitation UI lifecycle behavior.

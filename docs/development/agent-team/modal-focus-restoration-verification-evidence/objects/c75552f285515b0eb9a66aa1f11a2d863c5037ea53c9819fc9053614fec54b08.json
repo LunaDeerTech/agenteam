@@ -1,0 +1,58 @@
+{
+  "node": {
+    "argv": [
+      "node",
+      "--version"
+    ],
+    "exit": 0,
+    "stdout": "v24.19.0"
+  },
+  "npm": {
+    "argv": [
+      "npm",
+      "--version"
+    ],
+    "exit": 0,
+    "stdout": "11.9.0"
+  },
+  "chromium": {
+    "argv": [
+      "/usr/lib/chromium/chromium",
+      "--version"
+    ],
+    "exit": 0,
+    "stdout": "Chromium 151.0.7922.173",
+    "path": "/usr/lib/chromium/chromium",
+    "sha256": "d387400aaf740ccb75e5e996a34aa0940e6e97683a4eabd6ae34c1eed6804723"
+  },
+  "playwright": {
+    "path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/tests/account-captcha-web/node_modules/playwright/package.json",
+    "version": "1.56.1",
+    "package_sha256": "388159d9169e9aa04bd24a92fb102321e7aca1af8c5ce9fc130f354af148587a"
+  },
+  "vite": {
+    "path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/web/node_modules/vite/package.json",
+    "version": "8.3.1",
+    "package_sha256": "fd3af4eaf4eecb2069f3e2715d6aaa2137d084a8a95097389523f52213c08094"
+  },
+  "@vitejs/plugin-vue": {
+    "path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/web/node_modules/@vitejs/plugin-vue/package.json",
+    "version": "6.0.9",
+    "package_sha256": "fc6ec30b002301294bba8da23e81fce670b711c7931738a05042bee1ff5671c1"
+  },
+  "typescript": {
+    "path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/web/node_modules/typescript/package.json",
+    "version": "5.9.3",
+    "package_sha256": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6"
+  },
+  "vitest": {
+    "path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/web/node_modules/vitest/package.json",
+    "version": "4.1.11",
+    "package_sha256": "a28126d97bcaf567da5bed69443b7f3bcd9a7a8c38c8b66e554686b6bb2c10e0"
+  },
+  "vue-tsc": {
+    "path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/web/node_modules/vue-tsc/package.json",
+    "version": "3.3.11",
+    "package_sha256": "2a2e226f78029f1d2511add1625a1bcc8a9b690f7459cd97ce300fe95317fcb7"
+  }
+}

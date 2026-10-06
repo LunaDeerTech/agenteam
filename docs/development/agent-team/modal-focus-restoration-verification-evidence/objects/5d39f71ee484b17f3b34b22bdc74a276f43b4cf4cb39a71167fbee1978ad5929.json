@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "tests/account-captcha-web/node_modules/.bin/tsc",
+    "--noEmit",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--strict",
+    "--skipLibCheck",
+    "--types",
+    "node",
+    "--typeRoots",
+    "web/node_modules/@types",
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate",
+  "env": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TMPDIR": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/tmp"
+  },
+  "inputs": {
+    "web/src/composables/useLayer.ts": "36d35b6b890b56f067f3e6ac0f6e03867a21baf4c9142ecb4b0d2fb8a2460902",
+    "web/src/tests/dialog-outside-focus.spec.ts": "6ac0a9d084f1fc4809e812720abec6d9890b7c7ad3cafbb90746e9bfa23f5bdc",
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": "e93fca2ace5d6de5abf209aa24923b64f756c4af32858e92d45a1b6a7aa0d990"
+  },
+  "exit": 0,
+  "actual_wait_completed": true,
+  "seconds": 1.033,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

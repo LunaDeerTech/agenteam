@@ -1,0 +1,65 @@
+<script setup lang="ts">
+import { nextTick, ref } from 'vue'
+import UiDialog from './src/components/ui/UiDialog.vue'
+import UiDrawer from './src/components/ui/UiDrawer.vue'
+import UiPopover from './src/components/ui/UiPopover.vue'
+const query = new URLSearchParams(location.search)
+const Surface = query.get('kind') === 'drawer' ? UiDrawer : UiDialog
+const fault = query.get('fault') || 'valid'
+const mode = query.get('mode') || 'modal'
+const mounted = ref(true), lower = ref(false), upper = ref(false), popover = ref(false)
+const invalid = ref(false), lowerMounted = ref(true), generation = ref(0), detached = ref(false)
+const trigger = ref<HTMLElement|null>(null), captured = ref(false)
+const isSpan = fault === 'nonfocusable' || fault === 'editable-child' || fault === 'editable-host'
+function confirm() { captured.value = document.activeElement === trigger.value; upper.value = true }
+async function remount() {
+  const old = trigger.value
+  mounted.value = false
+  await nextTick()
+  detached.value = !!old && !old.isConnected
+  mounted.value = true
+  generation.value++
+}
+</script>
+<template>
+  <main style="padding:24px">
+    <button data-testid="launch" @click="lower = true">Open lower</button>
+    <input data-testid="background" aria-label="Background input" />
+    <UiPopover v-if="mode === 'page'" v-model:open="popover" label="Page tools" data-testid="page-anchor">
+      <template #default="{ close }"><button data-testid="page-close" @click="close">Close tools</button></template>
+    </UiPopover>
+  </main>
+  <template v-if="mounted && mode !== 'page'">
+    <Surface v-if="lowerMounted" v-model:open="lower" title="Independent lower">
+      <input data-testid="lower-first" data-autofocus aria-label="Lower first" />
+      <fieldset :disabled="invalid && fault === 'fieldset'">
+        <div :hidden="invalid && fault === 'hidden'"
+          :style="invalid && fault === 'visibility' ? {visibility:'hidden'} : undefined"
+          :contenteditable="invalid && fault === 'editable-child' ? 'true' : undefined">
+          <component :is="isSpan ? 'span' : 'button'" ref="trigger" data-testid="confirm-trigger"
+            :tabindex="isSpan && invalid ? undefined : 0"
+            :contenteditable="invalid && fault === 'editable-host' ? 'true' : undefined" @click="confirm"
+            style="display:inline-block;padding:8px;border:1px solid currentColor">Confirm lower</component>
+        </div>
+      </fieldset>
+      <UiPopover v-model:open="popover" label="Lower tools" data-testid="modal-anchor"
+        :disabled="invalid && fault === 'popover-disabled'">
+        <template #default="{ close }">
+          <button data-testid="pop-confirm" @click="upper = true">Confirm tools</button>
+          <button data-testid="pop-invalidate" @click="invalid = true">Disable anchor</button>
+          <button data-testid="pop-close" @click="close">Close tools</button>
+        </template>
+      </UiPopover>
+      <input data-testid="lower-later" aria-label="Lower later" />
+    </Surface>
+    <UiDialog v-model:open="upper" title="Independent confirmation">
+      <input data-testid="upper-first" data-autofocus aria-label="Confirmation input" />
+      <button data-testid="invalidate" @click="invalid = true">Change trigger state</button>
+      <button data-testid="remount" @click="remount">Remount both</button>
+      <button data-testid="remove-lower" @click="lowerMounted = false">Remove lower</button>
+      <output data-testid="capture">{{ captured }}</output>
+      <output data-testid="generation">{{ generation }}:{{ detached }}</output>
+      <template #footer="{ close }"><button data-testid="upper-close" @click="close">Continue editing</button></template>
+    </UiDialog>
+  </template>
+</template>

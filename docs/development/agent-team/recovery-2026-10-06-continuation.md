@@ -109,3 +109,13 @@ new03的light1440/dark390已由验收者、主线程及文档负责人实际查�
 独立两项原子HTTP投影与跨root真实邮件/生命周期首次均PASS，分别6.74s/10.34s，whole actualexit0/145.337s。9个资源exact ID双次absent、212个所属PID/starttime消失、原两容器/四网络baseline不变、runtime空、monitor0；主命令实际wait，adopted-waits为空，窗口已释放。真实日志→SMTP接受后丢回复保留unknown，与旧root人工重试的新接受时间、到期只读/同邮箱新ID隔离均有独立证据。
 
 本次新增报告与去重原件，更新台账页首、本节和read卡接受页首；read技术正文及旧档不改，邀请UI卡由其负责人独占。离线核168逻辑/101物理原件、四版源、八交付源、两锁、迁移、六轮原结果/清理及固定Git通过，没有重跑产品或资源。邀请UI与完整D27仍未接受，旧目录UI的1–18证据不外推00019组合；Summary待决、Object/tools原停止、Artifact/Project阻塞、生产未绑定/ready503、完整D08–D28/E01未完成与E01未开始继续保持。
+
+## 11. 共享模态关闭焦点恢复接受
+
+§1–10保留原字节与当时状态。[共享修复 rev2](../work-items/d27-modal-focus-restoration.md)现已独立最终PASS、主线程采纳并提交推送 `79f922ec259d2838052a903612e2a27005618c11`，主线程核实远端一致。[正式报告与最小证据](modal-focus-restoration-verification.md)固定 input02 `584a9de02239ca17c6bea8834c2cf262aec255cff690780bd0a9c97ffe78c4a6`；四源对齐Git，基线 `6be5321` 加授权四源，不消费活动邀请树。恢复保持同步、最高剩余modal允许范围和非顶层门禁；真正focus成功才结束，失败继续合法目标，无modal原规则不变。
+
+input01作者287项完整纯测及30项真实矩阵通过后，独立仍发现继承editable后代focus无效、BODY逃出模态的产品红。原失败保留，input02以相同独立完整probe3项及编辑宿主正例1项、纯测3项复验通过；作者返修52项恢复纯测、原nested-menu1项、10项浏览器及格式/type/build/tsc通过。旧矩阵只按未变部分复用，不把各版结果合成一次全量执行。旧new01缺运行时spec指纹，保存副本同字节不能扩为当轮独立绑定；repair-old01/new01实际前后指纹齐全，不倒填旧档。
+
+作者六轮浏览器170个所属PID/starttime和独立六轮动态68个所属PID/starttime双扫空；独立18次adopted wait实际完成，server.close、私有TMP/壳及监听基线终局通过。历史两个PPID1 Z Chromium及原记录的既有crashpad均不属本次清理，不声称未来成功回收了旧孤儿。
+
+本次只新增报告/去重原件、台账页首、本节与共享卡接受页首，技术§1–4原字节保持。离线脚本只核保存字节、固定Git、原命令结果/清理，不重跑产品或资源。主线程已恢复邀请rev4的22路径作者与业务窗口，仍需完整组合独立接受；受控组件共同重挂不代表真实App/Session/pageshow。邀请卡由原负责人维护，本次不改AGENTS/指南/产品。Summary待决、Object/tools原停止、Artifact/Project阻塞、生产未绑定/ready503、完整D08–D28/E01未完成与E01未开始继续保持。

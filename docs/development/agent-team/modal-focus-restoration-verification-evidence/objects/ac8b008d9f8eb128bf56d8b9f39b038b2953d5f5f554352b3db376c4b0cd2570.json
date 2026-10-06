@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "npm",
+    "--prefix",
+    "web",
+    "run",
+    "test:unit",
+    "--",
+    "src/tests/components.spec.ts",
+    "-t",
+    "modal handles nested menu Escape before closing itself and restores background/focus"
+  ],
+  "cwd": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate02",
+  "env": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TMPDIR": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/tmp"
+  },
+  "inputs": {
+    "web/src/composables/useLayer.ts": "92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f",
+    "web/src/tests/dialog-outside-focus.spec.ts": "69619799902edb157896712634e2678fc7bc3c2ed16e0b78e5a983347ba8d0e0",
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": "ab6f5b4e33d8d554a42ed64a9b874accc9c94bc67f2dc63626db94e96b089d1a",
+    "web/src/tests/components.spec.ts": "e1ff77d553da35bbdb9ad70763e49ff8a0dec46773a3272ac6c54085d0d83014"
+  },
+  "input_unchanged": true,
+  "exit": 0,
+  "actual_wait_completed": true,
+  "seconds": 2.291,
+  "raw_sha256": "b7c892da595513a93a0e78d064bb92409fe7bd22ef3cbdc6e8363fbfc17197b8"
+}

@@ -1,0 +1,118 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/dialog-outside-focus.config.js",
+    "rootDir": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/e2e",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/runs/new01/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/runs/new01/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "dialog-outside-focus.spec.ts"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "dialog-outside-focus.spec.ts",
+      "file": "dialog-outside-focus.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "dialog 390 reduce: initial modal restoration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3724,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T07:20:26.884Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "pointer-events",
+                      "contentType": "application/json",
+                      "body": "ewogICJibG9ja2VkIjogW10sCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNpbiIsCiAgICAgICJjYXB0dXJlIjogdHJ1ZSwKICAgICAgInRhcmdldCI6ICJjb25maXJtYXRpb24taW5wdXQiLAogICAgICAiYWN0aXZlIjogImNvbmZpcm1hdGlvbi1pbnB1dCIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3VzaW4iLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogImNvbmZpcm1hdGlvbi1pbnB1dCIsCiAgICAgICJhY3RpdmUiOiAiY29uZmlybWF0aW9uLWlucHV0IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAicG9pbnRlcmRvd24iLAogICAgICAiY2FwdHVyZSI6IHRydWUsCiAgICAgICJ0YXJnZXQiOiAidWktb3ZlcmxheSIsCiAgICAgICJhY3RpdmUiOiAiY29uZmlybWF0aW9uLWlucHV0IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNvdXQiLAogICAgICAiY2FwdHVyZSI6IHRydWUsCiAgICAgICJ0YXJnZXQiOiAiY29uZmlybWF0aW9uLWlucHV0IiwKICAgICAgImFjdGl2ZSI6ICJCT0RZIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNvdXQiLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogImNvbmZpcm1hdGlvbi1pbnB1dCIsCiAgICAgICJhY3RpdmUiOiAiQk9EWSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3VzaW4iLAogICAgICAiY2FwdHVyZSI6IHRydWUsCiAgICAgICJ0YXJnZXQiOiAidWktYnV0dG9uIGdob3N0IGljb24tb25seSIsCiAgICAgICJhY3RpdmUiOiAidWktYnV0dG9uIGdob3N0IGljb24tb25seSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3VzaW4iLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogInVpLWJ1dHRvbiBnaG9zdCBpY29uLW9ubHkiLAogICAgICAiYWN0aXZlIjogInVpLWJ1dHRvbiBnaG9zdCBpY29uLW9ubHkiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJwb2ludGVyZG93biIsCiAgICAgICJjYXB0dXJlIjogZmFsc2UsCiAgICAgICJ0YXJnZXQiOiAidWktb3ZlcmxheSBkaWFsb2ctbGVhdmUtZnJvbSBkaWFsb2ctbGVhdmUtYWN0aXZlIiwKICAgICAgImFjdGl2ZSI6ICJ1aS1idXR0b24gZ2hvc3QgaWNvbi1vbmx5IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJjbGljayIsCiAgICAgICJjYXB0dXJlIjogdHJ1ZSwKICAgICAgInRhcmdldCI6ICJCT0RZIiwKICAgICAgImFjdGl2ZSI6ICJ1aS1idXR0b24gZ2hvc3QgaWNvbi1vbmx5IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiY2xpY2siLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogIkJPRFkiLAogICAgICAiYWN0aXZlIjogInVpLWJ1dHRvbiBnaG9zdCBpY29uLW9ubHkiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJmb2N1c291dCIsCiAgICAgICJjYXB0dXJlIjogdHJ1ZSwKICAgICAgInRhcmdldCI6ICJ1aS1idXR0b24gZ2hvc3QgaWNvbi1vbmx5IiwKICAgICAgImFjdGl2ZSI6ICJCT0RZIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNvdXQiLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogInVpLWJ1dHRvbiBnaG9zdCBpY29uLW9ubHkiLAogICAgICAiYWN0aXZlIjogIkJPRFkiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJmb2N1c2luIiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogImxvd2VyLWlucHV0IiwKICAgICAgImFjdGl2ZSI6ICJsb3dlci1pbnB1dCIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3VzaW4iLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogImxvd2VyLWlucHV0IiwKICAgICAgImFjdGl2ZSI6ICJsb3dlci1pbnB1dCIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3Vzb3V0IiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogImxvd2VyLWlucHV0IiwKICAgICAgImFjdGl2ZSI6ICJCT0RZIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNvdXQiLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogImxvd2VyLWlucHV0IiwKICAgICAgImFjdGl2ZSI6ICJCT0RZIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNpbiIsCiAgICAgICJjYXB0dXJlIjogdHJ1ZSwKICAgICAgInRhcmdldCI6ICJ1aS1idXR0b24gZ2hvc3QgaWNvbi1vbmx5IiwKICAgICAgImFjdGl2ZSI6ICJ1aS1idXR0b24gZ2hvc3QgaWNvbi1vbmx5IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNpbiIsCiAgICAgICJjYXB0dXJlIjogZmFsc2UsCiAgICAgICJ0YXJnZXQiOiAidWktYnV0dG9uIGdob3N0IGljb24tb25seSIsCiAgICAgICJhY3RpdmUiOiAidWktYnV0dG9uIGdob3N0IGljb24tb25seSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogInBvaW50ZXJkb3duIiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogImxvd2VyLWxhdGVyIiwKICAgICAgImFjdGl2ZSI6ICJ1aS1idXR0b24gZ2hvc3QgaWNvbi1vbmx5IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAicG9pbnRlcmRvd24iLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogImxvd2VyLWxhdGVyIiwKICAgICAgImFjdGl2ZSI6ICJ1aS1idXR0b24gZ2hvc3QgaWNvbi1vbmx5IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAibW91c2Vkb3duIiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogImxvd2VyLWxhdGVyIiwKICAgICAgImFjdGl2ZSI6ICJ1aS1idXR0b24gZ2hvc3QgaWNvbi1vbmx5IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAibW91c2Vkb3duIiwKICAgICAgImNhcHR1cmUiOiBmYWxzZSwKICAgICAgInRhcmdldCI6ICJsb3dlci1sYXRlciIsCiAgICAgICJhY3RpdmUiOiAidWktYnV0dG9uIGdob3N0IGljb24tb25seSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3Vzb3V0IiwKICAgICAgImNhcHR1cmUiOiB0cnVlLAogICAgICAidGFyZ2V0IjogInVpLWJ1dHRvbiBnaG9zdCBpY29uLW9ubHkiLAogICAgICAiYWN0aXZlIjogIkJPRFkiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJmb2N1c291dCIsCiAgICAgICJjYXB0dXJlIjogZmFsc2UsCiAgICAgICJ0YXJnZXQiOiAidWktYnV0dG9uIGdob3N0IGljb24tb25seSIsCiAgICAgICJhY3RpdmUiOiAiQk9EWSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3VzaW4iLAogICAgICAiY2FwdHVyZSI6IHRydWUsCiAgICAgICJ0YXJnZXQiOiAibG93ZXItbGF0ZXIiLAogICAgICAiYWN0aXZlIjogImxvd2VyLWxhdGVyIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNpbiIsCiAgICAgICJjYXB0dXJlIjogZmFsc2UsCiAgICAgICJ0YXJnZXQiOiAibG93ZXItbGF0ZXIiLAogICAgICAiYWN0aXZlIjogImxvd2VyLWxhdGVyIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAibW91c2V1cCIsCiAgICAgICJjYXB0dXJlIjogdHJ1ZSwKICAgICAgInRhcmdldCI6ICJsb3dlci1sYXRlciIsCiAgICAgICJhY3RpdmUiOiAibG93ZXItbGF0ZXIiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJtb3VzZXVwIiwKICAgICAgImNhcHR1cmUiOiBmYWxzZSwKICAgICAgInRhcmdldCI6ICJsb3dlci1sYXRlciIsCiAgICAgICJhY3RpdmUiOiAibG93ZXItbGF0ZXIiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJjbGljayIsCiAgICAgICJjYXB0dXJlIjogdHJ1ZSwKICAgICAgInRhcmdldCI6ICJsb3dlci1sYXRlciIsCiAgICAgICJhY3RpdmUiOiAibG93ZXItbGF0ZXIiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJjbGljayIsCiAgICAgICJjYXB0dXJlIjogZmFsc2UsCiAgICAgICJ0YXJnZXQiOiAibG93ZXItbGF0ZXIiLAogICAgICAiYWN0aXZlIjogImxvd2VyLWxhdGVyIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNvdXQiLAogICAgICAiY2FwdHVyZSI6IHRydWUsCiAgICAgICJ0YXJnZXQiOiAibG93ZXItbGF0ZXIiLAogICAgICAiYWN0aXZlIjogIkJPRFkiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAidHlwZSI6ICJmb2N1c291dCIsCiAgICAgICJjYXB0dXJlIjogZmFsc2UsCiAgICAgICJ0YXJnZXQiOiAibG93ZXItbGF0ZXIiLAogICAgICAiYWN0aXZlIjogIkJPRFkiLAogICAgICAiZGVmYXVsdFByZXZlbnRlZCI6IGZhbHNlCiAgICB9CiAgXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-8a369d8c256aa50bf43b",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 358,
+          "column": 9
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T07:20:26.222Z",
+    "duration": 4691.226,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

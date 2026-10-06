@@ -1,0 +1,117 @@
+{
+  "runs": {
+    "pure01": {
+      "exit": 0,
+      "actual_wait_completed": true,
+      "clean_at_actual_end": true,
+      "inputs_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "tmp_absent_now": true,
+      "server_closed": true,
+      "ports_unchanged": true,
+      "component_roots_absent": true
+    },
+    "browser01": {
+      "exit": 1,
+      "actual_wait_completed": true,
+      "clean_at_actual_end": true,
+      "inputs_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "tmp_absent_now": true,
+      "server_closed": true,
+      "ports_unchanged": true,
+      "component_roots_absent": true
+    },
+    "browser02": {
+      "exit": 1,
+      "actual_wait_completed": true,
+      "clean_at_actual_end": true,
+      "inputs_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "tmp_absent_now": true,
+      "server_closed": true,
+      "ports_unchanged": true,
+      "component_roots_absent": true
+    },
+    "pure02": {
+      "exit": 0,
+      "actual_wait_completed": true,
+      "clean_at_actual_end": true,
+      "inputs_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "tmp_absent_now": true,
+      "server_closed": true,
+      "ports_unchanged": true,
+      "component_roots_absent": true
+    },
+    "browser03": {
+      "exit": 0,
+      "actual_wait_completed": true,
+      "clean_at_actual_end": true,
+      "inputs_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "tmp_absent_now": true,
+      "server_closed": true,
+      "ports_unchanged": true,
+      "component_roots_absent": true
+    },
+    "browser04": {
+      "exit": 0,
+      "actual_wait_completed": true,
+      "clean_at_actual_end": true,
+      "inputs_unchanged": true,
+      "remaining_first": [],
+      "remaining_second": [],
+      "tmp_absent_now": true,
+      "server_closed": true,
+      "ports_unchanged": true,
+      "component_roots_absent": true
+    }
+  },
+  "owned_pid_starttime_count": 68,
+  "adopted_actual_wait_count": 18,
+  "remaining_first": [],
+  "remaining_second": [],
+  "ports": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                \nLISTEN 0      0          127.0.0.1:9001      0.0.0.0:*                                          \nLISTEN 0      0          127.0.0.1:9000      0.0.0.0:*                                          \nLISTEN 0      0            0.0.0.0:1040      0.0.0.0:*    users:((\"caas-prefix-tra\",pid=2,fd=3))\nLISTEN 0      0          127.0.0.1:5432      0.0.0.0:*                                          \n",
+  "ports_unchanged_from_first_browser_baseline": true,
+  "historical_unowned_not_touched": [
+    {
+      "pid": 180180,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180179,
+      "starttime": 408854,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 180182,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180178,
+      "starttime": 408854,
+      "comm": "chromium"
+    },
+    {
+      "pid": 180184,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180183,
+      "starttime": 408854,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 180185,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180178,
+      "starttime": 408854,
+      "comm": "chromium"
+    }
+  ],
+  "component_window_released": true
+}

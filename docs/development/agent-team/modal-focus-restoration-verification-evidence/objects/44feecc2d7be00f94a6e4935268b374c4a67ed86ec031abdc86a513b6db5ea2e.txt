@@ -1,0 +1,19 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - button "Open lower" [ref=e4] [cursor=pointer]
+    - textbox "Background input" [ref=e5]
+  - dialog "Independent lower" [ref=e7]:
+    - banner [ref=e8]:
+      - heading "Independent lower" [level=2] [ref=e9]
+      - button "关闭" [ref=e10] [cursor=pointer]:
+        - img [ref=e13]
+    - generic [ref=e15]:
+      - textbox "Lower first" [ref=e16]
+      - group [ref=e17]:
+        - generic [ref=e19]: Confirm lower
+      - button "Lower tools" [ref=e20] [cursor=pointer]
+      - textbox "Lower later" [ref=e21]
+```

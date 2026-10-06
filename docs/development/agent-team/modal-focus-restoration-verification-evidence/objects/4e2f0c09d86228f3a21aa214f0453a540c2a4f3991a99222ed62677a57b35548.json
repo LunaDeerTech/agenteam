@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "node",
+    "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--target",
+    "ES2022",
+    "--module",
+    "NodeNext",
+    "--moduleResolution",
+    "NodeNext",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--types",
+    "node",
+    "--typeRoots",
+    "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/tests/account-captcha-web/node_modules/@types",
+    "--skipLibCheck",
+    "candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-modal-focus-verification-jd6agsku",
+  "exit": 2,
+  "actual_wait_completed": true,
+  "source": "Retained exact exec tool output; harness dependency root lacked @types/node. No source mutation."
+}

@@ -1,0 +1,19 @@
+{
+  "commit": "6be5321c51f24108d886a139c7a31bb0aab92db3",
+  "original_files_checked": 102,
+  "differences": {
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": {
+      "base": "8c1af0a58af17d41a84686457ea70994ddd2b629d895730936d4e9b9b0df8649",
+      "candidate": "e93fca2ace5d6de5abf209aa24923b64f756c4af32858e92d45a1b6a7aa0d990"
+    },
+    "web/src/composables/useLayer.ts": {
+      "base": "48fb1cd2a063168f7ece5ba7f3df4e16183367b466f906f63a5c8384f23e03a6",
+      "candidate": "36d35b6b890b56f067f3e6ac0f6e03867a21baf4c9142ecb4b0d2fb8a2460902"
+    },
+    "web/src/tests/dialog-outside-focus.spec.ts": {
+      "base": "12d38d793d5b7864f7f262e8799965e1749bfebc999024a656a6bace4fc8ba50",
+      "candidate": "6ac0a9d084f1fc4809e812720abec6d9890b7c7ad3cafbb90746e9bfa23f5bdc"
+    }
+  },
+  "docs_dependency": "fixed-doc-dependency.json"
+}

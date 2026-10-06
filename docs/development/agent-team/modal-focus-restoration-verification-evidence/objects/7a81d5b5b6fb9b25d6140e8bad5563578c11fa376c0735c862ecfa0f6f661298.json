@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "tests/account-captcha-web/node_modules/.bin/playwright",
+    "test",
+    "--config",
+    "tests/account-captcha-web/dialog-outside-focus.config.js",
+    "--max-failures=1",
+    "--grep",
+    "native DOM|non-top removal"
+  ],
+  "cwd": "/workspace/scratch/agenteam-modal-focus-verification-jd6agsku/candidate",
+  "budget_seconds": 240,
+  "subreaper_enabled_before_launch": true,
+  "env": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TMPDIR": "/tmp/mfv-rabo1i6t",
+    "AGENTEAM_DIALOG_WEB_ROOT": "/workspace/scratch/agenteam-modal-focus-verification-jd6agsku/candidate/web",
+    "AGENTEAM_DIALOG_RUN_DIR": "/workspace/scratch/agenteam-modal-focus-verification-jd6agsku/runs/browser02",
+    "AGENTEAM_DIALOG_CHROMIUM": "/usr/lib/chromium/chromium"
+  }
+}

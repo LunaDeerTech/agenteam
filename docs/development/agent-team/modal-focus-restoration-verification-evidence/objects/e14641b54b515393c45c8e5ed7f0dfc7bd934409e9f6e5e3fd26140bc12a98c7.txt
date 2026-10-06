@@ -1,0 +1,102 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/dialog-outside-focus.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/web
+
+ ❯ src/tests/dialog-outside-focus.spec.ts (53 tests | 6 failed) 1224ms
+     × rejects the now-inert trigger and finds a legal modal target 33ms
+     × rejects the now-no-layout trigger and finds a legal modal target 13ms
+     × rejects the now-empty-region trigger and finds a legal modal target 12ms
+     × rejects the now-inert trigger and finds a legal modal target 25ms
+     × rejects the now-no-layout trigger and finds a legal modal target 10ms
+     × rejects the now-empty-region trigger and finds a legal modal target 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-inert trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-inert trigger and finds a legal modal target
+AssertionError: expected <button …(2)></button> to be <button type="button" …(2)>…(1)</button> // Object.is equality
+
+- Expected
++ Received
+
+  <button
+-   aria-label="关闭"
+-   class="ui-button ghost icon-only"
+-   type="button"
+- >
+-   <span
+-     class="button-content"
+-   >
+-     <span
+-       aria-hidden="false"
+-       class="button-label"
+-     >
+-       
+-       <svg
+-         aria-hidden="true"
+-         class="ui-icon"
+-         fill="none"
+-         stroke="currentColor"
+-         stroke-linecap="round"
+-         stroke-linejoin="round"
+-         stroke-width="1.6"
+-         viewBox="0 0 24 24"
++   data-recovery-trigger=""
++   tabindex="0"
+  >
+-         <path
+-           d="M6 6l12 12M18 6L6 18"
+-         />
+-       </svg>
+-       
+-     </span>
+-     <!--v-if-->
+-     <!--v-if-->
+-     <!--v-if-->
+-     <!--v-if-->
+-   </span>
++   Confirm
+  </button>
+
+ ❯ src/tests/dialog-outside-focus.spec.ts:297:36
+    295|     await escapeTop()
+    296|     const panel = remainingPanel()
+    297|     expect(document.activeElement).toBe(panel.querySelector('.dialog-h…
+       |                                    ^
+    298|     expect(document.activeElement).not.toBe(trigger)
+    299|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-no-layout trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > dialog modal restoration > rejects the now-empty-region trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-no-layout trigger and finds a legal modal target
+ FAIL  src/tests/dialog-outside-focus.spec.ts > drawer modal restoration > rejects the now-empty-region trigger and finds a legal modal target
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ remainingPanel src/tests/dialog-outside-focus.spec.ts:239:50
+    237|   const panel = document.querySelector<HTMLElement>('.ui-dialog')!
+    238|   expect(panel.inert).toBe(false)
+    239|   expect(panel.contains(document.activeElement)).toBe(true)
+       |                                                  ^
+    240|   expect(host.inert).toBe(true)
+    241|   expect(document.body.style.overflow).toBe('hidden')
+ ❯ src/tests/dialog-outside-focus.spec.ts:296:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 47 passed (53)
+   Start at  07:21:03
+   Duration  2.26s (transform 367ms, setup 0ms, import 465ms, tests 1.22s, environment 429ms)
+

@@ -1,0 +1,283 @@
+import { test as base, expect, type Page } from '@playwright/test'
+import { createHash, randomUUID } from 'node:crypto'
+import { copyFile, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import { dirname, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
+
+const closure = [
+  'src/components/ui/UiDialog.vue',
+  'src/components/ui/UiDrawer.vue',
+  'src/components/ui/UiPopover.vue',
+  'src/components/ui/UiButton.vue',
+  'src/components/ui/UiIcon.vue',
+  'src/components/ui/UiSpinner.vue',
+  'src/components/ui/types.ts',
+  'src/composables/useLayer.ts',
+  'src/styles/tokens.css',
+  'src/styles/base.css',
+  'src/styles/components.css',
+]
+
+const shell = "<script setup lang=\"ts\">\nimport { nextTick, ref } from 'vue'\nimport UiDialog from './src/components/ui/UiDialog.vue'\nimport UiDrawer from './src/components/ui/UiDrawer.vue'\nimport UiPopover from './src/components/ui/UiPopover.vue'\nconst query = new URLSearchParams(location.search)\nconst Surface = query.get('kind') === 'drawer' ? UiDrawer : UiDialog\nconst fault = query.get('fault') || 'valid'\nconst mode = query.get('mode') || 'modal'\nconst mounted = ref(true), lower = ref(false), upper = ref(false), popover = ref(false)\nconst invalid = ref(false), lowerMounted = ref(true), generation = ref(0), detached = ref(false)\nconst trigger = ref<HTMLElement|null>(null), captured = ref(false)\nconst isSpan = fault === 'nonfocusable' || fault === 'editable-child'\nfunction confirm() { captured.value = document.activeElement === trigger.value; upper.value = true }\nasync function remount() {\n  const old = trigger.value\n  mounted.value = false\n  await nextTick()\n  detached.value = !!old && !old.isConnected\n  mounted.value = true\n  generation.value++\n}\n</script>\n<template>\n  <main style=\"padding:24px\">\n    <button data-testid=\"launch\" @click=\"lower = true\">Open lower</button>\n    <input data-testid=\"background\" aria-label=\"Background input\" />\n    <UiPopover v-if=\"mode === 'page'\" v-model:open=\"popover\" label=\"Page tools\" data-testid=\"page-anchor\">\n      <template #default=\"{ close }\"><button data-testid=\"page-close\" @click=\"close\">Close tools</button></template>\n    </UiPopover>\n  </main>\n  <template v-if=\"mounted && mode !== 'page'\">\n    <Surface v-if=\"lowerMounted\" v-model:open=\"lower\" title=\"Independent lower\">\n      <input data-testid=\"lower-first\" data-autofocus aria-label=\"Lower first\" />\n      <fieldset :disabled=\"invalid && fault === 'fieldset'\">\n        <div :hidden=\"invalid && fault === 'hidden'\"\n          :style=\"invalid && fault === 'visibility' ? {visibility:'hidden'} : undefined\"\n          :contenteditable=\"invalid && fault === 'editable-child' ? 'true' : undefined\">\n          <component :is=\"isSpan ? 'span' : 'button'\" ref=\"trigger\" data-testid=\"confirm-trigger\"\n            :tabindex=\"isSpan && invalid ? undefined : 0\" @click=\"confirm\"\n            style=\"display:inline-block;padding:8px;border:1px solid currentColor\">Confirm lower</component>\n        </div>\n      </fieldset>\n      <UiPopover v-model:open=\"popover\" label=\"Lower tools\" data-testid=\"modal-anchor\"\n        :disabled=\"invalid && fault === 'popover-disabled'\">\n        <template #default=\"{ close }\">\n          <button data-testid=\"pop-confirm\" @click=\"upper = true\">Confirm tools</button>\n          <button data-testid=\"pop-invalidate\" @click=\"invalid = true\">Disable anchor</button>\n          <button data-testid=\"pop-close\" @click=\"close\">Close tools</button>\n        </template>\n      </UiPopover>\n      <input data-testid=\"lower-later\" aria-label=\"Lower later\" />\n    </Surface>\n    <UiDialog v-model:open=\"upper\" title=\"Independent confirmation\">\n      <input data-testid=\"upper-first\" data-autofocus aria-label=\"Confirmation input\" />\n      <button data-testid=\"invalidate\" @click=\"invalid = true\">Change trigger state</button>\n      <button data-testid=\"remount\" @click=\"remount\">Remount both</button>\n      <button data-testid=\"remove-lower\" @click=\"lowerMounted = false\">Remove lower</button>\n      <output data-testid=\"capture\">{{ captured }}</output>\n      <output data-testid=\"generation\">{{ generation }}:{{ detached }}</output>\n      <template #footer=\"{ close }\"><button data-testid=\"upper-close\" @click=\"close\">Continue editing</button></template>\n    </UiDialog>\n  </template>\n</template>\n"
+
+type Harness = { origin: string; nonce: string }
+const test = base.extend<{ ownOrigin: void }, { harness: Harness }>({
+  harness: [
+    async ({}, use, workerInfo) => {
+      const webRoot = process.env.AGENTEAM_DIALOG_WEB_ROOT!
+      const runDir = process.env.AGENTEAM_DIALOG_RUN_DIR!
+      const webRequire = createRequire(join(webRoot, 'package.json'))
+      const floatingPackage = webRequire.resolve('@floating-ui/vue/package.json')
+      const floating = JSON.parse(await readFile(floatingPackage, 'utf8')) as {
+        module: string
+      }
+      const { createServer } = await import(pathToFileURL(webRequire.resolve('vite')).href)
+      const { default: vue } = await import(
+        pathToFileURL(webRequire.resolve('@vitejs/plugin-vue')).href
+      )
+      await mkdir(runDir, { recursive: true })
+      const root = await mkdtemp(join(runDir, 'component-'))
+      const nonce = randomUUID()
+      const inputs: Record<string, string> = {}
+      for (const path of closure) {
+        await mkdir(dirname(join(root, path)), { recursive: true })
+        await copyFile(join(webRoot, path), join(root, path))
+        inputs[path] = createHash('sha256')
+          .update(await readFile(join(root, path)))
+          .digest('hex')
+      }
+      await writeFile(join(root, 'Harness.vue'), shell)
+      await writeFile(
+        join(root, 'main.ts'),
+        `import { createApp } from 'vue'; import Harness from './Harness.vue';
+import './src/styles/tokens.css'; import './src/styles/base.css'; import './src/styles/components.css';
+document.body.style.overflow = 'auto'; createApp(Harness).mount('#app');`,
+      )
+      await writeFile(
+        join(root, 'index.html'),
+        `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="harness-nonce" content="${nonce}"></head><body><div id="app"></div><script type="module" src="/main.ts"></script></body></html>`,
+      )
+      const server = await createServer({
+        configFile: false,
+        root,
+        publicDir: false,
+        cacheDir: join(root, '.vite'),
+        clearScreen: false,
+        logLevel: 'error',
+        plugins: [vue()],
+        resolve: {
+          alias: {
+            vue: webRequire.resolve('vue/dist/vue.esm-bundler.js'),
+            '@floating-ui/vue': join(dirname(floatingPackage), floating.module),
+          },
+          dedupe: ['vue'],
+        },
+        server: {
+          host: '127.0.0.1',
+          port: 0,
+          strictPort: true,
+          hmr: false,
+          cors: false,
+          fs: { allow: [root, await realpath(join(webRoot, 'node_modules'))] },
+        },
+      })
+      const lifecycle = join(runDir, `server-${workerInfo.workerIndex}.json`)
+      let origin = ''
+      try {
+        await server.listen()
+        const address = server.httpServer!.address()
+        if (!address || typeof address === 'string') throw new Error('LOOPBACK_ADDRESS_REQUIRED')
+        origin = `http://127.0.0.1:${address.port}`
+        await writeFile(
+          lifecycle,
+          JSON.stringify({ pid: process.pid, origin, nonce, inputs, closed: false }, null, 2),
+        )
+        await use({ origin, nonce })
+      } finally {
+        await server.close()
+        await writeFile(
+          lifecycle,
+          JSON.stringify(
+            {
+              pid: process.pid,
+              origin,
+              nonce,
+              inputs,
+              closed: !server.httpServer?.listening,
+            },
+            null,
+            2,
+          ),
+        )
+        await rm(root, { recursive: true, force: true })
+      }
+    },
+    { scope: 'worker' },
+  ],
+  ownOrigin: [
+    async ({ context, page, harness }, use, testInfo) => {
+      const blocked: string[] = []
+      await context.route('**/*', async (route) => {
+        if (new URL(route.request().url()).origin === harness.origin) await route.continue()
+        else {
+          blocked.push(route.request().url())
+          await route.abort('blockedbyclient')
+        }
+      })
+      await page.addInitScript(() => {
+        const events: object[] = []
+        Object.assign(window, { pointerEvidence: events })
+        const label = (node: EventTarget | null) =>
+          node instanceof Element
+            ? node.getAttribute('data-testid') || node.id || node.className || node.tagName
+            : null
+        for (const type of [
+          'pointerdown',
+          'mousedown',
+          'mouseup',
+          'click',
+          'focusin',
+          'focusout',
+        ]) {
+          for (const capture of [true, false]) {
+            document.addEventListener(
+              type,
+              (event) => {
+                if (events.length < 1000)
+                  events.push({
+                    type,
+                    capture,
+                    target: label(event.target),
+                    active: label(document.activeElement),
+                    defaultPrevented: event.defaultPrevented,
+                  })
+              },
+              capture,
+            )
+          }
+        }
+      })
+      try {
+        await use()
+      } finally {
+        if (!page.isClosed()) {
+          await testInfo.attach('pointer-events', {
+            body: Buffer.from(
+              JSON.stringify(
+                {
+                  blocked,
+                  events: await page.evaluate(
+                    () => (window as unknown as { pointerEvidence: object[] }).pointerEvidence,
+                  ),
+                },
+                null,
+                2,
+              ),
+            ),
+            contentType: 'application/json',
+          })
+        }
+        expect(blocked, 'the component harness must not request other origins').toEqual([])
+      }
+    },
+    { auto: true },
+  ],
+})
+
+async function visitOwn(page: Page, harness: Harness, query = '') {
+  await page.goto(`${harness.origin}/?nonce=${harness.nonce}${query}`)
+  await expect(page.locator('meta[name="harness-nonce"]')).toHaveAttribute('content', harness.nonce)
+  await expect(page.getByTestId('launch')).toBeVisible()
+}
+async function openBoth(page: Page) {
+  await page.getByTestId('launch').click()
+  await expect(page.getByTestId('lower-first')).toBeFocused()
+  await page.getByTestId('confirm-trigger').click()
+  await expect(page.getByTestId('upper-first')).toBeFocused()
+  await expect(page.getByTestId('capture')).toHaveText('true')
+}
+async function lowerOwnsFocus(page: Page) {
+  const lower = page.getByRole('dialog', { name:'Independent lower', exact:true })
+  await expect(lower).toBeVisible()
+  await expect(lower).toHaveJSProperty('inert', false)
+  await expect.poll(() => lower.evaluate(node => node.contains(document.activeElement))).toBe(true)
+  await expect(page.locator('#app')).toHaveJSProperty('inert', true)
+  await expect(page.locator('body')).toHaveCSS('overflow','hidden')
+  return lower
+}
+async function outsideOwn(page: Page) {
+  const point = await page.locator('.ui-overlay').last().evaluate(node => {
+    const r=node.getBoundingClientRect(); return {x:r.x+2,y:r.y+2}
+  })
+  expect(await page.evaluate(p => document.elementFromPoint(p.x,p.y) === [...document.querySelectorAll('.ui-overlay')].at(-1),point)).toBe(true)
+  await page.mouse.click(point.x,point.y)
+}
+for (const [kind,width,reducedMotion] of [['dialog',1440,'no-preference'],['drawer',390,'reduce']] as const) {
+  test(`independent ${kind}: remount, actual close and legal focus continuity`,async ({page,harness})=>{
+    await page.setViewportSize({width,height:900});await page.emulateMedia({reducedMotion})
+    await visitOwn(page,harness,`&kind=${kind}`);await openBoth(page)
+    await page.getByTestId('remount').click()
+    await expect(page.getByTestId('generation')).toHaveText('1:true')
+    await expect(page.getByTestId('upper-first')).toBeFocused()
+    await page.keyboard.press('Escape')
+    const lower=await lowerOwnsFocus(page)
+    await expect(lower.locator('.dialog-header button')).toBeFocused()
+    for (const key of ['Shift+Tab','Tab','Tab','Shift+Tab']) { await page.keyboard.press(key);await lowerOwnsFocus(page) }
+    await page.getByTestId('lower-later').click();await page.waitForTimeout(250)
+    await expect(page.getByTestId('lower-later')).toBeFocused()
+    await page.getByTestId('confirm-trigger').click();await expect(page.getByTestId('upper-first')).toBeFocused()
+    await page.getByTestId('upper-close').click();await expect(page.getByTestId('confirm-trigger')).toBeFocused()
+    await page.getByTestId('confirm-trigger').click();await page.getByTestId('remount').click()
+    await expect(page.getByTestId('generation')).toHaveText('2:true');await expect(page.getByTestId('upper-first')).toBeFocused()
+    await outsideOwn(page);await lowerOwnsFocus(page)
+    await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page.locator('#app')).toHaveJSProperty('inert',false)
+    await expect(page.locator('body')).toHaveCSS('overflow','auto')
+    // Shared remount captured body, so do not invent a new no-modal fallback contract.
+    await page.getByTestId('background').click();await page.waitForTimeout(250)
+    await expect(page.getByTestId('background')).toBeFocused()
+  })
+}
+test('independent current trigger eligibility uses native DOM focus behavior',async ({page,harness},testInfo)=>{
+  const records:unknown[]=[]
+  try {
+    for (const fault of ['fieldset','hidden','visibility','nonfocusable','editable-child']) {
+      await visitOwn(page,harness,`&fault=${fault}`);await openBoth(page)
+      await page.getByTestId('invalidate').click()
+      await page.keyboard.press('Escape')
+      await expect(page.getByRole('dialog',{name:'Independent confirmation',exact:true})).toHaveCount(0)
+      const state=await page.getByTestId('confirm-trigger').evaluate(node=>({
+        connected:node.isConnected,tabIndex:(node as HTMLElement).tabIndex,
+        tabAttribute:node.getAttribute('tabindex'),editable:(node as HTMLElement).isContentEditable,
+        disabled:node.matches(':disabled'),rects:node.getClientRects().length,
+        focused:node===document.activeElement,
+        active:document.activeElement?.getAttribute('data-testid')||document.activeElement?.tagName,
+        lowerContains:document.querySelector('.ui-dialog')?.contains(document.activeElement),
+      }))
+      records.push({fault,...state});console.log('INDEPENDENT_NATIVE_TRIGGER',JSON.stringify({fault,...state}))
+      await lowerOwnsFocus(page)
+      await expect(page.getByRole('dialog',{name:'Independent lower',exact:true}).locator('.dialog-header button')).toBeFocused()
+    }
+  } finally {await testInfo.attach('native-trigger-facts',{body:Buffer.from(JSON.stringify(records,null,2)),contentType:'application/json'})}
+})
+test('independent non-top removal, allowed popover and no-modal anchor compatibility',async ({page,harness})=>{
+  await visitOwn(page,harness);await openBoth(page)
+  await page.getByTestId('remove-lower').click()
+  await expect(page.getByRole('dialog')).toHaveCount(1)
+  await expect(page.getByTestId('remove-lower')).toBeFocused()
+  await expect(page.locator('#app')).toHaveJSProperty('inert',true)
+  await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toHaveCount(0)
+  await visitOwn(page,harness,'&fault=popover-disabled')
+  await page.getByTestId('launch').click();await page.getByTestId('modal-anchor').click()
+  await page.getByTestId('pop-close').click();await expect(page.getByTestId('modal-anchor')).toBeFocused()
+  await page.getByTestId('modal-anchor').click();await page.getByTestId('pop-confirm').click()
+  await expect(page.getByTestId('upper-first')).toBeFocused()
+  await page.getByTestId('upper-close').click();await expect(page.getByTestId('pop-confirm')).toBeFocused()
+  await page.getByTestId('pop-invalidate').click();await page.getByTestId('pop-close').click()
+  await lowerOwnsFocus(page)
+  await expect(page.getByRole('dialog',{name:'Independent lower',exact:true}).locator('.dialog-header button')).toBeFocused()
+  await visitOwn(page,harness,'&mode=page');await page.getByTestId('page-anchor').click()
+  await page.getByTestId('page-close').click();await expect(page.getByTestId('page-anchor')).toBeFocused()
+  await expect(page.locator('#app')).toHaveJSProperty('inert',false)
+})

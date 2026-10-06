@@ -1,0 +1,22 @@
+
+Running 10 tests using 1 worker
+
+[1A[2K(node:466058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:466058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/10] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:374:9 › dialog 1440 no-preference: initial modal restoration
+[1A[2K[2/10] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:374:9 › dialog 1440 no-preference: remount modal restoration
+[1A[2K[3/10] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:374:9 › drawer 390 reduce: initial modal restoration
+[1A[2K[4/10] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:374:9 › drawer 390 reduce: remount modal restoration
+[1A[2K[5/10] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:434:1 › top nonmodal popover restores its valid modal anchor and keeps Tab inside
+[1A[2K[6/10] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:451:1 › top nonmodal popover with a disabled anchor falls back within its remaining modal
+[1A[2K[7/10] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:469:5 › dialog: native editable-child focus restoration
+[1A[2K[8/10] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:469:5 › dialog: native editable-host focus restoration
+[1A[2K[9/10] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:469:5 › drawer: native editable-child focus restoration
+[1A[2K[10/10] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:469:5 › drawer: native editable-host focus restoration
+[1A[2K  10 passed (29.0s)

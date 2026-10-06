@@ -1,0 +1,32 @@
+{
+  "exit": 1,
+  "actual_wait_completed": true,
+  "timed_out": false,
+  "elapsed_seconds": 1.278,
+  "reaped": [],
+  "tracked_processes": [
+    {
+      "pid": 449143,
+      "state": "R",
+      "ppid": 449128,
+      "session": 449143,
+      "starttime": 1149062,
+      "command": "node tests/account-captcha-web/node_modules/.bin/playwright test --config tests/account-captcha-web/dialog-outside-focus.config.js --grep ^dialog 390 reduce: initial modal restoration$ "
+    }
+  ],
+  "remaining_first": [],
+  "remaining_second": [],
+  "ports_after": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                \nLISTEN 0      0          127.0.0.1:9001      0.0.0.0:*                                          \nLISTEN 0      0          127.0.0.1:9000      0.0.0.0:*                                          \nLISTEN 0      0            0.0.0.0:1040      0.0.0.0:*    users:((\"caas-prefix-tra\",pid=2,fd=3))\nLISTEN 0      0          127.0.0.1:5432      0.0.0.0:*                                          \n",
+  "tmpdir": "/tmp/df-_pwpq63h",
+  "tmp_contents_before_cleanup": [
+    "playwright-transform-cache-1000",
+    "playwright-transform-cache-1000/59",
+    "playwright-transform-cache-1000/02",
+    "playwright-transform-cache-1000/59/5953d17dd8_e47cda6_dialogoutsidefocusspec.js",
+    "playwright-transform-cache-1000/59/5953d17dd8_e47cda6_dialogoutsidefocusspec.map",
+    "playwright-transform-cache-1000/02/02d3b5b773_3509292_dialogoutsidefocusconfig.js",
+    "playwright-transform-cache-1000/02/02d3b5b773_3509292_dialogoutsidefocusconfig.map"
+  ],
+  "tmp_contents": [],
+  "raw_sha256": "4112e27a85f600186f5b1b1f59daeaf2238aa4a04012c3e52b325f6d61d7ee43"
+}

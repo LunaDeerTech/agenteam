@@ -1,0 +1,26 @@
+
+Running 3 tests using 1 worker
+
+[1A[2K(node:468654) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:468654) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/3] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:188:3 › independent dialog: remount, actual close and legal focus continuity
+[1A[2K[2/3] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:234:1 › independent current trigger eligibility uses native DOM focus behavior
+[1A[2Ktests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:234:1 › independent current trigger eligibility uses native DOM focus behavior
+INDEPENDENT_NATIVE_TRIGGER {"fault":"fieldset","connected":true,"tabIndex":0,"tabAttribute":"0","editable":false,"disabled":true,"rects":1,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2KINDEPENDENT_NATIVE_TRIGGER {"fault":"hidden","connected":true,"tabIndex":0,"tabAttribute":"0","editable":false,"disabled":false,"rects":0,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2KINDEPENDENT_NATIVE_TRIGGER {"fault":"visibility","connected":true,"tabIndex":0,"tabAttribute":"0","editable":false,"disabled":false,"rects":1,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2KINDEPENDENT_NATIVE_TRIGGER {"fault":"nonfocusable","connected":true,"tabIndex":-1,"tabAttribute":null,"editable":false,"disabled":false,"rects":1,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2KINDEPENDENT_NATIVE_TRIGGER {"fault":"editable-child","connected":true,"tabIndex":-1,"tabAttribute":null,"editable":true,"disabled":false,"rects":1,"focused":false,"active":"BUTTON","lowerContains":true}
+
+[1A[2K[3/3] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:284:1 › independent non-top removal, allowed popover and no-modal anchor compatibility
+[1A[2K  3 passed (12.5s)

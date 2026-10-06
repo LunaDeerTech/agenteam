@@ -1,0 +1,157 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/dialog-outside-focus.config.js",
+    "rootDir": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/e2e",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/runs/old02/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/runs/old02/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "dialog-outside-focus.spec.ts"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "dialog-outside-focus.spec.ts",
+      "file": "dialog-outside-focus.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "dialog 390 reduce: initial modal restoration",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4167,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 3000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 3000ms exceeded while waiting on the predicate\n    at insideRemainingModal (/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:431:3)\n    at /workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:475:13",
+                    "location": {
+                      "file": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts",
+                      "column": 3,
+                      "line": 431
+                    },
+                    "snippet": "  429 |   await expect(panel).toBeVisible();\n  430 |   await expect(panel).toHaveJSProperty(\"inert\", false);\n> 431 |   await expect\n      |   ^\n  432 |     .poll(() => panel.evaluate((node) => node.contains(document.activeElement)))\n  433 |     .toBe(true);\n  434 |   await expect(page.locator(\"#app\")).toHaveJSProperty(\"inert\", true);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts",
+                        "column": 3,
+                        "line": 431
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 3000ms exceeded while waiting on the predicate\n\n  429 |   await expect(panel).toBeVisible();\n  430 |   await expect(panel).toHaveJSProperty(\"inert\", false);\n> 431 |   await expect\n      |   ^\n  432 |     .poll(() => panel.evaluate((node) => node.contains(document.activeElement)))\n  433 |     .toBe(true);\n  434 |   await expect(page.locator(\"#app\")).toHaveJSProperty(\"inert\", true);\n    at insideRemainingModal (/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:431:3)\n    at /workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:475:13"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T07:17:04.034Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/runs/old02/results/dialog-outside-focus-dialo-55517-e-initial-modal-restoration/test-failed-1.png"
+                    },
+                    {
+                      "name": "pointer-events",
+                      "contentType": "application/json",
+                      "body": "ewogICJibG9ja2VkIjogW10sCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNpbiIsCiAgICAgICJjYXB0dXJlIjogdHJ1ZSwKICAgICAgInRhcmdldCI6ICJjb25maXJtYXRpb24taW5wdXQiLAogICAgICAiYWN0aXZlIjogImNvbmZpcm1hdGlvbi1pbnB1dCIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJ0eXBlIjogImZvY3VzaW4iLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogImNvbmZpcm1hdGlvbi1pbnB1dCIsCiAgICAgICJhY3RpdmUiOiAiY29uZmlybWF0aW9uLWlucHV0IiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNvdXQiLAogICAgICAiY2FwdHVyZSI6IHRydWUsCiAgICAgICJ0YXJnZXQiOiAiY29uZmlybWF0aW9uLWlucHV0IiwKICAgICAgImFjdGl2ZSI6ICJCT0RZIiwKICAgICAgImRlZmF1bHRQcmV2ZW50ZWQiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgInR5cGUiOiAiZm9jdXNvdXQiLAogICAgICAiY2FwdHVyZSI6IGZhbHNlLAogICAgICAidGFyZ2V0IjogImNvbmZpcm1hdGlvbi1pbnB1dCIsCiAgICAgICJhY3RpdmUiOiAiQk9EWSIsCiAgICAgICJkZWZhdWx0UHJldmVudGVkIjogZmFsc2UKICAgIH0KICBdCn0="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/runs/old02/results/dialog-outside-focus-dialo-55517-e-initial-modal-restoration/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/runs/old02/results/dialog-outside-focus-dialo-55517-e-initial-modal-restoration/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts",
+                    "column": 3,
+                    "line": 431
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "996e745f1f2cb283b490-8a369d8c256aa50bf43b",
+          "file": "dialog-outside-focus.spec.ts",
+          "line": 358,
+          "column": 9
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T07:17:03.387Z",
+    "duration": 5147.902,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

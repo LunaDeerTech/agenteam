@@ -1,0 +1,617 @@
+--- 6be5321/web/src/composables/useLayer.ts
++++ input01/web/src/composables/useLayer.ts
+@@ -13,6 +13,63 @@
+   return Array.from(root.querySelectorAll<HTMLElement>(selector)).filter(
+     (el) => !el.closest('[inert]') && el.getClientRects().length,
+   )
++}
++function restorationVisible(element: HTMLElement) {
++  if (
++    !element.isConnected ||
++    !Array.from(element.getClientRects()).some((rect) => rect.width > 0 && rect.height > 0)
++  )
++    return false
++  for (let node: HTMLElement | null = element; node; node = node.parentElement) {
++    if (
++      node.inert ||
++      node.hasAttribute('inert') ||
++      node.hidden ||
++      node.getAttribute('aria-hidden')?.toLowerCase() === 'true'
++    )
++      return false
++    const style = getComputedStyle(node)
++    if (
++      style.display === 'none' ||
++      style.visibility === 'hidden' ||
++      style.visibility === 'collapse'
++    )
++      return false
++  }
++  return true
++}
++function restorationTarget(element: HTMLElement) {
++  const tabindex = element.getAttribute('tabindex')
++  return (
++    restorationVisible(element) &&
++    !element.matches(':disabled') &&
++    (element.tabIndex >= 0 ||
++      (tabindex !== null && /^[+-]?\d+$/.test(tabindex.trim())) ||
++      element.isContentEditable)
++  )
++}
++function restoreWithinModal(trigger: HTMLElement | null, allowed: Layer[]) {
++  if (
++    trigger &&
++    restorationTarget(trigger) &&
++    allowed.some((layer) => {
++      const panel = layer.panel.value
++      return panel && restorationVisible(panel) && panel.contains(trigger)
++    })
++  ) {
++    trigger.focus({ preventScroll: true })
++    return
++  }
++  for (const layer of [...allowed].reverse()) {
++    const panel = layer.panel.value
++    if (!panel || !restorationVisible(panel)) continue
++    const target =
++      focusable(panel).find(restorationTarget) || (restorationTarget(panel) ? panel : null)
++    if (target) {
++      target.focus({ preventScroll: true })
++      return
++    }
++  }
+ }
+ let previousInert = false
+ let previousOverflow = ''
+@@ -88,8 +145,12 @@
+     layers.splice(index, 1)
+     record = undefined
+     syncBackground()
+-    if (restore && wasTop && active.trigger?.isConnected)
+-      active.trigger.focus({ preventScroll: true })
++    if (restore && wasTop) {
++      const lastModal = layers.map((layer) => layer.modal).lastIndexOf(true)
++      if (lastModal === -1) {
++        if (active.trigger?.isConnected) active.trigger.focus({ preventScroll: true })
++      } else restoreWithinModal(active.trigger, layers.slice(lastModal))
++    }
+     if (!layers.length) {
+       document.removeEventListener('keydown', keydown, true)
+       document.removeEventListener('pointerdown', pointerdown, true)
+--- 6be5321/web/src/tests/dialog-outside-focus.spec.ts
++++ input01/web/src/tests/dialog-outside-focus.spec.ts
+@@ -1,8 +1,9 @@
+ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+-import { mount, type VueWrapper } from '@vue/test-utils'
++import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+ import { defineComponent, nextTick, ref } from 'vue'
+ import UiDialog from '../components/ui/UiDialog.vue'
+ import UiDrawer from '../components/ui/UiDrawer.vue'
++import UiPopover from '../components/ui/UiPopover.vue'
+ 
+ const mounted: VueWrapper[] = []
+ let host: HTMLDivElement
+@@ -159,3 +160,256 @@
+     expect(host.inert).toBe(false)
+   })
+ })
++
++function recoverySurface(
++  component: typeof UiDialog | typeof UiDrawer,
++  mutation = '',
++  initiallyOpen = false,
++) {
++  const wrapper = mount(
++    defineComponent({
++      components: { Surface: component, UiDialog },
++      setup() {
++        const mountedBoth = ref(true)
++        async function remount() {
++          mountedBoth.value = false
++          await nextTick()
++          mountedBoth.value = true
++        }
++        return {
++          lower: ref(initiallyOpen),
++          confirmation: ref(initiallyOpen),
++          lowerMounted: ref(true),
++          invalid: ref(false),
++          mountedBoth,
++          remount,
++          mutation,
++        }
++      },
++      template: `
++        <button data-launch @click="lower = true">Open lower</button>
++        <template v-if="mountedBoth">
++        <Surface v-if="lowerMounted" v-model:open="lower" title="Remaining">
++          <fieldset :disabled="invalid && mutation === 'fieldset'">
++            <div :hidden="invalid && mutation === 'hidden'"
++              :inert="invalid && mutation === 'inert' ? '' : undefined"
++              :aria-hidden="invalid && mutation === 'aria-hidden' ? 'true' : undefined"
++              :style="invalid ? { display: mutation === 'display' ? 'none' : undefined,
++                visibility: mutation === 'visibility' ? 'hidden' : mutation === 'collapse' ? 'collapse' : undefined } : {}">
++              <component :is="mutation === 'non-focusable' ? 'span' : 'button'"
++                v-if="!(invalid && mutation === 'disconnected')" data-recovery-trigger
++                :tabindex="invalid && mutation === 'non-focusable' ? undefined : 0"
++                :disabled="invalid && mutation === 'disabled'" @click="confirmation = true">Confirm</component>
++            </div>
++          </fieldset>
++          <input data-remaining-input />
++        </Surface>
++        <UiDialog v-model:open="confirmation" title="Confirmation">
++          <input data-confirmation-input data-autofocus />
++          <button data-invalidate @click="invalid = true">Invalidate old trigger</button>
++          <button data-remove-lower @click="lowerMounted = false">Remove lower</button>
++          <button data-remount @click="remount">Remount both</button>
++        </UiDialog>
++        </template>`,
++    }),
++    { attachTo: host },
++  )
++  mounted.push(wrapper)
++  return wrapper
++}
++
++async function openConfirmation(wrapper: VueWrapper) {
++  await open(wrapper)
++  const trigger = document.querySelector<HTMLElement>('[data-recovery-trigger]')!
++  trigger.focus() // jsdom click dispatch has no native pointer focus.
++  trigger.click()
++  await flushPromises()
++  expect(document.activeElement).toBe(document.querySelector('[data-confirmation-input]'))
++  return trigger
++}
++
++async function escapeTop() {
++  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
++  await nextTick()
++}
++
++function remainingPanel() {
++  const panel = document.querySelector<HTMLElement>('.ui-dialog')!
++  expect(panel.inert).toBe(false)
++  expect(panel.contains(document.activeElement)).toBe(true)
++  expect(host.inert).toBe(true)
++  expect(document.body.style.overflow).toBe('hidden')
++  return panel
++}
++
++describe.each([
++  ['dialog', UiDialog],
++  ['drawer', UiDrawer],
++] as const)('%s modal restoration', (_, component) => {
++  it('prefers the exact still-valid trigger over another focusable', async () => {
++    const trigger = await openConfirmation(recoverySurface(component))
++    await escapeTop()
++    remainingPanel()
++    expect(document.activeElement).toBe(trigger)
++  })
++
++  it.each(['body', 'background', 'disconnected'])(
++    'restores within the lower modal when simultaneous open captured %s',
++    async (source) => {
++      const outside = document.createElement('button')
++      host.append(outside)
++      if (source !== 'body') outside.focus()
++      recoverySurface(component, '', true)
++      await nextTick()
++      if (source === 'disconnected') outside.remove()
++      await escapeTop()
++      const panel = remainingPanel()
++      expect(document.activeElement).toBe(panel.querySelector('.dialog-header button'))
++      expect(document.activeElement).not.toBe(outside)
++    },
++  )
++
++  it.each([
++    'disabled',
++    'fieldset',
++    'hidden',
++    'inert',
++    'aria-hidden',
++    'display',
++    'visibility',
++    'collapse',
++    'disconnected',
++    'non-focusable',
++    'no-layout',
++    'empty-region',
++  ])('rejects the now-%s trigger and finds a legal modal target', async (mutation) => {
++    const trigger = await openConfirmation(recoverySurface(component, mutation))
++    document.querySelector<HTMLButtonElement>('[data-invalidate]')!.click()
++    await nextTick()
++    if (mutation === 'no-layout')
++      Object.defineProperty(trigger, 'getClientRects', {
++        configurable: true,
++        value: () => [] as unknown as DOMRectList,
++      })
++    if (mutation === 'empty-region')
++      Object.defineProperty(trigger, 'getClientRects', {
++        configurable: true,
++        value: () => [{ width: 0, height: 0 }] as unknown as DOMRectList,
++      })
++    await escapeTop()
++    const panel = remainingPanel()
++    expect(document.activeElement).toBe(panel.querySelector('.dialog-header button'))
++    expect(document.activeElement).not.toBe(trigger)
++  })
++
++  it('uses the remaining panel when all its controls are disabled', async () => {
++    await openConfirmation(recoverySurface(component))
++    const lower = document.querySelector<HTMLElement>('.ui-dialog')!
++    lower.querySelectorAll<HTMLInputElement | HTMLButtonElement>('input,button').forEach((node) => {
++      node.disabled = true
++    })
++    await escapeTop()
++    expect(remainingPanel()).toBe(lower)
++    expect(document.activeElement).toBe(lower)
++  })
++
++  it('restores inside the new lower panel after both real components remount open', async () => {
++    const trigger = await openConfirmation(recoverySurface(component))
++    document.querySelector<HTMLButtonElement>('[data-remount]')!.click()
++    await flushPromises()
++    expect(trigger.isConnected).toBe(false)
++    expect(document.querySelectorAll('.ui-dialog')).toHaveLength(2)
++    expect(document.activeElement).toBe(document.querySelector('[data-confirmation-input]'))
++    await escapeTop()
++    remainingPanel()
++  })
++
++  it('does not focus any background target when the allowed panel is unavailable', async () => {
++    await openConfirmation(recoverySurface(component))
++    document.querySelector<HTMLElement>('.ui-dialog')!.hidden = true
++    const focus = vi.spyOn(HTMLElement.prototype, 'focus')
++    await escapeTop()
++    expect(focus).not.toHaveBeenCalled()
++    expect(host.inert).toBe(true)
++    expect(document.body.style.overflow).toBe('hidden')
++  })
++
++  it('does not steal focus when a non-top modal unmounts', async () => {
++    await openConfirmation(recoverySurface(component))
++    const active = document.activeElement
++    const focus = vi.spyOn(HTMLElement.prototype, 'focus')
++    document.querySelector<HTMLButtonElement>('[data-remove-lower]')!.click()
++    await nextTick()
++    expect(document.querySelectorAll('.ui-dialog')).toHaveLength(1)
++    expect(document.activeElement).toBe(active)
++    expect(focus).not.toHaveBeenCalled()
++    expect(host.inert).toBe(true)
++  })
++})
++
++it('never restores into an inert lower modal outside the remaining highest modal', async () => {
++  const wrapper = mount(
++    defineComponent({
++      components: { UiDialog },
++      setup: () => ({ first: ref(false), second: ref(false), third: ref(false) }),
++      template: `<button data-launch @click="first = true">First</button>
++        <UiDialog v-model:open="first" title="First"><button data-stack @click="second = true; third = true">Open two</button></UiDialog>
++        <UiDialog v-model:open="second" title="Second"><input data-second /></UiDialog>
++        <UiDialog v-model:open="third" title="Third"><input data-third data-autofocus /></UiDialog>`,
++    }),
++    { attachTo: host },
++  )
++  mounted.push(wrapper)
++  await open(wrapper)
++  const trigger = document.querySelector<HTMLButtonElement>('[data-stack]')!
++  trigger.focus()
++  trigger.click()
++  await flushPromises()
++  await escapeTop()
++  const panels = document.querySelectorAll<HTMLElement>('.ui-dialog')
++  expect(panels).toHaveLength(2)
++  expect(panels[0]!.inert).toBe(true)
++  expect(panels[1]!.contains(document.activeElement)).toBe(true)
++  expect(document.activeElement).not.toBe(trigger)
++})
++
++it.each([false, true])(
++  'restores in the highest allowed popover, preserving valid-trigger priority (invalid=%s)',
++  async (invalidate) => {
++    const wrapper = mount(
++      defineComponent({
++        components: { UiDialog, UiPopover },
++        setup: () => ({
++          lower: ref(false),
++          popover: ref(false),
++          confirmation: ref(false),
++          invalid: ref(false),
++        }),
++        template: `<button data-launch @click="lower = true">Lower</button>
++          <UiDialog v-model:open="lower" title="Lower">
++            <UiPopover v-model:open="popover" label="Actions" data-popover-anchor>
++              <input data-popover-first /><button data-popover-confirm :disabled="invalid" @click="confirmation = true">Confirm</button>
++            </UiPopover>
++          </UiDialog>
++          <UiDialog v-model:open="confirmation" title="Confirmation"><button data-invalidate @click="invalid = true">Invalidate</button></UiDialog>`,
++      }),
++      { attachTo: host },
++    )
++    mounted.push(wrapper)
++    await open(wrapper)
++    document.querySelector<HTMLButtonElement>('[data-popover-anchor]')!.click()
++    await flushPromises()
++    const trigger = document.querySelector<HTMLButtonElement>('[data-popover-confirm]')!
++    trigger.focus()
++    trigger.click()
++    await flushPromises()
++    if (invalidate) document.querySelector<HTMLButtonElement>('[data-invalidate]')!.click()
++    await nextTick()
++    await escapeTop()
++    expect(document.activeElement).toBe(
++      invalidate ? document.querySelector('[data-popover-first]') : trigger,
++    )
++    expect(document.querySelector<HTMLElement>('.ui-popover')!.inert).toBe(false)
++    expect(host.inert).toBe(true)
++  },
++)
+--- 6be5321/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts
++++ input01/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts
+@@ -8,6 +8,7 @@
+ const closure = [
+   'src/components/ui/UiDialog.vue',
+   'src/components/ui/UiDrawer.vue',
++  'src/components/ui/UiPopover.vue',
+   'src/components/ui/UiButton.vue',
+   'src/components/ui/UiIcon.vue',
+   'src/components/ui/UiSpinner.vue',
+@@ -19,22 +20,36 @@
+ ]
+ 
+ const shell = `<script setup lang="ts">
+-import { ref } from 'vue'
++import { nextTick, ref } from 'vue'
+ import UiDialog from './src/components/ui/UiDialog.vue'
+ import UiDrawer from './src/components/ui/UiDrawer.vue'
++import UiPopover from './src/components/ui/UiPopover.vue'
+ const query = new URLSearchParams(location.search)
+ const Surface = query.get('kind') === 'drawer' ? UiDrawer : UiDialog
++const mode = query.get('mode') || 'ordinary'
+ const outside = query.get('outside') !== 'false'
+ const escape = query.get('escape') !== 'false'
+ const open = ref(false), nested = ref(false), clicks = ref(0)
+ const events = ref<string[]>([])
++const mounted = ref(true), lower = ref(mode === 'initial'), confirmation = ref(mode === 'initial')
++const popover = ref(false), disabled = ref(false), generation = ref(0), detached = ref(false)
++async function remount() {
++  const oldTrigger = document.querySelector('[data-testid="confirmation-launch"]')
++  mounted.value = false
++  await nextTick()
++  detached.value = oldTrigger?.isConnected === false
++  lower.value = true
++  confirmation.value = true
++  mounted.value = true
++  generation.value++
++}
+ </script>
+ <template>
+   <main style="padding:24px">
+-    <button data-testid="launch" @click="open = true">Open surface</button>
++    <button data-testid="launch" @click="mode === 'ordinary' ? open = true : lower = true">Open surface</button>
+     <label>Later input <input data-testid="later-input" /></label>
+     <output data-testid="events">{{ JSON.stringify(events) }}</output>
+-    <Surface v-model:open="open" title="Focus surface" :close-on-outside="outside" :close-on-escape="escape"
++    <Surface v-if="mode === 'ordinary'" v-model:open="open" title="Focus surface" :close-on-outside="outside" :close-on-escape="escape"
+       @update:open="value => events.push('update:' + value)" @close="reason => events.push('close:' + reason)">
+       <label>Inside input <input data-testid="inside-input" data-autofocus /></label>
+       <button data-testid="inside-button" @click="clicks++">Clicked {{ clicks }}</button>
+@@ -47,7 +62,29 @@
+       </UiDialog>
+       <template #footer="{ close }"><button data-testid="footer-close" @click="close">Done</button></template>
+     </Surface>
++    <UiPopover v-if="mode === 'popover-page'" v-model:open="popover" label="Page popover" data-testid="page-anchor">
++      <template #default="{ close }"><button data-testid="page-popover-close" @click="close">Close page popover</button></template>
++    </UiPopover>
+   </main>
++  <template v-if="mode !== 'ordinary' && mode !== 'popover-page' && mounted">
++    <Surface v-model:open="lower" title="Remaining modal">
++      <input data-testid="lower-input" data-autofocus />
++      <button data-testid="confirmation-launch" @click="confirmation = true">Open confirmation</button>
++      <UiPopover v-model:open="popover" label="Modal popover" data-testid="modal-anchor" :disabled="disabled">
++        <template #default="{ close }">
++          <button data-testid="disable-anchor" @click="disabled = true">Disable old anchor</button>
++          <button data-testid="modal-popover-close" @click="close">Close modal popover</button>
++        </template>
++      </UiPopover>
++      <input data-testid="lower-later" />
++    </Surface>
++    <UiDialog v-model:open="confirmation" title="Confirmation">
++      <input data-testid="confirmation-input" data-autofocus />
++      <button data-testid="remount" @click="remount">Unmount and restore both</button>
++      <output data-testid="generation">{{ generation }}:{{ detached }}</output>
++      <template #footer="{ close }"><button data-testid="confirmation-close" @click="close">Close confirmation</button></template>
++    </UiDialog>
++  </template>
+ </template>`
+ 
+ type Harness = { origin: string; nonce: string }
+@@ -57,6 +94,10 @@
+       const webRoot = process.env.AGENTEAM_DIALOG_WEB_ROOT!
+       const runDir = process.env.AGENTEAM_DIALOG_RUN_DIR!
+       const webRequire = createRequire(join(webRoot, 'package.json'))
++      const floatingPackage = webRequire.resolve('@floating-ui/vue/package.json')
++      const floating = JSON.parse(await readFile(floatingPackage, 'utf8')) as {
++        module: string
++      }
+       const { createServer } = await import(pathToFileURL(webRequire.resolve('vite')).href)
+       const { default: vue } = await import(
+         pathToFileURL(webRequire.resolve('@vitejs/plugin-vue')).href
+@@ -92,7 +133,10 @@
+         logLevel: 'error',
+         plugins: [vue()],
+         resolve: {
+-          alias: { vue: webRequire.resolve('vue/dist/vue.esm-bundler.js') },
++          alias: {
++            vue: webRequire.resolve('vue/dist/vue.esm-bundler.js'),
++            '@floating-ui/vue': join(dirname(floatingPackage), floating.module),
++          },
+           dedupe: ['vue'],
+         },
+         server: {
+@@ -121,7 +165,13 @@
+         await writeFile(
+           lifecycle,
+           JSON.stringify(
+-            { pid: process.pid, origin, nonce, inputs, closed: !server.httpServer?.listening },
++            {
++              pid: process.pid,
++              origin,
++              nonce,
++              inputs,
++              closed: !server.httpServer?.listening,
++            },
+             null,
+             2,
+           ),
+@@ -323,3 +373,118 @@
+     '["nested:outside","update:false","close:escape"]',
+   )
+ })
++
++async function insideRemainingModal(page: Page) {
++  const panel = page.getByRole('dialog', {
++    name: 'Remaining modal',
++    exact: true,
++  })
++  await expect(panel).toBeVisible()
++  await expect(panel).toHaveJSProperty('inert', false)
++  await expect
++    .poll(() => panel.evaluate((node) => node.contains(document.activeElement)))
++    .toBe(true)
++  await expect(page.locator('#app')).toHaveJSProperty('inert', true)
++  await expect(page.locator('body')).toHaveCSS('overflow', 'hidden')
++}
++
++for (const kind of ['dialog', 'drawer']) {
++  for (const width of [390, 1440]) {
++    for (const reducedMotion of ['no-preference', 'reduce'] as const) {
++      for (const mode of ['initial', 'remount']) {
++        test(`${kind} ${width} ${reducedMotion}: ${mode} modal restoration`, async ({
++          page,
++          harness,
++        }) => {
++          await page.setViewportSize({ width, height: 900 })
++          await page.emulateMedia({ reducedMotion })
++          for (const action of ['escape', 'action', 'outside']) {
++            await visit(page, harness, kind, `&mode=${mode}`)
++            if (mode === 'remount') {
++              await page.getByTestId('launch').click()
++              await page.getByTestId('confirmation-launch').click()
++              await expect(page.getByTestId('confirmation-input')).toBeFocused()
++              await page.getByTestId('remount').click()
++              await expect(page.getByTestId('generation')).toHaveText('1:true')
++            }
++            await expect(page.getByTestId('confirmation-input')).toBeFocused()
++            await expect(page.locator('.ui-dialog')).toHaveCount(2)
++            // The controlled host registers/renders the confirmation last. A
++            // wrong visual order must not be mistaken for a restoration defect.
++            await expect(page.locator('.ui-dialog').last()).toContainText('Confirmation')
++            await expect(page.locator('.ui-dialog').last()).toHaveJSProperty('inert', false)
++            if (action === 'escape') await page.keyboard.press('Escape')
++            else if (action === 'action') await page.getByTestId('confirmation-close').click()
++            else await clickOverlay(page)
++            await expect(page.locator('.ui-dialog')).toHaveCount(1)
++            await insideRemainingModal(page)
++            for (const key of ['Tab', 'Shift+Tab']) {
++              await page.keyboard.press(key)
++              await insideRemainingModal(page)
++            }
++            await page.getByTestId('lower-later').click()
++            await page.waitForTimeout(250)
++            await expect(page.getByTestId('lower-later')).toBeFocused()
++            await page.keyboard.press('Escape')
++            await expect(page.locator('.ui-dialog')).toHaveCount(0)
++            await expect(page.locator('#app')).toHaveJSProperty('inert', false)
++            await expect(page.locator('body')).toHaveCSS('overflow', 'auto')
++          }
++        })
++      }
++    }
++  }
++}
++
++test('popover without a modal retains its original anchor on Escape and action', async ({
++  page,
++  harness,
++}) => {
++  await visit(page, harness, 'dialog', '&mode=popover-page')
++  for (const action of ['escape', 'action']) {
++    await page.getByTestId('page-anchor').click()
++    await expect(page.getByTestId('page-popover-close')).toBeFocused()
++    if (action === 'escape') await page.keyboard.press('Escape')
++    else await page.getByTestId('page-popover-close').click()
++    await expect(page.locator('.ui-popover')).toHaveCount(0)
++    await expect(page.getByTestId('page-anchor')).toBeFocused()
++    await expect(page.locator('#app')).toHaveJSProperty('inert', false)
++  }
++})
++
++test('top nonmodal popover restores its valid modal anchor and keeps Tab inside', async ({
++  page,
++  harness,
++}) => {
++  await visit(page, harness, 'dialog', '&mode=popover-modal')
++  await page.getByTestId('launch').click()
++  for (const action of ['escape', 'action', 'tab']) {
++    await page.getByTestId('modal-anchor').click()
++    await expect(page.getByTestId('disable-anchor')).toBeFocused()
++    if (action === 'escape') await page.keyboard.press('Escape')
++    else if (action === 'action') await page.getByTestId('modal-popover-close').click()
++    else await page.keyboard.press('Tab')
++    await expect(page.locator('.ui-popover')).toHaveCount(0)
++    if (action !== 'tab') await expect(page.getByTestId('modal-anchor')).toBeFocused()
++    await insideRemainingModal(page)
++  }
++  await page.keyboard.press('Escape')
++  await restored(page)
++})
++
++test('top nonmodal popover with a disabled anchor falls back within its remaining modal', async ({
++  page,
++  harness,
++}) => {
++  await visit(page, harness, 'drawer', '&mode=popover-modal')
++  await page.getByTestId('launch').click()
++  await page.getByTestId('modal-anchor').click()
++  await page.getByTestId('disable-anchor').click()
++  await expect(page.getByTestId('modal-anchor')).toBeDisabled()
++  await page.keyboard.press('Escape')
++  await expect(page.locator('.ui-popover')).toHaveCount(0)
++  await insideRemainingModal(page)
++  await expect(page.getByTestId('modal-anchor')).not.toBeFocused()
++  await page.keyboard.press('Escape')
++  await restored(page)
++})
+--- 6be5321/web/src/tests/components.spec.ts
++++ input01/web/src/tests/components.spec.ts
+@@ -1,4 +1,4 @@
+-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
++import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+ import { mount, flushPromises } from '@vue/test-utils'
+ import { defineComponent, nextTick, ref } from 'vue'
+ import {
+@@ -16,14 +16,16 @@
+ import { initializeTheme, useTheme } from '../composables/useTheme'
+ 
+ beforeAll(() => {
+-  // jsdom has no layout; expose focusable elements to the layer's visibility check.
+-  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+-    () => [{ width: 10, height: 10 }] as unknown as DOMRectList,
+-  )
+   vi.stubGlobal('CSS', { escape: (value: string) => value })
+   window.matchMedia = vi
+     .fn()
+     .mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })
++})
++beforeEach(() => {
++  // jsdom has no layout; expose focusable elements to the layer's visibility check.
++  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
++    () => [{ width: 10, height: 10 }] as unknown as DOMRectList,
++  )
+ })
+ afterEach(() => {
+   document.body.innerHTML = ''

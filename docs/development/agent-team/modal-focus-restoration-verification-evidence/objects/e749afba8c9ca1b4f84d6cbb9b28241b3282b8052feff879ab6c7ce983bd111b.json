@@ -1,0 +1,130 @@
+{
+  "status": "BLOCKED_PRODUCT_FAILURE; independent intermediate review frozen; browser window returned to root/author",
+  "base_commit": "6be5321c51f24108d886a139c7a31bb0aab92db3",
+  "card_commit": "5266a49ed5eeaeea3ad46a6ea088cc3bf547e4e9",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/input01.json",
+    "sha256": "7bb8455b359d8ee4d4d67a4df29075b43173994be49a0b49b2fe7f5c78310610"
+  },
+  "four_product_paths": {
+    "web/src/composables/useLayer.ts": "36d35b6b890b56f067f3e6ac0f6e03867a21baf4c9142ecb4b0d2fb8a2460902",
+    "web/src/tests/dialog-outside-focus.spec.ts": "6ac0a9d084f1fc4809e812720abec6d9890b7c7ad3cafbb90746e9bfa23f5bdc",
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": "e93fca2ace5d6de5abf209aa24923b64f756c4af32858e92d45a1b6a7aa0d990",
+    "web/src/tests/components.spec.ts": "e1ff77d553da35bbdb9ad70763e49ff8a0dec46773a3272ac6c54085d0d83014"
+  },
+  "runs": {
+    "pure01": {
+      "exit": 0,
+      "actual_wait_completed": true,
+      "timed_out": false,
+      "elapsed_seconds": 2.025,
+      "inputs_unchanged": true,
+      "clean": true,
+      "raw_sha256": "ac67612bda1d242bada72d0e52922a9df0bac77c3bb549204dec35c1a060f2d6"
+    },
+    "browser01": {
+      "exit": 1,
+      "actual_wait_completed": true,
+      "timed_out": false,
+      "elapsed_seconds": 14.516,
+      "inputs_unchanged": true,
+      "clean": true,
+      "raw_sha256": "0ce714c6bac4dd240bfb61ff16c6e58c19fd2848075959de8f845246b24768d1"
+    },
+    "browser02": {
+      "exit": 1,
+      "actual_wait_completed": true,
+      "timed_out": false,
+      "elapsed_seconds": 10.241,
+      "inputs_unchanged": true,
+      "clean": true,
+      "raw_sha256": "08d0d655a17ace483fa5265c2009426167d6847df10742d654cf6ec6ca9ef00e"
+    }
+  },
+  "passed": [
+    "pure01 3/3: native fieldset disability, first-legend exception, unavailable allowed panel makes no background focus attempt",
+    "browser01 two whole tests: Dialog1440 normal and Drawer390 reduced common unmount/remount, real Escape/action/verified overlay click, Tab/ShiftTab, no delayed theft",
+    "browser01/02 partial native group: disabled fieldset, hidden/visibility ancestor, removed tabindex use legal lower-modal fallback",
+    "four frozen source hashes match; production limited to synchronous restore&&wasTop path and private helpers; no-modal path unchanged; components.spec only authorized setup delta",
+    "author new02 raw 30/30, pure02 raw 287/287+type/build, original11 browser assertions exact preserved block verified; reuse subject to unchanged affected dependencies"
+  ],
+  "failures": [
+    {
+      "run": "browser01",
+      "classification": "probe assembly error, not product defect",
+      "detail": "editable ancestor existed before pointer opening. Native click focused editing host, so capture=false precondition failed. Original actual red preserved. Sole probe fix enables ancestor editing only after normal captured tabindex trigger opens top."
+    },
+    {
+      "run": "browser02",
+      "classification": "confirmed product failure",
+      "detail": "Original trigger captured normally with tabindex=0. While top open, trigger tabindex removed and ancestor set contenteditable. On Escape, restorationTarget accepts inherited isContentEditable then focus() is ineffective, returning before fallback.",
+      "native_facts": {
+        "connected": true,
+        "tabIndex": -1,
+        "tabAttribute": null,
+        "editable": true,
+        "disabled": false,
+        "rects": 1,
+        "focused": false,
+        "active": "BODY",
+        "lowerContains": false
+      },
+      "source": "input01/web/src/composables/useLayer.ts restorationTarget/restoreWithinModal",
+      "expected": "Focus remains in currently allowed surviving modal region via a legal target/fallback."
+    }
+  ],
+  "not_run": [
+    "final independent Popover/non-top/no-modal combined test, stopped by --max-failures=1",
+    "invitation App/session/pageshow or business/backend/PG/Docker; deliberately outside shared-component scope"
+  ],
+  "preparation_limits": [
+    "browser-types01 used harness typeRoots lacking @types/node; exact exec output retained, browser-types02 fixed web typeRoots exit0 without source change",
+    "read-only author evidence inspection initially assumed old02/input-before.json; actual filename is input.json. Partial hash/block comparison succeeded, missing-file read failed; no test or source change.",
+    "author old02/new01 raw and server closure read; new01 does not have a separate per-run browser-source input manifest, so report same-byte spec assertion is not independently elevated to a stronger archived snapshot claim."
+  ],
+  "cleanup": "All three independent runs actual subprocess wait, subreaper adopted waitpid, server closed where applicable, two owned PID/starttime scans empty, private TMP gone, listener baseline unchanged. Prior PPID1 Z records excluded from ownership and untouched.",
+  "artifacts": {
+    "consumed-input01.json": "62216a739a4c695124ea20f32320a2488b6bb60d8ba792c3d3dd35102975a591",
+    "runs/pure01/command.json": "02c6dc604147ca5a9387368b7beb41dc941b7fe9876b5f6f0a4beeac3ba53585",
+    "runs/pure01/result.json": "750b3167be3282bef894154b1f1a3c90640a44c42073fa8d712d19874927ab3c",
+    "runs/pure01/cleanup.json": "444eec5fa722185a4713825bc3bc1400b4314cfcc9e4ca66214ac024f73cbb3b",
+    "runs/pure01/raw.log": "ac67612bda1d242bada72d0e52922a9df0bac77c3bb549204dec35c1a060f2d6",
+    "runs/pure01/input-before.json": "59532007994fc77b69b5e8ce02cf075e8c059872403ede4c97eb6123a21dcbce",
+    "runs/pure01/input-after.json": "59532007994fc77b69b5e8ce02cf075e8c059872403ede4c97eb6123a21dcbce",
+    "runs/pure01/pid.json": "c428b0a7b9c61cb8e297c626463d832358c8066ae054bba024d9c8baff09f8be",
+    "runs/browser01/command.json": "34eaebfe9f279ef0ba0e87e6471b7da495a4650213a7239caa7231e32b22556a",
+    "runs/browser01/result.json": "acc12cad9af7f63d42a8b4e4f81fd9ade73c3a29cd4178b7ea3c2d65a2ee1c89",
+    "runs/browser01/cleanup.json": "3852f99fc79612480be39ed1a885672b346563670b1a8d9267af2b480b5c9c6f",
+    "runs/browser01/raw.log": "0ce714c6bac4dd240bfb61ff16c6e58c19fd2848075959de8f845246b24768d1",
+    "runs/browser01/input-before.json": "59532007994fc77b69b5e8ce02cf075e8c059872403ede4c97eb6123a21dcbce",
+    "runs/browser01/input-after.json": "59532007994fc77b69b5e8ce02cf075e8c059872403ede4c97eb6123a21dcbce",
+    "runs/browser01/pid.json": "4ccc6c523f1a44b7397187e19d3cc90688b2c066bc505d9b01e49e332e760743",
+    "runs/browser02/command.json": "7a81d5b5b6fb9b25d6140e8bad5563578c11fa376c0735c862ecfa0f6f661298",
+    "runs/browser02/result.json": "bdbfc60418ef1ade91e23b4accf4e2d1a51c60c9813f7f318b807266dabb3cbd",
+    "runs/browser02/cleanup.json": "18c6afb7c84248f8eae4721bc924d24aaa702845b582249b2c565da59113d31b",
+    "runs/browser02/raw.log": "08d0d655a17ace483fa5265c2009426167d6847df10742d654cf6ec6ca9ef00e",
+    "runs/browser02/input-before.json": "b24fa0f955887694c9341d51a5ca233a19ce428669d1f1e5985212b15b38e51e",
+    "runs/browser02/input-after.json": "b24fa0f955887694c9341d51a5ca233a19ce428669d1f1e5985212b15b38e51e",
+    "runs/browser02/pid.json": "aa9a2d8b46678088172d49493aa3aa62d1d98a56a3407a22a4527957eb87d321",
+    "runs/browser-types01/result.json": "4e2f0c09d86228f3a21aa214f0453a540c2a4f3991a99222ed62677a57b35548",
+    "runs/browser-types01/raw.log": "22d754e33e5e414d820e237c9e477c81ec8db495c45ab51f7665351a89a3c783",
+    "runs/browser-types02/result.json": "ea9462e1d5ad73e42e55a0de524a171ef75ddd4c2591a04539c7d4a51e29981f",
+    "runs/browser-types02/raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runs/browser02/source/probes/Harness.vue": "18aeb98e01b71ab1fdbad3c1792eac96b1cf02858262813fc3beea5c410c1248",
+    "runs/browser02/source/probes/browser-cases.ts": "c8f9f0090aa52bea87cbdaa27dc385c254ce29610c49b0e9fbeecfd6f6efa526",
+    "runs/browser02/source/probes/eligibility.spec.ts": "80cdc1528139c579e2ef6bae7c0452305028bd0dfae451bef56259fab8c9fdda",
+    "runs/browser02/source/vitest.config.mjs": "a84480ca4e0afa47a11fcbeca1d476c68d86b56dc015249f44f526550f219dc2",
+    "runs/browser02/source/run.py": "195d38f270efdd576395e6c48ca1b261924d0c1dbddaa07356fa9a6040726a74",
+    "runs/browser02/source/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": "4e232bcd5ad28df39e8a15b73330b64c8b363f3778d8932ebcf6e096cee5e7c3"
+  },
+  "frozen_scope": [
+    "runs/pure01",
+    "runs/browser-types01",
+    "runs/browser-types02",
+    "runs/browser01",
+    "runs/browser02",
+    "consumed-input01.json",
+    "review-input01.json",
+    "review-input01.md"
+  ]
+}

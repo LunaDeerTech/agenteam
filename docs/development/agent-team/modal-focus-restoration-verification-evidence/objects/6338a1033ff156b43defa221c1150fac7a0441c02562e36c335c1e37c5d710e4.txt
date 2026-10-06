@@ -1,0 +1,415 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { defineComponent, nextTick, ref } from 'vue'
+import UiDialog from '../components/ui/UiDialog.vue'
+import UiDrawer from '../components/ui/UiDrawer.vue'
+import UiPopover from '../components/ui/UiPopover.vue'
+
+const mounted: VueWrapper[] = []
+let host: HTMLDivElement
+
+beforeEach(() => {
+  host = document.createElement('div')
+  host.id = 'app'
+  document.body.append(host)
+  document.body.style.overflow = 'auto'
+  // jsdom has no layout. This only exposes existing focusable nodes to useLayer;
+  // default pointer focus behavior is covered by the real Chromium harness.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+    () => [{ width: 10, height: 10 }] as unknown as DOMRectList,
+  )
+})
+
+afterEach(() => {
+  for (const wrapper of mounted.splice(0).reverse()) wrapper.unmount()
+  host.remove()
+  document.body.style.overflow = ''
+  vi.restoreAllMocks()
+})
+
+function surface(component: typeof UiDialog | typeof UiDrawer, outside = true, escape = true) {
+  const wrapper = mount(
+    defineComponent({
+      components: { Surface: component },
+      setup: () => ({ open: ref(false), nested: ref(false), outside, escape }),
+      template: `
+        <button data-launch @click="open = true">Open</button>
+        <Surface v-model:open="open" title="Outer" :close-on-outside="outside" :close-on-escape="escape">
+          <input data-input data-autofocus />
+          <button data-inside>Inside</button><a data-link href="#inside">Link</a><span data-text>Text</span>
+          <button data-nested-launch @click="nested = true">Nested</button>
+          <Surface v-model:open="nested" title="Nested"><input data-nested-input data-autofocus /></Surface>
+          <template #footer="{ close }"><button data-action @click="close">Done</button></template>
+        </Surface>`,
+    }),
+    { attachTo: host },
+  )
+  mounted.push(wrapper)
+  return wrapper
+}
+
+async function open(wrapper: VueWrapper) {
+  const trigger = wrapper.get('[data-launch]')
+  // jsdom does not focus a button when trigger('click') dispatches its event.
+  ;(trigger.element as HTMLElement).focus()
+  await trigger.trigger('click')
+  await nextTick()
+  return trigger.element
+}
+
+function pointer(target: Element) {
+  const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0 })
+  target.dispatchEvent(event)
+  return event
+}
+
+describe.each([
+  ['dialog', UiDialog],
+  ['drawer', UiDrawer],
+] as const)('%s outside-close contract', (_, component) => {
+  it('cancels only an allowed top overlay event and emits one outside close', async () => {
+    const wrapper = surface(component)
+    const trigger = await open(wrapper)
+    const panel = wrapper.getComponent(component)
+    expect(host.inert).toBe(true)
+    expect(document.body.style.overflow).toBe('hidden')
+    const event = pointer(document.querySelector('.ui-overlay')!)
+    expect(event.defaultPrevented).toBe(true)
+    await nextTick()
+    expect(panel.emitted('update:open')).toEqual([[false]])
+    expect(panel.emitted('close')).toEqual([['outside']])
+    expect(document.querySelector('[role=dialog]')).toBeNull()
+    expect(document.activeElement).toBe(trigger)
+    expect(host.inert).toBe(false)
+    expect(document.body.style.overflow).toBe('auto')
+  })
+
+  it('does not cancel or close disabled outside, and retains Escape/action policy', async () => {
+    const wrapper = surface(component, false, false)
+    await open(wrapper)
+    const panel = wrapper.getComponent(component)
+    expect(pointer(document.querySelector('.ui-overlay')!).defaultPrevented).toBe(false)
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(panel.emitted('close')).toBeUndefined()
+    expect(panel.emitted('update:open')).toBeUndefined()
+    expect(document.querySelector('[role=dialog]')).not.toBeNull()
+    document.querySelector<HTMLButtonElement>('[data-action]')!.click()
+    await nextTick()
+    expect(panel.emitted('update:open')).toEqual([[false]])
+    expect(panel.emitted('close')).toEqual([['action']])
+  })
+
+  it('leaves panel input, button, link and text pointer defaults untouched', async () => {
+    const wrapper = surface(component)
+    await open(wrapper)
+    const panel = wrapper.getComponent(component)
+    for (const selector of ['[data-input]', '[data-inside]', '[data-link]', '[data-text]']) {
+      expect(pointer(document.querySelector(selector)!).defaultPrevented).toBe(false)
+    }
+    await nextTick()
+    expect(panel.emitted('update:open')).toBeUndefined()
+    expect(panel.emitted('close')).toBeUndefined()
+    expect(document.querySelector('[role=dialog]')).not.toBeNull()
+  })
+
+  it('retains Escape, close-button and footer-action reasons and restoration', async () => {
+    const wrapper = surface(component)
+    const panel = wrapper.getComponent(component)
+    for (const action of ['escape', 'button', 'footer']) {
+      const trigger = await open(wrapper)
+      if (action === 'escape') {
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      } else {
+        document
+          .querySelector<HTMLButtonElement>(
+            action === 'button' ? '.dialog-header button' : '[data-action]',
+          )!
+          .click()
+      }
+      await nextTick()
+      expect(document.querySelector('[role=dialog]')).toBeNull()
+      expect(document.activeElement).toBe(trigger)
+    }
+    expect(panel.emitted('close')).toEqual([['escape'], ['action'], ['action']])
+    expect(panel.emitted('update:open')).toEqual([[false], [false], [false]])
+  })
+
+  it('ignores a synthetic non-top overlay and restores each nested trigger in order', async () => {
+    const wrapper = surface(component)
+    const trigger = await open(wrapper)
+    const nestedTrigger = document.querySelector<HTMLButtonElement>('[data-nested-launch]')!
+    nestedTrigger.focus()
+    nestedTrigger.click()
+    await nextTick()
+    const overlays = document.querySelectorAll('.ui-overlay')
+    expect(overlays).toHaveLength(2)
+    // A covered lower overlay is not physically reachable; this is a gate test.
+    expect(pointer(overlays[0]!).defaultPrevented).toBe(false)
+    expect(document.querySelectorAll('[role=dialog]')).toHaveLength(2)
+    expect(wrapper.getComponent(component).emitted('close')).toBeUndefined()
+    expect(pointer(overlays[1]!).defaultPrevented).toBe(true)
+    await nextTick()
+    expect(document.querySelectorAll('[role=dialog]')).toHaveLength(1)
+    expect(document.activeElement).toBe(nestedTrigger)
+    expect(host.inert).toBe(true)
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(document.querySelector('[role=dialog]')).toBeNull()
+    expect(document.activeElement).toBe(trigger)
+    expect(host.inert).toBe(false)
+  })
+})
+
+function recoverySurface(
+  component: typeof UiDialog | typeof UiDrawer,
+  mutation = '',
+  initiallyOpen = false,
+) {
+  const wrapper = mount(
+    defineComponent({
+      components: { Surface: component, UiDialog },
+      setup() {
+        const mountedBoth = ref(true)
+        async function remount() {
+          mountedBoth.value = false
+          await nextTick()
+          mountedBoth.value = true
+        }
+        return {
+          lower: ref(initiallyOpen),
+          confirmation: ref(initiallyOpen),
+          lowerMounted: ref(true),
+          invalid: ref(false),
+          mountedBoth,
+          remount,
+          mutation,
+        }
+      },
+      template: `
+        <button data-launch @click="lower = true">Open lower</button>
+        <template v-if="mountedBoth">
+        <Surface v-if="lowerMounted" v-model:open="lower" title="Remaining">
+          <fieldset :disabled="invalid && mutation === 'fieldset'">
+            <div :hidden="invalid && mutation === 'hidden'"
+              :inert="invalid && mutation === 'inert'"
+              :aria-hidden="invalid && mutation === 'aria-hidden' ? 'true' : undefined"
+              :style="invalid ? { display: mutation === 'display' ? 'none' : undefined,
+                visibility: mutation === 'visibility' ? 'hidden' : mutation === 'collapse' ? 'collapse' : undefined } : {}">
+              <component :is="mutation === 'non-focusable' ? 'span' : 'button'"
+                v-if="!(invalid && mutation === 'disconnected')" data-recovery-trigger
+                :tabindex="invalid && mutation === 'non-focusable' ? undefined : 0"
+                :disabled="invalid && mutation === 'disabled'" @click="confirmation = true">Confirm</component>
+            </div>
+          </fieldset>
+          <input data-remaining-input />
+        </Surface>
+        <UiDialog v-model:open="confirmation" title="Confirmation">
+          <input data-confirmation-input data-autofocus />
+          <button data-invalidate @click="invalid = true">Invalidate old trigger</button>
+          <button data-remove-lower @click="lowerMounted = false">Remove lower</button>
+          <button data-remount @click="remount">Remount both</button>
+        </UiDialog>
+        </template>`,
+    }),
+    { attachTo: host },
+  )
+  mounted.push(wrapper)
+  return wrapper
+}
+
+async function openConfirmation(wrapper: VueWrapper) {
+  await open(wrapper)
+  const trigger = document.querySelector<HTMLElement>('[data-recovery-trigger]')!
+  trigger.focus() // jsdom click dispatch has no native pointer focus.
+  trigger.click()
+  await flushPromises()
+  expect(document.activeElement).toBe(document.querySelector('[data-confirmation-input]'))
+  return trigger
+}
+
+async function escapeTop() {
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+  await nextTick()
+}
+
+function remainingPanel() {
+  const panel = document.querySelector<HTMLElement>('.ui-dialog')!
+  expect(panel.inert).toBe(false)
+  expect(panel.contains(document.activeElement)).toBe(true)
+  expect(host.inert).toBe(true)
+  expect(document.body.style.overflow).toBe('hidden')
+  return panel
+}
+
+describe.each([
+  ['dialog', UiDialog],
+  ['drawer', UiDrawer],
+] as const)('%s modal restoration', (_, component) => {
+  it('prefers the exact still-valid trigger over another focusable', async () => {
+    const trigger = await openConfirmation(recoverySurface(component))
+    await escapeTop()
+    remainingPanel()
+    expect(document.activeElement).toBe(trigger)
+  })
+
+  it.each(['body', 'background', 'disconnected'])(
+    'restores within the lower modal when simultaneous open captured %s',
+    async (source) => {
+      const outside = document.createElement('button')
+      host.append(outside)
+      if (source !== 'body') outside.focus()
+      recoverySurface(component, '', true)
+      await nextTick()
+      if (source === 'disconnected') outside.remove()
+      await escapeTop()
+      const panel = remainingPanel()
+      expect(document.activeElement).toBe(panel.querySelector('.dialog-header button'))
+      expect(document.activeElement).not.toBe(outside)
+    },
+  )
+
+  it.each([
+    'disabled',
+    'fieldset',
+    'hidden',
+    'inert',
+    'aria-hidden',
+    'display',
+    'visibility',
+    'collapse',
+    'disconnected',
+    'non-focusable',
+    'no-layout',
+    'empty-region',
+  ])('rejects the now-%s trigger and finds a legal modal target', async (mutation) => {
+    const trigger = await openConfirmation(recoverySurface(component, mutation))
+    document.querySelector<HTMLButtonElement>('[data-invalidate]')!.click()
+    await nextTick()
+    if (mutation === 'no-layout')
+      Object.defineProperty(trigger, 'getClientRects', {
+        configurable: true,
+        value: () => [] as unknown as DOMRectList,
+      })
+    if (mutation === 'empty-region')
+      Object.defineProperty(trigger, 'getClientRects', {
+        configurable: true,
+        value: () => [{ width: 0, height: 0 }] as unknown as DOMRectList,
+      })
+    await escapeTop()
+    const panel = remainingPanel()
+    expect(document.activeElement).toBe(panel.querySelector('.dialog-header button'))
+    expect(document.activeElement).not.toBe(trigger)
+  })
+
+  it('uses the remaining panel when all its controls are disabled', async () => {
+    await openConfirmation(recoverySurface(component))
+    const lower = document.querySelector<HTMLElement>('.ui-dialog')!
+    lower.querySelectorAll<HTMLInputElement | HTMLButtonElement>('input,button').forEach((node) => {
+      node.disabled = true
+    })
+    await escapeTop()
+    expect(remainingPanel()).toBe(lower)
+    expect(document.activeElement).toBe(lower)
+  })
+
+  it('restores inside the new lower panel after both real components remount open', async () => {
+    const trigger = await openConfirmation(recoverySurface(component))
+    document.querySelector<HTMLButtonElement>('[data-remount]')!.click()
+    await flushPromises()
+    expect(trigger.isConnected).toBe(false)
+    expect(document.querySelectorAll('.ui-dialog')).toHaveLength(2)
+    expect(document.activeElement).toBe(document.querySelector('[data-confirmation-input]'))
+    await escapeTop()
+    remainingPanel()
+  })
+
+  it('does not focus any background target when the allowed panel is unavailable', async () => {
+    await openConfirmation(recoverySurface(component))
+    document.querySelector<HTMLElement>('.ui-dialog')!.hidden = true
+    const focus = vi.spyOn(HTMLElement.prototype, 'focus')
+    await escapeTop()
+    expect(focus).not.toHaveBeenCalled()
+    expect(host.inert).toBe(true)
+    expect(document.body.style.overflow).toBe('hidden')
+  })
+
+  it('does not steal focus when a non-top modal unmounts', async () => {
+    await openConfirmation(recoverySurface(component))
+    const active = document.activeElement
+    const focus = vi.spyOn(HTMLElement.prototype, 'focus')
+    document.querySelector<HTMLButtonElement>('[data-remove-lower]')!.click()
+    await nextTick()
+    expect(document.querySelectorAll('.ui-dialog')).toHaveLength(1)
+    expect(document.activeElement).toBe(active)
+    expect(focus).not.toHaveBeenCalled()
+    expect(host.inert).toBe(true)
+  })
+})
+
+it('never restores into an inert lower modal outside the remaining highest modal', async () => {
+  const wrapper = mount(
+    defineComponent({
+      components: { UiDialog },
+      setup: () => ({ first: ref(false), second: ref(false), third: ref(false) }),
+      template: `<button data-launch @click="first = true">First</button>
+        <UiDialog v-model:open="first" title="First"><button data-stack @click="second = true; third = true">Open two</button></UiDialog>
+        <UiDialog v-model:open="second" title="Second"><input data-second /></UiDialog>
+        <UiDialog v-model:open="third" title="Third"><input data-third data-autofocus /></UiDialog>`,
+    }),
+    { attachTo: host },
+  )
+  mounted.push(wrapper)
+  await open(wrapper)
+  const trigger = document.querySelector<HTMLButtonElement>('[data-stack]')!
+  trigger.focus()
+  trigger.click()
+  await flushPromises()
+  await escapeTop()
+  const panels = document.querySelectorAll<HTMLElement>('.ui-dialog')
+  expect(panels).toHaveLength(2)
+  expect(panels[0]!.inert).toBe(true)
+  expect(panels[1]!.contains(document.activeElement)).toBe(true)
+  expect(document.activeElement).not.toBe(trigger)
+})
+
+it.each([false, true])(
+  'restores in the highest allowed popover, preserving valid-trigger priority (invalid=%s)',
+  async (invalidate) => {
+    const wrapper = mount(
+      defineComponent({
+        components: { UiDialog, UiPopover },
+        setup: () => ({
+          lower: ref(false),
+          popover: ref(false),
+          confirmation: ref(false),
+          invalid: ref(false),
+        }),
+        template: `<button data-launch @click="lower = true">Lower</button>
+          <UiDialog v-model:open="lower" title="Lower">
+            <UiPopover v-model:open="popover" label="Actions" data-popover-anchor>
+              <input data-popover-first /><button data-popover-confirm :disabled="invalid" @click="confirmation = true">Confirm</button>
+            </UiPopover>
+          </UiDialog>
+          <UiDialog v-model:open="confirmation" title="Confirmation"><button data-invalidate @click="invalid = true">Invalidate</button></UiDialog>`,
+      }),
+      { attachTo: host },
+    )
+    mounted.push(wrapper)
+    await open(wrapper)
+    document.querySelector<HTMLButtonElement>('[data-popover-anchor]')!.click()
+    await flushPromises()
+    const trigger = document.querySelector<HTMLButtonElement>('[data-popover-confirm]')!
+    trigger.focus()
+    trigger.click()
+    await flushPromises()
+    if (invalidate) document.querySelector<HTMLButtonElement>('[data-invalidate]')!.click()
+    await nextTick()
+    await escapeTop()
+    expect(document.activeElement).toBe(
+      invalidate ? document.querySelector('[data-popover-first]') : trigger,
+    )
+    expect(document.querySelector<HTMLElement>('.ui-popover')!.inert).toBe(false)
+    expect(host.inert).toBe(true)
+  },
+)

@@ -1,0 +1,225 @@
+--- input01/web/src/composables/useLayer.ts
++++ input02/web/src/composables/useLayer.ts
+@@ -48,26 +48,26 @@
+       element.isContentEditable)
+   )
+ }
++function restoreFocus(element: HTMLElement) {
++  if (!restorationTarget(element)) return false
++  element.focus({ preventScroll: true })
++  return element.ownerDocument.activeElement === element
++}
+ function restoreWithinModal(trigger: HTMLElement | null, allowed: Layer[]) {
+   if (
+     trigger &&
+-    restorationTarget(trigger) &&
+     allowed.some((layer) => {
+       const panel = layer.panel.value
+       return panel && restorationVisible(panel) && panel.contains(trigger)
+-    })
+-  ) {
+-    trigger.focus({ preventScroll: true })
++    }) &&
++    restoreFocus(trigger)
++  )
+     return
+-  }
+   for (const layer of [...allowed].reverse()) {
+     const panel = layer.panel.value
+     if (!panel || !restorationVisible(panel)) continue
+-    const target =
+-      focusable(panel).find(restorationTarget) || (restorationTarget(panel) ? panel : null)
+-    if (target) {
+-      target.focus({ preventScroll: true })
+-      return
++    for (const target of [...focusable(panel), panel]) {
++      if (target !== trigger && restoreFocus(target)) return
+     }
+   }
+ }
+--- input01/web/src/tests/dialog-outside-focus.spec.ts
++++ input02/web/src/tests/dialog-outside-focus.spec.ts
+@@ -193,12 +193,14 @@
+           <fieldset :disabled="invalid && mutation === 'fieldset'">
+             <div :hidden="invalid && mutation === 'hidden'"
+               :inert="invalid && mutation === 'inert' ? '' : undefined"
++              :contenteditable="invalid && mutation === 'editable-child' ? 'true' : undefined"
+               :aria-hidden="invalid && mutation === 'aria-hidden' ? 'true' : undefined"
+               :style="invalid ? { display: mutation === 'display' ? 'none' : undefined,
+                 visibility: mutation === 'visibility' ? 'hidden' : mutation === 'collapse' ? 'collapse' : undefined } : {}">
+-              <component :is="mutation === 'non-focusable' ? 'span' : 'button'"
++              <component :is="['non-focusable', 'editable-child', 'editable-host'].includes(mutation) ? 'span' : 'button'"
+                 v-if="!(invalid && mutation === 'disconnected')" data-recovery-trigger
+-                :tabindex="invalid && mutation === 'non-focusable' ? undefined : 0"
++                :tabindex="invalid && ['non-focusable', 'editable-child', 'editable-host'].includes(mutation) ? undefined : 0"
++                :contenteditable="invalid && mutation === 'editable-host' ? 'true' : undefined"
+                 :disabled="invalid && mutation === 'disabled'" @click="confirmation = true">Confirm</component>
+             </div>
+           </fieldset>
+@@ -280,12 +282,18 @@
+     'collapse',
+     'disconnected',
+     'non-focusable',
++    'editable-child',
+     'no-layout',
+     'empty-region',
+   ])('rejects the now-%s trigger and finds a legal modal target', async (mutation) => {
+     const trigger = await openConfirmation(recoverySurface(component, mutation))
+     document.querySelector<HTMLButtonElement>('[data-invalidate]')!.click()
+     await nextTick()
++    if (mutation === 'editable-child') {
++      // jsdom does not expose isContentEditable; the browser suite proves this
++      // inherited DOM state. Its native focus() still refuses this plain span.
++      Object.defineProperty(trigger, 'isContentEditable', { configurable: true, value: true })
++    }
+     if (mutation === 'no-layout')
+       Object.defineProperty(trigger, 'getClientRects', {
+         configurable: true,
+@@ -311,6 +319,33 @@
+     await escapeTop()
+     expect(remainingPanel()).toBe(lower)
+     expect(document.activeElement).toBe(lower)
++  })
++
++  it('preserves a contenteditable host that really accepts focus', async () => {
++    const trigger = await openConfirmation(recoverySurface(component, 'editable-host'))
++    document.querySelector<HTMLButtonElement>('[data-invalidate]')!.click()
++    await nextTick()
++    Object.defineProperty(trigger, 'isContentEditable', { configurable: true, value: true })
++    expect(trigger.getAttribute('tabindex')).toBeNull()
++    expect(trigger.getAttribute('contenteditable')).toBe('true')
++    await escapeTop()
++    remainingPanel()
++    expect(document.activeElement).toBe(trigger)
++  })
++
++  it.each(['next-control', 'panel'])('continues after a focus no-op to the %s', async (target) => {
++    await openConfirmation(recoverySurface(component, 'disabled'))
++    document.querySelector<HTMLButtonElement>('[data-invalidate]')!.click()
++    await nextTick()
++    const lower = document.querySelector<HTMLElement>('.ui-dialog')!
++    const header = lower.querySelector<HTMLButtonElement>('.dialog-header button')!
++    const next = lower.querySelector<HTMLInputElement>('[data-remaining-input]')!
++    const firstFocus = vi.spyOn(header, 'focus').mockImplementation(() => {})
++    if (target === 'panel') vi.spyOn(next, 'focus').mockImplementation(() => {})
++    await escapeTop()
++    expect(firstFocus).toHaveBeenCalledTimes(1)
++    expect(remainingPanel()).toBe(lower)
++    expect(document.activeElement).toBe(target === 'panel' ? lower : next)
+   })
+ 
+   it('restores inside the new lower panel after both real components remount open', async () => {
+@@ -373,9 +408,9 @@
+   expect(document.activeElement).not.toBe(trigger)
+ })
+ 
+-it.each([false, true])(
+-  'restores in the highest allowed popover, preserving valid-trigger priority (invalid=%s)',
+-  async (invalidate) => {
++it.each(['valid', 'disabled', 'panel-no-focus'])(
++  'restores in the highest allowed popover, preserving valid-trigger priority (%s)',
++  async (state) => {
+     const wrapper = mount(
+       defineComponent({
+         components: { UiDialog, UiPopover },
+@@ -403,11 +438,21 @@
+     trigger.focus()
+     trigger.click()
+     await flushPromises()
+-    if (invalidate) document.querySelector<HTMLButtonElement>('[data-invalidate]')!.click()
+-    await nextTick()
++    if (state !== 'valid') document.querySelector<HTMLButtonElement>('[data-invalidate]')!.click()
++    await nextTick()
++    if (state === 'panel-no-focus') {
++      document.querySelector<HTMLInputElement>('[data-popover-first]')!.disabled = true
++      vi.spyOn(document.querySelector<HTMLElement>('.ui-popover')!, 'focus').mockImplementation(
++        () => {},
++      )
++    }
+     await escapeTop()
+     expect(document.activeElement).toBe(
+-      invalidate ? document.querySelector('[data-popover-first]') : trigger,
++      state === 'valid'
++        ? trigger
++        : document.querySelector(
++            state === 'disabled' ? '[data-popover-first]' : '.dialog-header button',
++          ),
+     )
+     expect(document.querySelector<HTMLElement>('.ui-popover')!.inert).toBe(false)
+     expect(host.inert).toBe(true)
+--- input01/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts
++++ input02/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts
+@@ -27,12 +27,18 @@
+ const query = new URLSearchParams(location.search)
+ const Surface = query.get('kind') === 'drawer' ? UiDrawer : UiDialog
+ const mode = query.get('mode') || 'ordinary'
++const nativeTarget = query.get('target')
+ const outside = query.get('outside') !== 'false'
+ const escape = query.get('escape') !== 'false'
+ const open = ref(false), nested = ref(false), clicks = ref(0)
+ const events = ref<string[]>([])
+ const mounted = ref(true), lower = ref(mode === 'initial'), confirmation = ref(mode === 'initial')
+ const popover = ref(false), disabled = ref(false), generation = ref(0), detached = ref(false)
++const nativeTrigger = ref<HTMLElement|null>(null), invalidTarget = ref(false), captured = ref(false)
++function confirmNative() {
++  captured.value = document.activeElement === nativeTrigger.value
++  confirmation.value = true
++}
+ async function remount() {
+   const oldTrigger = document.querySelector('[data-testid="confirmation-launch"]')
+   mounted.value = false
+@@ -69,7 +75,13 @@
+   <template v-if="mode !== 'ordinary' && mode !== 'popover-page' && mounted">
+     <Surface v-model:open="lower" title="Remaining modal">
+       <input data-testid="lower-input" data-autofocus />
+-      <button data-testid="confirmation-launch" @click="confirmation = true">Open confirmation</button>
++      <div v-if="mode === 'native-target'" :contenteditable="nativeTarget === 'editable-child' && invalidTarget ? 'true' : undefined">
++        <span ref="nativeTrigger" data-testid="native-trigger"
++          :tabindex="nativeTarget === 'editable-child' && !invalidTarget ? 0 : undefined"
++          :contenteditable="nativeTarget === 'editable-host' ? 'true' : undefined"
++          style="display:inline-block;padding:8px;border:1px solid currentColor" @click="confirmNative">Open confirmation</span>
++      </div>
++      <button v-else data-testid="confirmation-launch" @click="confirmation = true">Open confirmation</button>
+       <UiPopover v-model:open="popover" label="Modal popover" data-testid="modal-anchor" :disabled="disabled">
+         <template #default="{ close }">
+           <button data-testid="disable-anchor" @click="disabled = true">Disable old anchor</button>
+@@ -80,6 +92,10 @@
+     </Surface>
+     <UiDialog v-model:open="confirmation" title="Confirmation">
+       <input data-testid="confirmation-input" data-autofocus />
++      <template v-if="mode === 'native-target'">
++        <button data-testid="invalidate-native" @click="invalidTarget = true">Change trigger state</button>
++        <output data-testid="native-capture">{{ captured }}</output>
++      </template>
+       <button data-testid="remount" @click="remount">Unmount and restore both</button>
+       <output data-testid="generation">{{ generation }}:{{ detached }}</output>
+       <template #footer="{ close }"><button data-testid="confirmation-close" @click="close">Close confirmation</button></template>
+@@ -488,3 +504,28 @@
+   await page.keyboard.press('Escape')
+   await restored(page)
+ })
++
++for (const kind of ['dialog', 'drawer']) {
++  for (const target of ['editable-child', 'editable-host']) {
++    test(`${kind}: native ${target} focus restoration`, async ({ page, harness }) => {
++      await visit(page, harness, kind, `&mode=native-target&target=${target}`)
++      await page.getByTestId('launch').click()
++      await expect(page.getByTestId('lower-input')).toBeFocused()
++      await page.getByTestId('native-trigger').click()
++      await expect(page.getByTestId('native-capture')).toHaveText('true')
++      await expect(page.getByTestId('confirmation-input')).toBeFocused()
++      await page.getByTestId('invalidate-native').click()
++      const trigger = page.getByTestId('native-trigger')
++      await expect(trigger).toHaveJSProperty('isContentEditable', true)
++      await expect(trigger).toHaveJSProperty('tabIndex', -1)
++      expect(await trigger.getAttribute('tabindex')).toBeNull()
++      await page.keyboard.press('Escape')
++      await expect(page.locator('.ui-dialog')).toHaveCount(1)
++      await insideRemainingModal(page)
++      if (target === 'editable-host') await expect(trigger).toBeFocused()
++      else await expect(page.locator('.dialog-header button')).toBeFocused()
++      await page.keyboard.press('Escape')
++      await restored(page)
++    })
++  }
++}

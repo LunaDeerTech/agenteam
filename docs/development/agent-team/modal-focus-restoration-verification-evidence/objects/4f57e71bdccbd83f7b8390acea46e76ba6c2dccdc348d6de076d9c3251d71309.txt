@@ -1,0 +1,123 @@
+async function visitOwn(page: Page, harness: Harness, query = '') {
+  await page.goto(`${harness.origin}/?nonce=${harness.nonce}${query}`)
+  await expect(page.locator('meta[name="harness-nonce"]')).toHaveAttribute('content', harness.nonce)
+  await expect(page.getByTestId('launch')).toBeVisible()
+}
+async function openBoth(page: Page) {
+  await page.getByTestId('launch').click()
+  await expect(page.getByTestId('lower-first')).toBeFocused()
+  await page.getByTestId('confirm-trigger').click()
+  await expect(page.getByTestId('upper-first')).toBeFocused()
+  await expect(page.getByTestId('capture')).toHaveText('true')
+}
+async function lowerOwnsFocus(page: Page) {
+  const lower = page.getByRole('dialog', { name:'Independent lower', exact:true })
+  await expect(lower).toBeVisible()
+  await expect(lower).toHaveJSProperty('inert', false)
+  await expect.poll(() => lower.evaluate(node => node.contains(document.activeElement))).toBe(true)
+  await expect(page.locator('#app')).toHaveJSProperty('inert', true)
+  await expect(page.locator('body')).toHaveCSS('overflow','hidden')
+  return lower
+}
+async function outsideOwn(page: Page) {
+  const point = await page.locator('.ui-overlay').last().evaluate(node => {
+    const r=node.getBoundingClientRect(); return {x:r.x+2,y:r.y+2}
+  })
+  expect(await page.evaluate(p => document.elementFromPoint(p.x,p.y) === [...document.querySelectorAll('.ui-overlay')].at(-1),point)).toBe(true)
+  await page.mouse.click(point.x,point.y)
+}
+for (const [kind,width,reducedMotion] of [['dialog',1440,'no-preference'],['drawer',390,'reduce']] as const) {
+  test(`independent ${kind}: remount, actual close and legal focus continuity`,async ({page,harness})=>{
+    await page.setViewportSize({width,height:900});await page.emulateMedia({reducedMotion})
+    await visitOwn(page,harness,`&kind=${kind}`);await openBoth(page)
+    await page.getByTestId('remount').click()
+    await expect(page.getByTestId('generation')).toHaveText('1:true')
+    await expect(page.getByTestId('upper-first')).toBeFocused()
+    await page.keyboard.press('Escape')
+    const lower=await lowerOwnsFocus(page)
+    await expect(lower.locator('.dialog-header button')).toBeFocused()
+    for (const key of ['Shift+Tab','Tab','Tab','Shift+Tab']) { await page.keyboard.press(key);await lowerOwnsFocus(page) }
+    await page.getByTestId('lower-later').click();await page.waitForTimeout(250)
+    await expect(page.getByTestId('lower-later')).toBeFocused()
+    await page.getByTestId('confirm-trigger').click();await expect(page.getByTestId('upper-first')).toBeFocused()
+    await page.getByTestId('upper-close').click();await expect(page.getByTestId('confirm-trigger')).toBeFocused()
+    await page.getByTestId('confirm-trigger').click();await page.getByTestId('remount').click()
+    await expect(page.getByTestId('generation')).toHaveText('2:true');await expect(page.getByTestId('upper-first')).toBeFocused()
+    await outsideOwn(page);await lowerOwnsFocus(page)
+    await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page.locator('#app')).toHaveJSProperty('inert',false)
+    await expect(page.locator('body')).toHaveCSS('overflow','auto')
+    // Shared remount captured body, so do not invent a new no-modal fallback contract.
+    await page.getByTestId('background').click();await page.waitForTimeout(250)
+    await expect(page.getByTestId('background')).toBeFocused()
+  })
+}
+test('independent current trigger eligibility uses native DOM focus behavior',async ({page,harness},testInfo)=>{
+  const records:unknown[]=[]
+  try {
+    for (const fault of ['fieldset','hidden','visibility','nonfocusable','editable-child']) {
+      await visitOwn(page,harness,`&fault=${fault}`);await openBoth(page)
+      await page.getByTestId('invalidate').click()
+      await page.keyboard.press('Escape')
+      await expect(page.getByRole('dialog',{name:'Independent confirmation',exact:true})).toHaveCount(0)
+      const state=await page.getByTestId('confirm-trigger').evaluate(node=>({
+        connected:node.isConnected,tabIndex:(node as HTMLElement).tabIndex,
+        tabAttribute:node.getAttribute('tabindex'),editable:(node as HTMLElement).isContentEditable,
+        disabled:node.matches(':disabled'),rects:node.getClientRects().length,
+        focused:node===document.activeElement,
+        active:document.activeElement?.getAttribute('data-testid')||document.activeElement?.tagName,
+        lowerContains:document.querySelector('.ui-dialog')?.contains(document.activeElement),
+      }))
+      records.push({fault,...state});console.log('INDEPENDENT_NATIVE_TRIGGER',JSON.stringify({fault,...state}))
+      await lowerOwnsFocus(page)
+      await expect(page.getByRole('dialog',{name:'Independent lower',exact:true}).locator('.dialog-header button')).toBeFocused()
+    }
+  } finally {await testInfo.attach('native-trigger-facts',{body:Buffer.from(JSON.stringify(records,null,2)),contentType:'application/json'})}
+})
+test('independent non-top removal, allowed popover and no-modal anchor compatibility',async ({page,harness})=>{
+  await visitOwn(page,harness);await openBoth(page)
+  await page.getByTestId('remove-lower').click()
+  await expect(page.getByRole('dialog')).toHaveCount(1)
+  await expect(page.getByTestId('remove-lower')).toBeFocused()
+  await expect(page.locator('#app')).toHaveJSProperty('inert',true)
+  await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toHaveCount(0)
+  await visitOwn(page,harness,'&fault=popover-disabled')
+  await page.getByTestId('launch').click();await page.getByTestId('modal-anchor').click()
+  await page.getByTestId('pop-close').click();await expect(page.getByTestId('modal-anchor')).toBeFocused()
+  await page.getByTestId('modal-anchor').click();await page.getByTestId('pop-confirm').click()
+  await expect(page.getByTestId('upper-first')).toBeFocused()
+  await page.getByTestId('upper-close').click();await expect(page.getByTestId('pop-confirm')).toBeFocused()
+  await page.getByTestId('pop-invalidate').click();await page.getByTestId('pop-close').click()
+  await lowerOwnsFocus(page)
+  await expect(page.getByRole('dialog',{name:'Independent lower',exact:true}).locator('.dialog-header button')).toBeFocused()
+  await visitOwn(page,harness,'&mode=page');await page.getByTestId('page-anchor').click()
+  await page.getByTestId('page-close').click();await expect(page.getByTestId('page-anchor')).toBeFocused()
+  await expect(page.locator('#app')).toHaveJSProperty('inert',false)
+})
+test('independent genuine editing host without tabindex restores exactly',async ({page,harness},testInfo)=>{
+  const facts:unknown[]=[]
+  try {
+    for (const [kind,width] of [['dialog',1440],['drawer',390]] as const) {
+      await page.setViewportSize({width,height:900})
+      await visitOwn(page,harness,`&kind=${kind}&fault=editable-host`)
+      await openBoth(page)
+      await page.getByTestId('invalidate').click()
+      const trigger=page.getByTestId('confirm-trigger')
+      expect(await trigger.getAttribute('tabindex')).toBeNull()
+      await expect(trigger).toHaveJSProperty('tabIndex',-1)
+      await expect(trigger).toHaveJSProperty('isContentEditable',true)
+      await expect(trigger).toHaveAttribute('contenteditable','true')
+      await page.keyboard.press('Escape')
+      await lowerOwnsFocus(page);await expect(trigger).toBeFocused()
+      const state=await trigger.evaluate(node=>({
+        connected:node.isConnected,tabIndex:(node as HTMLElement).tabIndex,
+        tabAttribute:node.getAttribute('tabindex'),selfEditable:node.getAttribute('contenteditable'),
+        editable:(node as HTMLElement).isContentEditable,focused:document.activeElement===node,
+        lowerContains:document.querySelector('.ui-dialog')?.contains(document.activeElement),
+      }))
+      facts.push({kind,...state});console.log('INDEPENDENT_NATIVE_EDITING_HOST',JSON.stringify({kind,...state}))
+      await page.keyboard.press('Tab');await lowerOwnsFocus(page)
+      await page.keyboard.press('Shift+Tab');await lowerOwnsFocus(page)
+    }
+  } finally {await testInfo.attach('native-editing-host-facts',{body:Buffer.from(JSON.stringify(facts,null,2)),contentType:'application/json'})}
+})

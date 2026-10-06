@@ -1,0 +1,106 @@
+import ctypes, hashlib, json, os, pathlib, shutil, signal, subprocess, sys, tempfile, time
+
+root = pathlib.Path(__file__).resolve().parent
+name, mode = sys.argv[1:3]
+run = root/'runs'/name
+run.mkdir(parents=True, exist_ok=False)
+if ctypes.CDLL(None, use_errno=True).prctl(36,1,0,0,0) != 0:
+    raise OSError(ctypes.get_errno(), 'PR_SET_CHILD_SUBREAPER')
+tmp = pathlib.Path(tempfile.mkdtemp(prefix='mfv-', dir='/tmp'))
+env = dict(os.environ, CI='1', NO_COLOR='1', TMPDIR=str(tmp),
+           AGENTEAM_DIALOG_WEB_ROOT=str(root/'candidate/web'),
+           AGENTEAM_DIALOG_RUN_DIR=str(run), AGENTEAM_DIALOG_CHROMIUM='/usr/lib/chromium/chromium')
+if mode == 'browser':
+    cwd = root/'candidate'
+    argv = ['tests/account-captcha-web/node_modules/.bin/playwright','test','--config',
+            'tests/account-captcha-web/dialog-outside-focus.config.js','--max-failures=1',*sys.argv[3:]]
+    budget = 240
+elif mode == 'pure':
+    cwd = root
+    argv = ['node',str(root/'node_modules/vitest/vitest.mjs'),'run','--config','vitest.config.mjs',*sys.argv[3:]]
+    budget = 45
+else: raise ValueError(mode)
+
+def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+def inputs():
+    paths=set(json.loads((root/'consumed-input01.json').read_text())['files'])
+    paths.update(['consumed-input01.json','run.py','vitest.config.mjs',
+                  'probes/Harness.vue','probes/browser-cases.ts','probes/eligibility.spec.ts',
+                  'candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts'])
+    return {p:sha(root/p) for p in sorted(paths)}
+before=inputs()
+for p in before:
+    out=run/'source'/p;out.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(root/p,out)
+(run/'input-before.json').write_text(json.dumps(before,indent=2)+'\n')
+
+def processes():
+    result={}
+    for d in pathlib.Path('/proc').iterdir():
+        if not d.name.isdigit(): continue
+        try:
+            s=(d/'stat').read_text().rsplit(')',1)[1].split()
+            result[int(d.name)]={'pid':int(d.name),'ppid':int(s[1]),'state':s[0],
+                'session':int(s[3]),'starttime':int(s[19]),'comm':(d/'comm').read_text().strip(),
+                'command':(d/'cmdline').read_bytes().replace(b'\0',b' ').decode(errors='replace')}
+        except (FileNotFoundError,ProcessLookupError,PermissionError): pass
+    return result
+def safe(row): return {k:v for k,v in row.items() if k != 'command'}
+def ports(): return subprocess.run(['ss','-lntp'],check=True,capture_output=True,text=True).stdout
+baseline=processes(); baseline_ports=ports()
+baseline_browsers={pid:safe(r) for pid,r in baseline.items() if r['comm'] in ['chromium','chrome_crashpad','esbuild']}
+(run/'baseline.json').write_text(json.dumps({'ports':baseline_ports,'browser_processes':list(baseline_browsers.values())},indent=2)+'\n')
+(run/'command.json').write_text(json.dumps({'argv':argv,'cwd':str(cwd),'budget_seconds':budget,
+    'subreaper_enabled_before_launch':True,'env':{k:env[k] for k in ['CI','NO_COLOR','TMPDIR','AGENTEAM_DIALOG_WEB_ROOT','AGENTEAM_DIALOG_RUN_DIR','AGENTEAM_DIALOG_CHROMIUM']}},indent=2)+'\n')
+tracked={}; adopted=[]; timed_out=False; started=time.monotonic()
+with (run/'raw.log').open('wb') as raw:
+    p=subprocess.Popen(argv,cwd=cwd,env=env,stdout=raw,stderr=subprocess.STDOUT,start_new_session=True)
+    (run/'pid.json').write_text(json.dumps({'driver':os.getpid(),'child':p.pid})+'\n')
+    def observe():
+        current=processes(); owned={p.pid,os.getpid()}|set(tracked)
+        for _ in range(12):
+            added={pid for pid,r in current.items() if r['ppid'] in owned or r['session']==p.pid or str(tmp) in r['command']}
+            if added<=owned: break
+            owned|=added
+        for pid in owned:
+            if pid in current and (pid not in baseline or current[pid]['starttime']!=baseline[pid]['starttime']): tracked[pid]=current[pid]
+        return current
+    while p.poll() is None:
+        observe()
+        if time.monotonic()-started>budget:
+            timed_out=True;os.killpg(p.pid,signal.SIGTERM);break
+        time.sleep(.06)
+    try: code=p.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        os.killpg(p.pid,signal.SIGKILL);code=p.wait(timeout=10)
+    observe()
+
+def remaining():
+    current=observe()
+    return [safe(r) for pid,r in current.items() if (pid in tracked and r['starttime']==tracked[pid]['starttime']) or str(tmp) in r['command']]
+for _ in range(60):
+    observe()
+    while True:
+        try: pid,status=os.waitpid(-1,os.WNOHANG)
+        except ChildProcessError: break
+        if not pid: break
+        adopted.append({'pid':pid,'status':status,'tracked_starttime':tracked.get(pid,{}).get('starttime')})
+    if not remaining(): break
+    time.sleep(.05)
+first=remaining();time.sleep(.25);second=remaining()
+if not first and not second: shutil.rmtree(tmp)
+after=inputs();(run/'input-after.json').write_text(json.dumps(after,indent=2)+'\n')
+servers=[json.loads(f.read_text()) for f in run.glob('server-*.json')]
+ports_after=ports()
+cleanup={'actual_wait_completed':True,'subreaper_enabled_before_launch':True,
+    'adopted_waits':adopted,'owned_processes':list(map(safe,tracked.values())),
+    'remaining_first':first,'remaining_second':second,'tmpdir':str(tmp),'tmp_absent':not tmp.exists(),
+    'servers':servers,'server_all_closed':all(s['closed'] for s in servers),
+    'ports_unchanged':ports_after==baseline_ports,'ports_after':ports_after,
+    'historical_baseline_not_owned':list(baseline_browsers.values())}
+clean=not first and not second and not tmp.exists() and cleanup['server_all_closed'] and cleanup['ports_unchanged']
+result={'exit':code,'actual_wait_completed':True,'timed_out':timed_out,'elapsed_seconds':round(time.monotonic()-started,3),
+    'inputs_unchanged':before==after,'clean':clean,'raw_sha256':sha(run/'raw.log')}
+(run/'cleanup.json').write_text(json.dumps(cleanup,indent=2)+'\n')
+(run/'result.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2),flush=True)
+sys.exit(code if code else int(not clean or before!=after))

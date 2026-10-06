@@ -1,0 +1,14 @@
+# 共享模态焦点恢复：input01 独立中间结论
+
+**BLOCKED：确认产品缺陷；已停止动态并交回窗口。** 输入为作者四源 manifest `7bb8455b359d8ee4d4d67a4df29075b43173994be49a0b49b2fe7f5c78310610`，生产 useLayer `36d35b6b890b56f067f3e6ac0f6e03867a21baf4c9142ecb4b0d2fb8a2460902`，组件基线 Git `6be5321`、规格 rev2 `5266a49`。没有邀请候选、后端或业务资源混入。
+
+- pure01：实际 exit0/2.025s，3/3，fieldset 禁用与首 legend 例外、不可用剩余 panel 不尝试背景焦点。
+- browser01：实际 exit1/14.516s；两完整真实组 PASS（Dialog1440 normal、Drawer390 reduced），证明共同卸载重挂后真实 Escape/action/可命中遮罩关闭、双向 Tab、后续用户焦点不被抢回。native 前四种变更的回退正常；继承 editable 用例在打开前就使祖先可编辑，真实 pointer 聚焦宿主导致 capture=false，属私有壳装配红。
+- browser02：仅修壳时序，先正常 tabindex 触发并验证 capture=true，再在顶层打开期间撤 tabindex、使祖先可编辑。实际 exit1/10.241s；target 连接/有布局、tabIndex=-1、无 tabindex、isContentEditable=true，却 focused=false，activeElement=BODY、lowerContains=false。候选因属性认定可聚焦，focus 无效后提前返回，未回退到仍存在的模态。这是产品门禁失败。
+- 独立 Popover/非顶层/无模态组合尚未运行：首错即停。作者原矩阵与未变断言可按输入复用，不把未跑的独立组称通过。
+
+固定最小复现：`runs/browser02/source/probes/Harness.vue`、`browser-cases.ts`，完整生成 spec 与 driver/config 同在该 run 的 `source/`。原生状态在 `runs/browser02/raw.log`，SHA `08d0d655a17ace483fa5265c2009426167d6847df10742d654cf6ec6ca9ef00e`；同目录保留 screenshot/trace、command/result、input-before/after 和 cleanup。原 browser01 装配失败不覆写。
+
+所有独立 run 已实际 wait；browser/context 退出、server.close、adopted waitpid 完成；所属 PID/starttime 两扫空、TMP 消失、监听基线不变，输入未变。历史两 PPID1 Z 不属于本轮，未触碰或声称清理。四交付路径详见 JSON，只读核验，无产品/Git改动。
+
+准备错误单列：首次独立 tsc typeRoots 指向缺 @types/node 的 harness，修正为固定 web 依赖后实际 exit0；检查作者旧轮时误用 input-before.json 文件名，实际为 input.json。作者 new01 没有独立逐轮 browser-source 清单，因此不将其同字节声明夸大为更强归档证据。当前 frozen 子集与精确 SHA 见 `review-input01.json`；后续只随新输入做受影响检查。

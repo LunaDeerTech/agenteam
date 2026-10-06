@@ -1,0 +1,106 @@
+[
+  {
+    "run": "browser-types01",
+    "exit": 2,
+    "actual_wait_completed": true,
+    "seconds": 1.159,
+    "raw_sha256": "81f268c0df7928654c62f980be1b0b05c190dff478e8dd18c9b3fc16e5ceaaf0",
+    "classification": "Command setup error omitted DOM.Iterable from standalone tsc libs, on unchanged original browser NodeList iteration. No source fix."
+  },
+  {
+    "run": "browser-types02",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "seconds": 1.033,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "classification": "Standalone browser tsc PASS with ES2022,DOM,DOM.Iterable."
+  },
+  {
+    "run": "build01",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "seconds": 6.235,
+    "raw_sha256": "671d7180438bdac364e34efe45108d2519d6d6b97cfc5018b6deef5212c2629b",
+    "classification": "Earlier final production input type-check and build PASS; pure02 supersedes for final4."
+  },
+  {
+    "run": "new01",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "seconds": 5.808,
+    "raw_sha256": "7bb8e80d7e4f2a0d4ff846e3499d789a35b13766a0748441ca1db8cc6de7825b",
+    "classification": "Same byte-identical spec/selector as old02, candidate useLayer, actual PASS1. Later browser spec changes were formatting only."
+  },
+  {
+    "run": "new02",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "seconds": 93.376,
+    "raw_sha256": "95986510c01ff390bc471373083ad37380927558332a48e4605434ac7474aaa4",
+    "classification": "Final production and browser input: all 30 PASS (original11 + 16 initial/remount matrix + 3 Popover)."
+  },
+  {
+    "run": "old01",
+    "exit": 1,
+    "actual_wait_completed": true,
+    "seconds": 1.278,
+    "raw_sha256": "4112e27a85f600186f5b1b1f59daeaf2238aa4a04012c3e52b325f6d61d7ee43",
+    "classification": "Runner selector error: anchored grep matched no test; not a product red. Actual exit1 and cleanup retained."
+  },
+  {
+    "run": "old02",
+    "exit": 1,
+    "actual_wait_completed": true,
+    "seconds": 6.281,
+    "raw_sha256": "fc629115630e5d82adaa354ca04bd94474047c87b8a97f3064e25adf3f13f901",
+    "classification": "Expected product red on fixed old useLayer: after top Escape, lower modal exists but does not contain activeElement."
+  },
+  {
+    "run": "pure01",
+    "exit": 1,
+    "actual_wait_completed": true,
+    "seconds": 9.321,
+    "raw_sha256": "bfaab9cb93d96fc839d1743eec862843fb9f4354f8152261f7e6896c2986a67c",
+    "classification": "Original full-check red: six then-known new fixture cases, old components beforeAll layout spy cleared by restoreMocks, and missing fixed documentation dependency in isolated tree. All retained; no original assertion weakened."
+  },
+  {
+    "run": "pure02",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "seconds": 13.537,
+    "raw_sha256": "a5a5393f658530716e4f483f9f4ff48bece38813da1f509e26b2fa098ce90b56",
+    "classification": "Final four-file input: complete npm check PASS; 16 files/287 tests, format, vue-tsc and Vite build."
+  },
+  {
+    "run": "unit01",
+    "exit": 1,
+    "actual_wait_completed": true,
+    "seconds": 2.385,
+    "raw_sha256": "268a98962d1cabcf7ccdb40a91b2c40dd16819109abe40c6ec07b5f53e88a325",
+    "classification": "New unit setup awaited nextTick before original component focus continuation. Fixed setup to flushPromises; assertions preserved."
+  },
+  {
+    "run": "unit02",
+    "exit": 1,
+    "actual_wait_completed": true,
+    "seconds": 2.807,
+    "raw_sha256": "e14641b54b515393c45c8e5ed7f0dfc7bd934409e9f6e5e3fd26140bc12a98c7",
+    "classification": "Six new cases: inert DOM attribute reflection and instance spying on an already mocked prototype changed other node measurements. Repaired attribute validation and per-element rect fixture."
+  },
+  {
+    "run": "unit03",
+    "exit": 1,
+    "actual_wait_completed": true,
+    "seconds": 2.688,
+    "raw_sha256": "4b6cef02dec66b2c97aed26712223b8b69ced16b528cdb32e1cf28cd497c80d1",
+    "classification": "Two new valid-trigger cases exposed jsdom inert=false attribute from Vue binding. New harness now omits inert attribute when false; strict production check retained."
+  },
+  {
+    "run": "unit04",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "seconds": 2.652,
+    "raw_sha256": "9a5044c39fca9487e148cd9d91f255f733543e092a803def5ba1fc73fbace944",
+    "classification": "53/53 component tests pass."
+  }
+]

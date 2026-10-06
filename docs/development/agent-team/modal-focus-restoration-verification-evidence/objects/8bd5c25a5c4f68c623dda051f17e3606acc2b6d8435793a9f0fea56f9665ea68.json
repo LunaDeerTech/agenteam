@@ -1,0 +1,35 @@
+{
+  "node_version": "v24.19.0",
+  "chromium_binary_sha256": "d387400aaf740ccb75e5e996a34aa0940e6e97683a4eabd6ae34c1eed6804723",
+  "chromium_version_from_author_checked_same_binary": "Chromium 151.0.7922.173",
+  "packages": {
+    "playwright": {
+      "version": "1.56.1",
+      "package_sha256": "388159d9169e9aa04bd24a92fb102321e7aca1af8c5ce9fc130f354af148587a",
+      "resolved_path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/tests/account-captcha-web/node_modules/playwright/package.json"
+    },
+    "vue": {
+      "version": "3.5.43",
+      "package_sha256": "b5cbf896563ac8087e8acdfe81ff5155db2eb75aced9725cdc05820be483cdda",
+      "resolved_path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/web/node_modules/vue/package.json"
+    },
+    "vitest": {
+      "version": "4.1.11",
+      "package_sha256": "a28126d97bcaf567da5bed69443b7f3bcd9a7a8c38c8b66e554686b6bb2c10e0",
+      "resolved_path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/web/node_modules/vitest/package.json"
+    },
+    "vite": {
+      "version": "8.3.1",
+      "package_sha256": "fd3af4eaf4eecb2069f3e2715d6aaa2137d084a8a95097389523f52213c08094",
+      "resolved_path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/web/node_modules/vite/package.json"
+    },
+    "@floating-ui/vue": {
+      "version": "1.1.11",
+      "package_sha256": "c1a3788ba76dca96a3d2fa6a163718da3af3270b36ee77cc9e0f79b37ba60765",
+      "resolved_path": "/workspace/scratch/agenteam-modal-focus-author-58s22c89/baseline/web/node_modules/@floating-ui/vue/package.json"
+    }
+  },
+  "locked_dependencies_read_only": true,
+  "no_install_or_lock_change": true,
+  "playwright_skill_unavailable_previously_reported_repo_harness_fallback_authorized": true
+}

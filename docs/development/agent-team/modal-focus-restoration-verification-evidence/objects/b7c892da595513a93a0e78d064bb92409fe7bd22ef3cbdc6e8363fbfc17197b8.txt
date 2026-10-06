@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/components.spec.ts -t modal handles nested menu Escape before closing itself and restores background/focus
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-modal-focus-author-58s22c89/candidate02/web
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 11 skipped (12)
+   Start at  07:37:43
+   Duration  1.71s (transform 734ms, setup 0ms, import 861ms, tests 243ms, environment 466ms)
+

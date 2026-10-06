@@ -1,0 +1,933 @@
+{
+  "processes": [
+    {
+      "pid": 1,
+      "state": "S",
+      "ppid": 0,
+      "session": 0,
+      "starttime": 25,
+      "command": "tail -f /dev/null "
+    },
+    {
+      "pid": 2,
+      "state": "S",
+      "ppid": 1,
+      "session": 0,
+      "starttime": 35,
+      "command": "/usr/local/bin/caas-prefix-transfer-server --host 0.0.0.0 --port 1040 "
+    },
+    {
+      "pid": 214,
+      "state": "S",
+      "ppid": 1,
+      "session": 214,
+      "starttime": 522,
+      "command": "/usr/local/bin/dockerd --host=unix:///var/run/docker.sock --pidfile=/run/codex-docker/dockerd.pid --exec-root=/run/codex-docker/exec-pubm0zok --storage-driver=vfs --group=agent "
+    },
+    {
+      "pid": 267,
+      "state": "S",
+      "ppid": 214,
+      "session": 267,
+      "starttime": 533,
+      "command": "containerd --config /run/codex-docker/exec-pubm0zok/containerd/containerd.toml "
+    },
+    {
+      "pid": 609,
+      "state": "S",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 577,
+      "command": "/usr/local/bin/containerd-shim-runc-v2 -namespace moby -id 9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c -address /run/codex-docker/exec-pubm0zok/containerd/containerd.sock "
+    },
+    {
+      "pid": 612,
+      "state": "S",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 577,
+      "command": "/usr/local/bin/containerd-shim-runc-v2 -namespace moby -id a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e -address /run/codex-docker/exec-pubm0zok/containerd/containerd.sock "
+    },
+    {
+      "pid": 657,
+      "state": "S",
+      "ppid": 612,
+      "session": 657,
+      "starttime": 579,
+      "command": "/usr/local/bin/minio server /data --console-address :9001 "
+    },
+    {
+      "pid": 658,
+      "state": "S",
+      "ppid": 609,
+      "session": 658,
+      "starttime": 579,
+      "command": "postgres "
+    },
+    {
+      "pid": 703,
+      "state": "S",
+      "ppid": 214,
+      "session": 214,
+      "starttime": 585,
+      "command": "/usr/local/bin/docker-proxy -proto tcp -host-ip 127.0.0.1 -host-port 5432 -container-ip 172.18.0.2 -container-port 5432 -use-listen-fd "
+    },
+    {
+      "pid": 735,
+      "state": "S",
+      "ppid": 214,
+      "session": 214,
+      "starttime": 587,
+      "command": "/usr/local/bin/docker-proxy -proto tcp -host-ip 127.0.0.1 -host-port 9000 -container-ip 172.18.0.3 -container-port 9000 -use-listen-fd "
+    },
+    {
+      "pid": 741,
+      "state": "S",
+      "ppid": 214,
+      "session": 214,
+      "starttime": 587,
+      "command": "/usr/local/bin/docker-proxy -proto tcp -host-ip 127.0.0.1 -host-port 9001 -container-ip 172.18.0.3 -container-port 9001 -use-listen-fd "
+    },
+    {
+      "pid": 840,
+      "state": "S",
+      "ppid": 658,
+      "session": 840,
+      "starttime": 607,
+      "command": "postgres: checkpointer  "
+    },
+    {
+      "pid": 841,
+      "state": "S",
+      "ppid": 658,
+      "session": 841,
+      "starttime": 607,
+      "command": "postgres: background writer  "
+    },
+    {
+      "pid": 843,
+      "state": "S",
+      "ppid": 0,
+      "session": 0,
+      "starttime": 609,
+      "command": "/opt/codex/bin/codex exec-server --remote https://codex-cloud-environments.chatgpt.com/api --environment-id ccarenv_b64_Y2NhcmVudl8yZDM2NzM2ZjVjMjQ4MTkxYjI4ZTkzOTZkNjIzNjY3OA --linux-sandbox-pid-namespace=inherit "
+    },
+    {
+      "pid": 880,
+      "state": "S",
+      "ppid": 658,
+      "session": 880,
+      "starttime": 703,
+      "command": "postgres: walwriter  "
+    },
+    {
+      "pid": 881,
+      "state": "S",
+      "ppid": 658,
+      "session": 881,
+      "starttime": 703,
+      "command": "postgres: autovacuum launcher  "
+    },
+    {
+      "pid": 882,
+      "state": "S",
+      "ppid": 658,
+      "session": 882,
+      "starttime": 703,
+      "command": "postgres: logical replication launcher  "
+    },
+    {
+      "pid": 1258,
+      "state": "Z",
+      "ppid": 1,
+      "session": 1258,
+      "starttime": 3309,
+      "command": ""
+    },
+    {
+      "pid": 2196,
+      "state": "Z",
+      "ppid": 1,
+      "session": 2196,
+      "starttime": 8790,
+      "command": ""
+    },
+    {
+      "pid": 5226,
+      "state": "Z",
+      "ppid": 1,
+      "session": 5226,
+      "starttime": 28249,
+      "command": ""
+    },
+    {
+      "pid": 14572,
+      "state": "Z",
+      "ppid": 1,
+      "session": 14572,
+      "starttime": 35166,
+      "command": ""
+    },
+    {
+      "pid": 37350,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 78827,
+      "command": ""
+    },
+    {
+      "pid": 38202,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 79428,
+      "command": ""
+    },
+    {
+      "pid": 38646,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 79600,
+      "command": ""
+    },
+    {
+      "pid": 39247,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 79766,
+      "command": ""
+    },
+    {
+      "pid": 49996,
+      "state": "Z",
+      "ppid": 1,
+      "session": 49996,
+      "starttime": 84698,
+      "command": ""
+    },
+    {
+      "pid": 72044,
+      "state": "Z",
+      "ppid": 1,
+      "session": 72044,
+      "starttime": 121709,
+      "command": ""
+    },
+    {
+      "pid": 74251,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 134617,
+      "command": ""
+    },
+    {
+      "pid": 74676,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 134825,
+      "command": ""
+    },
+    {
+      "pid": 74994,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 134988,
+      "command": ""
+    },
+    {
+      "pid": 75701,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 135159,
+      "command": ""
+    },
+    {
+      "pid": 87375,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 143819,
+      "command": ""
+    },
+    {
+      "pid": 87939,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 144169,
+      "command": ""
+    },
+    {
+      "pid": 88377,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 144341,
+      "command": ""
+    },
+    {
+      "pid": 88896,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 144503,
+      "command": ""
+    },
+    {
+      "pid": 96129,
+      "state": "Z",
+      "ppid": 1,
+      "session": 96129,
+      "starttime": 152322,
+      "command": ""
+    },
+    {
+      "pid": 101310,
+      "state": "Z",
+      "ppid": 1,
+      "session": 101310,
+      "starttime": 194563,
+      "command": ""
+    },
+    {
+      "pid": 105349,
+      "state": "Z",
+      "ppid": 1,
+      "session": 105349,
+      "starttime": 227344,
+      "command": ""
+    },
+    {
+      "pid": 123857,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 283873,
+      "command": ""
+    },
+    {
+      "pid": 124814,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 284506,
+      "command": ""
+    },
+    {
+      "pid": 125183,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 284723,
+      "command": ""
+    },
+    {
+      "pid": 125816,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 284938,
+      "command": ""
+    },
+    {
+      "pid": 159724,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 319899,
+      "command": ""
+    },
+    {
+      "pid": 160297,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 320322,
+      "command": ""
+    },
+    {
+      "pid": 160714,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 320503,
+      "command": ""
+    },
+    {
+      "pid": 161245,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 320675,
+      "command": ""
+    },
+    {
+      "pid": 176031,
+      "state": "Z",
+      "ppid": 1,
+      "session": 176031,
+      "starttime": 369334,
+      "command": ""
+    },
+    {
+      "pid": 180180,
+      "state": "Z",
+      "ppid": 1,
+      "session": 180179,
+      "starttime": 408854,
+      "command": ""
+    },
+    {
+      "pid": 180182,
+      "state": "Z",
+      "ppid": 1,
+      "session": 180178,
+      "starttime": 408854,
+      "command": ""
+    },
+    {
+      "pid": 180184,
+      "state": "Z",
+      "ppid": 1,
+      "session": 180183,
+      "starttime": 408854,
+      "command": ""
+    },
+    {
+      "pid": 180185,
+      "state": "Z",
+      "ppid": 1,
+      "session": 180178,
+      "starttime": 408854,
+      "command": ""
+    },
+    {
+      "pid": 183789,
+      "state": "Z",
+      "ppid": 1,
+      "session": 183789,
+      "starttime": 429665,
+      "command": ""
+    },
+    {
+      "pid": 185903,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 441679,
+      "command": ""
+    },
+    {
+      "pid": 186321,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 441907,
+      "command": ""
+    },
+    {
+      "pid": 186756,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 442107,
+      "command": ""
+    },
+    {
+      "pid": 187427,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 442382,
+      "command": ""
+    },
+    {
+      "pid": 197851,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 450707,
+      "command": ""
+    },
+    {
+      "pid": 198403,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 451080,
+      "command": ""
+    },
+    {
+      "pid": 198720,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 451275,
+      "command": ""
+    },
+    {
+      "pid": 199395,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 451453,
+      "command": ""
+    },
+    {
+      "pid": 211198,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 465469,
+      "command": ""
+    },
+    {
+      "pid": 211861,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 465911,
+      "command": ""
+    },
+    {
+      "pid": 212555,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 466353,
+      "command": ""
+    },
+    {
+      "pid": 213391,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 466720,
+      "command": ""
+    },
+    {
+      "pid": 221698,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 479037,
+      "command": ""
+    },
+    {
+      "pid": 222354,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 479421,
+      "command": ""
+    },
+    {
+      "pid": 222703,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 479611,
+      "command": ""
+    },
+    {
+      "pid": 223355,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 479787,
+      "command": ""
+    },
+    {
+      "pid": 224757,
+      "state": "Z",
+      "ppid": 1,
+      "session": 224757,
+      "starttime": 480434,
+      "command": ""
+    },
+    {
+      "pid": 231340,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 488482,
+      "command": ""
+    },
+    {
+      "pid": 231988,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 488996,
+      "command": ""
+    },
+    {
+      "pid": 232691,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 489457,
+      "command": ""
+    },
+    {
+      "pid": 233520,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 489862,
+      "command": ""
+    },
+    {
+      "pid": 241592,
+      "state": "Z",
+      "ppid": 1,
+      "session": 241592,
+      "starttime": 502274,
+      "command": ""
+    },
+    {
+      "pid": 241909,
+      "state": "Z",
+      "ppid": 1,
+      "session": 241909,
+      "starttime": 504647,
+      "command": ""
+    },
+    {
+      "pid": 252019,
+      "state": "Z",
+      "ppid": 1,
+      "session": 252019,
+      "starttime": 543285,
+      "command": ""
+    },
+    {
+      "pid": 252667,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 544984,
+      "command": ""
+    },
+    {
+      "pid": 253499,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 545564,
+      "command": ""
+    },
+    {
+      "pid": 253837,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 545762,
+      "command": ""
+    },
+    {
+      "pid": 254688,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 546065,
+      "command": ""
+    },
+    {
+      "pid": 288053,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 590781,
+      "command": ""
+    },
+    {
+      "pid": 288691,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 591175,
+      "command": ""
+    },
+    {
+      "pid": 289102,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 591379,
+      "command": ""
+    },
+    {
+      "pid": 289820,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 591650,
+      "command": ""
+    },
+    {
+      "pid": 303745,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 598744,
+      "command": ""
+    },
+    {
+      "pid": 305412,
+      "state": "Z",
+      "ppid": 1,
+      "session": 305412,
+      "starttime": 599844,
+      "command": ""
+    },
+    {
+      "pid": 310348,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 609244,
+      "command": ""
+    },
+    {
+      "pid": 311002,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 609686,
+      "command": ""
+    },
+    {
+      "pid": 311463,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 610001,
+      "command": ""
+    },
+    {
+      "pid": 312170,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 610271,
+      "command": ""
+    },
+    {
+      "pid": 323876,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 653505,
+      "command": ""
+    },
+    {
+      "pid": 324305,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 653729,
+      "command": ""
+    },
+    {
+      "pid": 324744,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 653915,
+      "command": ""
+    },
+    {
+      "pid": 325303,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 654111,
+      "command": ""
+    },
+    {
+      "pid": 335935,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 690474,
+      "command": ""
+    },
+    {
+      "pid": 336484,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 690825,
+      "command": ""
+    },
+    {
+      "pid": 336926,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 691005,
+      "command": ""
+    },
+    {
+      "pid": 337498,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 691216,
+      "command": ""
+    },
+    {
+      "pid": 348410,
+      "state": "Z",
+      "ppid": 1,
+      "session": 348410,
+      "starttime": 731195,
+      "command": ""
+    },
+    {
+      "pid": 361075,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 753747,
+      "command": ""
+    },
+    {
+      "pid": 362035,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 754408,
+      "command": ""
+    },
+    {
+      "pid": 362381,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 754637,
+      "command": ""
+    },
+    {
+      "pid": 363041,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 754832,
+      "command": ""
+    },
+    {
+      "pid": 370431,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 759916,
+      "command": ""
+    },
+    {
+      "pid": 378790,
+      "state": "Z",
+      "ppid": 1,
+      "session": 378790,
+      "starttime": 767684,
+      "command": ""
+    },
+    {
+      "pid": 379564,
+      "state": "Z",
+      "ppid": 1,
+      "session": 379564,
+      "starttime": 773671,
+      "command": ""
+    },
+    {
+      "pid": 383648,
+      "state": "Z",
+      "ppid": 1,
+      "session": 383648,
+      "starttime": 807843,
+      "command": ""
+    },
+    {
+      "pid": 395745,
+      "state": "Z",
+      "ppid": 1,
+      "session": 395745,
+      "starttime": 906403,
+      "command": ""
+    },
+    {
+      "pid": 402208,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 955242,
+      "command": ""
+    },
+    {
+      "pid": 402926,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 955804,
+      "command": ""
+    },
+    {
+      "pid": 403365,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 956007,
+      "command": ""
+    },
+    {
+      "pid": 404008,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 956205,
+      "command": ""
+    },
+    {
+      "pid": 409822,
+      "state": "Z",
+      "ppid": 1,
+      "session": 267,
+      "starttime": 960104,
+      "command": ""
+    },
+    {
+      "pid": 445631,
+      "state": "Z",
+      "ppid": 1,
+      "session": 445631,
+      "starttime": 1116630,
+      "command": ""
+    },
+    {
+      "pid": 455271,
+      "state": "R",
+      "ppid": 843,
+      "session": 455271,
+      "starttime": 1202123,
+      "command": "python3 /workspace/scratch/agenteam-modal-focus-author-58s22c89/run-browser.py new02 candidate "
+    },
+    {
+      "pid": 455272,
+      "state": "S",
+      "ppid": 843,
+      "session": 455272,
+      "starttime": 1202124,
+      "command": "python3 /workspace/scratch/agenteam-modal-focus-author-58s22c89/run-pure.py build01 npm --prefix web run build "
+    }
+  ],
+  "ports": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                \nLISTEN 0      0          127.0.0.1:9001      0.0.0.0:*                                          \nLISTEN 0      0          127.0.0.1:9000      0.0.0.0:*                                          \nLISTEN 0      0            0.0.0.0:1040      0.0.0.0:*    users:((\"caas-prefix-tra\",pid=2,fd=3))\nLISTEN 0      0          127.0.0.1:5432      0.0.0.0:*                                          \n"
+}

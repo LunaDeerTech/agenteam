@@ -1,0 +1,199 @@
+{
+  "actual_wait_completed": true,
+  "subreaper_enabled_before_launch": true,
+  "adopted_waits": [
+    {
+      "pid": 463068,
+      "status": 0,
+      "tracked_starttime": 1255122
+    },
+    {
+      "pid": 463072,
+      "status": 0,
+      "tracked_starttime": 1255122
+    },
+    {
+      "pid": 463070,
+      "status": 0,
+      "tracked_starttime": 1255122
+    },
+    {
+      "pid": 463073,
+      "status": 0,
+      "tracked_starttime": 1255122
+    },
+    {
+      "pid": 463053,
+      "status": 0,
+      "tracked_starttime": 1255066
+    }
+  ],
+  "owned_processes": [
+    {
+      "pid": 463019,
+      "ppid": 463015,
+      "state": "R",
+      "session": 463019,
+      "starttime": 1254980,
+      "comm": "MainThread"
+    },
+    {
+      "pid": 463053,
+      "ppid": 463015,
+      "state": "Z",
+      "session": 463019,
+      "starttime": 1255066,
+      "comm": "MainThread"
+    },
+    {
+      "pid": 463066,
+      "ppid": 463053,
+      "state": "Z",
+      "session": 463066,
+      "starttime": 1255118,
+      "comm": "chromium"
+    },
+    {
+      "pid": 463072,
+      "ppid": 463015,
+      "state": "Z",
+      "session": 463071,
+      "starttime": 1255122,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 463073,
+      "ppid": 463015,
+      "state": "Z",
+      "session": 463066,
+      "starttime": 1255122,
+      "comm": "chromium"
+    },
+    {
+      "pid": 463094,
+      "ppid": 463070,
+      "state": "S",
+      "session": 463066,
+      "starttime": 1255126,
+      "comm": "chromium"
+    },
+    {
+      "pid": 463068,
+      "ppid": 463015,
+      "state": "Z",
+      "session": 463067,
+      "starttime": 1255122,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 463070,
+      "ppid": 463015,
+      "state": "Z",
+      "session": 463066,
+      "starttime": 1255122,
+      "comm": "chromium"
+    },
+    {
+      "pid": 463109,
+      "ppid": 463066,
+      "state": "S",
+      "session": 463066,
+      "starttime": 1255128,
+      "comm": "chromium"
+    },
+    {
+      "pid": 463110,
+      "ppid": 463073,
+      "state": "S",
+      "session": 463066,
+      "starttime": 1255131,
+      "comm": "chromium"
+    },
+    {
+      "pid": 463140,
+      "ppid": 463073,
+      "state": "S",
+      "session": 463066,
+      "starttime": 1255140,
+      "comm": "chromium"
+    },
+    {
+      "pid": 463149,
+      "ppid": 463073,
+      "state": "S",
+      "session": 463066,
+      "starttime": 1255142,
+      "comm": "chromium"
+    },
+    {
+      "pid": 463150,
+      "ppid": 463073,
+      "state": "R",
+      "session": 463066,
+      "starttime": 1255142,
+      "comm": "chromium"
+    }
+  ],
+  "remaining_first": [],
+  "remaining_second": [],
+  "tmpdir": "/tmp/mfv-rabo1i6t",
+  "tmp_absent": true,
+  "servers": [
+    {
+      "pid": 463053,
+      "origin": "http://127.0.0.1:42649",
+      "nonce": "6c91f7f8-175f-4859-a459-5ba177163bdd",
+      "inputs": {
+        "src/components/ui/UiDialog.vue": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065",
+        "src/components/ui/UiDrawer.vue": "e62cc686f6fe8c3981680c3c88ec4880effbb9e84aedf80a5aff9978939a2def",
+        "src/components/ui/UiPopover.vue": "d41aae39719cab8ce3cd7b4924d9e1db4c9ab450fe423a9397b45f752db1970c",
+        "src/components/ui/UiButton.vue": "af03eda76b9d74f9c74e788f239397bfac9bdb67f9c7454ac8bf1a29e5e5abf9",
+        "src/components/ui/UiIcon.vue": "180fd280018366204978a388b933543be597c9f8c654c5af1b6eb8f9d262e280",
+        "src/components/ui/UiSpinner.vue": "b8568ad14952ddb87bf13e8877c89d30e5c69f23fd38bc7c72c44562f602689c",
+        "src/components/ui/types.ts": "5cde2f860f7088f599aa86a485787d79c5f0f8886e5bfb766dfccac8e0b29ec7",
+        "src/composables/useLayer.ts": "36d35b6b890b56f067f3e6ac0f6e03867a21baf4c9142ecb4b0d2fb8a2460902",
+        "src/styles/tokens.css": "e71b59daf59c53187796c061bc8486649e2aa0ad92d5b9c9c292165613a466b8",
+        "src/styles/base.css": "95406edff72418d7ca07d37f638b0718ec8ad711eab9b6c579cd4e1cebe55b72",
+        "src/styles/components.css": "0f8289238b3f4af109e233cea7f76a3759d79c45f737c575467af771b05d96eb"
+      },
+      "closed": true
+    }
+  ],
+  "server_all_closed": true,
+  "ports_unchanged": true,
+  "ports_after": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                \nLISTEN 0      0          127.0.0.1:9001      0.0.0.0:*                                          \nLISTEN 0      0          127.0.0.1:9000      0.0.0.0:*                                          \nLISTEN 0      0            0.0.0.0:1040      0.0.0.0:*    users:((\"caas-prefix-tra\",pid=2,fd=3))\nLISTEN 0      0          127.0.0.1:5432      0.0.0.0:*                                          \n",
+  "historical_baseline_not_owned": [
+    {
+      "pid": 180180,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180179,
+      "starttime": 408854,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 180182,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180178,
+      "starttime": 408854,
+      "comm": "chromium"
+    },
+    {
+      "pid": 180184,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180183,
+      "starttime": 408854,
+      "comm": "chrome_crashpad"
+    },
+    {
+      "pid": 180185,
+      "ppid": 1,
+      "state": "Z",
+      "session": 180178,
+      "starttime": 408854,
+      "comm": "chromium"
+    }
+  ]
+}

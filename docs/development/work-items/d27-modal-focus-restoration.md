@@ -1,6 +1,6 @@
 # D27 前置修复：关闭顶层后把焦点留在剩余模态内
 
-状态：rev2，2026-10-06 最小范围修订，等待独立静审；rev1 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS）并由主线程采纳，被审稿 SHA256 `d1c4d05cebe3cfd823250896150479002a83ed5d1f9fcf3013ecd012deaa1b43`。本次仅增加§3第四条路径，用于修正既有组件测试的布局 spy 生命周期；原生产恢复契约、断言与全局 Vitest 配置不变。`directory_backend`（改任frontend_worker）仍为本卡唯一作者，原三路径及独占组件浏览器窗口安排保持；新增第四路径须待本修订独立采纳、提交后，由主线程另行正式授权。本次文档修订不启动产品或资源。邀请 input02 的21源/dist已冻结、作者停止且无所属真实资源；[邀请 UI rev4](d27-system-invitation-ui.md)的22路径与业务真实窗口继续暂停，本卡不消费未验邀请源码作为组件实现/验收依赖。共享修复独立接受后，再由主线程另授邀请页组合返修与验证。下文设计冻结时的未授叙述以本页首为准，规格采纳及实施安排不代表产品通过。
+状态：rev2，2026-10-06 已由 `directory_backend` 完成四路径、`recovery_verification` 独立最终 PASS，主线程采纳并提交推送 `79f922ec259d2838052a903612e2a27005618c11`，主线程已核远端一致。范围修订被审稿 SHA256 `9bfae00b9836f2fe82cb5d034e7f64b1e1dbf211756fd0d7e6efe760b749cc6a`，技术§1–4保持原字节。接受 input02 SHA256 `584a9de02239ca17c6bea8834c2cf262aec255cff690780bd0a9c97ffe78c4a6`；input01独立产品红、全部原失败、旧new01运行指纹缺口与历史PPID1 Z限制保留，详见[正式报告及最小证据](../agent-team/modal-focus-restoration-verification.md)。最终独立原probe3项、编辑宿主1项及纯测3项通过，作者针对性复验与旧输入未变部分分开复用。组件窗口已交回；[邀请 UI rev4](d27-system-invitation-ui.md)已恢复实施与业务组合窗口，仍未接受，共享组件通过不证明邀请App/Session/pageshow。下文为冻结设计与验收要求，其中当时的待授权/未执行叙述以本页首及正式报告的实际结果为准。
 
 ## 1. 责任边界与固定证据
 
