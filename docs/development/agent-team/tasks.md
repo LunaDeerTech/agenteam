@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：125e3c2 恢复续接
+
+- 本次从干净的 `work / 125e3c222ffca01ea0fd987d7dc47b8c30fa5f8b` 恢复，主线程实际查询远端同哈希、fetch 并创建跟踪 `origin/main` 的 `main`；双方一致、无未推送提交。固定输入、只读证据与本轮分工见[恢复续接记录](recovery-2026-10-06-continuation.md)，以下旧记录保留当时事实。
+- 初始 scratch 为空；tools 十个新源、Artifact 十一个新源在源码树及 HEAD 中缺失，旧四源/五源仍分别等于已提交业务基线。14/16 份候选文本归档保留，未恢复为产品源码。Object 原修复及 tools 原独立任务继续停止，不重试、改派或重建；tools 独立动态仍 NOT RUN，Artifact 完整卡仍 BLOCKED。
+- ledger、管理读口和公开入口的已提交源码及持久证据离线复核通过，接受边界不扩大。D27 System 用户目录注册时间补口 rev1 已独立 STATIC PASS 并获主线程采纳，规格单独提交推送 `c11b512d5953501c4bb1e15c92e6cc8a84564b51`、远端一致；`directory_backend` 已正式实施卡内五路径，尚无新业务验收结论。规格与实现不混入本次恢复文档提交。
+- Summary 创建初值已重新询问、尚无答复；生产未绑定、ready503 和其他阻塞保持。完整 D08–D28/E01 未完成，E01 未开始。
+
 ## 2026-10-06：公开 Account 入口验收交付
 
 - [公开入口 rev1–rev5](../work-items/d26-public-account-entry.md)最终25源由 `frontend_recovery` 实现，`frontend_verification` 独立最终PASS；主线程采纳提交推送 `787a5c7eeadf5e5f37bab97cbf030b4a745b72af`，远端一致。正式[验证记录与去重原件](public-account-entry-verification.md)绑定input13，记录151项pure/格式/类型/build，以及9个不变作者顶层、input12的Privacy/Theme、input13的Password分轮组合12/12；不称一次全包全绿，原红与原cleanup=false均保留。
