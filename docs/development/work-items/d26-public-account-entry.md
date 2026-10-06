@@ -1,5 +1,7 @@
 # D26 邀请兑换与找回、重置密码公开入口
 
+修订：rev2，2026-10-06，仅增加 §11 的测试接缝补遗：原23路径加一条旧测试fixture的私有日志路径元数据，共24路径。下文 rev1 授权与 §1–10 保留原冻结记录；当前窄例外以 §11 为准，产品规则与既有验收门槛不变。本补遗及精确候选差量先交主线程审阅，再归位新测试输入；不宣告页面或整卡验收完成。
+
 修订：rev1，2026-10-05，已独立规格静审通过并获主线程采纳；被审原卡 SHA-256 `3f3e3a9624af7b73ed8a5082d74e85c6a7f3631286892352e209c2e0b05008d2`。设计者 `d08_recovery_design`；规格已采纳提交推送 `e5a5ccf5343fe9f17aced6e9ee0d633fbfe3c5aa`，远端一致由主线程确认，原件见[规格持久记录](../agent-team/public-account-entry-spec-verification.md)。主线程现已正式授权 `d08_registry_backend` 按 §8 精确23路径实施，`skill_verification` 独立验收；作者仅获私有 offline/pure/type/build 权，未获 Docker/browser 运行权。固定业务基线为已验个人设置提交 `c54f73f3324caa11608d84e5d207141985eb6074`；认证前置为 `9a710f272026b41ef69852bbeb41cb7670b500a8`。已采纳精确23条实施范围，无后端生产、SQL、包依赖或迁移。本次仅归位规格归档与正式实施授权，不新增资源授权；§1–9 技术正文逐字保持，其中候选/待另授表述保留规格冻结时含义，当前行政状态见本段及 §10。
 
 依据为 [D07 Account](d07-account-session-smtp.md)、[D07 工程规格](d07-account-session-smtp-design.md)、[认证卡](d26-account-authentication.md)、[个人设置卡](d26-personal-settings.md)、[账号入口布局](../../frontend-design/layouts/account-entry.md)、[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)及 [SMTP Delivery](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)。主线程已采纳静态可行性报告 `/workspace/agenteam-public-account-entry-feasibility-06zo4kp2/report.md`，SHA-256 `814f5a368c802567d3eb9571120284493a7a0aad10fe941050b2a704e33da829`；本卡已用个人设置最终源码核定其待定接缝，不沿用估算范围。固定31项 Git 输入定位见 `/workspace/agenteam-public-account-entry-spec-shkumzgp/inputs.json`，SHA-256 `913cc43664f17c151f7a6fa4c58837858ef412494b17875eea3491f18d8a6c6f`，仅为静态输入。
@@ -234,3 +236,21 @@ backend_log为本卡真实浏览器交付渠道。smtp UI分支在严格DTO/组�
 个人设置与认证前置已接受，本卡已按最终提交 `c54f73f3324caa11608d84e5d207141985eb6074` 核定。独立规格报告 `/workspace/agenteam-public-account-entry-spec-v-spp78bu_/report.md`，SHA-256 `e69b4e4d70ba780b7deb7e10a41034690cf25da1eef63a93d34cd5966ae2c160`，结论为 STATIC PASS；主线程已完整读取并采纳 rev1 及精确23路径范围，无技术修订。此为规格可实施性结论，不是页面、pure、browser或完整D26验收。
 
 规格已采纳提交推送 `e5a5ccf5343fe9f17aced6e9ee0d633fbfe3c5aa`；主线程现已正式授权 `d08_registry_backend` 在固定 `c54f73f` 与本卡被审技术正文上实施 §8 精确23路径，`skill_verification` 独立验收。作者仅可在私有环境进行 offline/pure/type/build；Docker/browser 窗口仍须另授，尚无本卡业务验收结论。[规格持久记录](../agent-team/public-account-entry-spec-verification.md)保存可行性、rev1、31项Git定位、独立STATIC PASS、原行政差量及[独立后续计划](../agent-team/evidence/public-account-entry-spec-verification/plan/plan.md)，计划不等于测试已执行。§1–9 技术正文、固定基线和23路径保持不变。完整D26、生产SPA托管及原模块阻断不因规格采纳或实施授权改变。
+
+## 11. rev2 测试接缝补遗（2026-10-06）
+
+本节依据本轮真实 `TestAccountPublicEntryWebPrivacyAndProduction` 首红与固定生产源码作窄修订。该次已取得已注册邮箱的严格202回执及成功页面反馈，随后新helper在自设4s等待内未见 `password_resets` 行；未注册邮箱请求尚未执行。正式 `account.Runtime.maintain` 每10s调用一次 `Recover`，单轮有2s预算，`processReset` 才创建reset、投递意图并追加事件；Accountmail的1s循环处理后续投递。202只确认申请受理，因此新helper的4s与Playwright默认5s IPC等待不能覆盖一个正常周期。首红数据库已由原trap销毁，缺当时相位快照，不能声称本次唯一根因已确定；原失败和原cleanup失败保持，后续定点双清另记。
+
+主线程授权在 §8 原23路径之外，追加且仅追加下列第24路径：
+
+| 路径 | 唯一新增允许范围 |
+| --- | --- |
+| `tests/account/authentication_web_fixture_test.go` | 为既有私有 `authenticationWebFixture` 增加 `recoveryLogPath string` 字段，并在已有构造中赋 `cfg.AccountRecoveryLog()`；仅传递本fixture已配置的精确日志路径元数据 |
+
+该旧fixture的root、构造行为、`record`、既有断言、launcher和资源清理逻辑继续只读；不得复制root、搜索 `t.TempDir` 父目录、枚举邻近文件或猜日志位置。新 `account_entry_web_fixture_test.go` 仅通过该明确字段只读本fixture的精确受限日志。复用旧 `f.record` 的现有流程仍可保持；新的有界IPC读日志必须继续核对精确purpose、邮箱与本次reset ID，能力链接只经0700目录/0600文件私有转交，不进入普通日志或测试输出。
+
+新动态恢复链接握手采用一个20s截止，沿既有 `record` 的20s尺度，覆盖PG后态等待、精确受限日志匹配及IPC应答。Playwright等待应答与Go helper截止须联动；不能PG等待结束后再重开一个20s日志等待，不能以重发HTTP、直接调用生产恢复方法、写表造链接或扩大后台周期改变被测链路。查询和等待须受该握手截止及原父级取消约束，失败后仍实际取消并join已启动的浏览器。原Playwright单例45s、workers=1/retries=0、Go顶层2分钟、driver race/count1/每包6m保持，§9的真实Session、CSRF、精确command/Audit与完整known/unknown回执断言不变。
+
+允许在新helper的首次观察与成功/失败终局增加安全只读阶段快照，以同一精确成员及请求、command、reset、delivery因果关系核事实。输出仅为白名单bool/count/phase/pass与必要SQLSTATE；ID在私有进程内用于精确关联。不得输出邮箱原值、Browser/CSRF、幂等key、token、密码或其hash、Secret材料、URL，不能转储原始行或原始数据库错误。该快照用于区分尚未扫描、已扫描未完成与已转入投递的阶段，不将缺失首红快照的原因补写为确定事实。
+
+新增候选先在私有冻结输入中形成24路径manifest与逐路径差量，由独立验收核上述元数据接缝、单截止、隐私和原断言，再交主线程审阅归位。只变测试观察或握手时，已通过且输入语义不变的业务证据可按 §9明确复用；受影响Privacy须定向复验。原23路径输入、首红原件及其动态结论保持可追溯，不以新的24路径清单改写旧输入。本补遗不增加产品、服务端、SQL、依赖或共享UI范围，资源执行继续使用主线程协调的独占窗口。
