@@ -53,6 +53,16 @@ function restoreFocus(element: HTMLElement) {
   element.focus({ preventScroll: true })
   return element.ownerDocument.activeElement === element
 }
+function restorePageFocus(element: HTMLElement | null) {
+  if (
+    !element ||
+    element.ownerDocument !== document ||
+    element === document.body ||
+    element === document.documentElement
+  )
+    return false
+  return restoreFocus(element)
+}
 function restoreWithinModal(trigger: HTMLElement | null, allowed: Layer[]) {
   if (
     trigger &&
@@ -131,9 +141,10 @@ export function useLayer(
   close: (reason: CloseReason) => void,
   modal = false,
   trigger?: Ref<HTMLElement | null>,
+  fallbackFocus?: Readonly<Ref<HTMLElement | null | undefined>>,
 ) {
   let record: Layer | undefined
-  function remove(restore = true) {
+  function remove(restore = true, allowFallback = false) {
     if (!record) return
     const active = record
     const index = layers.indexOf(active)
@@ -148,7 +159,11 @@ export function useLayer(
     if (restore && wasTop) {
       const lastModal = layers.map((layer) => layer.modal).lastIndexOf(true)
       if (lastModal === -1) {
-        if (active.trigger?.isConnected) active.trigger.focus({ preventScroll: true })
+        const fallback = allowFallback ? fallbackFocus?.value : undefined
+        if (fallback) {
+          if (!restorePageFocus(active.trigger) && fallback !== active.trigger)
+            restorePageFocus(fallback)
+        } else if (active.trigger?.isConnected) active.trigger.focus({ preventScroll: true })
       } else restoreWithinModal(active.trigger, layers.slice(lastModal))
     }
     if (!layers.length) {
@@ -160,7 +175,7 @@ export function useLayer(
     open,
     async (value) => {
       if (!value) {
-        remove()
+        remove(true, true)
         return
       }
       if (!layers.length) {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, useId } from 'vue'
+import { ref, toRef, useId } from 'vue'
 import { useLayer } from '../../composables/useLayer'
 import UiButton from './UiButton.vue'
 import UiIcon from './UiIcon.vue'
@@ -11,6 +11,7 @@ const props = withDefaults(
     drawer?: boolean
     closeOnOutside?: boolean
     closeOnEscape?: boolean
+    fallbackFocus?: HTMLElement | null
   }>(),
   { closeOnOutside: true, closeOnEscape: true },
 )
@@ -26,7 +27,7 @@ function close(reason: CloseReason) {
   open.value = false
   emit('close', reason)
 }
-const layer = useLayer(open, panel, close, true)
+const layer = useLayer(open, panel, close, true, undefined, toRef(props, 'fallbackFocus'))
 function outsidePointerDown(event: PointerEvent) {
   if (!layer.isTop() || !props.closeOnOutside) return
   event.preventDefault()

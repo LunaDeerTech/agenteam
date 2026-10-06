@@ -20,7 +20,7 @@ const closure = [
 ]
 
 const shell = `<script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import UiDialog from './src/components/ui/UiDialog.vue'
 import UiDrawer from './src/components/ui/UiDrawer.vue'
 import UiPopover from './src/components/ui/UiPopover.vue'
@@ -35,6 +35,21 @@ const events = ref<string[]>([])
 const mounted = ref(true), lower = ref(mode === 'initial'), confirmation = ref(mode === 'initial')
 const popover = ref(false), disabled = ref(false), generation = ref(0), detached = ref(false)
 const nativeTrigger = ref<HTMLElement|null>(null), invalidTarget = ref(false), captured = ref(false)
+const pageMounted = ref(true), pageOpen = ref(false), pageLayerMounted = ref(true)
+const pageTitle = ref<HTMLElement|null>(null), pageTrigger = ref<HTMLElement|null>(null)
+const pageGeneration = ref(0), pageDetached = ref(false), pageFocuses = ref(0), alternate = ref(false)
+const pageNested = ref(false), nestedDisabled = ref(false)
+const fallbackState = query.get('fallback') || 'valid'
+const pageFallback = computed(() => fallbackState === 'none' ? null : pageTitle.value)
+async function restorePage() {
+  const oldTrigger = pageTrigger.value
+  pageMounted.value = false
+  await nextTick()
+  pageDetached.value = oldTrigger?.isConnected === false
+  pageOpen.value = true
+  pageMounted.value = true
+  pageGeneration.value++
+}
 function confirmNative() {
   captured.value = document.activeElement === nativeTrigger.value
   confirmation.value = true
@@ -71,8 +86,31 @@ async function remount() {
     <UiPopover v-if="mode === 'popover-page'" v-model:open="popover" label="Page popover" data-testid="page-anchor">
       <template #default="{ close }"><button data-testid="page-popover-close" @click="close">Close page popover</button></template>
     </UiPopover>
+    <section v-if="mode === 'page-fallback' && pageMounted">
+      <component :is="alternate ? 'h2' : fallbackState === 'disabled' ? 'button' : 'h1'"
+        :key="alternate ? 'new-title' : 'original-title'" ref="pageTitle" tabindex="-1"
+        data-testid="page-title" :hidden="fallbackState === 'hidden'"
+        :disabled="fallbackState === 'disabled'" @focus="pageFocuses++">Current page {{ pageGeneration }} {{ alternate ? 'new' : 'original' }}</component>
+      <button ref="pageTrigger" data-testid="page-open" @click="pageOpen = true">Open page confirmation</button>
+      <input data-testid="page-later" aria-label="Current page input" />
+      <output data-testid="page-generation">{{ pageGeneration }}:{{ pageDetached }}</output>
+      <output data-testid="page-focuses">{{ pageFocuses }}</output>
+      <UiDialog v-if="pageLayerMounted" v-model:open="pageOpen" title="Page confirmation" :fallback-focus="pageFallback">
+        <input data-testid="page-confirm-input" data-autofocus />
+        <button data-testid="page-restore" @click="restorePage">Unmount and restore page</button>
+        <button data-testid="page-replace-target" @click="alternate = true">Replace current heading</button>
+        <button data-testid="page-destroy-layer" @click="pageLayerMounted = false">Destroy confirmation directly</button>
+        <button data-testid="page-nested" :disabled="nestedDisabled" @click="pageNested = true">Open nested confirmation</button>
+        <template #footer="{ close }"><button data-testid="page-close" @click="close">Continue editing</button></template>
+      </UiDialog>
+      <UiDialog v-model:open="pageNested" title="Nested page confirmation" :fallback-focus="pageFallback">
+        <input data-testid="page-nested-input" data-autofocus />
+        <button data-testid="page-disable-nested" @click="nestedDisabled = true">Disable nested trigger</button>
+        <button data-testid="page-remove-lower" @click="pageLayerMounted = false">Remove lower confirmation</button>
+      </UiDialog>
+    </section>
   </main>
-  <template v-if="mode !== 'ordinary' && mode !== 'popover-page' && mounted">
+  <template v-if="mode !== 'ordinary' && mode !== 'popover-page' && mode !== 'page-fallback' && mounted">
     <Surface v-model:open="lower" title="Remaining modal">
       <input data-testid="lower-input" data-autofocus />
       <div v-if="mode === 'native-target'" :contenteditable="nativeTarget === 'editable-child' && invalidTarget ? 'true' : undefined">
@@ -529,3 +567,147 @@ for (const kind of ['dialog', 'drawer']) {
     })
   }
 }
+
+async function restoredSinglePage(page: Page, harness: Harness, options = '') {
+  await visit(page, harness, 'dialog', `&mode=page-fallback${options}`)
+  await page.getByTestId('page-open').click()
+  await expect(page.getByTestId('page-confirm-input')).toBeFocused()
+  const oldTrigger = await page.getByTestId('page-open').elementHandle()
+  await page.getByTestId('page-restore').click()
+  await expect(page.getByTestId('page-generation')).toHaveText('1:true')
+  expect(await oldTrigger!.evaluate((node) => node.isConnected)).toBe(false)
+  await expect(page.getByTestId('page-confirm-input')).toBeFocused()
+  await expect(page.getByRole('dialog')).toHaveCount(1)
+  await expect(page.getByTestId('page-focuses')).toHaveText('0')
+  return oldTrigger!
+}
+
+async function pageLayerClosed(page: Page) {
+  await expect(page.locator('.ui-overlay')).toHaveCount(0)
+  await expect(page.locator('#app')).toHaveJSProperty('inert', false)
+  await expect(page.locator('body')).toHaveCSS('overflow', 'auto')
+}
+
+for (const width of [390, 1440]) {
+  for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+    test(`page fallback ${width} ${reducedMotion}: restored single confirmation returns to current title`, async ({
+      page,
+      harness,
+    }) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.emulateMedia({ reducedMotion })
+      for (const action of ['escape', 'action', 'outside']) {
+        const oldTrigger = await restoredSinglePage(page, harness)
+        if (action === 'escape') await page.keyboard.press('Escape')
+        else if (action === 'action') await page.getByTestId('page-close').click()
+        else await clickOverlay(page)
+        await pageLayerClosed(page)
+        await expect(page.getByTestId('page-title')).toBeFocused()
+        expect(await oldTrigger.evaluate((node) => node.isConnected)).toBe(false)
+        await expect(page.getByTestId('page-focuses')).toHaveText('1')
+        await page.keyboard.press('Tab')
+        await expect(page.getByTestId('page-open')).toBeFocused()
+        await page.getByTestId('page-later').click()
+        await page.waitForTimeout(250)
+        await expect(page.getByTestId('page-later')).toBeFocused()
+        await oldTrigger.dispose()
+      }
+    })
+  }
+}
+
+test('page fallback preserves the exact live trigger before the explicit target', async ({
+  page,
+  harness,
+}) => {
+  await visit(page, harness, 'dialog', '&mode=page-fallback')
+  await page.getByTestId('page-open').click()
+  await expect(page.getByTestId('page-confirm-input')).toBeFocused()
+  await page.keyboard.press('Escape')
+  await pageLayerClosed(page)
+  await expect(page.getByTestId('page-open')).toBeFocused()
+  await expect(page.getByTestId('page-focuses')).toHaveText('0')
+})
+
+test('page fallback reads the replacement local ref at close', async ({ page, harness }) => {
+  const trigger = await restoredSinglePage(page, harness)
+  const oldTitle = await page.getByTestId('page-title').elementHandle()
+  await page.getByTestId('page-replace-target').click()
+  await expect(page.getByTestId('page-title')).toHaveText('Current page 1 new')
+  expect(await oldTitle!.evaluate((node) => node.isConnected)).toBe(false)
+  await page.getByTestId('page-close').click()
+  await pageLayerClosed(page)
+  await expect(page.getByTestId('page-title')).toBeFocused()
+  await expect(page.getByTestId('page-focuses')).toHaveText('1')
+  await oldTitle!.dispose()
+  await trigger.dispose()
+})
+
+for (const state of ['hidden', 'disabled', 'none']) {
+  test(`page fallback refuses a ${state} target without selecting another page control`, async ({
+    page,
+    harness,
+  }) => {
+    const trigger = await restoredSinglePage(page, harness, `&fallback=${state}`)
+    await page.keyboard.press('Escape')
+    await pageLayerClosed(page)
+    await expect(page.getByTestId('page-focuses')).toHaveText('0')
+    await expect(page.getByTestId('page-open')).not.toBeFocused()
+    await expect(page.getByTestId('page-title')).not.toBeFocused()
+    await trigger.dispose()
+  })
+}
+
+test('page fallback is not attempted by direct component destruction', async ({
+  page,
+  harness,
+}) => {
+  const trigger = await restoredSinglePage(page, harness)
+  await page.getByTestId('page-destroy-layer').click()
+  await pageLayerClosed(page)
+  await expect(page.getByTestId('page-focuses')).toHaveText('0')
+  await expect(page.getByTestId('page-title')).not.toBeFocused()
+  await page.getByTestId('page-later').click()
+  await page.waitForTimeout(250)
+  await expect(page.getByTestId('page-later')).toBeFocused()
+  await trigger.dispose()
+})
+
+test('page fallback cannot escape a remaining modal or steal focus on non-top removal', async ({
+  page,
+  harness,
+}) => {
+  await visit(page, harness, 'dialog', '&mode=page-fallback')
+  await page.getByTestId('page-open').click()
+  await page.getByTestId('page-nested').click()
+  await expect(page.getByTestId('page-nested-input')).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(page.getByTestId('page-nested')).toBeFocused()
+  await expect(page.getByTestId('page-focuses')).toHaveText('0')
+  await page.getByTestId('page-nested').click()
+  await page.getByTestId('page-disable-nested').click()
+  await page.keyboard.press('Escape')
+  const lower = page.getByRole('dialog', {
+    name: 'Page confirmation',
+    exact: true,
+  })
+  await expect(lower).toBeVisible()
+  expect(await lower.evaluate((node) => node.contains(document.activeElement))).toBe(true)
+  await expect(page.getByTestId('page-focuses')).toHaveText('0')
+  await page.keyboard.press('Tab')
+  expect(await lower.evaluate((node) => node.contains(document.activeElement))).toBe(true)
+  await page.keyboard.press('Escape')
+  await pageLayerClosed(page)
+
+  await visit(page, harness, 'dialog', '&mode=page-fallback')
+  await page.getByTestId('page-open').click()
+  await page.getByTestId('page-nested').click()
+  await page.getByTestId('page-remove-lower').click()
+  const top = page.getByRole('dialog', {
+    name: 'Nested page confirmation',
+    exact: true,
+  })
+  await expect(page.locator('.ui-dialog')).toHaveCount(1)
+  expect(await top.evaluate((node) => node.contains(document.activeElement))).toBe(true)
+  await expect(page.getByTestId('page-focuses')).toHaveText('0')
+})

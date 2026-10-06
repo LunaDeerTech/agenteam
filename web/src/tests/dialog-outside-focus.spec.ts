@@ -458,3 +458,279 @@ it.each(['valid', 'disabled', 'panel-no-focus'])(
     expect(host.inert).toBe(true)
   },
 )
+
+function pageHeading() {
+  const heading = document.createElement('h1')
+  heading.tabIndex = -1
+  heading.textContent = 'Current page'
+  host.append(heading)
+  return heading
+}
+
+async function fallbackDialog(target: HTMLElement | null | undefined, trigger?: HTMLElement) {
+  trigger?.focus() // jsdom has no pointer default focus.
+  const wrapper = mount(UiDialog, {
+    attachTo: host,
+    props: { open: true, title: 'Page confirmation', fallbackFocus: target },
+    slots: { default: '<input data-autofocus data-page-confirmation />' },
+  })
+  mounted.push(wrapper)
+  await nextTick()
+  expect(document.activeElement).toBe(
+    [...document.querySelectorAll('[data-page-confirmation]')].at(-1),
+  )
+  return wrapper
+}
+
+function invalidatePageTarget(target: HTMLElement, state: string) {
+  if (state === 'disconnected') target.remove()
+  else if (state === 'disabled') (target as HTMLButtonElement).disabled = true
+  else if (state === 'fieldset') {
+    const fieldset = document.createElement('fieldset')
+    target.replaceWith(fieldset)
+    fieldset.append(target)
+    fieldset.disabled = true
+  } else if (state === 'hidden') target.hidden = true
+  else if (state === 'hidden-ancestor') {
+    const parent = document.createElement('div')
+    target.replaceWith(parent)
+    parent.append(target)
+    parent.hidden = true
+  } else if (state === 'inert') target.setAttribute('inert', '')
+  else if (state === 'aria-hidden') target.setAttribute('aria-hidden', 'true')
+  else if (state === 'display') target.style.display = 'none'
+  else if (state === 'visibility' || state === 'collapse')
+    target.style.visibility = state === 'visibility' ? 'hidden' : 'collapse'
+  else if (state === 'no-layout' || state === 'empty-region')
+    Object.defineProperty(target, 'getClientRects', {
+      configurable: true,
+      value: () =>
+        (state === 'no-layout' ? [] : [{ width: 0, height: 0 }]) as unknown as DOMRectList,
+    })
+  else if (state === 'focus-no-op') vi.spyOn(target, 'focus').mockImplementation(() => {})
+  else if (state === 'editable-child') {
+    target.removeAttribute('tabindex')
+    Object.defineProperty(target, 'isContentEditable', { configurable: true, value: true })
+  }
+}
+
+describe('UiDialog explicit page fallback', () => {
+  it('reads a local ref that becomes available after an initially open mount', async () => {
+    const wrapper = mount(
+      defineComponent({
+        components: { UiDialog },
+        setup: () => ({ open: ref(true), target: ref<HTMLElement | null>(null) }),
+        template: `<h1 ref="target" tabindex="-1" data-current-title>Current page</h1>
+          <UiDialog v-model:open="open" title="Confirmation" :fallback-focus="target">
+            <input data-autofocus /><button data-normal-close @click="open = false">Close</button>
+          </UiDialog>`,
+      }),
+      { attachTo: host },
+    )
+    mounted.push(wrapper)
+    expect(wrapper.getComponent(UiDialog).props('fallbackFocus')).toBeNull()
+    await nextTick()
+    const heading = wrapper.get('[data-current-title]').element as HTMLElement
+    expect(wrapper.getComponent(UiDialog).props('fallbackFocus')).toBe(heading)
+    document.querySelector<HTMLButtonElement>('[data-normal-close]')!.click()
+    await nextTick()
+    expect(document.activeElement).toBe(heading)
+    expect(host.inert).toBe(false)
+    expect(document.body.style.overflow).toBe('auto')
+    expect(wrapper.findComponent(UiDialog).exists()).toBe(true)
+  })
+
+  it('uses the latest replacement ref and leaves the old local node disconnected', async () => {
+    const wrapper = mount(
+      defineComponent({
+        components: { UiDialog },
+        setup: () => ({
+          open: ref(true),
+          replacement: ref(false),
+          target: ref<HTMLElement | null>(null),
+        }),
+        template: `<h1 v-if="!replacement" ref="target" tabindex="-1" data-title>Old local title</h1>
+          <h2 v-else ref="target" tabindex="-1" data-title>New local title</h2>
+          <UiDialog v-model:open="open" title="Confirmation" :fallback-focus="target">
+            <button data-replace @click="replacement = true">Replace</button>
+            <button data-normal-close @click="open = false">Close</button>
+          </UiDialog>`,
+      }),
+      { attachTo: host },
+    )
+    mounted.push(wrapper)
+    await nextTick()
+    const old = wrapper.get('[data-title]').element
+    document.querySelector<HTMLButtonElement>('[data-replace]')!.click()
+    await nextTick()
+    const current = wrapper.get('[data-title]').element
+    expect(old.isConnected).toBe(false)
+    expect(current).not.toBe(old)
+    document.querySelector<HTMLButtonElement>('[data-normal-close]')!.click()
+    await nextTick()
+    expect(document.activeElement).toBe(current)
+  })
+
+  it('prefers the exact valid trigger and uses preventScroll', async () => {
+    const heading = pageHeading()
+    const trigger = document.createElement('button')
+    host.append(trigger)
+    const wrapper = await fallbackDialog(heading, trigger)
+    const fallbackFocus = vi.spyOn(heading, 'focus')
+    const originalFocus = vi.spyOn(trigger, 'focus')
+    await wrapper.setProps({ open: false })
+    expect(document.activeElement).toBe(trigger)
+    expect(originalFocus).toHaveBeenCalledExactlyOnceWith({ preventScroll: true })
+    expect(fallbackFocus).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    'disabled',
+    'fieldset',
+    'hidden',
+    'hidden-ancestor',
+    'inert',
+    'aria-hidden',
+    'display',
+    'visibility',
+    'collapse',
+    'disconnected',
+    'no-layout',
+    'empty-region',
+    'focus-no-op',
+  ])('rejects the now-%s trigger and focuses the explicit local target', async (state) => {
+    const heading = pageHeading()
+    const trigger = document.createElement('button')
+    host.append(trigger)
+    const wrapper = await fallbackDialog(heading, trigger)
+    invalidatePageTarget(trigger, state)
+    const focused = vi.spyOn(heading, 'focus')
+    await wrapper.setProps({ open: false })
+    expect(document.activeElement).toBe(heading)
+    expect(focused).toHaveBeenCalledExactlyOnceWith({ preventScroll: true })
+  })
+
+  it.each([
+    'null',
+    'undefined',
+    'disabled',
+    'fieldset',
+    'hidden',
+    'hidden-ancestor',
+    'inert',
+    'aria-hidden',
+    'display',
+    'visibility',
+    'collapse',
+    'disconnected',
+    'no-layout',
+    'empty-region',
+    'focus-no-op',
+    'body',
+    'html',
+    'container',
+    'cross-document',
+    'editable-child',
+  ])('does not replace an unusable %s fallback with an arbitrary page control', async (state) => {
+    const unrelated = document.createElement('button')
+    host.append(unrelated)
+    const unrelatedFocus = vi.spyOn(unrelated, 'focus')
+    let target: HTMLElement | null | undefined = document.createElement(
+      ['container', 'editable-child'].includes(state) ? 'span' : 'button',
+    )
+    host.append(target)
+    if (state === 'null') target = null
+    else if (state === 'undefined') target = undefined
+    else if (state === 'body') target = document.body
+    else if (state === 'html') target = document.documentElement
+    else if (state === 'cross-document') {
+      const foreign = document.implementation.createHTMLDocument('Other document')
+      target = foreign.createElement('button')
+      foreign.body.append(target)
+    }
+    if (target) invalidatePageTarget(target, state)
+    const wrapper = await fallbackDialog(target)
+    const before = document.activeElement
+    await wrapper.setProps({ open: false })
+    expect(document.activeElement).not.toBe(before)
+    if (target && !['body', 'html'].includes(state)) expect(document.activeElement).not.toBe(target)
+    expect(unrelatedFocus).not.toHaveBeenCalled()
+    expect(document.activeElement).not.toBe(unrelated)
+  })
+
+  it('does not call BODY/HTML focus in the explicit fallback branch', async () => {
+    for (const target of [document.body, document.documentElement]) {
+      const wrapper = await fallbackDialog(target)
+      const bodyFocus = vi.spyOn(document.body, 'focus')
+      const htmlFocus = vi.spyOn(document.documentElement, 'focus')
+      await wrapper.setProps({ open: false })
+      expect(bodyFocus).not.toHaveBeenCalled()
+      expect(htmlFocus).not.toHaveBeenCalled()
+      bodyFocus.mockRestore()
+      htmlFocus.mockRestore()
+      wrapper.unmount()
+    }
+  })
+
+  it('does not try the explicit fallback during direct unmount', async () => {
+    const heading = pageHeading()
+    const wrapper = await fallbackDialog(heading)
+    const focus = vi.spyOn(heading, 'focus')
+    wrapper.unmount()
+    await nextTick()
+    expect(focus).not.toHaveBeenCalled()
+    expect(document.activeElement).not.toBe(heading)
+    expect(host.inert).toBe(false)
+  })
+
+  it('preserves original valid-trigger restoration on unmount', async () => {
+    const heading = pageHeading()
+    const trigger = document.createElement('button')
+    host.append(trigger)
+    const wrapper = await fallbackDialog(heading, trigger)
+    const focus = vi.spyOn(heading, 'focus')
+    wrapper.unmount()
+    expect(document.activeElement).toBe(trigger)
+    expect(focus).not.toHaveBeenCalled()
+  })
+
+  it('keeps remaining modal scope and does not restore a non-top removed layer', async () => {
+    const wrapper = mount(
+      defineComponent({
+        components: { UiDialog },
+        setup: () => ({
+          lower: ref(true),
+          upper: ref(true),
+          target: ref<HTMLElement | null>(null),
+        }),
+        template: `<h1 ref="target" tabindex="-1" data-title>Background title</h1>
+          <UiDialog v-model:open="lower" title="Lower" :fallback-focus="target"><input data-lower /></UiDialog>
+          <UiDialog v-model:open="upper" title="Upper" :fallback-focus="target">
+            <input data-upper data-autofocus />
+            <button data-remove-lower @click="lower = false">Remove lower</button>
+            <button data-close-upper @click="upper = false">Close upper</button>
+          </UiDialog>`,
+      }),
+      { attachTo: host },
+    )
+    mounted.push(wrapper)
+    await nextTick()
+    const heading = wrapper.get('[data-title]').element as HTMLElement
+    const focus = vi.spyOn(heading, 'focus')
+    document.querySelector<HTMLButtonElement>('[data-close-upper]')!.click()
+    await nextTick()
+    expect(document.querySelector('.ui-dialog')!.contains(document.activeElement)).toBe(true)
+    expect(focus).not.toHaveBeenCalled()
+    wrapper.unmount()
+
+    const currentHeading = pageHeading()
+    const currentFocus = vi.spyOn(currentHeading, 'focus')
+    const lower = await fallbackDialog(currentHeading)
+    const upper = await fallbackDialog(currentHeading)
+    const active = document.activeElement
+    await lower.setProps({ open: false })
+    expect(document.activeElement).toBe(active)
+    expect(currentFocus).not.toHaveBeenCalled()
+    upper.unmount()
+  })
+})
