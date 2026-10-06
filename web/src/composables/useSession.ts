@@ -43,6 +43,49 @@ import {
   type InvitationQuery,
 } from '../api/system-invitations'
 
+import {
+  createSystemProviderAPI,
+  captureProviderCommand,
+  validateCredentialValue,
+  type SystemProviderAPI,
+  type Provider,
+  type ProviderInput,
+  type ProviderCommand,
+  type ProviderReceipt,
+  type CredentialCreated,
+  type ProviderQuery,
+  type ProviderModelQuery,
+} from '../api/system-providers'
+
+type ProviderRead = 'provider-list' | 'provider-detail' | 'provider-models' | 'provider-metadata'
+type ProviderAction = ProviderRead | 'provider-write' | 'provider-lookup'
+export type SystemProviderProgress = Readonly<{
+  kind: ProviderCommand['kind']
+  stage: 'credential' | 'provider'
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  credential: CredentialCreated | null
+  receipt: ProviderReceipt | null
+  observation: 'none' | 'found' | 'missing' | 'failed'
+  contextValid: boolean
+  canRetryOriginal: boolean
+  canRebase: boolean
+}>
+interface SystemProviderIntent {
+  command: ProviderCommand
+  identity: PersonalIdentity
+  csrf: string
+  providerKey: string
+  credentialKey: string | null
+  value: string | null
+  credential: CredentialCreated | null
+  stage: 'credential' | 'provider'
+  uncertain: boolean
+  rejected: boolean
+  checked: boolean
+  keyConflict: boolean
+  rebase: Provider | null
+}
+
 export type SessionPhase =
   | 'checking'
   | 'anonymous'
@@ -88,6 +131,7 @@ type Action =
   | 'system'
   | 'invitation-read'
   | 'invitation-write'
+  | ProviderAction
 interface Operation {
   generation: number
   kind: Action
@@ -186,6 +230,7 @@ export function createSessionController(
   api: AccountAPI = createAccountAPI(),
   systemAPI: SystemAccountAPI = createSystemAccountAPI(),
   invitationAPI: SystemInvitationAPI = createSystemInvitationAPI(),
+  providerAPI: SystemProviderAPI = createSystemProviderAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -233,6 +278,22 @@ export function createSessionController(
       phase: SystemInvitationProgress['phase']
     }> | null
   }>({ progress: null })
+  const providerRevisions: Record<ProviderAction, number> = {
+    'provider-list': 0,
+    'provider-detail': 0,
+    'provider-models': 0,
+    'provider-metadata': 0,
+    'provider-write': 0,
+    'provider-lookup': 0,
+  }
+  let providerIntent: SystemProviderIntent | null = null
+  let providerMaterial: string | null = null
+  const providerState = shallowReactive<{
+    progress: Omit<SystemProviderProgress, 'contextValid' | 'canRetryOriginal' | 'canRebase'> | null
+    hasMaterial: boolean
+    materialInvalid: boolean
+    materialRevision: number
+  }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
   const systemDenied = () => sameIdentity(systemState.deniedIdentity, personalContext.identity)
   let identityEpoch = 0,
     personalRevision = 0
@@ -267,6 +328,7 @@ export function createSessionController(
     state.session = null
     if (invalidate) {
       clearInvitationState()
+      clearProviderState()
       ++systemRevision
       systemState.deniedIdentity = null
       sessionCSRF = ''
@@ -348,6 +410,12 @@ export function createSessionController(
         clearInvitationState()
       else invitationChecked = true
     }
+    if (
+      !same ||
+      view.user.role !== 'admin' ||
+      (providerIntent && providerIntent.csrf !== sessionCSRF)
+    )
+      clearProviderState()
     state.notice = ''
     state.fields = {}
     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
@@ -774,7 +842,8 @@ export function createSessionController(
     identity: PersonalIdentity,
     work: (op: Operation, current: () => boolean) => Promise<T>,
     command?: PersonalCommand,
-    kind: 'personal' | 'system' | 'invitation-read' | 'invitation-write' = 'personal',
+    kind:
+      'personal' | 'system' | 'invitation-read' | 'invitation-write' | ProviderAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
@@ -784,7 +853,9 @@ export function createSessionController(
           ? invitationReadRevision
           : kind === 'invitation-write'
             ? invitationRevision
-            : personalRevision
+            : kind === 'personal'
+              ? personalRevision
+              : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1027,7 +1098,8 @@ export function createSessionController(
       // invalidates that identity, but never a later identity or another owner.
       if (
         unavailableSession(e) ||
-        (op.kind === 'invitation-write' && e.problem?.code === 'CSRF_FAILED')
+        (['invitation-write', 'provider-write', 'provider-lookup'].includes(op.kind) &&
+          e.problem?.code === 'CSRF_FAILED')
       ) {
         clearIdentity()
         clearBrowser()
@@ -1035,6 +1107,7 @@ export function createSessionController(
         state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
       } else if (current() && e.problem?.status === 403 && e.problem.code === 'FORBIDDEN') {
         clearInvitationState()
+        clearProviderState()
         systemState.deniedIdentity = identity
       }
     }
@@ -1049,7 +1122,7 @@ export function createSessionController(
     invitationState.progress = null
     if (owner?.kind === 'invitation-read' || owner?.kind === 'invitation-write') owner.abandon?.()
   }
-  function invitationContext(original: SystemInvitationIntent) {
+  function invitationContext(original: Pick<SystemInvitationIntent, 'identity' | 'csrf'>) {
     return (
       sameIdentity(original.identity, personalContext.identity) &&
       personalContext.phase === 'current' &&
@@ -1163,7 +1236,377 @@ export function createSessionController(
       return Promise.reject(error)
     }
   }
+  function clearProviderMaterial() {
+    providerMaterial = null
+    providerState.hasMaterial = false
+    providerState.materialInvalid = false
+    ++providerState.materialRevision
+  }
+  function abandonProviderRead(scope: ProviderRead) {
+    ++providerRevisions[scope]
+    if (owner?.kind === scope) owner.abandon?.()
+  }
+  function clearProviderState() {
+    for (const scope of Object.keys(providerRevisions) as ProviderAction[])
+      ++providerRevisions[scope]
+    if (providerIntent) providerIntent.value = null
+    providerIntent = null
+    clearProviderMaterial()
+    providerState.progress = null
+    if (owner?.kind.startsWith('provider-')) owner.abandon?.()
+  }
+  function providerContext(original: SystemProviderIntent) {
+    return invitationContext(original)
+  }
+  function publishProvider(
+    original: SystemProviderIntent,
+    phase: SystemProviderProgress['phase'],
+    receipt: ProviderReceipt | null = null,
+  ) {
+    providerState.progress = Object.freeze({
+      kind: original.command.kind,
+      stage: original.stage,
+      phase,
+      credential: original.credential,
+      receipt,
+      observation: 'none',
+    })
+  }
+  function readProvider<T>(
+    scope: ProviderRead,
+    work: (signal: AbortSignal) => Promise<T>,
+  ): Promise<T> {
+    try {
+      const identity = invitationIdentity()
+      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, scope)
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  function performProvider(original: SystemProviderIntent): Promise<ProviderReceipt> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (providerIntent !== original || !providerContext(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const revision = providerRevisions['provider-write']
+    let dispatched = false
+    original.checked = false
+    original.rebase = null
+    publishProvider(original, 'submitting')
+    return runAuthorized(
+      original.identity,
+      async (op, current) => {
+        const live = () =>
+          current() &&
+          !op.abort.signal.aborted &&
+          providerIntent === original &&
+          providerContext(original)
+        const assertLive = () => {
+          if (!live()) throw new AccountFailure('cancelled')
+        }
+        assertLive()
+        if (original.stage === 'credential') {
+          if (!original.value || !original.credentialKey) throw new AccountFailure('invalid-input')
+          dispatched = true
+          const created = await providerAPI.createCredential(original.value, {
+            csrfToken: original.csrf,
+            key: original.credentialKey,
+            signal: op.abort.signal,
+          })
+          assertLive()
+          // The strict API only returns after fetch/body/cancel actually join.
+          // No copy of the write-only value survives for Provider recovery.
+          original.value = null
+          clearProviderMaterial()
+          // Clearing the public presence flag can synchronously abandon this
+          // workflow. Never publish its old reference after that notification.
+          assertLive()
+          original.credential = created
+          const command = original.command
+          if (command.kind === 'provider.delete') throw new AccountFailure('invalid-input')
+          original.command = captureProviderCommand({
+            ...command,
+            input: { ...command.input, credential_ref: created.credential_id },
+          })
+          original.stage = 'provider'
+          original.uncertain = false
+          original.keyConflict = false
+          dispatched = false
+          publishProvider(original, 'submitting')
+          // Synchronous consumers may abandon on a stage transition. Recheck
+          // after publication as well as after the preceding actual transport.
+          assertLive()
+        }
+        const command = original.command
+        const write = {
+          csrfToken: original.csrf,
+          key: original.providerKey,
+          signal: op.abort.signal,
+        }
+        dispatched = true
+        if (command.kind === 'provider.create')
+          return providerAPI.createProvider(command.input, write)
+        if (command.kind === 'provider.update')
+          return providerAPI.updateProvider(
+            command.id,
+            command.expected_version,
+            command.input,
+            write,
+          )
+        return providerAPI.deleteProvider(command.id, command.expected_version, write)
+      },
+      undefined,
+      'provider-write',
+    ).then(
+      (receipt) => {
+        if (
+          providerIntent !== original ||
+          revision !== providerRevisions['provider-write'] ||
+          !providerContext(original)
+        )
+          throw new AccountFailure('cancelled')
+        publishProvider(original, 'confirmed', receipt)
+        // A synchronous receipt consumer may abandon and start a new intent.
+        // The old continuation must not erase that new intent or its material.
+        if (
+          providerIntent !== original ||
+          revision !== providerRevisions['provider-write'] ||
+          !providerContext(original)
+        )
+          throw new AccountFailure('cancelled')
+        original.value = null
+        providerIntent = null
+        clearProviderMaterial()
+        return receipt
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          providerIntent === original &&
+          revision === providerRevisions['provider-write'] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          const known =
+            !dispatched ||
+            (p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.status < 500 &&
+              [
+                'INVALID_ARGUMENT',
+                'VERSION_CONFLICT',
+                'NOT_FOUND',
+                'INVALID_STATE',
+                'CAPABILITY_UNSUPPORTED',
+                'RATE_LIMITED',
+                'RESOURCE_DELETED',
+              ].includes(p.code))
+          original.keyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+          original.uncertain ||= !known || original.keyConflict
+          original.rejected = !original.uncertain
+          original.checked = false
+          publishProvider(original, original.uncertain ? 'uncertain' : 'rejected')
+        }
+        throw e
+      },
+    )
+  }
+  const providers = {
+    get progress(): SystemProviderProgress | null {
+      const value = providerState.progress
+      if (!value) return null
+      const original = providerIntent
+      const contextValid = !!original && providerContext(original)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!original &&
+          original.uncertain &&
+          original.checked &&
+          !original.keyConflict &&
+          contextValid &&
+          !state.busy,
+        canRebase:
+          !!original &&
+          original.stage === 'provider' &&
+          original.command.kind === 'provider.update' &&
+          original.rejected &&
+          !original.uncertain &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    get material() {
+      return Object.freeze({
+        present: providerState.hasMaterial,
+        invalid: providerState.materialInvalid,
+        revision: providerState.materialRevision,
+      })
+    },
+    setMaterial(value: string) {
+      invitationIdentity()
+      if (providerIntent) throw new AccountFailure('busy')
+      if (value === '') {
+        clearProviderMaterial()
+        return
+      }
+      try {
+        providerMaterial = validateCredentialValue(value)
+        providerState.hasMaterial = true
+        providerState.materialInvalid = false
+      } catch (error) {
+        clearProviderMaterial()
+        providerState.materialInvalid = true
+        throw error
+      }
+    },
+    list(query: ProviderQuery) {
+      const captured = Object.freeze({ ...query })
+      return readProvider('provider-list', (signal) => providerAPI.listProviders(captured, signal))
+    },
+    get(id: string) {
+      return readProvider('provider-detail', (signal) => providerAPI.getProvider(id, signal))
+    },
+    models(query: ProviderModelQuery) {
+      const captured = Object.freeze({ ...query })
+      return readProvider('provider-models', (signal) => providerAPI.listModels(captured, signal))
+    },
+    metadata(id: string) {
+      return readProvider('provider-metadata', (signal) =>
+        providerAPI.getCredentialMetadata(id, signal),
+      )
+    },
+    abandonRead: abandonProviderRead,
+    abandon: clearProviderState,
+    start(command: ProviderCommand) {
+      try {
+        const identity = invitationIdentity()
+        if (owner || providerIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (
+          providerState.materialInvalid ||
+          (command.kind === 'provider.delete' && providerMaterial !== null)
+        )
+          throw new AccountFailure('invalid-input')
+        const value = providerMaterial === null ? null : validateCredentialValue(providerMaterial)
+        const captured = captureProviderCommand(command, value !== null)
+        const original: SystemProviderIntent = {
+          command: captured,
+          identity,
+          csrf: sessionCSRF,
+          providerKey: newKey(),
+          credentialKey: value === null ? null : newKey(),
+          value,
+          credential: null,
+          stage: value === null ? 'provider' : 'credential',
+          uncertain: false,
+          rejected: false,
+          checked: false,
+          keyConflict: false,
+          rebase: null,
+        }
+        providerIntent = original
+        providerMaterial = null
+        return performProvider(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    async checkOriginal() {
+      const original = providerIntent
+      if (!original || !original.uncertain || owner) throw new AccountFailure('invalid-input')
+      original.checked = false
+      await restore()
+      if (providerIntent !== original || !providerContext(original))
+        throw new AccountFailure('cancelled')
+      // Session identity and original CSRF, not a list/metadata observation,
+      // determine whether the exact historical Execute can be retried.
+      original.checked = true
+      return runAuthorized(
+        original.identity,
+        async (op, current) => {
+          const options = {
+            csrfToken: original.csrf,
+            key: original.stage === 'credential' ? original.credentialKey! : original.providerKey,
+            signal: op.abort.signal,
+          }
+          const observed =
+            original.stage === 'credential'
+              ? (await providerAPI.lookupCredentialCreate(options)).observed
+              : (await providerAPI.lookupProviderCommand(original.command, options)).found
+          if (current() && providerIntent === original && providerState.progress)
+            providerState.progress = {
+              ...providerState.progress,
+              observation: observed ? 'found' : 'missing',
+            }
+          return observed
+        },
+        undefined,
+        'provider-lookup',
+      ).catch((error: unknown) => {
+        if (providerIntent === original && providerContext(original) && providerState.progress)
+          providerState.progress = { ...providerState.progress, observation: 'failed' }
+        throw error
+      })
+    },
+    retryOriginal() {
+      const original = providerIntent
+      if (!original || !providers.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performProvider(original)
+    },
+    async readForRebase() {
+      const original = providerIntent
+      if (
+        !original ||
+        !providers.progress?.canRebase ||
+        original.command.kind !== 'provider.update'
+      )
+        throw new AccountFailure('invalid-input')
+      const target = original.command.id
+      const value = await readProvider('provider-detail', (signal) =>
+        providerAPI.getProvider(target, signal),
+      )
+      if (providerIntent !== original || !providerContext(original))
+        throw new AccountFailure('cancelled')
+      if (
+        original.command.kind !== 'provider.update' ||
+        value.input.protocol !== original.command.input.protocol
+      )
+        throw new AccountFailure('invalid-response')
+      original.rebase = value
+      return value
+    },
+    rebase(input: ProviderInput) {
+      try {
+        const original = providerIntent
+        if (
+          !original ||
+          !providers.progress?.canRebase ||
+          !original.rebase ||
+          original.command.kind !== 'provider.update'
+        )
+          throw new AccountFailure('invalid-input')
+        const ref = original.credential?.credential_id ?? original.rebase.input.credential_ref
+        if (input.protocol !== original.command.input.protocol || input.credential_ref !== ref)
+          throw new AccountFailure('invalid-input')
+        const captured = captureProviderCommand({
+          kind: 'provider.update',
+          id: original.command.id,
+          expected_version: original.rebase.version,
+          input,
+        })
+        original.command = captured
+        original.providerKey = newKey()
+        original.rejected = false
+        original.rebase = null
+        return performProvider(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+  }
   const system = {
+    providers,
     get denied() {
       return systemDenied()
     },
@@ -1323,7 +1766,7 @@ export function createSessionController(
       ++personalRevision
       personalIntent = null
       personalState.passwordProgress = null
-      owner?.abandon?.()
+      if (owner?.kind === 'personal') owner.abandon?.()
     },
     previewTheme(identity: PersonalIdentity, value: Theme) {
       if (

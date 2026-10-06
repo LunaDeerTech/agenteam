@@ -1,6 +1,6 @@
 # 前端开发基础
 
-前端位于 `web/`，使用 Vue 3、TypeScript、Vite、Vue Router 和自定义组件；旋转验证使用精确版本 `go-captcha-vue 2.0.7`。npm 锁文件固定依赖，Node 版本要求见 `web/package.json`。正式 Account 客户端已连接真实 Go 服务，提供登录、旋转挑战、Session 恢复、注销、受保护的空首页，以及本人资料/头像、主题和修改密码、邀请兑换与找回/重置密码。管理员用户目录与邀请管理也已实现，验收状态见下节。范围分别见 [D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)、[公开入口工作项](../work-items/d26-public-account-entry.md)、[目录工作项](../work-items/d27-system-user-directory-ui.md)及[邀请管理工作项](../work-items/d27-system-invitation-ui.md)；其余业务页面及完整 D26/D27 仍待后续交付。
+前端位于 `web/`，使用 Vue 3、TypeScript、Vite、Vue Router 和自定义组件；旋转验证使用精确版本 `go-captcha-vue 2.0.7`。npm 锁文件固定依赖，Node 版本要求见 `web/package.json`。正式 Account 客户端已连接真实 Go 服务，提供登录、旋转挑战、Session 恢复、注销、受保护的空首页，以及本人资料/头像、主题和修改密码、邀请兑换与找回/重置密码。管理员用户目录、邀请管理与 Provider 配置也已实现，验收状态见下节。范围分别见 [D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)、[公开入口工作项](../work-items/d26-public-account-entry.md)、[目录工作项](../work-items/d27-system-user-directory-ui.md)、[邀请管理工作项](../work-items/d27-system-invitation-ui.md)及[Provider 工作项](../work-items/d27-system-provider-management-ui.md)；其余业务页面及完整 D26/D27 仍待后续交付。
 
 ## 启动与检查
 
@@ -37,16 +37,16 @@ npm run preview --prefix web
 | --- | --- |
 | `web/src/components/ui/` | 可复用控件和内容组件；公开导出及接口类型在 `index.ts` 和 `types.ts` |
 | `web/src/components/layout/` | AppShell、SystemNav 与 SettingsShell；系统导航、路由内容区和设置侧栏 |
-| `web/src/api/` | 六项认证、八项个人设置、五项公开入口 Account 调用、System 用户目录 GET，以及邀请列表/创建/重发/撤销与人工投递重试；运行时 DTO、头像字节与安全 Problem 解析 |
-| `web/src/composables/` | 同一 Cookie 请求协调者、公开入口 owner、页面期用户目录状态与 App 生命周期内的本人设置/邀请草稿，以及主题、按钮反馈、浮层与键盘工具 |
+| `web/src/api/` | 六项认证、八项个人设置、五项公开入口 Account 调用、System 用户目录 GET、邀请管理，以及十个固定 Provider/Credential 管理端点；运行时 DTO、头像字节与安全 Problem 解析 |
+| `web/src/composables/` | 同一 Cookie 请求协调者、公开入口 owner、页面期用户目录状态与 App 生命周期内的本人设置/邀请/Provider 草稿，以及主题、按钮反馈、浮层与键盘工具 |
 | `web/src/styles/` | 唯一共享 token、基础规则与公共组件样式 |
 | `web/src/router/` | 路由和导航元数据 |
 | `web/src/views/auth/` 与 `HomeView.vue` | 正式登录/挑战、邀请/找回/重置页面与受保护空首页 |
 | `web/src/views/settings/` | 本人资料与头像、外观、修改密码三个真实设置页面 |
-| `web/src/views/system/` | 管理员系统设置壳、用户与待注册邀请两个叶子，含非管理员及权限拒绝状态 |
+| `web/src/views/system/` | 管理员系统设置壳、用户、待注册邀请与 Providers 三个叶子，含非管理员及权限拒绝状态 |
 | `web/src/views/debug/` | 开发环境组件展示、演示数据与展示布局 |
 | `web/src/tests/` | Vitest + Vue Test Utils 交互与基线检查 |
-| `tests/account/` 与 `tests/account-captcha-web/` | 正式构建、完整真实后端与浏览器的认证、个人设置、公开入口、系统用户目录及邀请管理组合验收 |
+| `tests/account/` 与 `tests/account-captcha-web/` | 正式构建、完整真实后端与浏览器的认证、个人设置、公开入口、系统用户目录、邀请及 Provider 管理组合验收 |
 
 公共组件不能导入 `views/debug/`，不能包含演示数据、业务 API 或业务状态规则。正式页面直接引用相同公共组件；Debug 不是组件定义的位置。展示网格、目录和示例编排不约束正式业务布局。
 
@@ -54,11 +54,11 @@ npm run preview --prefix web
 
 `/login` 使用独立认证布局。根路径 `/` 先检查真实 Session，再显示 AppShell、当前身份、退出操作、“首页”标题和空 Dashboard 容器。右上本人名称直达资料页，首页初始密码建议直达修改密码页，可继续使用系统。检查失败提供恢复入口，不显示旧的受保护内容。AppShell 内容区独立滚动，认证顶部区域在窄宽度或放大时可换行，保留品牌及退出操作。项目级导航以后放在项目工作区内部；当前没有项目、Inbox、搜索或其它尚未实现的入口。
 
-在 `router/index.ts` 的 `routes` 注册正式页面，使用懒加载 `component`，为需要导航的路由声明 `meta.navigation: { label, order }`。SystemNav 从路由元数据读取入口，不需要复制导航数组或改写骨架。认证路由通过 `router/auth.ts` 及单一 `useSession` 协调，登录返回目标仅接受六个精确路径：`/`、`/settings/profile`、`/settings/appearance`、`/settings/password`、`/system/users`、`/system/invitations`。`/settings`、`/system`、query/hash、数组、外部 URL 与未知系统叶子均不是返回目标；未知路径显示未找到提示。系统导航只向当前已确认且未被系统权限拒绝的 admin 展示“系统设置”。
+在 `router/index.ts` 的 `routes` 注册正式页面，使用懒加载 `component`，为需要导航的路由声明 `meta.navigation: { label, order }`。SystemNav 从路由元数据读取入口，不需要复制导航数组或改写骨架。认证路由通过 `router/auth.ts` 及单一 `useSession` 协调，登录返回目标仅接受七个精确路径：`/`、`/settings/profile`、`/settings/appearance`、`/settings/password`、`/system/users`、`/system/invitations`、`/system/providers`。`/settings`、`/system`、query/hash、数组、外部 URL 与未知系统叶子均不是返回目标；未知路径显示未找到提示。系统导航只向当前已确认且未被系统权限拒绝的 admin 展示“系统设置”。
 
-客户端使用固定同源相对 Account/System 路径，写操作分别传递匿名或 Session CSRF，不持久化密码、challenge pass 或 token。登录成功后还需 GET Session 确认身份及 Session CSRF；注销确认后才退出。认证、本人设置、公开入口、系统目录与邀请操作复用同一个请求协调者，逻辑超时不会提前释放尚未结束的实际请求。具体状态、取消和迟到结果规则见[D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)及[正式 Account API](../../../api/openapi/account.json)。
+客户端使用固定同源相对 Account/System 路径，写操作分别传递匿名或 Session CSRF，不持久化密码、challenge pass 或 token。登录成功后还需 GET Session 确认身份及 Session CSRF；注销确认后才退出。认证、本人设置、公开入口、系统目录、邀请与 Provider 操作复用同一个请求协调者，逻辑超时不会提前释放尚未结束的实际请求。具体状态、取消和迟到结果规则见[D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)及[正式 Account API](../../../api/openapi/account.json)。
 
-采用 HTML5 History。开发服务器和 Vite preview 支持回退；生产资源托管属于 D28，Central 当前未托管 SPA。非 API 的 History 页面才能回退到 `index.html`，API、缺失资产和服务端错误不能直接回退。认证、个人设置、公开入口、系统目录与邀请管理的实际浏览器验收使用自有测试服务器托管冻结候选的生产 dist 并反代完整 Central，不把该测试服务器或 `vite preview` 当作生产部署；开发代理另有静态/类型检查，未单独进行真实 dev-server 浏览器验收。
+采用 HTML5 History。开发服务器和 Vite preview 支持回退；生产资源托管属于 D28，Central 当前未托管 SPA。非 API 的 History 页面才能回退到 `index.html`，API、缺失资产和服务端错误不能直接回退。认证、个人设置、公开入口、系统目录、邀请与 Provider 管理的实际浏览器验收使用自有测试服务器托管冻结候选的生产 dist 并反代完整 Central，不把该测试服务器或 `vite preview` 当作生产部署；开发代理另有静态/类型检查，未单独进行真实 dev-server 浏览器验收。
 
 ## 本人设置
 
@@ -99,7 +99,7 @@ npm run preview --prefix web
 | `/system` | 固定重定向 `/system/users`，不记忆上次系统栏目 |
 | `/system/users` | “用户与邀请 → 用户”叶子，读取当前管理员可见的真实用户目录 |
 
-非管理员直接链接保留原 URL，显示“无权访问系统设置”、返回首页与重新检查权限入口，不挂载目录或发列表请求。系统实例复用 `SettingsShell`，只含这一组菜单，不显示侧栏退出；顶部本人名称和退出仍沿 App 的原流程，个人草稿须先确认继续编辑或放弃再离页。760px 以下复用 `UiDrawer`，保留焦点限制、Escape/遮罩关闭和触发焦点恢复。
+非管理员直接链接保留原 URL，显示“无权访问系统设置”、返回首页与重新检查权限入口，不挂载目录或发列表请求。系统实例复用 `SettingsShell`，按已注册叶子分组显示菜单，不显示侧栏退出；顶部本人名称和退出仍沿 App 的原流程，个人草稿须先确认继续编辑或放弃再离页。760px 以下复用 `UiDrawer`，保留焦点限制、Escape/遮罩关闭和触发焦点恢复。
 
 目录分开显示邮箱、用户名、显示名、角色和 UTC 注册时间；显示名为空时回落邮箱。桌面五列可换行，窄屏逐字段堆叠；长邮箱和名称正常换行，五个字段均可阅读。`time` 保留完整六位微秒 canonical 值，可见值到秒。只有刷新、上一页和下一页；固定每页 25 项，上页重新读取，成功后才改变页位置，刷新、离页及身份变化清除旧分页材料。加载与失败隐藏旧行，空结果、读取错误和无权限分别显示；失效 cursor 由用户明确返回首页重新加载。
 
@@ -152,6 +152,38 @@ sh scripts/test-security.sh -run '^TestAccount(SystemInvitationsWeb(Lifecycle|De
 ```
 
 原 45 秒浏览器、2 分钟顶层、workers=1/retries=0、race/count1/每包 6 分钟预算不变。实际创建/兑换、受限日志与自有私网 SMTP 失败后人工重试、真实 401/403、原请求重放和投递版本竞争均已验收；响应截断、一次 GET 503、Session 503 和限流时钟准备均是明确的自有 fixture 控制，合成 `pageshow` 不称真实浏览器恢复。reader 旁路只观察同一原请求的闭合响应，不作为 owner 尾部结束证明。浅深两主题、1440/1024/834/390 四宽度及抽屉/模态焦点通过；截图等待遮罩物理离场。未增加生产 SPA 托管、真实 Vite 代理或原生浏览器缩放验收，不交付用户代改、Model 管理或完整 D27。
+
+## 系统 Provider 配置
+
+[Provider 工作项 rev4](../work-items/d27-system-provider-management-ui.md)的最终业务候选 `input07` 已通过作者及独立验收。完整检查为 23 文件、603 项测试及格式/类型/构建通过；新六组和共享 App/router/owner 涉及的旧七组真实浏览器按固定输入与未变语义分轮通过。独立验证覆盖实际响应丢失后的原请求重放及 Credential 成功、Provider 失败后的恢复。
+
+`/system/providers` 是“模型与提供商 → Providers”叶子，与用户及待注册邀请组成两组、三个菜单项；`/system` 仍固定进入用户目录。管理员可分页查看、创建、编辑、启停及删除 Provider。名称与 Base URL 保留原文，不自动 trim、补全或规范化；协议创建后只读，options 固定为空对象。详情中的 Models 仅供分页查看，Credential metadata 只显示引用及版本状态，不读取凭据内容。删除前要求当前 Models 首项确认为空，最终仍由服务执行当前约束检查；删除 Provider 不删除 Credential 或 Models。
+
+填写新凭据时依次执行 Credential create → Provider create/update，两个步骤使用不同命令 key。新凭据仅在私有内存中保存，Credential 严格确认后清除原材料。若 Credential 已成功而 Provider 尚未确认，保留已准备的引用和首步回执，明确显示部分成功；版本冲突后由用户重新读取核对，再只提交新的 Provider 命令，不重复创建 Credential，也不发起补偿删除。
+
+结果未确认时，“检查原请求”只查询原 key 的历史观察。查到成功或未查到结果都不替代当前步骤的执行回执，用户仍需明确以原 key、原 body 执行原请求，严格确认后才推进下一步；检查 Session、刷新列表或读取当前详情同样不能确认原写。明确放弃只停止本地追踪，不撤销已被服务接受的事实。写入已确认而随后 GET 失败时保留成功反馈，避免重复保存。
+
+Provider、Credential、lookup 和只读请求沿同一 Cookie owner；30 秒可见截止不提前释放实际 fetch/body/cancel 尾部。App 持有草稿与离页确认，同 Session checking/失败恢复保留私有进度，旧 View/Editor 续体不能抢新层焦点；当前身份失效、CSRF 变化、真实 401/403、换 Session 或真正离页清除对应追踪。列表固定 25 项，仅 Provider 列表的成功 JSON 响应允许 2MiB；Problem 与其他响应仍限 600000B。请求和输入预算见工作项及[正式 Model/System API](../../../api/openapi/model-system.json)。
+
+纯检查与定点测试：
+
+```sh
+npm run check --prefix web
+npm run test:unit --prefix web -- src/tests/system-providers-client.spec.ts src/tests/system-providers-state.spec.ts src/tests/system-providers.spec.ts
+```
+
+真实检查沿上节锁依赖、生产 dist、Go1.27.1、MinIO、PG17.8+ 与任务自有独占短 runtime 准备；以下选择覆盖新六组及旧七组，可按精确名称分轮执行：
+
+```sh
+AGENTEAM_GO=/path/to/go1.27.1/bin/go \
+AGENTEAM_MINIO_BINARY=/task-owned/cache/minio \
+AGENTEAM_AUTH_WEB_RUNTIME=/task-owned/private \
+sh scripts/test-security.sh -run '^TestAccount(SystemProvidersWeb(Lifecycle|CredentialReplacement|OutcomeRecovery|ReadAndPagination|AuthorityAndIdentity|NavigationAndLayouts)|AuthenticationWebSessionLifecycle|PersonalSettingsWebThemeAndNavigation|PublicEntryWebIdentityNavigation|SystemUserDirectoryWeb(AuthorityAndIdentity|NavigationAndLayouts)|SystemInvitationsWeb(OutcomeRecovery|NavigationAndLayouts))$'
+```
+
+原 45 秒浏览器、2 分钟顶层、workers=1/retries=0、race/count1/每包 6 分钟预算不变。正式 26 个 Provider 与 26 个 Model、合法转义后大于600000B的列表页、当前授权、两步部分成功与原请求重放已验证。合成 `pageshow` 只驱动 App 复查，其后的 Session 响应来自真实服务；reader 旁路只记录闭合安全响应，实际 owner 尾部由受控 transport 屏障另证。浅深两主题、1440/1024/834/390、键盘与模态/抽屉焦点通过。凭据输入期间禁止自动截图、trace、video 或请求 body 收集；布局图只在私有输入清空、遮罩物理离场后采集。
+
+保存成功只表示管理配置命令被接受，未调用外部 Provider，也未验证连通性、协议兼容或模型可调用性。本节不提供 Model 写管理或连接测试，不扩大生产 SPA 托管、真实 Vite 代理浏览器、Runtime、ready503 或完整 D09/D27 的验收范围。
 
 ## Debug 与主题
 

@@ -277,7 +277,7 @@ describe('real App, router and invitations controller composition', () => {
     expect(f.wrapper.get('nav[aria-label="系统设置"] [aria-current="page"]').text()).toBe(
       '待注册邀请',
     )
-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(1)
+    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
     expect(f.reads()).toHaveLength(1)
     expect(f.wrapper.findAll('th').map((n) => n.text())).toEqual([
       '邮箱',

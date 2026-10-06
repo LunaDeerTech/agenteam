@@ -74,6 +74,16 @@ const endpoints = {
   inspectPasswordReset: ['POST', '/api/v1/password-resets/inspect', 200],
   completePasswordReset: ['POST', '/api/v1/password-resets/complete', 204],
   systemUsers: ['GET', '/api/v1/system/users', 200],
+  listProviders: ['GET', '/api/v1/system/model-providers', 200],
+  getProvider: ['GET', '/api/v1/system/model-providers/{id}', 200],
+  createProvider: ['POST', '/api/v1/system/model-providers', 200],
+  updateProvider: ['PUT', '/api/v1/system/model-providers/{id}', 200],
+  deleteProvider: ['DELETE', '/api/v1/system/model-providers/{id}', 200],
+  listProviderModels: ['GET', '/api/v1/system/models', 200],
+  createModelCredential: ['POST', '/api/v1/system/model-credentials', 200],
+  getModelCredentialMetadata: ['GET', '/api/v1/system/model-credentials/{id}', 200],
+  lookupProviderCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
+  lookupModelCredentialCreate: ['POST', '/api/v1/system/model-credential-commands/lookup', 200],
   systemInvitations: ['GET', '/api/v1/system/invitations', 200],
   createSystemInvitation: ['POST', '/api/v1/system/invitations', 201],
   resendSystemInvitation: ['POST', '/api/v1/system/invitations/{id}/resend', 202],
@@ -135,7 +145,11 @@ function problem(value: unknown, status: number, requestID: string | null): Prob
   return parsed
 }
 
-async function readJSON(response: Response, signal: AbortSignal): Promise<unknown> {
+async function readJSON(
+  response: Response,
+  signal: AbortSignal,
+  maximum = 600_000,
+): Promise<unknown> {
   const reader = response.body?.getReader()
   if (!reader) throw new AccountFailure('invalid-response')
   const decoder = new TextDecoder('utf-8', { fatal: true })
@@ -154,7 +168,7 @@ async function readJSON(response: Response, signal: AbortSignal): Promise<unknow
       const { done, value } = await reader.read()
       if (done) break
       bytes += value.byteLength
-      if (bytes > 600_000) throw new AccountFailure('invalid-response')
+      if (bytes > maximum) throw new AccountFailure('invalid-response')
       text += decoder.decode(value, { stream: true })
     }
     text += decoder.decode()
@@ -257,8 +271,45 @@ type InvitationTarget = 'resendSystemInvitation' | 'revokeSystemInvitation' | 'r
 type InvitationReadOptions = Omit<UsersOptions, 'users'> & {
   invitations: Readonly<{ cursor?: string }>
 }
+type ProviderEndpoint =
+  | 'listProviders'
+  | 'getProvider'
+  | 'createProvider'
+  | 'updateProvider'
+  | 'deleteProvider'
+  | 'listProviderModels'
+  | 'createModelCredential'
+  | 'getModelCredentialMetadata'
+  | 'lookupProviderCommand'
+  | 'lookupModelCredentialCreate'
+type ProviderOptions<E extends ProviderEndpoint> = E extends 'listProviders'
+  ? { signal: AbortSignal; providers: Readonly<{ cursor?: string }> }
+  : E extends 'listProviderModels'
+    ? { signal: AbortSignal; models: Readonly<{ provider_id: string; cursor?: string }> }
+    : E extends 'getProvider' | 'getModelCredentialMetadata'
+      ? { signal: AbortSignal; target: string }
+      : E extends 'updateProvider' | 'deleteProvider'
+        ? RequestOptions & { target: string; body: unknown; csrf: string; key: string }
+        : RequestOptions & { body: unknown; csrf: string; key: string }
+const providerEndpoints: readonly ProviderEndpoint[] = [
+  'listProviders',
+  'getProvider',
+  'createProvider',
+  'updateProvider',
+  'deleteProvider',
+  'listProviderModels',
+  'createModelCredential',
+  'getModelCredentialMetadata',
+  'lookupProviderCommand',
+  'lookupModelCredentialCreate',
+]
 
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends ProviderEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: ProviderOptions<E>,
+  ): Promise<T>
   function request<T>(
     endpoint: 'systemInvitations',
     parse: (value: unknown) => T,
@@ -277,7 +328,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
   function request<T>(
     endpoint: Exclude<
       keyof typeof endpoints,
-      'systemUsers' | 'systemInvitations' | InvitationTarget
+      'systemUsers' | 'systemInvitations' | InvitationTarget | ProviderEndpoint
     >,
     parse: (value: unknown) => T,
     options: RequestOptions & { users?: never; invitations?: never; target?: never },
@@ -288,12 +339,57 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     options: RequestOptions & {
       users?: Readonly<{ cursor?: string }>
       invitations?: Readonly<{ cursor?: string }>
+      providers?: Readonly<{ cursor?: string }>
+      models?: Readonly<{ provider_id: string; cursor?: string }>
       target?: string
     },
   ): Promise<T> {
+    if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if (endpoint === 'systemUsers') {
+    if (providerEndpoints.includes(endpoint as ProviderEndpoint)) {
+      try {
+        const target = basePath.includes('{id}')
+        const queryKey =
+          endpoint === 'listProviders'
+            ? 'providers'
+            : endpoint === 'listProviderModels'
+              ? 'models'
+              : undefined
+        shape(options, [
+          'signal',
+          ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
+          ...(target ? ['target'] : []),
+          ...(queryKey ? [queryKey] : []),
+        ])
+        if (target) {
+          if (!uuid7.test(string(options.target, 36, 36))) throw new Error()
+          path = basePath.replace('{id}', options.target!)
+        }
+        if (queryKey) {
+          const query = shape(options[queryKey], queryKey === 'models' ? ['provider_id'] : [], [
+            'cursor',
+          ])
+          const params = new URLSearchParams()
+          if (queryKey === 'models') {
+            const provider = string(query.provider_id, 36, 36)
+            if (!uuid7.test(provider)) throw new Error()
+            params.set('provider_id', provider)
+          }
+          params.set('limit', '25')
+          if (Object.hasOwn(query, 'cursor')) params.set('cursor', string(query.cursor, 1, 8192))
+          path += '?' + params.toString()
+        }
+        if (
+          method !== 'GET' &&
+          (!/^[A-Za-z0-9_-]{43}$/.test(string(options.csrf, 43, 43)) ||
+            !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128)))
+        )
+          throw new Error()
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if (endpoint === 'systemUsers') {
       try {
         shape(options, ['signal', 'users'])
         const query = shape(options.users, [], ['cursor'])
@@ -326,6 +422,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     } else if (
       Object.hasOwn(options, 'users') ||
       Object.hasOwn(options, 'invitations') ||
+      Object.hasOwn(options, 'providers') ||
+      Object.hasOwn(options, 'models') ||
       Object.hasOwn(options, 'target')
     ) {
       throw new AccountFailure('invalid-input')
@@ -344,8 +442,18 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['Content-Type'] = options.avatar.mediaType
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
-      body = JSON.stringify(options.body)
-      if (!body || new TextEncoder().encode(body).byteLength > 16 * 1024)
+      const maximum =
+        endpoint === 'createModelCredential'
+          ? 512 * 1024
+          : endpoint === 'createProvider' || endpoint === 'updateProvider'
+            ? 32 * 1024
+            : 16 * 1024
+      try {
+        body = JSON.stringify(options.body)
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+      if (!body || new TextEncoder().encode(body).byteLength > maximum)
         throw new AccountFailure('invalid-input')
       headers['Content-Type'] = 'application/json'
     }
@@ -392,7 +500,11 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         throw new AccountFailure('invalid-response')
       let value: unknown
       try {
-        value = await readJSON(response, options.signal)
+        value = await readJSON(
+          response,
+          options.signal,
+          endpoint === 'listProviders' && success ? 2 * 1024 * 1024 : 600_000,
+        )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
       }

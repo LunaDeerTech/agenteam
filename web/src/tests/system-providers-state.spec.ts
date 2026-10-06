@@ -1,0 +1,718 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import {
+  createSystemProviderAPI,
+  type ProviderCommand,
+  type ProviderInput,
+} from '../api/system-providers'
+import { type Fetch, type CommitState } from '../api/client'
+import { createSessionController, type SessionController } from '../composables/useSession'
+import { useTheme } from '../composables/useTheme'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z'
+const view = (sid = id(2), role: 'admin' | 'user' = 'admin'): SessionView => ({
+  user: {
+    id: id(1),
+    email: 'admin@example.com',
+    username: 'admin',
+    display_name: 'Admin',
+    role,
+    theme: 'system',
+    version: role === 'admin' ? '1' : '2',
+    initial_password_suggestion: false,
+  },
+  session: { id: sid, issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const input = (): ProviderInput => ({
+  name: 'Provider',
+  protocol: 'openai-chat-completions',
+  base_url: 'https://provider.example/v1',
+  enabled: true,
+  credential_ref: null,
+  options: {},
+})
+const command = (): ProviderCommand => ({ kind: 'provider.create', input: input() })
+const receipt = (kind = 'provider.create', version = '1') => ({
+  kind,
+  resource_id: id(10),
+  version,
+  affected_references: '0',
+})
+const created = () => ({ credential_id: id(11), purpose: 'model', version: '1', deleted: false })
+const provider = (version = '1') => ({
+  id: id(10),
+  input: input(),
+  version,
+  created_at: time,
+  updated_at: time,
+})
+const json = (value: unknown, status = 200) =>
+  new Response(JSON.stringify(value), {
+    status,
+    headers: {
+      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+      'X-Request-ID': id(9),
+    },
+  })
+const problem = (code: string, status = 503, commit_state: CommitState = 'not_started') =>
+  json(
+    {
+      type: 'urn:agenteam:problem:test',
+      title: 'Failure',
+      status,
+      code,
+      detail: '',
+      instance: '/api/v1/system/model-providers',
+      request_id: id(9),
+      commit_state,
+    },
+    status,
+  )
+function barrier<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>((done) => {
+    resolve = done
+  })
+  return { promise, resolve }
+}
+const owners: SessionController[] = []
+async function fixture() {
+  let current = view(),
+    session: Fetch = async () => json(current)
+  let perform: Fetch = async (path, init) => {
+    if (path.endsWith('credential-commands/lookup'))
+      return json({ observed: true, result: created() })
+    if (path.endsWith('model-commands/lookup')) return json({ found: true, receipt: receipt() })
+    if (path.endsWith('model-credentials')) return json(created())
+    if (path.includes('model-credentials/'))
+      return json({ credential_id: id(11), purpose: 'model', version: '1' })
+    if (init.method === 'GET')
+      return json(path.includes('?') ? { items: [], next_cursor: null } : provider())
+    return json(
+      receipt(
+        init.method === 'PUT'
+          ? 'provider.update'
+          : init.method === 'DELETE'
+            ? 'provider.delete'
+            : 'provider.create',
+        init.method === 'POST' ? '1' : '2',
+      ),
+    )
+  }
+  const fetch = vi.fn<Fetch>(async (path, init) => {
+    if (path === '/api/v1/session') return session(path, init)
+    if (path.startsWith('/api/v1/system/users?') || path.startsWith('/api/v1/system/invitations?'))
+      return json({ items: [] })
+    if (path.endsWith('/bootstrap'))
+      return json({
+        csrf_token: 'A'.repeat(43),
+        challenge_modes: ['rotate'],
+        delivery_channel: 'backend_log',
+      })
+    if (path === '/api/v1/me') return json({ user: current.user, avatar: null })
+    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
+    return perform(path, init)
+  })
+  const auth = createSessionController(
+    createAccountAPI(fetch),
+    createSystemAccountAPI(fetch),
+    createSystemInvitationAPI(fetch),
+    createSystemProviderAPI(fetch),
+  )
+  owners.push(auth)
+  await auth.restore()
+  return {
+    auth,
+    fetch,
+    setPerform(value: Fetch) {
+      perform = value
+    },
+    setSession(value: SessionView) {
+      current = value
+    },
+    setSessionRequest(value: Fetch) {
+      session = value
+    },
+    writes() {
+      return fetch.mock.calls.filter(
+        ([p, i]) => p.startsWith('/api/v1/system/model-') && i.method !== 'GET',
+      )
+    },
+  }
+}
+afterEach(() => {
+  for (const owner of owners.splice(0)) owner.leave()
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+  useTheme().setTheme('system')
+})
+
+describe('Provider workflow on the sole Cookie owner', () => {
+  it('does not resurrect the old stage when material-clear notification synchronously abandons', async () => {
+    const f = await fixture()
+    f.auth.system.providers.setMaterial('generated-only')
+    const stop = watch(
+      () => f.auth.system.providers.material.present,
+      (present) => {
+        if (!present) f.auth.system.providers.abandon()
+      },
+      { flush: 'sync' },
+    )
+    await expect(f.auth.system.providers.start(command())).rejects.toMatchObject({
+      kind: 'cancelled',
+    })
+    stop()
+    expect(f.auth.system.providers.progress).toBeNull()
+    expect(f.auth.system.providers.material.present).toBe(false)
+    expect(f.auth.state.busy).toBe(false)
+    expect(f.writes()).toHaveLength(1)
+  })
+  it('cannot clear a replacement workflow started synchronously from the old confirmation', async () => {
+    const f = await fixture(),
+      credentialTail = barrier<Response>()
+    let next: Promise<unknown> | undefined,
+      replaced = false
+    f.setPerform(async (path) =>
+      path.endsWith('/model-credentials') ? credentialTail.promise : json(receipt()),
+    )
+    const stop = watch(
+      () => f.auth.system.providers.progress?.phase,
+      (phase) => {
+        if (phase !== 'confirmed' || replaced) return
+        replaced = true
+        f.auth.system.providers.abandon()
+        f.auth.system.providers.setMaterial('generated-replacement')
+        next = f.auth.system.providers.start(command())
+      },
+      { flush: 'sync' },
+    )
+    await expect(f.auth.system.providers.start(command())).rejects.toMatchObject({
+      kind: 'cancelled',
+    })
+    await flushPromises()
+    expect(f.auth.system.providers.progress).toMatchObject({
+      phase: 'submitting',
+      stage: 'credential',
+    })
+    expect(f.auth.system.providers.material.present).toBe(true)
+    expect(f.auth.state.busy).toBe(true)
+    credentialTail.resolve(json(created()))
+    await next
+    stop()
+    expect(f.auth.system.providers.progress?.phase).toBe('confirmed')
+    expect(f.writes()).toHaveLength(3)
+    expect(f.auth.state.busy).toBe(false)
+  })
+  it.each([
+    'read-fetch',
+    'credential-fetch',
+    'provider-fetch',
+    'credential-body',
+    'provider-body',
+    'credential-cancel',
+    'provider-cancel',
+  ] as const)(
+    'retains %s actual tail past visible timeout and blocks all other domains',
+    async (kind) => {
+      vi.useFakeTimers()
+      const f = await fixture(),
+        fetchTail = barrier<Response>(),
+        readTail = barrier<{ done: boolean; value?: Uint8Array }>(),
+        cancelTail = barrier<void>()
+      const isCredential = kind.startsWith('credential'),
+        isRead = kind.startsWith('read')
+      const response = json(
+        isCredential ? created() : isRead ? { items: [], next_cursor: null } : receipt(),
+      )
+      const reader = {
+        read: vi.fn(() => readTail.promise),
+        cancel: vi.fn(() => (kind.endsWith('cancel') ? cancelTail.promise : Promise.resolve())),
+        releaseLock: vi.fn(),
+      }
+      if (!kind.endsWith('fetch'))
+        Object.defineProperty(response, 'body', {
+          value: { getReader: () => reader, cancel: async () => undefined },
+        })
+      if (kind.endsWith('cancel')) readTail.resolve({ done: true })
+      f.setPerform(() => (kind.endsWith('fetch') ? fetchTail.promise : Promise.resolve(response)))
+      if (isCredential) f.auth.system.providers.setMaterial('generated-only')
+      const result = (
+        isRead ? f.auth.system.providers.list({}) : f.auth.system.providers.start(command())
+      ).catch((e: unknown) => e)
+      await flushPromises()
+      await vi.advanceTimersByTimeAsync(30_000)
+      expect(await result).toMatchObject({ kind: 'cancelled' })
+      expect(f.auth.state.busy).toBe(true)
+      const calls = f.fetch.mock.calls.length,
+        keys = vi.spyOn(crypto, 'randomUUID')
+      await f.auth.login('admin@example.com', 'generated password 123')
+      await f.auth.logout()
+      await f.auth.restore()
+      await expect(f.auth.system.listUsers({})).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.system.listInvitations({})).rejects.toMatchObject({ kind: 'busy' })
+      await expect(
+        f.auth.system.createInvitation({ email: 'generated@example.com' }),
+      ).rejects.toMatchObject({ kind: 'busy' })
+      await expect(
+        f.auth.personal.changePassword({
+          version: '1',
+          current_password: 'generated password 123',
+          new_password: 'generated password 456',
+          confirmation: 'generated password 456',
+        }),
+      ).rejects.toMatchObject({ kind: 'busy' })
+      await expect(
+        f.auth.entry.requestPasswordReset({ email: 'generated@example.com' }),
+      ).rejects.toMatchObject({ kind: 'busy' })
+      expect(keys).not.toHaveBeenCalled()
+      expect(f.fetch.mock.calls.length).toBe(calls)
+      f.auth.system.providers.abandon()
+      expect(f.auth.state.busy).toBe(true)
+      fetchTail.resolve(response)
+      readTail.resolve({ done: true })
+      cancelTail.resolve()
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(false)
+      expect(f.auth.system.providers.progress).toBeNull()
+      expect(f.writes()).toHaveLength(isRead ? 0 : 1)
+      await f.auth.system.listUsers({})
+    },
+  )
+
+  it.each(['read', 'write', 'lookup'] as const)(
+    'personal/users/invitation abandonment cannot cancel Provider %s',
+    async (kind) => {
+      const f = await fixture(),
+        held = barrier<Response>()
+      if (kind === 'lookup') {
+        f.setPerform(async () => {
+          throw new Error('network')
+        })
+        await f.auth.system.providers.start(command()).catch(() => undefined)
+      }
+      let requestSignal: AbortSignal | null = null
+      f.setPerform((_path, init) => {
+        requestSignal = init.signal!
+        return held.promise
+      })
+      const actual = (
+        kind === 'read'
+          ? f.auth.system.providers.list({})
+          : kind === 'write'
+            ? f.auth.system.providers.start(command())
+            : f.auth.system.providers.checkOriginal()
+      ).catch((e: unknown) => e)
+      await flushPromises()
+      f.auth.personal.abandon()
+      f.auth.system.abandon()
+      f.auth.system.abandonInvitations()
+      f.auth.entry.abandon()
+      expect((requestSignal as AbortSignal | null)?.aborted).toBe(false)
+      expect(f.auth.state.busy).toBe(true)
+      held.resolve(
+        json(
+          kind === 'read'
+            ? { items: [], next_cursor: null }
+            : kind === 'write'
+              ? receipt()
+              : { found: true, receipt: receipt() },
+        ),
+      )
+      await actual
+      expect(f.auth.state.busy).toBe(false)
+      if (kind === 'lookup') expect(f.auth.system.providers.progress?.phase).toBe('uncertain')
+    },
+  )
+
+  it.each(['personal', 'restore', 'invitation'] as const)(
+    'Provider cleanup cannot cancel another %s domain and own cancellation still joins',
+    async (kind) => {
+      const f = await fixture(),
+        held = barrier<Response>()
+      let requestSignal: AbortSignal | null = null
+      const hold: Fetch = (_path, init) => {
+        requestSignal = init.signal!
+        return held.promise
+      }
+      if (kind === 'restore') f.setSessionRequest(hold)
+      else f.setPerform(hold)
+      const result = (
+        kind === 'personal'
+          ? f.auth.personal.setPreferences({ theme: 'dark', version: '1' })
+          : kind === 'restore'
+            ? f.auth.restore()
+            : f.auth.system.createInvitation({ email: 'generated@example.com' })
+      ).catch((e: unknown) => e)
+      await flushPromises()
+      f.auth.system.providers.abandon()
+      expect((requestSignal as AbortSignal | null)?.aborted).toBe(false)
+      if (kind === 'personal') {
+        f.auth.personal.abandon()
+        expect((requestSignal as AbortSignal | null)?.aborted).toBe(true)
+        expect(await result).toMatchObject({ kind: 'cancelled' })
+        expect(f.auth.state.busy).toBe(true)
+      }
+      held.resolve(
+        kind === 'personal'
+          ? json({ theme: 'dark', version: '2' })
+          : kind === 'restore'
+            ? json(view())
+            : json({ id: id(15), job_id: id(16), version: '1' }, 201),
+      )
+      await result
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(false)
+    },
+  )
+
+  it('validates all fields and reserved future ref before allocating any intent/key', async () => {
+    const f = await fixture(),
+      keys = vi.spyOn(crypto, 'randomUUID')
+    f.auth.system.providers.setMaterial('generated-only')
+    await expect(
+      f.auth.system.providers.start({
+        kind: 'provider.create',
+        input: { ...input(), name: '界'.repeat(129) },
+      }),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(() => f.auth.system.providers.setMaterial('界'.repeat(21846))).toThrowError(
+      'invalid-input',
+    )
+    await expect(f.auth.system.providers.start(command())).rejects.toMatchObject({
+      kind: 'invalid-input',
+    })
+    expect(keys).not.toHaveBeenCalled()
+    expect(f.writes()).toHaveLength(0)
+    expect(f.auth.system.providers.progress).toBeNull()
+  })
+
+  it('holds one owner across distinct keys, clears private material before Provider dispatch and freezes fields', async () => {
+    const f = await fixture(),
+      first = barrier<Response>(),
+      second = barrier<Response>(),
+      material = 'generated-\0-界'
+    const draft = { ...input() }
+    f.setPerform((path) => (path.endsWith('model-credentials') ? first.promise : second.promise))
+    f.auth.system.providers.setMaterial(material)
+    const actual = f.auth.system.providers.start({ kind: 'provider.create', input: draft })
+    draft.name = 'mutated after dispatch'
+    await flushPromises()
+    expect(f.auth.system.providers.progress?.stage).toBe('credential')
+    first.resolve(json(created()))
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(true)
+    expect(f.auth.system.providers.material.present).toBe(false)
+    expect(f.auth.system.providers.progress?.credential?.credential_id).toBe(id(11))
+    const [credentialRequest, providerRequest] = f.writes()
+    expect(JSON.parse(credentialRequest![1].body as string).value === material).toBe(true)
+    expect(
+      new Headers(credentialRequest![1].headers).get('Idempotency-Key') !==
+        new Headers(providerRequest![1].headers).get('Idempotency-Key'),
+    ).toBe(true)
+    expect(JSON.parse(providerRequest![1].body as string).input).toEqual({
+      ...input(),
+      credential_ref: id(11),
+    })
+    const publicState = JSON.stringify([
+      f.auth.state,
+      f.auth.system.providers.progress,
+      f.auth.system.providers.material,
+    ])
+    expect(publicState.includes(material)).toBe(false)
+    expect(
+      publicState.includes(new Headers(providerRequest![1].headers).get('Idempotency-Key')!),
+    ).toBe(false)
+    expect(publicState.includes(view().csrf_token)).toBe(false)
+    second.resolve(json(receipt()))
+    expect(await actual).toMatchObject({ kind: 'provider.create' })
+    expect(f.auth.system.providers.progress?.phase).toBe('confirmed')
+  })
+
+  it('rechecks cancellation synchronously between stages and never binds a late Credential success', async () => {
+    const f = await fixture()
+    f.auth.system.providers.setMaterial('generated-only')
+    const stop = watch(
+      () => f.auth.system.providers.progress?.credential,
+      (value) => {
+        if (value) f.auth.system.providers.abandon()
+      },
+      { flush: 'sync' },
+    )
+    await expect(f.auth.system.providers.start(command())).rejects.toMatchObject({
+      kind: 'cancelled',
+    })
+    stop()
+    expect(f.writes()).toHaveLength(1)
+    expect(f.auth.system.providers.progress).toBeNull()
+  })
+
+  it.each(['credential', 'provider'] as const)(
+    'lookup true is historical observation only; exact %s Execute replay alone confirms',
+    async (stage) => {
+      const f = await fixture(),
+        material = 'generated-private-\0'
+      let lost = true
+      f.setPerform(async (path) => {
+        if (path.endsWith('credential-commands/lookup'))
+          return json({ observed: true, result: created() })
+        if (path.endsWith('model-commands/lookup')) return json({ found: true, receipt: receipt() })
+        if (
+          lost &&
+          (stage === 'credential'
+            ? path.endsWith('model-credentials')
+            : path.endsWith('model-providers'))
+        ) {
+          lost = false
+          throw new Error('lost response')
+        }
+        return json(path.endsWith('model-credentials') ? created() : receipt())
+      })
+      if (stage === 'credential') f.auth.system.providers.setMaterial(material)
+      await expect(f.auth.system.providers.start(command())).rejects.toMatchObject({
+        kind: 'transport',
+      })
+      expect(f.auth.system.providers.progress?.phase).toBe('uncertain')
+      expect(f.auth.system.providers.progress?.canRetryOriginal).toBe(false)
+      await f.auth.system.providers.checkOriginal()
+      expect(f.auth.system.providers.progress).toMatchObject({
+        phase: 'uncertain',
+        observation: 'found',
+        receipt: null,
+        canRetryOriginal: true,
+      })
+      if (stage === 'credential')
+        expect(f.writes().filter(([path]) => path.endsWith('model-providers'))).toHaveLength(0)
+      const original = f.writes()[0]!
+      await f.auth.system.providers.retryOriginal()
+      const replay = f.writes().filter(([path]) => path === original[0])[1]!
+      expect(replay[1].body === original[1].body).toBe(true)
+      expect(
+        new Headers(replay[1].headers).get('Idempotency-Key') ===
+          new Headers(original[1].headers).get('Idempotency-Key'),
+      ).toBe(true)
+      expect(f.auth.system.providers.progress?.phase).toBe('confirmed')
+      expect(f.auth.system.providers.material.present).toBe(false)
+    },
+  )
+
+  it.each(['missing', 'failed'] as const)(
+    '%s lookup never proves noncommit; later known rejection preserves prior uncertainty',
+    async (observation) => {
+      const f = await fixture()
+      f.setPerform(async () => {
+        throw new Error('lost')
+      })
+      await f.auth.system.providers.start(command()).catch(() => undefined)
+      f.setPerform(async () =>
+        observation === 'missing'
+          ? json({ found: false, receipt: null })
+          : problem('INTERNAL_ERROR'),
+      )
+      await f.auth.system.providers.checkOriginal().catch(() => undefined)
+      expect(f.auth.system.providers.progress).toMatchObject({
+        phase: 'uncertain',
+        observation,
+        canRetryOriginal: true,
+      })
+      f.setPerform(async () => problem('VERSION_CONFLICT', 409, 'not_committed'))
+      await f.auth.system.providers.retryOriginal().catch(() => undefined)
+      expect(f.auth.system.providers.progress).toMatchObject({
+        phase: 'uncertain',
+        canRebase: false,
+      })
+    },
+  )
+
+  it('preserves prepared Credential after a known Provider conflict; explicit review changes only Provider key/version', async () => {
+    const f = await fixture()
+    let providerAttempts = 0
+    f.setPerform(async (path, init) => {
+      if (path.endsWith('model-credentials')) return json(created())
+      if (init.method === 'GET') return json(provider('2'))
+      if (++providerAttempts === 1) return problem('VERSION_CONFLICT', 409, 'not_committed')
+      return json(receipt('provider.update', '3'))
+    })
+    f.auth.system.providers.setMaterial('generated-only')
+    await expect(
+      f.auth.system.providers.start({
+        kind: 'provider.update',
+        id: id(10),
+        expected_version: '1',
+        input: input(),
+      }),
+    ).rejects.toMatchObject({ kind: 'problem' })
+    expect(f.auth.system.providers.progress).toMatchObject({
+      phase: 'rejected',
+      stage: 'provider',
+      credential: { credential_id: id(11) },
+      canRebase: true,
+    })
+    await expect(
+      f.auth.system.providers.rebase({ ...input(), credential_ref: id(11) }),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    await f.auth.system.providers.readForRebase()
+    await f.auth.system.providers.rebase({ ...input(), credential_ref: id(11) })
+    const writes = f.writes(),
+      providerWrites = writes.filter(([path]) => path.includes('model-providers'))
+    expect(writes.filter(([path]) => path.endsWith('model-credentials'))).toHaveLength(1)
+    expect(providerWrites).toHaveLength(2)
+    expect(
+      new Headers(providerWrites[0]![1].headers).get('Idempotency-Key') !==
+        new Headers(providerWrites[1]![1].headers).get('Idempotency-Key'),
+    ).toBe(true)
+    expect(JSON.parse(providerWrites[1]![1].body as string)).toEqual({
+      expected_version: '2',
+      input: { ...input(), credential_ref: id(11) },
+    })
+    expect(writes.some(([, init]) => init.method === 'DELETE')).toBe(false)
+  })
+
+  it.each(['write', 'provider-lookup', 'credential-lookup'] as const)(
+    'current CSRF_FAILED on %s invalidates identity and destroys all private Provider state',
+    async (kind) => {
+      const f = await fixture()
+      if (kind !== 'write') {
+        if (kind === 'credential-lookup') f.auth.system.providers.setMaterial('generated-only')
+        f.setPerform(async () => {
+          throw new Error('lost')
+        })
+        await f.auth.system.providers.start(command()).catch(() => undefined)
+      } else f.auth.system.providers.setMaterial('generated-only')
+      f.setPerform(async () => problem('CSRF_FAILED', 403, 'not_started'))
+      await (
+        kind === 'write'
+          ? f.auth.system.providers.start(command())
+          : f.auth.system.providers.checkOriginal()
+      ).catch(() => undefined)
+      expect(f.auth.state.phase).toBe('unavailable')
+      expect(f.auth.personalContext.identity).toBeNull()
+      expect(f.auth.system.providers.material.present).toBe(false)
+      expect(f.auth.system.providers.progress).toBeNull()
+    },
+  )
+
+  it('current Forbidden binds system denial; a same-identity recheck recovers, while new Session destroys tracking', async () => {
+    const f = await fixture()
+    f.auth.system.providers.setMaterial('generated-only')
+    f.setPerform(async () => problem('FORBIDDEN', 403))
+    await f.auth.system.providers.start(command()).catch(() => undefined)
+    expect(f.auth.system.denied).toBe(true)
+    expect(f.auth.state.user?.role).toBe('admin')
+    expect(f.auth.system.providers.progress).toBeNull()
+    await f.auth.restore()
+    expect(f.auth.system.denied).toBe(false)
+    f.auth.system.providers.setMaterial('generated-only')
+    f.setPerform(async () => {
+      throw new Error('lost')
+    })
+    await f.auth.system.providers.start(command()).catch(() => undefined)
+    await f.auth.restore()
+    expect(f.auth.system.providers.progress?.phase).toBe('uncertain')
+    f.setSession(view(id(3)))
+    await f.auth.restore()
+    expect(f.auth.system.providers.progress).toBeNull()
+    expect(f.auth.system.providers.material.present).toBe(false)
+  })
+
+  it.each(['SESSION_REVOKED', 'CSRF_FAILED', 'FORBIDDEN'])(
+    'handles late %s under the still-current original identity and actual owner',
+    async (code) => {
+      vi.useFakeTimers()
+      // A controlled API rejection after timeout exercises late failure mapping;
+      // transport cancellation itself intentionally discards late wire bodies.
+      const providerAPI = createSystemProviderAPI(async () => {
+        throw new Error('unused')
+      })
+      let reject!: (error: unknown) => void
+      const pending = new Promise<never>((_done, failure) => {
+        reject = failure
+      })
+      const { AccountFailure } = await import('../api/client')
+      providerAPI.createProvider = () => pending
+      const fetch: Fetch = async () => json(view())
+      const auth = createSessionController(
+        createAccountAPI(fetch),
+        undefined,
+        undefined,
+        providerAPI,
+      )
+      owners.push(auth)
+      await auth.restore()
+      const actual = auth.system.providers.start(command()).catch((error: unknown) => error)
+      await flushPromises()
+      await vi.advanceTimersByTimeAsync(30000)
+      await actual
+      reject(
+        new AccountFailure('problem', {
+          type: 'urn:agenteam:problem:test',
+          title: '',
+          status: code === 'SESSION_REVOKED' ? 401 : 403,
+          code,
+          detail: '',
+          instance: '/api/v1/system/model-providers',
+          request_id: id(9),
+          commit_state: 'not_started',
+        }),
+      )
+      await flushPromises()
+      expect(auth.state.phase).toBe(code === 'FORBIDDEN' ? 'authenticated' : 'unavailable')
+      expect(auth.system.denied).toBe(false)
+      expect(auth.state.busy).toBe(false)
+    },
+  )
+  it.each(['SESSION_REVOKED', 'CSRF_FAILED', 'FORBIDDEN'])(
+    'retired global generation ignores late %s and restores a new Session only after actual join',
+    async (code) => {
+      let reject!: (error: unknown) => void
+      const pending = new Promise<never>((_done, failure) => {
+        reject = failure
+      })
+      const api = createSystemProviderAPI(async () => {
+        throw new Error('unused')
+      })
+      api.createProvider = () => pending
+      let current = view()
+      const fetch = vi.fn<Fetch>(async () => json(current))
+      const auth = createSessionController(createAccountAPI(fetch), undefined, undefined, api)
+      owners.push(auth)
+      await auth.restore()
+      const visible = auth.system.providers.start(command()).catch((error: unknown) => error)
+      await flushPromises()
+      auth.leave()
+      await visible
+      expect(auth.state.busy).toBe(true)
+      current = view(id(3))
+      await auth.restore()
+      expect(fetch).toHaveBeenCalledTimes(1)
+      const { AccountFailure } = await import('../api/client')
+      reject(
+        new AccountFailure('problem', {
+          type: 'urn:agenteam:problem:test',
+          title: '',
+          status: code === 'SESSION_REVOKED' ? 401 : 403,
+          code,
+          detail: '',
+          instance: '/api/v1/system/model-providers',
+          request_id: id(9),
+          commit_state: 'not_started',
+        }),
+      )
+      await flushPromises()
+      expect(auth.state.phase).toBe('checking')
+      expect(auth.state.busy).toBe(false)
+      expect(auth.system.denied).toBe(false)
+      expect(auth.system.providers.progress).toBeNull()
+      await auth.restore()
+      expect(auth.state.session?.id).toBe(id(3))
+      auth.system.providers.setMaterial('new-session-only')
+      expect(auth.system.providers.material.present).toBe(true)
+      expect(auth.system.denied).toBe(false)
+    },
+  )
+})

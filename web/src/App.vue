@@ -11,9 +11,11 @@ import {
   installPersonalNavigation,
   installAccountEntryNavigation,
   installInvitationNavigation,
+  installProviderNavigation,
 } from './router/auth'
 import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'
 import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'
+import { createSystemProviders, systemProvidersKey } from './composables/useSystemProviders'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
@@ -27,8 +29,16 @@ const stopEntryNavigation = installAccountEntryNavigation(router, entry)
 const invitations = createSystemInvitations(auth)
 provide(systemInvitationsKey, invitations)
 const stopInvitationNavigation = installInvitationNavigation(router, invitations)
+const providers = createSystemProviders(auth)
+provide(systemProvidersKey, providers)
+const stopProviderNavigation = installProviderNavigation(router, providers)
 async function logout() {
-  if ((await settings.confirmLeave()) && (await invitations.confirmLeave())) await auth.logout()
+  if (
+    (await settings.confirmLeave()) &&
+    (await invitations.confirmLeave()) &&
+    (await providers.confirmLeave())
+  )
+    await auth.logout()
 }
 async function refreshVisible() {
   if (
@@ -57,6 +67,7 @@ watch(
 onMounted(() => {
   entry.afterNavigation(route.fullPath, '')
   invitations.afterNavigation(route.fullPath, '')
+  providers.afterNavigation(route.fullPath, '')
   document.addEventListener('visibilitychange', refreshVisible)
   window.addEventListener('pageshow', refreshVisible)
 })
@@ -66,6 +77,8 @@ onUnmounted(() => {
   stopPersonalNavigation()
   stopEntryNavigation()
   stopInvitationNavigation()
+  stopProviderNavigation()
+  providers.dispose()
   invitations.dispose()
   entry.dispose()
   settings.dispose()

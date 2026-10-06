@@ -58,6 +58,7 @@ export const router = createRouter({
           path: 'invitations',
           component: () => import('../views/system/SystemInvitationsView.vue'),
         },
+        { path: 'providers', component: () => import('../views/system/SystemProvidersView.vue') },
       ],
     },
     {

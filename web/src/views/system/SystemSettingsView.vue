@@ -20,6 +20,11 @@ const groups = [
       { label: '待注册邀请', path: '/system/invitations' },
     ],
   },
+  {
+    key: 'models-providers',
+    label: '模型与提供商',
+    children: [{ label: 'Providers', path: '/system/providers' }],
+  },
 ]
 const heading = ref<HTMLElement | null>(null)
 watch(

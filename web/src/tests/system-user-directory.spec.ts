@@ -207,7 +207,7 @@ describe('System user directory page and shared shells', () => {
     expect(p.wrapper.find('nav[aria-label="个人设置"]').exists()).toBe(false)
     const menu = p.wrapper.get('nav[aria-label="系统设置"]')
     expect(menu.text()).toContain('用户与邀请')
-    expect(menu.findAll('a').map((a) => a.text())).toEqual(['用户', '待注册邀请'])
+    expect(menu.findAll('a').map((a) => a.text())).toEqual(['用户', '待注册邀请', 'Providers'])
     expect(menu.get('a').attributes('aria-current')).toBe('page')
     expect(menu.findAll('button').map((b) => b.text())).not.toContain('退出登录')
     expect(p.wrapper.findAll('thead th').map((th) => th.text())).toEqual([
