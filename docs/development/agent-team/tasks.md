@@ -2,6 +2,12 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：tools 独立动态验证未运行，原任务停止
+
+- `tools-independent-01` 的独立 A/B 启动线程被自动安全筛查以 **“possible cybersecurity risk”** 中断。协调者只读核对其未实际启动：无 real run 目录/command，两次 `/proc` 所属 PID=0、TMPDIR 空；Docker 恰为可信原 2 容器/4 网络，ID/name/labels 全同，没有执行清理 mutation。窗口原件记为 **NOT RUN**，于 01:59:42 UTC 归还，随后前端 new02 获窗；这不是已运行测试的失败，也没有独立动态 PASS。
+- 原独立任务保持停止，不重试、改派或换方式重建。主线程已向用户说明自动筛查原因并请求确认，当前等待回复；原静审、编译、固定输入与证据保持，不据此推定产品接受。协调原件：`/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/docker-window-tools-independent-01.json`。
+- 未受影响工作继续：tools 作者已有 8/9 组证据，Budget 定向补验继续；公开 Account 入口仍由原作者/独立负责人验证。Anthropic Messages 仅开展新规格与公开官方来源研究，不实施、不占 Docker，也不承担被拦的 tools 验证；其共享 tools 接口上游尚未接受，实施依赖未满足。此前 ledger 与管理读口已接受结果不变，完整 D09 未完成。
+
 ## 2026-10-06：Invocation/Usage 账本库与 00018 验收交付
 
 - [ledger rev1](../work-items/recovery-d09-invocation-usage-ledger.md)的 20 路径由 `backend_recovery` 恢复实现，`verification_recovery` 独立 PASS；主线程核最终 input13 SHA 与源码匹配，提交推送 `36e5ff1a124c957d200888ad2e40bdc4ecb01305`，推送后远端一致。[正式报告与可离线核 SHA 的证据](invocation-usage-ledger-verification.md)保留旧原件遗失、本轮原失败/修复、精确输入、命令和资源记录。连续已验迁移前缀至 00018，PG17.x（最低17.8）fresh/populated 均通过；PG16 仅不支持版本反例。
