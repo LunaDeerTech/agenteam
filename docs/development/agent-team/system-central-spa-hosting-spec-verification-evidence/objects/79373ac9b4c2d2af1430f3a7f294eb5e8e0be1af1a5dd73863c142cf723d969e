@@ -1,0 +1,21 @@
+# D28 SPA rev0.1 独立窄复核
+
+结论：**原 S-SPA-01/02/03 已关闭；另需澄清一个失败尾部接缝，暂不签最终 STATIC PASS。** 无产品/动态失败结论，无路径扩展要求。原 review.md/review.json 未改，本件仅追加独立窄复核。
+
+固定输入：`d28-central-spa-hosting.rev0.1.draft.md`，全文 SHA `ffca4c1620f01e04144f61cb7fec8ce49b8622f9a2ffee1ea40a0053c99842ea`，技术 SHA `e5ad1366d196564c77cb33cca086a20b37e70e45e6389c3712fbbc6e04c0f8b5`；同根 `rev0-to-rev0.1.diff` SHA `7c9137fe4c7ac8c3565737e8b7ede2d4d43d9f4ea9893a1a106bb0ea299723b7`。以上及原 rev0 SHA 已实际复核，16 路径名单逐字未变。固定源码仍为 `97f45518f31c8b7b835b02c8624eb7aa321a1894` / 前端 `628612c`。
+
+已闭合：
+
+- 纯 bundle 构造明确在 lifecycle/initialize 前，失败不可能已拥有 listener、DB 或 worker；消除原 late-return 清理歧义。
+- SPA 外层安全副本保留 Method、Header、Body、ContentLength、TransferEncoding、Host；context.WithValue 继承原取消/截止时间，WithRequestID 只生成一次正式身份。准入后的 URL/RequestURI 恢复副本继承该 context，包含原 RawPath/RawQuery/ForceQuery、nil 标记；不回写外层 URL/Pattern。故外层 Recover/gate 能见常量路径，日志 Pattern 不受内层更改，显式 Problem helper 保留 HEAD 语义，API 直接走原请求，既有 body limit 不变。此项为数据流静态可实现结论，不是动态通过。
+- 固定 data favicon 及原内联主题脚本的窄例外、Go embed 集合排除段检查明确；没有借机放宽外部资源。实际 PUBLIC_ORIGIN 与 listener origin 绑定也消除了旧 HTTP Host 覆盖前提。
+
+**S-SPA-04：未提交 panic 的错误回复与 admission/写期限仍不在同一实际尾部。**
+
+新 §5 固定组合是外层安全投影 → 唯一 httpapi.Handler(WithRequestID/Recover) → 保持原 gate admission/finish → webRoutes → SPA handler。固定 `app/app.go:181–188` 的 `defer owned.finishHTTP()` 在 panic 从 SPA 向外展开时先执行；随后固定 `httpapi/middleware.go:60–81` 的外层 Recover 才 `WriteProblem(w,r,500)`。若局部写期限/取消回调在 SPA handler defer 清理，该 500 写入也已经离开其期限/实际 join 范围。URL 安全副本解决 instance/日志问题，但不能延长 admission 或 writer 生命周期。正常静态返回和已提交 abort 不能替代该未提交 panic 分支的证据。
+
+这与原 §4“静态成功/失败回复有局部写期限、Flush 实际完成与取消回调 join 后才归还 admission”仍有交叉。admission 本就拒绝的 ShuttingDown 分支无需持有已获准名额，但其响应也不能被误称已受到内部 SPA handler 的写期限保护。
+
+建议由架构明确仅 SPA 的尾部归属：安全投影/私有生命周期协调须让**通过 admission 的请求**在外层 Recover 的最终错误写、Flush、取消回调实际终止后才恰一次释放；未获准的错误也有明确的局部写预算。API 与 no-tag 保留原 gate 行为，仍只一个公开 httpapi.Handler，不改公共 httpapi、不把未知路径抹成根后再分类。可在原 app.go、新 app/webassets.go 与 webassets/handler.go 内协调，未发现必须新增路径的证据；但“原 gate finish 原样”和“全部静态失败尾部均被覆盖”不能仅凭当前数据流同时宣称成立。应增加对应未提交 panic/慢错误写的实际尾部门槛，再作窄复核。
+
+本轮只读取冻结差量及已固定 middleware/problem/gate 源码，未写产品/探针，未构建、运行测试、监听或启动资源。除 S-SPA-04 外未发现这次差量带来其它需调整的接口或范围；原静审其余有界结论复用。

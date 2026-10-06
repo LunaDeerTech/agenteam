@@ -10,6 +10,8 @@ System Model 管理读口已实现并通过[独立验收](../agent-team/system-m
 
 OpenAI Chat wire 库已验 `openai-chat-text-v1` 与 `openai-chat-structured-v1`：后者支持有界 strict `json_schema` 的请求、普通响应及 SSE 完整结果验证，保留原文本、usage、安全错误、同一 Budget 和实际 join；text 修订闭集不放宽。子集、资源上限与拒绝语义见[structured 规格](../work-items/recovery-d09-openai-chat-structured-wire.md)，原失败及真实验收见[报告](../agent-team/d09-openai-chat-structured-wire-verification.md)。这是受控本地服务上的库能力；生产 root 尚未组合 Resolver/consumer、Invocation/Usage 账本或真实 Provider 账号。OpenAI Chat tools wire 规格已采纳、14 路径实施中，尚无产品验收；不改变上述 root、Object 缺陷和 ready503 边界。
 
+[Central 嵌入 SPA 规格](../work-items/d28-central-spa-hosting.md)已在 `7a490ac` 经独立有界静审采纳，[原稿、审查与当前行政状态](../agent-team/system-central-spa-hosting-spec-verification.md)已归档。规划的显式 Web 发布将真实前端闭包嵌入 Central；普通无 tag Go 构建仍沿原行为。16路径私有实施已启动，但尚无发布构建、native HTTP或正式二进制浏览器验收；本段不宣称 Central 已提供生产 SPA，也不改变下列现有命令、运行依赖和 ready503。
+
 ## 构建与验证
 
 D07 的账号、Session、邀请、密码恢复、挑战、Profile/Avatar/偏好和 System HTTP 已装配进 Central，构造、恢复与官方 Vue 浏览器 harness 见[账号说明](account.md)。SMTP 三模式、受限恢复日志、持久 attempt 与人工重试见[账号邮件说明](accountmail.md)。D26 [认证](../agent-team/d26-authentication-verification.md)和[个人设置](../agent-team/personal-settings-verification.md)已有各自产品页面验收，[公开 Account 入口](../agent-team/public-account-entry-verification.md)的 25 路径范围已验收并以 `787a5c7` 提交推送；生产 SPA 托管及完整 D26/D27 仍未完成，独立测试 harness 本身不作为产品 UI。

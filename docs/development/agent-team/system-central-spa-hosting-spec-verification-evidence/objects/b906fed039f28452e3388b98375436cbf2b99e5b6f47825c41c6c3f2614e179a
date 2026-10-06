@@ -1,0 +1,72 @@
+# D28 Central SPA 独立验收计划 rev1
+
+状态：2026-10-06，主线程仅授权独立计划/静态准备。本计划不是运行授权；作者代码尚未交付冻结输入，故没有读取活动实现，没有探针、编译、发布构建、监听器、浏览器或 Docker。全部产品行为仍未验证。
+
+独立性：本验证者参与过规格设计，未参与 SPA 产品或作者测试实现；规格静审结论来自另一验证者，不能把自己对规格的自查作为实现验收。本轮及后续结论只绑定实际冻结产品、适用作者证据和独立观察；不修改产品或替作者消除失败。
+
+## 1. 接受输入与冻结门槛
+
+- 正式卡：[d28-central-spa-hosting.md](/workspace/agenteam/docs/development/work-items/d28-central-spa-hosting.md)，固定提交 `7a490ac7d5b09c1fff564fc50af93bfe236c1d71`；全文 SHA `88b95723ad1c8a122f181123afceaaf72c375e7c55840cb3c009e414ee1e9e0c`，技术§1–7 SHA `f5399abe8b3137d4a8d8e8bbb3d2ddf6186013ae1ed092ecfa473b19a5967220`，本轮已实际核对。
+- 固定产品基线 `97f45518f31c8b7b835b02c8624eb7aa321a1894`，前端 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`；不得读入 SMTP17 活动修复、后继 Outbound UI 或历史停止候选。
+- [rev0.2 独立规格报告](/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/rev0.2-review.md)，SHA `a30945d1cab277971ccba26912a76e82b8cb47451a34776f88c497bf477dbee8`：只复用规格可实现性，不能作为新实现、发布闭包或实际尾部已通过的证据。
+- 作者每次交付必须给停止写入的精确文件清单、每文件 SHA、基线差量和适用原始命令/退出；局部阶段不等于最终16路径接受。没有冻结 SHA 的源码、dist、生成目录、脚本和正在写的日志均不作为输入。
+- 只按本卡16路径及固定依赖构成最小审查/编译闭包，不机械复制全树。正式执行前另冻实际依赖、生成 manifest/资产、工具/runtime/driver、环境过滤、选择器和输入前后门禁；当前未形成任何可执行输入或命令授权。
+
+## 2. 分阶段取证，不混用证据等级
+
+| 阶段 | 最小独立工作 | 可以形成的结论 |
+| --- | --- | --- |
+| A：作者 bundle/renderer/build-script 冻结 | 只读实际差量与作者原始证据；核闭合 manifest、路径/输入校验、no-tag/release分支、真实构建与受控子进程的区别。待主线程另授后才补独立纯/受控验证。 | 仅对应冻结文件的静态或纯结果；尚无scope/root、真实发布或浏览器通过。 |
+| B：作者 scope/root 冻结 | 核单RequestID、安全副本、局部Recover、写期限及gate计数；待另授后用受控Write/Flush/callback屏障和原生loopback各证其实际边界。 | 明确区分受控handler调用栈与native socket，不把受控慢错误当自然TCP背压。 |
+| C：最终产品与harness冻结 | 审作者实际发布及两top证据、真实driver门禁；另授独占窗口后执行下列两个正式binary代表。 | 只对最终输入成立的托管子结果，不宣称D28全交付或被停止任务修复。 |
+
+会复用输入/语义未变且证据完整的通过结果，返修只补受影响分支；不为独立性机械重跑全 D02/D07、全部设置页面或全部旧视觉矩阵。若阶段A实现尚缺阶段B依赖，不以临时生产stub完成编译或假称完整通过。
+
+## 3. 包清单与发布闭包的独立判断
+
+审查实际构建入口必须从空、独占、本轮自有 staging 执行固定前端的真实 production build；不接受旧 dist、测试服务器、fake npm/go 回执或作者 checker 的一个布尔值作为发布证明。检查 mode/base、锁定依赖、Go1.27.1/Node版本、离线与 readonly约束、子进程实际 wait、失败保留旧发布和本轮生成物清理。普通 Go/Runner 构建在没有bundle时保持可用；release-tag缺 index/assets/manifest 真实失败，没有空包成功分支。
+
+在获得对应执行授权后，独立从原始 Vite manifest 的 imports/dynamicImports/css/assets 和实际文件字节重新导出必要闭包，与发布 manifest、嵌入包及正式 HTTP 资产逐项核 SHA/长度；不能只让同一个待验 validator 自我证明。区分原 `.vite` 构建元数据、唯一 `data:,` favicon/固定主题脚本、可服务资产和不可服务内部 manifest。验证缺/多/篡改、排除段、symlink/路径逃逸及预算的代表，不为每项排列全组合。旧36文件/547593字节只作规格历史形状，不作这次真实构建输入或通过值。
+
+启动失败重点为真实代码时序：bundle纯构造必须在lifecycle/initialize之前；受控构造拒绝时 open/migrate/bind/listen/worker进入数为0。纯 MapFS/受控构造证明校验与时序，真实 release 构建及空CWD启动另证嵌入，不混为一个结果。构建负例只改独立自有副本，不删除作者产物、共享cache或其他运行的文件。
+
+## 4. 路由、安全响应与实际尾部的最小高风险组
+
+| 组 | 行为性证据与主要否例 |
+| --- | --- |
+| 路由/表示 | GET与HEAD同路由/状态/表示头且HEAD零body；入口no-store、哈希资产immutable与304；常量MIME/nosniff，无目录/index重定向。保留命名空间优先、未知API/缺资产/error均非HTML；合法带点Project HTML导航可得到入口，script/image请求不行。RawPath/点段/重复slash/大小写/非HTML Accept用少量互相区分的代表，不重新复制整套客户端矩阵。 |
+| API与隐私 | 真实公共中间件/路由链中比较API/诊断进入旧handler的原path/query/RawPath/method/Host/Body与既有body上限/headers、唯一RequestID；不会因SPA规范化先改API请求。SPA使用独立私有path/query哨兵，显式400/404、拒绝503、未提交panic500的instance/日志均无哨兵，HEAD仍零body；原RawPath恢复后仍被拒绝。 |
+| 已准入慢500 | 在生产scope/公开Recover/gate的实际调用栈中，renderer在提交前panic。支持deadline的受控writer令500的Write或Flush保持pending：其间finish计数0；写/Flush返回但已启动取消回调仍pending时也为0；回调actual join后恰一次finish。核局部30s/更早parent，不在错误回复处重建预算或RequestID。 |
+| 未准入慢503 | 分别覆盖stopping短路与admit拒绝的代表，成功准入数0、finish数0、renderer不进入；503的受控慢Write/Flush仍有自己的同一scope预算/实际join。没有槽位可释放不等于可以无界回包。 |
+| abort/能力失败 | 已提交panic、短写/错误（含Recover写Problem时的错误）、Flush失败、取消，以及缺deadline能力/设置失败：没有release后第二500或后缀；不存在“ctx.Done即可当tail已结束”。缺能力不试写无界Problem。清尾完成后ErrAbort交原net/http关闭，不把物理TCP关闭先于finish当要求或通过值。 |
+| native补证 | 另授有界loopback后验证真实500/503/HEAD、实际ResponseController/Unwrap/Flush、唯一ID、安全instance、已提交abort和成功后同连接API。实际更早deadline/断连及连接退出单独记录；不声称小Problem在自然socket上必然形成可观察背压。 |
+
+受控测试必须等待真实函数调用/取消回调返回，有可证明先后的屏障与计数，不用即时mock、任意sleep或只比较最终status。独立probe将来仅在本私有根/只读候选的测试overlay中另授编写，不改作者或主树；此计划没有创建任何probe。
+
+## 5. 两个正式发布binary代表
+
+**代表 R1：真实嵌入与HTTP隔离。** 在独立自有固定源码闭包用正式构建入口生成 release；记录实际命令、工具与产物SHA。用该正式 `cmd/agenteam` 二进制，在空CWD及无生成资源/运行时dist条件下启动原PG/MinIO/Account组合；没有Vite、proxy或测试handler。逐个核闭包资产的HTTP字节SHA；入口/带点项目深链、HEAD/304、缺资产/未知API/匿名401、真实ready503、安全头和query日志为有区别的代表。页文档成功不当成Project/Runtime绑定。正常退出及本轮资源收尾沿现根，不注入原Object join停止场景。
+
+**代表 R2：直接同源浏览器。** PUBLIC_ORIGIN必须等于本轮实际独占listener origin，核启动事件与页面最终origin，禁止沿旧Host覆盖或借反代纠正。浏览器只连该origin，用正式bootstrap私密恢复日志取得任务自有账号，实际UI正确登录、Session cookie/CSRF读取、刷新一个本人懒页及`/system/smtp`、退出后保护页回登录；补真实坏CSRF403/未知API不变HTML、`/debug`未找到、关键懒加载请求成功。不会发送SMTP、改出站规则、调用Provider或强行打开未绑定Runtime。两代表可复用同一冻结发布binary；不得用不同SHA静默拼接最终结论。
+
+复用作者harness前先审其实际执行的是发布binary而非Go test helper/app.Run替身，确认oracle来自公开响应与任务自有正式事实、测试selector确实命中。独立代表可复用已验fixture机制，但必须有自己的运行输入/选择器/结果记录；不能仅转述作者PASS。规格所需两top分别为 `TestCentralEmbeddedWebHTTP` / `TestCentralEmbeddedWebBrowser`，最终具体独立selector与命令在实际作者冻结后确定，不现在制造不存在的可执行项。
+
+## 6. 运行门禁、预算与清理证据
+
+当前只有计划/静态权，连native httptest loopback也尚未授权。以后各阶段由主线程明确移交对应运行窗口；纯受控/Node检查、Go编译、真实发布、native监听及重型真实资源分别列出，不因取得一种权限默认取得其它权限。发布编译属于单列准备，不计成2m场景已通过；依赖准备和正式离线readonly检查分开。
+
+执行前固定：作者manifest及必要传递闭包、独立测试overlay（若另授）、driver/selector、Go/Node/Chromium/MinIO及依赖cache版本/SHA、实际生成manifest与binary、环境过滤、exact输入前后SHA和未变门禁；Node/Playwright锁不改。不得在活动作者目录读取变化资产、使用旧浏览器目录或在真实运行时临时重建代码。
+
+预算沿卡：普通受控45s、browser各45s、单worker/retries0、每新真实场景2m，受影响integration包`-race -count=1 -timeout=6m`；选择器/预计top数从实际冻结harness核定，skip/无命中不算PASS。不得用统一外层120s在原6m包之前粗暴早杀，也不因失败扩大预算或自动重跑。只读准备先确认命令闭包和资源计划，不以JSON计划存在代替真实driver有清理能力。
+
+真实driver必须取得root另授并经静态启动门禁：当前基线双扫、任务nonce/labels与准确资源ID、进程PID+starttime、subreaper/adopted实际wait、原fixture收尾与精确ID后置双扫；不猜默认资源数量。超时/失败保留原日志后先actual wait/清零再交窗口，不清他人资源/旧僵尸、不连接既有服务、不放宽生产出站分类器。输入/runtime执行前后指纹一致才可消费该轮证据。
+
+凭据只存独立0700根/0600必要文件，使用正式恢复日志；不写SQL伪造身份/Session、不得记录密码/Cookie/CSRF/token/query哨兵全文或含秘密页面。默认无trace/video/screenshot；报告只安全事实/计数/摘要，原始失败保持私有最小可读范围。
+
+## 7. 结论与交接格式
+
+每阶段列固定输入/命令与actual exit、原始输出、通过/失败/未验证、复用条件及资源状态；首次失败及其当时源永久保留。新输入接受结果只覆盖重跑或经具体差量证明可复用的原通过分支，不把后来PASS覆盖首红，也不把计划、编译、纯模拟、native和真实PG/browser互相替代。
+
+最终只在包/发布、HTTP安全、scope/error tail与两个真实binary代表都由适用证据闭合，且最终16路径及必要输入复核一致、独立资源实际双清后，提交有界接受建议给主线程。产品修改由原作者负责；文档第16末件及正式整合/归档由主线程按卡移交。未绑定Runtime、真实外部邮箱/网络、完整D28/E01及停止任务继续显式未验。
+
+本轮实际结果仅为：已读验证技能与固定正式卡/必要既有公开接口，核正式卡SHA、划定独立风险与资源门槛，冻结此计划及basis清单。尚未收到作者冻结代码，没有任何实现STATIC PASS或动态PASS；完成后停止本轮写入，等待主线程移交固定输入及下一阶段权限。

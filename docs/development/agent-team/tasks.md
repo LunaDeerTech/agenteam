@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：Central 嵌入 SPA 规格采纳与私有实施启动
+
+- [正式卡 rev1](../work-items/d28-central-spa-hosting.md)已获第三次独立有界 STATIC PASS、主线程采纳并提交推送 `7a490ac7d5b09c1fff564fc50af93bfe236c1d71`，主线程核远端一致；技术§1–7 `f5399abe…967220`保持。[规格报告与最小证据](system-central-spa-hosting-spec-verification.md)保留 rev0／0.1／0.2、两次技术差量、两版正式页首和三次独审，原四项规格接缝均已关闭，不称产品动态失败。
+- 16路径（15新／1旧）固定消费97f4551／前端628612c：显式真实 Vite＋嵌入发布与普通 Go 构建分开，严格分流不吞 API／缺资产／错误；SPA 私有错误投影、局部写期限／Flush／取消回调实际 join 后才释放准入。33项必要固定Git引用替代完整树；18逻辑原件为16新对象＋正式卡Git＋既有manifest复用。
+- backend 私有实施与独立私有计划均已实际启动。当前仅首阶段 bundle／handler／构建脚本纯检查方向，**没有发布构建、native、浏览器或真实基础设施通过，没有动态资源授权**；后续16源冻结、独立验证和实际清理另行记录。
+- SMTP 投递 UI authority01 原失败已获静态产品归因，正私有修复，尚无该产品交付；不从旧入口阶段状态推成接受。完整D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project及生产未绑定／ready503保持。
+
 ## 2026-10-06：SMTP 投递 UI 规格采纳与私有实施启动
 
 - [正式卡rev1](../work-items/d27-system-smtp-delivery-ui.md)已获独立STATIC PASS、主线程采纳并提交推送 `8bdfb006b32fbbc8889a190d7829f05e93e29787`，远端一致；技术§1–7 bee4f7…4cda保持原字节。[规格报告与最小证据](system-smtp-delivery-ui-spec-verification.md)保留rev0.1／0.2、17范围、接缝／差量、原静态命令和两版正式页首。

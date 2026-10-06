@@ -1,0 +1,13 @@
+# D28 SPA rev0.2 独立窄静审
+
+结论：**STATIC PASS（有界规格结论），S-SPA-04 关闭。** 原 S-SPA-01/02/03 的闭合结论复用；无剩余已发现的规格阻断，无需扩大 16 路径。尚无实现/构建/动态通过或资源授权。
+
+固定输入：`/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/d28-central-spa-hosting.rev0.2.draft.md`，全文 SHA `84529007e9c71258d3a5fb84334c412d0d92b8a0ce6d7e8c09ba8352f61ab5a8`，技术 SHA `f5399abe8b3137d4a8d8e8bbb3d2ddf6186013ae1ed092ecfa473b19a5967220`；同根 `rev0.1-to-rev0.2.diff` SHA `b81c899ae001ed43af56538ec7ba457dce27030ef45651350d242e948366d860`。已实际复核三项 SHA、§1–3 原字节及 16 路径名单不变。依据仍为固定 Git `97f45518f31c8b7b835b02c8624eb7aa321a1894` / 前端 `628612c`。
+
+- **局部恢复可落实。** 固定 `httpapi/response_writer.go:27–34,104–119` 的 stateOf/trackResponse 沿公开 Unwrap 复用既有私有状态；新增窄 writer 不需要访问 committed 或自己复制状态机。`httpapi.Recover(nil,next)` 不调用 WithRequestID；传入安全 request 的现有身份/取消链不变。渲染 next 才恢复原 URL，故局部 500 的 instance 仍常量；HEAD 保持原 Method，无 body。
+- **写失败不会补第二份错误。** 窄 writer 把底层短写/Write 错误转为 ErrAbortHandler，能覆盖固定 WriteProblem 忽略 Write 返回值的路径。局部 Recover 共用原 committed 状态，已提交异常不会重写 500；如果错误发生在 Recover 自己写 500 的 defer 内，异常向 scope 最外清理 defer 传播，规范为 ErrAbortHandler，外层公共 Recover 只中止。此逻辑与固定 `httpapi/middleware.go:60–83` 一致，不需要公共接口变更。
+- **实际尾部回到 gate 之内。** 单一 withWebResponse 在调用局部 Recover 之前建立期限/context/callback，正常恢复的 500 也须 Flush；随后 stop、取消、实际 join，只有成功且可复用才清 deadline。该函数结束后原 gate defer 才恰一次 finishHTTP。能力不足/设置失败/已过期直接中止，不尝试无界 Problem；scope 逃出异常不得在清理之后再让外层写 500。取消不能只凭 ctx.Done 当作 I/O 或回调结束。因而修订不再依赖原错误的 finishHTTP→外层写 500 顺序。
+- **拒绝与旧链清楚分开。** 原 stopping/admit 条件短路不变，SPA 私有标记只让拒绝分支进入同一有界 503 scope，不重试 admission、不调用 finishHTTP、不执行 renderer。非 SPA/API/诊断/no-tag 继续原 writer、请求、headers/body 限额、取消和 gate；没有全域生命周期修复或第二 RequestID。物理 TCP 关闭仍由 net/http 接手，规格已明确不冒称它先于 finishHTTP。
+- **现公开 native 能力足够，验收入口可达。** 固定 ResponseController 的 SetWriteDeadline/Flush 沿 Unwrap；外层 tracked writer 原有 FlushError 继续通往 native。#10 可以在同一真实 middleware/scope/gate 调用栈以受控 Write/Flush/callback 屏障证明计数先后，再以 native loopback 证明 500/503/HEAD、唯一身份、abort 和成功后 keepalive。把慢小 Problem 的受控阻塞与自然 TCP 背压区分正确；无需伪造原生背压或放宽 30s/更早 parent 及 45s 检查预算。
+
+本轮只读冻结差量、固定 middleware/problem/response_writer/gate 及 Go1.27.1 ResponseController 定义；未写产品/探针，未构建、运行测试、监听器、Docker 或浏览器。原 rev0/rev0.1 报告实际核 SHA 未变；本件及 JSON 交付后永久停写。后续实现仍须取得正文要求的纯/native/两真实 top 证据，本 STATIC PASS 不替代它们。

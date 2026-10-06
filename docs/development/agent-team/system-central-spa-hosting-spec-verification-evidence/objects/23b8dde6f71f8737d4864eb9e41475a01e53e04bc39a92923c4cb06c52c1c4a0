@@ -1,0 +1,41 @@
+{
+  "role": "independent specification static verification",
+  "verdict": "NEEDS_NARROW_CLARIFICATION",
+  "draft": "/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/d28-central-spa-hosting.draft.md",
+  "draft_sha256": "931a4b067cfa738bb33fed68085346f2b278e864a1a0ce97710e26e353865efd",
+  "draft_technical_sha256": "b5f88d6e269407be65e91c16a65cea4cc057016da6361b44c72b23c6ef1bae7b",
+  "fixed_git": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+  "frontend_git": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "findings": [
+    "S-SPA-01",
+    "S-SPA-02",
+    "S-SPA-03"
+  ],
+  "candidate_paths": 16,
+  "existing_paths": [
+    "internal/central/app/app.go"
+  ],
+  "prior_dist": {
+    "manifest_sha256": "3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37",
+    "verified_file_count": 36,
+    "verified_bytes": 547593,
+    "dot_or_underscore_asset_segments": 0,
+    "evidence_scope": "prior frozen output shape only; not D28 release build"
+  },
+  "performed": [
+    "read fixed specification/source/toolchain documentation",
+    "read bounded prior frozen dist and compare listed SHA256",
+    "write private review"
+  ],
+  "not_performed": [
+    "product/probe edits",
+    "Git mutation",
+    "build",
+    "test",
+    "listener/server",
+    "Docker",
+    "browser",
+    "real infrastructure"
+  ],
+  "report_sha256": "99a3fe9215d4de2fea7d193a95b575ef2ef110688ad3fac4ae5b158ac42894c2"
+}

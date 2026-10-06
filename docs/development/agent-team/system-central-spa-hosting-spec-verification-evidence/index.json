@@ -1,0 +1,608 @@
+{
+  "administrative_updates": {
+    "AGENTS.md": {
+      "after_sha256": "49d1912aab949ebaa3d81419e53a8a13f5e15022dcc077baa7637035c217e08f",
+      "base_git_ref": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:AGENTS.md",
+      "inserted_text": "\nThe [Central SPA hosting specification](docs/development/agent-team/system-central-spa-hosting-spec-verification.md) is accepted in `7a490ac` after three independent static reviews. Its 16-path scope fixes an explicit embedded Web release build, strict API/page/asset separation, safe error projection and bounded actual response completion inside HTTP admission. The backend author and independent planning have actually started in private workspaces against `97f4551` and frontend `628612c`; implementation, release-build, native HTTP and browser acceptance remain pending, with no dynamic resource authorization. SMTP delivery UI remains unaccepted while its authority failure undergoes a private repair. Existing stopped tasks, pending Summary defaults, unbound production capabilities and ready503 remain unchanged.\n",
+      "offset": 10328,
+      "preserves_all_base_bytes": true
+    },
+    "docs/development/agent-team/README.md": {
+      "after_sha256": "9d8bad3c85cf2a34fd0d9360bbc9eb27ea5c76082222a174984f78d599701c40",
+      "base_git_ref": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:docs/development/agent-team/README.md",
+      "inserted_text": "\n当前 [Central SPA 托管规格归档](system-central-spa-hosting-spec-verification.md)记录已接受规格 `7a490ac`、三次独立静审及16路径私有实施的实际启动；它不表示产品、发布构建或真实浏览器通过。当前派工与未完成边界以[任务台账](tasks.md)和[接续记录§24](recovery-2026-10-06-continuation.md#24-central-嵌入-spa-规格采纳与私有实施启动)为准，公共治理规则保持不变。\n",
+      "offset": 817,
+      "preserves_all_base_bytes": true
+    },
+    "docs/development/agent-team/recovery-2026-10-06-continuation.md": {
+      "after_sha256": "2196d2d006f63e1648fe4ecd8d5ee6b44cd360e826b6434de22c02174067e889",
+      "base_git_ref": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:docs/development/agent-team/recovery-2026-10-06-continuation.md",
+      "inserted_text": "\n## 24. Central 嵌入 SPA 规格采纳与私有实施启动\n\n§1–23保留原阶段事实。[正式卡 rev1](../work-items/d28-central-spa-hosting.md)已在三次独立静审后获有界 STATIC PASS，主线程采纳并提交推送 `7a490ac7d5b09c1fff564fc50af93bfe236c1d71`，主线程核远端一致。[规格报告与最小证据](system-central-spa-hosting-spec-verification.md)固定设计97f4551、前端628612c、被审rev0.2全文845290…1ab5a8及技术§1–7 f5399abe…967220。正式卡原页首保留其提交前事实，当前授权状态由本节追加说明，不改技术或旧历史。\n\nrev0原三项静态接缝为初始化前纯构造、外层错误的安全instance／日志投影、既有data favicon与嵌入集合；rev0.1关闭三项但仍有未提交panic写500位于admission／期限之外的尾部问题；rev0.2限定SPA局部Recover与统一withWebResponse，实际写／Flush／stop＋join后才归还准入，拒绝503沿同预算。三次均为规格静审，没有对应产品动态RED或构建PASS。16路径未扩，只有既有app.go需要修改，其余15为新路径。\n\n后端作者在 `/workspace/scratch/agenteam-central-spa-author-gfjizhr4` 已实际启动私有16路径实施，固定97f4551／web628612c并读取7a490ac卡；首阶段是bundle／handler与构建脚本的纯检查。独立验收私有计划也已实际启动并冻结plan／basis原件，未消费活动源码；计划不等于实现审查或运行。尚未运行发布构建、native或真实资源，没有任何这些能力的通过结论；正式单二进制／空CWD／真实登录深链接代表须后续验收。\n\n本档18逻辑原件以16新SHA对象、正式卡Git原件及既有SMTP配置input04清单复用；33项必要Git引用不复制全树、依赖或dist。原独审只保存md／json，没有单独command／raw／环境／退出时长文件；不补造历史执行记录。旧36个dist／547593字节仅是原静审观察到的输入形状，不是D28发布证据。\n\nSMTP投递UI的authority01失败已有静态产品归因，私有修复仍未验收，不能用旧§23的启动状态或本规格推成产品交付。完整D08–D28/E01未完成，E01未开始；Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503及其它未验边界保持。本次只是报告／证据与行政索引候选，不修改SPA技术正文、SMTP卡、前端README或任何产品文件。\n",
+      "offset": 58556,
+      "preserves_all_base_bytes": true
+    },
+    "docs/development/agent-team/tasks.md": {
+      "after_sha256": "3506a18c91ab51eac5332c77a56fec282d59fc5e525e609f106ab79df385635c",
+      "base_git_ref": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:docs/development/agent-team/tasks.md",
+      "inserted_text": "\n## 2026-10-06：Central 嵌入 SPA 规格采纳与私有实施启动\n\n- [正式卡 rev1](../work-items/d28-central-spa-hosting.md)已获第三次独立有界 STATIC PASS、主线程采纳并提交推送 `7a490ac7d5b09c1fff564fc50af93bfe236c1d71`，主线程核远端一致；技术§1–7 `f5399abe…967220`保持。[规格报告与最小证据](system-central-spa-hosting-spec-verification.md)保留 rev0／0.1／0.2、两次技术差量、两版正式页首和三次独审，原四项规格接缝均已关闭，不称产品动态失败。\n- 16路径（15新／1旧）固定消费97f4551／前端628612c：显式真实 Vite＋嵌入发布与普通 Go 构建分开，严格分流不吞 API／缺资产／错误；SPA 私有错误投影、局部写期限／Flush／取消回调实际 join 后才释放准入。33项必要固定Git引用替代完整树；18逻辑原件为16新对象＋正式卡Git＋既有manifest复用。\n- backend 私有实施与独立私有计划均已实际启动。当前仅首阶段 bundle／handler／构建脚本纯检查方向，**没有发布构建、native、浏览器或真实基础设施通过，没有动态资源授权**；后续16源冻结、独立验证和实际清理另行记录。\n- SMTP 投递 UI authority01 原失败已获静态产品归因，正私有修复，尚无该产品交付；不从旧入口阶段状态推成接受。完整D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project及生产未绑定／ready503保持。\n",
+      "offset": 227,
+      "preserves_all_base_bytes": true
+    },
+    "docs/development/backend/README.md": {
+      "after_sha256": "21a952ffc96c0b8ab81e71f28df35d14256097fc961fd2a2434be5c3cdbdaa48",
+      "base_git_ref": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:docs/development/backend/README.md",
+      "inserted_text": "\n[Central 嵌入 SPA 规格](../work-items/d28-central-spa-hosting.md)已在 `7a490ac` 经独立有界静审采纳，[原稿、审查与当前行政状态](../agent-team/system-central-spa-hosting-spec-verification.md)已归档。规划的显式 Web 发布将真实前端闭包嵌入 Central；普通无 tag Go 构建仍沿原行为。16路径私有实施已启动，但尚无发布构建、native HTTP或正式二进制浏览器验收；本段不宣称 Central 已提供生产 SPA，也不改变下列现有命令、运行依赖和 ready503。\n",
+      "offset": 4922,
+      "preserves_all_base_bytes": true
+    }
+  },
+  "artifacts": {
+    "author/d28-central-spa-hosting.draft.md": {
+      "bytes": 21115,
+      "object": "objects/931a4b067cfa738bb33fed68085346f2b278e864a1a0ce97710e26e353865efd",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/d28-central-spa-hosting.draft.md",
+      "sha256": "931a4b067cfa738bb33fed68085346f2b278e864a1a0ce97710e26e353865efd",
+      "storage": "object"
+    },
+    "author/d28-central-spa-hosting.md": {
+      "bytes": 30187,
+      "object": "objects/975565c84e032a5250ef78837aaabffed53837f2ee3df87f990a96eb25521619",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/d28-central-spa-hosting.md",
+      "sha256": "975565c84e032a5250ef78837aaabffed53837f2ee3df87f990a96eb25521619",
+      "storage": "object"
+    },
+    "author/d28-central-spa-hosting.rev0.1.draft.md": {
+      "bytes": 26065,
+      "object": "objects/ffca4c1620f01e04144f61cb7fec8ce49b8622f9a2ffee1ea40a0053c99842ea",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/d28-central-spa-hosting.rev0.1.draft.md",
+      "sha256": "ffca4c1620f01e04144f61cb7fec8ce49b8622f9a2ffee1ea40a0053c99842ea",
+      "storage": "object"
+    },
+    "author/d28-central-spa-hosting.rev0.2.draft.md": {
+      "bytes": 29472,
+      "object": "objects/84529007e9c71258d3a5fb84334c412d0d92b8a0ce6d7e8c09ba8352f61ab5a8",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/d28-central-spa-hosting.rev0.2.draft.md",
+      "sha256": "84529007e9c71258d3a5fb84334c412d0d92b8a0ce6d7e8c09ba8352f61ab5a8",
+      "storage": "object"
+    },
+    "author/d28-central-spa-hosting.rev1-v2.md": {
+      "bytes": 30073,
+      "git_ref": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:docs/development/work-items/d28-central-spa-hosting.md",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/d28-central-spa-hosting.rev1-v2.md",
+      "sha256": "88b95723ad1c8a122f181123afceaaf72c375e7c55840cb3c009e414ee1e9e0c",
+      "storage": "git"
+    },
+    "author/rev0-to-rev0.1.diff": {
+      "bytes": 18636,
+      "object": "objects/7c9137fe4c7ac8c3565737e8b7ede2d4d43d9f4ea9893a1a106bb0ea299723b7",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/rev0-to-rev0.1.diff",
+      "sha256": "7c9137fe4c7ac8c3565737e8b7ede2d4d43d9f4ea9893a1a106bb0ea299723b7",
+      "storage": "object"
+    },
+    "author/rev0.1-to-rev0.2.diff": {
+      "bytes": 20102,
+      "object": "objects/b81c899ae001ed43af56538ec7ba457dce27030ef45651350d242e948366d860",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/rev0.1-to-rev0.2.diff",
+      "sha256": "b81c899ae001ed43af56538ec7ba457dce27030ef45651350d242e948366d860",
+      "storage": "object"
+    },
+    "author/rev0.2-to-rev1-header.diff": {
+      "bytes": 2623,
+      "object": "objects/f5025b468dae2722e71a127e56be1524119ade1a5db1a69fa3ed99619cabb8c4",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/rev0.2-to-rev1-header.diff",
+      "sha256": "f5025b468dae2722e71a127e56be1524119ade1a5db1a69fa3ed99619cabb8c4",
+      "storage": "object"
+    },
+    "author/rev1-to-rev1-v2-header.diff": {
+      "bytes": 1037,
+      "object": "objects/b3a94acfeba3c2338200f3ca6c82a3010d35d8c9bb80d6406be0e43a7d839862",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/rev1-to-rev1-v2-header.diff",
+      "sha256": "b3a94acfeba3c2338200f3ca6c82a3010d35d8c9bb80d6406be0e43a7d839862",
+      "storage": "object"
+    },
+    "independent-plan/basis.json": {
+      "bytes": 3954,
+      "object": "objects/500c90f022e41b7ac1605feac84b4094824abe314b3dda10ac89c215ff5bf9fe",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/basis.json",
+      "scope": "Plan/static preparation only; no product input, probe, build, driver or dynamic authorization",
+      "sha256": "500c90f022e41b7ac1605feac84b4094824abe314b3dda10ac89c215ff5bf9fe",
+      "storage": "object"
+    },
+    "independent-plan/plan.md": {
+      "bytes": 12543,
+      "object": "objects/b906fed039f28452e3388b98375436cbf2b99e5b6f47825c41c6c3f2614e179a",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/plan.md",
+      "scope": "Plan/static preparation only; no product input, probe, build, driver or dynamic authorization",
+      "sha256": "b906fed039f28452e3388b98375436cbf2b99e5b6f47825c41c6c3f2614e179a",
+      "storage": "object"
+    },
+    "independent/rev0.1-review.json": {
+      "bytes": 623,
+      "object": "objects/0b4788e0d800817a7d3ee0972af70058e590933295d22f509b20a53fac7b2637",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/rev0.1-review.json",
+      "sha256": "0b4788e0d800817a7d3ee0972af70058e590933295d22f509b20a53fac7b2637",
+      "storage": "object"
+    },
+    "independent/rev0.1-review.md": {
+      "bytes": 3767,
+      "object": "objects/79373ac9b4c2d2af1430f3a7f294eb5e8e0be1af1a5dd73863c142cf723d969e",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/rev0.1-review.md",
+      "sha256": "79373ac9b4c2d2af1430f3a7f294eb5e8e0be1af1a5dd73863c142cf723d969e",
+      "storage": "object"
+    },
+    "independent/rev0.2-review.json": {
+      "bytes": 798,
+      "object": "objects/eae0d3a194214485cb67de411567ed6e01feb00ee03aeaf56bf07a2846f9401c",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/rev0.2-review.json",
+      "sha256": "eae0d3a194214485cb67de411567ed6e01feb00ee03aeaf56bf07a2846f9401c",
+      "storage": "object"
+    },
+    "independent/rev0.2-review.md": {
+      "bytes": 3681,
+      "object": "objects/a30945d1cab277971ccba26912a76e82b8cb47451a34776f88c497bf477dbee8",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/rev0.2-review.md",
+      "sha256": "a30945d1cab277971ccba26912a76e82b8cb47451a34776f88c497bf477dbee8",
+      "storage": "object"
+    },
+    "independent/review.json": {
+      "bytes": 1398,
+      "object": "objects/23b8dde6f71f8737d4864eb9e41475a01e53e04bc39a92923c4cb06c52c1c4a0",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/review.json",
+      "sha256": "23b8dde6f71f8737d4864eb9e41475a01e53e04bc39a92923c4cb06c52c1c4a0",
+      "storage": "object"
+    },
+    "independent/review.md": {
+      "bytes": 6788,
+      "object": "objects/99a3fe9215d4de2fea7d193a95b575ef2ef110688ad3fac4ae5b158ac42894c2",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/review.md",
+      "sha256": "99a3fe9215d4de2fea7d193a95b575ef2ef110688ad3fac4ae5b158ac42894c2",
+      "storage": "object"
+    },
+    "prior-accepted/smtp-settings-input04-manifest.json": {
+      "bytes": 310607,
+      "origin": "/workspace/agenteam/docs/development/agent-team/system-smtp-settings-ui-verification-evidence/objects/3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37",
+      "path": "docs/development/agent-team/system-smtp-settings-ui-verification-evidence/objects/3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37",
+      "scope": "Reuse manifest only; original independent report states 36 dist files/547593 bytes were read. This archive does not repeat the dist read or treat it as a D28 release.",
+      "sha256": "3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37",
+      "storage": "repository"
+    }
+  },
+  "candidate_scope": [
+    {
+      "exists_at_design_base": false,
+      "number": 1,
+      "path": "internal/central/webassets/handler.go"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 2,
+      "path": "internal/central/webassets/handler_test.go"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 3,
+      "path": "internal/central/webassets/bundle.go"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 4,
+      "path": "internal/central/webassets/bundle_test.go"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 5,
+      "path": "internal/central/webassets/bundle_release.go"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 6,
+      "path": "internal/central/webassets/bundle_backend.go"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 7,
+      "path": "internal/central/webassets/bundle/.gitignore"
+    },
+    {
+      "exists_at_design_base": true,
+      "number": 8,
+      "path": "internal/central/app/app.go"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 9,
+      "path": "internal/central/app/webassets.go"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 10,
+      "path": "internal/central/app/webassets_test.go"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 11,
+      "path": "scripts/build-central-web.mjs"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 12,
+      "path": "scripts/build-central-web.test.mjs"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 13,
+      "path": "tests/process/central_web_test.go"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 14,
+      "path": "tests/account-captcha-web/central-spa.config.js"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 15,
+      "path": "tests/account-captcha-web/e2e/central-spa.spec.ts"
+    },
+    {
+      "exists_at_design_base": false,
+      "number": 16,
+      "path": "docs/development/backend/frontend-hosting.md"
+    }
+  ],
+  "card_path": "docs/development/work-items/d28-central-spa-hosting.md",
+  "card_sha256": "88b95723ad1c8a122f181123afceaaf72c375e7c55840cb3c009e414ee1e9e0c",
+  "counts": {
+    "candidate_paths": 16,
+    "existing_candidate_paths": 1,
+    "git_references": 33,
+    "logical_artifacts": 18,
+    "new_candidate_paths": 15,
+    "new_object_bytes": 182789,
+    "new_objects": 16
+  },
+  "fixed_design_git": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+  "fixed_frontend_git": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "format": 1,
+  "git_references": {
+    "628612cdfc730cc1d89cad4e24a5d20f36cc6812:web/index.html": {
+      "blob": "3f268a856c8d37f8199e13c38d1bf27a6e48f8ac",
+      "bytes": 548,
+      "commit": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+      "path": "web/index.html",
+      "purpose": [
+        "accepted frontend input reference; no build performed"
+      ],
+      "sha256": "5acac631ce0579748ba55dadaef5c910c62580289c71a9339297eb62037d98fb"
+    },
+    "628612cdfc730cc1d89cad4e24a5d20f36cc6812:web/package-lock.json": {
+      "blob": "5fada3969e90bb48ad582cb4fda659cf741e689b",
+      "bytes": 86893,
+      "commit": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+      "path": "web/package-lock.json",
+      "purpose": [
+        "accepted frontend input reference; no build performed"
+      ],
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    "628612cdfc730cc1d89cad4e24a5d20f36cc6812:web/package.json": {
+      "blob": "f4c678be98e404989c80b8cedbc74cedc5fc3800",
+      "bytes": 984,
+      "commit": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+      "path": "web/package.json",
+      "purpose": [
+        "accepted frontend input reference; no build performed"
+      ],
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    "628612cdfc730cc1d89cad4e24a5d20f36cc6812:web/src/router/auth.ts": {
+      "blob": "dc2e689004f26f3c2a71b1491b27e22d2a30d0fa",
+      "bytes": 7898,
+      "commit": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+      "path": "web/src/router/auth.ts",
+      "purpose": [
+        "accepted frontend input reference; no build performed"
+      ],
+      "sha256": "99a361b8a6408c37ab7fed927225bcb0c6279fac75054a8fe7011d780c1afc1e"
+    },
+    "628612cdfc730cc1d89cad4e24a5d20f36cc6812:web/src/router/index.ts": {
+      "blob": "ce51eb6b8fe1e525d34585029ba4cde88e2e72a0",
+      "bytes": 3520,
+      "commit": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+      "path": "web/src/router/index.ts",
+      "purpose": [
+        "accepted frontend input reference; no build performed"
+      ],
+      "sha256": "bb28432a695df78498973090cae45d061a416e2c96c95dad7d87d59c2e7543f8"
+    },
+    "628612cdfc730cc1d89cad4e24a5d20f36cc6812:web/vite.config.ts": {
+      "blob": "6daa9c5c7984caf95ca92db519fe7f8099c9bae6",
+      "bytes": 979,
+      "commit": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+      "path": "web/vite.config.ts",
+      "purpose": [
+        "accepted frontend input reference; no build performed"
+      ],
+      "sha256": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+    },
+    "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:AGENTS.md": {
+      "blob": "a91d363b28c3211280b0cd07b2f8a02e130cc57f",
+      "bytes": 25888,
+      "commit": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71",
+      "path": "AGENTS.md",
+      "purpose": [
+        "unchanged base for administrative insertion"
+      ],
+      "sha256": "9fd5961d4d627957b80864919c35d4dd08fc04230e634a07721d4c0c1ad42442"
+    },
+    "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:docs/development/agent-team/README.md": {
+      "blob": "942aebd537859977c768dfc02167db4f6e7840a5",
+      "bytes": 14169,
+      "commit": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71",
+      "path": "docs/development/agent-team/README.md",
+      "purpose": [
+        "unchanged base for administrative insertion"
+      ],
+      "sha256": "484c5c9998cffee13083df540e389d02e885fe8da57248636ee9aa8ad2b71116"
+    },
+    "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:docs/development/agent-team/recovery-2026-10-06-continuation.md": {
+      "blob": "d539621a6fd6473bbc704321eeac7018295f455f",
+      "bytes": 58556,
+      "commit": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71",
+      "path": "docs/development/agent-team/recovery-2026-10-06-continuation.md",
+      "purpose": [
+        "unchanged base for administrative insertion"
+      ],
+      "sha256": "38d6fa88c604e325208bbcec68d3bf9e84953b29c7018409f6374a52cec99b24"
+    },
+    "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:docs/development/agent-team/tasks.md": {
+      "blob": "c8618615263ede8904f8baabe3c6f74d87c5b11c",
+      "bytes": 255557,
+      "commit": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71",
+      "path": "docs/development/agent-team/tasks.md",
+      "purpose": [
+        "unchanged base for administrative insertion"
+      ],
+      "sha256": "be8554c14ff171b360163ddf89c795c046f49b74351d3dd47ae40f28a3736d80"
+    },
+    "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:docs/development/backend/README.md": {
+      "blob": "c4ef4d8d447cbbf98ece9c3a818793dcb8c89fb0",
+      "bytes": 34265,
+      "commit": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71",
+      "path": "docs/development/backend/README.md",
+      "purpose": [
+        "unchanged base for administrative insertion"
+      ],
+      "sha256": "c4201baa163ba69873f6762ddd347ad787553a531233d1e9994d630fc958e159"
+    },
+    "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:docs/development/work-items/d28-central-spa-hosting.md": {
+      "blob": "9c038a05ec8e4469bc67fa07a3f8dd16a9594b63",
+      "bytes": 30073,
+      "commit": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71",
+      "path": "docs/development/work-items/d28-central-spa-hosting.md",
+      "purpose": [
+        "accepted specification original"
+      ],
+      "sha256": "88b95723ad1c8a122f181123afceaaf72c375e7c55840cb3c009e414ee1e9e0c"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:.agents/skills/agenteam-verification/SKILL.md": {
+      "blob": "3ef1c0ccbd07db850887317e8381bbd7e2daa223",
+      "bytes": 4496,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": ".agents/skills/agenteam-verification/SKILL.md",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "a982bdc7614bbe2283d690fadf5628775175e0745b4bb2acebf3f5ba4ad1fa61"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:AGENTS.md": {
+      "blob": "a91d363b28c3211280b0cd07b2f8a02e130cc57f",
+      "bytes": 25888,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "AGENTS.md",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "9fd5961d4d627957b80864919c35d4dd08fc04230e634a07721d4c0c1ad42442"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:docs/architecture/platform-infrastructure/deployment-runtime.md": {
+      "blob": "7c00f685db2788000ec23f897a84059bd85ba799",
+      "bytes": 16992,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "docs/architecture/platform-infrastructure/deployment-runtime.md",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "912f4fe2980fb8dad19ac741a16fe765006d4dd70d4b574e87b7327e6be2def6"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:docs/development/development-plan.md": {
+      "blob": "f78c13ef2588a7ae5ccdd904925f0967d5fd17d2",
+      "bytes": 66579,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "docs/development/development-plan.md",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "307d8c418cc81bbf1a3eb9a4089b01b0d12b87dfd424d77fd081a391437505b0"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:docs/development/frontend/README.md": {
+      "blob": "8d17c1a55ffff6cc9f6f5f39ea1011e505808c7b",
+      "bytes": 47995,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "docs/development/frontend/README.md",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "460b0fb647eedb005cdf36ba0c7e379175aaa56b59d5dbad8b3bbfac08fd2831"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:go.mod": {
+      "blob": "2db97d5624d9575b72eb8e345b064bc4185388dc",
+      "bytes": 1468,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "go.mod",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/account/http_wire.go": {
+      "blob": "de3e5c3966428657e4825063a089522f83348675",
+      "bytes": 7376,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/account/http_wire.go",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/app/app.go": {
+      "blob": "e80e127dffb438678fd2d09158a9c965ea515623",
+      "bytes": 20242,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/app/app.go",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "16d03bee7c067afd57119d3d318f94119bf2cf3db033ed52afd9d380a39cf005"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/app/diagnostics.go": {
+      "blob": "cf4a4dcf9cf947d7e856d356ef7a917fb1b05595",
+      "bytes": 4767,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/app/diagnostics.go",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "05fbac74ffc67dc9499130eff386ef253881ce5c3c8504d2cd3f0244f4993164"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/app/resources.go": {
+      "blob": "5038ff1a38d0d8dfb2bd8a0d2c3b952d0e8f84c0",
+      "bytes": 8722,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/app/resources.go",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "b1560671393b44a7911adf3baa8f4433da036d89e9478e225051dbbadfde07a5"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/httpapi/middleware.go": {
+      "blob": "c40cc776618f862b3b38522c7737ca79644534f9",
+      "bytes": 3178,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/httpapi/middleware.go",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "3db915b7be11aa978347a434bb22a2c6ae225022b65dac9ca2e1349e3008491c"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/httpapi/problem.go": {
+      "blob": "f489d6b96621bc8dfdac29a63575d2b6ceba9dd5",
+      "bytes": 8391,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/httpapi/problem.go",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/httpapi/response_writer.go": {
+      "blob": "6f3ca6b0cb76752adccde7cac5be47e3ca333776",
+      "bytes": 3529,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/httpapi/response_writer.go",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "360d0992159938812cfdad706a4b8b53de1e7673859462100aad4bd44bd361bc"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/httpapi/router.go": {
+      "blob": "cf2eff61f04ccbd785cba617aee44f3ca8999481",
+      "bytes": 1675,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/httpapi/router.go",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "23adf225d48f5458548d5b2b239933bfa921947aafb92652ea9abdbe05cfa399"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/project/contract/validation.go": {
+      "blob": "4ad29bd8cc99b46af8c640dcc925d33b02575754",
+      "bytes": 4989,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/project/contract/validation.go",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "73db8aeb4db685433279cdeeb119fe12a231d7193d9b93e97305b7f30445c64b"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:scripts/build-go.sh": {
+      "blob": "7a8b2b6e028f89eb08799a756f1510913e1598db",
+      "bytes": 532,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "scripts/build-go.sh",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "cf11d5c7cf3bd35794fb0f2b674cc2fa5ecf967793dbdf5ce8ea775eb3f66ef8"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:scripts/check-go.sh": {
+      "blob": "8a3675f32e9ad17b497edbdcfd42b068be77ea1a",
+      "bytes": 630,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "scripts/check-go.sh",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "e98f8fc82d0dad14511631e8490314d6fe2a2880682b2f4caddc0d0834b8b816"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:scripts/test-postgres.sh": {
+      "blob": "ec4a47d9797ceabef2eb173dfd1099369da65f7a",
+      "bytes": 1353,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "scripts/test-postgres.sh",
+      "purpose": [
+        "independent plan fixed-source reference; not executed"
+      ],
+      "sha256": "eddfb4f44288f8ec448400b02435f5fd6d6c44b0d80003fd34f7785e2980cdfe"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:tests/process/account_database_test.go": {
+      "blob": "74d6771e8ed586161cfc061f5e84be05a1209954",
+      "bytes": 4332,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "tests/process/account_database_test.go",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "e489aa92a8399d61a4c52441f5ea9ace25ee09bcffa1495616c2d489a8fef6a3"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:tests/process/process_test.go": {
+      "blob": "970a9f173ec02bcb2fcf4fab9459d5f295919b2a",
+      "bytes": 14410,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "tests/process/process_test.go",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "fcbf27e63b52b361d307ed22a0585dc0752ba471d7d1fb2348a0077b28d21b60"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:tests/testsupport/accountenv/environment.go": {
+      "blob": "b8936a7e8873e751c99154e2d7cf46f736c541c1",
+      "bytes": 2208,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "tests/testsupport/accountenv/environment.go",
+      "purpose": [
+        "bounded specification/static-review source or governance reference"
+      ],
+      "sha256": "08c4822e76f349396053ee877f9eadb283018838d7ced5bfd642516a5012c9aa"
+    }
+  },
+  "historical_record_limits": [
+    "The three original independent rounds retained md/json only, not standalone command/raw/environment/exit/duration files in the supplied frozen root. No such records are reconstructed.",
+    "Original Go1.27.1 standard-library references remain citations in the independent reports, not archived as a full toolchain.",
+    "Prior accepted dist shape observation is distinct from a new D28 production build; its permanent input manifest is reused without copying/rechecking dist."
+  ],
+  "no_web_delta_between_fixed_bases": true,
+  "report_path": "docs/development/agent-team/system-central-spa-hosting-spec-verification.md",
+  "scope": "Accepted specification and administrative handoff only; no implementation/build/native/browser acceptance",
+  "spec_commit": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71",
+  "technical_sha256": "f5399abe8b3137d4a8d8e8bbb3d2ddf6186013ae1ed092ecfa473b19a5967220"
+}

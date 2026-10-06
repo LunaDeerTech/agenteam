@@ -1,0 +1,17 @@
+--- d28-central-spa-hosting.rev0.2.draft.md
++++ d28-central-spa-hosting.md
+@@ -1,6 +1,12 @@
+-# D28 Central 嵌入式 SPA 与严格 HTTP 分流（私有规格候选 rev0.2）
++# D28 Central 嵌入式 SPA 与严格 HTTP 分流（工作项 rev1）
+ 
+-状态：2026-10-06 主线程仅授权本私有 rev0.2 窄修，正式卡、产品、构建与动态资源均未授权。原 rev0/0.1 和两次独审保持；rev0.1 全文 SHA `ffca4c1620f01e04144f61cb7fec8ce49b8622f9a2ffee1ea40a0053c99842ea`。独立报告 `/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/rev0.1-review.md`（SHA `79373ac9b4c2d2af1430f3a7f294eb5e8e0be1af1a5dd73863c142cf723d969e`）关闭前三项，新增静态接缝 S-SPA-04；本稿只修 SPA 局部恢复/实际写尾部和 admission 拒绝预算，并补对应窄验收，等待复审，不声称产品动态 RED。固定 `97f45518f31c8b7b835b02c8624eb7aa321a1894`/前端 `628612cdfc730cc1d89cad4e24a5d20f36cc6812` 与原16候选路径不变，不消费 SMTP17 活动输入或后继 Outbound UI 实现。
++状态：2026-10-06 **独立有界 STATIC PASS，主线程已采纳规格，待提交**。本文件仍是私有正式卡候选，目标路径为 `docs/development/work-items/d28-central-spa-hosting.md`；产品实施、构建、浏览器和基础设施资源尚未授权，必须由主线程提交后另行下发。
++
++固定依赖为已接受 `97f45518f31c8b7b835b02c8624eb7aa321a1894`，前端产品 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`；16个候选路径固定，不依赖 SMTP17 活动实现/修复或后继 Outbound UI。已接受的静态规格不等于产品、发布构建或动态验收通过，不改变未绑定能力、停止任务与完整D28门槛。
++
++被审原件为 [rev0.2 私有稿](/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/d28-central-spa-hosting.rev0.2.draft.md)，全文 SHA `84529007e9c71258d3a5fb84334c412d0d92b8a0ce6d7e8c09ba8352f61ab5a8`；[独立 rev0.2 报告](/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/rev0.2-review.md) SHA `a30945d1cab277971ccba26912a76e82b8cb47451a34776f88c497bf477dbee8`，确认 S-SPA-04 关闭并复用前三项闭合结论。原 rev0、rev0.1、rev0.2 与各次差量/独立报告均保留。
++
++技术§1–7与被审rev0.2原字节一致，SHA `f5399abe8b3137d4a8d8e8bbb3d2ddf6186013ae1ed092ecfa473b19a5967220`。正文中的“候选/待采纳”等文字保留当时技术稿表述，当前规格状态以本页首为准；实施与资源另授的门槛保持。rev1仅更新标题及页首状态/来源，没有技术修订。
+ 
+ ## 1. 完整结果、依据与真实依赖
+ 

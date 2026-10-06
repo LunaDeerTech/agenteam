@@ -1,0 +1,94 @@
+{
+  "format": 1,
+  "status": "PLAN_ONLY_NO_PRODUCT_INPUT_OR_EXECUTION",
+  "role": "independent_verification_worker",
+  "independence": "Authored specification; did not implement SPA product or author tests. Prior independent specification review is separate from implementation acceptance.",
+  "accepted_card": {
+    "git": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71",
+    "path": "docs/development/work-items/d28-central-spa-hosting.md",
+    "sha256": "88b95723ad1c8a122f181123afceaaf72c375e7c55840cb3c009e414ee1e9e0c",
+    "technical_sha256": "f5399abe8b3137d4a8d8e8bbb3d2ddf6186013ae1ed092ecfa473b19a5967220"
+  },
+  "product_base": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+  "frontend_base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "spec_review": {
+    "path": "/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/rev0.2-review.md",
+    "sha256": "a30945d1cab277971ccba26912a76e82b8cb47451a34776f88c497bf477dbee8",
+    "use": "specification-only; not product/dynamic evidence"
+  },
+  "verification_skill": {
+    "path": ".agents/skills/agenteam-verification/SKILL.md",
+    "sha256": "a982bdc7614bbe2283d690fadf5628775175e0745b4bb2acebf3f5ba4ad1fa61"
+  },
+  "plan": {
+    "path": "plan.md",
+    "sha256": "b906fed039f28452e3388b98375436cbf2b99e5b6f47825c41c6c3f2614e179a"
+  },
+  "candidate_paths": [
+    "internal/central/webassets/handler.go",
+    "internal/central/webassets/handler_test.go",
+    "internal/central/webassets/bundle.go",
+    "internal/central/webassets/bundle_test.go",
+    "internal/central/webassets/bundle_release.go",
+    "internal/central/webassets/bundle_backend.go",
+    "internal/central/webassets/bundle/.gitignore",
+    "internal/central/app/app.go",
+    "internal/central/app/webassets.go",
+    "internal/central/app/webassets_test.go",
+    "scripts/build-central-web.mjs",
+    "scripts/build-central-web.test.mjs",
+    "tests/process/central_web_test.go",
+    "tests/account-captcha-web/central-spa.config.js",
+    "tests/account-captcha-web/e2e/central-spa.spec.ts",
+    "docs/development/backend/frontend-hosting.md"
+  ],
+  "fixed_source_fingerprints": [
+    {
+      "git": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/app/app.go",
+      "sha256": "16d03bee7c067afd57119d3d318f94119bf2cf3db033ed52afd9d380a39cf005"
+    },
+    {
+      "git": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/httpapi/middleware.go",
+      "sha256": "3db915b7be11aa978347a434bb22a2c6ae225022b65dac9ca2e1349e3008491c"
+    },
+    {
+      "git": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/httpapi/problem.go",
+      "sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde"
+    },
+    {
+      "git": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/httpapi/response_writer.go",
+      "sha256": "360d0992159938812cfdad706a4b8b53de1e7673859462100aad4bd44bd361bc"
+    },
+    {
+      "git": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "tests/process/process_test.go",
+      "sha256": "fcbf27e63b52b361d307ed22a0585dc0752ba471d7d1fb2348a0077b28d21b60"
+    },
+    {
+      "git": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "tests/process/account_database_test.go",
+      "sha256": "e489aa92a8399d61a4c52441f5ea9ace25ee09bcffa1495616c2d489a8fef6a3"
+    },
+    {
+      "git": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "scripts/test-postgres.sh",
+      "sha256": "eddfb4f44288f8ec448400b02435f5fd6d6c44b0d80003fd34f7785e2980cdfe"
+    },
+    {
+      "git": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "scripts/check-go.sh",
+      "sha256": "e98f8fc82d0dad14511631e8490314d6fe2a2880682b2f4caddc0d0834b8b816"
+    }
+  ],
+  "author_frozen_input": null,
+  "independent_probes": null,
+  "executable_driver": null,
+  "runtime_manifest": null,
+  "execution_authorization": null,
+  "actual_dynamic_commands": [],
+  "dynamic_result": "NOT_RUN"
+}

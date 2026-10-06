@@ -278,3 +278,15 @@ SMTP UI、出站HTTP及完整D07/D27仍各自待验，D08–D28/E01未完成、E
 主线程已另授唯一frontend作者17路径私有实现及适用离线检查，README末件最后；作者 `/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd` 四API阶段已实际启动，独立verification私有计划亦已实际启动。当前**未授真实资源，没有实现、浏览器、worker或实际投递PASS**；后续须冻结候选、独立验证及资源终局，不能从本规格记录外推。
 
 本次仅报告／行政入口和新卡页首审查链接／授权状态，技术与旧§1–22保持。外部邮箱／所有TLS、完整SMTP页面及D07/D27／D08–D28/E01未完成、E01未开始；Summary待决、Object/tools原停止、Artifact/Project与生产未绑定／ready503等边界不变。
+
+## 24. Central 嵌入 SPA 规格采纳与私有实施启动
+
+§1–23保留原阶段事实。[正式卡 rev1](../work-items/d28-central-spa-hosting.md)已在三次独立静审后获有界 STATIC PASS，主线程采纳并提交推送 `7a490ac7d5b09c1fff564fc50af93bfe236c1d71`，主线程核远端一致。[规格报告与最小证据](system-central-spa-hosting-spec-verification.md)固定设计97f4551、前端628612c、被审rev0.2全文845290…1ab5a8及技术§1–7 f5399abe…967220。正式卡原页首保留其提交前事实，当前授权状态由本节追加说明，不改技术或旧历史。
+
+rev0原三项静态接缝为初始化前纯构造、外层错误的安全instance／日志投影、既有data favicon与嵌入集合；rev0.1关闭三项但仍有未提交panic写500位于admission／期限之外的尾部问题；rev0.2限定SPA局部Recover与统一withWebResponse，实际写／Flush／stop＋join后才归还准入，拒绝503沿同预算。三次均为规格静审，没有对应产品动态RED或构建PASS。16路径未扩，只有既有app.go需要修改，其余15为新路径。
+
+后端作者在 `/workspace/scratch/agenteam-central-spa-author-gfjizhr4` 已实际启动私有16路径实施，固定97f4551／web628612c并读取7a490ac卡；首阶段是bundle／handler与构建脚本的纯检查。独立验收私有计划也已实际启动并冻结plan／basis原件，未消费活动源码；计划不等于实现审查或运行。尚未运行发布构建、native或真实资源，没有任何这些能力的通过结论；正式单二进制／空CWD／真实登录深链接代表须后续验收。
+
+本档18逻辑原件以16新SHA对象、正式卡Git原件及既有SMTP配置input04清单复用；33项必要Git引用不复制全树、依赖或dist。原独审只保存md／json，没有单独command／raw／环境／退出时长文件；不补造历史执行记录。旧36个dist／547593字节仅是原静审观察到的输入形状，不是D28发布证据。
+
+SMTP投递UI的authority01失败已有静态产品归因，私有修复仍未验收，不能用旧§23的启动状态或本规格推成产品交付。完整D08–D28/E01未完成，E01未开始；Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503及其它未验边界保持。本次只是报告／证据与行政索引候选，不修改SPA技术正文、SMTP卡、前端README或任何产品文件。

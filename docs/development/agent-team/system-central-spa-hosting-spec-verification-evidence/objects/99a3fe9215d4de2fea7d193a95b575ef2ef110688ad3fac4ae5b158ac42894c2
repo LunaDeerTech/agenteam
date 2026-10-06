@@ -1,0 +1,28 @@
+# D28 Central 嵌入 SPA 规格独立静审（rev0）
+
+结论：**需三处窄澄清后再下发实施**。方向及 16 路径范围可行，未发现必须扩大公共接口/路径的证据。下列是固定源码对规格接缝的静态结论，不是既有产品动态失败；未运行构建、测试、探针、监听、浏览器或基础设施，未改主树、草稿或 Git。
+
+输入：`/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/d28-central-spa-hosting.draft.md`。全文 SHA-256 `931a4b067cfa738bb33fed68085346f2b278e864a1a0ce97710e26e353865efd`；从 `## 1.` 至末尾的技术字节 SHA-256 `b5f88d6e269407be65e91c16a65cea4cc057016da6361b44c72b23c6ef1bae7b`。依赖固定 Git `97f45518f31c8b7b835b02c8624eb7aa321a1894`、前端 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`；已核所读 web/src、index、package/lock、vite 配置在两提交间无差量。按固定 AGENTS/验证技能作独立静审。
+
+## 必须钉住的三处接缝
+
+1. **S-SPA-01：纯资产构造必须早于初始化启动，不能仅写“默认 handler 装配前”。** 草稿 §5/行 65 的后半要求“不能先监听”，但固定 `internal/central/app/app.go:122` 已启动 initialize，后者 `:496–508` 启动 Account/Outbox，`:532–535` 绑定并登记 listener，`:155–160` 又启动 health；默认 handler 至 `:162` 才装配。按文字在该装配点新增失败 return，会发生 listener 尚未 Serve 但已拥有资源的尾部缺口。建议明确纯 NewHandler 在 `initialize` goroutine 启动前完成；安全 InitializationFailed 不进入 DB/服务/listen，已有生命周期顺序和 cleanup 不改。若另选较晚构造，必须明写既有完整 cleanup/实际 join，而非只 cancelHealth 或认为未 Serve 就无资源。原 16 路径足够，不要求改 resources.go。
+
+2. **S-SPA-02：常量 Problem instance 须覆盖 SPA 的外层错误，不可假定已有 RouteInstance 接口。** 固定 `httpapi/problem.go:83,140–145` 实际从 URL.Path 生成 instance（已排除 query，但仍反射 path）；固定包没有 RouteInstance 导出。`httpapi/middleware.go:41–47` 日志只读 Pattern，可使用常量；然而 `app/app.go:181–184` 停止门禁和 `httpapi/middleware.go:60–81` 未提交 panic 仍直接 WriteProblem(original request)。局部 SPA request-copy 只解决显式调用它的错误，不自动修这些外层出口。规格应明确：保留单一 httpapi.Handler 和原 API/body-limit/CSRF 请求；原路径先分类；只有 SPA 归属使用常量 route/instance，停止门禁和未提交 panic 也须安全处理，已提交/写失败沿 abort 且无后缀。不能全局改 URL、消掉 RawPath 后再分类、重建 RequestID，或要求新增未授权的公共 httpapi API。`account/http_wire.go:121–131` 已有局部 URL copy 后 WriteProblem 的可用先例；app.go 与新私有 helper 可承载剩余分支。请在正文指明该装配责任，避免“沿现 Recover”被误读为原样传任意 SPA 路径即可。
+
+3. **S-SPA-03：区分网络资产引用与已接受的固定 data favicon。** 草稿 §2/行 29“根引用必须指向 /assets/”若用于全部 src/href，会拒绝固定 `628612c:web/index.html:7` 的 `<link rel="icon" href="data:,">`；此前实际生产入口也保留此行。建议明确 `/assets/` 约束用于需要请求/嵌入的外部资产；精确保留这个既有无网络 favicon 和内联主题初始化，不泛放 data URL、外部 URL 或任意内联脚本，也不改已接受前端入口。
+
+## 其余有界核查
+
+| 边界 | 固定依据与结论 |
+| --- | --- |
+| 两构建/真实闭包 | no-tag 的 nil,false,nil 分支与显式 release tag 可保持原 build-go.sh/TestMain 无 Node/bundle 依赖。实际 Vite production + imports/dynamicImports/css/assets 清单，再验证 embed 集合，方向可行。先真实发布、后从空 CWD 启动的证据不能由旧代理 dist 替代。 |
+| embed 排除规则 | Go1.27.1 `src/embed/embed.go:74–87` 的目录模式排除点号/下划线开头文件，`all:` 才改变它。本次只读核旧接受 input04 的 **36 个实际 dist 文件全部 SHA 匹配、共 547593 字节，资产路径无 . 或 _ 开头段**，所以不报当前遗漏资产 RED，也不凭常见 Vite 命名猜测存在 `_plugin`。正式构建仍须实际核当轮 embed 集合与 manifest 一致；隐藏文件排除不等于完整闭包证明。 |
+| 路由/Project | `project/contract/validation.go:27–76` 提供纯 NormalizeName/UserRoute/ProjectPath，无查询服务绑定；保留根优先、两段语法、点号项目、只验证不重定向可在新 handler 内实现。API/诊断原样转交与拒绝 fallback 的要求明确，不能用 ServeMux 自动 clean/redirect 改写原输入。 |
+| native 尾部 | `httpapi/response_writer.go:23–34,75–80,122–134` 保留 Unwrap/FlushError；Go1.27.1 `net/http/server.go` 的 SetWriteDeadline/FlushError 可用。显式真实 Content-Length、实际 Flush、取消 callback stop+join 后清 deadline 能在 handler 生命周期内完成；成功慢响应后的同连接 API 与取消后 abort 应分开证明。原 write/body-limit/Recover 行为不得为页面改公共包。该结论不替代 native 动态验证。 |
+| root/真实身份 | `tests/process/account_database_test.go:20–81` 已有正式 bootstrap 与私密恢复日志事实；`tests/testsupport/accountenv/environment.go` 创建 0700 目录/0600 日志且仅提供配置，不伪造 Session。新 browser 场景应把 PUBLIC_ORIGIN 与实际监听 origin 对齐，不能照搬旧 HTTP 测试的 Host=localhost:8080 覆盖；config 默认 origin 确为 localhost:8080。新文件可以自有启动正式发布 binary，不修改既有 TestMain 的普通 Central/Runner 构建。正式首轮正确登录、读取 Session/CSRF、懒页刷新、退出的准备可执行，无需增加 SQL 登录或修改旧 fixture。2m/45s 的实际够用性仍待动态证明。 |
+| 范围 | 固定 Git 核 16 路径恰只有 app.go 已存在，其余 15 均新。build tag/bundle、私有分派和纯错误适配、两 real tops 与单独 Playwright config/spec 可落本范围；未发现必须消费 SMTP17 或后继 Outbound UI 的接缝。 |
+
+旧 dist 只作既有输入形状证据：`/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/input04/manifest.json` SHA `3aebb2e2116c890989128d529b8d14afbb4c61126753b40998897344580e9e37`；实际文件来自该固定 manifest 的 `source_resolution.dist_root`。这不宣称新 D28 Vite manifest/release binary 已构建、已验证，亦不涵盖后继 UI。
+
+冻结：本文与 review.json 交主线程后停止写入；原候选保持原 SHA。本结论不授实施/动态窗口，不宣称完整 D28、发送/运行时或任何停止任务通过。

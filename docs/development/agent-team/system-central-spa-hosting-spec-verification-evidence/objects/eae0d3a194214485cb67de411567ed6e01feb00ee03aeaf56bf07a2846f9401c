@@ -1,0 +1,21 @@
+{
+  "verdict": "STATIC_PASS_BOUNDED_SPECIFICATION",
+  "closed": [
+    "S-SPA-01",
+    "S-SPA-02",
+    "S-SPA-03",
+    "S-SPA-04"
+  ],
+  "open_findings": [],
+  "draft_sha256": "84529007e9c71258d3a5fb84334c412d0d92b8a0ce6d7e8c09ba8352f61ab5a8",
+  "draft_technical_sha256": "f5399abe8b3137d4a8d8e8bbb3d2ddf6186013ae1ed092ecfa473b19a5967220",
+  "diff_sha256": "b81c899ae001ed43af56538ec7ba457dce27030ef45651350d242e948366d860",
+  "sections_1_to_3_byte_equal": true,
+  "candidate_paths_equal": true,
+  "candidate_count": 16,
+  "fixed_git": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+  "frontend_git": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "previous_reports_unchanged": true,
+  "no_dynamic_activity": true,
+  "report_sha256": "a30945d1cab277971ccba26912a76e82b8cb47451a34776f88c497bf477dbee8"
+}
