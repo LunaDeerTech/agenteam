@@ -1,16 +1,16 @@
 # D27：系统设置壳与用户目录只读页面
 
-状态：rev1，2026-10-06 已由独立 verification_worker 静审通过（STATIC PASS）并获主线程采纳；被审稿 SHA256 `846591b9fea5f92f1a05305bebc83c3c54a2c401963cb4651f8d61484b986974`。本次仅更新页首，技术 §1–7 保持被审稿原字节。**注册时间后端补口仍未接受，UI 产品实施须等待该依赖独立验收并获主线程采纳；§6 的 20 个产品候选路径暂无实施权**。规格采纳不授予真实资源运行权，也不代表页面或产品验收通过。
+状态：rev1，2026-10-06 已由独立 verification_worker 静审通过（STATIC PASS）并获主线程采纳；被审稿 SHA256 `846591b9fea5f92f1a05305bebc83c3c54a2c401963cb4651f8d61484b986974`。原采纳仅更新页首；本次仅随后端读口 rev2 将依赖路径数从五同步为六，UI 契约与20路径范围不变。**注册时间后端补口仍未接受，UI 产品实施须等待该依赖独立验收并获主线程采纳；§6 的 20 个产品候选路径暂无实施权**。规格采纳不授予真实资源运行权，也不代表页面或产品验收通过。
 
 ## 1. 完整结果与依赖
 
 管理员从系统导航进入真实系统设置，普通入口默认打开“用户与邀请 → 用户”，读取并分页查看邮箱、用户名、显示名、角色和注册时间。普通用户不见系统设置入口，直接链接显示无权限。只交付这一只读目录与所需设置壳，不添加邀请、模型、搜索、Inbox、用户详情/编辑或其他未实现栏目、按钮、占位页。
 
-设计输入固定 `5fac116ab9d52d938ba3e3cb3626e5346264a6b8`；前端业务仍为已接受的公开入口组合，不读取后端作者活动候选作为已验依赖。实现开始时由主线程记录后端接受提交、冻结实际五路径及必要依赖差量；不能仅凭这张规格或候选 API 声明跳过门槛。
+设计输入固定 `5fac116ab9d52d938ba3e3cb3626e5346264a6b8`；前端业务仍为已接受的公开入口组合，不读取后端作者活动候选作为已验依赖。实现开始时由主线程记录后端接受提交、冻结实际六路径及必要依赖差量；不能仅凭这张规格或候选 API 声明跳过门槛。
 
 | 依赖 | 状态、证据及本卡消费范围 |
 | --- | --- |
-| System 用户目录含 canonical 注册时间 | **未满足**。[读口 rev1](d27-system-user-directory-read.md)已静审采纳并提交 `c11b512`，五路径产品仍在实施。本卡消费专用 flat 九字段 SystemUser、既有 users cursor 与当前 admin 读取。 |
+| System 用户目录含 canonical 注册时间 | **未满足**。[读口](d27-system-user-directory-read.md)初版已静审采纳并提交 `c11b512`，现 rev2 六路径产品尚未接受。本卡消费专用 flat 九字段 SystemUser、既有 users cursor 与当前 admin 读取。 |
 | Account/System HTTP 与真实权限 | D07 B37 `022dcea`、关闭 `0ed8085`，见 [D07 终局](d07-account-session-smtp.md#b04-终局采纳与文档关闭)。隐藏菜单不替代该权限。 |
 | 当前认证及单一 Cookie 请求 owner | [认证](../agent-team/d26-authentication-verification.md)、[个人设置](../agent-team/personal-settings-verification.md)、[公开入口](../agent-team/public-account-entry-verification.md)已接受；公开入口最终源码 `787a5c7`。复用当前 `useSession`、恢复/注销、个人设置草稿与明确身份切换。 |
 | 视觉、路由与测试基础 | [前端基础](../frontend/README.md)、[应用框架](../../frontend-design/layouts/application-shell.md)、[通用设置](../../frontend-design/layouts/settings-shell.md)、[系统设置](../../frontend-design/layouts/system-settings.md)、[样式](../../frontend-design/styles/README.md)与现有 Vue/Ui 组件、锁定 Vitest/Playwright。没有新增依赖。 |
@@ -94,7 +94,7 @@ System GET 也可能以 401 清除 Session Cookie，**必须占用现有唯一 `
 
 ## 6. 候选唯一文件与所有权
 
-下面 20 路径在依赖满足后才可由主线程整体授予 frontend_worker；当前全为候选。与后端补口五路径无共享写入文件，真实测试资源仍串行交接。本规格由 architecture_worker 独占，产品作者不得顺带改旧工作项或台账。
+下面 20 路径在依赖满足后才可由主线程整体授予 frontend_worker；当前全为候选。与后端补口六路径无共享写入文件，真实测试资源仍串行交接。本规格由 architecture_worker 独占，产品作者不得顺带改旧工作项或台账。
 
 | # | 路径 | 允许范围 |
 | --- | --- | --- |
