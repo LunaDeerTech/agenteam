@@ -2,6 +2,12 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：公开 Account 入口验收交付
+
+- [公开入口 rev1–rev5](../work-items/d26-public-account-entry.md)最终25源由 `frontend_recovery` 实现，`frontend_verification` 独立最终PASS；主线程采纳提交推送 `787a5c7eeadf5e5f37bab97cbf030b4a745b72af`，远端一致。正式[验证记录与去重原件](public-account-entry-verification.md)绑定input13，记录151项pure/格式/类型/build，以及9个不变作者顶层、input12的Privacy/Theme、input13的Password分轮组合12/12；不称一次全包全绿，原红与原cleanup=false均保留。
+- 独立input08跨账号实测与已验management13/ledger20组合均PASS：B原Session撤销，A原User/Session及重置前原CSRF仍可真实写；实际compiled target18和PG journal/checksum/usage三表前置通过。最后资源实际wait/双清、原2c4n基线不变、所属PID/runtime/TMP为空；三生产流程均保持同一Cookie owner、严格DTO、私有链接材料与显式身份转换。
+- 仅当前公开入口完整卡接受；SMTP新增实投、原生浏览器zoom、生产SPA/Vite浏览器、完整D26/D27未验。tools作者补验已完成，但独立A/B仍NOT RUN/安全筛查受阻，14产品未提交，[有限归档](openai-chat-tools-wire-verification.md)已推送14e02c4；原任务不重试/改派/重建。Anthropic仅规格及证据已接受、19路径不实施；Summary待决、Object原停止、Artifact/Project阻塞、ready503、完整平台/D09和E01未完成（E01未开始）保持。以下历史分工和阶段结果保留原时态。
+
 ## 2026-10-06：Anthropic Messages 规格采纳，实施依赖未满足
 
 - [Anthropic Messages rev1](../work-items/recovery-d09-anthropic-messages-wire.md)经 `recovery_documentation` 独立 **STATIC PASS**、主线程采纳，提交推送 `f349303bf6aa8b5c796f76cc43a34271e8c186e0`，主线程确认远端一致。freeze03 的 stop_sequence 和诊断输出两处歧义已闭合；采纳稿仅页首变化，技术 §1–11 原字节相同。

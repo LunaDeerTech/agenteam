@@ -1,0 +1,58 @@
+{
+  "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input08",
+  "input": "/workspace/agenteam-public-entry-author-kWHbv4/input08-manifest.json",
+  "input_sha256": "0726c646bef31043e190a6c2261c0a7074069ad07849a6fe07efff2bcb7a02d2",
+  "trusted_baseline": {
+    "path": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/trusted-baseline.json",
+    "sha256": "3f3279059d33ceee352c66e95428db385150507e3ee0ecd070e5346f919f3ec7"
+  },
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOCACHE": "/workspace/scratch/d26-ui-verification-mainp_f2/real/gocache",
+    "TMPDIR": "/workspace/scratch/d26-ui-verification-mainp_f2/real/tmp",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/d26-ui-verification-mainp_f2/real/overlay-input08.json -v",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-v-mainpf2"
+  },
+  "groups": [
+    {
+      "name": "independent-reset-authority-01",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestAccountPublicEntryIndependentResetAuthority$"
+      ]
+    }
+  ],
+  "verification_inputs": {
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/independent_reset_authority_test.go": "bdafd259e3c3dd6e48520fae70af34ee73e7d6f0db6ffe59b597a93d0aa7e09b",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/account_entry_web_fixture_overlay_input08_test.go": "8f313a65b014c06416e4b6bbf6300af7d3457fdc49def2aa04e99e2a551a58ff",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/overlay-input08.json": "b3045db9b47f2cb8605bd2e42e6fad176c0e644688148388c2f6971872886f7f",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/probe02/account-entry.config.js": "726acba4ba01654dbaba17eb127a526a97cd0f6c5e8049e0c0990405a1f95064",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/probe02/e2e/independent-reset-authority.spec.ts": "d4cf010aabb7c9b5f93c9be1c088fad7969ab5e497e1cd1020990cc30a9d8e39",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/probe02/package.json": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/run_fixture.py": "fa0815a2b67114adf744c51a2807b4702e66837f478f33fe0464e843ba84e492"
+  },
+  "budgets": {
+    "race": true,
+    "count": 1,
+    "go_package": "6m",
+    "go_browser_top_level": "2m",
+    "playwright_case_ms": 45000,
+    "workers": 1,
+    "retries": 0
+  },
+  "provenance": {
+    "root_approved_combination": "A resets B; B original Session revoked; A exact original Session and its pre-reset CSRF still authorize a real preference mutation; PG command/Audit/Session facts",
+    "fixture_delta": "Only the browser config path differs from frozen account_entry_web_fixture_test.go. No product/root/HTTP fixture behavior is changed.",
+    "dynamic_status": "NOT_RUN. Exclusive window from resource coordinator is required.",
+    "supersedes_withdrawn_plan": "input07 plan e9b420177f03f4095210de093296281b40a3ea1ae0ec978b5ce3d05ec7164e8a; never executed"
+  }
+}

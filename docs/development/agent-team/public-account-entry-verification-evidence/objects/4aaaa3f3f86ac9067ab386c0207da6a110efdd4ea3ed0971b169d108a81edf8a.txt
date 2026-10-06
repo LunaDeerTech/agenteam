@@ -1,0 +1,37 @@
+[
+  {
+    "path": "web/src/api/client.ts",
+    "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+    "matches": true
+  },
+  {
+    "path": "web/src/api/account.ts",
+    "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+    "matches": true
+  },
+  {
+    "path": "web/src/composables/useSession.ts",
+    "sha256": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+    "matches": true
+  },
+  {
+    "path": "web/src/tests/session.spec.ts",
+    "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+    "matches": true
+  },
+  {
+    "path": "web/src/tests/authentication.spec.ts",
+    "sha256": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38",
+    "matches": true
+  },
+  {
+    "path": "web/src/tests/personal-settings-state.spec.ts",
+    "sha256": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a",
+    "matches": true
+  },
+  {
+    "path": "web/src/tests/personal-settings.spec.ts",
+    "sha256": "b897cbb1e1c09b64190a668fb2da94bf56a61ff43d5b9246205807a1b339a04f",
+    "matches": true
+  }
+]

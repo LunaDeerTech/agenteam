@@ -1,0 +1,13 @@
+
+ RUN  v4.1.11 /workspace/scratch/d26-ui-verification-mainp_f2/response204/input08/web
+
+ ✓ src/tests/response204-independent.spec.ts > confirms an actually empty 204 stream and reconciles the exact current Session once 18ms
+ ✓ src/tests/response204-independent.spec.ts > holds the shared owner through a 204-body deadline and actual cancellation tail without confirming 5ms
+ ✓ src/tests/response204-independent.spec.ts > does not confirm a 204 stream with nonempty evidence 2ms
+ ✓ src/tests/response204-independent.spec.ts > does not confirm a 204 stream with read-error evidence 2ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  01:32:26
+   Duration  649ms (transform 107ms, setup 0ms, import 170ms, tests 28ms, environment 341ms)
+

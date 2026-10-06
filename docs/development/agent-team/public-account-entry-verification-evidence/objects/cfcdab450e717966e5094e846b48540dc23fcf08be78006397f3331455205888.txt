@@ -1,0 +1,55 @@
+--- passed-input08-probe
++++ combined-migration18-probe
+@@ -6,12 +6,16 @@
+ 	"context"
+ 	"testing"
+ 	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+ )
+ 
+ func TestAccountPublicEntryIndependentResetAuthority(t *testing.T) {
+ 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+ 	defer cancel()
++	compiledMigration := independentCompiledMigration18(t)
+ 	f := newEntryWebFixture(t, ctx)
++	independentInstalledMigration18(t, ctx, f, compiledMigration)
+ 	r := f.browserEntry(ctx, "identity")
+ 	if !r.IdentityPreserved || r.UserID != f.admin.UserID || len(r.OldSessionIDs) != 2 || r.SessionID == "" || r.SessionID != r.OldSessionIDs[0] || r.OldSessionIDs[0] == r.OldSessionIDs[1] {
+ 		t.Fatal("independent browser did not preserve the exact original A Session")
+@@ -34,3 +38,35 @@
+ 	}
+ 	t.Log("independent real B reset confirmed once; B original Session revoked; A exact original Session and pre-reset CSRF accepted a real protected write; exact command/Audit and persistent authority verified")
+ }
++
++func independentCompiledMigration18(t *testing.T) postgres.MigrationEntry {
++	t.Helper()
++	source, err := postgres.EmbeddedSource()
++	if err != nil || source.Target() != 18 {
++		t.Fatal("combined root did not compile embedded migration target18")
++	}
++	entries := source.Manifest()
++	if len(entries) != 18 {
++		t.Fatal("combined embedded migration manifest is not exact target18")
++	}
++	entry := entries[17]
++	if entry.Version != 18 || entry.Filename != "00018_model_invocation_usage.sql" || entry.Mode != postgres.Transactional || string(entry.Checksum) != "sha256:b5d3f487853ff26bc2964a5c0958198c65f5048896935ed3fbfffc667c16a101" {
++		t.Fatal("compiled migration18 differs from accepted ledger bytes")
++	}
++	t.Log("compiled embedded source target18 and exact accepted SQL checksum verified")
++	return entry
++}
++
++func independentInstalledMigration18(t *testing.T, ctx context.Context, f *entryWebFixture, entry postgres.MigrationEntry) {
++	t.Helper()
++	connection := f.db.Connect(t)
++	var installed, journal, tables bool
++	err := connection.QueryRow(ctx, `SELECT
++ (SELECT count(*)=19 AND count(DISTINCT version_id)=19 AND min(version_id)=0 AND max(version_id)=18 AND bool_and(is_applied) FROM agenteam_meta.goose_db_version),
++ EXISTS(SELECT 1 FROM agenteam_meta.migration_journal WHERE version=$1 AND filename=$2 AND checksum=$3 AND mode=$4 AND state='applied'),
++ to_regclass('agenteam_model.invocations') IS NOT NULL AND to_regclass('agenteam_model.invocation_observations') IS NOT NULL AND to_regclass('agenteam_model.execution_usage_summaries') IS NOT NULL`, entry.Version, entry.Filename, string(entry.Checksum), string(entry.Mode)).Scan(&installed, &journal, &tables)
++	if err != nil || !installed || !journal || !tables {
++		t.Fatal("combined fresh fixture lacks exact installed migration18 history, checksum or three tables")
++	}
++	t.Log("real PG applied target18, exact compiled journal checksum and three usage tables verified read-only")
++}

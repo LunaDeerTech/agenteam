@@ -1,0 +1,406 @@
+--- /dev/null
++++ input08/web/src/tests/account-entry.spec.ts
+@@ -0,0 +1,403 @@
++import { afterEach, describe, expect, it, vi } from 'vitest'
++import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
++import { createMemoryHistory, createRouter } from 'vue-router'
++import type { SessionController } from '../composables/useSession'
++import { createAccountAPI, type SessionView } from '../api/account'
++import type { Fetch } from '../api/client'
++const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
++vi.mock('../composables/useSession', async (original) => {
++  const actual = await original<typeof import('../composables/useSession')>()
++  return { ...actual, useSession: () => selected.auth! }
++})
++import { createSessionController } from '../composables/useSession'
++import { createAccountLinkCapture } from '../router/account-link'
++import { installAuthentication, isAccountSwitch, safeReturnTarget } from '../router/auth'
++import App from '../App.vue'
++import LoginView from '../views/auth/LoginView.vue'
++import InvitationView from '../views/auth/InvitationView.vue'
++import ForgotPasswordView from '../views/auth/ForgotPasswordView.vue'
++import ResetPasswordView from '../views/auth/ResetPasswordView.vue'
++import HomeView from '../views/HomeView.vue'
++
++const id = '01900000-0000-7000-8000-000000000001',
++  token = id + '.' + 'T'.repeat(43),
++  newer = id + '.' + 'N'.repeat(43)
++const instant = '2026-10-05T12:34:56.123456Z',
++  password = '  中文 Original password 12345  '
++const view: SessionView = {
++  user: {
++    id,
++    email: 'a@example.com',
++    username: 'user-a',
++    display_name: 'A',
++    role: 'user',
++    theme: 'dark',
++    version: '1',
++    initial_password_suggestion: false,
++  },
++  session: { id, issued_at: instant, absolute_expires_at: instant, idle_expires_at: instant },
++  csrf_token: 'S'.repeat(43),
++}
++const json = (value: unknown, status = 200) =>
++  new Response(JSON.stringify(value), {
++    status,
++    headers: {
++      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
++      'X-Request-ID': id,
++    },
++  })
++const problem = (code: string, status = 503, fields?: { path: string; code: string }[]) =>
++  json(
++    {
++      type: 'urn:agenteam:problem:test',
++      title: 'Error',
++      status,
++      detail: 'never render raw detail',
++      instance: '/api/v1/session',
++      code,
++      request_id: id,
++      commit_state: code === 'COMMIT_UNKNOWN' ? 'unknown' : 'not_started',
++      ...(fields ? { field_errors: fields } : {}),
++    },
++    status,
++  )
++function barrier<T>() {
++  let resolve!: (value: T) => void
++  const promise = new Promise<T>((next) => {
++    resolve = next
++  })
++  return { promise, resolve }
++}
++let wrapper: VueWrapper | undefined
++async function page(
++  path: string,
++  signedIn = false,
++  channel: 'smtp' | 'backend_log' = 'backend_log',
++) {
++  window.history.replaceState(null, '', path)
++  let currentSession: () => Promise<Response> = async () =>
++    signedIn ? json(view) : problem('UNAUTHENTICATED', 401)
++  let inspect: Fetch = async (path, init) =>
++    path.includes('invitations')
++      ? json({
++          email:
++            JSON.parse(init.body as string).token === newer ? 'new@example.com' : 'b@example.com',
++          expires_at: instant,
++        })
++      : json({ valid: true, expires_at: instant })
++  let mutation: Fetch = async (path) =>
++    path.endsWith('/complete')
++      ? new Response(null, { status: 204 })
++      : path.endsWith('/redeem')
++        ? json({ completed: true, login_required: true }, 201)
++        : json({ accepted: true, delivery_channel: channel }, 202)
++  const fetch = vi.fn<Fetch>(async (path, init) => {
++    if (path === '/api/v1/session') return currentSession()
++    if (path.endsWith('/bootstrap'))
++      return json({
++        csrf_token: 'A'.repeat(43),
++        challenge_modes: ['rotate'],
++        delivery_channel: channel,
++      })
++    if (path.endsWith('/inspect')) return inspect(path, init)
++    if (path.endsWith('/logout')) {
++      signedIn = false
++      return new Response(null, { status: 204 })
++    }
++    return mutation(path, init)
++  })
++  const auth = createSessionController(createAccountAPI(fetch))
++  selected.auth = auth
++  const router = createRouter({
++    history: createMemoryHistory(),
++    routes: [
++      { path: '/', component: HomeView, meta: { authentication: true, protected: true } },
++      { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
++      {
++        path: '/invite',
++        component: InvitationView,
++        meta: { authentication: true, accountEntry: 'invitation' },
++      },
++      {
++        path: '/forgot-password',
++        component: ForgotPasswordView,
++        meta: { authentication: true, accountEntry: 'forgot' },
++      },
++      {
++        path: '/reset-password',
++        component: ResetPasswordView,
++        meta: { authentication: true, accountEntry: 'reset' },
++      },
++    ],
++  })
++  installAuthentication(router, auth)
++  await router.push(path.split('#')[0]!)
++  await router.isReady()
++  wrapper = mount(App, { attachTo: document.body, global: { plugins: [router] } })
++  await flushPromises()
++  return {
++    auth,
++    fetch,
++    router,
++    wrapper,
++    setSession(next: () => Promise<Response>) {
++      currentSession = next
++    },
++    setMutation(next: Fetch) {
++      mutation = next
++    },
++    setInspect(next: Fetch) {
++      inspect = next
++    },
++  }
++}
++function button(label: string) {
++  return wrapper!.findAll('button').find((button) => button.text().startsWith(label))!
++}
++async function fillInvitation() {
++  await wrapper!.get('input[name="username"]').setValue('new-member')
++  await wrapper!.get('input[name="password"]').setValue(password)
++  await wrapper!.get('input[name="confirmation"]').setValue(password)
++}
++afterEach(() => {
++  wrapper?.unmount()
++  wrapper = undefined
++  document.body.innerHTML = ''
++  window.history.replaceState(null, '', '/')
++  vi.restoreAllMocks()
++})
++
++describe('public Account pages and navigation', () => {
++  it('scrubs the capability before history/setup and never renders or persists it', async () => {
++    const f = await page('/invite?secret=discard&return=%2Fsettings%2Fprofile#' + token)
++    expect(window.location.hash).toBe('')
++    expect(window.location.search).toBe('?return=%2Fsettings%2Fprofile')
++    expect(JSON.stringify(window.history.state)).not.toContain(token)
++    expect(f.wrapper.html()).not.toContain(token)
++    expect(f.wrapper.text()).toContain('b@example.com')
++    expect(document.activeElement?.id).toBe('invitation-title')
++    expect(f.wrapper.find('input[name="email"]').exists()).toBe(false)
++    expect(localStorage.length).toBe(0)
++    expect(sessionStorage.length).toBe(0)
++    await fillInvitation()
++    // Simulate autofill/last input changing the native field before a Vue event.
++    const username = f.wrapper.get('input[name="username"]').element as HTMLInputElement
++    username.value = 'final-member'
++    await f.wrapper.get('form').trigger('submit')
++    await flushPromises()
++    const call = f.fetch.mock.calls.find(([path]) => path.endsWith('/redeem'))!
++    expect(JSON.parse(call[1].body as string)).toMatchObject({
++      username: 'final-member',
++      password,
++      confirmation: password,
++    })
++    expect(f.wrapper.text()).toContain('账号已创建')
++    expect(f.wrapper.find('input[type="password"]').exists()).toBe(false)
++    expect(f.fetch.mock.calls.some(([path]) => path.endsWith('/login'))).toBe(false)
++  })
++
++  it('preserves inputs, maps reset /password errors, and focuses only while the user stays', async () => {
++    const f = await page('/reset-password#' + token)
++    await f.wrapper.get('input[name="password"]').setValue(password)
++    await f.wrapper.get('input[name="confirmation"]').setValue(password)
++    const held = barrier<Response>()
++    f.setMutation(() => held.promise)
++    const submit = f.wrapper.get('button[type="submit"]')
++    ;(submit.element as HTMLElement).focus()
++    await f.wrapper.get('form').trigger('submit')
++    const back = f.wrapper.get('a[href="/login"]')
++    ;(back.element as HTMLElement).focus()
++    held.resolve(problem('INVALID_ARGUMENT', 422, [{ path: '/password', code: 'WEAK_PASSWORD' }]))
++    await flushPromises()
++    expect(f.wrapper.get('input[name="password"]').attributes('aria-invalid')).toBe('true')
++    expect((f.wrapper.get('input[name="password"]').element as HTMLInputElement).value).toBe(
++      password,
++    )
++    expect(document.activeElement).toBe(back.element)
++    expect(f.wrapper.text()).not.toContain('never render raw detail')
++  })
++
++  it.each(['backend_log', 'smtp'] as const)(
++    'keeps generic recovery feedback and email for explicit repeat: %s',
++    async (channel) => {
++      const f = await page('/forgot-password', false, channel)
++      await f.wrapper.get('input[name="email"]').setValue('unknown@example.com')
++      await f.wrapper.get('form').trigger('submit')
++      await flushPromises()
++      expect(f.wrapper.text()).toContain('如果该邮箱可用，将按当前渠道提供恢复方式。')
++      expect(f.wrapper.text()).toContain(channel === 'smtp' ? '请查看邮箱' : '受限后端日志')
++      expect((f.wrapper.get('input[name="email"]').element as HTMLInputElement).value).toBe(
++        'unknown@example.com',
++      )
++      expect(button('再次申请').exists()).toBe(true)
++      await f.router.push('/login')
++      await flushPromises()
++      expect(f.router.currentRoute.value.path).toBe('/login')
++      expect(document.querySelector('[role="dialog"]')).toBeNull()
++    },
++  )
++
++  it.each(['null', 'empty-stream'])(
++    'clears reset secrets at 204 (%s) before GET and never resubmits after the check fails',
++    async (body) => {
++      const f = await page('/reset-password#' + token, true)
++      if (body === 'empty-stream') {
++        const response = new Response('')
++        Object.defineProperty(response, 'status', { value: 204 })
++        f.setMutation(async () => response)
++      }
++      await f.wrapper.get('input[name="password"]').setValue(password)
++      await f.wrapper.get('input[name="confirmation"]').setValue(password)
++      const held = barrier<Response>()
++      f.setSession(() => held.promise)
++      await f.wrapper.get('form').trigger('submit')
++      await flushPromises()
++      expect(f.wrapper.text()).toContain('密码重置已确认')
++      expect(f.wrapper.find('input[type="password"]').exists()).toBe(false)
++      await f.router.push('/login')
++      expect(f.router.currentRoute.value.path).toBe('/reset-password')
++      held.resolve(problem('DEPENDENCY_UNAVAILABLE'))
++      await flushPromises()
++      expect(button('检查当前会话').exists()).toBe(true)
++      f.setSession(async () => json(view))
++      await button('检查当前会话').trigger('click')
++      await flushPromises()
++      expect(f.wrapper.get('a[href="/login?switch=1"]').text()).toBe('返回登录')
++      expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/complete'))).toHaveLength(1)
++    },
++  )
++
++  it('asks before same-path replacement, retains old form on cancel, and consumes only the accepted link', async () => {
++    const f = await page('/invite#' + token)
++    await fillInvitation()
++    window.history.pushState(null, '', '/invite#' + newer)
++    window.dispatchEvent(new HashChangeEvent('hashchange'))
++    await flushPromises()
++    expect(window.location.hash).toBe('')
++    const cancel = [...document.querySelectorAll('button')].find((button) =>
++      button.textContent?.startsWith('继续编辑'),
++    )!
++    cancel.click()
++    await flushPromises()
++    expect(f.wrapper.text()).toContain('b@example.com')
++    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/inspect'))).toHaveLength(1)
++    window.history.pushState(null, '', '/invite#' + newer)
++    window.dispatchEvent(new PopStateEvent('popstate'))
++    await flushPromises()
++    const abandon = [...document.querySelectorAll('button')].find((button) =>
++      button.textContent?.startsWith('放弃并离开'),
++    )!
++    abandon.click()
++    await flushPromises()
++    expect(f.wrapper.text()).toContain('new@example.com')
++    expect((f.wrapper.get('input[name="password"]').element as HTMLInputElement).value).toBe('')
++    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/inspect'))).toHaveLength(2)
++    window.dispatchEvent(new HashChangeEvent('hashchange'))
++    await flushPromises()
++    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/inspect'))).toHaveLength(2)
++  })
++
++  it('does not automatically log out on forbidden invitation, and switching needs a click', async () => {
++    const f = await page('/invite#' + token, true)
++    f.setMutation(async () => problem('FORBIDDEN', 403))
++    await fillInvitation()
++    await f.wrapper.get('form').trigger('submit')
++    await flushPromises()
++    expect(f.wrapper.text()).toContain('当前账号不能兑换此邀请')
++    expect(f.auth.state.user?.id).toBe(view.user.id)
++    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/logout'))).toHaveLength(0)
++    await f.wrapper.get('a[href="/login?switch=1"]').trigger('click')
++    await flushPromises()
++    // Forbidden clears capability/password and the accepted form no longer blocks switching.
++    const dialog = document.querySelector('[role="dialog"]')
++    if (dialog) {
++      ;[...dialog.querySelectorAll('button')]
++        .find((b) => b.textContent?.startsWith('放弃并离开'))!
++        .click()
++      await flushPromises()
++    }
++    expect(f.wrapper.text()).toContain('当前账号：A')
++    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/logout'))).toHaveLength(0)
++    await button('退出当前账号后登录').trigger('click')
++    await flushPromises()
++    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/logout'))).toHaveLength(1)
++    expect(f.router.currentRoute.value.query.switch).toBeUndefined()
++    expect(f.wrapper.find('input[autocomplete="current-password"]').exists()).toBe(true)
++  })
++
++  it('moves from login to recovery without the old unmount erasing the new context', async () => {
++    const f = await page('/login')
++    await f.wrapper.get('input[name="password"]').setValue(password)
++    await f.wrapper.get('a[href="/forgot-password"]').trigger('click')
++    await flushPromises()
++    await f.wrapper.get('input[name="email"]').setValue('unknown@example.com')
++    await f.wrapper.get('form').trigger('submit')
++    await flushPromises()
++    expect(f.wrapper.text()).toContain('如果该邮箱可用')
++    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/request'))).toHaveLength(1)
++  })
++
++  it('rejects missing/invalid/oversized links, including failed URL cleanup, before any POST', async () => {
++    for (const value of ['', 'invalid', 'X'.repeat(10000)]) {
++      const f = await page('/invite' + (value ? '#' + value : ''))
++      expect(window.location.hash).toBe('')
++      expect(f.fetch).not.toHaveBeenCalled()
++      expect(f.wrapper.text()).toMatch(/原链接|链接格式无效/)
++      f.wrapper.unmount()
++      wrapper = undefined
++    }
++    window.history.replaceState(null, '', '/invite#' + token)
++    const replace = vi.spyOn(window.history, 'replaceState').mockImplementation(() => {
++      throw new Error('blocked')
++    })
++    const capture = createAccountLinkCapture(window)
++    expect(capture.take('invitation')).toEqual({ mode: 'invitation', kind: 'unsafe' })
++    capture.dispose()
++    replace.mockRestore()
++  })
++
++  it('keeps the return and identity-switch query closed', () => {
++    for (const value of [undefined, ['1'], '01', 'true', 1, '%31'])
++      expect(isAccountSwitch(value)).toBe(false)
++    expect(isAccountSwitch('1')).toBe(true)
++    for (const value of [
++      '/invite',
++      '/forgot-password',
++      '/reset-password',
++      '//example.com',
++      '/settings/profile?x=1',
++      ['/settings/profile'],
++    ])
++      expect(safeReturnTarget(value)).toBe('/')
++    for (const value of ['/', '/settings/profile', '/settings/appearance', '/settings/password'])
++      expect(safeReturnTarget(value)).toBe(value)
++  })
++  it('keeps non-sensitive history navigation metadata while dropping nested capability copies', () => {
++    window.history.replaceState(
++      {
++        back: '/invite#' + token,
++        current: '/invite#' + token,
++        forward: '/settings/profile',
++        position: 4,
++        scroll: { left: 0, top: 24 },
++        marker: 'ordinary-navigation',
++        nested: { material: token, marker: 'keep', [token]: 'discard secret property name' },
++      },
++      '',
++      '/invite#' + token,
++    )
++    const capture = createAccountLinkCapture(window)
++    expect(window.history.state).toMatchObject({
++      back: '/invite',
++      current: '/invite',
++      forward: '/settings/profile',
++      position: 4,
++      scroll: { left: 0, top: 24 },
++      marker: 'ordinary-navigation',
++      nested: { marker: 'keep' },
++    })
++    expect(JSON.stringify(window.history.state)).not.toContain(token)
++    expect(capture.take('invitation')).toEqual({ mode: 'invitation', kind: 'valid', token })
++    capture.dispose()
++  })
++})

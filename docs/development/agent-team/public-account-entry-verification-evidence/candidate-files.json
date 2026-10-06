@@ -1,0 +1,159 @@
+{
+  "baseline": "c54f73f3324caa11608d84e5d207141985eb6074",
+  "input_manifest": "author/input13-manifest.json",
+  "input_sha256": "f824cf28b414a2b41276ae383342fd9bb861987784623929b0e35690ceff9fd4",
+  "state": "ACCEPTED: input13 final 25 source scope; independent PASS; root accepted and delivered",
+  "source_commit": "787a5c7eeadf5e5f37bab97cbf030b4a745b72af",
+  "paths": [
+    {
+      "path": "web/src/api/client.ts",
+      "archive": "candidate/web/src/api/client.ts.txt",
+      "sha256": "cc44d999d1ccc40f659ebe84c2802ce3fdf54486b5078c1f91317f713a324936",
+      "baseline_git_blob": "d91e2a3d0b6457d10b249057164eb879a4075385"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "archive": "candidate/web/src/api/account.ts.txt",
+      "sha256": "8c5353e0b0cf3ee41cd91cdab333e68c32f8b23cf2cf3fca9911c81aac326470",
+      "baseline_git_blob": "5bd0a83abc028cae681f76d24bcb663acc77dbb1"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "archive": "candidate/web/src/composables/useSession.ts.txt",
+      "sha256": "6a5d8974ea3d4901b6f5aa58e3bf19921affb3ea2f9a0a49295fc6104b96410c",
+      "baseline_git_blob": "66b31dffe043935dc904b80509c17879245a85cf"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "archive": "candidate/web/src/router/auth.ts.txt",
+      "sha256": "670c9d8d76177bf832eafa35ed28421dc662ee682eaf5610be30ca1b0b2eada3",
+      "baseline_git_blob": "63b632e257e3e0dff879e375d2d68f976819a3be"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "archive": "candidate/web/src/router/index.ts.txt",
+      "sha256": "1a06360d687da0a1bb476d4ebd8bc31383a3f3e64495a18f6a8e03fbf43a5ef8",
+      "baseline_git_blob": "b39451b2fe01a994ab107497d2a030d1805c7ecd"
+    },
+    {
+      "path": "web/src/App.vue",
+      "archive": "candidate/web/src/App.vue.txt",
+      "sha256": "abe5a17878d915c734ad1466c70d780f7f35059a12a3d81be28218881cda8e77",
+      "baseline_git_blob": "019b803facd7d860ec36110fff712d5e30c7578f"
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "archive": "candidate/web/src/views/auth/LoginView.vue.txt",
+      "sha256": "58197b6ca69b7e1b4fc2f94a1990a21497d9a0ace613f1a222b8e8e6715f7643",
+      "baseline_git_blob": "c8fde598864d5842153ff81ca219ef5137ea8f1e"
+    },
+    {
+      "path": "web/src/router/account-link.ts",
+      "archive": "candidate/web/src/router/account-link.ts.txt",
+      "sha256": "45080e9068bd7c5d52f2499b12de4edac288420b206031a05e0e0c29e488f94c",
+      "baseline_git_blob": null
+    },
+    {
+      "path": "web/src/composables/useAccountEntry.ts",
+      "archive": "candidate/web/src/composables/useAccountEntry.ts.txt",
+      "sha256": "0a5139b835a4e0f2ac99e86810a77a552449c6672824dab27aad990a86a71abd",
+      "baseline_git_blob": null
+    },
+    {
+      "path": "web/src/views/auth/InvitationView.vue",
+      "archive": "candidate/web/src/views/auth/InvitationView.vue.txt",
+      "sha256": "9ce696e26d4ae9f563568db52e972eaffc256a54679184a3d4a46469f54b78e8",
+      "baseline_git_blob": null
+    },
+    {
+      "path": "web/src/views/auth/ForgotPasswordView.vue",
+      "archive": "candidate/web/src/views/auth/ForgotPasswordView.vue.txt",
+      "sha256": "45919a790624a96463334e55b53272d18d5fab06a6c25fe3769d6bdbac5c7f33",
+      "baseline_git_blob": null
+    },
+    {
+      "path": "web/src/views/auth/ResetPasswordView.vue",
+      "archive": "candidate/web/src/views/auth/ResetPasswordView.vue.txt",
+      "sha256": "5e285d612a8b15bd2462b7d71f79dc33b1a42a37506392649d0a98742b0ac6c4",
+      "baseline_git_blob": null
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "archive": "candidate/web/src/tests/session.spec.ts.txt",
+      "sha256": "4c4d1483b3f75a5a3fca6f5f54d39526cae24c5f0a6674989d90348f30fbfc3a",
+      "baseline_git_blob": "c242682621343d63038ed2e305d443b005f18540"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "archive": "candidate/web/src/tests/authentication.spec.ts.txt",
+      "sha256": "da1065fc139ecb8343ef87199a300424233c802cbb9b9ef1aa546039cc2a96b1",
+      "baseline_git_blob": "ed1b81dec0719ccb30b31a4bce773b46aca2f985"
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "archive": "candidate/web/src/tests/personal-settings-state.spec.ts.txt",
+      "sha256": "36c6c591b15d81f962b4002bc71c1b8007aad26c089e5e272bf6faeed267a871",
+      "baseline_git_blob": "5c83dbfb99235bda63378d5d8d5dc5d123c2e2d0"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "archive": "candidate/web/src/tests/personal-settings.spec.ts.txt",
+      "sha256": "2bafe4df0826203f9045637c3d4073b456ec3c8ac7c945f4ed5adc3169cfcbe2",
+      "baseline_git_blob": "1e37afb386d98444ec1d601bffd5bd8a07ea0659"
+    },
+    {
+      "path": "web/src/tests/account-entry-client.spec.ts",
+      "archive": "candidate/web/src/tests/account-entry-client.spec.ts.txt",
+      "sha256": "412e46a61ca2df3e222c4886acb9fcc0674fa215531a53ae6c40b70f20184135",
+      "baseline_git_blob": null
+    },
+    {
+      "path": "web/src/tests/account-entry-state.spec.ts",
+      "archive": "candidate/web/src/tests/account-entry-state.spec.ts.txt",
+      "sha256": "c3c50d1e58c7a71c5f5df73c9665898bb1bb4b7efb593012b42822219406937e",
+      "baseline_git_blob": null
+    },
+    {
+      "path": "web/src/tests/account-entry.spec.ts",
+      "archive": "candidate/web/src/tests/account-entry.spec.ts.txt",
+      "sha256": "0bc28b5332db12c70adeb670a34814f2457560586b7cf3f0590c9909fe8041ff",
+      "baseline_git_blob": null
+    },
+    {
+      "path": "tests/account-captcha-web/account-entry.config.js",
+      "archive": "candidate/tests/account-captcha-web/account-entry.config.js.txt",
+      "sha256": "47b3b7538fd5d384dba21e4e254936cc6b6ecbe72ad3988a454d2afdec4ee9aa",
+      "baseline_git_blob": null
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/account-entry.spec.ts",
+      "archive": "candidate/tests/account-captcha-web/e2e/account-entry.spec.ts.txt",
+      "sha256": "f802f6dfc516640723ed5333ede2f2cced805eaefd7eac64ab3fde927ab72bfc",
+      "baseline_git_blob": null
+    },
+    {
+      "path": "tests/account/account_entry_web_fixture_test.go",
+      "archive": "candidate/tests/account/account_entry_web_fixture_test.go.txt",
+      "sha256": "9d00de762b3b292de30e7dd9fb74caee4ebc5f1a6a68ad6836c04fc6a509e721",
+      "baseline_git_blob": null
+    },
+    {
+      "path": "tests/account/account_entry_web_test.go",
+      "archive": "candidate/tests/account/account_entry_web_test.go.txt",
+      "sha256": "9d939b87c874b1674e2c1615a3ca5e15de8afcf0cac47393215ea9371c3c48fd",
+      "baseline_git_blob": null
+    },
+    {
+      "path": "tests/account/authentication_web_fixture_test.go",
+      "archive": "candidate/tests/account/authentication_web_fixture_test.go.txt",
+      "sha256": "f8255ce98894757369d2b4ed93bf1382d20c035afe843e0f3b3890fed898e9c3",
+      "baseline_git_blob": "becf12f150347fd821ef7778f7d8d57170692b01"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "archive": "candidate/tests/account-captcha-web/e2e/personal-settings.spec.ts.txt",
+      "sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+      "baseline_git_blob": "ce8414499692a3769a7129a25daecf7bf53f66be"
+    }
+  ]
+}

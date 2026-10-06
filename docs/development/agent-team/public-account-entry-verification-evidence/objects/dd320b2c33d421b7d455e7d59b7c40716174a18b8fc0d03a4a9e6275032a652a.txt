@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/workspace/agenteam/web/node_modules/.bin/tsc",
+    "--noEmit",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--lib",
+    "ES2022,DOM",
+    "--strict",
+    "--skipLibCheck",
+    "--typeRoots",
+    "/workspace/agenteam/web/node_modules/@types",
+    "e2e/account-entry.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input09/tests/account-captcha-web",
+  "exit": 0,
+  "seconds": 0.8868532180786133,
+  "log": "/workspace/agenteam-public-entry-author-kWHbv4/browser-type-input09.log",
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

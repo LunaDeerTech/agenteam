@@ -1,0 +1,7 @@
+{
+  "exit": 1,
+  "stage": "read-only pre-export assertion",
+  "error": "FileNotFoundError for active web/dist/assets/AppearanceSettings-63wpRmlx.js",
+  "cause": "Exporter incorrectly assumed the shared generated dist was the tested private dist. Real runs always consume frozen private input13/web/dist. No product/test command ran and no final result file had been written.",
+  "correction": "Assert frozen input13 dist equals tested input08; do not claim equality to shared earlier build."
+}

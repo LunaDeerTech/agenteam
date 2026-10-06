@@ -1,0 +1,60 @@
+{
+  "baseline": "c54f73f3324caa11608d84e5d207141985eb6074",
+  "workspace_head": "e87c6ed66b07d58f103b0e4b5c9239fb4db5617a",
+  "paths": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "f62ef980f64d3f06cb5631962db8dd06e4374fb113f19941504db54acd9f0363"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "8c5353e0b0cf3ee41cd91cdab333e68c32f8b23cf2cf3fca9911c81aac326470"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "69ec6352b5930decc4264ecf5c42f2af1f176fc820989da501b78b67fd52fcfd"
+    },
+    {
+      "path": "web/src/tests/account-entry-client.spec.ts",
+      "sha256": "aa0c8e2bb69051f485b80f4bd009fc411c58beaebb5a19cdc68b4d3c79b4407a"
+    },
+    {
+      "path": "web/src/tests/account-entry-state.spec.ts",
+      "sha256": "8b46851f308584e29b3e690f0dee001f3acafd659b5b2c428ae8cf2904247b61"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "4c4d1483b3f75a5a3fca6f5f54d39526cae24c5f0a6674989d90348f30fbfc3a"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "da1065fc139ecb8343ef87199a300424233c802cbb9b9ef1aa546039cc2a96b1"
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "36c6c591b15d81f962b4002bc71c1b8007aad26c089e5e272bf6faeed267a871"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "2bafe4df0826203f9045637c3d4073b456ec3c8ac7c945f4ed5adc3169cfcbe2"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    {
+      "path": "web/vite.config.ts",
+      "sha256": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+    },
+    {
+      "path": "web/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13"
+    }
+  ]
+}

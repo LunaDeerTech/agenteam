@@ -1,0 +1,48 @@
+# D26 public entry — independent core and real combination
+
+Conclusion: **PASS for the independent core/UI checks and the one real cross-identity combination on frozen input08.** This does not replace the author's remaining new/legacy browser matrix or acceptance of final main composition.
+
+## Accepted input and preservation
+
+Author input08: `/workspace/agenteam-public-entry-author-kWHbv4/input08-manifest.json`, SHA256 `0726c646bef31043e190a6c2261c0a7074069ad07849a6fe07efff2bcb7a02d2`. All 23 scoped source paths, 947 fixed c54 dependencies and 15 rebuilt dist files were independently hashed. Actual dist has exactly the declared 15 files. The fixture backend is c54, not later management/SQL18 or active tools changes.
+
+The executed plan is `real/browser-plan-independent-input08.json`, SHA256 `9e7e6f8535a9edcdc5e254725c9b165fa21ada069acd1bd61dfcb7498a59b843`. A private Go overlay adds one top and changes only the new browser helper's config path to the independent Playwright case. Product sources, real root, original driver and preconditions are unchanged. Seven private source/config/observer inputs are bound by SHA. No product/repository tests/ledgers/Git were edited by the verifier.
+
+The never-executed input07 plan is retained and marked withdrawn. Private probe02 corrected preparation-only login/logout counters to the actual `/api/v1/sessions/…` paths before input08 freezing; the earlier unexecuted probe remains intact.
+
+## Independent defect and pure evidence
+
+- C-F1: confirmed reset followed by a Session GET deadline retained stale authenticated identity. Original independent core01 probe failed; core03 quarantine repair passed the unchanged probe plus selected affected author branches (7 PASS). The original deadline probe was repeated unchanged on final input08 because reset body reading gained an await: 1 PASS, 5 unrelated filtered cases. See the separately frozen core report and `response204/core-deadline-input08-command.json`.
+- Capability keys: input02 retained tokens in history.state property names. The exact independent root/nested/array key/value probe failed input02 and passed input03; benign router state and one-time private capture were preserved. Unchanged sanitizer bytes remain in input08.
+- 204 stream: author real input07 returned HTTP204 but the page stayed uncertain. The independent real-client/controller probe reproduced rejection of empty streams and premature cancellation, while nonempty/read-error negatives remained rejected (2 FAIL/2 PASS). The unchanged four-case probe passes input08, covering empty EOF, exact Session reconciliation, nonempty/read failure and visible deadline versus actual cancellation tail. See `response204/finding-input07.md` and `closure-input08.md`.
+- The original same-owner/Unknown/CSRF exact replay combination retains its core01 PASS evidence because the later changes are confined to confirmed reset and history scrubbing. It is not claimed to be a real PG Unknown experiment.
+
+Author final input08 full check is independently inspected: 151 tests/12 files, format, type-check and production build PASS. Independent browser tsc, Go1.27.1 offline readonly race compile and vet passed; command metadata is retained under `real/`.
+
+## Executed real combination
+
+Original driver selector: `^TestAccountPublicEntryIndependentResetAuthority$`; race/count1/6m package, original 2m Go top, Playwright45s, workers1/retries0. `GOFLAGS -v` records the actual selected top and case. Coordinator grant was 2026-10-06 01:40:09.945563 UTC.
+
+The real browser performs separate A/B logins, A's public recovery request for B, owned restricted-log link transfer, public reset form submission and actual204. Then it proves:
+
+1. B's exact previous Session returns401 and has persistent password_reset revocation.
+2. A remains the exact same User/Session before and after reset, with zero automatic login/logout and exactly one reset-complete POST.
+3. A's **pre-reset** Session CSRF authorizes one real same-origin preferences mutation under the browser's unchanged Cookie; the version increments and theme persists.
+4. Exactly one B reset-complete command/Audit and one A profile-update command/Audit exist, and A's write receipt is bound to A's original Session/resource.
+5. Link capability is absent from URL/history/DOM/storage, target email is not guessed into reset UI, and success removes password inputs.
+
+No request was mocked or replayed for observation. The independent case does not call CDP response.json or install a fetch/clone observer. It observes the actual202 status and the product's strict-DTO successful UI, then requires actual link/204/Session/PG facts. It does not claim the author's separate known/unknown raw-shape privacy coverage.
+
+Actual result: **Playwright1 PASS in8.7s; Go selected top PASS in15.00s; original driver exit0 and observer exit0**. Total driver/fixture duration110.7318s includes preparation and unmatched packages. Raw log SHA256 `972b7d65e3f3cbd0d6bd25d1d1373e2cc76e63cf97e4a65a136a06dd8633ef6c`, path `real/logs/independent-reset-authority-01.log`.
+
+## Resource closure
+
+`real/evidence/independent-reset-authority-01/` contains command, source/dependency before/after, process/resource observations, original raw result and two cleanup records. All source/dist/private inputs stayed fixed. Exactly4 owned containers/3 networks were observed, then all7 exact IDs were absent twice; the exact pre-existing2-container/4-network baseline stayed unchanged. Nineteen browser PID/starttime pairs were observed; four adopted processes were actually waited. Both final checks have zero observed/owned browser processes, empty runtime and empty fixture TMPDIR. The coordinator was explicitly given the window back.
+
+A subsequent **separate local synthetic diagnostic**, without Account/root/Docker, compared native response.json versus stream read+cancel and immediate versus after-click CDP body reads in one Chromium/two contexts. Forty synthetic202 responses were readable by both browser and CDP. This did not reproduce the author's intermittent formal-fixture CDP body-loss error and establishes no root cause or universal sampling reliability. Diagnostic Node/observer exit0;15 PID/start pairs,4 actual adopted waits,zero remaining twice and removed private runtime. The separate browser slot was explicitly returned. Records are in `cdp-diagnostic/`.
+
+## Pending acceptance boundaries
+
+Author input09 will change only the202 test observer; its source/cleanup semantics and raw-shape preservation require separate review. If product/dist remain input08 bytes, the independent combination above need not be repeated for that test-only change. The original author SQL42883, unclassified reset query error, failed initial runtime cleanup and repeated CDP sampling errors remain original failures; none is relabeled as a pass or assigned a guessed root cause.
+
+Full new/legacy page matrix, final main with accepted management/SQL18, native browser zoom, SMTP real delivery and production SPA hosting are outside this report's PASS scope. The visual200% observation in author tests is CSS zoom, not native browser zoom. This report does not declare complete D26/D27.

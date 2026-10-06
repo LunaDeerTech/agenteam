@@ -1,0 +1,43 @@
+# D26 public Account entry author recovery
+
+Status: implementation candidate, independent UI/fixture review and real browser execution pending. Core03 C-F1 fix has independent focused acceptance; that is not whole-card acceptance.
+
+## Scope and recovery
+
+Role: frontend_worker. Exactly the task card's 23 product/test paths are owned. No backend production, SQL, OpenAPI, old real fixture/spec, shared UI/theme/personal composable, package/lock or shared ledger changes. No Git mutation or further delegation.
+
+The root safely fast-forwarded main to d09e8ef before writes. Historical pure2/UI01 candidate files and detailed failed UI01 inputs were unavailable in the new workspace; old summaries were not treated as current evidence. Implementation was rebuilt from the accepted c54f73f business baseline and task-card rev1. Real runs use c54 copied backend and fixed SQL only, never concurrent migration 00018 or management source.
+
+Skills used: repository agenteam-design, agenteam-vue-development, vue-testing-best-practices, and agenteam-go-development for the new fixture helper; available playwright-cli skill for actual-browser preparation. The task card's privacy/resource instructions take precedence over generic skill examples.
+
+## Candidate behavior
+
+- Formal five public endpoints use anonymous CSRF, exact response contracts and original-key write retry through the existing single Session owner.
+- Invitation/reset capability is captured and scrubbed before Vue history, kept in private page closure, and cleared on confirmation/abandonment. Explicit fragment replacement and dirty navigation are guarded.
+- Three public pages preserve fields and safe feedback, support native form/autofill capture, and provide explicit login/account switching. No automatic login/logout is performed.
+- Reset 204 immediately clears sensitive fields and enters Session confirmation under the same actual owner. Confirmed reset never becomes a retryable unknown reset due to a later Session failure.
+- Existing authentication and personal settings source remains intact except the four old pure API mocks' explicit unexpected methods and authorized shared controller/router/App seams.
+
+## Frozen inputs and checks
+
+`input02` preserves the first complete candidate: 23 SHA256 overlays, 947 copied c54 blobs verified against Git and 15 built dist assets. Manifest SHA256 bc6b20b6321643a94635f7136030c5052840ba7dabcbddb897f24f4d523743fc. `check-input02.log` records 147 tests, format/type/build passing; command/exit metadata is in commands-input02.json.
+
+`input03` is in progress: adds capability property-name scrubbing and makes the new browser helper join actual cmd.Wait on every Fatal path before fixture cleanup. input02 remains immutable. New checks are running and will supersede only the affected input02 checks.
+
+The original independent C-F1 probe failed core01 (confirmed reset timeout retained old authenticated/personal identity). Intermediate core02 fixes exposed a separate abandon/GET200 regression, preserved in c-f1-retest logs. Core03 added actual-owner identity isolation and a Session-reconciled gate; the unchanged independent probe and six affected author branches passed. Core01, core02, core03 and their raw logs are preserved.
+
+## Preparation failures retained
+
+- Initial type check found the preexisting node_modules missing go-captcha-vue; lock/package bytes were unchanged.
+- npm mirror installation failed/hung; the owned first process required SIGKILL after SIGTERM did not exit. A second install had begun before that process was fully stopped, so a third clean locked installation was run after actual termination. Final install succeeded; npm-ci-web logs are retained.
+- The earliest pure command ran during incomplete dependency installation and exited 127. Later complete checks passed.
+- Initial UI tests failed because the author selector compared the whole UiButton label including hidden loading/success states; tests were corrected to select the intended button while preserving business assertions.
+- First fixed-input full check missed an unchanged baseline theme documentation asset. It was copied from c54 and the full check then passed. No production source was changed for this preparation issue.
+
+## Real validation plan and boundaries
+
+Six original-budget groups: two new invitation/reset tops, two new identity/privacy tops, four old authentication tops in two groups, and four old personal settings tops in two groups. Original race/count1/package6m, top2m, Playwright45s/workers1/retries0 remain. Exact resource windows are coordinated by verification_recovery; no Docker/browser product run has started yet.
+
+The new helper uses formal admin/invitation/login HTTP, the original app.Run/PG/Secret/Audit/Outbox/MinIO fixture, restricted exact recovery records and bounded private IPC. It creates no identities by SQL and adds no product testing API. Postconditions independently query exact User/command/Audit/Session facts.
+
+True delivery channel planned here is backend_log. SMTP branch is pure-tested and relies on prior D07 backend evidence; there is no new SMTP or external mail-account claim. Current layout matrix is three pages × system light/dark resolution × four widths. CSS zoom=2 is not native browser zoom. Screenshots and explicit saved light/dark preference have not been newly validated. Production SPA hosting/Vite proxy, complete D26/D27, readiness 503 and the known Object Runtime join defect remain outside this card.

@@ -1,0 +1,13 @@
+{
+  "manifest_sha256": "51a5a83f3bc9cc3c253ff6d19644b217564967825cdff779cf914c15427157fc",
+  "checked": 985,
+  "source_count": 24,
+  "dependencies_dist_count": 961,
+  "mismatches": [],
+  "changed": [
+    "tests/account-captcha-web/e2e/account-entry.spec.ts",
+    "tests/account/account_entry_web_fixture_test.go",
+    "tests/account/authentication_web_fixture_test.go"
+  ],
+  "products_dist_identical": true
+}

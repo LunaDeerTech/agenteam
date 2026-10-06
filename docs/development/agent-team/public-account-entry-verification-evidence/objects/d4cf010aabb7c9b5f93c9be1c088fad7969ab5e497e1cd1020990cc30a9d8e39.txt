@@ -1,0 +1,111 @@
+import { test, expect, type Page } from '@playwright/test'
+import { readFileSync, writeFileSync, renameSync, existsSync } from 'node:fs'
+import { join } from 'node:path'
+
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!
+type Credential = { email: string; password: string; user_id: string }
+type Material = { admin: Credential; member: Credential; new_password: string }
+async function fillSecret(page: Page, selector: string, value: string) {
+  try { await page.locator(selector).fill(value) }
+  catch { throw new Error('independent private field could not be filled') }
+}
+async function session(page: Page) {
+  return page.evaluate(async () => {
+    const response = await fetch('/api/v1/session', { credentials: 'same-origin', cache: 'no-store' })
+    if (response.status !== 200) return { status: response.status, user: '', session: '', csrf: '', version: '' }
+    const value = await response.json()
+    return { status: 200, user: value.user.id as string, session: value.session.id as string,
+      csrf: value.csrf_token as string, version: value.user.version as string }
+  })
+}
+async function login(page: Page, credential: Credential) {
+  await page.goto('/login')
+  await expect(page.locator('#login-email')).toBeEditable()
+  await page.locator('#login-email').fill(credential.email)
+  await fillSecret(page, '#login-password', credential.password)
+  await page.getByRole('button', { name: '登录', exact: true }).click()
+  await expect(page.getByRole('heading', { name: '首页', exact: true })).toBeVisible()
+  const value = await session(page)
+  expect(value.status === 200 && value.user === credential.user_id).toBe(true)
+  return value
+}
+async function responseStatus(page: Page, path: string, action: () => Promise<unknown>) {
+  const response = page.waitForResponse((item) => new URL(item.url()).pathname === path && item.request().method() === 'POST')
+  const [, observed] = await Promise.all([action(), response])
+  return observed.status()
+}
+
+test('[identity] B reset preserves A exact Session and original protected authority', async ({ page, browser }) => {
+  const material: Material = JSON.parse(readFileSync(join(directory, 'entry-material.json'), 'utf8'))
+  const contextB = await browser.newContext({ baseURL: process.env.AGENTEAM_AUTH_WEB_ORIGIN })
+  const pageB = await contextB.newPage()
+  const beforeB = await login(pageB, material.member)
+  const beforeA = await login(page, material.admin)
+  let completeRequests = 0, logoutRequests = 0, automaticLogins = 0
+  page.on('request', (request) => {
+    if (request.method() !== 'POST') return
+    const path = new URL(request.url()).pathname
+    if (path === '/api/v1/password-resets/complete') completeRequests++
+    if (path === '/api/v1/sessions/logout') logoutRequests++
+    if (path === '/api/v1/sessions/login') automaticLogins++
+  })
+  try {
+    await page.goto('/forgot-password')
+    await expect(page.locator('#forgot-email')).toBeEditable()
+    await page.locator('#forgot-email').fill(material.member.email)
+    expect(await responseStatus(page, '/api/v1/password-resets/request', () =>
+      page.getByRole('button', { name: '申请恢复方式', exact: true }).click())).toBe(202)
+    await expect(page.getByRole('alert')).toContainText('如果该邮箱可用')
+    const ipc = join(directory, 'entry-ipc.json')
+    writeFileSync(ipc + '.tmp', JSON.stringify({ sequence: 1, email: material.member.email, kind: 'reset-link' }), { mode: 0o600 })
+    renameSync(ipc + '.tmp', ipc)
+    const ack = join(directory, 'entry-link-1.json')
+    await expect.poll(() => existsSync(ack)).toBe(true)
+    const link: string = JSON.parse(readFileSync(ack, 'utf8')).url
+    try { await page.goto(link) }
+    catch { throw new Error('independent private reset navigation failed') }
+    await expect(page.locator('#reset-password')).toBeEditable()
+    expect(await page.evaluate((token) => location.hash === '' &&
+      [location.href, JSON.stringify(history.state), document.documentElement.outerHTML,
+        JSON.stringify({ ...localStorage }), JSON.stringify({ ...sessionStorage })].every((value) => !value.includes(token)),
+    new URL(link).hash.slice(1))).toBe(true)
+    expect(await page.getByText(material.member.email, { exact: true }).count()).toBe(0)
+    await fillSecret(page, '#reset-password', material.new_password)
+    await fillSecret(page, '#reset-confirmation', material.new_password)
+    expect(await responseStatus(page, '/api/v1/password-resets/complete', () =>
+      page.getByRole('button', { name: '重置密码', exact: true }).click())).toBe(204)
+    await expect(page.getByRole('alert')).toContainText('密码已重置')
+    expect(await page.locator('input[type="password"]').count()).toBe(0)
+    const afterA = await session(page)
+    expect(afterA.status === 200 && afterA.user === beforeA.user && afterA.session === beforeA.session).toBe(true)
+    expect((await session(pageB)).status).toBe(401)
+    expect(completeRequests === 1 && logoutRequests === 0 && automaticLogins === 0).toBe(true)
+
+    // A's pre-reset Session CSRF is kept only in this private runner's memory.
+    // This is a real protected API request using the browser's unchanged Cookie.
+    const write = await page.evaluate(async ({ csrf, version }) => {
+      const response = await fetch('/api/v1/me/preferences', {
+        method: 'PUT', credentials: 'same-origin', cache: 'no-store', redirect: 'error',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf,
+          'Idempotency-Key': 'independent-a-authority-' + crypto.randomUUID() },
+        body: JSON.stringify({ version, theme: 'dark' }),
+      })
+      if (response.status !== 200) return { status: response.status, dark: false }
+      const value = await response.json()
+      return { status: 200, dark: value.theme === 'dark' && BigInt(value.version) === BigInt(version) + 1n }
+    }, { csrf: beforeA.csrf, version: beforeA.version })
+    expect(write.status === 200 && write.dark).toBe(true)
+    const finalA = await session(page)
+    expect(finalA.status === 200 && finalA.user === beforeA.user && finalA.session === beforeA.session).toBe(true)
+    writeFileSync(join(directory, 'entry-result.json'), JSON.stringify({ completed: true,
+      identity_preserved: true, user_id: finalA.user, session_id: finalA.session,
+      old_session_ids: [beforeA.session, beforeB.session] }), { mode: 0o600 })
+  } finally {
+    beforeA.csrf = ''
+    beforeB.csrf = ''
+    material.admin.password = ''
+    material.member.password = ''
+    material.new_password = ''
+    await contextB.close()
+  }
+})

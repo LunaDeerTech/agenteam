@@ -1,0 +1,19 @@
+--- input08/internal/central/identity/contract/identity.go
++++ accepted/internal/central/identity/contract/identity.go
+@@ -64,6 +64,7 @@
+ 	AccountAuth        ServiceName = "account-auth"
+ 	AccountMaintenance ServiceName = "account-maintenance"
+ 	AccountMail        ServiceName = "account-mail"
++	ModelRuntime       ServiceName = "model-runtime"
+ )
+ 
+ const ProjectInitialization ServiceName = "project-initialization"
+@@ -169,7 +170,7 @@
+ 
+ func RegisterService(name ServiceName) (ServiceRegistration, error) {
+ 	switch name {
+-	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, ProjectInitialization, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail:
++	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, ProjectInitialization, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail, ModelRuntime:
+ 	default:
+ 		return ServiceRegistration{}, invalid()
+ 	}

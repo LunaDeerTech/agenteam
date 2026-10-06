@@ -1,0 +1,235 @@
+#!/usr/bin/env python3
+"""Owned D26 observer; an explicit plan/group invocation is required to run it."""
+import ctypes, hashlib, json, os, pathlib, re, subprocess, sys, time
+
+if len(sys.argv) != 3:
+    raise SystemExit('usage: run_fixture.py FIXED_PLAN GROUP_INDEX')
+plan_path = pathlib.Path(sys.argv[1]).resolve()
+plan = json.loads(plan_path.read_text())
+group = plan['groups'][int(sys.argv[2])]
+base = pathlib.Path(__file__).resolve().parent
+record = base / 'evidence' / group['name']
+record.mkdir(mode=0o700)
+cwd = pathlib.Path(plan['cwd'])
+env = dict(os.environ, **plan['env'])
+manifest_path = pathlib.Path(plan['input'])
+manifest_raw = manifest_path.read_bytes()
+if hashlib.sha256(manifest_raw).hexdigest() != plan['input_sha256']:
+    raise SystemExit('frozen manifest changed')
+manifest = json.loads(manifest_raw)
+
+def save(name, value):
+    (record / name).write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+def source_state():
+    values = {}
+    for path, expected in manifest['files'].items():
+        actual = hashlib.sha256((cwd / path).read_bytes()).hexdigest()
+        shared = hashlib.sha256((pathlib.Path('/workspace/agenteam') / path).read_bytes()).hexdigest()
+        values[path] = {'expected': expected, 'private': actual, 'shared': shared}
+    return values
+
+before = source_state()
+if any(v['expected'] != v['private'] or v['expected'] != v['shared'] for v in before.values()):
+    raise SystemExit('candidate source drift')
+save('source-before.json', before)
+def dependency_state():
+    return {path: {'expected': expected, 'actual': hashlib.sha256((cwd / path).read_bytes()).hexdigest()}
+            for path, expected in manifest['fixed_dependencies_and_dist'].items()}
+deps_before = dependency_state()
+if any(v['expected'] != v['actual'] for v in deps_before.values()):
+    raise SystemExit('fixed dependency/dist drift')
+save('dependencies-before.json', deps_before)
+# Only descendants of this observer can be adopted. Other agents/process trees
+# are outside this subreaper, and only exact observed adopted PIDs are waited.
+libc = ctypes.CDLL(None, use_errno=True)
+if libc.prctl(36, 1, 0, 0, 0) != 0:
+    raise OSError(ctypes.get_errno(), 'owned subreaper setup failed')
+subreaper = ctypes.c_int()
+if libc.prctl(37, ctypes.byref(subreaper), 0, 0, 0) != 0 or subreaper.value != 1:
+    raise RuntimeError('owned subreaper verification failed')
+save('subreaper.json', {'pid': os.getpid(), 'enabled': True})
+
+def docker(*args):
+    result = subprocess.run(['docker', *args], env=env, text=True, capture_output=True, timeout=15)
+    return {'argv': ['docker', *args], 'exit': result.returncode, 'stdout': result.stdout.strip(), 'stderr': result.stderr.strip()}
+
+def ids(kind):
+    result = docker('ps', '-aq', '--no-trunc') if kind == 'containers' else docker('network', 'ls', '-q', '--no-trunc')
+    if result['exit']:
+        save('docker-error.json', result)
+        raise RuntimeError('owned Docker inventory failed')
+    return set(result['stdout'].split())
+
+def details(kind, identifier):
+    if kind == 'containers':
+        fmt = '{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Config.Labels}},"running":{{json .State.Running}}}'
+        result = docker('inspect', '--format', fmt, identifier)
+    else:
+        fmt = '{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Labels}},"internal":{{json .Internal}}}'
+        result = docker('network', 'inspect', '--format', fmt, identifier)
+    if result['exit']:
+        return None
+    return json.loads(result['stdout'])
+
+baseline_ids = {kind: ids(kind) for kind in ['containers', 'networks']}
+baseline = {kind: {identifier: details(kind, identifier) for identifier in sorted(values)} for kind, values in baseline_ids.items()}
+save('baseline.json', baseline)
+trusted_path = pathlib.Path(plan['trusted_baseline']['path'])
+trusted_raw = trusted_path.read_bytes()
+if hashlib.sha256(trusted_raw).hexdigest() != plan['trusted_baseline']['sha256']:
+    raise SystemExit('trusted baseline bytes changed')
+trusted = json.loads(trusted_raw)
+for kind, old_kind in [('containers', 'container'), ('networks', 'network')]:
+    expected = {v['ID']: {'name': v['Name'], 'labels': v['Labels'] or {}} for v in trusted[old_kind]}
+    actual = {identifier: {'name': v['name'], 'labels': v['labels'] or {}} for identifier, v in baseline[kind].items()}
+    if expected != actual:
+        raise SystemExit('Docker baseline differs from root-approved exact IDs/names/labels')
+owned = {'containers': {}, 'networks': {}}
+unexpected = {'containers': {}, 'networks': {}}
+processes = {}
+adopted_waits = []
+process_tokens = (str(cwd), plan['env']['AGENTEAM_AUTH_WEB_RUNTIME'])
+
+def process_table():
+    table = {}
+    for entry in pathlib.Path('/proc').iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            raw = (entry / 'stat').read_text()
+            end = raw.rindex(')')
+            fields = raw[end + 2:].split()
+            command = (entry / 'cmdline').read_bytes().replace(b'\0', b' ').decode('utf8', 'replace')
+            try:
+                binary = pathlib.Path(os.readlink(entry / 'exe')).name
+            except OSError:
+                binary = ''  # Zombies must remain observable and waitable.
+            table[int(entry.name)] = {'state': fields[0], 'ppid': int(fields[1]), 'start': fields[19], 'executable': raw[raw.index('(')+1:end], 'binary': binary, 'command': command}
+        except (OSError, ValueError, IndexError):
+            continue
+    return table
+
+def observe_processes(driver_pid):
+    table = process_table()
+    descendants = {driver_pid}
+    for _ in range(16):
+        discovered = {pid for pid, data in table.items() if data['ppid'] in descendants}
+        if discovered <= descendants:
+            break
+        descendants |= discovered
+    for pid, data in table.items():
+        relevant = any(token in data['command'] for token in process_tokens)
+        browser = any(name in (data['executable'] + ' ' + data['binary']).lower() for name in ['node', 'chrom', 'crashpad'])
+        adopted = data['ppid'] == os.getpid() and pid != driver_pid
+        if pid != os.getpid() and ((pid in descendants and browser) or (relevant and browser) or adopted):
+            key = str(pid) + ':' + data['start']
+            item = processes.setdefault(key, {'pid': pid, 'start': data['start'], 'parent': data['ppid'], 'executable': data['executable'], 'binary': data['binary'], 'argv_sha256': hashlib.sha256(data['command'].encode()).hexdigest(), 'first_observed': time.time(), 'owned_path': relevant, 'driver_descendant': pid in descendants})
+            item['last_observed'] = time.time()
+            if adopted:
+                item.setdefault('adopted_by_subreaper_at', time.time())
+    return table
+
+def reap_owned_adopted(driver_pid):
+    table = observe_processes(driver_pid)
+    for item in list(processes.values()):
+        data = table.get(item['pid'])
+        if not data or data['start'] != item['start'] or data['ppid'] != os.getpid() or item['pid'] == driver_pid:
+            continue
+        try:
+            waited, status = os.waitpid(item['pid'], os.WNOHANG)
+        except ChildProcessError:
+            continue
+        if waited == item['pid']:
+            adopted_waits.append({'pid': waited, 'start': item['start'], 'status': status, 'time': time.time(), 'subreaper': os.getpid()})
+    return table
+
+def observe_resources():
+    for kind in owned:
+        for identifier in ids(kind) - baseline_ids[kind]:
+            if identifier in owned[kind] or identifier in unexpected[kind]:
+                continue
+            item = details(kind, identifier)
+            if item is None:
+                continue
+            labels = item.get('labels') or {}
+            nonces = {k: v for k, v in labels.items() if k.startswith('agenteam.') and 'fixture' in k and isinstance(v, str) and re.fullmatch('[0-9a-f]{32}', v)}
+            item['first_observed'] = time.time()
+            if nonces:
+                item['nonces'] = nonces
+                owned[kind][identifier] = item
+            else:
+                unexpected[kind][identifier] = item
+
+save('command.json', {'argv': group['argv'], 'cwd': str(cwd), 'env': plan['env'], 'input': str(manifest_path), 'input_sha256': plan['input_sha256'], 'plan_sha256': hashlib.sha256(plan_path.read_bytes()).hexdigest(), 'observer_argv': sys.argv, 'observer_sha256': hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(), 'note': 'only safe explicit environment; credentials remain inside original owned fixture'})
+start = time.time()
+raw_log = base / 'logs' / (group['name'] + '.log')
+with raw_log.open('wb') as log:
+    child = subprocess.Popen(group['argv'], cwd=cwd, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+    try:
+        while child.poll() is None:
+            observe_resources()
+            reap_owned_adopted(child.pid)
+            time.sleep(0.2)
+        status = child.wait()
+    except BaseException:
+        # Stop only this driver process group; its original trap owns cleanup.
+        os.killpg(child.pid, 15)
+        try:
+            child.wait(timeout=60)
+        except subprocess.TimeoutExpired:
+            save('interrupted.json', {'driver_pid': child.pid, 'needs_manual_owned_cleanup': True})
+        raise
+observe_resources()
+# Chromium/crashpad descendants may become adopted only while their parent exits.
+# Wait their real terminal states within a bounded observer cleanup budget.
+join_until = time.monotonic() + 5
+while True:
+    table = reap_owned_adopted(child.pid)
+    alive = [item for item in processes.values() if item['pid'] in table and table[item['pid']]['start'] == item['start']]
+    if not alive or time.monotonic() >= join_until:
+        break
+    time.sleep(0.05)
+save('adopted-waits.json', adopted_waits)
+save('owned-live.json', owned)
+save('unexpected-resources.json', unexpected)
+save('process-live.json', processes)
+save('result.json', {'exit': status, 'seconds': time.time()-start, 'raw_log': str(raw_log), 'raw_sha256': hashlib.sha256(raw_log.read_bytes()).hexdigest()})
+
+def verify_cleanup():
+    reap_owned_adopted(child.pid)
+    now = process_table()
+    active = []
+    for item in processes.values():
+        data = now.get(item['pid'])
+        if data and data['start'] == item['start']:
+            active.append({'pid': item['pid'], 'start': item['start'], 'state': data['state'], 'executable': data['executable']})
+    unknown_browser = [{'pid': pid, 'start': v['start'], 'state': v['state'], 'executable': v['executable']} for pid,v in now.items() if any(token in v['command'] for token in process_tokens) and any(name in (v['executable'] + ' ' + v['binary']).lower() for name in ['node', 'chrom', 'crashpad'])]
+    resources = {}
+    for kind in owned:
+        resources[kind] = {}
+        for identifier in owned[kind]:
+            result = docker('inspect', '--format', '{{.Id}}', identifier) if kind == 'containers' else docker('network', 'inspect', '--format', '{{.Id}}', identifier)
+            result['absent'] = result['exit'] != 0 and ('No such object' in result['stderr'] or 'not found' in result['stderr'] or 'No such network' in result['stderr'])
+            resources[kind][identifier] = result
+    current = {kind: {identifier: details(kind, identifier) for identifier in sorted(ids(kind))} for kind in baseline}
+    runtime = sorted(p.name for p in pathlib.Path(plan['env']['AGENTEAM_AUTH_WEB_RUNTIME']).iterdir())
+    fixture_tmp = sorted(p.name for p in pathlib.Path(plan['env']['TMPDIR']).iterdir() if p.name.startswith(('agenteam-', 'go-build')))
+    return {'time': time.time(), 'resources': resources, 'baseline_after': current, 'baseline_unchanged': current == baseline, 'remaining_observed_processes': active, 'remaining_owned_browser': unknown_browser, 'browser_runtime': runtime, 'fixture_tmp': fixture_tmp}
+
+first = verify_cleanup()
+save('cleanup-01.json', first)
+time.sleep(0.2)
+second = verify_cleanup()
+save('cleanup-02.json', second)
+after = source_state()
+save('source-after.json', after)
+deps_after = dependency_state()
+save('dependencies-after.json', deps_after)
+save('adopted-waits.json', adopted_waits)
+clean = all(v['baseline_unchanged'] and not v['remaining_observed_processes'] and not v['remaining_owned_browser'] and not v['browser_runtime'] and not v['fixture_tmp'] and all(i['absent'] for values in v['resources'].values() for i in values.values()) for v in [first, second])
+source_unchanged = before == after and deps_before == deps_after
+summary = {'driver_exit': status, 'cleanup_pass': clean, 'source_unchanged': source_unchanged, 'owned_counts': {k: len(v) for k,v in owned.items()}, 'observed_browser_processes': len(processes), 'record': str(record)}
+save('summary.json', summary)
+print(json.dumps(summary), flush=True)
+raise SystemExit(0 if status == 0 and clean and source_unchanged else 1)

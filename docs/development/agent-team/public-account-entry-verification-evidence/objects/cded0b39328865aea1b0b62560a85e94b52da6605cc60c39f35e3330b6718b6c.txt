@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "tool",
+    "nm",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/bin/independent-input08.test"
+  ],
+  "exit": 0,
+  "matching_symbols": [
+    " 1524100 T github.com/LunaDeerTech/agenteam/tests/account_test.TestAccountPublicEntryIndependentResetAuthority"
+  ],
+  "binary_sha256": "d7a070ae5485f7ab260552582138f8022873219cf63d142a11c11aa4b46f39d3"
+}

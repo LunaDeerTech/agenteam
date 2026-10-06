@@ -1,0 +1,23 @@
+{
+  "prior": "input09",
+  "changed": [
+    "tests/account-captcha-web/e2e/account-entry.spec.ts",
+    "tests/account/account_entry_web_fixture_test.go",
+    "tests/account/authentication_web_fixture_test.go",
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+  ],
+  "production_and_dist_unchanged_from_input08": true,
+  "source_count": 25,
+  "fixed_dependency_and_dist_count": 960,
+  "prior10_preserved": true,
+  "difference_from10": [
+    "tests/account/account_entry_web_fixture_test.go",
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+  ],
+  "deadline_fix": "No query after expired handshake; live failure diagnostics inherit original handshake; preceding snapshots remain final facts after expiry.",
+  "observer_boundary": "Only two explicit same-origin tuples: PUT /api/v1/me/preferences 409 and POST /api/v1/sessions/login 401. Per-call one original fetch, same Promise/Response, bounded clone/join/release/restore/delete; clone tees body and does not prove original owner tail. Preserve VERSION_CONFLICT and UNAUTHENTICATED plus all subsequent UI/PG assertions.",
+  "prior11_preserved": true,
+  "difference_from11": [
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+  ]
+}

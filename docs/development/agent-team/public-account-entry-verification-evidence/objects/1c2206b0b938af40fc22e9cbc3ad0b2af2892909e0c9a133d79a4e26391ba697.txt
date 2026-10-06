@@ -1,0 +1,146 @@
+--- c54/web/src/api/account.ts
++++ input08/web/src/api/account.ts
+@@ -80,6 +80,63 @@
+ }>
+ export type WriteOptions = Readonly<{ csrfToken: string; key: string; signal?: AbortSignal }>
+ export type AvatarDownload = Readonly<{ metadata: AvatarMetadata; blob: Blob }>
++export type DeliveryChannel = 'smtp' | 'backend_log'
++export type LinkInput = Readonly<{ token: string }>
++export type BrowserReadOptions = Readonly<{ csrfToken: string; signal?: AbortSignal }>
++export type InvitationInspection = Readonly<{ email: string; expires_at: string }>
++export type InvitationRedeemed = Readonly<{ completed: true; login_required: true }>
++export type InvitationInput = Readonly<{
++  token: string
++  username: string
++  display_name?: string
++  password: string
++  confirmation: string
++}>
++export type ResetAccepted = Readonly<{ accepted: true; delivery_channel: DeliveryChannel }>
++export type ResetInspection = Readonly<{ valid: true; expires_at: string }>
++export type ResetInput = Readonly<{ token: string; new_password: string; confirmation: string }>
++
++export function validAccountLinkToken(value: unknown): value is string {
++  return (
++    typeof value === 'string' &&
++    value.length === 80 &&
++    uuid7.test(value.slice(0, 36)) &&
++    /^\.[A-Za-z0-9_-]{43}$/.test(value.slice(36))
++  )
++}
++
++function linkInput(value: LinkInput): LinkInput {
++  const v = shape(value, ['token'])
++  requireValue(validAccountLinkToken(v.token))
++  return { token: v.token as string }
++}
++function newPassword(value: unknown, confirmation: unknown) {
++  const password = string(value, 15, 128)
++  requireValue(password === confirmation && new TextEncoder().encode(password).byteLength <= 512)
++  return password
++}
++function invitationInput(value: InvitationInput): InvitationInput {
++  const v = shape(value, ['token', 'username', 'password', 'confirmation'], ['display_name'])
++  const profile = profileInput({
++    version: '1',
++    username: v.username as string,
++    ...(v.display_name === undefined ? {} : { display_name: v.display_name as string }),
++  })
++  const password = newPassword(v.password, v.confirmation)
++  return {
++    ...linkInput({ token: v.token as string }),
++    username: profile.username!,
++    ...(profile.display_name === undefined ? {} : { display_name: profile.display_name }),
++    password,
++    confirmation: password,
++  }
++}
++function browserReadOptions(options: BrowserReadOptions) {
++  return {
++    csrf: csrf(options.csrfToken),
++    signal: options.signal ?? new AbortController().signal,
++  }
++}
+ 
+ function requireValue(condition: boolean) {
+   if (!condition) throw new AccountFailure('invalid-response')
+@@ -270,6 +327,79 @@
+ export function createAccountAPI(fetcher?: Fetch) {
+   const request = accountTransport(fetcher)
+   return {
++    inspectInvitation(
++      value: LinkInput,
++      options: BrowserReadOptions,
++    ): Promise<InvitationInspection> {
++      return request(
++        'inspectInvitation',
++        (value) => {
++          const v = shape(value, ['email', 'expires_at'])
++          return { email: email(v.email), expires_at: instant(v.expires_at) }
++        },
++        input(() => ({ body: linkInput(value), ...browserReadOptions(options) })),
++      )
++    },
++    redeemInvitation(value: InvitationInput, options: WriteOptions): Promise<InvitationRedeemed> {
++      return request(
++        'redeemInvitation',
++        (value) => {
++          const v = shape(value, ['completed', 'login_required'])
++          requireValue(v.completed === true && v.login_required === true)
++          return { completed: true, login_required: true }
++        },
++        input(() => ({ body: invitationInput(value), ...writeOptions(options) })),
++      )
++    },
++    requestPasswordReset(
++      value: Readonly<{ email: string }>,
++      options: WriteOptions,
++    ): Promise<ResetAccepted> {
++      return request(
++        'requestPasswordReset',
++        (value) => {
++          const v = shape(value, ['accepted', 'delivery_channel'])
++          requireValue(
++            v.accepted === true &&
++              (v.delivery_channel === 'smtp' || v.delivery_channel === 'backend_log'),
++          )
++          return { accepted: true, delivery_channel: v.delivery_channel as DeliveryChannel }
++        },
++        input(() => ({
++          body: { email: email(shape(value, ['email']).email) },
++          ...writeOptions(options),
++        })),
++      )
++    },
++    inspectPasswordReset(value: LinkInput, options: BrowserReadOptions): Promise<ResetInspection> {
++      return request(
++        'inspectPasswordReset',
++        (value) => {
++          const v = shape(value, ['valid', 'expires_at'])
++          requireValue(v.valid === true)
++          return { valid: true, expires_at: instant(v.expires_at) }
++        },
++        input(() => ({ body: linkInput(value), ...browserReadOptions(options) })),
++      )
++    },
++    completePasswordReset(value: ResetInput, options: WriteOptions): Promise<void> {
++      return request(
++        'completePasswordReset',
++        () => undefined,
++        input(() => {
++          const v = shape(value, ['token', 'new_password', 'confirmation'])
++          const password = newPassword(v.new_password, v.confirmation)
++          return {
++            body: {
++              ...linkInput({ token: v.token as string }),
++              new_password: password,
++              confirmation: password,
++            },
++            ...writeOptions(options),
++          }
++        }),
++      )
++    },
+     getProfile(signal = new AbortController().signal): Promise<ProfileView> {
+       return request('profile', profile, { signal })
+     },

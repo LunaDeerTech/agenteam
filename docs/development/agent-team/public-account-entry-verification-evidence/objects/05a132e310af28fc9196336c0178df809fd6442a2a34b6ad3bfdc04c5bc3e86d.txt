@@ -1,0 +1,17 @@
+{
+  "manifest_sha256": "6c699aee164f5f52bb61e3f54a24df0f4f2c2d992407aa27fedc0d9683976a68",
+  "source_count": 25,
+  "fixed_dependencies_dist": 960,
+  "checked": 985,
+  "mismatches": [],
+  "delta_from_10": [
+    "tests/account/account_entry_web_fixture_test.go",
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+  ],
+  "delta_from_09": [
+    "tests/account-captcha-web/e2e/account-entry.spec.ts",
+    "tests/account/account_entry_web_fixture_test.go",
+    "tests/account/authentication_web_fixture_test.go",
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+  ]
+}

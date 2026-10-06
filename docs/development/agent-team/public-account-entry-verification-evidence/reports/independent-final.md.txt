@@ -1,0 +1,36 @@
+# 公开 Account 入口最终独立验收
+
+结论：**PASS，建议采纳最终25路径候选，限本文固定输入与验证边界。** 原12个真实顶层全部取得有效通过证据；作者末轮实际退出及双清已闭合。独立跨账号重置、原CSRF继续写入与已接受后端组合/迁移18验证通过。旧失败、测试采样变化与复用范围保留，不把所有结果冒称来自同一输入的一次全矩阵运行。
+
+最终候选为作者 input13，manifest SHA256 `f824cf28b414a2b41276ae383342fd9bb861987784623929b0e35690ceff9fd4`。独立末检985文件全部匹配，25授权源与当前共享源码逐项匹配，12生产源和15个dist资产从已验input08起不变。`final-input-checks.json` 保存实际25路径及每个SHA。原manifest的 `task_revision` 仍写rev2/24th，是保留的旧描述；没有改写已运行manifest。实际25路径与rev3–5授权、精确差量和最终原件相符，root报告rev5采纳提交为 `11c5b9cfb63022895d0f56c10332a573e88ca0e1`，本验收者未运行Git。
+
+| 有效输入/原轮 | 通过的原真实顶层 | 复用及原失败边界 |
+| --- | --- | --- |
+| input09 / new01-retest04 | PublicEntry Invitation、PasswordReset | 两顶层/PW、正式HTTP/PG后态及整轮退出0；此前原失败不覆盖 |
+| input09 / new02 | PublicEntry IdentityNavigation | 该顶层通过；同轮Privacy及原cleanup失败另记，后定点双清不抹原false |
+| input09 / auth01 | Authentication SessionLifecycle、RotateChallenge | 原桌面/键盘子例及两个顶层通过，整轮退出0 |
+| input09 / auth02 | Authentication RevocationAndExpiry、LayoutsAndProduction | 原撤销/到期子例及两个顶层通过，整轮退出0 |
+| input09 / settings01 | PersonalSettings ProfileAndAvatar | 该顶层通过；同轮Theme旧CDP采样失败保留 |
+| input09 / settings02 | PersonalSettings AuthorityAndProduction | 该顶层通过；同轮Password旧CDP采样失败保留 |
+| input12 / remaining-retest01 | PublicEntry PrivacyAndProduction、PersonalSettings ThemeAndNavigation | 两顶层分别16.03s/15.82s通过；同轮Password在400旧观察点失败，整轮exit1保留 |
+| input13 / password-retest01 | PersonalSettings PasswordRotation | PW7.7s/Go13.06s通过，原两个400字段错误、旧密码401、换发/撤销Session及精确2命令/2Audit均完成 |
+
+各版本只在已授权测试观察/元数据范围变化后明确复用不受影响的通过结果。最终13相对12仅旧settings spec新增第三闭集 POST change-password400，替换wrong/weak两个采样入口；两字段错误对象逐字相同，其余源与后续断言不变。12相对09只有4个测试路径，生产/dist不变。相关985项独立hash、逐路径差量、检查命令和静核结论见 input09/10/11/12/13 的原审查资料；input10诊断截止问题在11修正，原10未冒称通过最终门槛。
+
+作者最终单Password轮 driver exit0，140.6297s；作者确认 observer session51582经 tools.write_stdin实际wait返回exit0并显式归还窗口。独立核原log SHA256 `3490e92ab4277ac7c22cf33232619d0464005617d356c9cd8cb7905192a1b81c`、19个PID/start终结、4容器/3网络精确ID两遍absent、原2容器/4网络基线不变、私有runtime/TMP为空，以及源/依赖前后hash一致。`author-input13-password-readcheck.json`绑定全部原件；六组09及12的独立读核索引同样保存原命令、原log、退出、前后hash及两遍清理，不只依赖摘要。
+
+独立生产行为证据另有两轮。input08原 `TestAccountPublicEntryIndependentResetAuthority` 在真实A已登录时用匿名公开流程重置B：正式reset204后B的原Session确实撤销，A精确原User/Session保留，A重置前持有的原CSRF仍可执行一次真实偏好写；原命令/Audit数量与Session/resource归属均核对。PW8.7s/Go15s、driver/observer0，原始报告 `independent-input08-report.md` 和索引保留。该用例不使用202 clone/CDP JSON采样，不能替代作者完整known/unknown raw shape隐私断言。
+
+最终组合独立轮采用input09前端23/dist、c54依赖与已接受management13/ledger20，共1012文件，排除活动tools14；manifest SHA256 `6443965d6806efbae71e0f83e33347bb794372d7e3e877a0e206cfcd10a6f03e`。原独立业务PW字节不变，Go仅增加只读前置：实际编译 `postgres.EmbeddedSource()` target18、18项manifest及SQL18精确checksum/mode；真实新库启动后核goose0..18全部applied、journal与编译checksum/mode一致、3张usage表存在。不是只检查SQL文件存在。PW8.9s/Go14.76s、driver/observer0、107.3017s，19PID/7IDs双清通过，02:08:21窗口由协调员接收；`combined01/report.md` 和 `result-index.json` 保存完整证明。后续13仅测试观察变化，不重复这轮通过业务证据，也不将其扩大为包含未审后端变更的任意main。
+
+纯/构建门槛复用固定input08实际 `npm run check --prefix web` exit0：151例/12文件、format/type/build通过。最终12受影响Go1.27.1 offline readonly integration race compile/vet与两个spec严格tsc实际0，13仅旧spec变动，其严格tsc实际0，原Go/entry检查按字节不变复用。独立原字节反例证明并关闭：确认204后GET截止/离页留下旧Session事实，history.state含capability键，空ReadableStream204被按body对象存在误拒；同owner、Unknown原意图原key/CSRF重放、迟到隔离及actual cancel/body尾部占有另有定向pure。控制依赖不冒称PG Unknown或网络/COMMIT故障注入。
+
+保留的限制：
+
+- 所有历史产品/fixture/采样/准备失败均保留。原真实204后的UI异常没有直接采样其body形态；独立空流反例证明的是生产分支缺陷。CDP No data found的唯一根因未确定；40次本地诊断未复现，不能当作正式Account或根因证明。
+- 202与Settings四个指定错误观察点从实际原响应clone读取完整JSON，保留原status/shape/字面及所有后态断言；同一native fetch只调用一次、原Promise/Response不替换，读取/解析/取消失败显式失败并实际join/restore。clone会tee并影响body分支，不能证明未观测原stream/owner尾部。独立204/actual-tail及跨账号用例不靠该观测证明。
+- Privacy使用一个共享20s截止覆盖PG、精确受限日志与IPC，原45s/2m/6m、race/count1、workers1/retries0不变。本轮实际先accepted/pass0无reset，在正式处理后才见reset/intent/outbox/exactlog，支持测试内部期限修正；原首红缺相位证据，仍不追认唯一根因。安全快照没有材料ID、email、token、hash或请求payload。
+- 真实渠道是backend_log；smtp DTO/UI纯测及既有D07证据不代表本卡新增SMTP真实投递/browser验收。三页真实视口、保存浅深偏好/系统媒体、键盘、reduced-motion和CSS zoom=2按原Privacy用例通过；CSS zoom不声称原生浏览器200%缩放。
+- 不宣告生产SPA托管、完整D26/D27、readyz503或已有Object Runtime join缺陷解决。没有新增trace/video、请求正文日志或敏感截图。所有本验收者拥有的命令/浏览器/Docker资源已退出并归还。
+
+本结论已独立核最终原件，可先供root采纳代码；证据归档排版不改变验收结论，也不需要重复已有效通过的矩阵。

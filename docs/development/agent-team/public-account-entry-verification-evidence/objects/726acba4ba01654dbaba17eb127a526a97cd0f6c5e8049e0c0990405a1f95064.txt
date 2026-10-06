@@ -1,0 +1,24 @@
+import { defineConfig } from '@playwright/test'
+const origin = process.env.AGENTEAM_AUTH_WEB_ORIGIN
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE
+const executablePath = process.env.AGENTEAM_AUTH_WEB_CHROMIUM
+if (!origin || !directory || !executablePath || process.env.AGENTEAM_ENTRY_WEB_CASE !== 'identity')
+  throw new Error('EXACT_INDEPENDENT_FIXTURE_REQUIRED')
+const owned = new URL(origin)
+if (owned.protocol !== 'http:' || owned.hostname !== '127.0.0.1' || !owned.port || owned.origin !== origin)
+  throw new Error('EXACT_OWNED_ORIGIN_REQUIRED')
+export default defineConfig({
+  testDir: './e2e',
+  testMatch: 'independent-reset-authority.spec.ts',
+  timeout: 45_000,
+  workers: 1,
+  retries: 0,
+  reporter: 'line',
+  outputDir: `${directory}/independent-entry-results`,
+  use: {
+    baseURL: origin,
+    browserName: 'chromium',
+    launchOptions: { executablePath, args: ['--no-sandbox'] },
+    screenshot: 'off', trace: 'off', video: 'off',
+  },
+})

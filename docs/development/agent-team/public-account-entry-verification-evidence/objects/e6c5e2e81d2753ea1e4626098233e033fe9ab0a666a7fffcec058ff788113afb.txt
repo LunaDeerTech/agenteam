@@ -1,0 +1,10 @@
+{
+  "authority": "root explicit single-writer grant; test-only rev2 addendum",
+  "path": "/workspace/agenteam/docs/development/work-items/d26-public-account-entry.md",
+  "before_sha256": "bf679647650e77aad9cd5519aace87be9dc52b00f6e2ca0655a6e66cd273e95f",
+  "after_sha256": "aa76b90003c3fa510b52dd7c355aa1fbc3054ede7ecfad2ea8f4783e53230fac",
+  "old_body_preserved": true,
+  "added_scope_path": "tests/account/authentication_web_fixture_test.go",
+  "added_scope": "private recoveryLogPath string and cfg.AccountRecoveryLog constructor assignment only",
+  "review_status": "FROZEN_FOR_ROOT_REVIEW; no test publication by verifier"
+}

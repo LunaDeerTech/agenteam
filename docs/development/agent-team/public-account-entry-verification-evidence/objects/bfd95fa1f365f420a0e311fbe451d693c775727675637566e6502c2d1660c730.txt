@@ -1,0 +1,22 @@
+{
+  "prior": "input12",
+  "changed": [
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+  ],
+  "field_assertions_byte_identical": true,
+  "wrong": {
+    "path": "/current_password",
+    "code": "INVALID"
+  },
+  "weak": {
+    "path": "/password",
+    "code": "PASSWORD_WEAK"
+  },
+  "only_added_observer_target": {
+    "method": "POST",
+    "path": "/api/v1/me/change-password",
+    "status": 400
+  },
+  "unchanged": "All product/dist, other24 paths, oldfixture Go, exact20s helper, Privacy/Theme and prior9 PASS semantics; Profile duplicate and page.evaluate native JSON untouched",
+  "original12_failure_preserved": "logs/remaining-retest01.log + evidence/remaining-retest01; two topsPASS/oneFAIL"
+}

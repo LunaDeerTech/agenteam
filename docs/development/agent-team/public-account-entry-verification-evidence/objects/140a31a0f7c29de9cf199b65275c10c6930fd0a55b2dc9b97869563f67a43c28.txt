@@ -1,0 +1,42 @@
+{
+  "manifest_sha256": "f824cf28b414a2b41276ae383342fd9bb861987784623929b0e35690ceff9fd4",
+  "scoped": 25,
+  "total": 985,
+  "mismatches": [],
+  "vs12_changed": [
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+  ],
+  "type_command": {
+    "argv": [
+      "/workspace/agenteam/web/node_modules/.bin/tsc",
+      "--noEmit",
+      "--target",
+      "ES2022",
+      "--module",
+      "ESNext",
+      "--moduleResolution",
+      "Bundler",
+      "--lib",
+      "ES2022,DOM,DOM.Iterable",
+      "--strict",
+      "--skipLibCheck",
+      "--typeRoots",
+      "/workspace/agenteam/web/node_modules/@types",
+      "e2e/personal-settings.spec.ts"
+    ],
+    "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input13/tests/account-captcha-web",
+    "exit": 0,
+    "seconds": 1.0723059177398682,
+    "log": "/workspace/agenteam-public-entry-author-kWHbv4/browser-type-input13.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "manifest_sha256": "f824cf28b414a2b41276ae383342fd9bb861987784623929b0e35690ceff9fd4",
+    "reuse": "Other24 Go/entry sources and product/dist byte-identical to input12; previous Go race compile/vet and entry tsc unchanged."
+  },
+  "plan_sha256": "a5a4871263315409b40ceb43d0062d7203522fb36e0d05f5e621dbaf97b622b9",
+  "command_log_match": true,
+  "command_input_match": true,
+  "field_error_literals_identical": [
+    true,
+    true
+  ]
+}

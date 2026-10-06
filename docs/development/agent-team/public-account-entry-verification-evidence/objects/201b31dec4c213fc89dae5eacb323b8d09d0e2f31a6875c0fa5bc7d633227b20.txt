@@ -1,0 +1,22 @@
+{
+  "review_sha256": "0c08a027f5c6684dcf278938ad99fc79f5eb066196733b674bfe9ddb5c7a74f3",
+  "input09_manifest_sha256": "3651c839dd26051e14d651f54da863d2623dbb9dede4b818ec088b389d02ca69",
+  "source_spec_sha256": "425260cb0f232eff3ae99f2dac6ae2e888d848b748e479053023018b408d7729",
+  "checks": {
+    "manifest_sha256": "3651c839dd26051e14d651f54da863d2623dbb9dede4b818ec088b389d02ca69",
+    "checked": 985,
+    "mismatches": [],
+    "source_delta": [
+      "tests/account-captcha-web/e2e/account-entry.spec.ts"
+    ],
+    "dependencies_dist_identical_to_input08": true
+  },
+  "diagnostic_evidence": {
+    "/workspace/agenteam-public-entry-author-kWHbv4/clone-observer-diagnostic.cjs": "d8c2ce450a0e3e9c7a35a09ffd3b538ba530c19ce3b8c4ac3c93a514ee4a63a8",
+    "/workspace/agenteam-public-entry-author-kWHbv4/clone-observer-diagnostic-result.json": "1eec2dfea19afe99d245759af2beacdb8d0ed92a6c800bd3f07c563d9a38136f",
+    "/workspace/agenteam-public-entry-author-kWHbv4/browser-type-input09-command.json": "dd320b2c33d421b7d455e7d59b7c40716174a18b8fc0d03a4a9e6275032a652a",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/clone-diagnostic01/summary.json": "308e57b0e2b9532ee3537b74a1a4ccfbd6d2ae2e7003c35b0996ceb0ee765968",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/clone-diagnostic01/cleanup-01.json": "868e5f80f90aa0c2a689839859a7f0d3c8ab8fdb65b28e0991ab4d10c6763e89",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/clone-diagnostic01/cleanup-02.json": "2a345f51b11faab6194b33d654121e67419af4cc23222ce61dae60cbf4afafe8"
+  }
+}

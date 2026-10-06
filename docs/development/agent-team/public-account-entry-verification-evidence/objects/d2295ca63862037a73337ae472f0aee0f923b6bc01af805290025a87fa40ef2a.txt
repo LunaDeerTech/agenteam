@@ -1,0 +1,75 @@
+import ctypes, hashlib, json, os, pathlib, shutil, signal, subprocess, tempfile, time
+
+root = pathlib.Path(__file__).resolve().parent
+runtime = pathlib.Path(tempfile.mkdtemp(prefix='d26-pw-', dir='/tmp'))
+os.chmod(runtime, 0o700)
+if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+    raise RuntimeError('subreaper unavailable')
+environment = dict(os.environ, TMPDIR=str(runtime), XDG_CONFIG_HOME=str(runtime / 'config'), XDG_CACHE_HOME=str(runtime / 'cache'))
+for name in ['DEBUG', 'PWDEBUG', 'PLAYWRIGHT_DEBUG_LOG']:
+    environment.pop(name, None)
+
+def processes():
+    result = {}
+    for entry in pathlib.Path('/proc').iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            stat = (entry / 'stat').read_text()
+            tail = stat[stat.rfind(')') + 2:].split()
+            result[int(entry.name)] = {'pid': int(entry.name), 'ppid': int(tail[1]), 'starttime': tail[19], 'state': tail[0], 'command': stat[stat.find('(')+1:stat.rfind(')')]}
+        except (OSError, ValueError, IndexError):
+            pass
+    return result
+
+seen = {}
+reaped = []
+timed_out = False
+with (root / 'browser-diagnostic.log').open('w') as log:
+    child = subprocess.Popen(['node', str(root / 'browser-diagnostic.mjs')], env=environment, stdout=log, stderr=subprocess.STDOUT)
+    deadline = time.monotonic() + 25
+    while child.poll() is None:
+        current = processes()
+        owned = {child.pid, os.getpid()}
+        for _ in range(10):
+            next_owned = owned | {pid for pid, row in current.items() if row['ppid'] in owned}
+            if next_owned == owned:
+                break
+            owned = next_owned
+        for pid in owned - {os.getpid()}:
+            if pid in current:
+                seen.setdefault(str(pid) + ':' + current[pid]['starttime'], current[pid])
+        if time.monotonic() > deadline:
+            timed_out = True
+            for row in seen.values():
+                now = current.get(row['pid'])
+                if now and now['starttime'] == row['starttime']:
+                    os.kill(row['pid'], signal.SIGKILL)
+            break
+        time.sleep(0.01)
+    exit_code = child.wait(timeout=5)
+
+deadline = time.monotonic() + 5
+while True:
+    try:
+        pid, status = os.waitpid(-1, os.WNOHANG)
+    except ChildProcessError:
+        break
+    if pid:
+        reaped.append({'pid': pid, 'wait_status': status})
+    elif time.monotonic() > deadline:
+        raise RuntimeError('owned descendant did not exit')
+    else:
+        time.sleep(0.01)
+
+def remaining():
+    current = processes()
+    return [row for row in seen.values() if row['pid'] in current and current[row['pid']]['starttime'] == row['starttime']]
+
+first = remaining()
+shutil.rmtree(runtime)
+second = remaining()
+metadata = {'purpose': 'local synthetic CDP sampling only; no product/Account request or Docker; single Chromium, two sequential contexts', 'argv': ['node', str(root / 'browser-diagnostic.mjs')], 'env_names': ['TMPDIR', 'XDG_CONFIG_HOME', 'XDG_CACHE_HOME'], 'exit_code': exit_code, 'timed_out': timed_out, 'processes': list(seen.values()), 'subreaper_waits': reaped, 'remaining_first': first, 'remaining_second': second, 'runtime_removed': not runtime.exists()}
+(root / 'browser-diagnostic.json').write_text(json.dumps(metadata, indent=2) + '\n')
+print(json.dumps({'exit_code': exit_code, 'observed_processes': len(seen), 'reaped_descendants': len(reaped), 'remaining_first': len(first), 'remaining_second': len(second), 'runtime_removed': not runtime.exists()}))
+raise SystemExit(0 if exit_code == 0 and not timed_out and not first and not second else 1)

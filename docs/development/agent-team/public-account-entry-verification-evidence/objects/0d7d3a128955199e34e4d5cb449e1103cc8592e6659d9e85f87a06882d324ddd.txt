@@ -1,0 +1,15 @@
+
+ RUN  v4.1.11 /workspace/scratch/d26-ui-verification-mainp_f2/response204/input08/web
+
+ ↓ src/tests/response204-independent.spec.ts > confirms an actually empty 204 stream and reconciles the exact current Session once
+ ↓ src/tests/response204-independent.spec.ts > holds the shared owner through a 204-body deadline and actual cancellation tail without confirming
+ ↓ src/tests/response204-independent.spec.ts > does not confirm a 204 stream with nonempty evidence
+ ↓ src/tests/response204-independent.spec.ts > does not confirm a 204 stream with read-error evidence
+ ↓ src/tests/core-independent.spec.ts > independent frozen core01 causal combinations > keeps original anonymous intent across deadline, actual body tail, settled 410 and CSRF invalidation
+ ✓ src/tests/core-independent.spec.ts > independent frozen core01 causal combinations > quarantines prior Session facts when confirmed reset Session GET exceeds the visible deadline 23ms
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  1 passed | 5 skipped (6)
+   Start at  01:33:21
+   Duration  1.39s (transform 145ms, setup 0ms, import 289ms, tests 24ms, environment 822ms)
+

@@ -1,0 +1,35 @@
+# D26 public account entry — independent UI/fixture review
+
+Status: STATIC PASS through input07, subject to final input matching and real browser acceptance. No complete page/dynamic acceptance is claimed here.
+
+## Fixed inputs
+
+- input02 final manifest `bc6b20b6321643a94635f7136030c5052840ba7dabcbddb897f24f4d523743fc` and input03 manifest `06f1211b1e4751bd88d07be4c0e1ef3a97bc9dfa50850910f9446e6779114ead`: all 985 declared files independently hashed without mismatch (23 scoped sources plus 947 fixed dependencies plus 15 dist files).
+- input04–07 likewise have 985 matching files. The cumulative change since input03 is limited to the new browser test and two new Go test/helper files. Product code, old mock adaptations, pure tests and every fixed dependency/dist byte remain identical. Exact manifests and checks are retained next to this report.
+- Core controller/client review and C-F1 closure remain bound to accepted core03; see `/workspace/scratch/d26-core-verification-3syc0er6/report-core03.md`. No repeated whole-tree test is substituted for the targeted independent probes.
+
+## UI and ownership observations
+
+The fragment capture is installed before createWebHistory, with a single private pending slot. The owner handles dirty same-path replacements and actual-tail exclusion; the router coordinates settings dirty confirmation, explicit switch, owner abandonment and old Login unmount. Three public pages exclude AppShell, preserve readonly invitation email, submit captured primitive form values and clear passwords/link material before confirmed-success feedback. Unknown retry remains the original controller mutation; no prepare/inspect is inserted. Reset confirmed/unconfirmed presentation does not reissue the reset. beforeunload/pagehide and focus-revision handling were read against frozen sources.
+
+Independent capability-history probe: a valid current token and an older valid token are placed in root/nested/array property names and values, together with ordinary Vue Router state. input02 fails because property names remain. The exact same probe passes input03: URL is scrubbed, both tokens disappear from serialized history.state, ordinary router position/scroll/back remain, and only one private take obtains the capability. Logs `input02-history-probe.log` (exit 1) and `input03-history-probe.log` (exit 0) preserve the correction. These are synthetic tokens, never real fixture secrets.
+
+The new browser helper now creates a cmd.Wait completion channel immediately after Start, records a consumed wait, and defers process-group kill followed by actual Wait receipt on every Fatal path before environment clearing or fixture cleanup. No new token/response-body logging was introduced. The outer observer still must prove actual descendants/reaping and exact Docker cleanup; a normal child Wait alone is insufficient evidence of every Chromium descendant.
+
+## Real first-red classification and test delta
+
+Author input03 `new01` raw log shows invitation Playwright PASS but Go poststate SQLSTATE 42883: one inferred UUID parameter is also used against JSON text. Explicit `$1::uuid` and `$1::text` correct the query while keeping exact one-command/one-audit assertions. That is a fixture query failure, not evidence of failed invitation redemption.
+
+The same run's reset helper only prints generic poststate query failure, then kills the browser. The original DB error class was not retained; the run cannot be retroactively classified as ErrNoRows. Frozen backend `reset.go` establishes that uniform HTTP 202 commits a request and subsequent recovery work creates the reset/delivery. The correction waits only for pgx.ErrNoRows, at most four seconds, on one reused connection; every other DB error remains failure, without writes or fabricated state. It needs the original real selector to close.
+
+Original new01 cleanup failed on a remaining private Chromium profile. Timing of the file write was not measured; late-write causation is not proven. Original cleanup failure remains recorded. Author manual evidence removes only the previously observed private runtime after all exact owned processes disappeared; two later checks show all four owned containers/three networks absent, exact baseline unchanged and empty runtime. No old fixture was edited.
+
+Author input06 `new01-retest01` fails in Playwright `response.json()` with CDP `Network.getResponseBody: No data found`; it reached the response observer before private reset-link IPC. This proves a test body-observation failure, not a product missing-body defect or a known CDP backpressure cause. input07 starts reading the same real response immediately from waitForResponse and awaits that plus the actual click. Original status and JSON shape assertions remain; there is no route interception, replacement response or repeat HTTP request. Source review accepts the bounded observer change; real rerun must prove closure. The original root cause remains unknown.
+
+## Visual coverage correction
+
+Original privacy assertions covered 24 system-media/theme/viewport combinations and CSS zoom 2. On independent review, the author added actual settings-UI persisted light/dark preferences under opposing OS media, data-theme plus computed color-scheme/body background checks, and per-page actual button transition positive before reduced-motion versus zero after, with spinner animation none. These are narrowly added to the existing real privacy case; no product/style changes. CSS zoom 2 remains a CSS 200% reflow observation, not native browser zoom evidence. No sensitive trace/video/screenshots are created.
+
+## Remaining work
+
+Author must complete all four new real tops and the affected old authentication/settings tops with exact selector/budget/source/cleanup evidence. Independent single-top plan, approved by root: `^TestAccountPublicEntryIndependentResetAuthority$`, proving A resets B through the public UI, B original Session is truly revoked, A exact original Session stays live and A pre-reset Session CSRF still authorizes a real preference write, with exact PG command/Audit/Session facts. A private Go overlay adds only that top and redirects the existing new helper to the private Playwright configuration; it does not copy or alter product root. Final source binding, compile/vet and exclusive window precede execution.

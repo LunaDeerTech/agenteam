@@ -1,0 +1,39 @@
+{
+  "input_manifest_sha256": "f043d9dcb8fd3de5e9644305521869d06e09d2aa9ab45d09acc6cf6a5cf41a72",
+  "scoped_files": 25,
+  "total_files": 985,
+  "mismatches": [],
+  "vs11_changed": [
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+  ],
+  "vs09_changed": [
+    "tests/account-captcha-web/e2e/account-entry.spec.ts",
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+    "tests/account/account_entry_web_fixture_test.go",
+    "tests/account/authentication_web_fixture_test.go"
+  ],
+  "product_count": 12,
+  "dist_count": 15,
+  "product_and_dist_input08_identical": true,
+  "commands": [
+    {
+      "name": "browser-type",
+      "exit": 0,
+      "input_match": true,
+      "log_match": true
+    },
+    {
+      "name": "go-compile",
+      "exit": 0,
+      "input_match": true,
+      "log_match": true
+    },
+    {
+      "name": "go-vet",
+      "exit": 0,
+      "input_match": true,
+      "log_match": true
+    }
+  ],
+  "card_sha256": "16f1863e307bdfdf189de3960911faeaa7af9674a7ab0ce9e28190ff95a16332"
+}

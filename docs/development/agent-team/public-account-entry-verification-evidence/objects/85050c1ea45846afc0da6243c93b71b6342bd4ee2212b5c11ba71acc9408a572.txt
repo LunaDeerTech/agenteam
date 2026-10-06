@@ -1,0 +1,26 @@
+--- input08/internal/central/model/http.go
++++ accepted/internal/central/model/http.go
+@@ -96,12 +96,14 @@
+ 		{"GET", "/system/models", id.Read, true, h.listModels},
+ 		{"POST", "/system/models", id.Mutate, false, h.createModel},
+ 		{"GET", "/system/models/{id}", id.Read, false, h.getModel},
++		{"GET", "/system/models/{id}/deletion-impact", id.Read, false, h.getModelDeletionImpact},
+ 		{"PUT", "/system/models/{id}", id.Mutate, false, h.updateModel},
+ 		{"DELETE", "/system/models/{id}", id.Mutate, false, h.deleteModel},
+ 		{"GET", "/system/model-selection", id.Read, false, h.getSelection},
+ 		{"PUT", "/system/model-selection", id.Mutate, false, h.updateSelection},
+ 		{"POST", "/system/model-commands/lookup", id.Read, false, h.lookupCommand},
+ 		{"POST", "/system/model-credentials", id.Mutate, false, h.createCredential},
++		{"GET", "/system/model-credentials/{id}", id.Read, false, h.getCredentialMetadata},
+ 		{"PUT", "/system/model-credentials/{id}", id.Mutate, false, h.updateCredential},
+ 		{"DELETE", "/system/model-credentials/{id}", id.Mutate, false, h.deleteCredential},
+ 		{"POST", "/system/model-credential-commands/lookup", id.Read, false, h.lookupCredential},
+@@ -109,6 +111,8 @@
+ }
+ 
+ func (h *systemHTTP) dispatch(w http.ResponseWriter, r *http.Request, route systemHTTPRoute) {
++	r, cancel := managementReadRequest(r, route)
++	defer cancel()
+ 	actor, err := h.boundary.RequireSystem(r, route.intent)
+ 	if err != nil {
+ 		h.boundary.WriteProblem(w, r, err)

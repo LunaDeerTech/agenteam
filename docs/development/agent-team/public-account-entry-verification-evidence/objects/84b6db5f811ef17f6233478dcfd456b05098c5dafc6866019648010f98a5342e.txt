@@ -1,0 +1,37 @@
+{
+  "manifest_sha256": "ac568e2bdb6fd279d00660df3b04f63baf34723f4d9f313bfabdd2c9fe913ee8",
+  "files": [
+    {
+      "path": "web/vitest.config.mjs",
+      "sha256": "4d941ed7c9c98f02a1f09f29a38bfc0a79c0d496d123ac9aea3fa18089998785"
+    },
+    {
+      "path": "web/package.json",
+      "sha256": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "6a5d8974ea3d4901b6f5aa58e3bf19921affb3ea2f9a0a49295fc6104b96410c"
+    },
+    {
+      "path": "web/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "8c5353e0b0cf3ee41cd91cdab333e68c32f8b23cf2cf3fca9911c81aac326470"
+    },
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "f62ef980f64d3f06cb5631962db8dd06e4374fb113f19941504db54acd9f0363"
+    },
+    {
+      "path": "web/src/tests/account-entry-state.spec.ts",
+      "sha256": "afc53fc91861033ad1ebb38fcc9b6296f780c539d88d38e086773b2bcf27e023"
+    },
+    {
+      "path": "web/src/tests/core-independent.spec.ts",
+      "sha256": "8854ece7bf1a2595b5355f71127a54547b9a0689cc9ba2e37fd02887fff11baa"
+    }
+  ]
+}

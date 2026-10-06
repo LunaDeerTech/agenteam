@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestAccountPublicEntryWeb(Invitation|PasswordReset)$"
+  ],
+  "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input07",
+  "env": {
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-a",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOCACHE": "/workspace/agenteam-public-entry-author-kWHbv4/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/agenteam-public-entry-author-kWHbv4/tmp"
+  },
+  "input": "/workspace/agenteam-public-entry-author-kWHbv4/input07-manifest.json",
+  "input_sha256": "e0898c56572f9524083b53f8cf94abc2958f55c0d43d30a9b0082a637ae2ef95",
+  "note": "only safe explicit environment; credentials remain inside original owned fixture",
+  "observer_argv": [
+    "run_fixture.py",
+    "browser-plan06.json",
+    "0"
+  ],
+  "observer_sha256": "e2f14a8e7fb84f353c0dd75c78f974bac4ec129e425b73ca1d794b5ecdd6f3f7",
+  "plan_sha256": "bb86d6b35b433c46ce42831bf922c25e2a36047627765f5f83dfdd35bb1ec273"
+}

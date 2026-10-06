@@ -1,0 +1,71 @@
+{
+  "report_sha256": "e4a5caf98a21fc0f1235229cc23c3337c942395eecf5a0e1892c647e4f5f6b08",
+  "manifest_sha256": "6443965d6806efbae71e0f83e33347bb794372d7e3e877a0e206cfcd10a6f03e",
+  "plan_sha256": "c2b5bfe1869b4ab3d3187d20d6371a10e8c92c61134de02feba0992793fd5560",
+  "summary": {
+    "cleanup_pass": true,
+    "driver_exit": 0,
+    "observed_browser_processes": 19,
+    "owned_counts": {
+      "containers": 4,
+      "networks": 3
+    },
+    "record": "/workspace/scratch/d26-ui-verification-mainp_f2/combined01/evidence/combined-reset-authority-01",
+    "source_unchanged": true
+  },
+  "result": {
+    "exit": 0,
+    "raw_log": "/workspace/scratch/d26-ui-verification-mainp_f2/combined01/logs/combined-reset-authority-01.log",
+    "raw_sha256": "40b162aea5cf0d9b08b65ab7ba88bedbe87b6fc1352851c5931062e69324da0a",
+    "seconds": 107.30166172981262
+  },
+  "actual_adopted_waits": 4,
+  "cleanup_checks": [
+    {
+      "record": "cleanup-01.json",
+      "exact_ids_absent": 7,
+      "baseline_containers": 2,
+      "baseline_networks": 4,
+      "all_process_runtime_tmp_clear": true
+    },
+    {
+      "record": "cleanup-02.json",
+      "exact_ids_absent": 7,
+      "baseline_containers": 2,
+      "baseline_networks": 4,
+      "all_process_runtime_tmp_clear": true
+    }
+  ],
+  "safe_selected_log_lines": [
+    "=== RUN   TestAccountPublicEntryIndependentResetAuthority",
+    "    independent_reset_authority_test.go:16: compiled embedded source target18 and exact accepted SQL checksum verified",
+    "    independent_reset_authority_test.go:18: real PG applied target18, exact compiled journal checksum and three usage tables verified read-only",
+    "        \u001b\u001b[1A\u001b\u001b[2K  1 passed (8.9s)",
+    "    independent_reset_authority_test.go:39: independent real B reset confirmed once; B original Session revoked; A exact original Session and pre-reset CSRF accepted a real protected write; exact command/Audit and persistent authority verified",
+    "--- PASS: TestAccountPublicEntryIndependentResetAuthority (14.76s)"
+  ],
+  "evidence_sha256": {
+    "delta.json": "b6e9774117f57c11b294de443ee66556481b4a3f122c96c2f97c9d0286337fea",
+    "input-checks.json": "da5a1ca7a39780bfe18fededb081ce7bf9bf6e334f1bd6dc2dd53c0bf1306fa2",
+    "go-preparation-commands.json": "1719f7f95039fe2d27eed21a70ab237f24ce4b821c0152f1bd94e8f0d0439526",
+    "compiled-selector.json": "8761e4d3349e1b34d3e829f4b711f3ee4c7f03c312f1db0799bc762b34565439",
+    "probe-migration.diff": "cfcdab450e717966e5094e846b48540dc23fcf08be78006397f3331455205888",
+    "observer.diff": "e0a9b73e843f5f4fd9c33be9cdbe1f2075f02c34c7f8f2b61bbcfce2f7d29699",
+    "grant.json": "a7b997520f87b5247291631e157d06c59099a87e70915b361d69ca843d760100",
+    "evidence/combined-reset-authority-01/adopted-waits.json": "712c0139054d7ac0367976712ae6ace23515593030b419a36e5910f502eccdf7",
+    "evidence/combined-reset-authority-01/baseline.json": "8b166a5c2a5720f1df0bdc9ee01fb6e112dd2feeed31a0aca6796deee51468b8",
+    "evidence/combined-reset-authority-01/cleanup-01.json": "c35d1ba1a45e6efb27460256025a91fd1d3a870b3c38b5f2a8a5ad373740b8d9",
+    "evidence/combined-reset-authority-01/cleanup-02.json": "0e92b68fc7e991e6b83603e71bd9e92c85202688ebea2e4fac7d63a4e3ccaa4e",
+    "evidence/combined-reset-authority-01/command.json": "629784d696aa08bf15107c0237325d8f9f242371c57911302152e3a0b595f881",
+    "evidence/combined-reset-authority-01/dependencies-after.json": "bee9d24481740eb8190690247518ae568ab669646e9c7a2a4ca6586bcbf25cf7",
+    "evidence/combined-reset-authority-01/dependencies-before.json": "bee9d24481740eb8190690247518ae568ab669646e9c7a2a4ca6586bcbf25cf7",
+    "evidence/combined-reset-authority-01/owned-live.json": "4c0bda97831861b395ce747e8a255e0d4cb0f37583ff0d36db74f1453fac0270",
+    "evidence/combined-reset-authority-01/process-live.json": "3c435089069a0b2dc95e396716d36616cc35fe202160dfdcc57e8f8c6db4ae80",
+    "evidence/combined-reset-authority-01/result.json": "c79a6f951515fdbee291b2d61a08c85e3bae69e168ae7c273d9ece27f6cf22e4",
+    "evidence/combined-reset-authority-01/source-after.json": "8c9d4857ecc380b834ff1e0444305eafd9e3b1b800ecbf2a0a81f936f6ee881e",
+    "evidence/combined-reset-authority-01/source-before.json": "8c9d4857ecc380b834ff1e0444305eafd9e3b1b800ecbf2a0a81f936f6ee881e",
+    "evidence/combined-reset-authority-01/subreaper.json": "f886aa06f675dcbbbc7209d79a807102e1a809be340381a7cd991fc7db393d3d",
+    "evidence/combined-reset-authority-01/summary.json": "a2d8bc843b17b2c2141dd6e49cf30dbd5dff5cb86acc2e7114a05d3f7fa45294",
+    "evidence/combined-reset-authority-01/unexpected-resources.json": "ea83236189cc6c2e55f30da6d64932da1887406f64a5a1135d9ad9409dc155aa"
+  }
+}

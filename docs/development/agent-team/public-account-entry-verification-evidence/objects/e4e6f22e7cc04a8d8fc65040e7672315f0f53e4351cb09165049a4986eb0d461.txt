@@ -1,0 +1,22 @@
+{
+  "manifest_sha256": "0726c646bef31043e190a6c2261c0a7074069ad07849a6fe07efff2bcb7a02d2",
+  "checked": 985,
+  "mismatches": [],
+  "source_delta": [
+    "web/src/api/client.ts",
+    "web/src/tests/account-entry-client.spec.ts",
+    "web/src/tests/account-entry-state.spec.ts",
+    "web/src/tests/account-entry.spec.ts"
+  ],
+  "dependency_or_dist_delta": [
+    "web/dist/assets/AppearanceSettings-63wpRmlx.js",
+    "web/dist/assets/ForgotPasswordView-DxRZQRnp.js",
+    "web/dist/assets/InvitationView--rxG-87O.js",
+    "web/dist/assets/PasswordSettings-BNHIcVIX.js",
+    "web/dist/assets/PersonalSettingsView-BJJb04qN.js",
+    "web/dist/assets/ProfileSettings-D8gGahnI.js",
+    "web/dist/assets/ResetPasswordView-B01zG9Wv.js",
+    "web/dist/assets/index-JZazy896.js",
+    "web/dist/index.html"
+  ]
+}

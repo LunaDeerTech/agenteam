@@ -1,0 +1,23 @@
+{
+  "source_manifest": "/workspace/agenteam-public-entry-author-kWHbv4/core01/manifest.json",
+  "source_manifest_sha256": "c73d5115dc8d2109921ccb956b9e0f18d5ea5179e27db1446c8e9b39564f0a11",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "f62ef980f64d3f06cb5631962db8dd06e4374fb113f19941504db54acd9f0363"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "8c5353e0b0cf3ee41cd91cdab333e68c32f8b23cf2cf3fca9911c81aac326470"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "69ec6352b5930decc4264ecf5c42f2af1f176fc820989da501b78b67fd52fcfd"
+    },
+    {
+      "path": "web/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13"
+    }
+  ],
+  "dependency_path": "/workspace/agenteam/web/node_modules"
+}

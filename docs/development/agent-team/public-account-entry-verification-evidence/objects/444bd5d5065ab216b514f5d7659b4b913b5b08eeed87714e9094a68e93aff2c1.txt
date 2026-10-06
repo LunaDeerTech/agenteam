@@ -1,0 +1,71 @@
+{
+  "frozen_input": "f824cf28b414a2b41276ae383342fd9bb861987784623929b0e35690ceff9fd4",
+  "plan_sha256": "a5a4871263315409b40ceb43d0062d7203522fb36e0d05f5e621dbaf97b622b9",
+  "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/password-retest01.log",
+  "raw_sha256": "3490e92ab4277ac7c22cf33232619d0464005617d356c9cd8cb7905192a1b81c",
+  "raw_sha_match": true,
+  "driver_exit": 0,
+  "seconds": 140.62973189353943,
+  "summary": {
+    "cleanup_pass": true,
+    "driver_exit": 0,
+    "observed_browser_processes": 19,
+    "owned_counts": {
+      "containers": 4,
+      "networks": 3
+    },
+    "record": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01",
+    "source_unchanged": true
+  },
+  "tops": [
+    {
+      "status": "PASS",
+      "name": "TestAccountPersonalSettingsWebPasswordRotation",
+      "duration": "13.06s"
+    }
+  ],
+  "source_rows_match": true,
+  "source_before_after_equal": true,
+  "dependencies_before_after_equal": true,
+  "cleanup_checks": [
+    {
+      "file": "cleanup-01.json",
+      "exact_owned_ids": true,
+      "all_absent": true,
+      "baseline_same": true,
+      "empty_runtime": true,
+      "empty_tmp": true,
+      "zero_observed_processes": true,
+      "zero_owned_browser": true
+    },
+    {
+      "file": "cleanup-02.json",
+      "exact_owned_ids": true,
+      "all_absent": true,
+      "baseline_same": true,
+      "empty_runtime": true,
+      "empty_tmp": true,
+      "zero_observed_processes": true,
+      "zero_owned_browser": true
+    }
+  ],
+  "actual_adopted_wait_count": 4,
+  "evidence_hashes": {
+    "/workspace/agenteam-public-entry-author-kWHbv4/logs/password-retest01.log": "3490e92ab4277ac7c22cf33232619d0464005617d356c9cd8cb7905192a1b81c",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/adopted-waits.json": "2af3493783b9553eec5c876024c87d0ee168a43611385b9530799bcf33808588",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/baseline.json": "8b166a5c2a5720f1df0bdc9ee01fb6e112dd2feeed31a0aca6796deee51468b8",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/cleanup-01.json": "bb860edca8b0c5f67e9d58c840258263a95d4563d99b87974a43c157212be012",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/cleanup-02.json": "b1087179390d05a1cd0d2d49c42cc4180a793d9d21a11f9d4af59f7c7bb42396",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/command.json": "f8976bad1aaca5783b154460109c164b2b7ea9afe618577015ad12ac7505cf3f",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/dependencies-after.json": "12c3948027f0ef22a000850f3e7566771d5a68f05395a7eca4a5a9fb292f4b84",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/dependencies-before.json": "12c3948027f0ef22a000850f3e7566771d5a68f05395a7eca4a5a9fb292f4b84",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/owned-live.json": "ab4cbab09b1be232c2889ba188497ba0a78e1f995a4dd7262520c55558f29d45",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/process-live.json": "e31e0559628fc403d62662163996f7212bc31224a50a7eeb55c87f79a067c1a9",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/result.json": "fa58609f7fac2f003ca7b4093bc7d29b8a10a62dfdf76387f0da8d0d9a3b9861",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/source-after.json": "bead3558c7a38e13e33ac32247b1d354a42e853b76b284bb393e55fdefe959c2",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/source-before.json": "bead3558c7a38e13e33ac32247b1d354a42e853b76b284bb393e55fdefe959c2",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/subreaper.json": "7293a373a1e8af9ab54607c3941f468adda4d53b0ae4225ba768b0fee644bd24",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/summary.json": "c3c7b0bb3843ccc42e358e6b9f3560f951d82e07f40cddca5ab68eae2a5b0b4b",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01/unexpected-resources.json": "ea83236189cc6c2e55f30da6d64932da1887406f64a5a1135d9ad9409dc155aa"
+  }
+}

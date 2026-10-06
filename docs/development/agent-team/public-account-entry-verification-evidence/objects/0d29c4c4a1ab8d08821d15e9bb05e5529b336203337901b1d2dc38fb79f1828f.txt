@@ -1,0 +1,118 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.173.152.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=3a5e1446c0aeb5b0751065a53e4725dd
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=2853a4a4dfc117eb3f3cec025c5c70e7
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.106s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.012s [no tests to run]
+=== RUN   TestAccountPersonalSettingsWebPasswordRotation
+    personal_settings_web_test.go:60: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:606116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:606116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/personal-settings.spec.ts:565:1 › [password] strict success rotates the current Session and revokes another real context
+        [1A[2K  1) e2e/personal-settings.spec.ts:565:1 › [password] strict success rotates the current Session and revokes another real context 
+        
+            Error: response.json: Protocol error (Network.getResponseBody): No data found for resource with given identifier
+        
+              764 |       401,
+              765 |     );
+            > 766 |     expect((await refused.json()).code).toBe("UNAUTHENTICATED");
+                  |                           ^
+              767 |     await privateFill(fresh.locator("#login-password"), "");
+              768 |     expect((await profile(page)).user.initial_password_suggestion).toBe(false);
+              769 |     await storedMaterialsAbsent(page);
+                at /workspace/agenteam-public-entry-author-kWHbv4/input09/tests/account-captcha-web/e2e/personal-settings.spec.ts:766:27
+        
+        
+        [1A[2K  1 failed
+            e2e/personal-settings.spec.ts:565:1 › [password] strict success rotates the current Session and revokes another real context 
+        
+    personal_settings_web_test.go:60: actual settings production browser failed: exit status 1
+--- FAIL: TestAccountPersonalSettingsWebPasswordRotation (13.85s)
+=== RUN   TestAccountPersonalSettingsWebAuthorityAndProduction
+    personal_settings_web_test.go:83: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:607497) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:607497) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/personal-settings.spec.ts:668:1 › [authority] ordinary user and admin own-profile, complete layout matrix and formal production routing
+        [1A[2K  1 passed (6.5s)
+        
+    personal_settings_web_test.go:84: owned user=01a10f02-40dc-7ae1-a8f1-711abd33304f version=3 committed personal commands=2 matching success audits=2
+    personal_settings_web_test.go:92: real admin/user own-profile authority, CSRF/body rejection, invalidation, twelve theme/viewport pairs, 200%, keyboard/reduced motion and production routing verified; no production SPA hosting claim
+--- PASS: TestAccountPersonalSettingsWebAuthorityAndProduction (11.96s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	25.847s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.011s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce d055a7acd0f3013f8a1dfd7e734fffd6
+D04 outbound fixture cleanup checked for nonce 2853a4a4dfc117eb3f3cec025c5c70e7
+D05 object fixture exact resource cleanup checked nonce=3a5e1446c0aeb5b0751065a53e4725dd

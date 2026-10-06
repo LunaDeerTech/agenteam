@@ -1,0 +1,472 @@
+{
+  "input09_matrix_top_pass": 9,
+  "input09_matrix_top_fail": 3,
+  "runs": [
+    {
+      "group": "new01-retest04",
+      "input_sha256": "3651c839dd26051e14d651f54da863d2623dbb9dede4b818ec088b389d02ca69",
+      "driver_exit": 0,
+      "seconds": 164.3958044052124,
+      "raw_sha256": "c17ae286e71884d76f913105fc8baa881f5ba22cce6f3ae401f25835837c0f78",
+      "raw_sha_match": true,
+      "original_summary": {
+        "cleanup_pass": true,
+        "driver_exit": 0,
+        "observed_browser_processes": 31,
+        "owned_counts": {
+          "containers": 4,
+          "networks": 3
+        },
+        "record": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04",
+        "source_unchanged": true
+      },
+      "top_levels": [
+        {
+          "name": "TestAccountPublicEntryWebInvitation",
+          "status": "PASS",
+          "duration": "11.23s"
+        },
+        {
+          "name": "TestAccountPublicEntryWebPasswordReset",
+          "status": "PASS",
+          "duration": "16.59s"
+        }
+      ],
+      "source_rows_match": true,
+      "source_before_after_equal": true,
+      "dependency_before_after_equal": true,
+      "cleanup_checks": [
+        {
+          "file": "cleanup-01.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": true,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": true
+        },
+        {
+          "file": "cleanup-02.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": true,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": true
+        }
+      ],
+      "actual_adopted_wait_count": 8
+    },
+    {
+      "group": "new02",
+      "input_sha256": "3651c839dd26051e14d651f54da863d2623dbb9dede4b818ec088b389d02ca69",
+      "driver_exit": 1,
+      "seconds": 75.1990156173706,
+      "raw_sha256": "15ccebe4756907f851cd310480c05dbb8150ef8f7c9ed73d2726f591eecb0692",
+      "raw_sha_match": true,
+      "original_summary": {
+        "cleanup_pass": false,
+        "driver_exit": 1,
+        "observed_browser_processes": 26,
+        "owned_counts": {
+          "containers": 4,
+          "networks": 3
+        },
+        "record": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02",
+        "source_unchanged": true
+      },
+      "top_levels": [
+        {
+          "name": "TestAccountPublicEntryWebIdentityNavigation",
+          "status": "PASS",
+          "duration": "14.87s"
+        },
+        {
+          "name": "TestAccountPublicEntryWebPrivacyAndProduction",
+          "status": "FAIL",
+          "duration": "11.25s"
+        }
+      ],
+      "source_rows_match": true,
+      "source_before_after_equal": true,
+      "dependency_before_after_equal": true,
+      "cleanup_checks": [
+        {
+          "file": "cleanup-01.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": false,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": true
+        },
+        {
+          "file": "cleanup-02.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": false,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": true
+        },
+        {
+          "file": "manual-cleanup-01.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": true,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": null,
+          "schema_note": "Manual cleanup schema omits remaining_owned_browser; both original checks reported it empty, and both manual checks report remaining_observed_processes empty."
+        },
+        {
+          "file": "manual-cleanup-02.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": true,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": null,
+          "schema_note": "Manual cleanup schema omits remaining_owned_browser; both original checks reported it empty, and both manual checks report remaining_observed_processes empty."
+        }
+      ],
+      "actual_adopted_wait_count": 10
+    },
+    {
+      "group": "auth01",
+      "input_sha256": "3651c839dd26051e14d651f54da863d2623dbb9dede4b818ec088b389d02ca69",
+      "driver_exit": 0,
+      "seconds": 75.19316339492798,
+      "raw_sha256": "dc67f35eeeb2636a1efefc01f5a8b5410bff3557851d2f354fbe57c86d5f8c73",
+      "raw_sha_match": true,
+      "original_summary": {
+        "cleanup_pass": true,
+        "driver_exit": 0,
+        "observed_browser_processes": 39,
+        "owned_counts": {
+          "containers": 4,
+          "networks": 3
+        },
+        "record": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01",
+        "source_unchanged": true
+      },
+      "top_levels": [
+        {
+          "name": "TestAccountAuthenticationWebSessionLifecycle",
+          "status": "PASS",
+          "duration": "5.54s"
+        },
+        {
+          "name": "TestAccountAuthenticationWebRotateChallenge",
+          "status": "PASS",
+          "duration": "18.84s"
+        }
+      ],
+      "source_rows_match": true,
+      "source_before_after_equal": true,
+      "dependency_before_after_equal": true,
+      "cleanup_checks": [
+        {
+          "file": "cleanup-01.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": true,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": true
+        },
+        {
+          "file": "cleanup-02.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": true,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": true
+        }
+      ],
+      "actual_adopted_wait_count": 12
+    },
+    {
+      "group": "auth02",
+      "input_sha256": "3651c839dd26051e14d651f54da863d2623dbb9dede4b818ec088b389d02ca69",
+      "driver_exit": 0,
+      "seconds": 68.81792664527893,
+      "raw_sha256": "fe487d46fa502d6d5afcd027d90a7335b0d57c23e77d144ac0c36b9542a79750",
+      "raw_sha_match": true,
+      "original_summary": {
+        "cleanup_pass": true,
+        "driver_exit": 0,
+        "observed_browser_processes": 42,
+        "owned_counts": {
+          "containers": 4,
+          "networks": 3
+        },
+        "record": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02",
+        "source_unchanged": true
+      },
+      "top_levels": [
+        {
+          "name": "TestAccountAuthenticationWebRevocationAndExpiry",
+          "status": "PASS",
+          "duration": "12.69s"
+        },
+        {
+          "name": "TestAccountAuthenticationWebLayoutsAndProduction",
+          "status": "PASS",
+          "duration": "6.32s"
+        }
+      ],
+      "source_rows_match": true,
+      "source_before_after_equal": true,
+      "dependency_before_after_equal": true,
+      "cleanup_checks": [
+        {
+          "file": "cleanup-01.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": true,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": true
+        },
+        {
+          "file": "cleanup-02.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": true,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": true
+        }
+      ],
+      "actual_adopted_wait_count": 12
+    },
+    {
+      "group": "settings01",
+      "input_sha256": "3651c839dd26051e14d651f54da863d2623dbb9dede4b818ec088b389d02ca69",
+      "driver_exit": 1,
+      "seconds": 70.39812064170837,
+      "raw_sha256": "17d20f84d60c4afd64cacbac2952366dba6c50792abd412402947a6fe36fc5f8",
+      "raw_sha_match": true,
+      "original_summary": {
+        "cleanup_pass": true,
+        "driver_exit": 1,
+        "observed_browser_processes": 29,
+        "owned_counts": {
+          "containers": 4,
+          "networks": 3
+        },
+        "record": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01",
+        "source_unchanged": true
+      },
+      "top_levels": [
+        {
+          "name": "TestAccountPersonalSettingsWebProfileAndAvatar",
+          "status": "PASS",
+          "duration": "10.80s"
+        },
+        {
+          "name": "TestAccountPersonalSettingsWebThemeAndNavigation",
+          "status": "FAIL",
+          "duration": "9.93s"
+        }
+      ],
+      "source_rows_match": true,
+      "source_before_after_equal": true,
+      "dependency_before_after_equal": true,
+      "cleanup_checks": [
+        {
+          "file": "cleanup-01.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": true,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": true
+        },
+        {
+          "file": "cleanup-02.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": true,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": true
+        }
+      ],
+      "actual_adopted_wait_count": 8
+    },
+    {
+      "group": "settings02",
+      "input_sha256": "3651c839dd26051e14d651f54da863d2623dbb9dede4b818ec088b389d02ca69",
+      "driver_exit": 1,
+      "seconds": 75.28249883651733,
+      "raw_sha256": "0d29c4c4a1ab8d08821d15e9bb05e5529b336203337901b1d2dc38fb79f1828f",
+      "raw_sha_match": true,
+      "original_summary": {
+        "cleanup_pass": true,
+        "driver_exit": 1,
+        "observed_browser_processes": 36,
+        "owned_counts": {
+          "containers": 4,
+          "networks": 3
+        },
+        "record": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02",
+        "source_unchanged": true
+      },
+      "top_levels": [
+        {
+          "name": "TestAccountPersonalSettingsWebPasswordRotation",
+          "status": "FAIL",
+          "duration": "13.85s"
+        },
+        {
+          "name": "TestAccountPersonalSettingsWebAuthorityAndProduction",
+          "status": "PASS",
+          "duration": "11.96s"
+        }
+      ],
+      "source_rows_match": true,
+      "source_before_after_equal": true,
+      "dependency_before_after_equal": true,
+      "cleanup_checks": [
+        {
+          "file": "cleanup-01.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": true,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": true
+        },
+        {
+          "file": "cleanup-02.json",
+          "exact_owned_ids": true,
+          "all_absent": true,
+          "baseline_same": true,
+          "empty_runtime": true,
+          "empty_tmp": true,
+          "zero_observed_processes": true,
+          "zero_owned_browser": true
+        }
+      ],
+      "actual_adopted_wait_count": 8
+    }
+  ],
+  "evidence_hashes": {
+    "/workspace/agenteam-public-entry-author-kWHbv4/logs/new01-retest04.log": "c17ae286e71884d76f913105fc8baa881f5ba22cce6f3ae401f25835837c0f78",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/adopted-waits.json": "ca87b42c8e5471f4338f835b15018d464e0a572593351119d4cbfbe670b6229f",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/baseline.json": "8b166a5c2a5720f1df0bdc9ee01fb6e112dd2feeed31a0aca6796deee51468b8",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/cleanup-01.json": "e7d8d1a42c319b0b7bf6ee675f2b59313030c1ad563af26e423ff9d46ccea09d",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/cleanup-02.json": "ac6cb6ec15c2dd1cdb9a30721313bf8b5c29e32f3ceb0f402a0fb348f1b5a7bf",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/command.json": "55ecefef383f46c9c616abfae9ffc07a2b6652a0ada56537c0126df65f0e80fd",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/dependencies-after.json": "57ec86fb325157c497fbb12b438de00c76006bd9711d0828a15aefc217c3d022",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/dependencies-before.json": "57ec86fb325157c497fbb12b438de00c76006bd9711d0828a15aefc217c3d022",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/owned-live.json": "d5aa04c503243cf0fdfd69e6e15bd228cf1621c59e1d9f9a6823b72cd904fd13",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/process-live.json": "5eea6d434b8ae378171896179da2f233de6b48619341d6f24871f17b15957c5b",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/result.json": "9273eca3144ca77d1aff6eca4e21dd2386fee8b2d9175f6d806f1bf21b00ca7b",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/source-after.json": "dcc2a2871d2610cf59684db6050526a074513dfffe3c10a539d3b36e5599b951",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/source-before.json": "dcc2a2871d2610cf59684db6050526a074513dfffe3c10a539d3b36e5599b951",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/subreaper.json": "63a51e432070db64476d98fa76461d77dc092060d84ec82068b6bae503699c94",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/summary.json": "1ee3d329ff5d1ebb05e8825b3831bde3a026d02aa0e92b287d75648fe4e86c99",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04/unexpected-resources.json": "ea83236189cc6c2e55f30da6d64932da1887406f64a5a1135d9ad9409dc155aa",
+    "/workspace/agenteam-public-entry-author-kWHbv4/logs/new02.log": "15ccebe4756907f851cd310480c05dbb8150ef8f7c9ed73d2726f591eecb0692",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/adopted-waits.json": "faab819515849d6498743d5c077c090ab179189dcf0693af7673d9ede0d8d674",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/baseline.json": "8b166a5c2a5720f1df0bdc9ee01fb6e112dd2feeed31a0aca6796deee51468b8",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/cleanup-01.json": "d17f3cef67c75edc0d2d554e7cbfa321a32bdc3911c42f85f10f7365ee44b2be",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/cleanup-02.json": "452ef472ee4b676bfff624f6b515d7c08a37a276a33f87980eaccb5955bd3b22",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/command.json": "b34b69f97cb4126d2f05c1f0e614f850c9e05a88906c75cd0f412476e3aed020",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/dependencies-after.json": "57ec86fb325157c497fbb12b438de00c76006bd9711d0828a15aefc217c3d022",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/dependencies-before.json": "57ec86fb325157c497fbb12b438de00c76006bd9711d0828a15aefc217c3d022",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/manual-cleanup-01.json": "99462421b72a30196e86fbb81e2fe5deaa03649905f2b909118919b17101850b",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/manual-cleanup-02.json": "3aeb4057212fcb0a1389118acea3f8c7f2366e5d77ed2019e0742d6493e631c8",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/manual-runtime-before.json": "d3e52e60f8fc1f53dc7b426b0388541a5d0dd8588f1cb28bc6b7a723a392156a",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/owned-live.json": "1de98fc1461a7fa8806ad6fef1e44a9eff71b7177710a12a4dc31997109ce163",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/process-live.json": "8087569f33774ff9c10957ff63915e3f7a77235684b35f09175b81506259c78f",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/result.json": "01a07a9d44ec58d293e95952b7c8be1de3aeab82c30b211ac9052f07587bb778",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/source-after.json": "dcc2a2871d2610cf59684db6050526a074513dfffe3c10a539d3b36e5599b951",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/source-before.json": "dcc2a2871d2610cf59684db6050526a074513dfffe3c10a539d3b36e5599b951",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/subreaper.json": "61df4a4cf2a6ad72cf99863f4a3cf0a05cd76251525137a0cce8203a34fc3397",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/summary.json": "84481d4807c83577ad8c37a58ec04b50259f042ace77f9c905b7ad4467dc1deb",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02/unexpected-resources.json": "ea83236189cc6c2e55f30da6d64932da1887406f64a5a1135d9ad9409dc155aa",
+    "/workspace/agenteam-public-entry-author-kWHbv4/logs/auth01.log": "dc67f35eeeb2636a1efefc01f5a8b5410bff3557851d2f354fbe57c86d5f8c73",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/adopted-waits.json": "f23b0814759fed545317e15cea6386bcd98cb958a4f30cf1eb494b0fb9aac62f",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/baseline.json": "8b166a5c2a5720f1df0bdc9ee01fb6e112dd2feeed31a0aca6796deee51468b8",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/cleanup-01.json": "70ac698951a99460b64897d098668da59a6badb2830167d83f2fff41d90e93fb",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/cleanup-02.json": "d550ab24b1167673ac3e70c2374354aeafe3ba0da45bc0effc13e391ea6266c2",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/command.json": "b43501777da88a6939c318744495db64c84840ea04dad0a36907f1b7d25dea1e",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/dependencies-after.json": "57ec86fb325157c497fbb12b438de00c76006bd9711d0828a15aefc217c3d022",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/dependencies-before.json": "57ec86fb325157c497fbb12b438de00c76006bd9711d0828a15aefc217c3d022",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/owned-live.json": "ab5597042111fb510fe0fa55a132649f3831e8e78c5ce0a367ad404404c8ca90",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/process-live.json": "47f3b6fe764b50a37bb1417aac17a8ec62fad8449e5c853f958e8c74a0835c55",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/result.json": "ffb0c4f642192d470a2637b00b1dab7049bd30586f31b3253d0b4653e8d5c477",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/source-after.json": "dcc2a2871d2610cf59684db6050526a074513dfffe3c10a539d3b36e5599b951",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/source-before.json": "dcc2a2871d2610cf59684db6050526a074513dfffe3c10a539d3b36e5599b951",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/subreaper.json": "d44cb662771f366b11d085067918015ddd92eb93cdc356d44e141f0ed907fa33",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/summary.json": "927f7e1d65354836f6d8bbe532b31bd37a67584f454d04dbc3f404ffbc89c1ab",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01/unexpected-resources.json": "ea83236189cc6c2e55f30da6d64932da1887406f64a5a1135d9ad9409dc155aa",
+    "/workspace/agenteam-public-entry-author-kWHbv4/logs/auth02.log": "fe487d46fa502d6d5afcd027d90a7335b0d57c23e77d144ac0c36b9542a79750",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/adopted-waits.json": "b410a7947c930d96a6ed8f7be07d664bfa1dcabeebd91086a88228bc9e9b70a8",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/baseline.json": "8b166a5c2a5720f1df0bdc9ee01fb6e112dd2feeed31a0aca6796deee51468b8",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/cleanup-01.json": "514349c4479e72cf39956cee75d6d8f01598f1ed783fc7ba3a3c19e1adfb4beb",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/cleanup-02.json": "d529d1fad1ecc8506720a5d53915a14b0fbce6823bca9d9b315e4490ccfcd560",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/command.json": "ec617662022b063ecf667d03024024752a7742114198e7b1ea9f7ed859d29be6",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/dependencies-after.json": "57ec86fb325157c497fbb12b438de00c76006bd9711d0828a15aefc217c3d022",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/dependencies-before.json": "57ec86fb325157c497fbb12b438de00c76006bd9711d0828a15aefc217c3d022",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/owned-live.json": "5fa794198b0eb08fa8f15fd544bba5250b0ae6569f8343437fddbc4582ce3be4",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/process-live.json": "3dc9a6ccf9f13d0b2623a34a064d79e2661007c760827bafac0946b8d0f6ab06",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/result.json": "477fb27028f806d7b58faca5dd99520cfd161c3734a68b25fbabe8ab99f3f3c2",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/source-after.json": "dcc2a2871d2610cf59684db6050526a074513dfffe3c10a539d3b36e5599b951",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/source-before.json": "dcc2a2871d2610cf59684db6050526a074513dfffe3c10a539d3b36e5599b951",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/subreaper.json": "dd9b27987c75ecc632585eb7386b1f3a106faa60a0b8b6de3cee6969681f389f",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/summary.json": "d639367a693e8ca0f9eba854450d566984b1b890377e72c600bd17fb4e22c442",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02/unexpected-resources.json": "ea83236189cc6c2e55f30da6d64932da1887406f64a5a1135d9ad9409dc155aa",
+    "/workspace/agenteam-public-entry-author-kWHbv4/logs/settings01.log": "17d20f84d60c4afd64cacbac2952366dba6c50792abd412402947a6fe36fc5f8",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/adopted-waits.json": "312661944642d51d6359a8ebb05e78efa05ada13eb46616ac96009f9d999d2e2",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/baseline.json": "8b166a5c2a5720f1df0bdc9ee01fb6e112dd2feeed31a0aca6796deee51468b8",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/cleanup-01.json": "057488179e36fbade4b04a680addaa11a09862fa50b944e45a3e83583d3c05a2",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/cleanup-02.json": "3a9dd51b848dcd2f8cc436860225ad39f48d5ec990bff13d973ea4aa42fdf233",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/command.json": "65759518e81a2ede0542001637d18bc780cee8eac8963836ef83b3c798e7902b",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/dependencies-after.json": "57ec86fb325157c497fbb12b438de00c76006bd9711d0828a15aefc217c3d022",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/dependencies-before.json": "57ec86fb325157c497fbb12b438de00c76006bd9711d0828a15aefc217c3d022",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/owned-live.json": "5a7ea442fb20892985abf54892e508455866bcabf632922793c792685f8d0dd9",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/process-live.json": "8ad78527c90e2d707c5d9254bf7f36165dbba8122f2122c7eb63dd443a2b1ed0",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/result.json": "edb318a2ad906ad34e7c3e95b291a549d171cb6caf6ac7f8e2545a60104b21cd",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/source-after.json": "dcc2a2871d2610cf59684db6050526a074513dfffe3c10a539d3b36e5599b951",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/source-before.json": "dcc2a2871d2610cf59684db6050526a074513dfffe3c10a539d3b36e5599b951",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/subreaper.json": "ffeb5790a81b4f82d95569f7b1883bb1c2888a51a449f89fd75702360a7bcd47",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/summary.json": "c3ccf817f81e67bcb7cdd4661aa0baa0f4eb4897ead74ef9b8f8d82574200013",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01/unexpected-resources.json": "ea83236189cc6c2e55f30da6d64932da1887406f64a5a1135d9ad9409dc155aa",
+    "/workspace/agenteam-public-entry-author-kWHbv4/logs/settings02.log": "0d29c4c4a1ab8d08821d15e9bb05e5529b336203337901b1d2dc38fb79f1828f",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/adopted-waits.json": "6a404ccd0a483e6abb8c6f82bc25de42325dc1c986c0eaacf3fe54c9ccc18c27",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/baseline.json": "8b166a5c2a5720f1df0bdc9ee01fb6e112dd2feeed31a0aca6796deee51468b8",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/cleanup-01.json": "bfcfff7c11cdad50f20493451d28464e25841e8f040ac3b4795ac92d0fcf0f2a",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/cleanup-02.json": "c7523c8614bb51b1aca7957e7f3b445bdfd2bd6ae7105fb62f80e4361d23b728",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/command.json": "9c75bd1ce69350f2c76a4ac1ad1b8455a6cfe7f298dde79d248321e227bb379f",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/dependencies-after.json": "57ec86fb325157c497fbb12b438de00c76006bd9711d0828a15aefc217c3d022",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/dependencies-before.json": "57ec86fb325157c497fbb12b438de00c76006bd9711d0828a15aefc217c3d022",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/owned-live.json": "7b894a4573935af3b69217fce1c79abc8497672fcf798d7d76e26ed1b1d4bf51",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/process-live.json": "07534937b2b875b619ccd59d643ac77f2a309b5da3daf739120fa83a4a8975a1",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/result.json": "5012e705d619c19e5a250df9b1459b29eb2582f58d2dcb951625a61d13bc84c6",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/source-after.json": "dcc2a2871d2610cf59684db6050526a074513dfffe3c10a539d3b36e5599b951",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/source-before.json": "dcc2a2871d2610cf59684db6050526a074513dfffe3c10a539d3b36e5599b951",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/subreaper.json": "6c6f3379e6964b1fbc22ab01d45746898e18b3c3476bfc6812df09bf5b019f3c",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/summary.json": "554743c57ddee675adabb38b0916ac559b916766e079af3741f399cf6d2843c9",
+    "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02/unexpected-resources.json": "ea83236189cc6c2e55f30da6d64932da1887406f64a5a1135d9ad9409dc155aa"
+  },
+  "note": "Historical failures and original cleanup-false results are retained. Three failing top levels await input12 targeted rerun; unchanged nine top-level passes are reused after exact test-only delta review."
+}

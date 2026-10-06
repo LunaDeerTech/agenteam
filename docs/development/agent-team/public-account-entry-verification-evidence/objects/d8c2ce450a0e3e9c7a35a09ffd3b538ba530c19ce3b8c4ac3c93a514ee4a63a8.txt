@@ -1,0 +1,165 @@
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const http = require('node:http');
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const ts = require('/workspace/agenteam/web/node_modules/typescript');
+const { chromium } = require('/workspace/agenteam/tests/account-captcha-web/node_modules/playwright');
+const root = '/workspace/agenteam-public-entry-author-kWHbv4';
+const spec = path.join(root, 'input09/tests/account-captcha-web/e2e/account-entry.spec.ts');
+const source = fs.readFileSync(spec, 'utf8');
+const parsed = ts.createSourceFile(spec, source, ts.ScriptTarget.Latest, true);
+const fn = parsed.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'installJSONObservation');
+assert.ok(fn);
+const emitted = ts.transpileModule(fn.getText(parsed), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText;
+const install = new Function(emitted + '\nreturn installJSONObservation;')();
+const runtime = fs.mkdtempSync(path.join(process.env.AGENTEAM_AUTH_WEB_RUNTIME, 'clone-proof-'));
+fs.mkdirSync(path.join(runtime, 'tmp'), { mode: 0o700 });
+process.env.TMPDIR = path.join(runtime, 'tmp');
+const counts = {};
+const held = [];
+const generic = JSON.stringify({ accepted: true, delivery_channel: 'backend_log' });
+const server = http.createServer((req, res) => {
+  const url = new URL(req.url, 'http://127.0.0.1');
+  if (req.method === 'GET' && url.pathname === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/html' }).end('<!doctype html><title>owned clone observation diagnostic</title>');
+    return;
+  }
+  if (req.method !== 'POST' || url.pathname !== '/api/v1/password-resets/request') {
+    res.writeHead(404).end(); return;
+  }
+  const mode = url.searchParams.get('mode');
+  counts[mode] = (counts[mode] || 0) + 1;
+  req.resume();
+  res.writeHead(202, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+  if (mode === 'invalid') res.end('{');
+  else if (mode === 'join') { res.write(generic.slice(0, 10)); held.push(res); }
+  else { res.write(generic.slice(0, 10)); res.end(generic.slice(10)); }
+});
+let context;
+const results = [];
+const run = (async () => {
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const origin = `http://127.0.0.1:${server.address().port}`;
+  context = await chromium.launchPersistentContext(path.join(runtime, 'profile'), {
+    headless: true, executablePath: '/usr/bin/chromium', args: ['--no-sandbox'],
+    downloadsPath: path.join(runtime, 'downloads'),
+  });
+  const page = context.pages()[0];
+  for (const mode of ['valid', 'invalid', 'join']) {
+    await page.goto(origin);
+    await page.evaluate(() => {
+      const nativeFetch = window.fetch;
+      const nativeClone = Response.prototype.clone;
+      const proof = window.__proof = { nativeFetch, nativeClone, count: 0, settled: false };
+      proof.recorder = function (...args) {
+        proof.count++;
+        const pending = Reflect.apply(nativeFetch, this, args);
+        proof.pending = pending;
+        pending.then(response => { proof.response = response; proof.bodyBeforeClone = response.body; });
+        return pending;
+      };
+      window.fetch = proof.recorder;
+      Response.prototype.clone = function (...args) {
+        const clone = Reflect.apply(nativeClone, this, args);
+        proof.cloneBody = clone.body;
+        return clone;
+      };
+    });
+    await page.evaluate(install, '/api/v1/password-resets/request');
+    const preliminary = await page.evaluate(async mode => {
+      const proof = window.__proof;
+      const observation = window.__entryJSONObservation;
+      const returned = fetch('/api/v1/password-resets/request?mode=' + mode, { method: 'POST', body: '{}' });
+      proof.samePromise = returned === proof.pending;
+      const response = await returned;
+      proof.sameResponse = response === proof.response;
+      proof.bodyWasTeed = response.body !== proof.bodyBeforeClone;
+      proof.consumer = (async () => {
+        const reader = response.body.getReader();
+        let text = '';
+        const decoder = new TextDecoder('utf-8', { fatal: true });
+        try {
+          for (;;) {
+            const item = await reader.read();
+            if (item.done) break;
+            text += decoder.decode(item.value, { stream: true });
+          }
+          text += decoder.decode();
+        } finally {
+          try { await reader.cancel(); } finally { reader.releaseLock(); }
+        }
+        await response.body.cancel();
+        return text;
+      })();
+      proof.result = observation.result;
+      proof.finish = observation.finish().then(() => { proof.settled = true; });
+      await Promise.resolve();
+      return { samePromise: proof.samePromise, sameResponse: proof.sameResponse, bodyWasTeed: proof.bodyWasTeed, finishPending: !proof.settled, calls: observation.calls };
+    }, mode);
+    assert.equal(preliminary.samePromise, true);
+    assert.equal(preliminary.sameResponse, true);
+    assert.equal(preliminary.bodyWasTeed, true);
+    assert.equal(preliminary.calls, 1);
+    if (mode === 'join') {
+      assert.equal(preliminary.finishPending, true);
+      assert.equal(held.length, 1);
+      held.pop().end(generic.slice(10));
+    }
+    const completed = await page.evaluate(async () => {
+      const proof = window.__proof;
+      const [consumer, observed] = await Promise.all([proof.consumer, proof.result, proof.finish]);
+      const result = {
+        consumer, observed, nativeCalls: proof.count, fetchRestored: fetch === proof.recorder,
+        observationDeleted: !Object.hasOwn(window, '__entryJSONObservation'),
+        cloneLockReleased: proof.cloneBody.locked === false, finishJoined: proof.settled,
+      };
+      window.fetch = proof.nativeFetch;
+      Response.prototype.clone = proof.nativeClone;
+      delete window.__proof;
+      return result;
+    });
+    assert.equal(completed.nativeCalls, 1);
+    for (const name of ['fetchRestored', 'observationDeleted', 'cloneLockReleased', 'finishJoined']) assert.equal(completed[name], true);
+    assert.equal(completed.observed.ok, mode !== 'invalid');
+    if (mode !== 'invalid') {
+      assert.deepEqual(completed.observed, { ok: true, status: 202, value: { accepted: true, delivery_channel: 'backend_log' } });
+      assert.equal(completed.consumer, generic);
+    }
+    results.push({ mode, ...preliminary, ...completed, consumer: undefined });
+  }
+  await page.goto(origin);
+  await page.evaluate(() => { window.__originalFetch = fetch; });
+  await page.evaluate(install, '/api/v1/password-resets/request');
+  const noRequest = await page.evaluate(async () => {
+    const observation = window.__entryJSONObservation;
+    await observation.finish();
+    const result = { observed: await observation.result, restored: fetch === window.__originalFetch, deleted: !Object.hasOwn(window, '__entryJSONObservation') };
+    delete window.__originalFetch;
+    return result;
+  });
+  assert.deepEqual(noRequest, { observed: { ok: false }, restored: true, deleted: true });
+  assert.deepEqual(counts, { valid: 1, invalid: 1, join: 1 });
+  results.push({ mode: 'no-request-cleanup', ...noRequest });
+})();
+let deadline;
+Promise.race([run, new Promise((_, reject) => { deadline = setTimeout(() => reject(new Error("owned clone diagnostic exceeded 45s")), 45000); })]).catch(error => {
+  console.error(error);
+  process.exitCode = 1;
+}).finally(async () => {
+  clearTimeout(deadline);
+  for (const res of held) res.destroy();
+  if (context) await context.close();
+  await new Promise(resolve => server.close(resolve));
+  fs.rmSync(runtime, { recursive: true });
+  const report = {
+    spec, specSHA256: crypto.createHash('sha256').update(source).digest('hex'),
+    installFunctionSHA256: crypto.createHash('sha256').update(fn.getText(parsed)).digest('hex'),
+    exit: process.exitCode || 0, requests: counts, results,
+    note: 'Pure local synthetic HTTP diagnostic only. Clone tees the body; same native Promise and Response object do not imply identical body branch/timing. Not formal Account/PG acceptance.',
+    runtimeRemoved: !fs.existsSync(runtime),
+  };
+  fs.writeFileSync(path.join(root, 'clone-observer-diagnostic-result.json'), JSON.stringify(report, null, 2) + '\n');
+  console.log(JSON.stringify(report));
+});

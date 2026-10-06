@@ -1,0 +1,5 @@
+{
+  "reason": "Verifier command used input/web after preparing input03; this repeated the unchanged core01 failure, not a core03 result. Corrected cwd in the next command.",
+  "cwd": "/workspace/scratch/d26-core-verification-3syc0er6/input/web",
+  "exit": 1
+}

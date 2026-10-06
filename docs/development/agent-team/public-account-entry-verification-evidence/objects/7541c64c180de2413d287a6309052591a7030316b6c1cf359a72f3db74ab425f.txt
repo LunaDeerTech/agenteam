@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 /workspace/scratch/d26-ui-verification-mainp_f2/input02/web
+
+ × src/tests/history-capability-independent.spec.ts > captures privately and strips capability keys and values while preserving router state 26ms
+   → expected true to be false // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/history-capability-independent.spec.ts > captures privately and strips capability keys and values while preserving router state
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/tests/history-capability-independent.spec.ts:39:85
+     37|   )
+     38|   const serialized = JSON.stringify(window.history.state)
+     39|   expect([currentToken, previousToken].some((token) => serialized.incl…
+       |                                                                                     ^
+     40|   expect(window.history.state).toEqual({
+     41|     current: '/reset-password',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  00:58:13
+   Duration  1.07s (transform 180ms, setup 0ms, import 288ms, tests 27ms, environment 557ms)
+

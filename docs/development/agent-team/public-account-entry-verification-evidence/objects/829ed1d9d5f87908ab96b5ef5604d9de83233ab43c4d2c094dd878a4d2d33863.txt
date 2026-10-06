@@ -1,0 +1,81 @@
+import { createRequire } from 'node:module';
+import http from 'node:http';
+import { writeFileSync } from 'node:fs';
+const require = createRequire('/workspace/agenteam/tests/account-captcha-web/package.json');
+const { chromium } = require('playwright');
+const records = [];
+let requests = 0, browser;
+const html = `<!doctype html><button id="fire">probe</button><p id="result"></p><script>
+document.querySelector('#fire').onclick = async () => {
+  const number = window.probeNumber, mode = window.probeMode;
+  document.querySelector('#result').textContent = '';
+  try {
+    const response = await fetch('/probe?request=' + number, { method: 'POST', cache: 'no-store' });
+    let value;
+    if (mode === 'native-json') value = await response.json();
+    else {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder(); let text = '';
+      try {
+        for (;;) { const part = await reader.read(); if (part.done) break; text += decoder.decode(part.value, {stream:true}); }
+        text += decoder.decode(); value = JSON.parse(text);
+      } finally { await reader.cancel().catch(() => undefined); reader.releaseLock(); }
+      await response.body.cancel().catch(() => undefined);
+    }
+    document.querySelector('#result').textContent = response.status === 202 && value.accepted === true && value.delivery_channel === 'backend_log' ? String(number) : 'native-invalid';
+  } catch { document.querySelector('#result').textContent = 'native-failed'; }
+};
+</script>`;
+const server = http.createServer((request, response) => {
+  if (request.method === 'POST' && request.url.startsWith('/probe?')) {
+    requests++;
+    response.writeHead(202, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+    response.end(JSON.stringify({ accepted: true, delivery_channel: 'backend_log' }));
+  } else {
+    response.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' });
+    response.end(html);
+  }
+});
+try {
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const origin = 'http://127.0.0.1:' + server.address().port;
+  browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true, args: ['--no-sandbox'], timeout: 15000 });
+  let number = 0;
+  const contexts = [await browser.newContext(), await browser.newContext()];
+  for (let contextIndex = 0; contextIndex < contexts.length; contextIndex++) {
+    const page = await contexts[contextIndex].newPage();
+    page.setDefaultTimeout(2000);
+    await page.goto(origin);
+    for (const mode of ['native-json', 'stream-cancel']) {
+      for (const strategy of ['immediate', 'after-click']) {
+        for (let repetition = 0; repetition < 5; repetition++) {
+          number++;
+          await page.evaluate(({ number, mode }) => { window.probeNumber = number; window.probeMode = mode; }, { number, mode });
+          const pending = page.waitForResponse((response) => new URL(response.url()).pathname === '/probe');
+          const observe = async (response) => {
+            try {
+              const value = await response.json();
+              return { status: response.status(), body_ok: value.accepted === true && value.delivery_channel === 'backend_log' && Object.keys(value).length === 2 };
+            } catch (error) {
+              return { status: response.status(), body_ok: false, category: String(error).includes('No data found for resource') ? 'cdp-body-unavailable' : 'other-observer-error' };
+            }
+          };
+          const early = strategy === 'immediate' ? pending.then(observe) : null;
+          await page.locator('#fire').click();
+          const observed = early ? await early : await observe(await pending);
+          await page.waitForFunction((number) => document.querySelector('#result').textContent === String(number), number, { timeout: 2000 });
+          records.push({ contextIndex, mode, strategy, repetition, native_ok: true, ...observed });
+        }
+      }
+    }
+    await page.close();
+  }
+  for (const context of contexts) await context.close();
+  const result = { purpose: 'local synthetic response sampling diagnostic only, not product/Account HTTP acceptance', playwright: require('playwright/package.json').version, chromium: browser.version(), requests, records };
+  writeFileSync(new URL('./result.json', import.meta.url), JSON.stringify(result, null, 2) + '\n', { mode: 0o600 });
+  console.log(JSON.stringify({ requests, observations: records.length, native_ok: records.filter((r) => r.native_ok).length, cdp_ok: records.filter((r) => r.body_ok).length, cdp_missing: records.filter((r) => r.category === 'cdp-body-unavailable').length }));
+} finally {
+  if (browser) await browser.close();
+  server.closeAllConnections();
+  await new Promise((resolve) => server.close(resolve));
+}

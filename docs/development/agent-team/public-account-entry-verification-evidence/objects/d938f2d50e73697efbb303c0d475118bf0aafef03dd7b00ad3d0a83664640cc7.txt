@@ -1,0 +1,112 @@
+{
+  "input_after_checks": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "f62ef980f64d3f06cb5631962db8dd06e4374fb113f19941504db54acd9f0363",
+      "matches": true
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "8c5353e0b0cf3ee41cd91cdab333e68c32f8b23cf2cf3fca9911c81aac326470",
+      "matches": true
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "69ec6352b5930decc4264ecf5c42f2af1f176fc820989da501b78b67fd52fcfd",
+      "matches": true
+    },
+    {
+      "path": "web/src/tests/account-entry-client.spec.ts",
+      "sha256": "aa0c8e2bb69051f485b80f4bd009fc411c58beaebb5a19cdc68b4d3c79b4407a",
+      "matches": true
+    },
+    {
+      "path": "web/src/tests/account-entry-state.spec.ts",
+      "sha256": "8b46851f308584e29b3e690f0dee001f3acafd659b5b2c428ae8cf2904247b61",
+      "matches": true
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "4c4d1483b3f75a5a3fca6f5f54d39526cae24c5f0a6674989d90348f30fbfc3a",
+      "matches": true
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "da1065fc139ecb8343ef87199a300424233c802cbb9b9ef1aa546039cc2a96b1",
+      "matches": true
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "36c6c591b15d81f962b4002bc71c1b8007aad26c089e5e272bf6faeed267a871",
+      "matches": true
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "2bafe4df0826203f9045637c3d4073b456ec3c8ac7c945f4ed5adc3169cfcbe2",
+      "matches": true
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/scratch/d26-core-verification-3syc0er6/input/web/src/tests/core-independent.spec.ts",
+      "sha256": "8854ece7bf1a2595b5355f71127a54547b9a0689cc9ba2e37fd02887fff11baa",
+      "bytes": 6848
+    },
+    {
+      "path": "/workspace/scratch/d26-core-verification-3syc0er6/input/web/vitest.config.mjs",
+      "sha256": "4d941ed7c9c98f02a1f09f29a38bfc0a79c0d496d123ac9aea3fa18089998785",
+      "bytes": 182
+    },
+    {
+      "path": "/workspace/scratch/d26-core-verification-3syc0er6/probe01.log",
+      "sha256": "9cb1bc864ad4d0379a1c6e166b433ff9dfa3b31ee8e6a99959878c31a5651861",
+      "bytes": 2074
+    },
+    {
+      "path": "/workspace/scratch/d26-core-verification-3syc0er6/probe01.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    {
+      "path": "/workspace/agenteam-public-entry-author-kWHbv4/core-unit-01.log",
+      "sha256": "ddf8c8e3b161d0547328baaa787f856586b5eebca45e788198e48309b8bec6a9",
+      "bytes": 149
+    },
+    {
+      "path": "/workspace/agenteam-public-entry-author-kWHbv4/core-unit-02.log",
+      "sha256": "2ae5103c81a34d35710e05470f3c986a841528eb4e65abf764557d372375e9b4",
+      "bytes": 335
+    },
+    {
+      "path": "/workspace/agenteam-public-entry-author-kWHbv4/unit-01.log",
+      "sha256": "b86cc8f6a46331fd208e27404906e137bd9292b6e30da72173a7b5d37dc29b0e",
+      "bytes": 263
+    },
+    {
+      "path": "/workspace/agenteam-public-entry-author-kWHbv4/type-check-02.log",
+      "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+      "bytes": 54
+    },
+    {
+      "path": "/workspace/agenteam-public-entry-author-kWHbv4/core01-handoff/commands.json",
+      "sha256": "8bb502f19a4cd5742ebacfe817db9b3ed6ea96b72d40c64c94c12ac6480387a5",
+      "bytes": 866
+    }
+  ],
+  "command": {
+    "argv": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--config",
+      "vitest.config.mjs"
+    ],
+    "cwd": "/workspace/scratch/d26-core-verification-3syc0er6/input/web",
+    "exit": 1,
+    "result": "1 PASS, 1 FAIL; C-F1 confirmed reset session-check deadline retains old authenticated/current facts"
+  },
+  "limitations": [
+    "author 24 pure and type-check were preformat; 134 combined unit uses then-active UI, not final frozen whole-page evidence",
+    "no browser, Go, Docker, production edits or Git operations"
+  ]
+}

@@ -1,0 +1,19 @@
+--- input09/tests/account/authentication_web_fixture_test.go
++++ input12/tests/account/authentication_web_fixture_test.go
+@@ -35,6 +35,7 @@
+ 	t                          *testing.T
+ 	db                         *pgfixture.Database
+ 	origin, directory, webRoot string
++	recoveryLogPath            string
+ 	entry                      httpRecoveryRecord
+ 	log                        *httpFixtureLog
+ 	record                     func(purpose, email, exactID string) httpRecoveryRecord
+@@ -185,7 +186,7 @@
+ 	if err := os.WriteFile(filepath.Join(directory, "credentials.json"), material, 0600); err != nil {
+ 		t.Fatal("private bootstrap transfer failed")
+ 	}
+-	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output, record: old.record}
++	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output, record: old.record, recoveryLogPath: cfg.AccountRecoveryLog()}
+ 	t.Cleanup(func() {
+ 		if output.contains(entry.Password) {
+ 			t.Error("bootstrap material escaped the restricted recovery log")

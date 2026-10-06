@@ -1,0 +1,45 @@
+{
+  "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input13",
+  "input": "/workspace/agenteam-public-entry-author-kWHbv4/input13-manifest.json",
+  "input_sha256": "f824cf28b414a2b41276ae383342fd9bb861987784623929b0e35690ceff9fd4",
+  "trusted_baseline": {
+    "path": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/trusted-baseline.json",
+    "sha256": "3f3279059d33ceee352c66e95428db385150507e3ee0ecd070e5346f919f3ec7"
+  },
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOCACHE": "/workspace/agenteam-public-entry-author-kWHbv4/gocache",
+    "TMPDIR": "/workspace/agenteam-public-entry-author-kWHbv4/tmp",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -v",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-a"
+  },
+  "groups": [
+    {
+      "name": "password-retest01",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestAccountPersonalSettingsWebPasswordRotation$"
+      ]
+    }
+  ],
+  "budgets": {
+    "race": true,
+    "count": 1,
+    "go_package": "6m",
+    "go_browser_top_level": "2m",
+    "playwright_case_ms": 45000,
+    "workers": 1,
+    "retries": 0,
+    "private_recovery_handshake_ms": 20000
+  },
+  "logging_note": "Root authorized -v for only subsequently unstarted groups; prior runs retained at original verbosity and are not rerun for logging."
+}

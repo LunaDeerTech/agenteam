@@ -1,0 +1,88 @@
+--- c54/web/src/views/auth/LoginView.vue
++++ input08/web/src/views/auth/LoginView.vue
+@@ -1,7 +1,7 @@
+ <script setup lang="ts">
+ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+ import { useRoute, useRouter } from 'vue-router'
+-import { safeReturnTarget } from '../../router/auth'
++import { safeReturnTarget, isAccountSwitch } from '../../router/auth'
+ import { useSession } from '../../composables/useSession'
+ import UiButton from '../../components/ui/UiButton.vue'
+ import UiInput from '../../components/ui/UiInput.vue'
+@@ -19,6 +19,7 @@
+   form = ref<HTMLFormElement | null>(null)
+ const inputLocked = computed(() => state.busy || state.challengeBusy || state.phase === 'uncertain')
+ const showForm = computed(() => ['anonymous', 'authenticating', 'uncertain'].includes(state.phase))
++const switching = computed(() => isAccountSwitch(route.query.switch))
+ let navigating = false
+ let clearingForm = false
+ function clearForm() {
+@@ -98,7 +99,19 @@
+   () => [state.phase, state.busy, state.canRetryOriginal] as const,
+   async ([phase, busy, retryable]) => {
+     if (phase === 'unavailable' || (phase === 'uncertain' && !busy && !retryable)) clearForm()
+-    if (phase === 'authenticated' && !busy && !navigating) {
++    if (switching.value && phase === 'anonymous' && !busy && !navigating) {
++      navigating = true
++      try {
++        await router.replace({
++          path: '/login',
++          query: { return: safeReturnTarget(route.query.return) },
++        })
++      } finally {
++        navigating = false
++      }
++      return
++    }
++    if (phase === 'authenticated' && !busy && !navigating && !switching.value) {
+       navigating = true
+       clearForm()
+       try {
+@@ -125,6 +138,12 @@
+   await nextTick()
+   form.value?.querySelector<HTMLButtonElement>('[data-action="challenge"]')?.focus()
+ }
++async function switchLogout() {
++  clearForm()
++  await auth.logout()
++  // The state watcher requires confirmed anonymous state; a void return or
++  // Unknown never removes the identity choice or establishes a new login.
++}
+ onMounted(() => {
+   document.addEventListener('focusin', focusMoved)
+   document.addEventListener('pointerdown', pointerStarted, true)
+@@ -136,7 +155,7 @@
+   verificationFocus = null
+   challengeFocus = null
+   clearForm()
+-  if (state.phase !== 'authenticated') auth.leave()
++  if (state.phase !== 'authenticated' && !router.currentRoute.value.meta.accountEntry) auth.leave()
+ })
+ </script>
+ 
+@@ -148,6 +167,15 @@
+       >
+       <h1 id="login-title" ref="heading" tabindex="-1">登录</h1>
+       <p class="login-description">使用邮箱和密码继续。</p>
++      <div
++        v-if="switching && (state.phase === 'authenticated' || state.phase === 'signing-out')"
++        class="ui-stack"
++      >
++        <p class="account-notice">当前账号：{{ state.user?.display_name || state.user?.email }}</p>
++        <RouterLink :to="safeReturnTarget(route.query.return)">返回当前账号</RouterLink>
++        <UiButton :disabled="state.busy" @click="switchLogout">退出当前账号后登录</UiButton>
++        <p class="login-description">切换账号后，请重新打开原邀请或重置链接。</p>
++      </div>
+       <UiState
+         v-if="state.phase === 'checking'"
+         :kind="state.busy ? 'loading' : 'error'"
+@@ -218,6 +246,9 @@
+           >登录</UiButton
+         >
+       </form>
++      <RouterLink v-if="!switching || state.phase === 'anonymous'" to="/forgot-password"
++        >找回密码</RouterLink
++      >
+       <p v-if="state.notice" role="alert" class="account-notice">{{ state.notice }}</p>
+       <div
+         v-if="state.phase === 'uncertain' || state.phase === 'unavailable'"

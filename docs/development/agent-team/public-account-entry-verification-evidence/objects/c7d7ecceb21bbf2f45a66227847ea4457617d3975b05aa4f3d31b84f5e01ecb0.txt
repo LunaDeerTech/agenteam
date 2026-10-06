@@ -1,0 +1,50 @@
+import { afterEach, expect, test } from 'vitest'
+import { createAccountLinkCapture } from '../router/account-link'
+
+const currentToken = '01900000-0000-7000-8000-000000000001.' + 'a'.repeat(43)
+const previousToken = '01900000-0000-7000-8000-000000000002.' + 'b'.repeat(43)
+let capture: ReturnType<typeof createAccountLinkCapture> | undefined
+
+afterEach(() => {
+  capture?.dispose()
+  capture = undefined
+  window.history.replaceState(null, '', '/')
+})
+
+test('captures privately and strips capability keys and values while preserving router state', () => {
+  window.history.replaceState(
+    {
+      current: '/reset-password#' + currentToken,
+      back: '/',
+      forward: null,
+      position: 4,
+      scroll: { left: 0, top: 37 },
+      [currentToken]: { innocuous: true },
+      nested: {
+        ['saved-link:' + previousToken]: 'should be removed',
+        ordinary: [{ [currentToken]: true, keep: 'safe' }],
+        value: previousToken,
+        keep: 'benign',
+      },
+    },
+    '',
+    '/reset-password?return=%2Fsettings%2Fprofile#' + currentToken,
+  )
+  capture = createAccountLinkCapture(window)
+
+  expect(window.location.pathname + window.location.search + window.location.hash).toBe(
+    '/reset-password?return=%2Fsettings%2Fprofile',
+  )
+  const serialized = JSON.stringify(window.history.state)
+  expect([currentToken, previousToken].some((token) => serialized.includes(token))).toBe(false)
+  expect(window.history.state).toEqual({
+    current: '/reset-password',
+    back: '/',
+    forward: null,
+    position: 4,
+    scroll: { left: 0, top: 37 },
+    nested: { ordinary: [{ keep: 'safe' }], keep: 'benign' },
+  })
+  expect(capture.take('reset')).toEqual({ mode: 'reset', kind: 'valid', token: currentToken })
+  expect(capture.take('reset')).toEqual({ mode: 'reset', kind: 'missing' })
+})

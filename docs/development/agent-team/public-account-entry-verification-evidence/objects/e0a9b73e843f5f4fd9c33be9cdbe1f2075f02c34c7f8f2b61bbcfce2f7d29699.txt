@@ -1,0 +1,22 @@
+--- passed-input08-observer
++++ combined-frozen-observer
+@@ -25,15 +25,15 @@
+     values = {}
+     for path, expected in manifest['files'].items():
+         actual = hashlib.sha256((cwd / path).read_bytes()).hexdigest()
+-        shared = hashlib.sha256((pathlib.Path('/workspace/agenteam') / path).read_bytes()).hexdigest()
+-        values[path] = {'expected': expected, 'private': actual, 'shared': shared}
++        # A composed fixed snapshot is the execution input; shared author tests may evolve.
++        values[path] = {'expected': expected, 'private': actual}
+     for path, expected in plan.get("verification_inputs", {}).items():
+         actual = hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest()
+-        values["verifier:" + path] = {"expected": expected, "private": actual, "shared": actual}
++        values["verifier:" + path] = {"expected": expected, "private": actual}
+     return values
+ 
+ before = source_state()
+-if any(v['expected'] != v['private'] or v['expected'] != v['shared'] for v in before.values()):
++if any(v['expected'] != v['private'] for v in before.values()):
+     raise SystemExit('candidate source drift')
+ save('source-before.json', before)
+ def dependency_state():

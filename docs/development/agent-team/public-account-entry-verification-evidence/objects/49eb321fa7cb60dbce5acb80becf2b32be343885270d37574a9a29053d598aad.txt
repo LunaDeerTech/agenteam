@@ -1,0 +1,1111 @@
+import {
+  test,
+  expect,
+  type Page,
+  type Browser,
+  type Locator,
+} from "@playwright/test";
+import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
+import { join } from "node:path";
+
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
+type Credential = { email: string; password: string; user_id: string };
+type Material = { admin: Credential; member: Credential; new_password: string };
+type Profile = {
+  user: {
+    id: string;
+    email: string;
+    username: string;
+    display_name: string;
+    role: string;
+    theme: string;
+    version: string;
+    initial_password_suggestion: boolean;
+  };
+  avatar: { media_type: string; byte_size: string; sha256: string } | null;
+};
+type Observation = {
+  version: string;
+  theme: string;
+  writes: number;
+  audits: number;
+  avatar_id: string;
+};
+const material = (): Material =>
+  JSON.parse(
+    readFileSync(join(directory, "personal-credentials.json"), "utf8"),
+  );
+function result(value: Record<string, unknown>) {
+  writeFileSync(
+    join(directory, "personal-result.json"),
+    JSON.stringify({ ...value, completed: true }),
+    { mode: 0o600 },
+  );
+}
+type PreferenceConflictResult =
+  { ok: true; status: number; value: unknown } | { ok: false };
+type PreferenceConflictWindow = Window & {
+  __settingsConflictObservation?: {
+    result: Promise<PreferenceConflictResult>;
+    calls: number;
+    finish(): Promise<void>;
+  };
+};
+function installPreferenceConflictObservation() {
+  const scope = window as PreferenceConflictWindow;
+  if (scope.__settingsConflictObservation)
+    throw new Error("preference conflict observation already installed");
+  const original = scope.fetch;
+  let settle!: (value: PreferenceConflictResult) => void;
+  let reading: Promise<void> | undefined;
+  const observation = {
+    result: new Promise<PreferenceConflictResult>((resolve) => {
+      settle = resolve;
+    }),
+    calls: 0,
+    async finish() {
+      if (scope.fetch === wrapped) scope.fetch = original;
+      try {
+        if (reading) await reading;
+        else settle({ ok: false });
+      } finally {
+        delete scope.__settingsConflictObservation;
+      }
+    },
+  };
+  const wrapped: typeof fetch = function (this: unknown, ...args) {
+    // Return the very same native promise/Response, without waiting for the
+    // observer. Cloning tees the body: this instrumentation is only for the
+    // request's small 409 JSON, never proof of an unobserved stream/owner tail.
+    const pending = Reflect.apply(original, this, args) as Promise<Response>;
+    let matches = false;
+    try {
+      const [input, init] = args;
+      const url = new URL(
+        input instanceof Request ? input.url : String(input),
+        location.href,
+      );
+      const method =
+        init?.method ?? (input instanceof Request ? input.method : "GET");
+      matches =
+        url.origin === location.origin &&
+        url.pathname === "/api/v1/me/preferences" &&
+        method.toUpperCase() === "PUT";
+    } catch {
+      // Leave invalid/unrelated native fetch calls unchanged.
+    }
+    if (matches && ++observation.calls === 1) {
+      reading = pending
+        .then(async (response): Promise<PreferenceConflictResult> => {
+          if (response.status !== 409)
+            return { ok: true, status: response.status, value: null };
+          const reader = response.clone().body?.getReader();
+          if (!reader) throw new Error("preference conflict observation has no body");
+          const decoder = new TextDecoder("utf-8", { fatal: true });
+          let text = "",
+            bytes = 0;
+          try {
+            for (;;) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              bytes += value.byteLength;
+              // At most the production client's existing JSON byte limit.
+              if (bytes > 600_000)
+                throw new Error("preference conflict observation exceeds limit");
+              text += decoder.decode(value, { stream: true });
+            }
+            text += decoder.decode();
+            return {
+              ok: true,
+              status: response.status,
+              value: JSON.parse(text) as unknown,
+            };
+          } finally {
+            try {
+              await reader.cancel();
+            } finally {
+              reader.releaseLock();
+            }
+          }
+        })
+        .then(settle, () => settle({ ok: false }));
+    }
+    return pending;
+  };
+  scope.__settingsConflictObservation = observation;
+  scope.fetch = wrapped;
+}
+async function preferenceConflictFor(
+  page: Page,
+  action: () => Promise<unknown>,
+) {
+  await page.evaluate(installPreferenceConflictObservation);
+  try {
+    const response = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).origin === new URL(page.url()).origin &&
+        new URL(response.url()).pathname === "/api/v1/me/preferences" &&
+        response.request().method() === "PUT",
+    );
+    const [, actual, observed] = await Promise.all([
+      action(),
+      response,
+      page.evaluate(async () => {
+        const observation = (window as PreferenceConflictWindow)
+          .__settingsConflictObservation!;
+        return { result: await observation.result };
+      }),
+    ]);
+    expect(actual.status()).toBe(409);
+    expect(
+      await page.evaluate(
+        () => (window as PreferenceConflictWindow).__settingsConflictObservation!.calls,
+      ),
+    ).toBe(1);
+    expect(observed.result.ok).toBe(true);
+    if (!observed.result.ok) throw new Error("preference conflict observation failed");
+    expect(observed.result.status).toBe(409);
+    const value = observed.result.value;
+    expect(
+      value !== null && typeof value === "object" && !Array.isArray(value),
+    ).toBe(true);
+    return value as Record<string, unknown>;
+  } finally {
+    // Includes failed clicks/reads: restore fetch and join the clone's actual
+    // read/cancel/release before leaving the page or destroying its context.
+    await page.evaluate(async () => {
+      await (window as PreferenceConflictWindow).__settingsConflictObservation?.finish();
+    });
+  }
+}
+
+let observationSequence = 0;
+async function observe(userID: string): Promise<Observation> {
+  const sequence = ++observationSequence;
+  const request = join(directory, "observe.json");
+  writeFileSync(
+    request + ".tmp",
+    JSON.stringify({ sequence, user_id: userID }),
+    { mode: 0o600 },
+  );
+  renameSync(request + ".tmp", request);
+  const ack = join(directory, `observation-${sequence}.json`);
+  await expect.poll(() => existsSync(ack)).toBe(true);
+  return JSON.parse(readFileSync(ack, "utf8"));
+}
+async function privateFill(input: Locator, value: string) {
+  try {
+    await input.fill(value);
+  } catch {
+    throw new Error("private password entry failed");
+  }
+}
+async function identity(page: Page) {
+  return page.evaluate(async () => {
+    const response = await fetch("/api/v1/session", {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    if (response.status !== 200)
+      return {
+        status: response.status,
+        user_id: "",
+        session_id: "",
+        csrf_length: 0,
+      };
+    const value = await response.json();
+    return {
+      status: response.status,
+      user_id: value.user.id as string,
+      session_id: value.session.id as string,
+      csrf_length: value.csrf_token.length as number,
+    };
+  });
+}
+async function profile(page: Page): Promise<Profile> {
+  return page.evaluate(async () => {
+    const response = await fetch("/api/v1/me", {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    if (response.status !== 200)
+      throw new Error("confirmed current Profile unavailable");
+    return response.json();
+  });
+}
+async function enter(
+  page: Page,
+  credential: Credential,
+  target = "/settings/profile",
+) {
+  await page.goto(target);
+  await expect(
+    page.getByRole("heading", { name: "登录", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("textbox", { name: "邮箱", exact: true }),
+  ).toBeEditable();
+  await expect(page.locator("#login-password")).toHaveAccessibleName("密码");
+  await page
+    .getByRole("textbox", { name: "邮箱", exact: true })
+    .fill(credential.email);
+  await privateFill(page.locator("#login-password"), credential.password);
+  await page.getByRole("button", { name: "登录", exact: true }).click();
+  const title = target.endsWith("appearance")
+    ? "主题"
+    : target.endsWith("password")
+      ? "修改密码"
+      : target === "/"
+        ? "首页"
+        : "基本资料";
+  await expect(
+    page.getByRole("heading", { name: title, exact: true, level: 1 }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: title, exact: true, level: 1 }),
+  ).toBeFocused();
+  if (title === "基本资料")
+    await expect(page.locator("#profile-username")).toBeEditable();
+  if (title === "主题")
+    await expect(
+      page.getByRole("radio", { name: "跟随系统", exact: true }),
+    ).toBeEnabled();
+  if (title === "修改密码")
+    await expect(page.locator("#settings-current_password")).toBeEditable();
+  expect(new URL(page.url()).pathname).toBe(
+    target === "/settings" ? "/settings/profile" : target,
+  );
+  const current = await identity(page);
+  expect(
+    current.status === 200 &&
+      current.user_id === credential.user_id &&
+      current.csrf_length === 43,
+  ).toBe(true);
+  return current;
+}
+async function context(browser: Browser) {
+  return browser.newContext({
+    baseURL: process.env.AGENTEAM_AUTH_WEB_ORIGIN,
+    viewport: { width: 1440, height: 1000 },
+  });
+}
+async function responseFor(
+  page: Page,
+  action: () => Promise<unknown>,
+  path: string,
+  method: string,
+  status = 200,
+) {
+  const pending = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === path &&
+      response.request().method() === method,
+  );
+  await action();
+  const response = await pending;
+  expect(response.status()).toBe(status);
+  return response;
+}
+async function navigate(page: Page, label: string) {
+  const menu = page.getByRole("button", { name: "个人设置栏目", exact: true });
+  if (await menu.isVisible()) await menu.click();
+  await page
+    .getByRole("navigation", { name: "个人设置", exact: true })
+    .getByRole("link", { name: label, exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: label, exact: true, level: 1 }),
+  ).toBeVisible();
+}
+async function logout(page: Page) {
+  await page
+    .locator(".account-actions")
+    .getByRole("button", { name: "退出登录", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "登录", exact: true }),
+  ).toBeVisible();
+}
+async function checkedWrite(
+  page: Page,
+  method: string,
+  path: string,
+  body: Record<string, unknown>,
+  wrongCSRF = false,
+) {
+  return page.evaluate(
+    async ({ method, path, body, wrongCSRF }) => {
+      const session = await (
+        await fetch("/api/v1/session", {
+          cache: "no-store",
+          credentials: "same-origin",
+        })
+      ).json();
+      const response = await fetch(path, {
+        method,
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": wrongCSRF ? "x".repeat(43) : session.csrf_token,
+          "Idempotency-Key": crypto.randomUUID(),
+        },
+        body: JSON.stringify(body),
+      });
+      const value = response.status === 204 ? {} : await response.json();
+      return {
+        status: response.status,
+        code: value.code as string | undefined,
+      };
+    },
+    { method, path, body, wrongCSRF },
+  );
+}
+async function storedMaterialsAbsent(page: Page) {
+  expect(
+    await page.evaluate(
+      () => localStorage.length === 0 && sessionStorage.length === 0,
+    ),
+  ).toBe(true);
+  expect(
+    new URL(page.url()).search === "" && new URL(page.url()).hash === "",
+  ).toBe(true);
+}
+async function noOverflow(page: Page) {
+  const value = await page.evaluate(() => ({
+    fits: document.documentElement.scrollWidth <= innerWidth,
+    width: innerWidth,
+    elements: [
+      ...document.querySelectorAll(
+        "html,body,.settings-shell,.settings-content,.settings-sidebar,.account-actions,.ui-input",
+      ),
+    ]
+      .slice(0, 20)
+      .map((element) => {
+        const r = element.getBoundingClientRect();
+        return {
+          tag: element.tagName,
+          class: element.getAttribute("class") || "",
+          x: r.x,
+          width: r.width,
+          right: r.right,
+          client: element.clientWidth,
+          scroll: element.scrollWidth,
+        };
+      }),
+  }));
+  if (!value.fits) console.info("settings geometry", JSON.stringify(value));
+  expect(value.fits).toBe(true);
+}
+
+test("[profile] current profile, exact final inputs and three real static avatar formats", async ({
+  page,
+}) => {
+  const privateData = material();
+  const current = await enter(page, privateData.admin);
+  privateData.admin.password = "";
+  await expect(page.locator("#profile-email")).toHaveAttribute("readonly", "");
+  await expect(page.getByRole("img", { name: "默认身份标识" })).toBeVisible();
+  await page.locator("#profile-username").fill("Settings-Admin");
+  await page.locator("#profile-display-name").fill(" 资料 final X ");
+  const first = await responseFor(
+    page,
+    () => page.locator("#profile-display-name").press("Enter"),
+    "/api/v1/me",
+    "PATCH",
+  );
+  const submitted = first.request().postDataJSON();
+  expect(
+    submitted.username === "Settings-Admin" &&
+      submitted.display_name === " 资料 final X ",
+  ).toBe(true);
+  await expect(page.getByText("资料已保存。", { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.locator("#profile-username")).toHaveValue("settings-admin");
+  await expect(page.locator("#profile-display-name")).toHaveValue(
+    " 资料 final X ",
+  );
+  await page.locator("#profile-username").fill("settings-existing");
+  const duplicate = await responseFor(
+    page,
+    () => page.getByRole("button", { name: "保存资料", exact: true }).click(),
+    "/api/v1/me",
+    "PATCH",
+    400,
+  );
+  expect((await duplicate.json()).field_errors).toContainEqual({
+    path: "/username",
+    code: "ALREADY_EXISTS",
+  });
+  await expect(page.locator("#profile-username")).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
+  expect((await profile(page)).user.username).toBe("settings-admin");
+  await page.getByRole("button", { name: "取消修改", exact: true }).click();
+  await page.locator("#profile-display-name").fill("");
+  await responseFor(
+    page,
+    () => page.getByRole("button", { name: "保存资料", exact: true }).click(),
+    "/api/v1/me",
+    "PATCH",
+  );
+  await expect(page.locator(".account-name")).toHaveText(
+    privateData.admin.email,
+  );
+  // Native final autofill value is captured at submit, after the reactive edit.
+  await page.locator("#profile-display-name").fill("Native draft");
+  await page
+    .locator("#profile-display-name")
+    .evaluate((input: HTMLInputElement) => {
+      input.value = "Native 最后X";
+    });
+  const native = await responseFor(
+    page,
+    () => page.locator("#profile-display-name").press("Enter"),
+    "/api/v1/me",
+    "PATCH",
+  );
+  expect(native.request().postDataJSON().display_name === "Native 最后X").toBe(
+    true,
+  );
+  await expect(page.locator(".account-name")).toHaveText("Native 最后X");
+  await page.locator("#profile-display-name").fill("");
+  await responseFor(
+    page,
+    () => page.getByRole("button", { name: "保存资料", exact: true }).click(),
+    "/api/v1/me",
+    "PATCH",
+  );
+  await expect(
+    page.getByRole("button", { name: "选择图片", exact: true }),
+  ).toBeEnabled();
+  for (const name of ["static.png", "static.jpg", "static.webp"]) {
+    const before = await profile(page);
+    await page
+      .locator('input[type="file"]')
+      .setInputFiles(join(directory, name));
+    await expect(
+      page.getByRole("img", { name: "尚未上传的头像预览", exact: true }),
+    ).toBeVisible();
+    expect((await profile(page)).user.version).toBe(before.user.version);
+    await responseFor(
+      page,
+      () =>
+        page
+          .getByRole("button", { name: "上传 / 替换头像", exact: true })
+          .click(),
+      "/api/v1/me/avatar",
+      "PUT",
+    );
+    await expect(
+      page.getByRole("img", { name: "当前已保存头像", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("img", { name: "尚未上传的头像预览", exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "选择图片", exact: true }),
+    ).toBeEnabled();
+    const saved = await profile(page);
+    const readback = await page.evaluate(async () => {
+      const r = await fetch("/api/v1/me/avatar", {
+        credentials: "same-origin",
+        cache: "no-store",
+      });
+      const bytes = await r.arrayBuffer();
+      const digest =
+        "sha256:" +
+        [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))]
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+      const image = await createImageBitmap(
+        new Blob([bytes], { type: r.headers.get("Content-Type")! }),
+      );
+      const dimensions = { width: image.width, height: image.height };
+      image.close();
+      return {
+        status: r.status,
+        media: r.headers.get("Content-Type"),
+        length: bytes.byteLength,
+        declared: r.headers.get("Content-Length"),
+        etag: r.headers.get("ETag"),
+        digest,
+        ...dimensions,
+      };
+    });
+    expect(
+      saved.avatar !== null &&
+        readback.status === 200 &&
+        readback.media === "image/jpeg" &&
+        saved.avatar.media_type === readback.media &&
+        saved.avatar.sha256 === readback.digest &&
+        saved.avatar.byte_size === String(readback.length) &&
+        readback.declared === String(readback.length) &&
+        readback.etag === `"${readback.digest}"`,
+    ).toBe(true);
+    expect(
+      readback.length > 0 &&
+        readback.length < 1024 * 1024 &&
+        readback.width <= 512 &&
+        readback.height <= 512,
+    ).toBe(true);
+    expect(
+      await page
+        .getByRole("img", { name: "当前已保存头像", exact: true })
+        .getAttribute("src"),
+    ).toMatch(/^blob:/);
+  }
+  const kept = await profile(page);
+  for (const kind of ["svg", "animated", "oversize"] as const) {
+    const animated =
+      kind === "animated"
+        ? [...readFileSync(join(directory, "animated.png"))]
+        : [];
+    const rejected = await page.evaluate(
+      async ({ kind, animated, version }) => {
+        const session = await (
+          await fetch("/api/v1/session", { cache: "no-store" })
+        ).json();
+        const bytes =
+          kind === "oversize"
+            ? new Uint8Array(5 * 1024 * 1024 + 1)
+            : kind === "animated"
+              ? new Uint8Array(animated)
+              : new TextEncoder().encode(
+                  '<svg xmlns="http://www.w3.org/2000/svg"/>',
+                );
+        const r = await fetch("/api/v1/me/avatar", {
+          method: "PUT",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": kind === "svg" ? "image/svg+xml" : "image/png",
+            "If-Match": `"${version}"`,
+            "X-CSRF-Token": session.csrf_token,
+            "Idempotency-Key": crypto.randomUUID(),
+          },
+          body: bytes,
+        });
+        return { status: r.status, code: (await r.json()).code as string };
+      },
+      { kind, animated, version: kept.user.version },
+    );
+    expect(rejected.status).toBe(
+      kind === "svg" ? 415 : kind === "oversize" ? 413 : 400,
+    );
+    const after = await profile(page);
+    expect(after.avatar).toEqual(kept.avatar);
+    expect(after.user.version).toBe(kept.user.version);
+    await expect(
+      page.getByRole("img", { name: "当前已保存头像", exact: true }),
+    ).toBeVisible();
+  }
+  await page.getByRole("button", { name: "移除头像", exact: true }).click();
+  await responseFor(
+    page,
+    () =>
+      page
+        .getByRole("dialog")
+        .getByRole("button", { name: "确认移除", exact: true })
+        .click(),
+    "/api/v1/me/avatar",
+    "DELETE",
+    204,
+  );
+  await expect(
+    page.getByRole("img", { name: "默认身份标识", exact: true }),
+  ).toBeVisible();
+  expect((await profile(page)).avatar).toBeNull();
+  await storedMaterialsAbsent(page);
+  const final = await profile(page);
+  result({
+    user_id: current.user_id,
+    version: final.user.version,
+    writes: 8,
+    uploads: 3,
+    rejected: 3,
+  });
+});
+
+test("[theme] preview, same-identity drafts, version conflict and protected leaf navigation", async ({
+  page,
+  browser,
+}) => {
+  const data = material();
+  const current = await enter(page, data.admin, "/settings/appearance");
+  const before = await observe(current.user_id);
+  await page.getByRole("radio", { name: "深色", exact: true }).check();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(
+    page.getByText("当前主题为尚未保存的预览", { exact: true }),
+  ).toBeVisible();
+  expect(await observe(current.user_id)).toEqual(before);
+  await page.getByRole("button", { name: "取消预览", exact: true }).click();
+  expect(await observe(current.user_id)).toEqual(before);
+  await page.getByRole("radio", { name: "深色", exact: true }).check();
+  await responseFor(
+    page,
+    () => page.getByRole("button", { name: "保存主题", exact: true }).click(),
+    "/api/v1/me/preferences",
+    "PUT",
+  );
+  await expect(page.getByText("主题已保存。", { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByRole("radio", { name: "深色", exact: true }),
+  ).toBeChecked();
+  const second = await context(browser);
+  try {
+    const other = await second.newPage();
+    await enter(other, data.admin, "/settings/appearance");
+    await page.getByRole("radio", { name: "跟随系统", exact: true }).check();
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await other.getByRole("radio", { name: "浅色", exact: true }).check();
+    await responseFor(
+      other,
+      () =>
+        other.getByRole("button", { name: "保存主题", exact: true }).click(),
+      "/api/v1/me/preferences",
+      "PUT",
+    );
+    await expect(
+      other.getByText("主题已保存。", { exact: true }),
+    ).toBeVisible();
+    const check = page.waitForResponse(
+      (r) =>
+        new URL(r.url()).pathname === "/api/v1/session" &&
+        r.request().method() === "GET",
+    );
+    await page.evaluate(() => window.dispatchEvent(new Event("pageshow")));
+    expect((await check).status()).toBe(200);
+    await expect(
+      page.getByRole("radio", { name: "跟随系统", exact: true }),
+    ).toBeChecked();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(
+      page.getByText("已保存偏好版本已变化；当前预览与原版本仍保留。", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    const conflict = await preferenceConflictFor(page, () =>
+      page.getByRole("button", { name: "保存主题", exact: true }).click(),
+    );
+    expect(conflict.code).toBe("VERSION_CONFLICT");
+    await expect(
+      page.getByRole("radio", { name: "跟随系统", exact: true }),
+    ).toBeChecked();
+    await page.getByRole("button", { name: "取消预览", exact: true }).click();
+    await expect(
+      page.getByRole("radio", { name: "浅色", exact: true }),
+    ).toBeChecked();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await page.getByRole("radio", { name: "跟随系统", exact: true }).check();
+    await responseFor(
+      page,
+      () => page.getByRole("button", { name: "保存主题", exact: true }).click(),
+      "/api/v1/me/preferences",
+      "PUT",
+    );
+    await expect(page.getByText("主题已保存。", { exact: true })).toBeVisible();
+    await page.emulateMedia({ colorScheme: "light" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  } finally {
+    await second.close();
+  }
+  await navigate(page, "基本资料");
+  await expect(page.locator("#profile-display-name")).toBeEditable();
+  await navigate(page, "主题");
+  for (const action of ["menu", "back", "logout"] as const) {
+    await page.getByRole("radio", { name: "浅色", exact: true }).check();
+    if (action === "menu")
+      await page
+        .getByRole("navigation", { name: "个人设置", exact: true })
+        .getByRole("link", { name: "基本资料", exact: true })
+        .click();
+    else if (action === "back") await page.evaluate(() => history.back());
+    else
+      await page
+        .locator(".account-actions")
+        .getByRole("button", { name: "退出登录", exact: true })
+        .click();
+    await expect(
+      page.getByRole("dialog", { name: "放弃未保存修改？", exact: true }),
+    ).toBeVisible();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "继续编辑", exact: true })
+      .click();
+    await expect
+      .poll(() => new URL(page.url()).pathname)
+      .toBe("/settings/appearance");
+    await expect(
+      page.getByRole("radio", { name: "浅色", exact: true }),
+    ).toBeChecked();
+    await page.getByRole("button", { name: "取消预览", exact: true }).click();
+  }
+  for (const target of [
+    "/settings/profile",
+    "/settings/appearance",
+    "/settings/password",
+  ]) {
+    await logout(page);
+    await enter(page, data.admin, target);
+  }
+  await page.goto("/settings");
+  await expect(
+    page.getByRole("heading", { name: "基本资料", level: 1, exact: true }),
+  ).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe("/settings/profile");
+  expect((await profile(page)).user.theme).toBe("system");
+  await storedMaterialsAbsent(page);
+  const after = await observe(current.user_id);
+  expect(
+    after.writes - before.writes === 3 && after.audits - before.audits === 3,
+  ).toBe(true);
+  result({ user_id: current.user_id, version: after.version, writes: 3 });
+});
+
+async function passwordFields(
+  page: Page,
+  current: string,
+  next: string,
+  confirmation = next,
+) {
+  await privateFill(page.locator("#settings-current_password"), current);
+  await privateFill(page.locator("#settings-new_password"), next);
+  await privateFill(page.locator("#settings-confirmation"), confirmation);
+}
+
+test("[password] strict success rotates the current Session and revokes another real context", async ({
+  page,
+  browser,
+}) => {
+  const data = material();
+  const original = await enter(page, data.admin, "/settings/password");
+  const second = await context(browser);
+  const signin = await context(browser);
+  try {
+    const other = await second.newPage();
+    const oldOther = await enter(other, data.admin, "/settings/profile");
+    let posts = 0;
+    page.on("request", (r) => {
+      if (
+        r.method() === "POST" &&
+        new URL(r.url()).pathname === "/api/v1/me/change-password"
+      )
+        posts++;
+    });
+    await passwordFields(
+      page,
+      data.admin.password,
+      data.new_password,
+      data.new_password + "different",
+    );
+    await page.getByRole("button", { name: "修改密码", exact: true }).click();
+    await expect(page.locator("#settings-confirmation")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    expect(posts).toBe(0);
+    await passwordFields(
+      page,
+      "Wrong private current value",
+      data.new_password,
+    );
+    const wrong = await responseFor(
+      page,
+      () => page.getByRole("button", { name: "修改密码", exact: true }).click(),
+      "/api/v1/me/change-password",
+      "POST",
+      400,
+    );
+    expect((await wrong.json()).field_errors).toContainEqual({
+      path: "/current_password",
+      code: "INVALID",
+    });
+    await expect(page.locator("#settings-current_password")).toBeEditable();
+    await passwordFields(page, data.admin.password, "aaaaaaaaaaaaaaaa");
+    const weak = await responseFor(
+      page,
+      () => page.getByRole("button", { name: "修改密码", exact: true }).click(),
+      "/api/v1/me/change-password",
+      "POST",
+      400,
+    );
+    expect((await weak.json()).field_errors).toContainEqual({
+      path: "/password",
+      code: "PASSWORD_WEAK",
+    });
+    await expect(page.locator("#settings-current_password")).toBeEditable();
+    await passwordFields(page, data.admin.password, data.new_password);
+    await responseFor(
+      page,
+      () => page.getByRole("button", { name: "修改密码", exact: true }).click(),
+      "/api/v1/me/change-password",
+      "POST",
+    );
+    await expect(
+      page.getByText("密码已修改，当前登录已更新，其他旧登录已失效。", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    for (const field of ["current_password", "new_password", "confirmation"])
+      expect(
+        (await page.locator(`#settings-${field}`).inputValue()) === "",
+      ).toBe(true);
+    const rotated = await identity(page);
+    expect(
+      rotated.status === 200 &&
+        rotated.user_id === original.user_id &&
+        rotated.session_id !== original.session_id &&
+        rotated.csrf_length === 43,
+    ).toBe(true);
+    await navigate(page, "基本资料");
+    await page.locator("#profile-display-name").fill("After password rotation");
+    await responseFor(
+      page,
+      () => page.getByRole("button", { name: "保存资料", exact: true }).click(),
+      "/api/v1/me",
+      "PATCH",
+    );
+    await expect(page.getByText("资料已保存。", { exact: true })).toBeVisible();
+    expect((await identity(other)).status).toBe(401);
+    await other.reload();
+    await expect(
+      other.getByRole("heading", { name: "登录", exact: true }),
+    ).toBeVisible();
+    await expect(other.locator("#profile-email")).toHaveCount(0);
+    const fresh = await signin.newPage();
+    await enter(
+      fresh,
+      { ...data.admin, password: data.new_password },
+      "/settings/profile",
+    );
+    await logout(fresh);
+    await fresh
+      .getByRole("textbox", { name: "邮箱", exact: true })
+      .fill(data.admin.email);
+    await privateFill(fresh.locator("#login-password"), data.admin.password);
+    const refused = await responseFor(
+      fresh,
+      () => fresh.getByRole("button", { name: "登录", exact: true }).click(),
+      "/api/v1/sessions/login",
+      "POST",
+      401,
+    );
+    expect((await refused.json()).code).toBe("UNAUTHENTICATED");
+    await privateFill(fresh.locator("#login-password"), "");
+    expect((await profile(page)).user.initial_password_suggestion).toBe(false);
+    await storedMaterialsAbsent(page);
+    const final = await profile(page);
+    result({
+      user_id: original.user_id,
+      session_id: rotated.session_id,
+      old_session_ids: [original.session_id, oldOther.session_id],
+      version: final.user.version,
+      writes: 2,
+    });
+  } finally {
+    await second.close();
+    await signin.close();
+    data.admin.password = "";
+    data.new_password = "";
+  }
+});
+
+test("[authority] ordinary user and admin own-profile, complete layout matrix and formal production routing", async ({
+  page,
+  browser,
+}) => {
+  const data = material();
+  const current = await enter(page, data.admin);
+  await page.locator("#profile-display-name").fill("Admin settings");
+  await responseFor(
+    page,
+    () => page.getByRole("button", { name: "保存资料", exact: true }).click(),
+    "/api/v1/me",
+    "PATCH",
+  );
+  await expect(page.getByText("资料已保存。", { exact: true })).toBeVisible();
+  const ordinary = await context(browser);
+  try {
+    const member = await ordinary.newPage();
+    await enter(member, data.member);
+    const before = await profile(member);
+    expect(
+      before.user.id === data.member.user_id && before.user.role === "user",
+    ).toBe(true);
+    await member.locator("#profile-display-name").fill("Member settings");
+    await responseFor(
+      member,
+      () =>
+        member.getByRole("button", { name: "保存资料", exact: true }).click(),
+      "/api/v1/me",
+      "PATCH",
+    );
+    await expect(
+      member.getByText("资料已保存。", { exact: true }),
+    ).toBeVisible();
+    const own = await profile(member);
+    await member.setViewportSize({ width: 390, height: 1000 });
+    await expect(member.locator("#profile-email")).toHaveValue(
+      data.member.email,
+    );
+    await noOverflow(member);
+    expect(
+      (
+        await checkedWrite(member, "PATCH", "/api/v1/me", {
+          version: own.user.version,
+          display_name: "Forged",
+          user_id: current.user_id,
+          role: "admin",
+        })
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await checkedWrite(
+          member,
+          "PATCH",
+          "/api/v1/me",
+          { version: own.user.version, display_name: "Forbidden" },
+          true,
+        )
+      ).status,
+    ).toBe(403);
+    const unchanged = await profile(member);
+    expect(
+      unchanged.user.version === own.user.version &&
+        unchanged.user.display_name === "Member settings" &&
+        unchanged.user.role === "user",
+    ).toBe(true);
+    expect((await profile(page)).user.display_name).toBe("Admin settings");
+    // True same-origin credential rejection: a mismatched Origin, not a forged Session.
+    const rejected = await ordinary.request.patch("/api/v1/me", {
+      headers: {
+        Origin: "http://unrelated.invalid",
+        "Content-Type": "application/json",
+        "Idempotency-Key": "owned-wrong-origin",
+      },
+      data: { version: own.user.version, display_name: "Forbidden" },
+    });
+    expect(rejected.status()).toBe(403);
+    await checkedWrite(member, "POST", "/api/v1/sessions/logout", {});
+    await member.reload();
+    await expect(
+      member.getByRole("heading", { name: "登录", exact: true }),
+    ).toBeVisible();
+    await expect(member.locator("#profile-email")).toHaveCount(0);
+  } finally {
+    await ordinary.close();
+  }
+  const longName = "界".repeat(80);
+  await page.locator("#profile-display-name").fill(longName);
+  await responseFor(
+    page,
+    () => page.getByRole("button", { name: "保存资料", exact: true }).click(),
+    "/api/v1/me",
+    "PATCH",
+  );
+  await expect(page.locator(".account-name")).toHaveText(longName);
+  await expect(page.locator("#profile-display-name")).toHaveValue(longName);
+  await navigate(page, "主题");
+  let layouts = 0;
+  for (const theme of ["浅色", "深色", "跟随系统"] as const) {
+    for (const width of [1440, 1024, 834, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+      await page.getByRole("radio", { name: theme, exact: true }).check();
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-theme",
+        theme === "浅色" ? "light" : "dark",
+      );
+      await noOverflow(page);
+      layouts++;
+      if (width === 390) {
+        await page
+          .getByRole("button", { name: "个人设置栏目", exact: true })
+          .click();
+        const dialog = page.getByRole("dialog", {
+          name: "个人设置栏目",
+          exact: true,
+        });
+        await expect(dialog).toBeVisible();
+        const motion = await dialog.evaluate((element) => {
+          const nodes = [element, ...element.querySelectorAll("*")];
+          return nodes.every((node) => {
+            const style = getComputedStyle(node);
+            return (
+              style.animationDuration
+                .split(",")
+                .every((duration) => parseFloat(duration) <= 0.00001) &&
+              style.transitionDuration
+                .split(",")
+                .every((duration) => parseFloat(duration) <= 0.00001)
+            );
+          });
+        });
+        expect(motion).toBe(true);
+        await page.keyboard.press("Escape");
+        await expect(
+          page.getByRole("button", { name: "个人设置栏目", exact: true }),
+        ).toBeFocused();
+      }
+      if (theme !== "跟随系统")
+        await page
+          .getByRole("button", { name: "取消预览", exact: true })
+          .click();
+    }
+  }
+  await page.getByRole("button", { name: "取消预览", exact: true }).click();
+  await page.evaluate(() => {
+    document.documentElement.style.zoom = "2";
+  });
+  await noOverflow(page);
+  await page.evaluate(() => {
+    document.documentElement.style.zoom = "";
+  });
+  await navigate(page, "基本资料");
+  await expect(
+    page.getByRole("heading", { name: "基本资料", exact: true, level: 1 }),
+  ).toBeFocused();
+  await page.locator("#profile-username").focus();
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#profile-display-name")).toBeFocused();
+  // Screenshot only a safe, cleared form; the actual long-name render was asserted above.
+  await page.locator("#profile-display-name").fill("");
+  await page.getByRole("button", { name: "取消修改", exact: true }).click();
+  const images = process.env.AGENTEAM_AUTH_WEB_IMAGES;
+  if (images)
+    await page.screenshot({
+      path: join(images, "personal-settings-narrow.png"),
+      fullPage: true,
+    });
+  const api = await page.request.get("/api/v1/not-a-route");
+  const asset = await page.request.get("/assets/not-a-real-asset.js");
+  expect(
+    api.status() === 404 && !(await api.text()).includes('<div id="app">'),
+  ).toBe(true);
+  expect(asset.status()).toBe(404);
+  await page.goto("/debug");
+  await expect(
+    page.getByRole("heading", { name: "未找到页面", exact: true }),
+  ).toBeVisible();
+  expect((await page.content()).includes("Shared UI component fixtures")).toBe(
+    false,
+  );
+  await page.goto("/settings/profile");
+  await expect(page.locator("#profile-username")).toBeEditable();
+  await storedMaterialsAbsent(page);
+  const final = await profile(page);
+  result({
+    user_id: current.user_id,
+    member_id: data.member.user_id,
+    version: final.user.version,
+    writes: 2,
+    layouts,
+  });
+});

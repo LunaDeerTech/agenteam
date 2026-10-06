@@ -1,0 +1,360 @@
+--- /dev/null
++++ input08/web/src/tests/account-entry-state.spec.ts
+@@ -0,0 +1,357 @@
++import { afterEach, describe, expect, it, vi } from 'vitest'
++import { flushPromises } from '@vue/test-utils'
++import { createAccountAPI, type SessionView } from '../api/account'
++import { AccountFailure, type Fetch } from '../api/client'
++import { createSessionController } from '../composables/useSession'
++
++const id = '01900000-0000-7000-8000-000000000001',
++  second = '01900000-0000-7000-8000-000000000002'
++const token = id + '.' + 'T'.repeat(43),
++  password = ' 中文 original password 12345 '
++const instant = '2026-10-05T12:34:56.123456Z',
++  anonymousCSRF = 'A'.repeat(43)
++const view: SessionView = {
++  user: {
++    id,
++    email: 'a@example.com',
++    username: 'user-a',
++    display_name: 'A',
++    role: 'user',
++    theme: 'dark',
++    version: '1',
++    initial_password_suggestion: false,
++  },
++  session: {
++    id: second,
++    issued_at: instant,
++    absolute_expires_at: instant,
++    idle_expires_at: instant,
++  },
++  csrf_token: 'S'.repeat(43),
++}
++const json = (value: unknown, status = 200) =>
++  new Response(JSON.stringify(value), {
++    status,
++    headers: {
++      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
++      'X-Request-ID': id,
++    },
++  })
++function problem(code: string, status = 503, commit_state = 'not_started') {
++  return json(
++    {
++      type: 'urn:agenteam:problem:test',
++      title: 'Error',
++      status,
++      detail: 'safe',
++      instance: '/api/v1/session',
++      code,
++      request_id: id,
++      commit_state,
++    },
++    status,
++  )
++}
++function barrier<T>() {
++  let resolve!: (value: T) => void
++  const promise = new Promise<T>((next) => {
++    resolve = next
++  })
++  return { promise, resolve }
++}
++function fixture(signedIn = true) {
++  let session: () => Promise<Response> = async () =>
++    signedIn ? json(view) : problem('UNAUTHENTICATED', 401)
++  let mutation: Fetch = async (path) =>
++    path.endsWith('/complete')
++      ? new Response(null, { status: 204 })
++      : path.endsWith('/redeem')
++        ? json({ completed: true, login_required: true }, 201)
++        : json({ accepted: true, delivery_channel: 'backend_log' }, 202)
++  const fetch = vi.fn<Fetch>(async (path, init) => {
++    if (path === '/api/v1/session') return session()
++    if (path.endsWith('/bootstrap'))
++      return json({
++        csrf_token: anonymousCSRF,
++        challenge_modes: ['rotate'],
++        delivery_channel: 'backend_log',
++      })
++    if (path.endsWith('/inspect'))
++      return path.includes('invitations')
++        ? json({ email: 'b@example.com', expires_at: instant })
++        : json({ valid: true, expires_at: instant })
++    return mutation(path, init)
++  })
++  return {
++    auth: createSessionController(createAccountAPI(fetch)),
++    fetch,
++    setSession(next: () => Promise<Response>) {
++      session = next
++    },
++    setMutation(next: Fetch) {
++      mutation = next
++    },
++  }
++}
++afterEach(() => {
++  vi.useRealTimers()
++  vi.restoreAllMocks()
++})
++
++describe('public Account shared ownership', () => {
++  it('accepts an empty streamed 204 only at EOF, then holds the same owner for Session confirmation', async () => {
++    const f = fixture()
++    await f.auth.entry.prepare()
++    let body!: ReadableStreamDefaultController<Uint8Array>
++    const response = new Response(
++      new ReadableStream<Uint8Array>({
++        start(controller) {
++          body = controller
++        },
++      }),
++    )
++    Object.defineProperty(response, 'status', { value: 204 })
++    f.setMutation(async () => response)
++    const session = barrier<Response>()
++    f.setSession(() => session.promise)
++    const pending = f.auth.entry.completePasswordReset({
++      token,
++      new_password: password,
++      confirmation: password,
++    })
++    void pending.catch(() => undefined)
++    await flushPromises()
++    expect(f.auth.state.busy).toBe(true)
++    expect(f.auth.entry.progress?.phase).toBe('submitting')
++    expect(f.fetch.mock.calls.filter(([path]) => path === '/api/v1/session')).toHaveLength(1)
++    await expect(f.auth.entry.prepare()).rejects.toMatchObject({ kind: 'busy' })
++    body.enqueue(new Uint8Array(0))
++    await flushPromises()
++    expect(f.auth.state.busy).toBe(true)
++    expect(f.auth.entry.progress?.phase).toBe('submitting')
++    body.close()
++    await flushPromises()
++    expect(f.auth.state.busy).toBe(true)
++    expect(f.auth.entry.progress?.phase).toBe('confirming-session')
++    expect(f.fetch.mock.calls.filter(([path]) => path === '/api/v1/session')).toHaveLength(2)
++    session.resolve(problem('UNAUTHENTICATED', 401))
++    await expect(pending).resolves.toMatchObject({
++      commandConfirmed: true,
++      session: { kind: 'anonymous' },
++    })
++    await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/complete'))).toHaveLength(1)
++    expect(f.auth.state.busy).toBe(false)
++  })
++
++  it('prepares anonymous authority alongside a stable existing Session and reuses bootstrap', async () => {
++    const f = fixture()
++    const first = await f.auth.entry.prepare()
++    const identity = f.auth.personalContext.identity
++    expect(first.session).toEqual({ kind: 'authenticated', identity })
++    await f.auth.entry.prepare()
++    expect(f.auth.personalContext.identity).toBe(identity)
++    expect(f.auth.state.user?.id).toBe(view.user.id)
++    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/bootstrap'))).toHaveLength(1)
++    await f.auth.entry.inspectInvitation({ token })
++    expect(f.fetch.mock.calls.at(-1)?.[1].headers).toMatchObject({ 'X-CSRF-Token': anonymousCSRF })
++    expect(JSON.stringify(f.auth.state)).not.toContain(anonymousCSRF)
++  })
++
++  it('retains exact original key/body/context through Unknown, 410 and explicit replay without inspect', async () => {
++    const f = fixture()
++    await f.auth.entry.prepare()
++    let attempt = 0
++    f.setMutation(async () =>
++      ++attempt === 1
++        ? problem('COMMIT_UNKNOWN', 503, 'unknown')
++        : attempt === 2
++          ? problem('RESOURCE_DELETED', 410)
++          : json({ completed: true, login_required: true }, 201),
++    )
++    const input = {
++      token,
++      username: 'member',
++      display_name: ' 原输入 ',
++      password,
++      confirmation: password,
++    }
++    await expect(f.auth.entry.redeemInvitation(input)).rejects.toMatchObject({ kind: 'problem' })
++    input.username = 'changed'
++    expect(f.auth.entry.progress).toMatchObject({ phase: 'uncertain', canRetryOriginal: true })
++    const calls = f.fetch.mock.calls.length
++    await f.auth.restore()
++    await f.auth.login('other@example.com', password)
++    await f.auth.logout()
++    await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
++    await expect(f.auth.entry.prepare()).rejects.toMatchObject({ kind: 'busy' })
++    expect(f.fetch).toHaveBeenCalledTimes(calls)
++    await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'problem' })
++    expect(f.auth.entry.progress).toMatchObject({ phase: 'uncertain', canRetryOriginal: true })
++    await expect(f.auth.entry.retryOriginal()).resolves.toMatchObject({ kind: 'invitation' })
++    const writes = f.fetch.mock.calls.filter(([path]) => path.endsWith('/redeem'))
++    expect(writes).toHaveLength(3)
++    expect(new Set(writes.map(([, init]) => init.body)).size).toBe(1)
++    expect(
++      new Set(writes.map(([, init]) => (init.headers as Record<string, string>)['Idempotency-Key']))
++        .size,
++    ).toBe(1)
++    expect(JSON.parse(writes[0]![1].body as string).username).toBe('member')
++    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/inspect'))).toHaveLength(0)
++  })
++
++  it('distinguishes invalid anonymous CSRF from invalid Session and refuses context replacement', async () => {
++    const f = fixture()
++    await f.auth.entry.prepare()
++    let first = true
++    f.setMutation(async () => {
++      if (first) {
++        first = false
++        return problem('COMMIT_UNKNOWN', 503, 'unknown')
++      }
++      return problem('CSRF_FAILED', 403)
++    })
++    await f.auth.entry.requestPasswordReset({ email: 'b@example.com' }).catch(() => undefined)
++    await f.auth.entry.retryOriginal().catch(() => undefined)
++    expect(f.auth.entry.progress).toMatchObject({
++      phase: 'uncertain',
++      canRetryOriginal: false,
++      contextValid: false,
++    })
++    expect(f.auth.state.user?.id).toBe(view.user.id)
++    await expect(f.auth.entry.prepare()).rejects.toMatchObject({ kind: 'busy' })
++    await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/bootstrap'))).toHaveLength(1)
++  })
++
++  it('keeps the actual body/cancel tail after the 30 second visible deadline', async () => {
++    vi.useFakeTimers()
++    const f = fixture(false)
++    await f.auth.entry.prepare()
++    const release = barrier<void>()
++    let cancelling = false
++    f.setMutation(
++      async () =>
++        new Response(
++          new ReadableStream({
++            cancel() {
++              cancelling = true
++              return release.promise
++            },
++          }),
++          { status: 202, headers: { 'Content-Type': 'text/html' } },
++        ),
++    )
++    const pending = f.auth.entry
++      .requestPasswordReset({ email: 'b@example.com' })
++      .catch((e: unknown) => e)
++    await flushPromises()
++    expect(cancelling).toBe(true)
++    await vi.advanceTimersByTimeAsync(30_000)
++    expect(await pending).toMatchObject({ kind: 'cancelled' })
++    expect(f.auth.state.busy).toBe(true)
++    await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'busy' })
++    f.auth.entry.abandon()
++    await expect(f.auth.entry.prepare()).rejects.toMatchObject({ kind: 'busy' })
++    release.resolve()
++    await flushPromises()
++    expect(f.auth.state.busy).toBe(false)
++    expect(f.auth.entry.progress).toBeNull()
++  })
++
++  it.each(['other-user', 'revoked', 'unavailable'] as const)(
++    'confirms reset once before its Session check: %s',
++    async (result) => {
++      const f = fixture()
++      await f.auth.entry.prepare()
++      const held = barrier<Response>()
++      f.setSession(() => held.promise)
++      const pending = f.auth.entry.completePasswordReset({
++        token,
++        new_password: password,
++        confirmation: password,
++      })
++      await flushPromises()
++      expect(f.auth.entry.progress?.phase).toBe('confirming-session')
++      expect(f.auth.state.busy).toBe(true)
++      await expect(
++        f.auth.entry.requestPasswordReset({ email: 'x@example.com' }),
++      ).rejects.toMatchObject({ kind: 'busy' })
++      held.resolve(
++        result === 'other-user'
++          ? json(view)
++          : result === 'revoked'
++            ? problem('SESSION_REVOKED', 401)
++            : problem('DEPENDENCY_UNAVAILABLE'),
++      )
++      const outcome = await pending
++      expect(outcome.commandConfirmed).toBe(true)
++      expect(outcome.session.kind).toBe(
++        result === 'other-user'
++          ? 'authenticated'
++          : result === 'revoked'
++            ? 'anonymous'
++            : 'unconfirmed',
++      )
++      await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++      expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/complete'))).toHaveLength(1)
++      if (result === 'other-user') expect(f.auth.state.user?.id).toBe(view.user.id)
++    },
++  )
++
++  it.each([false, true])(
++    'quarantines old identity on reset GET deadline, abandoned=%s',
++    async (abandon) => {
++      vi.useFakeTimers()
++      const f = fixture()
++      await f.auth.entry.prepare()
++      const held = barrier<Response>()
++      f.setSession(() => held.promise)
++      const pending = f.auth.entry
++        .completePasswordReset({ token, new_password: password, confirmation: password })
++        .catch((e: unknown) => e)
++      await flushPromises()
++      expect(f.auth.state.phase).toBe('checking')
++      expect(f.auth.personalContext.phase).toBe('checking')
++      if (abandon) f.auth.entry.abandon()
++      await vi.advanceTimersByTimeAsync(30_000)
++      if (abandon) expect(await pending).toMatchObject({ kind: 'cancelled' })
++      else
++        expect(await pending).toMatchObject({
++          commandConfirmed: true,
++          session: { kind: 'unconfirmed' },
++        })
++      expect(f.auth.state.phase).toBe('unavailable')
++      expect(f.auth.state.user).toBeNull()
++      expect(f.auth.state.session).toBeNull()
++      expect(f.auth.personalContext.phase).toBe('checking')
++      expect(f.auth.state.busy).toBe(true)
++      await expect(f.auth.entry.prepare()).rejects.toMatchObject({ kind: 'busy' })
++      held.resolve(json(view))
++      await flushPromises()
++      expect(f.auth.state.busy).toBe(false)
++      expect(f.auth.state.phase).toBe('unavailable')
++      await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++      expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/complete'))).toHaveLength(1)
++    },
++  )
++
++  it('finishes reset reconciliation after the page abandons, without publishing old progress', async () => {
++    const f = fixture()
++    await f.auth.entry.prepare()
++    const held = barrier<Response>()
++    f.setSession(() => held.promise)
++    const pending = f.auth.entry
++      .completePasswordReset({ token, new_password: password, confirmation: password })
++      .catch((e: unknown) => e)
++    await flushPromises()
++    f.auth.entry.abandon()
++    expect(await pending).toBeInstanceOf(AccountFailure)
++    await expect(f.auth.entry.prepare()).rejects.toMatchObject({ kind: 'busy' })
++    held.resolve(json(view))
++    await flushPromises()
++    expect(f.auth.state.phase).toBe('authenticated')
++    expect(f.auth.state.busy).toBe(false)
++    expect(f.auth.entry.progress).toBeNull()
++  })
++})

@@ -1,0 +1,142 @@
+{
+  "purpose": "local synthetic CDP sampling only; no product/Account request or Docker; single Chromium, two sequential contexts",
+  "argv": [
+    "node",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/cdp-diagnostic/browser-diagnostic.mjs"
+  ],
+  "env_names": [
+    "TMPDIR",
+    "XDG_CONFIG_HOME",
+    "XDG_CACHE_HOME"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "processes": [
+    {
+      "pid": 469072,
+      "ppid": 469068,
+      "starttime": "478727",
+      "state": "R",
+      "command": "node"
+    },
+    {
+      "pid": 469084,
+      "ppid": 469072,
+      "starttime": "478756",
+      "state": "S",
+      "command": "chromium"
+    },
+    {
+      "pid": 469100,
+      "ppid": 469068,
+      "starttime": "478762",
+      "state": "R",
+      "command": "chrome_crashpad"
+    },
+    {
+      "pid": 469103,
+      "ppid": 469084,
+      "starttime": "478762",
+      "state": "R",
+      "command": "chromium"
+    },
+    {
+      "pid": 469105,
+      "ppid": 469084,
+      "starttime": "478762",
+      "state": "R",
+      "command": "chromium"
+    },
+    {
+      "pid": 469104,
+      "ppid": 469068,
+      "starttime": "478762",
+      "state": "S",
+      "command": "chrome_crashpad"
+    },
+    {
+      "pid": 469126,
+      "ppid": 469103,
+      "starttime": "478768",
+      "state": "R",
+      "command": "chromium"
+    },
+    {
+      "pid": 469160,
+      "ppid": 469084,
+      "starttime": "478805",
+      "state": "R",
+      "command": "exe"
+    },
+    {
+      "pid": 469161,
+      "ppid": 469105,
+      "starttime": "478808",
+      "state": "S",
+      "command": "chromium"
+    },
+    {
+      "pid": 469192,
+      "ppid": 469105,
+      "starttime": "478816",
+      "state": "R",
+      "command": "chromium"
+    },
+    {
+      "pid": 469201,
+      "ppid": 469105,
+      "starttime": "478818",
+      "state": "R",
+      "command": "chromium"
+    },
+    {
+      "pid": 469202,
+      "ppid": 469105,
+      "starttime": "478818",
+      "state": "R",
+      "command": "chromium"
+    },
+    {
+      "pid": 469244,
+      "ppid": 469105,
+      "starttime": "478939",
+      "state": "R",
+      "command": "chromium"
+    },
+    {
+      "pid": 469253,
+      "ppid": 469105,
+      "starttime": "478941",
+      "state": "R",
+      "command": "chromium"
+    },
+    {
+      "pid": 469255,
+      "ppid": 469105,
+      "starttime": "478942",
+      "state": "R",
+      "command": "chromium"
+    }
+  ],
+  "subreaper_waits": [
+    {
+      "pid": 469100,
+      "wait_status": 0
+    },
+    {
+      "pid": 469104,
+      "wait_status": 0
+    },
+    {
+      "pid": 469103,
+      "wait_status": 0
+    },
+    {
+      "pid": 469105,
+      "wait_status": 0
+    }
+  ],
+  "remaining_first": [],
+  "remaining_second": [],
+  "runtime_removed": true
+}

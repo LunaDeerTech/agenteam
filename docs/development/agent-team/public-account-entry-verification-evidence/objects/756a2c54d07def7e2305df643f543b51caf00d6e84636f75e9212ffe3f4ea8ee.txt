@@ -1,0 +1,12 @@
+{
+  "plan": "/workspace/scratch/d26-ui-verification-mainp_f2/real/browser-plan-independent-input08.json",
+  "plan_sha256": "9e7e6f8535a9edcdc5e254725c9b165fa21ada069acd1bd61dfcb7498a59b843",
+  "input_sha256": "0726c646bef31043e190a6c2261c0a7074069ad07849a6fe07efff2bcb7a02d2",
+  "compile_vet_commands": "/workspace/scratch/d26-ui-verification-mainp_f2/real/go-preparation-02-commands.json",
+  "browser_type_command": "/workspace/scratch/d26-ui-verification-mainp_f2/real/browser-type-02-command.json",
+  "observer_sha256": "fa0815a2b67114adf744c51a2807b4702e66837f478f33fe0464e843ba84e492",
+  "actual_run": "NOT_RUN",
+  "commands": "all preparation stopped",
+  "resource_ownership": "No Docker fixture/browser launched; task runtime empty",
+  "corrected_branch_pure": "unchanged independent4 PASS plus original C-F1 deadline1 PASS on input08"
+}

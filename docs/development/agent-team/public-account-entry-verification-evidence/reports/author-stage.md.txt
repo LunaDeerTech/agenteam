@@ -1,0 +1,70 @@
+# D26 公开 Account 入口作者恢复报告（input12 候选，进行中）
+
+本报告对应工作项 `docs/development/work-items/d26-public-account-entry.md` rev1及主线程已授权的rev2–rev4窄测试补遗，角色 frontend_worker。实现与有意义自测只写获授权的25个产品/测试路径；共享文档、Git交付由主线程负责。目前 pure/type/build 已通过，独立核心及空204流反例闭环；真实浏览器组合尚在执行，不能标记整卡已验收。
+
+## 恢复依据与输入
+
+恢复时远端 main 已由主线程安全快进到 d09e8ef294d8c51a8f82ec7d536fb573753ed42a。旧独立 pure2 / UI01 只有持久摘要，旧 /tmp 实际候选与原始日志已失；本次重新实现、冻结及验证，不把旧摘要计为当前通过证据。最终25路径保持独占；新增授权只允许旧authentication fixture的私有精确日志路径字段/赋值，以及旧personal-settings PW spec两个实际失败正文观测点。未修改共享UI/theme、personal composable、后端生产、SQL、OpenAPI、packages/lock，未执行Git写操作。
+
+当前私有候选目录 `input12/`，后端基线固定 c54f73f3324caa11608d84e5d207141985eb6074。945个已跟踪依赖文件保持c54字节，加25源与最终dist的15资产，共985项；不消费活动SQL18或未验管理实现。`input12-manifest.json` SHA256 f043d9dcb8fd3de5e9644305521869d06e09d2aa9ab45d09acc6cf6a5cf41a72。生产源和dist从input08起完全不变；`input08-handoff/changes.json`保存原23源11改/12新，`input12-delta.json`与`input12-handoff/`保存相对09的四个测试路径差量。旧input09/10/11均保留。早期 `input02-freeze-proof.json` 核过947依赖的Git blob；新增两旧测试从依赖移至获授权源清单，其他依赖继承不变hash。input12已获独立STATIC PASS并按rev4提交d63afeb授权发布四个测试差量，活动25源与冻结hash全匹配。
+原六组真实计划 `browser-plan08.json` SHA256 358045c48d7d98572a3d22ec9b6f5e122486f0622f028eb2a8ecfb26cef98d8a；受影响三顶层候选计划 `browser-plan11.json` SHA256 7cd3bc57cf67c79385daa296a06d18e86cc9c2bf0523a8ea618e1e1db9d54fe9；原script/race/count1/6m、Go顶层2m、PW单例45s、workers1/retries0保持。主线程授权未来未启动轮增加GOFLAGS -v；旧轮不为补日志重跑。observer `run_fixture.py` 为已验个人设置安全observer原字节，SHA256 e2f14a8e7fb84f353c0dd75c78f974bac4ec129e425b73ca1d794b5ecdd6f3f7。
+
+## 实现结果
+
+五个严格typed Account HTTP方法与同一个Session owner连接；公开入口保留当前真实Session并使用匿名CSRF，原未知写保留原key/context/body且只显式重试。邀请、找回、重置页面在history建立前捕获并擦除链接材料，敏感引用仅留私有闭包，处理同标签新链接、dirty导航、实际尾部占有和显式身份转换。
+
+重置严格204后先清输入与旧可见身份，仍持原owner核对当前Session，区分200/401/未知，核对失败不重发reset。core03修复C-F1：已确认reset后GET超时与离页不能保留旧authenticated/personalContext；实际owner未终结前保持占有。input08进一步修复204可暴露空ReadableStream的情况：读至实际EOF且累计0字节才确认，零长度chunk允许；非空或读取失败拒绝；abort与reader.cancel实际完成被同一promise join，结束释放reader lock。其他owner/Session生产逻辑与core03相同。
+
+新的真实fixture复用原Authentication fixture及真实app.Run/PG/Secret/Audit/Outbox/MinIO；正式管理员HTTP邀请、普通用户兑换与登录创建前置。找回链接来自本fixture受限恢复记录，经0700/0600有界私有IPC交给浏览器，只有匹配purpose/email/id的记录可用。只读PG核对命令、审计、用户与Session，不改表造身份/链接，不记录请求body、token、密码或敏感截图；trace/video关闭。
+
+## 当前已通过检查
+
+- `check-input08-command.json`：`npm run check --prefix web`，exit0，151例/12文件、format/type-check/生产build通过，原日志 `check-input08.log` SHA256 97a56a70da40a91deecba6a4d824ed5385c18406ea74fb9c12d948cba7a1c001。
+- input09的Go fixtures复用 `go-input06-commands.json` 固定Go1.27.1 offline/readonly integration race compile及vet exit0。input10新增测试接缝及单截止的最终检查见 `checks-input10-02-commands.json` 全0；input12最终受影响race compile/vet与两spec严格tsc全部exit0且已actual wait，记录 `checks-input12-commands.json`。
+- input12两个browser spec严格tsc exit0，完整lib ES2022,DOM,DOM.Iterable；见 `checks-input12-commands.json`。input11首次命令遗漏DOM.Iterable造成旧两处NodeList迭代TS2488，原exit2/log保留，补正确lib而未改旧代码。固定生产web检查仍复用input08。
+- 独立core03复用原C-F1 probe字节，对原反例与6个受影响分支共7 PASS，`/workspace/scratch/d26-core-verification-3syc0er6/probe03.log`；旧core01失败及core02作者失败保留。
+- 独立input07 UI/router完整静审无新增阻断；history capability key清除probe对input02 FAIL、input03 PASS。
+- 独立204-stream原4例在input07为2 FAIL/2 PASS，在input08原字节4 PASS。目录 `/workspace/scratch/d26-ui-verification-mainp_f2/response204/`，`probe-input07.log`与`probe-input08.log`均保留；包含实际API factory→controller以及30s可见超时仍持actual tail。
+
+- 独立最终组合实际PASS：`/workspace/scratch/d26-ui-verification-mainp_f2/combined01/report.md` SHA256 e4a5caf98a21fc0f1235229cc23c3337c942395eecf5a0e1892c647e4f5f6b08，组合manifest SHA256 6443965d6806efbae71e0f83e33347bb794372d7e3e877a0e206cfcd10a6f03e。input09前端/最终dist+c54依赖+已验management13/ledger20共1012文件，排除tools14。原独立业务case字节不变，新增只读断言实际编译target18和真实安装journal/usage三表。PW8.9s/Go14.76s PASS、driver/observer0、107.30s、4c3n/19PID双清，原log SHA256 40b162aea5cf0d9b08b65ab7ba88bedbe87b6fc1352851c5931062e69324da0a；不含clone/CDP body观测。input12后续仅测试差量经独立静核，复用此产品组合结论。
+
+## 原始失败及窄修
+
+环境准备失败另保存在 `author-progress.md` 的 Preparation failures retained 和原始日志：预置依赖缺go-captcha-vue、早期pure exit127、第一次镜像安装失败/挂起及实际终止、第二次安装过早启动后由第三次干净锁定安装收束，以及首次固定输入缺一份不变c54主题文档资产。`npm-ci-web*.log`、`core-unit-01.log`、`check-input01.log` 和后续 `check-input01-02.log` 均未覆盖。它们不计为当前业务通过，依赖package/lock未改。旧进度文档保存当时阶段，本报告和current-handoff才是最新状态。
+
+| 轮次 | 实际结果 | 保留证据与处置 |
+| --- | --- | --- |
+| new01/input03 | driver exit1；邀请PW通过但Go后态text=uuid SQL失败；reset私有IPC立即查询失败 | `logs/new01.log`、`evidence/new01/`、`new01-first-failure.md`。SQL显式uuid/text转换；reset仅对pgx.ErrNoRows在同一连接有界4s只读等待真实Outbox。原错误未记录精确类别，不把ErrNoRows写成已观测原因。原cleanup=false因一个残留私有Chromium profile；确证归属/无进程后定点清除，manual01/02和协调者复核通过，不覆盖原false。 |
+| new01-retest01/input06 | driver exit1；邀请top通过；reset收到202后Playwright response.json CDP No data found | 原件 `logs/new01-retest01.log`、`evidence/new01-retest01/`；清理/源不变true。input07改为response事件立即链读取同一响应JSON，真实click/status/shape断言保留；不拦截或重发。采样根因未知。 |
+| new01-retest02/input07 | driver exit1；邀请通过；202 shape与真实Outbox IPC推进，reset实际204后UI仍uncertain | 原件 `logs/new01-retest02.log`、`evidence/new01-retest02/`；清理/源不变true。实际浏览器Response.body形态未采样；独立控制反例证明空流缺陷，input08窄修，但不把控制反例冒充原CDP或浏览器body的直接证据。 |
+| new01-retest03/input08 | driver exit1；Invitation明确PW/top PASS，Reset再次在首202 response.json CDP No data found失败，尚未204 | `logs/new01-retest03.log` SHA256 42c6c60c4955ff14f64a98f2957dc882ff18f5e39e352954fdf3072415aa511f；163.38s，4c3n/32PID双清且源不变。input09只改测试观测helper，不继续盲重试CDP body。 |
+
+作者输入08前置反例原日志 `stream204-before-fix.log` 为3 FAIL/38 PASS；首次修后 `stream204-after-fix.log` 40 PASS/1 FAIL来自新测试把公开ResetConfirmation写成内部EntryMutationResult形状，修正新断言后完整check151 PASS。没有降低旧用例断言。
+
+## 真实运行进度
+
+new01-retest03失败后已清理交还。input09/plan08 new01-retest04两顶层及PW全部PASS：Invitation PW4.4s/Go11.23s、PasswordReset PW9.9s/Go16.59s，driver/observer exit0、164.40s、4c3n/31PID双清、baseline与源不变。原日志SHA256 c17ae286e71884d76f913105fc8baa881f5ba22cce6f3ae401f25835837c0f78；见 `evidence/new01-retest04/`。原六组均已实际执行，结果如下；九个顶层已通过，三个受影响顶层待input12定向复验。独立input08另一身份真实top已经PW/Go/PG通过、driver/observer exit0且双清，证明reset204后A原Session与原CSRF可继续正式写偏好、B旧Session401、实际命令/Audit/Session后态一致；该产品证据可沿input09不变生产/dist复用。
+
+| 原09轮次 | 实际结果及原始证据 | 清理 |
+| --- | --- | --- |
+| new02 | IdentityNavigation PASS；Privacy在known真实202后等待reset PG后态4s失败，unknown与布局尚未执行。`logs/new02.log` SHA256 15ccebe4756907f851cd310480c05dbb8150ef8f7c9ed73d2726f591eecb0692 | exit1，原cleanup=false仅一个owned runtime残留；确证无PID/路径归属后manual01/02双清，协调复核；原false保留 |
+| auth01 | SessionLifecycle与RotateChallenge两个顶层、桌面/键盘PW均PASS。raw SHA256 dc67f35eeeb2636a1efefc01f5a8b5410bff3557851d2f354fbe57c86d5f8c73 | exit0，75.19s，4c3n/39PID双清、源不变 |
+| auth02 | RevocationAndExpiry、LayoutsAndProduction及各PW PASS。raw SHA256 fe487d46fa502d6d5afcd027d90a7335b0d57c23e77d144ac0c36b9542a79750 | exit0，68.82s，4c3n/42PID双清、源不变 |
+| settings01 | ProfileAndAvatar PASS；ThemeAndNavigation真实PUT preferences 409后旧spec:561 conflict.json因CDP No data found失败。raw SHA256 17d20f84d60c4afd64cacbac2952366dba6c50792abd412402947a6fe36fc5f8 | exit1，70.40s，4c3n/29PID双清、源不变 |
+| settings02 | AuthorityAndProduction PASS；PasswordRotation真实POST login 401后旧spec:766 refused.json同CDP错误，尚未最后PG收尾。raw SHA256 0d29c4c4a1ab8d08821d15e9bb05e5529b336203337901b1d2dc38fb79f1828f | exit1，75.28s，4c3n/36PID双清、源不变 |
+
+Privacy修订依据是正式Account maintenance为10s ticker、单轮Recover 2s；202先提交reset_requests，再由recovery创建reset及delivery intent/event，accountmail的1s循环负责投递。旧4s并非正式SLA。原失败DB已销毁且缺少phase诊断，不能认定本次唯一实际根因是ticker。rev2测试修正为从PW IPC写入起的同一绝对20s截止，Go PG查询/精确restricted log读取/ack及PW剩余poll都继承，外层45s/2m/6m不改。精确日志路径仅通过已有cfg.AccountRecoveryLog新增private字段传递，不搜索父目录。原真实POST的Idempotency-Key只从既有request事件读取、0600私有传递，绑定唯一command/member/resource/current password_version/intent，原公开JSON对象相等断言不含key。安全只读快照仅bool/count/phase/pass/SQLSTATE，不含token/hash/email/URL/payload。input10独立发现截止后父ctx诊断可续1s；input11改为过期无新查询、仅保此前快照，未到期错误诊断沿原handshake，原10保留。input10首次vet取消泄漏错误也保留，后续显式defer捕获每个cancel，vet通过。
+
+两旧Settings失败的采样根因同样未被实际确定。input12仅局部克隆读取两个闭合目标——PUT /api/v1/me/preferences 409与POST /api/v1/sessions/login 401——保留VERSION_CONFLICT/UNAUTHENTICATED与全部后续主题/密码/PG命令审计断言；其他旧.json与场景不变。与202 helper相同的一次原fetch、同Promise/Response、读错即失败及finally实际join/release/restore/delete边界适用；clone tee不能证明原stream尾部时序。新候选三顶层定向结果尚待记录。
+
+input09的202 JSON观察不再依赖CDP body查找。PW原POST/status事件断言保持；页面fetch wrapper调用原fetch一次，及时返回同一原Promise/Response，旁路克隆指定POST的202响应，有界600000字节（不超原client上限）读至EOF/JSON解析，再实际join cancel/release。任何读取、解析、取消错误都令测试失败；finally恢复fetch、join读取、删除状态。原完整shape/literal及known/unknown相等断言保持。`Response.clone()`会tee并改变原body分支，因此此instrumentation只证明实际202 JSON，不能证明未instrument原stream/owner时序；reset204及独立actual-tail证据不使用它。
+
+`clone-observer-diagnostic.cjs`从固定input09 spec的AST提取原安装函数，而非复制实现；纯本地实际HTTP+Chromium 3场景各1POST，valid/invalid/join均记录samePromise/sameResponse/bodyWasTeed=true；错误返回失败、EOF前finish仍pending、最终clone锁释放/fetch还原/状态删除全部通过，另验证无请求cleanup。原件 `clone-observer-diagnostic-result.json` 与 `logs/clone-diagnostic01.log` SHA256 07c2d553676336755613e29c593983e7b92938cb21e949f16bf5641b143dde0d；driver/observer exit0、1.33s、12PID双清、0新Docker且2c4n不变。独立另用40个纯本地合成202对比CDP生命周期，全部可读、未复现正式错误；根因仍未知，不能把立即读或生产cancel确认为原因。
+
+每轮保存command/env、原始log/hash/exit、源/依赖运行前后hash、nonce精确资源ID、PID/start与实际wait、双遍清理。只有driver与observer退出、exact资源absent两遍、原2c4n基线不变、所属PID/browser runtime/tmp为空才交窗。
+
+## 验证边界与技能
+
+真实交付渠道仅backend_log；smtp DTO/UI纯测及既有D07后端证据不能冒充新增SMTP投递/browser验收。CSS zoom=2只验证CSS重排，不是原生浏览器缩放；原生主题偏好通过真实appearance UI保存，system跟随媒体，reduced-motion检查实际computed时长/animation。生产SPA托管、真实Vite proxy、完整D26/D27、readyz503和已知Object Runtime join缺陷不在本卡已完成声明内。
+
+使用技能：agenteam-design、agenteam-vue-development、vue-testing-best-practices（含async/composable/Playwright相关参考）、agenteam-go-development、可用playwright-cli技能。均已按本卡资源与隐私规则约束使用；没有新增包或升级锁。

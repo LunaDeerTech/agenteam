@@ -1,0 +1,50 @@
+
+ RUN  v4.1.11 /workspace/scratch/d26-core-verification-3syc0er6/input/web
+
+ ↓ src/tests/core-independent.spec.ts > independent frozen core01 causal combinations > keeps original anonymous intent across deadline, actual body tail, settled 410 and CSRF invalidation
+ × src/tests/core-independent.spec.ts > independent frozen core01 causal combinations > quarantines prior Session facts when confirmed reset Session GET exceeds the visible deadline 27ms
+   → expected { atDeadline: { …(3) }, …(1) } to deeply equal { atDeadline: { …(3) }, …(1) }
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/core-independent.spec.ts > independent frozen core01 causal combinations > quarantines prior Session facts when confirmed reset Session GET exceeds the visible deadline
+AssertionError: expected { atDeadline: { …(3) }, …(1) } to deeply equal { atDeadline: { …(3) }, …(1) }
+
+- Expected
++ Received
+
+  {
+    "afterTail": {
+-     "hasSession": false,
+-     "personalPhase": "checking",
+-     "phase": "unavailable",
++     "hasSession": true,
++     "personalPhase": "current",
++     "phase": "authenticated",
+    },
+    "atDeadline": {
+-     "hasSession": false,
+-     "personalPhase": "checking",
+-     "phase": "unavailable",
++     "hasSession": true,
++     "personalPhase": "current",
++     "phase": "authenticated",
+    },
+  }
+
+ ❯ src/tests/core-independent.spec.ts:119:39
+    117|     const afterTail = { phase: f.auth.state.phase, hasSession: f.auth.…
+    118|     f.auth.entry.abandon()
+    119|     expect({ atDeadline, afterTail }).toEqual({
+       |                                       ^
+    120|       atDeadline: { phase: 'unavailable', hasSession: false, personalP…
+    121|       afterTail: { phase: 'unavailable', hasSession: false, personalPh…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 skipped (2)
+   Start at  00:43:16
+   Duration  704ms (transform 109ms, setup 0ms, import 175ms, tests 28ms, environment 369ms)
+

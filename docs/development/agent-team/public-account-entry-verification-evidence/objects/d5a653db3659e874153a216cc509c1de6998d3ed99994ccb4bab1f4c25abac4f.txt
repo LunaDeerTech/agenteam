@@ -1,0 +1,21 @@
+
+ RUN  v4.1.11 /workspace/scratch/d26-core-verification-3syc0er6/input03/web
+
+ ↓ src/tests/core-independent.spec.ts > independent frozen core01 causal combinations > keeps original anonymous intent across deadline, actual body tail, settled 410 and CSRF invalidation
+ ✓ src/tests/core-independent.spec.ts > independent frozen core01 causal combinations > quarantines prior Session facts when confirmed reset Session GET exceeds the visible deadline 20ms
+ ↓ src/tests/account-entry-state.spec.ts > public Account shared ownership > prepares anonymous authority alongside a stable existing Session and reuses bootstrap
+ ↓ src/tests/account-entry-state.spec.ts > public Account shared ownership > retains exact original key/body/context through Unknown, 410 and explicit replay without inspect
+ ↓ src/tests/account-entry-state.spec.ts > public Account shared ownership > distinguishes invalid anonymous CSRF from invalid Session and refuses context replacement
+ ↓ src/tests/account-entry-state.spec.ts > public Account shared ownership > keeps the actual body/cancel tail after the 30 second visible deadline
+ ✓ src/tests/account-entry-state.spec.ts > public Account shared ownership > confirms reset once before its Session check: other-user 21ms
+ ✓ src/tests/account-entry-state.spec.ts > public Account shared ownership > confirms reset once before its Session check: revoked 3ms
+ ✓ src/tests/account-entry-state.spec.ts > public Account shared ownership > confirms reset once before its Session check: unavailable 4ms
+ ✓ src/tests/account-entry-state.spec.ts > public Account shared ownership > quarantines old identity on reset GET deadline, abandoned=false 5ms
+ ✓ src/tests/account-entry-state.spec.ts > public Account shared ownership > quarantines old identity on reset GET deadline, abandoned=true 2ms
+ ✓ src/tests/account-entry-state.spec.ts > public Account shared ownership > finishes reset reconciliation after the page abandons, without publishing old progress 2ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed | 5 skipped (12)
+   Start at  00:43:27
+   Duration  1.30s (transform 151ms, setup 0ms, import 315ms, tests 60ms, environment 698ms)
+

@@ -12,7 +12,7 @@ OpenAI Chat wire 库已验 `openai-chat-text-v1` 与 `openai-chat-structured-v1`
 
 ## 构建与验证
 
-D07 的账号、Session、邀请、密码恢复、挑战、Profile/Avatar/偏好和 System HTTP 已装配进 Central，构造、恢复与官方 Vue 浏览器 harness 见[账号说明](account.md)。SMTP 三模式、受限恢复日志、持久 attempt 与人工重试见[账号邮件说明](accountmail.md)。D26 [认证](../agent-team/d26-authentication-verification.md)和[个人设置](../agent-team/personal-settings-verification.md)已有各自产品页面验收，公开 Account 入口当前仍在实现/真实浏览器验证，其他 D26/D27 页面未完成；独立测试 harness 本身不作为产品 UI。
+D07 的账号、Session、邀请、密码恢复、挑战、Profile/Avatar/偏好和 System HTTP 已装配进 Central，构造、恢复与官方 Vue 浏览器 harness 见[账号说明](account.md)。SMTP 三模式、受限恢复日志、持久 attempt 与人工重试见[账号邮件说明](accountmail.md)。D26 [认证](../agent-team/d26-authentication-verification.md)和[个人设置](../agent-team/personal-settings-verification.md)已有各自产品页面验收，[公开 Account 入口](../agent-team/public-account-entry-verification.md)的 25 路径范围已验收并以 `787a5c7` 提交推送；生产 SPA 托管及完整 D26/D27 仍未完成，独立测试 harness 本身不作为产品 UI。
 
 ```sh
 # 指向实际 Go 1.27.1；该环境可使用 /workspace/toolchains/go1.27.1/bin/go。

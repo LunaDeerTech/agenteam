@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestAccountPublicEntryIndependentResetAuthority$"
+  ],
+  "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input08",
+  "env": {
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-v-mainpf2",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOCACHE": "/workspace/scratch/d26-ui-verification-mainp_f2/real/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/d26-ui-verification-mainp_f2/real/overlay-input08.json -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/d26-ui-verification-mainp_f2/real/tmp"
+  },
+  "input": "/workspace/agenteam-public-entry-author-kWHbv4/input08-manifest.json",
+  "input_sha256": "0726c646bef31043e190a6c2261c0a7074069ad07849a6fe07efff2bcb7a02d2",
+  "note": "only safe explicit environment; credentials remain inside original owned fixture",
+  "observer_argv": [
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/run_fixture.py",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/browser-plan-independent-input08.json",
+    "0"
+  ],
+  "observer_sha256": "fa0815a2b67114adf744c51a2807b4702e66837f478f33fe0464e843ba84e492",
+  "plan_sha256": "9e7e6f8535a9edcdc5e254725c9b165fa21ada069acd1bd61dfcb7498a59b843"
+}

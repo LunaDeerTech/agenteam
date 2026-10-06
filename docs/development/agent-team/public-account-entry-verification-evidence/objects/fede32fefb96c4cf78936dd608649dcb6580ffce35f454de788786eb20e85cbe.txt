@@ -1,0 +1,23 @@
+--- rev4
++++ rev5
+@@ -1,4 +1,6 @@
+ # D26 邀请兑换与找回、重置密码公开入口
++
++修订：rev5，2026-10-06，仅增加 §14 的同一改密接口两个400观察点补遗，仍为25路径。原rev1–4正文和失败记录保留；只修测试正文采样，字段错误、后续业务断言、生产输入及预算不变。精确候选仍先经独立核验及主线程审阅，再定向复验。
+ 
+ 修订：rev4，2026-10-06，仅增加 §13 的第二个既败旧响应观察点补遗，路径总数仍为25。原rev1–3正文与记录保留；新增范围只涉及旧密码拒绝登录的单次401 JSON采样，原产品规则、业务断言、预算和资源门槛保持。补遗及精确候选仍先交主线程审阅。
+ 
+@@ -278,3 +280,13 @@
+ 该点之后原密码输入清空、初始密码提示清除、敏感材料缺席、最终User/Session/version和两次写入结果保持；Go侧精确两次命令/Audit、两条原Session以 `password_changed` 撤销、替换Session仍有效及其后CSRF写入事实全部保持。不得以仅401状态或UI错误文字替代原Problem code，不放宽Session或持久状态断言。
+ 
+ 新候选保留原input11及失败原件，提供25路径manifest与旧spec相对input11的精确差量，并完成受影响type/Go检查。独立核闭集两个观察点及未改断言后，由主线程审阅归位，定向复验受影响 `PasswordRotation`；§12的Theme及 §11的Privacy仍须完成各自受影响验证。允许沿主线程核准的原selector合并分组，原45s/2分钟/每包6m、race/count1、workers=1/retries=0及独占双清不变。此补遗不增加第26路径，不改变已验组合生产输入，也不新增产品、后端、SQL或依赖范围。
++
++## 14. rev5 改密字段错误观察点补遗（2026-10-06）
++
++input12 的三顶层定向复验中，`PrivacyAndProduction` 与 `ThemeAndNavigation` 已通过；`PasswordRotation` 在错误当前密码触发真实 `POST /api/v1/me/change-password` 返回400后，旧 `wrong.json()` 发生CDP正文取回失败。该点的 `field_errors` 及其后改密/Session/PG断言未完成，因此本轮Password仍为失败。相邻弱密码400的 `weak.json()` 使用同一采样方式，本轮尚未到达；不能将它记为已观测失败，也不等待其再次随机失败才修正同一观察方式。保留本轮首红、实际退出与原清理事实；不宣称产品body丢失或已确定CDP根因。
++
++主线程仅授权在第25路径的现有helper闭集中增加 `POST /api/v1/me/change-password`、400这一目标，并替换上述错误当前密码和相邻弱密码两个正文观察点。每次仍限定同源、一次原真实点击、一次原fetch及其400响应；保持原Playwright响应事件、状态和请求次数约束。两个 `field_errors` 断言逐字保留，分别含 `{ path: '/current_password', code: 'INVALID' }` 与 `{ path: '/password', code: 'PASSWORD_WEAK' }`，不以仅400、UI文字或任一字段错误替代。
++
++沿 §12–13 的同一原生Promise/Response、完整且有界JSON读取、失败显式、finally实际join/cancel/release/restore/delete及tee边界。helper仍只接受三个闭集接口/方法/状态目标；不重发、不替换响应、不扩大超时、不读取或记录密码请求体。此补遗不扩展已通过的Profile重复字段观察点、页面内原生 `response.json()` 或其它旧测试。
++
++两个400之后的字段可编辑、严格成功换发Session、另一真实上下文撤销、原新密码登录及旧密码401、密码清空、初始提示清除、敏感材料缺席和最终结果全部保持；Go侧原精确两次命令/Audit、原Session撤销与替换Session/CSRF写入等断言不变。input13保留input12及其失败原件，提供唯一旧spec差量、25路径manifest和受影响type检查；Go源码不变可明确复用input12编译/vet。独立静核及主线程采纳后，只定向重跑原 `TestAccountPersonalSettingsWebPasswordRotation`，其余已通过顶层及独立组合按不变范围复用。原45s/2分钟/每包6m、race/count1、workers=1/retries=0和独占资源双清门槛不变；不增加第26路径或产品、后端、SQL、依赖范围。

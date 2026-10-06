@@ -1,0 +1,92 @@
+import { afterEach, expect, test, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { type Fetch } from '../api/client'
+import { createSessionController } from '../composables/useSession'
+
+const user = '01900000-0000-7000-8000-000000000001'
+const instant = '2026-10-05T12:34:56.123456Z'
+const token = user + '.' + 'x'.repeat(43)
+const password = ' private synthetic password 12345 '
+const view: SessionView = {
+  user: { id: user, email: 'a@example.com', username: 'user-a', display_name: 'A', role: 'user', theme: 'dark', version: '1', initial_password_suggestion: false },
+  session: { id: '01900000-0000-7000-8000-000000000002', issued_at: instant, absolute_expires_at: instant, idle_expires_at: instant },
+  csrf_token: 'S'.repeat(43),
+}
+const json = (value: unknown) => new Response(JSON.stringify(value), { headers: { 'Content-Type': 'application/json' } })
+function response204(stream: ReadableStream<Uint8Array>) {
+  // The constructor rejects a non-null 204 body. A controlled Fetch response
+  // models the observed network case independently of that constructor rule.
+  const response = new Response(stream)
+  Object.defineProperty(response, 'status', { value: 204 })
+  return response
+}
+function fixture(response: Response) {
+  const fetch = vi.fn<Fetch>(async (path) => {
+    if (path === '/api/v1/session') return json(view)
+    if (path.endsWith('/bootstrap')) return json({ csrf_token: 'A'.repeat(43), challenge_modes: ['rotate'], delivery_channel: 'backend_log' })
+    return response
+  })
+  return { fetch, auth: createSessionController(createAccountAPI(fetch)) }
+}
+const input = { token, new_password: password, confirmation: password }
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks() })
+
+test('confirms an actually empty 204 stream and reconciles the exact current Session once', async () => {
+  const f = fixture(response204(new ReadableStream({ start(controller) {
+    controller.enqueue(new Uint8Array(0))
+    controller.close()
+  } })))
+  await f.auth.entry.prepare()
+  const result = await f.auth.entry.completePasswordReset(input).catch((error: unknown) => error)
+  expect(result).toMatchObject({ commandConfirmed: true, session: { kind: 'authenticated' } })
+  expect(f.auth.state.session?.id).toBe(view.session.id)
+  expect(f.auth.entry.progress?.phase).toBe('confirmed')
+  expect(f.fetch.mock.calls.filter(([path]) => path === '/api/v1/session')).toHaveLength(2)
+  expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/complete'))).toHaveLength(1)
+  await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+  f.auth.entry.abandon()
+})
+
+test('holds the shared owner through a 204-body deadline and actual cancellation tail without confirming', async () => {
+  vi.useFakeTimers()
+  let finishCancellation!: () => void
+  const tail = new Promise<void>((resolve) => { finishCancellation = resolve })
+  let cancellationStarted = false
+  const f = fixture(response204(new ReadableStream({ cancel() {
+    cancellationStarted = true
+    return tail
+  } })))
+  await f.auth.entry.prepare()
+  const pending = f.auth.entry.completePasswordReset(input).catch((error: unknown) => error)
+  await flushPromises()
+  const beforeDeadline = { busy: f.auth.state.busy, cancelled: cancellationStarted, phase: f.auth.entry.progress?.phase }
+  await vi.advanceTimersByTimeAsync(30_000)
+  expect(await pending).toMatchObject({ kind: 'cancelled' })
+  expect(cancellationStarted).toBe(true)
+  expect(f.auth.state.busy).toBe(true)
+  await expect(f.auth.entry.prepare()).rejects.toMatchObject({ kind: 'busy' })
+  await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'busy' })
+  finishCancellation()
+  await flushPromises()
+  expect(f.auth.state.busy).toBe(false)
+  expect(f.auth.entry.progress).toMatchObject({ phase: 'uncertain', canRetryOriginal: true })
+  expect(f.fetch.mock.calls.filter(([path]) => path === '/api/v1/session')).toHaveLength(1)
+  expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/complete'))).toHaveLength(1)
+  expect(f.auth.state.session?.id).toBe(view.session.id)
+  f.auth.entry.abandon()
+  expect(beforeDeadline).toEqual({ busy: true, cancelled: false, phase: 'submitting' })
+})
+
+test.each(['nonempty', 'read-error'])('does not confirm a 204 stream with %s evidence', async (kind) => {
+  const f = fixture(response204(new ReadableStream({ start(controller) {
+    if (kind === 'nonempty') { controller.enqueue(new Uint8Array([1])); controller.close() }
+    else controller.error(new Error('synthetic body read failed'))
+  } })))
+  await f.auth.entry.prepare()
+  await expect(f.auth.entry.completePasswordReset(input)).rejects.toMatchObject({ kind: 'invalid-response' })
+  expect(f.auth.entry.progress?.phase).toBe('uncertain')
+  expect(f.fetch.mock.calls.filter(([path]) => path === '/api/v1/session')).toHaveLength(1)
+  expect(f.auth.state.session?.id).toBe(view.session.id)
+  f.auth.entry.abandon()
+})

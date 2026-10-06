@@ -1,0 +1,54 @@
+[
+  {
+    "input": "input04",
+    "manifest": "/workspace/agenteam-public-entry-author-kWHbv4/input04-manifest.json",
+    "manifest_sha256": "f02788fe3f20e8df679938b624fc8c8221a76a352ebcdca08a9afe79f291d013",
+    "checked": 985,
+    "mismatches": [],
+    "changed_since_input03": [
+      "tests/account-captcha-web/e2e/account-entry.spec.ts",
+      "tests/account/account_entry_web_fixture_test.go",
+      "tests/account/account_entry_web_test.go"
+    ],
+    "fixed_dependencies_and_dist_same_as_input03": true
+  },
+  {
+    "input": "input05",
+    "manifest": "/workspace/agenteam-public-entry-author-kWHbv4/input05-manifest.json",
+    "manifest_sha256": "45640d808e7ce2efbbf22b54bd5786218d86637654e133fd07880707b6e1b816",
+    "checked": 985,
+    "mismatches": [],
+    "changed_since_input03": [
+      "tests/account-captcha-web/e2e/account-entry.spec.ts",
+      "tests/account/account_entry_web_fixture_test.go",
+      "tests/account/account_entry_web_test.go"
+    ],
+    "fixed_dependencies_and_dist_same_as_input03": true
+  },
+  {
+    "input": "input06",
+    "manifest": "/workspace/agenteam-public-entry-author-kWHbv4/input06-manifest.json",
+    "manifest_sha256": "95c029cfd2b3bf6bb68ebb34373f16ef95f2cfac029b82a03b54d8ad5fba99b1",
+    "checked": 985,
+    "mismatches": [],
+    "changed_since_input03": [
+      "tests/account-captcha-web/e2e/account-entry.spec.ts",
+      "tests/account/account_entry_web_fixture_test.go",
+      "tests/account/account_entry_web_test.go"
+    ],
+    "fixed_dependencies_and_dist_same_as_input03": true
+  },
+  {
+    "input": "input07",
+    "manifest": "/workspace/agenteam-public-entry-author-kWHbv4/input07-manifest.json",
+    "manifest_sha256": "e0898c56572f9524083b53f8cf94abc2958f55c0d43d30a9b0082a637ae2ef95",
+    "checked": 985,
+    "mismatches": [],
+    "changed_since_input03": [
+      "tests/account-captcha-web/e2e/account-entry.spec.ts",
+      "tests/account/account_entry_web_fixture_test.go",
+      "tests/account/account_entry_web_test.go"
+    ],
+    "fixed_dependencies_and_dist_same_as_input03": true
+  }
+]

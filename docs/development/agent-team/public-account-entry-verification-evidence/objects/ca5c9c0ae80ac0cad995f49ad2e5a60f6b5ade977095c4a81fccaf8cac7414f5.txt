@@ -1,0 +1,19 @@
+{
+  "recommendation_sha256": "6cc057eb2014cdb121867454fe65ee237571d437d6610cb637d3e37e64ff3555",
+  "accepted_inputs_sha256": "f857a421486a2ac6208ae0cac586bd4071ad8272cb4d445a104881c55f4cc0ec",
+  "filesystem_delta_sha256": "1f843426e5b549624f58efc058723ebbc79e5f97e70ecea65648df0520b5e587",
+  "accepted_diffs": {
+    "internal/central/secret/write.go": {
+      "diff": "write-accepted.diff",
+      "sha256": "070af5ed0266650711193c7f744a6a537553f28817688178fd8fe6d2630ea155"
+    },
+    "internal/central/model/http.go": {
+      "diff": "http-accepted.diff",
+      "sha256": "85050c1ea45846afc0da6243c93b71b6342bd4ee2212b5c11ba71acc9408a572"
+    },
+    "internal/central/identity/contract/identity.go": {
+      "diff": "identity-accepted.diff",
+      "sha256": "96225535d425cbde33ce0c61b16cd0eaca6dd20a76827c83571c28fa6c3f936c"
+    }
+  }
+}

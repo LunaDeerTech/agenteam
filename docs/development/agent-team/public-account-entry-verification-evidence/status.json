@@ -1,0 +1,32 @@
+{
+  "status": "ACCEPTED: public Account entry 25-source scope; 12 original real top-level cases passed across frozen inputs; independent final PASS and root delivery",
+  "accepted": true,
+  "source_commit": "787a5c7eeadf5e5f37bab97cbf030b4a745b72af",
+  "remote_equal_reported_by": "root",
+  "author_top_passes_frozen": 12,
+  "author_top_count": 12,
+  "reuse": "9 input09 passes + 2 input12 passes + final Password input13; not one full input13 run",
+  "candidate_input": "input13",
+  "candidate_manifest_sha256": "f824cf28b414a2b41276ae383342fd9bb861987784623929b0e35690ceff9fd4",
+  "retained_manifest_metadata": "task_revision stale rev2/24th text preserved; actual rev5/25-path ownership and fixed source hashes govern",
+  "independent_final_report_sha256": "604583a999b579c52ef9df2680028da309a5bfc3b64a251731266a4622d0a8b5",
+  "author_final_index_sha256": "39ba8405f1792eb8660c131c7280960d421473fb5a71baa22f498618292bc631",
+  "independent_input08_and_accepted_backend_composition": "PASS within fixed scope, including actual target18 / PG journal and usage tables",
+  "tested_dist": "frozen input13 15 assets equal frozen input08; live earlier worktree dist was not an input",
+  "last_author_run": {
+    "driver_exit": 0,
+    "observer_actual_wait_exit": 0,
+    "raw_sha256": "3490e92ab4277ac7c22cf33232619d0464005617d356c9cd8cb7905192a1b81c",
+    "seconds": 140.62973189353943,
+    "exact_resource_ids_double_absent": 7,
+    "browser_pids_terminated": 19,
+    "baseline_containers": 2,
+    "baseline_networks": 4,
+    "baseline_unchanged": true,
+    "runtime_and_tmp_empty": true,
+    "coordinator_returned_at": "2026-10-06 02:33:35 UTC"
+  },
+  "tools_task": "independent dynamic NOT RUN / automatic safety screening blocked; 14 product files uncommitted; remains stopped outside this task",
+  "anthropic_task": "accepted specification only; implementation not authorized",
+  "archive_operations": "local copying and hashes only; no archived script/business/browser/Docker/network execution"
+}

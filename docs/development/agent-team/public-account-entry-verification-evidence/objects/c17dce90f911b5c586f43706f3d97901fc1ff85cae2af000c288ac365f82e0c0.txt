@@ -1,0 +1,36 @@
+# D26 public entry core01 — independent review
+
+Result: **FAIL, C-F1 requires a narrow correction**. This is a frozen core review; it does not accept pages, router, production dist, Go fixture, browser flows, or complete D26.
+
+Input: /workspace/agenteam-public-entry-author-kWHbv4/core01/manifest.json, SHA-256 `c73d5115dc8d2109921ccb956b9e0f18d5ea5179e27db1446c8e9b39564f0a11`. All 9 frozen source/test files and 4 declared dependencies matched. The 7 author-supplied c54 baseline files match the persistent 31-source specification manifest in both SHA-256 and length. Four old mock changes only add the five explicit unexpected-call implementations; prior assertions remain unchanged. No Git operation was used.
+
+## C-F1: confirmed reset deadline retains old authenticated Session facts
+
+Frozen useSession.ts lines 1104–1132: the visible 30-second timer calls rejected(), which publishes session-unconfirmed for an already-confirmed reset and resolves the caller with commandConfirmed=true, but leaves state.phase=authenticated, state.session populated, and personalContext.phase=current. It then marks the operation expired. performEntry's later Session GET completion cannot correct those facts because valid(op) is false.
+
+Independent reproduction uses the real Account client/controller with a controlled fetch barrier: establish a valid Session plus anonymous context; return a strict reset 204; hold the following GET; advance the actual existing 30-second visible budget; release the GET tail. At both deadline and tail completion the controller still presents the old authenticated/current Session although its result says unconfirmed. This is distinct from a real 200 proving a still-valid other user's Session or a real 401 proving revocation. The safe failure state should retain the confirmed command while quarantining current Session authority until explicitly checked, and must not resend reset.
+
+The author and root were notified immediately. A page that abandons during that same actual owner must still receive safe global Session reconciliation; page revision should only suppress the old page feedback. This is an implementation obligation, not a new product decision.
+
+## Actual independent run
+
+Command, cwd and exit are saved in core01-review-input.json:
+- cwd: input/web under this private directory.
+- argv: node node_modules/vitest/vitest.mjs run --config vitest.config.mjs
+- Node 24.19.0, locked Vitest 4.1.11, jsdom; exit 1.
+- 2 causal combinations: 1 PASS, 1 FAIL. No skipped tests.
+- Probe SHA-256: `8854ece7bf1a2595b5355f71127a54547b9a0689cc9ba2e37fd02887fff11baa`.
+- Raw log probe01.log SHA-256: `9cb1bc864ad4d0379a1c6e166b433ff9dfa3b31ee8e6a99959878c31a5651861`.
+
+The passing combination observes one original anonymous write across visible timeout and a genuinely pending response-body cancel promise, then releases that actual tail before testing auth/personal/prepare/inspect exclusion. Explicit retries preserve the full original body, anonymous CSRF and key through a 410 and a later CSRF rejection. Historical Unknown remains; context invalidation disables replay without another bootstrap. The valid Session remains intact for an anonymous CSRF failure. This is pure controlled-dependency evidence, not real PostgreSQL Unknown or live Cookie contention.
+
+The failing combination confirms exactly one reset POST, separates strict 204 from GET, verifies actual owner remains occupied at timeout, and prevents original reset replay. Only its Session-authority quarantine assertions fail.
+
+## Author evidence and reuse boundary
+
+Read core-unit-01.log (vitest unavailable during dependency installation), core-unit-02.log (24 PASS / 2 files), unit-01.log (134 PASS / 11 files), type-check-02.log and core01-handoff/commands.json. The author marks the 24 tests/type check as pre-format with unchanged semantics; the 134-test run used the formatted core but then-active UI. These are recorded author results, not final frozen page evidence. The first dependency preparation error is retained and is not classified as a product assertion failure.
+
+Static checks find the five typed POST endpoints and strict success DTOs match the specification, inspect sends no idempotency key, all new calls use the anonymous CSRF, original authentication and personal API signatures remain, and mutations capture primitive inputs before awaiting. Remaining integrated material cleanup and route lifecycle obligations require the page owner/router/App frozen group.
+
+Only four necessary product dependency files were copied into a private test input, plus this independent probe/configuration; no whole-tree copy, product/test-source edits in the repository, ledger edits, Git operations, Go/Docker or product browser execution. The process exited and frozen input end-checks still match. Await core02; rerun the affected confirmation combination against its verified fixed input while preserving this original failure.
+

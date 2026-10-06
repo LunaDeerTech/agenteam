@@ -1,0 +1,58 @@
+{
+  "cwd": "/workspace/scratch/d26-ui-verification-mainp_f2/combined01/input",
+  "input": "/workspace/scratch/d26-ui-verification-mainp_f2/combined01/manifest.json",
+  "input_sha256": "6443965d6806efbae71e0f83e33347bb794372d7e3e877a0e206cfcd10a6f03e",
+  "trusted_baseline": {
+    "path": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/trusted-baseline.json",
+    "sha256": "3f3279059d33ceee352c66e95428db385150507e3ee0ecd070e5346f919f3ec7"
+  },
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOCACHE": "/workspace/scratch/d26-ui-verification-mainp_f2/real/gocache",
+    "TMPDIR": "/workspace/scratch/d26-ui-verification-mainp_f2/combined01/tmp",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/d26-ui-verification-mainp_f2/combined01/overlay.json -v",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-v-main01"
+  },
+  "groups": [
+    {
+      "name": "combined-reset-authority-01",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestAccountPublicEntryIndependentResetAuthority$"
+      ]
+    }
+  ],
+  "verification_inputs": {
+    "/workspace/scratch/d26-ui-verification-mainp_f2/combined01/independent_reset_authority_test.go": "9869ebc9cd2ace6c6221a653b91706ff620ea899e75ca3b094750d4024dfd5a2",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/combined01/account_entry_web_fixture_overlay_test.go": "8f313a65b014c06416e4b6bbf6300af7d3457fdc49def2aa04e99e2a551a58ff",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/combined01/overlay.json": "9d3029443a1b4313fd4e6ac79db1d0d679eacbfe7adda6125b7b8138b149a51a",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/probe02/account-entry.config.js": "726acba4ba01654dbaba17eb127a526a97cd0f6c5e8049e0c0990405a1f95064",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/probe02/e2e/independent-reset-authority.spec.ts": "d4cf010aabb7c9b5f93c9be1c088fad7969ab5e497e1cd1020990cc30a9d8e39",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/real/probe02/package.json": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/combined01/run_fixture.py": "db39c2930226a9d3343247769bb86a884bec0f5c849188606f9f5b26478c4fab"
+  },
+  "budgets": {
+    "race": true,
+    "count": 1,
+    "go_package": "6m",
+    "go_browser_top_level": "2m",
+    "playwright_case_ms": 45000,
+    "workers": 1,
+    "retries": 0
+  },
+  "provenance": {
+    "root_authorized": "Final public entry input09 plus accepted management13 and ledger20; original independent business assertions with only read-only compiled migration18/installed checksum/table precondition.",
+    "source_authority": "Frozen composite manifest, not moving shared worktree. Exactly1012 files; no active tools14 included.",
+    "browser_probe_reuse": "Exact previous passing independent browser case/config bytes; no202 clone instrumentation.",
+    "dynamic_status": "NOT_RUN; exclusive coordinator window required."
+  }
+}

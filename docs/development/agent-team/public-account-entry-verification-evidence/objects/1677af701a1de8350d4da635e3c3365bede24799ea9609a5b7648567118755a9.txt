@@ -1,0 +1,60 @@
+[
+  {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-tags=integration",
+      "-race",
+      "-c",
+      "-o",
+      "/workspace/scratch/d26-ui-verification-mainp_f2/real/bin/independent-input07.test",
+      "./tests/account"
+    ],
+    "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input07",
+    "env": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+      "GOCACHE": "/workspace/scratch/d26-ui-verification-mainp_f2/real/gocache",
+      "TMPDIR": "/workspace/scratch/d26-ui-verification-mainp_f2/real/tmp",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/d26-ui-verification-mainp_f2/real/overlay-input07.json",
+      "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-v-mainpf2"
+    },
+    "exit": 0,
+    "seconds": 89.38901805877686,
+    "log": "/workspace/scratch/d26-ui-verification-mainp_f2/real/go-compile-01.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "-tags=integration",
+      "./tests/account"
+    ],
+    "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input07",
+    "env": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+      "GOCACHE": "/workspace/scratch/d26-ui-verification-mainp_f2/real/gocache",
+      "TMPDIR": "/workspace/scratch/d26-ui-verification-mainp_f2/real/tmp",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/d26-ui-verification-mainp_f2/real/overlay-input07.json",
+      "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-v-mainpf2"
+    },
+    "exit": 0,
+    "seconds": 63.143975496292114,
+    "log": "/workspace/scratch/d26-ui-verification-mainp_f2/real/go-vet-01.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

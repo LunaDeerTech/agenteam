@@ -1,0 +1,14 @@
+{
+  "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+  "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+  "GOTOOLCHAIN": "local",
+  "GOENV": "off",
+  "GOWORK": "off",
+  "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+  "GOCACHE": "/workspace/scratch/d26-ui-verification-mainp_f2/real/gocache",
+  "TMPDIR": "/workspace/scratch/d26-ui-verification-mainp_f2/real/tmp",
+  "GOPROXY": "off",
+  "GOSUMDB": "off",
+  "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/d26-ui-verification-mainp_f2/real/overlay-input08.json",
+  "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-v-mainpf2"
+}

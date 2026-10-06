@@ -1,0 +1,24 @@
+# D26 公开账号入口 core03 独立核心复验
+
+结论：**核心定向审查/复验通过，C-F1 已闭合**。不代表页面、路由、真实后端/浏览器或完整 D26 已验收。
+
+冻结输入为 /workspace/agenteam-public-entry-author-kWHbv4/core03/manifest.json，SHA-256 `ac568e2bdb6fd279d00660df3b04f63baf34723f4d9f313bfabdd2c9fe913ee8`。9 源及 4 声明依赖在运行前后逐项匹配；core03-review-input.json 保存实际指纹、argv、cwd、exit 与复用范围。相比 core01，产品仅 useSession.ts 的已确认 reset 分支和 Operation 标记发生变化，两个 client 源、四旧 mock 未变。
+
+## 结果
+
+- 原独立 C-F1 probe 字节未改，SHA-256 `8854ece7bf1a2595b5355f71127a54547b9a0689cc9ba2e37fd02887fff11baa`。reset 204 后 GET 超时的原反例由失败变为通过：旧 Session 不再公开为 authenticated/current，命令仍 confirmed，原 actual owner 保留至尾部结束，没有再次 reset POST。
+- 独立运行固定作者 6 个受影响分支：GET 200 的另一有效身份、GET 401、GET 503、保留页/放弃页的 deadline、放弃页后 GET 成功，均通过。sessionReconciled 防止已经确认的真实身份被旧页面取消结果误清。
+- 本轮选择器 `quarantines|confirms reset once|finishes reset reconciliation`，共 7 PASS、5 条按选择器未运行，exit 0；不是 12 项全跑。probe03.log SHA-256 `d5a653db3659e874153a216cc509c1de6998d3ed99994ccb4bab1f4c25abac4f`。
+- 独立 Unknown/actual-tail/原 key+CSRF+body/410/CSRF 失效组合复用 core01 的 PASS；这次修复只影响 op.confirmed 的 reset 分支，不影响该组合的生产路径或依赖。
+- 已对照 c54 七份稳定原件及持久规格输入核 SHA/长度，四旧 mock 仅补完整接口且意外调用明确拒绝，旧断言未改。五个真实 POST、严格 DTO、inspect 无 key、匿名 CSRF、同步捕获原输入等静态核对见 report-core01.md。
+
+## 保留证据与限制
+
+core01 原独立 1 PASS/1 FAIL 及全部固定输入保留。作者 core02 首修的离页成功误清回归、第二次误改旧 guard 后同红、core03 20 项作者通过日志分别保留于其交接目录；core03 产品差量没有遗留无关旧 run 改动。
+
+本验收者首次复验时误用 input/web 旧 cwd，再次得到 core01 原红；该原日志/exit 与解释保存为 probe03-old-input.*。随后修正为 input03/web 得到本报告结果，不将旧输入重复失败记为 core03 产品失败。
+
+作者原 24 pure/type-check 在格式前运行；134/11 files 的全 unit 使用格式后核心和当时活动 UI。它们是被读核的作者实际记录，不作为最终页面冻结输入通过。最终 UI/router/App/fixture、集成材料清理、最终 npm check/build 和真实浏览器仍待独立验收。这里只使用真实 client/controller 的受控纯依赖，不声称真实 PostgreSQL Unknown 或 Cookie 竞争通过。
+
+私有输入只包含必要的四个生产依赖文件、定向测试与配置；没有全树复制、仓库产品/测试源码/台账修改或 Git 操作。没有 Go/Docker/产品 browser 运行，所有命令已退出，源末核一致。
+

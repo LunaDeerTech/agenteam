@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/workspace/agenteam/web/node_modules/.bin/tsc",
+    "--noEmit",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--lib",
+    "ES2022,DOM",
+    "--strict",
+    "--skipLibCheck",
+    "--typeRoots",
+    "/workspace/agenteam/web/node_modules/@types",
+    "e2e/independent-reset-authority.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/d26-ui-verification-mainp_f2/real/probe02",
+  "exit": 0,
+  "seconds": 1.1381807327270508,
+  "log": "/workspace/scratch/d26-ui-verification-mainp_f2/real/browser-type-02.log",
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

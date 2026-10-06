@@ -1,0 +1,74 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.178.155.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=666883d96c261ca3da92f20986b26134
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=396859e54129a2c6fce14111b644023e
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.022s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.013s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.017s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/process	16.999s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.027s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.018s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.013s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.015s [no tests to run]
+--- FAIL: TestAccountPublicEntryWebPasswordReset (19.62s)
+    account_entry_web_test.go:39: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:355257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:355257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/account-entry.spec.ts:199:1 › [reset] recovery revokes two real Sessions and accepts only the new password
+        [1A[2K  1) e2e/account-entry.spec.ts:199:1 › [reset] recovery revokes two real Sessions and accepts only the new password 
+        
+            Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+        
+            Locator: getByRole('alert')
+            Expected substring: [32m"密码已重置"[39m
+            Received string:    [31m"原请求结果仍未确认。只能重试原请求，或明确放弃。"[39m
+            Timeout: 5000ms
+        
+            Call log:
+            [2m  - Expect "toContainText" with timeout 5000ms[22m
+            [2m  - waiting for getByRole('alert')[22m
+            [2m    9 × locator resolved to <p role="alert" tabindex="-1" data-v-04eaccef="">原请求结果仍未确认。只能重试原请求，或明确放弃。</p>[22m
+            [2m      - unexpected value "原请求结果仍未确认。只能重试原请求，或明确放弃。"[22m
+        
+        
+              201 |     page.getByRole("button", { name: "重置密码", exact: true }).click(),
+              202 |   );
+            > 203 |   await expect(page.getByRole("alert")).toContainText("密码已重置");
+                  |                                         ^
+              204 |   expect(await page.locator('input[type="password"]').count()).toBe(0);
+              205 | }
+              206 |
+                at reset (/workspace/agenteam-public-entry-author-kWHbv4/input07/tests/account-captcha-web/e2e/account-entry.spec.ts:203:41)
+                at /workspace/agenteam-public-entry-author-kWHbv4/input07/tests/account-captcha-web/e2e/account-entry.spec.ts:261:5
+        
+        
+        [1A[2K  1 failed
+            e2e/account-entry.spec.ts:199:1 › [reset] recovery revokes two real Sessions and accepts only the new password 
+        
+    account_entry_web_test.go:39: actual public entry browser failed: exit status 1
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	34.177s
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.016s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.017s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.016s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.014s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.016s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.013s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.017s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.020s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.017s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.011s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce b71409e7c8f31a438a697203c6ab4182
+D04 outbound fixture cleanup checked for nonce 396859e54129a2c6fce14111b644023e
+D05 object fixture exact resource cleanup checked nonce=666883d96c261ca3da92f20986b26134

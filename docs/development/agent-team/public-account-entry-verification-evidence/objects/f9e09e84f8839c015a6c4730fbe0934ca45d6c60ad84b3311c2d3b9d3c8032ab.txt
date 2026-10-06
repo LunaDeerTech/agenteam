@@ -1,0 +1,24 @@
+{
+  "status": "READY_NOT_RUN",
+  "selector": "^TestAccountPublicEntryIndependentResetAuthority$",
+  "manifest_sha256": "6443965d6806efbae71e0f83e33347bb794372d7e3e877a0e206cfcd10a6f03e",
+  "plan_sha256": "c2b5bfe1869b4ab3d3187d20d6371a10e8c92c61134de02feba0992793fd5560",
+  "checks": {
+    "checked": 1012,
+    "mismatches": [],
+    "exact_file_set": true,
+    "frontend23_and_dist_unchanged": true,
+    "accepted33_sha_exact": true,
+    "adapter_all_c54_bytes": true,
+    "observer_syntax": "PASS"
+  },
+  "go_race_compile_exit": 0,
+  "go_vet_exit": 0,
+  "browser_probe_same_as_passed_input08": true,
+  "compiled_symbols": [
+    " 152de00 T github.com/LunaDeerTech/agenteam/tests/account_test.TestAccountPublicEntryIndependentResetAuthority",
+    " 152ed20 T github.com/LunaDeerTech/agenteam/tests/account_test.independentCompiledMigration18",
+    " 152f220 T github.com/LunaDeerTech/agenteam/tests/account_test.independentInstalledMigration18"
+  ],
+  "resources_started": false
+}

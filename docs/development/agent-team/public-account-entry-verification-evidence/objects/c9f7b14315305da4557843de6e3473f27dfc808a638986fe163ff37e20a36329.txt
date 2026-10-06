@@ -1,0 +1,216 @@
+{
+  "role": "frontend_worker",
+  "status": "AUTHOR COMPLETE:12 original tops actuallyPASS by approved semantic reuse; final13 onlyPassword retest0; independent scopePASS accepted/source delivered; ALL-STOP",
+  "source": "/workspace/agenteam-public-entry-author-kWHbv4/input13",
+  "manifest": {
+    "path": "/workspace/agenteam-public-entry-author-kWHbv4/input13-manifest.json",
+    "sha256": "f824cf28b414a2b41276ae383342fd9bb861987784623929b0e35690ceff9fd4"
+  },
+  "plan": {
+    "path": "/workspace/agenteam-public-entry-author-kWHbv4/browser-plan12.json",
+    "sha256": "a5a4871263315409b40ceb43d0062d7203522fb36e0d05f5e621dbaf97b622b9"
+  },
+  "checks": [
+    {
+      "path": "/workspace/agenteam-public-entry-author-kWHbv4/check-input08-command.json",
+      "scope": "current full web check: 151 tests, format/type/build pass"
+    },
+    {
+      "path": "/workspace/agenteam-public-entry-author-kWHbv4/go-input06-commands.json",
+      "scope": "identical Go fixtures: race compile/vet pass"
+    },
+    {
+      "path": "/workspace/agenteam-public-entry-author-kWHbv4/browser-type-input09-command.json",
+      "scope": "current browser spec strict tsc PASS"
+    },
+    {
+      "path": "/workspace/agenteam-public-entry-author-kWHbv4/clone-observer-diagnostic-result.json",
+      "scope": "same frozen install helper extracted: original Promise/Response identity, one real local POST per scenario, clone error fails, EOF/cleanup actual join and release; tee boundary explicit"
+    },
+    {
+      "path": "/workspace/agenteam-public-entry-author-kWHbv4/checks-input12-commands.json",
+      "scope": "final25 two browser specs strict tsc with DOM.Iterable, integration race compile and vet PASS; all actual exited"
+    },
+    {
+      "path": "/workspace/agenteam-public-entry-author-kWHbv4/browser-type-input13-command.json",
+      "scope": "Final changed old browser spec strict tsc PASS"
+    },
+    {
+      "path": "/workspace/agenteam-public-entry-author-kWHbv4/scope-diff-check-input13-command.json",
+      "scope": "25 authorized source paths whitespace check PASS"
+    }
+  ],
+  "real_attempts": [
+    {
+      "name": "new01",
+      "driver_exit": 1,
+      "cleanup_original": false,
+      "cleanup_manual_two_passes": true,
+      "note": "invitation browser passed but SQL UUID/text poststate failed; reset private IPC immediate query failed; no full acceptance",
+      "exit": 1,
+      "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/new01.log",
+      "raw_sha256": "73f110cef106fce01a4b208b70c70a803f59dcd1b0ad73ef2303ef9153cfadd3",
+      "seconds": 128.85806894302368,
+      "evidence": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01"
+    },
+    {
+      "name": "new01-retest01",
+      "driver_exit": 1,
+      "cleanup_original": true,
+      "note": "invitation top passed; reset 202 body CDP observation failed before IPC; sampling root cause unknown",
+      "exit": 1,
+      "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/new01-retest01.log",
+      "raw_sha256": "00f4a8b4d95e36f1537391ffb133f186114b5722f78b0ff16d4f578ec23bb40e",
+      "seconds": 122.27217125892639,
+      "evidence": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest01"
+    },
+    {
+      "name": "new01-retest02",
+      "driver_exit": 1,
+      "cleanup_original": true,
+      "note": "invitation passed; 202 shape observation and actual Outbox IPC progressed; reset received204 but UI uncertain. Actual browser body shape not sampled; independent controlled empty-stream defect found and fixed in input08.",
+      "exit": 1,
+      "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/new01-retest02.log",
+      "raw_sha256": "f71ce6480c4e87abb4d101572ca774c6214aa2185a310688edfc698e482fc3c2",
+      "seconds": 190.3268666267395,
+      "evidence": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest02"
+    },
+    {
+      "name": "new01-retest03",
+      "driver_exit": 1,
+      "cleanup_original": true,
+      "note": "Invitation top/PW PASS; Reset first202 response.json CDP No data found before reset204. No new actual204 body evidence; source unchanged.",
+      "exit": 1,
+      "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/new01-retest03.log",
+      "raw_sha256": "42c6c60c4955ff14f64a98f2957dc882ff18f5e39e352954fdf3072415aa511f",
+      "seconds": 163.3754904270172,
+      "evidence": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest03"
+    },
+    {
+      "name": "new01-retest04",
+      "driver_exit": 0,
+      "cleanup_original": true,
+      "note": "Two original tops and their PW cases PASS; actual202 raw shape, Outbox, reset204, two Session revocations/password assertions and PG poststate verified; input09 unchanged.",
+      "exit": 0,
+      "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/new01-retest04.log",
+      "raw_sha256": "c17ae286e71884d76f913105fc8baa881f5ba22cce6f3ae401f25835837c0f78",
+      "seconds": 164.3958044052124,
+      "evidence": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new01-retest04"
+    },
+    {
+      "name": "new02",
+      "driver_exit": 1,
+      "cleanup_original": false,
+      "cleanup_manual_two_passes": true,
+      "note": "IdentityNavigation PASS; Privacy reset-link PG wait4s absent before layouts. Formal recovery ticker10s found; first run lacked phases, no unique root-cause claim. Runtime exact leftover removed only after ownership/process checks.",
+      "exit": 1,
+      "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/new02.log",
+      "raw_sha256": "15ccebe4756907f851cd310480c05dbb8150ef8f7c9ed73d2726f591eecb0692",
+      "seconds": 75.1990156173706,
+      "evidence": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/new02"
+    },
+    {
+      "name": "auth01",
+      "driver_exit": 0,
+      "cleanup_original": true,
+      "note": "Original SessionLifecycle/RotateChallenge tops and PW PASS; unchanged09.",
+      "exit": 0,
+      "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/auth01.log",
+      "raw_sha256": "dc67f35eeeb2636a1efefc01f5a8b5410bff3557851d2f354fbe57c86d5f8c73",
+      "seconds": 75.19316339492798,
+      "evidence": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth01"
+    },
+    {
+      "name": "auth02",
+      "driver_exit": 0,
+      "cleanup_original": true,
+      "note": "Original RevocationAndExpiry and LayoutsAndProduction tops and PW PASS; unchanged09.",
+      "exit": 0,
+      "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/auth02.log",
+      "raw_sha256": "fe487d46fa502d6d5afcd027d90a7335b0d57c23e77d144ac0c36b9542a79750",
+      "seconds": 68.81792664527893,
+      "evidence": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/auth02"
+    },
+    {
+      "name": "settings01",
+      "driver_exit": 1,
+      "cleanup_original": true,
+      "note": "ProfileAndAvatar PASS; ThemeAndNavigation PUT preferences409 oldspec561 CDP body read FAIL.",
+      "exit": 1,
+      "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/settings01.log",
+      "raw_sha256": "17d20f84d60c4afd64cacbac2952366dba6c50792abd412402947a6fe36fc5f8",
+      "seconds": 70.39812064170837,
+      "evidence": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings01"
+    },
+    {
+      "name": "settings02",
+      "driver_exit": 1,
+      "cleanup_original": true,
+      "note": "AuthorityAndProduction PASS; PasswordRotation POST login401 oldspec766 CDP body read FAIL.",
+      "exit": 1,
+      "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/settings02.log",
+      "raw_sha256": "0d29c4c4a1ab8d08821d15e9bb05e5529b336203337901b1d2dc38fb79f1828f",
+      "seconds": 75.28249883651733,
+      "evidence": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/settings02"
+    },
+    {
+      "name": "remaining-retest01",
+      "driver_exit": 1,
+      "cleanup_original": true,
+      "note": "Privacy/Theme topsPASS, Password CDP wrong.json at actual change-password400 fails before weak/401; original literals preserved in private13",
+      "evidence": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/remaining-retest01",
+      "exit": 1,
+      "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/remaining-retest01.log",
+      "raw_sha256": "0de9f633bad6dba22933e540e6b01d1bd73cca293fe22f7bc72b9618a2e74187",
+      "seconds": 129.93924188613892
+    },
+    {
+      "name": "password-retest01",
+      "driver_exit": 0,
+      "cleanup_original": true,
+      "note": "Last original PasswordRotation actual top/PW/PG PASS; actual observer wait0; double cleanup and final25/frozen-dist hashes match",
+      "evidence": "/workspace/agenteam-public-entry-author-kWHbv4/evidence/password-retest01",
+      "exit": 0,
+      "raw_log": "/workspace/agenteam-public-entry-author-kWHbv4/logs/password-retest01.log",
+      "raw_sha256": "3490e92ab4277ac7c22cf33232619d0464005617d356c9cd8cb7905192a1b81c",
+      "seconds": 140.62973189353943
+    }
+  ],
+  "remaining_real_groups": [],
+  "owned_live_resources": "none; coordinator accepted final double cleanup02:33:35Z",
+  "owned_running_processes": false,
+  "independent": "core03/C-F1 and input08 original204 probes PASS; input08 real reset-other-identity top/PW/PG PASS with cleanup; input09 exact test-only diff STATIC PASS; input11 deadline and input12 final25 STATIC PASS; accepted33-backend composition actual PASS",
+  "skills": [
+    "agenteam-design",
+    "agenteam-vue-development",
+    "vue-testing-best-practices",
+    "agenteam-go-development",
+    "playwright-cli"
+  ],
+  "limitations": [
+    "CSS zoom=2 is only CSS reflow, not native browser zoom",
+    "backend_log only actual delivery; no new real SMTP/browser acceptance",
+    "no production SPA hosting/Vite proxy validation",
+    "no full D26/D27 acceptance; readiness503 and known Object Runtime join defect unchanged"
+  ],
+  "product_delta": "input08 to input12: only tests evolved. 25 final source paths; production/dist unchanged from08; four test paths differ from09.",
+  "grant": "2026-10-06T02:30:02.234107Z",
+  "current_group": null,
+  "runtime": "owned browser runtime/tmp empty; original baseline2c4n unchanged",
+  "candidate": {
+    "source": "/workspace/agenteam-public-entry-author-kWHbv4/input13",
+    "manifest": "/workspace/agenteam-public-entry-author-kWHbv4/input13-manifest.json",
+    "sha256": "f824cf28b414a2b41276ae383342fd9bb861987784623929b0e35690ceff9fd4",
+    "plan": "/workspace/agenteam-public-entry-author-kWHbv4/browser-plan12.json",
+    "live_published": true
+  },
+  "actual_observer_wait": "session51582 write_stdin completed with exit0",
+  "task_revision": "rev5 /25 source paths /commit11c5b9cfb63022895d0f56c10332a573e88ca0e1",
+  "accepted_source_commit": "787a5c7eeadf5e5f37bab97cbf030b4a745b72af",
+  "executed_manifest_metadata_correction": "The retained task_revision description is stale rev2/24th text. Actual files map has25; rev5 and three closed Settings targets/four sampling points are authoritative. Original executed manifest/hash is preserved.",
+  "tested_dist_scope": "Earlier local build; never used as this real-test input. No shared-dist equality claim.",
+  "matrix": "/workspace/agenteam-public-entry-author-kWHbv4/final-browser-matrix.json",
+  "source_proof": "/workspace/agenteam-public-entry-author-kWHbv4/final-source-proof.json",
+  "report": "/workspace/agenteam-public-entry-author-kWHbv4/final-author-report.md",
+  "independent_final_report": "/workspace/scratch/d26-ui-verification-mainp_f2/final-acceptance.md"
+}

@@ -1,0 +1,31 @@
+{
+  "manifest_sha256": "bc6b20b6321643a94635f7136030c5052840ba7dabcbddb897f24f4d523743fc",
+  "declared_files_checked": 985,
+  "mismatches": [],
+  "probe_dependencies": [
+    {
+      "path": "web/src/router/account-link.ts",
+      "sha256": "426d1e873afa734e08e403f5e39b5a832b23abc181541ffedb61f599147917a9"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "670c9d8d76177bf832eafa35ed28421dc662ee682eaf5610be30ca1b0b2eada3"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "6a5d8974ea3d4901b6f5aa58e3bf19921affb3ea2f9a0a49295fc6104b96410c"
+    },
+    {
+      "path": "web/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "8c5353e0b0cf3ee41cd91cdab333e68c32f8b23cf2cf3fca9911c81aac326470"
+    },
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "f62ef980f64d3f06cb5631962db8dd06e4374fb113f19941504db54acd9f0363"
+    }
+  ]
+}

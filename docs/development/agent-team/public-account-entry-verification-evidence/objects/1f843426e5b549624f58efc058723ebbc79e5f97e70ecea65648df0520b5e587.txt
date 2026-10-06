@@ -1,0 +1,53 @@
+{
+  "internal/central/account": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  },
+  "internal/central/app": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  },
+  "internal/central/model": {
+    "added": [
+      "internal/central/model/adapter/openai_chat_tools.go",
+      "internal/central/model/adapter/openai_chat_tools_test.go",
+      "internal/central/model/adapter/testdata/openai-chat-tools-v1.json",
+      "internal/central/model/adapter/tools_limits_test.go",
+      "internal/central/model/adapter/tools_stream.go",
+      "internal/central/model/adapter/tools_stream_test.go",
+      "internal/central/model/adapter/tools_transport_test.go",
+      "internal/central/model/http_management.go",
+      "internal/central/model/http_management_test.go",
+      "internal/central/model/management_read.go",
+      "internal/central/model/management_read_test.go"
+    ],
+    "removed": [],
+    "changed": [
+      "internal/central/model/adapter/errors.go",
+      "internal/central/model/adapter/openai_chat.go",
+      "internal/central/model/adapter/sse.go",
+      "internal/central/model/adapter/transport.go",
+      "internal/central/model/http.go",
+      "internal/central/model/http_test.go"
+    ]
+  },
+  "internal/central/audit": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  },
+  "db/migrations": {
+    "added": [
+      "db/migrations/00018_model_invocation_usage.sql"
+    ],
+    "removed": [],
+    "changed": []
+  },
+  "tests/testsupport/accountenv": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  }
+}

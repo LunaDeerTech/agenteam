@@ -1,0 +1,14 @@
+{
+  "manifest_sha256": "f043d9dcb8fd3de5e9644305521869d06e09d2aa9ab45d09acc6cf6a5cf41a72",
+  "plan_sha256": "7cd3bc57cf67c79385daa296a06d18e86cc9c2bf0523a8ea618e1e1db9d54fe9",
+  "card_revision_commit": "d63afeb69d48e839d24989521568b8cb548b0deb",
+  "published_only": [
+    "tests/account-captcha-web/e2e/account-entry.spec.ts",
+    "tests/account/account_entry_web_fixture_test.go",
+    "tests/account/authentication_web_fixture_test.go",
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+  ],
+  "all25_active_and_private_hashes_match": true,
+  "production_dist_unchanged": true,
+  "no_owned_browser_docker_resources": true
+}

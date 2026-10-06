@@ -1,0 +1,68 @@
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/auth/LoginView.vue'
+import NotFoundView from '../views/NotFoundView.vue'
+import { installAuthentication } from './auth'
+import { installAccountLinkCapture, type AccountEntryMode } from './account-link'
+installAccountLinkCapture()
+export const pages: RouteRecordRaw[] = import.meta.env.DEV
+  ? [
+      {
+        path: '/debug',
+        name: 'debug',
+        component: () => import('../views/debug/DebugView.vue'),
+      },
+    ]
+  : []
+export const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+      meta: { authentication: true, protected: true },
+    },
+    { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+    {
+      path: '/invite',
+      name: 'invitation',
+      component: () => import('../views/auth/InvitationView.vue'),
+      meta: { authentication: true, accountEntry: 'invitation' },
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('../views/auth/ForgotPasswordView.vue'),
+      meta: { authentication: true, accountEntry: 'forgot' },
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: () => import('../views/auth/ResetPasswordView.vue'),
+      meta: { authentication: true, accountEntry: 'reset' },
+    },
+    {
+      path: '/settings',
+      component: () => import('../views/settings/PersonalSettingsView.vue'),
+      meta: { authentication: true, protected: true },
+      redirect: '/settings/profile',
+      children: [
+        { path: 'profile', component: () => import('../views/settings/ProfileSettings.vue') },
+        { path: 'appearance', component: () => import('../views/settings/AppearanceSettings.vue') },
+        { path: 'password', component: () => import('../views/settings/PasswordSettings.vue') },
+      ],
+    },
+    ...pages,
+    { path: '/:pathMatch(.*)*', component: NotFoundView },
+  ],
+})
+installAuthentication(router)
+declare module 'vue-router' {
+  interface RouteMeta {
+    navigation?: { label: string; order: number }
+    authentication?: boolean
+    protected?: boolean
+    accountEntry?: AccountEntryMode
+  }
+}

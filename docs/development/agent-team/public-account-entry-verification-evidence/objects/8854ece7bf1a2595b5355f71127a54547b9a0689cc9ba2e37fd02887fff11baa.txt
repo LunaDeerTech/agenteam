@@ -1,0 +1,125 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { type Fetch } from '../api/client'
+import { createSessionController } from '../composables/useSession'
+
+const userID = '01900000-0000-7000-8000-000000000001'
+const sessionID = '01900000-0000-7000-8000-000000000002'
+const token = userID + '.' + 'T'.repeat(43)
+const password = ' test 原始 password 12345 '
+const instant = '2026-10-05T12:34:56.123456Z'
+const view: SessionView = {
+  user: { id: userID, email: 'a@example.com', username: 'user-a', display_name: 'A', role: 'user', theme: 'dark', version: '1', initial_password_suggestion: false },
+  session: { id: sessionID, issued_at: instant, absolute_expires_at: instant, idle_expires_at: instant },
+  csrf_token: 'S'.repeat(43),
+}
+const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), {
+  status, headers: { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', 'X-Request-ID': userID },
+})
+function problem(code: string, status: number, commit_state = 'not_started') {
+  return json({ type: 'urn:agenteam:problem:test', title: 'Error', status, detail: 'safe', instance: '/api/v1/password-resets/request', code, request_id: userID, commit_state }, status)
+}
+function barrier<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>(next => { resolve = next })
+  return { promise, resolve }
+}
+function fixture() {
+  let session = async () => json(view)
+  let mutation: Fetch = async () => new Response(null, { status: 204 })
+  const fetch = vi.fn<Fetch>(async (path, init) => {
+    if (path === '/api/v1/session') return session()
+    if (path.endsWith('/bootstrap')) return json({ csrf_token: 'A'.repeat(43), challenge_modes: ['rotate'], delivery_channel: 'backend_log' })
+    return mutation(path, init)
+  })
+  return { auth: createSessionController(createAccountAPI(fetch)), fetch,
+    setSession(next: () => Promise<Response>) { session = next },
+    setMutation(next: Fetch) { mutation = next },
+  }
+}
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks() })
+
+describe('independent frozen core01 causal combinations', () => {
+  it('keeps original anonymous intent across deadline, actual body tail, settled 410 and CSRF invalidation', async () => {
+    vi.useFakeTimers()
+    const f = fixture()
+    await f.auth.entry.prepare()
+    const tail = barrier<void>()
+    let cancellationStarted = false
+    let attempt = 0
+    f.setMutation(async () => {
+      attempt += 1
+      if (attempt === 1) return new Response(new ReadableStream({
+        cancel() { cancellationStarted = true; return tail.promise },
+      }), { status: 202, headers: { 'Content-Type': 'text/html' } })
+      return attempt === 2 ? problem('RESOURCE_DELETED', 410) : problem('CSRF_FAILED', 403)
+    })
+    const draft = { email: 'target@example.com' }
+    const pending = f.auth.entry.requestPasswordReset(draft).catch((error: unknown) => error)
+    await flushPromises()
+    expect(cancellationStarted).toBe(true)
+    draft.email = 'edited@example.com'
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(await pending).toMatchObject({ kind: 'cancelled' })
+    expect(f.auth.state.busy).toBe(true)
+    await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'busy' })
+    tail.resolve()
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+    expect(f.auth.entry.progress).toMatchObject({ phase: 'uncertain', canRetryOriginal: true, contextValid: true })
+    const callCount = f.fetch.mock.calls.length
+    await f.auth.restore()
+    await f.auth.login('other@example.com', password)
+    await f.auth.logout()
+    await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
+    await expect(f.auth.entry.prepare()).rejects.toMatchObject({ kind: 'busy' })
+    await expect(f.auth.entry.inspectPasswordReset({ token })).rejects.toMatchObject({ kind: 'busy' })
+    expect(f.fetch).toHaveBeenCalledTimes(callCount)
+    await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'problem' })
+    expect(f.auth.entry.progress).toMatchObject({ phase: 'uncertain', canRetryOriginal: true })
+    await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'problem' })
+    expect(f.auth.entry.progress).toMatchObject({ phase: 'uncertain', canRetryOriginal: false, contextValid: false })
+    expect(f.auth.state.user?.id).toBe(userID)
+    const writes = f.fetch.mock.calls.filter(([path]) => path.endsWith('/request'))
+    expect(writes).toHaveLength(3)
+    for (const [, init] of writes) {
+      expect(init.body).toBe(writes[0]![1].body)
+      expect(init.headers).toEqual(writes[0]![1].headers)
+    }
+    expect(JSON.parse(writes[0]![1].body as string)).toEqual({ email: 'target@example.com' })
+    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/bootstrap'))).toHaveLength(1)
+    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/inspect'))).toHaveLength(0)
+    await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    f.auth.entry.abandon()
+  })
+
+  it('quarantines prior Session facts when confirmed reset Session GET exceeds the visible deadline', async () => {
+    vi.useFakeTimers()
+    const f = fixture()
+    await f.auth.entry.prepare()
+    const held = barrier<Response>()
+    f.setSession(() => held.promise)
+    const pending = f.auth.entry.completePasswordReset({ token, new_password: password, confirmation: password })
+    await flushPromises()
+    expect(f.auth.entry.progress?.phase).toBe('confirming-session')
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(await pending).toMatchObject({ commandConfirmed: true, session: { kind: 'unconfirmed' } })
+    expect(f.auth.entry.progress?.phase).toBe('session-unconfirmed')
+    expect(f.auth.state.busy).toBe(true)
+    const atDeadline = { phase: f.auth.state.phase, hasSession: f.auth.state.session !== null, personalPhase: f.auth.personalContext.phase }
+    await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'busy' })
+    held.resolve(json(view))
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+    await expect(f.auth.entry.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/complete'))).toHaveLength(1)
+    const afterTail = { phase: f.auth.state.phase, hasSession: f.auth.state.session !== null, personalPhase: f.auth.personalContext.phase }
+    f.auth.entry.abandon()
+    expect({ atDeadline, afterTail }).toEqual({
+      atDeadline: { phase: 'unavailable', hasSession: false, personalPhase: 'checking' },
+      afterTail: { phase: 'unavailable', hasSession: false, personalPhase: 'checking' },
+    })
+  })
+})
+

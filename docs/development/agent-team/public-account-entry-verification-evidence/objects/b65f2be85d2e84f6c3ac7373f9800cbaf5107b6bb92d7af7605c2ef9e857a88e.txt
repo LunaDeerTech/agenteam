@@ -1,0 +1,10 @@
+{
+  "manifest_sha256": "06f1211b1e4751bd88d07be4c0e1ef3a97bc9dfa50850910f9446e6779114ead",
+  "checked": 985,
+  "mismatches": [],
+  "changed_product_or_tests": [
+    "web/src/router/account-link.ts",
+    "web/src/tests/account-entry.spec.ts",
+    "tests/account/account_entry_web_fixture_test.go"
+  ]
+}

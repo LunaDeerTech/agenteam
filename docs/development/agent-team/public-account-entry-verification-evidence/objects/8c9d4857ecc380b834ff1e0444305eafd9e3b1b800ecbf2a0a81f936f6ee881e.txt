@@ -1,0 +1,254 @@
+{
+  "api/openapi/model-system.json": {
+    "expected": "592c80a1cf6d3d76f93d1c9f9de9408ed58cb47b01b54d60c939012d7b9a3c43",
+    "private": "592c80a1cf6d3d76f93d1c9f9de9408ed58cb47b01b54d60c939012d7b9a3c43"
+  },
+  "db/migrations/00018_model_invocation_usage.sql": {
+    "expected": "b5d3f487853ff26bc2964a5c0958198c65f5048896935ed3fbfffc667c16a101",
+    "private": "b5d3f487853ff26bc2964a5c0958198c65f5048896935ed3fbfffc667c16a101"
+  },
+  "internal/central/identity/contract/identity.go": {
+    "expected": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+    "private": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0"
+  },
+  "internal/central/identity/contract/identity_test.go": {
+    "expected": "14a778eb74d859062a0f7208f06d62a954a14feb78c2fed3cb8513354912d15c",
+    "private": "14a778eb74d859062a0f7208f06d62a954a14feb78c2fed3cb8513354912d15c"
+  },
+  "internal/central/model/http.go": {
+    "expected": "cfd317a2df00e1307ee01e9f51e3b97f1ba941e267000787ecc33c75be71d6bc",
+    "private": "cfd317a2df00e1307ee01e9f51e3b97f1ba941e267000787ecc33c75be71d6bc"
+  },
+  "internal/central/model/http_management.go": {
+    "expected": "9865c1d4172c7903eb2c7ee37d5037a93065d0819e546c63f5c33c689c56f6cc",
+    "private": "9865c1d4172c7903eb2c7ee37d5037a93065d0819e546c63f5c33c689c56f6cc"
+  },
+  "internal/central/model/http_management_test.go": {
+    "expected": "d43cd46e501af46bae0dba0270d07082fd83d94f1f94dd60f5de85df3a078615",
+    "private": "d43cd46e501af46bae0dba0270d07082fd83d94f1f94dd60f5de85df3a078615"
+  },
+  "internal/central/model/http_test.go": {
+    "expected": "e3271b0a5425e54b2c383650bed3918a6eff09acce29fb8e4ce4b53f58fb0a98",
+    "private": "e3271b0a5425e54b2c383650bed3918a6eff09acce29fb8e4ce4b53f58fb0a98"
+  },
+  "internal/central/model/management_read.go": {
+    "expected": "18d4324e23ab017d60c00d16c56acc13d4441be8c912d74e9b5c0a4f6c146820",
+    "private": "18d4324e23ab017d60c00d16c56acc13d4441be8c912d74e9b5c0a4f6c146820"
+  },
+  "internal/central/model/management_read_test.go": {
+    "expected": "9931358a553e6d5d50e7fc684a52e847a590905c43fc3c2603c87f03ae3a8634",
+    "private": "9931358a553e6d5d50e7fc684a52e847a590905c43fc3c2603c87f03ae3a8634"
+  },
+  "internal/central/secret/metadata_test.go": {
+    "expected": "f56637bc29c9ff9f55d9c71b176c7f15195efff31bd2d94043921d332eebd579",
+    "private": "f56637bc29c9ff9f55d9c71b176c7f15195efff31bd2d94043921d332eebd579"
+  },
+  "internal/central/secret/write.go": {
+    "expected": "75da5bef79eb6958d0fc5cfa2b862360c8e34f53eb66ce4f22e787cfe35d7c0f",
+    "private": "75da5bef79eb6958d0fc5cfa2b862360c8e34f53eb66ce4f22e787cfe35d7c0f"
+  },
+  "internal/central/usage/authority.go": {
+    "expected": "830ff92eb7a30c8a4fae64a3d604b3c9d3bc114641384671d4d5ccf82cf16221",
+    "private": "830ff92eb7a30c8a4fae64a3d604b3c9d3bc114641384671d4d5ccf82cf16221"
+  },
+  "internal/central/usage/authority_test.go": {
+    "expected": "60410a5dcadea2575bb991a63d981d028ceff4fbebe65ce9c995872168154cb1",
+    "private": "60410a5dcadea2575bb991a63d981d028ceff4fbebe65ce9c995872168154cb1"
+  },
+  "internal/central/usage/contract/authority.go": {
+    "expected": "c35f5810e8cd6184ed2b071c8149691d84a809f2e1d38d94001000338bae451d",
+    "private": "c35f5810e8cd6184ed2b071c8149691d84a809f2e1d38d94001000338bae451d"
+  },
+  "internal/central/usage/contract/invocations.go": {
+    "expected": "e2e782b55321ac9bfd4b90164c11a8d8d8ce75d1f2b87d6871952e1fa5a76707",
+    "private": "e2e782b55321ac9bfd4b90164c11a8d8d8ce75d1f2b87d6871952e1fa5a76707"
+  },
+  "internal/central/usage/contract/invocations_test.go": {
+    "expected": "7e90ed84c25d0116127a49fe9a1e4b0e1b5a689270ec5fbac10e259405a27a87",
+    "private": "7e90ed84c25d0116127a49fe9a1e4b0e1b5a689270ec5fbac10e259405a27a87"
+  },
+  "internal/central/usage/invocations.go": {
+    "expected": "3096866b9e623428bd7f3849f0b0802ca18bb4caade0d7ae7da1f2c6e9174943",
+    "private": "3096866b9e623428bd7f3849f0b0802ca18bb4caade0d7ae7da1f2c6e9174943"
+  },
+  "internal/central/usage/query.go": {
+    "expected": "eccc2a9ce7f632925986de28b31be2036013fa711830a6b5802bf77316ca315a",
+    "private": "eccc2a9ce7f632925986de28b31be2036013fa711830a6b5802bf77316ca315a"
+  },
+  "internal/central/usage/service.go": {
+    "expected": "7a475e186679f11a01423fa5857aa288ab1369cb3f81a5b828f0bc959f329608",
+    "private": "7a475e186679f11a01423fa5857aa288ab1369cb3f81a5b828f0bc959f329608"
+  },
+  "internal/central/usage/store.go": {
+    "expected": "4c2025d6422a86f2efdd0561ea6b7a3f8370c2db3ebe96cd4cb957c194d13b19",
+    "private": "4c2025d6422a86f2efdd0561ea6b7a3f8370c2db3ebe96cd4cb957c194d13b19"
+  },
+  "internal/central/usage/summary.go": {
+    "expected": "4612beb92345a116f8619c1ab2bab486da9b2414d35e34e03f7768c3486b4587",
+    "private": "4612beb92345a116f8619c1ab2bab486da9b2414d35e34e03f7768c3486b4587"
+  },
+  "internal/central/usage/summary_test.go": {
+    "expected": "723f83fdf67c6b60b1c2749d9901aee658394e2030c63df99db7402684f38351",
+    "private": "723f83fdf67c6b60b1c2749d9901aee658394e2030c63df99db7402684f38351"
+  },
+  "tests/account-captcha-web/account-entry.config.js": {
+    "expected": "47b3b7538fd5d384dba21e4e254936cc6b6ecbe72ad3988a454d2afdec4ee9aa",
+    "private": "47b3b7538fd5d384dba21e4e254936cc6b6ecbe72ad3988a454d2afdec4ee9aa"
+  },
+  "tests/account-captcha-web/e2e/account-entry.spec.ts": {
+    "expected": "425260cb0f232eff3ae99f2dac6ae2e888d848b748e479053023018b408d7729",
+    "private": "425260cb0f232eff3ae99f2dac6ae2e888d848b748e479053023018b408d7729"
+  },
+  "tests/account/account_entry_web_fixture_test.go": {
+    "expected": "547bf1562ff02adcd42923aa59be96ec0b1f723c4b0599f42968e7e2d3c2c6c5",
+    "private": "547bf1562ff02adcd42923aa59be96ec0b1f723c4b0599f42968e7e2d3c2c6c5"
+  },
+  "tests/account/account_entry_web_test.go": {
+    "expected": "9d939b87c874b1674e2c1615a3ca5e15de8afcf0cac47393215ea9371c3c48fd",
+    "private": "9d939b87c874b1674e2c1615a3ca5e15de8afcf0cac47393215ea9371c3c48fd"
+  },
+  "tests/model/system_management_boundaries_test.go": {
+    "expected": "71f77d593d433131a1d99c0b8baed46081cf2c12696b4cda21fbe2f6d660b01c",
+    "private": "71f77d593d433131a1d99c0b8baed46081cf2c12696b4cda21fbe2f6d660b01c"
+  },
+  "tests/model/system_management_impact_test.go": {
+    "expected": "6a1b8dfaa56025f88e9e7684dfec043802de17a1cf32fad9204d7fe72c7234d6",
+    "private": "6a1b8dfaa56025f88e9e7684dfec043802de17a1cf32fad9204d7fe72c7234d6"
+  },
+  "tests/model/system_management_metadata_test.go": {
+    "expected": "540cc36303329276ba1f652e9d5fda42f376aa3ade4740b2233826675245db12",
+    "private": "540cc36303329276ba1f652e9d5fda42f376aa3ade4740b2233826675245db12"
+  },
+  "tests/model/usage_authorization_test.go": {
+    "expected": "387b439aee4281f3a7335164f145061f8da6a90cbf57a0285724305e8339d348",
+    "private": "387b439aee4281f3a7335164f145061f8da6a90cbf57a0285724305e8339d348"
+  },
+  "tests/model/usage_fixture_test.go": {
+    "expected": "ce1c88f0678edb0c3e1633c6dbb24e0b3a0d701a36d818f40480ffeed5a17a40",
+    "private": "ce1c88f0678edb0c3e1633c6dbb24e0b3a0d701a36d818f40480ffeed5a17a40"
+  },
+  "tests/model/usage_ledger_test.go": {
+    "expected": "979674fc4739ad2ba184e57b0fe1464a82b943400f88d8c071ea2694a7e4db70",
+    "private": "979674fc4739ad2ba184e57b0fe1464a82b943400f88d8c071ea2694a7e4db70"
+  },
+  "tests/model/usage_query_test.go": {
+    "expected": "77538ea85e42def5c628d5c1689cb3fe28d43c3ca5f489407d642873139eb5bc",
+    "private": "77538ea85e42def5c628d5c1689cb3fe28d43c3ca5f489407d642873139eb5bc"
+  },
+  "tests/model/usage_schema_test.go": {
+    "expected": "c4885a3e9540d5059826ce238a52f8a5bb67f45d0dc75efb661fdd8b18f73c01",
+    "private": "c4885a3e9540d5059826ce238a52f8a5bb67f45d0dc75efb661fdd8b18f73c01"
+  },
+  "tests/model/usage_unknown_test.go": {
+    "expected": "0c43d20fe5feb90c36a72b37f3641e4d77f96909cce50855fec84c4738d41652",
+    "private": "0c43d20fe5feb90c36a72b37f3641e4d77f96909cce50855fec84c4738d41652"
+  },
+  "tests/project/secret_metadata_read_test.go": {
+    "expected": "cb0d7f1054268bab1c70355290b550b18dd15ade05e1510138ee45ec41f660b8",
+    "private": "cb0d7f1054268bab1c70355290b550b18dd15ade05e1510138ee45ec41f660b8"
+  },
+  "verifier:/workspace/scratch/d26-ui-verification-mainp_f2/combined01/account_entry_web_fixture_overlay_test.go": {
+    "expected": "8f313a65b014c06416e4b6bbf6300af7d3457fdc49def2aa04e99e2a551a58ff",
+    "private": "8f313a65b014c06416e4b6bbf6300af7d3457fdc49def2aa04e99e2a551a58ff"
+  },
+  "verifier:/workspace/scratch/d26-ui-verification-mainp_f2/combined01/independent_reset_authority_test.go": {
+    "expected": "9869ebc9cd2ace6c6221a653b91706ff620ea899e75ca3b094750d4024dfd5a2",
+    "private": "9869ebc9cd2ace6c6221a653b91706ff620ea899e75ca3b094750d4024dfd5a2"
+  },
+  "verifier:/workspace/scratch/d26-ui-verification-mainp_f2/combined01/overlay.json": {
+    "expected": "9d3029443a1b4313fd4e6ac79db1d0d679eacbfe7adda6125b7b8138b149a51a",
+    "private": "9d3029443a1b4313fd4e6ac79db1d0d679eacbfe7adda6125b7b8138b149a51a"
+  },
+  "verifier:/workspace/scratch/d26-ui-verification-mainp_f2/combined01/run_fixture.py": {
+    "expected": "db39c2930226a9d3343247769bb86a884bec0f5c849188606f9f5b26478c4fab",
+    "private": "db39c2930226a9d3343247769bb86a884bec0f5c849188606f9f5b26478c4fab"
+  },
+  "verifier:/workspace/scratch/d26-ui-verification-mainp_f2/real/probe02/account-entry.config.js": {
+    "expected": "726acba4ba01654dbaba17eb127a526a97cd0f6c5e8049e0c0990405a1f95064",
+    "private": "726acba4ba01654dbaba17eb127a526a97cd0f6c5e8049e0c0990405a1f95064"
+  },
+  "verifier:/workspace/scratch/d26-ui-verification-mainp_f2/real/probe02/e2e/independent-reset-authority.spec.ts": {
+    "expected": "d4cf010aabb7c9b5f93c9be1c088fad7969ab5e497e1cd1020990cc30a9d8e39",
+    "private": "d4cf010aabb7c9b5f93c9be1c088fad7969ab5e497e1cd1020990cc30a9d8e39"
+  },
+  "verifier:/workspace/scratch/d26-ui-verification-mainp_f2/real/probe02/package.json": {
+    "expected": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428",
+    "private": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428"
+  },
+  "web/src/App.vue": {
+    "expected": "abe5a17878d915c734ad1466c70d780f7f35059a12a3d81be28218881cda8e77",
+    "private": "abe5a17878d915c734ad1466c70d780f7f35059a12a3d81be28218881cda8e77"
+  },
+  "web/src/api/account.ts": {
+    "expected": "8c5353e0b0cf3ee41cd91cdab333e68c32f8b23cf2cf3fca9911c81aac326470",
+    "private": "8c5353e0b0cf3ee41cd91cdab333e68c32f8b23cf2cf3fca9911c81aac326470"
+  },
+  "web/src/api/client.ts": {
+    "expected": "cc44d999d1ccc40f659ebe84c2802ce3fdf54486b5078c1f91317f713a324936",
+    "private": "cc44d999d1ccc40f659ebe84c2802ce3fdf54486b5078c1f91317f713a324936"
+  },
+  "web/src/composables/useAccountEntry.ts": {
+    "expected": "0a5139b835a4e0f2ac99e86810a77a552449c6672824dab27aad990a86a71abd",
+    "private": "0a5139b835a4e0f2ac99e86810a77a552449c6672824dab27aad990a86a71abd"
+  },
+  "web/src/composables/useSession.ts": {
+    "expected": "6a5d8974ea3d4901b6f5aa58e3bf19921affb3ea2f9a0a49295fc6104b96410c",
+    "private": "6a5d8974ea3d4901b6f5aa58e3bf19921affb3ea2f9a0a49295fc6104b96410c"
+  },
+  "web/src/router/account-link.ts": {
+    "expected": "45080e9068bd7c5d52f2499b12de4edac288420b206031a05e0e0c29e488f94c",
+    "private": "45080e9068bd7c5d52f2499b12de4edac288420b206031a05e0e0c29e488f94c"
+  },
+  "web/src/router/auth.ts": {
+    "expected": "670c9d8d76177bf832eafa35ed28421dc662ee682eaf5610be30ca1b0b2eada3",
+    "private": "670c9d8d76177bf832eafa35ed28421dc662ee682eaf5610be30ca1b0b2eada3"
+  },
+  "web/src/router/index.ts": {
+    "expected": "1a06360d687da0a1bb476d4ebd8bc31383a3f3e64495a18f6a8e03fbf43a5ef8",
+    "private": "1a06360d687da0a1bb476d4ebd8bc31383a3f3e64495a18f6a8e03fbf43a5ef8"
+  },
+  "web/src/tests/account-entry-client.spec.ts": {
+    "expected": "412e46a61ca2df3e222c4886acb9fcc0674fa215531a53ae6c40b70f20184135",
+    "private": "412e46a61ca2df3e222c4886acb9fcc0674fa215531a53ae6c40b70f20184135"
+  },
+  "web/src/tests/account-entry-state.spec.ts": {
+    "expected": "c3c50d1e58c7a71c5f5df73c9665898bb1bb4b7efb593012b42822219406937e",
+    "private": "c3c50d1e58c7a71c5f5df73c9665898bb1bb4b7efb593012b42822219406937e"
+  },
+  "web/src/tests/account-entry.spec.ts": {
+    "expected": "0bc28b5332db12c70adeb670a34814f2457560586b7cf3f0590c9909fe8041ff",
+    "private": "0bc28b5332db12c70adeb670a34814f2457560586b7cf3f0590c9909fe8041ff"
+  },
+  "web/src/tests/authentication.spec.ts": {
+    "expected": "da1065fc139ecb8343ef87199a300424233c802cbb9b9ef1aa546039cc2a96b1",
+    "private": "da1065fc139ecb8343ef87199a300424233c802cbb9b9ef1aa546039cc2a96b1"
+  },
+  "web/src/tests/personal-settings-state.spec.ts": {
+    "expected": "36c6c591b15d81f962b4002bc71c1b8007aad26c089e5e272bf6faeed267a871",
+    "private": "36c6c591b15d81f962b4002bc71c1b8007aad26c089e5e272bf6faeed267a871"
+  },
+  "web/src/tests/personal-settings.spec.ts": {
+    "expected": "2bafe4df0826203f9045637c3d4073b456ec3c8ac7c945f4ed5adc3169cfcbe2",
+    "private": "2bafe4df0826203f9045637c3d4073b456ec3c8ac7c945f4ed5adc3169cfcbe2"
+  },
+  "web/src/tests/session.spec.ts": {
+    "expected": "4c4d1483b3f75a5a3fca6f5f54d39526cae24c5f0a6674989d90348f30fbfc3a",
+    "private": "4c4d1483b3f75a5a3fca6f5f54d39526cae24c5f0a6674989d90348f30fbfc3a"
+  },
+  "web/src/views/auth/ForgotPasswordView.vue": {
+    "expected": "45919a790624a96463334e55b53272d18d5fab06a6c25fe3769d6bdbac5c7f33",
+    "private": "45919a790624a96463334e55b53272d18d5fab06a6c25fe3769d6bdbac5c7f33"
+  },
+  "web/src/views/auth/InvitationView.vue": {
+    "expected": "9ce696e26d4ae9f563568db52e972eaffc256a54679184a3d4a46469f54b78e8",
+    "private": "9ce696e26d4ae9f563568db52e972eaffc256a54679184a3d4a46469f54b78e8"
+  },
+  "web/src/views/auth/LoginView.vue": {
+    "expected": "58197b6ca69b7e1b4fc2f94a1990a21497d9a0ace613f1a222b8e8e6715f7643",
+    "private": "58197b6ca69b7e1b4fc2f94a1990a21497d9a0ace613f1a222b8e8e6715f7643"
+  },
+  "web/src/views/auth/ResetPasswordView.vue": {
+    "expected": "5e285d612a8b15bd2462b7d71f79dc33b1a42a37506392649d0a98742b0ac6c4",
+    "private": "5e285d612a8b15bd2462b7d71f79dc33b1a42a37506392649d0a98742b0ac6c4"
+  }
+}

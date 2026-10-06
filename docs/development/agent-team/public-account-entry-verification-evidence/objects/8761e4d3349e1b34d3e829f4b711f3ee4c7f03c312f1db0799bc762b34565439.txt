@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "tool",
+    "nm",
+    "/workspace/scratch/d26-ui-verification-mainp_f2/combined01/bin/combined.test"
+  ],
+  "exit": 0,
+  "matching_symbols": [
+    " 152de00 T github.com/LunaDeerTech/agenteam/tests/account_test.TestAccountPublicEntryIndependentResetAuthority",
+    " 152ed20 T github.com/LunaDeerTech/agenteam/tests/account_test.independentCompiledMigration18",
+    " 152f220 T github.com/LunaDeerTech/agenteam/tests/account_test.independentInstalledMigration18"
+  ],
+  "binary_sha256": "bc6c94c7ffbd70c646d43f7d732d367d9c6a12385f6ce4fec2135119c41e1007"
+}

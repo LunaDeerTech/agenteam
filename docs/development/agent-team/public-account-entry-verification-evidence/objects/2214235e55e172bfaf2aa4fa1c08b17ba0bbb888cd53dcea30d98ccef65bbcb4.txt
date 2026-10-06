@@ -1,0 +1,6 @@
+{
+  "prior": "/workspace/scratch/d26-ui-verification-mainp_f2/real/e2e/independent-reset-authority.spec.ts",
+  "prior_sha256": "ca59a2c80266849bafa4298606bf9e10db59ebed0a7a8045e2a7b9fac34ef769",
+  "reason": "Preparation-only correction: count the actual fixed /api/v1/sessions/login and /logout paths. Original plan/probe remain immutable and were never run.",
+  "source_scope": "independent verifier only, no product or author test changes"
+}

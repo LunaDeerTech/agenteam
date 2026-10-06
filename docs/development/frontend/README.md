@@ -1,6 +1,6 @@
 # 前端开发基础
 
-前端位于 `web/`，使用 Vue 3、TypeScript、Vite、Vue Router 和自定义组件；旋转验证使用精确版本 `go-captcha-vue 2.0.7`。npm 锁文件固定依赖，Node 版本要求见 `web/package.json`。正式 Account 客户端已连接真实 Go 服务，提供登录、旋转挑战、Session 恢复、注销、受保护的空首页，以及本人资料/头像、主题和修改密码。范围分别见 [D26 认证工作项](../work-items/d26-account-authentication.md)与[个人设置工作项](../work-items/d26-personal-settings.md)；其余业务页面及完整 D26 仍待后续交付。
+前端位于 `web/`，使用 Vue 3、TypeScript、Vite、Vue Router 和自定义组件；旋转验证使用精确版本 `go-captcha-vue 2.0.7`。npm 锁文件固定依赖，Node 版本要求见 `web/package.json`。正式 Account 客户端已连接真实 Go 服务，提供登录、旋转挑战、Session 恢复、注销、受保护的空首页，以及本人资料/头像、主题和修改密码、邀请兑换与找回/重置密码。范围分别见 [D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)及[公开入口工作项](../work-items/d26-public-account-entry.md)；其余业务页面及完整 D26 仍待后续交付。
 
 ## 启动与检查
 
@@ -37,15 +37,15 @@ npm run preview --prefix web
 | --- | --- |
 | `web/src/components/ui/` | 可复用控件和内容组件；公开导出及接口类型在 `index.ts` 和 `types.ts` |
 | `web/src/components/layout/` | AppShell、SystemNav 与 SettingsShell；系统导航、路由内容区和设置侧栏 |
-| `web/src/api/` | 六项认证与八项个人设置 Account 调用、运行时 DTO、头像字节与安全 Problem 解析 |
-| `web/src/composables/` | 单一 Session 协调者、App 生命周期内的设置草稿，以及主题、按钮反馈、浮层与键盘工具 |
+| `web/src/api/` | 六项认证、八项个人设置及五项公开入口 Account 调用、运行时 DTO、头像字节与安全 Problem 解析 |
+| `web/src/composables/` | 同一 Cookie 请求协调者、公开入口 owner 与 App 生命周期内的设置草稿，以及主题、按钮反馈、浮层与键盘工具 |
 | `web/src/styles/` | 唯一共享 token、基础规则与公共组件样式 |
 | `web/src/router/` | 路由和导航元数据 |
-| `web/src/views/auth/` 与 `HomeView.vue` | 正式登录/挑战页面与受保护空首页 |
+| `web/src/views/auth/` 与 `HomeView.vue` | 正式登录/挑战、邀请/找回/重置页面与受保护空首页 |
 | `web/src/views/settings/` | 本人资料与头像、外观、修改密码三个真实设置页面 |
 | `web/src/views/debug/` | 开发环境组件展示、演示数据与展示布局 |
 | `web/src/tests/` | Vitest + Vue Test Utils 交互与基线检查 |
-| `tests/account/` 与 `tests/account-captcha-web/` | 正式构建、完整真实后端与浏览器的认证及个人设置组合验收 |
+| `tests/account/` 与 `tests/account-captcha-web/` | 正式构建、完整真实后端与浏览器的认证、个人设置及公开入口组合验收 |
 
 公共组件不能导入 `views/debug/`，不能包含演示数据、业务 API 或业务状态规则。正式页面直接引用相同公共组件；Debug 不是组件定义的位置。展示网格、目录和示例编排不约束正式业务布局。
 
@@ -55,9 +55,9 @@ npm run preview --prefix web
 
 在 `router/index.ts` 的 `pages` 注册正式页面，使用懒加载 `component`，为需要导航的路由声明 `meta.navigation: { label, order }`。SystemNav 从路由元数据读取入口，不需要复制导航数组或改写骨架。认证路由通过 `router/auth.ts` 及单一 `useSession` 协调，登录返回目标仅接受 `/` 和下列三个设置叶子；未知路径显示未找到提示。
 
-客户端使用固定同源相对 Account 路径，分别传递匿名或 Session CSRF，不持久化密码、challenge pass 或 token。登录成功后还需 GET Session 确认身份及 Session CSRF；注销确认后才退出。认证与设置操作复用同一个请求协调者，逻辑超时不会提前释放尚未结束的实际请求。具体状态、取消和迟到结果规则见[D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)及[正式 Account API](../../../api/openapi/account.json)。
+客户端使用固定同源相对 Account 路径，分别传递匿名或 Session CSRF，不持久化密码、challenge pass 或 token。登录成功后还需 GET Session 确认身份及 Session CSRF；注销确认后才退出。认证、设置与公开入口操作复用同一个请求协调者，逻辑超时不会提前释放尚未结束的实际请求。具体状态、取消和迟到结果规则见[D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)及[正式 Account API](../../../api/openapi/account.json)。
 
-采用 HTML5 History。开发服务器和 Vite preview 支持回退；生产资源托管属于 D28，Central 当前未托管 SPA。非 API 的 History 页面才能回退到 `index.html`，API、缺失资产和服务端错误不能直接回退。认证与个人设置的实际浏览器验收使用自有测试服务器托管正式 `web/dist` 并反代完整 Central，不把该测试服务器或 `vite preview` 当作生产部署；开发代理另有静态/类型检查，未单独进行真实 dev-server 浏览器验收。
+采用 HTML5 History。开发服务器和 Vite preview 支持回退；生产资源托管属于 D28，Central 当前未托管 SPA。非 API 的 History 页面才能回退到 `index.html`，API、缺失资产和服务端错误不能直接回退。认证、个人设置与公开入口的实际浏览器验收使用自有测试服务器托管冻结候选的生产 dist 并反代完整 Central，不把该测试服务器或 `vite preview` 当作生产部署；开发代理另有静态/类型检查，未单独进行真实 dev-server 浏览器验收。
 
 ## 本人设置
 
@@ -73,7 +73,21 @@ npm run preview --prefix web
 
 写结果未确认时保留原 key、完整输入及必要的 File 引用，供用户检查当前会话后明确重试或放弃，不自动更换 key。GET Session 不作为原写命令的成功回执。改密严格成功的反馈与随后 Session/资料读取失败分别保留，避免提示用户重复修改；密码与候选材料只在内存中持有。
 
-个人设置源码已提交为 `c54f73f3324caa11608d84e5d207141985eb6074`，验证范围及原失败见[个人设置验收记录](../agent-team/personal-settings-verification.md)。邀请、恢复、管理员设置等未交付页面不显示假入口。
+个人设置源码已提交为 `c54f73f3324caa11608d84e5d207141985eb6074`，验证范围及原失败见[个人设置验收记录](../agent-team/personal-settings-verification.md)。管理员设置等未交付页面不显示假入口。
+
+## 公开账号入口
+
+[公开入口验收记录](../agent-team/public-account-entry-verification.md)对应25源提交 `787a5c7eeadf5e5f37bab97cbf030b4a745b72af`；三个页面使用独立居中布局，不展示已登录导航。
+
+| 路由 | 实际操作 |
+| --- | --- |
+| `/invite` | 校验真实邀请链接、填写账号并兑换；成功后由用户明确登录，不自动创建Session |
+| `/forgot-password` | 提交找回申请并显示统一渠道说明；202不证明账号存在或已经投递 |
+| `/reset-password` | 校验链接、设置密码；确认后清输入并核对当前Session，不猜目标身份或自动改绑账号 |
+
+链接材料在history建立前移除，仅由私有页面owner持有；刷新后须重新打开原链接。有效Session可与匿名CSRF共存，三个公开写入仍使用匿名authority。`/login?switch=1`只提供显式身份选择，必须由用户点击注销；不扩展原四项登录返回闭集。原写结果未知时保持原key/context/body供明确重试，不自动重发。
+
+本卡151项pure/格式/类型/构建通过，四个新顶层和原认证四个、设置四个顶层按固定输入及未变语义分轮闭合；首红、CDP根因未知与观察修订保留。独立真实跨账号及已验management/ledger00018组合通过。测试clone只证明实际响应JSON形状，不证明原stream尾部；CSS `zoom=2`不是原生浏览器缩放。实际投递渠道为受限backend_log，没有新增真实SMTP、生产SPA托管或Vite开发代理浏览器验收，完整D26/D27仍未完成。
 
 ## Debug 与主题
 

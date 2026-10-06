@@ -1,0 +1,9 @@
+# 204 stream correction — independent pure closure
+
+Fixed final input08 manifest `0726c646bef31043e190a6c2261c0a7074069ad07849a6fe07efff2bcb7a02d2` was verified across all 985 declared files. Actual dist file set equals the declared 15 files. Only client.ts and three author pure test files differ in the 23 source paths from input07; baseline dependencies and the accepted core03 Session controller remain identical.
+
+The unchanged independent response204 probe now passes all four cases (input07 had two failures and two passes). It checks actual zero-byte EOF confirmation and exactly one Session reconciliation, nonempty/read-error uncertainty, and the 30-second visible deadline while the real cancellation tail still holds the owner. No Session read or confirmation is introduced by cancellation, and exact original retry remains possible after tail completion. `probe-input08-command.json` records actual argv/cwd/exit and log hash.
+
+Because the new reset-body read adds an await before confirmation, the original C-F1 independent GET-deadline case was also rerun, unchanged, on input08: one selected PASS, five unrelated filtered cases. The old Session facts remain quarantined after the confirmed-reset follow-up GET deadline. `core-deadline-input08-command.json` binds that original probe hash and result. The unrelated Unknown/CSRF combination and history sanitizer retain their previous exact-source evidence rather than being mechanically rerun.
+
+Source review confirms zero-byte chunks are accepted only through EOF; nonempty bytes/read failure are rejected; the same cancellation promise is joined before releasing the reader; the callsite checks abort after reading. The author full final check records 151 pure tests plus format/type/build PASS on this same source. This is PURE PASS for the corrected branch. Real original-selector and independent browser acceptance remain pending on input08 dist; no old input07 dynamic success is substituted.

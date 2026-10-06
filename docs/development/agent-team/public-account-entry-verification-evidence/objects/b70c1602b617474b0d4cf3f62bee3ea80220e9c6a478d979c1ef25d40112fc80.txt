@@ -1,0 +1,45 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/account-entry-client.spec.ts src/tests/account-entry-state.spec.ts src/tests/account-entry.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/account-entry-state.spec.ts (11 tests | 1 failed) 119ms
+     × accepts an empty streamed 204 only at EOF, then holds the same owner for Session confirmation 45ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/account-entry-state.spec.ts > public Account shared ownership > accepts an empty streamed 204 only at EOF, then holds the same owner for Session confirmation
+AssertionError: expected { commandConfirmed: true, …(1) } to match object { kind: 'reset-complete', …(1) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "kind": "reset-complete",
+-   "value": {
+    "commandConfirmed": true,
+    "session": {
+      "kind": "anonymous",
+-     },
+    },
+  }
+
+ ❯ src/tests/account-entry-state.spec.ts:138:26
+    136|     expect(f.fetch.mock.calls.filter(([path]) => path === '/api/v1/ses…
+    137|     session.resolve(problem('UNAUTHENTICATED', 401))
+    138|     await expect(pending).resolves.toMatchObject({
+       |                          ^
+    139|       kind: 'reset-complete',
+    140|       value: { commandConfirmed: true, session: { kind: 'anonymous' } …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 40 passed (41)
+   Start at  01:30:16
+   Duration  2.36s (transform 894ms, setup 0ms, import 1.27s, tests 545ms, environment 2.34s)
+

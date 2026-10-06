@@ -1,0 +1,104 @@
+[
+  {
+    "name": "browser-type",
+    "argv": [
+      "/workspace/agenteam/web/node_modules/.bin/tsc",
+      "--noEmit",
+      "--target",
+      "ES2022",
+      "--module",
+      "ESNext",
+      "--moduleResolution",
+      "Bundler",
+      "--lib",
+      "ES2022,DOM",
+      "--strict",
+      "--skipLibCheck",
+      "--typeRoots",
+      "/workspace/agenteam/web/node_modules/@types",
+      "e2e/account-entry.spec.ts"
+    ],
+    "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input10/tests/account-captcha-web",
+    "safe_env": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+      "GOCACHE": "/workspace/agenteam-public-entry-author-kWHbv4/gocache",
+      "TMPDIR": "/workspace/agenteam-public-entry-author-kWHbv4/compile10-tmp",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-a"
+    },
+    "input_sha256": "51a5a83f3bc9cc3c253ff6d19644b217564967825cdff779cf914c15427157fc",
+    "exit": 0,
+    "seconds": 1.1077823638916016,
+    "log": "/workspace/agenteam-public-entry-author-kWHbv4/browser-type-input10-02.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-compile",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-tags=integration",
+      "-race",
+      "-c",
+      "-o",
+      "/workspace/agenteam-public-entry-author-kWHbv4/bin/account10-02.test",
+      "./tests/account"
+    ],
+    "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input10",
+    "safe_env": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+      "GOCACHE": "/workspace/agenteam-public-entry-author-kWHbv4/gocache",
+      "TMPDIR": "/workspace/agenteam-public-entry-author-kWHbv4/compile10-tmp",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-a"
+    },
+    "input_sha256": "51a5a83f3bc9cc3c253ff6d19644b217564967825cdff779cf914c15427157fc",
+    "exit": 0,
+    "seconds": 4.142711877822876,
+    "log": "/workspace/agenteam-public-entry-author-kWHbv4/go-compile-input10-02.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-vet",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "-tags=integration",
+      "./tests/account"
+    ],
+    "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input10",
+    "safe_env": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+      "GOCACHE": "/workspace/agenteam-public-entry-author-kWHbv4/gocache",
+      "TMPDIR": "/workspace/agenteam-public-entry-author-kWHbv4/compile10-tmp",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-a"
+    },
+    "input_sha256": "51a5a83f3bc9cc3c253ff6d19644b217564967825cdff779cf914c15427157fc",
+    "exit": 0,
+    "seconds": 0.3847017288208008,
+    "log": "/workspace/agenteam-public-entry-author-kWHbv4/go-vet-input10-02.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

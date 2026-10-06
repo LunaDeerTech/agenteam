@@ -1,0 +1,542 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import {
+  createAccountAPI,
+  type AccountAPI,
+  type ProfileView,
+  type SessionView,
+} from '../api/account'
+import { AccountFailure, type Problem } from '../api/client'
+import { createSessionController } from '../composables/useSession'
+import { useTheme } from '../composables/useTheme'
+import { createPersonalSettings, type PersonalSettings } from '../composables/usePersonalSettings'
+
+const userID = '01900000-0000-7000-8000-000000000001'
+const sessionID = '01900000-0000-7000-8000-000000000002'
+const nextSessionID = '01900000-0000-7000-8000-000000000003'
+const time = '2026-10-05T12:34:56.123456Z'
+const view = (
+  version = '1',
+  theme: 'system' | 'light' | 'dark' = 'dark',
+  id = sessionID,
+): SessionView => ({
+  user: {
+    id: userID,
+    email: 'person@example.com',
+    username: 'person',
+    display_name: 'Person',
+    role: 'user',
+    theme,
+    version,
+    initial_password_suggestion: true,
+  },
+  session: { id, issued_at: time, absolute_expires_at: time, idle_expires_at: time },
+  csrf_token: (id === sessionID ? 'S' : 'N').repeat(43),
+})
+const profile = (version = '1'): ProfileView => ({ user: view(version).user, avatar: null })
+function fault(code: string, status = 503, commit_state: Problem['commit_state'] = 'unknown') {
+  return new AccountFailure('problem', {
+    type: 'urn:agenteam:problem:test',
+    title: 'Test',
+    status,
+    detail: 'Safe failure',
+    instance: '/api/v1/me',
+    code,
+    request_id: userID,
+    commit_state,
+  })
+}
+function deferred<T>() {
+  let resolve!: (value: T) => void, reject!: (e: unknown) => void
+  const promise = new Promise<T>((a, b) => {
+    resolve = a
+    reject = b
+  })
+  return { promise, resolve, reject }
+}
+async function fixture() {
+  const unexpected = async (): Promise<never> => {
+    throw new Error('unexpected Account request')
+  }
+  const api = {
+    inspectInvitation: vi.fn<AccountAPI['inspectInvitation']>(async () => {
+      throw new Error('unexpected public entry request')
+    }),
+    redeemInvitation: vi.fn<AccountAPI['redeemInvitation']>(async () => {
+      throw new Error('unexpected public entry request')
+    }),
+    requestPasswordReset: vi.fn<AccountAPI['requestPasswordReset']>(async () => {
+      throw new Error('unexpected public entry request')
+    }),
+    inspectPasswordReset: vi.fn<AccountAPI['inspectPasswordReset']>(async () => {
+      throw new Error('unexpected public entry request')
+    }),
+    completePasswordReset: vi.fn<AccountAPI['completePasswordReset']>(async () => {
+      throw new Error('unexpected public entry request')
+    }),
+    bootstrap: vi.fn<AccountAPI['bootstrap']>(unexpected),
+    login: vi.fn<AccountAPI['login']>(unexpected),
+    logout: vi.fn<AccountAPI['logout']>(async () => undefined),
+    createChallenge: vi.fn<AccountAPI['createChallenge']>(unexpected),
+    verifyChallenge: vi.fn<AccountAPI['verifyChallenge']>(unexpected),
+    getSession: vi.fn<AccountAPI['getSession']>(async () => view()),
+    getProfile: vi.fn<AccountAPI['getProfile']>(async () => profile()),
+    updateProfile: vi.fn<AccountAPI['updateProfile']>(async () => profile('2')),
+    getPreferences: vi.fn<AccountAPI['getPreferences']>(async () => ({
+      version: '1',
+      theme: 'dark',
+    })),
+    setPreferences: vi.fn<AccountAPI['setPreferences']>(async () => ({
+      version: '2',
+      theme: 'light',
+    })),
+    readAvatar: vi.fn<AccountAPI['readAvatar']>(unexpected),
+    putAvatar: vi.fn<AccountAPI['putAvatar']>(async () => profile('2')),
+    deleteAvatar: vi.fn<AccountAPI['deleteAvatar']>(async () => undefined),
+    changePassword: vi.fn<AccountAPI['changePassword']>(async () => ({
+      completed: true,
+      next_path: '/',
+    })),
+  }
+  const auth = createSessionController(api)
+  await auth.restore()
+  return { api, auth }
+}
+const passwordInput = () => ({
+  version: '1',
+  current_password: 'Original password 123',
+  new_password: ' New password 字符 123 ',
+  confirmation: ' New password 字符 123 ',
+})
+afterEach(() => {
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+  useTheme().setTheme('system')
+})
+
+describe('personal requests on the authentication owner', () => {
+  it('retains a historically uncertain File intent after a later definite replay rejection', async () => {
+    const { api, auth } = await fixture()
+    const file = new File(['original bytes'], 'original.png', { type: 'image/png' })
+    api.putAvatar.mockRejectedValueOnce(fault('COMMIT_UNKNOWN'))
+    await expect(
+      auth.personal.putAvatar({ version: '1', file, mediaType: 'image/png' }),
+    ).rejects.toMatchObject({ kind: 'problem' })
+    await auth.restore()
+    const later = fault('DEPENDENCY_UNAVAILABLE', 503, 'not_started')
+    api.putAvatar.mockRejectedValueOnce(later)
+    await expect(auth.personal.retryOriginal()).rejects.toBe(later)
+    const keys = vi.spyOn(crypto, 'randomUUID')
+    let blocked: unknown
+    try {
+      await auth.personal.putAvatar({
+        version: '2',
+        file: new File(['different'], 'other.png', { type: 'image/png' }),
+        mediaType: 'image/png',
+      })
+    } catch (error) {
+      blocked = error
+    }
+    expect(blocked instanceof AccountFailure && blocked.kind === 'busy').toBe(true)
+    expect(keys.mock.calls.length).toBe(0)
+    await auth.restore()
+    await auth.personal.retryOriginal()
+    expect(api.putAvatar.mock.calls.length).toBe(3)
+    const first = api.putAvatar.mock.calls[0]!
+    expect(
+      api.putAvatar.mock.calls.every(
+        ([input, options]) =>
+          input.file === file &&
+          input.version === '1' &&
+          input.mediaType === 'image/png' &&
+          options.key === first[1].key &&
+          options.csrfToken === first[1].csrfToken,
+      ),
+    ).toBe(true)
+  })
+  it('holds the password Cookie barrier after Unknown actual return until Session is explicitly checked', async () => {
+    const { api, auth } = await fixture()
+    api.changePassword.mockRejectedValueOnce(fault('COMMIT_UNKNOWN'))
+    await expect(auth.personal.changePassword(passwordInput())).rejects.toMatchObject({
+      kind: 'problem',
+    })
+    expect(auth.state.busy).toBe(false)
+    const keys = vi.spyOn(crypto, 'randomUUID')
+    await auth.logout()
+    expect(api.logout.mock.calls.length).toBe(0)
+    expect(keys.mock.calls.length).toBe(0)
+    expect(api.getSession).toHaveBeenCalledTimes(1)
+  })
+  it('returns typed results, rejects busy before key/transport, and retains ownership through a timeout and late 401', async () => {
+    vi.useFakeTimers()
+    const { api, auth } = await fixture()
+    const held = deferred<ProfileView>()
+    api.getProfile.mockReturnValueOnce(held.promise)
+    const key = vi.spyOn(crypto, 'randomUUID')
+    const running = auth.personal.getProfile()
+    const rejected = expect(running).rejects.toMatchObject({ kind: 'cancelled' })
+    await vi.advanceTimersByTimeAsync(0)
+    await expect(auth.personal.getPreferences()).rejects.toMatchObject({ kind: 'busy' })
+    await expect(
+      auth.personal.updateProfile({ version: '1', display_name: 'x' }),
+    ).rejects.toMatchObject({ kind: 'busy' })
+    expect(key).not.toHaveBeenCalled()
+    expect(api.getPreferences).not.toHaveBeenCalled()
+    expect(api.updateProfile).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(30000)
+    await rejected
+    expect(auth.state.busy).toBe(true)
+    await auth.restore()
+    await auth.logout()
+    expect(api.getSession).toHaveBeenCalledTimes(1)
+    expect(api.logout).not.toHaveBeenCalled()
+    held.reject(fault('UNAUTHENTICATED', 401, 'not_started'))
+    await vi.advanceTimersByTimeAsync(0)
+    expect(auth.state.busy).toBe(false)
+    expect(auth.state.user).toBeNull()
+    expect(auth.personalContext.phase).toBe('invalid')
+  })
+  it('keeps a real avatar stream cancellation in the same owner until its tail returns', async () => {
+    vi.useFakeTimers()
+    const tail = deferred<void>()
+    let cancelled = 0,
+      calls = 0
+    const api = createAccountAPI(async (url) => {
+      ++calls
+      if (url === '/api/v1/session')
+        return new Response(JSON.stringify(view()), {
+          headers: { 'Content-Type': 'application/json' },
+        })
+      return new Response(
+        new ReadableStream({
+          cancel() {
+            ++cancelled
+            return tail.promise
+          },
+        }),
+        { headers: { 'Content-Type': 'image/svg+xml', 'Content-Length': '4' } },
+      )
+    })
+    const auth = createSessionController(api)
+    await auth.restore()
+    const wait = expect(auth.personal.readAvatar()).rejects.toMatchObject({ kind: 'cancelled' })
+    await vi.advanceTimersByTimeAsync(0)
+    expect(cancelled).toBe(1)
+    await vi.advanceTimersByTimeAsync(30000)
+    await wait
+    await expect(auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
+    await auth.restore()
+    await auth.logout()
+    expect(calls).toBe(2)
+    tail.resolve()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(auth.state.busy).toBe(false)
+  })
+  it('freezes an uncertain complete request and requires current Session confirmation before exact replay', async () => {
+    const { api, auth } = await fixture()
+    const input = { version: '1', display_name: ' Original ' }
+    const original = fault('COMMIT_UNKNOWN')
+    api.updateProfile.mockRejectedValueOnce(original)
+    await expect(auth.personal.updateProfile(input)).rejects.toBe(original)
+    input.display_name = 'Edited'
+    input.version = '99'
+    await expect(auth.personal.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    await expect(
+      auth.personal.setPreferences({ version: '1', theme: 'light' }),
+    ).rejects.toMatchObject({ kind: 'busy' })
+    api.getSession.mockResolvedValue(view('5'))
+    await auth.restore()
+    api.updateProfile.mockResolvedValueOnce(profile('7'))
+    const result = await auth.personal.retryOriginal()
+    expect(result.kind).toBe('profile')
+    expect(api.updateProfile.mock.calls.length).toBe(2)
+    const [first, second] = api.updateProfile.mock.calls
+    expect(first![0]).toEqual({ version: '1', display_name: ' Original ' })
+    expect(second![0]).toEqual(first![0])
+    expect(second![1].key === first![1].key && second![1].csrfToken === first![1].csrfToken).toBe(
+      true,
+    )
+    expect(auth.state.user?.version).toBe('7')
+    api.getProfile.mockResolvedValueOnce(profile('2'))
+    await auth.personal.getProfile()
+    expect(auth.state.user?.version).toBe('7')
+  })
+  it('preserves exact File/media/version/key after Unknown and clears them on explicit abandonment', async () => {
+    const { api, auth } = await fixture()
+    const file = new File(['exact original bytes'], 'avatar.png', { type: 'image/png' })
+    api.putAvatar.mockRejectedValueOnce(fault('RESOURCE_BUSY', 409, 'not_committed'))
+    await expect(
+      auth.personal.putAvatar({ version: '1', file, mediaType: 'image/png' }),
+    ).rejects.toMatchObject({ kind: 'problem' })
+    await auth.restore()
+    await auth.personal.retryOriginal()
+    const [a, b] = api.putAvatar.mock.calls
+    expect(a![0].file === file && b![0].file === file && a![1].key === b![1].key).toBe(true)
+    api.putAvatar.mockRejectedValueOnce(fault('COMMIT_UNKNOWN'))
+    await expect(
+      auth.personal.putAvatar({ version: '2', file, mediaType: 'image/png' }),
+    ).rejects.toBeInstanceOf(AccountFailure)
+    auth.personal.abandon()
+    await expect(auth.personal.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+  })
+  it('uses a stable identity epoch and preserves dirty preview across a hidden Session revalidation', async () => {
+    const { api, auth } = await fixture()
+    const original = auth.personalContext.identity!
+    auth.personal.previewTheme(original, 'light')
+    const response = deferred<SessionView>()
+    api.getSession.mockReturnValueOnce(response.promise)
+    const running = auth.restore()
+    await Promise.resolve()
+    expect(auth.state.user).toBeNull()
+    expect(auth.personalContext.phase).toBe('checking')
+    expect(auth.personalContext.identity).toEqual(original)
+    expect(useTheme().mode.value).toBe('light')
+    response.resolve(view('2', 'system'))
+    await running
+    expect(auth.personalContext.identity).toEqual(original)
+    expect(useTheme().mode.value).toBe('light')
+    auth.personal.clearThemePreview(original)
+    expect(useTheme().mode.value).toBe('system')
+    api.getSession.mockResolvedValueOnce(view('3', 'dark', nextSessionID))
+    await auth.restore()
+    const next = auth.personalContext.identity!
+    expect(next.epoch).toBeGreaterThan(original.epoch)
+    auth.personal.previewTheme(next, 'light')
+    auth.personal.clearThemePreview(original)
+    expect(useTheme().mode.value).toBe('light')
+  })
+  it('publishes password confirmation at 200, keeps the owner through GET, and uses only the new Session CSRF afterward', async () => {
+    const { api, auth } = await fixture()
+    const previous = auth.personalContext.identity!
+    const check = deferred<SessionView>()
+    api.getSession.mockReturnValueOnce(check.promise)
+    const running = auth.personal.changePassword(passwordInput())
+    await vi.waitFor(() => expect(auth.personal.passwordProgress?.phase).toBe('confirming-session'))
+    expect(auth.personal.passwordProgress?.identity).toEqual(previous)
+    await expect(auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
+    await auth.logout()
+    expect(api.logout).not.toHaveBeenCalled()
+    check.resolve({
+      ...view('2', 'dark', nextSessionID),
+      user: { ...view('2').user, initial_password_suggestion: false },
+    })
+    expect(await running).toEqual({ commandConfirmed: true, sessionConfirmed: true })
+    expect(auth.personal.passwordProgress?.phase).toBe('confirmed')
+    expect(auth.personalContext.identity?.epoch).toBeGreaterThan(previous.epoch)
+    expect(auth.state.user?.initial_password_suggestion).toBe(false)
+    await auth.personal.updateProfile({ version: '2', display_name: 'Updated' })
+    expect(api.updateProfile.mock.calls[0]![1].csrfToken === 'N'.repeat(43)).toBe(true)
+  })
+  it('never degrades a confirmed password to Unknown when the Session check times out', async () => {
+    vi.useFakeTimers()
+    const { api, auth } = await fixture()
+    const check = deferred<SessionView>()
+    api.getSession.mockReturnValueOnce(check.promise)
+    const running = auth.personal.changePassword(passwordInput())
+    await vi.advanceTimersByTimeAsync(0)
+    expect(auth.personal.passwordProgress?.phase).toBe('confirming-session')
+    await vi.advanceTimersByTimeAsync(30000)
+    expect(await running).toMatchObject({
+      commandConfirmed: true,
+      sessionConfirmed: false,
+      failure: { kind: 'cancelled' },
+    })
+    expect(auth.personal.passwordProgress?.phase).toBe('session-unconfirmed')
+    expect(auth.state.busy).toBe(true)
+    await expect(auth.personal.retryOriginal()).rejects.toMatchObject({ kind: 'busy' })
+    check.resolve(view('2', 'light', nextSessionID))
+    await vi.advanceTimersByTimeAsync(0)
+    expect(auth.state.session?.id).toBe(sessionID)
+    await expect(
+      auth.personal.updateProfile({ version: '2', display_name: '' }),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    api.getSession.mockResolvedValueOnce(view('2', 'light', nextSessionID))
+    await auth.restore()
+    expect(auth.state.session?.id).toBe(nextSessionID)
+    expect(api.changePassword).toHaveBeenCalledTimes(1)
+  })
+  it.each(['same-session', 'other-user', 'failure'])(
+    'preserves the confirmed command and blocks old authority on bad password confirmation: %s',
+    async (mode) => {
+      const { api, auth } = await fixture()
+      if (mode === 'failure') api.getSession.mockRejectedValueOnce(fault('DEPENDENCY_UNAVAILABLE'))
+      else
+        api.getSession.mockResolvedValueOnce(
+          mode === 'same-session'
+            ? view()
+            : {
+                ...view('2', 'dark', nextSessionID),
+                user: { ...view('2').user, id: nextSessionID },
+              },
+        )
+      expect(await auth.personal.changePassword(passwordInput())).toMatchObject({
+        commandConfirmed: true,
+        sessionConfirmed: false,
+      })
+      expect(auth.state.user).toBeNull()
+      await expect(auth.personal.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+      api.getSession.mockResolvedValueOnce(view())
+      await auth.restore()
+      expect(auth.state.user).toBeNull()
+      await expect(
+        auth.personal.updateProfile({ version: '1', display_name: '' }),
+      ).rejects.toMatchObject({ kind: 'invalid-input' })
+      expect(api.changePassword).toHaveBeenCalledTimes(1)
+    },
+  )
+  it('does not move an uncertain password command into a newly observed Session', async () => {
+    const { api, auth } = await fixture()
+    api.changePassword.mockRejectedValueOnce(fault('COMMIT_UNKNOWN'))
+    await expect(auth.personal.changePassword(passwordInput())).rejects.toMatchObject({
+      kind: 'problem',
+    })
+    api.getSession.mockResolvedValueOnce(view('2', 'dark', nextSessionID))
+    await auth.restore()
+    await expect(auth.personal.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(api.changePassword).toHaveBeenCalledTimes(1)
+  })
+  it('abandoning a password page retains actual ownership and still reconciles its rotated Cookie', async () => {
+    const { api, auth } = await fixture()
+    const post = deferred<{ completed: true; next_path: '/' }>()
+    api.changePassword.mockReturnValueOnce(post.promise)
+    api.getSession.mockResolvedValueOnce(view('2', 'dark', nextSessionID))
+    const running = expect(auth.personal.changePassword(passwordInput())).rejects.toMatchObject({
+      kind: 'cancelled',
+    })
+    await Promise.resolve()
+    auth.personal.abandon()
+    await running
+    expect(auth.state.busy).toBe(true)
+    await auth.logout()
+    expect(api.logout).not.toHaveBeenCalled()
+    post.resolve({ completed: true, next_path: '/' })
+    await vi.waitFor(() => expect(auth.state.busy).toBe(false))
+    expect(auth.state.session?.id).toBe(nextSessionID)
+    expect(auth.personal.passwordProgress).toBeNull()
+    expect(api.getSession).toHaveBeenCalledTimes(2)
+  })
+})
+
+const draftOwners: PersonalSettings[] = []
+afterEach(() => {
+  draftOwners.splice(0).forEach((owner) => owner.dispose())
+  vi.unstubAllGlobals()
+})
+async function draftFixture() {
+  const createURL = vi.fn((_blob: Blob) => 'blob:controlled-preview'),
+    revokeURL = vi.fn()
+  class BlobURL extends URL {
+    static createObjectURL(blob: Blob) {
+      return createURL(blob)
+    }
+    static revokeObjectURL(value: string) {
+      revokeURL(value)
+    }
+  }
+  vi.stubGlobal('URL', BlobURL)
+  const f = await fixture()
+  const settings = createPersonalSettings(f.auth)
+  draftOwners.push(settings)
+  await settings.load('profile')
+  return { ...f, settings, createURL, revokeURL }
+}
+describe('personal draft and Blob ownership', () => {
+  it('does not rebase a selected File version when the same identity observes newer profile facts', async () => {
+    const { api, auth, settings } = await draftFixture()
+    const file = new File(['original'], 'original.png', { type: 'image/png' })
+    settings.selectAvatar(file)
+    api.getSession.mockResolvedValueOnce(view('2'))
+    api.getProfile.mockResolvedValueOnce(profile('2'))
+    await auth.restore()
+    await settings.load('profile')
+    api.putAvatar.mockRejectedValueOnce(fault('VERSION_CONFLICT', 409, 'not_started'))
+    await settings.uploadAvatar()
+    expect(api.putAvatar.mock.calls[0]![0].version).toBe('1')
+    expect(api.putAvatar.mock.calls[0]![0].file === file).toBe(true)
+    expect(settings.candidate.value === file).toBe(true)
+    expect(settings.avatarURL.value).toBe('')
+  })
+  it('treats an explicit current read as facts only and preserves Unknown snapshots until abandonment and reload', async () => {
+    const { api, settings } = await draftFixture()
+    settings.profileDraft.display_name = 'possible result'
+    api.updateProfile.mockRejectedValueOnce(fault('COMMIT_UNKNOWN'))
+    await settings.saveProfile()
+    expect(settings.unresolved.value).toBe('profile')
+    api.getProfile.mockResolvedValueOnce({
+      ...profile('3'),
+      user: { ...profile('3').user, display_name: 'possible result' },
+    })
+    await settings.checkCurrent('profile')
+    expect(settings.unresolved.value).toBe('profile')
+    expect(settings.profileDraft.version).toBe('1')
+    expect(settings.sections.profile.status).toBe('uncertain')
+    const abandon = settings.abandonOperation()
+    settings.finishConfirmation(true)
+    await abandon
+    expect(settings.requiresReload.value).toBe(true)
+    await settings.saveProfile()
+    expect(api.updateProfile.mock.calls.length).toBe(1)
+    await settings.load('profile')
+    expect(settings.requiresReload.value).toBe(false)
+  })
+  it('discards a mismatching avatar readback without inventing a null avatar', async () => {
+    const { api, settings, createURL } = await draftFixture()
+    const meta = {
+      media_type: 'image/png' as const,
+      byte_size: '4',
+      sha256: 'sha256:' + 'a'.repeat(64),
+    }
+    api.getProfile.mockResolvedValueOnce({ ...profile('2'), avatar: meta })
+    api.readAvatar.mockResolvedValueOnce({
+      metadata: { ...meta, sha256: 'sha256:' + 'b'.repeat(64) },
+      blob: new Blob([new Uint8Array(4)], { type: 'image/png' }),
+    })
+    await settings.load('profile')
+    expect(settings.savedProfile.value?.avatar).toEqual(meta)
+    expect(settings.avatarURL.value).toBe('')
+    expect(settings.avatarState.error).toContain('头像已变化')
+    expect(createURL.mock.calls.length).toBe(0)
+    expect(api.readAvatar.mock.calls.length).toBe(1)
+  })
+  it('preserves confirmed deletion separately from a failed subsequent profile read', async () => {
+    const { api, settings } = await draftFixture()
+    const meta = {
+      media_type: 'image/png' as const,
+      byte_size: '4',
+      sha256: 'sha256:' + 'a'.repeat(64),
+    }
+    api.getProfile.mockResolvedValueOnce({ ...profile('2'), avatar: meta })
+    api.readAvatar.mockResolvedValueOnce({
+      metadata: meta,
+      blob: new Blob([new Uint8Array(4)], { type: 'image/png' }),
+    })
+    await settings.load('profile')
+    api.getProfile.mockRejectedValueOnce(fault('DEPENDENCY_UNAVAILABLE', 503, 'not_started'))
+    await settings.removeAvatar('2')
+    expect(settings.sections.profile.status).toBe('confirmed')
+    expect(settings.avatarState.error).toContain('移除已确认')
+    expect(settings.avatarURL.value).toBe('')
+    expect(settings.savedProfile.value?.avatar).toEqual(meta)
+    expect(api.deleteAvatar.mock.calls.length).toBe(1)
+  })
+  it('keeps a late avatar body from creating a URL or repopulating a disposed owner', async () => {
+    const { api, auth, settings, createURL } = await draftFixture()
+    const meta = {
+      media_type: 'image/png' as const,
+      byte_size: '4',
+      sha256: 'sha256:' + 'a'.repeat(64),
+    }
+    const response = deferred<{ metadata: typeof meta; blob: Blob }>()
+    api.getProfile.mockResolvedValueOnce({ ...profile('2'), avatar: meta })
+    api.readAvatar.mockReturnValueOnce(response.promise)
+    const loading = settings.load('profile')
+    await vi.waitFor(() => expect(api.readAvatar.mock.calls.length).toBe(1))
+    settings.dispose()
+    expect(auth.state.busy).toBe(true)
+    response.resolve({ metadata: meta, blob: new Blob([new Uint8Array(4)], { type: 'image/png' }) })
+    await loading
+    await vi.waitFor(() => expect(auth.state.busy).toBe(false))
+    expect(createURL.mock.calls.length).toBe(0)
+    expect(settings.savedProfile.value).toBeNull()
+    expect(settings.avatarURL.value).toBe('')
+  })
+})

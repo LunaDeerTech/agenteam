@@ -1,0 +1,148 @@
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.95.59.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=0565ce9428d2c976d34396b0f334b237
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=6cff84b86cd7b991177b2231f723dabc
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.179s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.011s [no tests to run]
+=== RUN   TestAccountPublicEntryWebPrivacyAndProduction
+    account_entry_web_fixture_test.go:231: entry reset safe facts stage=request {"accepted": 1, "requests": 1, "processed": 0, "reset_rows": 0, "mail_phases": {}, "auth_attempts": 1, "member_exists": true, "outbox_events": 0, "outbox_phases": {}, "audit_attempts": 1, "delivery_intents": 0, "recovery_pass_max": 0, "command_user_bound": 0, "committed_commands": 1, "log_attempts_joined": 0, "recent_existing_resets": 0, "member_password_version_valid": true, "current_password_and_resource_bound": 0}
+    account_entry_web_fixture_test.go:231: entry reset safe facts stage=former-4s-bound {"accepted": 1, "requests": 1, "processed": 0, "reset_rows": 0, "mail_phases": {}, "auth_attempts": 1, "member_exists": true, "outbox_events": 0, "outbox_phases": {}, "audit_attempts": 1, "delivery_intents": 0, "recovery_pass_max": 0, "command_user_bound": 0, "committed_commands": 1, "log_attempts_joined": 0, "recent_existing_resets": 0, "member_password_version_valid": true, "current_password_and_resource_bound": 0}
+    account_entry_web_fixture_test.go:231: entry reset safe facts stage=reset-visible {"accepted": 0, "requests": 1, "processed": 1, "reset_rows": 1, "mail_phases": {}, "auth_attempts": 1, "member_exists": true, "outbox_events": 1, "outbox_phases": {"pending": 1}, "audit_attempts": 1, "delivery_intents": 1, "recovery_pass_max": 1, "command_user_bound": 1, "committed_commands": 1, "log_attempts_joined": 0, "recent_existing_resets": 1, "member_password_version_valid": true, "current_password_and_resource_bound": 1}
+    account_entry_web_fixture_test.go:231: entry reset safe facts stage=link-visible {"accepted": 0, "requests": 1, "processed": 1, "reset_rows": 1, "mail_phases": {"sending": 1}, "auth_attempts": 1, "member_exists": true, "outbox_events": 1, "outbox_phases": {"succeeded": 1}, "audit_attempts": 1, "delivery_intents": 1, "recovery_pass_max": 1, "command_user_bound": 1, "committed_commands": 1, "log_attempts_joined": 0, "recent_existing_resets": 1, "member_password_version_valid": true, "current_password_and_resource_bound": 1}
+    account_entry_web_test.go:75: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:622189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:622189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/account-entry.spec.ts:452:1 › [privacy] generic response and actual production layouts
+        [1A[2K  1 passed (10.4s)
+        
+    account_entry_web_test.go:83: registered/unknown email share public receipt; consumed/revoked links rejected; 24 page/theme/viewport pairs, CSS 200 percent, keyboard/reduced motion and production routing verified
+--- PASS: TestAccountPublicEntryWebPrivacyAndProduction (16.03s)
+=== RUN   TestAccountPersonalSettingsWebThemeAndNavigation
+    personal_settings_web_test.go:47: owned observation 1 user=01a10f08-bbea-7528-9c14-ea90586fa178 version=1 theme=system committed=0 audit=0 avatar=false
+    personal_settings_web_test.go:47: owned observation 2 user=01a10f08-bbea-7528-9c14-ea90586fa178 version=1 theme=system committed=0 audit=0 avatar=false
+    personal_settings_web_test.go:47: owned observation 3 user=01a10f08-bbea-7528-9c14-ea90586fa178 version=1 theme=system committed=0 audit=0 avatar=false
+    personal_settings_web_test.go:47: owned observation 4 user=01a10f08-bbea-7528-9c14-ea90586fa178 version=4 theme=system committed=3 audit=3 avatar=false
+    personal_settings_web_test.go:47: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:623753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:623753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/personal-settings.spec.ts:507:1 › [theme] preview, same-identity drafts, version conflict and protected leaf navigation
+        [1A[2K  1 passed (10.5s)
+        
+    personal_settings_web_test.go:48: owned user=01a10f08-bbea-7528-9c14-ea90586fa178 version=4 committed personal commands=3 matching success audits=3
+    personal_settings_web_test.go:53: preview/cancel were observed against unchanged DB facts; two-window version conflict retained draft; three leaf returns, dirty menu/back/logout and same-Session checking verified
+--- PASS: TestAccountPersonalSettingsWebThemeAndNavigation (15.82s)
+=== RUN   TestAccountPersonalSettingsWebPasswordRotation
+    personal_settings_web_test.go:60: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:625360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:625360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/personal-settings.spec.ts:684:1 › [password] strict success rotates the current Session and revokes another real context
+        [1A[2K  1) e2e/personal-settings.spec.ts:684:1 › [password] strict success rotates the current Session and revokes another real context 
+        
+            Error: response.json: Protocol error (Network.getResponseBody): No data found for resource with given identifier
+        
+              829 |       400,
+              830 |     );
+            > 831 |     expect((await wrong.json()).field_errors).toContainEqual({
+                  |                         ^
+              832 |       path: "/current_password",
+              833 |       code: "INVALID",
+              834 |     });
+                at /workspace/agenteam-public-entry-author-kWHbv4/input12/tests/account-captcha-web/e2e/personal-settings.spec.ts:831:25
+        
+        
+        [1A[2K  1 failed
+            e2e/personal-settings.spec.ts:684:1 › [password] strict success rotates the current Session and revokes another real context 
+        
+    personal_settings_web_test.go:60: actual settings production browser failed: exit status 1
+--- FAIL: TestAccountPersonalSettingsWebPasswordRotation (9.76s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	41.655s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.012s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce f9a5a00ebdb68e81a46457f1462e9af6
+D04 outbound fixture cleanup checked for nonce 6cff84b86cd7b991177b2231f723dabc
+D05 object fixture exact resource cleanup checked nonce=0565ce9428d2c976d34396b0f334b237

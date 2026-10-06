@@ -1,0 +1,43 @@
+[
+  {
+    "name": "browser-type",
+    "argv": [
+      "/workspace/agenteam/web/node_modules/.bin/tsc",
+      "--noEmit",
+      "--target",
+      "ES2022",
+      "--module",
+      "ESNext",
+      "--moduleResolution",
+      "Bundler",
+      "--lib",
+      "ES2022,DOM",
+      "--strict",
+      "--skipLibCheck",
+      "--typeRoots",
+      "/workspace/agenteam/web/node_modules/@types",
+      "e2e/account-entry.spec.ts",
+      "e2e/personal-settings.spec.ts"
+    ],
+    "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input11/tests/account-captcha-web",
+    "safe_env": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+      "GOCACHE": "/workspace/agenteam-public-entry-author-kWHbv4/gocache",
+      "TMPDIR": "/workspace/agenteam-public-entry-author-kWHbv4/compile11-tmp",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-a"
+    },
+    "input_sha256": "6c699aee164f5f52bb61e3f54a24df0f4f2c2d992407aa27fedc0d9683976a68",
+    "exit": 2,
+    "seconds": 1.0214426517486572,
+    "log": "/workspace/agenteam-public-entry-author-kWHbv4/browser-type-input11.log",
+    "sha256": "02f51049c11962bab48a8ecb579f8fc918762198f8ee8a7295151b3f7c6aaf74"
+  }
+]

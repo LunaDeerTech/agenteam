@@ -1,0 +1,120 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.88.206.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=5e509e03b716238fc6340189b0b7d5b8
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=d8a50fd18ada9b42cfb5ebc6fd538166
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.011s [no tests to run]
+=== RUN   TestAccountAuthenticationWebSessionLifecycle
+    authentication_web_test.go:15: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:572216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:572216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/authentication.spec.ts:118:1 › [lifecycle] actual login, refresh, Session CSRF and logout in the production application
+        [1A[2K  1 passed (2.9s)
+        
+    authentication_web_test.go:28: real user=01a10ef9-0263-7a76-8127-8ae090cc8048 session=01a10ef9-0bb4-7f12-ae4b-3f191b8cd32d logout=true successful Session audit=2
+--- PASS: TestAccountAuthenticationWebSessionLifecycle (5.54s)
+=== RUN   TestAccountAuthenticationWebRotateChallenge
+=== RUN   TestAccountAuthenticationWebRotateChallenge/desktop
+    authentication_web_test.go:38: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:572924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:572924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/authentication.spec.ts:199:45 › [desktop] real rotate verification and one-time login consumption
+        [1A[2K  1 passed (6.0s)
+        
+    authentication_web_test.go:46: desktop actual challenge=01a10ef9-2629-72f2-84f2-76f67543a8bb consumed; pass length80/exact same login key checked in memory
+=== RUN   TestAccountAuthenticationWebRotateChallenge/keyboard
+    authentication_web_test.go:38: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:573907) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:573907) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/authentication.spec.ts:199:45 › [keyboard] real rotate verification and one-time login consumption
+        [1A[2K  1 passed (7.0s)
+        
+    authentication_web_test.go:46: keyboard actual challenge=01a10ef9-474f-76a1-a0f9-6fb38098b9ed consumed; pass length80/exact same login key checked in memory
+--- PASS: TestAccountAuthenticationWebRotateChallenge (18.84s)
+    --- PASS: TestAccountAuthenticationWebRotateChallenge/desktop (8.94s)
+    --- PASS: TestAccountAuthenticationWebRotateChallenge/keyboard (9.90s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	25.414s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.012s [no tests to run]
+D03 fixture cleanup checked for nonce 9994813dc4bff678acdc11dc8a569bac
+D04 outbound fixture cleanup checked for nonce d8a50fd18ada9b42cfb5ebc6fd538166
+D05 object fixture exact resource cleanup checked nonce=5e509e03b716238fc6340189b0b7d5b8

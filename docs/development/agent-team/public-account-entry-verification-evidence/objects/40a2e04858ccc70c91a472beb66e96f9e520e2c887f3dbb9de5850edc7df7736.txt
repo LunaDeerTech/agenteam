@@ -1,0 +1,105 @@
+[
+  {
+    "name": "browser-type",
+    "argv": [
+      "/workspace/agenteam/web/node_modules/.bin/tsc",
+      "--noEmit",
+      "--target",
+      "ES2022",
+      "--module",
+      "ESNext",
+      "--moduleResolution",
+      "Bundler",
+      "--lib",
+      "ES2022,DOM,DOM.Iterable",
+      "--strict",
+      "--skipLibCheck",
+      "--typeRoots",
+      "/workspace/agenteam/web/node_modules/@types",
+      "e2e/account-entry.spec.ts",
+      "e2e/personal-settings.spec.ts"
+    ],
+    "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input12/tests/account-captcha-web",
+    "safe_env": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+      "GOCACHE": "/workspace/agenteam-public-entry-author-kWHbv4/gocache",
+      "TMPDIR": "/workspace/agenteam-public-entry-author-kWHbv4/compile12-tmp",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-a"
+    },
+    "input_sha256": "f043d9dcb8fd3de5e9644305521869d06e09d2aa9ab45d09acc6cf6a5cf41a72",
+    "exit": 0,
+    "seconds": 1.6236093044281006,
+    "log": "/workspace/agenteam-public-entry-author-kWHbv4/browser-type-input12.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-compile",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-tags=integration",
+      "-race",
+      "-c",
+      "-o",
+      "/workspace/agenteam-public-entry-author-kWHbv4/bin/account12.test",
+      "./tests/account"
+    ],
+    "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input12",
+    "safe_env": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+      "GOCACHE": "/workspace/agenteam-public-entry-author-kWHbv4/gocache",
+      "TMPDIR": "/workspace/agenteam-public-entry-author-kWHbv4/compile12-tmp",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-a"
+    },
+    "input_sha256": "f043d9dcb8fd3de5e9644305521869d06e09d2aa9ab45d09acc6cf6a5cf41a72",
+    "exit": 0,
+    "seconds": 27.161606788635254,
+    "log": "/workspace/agenteam-public-entry-author-kWHbv4/go-compile-input12.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-vet",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "-tags=integration",
+      "./tests/account"
+    ],
+    "cwd": "/workspace/agenteam-public-entry-author-kWHbv4/input12",
+    "safe_env": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+      "GOCACHE": "/workspace/agenteam-public-entry-author-kWHbv4/gocache",
+      "TMPDIR": "/workspace/agenteam-public-entry-author-kWHbv4/compile12-tmp",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/d26-entry-a"
+    },
+    "input_sha256": "f043d9dcb8fd3de5e9644305521869d06e09d2aa9ab45d09acc6cf6a5cf41a72",
+    "exit": 0,
+    "seconds": 14.487524271011353,
+    "log": "/workspace/agenteam-public-entry-author-kWHbv4/go-vet-input12.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

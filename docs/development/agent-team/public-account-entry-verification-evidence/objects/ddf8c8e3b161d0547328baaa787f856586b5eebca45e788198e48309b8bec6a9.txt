@@ -1,0 +1,5 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/account-entry-client.spec.ts src/tests/account-entry-state.spec.ts
+
+sh: 1: vitest: not found

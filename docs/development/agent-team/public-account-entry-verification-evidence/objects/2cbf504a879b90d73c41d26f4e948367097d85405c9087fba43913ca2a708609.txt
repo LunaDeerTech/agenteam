@@ -1,0 +1,75 @@
+--- input09/tests/account-captcha-web/e2e/account-entry.spec.ts
++++ input12/tests/account-captcha-web/e2e/account-entry.spec.ts
+@@ -186,6 +186,7 @@
+   try {
+     const response = page.waitForResponse(
+       (response) =>
++        new URL(response.url()).origin === new URL(page.url()).origin &&
+         new URL(response.url()).pathname === path &&
+         response.request().method() === "POST",
+     );
+@@ -195,14 +196,25 @@
+       page.evaluate(async () => {
+         const observation = (window as JSONObservationWindow)
+           .__entryJSONObservation!;
+-        return { result: await observation.result, calls: observation.calls };
++        return { result: await observation.result };
+       }),
+     ]);
+     expect(actual.status()).toBe(status);
+-    expect(observed.calls).toBe(1);
++    expect(
++      await page.evaluate(
++        () => (window as JSONObservationWindow).__entryJSONObservation!.calls,
++      ),
++    ).toBe(1);
+     expect(observed.result.ok).toBe(true);
+     if (!observed.result.ok) throw new Error("entry JSON observation failed");
+     expect(observed.result.status).toBe(status);
++    const key = actual.request().headers()["idempotency-key"];
++    expect(
++      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
++        key ?? "",
++      ),
++    ).toBe(true);
++    resetRequestKey = key!;
+     const value = observed.result.value;
+     expect(
+       value !== null && typeof value === "object" && !Array.isArray(value),
+@@ -245,17 +257,34 @@
+   });
+ }
+ let sequence = 0;
++let resetRequestKey = "";
+ async function resetLink(email: string) {
++  if (!resetRequestKey) throw new Error("owned reset request key missing");
+   const current = ++sequence;
++  // One deadline includes recovery's 10s tick, PG observation and restricted
++  // log/IPC transfer. It never extends the original 45s browser case budget.
++  const deadline = Date.now() + 20_000;
+   const path = join(directory, "entry-ipc.json");
+   writeFileSync(
+     path + ".tmp",
+-    JSON.stringify({ sequence: current, email, kind: "reset-link" }),
++    JSON.stringify({
++      sequence: current,
++      email,
++      kind: "reset-link",
++      command_key: resetRequestKey,
++      deadline_ms: deadline,
++    }),
+     { mode: 0o600 },
+   );
+   renameSync(path + ".tmp", path);
++  resetRequestKey = "";
+   const ack = join(directory, `entry-link-${current}.json`);
+-  await expect.poll(() => existsSync(ack)).toBe(true);
++  await expect
++    .poll(() => existsSync(ack), {
++      timeout: Math.max(1, deadline - Date.now()),
++      intervals: [20, 50, 100],
++    })
++    .toBe(true);
+   return (JSON.parse(readFileSync(ack, "utf8")) as { url: string }).url;
+ }
+ async function requestRecovery(page: Page, email: string) {

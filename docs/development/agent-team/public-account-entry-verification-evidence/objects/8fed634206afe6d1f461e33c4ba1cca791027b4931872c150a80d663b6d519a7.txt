@@ -1,0 +1,188 @@
+--- input09/tests/account-captcha-web/e2e/personal-settings.spec.ts
++++ input12/tests/account-captcha-web/e2e/personal-settings.spec.ts
+@@ -42,6 +42,147 @@
+     { mode: 0o600 },
+   );
+ }
++type SettingsJSONResult =
++  { ok: true; status: number; value: unknown } | { ok: false };
++type SettingsJSONWindow = Window & {
++  __settingsJSONObservation?: {
++    result: Promise<SettingsJSONResult>;
++    calls: number;
++    finish(): Promise<void>;
++  };
++};
++type SettingsJSONTarget =
++  | { path: "/api/v1/me/preferences"; method: "PUT"; status: 409 }
++  | { path: "/api/v1/sessions/login"; method: "POST"; status: 401 };
++function installSettingsJSONObservation(target: SettingsJSONTarget) {
++  const scope = window as SettingsJSONWindow;
++  if (scope.__settingsJSONObservation)
++    throw new Error("settings JSON observation already installed");
++  const original = scope.fetch;
++  let settle!: (value: SettingsJSONResult) => void;
++  let reading: Promise<void> | undefined;
++  const observation = {
++    result: new Promise<SettingsJSONResult>((resolve) => {
++      settle = resolve;
++    }),
++    calls: 0,
++    async finish() {
++      if (scope.fetch === wrapped) scope.fetch = original;
++      try {
++        if (reading) await reading;
++        else settle({ ok: false });
++      } finally {
++        delete scope.__settingsJSONObservation;
++      }
++    },
++  };
++  const wrapped: typeof fetch = function (this: unknown, ...args) {
++    // Return the very same native promise/Response, without waiting for the
++    // observer. Cloning tees the body: this instrumentation is only for the
++    // request's small error JSON, never proof of an unobserved stream/owner tail.
++    const pending = Reflect.apply(original, this, args) as Promise<Response>;
++    let matches = false;
++    try {
++      const [input, init] = args;
++      const url = new URL(
++        input instanceof Request ? input.url : String(input),
++        location.href,
++      );
++      const method =
++        init?.method ?? (input instanceof Request ? input.method : "GET");
++      matches =
++        url.origin === location.origin &&
++        url.pathname === target.path &&
++        method.toUpperCase() === target.method;
++    } catch {
++      // Leave invalid/unrelated native fetch calls unchanged.
++    }
++    if (matches && ++observation.calls === 1) {
++      reading = pending
++        .then(async (response): Promise<SettingsJSONResult> => {
++          if (response.status !== target.status)
++            return { ok: true, status: response.status, value: null };
++          const reader = response.clone().body?.getReader();
++          if (!reader) throw new Error("settings JSON observation has no body");
++          const decoder = new TextDecoder("utf-8", { fatal: true });
++          let text = "",
++            bytes = 0;
++          try {
++            for (;;) {
++              const { done, value } = await reader.read();
++              if (done) break;
++              bytes += value.byteLength;
++              // At most the production client's existing JSON byte limit.
++              if (bytes > 600_000)
++                throw new Error("settings JSON observation exceeds limit");
++              text += decoder.decode(value, { stream: true });
++            }
++            text += decoder.decode();
++            return {
++              ok: true,
++              status: response.status,
++              value: JSON.parse(text) as unknown,
++            };
++          } finally {
++            try {
++              await reader.cancel();
++            } finally {
++              reader.releaseLock();
++            }
++          }
++        })
++        .then(settle, () => settle({ ok: false }));
++    }
++    return pending;
++  };
++  scope.__settingsJSONObservation = observation;
++  scope.fetch = wrapped;
++}
++async function settingsJSONFor(
++  page: Page,
++  target: SettingsJSONTarget,
++  action: () => Promise<unknown>,
++) {
++  await page.evaluate(installSettingsJSONObservation, target);
++  try {
++    const response = page.waitForResponse(
++      (response) =>
++        new URL(response.url()).origin === new URL(page.url()).origin &&
++        new URL(response.url()).pathname === target.path &&
++        response.request().method() === target.method,
++    );
++    const [, actual, observed] = await Promise.all([
++      action(),
++      response,
++      page.evaluate(async () => {
++        const observation = (window as SettingsJSONWindow)
++          .__settingsJSONObservation!;
++        return { result: await observation.result };
++      }),
++    ]);
++    expect(actual.status()).toBe(target.status);
++    expect(
++      await page.evaluate(
++        () => (window as SettingsJSONWindow).__settingsJSONObservation!.calls,
++      ),
++    ).toBe(1);
++    expect(observed.result.ok).toBe(true);
++    if (!observed.result.ok) throw new Error("settings JSON observation failed");
++    expect(observed.result.status).toBe(target.status);
++    const value = observed.result.value;
++    expect(
++      value !== null && typeof value === "object" && !Array.isArray(value),
++    ).toBe(true);
++    return value as Record<string, unknown>;
++  } finally {
++    // Includes failed clicks/reads: restore fetch and join the clone's actual
++    // read/cancel/release before leaving the page or destroying its context.
++    await page.evaluate(async () => {
++      await (window as SettingsJSONWindow).__settingsJSONObservation?.finish();
++    });
++  }
++}
++
+ let observationSequence = 0;
+ async function observe(userID: string): Promise<Observation> {
+   const sequence = ++observationSequence;
+@@ -551,14 +692,12 @@
+         exact: true,
+       }),
+     ).toBeVisible();
+-    const conflict = await responseFor(
++    const conflict = await settingsJSONFor(
+       page,
++      { path: "/api/v1/me/preferences", method: "PUT", status: 409 },
+       () => page.getByRole("button", { name: "保存主题", exact: true }).click(),
+-      "/api/v1/me/preferences",
+-      "PUT",
+-      409,
+-    );
+-    expect((await conflict.json()).code).toBe("VERSION_CONFLICT");
++    );
++    expect(conflict.code).toBe("VERSION_CONFLICT");
+     await expect(
+       page.getByRole("radio", { name: "跟随系统", exact: true }),
+     ).toBeChecked();
+@@ -756,14 +895,12 @@
+       .getByRole("textbox", { name: "邮箱", exact: true })
+       .fill(data.admin.email);
+     await privateFill(fresh.locator("#login-password"), data.admin.password);
+-    const refused = await responseFor(
++    const refused = await settingsJSONFor(
+       fresh,
++      { path: "/api/v1/sessions/login", method: "POST", status: 401 },
+       () => fresh.getByRole("button", { name: "登录", exact: true }).click(),
+-      "/api/v1/sessions/login",
+-      "POST",
+-      401,
+-    );
+-    expect((await refused.json()).code).toBe("UNAUTHENTICATED");
++    );
++    expect(refused.code).toBe("UNAUTHENTICATED");
+     await privateFill(fresh.locator("#login-password"), "");
+     expect((await profile(page)).user.initial_password_suggestion).toBe(false);
+     await storedMaterialsAbsent(page);

@@ -1,0 +1,9 @@
+# Blocking 204 stream classification
+
+This finding supersedes the earlier input07 STATIC PASS readiness. The independent real plan bound to input07 was withdrawn without execution.
+
+Author real `new01-retest02` observed the actual reset POST returning HTTP 204 (the response status assertion passed), followed by UI “原请求结果仍未确认。只能重试原请求，或明确放弃。” instead of confirmed success. The 202 receipt and the private reset-link handshake had completed. This is a product confirmation failure visible in the real page, beyond the earlier test-only SQL/body-observation failures.
+
+Frozen `web/src/api/client.ts` rejects every reset 204 whose `response.body !== null`. A body object does not establish any received bytes. Four independent createAccountAPI→controller probes preserve the fixed product code: (1) zero-byte chunks followed by EOF are wrongly rejected; (2) a still-open 204 body is cancelled immediately instead of being consumed, though its actual cancellation tail correctly continues to hold owner; (3) nonempty body and (4) read error are correctly not confirmed. Result: 2 FAIL, 2 PASS, exact raw log retained. Response construction uses a controlled Fetch response with status override to model a 204 stream; it does not claim to instrument the real browser response shape.
+
+Required fix: accept only an actually empty, fully consumed response; accept a null body or zero bytes through EOF, including zero-length chunks; reject nonempty bytes/read failure; abort-aware reading plus a joined cancellation promise and released reader lock. The same owner remains held during body/cancel work after the visible 30-second deadline; timed-out/unread 204 must not confirm or start Session reconciliation. Exact original uncertainty and retry ability stay intact. The unchanged probe and original browser selector must be rerun against a rebuilt, frozen input.
