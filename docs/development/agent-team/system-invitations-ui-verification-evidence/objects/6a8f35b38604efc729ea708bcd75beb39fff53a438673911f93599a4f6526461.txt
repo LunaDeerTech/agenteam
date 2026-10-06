@@ -1,0 +1,448 @@
+--- input01/web/src/App.vue
++++ input02/web/src/App.vue
+@@ -138,6 +138,7 @@
+     </template>
+   </UiDialog>
+   <UiDialog
++    v-if="invitations.confirmation.open"
+     :open="invitations.confirmation.open"
+     :title="invitations.confirmation.title"
+     @update:open="!$event && invitations.finishConfirmation(false)"
+--- input01/web/src/views/system/SystemInvitationsView.vue
++++ input02/web/src/views/system/SystemInvitationsView.vue
+@@ -54,7 +54,17 @@
+     )?.focus()
+ }
+ async function perform(work: () => Promise<void>, event: Event) {
+-  waiting = event.currentTarget as HTMLButtonElement
++  waiting =
++    event instanceof SubmitEvent && event.submitter instanceof HTMLButtonElement
++      ? event.submitter
++      : event.currentTarget instanceof HTMLButtonElement
++        ? event.currentTarget
++        : event.currentTarget instanceof HTMLFormElement
++          ? (Array.from(event.currentTarget.elements).find(
++              (element): element is HTMLButtonElement =>
++                element instanceof HTMLButtonElement && element.type === 'submit',
++            ) ?? null)
++          : null
+   working = true
+   try {
+     await work()
+@@ -316,7 +326,7 @@
+           type="submit"
+           form="system-invitation-create"
+           :disabled="locked"
+-          :state="feedback.kind === 'create' ? feedback.state : 'idle'"
++          :state="feedback.kind === 'create' && feedback.state === 'loading' ? 'loading' : 'idle'"
+           >发送邀请</UiButton
+         ></template
+       >
+@@ -340,7 +350,7 @@
+         ><UiButton
+           variant="danger"
+           :disabled="locked"
+-          :state="feedback.kind === 'revoke' ? feedback.state : 'idle'"
++          :state="feedback.kind === 'revoke' && feedback.state === 'loading' ? 'loading' : 'idle'"
+           @click="perform(invitations.revoke, $event)"
+           >确认撤销</UiButton
+         ></template
+@@ -368,7 +378,7 @@
+         ><UiButton variant="ghost" @click="close">取消</UiButton
+         ><UiButton
+           :disabled="locked"
+-          :state="feedback.kind === 'retry' ? feedback.state : 'idle'"
++          :state="feedback.kind === 'retry' && feedback.state === 'loading' ? 'loading' : 'idle'"
+           @click="perform(invitations.retryDelivery, $event)"
+           >确认重试投递</UiButton
+         ></template
+--- input01/web/src/tests/system-invitations.spec.ts
++++ input02/web/src/tests/system-invitations.spec.ts
+@@ -315,6 +315,76 @@
+     expect(f.posts()).toHaveLength(2)
+     expect(f.wrapper.text()).toContain('暂无待注册邀请')
+   })
++  it.each([true, false])(
++    'restores a rejected form submission to its actionable submit control (%s)',
++    async (explicitSubmitter) => {
++      const f = await page(),
++        held = barrier<Response>()
++      await click('邀请用户')
++      await email(' invalid@example.com ')
++      const submit = button('发送邀请', dialog())
++      submit.focus()
++      f.setMutation(() => held.promise)
++      submit.form!.dispatchEvent(
++        new SubmitEvent('submit', {
++          bubbles: true,
++          cancelable: true,
++          submitter: explicitSubmitter ? submit : null,
++        }),
++      )
++      await flushPromises()
++      expect(submit.disabled).toBe(true)
++      // Browsers blur a control once disabled; jsdom does not model that step.
++      document.body.tabIndex = -1
++      document.body.focus()
++      document.body.removeAttribute('tabindex')
++      expect(document.activeElement).toBe(document.body)
++      held.resolve(problem('INVALID_ARGUMENT', 400, true))
++      await flushPromises()
++      expect(dialog().textContent).toContain('邮箱格式不正确或已被占用')
++      expect(submit.disabled).toBe(false)
++      expect(document.activeElement).toBe(submit)
++    },
++  )
++  it.each([
++    ['create', '邀请用户', '发送邀请', '邀请请求已接受'],
++    ['revoke', '撤销邀请', '确认撤销', '撤销邀请'],
++    ['retry', '重试投递', '确认重试投递', '重试投递请求已接受'],
++  ] as const)(
++    'keeps a fresh %s confirmation independent of the previous success feedback',
++    async (kind, open, submit, reopen) => {
++      const f = await page()
++      let rows = [row(100), row(99)].map((item) => ({
++        ...item,
++        latest_delivery: {
++          ...item.latest_delivery,
++          phase: 'cancelled',
++          channel: null,
++          attempt_result: null,
++          attempts: '0',
++          reason: 'cancelled',
++        },
++      }))
++      f.setList(async () => json({ items: rows }))
++      if (kind === 'revoke')
++        f.setMutation(async () => {
++          rows = rows.slice(1)
++          return new Response(null, { status: 204 })
++        })
++      await click('刷新')
++      await click(open)
++      if (kind === 'create') await email('first@example.com')
++      await click(submit, dialog())
++      expect(document.querySelector('[role="dialog"]')).toBeNull()
++      expect(f.posts()).toHaveLength(1)
++      await click(reopen)
++      const next = button(submit, dialog())
++      expect(next.disabled).toBe(false)
++      expect(next.getAttribute('aria-label')).toBeNull()
++      expect(next.getAttribute('aria-busy')).toBeNull()
++      expect(f.posts()).toHaveLength(1)
++    },
++  )
+   it('confirms revocation using captured invitation version and cancel sends nothing', async () => {
+     const f = await page()
+     await click('撤销邀请')
+@@ -400,6 +470,21 @@
+     expect(document.querySelector<HTMLInputElement>('[role="dialog"] input')?.value).toBe(
+       'unsaved@example.com',
+     )
++    const cancel = button('取消', dialog())
++    cancel.focus()
++    await click('取消', dialog())
++    const overlays = [...document.querySelectorAll('.ui-overlay')]
++    expect(overlays).toHaveLength(2)
++    expect(overlays.at(-1)?.textContent).toContain('放弃未保存修改')
++    await click('继续编辑', dialog())
++    expect(document.activeElement).toBe(cancel)
++    await click('取消', dialog())
++    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
++    await flushPromises()
++    expect(document.activeElement).toBe(cancel)
++    await click('取消', dialog())
++    await click('放弃修改', dialog())
++    expect(document.querySelector('[role="dialog"]')).toBeNull()
+   })
+   it('makes recovery available inside an uncertain modal and replays one original command after checking an empty list', async () => {
+     const f = await page()
+--- input01/tests/account/system_invitations_web_test.go
++++ input02/tests/account/system_invitations_web_test.go
+@@ -38,7 +38,9 @@
+ 			t.Fatal("owned real SMTP failure/success or actual socket joins incomplete")
+ 		}
+ 		var joined int
+-		if e = f.db.Connect(t).QueryRow(ctx, `SELECT count(*) FROM agenteam_account.mail_attempts WHERE channel='smtp' AND terminal AND io_joined AND result IN ('failed','sent')`).Scan(&joined); e != nil || joined != 2 {
++		conn, closeConnection := invitationsWebConnect(t, ctx, f.db)
++		defer closeConnection()
++		if e = conn.QueryRow(ctx, `SELECT count(*) FROM agenteam_account.mail_attempts WHERE channel='smtp' AND terminal AND io_joined AND result IN ('failed','sent')`).Scan(&joined); e != nil || joined != 2 {
+ 			t.Fatal("real current attempts did not join and publish", e)
+ 		}
+ 	}
+--- input01/tests/account/system_invitations_web_fixture_test.go
++++ input02/tests/account/system_invitations_web_fixture_test.go
+@@ -35,11 +35,36 @@
+ 	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
+ 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+ 	smtpfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/smtp"
++	"github.com/jackc/pgx/v5"
+ )
+ 
+ // This task-owned server alone may discard an already completed command
+ // response. It never changes a production handler, commit, body or command key.
+-var invitationResponseLost = errors.New("owned invitation response intentionally lost")
++type invitationResponseLost struct {
++	status int
++	header http.Header
++	prefix []byte
++	length int
++}
++
++func (*invitationResponseLost) Error() string {
++	return "owned invitation response intentionally truncated"
++}
++
++func invitationsWebConnect(t *testing.T, ctx context.Context, db *pgfixture.Database) (*pgx.Conn, func()) {
++	t.Helper()
++	conn, err := db.Fixture.Connect(ctx, db.Name)
++	if err != nil {
++		t.Fatal("owned invitation connection failed", err)
++	}
++	return conn, func() {
++		bounded, cancel := context.WithTimeout(context.Background(), time.Second)
++		defer cancel()
++		if err := conn.Close(bounded); err != nil {
++			t.Error("owned invitation connection did not close", err)
++		}
++	}
++}
+ 
+ type invitationsWebFixture struct {
+ 	*authenticationWebFixture
+@@ -68,6 +93,8 @@
+ func newInvitationsWebRoot(t *testing.T, ctx context.Context, own *invitationsWebFixture) *authenticationWebFixture {
+ 	t.Helper()
+ 	db := pgfixture.NewDatabase(t)
++	conn, closeConnection := invitationsWebConnect(t, ctx, db)
++	defer closeConnection()
+ 	if own.smtp != nil {
+ 		migrator, e := postgres.NewMigrator(db.Config(t, nil))
+ 		if e != nil {
+@@ -92,7 +119,7 @@
+ 		if e != nil {
+ 			t.Fatal(e)
+ 		}
+-		if _, e = db.Connect(t).Exec(ctx, `UPDATE agenteam_outbound.outbound_policy SET rules=$1::jsonb WHERE singleton AND version=1`, string(raw)); e != nil {
++		if _, e = conn.Exec(ctx, `UPDATE agenteam_outbound.outbound_policy SET rules=$1::jsonb WHERE singleton AND version=1`, string(raw)); e != nil {
+ 			t.Fatal("owned exact SMTP policy seed failed", e)
+ 		}
+ 	}
+@@ -165,7 +192,21 @@
+ 	proxy.Transport = transport // NewSingleHostReverseProxy preserves the original Host.
+ 	proxy.ModifyResponse = own.controlResponse
+ 	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, e error) {
+-		if errors.Is(e, invitationResponseLost) {
++		var lost *invitationResponseLost
++		if errors.As(e, &lost) {
++			defer clear(lost.prefix)
++			for name, values := range lost.header {
++				w.Header()[name] = append([]string(nil), values...)
++			}
++			w.Header().Del("Transfer-Encoding")
++			w.Header().Set("Content-Length", strconv.Itoa(lost.length))
++			w.Header().Set("Connection", "close")
++			w.WriteHeader(lost.status)
++			_, _ = w.Write(lost.prefix)
++			// Flush the real success headers and a prefix of its original body
++			// before closing. A connection lost before any headers can be retried
++			// by a browser; this bounded control must never deliver a receipt.
++			_ = http.NewResponseController(w).Flush()
+ 			if h, ok := w.(http.Hijacker); ok {
+ 				c, _, err := h.Hijack()
+ 				if err == nil {
+@@ -173,6 +214,7 @@
+ 					return
+ 				}
+ 			}
++			return
+ 		}
+ 		http.Error(w, "owned API unavailable", 502)
+ 	}
+@@ -263,7 +305,7 @@
+ 		}
+ 	})
+ 	var configured bool
+-	if err := db.Connect(t).QueryRow(ctx, `SELECT configured FROM agenteam_model.platform_selection WHERE singleton`).Scan(&configured); err != nil || configured {
++	if err := conn.QueryRow(ctx, `SELECT configured FROM agenteam_model.platform_selection WHERE singleton`).Scan(&configured); err != nil || configured {
+ 		t.Fatal("real Model Initialize technical singleton missing", err)
+ 	}
+ 	return f
+@@ -368,7 +410,7 @@
+ 	f.lostID = value
+ 	f.lostKey = r.Header.Get("Idempotency-Key")
+ 	f.dropped++
+-	return invitationResponseLost
++	return &invitationResponseLost{status: response.StatusCode, header: response.Header.Clone(), prefix: append([]byte(nil), raw[:len(raw)/2]...), length: len(raw)}
+ }
+ func (f *invitationsWebFixture) private(name string, value any) {
+ 	f.t.Helper()
+@@ -392,7 +434,9 @@
+ }
+ func (f *invitationsWebFixture) databaseInvitations(ctx context.Context) []map[string]any {
+ 	f.t.Helper()
+-	rows, e := f.db.Connect(f.t).Query(ctx, `SELECT v.id::text,v.canonical_email,v.version::text,v.created_at,v.expires_at,i.job_id::text,c.completed_at,coalesce(j.phase,'enqueue_pending'),coalesce(j.attempts,0)::text,coalesce(j.version,1)::text,a.channel,a.result,coalesce(j.reason,'')
++	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
++	defer closeConnection()
++	rows, e := conn.Query(ctx, `SELECT v.id::text,v.canonical_email,v.version::text,v.created_at,v.expires_at,i.job_id::text,c.completed_at,coalesce(j.phase,'enqueue_pending'),coalesce(j.attempts,0)::text,coalesce(j.version,1)::text,a.channel,a.result,coalesce(j.reason,'')
+  FROM agenteam_account.invitations v JOIN LATERAL (SELECT d.* FROM agenteam_account.delivery_intents d JOIN agenteam_account.commands x ON x.id=d.id WHERE d.link_id=v.id AND d.kind='invitation' AND x.phase='committed' ORDER BY x.completed_at DESC,d.job_id DESC LIMIT 1) i ON true JOIN agenteam_account.commands c ON c.id=i.id LEFT JOIN agenteam_account.mail_jobs j ON j.id=i.job_id LEFT JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id WHERE v.expires_at>clock_timestamp() ORDER BY v.created_at DESC,v.id DESC`)
+ 	if e != nil {
+ 		f.t.Fatal("safe invitation database observation failed", e)
+@@ -439,11 +483,13 @@
+ 	f.t.Helper()
+ 	bounded, cancel := context.WithTimeout(ctx, 12*time.Second)
+ 	defer cancel()
++	conn, closeConnection := invitationsWebConnect(f.t, bounded, f.db)
++	defer closeConnection()
+ 	tick := time.NewTicker(20 * time.Millisecond)
+ 	defer tick.Stop()
+ 	for {
+ 		var actual string
+-		e := f.db.Connect(f.t).QueryRow(bounded, `SELECT coalesce(j.phase,'enqueue_pending') FROM agenteam_account.delivery_intents i JOIN agenteam_account.commands c ON c.id=i.id LEFT JOIN agenteam_account.mail_jobs j ON j.id=i.job_id WHERE i.link_id=$1 AND i.kind='invitation' AND c.phase='committed' ORDER BY c.completed_at DESC,i.job_id DESC LIMIT 1`, invitationID).Scan(&actual)
++		e := conn.QueryRow(bounded, `SELECT coalesce(j.phase,'enqueue_pending') FROM agenteam_account.delivery_intents i JOIN agenteam_account.commands c ON c.id=i.id LEFT JOIN agenteam_account.mail_jobs j ON j.id=i.job_id WHERE i.link_id=$1 AND i.kind='invitation' AND c.phase='committed' ORDER BY c.completed_at DESC,i.job_id DESC LIMIT 1`, invitationID).Scan(&actual)
+ 		if e == nil && actual == phase {
+ 			return
+ 		}
+@@ -468,7 +514,8 @@
+ func (f *invitationsWebFixture) ipc(ctx context.Context, r invitationWebIPC) map[string]any {
+ 	f.t.Helper()
+ 	out := map[string]any{"ok": true, "sequence": r.Sequence}
+-	conn := f.db.Connect(f.t)
++	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
++	defer closeConnection()
+ 	if r.ID != "" {
+ 		if _, e := foundation.ParseID[struct{}](r.ID); e != nil {
+ 			f.t.Fatal("invitation IPC target invalid")
+@@ -563,6 +610,7 @@
+ 		}
+ 		f.mu.Lock()
+ 		f.dropNext = true
++		f.lostKey, f.lostID, f.dropped, f.replayed = "", "", 0, 0
+ 		f.dropPath = "/api/v1/system/invitations"
+ 		if r.ID != "" {
+ 			f.dropPath += "/" + r.ID + "/resend"
+@@ -573,18 +621,19 @@
+ 			f.t.Fatal("owned read control unavailable")
+ 		}
+ 		f.failRead.Store(true)
+-	case "replay-facts":
++	case "drop-facts", "replay-facts":
+ 		f.mu.Lock()
+-		key, lostID, replayed := f.lostKey, f.lostID, f.replayed
++		key, lostID, replayed, dropped, armed := f.lostKey, f.lostID, f.replayed, f.dropped, f.dropNext
+ 		f.mu.Unlock()
+ 		var commands, intents int
+-		if e := conn.QueryRow(ctx, `SELECT count(*) FROM agenteam_account.commands WHERE command_key=$1 AND phase='committed' AND resource_id=$2`, key, lostID).Scan(&commands); e != nil {
++		if e := conn.QueryRow(ctx, `SELECT count(*) FROM agenteam_account.commands WHERE command_key=$1 AND phase='committed' AND resource_id::text=$2`, key, lostID).Scan(&commands); e != nil {
+ 			f.t.Fatal(e)
+ 		}
+-		if e := conn.QueryRow(ctx, `SELECT count(*) FROM agenteam_account.delivery_intents i JOIN agenteam_account.commands c ON c.id=i.id WHERE c.command_key=$1 AND i.link_id=$2`, key, lostID).Scan(&intents); e != nil {
++		if e := conn.QueryRow(ctx, `SELECT count(*) FROM agenteam_account.delivery_intents i JOIN agenteam_account.commands c ON c.id=i.id WHERE c.command_key=$1 AND i.link_id::text=$2`, key, lostID).Scan(&intents); e != nil {
+ 			f.t.Fatal(e)
+ 		}
+ 		out["single"] = commands == 1 && intents == 1 && replayed == 1
++		out["commands"], out["intents"], out["replayed"], out["dropped"], out["armed"] = commands, intents, replayed, dropped, armed
+ 	case "demote", "promote", "revoke-session":
+ 		if f.mode != "authority" || r.UserID != f.admin.UserID {
+ 			f.t.Fatal("owned authority identity rejected")
+--- input01/tests/account-captcha-web/e2e/system-invitations.spec.ts
++++ input02/tests/account-captcha-web/e2e/system-invitations.spec.ts
+@@ -65,7 +65,29 @@
+     stable?: boolean;
+     invalid?: boolean;
+     redeemed?: boolean;
++    commands?: number;
++    intents?: number;
++    dropped?: number;
++    replayed?: number;
++    armed?: boolean;
+   };
++}
++async function lostReceipt(subject: Locator) {
++  try {
++    await expect(subject).toContainText("请求结果未确认");
++  } catch (error) {
++    const facts = await ipc("drop-facts");
++    console.log("owned accepted-response control", JSON.stringify(facts));
++    throw error;
++  }
++  const facts = await ipc("drop-facts");
++  expect(
++    facts.dropped === 1 &&
++      facts.replayed === 0 &&
++      facts.armed === false &&
++      facts.commands === 1 &&
++      facts.intents === 1,
++  ).toBe(true);
+ }
+ // Observe the original native reader's result, returning each original Promise
+ // unchanged. No clone/tee, extra read or delayed abort; this is not a join test.
+@@ -512,7 +534,7 @@
+   await ipc("arm-drop");
+   let dialog = await openCreate(page, "invitations-ui-lost@example.com");
+   await dialog.getByRole("button", { name: "发送邀请", exact: true }).click();
+-  await expect(dialog).toContainText("请求结果未确认");
++  await lostReceipt(dialog);
+   await dialog
+     .getByRole("button", { name: "检查当前状态", exact: true })
+     .click();
+@@ -533,7 +555,7 @@
+   await ipc("arm-drop");
+   dialog = await openCreate(page, "invitations-ui-abandoned@example.com");
+   await dialog.getByRole("button", { name: "发送邀请", exact: true }).click();
+-  await expect(dialog).toContainText("请求结果未确认");
++  await lostReceipt(dialog);
+   await dialog
+     .getByRole("button", { name: "放弃本次操作", exact: true })
+     .click();
+@@ -680,7 +702,7 @@
+   await ipc("arm-drop");
+   let draft = await openCreate(page, "invitations-ui-old-session@example.com");
+   await draft.getByRole("button", { name: "发送邀请", exact: true }).click();
+-  await expect(draft).toContainText("请求结果未确认");
++  await lostReceipt(draft);
+   const other = await context.newPage();
+   await other.goto("/login?switch=1&return=/system/invitations");
+   await button(other, "退出当前账号后登录").click();
+@@ -806,17 +828,31 @@
+   );
+   const after = await currentIdentity(page);
+   expect(before.session_id === after.session_id).toBe(true);
++  const resume = dialog.getByLabel("邮箱", { exact: false });
++  await resume.focus();
+   await page.keyboard.press("Escape");
+   const confirmation = page.getByRole("dialog", {
+     name: "放弃未保存修改？",
+     exact: true,
+   });
+   await expect(confirmation).toBeVisible();
++  expect(
++    await confirmation.evaluate((element) => {
++      const overlays = document.querySelectorAll(".ui-overlay");
++      return element.closest(".ui-overlay") === overlays[overlays.length - 1];
++    }),
++  ).toBe(true);
+   await confirmation
+     .getByRole("button", { name: "继续编辑", exact: true })
+     .click();
+   await expect(dialog).toBeVisible();
+-  await dialog.getByRole("button", { name: "取消", exact: true }).click();
++  await expect(resume).toBeFocused();
++  const cancel = dialog.getByRole("button", { name: "取消", exact: true });
++  await cancel.click();
++  await expect(confirmation).toBeVisible();
++  await page.keyboard.press("Escape");
++  await expect(cancel).toBeFocused();
++  await cancel.click();
+   await button(page, "放弃修改").click();
+   await expect(dialog).toHaveCount(0);
+   const target = data.expected[0]!;
+@@ -825,7 +861,7 @@
+   await rowFor(page, target.email)
+     .getByRole("button", { name: "重发邀请", exact: true })
+     .click();
+-  await expect(page.getByText("请求结果未确认", { exact: true })).toBeVisible();
++  await lostReceipt(page.getByText("请求结果未确认", { exact: true }));
+   let checks = 0;
+   page.on("request", (r) => {
+     if (new URL(r.url()).pathname === "/api/v1/session") ++checks;

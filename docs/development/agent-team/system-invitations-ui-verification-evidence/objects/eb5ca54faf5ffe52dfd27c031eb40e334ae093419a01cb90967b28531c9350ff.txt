@@ -1,0 +1,85 @@
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-invitations.spec.ts (14 tests | 1 failed) 908ms
+     × confirms revocation using captured invitation version and cancel sends nothing 72ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-invitations.spec.ts > real App, router and invitations controller composition > confirms revocation using captured invitation version and cancel sends nothing
+AssertionError: expected <h1 data-v-9bd67894 tabindex="-1"></h1> to be <button data-v-9bd67894 …(2)>…(1)</button> // Object.is equality
+
+- Expected
++ Received
+
+- <button
+-   class="ui-button default"
++ <h1
+    data-v-9bd67894=""
+-   type="button"
+- >
+-   <span
+-     class="button-content"
++   tabindex="-1"
+  >
+-     <span
+-       aria-hidden="false"
+-       class="button-label"
+-     >
+-       
+-       邀请用户
+-       
+-     </span>
+-     <span
+-       aria-hidden="true"
+-       class="button-label button-hidden"
+-     >
+-       <span
+-         aria-hidden="true"
+-         class="ui-spinner"
+-       />
+-       处理中
+-     </span>
+-     <span
+-       aria-hidden="true"
+-       class="button-label button-hidden"
+-     >
+-       <svg
+-         aria-hidden="true"
+-         class="ui-icon"
+-         fill="none"
+-         stroke="currentColor"
+-         stroke-linecap="round"
+-         stroke-linejoin="round"
+-         stroke-width="1.6"
+-         viewBox="0 0 24 24"
+-       >
+-         <path
+-           d="M5 12l4 4L19 6"
+-         />
+-       </svg>
+-       邀请请求已接受
+-     </span>
+-     <!--v-if-->
+-     <!--v-if-->
+-   </span>
+- </button>
++   待注册邀请
++ </h1>
+
+ ❯ src/tests/system-invitations.spec.ts:331:36
+    329|     expect(f.posts()[0]![1].body).toBe('{"version":"2"}')
+    330|     expect(f.wrapper.text()).toContain('邀请已撤销')
+    331|     expect(document.activeElement).toBe(button('邀请用户'))
+       |                                    ^
+    332|   })
+    333|   it('keeps phase and actual attempt result independent and enables le…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 103 passed (104)
+   Start at  06:27:56
+   Duration  2.17s (transform 1.21s, setup 0ms, import 1.61s, tests 1.22s, environment 1.60s)
+

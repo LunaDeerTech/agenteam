@@ -1,0 +1,12 @@
+--- input06/tests/account-captcha-web/e2e/system-invitations.spec.ts
++++ input07/tests/account-captcha-web/e2e/system-invitations.spec.ts
+@@ -1545,6 +1545,9 @@
+           .click();
+         await expect(drawer).toHaveCount(0);
+       }
++      // The accessible drawer closes before its leave transition removes the
++      // overlay. Capture the actual page only after the overlay is detached.
++      await expect(page.locator(".ui-overlay")).toHaveCount(0);
+       if (process.env.AGENTEAM_AUTH_WEB_IMAGES)
+         await page.screenshot({
+           path: join(

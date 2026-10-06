@@ -1,0 +1,337 @@
+{
+  "verdict": "PASS: independent invitation UI scope;21 candidate source/test paths accepted for root integration; README path22 remains separate author/root document check",
+  "candidate": {
+    "manifest": "/workspace/scratch/agenteam-d27-invitations-frontend/input07.json",
+    "sha256": "5a0de8fd67b9fd46f9249686d469258c06a8ecb7674e8ae8b02338b9c922dfa6",
+    "frozen_source": "/workspace/scratch/agenteam-d27-invitations-frontend/input07-source",
+    "source_count": 21,
+    "dist_count": 24,
+    "sources": {
+      "web/src/api/client.ts": "335b57fc0a11362b852ed7a145c40b821686131c00059d4634063c2d08ac524a",
+      "web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+      "web/src/api/system-invitations.ts": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+      "web/src/composables/useSession.ts": "4edada1e6790f5503f7fc3f277454ceec484e6e11bc8948b202e09d64d6f0137",
+      "web/src/composables/useSystemInvitations.ts": "eaf19a15da96f3d1d0c366b26b18980672bd76825339835b167acc7603754df6",
+      "web/src/App.vue": "651ef3cfe7178044a47cb3ff90a39df0a557bbf3e4871e08941d332a4022fcf4",
+      "web/src/components/layout/SettingsShell.vue": "8815f6b4ccae1afbaeef4edd3e18ae92d700a791ea156bb97204069e0859feac",
+      "web/src/router/index.ts": "673a2efd6fea4481dacf0555e1a6b81c9809d195fe9ad970f509c61ac2dfed4e",
+      "web/src/router/auth.ts": "f5dc2e229aa01e64e12461c78adb5a950a410119a3f45f12ba5212ec8364695d",
+      "web/src/views/system/SystemSettingsView.vue": "675a2d4c61c37d2d17c28d6b664dc2a1f0a2d161e16389a51abcc7156b1dfbd0",
+      "web/src/views/system/SystemInvitationsView.vue": "f122b2f59a1e8da5480998d9b48d3271702da6f2f0d236e05c4a768c18be7392",
+      "web/src/tests/system-invitations-client.spec.ts": "20aa1a1dee349d545ac98867bcec50f0486f8036d3153fc518971475b66bb1bf",
+      "web/src/tests/system-invitations-state.spec.ts": "16b1bbae44cc7964af1e58620ba03636a95402695e26d19502b049cbaf86b6b0",
+      "web/src/tests/system-invitations.spec.ts": "34eee9f21467db53d0396cb1b6b2d611087785295e24eaa36c6d4db0793e5a6c",
+      "web/src/tests/settings-shell.spec.ts": "a0e579eb72cbb54e2460eb60572d9ac2bcd1ec82a0f19c1f6dd1c80b677986a3",
+      "web/src/tests/system-user-directory.spec.ts": "e5627445f71b275468f110df01ba3b7b4136280557d57a378f2767a3941bff9f",
+      "web/src/tests/personal-settings.spec.ts": "1e6d86daf28d5b7f00ab4c2cd9732c224d7f527ab3b12a3d10bdd30fb20c09b6",
+      "tests/account/system_invitations_web_test.go": "bae6e22be8f6bbcf06349f8b1a85858503c1b5ce623ce2a519e48df04f92cf0a",
+      "tests/account/system_invitations_web_fixture_test.go": "18c40b3eb66c4c363ef1321fcdcbb076757e791dfb9b6b57f7b0b41faf9b47c6",
+      "tests/account-captcha-web/system-invitations.config.js": "0b916d9fd8d261f66a19de5ca5682ca00dc7f089116c1b90b0143e9fdbb8f742",
+      "tests/account-captcha-web/e2e/system-invitations.spec.ts": "50bbefc4517059edc43fa1ee8a60265d02e8f2f9ee69cff8606023bd100722ae"
+    },
+    "dist": {
+      "web/dist/assets/AppearanceSettings-CruB5NAE.js": "f29f0f58b41b672452a07d636f1e9e92379e9c5c85f5d0e2c2cd38f7abf73f2d",
+      "web/dist/assets/ForgotPasswordView-DBEN046h.js": "cb02cd8642da8be99eb37b0149f47898ae67ee89dad07424946b63edd42fa7fc",
+      "web/dist/assets/ForgotPasswordView-DJSF_FFM.css": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2",
+      "web/dist/assets/InvitationView-B4wTz1D4.css": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177",
+      "web/dist/assets/InvitationView-BAiMb-UU.js": "972fab3e945161abb964e17e733e294a56042a87f7b0d6d257fec087880c7623",
+      "web/dist/assets/PasswordSettings-Ds6vu-Ll.js": "fb15daf10e3875b8d1949a6588454a7977bd3f68f92f53e701a4d6524155f19b",
+      "web/dist/assets/PersonalSettingsView-BLWru9en.css": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5",
+      "web/dist/assets/PersonalSettingsView-qgFYx5c1.js": "46bbb2df536be4544107f07fc468955ec29bcf09d43ccf1d6a064a0aef74f87f",
+      "web/dist/assets/ProfileSettings-BdGnnByx.js": "90e4d2dab180cdf128fca0a7b6be58df0e186aa5bbfafc5fe0573b1911a51771",
+      "web/dist/assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+      "web/dist/assets/ResetPasswordView-Bmi_qi4h.js": "900769c6096e3728b7b28ae0c00cfe72b71d7d3e9d04fb3443babeced1b6a4e8",
+      "web/dist/assets/ResetPasswordView-DSiu2awb.css": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527",
+      "web/dist/assets/SettingsShell-CtFwnJeM.js": "975243129496ded63e0097e84f9a25820e24d2711f7d6616e31fa20fbe26cdff",
+      "web/dist/assets/SettingsShell-D9S1S_aF.css": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e",
+      "web/dist/assets/SystemInvitationsView-CKITElIV.js": "6ad546571e96e3628d49076546dd8b01830441ab248f564a3000e202dae7df07",
+      "web/dist/assets/SystemInvitationsView-QSKOYHWH.css": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f",
+      "web/dist/assets/SystemSettingsView-2kluQDJw.css": "5a9935a2f906610a892796a81c273a99d7c64c8c8f5157c2a8779c28e7d5ad7b",
+      "web/dist/assets/SystemSettingsView-C048_Y44.js": "65215073e92262c4b3f9ad25b5a0a887f20fdf881c8cab4fdc89b62b1430073e",
+      "web/dist/assets/SystemUsersView-B41TxT1D.css": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3",
+      "web/dist/assets/SystemUsersView-BTcyiRC5.js": "7f4ce3218f47fdcb3722a9ee7e408fe7a33441b9e47904e1e2e7a64063ca78e0",
+      "web/dist/assets/UiButton-DTI8Zbe9.js": "a57ea83cea494f527273a505dac74c0e0d235358f66eabae94e4e4e3ffac517f",
+      "web/dist/assets/index-0FzqtdGX.css": "1f5f4aec4cdb004e9aadaa03e587dae7d90bbf944b9fc44570cd0ceb769ca2f6",
+      "web/dist/assets/index-BgM6Y0DR.js": "20e7eb529d891945a2efd295a01b47c98f7bb2fa4a21ec9368dc3b8d4ffa118b",
+      "web/dist/index.html": "31592db9bda7bdef41a484fcee86db9ec8a23b2b94a5901bef6fd0dcf907bc7d"
+    },
+    "locks": {
+      "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "tests/account-captcha-web/package-lock.json": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+    },
+    "accepted_shared": {
+      "commit": "79f922ec259d2838052a903612e2a27005618c11",
+      "files": {
+        "web/src/composables/useLayer.ts": "92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f",
+        "web/src/tests/components.spec.ts": "e1ff77d553da35bbdb9ad70763e49ff8a0dec46773a3272ac6c54085d0d83014",
+        "web/src/tests/dialog-outside-focus.spec.ts": "69619799902edb157896712634e2678fc7bc3c2ed16e0b78e5a983347ba8d0e0",
+        "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": "ab6f5b4e33d8d554a42ed64a9b874accc9c94bc67f2dc63626db94e96b089d1a"
+      }
+    }
+  },
+  "backend": "Accepted9b3201547f9b7b61fd9716a6ba6540084961496c, migration1-19; relevant tracked Account/app/Postgres/foundation/testsupport/scripts verified unchanged. Shared focus79f922ec259d2838052a903612e2a27005618c11 consumed unchanged.",
+  "independent_real": {
+    "name": "TestAccountInvitationsIndependentComposite",
+    "run": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02",
+    "command": {
+      "actual_wait_completed": true,
+      "argv": [
+        "sh",
+        "scripts/test-security.sh",
+        "-run",
+        "^TestAccountInvitationsIndependentComposite$"
+      ],
+      "cwd": "/workspace/agenteam",
+      "ended_utc": "2026-10-06T08:23:42.034237+00:00",
+      "env": {
+        "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/images",
+        "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtd27inv-x9lrzy3f",
+        "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+        "AGENTEAM_INVITATIONS_INDEPENDENT_ROOT": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01",
+        "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+        "CGO_ENABLED": "1",
+        "GOCACHE": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/gocache",
+        "GOENV": "off",
+        "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/overlay.json",
+        "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "GOPROXY": "off",
+        "GOSUMDB": "off",
+        "GOTOOLCHAIN": "local",
+        "GOWORK": "off",
+        "TMPDIR": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/runtime"
+      },
+      "exit": 0,
+      "seconds": 56.812,
+      "started_utc": "2026-10-06T08:22:45.222362+00:00"
+    },
+    "result": {
+      "adopted_waits": 4,
+      "browser_processes": 11,
+      "browser_runtime_removed": true,
+      "double_cleanup": true,
+      "driver_exit": 0,
+      "monitor_errors": 0,
+      "node_processes": 2,
+      "observed_processes": 86,
+      "observed_resources": 7,
+      "run": "independent02",
+      "run_directory": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02",
+      "selected_tests_passed": true,
+      "source_files_unchanged": true,
+      "top_levels": [
+        [
+          "PASS",
+          "TestAccountInvitationsIndependentComposite"
+        ]
+      ],
+      "verification_inputs_unchanged": true
+    },
+    "go_top_seconds": 9.48,
+    "browser_tests": 1,
+    "browser_seconds": 4.5,
+    "raw_sha256": "959143ec84aebf24cfd937af20a869c545f5615469d059cb4fba698d8662817d",
+    "facts": [
+      "Real accepted201 response headers then bounded original-body cut; fixture records one committed command and delivery intent before replay.",
+      "Uncertain create dialog retains original email/intent while a pending close confirmation survives synthetic production pageshow, one exactSession503, operable App recovery and same real Cookie Session.",
+      "Recovered confirmation is actual top; continuing restores real native focus inside lower dialog; Tab/Shift+Tab remain there without manual focus injection.",
+      "Explicit current-state action receives realSession200 and closed invitation list200 containing the accepted row, while original operation stays uncertain and no extra POST occurs.",
+      "Explicit original retry sends identical method/path/raw body/key/CSRF; strict closed receipt on real201 confirms, subsequent one-shotGET503 remains a read failure; explicitGET recovery succeeds.",
+      "Browser observes exactly two System POSTs total. Final Go SQL independently verifies commands1/intents1/invitation1, accepted receipt id matches the actual cut command, dropped1/replayed1, exactly oneSession503 and one read503 consumed."
+    ]
+  },
+  "private_test_boundary": {
+    "overlay": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/overlay.json",
+    "new_go_test": "tests/account/zz_d27_invitations_independent_test.go (virtual private overlay only)",
+    "frozen_go_dependencies": [
+      "input07-source/tests/account/system_invitations_web_fixture_test.go",
+      "input07-source/tests/account/system_invitations_web_test.go"
+    ],
+    "fixture_delta": "Private runner only adds two independent IPC actions to arm/observe existing one-shotSession503, restricted to this owned outcome instance. Existing response/server controls retained; no fake authority/identity, no product edit.",
+    "dist": "Go test t.Chdir uses private empty fixture-root/tests/account with web/dist symlink to immutable input07-source/web/dist; no whole-tree copy.",
+    "observation": "Exact extracted input07 native reader observer reused; original fetch/Response/reader/readPromise and cancel semantics retained, no clone/tee/extra reads. This observation is not ownerjoin evidence.",
+    "budgets": "45s browser,2m Go top-level,6m per package; race/count1,workers1,retries0 unchanged; no-tests packages not credited.",
+    "compile": "type01 actual0/1.131s; integration race compile01 actual0/5.257s; corrected discovery --list actual0/0.961s exactly1test."
+  },
+  "pure_reuse": {
+    "owner": "Independent pure01 owner-tail individual group PASS is reused by exact unchanged useSession/API/controller semantics; that entire early run was not green because unrelated App probe failed.",
+    "final_app": "Input03 pure07 3/3 + pure08 4/4 selected actualPASS; frozen report pure-input03-report.*. Cover original pure06 checking0/top order, sameSession failure restore and pending route/logout decisions, immediate new form without stale success. Same17web bytes throughinput07.",
+    "omitted_repeats": "No repeat of unchanged owner or pure07/08; author full453 test/type/format/build checks reused under exact source mapping."
+  },
+  "author_reuse": {
+    "report": "/workspace/scratch/agenteam-d27-invitations-frontend/author-report.json",
+    "sha256": "ea601e4e591653fe479582333aae0526bebc856c379f473d921cce4cb5a243fe",
+    "index": "/workspace/scratch/agenteam-d27-invitations-frontend/AUTHOR-INDEX.md",
+    "index_sha256": "ccb6421d3329c410d2fb1def2a6cf00003147d5dd7f158ea08f74d71d1374d23",
+    "new6": [
+      {
+        "name": "TestAccountSystemInvitationsWebLifecycle",
+        "run": "new04",
+        "input": "input05",
+        "seconds": 15.42
+      },
+      {
+        "name": "TestAccountSystemInvitationsWebDeliveryRetry",
+        "run": "new02",
+        "input": "input03",
+        "seconds": 14.24
+      },
+      {
+        "name": "TestAccountSystemInvitationsWebOutcomeRecovery",
+        "run": "new05",
+        "input": "input06",
+        "seconds": 11.91
+      },
+      {
+        "name": "TestAccountSystemInvitationsWebReadAndPagination",
+        "run": "new02",
+        "input": "input03",
+        "seconds": 32.59
+      },
+      {
+        "name": "TestAccountSystemInvitationsWebAuthorityAndIdentity",
+        "run": "new02",
+        "input": "input03",
+        "seconds": 10.51
+      },
+      {
+        "name": "TestAccountSystemInvitationsWebNavigationAndLayouts",
+        "run": "new06",
+        "input": "input07",
+        "seconds": 11.81
+      }
+    ],
+    "old5": {
+      "run": "old01",
+      "input": "input06",
+      "reason": "input07 only adds invitation screenshot physical-overlay wait; old fixtures and product bytes unchanged",
+      "tests": [
+        {
+          "state": "PASS",
+          "name": "TestAccountPublicEntryWebIdentityNavigation",
+          "seconds": 15.03
+        },
+        {
+          "state": "PASS",
+          "name": "TestAccountAuthenticationWebSessionLifecycle",
+          "seconds": 5.1
+        },
+        {
+          "state": "PASS",
+          "name": "TestAccountPersonalSettingsWebThemeAndNavigation",
+          "seconds": 12.68
+        },
+        {
+          "state": "PASS",
+          "name": "TestAccountSystemUserDirectoryWebAuthorityAndIdentity",
+          "seconds": 9.44
+        },
+        {
+          "state": "PASS",
+          "name": "TestAccountSystemUserDirectoryWebNavigationAndLayouts",
+          "seconds": 8.72
+        }
+      ]
+    },
+    "scope": "Author behavioral passes combined across frozen revisions by unchanged product semantics; not a claim all6new ran together on literalinput07. New06 actualNavigation consumes final screenshot-only delta."
+  },
+  "retained_failures": [
+    "Independent pure01-06 original evidence immutable: true immediate modal-success leakage and checking/top-layer failure are retained separately from probe timing/label assumptions; input03 pure07/08 closes affected behavior.",
+    "Author initial products and fixture/CDP/heading/false-resend409-premise failures retained in author-report/INDEX. Final screenshot evidence excludes new05 light390 leave frame and uses new06 actual detached-overlay image.",
+    "independent01 actualexit1/58.654s: private testDir also discovered archived source copy (Running2); first case fullsafe factsPASS, duplicate hit actual429. Final GoDB assertion did not execute, so run is not accepted. Only config testIgnore **/runs/** changed; --list proved1 and independent02 final whole topPASS."
+  ],
+  "cleanup": {
+    "independent02": "Actualwait exit0/56.812s;7 exact IDs doubleabsent,86 owned PID/starttime gone,4 adopted actualwait,monitor0,baseline unchanged,runtime empty,short browser runtime removed; private/product inputs unchanged. No remaining command/resource ownership.",
+    "independent01": "Actualwait exit1 with same7 exact IDs/86 PID count doubleclean and4 adoptedwait; original fail preserved.",
+    "history": "Earlier unrelated modal old01 PPID1 zombies are not owned or touched by this task; current cleanup claims only current observed ownership."
+  },
+  "limits": [
+    "Only locked Chromium repository harness fallback available; Playwright skill unavailable, root explicitly authorized existing harness.",
+    "Synthetic pageshow invokes production App listener; not physical BFCache evidence. No productionSPA hosting/Vite proxy/new browser engine/nativezoom claim.",
+    "Independent real probe uses restricted backend-log delivery; author unchanged real SMTP browser group supplies separate SMTP composition evidence.",
+    "Raw byte observer buffers explicitly clear on EOF/invalid/overflow/read rejection; no claim every abandoned-reader cancel zeroes memory or DTO observation proves actual ownerjoin.",
+    "Stopped Object/tools independent tasks not rerun or rebuilt as tasks; official selected test-security fixture initializes ordinary accepted dependencies, nonselected packages show no-tests and receive no credit.",
+    "No Git operations or product writes; final README acceptance and commit binding belong to root."
+  ],
+  "artifact_hashes": {
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/pure-input01-report.md": "251dbf897fba0461d2d39218b9905d0109f4ed7f7bd4226993eeef37e5309453",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/pure-input01-report.json": "dffcc9c0b25e5814c22f14e4b253c5364eadf449b7d933e6c82c469b8c0b48b9",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/pure-input02-report.md": "f0eb383222836a1d4e435994b323f9a94f7214e9a8c69ebcd467c88a4d355623",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/pure-input02-report.json": "20dc67ab5cc057547b8b396263f8a9a2e6ed41404bad312cc371c4f29f93893d",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/pure-input03-report.md": "1e9777330482d5608739b6014dbf436ee2d4b6f75d90d93e80435760ad9b2b62",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/pure-input03-report.json": "0c24da1f29658947260e5cde712292954af6fae050f2e43701e6cd704923a5c2",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/pure-input03-cleanup.json": "22b6be5bc53c0dd5ab0e9fcf8662bd5206b8176a0c8e70420e6a0df1ccb80cd1",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/consumed-input01.json": "f4e5364dc4736ac27139473dc6e9271c41e82470080082e55ee830686406cc6d",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/consumed-input03.json": "f5a332b5d5ade4534ab4b1b57b87257d3d0b0b6cd897a68021722bc5da1d29eb",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/input03-static.json": "1a74b2fd8801a565f1381ad7f14718c00c87ea8ea804e740c46ae3a6bce5f723",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/input04-observation-review.json": "5853dbd893cc3d71de3b3a2a61efa63e87bf1d8251e71c1d7e5d20edebc68a95",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/input05-observation-review.json": "8ecd14a29e83150eebad5bcaf58708a34419747820999dacd67e66a5832b16e7",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/input05-competition-attribution.json": "a8d3e18e6d05829de86fc8b86c481cc5c325a58023ef4c398fd50d6b47824929",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/input06-competition-review.json": "117ab8333e73cd22f9c1dd4009c09bad4cdf6143fa44c0163e6f8dcf305efc50",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/raw.log": "87ec32efc2f1c0c678807432637dc59a38b364d2e8631dc4862461418880fc6e",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/command.json": "47bc53c8f0f968426bda36bb1e4b8f9ed9841d196f87805829039e84c9710d7d",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/result.json": "90ac1f0ee5a9cec73613a8f7199afa04113f1885117bf5f836e94aeec212225b",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/cleanup.json": "64295957a50e055782ad6c3f0cc53349aa2bceb959b37f0920139d83827659de",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/baseline.json": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/observed-resources.json": "d22aa87f7a25a2e834301afefec5de7776f4018008eef9c397e4003e0c02481a",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/observed-processes.json": "e072c169340c70858db9f80bedd5a7d718831fef75051f8b2d6e783b9eb8646b",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/monitor-errors.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/adopted-waits.json": "7b2c613e7eb86b5e1116a020caec1a90a5dac80f0731792fa01b14bb7a860c47",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/input-before.json": "8719b37646184e2afc224e0fdc5db3e8e38e79f7a84692c21b0106b8c29cbc2b",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/input-after.json": "8719b37646184e2afc224e0fdc5db3e8e38e79f7a84692c21b0106b8c29cbc2b",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/verification-input.json": "1f3fad28d82660b7276626bea90cf752cd3ed67578ff0102b90285325a840dfe",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/frozen-input.json": "5a0de8fd67b9fd46f9249686d469258c06a8ecb7674e8ae8b02338b9c922dfa6",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/driver.py.txt": "9ef7ed4e84ff0adde52792b71ce18657dac8085e81f7c3891e03443769c40109",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/source/preparation.json": "7fca66212e35be4fcae6b7b60e49cf3c132b46e5636e875bc6c3dfd39ecff789",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/source/independent.spec.ts": "deba21c38aae48aa077a15c259bda8b09163d1c05fd93727ec5a1025cf4d9acf",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/source/independent.config.js": "296e4c1570c7ce75d34bf9672f30655054b42e6ffc30cf96cf3b75c11a5f0888",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/source/overlay.json": "3eafa27c7d1de5ac810d2c05c8ea992087b5a2746d3c81e88ce1834ed87373bc",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/source/independent_test.go": "c0f005093488ed2d58ad80ea505c1fa714ab16fae5ef41a3e0f70e048180b5e2",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent01/source/native-observation.ts": "bc16d12cc944e80c79178c11ea98926a0e9b9644f403918b06bb8140d6b11f87",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/raw.log": "959143ec84aebf24cfd937af20a869c545f5615469d059cb4fba698d8662817d",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/command.json": "387dd1222cbf82ac1ce1cd8fde2a41c0624c1356a8f7cb1097162a9309b665ea",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/result.json": "b3ffafc99cd5be0555e935915505ccc71568be33ca027fa4778197b72ca27f85",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/cleanup.json": "3ffd06dd082fedf4aafda799a69af3867c081e29459b540555965cde07c73d3a",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/baseline.json": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/observed-resources.json": "4a868d86bf92df9af936685d6d97a139a476e92c3e3c545a1821c255e5114228",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/observed-processes.json": "424f916675b6c0e7fdbfdb960f85f9f53181ef39e8d16ffaddf62a53774151bb",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/monitor-errors.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/adopted-waits.json": "835e3af0e660aabbee0093fcbdd244ed4e968ff7d0fd2ea70f58176f87f872bf",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/input-before.json": "8719b37646184e2afc224e0fdc5db3e8e38e79f7a84692c21b0106b8c29cbc2b",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/input-after.json": "8719b37646184e2afc224e0fdc5db3e8e38e79f7a84692c21b0106b8c29cbc2b",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/verification-input.json": "eaa12c34b1eb2978a7e50806d604b91392995f6eebe0d513072bebe91ff9c5dc",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/frozen-input.json": "5a0de8fd67b9fd46f9249686d469258c06a8ecb7674e8ae8b02338b9c922dfa6",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/driver.py.txt": "9ef7ed4e84ff0adde52792b71ce18657dac8085e81f7c3891e03443769c40109",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/source/preparation.json": "7fca66212e35be4fcae6b7b60e49cf3c132b46e5636e875bc6c3dfd39ecff789",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/source/independent.spec.ts": "deba21c38aae48aa077a15c259bda8b09163d1c05fd93727ec5a1025cf4d9acf",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/source/independent.config.js": "f2bdd8eda4032645b168ab394247fb0fb71a6e2db7b2dac31447743bf6977435",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/source/overlay.json": "3eafa27c7d1de5ac810d2c05c8ea992087b5a2746d3c81e88ce1834ed87373bc",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/source/independent_test.go": "c0f005093488ed2d58ad80ea505c1fa714ab16fae5ef41a3e0f70e048180b5e2",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/source/native-observation.ts": "bc16d12cc944e80c79178c11ea98926a0e9b9644f403918b06bb8140d6b11f87",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/compile/type01.json": "c19e04f8e91b4fdd9a8775144856f0b6a8bc412e20b502236c34a7e8cc6f84b2",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/compile/type01.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/compile/compile01.json": "092647aac1982b0665c839aa476a475a839d38a981645751495b6d2a6fada6f9",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/compile/compile01.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/compile/list02.json": "845705ec3b3c8ba675299ec1fa210c84c086e7a6a78fe636904969a55a16f847",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/compile/list02.log": "b5855aade2b6c26ddba1c3980a4db3f136b2afaec849ab4a8ceee6243bf4dbbe",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/independent_test.go": "c0f005093488ed2d58ad80ea505c1fa714ab16fae5ef41a3e0f70e048180b5e2",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/independent.spec.ts": "deba21c38aae48aa077a15c259bda8b09163d1c05fd93727ec5a1025cf4d9acf",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/native-observation.ts": "bc16d12cc944e80c79178c11ea98926a0e9b9644f403918b06bb8140d6b11f87",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/independent.config.js": "f2bdd8eda4032645b168ab394247fb0fb71a6e2db7b2dac31447743bf6977435",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/overlay.json": "3eafa27c7d1de5ac810d2c05c8ea992087b5a2746d3c81e88ce1834ed87373bc",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/preparation.json": "7fca66212e35be4fcae6b7b60e49cf3c132b46e5636e875bc6c3dfd39ecff789",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/run-real.py": "9ef7ed4e84ff0adde52792b71ce18657dac8085e81f7c3891e03443769c40109"
+  },
+  "additional_frozen_pure_roots": [
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/runs/pure01",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/runs/pure02",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/runs/pure03",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/runs/pure04",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/runs/pure05",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/runs/pure06",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/runs/pure07",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/runs/pure08"
+  ],
+  "archive_guidance": "Deduplicate bySHA; preserve source probes/config/driver and original raw/meta/cleanup. UseGit+candidate manifests for reconstruction; do not copy node_modules,GOCACHE,binaries,dist duplicates or fullcandidate trees."
+}

@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "node",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/independent.config.js",
+    "--list"
+  ],
+  "cwd": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01",
+  "env": {
+    "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1",
+    "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/compile",
+    "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+    "AGENTEAM_INVITATIONS_WEB_CASE": "outcome"
+  },
+  "exit": 0,
+  "seconds": 0.961,
+  "actual_wait": true,
+  "exact_one": true,
+  "scope": "list-only; no request, server, fixture or browser launch",
+  "config_sha256": "f2bdd8eda4032645b168ab394247fb0fb71a6e2db7b2dac31447743bf6977435"
+}

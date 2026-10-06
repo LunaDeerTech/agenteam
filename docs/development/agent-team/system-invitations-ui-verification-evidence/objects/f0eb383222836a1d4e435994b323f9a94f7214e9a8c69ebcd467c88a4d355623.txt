@@ -1,0 +1,9 @@
+input02 独立差量复审：BLOCKED
+
+输入1cc558fc266f3e315f76e73a8a32321e43419410a5c6ddaac057483774173a67；21源/24dist/4锁核匹配，六差量受限。作者391项/类型/格式/构建及Go编译/vet、浏览器类型日志hash匹配。
+
+pure05实际exit0/2.024s，App状态组合与原pure04即时新表单断言均通过；不变owner复用pure01。
+
+pure06实际exit1/2.534s：保持放弃确认打开，真实App pageshow触发Session检查，同Session恢复重挂create；确认层仍存在却变为aria-hidden=true/inert=true且不是最后overlay。新POST为0。源码/原日志与输入前后hash齐全，不以纯DOM证明实际浏览器命中。
+
+原input01是逻辑top与DOM显示顺序不一致；本轮重挂create同时成为逻辑top，因此仅z-index不能证明解决。交root决定独立前置范围；未改任何产品/共享组件或Git。全部纯进程已实际wait，未启动真实资源。

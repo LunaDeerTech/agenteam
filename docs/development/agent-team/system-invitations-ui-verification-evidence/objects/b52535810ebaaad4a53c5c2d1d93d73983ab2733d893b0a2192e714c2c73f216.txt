@@ -1,0 +1,354 @@
+--- input04/tests/account-captcha-web/e2e/system-invitations.spec.ts
++++ input05/tests/account-captcha-web/e2e/system-invitations.spec.ts
+@@ -36,6 +36,7 @@
+   stage: "headers" | "done" | "invalid" | "overflow" | "read-failed";
+   code?: string;
+   receipt?: Record<string, string>;
++  page?: InvitationPage;
+   empty?: boolean;
+ };
+ type ObservedWindow = Window & {
+@@ -115,6 +116,207 @@
+       `^/api/v1/system/invitations/${uuid}/(resend|revoke)$`,
+     ),
+     deliveryPath = new RegExp(`^/api/v1/system/mail-jobs/${uuid}/retry$`);
++  // Retain only the closed, bounded read DTO used by the existing wire/DB
++  // comparison. This observes the application's original reader, never a copy.
++  function readProjection(value: unknown): InvitationPage {
++    const require = (condition: unknown) => {
++      if (!condition) throw new Error("invalid closed read projection");
++    };
++    const shape = (
++      value: unknown,
++      required: string[],
++      optional: string[] = [],
++    ) => {
++      require(value && typeof value === "object" && !Array.isArray(value));
++      const row = value as Record<string, unknown>;
++      require(
++        required.every((key) => Object.hasOwn(row, key)) &&
++          Object.keys(row).every(
++            (key) => required.includes(key) || optional.includes(key),
++          ),
++      );
++      return row;
++    };
++    const version = (value: unknown) =>
++      typeof value === "string" &&
++      /^[1-9][0-9]{0,18}$/.test(value) &&
++      BigInt(value) <= 9223372036854775807n;
++    const id = (value: unknown) =>
++      typeof value === "string" && uuidValue.test(value);
++    const instant = (value: unknown) => {
++      if (
++        typeof value !== "string" ||
++        !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(value)
++      )
++        return false;
++      const year = Number(value.slice(0, 4)),
++        month = Number(value.slice(5, 7)),
++        day = Number(value.slice(8, 10)),
++        leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0),
++        days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
++      return (
++        month >= 1 &&
++        month <= 12 &&
++        day >= 1 &&
++        day <= days[month - 1]! &&
++        Number(value.slice(11, 13)) <= 23 &&
++        Number(value.slice(14, 16)) <= 59 &&
++        Number(value.slice(17, 19)) <= 59
++      );
++    };
++    const email = (value: unknown) => {
++      if (
++        typeof value !== "string" ||
++        value.length < 3 ||
++        value.length > 254 ||
++        !/^[\x21-\x7e]+$/.test(value) ||
++        value !== value.toLowerCase()
++      )
++        return false;
++      const parts = value.split("@"),
++        atom =
++          /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*$/;
++      if (parts.length !== 2 || !atom.test(parts[0]!)) return false;
++      const domain = parts[1]!;
++      if (!(domain.startsWith("[") && domain.endsWith("]")))
++        return atom.test(domain);
++      const literal = domain.slice(1, -1),
++        prefixed = literal.startsWith("ipv6:"),
++        address = prefixed ? literal.slice(5) : literal;
++      if (
++        /^(?:0|[1-9][0-9]{0,2})(?:\.(?:0|[1-9][0-9]{0,2})){3}$/.test(address) &&
++        address.split(".").every((part) => Number(part) <= 255)
++      )
++        return true;
++      if (!/^[0-9a-f:.]+$/.test(address) || !address.includes(":"))
++        return false;
++      try {
++        const host = new URL(`http://[${address}]/`).hostname;
++        return (
++          prefixed || /^\[::ffff:[0-9a-f]{1,4}:[0-9a-f]{1,4}\]$/.test(host)
++        );
++      } catch {
++        return false;
++      }
++    };
++    const page = shape(value, ["items"], ["next_cursor"]);
++    require(Array.isArray(page.items) && page.items.length <= 25);
++    const ids = new Set<string>();
++    let previous: Invitation | undefined;
++    const items = (page.items as unknown[]).map((value) => {
++      const row = shape(value, [
++          "id",
++          "email",
++          "version",
++          "created_at",
++          "expires_at",
++          "latest_delivery",
++        ]),
++        delivery = shape(
++          row.latest_delivery,
++          [
++            "job_id",
++            "accepted_at",
++            "phase",
++            "attempts",
++            "version",
++            "channel",
++            "attempt_result",
++          ],
++          ["reason"],
++        );
++      require(
++        id(row.id) &&
++          email(row.email) &&
++          version(row.version) &&
++          instant(row.created_at) &&
++          instant(row.expires_at),
++      );
++      require(
++        id(delivery.job_id) &&
++          instant(delivery.accepted_at) &&
++          version(delivery.version) &&
++          typeof delivery.attempts === "string" &&
++          /^[0-6]$/.test(delivery.attempts),
++      );
++      require(
++        [
++          "enqueue_pending",
++          "pending",
++          "claimed",
++          "sending",
++          "retry_wait",
++          "sent",
++          "failed",
++          "unknown",
++          "cancelled",
++        ].includes(delivery.phase as string),
++      );
++      require(
++        delivery.channel === null ||
++          delivery.channel === "smtp" ||
++          delivery.channel === "backend_log",
++      );
++      require(
++        delivery.attempt_result === null ||
++          ["sent", "failed", "unknown", "cancelled"].includes(
++            delivery.attempt_result as string,
++          ),
++      );
++      if (Object.hasOwn(delivery, "reason"))
++        require(
++          [
++            "sent",
++            "token_invalid",
++            "configuration_invalid",
++            "policy_rejected",
++            "network_failed",
++            "smtp_rejected",
++            "timeout",
++            "cancelled",
++            "unknown",
++          ].includes(delivery.reason as string),
++        );
++      if (delivery.channel === null)
++        require(
++          delivery.attempt_result === null &&
++            !["claimed", "sending", "retry_wait", "sent", "failed"].includes(
++              delivery.phase as string,
++            ),
++        );
++      else require(delivery.attempts !== "0");
++      if (delivery.phase === "enqueue_pending")
++        require(
++          delivery.attempts === "0" &&
++            delivery.version === "1" &&
++            delivery.channel === null &&
++            !Object.hasOwn(delivery, "reason"),
++        );
++      const item = row as unknown as Invitation;
++      require(
++        !ids.has(item.id) &&
++          (!previous ||
++            item.created_at < previous.created_at ||
++            (item.created_at === previous.created_at && item.id < previous.id)),
++      );
++      ids.add(item.id);
++      previous = item;
++      return item;
++    });
++    if (Object.hasOwn(page, "next_cursor"))
++      require(
++        typeof page.next_cursor === "string" &&
++          page.next_cursor.length >= 1 &&
++          page.next_cursor.length <= 8192 &&
++          items.length === 25,
++      );
++    return {
++      items,
++      ...(Object.hasOwn(page, "next_cursor")
++        ? { next_cursor: page.next_cursor as string }
++        : {}),
++    };
++  }
+   const original = window.fetch;
+   window.fetch = function (this: unknown, ...args) {
+     const pending = Reflect.apply(
+@@ -166,6 +368,10 @@
+                   response.status === 202
+                 ? ["job_id", "version"]
+                 : undefined;
++          const list =
++            method === "GET" &&
++            url.pathname === "/api/v1/system/invitations" &&
++            response.status === 200;
+           if (response.status === 204 && !response.body) {
+             fact.empty = true;
+             fact.stage = "done";
+@@ -173,6 +379,7 @@
+           }
+           if (
+             (!receiptKeys &&
++              !list &&
+               response.status < 400 &&
+               response.status !== 204) ||
+             !response.body
+@@ -264,6 +471,7 @@
+                               body[key] as string,
+                             ]),
+                           );
++                        if (list) fact.page = readProjection(body);
+                         fact.stage = "done";
+                         clear();
+                       } catch {
+@@ -296,6 +504,23 @@
+   page.getByRole("button", { name, exact: true });
+ const inviteButton = (page: Page) =>
+   page.getByRole("button", { name: /^(邀请用户|邀请请求已接受)$/ });
++async function fixedHeadingFact(page: Page, title: string) {
++  const heading = page.getByRole("heading", { name: title, exact: true });
++  if ((await heading.count()) !== 1) return { present: false };
++  return heading.evaluate((element, title) => {
++    const text = element.textContent ?? "",
++      compact = text.replace(/\s/g, "");
++    return {
++      present: true,
++      text:
++        compact === title || compact === `!${title}`
++          ? text
++          : "unexpected fixed title",
++      decorative_icon_hidden:
++        element.querySelector("span")?.getAttribute("aria-hidden") === "true",
++    };
++  }, title);
++}
+ const rowFor = (page: Page, email: string) =>
+   page.locator("tbody tr").filter({
+     has: page.locator("td[data-label='邮箱']").filter({ hasText: email }),
+@@ -328,6 +553,9 @@
+     await expect(button(page, "刷新")).toBeEnabled();
+ }
+ async function read(page: Page, action: () => Promise<unknown>) {
++  const after = await page.evaluate(
++    () => (window as ObservedWindow).__invitationRequest ?? 0,
++  );
+   const pending = page.waitForResponse(
+     (r) =>
+       new URL(r.url()).pathname === "/api/v1/system/invitations" &&
+@@ -336,7 +564,29 @@
+   await action();
+   const response = await pending;
+   expect(response.status()).toBe(200);
+-  const value = (await response.json()) as InvitationPage;
++  const observed = () =>
++    page.evaluate(
++      (after) =>
++        (window as ObservedWindow).__invitationFacts?.filter(
++          (fact) =>
++            fact.request > after &&
++            fact.method === "GET" &&
++            fact.path === "/api/v1/system/invitations" &&
++            fact.status === 200,
++        ) ?? [],
++      after,
++    );
++  await expect
++    .poll(async () => {
++      const facts = await observed();
++      return (
++        facts.length === 1 &&
++        facts[0]!.stage === "done" &&
++        facts[0]!.page !== undefined
++      );
++    })
++    .toBe(true);
++  const value = (await observed())[0]!.page!;
+   await expect(button(page, "刷新")).toBeEnabled();
+   return { value, url: new URL(response.url()) };
+ }
+@@ -728,7 +978,10 @@
+       facts = await ipc("read-failure-facts");
+     try {
+       await expect(
+-        page.getByText("操作已确认，列表读取失败", { exact: true }),
++        page.getByRole("heading", {
++          name: "操作已确认，列表读取失败",
++          exact: true,
++        }),
+       ).toBeVisible();
+     } finally {
+       console.log(
+@@ -739,11 +992,15 @@
+           armed: facts.armed,
+           responses,
+           confirmed_failure: await page
+-            .getByText("操作已确认，列表读取失败", { exact: true })
++            .getByRole("heading", {
++              name: "操作已确认，列表读取失败",
++              exact: true,
++            })
+             .isVisible(),
+           ordinary_failure: await page
+-            .getByText("邀请列表读取失败", { exact: true })
++            .getByRole("heading", { name: "邀请列表读取失败", exact: true })
+             .isVisible(),
++          heading: await fixedHeadingFact(page, "操作已确认，列表读取失败"),
+           accepted_message: await page
+             .locator(".write-message")
+             .filter({ hasText: "邀请请求已接受" })
+@@ -1064,8 +1321,12 @@
+     expect((await session).status()).toBe(failFirst ? 503 : 200);
+     if (failFirst) {
+       await expect(
+-        page.getByText("会话尚未确认", { exact: true }),
++        page.getByRole("heading", { name: "会话尚未确认", exact: true }),
+       ).toBeVisible();
++      console.log(
++        "owned failed-Session heading",
++        JSON.stringify(await fixedHeadingFact(page, "会话尚未确认")),
++      );
+       await expect(page.getByRole("dialog")).toHaveCount(0);
+       const retry = page.waitForResponse(
+         (r) =>

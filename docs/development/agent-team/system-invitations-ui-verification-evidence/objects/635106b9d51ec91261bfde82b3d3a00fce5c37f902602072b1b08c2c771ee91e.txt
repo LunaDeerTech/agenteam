@@ -1,0 +1,39 @@
+邀请 UI 独立验收：PASS。固定 input07（SHA256 `5a0de8fd67b9fd46f9249686d469258c06a8ecb7674e8ae8b02338b9c922dfa6`）的21源码/测试路径可交主线程整合；README第22路径另行审查。未执行Git或产品写入。
+
+独立真实唯一组合 `TestAccountInvitationsIndependentComposite` 实际通过：脚本 exit0/56.812s，Go顶层9.48s，浏览器1例/4.5s。真实201原body截断后保留未确认请求；待决确认经过Session503和同Session恢复，真实焦点与Tab仍留在底层表单；Session及列表200不能代替receipt。显式重试保留同method/path/body/key/CSRF，201后GET503仍显示“操作已确认，列表读取失败”，显式GET恢复。浏览器只发2次System POST；最终GoSQL实际核commands1/intents1/invitation1。
+
+最终原始记录：`browser-probe01/runs/independent02/{raw.log,command.json,result.json,cleanup.json}`。raw SHA256 `959143ec84aebf24cfd937af20a869c545f5615469d059cb4fba698d8662817d`。actualwait完成；7 exact IDs双absent、86 PID/starttime清零、4 adopted actualwait、monitor0、基线不变、runtime空且短目录删除，输入未变。无活动命令或自有资源，窗口已交回。
+
+私有overlay仅增加独立Go顶层并绑定冻结2个Go夹具；私有runner仅在本outcome实例开放既有一次Session503控制。生产dist来自固定快照软链，未复制全树。原生观察函数直接复用固定input07；它不证明owner尾部，owner实际join沿未变的独立pure证据。45s/2m/6m、race/count1、workers1/retries0均未放宽。
+
+保留 independent01 原失败：测试发现误收运行归档副本，首例组合过、第二例同邮箱触发真实429，Go末尾DB核对未到；不得算该轮通过。只给私有config增加排除runs，离线--list精确1例后完成independent02；行为断言、产品源与dist未变。原日志与双清证据完整。
+
+复用：owner-tail独立已过子组；最终App pure07 3/3与pure08 4/4；作者453纯测/type/build及新6、必要旧5按精确差量组合。新6并非全部在同一最终字节轮重跑。作者new06的8图为最终视觉输入；new05 light390离场帧不计页面通过。所有旧产品/观察首红保留。
+
+边界：Chromium仓库harness获主线程授权；当前Playwright技能不可用。合成pageshow不等同实际BFCache；无生产托管/Vite代理/新引擎/native zoom声明。独立真实使用受限日志，SMTP组合复用作者已过组。停止的Object/tools任务未触及。
+
+精确交付21路径（各SHA、24dist、全部原件定位见同名JSON）：
+
+- `web/src/api/client.ts`
+- `web/src/api/system-account.ts`
+- `web/src/api/system-invitations.ts`
+- `web/src/composables/useSession.ts`
+- `web/src/composables/useSystemInvitations.ts`
+- `web/src/App.vue`
+- `web/src/components/layout/SettingsShell.vue`
+- `web/src/router/index.ts`
+- `web/src/router/auth.ts`
+- `web/src/views/system/SystemSettingsView.vue`
+- `web/src/views/system/SystemInvitationsView.vue`
+- `web/src/tests/system-invitations-client.spec.ts`
+- `web/src/tests/system-invitations-state.spec.ts`
+- `web/src/tests/system-invitations.spec.ts`
+- `web/src/tests/settings-shell.spec.ts`
+- `web/src/tests/system-user-directory.spec.ts`
+- `web/src/tests/personal-settings.spec.ts`
+- `tests/account/system_invitations_web_test.go`
+- `tests/account/system_invitations_web_fixture_test.go`
+- `tests/account-captcha-web/system-invitations.config.js`
+- `tests/account-captcha-web/e2e/system-invitations.spec.ts`
+
+报告和所列原件已冻结停写；归档按SHA去重，不复制缓存、依赖、二进制或全树。

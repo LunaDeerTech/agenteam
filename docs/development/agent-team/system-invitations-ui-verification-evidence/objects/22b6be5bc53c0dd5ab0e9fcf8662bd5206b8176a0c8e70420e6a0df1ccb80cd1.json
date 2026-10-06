@@ -1,0 +1,18 @@
+{
+  "actual_driver_and_child_exit_confirmed_by_tool_wait": true,
+  "run_pids": {
+    "pure07": {
+      "driver": 495544,
+      "child": 495592,
+      "started_unix": 1791273254.32272
+    },
+    "pure08": {
+      "driver": 497395,
+      "child": 497400,
+      "started_unix": 1791273315.3792799
+    }
+  },
+  "remaining_first": [],
+  "remaining_second": [],
+  "scope": "Only these pure driver/child IDs, their current child/session memberships; no browser, ports or Docker started or inspected. Pure private compile caches retained, not claimed removed."
+}

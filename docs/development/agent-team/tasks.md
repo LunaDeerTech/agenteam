@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：系统待注册邀请 UI 完整卡接受
+
+- [邀请 UI rev4](../work-items/d27-system-invitation-ui.md)22路径已由 `directory_frontend` 完成、`recovery_verification` 独立最终PASS，主线程采纳提交推送 `1c82d888adfef0d8b58ab51c920557ca4e2f084f`，远端一致。[正式报告与最小证据](system-invitations-ui-verification.md)绑定input07 `5a0de8fd…2dfa6`、后端9b32015/迁移1–19与共享79f922；第22路径README在通过后单独审查。卡技术§1–7保持原字节，历史依赖等待由页首先行接受状态覆盖。
+- 作者453测试/type/format/build通过；六新组与五旧组按精确差量组合复用，非最终一轮重跑十一组。独立pure07三组/pure08四组和未变owner子组通过；独立最终真实一组driver exit0/56.812s、Go9.48s、浏览器4.5s，原201截断/同Session503恢复/精确原请求重放/确认后读503与最终SQL commands1/intents1/invitation1通过。
+- 原产品红、观察/fixture前提红、new05 light390离场图缺口均保留，new06补实际页面图。独立首轮误发现归档副本执行两例而429首红，Go末尾DB未到，不算通过；仅私有config排除runs后list1、最终整组通过。九真实轮各自actual wait/资源双清；最终7 exact资源、86所属PID、4 adopted wait、monitor0，窗口释放。旧共享PPID1 Z限制仍沿旧档。
+- 本次只归档和离线核原字节/Git，不复制dist/依赖或重跑产品。完整D26/D27及D08–D28/E01未完成，E01未开始；Summary待决、Object/tools原停止、Artifact/Project及生产未绑定/ready503、生产SPA/Vite/其他引擎/native zoom边界保持。后继Provider依其独立卡推进，不在本结果范围。
+
 ## 2026-10-06：共享模态关闭焦点恢复接受
 
 - [共享修复 rev2](../work-items/d27-modal-focus-restoration.md)四路径已由 `directory_backend` 完成、`recovery_verification` 独立最终 PASS；主线程采纳提交推送 `79f922ec259d2838052a903612e2a27005618c11`，远端一致。[正式报告与最小证据](modal-focus-restoration-verification.md)绑定 input02 `584a9de02239ca17c6bea8834c2cf262aec255cff690780bd0a9c97ffe78c4a6`，四源与Git相同。关闭顶层时合法trigger失败会继续剩余模态内回退，不放宽隐藏/inert/disabled门禁或改变无modal原规则。

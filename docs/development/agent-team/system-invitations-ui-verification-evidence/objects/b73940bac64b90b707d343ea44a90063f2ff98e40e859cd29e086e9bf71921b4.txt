@@ -1,0 +1,34 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW
+
+ ↓ probes/app-recovery.spec.ts > retains the uncertain App draft through failed Session checking, confirms only the replay, and destroys it on a new Session
+stdout | probes/app-recovery.spec.ts > shows a normal submit action on an unsubmitted new form during prior success feedback
+INDEPENDENT_FRESH_FORM_DOM {"source":"input01","newIntentPosts":0,"newDraftEmpty":true,"submitVisibleLabel":"已完成","submitAccessibleLabel":"已完成","submitDisabled":false,"priorWriteStillConfirmed":true,"postReceiptListStillFailed":false,"advancedMilliseconds":0}
+
+ × probes/app-recovery.spec.ts > shows a normal submit action on an unsubmitted new form during prior success feedback 168ms
+   → expected '已完成' to be '发送邀请' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  probes/app-recovery.spec.ts > shows a normal submit action on an unsubmitted new form during prior success feedback
+AssertionError: expected '已完成' to be '发送邀请' // Object.is equality
+
+Expected: "发送邀请"
+Received: "已完成"
+
+ ❯ probes/app-recovery.spec.ts:182:17
+    180|   expect(evidence.newDraftEmpty).toBe(true)
+    181|   expect(submit.disabled).toBe(false)
+    182|   expect(label).toBe('发送邀请')
+       |                 ^
+    183| })
+    184|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 skipped (2)
+   Start at  06:49:33
+   Duration  1.32s (transform 533ms, setup 0ms, import 646ms, tests 169ms, environment 383ms)
+

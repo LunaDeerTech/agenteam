@@ -1,0 +1,31 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^TestAccountInvitationsIndependentComposite$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-06T08:23:42.034237+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/images",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtd27inv-x9lrzy3f",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_INVITATIONS_INDEPENDENT_ROOT": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/overlay.json",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/browser-probe01/runs/independent02/runtime"
+  },
+  "exit": 0,
+  "seconds": 56.812,
+  "started_utc": "2026-10-06T08:22:45.222362+00:00"
+}

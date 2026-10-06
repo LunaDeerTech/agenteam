@@ -1,0 +1,34 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-invitations.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-invitations.spec.ts (16 tests | 1 failed) 976ms
+     × keeps the dirty modal through actual App checking unmount and restores the same email 66ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-invitations.spec.ts > real App, router and invitations controller composition > keeps the dirty modal through actual App checking unmount and restores the same email
+AssertionError: expected '邀请用户邮箱 *仅发送邀请，不设置密码或角色。取消处理中已完成发送邀请处理…' to contain '放弃未保存修改'
+
+Expected: "放弃未保存修改"
+Received: "邀请用户邮箱 *仅发送邀请，不设置密码或角色。取消处理中已完成发送邀请处理中已完成"
+
+ ❯ src/tests/system-invitations.spec.ts:436:42
+    434|     const overlays = [...document.querySelectorAll('.ui-overlay')]
+    435|     expect(overlays).toHaveLength(2)
+    436|     expect(overlays.at(-1)?.textContent).toContain('放弃未保存修改')
+       |                                          ^
+    437|     await click('继续编辑', dialog())
+    438|     expect(document.activeElement).toBe(cancel)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  06:47:59
+   Duration  2.29s (transform 710ms, setup 0ms, import 822ms, tests 976ms, environment 367ms)
+

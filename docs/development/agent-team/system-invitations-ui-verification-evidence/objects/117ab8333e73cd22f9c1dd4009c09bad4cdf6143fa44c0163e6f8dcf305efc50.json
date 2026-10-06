@@ -1,0 +1,38 @@
+{
+  "kind": "independent-readonly-static-review",
+  "result": "STATIC PASS; author actual behavior and final independent browser verdict pending",
+  "manifest": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/input06.json",
+    "sha256": "76a9ee825ffee5de56ab9d18b50768cb6b5c005deb3bd8c19285966390c9d0fc"
+  },
+  "delta": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/input06-delta.diff",
+    "sha256": "37d5534543677edc30bdf6e514c2691ac2a0656f7c955a1cc468230ec535f760",
+    "changed_sources": {
+      "tests/account/system_invitations_web_fixture_test.go": "18c40b3eb66c4c363ef1321fcdcbb076757e791dfb9b6b57f7b0b41faf9b47c6",
+      "tests/account-captcha-web/e2e/system-invitations.spec.ts": "bac0de9443bf61ac9a538a0ad37364ff947a3ddde8ccd0b04f0628d6bdcf9217"
+    }
+  },
+  "input_integrity": "All21 source and24 dist hashes verified;17 web, dist, locks and accepted shared files unchanged.",
+  "native_observer": {
+    "unchanged_from": "input05",
+    "sha256": "5cc23b5293703c1809d6c5eaebc33203d8c452d74325c187fb28462d3bdbec58",
+    "review_reused": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/input05-observation-review.json"
+  },
+  "formal_competition": [
+    "Outcome-only IPC, parsed UUID and invitation.created_by bound to owned admin; exact latest committed invitation delivery chosen.",
+    "Old target requires sent phase, log channel, sent result, terminal and io_joined. Accepted backend9b32015 retryEligible and frozen UI invitationRetryReason permit this terminal case.",
+    "Formal authenticated HTTP POST mail-jobs/{old}/retry must return202 and a different new job; no SQL version mutation.",
+    "Read-only SQL verifies old version exactly+1 and new committed intent belongs to same invitation. Single existing connection polls exact new job sent/log/sent/terminal/io_joined within inherited12s context; no reconnect loop.",
+    "Browser opens original job/version dialog without writes; IPC remains outside browser; real old-target409 requires VERSION_CONFLICT.",
+    "Observed browser mail-jobs POST family must contain exactly one entry whose exact retry path and sole version property match captured old values. No automatic replacement within that family.",
+    "Cancel and explicit successful GET reveal a different latest job for same invitation/email; new retry preview enabled, then cancel, without additional mail-jobs POST."
+  ],
+  "heading": "Only remaining uncertain error-title locator changes to exact accessible heading; lostReceipt acceptance/drop/replay controls and navigation checks preserved.",
+  "limits": [
+    "POST counter specifically observes /api/v1/system/mail-jobs/ family, not unrelated API POSTs; do not overstate it as global network silence.",
+    "Static review does not prove actual409 or actual resource join in this candidate; those await real run records.",
+    "No browser, Go test, service, Docker or other live resource command executed. No active source/log consumption; only frozen candidate and accepted backend Git.",
+    "Input03 independent pure07/pure08 and unchanged owner evidence remain applicable; no repeated pure run."
+  ]
+}

@@ -1,0 +1,60 @@
+import { vi } from 'vitest'
+import { createAccountAPI, type SessionView } from '../candidate03/web/src/api/account'
+import { createSystemAccountAPI } from '../candidate03/web/src/api/system-account'
+import { createSystemInvitationAPI } from '../candidate03/web/src/api/system-invitations'
+import { createSessionController } from '../candidate03/web/src/composables/useSession'
+import type { Fetch } from '../candidate03/web/src/api/client'
+
+export const id = (n: number) => `01900001-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
+export const instant = '2026-10-06T04:05:06.000123Z'
+export const session = (sid = 2): SessionView => ({
+  user: { id: id(1), email: 'admin@example.test', username: 'admin', display_name: 'Administrator',
+    role: 'admin', theme: 'dark', version: '1', initial_password_suggestion: false },
+  session: { id: id(sid), issued_at: instant, idle_expires_at: instant, absolute_expires_at: instant },
+  csrf_token: 'S'.repeat(43),
+})
+export const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), {
+  status,
+  headers: { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+    'X-Request-ID': id(99) },
+})
+export const failure = (code = 'DEPENDENCY_UNAVAILABLE', status = 503) => json({
+  type: 'urn:agenteam:problem:dependency-unavailable', title: 'Unavailable', status, code,
+  detail: 'Synthetic controlled transport failure', instance: '/api/v1/session',
+  request_id: id(99), commit_state: 'not_started',
+}, status)
+export function gate<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>(r => { resolve = r })
+  return { promise, resolve }
+}
+export function fixture() {
+  let sessionResponse: Fetch = async () => json(session())
+  let listResponse: Fetch = async () => json({ items: [] })
+  let writeResponse: Fetch = async () => json({ id: id(10), job_id: id(11), version: '1' }, 201)
+  let signedIn = true
+  const calls: { path: string; init: RequestInit }[] = []
+  const fetcher = vi.fn<Fetch>(async (path, init) => {
+    calls.push({ path, init })
+    if (path === '/api/v1/session') return signedIn ? sessionResponse(path, init) : failure('UNAUTHENTICATED',401)
+    if (path === '/api/v1/sessions/logout') { signedIn = false; return new Response(null,{status:204}) }
+    if (path.startsWith('/api/v1/system/invitations?')) return listResponse(path, init)
+    if (path.startsWith('/api/v1/system/users?')) return json({ items: [] })
+    if (path.startsWith('/api/v1/system/')) return writeResponse(path, init)
+    throw new Error('Unexpected controlled transport endpoint')
+  })
+  return {
+    auth: createSessionController(createAccountAPI(fetcher), createSystemAccountAPI(fetcher),
+      createSystemInvitationAPI(fetcher)),
+    calls,
+    setSession(fn: Fetch) { sessionResponse = fn },
+    setList(fn: Fetch) { listResponse = fn },
+    setWrite(fn: Fetch) { writeResponse = fn },
+    writes: () => calls.filter(call => call.init.method === 'POST'),
+    reads: () => calls.filter(call => call.path.startsWith('/api/v1/system/invitations?')),
+  }
+}
+export function sameCommand(a: {path: string; init: RequestInit}, b: {path: string; init: RequestInit}) {
+  return a.path === b.path && a.init.method === b.init.method && a.init.body === b.init.body &&
+    JSON.stringify(a.init.headers) === JSON.stringify(b.init.headers)
+}

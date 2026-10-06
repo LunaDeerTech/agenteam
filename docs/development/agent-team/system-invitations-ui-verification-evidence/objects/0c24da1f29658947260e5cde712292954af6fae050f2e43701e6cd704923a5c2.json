@@ -1,0 +1,109 @@
+{
+  "conclusion": "STATIC AND INDEPENDENT PURE PASS for invitation input03; real browser/business acceptance still pending author repair, no product final PASS",
+  "manifest": "/workspace/scratch/agenteam-d27-invitations-frontend/input03.json",
+  "manifest_sha256": "3f14302874d07c9c59ff3c076716c418465f975fca3efa610a193f75fa952051",
+  "shared_commit": "79f922ec259d2838052a903612e2a27005618c11",
+  "backend_commit": "9b3201547f9b7b61fd9716a6ba6540084961496c",
+  "migration_prefix": "1-19",
+  "fixed_scope": "All21 source and24dist hashes verified, only5 declared source deltas; 31-file private App closure, fixed Git/shared deps, no active tree read",
+  "static": [
+    "Confirmation UI moved from App to after all3 business Dialogs within same View; App controller/navigation/Promise ownership unchanged. detach does not answer pending confirmation.",
+    "alive set false and waiting cleared before unmount; currentView checked after awaits and before focus. Continued editing leaves shared accepted modal layer responsible for restoration; no global Dialog query remains.",
+    "one-shot503 fixture limited to navigation mode and exact SessionGET, CAS consumes once and safe counter records actual failure; unrelated auth/permissions unchanged.",
+    "owner/API/controller byte equality permits individual owner-tail PASS reuse from original pure01; no rerun or overall-pure01-PASS claim."
+  ],
+  "independent": {
+    "pure07": "3/3 actual0/2.129s: original uncertain-write/strict replay thenGET503 semantics; immediate new form normal label with zero newPOST and zero time advance; original pure06 syntheticpageshow checking0 then2 layers confirmationlast/noninert, zeroPOST.",
+    "pure08": "4/4 actual0/2.174s: route/logout pending through exactly one503 and reachable App recovery; sameSession preserves draft and two-layer ordering; continued editing/explicitdiscard each via real DOM buttons; routepromise settlesonce, logout0or1 only per explicitdecision, invitationPOST0."
+  },
+  "original_probe_adjustments": [
+    "Only new source imports/shared79 and rev4 checking0 replace oldexpect1; add actual #app host and jsdom rect measurement for accepted visibility contract. Oldpure01-06 remain immutable.",
+    "pure08 adds logout fixture response for fixed formal /api/v1/sessions/logout; core owner uses unchanged production transport/controller."
+  ],
+  "real_outcome_limit": "Author input03 realOutcome still failing before nextfreeze. Fixed spec armsGETfailure, createsstrict201, thenchecks confirmed/readfailed title before any newform. pure07 verifies that same stage but cannot disprove a real defect. Prior postReceiptListStillFailed=false is only after explicit newform open clears writeMessage and does not explain author realOutcome red. Await exactGET503/control/title diagnostics.",
+  "results": {
+    "pure07": {
+      "exit": 0,
+      "seconds": 2.129,
+      "timed_out": false,
+      "inputs_equal": true,
+      "child_actual_wait": true,
+      "adopted_waits": [],
+      "raw_sha256": "f9348b68c84b39a5fb96c84e104be89d6f8b2e389001702f75fb9b94408a393a"
+    },
+    "pure08": {
+      "exit": 0,
+      "seconds": 2.174,
+      "timed_out": false,
+      "inputs_equal": true,
+      "child_actual_wait": true,
+      "adopted_waits": [],
+      "raw_sha256": "7ece224983f2181d74f3abc999a06f446f4a91142c9ae77144ba237dd63043a0"
+    }
+  },
+  "cleanup": {
+    "actual_driver_and_child_exit_confirmed_by_tool_wait": true,
+    "run_pids": {
+      "pure07": {
+        "driver": 495544,
+        "child": 495592,
+        "started_unix": 1791273254.32272
+      },
+      "pure08": {
+        "driver": 497395,
+        "child": 497400,
+        "started_unix": 1791273315.3792799
+      }
+    },
+    "remaining_first": [],
+    "remaining_second": [],
+    "scope": "Only these pure driver/child IDs, their current child/session memberships; no browser, ports or Docker started or inspected. Pure private compile caches retained, not claimed removed."
+  },
+  "limits": [
+    "Purejsdom only, synthesizedpageshow into productionApp listener; not native browser pageshow/pointer/focus proof.",
+    "No browser/PG/Docker/backend resources started; author retains sole real window.",
+    "No product files/Git changes; real author6new/5old and independent real representative remain outstanding."
+  ],
+  "artifact_hashes": {
+    "consumed-input03.json": "f5a332b5d5ade4534ab4b1b57b87257d3d0b0b6cd897a68021722bc5da1d29eb",
+    "input03-static.json": "1a74b2fd8801a565f1381ad7f14718c00c87ea8ea804e740c46ae3a6bce5f723",
+    "pure-input03-cleanup.json": "22b6be5bc53c0dd5ab0e9fcf8662bd5206b8176a0c8e70420e6a0df1ccb80cd1",
+    "runs/pure07/raw.log": "f9348b68c84b39a5fb96c84e104be89d6f8b2e389001702f75fb9b94408a393a",
+    "runs/pure07/command.json": "4b139cc56217edc3f368f42a8ed1301d08f337dcc57ad25da30d48cd70d5c0b1",
+    "runs/pure07/result.json": "1654d14e2784825fdb520480ec7d99361f0c0c59bf7af8d6f179ac9768f49bee",
+    "runs/pure07/pid.json": "3fab5246015ea4020fa0f27176a8a0ed41c695ddf0df73adb0f33a252c4a3f1c",
+    "runs/pure07/input-before.json": "b8bc7279a5e2dc281ccead5e907c52f91f73b53cc68a7d976febb85e052bd592",
+    "runs/pure07/input-after.json": "b8bc7279a5e2dc281ccead5e907c52f91f73b53cc68a7d976febb85e052bd592",
+    "runs/pure07/source/run-pure03.py": "d60563628ccb3040519dfb602ea771c462a37877a1e7d692a66500ea1648ba7b",
+    "runs/pure07/source/consumed-input03.json": "f5a332b5d5ade4534ab4b1b57b87257d3d0b0b6cd897a68021722bc5da1d29eb",
+    "runs/pure07/source/vitest03.config.mjs": "186ca44f5b63f5e99d66d148ddab906856acde9ae228343c138171d091055a53",
+    "runs/pure07/source/prepare-pure.py": "e03d9c10fd438c417dc8c12f2f4277b5f73fa4757296c69b2bcc8974129af736",
+    "runs/pure07/source/probes03/app-recovery.spec.ts": "eeaa23e7d7ca8ab87e515d7d80daf9cb2b3cf9f9d929f8b956c8feb8de2e69a7",
+    "runs/pure07/source/probes03/support.ts": "bb48307ca4eaf85ff7fb1cf0e328eb4e933fe3adf0d43a26e9ac3e1af14974bd",
+    "runs/pure08/raw.log": "7ece224983f2181d74f3abc999a06f446f4a91142c9ae77144ba237dd63043a0",
+    "runs/pure08/command.json": "66b3c9072f7bf4db57f9235e12b87ab854fcca64b4c733b53cb9f62605f54b44",
+    "runs/pure08/result.json": "7942b2cccf4d90bb96d4171657a9c8bfdf7deb8d9a10051344b70835eb3b3541",
+    "runs/pure08/pid.json": "3dbae28ae313676cf4e2ec4ed39942503b5fbd2590f14e27c6ca1b826d130ece",
+    "runs/pure08/input-before.json": "42a3dca3b8aba588b2b65bb7743443da56775aed96e775683fbda1633288bda7",
+    "runs/pure08/input-after.json": "42a3dca3b8aba588b2b65bb7743443da56775aed96e775683fbda1633288bda7",
+    "runs/pure08/source/run-pure03.py": "d60563628ccb3040519dfb602ea771c462a37877a1e7d692a66500ea1648ba7b",
+    "runs/pure08/source/consumed-input03.json": "f5a332b5d5ade4534ab4b1b57b87257d3d0b0b6cd897a68021722bc5da1d29eb",
+    "runs/pure08/source/vitest03.config.mjs": "186ca44f5b63f5e99d66d148ddab906856acde9ae228343c138171d091055a53",
+    "runs/pure08/source/prepare-pure.py": "e03d9c10fd438c417dc8c12f2f4277b5f73fa4757296c69b2bcc8974129af736",
+    "runs/pure08/source/probes03/app-recovery.spec.ts": "8fef89ce848af6916c39e98020990fe39d15ef14afd65bd009fcd3ad17fd08fd",
+    "runs/pure08/source/probes03/support.ts": "f24d59a87544438100ac37317b2476a2199447941aa128295f8a5eab094e9adf"
+  },
+  "frozen": [
+    "candidate03/",
+    "consumed-input03.json",
+    "input03-static.json",
+    "probes03/",
+    "vitest03.config.mjs",
+    "run-pure03.py",
+    "runs/pure07/",
+    "runs/pure08/",
+    "pure-input03-cleanup.json",
+    "pure-input03-report.json",
+    "pure-input03-report.md"
+  ]
+}

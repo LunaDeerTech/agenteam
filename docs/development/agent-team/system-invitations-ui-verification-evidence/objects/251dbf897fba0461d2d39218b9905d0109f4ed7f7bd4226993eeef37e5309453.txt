@@ -1,0 +1,10 @@
+独立纯探针 input01 记录（冻结）
+
+输入：a80cfe32714a7351e62ce14d7ff32205b655db47222935b58423789ce6234a32。最小31文件闭包，未复制全web/依赖。
+
+- owner组合：pure01实际通过；30秒可见超时后EOF、reader取消、response取消各自屏障均守住同一Cookie owner；重放保持原完整命令，Retry后读503/not_started保留未确认。
+- App状态组合：pure03实际通过，含检查Session暂时失败后草稿/原意图保留、同Session恢复、严格重放确认后GET失败、新Session销毁。该轮推进了正式2400ms反馈时钟，仅覆盖反馈窗口之后。
+- 新表单缺陷：pure04实际失败。严格写确认且GET503后，不推进timer立即重开空表单，新POST为0、submit未禁用，但可见和aria标签均为“已完成”。这一独立DOM红保留，不被pure03绿覆盖。
+- pure01/pure02原红及各轮精确probe、命令、环境、实际exit、输入前后hash保留；pure02第二处最初误归因已纠正。
+
+raw及源定位在同目录pure-input01-report.json。当前只通过不变owner和限定App状态语义，产品不通过；须待作者App/view修复后复验受影响组。jsdom不证明真实焦点、遮罩点击或视觉。未启动浏览器、服务、Docker或真实fixture，真实窗口仍归作者。

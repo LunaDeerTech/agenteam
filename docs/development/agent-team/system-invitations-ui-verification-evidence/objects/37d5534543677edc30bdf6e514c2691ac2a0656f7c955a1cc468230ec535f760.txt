@@ -1,0 +1,203 @@
+--- input05/tests/account/system_invitations_web_fixture_test.go
++++ input06/tests/account/system_invitations_web_fixture_test.go
+@@ -541,7 +541,7 @@
+ 		}
+ 		f.waitInvitation(ctx, r.ID, r.Phase)
+ 		out["items"] = f.databaseInvitations(ctx)
+-	case "cooldown", "compete":
++	case "cooldown":
+ 		var value invitationStableFacts
+ 		if e := conn.QueryRow(ctx, `SELECT token_verifier,expires_at FROM agenteam_account.invitations WHERE id=$1 AND created_by=$2`, r.ID, f.admin.UserID).Scan(&value.Token, &value.Expires); e != nil {
+ 			f.t.Fatal("owned invitation target missing", e)
+@@ -554,14 +554,45 @@
+ 		if _, e := conn.Exec(ctx, `UPDATE agenteam_account.invitations SET last_delivery_at=clock_timestamp()-interval '61 seconds' WHERE id=$1 AND created_by=$2`, r.ID, f.admin.UserID); e != nil {
+ 			f.t.Fatal(e)
+ 		}
+-		if r.Action == "compete" {
+-			var version string
+-			if e := conn.QueryRow(ctx, `SELECT version::text FROM agenteam_account.invitations WHERE id=$1`, r.ID).Scan(&version); e != nil {
+-				f.t.Fatal(e)
+-			}
+-			f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/system/invitations/"+r.ID+"/resend", map[string]string{"version": version}, f.csrf, true, 202)
+-			f.waitInvitation(ctx, r.ID, "sent")
+-		}
++	case "compete":
++		if f.mode != "outcome" {
++			f.t.Fatal("owned delivery competition unavailable")
++		}
++		var job string
++		var version int64
++		var eligible bool
++		if e := conn.QueryRow(ctx, `SELECT j.id::text,j.version,j.phase='sent' AND a.channel='log' AND a.result='sent' AND a.terminal AND a.io_joined
++ FROM agenteam_account.invitations v JOIN LATERAL (SELECT d.job_id FROM agenteam_account.delivery_intents d JOIN agenteam_account.commands c ON c.id=d.id WHERE d.link_id=v.id AND d.kind='invitation' AND c.phase='committed' ORDER BY c.completed_at DESC,d.job_id DESC LIMIT 1) i ON true JOIN agenteam_account.mail_jobs j ON j.id=i.job_id JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id WHERE v.id=$1 AND v.created_by=$2`, r.ID, f.admin.UserID).Scan(&job, &version, &eligible); e != nil || !eligible {
++			f.t.Fatal("owned completed log delivery target unavailable", e)
++		}
++		// The formal command advances the original job's version. Resend only
++		// changes delivery facts and cannot manufacture a link-version conflict.
++		receipt := f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/system/mail-jobs/"+job+"/retry", map[string]string{"version": strconv.FormatInt(version, 10)}, f.csrf, true, 202)
++		next := httpString(f.t, receipt, "job_id")
++		if next == job {
++			f.t.Fatal("formal competing retry reused the old job")
++		}
++		var advanced, sameInvitation bool
++		if e := conn.QueryRow(ctx, `SELECT j.version=$2+1,EXISTS(SELECT 1 FROM agenteam_account.delivery_intents d JOIN agenteam_account.commands c ON c.id=d.id WHERE d.job_id=$3 AND d.link_id=$4 AND d.kind='invitation' AND c.phase='committed') FROM agenteam_account.mail_jobs j WHERE j.id=$1`, job, version, next, r.ID).Scan(&advanced, &sameInvitation); e != nil || !advanced || !sameInvitation {
++			f.t.Fatal("formal competing retry did not advance the same invitation", e)
++		}
++		bounded, cancel := context.WithTimeout(ctx, 12*time.Second)
++		defer cancel()
++		tick := time.NewTicker(20 * time.Millisecond)
++		defer tick.Stop()
++		for {
++			var joined bool
++			e := conn.QueryRow(bounded, `SELECT j.phase='sent' AND a.channel='log' AND a.result='sent' AND a.terminal AND a.io_joined FROM agenteam_account.mail_jobs j JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id WHERE j.id=$1`, next).Scan(&joined)
++			if e == nil && joined {
++				break
++			}
++			select {
++			case <-bounded.Done():
++				f.t.Fatal("formal competing retry did not join its actual delivery")
++			case <-tick.C:
++			}
++		}
++		out["advanced"], out["same_invitation"], out["joined"] = advanced, sameInvitation, true
+ 	case "stable":
+ 		original, ok := f.stable[r.ID]
+ 		if !ok {
+--- input05/tests/account-captcha-web/e2e/system-invitations.spec.ts
++++ input06/tests/account-captcha-web/e2e/system-invitations.spec.ts
+@@ -4,6 +4,7 @@
+   type Page,
+   type Locator,
+   type Response,
++  type Request as BrowserRequest,
+ } from "@playwright/test";
+ import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
+ import { join } from "node:path";
+@@ -84,6 +85,9 @@
+     replayed?: number;
+     armed?: boolean;
+     failures?: number;
++    advanced?: boolean;
++    same_invitation?: boolean;
++    joined?: boolean;
+   };
+ }
+ async function lostReceipt(subject: Locator) {
+@@ -1021,25 +1025,87 @@
+   ).toHaveCount(0);
+   await read(page, () => button(page, "重新读取列表").click());
+   const target = data.expected[0]!;
+-  await rowFor(page, target.email)
+-    .getByRole("button", { name: "撤销邀请", exact: true })
+-    .click();
+-  await ipc("compete", { id: target.id });
+-  const conflict = await post(
+-    page,
+-    "/revoke",
+-    () => button(page, "确认撤销").click(),
+-    409,
+-  );
+-  expect(conflict.code).toBe("VERSION_CONFLICT");
+-  await expect(
+-    page.getByRole("dialog", { name: "撤销邀请？", exact: true }),
+-  ).toContainText("版本已变化");
+-  await page
+-    .getByRole("dialog", { name: "撤销邀请？", exact: true })
+-    .getByRole("button", { name: "取消", exact: true })
+-    .click();
+-  await read(page, () => button(page, "刷新").click());
++  expect(
++    target.latest_delivery.phase === "sent" &&
++      target.latest_delivery.channel === "backend_log" &&
++      target.latest_delivery.attempt_result === "sent",
++  ).toBe(true);
++  const writes: boolean[] = [];
++  const recordWrite = (request: BrowserRequest) => {
++    const path = new URL(request.url()).pathname;
++    if (
++      request.method() !== "POST" ||
++      !path.startsWith("/api/v1/system/mail-jobs/")
++    )
++      return;
++    let original = false;
++    try {
++      const body = request.postDataJSON();
++      original =
++        path ===
++          `/api/v1/system/mail-jobs/${target.latest_delivery.job_id}/retry` &&
++        Object.keys(body).length === 1 &&
++        body.version === target.latest_delivery.version;
++    } catch {}
++    writes.push(original);
++  };
++  page.on("request", recordWrite);
++  try {
++    await rowFor(page, target.email)
++      .getByRole("button", { name: "重试投递", exact: true })
++      .click();
++    const retryDialog = page.getByRole("dialog", {
++      name: "重试投递？",
++      exact: true,
++    });
++    await expect(retryDialog).toContainText("可能造成重复投递");
++    expect(writes.length).toBe(0);
++    const competing = await ipc("compete", { id: target.id });
++    expect(
++      competing.advanced === true &&
++        competing.same_invitation === true &&
++        competing.joined === true,
++    ).toBe(true);
++    expect(writes.length).toBe(0);
++    const conflict = await post(
++      page,
++      "/retry",
++      () =>
++        retryDialog
++          .getByRole("button", { name: "确认重试投递", exact: true })
++          .click(),
++      409,
++    );
++    expect(conflict.code).toBe("VERSION_CONFLICT");
++    await expect(retryDialog).toContainText("版本已变化");
++    expect(writes).toEqual([true]);
++    await expect(
++      retryDialog.getByRole("button", { name: "重试原请求", exact: true }),
++    ).toHaveCount(0);
++    await retryDialog
++      .getByRole("button", { name: "取消", exact: true })
++      .click();
++    const fresh = await read(page, () => button(page, "刷新").click());
++    const latest = fresh.value.items.find((row) => row.id === target.id)!;
++    expect(
++      latest.email === target.email &&
++        latest.latest_delivery.job_id !== target.latest_delivery.job_id,
++    ).toBe(true);
++    await rowFor(page, target.email)
++      .getByRole("button", { name: "重试投递", exact: true })
++      .click();
++    await expect(retryDialog).toContainText("可能造成重复投递");
++    await expect(
++      retryDialog.getByRole("button", { name: "确认重试投递", exact: true }),
++    ).toBeEnabled();
++    expect(writes).toEqual([true]);
++    await retryDialog
++      .getByRole("button", { name: "取消", exact: true })
++      .click();
++    expect(writes).toEqual([true]);
++  } finally {
++    page.off("request", recordWrite);
++  }
+   expect(typeof accepted.id === "string").toBe(true);
+   result({
+     replayed: true,
+@@ -1410,7 +1476,9 @@
+   await rowFor(page, target.email)
+     .getByRole("button", { name: "重发邀请", exact: true })
+     .click();
+-  await lostReceipt(page.getByText("请求结果未确认", { exact: true }));
++  await lostReceipt(
++    page.getByRole("heading", { name: "请求结果未确认", exact: true }),
++  );
+   let checks = 0;
+   page.on("request", (r) => {
+     if (new URL(r.url()).pathname === "/api/v1/session") ++checks;

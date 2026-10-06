@@ -1,0 +1,534 @@
+--- input02/web/src/App.vue
++++ input03/web/src/App.vue
+@@ -137,20 +137,6 @@
+       <UiButton @click="entry.finishConfirmation(true)">放弃并离开</UiButton>
+     </template>
+   </UiDialog>
+-  <UiDialog
+-    v-if="invitations.confirmation.open"
+-    :open="invitations.confirmation.open"
+-    :title="invitations.confirmation.title"
+-    @update:open="!$event && invitations.finishConfirmation(false)"
+-  >
+-    <p>{{ invitations.confirmation.message }}</p>
+-    <template #footer>
+-      <UiButton variant="ghost" @click="invitations.finishConfirmation(false)">继续编辑</UiButton>
+-      <UiButton @click="invitations.finishConfirmation(true)">{{
+-        invitations.confirmation.label
+-      }}</UiButton>
+-    </template>
+-  </UiDialog>
+ </template>
+ <style scoped>
+ .authentication-shell :deep(.system-nav) {
+--- input02/web/src/views/system/SystemInvitationsView.vue
++++ input03/web/src/views/system/SystemInvitationsView.vue
+@@ -1,5 +1,5 @@
+ <script setup lang="ts">
+-import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
++import { nextTick, onBeforeUnmount, onMounted, onUnmounted, ref, watch } from 'vue'
+ import UiButton from '../../components/ui/UiButton.vue'
+ import UiDialog from '../../components/ui/UiDialog.vue'
+ import UiField from '../../components/ui/UiField.vue'
+@@ -8,7 +8,7 @@
+ import { invitationRetryReason, useSystemInvitations } from '../../composables/useSystemInvitations'
+ import type { InvitationDelivery } from '../../api/system-invitations'
+ const invitations = useSystemInvitations()
+-const { state, draft, dialogs, feedback, progress, blocked, locked } = invitations
++const { state, draft, dialogs, confirmation, feedback, progress, blocked, locked } = invitations
+ const heading = ref<HTMLElement | null>(null),
+   actions = ref<HTMLElement | null>(null)
+ const phases: Record<InvitationDelivery['phase'], string> = {
+@@ -37,21 +37,36 @@
+ const time = (value: string) => value.slice(0, 10) + ' ' + value.slice(11, 19)
+ let waiting: HTMLButtonElement | null = null
+ let working = false
++let alive = true
++const currentView = () => alive && heading.value?.isConnected === true
++const businessDialogOpen = () => dialogs.create || !!dialogs.revoke || !!dialogs.retry
++function operable(element: HTMLElement) {
++  if (!element.isConnected || element.matches(':disabled')) return false
++  for (let node: HTMLElement | null = element; node; node = node.parentElement)
++    if (node.inert || node.hidden || node.getAttribute('aria-hidden') === 'true') return false
++  return true
++}
+ function restoreFocus() {
+-  if (blocked.value) return
++  if (!currentView() || blocked.value) return
+   const previous = waiting
+   waiting = null
+-  if (previous?.isConnected && !previous.disabled) previous.focus()
++  if (confirmation.open) return
++  if (
++    previous &&
++    operable(previous) &&
++    (!businessDialogOpen() || previous.closest('[role="dialog"]'))
++  )
++    previous.focus()
++  else if (businessDialogOpen()) return
+   else if (
+     previous ||
+     !document.activeElement?.isConnected ||
+     document.activeElement === document.body
+-  )
+-    (
+-      document.querySelector<HTMLElement>('[role="dialog"] button:not(:disabled)') ??
+-      actions.value?.querySelector<HTMLButtonElement>('button:not(:disabled)') ??
+-      heading.value
+-    )?.focus()
++  ) {
++    const target =
++      actions.value?.querySelector<HTMLButtonElement>('button:not(:disabled)') ?? heading.value
++    if (target && operable(target)) target.focus()
++  }
+ }
+ async function perform(work: () => Promise<void>, event: Event) {
+   waiting =
+@@ -71,16 +86,21 @@
+   } finally {
+     working = false
+   }
++  if (!currentView()) return
+   await nextTick()
+   restoreFocus()
+ }
+ async function close() {
+   await invitations.closeDialog()
++  if (!currentView()) return
+   await nextTick()
++  // Continue editing leaves its business dialog open. The shared layer owns
++  // confirmation-close restoration, including a trigger lost during checking.
++  if (!currentView() || confirmation.open || businessDialogOpen()) return
+   restoreFocus()
+ }
+ watch(blocked, async (value) => {
+-  if (!value && waiting && !working) {
++  if (!value && waiting && !working && currentView()) {
+     await nextTick()
+     restoreFocus()
+   }
+@@ -88,7 +108,12 @@
+ onMounted(async () => {
+   invitations.attach()
+   await nextTick()
+-  if (!dialogs.create && !dialogs.revoke && !dialogs.retry) heading.value?.focus()
++  if (currentView() && !confirmation.open && !businessDialogOpen() && operable(heading.value!))
++    heading.value!.focus()
++})
++onBeforeUnmount(() => {
++  alive = false
++  waiting = null
+ })
+ onUnmounted(invitations.detach)
+ </script>
+@@ -384,6 +409,17 @@
+         ></template
+       >
+     </UiDialog>
++    <UiDialog
++      :open="confirmation.open"
++      :title="confirmation.title"
++      @update:open="!$event && invitations.finishConfirmation(false)"
++    >
++      <p>{{ confirmation.message }}</p>
++      <template #footer>
++        <UiButton variant="ghost" @click="invitations.finishConfirmation(false)">继续编辑</UiButton>
++        <UiButton @click="invitations.finishConfirmation(true)">{{ confirmation.label }}</UiButton>
++      </template>
++    </UiDialog>
+   </div>
+ </template>
+ <style scoped>
+--- input02/web/src/tests/system-invitations.spec.ts
++++ input03/web/src/tests/system-invitations.spec.ts
+@@ -80,7 +80,7 @@
+   return { promise, resolve }
+ }
+ let wrapper: VueWrapper | undefined
+-beforeEach(() =>
++beforeEach(() => {
+   vi.stubGlobal(
+     'matchMedia',
+     vi.fn((media: string) => ({
+@@ -89,8 +89,12 @@
+       addEventListener: vi.fn(),
+       removeEventListener: vi.fn(),
+     })),
+-  ),
+-)
++  )
++  // jsdom has no layout; browser tests own visibility/geometry and real focus.
++  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
++    () => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList,
++  )
++})
+ afterEach(() => {
+   wrapper?.unmount()
+   wrapper = undefined
+@@ -175,7 +179,10 @@
+   installAuthentication(router, selected.auth)
+   await router.push(path)
+   await router.isReady()
+-  wrapper = mount(App, { attachTo: document.body, global: { plugins: [router] } })
++  const host = document.createElement('div')
++  host.id = 'app'
++  document.body.append(host)
++  wrapper = mount(App, { attachTo: host, global: { plugins: [router] } })
+   await flushPromises()
+   return {
+     wrapper,
+@@ -194,6 +201,9 @@
+     setSessionRequest(value: Fetch) {
+       session = value
+     },
++    resetSessionRequest() {
++      session = async () => (signedIn ? json(current) : problem('UNAUTHENTICATED', 401))
++    },
+     posts() {
+       return fetch.mock.calls.filter(
+         ([p, init]) => p.startsWith('/api/v1/system/') && init.method === 'POST',
+@@ -228,6 +238,33 @@
+   el.value = value
+   el.dispatchEvent(new Event('input', { bubbles: true }))
+   await flushPromises()
++}
++function sameSession(): SessionView {
++  return {
++    user,
++    session: { id: id(2), issued_at: time, idle_expires_at: time, absolute_expires_at: time },
++    csrf_token: 'S'.repeat(43),
++  }
++}
++async function pageshowChecking(f: Awaited<ReturnType<typeof page>>, response: Promise<Response>) {
++  f.setSessionRequest(() => response)
++  window.dispatchEvent(new Event('pageshow'))
++  await flushPromises()
++  expect(f.wrapper.text()).toContain('正在确认会话')
++  expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
++  expect(document.getElementById('app')!.inert).toBe(false)
++  expect(document.body.style.overflow).not.toBe('hidden')
++}
++function pendingConfirmation() {
++  const layers = [...document.querySelectorAll<HTMLElement>('[role="dialog"]')]
++  expect(layers).toHaveLength(2)
++  const [business, confirmation] = layers
++  expect(confirmation!.textContent).toContain('放弃未保存修改')
++  expect(confirmation!.getAttribute('aria-hidden')).toBeNull()
++  expect(confirmation!.inert).toBe(false)
++  expect(business!.inert).toBe(true)
++  expect(business!.querySelector<HTMLInputElement>('input')!.value).toBe('pending@example.com')
++  return { business: business!, confirmation: confirmation! }
+ }
+ 
+ describe('real App, router and invitations controller composition', () => {
+@@ -507,6 +544,113 @@
+     expect(f.posts()[1]![1].headers).toEqual(f.posts()[0]![1].headers)
+     expect(document.querySelector('[role="dialog"]')).toBeNull()
+   })
++  it.each([false, true])(
++    'cohosts a pending close confirmation across pageshow checking and failure recovery (%s)',
++    async (failFirst) => {
++      const f = await page(),
++        held = barrier<Response>()
++      await click('邀请用户')
++      await email('pending@example.com')
++      await click('取消', dialog())
++      pendingConfirmation()
++      await pageshowChecking(f, held.promise)
++      if (failFirst) {
++        held.resolve(problem('DEPENDENCY_UNAVAILABLE', 503))
++        await flushPromises()
++        expect(f.wrapper.text()).toContain('会话尚未确认')
++        expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
++        expect(document.getElementById('app')!.inert).toBe(false)
++        expect(button('检查当前会话').disabled).toBe(false)
++        f.resetSessionRequest()
++        await click('检查当前会话')
++      } else {
++        f.resetSessionRequest()
++        held.resolve(json(sameSession()))
++        await flushPromises()
++      }
++      const restored = pendingConfirmation()
++      expect(f.posts()).toHaveLength(0)
++      await click('继续编辑', restored.confirmation)
++      expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1)
++      expect(restored.business.inert).toBe(false)
++      expect(restored.business.contains(document.activeElement)).toBe(true)
++      expect(restored.business.querySelector<HTMLInputElement>('input')!.value).toBe(
++        'pending@example.com',
++      )
++      await click('取消', restored.business)
++      await click('放弃修改', dialog())
++      expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
++      expect(f.posts()).toHaveLength(0)
++    },
++  )
++  it.each([
++    ['route', false],
++    ['route', true],
++    ['logout', false],
++    ['logout', true],
++  ] as const)('settles a pending %s once after checking with discard=%s', async (kind, discard) => {
++    const f = await page(),
++      held = barrier<Response>()
++    await click('邀请用户')
++    await email('pending@example.com')
++    let navigation: Promise<unknown> | undefined
++    if (kind === 'route') navigation = f.router.push('/system/users')
++    else button('退出登录').click()
++    await flushPromises()
++    pendingConfirmation()
++    await pageshowChecking(f, held.promise)
++    f.resetSessionRequest()
++    held.resolve(json(sameSession()))
++    await flushPromises()
++    const restored = pendingConfirmation()
++    expect(f.posts()).toHaveLength(0)
++    await click(discard ? '放弃修改' : '继续编辑', restored.confirmation)
++    await navigation
++    await flushPromises()
++    const logouts = f.fetch.mock.calls.filter(
++      ([path, init]) => path.endsWith('/logout') && init.method === 'POST',
++    )
++    expect(logouts).toHaveLength(kind === 'logout' && discard ? 1 : 0)
++    expect(f.router.currentRoute.value.path).toBe(
++      discard ? (kind === 'route' ? '/system/users' : '/login') : '/system/invitations',
++    )
++    if (discard) expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
++    else {
++      expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1)
++      expect(dialog().querySelector<HTMLInputElement>('input')!.value).toBe('pending@example.com')
++    }
++    expect(f.posts()).toHaveLength(0)
++  })
++  it.each(['forbidden', 'new-session', 'revoked', 'dispose'] as const)(
++    'ends a pending navigation with false and clears confirmation on %s',
++    async (kind) => {
++      const f = await page()
++      await click('邀请用户')
++      await email('pending@example.com')
++      const navigation = f.router.push('/system/users')
++      await flushPromises()
++      pendingConfirmation()
++      if (kind === 'dispose') {
++        f.wrapper.unmount()
++        wrapper = undefined
++      } else {
++        const value = sameSession()
++        if (kind === 'forbidden') value.user = { ...value.user, role: 'user' }
++        if (kind === 'new-session') value.session = { ...value.session, id: id(50) }
++        f.setSessionRequest(async () =>
++          kind === 'revoked' ? problem('SESSION_REVOKED', 401) : json(value),
++        )
++        window.dispatchEvent(new Event('pageshow'))
++        await flushPromises()
++      }
++      await expect(navigation).resolves.toBeTruthy()
++      await flushPromises()
++      expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
++      expect(document.getElementById('app')!.inert).toBe(false)
++      expect(f.posts()).toHaveLength(0)
++      expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/logout'))).toHaveLength(0)
++    },
++  )
+   it('confirms menu/top navigation and logout before any Session check, then discards only after consent', async () => {
+     const f = await page()
+     await click('邀请用户')
+--- input02/tests/account/system_invitations_web_fixture_test.go
++++ input03/tests/account/system_invitations_web_fixture_test.go
+@@ -81,6 +81,8 @@
+ 	lostKey, lostID         string
+ 	dropped, replayed       int
+ 	failRead                atomic.Bool
++	failSession             atomic.Bool
++	sessionFailures         atomic.Int32
+ 	expected                []map[string]any
+ 	stable                  map[string]invitationStableFacts
+ 	secrets                 []string
+@@ -228,7 +230,11 @@
+ 	assets := http.FileServer(http.Dir(root))
+ 	server := &http.Server{ReadHeaderTimeout: 5 * time.Second, Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+ 		if r.URL.Path == "/api/v1" || strings.HasPrefix(r.URL.Path, "/api/v1/") {
+-			if r.Method == http.MethodGet && r.URL.Path == "/api/v1/system/invitations" && own.failRead.CompareAndSwap(true, false) {
++			failedSession := r.Method == http.MethodGet && r.URL.Path == "/api/v1/session" && own.failSession.CompareAndSwap(true, false)
++			if failedSession {
++				own.sessionFailures.Add(1)
++			}
++			if failedSession || (r.Method == http.MethodGet && r.URL.Path == "/api/v1/system/invitations" && own.failRead.CompareAndSwap(true, false)) {
+ 				requestID := id[struct{}](t).String()
+ 				w.Header().Set("Content-Type", "application/problem+json")
+ 				w.Header().Set("X-Request-ID", requestID)
+@@ -621,6 +627,15 @@
+ 			f.t.Fatal("owned read control unavailable")
+ 		}
+ 		f.failRead.Store(true)
++	case "arm-session-fail":
++		if f.mode != "navigation" || f.sessionFailures.Load() != 0 || !f.failSession.CompareAndSwap(false, true) {
++			f.t.Fatal("owned one-shot Session response control unavailable")
++		}
++	case "session-failure-facts":
++		if f.mode != "navigation" {
++			f.t.Fatal("owned Session response observation unavailable")
++		}
++		out["failures"], out["armed"] = f.sessionFailures.Load(), f.failSession.Load()
+ 	case "drop-facts", "replay-facts":
+ 		f.mu.Lock()
+ 		key, lostID, replayed, dropped, armed := f.lostKey, f.lostID, f.replayed, f.dropped, f.dropNext
+--- input02/tests/account-captcha-web/e2e/system-invitations.spec.ts
++++ input03/tests/account-captcha-web/e2e/system-invitations.spec.ts
+@@ -70,6 +70,7 @@
+     dropped?: number;
+     replayed?: number;
+     armed?: boolean;
++    failures?: number;
+   };
+ }
+ async function lostReceipt(subject: Locator) {
+@@ -815,38 +816,118 @@
+   await expect(trigger).toBeFocused();
+   dialog = await openCreate(page, "invitations-ui-draft@example.com");
+   const before = await currentIdentity(page);
+-  const session = page.waitForResponse(
+-    (r) => new URL(r.url()).pathname === "/api/v1/session",
+-  );
+-  await page.evaluate(() =>
+-    window.dispatchEvent(new PageTransitionEvent("pageshow")),
+-  );
+-  await session;
+-  dialog = page.getByRole("dialog", { name: "邀请用户", exact: true });
+-  await expect(dialog.getByLabel("邮箱", { exact: false })).toHaveValue(
+-    "invitations-ui-draft@example.com",
+-  );
+-  const after = await currentIdentity(page);
+-  expect(before.session_id === after.session_id).toBe(true);
+-  const resume = dialog.getByLabel("邮箱", { exact: false });
+-  await resume.focus();
+-  await page.keyboard.press("Escape");
+   const confirmation = page.getByRole("dialog", {
+     name: "放弃未保存修改？",
+     exact: true,
+   });
+-  await expect(confirmation).toBeVisible();
+-  expect(
+-    await confirmation.evaluate((element) => {
+-      const overlays = document.querySelectorAll(".ui-overlay");
+-      return element.closest(".ui-overlay") === overlays[overlays.length - 1];
+-    }),
+-  ).toBe(true);
+-  await confirmation
+-    .getByRole("button", { name: "继续编辑", exact: true })
+-    .click();
+-  await expect(dialog).toBeVisible();
+-  await expect(resume).toBeFocused();
++  let invitationPosts = 0;
++  page.on("request", (request) => {
++    if (
++      request.method() === "POST" &&
++      new URL(request.url()).pathname.startsWith("/api/v1/system/")
++    )
++      ++invitationPosts;
++  });
++  for (const failFirst of [false, true]) {
++    await dialog.getByRole("button", { name: "取消", exact: true }).click();
++    await expect(confirmation).toBeVisible();
++    if (failFirst) await ipc("arm-session-fail");
++    const session = page.waitForResponse(
++      (r) =>
++        new URL(r.url()).pathname === "/api/v1/session" &&
++        r.request().method() === "GET",
++    );
++    // A synthetic pageshow enters the production App listener. Only the one
++    // explicitly armed Session response is 503; recovery uses the real backend.
++    const checking = await page.evaluate(async () => {
++      window.dispatchEvent(new PageTransitionEvent("pageshow"));
++      await Promise.resolve();
++      return {
++        dialogs: [
++          ...document.querySelectorAll<HTMLElement>('[role="dialog"]'),
++        ].filter(
++          (element) =>
++            !element.inert && element.getAttribute("aria-hidden") !== "true",
++        ).length,
++        inert: document.getElementById("app")!.inert,
++        locked: document.body.style.overflow === "hidden",
++      };
++    });
++    expect(checking).toEqual({ dialogs: 0, inert: false, locked: false });
++    expect((await session).status()).toBe(failFirst ? 503 : 200);
++    if (failFirst) {
++      await expect(
++        page.getByText("会话尚未确认", { exact: true }),
++      ).toBeVisible();
++      await expect(page.getByRole("dialog")).toHaveCount(0);
++      const retry = page.waitForResponse(
++        (r) =>
++          new URL(r.url()).pathname === "/api/v1/session" &&
++          r.request().method() === "GET",
++      );
++      await button(page, "检查当前会话").click();
++      expect((await retry).status()).toBe(200);
++      const facts = await ipc("session-failure-facts");
++      expect(facts.failures === 1 && facts.armed === false).toBe(true);
++    }
++    await expect(confirmation).toBeVisible();
++    expect(
++      await confirmation.evaluate((element) => {
++        const overlays = document.querySelectorAll(".ui-overlay");
++        return (
++          element.closest(".ui-overlay") === overlays[overlays.length - 1] &&
++          element instanceof HTMLElement &&
++          !element.inert &&
++          !element.hasAttribute("aria-hidden") &&
++          element.contains(document.activeElement)
++        );
++      }),
++    ).toBe(true);
++    await expect(
++      page
++        .locator(".system-invitations .invitation-actions")
++        .first()
++        .locator("button")
++        .nth(1),
++    ).toBeEnabled();
++    const after = await currentIdentity(page);
++    expect(
++      before.session_id === after.session_id &&
++        before.user_id === after.user_id,
++    ).toBe(true);
++    expect(invitationPosts).toBe(0);
++    await confirmation
++      .getByRole("button", { name: "继续编辑", exact: true })
++      .click();
++    dialog = page.getByRole("dialog", { name: "邀请用户", exact: true });
++    await expect(dialog.getByLabel("邮箱", { exact: false })).toHaveValue(
++      "invitations-ui-draft@example.com",
++    );
++    // Do not focus anything here: the accepted shared layer must recover into
++    // the remaining business modal after its original trigger was unmounted.
++    expect(
++      await dialog.evaluate((element) =>
++        element.contains(document.activeElement),
++      ),
++    ).toBe(true);
++    for (const key of [
++      "Tab",
++      "Tab",
++      "Tab",
++      "Tab",
++      "Shift+Tab",
++      "Shift+Tab",
++      "Shift+Tab",
++      "Shift+Tab",
++    ]) {
++      await page.keyboard.press(key);
++      expect(
++        await dialog.evaluate((element) =>
++          element.contains(document.activeElement),
++        ),
++      ).toBe(true);
++    }
++  }
+   const cancel = dialog.getByRole("button", { name: "取消", exact: true });
+   await cancel.click();
+   await expect(confirmation).toBeVisible();

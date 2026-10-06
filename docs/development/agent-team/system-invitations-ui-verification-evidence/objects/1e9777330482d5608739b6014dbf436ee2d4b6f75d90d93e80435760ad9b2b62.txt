@@ -1,0 +1,14 @@
+# 邀请 input03 独立静审与纯验证
+
+**STATIC / PURE PASS；不代表真实浏览器或页面最终通过。** input03 manifest SHA `3f14302874d07c9c59ff3c076716c418465f975fca3efa610a193f75fa952051`，21源、24dist、仅5条差量及共享接受 `79f922e` 均已逐SHA核对。后端固定 `9b32015`、迁移1–19。未读取活动候选，未启动浏览器、PG、Docker或业务进程。
+
+- pure07 原三组：3/3，实际exit0/2.129s。未确认写经历Session503保留草稿、只认原命令严格receipt、后续GET503显示已确认/列表失败；即时重开新表单零POST、无2400ms推进且发送按钮正常；原pure06合成pageshow经生产App listener，checking零Dialog、同Session恢复两层/确认在末且非inert、零POST。
+- pure08 新待决动作：4/4，实际exit0/2.174s。route/logout×继续/放弃均经过严格一次Session503、App可操作恢复、同Session同草稿重挂；路由Promise只结算一次，退出POST只按明确选择发生0或1次，邀请POST始终0。
+
+静审确认：确认宿主位于View三个业务Dialog之后，App期controller/Promise未迁移；checking detach不结算。旧实例卸载前失活，受影响await后/焦点写入前核currentView；继续编辑的模态恢复消费已接受共享层，去掉全局Dialog选择器。一次503仅在自有navigation fixture精确Session GET被CAS消费，安全计数可检查。owner/API/controller字节未变，原pure01中owner-tail单组PASS按SHA复用，不将当轮整体exit1改称通过。
+
+原pure01–06保持冻结。新probe只将checking期1Dialog按rev4改为0，保留恢复后原关键强断言，并补真实#app壳与jsdom缺失布局测量。原生焦点、真实browser页面和后端组合仍由后续真实验收承担。
+
+Outcome待归因：固定真实脚本为arm-get-fail→create严格201→立即检查已确认/列表失败标题，中间没有新开表单。pure07在同阶段见到该标题，但不能排除真实产品缺陷；旧即时重开probe标题布尔false仅反映openCreate清除writeMessage，不适用于此次真实红。等待作者精确GET503消费计数/标题诊断，不提前归为工具问题。
+
+两命令实际wait，输入前后相同，driver/child及当前所属session两次扫描无残留；无真实资源窗口占用。原raw、argv/env、输入、结果及probe/driver/config在runs/pure07和pure08，精确SHA见JSON。作者继续独占真实窗口；本次范围现停写。

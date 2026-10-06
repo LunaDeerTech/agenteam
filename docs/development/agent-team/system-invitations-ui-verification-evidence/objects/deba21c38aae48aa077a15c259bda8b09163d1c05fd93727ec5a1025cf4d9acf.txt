@@ -1,0 +1,171 @@
+import { test, expect, type Page, type Locator, type Request } from '@playwright/test';
+import { readFileSync, writeFileSync, renameSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { observeNativeCodes, type ObservedWindow } from './native-observation.js';
+
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
+const email = 'invitation-independent-combination@example.com';
+let sequence = 0;
+async function ipc(action: string) {
+  const next = ++sequence;
+  const request = join(directory, 'invitations-ipc.json');
+  const ack = join(directory, 'invitations-ack-' + next + '.json');
+  writeFileSync(request + '.tmp', JSON.stringify({ sequence: next, action }), { mode: 0o600 });
+  renameSync(request + '.tmp', request);
+  await expect.poll(() => existsSync(ack), { timeout: 14_000 }).toBe(true);
+  const value = JSON.parse(readFileSync(ack, 'utf8')) as Record<string, unknown>;
+  expect(value.ok === true && value.sequence === next).toBe(true);
+  return value;
+}
+const button = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
+const heading = (page: Page, name: string) => page.getByRole('heading', { name, exact: true });
+const response = (page: Page, method: string, path: string) => page.waitForResponse((value) => value.request().method() === method && new URL(value.url()).pathname === path);
+async function identity(page: Page) {
+  return page.evaluate(async () => {
+    const response = await fetch('/api/v1/session', { credentials: 'same-origin', cache: 'no-store' });
+    if (response.status !== 200) return { status: response.status, user: '', session: '' };
+    const body = await response.json();
+    return { status: response.status, user: body.user.id as string, session: body.session.id as string };
+  });
+}
+async function watermark(page: Page) {
+  return page.evaluate(() => (window as ObservedWindow).__invitationRequest ?? 0);
+}
+async function readObserved(page: Page, after: number) {
+  return page.evaluate((after) => (window as ObservedWindow).__invitationFacts?.filter((fact) => fact.request > after && fact.method === 'GET' && fact.path === '/api/v1/system/invitations' && fact.status === 200) ?? [], after);
+}
+async function receiptObserved(page: Page, after: number) {
+  const facts = () => page.evaluate((after) => (window as ObservedWindow).__invitationFacts?.filter((fact) => fact.request > after && fact.method === 'POST' && fact.path === '/api/v1/system/invitations' && fact.status === 201) ?? [], after);
+  await expect.poll(async () => { const rows = await facts(); return rows.length === 1 && rows[0]!.stage === 'done' && rows[0]!.receipt !== undefined; }).toBe(true);
+  return (await facts())[0]!.receipt!;
+}
+async function focusInside(dialog: Locator) {
+  await expect.poll(() => dialog.evaluate((element) => document.activeElement instanceof HTMLElement && document.activeElement.isConnected && element.contains(document.activeElement) && !document.activeElement.matches(':disabled'))).toBe(true);
+}
+
+test('independent accepted response loss across pending confirmation and same Session recovery', async ({ page, context }) => {
+  await context.addInitScript(observeNativeCodes);
+  const material = JSON.parse(readFileSync(join(directory, 'invitations-material.json'), 'utf8')) as { admin: { email: string; password: string; user_id: string } };
+  await page.goto('/system/invitations');
+  await expect(page.locator('#login-email')).toBeEditable();
+  await page.locator('#login-email').fill(material.admin.email);
+  try { await page.locator('#login-password').fill(material.admin.password); } catch { throw new Error('private independent credential entry failed'); }
+  await button(page, '登录').click();
+  material.admin.password = '';
+  await expect(heading(page, '待注册邀请')).toBeVisible();
+  await expect(button(page, '刷新')).toBeEnabled();
+  const before = await identity(page);
+  expect(before.status === 200 && before.user === material.admin.user_id && /^[0-9a-f-]{36}$/.test(before.session)).toBe(true);
+
+  const writes: { method: string; path: string; body: string; key: string; csrf: string }[] = [];
+  const record = (request: Request) => {
+    const path = new URL(request.url()).pathname;
+    if (request.method() !== 'POST' || !path.startsWith('/api/v1/system/')) return;
+    const headers = request.headers();
+    writes.push({ method: request.method(), path, body: request.postData() ?? '', key: headers['idempotency-key'] ?? '', csrf: headers['x-csrf-token'] ?? '' });
+  };
+  page.on('request', record);
+  try {
+    await ipc('arm-drop');
+    await page.getByRole('button', { name: /^(邀请用户|邀请请求已接受)$/ }).click();
+    const form = page.getByRole('dialog', { name: '邀请用户', exact: true });
+    await form.getByLabel('邮箱', { exact: false }).fill(email);
+    const lost = response(page, 'POST', '/api/v1/system/invitations');
+    await form.getByRole('button', { name: '发送邀请', exact: true }).click();
+    expect((await lost).status()).toBe(201);
+    await expect(form).toContainText('请求结果未确认');
+    const cut = await ipc('drop-facts');
+    expect(cut.dropped === 1 && cut.replayed === 0 && cut.commands === 1 && cut.intents === 1 && cut.armed === false).toBe(true);
+    expect(writes.length).toBe(1);
+    expect(writes[0]!.path === '/api/v1/system/invitations' && Object.keys(JSON.parse(writes[0]!.body)).length === 1 && JSON.parse(writes[0]!.body).email === email && /^[A-Za-z0-9._:/-]{1,128}$/.test(writes[0]!.key) && /^[A-Za-z0-9_-]{43}$/.test(writes[0]!.csrf)).toBe(true);
+
+    await form.getByRole('button', { name: '取消', exact: true }).click();
+    const confirm = page.getByRole('dialog', { name: '放弃未保存修改？', exact: true });
+    await expect(confirm).toBeVisible();
+    await ipc('independent-arm-session-fail');
+    const failedSession = response(page, 'GET', '/api/v1/session');
+    const checking = await page.evaluate(async () => {
+      let observer: MutationObserver | undefined, timer: number | undefined;
+      try {
+        return await new Promise<{ dialogs: number; inert: boolean; locked: boolean }>((resolve, reject) => {
+          observer = new MutationObserver(() => {
+            if (!document.querySelector('.session-check')) return;
+            resolve({ dialogs: [...document.querySelectorAll<HTMLElement>('[role="dialog"]')].filter((element) => !element.inert && element.getAttribute('aria-hidden') !== 'true').length, inert: document.getElementById('app')!.inert, locked: document.body.style.overflow === 'hidden' });
+          });
+          observer.observe(document.body, { childList: true, subtree: true });
+          timer = window.setTimeout(() => reject(new Error('production checking DOM not observed')), 5_000);
+          window.dispatchEvent(new PageTransitionEvent('pageshow'));
+        });
+      } finally { observer?.disconnect(); window.clearTimeout(timer); }
+    });
+    expect(checking).toEqual({ dialogs: 0, inert: false, locked: false });
+    expect((await failedSession).status()).toBe(503);
+    await expect(heading(page, '会话尚未确认')).toBeVisible();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await expect(page.locator('.ui-overlay')).toHaveCount(0);
+    expect(writes.length).toBe(1);
+    const recovered = response(page, 'GET', '/api/v1/session');
+    await button(page, '检查当前会话').click();
+    expect((await recovered).status()).toBe(200);
+    await expect(confirm).toBeVisible();
+    expect(await confirm.evaluate((element) => {
+      const overlays = document.querySelectorAll('.ui-overlay');
+      return element.closest('.ui-overlay') === overlays[overlays.length - 1] && element instanceof HTMLElement && !element.inert && element.getAttribute('aria-hidden') !== 'true' && element.contains(document.activeElement);
+    })).toBe(true);
+    expect(writes.length).toBe(1);
+    await confirm.getByRole('button', { name: '继续编辑', exact: true }).click();
+    await expect(confirm).toHaveCount(0);
+    await expect(form.getByLabel('邮箱', { exact: false })).toHaveValue(email);
+    await focusInside(form);
+    for (const key of ['Tab', 'Shift+Tab', 'Tab']) { await page.keyboard.press(key); await focusInside(form); }
+    const after = await identity(page);
+    expect(after.status === 200 && after.user === before.user && after.session === before.session).toBe(true);
+    const sessionFacts = await ipc('independent-session-facts');
+    expect(sessionFacts.failures === 1 && sessionFacts.armed === false).toBe(true);
+
+    const checkedAfter = await watermark(page);
+    const currentSession = response(page, 'GET', '/api/v1/session');
+    const currentList = response(page, 'GET', '/api/v1/system/invitations');
+    await form.getByRole('button', { name: '检查当前状态', exact: true }).click();
+    expect((await currentSession).status()).toBe(200);
+    expect((await currentList).status()).toBe(200);
+    await expect(form).toContainText('列表不是原请求的确认');
+    await expect(form.getByRole('button', { name: '重试原请求', exact: true })).toBeEnabled();
+    await expect(form.getByRole('button', { name: '发送邀请', exact: true })).toBeDisabled();
+    await expect.poll(async () => { const facts = await readObserved(page, checkedAfter); return facts.length === 1 && facts[0]!.stage === 'done' && facts[0]!.page?.items.some((row) => row.email === email) === true; }).toBe(true);
+    expect(writes.length).toBe(1);
+    expect((await ipc('drop-facts')).replayed).toBe(0);
+
+    await ipc('arm-get-fail');
+    const replayAfter = await watermark(page);
+    const replay = response(page, 'POST', '/api/v1/system/invitations');
+    const failedRead = response(page, 'GET', '/api/v1/system/invitations');
+    await form.getByRole('button', { name: '重试原请求', exact: true }).click();
+    expect((await replay).status()).toBe(201);
+    const receipt = await receiptObserved(page, replayAfter);
+    expect((await failedRead).status()).toBe(503);
+    await expect(heading(page, '操作已确认，列表读取失败')).toBeVisible();
+    await expect(page.locator('.write-message')).toContainText('邀请请求已接受');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: '重试原请求', exact: true })).toHaveCount(0);
+    expect(writes.length).toBe(2);
+    expect(writes[0]!.method === writes[1]!.method && writes[0]!.path === writes[1]!.path && writes[0]!.body === writes[1]!.body && writes[0]!.key === writes[1]!.key && writes[0]!.csrf === writes[1]!.csrf).toBe(true);
+    const accepted = await ipc('replay-facts');
+    expect(accepted.single === true && accepted.commands === 1 && accepted.intents === 1 && accepted.dropped === 1 && accepted.replayed === 1).toBe(true);
+    const readFacts = await ipc('read-failure-facts');
+    expect(readFacts.failures === 1 && readFacts.armed === false).toBe(true);
+    const refreshed = response(page, 'GET', '/api/v1/system/invitations');
+    await button(page, '重新读取列表').click();
+    expect((await refreshed).status()).toBe(200);
+    await expect(button(page, '刷新')).toBeEnabled();
+    await expect(page.locator('tbody tr').filter({ has: page.locator('td[data-label="邮箱"]', { hasText: email }) })).toHaveCount(1);
+    await expect(page.locator('.ui-overlay')).toHaveCount(0);
+    expect(writes.length).toBe(2);
+    console.log('independent safe facts ' + JSON.stringify({ first_status: 201, cut: 1, replay_status: 201, system_posts: 2, same_request: true, commands: 1, intents: 1, session_failure: 1, post_receipt_read_failure: 1, same_identity: true, recovered_top: true, native_focus_and_tab: true, explicit_read_recovered: true }));
+    writeFileSync(join(directory, 'invitations-result.json'), JSON.stringify({ completed: true, accepted_id: receipt.id, lost: true, same_identity: true, pending_confirmation: true, real_focus: true, session_list_not_receipt: true, same_request: true, confirmed_read_failure: true, explicit_read_recovery: true }), { mode: 0o600 });
+  } finally {
+    page.off('request', record);
+    for (const value of writes) { value.body = ''; value.key = ''; value.csrf = ''; }
+    writes.length = 0;
+  }
+});

@@ -1,0 +1,35 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW
+
+ × probes/app-recovery.spec.ts > retains the uncertain App draft through failed Session checking, confirms only the replay, and destroys it on a new Session 266ms
+   → Visible button 发送邀请: expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  probes/app-recovery.spec.ts > retains the uncertain App draft through failed Session checking, confirms only the replay, and destroys it on a new Session
+AssertionError: Visible button 发送邀请: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ button probes/app-recovery.spec.ts:30:46
+     28|   const found = Array.from(scope.querySelectorAll<HTMLButtonElement>('…
+     29|     (node.querySelector('.button-label[aria-hidden="false"]')?.textCon…
+     30|   expect(!!found, `Visible button ${label}`).toBe(true)
+       |                                              ^
+     31|   return found!
+     32| }
+ ❯ click probes/app-recovery.spec.ts:34:3
+ ❯ probes/app-recovery.spec.ts:123:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  06:48:03
+   Duration  1.45s (transform 594ms, setup 0ms, import 701ms, tests 267ms, environment 364ms)
+

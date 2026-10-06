@@ -1,0 +1,291 @@
+os/signal
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.157.44.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=0ee780e058429cb222c72c954fd15ba3
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+net
+crypto/x509
+crypto/tls
+net/textproto
+vendor/golang.org/x/net/http/httpguts
+vendor/golang.org/x/net/http/httpproxy
+mime/multipart
+net/http/httptrace
+net/http/internal/httpcommon
+net/http/internal/http2
+net/http
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=09e905861eff084c321132219a566101
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.298s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.011s [no tests to run]
+=== RUN   TestAccountSystemInvitationsWebLifecycle
+    system_invitations_web_test.go:48: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:408411) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:408411) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-invitations.spec.ts:234:1 › [lifecycle] real create, raw errors, canonical literal, resend, revoke and redemption
+        [1A[2K  1) e2e/system-invitations.spec.ts:234:1 › [lifecycle] real create, raw errors, canonical literal, resend, revoke and redemption 
+        
+            Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+        
+            Expected: [32mtrue[39m
+            Received: [31mfalse[39m
+        
+              357 |         ),
+              358 |     ),
+            > 359 |   ).toBe(true);
+                  |     ^
+              360 |   await expect(dialog.getByLabel("邮箱", { exact: false })).toHaveValue(
+              361 |     " invalid@example.com ",
+              362 |   );
+                at /workspace/agenteam/tests/account-captcha-web/e2e/system-invitations.spec.ts:359:5
+        
+        
+        [1A[2K  1 failed
+            e2e/system-invitations.spec.ts:234:1 › [lifecycle] real create, raw errors, canonical literal, resend, revoke and redemption 
+        
+    system_invitations_web_test.go:48: actual invitation production browser failed: exit status 1
+--- FAIL: TestAccountSystemInvitationsWebLifecycle (6.92s)
+=== RUN   TestAccountSystemInvitationsWebDeliveryRetry
+D07 SMTP fixture private_socket=172.21.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=9875abe706a89e041ef5feded13c31e6
+    system_invitations_web_test.go:51: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:410816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:410816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-invitations.spec.ts:369:1 › [delivery] real restricted log and owned SMTP failure to manual retry success
+        [1A[2K  1 passed (6.7s)
+        
+    system_invitations_web_test.go:51: real invitation production browser group=delivery completed within original 45s browser/2m top budgets; task-owned response/clock/authority controls are fixture preparation, not production hosting or elapsed-time claims
+D07 SMTP fixture exact cleanup checked nonce=9875abe706a89e041ef5feded13c31e6
+--- PASS: TestAccountSystemInvitationsWebDeliveryRetry (21.22s)
+=== RUN   TestAccountSystemInvitationsWebOutcomeRecovery
+    system_invitations_web_test.go:54: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:412594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:412594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-invitations.spec.ts:411:1 › [outcome] actual accepted response loss, replay, abandon, read failure and version competition
+        [1A[2K  1) e2e/system-invitations.spec.ts:411:1 › [outcome] actual accepted response loss, replay, abandon, read failure and version competition 
+        
+            Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+        
+            Locator: getByRole('dialog', { name: '邀请用户', exact: true })
+            Expected substring: [32m"请求结果未确认"[39m
+            Timeout: 5000ms
+            Error: element(s) not found
+        
+            Call log:
+            [2m  - Expect "toContainText" with timeout 5000ms[22m
+            [2m  - waiting for getByRole('dialog', { name: '邀请用户', exact: true })[22m
+            [2m    2 × locator resolved to <section role="dialog" tabindex="-1" aria-modal="true" class="ui-dialog" aria-labelledby="v-6">…</section>[22m
+            [2m      - unexpected value "邀请用户邮箱 *仅发送邀请，不设置密码或角色。取消处理中已完成发送邀请处理中已完成"[22m
+        
+        
+              513 |   let dialog = await openCreate(page, "invitations-ui-lost@example.com");
+              514 |   await dialog.getByRole("button", { name: "发送邀请", exact: true }).click();
+            > 515 |   await expect(dialog).toContainText("请求结果未确认");
+                  |                        ^
+              516 |   await dialog
+              517 |     .getByRole("button", { name: "检查当前状态", exact: true })
+              518 |     .click();
+                at /workspace/agenteam/tests/account-captcha-web/e2e/system-invitations.spec.ts:515:24
+        
+        
+        [1A[2K  1 failed
+            e2e/system-invitations.spec.ts:411:1 › [outcome] actual accepted response loss, replay, abandon, read failure and version competition 
+        
+    system_invitations_web_test.go:54: actual invitation production browser failed: exit status 1
+--- FAIL: TestAccountSystemInvitationsWebOutcomeRecovery (13.00s)
+=== RUN   TestAccountSystemInvitationsWebReadAndPagination
+    system_invitations_web_test.go:57: fixture connection failed
+--- FAIL: TestAccountSystemInvitationsWebReadAndPagination (5.63s)
+=== RUN   TestAccountSystemInvitationsWebAuthorityAndIdentity
+    system_invitations_web_test.go:60: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:415113) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:415113) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-invitations.spec.ts:535:1 › [authority] real 403 and 401 retire drafts and same-account/new-session or explicit account changes retire originals
+        [1A[2K  1) e2e/system-invitations.spec.ts:535:1 › [authority] real 403 and 401 retire drafts and same-account/new-session or explicit account changes retire originals 
+        
+            Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+        
+            Locator: getByRole('dialog', { name: '邀请用户', exact: true })
+            Expected substring: [32m"请求结果未确认"[39m
+            Timeout: 5000ms
+            Error: element(s) not found
+        
+            Call log:
+            [2m  - Expect "toContainText" with timeout 5000ms[22m
+            [2m  - waiting for getByRole('dialog', { name: '邀请用户', exact: true })[22m
+            [2m    2 × locator resolved to <section role="dialog" tabindex="-1" aria-modal="true" class="ui-dialog" aria-labelledby="v-13">…</section>[22m
+            [2m      - unexpected value "邀请用户邮箱 *仅发送邀请，不设置密码或角色。取消处理中已完成发送邀请处理中已完成"[22m
+        
+        
+              681 |   let draft = await openCreate(page, "invitations-ui-old-session@example.com");
+              682 |   await draft.getByRole("button", { name: "发送邀请", exact: true }).click();
+            > 683 |   await expect(draft).toContainText("请求结果未确认");
+                  |                       ^
+              684 |   const other = await context.newPage();
+              685 |   await other.goto("/login?switch=1&return=/system/invitations");
+              686 |   await button(other, "退出当前账号后登录").click();
+                at /workspace/agenteam/tests/account-captcha-web/e2e/system-invitations.spec.ts:683:23
+        
+        
+        [1A[2K  1 failed
+            e2e/system-invitations.spec.ts:535:1 › [authority] real 403 and 401 retire drafts and same-account/new-session or explicit account changes retire originals 
+        
+    system_invitations_web_test.go:60: actual invitation production browser failed: exit status 1
+--- FAIL: TestAccountSystemInvitationsWebAuthorityAndIdentity (13.52s)
+=== RUN   TestAccountSystemInvitationsWebNavigationAndLayouts
+    system_invitations_web_test.go:63: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:416997) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:416997) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-invitations.spec.ts:652:1 › [navigation] dirty navigation, same Session check, dialogs, drawer and eight production layouts
+        [1A[2K  1) e2e/system-invitations.spec.ts:652:1 › [navigation] dirty navigation, same Session check, dialogs, drawer and eight production layouts 
+        
+            [31mTest timeout of 45000ms exceeded.[39m
+        
+            Error: locator.click: Test timeout of 45000ms exceeded.
+            Call log:
+            [2m  - waiting for getByRole('dialog', { name: '放弃未保存修改？', exact: true }).getByRole('button', { name: '继续编辑', exact: true })[22m
+            [2m    - locator resolved to <button type="button" data-v-57599cfa="" class="ui-button ghost">…</button>[22m
+            [2m  - attempting click action[22m
+            [2m    2 × waiting for element to be visible, enabled and stable[22m
+            [2m      - element is not stable[22m
+            [2m    - retrying click action[22m
+            [2m    - waiting 20ms[22m
+            [2m    - waiting for element to be visible, enabled and stable[22m
+            [2m    - element is not stable[22m
+            [2m  2 × retrying click action[22m
+            [2m      - waiting 100ms[22m
+            [2m      - waiting for element to be visible, enabled and stable[22m
+            [2m      - element is visible, enabled and stable[22m
+            [2m      - scrolling into view if needed[22m
+            [2m      - done scrolling[22m
+            [2m      - <div class="ui-overlay">…</div> intercepts pointer events[22m
+            [2m  82 × retrying click action[22m
+            [2m       - waiting 500ms[22m
+            [2m       - waiting for element to be visible, enabled and stable[22m
+            [2m       - element is visible, enabled and stable[22m
+            [2m       - scrolling into view if needed[22m
+            [2m       - done scrolling[22m
+            [2m       - <div class="ui-overlay">…</div> intercepts pointer events[22m
+            [2m  - retrying click action[22m
+            [2m    - waiting 500ms[22m
+        
+        
+              815 |   await confirmation
+              816 |     .getByRole("button", { name: "继续编辑", exact: true })
+            > 817 |     .click();
+                  |      ^
+              818 |   await expect(dialog).toBeVisible();
+              819 |   await dialog.getByRole("button", { name: "取消", exact: true }).click();
+              820 |   await button(page, "放弃修改").click();
+                at /workspace/agenteam/tests/account-captcha-web/e2e/system-invitations.spec.ts:817:6
+        
+        
+        [1A[2K  1 failed
+            e2e/system-invitations.spec.ts:652:1 › [navigation] dirty navigation, same Session check, dialogs, drawer and eight production layouts 
+        
+    system_invitations_web_test.go:63: actual invitation production browser failed: exit status 1
+--- FAIL: TestAccountSystemInvitationsWebNavigationAndLayouts (50.49s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	110.824s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.012s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce b871f1e9ad6c1575a0f5e8a198d689a5
+D04 outbound fixture cleanup checked for nonce 09e905861eff084c321132219a566101
+D05 object fixture exact resource cleanup checked nonce=0ee780e058429cb222c72c954fd15ba3

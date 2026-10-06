@@ -1,0 +1,28 @@
+{
+  "candidate_manifest": "/workspace/scratch/agenteam-d27-invitations-frontend/input07.json",
+  "candidate_manifest_sha256": "5a0de8fd67b9fd46f9249686d469258c06a8ecb7674e8ae8b02338b9c922dfa6",
+  "native_function_sha256": "5cc23b5293703c1809d6c5eaebc33203d8c452d74325c187fb28462d3bdbec58",
+  "native_function_origin": "input07-source/tests/account-captcha-web/e2e/system-invitations.spec.ts",
+  "runner_origin": "input07-source/tests/account/system_invitations_web_fixture_test.go:browserInvitations",
+  "private_runner_delta": [
+    "explicit private config/root",
+    "extra IPC to arm/observe existing one-shot Session503 in outcome mode"
+  ],
+  "runtime_note": "Ready for authorized real execution; original source/diff evidence remains separate.",
+  "backend_base": "9b3201547f9b7b61fd9716a6ba6540084961496c",
+  "accepted_tracked_paths_unchanged": [
+    "internal/central/account",
+    "internal/central/app",
+    "internal/central/postgres",
+    "internal/central/foundation",
+    "db/migrations",
+    "tests/testsupport",
+    "scripts/test-security.sh",
+    "scripts/test-postgres.sh",
+    "scripts/test-objects.sh"
+  ],
+  "minio_binary": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+  "minio_sha256": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+  "type01_exit": 0,
+  "compile01_exit": 0
+}

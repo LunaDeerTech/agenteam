@@ -119,3 +119,15 @@ input01作者287项完整纯测及30项真实矩阵通过后，独立仍发现�
 作者六轮浏览器170个所属PID/starttime和独立六轮动态68个所属PID/starttime双扫空；独立18次adopted wait实际完成，server.close、私有TMP/壳及监听基线终局通过。历史两个PPID1 Z Chromium及原记录的既有crashpad均不属本次清理，不声称未来成功回收了旧孤儿。
 
 本次只新增报告/去重原件、台账页首、本节与共享卡接受页首，技术§1–4原字节保持。离线脚本只核保存字节、固定Git、原命令结果/清理，不重跑产品或资源。主线程已恢复邀请rev4的22路径作者与业务窗口，仍需完整组合独立接受；受控组件共同重挂不代表真实App/Session/pageshow。邀请卡由原负责人维护，本次不改AGENTS/指南/产品。Summary待决、Object/tools原停止、Artifact/Project阻塞、生产未绑定/ready503、完整D08–D28/E01未完成与E01未开始继续保持。
+
+## 12. 系统待注册邀请 UI 完整卡接受
+
+§1–11保留各阶段原时态。[邀请 UI rev4](../work-items/d27-system-invitation-ui.md)现已独立最终PASS、主线程采纳，22路径提交推送 `1c82d888adfef0d8b58ab51c920557ca4e2f084f`，主线程核远端一致。[正式报告与最小证据](system-invitations-ui-verification.md)固定input07 `5a0de8fd67b9fd46f9249686d469258c06a8ecb7674e8ae8b02338b9c922dfa6`的21源码/测试路径，消费邀请读口9b32015/迁移1–19及共享焦点79f922；第22路径README在独立通过后单独检查并绑定同次提交，旧报告deferred字样按原时态保留。
+
+作者453测试/type/format/build通过，17Web源和24dist从input03至input07字节未变。六新组按Lifecycle=new04、Delivery/Read/Authority=new02、Outcome=new05、Navigation=new06组合通过，old01五旧组通过；不是同一最终版本轮重跑全部。真实产品红包括陈旧成功反馈、初次确认宿主次序与checking重挂确认非top/inert、焦点恢复；业务同页宿主与共享焦点分别修复后组合，不放宽断言。CDP原body、checking观察时序、隐藏字符标题、错误Resend409前提另列观察/fixture归因。new05 light390离场图不计页面证据，input07等待物理overlay0后new06补图；主线程实际查看原light1440/dark390及替换light390。
+
+独立未变owner子组及input03 pure07三组/pure08四组复用，保留pure01–06原红。最终真实 `TestAccountInvitationsIndependentComposite` driver exit0/56.812s、Go9.48s、Chromium一例4.5s：原201截断保留未确认，待决确认经真实Session503和同身份恢复，真实焦点/Tab留在modal，Session/列表不作receipt，精确原key/body/CSRF重放后201与随后GET503分类分明，最后Go SQL实际核commands1/intents1/invitation1。independent01因私有testDir误收归档副本而Running2/第二例429，首例安全事实不能代替未执行的Go末尾DB；原失败保留，仅私有config排除runs、list1后整组通过。
+
+作者七轮与独立两轮真实命令实际wait、各自exact资源双absent、原2容器/4网络基线不变、所属PID/runtime清零。独立最终7资源/86PID-starttime/4 adopted wait/monitor0，窗口释放；pure实际wait范围和保留编译缓存分别记录。旧共享任务两个PPID1 Z限制不计本轮清理。按SHA去重保留七输入、全部原红/分版复用与原命令/退出/清理；dist仅哈希与构建记录，不复制全树、依赖或二进制，文档负责人仅离线核原件/Git。
+
+本次只接受邀请管理完整卡；Provider后继独立推进，生产SPA、真实Vite代理、其他浏览器、native zoom及真实BFCache未验。卡技术正文保持，旧档、AGENTS与指南不作大块同步。完整D26/D27及D08–D28/E01未完成、E01未开始；Summary待决、Object/tools原任务停止、Artifact/Project与生产未绑定、ready503等边界保持。

@@ -1,0 +1,27 @@
+{
+  "kind": "independent-readonly-failure-attribution",
+  "input": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/input05.json",
+    "sha256": "f2dabafe74ebd52053ecd4d07df11ca33474d4706fb8ae6df1f591687d1e3df3"
+  },
+  "accepted_backend": {
+    "git": "9b3201547f9b7b61fd9716a6ba6540084961496c",
+    "source_sha256": {
+      "internal/central/account/invitation.go": "447c4ec90cfe8b74abf6ebad2c262334ad3710fbf19449f774675b1216fba598",
+      "internal/central/account/cleanup.go": "abb287ddbfb17fc45702beae6e86b8e27c0f2546ef09d3669e66f6b46a691252",
+      "internal/central/account/delivery_retry.go": "43205ecc30c7ad276ac738a5674fb91a345fb8780597ff5f6587c9eb95e1473a",
+      "tests/account/invitation_test.go": "dca431e024ff87fc4665999bc96f695e487953f6b5e9533152695755a8a47d0d"
+    }
+  },
+  "finding": "Fixture assumption error: formal resend preserves invitation link.version, so revoking with original version may correctly return204; current409 assertion does not establish a product defect.",
+  "evidence": [
+    "Frozen fixture544-563 compete adjusts last_delivery_at only, invokes formal resend202 and awaits sent.",
+    "Accepted invitation.go183/325 validate expectedVersion; insert creates version1; completeCommand records1; only invitation UPDATE at374 updates last_delivery_at.",
+    "Accepted test invitation_test.go72-85 already resends then successfully revokes with the original receipt.Version.",
+    "Accepted cleanup.go236-239 returns VersionConflict only for an actual mismatch; delivery_retry.go277 is a distinct formal producer incrementing the original mail-job version."
+  ],
+  "correction_boundary": "Preserve backend semantics. To retain genuine409 coverage use a real changing target/version path with valid fixture/UI prerequisites, or explicitly authorized exact-owned version fixture; do not rename204 as conflict coverage.",
+  "navigation": "Frozen Nav1413 targets UiState error title 请求结果未确认 with exact getByText; accepted UiState has aria-hidden ! decoration. Replace locator only with exact heading name, retain lostReceipt controls and subsequent navigation assertions.",
+  "remaining_exact_text_locators": "Full frozen spec scan found only other exact getByText uses at755/1081 for kind=empty 暂无待注册邀请; no error icon involved.",
+  "execution": "No dynamic resources or tests; consumed frozen input05 and accepted Git only. Authornew04 outcomes were relayed by root, not independently replayed/read as runtime proof."
+}

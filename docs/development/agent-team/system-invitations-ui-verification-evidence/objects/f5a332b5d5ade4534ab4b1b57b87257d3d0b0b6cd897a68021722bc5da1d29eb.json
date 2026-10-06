@@ -1,0 +1,166 @@
+{
+  "manifest": "/workspace/scratch/agenteam-d27-invitations-frontend/input03.json",
+  "manifest_sha256": "3f14302874d07c9c59ff3c076716c418465f975fca3efa610a193f75fa952051",
+  "base": "9b3201547f9b7b61fd9716a6ba6540084961496c",
+  "accepted_shared": "79f922ec259d2838052a903612e2a27005618c11",
+  "files": {
+    "web/src/App.vue": {
+      "sha256": "651ef3cfe7178044a47cb3ff90a39df0a557bbf3e4871e08941d332a4022fcf4",
+      "origin": "author-input03",
+      "bytes": 5510
+    },
+    "web/src/components/layout/AppShell.vue": {
+      "sha256": "02513aafc6dd78deccf300d7c12a6d0433919bc0baf1c844899ee3cdbf0ff88d",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 328
+    },
+    "web/src/components/layout/SystemNav.vue": {
+      "sha256": "f381d7134b04d7f2f43e10a2be55ca2fd885b75b75e5528913582fc6d88ed1f7",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 994
+    },
+    "web/src/composables/useSession.ts": {
+      "sha256": "4edada1e6790f5503f7fc3f277454ceec484e6e11bc8948b202e09d64d6f0137",
+      "origin": "author-input03",
+      "bytes": 59127
+    },
+    "web/src/api/account.ts": {
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 18878
+    },
+    "web/src/api/client.ts": {
+      "sha256": "335b57fc0a11362b852ed7a145c40b821686131c00059d4634063c2d08ac524a",
+      "origin": "author-input03",
+      "bytes": 15432
+    },
+    "web/src/api/system-account.ts": {
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+      "origin": "author-input03",
+      "bytes": 2972
+    },
+    "web/src/composables/useTheme.ts": {
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 740
+    },
+    "web/src/api/system-invitations.ts": {
+      "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+      "origin": "author-input03",
+      "bytes": 10871
+    },
+    "web/src/components/ui/UiButton.vue": {
+      "sha256": "af03eda76b9d74f9c74e788f239397bfac9bdb67f9c7454ac8bf1a29e5e5abf9",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 1861
+    },
+    "web/src/components/ui/UiIcon.vue": {
+      "sha256": "180fd280018366204978a388b933543be597c9f8c654c5af1b6eb8f9d262e280",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 783
+    },
+    "web/src/components/ui/UiSpinner.vue": {
+      "sha256": "b8568ad14952ddb87bf13e8877c89d30e5c69f23fd38bc7c72c44562f602689c",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 68
+    },
+    "web/src/components/ui/types.ts": {
+      "sha256": "5cde2f860f7088f599aa86a485787d79c5f0f8886e5bfb766dfccac8e0b29ec7",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 538
+    },
+    "web/src/components/ui/UiState.vue": {
+      "sha256": "c2bace72f0604327c29252e8be629f4d541fa22b056844bbb3601a375e55d673",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 558
+    },
+    "web/src/components/ui/UiDialog.vue": {
+      "sha256": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 2170
+    },
+    "web/src/composables/useLayer.ts": {
+      "sha256": "92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 6172
+    },
+    "web/src/composables/usePersonalSettings.ts": {
+      "sha256": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 25993
+    },
+    "web/src/router/auth.ts": {
+      "sha256": "f5dc2e229aa01e64e12461c78adb5a950a410119a3f45f12ba5212ec8364695d",
+      "origin": "author-input03",
+      "bytes": 3906
+    },
+    "web/src/composables/useAccountEntry.ts": {
+      "sha256": "0a5139b835a4e0f2ac99e86810a77a552449c6672824dab27aad990a86a71abd",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 18230
+    },
+    "web/src/router/account-link.ts": {
+      "sha256": "45080e9068bd7c5d52f2499b12de4edac288420b206031a05e0e0c29e488f94c",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 4814
+    },
+    "web/src/composables/useSystemInvitations.ts": {
+      "sha256": "eaf19a15da96f3d1d0c366b26b18980672bd76825339835b167acc7603754df6",
+      "origin": "author-input03",
+      "bytes": 15468
+    },
+    "web/src/views/system/SystemSettingsView.vue": {
+      "sha256": "675a2d4c61c37d2d17c28d6b664dc2a1f0a2d161e16389a51abcc7156b1dfbd0",
+      "origin": "author-input03",
+      "bytes": 1625
+    },
+    "web/src/components/layout/SettingsShell.vue": {
+      "sha256": "8815f6b4ccae1afbaeef4edd3e18ae92d700a791ea156bb97204069e0859feac",
+      "origin": "author-input03",
+      "bytes": 5202
+    },
+    "web/src/components/ui/UiDrawer.vue": {
+      "sha256": "e62cc686f6fe8c3981680c3c88ec4880effbb9e84aedf80a5aff9978939a2def",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 707
+    },
+    "web/src/views/system/SystemUsersView.vue": {
+      "sha256": "b30819ae5b8592a894188f4431427b171b8017c21adf63aec6d93138b8a71865",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 5639
+    },
+    "web/src/composables/useSystemUserDirectory.ts": {
+      "sha256": "3058a34b16bdc2d1018297daa556606806d7d2bf241d313dbcfa33b2f54a0894",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 5297
+    },
+    "web/src/views/system/SystemInvitationsView.vue": {
+      "sha256": "f122b2f59a1e8da5480998d9b48d3271702da6f2f0d236e05c4a768c18be7392",
+      "origin": "author-input03",
+      "bytes": 18353
+    },
+    "web/src/components/ui/UiField.vue": {
+      "sha256": "9e40a4c00994826f9a65ed0c1cf095f7e6d5e44b93a95a4788b82ab1b9f3e0a1",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 747
+    },
+    "web/src/components/ui/UiInput.vue": {
+      "sha256": "fd182981669131383f2a36fd422da461f94237a7ba019a469c05dcb9c5afcbaf",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 283
+    },
+    "web/package.json": {
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 984
+    },
+    "web/package-lock.json": {
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "origin": "79f922ec259d2838052a903612e2a27005618c11",
+      "bytes": 86893
+    }
+  },
+  "scope": "31-file minimal App closure; fixed input03 plus accepted shared79; no activity tree or resources",
+  "dependency_links": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/node_modules",
+  "candidate": "candidate03"
+}

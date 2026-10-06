@@ -1,0 +1,28 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW
+
+ ↓ probes03/app-recovery.spec.ts > retains the uncertain App draft through failed Session checking, confirms only the replay, and destroys it on a new Session
+ ↓ probes03/app-recovery.spec.ts > shows a normal submit action on an unsubmitted new form during prior success feedback
+ ↓ probes03/app-recovery.spec.ts > retains the open discard confirmation as top layer across automatic pageshow Session checking
+stdout | probes03/app-recovery.spec.ts > keeps pending route unresolved through one pageshow failure and consumes discard=false exactly once
+INDEPENDENT_PENDING_AFTER_FAILURE {"source":"input03","kind":"route","discard":false,"controlledSessionCalls":1,"route":"/system/invitations","navigationSettled":1,"invitationPosts":0,"logoutPosts":0,"visibleDialogs":1}
+
+ ✓ probes03/app-recovery.spec.ts > keeps pending route unresolved through one pageshow failure and consumes discard=false exactly once 300ms
+stdout | probes03/app-recovery.spec.ts > keeps pending route unresolved through one pageshow failure and consumes discard=true exactly once
+INDEPENDENT_PENDING_AFTER_FAILURE {"source":"input03","kind":"route","discard":true,"controlledSessionCalls":1,"route":"/system/users","navigationSettled":1,"invitationPosts":0,"logoutPosts":0,"visibleDialogs":0}
+
+stdout | probes03/app-recovery.spec.ts > keeps pending logout unresolved through one pageshow failure and consumes discard=false exactly once
+INDEPENDENT_PENDING_AFTER_FAILURE {"source":"input03","kind":"logout","discard":false,"controlledSessionCalls":1,"route":"/system/invitations","navigationSettled":null,"invitationPosts":0,"logoutPosts":0,"visibleDialogs":1}
+
+ ✓ probes03/app-recovery.spec.ts > keeps pending route unresolved through one pageshow failure and consumes discard=true exactly once 137ms
+ ✓ probes03/app-recovery.spec.ts > keeps pending logout unresolved through one pageshow failure and consumes discard=false exactly once 85ms
+stdout | probes03/app-recovery.spec.ts > keeps pending logout unresolved through one pageshow failure and consumes discard=true exactly once
+INDEPENDENT_PENDING_AFTER_FAILURE {"source":"input03","kind":"logout","discard":true,"controlledSessionCalls":1,"route":"/login","navigationSettled":null,"invitationPosts":0,"logoutPosts":1,"visibleDialogs":0}
+
+ ✓ probes03/app-recovery.spec.ts > keeps pending logout unresolved through one pageshow failure and consumes discard=true exactly once 79ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed | 3 skipped (7)
+   Start at  07:55:15
+   Duration  1.77s (transform 582ms, setup 0ms, import 694ms, tests 602ms, environment 365ms)
+

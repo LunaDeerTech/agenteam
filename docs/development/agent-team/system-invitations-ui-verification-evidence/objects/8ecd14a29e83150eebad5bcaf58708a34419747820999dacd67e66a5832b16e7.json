@@ -1,0 +1,46 @@
+{
+  "kind": "independent-readonly-static-review",
+  "result": "STATIC PASS; real browser results remain pending",
+  "input": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/input05.json",
+    "sha256": "f2dabafe74ebd52053ecd4d07df11ca33474d4706fb8ae6df1f591687d1e3df3",
+    "verified_sources": 21,
+    "verified_dist_files": 24
+  },
+  "delta": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/input05-delta.diff",
+    "sha256": "b52535810ebaaad4a53c5c2d1d93d73983ab2733d893b0a2192e714c2c73f216",
+    "only_changed_source": "tests/account-captcha-web/e2e/system-invitations.spec.ts",
+    "source_sha256": "70e14346ec50cf6d93beb2c8b40897c534b90c1471a27d5b792d8c4550739f9a"
+  },
+  "reused": "17 web sources, other Go/fixture sources, 24 dist files, shared dependencies and locks unchanged from input04; input03 independent pure07/pure08 apply unchanged.",
+  "closed_read_projection": [
+    "Only same-origin exact GET /api/v1/system/invitations with real HTTP 200; read helper requires exactly one matching fact after request watermark and native done plus closed DTO.",
+    "Exact page/item/delivery keys reject unknown fields. Original fields are preserved, including optional reason and cursor; no lossy synthesized row values.",
+    "Lowercase UUIDv7 IDs, positive int64 decimal versions, attempts 0-6, finite phase/channel/result/reason enums and accepted null/phase constraints match frozen production parser.",
+    "Fixed 27-character UTC microsecond instant validates Gregorian month/day/leap rules including year 0000 without Date normalization.",
+    "Canonical ASCII email validator retains accepted IPv4, IPv6-prefixed and mapped IPv6 literal branches.",
+    "At most 25 unique items in descending created_at/id order; cursor length 1-8192 and only on full page. Cursor length uses UTF-16 units; accepted backend cursor is ASCII, so no legal producer value is excluded.",
+    "Existing canonical wire-versus-DB full item comparison and rendered fields/times remain byte-identical."
+  ],
+  "native_and_retention": [
+    "No extra fetch, read, clone, tee or cancel; original fetch Promise, Response object, reader object and each read Promise returned. getReader/read wrapper identities change; native cancel does not.",
+    "Chunks are copied into a separate bounded 600000-byte buffer, so zeroing observation memory never modifies native chunks.",
+    "EOF, parse/shape failure, overflow and native read rejection clear the copied byte buffer. No added cancel listener/wrapper; do not claim every abandoned-reader cancel explicitly zeroes memory.",
+    "Only validated closed DTO is retained in page-local facts after successful GET observation; it contains fixture display values/cursor but no problem detail, auth headers, tokens or raw body. It is not logged by the new code.",
+    "Facts and validated DTO remain until page/context disposal; this is per-reader bounded observation, not a global memory cap or immediate deletion of successful DTOs.",
+    "Native done observation is not owner actual cancel/join evidence. Existing independent owner-tail evidence is reused separately."
+  ],
+  "headings": "Exact accessible heading names retain both original error titles; diagnostic text is returned only for those fixed titles with optional known ! decoration, plus aria-hidden boolean.",
+  "author_auxiliary_evidence": {
+    "source_path": "/workspace/scratch/agenteam-d27-invitations-frontend/observer-contract.cjs",
+    "source_sha256": "7ee237d96e218e3b0e9c1be5cd6f6b9a97d1fc730b8c11438c9698bb1a122a38",
+    "cases_reported": 10,
+    "scope": "Source/hash inspected only. Script still loads live source path; not executed or treated as independent runtime proof."
+  },
+  "execution": "No test, browser, service, Docker, port or product command executed for this review; read only frozen candidate and existing fixed accepted dependencies.",
+  "prior_review": {
+    "path": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/input04-observation-review.json",
+    "sha256": "5853dbd893cc3d71de3b3a2a61efa63e87bf1d8251e71c1d7e5d20edebc68a95"
+  }
+}

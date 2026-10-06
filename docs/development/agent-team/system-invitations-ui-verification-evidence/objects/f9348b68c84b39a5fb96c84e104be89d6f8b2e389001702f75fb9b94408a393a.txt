@@ -1,0 +1,18 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW
+
+stdout | probes03/app-recovery.spec.ts > shows a normal submit action on an unsubmitted new form during prior success feedback
+INDEPENDENT_FRESH_FORM_DOM {"source":"input03","newIntentPosts":0,"newDraftEmpty":true,"submitVisibleLabel":"发送邀请","submitAccessibleLabel":null,"submitDisabled":false,"priorWriteStillConfirmed":true,"postReceiptListStillFailed":false,"advancedMilliseconds":0}
+
+ ✓ probes03/app-recovery.spec.ts > retains the uncertain App draft through failed Session checking, confirms only the replay, and destroys it on a new Session 358ms
+ ✓ probes03/app-recovery.spec.ts > shows a normal submit action on an unsubmitted new form during prior success feedback 59ms
+stdout | probes03/app-recovery.spec.ts > retains the open discard confirmation as top layer across automatic pageshow Session checking
+INDEPENDENT_OPEN_CONFIRMATION_DOM {"source":"input03","restoredSession":true,"overlays":2,"confirmationPresent":true,"confirmationLast":true,"confirmationHidden":null,"confirmationInert":false,"newIntentPosts":0}
+
+ ✓ probes03/app-recovery.spec.ts > retains the open discard confirmation as top layer across automatic pageshow Session checking 67ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  07:54:14
+   Duration  1.75s (transform 674ms, setup 0ms, import 790ms, tests 486ms, environment 363ms)
+

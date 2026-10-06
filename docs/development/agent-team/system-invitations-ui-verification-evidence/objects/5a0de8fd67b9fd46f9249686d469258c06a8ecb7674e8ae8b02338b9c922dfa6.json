@@ -1,0 +1,196 @@
+{
+  "kind": "invitation-ui-rev4-author-input07",
+  "product_base": "9b3201547f9b7b61fd9716a6ba6540084961496c",
+  "backend_base": "9b3201547f9b7b61fd9716a6ba6540084961496c",
+  "authorization": "6be5321c51f24108d886a139c7a31bb0aab92db3",
+  "web_static_manifest": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/web-static03/input.json",
+    "sha256": "c817ce15c5a9de8a43695718c450fdf7b80e64785159b3c1cf786f5b23d5c694"
+  },
+  "files": {
+    "web/src/api/client.ts": "335b57fc0a11362b852ed7a145c40b821686131c00059d4634063c2d08ac524a",
+    "web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "web/src/api/system-invitations.ts": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+    "web/src/composables/useSession.ts": "4edada1e6790f5503f7fc3f277454ceec484e6e11bc8948b202e09d64d6f0137",
+    "web/src/composables/useSystemInvitations.ts": "eaf19a15da96f3d1d0c366b26b18980672bd76825339835b167acc7603754df6",
+    "web/src/App.vue": "651ef3cfe7178044a47cb3ff90a39df0a557bbf3e4871e08941d332a4022fcf4",
+    "web/src/components/layout/SettingsShell.vue": "8815f6b4ccae1afbaeef4edd3e18ae92d700a791ea156bb97204069e0859feac",
+    "web/src/router/index.ts": "673a2efd6fea4481dacf0555e1a6b81c9809d195fe9ad970f509c61ac2dfed4e",
+    "web/src/router/auth.ts": "f5dc2e229aa01e64e12461c78adb5a950a410119a3f45f12ba5212ec8364695d",
+    "web/src/views/system/SystemSettingsView.vue": "675a2d4c61c37d2d17c28d6b664dc2a1f0a2d161e16389a51abcc7156b1dfbd0",
+    "web/src/views/system/SystemInvitationsView.vue": "f122b2f59a1e8da5480998d9b48d3271702da6f2f0d236e05c4a768c18be7392",
+    "web/src/tests/system-invitations-client.spec.ts": "20aa1a1dee349d545ac98867bcec50f0486f8036d3153fc518971475b66bb1bf",
+    "web/src/tests/system-invitations-state.spec.ts": "16b1bbae44cc7964af1e58620ba03636a95402695e26d19502b049cbaf86b6b0",
+    "web/src/tests/system-invitations.spec.ts": "34eee9f21467db53d0396cb1b6b2d611087785295e24eaa36c6d4db0793e5a6c",
+    "web/src/tests/settings-shell.spec.ts": "a0e579eb72cbb54e2460eb60572d9ac2bcd1ec82a0f19c1f6dd1c80b677986a3",
+    "web/src/tests/system-user-directory.spec.ts": "e5627445f71b275468f110df01ba3b7b4136280557d57a378f2767a3941bff9f",
+    "web/src/tests/personal-settings.spec.ts": "1e6d86daf28d5b7f00ab4c2cd9732c224d7f527ab3b12a3d10bdd30fb20c09b6",
+    "tests/account/system_invitations_web_test.go": "bae6e22be8f6bbcf06349f8b1a85858503c1b5ce623ce2a519e48df04f92cf0a",
+    "tests/account/system_invitations_web_fixture_test.go": "18c40b3eb66c4c363ef1321fcdcbb076757e791dfb9b6b57f7b0b41faf9b47c6",
+    "tests/account-captcha-web/system-invitations.config.js": "0b916d9fd8d261f66a19de5ca5682ca00dc7f089116c1b90b0143e9fdbb8f742",
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": "50bbefc4517059edc43fa1ee8a60265d02e8f2f9ee69cff8606023bd100722ae"
+  },
+  "dist": {
+    "web/dist/assets/AppearanceSettings-CruB5NAE.js": "f29f0f58b41b672452a07d636f1e9e92379e9c5c85f5d0e2c2cd38f7abf73f2d",
+    "web/dist/assets/ForgotPasswordView-DBEN046h.js": "cb02cd8642da8be99eb37b0149f47898ae67ee89dad07424946b63edd42fa7fc",
+    "web/dist/assets/ForgotPasswordView-DJSF_FFM.css": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2",
+    "web/dist/assets/InvitationView-B4wTz1D4.css": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177",
+    "web/dist/assets/InvitationView-BAiMb-UU.js": "972fab3e945161abb964e17e733e294a56042a87f7b0d6d257fec087880c7623",
+    "web/dist/assets/PasswordSettings-Ds6vu-Ll.js": "fb15daf10e3875b8d1949a6588454a7977bd3f68f92f53e701a4d6524155f19b",
+    "web/dist/assets/PersonalSettingsView-BLWru9en.css": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5",
+    "web/dist/assets/PersonalSettingsView-qgFYx5c1.js": "46bbb2df536be4544107f07fc468955ec29bcf09d43ccf1d6a064a0aef74f87f",
+    "web/dist/assets/ProfileSettings-BdGnnByx.js": "90e4d2dab180cdf128fca0a7b6be58df0e186aa5bbfafc5fe0573b1911a51771",
+    "web/dist/assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+    "web/dist/assets/ResetPasswordView-Bmi_qi4h.js": "900769c6096e3728b7b28ae0c00cfe72b71d7d3e9d04fb3443babeced1b6a4e8",
+    "web/dist/assets/ResetPasswordView-DSiu2awb.css": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527",
+    "web/dist/assets/SettingsShell-CtFwnJeM.js": "975243129496ded63e0097e84f9a25820e24d2711f7d6616e31fa20fbe26cdff",
+    "web/dist/assets/SettingsShell-D9S1S_aF.css": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e",
+    "web/dist/assets/SystemInvitationsView-CKITElIV.js": "6ad546571e96e3628d49076546dd8b01830441ab248f564a3000e202dae7df07",
+    "web/dist/assets/SystemInvitationsView-QSKOYHWH.css": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f",
+    "web/dist/assets/SystemSettingsView-2kluQDJw.css": "5a9935a2f906610a892796a81c273a99d7c64c8c8f5157c2a8779c28e7d5ad7b",
+    "web/dist/assets/SystemSettingsView-C048_Y44.js": "65215073e92262c4b3f9ad25b5a0a887f20fdf881c8cab4fdc89b62b1430073e",
+    "web/dist/assets/SystemUsersView-B41TxT1D.css": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3",
+    "web/dist/assets/SystemUsersView-BTcyiRC5.js": "7f4ce3218f47fdcb3722a9ee7e408fe7a33441b9e47904e1e2e7a64063ca78e0",
+    "web/dist/assets/UiButton-DTI8Zbe9.js": "a57ea83cea494f527273a505dac74c0e0d235358f66eabae94e4e4e3ffac517f",
+    "web/dist/assets/index-0FzqtdGX.css": "1f5f4aec4cdb004e9aadaa03e587dae7d90bbf944b9fc44570cd0ceb769ca2f6",
+    "web/dist/assets/index-BgM6Y0DR.js": "20e7eb529d891945a2efd295a01b47c98f7bb2fa4a21ec9368dc3b8d4ffa118b",
+    "web/dist/index.html": "31592db9bda7bdef41a484fcee86db9ec8a23b2b94a5901bef6fd0dcf907bc7d"
+  },
+  "locks": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "tests/account-captcha-web/package-lock.json": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+  },
+  "checks": {
+    "npm_check": {
+      "command": "npm run check",
+      "cwd": "/workspace/agenteam/web",
+      "exit": 0,
+      "tests": 453,
+      "files": 20,
+      "log": "/workspace/scratch/agenteam-d27-invitations-frontend/check05-rev4.log",
+      "sha256": "d9c923be853409c3c90901265e715d057285790fe0acd7b7a264b7b69188fbad"
+    },
+    "go_compile06": {
+      "command": "/workspace/toolchains/go1.27.1/bin/go test -c -race -tags=integration -mod=readonly -buildvcs=false -o /workspace/scratch/agenteam-d27-invitations-frontend/bin/account06.test ./tests/account",
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-invitations-frontend/go-compile06.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "go_vet06": {
+      "command": "/workspace/toolchains/go1.27.1/bin/go vet -tags=integration -mod=readonly -buildvcs=false ./tests/account",
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-invitations-frontend/go-vet06.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "observer_contract05": {
+      "command": "node /workspace/scratch/agenteam-d27-invitations-frontend/observer-contract.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-invitations-frontend/observer-contract05.log",
+      "sha256": "2ba533a3f35e8374c4a40971bdcabc1d953f7797dbcb0d7c30a5a4669f6e242b"
+    },
+    "browser_type11": {
+      "command": "./web/node_modules/.bin/tsc --noEmit --strict --module NodeNext --moduleResolution NodeNext --target ES2022 --lib ES2022,DOM,DOM.Iterable --types node --typeRoots ./web/node_modules/@types --skipLibCheck tests/account-captcha-web/e2e/system-invitations.spec.ts",
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-invitations-frontend/harness-type11.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "browser_format07": {
+      "command": "./web/node_modules/.bin/prettier --check tests/account-captcha-web/e2e/system-invitations.spec.ts",
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-invitations-frontend/harness-format07.log",
+      "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+    }
+  },
+  "deferred_documentation": "docs/development/frontend/README.md: after independent acceptance",
+  "real_execution": "this revision not yet run",
+  "previous_input_sha256": "76a9ee825ffee5de56ab9d18b50768cb6b5c005deb3bd8c19285966390c9d0fc",
+  "delta": [
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts"
+  ],
+  "go_check_environment": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d27-directory-frontend-qw_mbwu0/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-d27-invitations-frontend/gotmp",
+    "CGO_ENABLED": "1"
+  },
+  "preserved_regression_red": {
+    "pure04-regression-red.log": "59420fd724e90792aee115539ee183a77fccfafed0bd0becf9bf4de506790cc7",
+    "pure05-regression-red.log": "2bb534821f889628be657835c75fc684995300f4e464a2336f3a68fbc3ab93eb",
+    "pure06-regression-red.log": "6e83839e3fda374284ee9ebe7c6679f04c2cf4f50a99129f0168b4788c9c2948"
+  },
+  "first_real_run": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/runs/new01",
+    "raw_sha256": "bdc89b12e849e83990b5a3b24c0378c139bec52094e3698786cc1f1af9af19cc",
+    "exit": 1,
+    "seconds": 202.265,
+    "double_cleanup": true,
+    "resources": 9,
+    "owned_processes": 185,
+    "passed": [
+      "TestAccountSystemInvitationsWebDeliveryRetry"
+    ],
+    "failed": [
+      "TestAccountSystemInvitationsWebLifecycle",
+      "TestAccountSystemInvitationsWebOutcomeRecovery",
+      "TestAccountSystemInvitationsWebReadAndPagination",
+      "TestAccountSystemInvitationsWebAuthorityAndIdentity",
+      "TestAccountSystemInvitationsWebNavigationAndLayouts"
+    ]
+  },
+  "accepted_shared": {
+    "commit": "79f922ec259d2838052a903612e2a27005618c11",
+    "files": {
+      "web/src/composables/useLayer.ts": "92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f",
+      "web/src/tests/components.spec.ts": "e1ff77d553da35bbdb9ad70763e49ff8a0dec46773a3272ac6c54085d0d83014",
+      "web/src/tests/dialog-outside-focus.spec.ts": "69619799902edb157896712634e2678fc7bc3c2ed16e0b78e5a983347ba8d0e0",
+      "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": "ab6f5b4e33d8d554a42ed64a9b874accc9c94bc67f2dc63626db94e96b089d1a"
+    }
+  },
+  "rev4_preserved_local_failures": {
+    "pure07-rev4.log": "8ec630ed7bff197c53eaef2f148aaec7d70d1bee164ddc1b2867ef9f9d52ea41",
+    "pure08-rev4.log": "71dfb0201cc1b747e7d9eccc33e689dbe04d7caec88e815d42b13a4c52900bcf",
+    "harness-type06.log": "f3e256114fdc31fa00e92cfd97df7c5b8c2472118d5743bf1aa3b3b29a7638f8"
+  },
+  "reused_checks": "17 web sources and 24 dist byte-identical to input03; 453 check and independent input03 static/pure reuse. Native original-reader observer byte-identical to input05; 10-case observer contract reused.",
+  "observations": "Only assert .ui-overlay physical DOM count zero before each screenshot, using unchanged expect budget and no sleep; original interactions/layout assertions unchanged. new05 light390 captured a leave frame and is retained as incomplete page evidence.",
+  "prior_real_run": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/runs/new05",
+    "raw_sha256": "bd9d8707b53b27a0cb4a50ef236c3af4f06f8dee770604b2f98567f531652da7",
+    "exit": 0,
+    "seconds": 72.0,
+    "double_cleanup": true,
+    "resources": 7,
+    "owned_processes": 96,
+    "passed": [
+      "TestAccountSystemInvitationsWebOutcomeRecovery",
+      "TestAccountSystemInvitationsWebNavigationAndLayouts"
+    ]
+  },
+  "observer_contract_source": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/observer-contract.cjs",
+    "sha256": "7ee237d96e218e3b0e9c1be5cd6f6b9a97d1fc730b8c11438c9698bb1a122a38",
+    "cases": 10
+  },
+  "old_regression": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/runs/old01",
+    "raw_sha256": "822eb662403074302792af3ad887ca9d2501d92a8e4af83b11150505bc5143f8",
+    "exit": 0,
+    "seconds": 99.577,
+    "double_cleanup": true,
+    "resources": 7,
+    "owned_processes": 142,
+    "passed": 5
+  },
+  "specification": {
+    "path": "docs/development/work-items/d27-system-invitation-ui.md",
+    "sha256": "c3e493a1013de0c3af13363ba5307f5f7a3a48c34df01cc6a94112be4c6b0d4d",
+    "revision": "rev4"
+  }
+}

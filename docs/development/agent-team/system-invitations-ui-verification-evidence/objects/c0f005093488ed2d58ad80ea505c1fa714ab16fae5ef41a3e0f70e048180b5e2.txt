@@ -1,0 +1,171 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"syscall"
+	"testing"
+	"time"
+)
+
+// Independent behavior assertions run on the original fixture/server and frozen
+// production dist. The only added control arms its existing one-shot Session503
+// in outcome mode; no production handler or response reader is changed here.
+func TestAccountInvitationsIndependentComposite(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	root := os.Getenv("AGENTEAM_INVITATIONS_INDEPENDENT_ROOT")
+	if !filepath.IsAbs(root) {
+		t.Fatal("independent frozen root required")
+	}
+	t.Chdir(filepath.Join(root, "fixture-root", "tests", "account"))
+	f := newInvitationsWebFixture(t, ctx, "outcome")
+	result := f.browserInvitationsIndependent(ctx)
+	for _, key := range []string{"lost", "same_identity", "pending_confirmation", "real_focus", "session_list_not_receipt", "same_request", "confirmed_read_failure", "explicit_read_recovery"} {
+		if result[key] != true {
+			t.Fatalf("independent evidence incomplete: %s", key)
+		}
+	}
+	f.mu.Lock()
+	key, link, dropped, replayed, armed := f.lostKey, f.lostID, f.dropped, f.replayed, f.dropNext
+	f.mu.Unlock()
+	if key == "" || link == "" || dropped != 1 || replayed != 1 || armed || result["accepted_id"] != link {
+		t.Fatal("actual accepted response/replay identity incomplete")
+	}
+	conn, closeConnection := invitationsWebConnect(t, ctx, f.db)
+	defer closeConnection()
+	var commands, intents, invitations int
+	if err := conn.QueryRow(ctx, `SELECT
+ (SELECT count(*) FROM agenteam_account.commands WHERE namespace='account.invitation' AND command_key=$1 AND resource_id=$2 AND phase='committed'),
+ (SELECT count(*) FROM agenteam_account.delivery_intents d JOIN agenteam_account.commands c ON c.id=d.id WHERE c.namespace='account.invitation' AND c.command_key=$1 AND d.link_id=$2),
+ (SELECT count(*) FROM agenteam_account.invitations WHERE id=$2 AND canonical_email=$3 AND created_by=$4)`, key, link, "invitation-independent-combination@example.com", f.admin.UserID).Scan(&commands, &intents, &invitations); err != nil || commands != 1 || intents != 1 || invitations != 1 {
+		t.Fatal("independent unique committed facts incomplete", commands, intents, invitations, err)
+	}
+	if f.sessionFailures.Load() != 1 || f.failSession.Load() || f.readFailures.Load() != 1 || f.failRead.Load() {
+		t.Fatal("independent exact one-shot failures incomplete")
+	}
+	t.Logf("independent composite PASS: original accepted201 cut1/replay1; commands1/intents1/invitation1; same Cookie identity; pending confirmation Session503 recovery and native focus/Tab; Session+list remain non-receipt; exact original request replay; confirmed201 then independent GET503 and explicit read recovery; 45s browser/2m top unchanged")
+}
+
+func (f *invitationsWebFixture) browserInvitationsIndependent(ctx context.Context) map[string]any {
+	f.t.Helper()
+	root := os.Getenv("AGENTEAM_INVITATIONS_INDEPENDENT_ROOT")
+	if !filepath.IsAbs(root) {
+		f.t.Fatal("explicit independent probe root required")
+	}
+	var e error
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "independent.config.js"))
+	cmd.Dir = root
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	cmd.WaitDelay = time.Second
+	for _, value := range os.Environ() {
+		if !strings.HasPrefix(value, "TMPDIR=") && !strings.HasPrefix(value, "AGENTEAM_AUTH_WEB_") && !strings.HasPrefix(value, "AGENTEAM_INVITATIONS_WEB_") && !strings.HasPrefix(value, "PLAYWRIGHT_NO_COPY_PROMPT=") && !strings.HasPrefix(value, "DEBUG=") && !strings.HasPrefix(value, "PWDEBUG=") {
+			cmd.Env = append(cmd.Env, value)
+		}
+	}
+	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_INVITATIONS_WEB_CASE="+f.mode, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "PLAYWRIGHT_NO_COPY_PROMPT=1")
+	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
+		if !filepath.IsAbs(images) {
+			f.t.Fatal("invitation image path must be absolute")
+		}
+		cmd.Env = append(cmd.Env, "AGENTEAM_AUTH_WEB_IMAGES="+images)
+	}
+	var output bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &output, &output
+	if e = cmd.Start(); e != nil {
+		f.t.Fatal("locked invitation browser runner could not start")
+	}
+	done := make(chan error, 1)
+	go func() { done <- cmd.Wait() }()
+	joined := false
+	defer func() {
+		if !joined {
+			_ = cmd.Cancel()
+			<-done
+		}
+		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		cmd.Env = nil
+	}()
+	tick := time.NewTicker(20 * time.Millisecond)
+	defer tick.Stop()
+	sequence := 0
+	var runErr error
+wait:
+	for {
+		select {
+		case runErr = <-done:
+			joined = true
+			break wait
+		case <-tick.C:
+			raw, err := os.ReadFile(filepath.Join(f.directory, "invitations-ipc.json"))
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			var request invitationWebIPC
+			decode := json.Unmarshal(raw, &request)
+			clear(raw)
+			if err != nil || decode != nil || request.Sequence < 1 || request.Sequence > 80 {
+				f.t.Error("private invitation IPC rejected")
+				_ = cmd.Cancel()
+				continue
+			}
+			if request.Sequence <= sequence {
+				continue
+			}
+			if request.Sequence != sequence+1 {
+				f.t.Error("private invitation IPC sequence invalid")
+				_ = cmd.Cancel()
+				continue
+			}
+			var reply map[string]any
+			switch request.Action {
+			case "independent-arm-session-fail":
+				if f.mode != "outcome" || f.sessionFailures.Load() != 0 || !f.failSession.CompareAndSwap(false, true) {
+					f.t.Fatal("independent one-shot Session control unavailable")
+				}
+				reply = map[string]any{"ok": true, "sequence": request.Sequence}
+			case "independent-session-facts":
+				reply = map[string]any{"ok": true, "sequence": request.Sequence, "failures": f.sessionFailures.Load(), "armed": f.failSession.Load()}
+			default:
+				reply = f.ipc(ctx, request)
+			}
+			sequence = request.Sequence
+			f.private("invitations-ack-"+strconv.Itoa(sequence)+".json", reply)
+		}
+	}
+	safe := output.String()
+	for _, secret := range f.secrets {
+		if secret != "" {
+			safe = strings.ReplaceAll(safe, secret, "[redacted]")
+		}
+	}
+	f.mu.Lock()
+	if f.lostKey != "" {
+		safe = strings.ReplaceAll(safe, f.lostKey, "[redacted]")
+	}
+	f.mu.Unlock()
+	f.t.Log(safe)
+	if runErr != nil {
+		f.t.Fatalf("actual invitation production browser failed: %v", runErr)
+	}
+	raw, e := os.ReadFile(filepath.Join(f.directory, "invitations-result.json"))
+	if e != nil {
+		f.t.Fatal("safe invitation browser result missing")
+	}
+	defer clear(raw)
+	var result map[string]any
+	if json.Unmarshal(raw, &result) != nil || result["completed"] != true {
+		f.t.Fatal("safe invitation browser result invalid")
+	}
+	return result
+}

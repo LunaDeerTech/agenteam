@@ -1,0 +1,57 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const ts = require('/workspace/agenteam/web/node_modules/typescript');
+const source = fs.readFileSync('/workspace/agenteam/tests/account-captcha-web/e2e/system-invitations.spec.ts', 'utf8');
+const start = source.indexOf('function observeNativeCodes()');
+const end = source.indexOf('test.beforeEach(', start);
+const script = ts.transpileModule(source.slice(start, end), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+const receipt = { id: '019f13ba-5837-7c44-a5f1-d7e5b2fc988d', job_id: '019f13ba-5837-7c44-a5f1-d7e5b2fc988e', version: '1' };
+async function run(status, chunks, expected, path = '/api/v1/system/invitations') {
+  let reads = 0;
+  const reading = chunks.map((value) => value instanceof Error ? Promise.reject(value) : Promise.resolve(value));
+  reading.forEach((pending) => pending.catch(() => {}));
+  const cancel = () => Promise.resolve();
+  const reader = { read() { return reading[reads++]; }, cancel };
+  const body = status === 204 ? null : { getReader() { return reader; }, cancel };
+  const response = { status, body };
+  const pending = Promise.resolve(response);
+  const window = { fetch() { return pending; } };
+  vm.runInNewContext(script + '\nobserveNativeCodes();', { window, location: { origin: 'http://owned.test', href: 'http://owned.test/' }, URL, Request, Uint8Array, TextDecoder });
+  assert.equal(window.fetch(path, { method: status === 200 ? 'GET' : 'POST' }), pending);
+  assert.equal(await pending, response);
+  assert.equal(reads, 0);
+  if (body) {
+    assert.equal(body.getReader(), reader);
+    assert.equal(reader.cancel, cancel);
+    assert.equal(body.cancel, cancel);
+    for (let index = 0; index < reading.length; ++index) {
+      const observed = reader.read();
+      assert.equal(observed, reading[index]);
+      await observed.catch(() => {});
+    }
+  }
+  await Promise.resolve();
+  assert.equal(reads, chunks.length);
+  const fact = JSON.parse(JSON.stringify(window.__invitationFacts[0]));
+  assert.equal(fact.request, 1);
+  assert.equal(fact.status, status);
+  for (const [key, value] of Object.entries(expected)) assert.deepEqual(fact[key], value);
+  assert.equal(JSON.stringify(fact).includes('must-not-survive'), false);
+}
+const bytes = (value) => ({ done: false, value: new TextEncoder().encode(JSON.stringify(value)) });
+const done = { done: true, value: undefined };
+(async () => {
+  await run(201, [bytes(receipt), done], { stage: 'done', receipt });
+  await run(400, [bytes({ code: 'INVALID_ARGUMENT', detail: 'must-not-survive' }), done], { stage: 'done', code: 'INVALID_ARGUMENT', receipt: undefined });
+  await run(201, [bytes({ ...receipt, detail: 'must-not-survive' }), done], { stage: 'done', receipt: undefined });
+  await run(201, [{ done: false, value: new Uint8Array(600001) }, done], { stage: 'overflow', receipt: undefined });
+  await run(201, [bytes(receipt), new Error('original-read-failure')], { stage: 'read-failed', receipt: undefined });
+  await run(204, [], { stage: 'done', empty: true }, '/api/v1/system/invitations/' + receipt.id + '/revoke');
+  const row = { id: receipt.id, email: 'a@[::ffff:192.0.2.1]', version: '1', created_at: '0000-02-29T00:00:00.123456Z', expires_at: '0099-01-01T00:00:00.123456Z', latest_delivery: { job_id: receipt.job_id, accepted_at: '0000-02-29T00:00:00.123456Z', phase: 'enqueue_pending', attempts: '0', version: '1', channel: null, attempt_result: null } };
+  await run(200, [bytes({ items: [row] }), done], { stage: 'done', page: { items: [row] } });
+  await run(200, [bytes({ items: [{ ...row, created_at: '0099-02-29T00:00:00.123456Z' }] }), done], { stage: 'invalid', page: undefined });
+  await run(200, [bytes({ items: [{ ...row, detail: 'must-not-survive' }] }), done], { stage: 'invalid', page: undefined });
+  await run(200, [bytes({ items: [row], next_cursor: 'x'.repeat(8193) }), done], { stage: 'invalid', page: undefined });
+  console.log('observer contract: 10 cases PASS; original fetch/read Promise and cancel identities preserved; closed complete read DTO, Gregorian instant, unknown fields and cursor bounds checked');
+})().catch((error) => { console.error(error); process.exitCode = 1; });

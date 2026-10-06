@@ -1,0 +1,42 @@
+{
+  "adopted_waits": 24,
+  "browser_processes": 67,
+  "browser_runtime_removed": true,
+  "double_cleanup": true,
+  "driver_exit": 1,
+  "monitor_errors": 0,
+  "node_processes": 12,
+  "observed_processes": 152,
+  "observed_resources": 9,
+  "run": "new02",
+  "run_directory": "/workspace/scratch/agenteam-d27-invitations-frontend/runs/new02",
+  "selected_tests_passed": false,
+  "source_files_unchanged": true,
+  "top_levels": [
+    [
+      "FAIL",
+      "TestAccountSystemInvitationsWebLifecycle"
+    ],
+    [
+      "PASS",
+      "TestAccountSystemInvitationsWebDeliveryRetry"
+    ],
+    [
+      "FAIL",
+      "TestAccountSystemInvitationsWebOutcomeRecovery"
+    ],
+    [
+      "PASS",
+      "TestAccountSystemInvitationsWebReadAndPagination"
+    ],
+    [
+      "PASS",
+      "TestAccountSystemInvitationsWebAuthorityAndIdentity"
+    ],
+    [
+      "FAIL",
+      "TestAccountSystemInvitationsWebNavigationAndLayouts"
+    ]
+  ],
+  "verification_inputs_unchanged": true
+}

@@ -1,0 +1,83 @@
+import ctypes
+import hashlib
+import json
+import os
+import pathlib
+import signal
+import subprocess
+import sys
+import time
+
+root = pathlib.Path(__file__).resolve().parent
+run = root / 'runs' / (sys.argv[1] if len(sys.argv) > 1 else 'pure01')
+run.mkdir(exist_ok=False)
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+consumed = json.loads((root / 'consumed-input01.json').read_text())
+
+def inputs():
+    result = {}
+    for path, record in consumed['files'].items():
+        file = (root / pathlib.Path(path).name) if path in ['web/package.json', 'web/package-lock.json'] else root / 'candidate' / path
+        actual = sha(file)
+        assert actual == record['sha256'], path
+        result[path] = actual
+    for file in sorted((root / 'probes').glob('*.ts')):
+        result[str(file.relative_to(root))] = sha(file)
+    for path in ['vitest.config.mjs', 'run-pure.py', 'prepare-pure.py', 'consumed-input01.json']:
+        result[path] = sha(root / path)
+    return result
+
+before = inputs()
+subreaper = ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0)
+assert subreaper == 0
+argv = ['/usr/bin/node', str(root / 'node_modules/vitest/vitest.mjs'), 'run', '--config', str(root / 'vitest.config.mjs'), '--reporter=verbose']
+argv.extend(sys.argv[2:])
+node = subprocess.check_output(['which', 'node'], text=True).strip()
+argv[0] = node
+selected_env = {'CI': '1', 'NO_COLOR': '1', 'DO_NOT_TRACK': '1', 'TMPDIR': str(root / 'tmp'), 'XDG_CACHE_HOME': str(root / 'cache')}
+env = dict(os.environ)
+env.update(selected_env)
+command = {'argv': argv, 'cwd': str(root), 'env_overrides': selected_env,
+           'node_version': subprocess.check_output([node, '--version'], text=True).strip(),
+           'timeout_seconds': 45, 'source_manifest': consumed['manifest'],
+           'source_manifest_sha256': consumed['manifest_sha256'], 'subreaper': True,
+           'scope': 'Pure Vitest/jsdom only; no browser, server, Docker or test fixture.'}
+command['dependencies'] = {}
+for package in ['vitest', 'vite', 'vue', 'vue-router', '@vue/test-utils', '@vitejs/plugin-vue', 'jsdom']:
+    p = root / 'node_modules' / package / 'package.json'
+    command['dependencies'][package] = {'version': json.loads(p.read_text())['version'], 'package_json_sha256': sha(p)}
+(run / 'command.json').write_text(json.dumps(command, indent=2) + '\n')
+(run / 'input-before.json').write_text(json.dumps(before, indent=2) + '\n')
+started = time.time()
+timed_out = False
+with (run / 'raw.log').open('wb') as raw:
+    child = subprocess.Popen(argv, cwd=root, env=env, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)
+    (run / 'pid.json').write_text(json.dumps({'driver': os.getpid(), 'child': child.pid, 'started_unix': started}) + '\n')
+    try:
+        exit_code = child.wait(timeout=45)
+    except subprocess.TimeoutExpired:
+        timed_out = True
+        os.killpg(child.pid, signal.SIGTERM)
+        try:
+            exit_code = child.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            os.killpg(child.pid, signal.SIGKILL)
+            exit_code = child.wait(timeout=3)
+adopted = []
+while True:
+    try:
+        pid, status = os.waitpid(-1, os.WNOHANG)
+    except ChildProcessError:
+        break
+    if pid == 0:
+        break
+    adopted.append({'pid': pid, 'status': status})
+after = inputs()
+(run / 'input-after.json').write_text(json.dumps(after, indent=2) + '\n')
+result = {'exit': exit_code, 'seconds': round(time.time()-started, 3), 'timed_out': timed_out,
+          'inputs_equal': before == after, 'child_actual_wait': True, 'adopted_waits': adopted,
+          'raw_sha256': sha(run / 'raw.log')}
+(run / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps(result))
+print((run / 'raw.log').read_text())
+raise SystemExit(exit_code if exit_code >= 0 else 1)

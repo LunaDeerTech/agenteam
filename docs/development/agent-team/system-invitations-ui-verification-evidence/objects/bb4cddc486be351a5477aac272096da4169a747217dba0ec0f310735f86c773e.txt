@@ -1,0 +1,172 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.67.146.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=166279058b4e06e2dce8e8fce048cf11
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=f9fb367e6b511a3ab29c77ee5fb02e63
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.096s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.013s [no tests to run]
+=== RUN   TestAccountSystemInvitationsWebLifecycle
+    system_invitations_web_test.go:50: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:522201) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:522201) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-invitations.spec.ts:411:1 › [lifecycle] real create, raw errors, canonical literal, resend, revoke and redemption
+        [1A[2K  1 passed (11.0s)
+        
+    system_invitations_web_test.go:50: real invitation production browser group=lifecycle completed within original 45s browser/2m top budgets; task-owned response/clock/authority controls are fixture preparation, not production hosting or elapsed-time claims
+--- PASS: TestAccountSystemInvitationsWebLifecycle (15.42s)
+=== RUN   TestAccountSystemInvitationsWebOutcomeRecovery
+    system_invitations_web_test.go:56: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:524138) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:524138) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-invitations.spec.ts:588:1 › [outcome] actual accepted response loss, replay, abandon, read failure and version competition
+        [1A[2Ke2e/system-invitations.spec.ts:588:1 › [outcome] actual accepted response loss, replay, abandon, read failure and version competition
+        owned confirmed-read observation {"status":503,"failures":1,"armed":false,"responses":[{"method":"POST","status":201},{"method":"GET","status":503}],"confirmed_failure":true,"ordinary_failure":false,"heading":{"present":true,"text":"!操作已确认，列表读取失败","decorative_icon_hidden":true},"accepted_message":true,"dialogs":0,"read_retry":true,"busy":false}
+        
+        [1A[2K  1) e2e/system-invitations.spec.ts:588:1 › [outcome] actual accepted response loss, replay, abandon, read failure and version competition 
+        
+            Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+        
+            Expected: [32m409[39m
+            Received: [31m204[39m
+        
+              607 |   await action();
+              608 |   const response = await pending;
+            > 609 |   expect(response.status()).toBe(status);
+                  |                             ^
+              610 |   const match = { after, path: new URL(response.url()).pathname, status };
+              611 |   const observed = () =>
+              612 |     page.evaluate(
+                at post (/workspace/agenteam/tests/account-captcha-web/e2e/system-invitations.spec.ts:609:29)
+                at /workspace/agenteam/tests/account-captcha-web/e2e/system-invitations.spec.ts:1028:20
+        
+        
+        [1A[2K  1 failed
+            e2e/system-invitations.spec.ts:588:1 › [outcome] actual accepted response loss, replay, abandon, read failure and version competition 
+        
+    system_invitations_web_test.go:56: actual invitation production browser failed: exit status 1
+--- FAIL: TestAccountSystemInvitationsWebOutcomeRecovery (11.58s)
+=== RUN   TestAccountSystemInvitationsWebNavigationAndLayouts
+    system_invitations_web_test.go:65: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:525682) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:525682) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-invitations.spec.ts:871:1 › [navigation] dirty navigation, same Session check, dialogs, drawer and eight production layouts
+        [1A[2Ke2e/system-invitations.spec.ts:871:1 › [navigation] dirty navigation, same Session check, dialogs, drawer and eight production layouts
+        owned failed-Session heading {"present":true,"text":"!会话尚未确认","decorative_icon_hidden":true}
+        
+        [1A[2Kowned accepted-response control {"armed":false,"commands":1,"dropped":1,"intents":1,"ok":true,"replayed":0,"sequence":5,"single":false}
+        
+        [1A[2K  1) e2e/system-invitations.spec.ts:871:1 › [navigation] dirty navigation, same Session check, dialogs, drawer and eight production layouts 
+        
+            Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+        
+            Locator: getByText('请求结果未确认', { exact: true })
+            Expected substring: [32m"请求结果未确认"[39m
+            Timeout: 5000ms
+            Error: element(s) not found
+        
+            Call log:
+            [2m  - Expect "toContainText" with timeout 5000ms[22m
+            [2m  - waiting for getByText('请求结果未确认', { exact: true })[22m
+        
+        
+              89 | async function lostReceipt(subject: Locator) {
+              90 |   try {
+            > 91 |     await expect(subject).toContainText("请求结果未确认");
+                 |                           ^
+              92 |   } catch (error) {
+              93 |     const facts = await ipc("drop-facts");
+              94 |     console.log("owned accepted-response control", JSON.stringify(facts));
+                at lostReceipt (/workspace/agenteam/tests/account-captcha-web/e2e/system-invitations.spec.ts:91:27)
+                at /workspace/agenteam/tests/account-captcha-web/e2e/system-invitations.spec.ts:1413:9
+        
+        
+        [1A[2K  1 failed
+            e2e/system-invitations.spec.ts:871:1 › [navigation] dirty navigation, same Session check, dialogs, drawer and eight production layouts 
+        
+    system_invitations_web_test.go:65: actual invitation production browser failed: exit status 1
+--- FAIL: TestAccountSystemInvitationsWebNavigationAndLayouts (13.81s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	40.858s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.013s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce f5bff584f2e0ee4ae0237aaa45dad675
+D04 outbound fixture cleanup checked for nonce f9fb367e6b511a3ab29c77ee5fb02e63
+D05 object fixture exact resource cleanup checked nonce=166279058b4e06e2dce8e8fce048cf11

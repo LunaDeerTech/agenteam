@@ -1,0 +1,59 @@
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+stderr | src/tests/settings-shell.spec.ts > SettingsShell compatible one-group multiple leaves > keeps both narrow Drawer links and closes it on leaf selection or Escape
+[Vue warn]: Extraneous non-props attributes (class) were passed to component but could not be automatically inherited because component renders fragment or text or teleport root nodes. 
+  at <UiDialog open=false onUpdate:open=fn drawer=""  ... > 
+  at <UiDrawer open=false title="系统设置栏目" class=""  ... > 
+  at <SettingsShell title="系统设置" groups= [
+  {
+    key: 'users-invitations',
+    label: '用户与邀请',
+    children: [ [Object], [Object] ]
+  }
+] showLogout=false  ... > 
+  at <VTUROOT>
+
+ ❯ src/tests/settings-shell.spec.ts (6 tests | 2 failed) 166ms
+     × retains default personal labels, routes, title and logout event 11ms
+     × keeps both narrow Drawer links and closes it on leaf selection or Escape 29ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/settings-shell.spec.ts > SettingsShell compatible one-group multiple leaves > retains default personal labels, routes, title and logout event
+TypeError: Cannot read properties of undefined (reading 'trigger')
+ ❯ src/tests/settings-shell.spec.ts:145:40
+    143|     await wrapper
+    144|       .findAll('button')
+    145|       .find((b) => b.text() === '退出登录')!
+       |                                        ^
+    146|       .trigger('click')
+    147|     expect(wrapper.emitted('logout')).toHaveLength(1)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/tests/settings-shell.spec.ts > SettingsShell compatible one-group multiple leaves > keeps both narrow Drawer links and closes it on leaf selection or Escape
+AssertionError: expected  to have a length of 2 but got +0
+
+- Expected
++ Received
+
+- 2
++ 0
+
+ ❯ src/tests/settings-shell.spec.ts:182:60
+    180|     await trigger.trigger('click')
+    181|     await flushPromises()
+    182|     expect(document.querySelectorAll('[role="dialog"] a')).toHaveLengt…
+       |                                                            ^
+    183|     ;(
+    184|       document.querySelector('[role="dialog"] a[href="/system/invitati…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  2 failed | 88 passed (90)
+   Start at  06:26:17
+   Duration  1.19s (transform 564ms, setup 0ms, import 1.04s, tests 325ms, environment 1.22s)
+

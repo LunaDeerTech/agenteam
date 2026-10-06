@@ -1,0 +1,115 @@
+import { afterEach, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { failure, fixture, gate, id, json, sameCommand, session } from './support'
+
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals() })
+
+it('joins EOF, reader cancellation and response cancellation before same-command retry and other Cookie owners', async () => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener() {}, removeEventListener() {} })))
+  vi.useFakeTimers()
+  const f = fixture()
+  const eof = gate<{done: boolean; value?: Uint8Array}>()
+  const readerTail = gate<void>()
+  const responseTail = gate<void>()
+  const checking = gate<Response>()
+  let firstRead = true
+  const reader = {
+    read: vi.fn(() => {
+      if (firstRead) {
+        firstRead = false
+        return Promise.resolve({ done: false,
+          value: new TextEncoder().encode(JSON.stringify({ job_id: id(20), version: '9' })) })
+      }
+      return eof.promise
+    }),
+    cancel: vi.fn(() => readerTail.promise),
+    releaseLock: vi.fn(),
+  }
+  const response = new Response(null, { status: 202, headers: { 'Content-Type': 'application/json' } })
+  const cancelResponse = vi.fn(() => responseTail.promise)
+  Object.defineProperty(response, 'body', { value: { getReader: () => reader, cancel: cancelResponse } })
+  try {
+    await f.auth.restore()
+    f.setWrite(async () => response)
+    const submitted = { job_id: id(19), version: '7' }
+    const first = f.auth.system.retryDelivery(submitted).catch(error => error)
+    submitted.version = '8'
+    submitted.job_id = id(18)
+    await flushPromises()
+    expect(reader.read).toHaveBeenCalledTimes(2)
+    const firstFrame = f.writes()[0]!
+    expect(firstFrame.path).toBe(`/api/v1/system/mail-jobs/${id(19)}/retry`)
+    expect(firstFrame.init.body).toBe('{"version":"7"}')
+    f.auth.system.abandon()
+    f.auth.system.abandonInvitationRead()
+    expect(firstFrame.init.signal?.aborted).toBe(false)
+
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(await first).toMatchObject({ kind: 'cancelled' })
+    expect(f.auth.state.busy).toBe(true)
+    expect(f.auth.system.invitationProgress?.phase).toBe('uncertain')
+    expect(reader.cancel).toHaveBeenCalledOnce()
+    const blockedAt = f.calls.length
+    await f.auth.restore()
+    await f.auth.logout()
+    await expect(f.auth.system.listUsers({})).rejects.toMatchObject({ kind: 'busy' })
+    await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
+    await expect(f.auth.entry.prepare()).rejects.toMatchObject({ kind: 'busy' })
+    await expect(f.auth.system.createInvitation({ email: 'next@example.test' })).rejects.toMatchObject({ kind: 'busy' })
+    expect(f.calls.length).toBe(blockedAt)
+
+    eof.resolve({ done: true })
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(true)
+    expect(reader.releaseLock).not.toHaveBeenCalled()
+    expect(cancelResponse).not.toHaveBeenCalled()
+    readerTail.resolve()
+    await flushPromises()
+    expect(reader.releaseLock).toHaveBeenCalledOnce()
+    expect(cancelResponse).toHaveBeenCalledOnce()
+    expect(f.auth.state.busy).toBe(true)
+    await f.auth.restore()
+    expect(f.calls.length).toBe(blockedAt)
+    responseTail.resolve()
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+    expect(f.auth.system.invitationProgress?.phase).toBe('uncertain')
+    expect(f.auth.system.invitationProgress?.canRetryOriginal).toBe(false)
+
+    await f.auth.restore()
+    await f.auth.system.listInvitations({})
+    expect(f.auth.system.invitationProgress?.canRetryOriginal).toBe(true)
+    f.setWrite(async () => failure())
+    await expect(f.auth.system.retryInvitationOriginal()).rejects.toMatchObject({ kind: 'problem' })
+    expect(f.auth.system.invitationProgress?.phase).toBe('uncertain')
+    expect(f.auth.system.invitationProgress?.canRetryOriginal).toBe(false)
+    expect(sameCommand(firstFrame, f.writes()[1]!)).toBe(true)
+    await f.auth.restore()
+    f.setWrite(async () => json({ job_id: id(20), version: '11' }, 202))
+    expect(await f.auth.system.retryInvitationOriginal()).toMatchObject({
+      kind: 'retry', value: { job_id: id(20), version: '11' },
+    })
+    expect(sameCommand(firstFrame, f.writes()[2]!)).toBe(true)
+    expect(f.auth.system.invitationProgress?.phase).toBe('confirmed')
+
+    f.setSession(() => checking.promise)
+    const sessionCheck = f.auth.restore()
+    await flushPromises()
+    f.auth.system.abandonInvitations()
+    const checkFrame = f.calls.at(-1)!
+    expect(checkFrame.path).toBe('/api/v1/session')
+    expect(checkFrame.init.signal?.aborted).toBe(false)
+    await expect(f.auth.system.listInvitations({})).rejects.toMatchObject({ kind: 'busy' })
+    checking.resolve(json(session()))
+    await sessionCheck
+    expect(f.auth.state.phase).toBe('authenticated')
+    expect(f.auth.state.busy).toBe(false)
+  } finally {
+    eof.resolve({ done: true })
+    readerTail.resolve()
+    responseTail.resolve()
+    checking.resolve(json(session()))
+    await flushPromises()
+    f.auth.leave()
+  }
+})

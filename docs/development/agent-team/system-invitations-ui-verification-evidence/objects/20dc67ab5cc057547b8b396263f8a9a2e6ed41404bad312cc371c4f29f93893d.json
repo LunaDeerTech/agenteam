@@ -1,0 +1,119 @@
+{
+  "status": "input02 static delta and affected pure review BLOCKED on confirmation surviving automatic Session recheck",
+  "manifest": "/workspace/scratch/agenteam-d27-invitations-frontend/input02.json",
+  "manifest_sha256": "1cc558fc266f3e315f76e73a8a32321e43419410a5c6ddaac057483774173a67",
+  "hashes_verified": {
+    "sources": 21,
+    "dist": 24,
+    "locks_against_base": 4,
+    "only_six_changed_sources": [
+      "web/src/App.vue",
+      "web/src/views/system/SystemInvitationsView.vue",
+      "web/src/tests/system-invitations.spec.ts",
+      "tests/account/system_invitations_web_test.go",
+      "tests/account/system_invitations_web_fixture_test.go",
+      "tests/account-captcha-web/e2e/system-invitations.spec.ts"
+    ]
+  },
+  "author_declared_checks_with_raw_verified": {
+    "npm_check": {
+      "declared_exit": 0,
+      "raw_sha256": "e3514045d2b8a3e1bcb82bffb7751a1694f7e42a53ad265faa5aa1cca60d394b",
+      "raw_hash_verified": true
+    },
+    "go_compile02": {
+      "declared_exit": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_hash_verified": true
+    },
+    "go_vet02": {
+      "declared_exit": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_hash_verified": true
+    },
+    "browser_type05": {
+      "declared_exit": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_hash_verified": true
+    }
+  },
+  "independent_runs": {
+    "pure05": {
+      "exit": 0,
+      "seconds": 2.024,
+      "timed_out": false,
+      "inputs_equal": true,
+      "child_actual_wait": true,
+      "adopted_waits": [],
+      "raw_sha256": "c8d73af7e1a99ac747b6177c5f5f400010669dd8e2222dcb60c512b1fa85a6ee",
+      "recorded_pids_present_now": {
+        "driver": false,
+        "child": false
+      },
+      "artifacts": {
+        "runs/pure05/command.json": "16d494709e16cbf1ab8e30078a21cd92446f989c477a0a495e2c429729deca82",
+        "runs/pure05/input-after.json": "4b5c55dfe5c28828c1af7eba3ebb42df63e3f73ef2cbbcd3ff1dcf17467c3a4d",
+        "runs/pure05/input-before.json": "4b5c55dfe5c28828c1af7eba3ebb42df63e3f73ef2cbbcd3ff1dcf17467c3a4d",
+        "runs/pure05/pid.json": "86af421fb1ab8258d902b5eaaf9b71f01fe7d32b505147fcc26a2fa8067a68f9",
+        "runs/pure05/result.json": "232739967efac2a7f892d42ee4be0a88a045de869a1dd92b5f3077cf2e033a82",
+        "runs/pure05/raw.log": "c8d73af7e1a99ac747b6177c5f5f400010669dd8e2222dcb60c512b1fa85a6ee",
+        "runs/pure05/source/run-pure.py": "06ecd64b69f12e45e8d412fbb5a6b7961f790dc7bd5422800ec7ca04b6cdd0fc",
+        "runs/pure05/source/vitest.config.mjs": "07f94d61abe35f52092963c11745c0461dc42653f2499240700634b871247c09",
+        "runs/pure05/source/probes/app-recovery.spec.ts": "c62145d05447abd7165b57cabd476a0092e955b6af8841d7759053ec97e5c88e",
+        "runs/pure05/source/probes/owner-tail.spec.ts": "69cf892f4b61de5617de634f35c54bb91dfb3b868b17e6518953062669fc9ca4",
+        "runs/pure05/source/probes/support.ts": "2aa15c0c8888c846d6e368ce4340beda26fa975e4a277825c012ec84cfdd1e4c"
+      }
+    },
+    "pure06": {
+      "exit": 1,
+      "seconds": 2.534,
+      "timed_out": false,
+      "inputs_equal": true,
+      "child_actual_wait": true,
+      "adopted_waits": [],
+      "raw_sha256": "fe0ef474f1b9a141a0cca0678c3b95adfb76e29dbb29f99e62f6bb2eef94303b",
+      "recorded_pids_present_now": {
+        "driver": false,
+        "child": false
+      },
+      "artifacts": {
+        "runs/pure06/command.json": "b197520d62771ba0c37a2f7e1a6225362d523d2fa808570c5478499fc23b9e1c",
+        "runs/pure06/input-after.json": "58495de47d7d2d01f2e0a4270496a3b7b5a1a6a8c2acd446509679ce232d0eb8",
+        "runs/pure06/input-before.json": "58495de47d7d2d01f2e0a4270496a3b7b5a1a6a8c2acd446509679ce232d0eb8",
+        "runs/pure06/pid.json": "b4892c38d0b2b04dca22e7697fc6a49aaa294a178743ccba2dbc0e0d301b2a1b",
+        "runs/pure06/result.json": "99d89b2bd368df5af76ebe533efe4ca8a65f2a4ff156c3472536b53341c17013",
+        "runs/pure06/raw.log": "fe0ef474f1b9a141a0cca0678c3b95adfb76e29dbb29f99e62f6bb2eef94303b",
+        "runs/pure06/source/run-pure.py": "06ecd64b69f12e45e8d412fbb5a6b7961f790dc7bd5422800ec7ca04b6cdd0fc",
+        "runs/pure06/source/vitest.config.mjs": "07f94d61abe35f52092963c11745c0461dc42653f2499240700634b871247c09",
+        "runs/pure06/source/probes/app-recovery.spec.ts": "7f449aa6a4ff62845710dc132cf0545d391db1ce8f510129a3e0690a34b70142",
+        "runs/pure06/source/probes/owner-tail.spec.ts": "69cf892f4b61de5617de634f35c54bb91dfb3b868b17e6518953062669fc9ca4",
+        "runs/pure06/source/probes/support.ts": "2aa15c0c8888c846d6e368ce4340beda26fa975e4a277825c012ec84cfdd1e4c"
+      }
+    }
+  },
+  "static_passed": [
+    "SubmitEvent.submitter and associated form.elements fallback select a real actionable submit button.",
+    "Only loading/idle reach create, revoke and retry footer controls; exterior accepted feedback stays unchanged.",
+    "Initial confirmation v-if creates a fresh Teleport and source tests cover close and trigger restoration.",
+    "Scoped actual pgx connections close on function exit; wait polling reuses one connection.",
+    "Task proxy validates real successful receipt, reads bounded actual body, then emits its real status/headers and a strict original prefix with original Content-Length before owned socket close.",
+    "Per-arm safe dropped/replayed counts and actual committed command/intent counts are observed, not retroactively inferred."
+  ],
+  "passed_pure": "pure05 App recovery + same immediate-open assertion from pure04 passed with newIntentPosts=0, normal label, prior confirmed write retained; owner unchanged pure01 PASS reused.",
+  "remaining_product_defect": {
+    "event": "Real App pageshow listener while an invitation discard confirmation is already open; controlled same-Session response pauses then resumes actual Session controller.",
+    "observed": {
+      "restoredSession": true,
+      "overlays": 2,
+      "confirmationPresent": true,
+      "confirmationLast": false,
+      "confirmationHidden": "true",
+      "confirmationInert": true,
+      "newIntentPosts": 0
+    },
+    "mechanism": "The App confirmation survives checking, while RouterView creation form unmounts and remounts. useLayer pushes that newly mounted form above the still-pending confirmation and makes the confirmation inert.",
+    "distinction": "The first input01 issue was logical/DOM stack divergence. This input02 case changes logical priority too; a z-index-only fix does not by itself establish correct parent/child remount priority."
+  },
+  "limits": "jsdom proves DOM/controller state, not browser hit-testing/focus/visuals. No real browser/server/Docker/fixture started; author retains real window. No shared/product edits or Git writes.",
+  "freeze": "input02 closure, pure05/pure06 raw+source, and this report are stopped. Await root-scoped repair; do not claim complete product acceptance."
+}

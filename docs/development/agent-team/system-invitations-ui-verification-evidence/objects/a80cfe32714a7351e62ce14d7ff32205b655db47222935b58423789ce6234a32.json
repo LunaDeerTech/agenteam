@@ -1,0 +1,96 @@
+{
+  "kind": "invitation-ui-rev3-author-input01",
+  "product_base": "9b3201547f9b7b61fd9716a6ba6540084961496c",
+  "backend_base": "9b3201547f9b7b61fd9716a6ba6540084961496c",
+  "authorization": "6be5321c51f24108d886a139c7a31bb0aab92db3",
+  "web_static_manifest": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/web-static03/input.json",
+    "sha256": "c817ce15c5a9de8a43695718c450fdf7b80e64785159b3c1cf786f5b23d5c694"
+  },
+  "files": {
+    "web/src/api/client.ts": "335b57fc0a11362b852ed7a145c40b821686131c00059d4634063c2d08ac524a",
+    "web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "web/src/api/system-invitations.ts": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+    "web/src/composables/useSession.ts": "4edada1e6790f5503f7fc3f277454ceec484e6e11bc8948b202e09d64d6f0137",
+    "web/src/composables/useSystemInvitations.ts": "eaf19a15da96f3d1d0c366b26b18980672bd76825339835b167acc7603754df6",
+    "web/src/App.vue": "29f86a3425042203eee0bbd95e638830d219c906aeab18d0031b75b3dee4e554",
+    "web/src/components/layout/SettingsShell.vue": "8815f6b4ccae1afbaeef4edd3e18ae92d700a791ea156bb97204069e0859feac",
+    "web/src/router/index.ts": "673a2efd6fea4481dacf0555e1a6b81c9809d195fe9ad970f509c61ac2dfed4e",
+    "web/src/router/auth.ts": "f5dc2e229aa01e64e12461c78adb5a950a410119a3f45f12ba5212ec8364695d",
+    "web/src/views/system/SystemSettingsView.vue": "675a2d4c61c37d2d17c28d6b664dc2a1f0a2d161e16389a51abcc7156b1dfbd0",
+    "web/src/views/system/SystemInvitationsView.vue": "9a6337827c77762e9c7aa98dbb13eff42db8355dce07130b8a2feb3197dee898",
+    "web/src/tests/system-invitations-client.spec.ts": "20aa1a1dee349d545ac98867bcec50f0486f8036d3153fc518971475b66bb1bf",
+    "web/src/tests/system-invitations-state.spec.ts": "16b1bbae44cc7964af1e58620ba03636a95402695e26d19502b049cbaf86b6b0",
+    "web/src/tests/system-invitations.spec.ts": "9ff2640a8d62c956086912818f55fac60f37465ce5bcc943d2c65cbb9c02dc23",
+    "web/src/tests/settings-shell.spec.ts": "a0e579eb72cbb54e2460eb60572d9ac2bcd1ec82a0f19c1f6dd1c80b677986a3",
+    "web/src/tests/system-user-directory.spec.ts": "e5627445f71b275468f110df01ba3b7b4136280557d57a378f2767a3941bff9f",
+    "web/src/tests/personal-settings.spec.ts": "1e6d86daf28d5b7f00ab4c2cd9732c224d7f527ab3b12a3d10bdd30fb20c09b6",
+    "tests/account/system_invitations_web_test.go": "43f1fe32b4dffa5f6ca749796d8f424cbc774d294d98022746744e72afc7780c",
+    "tests/account/system_invitations_web_fixture_test.go": "bbf20ffd87d1f1855a87f7c58d26257ae85be53843cf13440ba0c82a4ee78148",
+    "tests/account-captcha-web/system-invitations.config.js": "0b916d9fd8d261f66a19de5ca5682ca00dc7f089116c1b90b0143e9fdbb8f742",
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": "6b3e764229c861011aa50c1777c5c012ef16360cc25902a6ed9ca92c18153672"
+  },
+  "dist": {
+    "web/dist/assets/AppearanceSettings-BSMdGNjm.js": "5a7283d977e0cb9b89ffd4f1ed0f962766e528bae9b60c14089245354e41ef27",
+    "web/dist/assets/ForgotPasswordView-DJSF_FFM.css": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2",
+    "web/dist/assets/ForgotPasswordView-DltW7Ovd.js": "bf20b27f14b462285157bc9b250a4418a2e37a49e4abdb64ad47f787c00b2888",
+    "web/dist/assets/InvitationView-B4wTz1D4.css": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177",
+    "web/dist/assets/InvitationView-BGQf0IU7.js": "537745f38a43a22a8f3f21b29d45a4bef5439cb8ef8c3b5ea3041ea627e1ac02",
+    "web/dist/assets/PasswordSettings-Bs0n4a_J.js": "fcaf5bc09e400b606590ec5f73ca1d6a8314d706bde624f9e7b6e5b108d15a4c",
+    "web/dist/assets/PersonalSettingsView-2PZsT7sU.js": "abac73473c589cedae27fe343e7d9a9d3a74f820691437f90fc014f0e24beef6",
+    "web/dist/assets/PersonalSettingsView-BLWru9en.css": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5",
+    "web/dist/assets/ProfileSettings-BNQddCE_.js": "d5823629f84e47a90f20ea981bdd12fa093298f538339f13246f534caefd816a",
+    "web/dist/assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+    "web/dist/assets/ResetPasswordView-DSiu2awb.css": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527",
+    "web/dist/assets/ResetPasswordView-DiumiKcd.js": "adcc93b49d0ee1fe386040e4846ae486252adccb285b76b6fe63d8e8b15ac469",
+    "web/dist/assets/SettingsShell-D9S1S_aF.css": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e",
+    "web/dist/assets/SettingsShell-DNPNT8xH.js": "06505ae21ea0d0e81501c85cc895a5b6b71b72e07cba37107a8781d9e8ccce31",
+    "web/dist/assets/SystemInvitationsView-7gulq7I0.js": "c505a70cd9f3232807a779735e7c6d3ee5f7de9c27e38acfde036538a00bdf22",
+    "web/dist/assets/SystemInvitationsView-AIEa2DLX.css": "133e350a8618ce89e44d2f0189549c7cbaf2f66d45a38cdb036a6aa76e25c169",
+    "web/dist/assets/SystemSettingsView-2kluQDJw.css": "5a9935a2f906610a892796a81c273a99d7c64c8c8f5157c2a8779c28e7d5ad7b",
+    "web/dist/assets/SystemSettingsView-Dw-ixwMi.js": "42a3bf6e76a854d6d568bfb6420878bfe1eb6bd0507dcbe95d4ed0c1cd2963d6",
+    "web/dist/assets/SystemUsersView-B41TxT1D.css": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3",
+    "web/dist/assets/SystemUsersView-BdfQertO.js": "2a9c6ce2de2ac97d3534317ff9983bde9e13c5520850f571e499f37c4c65e1d1",
+    "web/dist/assets/UiButton-DTI8Zbe9.js": "a57ea83cea494f527273a505dac74c0e0d235358f66eabae94e4e4e3ffac517f",
+    "web/dist/assets/index-Cn_wuvs9.js": "281d28aeef5e2620ac80c24fa2bb0d05b9933ecd9666b5dc5e9c0168fd315eb9",
+    "web/dist/assets/index-DkoW52CV.css": "e3b3075d4ad8719d82d47d0d674596713ba224bb515de3a1b9d85f01f7f4ba12",
+    "web/dist/index.html": "5ab4cff23ad6dddc3fb59143319ba42d2d23ea0813d7454911b1c4172baf0704"
+  },
+  "locks": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "tests/account-captcha-web/package-lock.json": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+  },
+  "checks": {
+    "npm_check": {
+      "command": "npm run check",
+      "cwd": "/workspace/agenteam/web",
+      "exit": 0,
+      "tests": 386,
+      "files": 20,
+      "log": "/workspace/scratch/agenteam-d27-invitations-frontend/check03.log",
+      "sha256": "9b7f903527d4bf371f7fca5bedadb9b497c666341cf6f0c76a66ac5f1a66fb07"
+    },
+    "go_compile01": {
+      "command": "go test -c -race -tags=integration ./tests/account",
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-invitations-frontend/go-compile01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "go_vet01": {
+      "command": "go vet -tags=integration ./tests/account",
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-invitations-frontend/go-vet01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "browser_type04": {
+      "command": "./web/node_modules/.bin/tsc --noEmit --strict --module NodeNext --moduleResolution NodeNext --target ES2022 --lib ES2022,DOM,DOM.Iterable --types node --typeRoots ./web/node_modules/@types --skipLibCheck tests/account-captcha-web/e2e/system-invitations.spec.ts",
+      "exit": 0,
+      "log": "/workspace/scratch/agenteam-d27-invitations-frontend/harness-type04.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "deferred_documentation": "docs/development/frontend/README.md: after independent acceptance",
+  "real_execution": "not yet run"
+}

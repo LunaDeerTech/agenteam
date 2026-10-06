@@ -1,0 +1,22 @@
+# Invitation UI author handoff
+
+Final candidate: `input07.json`, SHA `5a0de8fd67b9fd46f9249686d469258c06a8ecb7674e8ae8b02338b9c922dfa6`. Fixed 21 source/test paths + 24 dist in `input07-source/`; README remains deferred.
+
+Product 17 web source paths and 24 dist remain input03 bytes. Full 453-test check passes; final fixture Go race compile/vet06 and browser type11/format07 pass.
+
+| New case | Actual PASS run/input | Seconds |
+| --- | --- | ---: |
+| TestAccountSystemInvitationsWebLifecycle | new04/input05 | 15.42 |
+| TestAccountSystemInvitationsWebDeliveryRetry | new02/input03 | 14.24 |
+| TestAccountSystemInvitationsWebOutcomeRecovery | new05/input06 | 11.91 |
+| TestAccountSystemInvitationsWebReadAndPagination | new02/input03 | 32.59 |
+| TestAccountSystemInvitationsWebAuthorityAndIdentity | new02/input03 | 10.51 |
+| TestAccountSystemInvitationsWebNavigationAndLayouts | new06/input07 | 11.81 |
+
+Old five: `old01/input06` actual PASS, 99.577s total; input07 changes only invitation screenshot waiting.
+
+All original inputs01–07 and real runs/new01–06 + old01 remain fixed. `author-report.json` distinguishes product regressions, observation/fixture errors, legitimate resend204, and the original light390 leave-frame evidence gap. No source/dist drift, resource leak, lock update, budget extension, or Git mutation.
+
+Final `new06` actual exit0/62.085s; 7 exact resources doubly absent, 87 PID/starttimes gone, 4 adopted actual waits, runtime empty. Window released to root. Final screenshots: `runs/new06/images/`; original incomplete `new05` light390 retained.
+
+Complete evidence index: `author-report.json`, SHA `ea601e4e591653fe479582333aae0526bebc856c379f473d921cce4cb5a243fe`.

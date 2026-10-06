@@ -1,0 +1,96 @@
+import hashlib
+import json
+import pathlib
+import re
+import subprocess
+
+root = pathlib.Path(__file__).resolve().parent
+repo = pathlib.Path('/workspace/agenteam')
+author = pathlib.Path('/workspace/scratch/agenteam-d27-invitations-frontend')
+snapshot = author / 'web-static03'
+manifest_path = author / 'input01.json'
+manifest = json.loads(manifest_path.read_text())
+sha = lambda data: hashlib.sha256(data).hexdigest()
+assert sha(manifest_path.read_bytes()) == 'a80cfe32714a7351e62ce14d7ff32205b655db47222935b58423789ce6234a32'
+base = manifest['product_base']
+assert base == '9b3201547f9b7b61fd9716a6ba6540084961496c'
+candidate = root / 'candidate'
+records = {}
+
+def git(path):
+    return subprocess.check_output(['git', 'show', base + ':' + path], cwd=repo)
+
+def source(path):
+    if path in manifest['files']:
+        data = (snapshot / path).read_bytes()
+        assert sha(data) == manifest['files'][path], path
+        return data, 'author-input01/web-static03'
+    return git(path), base
+
+def resolve(parent, relative):
+    path = str(pathlib.PurePosixPath(parent).parent / relative)
+    parts = []
+    for p in path.split('/'):
+        if p == '..':
+            parts.pop()
+        elif p != '.':
+            parts.append(p)
+    path = '/'.join(parts)
+    for p in [path, path + '.ts', path + '.vue', path + '/index.ts']:
+        if p in manifest['files']:
+            return p
+        exists = subprocess.run(['git', 'cat-file', '-e', base + ':' + p], cwd=repo,
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if exists.returncode == 0:
+            return p
+    raise ValueError((parent, relative))
+
+def collect(path):
+    if path in records:
+        return
+    data, origin = source(path)
+    destination = candidate / path
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_bytes(data)
+    records[path] = {'sha256': sha(data), 'origin': origin, 'bytes': len(data)}
+    if path.endswith(('.ts', '.vue', '.js')):
+        imports = re.findall(r'(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s*)[\'"]([^\'"]+)[\'"]', data.decode())
+        for item in imports:
+            if item.startswith('.'):
+                collect(resolve(path, item))
+
+for entry in [
+    'web/src/App.vue',
+    'web/src/api/account.ts',
+    'web/src/api/system-account.ts',
+    'web/src/api/system-invitations.ts',
+    'web/src/composables/useSession.ts',
+    'web/src/router/auth.ts',
+    'web/src/views/system/SystemSettingsView.vue',
+    'web/src/views/system/SystemUsersView.vue',
+    'web/src/views/system/SystemInvitationsView.vue',
+]:
+    collect(entry)
+
+for folder in ['probes', 'runs', 'tmp', 'cache', 'node_modules']:
+    (root / folder).mkdir(exist_ok=True)
+for item in (repo / 'web/node_modules').iterdir():
+    if not item.name.startswith('.vite'):
+        destination = root / 'node_modules' / item.name
+        if not destination.exists():
+            destination.symlink_to(item, target_is_directory=item.is_dir())
+for name in ['package.json', 'package-lock.json']:
+    data = git('web/' + name)
+    (root / name).write_bytes(data)
+    records['web/' + name] = {'sha256': sha(data), 'origin': base, 'bytes': len(data)}
+assert records['web/package-lock.json']['sha256'] == manifest['locks']['web/package-lock.json']
+(root / 'consumed-input01.json').write_text(json.dumps({
+    'manifest': str(manifest_path),
+    'manifest_sha256': sha(manifest_path.read_bytes()),
+    'base': base,
+    'files': records,
+    'scope': 'Minimal static import closure for two independent pure probes; no author tests copied.',
+    'dependency_links': str(repo / 'web/node_modules'),
+}, indent=2) + '\n')
+print(json.dumps({'files': len(records), 'bytes': sum(x['bytes'] for x in records.values()),
+                  'input_sha256': sha((root / 'consumed-input01.json').read_bytes())}))

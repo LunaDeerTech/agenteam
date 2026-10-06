@@ -1,0 +1,38 @@
+{
+  "adopted_waits": 20,
+  "browser_processes": 59,
+  "browser_runtime_removed": true,
+  "double_cleanup": true,
+  "driver_exit": 0,
+  "monitor_errors": 0,
+  "node_processes": 10,
+  "observed_processes": 142,
+  "observed_resources": 7,
+  "run": "old01",
+  "run_directory": "/workspace/scratch/agenteam-d27-invitations-frontend/runs/old01",
+  "selected_tests_passed": true,
+  "source_files_unchanged": true,
+  "top_levels": [
+    [
+      "PASS",
+      "TestAccountPublicEntryWebIdentityNavigation"
+    ],
+    [
+      "PASS",
+      "TestAccountAuthenticationWebSessionLifecycle"
+    ],
+    [
+      "PASS",
+      "TestAccountPersonalSettingsWebThemeAndNavigation"
+    ],
+    [
+      "PASS",
+      "TestAccountSystemUserDirectoryWebAuthorityAndIdentity"
+    ],
+    [
+      "PASS",
+      "TestAccountSystemUserDirectoryWebNavigationAndLayouts"
+    ]
+  ],
+  "verification_inputs_unchanged": true
+}

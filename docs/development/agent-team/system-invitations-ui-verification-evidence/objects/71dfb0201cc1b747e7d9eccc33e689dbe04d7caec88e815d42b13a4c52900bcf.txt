@@ -1,0 +1,34 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-invitations.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-invitations.spec.ts (29 tests | 1 failed) 1968ms
+     × settles a pending logout once after checking with discard=true 105ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-invitations.spec.ts > real App, router and invitations controller composition > settles a pending logout once after checking with discard=true
+AssertionError: expected '/' to be '/login' // Object.is equality
+
+Expected: "/login"
+Received: "/"
+
+ ❯ src/tests/system-invitations.spec.ts:611:46
+    609|     )
+    610|     expect(logouts).toHaveLength(kind === 'logout' && discard ? 1 : 0)
+    611|     expect(f.router.currentRoute.value.path).toBe(
+       |                                              ^
+    612|       discard ? (kind === 'route' ? '/system/users' : '/login') : '/sy…
+    613|     )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 28 passed (29)
+   Start at  07:47:44
+   Duration  3.28s (transform 689ms, setup 0ms, import 806ms, tests 1.97s, environment 391ms)
+

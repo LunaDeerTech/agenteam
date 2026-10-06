@@ -1,0 +1,38 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW
+
+ ↓ probes/app-recovery.spec.ts > retains the uncertain App draft through failed Session checking, confirms only the replay, and destroys it on a new Session
+ ↓ probes/app-recovery.spec.ts > shows a normal submit action on an unsubmitted new form during prior success feedback
+stdout | probes/app-recovery.spec.ts > retains the open discard confirmation as top layer across automatic pageshow Session checking
+INDEPENDENT_OPEN_CONFIRMATION_DOM {"source":"input02","restoredSession":true,"overlays":2,"confirmationPresent":true,"confirmationLast":false,"confirmationHidden":"true","confirmationInert":true,"newIntentPosts":0}
+
+ × probes/app-recovery.spec.ts > retains the open discard confirmation as top layer across automatic pageshow Session checking 224ms
+   → expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  probes/app-recovery.spec.ts > retains the open discard confirmation as top layer across automatic pageshow Session checking
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ probes/app-recovery.spec.ts:233:37
+    231|   expect(evidence.confirmationPresent).toBe(true)
+    232|   expect(evidence.newIntentPosts).toBe(0)
+    233|   expect(evidence.confirmationLast).toBe(true)
+       |                                     ^
+    234|   expect(evidence.confirmationHidden).toBeNull()
+    235|   expect(evidence.confirmationInert).toBe(false)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 skipped (3)
+   Start at  06:54:17
+   Duration  2.01s (transform 1.16s, setup 0ms, import 1.29s, tests 225ms, environment 381ms)
+

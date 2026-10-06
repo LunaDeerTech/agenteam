@@ -1,0 +1,127 @@
+{
+  "status": "input01 independent pure evidence frozen; owner PASS; App recovery state PASS after prescribed feedback window; fresh-form UX defect independently RED",
+  "source_manifest": "/workspace/scratch/agenteam-d27-invitations-frontend/input01.json",
+  "source_manifest_sha256": "a80cfe32714a7351e62ce14d7ff32205b655db47222935b58423789ce6234a32",
+  "closure": {
+    "path": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/consumed-input01.json",
+    "sha256": "f4e5364dc4736ac27139473dc6e9271c41e82470080082e55ee830686406cc6d",
+    "files": 31,
+    "includes": "29 source files plus original package manifest and lock, not the whole web tree"
+  },
+  "runs": {
+    "pure01": {
+      "exit": 1,
+      "seconds": 2.533,
+      "timed_out": false,
+      "inputs_equal": true,
+      "child_actual_wait": true,
+      "adopted_waits": [],
+      "raw_sha256": "dd4a9d4117e1f40824b134161735e4cf2e06e24438614715d6efc7dfb0aa40e7",
+      "recorded_pids_present_now": {
+        "driver": false,
+        "child": false
+      },
+      "artifacts": {
+        "runs/pure01/command.json": "c75d10c12f28399d62a7bc1826e762b3ada91b8890fed9df5ba1699d53bf8bf9",
+        "runs/pure01/input-after.json": "2b89275fbb0a7f8745062fa61b895bd41526935d194b44b8e99eb7846b521a9c",
+        "runs/pure01/input-before.json": "2b89275fbb0a7f8745062fa61b895bd41526935d194b44b8e99eb7846b521a9c",
+        "runs/pure01/pid.json": "592a45687d72d87a6ac3c8676ed131325f0a1bdc3eabe7d78b922dfe19a273e2",
+        "runs/pure01/result.json": "073f1a4d7c97d013c03cb5871ae14e352569ebd6d5b0b6c38d637acb112c4bad",
+        "runs/pure01/raw.log": "dd4a9d4117e1f40824b134161735e4cf2e06e24438614715d6efc7dfb0aa40e7",
+        "runs/pure01/source/run-pure.py": "86aa1e56b930a1ae239c4c024dbd431806ccb1137553c646a6acfa260e73f314",
+        "runs/pure01/source/vitest.config.mjs": "07f94d61abe35f52092963c11745c0461dc42653f2499240700634b871247c09",
+        "runs/pure01/source/probes/app-recovery.spec.ts": "f02554657d915157f5c9a8d48610f282b4f13c174ef29e32dbc9950e876c5293",
+        "runs/pure01/source/probes/owner-tail.spec.ts": "69cf892f4b61de5617de634f35c54bb91dfb3b868b17e6518953062669fc9ca4",
+        "runs/pure01/source/probes/support.ts": "2aa15c0c8888c846d6e368ce4340beda26fa975e4a277825c012ec84cfdd1e4c"
+      }
+    },
+    "pure02": {
+      "exit": 1,
+      "seconds": 1.83,
+      "timed_out": false,
+      "inputs_equal": true,
+      "child_actual_wait": true,
+      "adopted_waits": [],
+      "raw_sha256": "3b4f6971dabee8e37a7af8e7d0b9873ddedb6e139225ec8b3997b0a1b9102e87",
+      "recorded_pids_present_now": {
+        "driver": false,
+        "child": false
+      },
+      "artifacts": {
+        "runs/pure02/command.json": "2046c626ca2b59e0c831f6c3f01a9141c559bcea9a41d09dc561c97f08b97c60",
+        "runs/pure02/input-after.json": "96c9b827f5339f9a06d0946605d69e5085728f4f423b018385c2dcff3ba8fe07",
+        "runs/pure02/input-before.json": "96c9b827f5339f9a06d0946605d69e5085728f4f423b018385c2dcff3ba8fe07",
+        "runs/pure02/pid.json": "d2808ab779394ff136e9032f1568cf5b3164aca3536546b6fce88531f8c0d4ce",
+        "runs/pure02/result.json": "2023a66ecafc2223f63a6df6a42652ab033e4f36efed48d83a579123eb34c288",
+        "runs/pure02/raw.log": "3b4f6971dabee8e37a7af8e7d0b9873ddedb6e139225ec8b3997b0a1b9102e87",
+        "runs/pure02/source/run-pure.py": "7eda2e03ef6bea065db55f4ab59cc6c2710517696ac6a269ce5d23b333985acf",
+        "runs/pure02/source/vitest.config.mjs": "07f94d61abe35f52092963c11745c0461dc42653f2499240700634b871247c09",
+        "runs/pure02/source/probes/app-recovery.spec.ts": "67d2b1e2b348b751ec5c02f5651434b701b1d86219da03d68886a20245de9a16",
+        "runs/pure02/source/probes/owner-tail.spec.ts": "69cf892f4b61de5617de634f35c54bb91dfb3b868b17e6518953062669fc9ca4",
+        "runs/pure02/source/probes/support.ts": "2aa15c0c8888c846d6e368ce4340beda26fa975e4a277825c012ec84cfdd1e4c"
+      }
+    },
+    "pure03": {
+      "exit": 0,
+      "seconds": 1.775,
+      "timed_out": false,
+      "inputs_equal": true,
+      "child_actual_wait": true,
+      "adopted_waits": [],
+      "raw_sha256": "a0e89ee8de8ba229d6fe5734c30a765ede0767ba1701126f60fa43c639b35c9e",
+      "recorded_pids_present_now": {
+        "driver": false,
+        "child": false
+      },
+      "artifacts": {
+        "runs/pure03/command.json": "2046c626ca2b59e0c831f6c3f01a9141c559bcea9a41d09dc561c97f08b97c60",
+        "runs/pure03/input-after.json": "cc4d56070f2b3c7cea5ff0478b9ba5b88e45407a18ad30cad7e879d9d1c7b508",
+        "runs/pure03/input-before.json": "cc4d56070f2b3c7cea5ff0478b9ba5b88e45407a18ad30cad7e879d9d1c7b508",
+        "runs/pure03/pid.json": "7f53a1b4037691320481445a409a5495d74c2dd73646fc1a43c41cfd04f263bf",
+        "runs/pure03/result.json": "587f45ef642e42a960f97f82dd92cd4bf7c88706e829878fce517d8735a83d5f",
+        "runs/pure03/raw.log": "a0e89ee8de8ba229d6fe5734c30a765ede0767ba1701126f60fa43c639b35c9e",
+        "runs/pure03/source/run-pure.py": "7eda2e03ef6bea065db55f4ab59cc6c2710517696ac6a269ce5d23b333985acf",
+        "runs/pure03/source/vitest.config.mjs": "07f94d61abe35f52092963c11745c0461dc42653f2499240700634b871247c09",
+        "runs/pure03/source/probes/app-recovery.spec.ts": "2a2f24054b1275299eb8cc00eb68c55c659067398fdf734f69433873e8dcf0ae",
+        "runs/pure03/source/probes/owner-tail.spec.ts": "69cf892f4b61de5617de634f35c54bb91dfb3b868b17e6518953062669fc9ca4",
+        "runs/pure03/source/probes/support.ts": "2aa15c0c8888c846d6e368ce4340beda26fa975e4a277825c012ec84cfdd1e4c"
+      }
+    },
+    "pure04": {
+      "exit": 1,
+      "seconds": 1.727,
+      "timed_out": false,
+      "inputs_equal": true,
+      "child_actual_wait": true,
+      "adopted_waits": [],
+      "raw_sha256": "b73940bac64b90b707d343ea44a90063f2ff98e40e859cd29e086e9bf71921b4",
+      "recorded_pids_present_now": {
+        "driver": false,
+        "child": false
+      },
+      "artifacts": {
+        "runs/pure04/command.json": "a6ebd3ca0cfb5ba838ccd6d2e782603555df06d251a2b93b1a8e06bdc127e2b9",
+        "runs/pure04/input-after.json": "6c019b2fbc0e8a1a3db5c2b736446c92318874d992d26ad4037cf25005a1b0ef",
+        "runs/pure04/input-before.json": "6c019b2fbc0e8a1a3db5c2b736446c92318874d992d26ad4037cf25005a1b0ef",
+        "runs/pure04/pid.json": "36aa54efe439f40269fea23e827a591a8751e37dfd6c38c136ee1aebecda6b84",
+        "runs/pure04/result.json": "f3663141a2676b412151550b6392b747bc75810133c96c895cdf144da8fa4774",
+        "runs/pure04/raw.log": "b73940bac64b90b707d343ea44a90063f2ff98e40e859cd29e086e9bf71921b4",
+        "runs/pure04/source/run-pure.py": "7eda2e03ef6bea065db55f4ab59cc6c2710517696ac6a269ce5d23b333985acf",
+        "runs/pure04/source/vitest.config.mjs": "07f94d61abe35f52092963c11745c0461dc42653f2499240700634b871247c09",
+        "runs/pure04/source/probes/app-recovery.spec.ts": "35211ce52d6f488dbfb396ede5e485a032ea40a35bbbac681be4a883ae3cf36a",
+        "runs/pure04/source/probes/owner-tail.spec.ts": "69cf892f4b61de5617de634f35c54bb91dfb3b868b17e6518953062669fc9ca4",
+        "runs/pure04/source/probes/support.ts": "2aa15c0c8888c846d6e368ce4340beda26fa975e4a277825c012ec84cfdd1e4c"
+      }
+    }
+  },
+  "classification": {
+    "pure01": "Owner combination PASS; App stops at old label expectation during legitimate outer 2400ms accepted feedback. Raw retained.",
+    "pure02": "App proceeds to immediate new form, where previous success state reaches the never-submitted footer. Initially misclassified as a probe label issue, corrected after root review.",
+    "pure03": "App state combination PASS with explicit fake-timer 2400ms advance; proves recovery and new Session clearing only, does not cover or clear immediate-new-form defect.",
+    "pure04": "Focused DOM reproduction, actual expected-normal-label assertion RED: zero new-intent POST, empty draft, enabled submit, visible and accessible label both completed. No timer advance."
+  },
+  "dom_trace_note": "postReceiptListStillFailed is an exact combined-title-string observation: false after openCreate clears writeMessage, not evidence that GET succeeded or the old command was revoked. priorWriteStillConfirmed remains true.",
+  "remaining": "Await author App/view delta and rerun affected App probes; actual browser focus/overlay and independent real HTTP combination unverified.",
+  "resources": "Pure Node/Vitest/jsdom processes only; every runner actually waited. No browser/server/Docker/ports or real fixture started. Author retains real resource window.",
+  "freeze": "runs/pure01..04, their source copies, candidate input01 closure, and this report are stopped. Future work uses new runs; old raw results never replaced."
+}

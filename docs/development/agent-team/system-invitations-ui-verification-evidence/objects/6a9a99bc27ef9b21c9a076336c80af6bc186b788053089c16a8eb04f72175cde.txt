@@ -1,0 +1,768 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"log/slog"
+	"net"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"syscall"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/app"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
+	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+	smtpfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/smtp"
+	"github.com/jackc/pgx/v5"
+)
+
+// This task-owned server alone may discard an already completed command
+// response. It never changes a production handler, commit, body or command key.
+type invitationResponseLost struct {
+	status int
+	header http.Header
+	prefix []byte
+	length int
+}
+
+func (*invitationResponseLost) Error() string {
+	return "owned invitation response intentionally truncated"
+}
+
+func invitationsWebConnect(t *testing.T, ctx context.Context, db *pgfixture.Database) (*pgx.Conn, func()) {
+	t.Helper()
+	conn, err := db.Fixture.Connect(ctx, db.Name)
+	if err != nil {
+		t.Fatal("owned invitation connection failed", err)
+	}
+	return conn, func() {
+		bounded, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		if err := conn.Close(bounded); err != nil {
+			t.Error("owned invitation connection did not close", err)
+		}
+	}
+}
+
+type invitationsWebFixture struct {
+	*authenticationWebFixture
+	mode                    string
+	admin, member           personalWebCredential
+	setup                   *entryWebFixture
+	adminClient             *http.Client
+	csrf                    string
+	smtp                    *smtpfixture.Fixture
+	smtpFailed, smtpSuccess smtpfixture.Endpoint
+	mu                      sync.Mutex
+	dropNext                bool
+	dropPath                string
+	lostKey, lostID         string
+	dropped, replayed       int
+	failRead                atomic.Bool
+	expected                []map[string]any
+	stable                  map[string]invitationStableFacts
+	secrets                 []string
+}
+type invitationStableFacts struct {
+	Token   []byte
+	Expires time.Time
+}
+
+func newInvitationsWebRoot(t *testing.T, ctx context.Context, own *invitationsWebFixture) *authenticationWebFixture {
+	t.Helper()
+	db := pgfixture.NewDatabase(t)
+	conn, closeConnection := invitationsWebConnect(t, ctx, db)
+	defer closeConnection()
+	if own.smtp != nil {
+		migrator, e := postgres.NewMigrator(db.Config(t, nil))
+		if e != nil {
+			t.Fatal("owned SMTP policy migration setup failed", e)
+		}
+		if result := migrator.Migrate(ctx); !result.Migrated {
+			t.Fatal("owned SMTP policy migrations failed", result.Fault)
+		}
+		ports, e := outbound.SelectedPorts(uint16(own.smtpFailed.Port), uint16(own.smtpSuccess.Port))
+		if e != nil {
+			t.Fatal(e)
+		}
+		rule, e := outbound.NewRule(own.smtp.PrivateIP+"/32", ports, false)
+		if e != nil {
+			t.Fatal(e)
+		}
+		_, e = outbound.NewRules(rule)
+		if e != nil {
+			t.Fatal(e)
+		}
+		raw, e := json.Marshal([]map[string]any{{"cidr": own.smtp.PrivateIP + "/32", "ports": []int{own.smtpFailed.Port, own.smtpSuccess.Port}, "allow_http": false}})
+		if e != nil {
+			t.Fatal(e)
+		}
+		if _, e = conn.Exec(ctx, `UPDATE agenteam_outbound.outbound_policy SET rules=$1::jsonb WHERE singleton AND version=1`, string(raw)); e != nil {
+			t.Fatal("owned exact SMTP policy seed failed", e)
+		}
+	}
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal("owned frontend listener unavailable")
+	}
+	t.Cleanup(func() { _ = listener.Close() })
+	origin := "http://" + listener.Addr().String()
+	inputs := accountenv.New(t)
+	objects, err := objectfixture.Environment(ctx, db.Name)
+	if err != nil {
+		t.Fatal("owned object fixture unavailable")
+	}
+	values := inputs.Values()
+	for _, v := range objects {
+		k, value, _ := strings.Cut(v, "=")
+		values[k] = value
+	}
+	for k, v := range map[string]string{
+		"DATABASE_URL": db.Fixture.URL(db.Name), "DATABASE_CA_FILE": db.Fixture.CAFile,
+		"DATABASE_STARTUP_TIMEOUT": "15s", "HTTP_ADDR": "127.0.0.1:0", "PUBLIC_ORIGIN": origin, "SHUTDOWN_TIMEOUT": "2s",
+		"CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`,
+		"SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`,
+	} {
+		values[config.Prefix+k] = v
+	}
+	var environment []string
+	for k, v := range values {
+		environment = append(environment, k+"="+v)
+	}
+	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, environment)
+	if err != nil {
+		t.Fatal("owned root configuration invalid")
+	}
+	output := &httpFixtureLog{listening: make(chan string, 1)}
+	logger, err := logging.New(logging.Central, slog.LevelInfo, output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rootCtx, cancel := context.WithCancel(ctx)
+	rootDone := make(chan error, 1)
+	go func() { rootDone <- app.Run(rootCtx, cfg, logger, nil) }()
+	t.Cleanup(func() {
+		cancel()
+		select {
+		case err := <-rootDone:
+			if err != nil {
+				t.Error("full Account/Secret/Model root shutdown failed", err)
+			}
+		case <-time.After(5 * time.Second):
+			t.Error("full root did not join within its original shutdown budget")
+		}
+	})
+	var address string
+	select {
+	case address = <-output.listening:
+	case err := <-rootDone:
+		rootDone <- err
+		t.Fatal("full root initialization failed", err)
+	case <-ctx.Done():
+		t.Fatal("shared browser budget ended during root startup")
+	}
+	backend, err := url.Parse("http://" + address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	transport := &http.Transport{Proxy: nil}
+	proxy := httputil.NewSingleHostReverseProxy(backend)
+	proxy.Transport = transport // NewSingleHostReverseProxy preserves the original Host.
+	proxy.ModifyResponse = own.controlResponse
+	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, e error) {
+		var lost *invitationResponseLost
+		if errors.As(e, &lost) {
+			defer clear(lost.prefix)
+			for name, values := range lost.header {
+				w.Header()[name] = append([]string(nil), values...)
+			}
+			w.Header().Del("Transfer-Encoding")
+			w.Header().Set("Content-Length", strconv.Itoa(lost.length))
+			w.Header().Set("Connection", "close")
+			w.WriteHeader(lost.status)
+			_, _ = w.Write(lost.prefix)
+			// Flush the real success headers and a prefix of its original body
+			// before closing. A connection lost before any headers can be retried
+			// by a browser; this bounded control must never deliver a receipt.
+			_ = http.NewResponseController(w).Flush()
+			if h, ok := w.(http.Hijacker); ok {
+				c, _, err := h.Hijack()
+				if err == nil {
+					_ = c.Close()
+					return
+				}
+			}
+			return
+		}
+		http.Error(w, "owned API unavailable", 502)
+	}
+	root, err := filepath.Abs("../../web/dist")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(filepath.Join(root, "index.html")); err != nil {
+		t.Fatal("formal production dist must be built before browser execution")
+	}
+	assets := http.FileServer(http.Dir(root))
+	server := &http.Server{ReadHeaderTimeout: 5 * time.Second, Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/v1" || strings.HasPrefix(r.URL.Path, "/api/v1/") {
+			if r.Method == http.MethodGet && r.URL.Path == "/api/v1/system/invitations" && own.failRead.CompareAndSwap(true, false) {
+				requestID := id[struct{}](t).String()
+				w.Header().Set("Content-Type", "application/problem+json")
+				w.Header().Set("X-Request-ID", requestID)
+				w.WriteHeader(503)
+				_ = json.NewEncoder(w).Encode(map[string]any{"type": "urn:agenteam:problem:dependency-unavailable", "title": "Unavailable", "status": 503, "detail": "owned bounded response control", "instance": r.URL.Path, "code": "DEPENDENCY_UNAVAILABLE", "request_id": requestID, "commit_state": "not_started"})
+				return
+			}
+			proxy.ServeHTTP(w, r)
+			return
+		}
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			http.Error(w, "method unavailable", 405)
+			return
+		}
+		clean := filepath.Clean("/" + r.URL.Path)
+		if info, e := os.Stat(filepath.Join(root, clean)); e == nil && !info.IsDir() {
+			assets.ServeHTTP(w, r)
+			return
+		}
+		if strings.HasPrefix(clean, "/assets/") || filepath.Ext(clean) != "" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Cache-Control", "no-store")
+		http.ServeFile(w, r, filepath.Join(root, "index.html"))
+	})}
+	serverDone := make(chan error, 1)
+	go func() { serverDone <- server.Serve(listener) }()
+	t.Cleanup(func() {
+		shutdown, stop := context.WithTimeout(context.Background(), 2*time.Second)
+		defer stop()
+		if err := server.Shutdown(shutdown); err != nil {
+			t.Error("frontend server did not drain")
+			_ = server.Close()
+		}
+		if err := <-serverDone; !errors.Is(err, http.ErrServerClosed) {
+			t.Error("owned frontend server failed", err)
+		}
+		transport.CloseIdleConnections()
+	})
+	runtimeRoot := os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME")
+	if !filepath.IsAbs(runtimeRoot) || len(runtimeRoot) > 45 {
+		t.Fatal("explicit short task-owned browser runtime is required")
+	}
+	directory, err := os.MkdirTemp(runtimeRoot, "run-")
+	if err != nil {
+		t.Fatal("private browser runtime creation failed")
+	}
+	if err := os.Chmod(directory, 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.RemoveAll(directory); err != nil {
+			t.Error("private browser runtime cleanup failed")
+		}
+		if _, err := os.Stat(directory); !errors.Is(err, os.ErrNotExist) {
+			t.Error("private browser runtime still exists")
+		}
+	})
+	old := &httpFixture{t: t, db: db, config: cfg, address: address, log: output}
+	entry := old.record("bootstrap", "admin@mail.com", "")
+	material, err := json.Marshal(map[string]string{"email": entry.Email, "password": entry.Password})
+	if err != nil {
+		t.Fatal("private bootstrap encoding failed")
+	}
+	defer clear(material)
+	if err := os.WriteFile(filepath.Join(directory, "credentials.json"), material, 0600); err != nil {
+		t.Fatal("private bootstrap transfer failed")
+	}
+	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output, record: old.record, recoveryLogPath: cfg.AccountRecoveryLog()}
+	t.Cleanup(func() {
+		if output.contains(entry.Password) {
+			t.Error("bootstrap material escaped the restricted recovery log")
+		}
+	})
+	var configured bool
+	if err := conn.QueryRow(ctx, `SELECT configured FROM agenteam_model.platform_selection WHERE singleton`).Scan(&configured); err != nil || configured {
+		t.Fatal("real Model Initialize technical singleton missing", err)
+	}
+	return f
+}
+
+func newInvitationsWebFixture(t *testing.T, ctx context.Context, mode string) *invitationsWebFixture {
+	t.Helper()
+	f := &invitationsWebFixture{mode: mode, stable: map[string]invitationStableFacts{}}
+	if mode == "delivery" {
+		var e error
+		f.smtp, e = smtpfixture.Start(ctx)
+		if e != nil {
+			t.Fatal("owned SMTP fixture unavailable", e)
+		}
+		t.Cleanup(func() {
+			c, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+			defer cancel()
+			if e := f.smtp.Close(c); e != nil {
+				t.Error(e)
+			}
+		})
+		f.smtpFailed, e = f.smtp.Create(ctx, smtpfixture.Scenario{Mode: "none", MailCode: 550})
+		if e != nil {
+			t.Fatal(e)
+		}
+		f.smtpSuccess, e = f.smtp.Create(ctx, smtpfixture.Scenario{Mode: "none"})
+		if e != nil {
+			t.Fatal(e)
+		}
+	}
+	f.authenticationWebFixture = newInvitationsWebRoot(t, ctx, f)
+	f.admin = personalWebCredential{Email: f.entry.Email, Password: f.entry.Password, UserID: f.entry.ID}
+	f.setup = &entryWebFixture{authenticationWebFixture: f.authenticationWebFixture}
+	f.adminClient = f.setup.entryClient()
+	anonymous := f.setup.entryHTTP(ctx, f.adminClient, "GET", "/api/v1/auth/bootstrap", nil, "", false, 200)
+	f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/sessions/login", map[string]string{"email": f.admin.Email, "password": f.admin.Password}, httpString(t, anonymous, "csrf_token"), true, 200)
+	session := f.setup.entryHTTP(ctx, f.adminClient, "GET", "/api/v1/session", nil, "", false, 200)
+	f.csrf = httpString(t, session, "csrf_token")
+	helper := &personalWebFixture{authenticationWebFixture: f.authenticationWebFixture}
+	f.member = helper.inviteMember(ctx, f.adminClient, f.csrf, "invitations-ui-member@example.com", "invitations-member")
+	f.secrets = []string{f.admin.Password, f.member.Password}
+	count := 1
+	if mode == "read" {
+		count = 26
+	}
+	if mode == "lifecycle" {
+		count = 0
+	}
+	for i := 0; i < count; i++ {
+		email := fmt.Sprintf("invitations-ui-%02d-%s@example.com", i, strings.Repeat("long", 30))
+		receipt := f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/system/invitations", map[string]string{"email": email}, f.csrf, true, 201)
+		f.waitInvitation(ctx, httpString(t, receipt, "id"), "sent")
+	}
+	if mode == "delivery" {
+		f.configureSMTP(ctx, f.smtpFailed)
+		receipt := f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/system/invitations", map[string]string{"email": "invitations-ui-smtp@example.com"}, f.csrf, true, 201)
+		f.waitInvitation(ctx, httpString(t, receipt, "id"), "failed")
+	}
+	f.expected = f.databaseInvitations(ctx)
+	f.private("invitations-material.json", map[string]any{"admin": f.admin, "member": f.member, "expected": f.expected})
+	t.Cleanup(func() {
+		for _, secret := range f.secrets {
+			if secret != "" && f.log.contains(secret) {
+				t.Error("invitation private material escaped restricted fixture")
+			}
+		}
+		for _, v := range f.stable {
+			clear(v.Token)
+		}
+		f.secrets = nil
+		f.admin.Password = ""
+		f.member.Password = ""
+	})
+	return f
+}
+
+func (f *invitationsWebFixture) controlResponse(response *http.Response) error {
+	r := response.Request
+	if r == nil || r.Method != "POST" || !strings.HasPrefix(r.URL.Path, "/api/v1/system/") || response.StatusCode < 200 || response.StatusCode >= 300 {
+		return nil
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.lostKey != "" && r.Header.Get("Idempotency-Key") == f.lostKey {
+		f.replayed++
+	}
+	if !f.dropNext || r.URL.Path != f.dropPath {
+		return nil
+	}
+	f.dropNext = false
+	raw, e := io.ReadAll(io.LimitReader(response.Body, 600001))
+	_ = response.Body.Close()
+	defer clear(raw)
+	var receipt map[string]any
+	if e != nil || len(raw) > 600000 || json.Unmarshal(raw, &receipt) != nil || (response.StatusCode != 201 && response.StatusCode != 202) {
+		return errors.New("owned drop requires actual valid accepted response")
+	}
+	value, ok := receipt["id"].(string)
+	if !ok {
+		return errors.New("owned drop accepted receipt absent")
+	}
+	f.lostID = value
+	f.lostKey = r.Header.Get("Idempotency-Key")
+	f.dropped++
+	return &invitationResponseLost{status: response.StatusCode, header: response.Header.Clone(), prefix: append([]byte(nil), raw[:len(raw)/2]...), length: len(raw)}
+}
+func (f *invitationsWebFixture) private(name string, value any) {
+	f.t.Helper()
+	raw, e := json.Marshal(value)
+	if e != nil {
+		f.t.Fatal("private invitation encoding failed")
+	}
+	defer clear(raw)
+	path := filepath.Join(f.directory, name)
+	if os.WriteFile(path+".tmp", raw, 0600) != nil || os.Rename(path+".tmp", path) != nil {
+		f.t.Fatal("private invitation transfer failed")
+	}
+}
+func (f *invitationsWebFixture) configureSMTP(ctx context.Context, endpoint smtpfixture.Endpoint) {
+	f.t.Helper()
+	if e := f.smtp.Verify(ctx); e != nil {
+		f.t.Fatal(e)
+	}
+	settings := f.setup.entryHTTP(ctx, f.adminClient, "GET", "/api/v1/system/smtp", nil, "", false, 200)
+	f.setup.entryHTTP(ctx, f.adminClient, "PUT", "/api/v1/system/smtp", map[string]any{"version": settings["version"], "host": f.smtp.PrivateIP, "port": endpoint.Port, "encryption": "none", "username": "", "sender_email": "sender@example.com", "sender_name": "Owned invitation fixture", "credential_action": "keep", "password": "", "auto_retry_count": "0", "retry_interval_seconds": "10"}, f.csrf, true, 200)
+}
+func (f *invitationsWebFixture) databaseInvitations(ctx context.Context) []map[string]any {
+	f.t.Helper()
+	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+	defer closeConnection()
+	rows, e := conn.Query(ctx, `SELECT v.id::text,v.canonical_email,v.version::text,v.created_at,v.expires_at,i.job_id::text,c.completed_at,coalesce(j.phase,'enqueue_pending'),coalesce(j.attempts,0)::text,coalesce(j.version,1)::text,a.channel,a.result,coalesce(j.reason,'')
+ FROM agenteam_account.invitations v JOIN LATERAL (SELECT d.* FROM agenteam_account.delivery_intents d JOIN agenteam_account.commands x ON x.id=d.id WHERE d.link_id=v.id AND d.kind='invitation' AND x.phase='committed' ORDER BY x.completed_at DESC,d.job_id DESC LIMIT 1) i ON true JOIN agenteam_account.commands c ON c.id=i.id LEFT JOIN agenteam_account.mail_jobs j ON j.id=i.job_id LEFT JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id WHERE v.expires_at>clock_timestamp() ORDER BY v.created_at DESC,v.id DESC`)
+	if e != nil {
+		f.t.Fatal("safe invitation database observation failed", e)
+	}
+	defer rows.Close()
+	out := []map[string]any{}
+	for rows.Next() {
+		var invitationID, email, version, jobID, phase, attempts, jobVersion, reason string
+		var created, expires, accepted time.Time
+		var channel, result *string
+		if e = rows.Scan(&invitationID, &email, &version, &created, &expires, &jobID, &accepted, &phase, &attempts, &jobVersion, &channel, &result, &reason); e != nil {
+			f.t.Fatal(e)
+		}
+		instant := func(at time.Time) string {
+			v, e := foundation.NewInstant(at)
+			if e != nil {
+				f.t.Fatal(e)
+			}
+			return v.String()
+		}
+		var actual any
+		if channel != nil {
+			if *channel == "log" {
+				actual = "backend_log"
+			} else {
+				actual = *channel
+			}
+		}
+		if phase == "processing" {
+			phase = "unknown"
+		}
+		delivery := map[string]any{"job_id": jobID, "accepted_at": instant(accepted), "phase": phase, "attempts": attempts, "version": jobVersion, "channel": actual, "attempt_result": result}
+		if reason != "" {
+			delivery["reason"] = reason
+		}
+		out = append(out, map[string]any{"id": invitationID, "email": email, "version": version, "created_at": instant(created), "expires_at": instant(expires), "latest_delivery": delivery})
+	}
+	if e = rows.Err(); e != nil {
+		f.t.Fatal(e)
+	}
+	return out
+}
+func (f *invitationsWebFixture) waitInvitation(ctx context.Context, invitationID, phase string) {
+	f.t.Helper()
+	bounded, cancel := context.WithTimeout(ctx, 12*time.Second)
+	defer cancel()
+	conn, closeConnection := invitationsWebConnect(f.t, bounded, f.db)
+	defer closeConnection()
+	tick := time.NewTicker(20 * time.Millisecond)
+	defer tick.Stop()
+	for {
+		var actual string
+		e := conn.QueryRow(bounded, `SELECT coalesce(j.phase,'enqueue_pending') FROM agenteam_account.delivery_intents i JOIN agenteam_account.commands c ON c.id=i.id LEFT JOIN agenteam_account.mail_jobs j ON j.id=i.job_id WHERE i.link_id=$1 AND i.kind='invitation' AND c.phase='committed' ORDER BY c.completed_at DESC,i.job_id DESC LIMIT 1`, invitationID).Scan(&actual)
+		if e == nil && actual == phase {
+			return
+		}
+		select {
+		case <-bounded.Done():
+			f.t.Fatal("owned delivery did not reach required phase", phase)
+		case <-tick.C:
+		}
+	}
+}
+
+type invitationWebIPC struct {
+	Sequence  int    `json:"sequence"`
+	Action    string `json:"action"`
+	ID        string `json:"id"`
+	UserID    string `json:"user_id"`
+	SessionID string `json:"session_id"`
+	Email     string `json:"email"`
+	Phase     string `json:"phase"`
+}
+
+func (f *invitationsWebFixture) ipc(ctx context.Context, r invitationWebIPC) map[string]any {
+	f.t.Helper()
+	out := map[string]any{"ok": true, "sequence": r.Sequence}
+	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+	defer closeConnection()
+	if r.ID != "" {
+		if _, e := foundation.ParseID[struct{}](r.ID); e != nil {
+			f.t.Fatal("invitation IPC target invalid")
+		}
+	}
+	switch r.Action {
+	case "snapshot":
+		out["items"] = f.databaseInvitations(ctx)
+	case "wait":
+		if r.Phase != "sent" && r.Phase != "failed" {
+			f.t.Fatal("owned wait phase rejected")
+		}
+		f.waitInvitation(ctx, r.ID, r.Phase)
+		out["items"] = f.databaseInvitations(ctx)
+	case "cooldown", "compete":
+		var value invitationStableFacts
+		if e := conn.QueryRow(ctx, `SELECT token_verifier,expires_at FROM agenteam_account.invitations WHERE id=$1 AND created_by=$2`, r.ID, f.admin.UserID).Scan(&value.Token, &value.Expires); e != nil {
+			f.t.Fatal("owned invitation target missing", e)
+		}
+		if _, ok := f.stable[r.ID]; !ok {
+			f.stable[r.ID] = value
+		} else {
+			clear(value.Token)
+		}
+		if _, e := conn.Exec(ctx, `UPDATE agenteam_account.invitations SET last_delivery_at=clock_timestamp()-interval '61 seconds' WHERE id=$1 AND created_by=$2`, r.ID, f.admin.UserID); e != nil {
+			f.t.Fatal(e)
+		}
+		if r.Action == "compete" {
+			var version string
+			if e := conn.QueryRow(ctx, `SELECT version::text FROM agenteam_account.invitations WHERE id=$1`, r.ID).Scan(&version); e != nil {
+				f.t.Fatal(e)
+			}
+			f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/system/invitations/"+r.ID+"/resend", map[string]string{"version": version}, f.csrf, true, 202)
+			f.waitInvitation(ctx, r.ID, "sent")
+		}
+	case "stable":
+		original, ok := f.stable[r.ID]
+		if !ok {
+			f.t.Fatal("owned link baseline missing")
+		}
+		var value invitationStableFacts
+		if e := conn.QueryRow(ctx, `SELECT token_verifier,expires_at FROM agenteam_account.invitations WHERE id=$1`, r.ID).Scan(&value.Token, &value.Expires); e != nil {
+			f.t.Fatal(e)
+		}
+		out["stable"] = bytes.Equal(original.Token, value.Token) && original.Expires.Equal(value.Expires)
+		clear(value.Token)
+	case "expire-all":
+		if f.mode != "read" {
+			f.t.Fatal("owned expiry control not available")
+		}
+		if _, e := conn.Exec(ctx, `WITH at AS MATERIALIZED(SELECT clock_timestamp() AS value) UPDATE agenteam_account.invitations SET created_at=at.value-interval '25 hours',expires_at=at.value-interval '1 hour' FROM at WHERE created_by=$1`, f.admin.UserID); e != nil {
+			f.t.Fatal(e)
+		}
+	case "redeem", "revoked-link":
+		if f.mode != "lifecycle" || !strings.HasPrefix(r.Email, "invitations-ui-") {
+			f.t.Fatal("owned redemption material target rejected")
+		}
+		record := f.record("invitation", r.Email, r.ID)
+		link, e := url.Parse(record.URL)
+		if e != nil || link.Scheme+"://"+link.Host != f.origin || len(link.Fragment) != 80 {
+			f.t.Fatal("owned invitation link invalid")
+		}
+		f.secrets = append(f.secrets, record.URL, link.Fragment)
+		client := f.setup.entryClient()
+		bootstrap := f.setup.entryHTTP(ctx, client, "GET", "/api/v1/auth/bootstrap", nil, "", false, 200)
+		csrf := httpString(f.t, bootstrap, "csrf_token")
+		status := 200
+		if r.Action == "revoked-link" {
+			status = 410
+		}
+		inspected := f.setup.entryHTTP(ctx, client, "POST", "/api/v1/invitations/inspect", map[string]string{"token": link.Fragment}, csrf, false, status)
+		if r.Action == "revoked-link" {
+			out["invalid"] = inspected["code"] == "RESOURCE_DELETED"
+			break
+		}
+		password := "Owned redeemed invitation " + id[struct{}](f.t).String()
+		f.secrets = append(f.secrets, password)
+		f.setup.entryHTTP(ctx, client, "POST", "/api/v1/invitations/redeem", map[string]string{"token": link.Fragment, "username": "ui-redeemed", "password": password, "confirmation": password}, csrf, true, 201)
+		var present bool
+		if e = conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.users WHERE email=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_account.invitations WHERE id=$2)`, r.Email, r.ID).Scan(&present); e != nil {
+			f.t.Fatal(e)
+		}
+		out["redeemed"] = present
+	case "smtp-success":
+		if f.mode != "delivery" {
+			f.t.Fatal("owned SMTP control unavailable")
+		}
+		f.configureSMTP(ctx, f.smtpSuccess)
+	case "arm-drop":
+		if f.mode != "outcome" && f.mode != "navigation" && f.mode != "authority" {
+			f.t.Fatal("owned response control unavailable")
+		}
+		f.mu.Lock()
+		f.dropNext = true
+		f.lostKey, f.lostID, f.dropped, f.replayed = "", "", 0, 0
+		f.dropPath = "/api/v1/system/invitations"
+		if r.ID != "" {
+			f.dropPath += "/" + r.ID + "/resend"
+		}
+		f.mu.Unlock()
+	case "arm-get-fail":
+		if f.mode != "outcome" {
+			f.t.Fatal("owned read control unavailable")
+		}
+		f.failRead.Store(true)
+	case "drop-facts", "replay-facts":
+		f.mu.Lock()
+		key, lostID, replayed, dropped, armed := f.lostKey, f.lostID, f.replayed, f.dropped, f.dropNext
+		f.mu.Unlock()
+		var commands, intents int
+		if e := conn.QueryRow(ctx, `SELECT count(*) FROM agenteam_account.commands WHERE command_key=$1 AND phase='committed' AND resource_id::text=$2`, key, lostID).Scan(&commands); e != nil {
+			f.t.Fatal(e)
+		}
+		if e := conn.QueryRow(ctx, `SELECT count(*) FROM agenteam_account.delivery_intents i JOIN agenteam_account.commands c ON c.id=i.id WHERE c.command_key=$1 AND i.link_id::text=$2`, key, lostID).Scan(&intents); e != nil {
+			f.t.Fatal(e)
+		}
+		out["single"] = commands == 1 && intents == 1 && replayed == 1
+		out["commands"], out["intents"], out["replayed"], out["dropped"], out["armed"] = commands, intents, replayed, dropped, armed
+	case "demote", "promote", "revoke-session":
+		if f.mode != "authority" || r.UserID != f.admin.UserID {
+			f.t.Fatal("owned authority identity rejected")
+		}
+		if _, e := foundation.ParseID[struct{}](r.SessionID); e != nil {
+			f.t.Fatal("owned authority Session rejected")
+		}
+		var owned bool
+		if e := conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL)`, r.SessionID, r.UserID).Scan(&owned); e != nil || !owned {
+			f.t.Fatal("owned active Session missing", e)
+		}
+		if r.Action == "revoke-session" {
+			tag, e := conn.Exec(ctx, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='administrative' WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL`, r.SessionID, r.UserID)
+			if e != nil || tag.RowsAffected() != 1 {
+				f.t.Fatal("owned Session revocation failed", e)
+			}
+		} else {
+			role := "user"
+			if r.Action == "promote" {
+				role = "admin"
+			}
+			if _, e := conn.Exec(ctx, `UPDATE agenteam_account.users SET role=$1,version=version+1,updated_at=clock_timestamp() WHERE id=$2`, role, r.UserID); e != nil {
+				f.t.Fatal(e)
+			}
+		}
+	default:
+		f.t.Fatal("unknown invitation IPC action")
+	}
+	return out
+}
+
+func (f *invitationsWebFixture) browserInvitations(ctx context.Context) map[string]any {
+	f.t.Helper()
+	root, e := filepath.Abs("../account-captcha-web")
+	if e != nil {
+		f.t.Fatal(e)
+	}
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "system-invitations.config.js"))
+	cmd.Dir = root
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	cmd.WaitDelay = time.Second
+	for _, value := range os.Environ() {
+		if !strings.HasPrefix(value, "TMPDIR=") && !strings.HasPrefix(value, "AGENTEAM_AUTH_WEB_") && !strings.HasPrefix(value, "AGENTEAM_INVITATIONS_WEB_") && !strings.HasPrefix(value, "PLAYWRIGHT_NO_COPY_PROMPT=") && !strings.HasPrefix(value, "DEBUG=") && !strings.HasPrefix(value, "PWDEBUG=") {
+			cmd.Env = append(cmd.Env, value)
+		}
+	}
+	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_INVITATIONS_WEB_CASE="+f.mode, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "PLAYWRIGHT_NO_COPY_PROMPT=1")
+	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
+		if !filepath.IsAbs(images) {
+			f.t.Fatal("invitation image path must be absolute")
+		}
+		cmd.Env = append(cmd.Env, "AGENTEAM_AUTH_WEB_IMAGES="+images)
+	}
+	var output bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &output, &output
+	if e = cmd.Start(); e != nil {
+		f.t.Fatal("locked invitation browser runner could not start")
+	}
+	done := make(chan error, 1)
+	go func() { done <- cmd.Wait() }()
+	joined := false
+	defer func() {
+		if !joined {
+			_ = cmd.Cancel()
+			<-done
+		}
+		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		cmd.Env = nil
+	}()
+	tick := time.NewTicker(20 * time.Millisecond)
+	defer tick.Stop()
+	sequence := 0
+	var runErr error
+wait:
+	for {
+		select {
+		case runErr = <-done:
+			joined = true
+			break wait
+		case <-tick.C:
+			raw, err := os.ReadFile(filepath.Join(f.directory, "invitations-ipc.json"))
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			var request invitationWebIPC
+			decode := json.Unmarshal(raw, &request)
+			clear(raw)
+			if err != nil || decode != nil || request.Sequence < 1 || request.Sequence > 80 {
+				f.t.Error("private invitation IPC rejected")
+				_ = cmd.Cancel()
+				continue
+			}
+			if request.Sequence <= sequence {
+				continue
+			}
+			if request.Sequence != sequence+1 {
+				f.t.Error("private invitation IPC sequence invalid")
+				_ = cmd.Cancel()
+				continue
+			}
+			reply := f.ipc(ctx, request)
+			sequence = request.Sequence
+			f.private("invitations-ack-"+strconv.Itoa(sequence)+".json", reply)
+		}
+	}
+	safe := output.String()
+	for _, secret := range f.secrets {
+		if secret != "" {
+			safe = strings.ReplaceAll(safe, secret, "[redacted]")
+		}
+	}
+	f.mu.Lock()
+	if f.lostKey != "" {
+		safe = strings.ReplaceAll(safe, f.lostKey, "[redacted]")
+	}
+	f.mu.Unlock()
+	f.t.Log(safe)
+	if runErr != nil {
+		f.t.Fatalf("actual invitation production browser failed: %v", runErr)
+	}
+	raw, e := os.ReadFile(filepath.Join(f.directory, "invitations-result.json"))
+	if e != nil {
+		f.t.Fatal("safe invitation browser result missing")
+	}
+	defer clear(raw)
+	var result map[string]any
+	if json.Unmarshal(raw, &result) != nil || result["completed"] != true {
+		f.t.Fatal("safe invitation browser result invalid")
+	}
+	return result
+}

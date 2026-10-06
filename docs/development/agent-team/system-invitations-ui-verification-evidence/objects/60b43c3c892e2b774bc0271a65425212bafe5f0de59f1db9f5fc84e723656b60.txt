@@ -1,0 +1,497 @@
+<script setup lang="ts">
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import UiButton from '../../components/ui/UiButton.vue'
+import UiDialog from '../../components/ui/UiDialog.vue'
+import UiField from '../../components/ui/UiField.vue'
+import UiInput from '../../components/ui/UiInput.vue'
+import UiState from '../../components/ui/UiState.vue'
+import { invitationRetryReason, useSystemInvitations } from '../../composables/useSystemInvitations'
+import type { InvitationDelivery } from '../../api/system-invitations'
+const invitations = useSystemInvitations()
+const { state, draft, dialogs, feedback, progress, blocked, locked } = invitations
+const heading = ref<HTMLElement | null>(null),
+  actions = ref<HTMLElement | null>(null)
+const phases: Record<InvitationDelivery['phase'], string> = {
+  enqueue_pending: '等待入队',
+  pending: '等待投递',
+  claimed: '已领取',
+  sending: '投递中',
+  retry_wait: '等待自动重试',
+  sent: '已完成投递',
+  failed: '投递失败',
+  unknown: '结果未知',
+  cancelled: '已取消',
+}
+const results = { sent: '已完成投递', failed: '投递失败', unknown: '结果未知', cancelled: '已取消' }
+const reasons: Record<NonNullable<InvitationDelivery['reason']>, string> = {
+  sent: '投递尝试已完成',
+  token_invalid: '邀请链接已不可用',
+  configuration_invalid: '投递配置不可用',
+  policy_rejected: '投递策略拒绝',
+  network_failed: '网络连接失败',
+  smtp_rejected: 'SMTP 服务拒绝',
+  timeout: '投递等待超时',
+  cancelled: '投递已取消',
+  unknown: '投递结果未知',
+}
+const time = (value: string) => value.slice(0, 10) + ' ' + value.slice(11, 19)
+let waiting: HTMLButtonElement | null = null
+let working = false
+function restoreFocus() {
+  if (blocked.value) return
+  const previous = waiting
+  waiting = null
+  if (previous?.isConnected && !previous.disabled) previous.focus()
+  else if (
+    previous ||
+    !document.activeElement?.isConnected ||
+    document.activeElement === document.body
+  )
+    (
+      document.querySelector<HTMLElement>('[role="dialog"] button:not(:disabled)') ??
+      actions.value?.querySelector<HTMLButtonElement>('button:not(:disabled)') ??
+      heading.value
+    )?.focus()
+}
+async function perform(work: () => Promise<void>, event: Event) {
+  waiting =
+    event instanceof SubmitEvent && event.submitter instanceof HTMLButtonElement
+      ? event.submitter
+      : event.currentTarget instanceof HTMLButtonElement
+        ? event.currentTarget
+        : event.currentTarget instanceof HTMLFormElement
+          ? (Array.from(event.currentTarget.elements).find(
+              (element): element is HTMLButtonElement =>
+                element instanceof HTMLButtonElement && element.type === 'submit',
+            ) ?? null)
+          : null
+  working = true
+  try {
+    await work()
+  } finally {
+    working = false
+  }
+  await nextTick()
+  restoreFocus()
+}
+async function close() {
+  await invitations.closeDialog()
+  await nextTick()
+  restoreFocus()
+}
+watch(blocked, async (value) => {
+  if (!value && waiting && !working) {
+    await nextTick()
+    restoreFocus()
+  }
+})
+onMounted(async () => {
+  invitations.attach()
+  await nextTick()
+  if (!dialogs.create && !dialogs.revoke && !dialogs.retry) heading.value?.focus()
+})
+onUnmounted(invitations.detach)
+</script>
+<template>
+  <div class="system-invitations">
+    <h1 ref="heading" tabindex="-1">待注册邀请</h1>
+    <p class="meta">仅列出仍有效的待注册邀请。时间使用 UTC；投递完成不保证已进入收件箱。</p>
+    <div ref="actions" class="invitation-actions" aria-label="邀请操作与分页">
+      <UiButton
+        :disabled="locked"
+        :state="feedback.kind === 'create' ? feedback.state : 'idle'"
+        success-label="邀请请求已接受"
+        @click="invitations.openCreate"
+        >邀请用户</UiButton
+      >
+      <UiButton :disabled="blocked" @click="perform(invitations.refresh, $event)">刷新</UiButton>
+      <UiButton
+        :disabled="blocked || !state.hasPrevious"
+        @click="perform(invitations.previous, $event)"
+        >上一页</UiButton
+      >
+      <UiButton :disabled="blocked || !state.hasNext" @click="perform(invitations.next, $event)"
+        >下一页</UiButton
+      >
+    </div>
+    <p v-if="invitations.auth.state.busy" class="meta" role="status">正在等待当前请求结束。</p>
+    <p v-if="state.writeMessage" class="write-message" role="status">{{ state.writeMessage }}</p>
+    <UiState
+      v-if="progress?.phase === 'uncertain'"
+      kind="error"
+      title="请求结果未确认"
+      description="此前提交仍可能生效；观察列表不能代替原请求确认。"
+    >
+      <div class="invitation-actions">
+        <UiButton :disabled="blocked" @click="perform(invitations.checkCurrent, $event)"
+          >检查当前状态</UiButton
+        >
+        <UiButton
+          :disabled="blocked || !progress.canRetryOriginal"
+          @click="perform(invitations.retryOriginal, $event)"
+          >重试原请求</UiButton
+        >
+        <UiButton variant="ghost" @click="invitations.abandonOperation">放弃本次操作</UiButton>
+      </div>
+    </UiState>
+    <UiState
+      v-if="state.requiresReload"
+      kind="error"
+      title="请重新读取列表"
+      description="原操作的页面追踪已停止，此前提交仍可能生效。成功重新读取后才能开始新的邀请操作。"
+    />
+    <UiState
+      v-if="state.phase === 'loading' || state.phase === 'waiting'"
+      kind="loading"
+      title="正在读取待注册邀请"
+    />
+    <UiState
+      v-else-if="state.phase === 'error'"
+      kind="error"
+      :title="
+        progress?.phase === 'confirmed' && state.writeMessage
+          ? '操作已确认，列表读取失败'
+          : '邀请列表读取失败'
+      "
+      :description="state.message"
+    >
+      <UiButton
+        v-if="state.cursorInvalid"
+        :disabled="blocked"
+        @click="perform(invitations.refresh, $event)"
+        >返回首页重新加载</UiButton
+      >
+      <UiButton v-else :disabled="blocked" @click="perform(invitations.retryRead, $event)"
+        >重新读取列表</UiButton
+      >
+    </UiState>
+    <UiState v-else-if="state.phase === 'empty'" kind="empty" title="暂无待注册邀请" />
+    <div
+      v-else-if="state.phase === 'ready'"
+      class="invitation-list"
+      role="region"
+      aria-label="待注册邀请列表"
+      tabindex="0"
+    >
+      <table>
+        <caption class="sr-only">
+          待注册邀请
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">邮箱</th>
+            <th scope="col">创建时间（UTC）</th>
+            <th scope="col">到期时间（UTC）</th>
+            <th scope="col">最近一次投递任务</th>
+            <th scope="col">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in state.rows" :key="row.id">
+            <td data-label="邮箱">{{ row.email }}</td>
+            <td data-label="创建时间（UTC）">
+              <time
+                :datetime="row.created_at"
+                :aria-label="row.created_at"
+                :title="row.created_at"
+                >{{ time(row.created_at) }}</time
+              >
+            </td>
+            <td data-label="到期时间（UTC）">
+              <time
+                :datetime="row.expires_at"
+                :aria-label="row.expires_at"
+                :title="row.expires_at"
+                >{{ time(row.expires_at) }}</time
+              >
+            </td>
+            <td data-label="最近一次投递任务">
+              <dl class="delivery-facts">
+                <dt>接受时间（UTC）</dt>
+                <dd>
+                  <time
+                    :datetime="row.latest_delivery.accepted_at"
+                    :aria-label="row.latest_delivery.accepted_at"
+                    :title="row.latest_delivery.accepted_at"
+                    >{{ time(row.latest_delivery.accepted_at) }}</time
+                  >
+                </dd>
+                <dt>阶段</dt>
+                <dd>{{ phases[row.latest_delivery.phase] }}</dd>
+                <dt>尝试次数</dt>
+                <dd>{{ row.latest_delivery.attempts }}</dd>
+                <dt>尝试渠道</dt>
+                <dd>
+                  {{
+                    row.latest_delivery.channel === 'smtp'
+                      ? 'SMTP'
+                      : row.latest_delivery.channel === 'backend_log'
+                        ? '后台恢复日志（需有权限的日志接收者协助转交）'
+                        : '尚未记录尝试渠道'
+                  }}
+                </dd>
+                <template v-if="row.latest_delivery.attempt_result"
+                  ><dt>本次尝试结果</dt>
+                  <dd>{{ results[row.latest_delivery.attempt_result] }}</dd></template
+                >
+                <template v-if="row.latest_delivery.reason"
+                  ><dt>原因</dt>
+                  <dd>{{ reasons[row.latest_delivery.reason] }}</dd></template
+                >
+              </dl>
+            </td>
+            <td data-label="操作">
+              <div class="row-actions">
+                <UiButton
+                  :disabled="locked"
+                  :state="
+                    feedback.kind === 'resend' && feedback.target === row.id
+                      ? feedback.state
+                      : 'idle'
+                  "
+                  success-label="重发请求已接受"
+                  @click="perform(() => invitations.resend(row), $event)"
+                  >重发邀请</UiButton
+                >
+                <UiButton
+                  :disabled="locked || !!invitationRetryReason(row.latest_delivery)"
+                  :state="
+                    feedback.kind === 'retry' && feedback.target === row.latest_delivery.job_id
+                      ? feedback.state
+                      : 'idle'
+                  "
+                  success-label="重试投递请求已接受"
+                  @click="invitations.openRetry(row)"
+                  >重试投递</UiButton
+                >
+                <span v-if="invitationRetryReason(row.latest_delivery)" class="meta">{{
+                  invitationRetryReason(row.latest_delivery)
+                }}</span>
+                <UiButton variant="danger" :disabled="locked" @click="invitations.openRevoke(row)"
+                  >撤销邀请</UiButton
+                >
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p v-if="state.phase === 'ready' || state.phase === 'empty'" class="meta" role="status">
+      本页 {{ state.rows.length }} 项邀请
+    </p>
+    <UiDialog :open="dialogs.create" title="邀请用户" @update:open="!$event && close()">
+      <form
+        id="system-invitation-create"
+        novalidate
+        @submit.prevent="perform(invitations.create, $event)"
+      >
+        <UiField
+          label="邮箱"
+          required
+          :error="state.emailError"
+          hint="仅发送邀请，不设置密码或角色。"
+          v-slot="field"
+        >
+          <UiInput
+            v-model="draft.email"
+            :id="field.id"
+            :invalid="field.invalid"
+            :aria-describedby="field.describedby"
+            :disabled="locked"
+            type="text"
+            inputmode="email"
+            autocomplete="off"
+            maxlength="254"
+          />
+        </UiField>
+      </form>
+      <p v-if="state.writeMessage" role="status">{{ state.writeMessage }}</p>
+      <div v-if="progress?.phase === 'uncertain'" class="invitation-actions">
+        <UiButton :disabled="blocked" @click="perform(invitations.checkCurrent, $event)"
+          >检查当前状态</UiButton
+        >
+        <UiButton
+          :disabled="blocked || !progress.canRetryOriginal"
+          @click="perform(invitations.retryOriginal, $event)"
+          >重试原请求</UiButton
+        >
+        <UiButton variant="ghost" @click="invitations.abandonOperation">放弃本次操作</UiButton>
+      </div>
+      <p v-if="progress?.phase === 'uncertain'">
+        关闭表单需确认放弃页面追踪；也可保留输入并关闭当前确认提示，继续检查原请求。
+      </p>
+      <template #footer
+        ><UiButton variant="ghost" @click="close">取消</UiButton
+        ><UiButton
+          type="submit"
+          form="system-invitation-create"
+          :disabled="locked"
+          :state="feedback.kind === 'create' && feedback.state === 'loading' ? 'loading' : 'idle'"
+          >发送邀请</UiButton
+        ></template
+      >
+    </UiDialog>
+    <UiDialog :open="!!dialogs.revoke" title="撤销邀请？" @update:open="!$event && close()">
+      <p>撤销 {{ dialogs.revoke?.email }} 的邀请后，链接将失效。</p>
+      <p v-if="state.writeMessage" role="status">{{ state.writeMessage }}</p>
+      <div v-if="progress?.phase === 'uncertain'" class="invitation-actions">
+        <UiButton :disabled="blocked" @click="perform(invitations.checkCurrent, $event)"
+          >检查当前状态</UiButton
+        >
+        <UiButton
+          :disabled="blocked || !progress.canRetryOriginal"
+          @click="perform(invitations.retryOriginal, $event)"
+          >重试原请求</UiButton
+        >
+        <UiButton variant="ghost" @click="invitations.abandonOperation">放弃本次操作</UiButton>
+      </div>
+      <template #footer
+        ><UiButton variant="ghost" @click="close">取消</UiButton
+        ><UiButton
+          variant="danger"
+          :disabled="locked"
+          :state="feedback.kind === 'revoke' && feedback.state === 'loading' ? 'loading' : 'idle'"
+          @click="perform(invitations.revoke, $event)"
+          >确认撤销</UiButton
+        ></template
+      >
+    </UiDialog>
+    <UiDialog :open="!!dialogs.retry" title="重试投递？" @update:open="!$event && close()">
+      <p>
+        为
+        {{ dialogs.retry?.email }}
+        开始新的投递周期，沿用原有效链接。这可能造成重复投递；结果未知不表示从未发送。
+      </p>
+      <p v-if="state.writeMessage" role="status">{{ state.writeMessage }}</p>
+      <div v-if="progress?.phase === 'uncertain'" class="invitation-actions">
+        <UiButton :disabled="blocked" @click="perform(invitations.checkCurrent, $event)"
+          >检查当前状态</UiButton
+        >
+        <UiButton
+          :disabled="blocked || !progress.canRetryOriginal"
+          @click="perform(invitations.retryOriginal, $event)"
+          >重试原请求</UiButton
+        >
+        <UiButton variant="ghost" @click="invitations.abandonOperation">放弃本次操作</UiButton>
+      </div>
+      <template #footer
+        ><UiButton variant="ghost" @click="close">取消</UiButton
+        ><UiButton
+          :disabled="locked"
+          :state="feedback.kind === 'retry' && feedback.state === 'loading' ? 'loading' : 'idle'"
+          @click="perform(invitations.retryDelivery, $event)"
+          >确认重试投递</UiButton
+        ></template
+      >
+    </UiDialog>
+  </div>
+</template>
+<style scoped>
+.system-invitations {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.invitation-actions,
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.row-actions {
+  align-items: start;
+}
+.row-actions :deep(button) {
+  max-width: 100%;
+  white-space: normal;
+}
+.invitation-list {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  text-align: start;
+}
+th,
+td {
+  padding: 10px;
+  vertical-align: top;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  font-weight: 600;
+  background: var(--surface);
+}
+th:nth-child(1) {
+  width: 23%;
+}
+th:nth-child(2),
+th:nth-child(3) {
+  width: 15%;
+}
+th:nth-child(4) {
+  width: 27%;
+}
+th:nth-child(5) {
+  width: 20%;
+}
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+.delivery-facts {
+  margin: 0;
+}
+.delivery-facts dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.delivery-facts dd {
+  margin: 0 0 8px;
+}
+time {
+  font-variant-numeric: tabular-nums;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+@media (max-width: 760px) {
+  table,
+  tbody,
+  tr,
+  td {
+    display: block;
+  }
+  thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  tr + tr {
+    border-top: 1px solid var(--border);
+  }
+  td {
+    border: 0;
+    padding: 8px 12px;
+  }
+  td::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+</style>

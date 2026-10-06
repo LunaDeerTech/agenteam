@@ -1,0 +1,45 @@
+{
+  "kind": "independent-readonly-static-review",
+  "result": "STATIC PASS; no final product/browser verdict",
+  "frozen_input": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/input04.json",
+    "sha256": "2493935f84ca3b78907ea1442988adcb7a1a29319b689dd3961f2c6e8879e9a5",
+    "source_count": 21,
+    "dist_count": 24
+  },
+  "delta": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/input04-delta.diff",
+    "sha256": "915cea0ab3f8fe2f70899af95d6943c8cf41d91ef318795f412135c01f55f6ef",
+    "changed_sources": {
+      "tests/account/system_invitations_web_fixture_test.go": "2a2fd2d44946a0700920b689313c9a4e71ced3c2002a39e80945ff40a52ef766",
+      "tests/account-captcha-web/e2e/system-invitations.spec.ts": "07805612a50baaaa59f6ac12954f5dc73f01f822dd92918f00120a45bc92e824"
+    }
+  },
+  "reuse": "input03 pure07/pure08 remain byte-applicable: 17 web sources, all 24 dist, shared dependencies and locks unchanged.",
+  "native_observer": [
+    "Original fetch pending Promise is returned; native Response and reader objects are retained; each read call returns the original native Promise. Reader cancel is untouched; getReader/read methods themselves are wrapped.",
+    "No clone, tee, extra read, extra fetch, cancel or resend. Observation uses existing native chunks/done only; observation exceptions are contained separately.",
+    "Same-origin GET/POST only, explicit invitation/resend/revoke/mail-job retry paths. Monotonic request watermarks and exact path/status plus exactly-one observed fact constrain POST association.",
+    "Body accumulation has a per-reader 600000-byte ceiling, cleared after completion/error/overflow; only fixed-key receipt with UUIDv7/int64 version validation or bounded safe code survives.",
+    "A done observation is not proof of owner cancel/join completion; independent unchanged-owner tail evidence remains the basis for that assertion."
+  ],
+  "fixture_and_navigation": [
+    "Outcome fault is exact GET /api/v1/system/invitations with one armed CAS consumption; controls expose count/armed booleans. Original 503 and confirmed-failure title assertions remain.",
+    "Navigation installs a DOM MutationObserver before synthetic pageshow, observes actual .session-check, then disconnects/clears timeout. It adds no request or app mutation; synthetic event is not physical BFCache evidence."
+  ],
+  "heading_locator": {
+    "accepted_git": "79f922ec259d2838052a903612e2a27005618c11",
+    "path": "web/src/components/ui/UiState.vue",
+    "sha256": "c2bace72f0604327c29252e8be629f4d541fa22b056844bbb3601a375e55d673",
+    "fact": "Error h3 contains aria-hidden=true exclamation span before unchanged title; exact text includes the decoration, accessible heading name excludes it.",
+    "recommendation": "Replace only affected getByText exact title locators/diagnostic booleans with getByRole heading name=original title, exact=true; keep status, count, checking and focus assertions.",
+    "scope": "Static attribution consistent with root-reported new03 diagnostics; independent reviewer did not read active author logs or run this candidate."
+  },
+  "limits": [
+    "No browser, service, Docker, port, test or auxiliary observer-contract command executed for this review.",
+    "Only frozen input03/input04 and accepted Git UiState were consumed; no active product tree was read.",
+    "Existing knownProblem fallback is unchanged and matches safe code/status from this page; this review does not upgrade that older helper to per-request receipt binding.",
+    "Author auxiliary observer-contract.cjs reads a live source path; it was inspected but not executed or used as independent runtime evidence.",
+    "Future GET DTO observation extension requires its own frozen delta review."
+  ]
+}

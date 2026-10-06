@@ -1,0 +1,58 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/vitest03.config.mjs",
+    "--reporter=verbose",
+    "probes03/app-recovery.spec.ts",
+    "-t",
+    "keeps pending"
+  ],
+  "cwd": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW",
+  "env_overrides": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "DO_NOT_TRACK": "1",
+    "TMPDIR": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/tmp",
+    "XDG_CACHE_HOME": "/workspace/scratch/agenteam-invitations-ui-verification-pVHEcPxW/cache",
+    "AGENTEAM_INDEPENDENT_PURE_INPUT": "consumed-input03.json"
+  },
+  "node_version": "v24.19.0",
+  "timeout_seconds": 45,
+  "source_manifest": "/workspace/scratch/agenteam-d27-invitations-frontend/input03.json",
+  "source_manifest_sha256": "3f14302874d07c9c59ff3c076716c418465f975fca3efa610a193f75fa952051",
+  "subreaper": true,
+  "scope": "Pure Vitest/jsdom only; no browser, server, Docker or test fixture.",
+  "dependencies": {
+    "vitest": {
+      "version": "4.1.11",
+      "package_json_sha256": "a28126d97bcaf567da5bed69443b7f3bcd9a7a8c38c8b66e554686b6bb2c10e0"
+    },
+    "vite": {
+      "version": "8.3.1",
+      "package_json_sha256": "fd3af4eaf4eecb2069f3e2715d6aaa2137d084a8a95097389523f52213c08094"
+    },
+    "vue": {
+      "version": "3.5.43",
+      "package_json_sha256": "b5cbf896563ac8087e8acdfe81ff5155db2eb75aced9725cdc05820be483cdda"
+    },
+    "vue-router": {
+      "version": "4.6.4",
+      "package_json_sha256": "40f70fdb21741d9fda761e4ecd7c38bf5ad283934b6751e51fabca54fb21b4f6"
+    },
+    "@vue/test-utils": {
+      "version": "2.5.1",
+      "package_json_sha256": "1ab696c97bf2e57b9c37ad6918301fe7dba70425c831c73f2a9fc366c8357963"
+    },
+    "@vitejs/plugin-vue": {
+      "version": "6.0.9",
+      "package_json_sha256": "fc6ec30b002301294bba8da23e81fce670b711c7931738a05042bee1ff5671c1"
+    },
+    "jsdom": {
+      "version": "27.4.0",
+      "package_json_sha256": "e8f4906ea5beba475daa5736d0158f1770092c46718dd04aa2bfe2190808bb7e"
+    }
+  }
+}

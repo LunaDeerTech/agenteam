@@ -1,0 +1,89 @@
+{
+  "kind": "invitation-ui-rev3-web-static03",
+  "backend": "9b3201547f9b7b61fd9716a6ba6540084961496c",
+  "authorization": "6be5321c51f24108d886a139c7a31bb0aab92db3",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "335b57fc0a11362b852ed7a145c40b821686131c00059d4634063c2d08ac524a"
+    },
+    {
+      "path": "web/src/api/system-account.ts",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+    },
+    {
+      "path": "web/src/api/system-invitations.ts",
+      "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "4edada1e6790f5503f7fc3f277454ceec484e6e11bc8948b202e09d64d6f0137"
+    },
+    {
+      "path": "web/src/composables/useSystemInvitations.ts",
+      "sha256": "eaf19a15da96f3d1d0c366b26b18980672bd76825339835b167acc7603754df6"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "29f86a3425042203eee0bbd95e638830d219c906aeab18d0031b75b3dee4e554"
+    },
+    {
+      "path": "web/src/components/layout/SettingsShell.vue",
+      "sha256": "8815f6b4ccae1afbaeef4edd3e18ae92d700a791ea156bb97204069e0859feac"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "673a2efd6fea4481dacf0555e1a6b81c9809d195fe9ad970f509c61ac2dfed4e"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "f5dc2e229aa01e64e12461c78adb5a950a410119a3f45f12ba5212ec8364695d"
+    },
+    {
+      "path": "web/src/views/system/SystemSettingsView.vue",
+      "sha256": "675a2d4c61c37d2d17c28d6b664dc2a1f0a2d161e16389a51abcc7156b1dfbd0"
+    },
+    {
+      "path": "web/src/views/system/SystemInvitationsView.vue",
+      "sha256": "9a6337827c77762e9c7aa98dbb13eff42db8355dce07130b8a2feb3197dee898"
+    },
+    {
+      "path": "web/src/tests/system-invitations-client.spec.ts",
+      "sha256": "20aa1a1dee349d545ac98867bcec50f0486f8036d3153fc518971475b66bb1bf"
+    },
+    {
+      "path": "web/src/tests/system-invitations-state.spec.ts",
+      "sha256": "16b1bbae44cc7964af1e58620ba03636a95402695e26d19502b049cbaf86b6b0"
+    },
+    {
+      "path": "web/src/tests/system-invitations.spec.ts",
+      "sha256": "9ff2640a8d62c956086912818f55fac60f37465ce5bcc943d2c65cbb9c02dc23"
+    },
+    {
+      "path": "web/src/tests/settings-shell.spec.ts",
+      "sha256": "a0e579eb72cbb54e2460eb60572d9ac2bcd1ec82a0f19c1f6dd1c80b677986a3"
+    },
+    {
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "sha256": "e5627445f71b275468f110df01ba3b7b4136280557d57a378f2767a3941bff9f"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "1e6d86daf28d5b7f00ab4c2cd9732c224d7f527ab3b12a3d10bdd30fb20c09b6"
+    }
+  ],
+  "check": {
+    "path": "/workspace/scratch/agenteam-d27-invitations-frontend/check03.log",
+    "sha256": "9b7f903527d4bf371f7fca5bedadb9b497c666341cf6f0c76a66ac5f1a66fb07",
+    "result": "exit0; 20 test files / 386 tests; format/type/build PASS"
+  },
+  "deferred": [
+    "4 new Go/Playwright paths (compile/vet/type passed; real not run)",
+    "README after acceptance"
+  ],
+  "delta": [
+    "web/src/api/system-invitations.ts",
+    "web/src/tests/system-invitations-client.spec.ts"
+  ],
+  "previous_manifest_sha256": "4a393a8e7fb943392fff62c2976f83a9bfb5a2a33f38124e7d6367fda8480746"
+}

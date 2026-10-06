@@ -1,0 +1,1093 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-invitations.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-invitations.spec.ts (16 tests | 3 failed) 1016ms
+     × restores a rejected form submission to its actionable submit control (true) 62ms
+     × restores a rejected form submission to its actionable submit control (false) 74ms
+     × keeps the dirty modal through actual App checking unmount and restores the same email 65ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-invitations.spec.ts > real App, router and invitations controller composition > restores a rejected form submission to its actionable submit control (true)
+ FAIL  src/tests/system-invitations.spec.ts > real App, router and invitations controller composition > restores a rejected form submission to its actionable submit control (false)
+AssertionError: expected <body style="overflow: hidden;">…(7)</body> to be <button data-v-9bd67894 …(3)>…(1)</button> // Object.is equality
+
+- Expected
++ Received
+
+@@ -1,6 +1,975 @@
++ <body
++   style="overflow: hidden;"
++ >
++   <div
++     data-v-app=""
++   >
++     
++     <div
++       class="app-shell authentication-shell"
++       data-v-7a7a37b1=""
++     >
++       <a
++         class="skip-link"
++         href="#main-content"
++       >
++         跳转到内容
++       </a>
++       <header
++         class="system-nav"
++       >
++         <a
++           aria-label="agenteam 入口"
++           class="brand"
++           href="/"
++         >
++           <span
++             aria-hidden="true"
++             class="brand-mark"
++           >
++             a
++           </span>
++           agenteam
++         </a>
++         <nav
++           aria-label="系统导航"
++         >
++           
++           <a
++             class="router-link-active"
++             href="/system"
++           >
++             系统设置
++           </a>
++           
++         </nav>
++         
++         
++         <div
++           class="account-actions"
++           data-v-7a7a37b1=""
++         >
++           <a
++             class="account-name"
++             data-v-7a7a37b1=""
++             href="/settings/profile"
++             title="Admin"
++           >
++             Admin
++           </a>
++           <button
++             class="ui-button ghost"
++             data-v-7a7a37b1=""
++             type="button"
++           >
++             <span
++               class="button-content"
++             >
++               <span
++                 aria-hidden="false"
++                 class="button-label"
++               >
++                 
++                 退出登录
++                 
++               </span>
++               <span
++                 aria-hidden="true"
++                 class="button-label button-hidden"
++               >
++                 <span
++                   aria-hidden="true"
++                   class="ui-spinner"
++                 />
++                 处理中
++               </span>
++               <span
++                 aria-hidden="true"
++                 class="button-label button-hidden"
++               >
++                 <svg
++                   aria-hidden="true"
++                   class="ui-icon"
++                   fill="none"
++                   stroke="currentColor"
++                   stroke-linecap="round"
++                   stroke-linejoin="round"
++                   stroke-width="1.6"
++                   viewBox="0 0 24 24"
++                 >
++                   <path
++                     d="M5 12l4 4L19 6"
++                   />
++                 </svg>
++                 已完成
++               </span>
++               <!--v-if-->
++               <!--v-if-->
++             </span>
++           </button>
++         </div>
++         
++         
++       </header>
++       <main
++         class="app-content"
++         id="main-content"
++         tabindex="-1"
++       >
++         
++         <div
++           class="settings-shell"
++           data-v-14054004=""
++           data-v-7a7a37b1=""
++           data-v-bb68ba37=""
++         >
++           <!--v-if-->
++           <aside
++             class="settings-sidebar"
++             data-v-14054004=""
++             open="false"
++             title="系统设置栏目"
++           >
++             <nav
++               aria-label="系统设置"
++               class="settings-menu"
++               data-v-14054004=""
++             >
++               <h2
++                 data-v-14054004=""
++               >
++                 系统设置
++               </h2>
++               
++               <div
++                 class="settings-group selected"
++                 data-v-14054004=""
++               >
++                 <button
++                   aria-controls="settings-v-0-1"
++                   aria-expanded="true"
++                   class="settings-group-toggle"
++                   data-v-14054004=""
++                   type="button"
++                 >
++                   用户与邀请
++                 </button>
++                 <ul
++                   data-v-14054004=""
++                   id="settings-v-0-1"
++                 >
++                   
++                   <li
++                     data-v-14054004=""
++                   >
++                     <a
++                       class=""
++                       data-v-14054004=""
++                       href="/system/users"
++                     >
++                       用户
++                     </a>
++                   </li>
++                   <li
++                     data-v-14054004=""
++                   >
++                     <a
++                       aria-current="page"
++                       class="router-link-active router-link-exact-active"
++                       data-v-14054004=""
++                       href="/system/invitations"
++                     >
++                       待注册邀请
++                     </a>
++                   </li>
++                   
++                 </ul>
++               </div>
++               
++               <!--v-if-->
++             </nav>
++           </aside>
++           <section
++             class="settings-content"
++             data-v-14054004=""
++           >
++             
++             <div
++               class="system-invitations"
++               data-v-9bd67894=""
++               data-v-bb68ba37=""
++             >
++               <h1
++                 data-v-9bd67894=""
++                 tabindex="-1"
++               >
++                 待注册邀请
++               </h1>
++               <p
++                 class="meta"
++                 data-v-9bd67894=""
++               >
++                 仅列出仍有效的待注册邀请。时间使用 UTC；投递完成不保证已进入收件箱。
++               </p>
++               <div
++                 aria-label="邀请操作与分页"
++                 class="invitation-actions"
++                 data-v-9bd67894=""
++               >
++                 <button
++                   class="ui-button default"
++                   data-v-9bd67894=""
++                   type="button"
++                 >
++                   <span
++                     class="button-content"
++                   >
++                     <span
++                       aria-hidden="false"
++                       class="button-label"
++                     >
++                       
++                       邀请用户
++                       
++                     </span>
++                     <span
++                       aria-hidden="true"
++                       class="button-label button-hidden"
++                     >
++                       <span
++                         aria-hidden="true"
++                         class="ui-spinner"
++                       />
++                       处理中
++                     </span>
++                     <span
++                       aria-hidden="true"
++                       class="button-label button-hidden"
++                     >
++                       <svg
++                         aria-hidden="true"
++                         class="ui-icon"
++                         fill="none"
++                         stroke="currentColor"
++                         stroke-linecap="round"
++                         stroke-linejoin="round"
++                         stroke-width="1.6"
++                         viewBox="0 0 24 24"
++                       >
++                         <path
++                           d="M5 12l4 4L19 6"
++                         />
++                       </svg>
++                       邀请请求已接受
++                     </span>
++                     <!--v-if-->
++                     <!--v-if-->
++                   </span>
++                 </button>
++                 <button
++                   class="ui-button default"
++                   data-v-9bd67894=""
++                   type="button"
++                 >
++                   <span
++                     class="button-content"
++                   >
++                     <span
++                       aria-hidden="false"
++                       class="button-label"
++                     >
++                       
++                       刷新
++                       
++                     </span>
++                     <span
++                       aria-hidden="true"
++                       class="button-label button-hidden"
++                     >
++                       <span
++                         aria-hidden="true"
++                         class="ui-spinner"
++                       />
++                       处理中
++                     </span>
++                     <span
++                       aria-hidden="true"
++                       class="button-label button-hidden"
++                     >
++                       <svg
++                         aria-hidden="true"
++                         class="ui-icon"
++                         fill="none"
++                         stroke="currentColor"
++                         stroke-linecap="round"
++                         stroke-linejoin="round"
++                         stroke-width="1.6"
++                         viewBox="0 0 24 24"
++                       >
++                         <path
++                           d="M5 12l4 4L19 6"
++                         />
++                       </svg>
++                       已完成
++                     </span>
++                     <!--v-if-->
++                     <!--v-if-->
++                   </span>
++                 </button>
++                 <button
++                   class="ui-button default"
++                   data-v-9bd67894=""
++                   disabled=""
++                   type="button"
++                 >
++                   <span
++                     class="button-content"
++                   >
++                     <span
++                       aria-hidden="false"
++                       class="button-label"
++                     >
++                       
++                       上一页
++                       
++                     </span>
++                     <span
++                       aria-hidden="true"
++                       class="button-label button-hidden"
++                     >
++                       <span
++                         aria-hidden="true"
++                         class="ui-spinner"
++                       />
++                       处理中
++                     </span>
++                     <span
++                       aria-hidden="true"
++                       class="button-label button-hidden"
++                     >
++                       <svg
++                         aria-hidden="true"
++                         class="ui-icon"
++                         fill="none"
++                         stroke="currentColor"
++                         stroke-linecap="round"
++                         stroke-linejoin="round"
++                         stroke-width="1.6"
++                         viewBox="0 0 24 24"
++                       >
++                         <path
++                           d="M5 12l4 4L19 6"
++                         />
++                       </svg>
++                       已完成
++                     </span>
++                     <!--v-if-->
++                     <!--v-if-->
++                   </span>
++                 </button>
++                 <button
++                   class="ui-button default"
++                   data-v-9bd67894=""
++                   disabled=""
++                   type="button"
++                 >
++                   <span
++                     class="button-content"
++                   >
++                     <span
++                       aria-hidden="false"
++                       class="button-label"
++                     >
++                       
++                       下一页
++                       
++                     </span>
++                     <span
++                       aria-hidden="true"
++                       class="button-label button-hidden"
++                     >
++                       <span
++                         aria-hidden="true"
++                         class="ui-spinner"
++                       />
++                       处理中
++                     </span>
++                     <span
++                       aria-hidden="true"
++                       class="button-label button-hidden"
++                     >
++                       <svg
++                         aria-hidden="true"
++                         class="ui-icon"
++                         fill="none"
++                         stroke="currentColor"
++                         stroke-linecap="round"
++                         stroke-linejoin="round"
++                         stroke-width="1.6"
++                         viewBox="0 0 24 24"
++                       >
++                         <path
++                           d="M5 12l4 4L19 6"
++                         />
++                       </svg>
++                       已完成
++                     </span>
++                     <!--v-if-->
++                     <!--v-if-->
++                   </span>
++                 </button>
++               </div>
++               <!--v-if-->
++               <p
++                 class="write-message"
++                 data-v-9bd67894=""
++                 role="status"
++               >
++                 请检查输入或重新加载当前记录。
++               </p>
++               <!--v-if-->
++               <!--v-if-->
++               <div
++                 aria-label="待注册邀请列表"
++                 class="invitation-list"
++                 data-v-9bd67894=""
++                 role="region"
++                 tabindex="0"
++               >
++                 <table
++                   data-v-9bd67894=""
++                 >
++                   <caption
++                     class="sr-only"
++                     data-v-9bd67894=""
++                   >
++                      待注册邀请 
++                   </caption>
++                   <thead
++                     data-v-9bd67894=""
++                   >
++                     <tr
++                       data-v-9bd67894=""
++                     >
++                       <th
++                         data-v-9bd67894=""
++                         scope="col"
++                       >
++                         邮箱
++                       </th>
++                       <th
++                         data-v-9bd67894=""
++                         scope="col"
++                       >
++                         创建时间（UTC）
++                       </th>
++                       <th
++                         data-v-9bd67894=""
++                         scope="col"
++                       >
++                         到期时间（UTC）
++                       </th>
++                       <th
++                         data-v-9bd67894=""
++                         scope="col"
++                       >
++                         最近一次投递任务
++                       </th>
++                       <th
++                         data-v-9bd67894=""
++                         scope="col"
++                       >
++                         操作
++                       </th>
++                     </tr>
++                   </thead>
++                   <tbody
++                     data-v-9bd67894=""
++                   >
++                     
++                     <tr
++                       data-v-9bd67894=""
++                     >
++                       <td
++                         data-label="邮箱"
++                         data-v-9bd67894=""
++                       >
++                         invite100@example.com
++                       </td>
++                       <td
++                         data-label="创建时间（UTC）"
++                         data-v-9bd67894=""
++                       >
++                         <time
++                           aria-label="2026-10-06T12:34:56.123456Z"
++                           data-v-9bd67894=""
++                           datetime="2026-10-06T12:34:56.123456Z"
++                           title="2026-10-06T12:34:56.123456Z"
++                         >
++                           2026-10-06 12:34:56
++                         </time>
++                       </td>
++                       <td
++                         data-label="到期时间（UTC）"
++                         data-v-9bd67894=""
++                       >
++                         <time
++                           aria-label="2026-10-06T12:34:56.123456Z"
++                           data-v-9bd67894=""
++                           datetime="2026-10-06T12:34:56.123456Z"
++                           title="2026-10-06T12:34:56.123456Z"
++                         >
++                           2026-10-06 12:34:56
++                         </time>
++                       </td>
++                       <td
++                         data-label="最近一次投递任务"
++                         data-v-9bd67894=""
++                       >
++                         <dl
++                           class="delivery-facts"
++                           data-v-9bd67894=""
++                         >
++                           <dt
++                             data-v-9bd67894=""
++                           >
++                             接受时间（UTC）
++                           </dt>
++                           <dd
++                             data-v-9bd67894=""
++                           >
++                             <time
++                               aria-label="2026-10-06T12:34:56.123456Z"
++                               data-v-9bd67894=""
++                               datetime="2026-10-06T12:34:56.123456Z"
++                               title="2026-10-06T12:34:56.123456Z"
++                             >
++                               2026-10-06 12:34:56
++                             </time>
++                           </dd>
++                           <dt
++                             data-v-9bd67894=""
++                           >
++                             阶段
++                           </dt>
++                           <dd
++                             data-v-9bd67894=""
++                           >
++                             已完成投递
++                           </dd>
++                           <dt
++                             data-v-9bd67894=""
++                           >
++                             尝试次数
++                           </dt>
++                           <dd
++                             data-v-9bd67894=""
++                           >
++                             1
++                           </dd>
++                           <dt
++                             data-v-9bd67894=""
++                           >
++                             尝试渠道
++                           </dt>
++                           <dd
++                             data-v-9bd67894=""
++                           >
++                             后台恢复日志（需有权限的日志接收者协助转交）
++                           </dd>
++                           
++                           <dt
++                             data-v-9bd67894=""
++                           >
++                             本次尝试结果
++                           </dt>
++                           <dd
++                             data-v-9bd67894=""
++                           >
++                             已完成投递
++                           </dd>
++                           
++                           
++                           <dt
++                             data-v-9bd67894=""
++                           >
++                             原因
++                           </dt>
++                           <dd
++                             data-v-9bd67894=""
++                           >
++                             投递尝试已完成
++                           </dd>
++                           
++                         </dl>
++                       </td>
++                       <td
++                         data-label="操作"
++                         data-v-9bd67894=""
++                       >
++                         <div
++                           class="row-actions"
++                           data-v-9bd67894=""
++                         >
++                           <button
++                             class="ui-button default"
++                             data-v-9bd67894=""
++                             type="button"
++                           >
++                             <span
++                               class="button-content"
++                             >
++                               <span
++                                 aria-hidden="false"
++                                 class="button-label"
++                               >
++                                 
++                                 重发邀请
++                                 
++                               </span>
++                               <span
++                                 aria-hidden="true"
++                                 class="button-label button-hidden"
++                               >
++                                 <span
++                                   aria-hidden="true"
++                                   class="ui-spinner"
++                                 />
++                                 处理中
++                               </span>
++                               <span
++                                 aria-hidden="true"
++                                 class="button-label button-hidden"
++                               >
++                                 <svg
++                                   aria-hidden="true"
++                                   class="ui-icon"
++                                   fill="none"
++                                   stroke="currentColor"
++                                   stroke-linecap="round"
++                                   stroke-linejoin="round"
++                                   stroke-width="1.6"
++                                   viewBox="0 0 24 24"
++                                 >
++                                   <path
++                                     d="M5 12l4 4L19 6"
++                                   />
++                                 </svg>
++                                 重发请求已接受
++                               </span>
++                               <!--v-if-->
++                               <!--v-if-->
++                             </span>
++                           </button>
++                           <button
++                             class="ui-button default"
++                             data-v-9bd67894=""
++                             type="button"
++                           >
++                             <span
++                               class="button-content"
++                             >
++                               <span
++                                 aria-hidden="false"
++                                 class="button-label"
++                               >
++                                 
++                                 重试投递
++                                 
++                               </span>
++                               <span
++                                 aria-hidden="true"
++                                 class="button-label button-hidden"
++                               >
++                                 <span
++                                   aria-hidden="true"
++                                   class="ui-spinner"
++                                 />
++                                 处理中
++                               </span>
++                               <span
++                                 aria-hidden="true"
++                                 class="button-label button-hidden"
++                               >
++                                 <svg
++                                   aria-hidden="true"
++                                   class="ui-icon"
++                                   fill="none"
++                                   stroke="currentColor"
++                                   stroke-linecap="round"
++                                   stroke-linejoin="round"
++                                   stroke-width="1.6"
++                                   viewBox="0 0 24 24"
++                                 >
++                                   <path
++                                     d="M5 12l4 4L19 6"
++                                   />
++                                 </svg>
++                                 重试投递请求已接受
++                               </span>
++                               <!--v-if-->
++                               <!--v-if-->
++                             </span>
++                           </button>
++                           <!--v-if-->
++                           <button
++                             class="ui-button danger"
++                             data-v-9bd67894=""
++                             type="button"
++                           >
++                             <span
++                               class="button-content"
++                             >
++                               <span
++                                 aria-hidden="false"
++                                 class="button-label"
++                               >
++                                 
++                                 撤销邀请
++                                 
++                               </span>
++                               <span
++                                 aria-hidden="true"
++                                 class="button-label button-hidden"
++                               >
++                                 <span
++                                   aria-hidden="true"
++                                   class="ui-spinner"
++                                 />
++                                 处理中
++                               </span>
++                               <span
++                                 aria-hidden="true"
++                                 class="button-label button-hidden"
++                               >
++                                 <svg
++                                   aria-hidden="true"
++                                   class="ui-icon"
++                                   fill="none"
++                                   stroke="currentColor"
++                                   stroke-linecap="round"
++                                   stroke-linejoin="round"
++                                   stroke-width="1.6"
++                                   viewBox="0 0 24 24"
++                                 >
++                                   <path
++                                     d="M5 12l4 4L19 6"
++                                   />
++                                 </svg>
++                                 已完成
++                               </span>
++                               <!--v-if-->
++                               <!--v-if-->
++                             </span>
++                           </button>
++                         </div>
++                       </td>
++                     </tr>
++                     
++                   </tbody>
++                 </table>
++               </div>
++               <p
++                 class="meta"
++                 data-v-9bd67894=""
++                 role="status"
++               >
++                  本页 1 项邀请 
++               </p>
++               <!--teleport start-->
++               <!--teleport end-->
++               <!--teleport start-->
++               <!--teleport end-->
++               <!--teleport start-->
++               <!--teleport end-->
++             </div>
++             
++           </section>
++         </div>
++         
++       </main>
++     </div>
++     <!--teleport start-->
++     <!--teleport end-->
++     <!--teleport start-->
++     <!--teleport end-->
++     <!--teleport start-->
++     <!--teleport end-->
++     
++   </div>
++   
++   <transition-stub
++     appear="false"
++     css="true"
++     name="dialog"
++     persisted="false"
++   >
++     <div
++       class="ui-overlay"
++     >
++       <section
++         aria-labelledby="v-1"
++         aria-modal="true"
++         class="ui-dialog"
++         role="dialog"
++         tabindex="-1"
++       >
++         <header
++           class="dialog-header"
++         >
++           <h2
++             id="v-1"
++           >
++             邀请用户
++           </h2>
+            <button
++             aria-label="关闭"
++             class="ui-button ghost icon-only"
++             type="button"
++           >
++             <span
++               class="button-content"
++             >
++               <span
++                 aria-hidden="false"
++                 class="button-label"
++               >
++                 
++                 <svg
++                   aria-hidden="true"
++                   class="ui-icon"
++                   fill="none"
++                   stroke="currentColor"
++                   stroke-linecap="round"
++                   stroke-linejoin="round"
++                   stroke-width="1.6"
++                   viewBox="0 0 24 24"
++                 >
++                   <path
++                     d="M6 6l12 12M18 6L6 18"
++                   />
++                 </svg>
++                 
++               </span>
++               <!--v-if-->
++               <!--v-if-->
++               <!--v-if-->
++               <!--v-if-->
++             </span>
++           </button>
++         </header>
++         <div
++           class="dialog-content"
++         >
++           
++           <form
++             data-v-9bd67894=""
++             id="system-invitation-create"
++             novalidate=""
++           >
++             <div
++               class="ui-field"
++               data-v-9bd67894=""
++             >
++               <label
++                 for="v-7"
++               >
++                 邮箱
++                 <span
++                   aria-hidden="true"
++                 >
++                    *
++                 </span>
++               </label>
++               
++               <input
++                 aria-describedby="v-7-note"
++                 aria-invalid="true"
++                 autocomplete="off"
++                 class="ui-input"
++                 data-v-9bd67894=""
++                 id="v-7"
++                 inputmode="email"
++                 maxlength="254"
++                 type="text"
++               />
++               
++               <p
++                 class="field-note error-text"
++                 id="v-7-note"
++                 role="alert"
++               >
++                 邮箱格式不正确或已被占用，请检查后重试。
++               </p>
++             </div>
++           </form>
++           <p
++             data-v-9bd67894=""
++             role="status"
++           >
++             请检查输入或重新加载当前记录。
++           </p>
++           <!--v-if-->
++           <!--v-if-->
++           
++         </div>
++         <footer
++           class="dialog-footer"
++         >
++           
++           <button
++             class="ui-button ghost"
++             data-v-9bd67894=""
++             type="button"
++           >
++             <span
++               class="button-content"
++             >
++               <span
++                 aria-hidden="false"
++                 class="button-label"
++               >
++                 
++                 取消
++                 
++               </span>
++               <span
++                 aria-hidden="true"
++                 class="button-label button-hidden"
++               >
++                 <span
++                   aria-hidden="true"
++                   class="ui-spinner"
++                 />
++                 处理中
++               </span>
++               <span
++                 aria-hidden="true"
++                 class="button-label button-hidden"
++               >
++                 <svg
++                   aria-hidden="true"
++                   class="ui-icon"
++                   fill="none"
++                   stroke="currentColor"
++                   stroke-linecap="round"
++                   stroke-linejoin="round"
++                   stroke-width="1.6"
++                   viewBox="0 0 24 24"
++                 >
++                   <path
++                     d="M5 12l4 4L19 6"
++                   />
++                 </svg>
++                 已完成
++               </span>
++               <!--v-if-->
++               <!--v-if-->
++             </span>
++           </button>
++           <button
+              class="ui-button default"
+              data-v-9bd67894=""
+              form="system-invitation-create"
+              type="submit"
+            >
+@@ -47,5 +1016,62 @@
+                </span>
+                <!--v-if-->
+                <!--v-if-->
+              </span>
+            </button>
++           
++         </footer>
++       </section>
++     </div>
++   </transition-stub>
++   
++   
++   <transition-stub
++     appear="false"
++     css="true"
++     name="dialog"
++     persisted="false"
++   >
++     <!--v-if-->
++   </transition-stub>
++   
++   
++   <transition-stub
++     appear="false"
++     css="true"
++     name="dialog"
++     persisted="false"
++   >
++     <!--v-if-->
++   </transition-stub>
++   
++   
++   <transition-stub
++     appear="false"
++     css="true"
++     name="dialog"
++     persisted="false"
++   >
++     <!--v-if-->
++   </transition-stub>
++   
++   
++   <transition-stub
++     appear="false"
++     css="true"
++     name="dialog"
++     persisted="false"
++   >
++     <!--v-if-->
++   </transition-stub>
++   
++   
++   <transition-stub
++     appear="false"
++     css="true"
++     name="dialog"
++     persisted="false"
++   >
++     <!--v-if-->
++   </transition-stub>
++   
++ </body>
+
+ ❯ src/tests/system-invitations.spec.ts:346:38
+    344|       expect(dialog().textContent).toContain('邮箱格式不正确或已被占用')
+    345|       expect(submit.disabled).toBe(false)
+    346|       expect(document.activeElement).toBe(submit)
+       |                                      ^
+    347|     },
+    348|   )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/tests/system-invitations.spec.ts > real App, router and invitations controller composition > keeps the dirty modal through actual App checking unmount and restores the same email
+AssertionError: expected '邀请用户邮箱 *仅发送邀请，不设置密码或角色。取消处理中已完成发送邀请处理…' to contain '放弃未保存修改'
+
+Expected: "放弃未保存修改"
+Received: "邀请用户邮箱 *仅发送邀请，不设置密码或角色。取消处理中已完成发送邀请处理中已完成"
+
+ ❯ src/tests/system-invitations.spec.ts:439:42
+    437|     const overlays = [...document.querySelectorAll('.ui-overlay')]
+    438|     expect(overlays).toHaveLength(2)
+    439|     expect(overlays.at(-1)?.textContent).toContain('放弃未保存修改')
+       |                                          ^
+    440|     await click('继续编辑', dialog())
+    441|     expect(document.activeElement).toBe(cancel)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 13 passed (16)
+   Start at  06:48:29
+   Duration  2.27s (transform 621ms, setup 0ms, import 737ms, tests 1.02s, environment 400ms)
+

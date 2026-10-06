@@ -1,0 +1,428 @@
+type Delivery = {
+  job_id: string;
+  accepted_at: string;
+  phase: string;
+  attempts: string;
+  version: string;
+  channel: string | null;
+  attempt_result: string | null;
+  reason?: string;
+};
+type Invitation = {
+  id: string;
+  email: string;
+  version: string;
+  created_at: string;
+  expires_at: string;
+  latest_delivery: Delivery;
+};
+type InvitationPage = { items: Invitation[]; next_cursor?: string };
+type NativeFact = {
+  request: number;
+  method: string;
+  path: string;
+  status: number;
+  stage: "headers" | "done" | "invalid" | "overflow" | "read-failed";
+  code?: string;
+  receipt?: Record<string, string>;
+  page?: InvitationPage;
+  empty?: boolean;
+};
+type ObservedWindow = Window & {
+  __invitationFacts?: NativeFact[];
+  __invitationRequest?: number;
+};
+
+export function observeNativeCodes() {
+  const scope = window as ObservedWindow;
+  scope.__invitationFacts = [];
+  scope.__invitationRequest = 0;
+  const uuid =
+      "[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}",
+    uuidValue = new RegExp(`^${uuid}$`),
+    invitationPath = new RegExp(
+      `^/api/v1/system/invitations/${uuid}/(resend|revoke)$`,
+    ),
+    deliveryPath = new RegExp(`^/api/v1/system/mail-jobs/${uuid}/retry$`);
+  // Retain only the closed, bounded read DTO used by the existing wire/DB
+  // comparison. This observes the application's original reader, never a copy.
+  function readProjection(value: unknown): InvitationPage {
+    const require = (condition: unknown) => {
+      if (!condition) throw new Error("invalid closed read projection");
+    };
+    const shape = (
+      value: unknown,
+      required: string[],
+      optional: string[] = [],
+    ) => {
+      require(value && typeof value === "object" && !Array.isArray(value));
+      const row = value as Record<string, unknown>;
+      require(
+        required.every((key) => Object.hasOwn(row, key)) &&
+          Object.keys(row).every(
+            (key) => required.includes(key) || optional.includes(key),
+          ),
+      );
+      return row;
+    };
+    const version = (value: unknown) =>
+      typeof value === "string" &&
+      /^[1-9][0-9]{0,18}$/.test(value) &&
+      BigInt(value) <= 9223372036854775807n;
+    const id = (value: unknown) =>
+      typeof value === "string" && uuidValue.test(value);
+    const instant = (value: unknown) => {
+      if (
+        typeof value !== "string" ||
+        !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(value)
+      )
+        return false;
+      const year = Number(value.slice(0, 4)),
+        month = Number(value.slice(5, 7)),
+        day = Number(value.slice(8, 10)),
+        leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0),
+        days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+      return (
+        month >= 1 &&
+        month <= 12 &&
+        day >= 1 &&
+        day <= days[month - 1]! &&
+        Number(value.slice(11, 13)) <= 23 &&
+        Number(value.slice(14, 16)) <= 59 &&
+        Number(value.slice(17, 19)) <= 59
+      );
+    };
+    const email = (value: unknown) => {
+      if (
+        typeof value !== "string" ||
+        value.length < 3 ||
+        value.length > 254 ||
+        !/^[\x21-\x7e]+$/.test(value) ||
+        value !== value.toLowerCase()
+      )
+        return false;
+      const parts = value.split("@"),
+        atom =
+          /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*$/;
+      if (parts.length !== 2 || !atom.test(parts[0]!)) return false;
+      const domain = parts[1]!;
+      if (!(domain.startsWith("[") && domain.endsWith("]")))
+        return atom.test(domain);
+      const literal = domain.slice(1, -1),
+        prefixed = literal.startsWith("ipv6:"),
+        address = prefixed ? literal.slice(5) : literal;
+      if (
+        /^(?:0|[1-9][0-9]{0,2})(?:\.(?:0|[1-9][0-9]{0,2})){3}$/.test(address) &&
+        address.split(".").every((part) => Number(part) <= 255)
+      )
+        return true;
+      if (!/^[0-9a-f:.]+$/.test(address) || !address.includes(":"))
+        return false;
+      try {
+        const host = new URL(`http://[${address}]/`).hostname;
+        return (
+          prefixed || /^\[::ffff:[0-9a-f]{1,4}:[0-9a-f]{1,4}\]$/.test(host)
+        );
+      } catch {
+        return false;
+      }
+    };
+    const page = shape(value, ["items"], ["next_cursor"]);
+    require(Array.isArray(page.items) && page.items.length <= 25);
+    const ids = new Set<string>();
+    let previous: Invitation | undefined;
+    const items = (page.items as unknown[]).map((value) => {
+      const row = shape(value, [
+          "id",
+          "email",
+          "version",
+          "created_at",
+          "expires_at",
+          "latest_delivery",
+        ]),
+        delivery = shape(
+          row.latest_delivery,
+          [
+            "job_id",
+            "accepted_at",
+            "phase",
+            "attempts",
+            "version",
+            "channel",
+            "attempt_result",
+          ],
+          ["reason"],
+        );
+      require(
+        id(row.id) &&
+          email(row.email) &&
+          version(row.version) &&
+          instant(row.created_at) &&
+          instant(row.expires_at),
+      );
+      require(
+        id(delivery.job_id) &&
+          instant(delivery.accepted_at) &&
+          version(delivery.version) &&
+          typeof delivery.attempts === "string" &&
+          /^[0-6]$/.test(delivery.attempts),
+      );
+      require(
+        [
+          "enqueue_pending",
+          "pending",
+          "claimed",
+          "sending",
+          "retry_wait",
+          "sent",
+          "failed",
+          "unknown",
+          "cancelled",
+        ].includes(delivery.phase as string),
+      );
+      require(
+        delivery.channel === null ||
+          delivery.channel === "smtp" ||
+          delivery.channel === "backend_log",
+      );
+      require(
+        delivery.attempt_result === null ||
+          ["sent", "failed", "unknown", "cancelled"].includes(
+            delivery.attempt_result as string,
+          ),
+      );
+      if (Object.hasOwn(delivery, "reason"))
+        require(
+          [
+            "sent",
+            "token_invalid",
+            "configuration_invalid",
+            "policy_rejected",
+            "network_failed",
+            "smtp_rejected",
+            "timeout",
+            "cancelled",
+            "unknown",
+          ].includes(delivery.reason as string),
+        );
+      if (delivery.channel === null)
+        require(
+          delivery.attempt_result === null &&
+            !["claimed", "sending", "retry_wait", "sent", "failed"].includes(
+              delivery.phase as string,
+            ),
+        );
+      else require(delivery.attempts !== "0");
+      if (delivery.phase === "enqueue_pending")
+        require(
+          delivery.attempts === "0" &&
+            delivery.version === "1" &&
+            delivery.channel === null &&
+            !Object.hasOwn(delivery, "reason"),
+        );
+      const item = row as unknown as Invitation;
+      require(
+        !ids.has(item.id) &&
+          (!previous ||
+            item.created_at < previous.created_at ||
+            (item.created_at === previous.created_at && item.id < previous.id)),
+      );
+      ids.add(item.id);
+      previous = item;
+      return item;
+    });
+    if (Object.hasOwn(page, "next_cursor"))
+      require(
+        typeof page.next_cursor === "string" &&
+          page.next_cursor.length >= 1 &&
+          page.next_cursor.length <= 8192 &&
+          items.length === 25,
+      );
+    return {
+      items,
+      ...(Object.hasOwn(page, "next_cursor")
+        ? { next_cursor: page.next_cursor as string }
+        : {}),
+    };
+  }
+  const original = window.fetch;
+  window.fetch = function (this: unknown, ...args) {
+    const pending = Reflect.apply(
+      original,
+      this,
+      args,
+    ) as Promise<globalThis.Response>;
+    // Any observation exception must leave the original fetch/reader untouched.
+    try {
+      const request = ++scope.__invitationRequest!,
+        input = args[0],
+        method = (
+          args[1]?.method ?? (input instanceof Request ? input.method : "GET")
+        ).toUpperCase(),
+        url = new URL(
+          input instanceof Request ? input.url : String(input),
+          location.href,
+        );
+      if (
+        url.origin !== location.origin ||
+        !["GET", "POST"].includes(method) ||
+        !(
+          url.pathname === "/api/v1/system/invitations" ||
+          invitationPath.test(url.pathname) ||
+          deliveryPath.test(url.pathname)
+        )
+      )
+        return pending;
+      void pending
+        .then((response) => {
+          const fact: NativeFact = {
+            request,
+            method,
+            path: url.pathname,
+            status: response.status,
+            stage: "headers",
+          };
+          scope.__invitationFacts!.push(fact);
+          const receiptKeys =
+            method === "POST" &&
+            ((url.pathname === "/api/v1/system/invitations" &&
+              response.status === 201) ||
+              (invitationPath.test(url.pathname) &&
+                url.pathname.endsWith("/resend") &&
+                response.status === 202))
+              ? ["id", "job_id", "version"]
+              : method === "POST" &&
+                  deliveryPath.test(url.pathname) &&
+                  response.status === 202
+                ? ["job_id", "version"]
+                : undefined;
+          const list =
+            method === "GET" &&
+            url.pathname === "/api/v1/system/invitations" &&
+            response.status === 200;
+          if (response.status === 204 && !response.body) {
+            fact.empty = true;
+            fact.stage = "done";
+            return;
+          }
+          if (
+            (!receiptKeys &&
+              !list &&
+              response.status < 400 &&
+              response.status !== 204) ||
+            !response.body
+          )
+            return;
+          const stream = response.body,
+            originalReader = stream.getReader;
+          stream.getReader = function (
+            this: ReadableStream<Uint8Array>,
+            ...values: unknown[]
+          ) {
+            const reader = Reflect.apply(
+              originalReader,
+              this,
+              values,
+            ) as ReadableStreamDefaultReader<Uint8Array>;
+            try {
+              stream.getReader = originalReader;
+              const nativeRead = reader.read;
+              let bytes = new Uint8Array(600_000),
+                size = 0,
+                finished = false;
+              const clear = () => {
+                bytes.fill(0);
+                bytes = new Uint8Array();
+                finished = true;
+              };
+              reader.read = function (...readArgs: unknown[]) {
+                const reading = Reflect.apply(
+                  nativeRead,
+                  this,
+                  readArgs,
+                ) as ReturnType<typeof nativeRead>;
+                void reading
+                  .then(
+                    (chunk) => {
+                      if (finished) return;
+                      try {
+                        if (!chunk.done) {
+                          if (size + chunk.value.byteLength > bytes.length) {
+                            fact.stage = "overflow";
+                            clear();
+                            return;
+                          }
+                          bytes.set(chunk.value, size);
+                          size += chunk.value.byteLength;
+                          return;
+                        }
+                        if (response.status === 204) {
+                          fact.empty = size === 0;
+                          fact.stage = "done";
+                          clear();
+                          return;
+                        }
+                        const body = JSON.parse(
+                          new TextDecoder("utf-8", { fatal: true }).decode(
+                            bytes.subarray(0, size),
+                          ),
+                        );
+                        if (
+                          !body ||
+                          typeof body !== "object" ||
+                          Array.isArray(body)
+                        )
+                          throw new Error("invalid safe projection");
+                        if (
+                          response.status >= 400 &&
+                          typeof body.code === "string" &&
+                          /^[A-Z][A-Z0-9_]{0,127}$/.test(body.code)
+                        )
+                          fact.code = body.code;
+                        if (
+                          receiptKeys &&
+                          Object.keys(body).length === receiptKeys.length &&
+                          receiptKeys.every(
+                            (key) =>
+                              Object.hasOwn(body, key) &&
+                              typeof body[key] === "string",
+                          ) &&
+                          /^[1-9][0-9]{0,18}$/.test(body.version) &&
+                          BigInt(body.version) <= 9223372036854775807n &&
+                          uuidValue.test(body.job_id) &&
+                          (!receiptKeys.includes("id") ||
+                            uuidValue.test(body.id))
+                        )
+                          fact.receipt = Object.fromEntries(
+                            receiptKeys.map((key) => [
+                              key,
+                              body[key] as string,
+                            ]),
+                          );
+                        if (list) fact.page = readProjection(body);
+                        fact.stage = "done";
+                        clear();
+                      } catch {
+                        fact.stage = "invalid";
+                        clear();
+                      }
+                    },
+                    () => {
+                      fact.stage = "read-failed";
+                      clear();
+                    },
+                  )
+                  .catch(() => undefined);
+                return reading;
+              };
+            } catch {}
+            return reader;
+          } as typeof stream.getReader;
+        })
+        .catch(() => undefined);
+    } catch {}
+    return pending;
+  };
+}
+
+export type { NativeFact, ObservedWindow };

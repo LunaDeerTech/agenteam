@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-invitations-state.spec.ts (26 tests | 1 failed) 104ms
+     × validates before allocating a key and freezes the input before dispatch 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-invitations-state.spec.ts > one Cookie owner for invitation reads and commands > validates before allocating a key and freezes the input before dispatch
+AssertionError: expected '{"kind":"create","phase":"confirmed",…' not to match /Original|csrf|key|command\/|ema…/|email
+
+- Expected:
+/Original|csrf|key|command\/|email/
+
++ Received:
+"{\"kind\":\"create\",\"phase\":\"confirmed\",\"contextValid\":false,\"canRetryOriginal\":false}"
+
+ ❯ src/tests/system-invitations-state.spec.ts:281:66
+    279|     await pending
+    280|     expect(f.posts()[0]![1].body).toBe('{"email":"Original@Example.com…
+    281|     expect(JSON.stringify(f.auth.system.invitationProgress)).not.toMat…
+       |                                                                  ^
+    282|       /Original|csrf|key|command\/|email/,
+    283|     )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 83 passed (84)
+   Start at  06:25:04
+   Duration  833ms (transform 160ms, setup 0ms, import 256ms, tests 143ms, environment 882ms)
+

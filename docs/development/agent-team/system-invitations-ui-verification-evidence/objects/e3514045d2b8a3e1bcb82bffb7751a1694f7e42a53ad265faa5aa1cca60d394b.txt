@@ -1,0 +1,62 @@
+
+> @agenteam/web@0.0.0 check
+> npm run format:check && npm run test:unit && npm run build
+
+
+> @agenteam/web@0.0.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+
+ Test Files  20 passed (20)
+      Tests  391 passed (391)
+   Start at  06:50:47
+   Duration  7.92s (transform 2.34s, setup 0ms, import 4.50s, tests 5.82s, environment 9.87s)
+
+
+> @agenteam/web@0.0.0 build
+> npm run type-check && vite build
+
+
+> @agenteam/web@0.0.0 type-check
+> vue-tsc --noEmit
+
+vite v8.3.1 building client environment for production...
+transforming...
+✓ 165 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                   0.72 kB │ gzip:  0.40 kB
+dist/assets/PersonalSettingsView-BLWru9en.css     0.06 kB │ gzip:  0.08 kB
+dist/assets/SystemSettingsView-2kluQDJw.css       0.08 kB │ gzip:  0.10 kB
+dist/assets/ProfileSettings-Bofqo8m5.css          0.43 kB │ gzip:  0.25 kB
+dist/assets/ForgotPasswordView-DJSF_FFM.css       0.68 kB │ gzip:  0.35 kB
+dist/assets/ResetPasswordView-DSiu2awb.css        0.68 kB │ gzip:  0.35 kB
+dist/assets/InvitationView-B4wTz1D4.css           0.76 kB │ gzip:  0.37 kB
+dist/assets/SettingsShell-D9S1S_aF.css            1.21 kB │ gzip:  0.53 kB
+dist/assets/SystemUsersView-B41TxT1D.css          1.44 kB │ gzip:  0.56 kB
+dist/assets/SystemInvitationsView-Db2I1qpL.css    1.74 kB │ gzip:  0.62 kB
+dist/assets/index-FGRRrHuM.css                   29.58 kB │ gzip:  6.62 kB
+dist/assets/SystemSettingsView-DtwRIlTZ.js        1.35 kB │ gzip:  0.88 kB
+dist/assets/PersonalSettingsView-B0E0QS0R.js      1.41 kB │ gzip:  0.93 kB
+dist/assets/ForgotPasswordView-DfysQF6f.js        2.95 kB │ gzip:  1.53 kB
+dist/assets/SettingsShell-BJZl4pze.js             3.44 kB │ gzip:  1.74 kB
+dist/assets/PasswordSettings-qvi_O4G1.js          3.56 kB │ gzip:  1.65 kB
+dist/assets/AppearanceSettings-CvDjnhjr.js        3.60 kB │ gzip:  1.63 kB
+dist/assets/ResetPasswordView-BLMrZfrr.js         3.66 kB │ gzip:  1.61 kB
+dist/assets/InvitationView-BQ3feTrk.js            4.69 kB │ gzip:  1.86 kB
+dist/assets/SystemUsersView-CAc-VsQ_.js           5.60 kB │ gzip:  2.51 kB
+dist/assets/ProfileSettings-DtR8SEUz.js           6.88 kB │ gzip:  2.65 kB
+dist/assets/SystemInvitationsView-DwN4lPhw.js    12.12 kB │ gzip:  4.01 kB
+dist/assets/UiButton-DTI8Zbe9.js                111.85 kB │ gzip: 39.27 kB
+dist/assets/index-pFihUcrZ.js                   123.80 kB │ gzip: 42.35 kB
+
+✓ built in 397ms

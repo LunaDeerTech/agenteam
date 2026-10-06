@@ -1,0 +1,20 @@
+{
+  "input03_manifest": "3f14302874d07c9c59ff3c076716c418465f975fca3efa610a193f75fa952051",
+  "source_count": 21,
+  "dist_count": 24,
+  "changed_only_five": [
+    "web/src/App.vue",
+    "web/src/views/system/SystemInvitationsView.vue",
+    "web/src/tests/system-invitations.spec.ts",
+    "tests/account/system_invitations_web_fixture_test.go",
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts"
+  ],
+  "shared_and_locks_match_Git79": true,
+  "owner_API_controller_unchanged": {
+    "web/src/composables/useSession.ts": "4edada1e6790f5503f7fc3f277454ceec484e6e11bc8948b202e09d64d6f0137",
+    "web/src/composables/useSystemInvitations.ts": "eaf19a15da96f3d1d0c366b26b18980672bd76825339835b167acc7603754df6",
+    "web/src/api/client.ts": "335b57fc0a11362b852ed7a145c40b821686131c00059d4634063c2d08ac524a",
+    "web/src/api/system-invitations.ts": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+    "web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+  }
+}

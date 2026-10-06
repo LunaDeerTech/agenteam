@@ -1,0 +1,468 @@
+--- input03/tests/account/system_invitations_web_fixture_test.go
++++ input04/tests/account/system_invitations_web_fixture_test.go
+@@ -81,6 +81,7 @@
+ 	lostKey, lostID         string
+ 	dropped, replayed       int
+ 	failRead                atomic.Bool
++	readFailures            atomic.Int32
+ 	failSession             atomic.Bool
+ 	sessionFailures         atomic.Int32
+ 	expected                []map[string]any
+@@ -234,7 +235,11 @@
+ 			if failedSession {
+ 				own.sessionFailures.Add(1)
+ 			}
+-			if failedSession || (r.Method == http.MethodGet && r.URL.Path == "/api/v1/system/invitations" && own.failRead.CompareAndSwap(true, false)) {
++			failedRead := r.Method == http.MethodGet && r.URL.Path == "/api/v1/system/invitations" && own.failRead.CompareAndSwap(true, false)
++			if failedRead {
++				own.readFailures.Add(1)
++			}
++			if failedSession || failedRead {
+ 				requestID := id[struct{}](t).String()
+ 				w.Header().Set("Content-Type", "application/problem+json")
+ 				w.Header().Set("X-Request-ID", requestID)
+@@ -623,10 +628,14 @@
+ 		}
+ 		f.mu.Unlock()
+ 	case "arm-get-fail":
++		if f.mode != "outcome" || f.readFailures.Load() != 0 || !f.failRead.CompareAndSwap(false, true) {
++			f.t.Fatal("owned read control unavailable")
++		}
++	case "read-failure-facts":
+ 		if f.mode != "outcome" {
+-			f.t.Fatal("owned read control unavailable")
+-		}
+-		f.failRead.Store(true)
++			f.t.Fatal("owned read response observation unavailable")
++		}
++		out["failures"], out["armed"] = f.readFailures.Load(), f.failRead.Load()
+ 	case "arm-session-fail":
+ 		if f.mode != "navigation" || f.sessionFailures.Load() != 0 || !f.failSession.CompareAndSwap(false, true) {
+ 			f.t.Fatal("owned one-shot Session response control unavailable")
+--- input03/tests/account-captcha-web/e2e/system-invitations.spec.ts
++++ input04/tests/account-captcha-web/e2e/system-invitations.spec.ts
+@@ -28,8 +28,20 @@
+   latest_delivery: Delivery;
+ };
+ type InvitationPage = { items: Invitation[]; next_cursor?: string };
+-type NativeFact = { status: number; code?: string };
+-type ObservedWindow = Window & { __invitationFacts?: NativeFact[] };
++type NativeFact = {
++  request: number;
++  method: string;
++  path: string;
++  status: number;
++  stage: "headers" | "done" | "invalid" | "overflow" | "read-failed";
++  code?: string;
++  receipt?: Record<string, string>;
++  empty?: boolean;
++};
++type ObservedWindow = Window & {
++  __invitationFacts?: NativeFact[];
++  __invitationRequest?: number;
++};
+ const material = (): {
+   admin: Credential;
+   member: Credential;
+@@ -95,6 +107,14 @@
+ function observeNativeCodes() {
+   const scope = window as ObservedWindow;
+   scope.__invitationFacts = [];
++  scope.__invitationRequest = 0;
++  const uuid =
++      "[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}",
++    uuidValue = new RegExp(`^${uuid}$`),
++    invitationPath = new RegExp(
++      `^/api/v1/system/invitations/${uuid}/(resend|revoke)$`,
++    ),
++    deliveryPath = new RegExp(`^/api/v1/system/mail-jobs/${uuid}/retry$`);
+   const original = window.fetch;
+   window.fetch = function (this: unknown, ...args) {
+     const pending = Reflect.apply(
+@@ -102,18 +122,62 @@
+       this,
+       args,
+     ) as Promise<globalThis.Response>;
+-    const input = args[0],
+-      url = new URL(
+-        input instanceof Request ? input.url : String(input),
+-        location.href,
+-      );
+-    if (
+-      url.origin === location.origin &&
+-      url.pathname.startsWith("/api/v1/system/")
+-    ) {
++    // Any observation exception must leave the original fetch/reader untouched.
++    try {
++      const request = ++scope.__invitationRequest!,
++        input = args[0],
++        method = (
++          args[1]?.method ?? (input instanceof Request ? input.method : "GET")
++        ).toUpperCase(),
++        url = new URL(
++          input instanceof Request ? input.url : String(input),
++          location.href,
++        );
++      if (
++        url.origin !== location.origin ||
++        !["GET", "POST"].includes(method) ||
++        !(
++          url.pathname === "/api/v1/system/invitations" ||
++          invitationPath.test(url.pathname) ||
++          deliveryPath.test(url.pathname)
++        )
++      )
++        return pending;
+       void pending
+         .then((response) => {
+-          if (response.status < 400 || !response.body) return;
++          const fact: NativeFact = {
++            request,
++            method,
++            path: url.pathname,
++            status: response.status,
++            stage: "headers",
++          };
++          scope.__invitationFacts!.push(fact);
++          const receiptKeys =
++            method === "POST" &&
++            ((url.pathname === "/api/v1/system/invitations" &&
++              response.status === 201) ||
++              (invitationPath.test(url.pathname) &&
++                url.pathname.endsWith("/resend") &&
++                response.status === 202))
++              ? ["id", "job_id", "version"]
++              : method === "POST" &&
++                  deliveryPath.test(url.pathname) &&
++                  response.status === 202
++                ? ["job_id", "version"]
++                : undefined;
++          if (response.status === 204 && !response.body) {
++            fact.empty = true;
++            fact.stage = "done";
++            return;
++          }
++          if (
++            (!receiptKeys &&
++              response.status < 400 &&
++              response.status !== 204) ||
++            !response.body
++          )
++            return;
+           const stream = response.body,
+             originalReader = stream.getReader;
+           stream.getReader = function (
+@@ -125,57 +189,102 @@
+               this,
+               values,
+             ) as ReadableStreamDefaultReader<Uint8Array>;
+-            stream.getReader = originalReader;
+-            const nativeRead = reader.read;
+-            let bytes = new Uint8Array(600_000),
+-              size = 0,
+-              finished = false;
+-            const clear = () => {
+-              bytes.fill(0);
+-              bytes = new Uint8Array();
+-              finished = true;
+-            };
+-            reader.read = function () {
+-              const reading = Reflect.apply(nativeRead, this, []) as ReturnType<
+-                typeof nativeRead
+-              >;
+-              void reading.then((chunk) => {
+-                if (finished) return;
+-                if (!chunk.done) {
+-                  if (size + chunk.value.byteLength > bytes.length) {
+-                    clear();
+-                    return;
+-                  }
+-                  bytes.set(chunk.value, size);
+-                  size += chunk.value.byteLength;
+-                  return;
+-                }
+-                try {
+-                  const body = JSON.parse(
+-                    new TextDecoder("utf-8", { fatal: true }).decode(
+-                      bytes.subarray(0, size),
+-                    ),
+-                  );
+-                  if (
+-                    typeof body.code === "string" &&
+-                    /^[A-Z][A-Z0-9_]{0,127}$/.test(body.code)
++            try {
++              stream.getReader = originalReader;
++              const nativeRead = reader.read;
++              let bytes = new Uint8Array(600_000),
++                size = 0,
++                finished = false;
++              const clear = () => {
++                bytes.fill(0);
++                bytes = new Uint8Array();
++                finished = true;
++              };
++              reader.read = function (...readArgs: unknown[]) {
++                const reading = Reflect.apply(
++                  nativeRead,
++                  this,
++                  readArgs,
++                ) as ReturnType<typeof nativeRead>;
++                void reading
++                  .then(
++                    (chunk) => {
++                      if (finished) return;
++                      try {
++                        if (!chunk.done) {
++                          if (size + chunk.value.byteLength > bytes.length) {
++                            fact.stage = "overflow";
++                            clear();
++                            return;
++                          }
++                          bytes.set(chunk.value, size);
++                          size += chunk.value.byteLength;
++                          return;
++                        }
++                        if (response.status === 204) {
++                          fact.empty = size === 0;
++                          fact.stage = "done";
++                          clear();
++                          return;
++                        }
++                        const body = JSON.parse(
++                          new TextDecoder("utf-8", { fatal: true }).decode(
++                            bytes.subarray(0, size),
++                          ),
++                        );
++                        if (
++                          !body ||
++                          typeof body !== "object" ||
++                          Array.isArray(body)
++                        )
++                          throw new Error("invalid safe projection");
++                        if (
++                          response.status >= 400 &&
++                          typeof body.code === "string" &&
++                          /^[A-Z][A-Z0-9_]{0,127}$/.test(body.code)
++                        )
++                          fact.code = body.code;
++                        if (
++                          receiptKeys &&
++                          Object.keys(body).length === receiptKeys.length &&
++                          receiptKeys.every(
++                            (key) =>
++                              Object.hasOwn(body, key) &&
++                              typeof body[key] === "string",
++                          ) &&
++                          /^[1-9][0-9]{0,18}$/.test(body.version) &&
++                          BigInt(body.version) <= 9223372036854775807n &&
++                          uuidValue.test(body.job_id) &&
++                          (!receiptKeys.includes("id") ||
++                            uuidValue.test(body.id))
++                        )
++                          fact.receipt = Object.fromEntries(
++                            receiptKeys.map((key) => [
++                              key,
++                              body[key] as string,
++                            ]),
++                          );
++                        fact.stage = "done";
++                        clear();
++                      } catch {
++                        fact.stage = "invalid";
++                        clear();
++                      }
++                    },
++                    () => {
++                      fact.stage = "read-failed";
++                      clear();
++                    },
+                   )
+-                    scope.__invitationFacts!.push({
+-                      status: response.status,
+-                      code: body.code,
+-                    });
+-                } catch {
+-                } finally {
+-                  clear();
+-                }
+-              }, clear);
+-              return reading;
+-            };
++                  .catch(() => undefined);
++                return reading;
++              };
++            } catch {}
+             return reader;
+           } as typeof stream.getReader;
+         })
+         .catch(() => undefined);
+-    }
++    } catch {}
+     return pending;
+   };
+ }
+@@ -237,6 +346,9 @@
+   action: () => Promise<unknown>,
+   status: number,
+ ) {
++  const after = await page.evaluate(
++    () => (window as ObservedWindow).__invitationRequest ?? 0,
++  );
+   const pending = page.waitForResponse(
+     (r) =>
+       new URL(r.url()).pathname.endsWith(suffix) &&
+@@ -245,11 +357,39 @@
+   await action();
+   const response = await pending;
+   expect(response.status()).toBe(status);
++  const match = { after, path: new URL(response.url()).pathname, status };
++  const observed = () =>
++    page.evaluate(
++      ({ after, path, status }) =>
++        (window as ObservedWindow).__invitationFacts?.filter(
++          (fact) =>
++            fact.request > after &&
++            fact.method === "POST" &&
++            fact.path === path &&
++            fact.status === status,
++        ) ?? [],
++      match,
++    );
++  await expect
++    .poll(async () => {
++      const facts = await observed();
++      return (
++        facts.length === 1 &&
++        facts[0]!.stage === "done" &&
++        (status === 204
++          ? facts[0]!.empty === true
++          : status >= 400
++            ? facts[0]!.code !== undefined
++            : facts[0]!.receipt !== undefined)
++      );
++    })
++    .toBe(true);
++  const fact = (await observed())[0]!;
+   if (status === 204) {
+-    expect((await response.body()).length).toBe(0);
++    expect(fact.empty).toBe(true);
+     return {} as Record<string, string>;
+   }
+-  return (await response.json()) as Record<string, string>;
++  return status >= 400 ? { code: fact.code! } : fact.receipt!;
+ }
+ async function openCreate(page: Page, email: string) {
+   await inviteButton(page).click();
+@@ -568,10 +708,57 @@
+   await read(page, () => button(page, "刷新").click());
+   await expect(inviteButton(page)).toBeEnabled();
+   await ipc("arm-get-fail");
+-  await create(page, "invitations-ui-confirmed@example.com");
+-  await expect(
+-    page.getByText("操作已确认，列表读取失败", { exact: true }),
+-  ).toBeVisible();
++  const responses: { method: string; status: number }[] = [];
++  const recordResponse = (response: Response) => {
++    if (new URL(response.url()).pathname === "/api/v1/system/invitations")
++      responses.push({
++        method: response.request().method(),
++        status: response.status(),
++      });
++  };
++  page.on("response", recordResponse);
++  const failedRead = page.waitForResponse(
++    (response) =>
++      response.request().method() === "GET" &&
++      new URL(response.url()).pathname === "/api/v1/system/invitations",
++  );
++  try {
++    await create(page, "invitations-ui-confirmed@example.com");
++    const status = (await failedRead).status(),
++      facts = await ipc("read-failure-facts");
++    try {
++      await expect(
++        page.getByText("操作已确认，列表读取失败", { exact: true }),
++      ).toBeVisible();
++    } finally {
++      console.log(
++        "owned confirmed-read observation",
++        JSON.stringify({
++          status,
++          failures: facts.failures,
++          armed: facts.armed,
++          responses,
++          confirmed_failure: await page
++            .getByText("操作已确认，列表读取失败", { exact: true })
++            .isVisible(),
++          ordinary_failure: await page
++            .getByText("邀请列表读取失败", { exact: true })
++            .isVisible(),
++          accepted_message: await page
++            .locator(".write-message")
++            .filter({ hasText: "邀请请求已接受" })
++            .isVisible(),
++          dialogs: await page.getByRole("dialog").count(),
++          read_retry: await button(page, "重新读取列表").isVisible(),
++          busy: await button(page, "刷新").isDisabled(),
++        }),
++      );
++    }
++    expect(status).toBe(503);
++    expect(facts.failures === 1 && facts.armed === false).toBe(true);
++  } finally {
++    page.off("response", recordResponse);
++  }
+   await expect(
+     page.getByRole("button", { name: "重试原请求", exact: true }),
+   ).toHaveCount(0);
+@@ -840,18 +1027,38 @@
+     // A synthetic pageshow enters the production App listener. Only the one
+     // explicitly armed Session response is 503; recovery uses the real backend.
+     const checking = await page.evaluate(async () => {
+-      window.dispatchEvent(new PageTransitionEvent("pageshow"));
+-      await Promise.resolve();
+-      return {
+-        dialogs: [
+-          ...document.querySelectorAll<HTMLElement>('[role="dialog"]'),
+-        ].filter(
+-          (element) =>
+-            !element.inert && element.getAttribute("aria-hidden") !== "true",
+-        ).length,
+-        inert: document.getElementById("app")!.inert,
+-        locked: document.body.style.overflow === "hidden",
+-      };
++      let observer: MutationObserver | undefined, timer: number | undefined;
++      try {
++        return await new Promise<{
++          dialogs: number;
++          inert: boolean;
++          locked: boolean;
++        }>((resolve, reject) => {
++          observer = new MutationObserver(() => {
++            if (!document.querySelector(".session-check")) return;
++            resolve({
++              dialogs: [
++                ...document.querySelectorAll<HTMLElement>('[role="dialog"]'),
++              ].filter(
++                (element) =>
++                  !element.inert &&
++                  element.getAttribute("aria-hidden") !== "true",
++              ).length,
++              inert: document.getElementById("app")!.inert,
++              locked: document.body.style.overflow === "hidden",
++            });
++          });
++          observer.observe(document.body, { childList: true, subtree: true });
++          timer = window.setTimeout(
++            () => reject(new Error("production checking DOM was not observed")),
++            5_000,
++          );
++          window.dispatchEvent(new PageTransitionEvent("pageshow"));
++        });
++      } finally {
++        observer?.disconnect();
++        window.clearTimeout(timer);
++      }
+     });
+     expect(checking).toEqual({ dialogs: 0, inert: false, locked: false });
+     expect((await session).status()).toBe(failFirst ? 503 : 200);
