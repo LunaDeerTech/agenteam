@@ -1,0 +1,54 @@
+--- author-page-state01-controller
++++ web-stage01-controller
+@@ -76,7 +76,9 @@
+     () => unsettled.value || editor.conflict || state.requiresRead || !editor.ready,
+   )
+   const changed = computed(() => editor.ready && draftValue(draft) !== baseline.value)
+-  const dirty = computed(() => changed.value || editor.conflict || unsettled.value)
++  const dirty = computed(
++    () => (changed.value && !state.requiresRead) || editor.conflict || unsettled.value,
++  )
+   const maximumVersion = computed(() => editor.version === outboundMaximumVersion)
+   const authorized = () => {
+     const current = auth.personalContext.identity
+@@ -111,7 +113,8 @@
+         try {
+           ports = captureOutboundPortText(row.ports)
+         } catch {
+-          error.ports = '请输入 1–65535 的不同整数端口，使用逗号或空白分隔，最多 256 个。'
++          error.ports =
++            '请输入 1–65535 的不同整数端口，使用逗号分隔，两侧可有 ASCII 空白，最多 256 个。'
+         }
+       }
+       if (Object.keys(error).length) errors[row.id] = error
+@@ -223,7 +226,7 @@
+       editor.conflict = true
+       editor.message = '当前观察版本已变化。原草稿与编辑版本保持不变，请核对后明确采用最新值。'
+     }
+-    if (!editor.ready && initialize && !unsettled.value) adopt(value)
++    if (initialize && !unsettled.value && (!editor.ready || state.requiresRead)) adopt(value)
+   }
+   function readMessage(error: unknown) {
+     return error instanceof AccountFailure && error.kind === 'cancelled'
+@@ -318,8 +321,9 @@
+       const result = await work()
+       if (!current(own, captured)) return
+       state.confirmed = result
+-      clearEditor()
+       state.requiresRead = true
++      editor.conflict = false
++      editor.message = '原提交草稿已保留，不能据此继续保存；新的编辑基线需来自成功的当前读取。'
+       feedback.value = 'success'
+       state.writeMessage = '规则保存已确认，请读取当前规则；历史确认与当前配置分别展示。'
+       timer = setTimeout(() => {
+@@ -495,7 +499,9 @@
+       const own = revision,
+         captured = auth.personalContext.identity
+       if (!(await confirmDiscard()) || !current(own, captured) || blocked.value) return
+-      discard(false)
++      // A confirmed draft is historical, not another unsubmitted edit. Keep it
++      // through repeated failed GETs until a successful current read replaces it.
++      if (!(state.requiresRead && state.confirmed && !unsettled.value)) discard(false)
+       await readCurrent()
+     },
+     readLatest() {

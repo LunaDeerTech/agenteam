@@ -1,0 +1,58 @@
+{
+  "after_sha256": "f18baf0ee28fe4c413e58d8f849e03cb3d7da796573a649f4ac4437e3a0f79d6",
+  "after_source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/mutation-repair01/after/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+  "before_sha256": "2b550ad71270848a434688dcd3bcb8f414e8d0a8705b23c2fd6883ceb5f38c6f",
+  "before_source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/mutation-repair01/before/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+  "changed_path": "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+  "changes": [
+    "Exact VERSION_CONFLICT 409 transaction rejection expects not_committed, retaining status/code/ended and subsequent assertions.",
+    "Exact IDEMPOTENCY_KEY_REUSED 409 transaction rejection expects not_committed, retaining status/code/current-policy assertions.",
+    "Failed factAfter logs at most 12 already observed safe method/path/status/code/commit_state/ended projections from exact allowed endpoints; rethrows original failure. No body/DTO/key/CSRF/rules/hash output."
+  ],
+  "checks": {
+    "mutation-browser-list02": {
+      "actual_exit": 0,
+      "command_sha256": "db362c7201b9e48c00533e3637260f42afc216d3115befd80f2885879965803e",
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation-browser-list02",
+      "raw_sha256": "6062ebce0bab1e71b10f017d4676f740009f2f6954f370a6e3a7c27df073d912",
+      "result_sha256": "8eefb68e03734f1ae91b656ae36feb06ff24d2cec44a26317d6ea1745be7ba96",
+      "seconds": 1.187
+    },
+    "mutation-browser-type04": {
+      "actual_exit": 0,
+      "command_sha256": "9df1ab506137faf0132909095ea305f5ddfd9e4bab60d976ed0fd053efb59f09",
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation-browser-type04",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "72b8d03d153f841771db3bbb23358469a014d5e10957c4570074ddd18d588e92",
+      "seconds": 1.263
+    }
+  },
+  "delta": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/mutation-repair01/source.diff",
+    "sha256": "3ef497217a14ee5269ff729ba6305f05f40000e20bbe73257fb801ccd7b5b72f"
+  },
+  "formal_error_chain": {
+    "internal/central/foundation/tx.go": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+    "internal/central/outbound/policy.go": "50056c5f6cdf14acaaa93dd463a50b948a1ba93da9b01d9eb421cd025379febc",
+    "internal/central/postgres/transaction.go": "aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3"
+  },
+  "no_resources_started_for_repair": true,
+  "original_dynamic_failure": {
+    "actual_exit": 1,
+    "cleanup_sha256": "18703c6896b7afe6cdbc22f24e7e5c67dfd26c4a528e72f9ebdf0c288eaad083",
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation01",
+    "raw_sha256": "baad4b579fcd9604efdf0988e833572145704ae0673cd3c7e95b7e1a099114d1",
+    "result_sha256": "1a78b50af9d93aef9eb76cfc469b711fe0ee7c9448591bc930385a7969a6d552",
+    "scope": "First VERSION_CONFLICT predicate did not match; original actual response fields were not logged. Static formal transaction chain proves old not_started expectation wrong. Second same-key different-semantics step was not reached.",
+    "seconds": 57.826
+  },
+  "product_base": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "unchanged": {
+    "dist_files": 38,
+    "driver02_sha256": "d6ff37eaa64b617496dcc1dae6572dfacc1b276b3ee28cfea02964ae213d725b",
+    "fixed_accepted_files": 1014,
+    "locked_dependencies": 15,
+    "other_candidate_paths": 32,
+    "product_web_paths": 22
+  }
+}

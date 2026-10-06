@@ -1,0 +1,1328 @@
+[
+  {
+    "all_100_pid_starttime_absent": true,
+    "baseline_exact_six_unchanged": false,
+    "current_resources": {
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468": {
+        "id": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+        "kind": "network",
+        "labels": {
+          "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+          "com.docker.compose.network": "default",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "mounts": [],
+        "name": "agenteam-dev-infra_default"
+      },
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96": {
+        "id": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+        "kind": "network",
+        "labels": {},
+        "mounts": [],
+        "name": "none"
+      },
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c": {
+        "id": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+        "kind": "container",
+        "labels": {
+          "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "postgres",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "mounts": [
+          {
+            "Destination": "/var/lib/postgresql/data",
+            "Mode": "rw",
+            "Propagation": "rprivate",
+            "RW": true,
+            "Source": "/workspace/agenteam-onboarding/infra/data/postgres",
+            "Type": "bind"
+          }
+        ],
+        "name": "/agenteam-dev-infra-postgres-1"
+      },
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e": {
+        "id": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+        "kind": "container",
+        "labels": {
+          "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "minio",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "mounts": [
+          {
+            "Destination": "/var/lib/postgresql/data",
+            "Driver": "local",
+            "Mode": "",
+            "Name": "5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260",
+            "Propagation": "",
+            "RW": true,
+            "Source": "/var/lib/docker/volumes/5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260/_data",
+            "Type": "volume"
+          },
+          {
+            "Destination": "/data",
+            "Mode": "rw",
+            "Propagation": "rprivate",
+            "RW": true,
+            "Source": "/workspace/agenteam-onboarding/infra/data/minio",
+            "Type": "bind"
+          }
+        ],
+        "name": "/agenteam-dev-infra-minio-1"
+      },
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed": {
+        "id": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+        "kind": "network",
+        "labels": {},
+        "mounts": [],
+        "name": "host"
+      },
+      "f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e": {
+        "id": "f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e",
+        "kind": "network",
+        "labels": {},
+        "mounts": [],
+        "name": "bridge"
+      }
+    },
+    "index": 1,
+    "observed_processes": {
+      "104425:614806": {
+        "current": null,
+        "expected_starttime": "614806",
+        "same_pid_starttime_present": false
+      },
+      "104449:614807": {
+        "current": null,
+        "expected_starttime": "614807",
+        "same_pid_starttime_present": false
+      },
+      "104566:614833": {
+        "current": null,
+        "expected_starttime": "614833",
+        "same_pid_starttime_present": false
+      },
+      "104572:614881": {
+        "current": null,
+        "expected_starttime": "614881",
+        "same_pid_starttime_present": false
+      },
+      "104635:614926": {
+        "current": null,
+        "expected_starttime": "614926",
+        "same_pid_starttime_present": false
+      },
+      "105103:615318": {
+        "current": null,
+        "expected_starttime": "615318",
+        "same_pid_starttime_present": false
+      },
+      "105111:615319": {
+        "current": null,
+        "expected_starttime": "615319",
+        "same_pid_starttime_present": false
+      },
+      "105152:615341": {
+        "current": null,
+        "expected_starttime": "615341",
+        "same_pid_starttime_present": false
+      },
+      "105159:615380": {
+        "current": null,
+        "expected_starttime": "615380",
+        "same_pid_starttime_present": false
+      },
+      "105167:615380": {
+        "current": null,
+        "expected_starttime": "615380",
+        "same_pid_starttime_present": false
+      },
+      "105200:615392": {
+        "current": null,
+        "expected_starttime": "615392",
+        "same_pid_starttime_present": false
+      },
+      "105316:615428": {
+        "current": null,
+        "expected_starttime": "615428",
+        "same_pid_starttime_present": false
+      },
+      "105542:615556": {
+        "current": null,
+        "expected_starttime": "615556",
+        "same_pid_starttime_present": false
+      },
+      "105550:615557": {
+        "current": null,
+        "expected_starttime": "615557",
+        "same_pid_starttime_present": false
+      },
+      "105585:615572": {
+        "current": null,
+        "expected_starttime": "615572",
+        "same_pid_starttime_present": false
+      },
+      "105592:615611": {
+        "current": null,
+        "expected_starttime": "615611",
+        "same_pid_starttime_present": false
+      },
+      "105638:615635": {
+        "current": null,
+        "expected_starttime": "615635",
+        "same_pid_starttime_present": false
+      },
+      "105928:615767": {
+        "current": null,
+        "expected_starttime": "615767",
+        "same_pid_starttime_present": false
+      },
+      "106310:615839": {
+        "current": null,
+        "expected_starttime": "615839",
+        "same_pid_starttime_present": false
+      },
+      "106733:616056": {
+        "current": null,
+        "expected_starttime": "616056",
+        "same_pid_starttime_present": false
+      },
+      "106839:616081": {
+        "current": null,
+        "expected_starttime": "616081",
+        "same_pid_starttime_present": false
+      },
+      "106939:616107": {
+        "current": null,
+        "expected_starttime": "616107",
+        "same_pid_starttime_present": false
+      },
+      "107036:616132": {
+        "current": null,
+        "expected_starttime": "616132",
+        "same_pid_starttime_present": false
+      },
+      "107206:616168": {
+        "current": null,
+        "expected_starttime": "616168",
+        "same_pid_starttime_present": false
+      },
+      "107220:616215": {
+        "current": null,
+        "expected_starttime": "616215",
+        "same_pid_starttime_present": false
+      },
+      "107382:616316": {
+        "current": null,
+        "expected_starttime": "616316",
+        "same_pid_starttime_present": false
+      },
+      "107390:616368": {
+        "current": null,
+        "expected_starttime": "616368",
+        "same_pid_starttime_present": false
+      },
+      "107529:616473": {
+        "current": null,
+        "expected_starttime": "616473",
+        "same_pid_starttime_present": false
+      },
+      "107697:616555": {
+        "current": null,
+        "expected_starttime": "616555",
+        "same_pid_starttime_present": false
+      },
+      "107840:616657": {
+        "current": null,
+        "expected_starttime": "616657",
+        "same_pid_starttime_present": false
+      },
+      "107869:616718": {
+        "current": null,
+        "expected_starttime": "616718",
+        "same_pid_starttime_present": false
+      },
+      "107882:616720": {
+        "current": null,
+        "expected_starttime": "616720",
+        "same_pid_starttime_present": false
+      },
+      "107911:616732": {
+        "current": null,
+        "expected_starttime": "616732",
+        "same_pid_starttime_present": false
+      },
+      "108054:616815": {
+        "current": null,
+        "expected_starttime": "616815",
+        "same_pid_starttime_present": false
+      },
+      "108077:616820": {
+        "current": null,
+        "expected_starttime": "616820",
+        "same_pid_starttime_present": false
+      },
+      "108241:616934": {
+        "current": null,
+        "expected_starttime": "616934",
+        "same_pid_starttime_present": false
+      },
+      "108252:616983": {
+        "current": null,
+        "expected_starttime": "616983",
+        "same_pid_starttime_present": false
+      },
+      "108395:617085": {
+        "current": null,
+        "expected_starttime": "617085",
+        "same_pid_starttime_present": false
+      },
+      "108559:617152": {
+        "current": null,
+        "expected_starttime": "617152",
+        "same_pid_starttime_present": false
+      },
+      "108645:617254": {
+        "current": null,
+        "expected_starttime": "617254",
+        "same_pid_starttime_present": false
+      },
+      "108707:617295": {
+        "current": null,
+        "expected_starttime": "617295",
+        "same_pid_starttime_present": false
+      },
+      "108873:617397": {
+        "current": null,
+        "expected_starttime": "617397",
+        "same_pid_starttime_present": false
+      },
+      "108881:617417": {
+        "current": null,
+        "expected_starttime": "617417",
+        "same_pid_starttime_present": false
+      },
+      "109022:617518": {
+        "current": null,
+        "expected_starttime": "617518",
+        "same_pid_starttime_present": false
+      },
+      "109050:617601": {
+        "current": null,
+        "expected_starttime": "617601",
+        "same_pid_starttime_present": false
+      },
+      "109412:617809": {
+        "current": null,
+        "expected_starttime": "617809",
+        "same_pid_starttime_present": false
+      },
+      "109566:617901": {
+        "current": null,
+        "expected_starttime": "617901",
+        "same_pid_starttime_present": false
+      },
+      "109598:617953": {
+        "current": null,
+        "expected_starttime": "617953",
+        "same_pid_starttime_present": false
+      },
+      "109616:617958": {
+        "current": null,
+        "expected_starttime": "617958",
+        "same_pid_starttime_present": false
+      },
+      "109618:617959": {
+        "current": null,
+        "expected_starttime": "617959",
+        "same_pid_starttime_present": false
+      },
+      "109619:617959": {
+        "current": null,
+        "expected_starttime": "617959",
+        "same_pid_starttime_present": false
+      },
+      "109621:617959": {
+        "current": null,
+        "expected_starttime": "617959",
+        "same_pid_starttime_present": false
+      },
+      "109643:617963": {
+        "current": null,
+        "expected_starttime": "617963",
+        "same_pid_starttime_present": false
+      },
+      "109652:617964": {
+        "current": null,
+        "expected_starttime": "617964",
+        "same_pid_starttime_present": false
+      },
+      "109660:617968": {
+        "current": null,
+        "expected_starttime": "617968",
+        "same_pid_starttime_present": false
+      },
+      "109689:617975": {
+        "current": null,
+        "expected_starttime": "617975",
+        "same_pid_starttime_present": false
+      },
+      "109698:617977": {
+        "current": null,
+        "expected_starttime": "617977",
+        "same_pid_starttime_present": false
+      },
+      "109699:617977": {
+        "current": null,
+        "expected_starttime": "617977",
+        "same_pid_starttime_present": false
+      },
+      "111425:619172": {
+        "current": null,
+        "expected_starttime": "619172",
+        "same_pid_starttime_present": false
+      },
+      "111454:619243": {
+        "current": null,
+        "expected_starttime": "619243",
+        "same_pid_starttime_present": false
+      },
+      "111608:619345": {
+        "current": null,
+        "expected_starttime": "619345",
+        "same_pid_starttime_present": false
+      },
+      "111751:619405": {
+        "current": null,
+        "expected_starttime": "619405",
+        "same_pid_starttime_present": false
+      },
+      "111847:619507": {
+        "current": null,
+        "expected_starttime": "619507",
+        "same_pid_starttime_present": false
+      },
+      "111923:619582": {
+        "current": null,
+        "expected_starttime": "619582",
+        "same_pid_starttime_present": false
+      },
+      "112086:619684": {
+        "current": null,
+        "expected_starttime": "619684",
+        "same_pid_starttime_present": false
+      },
+      "112183:619756": {
+        "current": null,
+        "expected_starttime": "619756",
+        "same_pid_starttime_present": false
+      },
+      "112256:619858": {
+        "current": null,
+        "expected_starttime": "619858",
+        "same_pid_starttime_present": false
+      },
+      "112557:620093": {
+        "current": null,
+        "expected_starttime": "620093",
+        "same_pid_starttime_present": false
+      },
+      "112563:620096": {
+        "current": null,
+        "expected_starttime": "620096",
+        "same_pid_starttime_present": false
+      },
+      "112707:620166": {
+        "current": null,
+        "expected_starttime": "620166",
+        "same_pid_starttime_present": false
+      },
+      "112714:620179": {
+        "current": null,
+        "expected_starttime": "620179",
+        "same_pid_starttime_present": false
+      },
+      "112880:620281": {
+        "current": null,
+        "expected_starttime": "620281",
+        "same_pid_starttime_present": false
+      },
+      "112886:620375": {
+        "current": null,
+        "expected_starttime": "620375",
+        "same_pid_starttime_present": false
+      },
+      "112907:620379": {
+        "current": null,
+        "expected_starttime": "620379",
+        "same_pid_starttime_present": false
+      },
+      "113059:620447": {
+        "current": null,
+        "expected_starttime": "620447",
+        "same_pid_starttime_present": false
+      },
+      "113207:620549": {
+        "current": null,
+        "expected_starttime": "620549",
+        "same_pid_starttime_present": false
+      },
+      "113378:620663": {
+        "current": null,
+        "expected_starttime": "620663",
+        "same_pid_starttime_present": false
+      },
+      "113393:620697": {
+        "current": null,
+        "expected_starttime": "620697",
+        "same_pid_starttime_present": false
+      },
+      "113535:620798": {
+        "current": null,
+        "expected_starttime": "620798",
+        "same_pid_starttime_present": false
+      },
+      "113542:620835": {
+        "current": null,
+        "expected_starttime": "620835",
+        "same_pid_starttime_present": false
+      },
+      "113702:620918": {
+        "current": null,
+        "expected_starttime": "620918",
+        "same_pid_starttime_present": false
+      },
+      "114011:621191": {
+        "current": null,
+        "expected_starttime": "621191",
+        "same_pid_starttime_present": false
+      },
+      "114206:621294": {
+        "current": null,
+        "expected_starttime": "621294",
+        "same_pid_starttime_present": false
+      },
+      "114356:621413": {
+        "current": null,
+        "expected_starttime": "621413",
+        "same_pid_starttime_present": false
+      },
+      "114523:621553": {
+        "current": null,
+        "expected_starttime": "621553",
+        "same_pid_starttime_present": false
+      },
+      "115181:621905": {
+        "current": null,
+        "expected_starttime": "621905",
+        "same_pid_starttime_present": false
+      },
+      "115361:621993": {
+        "current": null,
+        "expected_starttime": "621993",
+        "same_pid_starttime_present": false
+      },
+      "115368:622015": {
+        "current": null,
+        "expected_starttime": "622015",
+        "same_pid_starttime_present": false
+      },
+      "115527:622117": {
+        "current": null,
+        "expected_starttime": "622117",
+        "same_pid_starttime_present": false
+      },
+      "116141:622617": {
+        "current": null,
+        "expected_starttime": "622617",
+        "same_pid_starttime_present": false
+      },
+      "116147:622621": {
+        "current": null,
+        "expected_starttime": "622621",
+        "same_pid_starttime_present": false
+      },
+      "116292:622679": {
+        "current": null,
+        "expected_starttime": "622679",
+        "same_pid_starttime_present": false
+      },
+      "116298:622695": {
+        "current": null,
+        "expected_starttime": "622695",
+        "same_pid_starttime_present": false
+      },
+      "116462:622797": {
+        "current": null,
+        "expected_starttime": "622797",
+        "same_pid_starttime_present": false
+      },
+      "116627:622938": {
+        "current": null,
+        "expected_starttime": "622938",
+        "same_pid_starttime_present": false
+      },
+      "116664:622977": {
+        "current": null,
+        "expected_starttime": "622977",
+        "same_pid_starttime_present": false
+      },
+      "116815:623081": {
+        "current": null,
+        "expected_starttime": "623081",
+        "same_pid_starttime_present": false
+      },
+      "116886:623117": {
+        "current": null,
+        "expected_starttime": "623117",
+        "same_pid_starttime_present": false
+      },
+      "117156:623165": {
+        "current": null,
+        "expected_starttime": "623165",
+        "same_pid_starttime_present": false
+      },
+      "117252:623208": {
+        "current": null,
+        "expected_starttime": "623208",
+        "same_pid_starttime_present": false
+      }
+    },
+    "original_seven_absent": true,
+    "original_seven_inspection": {
+      "19defb0c6cf998646d5ee19f3d2c23ff33d9d9d44018fcc0a167b1b7c133369d": {
+        "absent": true,
+        "exit": 1
+      },
+      "57deec34bc47c39b66eb6d143f1d02053cf20413d59146f83a1b4e32d4bdc135": {
+        "absent": true,
+        "exit": 1
+      },
+      "5fca946a62020390b6dcd2a90cb14bdeb78ba1057056968888ade0ae66e623d1": {
+        "absent": true,
+        "exit": 1
+      },
+      "7a31e2397a7f9827d58a8f2936d5e0fcccb3be65c29a857a8c772a06ce552ed3": {
+        "absent": true,
+        "exit": 1
+      },
+      "8bac96c6e03f2cbd644fe34c7915fb5593d6a31b497b4fe5ba1238a609a26612": {
+        "absent": true,
+        "exit": 1
+      },
+      "9858b435934dbfa64cc8d005b228f5e079244d145ef81a1085d3712aff1626b1": {
+        "absent": true,
+        "exit": 1
+      },
+      "db07c90d97664a9e8ef815ab1533464e0b4094773ef0b5cc7c22d84c4d0fc644": {
+        "absent": true,
+        "exit": 1
+      }
+    },
+    "prior_task_owned_unreaped": {
+      "current": {
+        "pid": 89884,
+        "ppid": 1,
+        "starttime": "540243",
+        "state": "Z"
+      },
+      "expected_starttime": "540243",
+      "not_reaped_by_this_read_only_followup": true,
+      "origin": "runtime-go-compile01",
+      "pid": 89884
+    },
+    "runtime_empty_or_absent": true,
+    "runtime_paths": {
+      "/tmp/agtout-8v5605c2": {
+        "entries": [],
+        "exists": false
+      },
+      "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01/runtime": {
+        "entries": [],
+        "exists": true
+      }
+    },
+    "time": "2026-10-06T22:07:37.638214+00:00"
+  },
+  {
+    "all_100_pid_starttime_absent": true,
+    "baseline_exact_six_unchanged": true,
+    "current_resources": {
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468": {
+        "id": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+        "kind": "network",
+        "labels": {
+          "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+          "com.docker.compose.network": "default",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "mounts": [],
+        "name": "agenteam-dev-infra_default"
+      },
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96": {
+        "id": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+        "kind": "network",
+        "labels": {},
+        "mounts": [],
+        "name": "none"
+      },
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c": {
+        "id": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+        "kind": "container",
+        "labels": {
+          "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "postgres",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "mounts": [
+          {
+            "Destination": "/var/lib/postgresql/data",
+            "Mode": "rw",
+            "Propagation": "rprivate",
+            "RW": true,
+            "Source": "/workspace/agenteam-onboarding/infra/data/postgres",
+            "Type": "bind"
+          }
+        ],
+        "name": "/agenteam-dev-infra-postgres-1"
+      },
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e": {
+        "id": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+        "kind": "container",
+        "labels": {
+          "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "minio",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "mounts": [
+          {
+            "Destination": "/data",
+            "Mode": "rw",
+            "Propagation": "rprivate",
+            "RW": true,
+            "Source": "/workspace/agenteam-onboarding/infra/data/minio",
+            "Type": "bind"
+          },
+          {
+            "Destination": "/var/lib/postgresql/data",
+            "Driver": "local",
+            "Mode": "",
+            "Name": "5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260",
+            "Propagation": "",
+            "RW": true,
+            "Source": "/var/lib/docker/volumes/5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260/_data",
+            "Type": "volume"
+          }
+        ],
+        "name": "/agenteam-dev-infra-minio-1"
+      },
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed": {
+        "id": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+        "kind": "network",
+        "labels": {},
+        "mounts": [],
+        "name": "host"
+      },
+      "f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e": {
+        "id": "f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e",
+        "kind": "network",
+        "labels": {},
+        "mounts": [],
+        "name": "bridge"
+      }
+    },
+    "index": 2,
+    "observed_processes": {
+      "104425:614806": {
+        "current": null,
+        "expected_starttime": "614806",
+        "same_pid_starttime_present": false
+      },
+      "104449:614807": {
+        "current": null,
+        "expected_starttime": "614807",
+        "same_pid_starttime_present": false
+      },
+      "104566:614833": {
+        "current": null,
+        "expected_starttime": "614833",
+        "same_pid_starttime_present": false
+      },
+      "104572:614881": {
+        "current": null,
+        "expected_starttime": "614881",
+        "same_pid_starttime_present": false
+      },
+      "104635:614926": {
+        "current": null,
+        "expected_starttime": "614926",
+        "same_pid_starttime_present": false
+      },
+      "105103:615318": {
+        "current": null,
+        "expected_starttime": "615318",
+        "same_pid_starttime_present": false
+      },
+      "105111:615319": {
+        "current": null,
+        "expected_starttime": "615319",
+        "same_pid_starttime_present": false
+      },
+      "105152:615341": {
+        "current": null,
+        "expected_starttime": "615341",
+        "same_pid_starttime_present": false
+      },
+      "105159:615380": {
+        "current": null,
+        "expected_starttime": "615380",
+        "same_pid_starttime_present": false
+      },
+      "105167:615380": {
+        "current": null,
+        "expected_starttime": "615380",
+        "same_pid_starttime_present": false
+      },
+      "105200:615392": {
+        "current": null,
+        "expected_starttime": "615392",
+        "same_pid_starttime_present": false
+      },
+      "105316:615428": {
+        "current": null,
+        "expected_starttime": "615428",
+        "same_pid_starttime_present": false
+      },
+      "105542:615556": {
+        "current": null,
+        "expected_starttime": "615556",
+        "same_pid_starttime_present": false
+      },
+      "105550:615557": {
+        "current": null,
+        "expected_starttime": "615557",
+        "same_pid_starttime_present": false
+      },
+      "105585:615572": {
+        "current": null,
+        "expected_starttime": "615572",
+        "same_pid_starttime_present": false
+      },
+      "105592:615611": {
+        "current": null,
+        "expected_starttime": "615611",
+        "same_pid_starttime_present": false
+      },
+      "105638:615635": {
+        "current": null,
+        "expected_starttime": "615635",
+        "same_pid_starttime_present": false
+      },
+      "105928:615767": {
+        "current": null,
+        "expected_starttime": "615767",
+        "same_pid_starttime_present": false
+      },
+      "106310:615839": {
+        "current": null,
+        "expected_starttime": "615839",
+        "same_pid_starttime_present": false
+      },
+      "106733:616056": {
+        "current": null,
+        "expected_starttime": "616056",
+        "same_pid_starttime_present": false
+      },
+      "106839:616081": {
+        "current": null,
+        "expected_starttime": "616081",
+        "same_pid_starttime_present": false
+      },
+      "106939:616107": {
+        "current": null,
+        "expected_starttime": "616107",
+        "same_pid_starttime_present": false
+      },
+      "107036:616132": {
+        "current": null,
+        "expected_starttime": "616132",
+        "same_pid_starttime_present": false
+      },
+      "107206:616168": {
+        "current": null,
+        "expected_starttime": "616168",
+        "same_pid_starttime_present": false
+      },
+      "107220:616215": {
+        "current": null,
+        "expected_starttime": "616215",
+        "same_pid_starttime_present": false
+      },
+      "107382:616316": {
+        "current": null,
+        "expected_starttime": "616316",
+        "same_pid_starttime_present": false
+      },
+      "107390:616368": {
+        "current": null,
+        "expected_starttime": "616368",
+        "same_pid_starttime_present": false
+      },
+      "107529:616473": {
+        "current": null,
+        "expected_starttime": "616473",
+        "same_pid_starttime_present": false
+      },
+      "107697:616555": {
+        "current": null,
+        "expected_starttime": "616555",
+        "same_pid_starttime_present": false
+      },
+      "107840:616657": {
+        "current": null,
+        "expected_starttime": "616657",
+        "same_pid_starttime_present": false
+      },
+      "107869:616718": {
+        "current": null,
+        "expected_starttime": "616718",
+        "same_pid_starttime_present": false
+      },
+      "107882:616720": {
+        "current": null,
+        "expected_starttime": "616720",
+        "same_pid_starttime_present": false
+      },
+      "107911:616732": {
+        "current": null,
+        "expected_starttime": "616732",
+        "same_pid_starttime_present": false
+      },
+      "108054:616815": {
+        "current": null,
+        "expected_starttime": "616815",
+        "same_pid_starttime_present": false
+      },
+      "108077:616820": {
+        "current": null,
+        "expected_starttime": "616820",
+        "same_pid_starttime_present": false
+      },
+      "108241:616934": {
+        "current": null,
+        "expected_starttime": "616934",
+        "same_pid_starttime_present": false
+      },
+      "108252:616983": {
+        "current": null,
+        "expected_starttime": "616983",
+        "same_pid_starttime_present": false
+      },
+      "108395:617085": {
+        "current": null,
+        "expected_starttime": "617085",
+        "same_pid_starttime_present": false
+      },
+      "108559:617152": {
+        "current": null,
+        "expected_starttime": "617152",
+        "same_pid_starttime_present": false
+      },
+      "108645:617254": {
+        "current": null,
+        "expected_starttime": "617254",
+        "same_pid_starttime_present": false
+      },
+      "108707:617295": {
+        "current": null,
+        "expected_starttime": "617295",
+        "same_pid_starttime_present": false
+      },
+      "108873:617397": {
+        "current": null,
+        "expected_starttime": "617397",
+        "same_pid_starttime_present": false
+      },
+      "108881:617417": {
+        "current": null,
+        "expected_starttime": "617417",
+        "same_pid_starttime_present": false
+      },
+      "109022:617518": {
+        "current": null,
+        "expected_starttime": "617518",
+        "same_pid_starttime_present": false
+      },
+      "109050:617601": {
+        "current": null,
+        "expected_starttime": "617601",
+        "same_pid_starttime_present": false
+      },
+      "109412:617809": {
+        "current": null,
+        "expected_starttime": "617809",
+        "same_pid_starttime_present": false
+      },
+      "109566:617901": {
+        "current": null,
+        "expected_starttime": "617901",
+        "same_pid_starttime_present": false
+      },
+      "109598:617953": {
+        "current": null,
+        "expected_starttime": "617953",
+        "same_pid_starttime_present": false
+      },
+      "109616:617958": {
+        "current": null,
+        "expected_starttime": "617958",
+        "same_pid_starttime_present": false
+      },
+      "109618:617959": {
+        "current": null,
+        "expected_starttime": "617959",
+        "same_pid_starttime_present": false
+      },
+      "109619:617959": {
+        "current": null,
+        "expected_starttime": "617959",
+        "same_pid_starttime_present": false
+      },
+      "109621:617959": {
+        "current": null,
+        "expected_starttime": "617959",
+        "same_pid_starttime_present": false
+      },
+      "109643:617963": {
+        "current": null,
+        "expected_starttime": "617963",
+        "same_pid_starttime_present": false
+      },
+      "109652:617964": {
+        "current": null,
+        "expected_starttime": "617964",
+        "same_pid_starttime_present": false
+      },
+      "109660:617968": {
+        "current": null,
+        "expected_starttime": "617968",
+        "same_pid_starttime_present": false
+      },
+      "109689:617975": {
+        "current": null,
+        "expected_starttime": "617975",
+        "same_pid_starttime_present": false
+      },
+      "109698:617977": {
+        "current": null,
+        "expected_starttime": "617977",
+        "same_pid_starttime_present": false
+      },
+      "109699:617977": {
+        "current": null,
+        "expected_starttime": "617977",
+        "same_pid_starttime_present": false
+      },
+      "111425:619172": {
+        "current": null,
+        "expected_starttime": "619172",
+        "same_pid_starttime_present": false
+      },
+      "111454:619243": {
+        "current": null,
+        "expected_starttime": "619243",
+        "same_pid_starttime_present": false
+      },
+      "111608:619345": {
+        "current": null,
+        "expected_starttime": "619345",
+        "same_pid_starttime_present": false
+      },
+      "111751:619405": {
+        "current": null,
+        "expected_starttime": "619405",
+        "same_pid_starttime_present": false
+      },
+      "111847:619507": {
+        "current": null,
+        "expected_starttime": "619507",
+        "same_pid_starttime_present": false
+      },
+      "111923:619582": {
+        "current": null,
+        "expected_starttime": "619582",
+        "same_pid_starttime_present": false
+      },
+      "112086:619684": {
+        "current": null,
+        "expected_starttime": "619684",
+        "same_pid_starttime_present": false
+      },
+      "112183:619756": {
+        "current": null,
+        "expected_starttime": "619756",
+        "same_pid_starttime_present": false
+      },
+      "112256:619858": {
+        "current": null,
+        "expected_starttime": "619858",
+        "same_pid_starttime_present": false
+      },
+      "112557:620093": {
+        "current": null,
+        "expected_starttime": "620093",
+        "same_pid_starttime_present": false
+      },
+      "112563:620096": {
+        "current": null,
+        "expected_starttime": "620096",
+        "same_pid_starttime_present": false
+      },
+      "112707:620166": {
+        "current": null,
+        "expected_starttime": "620166",
+        "same_pid_starttime_present": false
+      },
+      "112714:620179": {
+        "current": null,
+        "expected_starttime": "620179",
+        "same_pid_starttime_present": false
+      },
+      "112880:620281": {
+        "current": null,
+        "expected_starttime": "620281",
+        "same_pid_starttime_present": false
+      },
+      "112886:620375": {
+        "current": null,
+        "expected_starttime": "620375",
+        "same_pid_starttime_present": false
+      },
+      "112907:620379": {
+        "current": null,
+        "expected_starttime": "620379",
+        "same_pid_starttime_present": false
+      },
+      "113059:620447": {
+        "current": null,
+        "expected_starttime": "620447",
+        "same_pid_starttime_present": false
+      },
+      "113207:620549": {
+        "current": null,
+        "expected_starttime": "620549",
+        "same_pid_starttime_present": false
+      },
+      "113378:620663": {
+        "current": null,
+        "expected_starttime": "620663",
+        "same_pid_starttime_present": false
+      },
+      "113393:620697": {
+        "current": null,
+        "expected_starttime": "620697",
+        "same_pid_starttime_present": false
+      },
+      "113535:620798": {
+        "current": null,
+        "expected_starttime": "620798",
+        "same_pid_starttime_present": false
+      },
+      "113542:620835": {
+        "current": null,
+        "expected_starttime": "620835",
+        "same_pid_starttime_present": false
+      },
+      "113702:620918": {
+        "current": null,
+        "expected_starttime": "620918",
+        "same_pid_starttime_present": false
+      },
+      "114011:621191": {
+        "current": null,
+        "expected_starttime": "621191",
+        "same_pid_starttime_present": false
+      },
+      "114206:621294": {
+        "current": null,
+        "expected_starttime": "621294",
+        "same_pid_starttime_present": false
+      },
+      "114356:621413": {
+        "current": null,
+        "expected_starttime": "621413",
+        "same_pid_starttime_present": false
+      },
+      "114523:621553": {
+        "current": null,
+        "expected_starttime": "621553",
+        "same_pid_starttime_present": false
+      },
+      "115181:621905": {
+        "current": null,
+        "expected_starttime": "621905",
+        "same_pid_starttime_present": false
+      },
+      "115361:621993": {
+        "current": null,
+        "expected_starttime": "621993",
+        "same_pid_starttime_present": false
+      },
+      "115368:622015": {
+        "current": null,
+        "expected_starttime": "622015",
+        "same_pid_starttime_present": false
+      },
+      "115527:622117": {
+        "current": null,
+        "expected_starttime": "622117",
+        "same_pid_starttime_present": false
+      },
+      "116141:622617": {
+        "current": null,
+        "expected_starttime": "622617",
+        "same_pid_starttime_present": false
+      },
+      "116147:622621": {
+        "current": null,
+        "expected_starttime": "622621",
+        "same_pid_starttime_present": false
+      },
+      "116292:622679": {
+        "current": null,
+        "expected_starttime": "622679",
+        "same_pid_starttime_present": false
+      },
+      "116298:622695": {
+        "current": null,
+        "expected_starttime": "622695",
+        "same_pid_starttime_present": false
+      },
+      "116462:622797": {
+        "current": null,
+        "expected_starttime": "622797",
+        "same_pid_starttime_present": false
+      },
+      "116627:622938": {
+        "current": null,
+        "expected_starttime": "622938",
+        "same_pid_starttime_present": false
+      },
+      "116664:622977": {
+        "current": null,
+        "expected_starttime": "622977",
+        "same_pid_starttime_present": false
+      },
+      "116815:623081": {
+        "current": null,
+        "expected_starttime": "623081",
+        "same_pid_starttime_present": false
+      },
+      "116886:623117": {
+        "current": null,
+        "expected_starttime": "623117",
+        "same_pid_starttime_present": false
+      },
+      "117156:623165": {
+        "current": null,
+        "expected_starttime": "623165",
+        "same_pid_starttime_present": false
+      },
+      "117252:623208": {
+        "current": null,
+        "expected_starttime": "623208",
+        "same_pid_starttime_present": false
+      }
+    },
+    "original_seven_absent": true,
+    "original_seven_inspection": {
+      "19defb0c6cf998646d5ee19f3d2c23ff33d9d9d44018fcc0a167b1b7c133369d": {
+        "absent": true,
+        "exit": 1
+      },
+      "57deec34bc47c39b66eb6d143f1d02053cf20413d59146f83a1b4e32d4bdc135": {
+        "absent": true,
+        "exit": 1
+      },
+      "5fca946a62020390b6dcd2a90cb14bdeb78ba1057056968888ade0ae66e623d1": {
+        "absent": true,
+        "exit": 1
+      },
+      "7a31e2397a7f9827d58a8f2936d5e0fcccb3be65c29a857a8c772a06ce552ed3": {
+        "absent": true,
+        "exit": 1
+      },
+      "8bac96c6e03f2cbd644fe34c7915fb5593d6a31b497b4fe5ba1238a609a26612": {
+        "absent": true,
+        "exit": 1
+      },
+      "9858b435934dbfa64cc8d005b228f5e079244d145ef81a1085d3712aff1626b1": {
+        "absent": true,
+        "exit": 1
+      },
+      "db07c90d97664a9e8ef815ab1533464e0b4094773ef0b5cc7c22d84c4d0fc644": {
+        "absent": true,
+        "exit": 1
+      }
+    },
+    "prior_task_owned_unreaped": {
+      "current": {
+        "pid": 89884,
+        "ppid": 1,
+        "starttime": "540243",
+        "state": "Z"
+      },
+      "expected_starttime": "540243",
+      "not_reaped_by_this_read_only_followup": true,
+      "origin": "runtime-go-compile01",
+      "pid": 89884
+    },
+    "runtime_empty_or_absent": true,
+    "runtime_paths": {
+      "/tmp/agtout-8v5605c2": {
+        "entries": [],
+        "exists": false
+      },
+      "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01/runtime": {
+        "entries": [],
+        "exists": true
+      }
+    },
+    "time": "2026-10-06T22:07:38.599196+00:00"
+  }
+]

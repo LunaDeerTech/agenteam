@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace/web
+
+ ❯ src/tests/system-outbound-policy.spec.ts (21 tests | 1 failed | 10 skipped) 112ms
+     × retains submitted draft and last observation after receipt plus failed GET, and retries only the read 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-outbound-policy.spec.ts > Outbound drafts, reads and historical command results > retains submitted draft and last observation after receipt plus failed GET, and retries only the read
+AssertionError: expected undefined to be '8443' // Object.is equality
+
+- Expected:
+"8443"
+
++ Received:
+undefined
+
+ ❯ src/tests/system-outbound-policy.spec.ts:492:31
+    490|     expect(p.observation.phase).toBe('error')
+    491|     expect(p.observation.value?.version).toBe('1')
+    492|     expect(p.draft[0]?.ports).toBe('8443')
+       |                               ^
+    493|     expect(p.editor.version).toBe('1')
+    494|     expect(p.state.requiresRead).toBe(true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed | 10 skipped (21)
+   Start at  21:29:40
+   Duration  1.84s (transform 993ms, setup 0ms, import 1.18s, tests 112ms, environment 403ms)
+

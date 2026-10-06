@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:unit",
+    "--",
+    "src/tests/system-outbound-policy-client.spec.ts",
+    "-t",
+    "requires exact options and leaves all old endpoint byte allowances intact"
+  ],
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace/web",
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "resource_execution": false,
+  "runner_sha256": "bdaea5ec7572c0445195f3dbc28ab2cf0b01a1905d0fdf91022ce77a72ddf70b"
+}

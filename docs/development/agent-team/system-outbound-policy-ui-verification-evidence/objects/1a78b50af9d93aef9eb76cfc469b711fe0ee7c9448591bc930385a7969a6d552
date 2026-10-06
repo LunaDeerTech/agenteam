@@ -1,0 +1,149 @@
+{
+  "accepted_baseline_after": true,
+  "accepted_baseline_before": true,
+  "adopted_waits": 4,
+  "browser_processes": 11,
+  "browser_runtime_removed": true,
+  "double_cleanup": true,
+  "driver_exit": 1,
+  "expected_resources": 7,
+  "historical_zombies_untouched": [
+    {
+      "name": "containerd-shim",
+      "pid": 7868,
+      "ppid": 1,
+      "starttime": "48585",
+      "state": "Z"
+    },
+    {
+      "name": "containerd-shim",
+      "pid": 8295,
+      "ppid": 1,
+      "starttime": "48833",
+      "state": "Z"
+    },
+    {
+      "name": "containerd-shim",
+      "pid": 8751,
+      "ppid": 1,
+      "starttime": "49086",
+      "state": "Z"
+    },
+    {
+      "name": "containerd-shim",
+      "pid": 9554,
+      "ppid": 1,
+      "starttime": "49476",
+      "state": "Z"
+    },
+    {
+      "name": "containerd-shim",
+      "pid": 12536,
+      "ppid": 1,
+      "starttime": "51187",
+      "state": "Z"
+    },
+    {
+      "name": "containerd-shim",
+      "pid": 14949,
+      "ppid": 1,
+      "starttime": "52584",
+      "state": "Z"
+    },
+    {
+      "name": "git",
+      "pid": 23814,
+      "ppid": 1,
+      "starttime": "86120",
+      "state": "Z"
+    },
+    {
+      "name": "git",
+      "pid": 30769,
+      "ppid": 1,
+      "starttime": "150325",
+      "state": "Z"
+    },
+    {
+      "name": "git",
+      "pid": 41272,
+      "ppid": 1,
+      "starttime": "246728",
+      "state": "Z"
+    },
+    {
+      "name": "git",
+      "pid": 49868,
+      "ppid": 1,
+      "starttime": "305202",
+      "state": "Z"
+    },
+    {
+      "name": "git",
+      "pid": 69418,
+      "ppid": 1,
+      "starttime": "461498",
+      "state": "Z"
+    },
+    {
+      "name": "git",
+      "pid": 90422,
+      "ppid": 1,
+      "starttime": "543936",
+      "state": "Z"
+    },
+    {
+      "name": "containerd-shim",
+      "pid": 104918,
+      "ppid": 1,
+      "starttime": "615264",
+      "state": "Z"
+    },
+    {
+      "name": "containerd-shim",
+      "pid": 105459,
+      "ppid": 1,
+      "starttime": "615543",
+      "state": "Z"
+    },
+    {
+      "name": "containerd-shim",
+      "pid": 105797,
+      "ppid": 1,
+      "starttime": "615746",
+      "state": "Z"
+    },
+    {
+      "name": "containerd-shim",
+      "pid": 106599,
+      "ppid": 1,
+      "starttime": "616036",
+      "state": "Z"
+    }
+  ],
+  "monitor_errors": 0,
+  "node_processes": 2,
+  "observed_processes": 85,
+  "observed_resources": 7,
+  "prior_task_owned_unreaped": {
+    "origin": "runtime-go-compile01",
+    "pid": 89884,
+    "ppid_at_original_post_scan": 1,
+    "present_at_start": true,
+    "reaped_by_this_run": false,
+    "starttime": "540243",
+    "state_at_original_post_scan": "Z"
+  },
+  "resource_ownership_valid": true,
+  "run": "mutation01",
+  "run_directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation01",
+  "selected_tests_passed": false,
+  "source_files_unchanged": true,
+  "top_levels": [
+    [
+      "FAIL",
+      "TestAccountSystemOutboundPolicyWebMutationAndRecovery"
+    ]
+  ],
+  "verification_inputs_unchanged": true
+}

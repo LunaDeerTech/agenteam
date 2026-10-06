@@ -1,0 +1,18 @@
+--- offline-closure01.json
++++ offline-closure02.json
+@@ -12,7 +12,7 @@
+     "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/overlay01.json",
+     "./tests/account",
+     "./tests/testsupport/outbound/cmd/fixture",
+-    "./tests/testsupport/objects/cmd/fixture"
++    "./tests/testsupport/objectstore/cmd/fixture"
+   ],
+   "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace",
+   "env": {
+@@ -1923,5 +1923,5 @@
+   },
+   "outer_limit_seconds": 120,
+   "resource_execution": false,
+-  "run_name": "closure01"
++  "run_name": "closure02"
+ }

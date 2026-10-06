@@ -1,0 +1,28 @@
+package outbound
+
+import (
+ "encoding/json"
+ "fmt"
+ "os"
+ "testing"
+)
+
+func TestOutboundUIFormalRulesOracle(t *testing.T) {
+ var vectors []struct { CIDR string `json:"cidr"`; Accept bool `json:"accept"` }
+ raw,err:=os.ReadFile(os.Getenv("OUTBOUND_ORACLE_VECTORS"));if err!=nil{t.Fatal("oracle vectors unavailable")};if json.Unmarshal(raw,&vectors)!=nil{t.Fatal("oracle vectors invalid")}
+ one,err:=SelectedPorts(443);if err!=nil{t.Fatal("formal selected ports")}
+ for i,v:=range vectors {
+  _,err:=NewRule(v.CIDR,one,false);if (err==nil)!=v.Accept{t.Fatalf("formal NewRule vector %d acceptance mismatch",i)}
+  encoded,_:=json.Marshal([]map[string]any{{"cidr":v.CIDR,"ports":[]int{443},"allow_http":false}})
+  _,err=DecodeRules(encoded);if (err==nil)!=v.Accept{t.Fatalf("formal DecodeRules vector %d acceptance mismatch",i)}
+ }
+ sorted,err:=DecodeRules([]byte(`[{"cidr":"10.0.0.0/8","ports":[8443,443],"allow_http":false},{"cidr":"10.0.0.0/16","ports":"all","allow_http":true}]`))
+ if err!=nil || string(sorted.JSON())!=`[{"cidr":"10.0.0.0/16","ports":"all","allow_http":true},{"cidr":"10.0.0.0/8","ports":[443,8443],"allow_http":false}]`{t.Fatal("formal order mismatch")}
+ selected:=make([]uint16,256);for i:=range selected{selected[i]=uint16(65535-i)}
+ ports,err:=SelectedPorts(selected...);if err!=nil{t.Fatal("formal maximum ports")}
+ var all []Rule
+ for i:=0;i<256;i++{rule,err:=NewRule(fmt.Sprintf("fdff:ffff:ffff:ffff:ffff:ffff:ffff:%x/128",0xff00+i),ports,false);if err!=nil{t.Fatalf("formal max vector %d",i)};all=append(all,rule)}
+ rules,err:=NewRules(all...);if err!=nil{t.Fatal("formal maximum distinct rules")};if rules.Count()!=256||len(rules.JSON())!=414721{t.Fatal("formal maximum shape mismatch")}
+ projected,err:=json.Marshal(struct{Version string `json:"version"`; Rules json.RawMessage `json:"rules"`}{"9223372036854775807",rules.JSON()});if err!=nil||len(projected)!=414763{t.Fatal("formal GET shape mismatch")}
+ t.Logf("formal_vectors=%d canonical_order=true max_distinct_rules=256 rules_bytes=%d get_bytes=%d",len(vectors),len(rules.JSON()),len(projected))
+}

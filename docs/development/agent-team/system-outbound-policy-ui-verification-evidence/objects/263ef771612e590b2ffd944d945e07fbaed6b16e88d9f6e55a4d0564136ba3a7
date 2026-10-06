@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/tmp/agt-outbound-independent-compile-6en9uaz0/account.test",
+    "-test.list",
+    "^(TestIndependentOutboundPolicyHistoricalReceipt|TestIndependentOutboundPolicyConfirmationAuthority)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-out-offline-j961bj6q",
+    "GOTMPDIR": "/tmp/agt-out-offline-j961bj6q",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "e6d85bbc34fc6389764c0ec19ac3be9d89d172e4c1e73aa62d25d0a6e5e7fff6",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 182122,
+  "actual_exit": 0,
+  "seconds": 1.0193900630001735,
+  "timeout": false
+}

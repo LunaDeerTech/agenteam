@@ -1,0 +1,36 @@
+{
+  "B-permission-sequence": {
+    "denied_before_navigation": true,
+    "denied_after_navigation": false,
+    "requests": [
+      {
+        "method": "GET",
+        "path": "/api/v1/system/outbound-policy"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/session"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system/outbound-policy"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system/smtp"
+      }
+    ]
+  },
+  "B": {
+    "explicit_conflict_adoption_only": true,
+    "confirmed_history4_current7_separate": true,
+    "failed_GET_preserves_draft_and_old_version": true,
+    "GET_retry_does_not_PUT": true,
+    "immediate_next_draft_normal_save_label": true,
+    "fresh_current403_leave": true,
+    "smtp_sections_single_confirmation": true,
+    "inactive_outbound_does_not_block_other_public_route": true,
+    "native_other_domain_cancel_tail_keeps_owner": true,
+    "actual_tail_joined": true
+  }
+}

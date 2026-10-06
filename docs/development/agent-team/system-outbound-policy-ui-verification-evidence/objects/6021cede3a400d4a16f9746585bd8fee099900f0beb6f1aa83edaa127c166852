@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-outbound-policy-client.spec.ts -t requires exact options and leaves all old endpoint byte allowances intact
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace/web
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 37 skipped (38)
+   Start at  21:11:10
+   Duration  632ms (transform 89ms, setup 0ms, import 151ms, tests 20ms, environment 352ms)
+

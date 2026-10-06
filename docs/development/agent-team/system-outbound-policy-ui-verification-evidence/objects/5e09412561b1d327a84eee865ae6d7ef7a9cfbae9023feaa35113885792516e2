@@ -1,0 +1,41 @@
+{
+  "passed_groups": [
+    "A",
+    "B"
+  ],
+  "facts": {
+    "A": {
+      "first_known_rejection": true,
+      "unknown_sticky": true,
+      "mismatched_security_retained": true,
+      "session_then_current_get_not_receipt": true,
+      "failed_native_cancel_join_then_same_original_replay": true,
+      "exact_method_path_key_body_csrf_equal": true,
+      "current19_does_not_replace_receipt2": true,
+      "key_conflict_no_rekey": true,
+      "legitimate_security_priority": true,
+      "cancel_gates_joined": 1
+    },
+    "B": {
+      "virtual_elapsed_ms": 30000,
+      "actual_30s_sleep": false,
+      "json_without_EOF_unsettled": true,
+      "timeout_visible_owner_retained": true,
+      "zero_cookie_dispatch_before_join": true,
+      "representative_domains_both_directions": [
+        "personal",
+        "smtp-settings",
+        "smtp-delivery"
+      ],
+      "delivery_native_status": 202,
+      "native_cancel_gates_joined": 4,
+      "parsed_old401_finalizer_joined": true,
+      "new_identity_only_after_actual_tail": true
+    }
+  },
+  "failure": null,
+  "actual_wall_ms": 64.07117199999993,
+  "live_owners_at_end": 0,
+  "gates_all_finished": true,
+  "no_network_or_listener": true
+}

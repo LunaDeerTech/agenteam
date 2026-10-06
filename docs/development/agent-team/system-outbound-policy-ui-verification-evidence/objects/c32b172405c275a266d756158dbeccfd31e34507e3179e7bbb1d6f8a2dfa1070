@@ -1,0 +1,48 @@
+{
+  "status": "SOURCE_FROZEN_UNCOMPILED_UNRUN",
+  "author_manifest_sha256": "ba38edd46a3969e363a21ba637bc015e0ad3acb21ae03df1431fdb6fbd120374",
+  "files": {
+    "origin01.json": "885b92bc1cdbb500f50b8356c39b98ea5b68834f5de42b116b8057f67958ac79",
+    "binding01.json": "0245599887e4b69a864b3ea91d28214e59e61fb558c06555d64ff209dc56fe99",
+    "overlay01.json": "d7cf1cae0581d63af23b085b1b81e7b92de73d9efbf804a3e36df568faa7606f",
+    "fixture-author-to-private01.diff": "a7372a983ff9aa9c1d7cb04a8e088aab25b3f1b5ab6a07ca57ced711036cfd26",
+    "source/fixture01.go": "d68918b80697424213a8498ce5f6af3972d6ba4bf631285d669421af969f90a9",
+    "source/independent_test.go": "b7f4530584f5c7a255c3f6db5cef663351025e4d3b34209096824b6d9bcd9a03",
+    "browser/independent.spec.ts": "ca11e2b4b56a2a22d050eef4087cd73c3d69a9f8fdb1d4be2806e242c31c1763",
+    "browser/independent.config.mjs": "790928edc51215269fc00302d58836c6ff034b7971fab4ce7033d72dfea92d12"
+  },
+  "source_byte_checks": {
+    "candidates": {
+      "count": 33,
+      "mismatch": []
+    },
+    "dist": {
+      "count": 38,
+      "mismatch": []
+    },
+    "baseline": {
+      "count": 1014,
+      "mismatch": []
+    }
+  },
+  "future_tops": [
+    "TestIndependentOutboundPolicyHistoricalReceipt",
+    "TestIndependentOutboundPolicyConfirmationAuthority"
+  ],
+  "real_resource_count_proposed": 7,
+  "future_budget": {
+    "per_top_seconds": 120,
+    "browser_seconds": 45,
+    "package_seconds": 360,
+    "race": true,
+    "count": 1,
+    "workers": 1,
+    "retries": 0
+  },
+  "remaining": [
+    "offline go compile/vet/exact discovery",
+    "strict browser type and two mode discovery",
+    "private driver/source/runtime fingerprints and check-only"
+  ],
+  "resource_execution": false
+}

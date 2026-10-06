@@ -1,0 +1,424 @@
+<script setup lang="ts">
+import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue'
+import UiButton from '../../components/ui/UiButton.vue'
+import UiDialog from '../../components/ui/UiDialog.vue'
+import UiField from '../../components/ui/UiField.vue'
+import UiInput from '../../components/ui/UiInput.vue'
+import UiSelect from '../../components/ui/UiSelect.vue'
+import UiCheckbox from '../../components/ui/UiCheckbox.vue'
+import UiState from '../../components/ui/UiState.vue'
+import { useSystemOutboundPolicy } from '../../composables/useSystemOutboundPolicy'
+const page = useSystemOutboundPolicy()
+const {
+  observation,
+  editor,
+  draft,
+  state,
+  confirmation,
+  progress,
+  feedback,
+  blocked,
+  locked,
+  maximumVersion,
+  validation,
+  canSave,
+} = page
+const heading = ref<HTMLElement | null>(null),
+  actions = ref<HTMLElement | null>(null),
+  form = ref<HTMLElement | null>(null)
+const alive = ref(true),
+  identity = page.auth.personalContext.identity
+const fallbackFocus = computed(() => {
+  const current = page.auth.personalContext.identity
+  return alive.value &&
+    page.auth.state.phase === 'authenticated' &&
+    page.auth.personalContext.phase === 'current' &&
+    identity &&
+    current &&
+    identity.userID === current.userID &&
+    identity.sessionID === current.sessionID &&
+    identity.epoch === current.epoch &&
+    page.auth.state.user?.role === 'admin' &&
+    !page.auth.system.denied
+    ? heading.value
+    : null
+})
+const modes = [
+  { value: 'specific', label: '指定端口' },
+  { value: 'all', label: '全部端口（all）' },
+]
+function operable(node: HTMLElement) {
+  if (!node.isConnected || node.matches(':disabled') || !node.getClientRects().length) return false
+  for (let parent: HTMLElement | null = node; parent; parent = parent.parentElement)
+    if (parent.inert || parent.hidden || parent.getAttribute('aria-hidden') === 'true') return false
+  return true
+}
+async function perform(work: () => Promise<unknown>, event: Event) {
+  const previous = event instanceof SubmitEvent ? event.submitter : event.currentTarget
+  await work()
+  if (!alive.value) return
+  await nextTick()
+  if (!alive.value || !fallbackFocus.value || blocked.value || confirmation.open) return
+  const focused = document.activeElement
+  if (focused instanceof HTMLElement && focused !== document.body && operable(focused)) return
+  const target =
+    previous instanceof HTMLElement && operable(previous)
+      ? previous
+      : actions.value?.querySelector<HTMLElement>('button:not(:disabled)')
+  if (target && operable(target)) target.focus()
+}
+async function focusRule(id: number | null) {
+  await nextTick()
+  if (!alive.value || !fallbackFocus.value || blocked.value || confirmation.open) return
+  const node =
+    id === null
+      ? form.value?.querySelector<HTMLElement>('[data-add-rule]')
+      : form.value?.querySelector<HTMLElement>(`[data-rule="${id}"] input`)
+  if (node && operable(node)) node.focus()
+}
+function addRule() {
+  const id = page.addRule()
+  if (id !== null) void focusRule(id)
+}
+function removeRule(id: number) {
+  const index = draft.findIndex((row) => row.id === id)
+  if (page.removeRule(id)) void focusRule(draft[index]?.id ?? draft[index - 1]?.id ?? null)
+}
+onMounted(async () => {
+  page.attach()
+  await nextTick()
+  if (alive.value && !confirmation.open && fallbackFocus.value && operable(fallbackFocus.value))
+    fallbackFocus.value.focus()
+})
+onBeforeUnmount(() => {
+  alive.value = false
+})
+onUnmounted(page.detach)
+</script>
+<template>
+  <div class="system-outbound-policy">
+    <h1 ref="heading" tabindex="-1">出站规则</h1>
+    <p class="meta">
+      管理 RFC1918 IPv4 与 ULA IPv6 私有网段的出站规则。规则按 CIDR、端口及是否允许 HTTP 共同匹配。
+    </p>
+    <p class="notice">
+      允许 HTTP 不代表放开其他安全检查。此页只保存规则，不测试目标地址、DNS 或运行时连接。
+    </p>
+    <div ref="actions" class="policy-actions" aria-label="出站规则页面操作">
+      <UiButton :disabled="blocked" @click="page.refresh">读取当前规则</UiButton>
+      <UiButton v-if="observation.phase === 'loading'" variant="ghost" @click="page.cancelRead"
+        >取消读取</UiButton
+      >
+    </div>
+    <p v-if="page.auth.state.busy" class="meta" role="status">正在等待当前请求实际结束。</p>
+    <p v-if="state.writeMessage" class="notice" role="status">{{ state.writeMessage }}</p>
+    <p v-if="state.confirmed" class="meta" aria-label="本次保存的历史确认">
+      原请求已确认：版本 <code>{{ state.confirmed.version }}</code
+      >，规则数 {{ state.confirmed.rule_count }}，确认时间
+      {{ state.confirmed.created_at }}。此历史结果独立于当前读取值。
+    </p>
+    <UiState
+      v-if="progress?.phase === 'uncertain'"
+      kind="error"
+      title="请求结果未确认"
+      description="当前读取不是原请求回执。请检查会话后显式重试原请求，或明确放弃本地追踪；不会自动更换请求标识。"
+    >
+      <div class="policy-actions">
+        <UiButton :disabled="blocked" @click="page.checkOriginal">检查当前会话与规则</UiButton>
+        <UiButton
+          :disabled="blocked || !progress.canRetryOriginal"
+          @click="perform(page.retryOriginal, $event)"
+          >重试原请求</UiButton
+        >
+        <UiButton variant="ghost" @click="page.abandonOperation">放弃本次操作</UiButton>
+      </div>
+    </UiState>
+    <UiState v-if="observation.phase === 'loading'" kind="loading" title="正在读取出站规则" />
+    <UiState
+      v-else-if="observation.phase === 'error'"
+      kind="error"
+      :title="state.confirmed ? '保存已确认，当前规则读取失败' : '出站规则读取失败'"
+      :description="observation.message"
+    />
+    <section v-if="observation.value" aria-label="最近完整读取的出站规则">
+      <h2>{{ observation.phase === 'ready' ? '当前读取值' : '上次完整读取值' }}</h2>
+      <p class="meta">
+        读取版本：<code>{{ observation.value.version }}</code
+        >；{{ observation.value.rules.length }} 条规则。{{
+          observation.phase === 'ready' ? '' : '当前读取尚未成功，保留值不代表最新配置。'
+        }}
+      </p>
+      <p v-if="!observation.value.rules.length">当前读取的规则为空；这不会创建任何私有网段例外。</p>
+      <div v-else class="policy-table-wrap">
+        <table class="policy-table">
+          <caption class="sr-only">
+            最近完整读取的 CIDR、端口与 HTTP 许可
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">CIDR</th>
+              <th scope="col">端口</th>
+              <th scope="col">允许 HTTP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(rule, index) in observation.value.rules" :key="index">
+              <td data-label="CIDR">
+                <code>{{ rule.cidr }}</code>
+              </td>
+              <td data-label="端口">
+                {{ rule.ports === 'all' ? '全部端口（all）' : rule.ports.join(', ') }}
+              </td>
+              <td data-label="允许 HTTP">{{ rule.allow_http ? '允许' : '不允许' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <p v-if="state.requiresRead" class="notice">
+      新的编辑基线必须来自成功的当前读取。请在当前请求结束后明确读取规则。
+    </p>
+    <form
+      v-if="editor.ready"
+      ref="form"
+      aria-label="编辑出站规则"
+      novalidate
+      @submit.prevent="perform(page.save, $event)"
+    >
+      <h2>编辑规则</h2>
+      <p class="meta">
+        编辑基线版本：<code>{{ editor.version }}</code
+        >；{{ draft.length }} / 256 条。保存完整替换本页规则；不自动合并版本冲突。
+      </p>
+      <p v-if="editor.message" class="notice" role="status">{{ editor.message }}</p>
+      <UiState
+        v-if="editor.conflict && progress?.phase !== 'uncertain'"
+        kind="error"
+        title="需要核对最新规则"
+        description="读取不会改写原草稿或原编辑版本。请核对后明确采用最新值，再重新编辑。"
+      >
+        <div class="policy-actions">
+          <UiButton :disabled="blocked" @click="page.readLatest">读取最新规则</UiButton>
+          <UiButton :disabled="blocked || observation.phase !== 'ready'" @click="page.adoptLatest"
+            >采用最新值重新编辑</UiButton
+          >
+        </div>
+      </UiState>
+      <p v-if="maximumVersion" class="notice">规则版本已达上限；当前配置可读取，不能继续保存。</p>
+      <p v-if="validation.message" class="field-error" role="alert">{{ validation.message }}</p>
+      <p v-if="!draft.length" class="meta">没有规则行。保存空列表会移除当前配置中的所有规则。</p>
+      <fieldset v-for="(row, index) in draft" :key="row.id" :data-rule="row.id" class="rule-row">
+        <legend>规则 {{ index + 1 }}</legend>
+        <div class="rule-fields">
+          <UiField
+            v-slot="control"
+            :label="`规则 ${index + 1} CIDR`"
+            :error="validation.errors[row.id]?.cidr"
+            hint="例如 10.0.0.0/8 或 fd00::/8；必须使用规范网段地址。"
+            required
+          >
+            <UiInput
+              :id="control.id"
+              :model-value="row.cidr"
+              :invalid="control.invalid"
+              :aria-describedby="control.describedby"
+              autocomplete="off"
+              spellcheck="false"
+              :disabled="blocked || locked || maximumVersion"
+              @update:model-value="page.updateRule(row.id, { cidr: $event })"
+            />
+          </UiField>
+          <UiField
+            v-slot="control"
+            :label="`规则 ${index + 1} 端口范围`"
+            hint="默认指定端口；全部端口必须主动选择。"
+            required
+          >
+            <UiSelect
+              :id="control.id"
+              :model-value="row.mode"
+              :label="`规则 ${index + 1} 端口范围`"
+              :options="modes"
+              :disabled="blocked || locked || maximumVersion"
+              @update:model-value="
+                page.updateRule(row.id, { mode: $event === 'all' ? 'all' : 'specific' })
+              "
+            />
+          </UiField>
+          <UiField
+            v-if="row.mode === 'specific'"
+            v-slot="control"
+            :label="`规则 ${index + 1} 指定端口`"
+            :error="validation.errors[row.id]?.ports"
+            hint="1–65535；逗号或空白分隔，最多 256 个不同端口。"
+            required
+          >
+            <UiInput
+              :id="control.id"
+              :model-value="row.ports"
+              :invalid="control.invalid"
+              :aria-describedby="control.describedby"
+              autocomplete="off"
+              inputmode="numeric"
+              :disabled="blocked || locked || maximumVersion"
+              @update:model-value="page.updateRule(row.id, { ports: $event })"
+            />
+          </UiField>
+        </div>
+        <div class="policy-actions">
+          <UiCheckbox
+            :model-value="row.allow_http"
+            :disabled="blocked || locked || maximumVersion"
+            @update:model-value="page.updateRule(row.id, { allow_http: $event })"
+            >规则 {{ index + 1 }} 允许 HTTP</UiCheckbox
+          >
+          <UiButton
+            variant="ghost"
+            :disabled="blocked || locked || maximumVersion"
+            @click="removeRule(row.id)"
+            >删除规则 {{ index + 1 }}</UiButton
+          >
+        </div>
+      </fieldset>
+      <div class="policy-actions">
+        <UiButton
+          data-add-rule
+          :disabled="blocked || locked || maximumVersion || draft.length >= 256"
+          @click="addRule"
+          >添加规则</UiButton
+        >
+        <UiButton
+          type="submit"
+          variant="primary"
+          :state="feedback"
+          success-label="出站规则已保存"
+          :disabled="!canSave"
+          >保存规则</UiButton
+        >
+        <UiButton variant="ghost" :disabled="blocked" @click="page.cancel">取消修改</UiButton>
+      </div>
+    </form>
+    <UiDialog
+      :open="confirmation.open"
+      :title="confirmation.title"
+      :fallback-focus="fallbackFocus"
+      @update:open="!$event && page.finishConfirmation(false)"
+    >
+      <p>{{ confirmation.message }}</p>
+      <template #footer
+        ><UiButton variant="ghost" @click="page.finishConfirmation(false)">继续编辑</UiButton
+        ><UiButton @click="page.finishConfirmation(true)">放弃修改</UiButton></template
+      >
+    </UiDialog>
+  </div>
+</template>
+<style scoped>
+.system-outbound-policy,
+form,
+section,
+.rule-row {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+h2 {
+  font-size: 1.1rem;
+}
+.meta {
+  color: var(--muted);
+}
+p,
+th,
+td,
+code,
+legend {
+  overflow-wrap: anywhere;
+}
+.policy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.rule-row {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 0;
+}
+.rule-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.rule-fields :deep(input),
+.rule-fields :deep(.ui-select) {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+}
+.policy-table-wrap {
+  position: relative;
+  min-width: 0;
+}
+.policy-table {
+  width: 100%;
+  table-layout: fixed;
+}
+.policy-table th,
+.policy-table td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+.policy-table th:nth-child(1) {
+  width: 30%;
+}
+.policy-table th:nth-child(2) {
+  width: 50%;
+}
+.policy-table th:nth-child(3) {
+  width: 20%;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 680px) {
+  .rule-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .policy-table thead {
+    display: none;
+  }
+  .policy-table,
+  .policy-table tbody,
+  .policy-table tr,
+  .policy-table td {
+    display: block;
+    width: 100%;
+  }
+  .policy-table tr {
+    padding-block: 10px;
+    border-block-end: 1px solid var(--border);
+  }
+  .policy-table td {
+    border: 0;
+    padding: 6px;
+  }
+  .policy-table td::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--muted);
+    font-weight: 600;
+    margin-block-end: 4px;
+  }
+}
+</style>

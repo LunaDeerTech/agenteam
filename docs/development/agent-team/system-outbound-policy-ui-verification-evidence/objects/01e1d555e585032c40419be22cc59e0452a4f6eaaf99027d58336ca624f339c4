@@ -1,0 +1,31 @@
+# Outbound UI 作者实测记录
+
+33 个候选源及 38 个 dist 文件冻结在 input05；业务基线为 213cf5c。本文仅汇总已经结束的实际运行，不新增检查。主树与 README 未写入，最终独立 A/B 验收仍待完成。
+
+| 场景 | 原运行 / 输入 | 浏览器 / Go 顶层 | child 实际退出 / 秒 | 资源 / PID-start / adopted wait |
+| --- | --- | --- | --- | --- |
+| read01 | input02 | 11.8s / 14.68s | 0 / 84.641 | 7 / 100 / 4 |
+| mutation02 | input04 | 5.4s / 9.98s | 0 / 57.422 | 7 / 86 / 4 |
+| authority02 | input05 | 9.0s / 13.89s | 0 / 60.328 | 7 / 87 / 4 |
+| navigation01 | input05 | 18.5s / 21.55s | 0 / 69.084 | 7 / 86 / 4 |
+| old-delivery-navigation02 | input05 | 14.3s / 20.44s | 0 / 69.941 | 9 / 90 / 4 |
+| old-settings-outcome01 | input05 | 6.4s / 12.33s | 0 / 62.514 | 7 / 83 / 4 |
+| old-delivery-outcome01 | input05 | 7.7s / 14.99s | 0 / 68.681 | 9 / 89 / 4 |
+
+新 4 与旧 3 的业务顶层均实际 PASS，按上述版本组合复用；不能称 input05 全轮重跑。除 read01 的原外层退出 1 外，其余最终轮外层均实际退出 0。最后 session 1795 已由工具实际返回 0，资源窗口已交回。每轮原命令、完整 raw、实际 wait、输入前后、nonce/精确资源 ID、PID/starttime 与两次清理记录均由 report.json 按路径和 SHA 引用。
+
+read01 的业务 child 退出 0，但原清理第一扫 baseline 不同、第二扫相同，故原外层退出 1；7 个 ID、100 个 PID/start 与 runtime 两扫为空。原第一扫没有完整 current 快照，原因未证。只读 followup01 实际退出 1，捕获的是后来既有容器完整 Mounts 数组顺序不同；不能倒填为原 read01 的原因。driver02 仅按完整 mount 对象 canonical JSON 排序，保留每字段、值与重复数，并保存每扫原始 current 与 raw/canonical 差量；followup02 实际退出 0，完整两扫重新确认当前基线及原资源/PID/runtime。read 未重跑，原件全部保留。
+
+mutation01 为测试前提红：事务内 VERSION_CONFLICT 的正式终局为 not_committed，原谓词硬编码 not_started；同类 IDEMPOTENCY_KEY_REUSED 是后续静态发现，原轮未到达。仅两精确状态与有界安全失败摘要被修正，mutation02 通过。authority01 为取消读取的标题前提红：保存已经确认，helper 仍期待普通读取失败标题。仅显式标题参数及两个调用点前提被修正，authority02 通过。两轮原 raw 均缺少对应安全现场，未事后虚构 actual commit_state 或实际 DOM 标题。所有业务、取消读取实际尾部、零额外 GET、显式刷新断言与预算保留；22 个 web 阶段源和 dist 未因这些真实测试返修变化。
+
+old-delivery-navigation01 在创建临时目录时 ENOSPC，浏览器和 Node 均未启动，实际退出 1 后 9 ID/82 PID 双清；这不是业务失败。主线程随后仅删除两个已完成任务可再生 Go cache，并保留源码、证据、bin、modcache 与当前 SMTP cache。维护原件和随后旧 3 每轮独立 df >= 5 GiB 门禁均已索引；可用字节依次为 6,232,403,968、6,230,704,128、6,229,938,176。作者未删除缓存。更早 navigation01 曾观察到 727,633,920 B 低水位，非连续采样最小值，原记录保留。
+
+作者已逐张实际查看新 navigation01 八图和旧 delivery-navigation02 八图。主线程只抽看新 light390 与 dark1440 两图。宽屏表格、窄屏字段布局、长 CIDR/256 ports 折行在相应图中可读，未见确认遮罩或外层水平溢出。这些均为 900px 高视口截图，并非全页；下方编辑/错误区域不冒称图像覆盖，真实几何、可达性、焦点与 Tab 断言单列。两份原 visual-review01.json 保留具体逐图观察与 SHA。
+
+离线原件同样保留：API 首轮 176 PASS/1 前提红及受影响 1 例复验；owner 99 PASS、补充轮 3 PASS/1 严格 SMTP 202 前提红及受影响复验。原 owner-pure02 虽实际进程退出 1，其私有 cancel Promise 未显式 join，不回填为完成；修正轮 finally 释放并实际等待。page-state01 的确认后草稿丢失是真正产品红，原断言经 controller 窄修通过；完整 page-check01 实际 0/34.097s，42 文件 1517 例及 type/format/build 通过。后续 harness 两静态前提修正、必要编译/vet/type/list 与输入门禁按固定阶段索引复用，不伪称最初广域超时编译通过。
+
+runtime-go-compile01 留下的本任务 PID 89884/starttime 540243/PPID1 Z 仍无法回收，所有后续轮均单独记录该旧归属；本报告仅称各本轮跟踪 PID/start 清零，不称环境全局无残留。新版离线 runner 的受控 orphan 实际 adopted wait 证据与原缺口均保留。30 秒 owner 边界为虚拟时钟配合真实 native EOF/cancel 门闩。
+
+没有据此宣称外部邮箱、出站目标/Runtime 新连接、production SPA、原生 BFCache 或完整 D27 通过。下一步是固定 input05 的独立 A/B；README 最后另授。
+
+固定 input05 SHA：`c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a`。driver02 SHA：`d6ff37eaa64b617496dcc1dae6572dfacc1b276b3ee28cfea02964ae213d725b`。精确 33 源/38 dist 清单沿原 input05 manifest，不另复制产品树。

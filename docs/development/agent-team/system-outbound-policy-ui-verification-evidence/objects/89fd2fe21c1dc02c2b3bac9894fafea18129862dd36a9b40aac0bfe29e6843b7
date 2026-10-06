@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""Read-only post-run verification; never rewrites read01 evidence."""
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+import runpy
+
+ROOT = Path(__file__).resolve().parents[1]
+ORIGINAL = ROOT / 'runs/read01'
+OUT = ROOT / 'runs/read01-cleanup-followup02'
+canonical_resources = runpy.run_path(str(ROOT / 'driver02.py'), run_name='read_only_driver_functions')['canonical_resources']
+
+
+def utc():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def write(name, value):
+    (OUT / name).write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def main():
+    OUT.mkdir(mode=0o700)
+    started = time.monotonic()
+    metadata = {'argv': [sys.executable, str(Path(__file__).resolve())],
+                'cwd': str(ROOT), 'started_utc': utc(), 'pid': os.getpid(),
+                'scope': 'docker list/selected-field inspect and exact /proc/runtime reads only',
+                'script_sha256': digest(Path(__file__))}
+    write('command.json', metadata)
+    original_files = [ORIGINAL / name for name in [
+        'command.json', 'result.json', 'raw.log', 'cleanup.json', 'baseline.json',
+        'observed-processes.json', 'observed-resources.json', 'adopted-waits.json',
+        'input-before.json', 'input-after.json', 'resource-ownership.json']]
+    original_files += [ROOT / 'input02/manifest.json', ROOT / 'driver01.py', ROOT / 'driver02.py']
+    original_files += sorted(p for p in (ROOT / 'runs/read01-cleanup-followup01').iterdir() if p.is_file())
+    before = {str(p.relative_to(ROOT)): digest(p) for p in original_files}
+    write('original-before.json', before)
+    baseline = json.loads((ORIGINAL / 'baseline.json').read_text())
+    resources = json.loads((ORIGINAL / 'observed-resources.json').read_text())
+    processes = json.loads((ORIGINAL / 'observed-processes.json').read_text())
+    original_command = json.loads((ORIGINAL / 'command.json').read_text())
+    read_commands = []
+
+    def run(argv):
+        then = time.monotonic()
+        command = {'argv': argv, 'cwd': str(ROOT), 'started_utc': utc()}
+        actual = subprocess.run(argv, cwd=ROOT, capture_output=True, text=True, timeout=20)
+        command.update({'exit': actual.returncode, 'actual_wait_completed': True,
+                        'seconds': round(time.monotonic() - then, 6),
+                        'stdout': actual.stdout, 'stderr': actual.stderr, 'ended_utc': utc()})
+        read_commands.append(command)
+        with (OUT / 'raw.log').open('a') as raw:
+            raw.write(json.dumps(command, sort_keys=True) + '\n')
+        return actual
+
+    def inspect(kind, resource_id):
+        label = '.Config.Labels' if kind == 'container' else '.Labels'
+        mounts = '{{json .Mounts}}' if kind == 'container' else '[]'
+        actual = run(['docker', kind, 'inspect', '--format',
+                      '{{json .Id}}\t{{json .Name}}\t{{json ' + label + '}}\t' + mounts,
+                      resource_id])
+        if actual.returncode:
+            return {'absent': ('No such' in actual.stderr or 'not found' in actual.stderr),
+                    'exit': actual.returncode}
+        value = dict(zip(['id', 'name', 'labels', 'mounts'],
+                         map(json.loads, actual.stdout.strip().split('\t'))))
+        value['kind'] = kind
+        return value
+
+    def process(pid):
+        try:
+            fields = Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()
+            return {'pid': pid, 'ppid': int(fields[1]), 'state': fields[0], 'starttime': fields[19]}
+        except FileNotFoundError:
+            return None
+
+    sweeps = []
+    try:
+        for index in range(2):
+            if index:
+                time.sleep(0.75)
+            current = {}
+            for kind in ['container', 'network']:
+                argv = ['docker', kind, 'ls', '-q', '--no-trunc'] if kind == 'network' else ['docker', kind, 'ls', '-aq', '--no-trunc']
+                listed = run(argv)
+                if listed.returncode:
+                    raise RuntimeError('read-only inventory failed')
+                for resource_id in listed.stdout.split():
+                    current[resource_id] = inspect(kind, resource_id)
+            original_resources = {key: inspect(value['kind'], key) for key, value in resources.items()}
+            observed = {}
+            for key, value in processes.items():
+                now = process(value['pid'])
+                observed[key] = {'expected_starttime': value['starttime'], 'current': now,
+                                 'same_pid_starttime_present': bool(now and now['starttime'] == value['starttime'])}
+            runtime = {}
+            for path in [original_command['env']['TMPDIR'], original_command['env']['AGENTEAM_AUTH_WEB_RUNTIME']]:
+                target = Path(path)
+                runtime[path] = {'exists': target.exists(),
+                                 'entries': sorted(str(p.relative_to(target)) for p in target.rglob('*')) if target.exists() else []}
+            canonical_baseline, canonical_current = canonical_resources(baseline), canonical_resources(current)
+            sweep = {'index': index + 1, 'time': utc(), 'current_resources': current,
+                     'baseline_raw_order_unchanged': current == baseline,
+                     'baseline_raw_differences': {key: {'before': baseline.get(key), 'after': current.get(key)}
+                                                  for key in set(baseline) | set(current) if current.get(key) != baseline.get(key)},
+                     'baseline_canonical_differences': {key: {'before': canonical_baseline.get(key), 'after': canonical_current.get(key)}
+                                                        for key in set(baseline) | set(current) if canonical_current.get(key) != canonical_baseline.get(key)},
+                     'baseline_exact_six_unchanged': canonical_current == canonical_baseline,
+                     'original_seven_inspection': original_resources,
+                     'original_seven_absent': len(original_resources) == 7 and all(v.get('absent') is True for v in original_resources.values()),
+                     'observed_processes': observed,
+                     'all_100_pid_starttime_absent': len(observed) == 100 and not any(v['same_pid_starttime_present'] for v in observed.values()),
+                     'runtime_paths': runtime,
+                     'runtime_empty_or_absent': all(not v['entries'] for v in runtime.values()),
+                     'prior_task_owned_unreaped': {'origin': 'runtime-go-compile01', 'pid': 89884,
+                                                   'expected_starttime': '540243', 'current': process(89884),
+                                                   'not_reaped_by_this_read_only_followup': True}}
+            sweeps.append(sweep)
+            write('sweeps.json', sweeps)
+        after = {str(p.relative_to(ROOT)): digest(p) for p in original_files}
+        write('original-after.json', after)
+        passed = before == after and all(s['baseline_exact_six_unchanged'] and s['original_seven_absent'] and s['all_100_pid_starttime_absent'] and s['runtime_empty_or_absent'] for s in sweeps)
+        result = {'exit': 0 if passed else 1, 'seconds': round(time.monotonic() - started, 6),
+                  'ended_utc': utc(), 'read_commands_actual_wait_completed': all(c['actual_wait_completed'] for c in read_commands),
+                  'read_commands': len(read_commands), 'two_sweeps': len(sweeps),
+                  'original_evidence_unchanged': before == after, 'followup_pass': passed,
+                  'original_driver_tool_exit': 1, 'original_command_exit': 0,
+                  'comparison': 'all original fields and resource IDs; only Mounts order normalized by full-object canonical JSON sorting, preserving duplicates',
+                  'original_first_cleanup_baseline_difference_cause': 'unproven: original cleanup did not retain the full first current snapshot',
+                  'prior_task_owned_zombie_not_reclaimed': {'pid': 89884, 'starttime': '540243'}}
+        write('commands.json', read_commands)
+        write('result.json', result)
+        print(json.dumps(result, sort_keys=True))
+        return result['exit']
+    except BaseException as exc:
+        write('commands.json', read_commands)
+        write('result.json', {'exit': 1, 'error_type': type(exc).__name__, 'seconds': round(time.monotonic() - started, 6), 'ended_utc': utc()})
+        raise
+
+
+if __name__ == '__main__':
+    sys.exit(main())

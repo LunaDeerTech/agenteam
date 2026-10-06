@@ -1,0 +1,174 @@
+{
+  "README_deferred_separate_34th_path": true,
+  "author_manifest": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/manifest.json",
+  "author_manifest_sha256": "c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a",
+  "count": 33,
+  "files": [
+    {
+      "path": "tests/account-captcha-web/e2e/system-account-security.spec.ts",
+      "sha256": "11723c33fb36944188c5f8baf7962f56cd4791595e9c8ac5b9d1062d8bf6549a",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/tests/account-captcha-web/e2e/system-account-security.spec.ts"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/system-invitations.spec.ts",
+      "sha256": "723757fbadc8535c2de60e98758a90239e40cda651e50f4acf2bf4dec4f589bd",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/tests/account-captcha-web/e2e/system-invitations.spec.ts"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/system-model-selection.spec.ts",
+      "sha256": "fd1bf8077241f3668b95c7f923a1e8943b1d1a8e9478b0a6ce7b8cd6291155a7",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/tests/account-captcha-web/e2e/system-model-selection.spec.ts"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/system-models.spec.ts",
+      "sha256": "621fe3c8078484569abba032be18b97f65349f5266cab5c2cf8e451c69a713b7",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/tests/account-captcha-web/e2e/system-models.spec.ts"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+      "sha256": "3d1b5af651ea2f94ec5054d9d2da43807efa5badbed3420252a4b2b5de739ed4",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/system-providers.spec.ts",
+      "sha256": "529491cb0e82b11c48ab95e5bd57481f1f713f26f94186068bc19fd3d183174f",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/tests/account-captcha-web/e2e/system-providers.spec.ts"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts",
+      "sha256": "766b1f413a40ae340ee0631b32e8cc1d2b72371d4eda9c96d4aa9de0f6f66d81",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts",
+      "sha256": "79e2a4839573e30978d64969cc7764720470d6c73be07be6161a533d29b6cc5e",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts"
+    },
+    {
+      "path": "tests/account-captcha-web/system-outbound-policy.config.js",
+      "sha256": "5bcc9b2cbc87bc99285dce6b6292970de6a743b5bf4b64147df3270bfcb1dadb",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/tests/account-captcha-web/system-outbound-policy.config.js"
+    },
+    {
+      "path": "tests/account/system_outbound_policy_web_fixture_test.go",
+      "sha256": "beb8ef5e4d6307f6ac1d09392dafc7fe04fd3324cb5603c4c866520d01386872",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/tests/account/system_outbound_policy_web_fixture_test.go"
+    },
+    {
+      "path": "tests/account/system_outbound_policy_web_test.go",
+      "sha256": "61ec8d9518df4ef6c24e3ab67c6afd83babdac888660fdd338856555bec473b8",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/tests/account/system_outbound_policy_web_test.go"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "4f7068223c59aa7e819dd5cfef6599fb590f663633edd2e821d29d1a1bc1b24b",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/App.vue"
+    },
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "4ae4b1db480e26adee962c2b301fdbf37ea3b31883cee223f6ed3e8b691659ae",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/api/client.ts"
+    },
+    {
+      "path": "web/src/api/outbound-rules.ts",
+      "sha256": "7b41d4af381520fb95c824dfeda079d0bb36af82f4ec614967c2346f56a38466",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/api/outbound-rules.ts"
+    },
+    {
+      "path": "web/src/api/system-outbound-policy.ts",
+      "sha256": "6dff6c0b696b334799abd7779ac52b12b8ceabc3f6b7861ee639ae1823d9123e",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/api/system-outbound-policy.ts"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "573268bdb7d3ea5524858c53b901cac8d095591ad46e4855cbe7e6d50330011c",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/composables/useSession.ts"
+    },
+    {
+      "path": "web/src/composables/useSystemOutboundPolicy.ts",
+      "sha256": "0bf2dfeb89e25babb8d1201880228006b468f597ac431f6783c5a043e11451a0",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/composables/useSystemOutboundPolicy.ts"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "746ed414cdda79b51452481a29eb767064f5d099976c9019ab214d61eb2dabfe",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/router/auth.ts"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "fbce81eb4ac55311f3911307b6c69eadf7f86b0e54fc0b14ea50378b23b1ff7b",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/router/index.ts"
+    },
+    {
+      "path": "web/src/tests/outbound-rules.spec.ts",
+      "sha256": "82dda1710210dc7fa1042ebee654a839825348c7047bfa912d5258a581f0824f",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/tests/outbound-rules.spec.ts"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "6b4ca8f4a56a9201a077405faafa67cd55d509719d320d3b6b5df87052a714c2",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/tests/personal-settings.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-account-security.spec.ts",
+      "sha256": "6349a7e69d4c432e018d39232cffef4d2b8a41319eaedf3b5be8d31085e9d0a3",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/tests/system-account-security.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-invitations.spec.ts",
+      "sha256": "5133509583cb0e940bdd0dcadc76468a7e8c3cbfe27d3e77cf3cd2acc123db73",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/tests/system-invitations.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-model-selection.spec.ts",
+      "sha256": "dbea8573bd0c345b008e424e797c78d2c825afd80cb7ca2421fec1c2eb122319",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/tests/system-model-selection.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-models.spec.ts",
+      "sha256": "9f7378d085e0da1eeaced1532c5ca17c2546957908016a4c910e4c8c8e9b7101",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/tests/system-models.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-outbound-policy-client.spec.ts",
+      "sha256": "cd38aff53b6c4c6165434475f0d68e916a2a68ad9d1d591790fc1ae33114b572",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/tests/system-outbound-policy-client.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-outbound-policy-state.spec.ts",
+      "sha256": "a9027e18cd11a810df9cf5254ba3de315836c388b21907e385bcebb4dd255982",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/tests/system-outbound-policy-state.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-outbound-policy.spec.ts",
+      "sha256": "e08604080860e631cc81e89f53f655d853f08519b4be59510f47dc9596c399f0",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/tests/system-outbound-policy.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-providers.spec.ts",
+      "sha256": "fd6dcf723dce46a246b156dec6e0e2827a5ae2c617d6baf338dc7583f9b464b6",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/tests/system-providers.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-smtp-settings.spec.ts",
+      "sha256": "64c56ef216b2cb76c369330dfd1c218e6502804537acb638fe6f349ca29dc66d",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/tests/system-smtp-settings.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "sha256": "1c817cf7ff2d50e5aec6ba9ee85b6b4659de959f0c3fcb63c9c301af827a53c4",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/tests/system-user-directory.spec.ts"
+    },
+    {
+      "path": "web/src/views/system/SystemOutboundPolicyView.vue",
+      "sha256": "43de7573a24138fd2ba3db383967e39b92e185c776e5cef4c825198adebd9abb",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/views/system/SystemOutboundPolicyView.vue"
+    },
+    {
+      "path": "web/src/views/system/SystemSettingsView.vue",
+      "sha256": "53263efde51909ce3848692f23b7fc45c4fc96bc684fc0fe8f24e46afbdcc818",
+      "source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/views/system/SystemSettingsView.vue"
+    }
+  ],
+  "product_base": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93"
+}

@@ -1,0 +1,33 @@
+{
+  "node_actual_wait": true,
+  "node_pid": 72383,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 72383,
+      "ppid": 72380,
+      "pgid": 72383,
+      "state": "R",
+      "starttime": "488032"
+    },
+    {
+      "pid": 72407,
+      "ppid": 72383,
+      "pgid": 72383,
+      "state": "R",
+      "starttime": "488068"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

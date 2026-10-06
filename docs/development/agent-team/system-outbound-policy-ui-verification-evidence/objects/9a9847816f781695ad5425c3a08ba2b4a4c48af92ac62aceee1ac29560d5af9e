@@ -1,0 +1,15 @@
+# Outbound web-stage01 — 作者页面离线交付
+
+固定产品 213cf5c3f552e6b05b541ce02afc1dd65ce9db93，正式 rev1 卡。阶段 C 15候选，连同阶段 A5/B2 共22个web产品/测试路径；冻结 38 个production dist文件，130个固定接受依赖。main无写入；未开始真实资源。源码/dist停写供独立读取，接续仅D的11条harness路径离线准备。
+
+完整正式 `npm run check`（cwd私有workspace/web）actual exit0 /34.097s，format PASS、42文件1517测试PASS、vue-tsc PASS、Vite production build PASS，前后22候选相同。原命令/env/raw/result与每轮源快照位于manifest指定位置；不是只看到Vitest摘要就结束。根PID62826实际wait且冻结检查已不存在。依赖沿固定Git读取，styles测试所需colors文档原字节同步；未复制node_modules/modcache。
+
+C先行真实App/router/factory10组合首轮PASS：未激活clean/稳定ordinary/logout/current403新route、401→bootstrap→login、旧route或logout确认遇pageshow503后同身份恢复、新Session/role-loss/anonymous旧pendingfalse。此为合成pageshow和jsdom DOM/state；geometry由测试桩提供，不声称原生focus/Tab或BFCache。
+
+原 page-state01（14候选快照）11选择例10PASS/1产品RED，actual1/2.222s：有效receipt之后GET503，原mutate提前clearEditor导致提交草稿消失。原稿/原断言/raw保留。窄修仅本域controller：保留提交草稿和旧编辑版本为历史，state.requiresRead锁定新写；读取失败后的明确只读重试无需把已确认草稿当未提交而确认放弃，也不会重复PUT。只有成功的当前GET才重建可编辑基线，receipt不提供当前规则。page-state02原失败及受影响排序/历史版本3选择例全部PASS actual0/2.227s；原选中断言未弱化，后续spec追加View案例不声称整文件与首红相同。最终1517完整检查重新覆盖全部25个新页面例。
+
+当前读取与receipt分离、保留最后有效观察、旧expected_version原key/body重放、VERSION_CONFLICT显式读/采用、最大版本门禁、局部256行上限都由生产controller驱动。取消/卸载读同步退休loading为可重读error，actual tail后不自动续发；首次尚未派发的读可等owner一次。View末尾常驻一个Dialog，正常关闭取当前完整身份合法标题fallback，checking共卸载后同身份重挂仍保留App Promise。局部结构化CIDR/逗号端口/all主动选择/HTTP=false、增删本地focus和三列可换行样式已落；真实布局与原生focus仍待D/browser。
+
+App仅在现smtpSections导航/退出后接新域，不改SMTP双区协调器。新增精确路由/第八叶/第十二return，默认用户与三组保持；八旧pure仅指定菜单数量/说明/return正反例适配。A5与B2逐字节保持，独立阶段证据可按root既有决定复用。原A前提红和B owner-pure02未显式resolve cancel Promise的历史限制全部保留，不用最终全绿回填旧轮actual join。
+
+尚未交付D四新真实顶层/最低三旧真实代表、实际HTTP最大不同合法规则/Audit关联、实际浏览器8图、独立真实验收与末README；本报告不声称完整D27、目标可达、Runtime绑定或productionSPA发布。

@@ -1,0 +1,178 @@
+{
+  "conclusion": "BOUNDED PASS: static C + app01 A / app02 B; no native or whole-card acceptance",
+  "report_md_sha256": "3d9372203a7fc5a322a7e4479499c195bac0d7a8da553287e791b89f026b68a0",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/web-stage01/manifest.json",
+    "sha256": "435d3d0d432de68656b68d51cc399e4c66d621ed69e4b73b7c9106984782e7fc"
+  },
+  "binding": {
+    "web_candidates": 22,
+    "accepted_dependencies": 130,
+    "dist": 38,
+    "prior_A5_B2_unchanged": true
+  },
+  "runs": {
+    "app01": {
+      "actual_exit": 1,
+      "actual_wait": true,
+      "seconds": 2.717966825000076,
+      "timeout": false,
+      "input_before_matches": true,
+      "input_after_matches": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "node_processes_observed": 2,
+      "adopted_wait_count": 0,
+      "raw_sha256": "03f19793c86ac830225be56fba59bd847eb5983ed7c40c53ed86ddf70109fe15",
+      "cleanup_sha256": "8635957d5ab72ccc27d00e4b8a5d4d853c8ee44f5fae16219f7e270f2d599fd3"
+    },
+    "app02": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "seconds": 2.5688285509995694,
+      "timeout": false,
+      "input_before_matches": true,
+      "input_after_matches": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "node_processes_observed": 2,
+      "adopted_wait_count": 0,
+      "raw_sha256": "3588bbb9fcbb9e07d3c16574303ea6d754288479aca410fecab04fe2250b4049",
+      "cleanup_sha256": "736008f63a4ff95276fb5b1fda9c7839ca559d70c9047e84096189d2e4fb2754"
+    }
+  },
+  "reuse": [
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-api-independent-myvazu5g/verification-report.md",
+      "sha256": "b40b6486f6eed6bd0faf6b2b19097c6d9cd8f2aa182ce1c9a3f18aaec0bed28a"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/verification-report.md",
+      "sha256": "20acf2532ab100f903edac9f1dde5d2b93711f6e6feca3822b0eff165a4d5cb2"
+    }
+  ],
+  "limitations": [
+    "app01 B failure has no original DOM/request sequence; app02 sequence is new evidence",
+    "jsdom only; no native focus/Tab/layout acceptance",
+    "author historical product RED and private premise failures preserved",
+    "no product/Git mutation; no services/listeners/Docker/browser/PG"
+  ],
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/input-binding01.json",
+      "sha256": "2083a2d0c63be80c81d9c8c572f2c97b179ff25c077857c7ba6556fd6aaa09b2"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runtime-input01.json",
+      "sha256": "244c7ecd6cce4cc2220b9eb9f9109a583c92847fa853a13d9d61b90fbdaa4928"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/prepare01-tool-record.json",
+      "sha256": "811aa5e57ca25d11b08d6be563cb515b37e30f198e9fa4d25436a1ec3e59c4fa"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/execution01.json",
+      "sha256": "3d5fd2a9defc3ce53142228df74ea1d6359731e05b1a54885a252e76c0dd6ca9"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/execution02.json",
+      "sha256": "1929dee054b266a83de2747f5104def7f645326c5172ec919b348260cba1146a"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/run_offline01.py",
+      "sha256": "31009595d209549fe484a55373f6c03b2ca12d9cecc9a2d2b182cb36c73201bd"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/run_offline02.py",
+      "sha256": "ceb5a4b240bfe7c7e659b43d16dc60ee45e3cbd9ad0f7aa78ca3029d8e73de19"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/vitest.config.mts",
+      "sha256": "c60fcad7410716fd7ed6efc62952d9de613f9149236ab54815e284b4cbc552e8"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/vitest02.config.mts",
+      "sha256": "ba9c2f2b62324aa14805473bc7309a7e542bca9c5e23204eae8de113e0f3abb1"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/source/web/src/tests/independent-outbound-app.spec.ts",
+      "sha256": "c35e47236a0d9c267d6bba6fad008e9a7ca7e59d52a0e7bb3d4d2b8f38893f94"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/source/web/src/tests/independent-outbound-app02.spec.ts",
+      "sha256": "02c3a3d2101d6b62a5148867720b15cc466f3b30b4c531837744bf55cd407660"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/probe01-to02.diff",
+      "sha256": "4e298d9d42ef1b185415b61be704b23dac07ab8951642b024664f08e6b53a131"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/app01-diagnosis.md",
+      "sha256": "f7e8ea8e715c536a46c314606df0296c25d73974576f1c66e6867159ee8e777c"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/app01-diagnosis.json",
+      "sha256": "f7153042d332b9708e3c8b1dc803c35b2f8205ecb7c064cadb42fcf708b92f95"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/author-page-state01-to-final.diff",
+      "sha256": "d95b68c28793f0ad28bbad3a823ab316ac8a568c5a56c837c5482a16d2472e76"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app01/command.json",
+      "sha256": "51926bc508ad625bee66864aa80997a21bd80b48e81d35a551f3856e7a673347"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app01/raw.log",
+      "sha256": "03f19793c86ac830225be56fba59bd847eb5983ed7c40c53ed86ddf70109fe15"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app01/result.json",
+      "sha256": "952a9f932a1a27cd5b7aa212aa03dc9433ccf6a0c97dd1aedec7bcb4d375444a"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app01/input-before.json",
+      "sha256": "594581f1f9f8b5074fba33c8949e4bcbff7e634264479a603bb67e9db654f8e8"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app01/input-after.json",
+      "sha256": "594581f1f9f8b5074fba33c8949e4bcbff7e634264479a603bb67e9db654f8e8"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app01/cleanup.json",
+      "sha256": "8635957d5ab72ccc27d00e4b8a5d4d853c8ee44f5fae16219f7e270f2d599fd3"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app01/safe-facts.json",
+      "sha256": "6d711813eb940df9e8a07ae7d5e4853d656916695892c03c7fc76bd25cf2143a"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app02/command.json",
+      "sha256": "bcf284eb8349cedfce5ad536cda48dd0098e3b5814816122f2a2dcac876082a7"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app02/raw.log",
+      "sha256": "3588bbb9fcbb9e07d3c16574303ea6d754288479aca410fecab04fe2250b4049"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app02/result.json",
+      "sha256": "c7545eeddf6712d49049e13ee8950574b660d56ea901f16aafa016961429f302"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app02/input-before.json",
+      "sha256": "8940a064783bb47f93c84bb56aaf24096fd5cb7f61d583b3014d9684bb4fdf25"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app02/input-after.json",
+      "sha256": "8940a064783bb47f93c84bb56aaf24096fd5cb7f61d583b3014d9684bb4fdf25"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app02/cleanup.json",
+      "sha256": "736008f63a4ff95276fb5b1fda9c7839ca559d70c9047e84096189d2e4fb2754"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/runs/app02/safe-facts.json",
+      "sha256": "61f45215376d9a8f0ab368c440dddbe20a07d7b8fdb8bf3020fbc85df00dc419"
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+--- /workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver02.py
++++ driver01.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only an explicitly authorized frozen SMTP delivery group in a private fixed workspace."""
++"""Run only an explicitly authorized frozen Outbound policy UI group in a private fixed workspace."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -17,8 +17,11 @@
+ ROOT = Path(__file__).resolve().parent
+ REPO = ROOT / 'workspace'
+ GIT_OBJECT_REPO = Path('/workspace/agenteam')
+-BASE = '628612cdfc730cc1d89cad4e24a5d20f36cc6812'
++BASE = '213cf5c3f552e6b05b541ce02afc1dd65ce9db93'
+ FROZEN = {}
++# Original offline timeout orphan remains owned by this task; it cannot be
++# reaped by this later process and is never reported as recovered or unowned.
++PRIOR_TASK_ORPHAN = {'pid':89884,'starttime':'540243','origin':'runtime-go-compile01','state_at_original_post_scan':'Z','ppid_at_original_post_scan':1}
+ 
+ 
+ def utc():
+@@ -41,13 +44,14 @@
+     for kind in ['container', 'network']:
+         for resource_id in command(['docker', kind, 'ls', '-q', '--no-trunc'] if kind == 'network' else ['docker', kind, 'ls', '-aq', '--no-trunc']).split():
+             label = '.Config.Labels' if kind == 'container' else '.Labels'
++            mounts = '{{json .Mounts}}' if kind == 'container' else '[]'
+             try:
+-                raw = command(['docker', kind, 'inspect', '--format', '{{json .Id}}\t{{json .Name}}\t{{json ' + label + '}}', resource_id]).strip().split('\t')
++                raw = command(['docker', kind, 'inspect', '--format', '{{json .Id}}\t{{json .Name}}\t{{json ' + label + '}}\t' + mounts, resource_id]).strip().split('\t')
+             except RuntimeError as exc:
+                 if 'No such' in str(exc) or 'not found' in str(exc):
+                     continue  # The fixture may remove an ID after the list call.
+                 raise
+-            value = dict(zip(['id', 'name', 'labels'], map(json.loads, raw)))
++            value = dict(zip(['id', 'name', 'labels', 'mounts'], map(json.loads, raw)))
+             value['kind'] = kind
+             result[resource_id] = value
+     return result
+@@ -151,24 +155,25 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new','read','test','outcome','authority','navigation','old-settings','old-settings-authority','old-invitations'], required=True)
++    parser.add_argument('--group', choices=['new','read','mutation','authority','navigation','old','old-settings-outcome','old-delivery-outcome','old-delivery-navigation'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+     args = parser.parse_args()
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+-    smtp_names={'read':'ReadAndPagination','test':'TestAndRetry','outcome':'OutcomeRecovery','authority':'AuthorityAndIdentity','navigation':'NavigationAndLayouts'}
+-    groups={key:['TestAccountSystemSMTPDeliveryWeb'+value] for key,value in smtp_names.items()}
++    new_names={'read':'RulesAndRead','mutation':'MutationAndRecovery','authority':'AuthorityAndOwnership','navigation':'NavigationAndLayouts'}
++    groups={key:['TestAccountSystemOutboundPolicyWeb'+value] for key,value in new_names.items()}
+     groups.update({
+       'new':[v[0] for v in groups.values()],
+-      'old-settings':['TestAccountSystemSMTPSettingsWeb'+x for x in ['OutcomeRecovery','AuthorityAndIdentity','NavigationAndLayouts']],
+-      'old-settings-authority':['TestAccountSystemSMTPSettingsWebAuthorityAndIdentity'],
+-      'old-invitations':['TestAccountSystemInvitationsWebDeliveryRetry','TestAccountSystemInvitationsWebOutcomeRecovery'],
++      'old':['TestAccountSystemSMTPDeliveryWebNavigationAndLayouts','TestAccountSystemSMTPSettingsWebOutcomeRecovery','TestAccountSystemSMTPDeliveryWebOutcomeRecovery'],
++      'old-settings-outcome':['TestAccountSystemSMTPSettingsWebOutcomeRecovery'],
++      'old-delivery-outcome':['TestAccountSystemSMTPDeliveryWebOutcomeRecovery'],
++      'old-delivery-navigation':['TestAccountSystemSMTPDeliveryWebNavigationAndLayouts'],
+     })
+     # Seven outer PG/MinIO/Outbound resources, plus one container and network
+     # for every selected SMTP-owning top. Each fixture verifies nonce/exact IDs.
+-    smtp_tops=sum(name.startswith('TestAccountSystemSMTPDeliveryWeb') or name=='TestAccountSystemInvitationsWebDeliveryRetry' for name in groups[args.group])
++    smtp_tops=sum(name.startswith('TestAccountSystemSMTPDeliveryWeb') for name in groups[args.group])
+     expected_resource_count=7+2*smtp_tops
+     expected = set(groups[args.group])
+     args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
+@@ -209,7 +214,7 @@
+     if before['files'] != FROZEN['files'] or before['dist'] != FROZEN['dist'] or before['dependencies'] != FROZEN['dependencies']:
+         raise RuntimeError('candidate source/dist differs from frozen input')
+     (run / 'frozen-input.json').write_bytes(args.frozen.read_bytes())
+-    browser_runtime = Path(tempfile.mkdtemp(prefix='agtdel-', dir='/tmp'))
++    browser_runtime = Path(tempfile.mkdtemp(prefix='agtout-', dir='/tmp'))
+     if len(str(browser_runtime)) > 45:
+         raise RuntimeError('browser runtime is not short')
+     images = run / 'images'
+@@ -222,6 +227,8 @@
+     write(run / 'process-baseline.json', {pid: {key: row[key] for key in ['ppid','starttime','state','name','executable']} for pid,row in baseline_processes.items()})
+     baseline = resources()
+     write(run / 'baseline.json', baseline)
++    if sum(row['kind']=='container' for row in baseline.values()) != 2 or sum(row['kind']=='network' for row in baseline.values()) != 4:
++        raise RuntimeError('current pre-run resource baseline is not the required two containers/four networks')
+     env = os.environ.copy()
+     flags = '-mod=readonly -buildvcs=false -p=1 -v'
+     env.update({'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+@@ -269,6 +276,14 @@
+     record.update({'exit': exit_code, 'seconds': round(time.monotonic() - start, 3), 'ended_utc': utc(), 'actual_wait_completed': True})
+     write(run / 'command.json', record)
+     write(run / 'observed-resources.json', observed_resources)
++    ownership = {}
++    for resource_id,row in observed_resources.items():
++        labels=row.get('labels') or {}
++        nonces={name:value for name,value in labels.items() if name.startswith('agenteam.') and isinstance(value,str) and re.fullmatch('[0-9a-f]{32}',value)}
++        mounts=[{'source':m.get('Source'),'destination':m.get('Destination'),'type':m.get('Type'),'rw':m.get('RW')} for m in (row.get('mounts') or []) if m.get('Type')=='bind']
++        bounded=all(isinstance(m['source'],str) and Path(m['source']).is_relative_to(runtime) for m in mounts)
++        ownership[resource_id]={'kind':row['kind'],'nonces':nonces,'bind_mounts':mounts,'nonce_present':bool(nonces),'mounts_within_task_runtime':bounded}
++    write(run / 'resource-ownership.json', ownership)
+     write(run / 'observed-processes.json', observed_processes)
+     write(run / 'monitor-errors.json', errors)
+     cleanups = []
+@@ -298,6 +313,7 @@
+     clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and not row['browser_runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+     summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
+                'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
++               'resource_ownership_valid': all(row['nonce_present'] and row['mounts_within_task_runtime'] for row in ownership.values()),
+                'expected_resources': expected_resource_count, 'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+                'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}
+     verification_unchanged = Path(__file__).read_bytes() == driver_bytes and args.frozen.read_bytes() == frozen_bytes
+@@ -309,10 +325,12 @@
+     summary['browser_runtime_removed'] = not browser_runtime.exists()
+     summary['top_levels'] = tops
+     summary['selected_tests_passed'] = len(tops) == len(expected) and {name for state, name in tops if state == 'PASS'} == expected
+-    summary['historical_zombies_untouched'] = [{key: row[key] for key in ['ppid','starttime','state','name']} | {'pid':pid} for pid,row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z']
++    summary['historical_zombies_untouched'] = [{key: row[key] for key in ['ppid','starttime','state','name']} | {'pid':pid} for pid,row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z' and not (pid==PRIOR_TASK_ORPHAN['pid'] and row['starttime']==PRIOR_TASK_ORPHAN['starttime'])]
++    prior_now=baseline_processes.get(PRIOR_TASK_ORPHAN['pid'])
++    summary['prior_task_owned_unreaped'] = PRIOR_TASK_ORPHAN | {'present_at_start': bool(prior_now and prior_now['starttime']==PRIOR_TASK_ORPHAN['starttime']), 'reaped_by_this_run':False}
+     write(run / 'result.json', summary)
+     print(json.dumps(summary), flush=True)
+-    return 0 if exit_code == 0 and clean and len(observed_resources) == expected_resource_count and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] and summary['browser_processes'] and summary['node_processes'] and summary['browser_runtime_removed'] else 1
++    return 0 if exit_code == 0 and clean and len(observed_resources) == expected_resource_count and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] and summary['browser_processes'] and summary['node_processes'] and summary['browser_runtime_removed'] and summary['resource_ownership_valid'] else 1
+ 
+ 
+ if __name__ == '__main__':

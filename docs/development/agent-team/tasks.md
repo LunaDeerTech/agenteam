@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-06：System 出站规则管理 UI 完整结果接受
+
+- [工作卡rev1](../work-items/d27-system-outbound-policy-ui.md)34路径已由主线程接受并提交推送 `1ff044264a54c948e512db9aafad24ec5e0aa3c2`、核远端一致；[正式验证报告](system-outbound-policy-ui-verification.md)绑定213cf5c真实基线、input05及README第34末件。卡技术343f09…ab6b保持，GET不是receipt，无lookup／自动重试，第十域实际尾部不提前释放。
+- 作者新4／旧3按版本PASS；独立A01完整PASS复用＋B02 actual0／58.171s、top10.38/browser4.5s，7 IDs／84 PID／4actualwait双清，原A/B整轮exit1保留。read01业务0但原外层1，后来只读恢复清理不改原红；C草稿产品RED与所有测试／准备前提、历史Z89884及owner-pure02未join限制保持。
+- 946逻辑原件／622对象，117引用复用固定Git／既有证据；1014依赖用Git、38dist仅指纹。作者看新8＋旧8图，root只看新2；900px截图不覆盖整页。离线checker不跑产品。完整D08–D28/E01未完成，E01未开始，Summary待决、ready503及Object/tools／SPA publication停止不变。
+
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
 ## 2026-10-06：System Audit 管理 HTTP 规格接受及私有 query 阶段启动

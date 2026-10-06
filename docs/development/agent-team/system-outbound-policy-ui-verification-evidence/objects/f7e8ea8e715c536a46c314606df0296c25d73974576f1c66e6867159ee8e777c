@@ -1,0 +1,11 @@
+# Outbound C app01: bounded fixture-premise diagnosis
+
+Input: author web-stage01 manifest `435d3d0d432de68656b68d51cc399e4c66d621ed69e4b73b7c9106984782e7fc`; private execution01 `3d5fd2a9defc3ce53142228df74ea1d6359731e05b1a54885a252e76c0dd6ca9`.
+
+Actual app01 exit 1, 2.717967 s: A passed; B failed at the SMTP heading assertion after the router navigation-success assertion had passed. Both observed PID/starttime pairs are absent in both cleanup scans, no adopted children, private TMP removed, inputs unchanged. The original probe/raw/result are retained unchanged. B had reached conflict adoption, confirmed receipt 4 plus GET failure with the old draft/version preserved, successful current GET 7, immediate next draft, and a current 403. SMTP panel/cancel-tail assertions had not yet run.
+
+Static chain in the exact copied production source: router/auth.ts:126 awaits Session restore before afterEach:139 updates the Outbound active route. useSession.ts:678–692 publishes a valid same-identity admin Session and clears deniedIdentity. useSystemOutboundPolicy.ts:211–216 resets initial after denial; its default watch/resume at 342–384 can start a legitimate initial GET while the old Outbound route is still active. A subsequent valid 403 again sets deniedIdentity (useSession.ts:1457–1466). The old private handler returned 403 for every Outbound request while the test expected an accessible SMTP page after the valid admin Session. That persistent-response premise contradicts the intended one-time permission-loss/recovery scenario.
+
+This is a static reachable explanation and a fixture correction, not a reconstructed DOM/request trace from app01. The original raw has no failure DOM or request-sequence observation; it cannot independently identify the unique dynamic cause. No product defect is established by this failure.
+
+Parent authorized the minimum follow-up: one Outbound GET 403, subsequent GET policy version 7; preserve router success, SMTP heading, and zero-write assertions. Add only safe method/path (without query) and denied booleans. Rerun B only; reuse A by byte identity. No product/API/owner change, no native browser, no service.

@@ -1,0 +1,13 @@
+# Outbound UI API-stage01
+
+阶段A五源冻结，固定产品213cf5c；只实现两API与Rules grammar，没有owner/page/真实资源结论。
+
+API/rules/既有SMTP客户端共177例首轮176PASS/1前提红：新增兼容预算测试误给已接受createModelCredential添加target并误设201。正式为固定/model-credentials、无target、200。原五源/raw/actualexit保留；仅该测试fixture修正，同一受影响用例复验PASS。三个产品文件与原红时SHA完全相同，没有倒改产品迎合测试。其余176条按未变语义复用，不称第二轮重新跑177条。
+
+两次type实际PASS（末次对应最终五源），最终五源格式检查PASS。api-format01是明确formatter写入，不冒称input_unchanged。正式Go oracle用既有冻结只读workspace的95项编译源码/锁，与固定213cf5c逐字核对，私有overlay只加纯grammar test；实际exit0/7.317s。53个CIDR正反例直接经outbound.NewRule与DecodeRules，canonical JSON排序以及256条不同合法规则×256端口通过；Rules JSON414721B，GET414763B。原Go源码前后不变，未启动网络或业务资源。
+
+新API实际证明：闭合GET/PUT+不可变深层值、原expected+1与rule_count严格匹配、最大版本新写拒绝、600000B响应/600001B取消、abort和错误媒体的实际native cancel等待；底层1MiB整体与512KiB规则字段独立门禁只作用新PUT。旧16/32/512KiB代表门禁按修正后正式端点复验。
+
+错误状态/code/commit交给后续owner分类，API不将GET变receipt；owner rev3四项definite闭集与合法身份安全配对尚未在本阶段实现。Go oracle的固定向量不替代未来正式HTTP最大规则读取；原生流API证据不外推owner互斥/30s或浏览器。
+
+所有源码、原红、原命令和实际wait日志已冻结可读；主树/锁/后端未写，未使用真实资源。README未授/未写。

@@ -1,0 +1,41 @@
+{
+  "actual_wait": true,
+  "adopted_waits": 0,
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-tags=integration",
+    "-run",
+    "^$",
+    "-count=1",
+    "-timeout=45s",
+    "./tests/account"
+  ],
+  "child_pid": 92387,
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace",
+  "duration_seconds": 7.411,
+  "env": {
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "input_after_sha256": "d5014846451839d0e179636b73009b20a5c4b831cc88b930fa73cf5152963cab",
+  "input_before_sha256": "d5014846451839d0e179636b73009b20a5c4b831cc88b930fa73cf5152963cab",
+  "input_unchanged": true,
+  "owned_processes_double_empty": true,
+  "raw_sha256": "53fbdd29d58e639567ab89cf00212be7295468a596be405d816045465cc7a831",
+  "resource_execution": false,
+  "runner_sha256": "e6de2d5fc15926963c10f4090470f79a8e9602ff2822e06da432af8904f618d4",
+  "timed_out": false
+}

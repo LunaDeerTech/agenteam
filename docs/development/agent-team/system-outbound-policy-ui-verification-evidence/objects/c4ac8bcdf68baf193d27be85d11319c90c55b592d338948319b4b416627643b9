@@ -1,0 +1,25 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "node",
+    "node_modules/vue-tsc/bin/vue-tsc.js",
+    "--noEmit"
+  ],
+  "child_pid": 54876,
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace/web",
+  "duration_seconds": 2.995,
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "input_after_sha256": "4234679f8da61684ac61d297696db5f42705aae71aae161cd51bd8ce641513e3",
+  "input_before_sha256": "4234679f8da61684ac61d297696db5f42705aae71aae161cd51bd8ce641513e3",
+  "input_unchanged": true,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "resource_execution": false,
+  "runner_sha256": "d839e5ffae1c1d84748eb2907393fea9a8550e1443c378af929617cbf12ee686",
+  "timed_out": false
+}

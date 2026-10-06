@@ -1,0 +1,30 @@
+{
+  "author_manifest_sha256": "435d3d0d432de68656b68d51cc399e4c66d621ed69e4b73b7c9106984782e7fc",
+  "classification": "private persistent-403 fixture premise; unique dynamic cause not recorded",
+  "A": "PASS",
+  "B": "FAIL; later SMTP/tail assertions not reached",
+  "actual_result": {
+    "actual_exit": 1,
+    "actual_wait": true,
+    "seconds": 2.717966825000076,
+    "timeout": false,
+    "input_before_matches": true,
+    "input_after_matches": true,
+    "input_unchanged": true,
+    "cleanup_clean": true,
+    "node_processes_observed": 2,
+    "adopted_wait_count": 0,
+    "raw_sha256": "03f19793c86ac830225be56fba59bd847eb5983ed7c40c53ed86ddf70109fe15",
+    "cleanup_sha256": "8635957d5ab72ccc27d00e4b8a5d4d853c8ee44f5fae16219f7e270f2d599fd3"
+  },
+  "original_probe_sha256": "c35e47236a0d9c267d6bba6fad008e9a7ca7e59d52a0e7bb3d4d2b8f38893f94",
+  "artifacts": {
+    "source/web/src/tests/independent-outbound-app.spec.ts": "c35e47236a0d9c267d6bba6fad008e9a7ca7e59d52a0e7bb3d4d2b8f38893f94",
+    "execution01.json": "3d5fd2a9defc3ce53142228df74ea1d6359731e05b1a54885a252e76c0dd6ca9",
+    "runs/app01/raw.log": "03f19793c86ac830225be56fba59bd847eb5983ed7c40c53ed86ddf70109fe15",
+    "runs/app01/result.json": "952a9f932a1a27cd5b7aa212aa03dc9433ccf6a0c97dd1aedec7bcb4d375444a",
+    "runs/app01/command.json": "51926bc508ad625bee66864aa80997a21bd80b48e81d35a551f3856e7a673347",
+    "runs/app01/cleanup.json": "8635957d5ab72ccc27d00e4b8a5d4d853c8ee44f5fae16219f7e270f2d599fd3",
+    "app01-diagnosis.md": "f7e8ea8e715c536a46c314606df0296c25d73974576f1c66e6867159ee8e777c"
+  }
+}

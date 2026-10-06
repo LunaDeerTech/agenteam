@@ -1,0 +1,102 @@
+import { describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { accountTransport, type Fetch } from '../api/client'
+import { captureOutboundPolicyUpdate, createSystemOutboundPolicyAPI, type OutboundPolicyUpdate } from '../api/system-outbound-policy'
+
+const signal = () => new AbortController().signal
+const write = () => ({signal:signal(),csrfToken:'S'.repeat(43),key:'outbound/original'})
+const rules = () => [{cidr:'10.0.0.0/8',ports:[443],allow_http:false}]
+const input = () => ({expected_version:'9007199254740993',rules:rules()})
+const policy = () => ({version:'9007199254740993',rules:rules()})
+const receipt = () => ({version:'9007199254740994',rule_count:'1',audit_id:'01900000-0000-7000-8000-000000000001',created_at:'2026-10-06T01:02:03.123456Z'})
+const json = (value: unknown) => new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}})
+function deferred<T = void>() { let resolve!: (v:T|PromiseLike<T>)=>void; const promise = new Promise<T>(r=>resolve=r);return{promise,resolve} }
+function problem(status:number, code:string, commit_state='not_started') {
+  return new Response(JSON.stringify({type:'urn:agenteam:problem:request-failed',title:'Request failed',status,detail:'Request failed.',instance:'/api/v1/system/outbound-policy',code,request_id:'01900000-0000-7000-8000-000000000002',commit_state,retry_hint:'lookup'}),{status,headers:{'Content-Type':'application/problem+json','X-Request-ID':'01900000-0000-7000-8000-000000000002'}})
+}
+
+describe('outbound policy strict API',()=>{
+  it('captures immutable explicit Rules and sends only the two fixed operations',async()=>{
+    const fetch=vi.fn<Fetch>(async(_,init)=>json(init.method==='GET'?policy():receipt())), api=createSystemOutboundPolicyAPI(fetch), options=write(), original=input(), captured=captureOutboundPolicyUpdate(original)
+    original.rules[0]!.ports.push(8443)
+    const current=await api.getPolicy(options.signal), saved=await api.updatePolicy(captured,options)
+    expect(fetch.mock.calls.map(([path,init])=>[path,init.method])).toEqual([['/api/v1/system/outbound-policy','GET'],['/api/v1/system/outbound-policy','PUT']])
+    expect([captured,captured.rules,captured.rules[0],captured.rules[0]!.ports,current,current.rules,current.rules[0],current.rules[0]!.ports,saved].every(Object.isFrozen)).toBe(true)
+    expect(saved.version).toBe('9007199254740994')
+    for(const[,init]of fetch.mock.calls)expect(init).toMatchObject({credentials:'same-origin',redirect:'error',cache:'no-store',signal:options.signal})
+    const get=fetch.mock.calls[0]![1],put=fetch.mock.calls[1]![1]
+    expect(get.body).toBeUndefined();expect(get.headers).not.toHaveProperty('X-CSRF-Token');expect(get.headers).not.toHaveProperty('Idempotency-Key')
+    expect(put.body===JSON.stringify(captured)).toBe(true)
+    expect((put.headers as Record<string,string>)['Idempotency-Key']===options.key && (put.headers as Record<string,string>)['X-CSRF-Token']===options.csrfToken).toBe(true)
+  })
+  it.each([null,{}, {version:'1',rules:null}, {...policy(),extra:true},{...policy(),version:1},{...policy(),version:'0'},{...policy(),version:'01'},{...policy(),version:'9223372036854775808'}, {...policy(),rules:[{cidr:'10.0.0.0/8',ports:[443]}]}, {...policy(),rules:[...rules(),null]}].map((value,index)=>({value,index})))('rejects entire current DTO $index',async({value})=>{
+    await expect(createSystemOutboundPolicyAPI(async()=>json(value)).getPolicy(signal())).rejects.toMatchObject({kind:'invalid-response'})
+  })
+  it.each([null,{}, {...receipt(),version:'9007199254740993'},{...receipt(),version:'9007199254740995'},{...receipt(),version:9007199254740994},{...receipt(),rule_count:'0'},{...receipt(),rule_count:'01'},{...receipt(),rule_count:'257'},{...receipt(),rule_count:1},{...receipt(),audit_id:'01900000-0000-4000-8000-000000000001'},{...receipt(),created_at:'2026-02-30T01:02:03.123456Z'},{...receipt(),created_at:'2026-10-06T01:02:03.123Z'},{...receipt(),rules:rules()}].map((value,index)=>({value,index})))('rejects unmatched or open receipt $index',async({value})=>{
+    await expect(createSystemOutboundPolicyAPI(async()=>json(value)).updatePolicy(input(),write())).rejects.toMatchObject({kind:'invalid-response'})
+  })
+  it('captures versions without Number and rejects maximum only for a new write',async()=>{
+    const fetch=vi.fn<Fetch>(async()=>json({...policy(),version:'9223372036854775807'})),api=createSystemOutboundPolicyAPI(fetch)
+    expect((await api.getPolicy(signal())).version).toBe('9223372036854775807')
+    fetch.mockClear()
+    for(const value of [null,{}, {...input(),expected_version:'9223372036854775807'}, {...input(),expected_version:'01'}, {...input(),extra:1}, {...input(),rules:null}])
+      await expect(api.updatePolicy(value as OutboundPolicyUpdate,write())).rejects.toMatchObject({kind:'invalid-input'})
+    expect(fetch).not.toHaveBeenCalled()
+    const end=createSystemOutboundPolicyAPI(async()=>json({...receipt(),version:'9223372036854775807',rule_count:'0'}))
+    expect((await end.updatePolicy({expected_version:'9223372036854775806',rules:[]},write())).version).toBe('9223372036854775807')
+  })
+  it('requires exact options and leaves all old endpoint byte allowances intact',async()=>{
+    const fetch=vi.fn<Fetch>(async(path)=>new Response('{}',{status:path.endsWith('/test')?202:path.endsWith('/credentials')?201:200,headers:{'Content-Type':'application/json'}})),request=accountTransport(fetch),abort=signal()
+    await expect(request('getOutboundPolicy',v=>v,{signal:abort,body:{}} as never)).rejects.toMatchObject({kind:'invalid-input'})
+    await expect(request('updateOutboundPolicy',v=>v,{signal:abort,csrf:'S'.repeat(43),key:'k',body:input(),target:'x'} as never)).rejects.toMatchObject({kind:'invalid-input'})
+    const bad=createSystemOutboundPolicyAPI(fetch)
+    for(const options of [{...write(),key:' '},{...write(),csrfToken:'bad'},{...write(),extra:true}]) await expect(bad.updatePolicy(input(),options)).rejects.toMatchObject({kind:'invalid-input'})
+    expect(fetch).not.toHaveBeenCalled()
+    for(const endpoint of ['testSMTP','updateSMTPSettings','createModelCredential'] as const){
+      const maximum=endpoint==='testSMTP'?16384:endpoint==='updateSMTPSettings'?32768:524288
+      const body={pad:'a'.repeat(maximum-10)}
+      const options={signal:abort,csrf:'S'.repeat(43),key:'k',body,...(endpoint==='createModelCredential'?{target:'01900000-0000-7000-8000-000000000001'}:{})}
+      await request(endpoint as 'testSMTP',v=>v,options)
+      await expect(request(endpoint as 'testSMTP',v=>v,{...options,body:{pad:'a'.repeat(maximum-9)}})).rejects.toMatchObject({kind:'invalid-input'})
+    }
+    expect(fetch).toHaveBeenCalledTimes(3)
+  })
+  it('enforces whole-body and actual serialized rules-field UTF8 limits independently',async()=>{
+    const fetch=vi.fn<Fetch>(async()=>json({})), request=accountTransport(fetch), options={signal:signal(),csrf:'S'.repeat(43),key:'k'}
+    const exactField={expected_version:'1',rules:'a'.repeat(512*1024-2)}
+    await request('updateOutboundPolicy',v=>v,{...options,body:exactField})
+    await expect(request('updateOutboundPolicy',v=>v,{...options,body:{...exactField,rules:exactField.rules+'a'}})).rejects.toMatchObject({kind:'invalid-input'})
+    const skeleton={expected_version:'',rules:[]}, emptyBytes=JSON.stringify(skeleton).length
+    await request('updateOutboundPolicy',v=>v,{...options,body:{...skeleton,expected_version:'a'.repeat(1024*1024-emptyBytes)}})
+    await expect(request('updateOutboundPolicy',v=>v,{...options,body:{...skeleton,expected_version:'a'.repeat(1024*1024-emptyBytes+1)}})).rejects.toMatchObject({kind:'invalid-input'})
+    await expect(request('updateOutboundPolicy',v=>v,{...options,body:{expected_version:'1',rules:'é'.repeat(262144)}})).rejects.toMatchObject({kind:'invalid-input'})
+    await expect(request('updateOutboundPolicy',v=>v,{...options,body:{toJSON:()=>({...exactField,rules:exactField.rules+'a'})}})).rejects.toMatchObject({kind:'invalid-input'})
+    expect(fetch).toHaveBeenCalledTimes(2)
+  })
+  it.each([[404,'NOT_FOUND'],[503,'DEPENDENCY_UNAVAILABLE'],[503,'COMMIT_UNKNOWN'],[400,'CSRF_FAILED'],[403,'CSRF_FAILED']])('preserves status/code/commit for owner classification %s/%s',async(status,code)=>{
+    await expect(createSystemOutboundPolicyAPI(async()=>problem(status as number,code as string)).updatePolicy(input(),write())).rejects.toMatchObject({kind:'problem',problem:{status,code,commit_state:'not_started',retry_hint:'lookup'}})
+  })
+})
+
+describe('outbound native body completion',()=>{
+  it.each(['read','write'])('does not publish a %s candidate before native EOF',async(mode)=>{
+    const done=deferred(),entered=deferred();let controller!:ReadableStreamDefaultController<Uint8Array>
+    const body=new ReadableStream<Uint8Array>({start(c){controller=c;c.enqueue(new TextEncoder().encode(JSON.stringify(mode==='read'?policy():receipt())));entered.resolve()},async pull(){await done.promise;controller.close()}})
+    const api=createSystemOutboundPolicyAPI(async()=>new Response(body,{headers:{'Content-Type':'application/json'}}));let settled=false
+    const pending=(mode==='read'?api.getPolicy(signal()):api.updatePolicy(input(),write())).finally(()=>settled=true)
+    await entered.promise;await flushPromises();expect(settled).toBe(false);done.resolve();await pending;expect(settled).toBe(true)
+  })
+  it('accepts the exact 600000 byte body only after EOF',async()=>{
+    const encoded=JSON.stringify(policy()), raw=encoded+' '.repeat(600000-new TextEncoder().encode(encoded).length)
+    expect((await createSystemOutboundPolicyAPI(async()=>new Response(raw,{headers:{'Content-Type':'application/json'}})).getPolicy(signal())).version).toBe(policy().version)
+  })
+  it.each(['overflow','abort','media'])('waits for actual native cancel on %s',async(mode)=>{
+    const joined=deferred(),entered=deferred(),abort=new AbortController();let settled=false
+    const stream=new ReadableStream<Uint8Array>({start(c){if(mode==='overflow')c.enqueue(new Uint8Array(600001))},cancel(){entered.resolve();return joined.promise}})
+    const api=createSystemOutboundPolicyAPI(async()=>new Response(stream,{headers:{'Content-Type':mode==='media'?'text/plain':'application/json'}}))
+    const pending=api.getPolicy(abort.signal).then(()=>{settled=true;return 'success'},(error:unknown)=>{settled=true;return(error as {kind:string}).kind})
+    if(mode==='abort'){await flushPromises();abort.abort()}
+    await entered.promise;await flushPromises();expect(settled).toBe(false);joined.resolve()
+    expect(await pending).toBe(mode==='abort'?'cancelled':'invalid-response')
+  })
+})

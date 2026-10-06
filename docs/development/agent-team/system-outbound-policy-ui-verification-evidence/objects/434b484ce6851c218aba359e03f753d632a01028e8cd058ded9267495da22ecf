@@ -1,0 +1,538 @@
+[
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "ls",
+      "-aq",
+      "--no-trunc"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.539866+00:00",
+    "exit": 0,
+    "seconds": 0.019954,
+    "started_utc": "2026-10-06T22:09:03.519894+00:00",
+    "stderr": "",
+    "stdout": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\n9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.557924+00:00",
+    "exit": 0,
+    "seconds": 0.017596,
+    "started_utc": "2026-10-06T22:09:03.540314+00:00",
+    "stderr": "",
+    "stdout": "\"a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\"\t\"/agenteam-dev-infra-minio-1\"\t{\"com.docker.compose.config-hash\":\"0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"minio\",\"com.docker.compose.version\":\"2.40.3\"}\t[{\"Destination\":\"/data\",\"Mode\":\"rw\",\"Propagation\":\"rprivate\",\"RW\":true,\"Source\":\"/workspace/agenteam-onboarding/infra/data/minio\",\"Type\":\"bind\"},{\"Destination\":\"/var/lib/postgresql/data\",\"Driver\":\"local\",\"Mode\":\"\",\"Name\":\"5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260\",\"Propagation\":\"\",\"RW\":true,\"Source\":\"/var/lib/docker/volumes/5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260/_data\",\"Type\":\"volume\"}]\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.574048+00:00",
+    "exit": 0,
+    "seconds": 0.015843,
+    "started_utc": "2026-10-06T22:09:03.558192+00:00",
+    "stderr": "",
+    "stdout": "\"9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\"\t\"/agenteam-dev-infra-postgres-1\"\t{\"com.docker.compose.config-hash\":\"14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"postgres\",\"com.docker.compose.version\":\"2.40.3\"}\t[{\"Destination\":\"/var/lib/postgresql/data\",\"Mode\":\"rw\",\"Propagation\":\"rprivate\",\"RW\":true,\"Source\":\"/workspace/agenteam-onboarding/infra/data/postgres\",\"Type\":\"bind\"}]\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "ls",
+      "-q",
+      "--no-trunc"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.588224+00:00",
+    "exit": 0,
+    "seconds": 0.013965,
+    "started_utc": "2026-10-06T22:09:03.574244+00:00",
+    "stderr": "",
+    "stdout": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\nf5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e\naf11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\n9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.602942+00:00",
+    "exit": 0,
+    "seconds": 0.014331,
+    "started_utc": "2026-10-06T22:09:03.588597+00:00",
+    "stderr": "",
+    "stdout": "\"142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\"\t\"agenteam-dev-infra_default\"\t{\"com.docker.compose.config-hash\":\"9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1\",\"com.docker.compose.network\":\"default\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.version\":\"2.40.3\"}\t[]\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.619001+00:00",
+    "exit": 0,
+    "seconds": 0.015749,
+    "started_utc": "2026-10-06T22:09:03.603239+00:00",
+    "stderr": "",
+    "stdout": "\"f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e\"\t\"bridge\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.633790+00:00",
+    "exit": 0,
+    "seconds": 0.014546,
+    "started_utc": "2026-10-06T22:09:03.619232+00:00",
+    "stderr": "",
+    "stdout": "\"af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\"\t\"host\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.652051+00:00",
+    "exit": 0,
+    "seconds": 0.018056,
+    "started_utc": "2026-10-06T22:09:03.633980+00:00",
+    "stderr": "",
+    "stdout": "\"9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\"\t\"none\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "19defb0c6cf998646d5ee19f3d2c23ff33d9d9d44018fcc0a167b1b7c133369d"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.666038+00:00",
+    "exit": 1,
+    "seconds": 0.013683,
+    "started_utc": "2026-10-06T22:09:03.652328+00:00",
+    "stderr": "Error response from daemon: No such container: 19defb0c6cf998646d5ee19f3d2c23ff33d9d9d44018fcc0a167b1b7c133369d\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "57deec34bc47c39b66eb6d143f1d02053cf20413d59146f83a1b4e32d4bdc135"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.679671+00:00",
+    "exit": 1,
+    "seconds": 0.013456,
+    "started_utc": "2026-10-06T22:09:03.666204+00:00",
+    "stderr": "Error response from daemon: network 57deec34bc47c39b66eb6d143f1d02053cf20413d59146f83a1b4e32d4bdc135 not found\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "5fca946a62020390b6dcd2a90cb14bdeb78ba1057056968888ade0ae66e623d1"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.692498+00:00",
+    "exit": 1,
+    "seconds": 0.012478,
+    "started_utc": "2026-10-06T22:09:03.680006+00:00",
+    "stderr": "Error response from daemon: No such container: 5fca946a62020390b6dcd2a90cb14bdeb78ba1057056968888ade0ae66e623d1\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "7a31e2397a7f9827d58a8f2936d5e0fcccb3be65c29a857a8c772a06ce552ed3"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.704839+00:00",
+    "exit": 1,
+    "seconds": 0.012139,
+    "started_utc": "2026-10-06T22:09:03.692690+00:00",
+    "stderr": "Error response from daemon: network 7a31e2397a7f9827d58a8f2936d5e0fcccb3be65c29a857a8c772a06ce552ed3 not found\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "8bac96c6e03f2cbd644fe34c7915fb5593d6a31b497b4fe5ba1238a609a26612"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.720570+00:00",
+    "exit": 1,
+    "seconds": 0.015555,
+    "started_utc": "2026-10-06T22:09:03.705002+00:00",
+    "stderr": "Error response from daemon: network 8bac96c6e03f2cbd644fe34c7915fb5593d6a31b497b4fe5ba1238a609a26612 not found\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "9858b435934dbfa64cc8d005b228f5e079244d145ef81a1085d3712aff1626b1"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.734172+00:00",
+    "exit": 1,
+    "seconds": 0.013426,
+    "started_utc": "2026-10-06T22:09:03.720735+00:00",
+    "stderr": "Error response from daemon: No such container: 9858b435934dbfa64cc8d005b228f5e079244d145ef81a1085d3712aff1626b1\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "db07c90d97664a9e8ef815ab1533464e0b4094773ef0b5cc7c22d84c4d0fc644"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:03.746727+00:00",
+    "exit": 1,
+    "seconds": 0.012322,
+    "started_utc": "2026-10-06T22:09:03.734396+00:00",
+    "stderr": "Error response from daemon: No such container: db07c90d97664a9e8ef815ab1533464e0b4094773ef0b5cc7c22d84c4d0fc644\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "ls",
+      "-aq",
+      "--no-trunc"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.522630+00:00",
+    "exit": 0,
+    "seconds": 0.020775,
+    "started_utc": "2026-10-06T22:09:04.501943+00:00",
+    "stderr": "",
+    "stdout": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\n9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.541309+00:00",
+    "exit": 0,
+    "seconds": 0.018422,
+    "started_utc": "2026-10-06T22:09:04.522873+00:00",
+    "stderr": "",
+    "stdout": "\"a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\"\t\"/agenteam-dev-infra-minio-1\"\t{\"com.docker.compose.config-hash\":\"0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"minio\",\"com.docker.compose.version\":\"2.40.3\"}\t[{\"Destination\":\"/data\",\"Mode\":\"rw\",\"Propagation\":\"rprivate\",\"RW\":true,\"Source\":\"/workspace/agenteam-onboarding/infra/data/minio\",\"Type\":\"bind\"},{\"Destination\":\"/var/lib/postgresql/data\",\"Driver\":\"local\",\"Mode\":\"\",\"Name\":\"5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260\",\"Propagation\":\"\",\"RW\":true,\"Source\":\"/var/lib/docker/volumes/5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260/_data\",\"Type\":\"volume\"}]\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.557822+00:00",
+    "exit": 0,
+    "seconds": 0.016192,
+    "started_utc": "2026-10-06T22:09:04.541617+00:00",
+    "stderr": "",
+    "stdout": "\"9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\"\t\"/agenteam-dev-infra-postgres-1\"\t{\"com.docker.compose.config-hash\":\"14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"postgres\",\"com.docker.compose.version\":\"2.40.3\"}\t[{\"Destination\":\"/var/lib/postgresql/data\",\"Mode\":\"rw\",\"Propagation\":\"rprivate\",\"RW\":true,\"Source\":\"/workspace/agenteam-onboarding/infra/data/postgres\",\"Type\":\"bind\"}]\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "ls",
+      "-q",
+      "--no-trunc"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.574290+00:00",
+    "exit": 0,
+    "seconds": 0.01616,
+    "started_utc": "2026-10-06T22:09:04.558118+00:00",
+    "stderr": "",
+    "stdout": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\nf5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e\naf11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\n9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.589660+00:00",
+    "exit": 0,
+    "seconds": 0.015192,
+    "started_utc": "2026-10-06T22:09:04.574457+00:00",
+    "stderr": "",
+    "stdout": "\"142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\"\t\"agenteam-dev-infra_default\"\t{\"com.docker.compose.config-hash\":\"9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1\",\"com.docker.compose.network\":\"default\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.version\":\"2.40.3\"}\t[]\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.603150+00:00",
+    "exit": 0,
+    "seconds": 0.013296,
+    "started_utc": "2026-10-06T22:09:04.589841+00:00",
+    "stderr": "",
+    "stdout": "\"f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e\"\t\"bridge\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.615642+00:00",
+    "exit": 0,
+    "seconds": 0.012291,
+    "started_utc": "2026-10-06T22:09:04.603338+00:00",
+    "stderr": "",
+    "stdout": "\"af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\"\t\"host\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.628892+00:00",
+    "exit": 0,
+    "seconds": 0.013024,
+    "started_utc": "2026-10-06T22:09:04.615858+00:00",
+    "stderr": "",
+    "stdout": "\"9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\"\t\"none\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "19defb0c6cf998646d5ee19f3d2c23ff33d9d9d44018fcc0a167b1b7c133369d"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.641802+00:00",
+    "exit": 1,
+    "seconds": 0.012704,
+    "started_utc": "2026-10-06T22:09:04.629089+00:00",
+    "stderr": "Error response from daemon: No such container: 19defb0c6cf998646d5ee19f3d2c23ff33d9d9d44018fcc0a167b1b7c133369d\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "57deec34bc47c39b66eb6d143f1d02053cf20413d59146f83a1b4e32d4bdc135"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.655074+00:00",
+    "exit": 1,
+    "seconds": 0.013094,
+    "started_utc": "2026-10-06T22:09:04.641969+00:00",
+    "stderr": "Error response from daemon: network 57deec34bc47c39b66eb6d143f1d02053cf20413d59146f83a1b4e32d4bdc135 not found\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "5fca946a62020390b6dcd2a90cb14bdeb78ba1057056968888ade0ae66e623d1"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.667503+00:00",
+    "exit": 1,
+    "seconds": 0.012179,
+    "started_utc": "2026-10-06T22:09:04.655309+00:00",
+    "stderr": "Error response from daemon: No such container: 5fca946a62020390b6dcd2a90cb14bdeb78ba1057056968888ade0ae66e623d1\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "7a31e2397a7f9827d58a8f2936d5e0fcccb3be65c29a857a8c772a06ce552ed3"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.678451+00:00",
+    "exit": 1,
+    "seconds": 0.010763,
+    "started_utc": "2026-10-06T22:09:04.667679+00:00",
+    "stderr": "Error response from daemon: network 7a31e2397a7f9827d58a8f2936d5e0fcccb3be65c29a857a8c772a06ce552ed3 not found\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "8bac96c6e03f2cbd644fe34c7915fb5593d6a31b497b4fe5ba1238a609a26612"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.689665+00:00",
+    "exit": 1,
+    "seconds": 0.011063,
+    "started_utc": "2026-10-06T22:09:04.678592+00:00",
+    "stderr": "Error response from daemon: network 8bac96c6e03f2cbd644fe34c7915fb5593d6a31b497b4fe5ba1238a609a26612 not found\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "9858b435934dbfa64cc8d005b228f5e079244d145ef81a1085d3712aff1626b1"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.700875+00:00",
+    "exit": 1,
+    "seconds": 0.011054,
+    "started_utc": "2026-10-06T22:09:04.689810+00:00",
+    "stderr": "Error response from daemon: No such container: 9858b435934dbfa64cc8d005b228f5e079244d145ef81a1085d3712aff1626b1\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait_completed": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "db07c90d97664a9e8ef815ab1533464e0b4094773ef0b5cc7c22d84c4d0fc644"
+    ],
+    "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+    "ended_utc": "2026-10-06T22:09:04.713274+00:00",
+    "exit": 1,
+    "seconds": 0.012134,
+    "started_utc": "2026-10-06T22:09:04.701085+00:00",
+    "stderr": "Error response from daemon: No such container: db07c90d97664a9e8ef815ab1533464e0b4094773ef0b5cc7c22d84c4d0fc644\n",
+    "stdout": "\n"
+  }
+]

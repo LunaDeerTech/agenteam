@@ -1,0 +1,32 @@
+--- probe01
++++ probe02
+@@ -440,12 +440,28 @@
+     expect(f.writes().length).toBe(2)
+     await click('取消修改')
+     await click('放弃修改', dialogs().top)
+-    f.setOutbound(async () => problem('FORBIDDEN', 403))
++    const permissionWatermark = f.fetch.mock.calls.length
++    let forbiddenOnce = true
++    f.setOutbound(async (_, init) => {
++      if (init.method === 'GET' && forbiddenOnce) {
++        forbiddenOnce = false
++        return problem('FORBIDDEN', 403)
++      }
++      return json(policy('7'))
++    })
+     await click('读取当前规则')
+     expect(f.auth.system.denied).toBe(true)
+     expect(heading('无权访问系统设置')?.isConnected).toBe(true)
++    const deniedBeforeNavigation = f.auth.system.denied
+     expect(await f.router.push('/system/smtp')).toBeUndefined()
+     await flushPromises()
++    record('B-permission-sequence', {
++      denied_before_navigation: deniedBeforeNavigation,
++      denied_after_navigation: f.auth.system.denied,
++      requests: f.fetch.mock.calls.slice(permissionWatermark).map(([path, init]) => ({
++        method: init.method, path: path.split('?')[0],
++      })),
++    })
+     expect(heading('SMTP')?.isConnected).toBe(true)
+     const outboundReads = f.reads().length
+     // This domain is now inactive. Ordinary SMTP public controls remain authoritative.

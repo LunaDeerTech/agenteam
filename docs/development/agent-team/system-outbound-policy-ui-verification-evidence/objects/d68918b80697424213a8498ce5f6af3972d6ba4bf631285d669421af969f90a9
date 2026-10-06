@@ -1,0 +1,819 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"log/slog"
+	"net"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"sync"
+	"syscall"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/app"
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
+	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+)
+
+// This fixture controls only its own outbound-policy HTTP boundary. Rules and
+// receipts are created through the accepted production service; SQL only reads
+// their exact facts, or prepares/revokes exact accounts under the existing fixture contract.
+type outboundPolicyWebAttempt struct {
+	key  string
+	body []byte
+	csrf string
+}
+type outboundPolicyWebFixture struct {
+	*modelsWebFixture
+	attempts         []outboundPolicyWebAttempt
+	lostBody         []byte
+	lostCSRF         string
+	lostReceipt      map[string]any
+	sameOriginal     bool
+	second           personalWebCredential
+	secondClient     *http.Client
+	secondCSRF       string
+	invalidCSRF      bool
+	holdNext         bool
+	holdRelease      chan struct{}
+	holdReleaseOnce  sync.Once
+	held, holdJoined int
+}
+
+func newOutboundPolicyWebRoot(t *testing.T, ctx context.Context, own *outboundPolicyWebFixture) *authenticationWebFixture {
+	t.Helper()
+	db := pgfixture.NewDatabase(t)
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal("owned frontend listener unavailable")
+	}
+	t.Cleanup(func() { _ = listener.Close() })
+	origin := "http://" + listener.Addr().String()
+	inputs := accountenv.New(t)
+	objects, err := objectfixture.Environment(ctx, db.Name)
+	if err != nil {
+		t.Fatal("owned object fixture unavailable")
+	}
+	values := inputs.Values()
+	for _, v := range objects {
+		k, value, _ := strings.Cut(v, "=")
+		values[k] = value
+	}
+	for k, v := range map[string]string{
+		"DATABASE_URL": db.Fixture.URL(db.Name), "DATABASE_CA_FILE": db.Fixture.CAFile,
+		"DATABASE_STARTUP_TIMEOUT": "15s", "HTTP_ADDR": "127.0.0.1:0", "PUBLIC_ORIGIN": origin, "SHUTDOWN_TIMEOUT": "2s",
+		"CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`,
+		"SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`,
+	} {
+		values[config.Prefix+k] = v
+	}
+	var environment []string
+	for k, v := range values {
+		environment = append(environment, k+"="+v)
+	}
+	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, environment)
+	if err != nil {
+		t.Fatal("owned root configuration invalid")
+	}
+	output := &httpFixtureLog{listening: make(chan string, 1)}
+	logger, err := logging.New(logging.Central, slog.LevelInfo, output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rootCtx, cancel := context.WithCancel(ctx)
+	rootDone := make(chan error, 1)
+	go func() { rootDone <- app.Run(rootCtx, cfg, logger, nil) }()
+	t.Cleanup(func() {
+		cancel()
+		select {
+		case err := <-rootDone:
+			if err != nil {
+				t.Error("full outbound policy root shutdown failed", err)
+			}
+		case <-time.After(5 * time.Second):
+			t.Error("full root did not join within its original shutdown budget")
+		}
+	})
+	var address string
+	select {
+	case address = <-output.listening:
+	case err := <-rootDone:
+		rootDone <- err
+		t.Fatal("full root initialization failed", err)
+	case <-ctx.Done():
+		t.Fatal("shared browser budget ended during root startup")
+	}
+	backend, err := url.Parse("http://" + address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	transport := &http.Transport{Proxy: nil}
+	proxy := httputil.NewSingleHostReverseProxy(backend)
+	proxy.Transport = transport // NewSingleHostReverseProxy preserves the original Host.
+	proxy.ModifyResponse = own.controlResponse
+	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, err error) {
+		var lost *modelsResponseLost
+		if !errors.As(err, &lost) {
+			http.Error(w, "owned API unavailable", 502)
+			return
+		}
+		defer clear(lost.prefix)
+		for name, values := range lost.header {
+			w.Header()[name] = append([]string(nil), values...)
+		}
+		w.Header().Del("Transfer-Encoding")
+		w.Header().Set("Content-Length", strconv.Itoa(lost.length))
+		w.Header().Set("Connection", "close")
+		w.WriteHeader(200)
+		_, _ = w.Write(lost.prefix)
+		_ = http.NewResponseController(w).Flush()
+		if hijacker, ok := w.(http.Hijacker); ok {
+			if conn, _, e := hijacker.Hijack(); e == nil {
+				_ = conn.Close()
+			}
+		}
+	}
+	root, err := filepath.Abs("../../web/dist")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(filepath.Join(root, "index.html")); err != nil {
+		t.Fatal("formal production dist must be built before browser execution")
+	}
+	assets := http.FileServer(http.Dir(root))
+	server := &http.Server{ReadHeaderTimeout: 5 * time.Second, Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" && r.URL.Path == "/api/v1/session" && own.failSession.CompareAndSwap(true, false) {
+			own.sessionFailures.Add(1)
+			http.Error(w, "owned bounded session read unavailable", 503)
+			return
+		}
+		if r.Method == "GET" && own.shouldFailRead(r.URL.Path) {
+			own.readFailures.Add(1)
+			http.Error(w, "owned exact configuration read unavailable", 503)
+			return
+		}
+		if r.Method == "PUT" && r.URL.Path == outboundPolicyHTTPPath {
+			raw, err := io.ReadAll(io.LimitReader(r.Body, 1048577))
+			closeErr := r.Body.Close()
+			if err != nil || closeErr != nil || len(raw) > 1048576 {
+				clear(raw)
+				http.Error(w, "owned write observation unavailable", 400)
+				return
+			}
+			defer clear(raw)
+			own.mu.Lock()
+			own.attempts = append(own.attempts, outboundPolicyWebAttempt{key: r.Header.Get("Idempotency-Key"), body: append([]byte(nil), raw...), csrf: r.Header.Get("X-CSRF-Token")})
+			invalid := own.invalidCSRF
+			own.invalidCSRF = false
+			own.mu.Unlock()
+			if invalid {
+				r.Header.Set("X-CSRF-Token", "owned-invalid-csrf")
+			}
+			r.Body = io.NopCloser(bytes.NewReader(raw))
+		}
+
+		if r.URL.Path == "/api/v1" || strings.HasPrefix(r.URL.Path, "/api/v1/") {
+			proxy.ServeHTTP(w, r)
+			return
+		}
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			http.Error(w, "method unavailable", 405)
+			return
+		}
+		clean := filepath.Clean("/" + r.URL.Path)
+		if info, e := os.Stat(filepath.Join(root, clean)); e == nil && !info.IsDir() {
+			assets.ServeHTTP(w, r)
+			return
+		}
+		if strings.HasPrefix(clean, "/assets/") || filepath.Ext(clean) != "" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Cache-Control", "no-store")
+		http.ServeFile(w, r, filepath.Join(root, "index.html"))
+	})}
+	serverDone := make(chan error, 1)
+	go func() { serverDone <- server.Serve(listener) }()
+	t.Cleanup(func() {
+		shutdown, stop := context.WithTimeout(context.Background(), 2*time.Second)
+		defer stop()
+		if err := server.Shutdown(shutdown); err != nil {
+			t.Error("frontend server did not drain")
+			_ = server.Close()
+		}
+		if err := <-serverDone; !errors.Is(err, http.ErrServerClosed) {
+			t.Error("owned frontend server failed", err)
+		}
+		transport.CloseIdleConnections()
+	})
+	runtimeRoot := os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME")
+	if !filepath.IsAbs(runtimeRoot) || len(runtimeRoot) > 45 {
+		t.Fatal("explicit short task-owned browser runtime is required")
+	}
+	directory, err := os.MkdirTemp(runtimeRoot, "run-")
+	if err != nil {
+		t.Fatal("private browser runtime creation failed")
+	}
+	if err := os.Chmod(directory, 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.RemoveAll(directory); err != nil {
+			t.Error("private browser runtime cleanup failed")
+		}
+		if _, err := os.Stat(directory); !errors.Is(err, os.ErrNotExist) {
+			t.Error("private browser runtime still exists")
+		}
+	})
+	old := &httpFixture{t: t, db: db, config: cfg, address: address, log: output}
+	entry := old.record("bootstrap", "admin@mail.com", "")
+	material, err := json.Marshal(map[string]string{"email": entry.Email, "password": entry.Password})
+	if err != nil {
+		t.Fatal("private bootstrap encoding failed")
+	}
+	defer clear(material)
+	if err := os.WriteFile(filepath.Join(directory, "credentials.json"), material, 0600); err != nil {
+		t.Fatal("private bootstrap transfer failed")
+	}
+	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output, record: old.record, recoveryLogPath: cfg.AccountRecoveryLog()}
+	t.Cleanup(func() {
+		if output.contains(entry.Password) {
+			t.Error("bootstrap material escaped the restricted recovery log")
+		}
+	})
+	return f
+}
+
+func newOutboundPolicyWebFixture(t *testing.T, ctx context.Context, mode string) *outboundPolicyWebFixture {
+	t.Helper()
+	f := &outboundPolicyWebFixture{modelsWebFixture: &modelsWebFixture{mode: mode, ids: map[string]string{}}}
+	f.authenticationWebFixture = newOutboundPolicyWebRoot(t, ctx, f)
+	f.setup = &personalWebFixture{authenticationWebFixture: f.authenticationWebFixture}
+	f.admin = personalWebCredential{Email: f.entry.Email, Password: f.entry.Password, UserID: f.entry.ID}
+	f.adminClient, f.csrf, _ = f.loginAs(ctx, f.admin)
+	initial := f.request(ctx, "GET", outboundPolicyHTTPPath, nil, 200)
+	if initial["version"] != "1" {
+		t.Fatal("owned outbound policy must start at version one")
+	}
+	rules, ok := initial["rules"].([]any)
+	if !ok || len(rules) != 0 {
+		t.Fatal("owned outbound policy must start empty")
+	}
+	f.secrets = []string{f.admin.Password, f.csrf}
+	if mode == "mutation" || mode == "authority" {
+		f.second = f.setup.inviteMember(ctx, f.adminClient, f.csrf, "outbound-admin@example.com", "outbound-admin")
+		conn, closeConnection := invitationsWebConnect(t, ctx, f.db)
+		tag, err := conn.Exec(ctx, `UPDATE agenteam_account.users SET role='admin',version=version+1,updated_at=clock_timestamp() WHERE id=$1 AND role='user'`, f.second.UserID)
+		closeConnection()
+		if err != nil || tag.RowsAffected() != 1 {
+			t.Fatal("exact owned second administrator preparation failed")
+		}
+		f.secondClient, f.secondCSRF, _ = f.loginAs(ctx, f.second)
+		f.secrets = append(f.secrets, f.second.Password, f.secondCSRF)
+	}
+	if mode == "authority" {
+		f.member = f.setup.inviteMember(ctx, f.adminClient, f.csrf, "outbound-member@example.com", "outbound-member")
+		f.secrets = append(f.secrets, f.member.Password)
+	}
+	f.private("outbound-policy-material.json", map[string]any{"admin": f.admin, "member": f.member, "second": f.second, "initial": initial})
+	t.Cleanup(func() {
+		f.releaseRead()
+		for _, value := range f.secrets {
+			if value != "" && f.log.contains(value) {
+				t.Error("outbound private material escaped restricted transfer")
+			}
+		}
+		f.secrets = nil
+		f.csrf, f.secondCSRF, f.admin.Password, f.member.Password, f.second.Password = "", "", "", "", ""
+		f.mu.Lock()
+		defer f.mu.Unlock()
+		for n := range f.attempts {
+			clear(f.attempts[n].body)
+			f.attempts[n].csrf = ""
+			f.attempts[n].key = ""
+		}
+		clear(f.lostBody)
+		f.lostBody = nil
+		f.attempts = nil
+		f.lostKey = ""
+		f.lostCSRF = ""
+		f.lostReceipt = nil
+	})
+	return f
+}
+func (f *outboundPolicyWebFixture) loginAs(ctx context.Context, who personalWebCredential) (*http.Client, string, string) {
+	client := f.setup.setupClient()
+	anonymous := f.setup.setupRequest(ctx, client, "GET", "/api/v1/auth/bootstrap", nil, "", false, 200)
+	f.setup.setupRequest(ctx, client, "POST", "/api/v1/sessions/login", map[string]string{"email": who.Email, "password": who.Password}, httpString(f.t, anonymous, "csrf_token"), true, 200)
+	current := f.setup.setupRequest(ctx, client, "GET", "/api/v1/session", nil, "", false, 200)
+	if httpString(f.t, httpObject(f.t, current, "user"), "id") != who.UserID {
+		f.t.Fatal("exact owned login identity mismatch")
+	}
+	return client, httpString(f.t, current, "csrf_token"), httpString(f.t, httpObject(f.t, current, "session"), "id")
+}
+func (f *outboundPolicyWebFixture) shouldFailRead(path string) bool {
+	return path == outboundPolicyHTTPPath && f.failRead.CompareAndSwap(true, false)
+}
+func (f *outboundPolicyWebFixture) releaseRead() {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.holdRelease != nil {
+		f.holdReleaseOnce.Do(func() { close(f.holdRelease) })
+	}
+}
+func (f *outboundPolicyWebFixture) controlResponse(response *http.Response) error {
+	r := response.Request
+	if r == nil || r.URL.Path != outboundPolicyHTTPPath || response.StatusCode != 200 {
+		return nil
+	}
+	f.mu.Lock()
+	hold := r.Method == "GET" && f.holdNext
+	if hold {
+		f.holdNext = false
+		f.held++
+	}
+	release := f.holdRelease
+	f.mu.Unlock()
+	if hold {
+		raw, err := io.ReadAll(io.LimitReader(response.Body, 600001))
+		closeErr := response.Body.Close()
+		if err != nil || closeErr != nil || len(raw) > 600000 {
+			clear(raw)
+			return errors.New("owned read hold requires complete formal response")
+		}
+		select {
+		case <-r.Context().Done():
+			err = r.Context().Err()
+		case <-release:
+		}
+		f.mu.Lock()
+		f.holdJoined++
+		f.mu.Unlock()
+		if err != nil {
+			clear(raw)
+			return err
+		}
+		response.Body = io.NopCloser(bytes.NewReader(raw))
+		response.ContentLength = int64(len(raw))
+	}
+	if r.Method != "PUT" {
+		return nil
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	key := r.Header.Get("Idempotency-Key")
+	var attempt *outboundPolicyWebAttempt
+	for n := len(f.attempts) - 1; n >= 0; n-- {
+		if f.attempts[n].key == key {
+			attempt = &f.attempts[n]
+			break
+		}
+	}
+	if attempt == nil {
+		return errors.New("owned write observation missing")
+	}
+	if f.lostKey != "" && key == f.lostKey {
+		f.replayed++
+		f.sameOriginal = f.sameOriginal && bytes.Equal(attempt.body, f.lostBody) && attempt.csrf == f.lostCSRF
+	}
+	if !f.dropNext {
+		return nil
+	}
+	f.dropNext = false
+	raw, err := io.ReadAll(io.LimitReader(response.Body, 600001))
+	closeErr := response.Body.Close()
+	defer clear(raw)
+	var receipt map[string]any
+	if err != nil || closeErr != nil || len(raw) > 600000 || len(raw) < 2 || json.Unmarshal(raw, &receipt) != nil || len(receipt) != 4 {
+		return errors.New("owned response cut requires complete formal receipt")
+	}
+	for _, key := range []string{"version", "rule_count", "audit_id", "created_at"} {
+		if _, ok := receipt[key].(string); !ok {
+			return errors.New("owned formal receipt shape invalid")
+		}
+	}
+	f.lostKey = key
+	clear(f.lostBody)
+	f.lostBody = append([]byte(nil), attempt.body...)
+	f.lostCSRF = attempt.csrf
+	f.lostReceipt = receipt
+	f.dropped++
+	return &modelsResponseLost{header: response.Header.Clone(), prefix: append([]byte(nil), raw[:len(raw)/2]...), length: len(raw)}
+}
+func (f *outboundPolicyWebFixture) official(ctx context.Context, client *http.Client, method, key, csrf string, raw []byte) (int, map[string]any) {
+	request, err := http.NewRequestWithContext(ctx, method, f.origin+outboundPolicyHTTPPath, bytes.NewReader(raw))
+	if err != nil {
+		f.t.Fatal("owned formal policy request invalid")
+	}
+	request.Header.Set("Origin", f.origin)
+	request.Header.Set("Sec-Fetch-Site", "same-origin")
+	if method == "PUT" {
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("Idempotency-Key", key)
+		request.Header.Set("X-CSRF-Token", csrf)
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		f.t.Fatal("owned formal policy HTTP failed")
+	}
+	body, readErr := io.ReadAll(io.LimitReader(response.Body, 600001))
+	closeErr := response.Body.Close()
+	defer clear(body)
+	var value map[string]any
+	if readErr != nil || closeErr != nil || len(body) > 600000 || json.Unmarshal(body, &value) != nil {
+		f.t.Fatal("owned formal policy response did not reach complete EOF")
+	}
+	return response.StatusCode, value
+}
+func (f *outboundPolicyWebFixture) putRules(ctx context.Context, client *http.Client, csrf, expected string, rawRules []byte) map[string]any {
+	rules, err := outbound.DecodeRules(rawRules)
+	if err != nil {
+		f.t.Fatal("owned formal Rules preparation invalid")
+	}
+	body, err := json.Marshal(struct {
+		Expected string          `json:"expected_version"`
+		Rules    json.RawMessage `json:"rules"`
+	}{expected, rules.JSON()})
+	if err != nil {
+		f.t.Fatal("owned policy body encoding failed")
+	}
+	defer clear(body)
+	status, receipt := f.official(ctx, client, "PUT", id[struct{}](f.t).String(), csrf, body)
+	if status != 200 {
+		f.t.Fatalf("owned formal policy update status=%d want=200", status)
+	}
+	return receipt
+}
+func (f *outboundPolicyWebFixture) policyFacts(ctx context.Context) map[string]any {
+	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+	defer closeConnection()
+	var version string
+	var raw []byte
+	if err := conn.QueryRow(ctx, `SELECT version::text,rules FROM agenteam_outbound.outbound_policy WHERE singleton`).Scan(&version, &raw); err != nil {
+		f.t.Fatal("owned policy snapshot unavailable", err)
+	}
+	var rules any
+	if json.Unmarshal(raw, &rules) != nil {
+		f.t.Fatal("owned policy snapshot shape invalid")
+	}
+	f.mu.Lock()
+	key := f.lostKey
+	body := append([]byte(nil), f.lostBody...)
+	receipt := f.lostReceipt
+	f.mu.Unlock()
+	defer clear(body)
+	out := map[string]any{"policy": map[string]any{"version": version, "rules": rules}, "original_receipts": 0, "original_audits": 0, "exact_semantic": false, "exact_historical": false}
+	if key == "" {
+		return out
+	}
+	identity, err := foundation.NewCommandIdentity("outbound-policy", []string{f.admin.UserID}, "update", foundation.IdempotencyKey(key))
+	if err != nil {
+		f.t.Fatal("owned policy command identity invalid")
+	}
+	appendKey, err := audit.CommandAppendKey(ac.PolicyProducer, identity, 0)
+	if err != nil {
+		f.t.Fatal("owned formal Audit append key invalid")
+	}
+	keyDigest := sha256.Sum256([]byte(identity.Canonical()))
+	command := "sha256:" + hex.EncodeToString(keyDigest[:])
+	var input struct {
+		Expected string          `json:"expected_version"`
+		Rules    json.RawMessage `json:"rules"`
+	}
+	if json.Unmarshal(body, &input) != nil {
+		f.t.Fatal("owned policy original input invalid")
+	}
+	originalRules, err := outbound.DecodeRules(input.Rules)
+	if err != nil {
+		f.t.Fatal("owned original formal Rules invalid")
+	}
+	semanticRaw, err := json.Marshal(struct {
+		Format   int             `json:"format"`
+		User     string          `json:"user_id"`
+		Expected string          `json:"expected_version"`
+		Rules    json.RawMessage `json:"rules"`
+	}{1, f.admin.UserID, input.Expected, originalRules.JSON()})
+	if err != nil {
+		f.t.Fatal("owned policy command semantic encoding failed")
+	}
+	semanticDigest := sha256.Sum256(semanticRaw)
+	clear(semanticRaw)
+	semantic := "sha256:" + hex.EncodeToString(semanticDigest[:])
+	var receipts, audits int
+	var exactSemantic, exactHistorical bool
+	if err := conn.QueryRow(ctx, `SELECT
+ (SELECT count(*) FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1 AND user_id=$2),
+ (SELECT count(*) FROM agenteam_audit.audit_records a JOIN agenteam_outbound.outbound_policy_receipts r ON r.audit_id=a.id WHERE r.command_digest=$1 AND r.user_id=$2 AND a.scope='system' AND a.producer='outbound.policy' AND a.cause_ref=$8 AND a.ordinal=0 AND a.action='outbound.policy.update' AND a.resource_kind='outbound_policy' AND a.resource_id IS NULL AND a.actor_kind='human' AND a.user_id=$2 AND a.outcome='success' AND a.metadata->>'version'=r.version::text AND a.metadata->>'rule_count'=r.rule_count::text),
+ EXISTS(SELECT 1 FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1 AND user_id=$2 AND semantic_digest=$3),
+ EXISTS(SELECT 1 FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1 AND user_id=$2 AND version::text=$4 AND rule_count::text=$5 AND audit_id::text=$6 AND to_char(created_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')=$7)`, command, f.admin.UserID, semantic, receipt["version"], receipt["rule_count"], receipt["audit_id"], receipt["created_at"], appendKey.Details().CauseRef).Scan(&receipts, &audits, &exactSemantic, &exactHistorical); err != nil {
+		f.t.Fatal("owned exact policy receipt/audit facts unavailable", err)
+	}
+	out["original_receipts"], out["original_audits"], out["exact_semantic"], out["exact_historical"] = receipts, audits, exactSemantic, exactHistorical
+	return out
+}
+
+type outboundPolicyWebIPC struct {
+	Sequence  int    `json:"sequence"`
+	Action    string `json:"action"`
+	UserID    string `json:"user_id"`
+	SessionID string `json:"session_id"`
+	Expected  string `json:"expected"`
+}
+
+func (f *outboundPolicyWebFixture) outboundIPC(ctx context.Context, r outboundPolicyWebIPC) map[string]any {
+	out := map[string]any{"ok": true, "sequence": r.Sequence}
+	switch r.Action {
+	case "facts":
+		out["facts"] = f.policyFacts(ctx)
+	case "seed-maximum":
+		if f.mode != "read" {
+			f.t.Fatal("maximum Rules fixture mode invalid")
+		}
+		ports := make([]uint16, 256)
+		for n := range ports {
+			ports[n] = uint16(65535 - n)
+		}
+		selected, err := outbound.SelectedPorts(ports...)
+		if err != nil {
+			f.t.Fatal("maximum formal ports invalid")
+		}
+		all := make([]outbound.Rule, 0, 256)
+		for n := 0; n < 256; n++ {
+			rule, err := outbound.NewRule(fmt.Sprintf("fdff:ffff:ffff:ffff:ffff:ffff:ffff:%x/128", 0xff00+n), selected, false)
+			if err != nil {
+				f.t.Fatal("maximum formal rule invalid")
+			}
+			all = append(all, rule)
+		}
+		rules, err := outbound.NewRules(all...)
+		if err != nil || rules.Count() != 256 || len(rules.JSON()) != 414721 {
+			f.t.Fatal("maximum distinct formal Rules shape invalid")
+		}
+		current := f.request(ctx, "GET", outboundPolicyHTTPPath, nil, 200)
+		out["receipt"] = f.putRules(ctx, f.adminClient, f.csrf, httpString(f.t, current, "version"), rules.JSON())
+		out["distinct_rules"], out["rules_bytes"] = 256, len(rules.JSON())
+	case "reset-empty":
+		if f.mode != "read" {
+			f.t.Fatal("empty reset fixture mode invalid")
+		}
+		current := f.request(ctx, "GET", outboundPolicyHTTPPath, nil, 200)
+		out["receipt"] = f.putRules(ctx, f.adminClient, f.csrf, httpString(f.t, current, "version"), []byte(`[]`))
+	case "seed-layout":
+		if f.mode != "navigation" {
+			f.t.Fatal("layout fixture mode invalid")
+		}
+		ports := make([]int, 256)
+		for n := range ports {
+			ports[n] = 65280 + n
+		}
+		raw, _ := json.Marshal([]map[string]any{{"cidr": "fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/128", "ports": ports, "allow_http": false}, {"cidr": "10.0.0.0/8", "ports": "all", "allow_http": true}})
+		current := f.request(ctx, "GET", outboundPolicyHTTPPath, nil, 200)
+		out["receipt"] = f.putRules(ctx, f.adminClient, f.csrf, httpString(f.t, current, "version"), raw)
+	case "compete":
+		if f.mode != "mutation" || f.second.UserID == "" || f.second.UserID == f.admin.UserID {
+			f.t.Fatal("two distinct owned administrators required")
+		}
+		current := f.setup.setupRequest(ctx, f.secondClient, "GET", outboundPolicyHTTPPath, nil, "", false, 200)
+		if r.Expected != "" && current["version"] != r.Expected {
+			f.t.Fatal("competition expected version must match formal current read")
+		}
+		out["receipt"] = f.putRules(ctx, f.secondClient, f.secondCSRF, httpString(f.t, current, "version"), []byte(`[{"cidr":"10.86.0.0/16","ports":[8443],"allow_http":false}]`))
+		out["distinct_administrator"] = true
+		out["expected"] = current["version"]
+	case "different-semantics":
+		f.mu.Lock()
+		key := f.lostKey
+		original := append([]byte(nil), f.lostBody...)
+		f.mu.Unlock()
+		defer clear(original)
+		var body map[string]any
+		if key == "" || json.Unmarshal(original, &body) != nil {
+			f.t.Fatal("accepted original command required")
+		}
+		body["rules"] = []any{}
+		raw, _ := json.Marshal(body)
+		defer clear(raw)
+		status, value := f.official(ctx, f.adminClient, "PUT", key, f.csrf, raw)
+		out["status"], out["code"], out["commit_state"] = status, value["code"], value["commit_state"]
+	case "arm-drop":
+		f.mu.Lock()
+		f.dropNext = true
+		f.lostKey = ""
+		clear(f.lostBody)
+		f.lostBody = nil
+		f.lostCSRF = ""
+		f.lostReceipt = nil
+		f.dropped = 0
+		f.replayed = 0
+		f.sameOriginal = true
+		f.mu.Unlock()
+		out["armed"] = true
+	case "drop-facts":
+		f.mu.Lock()
+		out["dropped"], out["replayed"], out["same_original"], out["receipt"], out["armed"] = f.dropped, f.replayed, f.sameOriginal, f.lostReceipt, f.dropNext
+		f.mu.Unlock()
+	case "arm-get-fail":
+		f.failRead.Store(true)
+		out["armed"] = true
+	case "arm-session-fail":
+		f.failSession.Store(true)
+		out["armed"] = true
+	case "arm-invalid-csrf":
+		if f.mode != "authority" {
+			f.t.Fatal("exact authority mode required")
+		}
+		f.mu.Lock()
+		f.invalidCSRF = true
+		f.mu.Unlock()
+		out["armed"] = true
+	case "arm-hold-read":
+		f.mu.Lock()
+		if f.holdNext || f.held != f.holdJoined {
+			f.mu.Unlock()
+			f.t.Fatal("previous owned read hold must join")
+		}
+		f.holdNext = true
+		f.holdRelease = make(chan struct{})
+		f.holdReleaseOnce = sync.Once{}
+		f.mu.Unlock()
+		out["armed"] = true
+	case "release-read":
+		f.releaseRead()
+		out["released"] = true
+	case "hold-facts":
+		f.mu.Lock()
+		out["entered"], out["joined"] = f.held, f.holdJoined
+		f.mu.Unlock()
+	case "failure-facts":
+		out["read_failures"], out["session_failures"] = f.readFailures.Load(), f.sessionFailures.Load()
+	case "attempt-facts":
+		f.mu.Lock()
+		keys := map[string]bool{}
+		for _, a := range f.attempts {
+			keys[a.key] = true
+		}
+		out["attempts"], out["distinct_keys"] = len(f.attempts), len(keys)
+		f.mu.Unlock()
+	case "demote", "promote", "revoke-session":
+		if f.mode != "authority" || r.UserID != f.admin.UserID {
+			f.t.Fatal("exact owned authority target rejected")
+		}
+		if _, err := foundation.ParseID[struct{}](r.SessionID); err != nil {
+			f.t.Fatal("exact owned Session invalid")
+		}
+		conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+		defer closeConnection()
+		var exists bool
+		if err := conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL)`, r.SessionID, r.UserID).Scan(&exists); err != nil || !exists {
+			f.t.Fatal("exact owned live Session absent")
+		}
+		if r.Action == "revoke-session" {
+			tag, err := conn.Exec(ctx, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='administrative' WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL`, r.SessionID, r.UserID)
+			if err != nil || tag.RowsAffected() != 1 {
+				f.t.Fatal("exact owned Session revoke failed")
+			}
+		} else {
+			role, previous := "user", "admin"
+			if r.Action == "promote" {
+				role, previous = "admin", "user"
+			}
+			tag, err := conn.Exec(ctx, `UPDATE agenteam_account.users SET role=$1,version=version+1,updated_at=clock_timestamp() WHERE id=$2 AND role=$3`, role, r.UserID, previous)
+			if err != nil || tag.RowsAffected() != 1 {
+				f.t.Fatal("exact owned role change failed")
+			}
+		}
+	default:
+		f.t.Fatal("unknown owned outbound IPC action")
+	}
+	return out
+}
+
+func (f *outboundPolicyWebFixture) browserOutboundPolicy(ctx context.Context) map[string]any {
+	f.t.Helper()
+	root, e := filepath.Abs("../account-captcha-web")
+	if e != nil {
+		f.t.Fatal(e)
+	}
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/browser/independent.config.mjs")
+	cmd.Dir = root
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	cmd.WaitDelay = time.Second
+	for _, value := range os.Environ() {
+		if !strings.HasPrefix(value, "TMPDIR=") && !strings.HasPrefix(value, "AGENTEAM_AUTH_WEB_") && !strings.HasPrefix(value, "AGENTEAM_OUTBOUND_POLICY_WEB_") && !strings.HasPrefix(value, "PLAYWRIGHT_NO_COPY_PROMPT=") && !strings.HasPrefix(value, "DEBUG=") && !strings.HasPrefix(value, "PWDEBUG=") {
+			cmd.Env = append(cmd.Env, value)
+		}
+	}
+	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_OUTBOUND_POLICY_WEB_CASE="+f.mode, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "PLAYWRIGHT_NO_COPY_PROMPT=1")
+	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
+		if !filepath.IsAbs(images) {
+			f.t.Fatal("Outbound policy image path must be absolute")
+		}
+		cmd.Env = append(cmd.Env, "AGENTEAM_AUTH_WEB_IMAGES="+images)
+	}
+	var output bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &output, &output
+	if e = cmd.Start(); e != nil {
+		f.t.Fatal("locked Outbound policy browser runner could not start")
+	}
+	done := make(chan error, 1)
+	go func() { done <- cmd.Wait() }()
+	joined := false
+	defer func() {
+		if !joined {
+			_ = cmd.Cancel()
+			<-done
+		}
+		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		cmd.Env = nil
+	}()
+	tick := time.NewTicker(20 * time.Millisecond)
+	defer tick.Stop()
+	sequence := 0
+	var runErr error
+wait:
+	for {
+		select {
+		case runErr = <-done:
+			joined = true
+			break wait
+		case <-tick.C:
+			raw, err := os.ReadFile(filepath.Join(f.directory, "outbound-policy-ipc.json"))
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			var request outboundPolicyWebIPC
+			decode := json.Unmarshal(raw, &request)
+			clear(raw)
+			if err != nil || decode != nil || request.Sequence < 1 || request.Sequence > 128 {
+				f.t.Error("private Outbound policy IPC rejected")
+				_ = cmd.Cancel()
+				continue
+			}
+			if request.Sequence <= sequence {
+				continue
+			}
+			if request.Sequence != sequence+1 {
+				f.t.Error("private Outbound policy IPC sequence invalid")
+				_ = cmd.Cancel()
+				continue
+			}
+			reply := f.outboundIPC(ctx, request)
+			sequence = request.Sequence
+			f.private("outbound-policy-ack-"+strconv.Itoa(sequence)+".json", reply)
+		}
+	}
+	safe := output.String()
+	for _, secret := range f.secrets {
+		if secret != "" {
+			safe = strings.ReplaceAll(safe, secret, "[redacted]")
+		}
+	}
+	f.mu.Lock()
+	if f.lostKey != "" {
+		safe = strings.ReplaceAll(safe, f.lostKey, "[redacted]")
+	}
+	for _, attempt := range f.attempts {
+		if attempt.key != "" {
+			safe = strings.ReplaceAll(safe, attempt.key, "[redacted]")
+		}
+	}
+	f.mu.Unlock()
+	f.t.Log(safe)
+	if runErr != nil {
+		f.t.Fatalf("actual Outbound policy production browser failed: %v", runErr)
+	}
+	raw, e := os.ReadFile(filepath.Join(f.directory, "outbound-policy-result.json"))
+	if e != nil {
+		f.t.Fatal("safe Outbound policy browser result missing")
+	}
+	defer clear(raw)
+	var result map[string]any
+	if json.Unmarshal(raw, &result) != nil || result["completed"] != true {
+		f.t.Fatal("safe Outbound policy browser result invalid")
+	}
+	return result
+}

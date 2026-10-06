@@ -1,0 +1,38 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace/web
+
+ ❯ src/tests/system-outbound-policy-state.spec.ts (64 tests | 1 failed | 60 skipped) 75ms
+     × holds the actual delivery write tail against outbound without erasing its original input 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-outbound-policy-state.spec.ts > Outbound policy tenth Cookie owner domain > holds the actual delivery write tail against outbound without erasing its original input
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      undefined,
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/tests/system-outbound-policy-state.spec.ts:705:26
+    703|         ).toBe(true)
+    704|       p.abandon()
+    705|       expect(cancel).not.toHaveBeenCalled()
+       |                          ^
+    706|       expect(smtp.material.present).toBe(true)
+    707|       const count = f.fetch.mock.calls.length
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed | 60 skipped (64)
+   Start at  21:19:56
+   Duration  1.12s (transform 294ms, setup 0ms, import 395ms, tests 75ms, environment 480ms)
+

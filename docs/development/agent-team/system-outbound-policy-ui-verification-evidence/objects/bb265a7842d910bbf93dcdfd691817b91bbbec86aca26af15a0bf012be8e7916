@@ -1,0 +1,22 @@
+{
+  "actual_readonly_followup": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01-cleanup-followup02/result.json",
+    "sha256": "ec289276365f1b4a7cc66e01d1f798995180c885db6d97022b7a1d242e4455be"
+  },
+  "delta": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/driver02.diff",
+    "sha256": "dba97bb89ce8f8980b69a8b4a9c635104d077f7bedc394d1df9cc772aa657868"
+  },
+  "original_failure_preserved": {
+    "business_exit": 0,
+    "original_first_mismatch_cause": "unproven: original full current snapshot absent",
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01/result.json",
+    "sha256": "8c17cb235394ef84f68650023758bb515df7a35edaedc4e6d3e46e3f899e98ff",
+    "tool_exit": 1
+  },
+  "previous_driver": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/driver01.py",
+    "sha256": "50efce16de86bf018cf122aaf99e87bdccf83f7a97b43cdb5c540e7938ab7c88"
+  },
+  "scope": "Only complete Mounts objects sorted by canonical JSON for multiset comparison; all fields and multiplicities retained. Every cleanup stores raw current resources and raw/canonical baseline differences. No selector, budget, scan-count, resource ownership or other cleanup predicate changes."
+}

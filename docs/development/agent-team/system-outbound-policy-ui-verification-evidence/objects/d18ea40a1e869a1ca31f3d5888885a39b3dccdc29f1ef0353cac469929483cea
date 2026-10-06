@@ -1,0 +1,69 @@
+import { describe, expect, it } from 'vitest'
+import { captureOutboundPortText, captureOutboundRules, parseOutboundRules } from '../api/outbound-rules'
+
+// These exact vectors are also passed to the accepted Go NewRule/DecodeRules
+// oracle outside Vitest; neither side uses the other parser as its expected value.
+const acceptedCIDRs = [
+  '10.0.0.0/8', '10.255.255.255/32', '172.16.0.0/12', '172.31.255.255/32',
+  '192.168.0.0/16', '192.168.255.255/32', 'fc00::/7', 'fd00::/8', 'fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/128',
+  'fd00:0:0:1::/64', 'fd00::1:0:0:1:1/128', 'fd00:0:1:0:1:0:1:0/128', 'fc00::1/128',
+]
+const rejectedCIDRs = [
+  '', '10.0.0.1/8', '10.0.0.0/7', '172.16.0.0/11', '192.168.0.0/15',
+  '172.32.0.0/12', '192.169.0.0/16', '127.0.0.0/8', '0.0.0.0/0', '8.8.8.8/32',
+  '10.00.0.0/8', '010.0.0.0/8', '10.0.0.0/08', '10.0.0.0/+8', '10.0.0.0/8 ',
+  '10.0.0/8', '10.256.0.0/16', '10.0.0.0/33', '10.0.0.0/-1',
+  'fc00::/6', 'fe00::/7', 'fe80::/10', '2001:db8::/32', '::/0', '::ffff:192.168.0.0/112',
+  '::ffff:c0a8:0/112', 'fd00::192.168.0.0/128', 'FD00::/8', 'fd00:0000::/8',
+  'fd00::1/64', 'fd00::%eth0/8', 'fd00::/08', 'fd00::/129', 'fd00:::1/128',
+  'fd00::1::1/128', 'fd00:0:0:1:0:0:1:1/128', 'fd00:0:0:1::1:1/128',
+  'fd00:0:1:0:1:0:1::/128', 'fd00:1:2:3:4:5:6:7:8/128', 'fd00:1:2:3:4:5:6/128',
+]
+const rule = (cidr = '10.0.0.0/8', ports: unknown = [443], allow_http: unknown = false) => ({ cidr, ports, allow_http })
+
+describe('outbound rule grammar from accepted Go Rules', () => {
+  it.each(acceptedCIDRs.map((cidr, index) => ({ cidr, index })))('accepts formal CIDR vector $index', ({ cidr }) => {
+    expect(captureOutboundRules([rule(cidr)])[0]?.cidr === cidr).toBe(true)
+  })
+  it.each(rejectedCIDRs.map((cidr, index) => ({ cidr, index })))('rejects formal CIDR vector $index', ({ cidr }) => {
+    expect(() => captureOutboundRules([rule(cidr)])).toThrow('invalid-input')
+    expect(() => parseOutboundRules([rule(cidr)])).toThrow('invalid-response')
+  })
+  it('canonicalizes rule and port order without altering CIDR or rejecting overlaps', () => {
+    const original = [rule('10.0.0.0/8', [8443, 443]), rule('10.0.0.0/16', 'all', true)]
+    const captured = captureOutboundRules(original)
+    original[0]!.cidr = '10.1.0.0/16'
+    expect(JSON.stringify(captured) === '[{"cidr":"10.0.0.0/16","ports":"all","allow_http":true},{"cidr":"10.0.0.0/8","ports":[443,8443],"allow_http":false}]').toBe(true)
+    expect([captured, ...captured, captured[1]!.ports].every(Object.isFrozen)).toBe(true)
+    expect(() => parseOutboundRules([...captured].reverse())).toThrow('invalid-response')
+    expect(() => parseOutboundRules([rule('10.0.0.0/8', [8443, 443])])).toThrow('invalid-response')
+  })
+  it.each([null, {}, [null], [{ cidr: '10.0.0.0/8', ports: [443] }], [rule('10.0.0.0/8', [], false)],
+    [rule('10.0.0.0/8', [1, 1])], [rule('10.0.0.0/8', [0])], [rule('10.0.0.0/8', [65536])],
+    [rule('10.0.0.0/8', [1.5])], [rule('10.0.0.0/8', ['443'])], [rule('10.0.0.0/8', [NaN])],
+    [rule('10.0.0.0/8', [Infinity])], [rule('10.0.0.0/8', new Array(1))],
+    [rule('10.0.0.0/8', 'ALL')], [rule('10.0.0.0/8', null)], [rule('10.0.0.0/8', [443], null)],
+    [rule('10.0.0.0/8', [443], 0)], [{ ...rule(), extra: true }], [rule(), rule()],
+    [rule('10.0.0.0/8', [2, 1]), rule('10.0.0.0/8', [1, 2])], new Array(1),
+    Array.from({length:257}, (_, i) => rule(`10.0.${i >> 8}.${i % 256}/32`)),
+    [rule('10.0.0.0/8', Array.from({length:257}, (_, i) => i + 1))],
+  ].map((value,index)=>({value,index})))('rejects closed rule shape $index', ({value}) => {
+    expect(() => captureOutboundRules(value)).toThrow('invalid-input')
+  })
+  it('keeps all ports explicit, rejects ambiguous text, and accepts only ASCII separators', () => {
+    expect(JSON.stringify(captureOutboundPortText(' 65535 ,\t1, 443\r\n')) === '[1,443,65535]').toBe(true)
+    for (const text of ['', 'all', '1,', ',1', '1,,2', '01', '+1', '-1', '1e2', '1.0', '1-3', '1,1', '0', '65536', '\u00a01', '1\u00a0'])
+      expect(() => captureOutboundPortText(text)).toThrow('invalid-input')
+    expect(captureOutboundRules([rule('10.0.0.0/8', 'all')])[0]!.ports).toBe('all')
+  })
+  it('captures 256 distinct full-width rules with 256 ports inside the proven JSON bounds', () => {
+    const portSet = Array.from({ length:256 }, (_, i)=>65535-i)
+    const full = Array.from({length:256},(_,i)=>rule(`fdff:ffff:ffff:ffff:ffff:ffff:ffff:${(0xff00+i).toString(16)}/128`, portSet))
+    const result = captureOutboundRules(full)
+    expect(result.length).toBe(256)
+    expect(new TextEncoder().encode(JSON.stringify(result)).length).toBeLessThanOrEqual(414721)
+    expect(new TextEncoder().encode(JSON.stringify({version:'9223372036854775807',rules:result})).length).toBeLessThanOrEqual(414763)
+    expect(parseOutboundRules(result).length).toBe(256)
+    expect(captureOutboundRules([]).length).toBe(0)
+  })
+})

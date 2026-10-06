@@ -1,0 +1,142 @@
+{
+  "verdict": "PASS — bounded independent Outbound UI owner stage B only",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/owner-stage01/manifest.json",
+    "sha256": "09955df4c88da7d7b0cf41038210c1fb01d0aba2559a17bdb35417771ceeddba"
+  },
+  "candidate_sources": {
+    "web/src/composables/useSession.ts": "573268bdb7d3ea5524858c53b901cac8d095591ad46e4855cbe7e6d50330011c",
+    "web/src/tests/system-outbound-policy-state.spec.ts": "a9027e18cd11a810df9cf5254ba3de315836c388b21907e385bcebb4dd255982"
+  },
+  "base": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "card_commit": "f843506d9ec991be1c334a81b88d5cbacc277467",
+  "technical_sha256": "343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b",
+  "fixed_inputs": {
+    "source_files": 28,
+    "accepted_git_dependencies": 21,
+    "stage_A_five_sources_exactly_reused": true,
+    "loaded_runtime_files": 34,
+    "loaded_runtime_all_prebound": true
+  },
+  "static_findings": [
+    "Only four exact first business-rejection code/status pairs with not_started/not_committed can become rejected; previous unknown stays sticky.",
+    "Legal current identity/generation 401 pair, outbound-write-only (403,CSRF_FAILED), and current (403,FORBIDDEN) safety cleanup precede business classification. Mismatched status/code cannot use the new CSRF branch.",
+    "checkOriginal only restores Session and reads current policy; its failed GET leaves original checked, but busy blocks replay until actual transport finally. CSRF/session/role changes destroy old recovery context.",
+    "Capture precedes newKey; private input/body are erased on abandonment/confirmation; old revision/context continuations cannot publish into a successor. No new sync-watch atomicity gate introduced."
+  ],
+  "independent_result": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "seconds": 0.7122410140000284,
+    "timeout": false,
+    "input_before_matches": true,
+    "input_after_matches": true,
+    "input_unchanged": true,
+    "cleanup_clean": true,
+    "node_processes_observed": 1,
+    "adopted_wait_count": 0,
+    "raw_sha256": "8df99d45053faeb3e2d528db5e1bb9a876de17969d4863ec7333e3b733f3a9c0",
+    "cleanup_sha256": "a3ff203ed91cd19b5817527fe828e5159da0a39773034a785fa10e65f8f5402b"
+  },
+  "independent_facts": {
+    "passed_groups": [
+      "A",
+      "B"
+    ],
+    "facts": {
+      "A": {
+        "first_known_rejection": true,
+        "unknown_sticky": true,
+        "mismatched_security_retained": true,
+        "session_then_current_get_not_receipt": true,
+        "failed_native_cancel_join_then_same_original_replay": true,
+        "exact_method_path_key_body_csrf_equal": true,
+        "current19_does_not_replace_receipt2": true,
+        "key_conflict_no_rekey": true,
+        "legitimate_security_priority": true,
+        "cancel_gates_joined": 1
+      },
+      "B": {
+        "virtual_elapsed_ms": 30000,
+        "actual_30s_sleep": false,
+        "json_without_EOF_unsettled": true,
+        "timeout_visible_owner_retained": true,
+        "zero_cookie_dispatch_before_join": true,
+        "representative_domains_both_directions": [
+          "personal",
+          "smtp-settings",
+          "smtp-delivery"
+        ],
+        "delivery_native_status": 202,
+        "native_cancel_gates_joined": 4,
+        "parsed_old401_finalizer_joined": true,
+        "new_identity_only_after_actual_tail": true
+      }
+    },
+    "failure": null,
+    "actual_wall_ms": 64.07117199999993,
+    "live_owners_at_end": 0,
+    "gates_all_finished": true,
+    "no_network_or_listener": true
+  },
+  "preserved_failures": [
+    {
+      "run": "runs/owner01",
+      "actual_exit": 1,
+      "actual_seconds": 0.6446311249997052,
+      "actual_wait_and_double_cleanup": true,
+      "observed_failure_label": "A-first-known-rejection",
+      "classification": "Private Problem fixture omitted matching X-Request-ID. Frozen client.ts:114-130 strictly checks header/body equality. Only header plus output/run paths changed; same original assertions subsequently pass. Original raw has no error-kind projection; do not backfill that observation.",
+      "unreached": "Neither full risk group passed in owner01."
+    },
+    {
+      "author_run": "owner-pure02",
+      "actual_exit": 1,
+      "classification": "Private SMTP delivery expected 202 but Response defaulted to 200. Assertion occurred outside finally; private cancel Promise was not explicitly resolved in the failed run.",
+      "limit": "Actual child exit/no PID does not prove its in-process cancel join. Original source/raw/result retained; author correction uses 202 and finally covering preconditions."
+    }
+  ],
+  "author_evidence_reuse": {
+    "combination": "99 original PASS + 3 supplemental PASS + 1 corrected representative PASS, not a single full103 rerun",
+    "production_useSession_and_API3_same_across_author_pure01_02_03": true,
+    "type_and_format": "owner-type03 actual0/2.995s; owner-format-check02 actual0/0.622s",
+    "stage_A_report": "/workspace/scratch/agenteam-outbound-ui-api-independent-myvazu5g/verification-report.md"
+  },
+  "limits": [
+    "Two offline risk combinations through the real production Session/API factories and Vue reactivity, with controlled native Fetch Response streams. No service, socket, browser, Docker, PG, actual outbound connection or page/navigation test.",
+    "30,000ms is virtual timer advancement. Probe wall time and supervisor actualwait duration are separately recorded; no assertion of a real30s wait.",
+    "Theme document.documentElement.dataset is only a sink; no DOM/focus/UI claim. Private TS transpilation is not an independent whole-project type check.",
+    "The final parsed401 barrier wraps native Response.body.cancel after EOF; the remaining cancellation barriers use actual ReadableStream underlying cancel Promises.",
+    "No claim of complete-card acceptance or of every old owner combination being independently rerun."
+  ],
+  "artifacts": {
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/author-binding01.json": "2a594db850f997c919622870f72002de026595f7bbc9a5824e4ad48281aa56d5",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/author-pure02-to03.diff": "fb1e2949b9f5ff5a665501158d88f7ed8c1369a69fdc743df2c0af6371c9f778",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/execution01.json": "55b1469556be9660cc2c59acc4560499c4dc9716a7a9fe3d8a7cfec6b7683838",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/execution02.json": "fc5a51efe2d4c00d200e277252ec214a0e27d0578a7482724d166638ad1f29f3",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/probe01.cjs": "53e5ebd5d70418205fb3527291d8a05360fb3cbae0d98b6fcf786180499f28e9",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/probe02.cjs": "24b713ad5ea2a7b0aa6bcd90175b09e249554865d5739e56ea25403f6827ec9d",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/probe01-to02.diff": "867613f59e4432bb0ff9c5bc4a9aa511f27ad206cfaf23bee579de7c4ed8eea5",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/run_offline01.py": "0c049ee34345788bb38c5f0aa9c467b0e7d7162a53379da2fb67657d2f4cbea0",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/run_offline02.py": "3780fcbd6e96546291f8bebd23ab2ec53d9237a70f02d092d1f6bceabbffbcb3",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runtime-input01.json": "d2adbc2151b98d752a70304a8e487a57586f081cdfb0deaafc4795bdcbeafd84",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner01/command.json": "67729fd9d04cd0ff2d261a4f99f7b0cabd78cb1d0ab2b018c765488baa230880",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner01/raw.log": "8cb556caa87a89b3b17439657060bccd4545eb095aa64374f15b1b5bf624421d",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner01/result.json": "2455e19ccf0c6f1a3a097b05fa9364ba79afc54f4dd28cbf7ccfa9bcb7144960",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner01/cleanup.json": "4a0064569aa552d90eddecf81636f4dedbb51f79a7756c639e645ba224831c0c",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner01/probe-result.json": "cbdae9a6abdaf29c8a83bf30cc03cbb23c349a1d6d4e89cac448c8ceac4f78d4",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner01/input-before.json": "7ada22c6583a882fa414c13f9911d77bb378ea7a75cda37430430ab7c6d0aa96",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner01/input-after.json": "7ada22c6583a882fa414c13f9911d77bb378ea7a75cda37430430ab7c6d0aa96",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner01/runtime-loaded.json": "44b10312c0053cc59be316efaf28a4e82d6bf008ad637592559e8aab67035107",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner01/compiled-output.json": "0a3d4b5393c12f9b2aceadb1dd353297fc2438e792399925b83beecd14095f33",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner02/command.json": "fa0eddcfbefac0496a035f1e78498ab557bbdcfdf118a6dbb46e5e395100e2dd",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner02/raw.log": "8df99d45053faeb3e2d528db5e1bb9a876de17969d4863ec7333e3b733f3a9c0",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner02/result.json": "f56be13efaca313c28dba443b02f1049f12dea7a8ad57143d04051cfb4fd6c69",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner02/cleanup.json": "a3ff203ed91cd19b5817527fe828e5159da0a39773034a785fa10e65f8f5402b",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner02/probe-result.json": "5e09412561b1d327a84eee865ae6d7ef7a9cfbae9023feaa35113885792516e2",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner02/input-before.json": "9e8373dc01f79cf3f6435cff998c044e9788c0ad8eb98e7767631542a9b75b8d",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner02/input-after.json": "9e8373dc01f79cf3f6435cff998c044e9788c0ad8eb98e7767631542a9b75b8d",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner02/runtime-loaded.json": "44b10312c0053cc59be316efaf28a4e82d6bf008ad637592559e8aab67035107",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner02/compiled-output.json": "0a3d4b5393c12f9b2aceadb1dd353297fc2438e792399925b83beecd14095f33"
+  }
+}

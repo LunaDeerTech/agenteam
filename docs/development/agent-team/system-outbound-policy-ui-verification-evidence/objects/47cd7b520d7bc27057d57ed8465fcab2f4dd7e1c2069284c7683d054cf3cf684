@@ -1,0 +1,42 @@
+--- original.spec.ts (independent01)
++++ browser/independent.spec.ts (B repaired)
+@@ -859,20 +859,36 @@
+   const beforeRevoke = await seq(page);
+   await page.evaluate(() => window.dispatchEvent(new Event("pageshow")));
+   await factAfter(page, beforeRevoke, f => f.path === "/api/v1/session" && f.status === 401 && f.code === "SESSION_REVOKED" && f.ended && f.eof === true);
+-  await expect(page).toHaveURL(/\/login(?:\?|$)/);
++  await expect(page).toHaveURL(new URL("/login", page.url()).href);
+   await expect(page.locator("#login-email")).toBeVisible();
+   await expect(page.locator(".ui-overlay")).toHaveCount(0);
+   await expect(form(page)).toHaveCount(0);
+   expect((await writes(page)).length === 0).toBe(true);
++  const beforeNewLogin = await seq(page);
+   await login(page);
+-  await expect(page).toHaveURL(/\/system\/outbound-policy$/);
++  await expect(page).toHaveURL(new URL("/", page.url()).href);
++  await expect(title(page, "首页")).toBeVisible();
+   const fresh = await session(page);
+   expect(fresh.user_id === original.user_id && fresh.session_id !== original.session_id && fresh.role === "admin").toBe(true);
++  await factAfter(page, beforeNewLogin, f => f.path === "/api/v1/session" && f.status === 200 && f.ended && f.eof === true && same(f.session, fresh));
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  expect((await writes(page)).length === 0 && !(await facts(page)).some(f => f.path === "/api/v1/system/users")).toBe(true);
++  // The old pending leave has not executed. Only the following new UI action may read users.
++  const explicitNavigationSequence = await seq(page);
++  await page.getByRole("navigation", { name:"系统导航", exact:true }).getByRole("link", { name:"系统设置", exact:true }).click();
++  await expect(page).toHaveURL(/\/system\/users$/);
++  const explicitUsers = await factAfter(page, explicitNavigationSequence, f => f.path === "/api/v1/system/users" && f.method === "GET" && f.status === 200);
++  // Users records only request/status in the original observer; do not invent an EOF.
++  const beforeOutbound = await seq(page);
++  await page.getByRole("navigation", { name:"系统设置", exact:true }).getByRole("link", { name:"出站规则", exact:true }).click();
++  await expect(page).toHaveURL(/\/system\/outbound-policy$/);
++  await factAfter(page, beforeOutbound, f => f.path === endpoint && f.method === "GET" && f.status === 200 && f.ended && f.eof === true && !!f.policy);
++  console.info(JSON.stringify({independent_boundary:"explicit_new_navigation",home_before_navigation:true,old_pending_users_before_navigation:0,explicit_users_after_watermark:explicitUsers.sequence > explicitNavigationSequence,outbound_current_eof:true,policy_writes:(await writes(page)).length}));
+   await expect(form(page).locator("fieldset")).toHaveCount(0);
+   await expect(button(page, "用原请求确认")).toHaveCount(0);
+   await expect(form(page).locator('button[type="submit"]')).toBeDisabled();
+   await expect(page.locator(".ui-overlay")).toHaveCount(0);
+-  expect((await writes(page)).length === 0 && !(await facts(page)).some(f => f.path === "/api/v1/system/users")).toBe(true);
++  expect((await writes(page)).length === 0).toBe(true);
+   await button(page, "退出登录").click();
+   await expect(page).toHaveURL(/\/login$/);
+   result({ same_identity_restored:true, session_503_once:true, native_focus_tab:true, current_revocation:true, old_pending_invalidated:true, draft_destroyed:true, new_clean_logout:true, zero_policy_write:true });

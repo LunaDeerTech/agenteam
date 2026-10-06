@@ -1,0 +1,73 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.outboundMaximumVersion = void 0;
+exports.captureOutboundPolicyUpdate = captureOutboundPolicyUpdate;
+exports.createSystemOutboundPolicyAPI = createSystemOutboundPolicyAPI;
+const client_1 = require("./client");
+const system_account_1 = require("./system-account");
+const outbound_rules_1 = require("./outbound-rules");
+exports.outboundMaximumVersion = '9223372036854775807';
+const encoder = new TextEncoder();
+function requireValue(value) {
+    if (!value)
+        throw new client_1.AccountFailure('invalid-response');
+}
+function version(value, writable = false) {
+    const result = (0, client_1.string)(value, 1, 19);
+    requireValue(/^[1-9][0-9]*$/.test(result));
+    requireValue(BigInt(result) <= BigInt(exports.outboundMaximumVersion) - (writable ? 1n : 0n));
+    return result;
+}
+function input(work) {
+    try {
+        return work();
+    }
+    catch {
+        throw new client_1.AccountFailure('invalid-input');
+    }
+}
+function captureOutboundPolicyUpdate(value) {
+    return input(() => {
+        const v = (0, client_1.shape)(value, ['expected_version', 'rules']);
+        const captured = Object.freeze({
+            expected_version: version(v.expected_version, true),
+            rules: (0, outbound_rules_1.captureOutboundRules)(v.rules),
+        });
+        requireValue(encoder.encode(JSON.stringify(captured.rules)).byteLength <= 512 * 1024);
+        requireValue(encoder.encode(JSON.stringify(captured)).byteLength <= 1024 * 1024);
+        return captured;
+    });
+}
+function createSystemOutboundPolicyAPI(fetcher) {
+    const request = (0, client_1.accountTransport)(fetcher);
+    return {
+        async getPolicy(signal) {
+            return request('getOutboundPolicy', (value) => {
+                const v = (0, client_1.shape)(value, ['version', 'rules']);
+                return Object.freeze({ version: version(v.version), rules: (0, outbound_rules_1.parseOutboundRules)(v.rules) });
+            }, { signal });
+        },
+        async updatePolicy(value, write) {
+            const captured = captureOutboundPolicyUpdate(value);
+            const options = input(() => {
+                const v = (0, client_1.shape)(write, ['csrfToken', 'key'], ['signal']);
+                const csrf = (0, client_1.string)(v.csrfToken, 43, 43), key = (0, client_1.string)(v.key, 1, 128);
+                requireValue(/^[A-Za-z0-9_-]{43}$/.test(csrf) && /^[A-Za-z0-9._:/-]{1,128}$/.test(key));
+                return { csrf, key, signal: write.signal ?? new AbortController().signal };
+            });
+            return request('updateOutboundPolicy', (value) => {
+                const v = (0, client_1.shape)(value, ['version', 'rule_count', 'audit_id', 'created_at']);
+                const next = version(v.version), count = (0, client_1.string)(v.rule_count, 1, 3), audit = (0, client_1.string)(v.audit_id, 36, 36);
+                requireValue(BigInt(next) === BigInt(captured.expected_version) + 1n);
+                requireValue(/^(0|[1-9][0-9]{0,2})$/.test(count) && Number(count) === captured.rules.length);
+                requireValue(client_1.uuid7.test(audit));
+                return Object.freeze({
+                    version: next,
+                    rule_count: count,
+                    audit_id: audit,
+                    created_at: (0, system_account_1.parseSystemInstant)(v.created_at),
+                });
+            }, { ...options, body: captured });
+        },
+    };
+}

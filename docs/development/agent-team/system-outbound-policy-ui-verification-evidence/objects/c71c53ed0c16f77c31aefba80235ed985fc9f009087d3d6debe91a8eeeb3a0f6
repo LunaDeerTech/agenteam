@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--unhandled-rejections=strict",
+    "/workspace/scratch/agenteam-outbound-ui-api-independent-myvazu5g/probe01.cjs"
+  ],
+  "cwd": "/workspace/scratch/agenteam-outbound-ui-api-independent-myvazu5g",
+  "env_overrides": {
+    "TMPDIR": "/workspace/scratch/agenteam-outbound-ui-api-independent-myvazu5g/runs/api01/tmp",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "e995a4642b74c50ebfa3cb7772a4aaa2e199f3ed413bbc6dcad519e9e7c1aa4c",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 54330,
+  "actual_exit": 0,
+  "seconds": 0.47104007400002956,
+  "timeout": false
+}

@@ -1,0 +1,39 @@
+{
+  "time": "2026-10-06T22:35:11.875277+00:00",
+  "run_name": "independent01",
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/driver01.py",
+    "--name",
+    "independent01",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/execution02.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--execute-authorized"
+  ],
+  "disk": {
+    "/workspace": {
+      "total": 33770192896,
+      "used": 25809518592,
+      "free": 6225911808
+    },
+    "/tmp": {
+      "total": 9441349632,
+      "used": 91303936,
+      "free": 9350045696
+    }
+  },
+  "minimum_workspace_free_bytes": 5368709120,
+  "disk_pass": true,
+  "fingerprints": {
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/execution02.json": "0ab8c0c4527a51af19a22b34a8e5471499615de7bbf2c533d794b64900351f79",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/driver01.py": "5866e74899f5d7bf933ddd0aee4988fe5f5d4cae9d2348bc1f64a871e4ce8492",
+    "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/manifest.json": "c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a"
+  },
+  "fingerprints_pass": true,
+  "name_unused": true,
+  "resources_started": false
+}

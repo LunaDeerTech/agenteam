@@ -1,0 +1,20 @@
+--- probe01.cjs
++++ probe02.cjs
+@@ -3,7 +3,7 @@
+ const path = require('node:path');
+ const cryptoNode = require('node:crypto');
+ const ts = require('/workspace/agenteam/web/node_modules/typescript/lib/typescript.js');
+-const root = __dirname, run = path.join(root, 'runs/owner01'), compiled = path.join(run, 'compiled');
++const root = __dirname, run = path.join(root, 'runs/owner02'), compiled = path.join(run, 'compiled');
+ fs.mkdirSync(compiled, { recursive: true });
+ fs.writeFileSync(path.join(compiled, 'package.json'), '{"type":"commonjs"}\n');
+ for (const directory of ['api', 'composables']) {
+@@ -47,7 +47,7 @@
+ const session = (n = 2) => ({ user: { id: id(1), email: 'admin@example.test', username: 'admin', display_name: 'Admin', role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false }, session: { id: id(n), issued_at: instant, idle_expires_at: instant, absolute_expires_at: instant }, csrf_token: 'S'.repeat(43) });
+ const settings = () => ({ id: id(10), version: '1', configured: true, host: 'mail.example', port: 25, encryption: 'none', username: '', sender_email: 'sender@example.test', sender_name: '', credential_present: false, auto_retry_count: '0', retry_interval_seconds: '10' });
+ const smtpDraft = () => ({ version: '1', host: 'mail.example', port: 25, encryption: 'none', username: 'auth', sender_email: 'sender@example.test', sender_name: '', auto_retry_count: '0', retry_interval_seconds: '10', credential_action: 'keep' });
+-const json = (value, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json' } });
++const json = (value, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', 'X-Request-ID': id(9) } });
+ const problem = (code, status, commit_state = 'not_started') => json({ type: 'urn:agenteam:problem:independent', title: 'Failure', status, code, detail: '', instance: endpoint, request_id: id(9), commit_state }, status);
+ const owners = [], facts = {}, nativeGates = [];
+ async function fixture() {

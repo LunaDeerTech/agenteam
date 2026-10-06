@@ -1,0 +1,26 @@
+{
+  "node_actual_wait": true,
+  "node_pid": 60234,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 60234,
+      "ppid": 60231,
+      "pgid": 60234,
+      "state": "Z",
+      "starttime": "396568"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

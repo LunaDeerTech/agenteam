@@ -1,0 +1,198 @@
+{
+  "A": {
+    "browser_seconds": 4.0,
+    "run": "independent01",
+    "safe_boundaries": 7,
+    "scope": [
+      "accepted response cut with strict original receipt retained by fixture",
+      "formal competing administrator updates current to a later version",
+      "Session/GET do not constitute confirmation",
+      "explicit replay preserves original key/body/current-valid original CSRF and historical receipt",
+      "Outbound-specific command/semantic digests and exact Audit cause linkage count remain one",
+      "confirmed receipt followed by GET503 retains readonly old draft; explicit read only gets newer current without rollback"
+    ],
+    "selected_top": "TestIndependentOutboundPolicyHistoricalReceipt",
+    "top_seconds": 8.57
+  },
+  "B": {
+    "browser_seconds": 4.5,
+    "run": "independent02",
+    "safe_boundaries": 8,
+    "safe_raw_projection": {
+      "explicit_users_after_watermark": true,
+      "home_before_navigation": true,
+      "independent_boundary": "explicit_new_navigation",
+      "old_pending_users_before_navigation": 0,
+      "outbound_current_eof": true,
+      "policy_writes": 0
+    },
+    "scope": [
+      "same-Session confirmation through pageshow checking/one503/new200EOF",
+      "native modal focus/Tab and close restoration",
+      "existing exact-owned current Session revocation seam produces observed401SESSION_REVOKEDEOF",
+      "old draft/form/confirmation destroyed and prior navigation cannot regain authority",
+      "bare login goes to home, fresh Session differs, zero users/PUT before new explicit navigation",
+      "new real UI system->users->outbound navigation permits only post-watermark users GET and requires Outbound GET200EOF",
+      "empty draft/no replay/zeroPUT/new clean logout"
+    ],
+    "selected_top": "TestIndependentOutboundPolicyConfirmationAuthority",
+    "top_seconds": 10.38,
+    "users_observation_limit": "method/path/status/watermark only; no users EOF claimed"
+  },
+  "accepted_baseline": 1014,
+  "actual_cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace",
+  "all_commands_ended": true,
+  "author_input": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/manifest.json",
+  "author_input_sha256": "c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a",
+  "budgets": {
+    "count": 1,
+    "package_seconds": 360,
+    "per_browser_seconds": 45,
+    "per_top_seconds": 120,
+    "race": true,
+    "retries": 0,
+    "workers": 1
+  },
+  "candidates": 33,
+  "delivery33": {
+    "path": "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/delivery33.json",
+    "sha256": "e942cc442ff530c32ee554c44877b00cfecb3308abbf903915edeeae85cb4c7f"
+  },
+  "dist": 38,
+  "dist_byte_equal_to_reviewed_web_stage01": true,
+  "input_versions": {
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/driver-author02-to-independent01.diff": "0754056513f0f8c1fb8548ad930f5a1c061fcd7896beea4fe5e111b4611f799f",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/driver01.py": "5866e74899f5d7bf933ddd0aee4988fe5f5d4cae9d2348bc1f64a871e4ce8492",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/execution02.json": "0ab8c0c4527a51af19a22b34a8e5471499615de7bbf2c533d794b64900351f79",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/execution03.json": "a391ebdf073af49c50171f41cbcaa9f6d45d9d134acf25a787b7b2dc26bb1a20",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/fixture-author-to-private01.diff": "a7372a983ff9aa9c1d7cb04a8e088aab25b3f1b5ab6a07ca57ced711036cfd26",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/repair02/source-preservation.json": "cbb99907b8d248dcf2a2e5f24aae6c594f77b6cf025b792608719b9c06ba9386",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/source-preparation01.json": "c32b172405c275a266d756158dbeccfd31e34507e3179e7bbb1d6f8a2dfa1070"
+  },
+  "limits": [
+    "33-source candidate acceptance only; README34 not yet reviewed here",
+    "A/API/owner/page bounded prior evidence reused only under exact source hashes",
+    "no full author matrix duplicated and no claim of unobserved author live result or images",
+    "native observer is not proof of Cookie-owner actual join; original stream barriers remain prior controlled owner evidence",
+    "author Z89884/start540243 not owned or reaped; all historical PPID1 zombies untouched",
+    "no final main integration or publication performed"
+  ],
+  "no_owned_resource_remaining": true,
+  "phase_reuse": [
+    {
+      "all_same_in_final": true,
+      "count": 5,
+      "independent_json": "/workspace/scratch/agenteam-outbound-ui-api-independent-myvazu5g/verification-report.json",
+      "independent_report": "/workspace/scratch/agenteam-outbound-ui-api-independent-myvazu5g/verification-report.md",
+      "input": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/api-stage01/manifest.json",
+      "input_sha256": "8e26090e5dd83b0f038af4ece33c52b0d04279db3e1d8513336eef0e1f067267",
+      "json_sha256": "278c7a428f2043e260708fc98a52dcabae17d47cbee7ce57df4dfb016939521a",
+      "report_sha256": "b40b6486f6eed6bd0faf6b2b19097c6d9cd8f2aa182ce1c9a3f18aaec0bed28a",
+      "stage": "api-stage01"
+    },
+    {
+      "all_same_in_final": true,
+      "count": 2,
+      "independent_json": "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/verification-report.json",
+      "independent_report": "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/verification-report.md",
+      "input": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/owner-stage01/manifest.json",
+      "input_sha256": "09955df4c88da7d7b0cf41038210c1fb01d0aba2559a17bdb35417771ceeddba",
+      "json_sha256": "82e2420693af90381e0a7a124cb1da58d1d1d30932a281234381314cf167f1c2",
+      "report_sha256": "20acf2532ab100f903edac9f1dde5d2b93711f6e6feca3822b0eff165a4d5cb2",
+      "stage": "owner-stage01"
+    },
+    {
+      "all_same_in_final": true,
+      "count": 22,
+      "independent_json": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/verification-report.json",
+      "independent_report": "/workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/verification-report.md",
+      "input": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/web-stage01/manifest.json",
+      "input_sha256": "435d3d0d432de68656b68d51cc399e4c66d621ed69e4b73b7c9106984782e7fc",
+      "json_sha256": "59c4983398591c107805b3bddd8e46f388063f91c4e6728498807baecb6e7760",
+      "report_sha256": "3d9372203a7fc5a322a7e4479499c195bac0d7a8da553287e791b89f026b68a0",
+      "stage": "web-stage01"
+    }
+  ],
+  "preserved_failures": [
+    {
+      "classification": "B private post-login URL prerequisite expected outbound instead of fixed bare-login home default; actual1/raw unchanged; post-failure B assertions not credited",
+      "diagnosis": "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/independent01-diagnosis-and-repair02.md",
+      "diagnosis_sha256": "4d2b3ae3e2e25b0e8dace2f53697c84aeacf479b5771963944ba15029d417dd2",
+      "diff": "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/repair02/probe01-to02.diff",
+      "diff_sha256": "47cd7b520d7bc27057d57ed8465fcab2f4dd7e1c2069284c7683d054cf3cf684",
+      "original_probe": "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/repair02/original.spec.ts",
+      "original_probe_sha256": "ca11e2b4b56a2a22d050eef4087cd73c3d69a9f8fdb1d4be2806e242c31c1763",
+      "raw_limit": "old login regex admitted query; no exact old pre-login query observation backfilled",
+      "run": "independent01"
+    },
+    {
+      "classification": "preparation input04->input05 gate mismatch, closure01 wrong package spelling, type01 missing DOM.Iterable all preserved",
+      "report": "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/preparation-ready01.md",
+      "sha256": "3dcc08b945771f26adb645444e96cc393efe354024c1abd6caf8b1620556dfc7"
+    },
+    {
+      "classification": "independent API/owner/page and author stage historical red/precondition limits remain explicitly in linked phase reports; no status rewritten"
+    }
+  ],
+  "product_base": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "real_evidence": {
+    "independent01": {
+      "actual_exit": 1,
+      "actual_wait": true,
+      "adopted_actual_waits": 8,
+      "all_input_fingerprints_unchanged": true,
+      "artifacts": {
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/adopted-waits.json": "09bdb0d85ec56a804737f18c02ae3ddcf526fb81b6d8fbfff5555fe0d02f4fe8",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/cleanup.json": "4cd0bd41738f1c76208a5dda7c6bd9ec5e3be4d1df9a01610477fe7d81f42ec1",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/command.json": "7e3fd96e4292a6dbccc91d4eecb7c843e82408c9bb57a9f9eef16b55dfe65780",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/input-after.json": "45cc81c31ae8d833a7de36a653591bb9aee53e4d38143b019f79a8983dd31698",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/input-before.json": "45cc81c31ae8d833a7de36a653591bb9aee53e4d38143b019f79a8983dd31698",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/raw.log": "d32c4c54c34b24896dadf6758cc55102fd5b28a243fca2ef4f745572ff01f0e7",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/result.json": "e77552a4482ae08474a1dbb2617cadefb6fc328dcb460c7e0dacd26f182efde9"
+      },
+      "baseline_2c4n_preserved": true,
+      "double_clean": true,
+      "owned_exact_resources": 7,
+      "owned_pid_starttime": 153,
+      "seconds": 125.159,
+      "selected_tops": [
+        [
+          "PASS",
+          "TestIndependentOutboundPolicyHistoricalReceipt"
+        ],
+        [
+          "FAIL",
+          "TestIndependentOutboundPolicyConfirmationAuthority"
+        ]
+      ]
+    },
+    "independent02": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_actual_waits": 4,
+      "all_input_fingerprints_unchanged": true,
+      "artifacts": {
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent02/adopted-waits.json": "f3b40e4849db4d198a88740679a629263326d7add1198610e891494cf84990bb",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent02/cleanup.json": "2dfbde16d5caa1489e245d9a11bf7d0be4ccbd4ffd1de2be34e81b05a2f3a388",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent02/command.json": "9b1119190c6086a88cc396adfa8c30cd8336ba11e05eb737083a8dcf86fb1cf6",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent02/input-after.json": "f61ec8df884489a918db0b8b1103e4badd6cf20e64523df88da75bab93fff929",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent02/input-before.json": "f61ec8df884489a918db0b8b1103e4badd6cf20e64523df88da75bab93fff929",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent02/raw.log": "277737a8c1eb85730272fc71f0420a38b4b419001119ea74974e975a05eaf117",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent02/result.json": "0f030128cd19648bbb2f095321e915fdf6967481478a020758dff542fd451166"
+      },
+      "baseline_2c4n_preserved": true,
+      "double_clean": true,
+      "owned_exact_resources": 7,
+      "owned_pid_starttime": 84,
+      "seconds": 58.171,
+      "selected_tops": [
+        [
+          "PASS",
+          "TestIndependentOutboundPolicyConfirmationAuthority"
+        ]
+      ]
+    }
+  },
+  "verdict": "INDEPENDENT PASS for frozen input05, using complete A from independent01 and complete B from independent02; not a single all-green original run",
+  "window_returned_to_root": true
+}

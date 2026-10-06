@@ -1,0 +1,310 @@
+{
+  "accepted_closure_count": 1014,
+  "budgets": {
+    "browser_seconds": 45,
+    "count": 1,
+    "go_package_seconds": 360,
+    "go_top_seconds": 120,
+    "ordinary_seconds": 45,
+    "race": true,
+    "retries": 0,
+    "workers": 1
+  },
+  "checks": {
+    "harness-browser-format-check02": {
+      "actual_exit": 0,
+      "command_sha256": "56847fcce77037d97d58e7d83897d86671f689a461ceefaf88d517cff8cdc4f7",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-format-check02",
+      "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "result_sha256": "71489db8f28a298dbd78293e7f9e7319e4645f5002ad71095e5947de2ac3fa3f",
+      "seconds": 0.491
+    },
+    "harness-browser-list-authority01": {
+      "actual_exit": 0,
+      "command_sha256": "de8aa47e527a3477aa61e37f71e4de044e06706f452a797269e0c0697d0886b3",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-list-authority01",
+      "raw_sha256": "358a036057307ff2743bd8566d44fe1616500a2e78824ae436cc389a58f533b2",
+      "result_sha256": "e5c091ba1e060fc0a5fd9a12b3a566fcd9bfec9c0d078546f2b53aa9dd4ace5e",
+      "seconds": 1.258
+    },
+    "harness-browser-list-mutation01": {
+      "actual_exit": 0,
+      "command_sha256": "0e3b26bbf685999694021aa0c11f90cb77e201c301bbb8b59fe8a4e1cc018d81",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-list-mutation01",
+      "raw_sha256": "2327021703ddf3154ccdc0475cff87479dfaab8bb85d835ea23f7457a0d40230",
+      "result_sha256": "b817a7509072789f4181e2a151dcbdd18999798bfe0655be30b3579a6fad6068",
+      "seconds": 1.476
+    },
+    "harness-browser-list-navigation02": {
+      "actual_exit": 0,
+      "command_sha256": "6e1d3372fededc93f46872773e3810291ec357b2296d728ca8dd4c73bfdc6ce3",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-list-navigation02",
+      "raw_sha256": "959b54783f5aeafa0bfb23280cab39ae37fdd19732111da7c88ca0c88b167d06",
+      "result_sha256": "2a8a44697ee78b3816036f3dac83e5982385418ba9d9ac733644aceea201f1fc",
+      "seconds": 1.179
+    },
+    "harness-browser-list-old-delivery-navigation01": {
+      "actual_exit": 0,
+      "command_sha256": "0ee4f5d881f9eaca4a674e5507c8798dcc50d6cb1e38ae2ed20c359678eb25af",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-list-old-delivery-navigation01",
+      "raw_sha256": "17e3ba6709251f3724487886dc72f27e78459c25477a66a46ae828f49af66c0d",
+      "result_sha256": "385152495c0ebc189b416389b10facc6bb913afcc274349bb6b6d963a00c23fc",
+      "seconds": 1.425
+    },
+    "harness-browser-list-old-delivery-outcome01": {
+      "actual_exit": 0,
+      "command_sha256": "ab424566dfadc2db0deaed9fe7e8cf1544e218f4cf7551eb101ba9358b07a535",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-list-old-delivery-outcome01",
+      "raw_sha256": "3927ef74caf9185400f431ed0161903731af6eb3e7b2c6b9ca4cf212e1a5f8dd",
+      "result_sha256": "d8da42b5987130afd307c9182a920b2c2cc61fb899f85cac48a71c38e94a8514",
+      "seconds": 1.452
+    },
+    "harness-browser-list-old-settings-outcome01": {
+      "actual_exit": 0,
+      "command_sha256": "b2a7f0644d9dafe1117f8fab2950bb7758b7f7c20132c9a97d783e0dac21879c",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-list-old-settings-outcome01",
+      "raw_sha256": "a0daea8fc2e9ae4c06ac38b90a5a795e31fcd251d149727e77e7b3fa3738173e",
+      "result_sha256": "13da59edf620b052a92b202087207f70ae60d436a677b3414dba79d282d3bc4e",
+      "seconds": 1.258
+    },
+    "harness-browser-list-read01": {
+      "actual_exit": 0,
+      "command_sha256": "eaae96e44bb36fba38d392e37787b220468af405ba69c0d1714ddda0ff537f40",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-list-read01",
+      "raw_sha256": "13fbfdddd1184973fe39a2631eccc80fa6c3269407584dfc21c78ea4d0bd225f",
+      "result_sha256": "f14d9a35ce1bceb79b25a8455353817472044c3a9f5b66a7596d4575200ff875",
+      "seconds": 1.441
+    },
+    "harness-browser-type03": {
+      "actual_exit": 0,
+      "command_sha256": "9df1ab506137faf0132909095ea305f5ddfd9e4bab60d976ed0fd053efb59f09",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-type03",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "61bd3b77b313bc05dbe895c71e9943ae4064f7e18b8841542618d1149cf3d3a4",
+      "seconds": 1.195
+    },
+    "harness-go-compile02": {
+      "actual_exit": 0,
+      "command_sha256": "49143a5b8a62d1d65cb197aaa9f4c392ae578e9f8642a6383a3e6feeaaf2a2bd",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-compile02",
+      "raw_sha256": "53fbdd29d58e639567ab89cf00212be7295468a596be405d816045465cc7a831",
+      "result_sha256": "83769f93d4021f274cf3ea63457c0d2cf003397d03844f7fdd70e09ef4ea6d4e",
+      "seconds": 7.411
+    },
+    "harness-go-list01": {
+      "actual_exit": 0,
+      "command_sha256": "be7a1fb21c6ebb949e868d2d75011e18210a875b53a7b4e3e04d3927fdc1f695",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-list01",
+      "raw_sha256": "e8596f97b2a542aaadb04f9a35a30e40951101901df9f07e5c27842113182808",
+      "result_sha256": "819b747c8b6412db053129a16ad015330d5b7949a84c841e7bfa812367279ea2",
+      "seconds": 2.098
+    },
+    "harness-go-vet02": {
+      "actual_exit": 0,
+      "command_sha256": "d68eee85e1b281aa1059cd21724c8e2604ef27ade10cfd96903739316276d52d",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-vet02",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "1c1ddaf14c428a50a665b76c239d401bbc2da1b863a9e789bb2e92eccc91a54d",
+      "seconds": 0.814
+    },
+    "input-gate02": {
+      "actual_exit": 0,
+      "command_sha256": "effc9e607b28a801a3cd88f0a78d86df4762442dbb8d165907136c12576ba482",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/input-gate02",
+      "raw_sha256": "1522bfb6edeb4f8c98828f22a8b08bff6e916786fdeef6c0c46489de2820dd74",
+      "result_sha256": "1b0291c52f136c2fc8638eb6f84c0604d9d9befb9ebec62dafcfc3ab8e60f5ce",
+      "seconds": 1.365
+    },
+    "input-gate03": {
+      "actual_exit": 0,
+      "command_sha256": "7c5ce74d5b20db0a8bfd2d6481c94ac1f1ecd61eeef3b53d121c64ca3201a29d",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/input-gate03",
+      "raw_sha256": "1522bfb6edeb4f8c98828f22a8b08bff6e916786fdeef6c0c46489de2820dd74",
+      "result_sha256": "2a78f583b04d112072e98d6a0f3ec2d42601d45211612ec47aee05312b657c9b",
+      "seconds": 0.978
+    },
+    "offline-subreaper-probe01": {
+      "actual_exit": 0,
+      "command_sha256": "a4ddd0b19f9ed12013c8c72bc12b22ec9177f5eb3e245a8c1df92cc9f98ef3d0",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/offline-subreaper-probe01",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "00ed278c68b50d78ba380e222a3b65254d66918d1441cd798d62bb5b35336261",
+      "seconds": 0.156
+    },
+    "resource-baseline-read01": {
+      "actual_exit": 0,
+      "command_sha256": "4f534713426725bad4e2146f146850699cfcd87aa374c7eb01219c0929cec498",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/resource-baseline-read01",
+      "raw_sha256": "c4df3d277ae4c52c4fc1407fcab067efd9605d9ee7525fdc81a3fa1601b5e786",
+      "result_sha256": "3e37d11097d55d1cdac5ee30285c247b17907877a31f9e8ab1d37e7acb9a5435",
+      "seconds": 0.291
+    },
+    "runtime-process-compile02": {
+      "actual_exit": 0,
+      "command_sha256": "d6795e102f46418c80b1bebcc750edc42a5b13f6b7ea84d1aa139bb4dbb5f705",
+      "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/runtime-process-compile02",
+      "raw_sha256": "aaf815475d8359cdee456905159d6fba1e1153573ff0724a763f7a48b0009323",
+      "result_sha256": "3ae8c6cdb8bd52028883163cd7d446e6828bfa39b976368d0bf3071039241b0a",
+      "seconds": 3.403
+    }
+  },
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i",
+  "dist_count": 38,
+  "driver": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/driver02.py",
+  "driver_difference": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/driver02.diff",
+  "driver_difference_sha256": "dba97bb89ce8f8980b69a8b4a9c635104d077f7bedc394d1df9cc772aa657868",
+  "driver_sha256": "d6ff37eaa64b617496dcc1dae6572dfacc1b276b3ee28cfea02964ae213d725b",
+  "execution_requires_root_followup": true,
+  "groups": [
+    {
+      "expected_exact_resources": 7,
+      "group": "mutation",
+      "name": "mutation01",
+      "selector": "^(TestAccountSystemOutboundPolicyWebMutationAndRecovery)$",
+      "startup_argv": [
+        "python3",
+        "driver02.py",
+        "--name",
+        "mutation01",
+        "--group",
+        "mutation",
+        "--frozen",
+        "input03/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ]
+    },
+    {
+      "expected_exact_resources": 7,
+      "group": "authority",
+      "name": "authority01",
+      "selector": "^(TestAccountSystemOutboundPolicyWebAuthorityAndOwnership)$",
+      "startup_argv": [
+        "python3",
+        "driver02.py",
+        "--name",
+        "authority01",
+        "--group",
+        "authority",
+        "--frozen",
+        "input03/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ]
+    },
+    {
+      "expected_exact_resources": 7,
+      "group": "navigation",
+      "name": "navigation01",
+      "selector": "^(TestAccountSystemOutboundPolicyWebNavigationAndLayouts)$",
+      "startup_argv": [
+        "python3",
+        "driver02.py",
+        "--name",
+        "navigation01",
+        "--group",
+        "navigation",
+        "--frozen",
+        "input03/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ]
+    },
+    {
+      "expected_exact_resources": 9,
+      "group": "old-delivery-navigation",
+      "name": "old-delivery-navigation01",
+      "selector": "^(TestAccountSystemSMTPDeliveryWebNavigationAndLayouts)$",
+      "startup_argv": [
+        "python3",
+        "driver02.py",
+        "--name",
+        "old-delivery-navigation01",
+        "--group",
+        "old-delivery-navigation",
+        "--frozen",
+        "input03/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ]
+    },
+    {
+      "expected_exact_resources": 7,
+      "group": "old-settings-outcome",
+      "name": "old-settings-outcome01",
+      "selector": "^(TestAccountSystemSMTPSettingsWebOutcomeRecovery)$",
+      "startup_argv": [
+        "python3",
+        "driver02.py",
+        "--name",
+        "old-settings-outcome01",
+        "--group",
+        "old-settings-outcome",
+        "--frozen",
+        "input03/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ]
+    },
+    {
+      "expected_exact_resources": 9,
+      "group": "old-delivery-outcome",
+      "name": "old-delivery-outcome01",
+      "selector": "^(TestAccountSystemSMTPDeliveryWebOutcomeRecovery)$",
+      "startup_argv": [
+        "python3",
+        "driver02.py",
+        "--name",
+        "old-delivery-outcome01",
+        "--group",
+        "old-delivery-outcome",
+        "--frozen",
+        "input03/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ]
+    }
+  ],
+  "input": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input03/manifest.json",
+  "input_sha256": "6f01958a3a0b3275524da4ff678f6da20092fa2daebf563d288e4c3563141e82",
+  "preparation_baseline": {
+    "counts": {
+      "container": 2,
+      "network": 4
+    },
+    "must_resample_before_actual_run": true,
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/resource-baseline-preparation01.json",
+    "sha256": "44b9f8958100cbdb4ba5c8ea2626f908b4f24a60c945223ee162f251b31da1ab"
+  },
+  "prior_task_owned_orphan": {
+    "do_not_claim_unrelated_or_recovered": true,
+    "original_run": "runtime-go-compile01",
+    "pid": 89884,
+    "starttime": "540243",
+    "unreaped": true
+  },
+  "product_base": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "read01_not_to_repeat": {
+    "browser_seconds": 11.8,
+    "business_pass": true,
+    "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01",
+    "original_driver_double_cleanup": false,
+    "original_first_baseline_mismatch_cause": "unproven; complete first snapshot was not retained",
+    "outer_tool_actual_exit": 1,
+    "shell_actual_exit": 0,
+    "shell_seconds": 84.641,
+    "subsequent_cleanup_verification": "followup02 actual 0; exact full fields with Mounts multiset comparison, original seven IDs and 100 PID/starttime absent twice; original artifacts unchanged",
+    "top_seconds": 14.68
+  },
+  "readonly_cleanup_followup02": {
+    "actual_exit": 0,
+    "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01-cleanup-followup02",
+    "raw_sha256": "1bade12a20db0469111589e1df5166451be2e410ae60f285a9052f782d7038ba",
+    "result_sha256": "ec289276365f1b4a7cc66e01d1f798995180c885db6d97022b7a1d242e4455be",
+    "seconds": 1.199625,
+    "sweeps_sha256": "e3398e1104a6b8be41c9db95c1be7df62ddd298c5903559078391b1d778afc94"
+  },
+  "resources_authorized": false,
+  "source_count": 33,
+  "source_cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace"
+}

@@ -1,0 +1,122 @@
+import ctypes
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import signal
+import subprocess
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parent
+EXECUTION = ROOT / 'execution01.json'
+plan = json.loads(EXECUTION.read_text())
+RUN = ROOT / 'runs' / 'api01'
+RUN.mkdir(parents=True, exist_ok=False)
+
+def save(name, value):
+    (RUN / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+def digest(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+def fingerprints():
+    actual = {p: digest(p) for p in plan['files']}
+    return {'files': actual, 'matches_frozen': actual == plan['files'], 'execution_sha256': digest(EXECUTION)}
+
+def processes():
+    found = {}
+    for p in Path('/proc').iterdir():
+        if not p.name.isdigit():
+            continue
+        try:
+            raw = (p / 'stat').read_text()
+            fields = raw[raw.rfind(')') + 2:].split()
+            found[int(p.name)] = {'pid': int(p.name), 'ppid': int(fields[1]), 'pgid': int(fields[2]), 'state': fields[0], 'starttime': fields[19]}
+        except (OSError, ValueError, IndexError):
+            pass
+    return found
+
+before = fingerprints()
+save('input-before.json', before)
+if not before['matches_frozen']:
+    raise SystemExit('input gate failed before execution')
+if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+    raise RuntimeError('subreaper setup failed')
+tmp = RUN / 'tmp'
+tmp.mkdir()
+env = os.environ.copy()
+env.update({'TMPDIR': str(tmp), 'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8', 'TZ': 'UTC'})
+argv = plan['argv']
+command = {'argv': argv, 'cwd': str(ROOT), 'env_overrides': {k: env[k] for k in ['TMPDIR', 'LANG', 'LC_ALL', 'TZ']}, 'subreaper_before_child': True, 'execution_sha256': digest(EXECUTION), 'actual_wait': False, 'resource_execution': False}
+save('command.json', command)
+owned = {}
+started = time.monotonic()
+timed_out = False
+with (RUN / 'raw.log').open('wb') as raw:
+    child = subprocess.Popen(argv, cwd=ROOT, env=env, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)
+    child_pid = child.pid
+    command['pid'] = child_pid
+    save('command.json', command)
+    while True:
+        snapshot = processes()
+        descendants = {os.getpid(), child_pid}
+        changed = True
+        while changed:
+            changed = False
+            for pid, row in snapshot.items():
+                if pid != os.getpid() and (row['ppid'] in descendants or row['pgid'] == child_pid) and pid not in descendants:
+                    descendants.add(pid)
+                    changed = True
+        for pid in descendants - {os.getpid()}:
+            if pid in snapshot:
+                row = snapshot[pid]
+                owned[(pid, row['starttime'])] = row
+        try:
+            exit_code = child.wait(timeout=0.02)
+            break
+        except subprocess.TimeoutExpired:
+            if time.monotonic() - started > 45:
+                timed_out = True
+                os.killpg(child_pid, signal.SIGTERM)
+                try:
+                    exit_code = child.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    os.killpg(child_pid, signal.SIGKILL)
+                    exit_code = child.wait()
+                break
+actual_seconds = time.monotonic() - started
+command.update({'actual_wait': True, 'actual_exit': exit_code, 'seconds': actual_seconds, 'timeout': timed_out})
+save('command.json', command)
+adopted = []
+while True:
+    try:
+        pid, status = os.waitpid(-1, os.WNOHANG)
+    except ChildProcessError:
+        break
+    if pid == 0:
+        break
+    adopted.append({'pid': pid, 'wait_status': status})
+
+def scan():
+    snapshot = processes()
+    retained = [row for (pid, start), row in owned.items() if pid in snapshot and snapshot[pid]['starttime'] == start]
+    unexpected = [row for pid, row in snapshot.items() if pid != os.getpid() and (row['ppid'] == os.getpid() or row['pgid'] == child_pid)]
+    return {'known_pid_starttime_remaining': retained, 'owned_descendants_remaining': unexpected}
+
+first = scan()
+time.sleep(0.05)
+second = scan()
+after = fingerprints()
+save('input-after.json', after)
+shutil.rmtree(tmp)
+clean = not any(first.values()) and not any(second.values()) and not tmp.exists()
+cleanup = {'node_actual_wait': True, 'node_pid': child_pid, 'observed_owned_pid_starttime': list(owned.values()), 'adopted_waits': adopted, 'scan1': first, 'scan2': second, 'tmp_removed': not tmp.exists(), 'clean': clean, 'services_or_listeners_started': False, 'docker_or_browser_started': False}
+save('cleanup.json', cleanup)
+compiled = {str(p.relative_to(RUN)): digest(p) for p in sorted((RUN / 'compiled').rglob('*')) if p.is_file()} if (RUN / 'compiled').exists() else {}
+save('compiled-output.json', compiled)
+result = {'actual_exit': exit_code, 'actual_wait': True, 'seconds': actual_seconds, 'timeout': timed_out, 'input_before_matches': before['matches_frozen'], 'input_after_matches': after['matches_frozen'], 'input_unchanged': before == after, 'cleanup_clean': clean, 'node_processes_observed': len(owned), 'adopted_wait_count': len(adopted), 'raw_sha256': digest(RUN / 'raw.log'), 'cleanup_sha256': digest(RUN / 'cleanup.json')}
+save('result.json', result)
+print(json.dumps(result))
+sys.exit(0 if exit_code == 0 and not timed_out and clean and before == after and after['matches_frozen'] else 1)

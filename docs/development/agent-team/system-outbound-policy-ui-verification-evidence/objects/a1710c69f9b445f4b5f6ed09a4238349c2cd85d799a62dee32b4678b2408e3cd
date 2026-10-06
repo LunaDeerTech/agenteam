@@ -1,0 +1,371 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validAccountLinkToken = validAccountLinkToken;
+exports.parseAccountUser = user;
+exports.createAccountAPI = createAccountAPI;
+const client_1 = require("./client");
+function validAccountLinkToken(value) {
+    return (typeof value === 'string' &&
+        value.length === 80 &&
+        client_1.uuid7.test(value.slice(0, 36)) &&
+        /^\.[A-Za-z0-9_-]{43}$/.test(value.slice(36)));
+}
+function linkInput(value) {
+    const v = (0, client_1.shape)(value, ['token']);
+    requireValue(validAccountLinkToken(v.token));
+    return { token: v.token };
+}
+function newPassword(value, confirmation) {
+    const password = (0, client_1.string)(value, 15, 128);
+    requireValue(password === confirmation && new TextEncoder().encode(password).byteLength <= 512);
+    return password;
+}
+function invitationInput(value) {
+    const v = (0, client_1.shape)(value, ['token', 'username', 'password', 'confirmation'], ['display_name']);
+    const profile = profileInput({
+        version: '1',
+        username: v.username,
+        ...(v.display_name === undefined ? {} : { display_name: v.display_name }),
+    });
+    const password = newPassword(v.password, v.confirmation);
+    return {
+        ...linkInput({ token: v.token }),
+        username: profile.username,
+        ...(profile.display_name === undefined ? {} : { display_name: profile.display_name }),
+        password,
+        confirmation: password,
+    };
+}
+function browserReadOptions(options) {
+    return {
+        csrf: csrf(options.csrfToken),
+        signal: options.signal ?? new AbortController().signal,
+    };
+}
+function requireValue(condition) {
+    if (!condition)
+        throw new client_1.AccountFailure('invalid-response');
+}
+function id(value) {
+    const result = (0, client_1.string)(value, 36, 36);
+    requireValue(client_1.uuid7.test(result));
+    return result;
+}
+function instant(value) {
+    const result = (0, client_1.string)(value, 27, 27);
+    requireValue(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(result) &&
+        Number.isFinite(Date.parse(result)));
+    return result;
+}
+function csrf(value) {
+    const result = (0, client_1.string)(value, 43, 43);
+    requireValue(/^[A-Za-z0-9_-]{43}$/.test(result));
+    return result;
+}
+function pass(value) {
+    const result = (0, client_1.string)(value, 80, 80);
+    requireValue(/^[\x21-\x7e]{80}$/.test(result));
+    return result;
+}
+function email(value) {
+    const result = (0, client_1.string)(value, 3, 254);
+    requireValue(/^[\x21-\x7e]+$/.test(result) && /^[^@<>(),;:]+@[^@<>(),;:]+$/.test(result));
+    return result;
+}
+function user(value) {
+    const u = (0, client_1.shape)(value, [
+        'id',
+        'email',
+        'username',
+        'display_name',
+        'role',
+        'theme',
+        'version',
+        'initial_password_suggestion',
+    ]);
+    requireValue(u.role === 'admin' || u.role === 'user');
+    requireValue(u.theme === 'system' || u.theme === 'light' || u.theme === 'dark');
+    const version = (0, client_1.string)(u.version, 1, 19);
+    requireValue(/^[1-9][0-9]*$/.test(version) && BigInt(version) <= 9223372036854775807n);
+    const displayName = (0, client_1.string)(u.display_name, 0, 80);
+    requireValue(!/[\x00-\x1f\x7f]/.test(displayName) && typeof u.initial_password_suggestion === 'boolean');
+    return {
+        id: id(u.id),
+        email: email(u.email),
+        username: (0, client_1.string)(u.username, 0, 32),
+        display_name: displayName,
+        role: u.role,
+        theme: u.theme,
+        version,
+        initial_password_suggestion: u.initial_password_suggestion,
+    };
+}
+function session(value) {
+    const s = (0, client_1.shape)(value, ['id', 'issued_at', 'absolute_expires_at', 'idle_expires_at']);
+    return {
+        id: id(s.id),
+        issued_at: instant(s.issued_at),
+        absolute_expires_at: instant(s.absolute_expires_at),
+        idle_expires_at: instant(s.idle_expires_at),
+    };
+}
+function sessionView(value) {
+    const v = (0, client_1.shape)(value, ['user', 'session', 'csrf_token']);
+    return { user: user(v.user), session: session(v.session), csrf_token: csrf(v.csrf_token) };
+}
+function loginResult(value) {
+    const v = (0, client_1.shape)(value, ['user', 'session', 'next_path']);
+    requireValue(v.next_path === '/');
+    return { user: user(v.user), session: session(v.session), next_path: '/' };
+}
+function challenge(value) {
+    const v = (0, client_1.shape)(value, ['id', 'mode', 'master', 'thumb', 'expires_at']);
+    requireValue(v.mode === 'rotate');
+    const master = (0, client_1.string)(v.master, 1, 262144), thumb = (0, client_1.string)(v.thumb, 1, 262144);
+    requireValue(master.length + thumb.length <= 262144 &&
+        [master, thumb].every((image) => /^data:image\/png;base64,[A-Za-z0-9+/]+={0,2}$/.test(image)));
+    return { id: id(v.id), mode: 'rotate', master, thumb, expires_at: instant(v.expires_at) };
+}
+function input(validate) {
+    try {
+        return validate();
+    }
+    catch {
+        throw new client_1.AccountFailure('invalid-input');
+    }
+}
+function key(value) {
+    requireValue(/^[A-Za-z0-9._:/-]{1,128}$/.test(value));
+    return value;
+}
+function loginInput(value) {
+    const password = (0, client_1.string)(value.password, 15, 128);
+    requireValue(new TextEncoder().encode(password).byteLength <= 512);
+    return {
+        email: email(value.email),
+        password,
+        ...(value.challenge_pass === undefined ? {} : { challenge_pass: pass(value.challenge_pass) }),
+    };
+}
+function version(value, zero = false) {
+    const result = (0, client_1.string)(value, 1, 19);
+    requireValue((zero ? /^(0|[1-9][0-9]*)$/ : /^[1-9][0-9]*$/).test(result) &&
+        BigInt(result) <= 9223372036854775807n);
+    return result;
+}
+function theme(value) {
+    requireValue(value === 'system' || value === 'light' || value === 'dark');
+    return value;
+}
+function media(value) {
+    requireValue(value === 'image/jpeg' || value === 'image/png' || value === 'image/webp');
+    return value;
+}
+function avatarMetadata(value) {
+    const v = (0, client_1.shape)(value, ['media_type', 'byte_size', 'sha256']);
+    const digest = (0, client_1.string)(v.sha256, 71, 71);
+    requireValue(/^sha256:[0-9a-f]{64}$/.test(digest));
+    return { media_type: media(v.media_type), byte_size: version(v.byte_size, true), sha256: digest };
+}
+function profile(value) {
+    const v = (0, client_1.shape)(value, ['user', 'avatar']);
+    return { user: user(v.user), avatar: v.avatar === null ? null : avatarMetadata(v.avatar) };
+}
+function preferences(value) {
+    const v = (0, client_1.shape)(value, ['version', 'theme']);
+    return { version: version(v.version), theme: theme(v.theme) };
+}
+function profileInput(value) {
+    const v = (0, client_1.shape)(value, ['version'], ['username', 'display_name']);
+    requireValue(v.username !== undefined || v.display_name !== undefined);
+    let username, displayName;
+    if (Object.hasOwn(v, 'username')) {
+        username = (0, client_1.string)(v.username, 3, 32);
+        requireValue(/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(username));
+    }
+    if (Object.hasOwn(v, 'display_name')) {
+        displayName = (0, client_1.string)(v.display_name, 0, 80);
+        requireValue(!/[\x00-\x1f\x7f-\x9f]/.test(displayName) &&
+            new TextEncoder().encode(displayName).byteLength <= 320);
+    }
+    return {
+        version: version(v.version),
+        ...(username === undefined ? {} : { username }),
+        ...(displayName === undefined ? {} : { display_name: displayName }),
+    };
+}
+function passwordInput(value) {
+    const v = (0, client_1.shape)(value, ['version', 'current_password', 'new_password', 'confirmation']);
+    const current = (0, client_1.string)(v.current_password, 1, 512), next = (0, client_1.string)(v.new_password, 15, 128), confirmation = (0, client_1.string)(v.confirmation, 15, 128);
+    requireValue([current, next, confirmation].every((s) => new TextEncoder().encode(s).byteLength <= 512) &&
+        next === confirmation);
+    return {
+        version: version(v.version),
+        current_password: current,
+        new_password: next,
+        confirmation,
+    };
+}
+function writeOptions(options) {
+    return {
+        csrf: csrf(options.csrfToken),
+        key: key(options.key),
+        signal: options.signal ?? new AbortController().signal,
+    };
+}
+function createAccountAPI(fetcher) {
+    const request = (0, client_1.accountTransport)(fetcher);
+    return {
+        inspectInvitation(value, options) {
+            return request('inspectInvitation', (value) => {
+                const v = (0, client_1.shape)(value, ['email', 'expires_at']);
+                return { email: email(v.email), expires_at: instant(v.expires_at) };
+            }, input(() => ({ body: linkInput(value), ...browserReadOptions(options) })));
+        },
+        redeemInvitation(value, options) {
+            return request('redeemInvitation', (value) => {
+                const v = (0, client_1.shape)(value, ['completed', 'login_required']);
+                requireValue(v.completed === true && v.login_required === true);
+                return { completed: true, login_required: true };
+            }, input(() => ({ body: invitationInput(value), ...writeOptions(options) })));
+        },
+        requestPasswordReset(value, options) {
+            return request('requestPasswordReset', (value) => {
+                const v = (0, client_1.shape)(value, ['accepted', 'delivery_channel']);
+                requireValue(v.accepted === true &&
+                    (v.delivery_channel === 'smtp' || v.delivery_channel === 'backend_log'));
+                return { accepted: true, delivery_channel: v.delivery_channel };
+            }, input(() => ({
+                body: { email: email((0, client_1.shape)(value, ['email']).email) },
+                ...writeOptions(options),
+            })));
+        },
+        inspectPasswordReset(value, options) {
+            return request('inspectPasswordReset', (value) => {
+                const v = (0, client_1.shape)(value, ['valid', 'expires_at']);
+                requireValue(v.valid === true);
+                return { valid: true, expires_at: instant(v.expires_at) };
+            }, input(() => ({ body: linkInput(value), ...browserReadOptions(options) })));
+        },
+        completePasswordReset(value, options) {
+            return request('completePasswordReset', () => undefined, input(() => {
+                const v = (0, client_1.shape)(value, ['token', 'new_password', 'confirmation']);
+                const password = newPassword(v.new_password, v.confirmation);
+                return {
+                    body: {
+                        ...linkInput({ token: v.token }),
+                        new_password: password,
+                        confirmation: password,
+                    },
+                    ...writeOptions(options),
+                };
+            }));
+        },
+        getProfile(signal = new AbortController().signal) {
+            return request('profile', profile, { signal });
+        },
+        updateProfile(value, options) {
+            return request('updateProfile', profile, input(() => ({ body: profileInput(value), ...writeOptions(options) })));
+        },
+        getPreferences(signal = new AbortController().signal) {
+            return request('preferences', preferences, { signal });
+        },
+        setPreferences(value, options) {
+            return request('setPreferences', preferences, input(() => ({ body: preferences(value), ...writeOptions(options) })));
+        },
+        readAvatar(signal = new AbortController().signal) {
+            return request('avatar', (value) => {
+                const v = (0, client_1.shape)(value, ['metadata', 'blob']);
+                const metadata = avatarMetadata(v.metadata);
+                requireValue(v.blob instanceof Blob &&
+                    v.blob.size === Number(metadata.byte_size) &&
+                    v.blob.type === metadata.media_type);
+                return { metadata, blob: v.blob };
+            }, { signal });
+        },
+        putAvatar(value, options) {
+            return request('putAvatar', profile, input(() => {
+                const v = (0, client_1.shape)(value, ['version', 'file', 'mediaType']);
+                requireValue(v.file instanceof File && v.file.size > 0 && v.file.size <= 5 * 1024 * 1024);
+                return {
+                    avatar: {
+                        file: v.file,
+                        version: version(v.version),
+                        mediaType: media(v.mediaType),
+                    },
+                    ...writeOptions(options),
+                };
+            }));
+        },
+        deleteAvatar(value, options) {
+            return request('deleteAvatar', () => undefined, input(() => ({
+                body: { version: version((0, client_1.shape)(value, ['version']).version) },
+                ...writeOptions(options),
+            })));
+        },
+        changePassword(value, options) {
+            return request('changePassword', (value) => {
+                const v = (0, client_1.shape)(value, ['completed', 'next_path']);
+                requireValue(v.completed === true && v.next_path === '/');
+                return { completed: true, next_path: '/' };
+            }, input(() => ({ body: passwordInput(value), ...writeOptions(options) })));
+        },
+        bootstrap(signal) {
+            return request('bootstrap', (value) => {
+                const v = (0, client_1.shape)(value, ['csrf_token', 'challenge_modes', 'delivery_channel']);
+                requireValue(Array.isArray(v.challenge_modes) &&
+                    v.challenge_modes.length === 1 &&
+                    v.challenge_modes[0] === 'rotate');
+                requireValue(v.delivery_channel === 'smtp' || v.delivery_channel === 'backend_log');
+                return {
+                    csrf_token: csrf(v.csrf_token),
+                    challenge_modes: ['rotate'],
+                    delivery_channel: v.delivery_channel,
+                };
+            }, { signal });
+        },
+        getSession(signal) {
+            return request('session', sessionView, { signal });
+        },
+        login(value, token, commandKey, signal) {
+            const options = input(() => ({
+                body: loginInput(value),
+                csrf: csrf(token),
+                key: key(commandKey),
+                signal,
+            }));
+            return request('login', loginResult, options);
+        },
+        logout(token, commandKey, signal) {
+            const options = input(() => ({ body: {}, csrf: csrf(token), key: key(commandKey), signal }));
+            return request('logout', () => undefined, options);
+        },
+        createChallenge(value, token, signal) {
+            const options = input(() => {
+                requireValue(value.mode === 'rotate');
+                return {
+                    body: { mode: 'rotate', email: email(value.email), login_key: key(value.login_key) },
+                    csrf: csrf(token),
+                    signal,
+                };
+            });
+            return request('challenge', challenge, options);
+        },
+        verifyChallenge(value, token, signal) {
+            const options = input(() => {
+                requireValue(Number.isInteger(value.proof.angle) && value.proof.angle >= 0 && value.proof.angle <= 360);
+                return {
+                    body: {
+                        email: email(value.email),
+                        login_key: key(value.login_key),
+                        challenge_id: id(value.challenge_id),
+                        proof: { angle: value.proof.angle },
+                    },
+                    csrf: csrf(token),
+                    signal,
+                };
+            });
+            return request('verify', (value) => ({ pass: pass((0, client_1.shape)(value, ['pass']).pass) }), options);
+        },
+    };
+}

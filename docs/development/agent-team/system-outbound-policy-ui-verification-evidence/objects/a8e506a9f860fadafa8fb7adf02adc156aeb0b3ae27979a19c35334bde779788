@@ -1,0 +1,39 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "list",
+    "-deps",
+    "-test",
+    "-overlay",
+    "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/oracle/overlay.json",
+    "-f",
+    "{{if and .Module .Module.Main}}{{.Dir}}|{{join .GoFiles \",\"}}|{{join .CgoFiles \",\"}}|{{join .TestGoFiles \",\"}}|{{join .XTestGoFiles \",\"}}{{end}}",
+    "./internal/central/outbound"
+  ],
+  "child_pid": 46755,
+  "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace",
+  "duration_seconds": 0.118,
+  "env": {
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "input_after_sha256": "64f88006fc18fa02953123b1112e69a03c40f4a44023590e51a16f48fad15e04",
+  "input_before_sha256": "64f88006fc18fa02953123b1112e69a03c40f4a44023590e51a16f48fad15e04",
+  "input_unchanged": true,
+  "raw_sha256": "fb5817d010224306dd587cfa150e4f52fb000fee1311d9f4abf0c13025ec2a9c",
+  "resource_execution": false,
+  "runner_sha256": "bdaea5ec7572c0445195f3dbc28ab2cf0b01a1905d0fdf91022ce77a72ddf70b",
+  "timed_out": false
+}

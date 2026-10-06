@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--unhandled-rejections=strict",
+    "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/probe02.cjs"
+  ],
+  "cwd": "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb",
+  "env_overrides": {
+    "TMPDIR": "/workspace/scratch/agenteam-outbound-ui-owner-independent-b21govmb/runs/owner02/tmp",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "fc5a51efe2d4c00d200e277252ec214a0e27d0578a7482724d166638ad1f29f3",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 60635,
+  "actual_exit": 0,
+  "seconds": 0.7122410140000284,
+  "timeout": false
+}

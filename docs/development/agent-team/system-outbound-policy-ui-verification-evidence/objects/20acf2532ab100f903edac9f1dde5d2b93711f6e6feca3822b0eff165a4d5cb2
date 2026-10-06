@@ -1,0 +1,32 @@
+# Outbound UI 阶段 B 独立验收：有界 PASS
+
+固定 owner-stage01 manifest `09955df4c88da7d7b0cf41038210c1fb01d0aba2559a17bdb35417771ceeddba`；基线 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`，正式卡 `f843506d9ec991be1c334a81b88d5cbacc277467`。只消费 2 候选、原 A 阶段 5 源和 21 固定 Git 依赖，未读活动页面源、未改产品。
+
+两候选：
+
+- `web/src/composables/useSession.ts` — `573268bdb7d3ea5524858c53b901cac8d095591ad46e4855cbe7e6d50330011c`
+- `web/src/tests/system-outbound-policy-state.spec.ts` — `a9027e18cd11a810df9cf5254ba3de315836c388b21907e385bcebb4dd255982`
+
+静核安全清理优先于业务拒绝：合法身份/代次守卫下的 401 配对、仅本域写入的 `(403,CSRF_FAILED)`、当前 `(403,FORBIDDEN)` 清理私有状态；错配不借本域新 CSRF 分支清理。四项首次业务拒绝闭集不覆盖历史 unknown。`checkOriginal` 只做 Session→当前 GET，失败 GET 后须实际 owner 尾部结束才可重放。原材料在新 key 前捕获，确认/丢弃销毁，旧代次不得续写新状态。
+
+独立 `runs/owner02` 两组合实际 PASS，Node actual wait exit **0 / 0.712241014s**；探针本体 **64.071172ms**。虚拟时钟只推进 **30,000ms**，未冒称真实等待 30 秒。
+
+- A：首次已知拒绝；503/400 CSRF 与 401 FORBIDDEN 错配保留；Session/GET 不代 receipt；错误媒体 GET 的原生 cancel 屏障内禁止重放、真实 join 后允许；后续 409 不抹旧 unknown；原 method/path/key/body/合法 CSRF 相等；当前版本 19 不替历史 receipt 2；key conflict 不自动换 key；合法 401/403 在 committed/unknown 时仍优先销毁全系统私有材料。
+- B：完整 JSON 未 EOF 不确认；可见超时后 busy/唯一 owner 保留；personal、SMTP 配置、投递的双向 abandon/写尾部隔离；5 个原生取消屏障（含 A）真实释放后 owner 清空；另一个已解析旧 401 的最终 cancel 屏障结束前不允许新 Session，结束后新身份正常恢复。
+
+1 owned PID `60635/start400053` 实际 wait；两扫为空，0 adopted waits，TMP 删除，输入前后同 SHA。34 个实际加载 runtime 文件均在前置指纹内。无服务、浏览器、监听、Docker 或外部网络请求。只设 theme dataset 接收器，不声明 DOM/焦点行为；单 Node TS 转译不替全项目类型检查。
+
+原件保留：`runs/owner01` actual1 / 0.644631125s，第一条 `A-first-known-rejection` 失败，未完成两组。私有 Problem fixture 漏了严格 parser 要求的 `X-Request-ID`；`probe01-to02.diff` 仅补该头及独立输出路径，原断言未改。原 raw 没记录错误 kind，不倒填。原运行也已 actual wait/双清。
+
+作者证据分列复用：原 99 PASS + 补充 3 PASS + 修正代表 1 PASS，**不是单轮 103 全跑**；生产 useSession/API 字节一致。原 `owner-pure02` actual1 的 cancel Promise 未显式释放，不能因进程已退出声称当轮 in-process join。该限制、原 raw 和源均保留。既有 A 阶段 canonical/预算证据按五源逐字复用，不重复矩阵。
+
+精确入口与原件（均在本报告同根）：
+
+- `execution02.json` `fc5a51efe2d4c00d200e277252ec214a0e27d0578a7482724d166638ad1f29f3`
+- `probe02.cjs` `24b713ad5ea2a7b0aa6bcd90175b09e249554865d5739e56ea25403f6827ec9d`；原新差量 `probe01-to02.diff` `867613f59e4432bb0ff9c5bc4a9aa511f27ad206cfaf23bee579de7c4ed8eea5`
+- `runs/owner02/raw.log` `8df99d45053faeb3e2d528db5e1bb9a876de17969d4863ec7333e3b733f3a9c0`
+- `runs/owner02/result.json` `f56be13efaca313c28dba443b02f1049f12dea7a8ad57143d04051cfb4fd6c69`
+- `runs/owner02/cleanup.json` `a3ff203ed91cd19b5817527fe828e5159da0a39773034a785fa10e65f8f5402b`
+- `verification-report.json` `82e2420693af90381e0a7a124cb1da58d1d1d30932a281234381314cf167f1c2` 完整绑定两个运行的 command/raw/result/input-before/after、probe 及原作者失败差量。
+
+本结论仅覆盖阶段 B 的两离线风险组合与静态接缝，页面、浏览器和真实后端验收待后续固定输入及授权。现在停止写入，不新增运行。

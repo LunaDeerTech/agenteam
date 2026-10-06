@@ -1,0 +1,31 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/outbound-rules.spec.ts src/tests/system-outbound-policy-client.spec.ts src/tests/system-smtp-delivery-client.spec.ts src/tests/system-smtp-settings-client.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace/web
+
+ ❯ src/tests/system-outbound-policy-client.spec.ts (38 tests | 1 failed) 195ms
+     × requires exact options and leaves all old endpoint byte allowances intact 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-outbound-policy-client.spec.ts > outbound policy strict API > requires exact options and leaves all old endpoint byte allowances intact
+AccountFailure: invalid-input
+ ❯ request src/api/client.ts:533:15
+    531|           throw new Error()
+    532|       } catch {
+    533|         throw new AccountFailure('invalid-input')
+       |               ^
+    534|       }
+    535|     } else if (endpoint === 'systemUsers') {
+ ❯ src/tests/system-outbound-policy-client.spec.ts:208:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 176 passed (177)
+   Start at  21:09:49
+   Duration  1.88s (transform 323ms, setup 0ms, import 678ms, tests 506ms, environment 2.47s)
+

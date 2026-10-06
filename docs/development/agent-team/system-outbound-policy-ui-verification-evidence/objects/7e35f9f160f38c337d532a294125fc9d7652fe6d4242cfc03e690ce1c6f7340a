@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "env",
+    "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:9",
+    "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/offline-list",
+    "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium",
+    "AGENTEAM_OUTBOUND_POLICY_WEB_CASE=navigation",
+    "node",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "system-outbound-policy.config.js",
+    "--list"
+  ],
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace/tests/account-captcha-web",
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "resource_execution": false,
+  "runner_sha256": "f7f8fd9789d80cd1ea3f2e60a4bac4bd091241cf28e03603c9e038f503c7acab"
+}

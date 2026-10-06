@@ -1,0 +1,396 @@
+{
+  "accepted_dependencies": {
+    "web/.prettierignore": "0b737e348f781f0573ef62ae5f68f984eca718f732a9fb9c95054f57363e1a50",
+    "web/.prettierrc.json": "247948f37fa595cc5c84503e35dcb06706b874f01777807691e11a4fc8ee4431",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "web/src/api/system-account-security.ts": "5dabbdd4c5de0cfde671c6bdfc8c92eae140a842719752740ea65282a8feffbb",
+    "web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "web/src/api/system-invitations.ts": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+    "web/src/api/system-models.ts": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8",
+    "web/src/api/system-providers.ts": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade",
+    "web/src/api/system-smtp-delivery.ts": "b4044f5ae4477cb904d2891a635bf10a77b0888b4376525dfc0989ee2023ccfd",
+    "web/src/api/system-smtp-settings.ts": "0f015823398fe909688dd0ec7b2cf2a99ca9b82b8963fda5dfb96b13c7864311",
+    "web/src/composables/useSystemSMTPSettings.ts": "2baf377922d3f04cbb553b2d6ff85c3ef92334ed10ee00661c66682640519296",
+    "web/src/composables/useTheme.ts": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+    "web/src/tests/system-smtp-delivery-client.spec.ts": "4d5be3e29f4cffcf232356f4ec26b6da557c66e2a4197a1ed468b48e1bb80529",
+    "web/src/tests/system-smtp-delivery-state.spec.ts": "faedaf94d021265dc97b3105037724ba227e929c0cfd3b8095797da35757fc88",
+    "web/src/tests/system-smtp-settings-client.spec.ts": "0fa109711f474a99aeb4214e0dcba5886b3537c1bd1cbc66003cf9b8fbe93062",
+    "web/src/tests/system-smtp-settings-state.spec.ts": "df6135a7040d9adc9f11e2b5699530a11a68a249396121b7460f56f78e6e91e6",
+    "web/tsconfig.json": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+    "web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+  },
+  "base": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "candidate_sources": {
+    "web/src/composables/useSession.ts": "573268bdb7d3ea5524858c53b901cac8d095591ad46e4855cbe7e6d50330011c",
+    "web/src/tests/system-outbound-policy-state.spec.ts": "a9027e18cd11a810df9cf5254ba3de315836c388b21907e385bcebb4dd255982"
+  },
+  "card": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/card.md",
+    "sha256": "2f7f3dbed8cc4d263f1c1db3576404589c0cedb7c2aec217e84a223d9880579b"
+  },
+  "changes": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/owner-stage01/change.diff",
+    "sha256": "35c680c8de86a982a5175a43fd924b035fddf6f1df10c5a443be17f12881a3ec"
+  },
+  "checks": {
+    "owner-format-check01": {
+      "actual_wait": true,
+      "child_proc_exists_at_freeze": false,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format-check01/command.json",
+          "sha256": "3a11c7a3289802d2f31a3629164de7627e07657487b361155fa25856c2754b8f"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format-check01/input-after.json",
+          "sha256": "91fcfb13b27582beed70d094b19dda8c61358df7f38902cd68d39472c531e4be"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format-check01/input-before.json",
+          "sha256": "91fcfb13b27582beed70d094b19dda8c61358df7f38902cd68d39472c531e4be"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format-check01/raw.log",
+          "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format-check01/result.json",
+          "sha256": "ad62c47f82a952b86356ed535555d1dd066474fe3e8b7b8ea0281541219ea2f6"
+        }
+      },
+      "exit_code": 0,
+      "input_unchanged": true,
+      "seconds": 0.893,
+      "source_snapshot": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format-check01/source"
+    },
+    "owner-format-check02": {
+      "actual_wait": true,
+      "child_proc_exists_at_freeze": false,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format-check02/command.json",
+          "sha256": "3a11c7a3289802d2f31a3629164de7627e07657487b361155fa25856c2754b8f"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format-check02/input-after.json",
+          "sha256": "4234679f8da61684ac61d297696db5f42705aae71aae161cd51bd8ce641513e3"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format-check02/input-before.json",
+          "sha256": "4234679f8da61684ac61d297696db5f42705aae71aae161cd51bd8ce641513e3"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format-check02/raw.log",
+          "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format-check02/result.json",
+          "sha256": "666038d4bba3a3ed9e3d649bb78b3a0a6de97282bbe85251be7b7897ff671587"
+        }
+      },
+      "exit_code": 0,
+      "input_unchanged": true,
+      "seconds": 0.622,
+      "source_snapshot": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format-check02/source"
+    },
+    "owner-format01": {
+      "actual_wait": true,
+      "child_proc_exists_at_freeze": false,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format01/command.json",
+          "sha256": "65cb1624fd58f97af25c3793f48141125195c2ad7d62f5a02980b79c3a8f6d14"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format01/input-after.json",
+          "sha256": "7e131a90588c6f1ccf3a205a89c10c2796f56517daa19bcbe31b267c72251510"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format01/input-before.json",
+          "sha256": "fdcda83384e87de87a9e2e3320e32c65235c2fe076c3fa02d679fdd6a284029f"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format01/raw.log",
+          "sha256": "03881b164282d87051967bd2f1517802772378a373354d97c54216362a68d5a2"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format01/result.json",
+          "sha256": "179cb3de68e16401cb16734f2dfbc29193724c17765a2188cf443f956505c002"
+        }
+      },
+      "exit_code": 0,
+      "input_unchanged": false,
+      "seconds": 0.669,
+      "source_snapshot": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format01/source"
+    },
+    "owner-format02": {
+      "actual_wait": true,
+      "child_proc_exists_at_freeze": false,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format02/command.json",
+          "sha256": "c1f249357f25732792c6bebb0332718a61dcf8b361171fd40ae876b1c71e855b"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format02/input-after.json",
+          "sha256": "91fcfb13b27582beed70d094b19dda8c61358df7f38902cd68d39472c531e4be"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format02/input-before.json",
+          "sha256": "fa095ae9e84d36d851a36f5c80b92d4ebe3aeb3574c3d8f9b9b58d950dd31aaa"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format02/raw.log",
+          "sha256": "c69d99565642452f0c9658b6158f8967d134c0e3d28a5ccd6a3b53e45d4d451e"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format02/result.json",
+          "sha256": "a7562b02b6cf91894e6003985a21af7353fff787a11488061b2ad6e42e0c2610"
+        }
+      },
+      "exit_code": 0,
+      "input_unchanged": false,
+      "seconds": 0.316,
+      "source_snapshot": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format02/source"
+    },
+    "owner-format03": {
+      "actual_wait": true,
+      "child_proc_exists_at_freeze": false,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format03/command.json",
+          "sha256": "c1f249357f25732792c6bebb0332718a61dcf8b361171fd40ae876b1c71e855b"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format03/input-after.json",
+          "sha256": "4234679f8da61684ac61d297696db5f42705aae71aae161cd51bd8ce641513e3"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format03/input-before.json",
+          "sha256": "af47ea0ce7fcd6d32fd7a4ee10d1c69fe4bfb55783fccf38c9b8b9572918f7e8"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format03/raw.log",
+          "sha256": "cef18367035a927ee3f2d54a4bb175a70c66bfdd8771a684cd831643b4c8627c"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format03/result.json",
+          "sha256": "9853511ec12e6e8b008dc711266497dd5a0449571e9e8e6e427b1837c2b28741"
+        }
+      },
+      "exit_code": 0,
+      "input_unchanged": false,
+      "seconds": 0.266,
+      "source_snapshot": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-format03/source"
+    },
+    "owner-pure01": {
+      "actual_wait": true,
+      "child_proc_exists_at_freeze": false,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure01/command.json",
+          "sha256": "2dd56d730b3f2bd1551e8c72a4c00bca30083de3170e69d14681db68a8c0dfca"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure01/input-after.json",
+          "sha256": "7e131a90588c6f1ccf3a205a89c10c2796f56517daa19bcbe31b267c72251510"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure01/input-before.json",
+          "sha256": "7e131a90588c6f1ccf3a205a89c10c2796f56517daa19bcbe31b267c72251510"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure01/raw.log",
+          "sha256": "d028549f724c2e74a0e925d0a13a081bc53eb6c32e9873448ce435bad6530e36"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure01/result.json",
+          "sha256": "6d099f67abb215574885caaf3f43edd4928c0d0df822b0ab84830984c1eed163"
+        }
+      },
+      "exit_code": 0,
+      "input_unchanged": true,
+      "seconds": 2.451,
+      "source_snapshot": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure01/source"
+    },
+    "owner-pure02": {
+      "actual_wait": true,
+      "child_proc_exists_at_freeze": false,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure02/command.json",
+          "sha256": "c3acbce7bb94a6f9d89e314291eba8daec807a273d845b7abfdcdbf7c65c6b92"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure02/input-after.json",
+          "sha256": "91fcfb13b27582beed70d094b19dda8c61358df7f38902cd68d39472c531e4be"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure02/input-before.json",
+          "sha256": "91fcfb13b27582beed70d094b19dda8c61358df7f38902cd68d39472c531e4be"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure02/raw.log",
+          "sha256": "c7e58618f25133f349c7a0600f71ad8c06724a997504a7ff78929b4e4ab37d96"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure02/result.json",
+          "sha256": "0905d0a9725f2ceeba1c7a6feb33f69a3ffddbe2a5c2a3a09d56102a0e288f7f"
+        }
+      },
+      "exit_code": 1,
+      "input_unchanged": true,
+      "seconds": 1.578,
+      "source_snapshot": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure02/source"
+    },
+    "owner-pure03": {
+      "actual_wait": true,
+      "child_proc_exists_at_freeze": false,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure03/command.json",
+          "sha256": "616800d59f0fdb2fb2a0de7d4346846e88b5deb711af8c26b553cfe3a8df74d9"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure03/input-after.json",
+          "sha256": "4234679f8da61684ac61d297696db5f42705aae71aae161cd51bd8ce641513e3"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure03/input-before.json",
+          "sha256": "4234679f8da61684ac61d297696db5f42705aae71aae161cd51bd8ce641513e3"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure03/raw.log",
+          "sha256": "106979b114456f35dcf8e020a930c67700cc1d4575ce1efc55e0feabe83357f5"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure03/result.json",
+          "sha256": "982a25175caf6546ed5f9357fe77bdcc8aed3463798d362b9ae75e39ed016b0b"
+        }
+      },
+      "exit_code": 0,
+      "input_unchanged": true,
+      "seconds": 1.638,
+      "source_snapshot": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure03/source"
+    },
+    "owner-type01": {
+      "actual_wait": true,
+      "child_proc_exists_at_freeze": false,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type01/command.json",
+          "sha256": "b7496613d8aa17879045a6a46f205414403f5016e8ccb9d5f92d7c8605ef7650"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type01/input-after.json",
+          "sha256": "7e131a90588c6f1ccf3a205a89c10c2796f56517daa19bcbe31b267c72251510"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type01/input-before.json",
+          "sha256": "7e131a90588c6f1ccf3a205a89c10c2796f56517daa19bcbe31b267c72251510"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type01/result.json",
+          "sha256": "c3b7e0d3e942b65ef49762bc1e9d6b9b25bd5cfb838dce778dbabd9dbb77ddf9"
+        }
+      },
+      "exit_code": 0,
+      "input_unchanged": true,
+      "seconds": 2.945,
+      "source_snapshot": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type01/source"
+    },
+    "owner-type02": {
+      "actual_wait": true,
+      "child_proc_exists_at_freeze": false,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type02/command.json",
+          "sha256": "b7496613d8aa17879045a6a46f205414403f5016e8ccb9d5f92d7c8605ef7650"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type02/input-after.json",
+          "sha256": "91fcfb13b27582beed70d094b19dda8c61358df7f38902cd68d39472c531e4be"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type02/input-before.json",
+          "sha256": "91fcfb13b27582beed70d094b19dda8c61358df7f38902cd68d39472c531e4be"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type02/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type02/result.json",
+          "sha256": "c1a8f8ed5fcbbb79e90b972b7c19e0c9c31f73716cf0db07245e1b5b02433b52"
+        }
+      },
+      "exit_code": 0,
+      "input_unchanged": true,
+      "seconds": 2.953,
+      "source_snapshot": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type02/source"
+    },
+    "owner-type03": {
+      "actual_wait": true,
+      "child_proc_exists_at_freeze": false,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type03/command.json",
+          "sha256": "b7496613d8aa17879045a6a46f205414403f5016e8ccb9d5f92d7c8605ef7650"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type03/input-after.json",
+          "sha256": "4234679f8da61684ac61d297696db5f42705aae71aae161cd51bd8ce641513e3"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type03/input-before.json",
+          "sha256": "4234679f8da61684ac61d297696db5f42705aae71aae161cd51bd8ce641513e3"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type03/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type03/result.json",
+          "sha256": "c4ac8bcdf68baf193d27be85d11319c90c55b592d338948319b4b416627643b9"
+        }
+      },
+      "exit_code": 0,
+      "input_unchanged": true,
+      "seconds": 2.995,
+      "source_snapshot": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-type03/source"
+    }
+  },
+  "first_red_join_limit": "owner-pure02 cancel Promise not explicitly resolved before actual child exit1; no retrospective in-process join claim",
+  "fixed_stage_a": {
+    "files": {
+      "web/src/api/client.ts": "4ae4b1db480e26adee962c2b301fdbf37ea3b31883cee223f6ed3e8b691659ae",
+      "web/src/api/outbound-rules.ts": "7b41d4af381520fb95c824dfeda079d0bb36af82f4ec614967c2346f56a38466",
+      "web/src/api/system-outbound-policy.ts": "6dff6c0b696b334799abd7779ac52b12b8ceabc3f6b7861ee639ae1823d9123e",
+      "web/src/tests/outbound-rules.spec.ts": "82dda1710210dc7fa1042ebee654a839825348c7047bfa912d5258a581f0824f",
+      "web/src/tests/system-outbound-policy-client.spec.ts": "cd38aff53b6c4c6165434475f0d68e916a2a68ad9d1d591790fc1ae33114b572"
+    },
+    "manifest": {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/api-stage01/manifest.json",
+      "sha256": "8e26090e5dd83b0f038af4ece33c52b0d04279db3e1d8513336eef0e1f067267"
+    }
+  },
+  "report": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/owner-stage01/review.md",
+    "sha256": "80f40c852e6e77217d4ee3508746df669ed0412f4483e154332387fa0d573fb8"
+  },
+  "resource_execution": false,
+  "result_combination": "99 PASS + 3 supplemental PASS + 1 corrected representative PASS; not a single 103-test rerun",
+  "runner": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/owner-stage01/record_owner.py",
+    "sha256": "d839e5ffae1c1d84748eb2907393fea9a8550e1443c378af929617cbf12ee686"
+  },
+  "source_root": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/owner-stage01/source",
+  "stage": "owner-stage01"
+}

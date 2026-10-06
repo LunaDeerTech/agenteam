@@ -1,0 +1,74 @@
+{
+  "after_sha256": "3d1b5af651ea2f94ec5054d9d2da43807efa5badbed3420252a4b2b5de739ed4",
+  "after_source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/authority-title-repair01/after/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+  "before_sha256": "f18baf0ee28fe4c413e58d8f849e03cb3d7da796573a649f4ac4437e3a0f79d6",
+  "before_source": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/authority-title-repair01/before/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+  "changed_path": "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+  "changes": [
+    "cancelledRead takes an explicit expectedFailureTitle literal; the caller chooses the exact title, never DOM-derived fallback or broad OR.",
+    "Authority immediately follows strict save/GET: one historical-confirmation element and exact confirmed-read-failure heading.",
+    "Navigation has left to users (invalidate) and returned with only a GET: zero historical-confirmation elements and exact ordinary-read-failure heading.",
+    "Optional failure diagnostic logs only the fixed expected title and two known heading-presence booleans, then rethrows the original assertion."
+  ],
+  "checks": {
+    "authority-browser-list02": {
+      "actual_exit": 0,
+      "command_sha256": "1618854caddeb17078ee17c1a1e0414221500c9c57cbd4cfaff18e4f2950ab4c",
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority-browser-list02",
+      "raw_sha256": "241d1c03d4738ba4e2df568aca17c393f5c54893b16f18dda22f02b917ba2cfe",
+      "result_sha256": "a38d96e198d8cc9a89e58078d0b40b13537276d6b5903093fa8efc1f97db879f",
+      "seconds": 1.393
+    },
+    "authority-browser-type05": {
+      "actual_exit": 0,
+      "command_sha256": "9df1ab506137faf0132909095ea305f5ddfd9e4bab60d976ed0fd053efb59f09",
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority-browser-type05",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "288978d5021ef09a41f92ed4b8c74411f1155bd7d1fbd0e3a284666354f14075",
+      "seconds": 1.433
+    },
+    "navigation-browser-list03": {
+      "actual_exit": 0,
+      "command_sha256": "6e1d3372fededc93f46872773e3810291ec357b2296d728ca8dd4c73bfdc6ce3",
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/navigation-browser-list03",
+      "raw_sha256": "fb7ed84401588ddb27bee5f40734f4907e7af23a8fb2d6915db9243ce82651ec",
+      "result_sha256": "496f27a5af06734dbf72831a56930c59b1ddd45b9df7d43e6d33b24b879ca8e2",
+      "seconds": 1.29
+    }
+  },
+  "delta": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/authority-title-repair01/source.diff",
+    "sha256": "beceece969a7738f6db07b9b8dcf0fdfdc06c4a1dbfc884ee716211277359270"
+  },
+  "fixed_product_seams": {
+    "web/src/composables/useSystemOutboundPolicy.ts": "0bf2dfeb89e25babb8d1201880228006b468f597ac431f6783c5a043e11451a0",
+    "web/src/views/system/SystemOutboundPolicyView.vue": "43de7573a24138fd2ba3db383967e39b92e185c776e5cef4c825198adebd9abb"
+  },
+  "no_resources_started_for_repair": true,
+  "original_dynamic_failure": {
+    "actual_exit": 1,
+    "cleanup_sha256": "0f7fe9c1518ada88302bfe49fb321a67266ed2c39d281b90d2ce4d137fd88809",
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority01",
+    "raw_sha256": "f97625f720ceb9edcc987fad75151c19099b05298f7250f64344d3b0dfd4a951",
+    "result_sha256": "5afe9969b7a73904a8b50da80442aff4f5fb167103010f4c38c3ef6ffe7fe38b",
+    "scope": "Unconditional ordinary heading was absent after cancel. Original raw contains no DOM or actual heading; static accepted View confirmed branch establishes the test premise mismatch, not reconstructed runtime DOM.",
+    "seconds": 60.426
+  },
+  "preserved_assertions": [
+    "cancel control enabled",
+    "exact visible error heading",
+    "held entered versus joined before cancellation",
+    "release then actual held joined",
+    "no extra GET beyond the one explicitly cancelled",
+    "enabled explicit refresh and complete fresh current read"
+  ],
+  "product_base": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "unchanged": {
+    "dist_files": 38,
+    "driver02_sha256": "d6ff37eaa64b617496dcc1dae6572dfacc1b276b3ee28cfea02964ae213d725b",
+    "fixed_accepted_files": 1014,
+    "locked_dependencies": 15,
+    "other_candidate_paths": 32,
+    "web_stage_paths": 22
+  }
+}

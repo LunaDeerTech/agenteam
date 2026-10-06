@@ -1,0 +1,26 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "node",
+    "node_modules/prettier/bin/prettier.cjs",
+    "--write",
+    "src/tests/system-outbound-policy-state.spec.ts"
+  ],
+  "child_pid": 54695,
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace/web",
+  "duration_seconds": 0.266,
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "input_after_sha256": "4234679f8da61684ac61d297696db5f42705aae71aae161cd51bd8ce641513e3",
+  "input_before_sha256": "af47ea0ce7fcd6d32fd7a4ee10d1c69fe4bfb55783fccf38c9b8b9572918f7e8",
+  "input_unchanged": false,
+  "raw_sha256": "cef18367035a927ee3f2d54a4bb175a70c66bfdd8771a684cd831643b4c8627c",
+  "resource_execution": false,
+  "runner_sha256": "d839e5ffae1c1d84748eb2907393fea9a8550e1443c378af929617cbf12ee686",
+  "timed_out": false
+}

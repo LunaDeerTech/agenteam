@@ -1,0 +1,33 @@
+//go:build integration
+
+package account_test
+
+import (
+    "context"
+    "testing"
+    "time"
+)
+
+func runIndependentOutboundPolicy(t *testing.T, mode string, required []string) {
+    t.Helper()
+    ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+    defer cancel()
+    fixture := newOutboundPolicyWebFixture(t, ctx, mode)
+    observed := fixture.browserOutboundPolicy(ctx)
+    for _, name := range required {
+        if observed[name] != true { t.Fatalf("independent safe boundary %s was not reached", name) }
+    }
+    fixture.mu.Lock()
+    joined := fixture.held == fixture.holdJoined
+    fixture.mu.Unlock()
+    if !joined { t.Fatal("independent owned response hold has not joined") }
+    t.Logf("independent mode=%s required_safe_boundaries=%d complete=true", mode, len(required))
+}
+
+func TestIndependentOutboundPolicyHistoricalReceipt(t *testing.T) {
+    runIndependentOutboundPolicy(t, "mutation", []string{"accepted_cut", "current_not_receipt", "historical_receipt", "same_original", "exact_command_audit", "confirmed_read_failure", "read_retry_only"})
+}
+
+func TestIndependentOutboundPolicyConfirmationAuthority(t *testing.T) {
+    runIndependentOutboundPolicy(t, "authority", []string{"same_identity_restored", "session_503_once", "native_focus_tab", "current_revocation", "old_pending_invalidated", "draft_destroyed", "new_clean_logout", "zero_policy_write"})
+}

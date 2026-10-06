@@ -1,0 +1,214 @@
+[
+  {
+    "cidr": "10.0.0.0/8",
+    "accept": true
+  },
+  {
+    "cidr": "10.255.255.255/32",
+    "accept": true
+  },
+  {
+    "cidr": "172.16.0.0/12",
+    "accept": true
+  },
+  {
+    "cidr": "172.31.255.255/32",
+    "accept": true
+  },
+  {
+    "cidr": "192.168.0.0/16",
+    "accept": true
+  },
+  {
+    "cidr": "192.168.255.255/32",
+    "accept": true
+  },
+  {
+    "cidr": "fc00::/7",
+    "accept": true
+  },
+  {
+    "cidr": "fd00::/8",
+    "accept": true
+  },
+  {
+    "cidr": "fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/128",
+    "accept": true
+  },
+  {
+    "cidr": "fd00:0:0:1::/64",
+    "accept": true
+  },
+  {
+    "cidr": "fd00::1:0:0:1:1/128",
+    "accept": true
+  },
+  {
+    "cidr": "fd00:0:1:0:1:0:1:0/128",
+    "accept": true
+  },
+  {
+    "cidr": "fc00::1/128",
+    "accept": true
+  },
+  {
+    "cidr": "",
+    "accept": false
+  },
+  {
+    "cidr": "10.0.0.1/8",
+    "accept": false
+  },
+  {
+    "cidr": "10.0.0.0/7",
+    "accept": false
+  },
+  {
+    "cidr": "172.16.0.0/11",
+    "accept": false
+  },
+  {
+    "cidr": "192.168.0.0/15",
+    "accept": false
+  },
+  {
+    "cidr": "172.32.0.0/12",
+    "accept": false
+  },
+  {
+    "cidr": "192.169.0.0/16",
+    "accept": false
+  },
+  {
+    "cidr": "127.0.0.0/8",
+    "accept": false
+  },
+  {
+    "cidr": "0.0.0.0/0",
+    "accept": false
+  },
+  {
+    "cidr": "8.8.8.8/32",
+    "accept": false
+  },
+  {
+    "cidr": "10.00.0.0/8",
+    "accept": false
+  },
+  {
+    "cidr": "010.0.0.0/8",
+    "accept": false
+  },
+  {
+    "cidr": "10.0.0.0/08",
+    "accept": false
+  },
+  {
+    "cidr": "10.0.0.0/+8",
+    "accept": false
+  },
+  {
+    "cidr": "10.0.0.0/8 ",
+    "accept": false
+  },
+  {
+    "cidr": "10.0.0/8",
+    "accept": false
+  },
+  {
+    "cidr": "10.256.0.0/16",
+    "accept": false
+  },
+  {
+    "cidr": "10.0.0.0/33",
+    "accept": false
+  },
+  {
+    "cidr": "10.0.0.0/-1",
+    "accept": false
+  },
+  {
+    "cidr": "fc00::/6",
+    "accept": false
+  },
+  {
+    "cidr": "fe00::/7",
+    "accept": false
+  },
+  {
+    "cidr": "fe80::/10",
+    "accept": false
+  },
+  {
+    "cidr": "2001:db8::/32",
+    "accept": false
+  },
+  {
+    "cidr": "::/0",
+    "accept": false
+  },
+  {
+    "cidr": "::ffff:192.168.0.0/112",
+    "accept": false
+  },
+  {
+    "cidr": "::ffff:c0a8:0/112",
+    "accept": false
+  },
+  {
+    "cidr": "fd00::192.168.0.0/128",
+    "accept": false
+  },
+  {
+    "cidr": "FD00::/8",
+    "accept": false
+  },
+  {
+    "cidr": "fd00:0000::/8",
+    "accept": false
+  },
+  {
+    "cidr": "fd00::1/64",
+    "accept": false
+  },
+  {
+    "cidr": "fd00::%eth0/8",
+    "accept": false
+  },
+  {
+    "cidr": "fd00::/08",
+    "accept": false
+  },
+  {
+    "cidr": "fd00::/129",
+    "accept": false
+  },
+  {
+    "cidr": "fd00:::1/128",
+    "accept": false
+  },
+  {
+    "cidr": "fd00::1::1/128",
+    "accept": false
+  },
+  {
+    "cidr": "fd00:0:0:1:0:0:1:1/128",
+    "accept": false
+  },
+  {
+    "cidr": "fd00:0:0:1::1:1/128",
+    "accept": false
+  },
+  {
+    "cidr": "fd00:0:1:0:1:0:1::/128",
+    "accept": false
+  },
+  {
+    "cidr": "fd00:1:2:3:4:5:6:7:8/128",
+    "accept": false
+  },
+  {
+    "cidr": "fd00:1:2:3:4:5:6/128",
+    "accept": false
+  }
+]

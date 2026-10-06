@@ -1,0 +1,158 @@
+{
+  "budgets_unchanged": {
+    "browser_seconds": 45,
+    "count": 1,
+    "package_seconds": 360,
+    "race": true,
+    "resources": 7,
+    "retries": 0,
+    "top_seconds": 120,
+    "workers": 1
+  },
+  "diagnosis": {
+    "A_reuse": "A code and helper prefix unchanged and its full browser4.0s/top8.57s/safe7 PASS is retained; not rerun.",
+    "B_not_reached": "new-session ID inequality, returning-to-outbound empty editor, original-replay absence, old-pending/users negative, final clean logout; no complete B result.",
+    "B_reached": "same-session503 recovery/native focus+Tab; current Session401/SESSION_REVOKED native EOF; /login broad regex, visible login, overlay0, old form0, zeroPUT; helper relogin awaited successful user/admin Session and leaving login.",
+    "app": "current anonymous protected-page transition explicitly replaces /login with no return query.",
+    "helper": "login only fills/clicks and awaits successful Session/leaving login; no goto/reload. setup alone initially enters protected outbound route.",
+    "login_router": "LoginView uses safeReturnTarget(route.query.return), whose absent/invalid default is /. Initial protected-entry guard uses return, a separate path.",
+    "observed_limit": "old raw proves post-login actual URL / and failure at original spec868; old pre-login regex allowed query and no exact pre-login URL capture exists. Do not backfill bare-query observation."
+  },
+  "frozen": {
+    "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/manifest.json": "c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/browser/independent.spec.ts": "83e35d50dadf44acf8d623fa25d4aaac583dc388233cdca4df04b2b5ee039f3e",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/driver01.py": "5866e74899f5d7bf933ddd0aee4988fe5f5d4cae9d2348bc1f64a871e4ce8492",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/execution03.json": "a391ebdf073af49c50171f41cbcaa9f6d45d9d134acf25a787b7b2dc26bb1a20",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/repair02/original.spec.ts": "ca11e2b4b56a2a22d050eef4087cd73c3d69a9f8fdb1d4be2806e242c31c1763",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/repair02/probe01-to02.diff": "47cd7b520d7bc27057d57ed8465fcab2f4dd7e1c2069284c7683d054cf3cf684",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/repair02/source-preservation.json": "cbb99907b8d248dcf2a2e5f24aae6c594f77b6cf025b792608719b9c06ba9386"
+  },
+  "future_command": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/driver01.py",
+    "--name",
+    "independent02",
+    "--group",
+    "authority",
+    "--frozen",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/execution03.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--execute-authorized"
+  ],
+  "minimal_repair": {
+    "actions": "exact bare login then exact home; assert fresh Session200 EOF/new session/zero users+PUT before explicit navigation; watermark then SystemNav system settings -> users -> outbound; explicit users GET status200 after watermark and outbound GET200 EOF; original empty draft/no replay/zeroPUT/clean logout remain",
+    "no_reload_or_goto_added": true,
+    "scope": "only B test body; no product/Go/fixture/config/driver changes, no new protocol or resource",
+    "user_observation_limit": "original native observer stores users method/path/sequence/status only, not body/read EOF; no users EOF asserted"
+  },
+  "offline": {
+    "discover-b02": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_wait_count": 0,
+      "artifacts": {
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/discover-b02/cleanup.json": "78174beb0e50b05e74df0513f0c42e3360fdbe7f280ccd7f4d47fc424956fa13",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/discover-b02/command.json": "9dc3c05dfd7fdce4841c9e99a4fc42b519853c601f39e7e3ed92e877d169931c",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/discover-b02/input-after.json": "44b5205eddaab2c86e3af2e8e5a22b6170c04e52b74aba009c5a18f4d6ecc7f4",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/discover-b02/input-before.json": "44b5205eddaab2c86e3af2e8e5a22b6170c04e52b74aba009c5a18f4d6ecc7f4",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/discover-b02/raw.log": "a2ed22b1e3cadbe13e50be0fad85138b4a061a049f05e9d41c0324c00804c1db",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/discover-b02/result.json": "2d5b757b5f38034bb1e8aac21a280a27f5b4ae7375033f6b94d9663075d050c6"
+      },
+      "cleanup_clean": true,
+      "cleanup_sha256": "78174beb0e50b05e74df0513f0c42e3360fdbe7f280ccd7f4d47fc424956fa13",
+      "input_after_matches": true,
+      "input_before_matches": true,
+      "input_unchanged": true,
+      "owned_processes_observed": 1,
+      "raw_sha256": "a2ed22b1e3cadbe13e50be0fad85138b4a061a049f05e9d41c0324c00804c1db",
+      "seconds": 1.2042913559998851,
+      "timeout": false
+    },
+    "gate03": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_wait_count": 0,
+      "artifacts": {
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/gate03/cleanup.json": "ef6d42d66484ac003c4e5aefbe2e6db8ba3439eb5b6ae1e8cba1199f231a0edc",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/gate03/command.json": "9be6f1246f7dd69763702c19eaedd1152dc9c91437d0b63459aa8a97068978ed",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/gate03/input-after.json": "121d6880c0758ebae4763a4c977cafec5557e20a4a15ce8f4d00113e21e69b61",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/gate03/input-before.json": "121d6880c0758ebae4763a4c977cafec5557e20a4a15ce8f4d00113e21e69b61",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/gate03/raw.log": "1522bfb6edeb4f8c98828f22a8b08bff6e916786fdeef6c0c46489de2820dd74",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/gate03/result.json": "12f3c6b194f060cc9d5c1854ed79c76863812e587032da78b286ce3bc5445cbd"
+      },
+      "cleanup_clean": true,
+      "cleanup_sha256": "ef6d42d66484ac003c4e5aefbe2e6db8ba3439eb5b6ae1e8cba1199f231a0edc",
+      "input_after_matches": true,
+      "input_before_matches": true,
+      "input_unchanged": true,
+      "owned_processes_observed": 2,
+      "raw_sha256": "1522bfb6edeb4f8c98828f22a8b08bff6e916786fdeef6c0c46489de2820dd74",
+      "seconds": 1.616825802000676,
+      "timeout": false
+    },
+    "type03": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_wait_count": 0,
+      "artifacts": {
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/type03/cleanup.json": "d1fd0b877ce717bba4b82fb1e3144f693236c7179af08d56a628f7d297976daf",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/type03/command.json": "20dd3779676181c9a118d3b46d271a25a3b873e46b5f650584705d7c53c6a0a7",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/type03/input-after.json": "270633449ba52f708efbaf9b7a2b8b27ff7715cacf845aa2c91136c9c02d6ab3",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/type03/input-before.json": "270633449ba52f708efbaf9b7a2b8b27ff7715cacf845aa2c91136c9c02d6ab3",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/type03/raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/type03/result.json": "34996997380386cd63ac8e494f03e3ed2619bf73891984bfa490f304c41bb0b2"
+      },
+      "cleanup_clean": true,
+      "cleanup_sha256": "d1fd0b877ce717bba4b82fb1e3144f693236c7179af08d56a628f7d297976daf",
+      "input_after_matches": true,
+      "input_before_matches": true,
+      "input_unchanged": true,
+      "owned_processes_observed": 1,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "seconds": 1.1435705189996952,
+      "timeout": false
+    }
+  },
+  "original_run": {
+    "actual_exit": 1,
+    "actual_wait_completed": true,
+    "adopted_actual_waits": 8,
+    "all_inputs_unchanged": true,
+    "artifacts": {
+      "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/adopted-waits.json": "09bdb0d85ec56a804737f18c02ae3ddcf526fb81b6d8fbfff5555fe0d02f4fe8",
+      "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/cleanup.json": "4cd0bd41738f1c76208a5dda7c6bd9ec5e3be4d1df9a01610477fe7d81f42ec1",
+      "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/command.json": "7e3fd96e4292a6dbccc91d4eecb7c843e82408c9bb57a9f9eef16b55dfe65780",
+      "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/input-after.json": "45cc81c31ae8d833a7de36a653591bb9aee53e4d38143b019f79a8983dd31698",
+      "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/input-before.json": "45cc81c31ae8d833a7de36a653591bb9aee53e4d38143b019f79a8983dd31698",
+      "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/raw.log": "d32c4c54c34b24896dadf6758cc55102fd5b28a243fca2ef4f745572ff01f0e7",
+      "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01/result.json": "e77552a4482ae08474a1dbb2617cadefb6fc328dcb460c7e0dacd26f182efde9"
+    },
+    "directory": "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/runs/independent01",
+    "double_cleanup": true,
+    "exact_resources": 7,
+    "owned_pid_starttime": 153,
+    "seconds": 125.159,
+    "tops": [
+      [
+        "PASS",
+        "TestIndependentOutboundPolicyHistoricalReceipt"
+      ],
+      [
+        "FAIL",
+        "TestIndependentOutboundPolicyConfirmationAuthority"
+      ]
+    ]
+  },
+  "requires_new_root_resource_grant": true,
+  "static_sources": {
+    "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/App.vue": "4f7068223c59aa7e819dd5cfef6599fb590f663633edd2e821d29d1a1bc1b24b",
+    "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/router/auth.ts": "746ed414cdda79b51452481a29eb767064f5d099976c9019ab214d61eb2dabfe",
+    "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source/web/src/router/index.ts": "fbce81eb4ac55311f3911307b6c69eadf7f86b0e54fc0b14ea50378b23b1ff7b",
+    "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace/web/src/components/layout/SystemNav.vue": "f381d7134b04d7f2f43e10a2be55ca2fd885b75b75e5528913582fc6d88ed1f7",
+    "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace/web/src/views/HomeView.vue": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69",
+    "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace/web/src/views/auth/LoginView.vue": "58197b6ca69b7e1b4fc2f94a1990a21497d9a0ace613f1a222b8e8e6715f7643",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/repair02/original.spec.ts": "ca11e2b4b56a2a22d050eef4087cd73c3d69a9f8fdb1d4be2806e242c31c1763"
+  },
+  "verdict": "A complete PASS; original B harness navigation-precondition FAIL preserved. B-only revised probe OFFLINE READY, real rerun UNRUN."
+}

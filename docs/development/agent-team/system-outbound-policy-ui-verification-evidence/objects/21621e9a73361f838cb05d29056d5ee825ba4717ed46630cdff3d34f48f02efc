@@ -1,0 +1,2479 @@
+--- /dev/null
++++ b/tests/account/system_outbound_policy_web_test.go
+@@ -0,0 +1,44 @@
++//go:build integration
++
++package account_test
++
++import (
++	"context"
++	"testing"
++	"time"
++)
++
++func runOutboundPolicyWeb(t *testing.T, mode string, required ...string) {
++	t.Helper()
++	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
++	defer cancel()
++	fixture := newOutboundPolicyWebFixture(t, ctx, mode)
++	result := fixture.browserOutboundPolicy(ctx)
++	for _, name := range required {
++		if result[name] != true {
++			t.Fatalf("outbound policy browser evidence incomplete: %s", name)
++		}
++	}
++	if mode == "navigation" && result["layouts"] != float64(8) {
++		t.Fatal("outbound light/dark four-width matrix incomplete")
++	}
++	fixture.mu.Lock()
++	joined := fixture.held == fixture.holdJoined
++	fixture.mu.Unlock()
++	if !joined {
++		t.Fatal("owned formal response holds did not actually finish")
++	}
++	t.Logf("real outbound policy production browser group=%s completed within 45s browser/2m top; no target probes, SMTP sockets, external mailbox, production hosting or Runtime claim", mode)
++}
++func TestAccountSystemOutboundPolicyWebRulesAndRead(t *testing.T) {
++	runOutboundPolicyWeb(t, "read", "initial_empty", "maximum_distinct", "complete_dto", "structured_rules", "explicit_all", "invalid_zero_put", "failed_read_retained")
++}
++func TestAccountSystemOutboundPolicyWebMutationAndRecovery(t *testing.T) {
++	runOutboundPolicyWeb(t, "mutation", "complete_save", "two_administrators", "same_expected_conflict", "draft_retained", "explicit_review", "accepted_cut", "current_not_receipt", "historical_receipt", "same_original", "unique_command_audit", "same_key_rejected", "confirmed_read_failure")
++}
++func TestAccountSystemOutboundPolicyWebAuthorityAndOwnership(t *testing.T) {
++	runOutboundPolicyWeb(t, "authority", "ordinary_denied", "current_read_denied", "current_write_denied", "current_replay_denied", "valid_csrf", "invalid_csrf", "material_cleared", "new_identity", "actual_cancelled_read")
++}
++func TestAccountSystemOutboundPolicyWebNavigationAndLayouts(t *testing.T) {
++	runOutboundPolicyWeb(t, "navigation", "eight_leaves", "twelfth_return", "dirty", "unknown", "checking", "current_focus", "cancelled_read", "clean_leave", "drawer", "no_overflow")
++}
+--- /dev/null
++++ b/tests/account/system_outbound_policy_web_fixture_test.go
+@@ -0,0 +1,813 @@
++//go:build integration
++
++package account_test
++
++import (
++	"bytes"
++	"context"
++	"crypto/sha256"
++	"encoding/hex"
++	"encoding/json"
++	"errors"
++	"fmt"
++	"io"
++	"log/slog"
++	"net"
++	"net/http"
++	"net/http/httputil"
++	"net/url"
++	"os"
++	"os/exec"
++	"path/filepath"
++	"strconv"
++	"strings"
++	"sync"
++	"syscall"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/app"
++	"github.com/LunaDeerTech/agenteam/internal/central/config"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
++	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
++	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
++	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
++)
++
++// This fixture controls only its own outbound-policy HTTP boundary. Rules and
++// receipts are created through the accepted production service; SQL only reads
++// their exact facts, or prepares/revokes exact accounts under the existing fixture contract.
++type outboundPolicyWebAttempt struct {
++	key  string
++	body []byte
++	csrf string
++}
++type outboundPolicyWebFixture struct {
++	*modelsWebFixture
++	attempts         []outboundPolicyWebAttempt
++	lostBody         []byte
++	lostCSRF         string
++	lostReceipt      map[string]any
++	sameOriginal     bool
++	second           personalWebCredential
++	secondClient     *http.Client
++	secondCSRF       string
++	invalidCSRF      bool
++	holdNext         bool
++	holdRelease      chan struct{}
++	holdReleaseOnce  sync.Once
++	held, holdJoined int
++}
++
++func newOutboundPolicyWebRoot(t *testing.T, ctx context.Context, own *outboundPolicyWebFixture) *authenticationWebFixture {
++	t.Helper()
++	db := pgfixture.NewDatabase(t)
++	listener, err := net.Listen("tcp", "127.0.0.1:0")
++	if err != nil {
++		t.Fatal("owned frontend listener unavailable")
++	}
++	t.Cleanup(func() { _ = listener.Close() })
++	origin := "http://" + listener.Addr().String()
++	inputs := accountenv.New(t)
++	objects, err := objectfixture.Environment(ctx, db.Name)
++	if err != nil {
++		t.Fatal("owned object fixture unavailable")
++	}
++	values := inputs.Values()
++	for _, v := range objects {
++		k, value, _ := strings.Cut(v, "=")
++		values[k] = value
++	}
++	for k, v := range map[string]string{
++		"DATABASE_URL": db.Fixture.URL(db.Name), "DATABASE_CA_FILE": db.Fixture.CAFile,
++		"DATABASE_STARTUP_TIMEOUT": "15s", "HTTP_ADDR": "127.0.0.1:0", "PUBLIC_ORIGIN": origin, "SHUTDOWN_TIMEOUT": "2s",
++		"CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`,
++		"SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`,
++	} {
++		values[config.Prefix+k] = v
++	}
++	var environment []string
++	for k, v := range values {
++		environment = append(environment, k+"="+v)
++	}
++	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, environment)
++	if err != nil {
++		t.Fatal("owned root configuration invalid")
++	}
++	output := &httpFixtureLog{listening: make(chan string, 1)}
++	logger, err := logging.New(logging.Central, slog.LevelInfo, output)
++	if err != nil {
++		t.Fatal(err)
++	}
++	rootCtx, cancel := context.WithCancel(ctx)
++	rootDone := make(chan error, 1)
++	go func() { rootDone <- app.Run(rootCtx, cfg, logger, nil) }()
++	t.Cleanup(func() {
++		cancel()
++		select {
++		case err := <-rootDone:
++			if err != nil {
++				t.Error("full outbound policy root shutdown failed", err)
++			}
++		case <-time.After(5 * time.Second):
++			t.Error("full root did not join within its original shutdown budget")
++		}
++	})
++	var address string
++	select {
++	case address = <-output.listening:
++	case err := <-rootDone:
++		rootDone <- err
++		t.Fatal("full root initialization failed", err)
++	case <-ctx.Done():
++		t.Fatal("shared browser budget ended during root startup")
++	}
++	backend, err := url.Parse("http://" + address)
++	if err != nil {
++		t.Fatal(err)
++	}
++	transport := &http.Transport{Proxy: nil}
++	proxy := httputil.NewSingleHostReverseProxy(backend)
++	proxy.Transport = transport // NewSingleHostReverseProxy preserves the original Host.
++	proxy.ModifyResponse = own.controlResponse
++	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, err error) {
++		var lost *modelsResponseLost
++		if !errors.As(err, &lost) {
++			http.Error(w, "owned API unavailable", 502)
++			return
++		}
++		defer clear(lost.prefix)
++		for name, values := range lost.header {
++			w.Header()[name] = append([]string(nil), values...)
++		}
++		w.Header().Del("Transfer-Encoding")
++		w.Header().Set("Content-Length", strconv.Itoa(lost.length))
++		w.Header().Set("Connection", "close")
++		w.WriteHeader(200)
++		_, _ = w.Write(lost.prefix)
++		_ = http.NewResponseController(w).Flush()
++		if hijacker, ok := w.(http.Hijacker); ok {
++			if conn, _, e := hijacker.Hijack(); e == nil {
++				_ = conn.Close()
++			}
++		}
++	}
++	root, err := filepath.Abs("../../web/dist")
++	if err != nil {
++		t.Fatal(err)
++	}
++	if _, err = os.Stat(filepath.Join(root, "index.html")); err != nil {
++		t.Fatal("formal production dist must be built before browser execution")
++	}
++	assets := http.FileServer(http.Dir(root))
++	server := &http.Server{ReadHeaderTimeout: 5 * time.Second, Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		if r.Method == "GET" && r.URL.Path == "/api/v1/session" && own.failSession.CompareAndSwap(true, false) {
++			own.sessionFailures.Add(1)
++			http.Error(w, "owned bounded session read unavailable", 503)
++			return
++		}
++		if r.Method == "GET" && own.shouldFailRead(r.URL.Path) {
++			own.readFailures.Add(1)
++			http.Error(w, "owned exact configuration read unavailable", 503)
++			return
++		}
++		if r.Method == "PUT" && r.URL.Path == outboundPolicyHTTPPath {
++			raw, err := io.ReadAll(io.LimitReader(r.Body, 1048577))
++			closeErr := r.Body.Close()
++			if err != nil || closeErr != nil || len(raw) > 1048576 {
++				clear(raw)
++				http.Error(w, "owned write observation unavailable", 400)
++				return
++			}
++			defer clear(raw)
++			own.mu.Lock()
++			own.attempts = append(own.attempts, outboundPolicyWebAttempt{key: r.Header.Get("Idempotency-Key"), body: append([]byte(nil), raw...), csrf: r.Header.Get("X-CSRF-Token")})
++			invalid := own.invalidCSRF
++			own.invalidCSRF = false
++			own.mu.Unlock()
++			if invalid {
++				r.Header.Set("X-CSRF-Token", "owned-invalid-csrf")
++			}
++			r.Body = io.NopCloser(bytes.NewReader(raw))
++		}
++
++		if r.URL.Path == "/api/v1" || strings.HasPrefix(r.URL.Path, "/api/v1/") {
++			proxy.ServeHTTP(w, r)
++			return
++		}
++		if r.Method != http.MethodGet && r.Method != http.MethodHead {
++			http.Error(w, "method unavailable", 405)
++			return
++		}
++		clean := filepath.Clean("/" + r.URL.Path)
++		if info, e := os.Stat(filepath.Join(root, clean)); e == nil && !info.IsDir() {
++			assets.ServeHTTP(w, r)
++			return
++		}
++		if strings.HasPrefix(clean, "/assets/") || filepath.Ext(clean) != "" {
++			http.NotFound(w, r)
++			return
++		}
++		w.Header().Set("Cache-Control", "no-store")
++		http.ServeFile(w, r, filepath.Join(root, "index.html"))
++	})}
++	serverDone := make(chan error, 1)
++	go func() { serverDone <- server.Serve(listener) }()
++	t.Cleanup(func() {
++		shutdown, stop := context.WithTimeout(context.Background(), 2*time.Second)
++		defer stop()
++		if err := server.Shutdown(shutdown); err != nil {
++			t.Error("frontend server did not drain")
++			_ = server.Close()
++		}
++		if err := <-serverDone; !errors.Is(err, http.ErrServerClosed) {
++			t.Error("owned frontend server failed", err)
++		}
++		transport.CloseIdleConnections()
++	})
++	runtimeRoot := os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME")
++	if !filepath.IsAbs(runtimeRoot) || len(runtimeRoot) > 45 {
++		t.Fatal("explicit short task-owned browser runtime is required")
++	}
++	directory, err := os.MkdirTemp(runtimeRoot, "run-")
++	if err != nil {
++		t.Fatal("private browser runtime creation failed")
++	}
++	if err := os.Chmod(directory, 0700); err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(func() {
++		if err := os.RemoveAll(directory); err != nil {
++			t.Error("private browser runtime cleanup failed")
++		}
++		if _, err := os.Stat(directory); !errors.Is(err, os.ErrNotExist) {
++			t.Error("private browser runtime still exists")
++		}
++	})
++	old := &httpFixture{t: t, db: db, config: cfg, address: address, log: output}
++	entry := old.record("bootstrap", "admin@mail.com", "")
++	material, err := json.Marshal(map[string]string{"email": entry.Email, "password": entry.Password})
++	if err != nil {
++		t.Fatal("private bootstrap encoding failed")
++	}
++	defer clear(material)
++	if err := os.WriteFile(filepath.Join(directory, "credentials.json"), material, 0600); err != nil {
++		t.Fatal("private bootstrap transfer failed")
++	}
++	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output, record: old.record, recoveryLogPath: cfg.AccountRecoveryLog()}
++	t.Cleanup(func() {
++		if output.contains(entry.Password) {
++			t.Error("bootstrap material escaped the restricted recovery log")
++		}
++	})
++	return f
++}
++
++func newOutboundPolicyWebFixture(t *testing.T, ctx context.Context, mode string) *outboundPolicyWebFixture {
++	t.Helper()
++	f := &outboundPolicyWebFixture{modelsWebFixture: &modelsWebFixture{mode: mode, ids: map[string]string{}}}
++	f.authenticationWebFixture = newOutboundPolicyWebRoot(t, ctx, f)
++	f.setup = &personalWebFixture{authenticationWebFixture: f.authenticationWebFixture}
++	f.admin = personalWebCredential{Email: f.entry.Email, Password: f.entry.Password, UserID: f.entry.ID}
++	f.adminClient, f.csrf, _ = f.loginAs(ctx, f.admin)
++	initial := f.request(ctx, "GET", outboundPolicyHTTPPath, nil, 200)
++	if initial["version"] != "1" {
++		t.Fatal("owned outbound policy must start at version one")
++	}
++	rules, ok := initial["rules"].([]any)
++	if !ok || len(rules) != 0 {
++		t.Fatal("owned outbound policy must start empty")
++	}
++	f.secrets = []string{f.admin.Password, f.csrf}
++	if mode == "mutation" || mode == "authority" {
++		f.second = f.setup.inviteMember(ctx, f.adminClient, f.csrf, "outbound-admin@example.com", "outbound-admin")
++		conn, closeConnection := invitationsWebConnect(t, ctx, f.db)
++		tag, err := conn.Exec(ctx, `UPDATE agenteam_account.users SET role='admin',version=version+1,updated_at=clock_timestamp() WHERE id=$1 AND role='user'`, f.second.UserID)
++		closeConnection()
++		if err != nil || tag.RowsAffected() != 1 {
++			t.Fatal("exact owned second administrator preparation failed")
++		}
++		f.secondClient, f.secondCSRF, _ = f.loginAs(ctx, f.second)
++		f.secrets = append(f.secrets, f.second.Password, f.secondCSRF)
++	}
++	if mode == "authority" {
++		f.member = f.setup.inviteMember(ctx, f.adminClient, f.csrf, "outbound-member@example.com", "outbound-member")
++		f.secrets = append(f.secrets, f.member.Password)
++	}
++	f.private("outbound-policy-material.json", map[string]any{"admin": f.admin, "member": f.member, "second": f.second, "initial": initial})
++	t.Cleanup(func() {
++		f.releaseRead()
++		for _, value := range f.secrets {
++			if value != "" && f.log.contains(value) {
++				t.Error("outbound private material escaped restricted transfer")
++			}
++		}
++		f.secrets = nil
++		f.csrf, f.secondCSRF, f.admin.Password, f.member.Password, f.second.Password = "", "", "", "", ""
++		f.mu.Lock()
++		defer f.mu.Unlock()
++		for n := range f.attempts {
++			clear(f.attempts[n].body)
++			f.attempts[n].csrf = ""
++			f.attempts[n].key = ""
++		}
++		clear(f.lostBody)
++		f.lostBody = nil
++		f.attempts = nil
++		f.lostKey = ""
++		f.lostCSRF = ""
++		f.lostReceipt = nil
++	})
++	return f
++}
++func (f *outboundPolicyWebFixture) loginAs(ctx context.Context, who personalWebCredential) (*http.Client, string, string) {
++	client := f.setup.setupClient()
++	anonymous := f.setup.setupRequest(ctx, client, "GET", "/api/v1/auth/bootstrap", nil, "", false, 200)
++	f.setup.setupRequest(ctx, client, "POST", "/api/v1/sessions/login", map[string]string{"email": who.Email, "password": who.Password}, httpString(f.t, anonymous, "csrf_token"), true, 200)
++	current := f.setup.setupRequest(ctx, client, "GET", "/api/v1/session", nil, "", false, 200)
++	if httpString(f.t, httpObject(f.t, current, "user"), "id") != who.UserID {
++		f.t.Fatal("exact owned login identity mismatch")
++	}
++	return client, httpString(f.t, current, "csrf_token"), httpString(f.t, httpObject(f.t, current, "session"), "id")
++}
++func (f *outboundPolicyWebFixture) shouldFailRead(path string) bool {
++	return path == outboundPolicyHTTPPath && f.failRead.CompareAndSwap(true, false)
++}
++func (f *outboundPolicyWebFixture) releaseRead() {
++	f.mu.Lock()
++	defer f.mu.Unlock()
++	if f.holdRelease != nil {
++		f.holdReleaseOnce.Do(func() { close(f.holdRelease) })
++	}
++}
++func (f *outboundPolicyWebFixture) controlResponse(response *http.Response) error {
++	r := response.Request
++	if r == nil || r.URL.Path != outboundPolicyHTTPPath || response.StatusCode != 200 {
++		return nil
++	}
++	f.mu.Lock()
++	hold := r.Method == "GET" && f.holdNext
++	if hold {
++		f.holdNext = false
++		f.held++
++	}
++	release := f.holdRelease
++	f.mu.Unlock()
++	if hold {
++		raw, err := io.ReadAll(io.LimitReader(response.Body, 600001))
++		closeErr := response.Body.Close()
++		if err != nil || closeErr != nil || len(raw) > 600000 {
++			clear(raw)
++			return errors.New("owned read hold requires complete formal response")
++		}
++		select {
++		case <-r.Context().Done():
++			err = r.Context().Err()
++		case <-release:
++		}
++		f.mu.Lock()
++		f.holdJoined++
++		f.mu.Unlock()
++		if err != nil {
++			clear(raw)
++			return err
++		}
++		response.Body = io.NopCloser(bytes.NewReader(raw))
++		response.ContentLength = int64(len(raw))
++	}
++	if r.Method != "PUT" {
++		return nil
++	}
++	f.mu.Lock()
++	defer f.mu.Unlock()
++	key := r.Header.Get("Idempotency-Key")
++	var attempt *outboundPolicyWebAttempt
++	for n := len(f.attempts) - 1; n >= 0; n-- {
++		if f.attempts[n].key == key {
++			attempt = &f.attempts[n]
++			break
++		}
++	}
++	if attempt == nil {
++		return errors.New("owned write observation missing")
++	}
++	if f.lostKey != "" && key == f.lostKey {
++		f.replayed++
++		f.sameOriginal = f.sameOriginal && bytes.Equal(attempt.body, f.lostBody) && attempt.csrf == f.lostCSRF
++	}
++	if !f.dropNext {
++		return nil
++	}
++	f.dropNext = false
++	raw, err := io.ReadAll(io.LimitReader(response.Body, 600001))
++	closeErr := response.Body.Close()
++	defer clear(raw)
++	var receipt map[string]any
++	if err != nil || closeErr != nil || len(raw) > 600000 || len(raw) < 2 || json.Unmarshal(raw, &receipt) != nil || len(receipt) != 4 {
++		return errors.New("owned response cut requires complete formal receipt")
++	}
++	for _, key := range []string{"version", "rule_count", "audit_id", "created_at"} {
++		if _, ok := receipt[key].(string); !ok {
++			return errors.New("owned formal receipt shape invalid")
++		}
++	}
++	f.lostKey = key
++	clear(f.lostBody)
++	f.lostBody = append([]byte(nil), attempt.body...)
++	f.lostCSRF = attempt.csrf
++	f.lostReceipt = receipt
++	f.dropped++
++	return &modelsResponseLost{header: response.Header.Clone(), prefix: append([]byte(nil), raw[:len(raw)/2]...), length: len(raw)}
++}
++func (f *outboundPolicyWebFixture) official(ctx context.Context, client *http.Client, method, key, csrf string, raw []byte) (int, map[string]any) {
++	request, err := http.NewRequestWithContext(ctx, method, f.origin+outboundPolicyHTTPPath, bytes.NewReader(raw))
++	if err != nil {
++		f.t.Fatal("owned formal policy request invalid")
++	}
++	request.Header.Set("Origin", f.origin)
++	request.Header.Set("Sec-Fetch-Site", "same-origin")
++	if method == "PUT" {
++		request.Header.Set("Content-Type", "application/json")
++		request.Header.Set("Idempotency-Key", key)
++		request.Header.Set("X-CSRF-Token", csrf)
++	}
++	response, err := client.Do(request)
++	if err != nil {
++		f.t.Fatal("owned formal policy HTTP failed")
++	}
++	body, readErr := io.ReadAll(io.LimitReader(response.Body, 600001))
++	closeErr := response.Body.Close()
++	defer clear(body)
++	var value map[string]any
++	if readErr != nil || closeErr != nil || len(body) > 600000 || json.Unmarshal(body, &value) != nil {
++		f.t.Fatal("owned formal policy response did not reach complete EOF")
++	}
++	return response.StatusCode, value
++}
++func (f *outboundPolicyWebFixture) putRules(ctx context.Context, client *http.Client, csrf, expected string, rawRules []byte) map[string]any {
++	rules, err := outbound.DecodeRules(rawRules)
++	if err != nil {
++		f.t.Fatal("owned formal Rules preparation invalid")
++	}
++	body, err := json.Marshal(struct {
++		Expected string          `json:"expected_version"`
++		Rules    json.RawMessage `json:"rules"`
++	}{expected, rules.JSON()})
++	if err != nil {
++		f.t.Fatal("owned policy body encoding failed")
++	}
++	defer clear(body)
++	status, receipt := f.official(ctx, client, "PUT", id[struct{}](f.t).String(), csrf, body)
++	if status != 200 {
++		f.t.Fatalf("owned formal policy update status=%d want=200", status)
++	}
++	return receipt
++}
++func (f *outboundPolicyWebFixture) policyFacts(ctx context.Context) map[string]any {
++	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
++	defer closeConnection()
++	var version string
++	var raw []byte
++	if err := conn.QueryRow(ctx, `SELECT version::text,rules FROM agenteam_outbound.outbound_policy WHERE singleton`).Scan(&version, &raw); err != nil {
++		f.t.Fatal("owned policy snapshot unavailable", err)
++	}
++	var rules any
++	if json.Unmarshal(raw, &rules) != nil {
++		f.t.Fatal("owned policy snapshot shape invalid")
++	}
++	f.mu.Lock()
++	key := f.lostKey
++	body := append([]byte(nil), f.lostBody...)
++	receipt := f.lostReceipt
++	f.mu.Unlock()
++	defer clear(body)
++	out := map[string]any{"policy": map[string]any{"version": version, "rules": rules}, "original_receipts": 0, "original_audits": 0, "exact_semantic": false, "exact_historical": false}
++	if key == "" {
++		return out
++	}
++	identity, err := foundation.NewCommandIdentity("outbound-policy", []string{f.admin.UserID}, "update", foundation.IdempotencyKey(key))
++	if err != nil {
++		f.t.Fatal("owned policy command identity invalid")
++	}
++	keyDigest := sha256.Sum256([]byte(identity.Canonical()))
++	command := "sha256:" + hex.EncodeToString(keyDigest[:])
++	var input struct {
++		Expected string          `json:"expected_version"`
++		Rules    json.RawMessage `json:"rules"`
++	}
++	if json.Unmarshal(body, &input) != nil {
++		f.t.Fatal("owned policy original input invalid")
++	}
++	originalRules, err := outbound.DecodeRules(input.Rules)
++	if err != nil {
++		f.t.Fatal("owned original formal Rules invalid")
++	}
++	semanticRaw, err := json.Marshal(struct {
++		Format   int             `json:"format"`
++		User     string          `json:"user_id"`
++		Expected string          `json:"expected_version"`
++		Rules    json.RawMessage `json:"rules"`
++	}{1, f.admin.UserID, input.Expected, originalRules.JSON()})
++	if err != nil {
++		f.t.Fatal("owned policy command semantic encoding failed")
++	}
++	semanticDigest := sha256.Sum256(semanticRaw)
++	clear(semanticRaw)
++	semantic := "sha256:" + hex.EncodeToString(semanticDigest[:])
++	var receipts, audits int
++	var exactSemantic, exactHistorical bool
++	if err := conn.QueryRow(ctx, `SELECT
++ (SELECT count(*) FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1 AND user_id=$2),
++ (SELECT count(*) FROM agenteam_audit.audit_records a JOIN agenteam_outbound.outbound_policy_receipts r ON r.audit_id=a.id WHERE r.command_digest=$1 AND r.user_id=$2 AND a.scope='system' AND a.producer='outbound.policy' AND a.cause_ref=$1 AND a.ordinal=0 AND a.action='outbound.policy.update' AND a.resource_kind='outbound_policy' AND a.resource_id IS NULL AND a.actor_kind='human' AND a.user_id=$2 AND a.outcome='success' AND a.metadata->>'version'=r.version::text AND a.metadata->>'rule_count'=r.rule_count::text),
++ EXISTS(SELECT 1 FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1 AND user_id=$2 AND semantic_digest=$3),
++ EXISTS(SELECT 1 FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1 AND user_id=$2 AND version::text=$4 AND rule_count::text=$5 AND audit_id::text=$6 AND to_char(created_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')=$7)`, command, f.admin.UserID, semantic, receipt["version"], receipt["rule_count"], receipt["audit_id"], receipt["created_at"]).Scan(&receipts, &audits, &exactSemantic, &exactHistorical); err != nil {
++		f.t.Fatal("owned exact policy receipt/audit facts unavailable", err)
++	}
++	out["original_receipts"], out["original_audits"], out["exact_semantic"], out["exact_historical"] = receipts, audits, exactSemantic, exactHistorical
++	return out
++}
++
++type outboundPolicyWebIPC struct {
++	Sequence  int    `json:"sequence"`
++	Action    string `json:"action"`
++	UserID    string `json:"user_id"`
++	SessionID string `json:"session_id"`
++	Expected  string `json:"expected"`
++}
++
++func (f *outboundPolicyWebFixture) outboundIPC(ctx context.Context, r outboundPolicyWebIPC) map[string]any {
++	out := map[string]any{"ok": true, "sequence": r.Sequence}
++	switch r.Action {
++	case "facts":
++		out["facts"] = f.policyFacts(ctx)
++	case "seed-maximum":
++		if f.mode != "read" {
++			f.t.Fatal("maximum Rules fixture mode invalid")
++		}
++		ports := make([]uint16, 256)
++		for n := range ports {
++			ports[n] = uint16(65535 - n)
++		}
++		selected, err := outbound.SelectedPorts(ports...)
++		if err != nil {
++			f.t.Fatal("maximum formal ports invalid")
++		}
++		all := make([]outbound.Rule, 0, 256)
++		for n := 0; n < 256; n++ {
++			rule, err := outbound.NewRule(fmt.Sprintf("fdff:ffff:ffff:ffff:ffff:ffff:ffff:%x/128", 0xff00+n), selected, false)
++			if err != nil {
++				f.t.Fatal("maximum formal rule invalid")
++			}
++			all = append(all, rule)
++		}
++		rules, err := outbound.NewRules(all...)
++		if err != nil || rules.Count() != 256 || len(rules.JSON()) != 414721 {
++			f.t.Fatal("maximum distinct formal Rules shape invalid")
++		}
++		current := f.request(ctx, "GET", outboundPolicyHTTPPath, nil, 200)
++		out["receipt"] = f.putRules(ctx, f.adminClient, f.csrf, httpString(f.t, current, "version"), rules.JSON())
++		out["distinct_rules"], out["rules_bytes"] = 256, len(rules.JSON())
++	case "reset-empty":
++		if f.mode != "read" {
++			f.t.Fatal("empty reset fixture mode invalid")
++		}
++		current := f.request(ctx, "GET", outboundPolicyHTTPPath, nil, 200)
++		out["receipt"] = f.putRules(ctx, f.adminClient, f.csrf, httpString(f.t, current, "version"), []byte(`[]`))
++	case "seed-layout":
++		if f.mode != "navigation" {
++			f.t.Fatal("layout fixture mode invalid")
++		}
++		ports := make([]int, 256)
++		for n := range ports {
++			ports[n] = 65280 + n
++		}
++		raw, _ := json.Marshal([]map[string]any{{"cidr": "fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/128", "ports": ports, "allow_http": false}, {"cidr": "10.0.0.0/8", "ports": "all", "allow_http": true}})
++		current := f.request(ctx, "GET", outboundPolicyHTTPPath, nil, 200)
++		out["receipt"] = f.putRules(ctx, f.adminClient, f.csrf, httpString(f.t, current, "version"), raw)
++	case "compete":
++		if f.mode != "mutation" || f.second.UserID == "" || f.second.UserID == f.admin.UserID {
++			f.t.Fatal("two distinct owned administrators required")
++		}
++		current := f.setup.setupRequest(ctx, f.secondClient, "GET", outboundPolicyHTTPPath, nil, "", false, 200)
++		if r.Expected != "" && current["version"] != r.Expected {
++			f.t.Fatal("competition expected version must match formal current read")
++		}
++		out["receipt"] = f.putRules(ctx, f.secondClient, f.secondCSRF, httpString(f.t, current, "version"), []byte(`[{"cidr":"10.86.0.0/16","ports":[8443],"allow_http":false}]`))
++		out["distinct_administrator"] = true
++		out["expected"] = current["version"]
++	case "different-semantics":
++		f.mu.Lock()
++		key := f.lostKey
++		original := append([]byte(nil), f.lostBody...)
++		f.mu.Unlock()
++		defer clear(original)
++		var body map[string]any
++		if key == "" || json.Unmarshal(original, &body) != nil {
++			f.t.Fatal("accepted original command required")
++		}
++		body["rules"] = []any{}
++		raw, _ := json.Marshal(body)
++		defer clear(raw)
++		status, value := f.official(ctx, f.adminClient, "PUT", key, f.csrf, raw)
++		out["status"], out["code"], out["commit_state"] = status, value["code"], value["commit_state"]
++	case "arm-drop":
++		f.mu.Lock()
++		f.dropNext = true
++		f.lostKey = ""
++		clear(f.lostBody)
++		f.lostBody = nil
++		f.lostCSRF = ""
++		f.lostReceipt = nil
++		f.dropped = 0
++		f.replayed = 0
++		f.sameOriginal = true
++		f.mu.Unlock()
++		out["armed"] = true
++	case "drop-facts":
++		f.mu.Lock()
++		out["dropped"], out["replayed"], out["same_original"], out["receipt"], out["armed"] = f.dropped, f.replayed, f.sameOriginal, f.lostReceipt, f.dropNext
++		f.mu.Unlock()
++	case "arm-get-fail":
++		f.failRead.Store(true)
++		out["armed"] = true
++	case "arm-session-fail":
++		f.failSession.Store(true)
++		out["armed"] = true
++	case "arm-invalid-csrf":
++		if f.mode != "authority" {
++			f.t.Fatal("exact authority mode required")
++		}
++		f.mu.Lock()
++		f.invalidCSRF = true
++		f.mu.Unlock()
++		out["armed"] = true
++	case "arm-hold-read":
++		f.mu.Lock()
++		if f.holdNext || f.held != f.holdJoined {
++			f.mu.Unlock()
++			f.t.Fatal("previous owned read hold must join")
++		}
++		f.holdNext = true
++		f.holdRelease = make(chan struct{})
++		f.holdReleaseOnce = sync.Once{}
++		f.mu.Unlock()
++		out["armed"] = true
++	case "release-read":
++		f.releaseRead()
++		out["released"] = true
++	case "hold-facts":
++		f.mu.Lock()
++		out["entered"], out["joined"] = f.held, f.holdJoined
++		f.mu.Unlock()
++	case "failure-facts":
++		out["read_failures"], out["session_failures"] = f.readFailures.Load(), f.sessionFailures.Load()
++	case "attempt-facts":
++		f.mu.Lock()
++		keys := map[string]bool{}
++		for _, a := range f.attempts {
++			keys[a.key] = true
++		}
++		out["attempts"], out["distinct_keys"] = len(f.attempts), len(keys)
++		f.mu.Unlock()
++	case "demote", "promote", "revoke-session":
++		if f.mode != "authority" || r.UserID != f.admin.UserID {
++			f.t.Fatal("exact owned authority target rejected")
++		}
++		if _, err := foundation.ParseID[struct{}](r.SessionID); err != nil {
++			f.t.Fatal("exact owned Session invalid")
++		}
++		conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
++		defer closeConnection()
++		var exists bool
++		if err := conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL)`, r.SessionID, r.UserID).Scan(&exists); err != nil || !exists {
++			f.t.Fatal("exact owned live Session absent")
++		}
++		if r.Action == "revoke-session" {
++			tag, err := conn.Exec(ctx, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='administrative' WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL`, r.SessionID, r.UserID)
++			if err != nil || tag.RowsAffected() != 1 {
++				f.t.Fatal("exact owned Session revoke failed")
++			}
++		} else {
++			role, previous := "user", "admin"
++			if r.Action == "promote" {
++				role, previous = "admin", "user"
++			}
++			tag, err := conn.Exec(ctx, `UPDATE agenteam_account.users SET role=$1,version=version+1,updated_at=clock_timestamp() WHERE id=$2 AND role=$3`, role, r.UserID, previous)
++			if err != nil || tag.RowsAffected() != 1 {
++				f.t.Fatal("exact owned role change failed")
++			}
++		}
++	default:
++		f.t.Fatal("unknown owned outbound IPC action")
++	}
++	return out
++}
++
++func (f *outboundPolicyWebFixture) browserOutboundPolicy(ctx context.Context) map[string]any {
++	f.t.Helper()
++	root, e := filepath.Abs("../account-captcha-web")
++	if e != nil {
++		f.t.Fatal(e)
++	}
++	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "system-outbound-policy.config.js"))
++	cmd.Dir = root
++	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
++	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
++	cmd.WaitDelay = time.Second
++	for _, value := range os.Environ() {
++		if !strings.HasPrefix(value, "TMPDIR=") && !strings.HasPrefix(value, "AGENTEAM_AUTH_WEB_") && !strings.HasPrefix(value, "AGENTEAM_OUTBOUND_POLICY_WEB_") && !strings.HasPrefix(value, "PLAYWRIGHT_NO_COPY_PROMPT=") && !strings.HasPrefix(value, "DEBUG=") && !strings.HasPrefix(value, "PWDEBUG=") {
++			cmd.Env = append(cmd.Env, value)
++		}
++	}
++	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_OUTBOUND_POLICY_WEB_CASE="+f.mode, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "PLAYWRIGHT_NO_COPY_PROMPT=1")
++	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
++		if !filepath.IsAbs(images) {
++			f.t.Fatal("Outbound policy image path must be absolute")
++		}
++		cmd.Env = append(cmd.Env, "AGENTEAM_AUTH_WEB_IMAGES="+images)
++	}
++	var output bytes.Buffer
++	cmd.Stdout, cmd.Stderr = &output, &output
++	if e = cmd.Start(); e != nil {
++		f.t.Fatal("locked Outbound policy browser runner could not start")
++	}
++	done := make(chan error, 1)
++	go func() { done <- cmd.Wait() }()
++	joined := false
++	defer func() {
++		if !joined {
++			_ = cmd.Cancel()
++			<-done
++		}
++		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
++		cmd.Env = nil
++	}()
++	tick := time.NewTicker(20 * time.Millisecond)
++	defer tick.Stop()
++	sequence := 0
++	var runErr error
++wait:
++	for {
++		select {
++		case runErr = <-done:
++			joined = true
++			break wait
++		case <-tick.C:
++			raw, err := os.ReadFile(filepath.Join(f.directory, "outbound-policy-ipc.json"))
++			if errors.Is(err, os.ErrNotExist) {
++				continue
++			}
++			var request outboundPolicyWebIPC
++			decode := json.Unmarshal(raw, &request)
++			clear(raw)
++			if err != nil || decode != nil || request.Sequence < 1 || request.Sequence > 128 {
++				f.t.Error("private Outbound policy IPC rejected")
++				_ = cmd.Cancel()
++				continue
++			}
++			if request.Sequence <= sequence {
++				continue
++			}
++			if request.Sequence != sequence+1 {
++				f.t.Error("private Outbound policy IPC sequence invalid")
++				_ = cmd.Cancel()
++				continue
++			}
++			reply := f.outboundIPC(ctx, request)
++			sequence = request.Sequence
++			f.private("outbound-policy-ack-"+strconv.Itoa(sequence)+".json", reply)
++		}
++	}
++	safe := output.String()
++	for _, secret := range f.secrets {
++		if secret != "" {
++			safe = strings.ReplaceAll(safe, secret, "[redacted]")
++		}
++	}
++	f.mu.Lock()
++	if f.lostKey != "" {
++		safe = strings.ReplaceAll(safe, f.lostKey, "[redacted]")
++	}
++	for _, attempt := range f.attempts {
++		if attempt.key != "" {
++			safe = strings.ReplaceAll(safe, attempt.key, "[redacted]")
++		}
++	}
++	f.mu.Unlock()
++	f.t.Log(safe)
++	if runErr != nil {
++		f.t.Fatalf("actual Outbound policy production browser failed: %v", runErr)
++	}
++	raw, e := os.ReadFile(filepath.Join(f.directory, "outbound-policy-result.json"))
++	if e != nil {
++		f.t.Fatal("safe Outbound policy browser result missing")
++	}
++	defer clear(raw)
++	var result map[string]any
++	if json.Unmarshal(raw, &result) != nil || result["completed"] != true {
++		f.t.Fatal("safe Outbound policy browser result invalid")
++	}
++	return result
++}
+--- /dev/null
++++ b/tests/account-captcha-web/system-outbound-policy.config.js
+@@ -0,0 +1,35 @@
++import { defineConfig } from "@playwright/test";
++const origin = process.env.AGENTEAM_AUTH_WEB_ORIGIN;
++const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE;
++const executablePath = process.env.AGENTEAM_AUTH_WEB_CHROMIUM;
++const selected = process.env.AGENTEAM_OUTBOUND_POLICY_WEB_CASE;
++if (!origin || !directory || !executablePath)
++  throw new Error("OWNED_OUTBOUND_POLICY_FIXTURE_REQUIRED");
++const url = new URL(origin);
++if (
++  url.protocol !== "http:" ||
++  url.hostname !== "127.0.0.1" ||
++  !url.port ||
++  url.origin !== origin
++)
++  throw new Error("EXACT_OWNED_ORIGIN_REQUIRED");
++if (!["read", "mutation", "authority", "navigation"].includes(selected))
++  throw new Error("EXACT_OUTBOUND_POLICY_CASE_REQUIRED");
++export default defineConfig({
++  testDir: "./e2e",
++  testMatch: "system-outbound-policy.spec.ts",
++  grep: new RegExp(`\\[${selected}\\]`),
++  timeout: 45_000,
++  workers: 1,
++  retries: 0,
++  reporter: "line",
++  outputDir: `${directory}/outbound-policy-playwright-results`,
++  use: {
++    baseURL: origin,
++    browserName: "chromium",
++    launchOptions: { executablePath, args: ["--no-sandbox"] },
++    screenshot: "off",
++    video: "off",
++    trace: "off",
++  },
++});
+--- /dev/null
++++ b/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts
+@@ -0,0 +1,1444 @@
++import { test, expect, type Page, type Locator } from "@playwright/test";
++import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
++import { join } from "node:path";
++const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
++const endpoint = "/api/v1/system/outbound-policy";
++type Rule = { cidr: string; ports: "all" | number[]; allow_http: boolean };
++type Policy = { version: string; rules: Rule[] };
++type Receipt = {
++  version: string;
++  rule_count: string;
++  audit_id: string;
++  created_at: string;
++};
++type Credential = { email: string; password: string; user_id: string };
++type Fact = {
++  sequence: number;
++  path: string;
++  method: string;
++  status: number;
++  bytes: number;
++  ended: boolean;
++  code?: string;
++  commit_state?: string;
++  policy?: Policy;
++  receipt?: Receipt;
++  session?: { user_id: string; session_id: string; role: string };
++};
++type ObservedWindow = Window & {
++  __outboundFacts?: Fact[];
++  __outboundSequence?: number;
++};
++const material = (): {
++  admin: Credential;
++  member: Credential;
++  second: Credential;
++  initial: Policy;
++} =>
++  JSON.parse(
++    readFileSync(join(directory, "outbound-policy-material.json"), "utf8"),
++  );
++function result(value: Record<string, unknown>) {
++  writeFileSync(
++    join(directory, "outbound-policy-result.json"),
++    JSON.stringify({ completed: true, ...value }),
++    { mode: 0o600 },
++  );
++}
++let ipcSequence = 0;
++async function ipc(
++  action: string,
++  fields: Record<string, string> = {},
++): Promise<Record<string, any>> {
++  const sequence = ++ipcSequence,
++    request = join(directory, "outbound-policy-ipc.json"),
++    ack = join(directory, `outbound-policy-ack-${sequence}.json`);
++  writeFileSync(
++    request + ".tmp",
++    JSON.stringify({ sequence, action, ...fields }),
++    { mode: 0o600 },
++  );
++  renameSync(request + ".tmp", request);
++  await expect.poll(() => existsSync(ack), { timeout: 14000 }).toBe(true);
++  const value = JSON.parse(readFileSync(ack, "utf8"));
++  expect(value.ok === true && value.sequence === sequence).toBe(true);
++  return value;
++}
++// Side observations of the application's original fetch/read Promises only.
++// No clone, tee, second read or request; original cancel and abort are untouched.
++// Ended below is a projection marker, never proof of Cookie-owner release.
++function observeNative() {
++  const scope = window as ObservedWindow;
++  scope.__outboundFacts = [];
++  scope.__outboundSequence = 0;
++  const object = (value: unknown): Record<string, unknown> | null =>
++    value !== null && typeof value === "object" && !Array.isArray(value)
++      ? (value as Record<string, unknown>)
++      : null;
++  const closed = (value: Record<string, unknown>, keys: string[]) =>
++    Object.keys(value).length === keys.length &&
++    keys.every((key) => Object.hasOwn(value, key));
++  const id = (value: unknown): value is string =>
++    typeof value === "string" &&
++    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
++      value,
++    );
++  const decimal = (value: unknown, min: bigint, max: bigint): value is string =>
++    typeof value === "string" &&
++    /^[1-9][0-9]{0,18}$/.test(value) &&
++    BigInt(value) >= min &&
++    BigInt(value) <= max;
++  const nativeFetch = window.fetch;
++  window.fetch = function (...args: Parameters<typeof fetch>) {
++    const original = Reflect.apply(nativeFetch, this, args) as ReturnType<
++      typeof fetch
++    >;
++    try {
++      const [input, init] = args,
++        url = new URL(
++          input instanceof Request ? input.url : String(input),
++          location.origin,
++        );
++      if (
++        url.origin !== location.origin ||
++        !(
++          url.pathname === "/api/v1/session" ||
++          url.pathname.startsWith("/api/v1/system/")
++        )
++      )
++        return original;
++      const fact: Fact = {
++        sequence: ++scope.__outboundSequence!,
++        path: url.pathname,
++        method:
++          init?.method ?? (input instanceof Request ? input.method : "GET"),
++        status: 0,
++        bytes: 0,
++        ended: false,
++      };
++      scope.__outboundFacts!.push(fact);
++      void original
++        .then(
++          (response) => {
++            fact.status = response.status;
++            if (!(
++              fact.path === "/api/v1/session" ||
++              fact.path === "/api/v1/system/outbound-policy"
++            ))
++              return;
++            const body = response.body,
++              media = response.headers
++                .get("Content-Type")
++                ?.split(";", 1)[0]
++                ?.trim()
++                .toLowerCase();
++            if (
++              !body ||
++              media !==
++                (response.status === 200
++                  ? "application/json"
++                  : "application/problem+json")
++            ) {
++              fact.ended = true;
++              return;
++            }
++            let text = "",
++              collect = true;
++            const decoder = new TextDecoder();
++            function project() {
++              if (!collect) return;
++              const value = object(JSON.parse(text + decoder.decode()));
++              if (!value) return;
++              if (response.status !== 200) {
++                if (
++                  typeof value.code === "string" &&
++                  [
++                    "UNAUTHENTICATED",
++                    "SESSION_REVOKED",
++                    "CSRF_FAILED",
++                    "FORBIDDEN",
++                    "VERSION_CONFLICT",
++                    "INVALID_ARGUMENT",
++                    "RESOURCE_BUSY",
++                    "INTERNAL_ERROR",
++                    "UNAVAILABLE",
++                    "DEPENDENCY_UNAVAILABLE",
++                    "INVALID_STATE",
++                    "NOT_FOUND",
++                    "IDEMPOTENCY_KEY_REUSED",
++                    "COMMIT_UNKNOWN",
++                  ].includes(value.code)
++                )
++                  fact.code = value.code;
++                if (
++                  typeof value.commit_state === "string" &&
++                  [
++                    "not_started",
++                    "not_committed",
++                    "committed",
++                    "unknown",
++                  ].includes(value.commit_state)
++                )
++                  fact.commit_state = value.commit_state;
++                return;
++              }
++              if (fact.path === "/api/v1/session") {
++                const user = object(value.user),
++                  session = object(value.session);
++                if (
++                  closed(value, ["user", "session", "csrf_token"]) &&
++                  user &&
++                  session &&
++                  id(user.id) &&
++                  id(session.id) &&
++                  (user.role === "admin" || user.role === "user")
++                )
++                  fact.session = {
++                    user_id: user.id,
++                    session_id: session.id,
++                    role: user.role,
++                  };
++                return;
++              }
++              if (fact.method === "PUT") {
++                if (
++                  !closed(value, [
++                    "version",
++                    "rule_count",
++                    "audit_id",
++                    "created_at",
++                  ]) ||
++                  !decimal(value.version, 1n, 9223372036854775807n) ||
++                  typeof value.rule_count !== "string" ||
++                  !/^(0|[1-9][0-9]{0,2})$/.test(value.rule_count) ||
++                  Number(value.rule_count) > 256 ||
++                  !id(value.audit_id) ||
++                  typeof value.created_at !== "string" ||
++                  !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(
++                    value.created_at,
++                  )
++                )
++                  return;
++                fact.receipt = {
++                  version: value.version,
++                  rule_count: value.rule_count,
++                  audit_id: value.audit_id,
++                  created_at: value.created_at,
++                };
++                return;
++              }
++              if (
++                !closed(value, ["version", "rules"]) ||
++                !decimal(value.version, 1n, 9223372036854775807n) ||
++                !Array.isArray(value.rules) ||
++                value.rules.length > 256
++              )
++                return;
++              const rules: Rule[] = [];
++              for (const unknownRule of value.rules) {
++                const rule = object(unknownRule);
++                if (
++                  !rule ||
++                  !closed(rule, ["cidr", "ports", "allow_http"]) ||
++                  typeof rule.cidr !== "string" ||
++                  rule.cidr.length < 3 ||
++                  rule.cidr.length > 43 ||
++                  !/^[a-f0-9.:]+\/[0-9]{1,3}$/.test(rule.cidr) ||
++                  typeof rule.allow_http !== "boolean"
++                )
++                  return;
++                const ports = rule.ports;
++                if (
++                  ports !== "all" &&
++                  (!Array.isArray(ports) ||
++                    ports.length < 1 ||
++                    ports.length > 256 ||
++                    !ports.every(
++                      (v, i) =>
++                        typeof v === "number" &&
++                        Number.isSafeInteger(v) &&
++                        v >= 1 &&
++                        v <= 65535 &&
++                        (i === 0 || ports[i - 1] < v),
++                    ))
++                )
++                  return;
++                rules.push({
++                  cidr: rule.cidr,
++                  ports: ports === "all" ? "all" : ([...ports] as number[]),
++                  allow_http: rule.allow_http,
++                });
++              }
++              const canonical = rules.map((rule) => JSON.stringify(rule));
++              if (
++                canonical.some(
++                  (rule, index) => index > 0 && canonical[index - 1]! >= rule,
++                )
++              )
++                return;
++              fact.policy = { version: value.version, rules };
++            }
++            try {
++              const nativeGet = body.getReader;
++              Object.defineProperty(body, "getReader", {
++                configurable: true,
++                writable: true,
++                value: function (
++                  this: ReadableStream<Uint8Array>,
++                  ...args: unknown[]
++                ) {
++                  const reader = Reflect.apply(
++                    nativeGet,
++                    this,
++                    args,
++                  ) as ReadableStreamDefaultReader<Uint8Array>;
++                  try {
++                    Object.defineProperty(body, "getReader", {
++                      value: nativeGet,
++                    });
++                    const nativeRead = reader.read;
++                    Object.defineProperty(reader, "read", {
++                      configurable: true,
++                      writable: true,
++                      value: function (
++                        this: ReadableStreamDefaultReader<Uint8Array>,
++                        ...args: unknown[]
++                      ) {
++                        const original = Reflect.apply(
++                          nativeRead,
++                          this,
++                          args,
++                        ) as Promise<ReadableStreamReadResult<Uint8Array>>;
++                        void original
++                          .then(
++                            ({ done, value }) => {
++                              try {
++                                if (value) {
++                                  fact.bytes += value.byteLength;
++                                  if (fact.bytes > 600000) {
++                                    text = "";
++                                    collect = false;
++                                  } else if (collect)
++                                    text += decoder.decode(value, {
++                                      stream: true,
++                                    });
++                                }
++                                if (done) {
++                                  fact.ended = true;
++                                  try {
++                                    project();
++                                  } finally {
++                                    text = "";
++                                    collect = false;
++                                  }
++                                }
++                              } catch {
++                                text = "";
++                                collect = false;
++                              }
++                            },
++                            () => {
++                              text = "";
++                              collect = false;
++                              fact.ended = true;
++                            },
++                          )
++                          .catch(() => {
++                            text = "";
++                            collect = false;
++                          });
++                        return original;
++                      },
++                    });
++                  } catch {
++                    text = "";
++                    collect = false;
++                  }
++                  return reader;
++                },
++              });
++            } catch {
++              text = "";
++              collect = false;
++            }
++          },
++          () => {
++            fact.ended = true;
++          },
++        )
++        .catch(() => undefined);
++    } catch {
++      /* Observation failures cannot change the native result. */
++    }
++    return original;
++  };
++}
++const button = (page: Page, name: string) =>
++  page.getByRole("button", { name, exact: true });
++const title = (page: Page, name: string) =>
++  page.getByRole("heading", { name, exact: true });
++const form = (page: Page) =>
++  page.getByRole("form", { name: "编辑出站规则", exact: true });
++const top = (page: Page) => page.getByRole("dialog");
++const cidr = (page: Page, n = 1) =>
++  page.getByRole("textbox", { name: `规则 ${n} CIDR`, exact: true });
++const ports = (page: Page, n = 1) =>
++  page.getByRole("textbox", { name: `规则 ${n} 指定端口`, exact: true });
++const facts = (page: Page) =>
++  page.evaluate(() => (window as ObservedWindow).__outboundFacts ?? []);
++const seq = (page: Page) =>
++  page.evaluate(() => (window as ObservedWindow).__outboundSequence ?? 0);
++async function writes(page: Page) {
++  return (await facts(page)).filter(
++    (f) => f.path === endpoint && f.method === "PUT",
++  );
++}
++async function factAfter(
++  page: Page,
++  after: number,
++  predicate: (fact: Fact) => boolean,
++) {
++  let found: Fact | undefined;
++  await expect
++    .poll(async () => {
++      found = (await facts(page)).find(
++        (f) => f.sequence > after && predicate(f),
++      );
++      return !!found;
++    })
++    .toBe(true);
++  return found!;
++}
++async function session(page: Page) {
++  let value: Fact["session"];
++  await expect
++    .poll(async () => {
++      value = (await facts(page))
++        .filter(
++          (f) => f.path === "/api/v1/session" && f.status === 200 && f.ended,
++        )
++        .at(-1)?.session;
++      return !!value;
++    })
++    .toBe(true);
++  return value!;
++}
++function same(a: unknown, b: unknown): boolean {
++  const canonical = (value: any): string =>
++    JSON.stringify(value, (_, v) =>
++      v && typeof v === "object" && !Array.isArray(v)
++        ? Object.fromEntries(
++            Object.entries(v).sort(([a], [b]) => a.localeCompare(b)),
++          )
++        : v,
++    );
++  return canonical(a) === canonical(b);
++}
++async function login(page: Page, who: "admin" | "member" = "admin") {
++  const data = material()[who],
++    after = await seq(page);
++  await page.locator("#login-email").fill(data.email);
++  try {
++    await page.locator("#login-password").fill(data.password);
++  } catch {
++    throw new Error("private owned login input failed");
++  }
++  await button(page, "登录").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === "/api/v1/session" &&
++      f.status === 200 &&
++      f.ended &&
++      f.session?.user_id === data.user_id &&
++      f.session.role === (who === "admin" ? "admin" : "user"),
++  );
++  await expect(button(page, "退出登录")).toBeEnabled();
++  await expect(page).not.toHaveURL(/\/login(?:\?|$)/);
++}
++async function setup(page: Page, who: "admin" | "member" = "admin") {
++  await page.addInitScript(observeNative);
++  await page.goto("/system/outbound-policy");
++  await login(page, who);
++  if (who === "admin") await currentRead(page, 0);
++}
++async function currentRead(page: Page, after: number) {
++  const read = await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "GET" &&
++      f.status === 200 &&
++      f.ended &&
++      !!f.policy,
++  );
++  await expect(button(page, "读取当前规则")).toBeEnabled();
++  return read.policy!;
++}
++async function dbFacts() {
++  return (await ipc("facts")).facts as {
++    policy: Policy;
++    original_receipts: number;
++    original_audits: number;
++    exact_semantic: boolean;
++    exact_historical: boolean;
++  };
++}
++async function matchesObserved(page: Page, value: Policy) {
++  const observed = page.getByRole("region", {
++    name: "最近完整读取的出站规则",
++    exact: true,
++  });
++  await expect
++    .poll(async () => {
++      const projected = await observed.evaluate((region) => ({
++        version: region.querySelector("p code")?.textContent ?? "",
++        rows: [...region.querySelectorAll("tbody tr")].map((row) =>
++          [...row.querySelectorAll("td")].map(
++            (cell) => cell.textContent?.trim() ?? "",
++          ),
++        ),
++      }));
++      return (
++        projected.version === value.version &&
++        projected.rows.length === value.rules.length &&
++        projected.rows.every(
++          (row, i) =>
++            row[0] === value.rules[i]!.cidr &&
++            row[1] ===
++              (value.rules[i]!.ports === "all"
++                ? "全部端口（all）"
++                : value.rules[i]!.ports.join(", ")) &&
++            row[2] === (value.rules[i]!.allow_http ? "允许" : "不允许"),
++        )
++      );
++    })
++    .toBe(true);
++}
++async function matchesEditor(page: Page, value: Policy) {
++  await expect
++    .poll(async () => {
++      const view = await form(page).evaluate((node) => ({
++        version: node.querySelector("p code")?.textContent ?? "",
++        rows: [...node.querySelectorAll("fieldset")].map((row) => ({
++          cidr:
++            row.querySelector<HTMLInputElement>("input:not([type=checkbox])")
++              ?.value ?? "",
++          ports:
++            row.querySelector<HTMLInputElement>('input[inputmode="numeric"]')
++              ?.value ?? null,
++          allow:
++            row.querySelector<HTMLInputElement>('input[type="checkbox"]')
++              ?.checked ?? false,
++          mode:
++            row
++              .querySelector<HTMLElement>(".ui-select button")
++              ?.textContent?.trim() ?? "",
++        })),
++      }));
++      return (
++        view.version === value.version &&
++        view.rows.length === value.rules.length &&
++        view.rows.every(
++          (row, i) =>
++            row.cidr === value.rules[i]!.cidr &&
++            row.ports ===
++              (value.rules[i]!.ports === "all"
++                ? null
++                : value.rules[i]!.ports.join(", ")) &&
++            row.allow === value.rules[i]!.allow_http,
++        )
++      );
++    })
++    .toBe(true);
++}
++async function addRule(
++  page: Page,
++  network = "10.71.0.0/16",
++  specified = "443",
++  all = false,
++) {
++  const n = (await form(page).locator("fieldset").count()) + 1;
++  await button(page, "添加规则").click();
++  await expect(cidr(page, n)).toBeFocused();
++  await cidr(page, n).fill(network);
++  if (all) {
++    await button(page, `规则 ${n} 端口范围`).click();
++    await page
++      .getByRole("option", { name: "全部端口（all）", exact: true })
++      .click();
++    await expect(ports(page, n)).toHaveCount(0);
++  } else await ports(page, n).fill(specified);
++  return n;
++}
++async function save(page: Page) {
++  const after = await seq(page),
++    version = await form(page).locator("p code").first().textContent(),
++    count = await form(page).locator("fieldset").count();
++  await button(page, "保存规则").click();
++  const written = await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 200 &&
++      f.ended &&
++      !!f.receipt,
++  );
++  expect(
++    BigInt(written.receipt!.version) === BigInt(version!) + 1n &&
++      written.receipt!.rule_count === String(count),
++  ).toBe(true);
++  const current = await currentRead(page, written.sequence);
++  await matchesObserved(page, current);
++  await matchesEditor(page, current);
++  return written.receipt!;
++}
++async function refresh(page: Page) {
++  const after = await seq(page);
++  await button(page, "读取当前规则").click();
++  return currentRead(page, after);
++}
++async function discard(page: Page) {
++  await button(page, "取消修改").click();
++  await expect(top(page)).toHaveAccessibleName("放弃未保存的规则？");
++  await top(page)
++    .getByRole("button", { name: "放弃修改", exact: true })
++    .click();
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++}
++async function cutSave(page: Page) {
++  await ipc("arm-drop");
++  const after = await seq(page);
++  await button(page, "保存规则").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 200 &&
++      f.ended &&
++      !f.receipt,
++  );
++  await expect(title(page, "请求结果未确认")).toBeVisible();
++  await expect(button(page, "检查当前会话与规则")).toBeEnabled();
++  const dropped = await ipc("drop-facts");
++  expect(
++    dropped.dropped === 1 && dropped.replayed === 0 && dropped.armed === false,
++  ).toBe(true);
++  return dropped.receipt as Receipt;
++}
++async function cancelledRead(page: Page) {
++  const before = (await facts(page)).filter(
++    (f) => f.path === endpoint && f.method === "GET",
++  ).length;
++  await ipc("arm-hold-read");
++  await button(page, "读取当前规则").click();
++  await expect
++    .poll(async () => {
++      const held = await ipc("hold-facts");
++      return held.entered === held.joined + 1;
++    })
++    .toBe(true);
++  await expect(button(page, "取消读取")).toBeEnabled();
++  await button(page, "取消读取").click();
++  await expect(title(page, "出站规则读取失败")).toBeVisible();
++  await ipc("release-read");
++  await expect
++    .poll(async () => {
++      const held = await ipc("hold-facts");
++      return held.entered > 0 && held.entered === held.joined;
++    })
++    .toBe(true);
++  await expect(button(page, "读取当前规则")).toBeEnabled();
++  expect(
++    (await facts(page)).filter((f) => f.path === endpoint && f.method === "GET")
++      .length,
++  ).toBe(before + 1);
++  // This is an explicit read after actual server control completion. Owner native
++  // cancel-tail semantics are separately covered by the fixed controlled tests.
++  await refresh(page);
++}
++
++test("[read] formal empty and maximum Rules, structured editing and retained read failures", async ({
++  page,
++}) => {
++  await setup(page);
++  const initial = await currentRead(page, 0);
++  expect(
++    same(initial, material().initial) &&
++      initial.version === "1" &&
++      initial.rules.length === 0,
++  ).toBe(true);
++  await matchesObserved(page, initial);
++  await matchesEditor(page, initial);
++  await expect(button(page, "保存规则")).toBeDisabled();
++  const maximum = await ipc("seed-maximum");
++  expect(maximum.distinct_rules === 256 && maximum.rules_bytes === 414721).toBe(
++    true,
++  );
++  let observed = await refresh(page),
++    db = await dbFacts();
++  expect(
++    same(observed, db.policy) &&
++      observed.rules.length === 256 &&
++      new Set(observed.rules.map((r) => r.cidr)).size === 256 &&
++      observed.rules.every(
++        (r) => Array.isArray(r.ports) && r.ports.length === 256,
++      ),
++  ).toBe(true);
++  const maximal = (await facts(page))
++    .filter(
++      (f) => f.path === endpoint && f.policy?.version === observed.version,
++    )
++    .at(-1)!;
++  expect(
++    maximal.bytes > 414700 && maximal.bytes < 600000 && maximal.ended,
++  ).toBe(true);
++  await matchesObserved(page, observed);
++  await matchesEditor(page, observed);
++  await expect(button(page, "添加规则")).toBeDisabled();
++  await ipc("arm-get-fail");
++  const failedAfter = await seq(page);
++  await button(page, "读取当前规则").click();
++  await factAfter(
++    page,
++    failedAfter,
++    (f) => f.path === endpoint && f.status === 503 && f.ended,
++  );
++  await expect(title(page, "出站规则读取失败")).toBeVisible();
++  await matchesObserved(page, observed);
++  expect(same((await dbFacts()).policy, db.policy)).toBe(true);
++  await ipc("reset-empty");
++  observed = await refresh(page);
++  expect(observed.rules.length === 0).toBe(true);
++  const before = (await writes(page)).length;
++  await addRule(page, "10.0.0.1/8", "443");
++  await expect(cidr(page)).toHaveAttribute("aria-invalid", "true");
++  await expect(button(page, "保存规则")).toBeDisabled();
++  await cidr(page).fill("10.71.0.0/16");
++  await ports(page).fill("443 8443");
++  await expect(ports(page)).toHaveAttribute("aria-invalid", "true");
++  await expect(button(page, "保存规则")).toBeDisabled();
++  await ports(page).fill("443, 443");
++  await expect(button(page, "保存规则")).toBeDisabled();
++  await ports(page).fill("8443, 443");
++  expect((await writes(page)).length).toBe(before);
++  await addRule(page, "fd00::/8", "", true);
++  await page
++    .getByRole("checkbox", { name: "规则 2 允许 HTTP", exact: true })
++    .check();
++  await addRule(page, "192.168.0.0/16", "80");
++  await button(page, "删除规则 3").click();
++  await expect(cidr(page, 2)).toBeFocused();
++  const receipt = await save(page);
++  expect(receipt.rule_count === "2").toBe(true);
++  db = await dbFacts();
++  observed = await currentRead(page, 0);
++  // Select the newest complete observation, rather than the initial page read.
++  observed = (await facts(page))
++    .filter(
++      (f) => f.path === endpoint && f.method === "GET" && f.ended && f.policy,
++    )
++    .at(-1)!.policy!;
++  expect(
++    same(observed, db.policy) &&
++      observed.rules.some((r) => r.ports === "all" && r.allow_http) &&
++      observed.rules.some(
++        (r) => Array.isArray(r.ports) && same(r.ports, [443, 8443]),
++      ),
++  ).toBe(true);
++  await matchesObserved(page, observed);
++  result({
++    initial_empty: true,
++    maximum_distinct: true,
++    complete_dto: true,
++    structured_rules: true,
++    explicit_all: true,
++    invalid_zero_put: true,
++    failed_read_retained: true,
++  });
++});
++
++test("[mutation] two administrators, strict original replay and exact historical Audit facts", async ({
++  page,
++}) => {
++  await setup(page);
++  await addRule(page);
++  await save(page);
++  const base = await dbFacts(),
++    originalVersion = base.policy.version;
++  await ports(page).fill("8443");
++  const draft = await ports(page).inputValue(),
++    before = (await writes(page)).length;
++  const competitor = await ipc("compete", { expected: originalVersion });
++  expect(
++    competitor.distinct_administrator === true &&
++      competitor.expected === originalVersion &&
++      BigInt(competitor.receipt.version) === BigInt(originalVersion) + 1n,
++  ).toBe(true);
++  let after = await seq(page);
++  await button(page, "保存规则").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 409 &&
++      f.code === "VERSION_CONFLICT" &&
++      f.commit_state === "not_started" &&
++      f.ended,
++  );
++  expect(
++    (await writes(page)).length === before + 1 &&
++      (await ports(page).inputValue()) === draft &&
++      (await form(page).locator("p code").first().textContent()) ===
++        originalVersion,
++  ).toBe(true);
++  await expect(title(page, "需要核对最新规则")).toBeVisible();
++  after = await seq(page);
++  await button(page, "读取最新规则").click();
++  const latest = await currentRead(page, after);
++  expect(
++    latest.version === competitor.receipt.version &&
++      (await ports(page).inputValue()) === draft &&
++      (await form(page).locator("p code").first().textContent()) ===
++        originalVersion,
++  ).toBe(true);
++  await button(page, "采用最新值重新编辑").click();
++  await expect(top(page)).toHaveAccessibleName("放弃草稿并采用最新规则？");
++  await top(page)
++    .getByRole("button", { name: "放弃修改", exact: true })
++    .click();
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  await matchesEditor(page, latest);
++  await ports(page).fill("443");
++  const historical = await cutSave(page),
++    accepted = await dbFacts();
++  expect(
++    accepted.original_receipts === 1 &&
++      accepted.original_audits === 1 &&
++      accepted.exact_semantic &&
++      accepted.exact_historical,
++  ).toBe(true);
++  const advanced = await ipc("compete", { expected: accepted.policy.version });
++  after = await seq(page);
++  await button(page, "检查当前会话与规则").click();
++  const newer = await currentRead(page, after);
++  expect(
++    newer.version === advanced.receipt.version &&
++      BigInt(newer.version) > BigInt(historical.version),
++  ).toBe(true);
++  await expect(title(page, "请求结果未确认")).toBeVisible();
++  await expect(button(page, "用原请求确认")).toBeEnabled();
++  await expect(
++    page.getByLabel("本次保存的历史确认", { exact: true }),
++  ).toHaveCount(0);
++  const beforeReplay = (await writes(page)).length;
++  after = await seq(page);
++  await button(page, "用原请求确认").click();
++  const replay = await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 200 &&
++      f.ended &&
++      !!f.receipt,
++  );
++  expect(
++    same(replay.receipt, historical) &&
++      (await writes(page)).length === beforeReplay + 1,
++  ).toBe(true);
++  const afterReplay = await currentRead(page, replay.sequence);
++  expect(same(afterReplay, newer)).toBe(true);
++  await matchesObserved(page, newer);
++  const drop = await ipc("drop-facts"),
++    unique = await dbFacts();
++  expect(
++    drop.same_original === true &&
++      drop.replayed === 1 &&
++      unique.original_receipts === 1 &&
++      unique.original_audits === 1 &&
++      unique.exact_semantic &&
++      unique.exact_historical &&
++      same(unique.policy, newer),
++  ).toBe(true);
++  const different = await ipc("different-semantics");
++  expect(
++    different.status === 409 &&
++      different.code === "IDEMPOTENCY_KEY_REUSED" &&
++      different.commit_state === "not_started",
++  ).toBe(true);
++  expect(same((await dbFacts()).policy, newer)).toBe(true);
++  await ports(page).fill("9443");
++  const submitted = await ports(page).inputValue(),
++    baseline = await form(page).locator("p code").first().textContent();
++  await ipc("arm-get-fail");
++  after = await seq(page);
++  await button(page, "保存规则").click();
++  const confirmed = await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 200 &&
++      f.ended &&
++      !!f.receipt,
++  );
++  await factAfter(
++    page,
++    confirmed.sequence,
++    (f) =>
++      f.path === endpoint && f.method === "GET" && f.status === 503 && f.ended,
++  );
++  await expect(title(page, "保存已确认，当前规则读取失败")).toBeVisible();
++  expect(
++    (await ports(page).inputValue()) === submitted &&
++      (await form(page).locator("p code").first().textContent()) === baseline,
++  ).toBe(true);
++  await expect(ports(page)).toBeDisabled();
++  await expect(form(page).locator('button[type="submit"]')).toBeDisabled();
++  const count = (await writes(page)).length;
++  await refresh(page);
++  expect((await writes(page)).length === count).toBe(true);
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  result({
++    complete_save: true,
++    two_administrators: true,
++    same_expected_conflict: true,
++    draft_retained: true,
++    explicit_review: true,
++    accepted_cut: true,
++    current_not_receipt: true,
++    historical_receipt: true,
++    same_original: true,
++    unique_command_audit: true,
++    same_key_rejected: true,
++    confirmed_read_failure: true,
++  });
++});
++async function promoteAndRestore(
++  page: Page,
++  identity: NonNullable<Fact["session"]>,
++) {
++  await ipc("promote", identity);
++  const after = await seq(page);
++  await button(page, "重新检查权限").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === "/api/v1/session" &&
++      f.status === 200 &&
++      f.ended &&
++      f.session?.user_id === identity.user_id &&
++      f.session.session_id === identity.session_id &&
++      f.session.role === "admin",
++  );
++  await currentRead(page, after);
++  await expect(button(page, "用原请求确认")).toHaveCount(0);
++  await expect(form(page).locator('button[type="submit"]')).toBeDisabled();
++}
++async function editPorts(page: Page, value: string) {
++  if ((await form(page).locator("fieldset").count()) === 0)
++    await addRule(page, "10.71.0.0/16", value);
++  else await ports(page).fill(value);
++}
++test("[authority] real current authority, CSRF and full identity cleanup with cancelled reads", async ({
++  page,
++}) => {
++  await setup(page, "member");
++  await expect(title(page, "无权访问系统设置")).toBeVisible();
++  expect(
++    (await facts(page)).some((f) => f.path.startsWith("/api/v1/system/")),
++  ).toBe(false);
++  await expect(
++    page.getByRole("navigation", { name: "系统设置", exact: true }),
++  ).toHaveCount(0);
++  await button(page, "退出登录").click();
++  await expect(page).toHaveURL(/\/login$/);
++  await login(page);
++  await page.goto("/system/outbound-policy");
++  await currentRead(page, 0);
++  await addRule(page);
++  await save(page);
++  await cancelledRead(page);
++  let original = await session(page),
++    after = await seq(page);
++  await ipc("demote", original);
++  await button(page, "读取当前规则").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "GET" &&
++      f.status === 403 &&
++      f.code === "FORBIDDEN" &&
++      f.ended,
++  );
++  await expect(title(page, "无权访问系统设置")).toBeVisible();
++  await expect(form(page)).toHaveCount(0);
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  await promoteAndRestore(page, original);
++  await editPorts(page, "8443");
++  const beforeRejected = await dbFacts();
++  original = await session(page);
++  await ipc("demote", original);
++  after = await seq(page);
++  await button(page, "保存规则").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 403 &&
++      f.code === "FORBIDDEN" &&
++      f.ended,
++  );
++  await expect(title(page, "无权访问系统设置")).toBeVisible();
++  expect(same(await dbFacts(), beforeRejected)).toBe(true);
++  await promoteAndRestore(page, original);
++  await editPorts(page, "8443");
++  await cutSave(page);
++  after = await seq(page);
++  await button(page, "检查当前会话与规则").click();
++  await currentRead(page, after);
++  await expect(button(page, "用原请求确认")).toBeEnabled();
++  const accepted = await dbFacts();
++  original = await session(page);
++  await ipc("demote", original);
++  after = await seq(page);
++  await button(page, "用原请求确认").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 403 &&
++      f.code === "FORBIDDEN" &&
++      f.ended,
++  );
++  await expect(title(page, "无权访问系统设置")).toBeVisible();
++  expect(same(await dbFacts(), accepted)).toBe(true);
++  await promoteAndRestore(page, original);
++  await editPorts(page, "9443");
++  await ipc("arm-invalid-csrf");
++  const csrfBefore = await dbFacts();
++  after = await seq(page);
++  await button(page, "保存规则").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 403 &&
++      f.code === "CSRF_FAILED" &&
++      f.ended,
++  );
++  await expect(button(page, "检查当前会话")).toBeEnabled();
++  await expect(form(page)).toHaveCount(0);
++  await expect(button(page, "用原请求确认")).toHaveCount(0);
++  expect(same(await dbFacts(), csrfBefore)).toBe(true);
++  after = await seq(page);
++  await button(page, "检查当前会话").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === "/api/v1/session" &&
++      f.status === 200 &&
++      f.ended &&
++      f.session?.user_id === original.user_id &&
++      f.session.session_id === original.session_id,
++  );
++  await currentRead(page, after);
++  await expect(form(page).locator('button[type="submit"]')).toBeDisabled();
++  await editPorts(page, "10443");
++  await cutSave(page);
++  original = await session(page);
++  await ipc("revoke-session", original);
++  after = await seq(page);
++  await button(page, "检查当前会话与规则").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === "/api/v1/session" &&
++      f.status === 401 &&
++      f.code === "SESSION_REVOKED" &&
++      f.ended,
++  );
++  await expect(page).toHaveURL(/\/login(?:\?|$)/);
++  await expect(page.locator("#login-email")).toBeVisible();
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  await login(page);
++  await page.goto("/system/outbound-policy");
++  await currentRead(page, 0);
++  const fresh = await session(page);
++  expect(
++    fresh.user_id === original.user_id &&
++      fresh.session_id !== original.session_id,
++  ).toBe(true);
++  await expect(button(page, "用原请求确认")).toHaveCount(0);
++  await expect(form(page).locator('button[type="submit"]')).toBeDisabled();
++  await button(page, "退出登录").click();
++  await expect(page).toHaveURL(/\/login$/);
++  await login(page, "member");
++  await page.goto("/system/outbound-policy");
++  await expect(title(page, "无权访问系统设置")).toBeVisible();
++  expect(
++    (await facts(page)).some((f) => f.path.startsWith("/api/v1/system/")),
++  ).toBe(false);
++  result({
++    ordinary_denied: true,
++    current_read_denied: true,
++    current_write_denied: true,
++    current_replay_denied: true,
++    valid_csrf: true,
++    invalid_csrf: true,
++    material_cleared: true,
++    new_identity: true,
++    actual_cancelled_read: true,
++  });
++});
++async function focusContained(page: Page) {
++  await expect(top(page)).toHaveCount(1);
++  await expect
++    .poll(() =>
++      top(page).evaluate((dialog) => dialog.contains(document.activeElement)),
++    )
++    .toBe(true);
++  for (let n = 0; n < 6; n++) {
++    await page.keyboard.press("Tab");
++    expect(
++      await top(page).evaluate((dialog) =>
++        dialog.contains(document.activeElement),
++      ),
++    ).toBe(true);
++  }
++  await page.keyboard.press("Shift+Tab");
++  expect(
++    await top(page).evaluate((dialog) =>
++      dialog.contains(document.activeElement),
++    ),
++  ).toBe(true);
++}
++async function restoredConfirmation(
++  page: Page,
++  fail: boolean,
++  decision: "continue" | "discard",
++) {
++  const original = await session(page),
++    after = await seq(page),
++    count = (await writes(page)).length;
++  if (fail) await ipc("arm-session-fail");
++  // The event is synthetic; the following Session responses and full identity
++  // comparisons use the real backend. This does not claim browser BFCache.
++  const checking = await page.evaluate(async () => {
++    let observer: MutationObserver | undefined;
++    try {
++      return await new Promise<{
++        zero: boolean;
++        unlocked: boolean;
++        operative: boolean;
++      }>((resolve) => {
++        observer = new MutationObserver(() => {
++          const check = document.querySelector<HTMLElement>(".session-check");
++          if (!check) return;
++          resolve({
++            zero: document.querySelectorAll(".ui-overlay").length === 0,
++            unlocked: document.body.style.overflow !== "hidden",
++            operative: check.closest("[inert]") === null,
++          });
++        });
++        observer.observe(document.body, { childList: true, subtree: true });
++        window.dispatchEvent(new Event("pageshow"));
++      });
++    } finally {
++      observer?.disconnect();
++    }
++  });
++  expect(checking).toEqual({ zero: true, unlocked: true, operative: true });
++  if (fail) {
++    await expect(page.locator(".ui-overlay")).toHaveCount(0);
++    await expect(button(page, "检查当前会话")).toBeEnabled();
++    await button(page, "检查当前会话").click();
++  }
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === "/api/v1/session" &&
++      f.status === 200 &&
++      f.ended &&
++      f.session?.user_id === original.user_id &&
++      f.session.session_id === original.session_id &&
++      f.session.role === original.role,
++  );
++  await expect(page.locator('[role="dialog"]')).toHaveCount(1);
++  await expect(top(page)).toHaveAccessibleName("放弃未保存的规则？");
++  expect(
++    await top(page).evaluate(
++      (node) =>
++        !(node as HTMLElement).inert &&
++        node.getAttribute("aria-hidden") !== "true",
++    ),
++  ).toBe(true);
++  await focusContained(page);
++  await top(page)
++    .getByRole("button", {
++      name: decision === "continue" ? "继续编辑" : "放弃修改",
++      exact: true,
++    })
++    .click();
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  expect((await writes(page)).length).toBe(count);
++  if (decision === "continue") {
++    await expect(title(page, "出站规则")).toBeFocused();
++    await page.keyboard.press("Tab");
++    expect(
++      await page.evaluate(
++        () =>
++          document.activeElement instanceof HTMLElement &&
++          document.activeElement !== document.body &&
++          document.activeElement.isConnected &&
++          !document.activeElement.closest('[inert],[aria-hidden="true"]'),
++      ),
++    ).toBe(true);
++  }
++}
++async function layout(page: Page, width: number) {
++  const problems = await page
++    .locator(".system-outbound-policy")
++    .evaluate((region, width) => {
++      const out: string[] = [],
++        rect = region.getBoundingClientRect();
++      if (
++        document.documentElement.scrollWidth > innerWidth + 1 ||
++        region.scrollWidth > region.clientWidth + 1
++      )
++        out.push("horizontal overflow");
++      if (document.scrollingElement!.scrollHeight > innerHeight + 1)
++        out.push("outer vertical overflow");
++      if (rect.left < 0 || rect.right > innerWidth + 1) out.push("page bounds");
++      const table = region.querySelector<HTMLTableElement>(".policy-table");
++      if (!table || table.querySelectorAll("thead th").length !== 3)
++        out.push("three visible field columns");
++      if (table && table.scrollWidth > table.clientWidth + 1)
++        out.push("table overflow");
++      for (const node of region.querySelectorAll<HTMLElement>(
++        "p,td,legend,.ui-field",
++      )) {
++        if (node.scrollWidth > node.clientWidth + 1) out.push("text overflow");
++      }
++      for (const input of region.querySelectorAll<HTMLInputElement>(
++        'input:not([type="checkbox"])',
++      )) {
++        const bound = input.getBoundingClientRect();
++        if (
++          bound.left < rect.left - 1 ||
++          bound.right > rect.right + 1 ||
++          bound.width < 60
++        )
++          out.push("input bounds");
++        if (!input.labels?.length || !input.getAttribute("aria-describedby"))
++          out.push("field association");
++      }
++      const caption = region.querySelector<HTMLElement>("caption");
++      if (
++        !caption ||
++        caption.getBoundingClientRect().width > 2 ||
++        caption.getBoundingClientRect().height > 2
++      )
++        out.push("caption visible");
++      if (width <= 680 && table) {
++        for (const cell of table.querySelectorAll<HTMLElement>("tbody td")) {
++          if (getComputedStyle(cell).display !== "block")
++            out.push("narrow field display");
++        }
++      }
++      return out;
++    }, width);
++  expect(problems).toEqual([]);
++  for (const cell of await page.locator(".policy-table tbody td").all()) {
++    await cell.scrollIntoViewIfNeeded();
++    await expect(cell).toBeInViewport();
++  }
++  for (const input of await form(page)
++    .locator('input:not([type="checkbox"])')
++    .all()) {
++    await input.scrollIntoViewIfNeeded();
++    await expect(input).toBeInViewport();
++  }
++  await button(page, "取消修改").scrollIntoViewIfNeeded();
++  await expect(button(page, "取消修改")).toBeInViewport();
++}
++test("[navigation] eight leaves, same-identity confirmations, explicit cancellation and eight layouts", async ({
++  page,
++}) => {
++  await page.addInitScript(observeNative);
++  await page.goto("/system/outbound-policy");
++  await expect(page).toHaveURL(/\/login(?:\?|$)/);
++  expect(new URL(page.url()).searchParams.get("return")).toBe(
++    "/system/outbound-policy",
++  );
++  await login(page);
++  await currentRead(page, 0);
++  await page.goto("/system");
++  await expect(page).toHaveURL(/\/system\/users$/);
++  const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
++  await expect(nav.getByRole("link")).toHaveCount(8);
++  await expect(nav.locator(".settings-group-toggle")).toHaveCount(3);
++  const platform = nav.getByRole("button", { name: "平台配置", exact: true });
++  await platform.focus();
++  await page.keyboard.press("Space");
++  await expect(platform).toHaveAttribute("aria-expanded", "false");
++  await page.keyboard.press("Space");
++  await expect(platform).toHaveAttribute("aria-expanded", "true");
++  let after = await seq(page);
++  await nav.getByRole("link", { name: "SMTP", exact: true }).click();
++  await expect(title(page, "SMTP")).toBeVisible();
++  expect(
++    (await facts(page)).some(
++      (f) =>
++        f.sequence > after &&
++        (f.path === endpoint || f.path === "/api/v1/system/mail-jobs"),
++    ),
++  ).toBe(false);
++  after = await seq(page);
++  await nav.getByRole("link", { name: "出站规则", exact: true }).click();
++  await currentRead(page, after);
++  await expect(
++    nav.getByRole("link", { name: "出站规则", exact: true }),
++  ).toHaveAttribute("aria-current", "page");
++  await addRule(page);
++  const cancel = button(page, "取消修改");
++  await cancel.click();
++  await focusContained(page);
++  await page.keyboard.press("Escape");
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  await expect(cancel).toBeFocused();
++  await cancel.click();
++  await page
++    .locator(".ui-overlay")
++    .last()
++    .click({ position: { x: 3, y: 3 } });
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  await expect(cancel).toBeFocused();
++  await nav.getByRole("link", { name: "用户", exact: true }).click();
++  await restoredConfirmation(page, true, "continue");
++  await expect(page).toHaveURL(/\/system\/outbound-policy$/);
++  expect((await cidr(page).inputValue()) === "10.71.0.0/16").toBe(true);
++  await nav.getByRole("link", { name: "用户", exact: true }).click();
++  await restoredConfirmation(page, false, "discard");
++  await expect(page).toHaveURL(/\/system\/users$/);
++  after = await seq(page);
++  await nav.getByRole("link", { name: "出站规则", exact: true }).click();
++  await currentRead(page, after);
++  await cancelledRead(page);
++  await addRule(page);
++  const back = page.goBack();
++  await expect(top(page)).toHaveAccessibleName("放弃未保存的规则？");
++  await top(page)
++    .getByRole("button", { name: "继续编辑", exact: true })
++    .click();
++  await back;
++  await expect(page).toHaveURL(/\/system\/outbound-policy$/);
++  await cutSave(page);
++  const accepted = await dbFacts();
++  await nav.getByRole("link", { name: "用户", exact: true }).click();
++  await restoredConfirmation(page, false, "continue");
++  await expect(title(page, "请求结果未确认")).toBeVisible();
++  expect(same(await dbFacts(), accepted)).toBe(true);
++  await button(page, "放弃本次操作").click();
++  await expect(top(page)).toHaveAccessibleName("放弃原请求追踪？");
++  await top(page)
++    .getByRole("button", { name: "放弃修改", exact: true })
++    .click();
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  await refresh(page);
++  await ipc("seed-layout");
++  await refresh(page);
++  let layouts = 0;
++  for (const theme of ["light", "dark"] as const) {
++    await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
++    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
++    for (const width of [1440, 1024, 768, 390]) {
++      await page.setViewportSize({ width, height: 900 });
++      const original = await cidr(page).inputValue();
++      await cidr(page).fill("127.0.0.0/8");
++      await expect(cidr(page)).toHaveAttribute("aria-invalid", "true");
++      await expect(button(page, "保存规则")).toBeDisabled();
++      await layout(page, width);
++      await cidr(page).fill(original);
++      await layout(page, width);
++      if (width === 390) {
++        const toggle = button(page, "系统设置栏目");
++        await toggle.click();
++        await expect(top(page).getByRole("link")).toHaveCount(8);
++        await focusContained(page);
++        await page.keyboard.press("Escape");
++        await expect(page.locator(".ui-overlay")).toHaveCount(0);
++        await expect(toggle).toBeFocused();
++        await toggle.click();
++        await page
++          .locator(".ui-overlay")
++          .last()
++          .click({ position: { x: width - 3, y: 3 } });
++        await expect(page.locator(".ui-overlay")).toHaveCount(0);
++        await expect(toggle).toBeFocused();
++      }
++      await expect(page.locator(".ui-overlay")).toHaveCount(0);
++      await expect(page.locator('input[type="password"],textarea')).toHaveCount(
++        0,
++      );
++      await page.evaluate(() => {
++        window.scrollTo(0, 0);
++        document.querySelector<HTMLElement>("main.app-content")!.scrollTop = 0;
++      });
++      await expect
++        .poll(() =>
++          page.evaluate(() => ({
++            main: document.querySelector<HTMLElement>("main.app-content")!
++              .scrollTop,
++            document: document.scrollingElement!.scrollTop,
++          })),
++        )
++        .toEqual({ main: 0, document: 0 });
++      await expect(title(page, "出站规则")).toBeInViewport();
++      const images = process.env.AGENTEAM_AUTH_WEB_IMAGES;
++      if (images)
++        await page.screenshot({
++          path: join(images, `outbound-policy-${theme}-${width}.png`),
++          fullPage: true,
++        });
++      layouts++;
++    }
++  }
++  expect((await ipc("failure-facts")).session_failures).toBe(1);
++  result({
++    eight_leaves: true,
++    twelfth_return: true,
++    dirty: true,
++    unknown: true,
++    checking: true,
++    current_focus: true,
++    cancelled_read: true,
++    clean_leave: true,
++    drawer: true,
++    no_overflow: true,
++    layouts,
++  });
++});
+--- a/tests/account-captcha-web/e2e/system-invitations.spec.ts
++++ b/tests/account-captcha-web/e2e/system-invitations.spec.ts
+@@ -1525,7 +1525,7 @@
+           name: "系统设置栏目",
+           exact: true,
+         });
+-        await expect(drawer.getByRole("link")).toHaveCount(7);
++        await expect(drawer.getByRole("link")).toHaveCount(8);
+         for (let n = 0; n < 6; n++) {
+           await page.keyboard.press("Tab");
+           expect(
+--- a/tests/account-captcha-web/e2e/system-providers.spec.ts
++++ b/tests/account-captcha-web/e2e/system-providers.spec.ts
+@@ -1189,7 +1189,7 @@
+     page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+       .getByRole("link"),
+-  ).toHaveCount(7);
++  ).toHaveCount(8);
+   await page.getByRole("link", { name: "待注册邀请", exact: true }).click();
+   await expect(
+     page.getByRole("heading", { name: "待注册邀请", exact: true }),
+--- a/tests/account-captcha-web/e2e/system-models.spec.ts
++++ b/tests/account-captcha-web/e2e/system-models.spec.ts
+@@ -1920,7 +1920,7 @@
+     page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+       .getByRole("link"),
+-  ).toHaveCount(7);
++  ).toHaveCount(8);
+   for (const leaf of ["待注册邀请", "Providers", "Models"]) {
+     await page.getByRole("link", { name: leaf, exact: true }).click();
+     await expect(title(page, leaf)).toBeVisible();
+@@ -1988,7 +1988,7 @@
+         await expect(page.getByRole("dialog")).toHaveCount(0);
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(7);
++        await expect(top(page).getByRole("link")).toHaveCount(8);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.getByRole("dialog")).toHaveCount(0);
+--- a/tests/account-captcha-web/e2e/system-model-selection.spec.ts
++++ b/tests/account-captcha-web/e2e/system-model-selection.spec.ts
+@@ -1919,7 +1919,7 @@
+     page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+       .getByRole("link"),
+-  ).toHaveCount(7);
++  ).toHaveCount(8);
+   for (const leaf of ["待注册邀请", "Providers", "Models"]) {
+     await page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+@@ -2078,7 +2078,7 @@
+         await expect(page.getByRole("dialog")).toHaveCount(0);
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(7);
++        await expect(top(page).getByRole("link")).toHaveCount(8);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.getByRole("dialog")).toHaveCount(0);
+--- a/tests/account-captcha-web/e2e/system-account-security.spec.ts
++++ b/tests/account-captcha-web/e2e/system-account-security.spec.ts
+@@ -1109,7 +1109,7 @@
+   await page.goto("/system");
+   await expect(page).toHaveURL(/\/system\/users$/);
+   const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
+-  await expect(nav.getByRole("link")).toHaveCount(7);
++  await expect(nav.getByRole("link")).toHaveCount(8);
+   await expect(nav.locator(".settings-group-toggle")).toHaveCount(3);
+   const platform = nav.getByRole("button", { name: "平台配置", exact: true });
+   await platform.focus();
+@@ -1186,7 +1186,7 @@
+       if (width === 390) {
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(7);
++        await expect(top(page).getByRole("link")).toHaveCount(8);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.locator(".ui-overlay")).toHaveCount(0);
+--- a/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts
++++ b/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts
+@@ -1296,7 +1296,7 @@
+   await button(page, "取消修改").scrollIntoViewIfNeeded();
+   await expect(button(page, "取消修改")).toBeInViewport();
+ }
+-test("[navigation] seven leaves, two restored confirmations and eight responsive layouts", async ({
++test("[navigation] eight leaves, two restored confirmations and eight responsive layouts", async ({
+   page,
+ }) => {
+   await page.addInitScript(observeNative);
+@@ -1308,7 +1308,7 @@
+   await page.goto("/system");
+   await expect(page).toHaveURL(/\/system\/users$/);
+   const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
+-  await expect(nav.getByRole("link")).toHaveCount(7);
++  await expect(nav.getByRole("link")).toHaveCount(8);
+   await expect(nav.locator(".settings-group-toggle")).toHaveCount(3);
+   const platform = nav.getByRole("button", { name: "平台配置", exact: true });
+   await platform.focus();
+@@ -1488,7 +1488,7 @@
+       if (width === 390) {
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(7);
++        await expect(top(page).getByRole("link")).toHaveCount(8);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.locator(".ui-overlay")).toHaveCount(0);
+--- a/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts
++++ b/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts
+@@ -1421,7 +1421,7 @@
+   expect((await writes(page)).length).toBe(0);
+   await page.goto("/system/users");
+   const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
+-  await expect(nav.getByRole("link")).toHaveCount(7);
++  await expect(nav.getByRole("link")).toHaveCount(8);
+   await expect(nav.locator(".settings-group-toggle")).toHaveCount(3);
+   let after = await seq(page);
+   await nav.getByRole("link", { name: "SMTP", exact: true }).click();
+@@ -1552,7 +1552,7 @@
+       if (width === 390) {
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(7);
++        await expect(top(page).getByRole("link")).toHaveCount(8);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.locator(".ui-overlay")).toHaveCount(0);

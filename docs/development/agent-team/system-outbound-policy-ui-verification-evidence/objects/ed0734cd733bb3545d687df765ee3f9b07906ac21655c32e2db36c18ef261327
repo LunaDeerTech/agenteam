@@ -1,0 +1,1062 @@
+{
+  "kind": "Author bounded execution evidence; final independent A/B and README remain pending",
+  "created_utc": "2026-10-06T22:36:33.840525+00:00",
+  "scope": {
+    "product_base": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+    "candidate_paths": 33,
+    "dist_files": 38,
+    "accepted_baseline_files": 1014,
+    "locked_dependencies": 15,
+    "input05": {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/manifest.json",
+      "sha256": "c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a"
+    },
+    "source_snapshot": {
+      "all_candidate_sha256_in_files": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/source"
+    },
+    "dist_snapshot": {
+      "input_manifest_sha256": "ba38edd46a3969e363a21ba637bc015e0ad3acb21ae03df1431fdb6fbd120374",
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input02/dist",
+      "workspace_dist_unchanged": true
+    },
+    "driver": {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/driver02.py",
+      "sha256": "d6ff37eaa64b617496dcc1dae6572dfacc1b276b3ee28cfea02964ae213d725b"
+    },
+    "readme_deferred": true,
+    "main_product_written": false
+  },
+  "successful_business_matrix": [
+    {
+      "run": "read01",
+      "input": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input02/manifest.json",
+        "sha256": "ba38edd46a3969e363a21ba637bc015e0ad3acb21ae03df1431fdb6fbd120374"
+      },
+      "driver_name": "driver01.py",
+      "child_actual_exit": 0,
+      "child_seconds": 84.641,
+      "child_actual_wait_completed": true,
+      "outer_tool_actual_exit": 1,
+      "browser_seconds": [
+        "11.8"
+      ],
+      "top_pass_seconds": [
+        [
+          "TestAccountSystemOutboundPolicyWebRulesAndRead",
+          "14.68"
+        ]
+      ],
+      "resources": 7,
+      "owned_pid_start_pairs": 100,
+      "adopted_actual_waits": 4,
+      "selected_top_pass": true,
+      "original_double_cleanup": false,
+      "baseline_unchanged_by_scan": [
+        false,
+        true
+      ],
+      "owned_resources_absent_by_scan": [
+        true,
+        true
+      ],
+      "owned_pids_and_runtime_empty_by_scan": [
+        true,
+        true
+      ],
+      "input_unchanged": true,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01/command.json",
+          "sha256": "74edb9af949473d37f6488d0dc10792c87b2f6594fc5aa234dfbcbb4c4f70e63"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01/raw.log",
+          "sha256": "0ca0dac24cd8d0a1ac18710594ea656e778db176531ab8aa1bb2dd1ff5394492"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01/result.json",
+          "sha256": "8c17cb235394ef84f68650023758bb515df7a35edaedc4e6d3e46e3f899e98ff"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01/cleanup.json",
+          "sha256": "8facfb20fb4cc4fa06cd67db635a96117d939809004658f4f4024e482144f248"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01/input-before.json",
+          "sha256": "acf2edb8c3aa5149ba6498dbe652b2e929651f817bc27c2570ac12aa3c05fdc1"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01/input-after.json",
+          "sha256": "acf2edb8c3aa5149ba6498dbe652b2e929651f817bc27c2570ac12aa3c05fdc1"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01/adopted-waits.json",
+          "sha256": "8d80e0249c1f8913a12c3ba08edb4d72a8d982033c7786de83f03d7939521891"
+        }
+      },
+      "note": "Original outer exit 1; business PASS, cleanup re-established only by separately recorded read-only followup02. Original first mismatch cause remains unproven."
+    },
+    {
+      "run": "mutation02",
+      "input": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input04/manifest.json",
+        "sha256": "87ec25d90beda9d146adab97569b3e383b98e4a6f23e82d79bce583ae183b029"
+      },
+      "driver_name": "driver02.py",
+      "child_actual_exit": 0,
+      "child_seconds": 57.422,
+      "child_actual_wait_completed": true,
+      "outer_tool_actual_exit": 0,
+      "browser_seconds": [
+        "5.4"
+      ],
+      "top_pass_seconds": [
+        [
+          "TestAccountSystemOutboundPolicyWebMutationAndRecovery",
+          "9.98"
+        ]
+      ],
+      "resources": 7,
+      "owned_pid_start_pairs": 86,
+      "adopted_actual_waits": 4,
+      "selected_top_pass": true,
+      "original_double_cleanup": true,
+      "baseline_unchanged_by_scan": [
+        true,
+        true
+      ],
+      "owned_resources_absent_by_scan": [
+        true,
+        true
+      ],
+      "owned_pids_and_runtime_empty_by_scan": [
+        true,
+        true
+      ],
+      "input_unchanged": true,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation02/command.json",
+          "sha256": "2bc9be0bbaed6c87b6a584ec166ab3932886a8291a79a453dea25d71fe031574"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation02/raw.log",
+          "sha256": "a83d2b79df047edff367e3ab800564856407b9364fcfef24aaebe3f28688e4fe"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation02/result.json",
+          "sha256": "af0cd61903bb2eb2bd807a4bfaa3ec5d00af6b9f88d3da2f845b71053e364ded"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation02/cleanup.json",
+          "sha256": "7538be1483d8c515afd4e954b347d6713f44912e6dbd5475af0d98f5d6c2c5a4"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation02/input-before.json",
+          "sha256": "e769abe04e1354b50ea10333db68a17a138089e46f7f0af0dfaeaf476c0f968d"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation02/input-after.json",
+          "sha256": "e769abe04e1354b50ea10333db68a17a138089e46f7f0af0dfaeaf476c0f968d"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation02/adopted-waits.json",
+          "sha256": "1e033c25b7ab6079f278b375754ea43868e3dcb37765d6a9caa0f2e745d97680"
+        }
+      },
+      "note": "Actual outer exit 0 and both original cleanup scans passed."
+    },
+    {
+      "run": "authority02",
+      "input": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/manifest.json",
+        "sha256": "c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a"
+      },
+      "driver_name": "driver02.py",
+      "child_actual_exit": 0,
+      "child_seconds": 60.328,
+      "child_actual_wait_completed": true,
+      "outer_tool_actual_exit": 0,
+      "browser_seconds": [
+        "9.0"
+      ],
+      "top_pass_seconds": [
+        [
+          "TestAccountSystemOutboundPolicyWebAuthorityAndOwnership",
+          "13.89"
+        ]
+      ],
+      "resources": 7,
+      "owned_pid_start_pairs": 87,
+      "adopted_actual_waits": 4,
+      "selected_top_pass": true,
+      "original_double_cleanup": true,
+      "baseline_unchanged_by_scan": [
+        true,
+        true
+      ],
+      "owned_resources_absent_by_scan": [
+        true,
+        true
+      ],
+      "owned_pids_and_runtime_empty_by_scan": [
+        true,
+        true
+      ],
+      "input_unchanged": true,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority02/command.json",
+          "sha256": "6004bdb31668056196b74e16a55f65b6bbe5b2972d926b472827736014aab102"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority02/raw.log",
+          "sha256": "13c461fa9fe036ff73355884c6a8cbdea03d6766776591665daee0d38a5a962c"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority02/result.json",
+          "sha256": "9ff0c370442051e318b3e4d4d807f821d5cc6b32d63a2c1b2a60c94234c252c5"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority02/cleanup.json",
+          "sha256": "64bf195351f23b7ea3720a294dad29e4d812e5fe5d1e04bed1f8b3e19bbe2a69"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority02/input-before.json",
+          "sha256": "6cd1641a3bfcb48c4d9ca9adf67ee83a39361639fdc7e9a72becdc936249532d"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority02/input-after.json",
+          "sha256": "6cd1641a3bfcb48c4d9ca9adf67ee83a39361639fdc7e9a72becdc936249532d"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority02/adopted-waits.json",
+          "sha256": "dd398db2222d352c335987c527e9d87573a2e900a4953157c75c3b4b9743af23"
+        }
+      },
+      "note": "Actual outer exit 0 and both original cleanup scans passed."
+    },
+    {
+      "run": "navigation01",
+      "input": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/manifest.json",
+        "sha256": "c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a"
+      },
+      "driver_name": "driver02.py",
+      "child_actual_exit": 0,
+      "child_seconds": 69.084,
+      "child_actual_wait_completed": true,
+      "outer_tool_actual_exit": 0,
+      "browser_seconds": [
+        "18.5"
+      ],
+      "top_pass_seconds": [
+        [
+          "TestAccountSystemOutboundPolicyWebNavigationAndLayouts",
+          "21.55"
+        ]
+      ],
+      "resources": 7,
+      "owned_pid_start_pairs": 86,
+      "adopted_actual_waits": 4,
+      "selected_top_pass": true,
+      "original_double_cleanup": true,
+      "baseline_unchanged_by_scan": [
+        true,
+        true
+      ],
+      "owned_resources_absent_by_scan": [
+        true,
+        true
+      ],
+      "owned_pids_and_runtime_empty_by_scan": [
+        true,
+        true
+      ],
+      "input_unchanged": true,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/navigation01/command.json",
+          "sha256": "1cbf250802df588e0ce69c1b53fcb47966473301e114a5940dffe303ab5b7dc4"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/navigation01/raw.log",
+          "sha256": "14239831db1731b5043ac90df1f990a6a06ed09f02a11a9e55344428f6a6aa3e"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/navigation01/result.json",
+          "sha256": "a8f54265c735166972da1b1ec18d2cbd439544d36d18a3274198bbf412424de2"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/navigation01/cleanup.json",
+          "sha256": "9db25e22e941e5abb72cedaa36f544c379ad3d06f6a77891e6eed5617057e226"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/navigation01/input-before.json",
+          "sha256": "6cd1641a3bfcb48c4d9ca9adf67ee83a39361639fdc7e9a72becdc936249532d"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/navigation01/input-after.json",
+          "sha256": "6cd1641a3bfcb48c4d9ca9adf67ee83a39361639fdc7e9a72becdc936249532d"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/navigation01/adopted-waits.json",
+          "sha256": "04fabe3e311c0cf84eb6450b52e8d68c29a37b333ebdc8ccbe3058f5a8bd1cbf"
+        }
+      },
+      "note": "Actual outer exit 0 and both original cleanup scans passed."
+    },
+    {
+      "run": "old-delivery-navigation02",
+      "input": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/manifest.json",
+        "sha256": "c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a"
+      },
+      "driver_name": "driver02.py",
+      "child_actual_exit": 0,
+      "child_seconds": 69.941,
+      "child_actual_wait_completed": true,
+      "outer_tool_actual_exit": 0,
+      "browser_seconds": [
+        "14.3"
+      ],
+      "top_pass_seconds": [
+        [
+          "TestAccountSystemSMTPDeliveryWebNavigationAndLayouts",
+          "20.44"
+        ]
+      ],
+      "resources": 9,
+      "owned_pid_start_pairs": 90,
+      "adopted_actual_waits": 4,
+      "selected_top_pass": true,
+      "original_double_cleanup": true,
+      "baseline_unchanged_by_scan": [
+        true,
+        true
+      ],
+      "owned_resources_absent_by_scan": [
+        true,
+        true
+      ],
+      "owned_pids_and_runtime_empty_by_scan": [
+        true,
+        true
+      ],
+      "input_unchanged": true,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation02/command.json",
+          "sha256": "5f7c04389e8253a960396becbe830f4b55b3eee5826d9aa097a03362466defcd"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation02/raw.log",
+          "sha256": "f9166a11b71b35ee54d6cc183356a08a8ca8e092b77c215a404792a450151a25"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation02/result.json",
+          "sha256": "13f45ec46f7c6eff2d54e29bb3ffa775fb5002a76cf71b06bf0c2e5e8552475b"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation02/cleanup.json",
+          "sha256": "f7f6ae6464494b8073096fe559d2e34c6424b2ef1ee4a3c33663ca182e1ac4bc"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation02/input-before.json",
+          "sha256": "6cd1641a3bfcb48c4d9ca9adf67ee83a39361639fdc7e9a72becdc936249532d"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation02/input-after.json",
+          "sha256": "6cd1641a3bfcb48c4d9ca9adf67ee83a39361639fdc7e9a72becdc936249532d"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation02/adopted-waits.json",
+          "sha256": "40d955f25aaec1dc13e4d83bb45895960b3bb51d0c4d5eff4f56e7ed0294d722"
+        }
+      },
+      "note": "Actual outer exit 0 and both original cleanup scans passed."
+    },
+    {
+      "run": "old-settings-outcome01",
+      "input": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/manifest.json",
+        "sha256": "c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a"
+      },
+      "driver_name": "driver02.py",
+      "child_actual_exit": 0,
+      "child_seconds": 62.514,
+      "child_actual_wait_completed": true,
+      "outer_tool_actual_exit": 0,
+      "browser_seconds": [
+        "6.4"
+      ],
+      "top_pass_seconds": [
+        [
+          "TestAccountSystemSMTPSettingsWebOutcomeRecovery",
+          "12.33"
+        ]
+      ],
+      "resources": 7,
+      "owned_pid_start_pairs": 83,
+      "adopted_actual_waits": 4,
+      "selected_top_pass": true,
+      "original_double_cleanup": true,
+      "baseline_unchanged_by_scan": [
+        true,
+        true
+      ],
+      "owned_resources_absent_by_scan": [
+        true,
+        true
+      ],
+      "owned_pids_and_runtime_empty_by_scan": [
+        true,
+        true
+      ],
+      "input_unchanged": true,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-settings-outcome01/command.json",
+          "sha256": "c8f84cd09a4587f6d811610809fd1e6d64b70b26acd03f9a1c3574fd46aa51f3"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-settings-outcome01/raw.log",
+          "sha256": "d3a18cf17f1fee622c74c5569d83a8bc4c0860c9c92b0d9ea9171b608d54d8fc"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-settings-outcome01/result.json",
+          "sha256": "17f1770fd3fd7c61b881de8c86ad213bef81744f437725ebd29b73d9ea0e4cd7"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-settings-outcome01/cleanup.json",
+          "sha256": "29866260521d1ffe4fa2b9291a66d68d23915f80f5a92695be8d5cc24809b45d"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-settings-outcome01/input-before.json",
+          "sha256": "6cd1641a3bfcb48c4d9ca9adf67ee83a39361639fdc7e9a72becdc936249532d"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-settings-outcome01/input-after.json",
+          "sha256": "6cd1641a3bfcb48c4d9ca9adf67ee83a39361639fdc7e9a72becdc936249532d"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-settings-outcome01/adopted-waits.json",
+          "sha256": "b8afd62f2a54bb26f99e0894c97a86d64f3257bacb234c97ae4a4fadde951b7c"
+        }
+      },
+      "note": "Actual outer exit 0 and both original cleanup scans passed."
+    },
+    {
+      "run": "old-delivery-outcome01",
+      "input": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/manifest.json",
+        "sha256": "c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a"
+      },
+      "driver_name": "driver02.py",
+      "child_actual_exit": 0,
+      "child_seconds": 68.681,
+      "child_actual_wait_completed": true,
+      "outer_tool_actual_exit": 0,
+      "browser_seconds": [
+        "7.7"
+      ],
+      "top_pass_seconds": [
+        [
+          "TestAccountSystemSMTPDeliveryWebOutcomeRecovery",
+          "14.99"
+        ]
+      ],
+      "resources": 9,
+      "owned_pid_start_pairs": 89,
+      "adopted_actual_waits": 4,
+      "selected_top_pass": true,
+      "original_double_cleanup": true,
+      "baseline_unchanged_by_scan": [
+        true,
+        true
+      ],
+      "owned_resources_absent_by_scan": [
+        true,
+        true
+      ],
+      "owned_pids_and_runtime_empty_by_scan": [
+        true,
+        true
+      ],
+      "input_unchanged": true,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-outcome01/command.json",
+          "sha256": "56b14f991f818db14fd6b49bf22aaba858c4561f505e4f584783306b13a1f129"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-outcome01/raw.log",
+          "sha256": "0b367d376b5ed92fb3859f044e3e508c51e48419edbaa1067773fe790debc6c6"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-outcome01/result.json",
+          "sha256": "0bf6a9ef4e15f1bc02a3307eb4ee9fbc17186e85e45ff0860b4cc114db99be20"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-outcome01/cleanup.json",
+          "sha256": "02f6d0e88912485a8c495a553460ab7d3104f8dd2b474061599bffb212fc0f31"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-outcome01/input-before.json",
+          "sha256": "6cd1641a3bfcb48c4d9ca9adf67ee83a39361639fdc7e9a72becdc936249532d"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-outcome01/input-after.json",
+          "sha256": "6cd1641a3bfcb48c4d9ca9adf67ee83a39361639fdc7e9a72becdc936249532d"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-outcome01/adopted-waits.json",
+          "sha256": "136df69c836c218454153fd252cafc42d3501cb92ebe762724efcf1a9a720c1b"
+        }
+      },
+      "note": "Actual outer exit 0 and both original cleanup scans passed."
+    }
+  ],
+  "original_real_failures_preserved": [
+    {
+      "run": "mutation01",
+      "classification": "Dynamic test-premise failure: expected not_started at transactional VERSION_CONFLICT. Original raw omitted actual safe commit_state. Later exact not_committed is proven statically from the formal transaction chain. The second IDEMPOTENCY_KEY_REUSED predicate was a static finding, not reached in this run.",
+      "outer_actual_exit": 1,
+      "child_actual_exit": 1,
+      "child_seconds": 57.826,
+      "actual_wait": true,
+      "resources": 7,
+      "owned_pid_start_pairs": 85,
+      "adopted_waits": 4,
+      "double_cleanup": true,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation01/command.json",
+          "sha256": "29baa5708c8a8d23c8fc5d23199a869d819feec6ceb8908e0f0de17954c31803"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation01/raw.log",
+          "sha256": "baad4b579fcd9604efdf0988e833572145704ae0673cd3c7e95b7e1a099114d1"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation01/result.json",
+          "sha256": "1a78b50af9d93aef9eb76cfc469b711fe0ee7c9448591bc930385a7969a6d552"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/mutation01/cleanup.json",
+          "sha256": "18703c6896b7afe6cdbc22f24e7e5c67dfd26c4a528e72f9ebdf0c288eaad083"
+        }
+      }
+    },
+    {
+      "run": "authority01",
+      "classification": "Dynamic test-premise failure: cancellation helper expected ordinary read-error heading after an already confirmed save. Original raw omitted DOM; no alternative heading is retrospectively claimed observed.",
+      "outer_actual_exit": 1,
+      "child_actual_exit": 1,
+      "child_seconds": 60.426,
+      "actual_wait": true,
+      "resources": 7,
+      "owned_pid_start_pairs": 85,
+      "adopted_waits": 4,
+      "double_cleanup": true,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority01/command.json",
+          "sha256": "e77ce7db3c7ea8e861a136748466217dab1b906e9482806d6f4e5344866083e2"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority01/raw.log",
+          "sha256": "f97625f720ceb9edcc987fad75151c19099b05298f7250f64344d3b0dfd4a951"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority01/result.json",
+          "sha256": "5afe9969b7a73904a8b50da80442aff4f5fb167103010f4c38c3ef6ffe7fe38b"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority01/cleanup.json",
+          "sha256": "0f7fe9c1518ada88302bfe49fb321a67266ed2c39d281b90d2ce4d137fd88809"
+        }
+      }
+    },
+    {
+      "run": "old-delivery-navigation01",
+      "classification": "Preparation ENOSPC while creating the test temporary directory; no browser/Node started. Business behavior was not reached.",
+      "outer_actual_exit": 1,
+      "child_actual_exit": 1,
+      "child_seconds": 50.441,
+      "actual_wait": true,
+      "resources": 9,
+      "owned_pid_start_pairs": 82,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation01/command.json",
+          "sha256": "58d40840d26e681ca7d85b330a3c416556db3c0c1dc82a33c114601461bf3e6b"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation01/raw.log",
+          "sha256": "8db42c9684ea64a8b626c4015ed84006fb621040f31e3cfdd1f6898609f98074"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation01/result.json",
+          "sha256": "41b59d00fdd33d61f3fbf83acb10d23675edc4379313af4017290275048f60df"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation01/cleanup.json",
+          "sha256": "225f44ccce125ba56ee649da72a6bc63d7945ddba8af08eee7107021f3dfa6b1"
+        }
+      }
+    }
+  ],
+  "read_cleanup_followups": [
+    {
+      "run": "read01-cleanup-followup01",
+      "result": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01-cleanup-followup01/result.json",
+        "sha256": "45e03a3f59a2d21cc8608d3dfc5770f9d9458ac709c41ad27e52e2eefaa7b98c"
+      },
+      "raw": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01-cleanup-followup01/raw.log",
+        "sha256": "d99f840e715809ddb0189d1af0ebf34f2253ef392e3c0da5207275ad139e87ba"
+      },
+      "sweeps": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01-cleanup-followup01/sweeps.json",
+        "sha256": "2f8fa2428c6083c131410395823585a9f20038cfbd555bde493933bed93c3615"
+      },
+      "facts": {
+        "ended_utc": "2026-10-06T22:07:38.601392+00:00",
+        "exit": 1,
+        "followup_pass": false,
+        "original_command_exit": 0,
+        "original_driver_tool_exit": 1,
+        "original_evidence_unchanged": true,
+        "original_first_cleanup_baseline_difference_cause": "unproven: original cleanup did not retain the full first current snapshot",
+        "prior_task_owned_zombie_not_reclaimed": {
+          "pid": 89884,
+          "starttime": "540243"
+        },
+        "read_commands": 30,
+        "read_commands_actual_wait_completed": true,
+        "seconds": 1.155342,
+        "two_sweeps": 2
+      }
+    },
+    {
+      "run": "read01-cleanup-followup02",
+      "result": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01-cleanup-followup02/result.json",
+        "sha256": "ec289276365f1b4a7cc66e01d1f798995180c885db6d97022b7a1d242e4455be"
+      },
+      "raw": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01-cleanup-followup02/raw.log",
+        "sha256": "1bade12a20db0469111589e1df5166451be2e410ae60f285a9052f782d7038ba"
+      },
+      "sweeps": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01-cleanup-followup02/sweeps.json",
+        "sha256": "e3398e1104a6b8be41c9db95c1be7df62ddd298c5903559078391b1d778afc94"
+      },
+      "facts": {
+        "comparison": "all original fields and resource IDs; only Mounts order normalized by full-object canonical JSON sorting, preserving duplicates",
+        "ended_utc": "2026-10-06T22:09:04.717057+00:00",
+        "exit": 0,
+        "followup_pass": true,
+        "original_command_exit": 0,
+        "original_driver_tool_exit": 1,
+        "original_evidence_unchanged": true,
+        "original_first_cleanup_baseline_difference_cause": "unproven: original cleanup did not retain the full first current snapshot",
+        "prior_task_owned_zombie_not_reclaimed": {
+          "pid": 89884,
+          "starttime": "540243"
+        },
+        "read_commands": 30,
+        "read_commands_actual_wait_completed": true,
+        "seconds": 1.199625,
+        "two_sweeps": 2
+      }
+    }
+  ],
+  "repairs": {
+    "harness-stage02": {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/harness-stage02/manifest.json",
+      "sha256": "3c45674a3657e46a2b8c615a789c74c615948cbfe965e1ee47247c379205f7ea"
+    },
+    "mutation-repair01": {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/mutation-repair01/manifest.json",
+      "sha256": "5d5ffdf6bcd00eca8405a3090a12d6fed35da1d02825972e391a2fea99dfdffb"
+    },
+    "authority-title-repair01": {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/authority-title-repair01/manifest.json",
+      "sha256": "4998f6066be802ffb30e52e645fae817592d3e23216f168493ff9bc86db48f0e"
+    }
+  },
+  "driver_full_mount_multiset_delta": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/driver02.diff",
+    "sha256": "dba97bb89ce8f8980b69a8b4a9c635104d077f7bedc394d1df9cc772aa657868"
+  },
+  "input_history": [
+    {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input01/manifest.json",
+      "sha256": "fd56d78144dcccff5e103817c7164b1580f84779b8574a40dd9f1cc34009b38e"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input02/manifest.json",
+      "sha256": "ba38edd46a3969e363a21ba637bc015e0ad3acb21ae03df1431fdb6fbd120374"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input03/manifest.json",
+      "sha256": "6f01958a3a0b3275524da4ff678f6da20092fa2daebf563d288e4c3563141e82"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input04/manifest.json",
+      "sha256": "87ec25d90beda9d146adab97569b3e383b98e4a6f23e82d79bce583ae183b029"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/manifest.json",
+      "sha256": "c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a"
+    }
+  ],
+  "offline_stage_manifests": {
+    "api-stage01": {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/api-stage01/manifest.json",
+      "sha256": "8e26090e5dd83b0f038af4ece33c52b0d04279db3e1d8513336eef0e1f067267"
+    },
+    "owner-stage01": {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/owner-stage01/manifest.json",
+      "sha256": "09955df4c88da7d7b0cf41038210c1fb01d0aba2559a17bdb35417771ceeddba"
+    },
+    "web-stage01": {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/web-stage01/manifest.json",
+      "sha256": "435d3d0d432de68656b68d51cc399e4c66d621ed69e4b73b7c9106984782e7fc"
+    },
+    "harness-stage01": {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/harness-stage01/manifest.json",
+      "sha256": "89d8ef00defc0fdb9b983687d8decdfacc080fa8936cff439c11c0b42d5658ba"
+    },
+    "harness-stage02": {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/harness-stage02/manifest.json",
+      "sha256": "3c45674a3657e46a2b8c615a789c74c615948cbfe965e1ee47247c379205f7ea"
+    }
+  },
+  "selected_offline_originals": {
+    "api-pure01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/api-pure01/command.json",
+        "sha256": "6c98ee4caeaafbad94f91e0516c40fde10d12c607ab6953d14aba83aa0e4646a"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/api-pure01/result.json",
+        "sha256": "f91a035675bf128925cc3f31d62f0787532e78379b9e69b0cdadd7c55e5ffc81"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/api-pure01/raw.log",
+        "sha256": "a16098f09f20ff059c06cb166bb4a53b2189e9b7808fe323cd44350f0d95e25f"
+      }
+    },
+    "api-pure02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/api-pure02/command.json",
+        "sha256": "08a9a3b835046fda3d3d3a4e61a8527ae8933c7f86238a426e14cbf6f7531d5c"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/api-pure02/result.json",
+        "sha256": "c66d0dbc31c86081880c7b88dd9b1a5af1e8905b5980b02b170f018ef1468052"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/api-pure02/raw.log",
+        "sha256": "6021cede3a400d4a16f9746585bd8fee099900f0beb6f1aa83edaa127c166852"
+      }
+    },
+    "owner-pure01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure01/command.json",
+        "sha256": "2dd56d730b3f2bd1551e8c72a4c00bca30083de3170e69d14681db68a8c0dfca"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure01/result.json",
+        "sha256": "6d099f67abb215574885caaf3f43edd4928c0d0df822b0ab84830984c1eed163"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure01/raw.log",
+        "sha256": "d028549f724c2e74a0e925d0a13a081bc53eb6c32e9873448ce435bad6530e36"
+      }
+    },
+    "owner-pure02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure02/command.json",
+        "sha256": "c3acbce7bb94a6f9d89e314291eba8daec807a273d845b7abfdcdbf7c65c6b92"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure02/result.json",
+        "sha256": "0905d0a9725f2ceeba1c7a6feb33f69a3ffddbe2a5c2a3a09d56102a0e288f7f"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure02/raw.log",
+        "sha256": "c7e58618f25133f349c7a0600f71ad8c06724a997504a7ff78929b4e4ab37d96"
+      }
+    },
+    "owner-pure03": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure03/command.json",
+        "sha256": "616800d59f0fdb2fb2a0de7d4346846e88b5deb711af8c26b553cfe3a8df74d9"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure03/result.json",
+        "sha256": "982a25175caf6546ed5f9357fe77bdcc8aed3463798d362b9ae75e39ed016b0b"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure03/raw.log",
+        "sha256": "106979b114456f35dcf8e020a930c67700cc1d4575ce1efc55e0feabe83357f5"
+      }
+    },
+    "page-app01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-app01/command.json",
+        "sha256": "288cec160e605d750aa22aed8146f6d182db260a4270e8ca359295e57e39ce3c"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-app01/result.json",
+        "sha256": "75fa4a49c93084991cd9150518ce520dba82289b731c7c7e3efd85e10eb48bfd"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-app01/raw.log",
+        "sha256": "fe35556580bbba950a07d718d1e5aa8149a461fcbc67dfce8b31d8afbdd3bbaf"
+      }
+    },
+    "page-state01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-state01/command.json",
+        "sha256": "430978ec9225985028b4ad70ccc94cf44cc62c5bc0db9968c771f622dd852046"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-state01/result.json",
+        "sha256": "96fde1bc1361e76fda9c27787ae1aae86b0dab3478460e75e3c004bf9cdbb854"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-state01/raw.log",
+        "sha256": "eacd6a60ff1efcc5e2db668d054993be44630b9fab015f7e3315be576d9e81ef"
+      }
+    },
+    "page-state02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-state02/command.json",
+        "sha256": "8ceefe9145746b03e03dde7c51377de7b18b109f0784ab496e1fa9303ccd8d96"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-state02/result.json",
+        "sha256": "93e9df995c4cee9935b02676c096fa315ef4b5c699d5d52db4e15005fd9161bb"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-state02/raw.log",
+        "sha256": "be747d49acd5bd6ec93541996ecdfb53abda51cacaeebef097e7b8948e474cf4"
+      }
+    },
+    "page-view01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-view01/command.json",
+        "sha256": "646b4ccc95303008dd2886c07d0e7db1ac1294ccec04fe8d34c874b60deee926"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-view01/result.json",
+        "sha256": "2f2629011c3c24f2601f2e3a6a2299550ca322cc3e86bf7bcd29cc553494f9c4"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-view01/raw.log",
+        "sha256": "d1625a91830508b2eb66640346fcf72f4c4161cdc62b6739bce4451ca215aac8"
+      }
+    },
+    "page-check01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-check01/command.json",
+        "sha256": "0c8d84d65615409fce6685e27d8bf36bae667d8c72ee15365d84c967059fc0ad"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-check01/result.json",
+        "sha256": "5cbf1c679d083388552a4d78af42fc83204596620677ec6428b874a6d13ae83a"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/page-check01/raw.log",
+        "sha256": "328ce16023177a277432d8dfeb7ec29b6fbf1f37aba3ebb2a6820ebe9405fad7"
+      }
+    },
+    "runtime-go-compile01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/runtime-go-compile01/command.json",
+        "sha256": "437de90f5b6f66f70ad042eb5f046f8d9451e6e58b860d082ae659579a64c643"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/runtime-go-compile01/result.json",
+        "sha256": "824b9bb3cc456bacd7534701b7d6c3237edba3fd9d0e11e43209a36f99c271f5"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/runtime-go-compile01/raw.log",
+        "sha256": "55f096177a2cb47018179b2a892d869eb2b08fe851473ca07eb56be34771ea24"
+      }
+    },
+    "runtime-process-compile02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/runtime-process-compile02/command.json",
+        "sha256": "d6795e102f46418c80b1bebcc750edc42a5b13f6b7ea84d1aa139bb4dbb5f705"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/runtime-process-compile02/result.json",
+        "sha256": "3ae8c6cdb8bd52028883163cd7d446e6828bfa39b976368d0bf3071039241b0a"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/runtime-process-compile02/raw.log",
+        "sha256": "aaf815475d8359cdee456905159d6fba1e1153573ff0724a763f7a48b0009323"
+      }
+    },
+    "offline-subreaper-probe01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/offline-subreaper-probe01/command.json",
+        "sha256": "a4ddd0b19f9ed12013c8c72bc12b22ec9177f5eb3e245a8c1df92cc9f98ef3d0"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/offline-subreaper-probe01/result.json",
+        "sha256": "00ed278c68b50d78ba380e222a3b65254d66918d1441cd798d62bb5b35336261"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/offline-subreaper-probe01/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "harness-go-compile02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-compile02/command.json",
+        "sha256": "49143a5b8a62d1d65cb197aaa9f4c392ae578e9f8642a6383a3e6feeaaf2a2bd"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-compile02/result.json",
+        "sha256": "83769f93d4021f274cf3ea63457c0d2cf003397d03844f7fdd70e09ef4ea6d4e"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-compile02/raw.log",
+        "sha256": "53fbdd29d58e639567ab89cf00212be7295468a596be405d816045465cc7a831"
+      }
+    },
+    "harness-go-vet02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-vet02/command.json",
+        "sha256": "d68eee85e1b281aa1059cd21724c8e2604ef27ade10cfd96903739316276d52d"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-vet02/result.json",
+        "sha256": "1c1ddaf14c428a50a665b76c239d401bbc2da1b863a9e789bb2e92eccc91a54d"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-vet02/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "authority-browser-type05": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority-browser-type05/command.json",
+        "sha256": "9df1ab506137faf0132909095ea305f5ddfd9e4bab60d976ed0fd053efb59f09"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority-browser-type05/result.json",
+        "sha256": "288978d5021ef09a41f92ed4b8c74411f1155bd7d1fbd0e3a284666354f14075"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority-browser-type05/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "authority-browser-list02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority-browser-list02/command.json",
+        "sha256": "1618854caddeb17078ee17c1a1e0414221500c9c57cbd4cfaff18e4f2950ab4c"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority-browser-list02/result.json",
+        "sha256": "a38d96e198d8cc9a89e58078d0b40b13537276d6b5903093fa8efc1f97db879f"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/authority-browser-list02/raw.log",
+        "sha256": "241d1c03d4738ba4e2df568aca17c393f5c54893b16f18dda22f02b917ba2cfe"
+      }
+    },
+    "navigation-browser-list03": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/navigation-browser-list03/command.json",
+        "sha256": "6e1d3372fededc93f46872773e3810291ec357b2296d728ca8dd4c73bfdc6ce3"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/navigation-browser-list03/result.json",
+        "sha256": "496f27a5af06734dbf72831a56930c59b1ddd45b9df7d43e6d33b24b879ca8e2"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/navigation-browser-list03/raw.log",
+        "sha256": "fb7ed84401588ddb27bee5f40734f4907e7af23a8fb2d6915db9243ce82651ec"
+      }
+    },
+    "input-gate05": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/input-gate05/command.json",
+        "sha256": "c069bc4f0046f3b82fc1260d3ceea0a110a707b536ddb17e54de3ee196ac76e6"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/input-gate05/result.json",
+        "sha256": "5e62bfb6c40a8667c3b5a7021280b8d15f1057651824080b01e7b859ab3018c2"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/input-gate05/raw.log",
+        "sha256": "1522bfb6edeb4f8c98828f22a8b08bff6e916786fdeef6c0c46489de2820dd74"
+      }
+    }
+  },
+  "root_disk_maintenance": {
+    "path": "/workspace/scratch/agenteam-root-cache-recovery-fgvzb6jw/result.json",
+    "sha256": "3831f3954a4e52edbdff84822f4f4823c1250c9a57cf1b99fafd99ea3c36f828"
+  },
+  "old3_5gib_preflights": [
+    {
+      "run": "old-delivery-navigation02",
+      "result": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation02-disk-preflight/result.json",
+        "sha256": "50241a5fe4e011ef17f62b35079ca6202b1a1291a41998bd647322f2089527a4"
+      },
+      "available_bytes": 6232403968
+    },
+    {
+      "run": "old-settings-outcome01",
+      "result": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-settings-outcome01-disk-preflight/result.json",
+        "sha256": "47f6b08e8009ebcff3beebd7390a571280d10b5356daf60d1ca3e74af28c4df4"
+      },
+      "available_bytes": 6230704128
+    },
+    {
+      "run": "old-delivery-outcome01",
+      "result": {
+        "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-outcome01-disk-preflight/result.json",
+        "sha256": "a7a38b1d44b43e4cce8c004d9b0d541fc65750790dbada982791d2cc458aa755"
+      },
+      "available_bytes": 6229938176
+    }
+  ],
+  "visual_reviews": [
+    {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/navigation01/visual-review01.json",
+      "sha256": "a53055b504c92f9316b0efca26bd7b52cdbe9e38e37d5f27ee4724107d81736f"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/old-delivery-navigation02/visual-review01.json",
+      "sha256": "aea90af0d8329717657259c2da366212d1970a8712c076d81f2b261384ed87ee"
+    }
+  ],
+  "limitations": [
+    "This is a versioned combination of four new and three old top-level PASS results, not a complete rerun on input05. Read retains original outer exit1 and separately restored cleanup evidence.",
+    "read01 first baseline mismatch cause is unproven: its first full current snapshot was not recorded. Later followup01 observed only Mounts ordering; complete-object multiset comparison and raw/canonical differences were subsequently recorded. No fields or duplicate mounts were discarded.",
+    "Prior task-owned PPID1 zombie PID89884/starttime540243 from runtime-go-compile01 remains unreaped. Current real rounds record and exclude that earlier ownership explicitly; no global all-processes-clear assertion is made.",
+    "owner-pure02 process actually exited 1, but the private cancel Promise was not explicitly resolved/joined. This limitation is preserved; the affected corrected representative owner-pure03 explicitly resolves and awaits its tail.",
+    "Thirty-second owner evidence uses virtual time and real native EOF/cancel barriers, not a wall-clock thirty-second test.",
+    "The earlier broad runtime-go-compile01 timed out and exposed a fixed-source closure gap; it is not a full-package compile PASS. Only necessary missing closure and affected compile were repaired; later real commands record their actual package execution.",
+    "All sixteen saved navigation screenshots were individually viewed by the author. Root viewed only new navigation light390 and dark1440. They are 900px viewport images, not full-page proof of lower editors/errors. Separate executed geometry/reachability/focus assertions remain separate evidence.",
+    "No external mailbox, new outbound target/Runtime connection, production SPA hosting, native BFCache or complete D27 acceptance is claimed.",
+    "No resources or tests were started to create this report. All real commands ended; final tool session1795 returned actual exit0 chunk652447. Resource window was handed back before report preparation."
+  ]
+}

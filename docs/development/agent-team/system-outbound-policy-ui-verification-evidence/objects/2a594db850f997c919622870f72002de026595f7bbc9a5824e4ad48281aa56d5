@@ -1,0 +1,57 @@
+{
+  "author_manifest": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/owner-stage01/manifest.json",
+  "author_manifest_sha256": "09955df4c88da7d7b0cf41038210c1fb01d0aba2559a17bdb35417771ceeddba",
+  "source_files": {
+    "web/.prettierignore": "0b737e348f781f0573ef62ae5f68f984eca718f732a9fb9c95054f57363e1a50",
+    "web/.prettierrc.json": "247948f37fa595cc5c84503e35dcb06706b874f01777807691e11a4fc8ee4431",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "web/src/api/system-account-security.ts": "5dabbdd4c5de0cfde671c6bdfc8c92eae140a842719752740ea65282a8feffbb",
+    "web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "web/src/api/system-invitations.ts": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+    "web/src/api/system-models.ts": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8",
+    "web/src/api/system-providers.ts": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade",
+    "web/src/api/system-smtp-delivery.ts": "b4044f5ae4477cb904d2891a635bf10a77b0888b4376525dfc0989ee2023ccfd",
+    "web/src/api/system-smtp-settings.ts": "0f015823398fe909688dd0ec7b2cf2a99ca9b82b8963fda5dfb96b13c7864311",
+    "web/src/composables/useSystemSMTPSettings.ts": "2baf377922d3f04cbb553b2d6ff85c3ef92334ed10ee00661c66682640519296",
+    "web/src/composables/useTheme.ts": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+    "web/src/tests/system-smtp-delivery-client.spec.ts": "4d5be3e29f4cffcf232356f4ec26b6da557c66e2a4197a1ed468b48e1bb80529",
+    "web/src/tests/system-smtp-delivery-state.spec.ts": "faedaf94d021265dc97b3105037724ba227e929c0cfd3b8095797da35757fc88",
+    "web/src/tests/system-smtp-settings-client.spec.ts": "0fa109711f474a99aeb4214e0dcba5886b3537c1bd1cbc66003cf9b8fbe93062",
+    "web/src/tests/system-smtp-settings-state.spec.ts": "df6135a7040d9adc9f11e2b5699530a11a68a249396121b7460f56f78e6e91e6",
+    "web/tsconfig.json": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+    "web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+    "web/src/composables/useSession.ts": "573268bdb7d3ea5524858c53b901cac8d095591ad46e4855cbe7e6d50330011c",
+    "web/src/tests/system-outbound-policy-state.spec.ts": "a9027e18cd11a810df9cf5254ba3de315836c388b21907e385bcebb4dd255982",
+    "web/src/api/client.ts": "4ae4b1db480e26adee962c2b301fdbf37ea3b31883cee223f6ed3e8b691659ae",
+    "web/src/api/outbound-rules.ts": "7b41d4af381520fb95c824dfeda079d0bb36af82f4ec614967c2346f56a38466",
+    "web/src/api/system-outbound-policy.ts": "6dff6c0b696b334799abd7779ac52b12b8ceabc3f6b7861ee639ae1823d9123e",
+    "web/src/tests/outbound-rules.spec.ts": "82dda1710210dc7fa1042ebee654a839825348c7047bfa912d5258a581f0824f",
+    "web/src/tests/system-outbound-policy-client.spec.ts": "cd38aff53b6c4c6165434475f0d68e916a2a68ad9d1d591790fc1ae33114b572"
+  },
+  "verified": {
+    "accepted_dependencies": 21,
+    "candidate_sources": 2,
+    "owner-pure01": {
+      "exit": 0,
+      "seconds": 2.451,
+      "actual_wait": true,
+      "source_production_same": true
+    },
+    "owner-pure02": {
+      "exit": 1,
+      "seconds": 1.578,
+      "actual_wait": true,
+      "source_production_same": true
+    },
+    "owner-pure03": {
+      "exit": 0,
+      "seconds": 1.638,
+      "actual_wait": true,
+      "source_production_same": true
+    },
+    "stage_a_5_same_author_and_independent": true
+  }
+}

@@ -1,0 +1,99 @@
+--- stage01/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts
++++ stage02/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts
+@@ -19,6 +19,7 @@
+   status: number;
+   bytes: number;
+   ended: boolean;
++  eof?: boolean;
+   code?: string;
+   commit_state?: string;
+   policy?: Policy;
+@@ -123,7 +124,8 @@
+             fact.status = response.status;
+             if (!(
+               fact.path === "/api/v1/session" ||
+-              fact.path === "/api/v1/system/outbound-policy"
++              fact.path === "/api/v1/system/outbound-policy" ||
++              fact.path === "/api/v1/system/smtp"
+             ))
+               return;
+             const body = response.body,
+@@ -143,7 +145,7 @@
+               return;
+             }
+             let text = "",
+-              collect = true;
++              collect = fact.path !== "/api/v1/system/smtp";
+             const decoder = new TextDecoder();
+             function project() {
+               if (!collect) return;
+@@ -324,6 +326,7 @@
+                                     });
+                                 }
+                                 if (done) {
++                                  fact.eof = true;
+                                   fact.ended = true;
+                                   try {
+                                     project();
+@@ -1310,11 +1313,26 @@
+   let after = await seq(page);
+   await nav.getByRole("link", { name: "SMTP", exact: true }).click();
+   await expect(title(page, "SMTP")).toBeVisible();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === "/api/v1/system/smtp" &&
++      f.method === "GET" &&
++      f.status === 200 &&
++      f.ended &&
++      f.eof === true &&
++      f.bytes <= 600000,
++  );
++  const jobs = "/api/v1/system/mail-jobs";
+   expect(
+     (await facts(page)).some(
+       (f) =>
+         f.sequence > after &&
+-        (f.path === endpoint || f.path === "/api/v1/system/mail-jobs"),
++        (f.path === endpoint ||
++          f.path === jobs ||
++          f.path.startsWith(jobs + "/") ||
++          f.path === "/api/v1/system/smtp/test"),
+     ),
+   ).toBe(false);
+   after = await seq(page);
+--- stage01/tests/account/system_outbound_policy_web_fixture_test.go
++++ stage02/tests/account/system_outbound_policy_web_fixture_test.go
+@@ -27,6 +27,8 @@
+ 	"time"
+ 
+ 	"github.com/LunaDeerTech/agenteam/internal/central/app"
++	"github.com/LunaDeerTech/agenteam/internal/central/audit"
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/config"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+@@ -491,6 +493,10 @@
+ 	if err != nil {
+ 		f.t.Fatal("owned policy command identity invalid")
+ 	}
++	appendKey, err := audit.CommandAppendKey(ac.PolicyProducer, identity, 0)
++	if err != nil {
++		f.t.Fatal("owned formal Audit append key invalid")
++	}
+ 	keyDigest := sha256.Sum256([]byte(identity.Canonical()))
+ 	command := "sha256:" + hex.EncodeToString(keyDigest[:])
+ 	var input struct {
+@@ -520,9 +526,9 @@
+ 	var exactSemantic, exactHistorical bool
+ 	if err := conn.QueryRow(ctx, `SELECT
+  (SELECT count(*) FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1 AND user_id=$2),
+- (SELECT count(*) FROM agenteam_audit.audit_records a JOIN agenteam_outbound.outbound_policy_receipts r ON r.audit_id=a.id WHERE r.command_digest=$1 AND r.user_id=$2 AND a.scope='system' AND a.producer='outbound.policy' AND a.cause_ref=$1 AND a.ordinal=0 AND a.action='outbound.policy.update' AND a.resource_kind='outbound_policy' AND a.resource_id IS NULL AND a.actor_kind='human' AND a.user_id=$2 AND a.outcome='success' AND a.metadata->>'version'=r.version::text AND a.metadata->>'rule_count'=r.rule_count::text),
++ (SELECT count(*) FROM agenteam_audit.audit_records a JOIN agenteam_outbound.outbound_policy_receipts r ON r.audit_id=a.id WHERE r.command_digest=$1 AND r.user_id=$2 AND a.scope='system' AND a.producer='outbound.policy' AND a.cause_ref=$8 AND a.ordinal=0 AND a.action='outbound.policy.update' AND a.resource_kind='outbound_policy' AND a.resource_id IS NULL AND a.actor_kind='human' AND a.user_id=$2 AND a.outcome='success' AND a.metadata->>'version'=r.version::text AND a.metadata->>'rule_count'=r.rule_count::text),
+  EXISTS(SELECT 1 FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1 AND user_id=$2 AND semantic_digest=$3),
+- EXISTS(SELECT 1 FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1 AND user_id=$2 AND version::text=$4 AND rule_count::text=$5 AND audit_id::text=$6 AND to_char(created_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')=$7)`, command, f.admin.UserID, semantic, receipt["version"], receipt["rule_count"], receipt["audit_id"], receipt["created_at"]).Scan(&receipts, &audits, &exactSemantic, &exactHistorical); err != nil {
++ EXISTS(SELECT 1 FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1 AND user_id=$2 AND version::text=$4 AND rule_count::text=$5 AND audit_id::text=$6 AND to_char(created_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')=$7)`, command, f.admin.UserID, semantic, receipt["version"], receipt["rule_count"], receipt["audit_id"], receipt["created_at"], appendKey.Details().CauseRef).Scan(&receipts, &audits, &exactSemantic, &exactHistorical); err != nil {
+ 		f.t.Fatal("owned exact policy receipt/audit facts unavailable", err)
+ 	}
+ 	out["original_receipts"], out["original_audits"], out["exact_semantic"], out["exact_historical"] = receipts, audits, exactSemantic, exactHistorical

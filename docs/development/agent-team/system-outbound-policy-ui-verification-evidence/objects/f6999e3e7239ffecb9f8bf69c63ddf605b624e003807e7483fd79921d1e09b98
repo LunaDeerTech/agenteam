@@ -1,0 +1,526 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.uuid7 = exports.AccountFailure = void 0;
+exports.object = object;
+exports.shape = shape;
+exports.string = string;
+exports.accountTransport = accountTransport;
+// No request, raw response, password, token or underlying exception is retained.
+class AccountFailure extends Error {
+    kind;
+    problem;
+    constructor(kind, problem) {
+        super(kind);
+        this.kind = kind;
+        this.problem = problem;
+        this.name = 'AccountFailure';
+    }
+}
+exports.AccountFailure = AccountFailure;
+exports.uuid7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+function object(value) {
+    if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+        throw new AccountFailure('invalid-response');
+    }
+    return value;
+}
+function shape(value, required, optional = []) {
+    const result = object(value);
+    if (required.some((key) => !Object.hasOwn(result, key)) ||
+        Object.keys(result).some((key) => !required.includes(key) && !optional.includes(key))) {
+        throw new AccountFailure('invalid-response');
+    }
+    return result;
+}
+function string(value, minimum, maximum) {
+    if (typeof value !== 'string' || [...value].length < minimum || [...value].length > maximum) {
+        throw new AccountFailure('invalid-response');
+    }
+    return value;
+}
+const endpoints = {
+    bootstrap: ['GET', '/api/v1/auth/bootstrap', 200],
+    session: ['GET', '/api/v1/session', 200],
+    login: ['POST', '/api/v1/sessions/login', 200],
+    logout: ['POST', '/api/v1/sessions/logout', 204],
+    challenge: ['POST', '/api/v1/auth/challenges', 201],
+    verify: ['POST', '/api/v1/auth/challenges/verify', 200],
+    profile: ['GET', '/api/v1/me', 200],
+    updateProfile: ['PATCH', '/api/v1/me', 200],
+    preferences: ['GET', '/api/v1/me/preferences', 200],
+    setPreferences: ['PUT', '/api/v1/me/preferences', 200],
+    avatar: ['GET', '/api/v1/me/avatar', 200],
+    putAvatar: ['PUT', '/api/v1/me/avatar', 200],
+    deleteAvatar: ['DELETE', '/api/v1/me/avatar', 204],
+    changePassword: ['POST', '/api/v1/me/change-password', 200],
+    inspectInvitation: ['POST', '/api/v1/invitations/inspect', 200],
+    redeemInvitation: ['POST', '/api/v1/invitations/redeem', 201],
+    requestPasswordReset: ['POST', '/api/v1/password-resets/request', 202],
+    inspectPasswordReset: ['POST', '/api/v1/password-resets/inspect', 200],
+    completePasswordReset: ['POST', '/api/v1/password-resets/complete', 204],
+    systemUsers: ['GET', '/api/v1/system/users', 200],
+    listProviders: ['GET', '/api/v1/system/model-providers', 200],
+    getProvider: ['GET', '/api/v1/system/model-providers/{id}', 200],
+    createProvider: ['POST', '/api/v1/system/model-providers', 200],
+    updateProvider: ['PUT', '/api/v1/system/model-providers/{id}', 200],
+    deleteProvider: ['DELETE', '/api/v1/system/model-providers/{id}', 200],
+    listProviderModels: ['GET', '/api/v1/system/models', 200],
+    getModel: ['GET', '/api/v1/system/models/{id}', 200],
+    createModel: ['POST', '/api/v1/system/models', 200],
+    updateModel: ['PUT', '/api/v1/system/models/{id}', 200],
+    deleteModel: ['DELETE', '/api/v1/system/models/{id}', 200],
+    getModelDeletionImpact: ['GET', '/api/v1/system/models/{id}/deletion-impact', 200],
+    lookupModelCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
+    getModelSelection: ['GET', '/api/v1/system/model-selection', 200],
+    updateModelSelection: ['PUT', '/api/v1/system/model-selection', 200],
+    lookupModelSelectionCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
+    getAccountSecurity: ['GET', '/api/v1/system/account-settings', 200],
+    updateAccountSecurity: ['PUT', '/api/v1/system/account-settings', 200],
+    getOutboundPolicy: ['GET', '/api/v1/system/outbound-policy', 200],
+    updateOutboundPolicy: ['PUT', '/api/v1/system/outbound-policy', 200],
+    getSMTPSettings: ['GET', '/api/v1/system/smtp', 200],
+    updateSMTPSettings: ['PUT', '/api/v1/system/smtp', 200],
+    unconfigureSMTP: ['POST', '/api/v1/system/smtp/unconfigure', 200],
+    testSMTP: ['POST', '/api/v1/system/smtp/test', 202],
+    listMailJobManagement: ['GET', '/api/v1/system/mail-jobs/management', 200],
+    getMailJobManagement: ['GET', '/api/v1/system/mail-jobs/{id}/management', 200],
+    createModelCredential: ['POST', '/api/v1/system/model-credentials', 200],
+    getModelCredentialMetadata: ['GET', '/api/v1/system/model-credentials/{id}', 200],
+    lookupProviderCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
+    lookupModelCredentialCreate: ['POST', '/api/v1/system/model-credential-commands/lookup', 200],
+    systemInvitations: ['GET', '/api/v1/system/invitations', 200],
+    createSystemInvitation: ['POST', '/api/v1/system/invitations', 201],
+    resendSystemInvitation: ['POST', '/api/v1/system/invitations/{id}/resend', 202],
+    revokeSystemInvitation: ['POST', '/api/v1/system/invitations/{id}/revoke', 204],
+    retrySystemDelivery: ['POST', '/api/v1/system/mail-jobs/{id}/retry', 202],
+};
+function problem(value, status, requestID) {
+    const p = shape(value, ['type', 'title', 'status', 'detail', 'instance', 'code', 'request_id', 'commit_state'], ['field_errors', 'retry_hint']);
+    const fail = () => {
+        throw new AccountFailure('invalid-response');
+    };
+    if (p.status !== status ||
+        ![400, 401, 403, 404, 405, 409, 410, 413, 415, 416, 422, 429, 500, 502, 503].includes(status) ||
+        !/^urn:agenteam:problem:[a-z]+(?:-[a-z]+)*$/.test(string(p.type, 1, 256)) ||
+        !/^\/[^?#]*$/.test(string(p.instance, 1, 2048)) ||
+        !/^[A-Z][A-Z0-9_]*$/.test(string(p.code, 1, 128)) ||
+        !exports.uuid7.test(string(p.request_id, 36, 36)) ||
+        p.request_id !== requestID ||
+        typeof p.commit_state !== 'string' ||
+        !['not_started', 'not_committed', 'committed', 'unknown'].includes(p.commit_state))
+        fail();
+    const parsed = {
+        type: p.type,
+        title: string(p.title, 0, 1024),
+        status,
+        detail: string(p.detail, 0, 8192),
+        instance: p.instance,
+        code: p.code,
+        request_id: p.request_id,
+        commit_state: p.commit_state,
+    };
+    if (p.retry_hint !== undefined) {
+        parsed.retry_hint = string(p.retry_hint, 1, 64);
+        if (!/^[a-z][a-z0-9_]*$/.test(parsed.retry_hint))
+            fail();
+    }
+    if (p.field_errors !== undefined) {
+        if (!Array.isArray(p.field_errors) ||
+            p.field_errors.length === 0 ||
+            p.field_errors.length > 128)
+            fail();
+        parsed.field_errors = p.field_errors.map((entry) => {
+            const e = shape(entry, ['path', 'code']);
+            const path = string(e.path, 0, 1024), code = string(e.code, 1, 128);
+            if (!/^(?:\/(?:[^~]|~[01])*)*$/.test(path) || !/^[A-Z][A-Z0-9_]*$/.test(code))
+                fail();
+            return { path, code };
+        });
+    }
+    return parsed;
+}
+async function readJSON(response, signal, maximum = 600_000) {
+    const reader = response.body?.getReader();
+    if (!reader)
+        throw new AccountFailure('invalid-response');
+    const decoder = new TextDecoder('utf-8', { fatal: true });
+    let text = '', bytes = 0;
+    let cancelled;
+    const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined));
+    // The listener starts cancellation; the same promise is joined in finally.
+    const abort = () => {
+        void cancel();
+    };
+    signal.addEventListener('abort', abort, { once: true });
+    if (signal.aborted)
+        abort();
+    try {
+        for (;;) {
+            const { done, value } = await reader.read();
+            if (done)
+                break;
+            bytes += value.byteLength;
+            if (bytes > maximum)
+                throw new AccountFailure('invalid-response');
+            text += decoder.decode(value, { stream: true });
+        }
+        text += decoder.decode();
+        return JSON.parse(text);
+    }
+    finally {
+        signal.removeEventListener('abort', abort);
+        await cancel();
+        reader.releaseLock();
+    }
+}
+async function readEmptyBody(response, signal) {
+    const reader = response.body?.getReader();
+    if (!reader)
+        return;
+    let cancelled;
+    const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined));
+    const abort = () => {
+        void cancel();
+    };
+    signal.addEventListener('abort', abort, { once: true });
+    if (signal.aborted)
+        abort();
+    try {
+        for (;;) {
+            const { done, value } = await reader.read();
+            if (done)
+                return;
+            if (value.byteLength !== 0)
+                throw new AccountFailure('invalid-response');
+        }
+    }
+    finally {
+        signal.removeEventListener('abort', abort);
+        await cancel();
+        reader.releaseLock();
+    }
+}
+async function readAvatar(response, signal) {
+    const media = response.headers.get('Content-Type');
+    const length = response.headers.get('Content-Length');
+    const etag = response.headers.get('ETag');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(media ?? '') ||
+        !length ||
+        !/^[1-9][0-9]{0,6}$/.test(length) ||
+        Number(length) > 5 * 1024 * 1024 ||
+        !etag ||
+        !/^"sha256:[0-9a-f]{64}"$/.test(etag))
+        throw new AccountFailure('invalid-response');
+    const reader = response.body?.getReader();
+    if (!reader)
+        throw new AccountFailure('invalid-response');
+    let cancelled;
+    const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined));
+    const abort = () => {
+        void cancel();
+    };
+    signal.addEventListener('abort', abort, { once: true });
+    if (signal.aborted)
+        abort();
+    const bytes = new Uint8Array(Number(length));
+    let offset = 0;
+    try {
+        for (;;) {
+            const { done, value } = await reader.read();
+            if (done)
+                break;
+            if (offset + value.byteLength > bytes.byteLength)
+                throw new AccountFailure('invalid-response');
+            bytes.set(value, offset);
+            offset += value.byteLength;
+        }
+        if (signal.aborted)
+            throw new AccountFailure('cancelled');
+        if (offset !== bytes.byteLength)
+            throw new AccountFailure('invalid-response');
+        return {
+            metadata: { media_type: media, byte_size: length, sha256: etag.slice(1, -1) },
+            blob: new Blob([bytes], { type: media }),
+        };
+    }
+    catch (e) {
+        throw e instanceof AccountFailure
+            ? e
+            : new AccountFailure(signal.aborted ? 'cancelled' : 'invalid-response');
+    }
+    finally {
+        signal.removeEventListener('abort', abort);
+        await cancel();
+        reader.releaseLock();
+    }
+}
+const providerEndpoints = [
+    'listProviders',
+    'getProvider',
+    'createProvider',
+    'updateProvider',
+    'deleteProvider',
+    'listProviderModels',
+    'createModelCredential',
+    'getModelCredentialMetadata',
+    'lookupProviderCommand',
+    'lookupModelCredentialCreate',
+];
+const modelEndpoints = [
+    'getModel',
+    'createModel',
+    'updateModel',
+    'deleteModel',
+    'getModelDeletionImpact',
+    'lookupModelCommand',
+];
+const selectionEndpoints = [
+    'getModelSelection',
+    'updateModelSelection',
+    'lookupModelSelectionCommand',
+];
+const accountSecurityEndpoints = [
+    'getAccountSecurity',
+    'updateAccountSecurity',
+];
+const smtpEndpoints = [
+    'getSMTPSettings',
+    'updateSMTPSettings',
+    'unconfigureSMTP',
+];
+const smtpDeliveryEndpoints = [
+    'testSMTP',
+    'listMailJobManagement',
+    'getMailJobManagement',
+];
+const outboundPolicyEndpoints = [
+    'getOutboundPolicy',
+    'updateOutboundPolicy',
+];
+function accountTransport(fetcher = (url, init) => fetch(url, init)) {
+    async function request(endpoint, parse, options) {
+        if (!Object.hasOwn(endpoints, endpoint))
+            throw new AccountFailure('invalid-input');
+        const [method, basePath, status] = endpoints[endpoint];
+        let path = basePath;
+        if (providerEndpoints.includes(endpoint) ||
+            modelEndpoints.includes(endpoint) ||
+            selectionEndpoints.includes(endpoint) ||
+            accountSecurityEndpoints.includes(endpoint) ||
+            smtpEndpoints.includes(endpoint) ||
+            smtpDeliveryEndpoints.includes(endpoint) ||
+            outboundPolicyEndpoints.includes(endpoint)) {
+            try {
+                const target = basePath.includes('{id}');
+                const queryKey = endpoint === 'listProviders'
+                    ? 'providers'
+                    : endpoint === 'listProviderModels'
+                        ? 'models'
+                        : endpoint === 'listMailJobManagement'
+                            ? 'mailJobs'
+                            : undefined;
+                shape(options, [
+                    'signal',
+                    ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
+                    ...(target ? ['target'] : []),
+                    ...(queryKey ? [queryKey] : []),
+                ]);
+                if (target) {
+                    if (!exports.uuid7.test(string(options.target, 36, 36)))
+                        throw new Error();
+                    path = basePath.replace('{id}', options.target);
+                }
+                if (queryKey) {
+                    const query = shape(options[queryKey], queryKey === 'models' ? ['provider_id'] : [], [
+                        'cursor',
+                    ]);
+                    const params = new URLSearchParams();
+                    if (queryKey === 'models') {
+                        const provider = string(query.provider_id, 36, 36);
+                        if (!exports.uuid7.test(provider))
+                            throw new Error();
+                        params.set('provider_id', provider);
+                    }
+                    params.set('limit', '25');
+                    if (Object.hasOwn(query, 'cursor')) {
+                        const cursor = string(query.cursor, 1, 8192);
+                        if (queryKey === 'mailJobs' && new TextEncoder().encode(cursor).byteLength > 8192)
+                            throw new Error();
+                        params.set('cursor', cursor);
+                    }
+                    path += '?' + params.toString();
+                }
+                if (method !== 'GET' &&
+                    (!/^[A-Za-z0-9_-]{43}$/.test(string(options.csrf, 43, 43)) ||
+                        !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128))))
+                    throw new Error();
+            }
+            catch {
+                throw new AccountFailure('invalid-input');
+            }
+        }
+        else if (endpoint === 'systemUsers') {
+            try {
+                shape(options, ['signal', 'users']);
+                const query = shape(options.users, [], ['cursor']);
+                const params = new URLSearchParams({ limit: '25' });
+                if (Object.hasOwn(query, 'cursor'))
+                    params.set('cursor', string(query.cursor, 1, 8192));
+                path += '?' + params.toString();
+            }
+            catch {
+                throw new AccountFailure('invalid-input');
+            }
+        }
+        else if (endpoint === 'systemInvitations') {
+            try {
+                shape(options, ['signal', 'invitations']);
+                const query = shape(options.invitations, [], ['cursor']);
+                const params = new URLSearchParams({ limit: '25' });
+                if (Object.hasOwn(query, 'cursor'))
+                    params.set('cursor', string(query.cursor, 1, 8192));
+                path += '?' + params.toString();
+            }
+            catch {
+                throw new AccountFailure('invalid-input');
+            }
+        }
+        else if (['resendSystemInvitation', 'revokeSystemInvitation', 'retrySystemDelivery'].includes(endpoint)) {
+            try {
+                shape(options, ['signal', 'body', 'csrf', 'key', 'target']);
+                if (!exports.uuid7.test(string(options.target, 36, 36)))
+                    throw new AccountFailure('invalid-input');
+                path = path.replace('{id}', options.target);
+            }
+            catch {
+                throw new AccountFailure('invalid-input');
+            }
+        }
+        else if (Object.hasOwn(options, 'users') ||
+            Object.hasOwn(options, 'invitations') ||
+            Object.hasOwn(options, 'providers') ||
+            Object.hasOwn(options, 'models') ||
+            Object.hasOwn(options, 'mailJobs') ||
+            Object.hasOwn(options, 'target')) {
+            throw new AccountFailure('invalid-input');
+        }
+        if (endpoint === 'createSystemInvitation') {
+            try {
+                shape(options, ['signal', 'body', 'csrf', 'key']);
+            }
+            catch {
+                throw new AccountFailure('invalid-input');
+            }
+        }
+        const headers = { Accept: 'application/json, application/problem+json' };
+        let body;
+        if (endpoint === 'putAvatar' && options.avatar) {
+            body = options.avatar.file;
+            headers['Content-Type'] = options.avatar.mediaType;
+            headers['If-Match'] = `"${options.avatar.version}"`;
+        }
+        else if (method !== 'GET') {
+            const maximum = endpoint === 'updateOutboundPolicy'
+                ? 1024 * 1024
+                : endpoint === 'createModelCredential'
+                    ? 512 * 1024
+                    : endpoint === 'createProvider' ||
+                        endpoint === 'updateProvider' ||
+                        endpoint === 'updateSMTPSettings'
+                        ? 32 * 1024
+                        : 16 * 1024;
+            try {
+                body = JSON.stringify(options.body);
+            }
+            catch {
+                throw new AccountFailure('invalid-input');
+            }
+            if (!body || new TextEncoder().encode(body).byteLength > maximum)
+                throw new AccountFailure('invalid-input');
+            if (endpoint === 'updateOutboundPolicy') {
+                try {
+                    // Measure the actual serialized field, not a second read of a mutable input.
+                    const actual = shape(JSON.parse(body), ['expected_version', 'rules']);
+                    const rules = JSON.stringify(actual.rules);
+                    if (!rules || new TextEncoder().encode(rules).byteLength > 512 * 1024)
+                        throw new Error();
+                }
+                catch {
+                    throw new AccountFailure('invalid-input');
+                }
+            }
+            headers['Content-Type'] = 'application/json';
+        }
+        if (endpoint === 'avatar')
+            headers.Accept = 'image/jpeg, image/png, image/webp, application/problem+json';
+        if (options.csrf !== undefined)
+            headers['X-CSRF-Token'] = options.csrf;
+        if (options.key !== undefined)
+            headers['Idempotency-Key'] = options.key;
+        let response;
+        try {
+            response = await fetcher(path, {
+                method,
+                headers,
+                credentials: 'same-origin',
+                cache: 'no-store',
+                redirect: 'error',
+                signal: options.signal,
+                ...(body === undefined ? {} : { body }),
+            });
+        }
+        catch {
+            throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'transport');
+        }
+        try {
+            if (options.signal.aborted)
+                throw new AccountFailure('cancelled');
+            if (response.redirected || response.type === 'opaqueredirect')
+                throw new AccountFailure('invalid-response');
+            if (response.status === 204 && status === 204) {
+                if (endpoint === 'completePasswordReset' || endpoint === 'revokeSystemInvitation') {
+                    // A network 204 may expose an empty stream. Confirm its actual EOF,
+                    // rather than requiring the Fetch implementation to return null.
+                    try {
+                        await readEmptyBody(response, options.signal);
+                    }
+                    catch {
+                        throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response');
+                    }
+                    if (options.signal.aborted)
+                        throw new AccountFailure('cancelled');
+                }
+                return parse(undefined);
+            }
+            if (endpoint === 'avatar' && response.status === 200)
+                return parse(await readAvatar(response, options.signal));
+            const contentType = response.headers.get('Content-Type')?.split(';')[0]?.trim().toLowerCase();
+            const success = response.status === status;
+            if (contentType !== (success ? 'application/json' : 'application/problem+json'))
+                throw new AccountFailure('invalid-response');
+            let value;
+            try {
+                value = await readJSON(response, options.signal, endpoint === 'listProviders' && success ? 2 * 1024 * 1024 : 600_000);
+            }
+            catch {
+                throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response');
+            }
+            if (options.signal.aborted)
+                throw new AccountFailure('cancelled');
+            if (!success)
+                throw new AccountFailure('problem', problem(value, response.status, response.headers.get('X-Request-ID')));
+            try {
+                return parse(value);
+            }
+            catch {
+                throw new AccountFailure('invalid-response');
+            }
+        }
+        finally {
+            // Includes aborted/redirected/wrong-media-type responses which never acquired a reader.
+            // The controller may finish its bounded UI wait, but owns us until this actually returns.
+            await response.body?.cancel().catch(() => undefined);
+        }
+    }
+    return request;
+}

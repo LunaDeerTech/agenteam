@@ -1,0 +1,11 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/source/web
+
+ ✓ src/tests/independent-outbound-app02.spec.ts (2 tests | 1 skipped) 582ms
+     ✓ B explicitly adopts conflict state, preserves a confirmed draft across failed GETs, and leaves other clean domains without new Cookie writes  581ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 1 skipped (2)
+   Start at  21:43:46
+   Duration  2.19s (transform 921ms, setup 0ms, import 1.09s, tests 582ms, environment 388ms)
+

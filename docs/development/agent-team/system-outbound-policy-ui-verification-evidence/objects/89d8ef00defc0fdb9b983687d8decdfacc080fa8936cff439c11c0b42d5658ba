@@ -1,0 +1,137 @@
+{
+  "candidate_diff_sha256": "21621e9a73361f838cb05d29056d5ee825ba4717ed46630cdff3d34f48f02efc",
+  "checks": {
+    "harness-browser-format-check01": {
+      "actual_wait": true,
+      "command_sha256": "67cd90c08a667cbe3a622470f0988357e79923dae5238e28bc8d12fdb80102a8",
+      "duration_seconds": 0.419,
+      "exit_code": 0,
+      "input_unchanged": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-format-check01",
+      "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "result_sha256": "a0c6d117619cc53f3a77475a249aa50ce2205dcdfd902206bab55b57dd7de2e8",
+      "timed_out": false
+    },
+    "harness-browser-list-authority01": {
+      "actual_wait": true,
+      "command_sha256": "de8aa47e527a3477aa61e37f71e4de044e06706f452a797269e0c0697d0886b3",
+      "duration_seconds": 1.258,
+      "exit_code": 0,
+      "input_unchanged": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-list-authority01",
+      "raw_sha256": "358a036057307ff2743bd8566d44fe1616500a2e78824ae436cc389a58f533b2",
+      "result_sha256": "e5c091ba1e060fc0a5fd9a12b3a566fcd9bfec9c0d078546f2b53aa9dd4ace5e",
+      "timed_out": false
+    },
+    "harness-browser-list-mutation01": {
+      "actual_wait": true,
+      "command_sha256": "0e3b26bbf685999694021aa0c11f90cb77e201c301bbb8b59fe8a4e1cc018d81",
+      "duration_seconds": 1.476,
+      "exit_code": 0,
+      "input_unchanged": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-list-mutation01",
+      "raw_sha256": "2327021703ddf3154ccdc0475cff87479dfaab8bb85d835ea23f7457a0d40230",
+      "result_sha256": "b817a7509072789f4181e2a151dcbdd18999798bfe0655be30b3579a6fad6068",
+      "timed_out": false
+    },
+    "harness-browser-list-navigation01": {
+      "actual_wait": true,
+      "command_sha256": "7e35f9f160f38c337d532a294125fc9d7652fe6d4242cfc03e690ce1c6f7340a",
+      "duration_seconds": 1.497,
+      "exit_code": 0,
+      "input_unchanged": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-list-navigation01",
+      "raw_sha256": "ec7545ecb37c49a847c7015cfef31b5f86f30403c597790d3aafb02506ecf0fb",
+      "result_sha256": "8c1ab54f0589173352da83df9a88d65e5c090d40d2a6079628f4b54c30d25d18",
+      "timed_out": false
+    },
+    "harness-browser-list-read01": {
+      "actual_wait": true,
+      "command_sha256": "eaae96e44bb36fba38d392e37787b220468af405ba69c0d1714ddda0ff537f40",
+      "duration_seconds": 1.441,
+      "exit_code": 0,
+      "input_unchanged": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-list-read01",
+      "raw_sha256": "13fbfdddd1184973fe39a2631eccc80fa6c3269407584dfc21c78ea4d0bd225f",
+      "result_sha256": "f14d9a35ce1bceb79b25a8455353817472044c3a9f5b66a7596d4575200ff875",
+      "timed_out": false
+    },
+    "harness-browser-type01": {
+      "actual_wait": true,
+      "command_sha256": "8a6fa1ec841bea029e0f0b5299f34dde1c1c7d79a402c93cba60d1fc67068af4",
+      "duration_seconds": 1.696,
+      "exit_code": 2,
+      "input_unchanged": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-type01",
+      "raw_sha256": "22d754e33e5e414d820e237c9e477c81ec8db495c45ab51f7665351a89a3c783",
+      "result_sha256": "c8ca3431c6437792cc2e7c677d4d62de2b61ea5e5ce5533d52b9c6c8fb15018a",
+      "timed_out": false
+    },
+    "harness-browser-type02": {
+      "actual_wait": true,
+      "command_sha256": "d166c71e91675c0c6551ebdef818d2c7ef2507ad3d06c8caf6a5feab6e22c0bd",
+      "duration_seconds": 1.872,
+      "exit_code": 0,
+      "input_unchanged": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-type02",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "abeceb30fc3f5a6fb2098a14176d803ce306ab80a05ee23a94d12e71b3641b95",
+      "timed_out": false
+    },
+    "harness-go-compile01": {
+      "actual_wait": true,
+      "command_sha256": "2bc934d45def63178c4cf1eba334cf08fd375c3324a340a4a4a00dee7b251bfa",
+      "duration_seconds": 37.677,
+      "exit_code": 0,
+      "input_unchanged": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-compile01",
+      "raw_sha256": "c93bb15a62424b61b80bdff22d707bed742056687fe8352c0d6be3ad1cd30548",
+      "result_sha256": "8c71cf6cb79fda885ad5212281c50f248b99f489719fcb14022d4ae3466ab525",
+      "timed_out": false
+    },
+    "harness-go-list01": {
+      "actual_wait": true,
+      "command_sha256": "be7a1fb21c6ebb949e868d2d75011e18210a875b53a7b4e3e04d3927fdc1f695",
+      "duration_seconds": 2.098,
+      "exit_code": 0,
+      "input_unchanged": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-list01",
+      "raw_sha256": "e8596f97b2a542aaadb04f9a35a30e40951101901df9f07e5c27842113182808",
+      "result_sha256": "819b747c8b6412db053129a16ad015330d5b7949a84c841e7bfa812367279ea2",
+      "timed_out": false
+    },
+    "harness-go-vet01": {
+      "actual_wait": true,
+      "command_sha256": "ffd1f37b035ac2e8ebd5d1c514b4e2658eec05dabdf67ae241fde3e5cac814c0",
+      "duration_seconds": 15.658,
+      "exit_code": 0,
+      "input_unchanged": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-vet01",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "50b604c4d1e722338acfea28e4e1866b20d7295277d4ecabe624f7a9064d2187",
+      "timed_out": false
+    }
+  },
+  "dist_38_unchanged": true,
+  "files": {
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts": "11723c33fb36944188c5f8baf7962f56cd4791595e9c8ac5b9d1062d8bf6549a",
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": "723757fbadc8535c2de60e98758a90239e40cda651e50f4acf2bf4dec4f589bd",
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": "fd1bf8077241f3668b95c7f923a1e8943b1d1a8e9478b0a6ce7b8cd6291155a7",
+    "tests/account-captcha-web/e2e/system-models.spec.ts": "621fe3c8078484569abba032be18b97f65349f5266cab5c2cf8e451c69a713b7",
+    "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts": "32e1c3a87fee57840d22ecf79a26b2a280ddb4f58c552968ce52d15f8e4f9962",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "529491cb0e82b11c48ab95e5bd57481f1f713f26f94186068bc19fd3d183174f",
+    "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": "766b1f413a40ae340ee0631b32e8cc1d2b72371d4eda9c96d4aa9de0f6f66d81",
+    "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts": "79e2a4839573e30978d64969cc7764720470d6c73be07be6161a533d29b6cc5e",
+    "tests/account-captcha-web/system-outbound-policy.config.js": "5bcc9b2cbc87bc99285dce6b6292970de6a743b5bf4b64147df3270bfcb1dadb",
+    "tests/account/system_outbound_policy_web_fixture_test.go": "c03db51684a19cddf70fc5ba2aeb692d6c805bb38113a58e70343c5df29b003a",
+    "tests/account/system_outbound_policy_web_test.go": "61ec8d9518df4ef6c24e3ab67c6afd83babdac888660fdd338856555bec473b8"
+  },
+  "product_base": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "resources_executed": false,
+  "review_sha256": "dbb60f8f6169aaf6eea309141def7d73e077328efb9307fa70f050268d49bae0",
+  "runtime_driver_pending": true,
+  "stage": "harness-stage01",
+  "web_22_unchanged": true,
+  "web_stage_manifest": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/web-stage01/manifest.json",
+  "web_stage_sha256": "435d3d0d432de68656b68d51cc399e4c66d621ed69e4b73b7c9106984782e7fc"
+}

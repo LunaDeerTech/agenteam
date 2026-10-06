@@ -1,0 +1,78 @@
+{
+  "accepted_closure_count": 1014,
+  "dist_count": 38,
+  "driver": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/driver02.py",
+    "sha256": "d6ff37eaa64b617496dcc1dae6572dfacc1b276b3ee28cfea02964ae213d725b"
+  },
+  "driver_delta": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/driver02.diff",
+    "sha256": "dba97bb89ce8f8980b69a8b4a9c635104d077f7bedc394d1df9cc772aa657868"
+  },
+  "input": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input03/manifest.json",
+    "sha256": "6f01958a3a0b3275524da4ff678f6da20092fa2daebf563d288e4c3563141e82"
+  },
+  "input_gate03": {
+    "actual_exit": 0,
+    "command_sha256": "7c5ce74d5b20db0a8bfd2d6481c94ac1f1ecd61eeef3b53d121c64ca3201a29d",
+    "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/input-gate03",
+    "raw_sha256": "1522bfb6edeb4f8c98828f22a8b08bff6e916786fdeef6c0c46489de2820dd74",
+    "result_sha256": "2a78f583b04d112072e98d6a0f3ec2d42601d45211612ec47aee05312b657c9b",
+    "seconds": 0.978
+  },
+  "locked_dependencies": 15,
+  "no_further_real_execution": true,
+  "originals": {
+    "read01": {
+      "cleanup.json": "8facfb20fb4cc4fa06cd67db635a96117d939809004658f4f4024e482144f248",
+      "command.json": "74edb9af949473d37f6488d0dc10792c87b2f6594fc5aa234dfbcbb4c4f70e63",
+      "raw.log": "0ca0dac24cd8d0a1ac18710594ea656e778db176531ab8aa1bb2dd1ff5394492",
+      "result.json": "8c17cb235394ef84f68650023758bb515df7a35edaedc4e6d3e46e3f899e98ff"
+    },
+    "read01-cleanup-followup01": {
+      "command.json": "34f026338a6649c96ed47cfee883cb80548976e4947a5be199661019fbae9b79",
+      "raw.log": "d99f840e715809ddb0189d1af0ebf34f2253ef392e3c0da5207275ad139e87ba",
+      "result.json": "45e03a3f59a2d21cc8608d3dfc5770f9d9458ac709c41ad27e52e2eefaa7b98c",
+      "sweeps.json": "2f8fa2428c6083c131410395823585a9f20038cfbd555bde493933bed93c3615"
+    },
+    "read01-cleanup-followup02": {
+      "command.json": "a7164d796e99d116a6180c248946134be99910e3d017e9a57444c75e73e09b6f",
+      "raw.log": "1bade12a20db0469111589e1df5166451be2e410ae60f285a9052f782d7038ba",
+      "result.json": "ec289276365f1b4a7cc66e01d1f798995180c885db6d97022b7a1d242e4455be",
+      "sweeps.json": "e3398e1104a6b8be41c9db95c1be7df62ddd298c5903559078391b1d778afc94"
+    }
+  },
+  "prior_task_owned_unreaped": {
+    "not_reaped": true,
+    "origin": "runtime-go-compile01",
+    "pid": 89884,
+    "starttime": "540243"
+  },
+  "read01": {
+    "browser_seconds": 11.8,
+    "business_pass": true,
+    "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01",
+    "original_driver_double_cleanup": false,
+    "original_first_baseline_mismatch_cause": "unproven; complete first snapshot was not retained",
+    "outer_tool_actual_exit": 1,
+    "shell_actual_exit": 0,
+    "shell_seconds": 84.641,
+    "subsequent_cleanup_verification": "followup02 actual 0; exact full fields with Mounts multiset comparison, original seven IDs and 100 PID/starttime absent twice; original artifacts unchanged",
+    "top_seconds": 14.68
+  },
+  "readonly_followup02": {
+    "actual_exit": 0,
+    "directory": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/read01-cleanup-followup02",
+    "raw_sha256": "1bade12a20db0469111589e1df5166451be2e410ae60f285a9052f782d7038ba",
+    "result_sha256": "ec289276365f1b4a7cc66e01d1f798995180c885db6d97022b7a1d242e4455be",
+    "seconds": 1.199625,
+    "sweeps_sha256": "e3398e1104a6b8be41c9db95c1be7df62ddd298c5903559078391b1d778afc94"
+  },
+  "scope": "driver-only observation/comparison revision; all source/dist/dependencies unchanged",
+  "source_count": 33,
+  "startup_plan": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/startup-plan03.json",
+    "sha256": "3b54d5fb6d2e85b1970c432756a01662b576751dd35cbd2f3ef5229af30b4276"
+  }
+}

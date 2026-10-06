@@ -1,0 +1,13 @@
+# Outbound owner-stage01 — 作者离线有界交付
+
+固定产品 213cf5c3f552e6b05b541ce02afc1dd65ce9db93，正式卡 rev1。仅本阶段 useSession.ts 与新 state spec 两候选；阶段 A 五源逐字节保持，冻结副本不再改。旧前九 API 参数顺序不变，第十 outbound API 可选；独立 read/write revision、私有不可变原请求、全域身份清理及唯一 Cookie owner 已接入。
+
+首次业务拒绝只认合法 400 INVALID_ARGUMENT、404 NOT_FOUND、409 VERSION_CONFLICT/INVALID_STATE 且 not_started/not_committed；先 unknown 后明确拒绝仍保留恢复信息。所有 5xx（含 DEPENDENCY_UNAVAILABLE/not_started）、错配与坏响应维持 unknown。原 key 冲突不换 key。合法 401 配对及新 write 专属 403 CSRF_FAILED 清身份、当前 403 FORBIDDEN 清 system 私有状态；旧域分支未改。checkOriginal 仅 Session 再至多 GET，当前观察不确认原写；GET 失败且原生尾部结束后仍可重放原 body/key/version/同身份 CSRF。
+
+实际结果：owner-pure01 新域60 + 旧 SMTPDelivery39，共99/99，exit0/2.451s。补充 owner-pure02 四代表3PASS/1FAIL（exit1/1.578s）：新测试共用 Response 默认200，旧 SMTP Test 要求202，错误状态在 outbound.abandon 前已进入 cancel；不是产品归因。原七源/source、原命令/raw/result 保留。只修该新测试的状态与 finally 覆盖，产品 useSession 与 A 三产品 SHA 全相等。owner-pure03 仅原 delivery 代表1PASS、63skip，exit0/1.638s；其余三PASS与原99按未变语义组合复用，不称103同轮全跑。最终 type03 exit0/2.995s、format-check02 exit0/.622s。
+
+原 owner-pure02 限制：断言位于 finally 之前，私有 native cancel Promise 未在进程内显式 resolve，不能称该旧失败轮 actual join。runner 对 Vitest child54259 实际 wait exit1，冻结检查 /proc 已无该 PID；该轮无服务/浏览器/外部资源。新轮 finally 从前置断言前覆盖，执行相应 abandon、tail.resolve、await task、flushPromises 后才断言 busy=false；只有新绿代表证明此屏障实际完成。此限制须原样保留到最终 archive source-map，不能回填旧证据。
+
+原生 Response read/cancel 及 ignored-fetch 屏障实际测试；30秒可见截止使用虚拟时钟，不称墙钟等待。双向隔离覆盖 personal/用户/邀请/Provider/Model/Selection/账号安全/SMTP配置/SMTP投递九旧域；补充 personal写、SMTP私有密码写、SMTP测试原请求 native 写尾部。静核 runAuthorized 显式新域，不落 provider；clearIdentity、publish（换 Session/CSRF/角色）、systemFailure current403 和 leave 都纳入新状态而不提前释放 owner。确认发布的同步后继不被旧续体清空。
+
+阶段仅 owner/纯受控 transport 结论；未开始新页面、App组合或任何真实 HTTP/PG/Docker/browser/SMTP/目标连接，未运行完整 npm check。API 原阶段首红/正式 Go oracle 沿 api-stage01 原件保留，独立结论由主线程另采纳。

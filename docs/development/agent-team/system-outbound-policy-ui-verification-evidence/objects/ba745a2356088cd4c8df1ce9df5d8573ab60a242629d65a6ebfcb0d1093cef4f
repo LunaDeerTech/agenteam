@@ -1,0 +1,195 @@
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const ts = require('/workspace/agenteam/web/node_modules/typescript/lib/typescript.js');
+const root = __dirname;
+const out = path.join(root, 'runs', 'api01', 'compiled');
+fs.mkdirSync(out, { recursive: true });
+fs.writeFileSync(path.join(out, 'package.json'), '{"type":"commonjs"}\n');
+for (const name of ['client', 'account', 'system-account', 'outbound-rules', 'system-outbound-policy']) {
+  const source = fs.readFileSync(path.join(root, 'frozen/web/src/api', name + '.ts'), 'utf8');
+  const result = ts.transpileModule(source, {
+    fileName: name + '.ts', reportDiagnostics: true,
+    compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, isolatedModules: true },
+  });
+  if (result.diagnostics?.some(d => d.category === ts.DiagnosticCategory.Error)) throw new Error('private-transpile');
+  fs.writeFileSync(path.join(out, name + '.js'), result.outputText);
+}
+const { AccountFailure, accountTransport } = require(path.join(out, 'client.js'));
+const { captureOutboundRules, parseOutboundRules, captureOutboundPortText } = require(path.join(out, 'outbound-rules.js'));
+const { captureOutboundPolicyUpdate, createSystemOutboundPolicyAPI } = require(path.join(out, 'system-outbound-policy.js'));
+const enc = new TextEncoder();
+const facts = {};
+const check = (ok, label) => { if (!ok) throw new Error(label); };
+const sig = () => new AbortController().signal;
+const json = value => new Response(JSON.stringify(value), { headers: { 'Content-Type': 'application/json' } });
+const tick = () => new Promise(resolve => setImmediate(resolve));
+const deferred = () => { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; };
+const rule = (cidr = '10.0.0.0/8', ports = [443], allow_http = false) => ({ cidr, ports, allow_http });
+const write = () => ({ signal: sig(), key: 'independent/outbound', csrfToken: 'N'.repeat(43) });
+function throwsKind(fn, kind, label) {
+  let error;
+  try { fn(); } catch (e) { error = e; }
+  check(error instanceof AccountFailure && error.kind === kind, label);
+}
+async function rejectsKind(promise, kind, label) {
+  const result = await promise.then(() => ({ ok: true }), error => ({ ok: false, error }));
+  check(!result.ok && result.error instanceof AccountFailure && result.error.kind === kind, label);
+  return result.error;
+}
+function largeRules() {
+  return Array.from({ length: 256 }, (_, i) => rule(
+    `fdff:ffff:ffff:ffff:ffff:ffff:ffff:${(0xff00 + i).toString(16)}/128`,
+    Array.from({ length: 256 }, (_, j) => 65535 - j),
+  ));
+}
+async function canonicalAndReceipt() {
+  // Expected acceptances were checked by the frozen formal Go oracle, not this parser.
+  const vectors = JSON.parse(fs.readFileSync(path.join(root, 'oracle/vectors.json'), 'utf8'));
+  const indices = [0, 6, 9, 10, 11, 14, 16, 38, 49, 50];
+  for (const index of indices) {
+    const v = vectors[index];
+    if (v.accept) check(captureOutboundRules([rule(v.cidr)])[0].cidr === v.cidr, 'A-formal-accept-' + index);
+    else {
+      throwsKind(() => captureOutboundRules([rule(v.cidr)]), 'invalid-input', 'A-formal-capture-' + index);
+      throwsKind(() => parseOutboundRules([rule(v.cidr)]), 'invalid-response', 'A-formal-parse-' + index);
+    }
+  }
+  const inputRules = [rule(undefined, [8443, 443]), rule(undefined, 'all', true), rule(undefined, 'all'), rule('10.0.0.0/16')];
+  const expected = '[{"cidr":"10.0.0.0/16","ports":[443],"allow_http":false},{"cidr":"10.0.0.0/8","ports":"all","allow_http":false},{"cidr":"10.0.0.0/8","ports":"all","allow_http":true},{"cidr":"10.0.0.0/8","ports":[443,8443],"allow_http":false}]';
+  const captured = captureOutboundPolicyUpdate({ expected_version: '9007199254740993', rules: inputRules });
+  inputRules[0].ports.push(9999);
+  check(JSON.stringify(captured.rules) === expected, 'A-byte-order-independent-literal');
+  check([captured, captured.rules, ...captured.rules, captured.rules[3].ports].every(Object.isFrozen), 'A-deep-frozen');
+  throwsKind(() => parseOutboundRules([...captured.rules].reverse()), 'invalid-response', 'A-get-not-canonicalized');
+  throwsKind(() => captureOutboundRules([rule(undefined, [2, 1]), rule(undefined, [1, 2])]), 'invalid-input', 'A-canonical-duplicate');
+  check(JSON.stringify(captureOutboundPortText(' \t65535, 443\r\n,1')) === '[1,443,65535]', 'A-port-text-explicit');
+  for (const t of ['', '1,,2', '1\u00a0', '01']) throwsKind(() => captureOutboundPortText(t), 'invalid-input', 'A-port-text-reject');
+  const receipt = { version: '9007199254740994', rule_count: '4', audit_id: '01900000-0000-7000-8000-000000000013', created_at: '2026-10-06T01:02:03.123456Z' };
+  const requests = [];
+  const options = write();
+  const api = createSystemOutboundPolicyAPI(async (url, init) => {
+    requests.push({ url, init });
+    return json(init.method === 'GET' ? { version: '9007199254740998', rules: captured.rules } : receipt);
+  });
+  const current = await api.getPolicy(options.signal);
+  const saved = await api.updatePolicy(captured, options);
+  check(current.version === '9007199254740998' && saved.version === '9007199254740994', 'A-current-and-historical-receipt-distinct');
+  check(requests.length === 2 && requests.every(r => r.url === '/api/v1/system/outbound-policy'), 'A-only-fixed-two-paths');
+  const [get, put] = requests.map(r => r.init);
+  check(get.method === 'GET' && get.body === undefined && !('Idempotency-Key' in get.headers), 'A-get-no-write-material');
+  check(put.method === 'PUT' && put.body === JSON.stringify(captured) && put.headers['Idempotency-Key'] === options.key && put.headers['X-CSRF-Token'] === options.csrfToken, 'A-original-wire-in-memory');
+  check([get, put].every(i => i.credentials === 'same-origin' && i.cache === 'no-store' && i.redirect === 'error' && i.signal === options.signal), 'A-native-options');
+  for (const bad of [{ ...receipt, version: '9007199254740995' }, { ...receipt, rule_count: '3' }, { ...receipt, rules: [] }]) {
+    await rejectsKind(createSystemOutboundPolicyAPI(async () => json(bad)).updatePolicy(captured, write()), 'invalid-response', 'A-receipt-correlation');
+  }
+  await rejectsKind(createSystemOutboundPolicyAPI(async () => json({ version: '1', rules: [...captured.rules, { cidr: '10.0.0.0/8', ports: [443] }] })).getPolicy(sig()), 'invalid-response', 'A-no-partial-get');
+  const full = captureOutboundRules(largeRules());
+  check(enc.encode(JSON.stringify(full)).length === 414721, 'A-formal-max-rules');
+  const maximumPage = { version: '9223372036854775807', rules: full };
+  check(enc.encode(JSON.stringify(maximumPage)).length === 414763, 'A-formal-max-get');
+  const maxResult = await createSystemOutboundPolicyAPI(async () => json(maximumPage)).getPolicy(sig());
+  check(maxResult.rules.length === 256 && maxResult.version === maximumPage.version, 'A-max-native-response');
+  throwsKind(() => captureOutboundPolicyUpdate({ expected_version: maximumPage.version, rules: [] }), 'invalid-input', 'A-max-write-capture-zero-request');
+  const end = await createSystemOutboundPolicyAPI(async () => json({ ...receipt, version: maximumPage.version, rule_count: '0' })).updatePolicy({ expected_version: '9223372036854775806', rules: [] }, write());
+  check(end.version === maximumPage.version, 'A-max-int64-without-number');
+  facts.A = { formal_vectors: indices.length, strict_wire_and_receipt: true, deep_immutable: true, canonical_max_rules_bytes: 414721, canonical_max_get_bytes: 414763, actual_http: false };
+}
+function tracked(promise) {
+  const state = { settled: false, value: null, error: null };
+  state.promise = promise.then(value => { state.settled = true; state.value = value; }, error => { state.settled = true; state.error = error; });
+  return state;
+}
+async function nativeEOF() {
+  const value = { version: '1', rules: [] };
+  const encoded = JSON.stringify(value);
+  const bytes = enc.encode(encoded + ' '.repeat(600000 - encoded.length));
+  let controller;
+  const waiting = deferred();
+  let calls = 0;
+  const stream = new ReadableStream({
+    start(c) { controller = c; },
+    pull(c) {
+      if (calls === 0) c.enqueue(bytes.subarray(0, 199999));
+      else if (calls === 1) c.enqueue(bytes.subarray(199999));
+      else waiting.resolve();
+      calls++;
+    },
+  });
+  const state = tracked(createSystemOutboundPolicyAPI(async () => new Response(stream, { headers: { 'Content-Type': 'application/json', 'Content-Length': '1' } })).getPolicy(sig()));
+  try {
+    await waiting.promise;
+    await tick();
+    check(!state.settled, 'B-valid-complete-json-not-before-native-eof');
+  } finally { controller.close(); }
+  await state.promise;
+  check(!state.error && state.value.version === '1', 'B-exact-600000-after-eof');
+}
+async function nativeCancellation(mode) {
+  const gate = deferred(), entered = deferred(), read = deferred();
+  const abort = new AbortController();
+  let cancelled = 0;
+  const problem = { type: 'urn:agenteam:problem:dependency-unavailable', title: 'Unavailable', status: 503, detail: 'é'.repeat(16), instance: '/api/v1/system/outbound-policy', code: 'DEPENDENCY_UNAVAILABLE', request_id: '01900000-0000-7000-8000-000000000014', commit_state: 'not_started' };
+  const raw = JSON.stringify(problem);
+  const overflow = enc.encode(raw + ' '.repeat(600001 - enc.encode(raw).length));
+  let delivered = false;
+  const stream = new ReadableStream({
+    pull(c) {
+      read.resolve();
+      if (mode === 'overflow' && !delivered) { delivered = true; c.enqueue(overflow.subarray(0, 599999)); c.enqueue(overflow.subarray(599999)); }
+    },
+    cancel() { cancelled++; entered.resolve(); return gate.promise; },
+  });
+  const headers = mode === 'media'
+    ? { 'Content-Type': 'text/plain' }
+    : mode === 'overflow'
+      ? { 'Content-Type': 'application/problem+json', 'Content-Length': '100', 'X-Request-ID': problem.request_id }
+      : { 'Content-Type': 'application/json' };
+  const response = new Response(stream, { status: mode === 'abort' ? 200 : 503, headers });
+  const state = tracked(createSystemOutboundPolicyAPI(async () => response).getPolicy(abort.signal));
+  try {
+    if (mode === 'abort') { await read.promise; await tick(); abort.abort(); }
+    await entered.promise;
+    await tick();
+    check(!state.settled && cancelled === 1, 'B-native-cancel-not-yet-joined-' + mode);
+  } finally { gate.resolve(); }
+  await state.promise;
+  check(state.error instanceof AccountFailure && state.error.kind === (mode === 'abort' ? 'cancelled' : 'invalid-response') && cancelled === 1, 'B-native-cancel-actual-join-' + mode);
+}
+async function transportAndTails() {
+  await nativeEOF();
+  for (const mode of ['overflow', 'abort', 'media']) await nativeCancellation(mode);
+  const calls = [];
+  const request = accountTransport(async (url, init) => { calls.push({ url, init }); return json({}); });
+  const options = { signal: sig(), csrf: 'C'.repeat(43), key: 'independent-budget' };
+  // These are transport-only shapes, deliberately not claimed as valid domain rules.
+  let reads = 0;
+  const field = { expected_version: '1', get rules() { reads++; return 'é'.repeat(262143) + (reads === 1 ? '' : 'x'); } };
+  await request('updateOutboundPolicy', v => v, { ...options, body: field });
+  check(reads === 1 && enc.encode(JSON.stringify(JSON.parse(calls[0].init.body).rules)).length === 524288, 'B-actual-serialized-field-once');
+  await rejectsKind(request('updateOutboundPolicy', v => v, { ...options, body: { expected_version: '1', rules: 'é'.repeat(262143) + 'x' } }), 'invalid-input', 'B-field-over-one-byte');
+  const envelope = JSON.stringify({ expected_version: '', rules: [] }).length;
+  await request('updateOutboundPolicy', v => v, { ...options, body: { expected_version: 'a'.repeat(1048576 - envelope), rules: [] } });
+  check(enc.encode(calls[1].init.body).length === 1048576, 'B-whole-body-exact');
+  await rejectsKind(request('updateOutboundPolicy', v => v, { ...options, body: { expected_version: 'a'.repeat(1048577 - envelope), rules: [] } }), 'invalid-input', 'B-whole-over-one-byte');
+  await rejectsKind(request('updateProfile', v => v, { ...options, body: { pad: 'a'.repeat(16375) } }), 'invalid-input', 'B-old-small-budget-not-expanded');
+  await rejectsKind(request('getOutboundPolicy', v => v, { signal: sig(), body: {} }), 'invalid-input', 'B-get-closed-options');
+  check(calls.length === 2, 'B-rejected-transport-zero-dispatch');
+  const rid = '01900000-0000-7000-8000-000000000015';
+  const p = { type: 'urn:agenteam:problem:csrf-failed', title: 'Failed', status: 503, detail: 'Failed', instance: '/api/v1/system/outbound-policy', code: 'CSRF_FAILED', request_id: rid, commit_state: 'not_started', retry_hint: 'lookup' };
+  const e = await rejectsKind(createSystemOutboundPolicyAPI(async () => new Response(JSON.stringify(p), { status: 503, headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': rid } })).updatePolicy({ expected_version: '1', rules: [] }, write()), 'problem', 'B-problem-not-reclassified-by-api');
+  check(e.problem.status === 503 && e.problem.code === 'CSRF_FAILED' && e.problem.commit_state === 'not_started' && e.problem.retry_hint === 'lookup', 'B-raw-safe-facts-for-owner');
+  facts.B = { native_eof_required: true, exact_response_limit: 600000, overflow_actual_bytes: 600001, cancel_barriers_joined: 3, transport_serialized_field_read_once: true, request_rules_limit: 524288, request_total_limit: 1048576, old_budget_unchanged: true, owner_classification_not_tested: true };
+}
+let group = 'preparation';
+const watchdog = setTimeout(() => { console.log(JSON.stringify({ result: 'TIMEOUT', group })); process.exit(2); }, 45000);
+(async () => {
+  group = 'A'; console.log('BEGIN A canonical-and-receipt'); await canonicalAndReceipt(); console.log('PASS A ' + JSON.stringify(facts.A));
+  group = 'B'; console.log('BEGIN B transport-and-native-tails'); await transportAndTails(); console.log('PASS B ' + JSON.stringify(facts.B));
+  fs.writeFileSync(path.join(root, 'runs/api01/probe-result.json'), JSON.stringify({ result: 'PASS', groups: 2, facts }, null, 2) + '\n');
+})().catch(error => {
+  const safe = error instanceof Error && /^[AB]-[a-z0-9-]+$/.test(error.message) ? error.message : error instanceof AccountFailure ? error.kind : 'private-probe-error';
+  console.log(JSON.stringify({ result: 'FAIL', group, safe_reason: safe }));
+  fs.writeFileSync(path.join(root, 'runs/api01/probe-result.json'), JSON.stringify({ result: 'FAIL', group, safe_reason: safe, completed: facts }, null, 2) + '\n');
+  process.exitCode = 1;
+}).finally(() => clearTimeout(watchdog));

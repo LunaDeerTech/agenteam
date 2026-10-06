@@ -1,0 +1,74 @@
+{
+  "result": "BOUNDED_API_STAGE_PASS",
+  "author_manifest_sha256": "8e26090e5dd83b0f038af4ece33c52b0d04279db3e1d8513336eef0e1f067267",
+  "source_files": {
+    "web/src/api/client.ts": "4ae4b1db480e26adee962c2b301fdbf37ea3b31883cee223f6ed3e8b691659ae",
+    "web/src/api/outbound-rules.ts": "7b41d4af381520fb95c824dfeda079d0bb36af82f4ec614967c2346f56a38466",
+    "web/src/api/system-outbound-policy.ts": "6dff6c0b696b334799abd7779ac52b12b8ceabc3f6b7861ee639ae1823d9123e",
+    "web/src/tests/outbound-rules.spec.ts": "82dda1710210dc7fa1042ebee654a839825348c7047bfa912d5258a581f0824f",
+    "web/src/tests/system-outbound-policy-client.spec.ts": "cd38aff53b6c4c6165434475f0d68e916a2a68ad9d1d591790fc1ae33114b572"
+  },
+  "source_root": "/workspace/scratch/agenteam-outbound-ui-api-independent-myvazu5g/frozen",
+  "original_source_root": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/api-stage01/source",
+  "run_result": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "seconds": 0.47104007400002956,
+    "timeout": false,
+    "input_before_matches": true,
+    "input_after_matches": true,
+    "input_unchanged": true,
+    "cleanup_clean": true,
+    "node_processes_observed": 1,
+    "adopted_wait_count": 0,
+    "raw_sha256": "6731f04133fac255e19934f2926a2c93a4e25159827a1f83ab4bca71e2550e1e",
+    "cleanup_sha256": "393e4ce7a440ecf7bb9a79e2276265b99a9b209c0575256c00dfa729cc841626"
+  },
+  "proof": {
+    "result": "PASS",
+    "groups": 2,
+    "facts": {
+      "A": {
+        "formal_vectors": 10,
+        "strict_wire_and_receipt": true,
+        "deep_immutable": true,
+        "canonical_max_rules_bytes": 414721,
+        "canonical_max_get_bytes": 414763,
+        "actual_http": false
+      },
+      "B": {
+        "native_eof_required": true,
+        "exact_response_limit": 600000,
+        "overflow_actual_bytes": 600001,
+        "cancel_barriers_joined": 3,
+        "transport_serialized_field_read_once": true,
+        "request_rules_limit": 524288,
+        "request_total_limit": 1048576,
+        "old_budget_unchanged": true,
+        "owner_classification_not_tested": true
+      }
+    }
+  },
+  "artifacts": {
+    "verification-report.md": "b40b6486f6eed6bd0faf6b2b19097c6d9cd8f2aa182ce1c9a3f18aaec0bed28a",
+    "execution01.json": "e995a4642b74c50ebfa3cb7772a4aaa2e199f3ed413bbc6dcad519e9e7c1aa4c",
+    "probe01.cjs": "ba745a2356088cd4c8df1ce9df5d8573ab60a242629d65a6ebfcb0d1093cef4f",
+    "run_offline01.py": "4e0e4c3b76154f0df08ed75b6cc1a37417c2d8ad1c47f0fec337a079dd5edcfa",
+    "static-review01.json": "701e00078be843bfca5bc7d1dd4b7c40483cf94ed64d5d5c42c14c754951e84e",
+    "runs/api01/raw.log": "6731f04133fac255e19934f2926a2c93a4e25159827a1f83ab4bca71e2550e1e",
+    "runs/api01/command.json": "c71c53ed0c16f77c31aefba80235ed985fc9f009087d3d6debe91a8eeeb3a0f6",
+    "runs/api01/result.json": "7dfdb7f0150b57e1aa7fdf68dd5c50bdc6cd152ad0ae2b9c50069b4f7977f00c",
+    "runs/api01/cleanup.json": "393e4ce7a440ecf7bb9a79e2276265b99a9b209c0575256c00dfa729cc841626",
+    "runs/api01/input-before.json": "27b0ee427aec960109b46786ee213ade47026c16c5bb051a7c7019b9a9715523",
+    "runs/api01/input-after.json": "27b0ee427aec960109b46786ee213ade47026c16c5bb051a7c7019b9a9715523",
+    "runs/api01/probe-result.json": "90c2155af061e2bf43aaf6ef0fe0128a9a4445f99838034191a66ed72c009562",
+    "runs/api01/compiled-output.json": "6b5b92fea504226aea08670ce2dbc73f655151189f490558a217937b9da0418e"
+  },
+  "limits": [
+    "No owner/30s/cross-domain or App result",
+    "No HTTP/browser/PG proof",
+    "Runtime only: author fixed type-check reused",
+    "Transport budget shapes not domain-valid rules"
+  ],
+  "frozen": true
+}

@@ -1,0 +1,30 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/tests/system-outbound-policy-state.spec.ts",
+    "--testNamePattern",
+    "holds the actual|write-only CSRF",
+    "--maxWorkers=1",
+    "--no-file-parallelism"
+  ],
+  "child_pid": 54259,
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace/web",
+  "duration_seconds": 1.578,
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 1,
+  "input_after_sha256": "91fcfb13b27582beed70d094b19dda8c61358df7f38902cd68d39472c531e4be",
+  "input_before_sha256": "91fcfb13b27582beed70d094b19dda8c61358df7f38902cd68d39472c531e4be",
+  "input_unchanged": true,
+  "raw_sha256": "c7e58618f25133f349c7a0600f71ad8c06724a997504a7ff78929b4e4ab37d96",
+  "resource_execution": false,
+  "runner_sha256": "d839e5ffae1c1d84748eb2907393fea9a8550e1443c378af929617cbf12ee686",
+  "timed_out": false
+}

@@ -1,0 +1,63 @@
+--- /workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure02/source/web/src/tests/system-outbound-policy-state.spec.ts
++++ /workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/owner-pure03/source/web/src/tests/system-outbound-policy-state.spec.ts
+@@ -670,6 +670,7 @@
+         cancel = vi.fn(() => tail.promise)
+       const pendingResponse: Fetch = async () =>
+         new Response(new ReadableStream<Uint8Array>({ cancel }), {
++          status: domain === 'delivery' ? 202 : 200,
+           headers: { 'Content-Type': 'application/json' },
+         })
+       f.setOther(pendingResponse)
+@@ -693,30 +694,35 @@
+               })
+             : f.auth.system.smtpDelivery.startTest({ recipient: 'sender@example.test' })
+       const task = work().catch((e) => e)
+-      await flushPromises()
+-      expect(f.auth.state.busy).toBe(true)
+-      const dispatched = f.fetch.mock.calls.at(-1)![1]
+-      expect(dispatched.method !== 'GET').toBe(true)
+-      if (domain === 'smtp')
+-        expect(
+-          typeof dispatched.body === 'string' && dispatched.body.includes(' synthetic-private '),
+-        ).toBe(true)
+-      p.abandon()
+-      expect(cancel).not.toHaveBeenCalled()
+-      expect(smtp.material.present).toBe(true)
+-      const count = f.fetch.mock.calls.length
+-      await expect(p.startUpdate(input())).rejects.toMatchObject({ kind: 'busy' })
+-      expect(f.fetch.mock.calls).toHaveLength(count)
+-      if (domain === 'personal') f.auth.personal.abandon()
+-      else if (domain === 'smtp') smtp.abandon()
+-      else f.auth.system.smtpDelivery.abandon()
+       try {
++        await flushPromises()
++        expect(f.auth.state.busy).toBe(true)
++        const dispatched = f.fetch.mock.calls.at(-1)![1]
++        expect(dispatched.method !== 'GET').toBe(true)
++        if (domain === 'smtp')
++          expect(
++            typeof dispatched.body === 'string' && dispatched.body.includes(' synthetic-private '),
++          ).toBe(true)
++        p.abandon()
++        expect(cancel).not.toHaveBeenCalled()
++        expect(smtp.material.present).toBe(true)
++        const count = f.fetch.mock.calls.length
++        await expect(p.startUpdate(input())).rejects.toMatchObject({ kind: 'busy' })
++        expect(f.fetch.mock.calls).toHaveLength(count)
++        if (domain === 'personal') f.auth.personal.abandon()
++        else if (domain === 'smtp') smtp.abandon()
++        else f.auth.system.smtpDelivery.abandon()
+         expect(await task).toMatchObject({ kind: 'cancelled' })
+         expect(cancel).toHaveBeenCalledTimes(1)
+         expect(f.auth.state.busy).toBe(true)
+         await expect(p.get()).rejects.toMatchObject({ kind: 'busy' })
+       } finally {
++        if (domain === 'personal') f.auth.personal.abandon()
++        else if (domain === 'smtp') smtp.abandon()
++        else f.auth.system.smtpDelivery.abandon()
+         tail.resolve()
++        await task
++        await flushPromises()
+       }
+       await flushPromises()
+       expect(f.auth.state.busy).toBe(false)

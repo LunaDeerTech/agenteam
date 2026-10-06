@@ -1,0 +1,102 @@
+{
+  "changed_files": [
+    "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+    "tests/account/system_outbound_policy_web_fixture_test.go"
+  ],
+  "checks": {
+    "harness-browser-format-check02": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "command_sha256": "56847fcce77037d97d58e7d83897d86671f689a461ceefaf88d517cff8cdc4f7",
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-format-check02",
+      "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "result_sha256": "71489db8f28a298dbd78293e7f9e7319e4645f5002ad71095e5947de2ac3fa3f",
+      "seconds": 0.491
+    },
+    "harness-browser-list-navigation02": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "command_sha256": "6e1d3372fededc93f46872773e3810291ec357b2296d728ca8dd4c73bfdc6ce3",
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-list-navigation02",
+      "raw_sha256": "959b54783f5aeafa0bfb23280cab39ae37fdd19732111da7c88ca0c88b167d06",
+      "result_sha256": "2a8a44697ee78b3816036f3dac83e5982385418ba9d9ac733644aceea201f1fc",
+      "seconds": 1.179
+    },
+    "harness-browser-type03": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "command_sha256": "9df1ab506137faf0132909095ea305f5ddfd9e4bab60d976ed0fd053efb59f09",
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-browser-type03",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "61bd3b77b313bc05dbe895c71e9943ae4064f7e18b8841542618d1149cf3d3a4",
+      "seconds": 1.195
+    },
+    "harness-go-compile02": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "command_sha256": "49143a5b8a62d1d65cb197aaa9f4c392ae578e9f8642a6383a3e6feeaaf2a2bd",
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-compile02",
+      "raw_sha256": "53fbdd29d58e639567ab89cf00212be7295468a596be405d816045465cc7a831",
+      "result_sha256": "83769f93d4021f274cf3ea63457c0d2cf003397d03844f7fdd70e09ef4ea6d4e",
+      "seconds": 7.411
+    },
+    "harness-go-vet02": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "command_sha256": "d68eee85e1b281aa1059cd21724c8e2604ef27ade10cfd96903739316276d52d",
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/harness-go-vet02",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "1c1ddaf14c428a50a665b76c239d401bbc2da1b863a9e789bb2e92eccc91a54d",
+      "seconds": 0.814
+    },
+    "offline-subreaper-probe01": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "command_sha256": "a4ddd0b19f9ed12013c8c72bc12b22ec9177f5eb3e245a8c1df92cc9f98ef3d0",
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/offline-subreaper-probe01",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_sha256": "00ed278c68b50d78ba380e222a3b65254d66918d1441cd798d62bb5b35336261",
+      "seconds": 0.156
+    },
+    "runtime-process-compile02": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "command_sha256": "d6795e102f46418c80b1bebcc750edc42a5b13f6b7ea84d1aa139bb4dbb5f705",
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/runtime-process-compile02",
+      "raw_sha256": "aaf815475d8359cdee456905159d6fba1e1153573ff0724a763f7a48b0009323",
+      "result_sha256": "3ae8c6cdb8bd52028883163cd7d446e6828bfa39b976368d0bf3071039241b0a",
+      "seconds": 3.403
+    }
+  },
+  "delta_sha256": "98fcb5f3029a7834d077ba53bf8338d7d068267ec7684092e6d08017d758ef23",
+  "dist_38_unchanged": true,
+  "files": {
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts": "11723c33fb36944188c5f8baf7962f56cd4791595e9c8ac5b9d1062d8bf6549a",
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": "723757fbadc8535c2de60e98758a90239e40cda651e50f4acf2bf4dec4f589bd",
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": "fd1bf8077241f3668b95c7f923a1e8943b1d1a8e9478b0a6ce7b8cd6291155a7",
+    "tests/account-captcha-web/e2e/system-models.spec.ts": "621fe3c8078484569abba032be18b97f65349f5266cab5c2cf8e451c69a713b7",
+    "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts": "2b550ad71270848a434688dcd3bcb8f414e8d0a8705b23c2fd6883ceb5f38c6f",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "529491cb0e82b11c48ab95e5bd57481f1f713f26f94186068bc19fd3d183174f",
+    "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": "766b1f413a40ae340ee0631b32e8cc1d2b72371d4eda9c96d4aa9de0f6f66d81",
+    "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts": "79e2a4839573e30978d64969cc7764720470d6c73be07be6161a533d29b6cc5e",
+    "tests/account-captcha-web/system-outbound-policy.config.js": "5bcc9b2cbc87bc99285dce6b6292970de6a743b5bf4b64147df3270bfcb1dadb",
+    "tests/account/system_outbound_policy_web_fixture_test.go": "beb8ef5e4d6307f6ac1d09392dafc7fe04fd3324cb5603c4c866520d01386872",
+    "tests/account/system_outbound_policy_web_test.go": "61ec8d9518df4ef6c24e3ab67c6afd83babdac888660fdd338856555bec473b8"
+  },
+  "previous": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/harness-stage01/manifest.json",
+    "sha256": "89d8ef00defc0fdb9b983687d8decdfacc080fa8936cff439c11c0b42d5658ba"
+  },
+  "product_base": "213cf5c3f552e6b05b541ce02afc1dd65ce9db93",
+  "resource_execution": false,
+  "review_sha256": "8585a235e2fa3aa68cc364312792b7e117a8482b2c5fb2a1d2f54eddd43a9d8b",
+  "stage": "harness-stage02",
+  "web_22_unchanged": true
+}

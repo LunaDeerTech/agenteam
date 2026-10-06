@@ -1,0 +1,12 @@
+--- /workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/browser/tsconfig.json
++++ /workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/browser/tsconfig02.json
+@@ -2,7 +2,8 @@
+   "compilerOptions": {
+     "lib": [
+       "ES2022",
+-      "DOM"
++      "DOM",
++      "DOM.Iterable"
+     ],
+     "module": "ESNext",
+     "moduleResolution": "Bundler",

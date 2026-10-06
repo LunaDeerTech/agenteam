@@ -332,3 +332,15 @@ SMTP投递已按§26接受。SPA controlled/native已PASS的原调度记录不�
 12必要逻辑原件以11对象＋正式卡Git保存；独审47项与作者额外5链接目标固定Git去重，不复制全树／依赖或重复分段索引。common无securitySchemes与遗漏独立const两次辅助失败只见原review叙述，没有单独command/raw/退出时长原件，不补造、不称产品RED。
 
 原Object/tools及SPA publication停止不重试／改写／转派，SPA既有scope/native状态不等于产品接受。Summary待决、生产未绑定／ready503保持；完整D08–D28/E01未完成，E01未开始，完整D04/D27／Audit UI／Runtime未由本规格交付。
+
+## 29. System 出站规则管理 UI 接受与分版本证据
+
+§1–28逐字保留。主线程接受34路径并提交推送 `1ff044264a54c948e512db9aafad24ec5e0aa3c2`，核远端一致；[正式报告](system-outbound-policy-ui-verification.md)固定产品基线213cf5c／input05的33源、38dist与1014Git依赖，第34README单独完成。[卡技术](../work-items/d27-system-outbound-policy-ui.md)343f09…ab6b不变，规格期尚未实施措辞以新页首为准。
+
+作者新4／旧3按input02–05组合通过；原read01 child0／84.641s但外层1，首扫baseline原因未证，后续Mounts顺序观察与只读复核不回填原因。最终独立A01完整PASS复用＋B02单组actual0／58.171s、7 IDs／84PID／4adopt实际wait双清；原01整体exit1与B登录前提FAIL不抹。原B仅证明重新登录后首页，旧query未精确采样；修后新主动users导航前零users／PUT，再验证新users请求与Outbound完整GET，users EOF不冒称。
+
+页面strictreceipt后GET503丢草稿是真正产品RED，原同spec修复通过；实际controller与已授权View文字两路径变化分列。所有API／owner／类型／事务状态／标题／磁盘及独立前提原红保留，30s owner证据为虚拟时间加实际stream/cancel门闩。早期owner-pure02私有cancel未join与广域compile留下PID89884/start540243/PPID1 Z保持，后续清理不替旧轮补wait。
+
+十二真实轮原件逐退出／输入／IDs／PID／wait保存，read原baseline例外和当前恢复清理分开。新8图与旧8图作者已view，root只看新light390／dark1440，900px首屏不冒称整页。946逻辑原件按SHA为622新对象与117固定Git／既有原件引用，不复制依赖／dist／缓存／二进制或runtime材料；离线校验不执行产品。
+
+Audit仅有已知query／HTTP有界阶段与作者native分轮证据，本档不消费活动事务／producer输入或宣布整卡接受。SPA原scope/native状态不等于产品接受；publication探针因平台内容安全机制停止、无执行目录，竞态未闭合、返修／发布暂停，不重试／改写／转派。Object/tools停止、Summary待决、生产未绑定／ready503保持；完整D08–D28/E01未完成，E01未开始。

@@ -1,0 +1,29 @@
+{
+  "actual_cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace",
+  "author_input": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input05/manifest.json",
+  "author_sha256": "c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a",
+  "changed_author_paths": [
+    "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts"
+  ],
+  "checks": {
+    "baseline": {
+      "count": 1014,
+      "mismatch": []
+    },
+    "candidates": {
+      "count": 33,
+      "mismatch": []
+    },
+    "dist": {
+      "count": 38,
+      "mismatch": []
+    }
+  },
+  "prior_source_preparation": {
+    "path": "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/source-preparation01.json",
+    "sha256": "c32b172405c275a266d756158dbeccfd31e34507e3179e7bbb1d6f8a2dfa1070"
+  },
+  "private_probe_fixture_config_overlay_original_bytes": true,
+  "resource_execution": false,
+  "source_helper_origin": "input02 unchanged observer prefix; author input04 transaction predicates/diagnostics and input05 cancelledRead title precondition not consumed by the independent two tests"
+}

@@ -1,0 +1,9 @@
+# Mutation test premise repair
+
+mutation01 actually exited 1 after 57.826s. Its exact business top failed at the first version-conflict response predicate; the raw log contains no actual response status/code/commit_state, so those fields are not reconstructed. All seven owned IDs and 85 observed PID/starttime pairs were absent in both cleanup scans, four adopted children were actually waited, runtimes were empty, and frozen inputs stayed unchanged.
+
+The fixed accepted PolicyService creates VersionConflict inside WithinTx (policy.go:390). PostgreSQL rejected wraps the Fault with foundation.NotCommittedResult, which copies the Fault and sets CommitState to NotCommitted; resultError returns that Fault. The first predicate therefore now expects exactly 409 / VERSION_CONFLICT / not_committed / ended. The same static chain applies to readReceipt's IdempotencyKeyReused (policy.go:333, called inside the transaction at :374). That later scenario was not reached in mutation01 and is recorded as a static premise defect, not a second dynamic failure. Its exact 409 / IDEMPOTENCY_KEY_REUSED expectation now uses not_committed.
+
+The only remaining change is a bounded failure summary for factAfter: method, allowed exact path, status, already closed code/commit_state and ended. It prints no body, DTO, rule, identity, key, CSRF or hash, and rethrows the original failed assertion. Poll timing, native fetch/reader/cancel behavior and all other assertions are unchanged. The same spec has no other hard-coded commit-state expectations.
+
+Type check and one-test mutation discovery actually passed. All other 32 candidate paths, all 22 product/web-stage paths, 38 dist files, 1014 accepted dependencies and 15 locked tool records remain unchanged. No browser or backend resource was started for this repair.

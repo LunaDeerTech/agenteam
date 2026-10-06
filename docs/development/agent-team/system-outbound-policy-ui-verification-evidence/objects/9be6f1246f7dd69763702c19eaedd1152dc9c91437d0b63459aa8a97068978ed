@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/driver01.py",
+    "--name",
+    "gate03",
+    "--group",
+    "authority",
+    "--frozen",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/execution03.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-out-offline-lxkko_fa",
+    "GOTMPDIR": "/tmp/agt-out-offline-lxkko_fa",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "dce9b3796eb4119679bf712277704fd942ef1e4d664b721e1359d819d9c42bf3",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 249344,
+  "actual_exit": 0,
+  "seconds": 1.616825802000676,
+  "timeout": false
+}

@@ -1,0 +1,153 @@
+# D27：System 出站规则管理 UI
+
+状态：正式规格 rev1，2026-10-06，独立 STATIC 审查通过、主线程已采纳；仅规格接受，尚未实施，产品/测试实施与资源均未授权。被审私稿 rev3 全文 SHA256 `efc6c8cb8c87c058c5e3f7db0d68bd3c33d6eef13a42fdcbc56fe0196d0699b0`、技术 §1–7 SHA256 `343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b`；原私稿 rev1–3 均保留。
+
+独立 rev3 报告 `/workspace/scratch/agenteam-outbound-ui-rev2-review-0xro88w6/rev3-review.md` SHA256 `525832e8a7a08ecddf1b09a0ae641e19003c1aa1fe69c60f54886c00a95ae011` 为 STATIC PASS，闭合原唯一 OUI-SPEC-01；原 rev2 报告与证据保留。技术正文逐字沿已审稿，其候选/待审措辞的规格状态以本页首为准，所有未授产品与资源的边界仍有效。
+
+固定前端产品基线：`213cf5c3f552e6b05b541ce02afc1dd65ce9db93`，SMTP 投递17路径已由主线程接受、提交推送且核 main clean；第九 Cookie 域、最终 SMTP 分区协调器、七系统叶子/三组/十一 return 均从该 Git 实读。其独立最终报告 SHA256 `703600fccf13d2ce6d752f620eb8a40126b53a93b277e9ee9498f4c5c34dec05` 只验16源及正式组合，第17 README由作者最后完成并由主线程接受；不把本次静态核对说成重新动态验证。后端产品 `a94277982620f01dc15488b09ae6ea9064977b5a` 与档案 `63de0ac675e0fd4cd26e2cecde91f417a63d3bca` 已接受，已包含在本基线；OpenAPI SHA256 `b886602a4e8c306d2146051aa417ce9d922c652709ac6ea61fd7b2861ae8ec02`。
+
+本卡34路径（十九核心、十五旧测试窄适配）为已采纳的规格范围；产品唯一作者、实施与真实窗口均待主线程另授。必读[前端规则](../frontend/README.md)、[系统设置布局](../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置)、[设置框架](../../frontend-design/layouts/settings-shell.md)、[出站架构](../../architecture/platform-infrastructure/outbound-network-policy.md)及[正式 HTTP 卡](d04-system-outbound-policy-http.md)；执行角色按[团队流程](../agent-team/README.md)使用前端、[Vue 测试](../../../.agents/skills/vue-testing-best-practices/SKILL.md)、可用 Playwright 与[独立验证](../../../.agents/skills/agenteam-verification/SKILL.md)技能。既有停止任务与未决 Summary 不属于本卡依赖。
+
+## 1. 完整结果与依赖门槛
+
+管理员在“平台配置 → 出站规则”读取当前完整规则，增删改本地草稿并显式完整保存，处理冲突、结果未确认与原请求确认。新路由拟 `/system/outbound-policy`；系统普通入口仍默认用户页。此结果不接凭据、目标测试、外网代理、健康/镜像 Reload、SMTP 测试发送或 Runtime 绑定，不依赖停止的 Object/tools 工作或待决 Summary。
+
+| 依赖 | 已接受事实与本卡边界 |
+| --- | --- |
+| D04 Rules/PolicyService、D07 当前管理员与 Cookie 边界 | 原语义摘要、命令身份/receipt、Audit、版本、当前权限及网络分类已接受；本卡只消费正式端口，不改引擎或写事务。 |
+| 出站 HTTP 两口与同实例 root | `a942779` 已接受；[永久验收报告](../agent-team/system-outbound-policy-http-verification.md)记录同 root PolicyService、原 receipt/较晚 GET 分离、当前撤权、3s/30s与实际尾部及在途响应证据。当前 GET 不证明镜像健康，不新开目标测试或 Reload。 |
+| SMTP 配置与投递后的前端组合 | 配置 `628612c`、投递 `213cf5c` 已接受；固定工厂第九参数是 `smtpDeliveryAPI`，App 使用 `createSMTPSections` 的协调器接入原 SMTP 导航/退出/销毁。后继追加第十参数与独立域，不改原参数次序或协调器。 |
+| 模态、取消与身份导航恢复 | 消费已接受 `fd32120` 本地 focus fallback、`debbb28` 取消读取恢复及 `213cf5c` 新 clean 离页门禁。共享 Ui/layer、SMTP controller/协调器和旧退出协议只读；旧未决确认不能借新身份变成已同意。 |
+
+现有规则足够，没有需用户新增决定的产品含义。SMTP 产品已满足前置，但本 UI 尚未实施；本卡接受也不等于完整 D27、外部网络可达、其他配置页或未绑定 Runtime/Provider/MCP/Project 调用交付。沿已接受测试托管闭包验证前端，不依赖生产 SPA 发布任务。
+
+## 2. 页面与严格 Rules 编辑
+
+页面分为当前配置（版本/规则）、未保存编辑区、保存反馈/历史确认。空规则明确表示内网默认不放行；加载失败为可显式重读的错误，不能伪装成空规则。当前管理员之外不挂载内容；规则仅显示给已确认身份，不写 URL、持久缓存、控制台、遥测、异常 cause 或通用日志。
+
+编辑区使用结构化规则行：CIDR、端口模式“指定端口/全部端口”、端口输入和“允许 HTTP”。新行默认指定端口且为空、HTTP=false；全部端口必须主动选择，不能以空列表代表 all。规则行的增删只是本地草稿，统一保存才写服务端；清空草稿持续说明保存后不再放行内网。没有规则优先级/拖拽排序含义、原始 JSON 导入/编辑器或客户端试连。取消/覆盖重读遵循统一放弃确认；错误保留输入，版本冲突不自动合并或强制覆盖。
+
+窄纯模块 `outbound-rules.ts` 对输入与 DTO 执行同一领域约束：
+
+- 0–256条；cidr 为 Go netip 规范形式且网络位已掩码，完整处于 `10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16` 或 `fc00::/7`。拒绝 IPv4-mapped IPv6、zone、非规范前导零/大小写/压缩、主机位、越界父网和非法 prefix；不借 URL parser 宽松改写，不自动掩码或修正错误 CIDR。
+- ports 为 `"all"` 或1–256个互异的整数1–65535。表单指定端口采用逗号分隔，分隔符两侧可有 ASCII 空白；每项为无前导零的十进制整数，拒绝空项、范围写法、指数/小数、符号、重复、0和溢出。编码生成整数 JSON token。输入端口/规则可未排序，capture 按端口升序及正式 rule JSON 字节序生成确定表示；完全相同的规范规则拒绝，重叠但不同的规则不被 UI 擅自拒绝。
+- 每条发送规则显式包含 boolean allow_http；GET 中它必须存在，不能把缺失当 false。命中网段不自动允许 HTTP，固定禁止地址仍不可放行；SMTP 的加密选择不由 allow_http 代替。保存约束后续请求，不保证在途副作用撤回或某个服务可用。
+
+IPv6 规范解析/格式化与掩码核对仅为规则 grammar 的纯能力；基于正式 `outbound.NewRule/DecodeRules` 的固定正反例核对最长零段/同长取左等格式，不复刻网络分类器、DNS、目标判断或引入新依赖。UI 行 ID 只用于本地 key/label/focus，不进 API。样式局部、规则可换行、错误关联到字段；键盘增删后焦点留在当前存活行或明确本地按钮，不使用全局选择器。
+
+## 3. 两个固定 API、闭合 DTO 与预算
+
+`SystemOutboundPolicyAPI.getPolicy(signal: AbortSignal): Promise<OutboundPolicy>`、`updatePolicy(input: OutboundPolicyUpdate, options: WriteOptions): Promise<OutboundPolicyReceipt>`，其中 `OutboundPolicyUpdate` 为只读 `{expected_version: string; rules: readonly OutboundRule[]}`，只通过现 `accountTransport` 的 `getOutboundPolicy/updateOutboundPolicy` 两条固定 endpoint。GET options 仅 signal、无 query/body；PUT仅 body/signal/csrf/key，使用现 `credentials: same-origin`，禁止调用方自定 URL/method/预算。复用 `client.ts` 已公开的 shape/string/uuid7/AccountFailure、`account.ts` 的 WriteOptions 与 `system-account.ts` 的 parseSystemInstant；不改这些既有校验。输出及深层数组返回不可变值，解析完成前不发布候选。
+
+| 操作 | 精确 wire 与校验 |
+| --- | --- |
+| GET `/api/v1/system/outbound-policy` →200 | 恰 `{version,rules}`；version 规范正 int64 十进制字符串；rules 非null数组，规则恰 `{cidr,ports,allow_http}`，沿§2合法范围/规范顺序/唯一性严格解析。读当前数据库事实，不证明镜像健康或任何命令结果。 |
+| PUT 同路径 →200 | 恰 `{expected_version,rules}`。先完整校验/capture 再生成 intent/key；新保存 expected_version 不能为 int64 最大值。响应恰 `{version,rule_count,audit_id,created_at}`：version 必为原 expected_version+1；rule_count 规范非负十进制字符串0–256且等于原捕获条数；audit_id 为规范 UUIDv7；created_at 复用已接受 canonical UTC 微秒 Instant。receipt 不含当前规则。 |
+
+全对象拒绝未知/缺失/null/错误类型，版本不经 JS Number；端口是安全整数而非字符串。PUT 结构化字段始终用显式允许键编码，不能任意 spread 透传。服务器允许省略 input allow_http 并取 false 的兼容性不变，UI 自己始终发送完整布尔值。原最终语义/权限裁决仍在服务端。
+
+仅新 PUT endpoint 的 UTF-8 serialized JSON 请求上限设1 MiB；其 `rules` 序列化字段独立≤512 KiB，capture 与底层传输各在实际发送前校验，越界零 intent/零请求，不扩大其他 endpoint。GET/PUT成功与Problem均保持现600,000字节响应上限，实际逐块累计、超界 cancel/read 尾部 join，不仅检查 Content-Length。证明上界：CIDR最长43 ASCII字节、每规则256个五位端口、false最长，共每条≤1619B；256规则数组≤414721B；加19位version的GET≤414763B。字符集不含 HTML 转义字符，Go默认 json.Marshal 不再放大；正式最大页验收须采用256条不同合法规则，不能拿重复行当合法输入。
+
+Account 原 Problem/HTTP标头严格解析、安全错误和流取消机制复用；不增 HEAD 或 lookup。公共 COMMIT_UNKNOWN 的 `retry_hint=lookup` 只是原投影，本域确认动作仍为原 PUT，不能路由到 model lookup、调用 GET 冒充 receipt 或创建不存在的端点。
+
+## 4. 当前观察、历史确认与原请求恢复
+
+App期状态分别保存当前观察/编辑基线、普通草稿、最后确认的历史 receipt 以及私有 pending intent。后者绑定完整当前身份和不可变原 key/expected_version/已捕获 body；key/CSRF/完整请求不进入可打印状态。规则不是认证材料，但仍是授权配置，不做跨页面/跨身份持久保存。 capture 保存规范化只读输入和 UTF-8 JSON 的确定内容；重放前核它仍与原 body 相同，不重取当前表单或新 GET 组装请求。同完整 userID/sessionID/epoch 下原捕获 CSRF 即当前合法值；token 改变会换 epoch 并销毁旧 intent，不能把新 token 移植进去。
+
+显式保存完成 capture 后最多派发一次。成功 receipt 只确认该命令，不能把发送草稿当作“现在生效的规则”、不能用 receipt.version 覆盖更高的 GET，也不能因旧 receipt 恢复不可用镜像。确认后允许控制器安排至多一次独立 GET 刷新：它是新的只读 owner 操作，不续期原 PUT预算，不改变写已确认状态；只在本页/同完整身份仍可访问时发出。此后读失败保留确认与草稿/最后观察并标明待重读，不重复 PUT；离页、取消或身份失效后不补发。取得新的可靠 GET 前不以旧 receipt 构造新编辑基线。
+
+除下述合法身份安全清理外，已派发后的网络失败、取消、截断/非法200或 COMMIT_UNKNOWN 都保留原 intent 为结果未确认；按钮明确“用原请求确认”，不是新建保存，也无自动重试。重复使用原 key/body/version及当前已验合法CSRF，收到有效原 receipt 才确认。GET恰好相同/更高版本、后读失败或后一次not_started/not_committed均不能单独洗掉历史不确定性；不得用通用 lookup hint 推导接口。前次已经确认时，后读失败也不推翻接受事实。
+
+先按 §5 的精确配对与原身份/owner守卫处理合法身份安全清理；它优先于未知保留规则，即使 commit_state 为 committed/unknown 也销毁失效身份的恢复资格，但不证明旧写未提交。未派发的本地非法/busy不建请求。除此之外，首次可确认业务拒绝仅为 `(400, INVALID_ARGUMENT)`、`(404, NOT_FOUND)`、`(409, VERSION_CONFLICT)`、`(409, INVALID_STATE)` 四项闭集，并且同时满足合法且与 HTTP 一致的 Problem、commit_state 为 not_started/not_committed、该 intent 此前从未进入结果未确认；只有此时可结束该次尝试。VERSION_CONFLICT保留草稿并要求人工选择重读/复核后用新基线新key提交。
+
+闭集外其他已派发失败，包括所有5xx、未知code、code/status错配、committed/unknown或非法/截断响应，都保留原intent与结果未确认；尤其 `503/DEPENDENCY_UNAVAILABLE/not_started` 不能认定未提交。固定 `policy.go:420–425` 在事务已提交后仍可能 publish 失败，而 `error.go:22,34` 给该错误 NotStarted；这是静态路径依据，不声称本卡动态制造过该故障。`IDEMPOTENCY_KEY_REUSED` 单列为原key冲突，保留原材料与key，不自动换key；已有结果未知也不能被其或后续四项闭集拒绝洗掉。合法身份清理以外，历史不确定仍保留原恢复身份，安全错误不能冒充receipt。明确放弃仅丢弃本地恢复信息，不声称已回滚/未提交；离页确认说明这一点。
+
+后端同User新Session可合法重放是领域能力；本 UI 仍沿既有完整身份/epoch隔离，不把旧Session的pending intent迁给新身份。安全清理若使恢复资格失效，不能为了恢复请求保留旧CSRF或旧owner。无 lookup、没有 Receipt browser存储/导出/导入。
+
+## 5. Cookie owner、读取取消与确认焦点
+
+固定 `useSession.ts:382–392` 的前九参数依次为 Account、SystemAccount、Invitation、Provider、Model、ModelSelection、AccountSecurity、SMTPSettings、SMTPDelivery API；末尾追加第十个可选 `outboundAPI: SystemOutboundPolicyAPI = createSystemOutboundPolicyAPI()`，旧调用与 mocks 兼容。增加明确 `outbound-policy-read/write` kind、独立 revision、私有 intent 和 `auth.system.outboundPolicy` 域，显式加入 `runAuthorized` 分类，不能落入 provider 或 personal 默认分支。所有 Cookie 操作复用唯一 owner；原30秒可见预算和 fetch/body read/cancel 的实际 finally join 保持，逻辑结束不能提前释放 owner 或让其他域/新身份越过。服务端 GET3s/PUT30s保持，客户端超时不是回滚。
+
+本域与 personal、用户目录、邀请、Provider、Model、Selection、账号安全、SMTP配置、SMTP投递的 abandon 双向隔离；API 的放弃读取只退休本域读，完整放弃才清本域恢复信息。App.dispose/auth.leave 仍是全局清理。身份安全清理先要求合法 AccountFailure Problem，并保持当前完整 identity 与 owner generation 的原守卫：`(401, UNAUTHENTICATED|SESSION_REVOKED)` 沿现 unavailableSession 清理；仅新增 `outbound-policy-write` 的 `(403, CSRF_FAILED)` 纳入同一身份清理，不能只看code；`(403, FORBIDDEN)` 另外要求现有 current()，清全部 system 私有状态并发布原身份绑定拒绝。三类合法安全配对优先于 §4 的结果未知保留，不依赖 commit_state，但不把安全清理当作写入确认或未提交证明。固定 useSession 的401/FORBIDDEN配对和旧域 CSRF 分支保持，本卡只给新write增加403门禁；401/403数字、未知code或错配本身不得触发清理。
+
+换身份/注销沿已验会话纪律，旧身份迟到失败不污染新身份；不能只清新页，也不能改 User.role 或借旧 GET 解除拒绝。系统整体失效、Session/CSRF变化与全局清理入口同样纳入本域，旧实际尾部未结束不能设空 owner。
+
+临时 checking 隐藏内容但保留同身份 App 草稿、intent 与确认 Promise。放弃/取消/卸载当前读取时，由同步退休步骤推进读代次并把该次无活读取的 loading 改为明确可重读 error，保留有效观察与独立未确认写；旧 catch/finally 不晚写新代次，不能因 busy=false 留永远 loading。首次从未派发的页面读可等 owner 实际终局后启动一次；已取消/失效的读取不自动续发，显式重读才重新获取 owner，不放宽 canSave。确认成功后的至多一次 GET 依§4作为新的只读操作，不让离页/checking/失效旧续体后台补发。
+
+App 创建/provide `createSystemOutboundPolicy(auth)`，负责状态、导航 hook、退出与 dispose；View只负责DOM且本叶子/已确认管理员身份才 attach。固定 `App.vue:100–112` 使用 `smtpSections` 统一 SMTP 导航与退出，本卡在其后追加出站确认，不拆成 smtp/smtpDelivery 两次确认，不改 `createSMTPSections` 或既有 SMTP availability。`installOutboundPolicyNavigation` 沿现 router hook 结构，仅从新精确叶子离开才确认，并先于 Session 重验；成功导航才 afterNavigation。原本人入口/浏览器返回/beforeunload及退出协议不变。
+
+新 controller 未激活且无 dirty 的新调用不得阻塞其他叶子或退出。新的 clean 离页还可在入口已无 dirty/无实际 busy 且满足下列之一时放行：已清理 anonymous（personalContext=invalid、identity=null）；或稳定 authenticated/current、完整 identity 存在且 state.user/session ID 与其相同，并且当前角色非 admin **或** system.denied。不能把非admin遗漏为只判断denied。须在调用入口捕获 inactive/clearedAnonymous/clearedRejected 资格，await 后重核同一调用/代次、仍相同活动状态与对应条件；rejected 还须同一完整 identity。checking/failed 不产生新的 cleared 资格，等待中清理或换身份不能使旧待决确认追获权。checking 中旧 Promise 保留，真正离页/身份失效/失权/dispose 则以 false 结算旧待决 Promise，旧导航/退出续体不能迁到新身份；这与随后另一次 clean 导航允许离开分别验收。
+
+View末尾常驻一个 UiDialog 组件，open 控制内部 overlay，不用外层 v-if 或新增 App 常驻 Dialog。现 `UiDialog.fallbackFocus` 类型是 `HTMLElement | null`：以本 View 当前标题 `tabindex=-1` 的本地 ref 生成 computed 值并传 `:fallback-focus="fallbackFocus"`，不是函数或开层 snapshot；只有本实例仍活、personalContext=current、完整身份仍与实例捕获值相同且admin/system未拒绝时才返回节点。组件在 normal close 同步读取最新 prop，优先合法且实际受焦点的原 trigger，有剩余modal不越界，unmount不新增fallback；确认打开时 mounted 标题不抢焦点，旧实例await续体不得focus新页。
+
+pageshow checking共同卸载View/确认DOM，App Promise不迁移；503时App恢复按钮可用，无残留overlay/inert/滚动锁；同完整身份恢复后原确认仍可回应，零自动PUT/key/答案。正常继续/放弃沿共享恢复回当前合法触发器/本地fallback，不用全局选择器、手动确认焦点或反复重挂修复。规则行本地增删的焦点定位只用仍挂载实例的局部 refs，不改 SettingsShell、UiDialog、UiDrawer、useLayer 或全局 CSS。
+
+## 6. 唯一候选范围（34路径，未授实施）
+
+以下按固定 `213cf5c` 核定十九核心加十五旧测试窄适配。只有主线程另授唯一 frontend_worker 后才有对应写权；第19 README 必须在其余源独立接受后最后写。当前只允许本私有规格材料，不给产品/测试/资源写权。共享 client/useSession/App/router/系统壳与旧测试由主线程统一移交，不消费未接受候选。
+
+| # | 路径 | 最小用途 |
+| --- | --- | --- |
+| 1 | `web/src/api/client.ts` | 两固定endpoint/options与仅新PUT的1MiB请求分类；原响应/错误/实际尾部保持。 |
+| 2 | `web/src/api/outbound-rules.ts`（新） | CIDR/ports/Rules纯解析、规范capture及不可变类型；不含网络请求。 |
+| 3 | `web/src/api/system-outbound-policy.ts`（新） | 两API、闭合DTO/receipt关联核对、512KiB字段预算。 |
+| 4 | `web/src/composables/useSession.ts` | 第十依赖、新独立域/私有intent、当前权限和owner实际尾部。 |
+| 5 | `web/src/composables/useSystemOutboundPolicy.ts`（新） | App期编辑/观察/历史receipt/pending协调、取消/冲突恢复与确认Promise。 |
+| 6 | `web/src/App.vue` | provide、新导航/退出/dispose接入，保持smtpSections；不新增Dialog宿主。 |
+| 7 | `web/src/router/index.ts` | 新精确 `outbound-policy` 子路由，原 `/system` 默认用户保持。 |
+| 8 | `web/src/router/auth.ts` | 第十二精确return及本域导航hook；原SMTP协调器接口/重验顺序/退出保持。 |
+| 9 | `web/src/views/system/SystemSettingsView.vue` | 既有平台配置组末尾追加“出站规则”；八叶、三组，无未做页入口。 |
+| 10 | `web/src/views/system/SystemOutboundPolicyView.vue`（新） | 结构化规则行、状态/反馈、末尾确认及局部布局。 |
+| 11 | `web/src/tests/outbound-rules.spec.ts`（新） | 正式grammar向量、CIDR规范/掩码、重复/排序/最大形状。 |
+| 12 | `web/src/tests/system-outbound-policy-client.spec.ts`（新） | 两wire、receipt/预算、原生流取消与零候选。 |
+| 13 | `web/src/tests/system-outbound-policy-state.spec.ts`（新） | 生产controller+受控transport，未知/历史隔离、双向owner/实际尾部。 |
+| 14 | `web/src/tests/system-outbound-policy.spec.ts`（新） | 真实App/router/factory组合，确认重挂、新clean离页/旧pending、菜单/十二return。 |
+| 15 | `tests/account/system_outbound_policy_web_test.go`（新） | 四个真实UI顶层，正式规则写入/权限/版本/receipt/Audit旁证。 |
+| 16 | `tests/account/system_outbound_policy_web_fixture_test.go`（新） | 正式自有root与专用launcher、有界响应控制；无SMTP socket/目标请求。 |
+| 17 | `tests/account-captcha-web/system-outbound-policy.config.js`（新） | 专用有界配置与任务私有输出。 |
+| 18 | `tests/account-captcha-web/e2e/system-outbound-policy.spec.ts`（新） | 生产dist与真实API的完整场景、原生焦点与布局。 |
+| 19 | `docs/development/frontend/README.md` | 最终独立接受后最后同步八叶/十二return、能力/证据及未交付边界。 |
+| 20 | `web/src/tests/system-user-directory.spec.ts` | 固定213:217菜单数组仅追加出站规则；默认用户/权限保持。 |
+| 21 | `web/src/tests/system-invitations.spec.ts` | 固定213:286菜单仅追加一项，分组三个不变。 |
+| 22 | `web/src/tests/system-providers.spec.ts` | 固定213:327菜单追加一项，319全系统总数说明七→八/十一→十二；其余不变。 |
+| 23 | `web/src/tests/system-models.spec.ts` | 固定213:449菜单仅追加一项，三组及原CRUD/impact强断言保持。 |
+| 24 | `web/src/tests/system-model-selection.spec.ts` | 固定213:527菜单追加一项及519全系统叶子说明；原取消/保存门禁保持。 |
+| 25 | `web/src/tests/system-account-security.spec.ts` | 固定213:266菜单仅追加一项；三组/恢复/权限与焦点原断言保持。 |
+| 26 | `web/src/tests/system-smtp-settings.spec.ts` | 固定213:308菜单追加一项，300只校正当前总数措辞；SMTP仍原第七叶/第十一return，分区/密码/确认原断言保持。 |
+| 27 | `web/src/tests/personal-settings.spec.ts` | 固定213:474起return集合增加新精确目标及其query/hash/trailing/extra/数组反例，说明十一→十二；旧退出保持。 |
+| 28 | `tests/account-captcha-web/e2e/system-invitations.spec.ts` | 固定213:1528，唯一全系统Drawer link count7→8。 |
+| 29 | `tests/account-captcha-web/e2e/system-providers.spec.ts` | 固定213:1192，唯一全系统link count7→8。 |
+| 30 | `tests/account-captcha-web/e2e/system-models.spec.ts` | 固定213:1923/1991，两处全系统/Drawer link count7→8。 |
+| 31 | `tests/account-captcha-web/e2e/system-model-selection.spec.ts` | 固定213:1922/2081，两处link count7→8，取消强断言保持。 |
+| 32 | `tests/account-captcha-web/e2e/system-account-security.spec.ts` | 固定213:1112/1189，两处link count7→8。 |
+| 33 | `tests/account-captcha-web/e2e/system-smtp-settings.spec.ts` | 固定213:1311/1491，两处link count7→8及1299总叶数说明；原 `eleventh_return` 仍描述SMTP目标，协议字段/其余断言不改。 |
+| 34 | `tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts` | 固定213:1424/1555，两处link count7→8；两分区、真实确认与所有业务断言保持。 |
+
+`web/src/tests/system-smtp-delivery.spec.ts` 已核无固定全系统数量/菜单数组，不纳入写范围，其现有强断言照常参加纯回归。上述七个旧browser文件合计十二处 count7→8；只有数量及相关全系统说明适配，原Tab/遮罩/Escape/focus/身份/恢复/取消断言不弱化，不修改旧Go selector或事实字段来配合新计数。
+
+后端引擎/HTTP/OpenAPI、迁移、旧业务 API/controller/View（包括SMTP配置和投递协调器）、公共fixture/driver、共享Ui、锁文件、全局样式及其它档案均只读。需要新路径/公共语义或发现前置实际缺陷时先报主线程，不借兼容理由扩大范围。所有既有调用保持原默认参数和endpoint限额；没有新的后端、生产托管或运行绑定前置。
+
+## 7. 有界验收与证据边界
+
+纯/组件先验：最大合法256×256规则与正式 Go grammar 对照，IPv4/ULA边界、掩码/压缩/同长零段/mapped/zone反例；unknown/null/字段/端口/重复、版本边界、GET414763B保守上界和600000B超限的实际流cancel join；PUT两项独立字节门禁及其他endpoint预算不变。非法输入在生成key/intent前拒绝；不能以两个同源JS函数互相比较代替正式引擎依据，最大真实读取由正式HTTP写入不同合法规则再GET验证。
+
+生产controller+受控transport分层阻塞fetch、原生Response body与cancel：30秒可见结束/显式取消/放弃/身份变化后，实际finally未join前owner仍忙且所有Cookie域不得越过，旧结果零发布；同步退休loading为可显式重读error，不自动补发。双向屏障至少以personal、SMTP配置私有密码及SMTP投递原intent为代表，静核所有域分类/清理入口；旧前九参数省略调用不触发新页请求。覆盖 §4 四项闭集首次拒绝正例；`503/DEPENDENCY_UNAVAILABLE/not_started`、未知code、code/status错配、committed/unknown及非法响应都保留原intent；先unknown再400/409闭集拒绝仍不洗掉历史。覆盖合法401会话配对、403/FORBIDDEN及本域write的403/CSRF_FAILED优先清理，即使 committed/unknown 也销毁失效身份恢复资格而不确认旧写；503/400+CSRF_FAILED、错配401/403及未知code不能误清，旧身份迟到安全错误不影响新身份，旧域分支不变。确认后GET失败保留receipt、历史receipt不盖较新观察、原key/body/version/同身份CSRF精确重放、IDEMPOTENCY_KEY_REUSED保留原材料/key且不换key。COMMIT_UNKNOWN及上述故障受控Problem只验分类/恢复分支，不冒充真实DB Unknown或真实提交后镜像故障。
+
+真实App/router/factory纯测：八叶/三组/十二精确return与新query/hash/trailing/extra/数组拒绝；脏表单统一确认、active与inactive离页、新的未激活clean/已清理匿名/稳定current非admin/system.denied正常离开及旧pending身份失效false分别覆盖；checking/failed或等待中才清理不能给旧调用补资格。打开确认后用生产pageshow listener合成checking/一次Session503/显式同Session恢复，确认仍可回应、无残留overlay/inert、零自动PUT/key；同身份重挂后normal close读取当前本地fallback，旧实例/unmount不恢复。jsdom只证明状态/层序，真实browser另证焦点/Tab，不把合成pageshow称为BFCache。App仍通过smtpSections协调SMTP两分区，默认配置不多读投递API、不多写测试。
+
+四个新真实组（以下均仅为待实施验收要求，本卡没有执行）：
+
+| Go顶层 | 必要证据 |
+| --- | --- |
+| `TestAccountSystemOutboundPolicyWebRulesAndRead` | 正式空配置、不同合法最大规则读取、structured编辑/增删、all主动选择、invalid零PUT和读取失败非空；正式GET/页面所见一致。 |
+| `TestAccountSystemOutboundPolicyWebMutationAndRecovery` | 完整保存、两管理员同expected_version竞争只一接受、真实版本冲突保留草稿与人工复核；接受后自有代理有界丢响应，另一正式写推进当前，再原key/body重放得到历史receipt、较新GET不被回退；同key异义保持原拒绝，原command/Audit精确关联且各一次。 |
+| `TestAccountSystemOutboundPolicyWebAuthorityAndOwnership` | 正式普通用户/当前撤权、合法/失效CSRF、读/新写/历史重放的当前权限；清本域与现system私有状态、身份隔离和实际尾部，禁止用伪403或SQL改策略/receipt冒充正式事实。 |
+| `TestAccountSystemOutboundPolicyWebNavigationAndLayouts` | 默认用户与八叶/十二return、菜单/退出/返回；dirty或unknown确认打开→pageshow503→同身份恢复→继续/放弃，精确当前可操作焦点/Tab；取消pending读可显式重读，新clean离页与旧pending隔离；light/dark×390/768/1024/1440八图、长CIDR/端口/错误、reduced-motion/Drawer/Escape/遮罩、无外层溢出。 |
+
+真实只用正式命令/Session产生事实，SQL只旁证任务自有policy/receipt/Audit及沿已接受fixture的精确账号准备/撤权；不直接改policy/receipt/Audit、镜像或提交结果。命令唯一性按正式namespace/name/actor/semantic与Audit关联核对，不能以全库增量替代；原key/body/CSRF只在私有内存比较并输出布尔，不输出材料/其hash或规则清单。截图前无私有恢复材料或确认overlay，逐图查布局；trace/video/自动失败截图/原始网络body采集关闭。
+
+旧纯回归跑正式 `npm run check --prefix web`，受影响Go integration只编译/vet/发现与browser type/list先于真实。旧browser仅十二处菜单计数改变，不据此机械重跑每张旧卡全部业务组；最低实际兼容组合为原 `TestAccountSystemSMTPDeliveryWebNavigationAndLayouts`（最终协调器与双确认）、`TestAccountSystemSMTPSettingsWebOutcomeRecovery`（私有密码原请求）及 `TestAccountSystemSMTPDeliveryWebOutcomeRecovery`（unknown/GET非receipt）。其余旧导航原源/强断言以精确count差量、全套pure及新完整导航结果复用；若新增共享行为差量/失败或未解疑点，再由主线程按受影响范围补授，不宣布未运行的旧顶层本轮PASS。第34路径两处数量适配不意味着重跑SMTP原五新五旧。
+
+后端同policy实例/真实受控目标/Unavailable镜像/DB Unknown等未变语义复用已接受HTTP和D04证据。UI真实用任务自有隔离root/PG/必要MinIO与测试同源托管的冻结production dist；响应截断/hold仅在专用测试接缝、正式服务返回后发生，不伪造200/receipt或放宽生产分类器。新fixture不引入SMTP listener/CA或目标试连，不依赖生产SPA发布或外网；原整体ready503/未绑定Runtime保持。
+
+普通命令45秒、Playwright每test45秒、关键Go顶层2分钟、workers=1/retries=0、race/count1/每包6分钟保持，分组不续期或早杀掩盖尾部。独立验收按高风险选择真实代表与原生stream屏障，固定输入/依赖/所serve dist/工具与资源nonce；保留首红、实际argv/env/退出及安全raw。每轮actual wait、server/browser/socket/worker及owner join、精确资源ID与PID/starttime/adopted wait、前后门禁及baseline双扫完成后才移窗；不得读旧非自有资源或把超时触发当清理完成。当前只有规格候选，34路径产品与任何资源均未授权，完整D27/E01及Summary/Object/tools等边界不因本卡完成。

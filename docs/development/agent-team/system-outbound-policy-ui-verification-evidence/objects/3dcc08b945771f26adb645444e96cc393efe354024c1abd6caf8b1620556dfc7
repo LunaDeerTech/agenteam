@@ -1,0 +1,18 @@
+# Outbound UI 独立真实准备：OFFLINE READY
+
+未启动服务、端口、浏览器或 Docker；真实 A/B 仍未运行，须由 root 另授唯一资源窗口。
+
+固定作者 `input05/manifest.json` SHA `c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a`；33 候选、38 dist、1014 接受依赖逐项匹配，产品基线 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`。实际 cwd `/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace`。相对 input02 只有作者新 browser 测试前提/安全观察变化；独立两测试体原字节不变，所保留但未调用的 cancelledRead helper 不参与两代表。
+
+执行输入 [execution02.json](execution02.json) SHA `0ab8c0c4527a51af19a22b34a8e5471499615de7bbf2c533d794b64900351f79`；driver [driver01.py](driver01.py) SHA `5866e74899f5d7bf933ddd0aee4988fe5f5d4cae9d2348bc1f64a871e4ce8492`。沿作者 driver02 完整 Mounts 多重集合比较及 raw/canonical 差异保留，新增仅固定 cwd/两 selector/overlay/私有前后门禁、自有 GOCACHE、显式授权门禁与外部历史 Z 归属说明。绑定 4893 runtime 文件与 17 私有文件，不复制依赖树。fixture 仅替换私有 config 路径，proxy/IPC/SQL/worker 不变。
+
+- race `go test -c`：actual0 / 31.202s；vet：actual0 / 7.761s。
+- 严格 TS type02：actual0 / 1.219s；两个 Playwright `--list` 各恰 1 例；绑定编译产物 SHA 的 Go `-test.list` 恰两个顶层。
+- driver gate02：actual0 / 1.617s，候选/dist/依赖/私有输入全部匹配。
+- 每项 command/raw/result/input-before/after/cleanup 位于 `runs/<name>/`，精确索引在 [preparation-ready01.json](preparation-ready01.json)。全部实际 wait、输入未变、子 PID/starttime 双扫空，0 adopted waits。编译临时二进制在自有 `/tmp`，完成发现后保留 SHA 并删除；未动共享缓存。旧作者 Z89884/start540243 不属本任务，未回收也不称回收。
+
+A 预备覆盖 accepted-cut、另一正式管理员推进 current、Session/GET 不确认、同原 body/key/合法 CSRF 历史 replay、原命令 receipt/Audit 唯一、确认后 GET503 仅重读。B 预备覆盖待决离页确认中 Session503→新序号同身份 200 EOF 恢复、原生 focus/Tab、当前 Session 撤销清草稿与旧 pending、重登录后的新 clean logout。实际事实与断言到达情况须待真实轮证明；纯 owner 尾部证据只复用已验 A/B/C 阶段，不以浏览器观察替代。
+
+保留三处私有前提：input04 门禁看到作者已冻 input05 的 browser 更新（未编译）；closure01 将固定脚本 `objectstore` 路径误写为 `objects`（actual1）；type01 少 `DOM.Iterable`（actual2）。后两原 raw/命令/清理均保留，分别命令单路径及新增配置文件修正。list01 原已通过，list02 仅增加编译二进制 SHA 的发现绑定。作者原 read/followup actual1 及旧失败现场限制不改写。
+
+未来最多 2 tops / 7 exact resources；每 top 2m、browser 45s、包 6m、race/count1、worker1/retry0。无新资源授权，本准备结论不是产品最终 PASS。

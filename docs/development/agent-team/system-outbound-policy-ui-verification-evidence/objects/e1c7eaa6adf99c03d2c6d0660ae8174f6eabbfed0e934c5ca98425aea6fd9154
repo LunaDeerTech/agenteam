@@ -1,0 +1,11 @@
+# Driver-only revision after read01
+
+The read browser passed (11.8s) and the exact Go top passed (14.68s). The shell command actually exited 0 after 84.641s, but the driver tool exited 1: its first cleanup baseline comparison failed and its second passed. Both original scans found all seven owned resources absent, all 100 observed PID/starttime pairs absent, and runtime directories empty. The original first current snapshot was not retained, so its specific cause remains unproven. No later business group was started.
+
+Read-only followup01 retained actual exit 1. Its complete first snapshot showed exactly the two unchanged Mounts objects of the pre-existing MinIO container in reverse order; all fields and values were identical. The second snapshot matched the original array order. This subsequent evidence does not reconstruct the missing original snapshot.
+
+Root authorized full-object Mounts multiset comparison. Driver02 sorts each complete mount by canonical JSON, preserving every field, value and duplicate. Cleanup now saves raw current resources and raw/canonical baseline differences. All other cleanup predicates, two scans, selectors, process waits and budgets are unchanged. Read-only followup02 used that exact helper, actually exited 0 after 1.199625s, and retained both full snapshots: all six baseline resources matched, the seven owned IDs and 100 PID/starttime pairs were absent, and both runtime paths were empty or absent. Original read01/followup01 files are unchanged.
+
+The single input-gate03 check actually exited 0 after 0.978s. All 33 source files, 38 dist files, 1014 fixed accepted files and 15 locked dependency records remain identical to input02. No business, type or build matrix was repeated. The existing task-owned zombie PID 89884/starttime 540243 from runtime-go-compile01 remains explicitly unreaped; it is not attributed to read01 or reclassified as unrelated history.
+
+The six remaining individual groups are listed in startup-plan03.json. They remain unstarted pending root review and window confirmation. read01 is not scheduled again.

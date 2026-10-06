@@ -1,0 +1,5 @@
+=== RUN   TestOutboundUIFormalRulesOracle
+    outbound_ui_rules_oracle_test.go:27: formal_vectors=53 canonical_order=true max_distinct_rules=256 rules_bytes=414721 get_bytes=414763
+--- PASS: TestOutboundUIFormalRulesOracle (0.02s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbound	0.027s

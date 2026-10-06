@@ -1,0 +1,62 @@
+--- input04/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts
++++ input05/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts
+@@ -664,7 +664,13 @@
+   ).toBe(true);
+   return dropped.receipt as Receipt;
+ }
+-async function cancelledRead(page: Page) {
++async function cancelledRead(
++  page: Page,
++  expectedFailureTitle: "出站规则读取失败" | "保存已确认，当前规则读取失败",
++) {
++  await expect(
++    page.getByLabel("本次保存的历史确认", { exact: true }),
++  ).toHaveCount(expectedFailureTitle === "保存已确认，当前规则读取失败" ? 1 : 0);
+   const before = (await facts(page)).filter(
+     (f) => f.path === endpoint && f.method === "GET",
+   ).length;
+@@ -678,7 +684,25 @@
+     .toBe(true);
+   await expect(button(page, "取消读取")).toBeEnabled();
+   await button(page, "取消读取").click();
+-  await expect(title(page, "出站规则读取失败")).toBeVisible();
++  try {
++    await expect(title(page, expectedFailureTitle)).toBeVisible();
++  } catch (error) {
++    try {
++      console.log(
++        "safe cancellation heading summary:",
++        JSON.stringify({
++          expected: expectedFailureTitle,
++          readFailurePresent:
++            (await title(page, "出站规则读取失败").count()) > 0,
++          confirmedReadFailurePresent:
++            (await title(page, "保存已确认，当前规则读取失败").count()) > 0,
++        }),
++      );
++    } catch {
++      // Diagnostics must not replace the original failed assertion.
++    }
++    throw error;
++  }
+   await ipc("release-read");
+   await expect
+     .poll(async () => {
+@@ -1002,7 +1026,7 @@
+   await currentRead(page, 0);
+   await addRule(page);
+   await save(page);
+-  await cancelledRead(page);
++  await cancelledRead(page, "保存已确认，当前规则读取失败");
+   let original = await session(page),
+     after = await seq(page);
+   await ipc("demote", original);
+@@ -1394,7 +1418,7 @@
+   after = await seq(page);
+   await nav.getByRole("link", { name: "出站规则", exact: true }).click();
+   await currentRead(page, after);
+-  await cancelledRead(page);
++  await cancelledRead(page, "出站规则读取失败");
+   await addRule(page);
+   const back = page.goBack();
+   await expect(top(page)).toHaveAccessibleName("放弃未保存的规则？");

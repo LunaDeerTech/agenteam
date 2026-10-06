@@ -1,0 +1,8 @@
+{
+  "kind": "private manifest-reader prerequisite",
+  "tool_chunk_id": "d964f1",
+  "actual_shell_exit": 1,
+  "observed_error": "KeyError: candidate_sources, line14 of inline preparation script",
+  "cause": "Stage A manifest names its candidate map files, while owner manifest uses candidate_sources. No product probe or resources started; source copy/130Git/dist verification had reached completion.",
+  "recovery": "Use the exact documented key for each manifest; continue in the same private scratch, leaving frozen author inputs unchanged."
+}

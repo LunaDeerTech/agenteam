@@ -1,0 +1,37 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-outbound-ui-page-independent-m0xb6xif/source/web
+
+stderr | src/tests/independent-outbound-app.spec.ts > Independent frozen Outbound App risk combinations > A preserves a pending public decision through checking503 and same identity, but never grants it a later identity
+[Vue Router warn]: No match found for location with path "/forgot-password"
+
+ ❯ src/tests/independent-outbound-app.spec.ts (2 tests | 1 failed) 672ms
+     ✓ A preserves a pending public decision through checking503 and same identity, but never grants it a later identity  439ms
+     × B explicitly adopts conflict state, preserves a confirmed draft across failed GETs, and leaves other clean domains without new Cookie writes 232ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/independent-outbound-app.spec.ts > Independent frozen Outbound App risk combinations > B explicitly adopts conflict state, preserves a confirmed draft across failed GETs, and leaves other clean domains without new Cookie writes
+AssertionError: expected undefined to be true // Object.is equality
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ src/tests/independent-outbound-app.spec.ts:449:42
+    447|     expect(await f.router.push('/system/smtp')).toBeUndefined()
+    448|     await flushPromises()
+    449|     expect(heading('SMTP')?.isConnected).toBe(true)
+       |                                          ^
+    450|     const outboundReads = f.reads().length
+    451|     // This domain is now inactive. Ordinary SMTP public controls rema…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  21:38:59
+   Duration  2.32s (transform 967ms, setup 0ms, import 1.15s, tests 672ms, environment 370ms)
+

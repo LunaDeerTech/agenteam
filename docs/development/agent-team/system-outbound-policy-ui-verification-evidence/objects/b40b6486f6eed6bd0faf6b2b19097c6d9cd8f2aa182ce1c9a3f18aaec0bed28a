@@ -1,0 +1,18 @@
+# Outbound UI 阶段 A 独立结果
+
+**有界 PASS：静核无阻断，两个独立离线组合首轮全过。** 固定作者 `/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/api-stage01/manifest.json` SHA256 `8e26090e5dd83b0f038af4ece33c52b0d04279db3e1d8513336eef0e1f067267`；五候选和十二接受依赖逐SHA核对，产品基线 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`，正式卡 `f843506d9ec991be1c334a81b88d5cbacc277467` / 技术 `343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b`。
+
+独立运行原件在本目录 `runs/api01/`：Node actual wait exit **0 / 0.471040s**，监督命令工具也实际 exit0。单 Node PID54330/starttime345436，启动前 subreaper；1个所属PID/starttime两扫均空、0 adopted waits、自有TMP已删，输入与运行时前后完全相同。未运行浏览器、监听器、Docker、真实HTTP或其他业务资源；未改主树、产品或Git。
+
+- **A canonical / 严格wire与receipt：** 从实际正式Go oracle取十个关键CIDR正反向依据，另核独立规则/端口排序组合、合法重叠、规范重复、GET不得静默重排、深层冻结和源对象变更隔离。核固定GET/PUT与原请求材料、较高当前观察和较低历史receipt分离、原expected+1/count与闭合receipt、整页坏尾项零候选、最大int64边界。256条不同合法规则的Rules414721B、GET414763B确实由生产JS与原生Response处理通过；这是离线wire事实，不冒充正式HTTP最大读取。
+- **B 原生尾部 / 双预算：** 600000B含有效完整JSON仍须等待真实EOF；600001B实际字节超限（非Content-Length）、显式abort和text/plain错误媒体三路原生cancel均用屏障确认未提前settle，放行后才实际结束。实际序列化rules字段的getter仅读一次，512KiB字段与1MiB整包独立UTF-8门禁、旧16KiB限额和GET封闭options保持。预算直测故意使用transport级非领域形状，不称合法规则能达到更高请求上限。503/CSRF_FAILED等安全投影保持原status/code/commit供后续owner分类，API不把hint变lookup。
+
+静态复核完整新增Rules/API模块、client精确差量和两作者测试，未见越界端点、允许字段透传、旧响应限额扩大或尾部提前完成。五个运行模块只用锁定TypeScript擦除类型后在同一个Node进程执行；不是新一轮全type-check，作者最终type/format证据按固定字节复用。
+
+作者历史如实保留：api-pure01为176PASS/1FAIL，错误是旧createModelCredential测试添加不支持target并设201；api-pure02只该例1PASS/37skip。已逐字证实三个产品源未改，测试只修target/status前提，不称第二轮全177重跑。正式Go oracle53向量、排序及不同合法最大样本原actual0/7.317s被引用而未重跑；其95项Git源码/锁前后相同并与固定基线逐SHA一致。原raw/command/source仍在作者冻结根，索引见本目录 `author-manifest.json` 与 `static-review01.json`。
+
+本阶段不证明owner未知粘性、安全清理、30秒可见期限、跨域互斥、App/原生焦点或正式服务事务。无需追加API矩阵，后续owner/page按新冻结输入单独验收。
+
+精确独立输入：`execution01.json` SHA256 `e995a4642b74c50ebfa3cb7772a4aaa2e199f3ed413bbc6dcad519e9e7c1aa4c`；原探针 `probe01.cjs` SHA256 `ba745a2356088cd4c8df1ce9df5d8573ab60a242629d65a6ebfcb0d1093cef4f`；监督器 `run_offline01.py` SHA256 `4e0e4c3b76154f0df08ed75b6cc1a37417c2d8ad1c47f0fec337a079dd5edcfa`。命令、环境、compiled派生字节、前后输入与清理均保留；只有两个独立组合，无独立首红或重跑。
+
+关键原件 SHA256：raw `6731f04133fac255e19934f2926a2c93a4e25159827a1f83ab4bca71e2550e1e`；result `7dfdb7f0150b57e1aa7fdf68dd5c50bdc6cd152ad0ae2b9c50069b4f7977f00c`；command `c71c53ed0c16f77c31aefba80235ed985fc9f009087d3d6debe91a8eeeb3a0f6`；cleanup `393e4ce7a440ecf7bb9a79e2276265b99a9b209c0575256c00dfa729cc841626`。本阶段源、probe、运行原件及报告均停止写入。

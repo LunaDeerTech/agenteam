@@ -1,0 +1,4 @@
+BEGIN A canonical-and-receipt
+PASS A {"formal_vectors":10,"strict_wire_and_receipt":true,"deep_immutable":true,"canonical_max_rules_bytes":414721,"canonical_max_get_bytes":414763,"actual_http":false}
+BEGIN B transport-and-native-tails
+PASS B {"native_eof_required":true,"exact_response_limit":600000,"overflow_actual_bytes":600001,"cancel_barriers_joined":3,"transport_serialized_field_read_once":true,"request_rules_limit":524288,"request_total_limit":1048576,"old_budget_unchanged":true,"owner_classification_not_tested":true}

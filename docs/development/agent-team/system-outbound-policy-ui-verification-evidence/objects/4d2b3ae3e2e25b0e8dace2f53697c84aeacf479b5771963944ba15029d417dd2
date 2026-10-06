@@ -1,0 +1,15 @@
+# Outbound independent01 终局与 B 私有前提修正
+
+原轮 **actual1 / 125.159s** 保留：A 完整 PASS（browser4.0s / top8.57s），B 在二次登录后的 URL 前提失败（top15.49s）。7 exact IDs、153 PID/starttime 两扫空、8 adopted actual waits，原2c4n保持、runtime空、输入前后同字节；原窗口已交回。原 command/raw/result/cleanup 精确 SHA 见同名 JSON；不将原轮或 B 改写为 PASS。
+
+静态链闭合：私有 login helper440–462 只 fill/click/等待 Session，不做 goto；固定 App131–134 在当前身份失效后 `replace('/login')`；固定 LoginView118 及 safeReturnTarget 将无合法 return 的登录成功送回 `/`。初始 protected-entry guard 带 return 是另一条链。原 raw 只显示二次登录后 `/`；之前的宽 login 正则未独立记录精确 query，不能补称已实测 bare URL。
+
+B 原轮已到达同身份503恢复与原生focus/Tab、当前Session401/SESSION_REVOKED EOF、login可见/overlay0/旧form0/zeroPUT。新Session ID不等、返回Outbound后空草稿、最终cleanlogout等位于原失败之后，均未计通过。
+
+已获 root 授权的最小修订仅 B：先精确 bare login→首页，在新显式导航前验证新Session/overlay0/零users/零PUT；记录水位后通过真实“系统导航→系统设置（users）→出站规则”，明确允许并验证新导航后的 users GET200，再等 Outbound GET200 EOF，保留空草稿、无原重试、zeroPUT与cleanlogout。users 仅原观察器 request/status 事实，不伪造其 EOF；不调用 reload/goto。
+
+原完整 probe 已按原 SHA `ca11e2b4b56a2a22d050eef4087cd73c3d69a9f8fdb1d4be2806e242c31c1763` 保存在 [repair02/original.spec.ts](repair02/original.spec.ts)，与原 run 输入前后记录完全相等；A/helper 前缀不变。精确差量 [repair02/probe01-to02.diff](repair02/probe01-to02.diff) SHA `47cd7b520d7bc27057d57ed8465fcab2f4dd7e1c2069284c7683d054cf3cf684`。Go/fixture/config/driver/33产品候选与38dist保持。
+
+新 [execution03.json](execution03.json) SHA `a391ebdf073af49c50171f41cbcaa9f6d45d9d134acf25a787b7b2dc26bb1a20`；driver SHA `5866e74899f5d7bf933ddd0aee4988fe5f5d4cae9d2348bc1f64a871e4ce8492`。type03 actual0/1.144s、B discovery actual0/1.204s且恰1、gate03 actual0/1.617s；全部 actualwait/输入不变/4自有PID双清、0adopted。没有重编译Go或重跑A，没有启动新真实资源。
+
+单 B 新轮尚未运行。待 root 明确授窗与手动 df≥5GiB 后，使用 JSON 中 exact command；原45s/2m/6m/race/count1/worker1/retry0及7资源终局标准不变。

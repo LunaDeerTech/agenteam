@@ -1,0 +1,869 @@
+--- 213cf5c3f552e6b05b541ce02afc1dd65ce9db93/web/src/api/client.ts
++++ candidate/web/src/api/client.ts
+@@ -91,6 +91,8 @@
+   lookupModelSelectionCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
+   getAccountSecurity: ['GET', '/api/v1/system/account-settings', 200],
+   updateAccountSecurity: ['PUT', '/api/v1/system/account-settings', 200],
++  getOutboundPolicy: ['GET', '/api/v1/system/outbound-policy', 200],
++  updateOutboundPolicy: ['PUT', '/api/v1/system/outbound-policy', 200],
+   getSMTPSettings: ['GET', '/api/v1/system/smtp', 200],
+   updateSMTPSettings: ['PUT', '/api/v1/system/smtp', 200],
+   unconfigureSMTP: ['POST', '/api/v1/system/smtp/unconfigure', 200],
+@@ -381,7 +383,21 @@
+   'getMailJobManagement',
+ ]
+ 
++type OutboundPolicyEndpoint = 'getOutboundPolicy' | 'updateOutboundPolicy'
++type OutboundPolicyOptions<E extends OutboundPolicyEndpoint> = E extends 'getOutboundPolicy'
++  ? { signal: AbortSignal }
++  : { signal: AbortSignal; body: unknown; csrf: string; key: string }
++const outboundPolicyEndpoints: readonly OutboundPolicyEndpoint[] = [
++  'getOutboundPolicy',
++  'updateOutboundPolicy',
++]
++
+ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
++  function request<T, E extends OutboundPolicyEndpoint>(
++    endpoint: E,
++    parse: (value: unknown) => T,
++    options: OutboundPolicyOptions<E>,
++  ): Promise<T>
+   function request<T, E extends SMTPDeliveryEndpoint>(
+     endpoint: E,
+     parse: (value: unknown) => T,
+@@ -439,6 +455,7 @@
+       | AccountSecurityEndpoint
+       | SMTPEndpoint
+       | SMTPDeliveryEndpoint
++      | OutboundPolicyEndpoint
+     >,
+     parse: (value: unknown) => T,
+     options: RequestOptions & { users?: never; invitations?: never; target?: never },
+@@ -464,7 +481,8 @@
+       selectionEndpoints.includes(endpoint as SelectionEndpoint) ||
+       accountSecurityEndpoints.includes(endpoint as AccountSecurityEndpoint) ||
+       smtpEndpoints.includes(endpoint as SMTPEndpoint) ||
+-      smtpDeliveryEndpoints.includes(endpoint as SMTPDeliveryEndpoint)
++      smtpDeliveryEndpoints.includes(endpoint as SMTPDeliveryEndpoint) ||
++      outboundPolicyEndpoints.includes(endpoint as OutboundPolicyEndpoint)
+     ) {
+       try {
+         const target = basePath.includes('{id}')
+@@ -569,13 +587,15 @@
+       headers['If-Match'] = `"${options.avatar.version}"`
+     } else if (method !== 'GET') {
+       const maximum =
+-        endpoint === 'createModelCredential'
+-          ? 512 * 1024
+-          : endpoint === 'createProvider' ||
+-              endpoint === 'updateProvider' ||
+-              endpoint === 'updateSMTPSettings'
+-            ? 32 * 1024
+-            : 16 * 1024
++        endpoint === 'updateOutboundPolicy'
++          ? 1024 * 1024
++          : endpoint === 'createModelCredential'
++            ? 512 * 1024
++            : endpoint === 'createProvider' ||
++                endpoint === 'updateProvider' ||
++                endpoint === 'updateSMTPSettings'
++              ? 32 * 1024
++              : 16 * 1024
+       try {
+         body = JSON.stringify(options.body)
+       } catch {
+@@ -583,6 +603,16 @@
+       }
+       if (!body || new TextEncoder().encode(body).byteLength > maximum)
+         throw new AccountFailure('invalid-input')
++      if (endpoint === 'updateOutboundPolicy') {
++        try {
++          // Measure the actual serialized field, not a second read of a mutable input.
++          const actual = shape(JSON.parse(body), ['expected_version', 'rules'])
++          const rules = JSON.stringify(actual.rules)
++          if (!rules || new TextEncoder().encode(rules).byteLength > 512 * 1024) throw new Error()
++        } catch {
++          throw new AccountFailure('invalid-input')
++        }
++      }
+       headers['Content-Type'] = 'application/json'
+     }
+     if (endpoint === 'avatar')
+--- /dev/null
++++ candidate/web/src/api/outbound-rules.ts
+@@ -0,0 +1,143 @@
++import { AccountFailure, shape, string } from './client'
++
++export type OutboundRule = Readonly<{
++  cidr: string
++  ports: 'all' | readonly number[]
++  allow_http: boolean
++}>
++
++function requireValue(value: boolean) {
++  if (!value) throw new AccountFailure('invalid-response')
++}
++
++// This is only the accepted rule grammar, not a target/network classifier.
++function cidr(value: unknown): string {
++  const text = string(value, 1, 43)
++  const parts = text.split('/')
++  requireValue(parts.length === 2 && /^(0|[1-9][0-9]{0,2})$/.test(parts[1]!))
++  const address = parts[0]!,
++    bits = Number(parts[1])
++  let numeric = 0n
++  let width: number
++  if (address.includes(':')) {
++    width = 128
++    requireValue(/^[0-9a-f:]+$/.test(address) && bits <= width)
++    const halves = address.split('::')
++    requireValue(halves.length <= 2)
++    const parse = (part: string): number[] => {
++      if (!part) return []
++      return part.split(':').map((v) => {
++        requireValue(/^[0-9a-f]{1,4}$/.test(v))
++        return parseInt(v, 16)
++      })
++    }
++    const left = parse(halves[0]!),
++      right = halves.length === 2 ? parse(halves[1]!) : []
++    const omitted = 8 - left.length - right.length
++    requireValue(halves.length === 2 ? omitted >= 1 : omitted === 0)
++    const groups = [
++      ...left,
++      ...(halves.length === 2 ? Array<number>(omitted).fill(0) : []),
++      ...right,
++    ]
++    let bestStart = -1,
++      bestLength = 1
++    for (let i = 0; i < groups.length; i++) {
++      if (groups[i] !== 0) continue
++      const start = i
++      while (i < groups.length && groups[i] === 0) i++
++      if (i - start > bestLength) {
++        bestStart = start
++        bestLength = i - start
++      }
++    }
++    const hex = groups.map((v) => v.toString(16))
++    const canonical =
++      bestStart < 0
++        ? hex.join(':')
++        : hex.slice(0, bestStart).join(':') + '::' + hex.slice(bestStart + bestLength).join(':')
++    requireValue(canonical === address)
++    for (const group of groups) numeric = (numeric << 16n) | BigInt(group)
++    requireValue(bits >= 7 && numeric >> 121n === 0x7en)
++  } else {
++    width = 32
++    const octets = address.split('.')
++    requireValue(octets.length === 4 && bits <= width)
++    for (const octet of octets) {
++      requireValue(/^(0|[1-9][0-9]{0,2})$/.test(octet) && Number(octet) <= 255)
++      numeric = (numeric << 8n) | BigInt(octet)
++    }
++    requireValue(
++      (bits >= 8 && numeric >> 24n === 10n) ||
++        (bits >= 12 && numeric >> 20n === 0xac1n) ||
++        (bits >= 16 && numeric >> 16n === 0xc0a8n),
++    )
++  }
++  const hostBits = BigInt(width - bits)
++  requireValue((numeric >> hostBits) << hostBits === numeric)
++  return text
++}
++
++function ports(value: unknown, canonical: boolean): OutboundRule['ports'] {
++  if (value === 'all') return value
++  requireValue(Array.isArray(value) && value.length >= 1 && value.length <= 256)
++  const result: number[] = []
++  for (const port of value as unknown[]) {
++    requireValue(
++      typeof port === 'number' && Number.isSafeInteger(port) && port >= 1 && port <= 65535,
++    )
++    result.push(port as number)
++  }
++  const ordered = result.slice().sort((a, b) => a - b)
++  requireValue(ordered.every((v, i) => !i || v !== ordered[i - 1]))
++  if (canonical) requireValue(result.every((v, i) => v === ordered[i]))
++  return Object.freeze(ordered)
++}
++
++function rules(value: unknown, canonical: boolean): readonly OutboundRule[] {
++  requireValue(Array.isArray(value) && value.length <= 256)
++  const result: OutboundRule[] = []
++  for (const candidate of value as unknown[]) {
++    const v = shape(candidate, ['cidr', 'ports', 'allow_http'])
++    requireValue(typeof v.allow_http === 'boolean')
++    result.push(
++      Object.freeze({
++        cidr: cidr(v.cidr),
++        ports: ports(v.ports, canonical),
++        allow_http: v.allow_http as boolean,
++      }),
++    )
++  }
++  // All accepted rule JSON is ASCII. Code-unit ordering equals Go bytes.Compare.
++  const encoded = result.map((value) => ({ value, wire: JSON.stringify(value) }))
++  if (canonical) requireValue(encoded.every((v, i) => !i || encoded[i - 1]!.wire < v.wire))
++  encoded.sort((a, b) => (a.wire < b.wire ? -1 : a.wire > b.wire ? 1 : 0))
++  requireValue(encoded.every((v, i) => !i || encoded[i - 1]!.wire !== v.wire))
++  return Object.freeze(encoded.map((v) => v.value))
++}
++
++export function parseOutboundRules(value: unknown): readonly OutboundRule[] {
++  return rules(value, true)
++}
++
++export function captureOutboundRules(value: unknown): readonly OutboundRule[] {
++  try {
++    return rules(value, false)
++  } catch {
++    throw new AccountFailure('invalid-input')
++  }
++}
++
++export function captureOutboundPortText(value: string): readonly number[] {
++  try {
++    requireValue(typeof value === 'string')
++    const parsed = value.split(',').map((part) => {
++      const token = part.replace(/^[ \t\r\n\v\f]+|[ \t\r\n\v\f]+$/g, '')
++      requireValue(/^[1-9][0-9]{0,4}$/.test(token))
++      return Number(token)
++    })
++    return ports(parsed, false) as readonly number[]
++  } catch {
++    throw new AccountFailure('invalid-input')
++  }
++}
+--- /dev/null
++++ candidate/web/src/api/system-outbound-policy.ts
+@@ -0,0 +1,98 @@
++import { AccountFailure, accountTransport, shape, string, uuid7, type Fetch } from './client'
++import type { WriteOptions } from './account'
++import { parseSystemInstant } from './system-account'
++import { captureOutboundRules, parseOutboundRules, type OutboundRule } from './outbound-rules'
++
++export type OutboundPolicy = Readonly<{ version: string; rules: readonly OutboundRule[] }>
++export type OutboundPolicyUpdate = Readonly<{
++  expected_version: string
++  rules: readonly OutboundRule[]
++}>
++export type OutboundPolicyReceipt = Readonly<{
++  version: string
++  rule_count: string
++  audit_id: string
++  created_at: string
++}>
++export interface SystemOutboundPolicyAPI {
++  getPolicy(signal: AbortSignal): Promise<OutboundPolicy>
++  updatePolicy(input: OutboundPolicyUpdate, options: WriteOptions): Promise<OutboundPolicyReceipt>
++}
++export const outboundMaximumVersion = '9223372036854775807'
++const encoder = new TextEncoder()
++function requireValue(value: boolean) {
++  if (!value) throw new AccountFailure('invalid-response')
++}
++function version(value: unknown, writable = false) {
++  const result = string(value, 1, 19)
++  requireValue(/^[1-9][0-9]*$/.test(result))
++  requireValue(BigInt(result) <= BigInt(outboundMaximumVersion) - (writable ? 1n : 0n))
++  return result
++}
++function input<T>(work: () => T): T {
++  try {
++    return work()
++  } catch {
++    throw new AccountFailure('invalid-input')
++  }
++}
++
++export function captureOutboundPolicyUpdate(value: unknown): OutboundPolicyUpdate {
++  return input(() => {
++    const v = shape(value, ['expected_version', 'rules'])
++    const captured = Object.freeze({
++      expected_version: version(v.expected_version, true),
++      rules: captureOutboundRules(v.rules),
++    })
++    requireValue(encoder.encode(JSON.stringify(captured.rules)).byteLength <= 512 * 1024)
++    requireValue(encoder.encode(JSON.stringify(captured)).byteLength <= 1024 * 1024)
++    return captured
++  })
++}
++
++export function createSystemOutboundPolicyAPI(fetcher?: Fetch): SystemOutboundPolicyAPI {
++  const request = accountTransport(fetcher)
++  return {
++    async getPolicy(signal) {
++      return request(
++        'getOutboundPolicy',
++        (value) => {
++          const v = shape(value, ['version', 'rules'])
++          return Object.freeze({ version: version(v.version), rules: parseOutboundRules(v.rules) })
++        },
++        { signal },
++      )
++    },
++    async updatePolicy(value, write) {
++      const captured = captureOutboundPolicyUpdate(value)
++      const options = input(() => {
++        const v = shape(write, ['csrfToken', 'key'], ['signal'])
++        const csrf = string(v.csrfToken, 43, 43),
++          key = string(v.key, 1, 128)
++        requireValue(/^[A-Za-z0-9_-]{43}$/.test(csrf) && /^[A-Za-z0-9._:/-]{1,128}$/.test(key))
++        return { csrf, key, signal: write.signal ?? new AbortController().signal }
++      })
++      return request(
++        'updateOutboundPolicy',
++        (value) => {
++          const v = shape(value, ['version', 'rule_count', 'audit_id', 'created_at'])
++          const next = version(v.version),
++            count = string(v.rule_count, 1, 3),
++            audit = string(v.audit_id, 36, 36)
++          requireValue(BigInt(next) === BigInt(captured.expected_version) + 1n)
++          requireValue(
++            /^(0|[1-9][0-9]{0,2})$/.test(count) && Number(count) === captured.rules.length,
++          )
++          requireValue(uuid7.test(audit))
++          return Object.freeze({
++            version: next,
++            rule_count: count,
++            audit_id: audit,
++            created_at: parseSystemInstant(v.created_at),
++          })
++        },
++        { ...options, body: captured },
++      )
++    },
++  }
++}
+--- /dev/null
++++ candidate/web/src/tests/outbound-rules.spec.ts
+@@ -0,0 +1,173 @@
++import { describe, expect, it } from 'vitest'
++import {
++  captureOutboundPortText,
++  captureOutboundRules,
++  parseOutboundRules,
++} from '../api/outbound-rules'
++
++// These exact vectors are also passed to the accepted Go NewRule/DecodeRules
++// oracle outside Vitest; neither side uses the other parser as its expected value.
++const acceptedCIDRs = [
++  '10.0.0.0/8',
++  '10.255.255.255/32',
++  '172.16.0.0/12',
++  '172.31.255.255/32',
++  '192.168.0.0/16',
++  '192.168.255.255/32',
++  'fc00::/7',
++  'fd00::/8',
++  'fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/128',
++  'fd00:0:0:1::/64',
++  'fd00::1:0:0:1:1/128',
++  'fd00:0:1:0:1:0:1:0/128',
++  'fc00::1/128',
++]
++const rejectedCIDRs = [
++  '',
++  '10.0.0.1/8',
++  '10.0.0.0/7',
++  '172.16.0.0/11',
++  '192.168.0.0/15',
++  '172.32.0.0/12',
++  '192.169.0.0/16',
++  '127.0.0.0/8',
++  '0.0.0.0/0',
++  '8.8.8.8/32',
++  '10.00.0.0/8',
++  '010.0.0.0/8',
++  '10.0.0.0/08',
++  '10.0.0.0/+8',
++  '10.0.0.0/8 ',
++  '10.0.0/8',
++  '10.256.0.0/16',
++  '10.0.0.0/33',
++  '10.0.0.0/-1',
++  'fc00::/6',
++  'fe00::/7',
++  'fe80::/10',
++  '2001:db8::/32',
++  '::/0',
++  '::ffff:192.168.0.0/112',
++  '::ffff:c0a8:0/112',
++  'fd00::192.168.0.0/128',
++  'FD00::/8',
++  'fd00:0000::/8',
++  'fd00::1/64',
++  'fd00::%eth0/8',
++  'fd00::/08',
++  'fd00::/129',
++  'fd00:::1/128',
++  'fd00::1::1/128',
++  'fd00:0:0:1:0:0:1:1/128',
++  'fd00:0:0:1::1:1/128',
++  'fd00:0:1:0:1:0:1::/128',
++  'fd00:1:2:3:4:5:6:7:8/128',
++  'fd00:1:2:3:4:5:6/128',
++]
++const rule = (cidr = '10.0.0.0/8', ports: unknown = [443], allow_http: unknown = false) => ({
++  cidr,
++  ports,
++  allow_http,
++})
++
++describe('outbound rule grammar from accepted Go Rules', () => {
++  it.each(acceptedCIDRs.map((cidr, index) => ({ cidr, index })))(
++    'accepts formal CIDR vector $index',
++    ({ cidr }) => {
++      expect(captureOutboundRules([rule(cidr)])[0]?.cidr === cidr).toBe(true)
++    },
++  )
++  it.each(rejectedCIDRs.map((cidr, index) => ({ cidr, index })))(
++    'rejects formal CIDR vector $index',
++    ({ cidr }) => {
++      expect(() => captureOutboundRules([rule(cidr)])).toThrow('invalid-input')
++      expect(() => parseOutboundRules([rule(cidr)])).toThrow('invalid-response')
++    },
++  )
++  it('canonicalizes rule and port order without altering CIDR or rejecting overlaps', () => {
++    const original = [rule('10.0.0.0/8', [8443, 443]), rule('10.0.0.0/16', 'all', true)]
++    const captured = captureOutboundRules(original)
++    original[0]!.cidr = '10.1.0.0/16'
++    expect(
++      JSON.stringify(captured) ===
++        '[{"cidr":"10.0.0.0/16","ports":"all","allow_http":true},{"cidr":"10.0.0.0/8","ports":[443,8443],"allow_http":false}]',
++    ).toBe(true)
++    expect([captured, ...captured, captured[1]!.ports].every(Object.isFrozen)).toBe(true)
++    expect(() => parseOutboundRules([...captured].reverse())).toThrow('invalid-response')
++    expect(() => parseOutboundRules([rule('10.0.0.0/8', [8443, 443])])).toThrow('invalid-response')
++  })
++  it.each(
++    [
++      null,
++      {},
++      [null],
++      [{ cidr: '10.0.0.0/8', ports: [443] }],
++      [rule('10.0.0.0/8', [], false)],
++      [rule('10.0.0.0/8', [1, 1])],
++      [rule('10.0.0.0/8', [0])],
++      [rule('10.0.0.0/8', [65536])],
++      [rule('10.0.0.0/8', [1.5])],
++      [rule('10.0.0.0/8', ['443'])],
++      [rule('10.0.0.0/8', [NaN])],
++      [rule('10.0.0.0/8', [Infinity])],
++      [rule('10.0.0.0/8', new Array(1))],
++      [rule('10.0.0.0/8', 'ALL')],
++      [rule('10.0.0.0/8', null)],
++      [rule('10.0.0.0/8', [443], null)],
++      [rule('10.0.0.0/8', [443], 0)],
++      [{ ...rule(), extra: true }],
++      [rule(), rule()],
++      [rule('10.0.0.0/8', [2, 1]), rule('10.0.0.0/8', [1, 2])],
++      new Array(1),
++      Array.from({ length: 257 }, (_, i) => rule(`10.0.${i >> 8}.${i % 256}/32`)),
++      [
++        rule(
++          '10.0.0.0/8',
++          Array.from({ length: 257 }, (_, i) => i + 1),
++        ),
++      ],
++    ].map((value, index) => ({ value, index })),
++  )('rejects closed rule shape $index', ({ value }) => {
++    expect(() => captureOutboundRules(value)).toThrow('invalid-input')
++  })
++  it('keeps all ports explicit, rejects ambiguous text, and accepts only ASCII separators', () => {
++    expect(
++      JSON.stringify(captureOutboundPortText(' 65535 ,\t1, 443\r\n')) === '[1,443,65535]',
++    ).toBe(true)
++    for (const text of [
++      '',
++      'all',
++      '1,',
++      ',1',
++      '1,,2',
++      '01',
++      '+1',
++      '-1',
++      '1e2',
++      '1.0',
++      '1-3',
++      '1,1',
++      '0',
++      '65536',
++      '\u00a01',
++      '1\u00a0',
++    ])
++      expect(() => captureOutboundPortText(text)).toThrow('invalid-input')
++    expect(captureOutboundRules([rule('10.0.0.0/8', 'all')])[0]!.ports).toBe('all')
++  })
++  it('captures 256 distinct full-width rules with 256 ports inside the proven JSON bounds', () => {
++    const portSet = Array.from({ length: 256 }, (_, i) => 65535 - i)
++    const full = Array.from({ length: 256 }, (_, i) =>
++      rule(`fdff:ffff:ffff:ffff:ffff:ffff:ffff:${(0xff00 + i).toString(16)}/128`, portSet),
++    )
++    const result = captureOutboundRules(full)
++    expect(result.length).toBe(256)
++    expect(new TextEncoder().encode(JSON.stringify(result)).length).toBeLessThanOrEqual(414721)
++    expect(
++      new TextEncoder().encode(JSON.stringify({ version: '9223372036854775807', rules: result }))
++        .length,
++    ).toBeLessThanOrEqual(414763)
++    expect(parseOutboundRules(result).length).toBe(256)
++    expect(captureOutboundRules([]).length).toBe(0)
++  })
++})
+--- /dev/null
++++ candidate/web/src/tests/system-outbound-policy-client.spec.ts
+@@ -0,0 +1,352 @@
++import { describe, expect, it, vi } from 'vitest'
++import { flushPromises } from '@vue/test-utils'
++import { accountTransport, type Fetch } from '../api/client'
++import {
++  captureOutboundPolicyUpdate,
++  createSystemOutboundPolicyAPI,
++  type OutboundPolicyUpdate,
++} from '../api/system-outbound-policy'
++
++const signal = () => new AbortController().signal
++const write = () => ({ signal: signal(), csrfToken: 'S'.repeat(43), key: 'outbound/original' })
++const rules = () => [{ cidr: '10.0.0.0/8', ports: [443], allow_http: false }]
++const input = () => ({ expected_version: '9007199254740993', rules: rules() })
++const policy = () => ({ version: '9007199254740993', rules: rules() })
++const receipt = () => ({
++  version: '9007199254740994',
++  rule_count: '1',
++  audit_id: '01900000-0000-7000-8000-000000000001',
++  created_at: '2026-10-06T01:02:03.123456Z',
++})
++const json = (value: unknown) =>
++  new Response(JSON.stringify(value), { headers: { 'Content-Type': 'application/json' } })
++function deferred<T = void>() {
++  let resolve!: (v: T | PromiseLike<T>) => void
++  const promise = new Promise<T>((r) => (resolve = r))
++  return { promise, resolve }
++}
++function problem(status: number, code: string, commit_state = 'not_started') {
++  return new Response(
++    JSON.stringify({
++      type: 'urn:agenteam:problem:request-failed',
++      title: 'Request failed',
++      status,
++      detail: 'Request failed.',
++      instance: '/api/v1/system/outbound-policy',
++      code,
++      request_id: '01900000-0000-7000-8000-000000000002',
++      commit_state,
++      retry_hint: 'lookup',
++    }),
++    {
++      status,
++      headers: {
++        'Content-Type': 'application/problem+json',
++        'X-Request-ID': '01900000-0000-7000-8000-000000000002',
++      },
++    },
++  )
++}
++
++describe('outbound policy strict API', () => {
++  it('captures immutable explicit Rules and sends only the two fixed operations', async () => {
++    const fetch = vi.fn<Fetch>(async (_, init) =>
++        json(init.method === 'GET' ? policy() : receipt()),
++      ),
++      api = createSystemOutboundPolicyAPI(fetch),
++      options = write(),
++      original = input(),
++      captured = captureOutboundPolicyUpdate(original)
++    original.rules[0]!.ports.push(8443)
++    const current = await api.getPolicy(options.signal),
++      saved = await api.updatePolicy(captured, options)
++    expect(fetch.mock.calls.map(([path, init]) => [path, init.method])).toEqual([
++      ['/api/v1/system/outbound-policy', 'GET'],
++      ['/api/v1/system/outbound-policy', 'PUT'],
++    ])
++    expect(
++      [
++        captured,
++        captured.rules,
++        captured.rules[0],
++        captured.rules[0]!.ports,
++        current,
++        current.rules,
++        current.rules[0],
++        current.rules[0]!.ports,
++        saved,
++      ].every(Object.isFrozen),
++    ).toBe(true)
++    expect(saved.version).toBe('9007199254740994')
++    for (const [, init] of fetch.mock.calls)
++      expect(init).toMatchObject({
++        credentials: 'same-origin',
++        redirect: 'error',
++        cache: 'no-store',
++        signal: options.signal,
++      })
++    const get = fetch.mock.calls[0]![1],
++      put = fetch.mock.calls[1]![1]
++    expect(get.body).toBeUndefined()
++    expect(get.headers).not.toHaveProperty('X-CSRF-Token')
++    expect(get.headers).not.toHaveProperty('Idempotency-Key')
++    expect(put.body === JSON.stringify(captured)).toBe(true)
++    expect(
++      (put.headers as Record<string, string>)['Idempotency-Key'] === options.key &&
++        (put.headers as Record<string, string>)['X-CSRF-Token'] === options.csrfToken,
++    ).toBe(true)
++  })
++  it.each(
++    [
++      null,
++      {},
++      { version: '1', rules: null },
++      { ...policy(), extra: true },
++      { ...policy(), version: 1 },
++      { ...policy(), version: '0' },
++      { ...policy(), version: '01' },
++      { ...policy(), version: '9223372036854775808' },
++      { ...policy(), rules: [{ cidr: '10.0.0.0/8', ports: [443] }] },
++      { ...policy(), rules: [...rules(), null] },
++    ].map((value, index) => ({ value, index })),
++  )('rejects entire current DTO $index', async ({ value }) => {
++    await expect(
++      createSystemOutboundPolicyAPI(async () => json(value)).getPolicy(signal()),
++    ).rejects.toMatchObject({ kind: 'invalid-response' })
++  })
++  it.each(
++    [
++      null,
++      {},
++      { ...receipt(), version: '9007199254740993' },
++      { ...receipt(), version: '9007199254740995' },
++      { ...receipt(), version: 9007199254740994 },
++      { ...receipt(), rule_count: '0' },
++      { ...receipt(), rule_count: '01' },
++      { ...receipt(), rule_count: '257' },
++      { ...receipt(), rule_count: 1 },
++      { ...receipt(), audit_id: '01900000-0000-4000-8000-000000000001' },
++      { ...receipt(), created_at: '2026-02-30T01:02:03.123456Z' },
++      { ...receipt(), created_at: '2026-10-06T01:02:03.123Z' },
++      { ...receipt(), rules: rules() },
++    ].map((value, index) => ({ value, index })),
++  )('rejects unmatched or open receipt $index', async ({ value }) => {
++    await expect(
++      createSystemOutboundPolicyAPI(async () => json(value)).updatePolicy(input(), write()),
++    ).rejects.toMatchObject({ kind: 'invalid-response' })
++  })
++  it('captures versions without Number and rejects maximum only for a new write', async () => {
++    const fetch = vi.fn<Fetch>(async () => json({ ...policy(), version: '9223372036854775807' })),
++      api = createSystemOutboundPolicyAPI(fetch)
++    expect((await api.getPolicy(signal())).version).toBe('9223372036854775807')
++    fetch.mockClear()
++    for (const value of [
++      null,
++      {},
++      { ...input(), expected_version: '9223372036854775807' },
++      { ...input(), expected_version: '01' },
++      { ...input(), extra: 1 },
++      { ...input(), rules: null },
++    ])
++      await expect(api.updatePolicy(value as OutboundPolicyUpdate, write())).rejects.toMatchObject({
++        kind: 'invalid-input',
++      })
++    expect(fetch).not.toHaveBeenCalled()
++    const end = createSystemOutboundPolicyAPI(async () =>
++      json({ ...receipt(), version: '9223372036854775807', rule_count: '0' }),
++    )
++    expect(
++      (await end.updatePolicy({ expected_version: '9223372036854775806', rules: [] }, write()))
++        .version,
++    ).toBe('9223372036854775807')
++  })
++  it('requires exact options and leaves all old endpoint byte allowances intact', async () => {
++    const fetch = vi.fn<Fetch>(
++        async (path) =>
++          new Response('{}', {
++            status: path.endsWith('/test') ? 202 : 200,
++            headers: { 'Content-Type': 'application/json' },
++          }),
++      ),
++      request = accountTransport(fetch),
++      abort = signal()
++    await expect(
++      request('getOutboundPolicy', (v) => v, { signal: abort, body: {} } as never),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    await expect(
++      request('updateOutboundPolicy', (v) => v, {
++        signal: abort,
++        csrf: 'S'.repeat(43),
++        key: 'k',
++        body: input(),
++        target: 'x',
++      } as never),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    const bad = createSystemOutboundPolicyAPI(fetch)
++    for (const options of [
++      { ...write(), key: ' ' },
++      { ...write(), csrfToken: 'bad' },
++      { ...write(), extra: true },
++    ])
++      await expect(bad.updatePolicy(input(), options)).rejects.toMatchObject({
++        kind: 'invalid-input',
++      })
++    expect(fetch).not.toHaveBeenCalled()
++    for (const endpoint of ['testSMTP', 'updateSMTPSettings', 'createModelCredential'] as const) {
++      const maximum =
++        endpoint === 'testSMTP' ? 16384 : endpoint === 'updateSMTPSettings' ? 32768 : 524288
++      const body = { pad: 'a'.repeat(maximum - 10) }
++      const options = {
++        signal: abort,
++        csrf: 'S'.repeat(43),
++        key: 'k',
++        body,
++      }
++      await request(endpoint as 'testSMTP', (v) => v, options)
++      await expect(
++        request(endpoint as 'testSMTP', (v) => v, {
++          ...options,
++          body: { pad: 'a'.repeat(maximum - 9) },
++        }),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    }
++    expect(fetch).toHaveBeenCalledTimes(3)
++  })
++  it('enforces whole-body and actual serialized rules-field UTF8 limits independently', async () => {
++    const fetch = vi.fn<Fetch>(async () => json({})),
++      request = accountTransport(fetch),
++      options = { signal: signal(), csrf: 'S'.repeat(43), key: 'k' }
++    const exactField = { expected_version: '1', rules: 'a'.repeat(512 * 1024 - 2) }
++    await request('updateOutboundPolicy', (v) => v, { ...options, body: exactField })
++    await expect(
++      request('updateOutboundPolicy', (v) => v, {
++        ...options,
++        body: { ...exactField, rules: exactField.rules + 'a' },
++      }),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    const skeleton = { expected_version: '', rules: [] },
++      emptyBytes = JSON.stringify(skeleton).length
++    await request('updateOutboundPolicy', (v) => v, {
++      ...options,
++      body: { ...skeleton, expected_version: 'a'.repeat(1024 * 1024 - emptyBytes) },
++    })
++    await expect(
++      request('updateOutboundPolicy', (v) => v, {
++        ...options,
++        body: { ...skeleton, expected_version: 'a'.repeat(1024 * 1024 - emptyBytes + 1) },
++      }),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    await expect(
++      request('updateOutboundPolicy', (v) => v, {
++        ...options,
++        body: { expected_version: '1', rules: 'é'.repeat(262144) },
++      }),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    await expect(
++      request('updateOutboundPolicy', (v) => v, {
++        ...options,
++        body: { toJSON: () => ({ ...exactField, rules: exactField.rules + 'a' }) },
++      }),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(fetch).toHaveBeenCalledTimes(2)
++  })
++  it.each([
++    [404, 'NOT_FOUND'],
++    [503, 'DEPENDENCY_UNAVAILABLE'],
++    [503, 'COMMIT_UNKNOWN'],
++    [400, 'CSRF_FAILED'],
++    [403, 'CSRF_FAILED'],
++  ])('preserves status/code/commit for owner classification %s/%s', async (status, code) => {
++    await expect(
++      createSystemOutboundPolicyAPI(async () =>
++        problem(status as number, code as string),
++      ).updatePolicy(input(), write()),
++    ).rejects.toMatchObject({
++      kind: 'problem',
++      problem: { status, code, commit_state: 'not_started', retry_hint: 'lookup' },
++    })
++  })
++})
++
++describe('outbound native body completion', () => {
++  it.each(['read', 'write'])('does not publish a %s candidate before native EOF', async (mode) => {
++    const done = deferred(),
++      entered = deferred()
++    let controller!: ReadableStreamDefaultController<Uint8Array>
++    const body = new ReadableStream<Uint8Array>({
++      start(c) {
++        controller = c
++        c.enqueue(new TextEncoder().encode(JSON.stringify(mode === 'read' ? policy() : receipt())))
++        entered.resolve()
++      },
++      async pull() {
++        await done.promise
++        controller.close()
++      },
++    })
++    const api = createSystemOutboundPolicyAPI(
++      async () => new Response(body, { headers: { 'Content-Type': 'application/json' } }),
++    )
++    let settled = false
++    const pending = (
++      mode === 'read' ? api.getPolicy(signal()) : api.updatePolicy(input(), write())
++    ).finally(() => (settled = true))
++    await entered.promise
++    await flushPromises()
++    expect(settled).toBe(false)
++    done.resolve()
++    await pending
++    expect(settled).toBe(true)
++  })
++  it('accepts the exact 600000 byte body only after EOF', async () => {
++    const encoded = JSON.stringify(policy()),
++      raw = encoded + ' '.repeat(600000 - new TextEncoder().encode(encoded).length)
++    expect(
++      (
++        await createSystemOutboundPolicyAPI(
++          async () => new Response(raw, { headers: { 'Content-Type': 'application/json' } }),
++        ).getPolicy(signal())
++      ).version,
++    ).toBe(policy().version)
++  })
++  it.each(['overflow', 'abort', 'media'])('waits for actual native cancel on %s', async (mode) => {
++    const joined = deferred(),
++      entered = deferred(),
++      abort = new AbortController()
++    let settled = false
++    const stream = new ReadableStream<Uint8Array>({
++      start(c) {
++        if (mode === 'overflow') c.enqueue(new Uint8Array(600001))
++      },
++      cancel() {
++        entered.resolve()
++        return joined.promise
++      },
++    })
++    const api = createSystemOutboundPolicyAPI(
++      async () =>
++        new Response(stream, {
++          headers: { 'Content-Type': mode === 'media' ? 'text/plain' : 'application/json' },
++        }),
++    )
++    const pending = api.getPolicy(abort.signal).then(
++      () => {
++        settled = true
++        return 'success'
++      },
++      (error: unknown) => {
++        settled = true
++        return (error as { kind: string }).kind
++      },
++    )
++    if (mode === 'abort') {
++      await flushPromises()
++      abort.abort()
++    }
++    await entered.promise
++    await flushPromises()
++    expect(settled).toBe(false)
++    joined.resolve()
++    expect(await pending).toBe(mode === 'abort' ? 'cancelled' : 'invalid-response')
++  })
++})

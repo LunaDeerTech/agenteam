@@ -1,0 +1,12 @@
+{
+  "classification": "preparation input gate failure before compilation/resources",
+  "path": "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+  "input02_expected": "2b550ad71270848a434688dcd3bcb8f414e8d0a8705b23c2fd6883ceb5f38c6f",
+  "input04_expected": "f18baf0ee28fe4c413e58d8f849e03cb3d7da796573a649f4ac4437e3a0f79d6",
+  "input04_snapshot_actual": "f18baf0ee28fe4c413e58d8f849e03cb3d7da796573a649f4ac4437e3a0f79d6",
+  "workspace_actual": "3d1b5af651ea2f94ec5054d9d2da43807efa5badbed3420252a4b2b5de739ed4",
+  "raw_error": "AssertionError candidates one newbrowser mismatch",
+  "actual_exit": 1,
+  "product_or_resource_execution": false,
+  "read_differing_content": false
+}

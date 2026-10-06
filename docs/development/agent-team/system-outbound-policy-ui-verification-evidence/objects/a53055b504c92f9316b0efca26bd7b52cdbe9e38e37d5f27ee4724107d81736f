@@ -1,0 +1,128 @@
+{
+  "all_eight_individually_viewed": true,
+  "conclusion": "No visual repair identified in the saved viewports. Original images retained unchanged.",
+  "disk_observations": {
+    "note": "Recorded after the read-only observations; startup driver >=2GiB gate passed. No evidence or cache was deleted. This is not a continuous minimum sampler.",
+    "post_cleanup_available_bytes": 4559986688,
+    "running_df_available_bytes": 727633920,
+    "running_df_command": [
+      "df",
+      "-B1",
+      "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i"
+    ],
+    "running_df_tool_chunk": "b8cc27"
+  },
+  "image_boundary": "Each image is a 900px-high viewport capture at main scroll top, not a full-page screenshot. The long port list continues below the viewport; these pictures do not visually cover the lower editor form or error regions.",
+  "images": [
+    {
+      "author_actually_viewed": true,
+      "file": "runs/navigation01/images/outbound-policy-dark-1024.png",
+      "height": 900,
+      "observation": "Three readable columns and eight-leaf sidebar; long CIDR and port list wrap within the table.",
+      "root_actually_viewed": false,
+      "sha256": "877d742835f21d6d3f774f4f2ef010529930b25ab1faf607e014b403e006b61d",
+      "visible_confirmation_overlay": false,
+      "visible_outer_horizontal_overflow": false,
+      "visible_private_credential_or_key": false,
+      "width": 1024
+    },
+    {
+      "author_actually_viewed": true,
+      "file": "runs/navigation01/images/outbound-policy-dark-1440.png",
+      "height": 900,
+      "observation": "Three readable columns and eight-leaf sidebar; long CIDR and port list wrap within the table.",
+      "root_actually_viewed": true,
+      "sha256": "852a30a2d9b35ad6b647b8af4de00764fa2618bc958402dd361d5ff42951e058",
+      "visible_confirmation_overlay": false,
+      "visible_outer_horizontal_overflow": false,
+      "visible_private_credential_or_key": false,
+      "width": 1440
+    },
+    {
+      "author_actually_viewed": true,
+      "file": "runs/navigation01/images/outbound-policy-dark-390.png",
+      "height": 900,
+      "observation": "390px stacked field labels and values; long CIDR and ports wrap, drawer is closed, visible keyboard focus ring remains on its trigger.",
+      "root_actually_viewed": false,
+      "sha256": "ad87e3e0895fae10511da2592011852be8bd8d28f6b4641060dae1c73d5149da",
+      "visible_confirmation_overlay": false,
+      "visible_outer_horizontal_overflow": false,
+      "visible_private_credential_or_key": false,
+      "width": 390
+    },
+    {
+      "author_actually_viewed": true,
+      "file": "runs/navigation01/images/outbound-policy-dark-768.png",
+      "height": 900,
+      "observation": "Three readable columns, eight-leaf sidebar and current leaf highlight; long CIDR and port list wrap inside the content region. At 768px the CIDR mask also wraps across lines.",
+      "root_actually_viewed": false,
+      "sha256": "b0d5b58155b8244d4d7513abcc6f83673e5b1910705465de264d4a2a62a9c328",
+      "visible_confirmation_overlay": false,
+      "visible_outer_horizontal_overflow": false,
+      "visible_private_credential_or_key": false,
+      "width": 768
+    },
+    {
+      "author_actually_viewed": true,
+      "file": "runs/navigation01/images/outbound-policy-light-1024.png",
+      "height": 900,
+      "observation": "Three readable columns and eight-leaf sidebar; long CIDR and port list wrap within the table.",
+      "root_actually_viewed": false,
+      "sha256": "2fb899fcdd193392c3aa4cb20cbf06f356f691548939689ed996866baa622df4",
+      "visible_confirmation_overlay": false,
+      "visible_outer_horizontal_overflow": false,
+      "visible_private_credential_or_key": false,
+      "width": 1024
+    },
+    {
+      "author_actually_viewed": true,
+      "file": "runs/navigation01/images/outbound-policy-light-1440.png",
+      "height": 900,
+      "observation": "Three readable columns and eight-leaf sidebar; long CIDR and port list wrap within the table.",
+      "root_actually_viewed": false,
+      "sha256": "fe0b00d7f4220a63d0cbb3337ed1508e4384ce082415a70f908e8b28542bad52",
+      "visible_confirmation_overlay": false,
+      "visible_outer_horizontal_overflow": false,
+      "visible_private_credential_or_key": false,
+      "width": 1440
+    },
+    {
+      "author_actually_viewed": true,
+      "file": "runs/navigation01/images/outbound-policy-light-390.png",
+      "height": 900,
+      "observation": "390px stacked field labels and values; long CIDR and ports wrap, drawer is closed, visible keyboard focus ring remains on its trigger.",
+      "root_actually_viewed": true,
+      "sha256": "b1ed076d499141f5d4c01b90b9a84c61f1a13c1c59dc01a39d0fd300f76d7633",
+      "visible_confirmation_overlay": false,
+      "visible_outer_horizontal_overflow": false,
+      "visible_private_credential_or_key": false,
+      "width": 390
+    },
+    {
+      "author_actually_viewed": true,
+      "file": "runs/navigation01/images/outbound-policy-light-768.png",
+      "height": 900,
+      "observation": "Three readable columns, eight-leaf sidebar and current leaf highlight; long CIDR and port list wrap inside the content region. At 768px the CIDR mask also wraps across lines.",
+      "root_actually_viewed": false,
+      "sha256": "dbb0eeeeee7e7091646fb0e9ff715404cc57bf159f34c3fd14c09303547b894f",
+      "visible_confirmation_overlay": false,
+      "visible_outer_horizontal_overflow": false,
+      "visible_private_credential_or_key": false,
+      "width": 768
+    }
+  ],
+  "resource_result": {
+    "actual_adopted_waits": 4,
+    "actual_exit": 0,
+    "browser_seconds": 18.5,
+    "double_cleanup": true,
+    "ids": 7,
+    "owned_pid_start_pairs": 86,
+    "seconds": 69.084,
+    "top_seconds": 21.55
+  },
+  "reviewer": "directory_frontend author",
+  "root_review_scope": "Root explicitly reported viewing only light390 and dark1440; no claim that root reviewed the other six.",
+  "separate_dynamic_evidence": "The already completed navigation test asserted full element geometry, field/control scroll reachability, labels, caption hiding, narrow field blocks, no outer horizontal/vertical overflow, confirmation focus/Tab and zero physical overlay before capture. These assertions are not claimed to be visible in each screenshot.",
+  "source_dist_not_modified": true
+}

@@ -1,0 +1,26 @@
+# Outbound UI C 独立阶段结论：有界 PASS
+
+固定输入为作者 `web-stage01/manifest.json`，SHA `435d3d0d432de68656b68d51cc399e4c66d621ed69e4b73b7c9106984782e7fc`；产品基线 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`，正式卡技术 SHA `343f09b6facd95c000df2f2b35bceeb73f3a7e93d2974ce18304703266d0ab6b`。已核 22 个 web 候选、130 个接受依赖及 38 个 dist 的完整指纹。A 的 5 源、B 的 2 源未变；其独立结果复用，不重复执行。
+
+静审闭合 controller、View、App/router 和旧页面适配。确认历史 receipt 与当前 GET 分离、确认后读失败保留只读原草稿/版本、显式采用新基线、read/identity 代次保护、离页先取消读取并结算 loading、旧待决确认不因新身份获得许可。常驻 Dialog 的 fallback 使用当前实例/身份对应的最新 heading ref；checking 卸载不声称原生焦点恢复。系统菜单为 8 叶、3 组；return 闭集为 12 项。原 smtpSections 接入保持。
+
+`confirmLeave` 的 inactive 分支含 busy 限制，但正式 router 仅在从 Outbound 叶离开时调用它；其他叶普通导航不会进入该分支。全局 logout 另有忙状态按钮与 owner 门禁。独立 B 实际从 SMTP 公开入口离页成功，同时取消尾部未结束期间 owner 仍占有、零新 Cookie 请求。因此没有由此确立产品阻断，也未添加不可达的私有调用要求。
+
+独立运行使用真实 App、router、Session factory/API 与受控原生 Response/ReadableStream；两个测试体复用作者装配 helpers，业务动作和屏障为独立组合。
+
+| 运行 | 实际结果与范围 | 终局 |
+| --- | --- | --- |
+| app01 | actual 1 / 2.717967 s：A PASS；B 在路由成功后的 SMTP heading 断言 FAIL | 2 PID/starttime 两扫空，0 adopted，TMP 删除，输入不变 |
+| app02 | actual 0 / 2.568829 s：B PASS，A 明确 skipped | 2 PID/starttime 两扫空，0 adopted，TMP 删除，输入不变 |
+
+A 证明：公开 dirty 确认先打开，再经 pageshow/503/同身份恢复继续待决；当前新挂载 heading ref 合法；不同 Session 令旧导航 false、清草稿/私有进度；新普通用户离页及退出可到登录；零 Outbound PUT。
+
+B 证明：409 后仅显式采用新版本；严格 receipt 4 后 GET 503 保留原草稿/版本 3，重读不增加 PUT；成功 GET 7 与历史 receipt 4 分离；立即新草稿呈普通可提交状态；一次当前 403 后合法 Session 恢复可离页；SMTP 双 panel 的单确认保持；其他域读取在 actual cancel 尾部结束前仍持 owner，普通路由可离开，零额外 Cookie 请求。最终两次 Outbound PUT，未增加 SMTP 写入。
+
+app01 原 B 的私有 handler 持续返回 403，却期待导航重新确认 admin 后可访问 SMTP；按授权仅改为一次 403 后 GET policy 7，原 router/heading/零写及后续所有断言保留。app02 安全新观察为 GET Outbound → GET Session → GET Outbound → GET SMTP，denied true→false；这不追补 app01 的唯一动态原因。原 app01 没有失败时 DOM/请求序列，归因限定为固定源码的可达链及测试前提矛盾。原 probe、输入、actual 1 和 raw 全部保留，修正只选择 B。私有准备时的 manifest 键名 KeyError 也保留；未执行产品测试或资源。
+
+作者历史 `page-state01` 的产品 RED（确认后 GET503 提前清草稿）及同断言修复、受影响 3 PASS/18 skipped 原件已核；最终完整 1517 PASS/42 files、format/type/build 为作者证据，未冒充独立重跑。作者与本独立运行的失败记录均不改写为成功。
+
+本结论只覆盖 C 静态与上述两个离线组合；A 取 app01，B 取 app02，并非单轮全绿。jsdom 布局 spy/焦点属性检查不证明原生点击、Tab、浏览器焦点或截图。没有服务、监听器、浏览器、Docker、PG、真实 HTTP/SMTP，尚不接受整卡真实验收。全部产品/主树/Git 未改。
+
+最小原件：`input-binding01.json`、`execution01.json`/`execution02.json`、两份私有 probe、`probe01-to02.diff`、`app01-diagnosis.md/json`、`runs/app01/` 与 `runs/app02/` 的 command/raw/result/input-before/input-after/cleanup/safe-facts。精确 SHA 与前阶段报告引用见同名 JSON。现停止本阶段写入与运行。

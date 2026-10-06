@@ -1,0 +1,896 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { type CommitState, type Fetch } from '../api/client'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI } from '../api/system-providers'
+import { createSystemModelAPI } from '../api/system-models'
+import { createSystemModelSelectionAPI } from '../api/system-model-selection'
+import { createSystemAccountSecurityAPI } from '../api/system-account-security'
+import { createSystemSMTPSettingsAPI } from '../api/system-smtp-settings'
+import { createSystemSMTPDeliveryAPI } from '../api/system-smtp-delivery'
+import {
+  createSystemOutboundPolicyAPI,
+  type OutboundPolicyUpdate,
+} from '../api/system-outbound-policy'
+import { createSessionController, type SessionController } from '../composables/useSession'
+import { useTheme } from '../composables/useTheme'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z'
+const endpoint = '/api/v1/system/outbound-policy'
+const input = (): OutboundPolicyUpdate => ({
+  expected_version: '1',
+  rules: [{ cidr: '10.0.0.0/8', ports: [443], allow_http: false }],
+})
+const policy = (version = '1') => ({ version, rules: input().rules })
+const receipt = (version = '2') => ({
+  version,
+  rule_count: '1',
+  audit_id: id(40),
+  created_at: time,
+})
+const view = (sessionID = id(2), role: 'admin' | 'user' = 'admin'): SessionView => ({
+  user: {
+    id: id(1),
+    email: 'admin@example.test',
+    username: 'admin',
+    display_name: 'Admin',
+    role,
+    theme: 'system',
+    version: '1',
+    initial_password_suggestion: false,
+  },
+  session: { id: sessionID, issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const settings = () => ({
+  id: id(10),
+  version: '1',
+  configured: true,
+  host: 'mail.example',
+  port: 25,
+  encryption: 'none',
+  username: '',
+  sender_email: 'sender@example.test',
+  sender_name: '',
+  credential_present: false,
+  auto_retry_count: '0',
+  retry_interval_seconds: '10',
+})
+const job = (jobID = id(20), version = '1') => ({
+  job_id: jobID,
+  kind: 'test',
+  phase: 'sent',
+  attempts: '1',
+  version,
+  channel: 'smtp',
+  created_at: time,
+  attempt_channel: 'smtp',
+  attempt_result: 'sent',
+  reason: 'sent',
+})
+const json = (value: unknown, status = 200) =>
+  new Response(JSON.stringify(value), {
+    status,
+    headers: {
+      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+      'X-Request-ID': id(9),
+    },
+  })
+const problem = (code: string, status = 503, commit_state: CommitState = 'not_started') =>
+  json(
+    {
+      type: 'urn:agenteam:problem:test',
+      title: 'Failure',
+      status,
+      code,
+      detail: '',
+      instance: endpoint,
+      request_id: id(9),
+      commit_state,
+    },
+    status,
+  )
+function barrier<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((r) => {
+    resolve = r
+  })
+  return { promise, resolve }
+}
+const owners: SessionController[] = []
+async function fixture() {
+  let current = view(),
+    session: Fetch = async () => json(current),
+    outbound: Fetch = async (_, init) => json(init.method === 'GET' ? policy() : receipt()),
+    smtp: Fetch = async () => json(settings()),
+    delivery: Fetch = async (path, init) =>
+      init.method === 'POST'
+        ? json(path.endsWith('/test') ? { job_id: id(21) } : { job_id: id(21), version: '7' }, 202)
+        : json(path.includes('?') ? { items: [job()] } : job()),
+    other: Fetch = async (path) => {
+      if (path === '/api/v1/me') return json({ user: current.user, avatar: null })
+      if (path.startsWith('/api/v1/system/model-providers'))
+        return json({ items: [], next_cursor: null })
+      return json({ items: [] })
+    }
+  const fetch = vi.fn<Fetch>(async (path, init) => {
+    if (path === '/api/v1/session') return session(path, init)
+    if (path === '/api/v1/auth/bootstrap')
+      return json({
+        csrf_token: 'A'.repeat(43),
+        challenge_modes: ['rotate'],
+        delivery_channel: 'backend_log',
+      })
+    if (path === endpoint) return outbound(path, init)
+    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
+    if (path === '/api/v1/system/smtp/test' || path.startsWith('/api/v1/system/mail-jobs/'))
+      return delivery(path, init)
+    if (path.startsWith('/api/v1/system/smtp')) return smtp(path, init)
+    return other(path, init)
+  })
+  const auth = createSessionController(
+    createAccountAPI(fetch),
+    createSystemAccountAPI(fetch),
+    createSystemInvitationAPI(fetch),
+    createSystemProviderAPI(fetch),
+    createSystemModelAPI(fetch),
+    createSystemModelSelectionAPI(fetch),
+    createSystemAccountSecurityAPI(fetch),
+    createSystemSMTPSettingsAPI(fetch),
+    createSystemSMTPDeliveryAPI(fetch),
+    createSystemOutboundPolicyAPI(fetch),
+  )
+  owners.push(auth)
+  await auth.restore()
+  return {
+    auth,
+    fetch,
+    setOutbound(value: Fetch) {
+      outbound = value
+    },
+    setDelivery(value: Fetch) {
+      delivery = value
+    },
+    setSMTP(value: Fetch) {
+      smtp = value
+    },
+    setOther(value: Fetch) {
+      other = value
+    },
+    setSession(value: SessionView) {
+      current = value
+    },
+    setSessionRequest(value: Fetch) {
+      session = value
+    },
+    writes() {
+      return fetch.mock.calls.filter(([path, init]) => path === endpoint && init.method === 'PUT')
+    },
+  }
+}
+afterEach(() => {
+  for (const auth of owners.splice(0)) auth.leave()
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+  useTheme().setTheme('system')
+})
+
+describe('Outbound policy tenth Cookie owner domain', () => {
+  it('captures before generating a key, dispatches once and publishes only the safe receipt', async () => {
+    const f = await fixture(),
+      p = f.auth.system.outboundPolicy
+    expect(f.fetch.mock.calls.some(([path]) => path === endpoint)).toBe(false)
+    const random = vi.spyOn(crypto, 'randomUUID')
+    await expect(
+      p.startUpdate({ ...input(), expected_version: '9223372036854775807' }),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    await expect(
+      p.startUpdate({
+        ...input(),
+        rules: [{ cidr: '10.0.0.1/8', ports: 'all', allow_http: false }],
+      }),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(random).not.toHaveBeenCalled()
+    expect(f.writes()).toHaveLength(0)
+    const held = barrier<Response>(),
+      draft = {
+        expected_version: '1',
+        rules: [{ cidr: '10.0.0.0/8', ports: [443], allow_http: false }],
+      }
+    f.setOutbound(() => held.promise)
+    const started = p.startUpdate(draft)
+    draft.expected_version = '9'
+    draft.rules[0]!.ports.push(80)
+    await flushPromises()
+    expect(random).toHaveBeenCalledTimes(1)
+    await expect(p.startUpdate(input())).rejects.toMatchObject({ kind: 'busy' })
+    expect(f.writes()).toHaveLength(1)
+    expect(f.writes()[0]![1].body === JSON.stringify(input())).toBe(true)
+    expect(JSON.stringify(p).includes('10.0.0.0')).toBe(false)
+    held.resolve(json(receipt()))
+    expect(await started).toEqual(receipt())
+    expect(p.progress).toMatchObject({
+      phase: 'confirmed',
+      receipt: receipt(),
+      canRetryOriginal: false,
+    })
+    expect(
+      f.fetch.mock.calls.filter(([path, init]) => path === endpoint && init.method === 'GET'),
+    ).toHaveLength(0)
+    await expect(p.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    f.setOutbound(async () => json(policy('19')))
+    expect((await p.get()).version).toBe('19')
+    expect(p.progress?.receipt?.version).toBe('2')
+  })
+
+  it.each([
+    ['INVALID_ARGUMENT', 400, 'not_started'],
+    ['NOT_FOUND', 404, 'not_started'],
+    ['VERSION_CONFLICT', 409, 'not_started'],
+    ['INVALID_STATE', 409, 'not_started'],
+    ['INVALID_ARGUMENT', 400, 'not_committed'],
+    ['NOT_FOUND', 404, 'not_committed'],
+    ['VERSION_CONFLICT', 409, 'not_committed'],
+    ['INVALID_STATE', 409, 'not_committed'],
+  ] as const)(
+    'treats only first %s/%i/%s as a definite rejection; old uncertainty stays',
+    async (code, status, commit) => {
+      const f = await fixture(),
+        p = f.auth.system.outboundPolicy
+      f.setOutbound(async () => problem(code, status, commit))
+      await p.startUpdate(input()).catch(() => undefined)
+      expect(p.progress?.phase).toBe('rejected')
+      p.editRejected()
+      expect(p.progress).toBeNull()
+      f.setOutbound(async () => problem('DEPENDENCY_UNAVAILABLE', 503))
+      await p.startUpdate(input()).catch(() => undefined)
+      const original = f.writes()[1]![1]
+      f.setOutbound(async (_, init) =>
+        init.method === 'GET' ? json(policy('19')) : problem(code, status, commit),
+      )
+      expect((await p.checkOriginal()).version).toBe('19')
+      await p.retryOriginal().catch(() => undefined)
+      expect(p.progress).toMatchObject({
+        phase: 'uncertain',
+        receipt: null,
+        canRetryOriginal: false,
+      })
+      expect(() => p.editRejected()).toThrow()
+      expect(
+        f.writes()[2]![1].body === original.body &&
+          JSON.stringify(f.writes()[2]![1].headers) === JSON.stringify(original.headers),
+      ).toBe(true)
+    },
+  )
+
+  it.each([
+    ['DEPENDENCY_UNAVAILABLE', 503, 'not_started'],
+    ['INVALID_ARGUMENT', 503, 'not_started'],
+    ['NOT_FOUND', 400, 'not_started'],
+    ['VERSION_CONFLICT', 400, 'not_started'],
+    ['INVALID_ARGUMENT', 409, 'not_started'],
+    ['INVALID_STATE', 404, 'not_started'],
+    ['OTHER_CODE', 400, 'not_committed'],
+    ['INVALID_ARGUMENT', 400, 'committed'],
+    ['VERSION_CONFLICT', 409, 'unknown'],
+    ['RESOURCE_BUSY', 409, 'not_started'],
+    ['RATE_LIMITED', 429, 'not_started'],
+    ['CSRF_FAILED', 503, 'not_started'],
+    ['CSRF_FAILED', 400, 'not_started'],
+    ['CSRF_FAILED', 401, 'not_started'],
+    ['FORBIDDEN', 401, 'not_started'],
+    ['SESSION_REVOKED', 403, 'not_started'],
+    ['OTHER_CODE', 401, 'not_started'],
+    ['OTHER_CODE', 403, 'not_started'],
+  ] as const)(
+    'retains %s/%i/%s and replays original bytes even after observation failure',
+    async (code, status, commit) => {
+      const f = await fixture(),
+        p = f.auth.system.outboundPolicy,
+        identity = f.auth.personalContext.identity
+      f.setOutbound(async () => problem(code, status, commit))
+      await p.startUpdate(input()).catch(() => undefined)
+      const original = f.writes()[0]!
+      expect(p.progress).toMatchObject({
+        phase: 'uncertain',
+        receipt: null,
+        canRetryOriginal: false,
+      })
+      expect(f.auth.personalContext.identity).toEqual(identity)
+      expect(f.auth.system.denied).toBe(false)
+      const start = f.fetch.mock.calls.length
+      f.setOutbound(async (_, init) =>
+        init.method === 'GET' ? problem('DEPENDENCY_UNAVAILABLE', 503) : json(receipt()),
+      )
+      await expect(p.checkOriginal()).rejects.toMatchObject({ kind: 'problem' })
+      expect(f.fetch.mock.calls.slice(start).map(([path, init]) => [path, init.method])).toEqual([
+        ['/api/v1/session', 'GET'],
+        [endpoint, 'GET'],
+      ])
+      expect(p.progress).toMatchObject({
+        phase: 'uncertain',
+        observation: 'failed',
+        receipt: null,
+        canRetryOriginal: true,
+      })
+      await p.retryOriginal()
+      const replay = f.writes()[1]!
+      expect(
+        original[0] === replay[0] &&
+          original[1].body === replay[1].body &&
+          JSON.stringify(original[1].headers) === JSON.stringify(replay[1].headers),
+      ).toBe(true)
+      expect(p.progress?.phase).toBe('confirmed')
+      expect(f.fetch.mock.calls.some(([path]) => path.includes('lookup'))).toBe(false)
+    },
+  )
+
+  it.each(['transport', 'truncated', 'bad-receipt', 'mismatched-problem'] as const)(
+    'does not turn %s into a business rejection',
+    async (kind) => {
+      const f = await fixture(),
+        p = f.auth.system.outboundPolicy
+      f.setOutbound(async () => {
+        if (kind === 'transport') throw new Error('lost')
+        if (kind === 'bad-receipt') return json({ ...receipt(), version: '3' })
+        if (kind === 'mismatched-problem')
+          return new Response(await problem('INVALID_ARGUMENT', 400).text(), {
+            status: 409,
+            headers: { 'Content-Type': 'application/problem+json' },
+          })
+        return new Response('{', { headers: { 'Content-Type': 'application/json' } })
+      })
+      await p.startUpdate(input()).catch(() => undefined)
+      expect(p.progress?.phase).toBe('uncertain')
+      expect(() => p.editRejected()).toThrow()
+    },
+  )
+
+  it('retains key conflicts, does not auto-rekey, and never uses a failed Session as replay authority', async () => {
+    const f = await fixture(),
+      p = f.auth.system.outboundPolicy,
+      random = vi.spyOn(crypto, 'randomUUID')
+    f.setOutbound(async () => problem('IDEMPOTENCY_KEY_REUSED', 409))
+    await p.startUpdate(input()).catch(() => undefined)
+    f.setSessionRequest(async () => problem('DEPENDENCY_UNAVAILABLE', 503))
+    const before = f.fetch.mock.calls.length
+    await expect(p.checkOriginal()).rejects.toMatchObject({ kind: 'cancelled' })
+    expect(f.fetch.mock.calls.slice(before).map(([path]) => path)).toEqual(['/api/v1/session'])
+    expect(p.progress?.canRetryOriginal).toBe(false)
+    f.setSessionRequest(async () => json(view()))
+    f.setOutbound(async () => json(policy('19')))
+    await p.checkOriginal()
+    expect(p.progress).toMatchObject({
+      phase: 'uncertain',
+      observation: 'current',
+      receipt: null,
+      canRetryOriginal: false,
+    })
+    await expect(p.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(random).toHaveBeenCalledTimes(1)
+    expect(f.writes()).toHaveLength(1)
+    p.abandon()
+    expect(p.progress).toBeNull()
+    expect(f.writes()).toHaveLength(1)
+  })
+
+  it.each(['read', 'write'] as const)(
+    'requires complete %s EOF and keeps native cancel owned after the visible 30 seconds',
+    async (kind) => {
+      const f = await fixture(),
+        p = f.auth.system.outboundPolicy,
+        tail = barrier(),
+        cancel = vi.fn(() => tail.promise)
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      let stream!: ReadableStreamDefaultController<Uint8Array>
+      f.setOutbound(
+        async () =>
+          new Response(
+            new ReadableStream<Uint8Array>({
+              start(c) {
+                stream = c
+              },
+              cancel,
+            }),
+            { headers: { 'Content-Type': 'application/json' } },
+          ),
+      )
+      let settled = false
+      const task = (kind === 'read' ? p.get() : p.startUpdate(input())).then(
+        (value) => {
+          settled = true
+          return value
+        },
+        (error: unknown) => {
+          settled = true
+          return error
+        },
+      )
+      await flushPromises()
+      stream.enqueue(
+        new TextEncoder().encode(JSON.stringify(kind === 'read' ? policy() : receipt())),
+      )
+      await flushPromises()
+      expect(settled).toBe(false)
+      try {
+        await vi.advanceTimersByTimeAsync(30000)
+        expect(await task).toMatchObject({ kind: 'cancelled' })
+        expect(cancel).toHaveBeenCalledTimes(1)
+        expect(f.auth.state.busy).toBe(true)
+        const count = f.fetch.mock.calls.length
+        await f.auth.restore()
+        await f.auth.logout()
+        await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
+        await expect(f.auth.system.smtp.get()).rejects.toMatchObject({ kind: 'busy' })
+        await expect(f.auth.system.smtpDelivery.list()).rejects.toMatchObject({ kind: 'busy' })
+        await expect(p.get()).rejects.toMatchObject({ kind: 'busy' })
+        expect(f.fetch.mock.calls).toHaveLength(count)
+        if (kind === 'write') expect(p.progress?.phase).toBe('uncertain')
+      } finally {
+        tail.resolve()
+      }
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(false)
+      if (kind === 'write') expect(p.progress?.phase).toBe('uncertain')
+    },
+  )
+
+  it('releases complete native EOF before publishing a safe receipt', async () => {
+    const f = await fixture(),
+      p = f.auth.system.outboundPolicy
+    let stream!: ReadableStreamDefaultController<Uint8Array>
+    f.setOutbound(
+      async () =>
+        new Response(
+          new ReadableStream<Uint8Array>({
+            start(c) {
+              stream = c
+            },
+          }),
+          { headers: { 'Content-Type': 'application/json' } },
+        ),
+    )
+    const task = p.startUpdate(input())
+    await flushPromises()
+    stream.enqueue(new TextEncoder().encode(JSON.stringify(receipt())))
+    await flushPromises()
+    expect(p.progress?.phase).toBe('submitting')
+    expect(f.auth.state.busy).toBe(true)
+    stream.close()
+    expect(await task).toEqual(receipt())
+    expect(f.auth.state.busy).toBe(false)
+  })
+
+  it('keeps an ignored fetch tail owned after abandonment and blocks a new identity until actual return', async () => {
+    const f = await fixture(),
+      p = f.auth.system.outboundPolicy,
+      held = barrier<Response>()
+    f.setOutbound(() => held.promise)
+    const task = p.startUpdate(input()).catch((e) => e)
+    await flushPromises()
+    f.auth.leave()
+    expect(await task).toMatchObject({ kind: 'cancelled' })
+    expect(p.progress).toBeNull()
+    f.setSession(view(id(3)))
+    const before = f.fetch.mock.calls.length
+    await f.auth.restore()
+    expect(f.fetch.mock.calls).toHaveLength(before)
+    expect(f.auth.state.busy).toBe(true)
+    held.resolve(json(receipt()))
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+    await f.auth.restore()
+    expect(f.auth.state.session?.id).toBe(id(3))
+    expect(p.progress).toBeNull()
+  })
+
+  it('cancels only a read and enables replay only after its failed native body cancellation joins', async () => {
+    const f = await fixture(),
+      p = f.auth.system.outboundPolicy,
+      tail = barrier(),
+      cancel = vi.fn(() => tail.promise)
+    f.setOutbound(async () => problem('DEPENDENCY_UNAVAILABLE', 503))
+    await p.startUpdate(input()).catch(() => undefined)
+    const original = f.writes()[0]![1]
+    f.setOutbound(
+      async () =>
+        new Response(new ReadableStream<Uint8Array>({ cancel }), {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain' },
+        }),
+    )
+    const checked = p.checkOriginal().catch((e) => e)
+    await flushPromises()
+    expect(cancel).toHaveBeenCalledTimes(1)
+    p.abandonRead()
+    try {
+      expect(await checked).toMatchObject({ kind: 'cancelled' })
+      expect(p.progress).toMatchObject({
+        phase: 'uncertain',
+        observation: 'failed',
+        canRetryOriginal: false,
+      })
+      await expect(p.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+      expect(f.auth.state.busy).toBe(true)
+    } finally {
+      tail.resolve()
+    }
+    await flushPromises()
+    expect(p.progress?.canRetryOriginal).toBe(true)
+    f.setOutbound(async () => json(receipt()))
+    await p.retryOriginal()
+    expect(
+      f.writes()[1]![1].body === original.body &&
+        JSON.stringify(f.writes()[1]![1].headers) === JSON.stringify(original.headers),
+    ).toBe(true)
+  })
+
+  it.each([
+    'personal',
+    'users',
+    'invitations',
+    'providers',
+    'models',
+    'selection',
+    'security',
+    'smtp',
+    'delivery',
+  ] as const)(
+    'isolates %s abandonment and actual Cookie tails in both directions',
+    async (domain) => {
+      const f = await fixture(),
+        p = f.auth.system.outboundPolicy
+      const read = () =>
+        ({
+          personal: () => f.auth.personal.getProfile(),
+          users: () => f.auth.system.listUsers({}),
+          invitations: () => f.auth.system.listInvitations({}),
+          providers: () => f.auth.system.providers.list({}),
+          models: () => f.auth.system.models.listProviders({}),
+          selection: () => f.auth.system.selection.get(),
+          security: () => f.auth.system.accountSecurity.get(),
+          smtp: () => f.auth.system.smtp.get(),
+          delivery: () => f.auth.system.smtpDelivery.list(),
+        })[domain]()
+      const abandon = () =>
+        ({
+          personal: () => f.auth.personal.abandon(),
+          users: () => f.auth.system.abandon(),
+          invitations: () => f.auth.system.abandonInvitations(),
+          providers: () => f.auth.system.providers.abandon(),
+          models: () => f.auth.system.models.abandon(),
+          selection: () => f.auth.system.selection.abandon(),
+          security: () => f.auth.system.accountSecurity.abandon(),
+          smtp: () => f.auth.system.smtp.abandon(),
+          delivery: () => f.auth.system.smtpDelivery.abandon(),
+        })[domain]()
+      const held = barrier<Response>()
+      f.setOutbound(() => held.promise)
+      const current = p.get()
+      await flushPromises()
+      abandon()
+      expect(f.fetch.mock.calls.at(-1)![1].signal?.aborted).toBe(false)
+      await expect(read()).rejects.toMatchObject({ kind: 'busy' })
+      held.resolve(json(policy()))
+      expect(await current).toEqual(policy())
+      const tail = barrier(),
+        cancelled = vi.fn(() => tail.promise)
+      const other: Fetch = async () =>
+        new Response(new ReadableStream<Uint8Array>({ cancel: cancelled }), {
+          headers: { 'Content-Type': 'application/json' },
+        })
+      f.setOther(other)
+      f.setSMTP(other)
+      f.setDelivery(other)
+      const task = read().catch((e) => e)
+      await flushPromises()
+      p.abandon()
+      expect(cancelled).not.toHaveBeenCalled()
+      expect(f.auth.state.busy).toBe(true)
+      abandon()
+      try {
+        expect(await task).toMatchObject({ kind: 'cancelled' })
+        expect(cancelled).toHaveBeenCalledTimes(1)
+        await expect(p.get()).rejects.toMatchObject({ kind: 'busy' })
+      } finally {
+        tail.resolve()
+      }
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(false)
+    },
+  )
+
+  it('keeps SMTP private password and delivery original intent independent while outbound is active', async () => {
+    const f = await fixture(),
+      p = f.auth.system.outboundPolicy,
+      smtp = f.auth.system.smtp,
+      delivery = f.auth.system.smtpDelivery
+    await smtp.get()
+    smtp.setMaterial(' synthetic-private ')
+    f.setDelivery(async () => problem('NOT_FOUND', 404))
+    await delivery.startTest({ recipient: 'sender@example.test' }).catch(() => undefined)
+    const original = f.fetch.mock.calls.find(
+      ([path, init]) => path.endsWith('/smtp/test') && init.method === 'POST',
+    )![1]
+    const held = barrier<Response>()
+    f.setOutbound(() => held.promise)
+    const current = p.get()
+    await flushPromises()
+    expect(smtp.material.present).toBe(true)
+    expect(delivery.progress?.phase).toBe('uncertain')
+    const from = f.fetch.mock.calls.length
+    await expect(
+      smtp.startUpdate({
+        version: '1',
+        host: 'mail.example',
+        port: 25,
+        encryption: 'none',
+        username: 'auth',
+        sender_email: 'sender@example.test',
+        sender_name: '',
+        auto_retry_count: '0',
+        retry_interval_seconds: '10',
+        credential_action: 'keep',
+      }),
+    ).rejects.toMatchObject({ kind: 'busy' })
+    expect(f.fetch.mock.calls).toHaveLength(from)
+    expect(smtp.material.present).toBe(true)
+    held.resolve(json(policy()))
+    await current
+    p.abandon()
+    expect(smtp.material.present).toBe(true)
+    expect(delivery.progress?.phase).toBe('uncertain')
+    f.setDelivery(async (_, init) =>
+      init.method === 'GET' ? json({ items: [] }) : json({ job_id: id(21) }, 202),
+    )
+    await delivery.checkOriginal()
+    await delivery.retryOriginal()
+    const replay = f.fetch.mock.calls.filter(
+      ([path, init]) => path.endsWith('/smtp/test') && init.method === 'POST',
+    )[1]![1]
+    expect(
+      original.body === replay.body &&
+        JSON.stringify(original.headers) === JSON.stringify(replay.headers),
+    ).toBe(true)
+  })
+
+  it.each(['personal', 'smtp', 'delivery'] as const)(
+    'holds the actual %s write tail against outbound without erasing its original input',
+    async (domain) => {
+      const f = await fixture(),
+        p = f.auth.system.outboundPolicy,
+        smtp = f.auth.system.smtp
+      await smtp.get()
+      smtp.setMaterial(' synthetic-private ')
+      const tail = barrier(),
+        cancel = vi.fn(() => tail.promise)
+      const pendingResponse: Fetch = async () =>
+        new Response(new ReadableStream<Uint8Array>({ cancel }), {
+          status: domain === 'delivery' ? 202 : 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      f.setOther(pendingResponse)
+      f.setSMTP(pendingResponse)
+      f.setDelivery(pendingResponse)
+      const work = () =>
+        domain === 'personal'
+          ? f.auth.personal.setPreferences({ version: '1', theme: 'dark' })
+          : domain === 'smtp'
+            ? smtp.startUpdate({
+                version: '1',
+                host: 'mail.example',
+                port: 25,
+                encryption: 'none',
+                username: 'auth',
+                sender_email: 'sender@example.test',
+                sender_name: '',
+                auto_retry_count: '0',
+                retry_interval_seconds: '10',
+                credential_action: 'keep',
+              })
+            : f.auth.system.smtpDelivery.startTest({ recipient: 'sender@example.test' })
+      const task = work().catch((e) => e)
+      try {
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(true)
+      const dispatched = f.fetch.mock.calls.at(-1)![1]
+      expect(dispatched.method !== 'GET').toBe(true)
+      if (domain === 'smtp')
+        expect(
+          typeof dispatched.body === 'string' && dispatched.body.includes(' synthetic-private '),
+        ).toBe(true)
+      p.abandon()
+      expect(cancel).not.toHaveBeenCalled()
+      expect(smtp.material.present).toBe(true)
+      const count = f.fetch.mock.calls.length
+      await expect(p.startUpdate(input())).rejects.toMatchObject({ kind: 'busy' })
+      expect(f.fetch.mock.calls).toHaveLength(count)
+      if (domain === 'personal') f.auth.personal.abandon()
+      else if (domain === 'smtp') smtp.abandon()
+      else f.auth.system.smtpDelivery.abandon()
+        expect(await task).toMatchObject({ kind: 'cancelled' })
+        expect(cancel).toHaveBeenCalledTimes(1)
+        expect(f.auth.state.busy).toBe(true)
+        await expect(p.get()).rejects.toMatchObject({ kind: 'busy' })
+      } finally {
+        if (domain === 'personal') f.auth.personal.abandon()
+        else if (domain === 'smtp') smtp.abandon()
+        else f.auth.system.smtpDelivery.abandon()
+        tail.resolve()
+        await task
+        await flushPromises()
+      }
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(false)
+    },
+  )
+
+  it('does not extend the new write-only CSRF safety branch to a GET observation', async () => {
+    const f = await fixture(),
+      p = f.auth.system.outboundPolicy,
+      identity = f.auth.personalContext.identity
+    f.setOutbound(async () => problem('DEPENDENCY_UNAVAILABLE', 503))
+    await p.startUpdate(input()).catch(() => undefined)
+    f.setOutbound(async () => problem('CSRF_FAILED', 403))
+    await expect(p.checkOriginal()).rejects.toMatchObject({ kind: 'problem' })
+    expect(f.auth.personalContext.identity).toEqual(identity)
+    expect(f.auth.state.phase).toBe('authenticated')
+    expect(f.auth.system.denied).toBe(false)
+    expect(p.progress).toMatchObject({
+      phase: 'uncertain',
+      observation: 'failed',
+      canRetryOriginal: true,
+    })
+  })
+
+  it.each(['session', 'csrf', 'role'] as const)(
+    'destroys pending outbound recovery on %s change',
+    async (kind) => {
+      const f = await fixture(),
+        p = f.auth.system.outboundPolicy
+      f.setOutbound(async () => problem('DEPENDENCY_UNAVAILABLE', 503))
+      await p.startUpdate(input()).catch(() => undefined)
+      f.setSession(
+        kind === 'session'
+          ? view(id(3))
+          : kind === 'role'
+            ? view(id(2), 'user')
+            : { ...view(), csrf_token: 'N'.repeat(43) },
+      )
+      await f.auth.restore()
+      expect(p.progress).toBeNull()
+      await expect(p.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+      expect(f.writes()).toHaveLength(1)
+    },
+  )
+
+  it.each([
+    ['UNAUTHENTICATED', 401, 'committed'],
+    ['SESSION_REVOKED', 401, 'unknown'],
+    ['CSRF_FAILED', 403, 'committed'],
+    ['CSRF_FAILED', 403, 'unknown'],
+    ['FORBIDDEN', 403, 'committed'],
+    ['FORBIDDEN', 403, 'unknown'],
+  ] as const)(
+    'prioritizes legitimate %s/%i/%s over uncertain writes and clears system private state',
+    async (code, status, commit) => {
+      const f = await fixture(),
+        p = f.auth.system.outboundPolicy
+      await f.auth.system.smtp.get()
+      f.auth.system.smtp.setMaterial('smtp-private')
+      f.auth.system.providers.setMaterial('provider-private')
+      f.setDelivery(async () => problem('NOT_FOUND', 404))
+      await f.auth.system.smtpDelivery
+        .startTest({ recipient: 'sender@example.test' })
+        .catch(() => undefined)
+      f.setOutbound(async () => problem(code, status, commit))
+      await p.startUpdate(input()).catch(() => undefined)
+      expect(p.progress).toBeNull()
+      expect(f.auth.system.smtp.material.present).toBe(false)
+      expect(f.auth.system.providers.material.present).toBe(false)
+      expect(f.auth.system.smtpDelivery.progress).toBeNull()
+      if (code === 'FORBIDDEN') {
+        expect(f.auth.system.denied).toBe(true)
+        expect(f.auth.state.user?.role).toBe('admin')
+        expect(f.auth.state.phase).toBe('authenticated')
+      } else {
+        expect(f.auth.personalContext.identity).toBeNull()
+        expect(f.auth.state.phase).toBe('unavailable')
+      }
+    },
+  )
+
+  it.each([401, 403] as const)(
+    'guards already-parsed late %i by current owner, identity and read revision',
+    async (status) => {
+      const f = await fixture(),
+        p = f.auth.system.outboundPolicy,
+        tail = barrier(),
+        entered = barrier()
+      const response = problem(status === 401 ? 'SESSION_REVOKED' : 'FORBIDDEN', status),
+        native = response.body!.cancel.bind(response.body)
+      response.body!.cancel = async () => {
+        entered.resolve()
+        await tail.promise
+        return native()
+      }
+      f.setOutbound(async () => response)
+      const task = p.get().catch((e) => e)
+      await entered.promise
+      p.abandonRead()
+      try {
+        expect(await task).toMatchObject({ kind: 'cancelled' })
+        expect(f.auth.state.busy).toBe(true)
+      } finally {
+        tail.resolve()
+      }
+      await flushPromises()
+      expect(f.auth.system.denied).toBe(false)
+      expect(f.auth.personalContext.identity === null).toBe(status === 401)
+    },
+  )
+
+  it('does not let a late old-identity safety failure invalidate a later Session', async () => {
+    const f = await fixture(),
+      p = f.auth.system.outboundPolicy,
+      tail = barrier(),
+      entered = barrier()
+    const response = problem('SESSION_REVOKED', 401),
+      native = response.body!.cancel.bind(response.body)
+    response.body!.cancel = async () => {
+      entered.resolve()
+      await tail.promise
+      return native()
+    }
+    f.setOutbound(async () => response)
+    const task = p.get().catch((e) => e)
+    await entered.promise
+    f.auth.leave()
+    try {
+      expect(await task).toMatchObject({ kind: 'cancelled' })
+    } finally {
+      tail.resolve()
+    }
+    await flushPromises()
+    expect(f.auth.state.phase).toBe('checking')
+    f.setSession(view(id(3)))
+    await f.auth.restore()
+    expect(f.auth.state.phase).toBe('authenticated')
+    expect(f.auth.state.session?.id).toBe(id(3))
+  })
+
+  it('does not clear a synchronously started successor after confirmation publication', async () => {
+    const f = await fixture(),
+      p = f.auth.system.outboundPolicy,
+      held = barrier<Response>()
+    let calls = 0,
+      successor: Promise<unknown> | null = null
+    f.setOutbound(async () => (++calls === 1 ? json(receipt()) : held.promise))
+    const stop = watch(
+      () => p.progress?.phase,
+      (phase) => {
+        if (phase === 'confirmed' && !successor) {
+          p.abandon()
+          successor = p.startUpdate({ ...input(), expected_version: '2' })
+        }
+      },
+      { flush: 'sync' },
+    )
+    try {
+      await p.startUpdate(input()).catch(() => undefined)
+      await flushPromises()
+      expect(f.writes()).toHaveLength(2)
+      expect(p.progress?.phase).toBe('submitting')
+      held.resolve(json(receipt('3')))
+      await successor
+      expect(p.progress).toMatchObject({ phase: 'confirmed', receipt: { version: '3' } })
+    } finally {
+      stop()
+      held.resolve(json(receipt('3')))
+    }
+  })
+})

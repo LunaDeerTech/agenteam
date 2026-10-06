@@ -1,0 +1,11 @@
+--- /workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/input02/source/tests/account/system_outbound_policy_web_fixture_test.go
++++ /workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/source/fixture01.go
+@@ -717,7 +717,7 @@
+ 	if e != nil {
+ 		f.t.Fatal(e)
+ 	}
+-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "system-outbound-policy.config.js"))
++	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/browser/independent.config.mjs")
+ 	cmd.Dir = root
+ 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+ 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }

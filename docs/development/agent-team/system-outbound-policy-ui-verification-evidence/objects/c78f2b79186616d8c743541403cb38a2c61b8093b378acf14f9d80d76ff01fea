@@ -1,0 +1,18 @@
+# Outbound UI 独立验收：PASS（A01 + B02）
+
+接受固定 `input05` 的33候选有界独立结论。作者 manifest SHA `c0318ca2ece3efb5e7e8bcedf2c30d96f0845b6466f0ee93fed2c174f061ea7a`；实际固定 cwd `/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace`，产品基线 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`。API5/owner2/page22逐 SHA 与已验阶段一致，38dist同页面阶段；1014接受依赖及私有/runtime输入实际执行前后均未变。精确提交候选见 [delivery33.json](delivery33.json) SHA `e942cc442ff530c32ee554c44877b00cfecb3308abbf903915edeeae85cb4c7f`；第34 README 尚待独立文档范围核验。
+
+| 独立真实原件 | 实际退出/时长 | 业务结果 | 实际清理 |
+| --- | --- | --- | --- |
+| independent01 | 1 / 125.159s | A PASS8.57s；原B导航前提FAIL15.49s | 7IDs / 153PID两扫空，8 adopted waits |
+| independent02 | 0 / 58.171s | 仅B PASS10.38s（browser4.5s） | 7IDs / 84PID两扫空，4 adopted waits |
+
+两轮均 actual wait、原2c4n保持、runtime/browser空、输入同字节。原01整体仍FAIL；组合采用完整A01及修正前提后的完整B02，不称原B单轮通过。关键 command/raw/result/cleanup 与前后指纹的精确 SHA 在 [verification-report.json](verification-report.json)。资源窗口已交回，无活动命令。
+
+A真实到达7项边界：accepted-cut后另一fixture管理员正式PUT推进current，Session/GET不代receipt；显式原key/body/合法原CSRF replay取得原历史receipt，当前规则不倒退；原Outbound command/semantic digest与Audit cause关联唯一；确认后GET503仍只读旧草稿，显式重读不多写。browser4.0s，原断言不变复用。
+
+B真实到达8项边界：待决确认中pageshow→一次Session503→新序号同Session200EOF恢复，原生focus/Tab；现有exact-owned撤销接缝返回401/SESSION_REVOKED EOF后清草稿/旧pending；精确bare登录→首页，新Session、overlay0且新导航前users0/PUT0；再通过真实系统导航进入users与Outbound，users请求严格晚于水位，Outbound当前GET具EOF；空表单、无原重试、零PUT和新clean logout全部完成。users原观察器只记录method/path/status，不冒称其EOF或ownerjoin。
+
+原B的私有前提错误及源码链见 [independent01-diagnosis-and-repair02.md](independent01-diagnosis-and-repair02.md)。login helper不做goto；App身份失效直达bare `/login`，正常登录无return即首页。原raw未单独记录登录前query，不倒填。修正仅B导航前提与阶段化零users断言，A/helper/fixture/Go/产品不变、无reload/goto；原probe及差量永久保留。旧准备阶段路径/类型前提失败和阶段A/B/C各原红/受控尾部限制均保留。
+
+阶段独立证据复用：API `verification-report.md` SHA `b40b6486f6eed6bd0faf6b2b19097c6d9cd8f2aa182ce1c9a3f18aaec0bed28a`；owner `20acf2532ab100f903edac9f1dde5d2b93711f6e6feca3822b0eff165a4d5cb2`；page `3d9372203a7fc5a322a7e4479499c195bac0d7a8da553287e791b89f026b68a0`，完整路径见JSON。实际stream/cancel/30s可见超时与身份安全闭集来自未变owner受控探针；浏览器原生观察不替代actual owner tail。原预算45s/2m/6m、race/count1、worker1/retry0保持。未重复作者全矩阵、未新增未授权资源、未执行主树整合或发布。

@@ -1,0 +1,26 @@
+{
+  "node_actual_wait": true,
+  "node_pid": 54330,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 54330,
+      "ppid": 54327,
+      "pgid": 54330,
+      "state": "R",
+      "starttime": "345436"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

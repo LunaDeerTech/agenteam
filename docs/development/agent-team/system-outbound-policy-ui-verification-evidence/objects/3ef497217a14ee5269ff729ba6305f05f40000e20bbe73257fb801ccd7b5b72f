@@ -1,0 +1,71 @@
+--- input03/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts
++++ input04/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts
+@@ -402,14 +402,43 @@
+   predicate: (fact: Fact) => boolean,
+ ) {
+   let found: Fact | undefined;
+-  await expect
+-    .poll(async () => {
+-      found = (await facts(page)).find(
+-        (f) => f.sequence > after && predicate(f),
++  try {
++    await expect
++      .poll(async () => {
++        found = (await facts(page)).find(
++          (f) => f.sequence > after && predicate(f),
++        );
++        return !!found;
++      })
++      .toBe(true);
++  } catch (error) {
++    try {
++      const summary = (await facts(page))
++        .filter(
++          (fact) =>
++            fact.sequence > after &&
++            [endpoint, "/api/v1/session", "/api/v1/system/smtp"].includes(
++              fact.path,
++            ),
++        )
++        .slice(-12)
++        .map((fact) => ({
++          method: fact.method,
++          path: fact.path,
++          status: fact.status,
++          code: fact.code ?? null,
++          commit_state: fact.commit_state ?? null,
++          ended: fact.ended,
++        }));
++      console.log(
++        "safe outbound response summary:",
++        JSON.stringify(summary),
+       );
+-      return !!found;
+-    })
+-    .toBe(true);
++    } catch {
++      // Diagnostics must not replace the original failed assertion.
++    }
++    throw error;
++  }
+   return found!;
+ }
+ async function session(page: Page) {
+@@ -794,7 +823,7 @@
+       f.method === "PUT" &&
+       f.status === 409 &&
+       f.code === "VERSION_CONFLICT" &&
+-      f.commit_state === "not_started" &&
++      f.commit_state === "not_committed" &&
+       f.ended,
+   );
+   expect(
+@@ -877,7 +906,7 @@
+   expect(
+     different.status === 409 &&
+       different.code === "IDEMPOTENCY_KEY_REUSED" &&
+-      different.commit_state === "not_started",
++      different.commit_state === "not_committed",
+   ).toBe(true);
+   expect(same((await dbFacts()).policy, newer)).toBe(true);
+   await ports(page).fill("9443");

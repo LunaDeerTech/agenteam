@@ -1,0 +1,580 @@
+import {
+  computed,
+  inject,
+  reactive,
+  readonly,
+  ref,
+  shallowReactive,
+  watch,
+  type InjectionKey,
+} from 'vue'
+import { AccountFailure } from '../api/client'
+import {
+  captureOutboundPortText,
+  captureOutboundRules,
+  type OutboundRule,
+} from '../api/outbound-rules'
+import {
+  captureOutboundPolicyUpdate,
+  outboundMaximumVersion,
+  type OutboundPolicy,
+  type OutboundPolicyReceipt,
+} from '../api/system-outbound-policy'
+import { useSession, type PersonalIdentity, type SessionController } from './useSession'
+
+export type OutboundRuleDraft = {
+  id: number
+  cidr: string
+  mode: 'specific' | 'all'
+  ports: string
+  allow_http: boolean
+}
+const same = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
+  !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
+const isPage = (path: string) => path.split(/[?#]/, 1)[0] === '/system/outbound-policy'
+const draftValue = (rows: readonly OutboundRuleDraft[]) =>
+  JSON.stringify(
+    rows.map(({ cidr, mode, ports, allow_http }) => ({ cidr, mode, ports, allow_http })),
+  )
+
+// App owns drafts and pending decisions; Session alone owns request bytes and keys.
+export function createSystemOutboundPolicy(auth: SessionController = useSession()) {
+  const api = auth.system.outboundPolicy
+  const observation = shallowReactive({
+    phase: 'inactive' as 'inactive' | 'loading' | 'ready' | 'error',
+    value: null as OutboundPolicy | null,
+    message: '',
+  })
+  const draft = reactive<OutboundRuleDraft[]>([])
+  const editor = reactive({ ready: false, version: '', conflict: false, message: '' })
+  const state = shallowReactive({
+    confirmed: null as OutboundPolicyReceipt | null,
+    writeMessage: '',
+    requiresRead: false,
+  })
+  const confirmation = reactive({ open: false, title: '', message: '' })
+  const feedback = ref<'idle' | 'loading' | 'success'>('idle'),
+    checking = ref(false),
+    baseline = ref('[]')
+  let rowID = 0,
+    identity = auth.personalContext.identity,
+    revision = 0,
+    readRevision = 0,
+    reading = false,
+    attached = false,
+    activeRoute = false,
+    disposed = false,
+    initial = true
+  let timer: ReturnType<typeof setTimeout> | undefined
+  let confirmationResult: ((value: boolean) => void) | null = null
+  const progress = computed(() => api.progress)
+  const blocked = computed(() => auth.state.busy || checking.value)
+  const unsettled = computed(() =>
+    ['submitting', 'uncertain'].includes(progress.value?.phase ?? ''),
+  )
+  const locked = computed(
+    () => unsettled.value || editor.conflict || state.requiresRead || !editor.ready,
+  )
+  const changed = computed(() => editor.ready && draftValue(draft) !== baseline.value)
+  const dirty = computed(() => (changed.value && !state.requiresRead) || editor.conflict || unsettled.value)
+  const maximumVersion = computed(() => editor.version === outboundMaximumVersion)
+  const authorized = () => {
+    const current = auth.personalContext.identity
+    return (
+      auth.state.phase === 'authenticated' &&
+      auth.personalContext.phase === 'current' &&
+      !!current &&
+      auth.state.user?.id === current.userID &&
+      auth.state.session?.id === current.sessionID &&
+      auth.state.user.role === 'admin' &&
+      !auth.system.denied
+    )
+  }
+  const current = (own: number, captured: PersonalIdentity | null) =>
+    !disposed &&
+    activeRoute &&
+    own === revision &&
+    authorized() &&
+    same(captured, auth.personalContext.identity)
+  const validation = computed(() => {
+    const errors: Record<number, { cidr?: string; ports?: string }> = {}
+    const rules: OutboundRule[] = []
+    for (const row of draft) {
+      const error: { cidr?: string; ports?: string } = {}
+      try {
+        captureOutboundRules([{ cidr: row.cidr, ports: [443], allow_http: false }])
+      } catch {
+        error.cidr = '请输入已掩码的规范 RFC1918 IPv4 或小写 ULA IPv6 CIDR，不加空格。'
+      }
+      let ports: 'all' | readonly number[] = 'all'
+      if (row.mode === 'specific') {
+        try {
+          ports = captureOutboundPortText(row.ports)
+        } catch {
+          error.ports = '请输入 1–65535 的不同整数端口，使用逗号分隔，两侧可有 ASCII 空白，最多 256 个。'
+        }
+      }
+      if (Object.keys(error).length) errors[row.id] = error
+      rules.push({ cidr: row.cidr, ports, allow_http: row.allow_http })
+    }
+    let captured: readonly OutboundRule[] | null = null,
+      message = ''
+    if (!Object.keys(errors).length) {
+      try {
+        captured = captureOutboundRules(rules)
+      } catch {
+        message = '最多 256 条规则；规范化后完全相同的规则不能重复。'
+      }
+    }
+    return { errors, message, rules: captured }
+  })
+  const canSave = computed(
+    () =>
+      authorized() &&
+      editor.ready &&
+      changed.value &&
+      !blocked.value &&
+      !locked.value &&
+      !maximumVersion.value &&
+      !confirmation.open &&
+      observation.phase === 'ready' &&
+      !!validation.value.rules &&
+      progress.value?.phase !== 'rejected',
+  )
+  function stopFeedback() {
+    clearTimeout(timer)
+    timer = undefined
+    feedback.value = 'idle'
+  }
+  function finishConfirmation(value: boolean) {
+    confirmation.open = false
+    const done = confirmationResult
+    confirmationResult = null
+    done?.(value)
+  }
+  function requestConfirmation(title: string) {
+    if (confirmationResult) return Promise.resolve(false)
+    Object.assign(confirmation, {
+      open: true,
+      title,
+      message: '将放弃本地草稿和原请求追踪；此前请求仍可能生效。放弃不会回滚服务器已经保存的规则。',
+    })
+    return new Promise<boolean>((resolve) => {
+      confirmationResult = resolve
+    })
+  }
+  function retireRead() {
+    ++readRevision
+    const wasReading = reading
+    reading = false
+    if (observation.phase === 'loading')
+      Object.assign(observation, {
+        phase: 'error',
+        message: '读取已取消，请在当前请求结束后明确重新读取。',
+      })
+    if (wasReading) api.abandonRead()
+  }
+  function clearEditor() {
+    draft.splice(0)
+    baseline.value = '[]'
+    Object.assign(editor, { ready: false, version: '', conflict: false, message: '' })
+  }
+  function adopt(value: OutboundPolicy) {
+    draft.splice(
+      0,
+      draft.length,
+      ...value.rules.map((rule) => ({
+        id: ++rowID,
+        cidr: rule.cidr,
+        mode: rule.ports === 'all' ? ('all' as const) : ('specific' as const),
+        ports: rule.ports === 'all' ? '' : rule.ports.join(', '),
+        allow_http: rule.allow_http,
+      })),
+    )
+    baseline.value = draftValue(draft)
+    Object.assign(editor, { ready: true, version: value.version, conflict: false, message: '' })
+    state.requiresRead = false
+  }
+  function discard(requireRead: boolean) {
+    ++revision
+    retireRead()
+    api.abandon()
+    clearEditor()
+    stopFeedback()
+    state.writeMessage = ''
+    state.requiresRead = requireRead
+    checking.value = false
+  }
+  function invalidate() {
+    discard(false)
+    Object.assign(observation, { phase: 'inactive', value: null, message: '' })
+    state.confirmed = null
+    initial = true
+    finishConfirmation(false)
+  }
+  function observe(value: OutboundPolicy, initialize: boolean) {
+    const floor = [observation.value?.version, state.confirmed?.version].filter(
+      (v): v is string => !!v,
+    )
+    if (floor.some((v) => BigInt(value.version) < BigInt(v)))
+      throw new AccountFailure('invalid-response')
+    Object.assign(observation, { phase: 'ready', value, message: '' })
+    if (editor.ready && value.version !== editor.version) {
+      editor.conflict = true
+      editor.message = '当前观察版本已变化。原草稿与编辑版本保持不变，请核对后明确采用最新值。'
+    }
+    if (initialize && !unsettled.value && (!editor.ready || state.requiresRead)) adopt(value)
+  }
+  function readMessage(error: unknown) {
+    return error instanceof AccountFailure && error.kind === 'cancelled'
+      ? '读取已取消或等待超时，请在当前请求结束后明确重新读取。'
+      : '未取得完整的当前规则。保留的观察和草稿不代表最新服务器状态，请明确重新读取。'
+  }
+  async function readCurrent(initialize = true): Promise<OutboundPolicy | null> {
+    if (!attached || !authorized() || blocked.value) return null
+    initial = false
+    const own = revision,
+      captured = auth.personalContext.identity,
+      read = ++readRevision
+    reading = true
+    const valid = () => attached && current(own, captured) && read === readRevision
+    Object.assign(observation, { phase: 'loading', message: '' })
+    try {
+      const value = await api.get()
+      if (!valid()) return null
+      observe(value, initialize)
+      return value
+    } catch (error) {
+      if (valid()) Object.assign(observation, { phase: 'error', message: readMessage(error) })
+      return null
+    } finally {
+      if (read === readRevision) reading = false
+    }
+  }
+  async function confirmDiscard(title = '放弃未保存的规则？') {
+    if (!dirty.value) return true
+    const own = revision,
+      captured = auth.personalContext.identity
+    return (await requestConfirmation(title)) && current(own, captured)
+  }
+  const clearedAnonymous = () =>
+    auth.state.phase === 'anonymous' &&
+    auth.personalContext.phase === 'invalid' &&
+    auth.personalContext.identity === null &&
+    !auth.state.busy &&
+    !dirty.value
+  const clearedRejected = () => {
+    const value = auth.personalContext.identity
+    return (
+      auth.state.phase === 'authenticated' &&
+      auth.personalContext.phase === 'current' &&
+      !!value &&
+      auth.state.user?.id === value.userID &&
+      auth.state.session?.id === value.sessionID &&
+      (auth.state.user.role !== 'admin' || auth.system.denied) &&
+      !auth.state.busy &&
+      !dirty.value
+    )
+  }
+  async function confirmLeave() {
+    const own = revision,
+      active = activeRoute,
+      captured = auth.personalContext.identity,
+      inactiveAtEntry = !activeRoute && !dirty.value && !auth.state.busy,
+      anonymousAtEntry = clearedAnonymous(),
+      rejectedAtEntry = clearedRejected()
+    if (!(await confirmDiscard()) || disposed || own !== revision || active !== activeRoute)
+      return false
+    const allowed =
+      current(own, captured) ||
+      (inactiveAtEntry && !activeRoute && !dirty.value && !auth.state.busy) ||
+      (anonymousAtEntry && clearedAnonymous()) ||
+      (rejectedAtEntry && clearedRejected() && same(captured, auth.personalContext.identity))
+    if (!allowed) return false
+    if (activeRoute && authorized()) discard(unsettled.value)
+    return true
+  }
+  function errorMessage(error: unknown) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    if (progress.value?.phase === 'uncertain')
+      return e.problem?.code === 'IDEMPOTENCY_KEY_REUSED'
+        ? '原请求标识与输入冲突。原材料和标识保持不变，请明确放弃后重新读取。'
+        : '保存结果未确认。请检查当前会话与规则，再显式重试原请求；当前读取不能确认原写入。'
+    if (e.problem?.code === 'VERSION_CONFLICT') {
+      editor.conflict = true
+      return '规则版本冲突。草稿和原编辑版本已保留，请明确读取、核对并采用最新值。'
+    }
+    if (e.problem?.code === 'INVALID_ARGUMENT') return '请核对 CIDR、端口与重复规则，修改后再保存。'
+    return '保存未完成，草稿已保留。请核对后明确重新读取当前规则。'
+  }
+  async function mutate(work: () => Promise<OutboundPolicyReceipt>) {
+    const own = revision,
+      captured = auth.personalContext.identity
+    stopFeedback()
+    feedback.value = 'loading'
+    state.writeMessage = ''
+    state.confirmed = null
+    try {
+      const result = await work()
+      if (!current(own, captured)) return
+      state.confirmed = result
+      state.requiresRead = true
+      editor.conflict = false
+      editor.message = '原提交草稿已保留，不能据此继续保存；新的编辑基线需来自成功的当前读取。'
+      feedback.value = 'success'
+      state.writeMessage = '规则保存已确认，请读取当前规则；历史确认与当前配置分别展示。'
+      timer = setTimeout(() => {
+        if (current(own, captured)) feedback.value = 'idle'
+      }, 2400)
+      // This is a new read after the actual write tail; never start it from an old detached continuation.
+      if (!attached || !current(own, captured)) return
+      const value = await readCurrent()
+      if (current(own, captured) && !value)
+        state.writeMessage = '保存已确认，当前规则读取失败。请仅重新读取，不要重复保存。'
+    } catch (error) {
+      if (!current(own, captured)) return
+      feedback.value = 'idle'
+      state.writeMessage = errorMessage(error)
+    }
+  }
+  async function resume() {
+    if (
+      disposed ||
+      !attached ||
+      !activeRoute ||
+      !authorized() ||
+      blocked.value ||
+      !initial ||
+      state.requiresRead
+    )
+      return
+    await readCurrent(!editor.ready)
+  }
+  function afterNavigation(to: string, from: string) {
+    if (isPage(from) && !isPage(to)) {
+      activeRoute = false
+      attached = false
+      invalidate()
+    } else if (isPage(to)) activeRoute = true
+  }
+  const stopIdentity = watch(
+    () =>
+      [
+        auth.personalContext.phase,
+        auth.personalContext.identity,
+        auth.state.user?.role,
+        auth.system.denied,
+        auth.state.busy,
+      ] as const,
+    ([phase, value]) => {
+      if (phase === 'checking') return
+      if (
+        phase === 'invalid' ||
+        !same(identity, value) ||
+        auth.state.user?.role !== 'admin' ||
+        auth.system.denied
+      ) {
+        invalidate()
+        identity = value
+      }
+      void resume()
+    },
+  )
+  function beforeUnload(event: BeforeUnloadEvent) {
+    if (dirty.value) {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+  }
+  window.addEventListener('beforeunload', beforeUnload)
+  function editable() {
+    return (
+      !disposed &&
+      activeRoute &&
+      authorized() &&
+      !blocked.value &&
+      !locked.value &&
+      !maximumVersion.value &&
+      !confirmation.open
+    )
+  }
+  function beginEdit() {
+    if (progress.value?.phase === 'rejected') api.editRejected()
+    stopFeedback()
+    state.writeMessage = ''
+    editor.message = ''
+  }
+  return {
+    auth,
+    observation: readonly(observation),
+    draft: readonly(draft),
+    editor: readonly(editor),
+    state: readonly(state),
+    confirmation: readonly(confirmation),
+    progress,
+    feedback,
+    blocked,
+    locked,
+    changed,
+    dirty,
+    maximumVersion,
+    validation,
+    canSave,
+    attach() {
+      if (disposed || attached) return
+      attached = true
+      activeRoute = true
+      void resume()
+    },
+    detach() {
+      if (!attached) return
+      attached = false
+      if (!(checking.value && auth.personalContext.phase === 'checking')) retireRead()
+    },
+    afterNavigation,
+    confirmLeave,
+    finishConfirmation,
+    addRule() {
+      if (!editable() || draft.length >= 256) return null
+      beginEdit()
+      const id = ++rowID
+      draft.push({ id, cidr: '', mode: 'specific', ports: '', allow_http: false })
+      return id
+    },
+    removeRule(id: number) {
+      if (!editable()) return false
+      const index = draft.findIndex((row) => row.id === id)
+      if (index < 0) return false
+      beginEdit()
+      draft.splice(index, 1)
+      return true
+    },
+    updateRule(
+      id: number,
+      patch: Partial<Pick<OutboundRuleDraft, 'cidr' | 'ports' | 'mode' | 'allow_http'>>,
+    ) {
+      if (!editable()) return
+      const row = draft.find((value) => value.id === id)
+      if (
+        !row ||
+        Object.keys(patch).some((key) => !['cidr', 'ports', 'mode', 'allow_http'].includes(key)) ||
+        (patch.mode !== undefined && patch.mode !== 'specific' && patch.mode !== 'all') ||
+        (patch.cidr !== undefined && typeof patch.cidr !== 'string') ||
+        (patch.ports !== undefined && typeof patch.ports !== 'string') ||
+        (patch.allow_http !== undefined && typeof patch.allow_http !== 'boolean')
+      )
+        return
+      beginEdit()
+      Object.assign(row, patch)
+    },
+    save() {
+      if (!canSave.value || !validation.value.rules) return Promise.resolve()
+      const captured = captureOutboundPolicyUpdate({
+        expected_version: editor.version,
+        rules: validation.value.rules,
+      })
+      return mutate(() => api.startUpdate(captured))
+    },
+    cancelRead() {
+      if (!reading || auth.personalContext.phase !== 'current') return
+      initial = false
+      retireRead()
+      checking.value = false
+    },
+    async cancel() {
+      const hadUnknown = unsettled.value,
+        own = revision,
+        captured = auth.personalContext.identity
+      if (!(await confirmDiscard()) || !current(own, captured)) return
+      discard(hadUnknown)
+      if (!hadUnknown && observation.phase === 'ready' && observation.value)
+        adopt(observation.value)
+      else state.requiresRead = true
+    },
+    async refresh() {
+      if (blocked.value) return
+      const own = revision,
+        captured = auth.personalContext.identity
+      if (!(await confirmDiscard()) || !current(own, captured) || blocked.value) return
+      // A confirmed draft is historical, not another unsubmitted edit. Keep it
+      // through repeated failed GETs until a successful current read replaces it.
+      if (!(state.requiresRead && state.confirmed && !unsettled.value)) discard(false)
+      await readCurrent()
+    },
+    readLatest() {
+      return !unsettled.value && !blocked.value && !confirmation.open
+        ? readCurrent(false)
+        : Promise.resolve(null)
+    },
+    async adoptLatest() {
+      if (blocked.value || unsettled.value || observation.phase !== 'ready' || !observation.value)
+        return
+      const own = revision,
+        captured = auth.personalContext.identity,
+        value = observation.value
+      if (
+        !(await confirmDiscard('放弃草稿并采用最新规则？')) ||
+        !current(own, captured) ||
+        blocked.value ||
+        observation.value !== value
+      )
+        return
+      discard(false)
+      adopt(value)
+    },
+    async checkOriginal() {
+      if (blocked.value || progress.value?.phase !== 'uncertain') return
+      const own = revision,
+        captured = auth.personalContext.identity,
+        read = ++readRevision
+      initial = false
+      checking.value = true
+      reading = true
+      Object.assign(observation, { phase: 'loading', message: '' })
+      const valid = () => current(own, captured) && read === readRevision
+      try {
+        const value = await api.checkOriginal()
+        if (!valid()) return
+        observe(value, false)
+        state.writeMessage = '已读取当前规则；这不能确认原请求，请显式重试原请求取得历史确认。'
+      } catch (error) {
+        if (valid()) {
+          Object.assign(observation, { phase: 'error', message: readMessage(error) })
+          state.writeMessage =
+            '原请求仍未确认。会话确认且实际请求结束后可显式重试；读取失败不证明写入未接受。'
+        }
+      } finally {
+        if (read === readRevision) reading = false
+        if (own === revision) checking.value = false
+      }
+    },
+    retryOriginal() {
+      return !blocked.value && progress.value?.canRetryOriginal
+        ? mutate(() => api.retryOriginal())
+        : Promise.resolve()
+    },
+    async abandonOperation() {
+      const own = revision,
+        captured = auth.personalContext.identity
+      if ((await requestConfirmation('放弃原请求追踪？')) && current(own, captured)) {
+        discard(true)
+        state.writeMessage = '已放弃本地追踪；此前请求仍可能生效。请在当前请求结束后明确读取规则。'
+      }
+    },
+    dispose() {
+      if (disposed) return
+      disposed = true
+      stopIdentity()
+      invalidate()
+      window.removeEventListener('beforeunload', beforeUnload)
+    },
+  }
+}
+export type SystemOutboundPolicyController = ReturnType<typeof createSystemOutboundPolicy>
+export const systemOutboundPolicyKey: InjectionKey<SystemOutboundPolicyController> =
+  Symbol('system-outbound-policy')
+export function useSystemOutboundPolicy() {
+  const page = inject(systemOutboundPolicyKey)
+  if (!page) throw new Error('Outbound policy requires the App controller')
+  return page
+}

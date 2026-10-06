@@ -1,0 +1,31 @@
+--- driver01.py
++++ driver02.py
+@@ -55,6 +55,12 @@
+             value['kind'] = kind
+             result[resource_id] = value
+     return result
++
++
++def canonical_resources(snapshot):
++    """Compare Mounts as a full-object multiset; preserve fields and duplicates."""
++    return {key: row | {'mounts': sorted(row['mounts'], key=lambda mount: json.dumps(mount, sort_keys=True, separators=(',', ':')))}
++            for key, row in snapshot.items()}
+ 
+ 
+ def processes():
+@@ -297,8 +303,14 @@
+             missing = b'No such' in result.stderr or b'not found' in result.stderr
+             exact[resource_id] = {'absent': result.returncode != 0 and resource_id not in current and missing}
+         remaining = [row for row in observed_processes.values() if row['pid'] in proc and proc[row['pid']]['starttime'] == row['starttime']]
++        canonical_baseline, canonical_current = canonical_resources(baseline), canonical_resources(current)
+         cleanups.append({'time': utc(), 'exact_absent': exact,
+-                         'baseline_unchanged': {key: current.get(key) for key in baseline} == baseline,
++                         'current_resources': current,
++                         'baseline_raw_differences': {key: {'before': baseline[key], 'after': current.get(key)}
++                                                      for key in baseline if current.get(key) != baseline[key]},
++                         'baseline_canonical_differences': {key: {'before': canonical_baseline[key], 'after': canonical_current.get(key)}
++                                                            for key in baseline if canonical_current.get(key) != canonical_baseline[key]},
++                         'baseline_unchanged': {key: canonical_current.get(key) for key in baseline} == canonical_baseline,
+                          'remaining_new': sorted(set(current) - set(baseline)), 'owned_processes': remaining,
+                          'runtime_entries': sorted(path.name for path in runtime.iterdir()),
+                          'browser_runtime': str(browser_runtime),

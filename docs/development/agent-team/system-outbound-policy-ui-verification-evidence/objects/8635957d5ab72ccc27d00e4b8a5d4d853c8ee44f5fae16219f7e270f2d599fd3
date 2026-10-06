@@ -1,0 +1,33 @@
+{
+  "node_actual_wait": true,
+  "node_pid": 69025,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 69025,
+      "ppid": 69001,
+      "pgid": 69025,
+      "state": "R",
+      "starttime": "459275"
+    },
+    {
+      "pid": 69049,
+      "ppid": 69025,
+      "pgid": 69025,
+      "state": "Z",
+      "starttime": "459312"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

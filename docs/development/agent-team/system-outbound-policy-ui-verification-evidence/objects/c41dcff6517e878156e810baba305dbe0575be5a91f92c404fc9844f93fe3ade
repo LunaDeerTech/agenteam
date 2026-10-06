@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/tests/account-captcha-web/node_modules/typescript/bin/tsc",
+    "--project",
+    "/workspace/scratch/agenteam-outbound-ui-real-independent-k5w8a7sx/browser/tsconfig.json"
+  ],
+  "cwd": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-out-offline-7iwfr9z7",
+    "GOTMPDIR": "/tmp/agt-out-offline-7iwfr9z7",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "125cade4bcd36d9fc17c12df2183c66ab61219f4c95f4740a440e006731c482c",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 181426,
+  "actual_exit": 2,
+  "seconds": 1.4715411409997614,
+  "timeout": false
+}
