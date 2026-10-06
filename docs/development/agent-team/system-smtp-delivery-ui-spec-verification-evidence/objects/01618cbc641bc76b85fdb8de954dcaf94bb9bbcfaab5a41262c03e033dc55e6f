@@ -1,0 +1,106 @@
+{
+  "base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "candidate_count": 17,
+  "files": [
+    {
+      "index": 1,
+      "path": "web/src/api/client.ts",
+      "new": false,
+      "base_sha256": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186"
+    },
+    {
+      "index": 2,
+      "path": "web/src/api/system-smtp-settings.ts",
+      "new": false,
+      "base_sha256": "e8068e7f4d4809716f66977e499d2d3425f71fe625dada059a6ed2fb72957527"
+    },
+    {
+      "index": 3,
+      "path": "web/src/api/system-smtp-delivery.ts",
+      "new": true
+    },
+    {
+      "index": 4,
+      "path": "web/src/composables/useSession.ts",
+      "new": false,
+      "base_sha256": "fe066bdcbf6448acf831d5629ea7a0a11a6af2848de723dfabdbffd05c636ea4"
+    },
+    {
+      "index": 5,
+      "path": "web/src/composables/useSystemSMTPDelivery.ts",
+      "new": true
+    },
+    {
+      "index": 6,
+      "path": "web/src/App.vue",
+      "new": false,
+      "base_sha256": "e10c122a18bb0d29f4655e898305f473b5c275cfe6ccb0dcfbb5e04616aad753"
+    },
+    {
+      "index": 7,
+      "path": "web/src/views/system/SystemSMTPSettingsView.vue",
+      "new": false,
+      "base_sha256": "61d84ba212fd9dae0816920c7280e2986746975ed893424b6513b77a42747483"
+    },
+    {
+      "index": 8,
+      "path": "web/src/views/system/SystemSMTPDeliveryPanel.vue",
+      "new": true
+    },
+    {
+      "index": 9,
+      "path": "web/src/tests/system-smtp-delivery-client.spec.ts",
+      "new": true
+    },
+    {
+      "index": 10,
+      "path": "web/src/tests/system-smtp-delivery-state.spec.ts",
+      "new": true
+    },
+    {
+      "index": 11,
+      "path": "web/src/tests/system-smtp-delivery.spec.ts",
+      "new": true
+    },
+    {
+      "index": 12,
+      "path": "web/src/tests/system-smtp-settings.spec.ts",
+      "new": false,
+      "base_sha256": "31ddb8cfdcfd8098fd9e5165140b32bbf924ecd058805780c3c25554108b2108"
+    },
+    {
+      "index": 13,
+      "path": "tests/account/system_smtp_delivery_web_test.go",
+      "new": true
+    },
+    {
+      "index": 14,
+      "path": "tests/account/system_smtp_delivery_web_fixture_test.go",
+      "new": true
+    },
+    {
+      "index": 15,
+      "path": "tests/account-captcha-web/system-smtp-delivery.config.js",
+      "new": true
+    },
+    {
+      "index": 16,
+      "path": "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts",
+      "new": true
+    },
+    {
+      "index": 17,
+      "path": "docs/development/frontend/README.md",
+      "new": false,
+      "base_sha256": "460b0fb647eedb005cdf36ba0c7e379175aaa56b59d5dbad8b3bbfac08fd2831"
+    }
+  ],
+  "removed_from_original": [
+    "web/src/composables/useSystemSMTPSettings.ts",
+    "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts"
+  ],
+  "added_to_original": [
+    "web/src/api/system-smtp-settings.ts"
+  ],
+  "authorization": "private specification only; no implementation or runtime authorization"
+}

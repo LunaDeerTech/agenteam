@@ -1,0 +1,12 @@
+已启动固定 628612cdfc730cc1d89cad4e24a5d20f36cc6812 的独立规格审查准备。尚未收到修订稿，不作规格 STATIC PASS/FAIL 或产品结论。只读 Git 对象，无产品/主树/Git 写入，无动态测试或真实资源。
+
+待冻结稿优先核对：
+
+1. 四端点闭集：POST /system/smtp/test 202 {job_id}；GET /system/mail-jobs/management 与 /{id}/management；POST /{id}/retry 202 {job_id,version}，复用旧 retrySystemDelivery。两个 GET 无 body/无 HEAD/无 write CSRF，列表独立 cursor、limit 1–100；写体 16KiB、既有严格 JSON/actual read/cancel 保持。retry 回应为新 child 当前 version，不强制1或源 version+1。
+2. TestSMTP 和 RetryMailJob 新写及历史路径均在提交后 GetMailJob。派发后的 NOT_FOUND/5xx/not_started 不证明写未接受；只有严格闭合集合可判写前拒绝，曾 unknown 保持粘性。没有公共 lookup；Session/GET仅观察，用户显式重放原 key/body/expected/recipient，以仍合法当前 CSRF 和同 identity 为前提。正式 GetMailJob：smtp_commands.go182–225；test 两历史分支39–42/116–118及终点180；retry104–107及302–303。
+3. Management九 required + 可省 reason，真实 attempt_channel/result 与 channel兼容摘要分离；nullable不等从未发送，旧unknown/null不授retry，cancelled/null不误禁，retry_wait/unknown可共存。手工重试只提供必要UI条件，实际终局/join、当前origin材料、版本、同根活跃周期由正式POST裁决。分页不混代、不自动全量扫描，首/详情失败零候选、旧当前观察不代receipt。
+4. 当前第8 SMTP域只含settings-read/write，现单Cookie owner actual finally后释放。新增读/写分类和双向abandon需隔离；30s可见超时/abort不得提前释放。sameidentity panel切换或checking重挂取消读必须同步结算本批loading，保留完整ready与意图，不用旧finally写新代；自动恢复是否允许必须由冻结卡明确。跨identity/当前403/CSRF清理须接原generation护栏。
+5. 配置controller不在新范围时，App/View协调只消费既有confirmLeave/detach/attach：配置有草稿/私有材料/未确认写时切panel应真实确认并只清本域；单页子panel默认恢复/导航/Logout的pending Promise与dirty含义不能漂移。Dialog共宿主、normal close与checking unmount、最新local fallback保持；恢复继续编辑的focus需真正触发器可操作，不能由打开确认即disabled破坏。
+6. Worker验收必须正式Create/Test→Outbox enqueue→Worker.RunJob与actual join；SMTP控制端pause/accepted-cut与安全计数可验证unknown，不能伪造attempt状态/改next_at。test依赖当前configured，未配置后的test不是受限日志成功；实际backend_log用正式邀请/重置。重复风险文案区分请求unknown与投递unknown。当前GET无投递副作用，以owned command/intent/job/attempt及SMTP增量事实核验，不以全库偶然总数代唯一关联。
+
+固定来源指纹见 baseline-input.json；不复制全树，不重做历史索引。准备消息一处曾把retry误写204/header，已立即依据http_system.go398–401向作者更正为202 JSON，不作为本审查证据。

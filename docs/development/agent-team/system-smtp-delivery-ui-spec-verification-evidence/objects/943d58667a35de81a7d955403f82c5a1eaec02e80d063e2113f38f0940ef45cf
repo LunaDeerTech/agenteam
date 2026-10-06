@@ -1,0 +1,42 @@
+{
+  "result": "PASS (author document self-check only)",
+  "base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "prior_full_verified": true,
+  "prior_technical_verified": true,
+  "selected_git_files_verified": 43,
+  "candidate_paths": 17,
+  "new_paths": 10,
+  "existing_paths": 7,
+  "links": [
+    {
+      "target": "../../architecture/platform-infrastructure/authentication/smtp-delivery.md",
+      "resolved": "docs/architecture/platform-infrastructure/authentication/smtp-delivery.md",
+      "anchor_checked": false
+    },
+    {
+      "target": "../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置",
+      "resolved": "docs/frontend-design/layouts/system-settings.md",
+      "anchor_checked": true
+    },
+    {
+      "target": "d07-system-mail-job-management-reads.md",
+      "resolved": "docs/development/work-items/d07-system-mail-job-management-reads.md",
+      "anchor_checked": false
+    },
+    {
+      "target": "d07-email-canonical-roundtrip.md#2-唯一规范化契约",
+      "resolved": "docs/development/work-items/d07-email-canonical-roundtrip.md",
+      "anchor_checked": true
+    },
+    {
+      "target": "d27-system-smtp-settings-ui.md",
+      "resolved": "docs/development/work-items/d27-system-smtp-settings-ui.md",
+      "anchor_checked": false
+    }
+  ],
+  "format": "UTF-8/LF/final newline/no trailing whitespace",
+  "technical_bytes": "from first ASCII ## 1. through final LF, inclusive",
+  "runtime_commands": [],
+  "product_writes": [],
+  "git_mutations": []
+}

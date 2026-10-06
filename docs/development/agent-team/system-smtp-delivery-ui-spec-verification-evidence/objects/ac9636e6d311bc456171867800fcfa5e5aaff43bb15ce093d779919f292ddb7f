@@ -1,0 +1,8 @@
+# D27：System SMTP 测试与投递任务 UI（私有候选）
+
+状态：rev0.2，2026-10-06，主线程已确认本稿 17 路径的工程范围，尚待独立静审与主线程采纳；本稿不授予产品写入或真实资源。相对 rev0.1：已接受前置固定、邮箱校验窄复用、同页协调接缝、写后读取失败分类及可执行回归范围补齐；不新增系统叶子或后端能力。
+
+唯一产品基线：`628612cdfc730cc1d89cad4e24a5d20f36cc6812`（主线程确认 SMTP 配置 29 路径已接受并提交推送）。它已包含管理读 `819aba1b8f764328f1e2e67b53c274fad0db877d`、邮箱闭包 `f670cb1`、Account 安全/共享 Dialog 与 `a942779` 的已接受出站 HTTP 接缝。此处只以该固定 Git 的正式接口为输入；不从未提交主树或原动态在 `f670cb1` 的证据推称整棵 `628612c` 已动态重跑。
+
+规格来源：[SMTP Delivery](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)、[系统设置布局 §6](../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置)、[管理读 rev1.2](d07-system-mail-job-management-reads.md)、[邮箱闭包 §2](d07-email-canonical-roundtrip.md#2-唯一规范化契约)、[SMTP 配置首卡](d27-system-smtp-settings-ui.md)。固定取证在同提交 `http_system.go:318/382`、`smtp_commands.go:42/118/180`、`delivery_retry.go:33/107/233/303`、`delivery_origin.go:121/159`、两个 `http_mail_job_management*.go`、`api/openapi/account.json`，以及已接受的 `useSession.ts`、配置 controller、App/View/router。私有 `fixed-inputs.json` 记录所读有界文件的 Git blob/SHA；原私稿全文 SHA256 `765373802de023dadceb5d825b19a5049a0a1729da34ea620af2b70837568d02` 保留在 `prior/`，不改原件。
+

@@ -1,0 +1,17 @@
+SMTP 测试发送与投递任务 UI rev0.2：STATIC PASS，无规格阻塞。此结论只覆盖冻结规格及固定正式接缝，不是候选实现、浏览器或 worker 动态验收，也不授予实施或资源。
+
+审查输入为产品 Git `628612cdfc730cc1d89cad4e24a5d20f36cc6812`、私稿 `/workspace/scratch/agenteam-smtp-delivery-spec-_kk1pqcg/d27-system-smtp-delivery-ui.draft.md`，全文 SHA `f34d86d5720824c18b9fb162fc980e93d7454e753d98238c1ef6c3f5bf6746ce`，§1–7 技术 SHA `bee4f7ddb2b480b8c57b7d1b6b81be36bfce9f726222ebc10c8b468b90a54cda`。scope17/seams/原稿差量的已报 SHA 均匹配；43 份作者冻结 Git 来源逐项核对 blob、SHA、保存副本，另按五拒绝码/后读静核6份接受依赖。7个已存在候选的基线 SHA、10个新增路径、五个旧回归顶层及五个正式归位相对链接均匹配。未消费活跃主树产品。
+
+| 重点 | 独立结论与固定依据 |
+| --- | --- |
+| 四接口与解析 | handler `http_system.go:318–333/382–401` 确认两 POST 都是202，test只有job_id，retry是新child的job_id/version，后者可大于1且不等于源版本后继。管理投影九required/可省reason、nullable真实attempt、分页25/独立opaque cursor、strict UTC微秒/UUID/计数及完整页发布均可由现接口实现。复用原retry传输和窄email/input导出可保旧邀请及配置语义，不需第五接口/后端/锁或新菜单路径。 |
+| 五种确定拒绝 | 合法捕获的Actor/JobID下，INVALID_ARGUMENT来自输入/解码或接受写事务前提；VERSION_CONFLICT来自retryEligible源版本；INVALID_STATE来自当前配置、最大版本或planned阶段；RATE_LIMITED来自接受事务的checkDeliveryCapacity；RESOURCE_DELETED来自origin/link/密码版本有效性。依据 `smtp_commands.go:14–180`、`delivery_retry.go:33–303`、`delivery_origin.go:121–151`、`delivery_intent.go:154–186`。此处是本次确定业务拒绝，不证明无planned命令；卡的status、commit_state及此前从未unknown条件必须同时满足。 |
+| 后读与unknown | test历史42/118与新写180、retry历史107/233与新写303均GetMailJob；该安全后读在 `smtp_commands.go:182–225` 只按当前权限/事务读取。缺任务404、依赖/事务失败、失权均不能反推原写未提交。卡排除NOT_FOUND、RESOURCE_BUSY、所有5xx和不完整成功，保留先unknown后五码拒绝的粘性，且401/当前403仅销毁恢复资格不声称回滚，边界正确。当前管理GET/Session无receipt权限；历史Execute可越过当前configured或源状态的新写资格检查，不能被新写按钮门禁拦住。 |
+| CSRF/完整身份 | `useSession.publish:576–585` 的same不仅比较user/session，还比较已有CSRF与新Session返回值；变化会换epoch。restore的clearIdentity(false)保留旧token/identity，真正clearIdentity:519–535一并清空；当前SMTP intent还在630–631按same/role/token清理，`invitationContext:1368–1376`要求原值等于当前合法值。因此“同完整identity且原CSRF仍合法”在现规则下没有收紧或放宽行为。不能把新token移植给旧intent继续追踪；后端命令identity/MAC并不以CSRF为业务材料。 |
+| 第九域/生命周期 | 第八配置域、统一Cookie owner及router结构接口可原样消费。新域类型/revision/清理表/CSRF名录均落useSession唯一授权路径；本域abandon不释放actual尾部或误中其它域。配置controller既有confirmLeave可清自身草稿/intent，detach可退休读且保留安全观察；App协调器在新controller/App/View范围内足够完成唯一attach/detach、active/切换代次、同身份checking与真正切区分离，无需改原配置controller或router。 |
+| 确认/恢复 | 末尾共宿主与下层确认→顶部放弃的顺序、checking统一卸载但Promise留App、同身份503恢复、真实失效false终点、正常close最新fallback及不抢在途焦点均符合已接受共享边界。卡明确退休loading→可显式重读，不借旧finally补终态；actual owner未join时仍busy。默认配置不挂新Panel/不读mail-jobs，旧配置browser零投递门槛可保持，专用App测试路径也在17内。 |
+| 可执行验收 | 五新组与五旧顶层有明确选择器和原45s/2m/6m预算；新Go fixture可在原授权路径组合正式app.Run、邀请SMTP根与受控socket能力，避开旧SMTP fixture的deny-filter。正式worker生产状态、Revoke→cancelled/null→ClaimBusy、accepted-cut、同command/intent/event/Audit关联和原body/key/合法CSRF内存布尔足以建立所需证据。无SQL修改phase/result/fence/join/next_at；旧TLS/底层和未知旧processing例外的复用/纯测边界已限定。真实可运行性、耗时、显示及清理仍待实施后实际验证。 |
+
+非阻塞澄清建议：正式卡可加一句“原CSRF须等于同完整身份当前合法令牌；Session返回值变化按既有规则更换epoch并销毁旧恢复资格，不给旧intent换token”。这只解释固定行为，不授权改变产品契约。无需据此扩大17路径或重审邮箱全集。
+
+静态输入检查实际命令为 `/usr/bin/python3 verify-static-input01.py`，cwd `/workspace/agenteam`，actual exit0 / 0.284s。原命令/退出在 `static-check01.json`，原输出 `static-check01.raw`，完整绑定结果 `static-input01.json`。只执行Git对象/文件只读核对，无npm/Go/浏览器/数据库/服务测试，无Docker/端口、产品写入或Git mutation；Object/tools停止范围未触及。原rev0.1/rev0.2输入及此前准备记录不覆盖。准备消息曾误写retry204/header已立即由固定handler纠正，未进入本结论。

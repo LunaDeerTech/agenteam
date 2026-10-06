@@ -1,0 +1,10 @@
+# SMTP 投递 UI 私有规格交付
+
+固定基线：`628612cdfc730cc1d89cad4e24a5d20f36cc6812`。rev0.2 已完成并停止写入，供独立静审；没有实现或真实资源授权。
+
+- [候选规格](d27-system-smtp-delivery-ui.draft.md)：全文 SHA256 `f34d86d5720824c18b9fb162fc980e93d7454e753d98238c1ef6c3f5bf6746ce`；技术 §1–7 SHA256 `bee4f7ddb2b480b8c57b7d1b6b81be36bfce9f726222ebc10c8b468b90a54cda`（首个 `## 1.` 至末尾 LF）。
+- [原稿精确差量](prior-to-rev02.diff)：保留原 rev0.1 全文/技术 SHA；范围从原18减配置controller与旧SMTP browser，加已接受邮箱 parser 的窄export，实际17。
+- [17路径清单](scope17.json) 与 [实际接缝表](seams.md)：第9依赖/单App协调器、只读configured门禁、202 receipt/current child version、404及未知粘性、取消读/确认生命周期已具体化，无未决卡外缺口。
+- [固定输入](fixed-inputs.json) 与 [自查结果](checks.json)：43份有界Git输入逐字匹配，17路径（10新/7既有）、5个正式来源链接/锚点、文本格式自查通过。不是运行依赖全闭包，也不是独立STATIC结论。
+
+主树/产品/Git零写；未运行npm/Go测试、browser、服务或Docker。后续先独立静审/主线程采纳，再另授唯一作者和资源。已接受底层证据仅作为前置，不声称本UI、所有TLS、收件箱、Runtime或全D27已验证。

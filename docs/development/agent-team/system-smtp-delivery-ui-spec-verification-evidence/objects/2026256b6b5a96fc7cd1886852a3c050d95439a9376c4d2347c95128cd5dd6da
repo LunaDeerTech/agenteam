@@ -1,0 +1,26 @@
+# SMTP 投递 UI 固定接缝核对
+
+基线 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`。本表只报告已提交源码静态事实及规格决定，不是候选实现或真实运行结论。所有 `source/` 文件均取该 Git 对象，SHA/blob 在 `fixed-inputs.json`；43 份是有界取证输入，**不是未来测试的完整编译/运行依赖闭包**。
+
+| 接缝 | 固定源码事实 | 私稿决定 / 文件边界 |
+| --- | --- | --- |
+| TestSMTP HTTP | `http_system.go:318` 为 POST202，DTO仅job_id；`smtp_commands.go:18`先Normalize，历史42/118与新写180均GetMailJob。 | 新四口API的testSMTP；收件人raw冻结、canonical由正式服务产生，不把202当发送完成。 |
+| Retry HTTP | `http_system.go:382`为POST202 JSON job_id/version；`delivery_retry.go:107/233/303`都返回child GetMailJob。不是204/header协议。 | 复用client.retrySystemDelivery；新child ID不得等于source，receipt version是child当前正整数，非初始1或source+1。 |
+| Retry资格 | `delivery_retry.go:33`查source version、phase、terminal/joined、same-root busy；`delivery_origin.go:121/159`原材料/当前配置及其他周期。 | UI仅必要条件；不增加retry_eligible，不把sent禁重试，unknown提示可能重复，server最终裁决。 |
+| 管理投影 | `http_mail_job_management.go:14`独立DTO；reads:138严格exact current pointer/fence，created_at为intent，处理processing→unknown。 | 九required+reason可省，required nullable，不借legacy channel推实际attempt。旧GET/邀请DTO不改。 |
+| 写后错误 | `smtp_commands.go:211`的GetMailJob可NotFound；两POST提交后还读，retry新child可能已被worker推进。 | 派发404/5xx/BUSY及不完整成功保留unknown；明确五种写前拒绝仅未曾unknown时成立。401/403撤恢复资格不声明回滚。 |
+| 邮箱复用 | `system-smtp-settings.ts:55/111`的input/email为私有；email保持S∪lower(S)并返回原字节。其他Account/Invitation helper未导出，不能代用字符串长度校验。 | 新增该文件窄captureSMTPEmail export，仅调用原函数；新API复用，无parser复制/配置行为变化。主线程已确认新增路径。 |
+| 时间 | `system-account.ts:38`已有parseSystemInstant export。 | 新API只读复用，不增加文件或新时间格式。 |
+| 第九依赖 | `useSession.ts:349`现为八参数，SMTPSettingsAPI位于357；`system.smtp`在配置私有域；runAuthorized统一owner。 | 尾部可选SystemSMTPDeliveryAPI，新smtpDelivery域；原八默认参数不移位。 |
+| owner尾部 | `useSession.ts:1060`runAuthorized忙位受actual尾部控制；1339 CSRF action名单、1350当前403清system材料；配置clearSMTPState有本域读写revision。 | 新域归入操作联合/清理表/CSRF规则；普通abandon只本域；晚到不覆盖，不能从协调器清owner。 |
+| configured门禁 | 配置controller:335成功GET→observe，失败观察value为null；confirmLeave:365→discard保留安全observation；detach:504不会清已确认观察。 | App投影同身份ready/configured布尔给投递页，不新增第五API或偷偷调用配置get。读取失败回配置区显式重读。 |
+| 单导航hook | `router/auth.ts:245`参数仅confirmLeave/afterNavigation；guard:67和afterEach:132消费它，无具体配置controller类型约束。 | App装唯一分区协调器；router/auth不写。 |
+| 配置controller | clearRead:256同步loading→error并abandonRead；discard:299清editor/privateintent；watch:448遇checking直接保留；attach/detach:499/504。 | 原#5剔除，只读既有方法。协调器自有switch generation，不拿配置discard推进的revision当失败。 |
+| App/检查恢复 | App:61持有smtp；logout:64确认；authenticated RouterView:150会随checking卸载。配置Promise保留在controller。 | App保active/两controller/切换Promise；DOMdetach与用户switch分开；同identity检查不重置active或回答Promise。 |
+| View/焦点 | View:36有最新本地fallbackFocus；103/112 attach/detach；346停用Dialog、360统一放弃Dialog。 | 改为唯一View生命周期通知协调器；active分区专属确认先于放弃层，inactive不挂载、不fetch。共享Dialog/SettingsShell只读。 |
+| 菜单/return | SystemSettingsView为2+3+2叶子、3group；router/auth:4十一return，router/index已有smtp子路由。 | 同叶子两按钮分区，无URL/菜单/return变化。 |
+| 旧设置browser | 原config fixture:173在browser阶段拒绝delivery endpoint；旧spec的7leaf/3group、两确认/焦点及零发送强断言保持适用。 | 原#17剔除，只读复验五旧顶层；默认配置不能自动触发mail-jobs/test。 |
+| 真实根/SMTP | 邀请fixture:96正式app.Run组合，101自有privateIP/端口规则种子；smtp fixture Scenario有CloseStage/PauseStage，server接受DATA后记录安全计数/hash。 | 新fixture范围内组合这些既有公开能力，不改旧deny-filter根、不伪造DTO/状态、不访问外部SMTP。 |
+| 回归名称 | `system_smtp_settings_web_test.go:40/43/46`、`system_invitations_web_test.go:52/55`已有五固定顶层。 | 新五组+旧五组的原预算、实际EOF/socket/worker尾部和原assertions；已验底层TLS等按精确未变输入复用。 |
+
+范围裁决已闭合：原18去掉配置controller与旧SMTP browser，加邮箱窄export，共17。后端/OpenAPI/锁/迁移/公共UI/菜单均无新增写需求。仅此规格阶段未运行 npm/Go/browser/服务/Docker，未修改任何main路径；代码可行性来自上述固定静读，后续独立STATIC与实际实现验收仍须分别完成。

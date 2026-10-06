@@ -1,0 +1,64 @@
+{
+  "conclusion": "STATIC_INPUT_PASS",
+  "base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "draft_revision": "0.2",
+  "full_sha256": "f34d86d5720824c18b9fb162fc980e93d7454e753d98238c1ef6c3f5bf6746ce",
+  "technical_sha256": "bee4f7ddb2b480b8c57b7d1b6b81be36bfce9f726222ebc10c8b468b90a54cda",
+  "frozen_input_sha256": {
+    "d27-system-smtp-delivery-ui.draft.md": "f34d86d5720824c18b9fb162fc980e93d7454e753d98238c1ef6c3f5bf6746ce",
+    "scope17.json": "01618cbc641bc76b85fdb8de954dcaf94bb9bbcfaab5a41262c03e033dc55e6f",
+    "seams.md": "2026256b6b5a96fc7cd1886852a3c050d95439a9376c4d2347c95128cd5dd6da",
+    "prior-to-rev02.diff": "ab4a25e4c04314d9cec3d70a0b6b2cf2514cc8e2bd4c3e9945ae9c237e767256",
+    "fixed-inputs.json": "63e65068823c6ab446816cd5884d411fd961121935d8d084c0a4dc8fcc4d9fc4"
+  },
+  "fixed_source_count": 43,
+  "additional_five_code_and_postread_sources": {
+    "internal/central/account/authority.go": {
+      "git_blob": "d353cc3e0d0d4a249ec6290fb50c107a63b40967",
+      "sha256": "4ee6365489ff21bfd629313b658f46f03495fe38a27e640ed4897a43547f14d5"
+    },
+    "internal/central/account/error.go": {
+      "git_blob": "6cbc843cfd8b0e4d0781d3b2863275651880be37",
+      "sha256": "5346570c7b64e3f394786248804a93bd20101399deb10af2fb6f54664476971d"
+    },
+    "internal/central/account/repository.go": {
+      "git_blob": "c55ac291dcef2eca82c8848725db5f3861997e5f",
+      "sha256": "56f1e009468c07ca84d41377787f9e502c06ca4a5bfc34a895fbcef5953279d1"
+    },
+    "internal/central/account/mutation.go": {
+      "git_blob": "9fd284103a4455cb2c45d94e0d9e3a9c6aec73f6",
+      "sha256": "a44400ce2be00ff4e7068b4f8304d7de89081cf2a0867a5ab2afde67cdb39526"
+    },
+    "internal/central/account/delivery_intent.go": {
+      "git_blob": "6cd190fbc676d3f39f596b44d79b89847b96ecc6",
+      "sha256": "57d6fbd41453640455bc115d660bb9406c05d178bc87659d6dd04865554bfcd3"
+    },
+    "internal/central/account/service.go": {
+      "git_blob": "a4d247afc89ebba49b8b18af88d27c297fc91339",
+      "sha256": "0ef5a16b15079dcc718c4bdb7d10c95bf9817e3047060ddf05475c372be2f537"
+    }
+  },
+  "candidate_count": 17,
+  "links_checked": [
+    "../../architecture/platform-infrastructure/authentication/smtp-delivery.md",
+    "../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置",
+    "d07-system-mail-job-management-reads.md",
+    "d07-email-canonical-roundtrip.md#2-唯一规范化契约",
+    "d27-system-smtp-settings-ui.md"
+  ],
+  "old_exact_selectors": {
+    "tests/account/system_smtp_settings_web_test.go": [
+      "TestAccountSystemSMTPSettingsWebOutcomeRecovery",
+      "TestAccountSystemSMTPSettingsWebAuthorityAndIdentity",
+      "TestAccountSystemSMTPSettingsWebNavigationAndLayouts"
+    ],
+    "tests/account/system_invitations_web_test.go": [
+      "TestAccountSystemInvitationsWebDeliveryRetry",
+      "TestAccountSystemInvitationsWebOutcomeRecovery"
+    ]
+  },
+  "product_tests_executed": false,
+  "resources_started": false,
+  "git_mutations": false,
+  "scope": "hash/blob/source, candidate existence, exact old top names, UTF8/LF/whitespace and formal-destination links; semantic conclusions are in review.md"
+}

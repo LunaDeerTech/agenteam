@@ -1,0 +1,181 @@
+{
+  "base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "files": {
+    "api/openapi/account.json": {
+      "git_blob": "4949181c56c224f4e7bdf38b6897147d096d8563",
+      "sha256": "8395b445f7ba422dc72b1cf35f047fb8380f271b4f9d96cf039640e3aa9c1d64"
+    },
+    "docs/architecture/README.md": {
+      "git_blob": "1696d14033ae4a236f95f797528ed908179bb87f",
+      "sha256": "ebbdb68cf1facc0786eae34771d08b9d27c8876fcf89376d91c20f54d9492cf9"
+    },
+    "docs/architecture/platform-infrastructure/authentication/smtp-delivery.md": {
+      "git_blob": "7d936e4d4cfea8eca39696dc82ae9d93114ba0ff",
+      "sha256": "0c674204fb26f54d5678471720e279d841b74ae68cb814230b3b233ad9775d92"
+    },
+    "docs/development/agent-team/README.md": {
+      "git_blob": "942aebd537859977c768dfc02167db4f6e7840a5",
+      "sha256": "484c5c9998cffee13083df540e389d02e885fe8da57248636ee9aa8ad2b71116"
+    },
+    "docs/development/development-plan.md": {
+      "git_blob": "f78c13ef2588a7ae5ccdd904925f0967d5fd17d2",
+      "sha256": "307d8c418cc81bbf1a3eb9a4089b01b0d12b87dfd424d77fd081a391437505b0"
+    },
+    "docs/development/frontend/README.md": {
+      "git_blob": "8d17c1a55ffff6cc9f6f5f39ea1011e505808c7b",
+      "sha256": "460b0fb647eedb005cdf36ba0c7e379175aaa56b59d5dbad8b3bbfac08fd2831"
+    },
+    "docs/development/work-items/d07-email-canonical-roundtrip.md": {
+      "git_blob": "0631309d5e6fd7d24c718c725bf9f41e532305cc",
+      "sha256": "0848c2e9b276769aad1f578f6b0f86a80006c32d7ac6389e056c6a4c0582dff7"
+    },
+    "docs/development/work-items/d07-system-mail-job-management-reads.md": {
+      "git_blob": "add82407d230aac6ffb1adac5dc799eb3fdc4d22",
+      "sha256": "d709b33a06c3e6cb3cfc8cb69b284859e3b7155a68f18b47f4596a17301a7c7c"
+    },
+    "docs/development/work-items/d27-system-smtp-settings-ui.md": {
+      "git_blob": "6b6215c4938e72b76c053d5e1d19eee7502838be",
+      "sha256": "5d5fce8c93f6c0b3b50e343857c39419697d9271347874023a2173c20d284e14"
+    },
+    "docs/frontend-design/README.md": {
+      "git_blob": "91d8d8b61acd30966b39683417d51fbd5ec5c0f3",
+      "sha256": "729afba2f45792b46fcc6906947b9516c87e88515c62a20b605f62c07af82e12"
+    },
+    "docs/frontend-design/layouts/system-settings.md": {
+      "git_blob": "85afe0cafff591c06b54071d3e3585ae37453c61",
+      "sha256": "41bc84c2a672bce0c107de75f39e2c2365148ed8b5112df2d0abb680d45a23c8"
+    },
+    "internal/central/account/authority.go": {
+      "git_blob": "d353cc3e0d0d4a249ec6290fb50c107a63b40967",
+      "sha256": "4ee6365489ff21bfd629313b658f46f03495fe38a27e640ed4897a43547f14d5"
+    },
+    "internal/central/account/delivery_origin.go": {
+      "git_blob": "293f4e4d863daea3fe309fb75673683da7273518",
+      "sha256": "6aea7292d9bbf02dac839f3f8804056581ee16e5d4abbf077279540a0edcb069"
+    },
+    "internal/central/account/delivery_retry.go": {
+      "git_blob": "f425541f6ed0c9fe37bd1c5b090e93fa54af3167",
+      "sha256": "43205ecc30c7ad276ac738a5674fb91a345fb8780597ff5f6587c9eb95e1473a"
+    },
+    "internal/central/account/http_facade.go": {
+      "git_blob": "16b3ac01be207181fc5fa2f8a8095b787784db39",
+      "sha256": "6e8ca0b3ad8b8f18fbfeafb1981752239daeaca6f9953cbc1475261d72baf222"
+    },
+    "internal/central/account/http_mail_job_management.go": {
+      "git_blob": "4db08213285a4df8a9dff4319c847ab0239619cc",
+      "sha256": "8a72129fd594522752462d61f6bf5568acc1223e0369a168e96f6fdce0a44532"
+    },
+    "internal/central/account/http_mail_job_management_reads.go": {
+      "git_blob": "4aa61f5415e147296fdc984b8330d032e7f827ef",
+      "sha256": "e056a7e109ac78ae51600758858b80aba2b07aa5b22590eaf89080bfceddac14"
+    },
+    "internal/central/account/http_system.go": {
+      "git_blob": "4c768f23de6b94631a7cd32ee8df56c95c40f24f",
+      "sha256": "e25b35999c04cddbf64a6f03e573999e0bafae3a39d933c8163a32ca82269248"
+    },
+    "internal/central/account/http_wire.go": {
+      "git_blob": "de3e5c3966428657e4825063a089522f83348675",
+      "sha256": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095"
+    },
+    "internal/central/account/service.go": {
+      "git_blob": "a4d247afc89ebba49b8b18af88d27c297fc91339",
+      "sha256": "0ef5a16b15079dcc718c4bdb7d10c95bf9817e3047060ddf05475c372be2f537"
+    },
+    "internal/central/account/smtp_commands.go": {
+      "git_blob": "c897dee0d79bcc7167c3777b6cfc7a93eae26ec7",
+      "sha256": "7bac163a844e6b3295f9cd48812184bb4cc83e16fe4695013b43fdc3bf87ca2d"
+    },
+    "internal/central/account/validation.go": {
+      "git_blob": "2db25e4b54388c1f1ae4a0de8bdf2565e68b55f4",
+      "sha256": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94"
+    },
+    "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts": {
+      "git_blob": "9fc676758279fbf8a36013955b28987cb34ce80d",
+      "sha256": "70b9366f86cec834910e27fdb4963ed0f40586993f0670e477a253140ea98e16"
+    },
+    "tests/account-captcha-web/system-smtp-settings.config.js": {
+      "git_blob": "21dc064b6e23007395d6ee1c71e178bafee26cb6",
+      "sha256": "832cd7a26a9a6a1e6d84c4b7244de9e913281d643a129c7f9d5966b8a1f90d64"
+    },
+    "tests/account/system_invitations_web_fixture_test.go": {
+      "git_blob": "3b48ab7dcf2f40f5f9d261f026c44818be7b93bb",
+      "sha256": "18c40b3eb66c4c363ef1321fcdcbb076757e791dfb9b6b57f7b0b41faf9b47c6"
+    },
+    "tests/account/system_invitations_web_test.go": {
+      "git_blob": "0cb25fe1eccbe5e35c6a6faa5129d6149b749665",
+      "sha256": "bae6e22be8f6bbcf06349f8b1a85858503c1b5ce623ce2a519e48df04f92cf0a"
+    },
+    "tests/account/system_smtp_settings_web_fixture_test.go": {
+      "git_blob": "d0296ce066e6a4db094b9fb794811db8cc7999f7",
+      "sha256": "890a6b05dbe5d00f18928e02aa1eefe9ca627cab690f8c1ec8a75d9599a846a8"
+    },
+    "tests/account/system_smtp_settings_web_test.go": {
+      "git_blob": "49bf110538d85caf57efd295754fc74e4e6a9c25",
+      "sha256": "df9fee364590ffe0f8fa9998e341c59e466a8d0b8c65047970b9f4ffb90bbd1b"
+    },
+    "tests/testsupport/smtp/cmd/server/main.go": {
+      "git_blob": "92c5381de0b769a5a27f9217286d9bbedfe6a99f",
+      "sha256": "0c67c9cb015e76b5c35c857a4628fdaecdf569516fd8b29c11cf06a47ded2773"
+    },
+    "tests/testsupport/smtp/fixture.go": {
+      "git_blob": "609f21abde972ee88db6d8779b15ae66cb2c9fd2",
+      "sha256": "9555fe9e05d795354a9f7eaec57cb11d20b378c5566ed69a7ca5362dbb907851"
+    },
+    "web/src/App.vue": {
+      "git_blob": "297d7a27b6f399a26e823ab5ac6c30a7358d6501",
+      "sha256": "e10c122a18bb0d29f4655e898305f473b5c275cfe6ccb0dcfbb5e04616aad753"
+    },
+    "web/src/api/client.ts": {
+      "git_blob": "cdd680e96dc914e0bb88b2796a64e9e7e592b917",
+      "sha256": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186"
+    },
+    "web/src/api/system-account.ts": {
+      "git_blob": "b1126fd95c23db81300d4edb85a01076a9e4729d",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+    },
+    "web/src/api/system-invitations.ts": {
+      "git_blob": "07692ec91b2e3c1153831a4c2e508182b9a24fce",
+      "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e"
+    },
+    "web/src/api/system-smtp-settings.ts": {
+      "git_blob": "d815b24cb8a3c1fdd2487ce91c4eb6ffe307206e",
+      "sha256": "e8068e7f4d4809716f66977e499d2d3425f71fe625dada059a6ed2fb72957527"
+    },
+    "web/src/components/layout/SettingsShell.vue": {
+      "git_blob": "331b466c480418d7f00b7dff0fb602a7c268c900",
+      "sha256": "8815f6b4ccae1afbaeef4edd3e18ae92d700a791ea156bb97204069e0859feac"
+    },
+    "web/src/composables/useSession.ts": {
+      "git_blob": "508229c8d48357ae6e26fe3f62722c81a507e18a",
+      "sha256": "fe066bdcbf6448acf831d5629ea7a0a11a6af2848de723dfabdbffd05c636ea4"
+    },
+    "web/src/composables/useSystemSMTPSettings.ts": {
+      "git_blob": "f2bade034d80c8595db5ad58c8103a44a049ace1",
+      "sha256": "2baf377922d3f04cbb553b2d6ff85c3ef92334ed10ee00661c66682640519296"
+    },
+    "web/src/router/auth.ts": {
+      "git_blob": "dc2e689004f26f3c2a71b1491b27e22d2a30d0fa",
+      "sha256": "99a361b8a6408c37ab7fed927225bcb0c6279fac75054a8fe7011d780c1afc1e"
+    },
+    "web/src/router/index.ts": {
+      "git_blob": "ce51eb6b8fe1e525d34585029ba4cde88e2e72a0",
+      "sha256": "bb28432a695df78498973090cae45d061a416e2c96c95dad7d87d59c2e7543f8"
+    },
+    "web/src/tests/system-smtp-settings.spec.ts": {
+      "git_blob": "aa6b7f7f370daa7a3cd30b5485bed5ee61b06305",
+      "sha256": "31ddb8cfdcfd8098fd9e5165140b32bbf924ecd058805780c3c25554108b2108"
+    },
+    "web/src/views/system/SystemSMTPSettingsView.vue": {
+      "git_blob": "60618ec9bc0daff184c13b527117e964502ad278",
+      "sha256": "61d84ba212fd9dae0816920c7280e2986746975ed893424b6513b77a42747483"
+    },
+    "web/src/views/system/SystemSettingsView.vue": {
+      "git_blob": "e49c0c5d90fc2a3617174fb510c0f7688ce81577",
+      "sha256": "e6394060e06ab44bb9f715f2b403ff1db601792849ee9d7b347b501c646a57c6"
+    }
+  },
+  "prior": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-ui-draft-uh184cxu/d27-system-smtp-delivery-ui.draft.md",
+    "sha256": "765373802de023dadceb5d825b19a5049a0a1729da34ea620af2b70837568d02"
+  }
+}

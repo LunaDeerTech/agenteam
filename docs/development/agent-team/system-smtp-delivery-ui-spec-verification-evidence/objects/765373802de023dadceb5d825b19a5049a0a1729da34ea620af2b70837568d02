@@ -1,0 +1,99 @@
+# D27：System SMTP 测试与投递任务 UI（私有草案）
+
+状态：rev0.1，2026-10-06，仅私有工程准备，未提交主树、未独立静审、未授任何产品或资源。Account 安全 UI、SMTP 配置 UI、新管理读实现均仍待完整接受；本稿不能充当它们的验收或开工许可。主线程选定范围、三个前置完整接受并固定实际接缝后，才能转成正式卡与授予唯一作者。
+
+固定旧产品/后端 `3c79fd4069837c4cee0b1ed37e00480ea8f1909f`；只静读正式旧写/OpenAPI及已冻结新读候选。SMTP 配置首卡技术 SHA256 `896a1c38496be34f50171decdfd452726797eba23b6c1dc1c7e0adae3769b62e`；管理读 rev1.2 技术 SHA256 `137e6a302a1f1a2b49076d6406ded7ff61a3c3ffccc939d4fb909640d8f176bc`。候选根 `/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i`，`api-stage01/manifest.json` SHA256 `243172f8f7c0ae8cc9716ab7646b6c03be5e182621fd2fd6102f6ff1eed61797`、`input04/manifest.json` SHA256 `4e3bee7144106e9b183977a8306314f08732a18ef54111997fbfb9a3a7ada5c4`；四个产品 HTTP/OpenAPI 文件两副本同字节。未读活动 run 或 Account/SMTP 配置候选。
+
+固定取证位置：`3c79fd4:internal/central/account/http_system.go:318/382` 两 HTTP handler；`smtp_commands.go:42/118/180`、`delivery_retry.go:107/233/303` 的历史/写后 GetMailJob；`delivery_retry.go:33` 的资格与版本检查，`delivery_origin.go:121/159` 的材料/当前配置与同 root 忙；同提交 `api/openapi/account.json` 的 SMTPTestInput/JobAccepted/RetryAccepted；新管理读仅取上述 input04 的 `http_mail_job_management.go`、`http_mail_job_management_reads.go` 和闭合 schema。布局来自同提交 `docs/frontend-design/layouts/system-settings.md` §6、SMTP 架构及两个已采纳上游卡，不将候选静读称作实现接受。
+
+## 1. 完整结果、缺口与接缝
+
+管理员在现有 `/system/smtp` 使用指定测试收件邮箱显式请求一次测试，分页查看三种投递任务、打开精确 JobID 的安全详情，并按已报告事实申请新重试周期；原请求未确认时能检查当前状态或明确重放原请求。配置保存、测试请求接受、任务当前状态、实际 attempt 结果分别反馈。不新增菜单/路由/return，仍为 SMTP 首卡约定的七叶子、三组、十一 return。
+
+没有需要用户另选的产品含义，也未发现必须再扩后端的事实缺口。必要限制：没有历史 recipient/root/谱系/链接/配置版本/attempt 列表，故不提供这些详情、过滤、搜索或跨表推断；没有 retry_eligible，故按钮只表示具备申请的必要条件，当前权限、同 root 忙、材料有效性仍由 POST 裁决。DTO 没有 recipient 不妨碍按 JobID 管理；当前测试草稿或本次确认旁的邮箱只标“本次请求收件人”，不冒充任何任务的历史字段。
+
+推荐同叶子内用“配置 / 测试与任务”两个区块切换，默认配置。此为工程组织建议：切换先通过活跃区块的统一放弃门禁，成功切换才 detach 原区块并 attach 新区块，避免配置密码草稿与投递未确认 intent 同时编辑。配置的三个旧写读口及凭据语义不改变；测试明确使用服务端已保存配置，无 DraftVersion、无先保存再发送组合，也不保证使用页面刚观察的配置版本。
+
+实施门槛为三份完整接受提交与实际接缝复核：SMTP 首卡第八依赖和 App/View 确认；本卡拟追加第九个可选 `SystemSMTPDeliveryAPI`；Account 已验失败 checking 恢复、局部 fallbackFocus 与实际 Cookie 尾部纪律。旧前八参数/默认工厂及 mocks 兼容，类型/确认 hooks 的实际名字在接受后核定；这些是工程移交缺口，不是新产品决定。后端、迁移、通用 Ui、生产发送适配器/出站分类不扩围。
+
+## 2. 四口与严格事实
+
+| 本卡 API | 正式 wire / 成功语义 |
+| --- | --- |
+| `testSMTP({recipient}, options)` | POST `/api/v1/system/smtp/test`；body 恰 recipient；202 恰 `{job_id}`。只确认测试意图已接受，不含 version/applied_version/phase/配置快照。 |
+| `listJobs({cursor?}, signal)` | GET `/api/v1/system/mail-jobs/management?limit=25[&cursor=…]`；200 `{items,next_cursor?}`，无 body/key/CSRF。 |
+| `getJob(jobID, signal)` | GET `/api/v1/system/mail-jobs/{jobID}/management`；200 单项，精确 canonical UUIDv7，零 query。 |
+| `retryJob({job_id,version}, options)` | POST 原 `/api/v1/system/mail-jobs/{job_id}/retry`，body 恰 `{version}`；202 恰 `{job_id,version}`，返回 JobID 必须不同于源 ID，version 是新周期当前正 int64，允许大于1，不要求等于源 version+1。 |
+
+复用 `accountTransport` 原 `retrySystemDelivery` 固定传输分类，其余三个增加窄 endpoint/options；不调用邀请 controller、旧 MailJob GET 或任意 URL。两 POST 使用私有 owner 的稳定 key、合法原 CSRF/identity 和 signal。原输入先闭合校验，收件人沿正式 NormalizeEmail 的裸 ASCII 地址/254 bytes 边界，不 trim、不私设域白名单；非法/空输入、双击不产生新意图。请求 JSON UTF-8 总预算仍16KiB，响应/Problem 仍600000B；不扩大 SMTP 配置32KiB或 Provider既有例外。复用实际 read/cancel join、no-store/redirect:error及安全 Problem。
+
+管理行恰九 required：`job_id,kind,phase,attempts,version,channel,created_at,attempt_channel,attempt_result`，只 `reason` 可省；各枚举/0–6 canonical attempts/正 int64 version/27字符 UTC 微秒 Instant、null/optional 严格沿读卡，整页完整解析才一次发布。kind 为 invitation/password_reset/test。一页至多25条，按完整 `(created_at,job_id)` 严格递减且 ID 不重复；next_cursor 仅可省或非空≤8192 bytes且满25项，拒 null/空串/未知字段/坏行。cursor 不透明且仅留本身份内存，不解析权限或放入 URL。详情必须返回所请求 ID。
+
+`attempt_channel` 为唯一实际当前尝试渠道；有值时必须与 `channel` 一致且 attempts≥1，无值则 attempt_result 必为 null，不能出现在 claimed/sending/retry_wait/sent/failed；enqueue_pending 保持0次/版本1/无 reason/无 attempt。其余跨字段约束不比正式读口更强，不擅自令 phase 等于 attempt_result。`channel` 保留为兼容摘要，仅在详情独立标注“兼容渠道摘要：不证明已尝试或下次使用渠道”，不能替代实际列。首次 pending/0/null 可以说明尚未尝试；旧 unknown/null 只能说渠道未记录、结果未知，cancelled/null 也不虚构历史。attempt_result 非 null 由正式读口保证 exact current attempt 已 terminal 且 joined，前端不发明 join 布尔或历史 attempt ID。
+
+## 3. 页面、分页与新重试申请
+
+测试区只输入收件邮箱并显式“请求测试发送”；新请求需要已成功观察当前 configured=true，未配置时说明测试不可用。这个入口条件不是版本 fence；并发停用/改配置以服务裁决。历史未确认重放不受当前 configured 或列表缺行阻挡。测试失败不删除配置；202 后立即保存安全确认，再最多一次 GET 返回 JobID 的管理详情，后读失败只标观察失败，不重发已确认 POST。不造未读的列表行、初始 version 或发送状态。
+
+任务列表有显式刷新/上一页/下一页与精确详情入口，三 kind 一起展示、不自动扫全量。详情内联返回原列表及 cursor；列表与详情独立错误/取消状态，取消时同步把本次失效且无活读取的 loading 转为可显式重读状态，保留已确认事实，不消费未验 Selection 返修。首次/新页失败不提交候选 cursor；换页/离开清对应旧读取代次；收到更旧的同任务观察不覆盖已确认较新 version。无自动轮询或后台重发。写确认旁提供显式重新读取，不从时间、kind 或本地邮箱扫描推断原任务。
+
+新周期重试使用详情捕获的源 JobID/version，经明确确认说明“使用当前合法配置和原业务材料；可能重复投递”，sent 也只能说明曾获 SMTP 接受/日志持久写入，不代表禁止原服务允许的再次投递。必要条件：phase 属 sent/failed/cancelled/unknown、version 有合法后继；有实际渠道必须有终局 attempt_result；无实际渠道仅允许正式合法 cancelled/null，unknown/null 禁用。其余阶段给可见禁用原因。满足这些也不显示“保证可重试”：源链接已过期/撤销/使用、重置密码版本变化、同 root 其它周期、当前 SMTP 与授权等均未投影，必须让服务原子决定。
+
+确认捕获目标/版本后不随刷新更换。严格202确认新周期接受，保留源 ID 与新 JobID 分开，再至多一次读取新详情；这是当前操作的本地关联，不宣称全历史 root/链。409冲突/410材料失效等明确拒绝保留观察、提供显式重读及重新确认，不改原 expected version 自动提交。配置变更不改写旧实际渠道；已配置失败不切后台日志，后台日志从无查看链接入口。状态/原因全用安全闭集文案；长 ID/时间/错误局部换行、窄屏堆叠，避免表格全局 nowrap 溢出。
+
+## 4. 原请求恢复与两种 unknown
+
+正式测试命令为 `account.smtp / smtp-test`，语义 MAC 包含原 recipient；重试为 `account.mail-retry / mail-retry`，含 actor、源 JobID/version。两服务已提交或命中历史命令后均还调用 GetMailJob；该后读可失败，所以 POST 的5xx/RESOURCE_BUSY/transport/取消/超时/非法成功响应，甚至 not_started/not_committed，不能证明原写未接受。Account 没有公开命令 lookup，不借 Model lookup、Session、列表或详情充当 receipt。
+
+每域仅一份私有不可变 intent：完整 identity/原合法 CSRF、操作、固定 path、原 body/version、key。未派发/明确写前业务拒绝与已经派发的不确定结果沿邀请和 SMTP 配置首卡区分；不把可确认拒绝全称未知。曾未确认后出现拒绝，不消除较早历史不确定性；IDEMPOTENCY_KEY_REUSED 保留并锁住原意图，不能偷偷换 key。测试无 JobID 时“检查当前状态”经 Session 重验后至多一页管理观察；重试已知源 ID 时至多精确详情；这些都不确认新 JobID 或旧命令是否提交。
+
+“重试原请求”仅在同完整 identity/原 CSRF 仍合法且当前 admin 时，以同 method/path/key/body/version 再次 Execute；不能从当前草稿/详情构造新请求。即使现在 SMTP 已停用、源已撤销、当前 version 已推进，仍不预先堵住合法历史确认。严格202才确认原请求；retry receipt 的 version 可以再次推进，但同 key 已确认过的 JobID 不能被换成另一 ID。
+
+“任务结果未知”是正式 job/attempt 事实；“请求结果未确认”是客户端尚无匹配202。二者独立：一个已确认的请求可以对应 unknown 任务；一个未确认请求不能靠看到某个 sent 任务转成功。用户明确“放弃追踪本次操作”只销毁客户端 intent，不声称取消/回滚发送；actual owner 尚未 join 仍忙。放弃后成功显式重读、重新操作才可新 key，无自动补偿或持久队列。普通收件草稿也仅存本身份内存；URL/storage/console/异常/报告不包含原 body/key/CSRF或恢复链接。
+
+## 5. 同页协调、owner与确认
+
+第九依赖提供独立 `smtp-delivery-read/write`、list/detail revision、私有 intent和安全进度；沿同一个 Cookie owner 与原30秒可见预算。与 SMTP settings 第八域及个人/users/邀请/Provider/Model/Selection/账号安全的 abandon 双向隔离；可见取消不释放实际 fetch/body/cancel尾部，晚到零发布。两 POST 纳入当前 identity/generation 的 CSRF_FAILED；401/同身份迟到401、当前403全系统私有销毁、失权/同User新Session/注销/全局 dispose沿已验纪律，不能只清本域而遗漏配置密码，也不能以普通页清理中止别的域。
+
+App期保存活动区块、两个 controller和确认 Promise；任何时刻仅活跃区块可保有编辑/未确认意图及其一个统一放弃确认。区块切换与路由/本人入口/退出调用同一个活跃区块门禁；未激活区块不发请求，允许保留已确认的安全观察。配置控制器只需必要页面协调接缝，不改其原写/密码恢复规则；实际接口待首卡接受复核，不引通用任意 callback 特权口。
+
+统一由现有 SMTP View 末尾放置本域重试确认及活跃区块的统一放弃确认；App无常驻 Dialog，两个放弃确认不并存。checking共同卸载DOM、保留App状态/未决Promise；失败时App恢复可用，同Session恢复重挂原区块和顶部确认，零新 POST/key/自动答案。标题不抢开着的确认，fallbackFocus 在正常close读取最新本地ref，unmount/旧实例/新身份不借页面手动focus恢复。失权/真离开/dispose以false结算旧Promise，旧路由续体不得转移身份。复用首卡与已验账号安全共同确认，不改共享layer算法/旧退出协议。
+
+## 6. 初步唯一候选范围（18条，未授实施）
+
+| # | 路径 | 用途/取舍条件 |
+| --- | --- | --- |
+| 1 | `web/src/api/client.ts` | 三新固定 endpoint/options；复用旧 retry 路径，预算不扩。 |
+| 2 | `web/src/api/system-smtp-delivery.ts`（新） | 四API、closed DTO、输入捕获与两类202解析；复用现有纯时间/标量。 |
+| 3 | `web/src/composables/useSession.ts` | 第九依赖、独立域/intent、CSRF与全部system清理、实际owner尾部。 |
+| 4 | `web/src/composables/useSystemSMTPDelivery.ts`（新） | 测试/列表/详情/原恢复、重试确认与活动区块协调。 |
+| 5 | `web/src/composables/useSystemSMTPSettings.ts`（待接受） | 仅活跃区块门禁/attach-detach协调所需接缝；若现有公开接口足够则剔除，旧请求/材料规则保持。 |
+| 6 | `web/src/App.vue` | 新provide、同页单门禁/全局dispose组合，不宿主Dialog。 |
+| 7 | `web/src/views/system/SystemSMTPSettingsView.vue`（待接受） | 同叶子两区块、局部布局和末尾确认宿主。 |
+| 8 | `web/src/views/system/SystemSMTPDeliveryPanel.vue`（新） | 收件输入、任务页/内联详情与安全反馈，不自行fetch/保存密钥或宿主统一确认。 |
+| 9 | `web/src/tests/system-smtp-delivery-client.spec.ts`（新） | 四wire/严格解析/编码及实际流尾部。 |
+| 10 | `web/src/tests/system-smtp-delivery-state.spec.ts`（新） | 生产factory+受控transport的原请求/owner/代次/取消恢复。 |
+| 11 | `web/src/tests/system-smtp-delivery.spec.ts`（新） | 真App/router/controller、同页切换与公开确认恢复。 |
+| 12 | `web/src/tests/system-smtp-settings.spec.ts`（待接受） | 仅新增同页入口/活跃域组合的必要兼容，原配置/密码/确认强断言保留。 |
+| 13 | `tests/account/system_smtp_delivery_web_test.go`（新） | 新真实顶层、正式事务旁证与脱敏断言。 |
+| 14 | `tests/account/system_smtp_delivery_web_fixture_test.go`（新） | 正式根/自有受控SMTP与响应控制，旧fixture只读复用。 |
+| 15 | `tests/account-captcha-web/system-smtp-delivery.config.js`（新） | 专用有界浏览器配置与私有输出。 |
+| 16 | `tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts`（新） | 生产dist、真实API/SMTP/事务组合与布局。 |
+| 17 | `tests/account-captcha-web/e2e/system-smtp-settings.spec.ts`（待接受） | 仅同叶子新增区块造成的真实定位兼容；若不需则剔除，不弱化原断言。 |
+| 18 | `docs/development/frontend/README.md` | 产品独立接受后最后记录能力/证据/仍未交付范围。 |
+
+不改 router/auth、SystemSettingsView、旧菜单计数、邀请重试API/controller、后端/OpenAPI/迁移/SMTP首卡、Ui/SettingsShell/全局CSS、锁或归档。实际路径及旧组件断言必须在三个前置完整接受后复核，不能以本18候选覆盖别的作者；需要新增路径或共同规则变动先报主线程。正式卡未来拟为 `docs/development/work-items/d27-system-smtp-delivery-ui.md`，本稿不创建该主树文件。
+
+## 7. 验收重点与未授权资源
+
+纯测以正式factory+受控 fetch/native body/cancel 分层：四闭集/坏行/分页/旧 retry 兼容；job-only202、retry版本>1/新ID、post-read失败not_started仍原intent；已确认receipt后GET失败不退回未确认；GET/Session非receipt；原key/body/CSRF重放、当前停用仍可历史确认、明确拒绝与先未知再拒绝；owner实际tail及跨九域双向取消/403全系统清理；取消list/detail立即离开无活读取loading并可显式重读。不得用账户 API即时mock代替真实owner证明。
+
+真实App纯测：配置dirty切换、测试draft/未确认切换与离页的单门禁；重试/放弃确认已开→生产pageshow listener→Session503→同Session恢复→继续/放弃，强核可操作焦点/层序/零新POST；身份失效/待决导航false终点/旧实例隔离。jsdom证据与真实browser分列，合成pageshow不称BFCache。共享focus必须消费届时已接受行为，不在业务补全局querySelector或反复重挂。
+
+拟五个独立真实组：`TestAccountSystemSMTPDeliveryWebReadAndPagination`（三kind/两渠道/空与连续页/精确详情/兼容摘要和实际字段）；`...TestAndRetry`（正式测试→真实SMTP接受/明确失败/结果未知；新retry周期与同root忙/版本冲突/材料失效原拒绝）；`...OutcomeRecovery`（两个POST分别真实接受后有界丢响应，同key/body重放各只一个命令/周期，推进后的version>1及当前停用/源状态变化）；`...AuthorityAndIdentity`（真实普通用户/撤销/精确失权、GET/新写/历史重放拒绝与同身份尾部）；`...NavigationAndLayouts`（配置/投递双域切换、checking503恢复、全部关闭渠道/焦点/窄屏）。实际每顶层2分钟、Playwright每test45秒、workers1/retries0、race/count1/每包6分钟；按耗时拆执行组，不能延时、跳强断言或算no-tests通过。
+
+使用已接受邀请 UI `tests/account/system_invitations_web_fixture_test.go` 的正式 app.Run、受控 private SMTP socket与自有隔离库准备模式，复用 `tests/testsupport/smtp`；出站只允许任务自有已核nonce/exactID/IP/端口，沿原fixture规则校验/种子边界，不放宽生产分类或触外部邮箱。SMTP配置、测试/邀请/恢复请求、重试/撤销均走正式服务/HTTP，状态经真实worker产生；不SQL改phase/result/current_attempt/fence/join/version，不制造收件人或谱系。必要SQL只作任务自有状态/commands/Audit/attempt/链接不续期旁证及沿已接受fixture的精确准备，具体准备动作由正式卡冻结。取消无attempt样本遵管理读rev1.2：先正式Revoke得cancelled/null，再ClaimBusy且零新增，不复用原错误验收前提。
+
+真实协议最小使用已验none模式SMTP成功/失败/未知与显式retry组合，三加密模式、Secret、出站/自动重试底层未变证据复用D07和管理读接受报告，不机械重跑全D07；不称本UI另验了所有TLS/崩溃恢复或收件箱送达。新的列表/详情所需旧processing例外留纯测试，不假造真实历史producer。SMTP/后台日志/body/凭据不进公开报告；双方只输出安全关联ID/计数/脱敏断言。
+
+尚无任何资源授权；须三个前置完整接受、独占真实窗口移交后才运行。旧 SMTP 配置 OutcomeRecovery/AuthorityAndIdentity/Navigation、邀请重试恢复与必要既有导航作为风险回归，准确旧顶层等首卡接受固定后登记。冻结源/dist与实际命令/首红/原日志，实际join及exact-ID双次清零后才交独立验收。完整D26/D27、生产SPA、Runtime/ready503、Summary待决与Object/tools停止任务均不随本结果解决。

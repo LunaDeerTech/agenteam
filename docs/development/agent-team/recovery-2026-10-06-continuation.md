@@ -266,3 +266,15 @@ SMTP UI、出站HTTP及完整D07/D27仍各自待验，D08–D28/E01未完成、E
 834逻辑原件以499对象＋100逻辑Git引用去重，离线核29固定提交路径、2722 Git blobs、76条原运行记录含十三真实轮；不复制全树／dist／依赖／缓存／二进制，不重跑产品。harness-format00缺原完整argv/env／前后绑定，harness-type00缺独立child wait／精确当轮源指纹，照实限界；独立type01三旧原源实际已找到，不列缺件。
 
 本次仅配置首卡接受。发送／投递页面、SMTP连接／认证／外邮箱、生产SPA／Runtime与完整D07/D27另验，D08–D28/E01未完成、E01未开始；Summary待决、Object/tools原停止、Artifact/Project及生产未绑定／ready503边界保持。旧§1–21、其它卡、frontend README及产品均不由本次文档归位改写。
+
+## 23. SMTP 测试与投递任务 UI 规格采纳及私有实施启动
+
+§1–22保留原阶段事实。[正式卡rev1](../work-items/d27-system-smtp-delivery-ui.md)已获独立STATIC PASS、主线程采纳并提交推送 `8bdfb006b32fbbc8889a190d7829f05e93e29787`，远端一致。[规格报告及最小不可变证据](system-smtp-delivery-ui-spec-verification.md)固定628612c产品、rev0.2全文f34d86…746ce与不变技术bee4f7…4cda；正式页首两版和原rev0.1／差量保留，不是本UI产品接受。
+
+17候选（10新／7旧）只覆盖四API、test/retry两202回执、安全管理投影与原请求恢复、第九域实际Cookie owner尾部和当前View共宿主。提交后GetMailJob失败不证明写未接受，GET／Session无receipt资格；五种拒绝码须满足完整分类条件，先unknown保持粘性。原CSRF须仍等于同完整identity当前合法token，token变化更换epoch并销毁旧intent，不能换token续旧意图。
+
+49逻辑Git引用去重47正式来源，五新／五旧selector及原预算仅获可执行性静审，未跑业务。原静态命令实际exit0／0.284s，只读Git／指纹／范围／格式；原retry204/header准备误述已纠正202JSON，页首内联节标记提取失败也保留。30逻辑原件以29对象＋正式卡Git引用归档，不复制整个源码／依赖／运行时树，不重跑产品。
+
+主线程已另授唯一frontend作者17路径私有实现及适用离线检查，README末件最后；作者 `/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd` 四API阶段已实际启动，独立verification私有计划亦已实际启动。当前**未授真实资源，没有实现、浏览器、worker或实际投递PASS**；后续须冻结候选、独立验证及资源终局，不能从本规格记录外推。
+
+本次仅报告／行政入口和新卡页首审查链接／授权状态，技术与旧§1–22保持。外部邮箱／所有TLS、完整SMTP页面及D07/D27／D08–D28/E01未完成、E01未开始；Summary待决、Object/tools原停止、Artifact/Project与生产未绑定／ready503等边界不变。

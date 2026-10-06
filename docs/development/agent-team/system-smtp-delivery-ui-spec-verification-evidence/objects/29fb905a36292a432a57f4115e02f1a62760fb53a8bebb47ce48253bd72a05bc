@@ -1,0 +1,45 @@
+{
+  "status": "FROZEN",
+  "base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "candidate_revision": "rev0.2",
+  "full_sha256": "f34d86d5720824c18b9fb162fc980e93d7454e753d98238c1ef6c3f5bf6746ce",
+  "technical_sha256": "bee4f7ddb2b480b8c57b7d1b6b81be36bfce9f726222ebc10c8b468b90a54cda",
+  "technical_range": "first ## 1. through EOF final LF",
+  "artifacts": {
+    "d27-system-smtp-delivery-ui.draft.md": {
+      "sha256": "f34d86d5720824c18b9fb162fc980e93d7454e753d98238c1ef6c3f5bf6746ce",
+      "bytes": 30660
+    },
+    "prior-to-rev02.diff": {
+      "sha256": "ab4a25e4c04314d9cec3d70a0b6b2cf2514cc8e2bd4c3e9945ae9c237e767256",
+      "bytes": 43535
+    },
+    "scope17.json": {
+      "sha256": "01618cbc641bc76b85fdb8de954dcaf94bb9bbcfaab5a41262c03e033dc55e6f",
+      "bytes": 2900
+    },
+    "seams.md": {
+      "sha256": "2026256b6b5a96fc7cd1886852a3c050d95439a9376c4d2347c95128cd5dd6da",
+      "bytes": 5626
+    },
+    "fixed-inputs.json": {
+      "sha256": "63e65068823c6ab446816cd5884d411fd961121935d8d084c0a4dc8fcc4d9fc4",
+      "bytes": 9020
+    },
+    "checks.json": {
+      "sha256": "943d58667a35de81a7d955403f82c5a1eaec02e80d063e2113f38f0940ef45cf",
+      "bytes": 1513
+    },
+    "handoff.md": {
+      "sha256": "141c5c09ce76af8186e8a9a0d8344ea7e1d3a47fa0994954ea4969161232ef93",
+      "bytes": 1404
+    },
+    "prior/d27-system-smtp-delivery-ui.draft.md": {
+      "sha256": "765373802de023dadceb5d825b19a5049a0a1729da34ea620af2b70837568d02",
+      "bytes": 19969
+    }
+  },
+  "product_writes": [],
+  "resources_started": [],
+  "pending_decisions": []
+}

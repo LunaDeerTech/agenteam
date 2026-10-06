@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：SMTP 投递 UI 规格采纳与私有实施启动
+
+- [正式卡rev1](../work-items/d27-system-smtp-delivery-ui.md)已获独立STATIC PASS、主线程采纳并提交推送 `8bdfb006b32fbbc8889a190d7829f05e93e29787`，远端一致；技术§1–7 bee4f7…4cda保持原字节。[规格报告与最小证据](system-smtp-delivery-ui-spec-verification.md)保留rev0.1／0.2、17范围、接缝／差量、原静态命令和两版正式页首。
+- 17候选为10新／7旧；四API闭集、202 test／retry、安全管理投影、提交后读失败的unknown粘性、原请求恢复、第九域actual owner尾部及共宿主确认已静核。原CSRF须仍是同完整identity当前合法值，token变化更换epoch／销毁旧intent，不给旧intent换token。
+- 已收到唯一frontend作者私有实现／离线检查及独立私有计划的实际启动ACK，固定产品628612c，四API阶段已开始、README末件最后。**无真实资源授权，尚无实现／浏览器／worker验收通过。** 五新／五旧组仍待冻结实现后实际验证。
+- 本次30逻辑／29对象、49逻辑Git引用去重47＋正式卡原件；原静态exit0／0.284s仅只读核对。早期retry204/header误述及页首提取前提失败保留，不标产品RED。仅行政归位，不改产品或其它卡；D08–D28/E01未完成、E01未开始，Summary待决、Object/tools停止及生产未绑定／ready503保持。
+
 ## 2026-10-06：System SMTP 配置 UI 完整结果接受
 
 - [配置首卡rev2](../work-items/d27-system-smtp-settings-ui.md)29路径获作者检查、独立有界PASS和主线程采纳，提交推送 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`，主线程核远端一致。[正式报告与最小证据](system-smtp-settings-ui-verification.md)绑定input04／36dist指纹／1050依赖及第29README；卡技术原字节保持。

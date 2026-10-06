@@ -1,0 +1,23 @@
+独立验收计划：SMTP 测试发送与投递任务 UI。仅计划，尚未运行产品检查或真实资源。
+
+输入为接受规格 `8bdfb006b32fbbc8889a190d7829f05e93e29787`、技术正文 `bee4f7ddb2b480b8c57b7d1b6b81be36bfce9f726222ebc10c8b468b90a54cda`，产品基线 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`。原规格审查直接复用，不再复制43来源或建立全树索引。只消费之后停止写入的阶段快照；每次核原阶段SHA及最小差量。
+
+| 阶段 | 最小独立重点与证据 |
+| --- | --- |
+| API | 先静核四endpoint/请求闭包及email仅窄导出。两类离线代表：①test仅job_id的202、retry新child/version>1，管理页九required/nullable/次序/opaque cursor和详情ID整体拒绝；选取cancelled/null、旧unknown/null、retry_wait/unknown与错误哨兵，不复制已验邮箱/时间全矩阵。②原native stream超限/截断/媒体错误的真实read/cancel屏障：响应仍600000B、请求16KiB、零部分DTO，cancel或未结束body不能被可见取消假称join。API只报告wire，不提前宣称owner恢复合格。 |
+| owner | 两个有意义组合：①test派发404或5xx/not_started后保持原intent；Session/列表观察不代receipt，后续五码拒绝也不能抹掉旧unknown，严格202后再GET失败仍已确认且只读恢复。②retry的原源ID/version/key/body不受当前观察更新；真实body/cancel尾部屏障下30s可见超时或abandon仍阻其它Cookie域，实际完成后才释放。配置密码及Provider两步/个人操作各选代表双向abandon，其余清理表静核；当前CSRF/403销毁与旧身份迟到隔离沿正式链验证。额外任意flush:sync主动新写不新增为本卡门槛。 |
+| App/页面 | 固定生产App/router/controller的两个公开动作组合：配置草稿/私有材料→切panel继续或放弃；投递retry/放弃确认已开→pageshow检查→Session503→同身份恢复→继续/放弃。核唯一attach/detach顺序、默认配置零新endpoint、取消loading立即终态但owner仍busy、恢复原active/Promise、失效false、无自动POST/新key及新意图不继承旧成功。jsdom不外推原生focus；真正pointer/Tab在B补。读取最终固定View的精确可访问名，不套历史页面标签。 |
+
+实际A/B预定为两个代表顶层，只有作者新五/旧五闭合、实际双清并获root明确独占窗后运行；各顶层2m、浏览器45s、包6m、race/count1、worker1/retry0，不加时。正式fixture冻结前不假设IPC，不先写大批探针。
+
+A：测试POST已接受但响应有界截断 → 当前观察非receipt → 历史原请求确认。通过真实HTTP TestSMTP、Outbox和正式worker形成安全任务事实；独立控制端只丢已接受响应，不伪造JobID。保留本浏览器未确认intent，另一个正式管理员操作推进/停用当前SMTP配置，不能通过切配置panel清掉原intent。Session恢复后管理观察即使找到sent也不能确认原POST；当前configured=false不得堵住历史Execute。显式重放原method/path/key/body与同完整identity当前合法CSRF，严格202返回原JobID；只为后继详情施加一次503，已确认反馈保持且仅允许重读。原命令/intent/event/Audit唯一关联、原rawbody/key/CSRF等值仅输出布尔。若作者已真实覆盖其中某个同输入环节，复用该环节但保留独立的恢复串联与唯一性旁证。
+
+B：投递unknown与retry请求unknown分别证明，并包含同页确认恢复。先正式测试请求取得202，以受控SMTP accepted后断开且自动重试0形成terminal/io_joined的unknown原任务；已有202确认与投递unknown不得互相覆盖。以UI捕获源ID/version打开retry确认，再打开顶部放弃确认，触发真实生产pageshow→503→同Session恢复，核物理/可访问层、继续编辑回下层合法focus与原生Tab，期间零POST。随后显式retry的真实202被截断；正式worker推进child到version>1，源version已递增。Session+精确源GET仍不是child receipt、不得更新原expectedVersion；再显式同key/body重放应确认同一child当前version，原command/child周期/事件/Audit无第二份。新请求409、同根忙、材料失效等作者已验矩阵按精确差量复用，不再另加全部竞态。
+
+唯一性按各自正式域：test `account.smtp/smtp-test`，retry `account.mail-retry/mail-retry`，Account命令identity_digest遵其正式Canonical摘要规则，Audit按原command recordID关联；不套Model的cursor摘要，也不以全库总数代精确关联。原key/body/CSRF/recipient/密码、恢复材料不日志、不截图、不输出hash；fixture比较只在私有进程内存输出安全布尔/允许ID/计数。投递采用正式producer，SQL只读旁证及卡内明确允许的owned准备，禁止改phase/result/fence/attempt/join/version/next_at。旧processing仅纯测，SMTP成功不称收件箱到达。
+
+同完整identity包含epoch；固定publish规则在CSRF变化时改变epoch并清旧intent，因此“原CSRF仍合法”即仍为当前合法值，不向旧intent移植新token。成功nativeDTO观察要真实EOF；text/plain503媒体拒绝按cancel终局，不能硬造EOF。observeNative仅旁路原已读分片且保持原Promise/Response/reader/cancel，不拿观察器结束当产品owner结束；无clone/tee/trace/video/自动失败截图。
+
+复用边界：已接受管理GET事务/预算/attempt映射、邮箱集合、共享Dialog/selection取消恢复、旧TLS/Secret/底层worker按未变输入复用；新增第九域/协调器/新API及两POST历史恢复不能用旧PASS替代。作者全部新/旧验收、截图与原红分版本静核；独立只补上述代表，不重复全矩阵。实际执行前绑定候选/固定Git闭包/锁和唯一CLI，ownednonce拓扑7或9ID/PID-starttime基线、启动前subreaper、逐进程actualwait与两遍清零；原失败保留，产品红交作者，工具前提修复只影响必要轮次，停止的Object/tools不触碰。
+
+当前只有本计划和输入指纹两个私有文件；未读取作者活动17路径、未写测试/产品或启动资源。API阶段冻结及root有界动态授权后才落实首批独立probe。

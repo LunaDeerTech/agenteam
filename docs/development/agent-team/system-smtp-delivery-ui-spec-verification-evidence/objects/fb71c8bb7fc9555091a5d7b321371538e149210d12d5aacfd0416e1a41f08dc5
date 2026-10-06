@@ -1,0 +1,89 @@
+{
+  "fixed_commit": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "access": "git show only; no product workspace reads",
+  "files": {
+    "api/openapi/account.json": {
+      "sha256": "8395b445f7ba422dc72b1cf35f047fb8380f271b4f9d96cf039640e3aa9c1d64",
+      "git_blob": "4949181c56c224f4e7bdf38b6897147d096d8563"
+    },
+    "internal/central/account/http.go": {
+      "sha256": "e87f71d7954ad9c1620bc90b47b1fb6b483ffeb1410668f6a1c2e93765fe93a1",
+      "git_blob": "7832f1ee671b63e9b745255a937445673e77ded7"
+    },
+    "internal/central/account/http_system.go": {
+      "sha256": "e25b35999c04cddbf64a6f03e573999e0bafae3a39d933c8163a32ca82269248",
+      "git_blob": "4c768f23de6b94631a7cd32ee8df56c95c40f24f"
+    },
+    "internal/central/account/http_mail_job_management.go": {
+      "sha256": "8a72129fd594522752462d61f6bf5568acc1223e0369a168e96f6fdce0a44532",
+      "git_blob": "4db08213285a4df8a9dff4319c847ab0239619cc"
+    },
+    "internal/central/account/http_mail_job_management_reads.go": {
+      "sha256": "e056a7e109ac78ae51600758858b80aba2b07aa5b22590eaf89080bfceddac14",
+      "git_blob": "4aa61f5415e147296fdc984b8330d032e7f827ef"
+    },
+    "internal/central/account/smtp_commands.go": {
+      "sha256": "7bac163a844e6b3295f9cd48812184bb4cc83e16fe4695013b43fdc3bf87ca2d",
+      "git_blob": "c897dee0d79bcc7167c3777b6cfc7a93eae26ec7"
+    },
+    "internal/central/account/delivery_retry.go": {
+      "sha256": "43205ecc30c7ad276ac738a5674fb91a345fb8780597ff5f6587c9eb95e1473a",
+      "git_blob": "f425541f6ed0c9fe37bd1c5b090e93fa54af3167"
+    },
+    "internal/central/account/delivery_origin.go": {
+      "sha256": "6aea7292d9bbf02dac839f3f8804056581ee16e5d4abbf077279540a0edcb069",
+      "git_blob": "293f4e4d863daea3fe309fb75673683da7273518"
+    },
+    "internal/central/account/delivery.go": {
+      "sha256": "edbe9c62932b30a2af319b4a5108fff7f3ac0f5d4cd1e7308be5163965ec4ad8",
+      "git_blob": "b84af58182ddd1a3867ddf187b63eaec19268069"
+    },
+    "internal/central/accountmail/worker.go": {
+      "sha256": "cc89f978c8abfcb23b0816459d3a6effe0926fabe3df5378483bcacec1b116eb",
+      "git_blob": "2631adf8beb0b67966649b3d91a766f8137fe4a4"
+    },
+    "tests/accountmail/mail_job_management_test.go": {
+      "sha256": "7fbb6b7b25dfc146859f9f4be34fcf393aa529160c37f31d3272c6f4d6559fb8",
+      "git_blob": "6a3ac0508945373ee81d06c52616b1181b72ab4a"
+    },
+    "web/src/api/client.ts": {
+      "sha256": "29637a57c4141ce67e3d6b45b86a534ea58c49279eabb6fe902885a22620c186",
+      "git_blob": "cdd680e96dc914e0bb88b2796a64e9e7e592b917"
+    },
+    "web/src/api/system-smtp-settings.ts": {
+      "sha256": "e8068e7f4d4809716f66977e499d2d3425f71fe625dada059a6ed2fb72957527",
+      "git_blob": "d815b24cb8a3c1fdd2487ce91c4eb6ffe307206e"
+    },
+    "web/src/api/system-invitations.ts": {
+      "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+      "git_blob": "07692ec91b2e3c1153831a4c2e508182b9a24fce"
+    },
+    "web/src/composables/useSession.ts": {
+      "sha256": "fe066bdcbf6448acf831d5629ea7a0a11a6af2848de723dfabdbffd05c636ea4",
+      "git_blob": "508229c8d48357ae6e26fe3f62722c81a507e18a"
+    },
+    "web/src/composables/useSystemSMTPSettings.ts": {
+      "sha256": "2baf377922d3f04cbb553b2d6ff85c3ef92334ed10ee00661c66682640519296",
+      "git_blob": "f2bade034d80c8595db5ad58c8103a44a049ace1"
+    },
+    "web/src/views/system/SystemSMTPSettingsView.vue": {
+      "sha256": "61d84ba212fd9dae0816920c7280e2986746975ed893424b6513b77a42747483",
+      "git_blob": "60618ec9bc0daff184c13b527117e964502ad278"
+    },
+    "web/src/App.vue": {
+      "sha256": "e10c122a18bb0d29f4655e898305f473b5c275cfe6ccb0dcfbb5e04616aad753",
+      "git_blob": "297d7a27b6f399a26e823ab5ac6c30a7358d6501"
+    },
+    "web/src/router/auth.ts": {
+      "sha256": "99a361b8a6408c37ab7fed927225bcb0c6279fac75054a8fe7011d780c1afc1e",
+      "git_blob": "dc2e689004f26f3c2a71b1491b27e22d2a30d0fa"
+    },
+    "docs/development/work-items/d07-system-mail-job-management-reads.md": {
+      "sha256": "d709b33a06c3e6cb3cfc8cb69b284859e3b7155a68f18b47f4596a17301a7c7c",
+      "git_blob": "add82407d230aac6ffb1adac5dc799eb3fdc4d22"
+    }
+  },
+  "tests_executed": false,
+  "resources_started": false,
+  "draft_received": false
+}

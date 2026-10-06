@@ -1,0 +1,38 @@
+import hashlib,json,pathlib,re,subprocess,posixpath
+AUTHOR=pathlib.Path('/workspace/scratch/agenteam-smtp-delivery-spec-_kk1pqcg')
+REPO=pathlib.Path('/workspace/agenteam')
+OUT=pathlib.Path('/workspace/scratch/agenteam-smtp-delivery-ui-spec-review-x6vw4xfs')
+BASE='628612cdfc730cc1d89cad4e24a5d20f36cc6812'
+EXPECTED={'d27-system-smtp-delivery-ui.draft.md':'f34d86d5720824c18b9fb162fc980e93d7454e753d98238c1ef6c3f5bf6746ce','scope17.json':'01618cbc641bc76b85fdb8de954dcaf94bb9bbcfaab5a41262c03e033dc55e6f','seams.md':'2026256b6b5a96fc7cd1886852a3c050d95439a9376c4d2347c95128cd5dd6da','prior-to-rev02.diff':'ab4a25e4c04314d9cec3d70a0b6b2cf2514cc8e2bd4c3e9945ae9c237e767256','fixed-inputs.json':'63e65068823c6ab446816cd5884d411fd961121935d8d084c0a4dc8fcc4d9fc4'}
+def sha(b):return hashlib.sha256(b).hexdigest()
+def git(*args):return subprocess.check_output(['git',*args],cwd=REPO)
+for name,want in EXPECTED.items():assert sha((AUTHOR/name).read_bytes())==want,name
+body=(AUTHOR/'d27-system-smtp-delivery-ui.draft.md').read_bytes();tech=sha(body[body.index(b'## 1.'):]);assert tech=='bee4f7ddb2b480b8c57b7d1b6b81be36bfce9f726222ebc10c8b468b90a54cda'
+assert body.endswith(b'\n') and b'\r' not in body and all(x.rstrip()==x for x in body.splitlines())
+fixed=json.loads((AUTHOR/'fixed-inputs.json').read_text());assert fixed['base']==BASE
+for name,v in fixed['files'].items():
+ data=git('show',BASE+':'+name)
+ assert sha(data)==v['sha256'] and git('rev-parse',BASE+':'+name).decode().strip()==v['git_blob'],name
+ assert (AUTHOR/'source'/name).read_bytes()==data,name
+scope=json.loads((AUTHOR/'scope17.json').read_text());assert scope['base']==BASE and scope['candidate_count']==17
+assert len(scope['files'])==len({x['path'] for x in scope['files']})==17
+for v in scope['files']:
+ p=subprocess.run(['git','cat-file','-e',BASE+':'+v['path']],cwd=REPO,capture_output=True)
+ if v['new']:assert p.returncode!=0,v['path']
+ else:assert p.returncode==0 and sha(git('show',BASE+':'+v['path']))==v['base_sha256'],v['path']
+links=[]
+for link in re.findall(r'\[[^\]]*\]\(([^)]+)\)',body.decode()):
+ path=posixpath.normpath('docs/development/work-items/'+link.split('#')[0]);data=git('show',BASE+':'+path).decode()
+ if '#' in link:
+  fragment=link.split('#',1)[1]
+  assert any(re.sub(r'[^\w\-\s]','',line.lstrip('#').strip().lower()).replace(' ','-')==fragment for line in data.splitlines() if line.startswith('#')),link
+ links.append(link)
+old={'tests/account/system_smtp_settings_web_test.go':['TestAccountSystemSMTPSettingsWebOutcomeRecovery','TestAccountSystemSMTPSettingsWebAuthorityAndIdentity','TestAccountSystemSMTPSettingsWebNavigationAndLayouts'],'tests/account/system_invitations_web_test.go':['TestAccountSystemInvitationsWebDeliveryRetry','TestAccountSystemInvitationsWebOutcomeRecovery']}
+for path,names in old.items():
+ data=git('show',BASE+':'+path).decode()
+ for name in names:assert data.count('func '+name+'(')==1,name
+extras=['internal/central/account/authority.go','internal/central/account/error.go','internal/central/account/repository.go','internal/central/account/mutation.go','internal/central/account/delivery_intent.go','internal/central/account/service.go']
+extra={p:{'git_blob':git('rev-parse',BASE+':'+p).decode().strip(),'sha256':sha(git('show',BASE+':'+p))} for p in extras}
+result={'conclusion':'STATIC_INPUT_PASS','base':BASE,'draft_revision':'0.2','full_sha256':EXPECTED['d27-system-smtp-delivery-ui.draft.md'],'technical_sha256':tech,'frozen_input_sha256':EXPECTED,'fixed_source_count':len(fixed['files']),'additional_five_code_and_postread_sources':extra,'candidate_count':17,'links_checked':links,'old_exact_selectors':old,'product_tests_executed':False,'resources_started':False,'git_mutations':False,'scope':'hash/blob/source, candidate existence, exact old top names, UTF8/LF/whitespace and formal-destination links; semantic conclusions are in review.md'}
+(OUT/'static-input01.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps({'checks':'PASS','base':BASE,'fixed_sources':len(fixed['files']),'extra_sources':len(extra),'candidates':17,'old_tops':5,'links':len(links),'resources_started':False},ensure_ascii=False))

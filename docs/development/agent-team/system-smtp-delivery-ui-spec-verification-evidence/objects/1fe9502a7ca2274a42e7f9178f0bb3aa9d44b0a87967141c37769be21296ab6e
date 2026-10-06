@@ -1,0 +1,25 @@
+{
+  "technical_byte_equality": true,
+  "candidate_paths": 17,
+  "links": [
+    "../../architecture/platform-infrastructure/authentication/smtp-delivery.md",
+    "../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置",
+    "d07-system-mail-job-management-reads.md",
+    "d07-email-canonical-roundtrip.md#2-唯一规范化契约",
+    "d27-system-smtp-settings-ui.md"
+  ],
+  "format": "UTF8/LF/final-newline/no-trailing-whitespace",
+  "precheck_prerequisite": "precheck01 preserved; inline heading marker removed from header; technical range now anchored at line start",
+  "resources_started": [],
+  "main_writes": [],
+  "git_mutations": [],
+  "independent_report": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-ui-spec-review-x6vw4xfs/review.md",
+    "sha256": "1f0a5faca177f46a769615011a6758d2f3f3b74a7a8e6a5adb7ea8cf1c653b65",
+    "json_sha256": "0bc66903f7adec96143518822c498fa9a640c709af89761563b98cb987d3fba1",
+    "verified": true
+  },
+  "technical_sha256": "bee4f7ddb2b480b8c57b7d1b6b81be36bfce9f726222ebc10c8b468b90a54cda",
+  "full_sha256": "e1c138b6f10f22867acf39af618fa0fdd7031a1f7f0c7a53e6e3edfb531be05a",
+  "status": "PASS (document self-check; independent STATIC original separately referenced)"
+}
