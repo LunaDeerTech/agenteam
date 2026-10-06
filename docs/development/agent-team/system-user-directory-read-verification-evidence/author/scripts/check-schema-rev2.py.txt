@@ -1,0 +1,23 @@
+import json,pathlib,subprocess
+root=pathlib.Path('/workspace/agenteam')
+old=subprocess.check_output(['git','show','125e3c222ffca01ea0fd987d7dc47b8c30fa5f8b:api/openapi/account.json'],cwd=root,text=True)
+new=(root/'api/openapi/account.json').read_text()
+def block(s,name,next_name):
+ start=s.index('      "'+name+'": {')
+ return s[start:s.index('      "'+next_name+'": {',start)]
+assert block(old,'User','Session')==block(new,'User','SystemUser')
+a,b=json.loads(old),json.loads(new)
+ua=a['components']['schemas'].pop('UserList'); ub=b['components']['schemas'].pop('UserList')
+assert ub['properties']['items']['items']['$ref']=='#/components/schemas/SystemUser'
+ub['properties']['items']['items']['$ref']='#/components/schemas/User'
+assert ua==ub
+b['components']['schemas'].pop('SystemUser')
+a['paths']['/api/v1/system/users']['get'].pop('description'); b['paths']['/api/v1/system/users']['get'].pop('description')
+head=b['paths']['/api/v1/system/users'].pop('head')
+assert head['operationId']=='headUsers'
+assert head['security']==a['paths']['/api/v1/system/users']['get']['security']
+assert head['parameters']==a['paths']['/api/v1/system/users']['get']['parameters']
+assert set(head['responses'])=={'200','default'}
+assert all('content' not in r for r in head['responses'].values())
+assert a==b
+print('PASS: original User schema bytes preserved; only SystemUser, UserList reference, listUsers description and explicit users HEAD changed')

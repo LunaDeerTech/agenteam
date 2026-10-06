@@ -1,0 +1,21 @@
+{
+  "double_cleanup": true,
+  "driver_exit": 1,
+  "monitor_errors": 0,
+  "observed_processes": 357,
+  "observed_resources": 7,
+  "run": "author01",
+  "run_directory": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01",
+  "selected_tests_passed": false,
+  "source_files_unchanged": true,
+  "top_levels": [
+    [
+      "PASS",
+      "TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority"
+    ],
+    [
+      "FAIL",
+      "TestAccountHTTPSystemUserDirectory"
+    ]
+  ]
+}

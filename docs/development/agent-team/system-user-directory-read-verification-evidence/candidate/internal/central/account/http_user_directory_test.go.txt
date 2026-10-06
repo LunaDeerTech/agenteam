@@ -1,0 +1,459 @@
+package account
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"net/http/httptest"
+	"os"
+	"reflect"
+	"strconv"
+	"strings"
+	"testing"
+	"time"
+
+	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+)
+
+var directoryUserFields = []string{"id", "email", "username", "display_name", "role", "theme", "version", "initial_password_suggestion"}
+
+func TestHTTPUserDirectoryProjectionAndSchema(t *testing.T) {
+	row := directoryValidRow(t)
+	at, err := foundation.NewInstant(row.at)
+	if err != nil {
+		t.Fatal(err)
+	}
+	legacy, err := json.Marshal(httpUserDTO(row.user))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var oldFields map[string]json.RawMessage
+	if err := json.Unmarshal(legacy, &oldFields); err != nil {
+		t.Fatal(err)
+	}
+	directoryRequireFields(t, oldFields, directoryUserFields)
+	item := httpSystemUser{httpUserDTO(row.user), at}
+	encoded, err := json.Marshal(item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(encoded, &fields); err != nil {
+		t.Fatal(err)
+	}
+	directoryRequireFields(t, fields, append(append([]string{}, directoryUserFields...), "created_at"))
+	for key, value := range oldFields {
+		if !bytes.Equal(fields[key], value) {
+			t.Fatalf("system projection changed shared field %s", key)
+		}
+	}
+	if string(fields["version"]) != `"7"` || string(fields["created_at"]) != `"2026-10-06T01:02:03.456789Z"` {
+		t.Fatal("directory scalar format changed", string(encoded))
+	}
+	get, head := httptest.NewRecorder(), httptest.NewRecorder()
+	httpJSON(get, httptest.NewRequest("GET", "/api/v1/system/users", nil), 200, item)
+	httpJSON(head, httptest.NewRequest("HEAD", "/api/v1/system/users", nil), 200, item)
+	httpAssertSecurityHeaders(t, get)
+	httpAssertSecurityHeaders(t, head)
+	if head.Code != 200 || head.Body.Len() != 0 || head.Header().Get("Content-Length") != strconv.Itoa(get.Body.Len()) {
+		t.Fatal("HEAD did not preserve the encoded representation length")
+	}
+
+	raw, err := os.ReadFile("../../../api/openapi/account.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var document struct {
+		Components struct {
+			Schemas map[string]json.RawMessage `json:"schemas"`
+		} `json:"components"`
+	}
+	if err := json.Unmarshal(raw, &document); err != nil {
+		t.Fatal(err)
+	}
+	type schema struct {
+		Type                 string                     `json:"type"`
+		Properties           map[string]json.RawMessage `json:"properties"`
+		Required             []string                   `json:"required"`
+		AdditionalProperties *bool                      `json:"additionalProperties"`
+		AllOf                []json.RawMessage          `json:"allOf"`
+	}
+	readSchema := func(name string, want []string) schema {
+		t.Helper()
+		var value schema
+		if err := json.Unmarshal(document.Components.Schemas[name], &value); err != nil {
+			t.Fatal(err)
+		}
+		if value.Type != "object" || value.AdditionalProperties == nil || *value.AdditionalProperties || len(value.AllOf) != 0 {
+			t.Fatalf("%s is not an explicit closed object", name)
+		}
+		directoryRequireFields(t, value.Properties, want)
+		if !reflect.DeepEqual(value.Required, want) {
+			t.Fatalf("%s required fields differ: %v", name, value.Required)
+		}
+		return value
+	}
+	user := readSchema("User", directoryUserFields)
+	system := readSchema("SystemUser", append(append([]string{}, directoryUserFields...), "created_at"))
+	for key, property := range user.Properties {
+		if !bytes.Equal(property, system.Properties[key]) {
+			t.Fatalf("SystemUser changed the shared %s schema", key)
+		}
+	}
+	var created struct {
+		Ref string `json:"$ref"`
+	}
+	if err := json.Unmarshal(system.Properties["created_at"], &created); err != nil || created.Ref != "./common.json#/components/schemas/Instant" {
+		t.Fatal("SystemUser registration time is not the canonical Instant schema", err)
+	}
+	var list schema
+	if err := json.Unmarshal(document.Components.Schemas["UserList"], &list); err != nil {
+		t.Fatal(err)
+	}
+	directoryRequireFields(t, list.Properties, []string{"items", "next_cursor"})
+	if list.Type != "object" || list.AdditionalProperties == nil || *list.AdditionalProperties || !reflect.DeepEqual(list.Required, []string{"items"}) {
+		t.Fatal("UserList lost its closed shape or optional cursor")
+	}
+	var items struct {
+		Type  string `json:"type"`
+		Items struct {
+			Ref string `json:"$ref"`
+		} `json:"items"`
+		MaxItems int `json:"maxItems"`
+	}
+	if err := json.Unmarshal(list.Properties["items"], &items); err != nil || items.Type != "array" || items.Items.Ref != "#/components/schemas/SystemUser" || items.MaxItems != 100 {
+		t.Fatal("UserList does not reference the bounded system projection", err)
+	}
+}
+
+func directoryRequireFields(t *testing.T, fields map[string]json.RawMessage, want []string) {
+	t.Helper()
+	if len(fields) != len(want) {
+		t.Fatalf("field count=%d want=%d", len(fields), len(want))
+	}
+	for _, key := range want {
+		if _, ok := fields[key]; !ok {
+			t.Fatalf("missing field %s", key)
+		}
+	}
+}
+
+func TestHTTPUserDirectoryHEADRoutesAndSchema(t *testing.T) {
+	boundary, err := csrfNewBoundary("https://example.test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := (&accountHTTP{csrf: boundary}).httpHandler()
+	for _, tc := range []struct {
+		method, path string
+		status       int
+		allow        string
+	}{
+		{"HEAD", "/system/users", 401, ""},
+		{"HEAD", "/system/users?limit=1", 401, ""},
+		{"HEAD", "/me/avatar", 401, ""},
+		{"HEAD", "/auth/bootstrap", 405, "GET"},
+		{"HEAD", "/session", 405, "GET"},
+		{"HEAD", "/me", 405, "GET, PATCH"},
+		{"HEAD", "/me/preferences", 405, "GET, PUT"},
+		{"HEAD", "/system/invitations", 405, "GET, POST"},
+		{"HEAD", "/system/account-settings", 405, "GET, PUT"},
+		{"HEAD", "/system/smtp", 405, "GET, PUT"},
+		{"HEAD", "/system/mail-jobs", 405, "GET"},
+		{"POST", "/system/users", 405, "GET, HEAD"},
+		{"OPTIONS", "/system/users", 405, "GET, HEAD"},
+	} {
+		t.Run(tc.method+tc.path, func(t *testing.T) {
+			r := httptest.NewRequest(tc.method, "https://example.test/api/v1"+tc.path, nil)
+			r.Header.Set("Origin", boundary.origin)
+			w := httptest.NewRecorder()
+			handler.ServeHTTP(w, r)
+			httpAssertSecurityHeaders(t, w)
+			if w.Code != tc.status || w.Header().Get("Allow") != tc.allow || r.Method != tc.method {
+				t.Fatalf("handler status=%d Allow=%q method=%q", w.Code, w.Header().Get("Allow"), r.Method)
+			}
+			if tc.method == "HEAD" && w.Body.Len() != 0 {
+				t.Fatal("actual handler emitted a HEAD error body")
+			}
+			if n, err := strconv.Atoi(w.Header().Get("Content-Length")); err != nil || n <= 0 || w.Header().Get("Content-Type") != "application/problem+json" {
+				t.Fatal("HEAD error lost the safe Problem metadata", err)
+			}
+		})
+	}
+	raw, err := os.ReadFile("../../../api/openapi/account.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	type operation struct {
+		ID         string                                `json:"operationId"`
+		Security   []map[string][]string                 `json:"security"`
+		Parameters []map[string]string                   `json:"parameters"`
+		Responses  map[string]map[string]json.RawMessage `json:"responses"`
+	}
+	var document struct {
+		Paths map[string]map[string]operation `json:"paths"`
+	}
+	if err := json.Unmarshal(raw, &document); err != nil {
+		t.Fatal(err)
+	}
+	get := document.Paths["/api/v1/system/users"]["get"]
+	head := document.Paths["/api/v1/system/users"]["head"]
+	if head.ID != "headUsers" || !reflect.DeepEqual(head.Security, get.Security) || !reflect.DeepEqual(head.Parameters, get.Parameters) || len(head.Responses) != 2 {
+		t.Fatal("HEAD OpenAPI changed authentication, query parameters or responses")
+	}
+	ids := 0
+	for _, methods := range document.Paths {
+		for _, op := range methods {
+			if op.ID == "headUsers" {
+				ids++
+			}
+		}
+	}
+	if ids != 1 {
+		t.Fatal("HEAD OpenAPI operationId is not unique")
+	}
+	for status, contentType := range map[string]string{"200": "application/json", "default": "application/problem+json"} {
+		response, ok := head.Responses[status]
+		if _, hasBody := response["content"]; !ok || hasBody {
+			t.Fatal("HEAD OpenAPI response declares a body or is missing", status)
+		}
+		var headers map[string]struct {
+			Schema map[string]string `json:"schema"`
+		}
+		if err := json.Unmarshal(response["headers"], &headers); err != nil {
+			t.Fatal(err)
+		}
+		for name, value := range map[string]string{"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Content-Type": contentType} {
+			if headers[name].Schema["const"] != value {
+				t.Fatal("HEAD OpenAPI missing representation/security header", status, name)
+			}
+		}
+		if headers["Content-Length"].Schema["type"] != "string" {
+			t.Fatal("HEAD OpenAPI omitted the encoded representation length", status)
+		}
+	}
+}
+
+// Controlled rows exercise the account scanner only. They do not stand in for
+// real PostgreSQL transactions, codecs or current authorization.
+type directoryRow struct {
+	user    c.User
+	id      string
+	at      time.Time
+	scanErr error
+}
+
+type directoryRows struct {
+	values []directoryRow
+	index  int
+	scans  int
+	closed int
+	err    error
+}
+
+func (r *directoryRows) Next() bool {
+	if r.index == len(r.values) {
+		return false
+	}
+	r.index++
+	return true
+}
+func (r *directoryRows) Scan(dest ...any) error {
+	r.scans++
+	v := r.values[r.index-1]
+	if v.scanErr != nil {
+		return v.scanErr
+	}
+	*dest[0].(*string) = v.id
+	*dest[1].(*string) = v.user.Email
+	*dest[2].(*string) = v.user.Username
+	*dest[3].(*string) = v.user.DisplayName
+	*dest[4].(*c.Role) = v.user.Role
+	*dest[5].(*c.Theme) = v.user.Theme
+	*dest[6].(*int64) = int64(v.user.Version)
+	*dest[7].(*bool) = v.user.InitialPasswordSuggestion
+	*dest[8].(*time.Time) = v.at
+	return nil
+}
+func (r *directoryRows) Err() error { return r.err }
+func (r *directoryRows) Close()     { r.closed++ }
+
+func directoryValidRow(t *testing.T) directoryRow {
+	t.Helper()
+	id, err := foundation.NewID[identity.User]()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return directoryRow{
+		user: c.User{ID: id, Email: "directory@example.com", Username: "directory", DisplayName: "Directory", Role: "user", Theme: "system", Version: 7},
+		id:   id.String(),
+		at:   time.Date(2026, 10, 6, 3, 32, 3, 456789987, time.FixedZone("offset", 150*60)),
+	}
+}
+
+func TestHTTPUserDirectoryScanCanonicalAndCursor(t *testing.T) {
+	ring, _, _ := testRings(t)
+	f := &SystemHTTPFacade{pagination: ring}
+	first, sentinel := directoryValidRow(t), directoryValidRow(t)
+	rows := &directoryRows{values: []directoryRow{first, sentinel}}
+	out, err := f.httpScanUserList(rows, 1)
+	if err != nil || len(out.Items) != 1 || rows.scans != 2 || rows.closed != 1 {
+		t.Fatal("directory page/sentinel ownership", err, rows.scans, rows.closed)
+	}
+	if out.Items[0].User != first.user || out.Items[0].CreatedAt.String() != "2026-10-06T01:02:03.456789Z" {
+		t.Fatal("directory scan changed identity or registration time")
+	}
+	// The token must remain byte-compatible with the preexisting users cursor.
+	old, err := f.httpNextCursor("users", first.at, first.id)
+	if err != nil || out.NextCursor != old {
+		t.Fatal("directory cursor changed its binding or boundary", err)
+	}
+	for _, limit := range []int{0, 1, 100} {
+		n, at, id, err := f.httpListPosition("users", HTTPListRequest{Cursor: old, Limit: limit})
+		want := limit
+		if want == 0 {
+			want = 25
+		}
+		if err != nil || n != want || id != first.id || !at.Equal(first.at.UTC().Truncate(time.Microsecond)) {
+			t.Fatal("existing users cursor did not resume with changed limit", err)
+		}
+	}
+	if _, _, _, err := f.httpListPosition("invitations", HTTPListRequest{Cursor: old}); !hasFaultCode(err, foundation.CursorInvalid) {
+		t.Fatal("users cursor escaped its resource binding", err)
+	}
+	for _, at := range []time.Time{time.Time{}, time.Date(0, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(9999, 12, 31, 23, 59, 59, 999999999, time.UTC)} {
+		row := first
+		row.at = at
+		rows := &directoryRows{values: []directoryRow{row}}
+		page, err := f.httpScanUserList(rows, 1)
+		want, conversionErr := foundation.NewInstant(at)
+		if err != nil || conversionErr != nil || len(page.Items) != 1 || page.Items[0].CreatedAt != want || page.NextCursor != "" || rows.closed != 1 {
+			t.Fatal("directory introduced a narrower timestamp range", at.Year(), err)
+		}
+	}
+	empty := &directoryRows{}
+	page, err := f.httpScanUserList(empty, 25)
+	if err != nil || page.Items == nil || len(page.Items) != 0 || page.NextCursor != "" || empty.closed != 1 {
+		t.Fatal("empty directory did not retain an empty array", err)
+	}
+}
+
+func TestHTTPUserDirectoryScanErrorsReturnNoCandidate(t *testing.T) {
+	ring, _, _ := testRings(t)
+	f := &SystemHTTPFacade{pagination: ring}
+	good := directoryValidRow(t)
+	for name, mutate := range map[string]func(*directoryRow){
+		"scan":          func(v *directoryRow) { v.scanErr = errors.New("private scan failure") },
+		"id":            func(v *directoryRow) { v.id = "invalid" },
+		"version":       func(v *directoryRow) { v.user.Version = 0 },
+		"role":          func(v *directoryRow) { v.user.Role = "invalid" },
+		"theme":         func(v *directoryRow) { v.user.Theme = "invalid" },
+		"negative_year": func(v *directoryRow) { v.at = time.Date(-1, 1, 1, 0, 0, 0, 0, time.UTC) },
+		"overflow_year": func(v *directoryRow) { v.at = time.Date(10000, 1, 1, 0, 0, 0, 0, time.UTC) },
+		"offset_overflow": func(v *directoryRow) {
+			v.at = time.Date(9999, 12, 31, 23, 59, 59, 0, time.FixedZone("offset", -3600))
+		},
+	} {
+		for _, position := range []string{"first", "middle", "sentinel"} {
+			t.Run(name+"/"+position, func(t *testing.T) {
+				bad := good
+				mutate(&bad)
+				values, limit := []directoryRow{bad}, 2
+				if position != "first" {
+					values = []directoryRow{good, bad}
+				}
+				if position == "sentinel" {
+					limit = 1
+				}
+				rows := &directoryRows{values: values}
+				out, err := f.httpScanUserList(rows, limit)
+				if !hasFaultCode(err, foundation.DependencyUnavailable) || out.Items != nil || out.NextCursor != "" || rows.closed != 1 || rows.scans != len(values) {
+					t.Fatal("invalid row published a candidate or escaped close", err, rows.closed)
+				}
+			})
+		}
+	}
+	for _, sentinel := range []bool{false, true} {
+		rows := &directoryRows{values: []directoryRow{good, good}, err: errors.New("private row failure")}
+		limit := 2
+		if sentinel {
+			limit = 1
+		}
+		out, err := f.httpScanUserList(rows, limit)
+		if !hasFaultCode(err, foundation.DependencyUnavailable) || out.Items != nil || out.NextCursor != "" || rows.closed != 1 {
+			t.Fatal("terminal row failure published items/cursor", err)
+		}
+	}
+	rows := &directoryRows{values: []directoryRow{good, good}}
+	out, err := (&SystemHTTPFacade{}).httpScanUserList(rows, 1)
+	if err == nil || out.Items != nil || out.NextCursor != "" || rows.closed != 1 {
+		t.Fatal("cursor signing failure published a candidate", err)
+	}
+}
+
+type directoryQueryFailureStore struct {
+	httpDenyStore
+	actor identity.Actor
+	args  []any
+	query string
+}
+
+type directoryScanFunc func(...any) error
+
+func (fn directoryScanFunc) Scan(dest ...any) error { return fn(dest...) }
+func (s *directoryQueryFailureStore) QueryRow(_ context.Context, query string, _ ...any) postgres.Row {
+	return directoryScanFunc(func(dest ...any) error {
+		if strings.Contains(query, "FROM agenteam_account.sessions WHERE id=") {
+			*dest[0].(*string), *dest[1].(*string), *dest[2].(*string) = s.actor.Details().SessionID, s.actor.Details().UserID, "a2"
+			at := time.Date(2026, 10, 6, 1, 0, 0, 0, time.UTC)
+			*dest[3].(*time.Time), *dest[4].(*time.Time), *dest[5].(*time.Time), *dest[8].(*time.Time) = at, at.Add(time.Hour), at.Add(time.Hour), at
+			*dest[9].(*bool) = true
+			return nil
+		}
+		if !strings.Contains(query, "FROM agenteam_account.users WHERE id=") {
+			panic("unexpected directory authority query")
+		}
+		*dest[0].(*string), *dest[1].(*string), *dest[2].(*string), *dest[3].(*string) = s.actor.Details().UserID, "admin@example.com", "admin", "Admin"
+		*dest[4].(*c.Role), *dest[5].(*c.Theme) = "admin", "system"
+		*dest[6].(*int64), *dest[9].(*int64), *dest[10].(*int64) = 1, 1, 1
+		return nil
+	})
+}
+func (s *directoryQueryFailureStore) InTx(tx foundation.Tx) (postgres.SQLExecutor, error) {
+	if tx != s.tx {
+		panic("directory query left the authorized transaction")
+	}
+	return s, nil
+}
+func (s *directoryQueryFailureStore) Query(_ context.Context, query string, args ...any) (*postgres.Rows, error) {
+	s.query, s.args = query, args
+	return nil, errors.New("private directory dependency failure")
+}
+
+func TestHTTPUserDirectoryQueryFailurePreservesAuthorityAndZeroOutput(t *testing.T) {
+	actor := httpTestActor(t)
+	store := &directoryQueryFailureStore{actor: actor}
+	authority, err := NewAuthority(store, testKeys(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	state := &serviceState{store: store, deps: Dependencies{Authority: authority}, operations: map[*operation]bool{}, changed: make(chan struct{})}
+	ring, _, _ := testRings(t)
+	f := &SystemHTTPFacade{core: &Service{data: func() *serviceState { return state }}, pagination: ring}
+	out, err := f.ListUsers(context.Background(), actor, HTTPListRequest{Limit: 1})
+	if !hasFaultCode(err, foundation.DependencyUnavailable) || out.Items != nil || out.NextCursor != "" || len(state.operations) != 0 {
+		t.Fatal("query failure published a result or retained an operation", err)
+	}
+	if store.checks != 1 || len(store.locks) != 2 || !strings.Contains(store.query, "created_at DESC,id DESC LIMIT $3") || !reflect.DeepEqual(store.args, []any{nil, nil, 2}) {
+		t.Fatal("directory query lost its current authority, ordering or lookahead")
+	}
+	for _, lock := range store.locks {
+		if lock.Mode != foundation.Shared {
+			t.Fatal("directory read unexpectedly requested a writer lock")
+		}
+	}
+}

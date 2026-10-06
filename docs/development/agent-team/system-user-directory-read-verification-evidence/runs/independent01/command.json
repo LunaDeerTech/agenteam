@@ -1,0 +1,29 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^TestAccountHTTPSystemUserDirectoryIndependent$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-06T04:28:53.418615+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/overlay.json",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/runtime"
+  },
+  "exit": 0,
+  "overlay_sha256": "ea2ab45302cfa7c3eaece23ec836a038e70ae12ac2691d916c52d129d24a0086",
+  "seconds": 52.439,
+  "started_utc": "2026-10-06T04:28:00.979061+00:00"
+}

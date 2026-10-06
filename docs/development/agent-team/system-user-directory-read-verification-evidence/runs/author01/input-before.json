@@ -1,0 +1,21 @@
+{
+  "files": {
+    "api/openapi/account.json": "60e16641c689b359efa5c44eb357e618fa029963710c852bf073e1758524995e",
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "internal/central/account/http_facade.go": "ed84ea866c9b218d0df31f615dbc84bf16ab21b4d3621fa9c14fc484e090ef1f",
+    "internal/central/account/http_system.go": "076f5271310b2e064a660619b28b83b4c758ec5da5105ce0855e6e2c349c254c",
+    "internal/central/account/http_user_directory_test.go": "f3283c7aa41dbdbb6d2d14df848b7541e49fcaeaa58a4b551d222c549ec5ff55",
+    "tests/account/http_user_directory_test.go": "76b73a5aacc5eb3375c9d1994c408177e3cebcc59aa38df644b9a73dc5d77c40"
+  },
+  "head": "5fac116ab9d52d938ba3e3cb3626e5346264a6b8",
+  "tracked_product_delta": [
+    "api/openapi/account.json",
+    "internal/central/account/http_facade.go",
+    "internal/central/account/http_system.go"
+  ],
+  "untracked_product_paths": [
+    "internal/central/account/http_user_directory_test.go",
+    "tests/account/http_user_directory_test.go"
+  ]
+}

@@ -1,0 +1,32 @@
+# D27 系统用户目录作者交付（input01）
+
+业务基线：`125e3c222ffca01ea0fd987d7dc47b8c30fa5f8b`。仓库 HEAD `5fac116ab9d52d938ba3e3cb3626e5346264a6b8` 只另含主线程已交付文档。五路径冻结索引 `input01.json` SHA-256：`e14894df898003c8da7bfcaab464f9c65251cc7fe7383e2c77beeb10ab4dd733`，精确五源副本在 `input01/`。
+
+实现：系统用户列表新增专用 `HTTPUserListItem` 和平坦九字段 `httpSystemUser`；`created_at` 直接来自用户行，经 `foundation.NewInstant` 显式校验并规范化。包括 limit+1 哨兵的任何扫描/字段/时间/行错误或游标签发失败均零结果。SQL、users cursor binding、同事务当前管理员读授权和原 httpRead 未改。
+
+因 postgres.Rows 为私有状态具体类型，按主线程同意，把 ListUsers 原扫描循环提为局部私有四方法 rows helper；真实 Rows 和受控纯测试共用，显式 Close 恰调用一次，无公共 Store/鉴权接缝变更。认证、Session、个人资料的共享 User/httpUserDTO 保留八字段。OpenAPI User 原字节不变，仅新增闭合 SystemUser、改列表引用、补 GET/HEAD 描述。
+
+作者检查均用显式 Go1.27.1、GOTOOLCHAIN=local、GOPROXY=off、GOSUMDB=off、GOFLAGS=-mod=readonly，任务私有 GOCACHE/TMPDIR。每条 argv/env/输入 SHA/时间/exit 与原日志在 logs/ 对应 JSON/log。
+
+| 检查 | 实际结果 | 含冷编译墙钟 | 原日志 SHA-256 |
+| --- | --- | --- | --- |
+| `unit01` | exit0，输入未变 | 29.511s | `c18bb08956b31b6db0f5bb39227f2e7a513f9da48db6755cbbceeff8819f5cb8` |
+| `race01` | exit0，输入未变 | 71.842s | `4eb32ffa8845c8ff357b50dbadc6ecc589f650f1471f5e0362c398b11f99841d` |
+| `vet01` | exit0，输入未变 | 10.107s | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `integration-compile01` | exit0，输入未变 | 16.412s | `89065c3efc0047362d8c5c21e0a3053f31dac8aabc023feff6fe2e6d3fda8f8a` |
+| `build-central01` | exit0，输入未变 | 13.844s | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `build-runner01` | exit0，输入未变 | 1.715s | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+
+- `unit01` / `race01` 执行整个 `./internal/central/account/...`，含新纯投影/schema、canonical/旧游标、24个行错误位置子例、当前授权/查询失败零结果。
+- `vet01` 为相同 account 范围。
+- `integration-compile01` 为 `go test -tags=integration -run ^$ ./tests/account`：原文 `[no tests to run]`，仅编译；无动态验收结论。
+- 两个 binary 仅构建到私有 bin，未执行。
+- 静态 OpenAPI 授权差量检查、gofmt、git diff --check 均通过。
+
+唯一新真实顶层 `TestAccountHTTPSystemUserDirectory` 已编译：真实 bootstrap/正式邀请创建、逐项对照 PG 注册时间、更新资料不改时间、owned 同时间 fixture 的分页边界与可变 limit、GET/HEAD、member/anonymous/revoked 拒绝，以及旧 login/Session/profile 八字段。真实组由独立负责人运行；作者未启动 Docker/PG/MinIO/业务进程，也未运行任何被停止的 Object/tools 任务。
+
+依赖准备只在 scratch 锁副本使用官方 proxy 与 sum.golang.org，下载 exit0、stderr 空；`go mod verify` 为 all modules verified，原库与副本锁 cmp 相同。共享只读 modcache 为 `/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache`。
+
+保留准备失败：首次临时 schema 脚本错误地在 User 之前定位了 securitySchemes.Session，截出空旧块而 AssertionError；修正 end 搜索起点后通过，无源码修改。原工具输出保存在 logs/schema-static01-tool-failure.txt，修正脚本与原通过输出分别为 check-schema.py / logs/schema-static02.log。没有产品测试失败。
+
+交接状态：五路径已停止写入，六条作者 Go 检查均实际退出；未创建真实 fixture 资源。没有 Git 写操作、依赖锁或范围外源码修改。独立验证前置就绪，动态通过与否由其独立报告。

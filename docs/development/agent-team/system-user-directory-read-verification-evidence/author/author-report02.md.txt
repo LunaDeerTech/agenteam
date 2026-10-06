@@ -1,0 +1,31 @@
+# D27 用户目录 HEAD 返修作者交付（rev2 / input02）
+
+修复已完成，尚待真实 HTTP/PG 独立复验；本文不把纯检查成功称为路由产品验收。
+
+## 首红与修复
+
+真实 author01 的新顶层在原第35行 admin HEAD /api/v1/system/users 返回405、期望200。根因是 httpHandler 对路径注册后严格匹配 method，GET 没有隐式 HEAD；原规格/静审和作者都把 serializer 的 HEAD 能力误当成了正式路由支持。原200断言不变，原真实 raw 为 `/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/raw.log`，SHA `a8d70edd027eebae139e57acd1b6eb5eae05cffe51de370d991bbe4e526cabfa`；该轮 driver exit1、actual wait/双清由独立负责人记录。
+
+rev2 新增授权 http.go，生产差量仅两行：登记 users 显式 HEAD（admin/read、非command、同httpListUsers），list query分类额外接纳这一 path+HEAD。未改写 method、未泛化其他路径。OpenAPI 新增唯一 headUsers operation，同 GET security/分页参数，200/default均无content，并标明安全/Content-Type/Content-Length headers。原 User字节和两个扫描/DTO生产文件相对input01保持不变。
+
+新纯测试通过真实 httpHandler 证明 users HEAD走到401、avatar HEAD保留、其他未登记HEAD仍405、users精确Allow=GET, HEAD，HEAD错误空body且带Problem元数据。新真实测试保留原HEAD200，补合法limit/cursor的GET/HEAD一致、非法limit/篡改/跨资源cursor的400空body、owned用户时间10000导致503零候选与空HEAD后恢复fixture。旧http_test.go/csrf_test.go未改。
+
+## 固定输入与实际检查
+
+`input02.json` SHA `004ced3247661feca93ef7899dbc539f9f638a17daa824c30692881f26622c96`；精确六源副本 `input02/`。基线仍为 `125e3c222ffca01ea0fd987d7dc47b8c30fa5f8b`，HEAD `ae530d0c736ea2008baa3cfc5198855ee44879dc`。全部六源/锁/受保护旧User与测试源已末检相同。
+
+返修按影响范围执行，所有命令显式 Go1.27.1，offline/readonly，同任务私有 GOCACHE/TMPDIR；argv/env/输入/时间/exit/raw在logs/。
+
+| 检查 | 范围 | 结果/墙钟 | 原日志SHA |
+| --- | --- | --- | --- |
+| `unit02` | `test -count=1 -run ^(TestHTTPUserDirectory|TestB04HTTP|TestB04CSRF) ./internal/central/account` | exit0，4.043s，输入未变 | `75b286627d3a9816e22cf300bedbfbd5b40174f106ed44470cc60a056321fb81` |
+| `race02` | `test -race -count=1 -run ^(TestHTTPUserDirectory|TestB04HTTP|TestB04CSRF) ./internal/central/account` | exit0，13.014s，输入未变 | `338ed9362ae73f5e4c2a403226d023f7cb577029fe8fc7eda6f0a8937ee7f2c0` |
+| `vet02` | `vet ./internal/central/account` | exit0，0.867s，输入未变 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `integration-compile02` | `test -tags=integration -run ^$ ./tests/account` | exit0，10.27s，输入未变 | `511d7ac1b1ccd539006c3ebc6bae5275e766f92a8980f7f4188461f8a7dfae6b` |
+| `build-central02` | `build -o /workspace/scratch/agenteam-d27-directory-author-EvHmqxns/bin/agenteam ./cmd/agenteam` | exit0，9.347s，输入未变 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+
+unit02/race02筛选全部 Directory、B04HTTP、B04CSRF 纯测试，包含未改的路由/OpenAPI双向遍历与受保护路由身份遍历。integration-compile02明确 `[no tests to run]`，只编译；Central产物未启动。不重复不受影响的Runner构建及完整account/contract纯包，复用input01的对应通过证据。原schema静态检查准备错误、unit01/race01/vet01及author01首红全部保留。
+
+静态check-schema-rev2.py只允许原User不变、SystemUser/UserList/listUsers描述和显式HEAD差量，原输出logs/schema-static03.log为PASS；gofmt和git diff --check通过。
+
+交接：六路径停止写入，五条返修Go命令实际退出，缓存可继续只读复用。作者未启动Docker/真实fixture/业务进程，未改依赖锁或旧测试、未执行Git写操作。独立负责人已接收input02并负责修后真实两顶层及独立验证。

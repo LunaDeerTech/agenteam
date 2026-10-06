@@ -1,0 +1,4400 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "agenteam account HTTP API",
+    "version": "0.1.0",
+    "description": "D07 B04 adapter surface. Production app binding and real Profile/PG/browser/process integration require the later assembly stage. No public registration, role-management, account-deletion or device API. Every JSON object is strict: unknown/duplicate keys, trailing JSON and non-UTF-8 fail. No permissive CORS. Canonical Host and browser Origin/Fetch-Metadata are checked before routing or reading bodies. All success and error responses are no-store/nosniff/no-referrer."
+  },
+  "paths": {
+    "/api/v1/auth/bootstrap": {
+      "get": {
+        "operationId": "bootstrap",
+        "security": [],
+        "description": "Creates a one-hour technical browser context. Reads only global delivery configuration; never queries email existence.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque host-only HttpOnly SameSite=Lax Path=/ cookie; Secure and __Host- names on HTTPS, isolated agenteam_local_ names only on literal loopback HTTP. Issued only after full JSON encoding and confirmed domain success."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Bootstrap"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/session": {
+      "get": {
+        "operationId": "getSession",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current Session/User and synchronized CSRF. This read does not touch activity; invalid Session returns 401 and clears its cookie.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/login": {
+      "post": {
+        "operationId": "login",
+        "security": [
+          {
+            "Browser": [],
+            "CSRF": []
+          },
+          {
+            "LocalBrowser": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Unknown email and wrong password share 401 shape and the same bounded hash/challenge path. Same-key recovery follows the existing five-minute response lease window; no cookie on Unknown or failed material read.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque host-only HttpOnly SameSite=Lax Path=/ cookie; Secure and __Host- names on HTTPS, isolated agenteam_local_ names only on literal loopback HTTP. Issued only after full JSON encoding and confirmed domain success."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/sessions/logout": {
+      "post": {
+        "operationId": "logout",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Uses the current verified browser or Session capability; no identity inferred from URL/body.",
+        "responses": {
+          "204": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Expire only the current Session cookie with matching security flags."
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/auth/challenges": {
+      "post": {
+        "operationId": "createChallenge",
+        "security": [
+          {
+            "Browser": [],
+            "CSRF": []
+          },
+          {
+            "LocalBrowser": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Uses the current verified browser or Session capability; no identity inferred from URL/body.",
+        "responses": {
+          "201": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Challenge"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChallengeInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/auth/challenges/verify": {
+      "post": {
+        "operationId": "verifyChallenge",
+        "security": [
+          {
+            "Browser": [],
+            "CSRF": []
+          },
+          {
+            "LocalBrowser": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Uses the current verified browser or Session capability; no identity inferred from URL/body.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChallengePass"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChallengeVerifyInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/password-resets/request": {
+      "post": {
+        "operationId": "requestPasswordReset",
+        "security": [
+          {
+            "Browser": [],
+            "CSRF": []
+          },
+          {
+            "LocalBrowser": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Uses the current verified browser or Session capability; no identity inferred from URL/body.",
+        "responses": {
+          "202": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetAccepted"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/password-resets/inspect": {
+      "post": {
+        "operationId": "inspectPasswordReset",
+        "security": [
+          {
+            "Browser": [],
+            "CSRF": []
+          },
+          {
+            "LocalBrowser": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Uses the current verified browser or Session capability; no identity inferred from URL/body.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetInspection"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/password-resets/complete": {
+      "post": {
+        "operationId": "completePasswordReset",
+        "security": [
+          {
+            "Browser": [],
+            "CSRF": []
+          },
+          {
+            "LocalBrowser": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Consumes the one-time token and revokes old Sessions; never automatically logs in. Invalid/consumed/revoked links uniformly return 410.",
+        "responses": {
+          "204": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetCompleteInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/invitations/inspect": {
+      "post": {
+        "operationId": "inspectInvitation",
+        "security": [
+          {
+            "Browser": [],
+            "CSRF": []
+          },
+          {
+            "LocalBrowser": [],
+            "CSRF": []
+          }
+        ],
+        "description": "An optional existing Session is independently authenticated and checked for identity mismatch. No automatic account association.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationInspection"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/invitations/redeem": {
+      "post": {
+        "operationId": "redeemInvitation",
+        "security": [
+          {
+            "Browser": [],
+            "CSRF": []
+          },
+          {
+            "LocalBrowser": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Uses the current verified browser or Session capability; no identity inferred from URL/body.",
+        "responses": {
+          "201": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationRedeemed"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitationRedeemInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "operationId": "getProfile",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Uses the current verified browser or Session capability; no identity inferred from URL/body.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateProfile",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Uses the current verified browser or Session capability; no identity inferred from URL/body.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/preferences": {
+      "get": {
+        "operationId": "getPreferences",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Uses the current verified browser or Session capability; no identity inferred from URL/body.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preferences"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "setPreferences",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Uses the current verified browser or Session capability; no identity inferred from URL/body.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preferences"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Preferences"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/change-password": {
+      "post": {
+        "operationId": "changePassword",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Verifies current password, changes it and revokes all old Sessions atomically; returns the newly issued current-device cookie. A lost response requires login with the new password.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque host-only HttpOnly SameSite=Lax Path=/ cookie; Secure and __Host- names on HTTPS, isolated agenteam_local_ names only on literal loopback HTTP. Issued only after full JSON encoding and confirmed domain success."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasswordChanged"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordChangeInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/avatar": {
+      "get": {
+        "operationId": "getAvatar",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Reads only the current avatar under current Session authority. The actual reader is closed and joined on all exits; HEAD also acquires and closes it. Invalid or unsatisfiable single ranges return 416; late stream failures abort the response without appending JSON.",
+        "responses": {
+          "200": {
+            "description": "Current avatar bytes",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "Accept-Ranges": {
+                "schema": {
+                  "const": "bytes"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "Current avatar bytes",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "Accept-Ranges": {
+                "schema": {
+                  "const": "bytes"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Range": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Range"
+          }
+        ]
+      },
+      "head": {
+        "operationId": "headAvatar",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Reads only the current avatar under current Session authority. The actual reader is closed and joined on all exits; HEAD also acquires and closes it. Invalid or unsatisfiable single ranges return 416; late stream failures abort the response without appending JSON.",
+        "responses": {
+          "200": {
+            "description": "Current avatar headers; no payload read",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "Accept-Ranges": {
+                "schema": {
+                  "const": "bytes"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "Current avatar headers; no payload read",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "Accept-Ranges": {
+                "schema": {
+                  "const": "bytes"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Range": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Range"
+          }
+        ]
+      },
+      "put": {
+        "operationId": "putAvatar",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Raw image stream, never multipart/JSON. Maximum original bytes 5 MiB, including chunked bodies. No content encoding. Domain validates declared media, exact length and complete static container, re-encodes and removes metadata; rejects SVG/APNG/animation, bad CRC/truncation/trailing bytes. Service owns body closure.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          },
+          {
+            "$ref": "#/components/parameters/IfMatch"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-bytes": 5242880,
+          "content": {
+            "image/png": {
+              "schema": {
+                "type": "string",
+                "format": "binary",
+                "maxLength": 5242880
+              }
+            },
+            "image/jpeg": {
+              "schema": {
+                "type": "string",
+                "format": "binary",
+                "maxLength": 5242880
+              }
+            },
+            "image/webp": {
+              "schema": {
+                "type": "string",
+                "format": "binary",
+                "maxLength": 5242880
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteAvatar",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Uses the current verified browser or Session capability; no identity inferred from URL/body.",
+        "responses": {
+          "204": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/system/users": {
+      "get": {
+        "operationId": "listUsers",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction. Each item includes its persisted registration time as created_at. HEAD executes the same authentication, query, validation, encoding and error handling as GET; it returns no body and preserves the safety headers and Content-Length of the encoded representation.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ]
+      }
+    },
+    "/api/v1/system/invitations": {
+      "get": {
+        "operationId": "listInvitations",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createInvitation",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "201": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/system/invitations/{id}/resend": {
+      "post": {
+        "operationId": "resendInvitation",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "202": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          },
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/system/invitations/{id}/revoke": {
+      "post": {
+        "operationId": "revokeInvitation",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "204": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          },
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/system/account-settings": {
+      "get": {
+        "operationId": "getAccountSettings",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Settings"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "setAccountSettings",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Settings"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/system/smtp": {
+      "get": {
+        "operationId": "getSMTP",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SMTP"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "setSMTP",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SMTPResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SMTPInput"
+              }
+            }
+          },
+          "x-max-bytes": 32768
+        }
+      }
+    },
+    "/api/v1/system/smtp/unconfigure": {
+      "post": {
+        "operationId": "unconfigureSMTP",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SMTPResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SMTPUnconfigureInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/system/smtp/test": {
+      "post": {
+        "operationId": "testSMTP",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "202": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SMTPTestInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/system/mail-jobs": {
+      "get": {
+        "operationId": "listMailJobs",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailJobList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ]
+      }
+    },
+    "/api/v1/system/mail-jobs/{id}": {
+      "get": {
+        "operationId": "getMailJob",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailJob"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ]
+      }
+    },
+    "/api/v1/system/mail-jobs/{id}/retry": {
+      "post": {
+        "operationId": "retryMailJob",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "responses": {
+          "202": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetryAccepted"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          },
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Session": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session"
+      },
+      "LocalSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "agenteam_local_session"
+      },
+      "Browser": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_browser"
+      },
+      "LocalBrowser": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "agenteam_local_browser"
+      },
+      "CSRF": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-CSRF-Token"
+      }
+    },
+    "parameters": {
+      "Origin": {
+        "name": "Origin",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "description": "Exactly one canonical deployment origin; null, missing, multiple values and different origins fail before routing/body reads. Forwarded headers never establish it."
+      },
+      "Key": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "$ref": "./common.json#/components/schemas/IdempotencyKey"
+        }
+      },
+      "ID": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "$ref": "./common.json#/components/schemas/ID"
+        }
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 8192,
+          "minLength": 1
+        },
+        "description": "Signed created_at/id keyset, bound to System scope, resource/filter and descending order. Limit is not part of the binding. Never grants authority."
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 25
+        },
+        "description": "Canonical decimal query value. Unknown/duplicate query parameters are rejected."
+      },
+      "IfMatch": {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "maxLength": 21,
+          "pattern": "^\"[1-9][0-9]{0,18}\"$"
+        },
+        "description": "Exactly one strong quoted positive decimal User version. No weak tag, wildcard, whitespace, list, zero, or int64 overflow."
+      },
+      "Range": {
+        "name": "Range",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "description": "One bytes=start-end, bytes=start-, or bytes=-suffix range; checked int64 arithmetic. Multiple ranges are rejected with 416."
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "format": "email",
+            "description": "Bare ASCII addr-spec; no surrounding whitespace, display name, comments, or controls. Canonicalized to lowercase."
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "At most 80 code points / 320 UTF-8 bytes; no controls. Empty means use email; whitespace is retained."
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "user"
+            ]
+          },
+          "theme": {
+            "type": "string",
+            "enum": [
+              "system",
+              "light",
+              "dark"
+            ]
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "initial_password_suggestion": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "username",
+          "display_name",
+          "role",
+          "theme",
+          "version",
+          "initial_password_suggestion"
+        ],
+        "additionalProperties": false
+      },
+      "SystemUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "format": "email",
+            "description": "Bare ASCII addr-spec; no surrounding whitespace, display name, comments, or controls. Canonicalized to lowercase."
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "At most 80 code points / 320 UTF-8 bytes; no controls. Empty means use email; whitespace is retained."
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "user"
+            ]
+          },
+          "theme": {
+            "type": "string",
+            "enum": [
+              "system",
+              "light",
+              "dark"
+            ]
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "initial_password_suggestion": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant",
+            "description": "Registration time from the user record, canonical UTC at microsecond precision."
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "username",
+          "display_name",
+          "role",
+          "theme",
+          "version",
+          "initial_password_suggestion",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "issued_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "absolute_expires_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "idle_expires_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "id",
+          "issued_at",
+          "absolute_expires_at",
+          "idle_expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "Avatar": {
+        "type": "object",
+        "properties": {
+          "media_type": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/png",
+              "image/webp"
+            ]
+          },
+          "byte_size": {
+            "$ref": "./common.json#/components/schemas/Progress"
+          },
+          "sha256": {
+            "$ref": "./common.json#/components/schemas/Digest"
+          }
+        },
+        "required": [
+          "media_type",
+          "byte_size",
+          "sha256"
+        ],
+        "additionalProperties": false
+      },
+      "Profile": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "avatar": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Avatar"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "user",
+          "avatar"
+        ],
+        "additionalProperties": false
+      },
+      "Preferences": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "theme": {
+            "type": "string",
+            "enum": [
+              "system",
+              "light",
+              "dark"
+            ]
+          }
+        },
+        "required": [
+          "version",
+          "theme"
+        ],
+        "additionalProperties": false
+      },
+      "VersionInput": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "Empty": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "Bootstrap": {
+        "type": "object",
+        "properties": {
+          "csrf_token": {
+            "type": "string",
+            "maxLength": 43,
+            "minLength": 43,
+            "pattern": "^[A-Za-z0-9_-]{43}$",
+            "description": "Sensitive synchronized CSRF token for this browser or current Session only."
+          },
+          "challenge_modes": {
+            "type": "array",
+            "items": {
+              "const": "rotate"
+            },
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "delivery_channel": {
+            "type": "string",
+            "enum": [
+              "smtp",
+              "backend_log"
+            ]
+          }
+        },
+        "required": [
+          "csrf_token",
+          "challenge_modes",
+          "delivery_channel"
+        ],
+        "additionalProperties": false
+      },
+      "SessionView": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "session": {
+            "$ref": "#/components/schemas/Session"
+          },
+          "csrf_token": {
+            "type": "string",
+            "maxLength": 43,
+            "minLength": 43,
+            "pattern": "^[A-Za-z0-9_-]{43}$",
+            "description": "Sensitive synchronized CSRF token for this browser or current Session only."
+          }
+        },
+        "required": [
+          "user",
+          "session",
+          "csrf_token"
+        ],
+        "additionalProperties": false
+      },
+      "LoginInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "format": "email",
+            "description": "Bare ASCII addr-spec; no surrounding whitespace, display name, comments, or controls. Canonicalized to lowercase."
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "writeOnly": true,
+            "description": "15–128 Unicode code points and at most 512 UTF-8 bytes; exact bytes retained. No trimming or normalization.",
+            "minLength": 15
+          },
+          "challenge_pass": {
+            "type": "string",
+            "minLength": 80,
+            "maxLength": 80,
+            "writeOnly": true,
+            "description": "Opaque 80-character ASCII one-use pass: a 36-character challenge UUID, a dot, and the canonical 43-character unpadded Base64URL encoding of 32 random bytes. Bound to browser, email and login key; consumed by login."
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "LoginResult": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "session": {
+            "$ref": "#/components/schemas/Session"
+          },
+          "next_path": {
+            "const": "/"
+          }
+        },
+        "required": [
+          "user",
+          "session",
+          "next_path"
+        ],
+        "additionalProperties": false
+      },
+      "ChallengeInput": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "const": "rotate"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "format": "email",
+            "description": "Bare ASCII addr-spec; no surrounding whitespace, display name, comments, or controls. Canonicalized to lowercase."
+          },
+          "login_key": {
+            "$ref": "./common.json#/components/schemas/IdempotencyKey"
+          }
+        },
+        "required": [
+          "mode",
+          "email",
+          "login_key"
+        ],
+        "additionalProperties": false
+      },
+      "Challenge": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "mode": {
+            "const": "rotate"
+          },
+          "master": {
+            "type": "string",
+            "maxLength": 262144,
+            "description": "Rendered puzzle image only; no raw source image or answer."
+          },
+          "thumb": {
+            "type": "string",
+            "maxLength": 262144
+          },
+          "expires_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "id",
+          "mode",
+          "master",
+          "thumb",
+          "expires_at"
+        ],
+        "additionalProperties": false,
+        "x-max-combined-image-bytes": 262144
+      },
+      "ChallengeVerifyInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "format": "email",
+            "description": "Bare ASCII addr-spec; no surrounding whitespace, display name, comments, or controls. Canonicalized to lowercase."
+          },
+          "login_key": {
+            "$ref": "./common.json#/components/schemas/IdempotencyKey"
+          },
+          "challenge_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "proof": {
+            "type": "object",
+            "properties": {
+              "angle": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 360
+              }
+            },
+            "required": [
+              "angle"
+            ],
+            "additionalProperties": false,
+            "x-max-json-bytes": 4096
+          }
+        },
+        "required": [
+          "email",
+          "login_key",
+          "challenge_id",
+          "proof"
+        ],
+        "additionalProperties": false
+      },
+      "ChallengePass": {
+        "type": "object",
+        "properties": {
+          "pass": {
+            "type": "string",
+            "minLength": 80,
+            "maxLength": 80,
+            "readOnly": true,
+            "description": "Opaque 80-character ASCII one-use pass: a 36-character challenge UUID, a dot, and the canonical 43-character unpadded Base64URL encoding of 32 random bytes. Bound to browser, email and login key; consumed by login."
+          }
+        },
+        "required": [
+          "pass"
+        ],
+        "additionalProperties": false
+      },
+      "EmailInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "format": "email",
+            "description": "Bare ASCII addr-spec; no surrounding whitespace, display name, comments, or controls. Canonicalized to lowercase."
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "additionalProperties": false
+      },
+      "ResetAccepted": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "const": true
+          },
+          "delivery_channel": {
+            "type": "string",
+            "enum": [
+              "smtp",
+              "backend_log"
+            ]
+          }
+        },
+        "required": [
+          "accepted",
+          "delivery_channel"
+        ],
+        "additionalProperties": false,
+        "description": "Same public shape for registered and unknown emails. No job id, delivery status, or failure reason."
+      },
+      "LinkInput": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 80,
+            "writeOnly": true,
+            "pattern": "^[0-9a-f-]{36}\\.[A-Za-z0-9_-]{43}$",
+            "description": "One-time link id.token taken from the page URL fragment, removed from browser history before this POST. Never place it in the API URL."
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "additionalProperties": false
+      },
+      "ResetInspection": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "const": true
+          },
+          "expires_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "valid",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "ResetCompleteInput": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 80,
+            "writeOnly": true,
+            "pattern": "^[0-9a-f-]{36}\\.[A-Za-z0-9_-]{43}$",
+            "description": "One-time link id.token taken from the page URL fragment, removed from browser history before this POST. Never place it in the API URL."
+          },
+          "new_password": {
+            "type": "string",
+            "maxLength": 128,
+            "writeOnly": true,
+            "description": "15–128 Unicode code points and at most 512 UTF-8 bytes; exact bytes retained. No trimming or normalization.",
+            "minLength": 15
+          },
+          "confirmation": {
+            "type": "string",
+            "maxLength": 128,
+            "writeOnly": true,
+            "description": "15–128 Unicode code points and at most 512 UTF-8 bytes; exact bytes retained. No trimming or normalization.",
+            "minLength": 15
+          }
+        },
+        "required": [
+          "token",
+          "new_password",
+          "confirmation"
+        ],
+        "additionalProperties": false
+      },
+      "InvitationInspection": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "format": "email",
+            "description": "Bare ASCII addr-spec; no surrounding whitespace, display name, comments, or controls. Canonicalized to lowercase."
+          },
+          "expires_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "email",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "InvitationRedeemInput": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 80,
+            "writeOnly": true,
+            "pattern": "^[0-9a-f-]{36}\\.[A-Za-z0-9_-]{43}$",
+            "description": "One-time link id.token taken from the page URL fragment, removed from browser history before this POST. Never place it in the API URL."
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 3,
+            "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$",
+            "description": "ASCII, canonicalized to lowercase; reserved routes cannot be assigned."
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "At most 80 code points / 320 UTF-8 bytes; no controls. Empty means use email; whitespace is retained."
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "writeOnly": true,
+            "description": "15–128 Unicode code points and at most 512 UTF-8 bytes; exact bytes retained. No trimming or normalization.",
+            "minLength": 15
+          },
+          "confirmation": {
+            "type": "string",
+            "maxLength": 128,
+            "writeOnly": true,
+            "description": "15–128 Unicode code points and at most 512 UTF-8 bytes; exact bytes retained. No trimming or normalization.",
+            "minLength": 15
+          }
+        },
+        "required": [
+          "token",
+          "username",
+          "password",
+          "confirmation"
+        ],
+        "additionalProperties": false
+      },
+      "InvitationRedeemed": {
+        "type": "object",
+        "properties": {
+          "completed": {
+            "const": true
+          },
+          "login_required": {
+            "const": true
+          }
+        },
+        "required": [
+          "completed",
+          "login_required"
+        ],
+        "additionalProperties": false
+      },
+      "ProfileInput": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 3,
+            "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$",
+            "description": "ASCII, canonicalized to lowercase; reserved routes cannot be assigned."
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "At most 80 code points / 320 UTF-8 bytes; no controls. Empty means use email; whitespace is retained."
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "username"
+            ]
+          },
+          {
+            "required": [
+              "display_name"
+            ]
+          }
+        ]
+      },
+      "PasswordChangeInput": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "current_password": {
+            "type": "string",
+            "maxLength": 512,
+            "writeOnly": true,
+            "description": "Sensitive input carried only in this request body; never logged, echoed, or included in a URL."
+          },
+          "new_password": {
+            "type": "string",
+            "maxLength": 128,
+            "writeOnly": true,
+            "description": "15–128 Unicode code points and at most 512 UTF-8 bytes; exact bytes retained. No trimming or normalization.",
+            "minLength": 15
+          },
+          "confirmation": {
+            "type": "string",
+            "maxLength": 128,
+            "writeOnly": true,
+            "description": "15–128 Unicode code points and at most 512 UTF-8 bytes; exact bytes retained. No trimming or normalization.",
+            "minLength": 15
+          }
+        },
+        "required": [
+          "version",
+          "current_password",
+          "new_password",
+          "confirmation"
+        ],
+        "additionalProperties": false
+      },
+      "PasswordChanged": {
+        "type": "object",
+        "properties": {
+          "completed": {
+            "const": true
+          },
+          "next_path": {
+            "const": "/"
+          }
+        },
+        "required": [
+          "completed",
+          "next_path"
+        ],
+        "additionalProperties": false
+      },
+      "Invitation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "format": "email",
+            "description": "Bare ASCII addr-spec; no surrounding whitespace, display name, comments, or controls. Canonicalized to lowercase."
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "expires_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "version",
+          "created_at",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "InvitationReceipt": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "job_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "id",
+          "job_id",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "SettingsInput": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "session_idle_seconds": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 900 through 2592000.",
+            "x-minimum": 900,
+            "x-maximum": 2592000
+          },
+          "session_absolute_seconds": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 3600 through 7776000.",
+            "x-minimum": 3600,
+            "x-maximum": 7776000
+          },
+          "password_reset_seconds": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 300 through 7200.",
+            "x-minimum": 300,
+            "x-maximum": 7200
+          },
+          "challenge_after_failures": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 1 through 20.",
+            "x-minimum": 1,
+            "x-maximum": 20
+          }
+        },
+        "required": [
+          "version",
+          "session_idle_seconds",
+          "session_absolute_seconds",
+          "password_reset_seconds",
+          "challenge_after_failures"
+        ],
+        "additionalProperties": false,
+        "description": "Idle must not exceed absolute. Lifetime changes affect new Sessions/tokens; challenge threshold applies on the next attempt."
+      },
+      "SMTP": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "configured": {
+            "type": "boolean"
+          },
+          "host": {
+            "type": "string",
+            "maxLength": 253
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          },
+          "encryption": {
+            "type": "string",
+            "enum": [
+              "",
+              "none",
+              "starttls",
+              "tls"
+            ]
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "sender_email": {
+            "type": "string",
+            "maxLength": 254
+          },
+          "sender_name": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "At most 80 code points / 320 UTF-8 bytes; no controls. Empty means use email; whitespace is retained."
+          },
+          "credential_present": {
+            "type": "boolean"
+          },
+          "auto_retry_count": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 0 through 5.",
+            "x-minimum": 0,
+            "x-maximum": 5
+          },
+          "retry_interval_seconds": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 10 through 3600.",
+            "x-minimum": 10,
+            "x-maximum": 3600
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "configured",
+          "host",
+          "port",
+          "encryption",
+          "username",
+          "sender_email",
+          "sender_name",
+          "credential_present",
+          "auto_retry_count",
+          "retry_interval_seconds"
+        ],
+        "additionalProperties": false,
+        "description": "No credential value, reference, or material appears. Unconfigured transport fields are empty and port is zero."
+      },
+      "SMTPInput": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "host": {
+            "type": "string",
+            "maxLength": 253,
+            "minLength": 1
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "encryption": {
+            "type": "string",
+            "enum": [
+              "none",
+              "starttls",
+              "tls"
+            ]
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "sender_email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "format": "email",
+            "description": "Bare ASCII addr-spec; no surrounding whitespace, display name, comments, or controls. Canonicalized to lowercase."
+          },
+          "sender_name": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "At most 80 code points / 320 UTF-8 bytes; no controls. Empty means use email; whitespace is retained."
+          },
+          "credential_action": {
+            "type": "string",
+            "enum": [
+              "keep",
+              "remove"
+            ]
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 2048,
+            "writeOnly": true,
+            "description": "A nonempty value replaces the credential. Empty means keep; removal requires credential_action=remove. Reject NUL, CR, LF."
+          },
+          "auto_retry_count": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 0 through 5.",
+            "x-minimum": 0,
+            "x-maximum": 5
+          },
+          "retry_interval_seconds": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 10 through 3600.",
+            "x-minimum": 10,
+            "x-maximum": 3600
+          }
+        },
+        "required": [
+          "version",
+          "host",
+          "port",
+          "encryption",
+          "sender_email",
+          "auto_retry_count",
+          "retry_interval_seconds"
+        ],
+        "additionalProperties": false
+      },
+      "SMTPUnconfigureInput": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "auto_retry_count": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 0 through 5.",
+            "x-minimum": 0,
+            "x-maximum": 5
+          },
+          "retry_interval_seconds": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 10 through 3600.",
+            "x-minimum": 10,
+            "x-maximum": 3600
+          }
+        },
+        "required": [
+          "version",
+          "auto_retry_count",
+          "retry_interval_seconds"
+        ],
+        "additionalProperties": false,
+        "description": "All three fields are mandatory. Clears transport configuration and removes the credential through the existing transactional SMTP service, retaining the explicitly supplied retry policy."
+      },
+      "SMTPResult": {
+        "type": "object",
+        "properties": {
+          "applied_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/SMTP"
+          }
+        },
+        "required": [
+          "applied_version",
+          "settings"
+        ],
+        "additionalProperties": false,
+        "description": "applied_version identifies the original idempotent command result. settings is the currently authorized view, which can be newer after a replay or concurrent save."
+      },
+      "SMTPTestInput": {
+        "type": "object",
+        "properties": {
+          "recipient": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "format": "email",
+            "description": "Bare ASCII addr-spec; no surrounding whitespace, display name, comments, or controls. Canonicalized to lowercase."
+          }
+        },
+        "required": [
+          "recipient"
+        ],
+        "additionalProperties": false
+      },
+      "JobAccepted": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "additionalProperties": false
+      },
+      "RetryAccepted": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "job_id",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "MailJob": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "enqueue_pending",
+              "pending",
+              "claimed",
+              "sending",
+              "retry_wait",
+              "sent",
+              "failed",
+              "unknown",
+              "cancelled"
+            ]
+          },
+          "attempts": {
+            "$ref": "./common.json#/components/schemas/Progress"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "sent",
+              "token_invalid",
+              "configuration_invalid",
+              "policy_rejected",
+              "network_failed",
+              "smtp_rejected",
+              "timeout",
+              "cancelled",
+              "unknown"
+            ]
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "smtp",
+              "backend_log"
+            ]
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "job_id",
+          "phase",
+          "attempts",
+          "version",
+          "channel",
+          "created_at"
+        ],
+        "additionalProperties": false,
+        "description": "A safe administrative projection. enqueue_pending comes from the accepted intent. Channel uses the persisted current attempt when present and the current configured route before an attempt. sent means SMTP accepted or recovery log durably wrote; unknown may have delivered and a retry may duplicate it."
+      },
+      "Settings": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "session_idle_seconds": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 900 through 2592000.",
+            "x-minimum": 900,
+            "x-maximum": 2592000
+          },
+          "session_absolute_seconds": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 3600 through 7776000.",
+            "x-minimum": 3600,
+            "x-maximum": 7776000
+          },
+          "password_reset_seconds": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 300 through 7200.",
+            "x-minimum": 300,
+            "x-maximum": 7200
+          },
+          "challenge_after_failures": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Progress"
+              }
+            ],
+            "description": "Canonical decimal string; value from 1 through 20.",
+            "x-minimum": 1,
+            "x-maximum": 20
+          },
+          "lifetime_changes_apply_to": {
+            "const": "newly_issued_sessions_and_tokens"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "session_idle_seconds",
+          "session_absolute_seconds",
+          "password_reset_seconds",
+          "challenge_after_failures",
+          "lifetime_changes_apply_to"
+        ],
+        "additionalProperties": false
+      },
+      "UserList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SystemUser"
+            },
+            "maxItems": 100
+          },
+          "next_cursor": {
+            "type": "string",
+            "maxLength": 8192
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "InvitationList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Invitation"
+            },
+            "maxItems": 100
+          },
+          "next_cursor": {
+            "type": "string",
+            "maxLength": 8192
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "MailJobList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MailJob"
+            },
+            "maxItems": 100
+          },
+          "next_cursor": {
+            "type": "string",
+            "maxLength": 8192
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

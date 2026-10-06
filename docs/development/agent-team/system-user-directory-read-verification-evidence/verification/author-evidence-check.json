@@ -1,0 +1,48 @@
+{
+  "source_input_sha256": "e14894df898003c8da7bfcaab464f9c65251cc7fe7383e2c77beeb10ab4dd733",
+  "checks": [
+    {
+      "name": "unit01",
+      "exit": 0,
+      "log_sha256": "c18bb08956b31b6db0f5bb39227f2e7a513f9da48db6755cbbceeff8819f5cb8",
+      "seconds": 29.511,
+      "source_sha_match": true
+    },
+    {
+      "name": "race01",
+      "exit": 0,
+      "log_sha256": "4eb32ffa8845c8ff357b50dbadc6ecc589f650f1471f5e0362c398b11f99841d",
+      "seconds": 71.842,
+      "source_sha_match": true
+    },
+    {
+      "name": "vet01",
+      "exit": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "seconds": 10.107,
+      "source_sha_match": true
+    },
+    {
+      "name": "integration-compile01",
+      "exit": 0,
+      "log_sha256": "89065c3efc0047362d8c5c21e0a3053f31dac8aabc023feff6fe2e6d3fda8f8a",
+      "seconds": 16.412,
+      "source_sha_match": true
+    },
+    {
+      "name": "build-central01",
+      "exit": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "seconds": 13.844,
+      "source_sha_match": true
+    },
+    {
+      "name": "build-runner01",
+      "exit": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "seconds": 1.715,
+      "source_sha_match": true
+    }
+  ],
+  "legacy_user_sources_match_product_base": true
+}

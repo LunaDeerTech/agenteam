@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "build",
+    "-mod=readonly",
+    "-trimpath",
+    "-buildvcs=false",
+    "-ldflags",
+    "-s -w -X github.com/minio/minio/cmd.Version=2025-10-15T17:29:55Z -X github.com/minio/minio/cmd.ReleaseTag=RELEASE.2025-10-15T17-29-55Z -X github.com/minio/minio/cmd.CommitID=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a -X github.com/minio/minio/cmd.ShortCommitID=9e49d5e7a648 -X github.com/minio/minio/cmd.CopyrightYear=2025",
+    "-o",
+    "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "."
+  ],
+  "cwd": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/modcache/github.com/minio/minio@v0.0.0-20251015172955-9e49d5e7a648",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "https://proxy.golang.org",
+    "GOSUMDB": "sum.golang.org",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/tmp",
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "GOAMD64": "v1",
+    "CGO_ENABLED": "0",
+    "GOFLAGS": ""
+  },
+  "started_utc": "2026-10-06T04:08:49.455918+00:00"
+}

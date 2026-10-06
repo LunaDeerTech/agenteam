@@ -1,0 +1,10 @@
+{
+  "decision": "STATIC PASS; specification only",
+  "read_spec_sha256": "e05b1f60545cdae9756c195ee0b944be8cb0c6f1d3f073c959f6dcb04e30a0ba",
+  "ui_dependency_sync_sha256": "d630bf5e1aa39ca10863c3e204d672fcb2811d4d661af85d6865a0b0bc1917ed",
+  "read_scope": "Six paths; explicit HEAD users registration and path-specific HEAD query classification, preserving strict dispatch and all other routes",
+  "tests": "Existing route/OpenAPI and protected CSRF tests enumerate routes and need no count/expectation changes",
+  "independent_probe_sha256": "92d56052930c0624fa58b2dc9e46466f69ba2e4eabfd6d9ec482dc73cd9b9a3d",
+  "probe_executed": false,
+  "original_failure": "finding-head01.json"
+}

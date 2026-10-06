@@ -1,0 +1,850 @@
+{
+  "format": 1,
+  "product_base": "125e3c222ffca01ea0fd987d7dc47b8c30fa5f8b",
+  "accepted_commit": "3affc0194214101cfa1e6fdc583afa5d60005db8",
+  "input_sources": {
+    "input02": {
+      "api/openapi/account.json": "candidate/api/openapi/account.json.txt",
+      "internal/central/account/http.go": "candidate/internal/central/account/http.go.txt",
+      "internal/central/account/http_facade.go": "candidate/internal/central/account/http_facade.go.txt",
+      "internal/central/account/http_system.go": "candidate/internal/central/account/http_system.go.txt",
+      "internal/central/account/http_user_directory_test.go": "candidate/internal/central/account/http_user_directory_test.go.txt",
+      "tests/account/http_user_directory_test.go": "candidate/tests/account/http_user_directory_test.go.txt"
+    },
+    "input01": {
+      "api/openapi/account.json": "history/input01/api/openapi/account.json.txt",
+      "internal/central/account/http_facade.go": "candidate/internal/central/account/http_facade.go.txt",
+      "internal/central/account/http_system.go": "candidate/internal/central/account/http_system.go.txt",
+      "internal/central/account/http_user_directory_test.go": "history/input01/internal/central/account/http_user_directory_test.go.txt",
+      "tests/account/http_user_directory_test.go": "history/input01/tests/account/http_user_directory_test.go.txt"
+    }
+  },
+  "originals": [
+    {
+      "archive": "author/author-report01.md.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/author-report.md",
+      "sha256": "7916fefa486fd893bd74176437df53b03a58f5b9919e4b731e2ce46ce1cefed4",
+      "bytes": 4035,
+      "role": "original author report"
+    },
+    {
+      "archive": "author/author-report02.md.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/author-report02.md",
+      "sha256": "ab3ec735f877f3d097af9f69d01a59c564c5f7cbdf5a7d050e44d2c05534a2c2",
+      "bytes": 4043,
+      "role": "original author report"
+    },
+    {
+      "archive": "author/scripts/check-schema-rev2.py.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/check-schema-rev2.py",
+      "sha256": "5ccf0e2acc421a165a9d618fa7347490ad5159cf7134e1a6d35dda7cadcf7e7b",
+      "bytes": 1439,
+      "role": "original checker/driver text; not executed by archive"
+    },
+    {
+      "archive": "author/scripts/check-schema.py.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/check-schema.py",
+      "sha256": "4f129393c67fc21d6d252d0120e00732a4e291f34f0e486c14c71a75e329d608",
+      "bytes": 1048,
+      "role": "original checker/driver text; not executed by archive"
+    },
+    {
+      "archive": "inputs/input01.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input01.json",
+      "sha256": "e14894df898003c8da7bfcaab464f9c65251cc7fe7383e2c77beeb10ab4dd733",
+      "bytes": 1206,
+      "role": "original source manifest"
+    },
+    {
+      "archive": "history/input01/api/openapi/account.json.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input01/api/openapi/account.json",
+      "sha256": "60e16641c689b359efa5c44eb357e618fa029963710c852bf073e1758524995e",
+      "bytes": 129557,
+      "role": "exact source bytes: input01"
+    },
+    {
+      "archive": "candidate/internal/central/account/http_facade.go.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input01/internal/central/account/http_facade.go",
+      "sha256": "ed84ea866c9b218d0df31f615dbc84bf16ab21b4d3621fa9c14fc484e090ef1f",
+      "bytes": 20340,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "candidate/internal/central/account/http_system.go.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input01/internal/central/account/http_system.go",
+      "sha256": "076f5271310b2e064a660619b28b83b4c758ec5da5105ce0855e6e2c349c254c",
+      "bytes": 14335,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "history/input01/internal/central/account/http_user_directory_test.go.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input01/internal/central/account/http_user_directory_test.go",
+      "sha256": "f3283c7aa41dbdbb6d2d14df848b7541e49fcaeaa58a4b551d222c549ec5ff55",
+      "bytes": 14029,
+      "role": "exact source bytes: input01"
+    },
+    {
+      "archive": "history/input01/tests/account/http_user_directory_test.go.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input01/tests/account/http_user_directory_test.go",
+      "sha256": "76b73a5aacc5eb3375c9d1994c408177e3cebcc59aa38df644b9a73dc5d77c40",
+      "bytes": 8363,
+      "role": "exact source bytes: input01"
+    },
+    {
+      "archive": "inputs/input02.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input02.json",
+      "sha256": "004ced3247661feca93ef7899dbc539f9f638a17daa824c30692881f26622c96",
+      "bytes": 1681,
+      "role": "original source manifest"
+    },
+    {
+      "archive": "candidate/api/openapi/account.json.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input02/api/openapi/account.json",
+      "sha256": "f3671e4964aba7d973f16d75723d82474684ee1782b1b9fc78e6af344a5aa880",
+      "bytes": 132620,
+      "role": "exact source bytes: input02"
+    },
+    {
+      "archive": "candidate/internal/central/account/http.go.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input02/internal/central/account/http.go",
+      "sha256": "e1773aa5b3e14d932ebe99a49435d9f6ab2ffc8cad3e5c39f3d9b97e8bc70f92",
+      "bytes": 7529,
+      "role": "exact source bytes: input02"
+    },
+    {
+      "archive": "candidate/internal/central/account/http_facade.go.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input02/internal/central/account/http_facade.go",
+      "sha256": "ed84ea866c9b218d0df31f615dbc84bf16ab21b4d3621fa9c14fc484e090ef1f",
+      "bytes": 20340,
+      "role": "exact source bytes: input02"
+    },
+    {
+      "archive": "candidate/internal/central/account/http_system.go.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input02/internal/central/account/http_system.go",
+      "sha256": "076f5271310b2e064a660619b28b83b4c758ec5da5105ce0855e6e2c349c254c",
+      "bytes": 14335,
+      "role": "exact source bytes: input02"
+    },
+    {
+      "archive": "candidate/internal/central/account/http_user_directory_test.go.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input02/internal/central/account/http_user_directory_test.go",
+      "sha256": "72f92a03a09ae5648077f5f826c57167bcf79e0a226a92737cb61bdf98b2945c",
+      "bytes": 17773,
+      "role": "exact source bytes: input02"
+    },
+    {
+      "archive": "candidate/tests/account/http_user_directory_test.go.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/input02/tests/account/http_user_directory_test.go",
+      "sha256": "27459a6167236f20c8ba8d881056232255e3f798967ff7eb0d06bcf895f0b86d",
+      "bytes": 10534,
+      "role": "exact source bytes: input02"
+    },
+    {
+      "archive": "author/logs/build-central01.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/build-central01.json",
+      "sha256": "8ae858e8ecc80d2d6b3ba43b81e15b84eb9a5bb040046fe60de8ec1a67e5971d",
+      "bytes": 1753,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/build-central01.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/build-central01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/build-central02.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/build-central02.json",
+      "sha256": "dc72e391083e4290e8805dd9521d59fa3755c0e103db207fadf29e4ddd6ac497",
+      "bytes": 1860,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/build-central02.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/build-central02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/build-runner01.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/build-runner01.json",
+      "sha256": "ace60d6fc7b24c8f12b1e5235e7775b2cf42f8a68ec3f5243985777ca59b9636",
+      "bytes": 1765,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/build-runner01.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/build-runner01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/dependencies.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/dependencies.json",
+      "sha256": "6b7d5927e2c663c6e022aa6a9533cac437baa4d8df00d2cb75f467f7c1a22aa5",
+      "bytes": 21825,
+      "role": "original preparation/static-check record"
+    },
+    {
+      "archive": "author/logs/dependencies.stderr",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/dependencies.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original preparation/static-check record"
+    },
+    {
+      "archive": "author/logs/integration-compile01.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/integration-compile01.json",
+      "sha256": "ffc046fb58d6036e0bf6d5c53dab5757bcd0cd364c962040c549ef98b7306b49",
+      "bytes": 1718,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/integration-compile01.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/integration-compile01.log",
+      "sha256": "89065c3efc0047362d8c5c21e0a3053f31dac8aabc023feff6fe2e6d3fda8f8a",
+      "bytes": 77,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/integration-compile02.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/integration-compile02.json",
+      "sha256": "6512771a5c4bb2aa617e61429fe21fb2d76c2373a6b3e29d0d6e0cbe74c79534",
+      "bytes": 1825,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/integration-compile02.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/integration-compile02.log",
+      "sha256": "511d7ac1b1ccd539006c3ebc6bae5275e766f92a8980f7f4188461f8a7dfae6b",
+      "bytes": 77,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/race01.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/race01.json",
+      "sha256": "3f36d3ed075ac0545a9cde7d167bf67952ad6d9f33940a9da292bd811d2a625e",
+      "bytes": 1700,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/race01.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/race01.log",
+      "sha256": "4eb32ffa8845c8ff357b50dbadc6ecc589f650f1471f5e0362c398b11f99841d",
+      "bytes": 150,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/race02.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/race02.json",
+      "sha256": "91240029f2493a851475da3e3f47faf20f95204d4390d332fd27511f9729d776",
+      "bytes": 1872,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/race02.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/race02.log",
+      "sha256": "338ed9362ae73f5e4c2a403226d023f7cb577029fe8fc7eda6f0a8937ee7f2c0",
+      "bytes": 70,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/schema-static01-tool-failure.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/schema-static01-tool-failure.txt",
+      "sha256": "55c903e610dcdfa1b690e75bc415434a89a2dfc738bf5d5920eb1c69849b1ab4",
+      "bytes": 417,
+      "role": "original preparation/static-check record"
+    },
+    {
+      "archive": "author/logs/schema-static02.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/schema-static02.log",
+      "sha256": "4875632a0a45cc590be42a0a3e409a4ab7506db90c56b641ca3cf74e2f52815d",
+      "bytes": 114,
+      "role": "original preparation/static-check record"
+    },
+    {
+      "archive": "author/logs/schema-static03.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/schema-static03.log",
+      "sha256": "1149b8e16566ebb984f5f7e46b395f6aae089f233a06c75b143a426cac247606",
+      "bytes": 135,
+      "role": "original preparation/static-check record"
+    },
+    {
+      "archive": "author/logs/unit01.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/unit01.json",
+      "sha256": "43f1e3839cda31556eee2fb23374982c8d43325d4e8a3dca00ffc67b4217cfbb",
+      "bytes": 1687,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/unit01.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/unit01.log",
+      "sha256": "c18bb08956b31b6db0f5bb39227f2e7a513f9da48db6755cbbceeff8819f5cb8",
+      "bytes": 149,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/unit02.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/unit02.json",
+      "sha256": "06aee1351a08273bdde085297358cd8c7e0e5ffac6cd9be70863e8f82fd98c55",
+      "bytes": 1858,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/unit02.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/unit02.log",
+      "sha256": "75b286627d3a9816e22cf300bedbfbd5b40174f106ed44470cc60a056321fb81",
+      "bytes": 70,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/vet01.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/vet01.json",
+      "sha256": "f88426622c8b5e333b37c5cfbf5f6ad167b3d578212743aa7f390b3df4c4c894",
+      "bytes": 1669,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/vet01.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/vet01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/vet02.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/vet02.json",
+      "sha256": "59d158c106a224e0a672037cf0c9caa8f1fb766d5205f9785801c2b0ce63495d",
+      "bytes": 1772,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/logs/vet02.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/logs/vet02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original author command metadata/raw"
+    },
+    {
+      "archive": "author/scripts/run-check-rev2.py.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/run-check-rev2.py",
+      "sha256": "a526a37db459bc2e91b897e5495bb61fc1cb89541023714254e2bc39cadc90e1",
+      "bytes": 2502,
+      "role": "original checker/driver text; not executed by archive"
+    },
+    {
+      "archive": "author/scripts/run-check.py.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/run-check.py",
+      "sha256": "61324fc704304c123457487cfc5782ed86aba3c5667a9b8cf0f9d48c03700009",
+      "bytes": 2363,
+      "role": "original checker/driver text; not executed by archive"
+    },
+    {
+      "archive": "verification/archive-selection.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/archive-selection.json",
+      "sha256": "abd396674aee6bfb8007c8ca82a0a62defc8614a0ee239dc52e7398747e8cdb3",
+      "bytes": 35391,
+      "role": "original frozen selection; paths mapped by this index"
+    },
+    {
+      "archive": "verification/author-evidence-check.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/author-evidence-check.json",
+      "sha256": "fca86ef2efb7d85c33899262aaa771690e8920277ced9865d1fc004c6048427c",
+      "bytes": 1382,
+      "role": "original independent review/preparation record"
+    },
+    {
+      "archive": "verification/directory_independent_test.go.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/directory_independent_test.go",
+      "sha256": "92d56052930c0624fa58b2dc9e46466f69ba2e4eabfd6d9ec482dc73cd9b9a3d",
+      "bytes": 6293,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/docker-baseline.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/docker-baseline.json",
+      "sha256": "7cfe1b7f03df48475f6a69e5705738ee35164c0dfde495a01c0b65c22e580303",
+      "bytes": 2928,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/finding-head01.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/finding-head01.json",
+      "sha256": "5b125541a017c760db5db455fe3960df682185b720f516b0a622de2930abb216",
+      "bytes": 1576,
+      "role": "original independent review/preparation record"
+    },
+    {
+      "archive": "verification/input02-check.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/input02-check.json",
+      "sha256": "d078fc0322f004c93b4cd71c7df19b840fe09384f202c6c9b3102fc60e74b085",
+      "bytes": 1601,
+      "role": "original independent review/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/build.command.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/build.command.json",
+      "sha256": "f59dc37ee7ff4de30c8d9891643e43bb243d47c31a2a6b1a02d5d6a3a3a364c1",
+      "bytes": 1375,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/build.result.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/build.result.json",
+      "sha256": "bab16bd6449739267616641af1188b320d1ed723afb2a22b655d653822b2a82b",
+      "bytes": 57,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/build.stderr",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/build.stderr",
+      "sha256": "98c519116369fc9d7307ef326c10882367e891617ee920eb8f16819dd581b4b8",
+      "bytes": 13203,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "author/logs/dependencies.stderr",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/build.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/download.command.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/download.command.json",
+      "sha256": "98fab8bf592a8d8232d0e714ba63fc47abe56a92776ac4885dff5fcb2084f90d",
+      "bytes": 895,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/download.result.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/download.result.json",
+      "sha256": "9c9ff9d775d106179b3e3221227792fbac55472ac5b45b633e6cd5fee2e87125",
+      "bytes": 58,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "author/logs/dependencies.stderr",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/download.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/download.stdout",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/download.stdout",
+      "sha256": "79414da2a90924a23e5833cd08e9d8e6da0f63b54a9dc26f9e931777b9da48df",
+      "bytes": 978,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/pull-pg16.command.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/pull-pg16.command.json",
+      "sha256": "178589061f940c0f3f1ccb1560b516fa75201d1c5956aa1d61eb0af35d23e461",
+      "bytes": 383,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/pull-pg16.result.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/pull-pg16.result.json",
+      "sha256": "04b7c38d3bd1a5fb022b56b588f50559596b0378db3ad3d6ed1081c10507bf61",
+      "bytes": 382,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "author/logs/dependencies.stderr",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/pull-pg16.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/pull-pg16.stdout",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/pull-pg16.stdout",
+      "sha256": "5c590435370ee392616dcc6419fd80798d0350490cdf5943f51635f849ff8c09",
+      "bytes": 2557,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/pull-pg17.command.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/pull-pg17.command.json",
+      "sha256": "748e9b183cba880fb8c53a94d5c0462d6f1290ba9f17e7c25d1b08e5e115d40e",
+      "bytes": 383,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/pull-pg17.result.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/pull-pg17.result.json",
+      "sha256": "c64ddc0059a1da7620230d8b26603b515e4bb08cb6ad8bee99d7ce61d77dd749",
+      "bytes": 475,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "author/logs/dependencies.stderr",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/pull-pg17.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/pull-pg17.stdout",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/pull-pg17.stdout",
+      "sha256": "8bb1161932b10b17eff358d1b15ddf27d75ae7392acf0b618b2c6b7fb44526d8",
+      "bytes": 437,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/version.command.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/version.command.json",
+      "sha256": "ce4abd0d89d4c91f357e9b46014f4521731acc9bc2deefe2a2af4ed8b80c8692",
+      "bytes": 843,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/version.result.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/version.result.json",
+      "sha256": "33868ddd7c135da3375968781d63594a0e60822012e5dcdd9ca51e2d0fafc390",
+      "bytes": 58,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "author/logs/dependencies.stderr",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/version.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/dependency-logs/version.stdout",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/logs/version.stdout",
+      "sha256": "669945bf6be602a981684e7d546eb3420980851cdf3219c4bedb0d6910e5dac0",
+      "bytes": 224,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/minio-binary.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/minio-binary.json",
+      "sha256": "fd37a7ba80619482937f012ef0d4a1d4448f320d2f082cceb15aa53196bdddc5",
+      "bytes": 337,
+      "role": "original independent review/preparation record"
+    },
+    {
+      "archive": "verification/overlay.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/overlay.json",
+      "sha256": "ea2ab45302cfa7c3eaece23ec836a038e70ae12ac2691d916c52d129d24a0086",
+      "bytes": 190,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/author02/driver.py.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/run_fixture.py",
+      "sha256": "f1d354b1b457fae4a365fb0e8f3a97d29d9932b07dde4f3913f44ae627abc388",
+      "bytes": 10915,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/author01/baseline.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author01/cleanup.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/cleanup.json",
+      "sha256": "7889f71e3eb6052f42526b291d1086f834cf9b5e05266fbf587c1a26bd9f8c66",
+      "bytes": 1905,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author01/command.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/command.json",
+      "sha256": "918ac52619b35ec2e4f3d3dededa0b73e3edcf09601f4da0e57d02600bfcf05c",
+      "bytes": 1039,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author01/driver-source.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/driver-source.json",
+      "sha256": "f409cbc2816910a983295b50939e0e821e92ac5d3a0c9e6a18d97c0fc5b972fd",
+      "bytes": 290,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author01/driver.py.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/driver.py.txt",
+      "sha256": "a20d8633fd1e70c023e0bab884b016fe42fad93b4d4ac42194c379a419d6319e",
+      "bytes": 9546,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author01/input-after.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/input-after.json",
+      "sha256": "68d27524ea122dbf8d6d0056f02329527205678992cb20a0f2e01d428ab51fa9",
+      "bytes": 1116,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author01/input-before.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/input-before.json",
+      "sha256": "2d6d26aba9a90a44568f56195d7c54c7be6673b9e42800b67582e4ff25fd18db",
+      "bytes": 1116,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author01/monitor-errors.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author01/observed-processes.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/observed-processes.json",
+      "sha256": "9a91f6bddc4c840be906a69d9a36b71f96810b79a7f9d65289415169fb17eb3e",
+      "bytes": 30705,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author01/observed-resources.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/observed-resources.json",
+      "sha256": "231318a25963cd5e2afe41c1258ea8deecbe19bc847609aad4ba22a229f0dabe",
+      "bytes": 2350,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author01/raw.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/raw.log",
+      "sha256": "a8d70edd027eebae139e57acd1b6eb5eae05cffe51de370d991bbe4e526cabfa",
+      "bytes": 12198,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author01/result.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author01/result.json",
+      "sha256": "2d3f9425366aa8f069144a0c8e7ce75f5a4983c4f0357a15c315af15a7145024",
+      "bytes": 505,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/baseline.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author02/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/cleanup.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author02/cleanup.json",
+      "sha256": "2608462f6818e0626274ef46a15aa8d85850ea188947ff362aed0e22ca88cf4d",
+      "bytes": 1905,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/command.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author02/command.json",
+      "sha256": "11192b26ccb916e6d5a6296b46460eff1fc29feb007488fa9281f463e63d6fc9",
+      "bytes": 1038,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/driver.py.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author02/driver.py.txt",
+      "sha256": "f1d354b1b457fae4a365fb0e8f3a97d29d9932b07dde4f3913f44ae627abc388",
+      "bytes": 10915,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/input-after.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author02/input-after.json",
+      "sha256": "eed67f9400998e437dfd13fd3d53b1a36e0375504ee6e27da0bac5eae4d9322b",
+      "bytes": 1264,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/input-before.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author02/input-before.json",
+      "sha256": "eed67f9400998e437dfd13fd3d53b1a36e0375504ee6e27da0bac5eae4d9322b",
+      "bytes": 1264,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/monitor-errors.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author02/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/observed-processes.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author02/observed-processes.json",
+      "sha256": "8d6917d748f59cc08abed22a9fd2bbc130fadfad4ac1fe78817b35713c9d7500",
+      "bytes": 8363,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/observed-resources.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author02/observed-resources.json",
+      "sha256": "543ccf219da6ad3f0512408276754b4b033ec202f4d0c43a366c8fd37f6cc710",
+      "bytes": 2350,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/raw.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author02/raw.log",
+      "sha256": "db22ce93549eb0b91ff7a4e4fdcd794b42cc6d2f11ab8e56b0ab1929131bed65",
+      "bytes": 3794,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/result.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author02/result.json",
+      "sha256": "55a76139edd6b567c93c058a63672af2c6ec898515b1a7f255f082f9e40519e9",
+      "bytes": 544,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/verification-input.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/author02/verification-input.json",
+      "sha256": "dad507df9691eac8b2fe039502643f5e7182ce93a8bde8f1390221e8693cec32",
+      "bytes": 90,
+      "role": "original real run command/raw/resource record"
+    },
+    {
+      "archive": "runs/author02/baseline.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/independent01/cleanup.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/cleanup.json",
+      "sha256": "fbda7cb2c45a3103999e1bdafd985125f0c24cfb373f1aa24afa360869107940",
+      "bytes": 1905,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/independent01/command.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/command.json",
+      "sha256": "1bb11ff8dee3b806be705e3023e240bc74901c7723d7fad4d37437f76812a895",
+      "bytes": 1165,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/directory_independent_test.go.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/directory_independent_test.go.txt",
+      "sha256": "92d56052930c0624fa58b2dc9e46466f69ba2e4eabfd6d9ec482dc73cd9b9a3d",
+      "bytes": 6293,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/author02/driver.py.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/driver.py.txt",
+      "sha256": "f1d354b1b457fae4a365fb0e8f3a97d29d9932b07dde4f3913f44ae627abc388",
+      "bytes": 10915,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/author02/input-before.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/input-after.json",
+      "sha256": "eed67f9400998e437dfd13fd3d53b1a36e0375504ee6e27da0bac5eae4d9322b",
+      "bytes": 1264,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/author02/input-before.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/input-before.json",
+      "sha256": "eed67f9400998e437dfd13fd3d53b1a36e0375504ee6e27da0bac5eae4d9322b",
+      "bytes": 1264,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/author02/monitor-errors.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/independent01/observed-processes.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/observed-processes.json",
+      "sha256": "f98feaba3e245543151a74a2f7a341ab2b63e2c293d4e306c7570c9f11e5570a",
+      "bytes": 6515,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/independent01/observed-resources.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/observed-resources.json",
+      "sha256": "6e568fb05f4a94b1cf93bff8c443a8a22e6b7d67ba2426646bb79a623e5a386e",
+      "bytes": 2350,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/overlay.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/overlay.json",
+      "sha256": "ea2ab45302cfa7c3eaece23ec836a038e70ae12ac2691d916c52d129d24a0086",
+      "bytes": 190,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/independent01/raw.log",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/raw.log",
+      "sha256": "ac836623d834bd0776f1c90123d7d45f0c642cb5e997b6033b00ee074f55f989",
+      "bytes": 3851,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/independent01/result.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/result.json",
+      "sha256": "99fa2e2581cd7f7242f1b85dcb5b0a183c2944beba618e8980222f9a3b0f7fc7",
+      "bytes": 469,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "runs/independent01/verification-input.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/runs/independent01/verification-input.json",
+      "sha256": "6d499e2b13ede656fe948276a3638d759b0b2a23fe287b822edc5a563eef4a33",
+      "bytes": 264,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/spec-rev2-review.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/spec-rev2-review.json",
+      "sha256": "96a48ab55e2e7c40582aa6311b62f213441f753117a886dc9000794b027d7b76",
+      "bytes": 684,
+      "role": "original independent review/preparation record"
+    },
+    {
+      "archive": "verification/static-input02-review.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/static-input02-review.json",
+      "sha256": "56a60be7ad6e6a801550f64754d592cd65a515ae434ac5e8d498321f18d85226",
+      "bytes": 2402,
+      "role": "original independent review/preparation record"
+    },
+    {
+      "archive": "verification/static-review.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/static-review.json",
+      "sha256": "1f35ded343bed7bc86768f5417e60ca965e3842916474910464420e6c5c59b53",
+      "bytes": 986,
+      "role": "original independent review/preparation record"
+    },
+    {
+      "archive": "verification/verification-report.json",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/verification-report.json",
+      "sha256": "e0112064e35d235ad38d2cae336700fdbc19c4009d445b1437bce131e560d762",
+      "bytes": 6821,
+      "role": "original final independent evidence/preparation record"
+    },
+    {
+      "archive": "verification/verification-report.md.txt",
+      "source": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/verification-report.md",
+      "sha256": "771109ff98797c632b68c0cbb6c0e82f6fb29484586514b788765ef9561e85dd",
+      "bytes": 5308,
+      "role": "original final independent evidence/preparation record"
+    }
+  ]
+}

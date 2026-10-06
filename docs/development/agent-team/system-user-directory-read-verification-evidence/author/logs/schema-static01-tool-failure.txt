@@ -1,0 +1,6 @@
+Preserved from the first ad hoc tool invocation; this was a checker bug, not a source/test failure.
+The checker selected the first Session object globally (security scheme before User), so its old User slice was empty. Adding the User start offset to the end search fixed the check without any source edit.
+Original tool output:
+Traceback (most recent call last):
+  File "<stdin>", line 7, in <module>
+AssertionError

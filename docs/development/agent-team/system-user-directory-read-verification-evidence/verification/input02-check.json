@@ -1,0 +1,23 @@
+{
+  "author_manifest_sha256": "004ced3247661feca93ef7899dbc539f9f638a17daa824c30692881f26622c96",
+  "sources": {
+    "api/openapi/account.json": "f3671e4964aba7d973f16d75723d82474684ee1782b1b9fc78e6af344a5aa880",
+    "internal/central/account/http.go": "e1773aa5b3e14d932ebe99a49435d9f6ab2ffc8cad3e5c39f3d9b97e8bc70f92",
+    "internal/central/account/http_facade.go": "ed84ea866c9b218d0df31f615dbc84bf16ab21b4d3621fa9c14fc484e090ef1f",
+    "internal/central/account/http_system.go": "076f5271310b2e064a660619b28b83b4c758ec5da5105ce0855e6e2c349c254c",
+    "internal/central/account/http_user_directory_test.go": "72f92a03a09ae5648077f5f826c57167bcf79e0a226a92737cb61bdf98b2945c",
+    "tests/account/http_user_directory_test.go": "27459a6167236f20c8ba8d881056232255e3f798967ff7eb0d06bcf895f0b86d"
+  },
+  "locks": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+  },
+  "unchanged_boundaries": {
+    "internal/central/account/contract/types.go": "be10ddaae6a5679108afefd0edd7ae18959160d1dc771dce09424d3a13fa21ac",
+    "internal/central/account/csrf_test.go": "2556ea3d862f269b60cc054580710c55b646e58c74be5cc710600d1cb3945b91",
+    "internal/central/account/http_auth.go": "4a8f24dec41bb2dd7d94c3777ee8c80fe3b0ba4e9a799b9e07435c8989a5ba98",
+    "internal/central/account/http_test.go": "6b03f268c268a879283300b8674aeba0f1546320474bce51f6f198388080206a",
+    "internal/central/account/http_wire.go": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095"
+  },
+  "match": true
+}

@@ -1,6 +1,6 @@
 # D27：系统用户目录注册时间读口
 
-状态：rev2，2026-10-06 已独立静审通过（STATIC PASS）并获主线程采纳，被审稿 SHA256 `e05b1f60545cdae9756c195ee0b944be8cb0c6f1d3f073c959f6dcb04e30a0ba`；主线程已授权 `directory_backend` 按 §4 六路径返修，含新增 `http.go` 接缝。本次仅更新状态，以下修订依据与技术正文保持被审稿原字节。rev1 曾独立 STATIC PASS 并获采纳，被审稿 SHA256 `4edb37f8c7cd1f9aa492b2a797f348d6e8bb5a92c0a52b405c365eb40537d216`；其静审遗漏了实际 HEAD 路由缺口，不代表产品通过。本卡仍未产品接受，不代表系统设置页面、D27 或完整平台完成。
+状态：rev2，2026-10-06 后端六路径已完成作者检查及独立 PASS，主线程采纳并提交推送 `3affc0194214101cfa1e6fdc583afa5d60005db8`、实际远端一致；最终 input02 SHA256 `004ced3247661feca93ef7899dbc539f9f638a17daa824c30692881f26622c96`，见[正式验收与持久证据](../agent-team/system-user-directory-read-verification.md)。本次仅更新页首，以下修订依据与技术正文保持；rev2 被审稿 SHA256 为 `e05b1f60545cdae9756c195ee0b944be8cb0c6f1d3f073c959f6dcb04e30a0ba`。rev1 曾独立 STATIC PASS，被审稿 SHA256 `4edb37f8c7cd1f9aa492b2a797f348d6e8bb5a92c0a52b405c365eb40537d216`；其 HEAD 路由静审遗漏、author01 首红与修后原断言通过全部保留。本卡仅接受后端读口，不代表系统设置页面、完整 D27 或平台完成。
 
 修订依据：作者真实 `author01` 的 `TestAccountHTTPSystemUserDirectory` 在 `tests/account/http_user_directory_test.go:35` 观察合法 admin HEAD 实际 405、期望 200。Account 的 `httpHandler` 按无 method 的路径注册，再严格匹配 `r.Method == route.method`，不存在 GET 隐式接收 HEAD；原来只有 avatar 显式登记 HEAD。保留首红、原输入与日志，不将测试改为接受 405，也不把直接调用 `httpJSON` 的无 body 通过证据当成路由已通。rev2 补这条正式路由和对应 query/OpenAPI，不泛化其他 Account GET。
 

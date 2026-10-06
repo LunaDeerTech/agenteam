@@ -1,0 +1,19 @@
+import datetime, hashlib, json, os, pathlib, subprocess, sys, time
+root=pathlib.Path('/workspace/agenteam')
+scratch=pathlib.Path('/workspace/scratch/agenteam-d27-directory-author-EvHmqxns')
+go='/workspace/toolchains/go1.27.1/bin/go'
+files=['internal/central/account/http.go','internal/central/account/http_facade.go','internal/central/account/http_system.go','api/openapi/account.json','internal/central/account/http_user_directory_test.go','tests/account/http_user_directory_test.go','go.mod','go.sum']
+overrides={'GOTOOLCHAIN':'local','GOPROXY':'off','GOSUMDB':'off','GOFLAGS':'-mod=readonly','GOMODCACHE':str(scratch/'modcache'),'GOCACHE':str(scratch/'gocache'),'TMPDIR':str(scratch/'tmp')}
+commands={'unit':[go,'test','-count=1','-run','^(TestHTTPUserDirectory|TestB04HTTP|TestB04CSRF)','./internal/central/account'],'race':[go,'test','-race','-count=1','-run','^(TestHTTPUserDirectory|TestB04HTTP|TestB04CSRF)','./internal/central/account'],'vet':[go,'vet','./internal/central/account'],'integration-compile':[go,'test','-tags=integration','-run','^$','./tests/account'],'build-central':[go,'build','-o',str(scratch/'bin/agenteam'),'./cmd/agenteam'],'build-runner':[go,'build','-o',str(scratch/'bin/agenteam-runner'),'./cmd/agenteam-runner']}
+mode,label=sys.argv[1:]
+record={'label':label,'argv':commands[mode],'cwd':str(root),'env':overrides,'product_base':'125e3c222ffca01ea0fd987d7dc47b8c30fa5f8b','head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'inputs':{p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in files},'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+metadata=scratch/'logs'/f'{label}.json'
+metadata.write_text(json.dumps(record,indent=2)+'\n')
+start=time.monotonic()
+with (scratch/'logs'/f'{label}.log').open('wb') as output:
+ result=subprocess.run(commands[mode],cwd=root,env=os.environ|overrides,stdout=output,stderr=subprocess.STDOUT)
+record.update(exit_code=result.returncode,elapsed_seconds=round(time.monotonic()-start,3),ended_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),inputs_unchanged=all(hashlib.sha256((root/p).read_bytes()).hexdigest()==sha for p,sha in record['inputs'].items()))
+record['log_sha256']=hashlib.sha256((scratch/'logs'/f'{label}.log').read_bytes()).hexdigest()
+metadata.write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps({k:record[k] for k in ['label','exit_code','elapsed_seconds','inputs_unchanged','log_sha256']}),flush=True)
+sys.exit(result.returncode)

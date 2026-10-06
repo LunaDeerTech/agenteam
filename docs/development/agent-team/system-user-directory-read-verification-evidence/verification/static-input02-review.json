@@ -1,0 +1,79 @@
+{
+  "decision": "STATIC PASS on frozen input02; dynamic result pending",
+  "author_input_sha256": "004ced3247661feca93ef7899dbc539f9f638a17daa824c30692881f26622c96",
+  "author_checks": {
+    "unit02": {
+      "exit": 0,
+      "seconds": 4.043,
+      "raw_sha256": "75b286627d3a9816e22cf300bedbfbd5b40174f106ed44470cc60a056321fb81",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-count=1",
+        "-run",
+        "^(TestHTTPUserDirectory|TestB04HTTP|TestB04CSRF)",
+        "./internal/central/account"
+      ]
+    },
+    "race02": {
+      "exit": 0,
+      "seconds": 13.014,
+      "raw_sha256": "338ed9362ae73f5e4c2a403226d023f7cb577029fe8fc7eda6f0a8937ee7f2c0",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "-run",
+        "^(TestHTTPUserDirectory|TestB04HTTP|TestB04CSRF)",
+        "./internal/central/account"
+      ]
+    },
+    "vet02": {
+      "exit": 0,
+      "seconds": 0.867,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "./internal/central/account"
+      ]
+    },
+    "integration-compile02": {
+      "exit": 0,
+      "seconds": 10.27,
+      "raw_sha256": "511d7ac1b1ccd539006c3ebc6bae5275e766f92a8980f7f4188461f8a7dfae6b",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/account"
+      ]
+    },
+    "build-central02": {
+      "exit": 0,
+      "seconds": 9.347,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/bin/agenteam",
+        "./cmd/agenteam"
+      ]
+    }
+  },
+  "openapi": {
+    "only_authorized_changes": true,
+    "user_raw_bytes_unchanged": true,
+    "system_user_closed_nine_fields": true,
+    "head_same_auth_query_no_response_content": true,
+    "resolved_refs": 208
+  },
+  "route_delta": "explicit HEAD users + exact users HEAD query classification; no dispatch fallback",
+  "facade_system_unchanged_from_input01": true,
+  "spec_review": "spec-rev2-review.json",
+  "original_failure": "finding-head01.json"
+}

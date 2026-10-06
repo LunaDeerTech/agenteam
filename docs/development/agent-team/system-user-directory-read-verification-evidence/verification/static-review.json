@@ -1,0 +1,18 @@
+{
+  "stage": "read-only draft review; final frozen hashes still required",
+  "files": {
+    "internal/central/account/http_facade.go": "ed84ea866c9b218d0df31f615dbc84bf16ab21b4d3621fa9c14fc484e090ef1f",
+    "internal/central/account/http_system.go": "076f5271310b2e064a660619b28b83b4c758ec5da5105ce0855e6e2c349c254c",
+    "api/openapi/account.json": "60e16641c689b359efa5c44eb357e618fa029963710c852bf073e1758524995e",
+    "internal/central/account/http_user_directory_test.go": "f3283c7aa41dbdbb6d2d14df848b7541e49fcaeaa58a4b551d222c549ec5ff55",
+    "tests/account/http_user_directory_test.go": "76b73a5aacc5eb3375c9d1994c408177e3cebcc59aa38df644b9a73dc5d77c40"
+  },
+  "openapi_only_allowed_semantic_changes": true,
+  "shared_user_schema_original_bytes": true,
+  "shared_source_unchanged": {
+    "internal/central/account/http_wire.go": true,
+    "internal/central/account/http_auth.go": true
+  },
+  "resolved_refs": 206,
+  "production_review": "PASS within card; real tests pending"
+}

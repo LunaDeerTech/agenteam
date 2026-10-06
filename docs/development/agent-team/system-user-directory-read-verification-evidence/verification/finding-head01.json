@@ -1,0 +1,29 @@
+{
+  "id": "DIR-HEAD-01",
+  "status": "CONFIRMED; fix awaits accepted rev2",
+  "author_input_sha256": "e14894df898003c8da7bfcaab464f9c65251cc7fe7383e2c77beeb10ab4dd733",
+  "product_base": "125e3c222ffca01ea0fd987d7dc47b8c30fa5f8b",
+  "baseline_dependency": {
+    "path": "internal/central/account/http.go",
+    "sha256": "5c57879f54f7a56f7a6a3b3f64059da7315b4275b1fa93422b79de4707dc6b78"
+  },
+  "reproduction": {
+    "selector": "^(TestAccountHTTPSystemUserDirectory|TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority)$",
+    "test": "TestAccountHTTPSystemUserDirectory",
+    "point": "tests/account/http_user_directory_test.go:35",
+    "request": "admin HEAD /api/v1/system/users",
+    "actual_http_status": 405,
+    "expected_http_status": 200,
+    "new_top": "FAIL 3.95s",
+    "legacy_top": "PASS 4.14s",
+    "driver_exit": 1,
+    "driver_seconds": 214.048,
+    "raw": "runs/author01/raw.log",
+    "raw_sha256": "a8d70edd027eebae139e57acd1b6eb5eae05cffe51de370d991bbe4e526cabfa"
+  },
+  "cause": "accountHTTP.httpHandler matches only the explicitly registered route.method; users has no HEAD registration. httpJSON HEAD body suppression is not route acceptance.",
+  "review_correction": "rev1 independent static review missed this dispatcher constraint; its HEAD-feasibility conclusion is superseded by the actual failure.",
+  "unchanged_input": true,
+  "independent_probe_not_run": true,
+  "resources": "original driver actually waited; seven exact IDs absent twice; initial two-container/four-network baseline unchanged; owned processes zero and runtime empty"
+}

@@ -67,3 +67,13 @@ D27 补口针对已经确认的需求与恢复基线输出缺口：`ListUsers` �
 本次仅写 `docs/development/agent-team/recovery-2026-10-06-continuation.md` 与 `docs/development/agent-team/tasks.md` 的页首短恢复入口；后者原正文逐字保留。两文件的本地链接、Markdown 结构、UTF-8/LF、末尾换行、尾空格及限定文件 whitespace 检查通过；其余旧文档保留原内容。没有运行 Go、npm、浏览器、数据库、Docker 或产品测试，没有执行 Git 写操作。
 
 文档范围完成自查后停止写入，无关联后台命令或自有运行资源；由主线程审查后按已有授权独立提交并推送，交付提交通过这两份文件的 Git 历史定位。本记录不预先声称已提交或推送，D27 规格及实施文件不属于本次文档交付。
+
+## 7. D27 用户目录后端接受与 UI 前置交还
+
+§1–6 保留本次恢复起点与当时派工。注册时间读口现按[rev2 六路径](../work-items/d27-system-user-directory-read.md)完成，由 `directory_backend` 实现、`recovery_verification` 独立 PASS，主线程采纳提交推送 `3affc0194214101cfa1e6fdc583afa5d60005db8`，实际远端一致。[正式报告与持久证据](system-user-directory-read-verification.md)固定 input02 SHA-256 `004ced3247661feca93ef7899dbc539f9f638a17daa824c30692881f26622c96`；六源、两项依赖锁与五项原边界末检匹配。
+
+author01 首红为合法 admin HEAD 实际405、原断言要求200；rev1 规格/静审遗漏了 Account 严格 method 分派，不能用 serializer 的空 body 能力证明路由已通。原输入、driver exit1 和失败日志保留；rev2 新增 users 显式 HEAD、精确 query 分类和 OpenAPI 后，author02 原两组全 PASS、独立探针一组 PASS，两个 driver exit0。原 HEAD200 及旧权限/路由断言未放宽，no-tests/仅编译不计动态通过。
+
+三轮均已 actual wait，各四容器/三网络 exact-ID 双次 absent，原两容器/四网络的 ID/name/labels 不变，所属进程与 runtime 为空，窗口已交还。归档只保留原报告、精确源码版本、命令/raw、静审纠正与资源终局；文档负责人只做离线原字节/Git/链接核查，没有重跑业务。
+
+该结果只接受专用九字段目录与 GET/HEAD 读口，原共享八字段 User 保持。[系统用户目录 UI](../work-items/d27-system-user-directory-ui.md)的后端依赖现已满足，后续页面、同一 Cookie owner 组合及浏览器验收另行推进；没有前端、邀请投递补口或完整 D27 通过声明。Summary 待决、Object/tools 原任务停止、Artifact/Project 阻塞、生产未绑定、ready503、完整 D08–D28/E01 未完成与 E01 未开始保持。

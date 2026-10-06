@@ -1,0 +1,49 @@
+# D27 系统用户目录读口独立验收
+
+结论：**PASS，仅限 rev2 后端读口卡**。六路径冻结 input02 `004ced3247661feca93ef7899dbc539f9f638a17daa824c30692881f26622c96`；产品基线 `125e3c222ffca01ea0fd987d7dc47b8c30fa5f8b`。本人未参与产品实现，未改产品或 Git。
+
+系统列表使用专用平坦九字段 DTO，`created_at` 来自真实用户行并经过 foundation 显式校验；原登录、Session、profile 八字段以及 OpenAPI User 原字节保持。users 显式 HEAD 登记与 query 分类成立，其他 GET 路由未泛化。完整静审及五条返修作者检查的实际日志校验在 `static-input02-review.json`。
+
+## 实际动态结果
+
+| 运行 | 顶层实际结果 | 命令退出/墙钟 | 原始 raw SHA256 |
+| --- | --- | --- | --- |
+| author01 | 旧管理员 PASS 4.14s；新目录 FAIL 3.95s（HEAD405） | 1 / 214.048s | `a8d70edd027eebae139e57acd1b6eb5eae05cffe51de370d991bbe4e526cabfa` |
+| author02 | 旧管理员 PASS 4.24s；新目录 PASS 4.19s | 0 / 82.139s | `db22ce93549eb0b91ff7a4e4fdcd794b42cc6d2f11ab8e56b0ab1929131bed65` |
+| independent01 | 独立目录 PASS 3.36s | 0 / 52.439s | `ac836623d834bd0776f1c90123d7d45f0c642cb5e997b6033b00ee074f55f989` |
+
+author01/author02 实际命令均为：
+
+```sh
+sh scripts/test-security.sh -run '^(TestAccountHTTPSystemUserDirectory|TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority)$'
+```
+
+independent01 实际命令为：
+
+```sh
+sh scripts/test-security.sh -run '^TestAccountHTTPSystemUserDirectoryIndependent$'
+```
+
+独立探针通过 Go overlay 加载 scratch 的 `directory_independent_test.go`，SHA `92d56052930c0624fa58b2dc9e46466f69ba2e4eabfd6d9ec482dc73cd9b9a3d`，没有写入仓库测试源。各轮 `runs/<name>/command.json` 保存精确 argv/env/开始结束时间/actual wait；独立轮 `verification-input.json`、overlay 与 probe 副本保留该输入。
+
+固定环境：显式 Go1.27.1；`GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOSUMDB=off CGO_ENABLED=1`；`GOFLAGS=-mod=readonly -buildvcs=false -p=1 -v`，独立轮再加 overlay。GOMODCACHE 只读复用作者锁缓存，GOCACHE/TMPDIR 归本任务。原脚本 `-race -count=1 -timeout=6m` 和 fixture 预算未改。
+
+真实 Account 使用任务 nonce 隔离的 PostgreSQL17.8/pgvector0.8.1/已定 MinIO。MinIO BinarySHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`；精确获取/构建 argv 与版本检查在 logs/，二进制和缓存不须归档。PG16.12 是原 fixture 同时启动的版本前置，选定的目录用例未对其另作数据库验收。
+
+## 覆盖和原失败
+
+- 作者新组对真实初始管理员/正式邀请创建用户逐项比对 DB 注册时间、资料变更不改时间、同时间稳定分页；补合法 HEAD 查询、非法/篡改/跨资源 cursor、普通用户/匿名/真实撤销 Session 拒绝。owned 用户行 year10000 的 GET/HEAD 均安全503，随后恢复 fixture。
+- 独立组重新创建真实身份，检查新九字段/旧八字段隔离、DB 精确 canonical 时间、HEAD 编码长度、合法 cursor 变 limit、非法 query 同状态、精确 `Allow: GET, HEAD` 和其他列表 HEAD405，以及当前权限与已撤销 cookie。
+- 单元受控 rows 的 first/middle/limit+1、ID/version/role/theme/时间/行错误均零候选；不把受控 rows 说成真实数据库。新真实 year10000 场景另有实际 HTTP/PG 证据。
+- author01 的 admin HEAD405 首红保留。rev1 静审把 serializer 的 HEAD 空 body 能力误当成实际路由支持；该静审结论被首红纠正。rev2 修复仅增加 users 显式 route/query/OpenAPI，原 HEAD200 断言保留，修后真实通过。见 `finding-head01.json`。
+- 复用 input01 未变扫描/契约/Runner 检查，input02 重跑受影响 HTTP/CSRF/Directory pure+race、account vet、集成仅编译及 Central build。`-run ^$` 及脚本中其他 `[no tests to run]` 不是动态用例通过。
+
+## 资源终局与限制
+
+- author01：7个实际资源（4 container/3 network），357个观测 PID/starttime；exact-ID 双清理 2026-10-06T04:20:22.539836+00:00, 2026-10-06T04:20:23.184644+00:00；原2 container/4 network ID/name/labels不变，所属进程归零、runtime空，monitor错误0。
+- author02：7个实际资源（4 container/3 network），95个观测 PID/starttime；exact-ID 双清理 2026-10-06T04:27:53.746768+00:00, 2026-10-06T04:27:54.416375+00:00；原2 container/4 network ID/name/labels不变，所属进程归零、runtime空，monitor错误0。
+- independent01：7个实际资源（4 container/3 network），74个观测 PID/starttime；exact-ID 双清理 2026-10-06T04:28:53.567403+00:00, 2026-10-06T04:28:54.226200+00:00；原2 container/4 network ID/name/labels不变，所属进程归零、runtime空，monitor错误0。
+
+三轮都已 actual wait，author02 和 independent01 的产品/验证输入均未变，资源窗口已归还。`verification-report.json` 记录最终六源、锁与原边界指纹；`runs/` 保存实际命令/原日志/资源/进程/双清理。
+
+范围不含系统设置 UI、邀请投递补口、浏览器或完整 D27。原 httpRead 的事务/取消/Unknown 语义复用已接受实现与证据，没有新增该类探针。被停止的 Object 修复和 tools 独立任务没有恢复、改派或重建。

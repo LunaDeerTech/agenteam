@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：System 用户目录注册时间读口接受
+
+- [读口 rev2](../work-items/d27-system-user-directory-read.md)最终六路径已由 `directory_backend` 完成、`recovery_verification` 独立 PASS，主线程采纳提交推送 `3affc0194214101cfa1e6fdc583afa5d60005db8`，实际远端一致。[正式报告与最小持久证据](system-user-directory-read-verification.md)固定 input02 `004ced3247661feca93ef7899dbc539f9f638a17daa824c30692881f26622c96`，六源与交付 Git 匹配。
+- 系统目录新增 canonical 注册时间的平坦九字段投影，原登录/Session/profile 八字段保持。author01 的 admin HEAD405 首红和 rev1 静审遗漏保留；rev2 显式 users HEAD/query/OpenAPI 修复后，author02 两个指定顶层 PASS、独立一顶层 PASS，两个 driver 均 exit0。原 HEAD200 断言不变，不把 no-tests 或仅编译计作动态通过。
+- 三轮实际 wait、各七资源 exact-ID 双清、原两容器/四网络不变、所属进程/runtime 为空；只归档精确源、命令/raw、失败与资源证据，没有复制缓存、二进制或完整工作树。[用户目录 UI 卡](../work-items/d27-system-user-directory-ui.md)的后端前置现已满足；页面与20路径实现/浏览器验收仍独立，完整 D27 未完成。
+- Summary 待决、Object 与 tools 原停止任务、Artifact/Project 阻塞、生产未绑定、ready503 和完整 D08–D28/E01 未完成边界保持，E01 未开始。以下恢复与旧规格阶段保留当时事实。
+
 ## 2026-10-06：125e3c2 恢复续接
 
 - 本次从干净的 `work / 125e3c222ffca01ea0fd987d7dc47b8c30fa5f8b` 恢复，主线程实际查询远端同哈希、fetch 并创建跟踪 `origin/main` 的 `main`；双方一致、无未推送提交。固定输入、只读证据与本轮分工见[恢复续接记录](recovery-2026-10-06-continuation.md)，以下旧记录保留当时事实。

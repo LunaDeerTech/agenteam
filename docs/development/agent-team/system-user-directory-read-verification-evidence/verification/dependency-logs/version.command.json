@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "--version"
+  ],
+  "cwd": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "https://proxy.golang.org",
+    "GOSUMDB": "sum.golang.org",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/tmp",
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "GOAMD64": "v1",
+    "CGO_ENABLED": "0",
+    "GOFLAGS": ""
+  },
+  "started_utc": "2026-10-06T04:10:19.587947+00:00"
+}

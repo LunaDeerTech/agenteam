@@ -1,0 +1,38 @@
+{
+  "label": "integration-compile01",
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-tags=integration",
+    "-run",
+    "^$",
+    "./tests/account"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/tmp"
+  },
+  "product_base": "125e3c222ffca01ea0fd987d7dc47b8c30fa5f8b",
+  "head": "5fac116ab9d52d938ba3e3cb3626e5346264a6b8",
+  "inputs": {
+    "internal/central/account/http_facade.go": "ed84ea866c9b218d0df31f615dbc84bf16ab21b4d3621fa9c14fc484e090ef1f",
+    "internal/central/account/http_system.go": "076f5271310b2e064a660619b28b83b4c758ec5da5105ce0855e6e2c349c254c",
+    "api/openapi/account.json": "60e16641c689b359efa5c44eb357e618fa029963710c852bf073e1758524995e",
+    "internal/central/account/http_user_directory_test.go": "f3283c7aa41dbdbb6d2d14df848b7541e49fcaeaa58a4b551d222c549ec5ff55",
+    "tests/account/http_user_directory_test.go": "76b73a5aacc5eb3375c9d1994c408177e3cebcc59aa38df644b9a73dc5d77c40",
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+  },
+  "started_at": "2026-10-06T04:14:26.985267+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 16.412,
+  "ended_at": "2026-10-06T04:14:43.397513+00:00",
+  "inputs_unchanged": true,
+  "log_sha256": "89065c3efc0047362d8c5c21e0a3053f31dac8aabc023feff6fe2e6d3fda8f8a"
+}
