@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-06：System Audit只读UI规格采纳与API阶段状态
+
+- [正式卡rev1](../work-items/d27-system-audit-ui.md)已提交推送`a7a29c34acbe392d9a1375967309123b9a74ec16`，远端一致；技术e7c96b…bd8d5不变。[规格档案](system-audit-ui-spec-verification.md)保留私稿、正式页首diff、独立46项STATIC PASS及冻结计划，不是产品验收。
+- 主线程已授权唯一frontend私有35源分阶段实施，README第19路径最后；A五源作者最终180测试／type／format已通过并冻结，MIME追加绑定fa2d775。独立A离线验证已实际启动、尚无终局，B未开始，无真实资源或UI产品PASS。阶段事实仅按主线程移交记录，原件以后单立产品档案。
+- 原b124650静审／计划与后继fa2d775 MIME修正分列；pageshow空闲owner与新controller等待旧tail分别验证。36候选、原三新两旧真实计划及预算不扩，未消费活动实现证据。Object/tools／SPA publication停止、Summary待决、ready503与完整平台未完成边界保持。
+
 ## 2026-10-06：System Audit HTTP十四路径及分阶段证据
 
 - [工作卡](../work-items/d04-system-audit-management-http.md)技术687c85…6f21保持；14产品提交推送`b124650aee095b26191bc181dc8cf5d6e0f977f5`、远端一致。[正式记录](system-audit-management-http-verification.md)绑定原input03、Query/HTTP受控组、native2＋1与三PG作者／独立两代表，不称新轮整矩阵。后续MIME两文件修复另接受于`fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5`，旧b124原件不改。

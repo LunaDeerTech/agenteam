@@ -1,0 +1,726 @@
+{
+  "administrative_base": "94eda044b06104f740a98367e05eab096c374caa",
+  "artifacts": {
+    "author/d27-system-audit-ui.md": {
+      "bytes": 33896,
+      "object": "objects/096b18e3e50d1612d3ce03e92073164eff60db35b3732f785297f52aa421b010",
+      "origin": "/workspace/scratch/agenteam-system-audit-ui-spec-on4ORhe8/d27-system-audit-ui.md",
+      "sha256": "096b18e3e50d1612d3ce03e92073164eff60db35b3732f785297f52aa421b010"
+    },
+    "author/formal-header01/d27-system-audit-ui.md": {
+      "bytes": 35331,
+      "git_ref": "a7a29c34acbe392d9a1375967309123b9a74ec16:docs/development/work-items/d27-system-audit-ui.md",
+      "origin": "/workspace/scratch/agenteam-system-audit-ui-spec-on4ORhe8/formal-header01/d27-system-audit-ui.md",
+      "sha256": "a22e10e8ba0531b043afdf5aae214a66dcda58a37088ae220c2654ee1077cac1"
+    },
+    "author/formal-header01/header.diff": {
+      "bytes": 3532,
+      "object": "objects/97eed09fa80f4608d1b04067df05b8b921d27f2bc24542c41d424f0e65f096ac",
+      "origin": "/workspace/scratch/agenteam-system-audit-ui-spec-on4ORhe8/formal-header01/header.diff",
+      "sha256": "97eed09fa80f4608d1b04067df05b8b921d27f2bc24542c41d424f0e65f096ac"
+    },
+    "plan/accepted-card.md": {
+      "bytes": 35331,
+      "git_ref": "a7a29c34acbe392d9a1375967309123b9a74ec16:docs/development/work-items/d27-system-audit-ui.md",
+      "origin": "/workspace/scratch/agenteam-audit-ui-independent-plan-gf1bc662/accepted-card.md",
+      "sha256": "a22e10e8ba0531b043afdf5aae214a66dcda58a37088ae220c2654ee1077cac1"
+    },
+    "plan/inputs01.json": {
+      "bytes": 2938,
+      "object": "objects/5dd7ebd7d0d1d7f14d7f0ccc9982d5cc1c2f26b4bc2208664d7cf43db6201589",
+      "origin": "/workspace/scratch/agenteam-audit-ui-independent-plan-gf1bc662/inputs01.json",
+      "sha256": "5dd7ebd7d0d1d7f14d7f0ccc9982d5cc1c2f26b4bc2208664d7cf43db6201589"
+    },
+    "plan/plan01.json": {
+      "bytes": 739,
+      "object": "objects/64df1330dcd83100b80e0c4d282a99a534cfc494b8a6ed1bcb5ffeaefad855cc",
+      "origin": "/workspace/scratch/agenteam-audit-ui-independent-plan-gf1bc662/plan01.json",
+      "sha256": "64df1330dcd83100b80e0c4d282a99a534cfc494b8a6ed1bcb5ffeaefad855cc"
+    },
+    "plan/plan01.md": {
+      "bytes": 7949,
+      "object": "objects/6020672b841df73ad0bb4cc8f954d6e35b4e20ccfa74f23beecb8c0fd6e97325",
+      "origin": "/workspace/scratch/agenteam-audit-ui-independent-plan-gf1bc662/plan01.md",
+      "sha256": "6020672b841df73ad0bb4cc8f954d6e35b4e20ccfa74f23beecb8c0fd6e97325"
+    },
+    "review/draft01.md": {
+      "bytes": 33896,
+      "object": "objects/096b18e3e50d1612d3ce03e92073164eff60db35b3732f785297f52aa421b010",
+      "origin": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/draft01.md",
+      "sha256": "096b18e3e50d1612d3ce03e92073164eff60db35b3732f785297f52aa421b010"
+    },
+    "review/inputs01.json": {
+      "bytes": 17973,
+      "object": "objects/512cdd1a1a7036c705fea70d7a5a4547b5b19daa5a70fbca4580fc68c0e73d1b",
+      "origin": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/inputs01.json",
+      "sha256": "512cdd1a1a7036c705fea70d7a5a4547b5b19daa5a70fbca4580fc68c0e73d1b"
+    },
+    "review/inputs02.json": {
+      "bytes": 18832,
+      "object": "objects/d46a9f13b8703e22417e9ead3faeeb135e0ad7f0d16177b9b2e22083118f560f",
+      "origin": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/inputs02.json",
+      "sha256": "d46a9f13b8703e22417e9ead3faeeb135e0ad7f0d16177b9b2e22083118f560f"
+    },
+    "review/review.json": {
+      "bytes": 1944,
+      "object": "objects/aeb3a5264f1e70b2cda3157720478fbbd693e1fd290ed13e3e54d01802105ba9",
+      "origin": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/review.json",
+      "sha256": "aeb3a5264f1e70b2cda3157720478fbbd693e1fd290ed13e3e54d01802105ba9"
+    },
+    "review/review.md": {
+      "bytes": 5048,
+      "object": "objects/dc4afce5faf17d4dc458c516c41170b52dd8b1c7a039a3315ccf1184dea769ba",
+      "origin": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/review.md",
+      "sha256": "dc4afce5faf17d4dc458c516c41170b52dd8b1c7a039a3315ccf1184dea769ba"
+    },
+    "review/static-checks01.json": {
+      "bytes": 7196,
+      "object": "objects/e208ae80b2de8ce1e25c41cf81947127acd47e45a82356cec7a4727ed6edf708",
+      "origin": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/static-checks01.json",
+      "sha256": "e208ae80b2de8ce1e25c41cf81947127acd47e45a82356cec7a4727ed6edf708"
+    }
+  },
+  "baseline": {
+    "AGENTS.md": {
+      "bytes": 33409,
+      "sha256": "9e1ce0c53a8e8c965b4156fa631558aaf36e2def2ff971418b9e81014c5afeef"
+    },
+    "docs/development/agent-team/recovery-2026-10-06-continuation.md": {
+      "bytes": 73356,
+      "sha256": "934c71c27359e53d021aa29c008b595bf7c8702f34091afd7adb59f4cb3c18e9"
+    },
+    "docs/development/agent-team/tasks.md": {
+      "bytes": 264718,
+      "sha256": "56a7ae1edc2d9770960bb31a3a2b8a8e515273ec99ec096c7f92de852b4a6783"
+    },
+    "docs/development/work-items/d27-system-audit-ui.md": {
+      "bytes": 35331,
+      "sha256": "a22e10e8ba0531b043afdf5aae214a66dcda58a37088ae220c2654ee1077cac1"
+    }
+  },
+  "card": "docs/development/work-items/d27-system-audit-ui.md",
+  "counts": {
+    "candidate_paths": 36,
+    "git_refs": 54,
+    "implementation_sources": 35,
+    "last_readme": 1,
+    "logical_originals": 13,
+    "object_bytes": 100047,
+    "objects": 10,
+    "plan_http_rebinding": 5,
+    "static_inputs": 46
+  },
+  "formal_full_sha256": "a22e10e8ba0531b043afdf5aae214a66dcda58a37088ae220c2654ee1077cac1",
+  "formal_specification_commit": "a7a29c34acbe392d9a1375967309123b9a74ec16",
+  "frontend_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+  "git_refs": {
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:tests/account-captcha-web/e2e/system-account-security.spec.ts": {
+      "bytes": 43213,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-account-security.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "11723c33fb36944188c5f8baf7962f56cd4791595e9c8ac5b9d1062d8bf6549a"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:tests/account-captcha-web/e2e/system-invitations.spec.ts": {
+      "bytes": 54664,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-invitations.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "723757fbadc8535c2de60e98758a90239e40cda651e50f4acf2bf4dec4f589bd"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:tests/account-captcha-web/e2e/system-model-selection.spec.ts": {
+      "bytes": 70716,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-model-selection.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "fd1bf8077241f3668b95c7f923a1e8943b1d1a8e9478b0a6ce7b8cd6291155a7"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:tests/account-captcha-web/e2e/system-models.spec.ts": {
+      "bytes": 69251,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-models.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "621fe3c8078484569abba032be18b97f65349f5266cab5c2cf8e451c69a713b7"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:tests/account-captcha-web/e2e/system-outbound-policy.spec.ts": {
+      "bytes": 52618,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "3d1b5af651ea2f94ec5054d9d2da43807efa5badbed3420252a4b2b5de739ed4"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:tests/account-captcha-web/e2e/system-providers.spec.ts": {
+      "bytes": 48088,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-providers.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "529491cb0e82b11c48ab95e5bd57481f1f713f26f94186068bc19fd3d183174f"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": {
+      "bytes": 56554,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "766b1f413a40ae340ee0631b32e8cc1d2b72371d4eda9c96d4aa9de0f6f66d81"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:tests/account-captcha-web/e2e/system-smtp-settings.spec.ts": {
+      "bytes": 53735,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "79e2a4839573e30978d64969cc7764720470d6c73be07be6161a533d29b6cc5e"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:tests/account-captcha-web/e2e/system-user-directory.spec.ts": {
+      "bytes": 25872,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-user-directory.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "51112073eeb83318ea6f4a6312c56306489997f55fdcea09a280f4c501ec8034"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/App.vue": {
+      "bytes": 9412,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/App.vue",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "4f7068223c59aa7e819dd5cfef6599fb590f663633edd2e821d29d1a1bc1b24b"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/api/client.ts": {
+      "bytes": 26441,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/api/client.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "4ae4b1db480e26adee962c2b301fdbf37ea3b31883cee223f6ed3e8b691659ae"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/api/system-account.ts": {
+      "bytes": 2972,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/api/system-account.ts",
+      "roles": [
+        "review/inputs02.json"
+      ],
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/api/system-providers.ts": {
+      "bytes": 22624,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/api/system-providers.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/composables/useSession.ts": {
+      "bytes": 138337,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/composables/useSession.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "573268bdb7d3ea5524858c53b901cac8d095591ad46e4855cbe7e6d50330011c"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/composables/useSystemOutboundPolicy.ts": {
+      "bytes": 20660,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/composables/useSystemOutboundPolicy.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "0bf2dfeb89e25babb8d1201880228006b468f597ac431f6783c5a043e11451a0"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/composables/useSystemSMTPDelivery.ts": {
+      "bytes": 27517,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/composables/useSystemSMTPDelivery.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "cdeec662a025f429c13f6c840c895e699010982bf19f635e880f75a6c00468bf"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/composables/useSystemUserDirectory.ts": {
+      "bytes": 5297,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/composables/useSystemUserDirectory.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "3058a34b16bdc2d1018297daa556606806d7d2bf241d313dbcfa33b2f54a0894"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/router/auth.ts": {
+      "bytes": 8733,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/router/auth.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "746ed414cdda79b51452481a29eb767064f5d099976c9019ab214d61eb2dabfe"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/router/index.ts": {
+      "bytes": 3659,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/router/index.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "fbce81eb4ac55311f3911307b6c69eadf7f86b0e54fc0b14ea50378b23b1ff7b"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/tests/personal-settings.spec.ts": {
+      "bytes": 23333,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "6b4ca8f4a56a9201a077405faafa67cd55d509719d320d3b6b5df87052a714c2"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/tests/settings-shell.spec.ts": {
+      "bytes": 8251,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/settings-shell.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "a0e579eb72cbb54e2460eb60572d9ac2bcd1ec82a0f19c1f6dd1c80b677986a3"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/tests/system-account-security.spec.ts": {
+      "bytes": 18290,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-account-security.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "6349a7e69d4c432e018d39232cffef4d2b8a41319eaedf3b5be8d31085e9d0a3"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/tests/system-invitations.spec.ts": {
+      "bytes": 29140,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-invitations.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "5133509583cb0e940bdd0dcadc76468a7e8c3cbfe27d3e77cf3cd2acc123db73"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/tests/system-model-selection.spec.ts": {
+      "bytes": 32160,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-model-selection.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "dbea8573bd0c345b008e424e797c78d2c825afd80cb7ca2421fec1c2eb122319"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/tests/system-models.spec.ts": {
+      "bytes": 35553,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-models.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "9f7378d085e0da1eeaced1532c5ca17c2546957908016a4c910e4c8c8e9b7101"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/tests/system-outbound-policy.spec.ts": {
+      "bytes": 32375,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-outbound-policy.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "e08604080860e631cc81e89f53f655d853f08519b4be59510f47dc9596c399f0"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/tests/system-providers.spec.ts": {
+      "bytes": 23552,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-providers.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "fd6dcf723dce46a246b156dec6e0e2827a5ae2c617d6baf338dc7583f9b464b6"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/tests/system-smtp-delivery.spec.ts": {
+      "bytes": 39735,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-smtp-delivery.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "b77f8e4575807e8dad38b6677b5bf3dc74c0d49b7cea5acefb96454b64fb12cf"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/tests/system-smtp-settings.spec.ts": {
+      "bytes": 26162,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-smtp-settings.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "64c56ef216b2cb76c369330dfd1c218e6502804537acb638fe6f349ca29dc66d"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/tests/system-user-directory.spec.ts": {
+      "bytes": 17208,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "1c817cf7ff2d50e5aec6ba9ee85b6b4659de959f0c3fcb63c9c301af827a53c4"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/views/system/SystemSettingsView.vue": {
+      "bytes": 2173,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/views/system/SystemSettingsView.vue",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "53263efde51909ce3848692f23b7fc45c4fc96bc684fc0fe8f24e46afbdcc818"
+    },
+    "1ff044264a54c948e512db9aafad24ec5e0aa3c2:web/src/views/system/SystemUsersView.vue": {
+      "bytes": 5639,
+      "commit": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/views/system/SystemUsersView.vue",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "b30819ae5b8592a894188f4431427b171b8017c21adf63aec6d93138b8a71865"
+    },
+    "24da141652bbc4c183cd827e767dbdaf2f2f4051:docs/development/work-items/d04-system-audit-management-http.md": {
+      "bytes": 33147,
+      "commit": "24da141652bbc4c183cd827e767dbdaf2f2f4051",
+      "path": "docs/development/work-items/d04-system-audit-management-http.md",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "5fdc1dde616c89840fa583213377e078c636284b79be57e4234095031ac777f0"
+    },
+    "94eda044b06104f740a98367e05eab096c374caa:docs/development/agent-team/system-audit-management-http-verification-evidence/objects/0075fadaef56a16c5ff23e873909bbc533fffa61e70ce8cee2ce2d6eabbd77f0": {
+      "bytes": 2901,
+      "commit": "94eda044b06104f740a98367e05eab096c374caa",
+      "path": "docs/development/agent-team/system-audit-management-http-verification-evidence/objects/0075fadaef56a16c5ff23e873909bbc533fffa61e70ce8cee2ce2d6eabbd77f0",
+      "roles": [
+        "accepted-http-original"
+      ],
+      "sha256": "0075fadaef56a16c5ff23e873909bbc533fffa61e70ce8cee2ce2d6eabbd77f0"
+    },
+    "94eda044b06104f740a98367e05eab096c374caa:docs/development/agent-team/system-audit-management-http-verification-evidence/objects/53cd3d02b63f4c49d8809d18cb62f421b47649507db671c1869ffe163afc788e": {
+      "bytes": 3059,
+      "commit": "94eda044b06104f740a98367e05eab096c374caa",
+      "path": "docs/development/agent-team/system-audit-management-http-verification-evidence/objects/53cd3d02b63f4c49d8809d18cb62f421b47649507db671c1869ffe163afc788e",
+      "roles": [
+        "accepted-http-original"
+      ],
+      "sha256": "53cd3d02b63f4c49d8809d18cb62f421b47649507db671c1869ffe163afc788e"
+    },
+    "94eda044b06104f740a98367e05eab096c374caa:docs/development/agent-team/system-audit-management-http-verification-evidence/objects/84e5adf7ed621f3cbf90bc829ec7f11d2760a438a21cac6e9689d4fdef1788e7": {
+      "bytes": 4984,
+      "commit": "94eda044b06104f740a98367e05eab096c374caa",
+      "path": "docs/development/agent-team/system-audit-management-http-verification-evidence/objects/84e5adf7ed621f3cbf90bc829ec7f11d2760a438a21cac6e9689d4fdef1788e7",
+      "roles": [
+        "accepted-http-original"
+      ],
+      "sha256": "84e5adf7ed621f3cbf90bc829ec7f11d2760a438a21cac6e9689d4fdef1788e7"
+    },
+    "94eda044b06104f740a98367e05eab096c374caa:docs/development/agent-team/system-audit-management-http-verification-evidence/objects/c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b": {
+      "bytes": 77416,
+      "commit": "94eda044b06104f740a98367e05eab096c374caa",
+      "path": "docs/development/agent-team/system-audit-management-http-verification-evidence/objects/c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b",
+      "roles": [
+        "accepted-http-original"
+      ],
+      "sha256": "c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b"
+    },
+    "a7a29c34acbe392d9a1375967309123b9a74ec16:docs/development/work-items/d27-system-audit-ui.md": {
+      "bytes": 35331,
+      "commit": "a7a29c34acbe392d9a1375967309123b9a74ec16",
+      "path": "docs/development/work-items/d27-system-audit-ui.md",
+      "roles": [
+        "formal-specification"
+      ],
+      "sha256": "a22e10e8ba0531b043afdf5aae214a66dcda58a37088ae220c2654ee1077cac1"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:api/openapi/audit.json": {
+      "bytes": 166333,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "api/openapi/audit.json",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json",
+        "plan/five-http-rebinding"
+      ],
+      "sha256": "168fc76cf7e0e8f89923e0312dee847ff48dd3de2f37f3f764689ef874300ee9"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/contract/access.go": {
+      "bytes": 4407,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/contract/access.go",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "775a838c03690fef4b709c37975fd23ccfc24e506569d4c3e8684ac32f8abfd1"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/contract/account.go": {
+      "bytes": 14907,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/contract/account.go",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "ef2b5bc2cca4435161d9b2f543c62b868324e54813581da894bfbfb70e42bfed"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/contract/knowledge.go": {
+      "bytes": 3446,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/contract/knowledge.go",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "270e1943c9539dda9dc2ae9bb1013a0a48bf2309578b2da8d36c1a432a4d8372"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/contract/metadata.go": {
+      "bytes": 21891,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/contract/metadata.go",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "bdffe42f77fa2525dbbc03a3d3749af7b7665cb6cf2f995d62b82863a2080646"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/contract/model.go": {
+      "bytes": 7724,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/contract/model.go",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/contract/project.go": {
+      "bytes": 9172,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/contract/project.go",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "526e8c86d72f45b2584572c159586b59a360e1029269b4304d68ffa55f26083b"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/contract/types.go": {
+      "bytes": 15562,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/contract/types.go",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/http/handler.go": {
+      "bytes": 6633,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/http/handler.go",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json",
+        "plan/five-http-rebinding"
+      ],
+      "sha256": "b13e6a0885c155ff4eff737790be0fb4f06191abb0d0409701f510cd6441a039"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/http/wire.go": {
+      "bytes": 11980,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/http/wire.go",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json",
+        "plan/five-http-rebinding"
+      ],
+      "sha256": "4a42524d07301277350ed57d0a15901e2dfa6a541e16e14bbd145563adb593b4"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/query.go": {
+      "bytes": 11976,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/query.go",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json",
+        "plan/five-http-rebinding"
+      ],
+      "sha256": "3713a95d285b19300e0038cb6243f9932754bb22a030afb820012b8f9e8968f3"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/system_query.go": {
+      "bytes": 4269,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/system_query.go",
+      "roles": [
+        "plan/five-http-rebinding"
+      ],
+      "sha256": "b84646b38e6810d02e3c6b259c1ee1e88b26aa79af406ebb5c504b58abd2014f"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/foundation/instant.go": {
+      "bytes": 1751,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/foundation/instant.go",
+      "roles": [
+        "review/inputs01.json",
+        "review/inputs02.json"
+      ],
+      "sha256": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47"
+    },
+    "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/identity/contract/identity.go": {
+      "bytes": 8639,
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/identity/contract/identity.go",
+      "roles": [
+        "review/inputs02.json"
+      ],
+      "sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0"
+    },
+    "fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5:api/openapi/audit.json": {
+      "bytes": 167368,
+      "commit": "fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5",
+      "path": "api/openapi/audit.json",
+      "roles": [
+        "separately-accepted-mime-correction"
+      ],
+      "sha256": "3490bb6367dfaa5bf98ed6547f49adb2af16200abd2e1e84a4503ccb20c3b7ef"
+    },
+    "fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5:internal/central/audit/http/handler_test.go": {
+      "bytes": 50702,
+      "commit": "fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5",
+      "path": "internal/central/audit/http/handler_test.go",
+      "roles": [
+        "separately-accepted-mime-correction"
+      ],
+      "sha256": "0844862bbaa0ac8f7f90dbd574e73534333c3d31b1bba10e2d3dd22cff5c0764"
+    }
+  },
+  "historical_limits": [
+    "Two read-only git show exit128 preparation errors are described in the original review only; no separate command/raw/actualwait artifacts were saved here.",
+    "46 static inputs and five plan rebinding paths are not execution closures.",
+    "Original static/plan used pre-MIME b124650 inputs; the later fa2d775 correction does not rewrite those historical bytes.",
+    "A-stage facts come from root handoff; no active independent API source/probe/raw is consumed.",
+    "No product/probe/Go/Node/browser/PG/listener execution by this archive or by the frozen specification review/plan."
+  ],
+  "objects": {
+    "096b18e3e50d1612d3ce03e92073164eff60db35b3732f785297f52aa421b010": {
+      "bytes": 33896,
+      "path": "objects/096b18e3e50d1612d3ce03e92073164eff60db35b3732f785297f52aa421b010"
+    },
+    "512cdd1a1a7036c705fea70d7a5a4547b5b19daa5a70fbca4580fc68c0e73d1b": {
+      "bytes": 17973,
+      "path": "objects/512cdd1a1a7036c705fea70d7a5a4547b5b19daa5a70fbca4580fc68c0e73d1b"
+    },
+    "5dd7ebd7d0d1d7f14d7f0ccc9982d5cc1c2f26b4bc2208664d7cf43db6201589": {
+      "bytes": 2938,
+      "path": "objects/5dd7ebd7d0d1d7f14d7f0ccc9982d5cc1c2f26b4bc2208664d7cf43db6201589"
+    },
+    "6020672b841df73ad0bb4cc8f954d6e35b4e20ccfa74f23beecb8c0fd6e97325": {
+      "bytes": 7949,
+      "path": "objects/6020672b841df73ad0bb4cc8f954d6e35b4e20ccfa74f23beecb8c0fd6e97325"
+    },
+    "64df1330dcd83100b80e0c4d282a99a534cfc494b8a6ed1bcb5ffeaefad855cc": {
+      "bytes": 739,
+      "path": "objects/64df1330dcd83100b80e0c4d282a99a534cfc494b8a6ed1bcb5ffeaefad855cc"
+    },
+    "97eed09fa80f4608d1b04067df05b8b921d27f2bc24542c41d424f0e65f096ac": {
+      "bytes": 3532,
+      "path": "objects/97eed09fa80f4608d1b04067df05b8b921d27f2bc24542c41d424f0e65f096ac"
+    },
+    "aeb3a5264f1e70b2cda3157720478fbbd693e1fd290ed13e3e54d01802105ba9": {
+      "bytes": 1944,
+      "path": "objects/aeb3a5264f1e70b2cda3157720478fbbd693e1fd290ed13e3e54d01802105ba9"
+    },
+    "d46a9f13b8703e22417e9ead3faeeb135e0ad7f0d16177b9b2e22083118f560f": {
+      "bytes": 18832,
+      "path": "objects/d46a9f13b8703e22417e9ead3faeeb135e0ad7f0d16177b9b2e22083118f560f"
+    },
+    "dc4afce5faf17d4dc458c516c41170b52dd8b1c7a039a3315ccf1184dea769ba": {
+      "bytes": 5048,
+      "path": "objects/dc4afce5faf17d4dc458c516c41170b52dd8b1c7a039a3315ccf1184dea769ba"
+    },
+    "e208ae80b2de8ce1e25c41cf81947127acd47e45a82356cec7a4727ed6edf708": {
+      "bytes": 7196,
+      "path": "objects/e208ae80b2de8ce1e25c41cf81947127acd47e45a82356cec7a4727ed6edf708"
+    }
+  },
+  "original_http_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "origins": {
+    "author": "/workspace/scratch/agenteam-system-audit-ui-spec-on4ORhe8",
+    "plan": "/workspace/scratch/agenteam-audit-ui-independent-plan-gf1bc662",
+    "review": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h"
+  },
+  "report": "docs/development/agent-team/system-audit-ui-spec-verification.md",
+  "reused_http_artifacts": {
+    "author/input03/manifest.json": "94eda044b06104f740a98367e05eab096c374caa:docs/development/agent-team/system-audit-management-http-verification-evidence/objects/c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b",
+    "http-independent/verification-report.md": "94eda044b06104f740a98367e05eab096c374caa:docs/development/agent-team/system-audit-management-http-verification-evidence/objects/53cd3d02b63f4c49d8809d18cb62f421b47649507db671c1869ffe163afc788e",
+    "query-independent/verification-report.md": "94eda044b06104f740a98367e05eab096c374caa:docs/development/agent-team/system-audit-management-http-verification-evidence/objects/84e5adf7ed621f3cbf90bc829ec7f11d2760a438a21cac6e9689d4fdef1788e7",
+    "real-independent/verification-report.md": "94eda044b06104f740a98367e05eab096c374caa:docs/development/agent-team/system-audit-management-http-verification-evidence/objects/0075fadaef56a16c5ff23e873909bbc533fffa61e70ce8cee2ce2d6eabbd77f0"
+  },
+  "root_confirmed_current_stage": {
+    "author_api_five_sources": "frozen; 180 tests/type/format PASS; MIME bound to fa2d775",
+    "independent_api": "offline verification actually started; no final result received",
+    "owner_stage": "not started",
+    "resources": "none",
+    "source": "root task handoff; administrative statement, not newly collected API evidence",
+    "ui_product_accepted": false
+  },
+  "schema": 1,
+  "scope": "accepted specification and frozen plan; no UI product acceptance",
+  "subsequent_mime_fix_git": "fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5",
+  "technical_sha256": "e7c96b588eed6218030ef6ce42154c7967667ff156bd8c343d0cdd14cf2bd8d5"
+}

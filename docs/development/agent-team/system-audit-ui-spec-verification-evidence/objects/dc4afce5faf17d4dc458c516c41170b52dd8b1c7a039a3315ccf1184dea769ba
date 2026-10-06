@@ -1,0 +1,17 @@
+# System Audit UI rev1 独立规格静审
+
+结论：**STATIC PASS；没有阻断项。** 36 条候选可在限定路径内实现。此结论只接受规格的契约、接缝和验证设计；没有执行产品测试，也不授权实现或资源。Audit HTTP 实施基线仍须主线程完成接受提交后精确绑定。
+
+固定输入为私稿 `/workspace/scratch/agenteam-system-audit-ui-spec-on4ORhe8/d27-system-audit-ui.md`，全文 `096b18e3e50d1612d3ce03e92073164eff60db35b3732f785297f52aa421b010`，技术 §1–7 `e7c96b588eed6218030ef6ce42154c7967667ff156bd8c343d0cdd14cf2bd8d5`。前端只读 Git `1ff044264a54c948e512db9aafad24ec5e0aa3c2`；后端只读已独验 Q/input03，manifest `c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b`，并对照固定 24da141 的 Audit HTTP 技术卡。`inputs02.json` 逐项列明 46 份有限输入（32 前端、13 后端、1 技术卡），不是运行或全树闭包。
+
+- **过滤与分页一致。** 固定 `contract/access.go`、`foundation/instant.go`、`http/wire.go:63` 和 OpenAPI 恰 14 filters，加独立 limit/cursor。53 action、25 resource、3 actor、4 outcome 输入集合不能裁成 System 输出集；service+actor_id 是原组合限制。空值省略、UUID/枚举不 trim、UTC 六微秒/年界、规范 limit、opaque cursor 一次编码和 32KiB 均有明确规则。满页 cursor、唯一 ID/严格倒序、坏末项全页失败、显式 CURSOR_INVALID 首页恢复与 detail 404 不探测 scope 可实现。
+- **typed 输出与预算闭合。** OpenAPI 恰两 GET，37 action、13 ServiceName、17 resource、5 associations 和十个 required 外层字段均已核对。37 分支按正式 Metadata/Account/Model 构造器、Actor/资源/结果/关联等式解析，MIME 依 `metadata.go:226` 的 Parse/Format 与两种 charset 闭包，不能另加“看似合理”的 MIME 限制。`parseSystemInstant` 已公开且支持年 0000，可直接复用。两成功口独立 1048576B；Problem/其他普通口 600000B、Provider 列表 2MiB 不变。975420B 只是正式保守编码上界；实际流/EOF/cancel 与 1MiB 合成空白边界另验，不预称 producer 极值实测。
+- **第十一参数与 owner 可接。** 固定 `useSession.ts:407` 前十参数不动；新 kind/revision 必须显式加入 `runAuthorized:1154`，避免现末端 Provider fallback。新读与原十依赖双向排他、各域 abandon 分域、clearIdentity/current FORBIDDEN 全域清理及旧 owner 实际 finally 保持。安全配对沿 `systemFailure:1424` 的身份/代次；新 GET 不继承写口 CSRF 分类，也不从 COMMIT_UNKNOWN/retry_hint 制造 intent/lookup。30s 可见拒绝与实际 owner 释放分列清楚。
+- **页期和路由接缝充分。** 新页不持写确认或 App 期材料，故无需改 App/SMTP coordinator。局部 onBeforeRouteLeave 先退休读再允许原全局守卫；`router/auth.ts:65–126` 仍处理 Session，现 `run` 在异类 owner 存在时不会另发 Cookie 请求。未实际卸载时留订阅和显式刷新资格、最终 unmount 再 dispose，能避免同实例永久 inactive/自动续读。身份/实例守卫后的本地 refs 焦点要求与取消后零自动 GET 均已指定；原生 focus 必须留待真实浏览器。
+- **36 路径与最小旧回归完整。** 新九叶/四组/第十三精确 return 不需额外旧页面或 shared Ui 写权。已逐点核八旧纯菜单、七分组、一个 return 集合；八旧 browser 恰十四个 link8 与四个 group3 断言。平台组在旧测试按名称定位，未发现因插入新组必须改其他行为断言。新三真实顶层覆盖读取/权限尾部/导航布局，旧 Outbound 与 SMTP Delivery 两导航组代表共享 pending/协调器；其他六 browser 仅数量差量的复用不得写成本轮执行。
+
+一个非阻塞验收前提：固定 `App.vue:117–126` 的生产 pageshow/visibility listener 在 `state.busy` 时直接返回。不能在旧 Audit 请求实际 tail 仍忙时强造该 listener 已进入 checking。应先以空闲 owner 证明生产 pageshow→Session503→新页默认一次；另以受控 owner/新实例或合法导航场景证明等待旧 tail、销毁后零续发。卡已分别要求这两类证明，按此实施即可，无需扩 App 路径或放宽守卫。
+
+页首“HTTP 独立最终验收仍未满足”应在正式接受页首按真实状态更新：根已接受 Q/input03 的独立 13 源结果，但本次规格审查不替代其接受提交。技术契约不需因此改写。
+
+本轮只读固定文件、Git show 和私有文本/schema/hash 检查；46 份源指纹末次一致。`static-checks01.json` 保存集合、36 路径及计数定位，原 `draft01.md`/`inputs01.json` 保留。准备阶段两次 Git show 猜错不存在文件名得到 exit128，随后按正式路径纠正；未测试产品或改动来源。未运行 Go/Node 产品测试、browser、HTTP、PG、Docker、监听器；未写主树/产品/卡、未修改 Git，未委派或触及停止任务。所有本审查报告现冻结。

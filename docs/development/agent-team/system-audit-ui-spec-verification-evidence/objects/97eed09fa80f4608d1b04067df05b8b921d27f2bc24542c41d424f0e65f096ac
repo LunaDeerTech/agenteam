@@ -1,0 +1,19 @@
+--- private-rev1/d27-system-audit-ui.md
++++ formal-rev1/d27-system-audit-ui.md
+@@ -1,8 +1,14 @@
+ # D27：System Audit 只读页面
+ 
+-修订：rev1 私有候选，供独立 STATIC 审查；尚未正式采纳、未授权产品实施或任何动态资源。拟归位 `docs/development/work-items/d27-system-audit-ui.md`。前端与既有正式领域契约固定已接受产品 `1ff044264a54c948e512db9aafad24ec5e0aa3c2`；System Audit HTTP 只消费已采纳规格技术§1–7 SHA `687c85d4a41880828d038251bf6321accc48092aa043a10addb1606ab02c6f21`，其产品独立最终验收及接受提交仍是未满足前置。作者实测齐备、独立验收准备不等于产品接受。本稿未读后端活动实现，不以主树后续纯文档提交改变产品基线。
++修订：rev1。状态：已获独立有界 STATIC PASS，主线程已采纳规格；这里只接受规格，不代表本页面已实施或验收。被审稿全文 SHA `096b18e3e50d1612d3ce03e92073164eff60db35b3732f785297f52aa421b010`，技术§1–7 SHA `e7c96b588eed6218030ef6ce42154c7967667ff156bd8c343d0cdd14cf2bd8d5` 原字节保持。
+ 
+-当前仅 architecture_worker 拥有本私有单稿写权。§6 的36路径均为候选；须待上游完整接受、实际接缝复核、独立静审和主线程指定唯一 frontend_worker 后另授。无 App/共享 Ui/后端/迁移/锁文件写权，无测试、构建、监听器、浏览器或重型资源授权。
++当前已验输入为前端 `1ff044264a54c948e512db9aafad24ec5e0aa3c2` 与 System Audit HTTP 产品 `b124650aee095b26191bc181dc8cf5d6e0f977f5`；后者十四路径已由主线程接受、提交推送并核远端一致。本次静态核对 `api/openapi/audit.json`、`audit/query.go`、`audit/system_query.go`、`audit/http/handler.go`、`audit/http/wire.go`，均与独审 `Q/input03` manifest SHA `c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b` 中的原文件 SHA 相同；未新增动态检查。上游产品前置现已满足，正文保留被审时的待验表述，当前依赖状态以此页首为准；正式字段/预算/查询和权限契约不变。
++
++独立冻结报告 `/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/review.md`，SHA `dc4afce5faf17d4dc458c516c41170b52dd8b1c7a039a3315ccf1184dea769ba`；同根 `review.json` SHA `aeb3a5264f1e70b2cda3157720478fbbd693e1fd290ed13e3e54d01802105ba9`。结论覆盖固定规格与有限源接缝，不是页面运行证据。
++
++验收前提依该报告明确分开：固定 `App.refreshVisible` 在 busy 时直接返回；生产 pageshow→Session503→同身份恢复/新页默认一次读取，应从空闲 owner 开始证明。新 controller 等待旧 owner 实际 tail 后仅一次初始读、等待中销毁零续发，另用受控 owner/新实例或合法导航组合证明；不得强造 busy 中的生产 listener 已进入 checking，也不改 App 或放宽守卫。这是原§4/§7两个场景的执行前提，不改变技术条款。
++
++§6 三十六候选及所有权保持。唯一 frontend_worker 的三十五源实施授权准备由主线程在本卡提交后另授；第19 `docs/development/frontend/README.md` 必须待其余产品独立完整接受后最后授权。当前不自启产品实施，任何动态资源窗口仍未授权；App、shared Ui、后端、迁移、锁文件及停止任务均无写权。原被审私稿保留在 `/workspace/scratch/agenteam-system-audit-ui-spec-on4ORhe8/d27-system-audit-ui.md`，无字节修改。
+ 
+ ## 1. 完整结果、依据与依赖门槛
+ 

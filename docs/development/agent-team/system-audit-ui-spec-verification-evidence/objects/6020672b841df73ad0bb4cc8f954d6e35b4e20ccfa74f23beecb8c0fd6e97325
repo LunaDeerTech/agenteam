@@ -1,0 +1,41 @@
+# System Audit UI 独立验证计划 plan01
+
+状态：仅计划冻结，无产品验证或资源启动。正式卡 Git `a7a29c34acbe392d9a1375967309123b9a74ec16`，技术 `e7c96b588eed6218030ef6ce42154c7967667ff156bd8c343d0cdd14cf2bd8d5`；固定前端 `1ff044264a54c948e512db9aafad24ec5e0aa3c2`，已接受后端 `b124650aee095b26191bc181dc8cf5d6e0f977f5`。35 实施源与最后 README 分开，原卡36路径不扩大。仅主线程转交的停止写入阶段可消费；每阶段实际运行须另授，不等全包才接验。
+
+依据复用已有 STATIC 46 份有限输入及其闭集检查，不复制源码树。`inputs01.json` 引用正式卡、旧静审、Audit Query/HTTP controlled 及最终真实报告；仅将五个关键 HTTP 文件对照 b124650，全部与 Q/input03 字节一致。既有后端同 Tx/当前授权/实际终局和 root 装配无需因新增 UI 重跑；若阶段差量改变依赖，再按影响补核。以下均是待验证事项，不能记作 PASS。
+
+## A：API、Go 对照及原生 Response stream
+
+先静核 frozen client/API/metadata 与实际调用签名：两固定 GET、14 filter+limit/cursor、37 输出与输入53/25枚举分离、禁止额外字段/请求材料、1MiB只授两成功口。核作者正式 Go 向量来源及完整37分支，不复制其全部矩阵；独立仅两个风险组合。
+
+1. **规范化与完整投影。** 用固定 Go ParseInstant/Filter 与正式 typed constructors 的有界 oracle 对照时间偏移/微秒/年界、service+actor_id，以及 selected Secret/Account/Model/Object/Outbox 条件代表；特别关注可省略字段、int64、合法 MIME 的 Go Parse/Format、System actor 与 Object initiator 不混用。枚举全集作静态/数据集合相等检查。跨页捕获后修改原输入不得变实际 query；opaque cursor 编码一次、请求 limit 与页长一致、坏末项/排序重复/错误 detail ID 全页零发布。32KiB、8192B 属契约边界，不为达到边界编造合法巨大 Filter。
+2. **实际字节与尾部。** 原生 JS Response/ReadableStream 将合法结果扣在 EOF 前，验证零解析候选；JSON 外空白构造恰1MiB/超界和代表非法UTF8/截断。分别扣住 reader.cancel 与错误媒体 body.cancel 的实际 Promise，释放后核 finally/releaseLock 才结束。Problem600000与Provider2MiB分类作必要差量反例或按源码不变复用。此为离线 transport 证据，既非原生 HTTP/TCP，也非正式 producer 极值页。
+
+## B：第十一只读 owner 与实际取消
+
+只审冻结 useSession/测试及其未变 API。若页期 controller 尚未冻结，其 initial/cancel 组合延至 C，不能读活动源凑齐。
+
+1. **唯一 owner 与分域退休。** 生产 factory+受控 fetch/read/cancel 屏障，Audit 可见取消/虚拟30s后仍 busy，零第二请求/零候选；实际 tail 释放才解锁。独立组合优先 personal、SMTP 私有材料与 Outbound/Delivery 未确认意图的双向占用及 abandon 不越域；作者其余十依赖参数化覆盖逐 SHA/源码复用，不另复制全矩阵。失败也在 finally 释放私有屏障并 join，不能靠进程退出声称 tail 完成。
+2. **安全失败与只读 Unknown。** 当前合法401、当前403/FORBIDDEN及旧身份迟到代表；code/status 错配、GET上的CSRF_FAILED、500/503/COMMIT_UNKNOWN/retry_hint=lookup只形成读错误，零 key/intent/lookup。保留完整身份/代次门禁和旧写域材料，实际旧响应结束不影响新身份。虚拟30s与实际 wall time 分列，不增加任意 flush:sync 主动重入要求。
+
+## C：真实 App/router 的两公开操作组合
+
+消费冻结 controller/View/Filters/router/App固定依赖，生产 factory配受控 transport，非 stub 页面，也不外推 jsdom 原生焦点。
+
+1. **applied/详情/离页。** 公开表单应用与小页翻页，未应用 draft 不发请求；inline detail 独立 GET、返回零列表补读且URL不变。读取中公开取消或离页：同步退休/loading→error、tail保持 owner，同实例不自动重读。用合法后续导航取消守卫证明离开准备与最终 dispose 分离、留页显式刷新可恢复；正常离页无确认/业务写，旧SMTP协调器与新页请求不得被旧 tail 越过。另以新 controller 等待屏障证明尾部释放后一次默认初始读、等待中销毁/换身份零续发。
+2. **checking 新实例。** 从空闲 owner 经生产 pageshow listener，精确一次Session503后只显App恢复UI；显式同身份恢复须新序号 Session200/EOF，再挂新页默认空filter/limit50恰一次，旧draft/cursor/detail清空。不同身份与迟到旧响应零发布，正常 clean/logout 及九叶四组十三精确 return 按真实入口核。busy 时 pageshow本就返回，不能用它强造 checking；与上一组合等待旧tail分场景证明。所有标题/控件沿冻结 View 可访问名，错误媒体不硬要求不存在的EOF。
+
+## 最终真实：最多两个独立代表
+
+具体 selector、正式 seed/IPC、proxy控制和精确资源清单等作者 harness 冻结后再绑定，当前不猜接口或写实现探针。只用两个私有 top/browser mode；作者三新、两旧及八图按未变源复用，不机械重跑。
+
+- **A — ReadFilterPagingProjection。** 同一正式 root 的 Account Profile 与 Outbound 命令产生自有可定位事实；Audit UI 小 limit 翻页/前页重读、代表组合过滤与合法空、详情原 target/full typed DTO比对及显式首页。核每次新 seq/目标/完整 EOF，不能以旧 ready 满足新读取。页面操作零 mutation/关联补读；只读 SQL 可旁证自有记录，不能 INSERT Audit/改角色/直接 Append 或启动 Object/Tools producer。14控件全覆盖与37向量主体可复用作者离线/真实证据，独立选跨页和条件投影风险。
+- **B — CancelAuthorityAndFreshInstance。** 正式服务返回后精确本域响应 hold/cut，公开详情取消/返回或离页，核候选清除、显式重读、旧实例迟到隔离和真实本地 focus/Tab。再从空闲 owner证明 pageshow503→同Session新页默认一次，选一个正式 Logout撤销后的当前权限代表；普通账号403等作者已闭合代表按差量复用。跨页进入 SMTP 配置只观察原合法配置读，不引投递/发送。浏览器实际 read/cancel 与 proxy/server实际 join分别记录，不能把 server结束冒作JS owner结束，也不能从受控 writer声称TCP取消前零字节。若作者fixture无法提供既定正式接缝，先报主线程，不新增生产钩子或扩大协议。
+
+真实观察只沿已验同一原 fetch/Response/reader，不 clone/tee/重发；水位绑定完整路径族和目标。内部可比对已授权 DTO，输出只 safe case/布尔/计数/本次 request_id，不记录 DTO、filter/cursor、业务ID、Cookie/CSRF、旧域body或其数据hash。关闭 trace/video/自动失败截图；布局沿作者固定八图证据，不新增无目的截图矩阵。
+
+## 执行与结论规则
+
+阶段只按授权做必要私有 probe/Go oracle、type/精确发现和变更检查；精确固定源/依赖/锁/工具/argv在前后绑定，使用 subreaper 监督与实际 wait、PID/starttime 双扫。真实资源另授唯一窗口，先检查空间与资源基线；原每browser45s、每真实top2m、包-race/count1/6m、worker1/retry0不加时。监听器、PG/MinIO/Chromium、proxy/reader/worker尾部与 exact IDs 均实际结束再交窗。
+
+首红保留源/raw/actual exit，先区分产品与探针协议/观察前提，未经主线程授权不修产品、不自动重跑或放宽。只按逐SHA/行为影响复用旧证据，明确 controlled/JS stream/native HTTP/browser/正式后台层次。最终交精确35源及最后文档接缝、两代表到达事实/未到边界；不把规划、STATIC、作者PASS或累计分轮改写为独立单轮全绿。本计划不涉及任何停止任务、主树/Git修改或委派。

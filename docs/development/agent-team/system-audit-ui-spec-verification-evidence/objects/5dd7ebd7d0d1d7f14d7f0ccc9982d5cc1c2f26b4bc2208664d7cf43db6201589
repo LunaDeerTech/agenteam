@@ -1,0 +1,67 @@
+{
+  "status": "PLAN ONLY; no product execution or resources authorized",
+  "formal_card": {
+    "git": "a7a29c34acbe392d9a1375967309123b9a74ec16",
+    "path": "docs/development/work-items/d27-system-audit-ui.md",
+    "snapshot": "/workspace/scratch/agenteam-audit-ui-independent-plan-gf1bc662/accepted-card.md",
+    "sha256": "a22e10e8ba0531b043afdf5aae214a66dcda58a37088ae220c2654ee1077cac1",
+    "technical_sha256": "e7c96b588eed6218030ef6ce42154c7967667ff156bd8c343d0cdd14cf2bd8d5"
+  },
+  "accepted_frontend_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+  "accepted_http_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "references": {
+    "static_review": {
+      "path": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/review.md",
+      "sha256": "dc4afce5faf17d4dc458c516c41170b52dd8b1c7a039a3315ccf1184dea769ba"
+    },
+    "bounded_46_sources": {
+      "path": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/inputs02.json",
+      "sha256": "d46a9f13b8703e22417e9ead3faeeb135e0ad7f0d16177b9b2e22083118f560f"
+    },
+    "static_contract_checks": {
+      "path": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/static-checks01.json",
+      "sha256": "e208ae80b2de8ce1e25c41cf81947127acd47e45a82356cec7a4727ed6edf708"
+    },
+    "accepted_http_independent": {
+      "path": "/workspace/scratch/agenteam-audit-real-independent-rhp6mhhg/verification-report.md",
+      "sha256": "0075fadaef56a16c5ff23e873909bbc533fffa61e70ce8cee2ce2d6eabbd77f0"
+    },
+    "query_controlled": {
+      "path": "/workspace/scratch/agenteam-audit-query-independent-ez9hi1u8/verification-report.md",
+      "sha256": "84e5adf7ed621f3cbf90bc829ec7f11d2760a438a21cac6e9689d4fdef1788e7"
+    },
+    "http_controlled": {
+      "path": "/workspace/scratch/agenteam-audit-http-independent-emx29a7f/verification-report.md",
+      "sha256": "53cd3d02b63f4c49d8809d18cb62f421b47649507db671c1869ffe163afc788e"
+    }
+  },
+  "source_snapshots_recopied": false,
+  "execution_closure": false,
+  "accepted_http_rebinding": [
+    {
+      "path": "api/openapi/audit.json",
+      "sha256": "168fc76cf7e0e8f89923e0312dee847ff48dd3de2f37f3f764689ef874300ee9",
+      "equal_Q_input03": true
+    },
+    {
+      "path": "internal/central/audit/query.go",
+      "sha256": "3713a95d285b19300e0038cb6243f9932754bb22a030afb820012b8f9e8968f3",
+      "equal_Q_input03": true
+    },
+    {
+      "path": "internal/central/audit/system_query.go",
+      "sha256": "b84646b38e6810d02e3c6b259c1ee1e88b26aa79af406ebb5c504b58abd2014f",
+      "equal_Q_input03": true
+    },
+    {
+      "path": "internal/central/audit/http/handler.go",
+      "sha256": "b13e6a0885c155ff4eff737790be0fb4f06191abb0d0409701f510cd6441a039",
+      "equal_Q_input03": true
+    },
+    {
+      "path": "internal/central/audit/http/wire.go",
+      "sha256": "4a42524d07301277350ed57d0a15901e2dfa6a541e16e14bbd145563adb593b4",
+      "equal_Q_input03": true
+    }
+  ]
+}

@@ -1,14 +1,9 @@
 # D27：System Audit 只读页面
 
-修订：rev1。状态：规格已获独立有界STATIC PASS，由主线程采纳、提交推送`a7a29c34acbe392d9a1375967309123b9a74ec16`并核远端一致；[永久规格记录](../agent-team/system-audit-ui-spec-verification.md)保存受审输入、计划与当前阶段边界。这里只接受规格，UI产品尚未验收。被审稿全文SHA `096b18e3e50d1612d3ce03e92073164eff60db35b3732f785297f52aa421b010`，技术§1–7 SHA `e7c96b588eed6218030ef6ce42154c7967667ff156bd8c343d0cdd14cf2bd8d5`原字节保持。
+修订：rev1 私有候选，供独立 STATIC 审查；尚未正式采纳、未授权产品实施或任何动态资源。拟归位 `docs/development/work-items/d27-system-audit-ui.md`。前端与既有正式领域契约固定已接受产品 `1ff044264a54c948e512db9aafad24ec5e0aa3c2`；System Audit HTTP 只消费已采纳规格技术§1–7 SHA `687c85d4a41880828d038251bf6321accc48092aa043a10addb1606ab02c6f21`，其产品独立最终验收及接受提交仍是未满足前置。作者实测齐备、独立验收准备不等于产品接受。本稿未读后端活动实现，不以主树后续纯文档提交改变产品基线。
 
-当前已验输入为前端 `1ff044264a54c948e512db9aafad24ec5e0aa3c2` 与 System Audit HTTP 产品 `b124650aee095b26191bc181dc8cf5d6e0f977f5`；后者十四路径已由主线程接受、提交推送并核远端一致。本次静态核对 `api/openapi/audit.json`、`audit/query.go`、`audit/system_query.go`、`audit/http/handler.go`、`audit/http/wire.go`，均与独审 `Q/input03` manifest SHA `c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b` 中的原文件 SHA 相同；未新增动态检查。上游产品前置现已满足，正文保留被审时的待验表述，当前依赖状态以此页首为准；正式字段/预算/查询和权限契约不变。 后续MIME schema两文件修复已另接受于`fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5`，详见[HTTP永久档案](../agent-team/system-audit-management-http-verification.md)；旧静审／计划不回写，当前API追加绑定该修复，原技术按正式Go接受集的要求保持。
+当前仅 architecture_worker 拥有本私有单稿写权。§6 的36路径均为候选；须待上游完整接受、实际接缝复核、独立静审和主线程指定唯一 frontend_worker 后另授。无 App/共享 Ui/后端/迁移/锁文件写权，无测试、构建、监听器、浏览器或重型资源授权。
 
-独立冻结[STATIC PASS原报告](../agent-team/system-audit-ui-spec-verification-evidence/objects/dc4afce5faf17d4dc458c516c41170b52dd8b1c7a039a3315ccf1184dea769ba)，SHA `dc4afce5faf17d4dc458c516c41170b52dd8b1c7a039a3315ccf1184dea769ba`；[原JSON](../agent-team/system-audit-ui-spec-verification-evidence/objects/aeb3a5264f1e70b2cda3157720478fbbd693e1fd290ed13e3e54d01802105ba9) SHA `aeb3a5264f1e70b2cda3157720478fbbd693e1fd290ed13e3e54d01802105ba9`。结论仅覆盖固定规格与有限源接缝，不是页面运行证据。
-
-验收前提依该报告明确分开：固定 `App.refreshVisible` 在 busy 时直接返回；生产 pageshow→Session503→同身份恢复/新页默认一次读取，应从空闲 owner 开始证明。新 controller 等待旧 owner 实际 tail 后仅一次初始读、等待中销毁零续发，另用受控 owner/新实例或合法导航组合证明；不得强造 busy 中的生产 listener 已进入 checking，也不改 App 或放宽守卫。这是原§4/§7两个场景的执行前提，不改变技术条款。
-
-§6 三十六候选及所有权保持。主线程已授权唯一frontend私有35源分阶段实施，README第19路径最后；A五源作者最终180测试／type／format已通过并冻结，MIME追加绑定fa2d775。独立A离线验证已实际启动、尚无终局，B未开始，无真实资源或UI产品PASS。阶段事实仅按主线程移交记录，原件以后单立产品档案。 App、shared Ui、后端、迁移、锁文件及停止任务均无本卡写权。原被审私稿与正式页首差量已永久保存，正文实施前待验时态为历史技术来源，当前行政状态以本页首为准。
 ## 1. 完整结果、依据与依赖门槛
 
 当前系统管理员从“审计 → 系统审计”查看 System 审计，明确应用结构化过滤、逐页读取，并打开一条记录的安全内联详情。列表、详情、加载、取消、读取失败、当前失权和窄屏形成同一完整结果。范围不含 Project 审计、全文搜索、导出、编辑、删除、后台轮询、关联领域正文、Secret/认证材料或任何审计重放命令。

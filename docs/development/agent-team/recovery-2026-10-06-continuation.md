@@ -354,3 +354,13 @@ Audit仅有已知query／HTTP有界阶段与作者native分轮证据，本档不
 主线2742cf7＋复制14源仅graph和两包race编译／精确发现actual0，614local/3496runtime与2个编译产物SHA、44PID双清保留，无业务重验。作者3501到独立3504是一删四增（Python替换＋2probe/overlay）及共同3500同字节；各轮自身输入前后不变。格式两轮未绑定probe前态不当最终受测源缺件。后续只删作者可再生GOCACHE的维护不回写原cleanup。
 
 Audit UI规格独审接受与作者私有实施／独立计划分列，未验产品，本档不读活动源。Object/tools与SPA publication停止、Summary待决、ready503保持；完整D08–D28/E01未完成、E01未开始。
+
+## 31. System Audit只读UI规格接受与独立计划
+
+§1–30逐字保留。[正式卡rev1](../work-items/d27-system-audit-ui.md)已由主线程接受、提交推送`a7a29c34acbe392d9a1375967309123b9a74ec16`并核远端一致，技术§1–7`e7c96b588eed6218030ef6ce42154c7967667ff156bd8c343d0cdd14cf2bd8d5`不变。[规格记录](system-audit-ui-spec-verification.md)固定私稿／正式页首、独立46输入STATIC PASS与原计划；两次只读Git路径错误只有原报告叙述，不制造command/raw或产品首红。
+
+36路径＝35实施源＋最后README。两GET／14过滤／严格typed输出、第十一Cookie域与实际尾部、九叶四组十三return均沿原技术；pageshow从空闲owner恢复与新实例等待旧tail必须分开证明。46静态输入及五HTTP重绑不是未来执行闭包，新三旧二真实／独立A/B只是计划。本次13逻辑原件去重为10对象，固定Git和已接受HTTP永久原件复用，不复制产品树。
+
+主线程已授权唯一frontend私有35源分阶段实施，README第19路径最后；A五源作者最终180测试／type／format已通过并冻结，MIME追加绑定fa2d775。独立A离线验证已实际启动、尚无终局，B未开始，无真实资源或UI产品PASS。阶段事实仅按主线程移交记录，原件以后单立产品档案。 原静审和plan绑定b124650的事实不改；后继MIME修复fa2d775见§30及HTTP永久档案，当前API追加依赖与原技术Go接受集一致，不把新结果回填旧规格检查。
+
+原Object/tools／SPA publication停止不重试／改写／转派，SPA既有scope/native通过不等于产品接受。Summary待决、生产未绑定／ready503保持；完整D08–D28/E01未完成、E01未开始。本次不扩大到Audit UI产品或其他后继Runtime规格归档。

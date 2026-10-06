@@ -1,0 +1,22 @@
+{
+  "state": "frozen plan only",
+  "plan": {
+    "path": "/workspace/scratch/agenteam-audit-ui-independent-plan-gf1bc662/plan01.md",
+    "sha256": "6020672b841df73ad0bb4cc8f954d6e35b4e20ccfa74f23beecb8c0fd6e97325"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/agenteam-audit-ui-independent-plan-gf1bc662/inputs01.json",
+    "sha256": "5dd7ebd7d0d1d7f14d7f0ccc9982d5cc1c2f26b4bc2208664d7cf43db6201589"
+  },
+  "author_candidates_read": false,
+  "product_tests_run": false,
+  "resources_started": false,
+  "private_probe_implementation_written": false,
+  "planned_groups": {
+    "A": 2,
+    "B": 2,
+    "C": 2,
+    "final_real_maximum": 2
+  },
+  "next": "Await root-authorized frozen API stage; then bounded independent verification."
+}

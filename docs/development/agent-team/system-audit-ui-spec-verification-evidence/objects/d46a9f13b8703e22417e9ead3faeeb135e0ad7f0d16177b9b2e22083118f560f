@@ -1,0 +1,332 @@
+{
+  "spec": {
+    "path": "/workspace/scratch/agenteam-system-audit-ui-spec-on4ORhe8/d27-system-audit-ui.md",
+    "sha256": "096b18e3e50d1612d3ce03e92073164eff60db35b3732f785297f52aa421b010"
+  },
+  "fixed_source_files": [
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/api/client.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/api/client.ts",
+      "sha256": "4ae4b1db480e26adee962c2b301fdbf37ea3b31883cee223f6ed3e8b691659ae",
+      "bytes": 26441
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/api/system-providers.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/api/system-providers.ts",
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade",
+      "bytes": 22624
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/composables/useSession.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/composables/useSession.ts",
+      "sha256": "573268bdb7d3ea5524858c53b901cac8d095591ad46e4855cbe7e6d50330011c",
+      "bytes": 138337
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/composables/useSystemOutboundPolicy.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/composables/useSystemOutboundPolicy.ts",
+      "sha256": "0bf2dfeb89e25babb8d1201880228006b468f597ac431f6783c5a043e11451a0",
+      "bytes": 20660
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/composables/useSystemSMTPDelivery.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/composables/useSystemSMTPDelivery.ts",
+      "sha256": "cdeec662a025f429c13f6c840c895e699010982bf19f635e880f75a6c00468bf",
+      "bytes": 27517
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/App.vue",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/App.vue",
+      "sha256": "4f7068223c59aa7e819dd5cfef6599fb590f663633edd2e821d29d1a1bc1b24b",
+      "bytes": 9412
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/router/index.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/router/index.ts",
+      "sha256": "fbce81eb4ac55311f3911307b6c69eadf7f86b0e54fc0b14ea50378b23b1ff7b",
+      "bytes": 3659
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/router/auth.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/router/auth.ts",
+      "sha256": "746ed414cdda79b51452481a29eb767064f5d099976c9019ab214d61eb2dabfe",
+      "bytes": 8733
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/views/system/SystemSettingsView.vue",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/views/system/SystemSettingsView.vue",
+      "sha256": "53263efde51909ce3848692f23b7fc45c4fc96bc684fc0fe8f24e46afbdcc818",
+      "bytes": 2173
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/views/system/SystemUsersView.vue",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/views/system/SystemUsersView.vue",
+      "sha256": "b30819ae5b8592a894188f4431427b171b8017c21adf63aec6d93138b8a71865",
+      "bytes": 5639
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/composables/useSystemUserDirectory.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/composables/useSystemUserDirectory.ts",
+      "sha256": "3058a34b16bdc2d1018297daa556606806d7d2bf241d313dbcfa33b2f54a0894",
+      "bytes": 5297
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/tests/system-user-directory.spec.ts",
+      "sha256": "1c817cf7ff2d50e5aec6ba9ee85b6b4659de959f0c3fcb63c9c301af827a53c4",
+      "bytes": 17208
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-invitations.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/tests/system-invitations.spec.ts",
+      "sha256": "5133509583cb0e940bdd0dcadc76468a7e8c3cbfe27d3e77cf3cd2acc123db73",
+      "bytes": 29140
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-providers.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/tests/system-providers.spec.ts",
+      "sha256": "fd6dcf723dce46a246b156dec6e0e2827a5ae2c617d6baf338dc7583f9b464b6",
+      "bytes": 23552
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-models.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/tests/system-models.spec.ts",
+      "sha256": "9f7378d085e0da1eeaced1532c5ca17c2546957908016a4c910e4c8c8e9b7101",
+      "bytes": 35553
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-model-selection.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/tests/system-model-selection.spec.ts",
+      "sha256": "dbea8573bd0c345b008e424e797c78d2c825afd80cb7ca2421fec1c2eb122319",
+      "bytes": 32160
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-account-security.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/tests/system-account-security.spec.ts",
+      "sha256": "6349a7e69d4c432e018d39232cffef4d2b8a41319eaedf3b5be8d31085e9d0a3",
+      "bytes": 18290
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-smtp-settings.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/tests/system-smtp-settings.spec.ts",
+      "sha256": "64c56ef216b2cb76c369330dfd1c218e6502804537acb638fe6f349ca29dc66d",
+      "bytes": 26162
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-outbound-policy.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/tests/system-outbound-policy.spec.ts",
+      "sha256": "e08604080860e631cc81e89f53f655d853f08519b4be59510f47dc9596c399f0",
+      "bytes": 32375
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/tests/personal-settings.spec.ts",
+      "sha256": "6b4ca8f4a56a9201a077405faafa67cd55d509719d320d3b6b5df87052a714c2",
+      "bytes": 23333
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/system-smtp-delivery.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/tests/system-smtp-delivery.spec.ts",
+      "sha256": "b77f8e4575807e8dad38b6677b5bf3dc74c0d49b7cea5acefb96454b64fb12cf",
+      "bytes": 39735
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/tests/settings-shell.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/tests/settings-shell.spec.ts",
+      "sha256": "a0e579eb72cbb54e2460eb60572d9ac2bcd1ec82a0f19c1f6dd1c80b677986a3",
+      "bytes": 8251
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-invitations.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/tests/account-captcha-web/e2e/system-invitations.spec.ts",
+      "sha256": "723757fbadc8535c2de60e98758a90239e40cda651e50f4acf2bf4dec4f589bd",
+      "bytes": 54664
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-providers.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/tests/account-captcha-web/e2e/system-providers.spec.ts",
+      "sha256": "529491cb0e82b11c48ab95e5bd57481f1f713f26f94186068bc19fd3d183174f",
+      "bytes": 48088
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-models.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/tests/account-captcha-web/e2e/system-models.spec.ts",
+      "sha256": "621fe3c8078484569abba032be18b97f65349f5266cab5c2cf8e451c69a713b7",
+      "bytes": 69251
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-model-selection.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/tests/account-captcha-web/e2e/system-model-selection.spec.ts",
+      "sha256": "fd1bf8077241f3668b95c7f923a1e8943b1d1a8e9478b0a6ce7b8cd6291155a7",
+      "bytes": 70716
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-account-security.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/tests/account-captcha-web/e2e/system-account-security.spec.ts",
+      "sha256": "11723c33fb36944188c5f8baf7962f56cd4791595e9c8ac5b9d1062d8bf6549a",
+      "bytes": 43213
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts",
+      "sha256": "79e2a4839573e30978d64969cc7764720470d6c73be07be6161a533d29b6cc5e",
+      "bytes": 53735
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts",
+      "sha256": "766b1f413a40ae340ee0631b32e8cc1d2b72371d4eda9c96d4aa9de0f6f66d81",
+      "bytes": 56554
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+      "sha256": "3d1b5af651ea2f94ec5054d9d2da43807efa5badbed3420252a4b2b5de739ed4",
+      "bytes": 52618
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "tests/account-captcha-web/e2e/system-user-directory.spec.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/tests/account-captcha-web/e2e/system-user-directory.spec.ts",
+      "sha256": "51112073eeb83318ea6f4a6312c56306489997f55fdcea09a280f4c501ec8034",
+      "bytes": 25872
+    },
+    {
+      "source_frozen": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/contract/access.go",
+      "path": "internal/central/audit/contract/access.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/internal/central/audit/contract/access.go",
+      "sha256": "775a838c03690fef4b709c37975fd23ccfc24e506569d4c3e8684ac32f8abfd1",
+      "bytes": 4407
+    },
+    {
+      "source_frozen": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/contract/types.go",
+      "path": "internal/central/audit/contract/types.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/internal/central/audit/contract/types.go",
+      "sha256": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d",
+      "bytes": 15562
+    },
+    {
+      "source_frozen": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/contract/metadata.go",
+      "path": "internal/central/audit/contract/metadata.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/internal/central/audit/contract/metadata.go",
+      "sha256": "bdffe42f77fa2525dbbc03a3d3749af7b7665cb6cf2f995d62b82863a2080646",
+      "bytes": 21891
+    },
+    {
+      "source_frozen": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/contract/account.go",
+      "path": "internal/central/audit/contract/account.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/internal/central/audit/contract/account.go",
+      "sha256": "ef2b5bc2cca4435161d9b2f543c62b868324e54813581da894bfbfb70e42bfed",
+      "bytes": 14907
+    },
+    {
+      "source_frozen": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/contract/model.go",
+      "path": "internal/central/audit/contract/model.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/internal/central/audit/contract/model.go",
+      "sha256": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6",
+      "bytes": 7724
+    },
+    {
+      "source_frozen": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/contract/project.go",
+      "path": "internal/central/audit/contract/project.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/internal/central/audit/contract/project.go",
+      "sha256": "526e8c86d72f45b2584572c159586b59a360e1029269b4304d68ffa55f26083b",
+      "bytes": 9172
+    },
+    {
+      "source_frozen": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/contract/knowledge.go",
+      "path": "internal/central/audit/contract/knowledge.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/internal/central/audit/contract/knowledge.go",
+      "sha256": "270e1943c9539dda9dc2ae9bb1013a0a48bf2309578b2da8d36c1a432a4d8372",
+      "bytes": 3446
+    },
+    {
+      "source_frozen": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/query.go",
+      "path": "internal/central/audit/query.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/internal/central/audit/query.go",
+      "sha256": "3713a95d285b19300e0038cb6243f9932754bb22a030afb820012b8f9e8968f3",
+      "bytes": 11976
+    },
+    {
+      "source_frozen": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/http/handler.go",
+      "path": "internal/central/audit/http/handler.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/internal/central/audit/http/handler.go",
+      "sha256": "b13e6a0885c155ff4eff737790be0fb4f06191abb0d0409701f510cd6441a039",
+      "bytes": 6633
+    },
+    {
+      "source_frozen": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/audit/http/wire.go",
+      "path": "internal/central/audit/http/wire.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/internal/central/audit/http/wire.go",
+      "sha256": "4a42524d07301277350ed57d0a15901e2dfa6a541e16e14bbd145563adb593b4",
+      "bytes": 11980
+    },
+    {
+      "source_frozen": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/internal/central/foundation/instant.go",
+      "path": "internal/central/foundation/instant.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/internal/central/foundation/instant.go",
+      "sha256": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+      "bytes": 1751
+    },
+    {
+      "source_frozen": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/source/api/openapi/audit.json",
+      "path": "api/openapi/audit.json",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/api/openapi/audit.json",
+      "sha256": "168fc76cf7e0e8f89923e0312dee847ff48dd3de2f37f3f764689ef874300ee9",
+      "bytes": 166333
+    },
+    {
+      "source_git": "24da141652bbc4c183cd827e767dbdaf2f2f4051",
+      "path": "docs/development/work-items/d04-system-audit-management-http.md",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/accepted-audit-http-card.md",
+      "sha256": "5fdc1dde616c89840fa583213377e078c636284b79be57e4234095031ac777f0",
+      "bytes": 33147
+    },
+    {
+      "source_git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "path": "web/src/api/system-account.ts",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-frontend/web/src/api/system-account.ts",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+      "bytes": 2972
+    },
+    {
+      "source_manifest": "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/input03/manifest.json",
+      "path": "internal/central/identity/contract/identity.go",
+      "snapshot": "/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/fixed-audit/internal/central/identity/contract/identity.go",
+      "sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+      "bytes": 8639
+    }
+  ],
+  "scope": "bounded STATIC sources only; not a future execution closure",
+  "note": "46 bounded static sources only; not an execution closure."
+}
