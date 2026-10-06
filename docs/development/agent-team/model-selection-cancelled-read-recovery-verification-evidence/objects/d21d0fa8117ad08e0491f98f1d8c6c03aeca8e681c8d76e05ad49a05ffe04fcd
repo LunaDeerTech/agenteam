@@ -1,0 +1,17 @@
+{
+  "accepted_fixture_inputs": {
+    "tests/account/system_model_selection_web_fixture_test.go": "1e5f79ed5061058d867b79986cf85ac45e3809d9f3fb113716e167d7e4bf1aa7",
+    "tests/account/system_model_selection_web_test.go": "6c60bb68e521685eedfbca9107c026c3f6646119cda4f5c841d2533ed77e3c8e"
+  },
+  "author_manifest": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/input01/manifest.json",
+  "author_manifest_sha256": "e05427019f96dd4e33dc3f51d4c4925e1cff8ce09a8ba28c8494cf5f5d0fe8e6",
+  "browser_selector": "navigation",
+  "copied_helper_source": "tests/account-captcha-web/e2e/system-model-selection.spec.ts",
+  "copied_helper_source_sha256": "24487a08ddd7d5a8f0d6b8a52471f649863610cfdf877284b28795d6abe25e42",
+  "fixture_mode": "outcome",
+  "helper_prefix_sha256": "381027ea438fa87a64ef7ac718fa859d3583b91c41ba4cc61fb5a3fdcefca126",
+  "product_base": "fd32120eba4c76f67b649248377f4825a78d5d79",
+  "reread_helper_sha256": "73fd815b2fb1e9088251a930595482bdfd114f8354aee3b6a503e9867901fc16",
+  "resources_started": false,
+  "scope": "one independent real held-GET recovery; no layout or historical replay matrix"
+}

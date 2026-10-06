@@ -1,0 +1,19 @@
+{
+  "inspected_all_eight": true,
+  "images": {
+    "selection-dark-1024.png": "981eb749abbba72a1c1f1c1670023e5e7762a2d0adc1e2ac093b3ad53a4a0e8d",
+    "selection-dark-1440.png": "cdaf7bf0e3dc17030c5d390403a4ac28de6e50cacb07cd03f01103660ac8a3c9",
+    "selection-dark-390.png": "f0fa951d020f73324f2e50ae83c0cd5c20d62a932dc0c7c7a878841819806ed2",
+    "selection-dark-834.png": "1a2837c727076e8502c44c5e97983921f392ae9ccccefca422b73ca2e2158fe3",
+    "selection-light-1024.png": "f38b2a650bef5dc288d485ba62eb39f2ae5ad0474ba4e0ee05df9fe71abcfbc9",
+    "selection-light-1440.png": "eb1ffce2af74c58633be2d86c0509bdad6f2e1da19828b350e36cbc4e4691cca",
+    "selection-light-390.png": "968da99d0607671ffb614fdca432e7aaa44ffba4aa59b81c541825509ba8a1b2",
+    "selection-light-834.png": "1305300440611c5f6a348867589198392c2e3d7d47fa514fc6719331448512af"
+  },
+  "observations": [
+    "Light/dark at 1440/1024/834: five-leaf/two-group sidebar, two current-purpose columns, long Model/Provider text and IDs wrap without visible horizontal overflow.",
+    "Light/dark at 390: single column, controls wrap within the viewport, closed overlay, long fields wrap.",
+    "Screenshots capture the top of the scrollable content; lower purposes and later fields require normal main scrolling. No claim that every field is simultaneously in one image."
+  ],
+  "pending_hold_evidence": "Frozen Navigation source asserts exact Memory Provider GET !ended and hold started=true/finished=false before discard; full test PASS proves this precondition executed, then three cancellation errors and explicit recovery. This is not native cancel-join evidence."
+}

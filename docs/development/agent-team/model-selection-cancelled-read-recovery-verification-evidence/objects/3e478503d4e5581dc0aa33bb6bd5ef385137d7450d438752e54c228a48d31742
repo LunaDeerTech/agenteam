@@ -1,0 +1,21 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/candidate/web
+
+stdout | src/tests/independent-selection-cancel.spec.ts > Independent reference retirement > keeps a public confirmation through failed Session recovery, retires Provider-body work, and recovers only explicitly
+{"diagnostic":"reference-visible-retired-before-native-tail","facts":{"sameIdentity":true,"busy":true,"lockedReader":true,"phases":{"embedding":"ready","memory":"error","reranker":"error","image":"error"},"extraRequests":0,"writes":0}}
+
+stdout | src/tests/independent-selection-cancel.spec.ts > Independent reference retirement > keeps a public confirmation through failed Session recovery, retires Provider-body work, and recovers only explicitly
+{"diagnostic":"reference-explicit-recovery","facts":{"busy":false,"releasedReader":true,"phases":{"embedding":"ready","memory":"ready","reranker":"ready","image":"error"},"canSave":true,"writes":0,"accountReads":0}}
+
+ ✓ src/tests/independent-selection-cancel.spec.ts > Independent reference retirement > keeps a public confirmation through failed Session recovery, retires Provider-body work, and recovers only explicitly 542ms
+stdout | src/tests/independent-selection-cancel.spec.ts > Independent reference retirement > preserves a fully completed restored batch through the same public discard
+{"diagnostic":"fully-ready-control","facts":{"canSave":true,"busy":false,"phases":{"embedding":"ready","memory":"ready","reranker":"ready","image":"ready"},"writes":0}}
+
+ ✓ src/tests/independent-selection-cancel.spec.ts > Independent reference retirement > preserves a fully completed restored batch through the same public discard 268ms
+ ↓ src/tests/independent-selection-cancel.spec.ts > Independent current retirement > retires a pending singleton as error/null and uses the actual recovery button after native join
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 1 skipped (3)
+   Start at  14:59:56
+   Duration  2.38s (transform 822ms, setup 0ms, import 989ms, tests 811ms, environment 447ms)
+

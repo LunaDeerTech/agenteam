@@ -1,0 +1,26 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-selection-discard-diagnostic-0ikwbn_6/candidate/web
+
+stderr | src/tests/independent-selection-discard.spec.ts > Private fixed Selection state read discard diagnosis > uses public discard while the restored singleton read is pending and only explicit refresh removes orphan loading
+[Vue Router warn]: No match found for location with path "/settings/profile"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+
+ ↓ src/tests/independent-selection-discard.spec.ts > Private fixed Selection discard diagnosis > uses public App controls to retire a pending reference; after actual native tail the untouched loading rows persist until explicit reread
+ ↓ src/tests/independent-selection-discard.spec.ts > Private fixed Selection discard diagnosis > waits for restored references to finish before the same public discard and reopens a saveable draft
+stderr | src/tests/independent-selection-discard.spec.ts > Private fixed Selection state read discard diagnosis > uses public discard while the restored singleton read is pending and only explicit refresh removes orphan loading
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stdout | src/tests/independent-selection-discard.spec.ts > Private fixed Selection state read discard diagnosis > uses public discard while the restored singleton read is pending and only explicit refresh removes orphan loading
+{"diagnostic":"singleton-after-native-tail","facts":{"busy":false,"nativeReaderReleased":true,"selectionPhase":"loading","selectionValueNull":true,"editDisabled":true,"refreshEnabled":true,"readsAfterSettle":0,"writes":0}}
+
+stdout | src/tests/independent-selection-discard.spec.ts > Private fixed Selection state read discard diagnosis > uses public discard while the restored singleton read is pending and only explicit refresh removes orphan loading
+{"diagnostic":"singleton-explicit-refresh","facts":{"selectionPhase":"ready","phases":{"embedding":"ready","memory":"ready","reranker":"ready","image":"ready"},"editEnabled":true,"writes":0}}
+
+ ✓ src/tests/independent-selection-discard.spec.ts > Private fixed Selection state read discard diagnosis > uses public discard while the restored singleton read is pending and only explicit refresh removes orphan loading 361ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 2 skipped (3)
+   Start at  14:36:16
+   Duration  1.74s (transform 680ms, setup 0ms, import 821ms, tests 363ms, environment 430ms)
+

@@ -1,0 +1,39 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-selection-discard-diagnostic-0ikwbn_6/candidate/web
+
+stderr | src/tests/independent-selection-discard.spec.ts > Private fixed Selection discard diagnosis > uses public App controls to retire a pending reference; after actual native tail the untouched loading rows persist until explicit reread
+[Vue Router warn]: No match found for location with path "/settings/profile"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+
+stderr | src/tests/independent-selection-discard.spec.ts > Private fixed Selection discard diagnosis > uses public App controls to retire a pending reference; after actual native tail the untouched loading rows persist until explicit reread
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stdout | src/tests/independent-selection-discard.spec.ts > Private fixed Selection discard diagnosis > uses public App controls to retire a pending reference; after actual native tail the untouched loading rows persist until explicit reread
+{"diagnostic":"before-public-discard","facts":{"phase":"authenticated","busy":true,"phases":{"embedding":"ready","memory":"loading","reranker":"loading","image":"loading"},"confirmOperable":true,"writes":0}}
+
+stdout | src/tests/independent-selection-discard.spec.ts > Private fixed Selection discard diagnosis > uses public App controls to retire a pending reference; after actual native tail the untouched loading rows persist until explicit reread
+{"diagnostic":"after-native-tail-and-reopen","facts":{"busy":false,"nativeReaderReleased":true,"changed":true,"locked":false,"blocked":false,"phases":{"embedding":"ready","memory":"loading","reranker":"loading","image":"loading"},"draftReady":{"embedding":true,"memory":false,"reranker":false,"imageCleared":true},"saveDisabled":true,"writes":0,"readsAfterSettle":0,"accountReads":0}}
+
+stdout | src/tests/independent-selection-discard.spec.ts > Private fixed Selection discard diagnosis > uses public App controls to retire a pending reference; after actual native tail the untouched loading rows persist until explicit reread
+{"diagnostic":"explicit-public-reread-recovers","facts":{"canSave":true,"busy":false,"phases":{"embedding":"ready","memory":"ready","reranker":"ready","image":"loading"},"writes":0}}
+
+stderr | src/tests/independent-selection-discard.spec.ts > Private fixed Selection discard diagnosis > waits for restored references to finish before the same public discard and reopens a saveable draft
+[Vue Router warn]: No match found for location with path "/settings/profile"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+
+stderr | src/tests/independent-selection-discard.spec.ts > Private fixed Selection discard diagnosis > waits for restored references to finish before the same public discard and reopens a saveable draft
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+ ✓ src/tests/independent-selection-discard.spec.ts > Private fixed Selection discard diagnosis > uses public App controls to retire a pending reference; after actual native tail the untouched loading rows persist until explicit reread 489ms
+stdout | src/tests/independent-selection-discard.spec.ts > Private fixed Selection discard diagnosis > waits for restored references to finish before the same public discard and reopens a saveable draft
+{"diagnostic":"completed-read-control","facts":{"canSave":true,"busy":false,"phases":{"embedding":"ready","memory":"ready","reranker":"ready","image":"ready"},"writes":0}}
+
+ ✓ src/tests/independent-selection-discard.spec.ts > Private fixed Selection discard diagnosis > waits for restored references to finish before the same public discard and reopens a saveable draft 182ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  14:34:47
+   Duration  2.06s (transform 754ms, setup 0ms, import 897ms, tests 673ms, environment 375ms)
+

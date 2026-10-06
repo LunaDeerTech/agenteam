@@ -1,0 +1,17 @@
+--- probe01
++++ probe02
+@@ -20,10 +20,10 @@
+ import HomeView from '../views/HomeView.vue'
+ import LoginView from '../views/auth/LoginView.vue'
+ import SystemSettingsView from '../views/system/SystemSettingsView.vue'
+-import SystemUsersView from '../views/system/SystemUsersView.vue'
+-import SystemInvitationsView from '../views/system/SystemInvitationsView.vue'
+-import SystemProvidersView from '../views/system/SystemProvidersView.vue'
+-import SystemModelsView from '../views/system/SystemModelsView.vue'
++const SystemUsersView = { template: '<h1>Unvisited accepted leaf outside this diagnostic</h1>' }
++const SystemInvitationsView = { template: '<h1>Unvisited accepted leaf outside this diagnostic</h1>' }
++const SystemProvidersView = { template: '<h1>Unvisited accepted leaf outside this diagnostic</h1>' }
++const SystemModelsView = { template: '<h1>Unvisited accepted leaf outside this diagnostic</h1>' }
+ import SystemModelSelectionView from '../views/system/SystemModelSelectionView.vue'
+ 
+ const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')

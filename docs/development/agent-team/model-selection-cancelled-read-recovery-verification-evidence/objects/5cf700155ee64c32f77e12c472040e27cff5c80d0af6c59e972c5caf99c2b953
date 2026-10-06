@@ -1,0 +1,92 @@
+//go:build integration
+
+package account_test
+
+import (
+	"context"
+	"strconv"
+	"testing"
+	"time"
+)
+
+func runSystemModelSelectionWeb(t *testing.T, mode string, required ...string) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	f := newSelectionWebFixture(t, ctx, mode)
+	result := f.browserSelection(ctx)
+	for _, name := range required {
+		if result[name] != true {
+			t.Fatalf("Selection browser evidence incomplete: %s", name)
+		}
+	}
+	if mode == "read" && (result["providers"].(float64) < 26 || result["models"].(float64) < 26) {
+		t.Fatal("formal Selection pagination scale incomplete")
+	}
+	if mode == "navigation" && result["layouts"] != float64(8) {
+		t.Fatal("Selection light/dark four-width matrix incomplete")
+	}
+	t.Logf("real Selection production browser group=%s completed with 45s browser/2m top budgets; formal configuration facts only, no Provider invocation or index rebuild claim", mode)
+}
+
+func TestAccountSystemModelSelectionWebLifecycle(t *testing.T) {
+	runSystemModelSelectionWeb(t, "lifecycle", "null_v1", "four_purposes", "optional_null", "no_op", "cancelled", "read_back", "no_invocation")
+}
+func TestAccountSystemModelSelectionWebReadAndPagination(t *testing.T) {
+	runSystemModelSelectionWeb(t, "read", "four_plus_four", "canonical_pages", "independent_pages", "empty", "bad_cursor", "late_read", "no_half_pair", "invalid_bindings")
+}
+func TestAccountSystemModelSelectionWebConcurrencyAndReferences(t *testing.T) {
+	runSystemModelSelectionWeb(t, "concurrency", "two_admins", "same_version", "atomic_rejection", "required_replacement", "optional_clear", "old_version_rejected")
+}
+func TestAccountSystemModelSelectionWebOutcomeRecovery(t *testing.T) {
+	runSystemModelSelectionWeb(t, "outcome", "accepted_cut", "lookup_only", "old_404", "same_original", "unique_facts", "confirmed_read_failure", "abandoned")
+}
+func TestAccountSystemModelSelectionWebAuthorityAndIdentity(t *testing.T) {
+	runSystemModelSelectionWeb(t, "authority", "denied", "get_forbidden", "put_forbidden", "lookup_forbidden", "revoked", "new_session", "switched")
+}
+func TestAccountSystemModelSelectionWebNavigationAndLayouts(t *testing.T) {
+	runSystemModelSelectionWeb(t, "navigation", "five_leaves", "ninth_return", "dirty", "uncertain", "checking", "focus", "dialogs", "no_overflow")
+}
+
+// Independent candidate verification; consumes the unchanged formal fixture.
+func TestIndependentSelectionCancelledReadRecovery(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	f := newSelectionWebFixture(t, ctx, "outcome")
+	before := f.selectionFacts(ctx)
+	evidence := f.browserSelection(ctx)
+	for _, key := range []string{"held_before_discard", "same_session", "cancelled_not_loading", "ready_preserved", "no_automatic_pair", "zero_write_until_recovery", "incomplete_draft_blocked", "explicit_pairs", "receipt_and_db"} {
+		if evidence[key] != true {
+			t.Fatalf("independent cancellation evidence incomplete: %s", key)
+		}
+	}
+	after := f.selectionFacts(ctx)
+	oldState := before["selection"].(map[string]any)
+	state := after["selection"].(map[string]any)
+	version, err := strconv.ParseUint(oldState["version"].(string), 10, 64)
+	if err != nil || state["id"] != oldState["id"] || state["version"] != strconv.FormatUint(version+1, 10) {
+		t.Fatal("independent final selector version mismatch")
+	}
+	bindings := state["configured"].(map[string]any)
+	for _, purpose := range []string{"embedding", "memory", "reranker"} {
+		target := bindings[purpose].(*string)
+		if target == nil || *target != f.ids[purpose] {
+			t.Fatal("independent final saved binding mismatch")
+		}
+	}
+	if bindings["image"].(*string) != nil {
+		t.Fatal("independent explicit optional clear missing")
+	}
+	for _, key := range []string{"commands", "audits", "events", "distinct_keys"} {
+		if after[key].(int) != before[key].(int)+1 {
+			t.Fatalf("independent final durable count mismatch: %s", key)
+		}
+	}
+	if after["embedding_events"] != before["embedding_events"] || after["deliveries"] != 0 || after["invocations"] != 0 {
+		t.Fatal("independent unexpected downstream effect")
+	}
+	if len(after["references"].([]map[string]string)) != 3 {
+		t.Fatal("independent final reference count mismatch")
+	}
+	t.Log("independent held-reference cancellation, explicit recovery and one formal selector save verified; 45s browser/2m top budgets")
+}

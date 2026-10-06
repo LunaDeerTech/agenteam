@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/run-selection-recovery01.py",
+    "--name",
+    "gate-navigation01",
+    "--group",
+    "navigation",
+    "--frozen",
+    "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/input01/manifest.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "cwd": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/workspace",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "seconds": 0.86,
+  "actual_wait": true,
+  "resource_execution": false,
+  "base": "fd32120eba4c76f67b649248377f4825a78d5d79",
+  "inputs_unchanged": true,
+  "account_input04_unchanged": true,
+  "driver_sha256": "c2d2d0c8f3f66ddb8c07c695530f4aa453c48c149fa8893801c162000d64cfdf"
+}

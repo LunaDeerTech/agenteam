@@ -1,0 +1,172 @@
+{
+  "conclusion": "PASS: fixed Selection cancelled-read recovery four-path result",
+  "product_base": "fd32120eba4c76f67b649248377f4825a78d5d79",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/input01/manifest.json",
+    "sha256": "e05427019f96dd4e33dc3f51d4c4925e1cff8ce09a8ba28c8494cf5f5d0fe8e6"
+  },
+  "delivery_paths": {
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": "24487a08ddd7d5a8f0d6b8a52471f649863610cfdf877284b28795d6abe25e42",
+    "web/src/composables/useSystemModelSelection.ts": "1a4dbe6f1c0eb7dbdf885fbdc7495c9468bc33a7b8fd7b5082eb45f6c2cc3883",
+    "web/src/tests/system-model-selection-state.spec.ts": "5294842bb3fb093f5bcb5351b71b501f54b2c097903f490bc24cf4e322d2c245",
+    "web/src/tests/system-model-selection.spec.ts": "5daedea590e9e08c24e927e1d9ee7e0ea36d7412f45e97bd508a462c99b96a08"
+  },
+  "independent_pure": {
+    "report": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/web-stage01-report.json",
+    "sha256": "279ec126ef8e3826c28966b7a18974613421039933c038d79df1606e0713eb4b",
+    "reference01_cases": 2,
+    "current01_cases": 1,
+    "reused_without_rerun": true
+  },
+  "independent_real": {
+    "command": {
+      "actual_wait_completed": true,
+      "argv": [
+        "sh",
+        "scripts/test-security.sh",
+        "-run",
+        "^(TestIndependentSelectionCancelledReadRecovery)$"
+      ],
+      "cwd": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/workspace",
+      "ended_utc": "2026-10-06T15:19:53.460130+00:00",
+      "env": {
+        "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/images",
+        "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtsel-r5ltgbzj",
+        "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+        "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+        "CGO_ENABLED": "1",
+        "GOCACHE": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/gocache",
+        "GOENV": "off",
+        "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/overlay.json",
+        "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "GOPROXY": "off",
+        "GOSUMDB": "off",
+        "GOTOOLCHAIN": "local",
+        "GOWORK": "off",
+        "TMPDIR": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/runtime"
+      },
+      "exit": 0,
+      "seconds": 60.523,
+      "started_utc": "2026-10-06T15:18:52.937271+00:00"
+    },
+    "result": {
+      "accepted_baseline_after": true,
+      "accepted_baseline_before": true,
+      "adopted_waits": 4,
+      "browser_processes": 11,
+      "browser_runtime_removed": true,
+      "double_cleanup": true,
+      "driver_exit": 0,
+      "monitor_errors": 0,
+      "node_processes": 2,
+      "observed_processes": 85,
+      "observed_resources": 7,
+      "run": "independent01",
+      "run_directory": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01",
+      "selected_tests_passed": true,
+      "source_files_unchanged": true,
+      "top_levels": [
+        [
+          "PASS",
+          "TestIndependentSelectionCancelledReadRecovery"
+        ]
+      ],
+      "verification_inputs_unchanged": true
+    },
+    "test_seconds": 10.1
+  },
+  "author_frozen_real_reuse": {
+    "navigation01": {
+      "run": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/runs/navigation01",
+      "exit": 0,
+      "seconds": 119.897,
+      "actual_wait": true,
+      "top_levels": [
+        [
+          "PASS",
+          "TestAccountSystemModelSelectionWebNavigationAndLayouts"
+        ]
+      ],
+      "double_cleanup": true,
+      "source_files_unchanged": true,
+      "hashes": {
+        "command.json": "b032e59a555d7344faa488746dbd7aca6e253c114f30240e167e1721ab694f38",
+        "result.json": "a4d1ce81e43dd8b86aa54be5f0b8f5ddfc76aafb1a2ddda9a6eea561d775e2e6",
+        "raw.log": "ea9799ebf4331e77b8dcc5b547e24bc79a8b241eda882da5aa96912eb35fe824",
+        "cleanup.json": "883dc59d78e9152a90cc38e8e713e135d4f344c79789402f7bfbc8351b3f8de1"
+      }
+    },
+    "regression01": {
+      "run": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/runs/regression01",
+      "exit": 0,
+      "seconds": 84.293,
+      "actual_wait": true,
+      "top_levels": [
+        [
+          "PASS",
+          "TestAccountSystemModelSelectionWebReadAndPagination"
+        ],
+        [
+          "PASS",
+          "TestAccountSystemModelSelectionWebOutcomeRecovery"
+        ]
+      ],
+      "double_cleanup": true,
+      "source_files_unchanged": true,
+      "hashes": {
+        "command.json": "ceb32a1d6bcf0a03074e66ae0502641f5fe84f3d384014ffd523fb8502180888",
+        "result.json": "a40263d41cdd693e603131a4221efb57ffd78bd06afed1390b5ba995a3d9d9f7",
+        "raw.log": "c48b106455ce29193d64620a4f0b3977d8e24890acc5c2a252f0f9bb0374c04f",
+        "cleanup.json": "c1173f0fe7b42807ab5f70d7a529963851d51ff8c044c63bd10664c666293060"
+      }
+    }
+  },
+  "artifact_hashes": {
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/web-stage01-report.md": "6d51d46ee275c02726185aa6b6c2ad73ccae8022a9b2c2b16bfeed58753a8b82",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/web-stage01-report.json": "279ec126ef8e3826c28966b7a18974613421039933c038d79df1606e0713eb4b",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/input01-browser-static.md": "b34438e5764d8148d902fa33cc60b4c42a0672a3046c25289be88bb243b6bd7c",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/preparation-ready.json": "52f256696dbbbe5e72b27c78a4170ffea6f55331f57c3119e60fef9ea109f436",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/execution01.json": "ce1ab1becfee1bfd77558a54686f3df1692e70fd2a070fffe1d636b577e81286",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/run-independent01.py": "ef6ede817136c124f663f0d1f380b60a989c7dd04392029a90ef9b9ab215f444",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/overlay.json": "88d1a80498316fbee87b8d2abb5712796fa69602dfb83654c4caefd78a6ce1cf",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/fixture-delta.diff": "5f3d15857340d65282ab2a9cdd8dc07db4c6667a9859e05680646a128de6e74b",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/driver01.diff": "65d0790738b8b384076e4b3422a5591502d46f439ff44c712938dc212cc69518",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/browser/e2e/independent-selection-cancel.spec.ts": "d7908a3a32192668313465b71453d323f7a2479e2db99e5a30e642179069526c",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/browser/independent-selection-cancel.config.js": "d7e00f2f2d3b1c13a4c38344bc419ac9db449fb7db9ebc5499e8ddf16680b8f0",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/overlay/system_model_selection_web_test.go": "5cf700155ee64c32f77e12c472040e27cff5c80d0af6c59e972c5caf99c2b953",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/overlay/system_model_selection_web_fixture_test.go": "697770b86bb05bc2f90253f583eaf94017e67fe1856b7eb7f0d17af74d630be9",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/command.json": "372a29ef4d8b3a8f58f1f47a55a7d14c00597d3c1ef12507040060a3f5cf820e",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/raw.log": "23bbb65144032fa2e0eded3e2eb38474e3ee0d678a60ff3dbc5dc11d95fdf8f7",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/result.json": "0307eb96c2ef7b4e0e3be9a5a67e5659b51b1e9058272121fd53654ef2005b23",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/cleanup.json": "0b095e7c6134ab8d4438107a28103ed9eac50c3e38e701166cc11d6beb88987f",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/adopted-waits.json": "135160eaaf2f47866168fd28c13be771b2714cf691e9f3452a7abe78ee982163",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/input-before.json": "a3202d6752bb5cf53613b8152b8577491273b2b48377c91660b5b19ff1a5563f",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/input-after.json": "a3202d6752bb5cf53613b8152b8577491273b2b48377c91660b5b19ff1a5563f",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/verification-input.json": "624b46eabc355f99ba6b981b8db666b64cacd8a6c128f0bf21d174689c4f0c2d",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/driver.py.txt": "ef6ede817136c124f663f0d1f380b60a989c7dd04392029a90ef9b9ab215f444",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/frozen-input.json": "ce1ab1becfee1bfd77558a54686f3df1692e70fd2a070fffe1d636b577e81286",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/baseline.json": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/process-baseline.json": "ad022e053de1797d2c81870a60474f71e00ead85b74ec89059e507ccca342a96",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/observed-resources.json": "7c72fb6aed597aada5e2eaddd32be906660c1a57b0f7561c336ff341057573c8",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/observed-processes.json": "dda05e9b12341f86197edbf988d5dc2c4b1a2219cb6be3df3bf48823058a1003",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/monitor-errors.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/cancellation.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  "limitations": [
+    "Account input04 six-leaf/three-group adaptation is preserved but not part of this five-leaf repair execution; later combined validation required.",
+    "Real server hold completion is not asserted to be native owner join; actual native read/cancel-tail proof is the unchanged three independent pure cases.",
+    "Current eight-layout visual evidence is the author reported image review. Root read that report but did not view these current Selection screenshots; this independent verifier did not visually review them either.",
+    "The old Account Selection real timeout had no original field diagnostics and is not assigned a unique cause retrospectively.",
+    "Original independent type01 missing RouteMeta preparation failure and prior diagnosis original failures are preserved; no candidate assertion was relaxed.",
+    "Historical baseline PPID1 zombies untouched; cleanup result only covers this run owned identities.",
+    "No SMTP independent dynamic verification or stopped Object/tools work is claimed."
+  ],
+  "source_stopped": true,
+  "no_remaining_owned_resources": true,
+  "markdown_sha256": "d57a0a6f8665fb252c90a773a731f67ef4d5e24864f4ce5fbc051ca794300433",
+  "revision": "v2: visual evidence attribution correction only",
+  "supersedes": {
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/verification-report.md": "894deacf60fdbb3777b0ef1d5beb94c2d7445bf2c60122a5951c135341fcd83c",
+    "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/verification-report.json": "c7db68d551a06b5be841a47145f229617e3e853fc9607a65b441bc2f7a8b16ac"
+  }
+}

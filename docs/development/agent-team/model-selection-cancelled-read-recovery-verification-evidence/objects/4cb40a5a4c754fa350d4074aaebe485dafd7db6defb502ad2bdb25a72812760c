@@ -1,0 +1,57 @@
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parent
+WORK = ROOT / 'workspace'
+BASE = json.loads((ROOT / 'baseline02.json').read_text())
+ACCOUNT = json.loads(Path(BASE['account_input04']['path']).read_text())
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def inputs():
+    values = {name: sha(WORK / name) for name in BASE['fixed_files']}
+    for name, record in BASE['fixed_files'].items():
+        if name not in BASE['candidate_paths']:
+            assert values[name] == record['sha256'], name
+    for name, expected in {**ACCOUNT['files'], **ACCOUNT['dist']}.items():
+        assert sha(Path('/workspace/agenteam') / name) == expected, 'Account drift: ' + name
+    return values
+
+
+label, cwd, *argv = sys.argv[1:]
+run = ROOT / 'runs' / label
+run.mkdir(parents=True, exist_ok=False)
+before = inputs()
+for name in BASE['candidate_paths']:
+    target = run / 'source' / name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes((WORK / name).read_bytes())
+(run / 'input.json').write_text(json.dumps(before, indent=2) + '\n')
+environment = {key: os.environ[key] for key in (
+    'PATH', 'NODE_OPTIONS', 'GOTOOLCHAIN', 'GOPROXY', 'GOSUMDB', 'GOCACHE',
+    'GOMODCACHE', 'TMPDIR', 'GOENV', 'GOWORK', 'GOFLAGS', 'CGO_ENABLED'
+) if key in os.environ}
+started = time.monotonic()
+with (run / 'raw.log').open('wb') as stream:
+    child = subprocess.Popen(argv, cwd=cwd, stdout=stream, stderr=subprocess.STDOUT)
+    code = child.wait()
+after = inputs()
+result = {
+    'argv': argv, 'cwd': cwd, 'env': environment, 'exit_code': code,
+    'seconds': round(time.monotonic() - started, 3), 'actual_wait': True,
+    'resource_execution': False, 'base': BASE['base'],
+    'inputs_unchanged': before == after, 'account_input04_unchanged': True,
+    'driver_sha256': sha(Path(__file__)),
+}
+(run / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps(result))
+print((run / 'raw.log').read_text()[-16000:])
+sys.exit(code if before == after else 99)

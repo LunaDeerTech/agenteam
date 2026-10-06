@@ -1,0 +1,19 @@
+# Selection 取消读取修复 web-stage01 独立阶段报告（冻结）
+
+**三web源 STATIC/PURE PASS，有界阶段结论。** 两代表组实际3例通过；未读活动第四browser源码、未运行真实浏览器/服务/PG/Docker，不表示四路径或最终组合已接受。
+
+输入：作者 manifest `93e270e68c093050e23670a01daf6a34e4eec0ca62787a7d92f8b01cdac8ef89`；三源与31dist实际逐SHA匹配，125接受依赖逐项与固定Git fd32120eba4c76f67b649248377f4825a78d5d79 比较无差异。独立最小43文件全部重新从该提交取得，只叠加候选controller；真实App/六API与Session不再取Account候选。未访问其他路由用私有占位；无全web/依赖树复制。input02.json SHA `2e54a97d509476ea3e8f9c2a1f81d7979257138fd4a8f9a2f6288a0878f78099`；原诊断四轮及原私有input01/type01全部保留。
+
+生产差量仅discard 8行：++revision/api.abandon后同步将当前loading selection/ref转error/value=null，保留ID及ready/error/empty，不让旧catch/finally迟到发布，不加请求、不改canSave/历史命令/路由与共享组件。clearBusiness及invalidate后续原清理保持。静态重入重点已核固定useSession.clearSelectionState：retiring owner只visible reject/abort，owner/state.busy由实际Promise.finally释放；controller stopIdentity和App监听均默认Vue pre排队，abort引发的reader/Promise尾部不同步建立新current/reference读。因此既有公开App接缝不存在api.abandon当栈重建新读后被此次遍历误置error的路径；此结论只针对实际固定生产监听，不拿外加任意同步watcher作前提。
+
+独立实证：
+- reference01：2/2 PASS，actual0/2.790s。公开dirty确认→pageshow真实Session503（text/plain取消，不要求EOF）→检查当前会话新请求同Session恢复。Memory Model已完成、精确Provider原生body暂停；放弃立即refs三项error、embedding ready与singleton/保存ID保持。原cancel尾部未放行时reader locked且owner busy，UI重读disabled，公开方法也零新增GET/PUT。actual尾部放行后无自动读，重开/清image仍缺证据禁用；通过原Memory/Reranker重读按钮恢复完整pair及canSave，零PUT/零Account请求。另一例四refs全部ready后同放弃，所有ready对象保持且可编辑保存。raw SHA `3e478503d4e5581dc0aa33bb6bd5ef385137d7450d438752e54c228a48d31742`。
+- current01：1/1 PASS，actual0/2.847s。公开确认与sameSession恢复后的selection-state原生body暂停，放弃后立即error/null、refs empty，实际“用途配置读取失败”标题与“重新读取配置”入口；tail未结束时busy/disabled，完成后无自动GET/PUT、不伪造configured。明确点击该入口后singleton与4完整refs恢复ready。raw SHA `601a4c5f794c77ed823823f6c463e12a979ad7bbd8f323b5682c3d85656bb7da`。
+
+两组使用同一私有probe SHA `83cd5a4b4dce0b0288573da89071268198b8d733c01fcf16cd298ec2df7fdcd4`，production控制器未改写。实际命令均从candidate/web，以固定Node及同锁Vitest绝对CLI执行 `run --config vitest.config.mjs src/tests/independent-selection-cancel.spec.ts --reporter=verbose -t 'Independent reference retirement'` / current；45s外层、5s用例、worker1/retry0。每轮command/result保留argv/env/所有前后输入及原raw/probe，actual wait、输入无漂移、0 adopted waits；对应Node PID末检均不存在。只有jsdom布局替代，不冒原生焦点/几何/命中测试证据。
+
+准备原失败 type01 actual2/4.525s：私有只编译probe的最小tsconfig遗漏正式router/index中的RouteMeta声明，SystemNav.order/label类型未识别；行为测试尚未执行。仅将fd固定原declare module片段提取到私有.d.ts并使用独立type02配置，probe/产品原字节不变；type02 actual0/3.174s。原日志SHA `dd659a7ae39f7f59a535d545905fd6e11a690e797b781166bbad6e652115a24e` 不改，不称产品RED。
+
+复用作者固定9新state/native的Model首段、identity/route失效、既有error/optional empty、继续编辑、晚成功/错误后同ID新版本等代表证据，以及1044/type/format/build；本次没有机械重复全矩阵。作者正确终态旧RED→新GREEN另列，本独立候选三例不冒自己在fd上重跑首红。旧diagnostic02/04只作混合输入缺口事实，其原通绿意味着复现缺陷，不回写为修复通过。
+
+交付controller SHA `1a4dbe6f1c0eb7dbdf885fbdc7495c9468bc33a7b8fd7b5082eb45f6c2cc3883`；state spec `5294842bb3fb093f5bcb5351b71b501f54b2c097903f490bc24cf4e322d2c245`；App spec `5daedea590e9e08c24e927e1d9ee7e0ea36d7412f45e97bd508a462c99b96a08`。完整命令/证据索引见同名JSON。后续第四browser固定后仅审增量及真实代表，资源窗口另授；Account第三/第四测试的六叶三组增量仍由主线程接受后精确重放，不能整文件覆盖。

@@ -1,0 +1,154 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.42.29.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=7aa74e3dfe0bd579bfdda4d855e57e9c
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=07f1e13e4d2e78969e4577f7475d8fe3
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.850s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.029s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.020s [no tests to run]
+=== RUN   TestAccountSystemModelSelectionWebOutcomeRecovery
+    system_model_selection_web_test.go:41: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1334740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1334740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-model-selection.spec.ts:923:1 › [outcome] accepted loss, historical lookup and explicit original replay after formal deletion
+        [1A[2K  1 passed (7.5s)
+        
+    system_model_selection_web_test.go:41: real Selection production browser group=outcome completed with 45s browser/2m top budgets; formal configuration facts only, no Provider invocation or index rebuild claim
+--- PASS: TestAccountSystemModelSelectionWebOutcomeRecovery (11.92s)
+=== RUN   TestAccountSystemModelSelectionWebAuthorityAndIdentity
+    system_model_selection_web_test.go:44: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1336379) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1336379) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-model-selection.spec.ts:1014:1 › [authority] current formal Session and administrator checks on GET, PUT and lookup
+        [1A[2K  1 passed (13.7s)
+        
+    system_model_selection_web_test.go:44: real Selection production browser group=authority completed with 45s browser/2m top budgets; formal configuration facts only, no Provider invocation or index rebuild claim
+--- PASS: TestAccountSystemModelSelectionWebAuthorityAndIdentity (19.65s)
+=== RUN   TestAccountSystemModelSelectionWebNavigationAndLayouts
+    system_model_selection_web_test.go:47: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1338431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1338431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-model-selection.spec.ts:1227:1 › [navigation] five leaves, restored cohost focus and eight real layouts
+        [1A[2K  1) e2e/system-model-selection.spec.ts:1227:1 › [navigation] five leaves, restored cohost focus and eight real layouts 
+        
+            [31mTest timeout of 45000ms exceeded.[39m
+        
+            Error: locator.click: Test timeout of 45000ms exceeded.
+            Call log:
+            [2m  - waiting for getByRole('dialog').last().getByRole('button', { name: '保存用途配置', exact: true })[22m
+            [2m    - locator resolved to <button disabled type="submit" data-v-31e5a1e4="" class="ui-button primary">…</button>[22m
+            [2m  - attempting click action[22m
+            [2m    2 × waiting for element to be visible, enabled and stable[22m
+            [2m      - element is not enabled[22m
+            [2m    - retrying click action[22m
+            [2m    - waiting 20ms[22m
+            [2m    2 × waiting for element to be visible, enabled and stable[22m
+            [2m      - element is not enabled[22m
+            [2m    - retrying click action[22m
+            [2m      - waiting 100ms[22m
+            [2m    77 × waiting for element to be visible, enabled and stable[22m
+            [2m       - element is not enabled[22m
+            [2m     - retrying click action[22m
+            [2m       - waiting 500ms[22m
+        
+        
+              1421 |   await top(page)
+              1422 |     .getByRole("button", { name: "保存用途配置", exact: true })
+            > 1423 |     .click();
+                   |      ^
+              1424 |   await factAfter(
+              1425 |     page,
+              1426 |     after,
+                at cutSave (/workspace/agenteam/tests/account-captcha-web/e2e/system-model-selection.spec.ts:1423:6)
+                at /workspace/agenteam/tests/account-captcha-web/e2e/system-model-selection.spec.ts:1908:3
+        
+        
+        [1A[2K  1 failed
+            e2e/system-model-selection.spec.ts:1227:1 › [navigation] five leaves, restored cohost focus and eight real layouts 
+        
+    system_model_selection_web_test.go:47: actual Selection production browser failed: exit status 1
+--- FAIL: TestAccountSystemModelSelectionWebNavigationAndLayouts (50.22s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	81.873s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.013s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce 8bb7ce00b8fc1007dee080ce1b3c7a6d
+D04 outbound fixture cleanup checked for nonce 07f1e13e4d2e78969e4577f7475d8fe3
+D05 object fixture exact resource cleanup checked nonce=7aa74e3dfe0bd579bfdda4d855e57e9c

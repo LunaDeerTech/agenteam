@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/tests/system-model-selection-state.spec.ts",
+    "src/tests/system-model-selection.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/workspace/web",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "seconds": 6.139,
+  "actual_wait": true,
+  "resource_execution": false,
+  "base": "fd32120eba4c76f67b649248377f4825a78d5d79",
+  "inputs_unchanged": true,
+  "account_input04_unchanged": true,
+  "driver_sha256": "18f1a9678ae3b16d7ea11d58a63a0eaf7825868114f228471caa4a72273830a9"
+}

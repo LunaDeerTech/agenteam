@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/tests/independent-selection-cancel.spec.ts"
+  ],
+  "exclude": [
+    "src/router/index.ts"
+  ]
+}

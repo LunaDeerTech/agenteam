@@ -1,0 +1,82 @@
+--- accepted/tests/account/system_model_selection_web_test.go
++++ private/tests/account/system_model_selection_web_test.go
+@@ -4,6 +4,7 @@
+ 
+ import (
+ 	"context"
++	"strconv"
+ 	"testing"
+ 	"time"
+ )
+@@ -46,3 +47,46 @@
+ func TestAccountSystemModelSelectionWebNavigationAndLayouts(t *testing.T) {
+ 	runSystemModelSelectionWeb(t, "navigation", "five_leaves", "ninth_return", "dirty", "uncertain", "checking", "focus", "dialogs", "no_overflow")
+ }
++
++// Independent candidate verification; consumes the unchanged formal fixture.
++func TestIndependentSelectionCancelledReadRecovery(t *testing.T) {
++	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
++	defer cancel()
++	f := newSelectionWebFixture(t, ctx, "outcome")
++	before := f.selectionFacts(ctx)
++	evidence := f.browserSelection(ctx)
++	for _, key := range []string{"held_before_discard", "same_session", "cancelled_not_loading", "ready_preserved", "no_automatic_pair", "zero_write_until_recovery", "incomplete_draft_blocked", "explicit_pairs", "receipt_and_db"} {
++		if evidence[key] != true {
++			t.Fatalf("independent cancellation evidence incomplete: %s", key)
++		}
++	}
++	after := f.selectionFacts(ctx)
++	oldState := before["selection"].(map[string]any)
++	state := after["selection"].(map[string]any)
++	version, err := strconv.ParseUint(oldState["version"].(string), 10, 64)
++	if err != nil || state["id"] != oldState["id"] || state["version"] != strconv.FormatUint(version+1, 10) {
++		t.Fatal("independent final selector version mismatch")
++	}
++	bindings := state["configured"].(map[string]any)
++	for _, purpose := range []string{"embedding", "memory", "reranker"} {
++		target := bindings[purpose].(*string)
++		if target == nil || *target != f.ids[purpose] {
++			t.Fatal("independent final saved binding mismatch")
++		}
++	}
++	if bindings["image"].(*string) != nil {
++		t.Fatal("independent explicit optional clear missing")
++	}
++	for _, key := range []string{"commands", "audits", "events", "distinct_keys"} {
++		if after[key].(int) != before[key].(int)+1 {
++			t.Fatalf("independent final durable count mismatch: %s", key)
++		}
++	}
++	if after["embedding_events"] != before["embedding_events"] || after["deliveries"] != 0 || after["invocations"] != 0 {
++		t.Fatal("independent unexpected downstream effect")
++	}
++	if len(after["references"].([]map[string]string)) != 3 {
++		t.Fatal("independent final reference count mismatch")
++	}
++	t.Log("independent held-reference cancellation, explicit recovery and one formal selector save verified; 45s browser/2m top budgets")
++}
+--- accepted/tests/account/system_model_selection_web_fixture_test.go
++++ private/tests/account/system_model_selection_web_fixture_test.go
+@@ -637,11 +637,11 @@
+ }
+ func (f *selectionWebFixture) browserSelection(ctx context.Context) map[string]any {
+ 	f.t.Helper()
+-	root, e := filepath.Abs("../account-captcha-web")
++	root, e := filepath.Abs("/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/browser")
+ 	if e != nil {
+ 		f.t.Fatal(e)
+ 	}
+-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "system-model-selection.config.js"))
++	cmd := exec.CommandContext(ctx, "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "independent-selection-cancel.config.js"))
+ 	cmd.Dir = root
+ 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+ 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+@@ -651,7 +651,7 @@
+ 			cmd.Env = append(cmd.Env, value)
+ 		}
+ 	}
+-	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_MODEL_SELECTION_WEB_CASE="+f.mode, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "PLAYWRIGHT_NO_COPY_PROMPT=1")
++	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_MODEL_SELECTION_WEB_CASE=navigation", "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "PLAYWRIGHT_NO_COPY_PROMPT=1")
+ 	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
+ 		if !filepath.IsAbs(images) {
+ 			f.t.Fatal("Selection image path must be absolute")

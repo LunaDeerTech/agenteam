@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：Selection 取消读取恢复接受
+
+- [修复卡 rev1.1](../work-items/d27-model-selection-cancelled-read-recovery.md)四路径完成作者检查及独立验收，主线程采纳提交推送 `debbb28deb7c883fd0b6b77a75354b9b5d7ece0b`，远端一致。[正式报告与不可变证据](model-selection-cancelled-read-recovery-verification.md)绑定 fd32120、input01 `e0542701…fe8e6`、四源/31dist指纹与1033固定依赖；技术§1–4原字节保持。
+- 公开放弃同步将本批current/reference的loading退役为可明确重读错误，保留ready/ID及既有empty/error；严格canSave、旧代次隔离与actual owner join保持，无自动续读/新写。作者1044纯测及Navigation/Read/Outcome真实检查通过，独立三例native屏障及首轮真实代表通过，actual0/60.523s、7IDs/85PID/4实际wait双清。
+- 旧正确终态首红、文档缺失/RouteMeta准备前提失败和早期混合诊断均保留；诊断绿不是修复PASS，旧Account首轮Save disabled现场缺字段，不能倒填唯一原因。本轮八图仅作者逐图检查；独立v1错误图审归属保留并由v2勘误，主线程仅读报告。
+- 本次271逻辑/176物理原件仅离线核Git与保存字节/退出/清理，不重复产品。Account两个重叠测试须保留新强断言、另重放六叶三组并验组合，整卡尚未接受。完整D09/D26/D27及D08–D28/E01未完成、E01未开始；Summary待决、Object/tools原停止及生产未绑定/ready503边界保持。
+
 ## 2026-10-06：Dialog 显式页面焦点后备接受
 
 - [共享 fallback rev1](../work-items/d27-dialog-fallback-focus.md)五路径已完成作者检查及独立验收，主线程采纳提交推送 `fd32120eba4c76f67b649248377f4825a78d5d79`，远端一致。[正式报告与最小证据](dialog-fallback-focus-verification.md)绑定组件基线870ebbb、规格3c79fd4及作者input01 `604a4738…9f6860`，技术§1–4保持原字节。

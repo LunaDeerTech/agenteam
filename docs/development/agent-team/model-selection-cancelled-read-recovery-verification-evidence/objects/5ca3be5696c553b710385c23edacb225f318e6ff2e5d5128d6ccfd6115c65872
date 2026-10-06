@@ -1,0 +1,11 @@
+import 'vue-router'
+import type { AccountEntryMode } from '../router/account-link'
+declare module 'vue-router' {
+  interface RouteMeta {
+    navigation?: { label: string; order: number }
+    authentication?: boolean
+    protected?: boolean
+    systemAdmin?: boolean
+    accountEntry?: AccountEntryMode
+  }
+}

@@ -1,0 +1,14 @@
+--- probe03
++++ probe04
+@@ -204,9 +204,9 @@
+     expect(f.auth.state.busy).toBe(false); expect(pending.response.body!.locked).toBe(false)
+     const count = f.calls.length; await flushPromises(); await flushPromises(); expect(f.calls).toHaveLength(count)
+     expect(p.selection.phase).toBe('loading'); expect(p.selection.value).toBeNull()
+-    expect(dialogs()).toHaveLength(0); expect(button('编辑用途').disabled).toBe(true)
++    expect(dialogs()).toHaveLength(0); expect(button('配置用途').disabled).toBe(true)
+     expect(button('刷新配置').disabled).toBe(false); expect(f.writes()).toHaveLength(0)
+-    report('singleton-after-native-tail', { busy: f.auth.state.busy, nativeReaderReleased: !pending.response.body!.locked, selectionPhase: p.selection.phase, selectionValueNull: p.selection.value === null, editDisabled: button('编辑用途').disabled, refreshEnabled: !button('刷新配置').disabled, readsAfterSettle: f.calls.length-count, writes: f.writes().length })
++    report('singleton-after-native-tail', { busy: f.auth.state.busy, nativeReaderReleased: !pending.response.body!.locked, selectionPhase: p.selection.phase, selectionValueNull: p.selection.value === null, editDisabled: button('配置用途').disabled, refreshEnabled: !button('刷新配置').disabled, readsAfterSettle: f.calls.length-count, writes: f.writes().length })
+     f.setSelectionRead(async () => json(f.saved())); await click('刷新配置')
+     expect(p.selection.phase).toBe('ready'); expect(phases(p)).toEqual({ embedding: 'ready', memory: 'ready', reranker: 'ready', image: 'ready' })
+     expect(button('编辑用途').disabled).toBe(false); expect(f.writes()).toHaveLength(0)

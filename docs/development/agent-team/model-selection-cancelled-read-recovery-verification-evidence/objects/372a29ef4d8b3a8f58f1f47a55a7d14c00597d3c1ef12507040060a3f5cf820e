@@ -1,0 +1,30 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestIndependentSelectionCancelledReadRecovery)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/workspace",
+  "ended_utc": "2026-10-06T15:19:53.460130+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/images",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtsel-r5ltgbzj",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/overlay.json",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/real01/runs/independent01/runtime"
+  },
+  "exit": 0,
+  "seconds": 60.523,
+  "started_utc": "2026-10-06T15:18:52.937271+00:00"
+}

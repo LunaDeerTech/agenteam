@@ -1,0 +1,106 @@
+test("[navigation] independent held reference cancellation requires explicit recovery before a formal save", async ({ page }) => {
+  await setup(page);
+  const data = material(), before = await dbFacts(), originalSession = await session(page);
+  referenceFacts(before);
+  expect(before.selection.configured).toEqual({
+    embedding: data.ids.embedding, memory: data.ids.memory,
+    reranker: data.ids.reranker, image: data.ids.image,
+  });
+  for (const purpose of ["embedding", "memory", "reranker", "image"] as Purpose[])
+    await expect(savedRow(page, purpose).locator("dl")).toHaveCount(1);
+  await openEditor(page);
+  await clearOptional(page, "image");
+  await top(page).getByRole("button", { name: "取消", exact: true }).click();
+  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
+  await ipc("hold-get", { id: data.ids.memory_provider! });
+  const after = await seq(page);
+  try {
+    const checking = await page.evaluate(async () => {
+      let observer: MutationObserver | undefined;
+      try {
+        return await new Promise<boolean>((resolve) => {
+          observer = new MutationObserver(() => {
+            if (document.querySelector(".session-check"))
+              resolve(document.querySelectorAll('[role="dialog"]').length === 0);
+          });
+          observer.observe(document.body, { childList: true, subtree: true });
+          window.dispatchEvent(new Event("pageshow"));
+        });
+      } finally { observer?.disconnect(); }
+    });
+    expect(checking).toBe(true);
+    await factAfter(page, after, (f) => f.path === "/api/v1/session" &&
+      f.status === 200 && f.ended && f.session?.user_id === originalSession.user_id &&
+      f.session.session_id === originalSession.session_id && f.session.role === originalSession.role);
+    const layers = page.locator('[role="dialog"]');
+    await expect(layers).toHaveCount(2);
+    await expect(page.getByRole("dialog")).toHaveCount(1);
+    expect(await layers.evaluateAll((nodes) => {
+      const [lower, upper] = nodes as HTMLElement[];
+      return lower?.inert && lower.getAttribute("aria-hidden") === "true" &&
+        lower.querySelector("h2")?.textContent === "配置平台模型用途" &&
+        upper?.inert === false && upper.getAttribute("aria-hidden") !== "true" &&
+        upper.querySelector("h2")?.textContent === "放弃未保存修改？";
+    })).toBe(true);
+    await expect.poll(async () => (await ipc("hold-facts")).started).toBe(true);
+    await factAfter(page, after, (f) => f.method === "GET" &&
+      f.path === "/api/v1/system/model-providers/" + data.ids.memory_provider && !f.ended);
+    await expect(savedRow(page, "embedding").locator("dl")).toHaveCount(1);
+    await expect(savedRow(page, "memory")).toContainText("正在读取 Model 与 Provider 详情");
+    // Cancellation must happen during the actual owned two-second response hold.
+    expect(await ipc("hold-facts")).toMatchObject({ started: true, finished: false });
+    await top(page).getByRole("button", { name: "放弃修改", exact: true }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(savedRow(page, "embedding").locator("dl")).toHaveCount(1);
+    for (const purpose of ["memory", "reranker", "image"] as Purpose[]) {
+      await expect(savedRow(page, purpose)).toContainText(data.ids[purpose]!);
+      await expect(savedRow(page, purpose)).toContainText("读取已取消，请在请求结束后明确重读。");
+      await expect(savedRow(page, purpose).getByRole("status")).toHaveCount(0);
+    }
+    expect((await writes(page)).length).toBe(0);
+    expect(canonical(await dbFacts())).toBe(canonical(before));
+  } finally { await ipc("release-get"); }
+  await expect.poll(async () => (await ipc("hold-facts")).finished).toBe(true);
+  await factAfter(page, after, (f) => f.method === "GET" &&
+    f.path === "/api/v1/system/model-providers/" + data.ids.memory_provider && f.ended);
+  await expect(button(page, "刷新配置")).toBeEnabled();
+  const pairPaths = (await facts(page)).filter((f) => f.sequence > after &&
+    f.method === "GET" && /^\/api\/v1\/system\/(models|model-providers)\/[^/?]+$/.test(f.path)).map((f) => f.path);
+  expect(pairPaths).toEqual([
+    "/api/v1/system/models/" + data.ids.embedding,
+    "/api/v1/system/model-providers/" + data.ids.embedding_provider,
+    "/api/v1/system/models/" + data.ids.memory,
+    "/api/v1/system/model-providers/" + data.ids.memory_provider,
+  ]);
+  // A new changed draft remains disabled while required saved evidence is absent.
+  await openEditor(page);
+  await clearOptional(page, "image");
+  await expect(top(page).getByRole("button", { name: "保存用途配置", exact: true })).toBeDisabled();
+  await discard(page);
+  expect((await facts(page)).filter((f) => f.sequence > after && f.method === "GET").length)
+    .toBe(pairPaths.length + 2); // one fresh Session and one current Selection GET
+  for (const purpose of ["memory", "reranker", "image"] as Purpose[])
+    await rereadSavedReference(page, purpose);
+  expect((await writes(page)).length).toBe(0);
+  expect(canonical(await dbFacts())).toBe(canonical(before));
+  await openEditor(page);
+  await clearOptional(page, "image");
+  await expect(top(page).getByRole("button", { name: "保存用途配置", exact: true })).toBeEnabled();
+  const receipt = await save(page), final = await dbFacts();
+  expect(receipt).toEqual({ kind: "model.selection.update", resource_id: before.selection.id,
+    version: String(BigInt(before.selection.version) + 1n), affected_references: "0" });
+  expect(final.selection).toEqual({ ...before.selection, version: receipt.version,
+    configured: { ...before.selection.configured!, image: null } });
+  referenceFacts(final);
+  expect(final.commands - before.commands).toBe(1);
+  expect(final.audits - before.audits).toBe(1);
+  expect(final.events - before.events).toBe(1);
+  expect(final.distinct_keys - before.distinct_keys).toBe(1);
+  expect(final.embedding_events).toBe(before.embedding_events);
+  expect((await writes(page)).length).toBe(1);
+  const safe = { held_before_discard: true, same_session: true, cancelled_not_loading: true,
+    ready_preserved: true, no_automatic_pair: true, zero_write_until_recovery: true,
+    incomplete_draft_blocked: true, explicit_pairs: true, receipt_and_db: true };
+  console.log(JSON.stringify({ independent_cancel_recovery: safe }));
+  result(safe);
+});

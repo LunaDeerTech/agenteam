@@ -1,0 +1,18 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/candidate/web
+
+ ↓ src/tests/independent-selection-cancel.spec.ts > Independent reference retirement > keeps a public confirmation through failed Session recovery, retires Provider-body work, and recovers only explicitly
+ ↓ src/tests/independent-selection-cancel.spec.ts > Independent reference retirement > preserves a fully completed restored batch through the same public discard
+stdout | src/tests/independent-selection-cancel.spec.ts > Independent current retirement > retires a pending singleton as error/null and uses the actual recovery button after native join
+{"diagnostic":"current-visible-retired-before-native-tail","facts":{"busy":true,"phase":"error","valueNull":true,"phases":{"embedding":"empty","memory":"empty","reranker":"empty","image":"empty"},"extraRequests":0,"writes":0}}
+
+stdout | src/tests/independent-selection-cancel.spec.ts > Independent current retirement > retires a pending singleton as error/null and uses the actual recovery button after native join
+{"diagnostic":"current-explicit-recovery","facts":{"phase":"ready","busy":false,"phases":{"embedding":"ready","memory":"ready","reranker":"ready","image":"ready"},"writes":0}}
+
+ ✓ src/tests/independent-selection-cancel.spec.ts > Independent current retirement > retires a pending singleton as error/null and uses the actual recovery button after native join 523ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 2 skipped (3)
+   Start at  15:00:00
+   Duration  2.34s (transform 971ms, setup 0ms, import 1.14s, tests 525ms, environment 523ms)
+

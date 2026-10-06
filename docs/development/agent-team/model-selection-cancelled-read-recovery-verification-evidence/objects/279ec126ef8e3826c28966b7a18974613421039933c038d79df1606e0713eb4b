@@ -1,0 +1,121 @@
+{
+  "conclusion": "BOUNDED STATIC/PURE PASS; no real browser or final four-path acceptance",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/web-stage01/manifest.json",
+    "sha256": "93e270e68c093050e23670a01daf6a34e4eec0ca62787a7d92f8b01cdac8ef89"
+  },
+  "base": "fd32120eba4c76f67b649248377f4825a78d5d79",
+  "three_sources": {
+    "web/src/composables/useSystemModelSelection.ts": "1a4dbe6f1c0eb7dbdf885fbdc7495c9468bc33a7b8fd7b5082eb45f6c2cc3883",
+    "web/src/tests/system-model-selection-state.spec.ts": "5294842bb3fb093f5bcb5351b71b501f54b2c097903f490bc24cf4e322d2c245",
+    "web/src/tests/system-model-selection.spec.ts": "5daedea590e9e08c24e927e1d9ee7e0ea36d7412f45e97bd508a462c99b96a08"
+  },
+  "author_dist_files_verified": 31,
+  "accepted_dependencies_compared_to_fixed_git": 125,
+  "independent_minimal_source_files": 43,
+  "private_input": {
+    "path": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/input02.json",
+    "sha256": "2e54a97d509476ea3e8f9c2a1f81d7979257138fd4a8f9a2f6288a0878f78099"
+  },
+  "probe": {
+    "path": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/candidate/web/src/tests/independent-selection-cancel.spec.ts",
+    "sha256": "83cd5a4b4dce0b0288573da89071268198b8d733c01fcf16cd298ec2df7fdcd4"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/run-pure02.py",
+    "sha256": "9f227394e87517f344b16c0455adbcb4b45f80fbde6f14ee0374724b2bad8616"
+  },
+  "runs": {
+    "type01": {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/web/node_modules/vue-tsc/bin/vue-tsc.js",
+        "--noEmit",
+        "-p",
+        "tsconfig.probe.json"
+      ],
+      "cwd": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/candidate/web",
+      "pid": 1432033,
+      "exit_code": 2,
+      "elapsed_seconds": 4.525,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "dd659a7ae39f7f59a535d545905fd6e11a690e797b781166bbad6e652115a24e",
+      "adopted_waits": [],
+      "result_sha256": "087435d83457d2595a498af9004fef93ab7a46f918fe71dbdb0515ecbf67699d",
+      "command_sha256": "3b1835dab5957e23777d0b54a61e2d59f836a3739f464afcf839f9a7d60d37a0",
+      "node_pid_absent_at_review": true
+    },
+    "type02": {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/web/node_modules/vue-tsc/bin/vue-tsc.js",
+        "--noEmit",
+        "-p",
+        "tsconfig.probe02.json"
+      ],
+      "cwd": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/candidate/web",
+      "pid": 1432434,
+      "exit_code": 0,
+      "elapsed_seconds": 3.174,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "adopted_waits": [],
+      "result_sha256": "825401aa898ce07ec30492427fac0f3366a1cf8794503ebb442d7c96d663a138",
+      "command_sha256": "ec0715087933a4feae7240300a925418818e4da03271f4c3de2f056ffca234fb",
+      "node_pid_absent_at_review": true
+    },
+    "reference01": {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--config",
+        "vitest.config.mjs",
+        "src/tests/independent-selection-cancel.spec.ts",
+        "--reporter=verbose",
+        "-t",
+        "Independent reference retirement"
+      ],
+      "cwd": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/candidate/web",
+      "pid": 1432484,
+      "exit_code": 0,
+      "elapsed_seconds": 2.79,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "3e478503d4e5581dc0aa33bb6bd5ef385137d7450d438752e54c228a48d31742",
+      "adopted_waits": [],
+      "result_sha256": "4d175c625756dac31d4e8b803da0a3bd75e2f73461d7baf290dde2b5d7b5b20f",
+      "command_sha256": "cbb580c73ce09bdf98653a0a4eb5d2014973f9ec934c9febb9839d6e852ba372",
+      "node_pid_absent_at_review": true
+    },
+    "current01": {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--config",
+        "vitest.config.mjs",
+        "src/tests/independent-selection-cancel.spec.ts",
+        "--reporter=verbose",
+        "-t",
+        "Independent current retirement"
+      ],
+      "cwd": "/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/candidate/web",
+      "pid": 1432556,
+      "exit_code": 0,
+      "elapsed_seconds": 2.847,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "601a4c5f794c77ed823823f6c463e12a979ad7bbd8f323b5682c3d85656bb7da",
+      "adopted_waits": [],
+      "result_sha256": "8530c74a7274cc19bcf2113b958025015cf9de31b5405276a96a8e6f9b30effd",
+      "command_sha256": "5b63455d51bc4aaa37d6711c88299d08f4fdc5520e586259f51ef97b9aa61d29",
+      "node_pid_absent_at_review": true
+    }
+  },
+  "real_resources_started": false,
+  "author_browser_candidate_read": false,
+  "frozen": true
+}

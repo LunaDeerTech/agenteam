@@ -1,0 +1,30 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestAccountSystemModelSelectionWebReadAndPagination|TestAccountSystemModelSelectionWebOutcomeRecovery)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/workspace",
+  "ended_utc": "2026-10-06T15:14:46.148863+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/runs/regression01/images",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtsel-v17ua7oe",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/runs/regression01/runtime"
+  },
+  "exit": 0,
+  "seconds": 84.293,
+  "started_utc": "2026-10-06T15:13:21.855518+00:00"
+}

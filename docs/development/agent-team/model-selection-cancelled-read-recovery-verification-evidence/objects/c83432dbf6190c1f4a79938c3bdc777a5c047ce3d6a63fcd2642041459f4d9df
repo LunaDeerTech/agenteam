@@ -1,0 +1,27 @@
+# Selection 中止读取状态窄诊断（永久冻结）
+
+结论：固定 Account input04 下，已接受 Selection 自身存在公开 UI 可达的取消后 loading 未收尾缺口；没有证据将 oldselection01 现场失败或 Account 新域回归与此直接等同。诊断用例绿表示该缺口得到复现，不表示产品行为通过。未修改产品、未启动服务/真实浏览器/PG/Docker。
+
+输入绑定 Account input04 manifest `c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7`，private input.json 和每轮 command/result 的前后 SHA 均保留。46 个必要固定源/锁文件，复用已验 Account 最小 App 闭包，Selection View/Editor 取固定 Git；无全树或依赖复制。
+
+实证：
+- diagnostic02 两例：初始四引用完整；dirty 确认打开后实际 pageshow 同 Session 重挂，Memory 原生 body pending 时“放弃修改”按钮确实 enabled。点击后 cancel 尾部放行且 reader 解锁、owner busy=false，三引用仍 loading，无自动新读；重新打开并清 image 后 changed=true/locked=false/blocked=false，却缺 memory/reranker 完整证据而 Save disabled。零 PUT/零 Account GET。明确重读这两项后 canSave=true。对照先等恢复后的四引用完整再放弃，同样重开动作可保存。
+- diagnostic04 新增一例：恢复 selection-state GET 原生 body pending 时同一公开放弃动作，实际尾部完成后 singleton 永留 loading/value=null，配置按钮 disabled，刷新 enabled、无续读/零 PUT。明确刷新后 singleton 与四引用全部 ready。
+- 原始读取不结束前 owner 保持 busy；没有将可见取消或 HTTP 字节当作 actual join。没有计时等待来制造结果。
+
+归因与建议：controller discard 同步推进 revision 并调用 Selection abandon；readReferences/readCurrent 的旧 continuation 正确拒绝发布，但其先前 loading 未在当前取消边界转换终态。Selection 卡 §2 禁止缺失详情生成新写，因此禁用保存本身正确；§5 要求取消后不续发，故修复不应自动重试或让旧 continuation 晚写。最小方向是同步退役本批未完成 loading→明确可重读错误态，保留正式已完成观察/ID，owner 实际 join 后仍由用户显式重读/刷新。Account 新域清理只命中本域 owner；原 Selection 代次、abandon、读取实现保持。
+
+限制：这是 jsdom 实际 App/原正式 Session 与 API 解析器、受控 native ReadableStream 的离线证据，不是 Chromium/网络/原旧轮现场。未访问其他管理页，用私有未访问占位组件；未注册的两个导航目标产生 Router warning，未触发它们且 Account 请求计数为零。oldselection01 只有 disabled timeout，没有 refs/busy/序号原始字段，不能追补。root 后续真实 oldselection02 成功事实另列，不能抹去旧失败或此受控缺口。
+
+原前提失败：diagnostic01 私有最小闭包遗漏无关 View 导入，未进入用例；修为未访问占位路由并加入固定 Selection View/Editor。diagnostic03 已走完 state GET 原生尾部断言，但误以为 null 观察时按钮仍名“编辑用途”；固定 View 实际为“配置用途”，只修两处精确名字，diagnostic04 完成恢复后半。两原件均不改写。
+
+- `web/src/composables/useSystemModelSelection.ts` SHA256 `10f37e124c7852a895272ac65b86dd919b359aba997e99e72f5804efec8feb67`，与 Git 870ebbb 字节相同。
+- `web/src/views/system/SystemModelSelectionView.vue` SHA256 `3276ec40d8468ee3cac1785c90f47d906b0b38a7a8848aeb451558a0f0e94683`，与 Git 870ebbb 字节相同。
+- `web/src/views/system/SystemModelSelectionEditor.vue` SHA256 `b27430f537ab2e59946cc7f9f843a1c2f5ae4afdcf19455becebb230c39113cd`，与 Git 870ebbb 字节相同。
+
+实际运行原件（同目录 command.json/driver.py.txt/probe.ts.txt）：
+
+- `diagnostic01`: actual exit 1, 0.972 s, inputs unchanged=True; raw `948ebe6b6bed57985e8e104782d9187d93a8c814046744675919139266ac115f`; result `e371eaba3f586ed3e07cc7d75cb2c113735304f7b2eec483efa4ba40e6ef62e5`; probe `d70e3aa20978fc2fed8d803b341ab07cbe8f2945ca9cc314edda702e36c0d087`。
+- `diagnostic02`: actual exit 0, 2.432 s, inputs unchanged=True; raw `cf2f16bf9d2b34cbd63928b19932c4d092fc34b7736e4c8a70ab02631b3b4488`; result `b721c75332a47078329bedb68e504307ccabe909011e536502185b6fbd6b9e8e`; probe `1b6fe668c3c68e9c927f7ffb32c488766716ffadd6f4787369fac26e44554b84`。
+- `diagnostic03`: actual exit 1, 2.673 s, inputs unchanged=True; raw `caed4bba3dba7b249be7be0d3c3ab064209e8e38c2b7b0538861f1c81a44ab00`; result `0d38e5af9e355a3c85b299b3c7c01ee35148e7093ab1b15bac988084e7b0a7e1`; probe `5941a4ae1d0d3f0801ca7e5141e5f6c1e4d0fd022905b26a11ad5cd7ddcb9434`。
+- `diagnostic04`: actual exit 0, 2.176 s, inputs unchanged=True; raw `e5428eb86524ca6aedf7072da99109e6fa60e3e8146c1da7acfddc66c3736a0b`; result `fc2a5d8dd8057143328c54d3e7a550457a116280f5934171de57699af99b9199`; probe `89a7a03950bc8faa70024f17048335b35d57358e306756c2b920bccfcca53b26`。

@@ -1,0 +1,56 @@
+--- probe02
++++ probe03
+@@ -55,6 +55,7 @@
+   const records = new Map<string, ProviderModel>([[id(200), model(200, 100, 'embedding')], [id(210), model(210, 110, 'chat')], [id(211), model(211, 110, 'chat')], [id(220), model(220, 120, 'reranker')], [id(230), model(230, 130, 'image_generation')]])
+   let current = session(), saved = initial(), conflicts = 0, cuts = 0, getFailures = 0
+   let sessionReply: Fetch = async () => json(current)
++  let selectionRead: Fetch = async () => json(saved)
+   let providerDetail: Fetch = async path => sources.has(path.split('/').at(-1)!) ? json(sources.get(path.split('/').at(-1)!)) : problem('NOT_FOUND', 404)
+   let modelDetail: Fetch = async path => records.has(path.split('/').at(-1)!) ? json(records.get(path.split('/').at(-1)!)) : problem('NOT_FOUND', 404)
+   let providerPage: Fetch = async () => json({ items: [...sources.values()].sort((a, b) => b.id.localeCompare(a.id)), next_cursor: null })
+@@ -65,7 +66,7 @@
+     calls.push({ path, init })
+     if (path === '/api/v1/session') return sessionReply(path, init)
+     if (path === '/api/v1/system/model-selection') {
+-      if (init.method === 'GET') { if (getFailures) { getFailures--; return problem() } return json(saved) }
++      if (init.method === 'GET') { if (getFailures) { getFailures--; return problem() } return selectionRead(path, init) }
+       const key = new Headers(init.headers).get('Idempotency-Key')!, old = accepted.get(key)
+       if (old) return json(old)
+       if (conflicts) { conflicts--; saved = { ...saved, version: '2' }; return problem('VERSION_CONFLICT', 409) }
+@@ -103,6 +104,7 @@
+   await flushPromises(); await flushPromises()
+   return { auth, page: page!, router, sources, records, calls, saved: () => saved, setSaved: (v: SelectionState) => { saved = v },
+     conflict: () => { conflicts++ }, cut: () => { cuts++ }, failGet: () => { getFailures++ },
++    setSelectionRead: (f: Fetch) => { selectionRead = f },
+     setSession: (f: Fetch) => { sessionReply = f }, resetSession: (n = 2) => { current = session(n); sessionReply = async () => json(current) },
+     setProviderDetail: (f: Fetch) => { providerDetail = f }, resetProviderDetail: () => { providerDetail = async p => json(sources.get(p.split('/').at(-1)!)) },
+     setModelDetail: (f: Fetch) => { modelDetail = f }, setProviders: (f: Fetch) => { providerPage = f }, setModels: (f: Fetch) => { modelPage = f },
+@@ -186,3 +188,28 @@
+     report('completed-read-control', { canSave: p.canSave.value, busy: f.auth.state.busy, phases: phases(p), writes: f.writes().length })
+   })
+ })
++
++describe('Private fixed Selection state read discard diagnosis', () => {
++  it('uses public discard while the restored singleton read is pending and only explicit refresh removes orphan loading', async () => {
++    const f = await fixture(true), p = observedPage()
++    expect(phases(p)).toEqual({ embedding: 'ready', memory: 'ready', reranker: 'ready', image: 'ready' })
++    await click('编辑用途'); await click('不配置 Reranker', top()); await click('取消', top())
++    const entered = gate<void>(), pending = held(f.saved())
++    f.setSelectionRead(async () => { entered.resolve(); return pending.response })
++    window.dispatchEvent(new Event('pageshow')); await entered.promise; await flushPromises(); await flushPromises()
++    expect(f.auth.state.phase).toBe('authenticated'); expect(p.selection.phase).toBe('loading')
++    expect(dialogs()).toHaveLength(2); expect(button('放弃修改', top()).disabled).toBe(false)
++    await click('放弃修改', top()); await pending.cancelled.promise; await flushPromises()
++    expect(f.auth.state.busy).toBe(true); pending.tail.resolve(); await flushPromises(); await flushPromises()
++    expect(f.auth.state.busy).toBe(false); expect(pending.response.body!.locked).toBe(false)
++    const count = f.calls.length; await flushPromises(); await flushPromises(); expect(f.calls).toHaveLength(count)
++    expect(p.selection.phase).toBe('loading'); expect(p.selection.value).toBeNull()
++    expect(dialogs()).toHaveLength(0); expect(button('编辑用途').disabled).toBe(true)
++    expect(button('刷新配置').disabled).toBe(false); expect(f.writes()).toHaveLength(0)
++    report('singleton-after-native-tail', { busy: f.auth.state.busy, nativeReaderReleased: !pending.response.body!.locked, selectionPhase: p.selection.phase, selectionValueNull: p.selection.value === null, editDisabled: button('编辑用途').disabled, refreshEnabled: !button('刷新配置').disabled, readsAfterSettle: f.calls.length-count, writes: f.writes().length })
++    f.setSelectionRead(async () => json(f.saved())); await click('刷新配置')
++    expect(p.selection.phase).toBe('ready'); expect(phases(p)).toEqual({ embedding: 'ready', memory: 'ready', reranker: 'ready', image: 'ready' })
++    expect(button('编辑用途').disabled).toBe(false); expect(f.writes()).toHaveLength(0)
++    report('singleton-explicit-refresh', { selectionPhase: p.selection.phase, phases: phases(p), editEnabled: !button('编辑用途').disabled, writes: f.writes().length })
++  })
++})

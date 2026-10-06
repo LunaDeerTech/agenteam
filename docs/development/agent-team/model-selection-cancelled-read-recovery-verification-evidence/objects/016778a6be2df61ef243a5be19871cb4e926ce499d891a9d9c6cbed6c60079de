@@ -1,0 +1,30 @@
+Selection 取消读取恢复：作者验证完成，待独立动态验收与主线程最终采纳。固定产品基线 `fd32120eba4c76f67b649248377f4825a78d5d79`，规格 rev1.1；实现仅在任务私有 workspace 的四个候选路径。主树 Account input04 的26源/33产物保持原字节，未做 Account 菜单重放、README 或 Git 变更。
+
+产品只在 `discard` 的同步 revision 退役边界结算 current/reference 的 `loading→error`，保留 saved ID、完整 ready pair、原有 error/optional empty。旧 continuation 校验、严格 canSave、实际 owner/cancel join、原请求恢复语义不变；现有显式重读/刷新恢复完整证据，没有自动补读或新写。
+
+固定输入 [input01/manifest.json](../input01/manifest.json) SHA256 `e05427019f96dd4e33dc3f51d4c4925e1cff8ce09a8ba28c8494cf5f5d0fe8e6`，四源、31 dist、1033个固定 Git 接受依赖及复用锁依赖均前后核验。[index.json](index.json) 绑定全部原件 SHA、完整 argv/cwd/env/actual wait、首次失败输入和资源终局；源码副本与完整差异在 input01。
+
+| 候选路径 | SHA256 |
+| --- | --- |
+| `tests/account-captcha-web/e2e/system-model-selection.spec.ts` | `24487a08ddd7d5a8f0d6b8a52471f649863610cfdf877284b28795d6abe25e42` |
+| `web/src/composables/useSystemModelSelection.ts` | `1a4dbe6f1c0eb7dbdf885fbdc7495c9468bc33a7b8fd7b5082eb45f6c2cc3883` |
+| `web/src/tests/system-model-selection-state.spec.ts` | `5294842bb3fb093f5bcb5351b71b501f54b2c097903f490bc24cf4e322d2c245` |
+| `web/src/tests/system-model-selection.spec.ts` | `5daedea590e9e08c24e927e1d9ee7e0ea36d7412f45e97bd508a462c99b96a08` |
+
+| 实际检查 | 结果与证据范围 |
+| --- | --- |
+| pure-red01 | actual1 / 4.777s；固定 fd32120 原 controller 上 reference/current 两个正确终态断言均红，原17例通过。npm exec 消费 `-t`，实际跑19例；保留原 warning、源与日志，不称只跑两例。 |
+| pure-green01 / targeted01 | actual0 / 3.151s，同两例转绿；actual0 / 6.139s，两目标文件105例通过。包含原生 Model/Provider/read/cancel 屏障、零续读、显式恢复、late result/身份/路由隔离及公开 App 确认恢复。 |
+| check01 | actual1 / 24.747s，1043/1044通过；唯一失败是私有导出遗漏已接受 styles 文档的 ENOENT，build未执行。属于准备前提错误，原件保留。 |
+| check02 | 按主线程授权仅补固定 fd32120 的只读文档后 actual0 / 25.796s；29文件/1044测试、format、type、build及31产物通过。无额外产品路径。 |
+| browser / Go离线 | 严格 TS、format通过；正式 Go cwd 同一锁 CLI 对 Navigation/Read/Outcome 各 list1；Go1.27.1 integration/race空运行编译 actual0 / 30.738s，精确三顶层 discovery actual0 / 2.344s。 |
+| navigation01 | actual0 / 119.897s；顶层15.56s、browser11.8s。受控 Memory Provider 请求 !ended 且 hold started=true/finished=false 后才放弃，完整 Embedding 保留，其余三项取消错误、零自动后续GET/PUT；显式重读后原保存/DB/确认/焦点/八布局全部通过。 |
+| regression01 | actual0 / 84.293s；ReadAndPagination18.74s、OutcomeRecovery11.18s均首轮通过；未重跑已通过Navigation。 |
+
+两次真实命令保持45s browser、2m顶层、6m包、race/count1、worker1/retry0。navigation01 的7 exact IDs、130 owned PID/starttime、4 adopted wait；regression01 的7 exact IDs、100 owned PID/starttime、8 adopted wait，均完成实际wait及两扫清零，runtime/短浏览器目录空并移除、原资源baseline不变、monitor0。4源/31dist/1033接受输入、锁依赖、driver及Account26+33前后不变。当前没有活动命令或资源，窗口已交回主线程。
+
+[八图实际审阅](../runs/navigation01/visual-review.json)：明暗两色、1440/1024/834宽为两列，390为单列，长字段折行，无目视横向溢出或残留遮罩。图片是滚动内容顶端，后续字段和用途仍须正常滚动，不能从单张图声称全部字段同时可见。
+
+原 Account oldselection01 的真实 Save disabled timeout、oldselection02 的全详情完成下PASS，以及更早混合输入 diagnostic01/03 前提红与02/04复现分列保留于索引。本卡独立重建固定接受基线首红；受控修复不倒填 oldselection01 缺失的现场字段，也不把那次失败唯一归因于本缺口。服务器 hold结束仅证明受控响应结束，原生读取/cancel实际尾部由专门的stream屏障证明。
+
+未覆盖 Account 六叶/三组整合、未重跑卡外领域，不声称外部模型可调用、索引重建或完整D27完成。独立验收报告与最终提交由主线程另行收束。

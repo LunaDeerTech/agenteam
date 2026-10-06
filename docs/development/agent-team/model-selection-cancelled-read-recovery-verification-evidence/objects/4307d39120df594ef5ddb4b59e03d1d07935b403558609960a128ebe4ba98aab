@@ -1,0 +1,49 @@
+npm warn "retires the restored" is being parsed as a normal command line argument.
+npm warn Unknown cli config "--t". This will stop working in the next major version of npm.
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/workspace/web
+
+ ❯ src/tests/system-model-selection.spec.ts (19 tests | 2 failed) 2408ms
+     × retires the restored reference read to a recoverable error without releasing its native tail 402ms
+     × retires the restored current read to a recoverable error without releasing its native tail 157ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-model-selection.spec.ts > Selection cancelled read recovery through public App controls > retires the restored reference read to a recoverable error without releasing its native tail
+AssertionError: expected 'Memory 保存的 Model ID：01900000-0000-700…' to contain '读取已取消'
+
+Expected: "读取已取消"
+Received: "Memory 保存的 Model ID：01900000-0000-7000-8000-000000000015 正在读取 Model 与 Provider 详情。 重读 Memory 详情处理中已完成"
+
+ ❯ src/tests/system-model-selection.spec.ts:419:37
+    417|           expect(rows[0]!.querySelector('dl')).not.toBeNull()
+    418|           for (const row of rows.slice(1)) {
+    419|             expect(row.textContent).toContain('读取已取消')
+       |                                     ^
+    420|             expect(row.querySelector('[role="status"]')).toBeNull()
+    421|             expect(row.querySelector('code')).not.toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/tests/system-model-selection.spec.ts > Selection cancelled read recovery through public App controls > retires the restored current read to a recoverable error without releasing its native tail
+AssertionError: expected '跳转到内容aagenteam系统设置Admin退出登录处理中已完成系统设置…' to contain '用途配置读取失败'
+
+Expected: "用途配置读取失败"
+Received: "跳转到内容aagenteam系统设置Admin退出登录处理中已完成系统设置用户与邀请用户待注册邀请模型与提供商ProvidersModels平台模型用途平台模型用途 为四项平台用途选择已有的 System Model。保存仅确认配置，不表示外部服务可调用、索引已重建或检索已切换。 刷新配置处理中已完成配置用途处理中配置已保存管理 Models管理 Providers正在等待当前请求结束。正在读取用途配置"
+
+ ❯ src/tests/system-model-selection.spec.ts:424:36
+    422|           }
+    423|         } else {
+    424|           expect(f.wrapper.text()).toContain('用途配置读取失败')
+       |                                    ^
+    425|           expect(button('重新读取配置').disabled).toBe(true)
+    426|           expect(document.querySelectorAll('.current-references > li')…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 17 passed (19)
+   Start at  14:48:37
+   Duration  4.11s (transform 1.04s, setup 0ms, import 1.19s, tests 2.41s, environment 393ms)
+

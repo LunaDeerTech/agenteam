@@ -1,0 +1,55 @@
+{
+  "status": "OFFLINE PREPARATION PASS; real representative not run",
+  "execution_sha256": "ce1ab1becfee1bfd77558a54686f3df1692e70fd2a070fffe1d636b577e81286",
+  "driver_sha256": "ef6ede817136c124f663f0d1f380b60a989c7dd04392029a90ef9b9ab215f444",
+  "driver_delta_sha256": "65d0790738b8b384076e4b3422a5591502d46f439ff44c712938dc212cc69518",
+  "fixture_delta_sha256": "5f3d15857340d65282ab2a9cdd8dc07db4c6667a9859e05680646a128de6e74b",
+  "probe_sha256": "d7908a3a32192668313465b71453d323f7a2479e2db99e5a30e642179069526c",
+  "native_observer_identical_to_frozen_author": true,
+  "native_observer_sha256": "1a26886eeb0011a8a0295ae92e58b56f5ab51d8b39cf9921368cf17c428927c3",
+  "checks": {
+    "type01": {
+      "result_sha256": "5a4ee37571dccdc8538d61ccf8cfc03c55b21fd275907b7c3e9436df4361e898",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "seconds": 2.481,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "discovery_exact": true,
+      "pid_absent_after_wait": true
+    },
+    "list01": {
+      "result_sha256": "92222439e782f13da66ced8a449487415b960899a061a1bfd3563fcab5be3408",
+      "raw_sha256": "b359fcd1d5fde7929cc01a405ea7bb42d29c65379dd47c04f0d94025ab5c60bf",
+      "exit": 0,
+      "seconds": 2.437,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "discovery_exact": true,
+      "pid_absent_after_wait": true
+    },
+    "compile-list01": {
+      "result_sha256": "4441e495f75197814db105180ead075a3fa8e26edd9cf63a037f051f65ad36ea",
+      "raw_sha256": "a2a849a7f4669bec3eb21297386ef929016488269ca3c0694020f86ec551e4bf",
+      "exit": 0,
+      "seconds": 8.114,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "discovery_exact": true,
+      "pid_absent_after_wait": true
+    },
+    "gate01": {
+      "result_sha256": "258f6abcbec1870073b1614d77240e4952c75075bfb45bebfe01269d37406210",
+      "raw_sha256": "2d18e9b1dcdfbe489980aef7fe71b5db21c7fe761031db44ea148217d3fa04b1",
+      "exit": 0,
+      "seconds": 2.988,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "discovery_exact": true,
+      "pid_absent_after_wait": true
+    }
+  },
+  "actual_cwd": "/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/workspace",
+  "resources_started": false,
+  "source_stopped": true
+}

@@ -1,0 +1,16 @@
+{
+  "accepted_base": "fd32120eba4c76f67b649248377f4825a78d5d79",
+  "technical_card_sha256": "f1ee727039ff8724ed83764e6149e6df052950e1a26500a36762c4817376fbe6",
+  "fixed_files": {
+    "web/src/composables/useSystemModelSelection.ts": "10f37e124c7852a895272ac65b86dd919b359aba997e99e72f5804efec8feb67",
+    "web/src/views/system/SystemModelSelectionView.vue": "3276ec40d8468ee3cac1785c90f47d906b0b38a7a8848aeb451558a0f0e94683",
+    "web/src/views/system/SystemModelSelectionEditor.vue": "b27430f537ab2e59946cc7f9f843a1c2f5ae4afdcf19455becebb230c39113cd",
+    "web/src/tests/system-model-selection-state.spec.ts": "3f673570a07bdbeae4bf0fcbb7cedb526057f12fdd97b186e98b3c8789e5c0e2",
+    "web/src/tests/system-model-selection.spec.ts": "c85ab65b14a3d4a07641ec9fdc9bd60872049d07e7ecb870bcd9a3765b1701f9",
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": "e415568d5cf10d0f64cdb88d8c03a7ecaab9bc2d842c8129626d53862bdeb386",
+    "web/src/App.vue": "4f242cbccd26616443a025e6bc175380775b1b36de2f2a8f130ea1612ffecfad",
+    "web/src/composables/useSession.ts": "8464b9329dfaf26d9263bed2b85e05afe1ec45a3b779e9e1d9b831a3fbf541c6",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca"
+  },
+  "scope": "independent strategy only; no author candidate read; no dynamic test or resources started"
+}

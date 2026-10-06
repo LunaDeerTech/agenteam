@@ -1,0 +1,32 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-selection-discard-diagnostic-0ikwbn_6/candidate/web
+
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/independent-selection-discard.spec.ts [ src/tests/independent-selection-discard.spec.ts ]
+Error: Failed to resolve import "../views/system/SystemUsersView.vue" from "src/tests/independent-selection-discard.spec.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspace/scratch/agenteam-selection-discard-diagnostic-0ikwbn_6/candidate/web/src/tests/independent-selection-discard.spec.ts:23:0
+  21 |  const __vi_import_15__ = await import("../views/auth/LoginView.vue");
+  22 |  const __vi_import_16__ = await import("../views/system/SystemSettingsView.vue");
+  23 |  const __vi_import_17__ = await import("../views/system/SystemUsersView.vue");
+     |                                        ^
+  24 |  const __vi_import_18__ = await import("../views/system/SystemInvitationsView.vue");
+  25 |  const __vi_import_19__ = await import("../views/system/SystemProvidersView.vue");
+ ❯ TransformPluginContext._formatLog ../../../../agenteam/web/node_modules/vite/dist/node/chunks/node.js:8736:39
+ ❯ TransformPluginContext.error ../../../../agenteam/web/node_modules/vite/dist/node/chunks/node.js:8733:14
+ ❯ normalizeUrl ../../../../agenteam/web/node_modules/vite/dist/node/chunks/node.js:26423:18
+ ❯ ../../../../agenteam/web/node_modules/vite/dist/node/chunks/node.js:26493:30
+ ❯ TransformPluginContext.transform ../../../../agenteam/web/node_modules/vite/dist/node/chunks/node.js:26459:4
+ ❯ EnvironmentPluginContainer.transform ../../../../agenteam/web/node_modules/vite/dist/node/chunks/node.js:8515:14
+ ❯ loadAndTransform ../../../../agenteam/web/node_modules/vite/dist/node/chunks/node.js:19998:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  14:34:09
+   Duration  605ms (transform 0ms, setup 0ms, import 0ms, tests 0ms, environment 387ms)
+

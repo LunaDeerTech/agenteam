@@ -1,0 +1,25 @@
+# Selection 取消读取恢复：独立验收 PASS
+
+固定基线 `fd32120eba4c76f67b649248377f4825a78d5d79`，作者 `input01/manifest.json` SHA `e05427019f96dd4e33dc3f51d4c4925e1cff8ce09a8ba28c8494cf5f5d0fe8e6`。四路径可以整合；本结论不包含后续 Account 六叶/三组混合适配。
+
+独立静审确认生产只在公开主动放弃时同步结算本批 loading；原 revision/identity 晚发布隔离、ready/ID、canSave、历史重放及真正 owner finally 释放规则不变。既有 App/Session 的正式通知时序未提供在该同步尾部插入新读取的公开重入路径。固定三源/31dist 与先前独立阶段同字节。
+
+独立 pure `reference01` 2/2 与 `current01` 1/1 PASS：公开确认→同 Session 恢复、真实 native read/cancel 屏障，取消后 error/ready 保留、尾部结束前 owner 不空闲、无自动续读，仅显式重读恢复；另有全部 ready 保持对照。原 type01 因私有最小闭包缺接受 RouteMeta 声明而失败，type02 仅补私有声明后通过，原日志/输入永久保留。准确命令、原 raw 与来源见既有 `web-stage01-report.json`，没有重复测试。
+
+真实独立首轮 `TestIndependentSelectionCancelledReadRecovery` PASS 10.10s；外层实际 wait exit 0/60.523s。正式 fixture outcome seed + 私有单浏览器代表证明：dirty 确认 remount 后同 Session 新 GET 200 EOF；Memory Provider 真 GET 尚处原两秒 hold 时公开放弃；Embedding ready 保持、其余本批 error/原 ID、零 PUT/DB 不变、没有继续四项 pair；重新打开并改 optional 的草稿仍禁保存；明确重读完成后一次正式 PUT，严格四字段 receipt 与最终 selector version+1/三 references、commands/audits/events/distinct keys 各+1、零额外 embedding/downstream 副作用。Go 在浏览器实际结束后另读正式 DB 硬验终态。原45s/2m/6m、race/count1/worker1/retry0保持，单绝对同锁 CLI，trace/video/screenshots关闭，输出仅安全布尔。服务器 hold 结束不冒充 native tail join；该边界由上述实际 pure 屏障提供。
+
+7 个 exact 资源 ID 两次 absent、85 个 owned PID/starttime 两扫空、4 个 adopted actual wait；monitor 0、runtime 空、短 browser TMP 已删、原资源基线不变。1033 接受输入、四候选、31dist、锁包及全部私有 probe/overlay/driver 前后字节一致。历史 PPID1 Z 未触及，不能声称其已被本轮清理。`real01/runs/independent01/{command,raw,result,cleanup,input-before,input-after}` 为原件。
+
+复用作者同 input01 的 Navigation、Read、Outcome 三真实目标以及已审完整1044 pure/type/build；仅浏览器候选添加本修复 hold/取消/重读硬断言。作者两个真实 run 的实际结果/清理 SHA 绑定在本报告 JSON。八布局由作者验证与主线程代表图复核，本独立轮没有新增视觉结论。旧 Account 首次 Selection 超时现场无字段诊断，不倒推唯一原因；原诊断失败与后续复现记录保持。
+
+精确交付四路径：
+
+- `tests/account-captcha-web/e2e/system-model-selection.spec.ts` — `24487a08ddd7d5a8f0d6b8a52471f649863610cfdf877284b28795d6abe25e42`
+
+- `web/src/composables/useSystemModelSelection.ts` — `1a4dbe6f1c0eb7dbdf885fbdc7495c9468bc33a7b8fd7b5082eb45f6c2cc3883`
+
+- `web/src/tests/system-model-selection-state.spec.ts` — `5294842bb3fb093f5bcb5351b71b501f54b2c097903f490bc24cf4e322d2c245`
+
+- `web/src/tests/system-model-selection.spec.ts` — `5daedea590e9e08c24e927e1d9ee7e0ea36d7412f45e97bd508a462c99b96a08`
+
+私有源、报告及原件现已停写，无本轮存活资源，不再动态。Account 两个重叠测试之后只重放原菜单/分组适配并组合验，不覆盖本次恢复强断言。SMTP 尚无本 verifier 独立动态结论，停止的 Object/tools 任务未触碰。完整可复建定位、实际命令与精确 SHA 见同名 JSON；不复制产品全树、依赖或二进制。

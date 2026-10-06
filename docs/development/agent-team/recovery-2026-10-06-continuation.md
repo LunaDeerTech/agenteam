@@ -177,3 +177,15 @@ input01作者287项完整纯测及30项真实矩阵通过后，独立仍发现�
 独立pure01七项通过、一项错误预期下层内容input而非内建关闭按钮；pure02只复验正确精确目标一项，组成8项通过，旧轮仍exit1。type01未定位已锁Node声明而exit2，私有配置接入原web/@types后type02通过，未改浏览器断言。browser01三项真实PASS、actual0/8.292s，验证initial-null重挂后最新目标、原生inherited editable focus no-op后备、合法trigger优先、卸载／null／剩余modal门禁及原生Tab／用户后续焦点。19所属PID双扫空、4adopted实际wait、server.close=true、TMP消失、端口不变，无清理信号，窗口释放；历史PPID1 Z未触碰且不称已wait。
 
 本次219逻辑／139物理原件与140固定Git引用只做原字节、五交付源及16轮原退出／清理离线核对，不复制完整web、依赖、dist或二进制，不重跑产品。Account new01组合断言false与new02实际BODY、未直接采样captured trigger的边界只作固定交叉引用；账号安全正按rev2继续实际Session／Navigation组合，尚未接受，受控共享组件结果不能替代业务卡。AGENTS只新增此适用能力说明；完整D26/D27及D08–D28/E01未完成，E01未开始，Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503及Runtime／生产SPA／Vite等边界保持。
+
+## 17. Selection 取消读取后的状态恢复接受
+
+§1–16保留各阶段原事实。[修复卡 rev1.1](../work-items/d27-model-selection-cancelled-read-recovery.md)四路径已获作者检查、独立最终PASS和主线程采纳，提交推送 `debbb28deb7c883fd0b6b77a75354b9b5d7ece0b`，主线程核远端一致。[正式报告与不可变证据](model-selection-cancelled-read-recovery-verification.md)固定 fd32120、规格e484815和作者input01 `e05427019f96dd4e33dc3f51d4c4925e1cff8ce09a8ba28c8494cf5f5d0fe8e6`；四源、31dist指纹、1033接受基线与卡技术§1–4均明确绑定，不消费未验Account候选。
+
+controller仅在公开主动放弃的同步退役边界将本批未完current/reference的loading转为明确可重读error，保留saved ID、完整ready pair、既有error/optional empty。旧代次/身份隔离、严格canSave、原命令恢复与actual owner finally释放保持；不自动补读或新增写。固定接受基线pure-red01实际整19例中两项正确终态产品红、原17通过；修后两例及targeted105通过。check01因私有导出缺已接受主题文档而1043/1044、build未执行，仅补固定只读文档后check02 1044/29文件与format/type/build通过；独立type01缺RouteMeta声明的私有前提红也保留。
+
+作者Navigation actual0/119.897s，Read/Outcome另一轮actual0/84.293s通过；独立纯reference两例/current一例以真实App/Session/native stream证明cancel实际尾部及显式恢复，独立真实首轮代表actual0/60.523s、顶层10.10s通过。真实确认重挂→同Session新GET200 EOF→精确Provider hold尚未结束时放弃，验证ready/ID保留、三错误、零自动GET/PUT、显式恢复后一次正式PUT及严格receipt，Go随后核version+1/三引用及command/audit/event/key各+1。服务器hold结束不充作native owner tail证明。三轮均按45s/2m/6m、race/count1、worker1/retry0；各7exact IDs双absent，作者130/100与独立85所属PID两扫空，实际adopted wait为4/8/4，原基线与输入不变、monitor0/runtime空。历史PPID1 Z未触碰、不计回收。
+
+八图只有作者逐图审阅及视觉报告；主线程仅读报告，没有view本轮截图，独立验证者也未图审。独立v1误称主线程代表图审的原文保持，v2只纠正审阅主体，不改功能、清理或源SHA。图片为可滚动内容顶部，不声称全部下方字段同时可见。原混合diagnostic02/04绿表示复现缺陷；01/03前提红、Account oldselection01 timeout及oldselection02完整引用场景诊断PASS分列，原首轮缺少现场分项，不能倒填唯一原因。
+
+归档271逻辑/176去重原件，保留原raw/diff、26项本修复检查和旧诊断交叉原件，仅离线核保存字节与固定Git；不复制全树、依赖、二进制或dist实体，不重跑产品。Account后继必须在已接受两测试文件上精确重放原六叶/三组增量，保留本修复全部强断言并另验组合，尚非整卡接受。本次不写Account卡或README；完整D09/D26/D27及D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503及Runtime/生产SPA/Vite等边界保持。

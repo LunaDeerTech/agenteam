@@ -1,0 +1,51 @@
+from pathlib import Path
+import hashlib, json, difflib
+ROOT=Path(__file__).resolve().parent
+AUTHOR=Path('/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7')
+original=(AUTHOR/'run-selection-recovery01.py').read_text()
+text=original
+def change(old,new):
+ global text
+ assert old in text,old
+ text=text.replace(old,new)
+change('"""Run only the frozen Selection cancelled-read recovery groups and record actual resources."""','"""Run the one private frozen Selection held-reference recovery representative."""')
+change("REPO = ROOT / 'workspace'", "REPO = Path('/workspace/scratch/agenteam-selection-cancelled-read-author-6_cnr5j7/workspace')")
+change('FROZEN = {}','FROZEN = {}\nEXECUTION = {}')
+change('\ndef source_input():', '''
+def private_input():
+    files = {}
+    for name in EXECUTION['private_inputs']['files']:
+        path = Path(name)
+        if not path.is_file() or path.is_symlink():
+            raise RuntimeError('private execution source missing or not regular')
+        files[name] = digest(path)
+    links = {}
+    for name in EXECUTION['private_inputs']['symlinks']:
+        path = Path(name)
+        if not path.is_symlink():
+            raise RuntimeError('private dependency link missing')
+        links[name] = {'target': str(path.readlink()), 'resolved': str(path.resolve())}
+    return {'files': files, 'symlinks': links}
+
+def source_input():''')
+change("        'preserved_account': preserved_account(),", "        'preserved_account': preserved_account(),\n        'private_inputs': private_input(),")
+change('    global FROZEN','    global FROZEN, EXECUTION')
+change("choices=['navigation', 'read', 'outcome', 'regression']", "choices=['hold']")
+start=text.index('    modes = dict(navigation=')
+end=text.index('    expected = set(groups[args.group])',start)
+text=text[:start]+"    groups = {'hold': ['TestIndependentSelectionCancelledReadRecovery']}\n"+text[end:]
+change('    FROZEN = json.loads(args.frozen.read_text())', '''    EXECUTION = json.loads(args.frozen.read_text())
+    author_manifest = Path(EXECUTION['author_manifest'])
+    if digest(author_manifest) != EXECUTION['author_manifest_sha256']:
+        raise RuntimeError('frozen author input manifest drift')
+    FROZEN = json.loads(author_manifest.read_text())
+    FROZEN['private_inputs'] = EXECUTION['private_inputs']''')
+change("!= FROZEN['driver_sha256']", "!= EXECUTION['driver_sha256']")
+change("['files', 'dist', 'dependencies', 'locked_runtime', 'preserved_account']", "['files', 'dist', 'dependencies', 'locked_runtime', 'preserved_account', 'private_inputs']")
+change("verification_inputs = {'driver_sha256': hashlib.sha256(driver_bytes).hexdigest()}", "verification_inputs = {'driver_sha256': hashlib.sha256(driver_bytes).hexdigest(), 'execution_sha256': digest(args.frozen), 'author_manifest_sha256': digest(author_manifest), 'private_inputs': private_input()}")
+change("flags = '-mod=readonly -buildvcs=false -p=1 -v'", "flags = '-mod=readonly -buildvcs=false -p=1 -v -overlay=' + str(ROOT / 'overlay.json')")
+change("and before['preserved_account'] == after['preserved_account'] and before['accepted_baseline']", "and before['preserved_account'] == after['preserved_account'] and before['private_inputs'] == after['private_inputs'] and before['accepted_baseline']")
+change("verification_unchanged = Path(__file__).read_bytes() == driver_bytes", "verification_unchanged = Path(__file__).read_bytes() == driver_bytes and digest(args.frozen) == verification_inputs['execution_sha256'] and digest(author_manifest) == verification_inputs['author_manifest_sha256']")
+(ROOT/'run-independent01.py').write_text(text)
+(ROOT/'driver01.diff').write_text(''.join(difflib.unified_diff(original.splitlines(True),text.splitlines(True),fromfile='author/run-selection-recovery01.py',tofile='private/run-independent01.py')))
+print('private driver generated; inherited resource and actual-wait implementation unchanged')
