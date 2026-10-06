@@ -1,0 +1,189 @@
+<script setup lang="ts">
+import { useAccountEntry, useAccountEntryForm } from '../../composables/useAccountEntry'
+import UiButton from '../../components/ui/UiButton.vue'
+import UiField from '../../components/ui/UiField.vue'
+import UiInput from '../../components/ui/UiInput.vue'
+import UiState from '../../components/ui/UiState.vue'
+const entry = useAccountEntry(),
+  state = entry.state,
+  draft = entry.draft
+const { heading, form, submit } = useAccountEntryForm(entry)
+</script>
+
+<template>
+  <main id="main-content" class="account-entry">
+    <section class="entry-panel" aria-labelledby="invitation-title">
+      <RouterLink class="brand" to="/" aria-label="agenteam 入口"
+        ><span class="brand-mark" aria-hidden="true">a</span>agenteam</RouterLink
+      >
+      <h1 id="invitation-title" ref="heading" tabindex="-1">接受邀请</h1>
+      <p class="description">创建邀请邮箱对应的账号，登录仍使用邮箱。</p>
+      <UiState v-if="state.phase === 'preparing'" kind="loading" title="正在校验邀请链接" />
+      <form
+        v-if="
+          state.expiresAt && !['success', 'invalid', 'missing', 'forbidden'].includes(state.phase)
+        "
+        ref="form"
+        class="ui-stack"
+        novalidate
+        @submit.prevent="submit"
+      >
+        <div>
+          <span class="description">邀请邮箱</span>
+          <p class="invitation-email" aria-label="邀请邮箱（只读）">{{ state.email }}</p>
+        </div>
+        <p class="description">链接到期时间：{{ state.expiresAt }}</p>
+        <UiField
+          v-slot="field"
+          id="invitation-username"
+          label="用户名"
+          hint="3–32 个英文字母、数字或中间连字符；大小写不区分。"
+          :error="state.fields.username"
+          required
+        >
+          <UiInput
+            :id="field.id"
+            v-model="draft.username"
+            name="username"
+            autocomplete="username"
+            :readonly="entry.locked.value"
+            :invalid="field.invalid"
+            :aria-describedby="field.describedby"
+            required
+          />
+        </UiField>
+        <UiField
+          v-slot="field"
+          id="invitation-display-name"
+          label="显示名"
+          hint="可选，最多 80 个字符。"
+          :error="state.fields.display_name"
+        >
+          <UiInput
+            :id="field.id"
+            v-model="draft.display_name"
+            name="display_name"
+            autocomplete="nickname"
+            :readonly="entry.locked.value"
+            :invalid="field.invalid"
+            :aria-describedby="field.describedby"
+          />
+        </UiField>
+        <UiField
+          v-slot="field"
+          id="invitation-password"
+          label="密码"
+          hint="15–128 个字符，允许中文和空格，不强制字符组合。"
+          :error="state.fields.password"
+          required
+        >
+          <UiInput
+            :id="field.id"
+            v-model="draft.password"
+            name="password"
+            type="password"
+            autocomplete="new-password"
+            :readonly="entry.locked.value"
+            :invalid="field.invalid"
+            :aria-describedby="field.describedby"
+            required
+          />
+        </UiField>
+        <UiField
+          v-slot="field"
+          id="invitation-confirmation"
+          label="确认密码"
+          :error="state.fields.confirmation"
+          required
+        >
+          <UiInput
+            :id="field.id"
+            v-model="draft.confirmation"
+            name="confirmation"
+            type="password"
+            autocomplete="new-password"
+            :readonly="entry.locked.value"
+            :invalid="field.invalid"
+            :aria-describedby="field.describedby"
+            required
+          />
+        </UiField>
+        <UiButton
+          type="submit"
+          variant="primary"
+          :disabled="entry.locked.value"
+          :state="state.phase === 'submitting' ? 'loading' : 'idle'"
+          >创建账号</UiButton
+        >
+      </form>
+      <p v-if="state.notice" role="alert" tabindex="-1" class="notice">{{ state.notice }}</p>
+      <p v-if="state.requestID" class="description">请求编号：{{ state.requestID }}</p>
+      <div v-if="state.phase === 'uncertain'" class="actions">
+        <UiButton :disabled="!entry.canRetryOriginal" @click="entry.retryOriginal"
+          >重试原请求</UiButton
+        >
+        <UiButton variant="ghost" @click="entry.abandon">放弃原请求</UiButton>
+      </div>
+      <UiButton
+        v-if="state.phase === 'failed' || (state.phase === 'ready' && state.notice)"
+        :disabled="entry.locked.value"
+        @click="entry.prepare"
+        >重新检查</UiButton
+      >
+      <div v-if="state.phase === 'forbidden'" class="actions">
+        <RouterLink to="/">返回当前账号</RouterLink
+        ><RouterLink to="/login?switch=1">切换账号</RouterLink>
+      </div>
+      <RouterLink v-else :to="entry.loginTarget.value">返回登录</RouterLink>
+    </section>
+  </main>
+</template>
+
+<style scoped>
+.account-entry {
+  min-height: 100dvh;
+  padding: 32px 16px;
+  display: grid;
+  place-items: center;
+}
+.entry-panel {
+  width: min(100%, 440px);
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--panel-shadow);
+  display: grid;
+  gap: 20px;
+  overflow-wrap: anywhere;
+}
+.brand {
+  justify-self: start;
+}
+.description {
+  color: var(--muted);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.invitation-email,
+.notice {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 450px) {
+  .entry-panel {
+    padding: 20px;
+  }
+}
+@media (max-width: 280px) {
+  .account-entry {
+    padding-inline: 8px;
+  }
+  .entry-panel {
+    padding: 12px;
+  }
+}
+</style>

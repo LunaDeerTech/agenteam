@@ -3,6 +3,8 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/auth/LoginView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
 import { installAuthentication } from './auth'
+import { installAccountLinkCapture, type AccountEntryMode } from './account-link'
+installAccountLinkCapture()
 export const pages: RouteRecordRaw[] = import.meta.env.DEV
   ? [
       {
@@ -22,6 +24,24 @@ export const router = createRouter({
       meta: { authentication: true, protected: true },
     },
     { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+    {
+      path: '/invite',
+      name: 'invitation',
+      component: () => import('../views/auth/InvitationView.vue'),
+      meta: { authentication: true, accountEntry: 'invitation' },
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('../views/auth/ForgotPasswordView.vue'),
+      meta: { authentication: true, accountEntry: 'forgot' },
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: () => import('../views/auth/ResetPasswordView.vue'),
+      meta: { authentication: true, accountEntry: 'reset' },
+    },
     {
       path: '/settings',
       component: () => import('../views/settings/PersonalSettingsView.vue'),
@@ -43,5 +63,6 @@ declare module 'vue-router' {
     navigation?: { label: string; order: number }
     authentication?: boolean
     protected?: boolean
+    accountEntry?: AccountEntryMode
   }
 }

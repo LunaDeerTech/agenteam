@@ -68,6 +68,11 @@ const endpoints = {
   putAvatar: ['PUT', '/api/v1/me/avatar', 200],
   deleteAvatar: ['DELETE', '/api/v1/me/avatar', 204],
   changePassword: ['POST', '/api/v1/me/change-password', 200],
+  inspectInvitation: ['POST', '/api/v1/invitations/inspect', 200],
+  redeemInvitation: ['POST', '/api/v1/invitations/redeem', 201],
+  requestPasswordReset: ['POST', '/api/v1/password-resets/request', 202],
+  inspectPasswordReset: ['POST', '/api/v1/password-resets/inspect', 200],
+  completePasswordReset: ['POST', '/api/v1/password-resets/complete', 204],
 } as const
 export type Fetch = (input: string, init: RequestInit) => Promise<Response>
 
@@ -148,6 +153,29 @@ async function readJSON(response: Response, signal: AbortSignal): Promise<unknow
     }
     text += decoder.decode()
     return JSON.parse(text) as unknown
+  } finally {
+    signal.removeEventListener('abort', abort)
+    await cancel()
+    reader.releaseLock()
+  }
+}
+
+async function readEmptyBody(response: Response, signal: AbortSignal): Promise<void> {
+  const reader = response.body?.getReader()
+  if (!reader) return
+  let cancelled: Promise<void> | undefined
+  const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined))
+  const abort = () => {
+    void cancel()
+  }
+  signal.addEventListener('abort', abort, { once: true })
+  if (signal.aborted) abort()
+  try {
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) return
+      if (value.byteLength !== 0) throw new AccountFailure('invalid-response')
+    }
   } finally {
     signal.removeEventListener('abort', abort)
     await cancel()
@@ -251,7 +279,19 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       if (options.signal.aborted) throw new AccountFailure('cancelled')
       if (response.redirected || response.type === 'opaqueredirect')
         throw new AccountFailure('invalid-response')
-      if (response.status === 204 && status === 204) return parse(undefined)
+      if (response.status === 204 && status === 204) {
+        if (endpoint === 'completePasswordReset') {
+          // A network 204 may expose an empty stream. Confirm its actual EOF,
+          // rather than requiring the Fetch implementation to return null.
+          try {
+            await readEmptyBody(response, options.signal)
+          } catch {
+            throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
+          }
+          if (options.signal.aborted) throw new AccountFailure('cancelled')
+        }
+        return parse(undefined)
+      }
       if (endpoint === 'avatar' && response.status === 200)
         return parse(await readAvatar(response, options.signal))
       const contentType = response.headers.get('Content-Type')?.split(';')[0]?.trim().toLowerCase()

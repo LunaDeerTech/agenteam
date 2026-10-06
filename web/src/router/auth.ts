@@ -13,6 +13,28 @@ export function safeReturnTarget(value: unknown): ReturnTarget {
     ? (value as ReturnTarget)
     : '/'
 }
+export function isAccountSwitch(value: unknown): boolean {
+  return value === '1'
+}
+const accountEntryNavigation = new WeakMap<
+  Router,
+  {
+    confirmLeave: () => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  }
+>()
+export function installAccountEntryNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: () => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  accountEntryNavigation.set(router, owner)
+  return () => {
+    if (accountEntryNavigation.get(router) === owner) accountEntryNavigation.delete(router)
+  }
+}
 
 const personalNavigation = new WeakMap<
   Router,
@@ -40,17 +62,32 @@ export function installAuthentication(router: Router, auth: SessionController = 
       !((await personalNavigation.get(router)?.confirmLeave()) ?? true)
     )
       return false
+    if (from.meta.accountEntry && to.fullPath !== from.fullPath) {
+      if (!((await accountEntryNavigation.get(router)?.confirmLeave()) ?? true) || auth.state.busy)
+        return false
+      auth.entry.abandon()
+    }
+    if (to.meta.accountEntry) {
+      if (auth.state.busy) return false
+      if (from.name === 'login') auth.leave()
+      return true
+    }
     if (!to.meta.authentication) return true
     await auth.restore()
     if (to.meta.protected && auth.state.phase !== 'authenticated') {
       return { name: 'login', query: { return: safeReturnTarget(to.fullPath) }, replace: true }
     }
-    if (to.name === 'login' && auth.state.phase === 'authenticated')
+    if (
+      to.name === 'login' &&
+      auth.state.phase === 'authenticated' &&
+      !isAccountSwitch(to.query.switch)
+    )
       return safeReturnTarget(to.query.return)
     return true
   })
   router.afterEach((to, from, failure) => {
     if (!failure) personalNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure && from.meta.authentication && !to.meta.authentication) auth.leave()
+    if (!failure) accountEntryNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
   })
 }

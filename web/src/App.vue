@@ -7,7 +7,8 @@ import UiState from './components/ui/UiState.vue'
 import UiDialog from './components/ui/UiDialog.vue'
 import { useSession } from './composables/useSession'
 import { createPersonalSettings, personalSettingsKey } from './composables/usePersonalSettings'
-import { installPersonalNavigation } from './router/auth'
+import { installPersonalNavigation, installAccountEntryNavigation } from './router/auth'
+import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
@@ -15,11 +16,20 @@ const auth = useSession(),
 const settings = createPersonalSettings(auth)
 provide(personalSettingsKey, settings)
 const stopPersonalNavigation = installPersonalNavigation(router, settings)
+const entry = createAccountEntry(auth)
+provide(accountEntryKey, entry)
+const stopEntryNavigation = installAccountEntryNavigation(router, entry)
 async function logout() {
   if (await settings.confirmLeave()) await auth.logout()
 }
 async function refreshVisible() {
-  if (document.visibilityState === 'hidden' || !route.meta.authentication || state.busy) return
+  if (
+    document.visibilityState === 'hidden' ||
+    !route.meta.authentication ||
+    route.meta.accountEntry ||
+    state.busy
+  )
+    return
   await auth.restore()
 }
 let navigating = false
@@ -37,6 +47,7 @@ watch(
   },
 )
 onMounted(() => {
+  entry.afterNavigation(route.fullPath, '')
   document.addEventListener('visibilitychange', refreshVisible)
   window.addEventListener('pageshow', refreshVisible)
 })
@@ -44,6 +55,8 @@ onUnmounted(() => {
   document.removeEventListener('visibilitychange', refreshVisible)
   window.removeEventListener('pageshow', refreshVisible)
   stopPersonalNavigation()
+  stopEntryNavigation()
+  entry.dispose()
   settings.dispose()
   auth.leave()
 })
@@ -101,6 +114,17 @@ onUnmounted(() => {
         settings.confirmation.label
       }}</UiButton></template
     >
+  </UiDialog>
+  <UiDialog
+    :open="entry.confirmation.open"
+    title="放弃本页输入？"
+    @update:open="!$event && entry.finishConfirmation(false)"
+  >
+    <p>{{ entry.confirmation.message }}</p>
+    <template #footer>
+      <UiButton variant="ghost" @click="entry.finishConfirmation(false)">继续编辑</UiButton>
+      <UiButton @click="entry.finishConfirmation(true)">放弃并离开</UiButton>
+    </template>
   </UiDialog>
 </template>
 <style scoped>

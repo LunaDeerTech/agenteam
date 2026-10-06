@@ -72,6 +72,21 @@ async function page(path = '/login', unavailable = false) {
     changePassword: vi.fn<AccountAPI['changePassword']>(async () => {
       throw new Error('unexpected personal request')
     }),
+    inspectInvitation: vi.fn<AccountAPI['inspectInvitation']>(async () => {
+      throw new Error('unexpected public entry request')
+    }),
+    redeemInvitation: vi.fn<AccountAPI['redeemInvitation']>(async () => {
+      throw new Error('unexpected public entry request')
+    }),
+    requestPasswordReset: vi.fn<AccountAPI['requestPasswordReset']>(async () => {
+      throw new Error('unexpected public entry request')
+    }),
+    inspectPasswordReset: vi.fn<AccountAPI['inspectPasswordReset']>(async () => {
+      throw new Error('unexpected public entry request')
+    }),
+    completePasswordReset: vi.fn<AccountAPI['completePasswordReset']>(async () => {
+      throw new Error('unexpected public entry request')
+    }),
     bootstrap: vi.fn<AccountAPI['bootstrap']>(async () => ({
       csrf_token: 'A'.repeat(43),
       challenge_modes: ['rotate'],

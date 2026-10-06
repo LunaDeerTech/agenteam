@@ -15,6 +15,14 @@ import {
   type ProfileView,
   type Theme,
   type Version,
+  type DeliveryChannel,
+  type LinkInput,
+  type InvitationInput,
+  type InvitationInspection,
+  type InvitationRedeemed,
+  type ResetInput,
+  type ResetInspection,
+  type ResetAccepted,
 } from '../api/account'
 import { AccountFailure, type Problem } from '../api/client'
 import { useTheme } from './useTheme'
@@ -55,18 +63,50 @@ interface LogoutIntent {
   csrf: string
 }
 type Intent = LoginIntent | LogoutIntent
-type Action = 'restore' | 'login' | 'logout' | 'personal'
+type Action = 'restore' | 'login' | 'logout' | 'personal' | 'entry'
 interface Operation {
   generation: number
   kind: Action
   abort: AbortController
   expired: boolean
   confirmed: boolean
+  sessionReconciled?: boolean
   visible: Promise<void>
   abandon?: () => void
 }
 
 export type PersonalIdentity = Readonly<{ userID: string; sessionID: string; epoch: number }>
+export type EntrySession =
+  Readonly<{ kind: 'anonymous' }> | Readonly<{ kind: 'authenticated'; identity: PersonalIdentity }>
+export type EntryPreparation = Readonly<{ deliveryChannel: DeliveryChannel; session: EntrySession }>
+export type ResetConfirmation =
+  | Readonly<{ commandConfirmed: true; session: EntrySession }>
+  | Readonly<{
+      commandConfirmed: true
+      session: Readonly<{ kind: 'unconfirmed' }>
+      failure: AccountFailure
+    }>
+export type EntryMutationResult =
+  | Readonly<{ kind: 'invitation'; value: InvitationRedeemed }>
+  | Readonly<{ kind: 'reset-request'; value: ResetAccepted }>
+  | Readonly<{ kind: 'reset-complete'; value: ResetConfirmation }>
+type EntryProgress = Readonly<{
+  kind: EntryMutationResult['kind']
+  phase: 'submitting' | 'uncertain' | 'confirmed' | 'confirming-session' | 'session-unconfirmed'
+  canRetryOriginal: boolean
+  contextValid: boolean
+}>
+type EntryInput =
+  | { kind: 'invitation'; input: InvitationInput | null }
+  | { kind: 'reset-request'; input: Readonly<{ email: string }> | null }
+  | { kind: 'reset-complete'; input: ResetInput | null }
+type EntryCommand = EntryInput & {
+  key: string
+  browser: number
+  csrf: string
+  identity: PersonalIdentity | null
+  uncertain: boolean
+}
 export type PasswordConfirmation =
   | Readonly<{ commandConfirmed: true; sessionConfirmed: true }>
   | Readonly<{ commandConfirmed: true; sessionConfirmed: false; failure: AccountFailure }>
@@ -145,6 +185,10 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
   let preview: { identity: PersonalIdentity; theme: Theme } | null = null
   let passwordSessionCheck = false
   let passwordExpected: PersonalIdentity | null = null
+  let deliveryChannel: DeliveryChannel | null = null
+  let entryRevision = 0
+  let entryIntent: EntryCommand | null = null
+  const entryState = shallowReactive<{ progress: EntryProgress | null }>({ progress: null })
   const valid = (op: Operation) => generation === op.generation && !op.expired
   function clearChallenge() {
     ++challengeGeneration
@@ -191,6 +235,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
   }
   function clearBrowser() {
     anonymousCSRF = ''
+    deliveryChannel = null
     ++browser
   }
   function canRetry() {
@@ -202,7 +247,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
         : intent.session === state.session?.id && intent.csrf === sessionCSRF && sessionCSRF !== '')
     )
   }
-  function publish(view: SessionView) {
+  function publish(view: SessionView, preserveBrowser = false) {
     if (
       passwordExpected &&
       (view.user.id !== passwordExpected.userID || view.session.id === passwordExpected.sessionID)
@@ -234,7 +279,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     state.user = trustedUser
     state.session = view.session
     sessionCSRF = view.csrf_token
-    clearBrowser()
+    if (!preserveBrowser) clearBrowser()
     forgetIntent()
     expectedSession = null
     state.phase = 'authenticated'
@@ -315,6 +360,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     state.canRetryOriginal = canRetry()
   }
   function run(kind: Action, work: (op: Operation) => Promise<void>): Promise<void> {
+    if (entryIntent) return Promise.resolve()
     if (owner) return owner.kind === kind ? owner.visible : Promise.resolve()
     const op: Operation = {
       generation: ++generation,
@@ -359,6 +405,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     if (!valid(op)) return
     ++browser
     anonymousCSRF = result.csrf_token
+    deliveryChannel = result.delivery_channel
     state.phase = 'anonymous'
   }
   function restore() {
@@ -449,7 +496,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     })
   }
   function login(email: string, password: string) {
-    if (owner || state.challengeBusy || pending) return Promise.resolve()
+    if (owner || entryIntent || state.challengeBusy || pending) return Promise.resolve()
     if (!anonymousCSRF) {
       state.notice = '请先确认当前登录上下文。'
       return Promise.resolve()
@@ -488,7 +535,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     })
   }
   function logout() {
-    if (owner || pending || passwordSessionCheck || !state.session || !sessionCSRF)
+    if (owner || entryIntent || pending || passwordSessionCheck || !state.session || !sessionCSRF)
       return Promise.resolve()
     try {
       intent = { kind: 'logout', key: newKey(), session: state.session.id, csrf: sessionCSRF }
@@ -625,7 +672,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     )
   }
   function personalIdentity(): PersonalIdentity {
-    if (owner) throw new AccountFailure('busy')
+    if (owner || entryIntent) throw new AccountFailure('busy')
     if (
       personalContext.phase !== 'current' ||
       !personalContext.identity ||
@@ -977,7 +1024,317 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
       applyTheme()
     },
   }
+  function entrySession(): EntrySession {
+    return state.phase === 'authenticated' && personalContext.identity
+      ? { kind: 'authenticated', identity: personalContext.identity }
+      : { kind: 'anonymous' }
+  }
+  function entryContext(original: EntryCommand) {
+    return (
+      !!anonymousCSRF &&
+      original.browser === browser &&
+      original.csrf === anonymousCSRF &&
+      (original.kind !== 'invitation' ||
+        (original.identity === null
+          ? personalContext.identity === null
+          : sameIdentity(original.identity, personalContext.identity)))
+    )
+  }
+  function entryProgress(original: EntryCommand, phase: EntryProgress['phase']) {
+    entryState.progress = {
+      kind: original.kind,
+      phase,
+      canRetryOriginal: phase === 'uncertain' && !owner && entryContext(original),
+      contextValid: entryContext(original),
+    }
+  }
+  function entryFailure(error: unknown, current: boolean) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    if (current) {
+      if (e.problem?.code === 'CSRF_FAILED') clearBrowser()
+      if (unavailableSession(e)) {
+        clearIdentity()
+        state.phase = 'unavailable'
+      }
+    }
+    return e
+  }
+  function assertEntryAvailable() {
+    if (
+      owner ||
+      pending ||
+      intent ||
+      expectedSession ||
+      personalIntent ||
+      passwordSessionCheck ||
+      state.challengeBusy
+    )
+      throw new AccountFailure('busy')
+  }
+  function runEntry<T>(
+    work: (op: Operation, current: () => boolean) => Promise<T>,
+    original?: EntryCommand,
+  ): Promise<T> {
+    try {
+      assertEntryAvailable()
+    } catch (e) {
+      return Promise.reject(e)
+    }
+    const revision = entryRevision
+    const op: Operation = {
+      kind: 'entry',
+      generation: ++generation,
+      abort: new AbortController(),
+      expired: false,
+      confirmed: false,
+      visible: Promise.resolve(),
+    }
+    const current = () => valid(op) && revision === entryRevision
+    owner = op
+    state.busy = true
+    if (original) entryProgress(original, 'submitting')
+    let resolveVisible!: (value: T) => void, rejectVisible!: (e: AccountFailure) => void
+    const visible = new Promise<T>((resolve, reject) => {
+      resolveVisible = resolve
+      rejectVisible = reject
+    })
+    op.visible = visible.then(
+      () => undefined,
+      () => undefined,
+    )
+    const rejected = (error: unknown) => {
+      const e = entryFailure(error, current())
+      if (original && entryIntent === original && current()) {
+        if (original.uncertain || isUnknown(e)) {
+          original.uncertain = true
+          entryProgress(original, 'uncertain')
+        } else {
+          entryIntent = null
+          entryState.progress = null
+        }
+      }
+      if (original?.kind === 'reset-complete' && op.confirmed) {
+        // A confirmed command does not confirm the previous Session after a
+        // failed or expired follow-up GET, including after page abandonment.
+        if (valid(op) && !op.sessionReconciled) {
+          clearIdentity(false)
+          state.phase = 'unavailable'
+          state.notice = '密码重置已确认，当前会话尚未确认。请检查会话，不要再次重置。'
+        }
+        if (current()) entryProgress(original, 'session-unconfirmed')
+        resolveVisible({
+          kind: 'reset-complete',
+          value: { commandConfirmed: true, session: { kind: 'unconfirmed' }, failure: e },
+        } as T)
+      } else rejectVisible(e)
+    }
+    op.abandon = () => {
+      rejectVisible(new AccountFailure('cancelled'))
+      // A successful reset still reconciles the Cookie under this original owner.
+      if (original?.kind !== 'reset-complete') op.abort.abort()
+    }
+    const timer = setTimeout(() => {
+      rejected(new AccountFailure('cancelled'))
+      op.expired = true
+      op.abort.abort()
+    }, 30_000)
+    const actual = Promise.resolve()
+      .then(async () => {
+        if (!current()) throw new AccountFailure('cancelled')
+        const value = await work(op, current)
+        if (!current()) throw new AccountFailure('cancelled')
+        return value
+      })
+      .finally(() => {
+        clearTimeout(timer)
+        op.abandon = undefined
+        if (owner === op) {
+          owner = null
+          state.busy = false
+          if (entryIntent === original && original?.uncertain) entryProgress(original, 'uncertain')
+        }
+      })
+    // Failure is processed before releasing the actual lane; the final retry flag
+    // is refreshed after this handler, without allowing another request to overlap.
+    void actual.then(resolveVisible, (error) => {
+      rejected(error)
+      if (entryIntent === original && original?.uncertain && revision === entryRevision)
+        entryProgress(original, 'uncertain')
+    })
+    return visible
+  }
+  function prepareEntry(): Promise<EntryPreparation> {
+    if (entryIntent) return Promise.reject(new AccountFailure('busy'))
+    return runEntry(async (op, current) => {
+      try {
+        const view = await api.getSession(op.abort.signal)
+        if (!current()) throw new AccountFailure('cancelled')
+        publish(view, true)
+      } catch (e) {
+        if (!current()) throw new AccountFailure('cancelled')
+        if (!unavailableSession(e)) {
+          clearIdentity(false)
+          state.phase = 'unavailable'
+          throw e
+        }
+        clearIdentity()
+        state.phase = 'anonymous'
+      }
+      if (!anonymousCSRF || !deliveryChannel) {
+        const result = await api.bootstrap(op.abort.signal)
+        if (!current()) throw new AccountFailure('cancelled')
+        ++browser
+        anonymousCSRF = result.csrf_token
+        deliveryChannel = result.delivery_channel
+      }
+      return { deliveryChannel, session: entrySession() }
+    })
+  }
+  function readEntry<T>(work: (signal: AbortSignal, csrfToken: string) => Promise<T>): Promise<T> {
+    if (entryIntent) return Promise.reject(new AccountFailure('busy'))
+    if (!anonymousCSRF) return Promise.reject(new AccountFailure('invalid-input'))
+    const csrfToken = anonymousCSRF
+    return runEntry((op) => work(op.abort.signal, csrfToken))
+  }
+  function performEntry(original: EntryCommand): Promise<EntryMutationResult> {
+    return runEntry(async (op, current) => {
+      const options = { key: original.key, csrfToken: original.csrf, signal: op.abort.signal }
+      let result: EntryMutationResult
+      if (!original.input) throw new AccountFailure('invalid-input')
+      switch (original.kind) {
+        case 'invitation':
+          result = {
+            kind: 'invitation',
+            value: await api.redeemInvitation(original.input, options),
+          }
+          break
+        case 'reset-request':
+          result = {
+            kind: 'reset-request',
+            value: await api.requestPasswordReset(original.input, options),
+          }
+          break
+        case 'reset-complete': {
+          await api.completePasswordReset(original.input, options)
+          if (!valid(op)) throw new AccountFailure('cancelled')
+          // 204 is the command fact. Release secrets before starting the GET.
+          op.confirmed = true
+          original.input = null
+          if (entryIntent === original) entryIntent = null
+          if (current()) entryProgress(original, 'confirming-session')
+          clearIdentity(false)
+          state.phase = 'checking'
+          let value: ResetConfirmation
+          try {
+            if (op.abort.signal.aborted) throw new AccountFailure('cancelled')
+            const view = await api.getSession(op.abort.signal)
+            if (!valid(op)) throw new AccountFailure('cancelled')
+            publish(view, true)
+            value = { commandConfirmed: true, session: entrySession() }
+          } catch (error) {
+            if (valid(op) && unavailableSession(error)) {
+              clearIdentity()
+              state.phase = 'anonymous'
+              value = { commandConfirmed: true, session: { kind: 'anonymous' } }
+            } else {
+              const e = entryFailure(error, valid(op))
+              if (valid(op)) {
+                clearIdentity(false)
+                state.phase = 'unavailable'
+                state.notice = '密码重置已确认，当前会话尚未确认。请检查会话，不要再次重置。'
+              }
+              value = { commandConfirmed: true, session: { kind: 'unconfirmed' }, failure: e }
+            }
+          }
+          if (current())
+            entryProgress(
+              original,
+              value.session.kind === 'unconfirmed' ? 'session-unconfirmed' : 'confirmed',
+            )
+          op.sessionReconciled = value.session.kind !== 'unconfirmed'
+          return { kind: 'reset-complete', value }
+        }
+      }
+      if (!current()) throw new AccountFailure('cancelled')
+      original.input = null
+      if (entryIntent === original) entryIntent = null
+      entryProgress(original, 'confirmed')
+      return result
+    }, original)
+  }
+  function startEntry(input: EntryInput): Promise<EntryMutationResult> {
+    try {
+      assertEntryAvailable()
+      if (entryIntent) throw new AccountFailure('busy')
+      if (!anonymousCSRF) throw new AccountFailure('invalid-input')
+      const original = {
+        ...input,
+        key: newKey(),
+        csrf: anonymousCSRF,
+        browser,
+        identity: personalContext.identity,
+        uncertain: false,
+      } as EntryCommand
+      entryIntent = original
+      return performEntry(original)
+    } catch (e) {
+      return Promise.reject(e)
+    }
+  }
+  const entry = {
+    get progress() {
+      return readonly(entryState).progress
+    },
+    prepare: prepareEntry,
+    inspectInvitation(input: LinkInput): Promise<InvitationInspection> {
+      const captured = Object.freeze({ ...input })
+      return readEntry((signal, csrfToken) =>
+        api.inspectInvitation(captured, { signal, csrfToken }),
+      )
+    },
+    inspectPasswordReset(input: LinkInput): Promise<ResetInspection> {
+      const captured = Object.freeze({ ...input })
+      return readEntry((signal, csrfToken) =>
+        api.inspectPasswordReset(captured, { signal, csrfToken }),
+      )
+    },
+    async redeemInvitation(input: InvitationInput): Promise<InvitationRedeemed> {
+      const result = await startEntry({ kind: 'invitation', input: Object.freeze({ ...input }) })
+      if (result.kind !== 'invitation') throw new AccountFailure('invalid-response')
+      return result.value
+    },
+    async requestPasswordReset(input: Readonly<{ email: string }>): Promise<ResetAccepted> {
+      const result = await startEntry({ kind: 'reset-request', input: Object.freeze({ ...input }) })
+      if (result.kind !== 'reset-request') throw new AccountFailure('invalid-response')
+      return result.value
+    },
+    async completePasswordReset(input: ResetInput): Promise<ResetConfirmation> {
+      const result = await startEntry({
+        kind: 'reset-complete',
+        input: Object.freeze({ ...input }),
+      })
+      if (result.kind !== 'reset-complete') throw new AccountFailure('invalid-response')
+      return result.value
+    },
+    retryOriginal(): Promise<EntryMutationResult> {
+      try {
+        assertEntryAvailable()
+        if (!entryIntent || !entryIntent.uncertain || !entryContext(entryIntent))
+          throw new AccountFailure('invalid-input')
+        return performEntry(entryIntent)
+      } catch (e) {
+        return Promise.reject(e)
+      }
+    },
+    abandon() {
+      ++entryRevision
+      entryIntent = null
+      entryState.progress = null
+      if (owner?.kind === 'entry') owner.abandon?.()
+    },
+  }
   function leave() {
+    entry.abandon()
     owner?.abandon?.()
     ++generation
     forgetIntent()
@@ -1004,6 +1361,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     state: readonly(state),
     personalContext: readonly(personalContext),
     personal,
+    entry,
     restore,
     login,
     logout,
