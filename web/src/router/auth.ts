@@ -13,6 +13,7 @@ const returnTargets = [
   '/system/model-selection',
   '/system/account-security',
   '/system/smtp',
+  '/system/outbound-policy',
 ] as const
 type ReturnTarget = (typeof returnTargets)[number]
 export function safeReturnTarget(value: unknown): ReturnTarget {
@@ -63,6 +64,12 @@ export function installPersonalNavigation(
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   router.beforeEach(async (to, from) => {
     // Ask before Session revalidation can temporarily unmount the dirty page.
+    if (
+      from.path === '/system/outbound-policy' &&
+      to.fullPath !== from.fullPath &&
+      !((await outboundPolicyNavigation.get(router)?.confirmLeave()) ?? true)
+    )
+      return false
     if (
       from.path === '/system/smtp' &&
       to.fullPath !== from.fullPath &&
@@ -129,6 +136,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
     return true
   })
   router.afterEach((to, from, failure) => {
+    if (!failure) outboundPolicyNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) smtpNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) modelSelectionNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
@@ -252,5 +260,22 @@ export function installSMTPSettingsNavigation(
   smtpNavigation.set(router, owner)
   return () => {
     if (smtpNavigation.get(router) === owner) smtpNavigation.delete(router)
+  }
+}
+
+const outboundPolicyNavigation = new WeakMap<
+  Router,
+  { confirmLeave: () => Promise<boolean>; afterNavigation: (to: string, from: string) => void }
+>()
+export function installOutboundPolicyNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: () => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  outboundPolicyNavigation.set(router, owner)
+  return () => {
+    if (outboundPolicyNavigation.get(router) === owner) outboundPolicyNavigation.delete(router)
   }
 }

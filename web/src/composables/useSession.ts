@@ -103,6 +103,30 @@ import {
   type SMTPRetryInput,
 } from '../api/system-smtp-delivery'
 
+import {
+  createSystemOutboundPolicyAPI,
+  captureOutboundPolicyUpdate,
+  type SystemOutboundPolicyAPI,
+  type OutboundPolicy,
+  type OutboundPolicyUpdate,
+  type OutboundPolicyReceipt,
+} from '../api/system-outbound-policy'
+
+type OutboundPolicyAction = 'outbound-policy-read' | 'outbound-policy-write'
+export type SystemOutboundPolicyProgress = Readonly<{
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  receipt: OutboundPolicyReceipt | null
+  observation: 'none' | 'current' | 'failed'
+  contextValid: boolean
+  canRetryOriginal: boolean
+}>
+type SystemOutboundPolicyIntent = Readonly<{
+  payload: { input: OutboundPolicyUpdate | null; body: string | null }
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+}>
+
 type SMTPDeliveryAction = 'smtp-delivery-read' | 'smtp-delivery-write'
 export type SystemSMTPDeliveryProgress = Readonly<{
   kind: SMTPDeliveryCommand['kind']
@@ -285,6 +309,7 @@ type Action =
   | AccountSecurityAction
   | SMTPAction
   | SMTPDeliveryAction
+  | OutboundPolicyAction
 interface Operation {
   generation: number
   kind: Action
@@ -389,6 +414,7 @@ export function createSessionController(
   accountSecurityAPI: SystemAccountSecurityAPI = createSystemAccountSecurityAPI(),
   smtpAPI: SystemSMTPSettingsAPI = createSystemSMTPSettingsAPI(),
   smtpDeliveryAPI: SystemSMTPDeliveryAPI = createSystemSMTPDeliveryAPI(),
+  outboundAPI: SystemOutboundPolicyAPI = createSystemOutboundPolicyAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -452,6 +478,19 @@ export function createSessionController(
     materialInvalid: boolean
     materialRevision: number
   }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
+  const outboundRevisions: Record<OutboundPolicyAction, number> = {
+    'outbound-policy-read': 0,
+    'outbound-policy-write': 0,
+  }
+  const isOutboundPolicyAction = (kind: Action): kind is OutboundPolicyAction =>
+    Object.hasOwn(outboundRevisions, kind)
+  let outboundIntent: SystemOutboundPolicyIntent | null = null,
+    outboundUncertain = false,
+    outboundChecked = false,
+    outboundKeyConflict = false
+  const outboundState = shallowReactive<{
+    progress: Omit<SystemOutboundPolicyProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
   const smtpDeliveryRevisions: Record<SMTPDeliveryAction, number> = {
     'smtp-delivery-read': 0,
     'smtp-delivery-write': 0,
@@ -574,6 +613,7 @@ export function createSessionController(
       clearAccountSecurityState(true)
       clearSMTPState(true)
       clearSMTPDeliveryState()
+      clearOutboundPolicyState()
       ++systemRevision
       systemState.deniedIdentity = null
       sessionCSRF = ''
@@ -683,6 +723,12 @@ export function createSessionController(
       (smtpDeliveryIntent && smtpDeliveryIntent.csrf !== sessionCSRF)
     )
       clearSMTPDeliveryState()
+    if (
+      !same ||
+      view.user.role !== 'admin' ||
+      (outboundIntent && outboundIntent.csrf !== sessionCSRF)
+    )
+      clearOutboundPolicyState()
     state.notice = ''
     state.fields = {}
     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
@@ -1119,7 +1165,8 @@ export function createSessionController(
       | SelectionAction
       | AccountSecurityAction
       | SMTPAction
-      | SMTPDeliveryAction = 'personal',
+      | SMTPDeliveryAction
+      | OutboundPolicyAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
@@ -1141,7 +1188,9 @@ export function createSessionController(
                       ? smtpRevisions[kind]
                       : isSMTPDeliveryAction(kind)
                         ? smtpDeliveryRevisions[kind]
-                        : providerRevisions[kind]
+                        : isOutboundPolicyAction(kind)
+                          ? outboundRevisions[kind]
+                          : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1396,7 +1445,10 @@ export function createSessionController(
           'smtp-settings-write',
           'smtp-delivery-write',
         ].includes(op.kind) &&
-          e.problem?.code === 'CSRF_FAILED')
+          e.problem?.code === 'CSRF_FAILED') ||
+        (op.kind === 'outbound-policy-write' &&
+          e.problem?.status === 403 &&
+          e.problem.code === 'CSRF_FAILED')
       ) {
         clearIdentity()
         clearBrowser()
@@ -1410,6 +1462,7 @@ export function createSessionController(
         clearAccountSecurityState(true)
         clearSMTPState(true)
         clearSMTPDeliveryState()
+        clearOutboundPolicyState()
         systemState.deniedIdentity = identity
       }
     }
@@ -3054,7 +3107,201 @@ export function createSessionController(
       return performSMTPDelivery(smtpDeliveryIntent)
     },
   }
+  function clearOutboundPolicyPayload(original: SystemOutboundPolicyIntent | null) {
+    if (!original) return
+    original.payload.input = null
+    original.payload.body = null
+  }
+  function clearOutboundPolicyState() {
+    const retiring = owner && isOutboundPolicyAction(owner.kind) ? owner : null
+    ++outboundRevisions['outbound-policy-read']
+    ++outboundRevisions['outbound-policy-write']
+    clearOutboundPolicyPayload(outboundIntent)
+    outboundIntent = null
+    outboundUncertain = outboundChecked = outboundKeyConflict = false
+    outboundState.progress = null
+    retiring?.abandon?.()
+  }
+  function publishOutboundPolicy(
+    phase: SystemOutboundPolicyProgress['phase'],
+    receipt: OutboundPolicyReceipt | null = null,
+  ) {
+    outboundState.progress = Object.freeze({ phase, receipt, observation: 'none' })
+  }
+  function performOutboundPolicy(
+    original: SystemOutboundPolicyIntent,
+  ): Promise<OutboundPolicyReceipt> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (
+      outboundIntent !== original ||
+      !original.payload.input ||
+      !original.payload.body ||
+      !invitationContext(original)
+    )
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const revision = outboundRevisions['outbound-policy-write']
+    const live = () =>
+      outboundIntent === original &&
+      revision === outboundRevisions['outbound-policy-write'] &&
+      invitationContext(original)
+    let dispatched = false
+    outboundChecked = false
+    publishOutboundPolicy('submitting')
+    if (!live()) return Promise.reject(new AccountFailure('cancelled'))
+    return runAuthorized<OutboundPolicyReceipt>(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        const input = original.payload.input
+        if (!input || JSON.stringify(input) !== original.payload.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        try {
+          return await outboundAPI.updatePolicy(input, {
+            csrfToken: original.csrf,
+            key: original.key,
+            signal: op.abort.signal,
+          })
+        } finally {
+          if (outboundIntent !== original) clearOutboundPolicyPayload(original)
+        }
+      },
+      undefined,
+      'outbound-policy-write',
+    ).then(
+      (receipt) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        clearOutboundPolicyPayload(original)
+        publishOutboundPolicy('confirmed', receipt)
+        if (!live()) throw new AccountFailure('cancelled')
+        outboundIntent = null
+        outboundUncertain = outboundChecked = outboundKeyConflict = false
+        return receipt
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          outboundIntent === original &&
+          revision === outboundRevisions['outbound-policy-write'] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          // Only these exact, uncommitted business rejections can end a first
+          // attempt. In particular a 503/not_started can follow a real commit.
+          const known =
+            !dispatched ||
+            (p &&
+              (p.commit_state === 'not_started' || p.commit_state === 'not_committed') &&
+              ((p.status === 400 && p.code === 'INVALID_ARGUMENT') ||
+                (p.status === 404 && p.code === 'NOT_FOUND') ||
+                (p.status === 409 &&
+                  (p.code === 'VERSION_CONFLICT' || p.code === 'INVALID_STATE'))))
+          outboundKeyConflict ||= p?.status === 409 && p.code === 'IDEMPOTENCY_KEY_REUSED'
+          outboundUncertain ||= !known || outboundKeyConflict
+          outboundChecked = false
+          publishOutboundPolicy(outboundUncertain ? 'uncertain' : 'rejected')
+        }
+        throw e
+      },
+    )
+  }
+  const outboundPolicy = {
+    get progress(): SystemOutboundPolicyProgress | null {
+      const value = outboundState.progress
+      if (!value) return null
+      const contextValid = !!outboundIntent && invitationContext(outboundIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!outboundIntent?.payload.input &&
+          outboundUncertain &&
+          outboundChecked &&
+          !outboundKeyConflict &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    get(): Promise<OutboundPolicy> {
+      try {
+        return runAuthorized(
+          invitationIdentity(),
+          (op) => outboundAPI.getPolicy(op.abort.signal),
+          undefined,
+          'outbound-policy-read',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    abandonRead() {
+      ++outboundRevisions['outbound-policy-read']
+      if (owner?.kind === 'outbound-policy-read') owner.abandon?.()
+    },
+    abandon: clearOutboundPolicyState,
+    editRejected() {
+      if (
+        !outboundIntent ||
+        outboundUncertain ||
+        outboundState.progress?.phase !== 'rejected' ||
+        owner ||
+        !invitationContext(outboundIntent)
+      )
+        throw new AccountFailure('invalid-input')
+      clearOutboundPolicyState()
+    },
+    startUpdate(input: OutboundPolicyUpdate) {
+      try {
+        const identity = invitationIdentity()
+        if (owner || outboundIntent || personalIntent || pending) throw new AccountFailure('busy')
+        const captured = captureOutboundPolicyUpdate(input)
+        const original: SystemOutboundPolicyIntent = Object.freeze({
+          payload: { input: captured, body: JSON.stringify(captured) },
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+        })
+        outboundIntent = original
+        outboundUncertain = outboundChecked = outboundKeyConflict = false
+        return performOutboundPolicy(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    async checkOriginal(): Promise<OutboundPolicy> {
+      const original = outboundIntent
+      if (!original?.payload.input || !outboundUncertain || owner)
+        throw new AccountFailure('invalid-input')
+      outboundChecked = false
+      await restore()
+      if (outboundIntent !== original || !original.payload.input || !invitationContext(original))
+        throw new AccountFailure('cancelled')
+      outboundChecked = true
+      try {
+        const value = await outboundPolicy.get()
+        if (outboundIntent === original && invitationContext(original) && outboundState.progress)
+          outboundState.progress = Object.freeze({
+            ...outboundState.progress,
+            observation: 'current',
+          })
+        return value
+      } catch (error) {
+        if (outboundIntent === original && invitationContext(original) && outboundState.progress)
+          outboundState.progress = Object.freeze({
+            ...outboundState.progress,
+            observation: 'failed',
+          })
+        throw error
+      }
+    },
+    retryOriginal() {
+      if (!outboundIntent || !outboundPolicy.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performOutboundPolicy(outboundIntent)
+    },
+  }
   const system = {
+    outboundPolicy,
     smtpDelivery,
     smtp,
     accountSecurity,

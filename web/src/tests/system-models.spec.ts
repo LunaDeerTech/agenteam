@@ -446,7 +446,16 @@ describe('Model actual App/router/form composition', () => {
         .get('nav[aria-label="系统设置"]')
         .findAll('a')
         .map((a) => a.text()),
-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全', 'SMTP'])
+    ).toEqual([
+      '用户',
+      '待注册邀请',
+      'Providers',
+      'Models',
+      '平台模型用途',
+      '账号安全',
+      'SMTP',
+      '出站规则',
+    ])
     expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
     await f.wrapper.get('a[href="/system/models"]').trigger('click')
     await flushPromises()

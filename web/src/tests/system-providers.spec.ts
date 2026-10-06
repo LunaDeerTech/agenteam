@@ -316,7 +316,7 @@ async function openDirty() {
 }
 
 describe('Provider actual App/router/controller composition', () => {
-  it('keeps users as default, has exactly seven leaves in three groups and validates eleven exact return paths', async () => {
+  it('keeps users as default, has exactly eight leaves in three groups and validates twelve exact return paths', async () => {
     const f = await page('/system')
     expect(f.router.currentRoute.value.path).toBe('/system/users')
     expect(
@@ -324,7 +324,16 @@ describe('Provider actual App/router/controller composition', () => {
         .get('nav[aria-label="系统设置"]')
         .findAll('a')
         .map((a) => a.text()),
-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全', 'SMTP'])
+    ).toEqual([
+      '用户',
+      '待注册邀请',
+      'Providers',
+      'Models',
+      '平台模型用途',
+      '账号安全',
+      'SMTP',
+      '出站规则',
+    ])
     expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
     await f.wrapper.get('a[href="/system/providers"]').trigger('click')
     await flushPromises()

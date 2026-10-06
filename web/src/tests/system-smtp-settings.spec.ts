@@ -297,7 +297,7 @@ async function chooseEncryption(label: string) {
 }
 
 describe('SMTP inline form and two persistent confirmation hosts in the actual App', () => {
-  it('adds exactly the seventh leaf in the existing three groups and the eleventh exact return', async () => {
+  it('keeps SMTP as the seventh leaf and eleventh return within eight leaves, three groups and twelve returns', async () => {
     const f = await page({ path: '/system', configured: false })
     expect(f.router.currentRoute.value.path).toBe('/system/users')
     expect(
@@ -305,7 +305,16 @@ describe('SMTP inline form and two persistent confirmation hosts in the actual A
         .get('nav[aria-label="系统设置"]')
         .findAll('a')
         .map((a) => a.text()),
-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全', 'SMTP'])
+    ).toEqual([
+      '用户',
+      '待注册邀请',
+      'Providers',
+      'Models',
+      '平台模型用途',
+      '账号安全',
+      'SMTP',
+      '出站规则',
+    ])
     expect(f.wrapper.findAll('.settings-group-toggle').map((g) => g.text())).toEqual([
       '用户与邀请',
       '模型与提供商',

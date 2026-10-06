@@ -91,6 +91,8 @@ const endpoints = {
   lookupModelSelectionCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
   getAccountSecurity: ['GET', '/api/v1/system/account-settings', 200],
   updateAccountSecurity: ['PUT', '/api/v1/system/account-settings', 200],
+  getOutboundPolicy: ['GET', '/api/v1/system/outbound-policy', 200],
+  updateOutboundPolicy: ['PUT', '/api/v1/system/outbound-policy', 200],
   getSMTPSettings: ['GET', '/api/v1/system/smtp', 200],
   updateSMTPSettings: ['PUT', '/api/v1/system/smtp', 200],
   unconfigureSMTP: ['POST', '/api/v1/system/smtp/unconfigure', 200],
@@ -381,7 +383,21 @@ const smtpDeliveryEndpoints: readonly SMTPDeliveryEndpoint[] = [
   'getMailJobManagement',
 ]
 
+type OutboundPolicyEndpoint = 'getOutboundPolicy' | 'updateOutboundPolicy'
+type OutboundPolicyOptions<E extends OutboundPolicyEndpoint> = E extends 'getOutboundPolicy'
+  ? { signal: AbortSignal }
+  : { signal: AbortSignal; body: unknown; csrf: string; key: string }
+const outboundPolicyEndpoints: readonly OutboundPolicyEndpoint[] = [
+  'getOutboundPolicy',
+  'updateOutboundPolicy',
+]
+
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends OutboundPolicyEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: OutboundPolicyOptions<E>,
+  ): Promise<T>
   function request<T, E extends SMTPDeliveryEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -439,6 +455,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       | AccountSecurityEndpoint
       | SMTPEndpoint
       | SMTPDeliveryEndpoint
+      | OutboundPolicyEndpoint
     >,
     parse: (value: unknown) => T,
     options: RequestOptions & { users?: never; invitations?: never; target?: never },
@@ -464,7 +481,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       selectionEndpoints.includes(endpoint as SelectionEndpoint) ||
       accountSecurityEndpoints.includes(endpoint as AccountSecurityEndpoint) ||
       smtpEndpoints.includes(endpoint as SMTPEndpoint) ||
-      smtpDeliveryEndpoints.includes(endpoint as SMTPDeliveryEndpoint)
+      smtpDeliveryEndpoints.includes(endpoint as SMTPDeliveryEndpoint) ||
+      outboundPolicyEndpoints.includes(endpoint as OutboundPolicyEndpoint)
     ) {
       try {
         const target = basePath.includes('{id}')
@@ -569,13 +587,15 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
       const maximum =
-        endpoint === 'createModelCredential'
-          ? 512 * 1024
-          : endpoint === 'createProvider' ||
-              endpoint === 'updateProvider' ||
-              endpoint === 'updateSMTPSettings'
-            ? 32 * 1024
-            : 16 * 1024
+        endpoint === 'updateOutboundPolicy'
+          ? 1024 * 1024
+          : endpoint === 'createModelCredential'
+            ? 512 * 1024
+            : endpoint === 'createProvider' ||
+                endpoint === 'updateProvider' ||
+                endpoint === 'updateSMTPSettings'
+              ? 32 * 1024
+              : 16 * 1024
       try {
         body = JSON.stringify(options.body)
       } catch {
@@ -583,6 +603,16 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       }
       if (!body || new TextEncoder().encode(body).byteLength > maximum)
         throw new AccountFailure('invalid-input')
+      if (endpoint === 'updateOutboundPolicy') {
+        try {
+          // Measure the actual serialized field, not a second read of a mutable input.
+          const actual = shape(JSON.parse(body), ['expected_version', 'rules'])
+          const rules = JSON.stringify(actual.rules)
+          if (!rules || new TextEncoder().encode(rules).byteLength > 512 * 1024) throw new Error()
+        } catch {
+          throw new AccountFailure('invalid-input')
+        }
+      }
       headers['Content-Type'] = 'application/json'
     }
     if (endpoint === 'avatar')

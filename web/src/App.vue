@@ -16,6 +16,7 @@ import {
   installModelSelectionNavigation,
   installAccountSecurityNavigation,
   installSMTPSettingsNavigation,
+  installOutboundPolicyNavigation,
 } from './router/auth'
 import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'
 import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'
@@ -39,6 +40,10 @@ import {
   systemSMTPDeliveryKey,
   smtpSectionsKey,
 } from './composables/useSystemSMTPDelivery'
+import {
+  createSystemOutboundPolicy,
+  systemOutboundPolicyKey,
+} from './composables/useSystemOutboundPolicy'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
@@ -93,6 +98,9 @@ provide(systemSMTPDeliveryKey, smtpDelivery)
 const smtpSections = createSMTPSections(auth, smtp, smtpDelivery)
 provide(smtpSectionsKey, smtpSections)
 const stopSMTPNavigation = installSMTPSettingsNavigation(router, smtpSections)
+const outboundPolicy = createSystemOutboundPolicy(auth)
+provide(systemOutboundPolicyKey, outboundPolicy)
+const stopOutboundNavigation = installOutboundPolicyNavigation(router, outboundPolicy)
 async function logout() {
   if (
     (await settings.confirmLeave()) &&
@@ -101,7 +109,8 @@ async function logout() {
     (await models.confirmLeave()) &&
     (await selection.confirmLeave()) &&
     (await accountSecurity.confirmLeave()) &&
-    (await smtpSections.confirmLeave())
+    (await smtpSections.confirmLeave()) &&
+    (await outboundPolicy.confirmLeave())
   )
     await auth.logout()
 }
@@ -137,6 +146,7 @@ onMounted(() => {
   selection.afterNavigation(route.fullPath, '')
   accountSecurity.afterNavigation(route.fullPath, '')
   smtpSections.afterNavigation(route.fullPath, '')
+  outboundPolicy.afterNavigation(route.fullPath, '')
   document.addEventListener('visibilitychange', refreshVisible)
   window.addEventListener('pageshow', refreshVisible)
 })
@@ -151,6 +161,8 @@ onUnmounted(() => {
   stopSelectionNavigation()
   stopAccountSecurityNavigation()
   stopSMTPNavigation()
+  stopOutboundNavigation()
+  outboundPolicy.dispose()
   stopSMTPAvailability()
   smtpSections.dispose()
   accountSecurity.dispose()

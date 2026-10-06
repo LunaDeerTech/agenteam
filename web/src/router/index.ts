@@ -69,6 +69,10 @@ export const router = createRouter({
           component: () => import('../views/system/SystemAccountSecurityView.vue'),
         },
         { path: 'smtp', component: () => import('../views/system/SystemSMTPSettingsView.vue') },
+        {
+          path: 'outbound-policy',
+          component: () => import('../views/system/SystemOutboundPolicyView.vue'),
+        },
       ],
     },
     {

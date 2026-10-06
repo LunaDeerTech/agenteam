@@ -516,7 +516,7 @@ function confirmationRestored() {
 }
 
 describe('Selection actual App/router/controller interactions', () => {
-  it('keeps the users default and seven leaves with the exact Selection return target', async () => {
+  it('keeps the users default and eight leaves with the exact Selection return target', async () => {
     const f = await page({ path: '/system' })
     expect(f.router.currentRoute.value.path).toBe('/system/users')
     expect(
@@ -524,7 +524,16 @@ describe('Selection actual App/router/controller interactions', () => {
         .get('nav[aria-label="系统设置"]')
         .findAll('a')
         .map((a) => a.text()),
-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全', 'SMTP'])
+    ).toEqual([
+      '用户',
+      '待注册邀请',
+      'Providers',
+      'Models',
+      '平台模型用途',
+      '账号安全',
+      'SMTP',
+      '出站规则',
+    ])
     expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
     await f.wrapper.get('a[href="/system/model-selection"]').trigger('click')
     await flushPromises()
