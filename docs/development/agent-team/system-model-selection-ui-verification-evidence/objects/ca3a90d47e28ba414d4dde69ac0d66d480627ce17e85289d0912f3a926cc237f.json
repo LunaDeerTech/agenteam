@@ -1,0 +1,27 @@
+{
+  "conclusion": "STATIC PASS; H-SELECTION-01 closed; no real resource/business execution",
+  "manifest": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/input01/manifest.json",
+  "manifest_sha256": "4732889a4490c7166a83cc1e13be2656529f093a30ba660862d441f378692def",
+  "delta_sha256": "42dfa8236f152d53a55a38887384627445ea278ffe82180ccc229ddc385a0309",
+  "driver": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/run-selection-fixture.py",
+  "driver_sha256": "ac03e281882a3d0c00342420679394eb83225f4a316dcca310fd5a3b57ec6ac4",
+  "source_files_verified": 25,
+  "dist_files_verified": 31,
+  "unchanged_page_sources": 18,
+  "unchanged_other_sources": 24,
+  "accepted_base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "gate_actual_exit": 0,
+  "gate_actual_wait": true,
+  "gate_seconds": 1.317,
+  "gate_raw_sha256": "20fdf7928b6230bc0552f883a53607e90d0a517b18c3f47dc2f9cb53203fcc04",
+  "accepted_baseline_count": 1041,
+  "locked_runtime_files": 7132,
+  "runtime_symlinks": 28,
+  "resources_started": false,
+  "evidence_limits": [
+    "Driver static cleanup contract and read-only input gate do not prove a real run cleaned; actual waits/double scans must follow each future run.",
+    "Author isolated database incremental counts are not original-command linkage/CSRF proof; independent A private overlay will add those within accepted scope.",
+    "Static 12 gate negative cases and six-mode --list are author evidence; independent review reused exact frozen inputs instead of rerunning them."
+  ],
+  "old_report_preserved": "../static-report.md"
+}

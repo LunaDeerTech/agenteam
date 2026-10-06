@@ -1,0 +1,74 @@
+{
+  "stage": "owner-stage01",
+  "base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "card_commit": "4f385375a41d2ec1353e0bcf7d220ef100586f69",
+  "files": {
+    "web/src/api/client.ts": "3cd31decac3c760725d9aae1812edbca1a1995259073ffd55d55dd0bc3120d20",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+    "web/src/tests/system-model-selection-client.spec.ts": "856bb8a8b0a39f74f7c9daae0657eb642f6733facf43959d9ff6caf335f71d64",
+    "web/src/composables/useSession.ts": "8464b9329dfaf26d9263bed2b85e05afe1ec45a3b779e9e1d9b831a3fbf541c6",
+    "web/src/tests/system-model-selection-state.spec.ts": "c416ae3436fa58ae5a1e451c483a55d2964ab8c9c3925fdaf27fe9a77f3007a3"
+  },
+  "predecessor": {
+    "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/api-stage01/manifest.json",
+    "sha256": "35b9b7d8fbaffd006f856a4ffb123120295ca77acfce4f7f47d469749fe9ccd9"
+  },
+  "checks": {
+    "owner-pure01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/owner-pure01/command.json",
+        "sha256": "5baa88c2c757be082a03e744e9a50dfcaf30b626b2caf8b0ff78c391de22281f"
+      },
+      "input.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/owner-pure01/input.json",
+        "sha256": "6f0c89ff73fcd9299c7b144f6a5166638ad1979e590780b2dd39dc6cbc73c9da"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/owner-pure01/raw.log",
+        "sha256": "108d42f6bdd687a175694496827dc043ac92a75ee15a366443786b9da5d9435f"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/owner-pure01/result.json",
+        "sha256": "6f666b944e78288c61dcb8b5d455a60e5f57f5c58e2bf3dfbf192466f43bff6a"
+      }
+    },
+    "owner-pure02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/owner-pure02/command.json",
+        "sha256": "b6736254d6800abb1cca6200144aadded9e0a4b4b1f56ef4336738dc7ceb8871"
+      },
+      "input.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/owner-pure02/input.json",
+        "sha256": "962ae49bf127d8f2c6445d067b79f5c9af447c1871188407d59cb99c360bdfac"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/owner-pure02/raw.log",
+        "sha256": "44f8bbf2046ec565ccd76e5b30a0918a7f9d53d512e9ce9b384e496c4b619612"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/owner-pure02/result.json",
+        "sha256": "2f4a787c73570ceaba5add68228607c894040ed3aed501f1cd98d502d0d6237a"
+      }
+    },
+    "owner-type02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/owner-type02/command.json",
+        "sha256": "0fbcc8c5911f98967ffd240bcb9ef06c3b489b765f4231a6a2c0a634964e39cf"
+      },
+      "input.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/owner-type02/input.json",
+        "sha256": "962ae49bf127d8f2c6445d067b79f5c9af447c1871188407d59cb99c360bdfac"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/owner-type02/raw.log",
+        "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/owner-type02/result.json",
+        "sha256": "0e6e08d4abfb7740839c68f08912e208c0087bc924af6abab6e6d93b767fa44c"
+      }
+    }
+  },
+  "result": "Owner production unchanged between pure01/pure02. Original four owner suites + initial selection cases 198 PASS; final Selection 57 PASS; type PASS. No controller/View/real acceptance claimed.",
+  "resources": "No browser/server/backend/Docker resources started."
+}

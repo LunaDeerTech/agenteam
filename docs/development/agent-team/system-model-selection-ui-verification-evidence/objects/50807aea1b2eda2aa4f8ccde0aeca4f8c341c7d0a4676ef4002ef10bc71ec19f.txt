@@ -1,0 +1,24 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-selection-api-verification-anoxpzh5/candidate/web
+
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > distinguishes unconfigured null from complete saved IDs, including disabled details 33ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > keeps original exact command history independent of later selector version and missing old Model 4ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > rejects nonzero or mismatched receipts and noncanonical lookup pairs, preserving int64 successor precision 9ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > uses only validated minimal Model IDs before the exact Provider read, then rejects complete incompatible data 7ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > waits each actual native EOF before continuing and returns one complete deeply frozen pair 3ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > does not settle or publish while native GET 1 cancellation remains unjoined 2ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > does not settle or publish while native GET 2 cancellation remains unjoined 1ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > rechecks cancellation after the first response finalizer, issuing zero second GET 1ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > joins second-stage wrong-media failure cancellation without inventing EOF or returning a partial Model 1ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > keeps GET 1 detail at 600000 bytes and joins actual overflow cancellation 1ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > keeps GET 2 detail at 600000 bytes and joins actual overflow cancellation 1ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > getModelSelection accepts exactly 600000 bytes and rejects 600001 only after native cancel joins 3ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > updateModelSelection accepts exactly 600000 bytes and rejects 600001 only after native cancel joins 3ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > lookupModelSelectionCommand accepts exactly 600000 bytes and rejects 600001 only after native cancel joins 7ms
+ ✓ src/tests/independent-selection-api.spec.ts > Independent Selection API fixed stage01 > keeps new writes at 16KiB UTF-8 and rejects additional options before dispatch 3ms
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  11:37:07
+   Duration  311ms (transform 89ms, setup 0ms, import 115ms, tests 80ms, environment 0ms)
+

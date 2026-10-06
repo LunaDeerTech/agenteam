@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-model-selection-state.spec.ts -t updates selected draft evidence|completed same-ID Model|invalidates only exact Provider|applies only observed Provider
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/web
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed | 72 skipped (77)
+   Start at  11:53:42
+   Duration  943ms (transform 232ms, setup 0ms, import 338ms, tests 107ms, environment 379ms)
+

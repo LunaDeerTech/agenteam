@@ -1,0 +1,215 @@
+--- input02/tests/account/system_model_selection_web_fixture_test.go
++++ private/tests/account/system_model_selection_web_fixture_test.go
+@@ -35,6 +35,13 @@
+ 
+ // Selection uses the accepted Account/Model helpers only for formal setup and
+ // read-only projections. All mutable controls belong to this exact new root.
++type selectionPrivateAttempt struct {
++	key      string
++	body     []byte
++	csrf     string
++	accepted bool
++}
++
+ type selectionWebAttempt struct {
+ 	key  string
+ 	body [32]byte
+@@ -49,6 +56,7 @@
+ 	secondAdmin          personalWebCredential
+ 	selectorID, failPath string
+ 	attempts             []selectionWebAttempt
++	privateAttempts      []selectionPrivateAttempt
+ 	lostBody             [32]byte
+ 	lostReceipt          map[string]any
+ 	replayBodyEqual      bool
+@@ -177,6 +185,7 @@
+ 			}
+ 			own.mu.Lock()
+ 			own.attempts = append(own.attempts, selectionWebAttempt{key: r.Header.Get("Idempotency-Key"), body: sha256.Sum256(raw)})
++			own.privateAttempts = append(own.privateAttempts, selectionPrivateAttempt{key: r.Header.Get("Idempotency-Key"), body: append([]byte(nil), raw...), csrf: r.Header.Get("X-CSRF-Token")})
+ 			own.mu.Unlock()
+ 			r.Body = io.NopCloser(bytes.NewReader(raw))
+ 		}
+@@ -350,6 +359,12 @@
+ 		f.mu.Lock()
+ 		f.lostKey = ""
+ 		f.attempts = nil
++		for n := range f.privateAttempts {
++			clear(f.privateAttempts[n].body)
++			f.privateAttempts[n].key = ""
++			f.privateAttempts[n].csrf = ""
++		}
++		f.privateAttempts = nil
+ 		f.lostReceipt = nil
+ 		f.mu.Unlock()
+ 	})
+@@ -417,6 +432,12 @@
+ 	f.mu.Lock()
+ 	defer f.mu.Unlock()
+ 	key := r.Header.Get("Idempotency-Key")
++	for n := len(f.privateAttempts) - 1; n >= 0; n-- {
++		if f.privateAttempts[n].key == key {
++			f.privateAttempts[n].accepted = true
++			break
++		}
++	}
+ 	var digest [32]byte
+ 	for n := len(f.attempts) - 1; n >= 0; n-- {
+ 		if f.attempts[n].key == key {
+@@ -509,6 +530,11 @@
+ 		f.t.Fatal("Selection IPC replacement not owned")
+ 	}
+ 	switch r.Action {
++	case "original-facts":
++		if f.mode != "independent-a" {
++			f.t.Fatal("private original command scope rejected")
++		}
++		out["facts"] = f.privateOriginalFacts(ctx)
+ 	case "facts":
+ 		out["facts"] = f.selectionFacts(ctx)
+ 	case "snapshot":
+@@ -577,6 +603,9 @@
+ 		f.mu.Unlock()
+ 		out["armed"] = true
+ 	case "arm-session-fail":
++		if f.mode != "independent-b" {
++			f.t.Fatal("private Session failure scope rejected")
++		}
+ 		f.failSession.Store(true)
+ 		out["armed"] = true
+ 	case "failure-facts":
+@@ -641,7 +670,7 @@
+ 	if e != nil {
+ 		f.t.Fatal(e)
+ 	}
+-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "system-model-selection.config.js"))
++	cmd := exec.CommandContext(ctx, "node", "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound03/playwright.config.mjs")
+ 	cmd.Dir = root
+ 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+ 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+@@ -736,3 +765,125 @@
+ 	}
+ 	return result
+ }
++
++// Private read-only oracle. Raw key/body/CSRF remain in this task's memory and
++// are cleared at fixture cleanup; only booleans/counts and a safe receipt escape.
++func (f *selectionWebFixture) privateOriginalFacts(ctx context.Context) map[string]any {
++	f.mu.Lock()
++	key := f.lostKey
++	matches := []selectionPrivateAttempt{}
++	for _, a := range f.privateAttempts {
++		if a.key == key && key != "" {
++			matches = append(matches, selectionPrivateAttempt{key: a.key, body: append([]byte(nil), a.body...), csrf: a.csrf, accepted: a.accepted})
++		}
++	}
++	f.mu.Unlock()
++	defer func() {
++		for n := range matches {
++			clear(matches[n].body)
++			matches[n].csrf = ""
++			matches[n].key = ""
++		}
++	}()
++	if key == "" || len(matches) < 1 {
++		f.t.Fatal("private original request absent")
++	}
++	first := matches[0]
++	var wire map[string]json.RawMessage
++	if json.Unmarshal(first.body, &wire) != nil || len(wire) != 6 {
++		f.t.Fatal("private original closed input absent")
++	}
++	fields := map[string]string{}
++	for _, name := range []string{"id", "expected_version", "embedding", "memory", "reranker", "image"} {
++		raw, present := wire[name]
++		if !present {
++			f.t.Fatal("private original input field absent")
++		}
++		if bytes.Equal(raw, []byte("null")) && (name == "reranker" || name == "image") {
++			fields[name] = ""
++			continue
++		}
++		var value string
++		if json.Unmarshal(raw, &value) != nil {
++			f.t.Fatal("private original input type invalid")
++		}
++		fields[name] = value
++	}
++	expected, err := strconv.ParseInt(fields["expected_version"], 10, 64)
++	if err != nil || expected < 1 || fields["id"] != f.selectorID {
++		f.t.Fatal("private original selector/version invalid")
++	}
++	token, err := foundation.ParseIdempotencyKey(key)
++	if err != nil {
++		f.t.Fatal("private original key invalid")
++	}
++	identity, err := foundation.NewCommandIdentity("model.system", []string{f.admin.UserID}, "model.selection.update", token)
++	if err != nil {
++		f.t.Fatal("private original identity invalid")
++	}
++	canonical := identity.Canonical()
++	auditCause := fmt.Sprintf("sha256:%x", sha256.Sum256([]byte(canonical)))
++	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
++	defer closeConnection()
++	var commandCount, auditCount int
++	if err = conn.QueryRow(ctx, `SELECT count(*) FROM agenteam_model.commands WHERE command_identity=$1 AND scope='system' AND project_id IS NULL AND user_id=$2 AND resource_id=$3 AND command_name='model.selection.update' AND phase='committed'`, canonical, f.admin.UserID, f.selectorID).Scan(&commandCount); err != nil || commandCount != 1 {
++		f.t.Fatal("private exact original command unavailable")
++	}
++	var receiptRaw, planRaw []byte
++	if err = conn.QueryRow(ctx, `SELECT safe_receipt,mutation_plan FROM agenteam_model.commands WHERE command_identity=$1 AND scope='system' AND project_id IS NULL AND user_id=$2 AND resource_id=$3 AND command_name='model.selection.update' AND phase='committed'`, canonical, f.admin.UserID, f.selectorID).Scan(&receiptRaw, &planRaw); err != nil {
++		f.t.Fatal("private exact original receipt unavailable")
++	}
++	defer clear(receiptRaw)
++	defer clear(planRaw)
++	var receipt map[string]any
++	var plan struct {
++		BeforeSelection struct{ Version string }
++		AfterSelection  struct{ ID, Version, Embedding, Memory, Reranker, Image string }
++		Events          []struct {
++			Header  json.RawMessage
++			Payload json.RawMessage
++		}
++	}
++	if json.Unmarshal(receiptRaw, &receipt) != nil || json.Unmarshal(planRaw, &plan) != nil {
++		f.t.Fatal("private exact original plan invalid")
++	}
++	expectedReceipt := map[string]any{"kind": "model.selection.update", "resource_id": f.selectorID, "version": strconv.FormatInt(expected+1, 10), "affected_references": "0"}
++	a, _ := json.Marshal(receipt)
++	b, _ := json.Marshal(expectedReceipt)
++	receiptOK := bytes.Equal(a, b)
++	clear(a)
++	clear(b)
++	inputOK := plan.BeforeSelection.Version == fields["expected_version"] && plan.AfterSelection.ID == f.selectorID && plan.AfterSelection.Version == strconv.FormatInt(expected+1, 10) && plan.AfterSelection.Embedding == fields["embedding"] && plan.AfterSelection.Memory == fields["memory"] && plan.AfterSelection.Reranker == fields["reranker"] && plan.AfterSelection.Image == fields["image"]
++	if err = conn.QueryRow(ctx, `SELECT count(*) FROM agenteam_audit.audit_records WHERE scope='system' AND project_id IS NULL AND producer='model' AND cause_ref=$1 AND ordinal=0 AND action='model.selection.update' AND outcome='success' AND resource_id=$2 AND user_id=$3`, auditCause, f.selectorID, f.admin.UserID).Scan(&auditCount); err != nil {
++		f.t.Fatal("private exact original Audit unavailable")
++	}
++	matched, deliveries := 0, 0
++	for _, event := range plan.Events {
++		var h struct {
++			ID       string `json:"event_id"`
++			Kind     string `json:"event_type"`
++			Resource string `json:"aggregate_id"`
++			Version  string `json:"aggregate_version"`
++		}
++		if json.Unmarshal(event.Header, &h) != nil || h.Kind != "model.configuration_changed" || h.Resource != f.selectorID || h.Version != strconv.FormatInt(expected+1, 10) {
++			f.t.Fatal("private original event binding invalid")
++		}
++		var count, delivery int
++		if err = conn.QueryRow(ctx, `SELECT (SELECT count(*) FROM agenteam_outbox.events WHERE id=$1 AND scope='system' AND project_id IS NULL AND producer='model' AND event_type='model.configuration_changed' AND aggregate_id=$2 AND aggregate_version=$3 AND header=$4::jsonb AND convert_from(payload,'UTF8')::jsonb=$5::jsonb),(SELECT count(*) FROM agenteam_outbox.deliveries WHERE event_id=$1)`, h.ID, f.selectorID, expected+1, []byte(event.Header), []byte(event.Payload)).Scan(&count, &delivery); err != nil {
++			f.t.Fatal("private original event facts unavailable")
++		}
++		matched += count
++		deliveries += delivery
++	}
++	bodyEqual, csrfEqual, csrfAccepted := true, true, true
++	accepted := 0
++	for _, a := range matches {
++		bodyEqual = bodyEqual && bytes.Equal(a.body, first.body)
++		csrfEqual = csrfEqual && a.csrf == first.csrf
++		csrfAccepted = csrfAccepted && a.accepted && a.csrf != ""
++		if a.accepted {
++			accepted++
++		}
++	}
++	return map[string]any{"command_count": commandCount, "audit_count": auditCount, "planned_events": len(plan.Events), "matched_events": matched, "deliveries": deliveries, "receipt_matches_original": receiptOK, "persisted_input_matches_original": inputOK, "receipt": receipt, "same_key_attempts": len(matches), "accepted_attempts": accepted, "body_bytes_equal": bodyEqual, "csrf_equal": csrfEqual, "csrf_nonempty_and_backend_accepted": csrfAccepted}
++}

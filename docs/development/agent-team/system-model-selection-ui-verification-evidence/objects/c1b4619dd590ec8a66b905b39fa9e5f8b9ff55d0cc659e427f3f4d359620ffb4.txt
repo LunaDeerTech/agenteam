@@ -1,0 +1,37 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-model-selection-state.spec.ts src/tests/system-model-selection.spec.ts src/tests/independent-selection-page.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/web
+
+ ❯ src/tests/system-model-selection-state.spec.ts (77 tests | 1 failed) 360ms
+     × applies only observed Provider rows and requires a fresh Model parse after protocol changes 25ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > applies only observed Provider rows and requires a fresh Model parse after protocol changes
+AssertionError: expected undefined to be 'anthropic-messages' // Object.is equality
+
+- Expected:
+"anthropic-messages"
+
++ Received:
+undefined
+
+ ❯ src/tests/system-model-selection-state.spec.ts:1476:65
+    1474|     f.page.selectProvider(f.page.choices.memory.providers.rows.find((r…
+    1475|     await flushPromises()
+    1476|     expect(f.page.draftDetails.memory?.provider.input.protocol).toBe('…
+       |                                                                 ^
+    1477|     expect(f.page.canSave.value).toBe(true)
+    1478|     expect(f.page.draft).toEqual(draft)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 100 passed (101)
+   Start at  11:53:08
+   Duration  5.16s (transform 2.41s, setup 0ms, import 3.20s, tests 4.15s, environment 2.08s)
+

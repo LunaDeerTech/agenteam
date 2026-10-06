@@ -1,0 +1,41 @@
+import os,sys,json,time,subprocess,hashlib,pathlib,signal,datetime,ctypes
+root=pathlib.Path(__file__).resolve().parent
+log=root/'logs'/sys.argv[1];log.mkdir(exist_ok=False)
+probe_name=sys.argv[3] if len(sys.argv)>3 else 'independent-selection-page.spec.ts'
+manifest=json.loads((root/'input.json').read_text())
+files=[root/'candidate'/row['path'] for row in manifest['files']]+[root/'candidate/web/src/tests/independent-selection-page.spec.ts',root/'candidate/web/vitest.config.mjs',root/'input.json',root/'author-manifest.json',root/'run-pure.py']
+files += list((root/'candidate/web/src/tests').glob('independent-selection-supplement.spec.ts'))
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+for row in manifest['files']:assert sha(root/'candidate'/row['path'])==row['sha256'],row['path']
+for row in manifest['packages']:
+ assert sha(pathlib.Path(row['path']))==row['sha256'],row['path']
+files += [pathlib.Path(row['path']) for row in manifest['packages']]
+label=lambda p:str(p.relative_to(root)) if p.is_relative_to(root) else str(p)
+before={label(p):sha(p) for p in files}
+argv=['node','/workspace/agenteam/web/node_modules/vitest/vitest.mjs','run','--config','vitest.config.mjs','src/tests/'+probe_name,'--reporter=verbose','-t',sys.argv[2]]
+env=os.environ.copy();env.update({'CI':'1','NO_COLOR':'1','FORCE_COLOR':'0'})
+meta={'argv':argv,'cwd':str(root/'candidate/web'),'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'env_overrides':{k:env[k] for k in ['CI','NO_COLOR','FORCE_COLOR']},'manifest_sha256':sha(root/'input.json'),'before':before,'outer_limit_seconds':45,'test_timeout_ms':5000,'no_real_resources':True}
+(log/'command.json').write_text(json.dumps(meta,indent=2)+'\n')
+(log/'driver.py.txt').write_bytes((root/'run-pure.py').read_bytes())
+(log/'probe.ts.txt').write_bytes((root/'candidate/web/src/tests'/probe_name).read_bytes())
+assert ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0)==0
+started=time.monotonic()
+with (log/'raw.log').open('wb') as raw:
+ p=subprocess.Popen(argv,cwd=meta['cwd'],env=env,stdout=raw,stderr=subprocess.STDOUT,stdin=subprocess.DEVNULL,start_new_session=True)
+ try:p.wait(timeout=45)
+ except subprocess.TimeoutExpired:
+  meta['timed_out']=True;os.killpg(p.pid,signal.SIGTERM)
+  try:p.wait(timeout=5)
+  except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);p.wait()
+waits=[]
+while True:
+ try:pid,status=os.waitpid(-1,os.WNOHANG)
+ except ChildProcessError:break
+ if not pid:break
+ waits.append({'pid':pid,'status':status,'actual_wait':True})
+meta.update({'pid':p.pid,'exit_code':p.returncode,'elapsed_seconds':round(time.monotonic()-started,3),'actual_wait':True,'adopted_waits':waits,'after':{label(x):sha(x) for x in files},'raw_sha256':sha(log/'raw.log')})
+meta['inputs_unchanged']=meta['before']==meta['after']
+(log/'result.json').write_text(json.dumps(meta,indent=2)+'\n')
+print(json.dumps({k:meta[k] for k in ['pid','exit_code','elapsed_seconds','actual_wait','inputs_unchanged','raw_sha256','adopted_waits']}))
+print((log/'raw.log').read_text())
+sys.exit(p.returncode or (0 if meta['inputs_unchanged'] else 1))

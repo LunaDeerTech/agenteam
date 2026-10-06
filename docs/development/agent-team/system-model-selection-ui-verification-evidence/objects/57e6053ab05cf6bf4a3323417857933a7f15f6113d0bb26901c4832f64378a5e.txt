@@ -1,0 +1,244 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { type CommitState, type Fetch } from '../api/client'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI, type ProviderInput } from '../api/system-providers'
+import { createSystemModelAPI, type ModelCommand } from '../api/system-models'
+import { createSystemModelSelectionAPI, type SelectionCommand, type SystemModelSelectionAPI } from '../api/system-model-selection'
+import { createSessionController, type SessionController } from '../composables/useSession'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const instant = '2026-10-06T12:34:56.123456Z', csrf = 'S'.repeat(43), encoder = new TextEncoder()
+const session = (n = 2): SessionView => ({ user: { id: id(1), email: 'admin@example.invalid', username: 'admin', display_name: 'Admin', role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false },
+  session: { id: id(n), issued_at: instant, idle_expires_at: instant, absolute_expires_at: instant }, csrf_token: csrf })
+const configured = () => ({ embedding: id(20), memory: id(21), reranker: null, image: null })
+const selector = () => ({ id: id(100), version: '9007199254740993', configured: configured() })
+const command = (): SelectionCommand => ({ kind: 'model.selection.update', id: id(100), expected_version: '9007199254740993', ...configured() })
+const receipt = (version = '9007199254740994') => ({ kind: 'model.selection.update', resource_id: id(100), version, affected_references: '0' })
+const providerInput = (): ProviderInput => ({ name: 'Provider', protocol: 'openai-chat-completions', base_url: 'https://example.invalid', enabled: true, credential_ref: null, options: {} })
+const provider = () => ({ id: id(10), input: providerInput(), version: '1', created_at: instant, updated_at: instant })
+const model = () => ({ id: id(21), provider_id: id(10), version: '1', created_at: instant, updated_at: instant,
+  input: { name: 'Memory', provider_model_id: ' Native ', type: 'chat', enabled: true, parameters: {}, request_overwrite: {}, header_overwrite: {},
+    capabilities: { tool_calls: false, parallel_tool_calls: false, streaming: false, reasoning: false, input_modalities: ['text'], output_modalities: ['text'], reasoning_efforts: [], structured_output_modes: ['json_schema'], context_length: null, max_output: null } } })
+const modelDeletion = (): ModelCommand => ({ kind: 'model.delete', id: id(21), provider_id: id(10), protocol: 'openai-chat-completions', expected_version: '1', replacement: null })
+const credential = () => ({ credential_id: id(11), purpose: 'model', version: '1', deleted: false })
+const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': status < 400 ? 'application/json' : 'application/problem+json', 'X-Request-ID': id(99) } })
+const problem = (code: string, status = 503, commit_state: CommitState = 'not_started') => json({ type: 'urn:agenteam:problem:test', title: '', detail: '', status, code, instance: '/api/v1/system/model-selection', request_id: id(99), commit_state }, status)
+function gate<T = void>() { let resolve!: (value: T) => void; const promise = new Promise<T>(r => { resolve = r }); return { promise, resolve } }
+function held(value: unknown, status = 200, media = 'application/json') {
+  const entered = gate(), tail = gate()
+  return { entered, tail, response: new Response(new ReadableStream<Uint8Array>({ start(c) { c.enqueue(encoder.encode(JSON.stringify(value))) }, cancel() { entered.resolve(); return tail.promise } }), { status, headers: { 'Content-Type': media } }) }
+}
+function eof(value: unknown) {
+  let controller!: ReadableStreamDefaultController<Uint8Array>
+  const response = new Response(new ReadableStream<Uint8Array>({ start(c) { controller = c; c.enqueue(encoder.encode(JSON.stringify(value))) } }), { headers: { 'Content-Type': 'application/json' } })
+  let closed = false
+  return { response, close() { if (!closed) { closed = true; controller.close() } } }
+}
+const owners: SessionController[] = []
+async function harness(decorate: (api: SystemModelSelectionAPI) => SystemModelSelectionAPI = api => api) {
+  let current = session()
+  let selectionHandle: Fetch = async (path, init) => path.endsWith('/lookup') ? json({ found: true, receipt: receipt() }) : init.method === 'GET' ? json(selector()) : json(receipt())
+  let modelHandle: Fetch = async (_path, init) => init.method === 'GET' ? json(model()) : json({ kind: 'model.delete', resource_id: id(21), version: '2', affected_references: '0' })
+  let providerHandle: Fetch = async (path, init) => path.endsWith('/model-credentials') ? json(credential()) : init.method === 'GET' ? json(path.includes('?') ? { items: [], next_cursor: null } : provider()) : json({ kind: 'provider.create', resource_id: id(10), version: '1', affected_references: '0' })
+  const calls: { path: string; init: RequestInit }[] = []
+  const fetch: Fetch = async (path, init) => {
+    calls.push({ path, init })
+    if (path === '/api/v1/session') return json(current)
+    if (path.endsWith('/bootstrap')) return json({ csrf_token: 'A'.repeat(43), challenge_modes: ['rotate'], delivery_channel: 'backend_log' })
+    if (path === '/api/v1/me') return json({ user: current.user, avatar: null })
+    if (path === '/api/v1/system/model-selection' || path.endsWith('/model-commands/lookup') && JSON.parse(init.body as string).command === 'model.selection.update') return selectionHandle(path, init)
+    if (path.startsWith('/api/v1/system/models')) return modelHandle(path, init)
+    if (/\/model-(providers|credentials)/.test(path)) return providerHandle(path, init)
+    return json({ items: [] })
+  }
+  const auth = createSessionController(createAccountAPI(fetch), createSystemAccountAPI(fetch), createSystemInvitationAPI(fetch), createSystemProviderAPI(fetch), createSystemModelAPI(fetch), decorate(createSystemModelSelectionAPI(fetch)))
+  owners.push(auth); await auth.restore()
+  return { auth, calls, setSelection: (f: Fetch) => { selectionHandle = f }, setModel: (f: Fetch) => { modelHandle = f }, setProvider: (f: Fetch) => { providerHandle = f }, setSession: (n: number) => { current = session(n) },
+    writes: () => calls.filter(c => c.path === '/api/v1/system/model-selection' && c.init.method === 'PUT'),
+    references: () => calls.filter(c => /\/(models|model-providers)\//.test(c.path)),
+    providerWrites: () => calls.filter(c => /\/model-(credentials|providers)/.test(c.path) && c.init.method !== 'GET') }
+}
+afterEach(() => { for (const auth of owners.splice(0)) auth.leave(); vi.useRealTimers(); vi.restoreAllMocks() })
+
+describe('Independent Selection owner fixed transport compositions', () => {
+  it('shares one 30s deadline across native Model20s and Provider10s while all other-domain cleanup leaves it owned', async () => {
+    vi.useFakeTimers()
+    const f = await harness(), first = eof(model()), second = held(provider()), secondEntered = gate()
+    let firstSignal!: AbortSignal, secondSignal!: AbortSignal
+    f.setModel(async (_path, init) => { firstSignal = init.signal as AbortSignal; return first.response })
+    f.setProvider(async (_path, init) => { secondSignal = init.signal as AbortSignal; secondEntered.resolve(); return second.response })
+    let settled = false
+    const visible = f.auth.system.selection.getSavedModel(id(21)).catch(e => e).finally(() => { settled = true })
+    try {
+      await flushPromises()
+      f.auth.personal.abandon(); f.auth.system.abandon(); f.auth.system.abandonInvitations(); f.auth.system.providers.abandon(); f.auth.system.models.abandon(); f.auth.entry.abandon()
+      f.auth.system.selection.abandonRead('selection-models')
+      expect(firstSignal.aborted).toBe(false)
+      await vi.advanceTimersByTimeAsync(20000)
+      expect(settled).toBe(false); expect(f.references()).toHaveLength(1)
+      first.close(); await secondEntered.promise; await flushPromises()
+      expect(secondSignal).toBe(firstSignal)
+      await vi.advanceTimersByTimeAsync(9999); expect(settled || secondSignal.aborted).toBe(false)
+      await vi.advanceTimersByTimeAsync(1); await second.entered.promise
+      expect(await visible).toMatchObject({ kind: 'cancelled' }); expect(f.auth.state.busy).toBe(true)
+      const before = f.calls.length
+      await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.system.models.get({ id: id(21), provider_id: id(10), protocol: 'openai-chat-completions' })).rejects.toMatchObject({ kind: 'busy' })
+      await f.auth.restore(); expect(f.calls.length).toBe(before)
+      f.auth.system.selection.abandon(); expect(f.auth.state.busy).toBe(true)
+    } finally { second.tail.resolve(); await visible; await flushPromises() }
+    expect(f.auth.state.busy).toBe(false); expect(f.references()).toHaveLength(2)
+    expect((await f.auth.personal.getProfile()).user.id).toBe(id(1))
+  })
+
+  it('Selection cleanup cannot cancel either Provider credential stage or a separate Model write', async () => {
+    vi.useFakeTimers()
+    const f = await harness(), first = eof(credential()), second = held({}, 503, 'text/plain')
+    let firstSignal!: AbortSignal, secondSignal!: AbortSignal
+    f.setProvider(async (path, init) => {
+      if (path.endsWith('/model-credentials')) { firstSignal = init.signal as AbortSignal; return first.response }
+      secondSignal = init.signal as AbortSignal; return second.response
+    })
+    const privateValue = 'generated-' + crypto.randomUUID()
+    f.auth.system.providers.setMaterial(privateValue)
+    const visible = f.auth.system.providers.start({ kind: 'provider.create', input: providerInput() }).catch(e => e)
+    try {
+      await flushPromises(); f.auth.system.selection.abandon(); f.auth.system.selection.abandonRead('selection-reference')
+      expect(firstSignal.aborted).toBe(false); expect(f.providerWrites()).toHaveLength(1)
+      first.close(); await second.entered.promise
+      f.auth.system.selection.abandon(); expect(secondSignal.aborted).toBe(false)
+      expect({ material: f.auth.system.providers.material.present, ref: f.auth.system.providers.progress?.credential?.credential_id === id(11) }).toEqual({ material: false, ref: true })
+      await vi.advanceTimersByTimeAsync(30000); expect(await visible).toMatchObject({ kind: 'cancelled' })
+      const allocation = vi.spyOn(crypto, 'randomUUID'), before = f.calls.length
+      await expect(f.auth.system.selection.start(command())).rejects.toMatchObject({ kind: 'busy' })
+      expect(allocation).not.toHaveBeenCalled(); expect(f.calls.length).toBe(before); expect(f.auth.state.busy).toBe(true)
+    } finally { second.tail.resolve(); await visible; await flushPromises() }
+    expect(f.auth.system.providers.progress?.phase).toBe('uncertain')
+    expect(JSON.stringify([f.auth.state, f.auth.system.providers.progress, f.auth.system.providers.material]).includes(privateValue)).toBe(false)
+    f.auth.system.providers.abandon()
+    const modelBody = eof({ kind: 'model.delete', resource_id: id(21), version: '2', affected_references: '0' }); let modelSignal!: AbortSignal
+    f.setModel(async (_path, init) => { modelSignal = init.signal as AbortSignal; return modelBody.response })
+    const deletion = f.auth.system.models.start(modelDeletion())
+    try { await flushPromises(); f.auth.system.selection.abandon(); expect(modelSignal.aborted).toBe(false); expect(f.auth.state.busy).toBe(true) }
+    finally { modelBody.close(); await deletion }
+    expect(f.auth.system.models.progress?.phase).toBe('confirmed'); expect(f.auth.system.selection.progress).toBeNull()
+  })
+
+  it('preserves uncertain original PUT after later selector/Model404, failed lookup cancellation and known refusal until matching Execute', async () => {
+    vi.useFakeTimers()
+    const f = await harness(), failedLookup = held({}, 503, 'text/plain'); let executions = 0, lookups = 0
+    f.setSelection(async (path, init) => {
+      if (init.method === 'GET') return json({ ...selector(), version: '9007199254740999', configured: { ...configured(), memory: id(31) } })
+      if (path.endsWith('/lookup')) {
+        lookups++
+        return lookups === 1 ? json({ found: false, receipt: null }) : lookups === 2 ? failedLookup.response : json({ found: true, receipt: receipt() })
+      }
+      executions++
+      if (executions === 1) throw new Error('synthetic-response-cut')
+      return executions === 2 ? problem('VERSION_CONFLICT', 409, 'not_committed') : json(receipt())
+    })
+    f.setModel(async () => problem('NOT_FOUND', 404))
+    await expect(f.auth.system.selection.start(command())).rejects.toMatchObject({ kind: 'transport' })
+    expect((await f.auth.system.selection.get()).version).toBe('9007199254740999')
+    await expect(f.auth.system.selection.getSavedModel(id(21))).rejects.toMatchObject({ kind: 'problem', problem: { status: 404 } })
+    await f.auth.system.selection.checkOriginal()
+    expect(f.auth.system.selection.progress).toMatchObject({ phase: 'uncertain', receipt: null, observation: 'missing', canRetryOriginal: true })
+    await expect(f.auth.system.selection.retryOriginal()).rejects.toMatchObject({ kind: 'problem' })
+    expect(f.auth.system.selection.progress?.phase).toBe('uncertain')
+    const lookup = f.auth.system.selection.checkOriginal().catch(e => e)
+    try {
+      await failedLookup.entered.promise; await vi.advanceTimersByTimeAsync(30000)
+      expect(await lookup).toMatchObject({ kind: 'cancelled' }); expect(f.auth.state.busy).toBe(true)
+      expect(f.auth.system.selection.progress).toMatchObject({ phase: 'uncertain', observation: 'failed', canRetryOriginal: false })
+      await expect(f.auth.system.selection.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    } finally { failedLookup.tail.resolve(); await lookup; await flushPromises() }
+    expect(f.auth.system.selection.progress?.canRetryOriginal).toBe(true)
+    await f.auth.system.selection.checkOriginal()
+    expect(f.auth.system.selection.progress).toMatchObject({ phase: 'uncertain', receipt: null, observation: 'found' })
+    expect(executions).toBe(2)
+    expect(await f.auth.system.selection.retryOriginal()).toEqual(receipt())
+    const writes = f.writes(), first = writes[0]!, originalHeaders = new Headers(first.init.headers)
+    expect(writes.length === 3 && writes.every(c => c.init.body === first.init.body && new Headers(c.init.headers).get('Idempotency-Key') === originalHeaders.get('Idempotency-Key') && new Headers(c.init.headers).get('X-CSRF-Token') === csrf)).toBe(true)
+    expect(JSON.parse(first.init.body as string)).toEqual({ id: id(100), expected_version: '9007199254740993', ...configured() })
+    const publicState = JSON.stringify([f.auth.state, f.auth.system.selection.progress])
+    expect(publicState.includes(originalHeaders.get('Idempotency-Key')!) || publicState.includes(csrf)).toBe(false)
+    f.setSelection(async () => problem('INTERNAL_ERROR', 503))
+    await expect(f.auth.system.selection.get()).rejects.toMatchObject({ kind: 'problem' })
+    expect(f.auth.system.selection.progress).toMatchObject({ phase: 'confirmed', receipt: receipt(), canRetryOriginal: false })
+    expect(f.writes()).toHaveLength(3)
+  })
+
+  it('current Selection403 clears all system private state while write and lookup CSRF invalidate the current Session', async () => {
+    const f = await harness()
+    f.auth.system.providers.setMaterial('generated-' + crypto.randomUUID())
+    f.setProvider(async path => { if (path.endsWith('/model-credentials')) return json(credential()); throw new Error('synthetic-response-cut') })
+    await f.auth.system.providers.start({ kind: 'provider.create', input: providerInput() }).catch(() => undefined)
+    f.setModel(async () => { throw new Error('synthetic-response-cut') })
+    await f.auth.system.models.start(modelDeletion()).catch(() => undefined)
+    f.setSelection(async () => { throw new Error('synthetic-response-cut') })
+    await f.auth.system.selection.start(command()).catch(() => undefined)
+    expect([f.auth.system.providers.progress?.phase, f.auth.system.models.progress?.phase, f.auth.system.selection.progress?.phase]).toEqual(['uncertain', 'uncertain', 'uncertain'])
+    f.setSelection(async () => problem('FORBIDDEN', 403))
+    await f.auth.system.selection.get().catch(() => undefined)
+    expect({ phase: f.auth.state.phase, role: f.auth.state.user?.role, denied: f.auth.system.denied, provider: f.auth.system.providers.progress, material: f.auth.system.providers.material.present, model: f.auth.system.models.progress, selection: f.auth.system.selection.progress }).toEqual({ phase: 'authenticated', role: 'admin', denied: true, provider: null, material: false, model: null, selection: null })
+    expect(f.calls.some(c => c.path.includes('logout'))).toBe(false)
+    for (const operation of ['write', 'lookup']) {
+      await f.auth.restore(); expect(f.auth.system.denied).toBe(false)
+      if (operation === 'lookup') { f.setSelection(async () => { throw new Error('synthetic-response-cut') }); await f.auth.system.selection.start(command()).catch(() => undefined) }
+      f.setSelection(async () => problem('CSRF_FAILED', 403))
+      await (operation === 'write' ? f.auth.system.selection.start(command()) : f.auth.system.selection.checkOriginal()).catch(() => undefined)
+      expect({ phase: f.auth.state.phase, identity: f.auth.personalContext.identity, selection: f.auth.system.selection.progress }).toEqual({ phase: 'unavailable', identity: null, selection: null })
+    }
+  })
+
+  it.each([['SESSION_REVOKED', 401, 'unavailable'], ['FORBIDDEN', 403, 'authenticated']] as const)('applies accepted late parsed %s rules after Selection reference abandonment', async (code, status, phase) => {
+    const parsed = gate(), tail = gate()
+    const f = await harness(api => ({ ...api, async getSavedModel(...args) { try { return await api.getSavedModel(...args) } catch (error) { parsed.resolve(); await tail.promise; throw error } } }))
+    f.setModel(async () => problem(code, status))
+    const visible = f.auth.system.selection.getSavedModel(id(21)).catch(e => e)
+    try { await parsed.promise; f.auth.system.selection.abandonRead('selection-reference'); expect(await visible).toMatchObject({ kind: 'cancelled' }); expect(f.auth.state.busy).toBe(true) }
+    finally { tail.resolve(); await visible; await flushPromises() }
+    expect({ phase: f.auth.state.phase, denied: f.auth.system.denied, busy: f.auth.state.busy }).toEqual({ phase, denied: false, busy: false })
+  })
+
+  it('old identity cannot hand a fetch/cancel tail to a new same-user Session or publish old intent', async () => {
+    const f = await harness(), response = gate<Response>(), oldBody = held({}, 401, 'application/problem+json')
+    f.setSelection(() => response.promise)
+    const old = f.auth.system.selection.start(command()).catch(e => e)
+    await flushPromises(); f.auth.leave(); f.setSession(3)
+    const before = f.calls.length
+    try {
+      await f.auth.restore(); expect(f.auth.state.busy && f.auth.personalContext.identity === null && f.calls.length === before).toBe(true)
+      response.resolve(oldBody.response); await oldBody.entered.promise
+      await f.auth.restore(); expect(f.auth.state.busy && f.calls.length === before).toBe(true)
+    } finally { oldBody.tail.resolve(); await old; await flushPromises() }
+    await f.auth.restore()
+    expect({ currentSession: f.auth.state.session?.id === id(3), denied: f.auth.system.denied, selection: f.auth.system.selection.progress, busy: f.auth.state.busy }).toEqual({ currentSession: true, denied: false, selection: null, busy: false })
+  })
+
+  it('synchronous progress consumers cannot dispatch abandoned input or erase a successor after confirmation', async () => {
+    const f = await harness()
+    const stopSubmitting = watch(() => f.auth.system.selection.progress?.phase, phase => { if (phase === 'submitting') f.auth.system.selection.abandon() }, { flush: 'sync' })
+    await expect(f.auth.system.selection.start(command())).rejects.toMatchObject({ kind: 'cancelled' })
+    stopSubmitting(); expect(f.writes()).toHaveLength(0); expect(f.auth.system.selection.progress).toBeNull()
+    const nextBody = eof(receipt('9007199254740995')); let count = 0, successors = 0, next: Promise<unknown> | undefined
+    f.setSelection(async () => ++count === 1 ? json(receipt()) : nextBody.response)
+    const stopConfirmed = watch(() => f.auth.system.selection.progress?.phase, phase => {
+      if (phase !== 'confirmed' || successors) return
+      successors++; f.auth.system.selection.abandon()
+      next = f.auth.system.selection.start({ ...command(), expected_version: '9007199254740994', memory: id(31) }).catch(e => e)
+    }, { flush: 'sync' })
+    try {
+      await expect(f.auth.system.selection.start(command())).rejects.toMatchObject({ kind: 'cancelled' })
+      await flushPromises()
+      expect({ successors, writes: f.writes().length, phase: f.auth.system.selection.progress?.phase, busy: f.auth.state.busy }).toEqual({ successors: 1, writes: 2, phase: 'submitting', busy: true })
+      await expect(f.auth.system.models.start(modelDeletion())).rejects.toMatchObject({ kind: 'busy' })
+    } finally { nextBody.close(); if (next) await next; stopConfirmed() }
+    expect(f.auth.system.selection.progress).toMatchObject({ phase: 'confirmed', receipt: receipt('9007199254740995'), canRetryOriginal: false })
+    expect(f.auth.state.busy).toBe(false)
+  })
+})

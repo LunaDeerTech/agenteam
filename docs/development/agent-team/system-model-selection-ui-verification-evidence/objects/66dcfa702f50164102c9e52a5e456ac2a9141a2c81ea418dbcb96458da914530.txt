@@ -1,0 +1,38 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-model-selection.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/web
+
+ ❯ src/tests/system-model-selection.spec.ts (17 tests | 1 failed) 2365ms
+     × selects required and optional purposes, writes all six fields once, and opens an immediate clean form 245ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > selects required and optional purposes, writes all six fields once, and opens an immediate clean form
+AssertionError: button 编辑用途: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-model-selection.spec.ts:355:36
+    353|       )?.trim() === label || value.getAttribute('aria-label') === labe…
+    354|   )
+    355|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    356|   return found!
+    357| }
+ ❯ src/tests/system-model-selection.spec.ts:460:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 16 passed (17)
+   Start at  11:49:35
+   Duration  4.28s (transform 1.16s, setup 0ms, import 1.35s, tests 2.36s, environment 422ms)
+

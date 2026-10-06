@@ -1,0 +1,14 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-selection-page-repair-wgd1njvk/candidate/web
+
+ ✓ src/tests/independent-selection-supplement.spec.ts > Independent Selection repaired evidence boundaries > requires a complete compatible Model parse after same-Provider protocol change and preserves selector version and IDs 76ms
+ ✓ src/tests/independent-selection-supplement.spec.ts > Independent Selection repaired evidence boundaries > invalidates an exact selected Model disabled observation without adding a Model version fence 18ms
+ ✓ src/tests/independent-selection-supplement.spec.ts > Independent Selection repaired evidence boundaries > invalidates an exact selected Model capability observation without adding a Model version fence 7ms
+ ✓ src/tests/independent-selection-supplement.spec.ts > Independent Selection repaired evidence boundaries > does not infer deletion from unrelated or absent page rows, but an exact Provider404 invalidates matching evidence 8ms
+ ✓ src/tests/independent-selection-supplement.spec.ts > Independent Selection repaired evidence boundaries > never applies an obsolete disabled Provider DTO after purpose cancellation and its actual body tail 29ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  11:56:32
+   Duration  1.97s (transform 1.09s, setup 0ms, import 1.30s, tests 140ms, environment 413ms)
+

@@ -1,0 +1,13 @@
+--- page-app01/web/src/tests/system-model-selection.spec.ts
++++ page-stage02/web/src/tests/system-model-selection.spec.ts
+@@ -457,7 +457,9 @@
+     })
+     expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+     expect(f.wrapper.text()).toContain('平台模型用途配置已保存')
+-    const open = button('编辑用途')
++    const open = button('配置已保存')
++    expect(open.disabled).toBe(false)
++    expect(open.getAttribute('aria-busy')).not.toBe('true')
+     open.click()
+     await flushPromises()
+     expect(button('保存用途配置', dialog()).disabled).toBe(true)

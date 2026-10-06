@@ -1,0 +1,23 @@
+{
+  "accepted_base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "accepted_baseline_matches": true,
+  "accepted_count": 1041,
+  "actual_input_sha256": "77d93a74712eb69964db8cee183188eecab9cfc5137e87e98b81920d976af756",
+  "author_manifest_sha256": "4732889a4490c7166a83cc1e13be2656529f093a30ba660862d441f378692def",
+  "dependencies_match": true,
+  "dist_matches": true,
+  "gate_driver_sha256": "ac03e281882a3d0c00342420679394eb83225f4a316dcca310fd5a3b57ec6ac4",
+  "locked_runtime_match": true,
+  "private_files": {
+    "fixed-helpers.ts": "2aff26fa7ce22b2fe08de5c2b762f1b93fabced35b137e756de3b5bdb8509d42",
+    "fixture-delta.diff": "92843dfbe35a995f5a3e34022c81aa77c0c811770035d56fd8d87466f5bf0550",
+    "independent.spec.ts": "4dd471a3aee239599114aa0f6e724ecdc88ea32f0bb81413de1da05cdb8d82e6",
+    "overlay.json": "f99abf7a8dac450ba4254f9a238b10e00324ba8b82fc5bea1fdbe7bf03dd74d2",
+    "playwright.config.mjs": "9e2767c0d3786f24e56a4411cedbf4b47f1630f94e94cf4abfe7a92c8de2bf5a",
+    "system_model_selection_web_fixture_test.go": "0a1ba8f480ee0a89b5d0e1966224f2467a5145de170c1cde2ce40e9945c4d29b",
+    "system_model_selection_web_test.go": "a9f4eaf0ce5a1af367055778459258b44f4834ef2cbe8a1da5e2333751e510d2"
+  },
+  "private_node_modules": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules",
+  "runner_sha256": "b326a953eb5068ac543cdadddd8598cb864551a158828440074d3c91cd9c89ac",
+  "source_matches": true
+}

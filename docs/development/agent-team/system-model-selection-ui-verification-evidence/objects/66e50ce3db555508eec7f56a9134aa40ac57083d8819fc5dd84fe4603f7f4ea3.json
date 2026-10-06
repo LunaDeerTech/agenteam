@@ -1,0 +1,56 @@
+{
+  "readme_sha256": "5ddfc8ae082230f788d38bb20acc3eaaad0ad2e84a65e20870ca4e78aee68e11",
+  "local_links_checked": 28,
+  "missing_links": [],
+  "fence_count": 28,
+  "newline": true,
+  "selectors": [
+    {
+      "selector": "^TestAccountSystemModelSelectionWeb(Lifecycle|ReadAndPagination|ConcurrencyAndReferences|OutcomeRecovery|AuthorityAndIdentity|NavigationAndLayouts)$",
+      "count": 6,
+      "tests": [
+        "TestAccountSystemModelSelectionWebAuthorityAndIdentity",
+        "TestAccountSystemModelSelectionWebConcurrencyAndReferences",
+        "TestAccountSystemModelSelectionWebLifecycle",
+        "TestAccountSystemModelSelectionWebNavigationAndLayouts",
+        "TestAccountSystemModelSelectionWebOutcomeRecovery",
+        "TestAccountSystemModelSelectionWebReadAndPagination"
+      ]
+    },
+    {
+      "selector": "^TestAccount(AuthenticationWebSessionLifecycle|PersonalSettingsWebThemeAndNavigation|PublicEntryWebIdentityNavigation|SystemUserDirectoryWeb(AuthorityAndIdentity|NavigationAndLayouts)|SystemInvitationsWeb(OutcomeRecovery|NavigationAndLayouts))$",
+      "count": 7,
+      "tests": [
+        "TestAccountAuthenticationWebSessionLifecycle",
+        "TestAccountPersonalSettingsWebThemeAndNavigation",
+        "TestAccountPublicEntryWebIdentityNavigation",
+        "TestAccountSystemInvitationsWebNavigationAndLayouts",
+        "TestAccountSystemInvitationsWebOutcomeRecovery",
+        "TestAccountSystemUserDirectoryWebAuthorityAndIdentity",
+        "TestAccountSystemUserDirectoryWebNavigationAndLayouts"
+      ]
+    },
+    {
+      "selector": "^TestAccountSystemProvidersWeb(CredentialReplacement|OutcomeRecovery|NavigationAndLayouts)$",
+      "count": 3,
+      "tests": [
+        "TestAccountSystemProvidersWebCredentialReplacement",
+        "TestAccountSystemProvidersWebNavigationAndLayouts",
+        "TestAccountSystemProvidersWebOutcomeRecovery"
+      ]
+    },
+    {
+      "selector": "^TestAccountSystemModelsWeb(DeletionAndReplacement|OutcomeRecovery|NavigationAndLayouts)$",
+      "count": 3,
+      "tests": [
+        "TestAccountSystemModelsWebDeletionAndReplacement",
+        "TestAccountSystemModelsWebNavigationAndLayouts",
+        "TestAccountSystemModelsWebOutcomeRecovery"
+      ]
+    }
+  ],
+  "independent_actual_selectors_match": true,
+  "section_lines": 53,
+  "section_chars": 4231,
+  "resource_use": "none; read-only documentation checks"
+}

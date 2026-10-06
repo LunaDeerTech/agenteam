@@ -1,0 +1,189 @@
+import { test, expect, type Page } from '@playwright/test';
+import {
+  material, result, ipc, endpoint, top, button, draftRow, facts, seq, writes,
+  factAfter, session, setup, currentRead, openEditor, choose, clearOptional,
+  dbFacts, canonical, referenceFacts, focusContained, cutSave,
+} from './fixed-helpers';
+import type { Receipt } from './fixed-helpers';
+
+function exactReceipt(actual: Receipt | undefined, expected: string) {
+  expect(actual).toEqual({kind:'model.selection.update',resource_id:material().selector_id,
+    version:String(BigInt(expected)+1n),affected_references:'0'});
+}
+async function originalFacts(attempts: number) {
+  const value=(await ipc('original-facts')).facts;
+  expect(value).toEqual({
+    command_count:1,audit_count:1,planned_events:1,matched_events:1,deliveries:0,
+    receipt_matches_original:true,persisted_input_matches_original:true,
+    receipt:expect.objectContaining({kind:'model.selection.update',affected_references:'0'}),
+    same_key_attempts:attempts,accepted_attempts:attempts,body_bytes_equal:true,
+    csrf_equal:true,csrf_nonempty_and_backend_accepted:true,
+  });
+  return value;
+}
+async function sameSessionCurrentRead(page: Page) {
+  const before=await session(page), after=await seq(page);
+  await page.evaluate(()=>window.dispatchEvent(new Event('pageshow')));
+  await factAfter(page,after,f=>f.path==='/api/v1/session'&&f.status===200&&f.ended&&
+    f.session?.user_id===before.user_id&&f.session.session_id===before.session_id&&f.session.role===before.role);
+  return currentRead(page,after);
+}
+async function rejectSave(page: Page,status:number,code:string) {
+  const after=await seq(page), count=(await writes(page)).length;
+  await top(page).getByRole('button',{name:'保存用途配置',exact:true}).click();
+  const response=await factAfter(page,after,f=>f.path===endpoint&&f.method==='PUT'&&f.status===status&&f.code===code&&f.ended);
+  expect(response.commit_state).toBe('not_started');
+  expect(response.receipt).toBeUndefined();
+  await expect(top(page).getByRole('button',{name:'读取最新配置并核对',exact:true})).toBeEnabled();
+  expect((await writes(page)).length).toBe(count+1);
+}
+async function beginReview(page: Page) {
+  await top(page).getByRole('button',{name:'读取最新配置并核对',exact:true}).click();
+  await expect(top(page)).toHaveAccessibleName('读取最新配置并核对？');
+}
+async function acceptReview(page: Page) {
+  const after=await seq(page);
+  await top(page).getByRole('button',{name:'读取并核对',exact:true}).click();
+  const current=await currentRead(page,after);
+  await expect(top(page)).toHaveAccessibleName('配置平台模型用途');
+  await expect(top(page)).toContainText('已读取当前配置。请核对四项草稿');
+  return current;
+}
+async function failedSessionRecoveryInsideReview(page: Page) {
+  const before=await session(page),after=await seq(page),count=(await writes(page)).length;
+  const failures=(await ipc('failure-facts')).session_failures;
+  await ipc('arm-session-fail');
+  const checking=await page.evaluate(async()=>{
+    let observer: MutationObserver | undefined;
+    try{return await new Promise<{zero:boolean;unlocked:boolean}>(resolve=>{
+      observer=new MutationObserver(()=>{
+        if(!document.querySelector('.session-check'))return;
+        resolve({zero:document.querySelectorAll('[role="dialog"]').length===0,
+          unlocked:document.body.style.overflow!=='hidden'});
+      });
+      observer.observe(document.body,{childList:true,subtree:true});
+      window.dispatchEvent(new Event('pageshow'));
+    });}finally{observer?.disconnect();}
+  });
+  expect(checking).toEqual({zero:true,unlocked:true});
+  // http.Error is text/plain; the application cancels without acquiring a reader.
+  await factAfter(page,after,f=>f.path==='/api/v1/session'&&f.method==='GET'&&f.status===503);
+  await expect(page.locator('[role="dialog"]')).toHaveCount(0);
+  const restore=button(page,'检查当前会话');
+  await expect(restore).toBeEnabled();
+  expect(await restore.evaluate(n=>n.closest('[inert]')===null)).toBe(true);
+  expect((await ipc('failure-facts')).session_failures).toBe(failures+1);
+  const recoveryAfter=await seq(page);
+  await restore.click();
+  await factAfter(page,recoveryAfter,f=>f.path==='/api/v1/session'&&f.method==='GET'&&f.status===200&&f.ended&&
+    f.session?.user_id===before.user_id&&f.session.session_id===before.session_id&&f.session.role===before.role);
+  const physical=page.locator('[role="dialog"]');
+  await expect(physical).toHaveCount(2);
+  await expect(page.getByRole('dialog')).toHaveCount(1);
+  expect(await physical.evaluateAll(nodes=>{
+    const [lower,upper]=nodes as HTMLElement[];
+    return lower?.inert===true&&lower.getAttribute('aria-hidden')==='true'&&
+      lower.querySelector('h2')?.textContent==='配置平台模型用途'&&upper?.inert===false&&
+      upper.getAttribute('aria-hidden')!=='true'&&upper.querySelector('h2')?.textContent==='读取最新配置并核对？';
+  })).toBe(true);
+  await focusContained(page); // Native Tab/Shift+Tab in the restored upper layer.
+  await top(page).getByRole('button',{name:'继续编辑',exact:true}).click();
+  await expect(physical).toHaveCount(1);
+  await expect(top(page)).toHaveAccessibleName('配置平台模型用途');
+  await focusContained(page); // Shared restore falls back inside the remaining modal.
+  expect((await writes(page)).length).toBe(count);
+}
+
+test('[independent-a] accepted original PUT remains replayable after current replacement and old 404',async({page})=>{
+  await setup(page);
+  const data=material(),baseline=await dbFacts(),expected=baseline.selection.version;
+  expect(data.ids.memory_provider!==data.ids.memory_replacement_provider).toBe(true);
+  await openEditor(page);
+  await choose(page,'memory',data.ids.memory_replacement!);
+  await cutSave(page);
+  const lost=await ipc('drop-facts'),accepted=await dbFacts();
+  expect(lost.dropped).toBe(1);expect(lost.replayed).toBe(0);
+  expect((await writes(page)).length).toBe(1);
+  exactReceipt(lost.receipt,expected);
+  expect(accepted.selection.version).toBe(String(BigInt(expected)+1n));
+  expect(accepted.selection.configured).toEqual({...baseline.selection.configured!,memory:data.ids.memory_replacement});
+  referenceFacts(accepted);
+  const original=await originalFacts(1);exactReceipt(original.receipt,expected);
+  await ipc('delete',{id:data.ids.memory_replacement!,replacement:data.ids.memory!});
+  expect((await ipc('missing',{id:data.ids.memory_replacement!})).missing).toBe(true);
+  const advanced=await dbFacts();
+  expect(advanced.selection.version).toBe(String(BigInt(expected)+2n));
+  expect(advanced.selection.configured).toEqual(baseline.selection.configured);
+  referenceFacts(advanced);
+  expect(await sameSessionCurrentRead(page)).toEqual(advanced.selection);
+  await expect(top(page)).toHaveAccessibleName('配置平台模型用途');
+  await expect(draftRow(page,'memory')).toContainText(data.ids.memory_replacement!);
+  await expect(top(page)).toContainText('保存结果未确认');
+  expect((await writes(page)).length).toBe(1);
+  let after=await seq(page);
+  await top(page).getByRole('button',{name:'检查原请求',exact:true}).click();
+  const lookup=await factAfter(page,after,f=>f.path==='/api/v1/system/model-commands/lookup'&&f.method==='POST'&&f.status===200&&f.ended&&f.found===true);
+  exactReceipt(lookup.receipt,expected);
+  await expect(top(page)).toContainText('不会代替原请求的执行回执');
+  await expect(top(page)).toContainText('保存结果未确认');
+  await expect(top(page).getByRole('button',{name:'重试原请求',exact:true})).toBeEnabled();
+  expect((await writes(page)).length).toBe(1);
+  expect(canonical(await dbFacts())).toBe(canonical(advanced));
+  after=await seq(page);
+  await top(page).getByRole('button',{name:'重试原请求',exact:true}).click();
+  const replay=await factAfter(page,after,f=>f.path===endpoint&&f.method==='PUT'&&f.status===200&&f.ended&&!!f.receipt);
+  exactReceipt(replay.receipt,expected);
+  expect(replay.receipt).toEqual(lost.receipt);
+  await expect(page.locator('[role="dialog"]')).toHaveCount(0);
+  await expect(page.locator('.system-model-selection')).toContainText('平台模型用途配置已保存');
+  expect(await currentRead(page,replay.sequence)).toEqual(advanced.selection);
+  const final=await originalFacts(2);exactReceipt(final.receipt,expected);
+  expect((await writes(page)).length).toBe(2);
+  expect(canonical(await dbFacts())).toBe(canonical(advanced));
+  expect((await ipc('missing',{id:data.ids.memory_replacement!})).missing).toBe(true);
+  result({accepted_cut:true,later_current_not_receipt:true,old_404:true,strict_history:true,same_original:true,unique_command_facts:true});
+});
+
+test('[independent-b] current candidate rejection and explicit review retain identity and modal focus',async({page})=>{
+  await setup(page);
+  const data=material(),baseline=await dbFacts();
+  await openEditor(page);
+  await choose(page,'memory',data.ids.memory_replacement!);
+  await expect(top(page).getByRole('button',{name:'保存用途配置',exact:true})).toBeEnabled();
+  await ipc('disable-model',{id:data.ids.memory_replacement!});
+  const before=await dbFacts();
+  await rejectSave(page,400,'INVALID_ARGUMENT');
+  expect(canonical(await dbFacts())).toBe(canonical(before));
+  await expect(draftRow(page,'memory')).toContainText(data.ids.memory_replacement!);
+  await expect(top(page)).toContainText('核对版本：'+baseline.selection.version);
+  await ipc('enable-model',{id:data.ids.memory_replacement!});
+  await beginReview(page);
+  expect(await acceptReview(page)).toEqual(baseline.selection);
+  await choose(page,'memory',data.ids.memory_replacement!);
+  const attempts=(await writes(page)).length;
+  await ipc('selection',{stage:'image'}); // Formal concurrent clear, no UI observation refresh.
+  const advanced=await dbFacts();
+  expect(advanced.selection.version).toBe(String(BigInt(baseline.selection.version)+1n));
+  expect(advanced.selection.configured!.image).toBeNull();
+  await rejectSave(page,409,'VERSION_CONFLICT');
+  expect(canonical(await dbFacts())).toBe(canonical(advanced));
+  await expect(draftRow(page,'memory')).toContainText(data.ids.memory_replacement!);
+  await expect(draftRow(page,'image')).toContainText(data.ids.image!);
+  await expect(top(page)).toContainText('核对版本：'+baseline.selection.version);
+  await beginReview(page);
+  await failedSessionRecoveryInsideReview(page);
+  await expect(draftRow(page,'memory')).toContainText(data.ids.memory_replacement!);
+  await expect(draftRow(page,'image')).toContainText(data.ids.image!);
+  await expect(top(page)).toContainText('核对版本：'+baseline.selection.version);
+  expect((await writes(page)).length).toBe(attempts+1);
+  await beginReview(page);
+  expect(await acceptReview(page)).toEqual(advanced.selection);
+  await expect(top(page)).toContainText('核对版本：'+advanced.selection.version);
+  await expect(draftRow(page,'memory')).toContainText(data.ids.memory_replacement!);
+  await expect(draftRow(page,'image')).toContainText(data.ids.image!);
+  await expect(top(page).getByRole('button',{name:'保存用途配置',exact:true})).toBeDisabled();
+  expect((await writes(page)).length).toBe(attempts+1);
+  expect(canonical(await dbFacts())).toBe(canonical(advanced));
+  referenceFacts(advanced);
+  result({candidate_refused:true,no_partial_write:true,version_conflict:true,explicit_review:true,same_identity_restored:true,native_focus:true});
+});

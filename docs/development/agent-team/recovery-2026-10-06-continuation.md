@@ -155,3 +155,15 @@ input01作者287项完整纯测及30项真实矩阵通过后，独立仍发现�
 作者四轮及独立一轮原command实际wait、7exact资源各自双absent、原2容器/4网络基线不变、源码/dist/私有输入不变、所属PID/runtime清零。独立最终212所属PID/starttime、8adopted wait、monitor0，窗口释放；历史PPID1 Z未触碰、不称已wait。早期pure没有完整env照实保留。作者八图全部实际查看，主线程接受light1440/dark390；归档不重跑资源。README首稿及最终单处说明差量都保留：引用变化本身不必拒绝，正式DELETE事务重新裁决；无业务改动。
 
 本次档案按SHA去重为794逻辑/302物理原件，离线核固定bc17167的26路径与1030基线；不复制依赖/dist实体/缓存/二进制，不读取后继Selection活动产品作结论。唯一agent负例只用自有Model反向索引模拟未绑定引用，UI零DELETE与另次正式HTTP503/零副作用分列，不声称Agent正式存在；selector引用全部正式GET/PUT。Selection UI、外部调用、Runtime、生产SPA/Vite/其他引擎/native zoom不在本卡接受内。完整D09/D26/D27及D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503等边界保持。
+
+## 15. System 平台模型用途 UI 完整卡接受
+
+§1–14保留各阶段原事实。[Selection rev2](../work-items/d27-system-model-selection-ui.md)实际26路径已完成并获独立最终PASS、主线程采纳，提交推送 `870ebbb986f56bb62be34ccdfa2c77819ce995a6`，主线程核远端一致。[正式报告与最小证据](system-model-selection-ui-verification.md)绑定input02 `af2f9f4a50f4c435e849bf8faf9d8676a11ccd7c3c6d61416dcbfda57f8a72c5`的25源/31dist指纹及最后授权README；固定Model基线bc17167、后端9b32015/迁移1–19及1041依赖。原27候选依卡页首剔除无需改动的system-models.ts，技术§1–7保持被审原字节。
+
+作者993测试/29文件与format/type/build通过。新6按new01五组+new02 Navigation一组组合，旧core7/Provider3/Model3通过，不称一轮新6全绿。原Navigation在浏览器前因Provider seed130/129 rune超128收到400，input02只缩短seed35→34，正式验证边界与全部原失败保留。P-SELECTION-PAGE-01为已观察disabled后canSave仍真，writes=0未发PUT；生产仅controller返修、原probe同字节复验，另有state回归测试。作者成功按钮/协议测试前提和H-SELECTION-01错误503EOF静态阻断分列，不冒充产品红。
+
+独立API15、owner8、页面原probe7+补充5沿未变输入复用。真实01的A审计摘要遗漏canonicalization、B条件按钮名错误均保留，未到的后续场景不能记通过。02的B完整PASS11.95s，A已到当前E+2/旧目标404和lookup历史回执后因状态文案前提停止，尚未原重放或最终持久化核验；03只复验A最终完整PASS9.38s，实际exit0/61.415s，与未变B02组成接受。最终精确原key/body/同Session合法CSRF重放得到历史E+1、影响引用数0，唯一command/Audit/计划事件各1且无delivery，当前配置与引用不回退；B已验候选400零部分写、冲突409、显式核对、Session503/同身份恢复与真实modal焦点/Tab。原01/02仍exit1，私有前提修正不改产品。
+
+作者五轮和独立三轮实际wait、7exact资源各自双absent、原2容器/4网络基线与固定输入保持、所属PID/runtime清零。最终A03为84PID/starttime和4实际adopted wait，monitor0，窗口释放；历史PPID1 Z不计回收。作者八图逐张查看，主线程实际看light1440/dark390；900px视口不证明全部下方字段。四份确认缺失的历史通过源码及十二份formatter输入暂态未定位分别保留原hash/command/raw/exit，不补造、重跑或声称每版可重建；失败测试源和最终受测源完整。
+
+本次按SHA归档1235逻辑/445物理原件，离线核固定870ebbb的26路径、31dist指纹、1041基线和八轮终局，不读取后继账号安全活动源码、不复制依赖/dist实体/缓存/二进制或运行产品。账号安全UI另卡推进；完整D09/D26/D27及D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503、Runtime/生产SPA/Vite/其他引擎/native zoom等边界保持。

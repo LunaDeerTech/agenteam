@@ -1,5 +1,11 @@
 # D27：System 平台模型用途配置 UI
 
+状态：rev2完整卡已接受。2026-10-06，`directory_backend`（frontend_worker）完成实际26路径，`recovery_verification`独立最终PASS，主线程采纳提交推送 `870ebbb986f56bb62be34ccdfa2c77819ce995a6`并核远端一致。[正式验收报告与最小证据](../agent-team/system-model-selection-ui-verification.md)绑定最终input02的25源/31dist指纹及README第26路径，固定Model基线bc17167、后端9b32015/迁移1–19与1041依赖。原27候选减原第2路径的范围不变，技术§1–7 SHA256 `0bce82bfeeba06a9b2aa894ad61b841de41306300f220437c4beb137fb325c07`保持原字节。
+
+作者993测试及新5+1、旧7+3+3通过；独立阶段15/8/7+5复用，真实B02与A03完整通过组成接受，原01/02失败与到达边界不改写。A03实际exit0/61.415s、7资源双absent/84PID/4实际wait；八轮原终局均保留。四份旧通过源码及十二份formatter暂态输入限制、原产品红/前提红、视觉与历史PPID1 Z边界见报告。本卡不代表完整D27、Runtime或生产托管完成；后继账号安全UI另卡推进。
+
+以下页首为规格采纳和实施授权时的历史记录；其待实施语句不覆盖上述接受状态。
+
 状态：rev2，2026-10-06 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS）并由主线程采纳本规格，被审稿 SHA256 `902195a51e9a5ff6f91f829ae6dc13e7feba7a7c9aaaa0c4cb77541a19b67f58`。rev1经 `recovery_documentation`（verification_worker）独立静审为STATIC BLOCKED，仅“当前引用只有Model ID，但原完整Model解析需要Provider/protocol上下文”一项阻断；被审稿 SHA256 `3166c87c86f2f66bac63301a29f237ab7c885f1cdc693f74defefc83afad1f78`。rev2只补私有两GET组合补读、实际owner/发布门禁及对应验收；本次仅同步页首实施前置，技术§1–7保持被审原字节及原采纳语义。[Model UI rev2](d27-system-model-management-ui.md)的26路径完整结果已获独立最终PASS、资源双清且README最后完成，主线程接受提交 `bc17167c42ee5d5fc1427adaac099ff888ca959b`并推送main、远端一致；Model前置已满足，本卡固定产品/前端基线采用该接受提交，沿已接受后端及迁移1–19。实际范围按原§6约定为原27候选减第2，共26路径，原表与序号不改：`web/src/api/system-models.ts`剔除，已接受的 `system-providers.ts` 已公开 `parseProviderModel` 与所需类型，可直接复用而无需重导出。原第24–26均需实施，固定基线中旧邀请browser第1528行、Provider browser第1192行、Model browser第1923及1991行，共四处全部navigation/Drawer链接计数仅作 `toHaveCount(4)`→`toHaveCount(5)`，原其余动作/强断言/预算保持。正文中的待验与原27候选表述保留原审稿状态，当前前置与实际范围以本页首为准。拟由 `directory_backend`（frontend_worker）担任上述26路径唯一作者，待本卡提交后由主线程正式下发，不得自行启动；其余后端、迁移、共享基础与锁文件不授，真实资源窗口另授。architecture_worker仅修改本卡页首，不碰其他文档、产品或资源；规格采纳和上游接受不代表本卡产品通过。
 
 ## 1. 完整结果与真实依赖

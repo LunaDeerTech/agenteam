@@ -1,0 +1,1008 @@
+import { test, expect, type Page, type Locator } from "@playwright/test";
+import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
+import { join } from "node:path";
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
+type Credential = { email: string; password: string; user_id: string };
+type Provider = {
+  id: string;
+  input: {
+    name: string;
+    protocol: string;
+    base_url: string;
+    enabled: boolean;
+    credential_ref: string | null;
+    options: object;
+  };
+  version: string;
+  created_at: string;
+  updated_at: string;
+};
+type Capabilities = {
+  tool_calls: boolean;
+  parallel_tool_calls: boolean;
+  streaming: boolean;
+  reasoning: boolean;
+  input_modalities: string[];
+  output_modalities: string[];
+  reasoning_efforts: string[];
+  structured_output_modes: string[];
+  context_length: string | null;
+  max_output: string | null;
+};
+type Model = {
+  id: string;
+  provider_id: string;
+  input: {
+    name: string;
+    provider_model_id: string;
+    type: string;
+    enabled: boolean;
+    parameters: object;
+    request_overwrite: object;
+    header_overwrite: object;
+    capabilities: Capabilities;
+  };
+  version: string;
+  created_at: string;
+  updated_at: string;
+};
+type Selection = {
+  id: string;
+  version: string;
+  configured: null | {
+    embedding: string;
+    memory: string;
+    reranker: string | null;
+    image: string | null;
+  };
+};
+type Receipt = {
+  kind: string;
+  resource_id: string;
+  version: string;
+  affected_references: string;
+};
+type Fact = {
+  sequence: number;
+  path: string;
+  method: string;
+  status: number;
+  bytes: number;
+  ended: boolean;
+  code?: string;
+  commit_state?: "not_started" | "not_committed" | "committed" | "unknown";
+  receipt?: Receipt;
+  providers?: { items: Provider[]; next_cursor: string | null };
+  models?: { items: Model[]; next_cursor: string | null };
+  provider?: Provider;
+  model?: Model;
+  selection?: Selection;
+  session?: { user_id: string; session_id: string; role: string };
+  found?: boolean;
+};
+type ObservedWindow = Window & {
+  __selectionFacts?: Fact[];
+  __selectionSequence?: number;
+};
+const material = (): {
+  admin: Credential;
+  member: Credential;
+  second_admin: Credential;
+  selector_id: string;
+  initial: Selection;
+  ids: Record<string, string>;
+  providers: Provider[];
+  models: Model[];
+} =>
+  JSON.parse(readFileSync(join(directory, "selection-material.json"), "utf8"));
+function result(value: Record<string, unknown>) {
+  writeFileSync(
+    join(directory, "selection-result.json"),
+    JSON.stringify({ completed: true, ...value }),
+    { mode: 0o600 },
+  );
+}
+let ipcSequence = 0;
+async function ipc(
+  action: string,
+  fields: Record<string, string> = {},
+): Promise<Record<string, any>> {
+  const sequence = ++ipcSequence,
+    request = join(directory, "selection-ipc.json"),
+    ack = join(directory, `selection-ack-${sequence}.json`);
+  writeFileSync(
+    request + ".tmp",
+    JSON.stringify({ sequence, action, ...fields }),
+    { mode: 0o600 },
+  );
+  renameSync(request + ".tmp", request);
+  await expect.poll(() => existsSync(ack), { timeout: 14_000 }).toBe(true);
+  const value = JSON.parse(readFileSync(ack, "utf8"));
+  expect(value.ok === true && value.sequence === sequence).toBe(true);
+  return value;
+}
+// A side observation of the application's exact native promise/reader. It never
+// clones/tees, re-fetches, consumes an additional read, or wraps/delays cancel.
+// Only closed safe projections survive; raw bounded bytes are cleared at EOF.
+function observeNative() {
+  const scope = window as ObservedWindow;
+  scope.__selectionFacts = [];
+  scope.__selectionSequence = 0;
+  const object = (v: unknown): Record<string, unknown> | null =>
+    v !== null && typeof v === "object" && !Array.isArray(v)
+      ? (v as Record<string, unknown>)
+      : null;
+  const closed = (v: Record<string, unknown>, keys: string[]) =>
+    Object.keys(v).length === keys.length &&
+    keys.every((k) => Object.hasOwn(v, k));
+  const id = (v: unknown): v is string =>
+    typeof v === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+      v,
+    );
+  const integer = (v: unknown, zero = false): v is string =>
+    typeof v === "string" &&
+    (zero ? /^(0|[1-9][0-9]{0,18})$/ : /^[1-9][0-9]{0,18}$/).test(v) &&
+    BigInt(v) <= 9223372036854775807n;
+  const string = (v: unknown, max: number): v is string =>
+    typeof v === "string" &&
+    !/[\u0000\uD800-\uDFFF]/u.test(v) &&
+    new TextEncoder().encode(v).length <= max;
+  const instant = (v: unknown): v is string => {
+    if (
+      typeof v !== "string" ||
+      !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$/.test(v)
+    )
+      return false;
+    const y = Number(v.slice(0, 4)),
+      m = Number(v.slice(5, 7)),
+      d = Number(v.slice(8, 10));
+    const days = [
+      31,
+      y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0) ? 29 : 28,
+      31,
+      30,
+      31,
+      30,
+      31,
+      31,
+      30,
+      31,
+      30,
+      31,
+    ];
+    return (
+      m >= 1 &&
+      m <= 12 &&
+      d >= 1 &&
+      d <= days[m - 1]! &&
+      Number(v.slice(11, 13)) < 24 &&
+      Number(v.slice(14, 16)) < 60 &&
+      Number(v.slice(17, 19)) < 60
+    );
+  };
+  const empty = (v: unknown) => {
+    const o = object(v);
+    return !!o && Object.keys(o).length === 0;
+  };
+  const strings = (v: unknown, allowed: string[]): v is string[] =>
+    Array.isArray(v) &&
+    v.every((x) => typeof x === "string" && allowed.includes(x)) &&
+    new Set(v).size === v.length;
+  const protocols = [
+    "openai-chat-completions",
+    "anthropic-messages",
+    "openai-embeddings",
+    "jina-rerank",
+    "openai-images-generations",
+  ];
+  function provider(v: unknown): Provider | null {
+    const r = object(v),
+      i = object(r?.input);
+    if (
+      !r ||
+      !i ||
+      !closed(r, ["id", "input", "version", "created_at", "updated_at"]) ||
+      !closed(i, [
+        "name",
+        "protocol",
+        "base_url",
+        "enabled",
+        "credential_ref",
+        "options",
+      ]) ||
+      !id(r.id) ||
+      !integer(r.version) ||
+      !instant(r.created_at) ||
+      !instant(r.updated_at) ||
+      r.updated_at < r.created_at ||
+      !string(i.name, 512) ||
+      Array.from(i.name).length < 1 ||
+      Array.from(i.name).length > 128 ||
+      typeof i.protocol !== "string" ||
+      !protocols.includes(i.protocol) ||
+      !string(i.base_url, 8192) ||
+      typeof i.enabled !== "boolean" ||
+      !(i.credential_ref === null || id(i.credential_ref)) ||
+      !empty(i.options)
+    )
+      return null;
+    return {
+      id: r.id,
+      input: {
+        name: i.name,
+        protocol: i.protocol,
+        base_url: i.base_url,
+        enabled: i.enabled,
+        credential_ref: i.credential_ref,
+        options: {},
+      },
+      version: r.version,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
+    };
+  }
+  function model(v: unknown): Model | null {
+    const r = object(v),
+      i = object(r?.input),
+      c = object(i?.capabilities);
+    if (
+      !r ||
+      !i ||
+      !c ||
+      !closed(r, [
+        "id",
+        "provider_id",
+        "input",
+        "version",
+        "created_at",
+        "updated_at",
+      ]) ||
+      !closed(i, [
+        "name",
+        "provider_model_id",
+        "type",
+        "enabled",
+        "parameters",
+        "request_overwrite",
+        "header_overwrite",
+        "capabilities",
+      ]) ||
+      !closed(c, [
+        "tool_calls",
+        "parallel_tool_calls",
+        "streaming",
+        "reasoning",
+        "input_modalities",
+        "output_modalities",
+        "reasoning_efforts",
+        "structured_output_modes",
+        "context_length",
+        "max_output",
+      ]) ||
+      !id(r.id) ||
+      !id(r.provider_id) ||
+      !integer(r.version) ||
+      !instant(r.created_at) ||
+      !instant(r.updated_at) ||
+      r.updated_at < r.created_at ||
+      !string(i.name, 512) ||
+      Array.from(i.name).length < 1 ||
+      Array.from(i.name).length > 128 ||
+      !string(i.provider_model_id, 256) ||
+      !i.provider_model_id.length ||
+      typeof i.type !== "string" ||
+      !["chat", "embedding", "reranker", "image_generation"].includes(i.type) ||
+      typeof i.enabled !== "boolean" ||
+      !empty(i.parameters) ||
+      !empty(i.request_overwrite) ||
+      !empty(i.header_overwrite) ||
+      ![c.tool_calls, c.parallel_tool_calls, c.streaming, c.reasoning].every(
+        (x) => typeof x === "boolean",
+      ) ||
+      !strings(c.input_modalities, ["text", "image", "file", "vector"]) ||
+      !strings(c.output_modalities, ["text", "image", "file", "vector"]) ||
+      !strings(c.reasoning_efforts, []) ||
+      !strings(c.structured_output_modes, ["text", "json_schema"]) ||
+      !(c.context_length === null || integer(c.context_length)) ||
+      !(c.max_output === null || integer(c.max_output)) ||
+      (c.context_length !== null &&
+        c.max_output !== null &&
+        BigInt(c.max_output) > BigInt(c.context_length)) ||
+      (c.parallel_tool_calls && !c.tool_calls)
+    )
+      return null;
+    return {
+      id: r.id,
+      provider_id: r.provider_id,
+      input: {
+        name: i.name,
+        provider_model_id: i.provider_model_id,
+        type: i.type,
+        enabled: i.enabled,
+        parameters: {},
+        request_overwrite: {},
+        header_overwrite: {},
+        capabilities: {
+          tool_calls: c.tool_calls as boolean,
+          parallel_tool_calls: c.parallel_tool_calls as boolean,
+          streaming: c.streaming as boolean,
+          reasoning: c.reasoning as boolean,
+          input_modalities: [...c.input_modalities],
+          output_modalities: [...c.output_modalities],
+          reasoning_efforts: [],
+          structured_output_modes: [...c.structured_output_modes],
+          context_length: c.context_length,
+          max_output: c.max_output,
+        },
+      },
+      version: r.version,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
+    };
+  }
+  function selection(value: unknown): Selection | null {
+    const r = object(value);
+    if (
+      !r ||
+      !closed(r, ["id", "version", "configured"]) ||
+      !id(r.id) ||
+      !integer(r.version)
+    )
+      return null;
+    if (r.configured === null)
+      return { id: r.id, version: r.version, configured: null };
+    const c = object(r.configured);
+    if (
+      !c ||
+      !closed(c, ["embedding", "memory", "reranker", "image"]) ||
+      !id(c.embedding) ||
+      !id(c.memory) ||
+      !(c.reranker === null || id(c.reranker)) ||
+      !(c.image === null || id(c.image))
+    )
+      return null;
+    return {
+      id: r.id,
+      version: r.version,
+      configured: {
+        embedding: c.embedding,
+        memory: c.memory,
+        reranker: c.reranker,
+        image: c.image,
+      },
+    };
+  }
+  function receipt(v: unknown): Receipt | null {
+    const r = object(v);
+    return r &&
+      closed(r, ["kind", "resource_id", "version", "affected_references"]) &&
+      typeof r.kind === "string" &&
+      r.kind === "model.selection.update" &&
+      id(r.resource_id) &&
+      integer(r.version) &&
+      integer(r.affected_references, true) &&
+      r.affected_references === "0"
+      ? {
+          kind: r.kind,
+          resource_id: r.resource_id,
+          version: r.version,
+          affected_references: r.affected_references,
+        }
+      : null;
+  }
+  const nativeFetch = window.fetch;
+  window.fetch = function (this: unknown, ...args) {
+    const pending = Reflect.apply(nativeFetch, this, args) as Promise<Response>;
+    try {
+      const [input, init] = args,
+        request = input instanceof Request ? input : null,
+        url = new URL(request ? request.url : String(input), location.href),
+        path = url.pathname,
+        method = init?.method ?? request?.method ?? "GET";
+      const providers = path === "/api/v1/system/model-providers",
+        providerID =
+          path.startsWith("/api/v1/system/model-providers/") &&
+          id(path.slice("/api/v1/system/model-providers/".length)),
+        models = path === "/api/v1/system/models",
+        modelID =
+          path.startsWith("/api/v1/system/models/") &&
+          id(path.slice("/api/v1/system/models/".length)),
+        selector = path === "/api/v1/system/model-selection",
+        session = path === "/api/v1/session",
+        lookup = path === "/api/v1/system/model-commands/lookup";
+      const watched =
+        (method === "GET" &&
+          (providers ||
+            providerID ||
+            models ||
+            modelID ||
+            selector ||
+            session)) ||
+        (method === "PUT" && selector) ||
+        (method === "POST" && lookup);
+      const allowed =
+          method === "GET" && providers
+            ? ["limit", "cursor"]
+            : method === "GET" && models
+              ? ["limit", "provider_id", "cursor"]
+              : [],
+        keys = [...url.searchParams.keys()];
+      if (
+        url.origin !== location.origin ||
+        !watched ||
+        keys.some((k) => !allowed.includes(k)) ||
+        new Set(keys).size !== keys.length
+      )
+        return pending;
+      const fact: Fact = {
+        sequence: ++scope.__selectionSequence!,
+        path: path + url.search,
+        method,
+        status: 0,
+        bytes: 0,
+        ended: false,
+      };
+      scope.__selectionFacts!.push(fact);
+      void pending
+        .then(
+          (response) => {
+            fact.status = response.status;
+            const body = response.body;
+            if (!body) {
+              fact.ended = true;
+              return;
+            }
+            const max =
+              providers &&
+              method === "GET" &&
+              response.status === 200 &&
+              response.headers
+                .get("Content-Type")
+                ?.split(";", 1)[0]
+                ?.trim()
+                .toLowerCase() === "application/json"
+                ? 2097152
+                : 600000;
+            let text = "",
+              collect = true;
+            const decoder = new TextDecoder();
+            function project() {
+              if (!collect) return;
+              const r = object(JSON.parse(text + decoder.decode()));
+              if (!r) return;
+              if (response.status !== 200) {
+                if (
+                  typeof r.code === "string" &&
+                  [
+                    "UNAUTHENTICATED",
+                    "SESSION_REVOKED",
+                    "CSRF_FAILED",
+                    "FORBIDDEN",
+                    "CURSOR_INVALID",
+                    "VERSION_CONFLICT",
+                    "INVALID_ARGUMENT",
+                    "INVALID_STATE",
+                    "NOT_FOUND",
+                    "RESOURCE_BUSY",
+                    "INTERNAL_ERROR",
+                    "DEPENDENCY_UNBOUND",
+                    "CAPABILITY_UNSUPPORTED",
+                    "IDEMPOTENCY_KEY_REUSED",
+                  ].includes(r.code)
+                )
+                  fact.code = r.code;
+                if (
+                  r.commit_state === "not_started" ||
+                  r.commit_state === "not_committed" ||
+                  r.commit_state === "committed" ||
+                  r.commit_state === "unknown"
+                )
+                  fact.commit_state = r.commit_state;
+                return;
+              }
+              if (session) {
+                const u = object(r.user),
+                  s = object(r.session);
+                if (
+                  id(u?.id) &&
+                  id(s?.id) &&
+                  (u?.role === "admin" || u?.role === "user")
+                )
+                  fact.session = {
+                    user_id: u.id,
+                    session_id: s.id,
+                    role: u.role,
+                  };
+                return;
+              }
+              if (lookup) {
+                if (!closed(r, ["found", "receipt"])) return;
+                if (r.found === false && r.receipt === null) fact.found = false;
+                else if (r.found === true) {
+                  const value = receipt(r.receipt);
+                  if (value) {
+                    fact.found = true;
+                    fact.receipt = value;
+                  }
+                }
+                return;
+              }
+              if (method !== "GET") {
+                const value = receipt(r);
+                if (value) fact.receipt = value;
+                return;
+              }
+              if (selector) {
+                const value = selection(r);
+                if (value) fact.selection = value;
+                return;
+              }
+              if (providerID) {
+                const value = provider(r);
+                if (value) fact.provider = value;
+                return;
+              }
+              if (modelID) {
+                const value = model(r);
+                if (value) fact.model = value;
+                return;
+              }
+              if (
+                !closed(r, ["items", "next_cursor"]) ||
+                !Array.isArray(r.items) ||
+                r.items.length > 25 ||
+                !(
+                  r.next_cursor === null ||
+                  (string(r.next_cursor, 8192) &&
+                    r.next_cursor.length > 0 &&
+                    r.items.length === 25)
+                )
+              )
+                return;
+              const rows = providers
+                ? r.items.map(provider)
+                : r.items.map(model);
+              if (rows.some((x) => x === null)) return;
+              for (let n = 1; n < rows.length; n++) {
+                const a = rows[n - 1]!,
+                  b = rows[n]!;
+                if (
+                  a.created_at < b.created_at ||
+                  (a.created_at === b.created_at && a.id <= b.id)
+                )
+                  return;
+              }
+              if (providers)
+                fact.providers = {
+                  items: rows as Provider[],
+                  next_cursor: r.next_cursor,
+                };
+              else
+                fact.models = {
+                  items: rows as Model[],
+                  next_cursor: r.next_cursor,
+                };
+            }
+            try {
+              const nativeGet = body.getReader;
+              Object.defineProperty(body, "getReader", {
+                configurable: true,
+                writable: true,
+                value: function (
+                  this: ReadableStream<Uint8Array>,
+                  ...getArgs: unknown[]
+                ) {
+                  const reader = Reflect.apply(
+                    nativeGet,
+                    this,
+                    getArgs,
+                  ) as ReadableStreamDefaultReader<Uint8Array>;
+                  Object.defineProperty(body, "getReader", {
+                    value: nativeGet,
+                  });
+                  const nativeRead = reader.read;
+                  Object.defineProperty(reader, "read", {
+                    configurable: true,
+                    writable: true,
+                    value: function (
+                      this: ReadableStreamDefaultReader<Uint8Array>,
+                      ...readArgs: unknown[]
+                    ) {
+                      const original = Reflect.apply(
+                        nativeRead,
+                        this,
+                        readArgs,
+                      ) as Promise<ReadableStreamReadResult<Uint8Array>>;
+                      void original
+                        .then(
+                          ({ done, value }) => {
+                            try {
+                              if (value) {
+                                fact.bytes += value.byteLength;
+                                if (fact.bytes > max) {
+                                  collect = false;
+                                  text = "";
+                                } else if (collect)
+                                  text += decoder.decode(value, {
+                                    stream: true,
+                                  });
+                              }
+                              if (done) {
+                                fact.ended = true;
+                                try {
+                                  project();
+                                } finally {
+                                  text = "";
+                                  collect = false;
+                                }
+                              }
+                            } catch {
+                              text = "";
+                              collect = false;
+                            }
+                          },
+                          () => {
+                            text = "";
+                            collect = false;
+                            fact.ended = true;
+                          },
+                        )
+                        .catch(() => {
+                          text = "";
+                          collect = false;
+                        });
+                      return original;
+                    },
+                  });
+                  return reader;
+                },
+              });
+            } catch {
+              text = "";
+              collect = false;
+            }
+          },
+          () => {
+            fact.ended = true;
+          },
+        )
+        .catch(() => {});
+    } catch {
+      /* Side observation cannot change fetch or native reader results. */
+    }
+    return pending;
+  };
+}
+const endpoint = "/api/v1/system/model-selection";
+const purposeLabels = {
+  embedding: "Embedding",
+  memory: "Memory",
+  reranker: "Reranker",
+  image: "Image Generation",
+} as const;
+type Purpose = keyof typeof purposeLabels;
+const top = (page: Page) => page.getByRole("dialog").last();
+const button = (page: Page, name: string) =>
+  page.getByRole("button", { name, exact: true });
+const title = (page: Page, name: string) =>
+  page.getByRole("heading", { name, exact: true });
+const draftRow = (page: Page, purpose: Purpose) =>
+  top(page)
+    .locator(".draft-purposes > li")
+    .filter({
+      has: page.getByRole("heading", {
+        name: new RegExp("^" + purposeLabels[purpose] + " "),
+      }),
+    });
+const savedRow = (page: Page, purpose: Purpose) =>
+  page
+    .locator(".current-references > li")
+    .filter({ has: title(page, purposeLabels[purpose]) });
+async function facts(page: Page) {
+  return page.evaluate(() => (window as ObservedWindow).__selectionFacts ?? []);
+}
+async function seq(page: Page) {
+  return page.evaluate(
+    () => (window as ObservedWindow).__selectionSequence ?? 0,
+  );
+}
+async function writes(page: Page) {
+  return (await facts(page)).filter(
+    (f) => f.path === endpoint && f.method === "PUT",
+  );
+}
+async function factAfter(
+  page: Page,
+  after: number,
+  predicate: (f: Fact) => boolean,
+) {
+  let found: Fact | undefined;
+  await expect
+    .poll(async () => {
+      found = (await facts(page)).find(
+        (f) => f.sequence > after && predicate(f),
+      );
+      return !!found;
+    })
+    .toBe(true);
+  return found!;
+}
+async function session(page: Page) {
+  let value: Fact["session"];
+  await expect
+    .poll(async () => {
+      value = (await facts(page))
+        .filter(
+          (f) => f.path === "/api/v1/session" && f.status === 200 && f.ended,
+        )
+        .at(-1)?.session;
+      return !!value;
+    })
+    .toBe(true);
+  return value!;
+}
+async function privateFill(input: Locator, value: string) {
+  try {
+    await input.fill(value);
+  } catch {
+    throw new Error("private Selection login input failed");
+  }
+}
+async function login(page: Page, who: "admin" | "member" | "second_admin") {
+  const after = await seq(page),
+    data = material()[who];
+  await page.locator("#login-email").fill(data.email);
+  await privateFill(page.locator("#login-password"), data.password);
+  await button(page, "登录").click();
+  await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === "/api/v1/session" &&
+      f.status === 200 &&
+      f.ended &&
+      f.session?.user_id === data.user_id &&
+      f.session.role === (who === "member" ? "user" : "admin"),
+  );
+  await expect(button(page, "退出登录")).toBeEnabled();
+  await expect(page).not.toHaveURL(/\/login(?:\?|$)/);
+}
+async function setup(
+  page: Page,
+  who: "admin" | "member" | "second_admin" = "admin",
+  path = "/system/model-selection",
+) {
+  await page.addInitScript(observeNative);
+  await page.goto(path);
+  await login(page, who);
+  await expect(page).toHaveURL(new RegExp(path + "$"));
+  if (who !== "member" && path === "/system/model-selection")
+    await currentRead(page, 0);
+}
+async function currentRead(page: Page, after: number, failedProvider?: string) {
+  const observed = await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === endpoint &&
+      f.method === "GET" &&
+      f.status === 200 &&
+      f.ended &&
+      !!f.selection,
+  );
+  if (observed.selection!.configured)
+    for (const target of new Set(
+      Object.values(observed.selection!.configured).filter(
+        (x): x is string => x !== null,
+      ),
+    )) {
+      const detail = await factAfter(
+        page,
+        observed.sequence,
+        (f) =>
+          f.path === "/api/v1/system/models/" + target &&
+          f.method === "GET" &&
+          f.status === 200 &&
+          f.ended &&
+          !!f.model,
+      );
+      await factAfter(
+        page,
+        detail.sequence,
+        (f) =>
+          f.path ===
+            "/api/v1/system/model-providers/" + detail.model!.provider_id &&
+          f.method === "GET" &&
+          f.ended &&
+          (detail.model!.provider_id === failedProvider
+            ? f.status === 503
+            : f.status === 200 && !!f.provider),
+      );
+    }
+  await expect(button(page, "刷新配置")).toBeEnabled();
+  return observed.selection!;
+}
+async function refresh(page: Page, failedProvider?: string) {
+  const after = await seq(page);
+  await button(page, "刷新配置").click();
+  return currentRead(page, after, failedProvider);
+}
+async function openEditor(page: Page) {
+  const open = page
+    .locator(".selection-actions")
+    .getByRole("button", { name: /^(编辑用途|配置用途|配置已保存)$/ });
+  await expect(open).toBeEnabled();
+  await open.click();
+  await expect(top(page)).toHaveAccessibleName("配置平台模型用途");
+}
+const providerName = (target: string) =>
+  material().providers.find((p) => p.id === target)!.input.name;
+const modelName = (target: string) =>
+  material().models.find((m) => m.id === target)!.input.name;
+async function browse(page: Page, purpose: Purpose, providerID?: string) {
+  const after = await seq(page);
+  await top(page)
+    .getByRole("button", {
+      name: "选择 " + purposeLabels[purpose],
+      exact: true,
+    })
+    .click();
+  await factAfter(
+    page,
+    after,
+    (f) =>
+      f.method === "GET" &&
+      f.path.startsWith("/api/v1/system/model-providers?") &&
+      f.status === 200 &&
+      f.ended &&
+      !!f.providers,
+  );
+  if (providerID) await browseProvider(page, providerID);
+}
+async function browseProvider(page: Page, target: string) {
+  const after = await seq(page);
+  await top(page)
+    .getByRole("button", { name: "浏览 " + providerName(target), exact: true })
+    .click();
+  await factAfter(
+    page,
+    after,
+    (f) =>
+      f.method === "GET" &&
+      f.path.startsWith("/api/v1/system/models?") &&
+      new URL(f.path, "http://owned.invalid").searchParams.get(
+        "provider_id",
+      ) === target &&
+      f.status === 200 &&
+      f.ended &&
+      !!f.models,
+  );
+}
+async function choose(page: Page, purpose: Purpose, target: string) {
+  const record = material().models.find((m) => m.id === target)!;
+  await browse(page, purpose, record.provider_id);
+  await top(page)
+    .getByRole("button", { name: "选择 " + record.input.name, exact: true })
+    .click();
+  await expect(top(page).locator(".candidate-picker")).toHaveCount(0);
+  await expect(draftRow(page, purpose)).toContainText(target);
+}
+async function clearOptional(page: Page, purpose: "reranker" | "image") {
+  await top(page)
+    .getByRole("button", {
+      name: "不配置 " + purposeLabels[purpose],
+      exact: true,
+    })
+    .click();
+}
+async function save(page: Page, read = true) {
+  const after = await seq(page);
+  await top(page)
+    .getByRole("button", { name: "保存用途配置", exact: true })
+    .click();
+  const confirmation = await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === endpoint &&
+      f.method === "PUT" &&
+      f.status === 200 &&
+      f.ended &&
+      !!f.receipt,
+  );
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.locator(".system-model-selection")).toContainText(
+    "平台模型用途配置已保存",
+  );
+  if (read) await currentRead(page, confirmation.sequence);
+  return confirmation.receipt!;
+}
+async function discard(page: Page) {
+  await top(page).getByRole("button", { name: "取消", exact: true }).click();
+  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
+  await top(page)
+    .getByRole("button", { name: "放弃修改", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+async function dbFacts() {
+  return (await ipc("facts")).facts as {
+    selection: Selection;
+    references: { role: string; model_id: string; version: string }[];
+    commands: number;
+    audits: number;
+    events: number;
+    embedding_events: number;
+    deliveries: number;
+    invocations: number;
+    distinct_keys: number;
+    actors: number;
+  };
+}
+function canonical(value: unknown): string {
+  if (Array.isArray(value)) return "[" + value.map(canonical).join(",") + "]";
+  if (value && typeof value === "object")
+    return (
+      "{" +
+      Object.entries(value)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([k, v]) => JSON.stringify(k) + ":" + canonical(v))
+        .join(",") +
+      "}"
+    );
+  return JSON.stringify(value);
+}
+function referenceFacts(value: Awaited<ReturnType<typeof dbFacts>>) {
+  const expected = value.selection.configured
+    ? Object.entries(value.selection.configured)
+        .filter(([, target]) => target !== null)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([role, model_id]) => ({
+          role,
+          model_id,
+          version: value.selection.version,
+        }))
+    : [];
+  expect(value.references).toEqual(expected);
+  expect(value.commands).toBe(value.audits);
+  expect(value.deliveries).toBe(0);
+  expect(value.invocations).toBe(0);
+}
+async function focusContained(page: Page) {
+  await expect
+    .poll(() => top(page).evaluate((n) => n.contains(document.activeElement)))
+    .toBe(true);
+  for (const key of ["Tab", "Shift+Tab", "Shift+Tab", "Tab"]) {
+    await page.keyboard.press(key);
+    expect(
+      await top(page).evaluate((n) => n.contains(document.activeElement)),
+    ).toBe(true);
+  }
+}
+
+async function cutSave(page: Page) {
+  await ipc("arm-drop");
+  const after = await seq(page);
+  await top(page)
+    .getByRole("button", { name: "保存用途配置", exact: true })
+    .click();
+  await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === endpoint &&
+      f.method === "PUT" &&
+      f.status === 200 &&
+      f.ended &&
+      !f.receipt,
+  );
+  await expect(top(page)).toContainText("保存结果未确认");
+  await expect(
+    top(page).getByRole("button", { name: "检查原请求", exact: true }),
+  ).toBeEnabled();
+}
+
+
+export {material,result,ipc,observeNative,endpoint,top,button,title,draftRow,savedRow,facts,seq,writes,factAfter,session,setup,currentRead,refresh,openEditor,choose,clearOptional,save,discard,dbFacts,canonical,referenceFacts,focusContained,cutSave};
+export type {Fact,Selection,Receipt};

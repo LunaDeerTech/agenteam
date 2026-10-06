@@ -1,0 +1,13 @@
+# Selection 页面返修独立复验
+
+**PASS（页面离线阶段）；P-SELECTION-PAGE-01 已闭合。** 固定page-stage03 manifest `60012d5268a321b201c612da60722005097f64bf3f621d4b92fc2bbe0d601fa7`，仅controller/state测试相对page02变化，其余16文件一致。
+
+原probe `bff30d16efe1aa20ab70daba3d5151ac22c813974d4d125b71c0f4c8c48001ca` 保持字节不变，**7/7 PASS，actual0 / 2.835s**，包含原“同Provider已停用但canSave仍true”的完全相同断言。原RED保留在 `/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations02/`，未覆盖或改写；原轮未发PUT，不推断后端接受。
+
+新增**5/5 PASS，actual0 / 2.380s**：协议变化清旧Model解析证据、精确Model停用/Memory能力撤除阻止新保存、无关ID/分页缺席不误清、确切Provider404失效、过期purpose的禁用DTO在原生cancel尾部完成后不发布。原草稿ID/selector expected_version保持，合法新Model版本不会被误加fence，只有重新完整解析合法组合才恢复新保存。
+
+新helpers均位于当前identity/route/read代次/purpose/provider检查之后；只应用已返回的精确ID事实，没有新增请求、自动替换/换版本/候选扫页。原7组同时复核4+4与失败留ID、显式版本核对、旧目标实际受控GET404后的历史原PUT，以及实际App确认→pageshow503→同身份/新身份终点。
+
+两条真实执行命令、env、输入前后、raw/result/probe原件在 `logs/original01` 与 `logs/supplement01`；actualwait完成，前后输入一致，无活动命令或真实资源。精确源及原件SHA见同名JSON。API15/owner8按未变SHA复用，不重复运行。
+
+限制：受控Fetch和jsdom真实组件结果不冒正式后端事务/权限/浏览器/视觉；协议切换是防御性DTO场景，不称后端允许变更Provider协议。私有MemoryRouter原 `/settings/profile` 非目标警告继续保留，布局spy不冒原生焦点/Tab证据。完整卡仍待最终harness/真实授权窗口。本根与报告现在永久停写。

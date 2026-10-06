@@ -1,0 +1,24 @@
+{
+  "author_manifest_sha256": "af2f9f4a50f4c435e849bf8faf9d8676a11ccd7c3c6d61416dcbfda57f8a72c5",
+  "driver_sha256": "614d35d4250b35855ff92c2f4879abe9ca7bcd906458f5970e65f2a3fa71c62d",
+  "execution_sha256": "4407e4606cb679b5dcf6637084ea5e4e55c4c5aa957d9c3ae54bb010d4f18d04",
+  "private": {
+    "files": {
+      "bound05/fixed-helpers.ts": "2aff26fa7ce22b2fe08de5c2b762f1b93fabced35b137e756de3b5bdb8509d42",
+      "bound05/fixture-delta.diff": "176dda8549e4292a6297fcb191ea1a91cfe355dd64f5df8327656070ab9f129d",
+      "bound05/independent.spec.ts": "3497999385c2401de675925382acb056c219077363307d29ddc435190644f8dc",
+      "bound05/overlay.json": "0d5f7ba590af1c897b2a4a53f9db5fe05a216eb83a4a9b7ea4a2ee5c59363b29",
+      "bound05/playwright.config.mjs": "9e2767c0d3786f24e56a4411cedbf4b47f1630f94e94cf4abfe7a92c8de2bf5a",
+      "bound05/system_model_selection_web_fixture_test.go": "4c4c9ae70343f27187937ae49fd8b6c0bf711146ec6e3710b8acabda907f94be",
+      "bound05/system_model_selection_web_test.go": "a9f4eaf0ce5a1af367055778459258b44f4834ef2cbe8a1da5e2333751e510d2",
+      "run-independent04.py": "614d35d4250b35855ff92c2f4879abe9ca7bcd906458f5970e65f2a3fa71c62d"
+    },
+    "go_overlay": {
+      "Replace": {
+        "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_fixture_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound05/system_model_selection_web_fixture_test.go",
+        "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound05/system_model_selection_web_test.go"
+      }
+    },
+    "node_modules": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules"
+  }
+}

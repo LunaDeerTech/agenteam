@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound02/playwright.config.mjs",
+    "--list"
+  ],
+  "cwd": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace",
+  "env": {
+    "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+    "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1",
+    "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/tmp/list-a02",
+    "AGENTEAM_MODEL_SELECTION_WEB_CASE": "independent-a",
+    "CI": "true",
+    "GOCACHE": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/tmp/list-a02",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "LANG": "C.UTF-8",
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/workspace/toolchains/go1.27.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+    "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1",
+    "TMPDIR": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/tmp/list-a02",
+    "TZ": "UTC"
+  },
+  "purpose": "offline compile/type/discovery only",
+  "resources_authorized": false,
+  "started_utc": "2026-10-06T12:23:34.330863+00:00"
+}

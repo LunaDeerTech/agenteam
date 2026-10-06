@@ -1,0 +1,42 @@
+//go:build integration
+
+package account_test
+
+import (
+	"context"
+	"testing"
+	"time"
+)
+
+func runSelectionIndependent(t *testing.T, mode string, flags ...string) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	f := newSelectionWebFixture(t, ctx, mode)
+	result := f.browserSelection(ctx)
+	for _, flag := range flags {
+		if result[flag] != true {
+			t.Fatalf("private Selection evidence incomplete: %s", flag)
+		}
+	}
+	if mode == "independent-a" {
+		facts := f.privateOriginalFacts(ctx)
+		for _, name := range []string{"receipt_matches_original", "persisted_input_matches_original", "body_bytes_equal", "csrf_equal", "csrf_nonempty_and_backend_accepted"} {
+			if facts[name] != true {
+				t.Fatalf("private original final fact incomplete: %s", name)
+			}
+		}
+		for name, want := range map[string]int{"command_count": 1, "audit_count": 1, "planned_events": 1, "matched_events": 1, "deliveries": 0, "same_key_attempts": 2, "accepted_attempts": 2} {
+			if facts[name] != want {
+				t.Fatalf("private original final count incomplete: %s", name)
+			}
+		}
+	}
+	t.Logf("independent Selection %s finished within original 45s/2m budgets with safe facts only", mode)
+}
+func TestAccountSystemModelSelectionIndependentReplay(t *testing.T) {
+	runSelectionIndependent(t, "independent-a", "accepted_cut", "later_current_not_receipt", "old_404", "strict_history", "same_original", "unique_command_facts")
+}
+func TestAccountSystemModelSelectionIndependentReview(t *testing.T) {
+	runSelectionIndependent(t, "independent-b", "candidate_refused", "no_partial_write", "version_conflict", "explicit_review", "same_identity_restored", "native_focus")
+}

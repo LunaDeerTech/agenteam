@@ -1,0 +1,108 @@
+{
+  "task": "Selection owner-stage01 independent offline verification",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/owner-stage01/manifest.json",
+    "sha256": "757149db89edf9aab49d5d9dd7926a312b275597af4a3b2a967a67a039569b0d"
+  },
+  "base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "3cd31decac3c760725d9aae1812edbca1a1995259073ffd55d55dd0bc3120d20",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/owner-stage01/source/web/src/api/client.ts"
+    },
+    {
+      "path": "web/src/api/system-model-selection.ts",
+      "sha256": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/owner-stage01/source/web/src/api/system-model-selection.ts"
+    },
+    {
+      "path": "web/src/tests/system-model-selection-client.spec.ts",
+      "sha256": "856bb8a8b0a39f74f7c9daae0657eb642f6733facf43959d9ff6caf335f71d64",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/owner-stage01/source/web/src/tests/system-model-selection-client.spec.ts"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "8464b9329dfaf26d9263bed2b85e05afe1ec45a3b779e9e1d9b831a3fbf541c6",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/owner-stage01/source/web/src/composables/useSession.ts"
+    },
+    {
+      "path": "web/src/tests/system-model-selection-state.spec.ts",
+      "sha256": "c416ae3436fa58ae5a1e451c483a55d2964ab8c9c3925fdaf27fe9a77f3007a3",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/owner-stage01/source/web/src/tests/system-model-selection-state.spec.ts"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/api/account.ts"
+    },
+    {
+      "path": "web/src/api/system-account.ts",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/api/system-account.ts"
+    },
+    {
+      "path": "web/src/api/system-invitations.ts",
+      "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/api/system-invitations.ts"
+    },
+    {
+      "path": "web/src/api/system-providers.ts",
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/api/system-providers.ts"
+    },
+    {
+      "path": "web/src/api/system-models.ts",
+      "sha256": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/api/system-models.ts"
+    },
+    {
+      "path": "web/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/composables/useTheme.ts"
+    },
+    {
+      "path": "web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/package.json"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/package-lock.json"
+    },
+    {
+      "path": "web/tsconfig.json",
+      "sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/tsconfig.json"
+    }
+  ],
+  "packages": [
+    {
+      "path": "/workspace/agenteam/web/node_modules/vitest/package.json",
+      "sha256": "a28126d97bcaf567da5bed69443b7f3bcd9a7a8c38c8b66e554686b6bb2c10e0",
+      "version": "4.1.11"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/vue/package.json",
+      "sha256": "b5cbf896563ac8087e8acdfe81ff5155db2eb75aced9725cdc05820be483cdda",
+      "version": "3.5.43"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/@vue/test-utils/package.json",
+      "sha256": "1ab696c97bf2e57b9c37ad6918301fe7dba70425c831c73f2a9fc366c8357963",
+      "version": "2.5.1"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/jsdom/package.json",
+      "sha256": "e8f4906ea5beba475daa5736d0158f1770092c46718dd04aa2bfe2190808bb7e",
+      "version": "27.4.0"
+    }
+  ],
+  "node": "v24.19.0",
+  "api_reuse": {
+    "path": "/workspace/scratch/agenteam-selection-api-verification-anoxpzh5/api-stage01-report.json",
+    "sha256": "b8a663456d4e8b16a25da332a316e59e4e4139272dbf205b87fbe809f3fb5aa5"
+  },
+  "scope": "Frozen five source snapshot with accepted minimal transitive dependency closure; no controller/View/browser/backend."
+}

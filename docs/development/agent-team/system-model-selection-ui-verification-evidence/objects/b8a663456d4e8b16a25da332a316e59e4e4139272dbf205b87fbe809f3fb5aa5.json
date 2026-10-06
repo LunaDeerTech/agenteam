@@ -1,0 +1,90 @@
+{
+  "scope": "Selection API-stage01 only; independent offline static and dynamic verification",
+  "verdict": "PASS",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/api-stage01/manifest.json",
+    "sha256": "35b9b7d8fbaffd006f856a4ffb123120295ca77acfce4f7f47d469749fe9ccd9"
+  },
+  "base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "candidate_files": {
+    "web/src/api/client.ts": "3cd31decac3c760725d9aae1812edbca1a1995259073ffd55d55dd0bc3120d20",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+    "web/src/tests/system-model-selection-client.spec.ts": "856bb8a8b0a39f74f7c9daae0657eb642f6733facf43959d9ff6caf335f71d64"
+  },
+  "test_result": {
+    "passed": 15,
+    "failed": 0,
+    "actual_exit": 0,
+    "actual_wait": true,
+    "elapsed_seconds": 0.616,
+    "inputs_unchanged": true,
+    "raw_sha256": "50807aea1b2eda2aa4f8ccde0aeca4f8c341c7d0a4676ef4002ef10bc71ec19f"
+  },
+  "static_reuse": {
+    "body_readers_and_types": "4b5205a590c9fcfd5acbf8ac05e1277e65bfd057ef18d95020481f9d5df9c9c9",
+    "body_reader_section_equal": true,
+    "request_response_budget_and_tail_equal": true,
+    "request_response_budget_tail_sha256": "eb0c64d53551623114b3b591502ece99792f87150108972427f40c272b6447c6"
+  },
+  "evidence": [
+    {
+      "path": "/workspace/scratch/agenteam-selection-api-verification-anoxpzh5/input.json",
+      "sha256": "fe7df69e7d4bb79f10a86a571af21f2667d0725fdbfced9c25158ddf1bc3f4c9"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-api-verification-anoxpzh5/author-manifest.json",
+      "sha256": "35b9b7d8fbaffd006f856a4ffb123120295ca77acfce4f7f47d469749fe9ccd9"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-api-verification-anoxpzh5/client.diff",
+      "sha256": "2e94be005f316cec695f36424fe7ab7f3360d5f4823b0465ae9769fb5bb78b0e"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-api-verification-anoxpzh5/candidate/web/src/tests/independent-selection-api.spec.ts",
+      "sha256": "00198acfe3ca9d66d52d575764fe641ed31ca0f127f6103ccbc542e898f06a7c"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-api-verification-anoxpzh5/candidate/web/vitest.config.mjs",
+      "sha256": "321821a02d74c1fcf40e21d08432d6c1b003afc44f395dd4d4824f2c2a5b3235"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-api-verification-anoxpzh5/run-pure.py",
+      "sha256": "6af2cad349e288e7d7ab816afe4cd006b6cd27027fb26b8a20067d221b673ba7"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-api-verification-anoxpzh5/logs/independent01/command.json",
+      "sha256": "ec0d499234168c95b5f8f7b54ce857b8f7b13a3fce42967b8f12f6662edebf67"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-api-verification-anoxpzh5/logs/independent01/result.json",
+      "sha256": "419f9e0c8c841567cb68e958eb24fee78ae2df520c6215074d8efa7748b7efc5"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-api-verification-anoxpzh5/logs/independent01/raw.log",
+      "sha256": "50807aea1b2eda2aa4f8ccde0aeca4f8c341c7d0a4676ef4002ef10bc71ec19f"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-api-verification-anoxpzh5/logs/independent01/driver.py.txt",
+      "sha256": "6af2cad349e288e7d7ab816afe4cd006b6cd27027fb26b8a20067d221b673ba7"
+    }
+  ],
+  "coverage": [
+    "Closed Selection/null/configured fields; int64 successor, kind/resource/refs0 receipt; strict found/receipt pairs.",
+    "Original immutable command lookup and explicit PUT remain valid at API boundary despite later selector version and old target404; no current candidate preflight is added.",
+    "Minimal first Model envelope/IDs gate the exact second Provider GET. Full Model validation uses returned real Provider protocol; incompatible nested/time/protocol returns no pair.",
+    "Both native streams must reach EOF before serial progress/completion; same signal, safe GET options, complete immutable pair, disabled saved detail preserved.",
+    "First/second native read cancellation and oversized body cancellation await actual cancel promise; second wrong-media503 awaits body cancel without claiming EOF.",
+    "Synthetic first-response finalizer barrier plus abort prevents second GET; distinguished from native source cancellation tests.",
+    "All three new endpoints accept600000/reject600001 only after actual cancel join; both detail GETs remain600000; new PUT/lookup request UTF8 exactly16384 accepted and16385 rejected before fetch; extra options rejected."
+  ],
+  "reuse": [
+    "Author three-file290tests and type/format raw hashes checked against manifest.",
+    "Accepted bc17167 strict Provider/Model parsers and unchanged body-reader/budget logic reused; no repeated full upstream suites."
+  ],
+  "limits": [
+    "Injected in-process Fetch/native ReadableStream in Node, no actual HTTP backend/database/browser permission/transaction/visual result.",
+    "One Cookie owner, total30s visible budget, identity/generation, controller distinctID<=4+4, App lifecycle and real historical replay are not claimed here; owner snapshot is a separate next task.",
+    "Write probes supply the explicit valid AbortSignal required by this new operation contract; no untyped signal-object behavior is inferred."
+  ],
+  "resources": "Node/Vitest actual child exit0; no server/browser/PG/Docker/network or product/Git mutations. All API verification inputs and evidence frozen after report."
+}

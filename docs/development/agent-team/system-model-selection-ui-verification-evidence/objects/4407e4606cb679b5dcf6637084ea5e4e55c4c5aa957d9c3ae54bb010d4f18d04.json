@@ -1,0 +1,76 @@
+{
+  "B_reuse": {
+    "actual_top_pass_seconds": 11.95,
+    "run": "independent02",
+    "suffix_sha256": "fa2493c4eccd7e8d8d06b52cd4a00e0a4c6a3f9b39e60d6ed49464dd0e83cba3",
+    "test": "TestAccountSystemModelSelectionIndependentReview"
+  },
+  "absolute_cli": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+  "accepted_base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "author_manifest": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/input02/manifest.json",
+  "author_manifest_sha256": "af2f9f4a50f4c435e849bf8faf9d8676a11ccd7c3c6d61416dcbfda57f8a72c5",
+  "budgets": {
+    "browser_seconds": 45,
+    "package_seconds": 360,
+    "retries": 0,
+    "top_seconds": 120,
+    "workers": 1
+  },
+  "go_overlay": {
+    "Replace": {
+      "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_fixture_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound05/system_model_selection_web_fixture_test.go",
+      "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound05/system_model_selection_web_test.go"
+    }
+  },
+  "groups": {
+    "replay": [
+      "TestAccountSystemModelSelectionIndependentReplay"
+    ],
+    "review": [
+      "TestAccountSystemModelSelectionIndependentReview"
+    ]
+  },
+  "next_run_group": "replay",
+  "no_trace_video_screenshots": true,
+  "node_modules": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules",
+  "original_failed_run": {
+    "analysis_sha256": "cd367d19433fb03295eb63b618ffdcc603f02fa166da8b6be78ad55cbc07b3ca",
+    "cleanup_sha256": "c6df4aae4013325c38e1e9a48dfa9d182eb2e9a473ba2cdadbdaf8aaac713f61",
+    "path": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/runs/independent02",
+    "raw_sha256": "3f3cf0e6556c831e71990c1e4d8916d6b30b7358fb58f997938c47b2c6cb5dcd",
+    "result_sha256": "7e40122191f90cd51e378abe1b5800886559bfacb8038f3873d24322cb2f7882"
+  },
+  "predecessor": {
+    "path": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/execution03.json",
+    "sha256": "2e9cce46d712bcdf080e1139d3e743aa2968d8b7ac360637288e77ccecd0b536"
+  },
+  "preparation_checks": {
+    "compile02": {
+      "path": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/runs/compile02/result.json",
+      "sha256": "2c1fcec28b2aa0f483b096937571ba79206dfb7a6304565d43679689c07a3203"
+    },
+    "list-a04": {
+      "path": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/runs/list-a04/result.json",
+      "sha256": "0a7433d8d5bbc1c31206384f46e14f3458cfad12a83565c68f8f3b80bf18da4f"
+    },
+    "type04": {
+      "path": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/runs/type04/result.json",
+      "sha256": "c8b8a07c6b49385c24dc87c90828a2bb8c1aa1f10c987ad415e0159ab394c359"
+    }
+  },
+  "private_files": {
+    "bound05/fixed-helpers.ts": "2aff26fa7ce22b2fe08de5c2b762f1b93fabced35b137e756de3b5bdb8509d42",
+    "bound05/fixture-delta.diff": "176dda8549e4292a6297fcb191ea1a91cfe355dd64f5df8327656070ab9f129d",
+    "bound05/independent.spec.ts": "3497999385c2401de675925382acb056c219077363307d29ddc435190644f8dc",
+    "bound05/overlay.json": "0d5f7ba590af1c897b2a4a53f9db5fe05a216eb83a4a9b7ea4a2ee5c59363b29",
+    "bound05/playwright.config.mjs": "9e2767c0d3786f24e56a4411cedbf4b47f1630f94e94cf4abfe7a92c8de2bf5a",
+    "bound05/system_model_selection_web_fixture_test.go": "4c4c9ae70343f27187937ae49fd8b6c0bf711146ec6e3710b8acabda907f94be",
+    "bound05/system_model_selection_web_test.go": "a9f4eaf0ce5a1af367055778459258b44f4834ef2cbe8a1da5e2333751e510d2",
+    "run-independent04.py": "614d35d4250b35855ff92c2f4879abe9ca7bcd906458f5970e65f2a3fa71c62d"
+  },
+  "real_execution": "NOT AUTHORIZED OR RUN",
+  "reuse": "Only A lookup observation changed from general initial-message substring to exact uncertain recovery element/direct paragraph full found/not-receipt text. All prior zeroPUT/DB/exact receipt/retry enabled assertions unchanged. B test suffix and helpers unchanged, complete independent02 PASS reused. Go behavior unchanged except private config path relocation; compile02 reused.",
+  "safe_original_oracle": "original canonical command identity and exact persisted plan/event/audit plus in-memory raw request body and CSRF equality/real backend accepted; only safe booleans/counts/receipt escape",
+  "source_of_helpers": "author input01 fixed browser prefix and cutSave; no author six test bodies",
+  "workspace": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace"
+}

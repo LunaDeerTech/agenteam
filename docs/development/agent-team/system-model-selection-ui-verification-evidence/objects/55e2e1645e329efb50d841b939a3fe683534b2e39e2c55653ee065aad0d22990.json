@@ -1,0 +1,98 @@
+{
+  "scope": "Selection owner-stage01 only: fixed Session/transport composition, independent offline verification",
+  "verdict": "PASS",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/owner-stage01/manifest.json",
+    "sha256": "757149db89edf9aab49d5d9dd7926a312b275597af4a3b2a967a67a039569b0d"
+  },
+  "base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "candidate_files": {
+    "web/src/api/client.ts": "3cd31decac3c760725d9aae1812edbca1a1995259073ffd55d55dd0bc3120d20",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+    "web/src/tests/system-model-selection-client.spec.ts": "856bb8a8b0a39f74f7c9daae0657eb642f6733facf43959d9ff6caf335f71d64",
+    "web/src/composables/useSession.ts": "8464b9329dfaf26d9263bed2b85e05afe1ec45a3b779e9e1d9b831a3fbf541c6",
+    "web/src/tests/system-model-selection-state.spec.ts": "c416ae3436fa58ae5a1e451c483a55d2964ab8c9c3925fdaf27fe9a77f3007a3"
+  },
+  "api_reuse": {
+    "path": "/workspace/scratch/agenteam-selection-api-verification-anoxpzh5/api-stage01-report.json",
+    "sha256": "b8a663456d4e8b16a25da332a316e59e4e4139272dbf205b87fbe809f3fb5aa5"
+  },
+  "test_result": {
+    "passed": 8,
+    "failed": 0,
+    "actual_exit": 0,
+    "actual_wait": true,
+    "elapsed_seconds": 1.071,
+    "inputs_unchanged": true,
+    "raw_sha256": "3835d794371f5a7d662626cd3ad53ac1ede834fa28c49f5be4e645d020eae893"
+  },
+  "static": [
+    "Sixth optional dependency appended; original five positions unchanged. Explicit selectionRevisions classification avoids Provider fallback for this domain.",
+    "Selection read/write/lookup all route through unchanged actual owner finalization. Selection abandon affects only captured Selection owner; current permission/global cleanup includes new intent.",
+    "Original full command/id/version/refs+key+identity stay private; receipt publication is guarded before and after synchronous notifications.",
+    "API-stage01 three frozen sources match exactly; fixed dependencies read only from bc17167; no active controller/View source consumed."
+  ],
+  "coverage": [
+    "Production Session controller with all six production API factories and injected Fetch; seventh getSavedModel remains within selection-reference revision and one shared Cookie owner.",
+    "First native Model body held20s then Provider body held10s: visible cancellation at one total30000ms timer, same AbortSignal and no second timer reset. Other domain abandon and unrelated Selection readscope leave the owner intact.",
+    "Visible timeout plus cancellation does not release busy or dispatch personal/Model/restore requests until underlying native cancel Promise actually joins; only two detail requests.",
+    "Reverse Selection abandon leaves Provider credential EOF and provider wrong-media native cancel tail intact, preserves generated-material private destruction and credential ref, and leaves a separate Model write alive.",
+    "Current selector advanced/old Model404 do not mutate captured original Selection PUT. Lookup false/failed/found never confirms body; later known409 cannot erase prior uncertainty. All explicit retries preserve key/body/CSRF and only matching Execute receipt confirms; subsequent GET503 keeps confirmation.",
+    "Current Selection403 clears Provider material/intent plus Model/Selection progress without inventing role/logout; current write/lookup CSRF clears identity.",
+    "Decorated production-API parsed-error barrier verifies accepted same-Cookie late401 invalidation versus abandoned late403 non-denial; separate old-identity Fetch/native-cancel barrier blocks new same-user Session until actual join.",
+    "Synchronous submitting consumer abandon gives zero PUT/progress revival; synchronous confirmed consumer may create successor and old continuation neither clears nor hijacks it."
+  ],
+  "reuse": [
+    "API-stage01 independent15PASS, unchanged three source SHA.",
+    "Author owner57 final cases plus original4owner suites+initialnew198 actualPASS and type checks: all manifest command/input/result/raw SHA checked. Representative tests complement rather than duplicate every cross-domain pair."
+  ],
+  "limits": [
+    "Fake timers prove the visible20s+10s single budget; no30s wall-time or real network/server latency claim. Native ReadableStream cancellation is actual Promise completion in this process.",
+    "Late parsed-error tests deliberately wrap the real API error continuation; they are distinct from the separately tested native body/cancel barriers.",
+    "No controller current-reference distinctID<=4+4 orchestration, four-purpose pagination, App/cohost/browser focus, real backend authorization/transaction/receipt uniqueness or Runtime/index result is claimed.",
+    "Private generated material is only tested by safe boolean absence; no value or hash logged. No external credentials or resources used."
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/scratch/agenteam-selection-owner-verification-upmcdgyp/input.json",
+      "sha256": "90f617814fe8a214d63f71979324d5db8718b8dce0a59db78c9e63fa28b5dc0c"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-owner-verification-upmcdgyp/author-manifest.json",
+      "sha256": "757149db89edf9aab49d5d9dd7926a312b275597af4a3b2a967a67a039569b0d"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-owner-verification-upmcdgyp/useSession.diff",
+      "sha256": "e8b72b98e7298d1926ad195d6e747d8d14ad42fe43bef5eec4323493f1c1f21d"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-owner-verification-upmcdgyp/candidate/web/src/tests/independent-selection-owner.spec.ts",
+      "sha256": "57e6053ab05cf6bf4a3323417857933a7f15f6113d0bb26901c4832f64378a5e"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-owner-verification-upmcdgyp/candidate/web/vitest.config.mjs",
+      "sha256": "7c85238898a8a59dd01fa770bc9df7a7888512ef06a576b19897fb3570ff6a1d"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-owner-verification-upmcdgyp/run-pure.py",
+      "sha256": "b989a2478b3a13cdd0947804fd82a5c087f038acb5120cdff56395e95ea2882d"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-owner-verification-upmcdgyp/logs/independent01/command.json",
+      "sha256": "b722ff641efd1ca01214ba1184fb9281ebb89e4141fff9670949f50820491439"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-owner-verification-upmcdgyp/logs/independent01/result.json",
+      "sha256": "44ac812c65957fc1a8cdedea10b1571405b55c3a3f1c05057e96232a3d9a581f"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-owner-verification-upmcdgyp/logs/independent01/raw.log",
+      "sha256": "3835d794371f5a7d662626cd3ad53ac1ede834fa28c49f5be4e645d020eae893"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-owner-verification-upmcdgyp/logs/independent01/driver.py.txt",
+      "sha256": "b989a2478b3a13cdd0947804fd82a5c087f038acb5120cdff56395e95ea2882d"
+    }
+  ],
+  "resources": "Node/Vitest child actual exit0/wait; no browser/server/PG/Docker/network/product or Git mutations. Inputs and all owner evidence permanently frozen after report."
+}

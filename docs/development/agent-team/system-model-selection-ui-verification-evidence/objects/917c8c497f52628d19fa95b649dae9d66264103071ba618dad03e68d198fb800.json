@@ -1,0 +1,100 @@
+{
+  "input": {
+    "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/input01/manifest.json",
+    "sha256": "4732889a4490c7166a83cc1e13be2656529f093a30ba660862d441f378692def"
+  },
+  "actual_run": {
+    "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/new01",
+    "files": {
+      "command.json": "7b183c22ae3e17a24212f20ed9e1ec4abfa29f6d00a9fcfd8155ba06bf0de7e8",
+      "raw.log": "f3020b646dcf39a46736fa86cdaded3f2c57f6bd350da24372bfedb0e567af68",
+      "result.json": "cda8f4c5b4b5cc2c7a3975f6e1ad3e746797712264947e2623b703acef3c512f",
+      "cleanup.json": "07ca3808d9053000b448184a6707b5c7ab11d0f301b2074e1f2d3b6f0d87f740",
+      "input-before.json": "08cd8d15cdeef6ae4ba763cd56c655efdfdef682572391e84269e864667dda29",
+      "input-after.json": "08cd8d15cdeef6ae4ba763cd56c655efdfdef682572391e84269e864667dda29"
+    },
+    "actual_exit": 1,
+    "actual_wait": true,
+    "seconds": 204.111,
+    "business_tops": {
+      "pass": 5,
+      "fail": [
+        "TestAccountSystemModelSelectionWebNavigationAndLayouts"
+      ]
+    },
+    "images": 0,
+    "double_cleanup": true
+  },
+  "static_cause": {
+    "fixture": {
+      "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/input01/source/tests/account/system_model_selection_web_fixture_test.go",
+      "sha256": "002a03611b05b777fceba6e90ae8ae327d2496eaf52f3714e4a2393e6ad9151f",
+      "line": 302
+    },
+    "call_site": {
+      "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_models_web_fixture_test.go",
+      "sha256": "cadc81a997b1b3cb77bef578eac5e84f82d8e40adcc6ff1bd105948c9b727e0a",
+      "line": 313,
+      "method": "POST",
+      "endpoint": "/api/v1/system/model-providers"
+    },
+    "contract": {
+      "provider_validation": {
+        "path": "internal/central/model/contract/configuration.go",
+        "sha256": "a318e6cc6fb3697d407569f8b3ecb9a441817b8ea1d7e2d0dd1b567d1ced4d14",
+        "line": 27
+      },
+      "name_validation": {
+        "path": "internal/central/model/contract/types.go",
+        "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+        "line": 450
+      },
+      "max_runes": 128,
+      "max_utf8_bytes": 512
+    },
+    "safe_lengths": [
+      {
+        "role": "embedding",
+        "provider_name_runes": 130,
+        "provider_name_utf8_bytes": 340,
+        "provider_name_valid_128": false,
+        "model_name_runes": 124,
+        "native_model_id_bytes": 256,
+        "proposed_provider_name_runes": 127
+      },
+      {
+        "role": "memory",
+        "provider_name_runes": 127,
+        "provider_name_utf8_bytes": 337,
+        "provider_name_valid_128": true,
+        "model_name_runes": 121,
+        "native_model_id_bytes": 256,
+        "proposed_provider_name_runes": 124
+      },
+      {
+        "role": "reranker",
+        "provider_name_runes": 129,
+        "provider_name_utf8_bytes": 339,
+        "provider_name_valid_128": false,
+        "model_name_runes": 123,
+        "native_model_id_bytes": 256,
+        "proposed_provider_name_runes": 126
+      },
+      {
+        "role": "image",
+        "provider_name_runes": 126,
+        "provider_name_utf8_bytes": 336,
+        "provider_name_valid_128": true,
+        "model_name_runes": 120,
+        "native_model_id_bytes": 256,
+        "proposed_provider_name_runes": 123
+      }
+    ],
+    "finding": "Navigation first Provider seed is 130 runes, exceeding formal name limit. The diagnostic text Model setup is shared with Provider creation; actual call site 313 is Provider POST. Browser never starts for this group."
+  },
+  "limits": [
+    "Original HTTP Problem body was not retained or logged; actual evidence contains status400 and exact caller, static fixed source establishes the name violation.",
+    "No product change or replay authorized or performed at this point.",
+    "Original five groups remain actual PASS; Navigation has no browser/layout evidence."
+  ]
+}

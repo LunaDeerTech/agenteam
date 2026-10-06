@@ -1,0 +1,677 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import {
+  createMemoryHistory,
+  createRouter,
+  isNavigationFailure,
+  NavigationFailureType,
+} from 'vue-router'
+import type { SessionController } from '../composables/useSession'
+const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
+vi.mock('../composables/useSession', async (original) => ({
+  ...(await original<typeof import('../composables/useSession')>()),
+  useSession: () => selected.auth!,
+}))
+import { createSessionController } from '../composables/useSession'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import {
+  createSystemProviderAPI,
+  type Provider,
+  type ProviderModel,
+  type ProviderProtocol,
+} from '../api/system-providers'
+import { createSystemModelAPI, modelTypeForProtocol } from '../api/system-models'
+import { createSystemModelSelectionAPI, type SelectionState } from '../api/system-model-selection'
+import type { Fetch } from '../api/client'
+import { installAuthentication, safeReturnTarget } from '../router/auth'
+import { useTheme } from '../composables/useTheme'
+import App from '../App.vue'
+import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/auth/LoginView.vue'
+import SystemSettingsView from '../views/system/SystemSettingsView.vue'
+import SystemUsersView from '../views/system/SystemUsersView.vue'
+import SystemInvitationsView from '../views/system/SystemInvitationsView.vue'
+import SystemProvidersView from '../views/system/SystemProvidersView.vue'
+import SystemModelsView from '../views/system/SystemModelsView.vue'
+import SystemModelSelectionView from '../views/system/SystemModelSelectionView.vue'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z'
+const sessionView = (): SessionView => ({
+  user: {
+    id: id(1),
+    email: 'admin@example.com',
+    username: 'admin',
+    display_name: 'Admin',
+    role: 'admin',
+    theme: 'dark',
+    version: '1',
+    initial_password_suggestion: false,
+  },
+  session: { id: id(2), issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const provider = (n: number, protocol: ProviderProtocol): Provider => ({
+  id: id(n),
+  version: '1',
+  created_at: time,
+  updated_at: time,
+  input: {
+    name: 'Provider ' + n,
+    protocol,
+    base_url: 'https://example.invalid/v1',
+    enabled: true,
+    credential_ref: null,
+    options: {},
+  },
+})
+function model(n: number, source: Provider): ProviderModel {
+  const type = modelTypeForProtocol(source.input.protocol)
+  return {
+    id: id(n),
+    provider_id: source.id,
+    version: '1',
+    created_at: time,
+    updated_at: time,
+    input: {
+      name: `${type} ${n}`,
+      provider_model_id: ` native ${n} `,
+      type,
+      enabled: true,
+      parameters: {},
+      request_overwrite: {},
+      header_overwrite: {},
+      capabilities: {
+        tool_calls: false,
+        parallel_tool_calls: false,
+        streaming: false,
+        reasoning: false,
+        input_modalities: ['text'],
+        output_modalities:
+          type === 'reranker'
+            ? []
+            : [type === 'embedding' ? 'vector' : type === 'image_generation' ? 'image' : 'text'],
+        reasoning_efforts: [],
+        structured_output_modes: type === 'chat' ? ['json_schema'] : [],
+        context_length: null,
+        max_output: null,
+      },
+    },
+  }
+}
+const bindings = () => ({ embedding: id(20), memory: id(21), reranker: id(22), image: id(23) })
+const receipt = (version = '2') => ({
+  kind: 'model.selection.update',
+  resource_id: id(100),
+  version,
+  affected_references: '0',
+})
+const json = (value: unknown, status = 200) =>
+  new Response(JSON.stringify(value), {
+    status,
+    headers: {
+      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+      'X-Request-ID': id(9),
+    },
+  })
+const problem = (code: string, status = 503) =>
+  json(
+    {
+      type: 'urn:agenteam:problem:test',
+      title: 'Failure',
+      status,
+      code,
+      detail: 'untrusted detail',
+      instance: '/api/v1/system/model-selection',
+      request_id: id(9),
+      commit_state: 'not_started',
+    },
+    status,
+  )
+function barrier<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>((done) => {
+    resolve = done
+  })
+  return { promise, resolve }
+}
+let wrapper: VueWrapper | undefined
+beforeEach(() => {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn((media: string) => ({
+      media,
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })),
+  )
+  // DOM/state evidence only. Real focus, layout and pointer defaults require the browser suite.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+    () => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList,
+  )
+})
+afterEach(() => {
+  wrapper?.unmount()
+  wrapper = undefined
+  document.body.innerHTML = ''
+  selected.auth?.leave()
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+  useTheme().setTheme('system')
+})
+async function page(
+  options: {
+    path?: string
+    role?: 'admin' | 'user'
+    anonymous?: boolean
+    unconfigured?: boolean
+    brokenProvider?: boolean
+  } = {},
+) {
+  let current = sessionView(),
+    signedIn = !options.anonymous
+  current = { ...current, user: { ...current.user, role: options.role ?? 'admin' } }
+  let observed: SelectionState = {
+    id: id(100),
+    version: '1',
+    configured: options.unconfigured ? null : bindings(),
+  }
+  const sources = new Map<string, Provider>(
+    [
+      provider(10, 'openai-chat-completions'),
+      provider(12, 'openai-embeddings'),
+      provider(13, 'jina-rerank'),
+      provider(14, 'openai-images-generations'),
+    ].map((value) => [value.id, value]),
+  )
+  const records = new Map<string, ProviderModel>(
+    [
+      model(20, sources.get(id(12))!),
+      model(21, sources.get(id(10))!),
+      model(22, sources.get(id(13))!),
+      model(23, sources.get(id(14))!),
+      model(25, sources.get(id(10))!),
+    ].map((value) => [value.id, value]),
+  )
+  let session: Fetch = async () => (signedIn ? json(current) : problem('UNAUTHENTICATED', 401))
+  let read: Fetch = async () => json(observed)
+  let getProvider: Fetch = async (path) =>
+    options.brokenProvider && path.endsWith(id(12))
+      ? problem('INTERNAL_ERROR')
+      : sources.has(path.split('/').at(-1)!)
+        ? json(sources.get(path.split('/').at(-1)!))
+        : problem('NOT_FOUND', 404)
+  let mutation: Fetch = async (_path, init) => {
+    const body = JSON.parse(init.body as string)
+    observed = {
+      id: body.id,
+      version: String(BigInt(body.expected_version) + 1n),
+      configured: {
+        embedding: body.embedding,
+        memory: body.memory,
+        reranker: body.reranker,
+        image: body.image,
+      },
+    }
+    return json(receipt(observed.version))
+  }
+  let lookup: Fetch = async () => json({ found: false, receipt: null })
+  const fetch = vi.fn<Fetch>(async (path, init) => {
+    if (path === '/api/v1/session') return session(path, init)
+    if (path === '/api/v1/system/model-selection')
+      return init.method === 'GET' ? read(path, init) : mutation(path, init)
+    if (path.endsWith('/model-commands/lookup')) return lookup(path, init)
+    if (path.startsWith('/api/v1/system/model-providers?'))
+      return json({
+        items: [...sources.values()].sort((a, b) => b.id.localeCompare(a.id)),
+        next_cursor: null,
+      })
+    if (path.startsWith('/api/v1/system/model-providers/')) return getProvider(path, init)
+    if (path.startsWith('/api/v1/system/models?')) {
+      const source = new URL(path, 'http://test.invalid').searchParams.get('provider_id')
+      return json({
+        items: [...records.values()]
+          .filter((row) => row.provider_id === source)
+          .sort((a, b) => b.id.localeCompare(a.id)),
+        next_cursor: null,
+      })
+    }
+    if (path.startsWith('/api/v1/system/models/'))
+      return records.has(path.split('/').at(-1)!)
+        ? json(records.get(path.split('/').at(-1)!))
+        : problem('NOT_FOUND', 404)
+    if (path.startsWith('/api/v1/system/users?') || path.startsWith('/api/v1/system/invitations?'))
+      return json({ items: [] })
+    if (path.endsWith('/bootstrap'))
+      return json({
+        csrf_token: 'A'.repeat(43),
+        challenge_modes: ['rotate'],
+        delivery_channel: 'backend_log',
+      })
+    if (path.endsWith('/login')) {
+      signedIn = true
+      return json({ user: current.user, session: current.session, next_path: '/' })
+    }
+    if (path.endsWith('/logout')) {
+      signedIn = false
+      return new Response(null, { status: 204 })
+    }
+    throw new Error('Unexpected fixture route')
+  })
+  selected.auth = createSessionController(
+    createAccountAPI(fetch),
+    createSystemAccountAPI(fetch),
+    createSystemInvitationAPI(fetch),
+    createSystemProviderAPI(fetch),
+    createSystemModelAPI(fetch),
+    createSystemModelSelectionAPI(fetch),
+  )
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/', component: HomeView, meta: { authentication: true, protected: true } },
+      { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+      {
+        path: '/settings/profile',
+        component: { template: '<h1>个人资料</h1>' },
+        meta: { authentication: true, protected: true },
+      },
+      {
+        path: '/system',
+        component: SystemSettingsView,
+        redirect: '/system/users',
+        meta: {
+          authentication: true,
+          protected: true,
+          systemAdmin: true,
+          navigation: { label: '系统设置', order: 20 },
+        },
+        children: [
+          { path: 'users', component: SystemUsersView },
+          { path: 'invitations', component: SystemInvitationsView },
+          { path: 'providers', component: SystemProvidersView },
+          { path: 'models', component: SystemModelsView },
+          { path: 'model-selection', component: SystemModelSelectionView },
+        ],
+      },
+    ],
+  })
+  installAuthentication(router, selected.auth)
+  await router.push(options.path ?? '/system/model-selection')
+  await router.isReady()
+  const host = document.createElement('div')
+  host.id = 'app'
+  document.body.append(host)
+  wrapper = mount(App, { attachTo: host, global: { plugins: [router] } })
+  await flushPromises()
+  return {
+    wrapper,
+    router,
+    auth: selected.auth,
+    fetch,
+    sources,
+    records,
+    setSession(value: SessionView) {
+      current = value
+    },
+    setSessionRequest(value: Fetch) {
+      session = value
+    },
+    resetSession() {
+      session = async () => (signedIn ? json(current) : problem('UNAUTHENTICATED', 401))
+    },
+    setRead(value: Fetch) {
+      read = value
+    },
+    setObserved(value: SelectionState) {
+      observed = value
+    },
+    setProvider(value: Fetch) {
+      getProvider = value
+    },
+    setMutation(value: Fetch) {
+      mutation = value
+    },
+    setLookup(value: Fetch) {
+      lookup = value
+    },
+    writes() {
+      return fetch.mock.calls.filter(
+        ([path, init]) => path === '/api/v1/system/model-selection' && init.method === 'PUT',
+      )
+    },
+  }
+}
+function button(label: string, root: ParentNode = document) {
+  const found = [...root.querySelectorAll<HTMLButtonElement>('button')].find(
+    (value) =>
+      (
+        value.querySelector('.button-label[aria-hidden="false"]')?.textContent ?? value.textContent
+      )?.trim() === label || value.getAttribute('aria-label') === label,
+  )
+  expect(found, `button ${label}`).toBeTruthy()
+  return found!
+}
+async function click(label: string, root: ParentNode = document) {
+  button(label, root).click()
+  await flushPromises()
+}
+function dialog() {
+  const layers = [...document.querySelectorAll<HTMLElement>('[role="dialog"]')]
+  expect(layers.length).toBeGreaterThan(0)
+  return layers.at(-1)!
+}
+async function choose(purpose: string, source: number, type: string, target: number) {
+  await click('选择 ' + purpose, dialog())
+  await click('浏览 Provider ' + source, dialog())
+  await click(`选择 ${type} ${target}`, dialog())
+}
+async function dirty() {
+  await click('编辑用途')
+  await click('不配置 Reranker', dialog())
+}
+function confirmationRestored() {
+  const layers = [...document.querySelectorAll<HTMLElement>('[role="dialog"]')]
+  expect(layers).toHaveLength(2)
+  const [business, confirmation] = layers
+  expect(business!.inert).toBe(true)
+  expect(business!.getAttribute('aria-hidden')).toBe('true')
+  expect(confirmation!.inert).toBe(false)
+  expect(confirmation!.getAttribute('aria-hidden')).toBeNull()
+  expect(confirmation!.textContent).toContain('放弃未保存修改')
+  const row = [...business!.querySelectorAll('.draft-purposes > li')].find((row) =>
+    row.querySelector('h3')?.textContent?.includes('Reranker'),
+  )
+  expect(row?.textContent).toContain('不配置')
+  return { business: business!, confirmation: confirmation! }
+}
+
+describe('Selection actual App/router/controller interactions', () => {
+  it('keeps the users default and five leaves, and adds only the exact ninth return target', async () => {
+    const f = await page({ path: '/system' })
+    expect(f.router.currentRoute.value.path).toBe('/system/users')
+    expect(
+      f.wrapper
+        .get('nav[aria-label="系统设置"]')
+        .findAll('a')
+        .map((a) => a.text()),
+    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途'])
+    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
+    await f.wrapper.get('a[href="/system/model-selection"]').trigger('click')
+    await flushPromises()
+    expect(f.wrapper.get('h1').text()).toBe('平台模型用途')
+    expect(safeReturnTarget('/system/model-selection')).toBe('/system/model-selection')
+    for (const value of [
+      '/system/model-selection?x=1',
+      '/system/model-selection#x',
+      '/system/model-selection/',
+      '/system/model-selection/' + id(100),
+      ['system/model-selection'],
+      '//evil/system/model-selection',
+    ])
+      expect(safeReturnTarget(value)).toBe('/')
+    const { router } = await import('../router/index')
+    expect(router.resolve('/system/model-selection').meta).toMatchObject({
+      authentication: true,
+      protected: true,
+      systemAdmin: true,
+    })
+  })
+  it('renders no administrator leaf or request for a regular user direct link', async () => {
+    const f = await page({ role: 'user' })
+    expect(f.wrapper.text()).toContain('无权访问系统设置')
+    expect(f.wrapper.find('nav[aria-label="系统设置"]').exists()).toBe(false)
+    expect(f.fetch.mock.calls.filter(([path]) => path.startsWith('/api/v1/system/'))).toHaveLength(
+      0,
+    )
+  })
+  it('returns to the exact selection leaf after real login form and Session confirmation', async () => {
+    const f = await page({ anonymous: true })
+    expect(f.router.currentRoute.value.query.return).toBe('/system/model-selection')
+    await f.wrapper.get('#login-email').setValue('admin@example.com')
+    await f.wrapper.get('#login-password').setValue('Generated password 123')
+    await f.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(f.router.currentRoute.value.path).toBe('/system/model-selection')
+    expect(f.wrapper.get('h1').text()).toBe('平台模型用途')
+  })
+  it('selects required and optional purposes, writes all six fields once, and opens an immediate clean form', async () => {
+    const f = await page({ unconfigured: true })
+    expect(f.wrapper.text()).toContain('尚未配置平台模型用途')
+    await click('配置用途')
+    expect(button('保存用途配置', dialog()).disabled).toBe(true)
+    await choose('Embedding', 12, 'embedding', 20)
+    expect(button('保存用途配置', dialog()).disabled).toBe(true)
+    await choose('Memory', 10, 'chat', 21)
+    await choose('Reranker', 13, 'reranker', 22)
+    await choose('Image Generation', 14, 'image_generation', 23)
+    await click('保存用途配置', dialog())
+    expect(f.writes()).toHaveLength(1)
+    expect(JSON.parse(f.writes()[0]![1].body as string)).toEqual({
+      id: id(100),
+      expected_version: '1',
+      ...bindings(),
+    })
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+    expect(f.wrapper.text()).toContain('平台模型用途配置已保存')
+    const open = button('编辑用途')
+    open.click()
+    await flushPromises()
+    expect(button('保存用途配置', dialog()).disabled).toBe(true)
+    expect(button('保存用途配置', dialog()).getAttribute('aria-busy')).not.toBe('true')
+    await click('取消', dialog())
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+    expect(f.writes()).toHaveLength(1)
+  })
+  it('only enables compatible choices and preserves the unchanged required binding', async () => {
+    const f = await page()
+    await click('编辑用途')
+    await click('选择 Embedding', dialog())
+    await click('浏览 Provider 10', dialog())
+    expect(dialog().textContent).toContain('此用途需要 embedding Model')
+    expect(button('选择 chat 21', dialog()).disabled).toBe(true)
+    await click('选择 chat 21', dialog())
+    await click('返回用途草稿', dialog())
+    expect(button('保存用途配置', dialog()).disabled).toBe(true)
+    await click('取消', dialog())
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+    expect(f.writes()).toHaveLength(0)
+  })
+  it('shows a saved ID but no half Model name when its exact Provider read fails', async () => {
+    const f = await page({ brokenProvider: true })
+    expect(f.wrapper.text()).toContain(id(20))
+    expect(f.wrapper.text()).not.toContain('embedding 20')
+    expect(f.wrapper.text()).not.toContain('尚未配置平台模型用途')
+    expect(f.wrapper.text()).not.toContain('untrusted detail')
+    await dirty()
+    expect(button('保存用途配置', dialog()).disabled).toBe(true)
+    await click('保存用途配置', dialog())
+    expect(f.writes()).toHaveLength(0)
+    f.setProvider(async (path) => json(f.sources.get(path.split('/').at(-1)!)))
+    await click('重读 Embedding', dialog())
+    expect(button('保存用途配置', dialog()).disabled).toBe(false)
+  })
+  it('treats lookup as history, replays the exact original after current Model404, and keeps confirmation through failed GET', async () => {
+    const f = await page()
+    await dirty()
+    f.setMutation(async () => {
+      throw new Error('response lost')
+    })
+    await click('保存用途配置', dialog())
+    const first = f.writes()[0]!
+    expect(f.auth.system.selection.progress?.phase).toBe('uncertain')
+    f.records.delete(id(20))
+    f.setObserved({ id: id(100), version: '9', configured: { ...bindings(), embedding: id(25) } })
+    f.setLookup(async () => json({ found: true, receipt: receipt() }))
+    await click('检查原请求', dialog())
+    expect(f.writes()).toHaveLength(1)
+    expect(f.auth.system.selection.progress?.phase).toBe('uncertain')
+    expect(dialog().textContent).toContain('不会代替原请求的执行回执')
+    expect(button('重试原请求', dialog()).disabled).toBe(false)
+    f.setMutation(async () => json(receipt()))
+    f.setRead(async () => problem('INTERNAL_ERROR'))
+    await click('重试原请求', dialog())
+    expect(f.writes()).toHaveLength(2)
+    const second = f.writes()[1]!
+    expect(second[1].body).toBe(first[1].body)
+    expect(new Headers(second[1].headers).get('Idempotency-Key')).toBe(
+      new Headers(first[1].headers).get('Idempotency-Key'),
+    )
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+    expect(f.wrapper.text()).toContain('已保存，当前配置读取失败')
+    await click('重新读取配置')
+    expect(f.writes()).toHaveLength(2)
+  })
+  it('keeps rejected draft IDs and requires a visible latest-configuration review before a new versioned write', async () => {
+    const f = await page()
+    await click('编辑用途')
+    await choose('Memory', 10, 'chat', 25)
+    f.setMutation(async () => problem('VERSION_CONFLICT', 409))
+    await click('保存用途配置', dialog())
+    expect(dialog().textContent).toContain('chat 25')
+    expect(dialog().textContent).toContain('配置版本已变化')
+    f.setObserved({ id: id(100), version: '2', configured: bindings() })
+    await click('读取最新配置并核对', dialog())
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(2)
+    await click('读取并核对', dialog())
+    expect(dialog().textContent).toContain(id(25))
+    expect(button('保存用途配置', dialog()).disabled).toBe(true)
+    await choose('Memory', 10, 'chat', 25)
+    f.setMutation(async () => json(receipt('3')))
+    await click('保存用途配置', dialog())
+    expect(JSON.parse(f.writes()[1]![1].body as string).expected_version).toBe('2')
+    expect(new Headers(f.writes()[1]![1].headers).get('Idempotency-Key')).not.toBe(
+      new Headers(f.writes()[0]![1].headers).get('Idempotency-Key'),
+    )
+  })
+})
+
+describe('Selection cohost confirmation through actual App listeners', () => {
+  it.each(['close', 'route', 'logout'] as const)(
+    'preserves pending %s through checking failure and same-identity recovery with no new PUT',
+    async (action) => {
+      const f = await page()
+      await dirty()
+      let pending: Promise<unknown> | undefined
+      if (action === 'route') pending = f.router.push('/system/providers')
+      else
+        button(
+          action === 'close' ? '取消' : '退出登录',
+          action === 'close' ? dialog() : document,
+        ).click()
+      await flushPromises()
+      confirmationRestored()
+      const held = barrier<Response>(),
+        before = f.fetch.mock.calls.filter(([path]) => path === '/api/v1/session').length
+      f.setSessionRequest(() => held.promise)
+      window.dispatchEvent(new Event('pageshow'))
+      await flushPromises()
+      expect(f.fetch.mock.calls.filter(([path]) => path === '/api/v1/session')).toHaveLength(
+        before + 1,
+      )
+      expect(f.auth.personalContext.phase).toBe('checking')
+      expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+      held.resolve(problem('DEPENDENCY_UNAVAILABLE'))
+      await flushPromises()
+      const recovery = button('检查当前会话')
+      expect(recovery.disabled).toBe(false)
+      expect(recovery.closest('[inert]')).toBeNull()
+      expect(document.body.style.overflow).not.toBe('hidden')
+      f.resetSession()
+      await click('检查当前会话')
+      confirmationRestored()
+      expect(f.writes()).toHaveLength(0)
+      await click('继续编辑', dialog())
+      expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1)
+      expect(dialog().contains(document.activeElement)).toBe(true)
+      expect(f.router.currentRoute.value.path).toBe('/system/model-selection')
+      if (pending)
+        expect(isNavigationFailure(await pending, NavigationFailureType.aborted)).toBe(true)
+      expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/logout'))).toHaveLength(0)
+    },
+  )
+  it.each(['route', 'logout'] as const)(
+    'continues only the original pending %s after an explicit restored discard',
+    async (action) => {
+      const f = await page()
+      await dirty()
+      const pending = action === 'route' ? f.router.push('/system/providers') : undefined
+      if (action === 'logout') button('退出登录').click()
+      await flushPromises()
+      confirmationRestored()
+      const held = barrier<Response>()
+      f.setSessionRequest(() => held.promise)
+      window.dispatchEvent(new Event('pageshow'))
+      await flushPromises()
+      expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+      held.resolve(json(sessionView()))
+      await flushPromises()
+      confirmationRestored()
+      f.resetSession()
+      await click('放弃修改', dialog())
+      await pending
+      await flushPromises()
+      expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+      expect(f.router.currentRoute.value.path).toBe(
+        action === 'route' ? '/system/providers' : '/login',
+      )
+      expect(f.writes()).toHaveLength(0)
+    },
+  )
+  it.each(['session', 'role', 'dispose'] as const)(
+    'finishes old pending navigation false on %s without transferring an answer',
+    async (change) => {
+      const f = await page()
+      await dirty()
+      const pending = f.router.push('/system/providers')
+      await flushPromises()
+      confirmationRestored()
+      if (change === 'dispose') {
+        f.wrapper.unmount()
+        wrapper = undefined
+      } else {
+        const current = sessionView()
+        f.setSession(
+          change === 'session'
+            ? { ...current, session: { ...current.session, id: id(3) } }
+            : { ...current, user: { ...current.user, role: 'user', version: '2' } },
+        )
+        window.dispatchEvent(new Event('pageshow'))
+        await flushPromises()
+      }
+      expect(isNavigationFailure(await pending, NavigationFailureType.aborted)).toBe(true)
+      expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+      expect(f.writes()).toHaveLength(0)
+    },
+  )
+  it('restores confirmation with no business Dialog and keeps the original uncertain command unconfirmed', async () => {
+    const f = await page()
+    f.setMutation(async () => {
+      throw new Error('lost')
+    })
+    await f.auth.system.selection
+      .start({ kind: 'model.selection.update', id: id(100), expected_version: '1', ...bindings() })
+      .catch(() => undefined)
+    const pending = f.router.push('/system/providers')
+    await flushPromises()
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1)
+    const held = barrier<Response>()
+    f.setSessionRequest(() => held.promise)
+    window.dispatchEvent(new Event('pageshow'))
+    await flushPromises()
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+    held.resolve(json(sessionView()))
+    await flushPromises()
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1)
+    expect(dialog().inert).toBe(false)
+    expect(dialog().getAttribute('aria-hidden')).toBeNull()
+    expect(f.writes()).toHaveLength(1)
+    await click('继续编辑', dialog())
+    expect(isNavigationFailure(await pending, NavigationFailureType.aborted)).toBe(true)
+    expect(f.auth.system.selection.progress?.phase).toBe('uncertain')
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+  })
+})

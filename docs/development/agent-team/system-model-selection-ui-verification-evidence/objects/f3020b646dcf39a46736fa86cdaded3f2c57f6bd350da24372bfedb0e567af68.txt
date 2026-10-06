@@ -1,0 +1,173 @@
+os/signal
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.2.114.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=a30ed16d064bfc287866be2294f1a5e7
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+net
+crypto/x509
+crypto/tls
+net/textproto
+vendor/golang.org/x/net/http/httpguts
+vendor/golang.org/x/net/http/httpproxy
+mime/multipart
+net/http/httptrace
+net/http/internal/httpcommon
+net/http/internal/http2
+net/http
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=0d85713ed2c82202d1b427c3f767a452
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.390s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.013s [no tests to run]
+=== RUN   TestAccountSystemModelSelectionWebLifecycle
+    system_model_selection_web_test.go:32: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1019079) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1019079) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-model-selection.spec.ts:511:1 › [lifecycle] null/v1, four explicit purposes and one complete versioned configuration
+        [1A[2K  1 passed (7.6s)
+        
+    system_model_selection_web_test.go:32: real Selection production browser group=lifecycle completed with 45s browser/2m top budgets; formal configuration facts only, no Provider invocation or index rebuild claim
+--- PASS: TestAccountSystemModelSelectionWebLifecycle (12.67s)
+=== RUN   TestAccountSystemModelSelectionWebReadAndPagination
+    system_model_selection_web_test.go:35: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1020672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1020672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-model-selection.spec.ts:604:1 › [read] bounded saved pairs, formal pages, exact failures and independent late choices
+        [1A[2K  1 passed (12.8s)
+        
+    system_model_selection_web_test.go:35: real Selection production browser group=read completed with 45s browser/2m top budgets; formal configuration facts only, no Provider invocation or index rebuild claim
+--- PASS: TestAccountSystemModelSelectionWebReadAndPagination (18.20s)
+=== RUN   TestAccountSystemModelSelectionWebConcurrencyAndReferences
+    system_model_selection_web_test.go:38: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1022967) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1022967) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-model-selection.spec.ts:791:1 › [concurrency] two formal administrators and current reference transactions
+        [1A[2K  1 passed (18.6s)
+        
+    system_model_selection_web_test.go:38: real Selection production browser group=concurrency completed with 45s browser/2m top budgets; formal configuration facts only, no Provider invocation or index rebuild claim
+--- PASS: TestAccountSystemModelSelectionWebConcurrencyAndReferences (24.13s)
+=== RUN   TestAccountSystemModelSelectionWebOutcomeRecovery
+    system_model_selection_web_test.go:41: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1028401) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1028401) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-model-selection.spec.ts:923:1 › [outcome] accepted loss, historical lookup and explicit original replay after formal deletion
+        [1A[2K  1 passed (12.6s)
+        
+    system_model_selection_web_test.go:41: real Selection production browser group=outcome completed with 45s browser/2m top budgets; formal configuration facts only, no Provider invocation or index rebuild claim
+--- PASS: TestAccountSystemModelSelectionWebOutcomeRecovery (21.88s)
+=== RUN   TestAccountSystemModelSelectionWebAuthorityAndIdentity
+    system_model_selection_web_test.go:44: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1033439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1033439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-model-selection.spec.ts:1014:1 › [authority] current formal Session and administrator checks on GET, PUT and lookup
+        [1A[2K  1 passed (13.0s)
+        
+    system_model_selection_web_test.go:44: real Selection production browser group=authority completed with 45s browser/2m top budgets; formal configuration facts only, no Provider invocation or index rebuild claim
+--- PASS: TestAccountSystemModelSelectionWebAuthorityAndIdentity (23.36s)
+=== RUN   TestAccountSystemModelSelectionWebNavigationAndLayouts
+    system_models_web_fixture_test.go:313: formal Model setup POST status=400 want=200
+--- FAIL: TestAccountSystemModelSelectionWebNavigationAndLayouts (2.69s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	102.976s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.023s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.034s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.024s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.011s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce 87232e2126e3d5dd879e7fd9bfe16ad6
+D04 outbound fixture cleanup checked for nonce 0d85713ed2c82202d1b427c3f767a452
+D05 object fixture exact resource cleanup checked nonce=a30ed16d064bfc287866be2294f1a5e7

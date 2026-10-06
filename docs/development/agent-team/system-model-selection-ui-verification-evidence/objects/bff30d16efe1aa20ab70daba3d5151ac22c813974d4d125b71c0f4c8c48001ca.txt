@@ -1,0 +1,253 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { createMemoryHistory, createRouter, isNavigationFailure, NavigationFailureType } from 'vue-router'
+import type { SessionController } from '../composables/useSession'
+const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
+vi.mock('../composables/useSession', async original => ({ ...(await original<typeof import('../composables/useSession')>()), useSession: () => selected.auth! }))
+import { createSessionController } from '../composables/useSession'
+import { createSystemModelSelection, type SystemModelSelectionController } from '../composables/useSystemModelSelection'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI, type Provider, type ProviderModel, type ModelType, type ProviderProtocol } from '../api/system-providers'
+import { createSystemModelAPI } from '../api/system-models'
+import { createSystemModelSelectionAPI, type SelectionState, type SelectionPurpose } from '../api/system-model-selection'
+import type { Fetch } from '../api/client'
+import { installAuthentication } from '../router/auth'
+import { useTheme } from '../composables/useTheme'
+import App from '../App.vue'
+import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/auth/LoginView.vue'
+import SystemSettingsView from '../views/system/SystemSettingsView.vue'
+import SystemUsersView from '../views/system/SystemUsersView.vue'
+import SystemInvitationsView from '../views/system/SystemInvitationsView.vue'
+import SystemProvidersView from '../views/system/SystemProvidersView.vue'
+import SystemModelsView from '../views/system/SystemModelsView.vue'
+import SystemModelSelectionView from '../views/system/SystemModelSelectionView.vue'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z'
+const session = (n = 2): SessionView => ({ user: { id: id(1), email: 'admin@example.invalid', username: 'admin', display_name: 'Admin', role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false }, session: { id: id(n), issued_at: time, idle_expires_at: time, absolute_expires_at: time }, csrf_token: 'S'.repeat(43) })
+const provider = (n: number, protocol: ProviderProtocol): Provider => ({ id: id(n), input: { name: 'Provider ' + n, protocol, base_url: 'https://example.invalid/v1', enabled: true, credential_ref: null, options: {} }, version: '1', created_at: time, updated_at: time })
+const model = (n: number, parent: number, type: ModelType): ProviderModel => ({ id: id(n), provider_id: id(parent), version: '1', created_at: time, updated_at: time, input: { name: 'Model ' + n, provider_model_id: ' Native ' + n, type, enabled: true, parameters: {}, request_overwrite: {}, header_overwrite: {}, capabilities: { tool_calls: false, parallel_tool_calls: false, streaming: false, reasoning: false, input_modalities: ['text'], output_modalities: type === 'chat' ? ['text'] : type === 'embedding' ? ['vector'] : type === 'image_generation' ? ['image'] : [], reasoning_efforts: [], structured_output_modes: type === 'chat' ? ['json_schema'] : [], context_length: null, max_output: null } } })
+const initial = (): SelectionState => ({ id: id(900), version: '1', configured: { embedding: id(200), memory: id(210), reranker: id(220), image: id(230) } })
+const receipt = (version = '2') => ({ kind: 'model.selection.update', resource_id: id(900), version, affected_references: '0' })
+const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', 'X-Request-ID': id(9) } })
+const problem = (code = 'DEPENDENCY_UNAVAILABLE', status = 503) => json({ type: 'urn:agenteam:problem:independent', title: '', detail: '', status, code, instance: '/api/v1/system/model-selection', request_id: id(9), commit_state: status < 500 ? 'not_committed' : 'not_started' }, status)
+function gate<T>() { let resolve!: (value: T) => void; const promise = new Promise<T>(r => { resolve = r }); return { promise, resolve } }
+function held(value: unknown) {
+  const cancelled = gate<void>(), tail = gate<void>()
+  const response = new Response(new ReadableStream<Uint8Array>({ start(c) { c.enqueue(new TextEncoder().encode(JSON.stringify(value))) }, cancel() { cancelled.resolve(); return tail.promise } }), { headers: { 'Content-Type': 'application/json' } })
+  return { response, cancelled, tail }
+}
+let mounted: VueWrapper | undefined
+const pages: SystemModelSelectionController[] = []
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', (media: string) => ({ media, matches: false, addEventListener() {}, removeEventListener() {} }))
+  // jsdom layout surrogate only; no browser hit-testing or visual claim.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(() => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList)
+})
+afterEach(async () => { mounted?.unmount(); mounted = undefined; for (const page of pages.splice(0)) page.dispose(); selected.auth?.leave(); selected.auth = null; await flushPromises(); document.body.innerHTML = ''; vi.unstubAllGlobals(); vi.restoreAllMocks(); useTheme().setTheme('system') })
+
+async function fixture(app = false) {
+  const sources = new Map<string, Provider>([[id(100), provider(100, 'openai-embeddings')], [id(110), provider(110, 'openai-chat-completions')], [id(120), provider(120, 'jina-rerank')], [id(130), provider(130, 'openai-images-generations')]])
+  const records = new Map<string, ProviderModel>([[id(200), model(200, 100, 'embedding')], [id(210), model(210, 110, 'chat')], [id(211), model(211, 110, 'chat')], [id(220), model(220, 120, 'reranker')], [id(230), model(230, 130, 'image_generation')]])
+  let current = session(), saved = initial(), conflicts = 0, cuts = 0, getFailures = 0
+  let sessionReply: Fetch = async () => json(current)
+  let providerDetail: Fetch = async path => sources.has(path.split('/').at(-1)!) ? json(sources.get(path.split('/').at(-1)!)) : problem('NOT_FOUND', 404)
+  let modelDetail: Fetch = async path => records.has(path.split('/').at(-1)!) ? json(records.get(path.split('/').at(-1)!)) : problem('NOT_FOUND', 404)
+  let providerPage: Fetch = async () => json({ items: [...sources.values()].sort((a, b) => b.id.localeCompare(a.id)), next_cursor: null })
+  let modelPage: Fetch = async path => json({ items: [...records.values()].filter(m => m.provider_id === new URL(path, 'http://fixture.invalid').searchParams.get('provider_id')).sort((a, b) => b.id.localeCompare(a.id)), next_cursor: null })
+  const accepted = new Map<string, ReturnType<typeof receipt>>()
+  const calls: { path: string; init: RequestInit }[] = []
+  const fetcher: Fetch = async (path, init) => {
+    calls.push({ path, init })
+    if (path === '/api/v1/session') return sessionReply(path, init)
+    if (path === '/api/v1/system/model-selection') {
+      if (init.method === 'GET') { if (getFailures) { getFailures--; return problem() } return json(saved) }
+      const key = new Headers(init.headers).get('Idempotency-Key')!, old = accepted.get(key)
+      if (old) return json(old)
+      if (conflicts) { conflicts--; saved = { ...saved, version: '2' }; return problem('VERSION_CONFLICT', 409) }
+      const body = JSON.parse(String(init.body)), result = receipt(String(BigInt(body.expected_version) + 1n))
+      saved = { id: body.id, version: result.version, configured: { embedding: body.embedding, memory: body.memory, reranker: body.reranker, image: body.image } }
+      accepted.set(key, result)
+      if (cuts) { cuts--; throw new Error('synthetic-accepted-response-cut') }
+      return json(result)
+    }
+    if (path.endsWith('/model-commands/lookup')) { const r = accepted.get(new Headers(init.headers).get('Idempotency-Key')!); return json({ found: !!r, receipt: r ?? null }) }
+    if (path.startsWith('/api/v1/system/model-providers?')) return providerPage(path, init)
+    if (path.startsWith('/api/v1/system/model-providers/')) return providerDetail(path, init)
+    if (path.startsWith('/api/v1/system/models?')) return modelPage(path, init)
+    if (path.startsWith('/api/v1/system/models/')) return modelDetail(path, init)
+    if (path.startsWith('/api/v1/system/users?') || path.startsWith('/api/v1/system/invitations?')) return json({ items: [] })
+    if (path.endsWith('/bootstrap')) return json({ csrf_token: 'A'.repeat(43), challenge_modes: ['rotate'], delivery_channel: 'backend_log' })
+    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
+    throw new Error('unexpected private fixture route')
+  }
+  const auth = createSessionController(createAccountAPI(fetcher), createSystemAccountAPI(fetcher), createSystemInvitationAPI(fetcher), createSystemProviderAPI(fetcher), createSystemModelAPI(fetcher), createSystemModelSelectionAPI(fetcher))
+  selected.auth = auth
+  const router = createRouter({ history: createMemoryHistory(), routes: [
+    { path: '/', component: HomeView, meta: { authentication: true, protected: true } },
+    { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+    { path: '/system', component: SystemSettingsView, redirect: '/system/users', meta: { authentication: true, protected: true, systemAdmin: true, navigation: { label: '系统设置', order: 20 } }, children: [
+      { path: 'users', component: SystemUsersView }, { path: 'invitations', component: SystemInvitationsView }, { path: 'providers', component: SystemProvidersView }, { path: 'models', component: SystemModelsView }, { path: 'model-selection', component: SystemModelSelectionView },
+    ] },
+  ] })
+  let page: SystemModelSelectionController | undefined
+  if (app) {
+    installAuthentication(router, auth); await router.push('/system/model-selection'); await router.isReady()
+    const host = document.createElement('div'); host.id = 'app'; document.body.append(host)
+    mounted = mount(App, { attachTo: host, global: { plugins: [router] } })
+  } else { await auth.restore(); page = createSystemModelSelection(auth); pages.push(page); page.attach() }
+  await flushPromises(); await flushPromises()
+  return { auth, page: page!, router, sources, records, calls, saved: () => saved, setSaved: (v: SelectionState) => { saved = v },
+    conflict: () => { conflicts++ }, cut: () => { cuts++ }, failGet: () => { getFailures++ },
+    setSession: (f: Fetch) => { sessionReply = f }, resetSession: (n = 2) => { current = session(n); sessionReply = async () => json(current) },
+    setProviderDetail: (f: Fetch) => { providerDetail = f }, resetProviderDetail: () => { providerDetail = async p => json(sources.get(p.split('/').at(-1)!)) },
+    setModelDetail: (f: Fetch) => { modelDetail = f }, setProviders: (f: Fetch) => { providerPage = f }, setModels: (f: Fetch) => { modelPage = f },
+    writes: () => calls.filter(c => c.path === '/api/v1/system/model-selection' && c.init.method === 'PUT'),
+    details: () => calls.filter(c => /\/(models|model-providers)\//.test(c.path)),
+    listings: () => calls.filter(c => /\/(models|model-providers)\?/.test(c.path)),
+  }
+}
+const label = (b: HTMLButtonElement) => b.getAttribute('aria-label') ?? b.querySelector('.button-label[aria-hidden="false"]')?.textContent?.trim() ?? b.textContent?.trim()
+function button(text: string, within: ParentNode = document) { const b = [...within.querySelectorAll<HTMLButtonElement>('button')].find(n => label(n) === text); if (!b) throw new Error('missing actual button: ' + text); return b }
+async function click(text: string, within: ParentNode = document) { const b = button(text, within); expect(b.disabled).toBe(false); b.click(); await flushPromises(); await flushPromises() }
+const dialogs = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"]')]
+const top = () => { const d = dialogs().at(-1); if (!d) throw new Error('missing actual dialog'); return d }
+function heading(text: string) { return [...document.querySelectorAll('h3')].some(h => [...h.childNodes].filter(n => !(n instanceof HTMLElement && n.getAttribute('aria-hidden') === 'true')).map(n => n.textContent).join('').trim() === text) }
+async function choose(f: Awaited<ReturnType<typeof fixture>>, purpose: SelectionPurpose, parent: number, target: number) {
+  f.page.choosePurpose(purpose); await flushPromises()
+  f.page.selectProvider(f.page.choices[purpose].providers.rows.find(p => p.id === id(parent))!); await flushPromises()
+  f.page.selectModel(f.page.choices[purpose].models.rows.find(m => m.id === id(target))!); await flushPromises()
+}
+
+describe('Independent Selection page observations', () => {
+  it('expands exactly four saved IDs with4+4, preserves IDs on Provider failure and deduplicates repeated wire IDs without scanning', async () => {
+    const f = await fixture()
+    expect(f.details().map(c => c.path)).toEqual([200, 100, 210, 110, 220, 120, 230, 130].map((n, i) => '/api/v1/system/' + (i % 2 ? 'model-providers/' : 'models/') + id(n)))
+    expect(f.listings()).toHaveLength(0)
+    const saved = f.saved(), start = f.details().length
+    f.setProviderDetail(async path => path.endsWith(id(110)) ? problem() : json(f.sources.get(path.split('/').at(-1)!)))
+    await f.page.refresh()
+    expect(f.details().length - start).toBe(8)
+    expect(f.page.selection.value).toEqual(saved)
+    expect(f.page.references.memory).toMatchObject({ id: id(210), phase: 'error', value: null })
+    expect(f.page.references.embedding.phase).toBe('ready'); expect(f.writes()).toHaveLength(0)
+    f.resetProviderDetail(); f.setSaved({ ...saved, configured: { embedding: id(210), memory: id(210), reranker: null, image: null } })
+    const before = f.details().length; await f.page.refresh()
+    expect(f.details().length - before).toBe(2)
+    expect(f.page.references.embedding.value).toBe(f.page.references.memory.value)
+    expect(f.listings()).toHaveLength(0)
+  })
+
+  it('retains exact saved draft IDs but prevents new writes after actual current Provider disable or reference read failure', async () => {
+    const f = await fixture(); f.page.openEditor(); f.page.clearOptional('reranker')
+    const draft = { ...f.page.draft }; expect(f.page.canSave.value).toBe(true)
+    f.sources.set(id(110), { ...f.sources.get(id(110))!, input: { ...f.sources.get(id(110))!.input, enabled: false } })
+    f.page.detach(); f.page.attach(); await flushPromises(); await flushPromises()
+    expect(f.page.draft).toEqual(draft)
+    expect(f.page.draftDetails.memory?.provider.input.enabled).toBe(false)
+    expect(f.page.canSave.value).toBe(false); await f.page.save(); expect(f.writes()).toHaveLength(0)
+    f.setModelDetail(async path => path.endsWith(id(210)) ? problem('NOT_FOUND', 404) : json(f.records.get(path.split('/').at(-1)!)))
+    await f.page.retryReference('memory')
+    expect(f.page.draft.memory).toBe(id(210)); expect(f.page.draftDetails.memory).toBeNull()
+    expect(f.page.references.memory).toMatchObject({ id: id(210), phase: 'error', value: null })
+    await f.page.save(); expect(f.writes()).toHaveLength(0)
+  })
+
+  it('does not carry a stale active-purpose response across a native cancel tail or publish candidates after failure', async () => {
+    const f = await fixture(); f.page.openEditor()
+    const pending = held({ items: [...f.sources.values()].sort((a, b) => b.id.localeCompare(a.id)), next_cursor: null })
+    let lists = 0
+    f.setProviders(async () => ++lists === 1 ? pending.response : problem())
+    f.page.choosePurpose('embedding'); await flushPromises()
+    f.page.choosePurpose('memory'); await pending.cancelled.promise; await flushPromises()
+    expect(f.auth.state.busy).toBe(true); expect(lists).toBe(1)
+    expect(f.page.choices.memory.providers.rows).toHaveLength(0)
+    pending.tail.resolve(); await flushPromises(); await flushPromises()
+    expect(lists).toBe(2)
+    expect(f.page.activePurpose.value).toBe('memory')
+    expect(f.page.choices.memory.providers).toMatchObject({ phase: 'error', rows: [] })
+    expect(f.page.choices.embedding.providers.rows).toHaveLength(0)
+    expect(f.page.draft).toEqual(initial().configured)
+    const count = f.calls.length; await flushPromises(); expect(f.calls).toHaveLength(count); expect(f.writes()).toHaveLength(0)
+  })
+
+  it('invalidates a selected draft candidate after explicitly rereading that exact Provider as disabled', async () => {
+    const f = await fixture(); f.page.openEditor(); await choose(f, 'memory', 110, 211)
+    expect(f.page.draft.memory).toBe(id(211)); expect(f.page.canSave.value).toBe(true)
+    f.sources.set(id(110), { ...f.sources.get(id(110))!, version: '2', input: { ...f.sources.get(id(110))!.input, enabled: false } })
+    f.page.choosePurpose('memory'); await flushPromises()
+    f.page.selectProvider(f.page.choices.memory.providers.rows.find(p => p.id === id(110))!); await flushPromises()
+    const observed = f.page.choices.memory.provider.value
+    expect(observed?.id).toBe(id(110)); expect(observed?.input.enabled).toBe(false)
+    expect(f.page.draft.memory).toBe(id(211))
+    expect({ observedProviderEnabled: observed?.input.enabled, sameDraftProvider: f.page.draftDetails.memory?.provider.id === observed?.id,
+      selectedCandidateReason: f.page.candidateReason(f.page.choices.memory.models.rows.find(m => m.id === id(211))!), canSave: f.page.canSave.value,
+      writes: f.writes().length }).toEqual({ observedProviderEnabled: false, sameDraftProvider: true, selectedCandidateReason: 'Provider 已停用', canSave: false, writes: 0 })
+  })
+
+  it('requires explicit version review and retains original recovery despite later selector change and old404', async () => {
+    const f = await fixture(); f.page.openEditor(); f.page.clearOptional('reranker'); f.conflict(); await f.page.save()
+    expect(f.page.editor.version).toBe('1'); expect(f.auth.system.selection.progress?.phase).toBe('rejected')
+    f.page.detach(); f.page.attach(); await flushPromises(); await flushPromises()
+    expect(f.page.editor.version).toBe('1'); expect(f.page.state.requiresReload).toBe(true)
+    const review = f.page.review(); await flushPromises(); expect(f.page.confirmation.open).toBe(true)
+    f.page.finishConfirmation(true); await review
+    expect(f.page.editor.version).toBe('2'); expect(f.page.draft.reranker).toBeNull(); expect(f.page.canSave.value).toBe(true)
+    f.cut(); await f.page.save(); expect(f.auth.system.selection.progress?.phase).toBe('uncertain')
+    f.records.delete(id(210)); f.setSaved({ ...f.saved(), version: '5', configured: { ...f.saved().configured!, memory: id(211) } })
+    await expect(f.auth.system.selection.getSavedModel(id(210))).rejects.toMatchObject({ kind: 'problem', problem: { status: 404, code: 'NOT_FOUND' } })
+    f.page.detach(); f.page.attach(); await flushPromises(); await flushPromises()
+    expect(f.page.editor.version).toBe('2'); expect(f.page.state.requiresReload).toBe(true)
+    await f.page.checkOriginal(); expect(f.page.progress.value).toMatchObject({ phase: 'uncertain', observation: 'found', receipt: null, canRetryOriginal: true })
+    f.failGet(); await f.page.retryOriginal()
+    expect(f.page.state.confirmed).toEqual(receipt('3')); expect(f.page.state.writeMessage).toContain('仅重新读取')
+    expect(f.page.editor.open).toBe(false); expect(f.saved().version).toBe('5')
+    const writes = f.writes(); expect(writes).toHaveLength(3)
+    expect(writes[1]!.init.body === writes[2]!.init.body && new Headers(writes[1]!.init.headers).get('Idempotency-Key') === new Headers(writes[2]!.init.headers).get('Idempotency-Key')).toBe(true)
+  })
+})
+
+describe('Independent Selection actual App composition', () => {
+  it('keeps a real pending navigation above its business dialog through pageshow503 and same-Session recovery, with no extra PUT', async () => {
+    const f = await fixture(true); await click('编辑用途'); await click('不配置 Reranker', top())
+    let settled = 0
+    const navigation = f.router.push('/system/providers').then(v => { settled++; return v })
+    await flushPromises(); expect(dialogs()).toHaveLength(2)
+    const prior = dialogs()[0]!, hold = gate<Response>(), before = f.calls.filter(c => c.path === '/api/v1/session').length
+    f.setSession(() => hold.promise); window.dispatchEvent(new Event('pageshow')); await flushPromises()
+    expect({ phase: f.auth.state.phase, dialogs: dialogs().length, detached: !prior.isConnected, settled, count: f.calls.filter(c => c.path === '/api/v1/session').length }).toEqual({ phase: 'checking', dialogs: 0, detached: true, settled: 0, count: before + 1 })
+    hold.resolve(problem()); await flushPromises()
+    expect(heading('会话尚未确认')).toBe(true)
+    expect(button('检查当前会话').disabled || !!button('检查当前会话').closest('[inert]')).toBe(false)
+    f.resetSession(); await click('检查当前会话')
+    expect(dialogs()).toHaveLength(2)
+    expect({ lowInert: dialogs()[0]!.inert, topInert: top().inert, topHidden: top().getAttribute('aria-hidden'), settled, count: f.calls.filter(c => c.path === '/api/v1/session').length }).toEqual({ lowInert: true, topInert: false, topHidden: null, settled: 0, count: before + 2 })
+    expect(button('不配置 Reranker', dialogs()[0]!).disabled).toBe(true)
+    await click('继续编辑', top())
+    expect(isNavigationFailure(await navigation, NavigationFailureType.aborted)).toBe(true)
+    expect({ path: f.router.currentRoute.value.path, dialogs: dialogs().length, focusedInside: top().contains(document.activeElement), settled, writes: f.writes().length }).toEqual({ path: '/system/model-selection', dialogs: 1, focusedInside: true, settled: 1, writes: 0 })
+    await click('保存用途配置', top())
+    expect(f.writes()).toHaveLength(1); expect(dialogs()).toHaveLength(0)
+    await click('配置已保存')
+    const save = button('保存用途配置', top())
+    expect({ label: label(save), busy: save.getAttribute('aria-busy'), progress: f.auth.system.selection.progress, writes: f.writes().length }).toEqual({ label: '保存用途配置', busy: null, progress: null, writes: 1 })
+  })
+
+  it('settles the old navigation false on same-user new-Session restore and never reuses old dialog closures or draft', async () => {
+    const f = await fixture(true); await click('编辑用途'); await click('不配置 Reranker', top())
+    let settled = 0
+    const navigation = f.router.push('/system/models').then(v => { settled++; return v })
+    await flushPromises(); expect(dialogs()).toHaveLength(2)
+    const old = top(), hold = gate<Response>()
+    f.setSession(() => hold.promise); window.dispatchEvent(new Event('pageshow')); await flushPromises()
+    expect(dialogs()).toHaveLength(0); expect(settled).toBe(0)
+    f.resetSession(3); hold.resolve(json(session(3))); await flushPromises(); await flushPromises()
+    expect(isNavigationFailure(await navigation, NavigationFailureType.aborted)).toBe(true)
+    expect({ path: f.router.currentRoute.value.path, newSession: f.auth.state.session?.id === id(3), dialogs: dialogs().length, oldDetached: !old.isConnected, settled, writes: f.writes().length }).toEqual({ path: '/system/model-selection', newSession: true, dialogs: 0, oldDetached: true, settled: 1, writes: 0 })
+    await click('编辑用途'); expect(button('不配置 Reranker', top()).disabled).toBe(false)
+    await click('取消', top()); expect(dialogs()).toHaveLength(0); expect(f.writes()).toHaveLength(0)
+  })
+})

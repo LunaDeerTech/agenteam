@@ -1,0 +1,7 @@
+# Selection input02 narrow review
+
+STATIC PASS. The sole fixture change shortens the Navigation Provider name from 35 to 34 repeated groups. Actual source hashes confirm all other 24 candidates, 31 dist files, 1041 accepted inputs, locked dependencies and driver remain unchanged. Production behavior was not changed.
+
+The frozen formal validation probe uses actual ProviderInput/ModelInput validation: 4/4 race checks exited 0 in 5.929s. It preserves old overlength rejection and the 128-rune/256-byte boundaries. Author read-only gate exited 0 in 1.124s.
+
+Private A/B is rebound as `execution02.json` / `bound03`; both modes skip Navigation-only name expansion. Original probes/helpers/config/Go top and compile/type/discovery evidence are reused. Independent private input gate actually exited 0 in 1.135s. No browser, service, database or Docker resource started. Original input01 and all failures remain; real Navigation and independent A/B still require their authorized windows. Exact artifacts and SHA are indexed in `delta-report.json`.

@@ -1,0 +1,110 @@
+{
+  "accepted_baseline": {
+    "accepted": true,
+    "accepted_count": 1041,
+    "errors": [],
+    "files_sha256": "a3b46f1d0c2e8fc0a2d71611da38daad202c0c61b0fb183b22cb8b2dc35e423a",
+    "git_tree_sha256": "d23df2dea35e96b1b1fc5987f7456b3c3bbe579b7189f86aa1885bec28b31397",
+    "mismatches": [],
+    "missing": [],
+    "product_base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+    "unexpected": []
+  },
+  "dependencies": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "tests/account-captcha-web/node_modules/@playwright/test/cli.js": "79e23e6a249176295b8490567daa7717448a75866d6ea6f6b296ff3d23305c69",
+    "tests/account-captcha-web/node_modules/@playwright/test/package.json": "9074bc81ed5850b15ba1d99ccaa1a391476f8c552f57f564ddc8afad7049d662",
+    "tests/account-captcha-web/node_modules/playwright-core/package.json": "428ba2490bb4eec3a9bf62838207d35318ecfb6677801ae770445bfa52007c27",
+    "tests/account-captcha-web/node_modules/playwright/package.json": "388159d9169e9aa04bd24a92fb102321e7aca1af8c5ce9fc130f354af148587a",
+    "tests/account-captcha-web/package-lock.json": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534",
+    "tests/account-captcha-web/package.json": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+  },
+  "dist": {
+    "web/dist/assets/AppearanceSettings-CMyglbwL.js": "6c167d34d8d89e9a1a6b092b4e6bb9bbb7e36d1caa6b006d951c704c78a673dc",
+    "web/dist/assets/ForgotPasswordView-DJSF_FFM.css": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2",
+    "web/dist/assets/ForgotPasswordView-DRncd_-D.js": "69fcf251e6d6475ab6ccf9f4ea0c6033bd34c67f1d5ede0c86fa8001ef4fe372",
+    "web/dist/assets/InvitationView-B4wTz1D4.css": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177",
+    "web/dist/assets/InvitationView-Dd4ejAvE.js": "88bb90e74b4aaf4da6eea6aba419e291e4cf64de473d34c2a9a6b884df703f3a",
+    "web/dist/assets/PasswordSettings-jfsv7Yup.js": "fd31df8c3c8ed3bfdda706c4ffb7e3511ff04b83b45c3c57e940e5ec8f2ea686",
+    "web/dist/assets/PersonalSettingsView-BLWru9en.css": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5",
+    "web/dist/assets/PersonalSettingsView-CvhBTPPO.js": "7b7ef3930db3010b9bbe5755cafa77fddd594dcf827131476a6ca562b8766939",
+    "web/dist/assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+    "web/dist/assets/ProfileSettings-Cv_CCxhJ.js": "9b02271f5bfbb45cb388f97773e70e21a8a3a95779476f0ecaafca309feab7af",
+    "web/dist/assets/ResetPasswordView-BAqtuMjO.js": "1c86109f527feea599ac2a1691f5462eb2bdd5b64f55de16af259b241b28b886",
+    "web/dist/assets/ResetPasswordView-DSiu2awb.css": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527",
+    "web/dist/assets/SettingsShell-D9S1S_aF.css": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e",
+    "web/dist/assets/SettingsShell-D9mvz4ot.js": "e7f9bf0e8900132d2dbcfe7b3e50c9c5ea33a46c9d2ed9aa17d73f5384c63c10",
+    "web/dist/assets/SystemInvitationsView-QSKOYHWH.css": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f",
+    "web/dist/assets/SystemInvitationsView-RPMg3e-A.js": "fe4c97f217ebfdb13ea294c67d28f20d8dcbfeca40a353be390b193f50f7065b",
+    "web/dist/assets/SystemModelSelectionView-B-9rNPgt.js": "ad07796557d265b5f20e413de1065aaad530179ad44ab1c6549f5e09bfd5af79",
+    "web/dist/assets/SystemModelSelectionView-Dpau881F.css": "3db921aee5324ed2c41c87284a1ef1ae79f34a9f4bee83ceac7cc05412398edb",
+    "web/dist/assets/SystemModelsView-6nzUQodS.css": "7697fe537f40b60c922c38227e7ddfff8a6e1c44514ff2efadb12808f1563a5f",
+    "web/dist/assets/SystemModelsView-BGQu3jRl.js": "c0d770e3ef1d24958b5cd613ae74a93ca3afd61e8cad8824d24b4589dd4f8677",
+    "web/dist/assets/SystemProvidersView-BW0qSaYW.js": "0045536e47cc8ba40f34a1a604eb33d9b7a24042e4973f7c192ca6e855328de5",
+    "web/dist/assets/SystemProvidersView-elJ_-cRG.css": "495c2154ff8c96cfdbfb6e79d76bc39c11e20b046af85227d8bd27d3d7336c2c",
+    "web/dist/assets/SystemSettingsView-D3bwc1nH.css": "6d270d46b715f5e96f02662f279bf80a5b607a05a6d4317ed15f59067b753b55",
+    "web/dist/assets/SystemSettingsView-s8KuxEjJ.js": "74aa1fa51c7ad0ea161ab6d9b1181dc606d54debd9f58c550d60cb8f8e05544e",
+    "web/dist/assets/SystemUsersView-B41TxT1D.css": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3",
+    "web/dist/assets/SystemUsersView-D8KBJ1jo.js": "2e0aa99dd5ede42e8ee0cc9196bbb022cf87429db3d55e9e0a7b6b1196167b87",
+    "web/dist/assets/UiButton-aOP9k59X.js": "cd45475da84c83232351a345365be49c06aa1d09d33257090451eb8c4d1ba2c8",
+    "web/dist/assets/UiSelect-B3zsTh85.js": "c453d3ebeb7d596514df714d69c0e021f5fbc98a860c0496ef9b633203813d32",
+    "web/dist/assets/index-1kgiQjPo.js": "c0934c0ae53259ce5b57356be3e8ed0ebe9a91010ee012125de5d3e9cc3edc46",
+    "web/dist/assets/index-Bu87wugy.css": "2552d3e644236a977de5b09994d16554679028cca6bd3eca84b5e85f2a10b9d1",
+    "web/dist/index.html": "7dd8ad393ed39b1df443c02927c9c8799dd29438df0403edcdf86d34f1fd3419"
+  },
+  "files": {
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": "c4816160bd0bf18bb1460b20b21808974c8bcf097430f5fcaa7e8779f8a2545b",
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": "e415568d5cf10d0f64cdb88d8c03a7ecaab9bc2d842c8129626d53862bdeb386",
+    "tests/account-captcha-web/e2e/system-models.spec.ts": "8473a63780212f59b3d5ecc7671ef810611bbde25ac5514ed0efae85662663ee",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "fd10ee876abed7b50e86b5bf5e1e25d70745bbf91e44c67bedb84639710d99d9",
+    "tests/account-captcha-web/system-model-selection.config.js": "e7c2cc154bcfbdb919f16249f111967e5d83eb6fc273a654f9c5c634ff832d24",
+    "tests/account/system_model_selection_web_fixture_test.go": "1e5f79ed5061058d867b79986cf85ac45e3809d9f3fb113716e167d7e4bf1aa7",
+    "tests/account/system_model_selection_web_test.go": "6c60bb68e521685eedfbca9107c026c3f6646119cda4f5c841d2533ed77e3c8e",
+    "web/src/App.vue": "4f242cbccd26616443a025e6bc175380775b1b36de2f2a8f130ea1612ffecfad",
+    "web/src/api/client.ts": "3cd31decac3c760725d9aae1812edbca1a1995259073ffd55d55dd0bc3120d20",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+    "web/src/composables/useSession.ts": "8464b9329dfaf26d9263bed2b85e05afe1ec45a3b779e9e1d9b831a3fbf541c6",
+    "web/src/composables/useSystemModelSelection.ts": "10f37e124c7852a895272ac65b86dd919b359aba997e99e72f5804efec8feb67",
+    "web/src/router/auth.ts": "4243890a21bd940fce2b5ee09147c51f124e251452027c8b957a04bcab0bce22",
+    "web/src/router/index.ts": "73a12f37720fffccf2a94e585e797c36a413a5de9a8d179fdc3fdea29f1aaf01",
+    "web/src/tests/personal-settings.spec.ts": "3249aff5f7b7674409f04311709f259e7a8f9d19572eb223f5aa641042226dc3",
+    "web/src/tests/system-invitations.spec.ts": "c1e61cf8343e77bd0abf6c5a03ff049179d5a172dabeef0c7dc8306cd80722d9",
+    "web/src/tests/system-model-selection-client.spec.ts": "856bb8a8b0a39f74f7c9daae0657eb642f6733facf43959d9ff6caf335f71d64",
+    "web/src/tests/system-model-selection-state.spec.ts": "3f673570a07bdbeae4bf0fcbb7cedb526057f12fdd97b186e98b3c8789e5c0e2",
+    "web/src/tests/system-model-selection.spec.ts": "c85ab65b14a3d4a07641ec9fdc9bd60872049d07e7ecb870bcd9a3765b1701f9",
+    "web/src/tests/system-models.spec.ts": "17589214434c20272c3d3442c47dd6ae04b7a403ba5e8780bb9a52685be31962",
+    "web/src/tests/system-providers.spec.ts": "7cb4a53229b98f65ee80e092eeba11ae005e8c39c5ed262a1040d87451202ebf",
+    "web/src/tests/system-user-directory.spec.ts": "e4fb3be5baed88505217c518fd6e9110cb0a86592a738229d9356504c2162757",
+    "web/src/views/system/SystemModelSelectionEditor.vue": "b27430f537ab2e59946cc7f9f843a1c2f5ae4afdcf19455becebb230c39113cd",
+    "web/src/views/system/SystemModelSelectionView.vue": "3276ec40d8468ee3cac1785c90f47d906b0b38a7a8848aeb451558a0f0e94683",
+    "web/src/views/system/SystemSettingsView.vue": "083dd9d9373bdd450c3fab5203fa6ff53e630a5ff30016216e3000f7d5da204b"
+  },
+  "locked_runtime": {
+    "files_count": 7132,
+    "inventory_sha256": "aa86548ac51967af4188cc7dd521e9b6b3f0adab26620ef31c7c426bd35ae58f",
+    "symlinks_count": 28
+  },
+  "private": {
+    "files": {
+      "bound04/fixed-helpers.ts": "2aff26fa7ce22b2fe08de5c2b762f1b93fabced35b137e756de3b5bdb8509d42",
+      "bound04/fixture-delta.diff": "60aa3e38e508d534571a3939f364e5fa80159ad1c40d5fb3d9919c7beffbd7b1",
+      "bound04/independent.spec.ts": "4568391d94c71b18f55efe01adf418e4d77a190228921661359f37422f1c4587",
+      "bound04/overlay.json": "fd83f8086c0162796351aa441a1743b7a53d34f60d19aaad4bb6a3afebfb6313",
+      "bound04/playwright.config.mjs": "9e2767c0d3786f24e56a4411cedbf4b47f1630f94e94cf4abfe7a92c8de2bf5a",
+      "bound04/system_model_selection_web_fixture_test.go": "e4f304d6fa9a181536450dce9404192e3a35f75f92773237d06802cfeac365ba",
+      "bound04/system_model_selection_web_test.go": "a9f4eaf0ce5a1af367055778459258b44f4834ef2cbe8a1da5e2333751e510d2",
+      "run-independent03.py": "df9b9887dcae6f8fba493d7a4319d60cacaf25091a07965ce87020b456293fd6"
+    },
+    "go_overlay": {
+      "Replace": {
+        "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_fixture_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound04/system_model_selection_web_fixture_test.go",
+        "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound04/system_model_selection_web_test.go"
+      }
+    },
+    "node_modules": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules"
+  },
+  "product_base": "bc17167c42ee5d5fc1427adaac099ff888ca959b"
+}

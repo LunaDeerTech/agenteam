@@ -1,0 +1,11 @@
+# Selection input01 独立差量静审
+
+STATIC PASS，H-SELECTION-01已闭合。原503静态BLOCKED报告保留，不称产品RED→GREEN。
+
+仅新browser两错误分支移除不存在的EOF要求，并增实际控制次数、失败页面/恢复按钮门槛；全部200严格DTO+原reader EOF及observeNative字节保持。25源/31dist实际副本逐SHA匹配，24其他源及18页面源不变，源差量SHA42dfa8236f152d53a55a38887384627445ea278ffe82180ccc229ddc385a0309。
+
+固定input01 manifest SHA4732889a4490c7166a83cc1e13be2656529f093a30ba660862d441f378692def。driver SHAac03e281882a3d0c00342420679394eb83225f4a316dcca310fd5a3b57ec6ac4，实际cwd是作者私有workspace；固定bc17167完整1041依赖含根外2个Go包，候选独立哈希、私有runtime7132文件/28内部symlink、31dist均在前后门禁。独立实际执行只读--check-input-only exit0/1.317s/actualwait，missing/unexpected/mismatch/errors均空；raw SHA20fdf7928b6230bc0552f883a53607e90d0a517b18c3f47dc2f9cb53203fcc04。
+
+运行分组精确new6、old-core7、old-provider3、old-model3；CLI来自同私有锁包。接受脚本固定race/count1/包6m，测试原45s/顶层2m不变。真实分支先subreaper，命令实际wait、仅收养自有PID+starttime的Z waitpid、nonce资源清理由原fixture执行，driver exactID二扫absent/旧baseline不变/ownedPID清零/runtime空/原输入末核；受控TERM交owned shell再等待，不触历史PPID1 Z。这里只核静态契约，资源清零须未来实际证据。
+
+最终format/type/六mode恰1的--list、12私有门禁反例及未变Go compile/vet/web993使用作者已冻实际结果。没有真实server/browser/PG/Docker启动；本结论仅支持root决定作者开窗。独立A/B仍只做离线准备，作者隔离DB增量证据不升级为原command关联/完整CSRF证明。

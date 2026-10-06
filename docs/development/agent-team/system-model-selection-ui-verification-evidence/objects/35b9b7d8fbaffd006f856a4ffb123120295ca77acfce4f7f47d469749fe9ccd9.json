@@ -1,0 +1,85 @@
+{
+  "stage": "api-stage01",
+  "product_base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "card_commit": "4f385375a41d2ec1353e0bcf7d220ef100586f69",
+  "card_sha256": "f9d73f311ea69ae23b25b396f4a7713b3412e35b622a82d1af38401abd2d9be9",
+  "files": {
+    "web/src/api/client.ts": "3cd31decac3c760725d9aae1812edbca1a1995259073ffd55d55dd0bc3120d20",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+    "web/src/tests/system-model-selection-client.spec.ts": "856bb8a8b0a39f74f7c9daae0657eb642f6733facf43959d9ff6caf335f71d64"
+  },
+  "dependencies": {
+    "web/src/api/system-providers.ts": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade",
+    "web/src/api/system-models.ts": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8",
+    "web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "web/src/tests/system-models-client.spec.ts": "05a6431ba1bcd8c195d6db2ac3d74f0847bdd7034e00151e10a6b7a8c1737b04",
+    "web/src/tests/system-providers-client.spec.ts": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+    "web/tsconfig.json": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18"
+  },
+  "baseline_manifest": {
+    "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/baseline.json",
+    "sha256": "33f8d99e335b3b63a6bd93ce489672ce04b86db24f7b4ec2ed157c9431dfb62d"
+  },
+  "checks": {
+    "api-format01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/api-format01/command.json",
+        "sha256": "892d44415ffec67c8cc8e748b7b6cd45fd06e3e3ecb70222809998af3fefee12"
+      },
+      "input.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/api-format01/input.json",
+        "sha256": "fd2238dd178560fe15f1abf769512929707fb41c3f5ebad811e16fc3789c1d77"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/api-format01/raw.log",
+        "sha256": "ba07e4d9eb02fa5a18647ab3aa733f905597af8267e6d41c01ecb7e7292c111b"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/api-format01/result.json",
+        "sha256": "73fd3a66e2326a064d127fa7e342487605257e09c51b666caf1e1e3811afbb4a"
+      }
+    },
+    "api-pure01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/api-pure01/command.json",
+        "sha256": "458843e9d87f33f2caa739cd436ad119d77d479f11efb666f08f48772df794ed"
+      },
+      "input.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/api-pure01/input.json",
+        "sha256": "7318f3ba7ee19955df30725ee87ddf84b1844d071e61243d0671a440880f5565"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/api-pure01/raw.log",
+        "sha256": "688beb1f38b12264d26c5ccb2879b1be51ec7d00c0800ccc8ca2e56c1f04cf61"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/api-pure01/result.json",
+        "sha256": "ae178a2365510c00d2161bdba08c9b071cb35de43f222c8c6fcfd1153d3297e7"
+      }
+    },
+    "api-type01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/api-type01/command.json",
+        "sha256": "66cba01bbc5364d67c3e7f2ba572ca34e39074d6f9d8f913b969e151e803267f"
+      },
+      "input.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/api-type01/input.json",
+        "sha256": "7318f3ba7ee19955df30725ee87ddf84b1844d071e61243d0671a440880f5565"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/api-type01/raw.log",
+        "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/api-type01/result.json",
+        "sha256": "9d7450f32b0e18a7bb671c2107a8bdf6f62bc66e03bf99a46feb11528143cc9e"
+      }
+    }
+  },
+  "result": "Author offline API/transport composition and regression PASS; 290 tests in three files; type-check PASS. No owner, App, real backend or browser acceptance claimed.",
+  "scope": "Three API-stage sources frozen here; live owner work may continue on other authorized files.",
+  "resources": "No browser, server, Docker or backend process started."
+}

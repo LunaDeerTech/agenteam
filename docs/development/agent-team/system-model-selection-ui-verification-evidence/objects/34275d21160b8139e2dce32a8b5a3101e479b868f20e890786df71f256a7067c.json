@@ -1,0 +1,169 @@
+{
+  "scope": "Selection page-stage01 independent static/controller/actual App component verification; no real resources",
+  "verdict": "RED: P-SELECTION-PAGE-01 pending author repair",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/manifest.json",
+    "sha256": "4ff435b62e8641ab2a64af9f0c61807931755223abed9e7ba3f1ad28a472cd7b"
+  },
+  "base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "candidate_files": {
+    "web/src/api/client.ts": "3cd31decac3c760725d9aae1812edbca1a1995259073ffd55d55dd0bc3120d20",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+    "web/src/composables/useSession.ts": "8464b9329dfaf26d9263bed2b85e05afe1ec45a3b779e9e1d9b831a3fbf541c6",
+    "web/src/composables/useSystemModelSelection.ts": "1aa25f7f89caa1ce9e5c3397a7335bce1c0a2d16a6f6f1ca35fca88d3aac0181",
+    "web/src/App.vue": "4f242cbccd26616443a025e6bc175380775b1b36de2f2a8f130ea1612ffecfad",
+    "web/src/router/index.ts": "73a12f37720fffccf2a94e585e797c36a413a5de9a8d179fdc3fdea29f1aaf01",
+    "web/src/router/auth.ts": "4243890a21bd940fce2b5ee09147c51f124e251452027c8b957a04bcab0bce22",
+    "web/src/views/system/SystemSettingsView.vue": "083dd9d9373bdd450c3fab5203fa6ff53e630a5ff30016216e3000f7d5da204b",
+    "web/src/views/system/SystemModelSelectionView.vue": "3276ec40d8468ee3cac1785c90f47d906b0b38a7a8848aeb451558a0f0e94683",
+    "web/src/views/system/SystemModelSelectionEditor.vue": "b27430f537ab2e59946cc7f9f843a1c2f5ae4afdcf19455becebb230c39113cd",
+    "web/src/tests/system-model-selection-client.spec.ts": "856bb8a8b0a39f74f7c9daae0657eb642f6733facf43959d9ff6caf335f71d64",
+    "web/src/tests/system-model-selection-state.spec.ts": "d3085b80021762e08cae52df29b548d24d989addabd94371117fc5085039e819",
+    "web/src/tests/system-user-directory.spec.ts": "e4fb3be5baed88505217c518fd6e9110cb0a86592a738229d9356504c2162757",
+    "web/src/tests/system-invitations.spec.ts": "c1e61cf8343e77bd0abf6c5a03ff049179d5a172dabeef0c7dc8306cd80722d9",
+    "web/src/tests/system-providers.spec.ts": "7cb4a53229b98f65ee80e092eeba11ae005e8c39c5ed262a1040d87451202ebf",
+    "web/src/tests/system-models.spec.ts": "17589214434c20272c3d3442c47dd6ae04b7a403ba5e8780bb9a52685be31962",
+    "web/src/tests/personal-settings.spec.ts": "3249aff5f7b7674409f04311709f259e7a8f9d19572eb223f5aa641042226dc3"
+  },
+  "probe": {
+    "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/candidate/web/src/tests/independent-selection-page.spec.ts",
+    "sha256": "bff30d16efe1aa20ab70daba3d5151ac22c813974d4d125b71c0f4c8c48001ca"
+  },
+  "input": {
+    "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/input.json",
+    "sha256": "7d01062ce7bb558bde7cee8ee6cd54c1b06e312f4446351f0cbd08c656b8bae3"
+  },
+  "runs": {
+    "observations01": {
+      "exit_code": 0,
+      "elapsed_seconds": 2.223,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "196b44ff7031a8dfcd0c9165562cb5e7ff03d05c519a85cae8e97d36ce63b2a1",
+      "artifacts": [
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations01/command.json",
+          "sha256": "704ab85cbb3ebfcd73cb649a01a4c9fe5a733c92c7f599f864fabb519098ab4a"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations01/result.json",
+          "sha256": "49e9fa95fe7358b22b82a3cf812dd01ef5131225b2fa6a29ddbe485d9a0ee4be"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations01/raw.log",
+          "sha256": "196b44ff7031a8dfcd0c9165562cb5e7ff03d05c519a85cae8e97d36ce63b2a1"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations01/probe.ts.txt",
+          "sha256": "49e9b52d26538346aa200b1b32da4e8f4b68653d9d48d325bc995a314a24802b"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations01/driver.py.txt",
+          "sha256": "74568fac6a3aa213dde614fd519431c7347aced42232d1a5cb27a8b5aa4f4065"
+        }
+      ]
+    },
+    "app01": {
+      "exit_code": 0,
+      "elapsed_seconds": 2.68,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "638e6ef9e3989c3e52471bb92e3ec0ee9fa494a07fbcf80bc2699b5a3442e426",
+      "artifacts": [
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/app01/command.json",
+          "sha256": "f4f3b4f063f6182e0c5034ad0d6ddcce892556e0ff56ce28927f7f3dea60b792"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/app01/result.json",
+          "sha256": "d866a56eaa2c1bea9add5929970d6ee7c90bd4cbfa648f6d57217e4db85f345e"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/app01/raw.log",
+          "sha256": "638e6ef9e3989c3e52471bb92e3ec0ee9fa494a07fbcf80bc2699b5a3442e426"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/app01/probe.ts.txt",
+          "sha256": "49e9b52d26538346aa200b1b32da4e8f4b68653d9d48d325bc995a314a24802b"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/app01/driver.py.txt",
+          "sha256": "74568fac6a3aa213dde614fd519431c7347aced42232d1a5cb27a8b5aa4f4065"
+        }
+      ]
+    },
+    "observations02": {
+      "exit_code": 1,
+      "elapsed_seconds": 2.079,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "6cd30659c8055c35f2f10151ab3249b5080662ba8cd9554159dd95430530356c",
+      "artifacts": [
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations02/command.json",
+          "sha256": "591d1e0f0e295e3f5097259d78c46eb7f4b3f372ba6e2748e8a336c5bc0429eb"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations02/result.json",
+          "sha256": "e4fd3be5874f3893f318f1570a9d29bf5b2c883c65299f95434a7d5209462430"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations02/raw.log",
+          "sha256": "6cd30659c8055c35f2f10151ab3249b5080662ba8cd9554159dd95430530356c"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations02/probe.ts.txt",
+          "sha256": "bff30d16efe1aa20ab70daba3d5151ac22c813974d4d125b71c0f4c8c48001ca"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations02/driver.py.txt",
+          "sha256": "74568fac6a3aa213dde614fd519431c7347aced42232d1a5cb27a8b5aa4f4065"
+        }
+      ]
+    }
+  },
+  "finding": {
+    "id": "P-SELECTION-PAGE-01",
+    "classification": "Product new-save gate defect on explicitly known invalid draft candidate, not ordinary read failure",
+    "reproduction": [
+      "Open editor from valid configured selector1 and fully read saved references.",
+      "Select Memory Model211 under enabled Provider110; draft differs and canSave=true.",
+      "Inject later authoritative Provider110 GET response version2/enabled=false; explicitly reopen Memory picker and select the same Provider to run its exact GET and model list.",
+      "Current candidateReason(Model211) is Provider 已停用 and observed ProviderID matches the private draft-detail ProviderID, but canSave remains true."
+    ],
+    "safe_observation": {
+      "observedProviderEnabled": false,
+      "sameDraftProvider": true,
+      "selectedCandidateReason": "Provider 已停用",
+      "canSave": true,
+      "writes": 0
+    },
+    "contract": "Card §2: known invalid candidates and currently unavailable Model/Provider may not provide new-save eligibility; keep draft IDs and let explicit review/reselection resolve evidence. This is not inferred merely from a failed GET or from a page not containing an ID.",
+    "location": [
+      "web/src/composables/useSystemModelSelection.ts: canSave checks stale draftDetails only.",
+      "readProvider updates choices[purpose].provider without updating/invalidating the corresponding chosen draft evidence.",
+      "web/src/views/system/SystemModelSelectionEditor.vue: save button :disabled=\"!canSave\"."
+    ],
+    "limits": "No PUT was issued by the RED probe. No claim that accepted backend would accept a disabled Provider; backend current transaction checks remain unchanged.",
+    "minimal_repair_guidance": "Within authorized controller, invalidate or refresh exact matching draft evidence when newly validated current observation proves it unavailable; preserve chosen IDs and captured selector version. Do not infer deletion from pagination absence or auto-replace references."
+  },
+  "passed": [
+    "observations01 four controller groups: exact4+4 saved expansion; ID-only dedup constructed wire case; second Provider failure preserves saved IDs with no partial data or pagination scan; saved-ref known Provider disabled/Model404 clears eligibility; cross-purpose native cancel tail isolation; explicit review/history recovery.",
+    "app01 two actual App/controller/auth/router+Ui groups: real button dirty confirmation, pageshow actual listener with pending Session; checking zero dialog/old subtree detached;503 recovery button enabled and uninert; sameSession cohost2 lowerinert/topaccessible; actual continue cancels navigation once and restores inside lower modal; one confirmed write then immediate new form ordinary label/no extraPUT.",
+    "Second App group: sameUser newSession invalidates draft and resolves old pending route false once, removes old dialogs, noPUT or old closure reuse.",
+    "observations02 historical group adds explicit original target GET404 before restoration/replay and passes; current selector version5 survives old expected2→receipt3 recovery and confirmed-read503 message."
+  ],
+  "reuse": [
+    "API3 and useSession exact same SHA as independent API15 and owner8 PASS.",
+    "Author fixed controller+owner72, old5App103, type raw/command/result hashes matched manifest. No active dedicated App test or real fixture was read.",
+    "Unchanged tests from observations01/app01 can be selectively reused after repair; input/probe for each original run retained."
+  ],
+  "limits": [
+    "Vitest/jsdom component and injected Fetch evidence only. Dialog layout surrogate getClientRects supports logical DOM/focus assertions, not actual Chromium Tab/hit testing or visual acceptance.",
+    "Private MemoryRouter uses the real accepted Views/App/auth guards at the relevant five system routes; omitted /settings/profile causes preserved Vue Router warnings; that unrelated personal navigation was not exercised.",
+    "The repeated saved-ID wire case verifies defensive deduplication; it is not claimed to be a legal newly produced backend selection.",
+    "No formal transaction/permission/receipt uniqueness/backend/browser/Runtime/index evidence in this stage.",
+    "General current GET failure alone was not classified as product RED; previous valid edit baseline and explicitly known invalid current candidate are distinguished."
+  ],
+  "resources": "All three commands actual wait complete; no active command/server/browser/PG/Docker or network. No product/Git writes. This private root and report permanently frozen pending a new separate repair verification input."
+}

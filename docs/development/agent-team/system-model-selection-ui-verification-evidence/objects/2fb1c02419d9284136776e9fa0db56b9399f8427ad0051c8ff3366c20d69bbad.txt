@@ -1,0 +1,25 @@
+import hashlib,json,os,subprocess,sys,time
+from pathlib import Path
+root=Path(__file__).resolve().parent
+work=root/'workspace'; out=root/'discovery03'; out.mkdir()
+cli=work/'tests/account-captcha-web/node_modules/@playwright/test/cli.js'
+config=work/'tests/account-captcha-web/system-model-selection.config.js'
+spec=work/'tests/account-captcha-web/e2e/system-model-selection.spec.ts'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+rows=[]
+for mode in ['lifecycle','read','concurrency','outcome','authority','navigation']:
+ env=os.environ.copy(); env.update({'AGENTEAM_AUTH_WEB_ORIGIN':'http://127.0.0.1:1','AGENTEAM_AUTH_WEB_PRIVATE':str(out),'AGENTEAM_AUTH_WEB_CHROMIUM':'/usr/bin/chromium','AGENTEAM_MODEL_SELECTION_WEB_CASE':mode})
+ argv=['node',str(cli),'test','--config',str(config),'--list','--reporter=json']
+ (out/(mode+'-command.json')).write_text(json.dumps({'argv':argv,'cwd':str(work),'env':{k:v for k,v in env.items() if k.startswith('AGENTEAM_AUTH_WEB_') or k=='AGENTEAM_MODEL_SELECTION_WEB_CASE'},'cli_realpath':str(cli.resolve()),'cli_sha256':sha(cli),'config_sha256':sha(config),'spec_sha256':sha(spec)},indent=2)+'\n')
+ t=time.monotonic(); process=subprocess.Popen(argv,cwd=work,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE); stdout,stderr=process.communicate(); code=process.wait()
+ (out/(mode+'-stdout.json')).write_bytes(stdout);(out/(mode+'-stderr.log')).write_bytes(stderr)
+ data=json.loads(stdout); found=[]
+ def visit(suite):
+  for test in suite.get('specs',[]): found.append({'file':str(Path(data['config']['rootDir'])/test['file']),'line':test['line'],'title':test['title'],'count':len(test.get('tests',[]))})
+  for child in suite.get('suites',[]):visit(child)
+ for suite in data.get('suites',[]):visit(suite)
+ passed=code==0 and not data.get('errors') and len(found)==1 and found[0]['file']==str(spec) and found[0]['title'].startswith('['+mode+'] ') and found[0]['count']==1
+ rows.append({'mode':mode,'exit_code':code,'actual_wait':True,'seconds':time.monotonic()-t,'tests':found,'passed':passed,'resources_started':False})
+ print(json.dumps(rows[-1]),flush=True)
+(out/'result.json').write_text(json.dumps(rows,indent=2)+'\n')
+sys.exit(0 if all(r['passed'] for r in rows) else 1)

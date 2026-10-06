@@ -1,0 +1,17 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-selection-owner-verification-upmcdgyp/candidate/web
+
+ ✓ src/tests/independent-selection-owner.spec.ts > Independent Selection owner fixed transport compositions > shares one 30s deadline across native Model20s and Provider10s while all other-domain cleanup leaves it owned 26ms
+ ✓ src/tests/independent-selection-owner.spec.ts > Independent Selection owner fixed transport compositions > Selection cleanup cannot cancel either Provider credential stage or a separate Model write 7ms
+ ✓ src/tests/independent-selection-owner.spec.ts > Independent Selection owner fixed transport compositions > preserves uncertain original PUT after later selector/Model404, failed lookup cancellation and known refusal until matching Execute 8ms
+ ✓ src/tests/independent-selection-owner.spec.ts > Independent Selection owner fixed transport compositions > current Selection403 clears all system private state while write and lookup CSRF invalidate the current Session 4ms
+ ✓ src/tests/independent-selection-owner.spec.ts > Independent Selection owner fixed transport compositions > applies accepted late parsed SESSION_REVOKED rules after Selection reference abandonment 1ms
+ ✓ src/tests/independent-selection-owner.spec.ts > Independent Selection owner fixed transport compositions > applies accepted late parsed FORBIDDEN rules after Selection reference abandonment 1ms
+ ✓ src/tests/independent-selection-owner.spec.ts > Independent Selection owner fixed transport compositions > old identity cannot hand a fetch/cancel tail to a new same-user Session or publish old intent 2ms
+ ✓ src/tests/independent-selection-owner.spec.ts > Independent Selection owner fixed transport compositions > synchronous progress consumers cannot dispatch abandoned input or erase a successor after confirmation 4ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  11:40:46
+   Duration  776ms (transform 164ms, setup 0ms, import 244ms, tests 55ms, environment 361ms)
+

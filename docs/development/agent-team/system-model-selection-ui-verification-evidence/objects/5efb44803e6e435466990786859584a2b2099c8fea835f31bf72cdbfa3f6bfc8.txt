@@ -1,0 +1,31 @@
+平台模型用途 UI 作者交付；等待独立真实验收与主线程最终接受。
+
+最终输入：`input02/manifest.json`，SHA256 `af2f9f4a50f4c435e849bf8faf9d8676a11ccd7c3c6d61416dcbfda57f8a72c5`。固定产品基线 `bc17167c42ee5d5fc1427adaac099ff888ca959b`；25 个候选源在 `input02/source/`，31 份实际 dist 在 `input02/artifacts/web/dist/`。README 是最后授权路径，当前未改。
+
+作者结果按未变语义组合，不能称 new01 或一次 new6 全绿。
+
+| 原运行 | 实际结果 | driver 实际等待耗时 | 清理与输入 |
+| --- | --- | --- | --- |
+| `new01` | 5 PASS / 1 FAIL；exit 1 | 204.111s | 双清、固定输入前后不变 |
+| `new02` | 1 PASS / 0 FAIL；exit 0 | 69.029s | 双清、固定输入前后不变 |
+| `old-core01` | 7 PASS / 0 FAIL；exit 0 | 126.425s | 双清、固定输入前后不变 |
+| `old-provider01` | 3 PASS / 0 FAIL；exit 0 | 89.833s | 双清、固定输入前后不变 |
+| `old-model01` | 3 PASS / 0 FAIL；exit 0 | 107.473s | 双清、固定输入前后不变 |
+
+new01 的 Navigation 在浏览器启动前因正式 Provider seed 名称超限返回400；固定调用点是共享 helper 第313行 `/system/model-providers`，不能被通用错误文字“Model setup”误导。名称130/129 rune 超过正式128限制。仅本新Go fixture的导航名称重复35→34后，正式 `ProviderInput.Validate` 四组均通过；原模型名称120–124 rune和原生ID256B仍合法，257B负例拒绝。原首红及零图片事实保留，input02精确一行diff在其目录内。
+
+完整隔离 `npm run check`：29文件、993 tests，通过格式、类型及生产构建；race integration account编译与vet通过。修后的browser格式/类型和绝对CLI六模式各发现1测试通过；原生观察器28例306断言通过且函数字节未变。固定bc17167的1041运行/编译文件（含2个根外Go包）、7132私有runtime文件与28链接由driver前后门禁绑定；12个私有门禁代表通过。命令、环境、原始输出、实际退出和输入索引见 `author-index.json`。
+
+八幅Selection原图均已逐张view；light/dark×1440/1024/834/390可见区域长字段正常折行，无横向裁切、重叠或异常前导空白，390为单列。900px视口只显示长卡上部，不能据此宣称下方全部字段均已人工视检。逐图SHA和审阅记录在 `new02-visual-review.json`。主线程已view light1440/dark390并接受。
+
+复用的独立阶段结果：API15/15、owner8/8；页面原probe7/7及补充5/5。P-SELECTION-PAGE-01原产品红为重读精确Provider失效后草稿证据未更新；controller已按当前代次安全结果同步精确ID证据，保留草稿ID/selector版本和原历史请求恢复。H-SELECTION-01静态阻断是text/plain503不走readerEOF，已仅调整失败观察并保留成功EOF与原生观察函数。报告定位均在JSON索引。
+
+其余原失败保留：App首轮16/17是未按既定2400ms成功可访问名定位；repair-pure01的100/101中，唯一新测试错误假设Anthropic/json_schema可合法解析，修正后5个受影响例通过，其余结果复用。harness-type01缺Node类型/DOM.Iterable命令选项，harness-format02是格式检查失败，均保留原件，未作为产品故障。
+
+历史输入限制：api-format01的3个格式化前API/测试源，以及owner-pure01的旧state spec，只有原hash/命令/raw，没有找到精确源码副本；未反推重建。四项精确SHA见JSON。
+
+最后old-model01实际wait后，7个任务exact-ID两次absent、旧2容器4网络不变，跟踪的108个子树PID/starttime最终空、12个adopted实际wait，runtime空且短TMP移除。清理结论限已记录的exact资源及跟踪子树；未触或声称回收历史PPID1 Z。资源窗口已交主线程，所有作者命令停止。
+
+作者SQL旁证是隔离数据库的受限增量，不扩大为独立原命令关联/原始body与CSRF证明。没有调用外部Provider，不代表Runtime、索引重建或serving生效；生产SPA/真实Vite代理与完整D09/D27不在本结果。
+
+索引 SHA256：`952d7e2997f896fa565b6987a86d9c4670cb4c6665d95c22d238d05165d2191c`。

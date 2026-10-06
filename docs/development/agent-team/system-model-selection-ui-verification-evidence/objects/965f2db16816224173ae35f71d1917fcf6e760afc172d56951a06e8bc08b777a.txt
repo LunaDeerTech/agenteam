@@ -1,0 +1,158 @@
+--- accepted-model-driver.py
++++ selection-driver.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only frozen Model author groups and record actual resources."""
++"""Run only frozen Model Selection author groups and record actual resources."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -9,13 +9,15 @@
+ import os
+ from pathlib import Path
+ import re
++import signal
+ import subprocess
+ import time
+ 
+ 
+ ROOT = Path(__file__).resolve().parent
+-REPO = Path('/workspace/agenteam')
+-BASE = 'f465f45b899e21c225e7d4107c099b256538239c'
++REPO = ROOT / 'workspace'
++GIT_REPO = Path('/workspace/agenteam')
++BASE = 'bc17167c42ee5d5fc1427adaac099ff888ca959b'
+ FROZEN = {}
+ 
+ 
+@@ -94,7 +96,7 @@
+ 
+ 
+ def fixed_tree():
+-    raw = subprocess.check_output(['git', 'ls-tree', '-r', '-z', BASE], cwd=REPO, timeout=20)
++    raw = subprocess.check_output(['git', 'ls-tree', '-r', '-z', BASE], cwd=GIT_REPO, timeout=20)
+     entries = {}
+     for record in raw.split(b'\0'):
+         if not record:
+@@ -161,6 +163,30 @@
+             'accepted': not (missing or unexpected or mismatches or errors)}
+ 
+ 
++DEPENDENCY_ROOTS = ['web/node_modules', 'tests/account-captcha-web/node_modules']
++
++
++def dependency_input():
++    files, links = {}, {}
++    for name in DEPENDENCY_ROOTS:
++        root = REPO / name
++        if root.is_symlink() or not root.is_dir():
++            raise RuntimeError('private locked dependency root is missing or not a directory')
++        for directory, directories, names in os.walk(root, followlinks=False):
++            for item in sorted(directories + names):
++                path = Path(directory) / item
++                relative = str(path.relative_to(REPO))
++                if path.is_symlink():
++                    links[relative] = os.readlink(path)
++                    if not path.resolve().is_relative_to(root.resolve()):
++                        raise RuntimeError('dependency symlink escapes private locked root')
++                    if path.is_dir():
++                        raise RuntimeError('unexpected dependency directory symlink')
++                if path.is_file():
++                    files[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
++    return {'files': dict(sorted(files.items())), 'symlinks': dict(sorted(links.items()))}
++
++
+ def source_input():
+     sha = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+     return {
+@@ -169,6 +195,7 @@
+         'files': {name: sha(REPO / name) for name in FROZEN['files']},
+         'dist': {str(path.relative_to(REPO)): sha(path) for path in sorted((REPO / 'web/dist').rglob('*')) if path.is_file()},
+         'dependencies': {name: sha(REPO / name) for name in FROZEN['dependencies']},
++        'locked_runtime': dependency_input(),
+     }
+ 
+ 
+@@ -176,19 +203,19 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new', 'new-remaining', 'old-core', 'old-provider', 'lifecycle', 'deletion', 'outcome', 'read', 'authority', 'navigation'], required=True)
++    parser.add_argument('--group', choices=['new', 'old-core', 'old-provider', 'old-model', 'lifecycle', 'concurrency', 'outcome', 'read', 'authority', 'navigation'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+     args = parser.parse_args()
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+-    modes = dict(lifecycle='Lifecycle', deletion='DeletionAndReplacement', outcome='OutcomeRecovery', read='ReadAndPagination', authority='AuthorityAndIdentity', navigation='NavigationAndLayouts')
+-    groups = {mode: ['TestAccountSystemModelsWeb' + suffix] for mode, suffix in modes.items()}
+-    groups['new'] = ['TestAccountSystemModelsWeb' + suffix for suffix in modes.values()]
+-    groups['new-remaining'] = [groups[mode][0] for mode in ['deletion', 'read', 'authority', 'navigation']]
++    modes = dict(lifecycle='Lifecycle', read='ReadAndPagination', concurrency='ConcurrencyAndReferences', outcome='OutcomeRecovery', authority='AuthorityAndIdentity', navigation='NavigationAndLayouts')
++    groups = {mode: ['TestAccountSystemModelSelectionWeb' + suffix] for mode, suffix in modes.items()}
++    groups['new'] = ['TestAccountSystemModelSelectionWeb' + suffix for suffix in modes.values()]
+     groups['old-core'] = ['TestAccountAuthenticationWebSessionLifecycle', 'TestAccountPersonalSettingsWebThemeAndNavigation', 'TestAccountPublicEntryWebIdentityNavigation', 'TestAccountSystemUserDirectoryWebAuthorityAndIdentity', 'TestAccountSystemUserDirectoryWebNavigationAndLayouts', 'TestAccountSystemInvitationsWebOutcomeRecovery', 'TestAccountSystemInvitationsWebNavigationAndLayouts']
+     groups['old-provider'] = ['TestAccountSystemProvidersWebCredentialReplacement', 'TestAccountSystemProvidersWebOutcomeRecovery', 'TestAccountSystemProvidersWebNavigationAndLayouts']
++    groups['old-model'] = ['TestAccountSystemModelsWebDeletionAndReplacement', 'TestAccountSystemModelsWebOutcomeRecovery', 'TestAccountSystemModelsWebNavigationAndLayouts']
+     expected = set(groups[args.group])
+     args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
+     FROZEN = json.loads(args.frozen.read_text())
+@@ -198,7 +225,7 @@
+         raise RuntimeError('driver differs from frozen input')
+     if args.check_input_only:
+         current = source_input()
+-        same = all(current[key] == FROZEN[key] for key in ['files', 'dist', 'dependencies'])
++        same = all(current[key] == FROZEN[key] for key in ['files', 'dist', 'dependencies', 'locked_runtime'])
+         accepted = current['accepted_baseline']['accepted']
+         print(json.dumps({'candidate_dist_dependencies_match': same, 'accepted_baseline': accepted,
+                           'accepted_count': current['accepted_baseline']['accepted_count'],
+@@ -220,10 +247,10 @@
+     if not before['accepted_baseline']['accepted']:
+         write(run / 'input-rejected.json', before)
+         raise RuntimeError('accepted baseline gate failed before any resource or fixture starts')
+-    if before['files'] != FROZEN['files'] or before['dist'] != FROZEN['dist'] or before['dependencies'] != FROZEN['dependencies']:
++    if any(before[key] != FROZEN[key] for key in ['files', 'dist', 'dependencies', 'locked_runtime']):
+         raise RuntimeError('candidate source/dist differs from frozen input')
+     (run / 'frozen-input.json').write_bytes(args.frozen.read_bytes())
+-    browser_runtime = Path(tempfile.mkdtemp(prefix='agtmodel-', dir='/tmp'))
++    browser_runtime = Path(tempfile.mkdtemp(prefix='agtsel-', dir='/tmp'))
+     if len(str(browser_runtime)) > 45:
+         raise RuntimeError('browser runtime is not short')
+     images = run / 'images'
+@@ -251,9 +278,18 @@
+     write(run / 'command.json', record)
+     observed_resources, observed_processes, errors, adopted_waits = {}, {}, [], []
+     start = time.monotonic()
++    cancellations = []
+     with (run / 'raw.log').open('wb') as raw:
+         process = subprocess.Popen(argv, cwd=REPO, env=env, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)
+         print(json.dumps({'run': args.name, 'pid': process.pid, 'selector': args.selector}), flush=True)
++        def request_stop(signum, _frame):
++            cancellations.append({'signal': signum, 'time': utc(), 'target_pid': process.pid})
++            # The owned shell forwards TERM through the existing fixture chain,
++            # which owns resource cleanup. Continue observing and actually wait.
++            if process.poll() is None:
++                process.send_signal(signal.SIGTERM)
++        signal.signal(signal.SIGTERM, request_stop)
++        signal.signal(signal.SIGINT, request_stop)
+         next_resources = 0.0
+         while True:
+             current = processes()
+@@ -285,6 +321,7 @@
+     write(run / 'observed-resources.json', observed_resources)
+     write(run / 'observed-processes.json', observed_processes)
+     write(run / 'monitor-errors.json', errors)
++    write(run / 'cancellation.json', cancellations)
+     cleanups = []
+     reap_adopted(observed_processes, process.pid, adopted_waits)
+     for _ in range(2):
+@@ -310,7 +347,7 @@
+     after = source_input()
+     write(run / 'input-after.json', after)
+     clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and not row['browser_runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+-    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
++    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['locked_runtime'] == after['locked_runtime'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
+                'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
+                'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+                'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}

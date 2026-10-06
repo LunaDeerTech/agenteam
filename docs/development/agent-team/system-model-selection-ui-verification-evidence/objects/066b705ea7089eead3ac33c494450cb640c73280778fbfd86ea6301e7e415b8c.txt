@@ -1,0 +1,47 @@
+from pathlib import Path
+import hashlib,importlib.util,json,tempfile
+root=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location('selection_gate',root/'run-selection-fixture.py');d=importlib.util.module_from_spec(spec);spec.loader.exec_module(d)
+sha=lambda b:hashlib.sha256(b).hexdigest();cases=[]
+with tempfile.TemporaryDirectory(prefix='gate01-',dir=root) as temp:
+ d.REPO=Path(temp)
+ payloads={'go.mod':b'module fixed\n','internal/example/main.go':b'package example\n','internal/example/builtin/SKILL.md':b'fixed embedded skill\n','docs/archive/example_test.go':b'package archived\n','docs/archive/data.txt':b'package test asset\n'}
+ tree={};accepted={}
+ for name,data in payloads.items():
+  p=d.REPO/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
+  tree[name]={'mode':'100644','kind':'blob','git_blob':hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()}
+  accepted[name]=dict(tree[name],sha256=sha(data))
+ raw=b''.join((row['mode']+' '+row['kind']+' '+row['git_blob']+'\t'+name+'\0').encode() for name,row in sorted(tree.items()))
+ d.fixed_tree=lambda:(raw,tree)
+ candidate=d.REPO/'web/src/candidate.ts';candidate.parent.mkdir(parents=True);candidate.write_bytes(b'candidate')
+ for name in d.DEPENDENCY_ROOTS:
+  p=d.REPO/name;p.mkdir(parents=True);(p/'package.json').write_bytes(b'{"name":"locked"}')
+ d.FROZEN={'files':{'web/src/candidate.ts':sha(b'candidate')},'dist':{},'dependencies':{},'locked_runtime':d.dependency_input(),'accepted_baseline':{'product_base':d.BASE,'git_tree_sha256':sha(raw),'files':accepted}}
+ assert d.accepted_baseline_input()['accepted'];cases.append('fixed baseline accepted')
+ target=d.REPO/'internal/example/main.go';target.write_bytes(b'package changed\n')
+ assert d.accepted_baseline_input()['mismatches']==['internal/example/main.go'];cases.append('modified product rejected');target.write_bytes(payloads['internal/example/main.go'])
+ extra=d.REPO/'new/unaccepted.go';extra.parent.mkdir();extra.write_bytes(b'package extra\n')
+ assert d.accepted_baseline_input()['unexpected']==['new/unaccepted.go'];cases.append('outside new Go package rejected');extra.unlink()
+ boundary=d.REPO/'docs/go.mod';boundary.write_bytes(b'module unwanted\n')
+ assert d.accepted_baseline_input()['unexpected']==['docs/go.mod'];cases.append('unexpected module boundary rejected');boundary.unlink()
+ embedded=d.REPO/'internal/example/builtin/SKILL.md';embedded.unlink()
+ assert d.accepted_baseline_input()['missing']==['internal/example/builtin/SKILL.md'];cases.append('missing embedded asset rejected');embedded.write_bytes(payloads['internal/example/builtin/SKILL.md'])
+ removed=accepted.pop('go.mod')
+ try:d.accepted_baseline_input();raise AssertionError('incomplete manifest accepted')
+ except RuntimeError as e:assert 'cover' in str(e)
+ accepted['go.mod']=removed;cases.append('incomplete baseline manifest rejected')
+ candidate.write_bytes(b'changed candidate')
+ assert d.accepted_baseline_input()['accepted'] and d.source_input()['files']!=d.FROZEN['files'];cases.append('candidate independently bound');candidate.write_bytes(b'candidate')
+ target.unlink();target.symlink_to(embedded)
+ assert not d.accepted_baseline_input()['accepted'] and d.accepted_baseline_input()['errors'];cases.append('baseline symlink rejected');target.unlink();target.write_bytes(payloads['internal/example/main.go'])
+ asset=d.REPO/'docs/archive/data.txt';asset.write_bytes(b'changed archived package asset')
+ assert d.accepted_baseline_input()['mismatches']==['docs/archive/data.txt'];cases.append('outside Go package non-Go asset bound');asset.write_bytes(payloads['docs/archive/data.txt'])
+ locked=d.REPO/d.DEPENDENCY_ROOTS[0]/'package.json';locked.write_bytes(b'{"name":"changed"}')
+ assert d.dependency_input()!=d.FROZEN['locked_runtime'];cases.append('locked runtime modified bytes rejected');locked.write_bytes(b'{"name":"locked"}')
+ extra=locked.parent/'extra.js';extra.write_bytes(b'// extra')
+ assert d.dependency_input()!=d.FROZEN['locked_runtime'];cases.append('unexpected runtime module rejected');extra.unlink()
+ extra.symlink_to(embedded)
+ try:d.dependency_input();raise AssertionError('external runtime symlink accepted')
+ except RuntimeError as e:assert 'escapes' in str(e)
+ cases.append('runtime symlink escape rejected')
+print(json.dumps({'passed':len(cases),'cases':cases,'resources_started':False,'probe':'synthetic private input gate, not fixture/browser business evidence'}))

@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import argparse,datetime,hashlib,importlib.util,json,os,re,subprocess,time,sys
+sys.dont_write_bytecode=True
+R=Path(__file__).resolve().parent
+A=Path('/workspace/scratch/agenteam-model-selection-author-sglwpvis')
+W=A/'workspace'; B=R/'bound05'; M=A/'input02/manifest.json'
+MH='af2f9f4a50f4c435e849bf8faf9d8676a11ccd7c3c6d61416dcbfda57f8a72c5'
+DH='ac03e281882a3d0c00342420679394eb83225f4a316dcca310fd5a3b57ec6ac4'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+def write(p,v):p.write_text(json.dumps(v,indent=2,sort_keys=True)+'\n')
+def utc():return datetime.datetime.now(datetime.timezone.utc).isoformat()
+def inputs():
+ assert sha(M)==MH and sha(A/'run-selection-fixture.py')==DH
+ spec=importlib.util.spec_from_file_location('fixed_selection_readonly_gate',A/'run-selection-fixture.py')
+ module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+ module.FROZEN=json.loads(M.read_text()); actual=module.source_input(); frozen=module.FROZEN
+ assert actual['accepted_baseline']['accepted']
+ for key in ['files','dist','dependencies','locked_runtime']:assert actual[key]==frozen[key],key
+ return {'author_manifest_sha256':MH,'gate_driver_sha256':DH,'accepted_base':frozen['product_base'],'accepted_count':actual['accepted_baseline']['accepted_count'],'accepted_baseline_matches':True,'source_matches':True,'dist_matches':True,'dependencies_match':True,'locked_runtime_match':True,'actual_input_sha256':hashlib.sha256(json.dumps(actual,sort_keys=True).encode()).hexdigest(),'private_files':{str(p.relative_to(B)):sha(p) for p in sorted(B.rglob('*')) if p.is_file() and not p.is_symlink()},'private_node_modules':str((B/'node_modules').resolve()),'runner_sha256':sha(Path(__file__))}
+p=argparse.ArgumentParser();p.add_argument('kind',choices=['type04','list-a04']);args=p.parse_args()
+run=R/'runs'/args.kind;run.mkdir(parents=True,exist_ok=False)
+(run/'runner.py.txt').write_text(Path(__file__).read_text())
+cache=R/'gocache';cache.mkdir(exist_ok=True);tmp=R/'tmp'/args.kind;tmp.mkdir(parents=True,exist_ok=False)
+env={'PATH':'/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/workspace/toolchains/go1.27.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin','LANG':'C.UTF-8','TZ':'UTC','TMPDIR':str(tmp),'GOTMPDIR':str(tmp),'GOCACHE':str(cache),'GOMODCACHE':'/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache','GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off','GOPROXY':'off','GOSUMDB':'off','GOFLAGS':'-mod=readonly -buildvcs=false','CI':'true','PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD':'1'}
+if args.kind=='compile02':
+ (R/'bin').mkdir(exist_ok=True)
+ argv=['/workspace/toolchains/go1.27.1/bin/go','test','-race','-tags=integration','-overlay='+str(B/'overlay.json'),'-c','-o',str(R/'bin/selection-independent02.test'),'./tests/account']
+elif args.kind=='type04':
+ argv=['/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node',str(W/'tests/account-captcha-web/node_modules/typescript/bin/tsc'),'--noEmit','--strict','--target','ES2022','--module','ESNext','--moduleResolution','Bundler','--lib','ES2022,DOM,DOM.Iterable','--skipLibCheck','--typeRoots',str(W/'web/node_modules/@types'),str(B/'independent.spec.ts'),str(B/'fixed-helpers.ts')]
+else:
+ mode='independent-a' if args.kind=='list-a04' else 'independent-b'
+ env.update({'AGENTEAM_AUTH_WEB_ORIGIN':'http://127.0.0.1:1','AGENTEAM_AUTH_WEB_PRIVATE':str(tmp),'AGENTEAM_AUTH_WEB_CHROMIUM':'/usr/bin/chromium','AGENTEAM_MODEL_SELECTION_WEB_CASE':mode})
+ argv=['/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node',str(W/'tests/account-captcha-web/node_modules/@playwright/test/cli.js'),'test','--config',str(B/'playwright.config.mjs'),'--list']
+before=inputs();write(run/'input-before.json',before)
+write(run/'command.json',{'argv':argv,'cwd':str(W),'env':env,'started_utc':utc(),'resources_authorized':False,'purpose':'offline compile/type/discovery only'})
+start=time.monotonic()
+with (run/'raw.log').open('wb') as out:
+ child=subprocess.Popen(argv,cwd=W,env=env,stdout=out,stderr=subprocess.STDOUT);code=child.wait()
+elapsed=time.monotonic()-start
+after=inputs();write(run/'input-after.json',after)
+raw=(run/'raw.log').read_text(errors='replace');contract=True
+if args.kind.startswith('list-'):contract=bool(re.search(r'Total: 1 test in 1 file',raw)) and f'[{mode}]' in raw and 'independent.spec.ts:' in raw
+result={'kind':args.kind,'exit':code,'actual_wait':True,'pid':child.pid,'elapsed_seconds':round(elapsed,3),'ended_utc':utc(),'inputs_unchanged':before==after,'raw_sha256':sha(run/'raw.log'),'discovery_exact_one':contract if args.kind.startswith('list-') else None,'resources_started':False,'tmp_entries':sorted(x.name for x in tmp.iterdir())}
+if args.kind=='compile02' and code==0:result['binary_sha256']=sha(R/'bin/selection-independent02.test')
+write(run/'result.json',result);print(json.dumps(result),flush=True)
+raise SystemExit(0 if code==0 and contract and before==after else 1)

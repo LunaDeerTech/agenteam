@@ -1,0 +1,54 @@
+--- bound03/system_model_selection_web_fixture_test.go
++++ bound04/system_model_selection_web_fixture_test.go
+@@ -26,6 +26,7 @@
+ 
+ 	"github.com/LunaDeerTech/agenteam/internal/central/app"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/config"
++	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
+ 	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
+@@ -670,7 +671,7 @@
+ 	if e != nil {
+ 		f.t.Fatal(e)
+ 	}
+-	cmd := exec.CommandContext(ctx, "node", "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound03/playwright.config.mjs")
++	cmd := exec.CommandContext(ctx, "node", "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound04/playwright.config.mjs")
+ 	cmd.Dir = root
+ 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+ 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+@@ -822,7 +823,11 @@
+ 		f.t.Fatal("private original identity invalid")
+ 	}
+ 	canonical := identity.Canonical()
+-	auditCause := fmt.Sprintf("sha256:%x", sha256.Sum256([]byte(canonical)))
++	auditDigest, err := cursor.Digest([]byte(canonical))
++	if err != nil {
++		f.t.Fatal("private original Audit cause invalid")
++	}
++	auditCause := auditDigest.String()
+ 	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+ 	defer closeConnection()
+ 	var commandCount, auditCount int
+--- bound03/independent.spec.ts
++++ bound04/independent.spec.ts
+@@ -43,7 +43,7 @@
+ }
+ async function acceptReview(page: Page) {
+   const after=await seq(page);
+-  await top(page).getByRole('button',{name:'放弃修改',exact:true}).click();
++  await top(page).getByRole('button',{name:'读取并核对',exact:true}).click();
+   const current=await currentRead(page,after);
+   await expect(top(page)).toHaveAccessibleName('配置平台模型用途');
+   await expect(top(page)).toContainText('已读取当前配置。请核对四项草稿');
+--- bound03/overlay.json
++++ bound04/overlay.json
+@@ -1,6 +1,6 @@
+ {
+   "Replace": {
+-    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound03/system_model_selection_web_test.go",
+-    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_fixture_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound03/system_model_selection_web_fixture_test.go"
++    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound04/system_model_selection_web_test.go",
++    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_fixture_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound04/system_model_selection_web_fixture_test.go"
+   }
+ }

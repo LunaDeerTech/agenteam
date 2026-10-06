@@ -1,0 +1,11 @@
+# Selection owner-stage01 独立验证
+
+**PASS（仅 owner 阶段）**。冻结 manifest `757149db89edf9aab49d5d9dd7926a312b275597af4a3b2a967a67a039569b0d`；useSession `8464b9329dfaf26d9263bed2b85e05afe1ec45a3b779e9e1d9b831a3fbf541c6`。API三源与已验API-stage01逐字节相同；只消费固定快照和bc17167最小接受闭包，未读活动页面。
+
+独立实际生产Session+六API组合 **8/8 PASS，actual exit0 / 1.071s**，实际wait完成，输入前后相同。argv/env在 `logs/independent01/command.json`，raw SHA `3835d794371f5a7d662626cd3ad53ac1ede834fa28c49f5be4e645d020eae893`；本轮无独立首红。
+
+原生Model正文20秒后才EOF，再Provider正文10秒，证明一次可见30秒总预算/同signal；超时及其他域清理不提前释放owner，原生cancel尾部未join前personal/Model/restore零派发。反向Selection清理不侵入Provider凭据两步或Model写。历史原PUT在当前selector更高版本/旧Model404后仍保持body/key/CSRF；lookup真/假/失败不确认，后续已知拒绝不抹历史不确定，仅原Execute严格receipt确认，确认后的GET503不重发。当前403清全部系统私有状态，write/lookup CSRF失效，迟到401与废弃403沿原Cookie规则；同User新Session不能越过旧fetch/cancel尾部。同步submitting取消零PUT，confirmed回调新intent不被旧尾清掉。
+
+静审新增第六依赖与独立revision/intent、当前权限和全局清理接入均符合卡；复用API15项及作者冻结57项/旧4套加初版新例198项，不机械重跑矩阵。精确五源、探针、原命令、result/raw及SHA见同名JSON。
+
+限制：20+10秒为fake timer可见预算，native stream尾部为进程内实际Promise；迟到已解析错误使用独立API续体屏障，不冒网络实况。未启动服务/浏览器/PG/Docker，未改产品或Git；未验controller的4+4、四用途分页、App/cohost、真实权限/事务/唯一receipt或Runtime/索引生效。此报告与本根原件现永久停写。

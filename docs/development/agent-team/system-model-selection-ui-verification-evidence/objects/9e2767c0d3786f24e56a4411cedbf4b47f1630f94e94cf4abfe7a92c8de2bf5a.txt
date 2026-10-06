@@ -1,0 +1,6 @@
+import { defineConfig } from '@playwright/test';
+const origin=process.env.AGENTEAM_AUTH_WEB_ORIGIN,directory=process.env.AGENTEAM_AUTH_WEB_PRIVATE,executablePath=process.env.AGENTEAM_AUTH_WEB_CHROMIUM,mode=process.env.AGENTEAM_MODEL_SELECTION_WEB_CASE;
+if(!origin||!directory||!executablePath) throw new Error('OWNED_SELECTION_FIXTURE_REQUIRED');
+const u=new URL(origin);if(u.protocol!=='http:'||u.hostname!=='127.0.0.1'||!u.port||u.origin!==origin)throw new Error('EXACT_OWNED_ORIGIN_REQUIRED');
+if(!['independent-a','independent-b'].includes(mode))throw new Error('EXACT_INDEPENDENT_MODE_REQUIRED');
+export default defineConfig({testDir:'.',testMatch:'independent.spec.ts',testIgnore:'**/runs/**',grep:new RegExp('\\['+mode+'\\]'),timeout:45000,workers:1,retries:0,reporter:'line',outputDir:directory+'/selection-independent-results',use:{baseURL:origin,browserName:'chromium',launchOptions:{executablePath,args:['--no-sandbox']},screenshot:'off',video:'off',trace:'off'}});

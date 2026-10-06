@@ -1,0 +1,26 @@
+# Selection harness-stage01 独立静审
+
+STATIC BLOCKED，仅一类测试观察前提（两处），未发现第二项确定的产品或正式准备阻断。未运行任何业务/浏览器资源。
+
+固定 manifest SHA `57c10ea47d6d0deecf834cde7c33069d94ef9d8e4a1a3dc95b234b785261f2ad`，25源码实际哈希全部匹配，page-stage03 18源逐字节复用；旧邀请/Provider/Model仅原四处全部菜单计数4→5。末次输入未变。
+
+## H-SELECTION-01：text/plain503 不产生 reader EOF
+
+固定 browser `currentRead` 第817行把 `f.ended`放在成功/失败共同门禁，第1507行 Outcome确认后GET503也强制ended。fixture第165–168行使用 `http.Error` 返回text/plain503；正式client第555–559行在Content-Type门禁退出，finally第580–583行等待body.cancel，不获取reader。因此该native observer不会置ended，两个case将在工具观察前提处失败。
+
+只在这两条错误分支核新sequence/精确method/path/status503、控制已消费次数、失败页面与恢复就绪。成功200继续要求原reader EOF与完整DTO；不得给observer补伪EOF、包装cancel或改变产品。已即时报告root与原作者，等待统一授权返修。
+
+## 已核通过的静态边界
+
+- 新六组包含null/v1、四用途/可选空、4+4与分页/迟到、两管理员与四类候选失效、正式DELETE推进引用、accepted-cut历史恢复、GET/PUT/lookup当前权限及同/异身份、checking/失败恢复/真实焦点和八布局。
+- Provider/Model/selector seed与变更走既有正式HTTP。唯一SQL写是任务自有第二管理员角色、authority限定admin+精确活跃Session的角色/撤销准备；无业务引用/Model/selector直接SQL。只读snapshot继承接受Model的正式DTO投影。
+- 上游严格接受后headers+半body截断，代理保留原body并只公开安全计数；浏览器核无自动重发、lookup不代receipt、历史receipt重放后current/refs不倒退。此处仍需真实执行，不因静态代码而标PASS。
+- native观察返回原fetch/read Promise、Response/reader实例；无clone/tee/额外读取/cancel替换，原端点闭集及成功Provider2MiB/其他600000B，安全投影不保留凭据正文。text/plain错误缺EOF按上项修复。
+- 登录稳定ID+新Session200 EOF identity与页面就绪；确认pageshow前水位、实际checking零模态、同identity恢复物理2/可访问1、下层inert/上层可操作；键盘与最终截图overlay物理0及main0门槛存在。trace/video/自动失败截图关闭。
+- Go顶层2m、browser45s/workers1/retries0；浏览器精确本库CLI、cmd实际Wait/异常kill+join、server Shutdown/Close/serve wait、DB连接关闭及私有runtime清理代码存在。外围subreaper/双清及包6m仍待最终driver静审，不能由上述源码推导实际清零。
+
+## 独立两代表接缝
+
+固定fixture已有跨Provider Memory replacement、正式delete/disable/enable/selector、missing404、单次accepted-cut/Session503和安全事实IPC，A/B无需产品新域。独立A私有overlay只补原command关联的command/Audit/事件唯一、原body字节与合法CSRF安全布尔；作者隔离DB增量与key+body摘要相等事实按原层次复用，不升级为逐命令关联证明。
+
+当前31dist仅manifest哈希，stage没有对应字节副本。最终完整input/driver/full固定bc17167依赖/实际dist与末type/list/vet尚待；本报告不授资源或声称真实PASS。无产品改写/Git操作，私有报告现冻结。

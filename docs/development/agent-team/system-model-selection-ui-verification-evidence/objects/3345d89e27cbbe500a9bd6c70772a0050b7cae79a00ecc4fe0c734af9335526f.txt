@@ -1,0 +1,11 @@
+# Selection API-stage01 独立验证
+
+**PASS（仅 API 阶段）**。固定作者 manifest `35b9b7d8fbaffd006f856a4ffb123120295ca77acfce4f7f47d469749fe9ccd9`，产品基线 `bc17167c42ee5d5fc1427adaac099ff888ca959b`；三源及固定最小依赖已核 SHA，未读取活动 owner。
+
+私有 Vitest 原命令见 `logs/independent01/command.json`：**15/15 PASS，actual exit 0 / 0.616s**，实际 wait 完成、前后输入一致。原 raw SHA `50807aea1b2eda2aa4f8ccde0aeca4f8c341c7d0a4676ef4002ef10bc71ec19f`。本轮没有独立失败；未启动网络、服务、浏览器、PG 或 Docker。
+
+核验了严格 Selection/null/四项字段、int64 后继及 refs="0" receipt、原命令历史读取与显式 PUT 不被当前 selector 新版本/旧 Model404阻挡。两段 GET 只信任首段包络和两个 ID，真实 Provider 协议参与最终完整解析；错 ID/嵌套协议/时间均零组合结果。成功等两段 native EOF 后一次返回深冻结完整结果；两段取消、600001B超限及第二段错误媒体503都在原 native cancel promise 实际完成前保持待决，未发布半成品。段间 finalizer 另用受控响应 finalizer 屏障证明取消零第二请求，不冒充自然网络事实。
+
+三个新端点600000B成功/600001B拒绝、两段详情600000B上限、请求UTF-8精确16384/16385边界与额外 options 零派发通过。client 原 body reader、预算和最终取消代码逐字节未变；复用作者290项及类型/格式、已接受 Provider/Model 严格解析证据，未重复全套。
+
+这是 Node 内受控 Fetch/原生 ReadableStream 结果，不证明真实 HTTP/权限/事务/浏览器。Cookie owner、一次30秒总预算、身份代次、页面<=4+4及真实历史重放另验；写探针明确传入合法 AbortSignal。精确三源、探针、命令及原件SHA见同名 JSON。此报告及本根 API 原件现永久停写。

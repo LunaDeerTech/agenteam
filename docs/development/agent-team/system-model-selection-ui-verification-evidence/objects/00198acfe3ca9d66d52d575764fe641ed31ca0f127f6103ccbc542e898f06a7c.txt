@@ -1,0 +1,234 @@
+import { describe, expect, it, vi } from 'vitest'
+import { accountTransport, type Fetch } from '../api/client'
+import {
+  captureSelectionCommand, createSystemModelSelectionAPI, selectionCommandBody,
+  type SelectionCommand,
+} from '../api/system-model-selection'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const instant = '2026-10-06T12:34:56.123456Z'
+const encoder = new TextEncoder()
+const signal = () => new AbortController().signal
+const write = () => ({ signal: signal(), csrfToken: 'S'.repeat(43), key: 'selection-independent:1' })
+const configured = () => ({ embedding: id(10), memory: id(11), reranker: null, image: null })
+const state = () => ({ id: id(1), version: '9007199254740993', configured: configured() })
+const command = (): SelectionCommand => ({ kind: 'model.selection.update', id: id(1), expected_version: '9007199254740993', ...configured() })
+const receipt = () => ({ kind: 'model.selection.update', resource_id: id(1), version: '9007199254740994', affected_references: '0' })
+const provider = () => ({ id: id(2), version: '1', created_at: instant, updated_at: instant,
+  input: { name: '  Saved Provider 🧩  ', protocol: 'openai-chat-completions', base_url: 'https://example.invalid/v1', enabled: false, credential_ref: null, options: {} } })
+const model = () => ({ id: id(11), provider_id: id(2), version: '9007199254740993', created_at: instant, updated_at: instant,
+  input: { name: '  Saved Model 🧩  ', provider_model_id: ' Native/模型 ', type: 'chat', enabled: false,
+    parameters: {}, request_overwrite: {}, header_overwrite: {},
+    capabilities: { tool_calls: true, parallel_tool_calls: true, streaming: true, reasoning: false,
+      input_modalities: ['text'], output_modalities: ['text'], reasoning_efforts: [],
+      structured_output_modes: ['json_schema'], context_length: '9007199254740993', max_output: null } } })
+const json = (value: unknown) => new Response(JSON.stringify(value), { headers: { 'Content-Type': 'application/json' } })
+function deferred() { let resolve!: () => void; const promise = new Promise<void>(r => { resolve = r }); return { promise, resolve } }
+const turn = () => new Promise<void>(resolve => setImmediate(resolve))
+function observed<T>(promise: Promise<T>) {
+  const status = { settled: false, value: undefined as T | undefined, error: undefined as unknown }
+  const done = promise.then(value => { status.value = value }, error => { status.error = error }).finally(() => { status.settled = true })
+  return { status, done }
+}
+function heldBody(bytes: Uint8Array, status = 200, contentType = 'application/json') {
+  const entered = deferred(), tail = deferred()
+  const response = new Response(new ReadableStream<Uint8Array>({
+    start(controller) { controller.enqueue(bytes) },
+    cancel() { entered.resolve(); return tail.promise },
+  }), { status, headers: { 'Content-Type': contentType } })
+  return { response, entered, tail }
+}
+function eofBody(value: unknown) {
+  let stream!: ReadableStreamDefaultController<Uint8Array>
+  const response = new Response(new ReadableStream<Uint8Array>({ start(controller) {
+    stream = controller; controller.enqueue(encoder.encode(JSON.stringify(value)))
+  } }), { headers: { 'Content-Type': 'application/json' } })
+  return { response, close: () => stream.close() }
+}
+function failedProblem(status = 404) {
+  return new Response(JSON.stringify({ type: 'urn:agenteam:problem:not-found', title: '', detail: '',
+    instance: '/api/v1/system/models/' + id(11), status, code: 'NOT_FOUND', request_id: id(99), commit_state: 'not_started' }),
+    { status, headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': id(99) } })
+}
+type SelectionEndpoint = 'getModelSelection' | 'updateModelSelection' | 'lookupModelSelectionCommand'
+function call(endpoint: SelectionEndpoint, fetch: Fetch) {
+  const api = createSystemModelSelectionAPI(fetch)
+  return endpoint === 'getModelSelection' ? api.getSelection(signal()) : endpoint === 'updateModelSelection'
+    ? api.updateSelection(command(), write()) : api.lookupSelectionCommand(command(), write())
+}
+const success = (endpoint: SelectionEndpoint) => endpoint === 'getModelSelection' ? state()
+  : endpoint === 'updateModelSelection' ? receipt() : { found: true, receipt: receipt() }
+
+describe('Independent Selection API fixed stage01', () => {
+  it('distinguishes unconfigured null from complete saved IDs, including disabled details', async () => {
+    const empty = { id: id(1), version: '1', configured: null }
+    expect(await createSystemModelSelectionAPI(async () => json(empty)).getSelection(signal())).toEqual(empty)
+    const parsed = await createSystemModelSelectionAPI(async () => json(state())).getSelection(signal())
+    expect(parsed.configured).toEqual(configured())
+    expect(Object.isFrozen(parsed) && Object.isFrozen(parsed.configured)).toBe(true)
+    for (const bad of [
+      { ...state(), configured: { embedding: id(10), memory: id(11), reranker: null } },
+      { ...state(), configured: { ...configured(), memory: null } },
+      { ...state(), configured: { ...configured(), image: undefined } },
+      { ...state(), configured: { ...configured(), enabled: true } },
+      { ...state(), configured: false }, { ...state(), version: '9223372036854775808' },
+    ]) await expect(createSystemModelSelectionAPI(async () => json(bad)).getSelection(signal())).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+
+  it('keeps original exact command history independent of later selector version and missing old Model', async () => {
+    const original = command(), captured = captureSelectionCommand(original), expectedBody = selectionCommandBody(captured)
+    ;(original as { memory: string }).memory = id(66)
+    expect(captured.memory).toBe(id(11))
+    const options = write(), calls: { path: string; init: RequestInit }[] = []
+    const fetch: Fetch = async (path, init) => {
+      calls.push({ path, init })
+      if (init.method === 'GET' && path.includes('/models/')) return failedProblem()
+      if (init.method === 'GET') return json({ ...state(), version: '9007199254740999', configured: { ...configured(), memory: id(77) } })
+      return json(init.method === 'POST' ? { found: true, receipt: receipt() } : receipt())
+    }
+    const api = createSystemModelSelectionAPI(fetch)
+    expect((await api.getSelection(options.signal)).version).toBe('9007199254740999')
+    await expect(api.getSavedModel(id(11), options.signal)).rejects.toMatchObject({ kind: 'problem', problem: { code: 'NOT_FOUND' } })
+    expect(await api.lookupSelectionCommand(captured, options)).toEqual({ found: true, receipt: receipt() })
+    expect(await api.updateSelection(captured, options)).toEqual(receipt())
+    expect(calls.map(({ path, init }) => [init.method, path])).toEqual([
+      ['GET', '/api/v1/system/model-selection'], ['GET', '/api/v1/system/models/' + id(11)],
+      ['POST', '/api/v1/system/model-commands/lookup'], ['PUT', '/api/v1/system/model-selection'],
+    ])
+    expect(JSON.parse(calls[2]!.init.body as string)).toEqual({ command: 'model.selection.update' })
+    expect(JSON.parse(calls[3]!.init.body as string)).toEqual(expectedBody)
+    expect(calls[3]!.init.headers).toMatchObject({ 'Idempotency-Key': options.key, 'X-CSRF-Token': options.csrfToken })
+    expect(Object.isFrozen(captured) && Object.isFrozen(expectedBody)).toBe(true)
+  })
+
+  it('rejects nonzero or mismatched receipts and noncanonical lookup pairs, preserving int64 successor precision', async () => {
+    for (const patch of [{ affected_references: '1' }, { affected_references: 0 }, { affected_references: '00' },
+      { kind: 'model.update' }, { resource_id: id(9) }, { version: '9007199254740993' }, { version: '9007199254740995' }]) {
+      const bad = { ...receipt(), ...patch }
+      await expect(createSystemModelSelectionAPI(async () => json(bad)).updateSelection(command(), write())).rejects.toMatchObject({ kind: 'invalid-response' })
+      await expect(createSystemModelSelectionAPI(async () => json({ found: true, receipt: bad })).lookupSelectionCommand(command(), write())).rejects.toMatchObject({ kind: 'invalid-response' })
+    }
+    for (const bad of [{ found: false, receipt: receipt() }, { found: true, receipt: null }, { found: false }, { found: 0, receipt: null }])
+      await expect(createSystemModelSelectionAPI(async () => json(bad)).lookupSelectionCommand(command(), write())).rejects.toMatchObject({ kind: 'invalid-response' })
+    expect(await createSystemModelSelectionAPI(async () => json({ found: false, receipt: null })).lookupSelectionCommand(command(), write())).toEqual({ found: false, receipt: null })
+    const last = { ...command(), expected_version: '9223372036854775806' }
+    expect((await createSystemModelSelectionAPI(async () => json({ ...receipt(), version: '9223372036854775807' })).updateSelection(last, write())).version).toBe('9223372036854775807')
+    const fetch = vi.fn<Fetch>()
+    await expect(createSystemModelSelectionAPI(fetch).updateSelection({ ...last, expected_version: '9223372036854775807' }, write())).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('uses only validated minimal Model IDs before the exact Provider read, then rejects complete incompatible data', async () => {
+    const missing = { ...model() } as Record<string, unknown>; delete missing.updated_at
+    for (const bad of [missing, { ...model(), id: id(8) }, { ...model(), provider_id: id(2) + '/x' }, { ...model(), extra: null }]) {
+      const fetch = vi.fn<Fetch>(async () => json(bad))
+      await expect(createSystemModelSelectionAPI(fetch).getSavedModel(id(11), signal())).rejects.toMatchObject({ kind: 'invalid-response' })
+      expect(fetch).toHaveBeenCalledTimes(1)
+    }
+    for (const [first, second] of [
+      [{ ...model(), input: null }, provider()],
+      [{ ...model(), version: '01' }, provider()],
+      [model(), { ...provider(), id: id(7) }],
+      [model(), { ...provider(), input: { ...provider().input, protocol: 'anthropic-messages' } }],
+      [{ ...model(), updated_at: '2026-02-29T12:34:56.123456Z' }, provider()],
+    ]) {
+      const fetch = vi.fn<Fetch>(async path => json(path.includes('model-providers') ? second : first))
+      const pending = observed(createSystemModelSelectionAPI(fetch).getSavedModel(id(11), signal()))
+      await pending.done
+      expect(pending.status.value).toBeUndefined()
+      expect(pending.status.error).toMatchObject({ kind: 'invalid-response' })
+      expect(fetch.mock.calls.map(([path]) => path)).toEqual(['/api/v1/system/models/' + id(11), '/api/v1/system/model-providers/' + id(2)])
+    }
+  })
+
+  it('waits each actual native EOF before continuing and returns one complete deeply frozen pair', async () => {
+    const first = eofBody(model()), second = eofBody(provider()), options = write()
+    const fetch = vi.fn<Fetch>(async path => path.includes('model-providers') ? second.response : first.response)
+    const pending = observed(createSystemModelSelectionAPI(fetch).getSavedModel(id(11), options.signal))
+    try {
+      await turn(); expect(fetch).toHaveBeenCalledTimes(1); expect(pending.status.settled).toBe(false)
+      first.close(); await turn(); expect(fetch).toHaveBeenCalledTimes(2); expect(pending.status.settled).toBe(false)
+    } finally { second.close(); await pending.done }
+    expect(pending.status.error).toBeUndefined()
+    expect(pending.status.value).toEqual({ model: model(), provider: provider() })
+    const pair = pending.status.value!
+    expect(Object.isFrozen(pair) && Object.isFrozen(pair.model.input.capabilities.structured_output_modes) && Object.isFrozen(pair.provider.input.options)).toBe(true)
+    expect(pair.model.input.enabled).toBe(false)
+    expect(pair.provider.input.enabled).toBe(false)
+    for (const [, init] of fetch.mock.calls) {
+      expect(init.signal).toBe(options.signal)
+      expect(init).toMatchObject({ method: 'GET', credentials: 'same-origin', cache: 'no-store', redirect: 'error' })
+      expect(init.body).toBeUndefined(); expect(init.headers).not.toHaveProperty('X-CSRF-Token'); expect(init.headers).not.toHaveProperty('Idempotency-Key')
+    }
+  })
+
+  it.each([1, 2])('does not settle or publish while native GET %i cancellation remains unjoined', async stage => {
+    const abort = new AbortController(), held = heldBody(encoder.encode(JSON.stringify(stage === 1 ? model() : provider())))
+    const fetch = vi.fn<Fetch>(async path => Number(path.includes('model-providers')) + 1 === stage ? held.response : json(model()))
+    const pending = observed(createSystemModelSelectionAPI(fetch).getSavedModel(id(11), abort.signal))
+    try {
+      await turn(); expect(fetch).toHaveBeenCalledTimes(stage); expect(pending.status.settled).toBe(false)
+      abort.abort(); await held.entered.promise; await turn()
+      expect(pending.status.settled).toBe(false); expect(pending.status.value).toBeUndefined(); expect(fetch).toHaveBeenCalledTimes(stage)
+    } finally { held.tail.resolve(); await pending.done }
+    expect(pending.status.error).toMatchObject({ kind: 'cancelled' }); expect(pending.status.value).toBeUndefined(); expect(fetch).toHaveBeenCalledTimes(stage)
+  })
+
+  it('rechecks cancellation after the first response finalizer, issuing zero second GET', async () => {
+    const first = json(model()), abort = new AbortController(), entered = deferred(), tail = deferred()
+    const nativeCancel = first.body!.cancel.bind(first.body)
+    first.body!.cancel = async () => { entered.resolve(); await tail.promise; return nativeCancel() }
+    const fetch = vi.fn<Fetch>(async () => first), pending = observed(createSystemModelSelectionAPI(fetch).getSavedModel(id(11), abort.signal))
+    try { await entered.promise; abort.abort(); await turn(); expect(pending.status.settled).toBe(false); expect(fetch).toHaveBeenCalledTimes(1) }
+    finally { tail.resolve(); await pending.done }
+    expect(pending.status.error).toMatchObject({ kind: 'cancelled' }); expect(fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('joins second-stage wrong-media failure cancellation without inventing EOF or returning a partial Model', async () => {
+    const held = heldBody(encoder.encode('untrusted private failure text'), 503, 'text/plain')
+    const fetch = vi.fn<Fetch>(async path => path.includes('model-providers') ? held.response : json(model()))
+    const pending = observed(createSystemModelSelectionAPI(fetch).getSavedModel(id(11), signal()))
+    try { await held.entered.promise; await turn(); expect(pending.status.settled).toBe(false); expect(pending.status.value).toBeUndefined() }
+    finally { held.tail.resolve(); await pending.done }
+    expect(pending.status.error).toMatchObject({ kind: 'invalid-response', message: 'invalid-response' })
+    expect(pending.status.value).toBeUndefined(); expect(fetch).toHaveBeenCalledTimes(2)
+  })
+
+  it.each([1, 2])('keeps GET %i detail at 600000 bytes and joins actual overflow cancellation', async stage => {
+    const held = heldBody(new Uint8Array(600001).fill(32))
+    const fetch = vi.fn<Fetch>(async path => Number(path.includes('model-providers')) + 1 === stage ? held.response : json(model()))
+    const pending = observed(createSystemModelSelectionAPI(fetch).getSavedModel(id(11), signal()))
+    try { await held.entered.promise; await turn(); expect(pending.status.settled).toBe(false); expect(fetch).toHaveBeenCalledTimes(stage) }
+    finally { held.tail.resolve(); await pending.done }
+    expect(pending.status.error).toMatchObject({ kind: 'invalid-response' }); expect(pending.status.value).toBeUndefined()
+  })
+
+  it.each(['getModelSelection', 'updateModelSelection', 'lookupModelSelectionCommand'] as const)('%s accepts exactly 600000 bytes and rejects 600001 only after native cancel joins', async endpoint => {
+    const payload = JSON.stringify(success(endpoint))
+    const exact = payload + ' '.repeat(600000 - encoder.encode(payload).byteLength)
+    expect(await call(endpoint, async () => new Response(exact, { headers: { 'Content-Type': 'application/json' } }))).toEqual(success(endpoint))
+    const held = heldBody(encoder.encode(exact + ' ')), pending = observed(call(endpoint, async () => held.response))
+    try { await held.entered.promise; await turn(); expect(pending.status.settled).toBe(false); expect(pending.status.value).toBeUndefined() }
+    finally { held.tail.resolve(); await pending.done }
+    expect(pending.status.error).toMatchObject({ kind: 'invalid-response' }); expect(pending.status.value).toBeUndefined()
+  })
+
+  it('keeps new writes at 16KiB UTF-8 and rejects additional options before dispatch', async () => {
+    const fetch = vi.fn<Fetch>(async () => json({})), request = accountTransport(fetch), options = write()
+    const body = { x: '界'.repeat(5458) + 'aa' }
+    expect(encoder.encode(JSON.stringify(body)).byteLength).toBe(16384)
+    for (const endpoint of ['updateModelSelection', 'lookupModelSelectionCommand'] as const) {
+      await request(endpoint, v => v, { signal: options.signal, csrf: options.csrfToken, key: options.key, body })
+      const before = fetch.mock.calls.length
+      for (const extra of [{ body: { x: body.x + 'a' } }, { target: id(1) }, { csrf: 'bad' }, { key: 'bad\nkey' }, { headers: { Authorization: 'not-sent' } }])
+        await expect(request(endpoint, v => v, { signal: options.signal, csrf: options.csrfToken, key: options.key, body, ...extra })).rejects.toMatchObject({ kind: 'invalid-input' })
+      expect(fetch).toHaveBeenCalledTimes(before)
+    }
+    for (const extra of [{ body: {} }, { csrf: options.csrfToken }, { key: options.key }, { target: id(1) }, { providers: {} }])
+      await expect(request('getModelSelection', v => v, { signal: options.signal, ...extra })).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetch).toHaveBeenCalledTimes(2)
+    expect(fetch.mock.calls.map(([path, init]) => [path, init.method])).toEqual([
+      ['/api/v1/system/model-selection', 'PUT'], ['/api/v1/system/model-commands/lookup', 'POST'],
+    ])
+  })
+})

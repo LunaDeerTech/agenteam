@@ -1,0 +1,24 @@
+{
+  "author_manifest_sha256": "af2f9f4a50f4c435e849bf8faf9d8676a11ccd7c3c6d61416dcbfda57f8a72c5",
+  "driver_sha256": "172ea2bbd2f0c4a69e64a7d4c680cf1f17ec2e1f3d1ca8e308f9aac7491821e0",
+  "execution_sha256": "138f8b66169edf66586e3b88a26cba5e876b22497dd25f3d727ee133db5387b1",
+  "private": {
+    "files": {
+      "bound03/fixed-helpers.ts": "2aff26fa7ce22b2fe08de5c2b762f1b93fabced35b137e756de3b5bdb8509d42",
+      "bound03/fixture-delta.diff": "98e811bdf6a1a5dc336948f35d1e8b602b6be1dacda3efa1ac25da21fc187edd",
+      "bound03/independent.spec.ts": "4dd471a3aee239599114aa0f6e724ecdc88ea32f0bb81413de1da05cdb8d82e6",
+      "bound03/overlay.json": "8a34d6401e248ee1fbf5d8463ee49d7c2d0a51cc1199ea4c3fa6acaec6cf2fce",
+      "bound03/playwright.config.mjs": "9e2767c0d3786f24e56a4411cedbf4b47f1630f94e94cf4abfe7a92c8de2bf5a",
+      "bound03/system_model_selection_web_fixture_test.go": "fa3061b4e714ca593e3f18e5bdd2341b4cfa216b5592ae35d7196ac15208ac5d",
+      "bound03/system_model_selection_web_test.go": "a9f4eaf0ce5a1af367055778459258b44f4834ef2cbe8a1da5e2333751e510d2",
+      "run-independent02.py": "172ea2bbd2f0c4a69e64a7d4c680cf1f17ec2e1f3d1ca8e308f9aac7491821e0"
+    },
+    "go_overlay": {
+      "Replace": {
+        "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_fixture_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound03/system_model_selection_web_fixture_test.go",
+        "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound03/system_model_selection_web_test.go"
+      }
+    },
+    "node_modules": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules"
+  }
+}

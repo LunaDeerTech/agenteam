@@ -1,0 +1,98 @@
+{
+  "stage": "page-stage03",
+  "base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "card_commit": "4f385375a41d2ec1353e0bcf7d220ef100586f69",
+  "files": {
+    "web/src/api/client.ts": "3cd31decac3c760725d9aae1812edbca1a1995259073ffd55d55dd0bc3120d20",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+    "web/src/composables/useSession.ts": "8464b9329dfaf26d9263bed2b85e05afe1ec45a3b779e9e1d9b831a3fbf541c6",
+    "web/src/composables/useSystemModelSelection.ts": "10f37e124c7852a895272ac65b86dd919b359aba997e99e72f5804efec8feb67",
+    "web/src/App.vue": "4f242cbccd26616443a025e6bc175380775b1b36de2f2a8f130ea1612ffecfad",
+    "web/src/router/index.ts": "73a12f37720fffccf2a94e585e797c36a413a5de9a8d179fdc3fdea29f1aaf01",
+    "web/src/router/auth.ts": "4243890a21bd940fce2b5ee09147c51f124e251452027c8b957a04bcab0bce22",
+    "web/src/views/system/SystemSettingsView.vue": "083dd9d9373bdd450c3fab5203fa6ff53e630a5ff30016216e3000f7d5da204b",
+    "web/src/views/system/SystemModelSelectionView.vue": "3276ec40d8468ee3cac1785c90f47d906b0b38a7a8848aeb451558a0f0e94683",
+    "web/src/views/system/SystemModelSelectionEditor.vue": "b27430f537ab2e59946cc7f9f843a1c2f5ae4afdcf19455becebb230c39113cd",
+    "web/src/tests/system-model-selection-client.spec.ts": "856bb8a8b0a39f74f7c9daae0657eb642f6733facf43959d9ff6caf335f71d64",
+    "web/src/tests/system-model-selection-state.spec.ts": "3f673570a07bdbeae4bf0fcbb7cedb526057f12fdd97b186e98b3c8789e5c0e2",
+    "web/src/tests/system-user-directory.spec.ts": "e4fb3be5baed88505217c518fd6e9110cb0a86592a738229d9356504c2162757",
+    "web/src/tests/system-invitations.spec.ts": "c1e61cf8343e77bd0abf6c5a03ff049179d5a172dabeef0c7dc8306cd80722d9",
+    "web/src/tests/system-providers.spec.ts": "7cb4a53229b98f65ee80e092eeba11ae005e8c39c5ed262a1040d87451202ebf",
+    "web/src/tests/system-models.spec.ts": "17589214434c20272c3d3442c47dd6ae04b7a403ba5e8780bb9a52685be31962",
+    "web/src/tests/personal-settings.spec.ts": "3249aff5f7b7674409f04311709f259e7a8f9d19572eb223f5aa641042226dc3",
+    "web/src/tests/system-model-selection.spec.ts": "c85ab65b14a3d4a07641ec9fdc9bd60872049d07e7ecb870bcd9a3765b1701f9"
+  },
+  "changed_from_page_stage02": [
+    "web/src/composables/useSystemModelSelection.ts",
+    "web/src/tests/system-model-selection-state.spec.ts"
+  ],
+  "unchanged_count": 16,
+  "baseline_manifest": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/baseline.json",
+  "checks": {
+    "page-repair-pure01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/page-repair-pure01/command.json",
+        "sha256": "c4c06401e506bc8e1c6f652bf8331f5d914b4684e88cef67956a5fe38bb8c659"
+      },
+      "input.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/page-repair-pure01/input.json",
+        "sha256": "e43d35beac6ee2065b9c2b30dd20e0f49022cc3183dc598d89e3cb300e921f2a"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/page-repair-pure01/raw.log",
+        "sha256": "c1b4619dd590ec8a66b905b39fa9e5f8b9ff55d0cc659e427f3f4d359620ffb4"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/page-repair-pure01/result.json",
+        "sha256": "aab497bbd30173add5b3dbd91a52448d1b341b6dc20ba6fae4bb1bbd30c2c580"
+      }
+    },
+    "page-repair-pure02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/page-repair-pure02/command.json",
+        "sha256": "63f8568ea7bceb0d34e869ecce3b85a5cb763cce6983ca57e034cc97351915e8"
+      },
+      "input.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/page-repair-pure02/input.json",
+        "sha256": "aa79e7b877a483107742535ca10e70f7ee69b57678964037d4c153f56b504b2c"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/page-repair-pure02/raw.log",
+        "sha256": "a19bd49f700cf8ac7e7070ab893f3fac527c6a7fa4f31431ef112babfd1a7440"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/page-repair-pure02/result.json",
+        "sha256": "a0554a92fc296efe441c4576527fd625c3ca0a8695ef40cfa7256075cfdcb691"
+      }
+    },
+    "page-repair-type02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/page-repair-type02/command.json",
+        "sha256": "2bdfefd46322ec3ed8c0d11e2f440a0c1bb515dc934ef2f88c176007aeb02218"
+      },
+      "input.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/page-repair-type02/input.json",
+        "sha256": "aa79e7b877a483107742535ca10e70f7ee69b57678964037d4c153f56b504b2c"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/page-repair-type02/raw.log",
+        "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/page-repair-type02/result.json",
+        "sha256": "4f31790afe977ad0eb353be42e2f990b57fd06d2e2faa28096018fea1e3766d6"
+      }
+    }
+  },
+  "probe": {
+    "source": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations02/probe.ts.txt",
+    "local": "probes/independent-selection-page.spec.ts",
+    "sha256": "bff30d16efe1aa20ab70daba3d5151ac22c813974d4d125b71c0f4c8c48001ca"
+  },
+  "reuse": {
+    "api": "api-stage01/manifest.json",
+    "owner": "owner-stage01/manifest.json",
+    "old_app": "page-stage01/manifest.json"
+  },
+  "result": "Original independent probe 7/7 and current App 17/17 PASS in repair-pure01; state76/77 with one new test incorrect Anthropic/json_schema recovery expectation retained. Corrected five affected cases PASS (72 not selected) in repair-pure02; type PASS. Only controller and new state test changed, all other16 files exact unchanged. No real execution or product acceptance claim."
+}

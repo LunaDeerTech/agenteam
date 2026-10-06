@@ -1,0 +1,2 @@
+import vue from '@vitejs/plugin-vue'
+export default { plugins: [vue()], test: { environment: 'jsdom', include: ['src/tests/independent-selection*.spec.ts'], maxWorkers: 1, fileParallelism: false, retry: 0, testTimeout: 5000, hookTimeout: 5000, restoreMocks: true } }

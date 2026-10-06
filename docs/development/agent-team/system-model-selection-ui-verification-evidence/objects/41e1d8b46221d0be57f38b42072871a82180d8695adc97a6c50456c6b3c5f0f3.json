@@ -1,0 +1,12 @@
+{
+  "recorded_utc": "2026-10-06T12:23:28.681908+00:00",
+  "observed_wrapper_exit": 1,
+  "command_child_started": false,
+  "failure_class": "private preparation PATH omitted actual Node directory",
+  "exception": "FileNotFoundError: [Errno 2] No such file or directory: node",
+  "raw_log_empty": true,
+  "type_or_discovery_executed": false,
+  "resources_started": false,
+  "evidence_basis": "actual exec/write_stdin traceback at subprocess.Popen; command and pre-input retained",
+  "no_post_input_or_child_result_was_written": true
+}

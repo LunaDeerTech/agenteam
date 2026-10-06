@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "node",
+    "node_modules/prettier/bin/prettier.cjs",
+    "--write",
+    "src/composables/useSystemModelSelection.ts",
+    "src/views/system/SystemModelSelectionView.vue",
+    "src/views/system/SystemModelSelectionEditor.vue",
+    "src/App.vue",
+    "src/router/auth.ts",
+    "src/router/index.ts",
+    "src/views/system/SystemSettingsView.vue"
+  ],
+  "cwd": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/web",
+  "env": {
+    "TMPDIR": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/tmp",
+    "npm_config_offline": "true",
+    "npm_config_cache": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/npm-cache",
+    "CI": "true"
+  },
+  "started_utc": "2026-10-06T11:41:51.930452+00:00"
+}

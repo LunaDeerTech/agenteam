@@ -1,0 +1,65 @@
+{
+  "actual_git_diff_check_exit": 0,
+  "actual_git_diff_check_stderr": "",
+  "actual_git_diff_check_stdout": "",
+  "baseline_readme_matches_product_commit": true,
+  "copied_source_count": 26,
+  "fence_count": 28,
+  "independent_actual_selectors_match": true,
+  "input02_source25_hashes_match": true,
+  "local_links_checked": 28,
+  "missing_links": [],
+  "newline": true,
+  "no_test_or_service_started": true,
+  "readme_sha256": "5ddfc8ae082230f788d38bb20acc3eaaad0ad2e84a65e20870ca4e78aee68e11",
+  "resource_use": "none; read-only documentation checks",
+  "section_chars": 4231,
+  "section_lines": 53,
+  "selectors": [
+    {
+      "count": 6,
+      "selector": "^TestAccountSystemModelSelectionWeb(Lifecycle|ReadAndPagination|ConcurrencyAndReferences|OutcomeRecovery|AuthorityAndIdentity|NavigationAndLayouts)$",
+      "tests": [
+        "TestAccountSystemModelSelectionWebAuthorityAndIdentity",
+        "TestAccountSystemModelSelectionWebConcurrencyAndReferences",
+        "TestAccountSystemModelSelectionWebLifecycle",
+        "TestAccountSystemModelSelectionWebNavigationAndLayouts",
+        "TestAccountSystemModelSelectionWebOutcomeRecovery",
+        "TestAccountSystemModelSelectionWebReadAndPagination"
+      ]
+    },
+    {
+      "count": 7,
+      "selector": "^TestAccount(AuthenticationWebSessionLifecycle|PersonalSettingsWebThemeAndNavigation|PublicEntryWebIdentityNavigation|SystemUserDirectoryWeb(AuthorityAndIdentity|NavigationAndLayouts)|SystemInvitationsWeb(OutcomeRecovery|NavigationAndLayouts))$",
+      "tests": [
+        "TestAccountAuthenticationWebSessionLifecycle",
+        "TestAccountPersonalSettingsWebThemeAndNavigation",
+        "TestAccountPublicEntryWebIdentityNavigation",
+        "TestAccountSystemInvitationsWebNavigationAndLayouts",
+        "TestAccountSystemInvitationsWebOutcomeRecovery",
+        "TestAccountSystemUserDirectoryWebAuthorityAndIdentity",
+        "TestAccountSystemUserDirectoryWebNavigationAndLayouts"
+      ]
+    },
+    {
+      "count": 3,
+      "selector": "^TestAccountSystemProvidersWeb(CredentialReplacement|OutcomeRecovery|NavigationAndLayouts)$",
+      "tests": [
+        "TestAccountSystemProvidersWebCredentialReplacement",
+        "TestAccountSystemProvidersWebNavigationAndLayouts",
+        "TestAccountSystemProvidersWebOutcomeRecovery"
+      ]
+    },
+    {
+      "count": 3,
+      "selector": "^TestAccountSystemModelsWeb(DeletionAndReplacement|OutcomeRecovery|NavigationAndLayouts)$",
+      "tests": [
+        "TestAccountSystemModelsWebDeletionAndReplacement",
+        "TestAccountSystemModelsWebNavigationAndLayouts",
+        "TestAccountSystemModelsWebOutcomeRecovery"
+      ]
+    }
+  ],
+  "served_and_frozen_dist31_hashes_match": true,
+  "shared_other25_match_input02": true
+}

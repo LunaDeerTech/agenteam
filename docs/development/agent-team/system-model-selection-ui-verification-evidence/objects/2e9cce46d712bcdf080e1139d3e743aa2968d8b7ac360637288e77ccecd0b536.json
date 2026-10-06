@@ -1,0 +1,73 @@
+{
+  "absolute_cli": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+  "accepted_base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "author_manifest": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/input02/manifest.json",
+  "author_manifest_sha256": "af2f9f4a50f4c435e849bf8faf9d8676a11ccd7c3c6d61416dcbfda57f8a72c5",
+  "budgets": {
+    "browser_seconds": 45,
+    "package_seconds": 360,
+    "retries": 0,
+    "top_seconds": 120,
+    "workers": 1
+  },
+  "go_overlay": {
+    "Replace": {
+      "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_fixture_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound04/system_model_selection_web_fixture_test.go",
+      "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound04/system_model_selection_web_test.go"
+    }
+  },
+  "groups": {
+    "replay": [
+      "TestAccountSystemModelSelectionIndependentReplay"
+    ],
+    "review": [
+      "TestAccountSystemModelSelectionIndependentReview"
+    ]
+  },
+  "no_trace_video_screenshots": true,
+  "node_modules": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules",
+  "original_failed_run": {
+    "analysis_sha256": "62e1813ae6fc54aab9206854b00b95ad9bbf0bdd02325d7284d71167352ed900",
+    "cleanup_sha256": "66f4ef6165ac30a7fd343045f73fbae6965e23b2ee66c78d026401af8e6016a1",
+    "path": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/runs/independent01",
+    "raw_sha256": "ca4c09e3ebbf25727a2d413381fbe89c8b983eb6a78f2a5287130183b9bbbad2",
+    "result_sha256": "cba56d77d17cbe690c7877249dd42ab0a0ad05b7f51e6c135aea680a2366cab2"
+  },
+  "predecessor": {
+    "path": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/execution02.json",
+    "sha256": "138f8b66169edf66586e3b88a26cba5e876b22497dd25f3d727ee133db5387b1"
+  },
+  "preparation_checks": {
+    "compile02": {
+      "path": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/runs/compile02/result.json",
+      "sha256": "2c1fcec28b2aa0f483b096937571ba79206dfb7a6304565d43679689c07a3203"
+    },
+    "list-a03": {
+      "path": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/runs/list-a03/result.json",
+      "sha256": "44470f4af7d731d53fc8fdb5c037f2f51b20893d6782ad0affa38bb2731a90bb"
+    },
+    "list-b03": {
+      "path": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/runs/list-b03/result.json",
+      "sha256": "0c070bd7008e0198d8d5dffdde54d88becbde3618196cfc3fc3984f96de8f588"
+    },
+    "type03": {
+      "path": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/runs/type03/result.json",
+      "sha256": "b31993598c40603afc82376b791d699d900992bb33affd1c30169b4e334d611e"
+    }
+  },
+  "private_files": {
+    "bound04/fixed-helpers.ts": "2aff26fa7ce22b2fe08de5c2b762f1b93fabced35b137e756de3b5bdb8509d42",
+    "bound04/fixture-delta.diff": "60aa3e38e508d534571a3939f364e5fa80159ad1c40d5fb3d9919c7beffbd7b1",
+    "bound04/independent.spec.ts": "4568391d94c71b18f55efe01adf418e4d77a190228921661359f37422f1c4587",
+    "bound04/overlay.json": "fd83f8086c0162796351aa441a1743b7a53d34f60d19aaad4bb6a3afebfb6313",
+    "bound04/playwright.config.mjs": "9e2767c0d3786f24e56a4411cedbf4b47f1630f94e94cf4abfe7a92c8de2bf5a",
+    "bound04/system_model_selection_web_fixture_test.go": "e4f304d6fa9a181536450dce9404192e3a35f75f92773237d06802cfeac365ba",
+    "bound04/system_model_selection_web_test.go": "a9f4eaf0ce5a1af367055778459258b44f4834ef2cbe8a1da5e2333751e510d2",
+    "run-independent03.py": "df9b9887dcae6f8fba493d7a4319d60cacaf25091a07965ce87020b456293fd6"
+  },
+  "real_execution": "NOT AUTHORIZED OR RUN",
+  "reuse": "Accepted product input02 unchanged. Only private Audit cause computation now invokes formal cursor.Digest and acceptReview uses exact conditional label \u8bfb\u53d6\u5e76\u6838\u5bf9; full assertions and budgets unchanged. New compile/type/discovery actual exits0 bind bound04.",
+  "safe_original_oracle": "original canonical command identity and exact persisted plan/event/audit plus in-memory raw request body and CSRF equality/real backend accepted; only safe booleans/counts/receipt escape",
+  "source_of_helpers": "author input01 fixed browser prefix and cutSave; no author six test bodies",
+  "workspace": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace"
+}

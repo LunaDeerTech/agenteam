@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/run-selection-fixture.py",
+    "--name",
+    "independent-static-gate",
+    "--group",
+    "new",
+    "--frozen",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/input01/manifest.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "cwd": "/workspace/scratch/agenteam-model-selection-author-sglwpvis",
+  "started_utc": "2026-10-06T12:17:35.578335+00:00",
+  "resources_started": false,
+  "exit_code": 0,
+  "seconds": 1.317,
+  "actual_wait": true,
+  "raw_sha256": "20fdf7928b6230bc0552f883a53607e90d0a517b18c3f47dc2f9cb53203fcc04"
+}

@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:unit",
+    "--",
+    "src/tests/system-model-selection-state.spec.ts",
+    "-t",
+    "updates selected draft evidence|completed same-ID Model|invalidates only exact Provider|applies only observed Provider"
+  ],
+  "cwd": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/web",
+  "env": {
+    "TMPDIR": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/tmp",
+    "npm_config_offline": "true",
+    "npm_config_cache": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/npm-cache",
+    "CI": "true"
+  },
+  "started_utc": "2026-10-06T11:53:41.696524+00:00"
+}

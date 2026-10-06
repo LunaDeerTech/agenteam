@@ -1,0 +1,352 @@
+--- bc17167/useSession.ts
++++ owner-stage01/useSession.ts
+@@ -64,6 +64,34 @@
+   type ModelTarget,
+   type ModelReceipt,
+ } from '../api/system-models'
++import {
++  createSystemModelSelectionAPI,
++  captureSelectionCommand,
++  type SystemModelSelectionAPI,
++  type SelectionCommand,
++  type SelectionReceipt,
++} from '../api/system-model-selection'
++
++export type SystemModelSelectionRead =
++  | 'selection-state'
++  | 'selection-reference'
++  | 'selection-providers'
++  | 'selection-provider'
++  | 'selection-models'
++type SelectionAction = SystemModelSelectionRead | 'selection-write' | 'selection-lookup'
++export type SystemModelSelectionProgress = Readonly<{
++  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
++  receipt: SelectionReceipt | null
++  observation: 'none' | 'found' | 'missing' | 'failed'
++  contextValid: boolean
++  canRetryOriginal: boolean
++}>
++type SystemModelSelectionIntent = Readonly<{
++  command: SelectionCommand
++  identity: PersonalIdentity
++  csrf: string
++  key: string
++}>
+ 
+ export type SystemModelRead =
+   | 'model-providers'
+@@ -166,6 +194,7 @@
+   | 'invitation-write'
+   | ProviderAction
+   | ModelAction
++  | SelectionAction
+ interface Operation {
+   generation: number
+   kind: Action
+@@ -266,6 +295,7 @@
+   invitationAPI: SystemInvitationAPI = createSystemInvitationAPI(),
+   providerAPI: SystemProviderAPI = createSystemProviderAPI(),
+   modelAPI: SystemModelAPI = createSystemModelAPI(),
++  selectionAPI: SystemModelSelectionAPI = createSystemModelSelectionAPI(),
+ ) {
+   const state = shallowReactive<PublicState>({
+     phase: 'checking',
+@@ -349,6 +379,24 @@
+   const modelState = shallowReactive<{
+     progress: Omit<SystemModelProgress, 'contextValid' | 'canRetryOriginal'> | null
+   }>({ progress: null })
++  const selectionRevisions: Record<SelectionAction, number> = {
++    'selection-state': 0,
++    'selection-reference': 0,
++    'selection-providers': 0,
++    'selection-provider': 0,
++    'selection-models': 0,
++    'selection-write': 0,
++    'selection-lookup': 0,
++  }
++  const isSelectionAction = (kind: Action): kind is SelectionAction =>
++    Object.hasOwn(selectionRevisions, kind)
++  let selectionIntent: SystemModelSelectionIntent | null = null,
++    selectionUncertain = false,
++    selectionChecked = false,
++    selectionKeyConflict = false
++  const selectionState = shallowReactive<{
++    progress: Omit<SystemModelSelectionProgress, 'contextValid' | 'canRetryOriginal'> | null
++  }>({ progress: null })
+   const systemDenied = () => sameIdentity(systemState.deniedIdentity, personalContext.identity)
+   let identityEpoch = 0,
+     personalRevision = 0
+@@ -385,6 +433,7 @@
+       clearInvitationState()
+       clearProviderState()
+       clearModelState()
++      clearSelectionState()
+       ++systemRevision
+       systemState.deniedIdentity = null
+       sessionCSRF = ''
+@@ -474,6 +523,12 @@
+       clearProviderState()
+     if (!same || view.user.role !== 'admin' || (modelIntent && modelIntent.csrf !== sessionCSRF))
+       clearModelState()
++    if (
++      !same ||
++      view.user.role !== 'admin' ||
++      (selectionIntent && selectionIntent.csrf !== sessionCSRF)
++    )
++      clearSelectionState()
+     state.notice = ''
+     state.fields = {}
+     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
+@@ -906,7 +961,8 @@
+       | 'invitation-read'
+       | 'invitation-write'
+       | ProviderAction
+-      | ModelAction = 'personal',
++      | ModelAction
++      | SelectionAction = 'personal',
+   ): Promise<T> {
+     if (owner) return Promise.reject(new AccountFailure('busy'))
+     const revisionNow = () =>
+@@ -920,7 +976,9 @@
+               ? personalRevision
+               : isModelAction(kind)
+                 ? modelRevisions[kind]
+-                : providerRevisions[kind]
++                : isSelectionAction(kind)
++                  ? selectionRevisions[kind]
++                  : providerRevisions[kind]
+     const revision = revisionNow()
+     const op: Operation = {
+       kind,
+@@ -1169,6 +1227,8 @@
+           'provider-lookup',
+           'model-write',
+           'model-lookup',
++          'selection-write',
++          'selection-lookup',
+         ].includes(op.kind) &&
+           e.problem?.code === 'CSRF_FAILED')
+       ) {
+@@ -1180,6 +1240,7 @@
+         clearInvitationState()
+         clearProviderState()
+         clearModelState()
++        clearSelectionState()
+         systemState.deniedIdentity = identity
+       }
+     }
+@@ -1895,7 +1956,214 @@
+       return performModel(modelIntent)
+     },
+   }
++  function clearSelectionState() {
++    const retiring = owner && isSelectionAction(owner.kind) ? owner : null
++    for (const scope of Object.keys(selectionRevisions) as SelectionAction[])
++      ++selectionRevisions[scope]
++    selectionIntent = null
++    selectionUncertain = selectionChecked = selectionKeyConflict = false
++    selectionState.progress = null
++    retiring?.abandon?.()
++  }
++  function abandonSelectionRead(scope: SystemModelSelectionRead) {
++    if (
++      !Object.hasOwn(selectionRevisions, scope) ||
++      scope === ('selection-write' as string) ||
++      scope === ('selection-lookup' as string)
++    )
++      throw new AccountFailure('invalid-input')
++    ++selectionRevisions[scope]
++    if (owner?.kind === scope) owner.abandon?.()
++  }
++  function readSelection<T>(
++    scope: SystemModelSelectionRead,
++    work: (signal: AbortSignal) => Promise<T>,
++  ): Promise<T> {
++    try {
++      const identity = invitationIdentity()
++      // One operation encloses the complete private Model -> Provider read.
++      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, scope)
++    } catch (error) {
++      return Promise.reject(error)
++    }
++  }
++  function publishSelection(
++    phase: SystemModelSelectionProgress['phase'],
++    receipt: SelectionReceipt | null = null,
++  ) {
++    selectionState.progress = Object.freeze({ phase, receipt, observation: 'none' })
++  }
++  function performSelection(original: SystemModelSelectionIntent): Promise<SelectionReceipt> {
++    if (owner) return Promise.reject(new AccountFailure('busy'))
++    if (selectionIntent !== original || !invitationContext(original))
++      return Promise.reject(new AccountFailure('invalid-input'))
++    const revision = selectionRevisions['selection-write']
++    const live = () =>
++      selectionIntent === original &&
++      revision === selectionRevisions['selection-write'] &&
++      invitationContext(original)
++    let dispatched = false
++    selectionChecked = false
++    publishSelection('submitting')
++    if (!live()) return Promise.reject(new AccountFailure('cancelled'))
++    return runAuthorized(
++      original.identity,
++      async (op, current) => {
++        if (!current() || !live()) throw new AccountFailure('cancelled')
++        dispatched = true
++        return selectionAPI.updateSelection(original.command, {
++          csrfToken: original.csrf,
++          key: original.key,
++          signal: op.abort.signal,
++        })
++      },
++      undefined,
++      'selection-write',
++    ).then(
++      (receipt) => {
++        if (!live()) throw new AccountFailure('cancelled')
++        publishSelection('confirmed', receipt)
++        // Synchronous consumers may retire this intent and start a successor.
++        if (!live()) throw new AccountFailure('cancelled')
++        selectionIntent = null
++        selectionUncertain = selectionChecked = selectionKeyConflict = false
++        return receipt
++      },
++      (error: unknown) => {
++        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
++        if (
++          selectionIntent === original &&
++          revision === selectionRevisions['selection-write'] &&
++          sameIdentity(original.identity, personalContext.identity)
++        ) {
++          const p = e.problem
++          const known =
++            !dispatched ||
++            (p &&
++              ['not_started', 'not_committed'].includes(p.commit_state) &&
++              p.status < 500 &&
++              [
++                'INVALID_ARGUMENT',
++                'VERSION_CONFLICT',
++                'NOT_FOUND',
++                'INVALID_STATE',
++                'CAPABILITY_UNSUPPORTED',
++                'RATE_LIMITED',
++                'RESOURCE_DELETED',
++              ].includes(p.code))
++          selectionKeyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
++          selectionUncertain ||= !known || selectionKeyConflict
++          selectionChecked = false
++          publishSelection(selectionUncertain ? 'uncertain' : 'rejected')
++        }
++        throw e
++      },
++    )
++  }
++  const selection = {
++    get progress(): SystemModelSelectionProgress | null {
++      const value = selectionState.progress
++      if (!value) return null
++      const contextValid = !!selectionIntent && invitationContext(selectionIntent)
++      return Object.freeze({
++        ...value,
++        contextValid,
++        canRetryOriginal:
++          !!selectionIntent &&
++          selectionUncertain &&
++          selectionChecked &&
++          !selectionKeyConflict &&
++          contextValid &&
++          !state.busy,
++      })
++    },
++    get() {
++      return readSelection('selection-state', (signal) => selectionAPI.getSelection(signal))
++    },
++    getSavedModel(id: string) {
++      return readSelection('selection-reference', (signal) =>
++        selectionAPI.getSavedModel(id, signal),
++      )
++    },
++    async listProviders(query: ProviderQuery) {
++      const captured = captureModelRead(query)
++      return readSelection('selection-providers', (signal) =>
++        selectionAPI.listProviders(captured, signal),
++      )
++    },
++    getProvider(id: string) {
++      return readSelection('selection-provider', (signal) => selectionAPI.getProvider(id, signal))
++    },
++    async listModels(query: ProviderModelQuery) {
++      const captured = captureModelRead(query)
++      return readSelection('selection-models', (signal) =>
++        selectionAPI.listModels(captured, signal),
++      )
++    },
++    abandonRead: abandonSelectionRead,
++    abandon: clearSelectionState,
++    start(command: SelectionCommand) {
++      try {
++        const identity = invitationIdentity()
++        if (owner || selectionIntent || personalIntent || pending) throw new AccountFailure('busy')
++        const captured = captureSelectionCommand(command)
++        const original = Object.freeze({
++          command: captured,
++          identity,
++          csrf: sessionCSRF,
++          key: newKey(),
++        })
++        selectionIntent = original
++        selectionUncertain = selectionChecked = selectionKeyConflict = false
++        return performSelection(original)
++      } catch (error) {
++        return Promise.reject(error)
++      }
++    },
++    async checkOriginal() {
++      const original = selectionIntent
++      if (!original || !selectionUncertain || owner) throw new AccountFailure('invalid-input')
++      selectionChecked = false
++      await restore()
++      if (selectionIntent !== original || !invitationContext(original))
++        throw new AccountFailure('cancelled')
++      selectionChecked = true
++      // A refreshed identity permits explicit Execute; lookup never confirms its body.
++      return runAuthorized(
++        original.identity,
++        async (op, current) => {
++          if (selectionIntent !== original || !current()) throw new AccountFailure('cancelled')
++          const observed = await selectionAPI.lookupSelectionCommand(original.command, {
++            csrfToken: original.csrf,
++            key: original.key,
++            signal: op.abort.signal,
++          })
++          if (current() && selectionIntent === original && selectionState.progress)
++            selectionState.progress = Object.freeze({
++              ...selectionState.progress,
++              observation: observed.found ? 'found' : 'missing',
++            })
++          return observed
++        },
++        undefined,
++        'selection-lookup',
++      ).catch((error: unknown) => {
++        if (selectionIntent === original && invitationContext(original) && selectionState.progress)
++          selectionState.progress = Object.freeze({
++            ...selectionState.progress,
++            observation: 'failed',
++          })
++        throw error
++      })
++    },
++    retryOriginal() {
++      if (!selectionIntent || !selection.progress?.canRetryOriginal)
++        return Promise.reject(new AccountFailure('invalid-input'))
++      return performSelection(selectionIntent)
++    },
++  }
+   const system = {
++    selection,
+     models,
+     providers,
+     get denied() {

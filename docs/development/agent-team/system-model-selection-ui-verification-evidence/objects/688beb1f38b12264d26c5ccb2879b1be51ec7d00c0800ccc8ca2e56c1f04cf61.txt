@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-model-selection-client.spec.ts src/tests/system-models-client.spec.ts src/tests/system-providers-client.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/web
+
+
+ Test Files  3 passed (3)
+      Tests  290 passed (290)
+   Start at  11:31:09
+   Duration  1.33s (transform 416ms, setup 0ms, import 732ms, tests 557ms, environment 2.09s)
+

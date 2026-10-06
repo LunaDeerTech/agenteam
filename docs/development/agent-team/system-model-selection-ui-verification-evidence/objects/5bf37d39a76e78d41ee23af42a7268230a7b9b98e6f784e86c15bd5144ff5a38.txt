@@ -1,0 +1,66 @@
+//go:build integration
+
+package account_test
+
+import (
+	"encoding/json"
+	"strings"
+	"testing"
+	"unicode/utf8"
+
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+func TestSelectionNavigationInputsAgainstFormalContract(t *testing.T) {
+	for _, row := range []struct{ role, protocol, kind string }{
+		{"embedding", "openai-embeddings", "embedding"},
+		{"memory", "openai-chat-completions", "chat"},
+		{"reranker", "jina-rerank", "reranker"},
+		{"image", "openai-images-generations", "image_generation"},
+	} {
+		t.Run(row.role, func(t *testing.T) {
+			name := "Owned " + row.role + " Provider " + strings.Repeat("长名称", 34)
+			providerRaw := providerWebInput(name, "https://provider.invalid/v1", nil)
+			providerRaw["protocol"] = row.protocol
+			encoded, err := json.Marshal(providerRaw)
+			if err != nil {
+				t.Fatal("safe Provider encoding failed")
+			}
+			var provider mc.ProviderInput
+			if json.Unmarshal(encoded, &provider) != nil || provider.Validate() != nil {
+				t.Fatal("candidate navigation Provider violates formal contract")
+			}
+			old := provider
+			old.Name = "Owned " + row.role + " Provider " + strings.Repeat("长名称", 35)
+			oldRejected := old.Validate() != nil
+			if oldRejected != (row.role == "embedding" || row.role == "reranker") {
+				t.Fatal("original navigation name acceptance differs from formal contract")
+			}
+			boundary := provider
+			boundary.Name = strings.Repeat("界", 128)
+			if boundary.Validate() != nil {
+				t.Fatal("formal 128 rune name rejected")
+			}
+			boundary.Name += "界"
+			if boundary.Validate() == nil {
+				t.Fatal("formal 129 rune name accepted")
+			}
+			modelRaw := modelsWebInput("Owned "+row.role+" "+strings.Repeat("模型长名", 27), row.kind)
+			modelRaw["provider_model_id"] = strings.Repeat("n", 256)
+			encoded, err = json.Marshal(modelRaw)
+			if err != nil {
+				t.Fatal("safe Model encoding failed")
+			}
+			var model mc.ModelInput
+			if json.Unmarshal(encoded, &model) != nil || model.Validate() != nil || !provider.Protocol.Supports(model.Type) {
+				t.Fatal("existing navigation Model violates formal contract")
+			}
+			nativeBytes := len(model.ProviderModelID)
+			model.ProviderModelID += "n"
+			if model.Validate() == nil {
+				t.Fatal("formal 257 byte native ID accepted")
+			}
+			t.Logf("safe role=%s candidate_provider_runes=%d original_provider_runes=%d original_rejected=%t model_runes=%d native_id_bytes=%d formal_validation=true", row.role, utf8.RuneCountInString(provider.Name), utf8.RuneCountInString(old.Name), oldRejected, utf8.RuneCountInString(model.Name), nativeBytes)
+		})
+	}
+}

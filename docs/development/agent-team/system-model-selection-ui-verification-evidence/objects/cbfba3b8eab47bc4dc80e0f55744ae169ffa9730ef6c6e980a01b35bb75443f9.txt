@@ -1,0 +1,59 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),crypto=require('node:crypto'),path=require('node:path');
+const root=path.join(__dirname,'workspace'),ts=require(path.join(root,'tests/account-captcha-web/node_modules/typescript'));
+const file=path.join(root,'tests/account-captcha-web/e2e/system-model-selection.spec.ts'),source=fs.readFileSync(file,'utf8');
+const parsed=ts.createSourceFile(file,source,ts.ScriptTarget.Latest,true),fn=parsed.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='observeNative'); assert(fn);
+const js=ts.transpileModule(fn.getText(parsed)+'\nobserveNative();',{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
+const id='01900000-0000-7000-8000-000000000001',at='2026-10-06T12:34:56.123456Z',endpoint='/api/v1/system/model-selection';
+const receipt={kind:'model.selection.update',resource_id:id,version:'2',affected_references:'0'};
+const selection={id,version:'1',configured:{embedding:id,memory:id,reranker:null,image:null}};
+const provider={id,input:{name:'Provider',protocol:'openai-chat-completions',base_url:'https://provider.invalid',enabled:true,credential_ref:null,options:{}},version:'1',created_at:at,updated_at:at};
+const model={id,provider_id:id,input:{name:'Model',provider_model_id:' native ',type:'chat',enabled:true,parameters:{},request_overwrite:{},header_overwrite:{},capabilities:{tool_calls:false,parallel_tool_calls:false,streaming:false,reasoning:false,input_modalities:['text'],output_modalities:['text'],reasoning_efforts:[],structured_output_modes:['json_schema'],context_length:null,max_output:null}},version:'1',created_at:at,updated_at:at};
+let cases=0,assertions=0;
+function same(a,b){assert.equal(a,b);assertions++} function equal(a,b){assert.deepEqual(JSON.parse(JSON.stringify(a)),JSON.parse(JSON.stringify(b)));assertions++}
+function install(fetch){const window={fetch,location:{origin:'http://127.0.0.1:1',href:'http://127.0.0.1:1/system/model-selection'}};vm.runInNewContext(js,{window,location:window.location,URL,Request,Response,TextEncoder,TextDecoder});return window;}
+async function run(url,method,value,{status=200,pad=0,watched=true,contentType='application/json'}={}){
+ cases++;const body=JSON.stringify(value),bytes=new TextEncoder().encode(body+' '.repeat(Math.max(0,pad-new TextEncoder().encode(body).length)));
+ const response=new Response(bytes,{status,headers:{'Content-Type':contentType}}),nativePromise=Promise.resolve(response);let reads=0,expectedPromise,expectedReader;
+ const originalGet=response.body.getReader,originalCancel=response.body.cancel;
+ Object.defineProperty(response.body,'getReader',{configurable:true,writable:true,value:function(...args){const reader=Reflect.apply(originalGet,this,args);expectedReader=reader;const read=reader.read;Object.defineProperty(reader,'read',{configurable:true,writable:true,value:function(...args){reads++;expectedPromise=Reflect.apply(read,this,args);return expectedPromise}});return reader}});
+ const window=install(()=>nativePromise); const returned=window.fetch(url,{method});same(returned,nativePromise);const r=await returned;same(r,response);same(r.body.cancel,originalCancel);const reader=r.body.getReader();same(reader,expectedReader);let total=0;
+ while(true){const pending=reader.read();same(pending,expectedPromise);const x=await pending;if(x.value)total+=x.value.length;if(x.done)break}
+ await Promise.resolve();same(total,bytes.length);same(reads,2);same(window.__selectionFacts.length,watched?1:0);
+ if(!watched)return; const fact=window.__selectionFacts[0];same(fact.ended,true);same(fact.bytes,bytes.length);return fact;
+}
+(async()=>{
+ equal((await run(endpoint,'GET',{id,version:'1',configured:null})).selection,{id,version:'1',configured:null});
+ equal((await run(endpoint,'GET',selection)).selection,selection);
+ same((await run(endpoint,'GET',{...selection,unknown:true})).selection,undefined);
+ same((await run(endpoint,'GET',{...selection,configured:{embedding:id,memory:id,image:null}})).selection,undefined);
+ equal((await run(endpoint,'PUT',receipt)).receipt,receipt);
+ same((await run(endpoint,'PUT',{...receipt,affected_references:'1'})).receipt,undefined);
+ same((await run(endpoint,'PUT',{...receipt,kind:'model.update'})).receipt,undefined);
+ same((await run('/api/v1/system/model-commands/lookup','POST',{found:false,receipt:null})).found,false);
+ const found=await run('/api/v1/system/model-commands/lookup','POST',{found:true,receipt});same(found.found,true);equal(found.receipt,receipt);
+ same((await run('/api/v1/system/model-commands/lookup','POST',{found:true,receipt,unknown:'discard'})).found,undefined);
+ const providers={items:[provider],next_cursor:null};
+ same((await run('/api/v1/system/model-providers?limit=25','GET',providers,{pad:2097152})).providers.items.length,1);
+ same((await run('/api/v1/system/model-providers?limit=25','GET',providers,{pad:2097153})).providers,undefined);
+ same((await run('/api/v1/system/model-providers?limit=25','GET',providers,{pad:600001,contentType:'text/plain'})).providers,undefined);
+ same((await run('/api/v1/system/model-providers/'+id,'GET',provider,{pad:600001})).provider,undefined);
+ equal((await run('/api/v1/system/models/'+id,'GET',model,{pad:600000})).model,model);
+ same((await run('/api/v1/system/models/'+id,'GET',model,{pad:600001})).model,undefined);
+ same((await run(endpoint,'GET',selection,{pad:600001})).selection,undefined);
+ const problem={code:'VERSION_CONFLICT',commit_state:'not_committed'};
+ same((await run(endpoint,'PUT',problem,{status:409,pad:600000})).code,'VERSION_CONFLICT');
+ same((await run(endpoint,'PUT',problem,{status:409,pad:600001})).code,undefined);
+ same((await run(endpoint,'PUT',{code:'UNKNOWN_UNSAFE',commit_state:'outside-contract'},{status:409})).code,undefined);
+ const session=await run('/api/v1/session','GET',{user:{id,role:'admin',email:'discard@example.invalid'},session:{id},csrf_token:'PRIVATE-CANARY'});
+ equal(session.session,{user_id:id,session_id:id,role:'admin'});same(JSON.stringify(session).includes('PRIVATE-CANARY'),false);
+ await run('/api/v1/system/model-selection/other','GET',selection,{watched:false});
+ await run(endpoint+'?unknown=1','GET',selection,{watched:false});
+ await run('/api/v1/system/models','POST',receipt,{watched:false});
+ await run('/api/v1/system/models/'+id+'/deletion-impact','GET',{}, {watched:false});
+ await run('http://example.invalid'+endpoint,'GET',selection,{watched:false});
+ cases++;let release;const tail=new Promise(resolve=>release=resolve),stream=new ReadableStream({start(c){c.enqueue(new TextEncoder().encode(JSON.stringify(selection)))},cancel(){return tail}});
+ const response=new Response(stream,{headers:{'Content-Type':'application/json'}}),nativePromise=Promise.resolve(response),window=install(()=>nativePromise);
+ same(window.fetch(endpoint,{method:'GET'}),nativePromise);await nativePromise;const reader=stream.getReader(),cancel=reader.cancel,read=reader.read();await read;const cancelled=reader.cancel();same(reader.cancel,cancel);let done=false;cancelled.then(()=>{done=true});await Promise.resolve();same(done,false);same(window.__selectionFacts[0].selection,undefined);release();await cancelled;same(done,true);
+ cases++;const failure=new Error('bounded owned rejection'),rejected=Promise.reject(failure),rejectionWindow=install(()=>rejected);const seen=rejectionWindow.fetch(endpoint,{method:'GET'});same(seen,rejected);await assert.rejects(seen,error=>error===failure);await Promise.resolve();same(rejectionWindow.__selectionFacts[0].ended,true);
+ console.log(JSON.stringify({result:'PASS',cases,assertions,source_sha256:crypto.createHash('sha256').update(source).digest('hex'),probe_sha256:crypto.createHash('sha256').update(fs.readFileSync(__filename)).digest('hex'),scope:'native synthetic Response only; original fetch/read/Response/reader/cancel identities, exact endpoints and closed safe budgeted projections; no browser/network or owner-join claim'}));
+})().catch(e=>{console.error(e);process.exitCode=1});

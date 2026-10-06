@@ -1,0 +1,16 @@
+=== RUN   TestSelectionNavigationInputsAgainstFormalContract
+=== RUN   TestSelectionNavigationInputsAgainstFormalContract/embedding
+    selection_navigation_validation_test.go:63: safe role=embedding candidate_provider_runes=127 original_provider_runes=130 original_rejected=true model_runes=124 native_id_bytes=256 formal_validation=true
+=== RUN   TestSelectionNavigationInputsAgainstFormalContract/memory
+    selection_navigation_validation_test.go:63: safe role=memory candidate_provider_runes=124 original_provider_runes=127 original_rejected=false model_runes=121 native_id_bytes=256 formal_validation=true
+=== RUN   TestSelectionNavigationInputsAgainstFormalContract/reranker
+    selection_navigation_validation_test.go:63: safe role=reranker candidate_provider_runes=126 original_provider_runes=129 original_rejected=true model_runes=123 native_id_bytes=256 formal_validation=true
+=== RUN   TestSelectionNavigationInputsAgainstFormalContract/image
+    selection_navigation_validation_test.go:63: safe role=image candidate_provider_runes=123 original_provider_runes=126 original_rejected=false model_runes=120 native_id_bytes=256 formal_validation=true
+--- PASS: TestSelectionNavigationInputsAgainstFormalContract (0.00s)
+    --- PASS: TestSelectionNavigationInputsAgainstFormalContract/embedding (0.00s)
+    --- PASS: TestSelectionNavigationInputsAgainstFormalContract/memory (0.00s)
+    --- PASS: TestSelectionNavigationInputsAgainstFormalContract/reranker (0.00s)
+    --- PASS: TestSelectionNavigationInputsAgainstFormalContract/image (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.019s

@@ -1,0 +1,343 @@
+{
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/manifest.json",
+    "sha256": "4ff435b62e8641ab2a64af9f0c61807931755223abed9e7ba3f1ad28a472cd7b"
+  },
+  "base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "files": [
+    {
+      "path": "web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/package-lock.json"
+    },
+    {
+      "path": "web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/package.json"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "4f242cbccd26616443a025e6bc175380775b1b36de2f2a8f130ea1612ffecfad",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/App.vue"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/api/account.ts"
+    },
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "3cd31decac3c760725d9aae1812edbca1a1995259073ffd55d55dd0bc3120d20",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/api/client.ts"
+    },
+    {
+      "path": "web/src/api/system-account.ts",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/api/system-account.ts"
+    },
+    {
+      "path": "web/src/api/system-invitations.ts",
+      "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/api/system-invitations.ts"
+    },
+    {
+      "path": "web/src/api/system-model-selection.ts",
+      "sha256": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/api/system-model-selection.ts"
+    },
+    {
+      "path": "web/src/api/system-models.ts",
+      "sha256": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/api/system-models.ts"
+    },
+    {
+      "path": "web/src/api/system-providers.ts",
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/api/system-providers.ts"
+    },
+    {
+      "path": "web/src/components/account/RotateChallenge.vue",
+      "sha256": "bd2594511300bc45e17fb472d7e30ac95dd499619be27dc5f9abd81a6d9962e6",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/account/RotateChallenge.vue"
+    },
+    {
+      "path": "web/src/components/layout/AppShell.vue",
+      "sha256": "02513aafc6dd78deccf300d7c12a6d0433919bc0baf1c844899ee3cdbf0ff88d",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/layout/AppShell.vue"
+    },
+    {
+      "path": "web/src/components/layout/SettingsShell.vue",
+      "sha256": "8815f6b4ccae1afbaeef4edd3e18ae92d700a791ea156bb97204069e0859feac",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/layout/SettingsShell.vue"
+    },
+    {
+      "path": "web/src/components/layout/SystemNav.vue",
+      "sha256": "f381d7134b04d7f2f43e10a2be55ca2fd885b75b75e5528913582fc6d88ed1f7",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/layout/SystemNav.vue"
+    },
+    {
+      "path": "web/src/components/ui/UiButton.vue",
+      "sha256": "af03eda76b9d74f9c74e788f239397bfac9bdb67f9c7454ac8bf1a29e5e5abf9",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/ui/UiButton.vue"
+    },
+    {
+      "path": "web/src/components/ui/UiCheckbox.vue",
+      "sha256": "d93f715acfee37708b1ce4bb5cb4b27535bce4e962dc742d5e6a8cc82990d0f6",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/ui/UiCheckbox.vue"
+    },
+    {
+      "path": "web/src/components/ui/UiDialog.vue",
+      "sha256": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/ui/UiDialog.vue"
+    },
+    {
+      "path": "web/src/components/ui/UiDrawer.vue",
+      "sha256": "e62cc686f6fe8c3981680c3c88ec4880effbb9e84aedf80a5aff9978939a2def",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/ui/UiDrawer.vue"
+    },
+    {
+      "path": "web/src/components/ui/UiField.vue",
+      "sha256": "9e40a4c00994826f9a65ed0c1cf095f7e6d5e44b93a95a4788b82ab1b9f3e0a1",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/ui/UiField.vue"
+    },
+    {
+      "path": "web/src/components/ui/UiIcon.vue",
+      "sha256": "180fd280018366204978a388b933543be597c9f8c654c5af1b6eb8f9d262e280",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/ui/UiIcon.vue"
+    },
+    {
+      "path": "web/src/components/ui/UiInput.vue",
+      "sha256": "fd182981669131383f2a36fd422da461f94237a7ba019a469c05dcb9c5afcbaf",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/ui/UiInput.vue"
+    },
+    {
+      "path": "web/src/components/ui/UiPopover.vue",
+      "sha256": "d41aae39719cab8ce3cd7b4924d9e1db4c9ab450fe423a9397b45f752db1970c",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/ui/UiPopover.vue"
+    },
+    {
+      "path": "web/src/components/ui/UiSelect.vue",
+      "sha256": "c4a9113426af81e58a4e6d684107e5e4a3c93d04506b67f62d65d88dba49ad82",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/ui/UiSelect.vue"
+    },
+    {
+      "path": "web/src/components/ui/UiSpinner.vue",
+      "sha256": "b8568ad14952ddb87bf13e8877c89d30e5c69f23fd38bc7c72c44562f602689c",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/ui/UiSpinner.vue"
+    },
+    {
+      "path": "web/src/components/ui/UiState.vue",
+      "sha256": "c2bace72f0604327c29252e8be629f4d541fa22b056844bbb3601a375e55d673",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/ui/UiState.vue"
+    },
+    {
+      "path": "web/src/components/ui/types.ts",
+      "sha256": "5cde2f860f7088f599aa86a485787d79c5f0f8886e5bfb766dfccac8e0b29ec7",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/components/ui/types.ts"
+    },
+    {
+      "path": "web/src/composables/useAccountEntry.ts",
+      "sha256": "0a5139b835a4e0f2ac99e86810a77a552449c6672824dab27aad990a86a71abd",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/composables/useAccountEntry.ts"
+    },
+    {
+      "path": "web/src/composables/useLayer.ts",
+      "sha256": "92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/composables/useLayer.ts"
+    },
+    {
+      "path": "web/src/composables/useOptionKeys.ts",
+      "sha256": "6f852b43c268ef1e85f89ba62c5289ce74675a662757114de18ee01b67166935",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/composables/useOptionKeys.ts"
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/composables/usePersonalSettings.ts"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "8464b9329dfaf26d9263bed2b85e05afe1ec45a3b779e9e1d9b831a3fbf541c6",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/composables/useSession.ts"
+    },
+    {
+      "path": "web/src/composables/useSystemInvitations.ts",
+      "sha256": "eaf19a15da96f3d1d0c366b26b18980672bd76825339835b167acc7603754df6",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/composables/useSystemInvitations.ts"
+    },
+    {
+      "path": "web/src/composables/useSystemModelSelection.ts",
+      "sha256": "1aa25f7f89caa1ce9e5c3397a7335bce1c0a2d16a6f6f1ca35fca88d3aac0181",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/composables/useSystemModelSelection.ts"
+    },
+    {
+      "path": "web/src/composables/useSystemModels.ts",
+      "sha256": "a5d572cab5f56115793d00aeaf502838510c1d8b97dfbcb58dd29cad57aca172",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/composables/useSystemModels.ts"
+    },
+    {
+      "path": "web/src/composables/useSystemProviders.ts",
+      "sha256": "79e92bc3f18a9045d5eacf0de425df128997940b31958aee65ae795728ff7488",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/composables/useSystemProviders.ts"
+    },
+    {
+      "path": "web/src/composables/useSystemUserDirectory.ts",
+      "sha256": "3058a34b16bdc2d1018297daa556606806d7d2bf241d313dbcfa33b2f54a0894",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/composables/useSystemUserDirectory.ts"
+    },
+    {
+      "path": "web/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/composables/useTheme.ts"
+    },
+    {
+      "path": "web/src/router/account-link.ts",
+      "sha256": "45080e9068bd7c5d52f2499b12de4edac288420b206031a05e0e0c29e488f94c",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/router/account-link.ts"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "4243890a21bd940fce2b5ee09147c51f124e251452027c8b957a04bcab0bce22",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/router/auth.ts"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "73a12f37720fffccf2a94e585e797c36a413a5de9a8d179fdc3fdea29f1aaf01",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/router/index.ts"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "3249aff5f7b7674409f04311709f259e7a8f9d19572eb223f5aa641042226dc3",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/tests/personal-settings.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-invitations.spec.ts",
+      "sha256": "c1e61cf8343e77bd0abf6c5a03ff049179d5a172dabeef0c7dc8306cd80722d9",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/tests/system-invitations.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-model-selection-client.spec.ts",
+      "sha256": "856bb8a8b0a39f74f7c9daae0657eb642f6733facf43959d9ff6caf335f71d64",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/tests/system-model-selection-client.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-model-selection-state.spec.ts",
+      "sha256": "d3085b80021762e08cae52df29b548d24d989addabd94371117fc5085039e819",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/tests/system-model-selection-state.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-models.spec.ts",
+      "sha256": "17589214434c20272c3d3442c47dd6ae04b7a403ba5e8780bb9a52685be31962",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/tests/system-models.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-providers.spec.ts",
+      "sha256": "7cb4a53229b98f65ee80e092eeba11ae005e8c39c5ed262a1040d87451202ebf",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/tests/system-providers.spec.ts"
+    },
+    {
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "sha256": "e4fb3be5baed88505217c518fd6e9110cb0a86592a738229d9356504c2162757",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/tests/system-user-directory.spec.ts"
+    },
+    {
+      "path": "web/src/views/HomeView.vue",
+      "sha256": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/views/HomeView.vue"
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "sha256": "58197b6ca69b7e1b4fc2f94a1990a21497d9a0ace613f1a222b8e8e6715f7643",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/views/auth/LoginView.vue"
+    },
+    {
+      "path": "web/src/views/system/SystemInvitationsView.vue",
+      "sha256": "f122b2f59a1e8da5480998d9b48d3271702da6f2f0d236e05c4a768c18be7392",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/views/system/SystemInvitationsView.vue"
+    },
+    {
+      "path": "web/src/views/system/SystemModelDeleteDialog.vue",
+      "sha256": "df056eac828da1e756c9cec52182bf83680e1c6e6f0b9d34751d05069afd2872",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/views/system/SystemModelDeleteDialog.vue"
+    },
+    {
+      "path": "web/src/views/system/SystemModelEditor.vue",
+      "sha256": "6315b3731c2fe52b18fc9b51b37dc3aa3f96b96bb67692292749b920d8107941",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/views/system/SystemModelEditor.vue"
+    },
+    {
+      "path": "web/src/views/system/SystemModelSelectionEditor.vue",
+      "sha256": "b27430f537ab2e59946cc7f9f843a1c2f5ae4afdcf19455becebb230c39113cd",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/views/system/SystemModelSelectionEditor.vue"
+    },
+    {
+      "path": "web/src/views/system/SystemModelSelectionView.vue",
+      "sha256": "3276ec40d8468ee3cac1785c90f47d906b0b38a7a8848aeb451558a0f0e94683",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/views/system/SystemModelSelectionView.vue"
+    },
+    {
+      "path": "web/src/views/system/SystemModelsView.vue",
+      "sha256": "1e3104f85d1156b32be63385e07968cf2fda1d18071a349774e48ea5cda6b269",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/views/system/SystemModelsView.vue"
+    },
+    {
+      "path": "web/src/views/system/SystemProviderEditor.vue",
+      "sha256": "f26c44baefa94dfdc9c6d7337a6bbc25f026e8431a50bac810522feb452b93ae",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/views/system/SystemProviderEditor.vue"
+    },
+    {
+      "path": "web/src/views/system/SystemProvidersView.vue",
+      "sha256": "7a220565bfca21d70f56f087a66ff713e5cee9d53546bcce73a4eadf347b3b89",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/views/system/SystemProvidersView.vue"
+    },
+    {
+      "path": "web/src/views/system/SystemSettingsView.vue",
+      "sha256": "083dd9d9373bdd450c3fab5203fa6ff53e630a5ff30016216e3000f7d5da204b",
+      "origin": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage01/source/web/src/views/system/SystemSettingsView.vue"
+    },
+    {
+      "path": "web/src/views/system/SystemUsersView.vue",
+      "sha256": "b30819ae5b8592a894188f4431427b171b8017c21adf63aec6d93138b8a71865",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/src/views/system/SystemUsersView.vue"
+    },
+    {
+      "path": "web/tsconfig.json",
+      "sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+      "origin": "bc17167c42ee5d5fc1427adaac099ff888ca959b:web/tsconfig.json"
+    }
+  ],
+  "packages": [
+    {
+      "path": "/workspace/agenteam/web/node_modules/vitest/package.json",
+      "version": "4.1.11",
+      "sha256": "a28126d97bcaf567da5bed69443b7f3bcd9a7a8c38c8b66e554686b6bb2c10e0"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/vue/package.json",
+      "version": "3.5.43",
+      "sha256": "b5cbf896563ac8087e8acdfe81ff5155db2eb75aced9725cdc05820be483cdda"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/@vue/test-utils/package.json",
+      "version": "2.5.1",
+      "sha256": "1ab696c97bf2e57b9c37ad6918301fe7dba70425c831c73f2a9fc366c8357963"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/vue-router/package.json",
+      "version": "4.6.4",
+      "sha256": "40f70fdb21741d9fda761e4ecd7c38bf5ad283934b6751e51fabca54fb21b4f6"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/@vitejs/plugin-vue/package.json",
+      "version": "6.0.9",
+      "sha256": "fc6ec30b002301294bba8da23e81fce670b711c7931738a05042bee1ff5671c1"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/jsdom/package.json",
+      "version": "27.4.0",
+      "sha256": "e8f4906ea5beba475daa5736d0158f1770092c46718dd04aa2bfe2190808bb7e"
+    }
+  ],
+  "node": "v24.19.0",
+  "scope": "Fixed17 web source plus bounded actualApp imports from acceptedbc17167; no live tests/fixture or real resources."
+}

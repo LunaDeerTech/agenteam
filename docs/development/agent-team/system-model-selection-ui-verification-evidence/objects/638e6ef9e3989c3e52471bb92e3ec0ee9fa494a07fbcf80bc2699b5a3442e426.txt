@@ -1,0 +1,27 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/candidate/web
+
+stderr | src/tests/independent-selection-page.spec.ts > Independent Selection actual App composition > keeps a real pending navigation above its business dialog through pageshow503 and same-Session recovery, with no extra PUT
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+ ↓ src/tests/independent-selection-page.spec.ts > Independent Selection page observations > expands exactly four saved IDs with4+4, preserves IDs on Provider failure and deduplicates repeated wire IDs without scanning
+ ↓ src/tests/independent-selection-page.spec.ts > Independent Selection page observations > retains exact saved draft IDs but prevents new writes after actual current Provider disable or reference read failure
+ ↓ src/tests/independent-selection-page.spec.ts > Independent Selection page observations > does not carry a stale active-purpose response across a native cancel tail or publish candidates after failure
+ ↓ src/tests/independent-selection-page.spec.ts > Independent Selection page observations > requires explicit version review and retains original recovery despite later selector change and old404
+stderr | src/tests/independent-selection-page.spec.ts > Independent Selection actual App composition > keeps a real pending navigation above its business dialog through pageshow503 and same-Session recovery, with no extra PUT
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stderr | src/tests/independent-selection-page.spec.ts > Independent Selection actual App composition > settles the old navigation false on same-user new-Session restore and never reuses old dialog closures or draft
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stderr | src/tests/independent-selection-page.spec.ts > Independent Selection actual App composition > settles the old navigation false on same-user new-Session restore and never reuses old dialog closures or draft
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+ ✓ src/tests/independent-selection-page.spec.ts > Independent Selection actual App composition > keeps a real pending navigation above its business dialog through pageshow503 and same-Session recovery, with no extra PUT 449ms
+ ✓ src/tests/independent-selection-page.spec.ts > Independent Selection actual App composition > settles the old navigation false on same-user new-Session restore and never reuses old dialog closures or draft 167ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 4 skipped (6)
+   Start at  11:49:49
+   Duration  2.20s (transform 911ms, setup 0ms, import 1.07s, tests 618ms, environment 395ms)
+

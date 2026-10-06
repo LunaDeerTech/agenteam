@@ -1,0 +1,13 @@
+Selection UI 独立验收 PASS（本卡范围）。固定产品基线 `bc17167c`，作者最终 input02 SHA `af2f9f4a…72c5`，25 候选源、31 dist、1041 接受依赖及私有运行输入均前后匹配；精确提交清单在 `delivery25.json`，README 另由主线程验收。
+
+A 在 `independent03` 完整 PASS：顶层9.38s，driver实际exit0/61.415s。真实 accepted PUT 截断后，正式 Model删除/跨Provider替代推进当前E+2且旧目标404；当前GET与lookup不能代确认。显式原PUT重放严格返回E+1/refs0，原key/body/同Session合法CSRF一致，exact原command/Audit/计划配置事件各1，无delivery，当前配置与引用不回退。私密值及其摘要均不输出。
+
+B 复用 `independent02` 完整 PASS（11.95s）；该轮整体exit1仅因A私有文案前提，不能称整轮绿。B已验证正式候选失效400/零部分写、真实版本冲突409、显式核对、待决确认中Session503与同身份恢复、物理2/可访问1层和原生Tab及关闭后下层焦点。B段逐字节未变，没有重复运行。
+
+最终A轮 actual wait 后7个exact资源两扫absent、84个跟踪PID/starttime清零、4次adopted实际wait，monitor0、runtime/短TMP空、旧基线不变。B所在02轮同样双清（95 PID/8 wait）。01、02原失败及原输入/原日志均保留；历史PPID1 Z未触碰。
+
+复用固定API15/15、owner8/8、页面原probe7/7+补充5/5及作者993完整web检查、新6/旧13组合结果。P-SELECTION-PAGE-01原产品红保留并由同断言闭合；H-SELECTION-01的503错误EOF前提及作者导航seed超长前提均独立分列。真实独立01/02的Audit规范化、确认按钮名、查证后状态文案三项均属私有观察前提，未改产品或削除完整断言。
+
+原命令/env/输入/原raw/actual结果/双清、阶段报告及每项SHA见 `verification-report.json`。最终raw/result/cleanup在 `runs/independent03/`；复用B原件在 `runs/independent02/`。原生观察不代owner尾部证据；视觉沿作者8图和主线程代表图，不声称独立截图或完整折叠以下人工视检。历史4份旧源码缺件按作者索引保留限制；不外推外部Provider调用、Runtime、索引重建、生产托管或完整D27。无Git或产品写入。
+
+本根与最终报告永久停写，全部命令结束，无剩余自有真实资源，不再运行。README和正式归档/接受提交由主线程安排。

@@ -1,0 +1,45 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/candidate/web
+
+ ↓ src/tests/independent-selection-page.spec.ts > Independent Selection page observations > expands exactly four saved IDs with4+4, preserves IDs on Provider failure and deduplicates repeated wire IDs without scanning
+ ↓ src/tests/independent-selection-page.spec.ts > Independent Selection page observations > retains exact saved draft IDs but prevents new writes after actual current Provider disable or reference read failure
+ ↓ src/tests/independent-selection-page.spec.ts > Independent Selection page observations > does not carry a stale active-purpose response across a native cancel tail or publish candidates after failure
+ × src/tests/independent-selection-page.spec.ts > Independent Selection page observations > invalidates a selected draft candidate after explicitly rereading that exact Provider as disabled 51ms
+   → expected { Object (observedProviderEnabled, sameDraftProvider, ...) } to deeply equal { Object (observedProviderEnabled, sameDraftProvider, ...) }
+ ✓ src/tests/independent-selection-page.spec.ts > Independent Selection page observations > requires explicit version review and retains original recovery despite later selector change and old404 25ms
+ ↓ src/tests/independent-selection-page.spec.ts > Independent Selection actual App composition > keeps a real pending navigation above its business dialog through pageshow503 and same-Session recovery, with no extra PUT
+ ↓ src/tests/independent-selection-page.spec.ts > Independent Selection actual App composition > settles the old navigation false on same-user new-Session restore and never reuses old dialog closures or draft
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/independent-selection-page.spec.ts > Independent Selection page observations > invalidates a selected draft candidate after explicitly rereading that exact Provider as disabled
+AssertionError: expected { Object (observedProviderEnabled, sameDraftProvider, ...) } to deeply equal { Object (observedProviderEnabled, sameDraftProvider, ...) }
+
+- Expected
++ Received
+
+  {
+-   "canSave": false,
++   "canSave": true,
+    "observedProviderEnabled": false,
+    "sameDraftProvider": true,
+    "selectedCandidateReason": "Provider 已停用",
+    "writes": 0,
+  }
+
+ ❯ src/tests/independent-selection-page.spec.ts:188:36
+    186|     expect({ observedProviderEnabled: observed?.input.enabled, sameDra…
+    187|       selectedCandidateReason: f.page.candidateReason(f.page.choices.m…
+    188|       writes: f.writes().length }).toEqual({ observedProviderEnabled: …
+       |                                    ^
+    189|   })
+    190|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed | 5 skipped (7)
+   Start at  11:50:39
+   Duration  1.67s (transform 866ms, setup 0ms, import 1.03s, tests 77ms, environment 426ms)
+

@@ -1,0 +1,262 @@
+--- page-stage02/web/src/composables/useSystemModelSelection.ts
++++ page-stage03/web/src/composables/useSystemModelSelection.ts
+@@ -285,6 +285,35 @@
+         draftDetails[purpose] = observed.phase === 'ready' ? observed.value : null
+     }
+   }
++  function observeProvider(target: string, provider: Provider | null, message = '') {
++    // A completed exact observation applies to every known pair for this ID.
++    // A different protocol needs a new complete Model parse before reuse.
++    const replace = (pair: SavedModel | null): SavedModel | null =>
++      pair?.provider.id !== target
++        ? pair
++        : provider && pair.provider.input.protocol === provider.input.protocol
++          ? Object.freeze({ model: pair.model, provider })
++          : null
++    for (const purpose of selectionPurposes) {
++      const reference = references[purpose]
++      if (reference.value?.provider.id === target) {
++        const value = replace(reference.value)
++        Object.assign(reference, {
++          phase: value ? 'ready' : 'error',
++          value,
++          message: value ? '' : message || 'Provider 协议已变化，请明确重读完整引用详情。',
++        })
++      }
++      draftDetails[purpose] = replace(draftDetails[purpose])
++    }
++  }
++  function observeModel(pair: SavedModel) {
++    for (const purpose of selectionPurposes) {
++      if (references[purpose].id === pair.model.id)
++        Object.assign(references[purpose], { phase: 'ready', value: pair, message: '' })
++      if (editor.open && draft[purpose] === pair.model.id) draftDetails[purpose] = pair
++    }
++  }
+   async function readReferences(value: SelectionState) {
+     const own = revision,
+       captured = auth.personalContext.identity
+@@ -302,9 +331,8 @@
+       try {
+         const pair = await api.getSavedModel(target)
+         if (!op.valid() || selection.value !== value) return
+-        for (const purpose of selectionPurposes)
+-          if (references[purpose].id === target)
+-            Object.assign(references[purpose], { phase: 'ready', value: pair, message: '' })
++        observeProvider(pair.provider.id, pair.provider)
++        observeModel(pair)
+       } catch (error) {
+         if (!op.valid() || selection.value !== value) return
+         for (const purpose of selectionPurposes)
+@@ -389,6 +417,12 @@
+         (kind === 'models' && choice.provider.value !== selected)
+       )
+         return false
++      if (kind === 'providers')
++        for (const provider of result.items as readonly Provider[])
++          observeProvider(provider.id, provider)
++      else
++        for (const model of result.items as readonly ProviderModel[])
++          observeModel(Object.freeze({ model, provider: selected! }))
+       cursor.history = [...cursor.history.slice(0, target.index), target.cursor]
+       cursor.index = target.index
+       cursor.next = result.next_cursor
+@@ -434,11 +468,14 @@
+         choice.providerID !== target
+       )
+         return false
++      observeProvider(target, value)
+       Object.assign(choice.provider, { phase: 'ready', value })
+       return true
+     } catch (error) {
+-      if (op.valid() && epoch === choiceRevision && activePurpose.value === purpose)
++      if (op.valid() && epoch === choiceRevision && activePurpose.value === purpose) {
++        observeProvider(target, null, readFailure(error))
+         Object.assign(choice.provider, { phase: 'error', message: readFailure(error) })
++      }
+       return false
+     } finally {
+       op.finish()
+@@ -686,9 +723,8 @@
+       try {
+         const pair = await api.getSavedModel(target)
+         if (!op.valid() || selection.value !== value) return
+-        for (const key of selectionPurposes)
+-          if (references[key].id === target)
+-            Object.assign(references[key], { phase: 'ready', value: pair, message: '' })
++        observeProvider(pair.provider.id, pair.provider)
++        observeModel(pair)
+       } catch (error) {
+         if (op.valid() && selection.value === value)
+           for (const key of selectionPurposes)
+--- page-stage02/web/src/tests/system-model-selection-state.spec.ts
++++ page-stage03/web/src/tests/system-model-selection-state.spec.ts
+@@ -1326,6 +1326,168 @@
+     },
+   )
+ 
++  it('updates selected draft evidence from an exact disabled Provider, preserving IDs and version until an explicit valid reread', async () => {
++    const f = await pageFixture()
++    f.records.set(id(25), configuredModel(25, 'chat', 10))
++    f.page.openEditor()
++    await choose(f, 'memory', 10, 25)
++    const draft = { ...f.page.draft }
++    expect(f.page.canSave.value).toBe(true)
++    const source = f.sources.get(id(10))!
++    f.setReferences((path, init) =>
++      path.endsWith('/' + source.id)
++        ? Promise.resolve(
++            json({ ...source, version: '2', input: { ...source.input, enabled: false } }),
++          )
++        : f.readReference(path, init),
++    )
++    f.page.choosePurpose('memory')
++    await flushPromises()
++    f.page.selectProvider(f.page.choices.memory.providers.rows.find((row) => row.id === source.id)!)
++    await flushPromises()
++    expect(f.page.draftDetails.memory?.provider).toMatchObject({
++      version: '2',
++      input: { enabled: false },
++    })
++    expect(f.page.references.memory.value?.provider.input.enabled).toBe(false)
++    expect(f.page.canSave.value).toBe(false)
++    await f.page.retryReference('reranker')
++    expect(f.page.canSave.value).toBe(false)
++    expect(f.page.draft).toEqual(draft)
++    expect(f.page.editor.version).toBe('1')
++    await f.page.save()
++    expect(f.writes()).toHaveLength(0)
++    f.setReferences(f.readReference)
++    f.page.retryProvider()
++    await flushPromises()
++    expect(f.page.canSave.value).toBe(true)
++    expect(f.page.draft).toEqual(draft)
++    await f.page.save()
++    expect(JSON.parse(f.writes()[0]![1].body as string)).toMatchObject({
++      expected_version: '1',
++      memory: id(25),
++    })
++  })
++
++  it.each(['model-disabled', 'memory-capability'] as const)(
++    'uses a completed same-ID Model page observation of %s to block a new command',
++    async (kind) => {
++      const f = await pageFixture()
++      const original = configuredModel(25, 'chat', 10)
++      f.records.set(original.id, original)
++      f.page.openEditor()
++      await choose(f, 'memory', 10, 25)
++      const draft = { ...f.page.draft }
++      f.records.set(original.id, {
++        ...original,
++        version: '2',
++        input: {
++          ...original.input,
++          enabled: kind !== 'model-disabled',
++          capabilities: {
++            ...original.input.capabilities,
++            structured_output_modes: kind === 'memory-capability' ? ['text'] : ['json_schema'],
++          },
++        },
++      })
++      f.page.choosePurpose('memory')
++      await flushPromises()
++      f.page.selectProvider(f.page.choices.memory.providers.rows.find((row) => row.id === id(10))!)
++      await flushPromises()
++      expect(f.page.draftDetails.memory?.model.version).toBe('2')
++      expect(selectionReason('memory', f.page.draftDetails.memory!)).toBe(
++        kind === 'model-disabled' ? 'Model 已停用' : 'Memory 需要声明 json_schema 能力',
++      )
++      expect(f.page.draft).toEqual(draft)
++      expect(f.page.editor.version).toBe('1')
++      expect(f.page.canSave.value).toBe(false)
++      await f.page.save()
++      expect(f.writes()).toHaveLength(0)
++      f.records.set(original.id, original)
++      await f.page.pageAction('models', 'refresh')
++      expect(f.page.canSave.value).toBe(true)
++    },
++  )
++
++  it('invalidates only exact Provider evidence on failed detail, not on page absence or an unrelated Provider', async () => {
++    const f = await pageFixture()
++    f.records.set(id(25), configuredModel(25, 'chat', 10))
++    f.page.openEditor()
++    await choose(f, 'memory', 10, 25)
++    const draft = { ...f.page.draft }
++    const source = f.sources.get(id(10))!
++    const unrelated = { ...source, id: id(50), input: { ...source.input, enabled: false } }
++    f.setOther(async (path) =>
++      json({ items: path.includes('model-providers') ? [unrelated] : [], next_cursor: null }),
++    )
++    f.page.choosePurpose('memory')
++    await flushPromises()
++    expect(f.page.canSave.value).toBe(true)
++    expect(f.page.draftDetails.memory?.provider.id).toBe(source.id)
++    f.setOther(async (path) =>
++      json({ items: path.includes('model-providers') ? [source] : [], next_cursor: null }),
++    )
++    await f.page.pageAction('providers', 'refresh')
++    f.setReferences((path, init) =>
++      path.endsWith('/' + source.id)
++        ? Promise.resolve(problem('NOT_FOUND', 404))
++        : f.readReference(path, init),
++    )
++    f.page.selectProvider(f.page.choices.memory.providers.rows[0]!)
++    await flushPromises()
++    expect(f.page.canSave.value).toBe(false)
++    expect(f.page.draftDetails.memory).toBeNull()
++    expect(f.page.references.memory).toMatchObject({ id: id(21), phase: 'error', value: null })
++    expect(f.page.draft).toEqual(draft)
++    expect(f.page.editor.version).toBe('1')
++    await f.page.save()
++    expect(f.writes()).toHaveLength(0)
++  })
++
++  it('applies only observed Provider rows and requires a fresh Model parse after protocol changes', async () => {
++    const f = await pageFixture()
++    f.records.set(id(25), configuredModel(25, 'chat', 10))
++    f.page.openEditor()
++    await choose(f, 'memory', 10, 25)
++    const source = f.sources.get(id(10))!,
++      draft = { ...f.page.draft }
++    f.sources.set(source.id, {
++      ...source,
++      version: '2',
++      input: { ...source.input, enabled: false },
++    })
++    f.page.choosePurpose('image')
++    await flushPromises()
++    expect(f.page.draftDetails.memory?.provider.input.enabled).toBe(false)
++    expect(f.page.canSave.value).toBe(false)
++    f.sources.set(source.id, {
++      ...source,
++      version: '3',
++      input: { ...source.input, protocol: 'anthropic-messages' },
++    })
++    await f.page.pageAction('providers', 'refresh')
++    expect(f.page.draftDetails.memory).toBeNull()
++    expect(f.page.references.memory.value).toBeNull()
++    expect(f.page.canSave.value).toBe(false)
++    f.page.choosePurpose('memory')
++    await flushPromises()
++    f.page.selectProvider(f.page.choices.memory.providers.rows.find((row) => row.id === source.id)!)
++    await flushPromises()
++    // The unchanged Model declares json_schema, which the formal Anthropic
++    // parser rejects. A changed Provider alone cannot restore a complete pair.
++    expect(f.page.choices.memory.models.phase).toBe('error')
++    expect(f.page.draftDetails.memory).toBeNull()
++    expect(f.page.canSave.value).toBe(false)
++    f.sources.set(source.id, { ...source, version: '4' })
++    f.page.retryProvider()
++    await flushPromises()
++    expect(f.page.draftDetails.memory?.provider.input.protocol).toBe(source.input.protocol)
++    expect(f.page.canSave.value).toBe(true)
++    expect(f.page.draft).toEqual(draft)
++    expect(f.page.editor.version).toBe('1')
++    expect(f.writes()).toHaveLength(0)
++  })
++
+   it('allows declared Memory capabilities without imposing narrower Runtime restrictions and rejects wrong-purpose candidates', async () => {
+     const f = await pageFixture()
+     const value = f.records.get(id(21))!

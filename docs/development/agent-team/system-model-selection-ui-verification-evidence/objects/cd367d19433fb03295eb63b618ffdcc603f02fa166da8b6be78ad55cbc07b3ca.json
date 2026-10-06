@@ -1,0 +1,23 @@
+{
+  "A_reached": "Exact original command/Audit/event and accepted original input facts; formal delete/replacement advances current to E+2 and old404; sameSession current GET and original lookup200 found:true historical strict receipt. Fails only expecting initial writeMessage after lookup replaced that message.",
+  "A_unverified": "Explicit original replay and final persisted uniqueness/current no rollback still not executed.",
+  "B": "Complete PASS11.95s; unchanged suffix reused without rerun.",
+  "B_suffix_sha256": "fa2493c4eccd7e8d8d06b52cd4a00e0a4c6a3f9b39e60d6ed49464dd0e83cba3",
+  "actual_adopted_waits": 8,
+  "actual_seconds": 77.6,
+  "double_cleanup": true,
+  "exact_ids": 7,
+  "fixed_semantics": "Editor .recovery-actions only exists in uncertain phase; its direct p gives exact found/not-receipt state. Proposed assertion is element-specific and complete, not arbitrary page text.",
+  "input_source_unchanged": true,
+  "next_scope": "only A; no Go semantic change/product change/budget change",
+  "originals": {
+    "bound04/independent.spec.ts": "4568391d94c71b18f55efe01adf418e4d77a190228921661359f37422f1c4587",
+    "execution03.json": "2e9cce46d712bcdf080e1139d3e743aa2968d8b7ac360637288e77ccecd0b536",
+    "runs/independent02/cleanup.json": "c6df4aae4013325c38e1e9a48dfa9d182eb2e9a473ba2cdadbdaf8aaac713f61",
+    "runs/independent02/command.json": "10d88722ef4dffbce17caeaaf0acc7e6811ec4d6c50d555908f266baee024659",
+    "runs/independent02/raw.log": "3f3cf0e6556c831e71990c1e4d8916d6b30b7358fb58f997938c47b2c6cb5dcd",
+    "runs/independent02/result.json": "7e40122191f90cd51e378abe1b5800886559bfacb8038f3873d24322cb2f7882"
+  },
+  "owned_pid_generations": 95,
+  "status": "independent02 mixed1PASS1FAIL; A observation prerequisite only"
+}

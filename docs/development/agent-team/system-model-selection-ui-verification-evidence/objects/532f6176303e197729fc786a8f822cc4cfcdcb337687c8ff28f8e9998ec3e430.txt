@@ -1,0 +1,13 @@
+# Selection 页面阶段独立报告
+
+**RED：P-SELECTION-PAGE-01，待原作者返修。** 固定page-stage01 manifest `4ff435b62e8641ab2a64af9f0c61807931755223abed9e7ba3f1ad28a472cd7b`，17源停写，API/owner四生产源与既验阶段一致。
+
+原 `observations01` 四controller组PASS（actual0/2.223s）；`app01` 两实际App组PASS（actual0/2.680s）。新增 `observations02`：历史恢复加强为实际受控旧目标GET404后仍PASS；已知失效新草稿门禁FAIL（actual1/2.079s）。所有命令实际wait、输入前后不变；没有真实资源或产品/Git写入。
+
+复现：先选择未保存Memory Model211（Provider110当前enabled），随后明确重开该用途选择器，经精确Provider110 GET读到version2/enabled=false。当前候选已显示“Provider 已停用”、ProviderID确与草稿证据相同，但 `canSave=true`，Editor保存按钮只绑定 `!canSave`。安全观察为 `observedProviderEnabled=false / sameDraftProvider=true / selectedCandidateReason=Provider 已停用 / canSave=true / writes=0`。问题在controller的readProvider仅更新choices，canSave仍使用旧draftDetails；应仅作废/刷新已明确读到的精确匹配草稿依据，保留ID与selector version，不从分页缺席推断删除。**未发PUT，不外推后端会接受。** 此结论不同于一般GET失败后保留曾经合法编辑基线。
+
+原红：`logs/observations02/raw.log` SHA `6cd30659c8055c35f2f10151ab3249b5080662ba8cd9554159dd95430530356c`；相同目录保留准确probe/argv/env/result。当前probe SHA `bff30d16efe1aa20ab70daba3d5151ac22c813974d4d125b71c0f4c8c48001ca`。可复现命令：`python3 /workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/run-pure.py <新轮名> 'invalidates a selected draft candidate'`，但本根现冻结，后续应在新固定副本消费原probe，不覆写原件。
+
+已过组合涵盖exact4+4/失败留ID/零半结果、saved-reference明确失效零新写、跨用途cancel尾部、冲突显式核对与旧原请求恢复；实际App确认→pageshow待决→503→同identity恢复顶层/继续一次、即时新表单普通状态，以及同User新Session终止旧导航并清草稿。精确原件和SHA见同名JSON。
+
+限制：这是jsdom真实组件/controller加受控Fetch；getClientRects为布局替身，不冒真实浏览器视觉或Tab。私有MemoryRouter未声明非本次目标 `/settings/profile`，原Vue警告保留。重复ID wire用例只证防御性去重，不称正式后端可产生该组合。正式HTTP权限/事务/唯一receipt与完整卡结果均未验。API15/owner8按未变SHA复用；不读作者活动App测试/fixture。本根和报告现在永久停写。

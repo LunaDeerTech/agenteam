@@ -1,0 +1,11 @@
+--- input01/tests/account/system_model_selection_web_fixture_test.go
++++ input02/tests/account/system_model_selection_web_fixture_test.go
+@@ -299,7 +299,7 @@
+ 	} {
+ 		name := "Owned " + p.role + " Provider"
+ 		if mode == "navigation" {
+-			name += " " + strings.Repeat("长名称", 35)
++			name += " " + strings.Repeat("长名称", 34)
+ 		}
+ 		parent := f.createProvider(ctx, name, p.protocol, "https://provider.invalid/v1", true)
+ 		f.ids[p.role+"_provider"] = parent

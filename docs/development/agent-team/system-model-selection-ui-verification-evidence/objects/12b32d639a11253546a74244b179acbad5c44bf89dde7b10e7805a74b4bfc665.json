@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "env",
+    "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+    "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-model-selection-author-sglwpvis/discovery",
+    "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium",
+    "AGENTEAM_MODEL_SELECTION_WEB_CASE=lifecycle",
+    "node",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/system-model-selection.config.js",
+    "--list",
+    "--grep",
+    "."
+  ],
+  "cwd": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace",
+  "env": {
+    "TMPDIR": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/gocache",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "npm_config_offline": "true",
+    "npm_config_cache": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/npm-cache",
+    "CI": "true"
+  },
+  "started_utc": "2026-10-06T12:08:25.669090+00:00"
+}

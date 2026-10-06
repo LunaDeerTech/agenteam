@@ -1,0 +1,32 @@
+# Selection 独立真实验证准备（未运行）
+
+仅固定 bc17167 后端 + page-stage03 页面。作者活动四个 harness 未读取；本目录无可执行 fixture/probe、无编译/list、无真实资源。接口待最终冻结后绑定，不猜测 IPC。两代表各一浏览器 test/Go 顶层，原 45s/2m/包6m，workers1/retries0/race/count1。
+
+## A：历史 PUT 与已推进当前配置
+
+1. 任务自有管理员与正式 seed 提供合法 Embedding、Memory old、跨 Provider 的兼容 Memory replacement。页面真实读取基线并编辑完整四用途；捕获 selector ID/version E 及原四项。首次 dispatch 仍经生产 UI/owner。
+2. 同源代理仅对该 mode 的第一个精确 Selection PUT，在真实上游 200 严格 receipt 接受后转发 headers 再截断不完整 body。保留 accepted=1/drop=1/浏览器 PUT=1 及真实 DB 已提交事实；禁止假 receipt、无 headers 断连导致自动重试、故障注入事务。
+3. 页面必须显示未确认，未自动 retry。由正式 Model Delete 以其当前 expectedVersion 把已引用 Memory old 替换为兼容 replacement；当前 selector 从 E+1 再推进到 E+2，原 Model 正式 GET404。不 SQL 造引用或版本。替代跨 Provider 仅按最终 seed 能力绑定。
+4. 合成 pageshow 后核新 sequence Session200/原 reader EOF/完整同 identity；页面真实 GET 得 E+2/替代引用。该 GET 及显式检查原请求 lookup(found=true/历史 receipt)均不能发布本次输入已确认，原草稿/intent/expected E 不重写、不新增 PUT。旧 ID404 由正式 HTTP/服务事实证明，不以新当前引用存在代替。
+5. 点击重试原请求：代理内存比较第二次 PUT 与第一次 key、完整 body 字节及同 Session 当前合法 CSRF，仅输出相等布尔。严格 receipt 为 model.selection.update /原 singleton /E+1/affected_references='0'。历史 receipt 早于当前 E+2 是合法结果。
+6. 页面确认保存后当前配置仍 E+2/replacement，旧 ID仍404，原引用不回滚。只读 DB 按任务自有原命令身份确认原 command、typed Audit、原配置事件唯一，删除事务单列；references 的所有字段/owner_version 与当前正式配置一致。实际事件种类/计数按固定后端和最终 fixture 逐项绑定，不用总库计数冒原命令唯一性。
+
+## B：已读候选失效、明确核对及确认恢复
+
+1. 页面读合法基线并选中新的合法 Memory 草稿。冻结 UI 观察后，用正式 UpdateModel 捕获当前 Model version 再禁用该精确候选，不刷新 UI 或替换其 body。
+2. 原 UI 完整 PUT 必须真实 400/INVALID_ARGUMENT/not_started（references.selectionCompatible + httpapi mapper + model.fault 已核），保留四草稿和原 expected；无成功 receipt、无部分用途更新。DB canonical selector/refs/成功命令 Audit/events 相对 dispatch 前不变，候选禁用自身事务单列。
+3. 正式恢复该 Model，然后用户显式核对当前 selector 并重新读取合法候选。另正式管理员以独立 key 完整保存一个不同合法 selector，推进 current version；原 UI 冻结 expected 不自动改。一次 UI PUT 必须 409/VERSION_CONFLICT/not_started，草稿不丢、不自动重发，零部分写。
+4. 使用真实按钮打开“读取最新配置并核对”的待决确认，再合成 pageshow；只该独立 mode/精确 Session GET 单次503。预先 DOM observer 捕获 checking，全部本域 Dialog物理卸载，App失败恢复可用。text/plain503只断言新 seq/status/失败 UI/控制计数，不硬要求不存在的 EOF。
+5. 点击恢复后核新 sequence Session200+原 native reader EOF/完整同 identity，再核物理 Dialog2/可访问1、下层 inert+aria-hidden、上层确认及焦点。真实 Tab/Shift+Tab 留上层；继续编辑关闭确认后焦点落下层可操作控件，Tab 不逃出。
+6. 再显式核对并确认一次，才接受 current selector version，保留四草稿 ID；未完整补读的草稿需明确重选。全过程确认/恢复/lookup/GET零新 PUT。合法新保存只在用户再次点击后允许；是否执行该最终新写按作者最终覆盖精简，不扩大两代表或预算。
+
+## 绑定与证据边界
+
+- 正式接缝待核：精确 Selection accepted-cut 安全计数与原字节比较；正式 DeleteModel replacement；正式 UpdateModel disable/enable；独立管理员 UpdatePlatformSelection；精确 Session一次503；只读 selector/refs/command/Audit/events 旁证。以上均在既定卡内，当前未认定缺失，若冻结接口不足先报 root。
+- 读取严格正式 DTO逐字段；历史 snapshot omitempty/null、nil slice/[] 必须与正式 serializer一致，不删除全字段比较。后台竞争操作不能自动更新 UI 观察，避免抹去读后竞态。
+- 原 fetch/Response/reader/read/cancel Promise保持；无 clone/tee/第二次读取/重发；仅闭合安全 DTO投影，600000B与既有Provider成功2MiB规则沿固定实现。观察器不代 owner actual join 证据。
+- 不输出/截图 key、body、CSRF、Cookie、Secret材料或它们的哈希；safe事实使用布尔/受限版本与计数。trace/video关闭，不截图敏感输入，无外部Provider/SMTP。
+- 固定源码/dist与 bc17167 全实际 Go/脚本/迁移/锁/旧browser配置依赖的前后门禁；私有 overlay/probe/driver额外逐 SHA。用同一锁定 Playwright CLI/解析树，私有 testDir排除runs，--list确认每个代表恰1例；待作者冻结后才编译/list。
+- 每轮独立 nonce/隔离端口/短私有 TMP，启动前subreaper；所有 Go/Node/browser/server实际wait/close，owned PID+starttime与exact资源ID两遍清零、原基线不变、runtime/TMP空后交窗。不触历史PPID1 zombie，不声称kill可回收。
+- 复用已验 API15/owner8/page修复原probe7+新增5 的实际流/尾部/4+4/纯App/观察代次证据；真实仅补上述组合，不重全套UI。页面协议变更纯反例是防御性 DTO测试，正式Provider protocol仍不可变。
+- 本计划不表示真实 PASS。原私有准备/产品/工具失败分别保留；动态失败先实际退出清理后归因，产品修复交原作者，不私改源或增加时间。

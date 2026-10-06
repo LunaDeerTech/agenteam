@@ -1,0 +1,40 @@
+{
+  "A": {
+    "cause": "Private sha256(CommandIdentity.Canonical()) omitted cursor.CanonicalJSON used by formal cursor.Digest in model/audit_authority.go. JSON struct field order differs from sorted canonical keys.",
+    "not_reached": [
+      "formal Model replacement/delete and old404",
+      "current GET/lookup not confirmation",
+      "explicit historical replay/final command and Audit uniqueness"
+    ],
+    "reached": "First formal accepted Selection PUT cut; strict original receipt/current E+1/request/event plan checked; exact original oracle failed only audit_count expected1 actual0"
+  },
+  "B": {
+    "cause": "acceptReview requested generic \u653e\u5f03\u4fee\u6539; fixed View conditional renders \u8bfb\u53d6\u5e76\u6838\u5bf9 for this review title.",
+    "not_reached": [
+      "completed explicit review",
+      "formal version conflict",
+      "Session503 restoration and native focus"
+    ],
+    "reached": "Formal candidate disabled after UI capture; real400 INVALID_ARGUMENT/not_started, no partial write and draft preservation; reenabled and opened exact review confirmation"
+  },
+  "actual": 199.715,
+  "cleanup": {
+    "actual_adopted_waits": 8,
+    "double_cleanup": true,
+    "exact_ids": 7,
+    "inputs_unchanged": true,
+    "owned_pid_generations": 203
+  },
+  "originals": {
+    "bound03/independent.spec.ts": "4dd471a3aee239599114aa0f6e724ecdc88ea32f0bb81413de1da05cdb8d82e6",
+    "bound03/system_model_selection_web_fixture_test.go": "fa3061b4e714ca593e3f18e5bdd2341b4cfa216b5592ae35d7196ac15208ac5d",
+    "execution02.json": "138f8b66169edf66586e3b88a26cba5e876b22497dd25f3d727ee133db5387b1",
+    "runs/independent01/cleanup.json": "66f4ef6165ac30a7fd343045f73fbae6965e23b2ee66c78d026401af8e6016a1",
+    "runs/independent01/command.json": "2ec9423e9e668259d19fe9f4ed98e3e5519f46d3054dee57d352c3e1fbb6d081",
+    "runs/independent01/raw.log": "ca4c09e3ebbf25727a2d413381fbe89c8b983eb6a78f2a5287130183b9bbbad2",
+    "runs/independent01/result.json": "cba56d77d17cbe690c7877249dd42ab0a0ad05b7f51e6c135aea680a2366cab2"
+  },
+  "retention": "Original source, assertions, commands and raw/results/cleanup unchanged; future source uses bound04.",
+  "run": "independent01",
+  "status": "FAIL; private oracle and locator prerequisites, no product defect established"
+}

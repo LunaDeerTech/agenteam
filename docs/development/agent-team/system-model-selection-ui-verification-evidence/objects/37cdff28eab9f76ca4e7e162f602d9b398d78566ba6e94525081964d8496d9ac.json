@@ -1,0 +1,37 @@
+{
+  "base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "baseline_full_sha256": "cf153d179cd3f0fa4fbc139beb34060fbcfd77bd87ec66e9fbdfccd56e915864",
+  "files": {
+    "web/src/api/client.ts": "3cd31decac3c760725d9aae1812edbca1a1995259073ffd55d55dd0bc3120d20",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+    "web/src/composables/useSession.ts": "8464b9329dfaf26d9263bed2b85e05afe1ec45a3b779e9e1d9b831a3fbf541c6",
+    "web/src/composables/useSystemModelSelection.ts": "10f37e124c7852a895272ac65b86dd919b359aba997e99e72f5804efec8feb67",
+    "web/src/App.vue": "4f242cbccd26616443a025e6bc175380775b1b36de2f2a8f130ea1612ffecfad",
+    "web/src/router/index.ts": "73a12f37720fffccf2a94e585e797c36a413a5de9a8d179fdc3fdea29f1aaf01",
+    "web/src/router/auth.ts": "4243890a21bd940fce2b5ee09147c51f124e251452027c8b957a04bcab0bce22",
+    "web/src/views/system/SystemSettingsView.vue": "083dd9d9373bdd450c3fab5203fa6ff53e630a5ff30016216e3000f7d5da204b",
+    "web/src/views/system/SystemModelSelectionView.vue": "3276ec40d8468ee3cac1785c90f47d906b0b38a7a8848aeb451558a0f0e94683",
+    "web/src/views/system/SystemModelSelectionEditor.vue": "b27430f537ab2e59946cc7f9f843a1c2f5ae4afdcf19455becebb230c39113cd",
+    "web/src/tests/system-model-selection-client.spec.ts": "856bb8a8b0a39f74f7c9daae0657eb642f6733facf43959d9ff6caf335f71d64",
+    "web/src/tests/system-model-selection-state.spec.ts": "3f673570a07bdbeae4bf0fcbb7cedb526057f12fdd97b186e98b3c8789e5c0e2",
+    "web/src/tests/system-model-selection.spec.ts": "c85ab65b14a3d4a07641ec9fdc9bd60872049d07e7ecb870bcd9a3765b1701f9",
+    "web/src/tests/system-user-directory.spec.ts": "e4fb3be5baed88505217c518fd6e9110cb0a86592a738229d9356504c2162757",
+    "web/src/tests/system-invitations.spec.ts": "c1e61cf8343e77bd0abf6c5a03ff049179d5a172dabeef0c7dc8306cd80722d9",
+    "web/src/tests/system-providers.spec.ts": "7cb4a53229b98f65ee80e092eeba11ae005e8c39c5ed262a1040d87451202ebf",
+    "web/src/tests/system-models.spec.ts": "17589214434c20272c3d3442c47dd6ae04b7a403ba5e8780bb9a52685be31962",
+    "web/src/tests/personal-settings.spec.ts": "3249aff5f7b7674409f04311709f259e7a8f9d19572eb223f5aa641042226dc3",
+    "tests/account/system_model_selection_web_test.go": "6c60bb68e521685eedfbca9107c026c3f6646119cda4f5c841d2533ed77e3c8e",
+    "tests/account/system_model_selection_web_fixture_test.go": "002a03611b05b777fceba6e90ae8ae327d2496eaf52f3714e4a2393e6ad9151f",
+    "tests/account-captcha-web/system-model-selection.config.js": "e7c2cc154bcfbdb919f16249f111967e5d83eb6fc273a654f9c5c634ff832d24",
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": "e449d695dfbe54d31d6e83e2cfd6c4456a53eebd416abf98dd3187b22e4df7cd",
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": "c4816160bd0bf18bb1460b20b21808974c8bcf097430f5fcaa7e8779f8a2545b",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "fd10ee876abed7b50e86b5bf5e1e25d70745bbf91e44c67bedb84639710d99d9",
+    "tests/account-captcha-web/e2e/system-models.spec.ts": "8473a63780212f59b3d5ecc7671ef810611bbde25ac5514ed0efae85662663ee"
+  },
+  "locks": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "tests/account-captcha-web/package-lock.json": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+  }
+}

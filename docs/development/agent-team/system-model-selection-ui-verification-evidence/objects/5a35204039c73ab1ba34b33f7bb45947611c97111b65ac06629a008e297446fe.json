@@ -1,0 +1,26 @@
+{
+  "checked_utc": "2026-10-06T12:24:13.461012+00:00",
+  "verdict": "PASS",
+  "correction": "Parser-only reading of actual locked Playwright 1.56 output: Total: 1 test in 1 file. Earlier wrapper expected Total tests: 1 in 1 file. No command or source was rerun or changed.",
+  "results": [
+    {
+      "run": "list-a02",
+      "actual_cli_exit": 0,
+      "actual_wait": true,
+      "raw_sha256": "40d101301e4e5f86bff4bc4ec38b27e211ece3dee78bb728e4da0c2264a0fe7f",
+      "exactly_one_test_in_own_spec": true,
+      "mode": "independent-a",
+      "original_wrapper_discovery_false_retained": true
+    },
+    {
+      "run": "list-b02",
+      "actual_cli_exit": 0,
+      "actual_wait": true,
+      "raw_sha256": "e3670a1acfd7c00b6b59ad3528092a551f10829a70868880176f34e6eb2b9599",
+      "exactly_one_test_in_own_spec": true,
+      "mode": "independent-b",
+      "original_wrapper_discovery_false_retained": true
+    }
+  ],
+  "resources_started": false
+}

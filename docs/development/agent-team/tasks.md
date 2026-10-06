@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：System 平台模型用途 UI 完整卡接受
+
+- [Selection rev2](../work-items/d27-system-model-selection-ui.md)实际26路径已由 `directory_backend`（frontend_worker）完成、`recovery_verification` 独立最终PASS，主线程采纳提交推送 `870ebbb986f56bb62be34ccdfa2c77819ce995a6`，远端一致。[正式报告与最小证据](system-model-selection-ui-verification.md)固定input02 `af2f9f4a…72c5`的25源/31dist指纹及README末件；消费Model基线bc17167、后端9b32015/迁移1–19与1041固定依赖，卡技术§1–7不变。
+- 作者完整993测试/29文件及format/type/build通过；新六组按new01五组+new02导航一组组合，旧core7/Provider3/Model3通过。独立API15/owner8/原页面7+补充5复用；真实B02完整PASS、A03最终完整PASS组成接受，03实际exit0/61.415s、7exact资源双absent/84所属PID/4实际wait、monitor0，窗口释放，02整轮仍exit1。
+- 原页面产品RED、作者成功按钮/协议前提、503错误EOF静态阻断、导航seed超长400、独立审计canonicalization/按钮名/lookup后文案前提均保留并注明到达边界。八图作者实际查看、主线程接受light1440/dark390；八轮实际wait/双清均归档，历史PPID1 Z不纳入清理声明。
+- 四份旧通过源码缺失与十二份formatter暂态输入未定位照实保留，不称每个历史版本均可重建；失败测试源与最终受测版本齐全。本次仅离线核原件/固定Git，不重跑产品。账号安全UI另卡推进；完整D09/D26/D27及D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project与生产未绑定/ready503、Runtime/生产SPA/Vite等限制保持。以下旧记录保留当时事实。
+
 ## 2026-10-06：System Model 管理 UI 完整卡接受
 
 - [Model rev2](../work-items/d27-system-model-management-ui.md)26路径已由 `directory_frontend` 完成、`recovery_verification` 独立最终PASS，主线程采纳提交推送 `bc17167c42ee5d5fc1427adaac099ff888ca959b`，远端一致。[正式报告与最小证据](system-models-ui-verification.md)固定input03 `d12df3fe…54ff6`的25源/29dist哈希与末件README；基线f465f45、后端9b32015/迁移1–19及1030基线保持，卡技术§1–7不变。

@@ -1,0 +1,152 @@
+{
+  "verdict": "PASS: page-stage03 bounded independent offline acceptance; P-SELECTION-PAGE-01 closed",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/page-stage03/manifest.json",
+    "sha256": "60012d5268a321b201c612da60722005097f64bf3f621d4b92fc2bbe0d601fa7"
+  },
+  "base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "fixed_files": {
+    "web/src/api/client.ts": "3cd31decac3c760725d9aae1812edbca1a1995259073ffd55d55dd0bc3120d20",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+    "web/src/composables/useSession.ts": "8464b9329dfaf26d9263bed2b85e05afe1ec45a3b779e9e1d9b831a3fbf541c6",
+    "web/src/composables/useSystemModelSelection.ts": "10f37e124c7852a895272ac65b86dd919b359aba997e99e72f5804efec8feb67",
+    "web/src/App.vue": "4f242cbccd26616443a025e6bc175380775b1b36de2f2a8f130ea1612ffecfad",
+    "web/src/router/index.ts": "73a12f37720fffccf2a94e585e797c36a413a5de9a8d179fdc3fdea29f1aaf01",
+    "web/src/router/auth.ts": "4243890a21bd940fce2b5ee09147c51f124e251452027c8b957a04bcab0bce22",
+    "web/src/views/system/SystemSettingsView.vue": "083dd9d9373bdd450c3fab5203fa6ff53e630a5ff30016216e3000f7d5da204b",
+    "web/src/views/system/SystemModelSelectionView.vue": "3276ec40d8468ee3cac1785c90f47d906b0b38a7a8848aeb451558a0f0e94683",
+    "web/src/views/system/SystemModelSelectionEditor.vue": "b27430f537ab2e59946cc7f9f843a1c2f5ae4afdcf19455becebb230c39113cd",
+    "web/src/tests/system-model-selection-client.spec.ts": "856bb8a8b0a39f74f7c9daae0657eb642f6733facf43959d9ff6caf335f71d64",
+    "web/src/tests/system-model-selection-state.spec.ts": "3f673570a07bdbeae4bf0fcbb7cedb526057f12fdd97b186e98b3c8789e5c0e2",
+    "web/src/tests/system-user-directory.spec.ts": "e4fb3be5baed88505217c518fd6e9110cb0a86592a738229d9356504c2162757",
+    "web/src/tests/system-invitations.spec.ts": "c1e61cf8343e77bd0abf6c5a03ff049179d5a172dabeef0c7dc8306cd80722d9",
+    "web/src/tests/system-providers.spec.ts": "7cb4a53229b98f65ee80e092eeba11ae005e8c39c5ed262a1040d87451202ebf",
+    "web/src/tests/system-models.spec.ts": "17589214434c20272c3d3442c47dd6ae04b7a403ba5e8780bb9a52685be31962",
+    "web/src/tests/personal-settings.spec.ts": "3249aff5f7b7674409f04311709f259e7a8f9d19572eb223f5aa641042226dc3",
+    "web/src/tests/system-model-selection.spec.ts": "c85ab65b14a3d4a07641ec9fdc9bd60872049d07e7ecb870bcd9a3765b1701f9"
+  },
+  "changed_files": [
+    "web/src/composables/useSystemModelSelection.ts",
+    "web/src/tests/system-model-selection-state.spec.ts"
+  ],
+  "static": [
+    "Only controller/state tests changed from fixedpage02; other16 files identical. API/owner/View/Editor/App/router are unchanged.",
+    "observeProvider only touches known exact ProviderID pairs and clears them on protocol mismatch or exact read failure; observeModel only replaces exact ModelID evidence after complete strict parsing.",
+    "readReferences/readPage/readProvider/retryReference call observation helpers only after current identity/revision/route/purpose/provider guards. No new fetch, automatic replacement, ID mutation or selector version acceptance path.",
+    "Absence from a page does not invoke invalidation. Completed same-ID Model observation updates eligibility without adding a Model/Provider version field to PUT.",
+    "Original capture/lookup/retry and explicit selector-version review paths unchanged."
+  ],
+  "runs": {
+    "original01": {
+      "exit_code": 0,
+      "actual_wait": true,
+      "elapsed_seconds": 2.835,
+      "inputs_unchanged": true,
+      "raw_sha256": "c2cd81a895fae7bbe75ca9b0c3f1afd197effd5670641b00f8b7416c10dcc67d",
+      "artifacts": [
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/logs/original01/command.json",
+          "sha256": "dd07e1e13dd8b23a694284f032182d7b67e05ec4c0e704be4b6fa41a3ce8189c"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/logs/original01/result.json",
+          "sha256": "d7b56e13316c5a0f233132d46b4b268320399260f4b29cbfaa4b6fcb9f89a8d0"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/logs/original01/raw.log",
+          "sha256": "c2cd81a895fae7bbe75ca9b0c3f1afd197effd5670641b00f8b7416c10dcc67d"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/logs/original01/probe.ts.txt",
+          "sha256": "bff30d16efe1aa20ab70daba3d5151ac22c813974d4d125b71c0f4c8c48001ca"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/logs/original01/driver.py.txt",
+          "sha256": "dd2f8021651c89707c2ead1a67b1e6c8060661b36a7ff9b061ca0a1da4de38a1"
+        }
+      ]
+    },
+    "supplement01": {
+      "exit_code": 0,
+      "actual_wait": true,
+      "elapsed_seconds": 2.38,
+      "inputs_unchanged": true,
+      "raw_sha256": "838ae41477d59eacbb732262f706162d7a7c8a51bfa23884cc52aadf97b6d432",
+      "artifacts": [
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/logs/supplement01/command.json",
+          "sha256": "1c2f4aef98efbd745b5f228274b8e04f7eb372c44247f6a75a33c8f820b7ce42"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/logs/supplement01/result.json",
+          "sha256": "61ceedaf3a816f9fbbd66311ae2ebe091416f6ab09b5f1f7c6699edca41b72b0"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/logs/supplement01/raw.log",
+          "sha256": "838ae41477d59eacbb732262f706162d7a7c8a51bfa23884cc52aadf97b6d432"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/logs/supplement01/probe.ts.txt",
+          "sha256": "dced52c9b74dd7186e69c0dbee4d516f2937dd456a0dd0bf396358e23aafd526"
+        },
+        {
+          "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/logs/supplement01/driver.py.txt",
+          "sha256": "dd2f8021651c89707c2ead1a67b1e6c8060661b36a7ff9b061ca0a1da4de38a1"
+        }
+      ]
+    }
+  },
+  "original_probe": {
+    "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/candidate/web/src/tests/independent-selection-page.spec.ts",
+    "sha256": "bff30d16efe1aa20ab70daba3d5151ac22c813974d4d125b71c0f4c8c48001ca",
+    "same_as_original_red": true
+  },
+  "supplement_probe": {
+    "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/candidate/web/src/tests/independent-selection-supplement.spec.ts",
+    "sha256": "dced52c9b74dd7186e69c0dbee4d516f2937dd456a0dd0bf396358e23aafd526"
+  },
+  "original_red": {
+    "report": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/page-stage01-report.json",
+    "report_sha256": "34275d21160b8139e2dce32a8b5a3101e479b868f20e890786df71f256a7067c",
+    "raw": "/workspace/scratch/agenteam-selection-page-verification-nbi4b7cj/logs/observations02/raw.log",
+    "raw_sha256": "6cd30659c8055c35f2f10151ab3249b5080662ba8cd9554159dd95430530356c",
+    "finding": "Exact disabled Provider observation previously left stale selected draft canSave=true; writes0, no backend acceptance claim."
+  },
+  "coverage": [
+    "Original unchanged7 tests now all PASS, including exact originalRED,4+4/failedID/dedup, existing saved reference invalidation, native purpose cancellation, explicit version review/actual oldGET404/historical Execute and actualApp cohost identity lifecycle.",
+    "Supplement5 PASS: changed protocol cannot reuse old Model parse; explicit compatible full reread restores eligibility while original ID/expected_version remain; exact Model disabled and removed Memory json_schema block save then valid newer Model observation restores without version fence; unrelated/absent page leaves valid draft alone but exactProvider404 invalidates; obsolete disabledDTO is not applied after purpose cancellation/cancel Promise completion."
+  ],
+  "reuse": [
+    "Independent API15 and owner8 by unchanged SHA; no reruns.",
+    "Author repair evidence is accurately composite: original independent7/App17 PASS; state76/77 with one incorrect Anthropic/json_schema recovery premise retained, corrected5 affected PASS plus unchanged72 reused. No invented single-run77green."
+  ],
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/input.json",
+      "sha256": "f19f492baae025405d17ab85e5d325b534acf559a185c2c41249b9944625b2d7"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/author-manifest.json",
+      "sha256": "60012d5268a321b201c612da60722005097f64bf3f621d4b92fc2bbe0d601fa7"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/page-stage02-to03.diff",
+      "sha256": "08543641e24c26610dda8f930c8801683479840365d113eb1e3a4521b3243e89"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/candidate/web/vitest.config.mjs",
+      "sha256": "a13c5091d904e0ac669aec1ad9109b2b23dbdd182e771c192549fdbfa0020583"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-selection-page-repair-wgd1njvk/run-pure.py",
+      "sha256": "dd2f8021651c89707c2ead1a67b1e6c8060661b36a7ff9b061ca0a1da4de38a1"
+    }
+  ],
+  "limits": [
+    "Injected Fetch + real production controller/Session/API and jsdom actualApp/Ui components, not formal backend, transactions, browser or visual acceptance.",
+    "Protocol-switch scenario is defensive DTO invalidation; accepted backend Provider protocol immutability is unchanged and no real mutable protocol operation is claimed.",
+    "PrivateMemoryRouter retains prior omitted/settings/profile warnings; that unrelated route was not exercised. Layout rectangle spy is not native pointer/Tab evidence.",
+    "Original and new evidence roots remain separate; no product/Git edits, real fixtures, servers or network. Whole Selection card still awaits full fixed input/harness and authorized real verification."
+  ],
+  "resources": "Both Vitest commands actual exit0/wait, no active commands or real resources. This new private root and final report now permanently frozen."
+}

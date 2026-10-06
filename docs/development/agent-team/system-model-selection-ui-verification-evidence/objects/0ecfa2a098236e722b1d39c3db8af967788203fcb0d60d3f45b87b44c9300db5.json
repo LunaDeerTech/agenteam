@@ -1,0 +1,142 @@
+{
+  "input": {
+    "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/input02/manifest.json",
+    "sha256": "af2f9f4a50f4c435e849bf8faf9d8676a11ccd7c3c6d61416dcbfda57f8a72c5"
+  },
+  "run": {
+    "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/new02",
+    "actual_exit": 0,
+    "actual_wait": true,
+    "seconds": 69.029,
+    "top_seconds": 13.89,
+    "double_cleanup": true,
+    "input_before_after_equal": true,
+    "files": {
+      "raw.log": "07a0e35f2b4660bf8583f8f8365f057b34e30beb7b1fb89785e68e1f046a14b2",
+      "command.json": "cdef7c39707cb62f0b500ad92811a914637b02debb919d3b45ca176132e775df",
+      "result.json": "dc682eb7f517cef6c3934fab1e810ab34378dc24975aae0401653706cc964c34",
+      "cleanup.json": "7b07cd8b1138ce1da520dc8499b9b747a675f4ecd276b0e5c37b7e9933f3aa94"
+    }
+  },
+  "images": [
+    {
+      "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/new02/images/selection-dark-1024.png",
+      "sha256": "b721780efa4dd0b5c7396ad434f4dca1a078c8040b0bee05aee61b3968d9130d",
+      "width": 1024,
+      "height": 900,
+      "viewed": true,
+      "visible_region_result": "PASS",
+      "observations": [
+        "Sidebar and two-column cards; labels and values remain separated.",
+        "Heading/actions begin at page top; no modal overlay or unusual blank leading area.",
+        "Long Unicode names, saved UUID and 256-byte native ID wrap within the content area without visible horizontal clipping or overlap.",
+        "Theme text, borders, focus indication and link state remain legible."
+      ]
+    },
+    {
+      "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/new02/images/selection-dark-1440.png",
+      "sha256": "5cd2ca55b52dbe1e28d3fdd86c6cdd089adc37fa3ac0731325da08ecf152db98",
+      "width": 1440,
+      "height": 900,
+      "viewed": true,
+      "visible_region_result": "PASS",
+      "observations": [
+        "Sidebar and two-column cards; labels and values remain separated.",
+        "Heading/actions begin at page top; no modal overlay or unusual blank leading area.",
+        "Long Unicode names, saved UUID and 256-byte native ID wrap within the content area without visible horizontal clipping or overlap.",
+        "Theme text, borders, focus indication and link state remain legible."
+      ]
+    },
+    {
+      "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/new02/images/selection-dark-390.png",
+      "sha256": "5d82c20a204535e04f2c5e717c6022c156bfa32cb08c7b1b8d4a8e755a9b07e2",
+      "width": 390,
+      "height": 900,
+      "viewed": true,
+      "visible_region_result": "PASS",
+      "observations": [
+        "Drawer entry, single-column cards and stacked detail labels; actions wrap within viewport.",
+        "Heading/actions begin at page top; no modal overlay or unusual blank leading area.",
+        "Long Unicode names, saved UUID and 256-byte native ID wrap within the content area without visible horizontal clipping or overlap.",
+        "Theme text, borders, focus indication and link state remain legible."
+      ]
+    },
+    {
+      "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/new02/images/selection-dark-834.png",
+      "sha256": "a3c66e5213e273e9e8e6f36c78ac5bcba617ef708bbd710c747a1ae27295f883",
+      "width": 834,
+      "height": 900,
+      "viewed": true,
+      "visible_region_result": "PASS",
+      "observations": [
+        "Sidebar and two-column cards; labels and values remain separated.",
+        "Heading/actions begin at page top; no modal overlay or unusual blank leading area.",
+        "Long Unicode names, saved UUID and 256-byte native ID wrap within the content area without visible horizontal clipping or overlap.",
+        "Theme text, borders, focus indication and link state remain legible."
+      ]
+    },
+    {
+      "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/new02/images/selection-light-1024.png",
+      "sha256": "e9f6c4640457bcb78f7c1626a75cfaeff13a57864e8541860d2135b7a7d14e4f",
+      "width": 1024,
+      "height": 900,
+      "viewed": true,
+      "visible_region_result": "PASS",
+      "observations": [
+        "Sidebar and two-column cards; labels and values remain separated.",
+        "Heading/actions begin at page top; no modal overlay or unusual blank leading area.",
+        "Long Unicode names, saved UUID and 256-byte native ID wrap within the content area without visible horizontal clipping or overlap.",
+        "Theme text, borders, focus indication and link state remain legible."
+      ]
+    },
+    {
+      "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/new02/images/selection-light-1440.png",
+      "sha256": "f9f0b2735ad54d5cf00723a17b48bfd79fe7289de564d6cfea43b34e5a83b2f9",
+      "width": 1440,
+      "height": 900,
+      "viewed": true,
+      "visible_region_result": "PASS",
+      "observations": [
+        "Sidebar and two-column cards; labels and values remain separated.",
+        "Heading/actions begin at page top; no modal overlay or unusual blank leading area.",
+        "Long Unicode names, saved UUID and 256-byte native ID wrap within the content area without visible horizontal clipping or overlap.",
+        "Theme text, borders, focus indication and link state remain legible."
+      ]
+    },
+    {
+      "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/new02/images/selection-light-390.png",
+      "sha256": "6bef29380654571f0ccb365462f93baa4d5379e88df615912832f33a2f321d0e",
+      "width": 390,
+      "height": 900,
+      "viewed": true,
+      "visible_region_result": "PASS",
+      "observations": [
+        "Drawer entry, single-column cards and stacked detail labels; actions wrap within viewport.",
+        "Heading/actions begin at page top; no modal overlay or unusual blank leading area.",
+        "Long Unicode names, saved UUID and 256-byte native ID wrap within the content area without visible horizontal clipping or overlap.",
+        "Theme text, borders, focus indication and link state remain legible."
+      ]
+    },
+    {
+      "path": "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/new02/images/selection-light-834.png",
+      "sha256": "11c0ae895943518dc6f6116384db8a95bb747158519f4424df157d56cedf6421",
+      "width": 834,
+      "height": 900,
+      "viewed": true,
+      "visible_region_result": "PASS",
+      "observations": [
+        "Sidebar and two-column cards; labels and values remain separated.",
+        "Heading/actions begin at page top; no modal overlay or unusual blank leading area.",
+        "Long Unicode names, saved UUID and 256-byte native ID wrap within the content area without visible horizontal clipping or overlap.",
+        "Theme text, borders, focus indication and link state remain legible."
+      ]
+    }
+  ],
+  "limitations": [
+    "Author reviewed each of the eight original viewport screenshots after actual driver wait and double cleanup.",
+    "The 900px viewport shows the top portion of long cards; this is not a full-page visual review of every below-fold field.",
+    "Focus/Tab/Escape/pointer/checking assertions come from the actual browser test; screenshots alone do not establish those behaviors.",
+    "Combine prior new01 five PASS and new02 Navigation PASS by unchanged semantics; do not call new01 or a single new6 run all green.",
+    "Old regression groups and independent real verification remain pending."
+  ]
+}

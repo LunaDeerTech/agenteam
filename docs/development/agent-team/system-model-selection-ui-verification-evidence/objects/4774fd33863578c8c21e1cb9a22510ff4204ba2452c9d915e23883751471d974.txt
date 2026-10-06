@@ -1,0 +1,35 @@
+--- bound04/independent.spec.ts
++++ bound05/independent.spec.ts
+@@ -124,8 +124,8 @@
+   await top(page).getByRole('button',{name:'检查原请求',exact:true}).click();
+   const lookup=await factAfter(page,after,f=>f.path==='/api/v1/system/model-commands/lookup'&&f.method==='POST'&&f.status===200&&f.ended&&f.found===true);
+   exactReceipt(lookup.receipt,expected);
+-  await expect(top(page)).toContainText('不会代替原请求的执行回执');
+-  await expect(top(page)).toContainText('保存结果未确认');
++  await expect(top(page).locator('.recovery-actions')).toBeVisible();
++  await expect(top(page).locator('.recovery-actions > p')).toHaveText('结果未确认。历史查证找到记录，不会代替原请求的执行回执。');
+   await expect(top(page).getByRole('button',{name:'重试原请求',exact:true})).toBeEnabled();
+   expect((await writes(page)).length).toBe(1);
+   expect(canonical(await dbFacts())).toBe(canonical(advanced));
+--- bound04/system_model_selection_web_fixture_test.go
++++ bound05/system_model_selection_web_fixture_test.go
+@@ -671,7 +671,7 @@
+ 	if e != nil {
+ 		f.t.Fatal(e)
+ 	}
+-	cmd := exec.CommandContext(ctx, "node", "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound04/playwright.config.mjs")
++	cmd := exec.CommandContext(ctx, "node", "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound05/playwright.config.mjs")
+ 	cmd.Dir = root
+ 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+ 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+--- bound04/overlay.json
++++ bound05/overlay.json
+@@ -1,6 +1,6 @@
+ {
+   "Replace": {
+-    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound04/system_model_selection_web_test.go",
+-    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_fixture_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound04/system_model_selection_web_fixture_test.go"
++    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound05/system_model_selection_web_test.go",
++    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/workspace/tests/account/system_model_selection_web_fixture_test.go": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound05/system_model_selection_web_fixture_test.go"
+   }
+ }

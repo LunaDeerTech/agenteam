@@ -1,0 +1,45 @@
+--- harness-stage01/tests/account-captcha-web/e2e/system-model-selection.spec.ts
++++ input01/tests/account-captcha-web/e2e/system-model-selection.spec.ts
+@@ -814,10 +814,9 @@
+           f.path ===
+             "/api/v1/system/model-providers/" + detail.model!.provider_id &&
+           f.method === "GET" &&
+-          f.ended &&
+           (detail.model!.provider_id === failedProvider
+             ? f.status === 503
+-            : f.status === 200 && !!f.provider),
++            : f.status === 200 && f.ended && !!f.provider),
+       );
+     }
+   await expect(button(page, "刷新配置")).toBeEnabled();
+@@ -1204,8 +1203,12 @@
+   await ipc("arm-get-fail", { id: data.ids.embedding_provider! });
+   after = await seq(page);
+   const failed = await refresh(page, data.ids.embedding_provider!);
++  expect((await ipc("failure-facts")).read_failures).toBe(1);
+   expect(failed).toEqual(initial.selection);
+   await expect(savedRow(page, "embedding")).toContainText(data.ids.embedding!);
++  await expect(savedRow(page, "embedding")).toContainText(
++    "读取失败，尚未获得完整的当前详情",
++  );
+   await expect(savedRow(page, "embedding")).not.toContainText(
+     modelName(data.ids.embedding!),
+   );
+@@ -1503,13 +1506,14 @@
+   await factAfter(
+     page,
+     replay.sequence,
+-    (f) =>
+-      f.path === endpoint && f.method === "GET" && f.status === 503 && f.ended,
+-  );
++    (f) => f.path === endpoint && f.method === "GET" && f.status === 503,
++  );
++  expect((await ipc("failure-facts")).read_failures).toBe(1);
+   await expect(page.getByRole("dialog")).toHaveCount(0);
+   await expect(page.locator(".system-model-selection")).toContainText(
+     "已保存，当前配置读取失败",
+   );
++  await expect(button(page, "重新读取配置")).toBeEnabled();
+   const replayFacts = await ipc("drop-facts");
+   expect(replayFacts.replayed).toBe(1);
+   expect(replayFacts.same_original).toBe(true);

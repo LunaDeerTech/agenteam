@@ -1,0 +1,54 @@
+{
+  "all_commands_ended": true,
+  "difference": "Only navigation seed strings.Repeat(\"\u957f\u540d\u79f0\",35) to 34; private independent-a/b modes never enter this branch.",
+  "dist_hashes_checked": 31,
+  "formal_validation_evidence": "Reviewed original real ProviderInput.Validate and ModelInput.Validate overlay probe; 4/4 race actual0/5.929s. Embedding/reranker old130/129 rejected, new127/126 accepted; all4 candidates127/124/126/123 accepted; provider128/129 rune and model256/257B boundaries asserted. No service.",
+  "frozen_artifacts": {
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/input02/manifest.json": "af2f9f4a50f4c435e849bf8faf9d8676a11ccd7c3c6d61416dcbfda57f8a72c5",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/input02/source-delta.diff": "faf87ead363733e21bbedd0c1a8b35636b3955410ecb023ca97e21f25c0a1986",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/navigation-validation01/input.json": "2ae413badd9f4d7c6ba9964bf4ef5460c97a85637524c1cb39f765b185980ce4",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/navigation-validation01/navigation_validation_test.go": "5bf37d39a76e78d41ee23af42a7268230a7b9b98e6f784e86c15bd5144ff5a38",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/navigation-validation01/overlay.json": "d22a9665024dccff6976d9ef751d1b5efd459fcca4aa76adb0bab6e5e9b69672",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/harness-baseline02/command.json": "620e47b91d5e6e1327d9902b8b61b706f979c1c53181ee3fd2db8c9bdbd220fb",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/harness-baseline02/raw.log": "20fdf7928b6230bc0552f883a53607e90d0a517b18c3f47dc2f9cb53203fcc04",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/harness-baseline02/result.json": "8310bca86b7cfb2986e56af0de73d3f8bffb9fb49753248e565ae59ccf819dac",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/navigation-contract01/command.json": "977145ae6c95f9dc3b32c69b95074cee548861f1300433549dfd8ebff28705f4",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/navigation-contract01/raw.log": "e6c486e131f1e505e5efb180e82398f6ab2e606539bdc9aca3e98eb1d588a804",
+    "/workspace/scratch/agenteam-model-selection-author-sglwpvis/runs/navigation-contract01/result.json": "2134092f7a99312f664b675f62108a4e5aa5d5a6c5d6992d5c8d4740c41b9956"
+  },
+  "gate_reuse": "Author check-input-only actual0/1.124s on input02. Driver byte-identical to independently reviewed input01.",
+  "independent_private_gate": {
+    "actual_wait": true,
+    "elapsed_seconds": 1.135,
+    "ended_utc": "2026-10-06T12:28:12.551020+00:00",
+    "exit": 0,
+    "pid": 1049235,
+    "raw_sha256": "c0f405e4a569f6d1bba5f77dfbe957532cc1bb576bf6d926b99c2e49affcf5d6",
+    "resources_started": false
+  },
+  "input02_manifest_sha256": "af2f9f4a50f4c435e849bf8faf9d8676a11ccd7c3c6d61416dcbfda57f8a72c5",
+  "private_binding_artifacts": {
+    "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/bound02-to03-fixture.diff": "79e35b67f3398e69fc5e08bb64bc483dd89001c527bb320008869a7db065df5c",
+    "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/execution01-to02-driver.diff": "d12253123ea8da33741e3bdaf2fac63d413a4356327bc223bc6e4b5ed1320dd0",
+    "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/execution02.json": "138f8b66169edf66586e3b88a26cba5e876b22497dd25f3d727ee133db5387b1",
+    "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/runs/gate02/command.json": "37351ce96ae681eb7c4c155ecdfe4bea41c238360256f7d28c3bdec1e72a8d05",
+    "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/runs/gate02/raw.log": "c0f405e4a569f6d1bba5f77dfbe957532cc1bb576bf6d926b99c2e49affcf5d6",
+    "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/runs/gate02/result.json": "425a75cc8b9a3310fc53e43836127388eb340157ed7653d8d76a78c4bbe28004"
+  },
+  "rebound_execution": {
+    "driver_sha256": "172ea2bbd2f0c4a69e64a7d4c680cf1f17ec2e1f3d1ca8e308f9aac7491821e0",
+    "path": "/workspace/scratch/agenteam-selection-real-preparation-6plowa4i/execution02.json",
+    "probe_unchanged_sha256": "4dd471a3aee239599114aa0f6e724ecdc88ea32f0bb81413de1da05cdb8d82e6",
+    "sha256": "138f8b66169edf66586e3b88a26cba5e876b22497dd25f3d727ee133db5387b1"
+  },
+  "resources_started": false,
+  "reuse_limits": [
+    "Original compile/type/discovery retained and reused; no new product/API/owner/browser check run.",
+    "Private fixture only copied one navigation constant and config path relocation; probes/helpers/config/Go top bytes unchanged.",
+    "Author original navigation400 before browser remains a fixture precondition failure; static validation is not real Navigation PASS.",
+    "No real resource ownership or start; root must grant future independent real window."
+  ],
+  "source_hashes_checked": 25,
+  "unchanged": "24 other candidates, production page/API/owner, driver, all1041 accepted inputs and locked runtime identical to input01",
+  "verdict": "STATIC PASS"
+}

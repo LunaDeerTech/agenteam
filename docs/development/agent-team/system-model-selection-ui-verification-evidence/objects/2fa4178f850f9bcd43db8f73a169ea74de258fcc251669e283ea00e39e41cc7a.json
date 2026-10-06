@@ -1,0 +1,157 @@
+{
+  "accepted_base": "bc17167c42ee5d5fc1427adaac099ff888ca959b",
+  "all_commands_ended": true,
+  "artifacts": {
+    "discovery-interpretation.json": "5a35204039c73ab1ba34b33f7bb45947611c97111b65ac06629a008e297446fe",
+    "driver-private-delta.diff": "e0bf9e3f9984a82b1d88443f066240e8723be32a9a1b69737a220b2afc670c54",
+    "execution01.json": "5c65008f40729a44786ae36963b480d0abe14ca9ef955dd25edbb1a777ba985f",
+    "plan.md": "e928c8854c039fdae23f698dee91732786856423c240970097f9d149dbe0d6bb",
+    "preparation-bound02.json": "229c80367e58180362a77f30c7891a047755cbc6b33ff2c38adb205842dd7e27",
+    "preparation-input.json": "54bf0c295748e6f3e86839757e63a13ccb8e64684143c5e781b39200682eb38a",
+    "run-independent01.py": "98455df06e50b7b0ef1be5e29846550006b4334100eb5c8af143ec741c641c4e",
+    "runs/compile01/command.json": "5401385a574516b6b8cbbcfd78197343e1125b24fa8572128ef1f9af6df8efc3",
+    "runs/compile01/raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runs/compile01/result.json": "f3dbc6666b88b38ea504984c6c3c4c80b33d543f52702145f55750ef1929fec8",
+    "runs/gate01/command.json": "d86856a70a1f7a6b9225c883ed30308f7d8eb3b0fe7eefd3a7fd902266045b60",
+    "runs/gate01/raw.log": "c0f405e4a569f6d1bba5f77dfbe957532cc1bb576bf6d926b99c2e49affcf5d6",
+    "runs/gate01/result.json": "af231f8d998dce961672e01fe21c56ecea53e3a72de4ae8757497090b94743b6",
+    "runs/list-a01/command.json": "fe24d1681349ddcc7112e78d2ef7cea760e5b43526514e6ac423d3c68cb65d0c",
+    "runs/list-a01/launch-error.json": "e78ca5581ca10d0d45bf29f49c7fd171d265b1b94e955e31ce467ada4f2dfd4d",
+    "runs/list-a01/raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runs/list-a02/command.json": "dc66b86f7554b6f4cd0ed1420e92b46c56cf218ca448e61e4fd5b4c10c12b057",
+    "runs/list-a02/raw.log": "40d101301e4e5f86bff4bc4ec38b27e211ece3dee78bb728e4da0c2264a0fe7f",
+    "runs/list-a02/result.json": "7e5f1b5a3b4189a0c95ca723459b362a0c62249f9924d188b1234cb82dc5de0c",
+    "runs/list-b01/command.json": "a75f2c4b2812b71199e649c7ca0d9c26fb465ea42700e54ab67e78b1fa3e2cd6",
+    "runs/list-b01/launch-error.json": "11b6a0934735d00cef73f32f3a7bdfbbf01fe47a4302d5d1e38b0b6211867f99",
+    "runs/list-b01/raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runs/list-b02/command.json": "4d098b0e1537b3f9073de697b8fa996a172d456b86081eb6e7e584e890cf6ce8",
+    "runs/list-b02/raw.log": "e3670a1acfd7c00b6b59ad3528092a551f10829a70868880176f34e6eb2b9599",
+    "runs/list-b02/result.json": "4e2bf4cf9dc45e5f9f7575a8f11049302f083566ea7cbf91a0c2555362215bb2",
+    "runs/type01/command.json": "b780e5bd34ea66e4598108069d97c2692c122c79231214e808b8ccb19498808b",
+    "runs/type01/launch-error.json": "41e1d8b46221d0be57f38b42072871a82180d8695adc97a6c50456c6b3c5f0f3",
+    "runs/type01/raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runs/type02/command.json": "4569245cde83bb9407e5817613be9463b1f071b2877a362994e635443ea326e3",
+    "runs/type02/raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runs/type02/result.json": "0484ebc01c3eb1c52ef6763c316ee9fa312ddf1cecf209bcc9870d9e3bd5ea2a"
+  },
+  "author_input01_sha256": "4732889a4490c7166a83cc1e13be2656529f093a30ba660862d441f378692def",
+  "bound_sources": {
+    "bound02/fixed-helpers.ts": "2aff26fa7ce22b2fe08de5c2b762f1b93fabced35b137e756de3b5bdb8509d42",
+    "bound02/fixture-delta.diff": "92843dfbe35a995f5a3e34022c81aa77c0c811770035d56fd8d87466f5bf0550",
+    "bound02/independent.spec.ts": "4dd471a3aee239599114aa0f6e724ecdc88ea32f0bb81413de1da05cdb8d82e6",
+    "bound02/overlay.json": "f99abf7a8dac450ba4254f9a238b10e00324ba8b82fc5bea1fdbe7bf03dd74d2",
+    "bound02/playwright.config.mjs": "9e2767c0d3786f24e56a4411cedbf4b47f1630f94e94cf4abfe7a92c8de2bf5a",
+    "bound02/system_model_selection_web_fixture_test.go": "0a1ba8f480ee0a89b5d0e1966224f2467a5145de170c1cde2ce40e9945c4d29b",
+    "bound02/system_model_selection_web_test.go": "a9f4eaf0ce5a1af367055778459258b44f4834ef2cbe8a1da5e2333751e510d2"
+  },
+  "checks": {
+    "compile01": {
+      "actual_wait": true,
+      "binary_sha256": "db098c296c7fde22d217b098253e3f765dc1185b05a5ec594a60a6b6f133964b",
+      "discovery_exact_one": null,
+      "elapsed_seconds": 59.175,
+      "ended_utc": "2026-10-06T12:23:14.729676+00:00",
+      "exit": 0,
+      "inputs_unchanged": true,
+      "kind": "compile01",
+      "pid": 1024439,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resources_started": false,
+      "tmp_entries": []
+    },
+    "gate01": {
+      "actual_wait": true,
+      "elapsed_seconds": 1.236,
+      "ended_utc": "2026-10-06T12:25:16.776151+00:00",
+      "exit": 0,
+      "pid": 1043822,
+      "raw_sha256": "c0f405e4a569f6d1bba5f77dfbe957532cc1bb576bf6d926b99c2e49affcf5d6",
+      "resources_started": false
+    },
+    "list-a02": {
+      "actual_wait": true,
+      "discovery_exact_one": false,
+      "elapsed_seconds": 2.09,
+      "ended_utc": "2026-10-06T12:23:38.011338+00:00",
+      "exit": 0,
+      "inputs_unchanged": true,
+      "kind": "list-a02",
+      "pid": 1038354,
+      "raw_sha256": "40d101301e4e5f86bff4bc4ec38b27e211ece3dee78bb728e4da0c2264a0fe7f",
+      "resources_started": false,
+      "tmp_entries": [
+        "playwright-transform-cache-1000"
+      ]
+    },
+    "list-b02": {
+      "actual_wait": true,
+      "discovery_exact_one": false,
+      "elapsed_seconds": 2.375,
+      "ended_utc": "2026-10-06T12:23:38.251797+00:00",
+      "exit": 0,
+      "inputs_unchanged": true,
+      "kind": "list-b02",
+      "pid": 1038380,
+      "raw_sha256": "e3670a1acfd7c00b6b59ad3528092a551f10829a70868880176f34e6eb2b9599",
+      "resources_started": false,
+      "tmp_entries": [
+        "playwright-transform-cache-1000"
+      ]
+    },
+    "type02": {
+      "actual_wait": true,
+      "discovery_exact_one": null,
+      "elapsed_seconds": 2.266,
+      "ended_utc": "2026-10-06T12:23:38.067529+00:00",
+      "exit": 0,
+      "inputs_unchanged": true,
+      "kind": "type02",
+      "pid": 1038328,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resources_started": false,
+      "tmp_entries": [
+        "node-compile-cache"
+      ]
+    }
+  },
+  "discovery_corrected_interpretation": {
+    "checked_utc": "2026-10-06T12:24:13.461012+00:00",
+    "correction": "Parser-only reading of actual locked Playwright 1.56 output: Total: 1 test in 1 file. Earlier wrapper expected Total tests: 1 in 1 file. No command or source was rerun or changed.",
+    "resources_started": false,
+    "results": [
+      {
+        "actual_cli_exit": 0,
+        "actual_wait": true,
+        "exactly_one_test_in_own_spec": true,
+        "mode": "independent-a",
+        "original_wrapper_discovery_false_retained": true,
+        "raw_sha256": "40d101301e4e5f86bff4bc4ec38b27e211ece3dee78bb728e4da0c2264a0fe7f",
+        "run": "list-a02"
+      },
+      {
+        "actual_cli_exit": 0,
+        "actual_wait": true,
+        "exactly_one_test_in_own_spec": true,
+        "mode": "independent-b",
+        "original_wrapper_discovery_false_retained": true,
+        "raw_sha256": "e3670a1acfd7c00b6b59ad3528092a551f10829a70868880176f34e6eb2b9599",
+        "run": "list-b02"
+      }
+    ],
+    "verdict": "PASS"
+  },
+  "driver_sha256": "98455df06e50b7b0ef1be5e29846550006b4334100eb5c8af143ec741c641c4e",
+  "execution01_sha256": "5c65008f40729a44786ae36963b480d0abe14ca9ef955dd25edbb1a777ba985f",
+  "frozen": "bound01/bound02, execution01, all preparation run originals and this report now stopped; later binding must use a new version",
+  "limits": [
+    "No browser, service, PostgreSQL, Docker, or test binary ran. Compile-only does not validate SQL execution or DOM behavior.",
+    "Type/list first attempts could not spawn Node because the private PATH was incomplete; three original commands, empty logs and actual tool error classification remain.",
+    "Both second CLI discovery commands actually exited 0 and listed exactly one test. The wrapper returned 1 only because it expected a different summary wording. Original results retained; saved raw output was strictly reinterpreted without rerunning.",
+    "Author navigation name seed defect reported after this input froze is outside the two private modes. Await final input02 before minimal rebinding.",
+    "Old bound01 and plan snapshots retained. No product files or Git changed.",
+    "Shared accepted driver cleanup implementation reused, but actual resource cleanup remains unverified until root grants real execution.",
+    "Exact original command evidence is implemented as task-scoped SELECT queries plus in-memory body/key/CSRF comparisons. Those DB queries remain unexecuted."
+  ],
+  "resources_started": false,
+  "verdict": "OFFLINE PREPARATION PASS; real execution not authorized or run"
+}
