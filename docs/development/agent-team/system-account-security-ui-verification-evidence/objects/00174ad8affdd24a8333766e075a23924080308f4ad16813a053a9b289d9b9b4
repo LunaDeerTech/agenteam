@@ -1,0 +1,42 @@
+--- a/web/src/tests/system-model-selection.spec.ts
++++ b/web/src/tests/system-model-selection.spec.ts
+@@ -516,7 +516,7 @@
+ }
+ 
+ describe('Selection actual App/router/controller interactions', () => {
+-  it('keeps the users default and five leaves, and adds only the exact ninth return target', async () => {
++  it('keeps the users default and six leaves with the exact Selection return target', async () => {
+     const f = await page({ path: '/system' })
+     expect(f.router.currentRoute.value.path).toBe('/system/users')
+     expect(
+@@ -524,8 +524,8 @@
+         .get('nav[aria-label="系统设置"]')
+         .findAll('a')
+         .map((a) => a.text()),
+-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途'])
+-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
++    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
++    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+     await f.wrapper.get('a[href="/system/model-selection"]').trigger('click')
+     await flushPromises()
+     expect(f.wrapper.get('h1').text()).toBe('平台模型用途')
+--- a/tests/account-captcha-web/e2e/system-model-selection.spec.ts
++++ b/tests/account-captcha-web/e2e/system-model-selection.spec.ts
+@@ -1919,7 +1919,7 @@
+     page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+       .getByRole("link"),
+-  ).toHaveCount(5);
++  ).toHaveCount(6);
+   for (const leaf of ["待注册邀请", "Providers", "Models"]) {
+     await page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+@@ -2078,7 +2078,7 @@
+         await expect(page.getByRole("dialog")).toHaveCount(0);
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(5);
++        await expect(top(page).getByRole("link")).toHaveCount(6);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.getByRole("dialog")).toHaveCount(0);

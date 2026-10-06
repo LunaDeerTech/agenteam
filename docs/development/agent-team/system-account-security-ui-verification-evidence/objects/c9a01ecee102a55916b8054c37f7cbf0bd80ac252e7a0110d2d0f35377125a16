@@ -1,0 +1,261 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { type CommitState, type Fetch } from '../api/client'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI } from '../api/system-providers'
+import { createSystemModelAPI } from '../api/system-models'
+import { createSystemModelSelectionAPI, type SelectionCommand } from '../api/system-model-selection'
+import { createSystemAccountSecurityAPI, type AccountSecurityUpdateInput, type SystemAccountSecurityAPI } from '../api/system-account-security'
+import { createSessionController, type SessionController } from '../composables/useSession'
+
+const id = (n: number) => '01901abc-4321-7654-8abc-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z', encoder = new TextEncoder()
+const version = '9007199254740993', successor = '9007199254740994'
+const session = (n = 2): SessionView => ({
+  user: { id: id(1), email: 'admin@example.invalid', username: 'admin', display_name: 'Admin', role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false },
+  session: { id: id(n), issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const values = () => ({ session_idle_seconds: '3600', session_absolute_seconds: '7200', password_reset_seconds: '300', challenge_after_failures: '1' })
+const input = (v = version): AccountSecurityUpdateInput => ({ version: v, ...values() })
+const settings = (v = version, singleton = id(10)) => ({ id: singleton, version: v, ...values(), lifetime_changes_apply_to: 'newly_issued_sessions_and_tokens' })
+const selection = (): SelectionCommand => ({ kind: 'model.selection.update', id: id(20), expected_version: '1', embedding: id(21), memory: id(22), reranker: null, image: null })
+const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': status < 400 ? 'application/json' : 'application/problem+json', 'X-Request-ID': id(99) } })
+const problem = (code: string, status = 503, commit: CommitState = 'not_started') => json({ type: 'urn:agenteam:problem:test', title: '', detail: '', status, code, instance: '/api/v1/system/account-settings', request_id: id(99), commit_state: commit, retry_hint: 'lookup' }, status)
+function gate<T = void>() { let resolve!: (value: T | PromiseLike<T>) => void; const promise = new Promise<T>(done => { resolve = done }); return { promise, resolve } }
+function nativeBody(value: unknown, status = 200, media = 'application/json') {
+  const cancelled = gate(), tail = gate(); let source!: ReadableStreamDefaultController<Uint8Array>
+  const stream = new ReadableStream<Uint8Array>({ start(c) { source = c; c.enqueue(encoder.encode(JSON.stringify(value))) }, cancel() { cancelled.resolve(); return tail.promise } })
+  return { stream, response: new Response(stream, { status, headers: { 'Content-Type': media } }), cancelled, tail, close: () => source.close() }
+}
+const owners: SessionController[] = []
+const stops: (() => void)[] = []
+async function fixture(decorate: (api: SystemAccountSecurityAPI) => SystemAccountSecurityAPI = api => api) {
+  let current = session()
+  let sessionRequest: Fetch = async () => json(current)
+  let securityRequest: Fetch = async (_, init) => json(settings(init.method === 'PUT' ? successor : version))
+  let otherRequest: Fetch = async path => path === '/api/v1/me' ? json({ user: current.user, avatar: null }) : path === '/api/v1/system/model-selection' ? json({ id: id(20), version: '1', configured: null }) : json({ items: [], next_cursor: null })
+  const calls: { path: string; init: RequestInit }[] = []
+  const fetcher: Fetch = async (path, init) => {
+    calls.push({ path, init })
+    if (path === '/api/v1/session') return sessionRequest(path, init)
+    if (path === '/api/v1/auth/bootstrap') return json({ csrf_token: 'A'.repeat(43), challenge_modes: ['rotate'], delivery_channel: 'backend_log' })
+    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
+    if (path === '/api/v1/system/account-settings') return securityRequest(path, init)
+    return otherRequest(path, init)
+  }
+  const auth = createSessionController(createAccountAPI(fetcher), createSystemAccountAPI(fetcher), createSystemInvitationAPI(fetcher), createSystemProviderAPI(fetcher), createSystemModelAPI(fetcher), createSystemModelSelectionAPI(fetcher), decorate(createSystemAccountSecurityAPI(fetcher)))
+  owners.push(auth); await auth.restore()
+  return { auth, calls, api: auth.system.accountSecurity,
+    security: (f: Fetch) => { securityRequest = f }, other: (f: Fetch) => { otherRequest = f },
+    sessionRequest: (f: Fetch) => { sessionRequest = f }, session: (v: SessionView) => { current = v },
+    writes: () => calls.filter(c => c.path === '/api/v1/system/account-settings' && c.init.method === 'PUT'),
+  }
+}
+afterEach(async () => {
+  for (const stop of stops.splice(0)) stop()
+  for (const auth of owners.splice(0)) auth.leave()
+  await flushPromises(); vi.useRealTimers(); vi.restoreAllMocks()
+})
+
+describe('independent account-security owner transport compositions', () => {
+  it('pins only a successful singleton, preserves it across same-identity abandonment, and never confirms a different ID', async () => {
+    const f = await fixture(), allocation = vi.spyOn(crypto, 'randomUUID')
+    await expect(f.api.start(input())).rejects.toMatchObject({ kind: 'invalid-input' })
+    f.security(async () => problem('UNAVAILABLE'))
+    await expect(f.api.get()).rejects.toMatchObject({ kind: 'problem' })
+    await expect(f.api.start(input())).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(allocation).not.toHaveBeenCalled()
+    f.security(async () => json(settings()))
+    await f.api.get(); f.api.abandon()
+    f.security(async (_, init) => json(settings(init.method === 'PUT' ? successor : '9007199254741000', id(11))))
+    await expect(f.api.get()).rejects.toMatchObject({ kind: 'invalid-response' })
+    await expect(f.api.start(input())).rejects.toMatchObject({ kind: 'invalid-response' })
+    expect(f.api.progress).toMatchObject({ phase: 'uncertain', settings: null })
+    f.session(session(3)); await f.auth.restore()
+    expect(f.api.progress).toBeNull()
+    await expect(f.api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect((await f.api.get()).id).toBe(id(11))
+    expect(f.writes()).toHaveLength(1)
+  })
+
+  it('retains exact historical input/key/CSRF across newer observation, failed GET and a later explicit rejection', async () => {
+    const f = await fixture(); await f.api.get()
+    let execution = 0, readFails = true
+    f.security(async (_, init) => {
+      if (init.method === 'GET') return readFails ? problem('UNAVAILABLE') : json(settings('9007199254741000'))
+      execution++
+      if (execution === 1) throw new Error('synthetic-response-cut')
+      return execution === 2 ? problem('VERSION_CONFLICT', 409, 'not_committed') : json(settings(successor))
+    })
+    const mutable = input()
+    await expect(f.api.start(mutable)).rejects.toMatchObject({ kind: 'transport' })
+    ;(mutable as { version: string }).version = '9007199254740999'
+    ;(mutable as { challenge_after_failures: string }).challenge_after_failures = '20'
+    expect(f.api.progress).toMatchObject({ phase: 'uncertain', settings: null, canRetryOriginal: false })
+    let mark = f.calls.length
+    await expect(f.api.checkOriginal()).rejects.toMatchObject({ kind: 'problem' })
+    expect(f.calls.slice(mark).map(c => [c.path, c.init.method])).toEqual([['/api/v1/session', 'GET'], ['/api/v1/system/account-settings', 'GET']])
+    expect(f.api.progress).toMatchObject({ phase: 'uncertain', observation: 'failed', settings: null, canRetryOriginal: true })
+    await expect(f.api.retryOriginal()).rejects.toMatchObject({ kind: 'problem', problem: { code: 'VERSION_CONFLICT', commit_state: 'not_committed' } })
+    expect(f.api.progress?.phase).toBe('uncertain')
+    readFails = false; mark = f.calls.length
+    expect((await f.api.checkOriginal()).version).toBe('9007199254741000')
+    expect(f.calls.slice(mark).map(c => [c.path, c.init.method])).toEqual([['/api/v1/session', 'GET'], ['/api/v1/system/account-settings', 'GET']])
+    expect(f.api.progress).toMatchObject({ phase: 'uncertain', settings: null, observation: 'current' })
+    expect(execution).toBe(2)
+    expect(await f.api.retryOriginal()).toEqual(settings(successor))
+    const writes = f.writes(), first = writes[0]!, headers = new Headers(first.init.headers)
+    expect(writes.length === 3 && writes.every(c => c.init.body === first.init.body && new Headers(c.init.headers).get('Idempotency-Key') === headers.get('Idempotency-Key') && new Headers(c.init.headers).get('X-CSRF-Token') === session().csrf_token)).toBe(true)
+    expect(JSON.parse(first.init.body as string)).toEqual(input())
+    const visible = JSON.stringify([f.auth.state, f.api.progress])
+    expect(visible.includes(headers.get('Idempotency-Key')!) || visible.includes(session().csrf_token) || visible.includes('"body"')).toBe(false)
+    expect(f.calls.some(c => c.path.includes('lookup'))).toBe(false)
+    f.security(async () => problem('UNAVAILABLE'))
+    await expect(f.api.get()).rejects.toMatchObject({ kind: 'problem' })
+    expect(f.api.progress).toMatchObject({ phase: 'confirmed', settings: settings(successor), canRetryOriginal: false })
+    await expect(f.api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(f.writes()).toHaveLength(3)
+  })
+
+  it('issues no configuration GET after failed Session or changed Session/CSRF/role and never hands over the intent', async () => {
+    for (const next of [session(3), { ...session(), csrf_token: 'T'.repeat(43) }, { ...session(), user: { ...session().user, role: 'user' as const } }]) {
+      const f = await fixture(); await f.api.get()
+      f.security(async () => { throw new Error('synthetic-response-cut') })
+      await f.api.start(input()).catch(() => undefined)
+      f.sessionRequest(async () => problem('UNAVAILABLE'))
+      let mark = f.calls.length
+      await expect(f.api.checkOriginal()).rejects.toMatchObject({ kind: 'cancelled' })
+      expect(f.calls.slice(mark).map(c => c.path)).toEqual(['/api/v1/session'])
+      expect(f.api.progress).toMatchObject({ phase: 'uncertain', canRetryOriginal: false })
+      f.sessionRequest(async () => json(next)); mark = f.calls.length
+      await expect(f.api.checkOriginal()).rejects.toMatchObject({ kind: 'cancelled' })
+      expect(f.calls.slice(mark).map(c => c.path)).toEqual(['/api/v1/session'])
+      expect(f.api.progress).toBeNull()
+      await expect(f.api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+      expect(f.writes()).toHaveLength(1)
+    }
+  })
+
+  it('30s visible write timeout keeps all seven domains behind native cancellation until actual join', async () => {
+    const f = await fixture(); await f.api.get(); vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    const body = nativeBody(settings(successor)); f.security(async () => body.response)
+    const write = f.api.start(input()).catch(error => error)
+    try {
+      await flushPromises(); await vi.advanceTimersByTimeAsync(29999)
+      expect(f.api.progress?.phase).toBe('submitting')
+      await vi.advanceTimersByTimeAsync(1); await body.cancelled.promise
+      expect(await write).toMatchObject({ kind: 'cancelled' })
+      expect(f.api.progress).toMatchObject({ phase: 'uncertain', settings: null })
+      expect(f.auth.state.busy).toBe(true)
+      const before = f.calls.length
+      await f.auth.restore(); await f.auth.logout()
+      for (const read of [() => f.auth.personal.getProfile(), () => f.auth.system.listUsers({}), () => f.auth.system.listInvitations({}), () => f.auth.system.providers.list({}), () => f.auth.system.models.listProviders({}), () => f.auth.system.selection.get(), () => f.api.get()])
+        await expect(read()).rejects.toMatchObject({ kind: 'busy' })
+      expect(f.calls.length).toBe(before)
+      f.api.abandon(); expect(f.auth.state.busy).toBe(true)
+      expect(f.api.progress).toBeNull()
+    } finally { body.tail.resolve(); await write; await flushPromises() }
+    expect(f.auth.state.busy).toBe(false)
+    expect(f.api.progress).toBeNull()
+    expect((await f.auth.personal.getProfile()).user.id).toBe(id(1))
+  })
+
+  it('other-domain abandonment leaves a native security read alive and security cleanup leaves Selection owned', async () => {
+    const f = await fixture(), first = nativeBody(settings())
+    f.security(async () => first.response)
+    const reading = f.api.get()
+    try {
+      await flushPromises()
+      f.auth.personal.abandon(); f.auth.system.abandon(); f.auth.system.abandonInvitations(); f.auth.system.providers.abandon(); f.auth.system.models.abandon(); f.auth.system.selection.abandon(); f.auth.entry.abandon()
+      const last = f.calls.at(-1)!
+      expect(last.init.signal?.aborted).toBe(false)
+      expect(f.auth.state.busy).toBe(true)
+    } finally { first.close(); first.tail.resolve(); await reading }
+    const second = nativeBody({ id: id(20), version: '1', configured: null })
+    f.other(async () => second.response)
+    const selectionRead = f.auth.system.selection.get()
+    try {
+      await flushPromises(); f.api.abandon(); f.api.abandonRead()
+      expect(f.calls.at(-1)!.init.signal?.aborted).toBe(false)
+      await expect(f.api.get()).rejects.toMatchObject({ kind: 'busy' })
+      expect(f.auth.state.busy).toBe(true)
+    } finally { second.close(); second.tail.resolve(); await selectionRead }
+    expect(f.auth.state.busy).toBe(false)
+    expect(f.api.progress).toBeNull()
+  })
+
+  it('synchronous submitting abandonment emits zero PUT and confirmed consumers can start an intact successor', async () => {
+    const f = await fixture(); await f.api.get()
+    const stopSubmitting = watch(() => f.api.progress?.phase, phase => { if (phase === 'submitting') f.api.abandon() }, { flush: 'sync' })
+    stops.push(stopSubmitting)
+    await expect(f.api.start(input())).rejects.toMatchObject({ kind: 'cancelled' })
+    expect(f.writes()).toHaveLength(0)
+    expect(f.api.progress).toBeNull(); stopSubmitting()
+    const held = gate<Response>(); let second: Promise<unknown> | undefined
+    const stopConfirmed = watch(() => f.api.progress?.phase, phase => {
+      if (phase !== 'confirmed') return
+      f.api.abandon(); f.security(async () => held.promise)
+      second = f.api.start(input(successor)).catch(error => error)
+    }, { flush: 'sync' }); stops.push(stopConfirmed)
+    const first = f.api.start(input()).catch(error => error)
+    try {
+      await first; await flushPromises()
+      expect(f.writes()).toHaveLength(2)
+      expect(f.api.progress?.phase).toBe('submitting')
+      expect(JSON.parse(f.writes()[1]!.init.body as string).version).toBe(successor)
+      expect(new Headers(f.writes()[0]!.init.headers).get('Idempotency-Key') !== new Headers(f.writes()[1]!.init.headers).get('Idempotency-Key')).toBe(true)
+    } finally { stopConfirmed(); held.resolve(json(settings('9007199254740995'))); await second; await flushPromises() }
+    expect(f.api.progress).toMatchObject({ phase: 'confirmed', settings: settings('9007199254740995') })
+  })
+
+  it('current security403 clears other system private state and write CSRF invalidates the exact current identity', async () => {
+    const f = await fixture(); await f.api.get()
+    f.auth.system.providers.setMaterial('synthetic-' + crypto.randomUUID())
+    f.other(async () => { throw new Error('synthetic-response-cut') })
+    await f.auth.system.selection.start(selection()).catch(() => undefined)
+    expect(f.auth.system.selection.progress?.phase).toBe('uncertain')
+    expect(f.auth.system.providers.material.present).toBe(true)
+    f.security(async () => problem('FORBIDDEN', 403))
+    await f.api.start(input()).catch(() => undefined)
+    expect({ identity: f.auth.personalContext.identity !== null, role: f.auth.state.user?.role, denied: f.auth.system.denied, security: f.api.progress, selection: f.auth.system.selection.progress, material: f.auth.system.providers.material.present }).toEqual({ identity: true, role: 'admin', denied: true, security: null, selection: null, material: false })
+    const mark = f.calls.length
+    await expect(f.api.get()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(f.calls.length).toBe(mark)
+    expect(f.calls.some(c => c.path.endsWith('/logout'))).toBe(false)
+    await f.auth.restore(); expect(f.auth.system.denied).toBe(false)
+    await expect(f.api.start(input())).rejects.toMatchObject({ kind: 'invalid-input' })
+    f.security(async (_, init) => init.method === 'GET' ? json(settings()) : problem('CSRF_FAILED', 403))
+    await f.api.get(); await f.api.start(input()).catch(() => undefined)
+    expect(f.auth.personalContext.identity).toBeNull()
+    expect(f.api.progress).toBeNull()
+    await expect(f.api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+  })
+
+  it.each([401, 403] as const)('late parsed %i respects identity/generation after the read is visibly abandoned', async status => {
+    const parsed = gate(), tail = gate()
+    // Hold only the injected API promise after the real transport parsed its Problem;
+    // native stream cancellation itself is covered by the separate tests above.
+    const f = await fixture(api => ({ ...api, async getSettings(signal) {
+      try { return await api.getSettings(signal) }
+      catch (error) { parsed.resolve(); await tail.promise; throw error }
+    } }))
+    f.security(async () => problem(status === 401 ? 'SESSION_REVOKED' : 'FORBIDDEN', status))
+    const result = f.api.get().catch(error => error)
+    try {
+      await parsed.promise; f.api.abandonRead()
+      expect(await result).toMatchObject({ kind: 'cancelled' })
+      expect(f.auth.state.busy).toBe(true)
+      const before = f.calls.length; await f.auth.restore(); expect(f.calls.length).toBe(before)
+    } finally { tail.resolve(); await result; await flushPromises() }
+    expect(f.auth.system.denied).toBe(false)
+    expect(f.auth.personalContext.identity === null).toBe(status === 401)
+    expect(f.auth.state.busy).toBe(false)
+    f.session(session(4)); await f.auth.restore()
+    expect(f.auth.personalContext.identity?.sessionID).toBe(id(4))
+    expect(f.api.progress).toBeNull()
+  })
+})

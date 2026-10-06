@@ -1,0 +1,90 @@
+{
+  "outcome": "PASS",
+  "activity": "offline frozen evidence and exact delta review only; no product/test/browser execution",
+  "manifest": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input06/manifest.json",
+  "manifest_sha256": "baeaeb37b348167d8407831314e83adb60615dfb7882f248506c7a314c0e4954",
+  "candidate_count": 26,
+  "unchanged_from_input04": 24,
+  "changed_tests": {
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": {
+      "accepted_sha256": "24487a08ddd7d5a8f0d6b8a52471f649863610cfdf877284b28795d6abe25e42",
+      "candidate_sha256": "7e9406fdb9a24dd6edc5119e60b1f73ecfe9526c4a81b024d6561be0d77b2dac"
+    },
+    "web/src/tests/system-model-selection.spec.ts": {
+      "accepted_sha256": "5daedea590e9e08c24e927e1d9ee7e0ea36d7412f45e97bd508a462c99b96a08",
+      "candidate_sha256": "58a4ab79385ea7981cdae656da0636d64b3ca0b90e1068714ed3330232d8fb40"
+    }
+  },
+  "accepted_selection": "debbb28deb7c883fd0b6b77a75354b9b5d7ece0b",
+  "baseline_count": 1051,
+  "baseline_changed": [
+    "web/src/composables/useSystemModelSelection.ts",
+    "web/src/tests/system-model-selection-state.spec.ts"
+  ],
+  "dist_count": 33,
+  "dependencies_unchanged": true,
+  "checks": {
+    "combination-browser-list06": {
+      "exit_code": 0,
+      "raw_sha256": "b9d4cb9e48b80a04e2af2fc5105e30cf3d09d0b7309de541e130f2f23b41d7c9"
+    },
+    "combination-check06": {
+      "exit_code": 0,
+      "raw_sha256": "354786df3788502640517fbec00a1ee06be472ffdb37fb05252c00efa135957e"
+    },
+    "combination-go-list06": {
+      "exit_code": 1,
+      "raw_sha256": "52ad1059e1049b917e938bc8759bee7186d4ee3cd86f0201dc9fb40fb5d325f0"
+    },
+    "combination-go-list06b": {
+      "exit_code": 0,
+      "raw_sha256": "5bcc56352b91bbb08f418908cbd146efc442a27029bf6df80e8b062e88a3bfd9"
+    },
+    "combination-type06": {
+      "exit_code": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "actual_author_combination": {
+    "command": [
+      "sh",
+      "scripts/test-security.sh",
+      "-run",
+      "^(TestAccountSystemAccountSecurityWebNavigationAndLayouts|TestAccountSystemModelSelectionWebNavigationAndLayouts)$"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 0,
+    "seconds": 81.887,
+    "actual_wait": true,
+    "two_top_levels": [
+      [
+        "PASS",
+        "TestAccountSystemAccountSecurityWebNavigationAndLayouts"
+      ],
+      [
+        "PASS",
+        "TestAccountSystemModelSelectionWebNavigationAndLayouts"
+      ]
+    ],
+    "resources": 7,
+    "owned_processes": 95,
+    "adopted_waits": 8,
+    "double_cleanup": true
+  },
+  "evidence": {
+    "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/raw.log": "4eee875e4e6d105f8a17d8cb2a6c1e36ad7b540ba75f1f7912768d1f868573a6",
+    "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/command.json": "fc3d91807290410d1044718a6981590efc75a6d7ec367e4483a5c895e4e3a0b2",
+    "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/result.json": "f06348bfa7c3b9f2cc3ecc4eb8ebfc1cc958279db16b0ef1b15f7a5cd081a5a0",
+    "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/cleanup.json": "25462fd943232c7ecd31b5eb2550aa28a790b328a0b7129efb68716ff3f112bd",
+    "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/input-before.json": "97c36c6bbe4813778882c896a9b00022b944f86b5f8903267b3e40ff1f81c148",
+    "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/input-after.json": "97c36c6bbe4813778882c896a9b00022b944f86b5f8903267b3e40ff1f81c148",
+    "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/driver.py.txt": "e950c5054301cb223e70f5ea7d87e1a6d08a30dbf2f7af45cd9338293db147a6",
+    "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/frozen-input.json": "baeaeb37b348167d8407831314e83adb60615dfb7882f248506c7a314c0e4954"
+  },
+  "retained_limits": [
+    "Original Selection navigation Save-disabled timeout does not have uniquely proven cause.",
+    "No new dynamics in this independent combination review; separate accepted Selection independent pure/real and Account A/B retained.",
+    "Current combination screenshots not viewed by this verifier; no additional visual-review attribution.",
+    "README path27 remains separate final documentation."
+  ]
+}

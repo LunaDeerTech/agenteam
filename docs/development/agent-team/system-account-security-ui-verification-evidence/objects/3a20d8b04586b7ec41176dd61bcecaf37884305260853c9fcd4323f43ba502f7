@@ -1,0 +1,137 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"strconv"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+)
+
+// Read-only side evidence for the one exact Account command observed by this
+// task-owned proxy. Request material stays in memory and is never returned.
+func (f *accountSecurityWebFixture) independentOriginalFacts(ctx context.Context) map[string]any {
+	f.t.Helper()
+	f.mu.Lock()
+	key, accepted, replays := f.lostKey, f.dropped, f.replayed
+	var first *accountSecurityWebAttempt
+	matching, sameBody, sameCSRF := 0, true, true
+	for i := range f.attempts {
+		a := &f.attempts[i]
+		if a.key != key || key == "" {
+			continue
+		}
+		matching++
+		if first == nil {
+			first = a
+		}
+		sameBody = sameBody && bytes.Equal(first.privateRaw, a.privateRaw)
+		sameCSRF = sameCSRF && first.privateCSRF != "" && first.privateCSRF == a.privateCSRF
+	}
+	var original []byte
+	if first != nil {
+		original = append([]byte(nil), first.privateRaw...)
+	}
+	f.mu.Unlock()
+	defer clear(original)
+	if f.mode != "independent-replay" || key == "" || len(original) == 0 || f.oldSessionID == "" {
+		f.t.Fatal("private exact original observation missing")
+	}
+	var request map[string]string
+	if json.Unmarshal(original, &request) != nil || len(request) != 5 {
+		f.t.Fatal("private original request shape invalid")
+	}
+	for _, name := range []string{"version", "session_idle_seconds", "session_absolute_seconds", "password_reset_seconds", "challenge_after_failures"} {
+		if request[name] == "" {
+			f.t.Fatal("private original request field missing")
+		}
+	}
+	expected, err := strconv.ParseInt(request["version"], 10, 64)
+	if err != nil || expected < 1 || expected == 9223372036854775807 {
+		f.t.Fatal("private original expected version invalid")
+	}
+	identity, err := foundation.NewCommandIdentity("account.settings", []string{f.admin.UserID}, "settings-update", foundation.IdempotencyKey(key))
+	if err != nil {
+		f.t.Fatal("private Account command identity invalid")
+	}
+	digest := sha256.Sum256([]byte(identity.Canonical()))
+	identityDigest := "sha256:" + hex.EncodeToString(digest[:])
+	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+	defer closeConnection()
+	var commandCount, auditCount int
+	var commandExact, auditExact bool
+	query := `WITH original AS (
+ SELECT * FROM agenteam_account.commands
+ WHERE namespace='account.settings' AND command_name='settings-update'
+   AND owner_id::text=$2 AND identity_digest=$3
+), original_audit AS (
+ SELECT a.* FROM agenteam_audit.audit_records a
+ JOIN original c ON a.cause_ref=c.id::text
+ WHERE a.producer='account' AND a.ordinal=0
+)
+SELECT
+ (SELECT count(*) FROM original),
+ (SELECT coalesce(bool_and(command_key=$4 AND actor_kind='human'
+   AND user_id::text=$2 AND session_id::text=$5 AND resource_id::text=$1
+   AND expected_version=$6 AND result_version=$6+1
+   AND phase='committed' AND result_code='COMPLETED' AND completed_at IS NOT NULL),false) FROM original),
+ (SELECT count(*) FROM original_audit),
+ (SELECT coalesce(bool_and(scope='system' AND project_id IS NULL
+   AND actor_kind='human' AND user_id::text=$2 AND session_id::text=$5
+   AND action='account.settings.update' AND outcome='success'
+   AND resource_kind='account_settings' AND resource_id::text=$1
+   AND metadata=jsonb_build_object('version',($6+1)::text,'phase','updated',
+     'changed_fields',jsonb_build_array('challenge_after_failures','password_reset_seconds','session_absolute_seconds','session_idle_seconds'))),false) FROM original_audit)`
+	if err := conn.QueryRow(ctx, query, f.singletonID, f.admin.UserID, identityDigest, key, f.oldSessionID, expected).Scan(&commandCount, &commandExact, &auditCount, &auditExact); err != nil {
+		f.t.Fatal("private Account command/Audit read unavailable")
+	}
+	return map[string]any{
+		"original_commands": commandCount, "original_audits": auditCount,
+		"command_metadata_exact": commandExact, "audit_metadata_exact": auditExact,
+		"original_attempts": matching, "accepted_cut": accepted == 1,
+		"accepted_replays": replays, "same_body_bytes": sameBody,
+		"same_original_csrf_nonempty":  sameCSRF,
+		"legal_original_csrf_accepted": accepted == 1 && replays == 1 && sameCSRF,
+	}
+}
+
+func runIndependentAccountSecurity(t *testing.T, mode string, required ...string) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	f := newAccountSecurityWebFixture(t, ctx, mode)
+	observed := f.browserAccountSecurity(ctx)
+	for _, name := range required {
+		if observed[name] != true {
+			t.Fatalf("private Account security browser evidence missing: %s", name)
+		}
+	}
+	if mode == "independent-replay" {
+		v := f.independentOriginalFacts(ctx)
+		if v["original_commands"] != 1 || v["original_audits"] != 1 || v["original_attempts"] != 2 || v["accepted_replays"] != 1 {
+			t.Fatal("private exact original final counts failed")
+		}
+		for _, name := range []string{"command_metadata_exact", "audit_metadata_exact", "accepted_cut", "same_body_bytes", "same_original_csrf_nonempty", "legal_original_csrf_accepted"} {
+			if v[name] != true {
+				t.Fatalf("private exact original final boolean failed: %s", name)
+			}
+		}
+		t.Log("independent original command=1 audit=1 attempts=2 accepted-replays=1; exact Account metadata/body bytes/original legal CSRF true")
+	}
+	t.Logf("independent Account security mode=%s; real browser completed inside original 45s/2m budgets", mode)
+}
+
+func TestAccountSystemAccountSecurityIndependentReplay(t *testing.T) {
+	runIndependentAccountSecurity(t, "independent-replay", "original_exact", "same_original", "history_not_current", "check_not_confirmation", "confirmed_read_only_recovery", "zero_lookup")
+}
+
+func TestAccountSystemAccountSecurityIndependentConflict(t *testing.T) {
+	runIndependentAccountSecurity(t, "independent-conflict", "real_conflict", "four_drafts", "explicit_adoption", "restored_single_confirmation", "native_tab", "old_session_unchanged", "new_session_lifetimes")
+}

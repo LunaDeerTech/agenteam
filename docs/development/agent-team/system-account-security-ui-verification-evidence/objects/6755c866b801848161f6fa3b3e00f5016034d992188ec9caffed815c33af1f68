@@ -1,0 +1,4978 @@
+--- base/web/src/api/client.ts
++++ candidate/web/src/api/client.ts
+@@ -89,6 +89,8 @@
+   getModelSelection: ['GET', '/api/v1/system/model-selection', 200],
+   updateModelSelection: ['PUT', '/api/v1/system/model-selection', 200],
+   lookupModelSelectionCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
++  getAccountSecurity: ['GET', '/api/v1/system/account-settings', 200],
++  updateAccountSecurity: ['PUT', '/api/v1/system/account-settings', 200],
+   createModelCredential: ['POST', '/api/v1/system/model-credentials', 200],
+   getModelCredentialMetadata: ['GET', '/api/v1/system/model-credentials/{id}', 200],
+   lookupProviderCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
+@@ -342,8 +344,21 @@
+   'updateModelSelection',
+   'lookupModelSelectionCommand',
+ ]
++type AccountSecurityEndpoint = 'getAccountSecurity' | 'updateAccountSecurity'
++type AccountSecurityOptions<E extends AccountSecurityEndpoint> = E extends 'getAccountSecurity'
++  ? { signal: AbortSignal }
++  : { signal: AbortSignal; body: unknown; csrf: string; key: string }
++const accountSecurityEndpoints: readonly AccountSecurityEndpoint[] = [
++  'getAccountSecurity',
++  'updateAccountSecurity',
++]
+ 
+ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
++  function request<T, E extends AccountSecurityEndpoint>(
++    endpoint: E,
++    parse: (value: unknown) => T,
++    options: AccountSecurityOptions<E>,
++  ): Promise<T>
+   function request<T, E extends SelectionEndpoint>(
+     endpoint: E,
+     parse: (value: unknown) => T,
+@@ -383,6 +398,7 @@
+       | ProviderEndpoint
+       | ModelEndpoint
+       | SelectionEndpoint
++      | AccountSecurityEndpoint
+     >,
+     parse: (value: unknown) => T,
+     options: RequestOptions & { users?: never; invitations?: never; target?: never },
+@@ -404,7 +420,8 @@
+     if (
+       providerEndpoints.includes(endpoint as ProviderEndpoint) ||
+       modelEndpoints.includes(endpoint as ModelEndpoint) ||
+-      selectionEndpoints.includes(endpoint as SelectionEndpoint)
++      selectionEndpoints.includes(endpoint as SelectionEndpoint) ||
++      accountSecurityEndpoints.includes(endpoint as AccountSecurityEndpoint)
+     ) {
+       try {
+         const target = basePath.includes('{id}')
+--- base/web/src/api/system-account-security.ts
++++ candidate/web/src/api/system-account-security.ts
+@@ -0,0 +1,107 @@
++import { AccountFailure, accountTransport, shape, string, uuid7, type Fetch } from './client'
++import type { WriteOptions } from './account'
++
++export type AccountSecurityValues = Readonly<{
++  session_idle_seconds: string
++  session_absolute_seconds: string
++  password_reset_seconds: string
++  challenge_after_failures: string
++}>
++export type AccountSecuritySettings = AccountSecurityValues &
++  Readonly<{
++    id: string
++    version: string
++    lifetime_changes_apply_to: 'newly_issued_sessions_and_tokens'
++  }>
++export type AccountSecurityUpdateInput = AccountSecurityValues & Readonly<{ version: string }>
++export interface SystemAccountSecurityAPI {
++  getSettings(signal: AbortSignal): Promise<AccountSecuritySettings>
++  updateSettings(
++    input: AccountSecurityUpdateInput,
++    options: WriteOptions,
++  ): Promise<AccountSecuritySettings>
++}
++
++const valueKeys = [
++  'session_idle_seconds',
++  'session_absolute_seconds',
++  'password_reset_seconds',
++  'challenge_after_failures',
++] as const
++const maximumVersion = 9223372036854775807n
++function requireValue(value: boolean) {
++  if (!value) throw new AccountFailure('invalid-response')
++}
++function decimal(value: unknown, minimum: bigint, maximum: bigint): string {
++  const result = string(value, 1, 19)
++  requireValue(/^[1-9][0-9]*$/.test(result))
++  requireValue(BigInt(result) >= minimum && BigInt(result) <= maximum)
++  return result
++}
++function values(value: Record<string, unknown>): AccountSecurityValues {
++  const result = {
++    session_idle_seconds: decimal(value.session_idle_seconds, 900n, 2592000n),
++    session_absolute_seconds: decimal(value.session_absolute_seconds, 3600n, 7776000n),
++    password_reset_seconds: decimal(value.password_reset_seconds, 300n, 7200n),
++    challenge_after_failures: decimal(value.challenge_after_failures, 1n, 20n),
++  }
++  requireValue(BigInt(result.session_idle_seconds) <= BigInt(result.session_absolute_seconds))
++  return Object.freeze(result)
++}
++function settings(value: unknown): AccountSecuritySettings {
++  const v = shape(value, ['id', 'version', ...valueKeys, 'lifetime_changes_apply_to'])
++  const id = string(v.id, 36, 36)
++  requireValue(uuid7.test(id) && v.lifetime_changes_apply_to === 'newly_issued_sessions_and_tokens')
++  return Object.freeze({
++    id,
++    version: decimal(v.version, 1n, maximumVersion),
++    ...values(v),
++    lifetime_changes_apply_to: 'newly_issued_sessions_and_tokens',
++  })
++}
++function input<T>(work: () => T): T {
++  try {
++    return work()
++  } catch {
++    throw new AccountFailure('invalid-input')
++  }
++}
++export function captureAccountSecurityUpdate(value: AccountSecurityUpdateInput) {
++  return input(() => {
++    const v = shape(value, ['version', ...valueKeys])
++    const result: AccountSecurityUpdateInput = Object.freeze({
++      version: decimal(v.version, 1n, maximumVersion - 1n),
++      ...values(v),
++    })
++    requireValue(new TextEncoder().encode(JSON.stringify(result)).byteLength <= 16 * 1024)
++    return result
++  })
++}
++export function createSystemAccountSecurityAPI(fetcher?: Fetch): SystemAccountSecurityAPI {
++  const request = accountTransport(fetcher)
++  return {
++    getSettings: (signal) => request('getAccountSecurity', settings, { signal }),
++    async updateSettings(value, write) {
++      const captured = captureAccountSecurityUpdate(value)
++      const options = input(() => {
++        const v = shape(write, ['csrfToken', 'key', 'signal'])
++        return {
++          csrf: v.csrfToken as string,
++          key: v.key as string,
++          signal: v.signal as AbortSignal,
++        }
++      })
++      return request(
++        'updateAccountSecurity',
++        (value) => {
++          const result = settings(value)
++          requireValue(BigInt(result.version) === BigInt(captured.version) + 1n)
++          requireValue(valueKeys.every((key) => result[key] === captured[key]))
++          // Only the Session owner knows the singleton captured by its first GET.
++          return result
++        },
++        { ...options, body: captured },
++      )
++    },
++  }
++}
+--- base/web/src/composables/useSession.ts
++++ candidate/web/src/composables/useSession.ts
+@@ -71,6 +71,30 @@
+   type SelectionCommand,
+   type SelectionReceipt,
+ } from '../api/system-model-selection'
++import {
++  createSystemAccountSecurityAPI,
++  captureAccountSecurityUpdate,
++  type SystemAccountSecurityAPI,
++  type AccountSecuritySettings,
++  type AccountSecurityUpdateInput,
++} from '../api/system-account-security'
++
++type AccountSecurityAction = 'account-security-read' | 'account-security-write'
++export type SystemAccountSecurityProgress = Readonly<{
++  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
++  settings: AccountSecuritySettings | null
++  observation: 'none' | 'current' | 'failed'
++  contextValid: boolean
++  canRetryOriginal: boolean
++}>
++type SystemAccountSecurityIntent = Readonly<{
++  input: AccountSecurityUpdateInput
++  body: string
++  singletonID: string
++  identity: PersonalIdentity
++  csrf: string
++  key: string
++}>
+ 
+ export type SystemModelSelectionRead =
+   | 'selection-state'
+@@ -195,6 +219,7 @@
+   | ProviderAction
+   | ModelAction
+   | SelectionAction
++  | AccountSecurityAction
+ interface Operation {
+   generation: number
+   kind: Action
+@@ -296,6 +321,7 @@
+   providerAPI: SystemProviderAPI = createSystemProviderAPI(),
+   modelAPI: SystemModelAPI = createSystemModelAPI(),
+   selectionAPI: SystemModelSelectionAPI = createSystemModelSelectionAPI(),
++  accountSecurityAPI: SystemAccountSecurityAPI = createSystemAccountSecurityAPI(),
+ ) {
+   const state = shallowReactive<PublicState>({
+     phase: 'checking',
+@@ -397,6 +423,20 @@
+   const selectionState = shallowReactive<{
+     progress: Omit<SystemModelSelectionProgress, 'contextValid' | 'canRetryOriginal'> | null
+   }>({ progress: null })
++  const accountSecurityRevisions: Record<AccountSecurityAction, number> = {
++    'account-security-read': 0,
++    'account-security-write': 0,
++  }
++  const isAccountSecurityAction = (kind: Action): kind is AccountSecurityAction =>
++    Object.hasOwn(accountSecurityRevisions, kind)
++  let accountSecurityIntent: SystemAccountSecurityIntent | null = null,
++    accountSecuritySingleton: Readonly<{ identity: PersonalIdentity; id: string }> | null = null,
++    accountSecurityUncertain = false,
++    accountSecurityChecked = false,
++    accountSecurityKeyConflict = false
++  const accountSecurityState = shallowReactive<{
++    progress: Omit<SystemAccountSecurityProgress, 'contextValid' | 'canRetryOriginal'> | null
++  }>({ progress: null })
+   const systemDenied = () => sameIdentity(systemState.deniedIdentity, personalContext.identity)
+   let identityEpoch = 0,
+     personalRevision = 0
+@@ -434,6 +474,7 @@
+       clearProviderState()
+       clearModelState()
+       clearSelectionState()
++      clearAccountSecurityState(true)
+       ++systemRevision
+       systemState.deniedIdentity = null
+       sessionCSRF = ''
+@@ -529,6 +570,12 @@
+       (selectionIntent && selectionIntent.csrf !== sessionCSRF)
+     )
+       clearSelectionState()
++    if (
++      !same ||
++      view.user.role !== 'admin' ||
++      (accountSecurityIntent && accountSecurityIntent.csrf !== sessionCSRF)
++    )
++      clearAccountSecurityState(true)
+     state.notice = ''
+     state.fields = {}
+     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
+@@ -962,7 +1009,8 @@
+       | 'invitation-write'
+       | ProviderAction
+       | ModelAction
+-      | SelectionAction = 'personal',
++      | SelectionAction
++      | AccountSecurityAction = 'personal',
+   ): Promise<T> {
+     if (owner) return Promise.reject(new AccountFailure('busy'))
+     const revisionNow = () =>
+@@ -978,7 +1026,9 @@
+                 ? modelRevisions[kind]
+                 : isSelectionAction(kind)
+                   ? selectionRevisions[kind]
+-                  : providerRevisions[kind]
++                  : isAccountSecurityAction(kind)
++                    ? accountSecurityRevisions[kind]
++                    : providerRevisions[kind]
+     const revision = revisionNow()
+     const op: Operation = {
+       kind,
+@@ -1229,6 +1279,7 @@
+           'model-lookup',
+           'selection-write',
+           'selection-lookup',
++          'account-security-write',
+         ].includes(op.kind) &&
+           e.problem?.code === 'CSRF_FAILED')
+       ) {
+@@ -1241,6 +1292,7 @@
+         clearProviderState()
+         clearModelState()
+         clearSelectionState()
++        clearAccountSecurityState(true)
+         systemState.deniedIdentity = identity
+       }
+     }
+@@ -2162,7 +2214,209 @@
+       return performSelection(selectionIntent)
+     },
+   }
++  function clearAccountSecurityState(clearSingleton = false) {
++    const retiring = owner && isAccountSecurityAction(owner.kind) ? owner : null
++    ++accountSecurityRevisions['account-security-read']
++    ++accountSecurityRevisions['account-security-write']
++    accountSecurityIntent = null
++    accountSecurityUncertain = accountSecurityChecked = accountSecurityKeyConflict = false
++    accountSecurityState.progress = null
++    if (clearSingleton) accountSecuritySingleton = null
++    retiring?.abandon?.()
++  }
++  function readAccountSecurity(): Promise<AccountSecuritySettings> {
++    try {
++      const identity = invitationIdentity()
++      return runAuthorized(
++        identity,
++        async (op, current) => {
++          const value = await accountSecurityAPI.getSettings(op.abort.signal)
++          if (!current()) throw new AccountFailure('cancelled')
++          if (
++            accountSecuritySingleton &&
++            (!sameIdentity(accountSecuritySingleton.identity, identity) ||
++              value.id !== accountSecuritySingleton.id)
++          )
++            throw new AccountFailure('invalid-response')
++          accountSecuritySingleton ??= Object.freeze({ identity, id: value.id })
++          return value
++        },
++        undefined,
++        'account-security-read',
++      )
++    } catch (error) {
++      return Promise.reject(error)
++    }
++  }
++  function publishAccountSecurity(
++    phase: SystemAccountSecurityProgress['phase'],
++    settings: AccountSecuritySettings | null = null,
++  ) {
++    accountSecurityState.progress = Object.freeze({ phase, settings, observation: 'none' })
++  }
++  function performAccountSecurity(
++    original: SystemAccountSecurityIntent,
++  ): Promise<AccountSecuritySettings> {
++    if (owner) return Promise.reject(new AccountFailure('busy'))
++    if (accountSecurityIntent !== original || !invitationContext(original))
++      return Promise.reject(new AccountFailure('invalid-input'))
++    const revision = accountSecurityRevisions['account-security-write']
++    const live = () =>
++      accountSecurityIntent === original &&
++      revision === accountSecurityRevisions['account-security-write'] &&
++      invitationContext(original)
++    let dispatched = false
++    accountSecurityChecked = false
++    publishAccountSecurity('submitting')
++    if (!live()) return Promise.reject(new AccountFailure('cancelled'))
++    return runAuthorized(
++      original.identity,
++      async (op, current) => {
++        if (!current() || !live()) throw new AccountFailure('cancelled')
++        // The private bytes, values and version stay bound to one original intent.
++        if (JSON.stringify(original.input) !== original.body)
++          throw new AccountFailure('invalid-input')
++        dispatched = true
++        const value = await accountSecurityAPI.updateSettings(original.input, {
++          csrfToken: original.csrf,
++          key: original.key,
++          signal: op.abort.signal,
++        })
++        if (value.id !== original.singletonID) throw new AccountFailure('invalid-response')
++        return value
++      },
++      undefined,
++      'account-security-write',
++    ).then(
++      (value) => {
++        if (!live()) throw new AccountFailure('cancelled')
++        publishAccountSecurity('confirmed', value)
++        // A synchronous consumer can abandon or start another operation here.
++        if (!live()) throw new AccountFailure('cancelled')
++        accountSecurityIntent = null
++        accountSecurityUncertain = accountSecurityChecked = accountSecurityKeyConflict = false
++        return value
++      },
++      (error: unknown) => {
++        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
++        if (
++          accountSecurityIntent === original &&
++          revision === accountSecurityRevisions['account-security-write'] &&
++          sameIdentity(original.identity, personalContext.identity)
++        ) {
++          const p = e.problem
++          const known =
++            !dispatched ||
++            (p &&
++              ['not_started', 'not_committed'].includes(p.commit_state) &&
++              p.status < 500 &&
++              [
++                'INVALID_ARGUMENT',
++                'VERSION_CONFLICT',
++                'NOT_FOUND',
++                'INVALID_STATE',
++                'RATE_LIMITED',
++                'RESOURCE_DELETED',
++              ].includes(p.code))
++          accountSecurityKeyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
++          accountSecurityUncertain ||= !known || accountSecurityKeyConflict
++          accountSecurityChecked = false
++          publishAccountSecurity(accountSecurityUncertain ? 'uncertain' : 'rejected')
++        }
++        throw e
++      },
++    )
++  }
++  const accountSecurity = {
++    get progress(): SystemAccountSecurityProgress | null {
++      const value = accountSecurityState.progress
++      if (!value) return null
++      const contextValid = !!accountSecurityIntent && invitationContext(accountSecurityIntent)
++      return Object.freeze({
++        ...value,
++        contextValid,
++        canRetryOriginal:
++          !!accountSecurityIntent &&
++          accountSecurityUncertain &&
++          accountSecurityChecked &&
++          !accountSecurityKeyConflict &&
++          contextValid &&
++          !state.busy,
++      })
++    },
++    get: readAccountSecurity,
++    abandonRead() {
++      ++accountSecurityRevisions['account-security-read']
++      if (owner?.kind === 'account-security-read') owner.abandon?.()
++    },
++    abandon() {
++      clearAccountSecurityState()
++    },
++    start(input: AccountSecurityUpdateInput) {
++      try {
++        const identity = invitationIdentity()
++        if (owner || accountSecurityIntent || personalIntent || pending)
++          throw new AccountFailure('busy')
++        if (!accountSecuritySingleton || !sameIdentity(accountSecuritySingleton.identity, identity))
++          throw new AccountFailure('invalid-input')
++        const captured = captureAccountSecurityUpdate(input)
++        const original: SystemAccountSecurityIntent = Object.freeze({
++          input: captured,
++          body: JSON.stringify(captured),
++          singletonID: accountSecuritySingleton.id,
++          identity,
++          csrf: sessionCSRF,
++          key: newKey(),
++        })
++        accountSecurityIntent = original
++        accountSecurityUncertain = accountSecurityChecked = accountSecurityKeyConflict = false
++        return performAccountSecurity(original)
++      } catch (error) {
++        return Promise.reject(error)
++      }
++    },
++    async checkOriginal() {
++      const original = accountSecurityIntent
++      if (!original || !accountSecurityUncertain || owner) throw new AccountFailure('invalid-input')
++      accountSecurityChecked = false
++      await restore()
++      if (accountSecurityIntent !== original || !invitationContext(original))
++        throw new AccountFailure('cancelled')
++      accountSecurityChecked = true
++      // Account exposes no command lookup. This GET is only a current observation.
++      try {
++        const value = await readAccountSecurity()
++        if (
++          accountSecurityIntent === original &&
++          invitationContext(original) &&
++          accountSecurityState.progress
++        )
++          accountSecurityState.progress = Object.freeze({
++            ...accountSecurityState.progress,
++            observation: 'current',
++          })
++        return value
++      } catch (error) {
++        if (
++          accountSecurityIntent === original &&
++          invitationContext(original) &&
++          accountSecurityState.progress
++        )
++          accountSecurityState.progress = Object.freeze({
++            ...accountSecurityState.progress,
++            observation: 'failed',
++          })
++        throw error
++      }
++    },
++    retryOriginal() {
++      if (!accountSecurityIntent || !accountSecurity.progress?.canRetryOriginal)
++        return Promise.reject(new AccountFailure('invalid-input'))
++      return performAccountSecurity(accountSecurityIntent)
++    },
++  }
+   const system = {
++    accountSecurity,
+     selection,
+     models,
+     providers,
+--- base/web/src/composables/useSystemAccountSecurity.ts
++++ candidate/web/src/composables/useSystemAccountSecurity.ts
+@@ -0,0 +1,491 @@
++import {
++  computed,
++  inject,
++  reactive,
++  readonly,
++  ref,
++  shallowReactive,
++  watch,
++  type InjectionKey,
++} from 'vue'
++import { AccountFailure } from '../api/client'
++import {
++  captureAccountSecurityUpdate,
++  type AccountSecuritySettings,
++  type AccountSecurityValues,
++} from '../api/system-account-security'
++import { useSession, type PersonalIdentity, type SessionController } from './useSession'
++
++export const accountSecurityFields = [
++  {
++    key: 'session_idle_seconds',
++    label: '会话空闲期限',
++    unit: '秒',
++    minimum: 900,
++    maximum: 2592000,
++    hint: '900–2592000 秒，不大于会话绝对期限。',
++  },
++  {
++    key: 'session_absolute_seconds',
++    label: '会话绝对期限',
++    unit: '秒',
++    minimum: 3600,
++    maximum: 7776000,
++    hint: '3600–7776000 秒，不小于会话空闲期限。',
++  },
++  {
++    key: 'password_reset_seconds',
++    label: '密码重置有效期',
++    unit: '秒',
++    minimum: 300,
++    maximum: 7200,
++    hint: '300–7200 秒；邀请有效期固定为 24 小时。',
++  },
++  {
++    key: 'challenge_after_failures',
++    label: '触发挑战的失败次数',
++    unit: '次',
++    minimum: 1,
++    maximum: 20,
++    hint: '1–20 次，不能关闭挑战。',
++  },
++] as const
++type Field = keyof AccountSecurityValues
++type Draft = Record<Field, string>
++const emptyDraft = (): Draft => ({
++  session_idle_seconds: '',
++  session_absolute_seconds: '',
++  password_reset_seconds: '',
++  challenge_after_failures: '',
++})
++const same = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
++  !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
++function fieldValues(value: AccountSecurityValues): Draft {
++  return Object.fromEntries(accountSecurityFields.map(({ key }) => [key, value[key]])) as Draft
++}
++
++// This state survives a temporary RouterView unmount. Only Session owns retry bytes/materials.
++export function createSystemAccountSecurity(auth: SessionController = useSession()) {
++  const api = auth.system.accountSecurity
++  const observation = shallowReactive({
++    phase: 'inactive' as 'inactive' | 'loading' | 'ready' | 'error',
++    value: null as AccountSecuritySettings | null,
++    message: '',
++  })
++  const draft = reactive(emptyDraft())
++  const editor = reactive({ ready: false, version: '', conflict: false, message: '' })
++  const state = shallowReactive({
++    confirmed: null as AccountSecuritySettings | null,
++    writeMessage: '',
++    requiresRead: false,
++  })
++  const confirmation = reactive({ open: false, title: '', message: '' })
++  const feedback = ref<'idle' | 'loading' | 'success'>('idle'),
++    checking = ref(false)
++  const progress = computed(() => api.progress)
++  const blocked = computed(() => auth.state.busy || checking.value)
++  const unsettled = computed(() =>
++    ['submitting', 'uncertain'].includes(progress.value?.phase ?? ''),
++  )
++  const locked = computed(
++    () => unsettled.value || editor.conflict || state.requiresRead || !editor.ready,
++  )
++  let base: AccountSecuritySettings | null = null,
++    baseline = JSON.stringify(emptyDraft())
++  let identity = auth.personalContext.identity,
++    revision = 0,
++    readRevision = 0,
++    reading = false,
++    attached = false,
++    activeRoute = false,
++    disposed = false,
++    initial = true
++  let timer: ReturnType<typeof setTimeout> | undefined
++  let confirmationResult: ((value: boolean) => void) | null = null
++  const changed = computed(() => editor.ready && JSON.stringify(draft) !== baseline)
++  const dirty = computed(() => changed.value || editor.conflict || unsettled.value)
++  const authorized = () =>
++    auth.state.phase === 'authenticated' &&
++    auth.personalContext.phase === 'current' &&
++    !!auth.personalContext.identity &&
++    auth.state.user?.role === 'admin' &&
++    !auth.system.denied
++  const current = (own: number, captured: PersonalIdentity | null) =>
++    !disposed &&
++    activeRoute &&
++    own === revision &&
++    authorized() &&
++    same(captured, auth.personalContext.identity)
++  const errors = computed(() => {
++    const result: Partial<Record<Field, string>> = {}
++    if (!editor.ready) return result
++    for (const field of accountSecurityFields) {
++      const value = draft[field.key]
++      if (
++        !/^[1-9][0-9]*$/.test(value) ||
++        value.length > 19 ||
++        BigInt(value) < BigInt(field.minimum) ||
++        BigInt(value) > BigInt(field.maximum)
++      )
++        result[field.key] =
++          `请输入 ${field.minimum}–${field.maximum} 的整数${field.unit === '秒' ? '秒数' : '次数'}，不加空格或前导零。`
++    }
++    if (
++      !result.session_idle_seconds &&
++      !result.session_absolute_seconds &&
++      BigInt(draft.session_idle_seconds) > BigInt(draft.session_absolute_seconds)
++    ) {
++      result.session_idle_seconds = '空闲期限不能大于绝对期限。'
++      result.session_absolute_seconds = '绝对期限不能小于空闲期限。'
++    }
++    return result
++  })
++  const maximumVersion = computed(() => !!base && base.version === '9223372036854775807')
++  const canSave = computed(
++    () =>
++      !!base &&
++      changed.value &&
++      !blocked.value &&
++      !locked.value &&
++      !maximumVersion.value &&
++      observation.phase === 'ready' &&
++      !Object.keys(errors.value).length &&
++      progress.value?.phase !== 'rejected',
++  )
++  function stopFeedback() {
++    clearTimeout(timer)
++    timer = undefined
++    feedback.value = 'idle'
++  }
++  function finishConfirmation(value: boolean) {
++    confirmation.open = false
++    const done = confirmationResult
++    confirmationResult = null
++    done?.(value)
++  }
++  function requestConfirmation(title: string) {
++    if (confirmationResult) return Promise.resolve(false)
++    Object.assign(confirmation, {
++      open: true,
++      title,
++      message:
++        '将放弃本地草稿和本次请求的追踪；此前保存仍可能生效。放弃修改不会撤销服务器已经保存的配置。',
++    })
++    return new Promise<boolean>((resolve) => {
++      confirmationResult = resolve
++    })
++  }
++  function clearRead() {
++    ++readRevision
++    if (reading) api.abandonRead()
++    reading = false
++  }
++  function clearEditor() {
++    base = null
++    baseline = JSON.stringify(emptyDraft())
++    Object.assign(draft, emptyDraft())
++    Object.assign(editor, { ready: false, version: '', conflict: false, message: '' })
++  }
++  function adopt(value: AccountSecuritySettings) {
++    base = value
++    Object.assign(draft, fieldValues(value))
++    baseline = JSON.stringify(draft)
++    Object.assign(editor, { ready: true, version: value.version, conflict: false, message: '' })
++    state.requiresRead = false
++  }
++  function discard(requireRead: boolean) {
++    ++revision
++    clearRead()
++    api.abandon()
++    clearEditor()
++    stopFeedback()
++    state.writeMessage = ''
++    state.requiresRead = requireRead
++  }
++  function invalidate() {
++    discard(false)
++    Object.assign(observation, { phase: 'inactive', value: null, message: '' })
++    state.confirmed = null
++    checking.value = false
++    initial = true
++    finishConfirmation(false)
++  }
++  function observe(value: AccountSecuritySettings, initialize: boolean) {
++    Object.assign(observation, { phase: 'ready', value, message: '' })
++    if (base && value.version !== base.version) {
++      editor.conflict = true
++      editor.message = '当前观察版本已变化。原草稿和编辑版本保持不变，请核对后明确采用最新值。'
++    }
++    if (!base && initialize && !unsettled.value) adopt(value)
++  }
++  function readMessage(error: unknown) {
++    return error instanceof AccountFailure && error.kind === 'cancelled'
++      ? '读取已取消或等待超时，请在当前请求结束后明确重试。'
++      : '未取得完整的当前配置，请明确重新读取。保留的草稿不代表当前服务器配置。'
++  }
++  async function readCurrent(initialize = true): Promise<AccountSecuritySettings | null> {
++    if (!attached || !authorized() || blocked.value) return null
++    initial = false
++    const own = revision,
++      captured = auth.personalContext.identity,
++      read = ++readRevision
++    reading = true
++    const valid = () => attached && current(own, captured) && read === readRevision
++    Object.assign(observation, { phase: 'loading', value: null, message: '' })
++    try {
++      const value = await api.get()
++      if (!valid()) return null
++      observe(value, initialize)
++      return value
++    } catch (error) {
++      if (valid())
++        Object.assign(observation, { phase: 'error', value: null, message: readMessage(error) })
++      return null
++    } finally {
++      if (read === readRevision) reading = false
++    }
++  }
++  async function confirmDiscard(title = '放弃未保存修改？') {
++    if (!dirty.value) return true
++    const own = revision,
++      captured = auth.personalContext.identity
++    return (await requestConfirmation(title)) && current(own, captured)
++  }
++  async function confirmLeave() {
++    if (!(await confirmDiscard())) return false
++    if (!authorized() || disposed || !activeRoute) return !dirty.value
++    discard(unsettled.value)
++    return true
++  }
++  function errorMessage(error: unknown) {
++    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
++    if (progress.value?.phase === 'uncertain')
++      return e.problem?.code === 'IDEMPOTENCY_KEY_REUSED'
++        ? '原请求标识与输入冲突。原请求保持不变，请明确放弃后重新读取。'
++        : '保存结果未确认。请检查当前会话与配置，再显式重试原请求；当前配置读取不能确认原请求。'
++    if (e.problem?.code === 'VERSION_CONFLICT') {
++      editor.conflict = true
++      return '配置版本冲突。四项草稿和原编辑版本已保留，请读取最新配置，核对后明确采用最新值重新编辑。'
++    }
++    if (e.problem?.code === 'INVALID_ARGUMENT')
++      return '请核对四项字段的整数格式、范围及期限关系，修改后再保存。'
++    return '保存未完成，草稿已保留。请检查字段或明确重新读取当前配置。'
++  }
++  async function mutate(work: () => Promise<AccountSecuritySettings>) {
++    const own = revision,
++      captured = auth.personalContext.identity
++    stopFeedback()
++    feedback.value = 'loading'
++    state.writeMessage = ''
++    state.confirmed = null
++    editor.message = ''
++    try {
++      const result = await work()
++      if (!current(own, captured)) return
++      state.confirmed = result
++      clearEditor()
++      state.requiresRead = true
++      feedback.value = 'success'
++      state.writeMessage = '账号安全配置已保存。'
++      timer = setTimeout(() => {
++        if (current(own, captured)) feedback.value = 'idle'
++      }, 2400)
++      const value = await readCurrent()
++      if (!current(own, captured)) return
++      if (!value)
++        state.writeMessage = '保存已确认，当前配置读取失败。请仅重新读取当前配置，不要重复保存。'
++    } catch (error) {
++      if (!current(own, captured)) return
++      feedback.value = 'idle'
++      state.writeMessage = errorMessage(error)
++    }
++  }
++  async function resume() {
++    if (
++      disposed ||
++      !attached ||
++      !activeRoute ||
++      !authorized() ||
++      blocked.value ||
++      !initial ||
++      state.requiresRead
++    )
++      return
++    initial = false
++    await readCurrent(!base)
++  }
++  function afterNavigation(to: string, from: string) {
++    const isPage = (path: string) => path.split(/[?#]/, 1)[0] === '/system/account-security'
++    if (isPage(from) && !isPage(to)) {
++      activeRoute = false
++      invalidate()
++    } else if (isPage(to)) activeRoute = true
++  }
++  const stopIdentity = watch(
++    () =>
++      [
++        auth.personalContext.phase,
++        auth.personalContext.identity,
++        auth.state.user?.role,
++        auth.system.denied,
++        auth.state.busy,
++      ] as const,
++    ([phase, value]) => {
++      if (phase === 'checking') return
++      if (
++        phase === 'invalid' ||
++        !same(identity, value) ||
++        auth.state.user?.role !== 'admin' ||
++        auth.system.denied
++      ) {
++        invalidate()
++        identity = value
++      }
++      void resume()
++    },
++  )
++  function beforeUnload(event: BeforeUnloadEvent) {
++    if (dirty.value) {
++      event.preventDefault()
++      event.returnValue = ''
++    }
++  }
++  window.addEventListener('beforeunload', beforeUnload)
++  return {
++    auth,
++    observation: readonly(observation),
++    draft: readonly(draft),
++    editor: readonly(editor),
++    state: readonly(state),
++    confirmation: readonly(confirmation),
++    progress,
++    feedback,
++    checking,
++    blocked,
++    locked,
++    changed,
++    dirty,
++    errors,
++    maximumVersion,
++    canSave,
++    attach() {
++      attached = true
++      activeRoute = true
++      void resume()
++    },
++    detach() {
++      attached = false
++      clearRead()
++      initial = true
++    },
++    afterNavigation,
++    confirmLeave,
++    finishConfirmation,
++    updateField(field: Field, value: string) {
++      if (
++        !accountSecurityFields.some(({ key }) => key === field) ||
++        !authorized() ||
++        blocked.value ||
++        locked.value ||
++        draft[field] === value
++      )
++        return
++      if (progress.value?.phase === 'rejected') api.abandon()
++      stopFeedback()
++      state.writeMessage = ''
++      draft[field] = value
++    },
++    save() {
++      if (!canSave.value || !base) return Promise.resolve()
++      let captured
++      try {
++        captured = captureAccountSecurityUpdate({ version: base.version, ...draft })
++      } catch {
++        editor.message = '请核对四项字段的整数格式、范围及期限关系。'
++        return Promise.resolve()
++      }
++      return mutate(() => api.start(captured))
++    },
++    async cancel() {
++      const hadUnsettled = unsettled.value
++      if (!(await confirmDiscard())) return
++      if (!authorized() || disposed || !activeRoute) return
++      discard(hadUnsettled)
++      if (!hadUnsettled && observation.phase === 'ready' && observation.value)
++        adopt(observation.value)
++      else state.requiresRead = true
++    },
++    async refresh() {
++      if (blocked.value || !(await confirmDiscard())) return
++      if (!authorized() || disposed || !activeRoute || blocked.value) return
++      discard(false)
++      await readCurrent()
++    },
++    readLatest() {
++      return !unsettled.value && !blocked.value ? readCurrent(false) : Promise.resolve(null)
++    },
++    async adoptLatest() {
++      if (blocked.value || unsettled.value || observation.phase !== 'ready' || !observation.value)
++        return
++      const value = observation.value
++      if (!(await confirmDiscard('放弃草稿并采用最新值？'))) return
++      if (!authorized() || disposed || !activeRoute || blocked.value || observation.value !== value)
++        return
++      discard(false)
++      adopt(value)
++    },
++    async checkOriginal() {
++      if (blocked.value || progress.value?.phase !== 'uncertain') return
++      const own = revision,
++        captured = auth.personalContext.identity
++      checking.value = true
++      try {
++        const value = await api.checkOriginal()
++        if (current(own, captured)) {
++          observe(value, false)
++          state.writeMessage =
++            '已读取当前配置；这不能确认原请求是否接受。请显式重试原请求以取得历史确认。'
++        }
++      } catch (error) {
++        if (current(own, captured)) {
++          Object.assign(observation, { phase: 'error', value: null, message: readMessage(error) })
++          state.writeMessage =
++            '原请求结果仍未确认。当前会话确认后可显式重试原请求；配置读取失败不证明保存未接受。'
++        }
++      } finally {
++        if (own === revision) {
++          checking.value = false
++          initial = false
++        }
++      }
++    },
++    retryOriginal() {
++      return !blocked.value && progress.value?.canRetryOriginal
++        ? mutate(() => api.retryOriginal())
++        : Promise.resolve()
++    },
++    async abandonOperation() {
++      const own = revision,
++        captured = auth.personalContext.identity
++      if ((await requestConfirmation('放弃本次操作的追踪？')) && current(own, captured)) {
++        discard(true)
++        state.writeMessage = '已放弃本地追踪。此前保存仍可能生效，请在当前请求结束后明确读取配置。'
++      }
++    },
++    dispose() {
++      if (disposed) return
++      disposed = true
++      stopIdentity()
++      invalidate()
++      window.removeEventListener('beforeunload', beforeUnload)
++    },
++  }
++}
++export type SystemAccountSecurityController = ReturnType<typeof createSystemAccountSecurity>
++export const systemAccountSecurityKey: InjectionKey<SystemAccountSecurityController> =
++  Symbol('system-account-security')
++export function useSystemAccountSecurity() {
++  const page = inject(systemAccountSecurityKey)
++  if (!page) throw new Error('Account security requires the App controller')
++  return page
++}
+--- base/web/src/App.vue
++++ candidate/web/src/App.vue
+@@ -14,6 +14,7 @@
+   installProviderNavigation,
+   installModelNavigation,
+   installModelSelectionNavigation,
++  installAccountSecurityNavigation,
+ } from './router/auth'
+ import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'
+ import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'
+@@ -23,6 +24,10 @@
+   createSystemModelSelection,
+   systemModelSelectionKey,
+ } from './composables/useSystemModelSelection'
++import {
++  createSystemAccountSecurity,
++  systemAccountSecurityKey,
++} from './composables/useSystemAccountSecurity'
+ const auth = useSession(),
+   state = auth.state,
+   route = useRoute(),
+@@ -45,13 +50,17 @@
+ const selection = createSystemModelSelection(auth)
+ provide(systemModelSelectionKey, selection)
+ const stopSelectionNavigation = installModelSelectionNavigation(router, selection)
++const accountSecurity = createSystemAccountSecurity(auth)
++provide(systemAccountSecurityKey, accountSecurity)
++const stopAccountSecurityNavigation = installAccountSecurityNavigation(router, accountSecurity)
+ async function logout() {
+   if (
+     (await settings.confirmLeave()) &&
+     (await invitations.confirmLeave()) &&
+     (await providers.confirmLeave()) &&
+     (await models.confirmLeave()) &&
+-    (await selection.confirmLeave())
++    (await selection.confirmLeave()) &&
++    (await accountSecurity.confirmLeave())
+   )
+     await auth.logout()
+ }
+@@ -85,6 +94,7 @@
+   providers.afterNavigation(route.fullPath, '')
+   models.afterNavigation(route.fullPath, '')
+   selection.afterNavigation(route.fullPath, '')
++  accountSecurity.afterNavigation(route.fullPath, '')
+   document.addEventListener('visibilitychange', refreshVisible)
+   window.addEventListener('pageshow', refreshVisible)
+ })
+@@ -97,6 +107,8 @@
+   stopProviderNavigation()
+   stopModelNavigation()
+   stopSelectionNavigation()
++  stopAccountSecurityNavigation()
++  accountSecurity.dispose()
+   selection.dispose()
+   models.dispose()
+   providers.dispose()
+--- base/web/src/router/index.ts
++++ candidate/web/src/router/index.ts
+@@ -64,6 +64,10 @@
+           path: 'model-selection',
+           component: () => import('../views/system/SystemModelSelectionView.vue'),
+         },
++        {
++          path: 'account-security',
++          component: () => import('../views/system/SystemAccountSecurityView.vue'),
++        },
+       ],
+     },
+     {
+--- base/web/src/router/auth.ts
++++ candidate/web/src/router/auth.ts
+@@ -11,6 +11,7 @@
+   '/system/providers',
+   '/system/models',
+   '/system/model-selection',
++  '/system/account-security',
+ ] as const
+ type ReturnTarget = (typeof returnTargets)[number]
+ export function safeReturnTarget(value: unknown): ReturnTarget {
+@@ -61,6 +62,12 @@
+ export function installAuthentication(router: Router, auth: SessionController = useSession()) {
+   router.beforeEach(async (to, from) => {
+     // Ask before Session revalidation can temporarily unmount the dirty page.
++    if (
++      from.path === '/system/account-security' &&
++      to.fullPath !== from.fullPath &&
++      !((await accountSecurityNavigation.get(router)?.confirmLeave()) ?? true)
++    )
++      return false
+     if (
+       from.path === '/system/model-selection' &&
+       to.fullPath !== from.fullPath &&
+@@ -115,6 +122,7 @@
+     return true
+   })
+   router.afterEach((to, from, failure) => {
++    if (!failure) accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+     if (!failure) modelSelectionNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+     if (!failure) modelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+     if (!failure) providerNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+@@ -125,6 +133,26 @@
+   })
+ }
+ 
++const accountSecurityNavigation = new WeakMap<
++  Router,
++  {
++    confirmLeave: () => Promise<boolean>
++    afterNavigation: (to: string, from: string) => void
++  }
++>()
++export function installAccountSecurityNavigation(
++  router: Router,
++  owner: {
++    confirmLeave: () => Promise<boolean>
++    afterNavigation: (to: string, from: string) => void
++  },
++) {
++  accountSecurityNavigation.set(router, owner)
++  return () => {
++    if (accountSecurityNavigation.get(router) === owner) accountSecurityNavigation.delete(router)
++  }
++}
++
+ const invitationNavigation = new WeakMap<
+   Router,
+   {
+--- base/web/src/views/system/SystemSettingsView.vue
++++ candidate/web/src/views/system/SystemSettingsView.vue
+@@ -28,6 +28,11 @@
+       { label: 'Models', path: '/system/models' },
+       { label: '平台模型用途', path: '/system/model-selection' },
+     ],
++  },
++  {
++    key: 'platform-configuration',
++    label: '平台配置',
++    children: [{ label: '账号安全', path: '/system/account-security' }],
+   },
+ ]
+ const heading = ref<HTMLElement | null>(null)
+--- base/web/src/views/system/SystemAccountSecurityView.vue
++++ candidate/web/src/views/system/SystemAccountSecurityView.vue
+@@ -0,0 +1,248 @@
++<script setup lang="ts">
++import { nextTick, onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue'
++import UiButton from '../../components/ui/UiButton.vue'
++import UiDialog from '../../components/ui/UiDialog.vue'
++import UiField from '../../components/ui/UiField.vue'
++import UiInput from '../../components/ui/UiInput.vue'
++import UiState from '../../components/ui/UiState.vue'
++import {
++  accountSecurityFields,
++  useSystemAccountSecurity,
++} from '../../composables/useSystemAccountSecurity'
++const page = useSystemAccountSecurity()
++const {
++  observation,
++  editor,
++  draft,
++  state,
++  confirmation,
++  blocked,
++  locked,
++  errors,
++  feedback,
++  progress,
++  canSave,
++  maximumVersion,
++} = page
++const heading = ref<HTMLElement | null>(null),
++  actions = ref<HTMLElement | null>(null)
++let alive = true
++function operable(node: HTMLElement) {
++  if (!node.isConnected || node.matches(':disabled') || !node.getClientRects().length) return false
++  for (let ancestor: HTMLElement | null = node; ancestor; ancestor = ancestor.parentElement)
++    if (ancestor.inert || ancestor.hidden || ancestor.getAttribute('aria-hidden') === 'true')
++      return false
++  return true
++}
++async function perform(work: () => Promise<unknown>, event: Event) {
++  const previous = event instanceof SubmitEvent ? event.submitter : event.currentTarget
++  await work()
++  if (!alive) return
++  await nextTick()
++  if (!alive || blocked.value || confirmation.open) return
++  const focused = document.activeElement
++  if (focused instanceof HTMLElement && focused !== document.body && operable(focused)) return
++  const target =
++    previous instanceof HTMLElement && operable(previous)
++      ? previous
++      : actions.value?.querySelector<HTMLElement>('button:not(:disabled)')
++  if (target && operable(target)) target.focus()
++}
++onMounted(async () => {
++  page.attach()
++  await nextTick()
++  if (alive && !confirmation.open && heading.value && operable(heading.value)) heading.value.focus()
++})
++onBeforeUnmount(() => {
++  alive = false
++})
++onUnmounted(page.detach)
++</script>
++<template>
++  <div class="system-account-security">
++    <h1 ref="heading" tabindex="-1">账号安全</h1>
++    <p class="meta">配置新签发 Session 和密码重置 token 的默认期限，以及触发登录挑战的失败次数。</p>
++    <p class="notice">
++      期限修改只影响随后签发的
++      Session/token，已签发对象保留原期限；挑战阈值在下一次尝试生效。邀请有效期固定为 24
++      小时。保存不会撤销已有登录。
++    </p>
++    <div ref="actions" class="security-actions" aria-label="账号安全页面操作">
++      <UiButton :disabled="blocked" @click="page.refresh">读取当前配置</UiButton>
++    </div>
++    <p v-if="page.auth.state.busy" class="meta" role="status">正在等待当前请求结束。</p>
++    <p v-if="state.writeMessage" class="notice" role="status">{{ state.writeMessage }}</p>
++    <p v-if="state.confirmed" class="meta" aria-label="本次保存的历史确认">
++      原请求已确认，历史结果版本：<code>{{ state.confirmed.version }}</code
++      >。此结果独立于当前读取值。
++    </p>
++    <UiState
++      v-if="progress?.phase === 'uncertain'"
++      kind="error"
++      title="请求结果未确认"
++      description="当前配置读取不能证明原请求是否已接受。请检查会话后显式重试原请求，或明确放弃本地追踪。"
++    >
++      <div class="security-actions">
++        <UiButton :disabled="blocked" @click="page.checkOriginal">检查当前会话与配置</UiButton>
++        <UiButton
++          :disabled="blocked || !progress.canRetryOriginal"
++          @click="perform(page.retryOriginal, $event)"
++          >重试原请求</UiButton
++        >
++        <UiButton variant="ghost" @click="page.abandonOperation">放弃本次操作</UiButton>
++      </div>
++    </UiState>
++    <UiState v-if="observation.phase === 'loading'" kind="loading" title="正在读取账号安全配置" />
++    <UiState
++      v-else-if="observation.phase === 'error'"
++      kind="error"
++      :title="state.confirmed ? '保存已确认，当前配置读取失败' : '账号安全配置读取失败'"
++      :description="observation.message"
++    />
++    <section v-else-if="observation.value" aria-label="当前读取的账号安全配置">
++      <h2>当前读取值</h2>
++      <p class="meta">
++        当前配置版本：<code>{{ observation.value.version }}</code>
++      </p>
++      <dl class="current-values">
++        <div v-for="field in accountSecurityFields" :key="field.key">
++          <dt>{{ field.label }}</dt>
++          <dd>{{ observation.value[field.key] }} {{ field.unit }}</dd>
++        </div>
++      </dl>
++    </section>
++    <p v-if="state.requiresRead" class="notice">
++      请在当前请求结束后明确读取配置。新的编辑基线必须来自成功的当前读取。
++    </p>
++    <form
++      v-if="editor.ready"
++      aria-label="修改账号安全配置"
++      novalidate
++      @submit.prevent="perform(page.save, $event)"
++    >
++      <h2>修改配置</h2>
++      <p class="meta">
++        编辑基线版本：<code>{{ editor.version }}</code>
++      </p>
++      <p v-if="editor.message" class="notice" role="status">{{ editor.message }}</p>
++      <UiState
++        v-if="editor.conflict && progress?.phase !== 'uncertain'"
++        kind="error"
++        title="需要核对最新配置"
++        description="读取最新值不会改写四项草稿或原编辑版本。核对后，明确采用最新值再重新编辑。"
++      >
++        <div class="security-actions">
++          <UiButton :disabled="blocked" @click="page.readLatest">读取最新配置</UiButton>
++          <UiButton :disabled="blocked || observation.phase !== 'ready'" @click="page.adoptLatest"
++            >采用最新值重新编辑</UiButton
++          >
++        </div>
++      </UiState>
++      <p v-if="maximumVersion" class="notice">配置版本已达上限；当前值可读取，不能继续保存。</p>
++      <div class="security-fields">
++        <UiField
++          v-for="field in accountSecurityFields"
++          :key="field.key"
++          v-slot="control"
++          :label="`${field.label}（${field.unit}）`"
++          :hint="field.hint"
++          :error="errors[field.key]"
++          required
++        >
++          <UiInput
++            :id="control.id"
++            :model-value="draft[field.key]"
++            :invalid="control.invalid"
++            :aria-describedby="control.describedby"
++            inputmode="numeric"
++            autocomplete="off"
++            :disabled="blocked || locked || maximumVersion"
++            @update:model-value="page.updateField(field.key, $event)"
++          />
++        </UiField>
++      </div>
++      <div class="security-actions">
++        <UiButton
++          type="submit"
++          variant="primary"
++          :disabled="!canSave"
++          :state="feedback"
++          success-label="账号安全配置已保存"
++          >保存配置</UiButton
++        >
++        <UiButton variant="ghost" :disabled="blocked" @click="page.cancel">取消修改</UiButton>
++      </div>
++    </form>
++    <UiDialog
++      v-if="confirmation.open"
++      :open="confirmation.open"
++      :title="confirmation.title"
++      @update:open="!$event && page.finishConfirmation(false)"
++    >
++      <p>{{ confirmation.message }}</p>
++      <template #footer
++        ><UiButton variant="ghost" @click="page.finishConfirmation(false)">继续编辑</UiButton
++        ><UiButton @click="page.finishConfirmation(true)">放弃修改</UiButton></template
++      >
++    </UiDialog>
++  </div>
++</template>
++<style scoped>
++.system-account-security,
++form,
++section {
++  display: grid;
++  gap: 20px;
++  min-width: 0;
++}
++h2 {
++  font-size: 1.1rem;
++}
++.meta {
++  color: var(--muted);
++}
++p,
++dt,
++dd,
++code {
++  overflow-wrap: anywhere;
++}
++.security-actions {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 10px;
++  align-items: center;
++}
++.security-fields {
++  display: grid;
++  grid-template-columns: repeat(2, minmax(0, 1fr));
++  gap: 20px;
++}
++.security-fields :deep(input) {
++  min-width: 0;
++  width: 100%;
++}
++.current-values {
++  display: grid;
++  grid-template-columns: repeat(2, minmax(0, 1fr));
++  gap: 16px;
++  margin: 0;
++}
++.current-values > div {
++  display: grid;
++  gap: 6px;
++  min-width: 0;
++}
++dt {
++  color: var(--muted);
++}
++dd {
++  margin: 0;
++}
++@media (max-width: 680px) {
++  .security-fields,
++  .current-values {
++    grid-template-columns: minmax(0, 1fr);
++  }
++}
++</style>
+--- base/web/src/tests/system-account-security-client.spec.ts
++++ candidate/web/src/tests/system-account-security-client.spec.ts
+@@ -0,0 +1,313 @@
++import { describe, expect, it, vi } from 'vitest'
++import { flushPromises } from '@vue/test-utils'
++import { accountTransport, type Fetch } from '../api/client'
++import {
++  captureAccountSecurityUpdate,
++  createSystemAccountSecurityAPI,
++  type AccountSecurityUpdateInput,
++} from '../api/system-account-security'
++
++const id = '01900000-0000-7000-8000-000000000001'
++const values = () => ({
++  session_idle_seconds: '604800',
++  session_absolute_seconds: '2592000',
++  password_reset_seconds: '1800',
++  challenge_after_failures: '5',
++})
++const update = (): AccountSecurityUpdateInput => ({ version: '9007199254740993', ...values() })
++const settings = (version = '9007199254740994') => ({
++  id,
++  version,
++  ...values(),
++  lifetime_changes_apply_to: 'newly_issued_sessions_and_tokens',
++})
++const signal = () => new AbortController().signal
++const options = () => ({ signal: signal(), csrfToken: 'S'.repeat(43), key: 'security/original:1' })
++const json = (value: unknown) =>
++  new Response(JSON.stringify(value), { headers: { 'Content-Type': 'application/json' } })
++function deferred<T = void>() {
++  let resolve!: (value: T | PromiseLike<T>) => void
++  const promise = new Promise<T>((done) => (resolve = done))
++  return { promise, resolve }
++}
++const invalidValues: [string, unknown][] = [
++  ['session_idle_seconds', '899'],
++  ['session_idle_seconds', '2592001'],
++  ['session_absolute_seconds', '3599'],
++  ['session_absolute_seconds', '7776001'],
++  ['password_reset_seconds', '299'],
++  ['password_reset_seconds', '7201'],
++  ['challenge_after_failures', '0'],
++  ['challenge_after_failures', '21'],
++  ...['', '01', '+900', '-900', '9e2', '900.0', ' 900', '900 ', '９００', 900, null, false].map(
++    (value): [string, unknown] => ['session_idle_seconds', value],
++  ),
++]
++
++describe('Account security strict Settings and historical success', () => {
++  it('uses only the two fixed operations and preserves the immutable five-field original body', async () => {
++    const fetch = vi.fn<Fetch>(async () => json(settings())),
++      api = createSystemAccountSecurityAPI(fetch),
++      write = options(),
++      original = update(),
++      captured = captureAccountSecurityUpdate(original)
++    ;(original as { password_reset_seconds: string }).password_reset_seconds = '3600'
++    const observed = await api.getSettings(write.signal)
++    const confirmed = await api.updateSettings(captured, write)
++    expect(observed).toEqual(settings())
++    expect(confirmed).toEqual(settings())
++    expect(
++      Object.isFrozen(observed) && Object.isFrozen(confirmed) && Object.isFrozen(captured),
++    ).toBe(true)
++    expect(fetch.mock.calls.map(([path, init]) => [path, init.method])).toEqual([
++      ['/api/v1/system/account-settings', 'GET'],
++      ['/api/v1/system/account-settings', 'PUT'],
++    ])
++    const get = fetch.mock.calls[0]![1],
++      put = fetch.mock.calls[1]![1]
++    for (const request of [get, put])
++      expect(request).toMatchObject({
++        credentials: 'same-origin',
++        cache: 'no-store',
++        redirect: 'error',
++        signal: write.signal,
++      })
++    expect(get.body).toBeUndefined()
++    expect(get.headers).not.toHaveProperty('X-CSRF-Token')
++    expect(get.headers).not.toHaveProperty('Idempotency-Key')
++    expect(put.headers).toMatchObject({
++      'X-CSRF-Token': write.csrfToken,
++      'Idempotency-Key': write.key,
++    })
++    expect(put.body).toBe(JSON.stringify(update()))
++  })
++
++  it.each(invalidValues)(
++    'rejects invalid canonical/range field %s=%s in input and Settings',
++    async (key, value) => {
++      const fetch = vi.fn<Fetch>(async () => json({ ...settings(), [key]: value })),
++        api = createSystemAccountSecurityAPI(fetch)
++      await expect(api.getSettings(signal())).rejects.toMatchObject({ kind: 'invalid-response' })
++      fetch.mockClear()
++      await expect(
++        api.updateSettings({ ...update(), [key]: value }, options()),
++      ).rejects.toMatchObject({
++        kind: 'invalid-input',
++      })
++      expect(fetch).not.toHaveBeenCalled()
++    },
++  )
++
++  it('accepts both legal boundaries, equality and the maximum read-only version without rounding', async () => {
++    for (const fields of [
++      {
++        session_idle_seconds: '900',
++        session_absolute_seconds: '3600',
++        password_reset_seconds: '300',
++        challenge_after_failures: '1',
++      },
++      {
++        session_idle_seconds: '2592000',
++        session_absolute_seconds: '7776000',
++        password_reset_seconds: '7200',
++        challenge_after_failures: '20',
++      },
++      { ...values(), session_idle_seconds: '2592000' },
++    ]) {
++      const api = createSystemAccountSecurityAPI(async () =>
++        json({ ...settings('9223372036854775807'), ...fields }),
++      )
++      expect((await api.getSettings(signal())).version).toBe('9223372036854775807')
++      expect(
++        (await api.updateSettings({ version: '9223372036854775806', ...fields }, options()))
++          .version,
++      ).toBe('9223372036854775807')
++    }
++    const fetch = vi.fn<Fetch>(),
++      api = createSystemAccountSecurityAPI(fetch)
++    for (const version of [
++      '0',
++      '01',
++      '-1',
++      '1.0',
++      '1e1',
++      ' 1',
++      '9223372036854775807',
++      '9223372036854775808',
++      1,
++    ])
++      await expect(
++        api.updateSettings({ ...update(), version } as AccountSecurityUpdateInput, options()),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(fetch).not.toHaveBeenCalled()
++  })
++
++  it('rejects incomplete, extra, inconsistent and malformed Settings without partial publication', async () => {
++    const missing = Object.keys(settings()).map((key) => {
++      const value: Record<string, unknown> = settings()
++      delete value[key]
++      return value
++    })
++    for (const value of [
++      null,
++      [],
++      ...missing,
++      { ...settings(), extra: null },
++      { ...settings(), id: id.replace('-7000-', '-4000-') },
++      { ...settings(), id: 'ABC00000-0000-7000-8000-000000000001' },
++      { ...settings(), lifetime_changes_apply_to: 'all_sessions' },
++      { ...settings(), version: '9223372036854775808' },
++      { ...settings(), version: 1 },
++      { ...settings(), session_idle_seconds: '3601', session_absolute_seconds: '3600' },
++    ])
++      await expect(
++        createSystemAccountSecurityAPI(async () => json(value)).getSettings(signal()),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++    const fetch = vi.fn<Fetch>(),
++      api = createSystemAccountSecurityAPI(fetch)
++    for (const value of [
++      null,
++      [],
++      { ...update(), id },
++      { ...update(), version: undefined },
++      { ...update(), session_idle_seconds: '3601', session_absolute_seconds: '3600' },
++    ])
++      await expect(
++        api.updateSettings(value as AccountSecurityUpdateInput, options()),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(fetch).not.toHaveBeenCalled()
++  })
++
++  it('confirms only the exact original successor and all four values, independently of a newer GET', async () => {
++    const api = createSystemAccountSecurityAPI(async (_, init) =>
++      json(settings(init.method === 'GET' ? '9007199254740998' : '9007199254740994')),
++    )
++    expect((await api.getSettings(signal())).version).toBe('9007199254740998')
++    expect((await api.updateSettings(update(), options())).version).toBe('9007199254740994')
++    for (const value of [
++      settings('9007199254740993'),
++      settings('9007199254740995'),
++      { ...settings(), session_idle_seconds: '900' },
++      { ...settings(), session_absolute_seconds: '7776000' },
++      { ...settings(), password_reset_seconds: '7200' },
++      { ...settings(), challenge_after_failures: '20' },
++    ])
++      await expect(
++        createSystemAccountSecurityAPI(async () => json(value)).updateSettings(update(), options()),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++  })
++
++  it('rejects options outside each closed endpoint before dispatch and retains the 16 KiB request limit', async () => {
++    const fetch = vi.fn<Fetch>(),
++      request = accountTransport(fetch),
++      write = options()
++    for (const extra of [
++      { body: update() },
++      { csrf: write.csrfToken },
++      { key: write.key },
++      { target: id },
++      { users: {} },
++      { query: '' },
++      { headers: {} },
++    ])
++      await expect(
++        request('getAccountSecurity', (v) => v, { signal: write.signal, ...extra }),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    for (const extra of [{ target: id }, { avatar: {} }, { query: '' }, { csrf: '' }, { key: '' }])
++      await expect(
++        request('updateAccountSecurity', (v) => v, {
++          signal: write.signal,
++          csrf: write.csrfToken,
++          key: write.key,
++          body: update(),
++          ...extra,
++        }),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    await expect(
++      request('updateAccountSecurity', (v) => v, {
++        signal: write.signal,
++        csrf: write.csrfToken,
++        key: write.key,
++        body: { value: '🧩'.repeat(4096) },
++      }),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(fetch).not.toHaveBeenCalled()
++  })
++
++  it('waits for native EOF, accepts exactly 600000 bytes and rejects overflow after actual cancel', async () => {
++    let source!: ReadableStreamDefaultController<Uint8Array>
++    const stream = new ReadableStream<Uint8Array>({
++      start(controller) {
++        source = controller
++      },
++    })
++    const text = JSON.stringify(settings()),
++      bytes = new TextEncoder().encode(text + ' '.repeat(600000 - text.length))
++    const api = createSystemAccountSecurityAPI(
++      async () => new Response(stream, { headers: { 'Content-Type': 'application/json' } }),
++    )
++    let completed = false
++    const read = api.getSettings(signal()).then((value) => {
++      completed = true
++      return value
++    })
++    source.enqueue(bytes)
++    await flushPromises()
++    expect(completed).toBe(false)
++    source.close()
++    expect(await read).toEqual(settings())
++    const cancel = deferred(),
++      cancelled = vi.fn(() => cancel.promise)
++    const overflow = createSystemAccountSecurityAPI(
++      async () =>
++        new Response(
++          new ReadableStream<Uint8Array>({
++            start(controller) {
++              controller.enqueue(new Uint8Array(600001))
++            },
++            cancel: cancelled,
++          }),
++          { headers: { 'Content-Type': 'application/json' } },
++        ),
++    )
++    let settled = false
++    const rejected = overflow.getSettings(signal()).catch((error) => {
++      settled = true
++      return error
++    })
++    await flushPromises()
++    expect(cancelled).toHaveBeenCalledTimes(1)
++    expect(settled).toBe(false)
++    cancel.resolve()
++    expect(await rejected).toMatchObject({ kind: 'invalid-response' })
++  })
++
++  it.each(['abort', 'media'] as const)(
++    'joins the original native %s body cancellation',
++    async (mode) => {
++      const tail = deferred(),
++        cancel = vi.fn(() => tail.promise),
++        abort = new AbortController()
++      const api = createSystemAccountSecurityAPI(
++        async () =>
++          new Response(new ReadableStream<Uint8Array>({ cancel }), {
++            headers: { 'Content-Type': mode === 'media' ? 'text/plain' : 'application/json' },
++          }),
++      )
++      let settled = false
++      const task = api.getSettings(abort.signal).catch((error) => {
++        settled = true
++        return error
++      })
++      await flushPromises()
++      if (mode === 'abort') abort.abort()
++      await flushPromises()
++      expect(cancel).toHaveBeenCalledTimes(1)
++      expect(settled).toBe(false)
++      tail.resolve()
++      expect(await task).toMatchObject({
++        kind: mode === 'abort' ? 'cancelled' : 'invalid-response',
++      })
++    },
++  )
++})
+--- base/web/src/tests/system-account-security-state.spec.ts
++++ candidate/web/src/tests/system-account-security-state.spec.ts
+@@ -0,0 +1,746 @@
++import { afterEach, describe, expect, it, vi } from 'vitest'
++import { flushPromises } from '@vue/test-utils'
++import { watch } from 'vue'
++import { createAccountAPI, type SessionView } from '../api/account'
++import { type CommitState, type Fetch } from '../api/client'
++import { createSystemAccountAPI } from '../api/system-account'
++import { createSystemInvitationAPI } from '../api/system-invitations'
++import { createSystemProviderAPI } from '../api/system-providers'
++import { createSystemModelAPI } from '../api/system-models'
++import { createSystemModelSelectionAPI } from '../api/system-model-selection'
++import {
++  createSystemAccountSecurityAPI,
++  type AccountSecurityUpdateInput,
++} from '../api/system-account-security'
++import { createSessionController, type SessionController } from '../composables/useSession'
++import { useTheme } from '../composables/useTheme'
++import {
++  createSystemAccountSecurity,
++  type SystemAccountSecurityController,
++} from '../composables/useSystemAccountSecurity'
++
++const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
++const time = '2026-10-06T12:34:56.123456Z'
++const view = (sessionID = id(2), role: 'admin' | 'user' = 'admin'): SessionView => ({
++  user: {
++    id: id(1),
++    email: 'admin@example.com',
++    username: 'admin',
++    display_name: 'Admin',
++    role,
++    theme: 'system',
++    version: '1',
++    initial_password_suggestion: false,
++  },
++  session: { id: sessionID, issued_at: time, idle_expires_at: time, absolute_expires_at: time },
++  csrf_token: 'S'.repeat(43),
++})
++const values = () => ({
++  session_idle_seconds: '604800',
++  session_absolute_seconds: '2592000',
++  password_reset_seconds: '1800',
++  challenge_after_failures: '5',
++})
++const input = (): AccountSecurityUpdateInput => ({ version: '1', ...values() })
++const settings = (version = '1') => ({
++  id: id(10),
++  version,
++  ...values(),
++  lifetime_changes_apply_to: 'newly_issued_sessions_and_tokens',
++})
++const json = (value: unknown, status = 200) =>
++  new Response(JSON.stringify(value), {
++    status,
++    headers: {
++      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
++      'X-Request-ID': id(9),
++    },
++  })
++const problem = (code: string, status = 503, commit_state: CommitState = 'not_started') =>
++  json(
++    {
++      type: 'urn:agenteam:problem:test',
++      title: 'Failure',
++      status,
++      code,
++      detail: 'private detail',
++      instance: '/api/v1/system/account-settings',
++      request_id: id(9),
++      commit_state,
++      retry_hint: 'lookup',
++    },
++    status,
++  )
++function barrier<T = void>() {
++  let resolve!: (value: T | PromiseLike<T>) => void
++  const promise = new Promise<T>((done) => (resolve = done))
++  return { promise, resolve }
++}
++const owners: SessionController[] = []
++const pages: SystemAccountSecurityController[] = []
++async function fixture() {
++  let current = view()
++  let session: Fetch = async () => json(current)
++  let security: Fetch = async (_, init) => json(settings(init.method === 'PUT' ? '2' : '1'))
++  let other: Fetch = async (path) => {
++    if (path === '/api/v1/me') return json({ user: current.user, avatar: null })
++    if (path === '/api/v1/system/model-selection')
++      return json({ id: id(20), version: '1', configured: null })
++    return json({ items: [], next_cursor: null })
++  }
++  const fetch = vi.fn<Fetch>(async (path, init) => {
++    if (path === '/api/v1/session') return session(path, init)
++    if (path === '/api/v1/auth/bootstrap')
++      return json({
++        csrf_token: 'A'.repeat(43),
++        challenge_modes: ['rotate'],
++        delivery_channel: 'backend_log',
++      })
++    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
++    return path === '/api/v1/system/account-settings' ? security(path, init) : other(path, init)
++  })
++  const auth = createSessionController(
++    createAccountAPI(fetch),
++    createSystemAccountAPI(fetch),
++    createSystemInvitationAPI(fetch),
++    createSystemProviderAPI(fetch),
++    createSystemModelAPI(fetch),
++    createSystemModelSelectionAPI(fetch),
++    createSystemAccountSecurityAPI(fetch),
++  )
++  owners.push(auth)
++  await auth.restore()
++  return {
++    auth,
++    fetch,
++    setSecurity(value: Fetch) {
++      security = value
++    },
++    setOther(value: Fetch) {
++      other = value
++    },
++    setSession(value: SessionView) {
++      current = value
++    },
++    setSessionRequest(value: Fetch) {
++      session = value
++    },
++    writes() {
++      return fetch.mock.calls.filter(
++        ([path, init]) => path === '/api/v1/system/account-settings' && init.method === 'PUT',
++      )
++    },
++  }
++}
++afterEach(() => {
++  for (const page of pages.splice(0)) page.dispose()
++  for (const auth of owners.splice(0)) auth.leave()
++  vi.useRealTimers()
++  vi.restoreAllMocks()
++  useTheme().setTheme('system')
++})
++
++async function controller() {
++  const f = await fixture(),
++    page = createSystemAccountSecurity(f.auth)
++  pages.push(page)
++  page.attach()
++  await flushPromises()
++  return { ...f, page }
++}
++
++describe('Account security current observation, draft and historical result', () => {
++  it('starts from the successful GET, keeps raw strings and performs no unchanged or invalid save', async () => {
++    const f = await controller(),
++      p = f.page
++    expect(p.draft).toEqual(values())
++    expect(p.canSave.value).toBe(false)
++    await p.save()
++    p.updateField('session_idle_seconds', ' 900')
++    expect(p.draft.session_idle_seconds).toBe(' 900')
++    expect(p.errors.value.session_idle_seconds).toBeTruthy()
++    await p.save()
++    p.updateField('session_idle_seconds', '2592000')
++    p.updateField('session_absolute_seconds', '3600')
++    expect(p.errors.value.session_idle_seconds).toBeTruthy()
++    await p.save()
++    expect(f.writes()).toHaveLength(0)
++    p.updateField('session_idle_seconds', '900')
++    p.updateField('session_absolute_seconds', '2592000')
++    expect(p.canSave.value).toBe(true)
++    let current = settings()
++    f.setSecurity(async (_, init) => {
++      if (init.method === 'PUT')
++        current = { ...settings('2'), ...JSON.parse(init.body as string), version: '2' }
++      return json(current)
++    })
++    await p.save()
++    expect(f.writes()).toHaveLength(1)
++    expect(p.state.confirmed?.version).toBe('2')
++    expect(p.editor.version).toBe('2')
++    expect(p.feedback.value).toBe('success')
++    expect(p.dirty.value).toBe(false)
++    p.updateField('password_reset_seconds', '3600')
++    expect(p.feedback.value).toBe('idle')
++    expect(f.writes()).toHaveLength(1)
++    expect(p.canSave.value).toBe(true)
++  })
++
++  it('keeps conflict draft and version until explicit adoption, with no rebase from a current GET', async () => {
++    const f = await controller(),
++      p = f.page
++    p.updateField('session_idle_seconds', '900')
++    f.setSecurity(async (_, init) =>
++      init.method === 'PUT'
++        ? problem('VERSION_CONFLICT', 409)
++        : json({ ...settings('2'), session_idle_seconds: '1800' }),
++    )
++    await p.save()
++    expect(p.editor.conflict).toBe(true)
++    await p.readLatest()
++    expect(p.observation.value?.version).toBe('2')
++    expect(p.editor.version).toBe('1')
++    expect(p.draft.session_idle_seconds).toBe('900')
++    await p.save()
++    expect(f.writes()).toHaveLength(1)
++    const continued = p.adoptLatest()
++    expect(p.confirmation.open).toBe(true)
++    p.finishConfirmation(false)
++    await continued
++    expect(p.editor.version).toBe('1')
++    const adopted = p.adoptLatest()
++    p.finishConfirmation(true)
++    await adopted
++    expect(p.editor.version).toBe('2')
++    expect(p.draft.session_idle_seconds).toBe('1800')
++    expect(p.dirty.value).toBe(false)
++    expect(f.writes()).toHaveLength(1)
++    p.updateField('session_idle_seconds', '900')
++    expect(p.canSave.value).toBe(true)
++  })
++
++  it('preserves a higher current observation and original draft until a historical PUT confirms independently', async () => {
++    const f = await controller(),
++      p = f.page
++    p.updateField('password_reset_seconds', '3600')
++    f.setSecurity(async () => {
++      throw new Error('lost')
++    })
++    await p.save()
++    const first = f.writes()[0]![1]
++    expect(p.progress.value?.phase).toBe('uncertain')
++    f.setSecurity(async (_, init) =>
++      init.method === 'GET'
++        ? json({ ...settings('3'), password_reset_seconds: '7200' })
++        : json({ ...settings('2'), password_reset_seconds: '3600' }),
++    )
++    await p.checkOriginal()
++    expect(p.state.confirmed).toBeNull()
++    expect(p.observation.value?.version).toBe('3')
++    expect(p.editor.version).toBe('1')
++    expect(p.draft.password_reset_seconds).toBe('3600')
++    expect(p.progress.value?.canRetryOriginal).toBe(true)
++    await p.retryOriginal()
++    expect(p.state.confirmed?.version).toBe('2')
++    expect(p.observation.value?.version).toBe('3')
++    expect(p.editor.version).toBe('3')
++    expect(p.draft.password_reset_seconds).toBe('7200')
++    expect(f.writes()[1]![1].body).toBe(first.body)
++    expect(f.writes()[1]![1].headers).toEqual(first.headers)
++    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/lookup'))).toHaveLength(0)
++  })
++
++  it('never reuses a confirmed historical result as a new baseline when the one post-save GET fails', async () => {
++    const f = await controller(),
++      p = f.page
++    p.updateField('challenge_after_failures', '7')
++    f.setSecurity(async (_, init) =>
++      init.method === 'GET'
++        ? problem('UNAVAILABLE')
++        : json({ ...settings('2'), challenge_after_failures: '7' }),
++    )
++    const readsBefore = f.fetch.mock.calls.length
++    await p.save()
++    expect(f.fetch.mock.calls.slice(readsBefore).map(([, init]) => init.method)).toEqual([
++      'PUT',
++      'GET',
++    ])
++    expect(p.state.confirmed?.version).toBe('2')
++    expect(p.observation.phase).toBe('error')
++    expect(p.editor.ready).toBe(false)
++    expect(p.state.writeMessage).toContain('保存已确认，当前配置读取失败')
++    await p.save()
++    await p.retryOriginal()
++    expect(f.writes()).toHaveLength(1)
++    f.setSecurity(async () => json({ ...settings('3'), challenge_after_failures: '9' }))
++    await p.refresh()
++    expect(p.editor.version).toBe('3')
++    expect(p.draft.challenge_after_failures).toBe('9')
++    expect(p.state.confirmed?.version).toBe('2')
++    expect(f.writes()).toHaveLength(1)
++  })
++
++  it('retains same-identity drafts and pending confirmation across checking, but invalidates a new Session', async () => {
++    const f = await controller(),
++      p = f.page
++    p.updateField('password_reset_seconds', '3600')
++    const confirmation = p.confirmLeave(),
++      session = barrier<Response>()
++    f.setSessionRequest(() => session.promise)
++    const restore = f.auth.restore()
++    await flushPromises()
++    p.detach()
++    expect(p.confirmation.open).toBe(true)
++    expect(p.draft.password_reset_seconds).toBe('3600')
++    session.resolve(json(view()))
++    await restore
++    p.attach()
++    await flushPromises()
++    expect(p.confirmation.open).toBe(true)
++    p.finishConfirmation(false)
++    expect(await confirmation).toBe(false)
++    expect(p.draft.password_reset_seconds).toBe('3600')
++    const pending = p.confirmLeave()
++    f.setSessionRequest(async () => json(view(id(3))))
++    await f.auth.restore()
++    await flushPromises()
++    expect(await pending).toBe(false)
++    expect(p.confirmation.open).toBe(false)
++    expect(p.dirty.value).toBe(false)
++    expect(f.writes()).toHaveLength(0)
++  })
++
++  it('abandonment waits for the actual tail and requires a new explicit successful GET before editing', async () => {
++    const f = await controller(),
++      p = f.page,
++      held = barrier<Response>()
++    p.updateField('password_reset_seconds', '3600')
++    f.setSecurity(() => held.promise)
++    const saving = p.save()
++    await flushPromises()
++    const abandoning = p.abandonOperation()
++    p.finishConfirmation(true)
++    await abandoning
++    await saving
++    expect(p.state.requiresRead).toBe(true)
++    expect(p.editor.ready).toBe(false)
++    expect(f.auth.state.busy).toBe(true)
++    const count = f.fetch.mock.calls.length
++    await p.refresh()
++    p.detach()
++    p.attach()
++    held.resolve(json({ ...settings('2'), password_reset_seconds: '3600' }))
++    await flushPromises()
++    expect(f.auth.state.busy).toBe(false)
++    expect(f.fetch.mock.calls).toHaveLength(count)
++    f.setSecurity(async () => json(settings('2')))
++    await p.refresh()
++    expect(p.editor.version).toBe('2')
++    expect(p.dirty.value).toBe(false)
++    expect(f.writes()).toHaveLength(1)
++  })
++
++  it('never creates defaults from failed/null observations and treats maximum version as read-only', async () => {
++    const f = await fixture(),
++      p = createSystemAccountSecurity(f.auth)
++    pages.push(p)
++    f.setSecurity(async () => json(null))
++    p.attach()
++    await flushPromises()
++    expect(p.editor.ready).toBe(false)
++    expect(p.draft).toEqual(emptyValues())
++    await p.save()
++    expect(f.writes()).toHaveLength(0)
++    f.setSecurity(async () => json(settings('9223372036854775807')))
++    await p.refresh()
++    expect(p.maximumVersion.value).toBe(true)
++    p.updateField('password_reset_seconds', '3600')
++    expect(p.canSave.value).toBe(false)
++    await p.save()
++    expect(f.writes()).toHaveLength(0)
++  })
++})
++
++function emptyValues() {
++  return {
++    session_idle_seconds: '',
++    session_absolute_seconds: '',
++    password_reset_seconds: '',
++    challenge_after_failures: '',
++  }
++}
++
++describe('Account security on the seventh independent Cookie domain', () => {
++  it('requires a real singleton observation and captures validated immutable inputs before key allocation', async () => {
++    const f = await fixture(),
++      api = f.auth.system.accountSecurity,
++      key = vi.spyOn(crypto, 'randomUUID')
++    await expect(api.start(input())).rejects.toMatchObject({ kind: 'invalid-input' })
++    await api.get()
++    for (const invalid of [
++      { ...input(), extra: null },
++      { ...input(), version: '9223372036854775807' },
++      { ...input(), password_reset_seconds: ' 300' },
++    ])
++      await expect(api.start(invalid as AccountSecurityUpdateInput)).rejects.toMatchObject({
++        kind: 'invalid-input',
++      })
++    expect(key).not.toHaveBeenCalled()
++    const held = barrier<Response>(),
++      original = input()
++    f.setSecurity(() => held.promise)
++    const task = api.start(original)
++    await flushPromises()
++    ;(original as { password_reset_seconds: string }).password_reset_seconds = '7200'
++    await expect(api.start(input())).rejects.toMatchObject({ kind: 'busy' })
++    expect(key).toHaveBeenCalledTimes(1)
++    expect(f.writes()).toHaveLength(1)
++    expect(f.writes()[0]![1].body).toBe(JSON.stringify(input()))
++    const publicState = JSON.stringify([f.auth.state, api.progress])
++    expect(publicState).not.toContain('S'.repeat(43))
++    expect(publicState).not.toContain(key.mock.results[0]!.value)
++    expect(publicState).not.toContain('"body"')
++    held.resolve(json(settings('2')))
++    expect(await task).toEqual(settings('2'))
++    expect(api.progress).toMatchObject({
++      phase: 'confirmed',
++      settings: settings('2'),
++      canRetryOriginal: false,
++    })
++  })
++
++  it('pins the singleton across same-identity reads and abandonment and rejects a foreign successful write', async () => {
++    const f = await fixture(),
++      api = f.auth.system.accountSecurity
++    await api.get()
++    api.abandon()
++    f.setSecurity(async (_, init) =>
++      json({ ...settings(init.method === 'PUT' ? '2' : '3'), id: id(99) }),
++    )
++    await expect(api.get()).rejects.toMatchObject({ kind: 'invalid-response' })
++    await expect(api.start(input())).rejects.toMatchObject({ kind: 'invalid-response' })
++    expect(api.progress?.phase).toBe('uncertain')
++    f.setSession(view(id(3)))
++    await f.auth.restore()
++    expect(api.progress).toBeNull()
++    expect((await api.get()).id).toBe(id(99))
++  })
++
++  it('checks Session plus current GET without lookup, then replays identical bytes/key/CSRF after a higher observation', async () => {
++    const f = await fixture(),
++      api = f.auth.system.accountSecurity
++    await api.get()
++    f.setSecurity(async () => {
++      throw new Error('response lost')
++    })
++    await expect(api.start(input())).rejects.toMatchObject({ kind: 'transport' })
++    const first = f.writes()[0]![1]
++    expect(api.progress?.canRetryOriginal).toBe(false)
++    const before = f.fetch.mock.calls.length
++    f.setSecurity(async (_, init) =>
++      init.method === 'GET' ? json(settings('3')) : json(settings('2')),
++    )
++    expect(await api.checkOriginal()).toEqual(settings('3'))
++    expect(f.fetch.mock.calls.slice(before).map(([path, init]) => [path, init.method])).toEqual([
++      ['/api/v1/session', 'GET'],
++      ['/api/v1/system/account-settings', 'GET'],
++    ])
++    expect(api.progress).toMatchObject({
++      phase: 'uncertain',
++      observation: 'current',
++      settings: null,
++      canRetryOriginal: true,
++    })
++    expect(await api.retryOriginal()).toEqual(settings('2'))
++    const second = f.writes()[1]![1]
++    expect([second.body, second.headers]).toEqual([first.body, first.headers])
++    expect(api.progress).toMatchObject({
++      phase: 'confirmed',
++      settings: settings('2'),
++      canRetryOriginal: false,
++    })
++    expect(f.fetch.mock.calls.some(([path]) => path.endsWith('/lookup'))).toBe(false)
++    await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++  })
++
++  it.each([
++    ['VERSION_CONFLICT', 409, 'not_started', 'rejected'],
++    ['INVALID_ARGUMENT', 400, 'not_committed', 'rejected'],
++    ['UNAVAILABLE', 503, 'not_started', 'uncertain'],
++    ['RESOURCE_BUSY', 409, 'not_started', 'uncertain'],
++    ['COMMIT_UNKNOWN', 503, 'unknown', 'uncertain'],
++    ['VERSION_CONFLICT', 409, 'committed', 'uncertain'],
++    ['IDEMPOTENCY_KEY_REUSED', 409, 'not_started', 'uncertain'],
++  ] as const)(
++    'classifies %s/%i/%s without turning a later rejection into proof of no commit',
++    async (code, status, commit, phase) => {
++      const f = await fixture(),
++        api = f.auth.system.accountSecurity
++      await api.get()
++      f.setSecurity(async () => problem(code, status, commit))
++      await api.start(input()).catch(() => undefined)
++      expect(api.progress?.phase).toBe(phase)
++      if (phase === 'rejected') {
++        api.abandon()
++        f.setSecurity(async () => {
++          throw new Error('lost')
++        })
++        await api.start(input()).catch(() => undefined)
++        f.setSecurity(async (_, init) =>
++          init.method === 'GET' ? json(settings('3')) : problem(code, status, commit),
++        )
++        await api.checkOriginal()
++        await api.retryOriginal().catch(() => undefined)
++        expect(api.progress?.phase).toBe('uncertain')
++        expect(f.writes()[1]![1].body).toBe(f.writes()[2]![1].body)
++        expect(f.writes()[1]![1].headers).toEqual(f.writes()[2]![1].headers)
++      } else if (code === 'IDEMPOTENCY_KEY_REUSED') {
++        f.setSecurity(async () => json(settings('3')))
++        await api.checkOriginal()
++        expect(api.progress?.canRetryOriginal).toBe(false)
++      }
++    },
++  )
++
++  it('preserves the original through failed Session/current reads and enables replay only after current Session', async () => {
++    const f = await fixture(),
++      api = f.auth.system.accountSecurity
++    await api.get()
++    f.setSecurity(async () => problem('UNAVAILABLE'))
++    await api.start(input()).catch(() => undefined)
++    f.setSessionRequest(async () => problem('UNAVAILABLE'))
++    const before = f.fetch.mock.calls.length
++    await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'cancelled' })
++    expect(f.fetch.mock.calls.slice(before).map(([path]) => path)).toEqual(['/api/v1/session'])
++    expect(api.progress).toMatchObject({ phase: 'uncertain', canRetryOriginal: false })
++    f.setSessionRequest(async () => json(view()))
++    await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'problem' })
++    expect(api.progress).toMatchObject({
++      phase: 'uncertain',
++      observation: 'failed',
++      canRetryOriginal: true,
++    })
++    f.setSecurity(async () => json(settings('2')))
++    await api.retryOriginal()
++    expect(f.writes()[0]![1].body).toBe(f.writes()[1]![1].body)
++    expect(f.writes()[0]![1].headers).toEqual(f.writes()[1]![1].headers)
++  })
++
++  it.each(['read', 'write'] as const)(
++    'holds the native %s EOF and cancel tail across the 30-second visible deadline',
++    async (kind) => {
++      const f = await fixture(),
++        api = f.auth.system.accountSecurity
++      await api.get()
++      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
++      const tail = barrier(),
++        cancel = vi.fn(() => tail.promise)
++      let source!: ReadableStreamDefaultController<Uint8Array>
++      f.setSecurity(
++        async () =>
++          new Response(
++            new ReadableStream<Uint8Array>({
++              start(value) {
++                source = value
++              },
++              cancel,
++            }),
++            { headers: { 'Content-Type': 'application/json' } },
++          ),
++      )
++      const task = (kind === 'read' ? api.get() : api.start(input())).catch((error) => error)
++      await flushPromises()
++      source.enqueue(
++        new TextEncoder().encode(JSON.stringify(settings(kind === 'write' ? '2' : '1'))),
++      )
++      await flushPromises()
++      expect(f.auth.state.busy).toBe(true)
++      await vi.advanceTimersByTimeAsync(30000)
++      expect(await task).toMatchObject({ kind: 'cancelled' })
++      expect(cancel).toHaveBeenCalledTimes(1)
++      const count = f.fetch.mock.calls.length
++      await f.auth.restore()
++      await f.auth.logout()
++      await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
++      await expect(f.auth.system.selection.get()).rejects.toMatchObject({ kind: 'busy' })
++      expect(f.fetch.mock.calls).toHaveLength(count)
++      api.abandon()
++      expect(f.auth.state.busy).toBe(true)
++      tail.resolve()
++      await flushPromises()
++      expect(f.auth.state.busy).toBe(false)
++      expect(api.progress).toBeNull()
++    },
++  )
++
++  it('retains an abort-ignoring fetch owner after visible abandonment and leaves the old identity unable to publish', async () => {
++    const f = await fixture(),
++      api = f.auth.system.accountSecurity,
++      fetch = barrier<Response>()
++    f.setSecurity(() => fetch.promise)
++    const task = api.get().catch((error) => error)
++    await flushPromises()
++    f.auth.leave()
++    expect(await task).toMatchObject({ kind: 'cancelled' })
++    const count = f.fetch.mock.calls.length
++    f.setSession(view(id(3)))
++    await f.auth.restore()
++    expect(f.fetch.mock.calls).toHaveLength(count)
++    fetch.resolve(json(settings()))
++    await flushPromises()
++    expect(f.auth.state.busy).toBe(false)
++    expect(f.auth.personalContext.identity).toBeNull()
++    await f.auth.restore()
++    await expect(api.start(input())).rejects.toMatchObject({ kind: 'invalid-input' })
++  })
++
++  it.each(['personal', 'users', 'invitations', 'providers', 'models', 'selection'] as const)(
++    'isolates %s abandonment in both directions without freeing actual ownership',
++    async (domain) => {
++      const f = await fixture(),
++        api = f.auth.system.accountSecurity
++      const other = () =>
++        ({
++          personal: () => f.auth.personal.getProfile(),
++          users: () => f.auth.system.listUsers({}),
++          invitations: () => f.auth.system.listInvitations({}),
++          providers: () => f.auth.system.providers.list({}),
++          models: () => f.auth.system.models.listProviders({}),
++          selection: () => f.auth.system.selection.get(),
++        })[domain]()
++      const abandon = () =>
++        ({
++          personal: () => f.auth.personal.abandon(),
++          users: () => f.auth.system.abandon(),
++          invitations: () => f.auth.system.abandonInvitations(),
++          providers: () => f.auth.system.providers.abandon(),
++          models: () => f.auth.system.models.abandon(),
++          selection: () => f.auth.system.selection.abandon(),
++        })[domain]()
++      const held = barrier<Response>()
++      f.setSecurity(() => held.promise)
++      const securityRead = api.get()
++      await flushPromises()
++      abandon()
++      expect(f.fetch.mock.calls.at(-1)![1].signal?.aborted).toBe(false)
++      await expect(other()).rejects.toMatchObject({ kind: 'busy' })
++      held.resolve(json(settings()))
++      await securityRead
++      const otherTail = barrier<Response>()
++      f.setOther(() => otherTail.promise)
++      const otherRead = other().catch((error) => error)
++      await flushPromises()
++      api.abandon()
++      expect(f.fetch.mock.calls.at(-1)![1].signal?.aborted).toBe(false)
++      await expect(api.get()).rejects.toMatchObject({ kind: 'busy' })
++      otherTail.resolve(
++        domain === 'personal'
++          ? json({ user: view().user, avatar: null })
++          : domain === 'selection'
++            ? json({ id: id(20), version: '1', configured: null })
++            : json({ items: [], next_cursor: null }),
++      )
++      await otherRead
++      expect(f.auth.state.busy).toBe(false)
++    },
++  )
++
++  it.each(['CSRF_FAILED', 'SESSION_REVOKED', 'FORBIDDEN'] as const)(
++    'handles current %s without changing the public role',
++    async (code) => {
++      const f = await fixture(),
++        api = f.auth.system.accountSecurity
++      await api.get()
++      f.setSecurity(async () => problem(code, code === 'SESSION_REVOKED' ? 401 : 403))
++      await api.start(input()).catch(() => undefined)
++      expect(api.progress).toBeNull()
++      if (code === 'FORBIDDEN') {
++        expect(f.auth.system.denied).toBe(true)
++        expect(f.auth.state.user?.role).toBe('admin')
++        const count = f.fetch.mock.calls.length
++        await expect(f.auth.system.selection.get()).rejects.toMatchObject({ kind: 'invalid-input' })
++        expect(f.fetch.mock.calls).toHaveLength(count)
++        await f.auth.restore()
++        expect(f.auth.system.denied).toBe(false)
++      } else expect(f.auth.personalContext.identity).toBeNull()
++    },
++  )
++
++  it.each([401, 403] as const)(
++    'handles a parsed late %i after actual finalizer without stale authority pollution',
++    async (status) => {
++      const f = await fixture(),
++        api = f.auth.system.accountSecurity,
++        tail = barrier(),
++        entered = barrier()
++      const response = problem(status === 401 ? 'SESSION_REVOKED' : 'FORBIDDEN', status)
++      const cancel = response.body!.cancel.bind(response.body)
++      response.body!.cancel = async () => {
++        entered.resolve()
++        await tail.promise
++        return cancel()
++      }
++      f.setSecurity(async () => response)
++      const task = api.get().catch((error) => error)
++      await entered.promise
++      api.abandonRead()
++      expect(await task).toMatchObject({ kind: 'cancelled' })
++      expect(f.auth.state.busy).toBe(true)
++      tail.resolve()
++      await flushPromises()
++      expect(f.auth.system.denied).toBe(false)
++      expect(f.auth.personalContext.identity === null).toBe(status === 401)
++    },
++  )
++
++  it('never hands an original to the same user in a new Session, a new CSRF or an ordinary role', async () => {
++    for (const next of [
++      view(id(3)),
++      { ...view(), csrf_token: 'T'.repeat(43) },
++      view(id(2), 'user'),
++    ]) {
++      const f = await fixture(),
++        api = f.auth.system.accountSecurity
++      await api.get()
++      f.setSecurity(async () => problem('UNAVAILABLE'))
++      await api.start(input()).catch(() => undefined)
++      f.setSession(next)
++      await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'cancelled' })
++      expect(api.progress).toBeNull()
++      expect(f.writes()).toHaveLength(1)
++      await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++      if (next.user.role === 'user') {
++        const count = f.fetch.mock.calls.length
++        await expect(api.get()).rejects.toMatchObject({ kind: 'invalid-input' })
++        await expect(api.start(input())).rejects.toMatchObject({ kind: 'invalid-input' })
++        expect(f.fetch.mock.calls).toHaveLength(count)
++      }
++    }
++  })
++
++  it('does not clear a synchronous confirmed consumer’s new intent', async () => {
++    const f = await fixture(),
++      api = f.auth.system.accountSecurity,
++      next = barrier<Response>()
++    await api.get()
++    let successor: Promise<unknown> | undefined
++    const stop = watch(
++      () => api.progress?.phase,
++      (phase) => {
++        if (phase !== 'confirmed') return
++        api.abandon()
++        f.setSecurity(() => next.promise)
++        successor = api.start({ ...input(), version: '2' }).catch((error) => error)
++      },
++      { flush: 'sync' },
++    )
++    await api.start(input()).catch(() => undefined)
++    await flushPromises()
++    expect(f.writes()).toHaveLength(2)
++    expect(api.progress?.phase).toBe('submitting')
++    stop()
++    next.resolve(json(settings('3')))
++    await successor
++    expect(api.progress?.settings?.version).toBe('3')
++  })
++})
+--- base/web/src/tests/system-account-security.spec.ts
++++ candidate/web/src/tests/system-account-security.spec.ts
+@@ -0,0 +1,431 @@
++import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
++import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
++import { createMemoryHistory, createRouter, isNavigationFailure } from 'vue-router'
++import type { SessionController } from '../composables/useSession'
++const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
++vi.mock('../composables/useSession', async (original) => ({
++  ...(await original<typeof import('../composables/useSession')>()),
++  useSession: () => selected.auth!,
++}))
++import { createSessionController } from '../composables/useSession'
++import { createAccountAPI, type SessionView } from '../api/account'
++import { createSystemAccountAPI } from '../api/system-account'
++import { createSystemInvitationAPI } from '../api/system-invitations'
++import { createSystemProviderAPI } from '../api/system-providers'
++import { createSystemModelAPI } from '../api/system-models'
++import { createSystemModelSelectionAPI } from '../api/system-model-selection'
++import { createSystemAccountSecurityAPI } from '../api/system-account-security'
++import type { Fetch } from '../api/client'
++import { installAuthentication, safeReturnTarget } from '../router/auth'
++import { useTheme } from '../composables/useTheme'
++import App from '../App.vue'
++import HomeView from '../views/HomeView.vue'
++import LoginView from '../views/auth/LoginView.vue'
++import SystemSettingsView from '../views/system/SystemSettingsView.vue'
++import SystemUsersView from '../views/system/SystemUsersView.vue'
++import SystemAccountSecurityView from '../views/system/SystemAccountSecurityView.vue'
++
++const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
++const time = '2026-10-06T12:34:56.123456Z'
++const sessionView = (): SessionView => ({
++  user: {
++    id: id(1),
++    email: 'admin@example.com',
++    username: 'admin',
++    display_name: 'Admin',
++    role: 'admin',
++    theme: 'dark',
++    version: '1',
++    initial_password_suggestion: false,
++  },
++  session: { id: id(2), issued_at: time, idle_expires_at: time, absolute_expires_at: time },
++  csrf_token: 'S'.repeat(43),
++})
++const settings = (version = '1') => ({
++  id: id(10),
++  version,
++  session_idle_seconds: '604800',
++  session_absolute_seconds: '2592000',
++  password_reset_seconds: '1800',
++  challenge_after_failures: '5',
++  lifetime_changes_apply_to: 'newly_issued_sessions_and_tokens',
++})
++const json = (value: unknown, status = 200) =>
++  new Response(JSON.stringify(value), {
++    status,
++    headers: {
++      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
++      'X-Request-ID': id(9),
++    },
++  })
++const problem = (code: string, status = 503) =>
++  json(
++    {
++      type: 'urn:agenteam:problem:test',
++      title: 'Failure',
++      status,
++      code,
++      detail: '<private detail>',
++      instance: '/api/v1/system/account-settings',
++      request_id: id(9),
++      commit_state: 'not_started',
++    },
++    status,
++  )
++function barrier<T>() {
++  let resolve!: (value: T | PromiseLike<T>) => void
++  const promise = new Promise<T>((done) => (resolve = done))
++  return { promise, resolve }
++}
++let wrapper: VueWrapper | undefined
++beforeEach(() => {
++  vi.stubGlobal(
++    'matchMedia',
++    vi.fn((media: string) => ({
++      media,
++      matches: false,
++      addEventListener: vi.fn(),
++      removeEventListener: vi.fn(),
++    })),
++  )
++  // DOM/state evidence. Native focus, pointer defaults and layout remain browser checks.
++  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
++    () => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList,
++  )
++})
++afterEach(() => {
++  wrapper?.unmount()
++  wrapper = undefined
++  selected.auth?.leave()
++  document.body.innerHTML = ''
++  vi.unstubAllGlobals()
++  vi.restoreAllMocks()
++  useTheme().setTheme('system')
++})
++async function page(
++  options: { path?: string; role?: 'admin' | 'user'; anonymous?: boolean; missing?: boolean } = {},
++) {
++  let current = sessionView(),
++    signedIn = !options.anonymous,
++    observed = settings()
++  current = { ...current, user: { ...current.user, role: options.role ?? 'admin' } }
++  let session: Fetch = async () => (signedIn ? json(current) : problem('UNAUTHENTICATED', 401))
++  let read: Fetch = async () => (options.missing ? problem('NOT_FOUND', 404) : json(observed))
++  let mutation: Fetch = async (_, init) => {
++    const input = JSON.parse(init.body as string)
++    observed = { ...settings(), ...input, version: String(BigInt(input.version) + 1n) }
++    return json(observed)
++  }
++  const fetch = vi.fn<Fetch>(async (path, init) => {
++    if (path === '/api/v1/session') return session(path, init)
++    if (path === '/api/v1/system/account-settings')
++      return init.method === 'GET' ? read(path, init) : mutation(path, init)
++    if (path.startsWith('/api/v1/system/users?')) return json({ items: [] })
++    if (path.endsWith('/bootstrap'))
++      return json({
++        csrf_token: 'A'.repeat(43),
++        challenge_modes: ['rotate'],
++        delivery_channel: 'backend_log',
++      })
++    if (path.endsWith('/login')) {
++      signedIn = true
++      return json({ user: current.user, session: current.session, next_path: '/' })
++    }
++    if (path.endsWith('/logout')) {
++      signedIn = false
++      return new Response(null, { status: 204 })
++    }
++    throw new Error('Unexpected test route')
++  })
++  selected.auth = createSessionController(
++    createAccountAPI(fetch),
++    createSystemAccountAPI(fetch),
++    createSystemInvitationAPI(fetch),
++    createSystemProviderAPI(fetch),
++    createSystemModelAPI(fetch),
++    createSystemModelSelectionAPI(fetch),
++    createSystemAccountSecurityAPI(fetch),
++  )
++  const router = createRouter({
++    history: createMemoryHistory(),
++    routes: [
++      { path: '/', component: HomeView, meta: { authentication: true, protected: true } },
++      { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
++      {
++        path: '/settings/profile',
++        component: { template: '<h1>个人资料</h1>' },
++        meta: { authentication: true, protected: true },
++      },
++      {
++        path: '/system',
++        component: SystemSettingsView,
++        redirect: '/system/users',
++        meta: {
++          authentication: true,
++          protected: true,
++          systemAdmin: true,
++          navigation: { label: '系统设置', order: 20 },
++        },
++        children: [
++          { path: 'users', component: SystemUsersView },
++          { path: 'account-security', component: SystemAccountSecurityView },
++          ...['invitations', 'providers', 'models', 'model-selection'].map((path) => ({
++            path,
++            component: { template: '<p>Accepted leaf outside this interaction</p>' },
++          })),
++        ],
++      },
++    ],
++  })
++  installAuthentication(router, selected.auth)
++  await router.push(options.path ?? '/system/account-security')
++  await router.isReady()
++  const host = document.createElement('div')
++  host.id = 'app'
++  document.body.append(host)
++  wrapper = mount(App, { attachTo: host, global: { plugins: [router] } })
++  await flushPromises()
++  return {
++    wrapper,
++    router,
++    auth: selected.auth,
++    fetch,
++    setRead(value: Fetch) {
++      read = value
++    },
++    setMutation(value: Fetch) {
++      mutation = value
++    },
++    setSession(value: SessionView) {
++      current = value
++    },
++    setSessionRequest(value: Fetch) {
++      session = value
++    },
++    resetSession() {
++      session = async () => (signedIn ? json(current) : problem('UNAUTHENTICATED', 401))
++    },
++    writes() {
++      return fetch.mock.calls.filter(
++        ([path, init]) => path === '/api/v1/system/account-settings' && init.method === 'PUT',
++      )
++    },
++  }
++}
++function button(label: string, root: ParentNode = document) {
++  const value = [...root.querySelectorAll<HTMLButtonElement>('button')].find(
++    (node) =>
++      (
++        node.querySelector('.button-label[aria-hidden="false"]')?.textContent ?? node.textContent
++      )?.trim() === label || node.getAttribute('aria-label') === label,
++  )
++  expect(value, `button ${label}`).toBeTruthy()
++  return value!
++}
++async function click(label: string, root: ParentNode = document) {
++  button(label, root).click()
++  await flushPromises()
++}
++function field(label: string) {
++  const node = [...document.querySelectorAll<HTMLLabelElement>('label')].find(
++    (value) => value.textContent?.replace(/\s*\*$/, '') === label,
++  )
++  expect(node, `field ${label}`).toBeTruthy()
++  return document.getElementById(node!.htmlFor) as HTMLInputElement
++}
++async function change(label: string, value: string) {
++  const input = field(label)
++  input.value = value
++  input.dispatchEvent(new Event('input', { bubbles: true }))
++  await flushPromises()
++}
++async function save() {
++  const submitter = button('保存配置')
++  submitter.form!.dispatchEvent(
++    new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter }),
++  )
++  await flushPromises()
++}
++function confirmation() {
++  const layers = [...document.querySelectorAll<HTMLElement>('[role="dialog"]')]
++  expect(layers).toHaveLength(1)
++  expect(layers[0]!.inert).toBe(false)
++  expect(layers[0]!.getAttribute('aria-hidden')).toBeNull()
++  return layers[0]!
++}
++
++describe('Account security inline form in the actual App and router', () => {
++  it('keeps users as default, renders six leaves in three groups and only adds the tenth exact return', async () => {
++    const f = await page({ path: '/system' })
++    expect(f.router.currentRoute.value.path).toBe('/system/users')
++    expect(
++      f.wrapper
++        .get('nav[aria-label="系统设置"]')
++        .findAll('a')
++        .map((a) => a.text()),
++    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
++    expect(f.wrapper.findAll('.settings-group-toggle').map((group) => group.text())).toEqual([
++      '用户与邀请',
++      '模型与提供商',
++      '平台配置',
++    ])
++    await f.wrapper.get('a[href="/system/account-security"]').trigger('click')
++    await flushPromises()
++    expect(f.wrapper.get('h1').text()).toBe('账号安全')
++    expect(f.wrapper.findAll('form')).toHaveLength(1)
++    expect(f.wrapper.findAll('input[inputmode="numeric"]')).toHaveLength(4)
++    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
++    expect(button('保存配置').disabled).toBe(true)
++    expect(safeReturnTarget('/system/account-security')).toBe('/system/account-security')
++    for (const value of [
++      '/system/account-security?x=1',
++      '/system/account-security#x',
++      '/system/account-security/',
++      '/system/account-security/extra',
++      ['/system/account-security'],
++      '//evil/system/account-security',
++      'https://evil/system/account-security',
++    ])
++      expect(safeReturnTarget(value)).toBe('/')
++    const { router } = await import('../router/index')
++    expect(router.resolve('/system/account-security').meta).toMatchObject({
++      authentication: true,
++      protected: true,
++      systemAdmin: true,
++    })
++  })
++
++  it('mounts no configuration form or admin GET/PUT for a regular user direct link', async () => {
++    const f = await page({ role: 'user' })
++    expect(f.wrapper.text()).toContain('无权访问系统设置')
++    expect(f.wrapper.find('nav[aria-label="系统设置"]').exists()).toBe(false)
++    expect(f.wrapper.find('form').exists()).toBe(false)
++    expect(f.fetch.mock.calls.some(([path]) => path.startsWith('/api/v1/system/'))).toBe(false)
++  })
++
++  it('returns through the actual login form and does not seed defaults after an unavailable singleton', async () => {
++    const f = await page({ anonymous: true, missing: true })
++    expect(f.router.currentRoute.value.query.return).toBe('/system/account-security')
++    await f.wrapper.get('#login-email').setValue('admin@example.com')
++    await f.wrapper.get('#login-password').setValue('Original password 123')
++    await f.wrapper.get('form').trigger('submit')
++    await flushPromises()
++    expect(f.router.currentRoute.value.path).toBe('/system/account-security')
++    expect(f.wrapper.text()).toContain('账号安全配置读取失败')
++    expect(f.wrapper.find('form').exists()).toBe(false)
++    expect(f.writes()).toHaveLength(0)
++  })
++
++  it('keeps string validation visible and requires a real discard decision for cancel and overwrite', async () => {
++    const f = await page()
++    await change('会话空闲期限（秒）', ' 900')
++    expect(field('会话空闲期限（秒）').value).toBe(' 900')
++    expect(field('会话空闲期限（秒）').getAttribute('aria-invalid')).toBe('true')
++    await save()
++    expect(f.writes()).toHaveLength(0)
++    await click('取消修改')
++    await click('继续编辑', confirmation())
++    expect(field('会话空闲期限（秒）').value).toBe(' 900')
++    await click('读取当前配置')
++    await click('放弃修改', confirmation())
++    expect(field('会话空闲期限（秒）').value).toBe('604800')
++    expect(button('保存配置').disabled).toBe(true)
++    expect(f.writes()).toHaveLength(0)
++  })
++
++  it.each(['route', 'logout'] as const)(
++    'restores the one inline discard Dialog after pageshow checking/503 for pending %s',
++    async (action) => {
++      const f = await page()
++      await change('密码重置有效期（秒）', '3600')
++      const route = action === 'route' ? f.router.push('/system/users') : null
++      if (action === 'logout') button('退出登录').click()
++      await flushPromises()
++      confirmation()
++      const session = barrier<Response>()
++      f.setSessionRequest(() => session.promise)
++      window.dispatchEvent(new Event('pageshow'))
++      await flushPromises()
++      expect(f.wrapper.find('.session-check').exists()).toBe(true)
++      expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
++      expect(document.getElementById('app')!.inert).toBe(false)
++      expect(document.documentElement.style.overflow).toBe('')
++      session.resolve(problem('UNAVAILABLE'))
++      await flushPromises()
++      expect(button('检查当前会话').disabled).toBe(false)
++      expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
++      f.resetSession()
++      await click('检查当前会话')
++      const top = confirmation()
++      expect(field('密码重置有效期（秒）').value).toBe('3600')
++      expect(top.contains(document.activeElement)).toBe(true)
++      await click('继续编辑', top)
++      if (route) expect(isNavigationFailure(await route)).toBe(true)
++      expect(f.router.currentRoute.value.path).toBe('/system/account-security')
++      expect(f.writes()).toHaveLength(0)
++      expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/logout'))).toHaveLength(0)
++      const next = action === 'route' ? f.router.push('/system/users') : null
++      if (action === 'logout') button('退出登录').click()
++      await flushPromises()
++      await click('放弃修改', confirmation())
++      if (next) await next
++      await flushPromises()
++      expect(f.router.currentRoute.value.path).toBe(action === 'route' ? '/system/users' : '/login')
++      expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
++      expect(f.writes()).toHaveLength(0)
++    },
++  )
++
++  it('retains all conflict fields until an actual adopt button, never using GET to rebase the next PUT silently', async () => {
++    const f = await page()
++    await change('密码重置有效期（秒）', '3600')
++    f.setMutation(async () => problem('VERSION_CONFLICT', 409))
++    await save()
++    expect(f.wrapper.text()).toContain('需要核对最新配置')
++    f.setRead(async () => json({ ...settings('3'), password_reset_seconds: '7200' }))
++    await click('读取最新配置')
++    expect(field('密码重置有效期（秒）').value).toBe('3600')
++    expect(f.wrapper.get('form p code').text()).toBe('1')
++    expect(f.writes()).toHaveLength(1)
++    await click('采用最新值重新编辑')
++    await click('放弃修改', confirmation())
++    expect(field('密码重置有效期（秒）').value).toBe('7200')
++    expect(f.wrapper.get('form p code').text()).toBe('3')
++    expect(button('保存配置').disabled).toBe(true)
++    expect(f.writes()).toHaveLength(1)
++  })
++
++  it('shows strict historical confirmation plus failed current read, then allows only GET until a fresh baseline', async () => {
++    const f = await page()
++    await change('触发挑战的失败次数（次）', '7')
++    f.setRead(async () => problem('UNAVAILABLE'))
++    await save()
++    expect(f.wrapper.text()).toContain('保存已确认，当前配置读取失败')
++    expect(f.wrapper.text()).toContain('原请求已确认，历史结果版本：2')
++    expect(f.wrapper.find('form').exists()).toBe(false)
++    expect(f.writes()).toHaveLength(1)
++    f.setRead(async () => json(settings('3')))
++    await click('读取当前配置')
++    await change('密码重置有效期（秒）', '3600')
++    expect(button('保存配置').getAttribute('aria-label')).toBeNull()
++    expect(f.writes()).toHaveLength(1)
++    expect(f.wrapper.get('form p code').text()).toBe('3')
++  })
++
++  it('settles a pending route false on a same-user new Session and never carries the draft or old DOM continuation', async () => {
++    const f = await page()
++    await change('密码重置有效期（秒）', '3600')
++    const pending = f.router.push('/system/users')
++    await flushPromises()
++    confirmation()
++    const next = sessionView()
++    f.setSession({ ...next, session: { ...next.session, id: id(3) } })
++    window.dispatchEvent(new Event('pageshow'))
++    await flushPromises()
++    expect(isNavigationFailure(await pending)).toBe(true)
++    expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
++    expect(field('密码重置有效期（秒）').value).toBe('1800')
++    expect(f.router.currentRoute.value.path).toBe('/system/account-security')
++    expect(f.writes()).toHaveLength(0)
++  })
++})
+--- base/web/src/tests/system-user-directory.spec.ts
++++ candidate/web/src/tests/system-user-directory.spec.ts
+@@ -198,7 +198,7 @@
+ }
+ 
+ describe('System user directory page and shared shells', () => {
+-  it('opens users from the five-leaf administrator entry with separately labelled fields', async () => {
++  it('opens users from the six-leaf administrator entry with separately labelled fields', async () => {
+     const p = await page('/')
+     await p.wrapper.get('nav[aria-label="系统导航"] a[href="/system"]').trigger('click')
+     await flushPromises()
+@@ -213,6 +213,7 @@
+       'Providers',
+       'Models',
+       '平台模型用途',
++      '账号安全',
+     ])
+     expect(menu.get('a').attributes('aria-current')).toBe('page')
+     expect(menu.findAll('button').map((b) => b.text())).not.toContain('退出登录')
+--- base/web/src/tests/system-invitations.spec.ts
++++ candidate/web/src/tests/system-invitations.spec.ts
+@@ -277,13 +277,13 @@
+     expect(f.wrapper.get('nav[aria-label="系统设置"] [aria-current="page"]').text()).toBe(
+       '待注册邀请',
+     )
+-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
++    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+     expect(
+       f.wrapper
+         .get('nav[aria-label="系统设置"]')
+         .findAll('a')
+         .map((a) => a.text()),
+-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途'])
++    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
+     expect(f.reads()).toHaveLength(1)
+     expect(f.wrapper.findAll('th').map((n) => n.text())).toEqual([
+       '邮箱',
+--- base/web/src/tests/system-providers.spec.ts
++++ candidate/web/src/tests/system-providers.spec.ts
+@@ -316,7 +316,7 @@
+ }
+ 
+ describe('Provider actual App/router/controller composition', () => {
+-  it('keeps users as default, has exactly five leaves in two groups and validates nine exact return paths', async () => {
++  it('keeps users as default, has exactly six leaves in three groups and validates ten exact return paths', async () => {
+     const f = await page('/system')
+     expect(f.router.currentRoute.value.path).toBe('/system/users')
+     expect(
+@@ -324,8 +324,8 @@
+         .get('nav[aria-label="系统设置"]')
+         .findAll('a')
+         .map((a) => a.text()),
+-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途'])
+-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
++    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
++    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+     await f.wrapper.get('a[href="/system/providers"]').trigger('click')
+     await flushPromises()
+     expect(f.wrapper.get('h1').text()).toBe('Providers')
+--- base/web/src/tests/system-models.spec.ts
++++ candidate/web/src/tests/system-models.spec.ts
+@@ -446,8 +446,8 @@
+         .get('nav[aria-label="系统设置"]')
+         .findAll('a')
+         .map((a) => a.text()),
+-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途'])
+-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
++    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
++    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+     await f.wrapper.get('a[href="/system/models"]').trigger('click')
+     await flushPromises()
+     expect(f.wrapper.get('h1').text()).toBe('Models')
+--- base/web/src/tests/system-model-selection.spec.ts
++++ candidate/web/src/tests/system-model-selection.spec.ts
+@@ -390,7 +390,7 @@
+ }
+ 
+ describe('Selection actual App/router/controller interactions', () => {
+-  it('keeps the users default and five leaves, and adds only the exact ninth return target', async () => {
++  it('keeps the users default and six leaves with the exact Selection return target', async () => {
+     const f = await page({ path: '/system' })
+     expect(f.router.currentRoute.value.path).toBe('/system/users')
+     expect(
+@@ -398,8 +398,8 @@
+         .get('nav[aria-label="系统设置"]')
+         .findAll('a')
+         .map((a) => a.text()),
+-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途'])
+-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
++    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
++    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+     await f.wrapper.get('a[href="/system/model-selection"]').trigger('click')
+     await flushPromises()
+     expect(f.wrapper.get('h1').text()).toBe('平台模型用途')
+--- base/web/src/tests/personal-settings.spec.ts
++++ candidate/web/src/tests/personal-settings.spec.ts
+@@ -471,16 +471,22 @@
+       expect(p.api.login.mock.calls.length).toBe(1)
+     },
+   )
+-  it('only permits the nine exact return targets and clears dirty previews on real context invalidation', async () => {
++  it('only permits the ten exact return targets and clears dirty previews on real context invalidation', async () => {
+     expect(safeReturnTarget('/system/invitations')).toBe('/system/invitations')
+     expect(safeReturnTarget('/system/providers')).toBe('/system/providers')
+     expect(safeReturnTarget('/system/models')).toBe('/system/models')
+     expect(safeReturnTarget('/system/model-selection')).toBe('/system/model-selection')
++    expect(safeReturnTarget('/system/account-security')).toBe('/system/account-security')
+     expect(safeReturnTarget('/system/users')).toBe('/system/users')
+     for (const target of [
+       '/settings',
+       '/settings/profile?x=1',
+       '/settings/password#x',
++      '/system/account-security?x=1',
++      '/system/account-security#x',
++      '/system/account-security/',
++      '/system/account-security/extra',
++      ['/system/account-security'],
+       '//example.com',
+       'https://example.com',
+       ['/settings/profile'],
+--- base/tests/account/system_account_security_web_test.go
++++ candidate/tests/account/system_account_security_web_test.go
+@@ -0,0 +1,42 @@
++//go:build integration
++
++package account_test
++
++import (
++	"context"
++	"testing"
++	"time"
++)
++
++func runAccountSecurityWeb(t *testing.T, mode string, required ...string) {
++	t.Helper()
++	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
++	defer cancel()
++	f := newAccountSecurityWebFixture(t, ctx, mode)
++	result := f.browserAccountSecurity(ctx)
++	for _, name := range required {
++		if result[name] != true {
++			t.Fatalf("Account security browser evidence incomplete: %s", name)
++		}
++	}
++	if mode == "navigation" && result["layouts"] != float64(8) {
++		t.Fatal("Account security light/dark four-width matrix incomplete")
++	}
++	t.Logf("real Account security production browser group=%s completed within 45s browser/2m top budgets; settings only, no retroactive Session revocation or mail delivery claim", mode)
++}
++
++func TestAccountSystemAccountSecurityWebLifecycle(t *testing.T) {
++	runAccountSecurityWeb(t, "lifecycle", "current_settings", "four_fields", "no_op", "cancelled", "ranges", "persisted", "old_session_unchanged", "new_session_lifetimes")
++}
++func TestAccountSystemAccountSecurityWebConcurrency(t *testing.T) {
++	runAccountSecurityWeb(t, "concurrency", "two_sessions", "same_version", "real_conflict", "draft_preserved", "explicit_adoption", "atomic_facts")
++}
++func TestAccountSystemAccountSecurityWebOutcomeRecovery(t *testing.T) {
++	runAccountSecurityWeb(t, "outcome", "accepted_cut", "current_not_receipt", "historical_result", "same_original", "unique_facts", "confirmed_read_failure", "abandon_no_rollback", "no_lookup")
++}
++func TestAccountSystemAccountSecurityWebAuthorityAndIdentity(t *testing.T) {
++	runAccountSecurityWeb(t, "authority", "ordinary_denied", "get_forbidden", "put_forbidden", "replay_forbidden", "revoked", "new_session", "switched")
++}
++func TestAccountSystemAccountSecurityWebNavigationAndLayouts(t *testing.T) {
++	runAccountSecurityWeb(t, "navigation", "six_leaves", "tenth_return", "dirty", "uncertain", "checking", "focus", "drawer", "no_overflow")
++}
+--- base/tests/account/system_account_security_web_fixture_test.go
++++ candidate/tests/account/system_account_security_web_fixture_test.go
+@@ -0,0 +1,578 @@
++//go:build integration
++
++package account_test
++
++import (
++	"bytes"
++	"context"
++	"crypto/sha256"
++	"encoding/hex"
++	"encoding/json"
++	"errors"
++	"io"
++	"log/slog"
++	"net"
++	"net/http"
++	"net/http/httputil"
++	"net/url"
++	"os"
++	"os/exec"
++	"path/filepath"
++	"strconv"
++	"strings"
++	"syscall"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/app"
++	"github.com/LunaDeerTech/agenteam/internal/central/config"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
++	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
++	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
++	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
++)
++
++// This fixture owns only Account settings controls. Its root and helper methods
++// consume the accepted same-origin Account/Secret/Model composition.
++type accountSecurityWebAttempt struct {
++	key        string
++	body, csrf [32]byte
++}
++type accountSecurityWebFixture struct {
++	*modelsWebFixture
++	singletonID                        string
++	attempts                           []accountSecurityWebAttempt
++	lostBody, lostCSRF                 [32]byte
++	lostSettings                       map[string]any
++	sameOriginal                       bool
++	secondClient                       *http.Client
++	secondCSRF                         string
++	oldSessionID, oldIdle, oldAbsolute string
++}
++
++func newAccountSecurityWebRoot(t *testing.T, ctx context.Context, own *accountSecurityWebFixture) *authenticationWebFixture {
++	t.Helper()
++	db := pgfixture.NewDatabase(t)
++	listener, err := net.Listen("tcp", "127.0.0.1:0")
++	if err != nil {
++		t.Fatal("owned frontend listener unavailable")
++	}
++	t.Cleanup(func() { _ = listener.Close() })
++	origin := "http://" + listener.Addr().String()
++	inputs := accountenv.New(t)
++	objects, err := objectfixture.Environment(ctx, db.Name)
++	if err != nil {
++		t.Fatal("owned object fixture unavailable")
++	}
++	values := inputs.Values()
++	for _, v := range objects {
++		k, value, _ := strings.Cut(v, "=")
++		values[k] = value
++	}
++	for k, v := range map[string]string{
++		"DATABASE_URL": db.Fixture.URL(db.Name), "DATABASE_CA_FILE": db.Fixture.CAFile,
++		"DATABASE_STARTUP_TIMEOUT": "15s", "HTTP_ADDR": "127.0.0.1:0", "PUBLIC_ORIGIN": origin, "SHUTDOWN_TIMEOUT": "2s",
++		"CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`,
++		"SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`,
++	} {
++		values[config.Prefix+k] = v
++	}
++	var environment []string
++	for k, v := range values {
++		environment = append(environment, k+"="+v)
++	}
++	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, environment)
++	if err != nil {
++		t.Fatal("owned root configuration invalid")
++	}
++	output := &httpFixtureLog{listening: make(chan string, 1)}
++	logger, err := logging.New(logging.Central, slog.LevelInfo, output)
++	if err != nil {
++		t.Fatal(err)
++	}
++	rootCtx, cancel := context.WithCancel(ctx)
++	rootDone := make(chan error, 1)
++	go func() { rootDone <- app.Run(rootCtx, cfg, logger, nil) }()
++	t.Cleanup(func() {
++		cancel()
++		select {
++		case err := <-rootDone:
++			if err != nil {
++				t.Error("full Account/Secret/Model root shutdown failed", err)
++			}
++		case <-time.After(5 * time.Second):
++			t.Error("full root did not join within its original shutdown budget")
++		}
++	})
++	var address string
++	select {
++	case address = <-output.listening:
++	case err := <-rootDone:
++		rootDone <- err
++		t.Fatal("full root initialization failed", err)
++	case <-ctx.Done():
++		t.Fatal("shared browser budget ended during root startup")
++	}
++	backend, err := url.Parse("http://" + address)
++	if err != nil {
++		t.Fatal(err)
++	}
++	transport := &http.Transport{Proxy: nil}
++	proxy := httputil.NewSingleHostReverseProxy(backend)
++	proxy.Transport = transport // NewSingleHostReverseProxy preserves the original Host.
++	proxy.ModifyResponse = own.controlResponse
++	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, err error) {
++		var lost *modelsResponseLost
++		if !errors.As(err, &lost) {
++			http.Error(w, "owned API unavailable", 502)
++			return
++		}
++		defer clear(lost.prefix)
++		for name, values := range lost.header {
++			w.Header()[name] = append([]string(nil), values...)
++		}
++		w.Header().Del("Transfer-Encoding")
++		w.Header().Set("Content-Length", strconv.Itoa(lost.length))
++		w.Header().Set("Connection", "close")
++		w.WriteHeader(200)
++		_, _ = w.Write(lost.prefix)
++		_ = http.NewResponseController(w).Flush()
++		if hijacker, ok := w.(http.Hijacker); ok {
++			if conn, _, e := hijacker.Hijack(); e == nil {
++				_ = conn.Close()
++			}
++		}
++	}
++	root, err := filepath.Abs("../../web/dist")
++	if err != nil {
++		t.Fatal(err)
++	}
++	if _, err = os.Stat(filepath.Join(root, "index.html")); err != nil {
++		t.Fatal("formal production dist must be built before browser execution")
++	}
++	assets := http.FileServer(http.Dir(root))
++	server := &http.Server{ReadHeaderTimeout: 5 * time.Second, Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		if r.Method == "GET" && r.URL.Path == "/api/v1/session" && own.failSession.CompareAndSwap(true, false) {
++			own.sessionFailures.Add(1)
++			http.Error(w, "owned bounded session read unavailable", 503)
++			return
++		}
++		if r.Method == "GET" && own.shouldFailRead(r.URL.Path) {
++			own.readFailures.Add(1)
++			http.Error(w, "owned exact configuration read unavailable", 503)
++			return
++		}
++		if r.Method == "PUT" && r.URL.Path == "/api/v1/system/account-settings" {
++			raw, err := io.ReadAll(io.LimitReader(r.Body, 16385))
++			closeErr := r.Body.Close()
++			defer clear(raw)
++			if err != nil || closeErr != nil || len(raw) > 16384 {
++				http.Error(w, "owned write observation unavailable", 400)
++				return
++			}
++			own.mu.Lock()
++			own.attempts = append(own.attempts, accountSecurityWebAttempt{key: r.Header.Get("Idempotency-Key"), body: sha256.Sum256(raw), csrf: sha256.Sum256([]byte(r.Header.Get("X-CSRF-Token")))})
++			own.mu.Unlock()
++			r.Body = io.NopCloser(bytes.NewReader(raw))
++		}
++
++		if r.URL.Path == "/api/v1" || strings.HasPrefix(r.URL.Path, "/api/v1/") {
++			proxy.ServeHTTP(w, r)
++			return
++		}
++		if r.Method != http.MethodGet && r.Method != http.MethodHead {
++			http.Error(w, "method unavailable", 405)
++			return
++		}
++		clean := filepath.Clean("/" + r.URL.Path)
++		if info, e := os.Stat(filepath.Join(root, clean)); e == nil && !info.IsDir() {
++			assets.ServeHTTP(w, r)
++			return
++		}
++		if strings.HasPrefix(clean, "/assets/") || filepath.Ext(clean) != "" {
++			http.NotFound(w, r)
++			return
++		}
++		w.Header().Set("Cache-Control", "no-store")
++		http.ServeFile(w, r, filepath.Join(root, "index.html"))
++	})}
++	serverDone := make(chan error, 1)
++	go func() { serverDone <- server.Serve(listener) }()
++	t.Cleanup(func() {
++		shutdown, stop := context.WithTimeout(context.Background(), 2*time.Second)
++		defer stop()
++		if err := server.Shutdown(shutdown); err != nil {
++			t.Error("frontend server did not drain")
++			_ = server.Close()
++		}
++		if err := <-serverDone; !errors.Is(err, http.ErrServerClosed) {
++			t.Error("owned frontend server failed", err)
++		}
++		transport.CloseIdleConnections()
++	})
++	runtimeRoot := os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME")
++	if !filepath.IsAbs(runtimeRoot) || len(runtimeRoot) > 45 {
++		t.Fatal("explicit short task-owned browser runtime is required")
++	}
++	directory, err := os.MkdirTemp(runtimeRoot, "run-")
++	if err != nil {
++		t.Fatal("private browser runtime creation failed")
++	}
++	if err := os.Chmod(directory, 0700); err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(func() {
++		if err := os.RemoveAll(directory); err != nil {
++			t.Error("private browser runtime cleanup failed")
++		}
++		if _, err := os.Stat(directory); !errors.Is(err, os.ErrNotExist) {
++			t.Error("private browser runtime still exists")
++		}
++	})
++	old := &httpFixture{t: t, db: db, config: cfg, address: address, log: output}
++	entry := old.record("bootstrap", "admin@mail.com", "")
++	material, err := json.Marshal(map[string]string{"email": entry.Email, "password": entry.Password})
++	if err != nil {
++		t.Fatal("private bootstrap encoding failed")
++	}
++	defer clear(material)
++	if err := os.WriteFile(filepath.Join(directory, "credentials.json"), material, 0600); err != nil {
++		t.Fatal("private bootstrap transfer failed")
++	}
++	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output, record: old.record, recoveryLogPath: cfg.AccountRecoveryLog()}
++	t.Cleanup(func() {
++		if output.contains(entry.Password) {
++			t.Error("bootstrap material escaped the restricted recovery log")
++		}
++	})
++	return f
++}
++
++func newAccountSecurityWebFixture(t *testing.T, ctx context.Context, mode string) *accountSecurityWebFixture {
++	t.Helper()
++	f := &accountSecurityWebFixture{modelsWebFixture: &modelsWebFixture{mode: mode, ids: map[string]string{}}}
++	f.authenticationWebFixture = newAccountSecurityWebRoot(t, ctx, f)
++	f.setup = &personalWebFixture{authenticationWebFixture: f.authenticationWebFixture}
++	f.admin = personalWebCredential{Email: f.entry.Email, Password: f.entry.Password, UserID: f.entry.ID}
++	f.adminClient, f.csrf, _ = f.loginClient(ctx)
++	initial := f.request(ctx, "GET", "/api/v1/system/account-settings", nil, 200)
++	f.singletonID = httpString(t, initial, "id")
++	f.secrets = []string{f.admin.Password, f.csrf}
++	if mode == "authority" {
++		f.member = f.setup.inviteMember(ctx, f.adminClient, f.csrf, "security-member@example.com", "security-member")
++		f.secrets = append(f.secrets, f.member.Password)
++	}
++	f.private("account-security-material.json", map[string]any{"admin": f.admin, "member": f.member, "initial": initial})
++	t.Cleanup(func() {
++		for _, value := range f.secrets {
++			if value != "" && f.log.contains(value) {
++				t.Error("Account security private material escaped restricted transfer")
++			}
++		}
++		f.secrets = nil
++		f.csrf, f.secondCSRF, f.admin.Password, f.member.Password = "", "", "", ""
++		f.mu.Lock()
++		f.lostKey = ""
++		f.attempts = nil
++		f.lostSettings = nil
++		f.mu.Unlock()
++	})
++	return f
++}
++func (f *accountSecurityWebFixture) loginClient(ctx context.Context) (*http.Client, string, string) {
++	client := f.setup.setupClient()
++	bootstrap := f.setup.setupRequest(ctx, client, "GET", "/api/v1/auth/bootstrap", nil, "", false, 200)
++	f.setup.setupRequest(ctx, client, "POST", "/api/v1/sessions/login", map[string]string{"email": f.admin.Email, "password": f.admin.Password}, httpString(f.t, bootstrap, "csrf_token"), true, 200)
++	view := f.setup.setupRequest(ctx, client, "GET", "/api/v1/session", nil, "", false, 200)
++	return client, httpString(f.t, view, "csrf_token"), httpString(f.t, httpObject(f.t, view, "session"), "id")
++}
++func (f *accountSecurityWebFixture) shouldFailRead(path string) bool {
++	return path == "/api/v1/system/account-settings" && f.failRead.CompareAndSwap(true, false)
++}
++func (f *accountSecurityWebFixture) controlResponse(response *http.Response) error {
++	r := response.Request
++	if r == nil || r.Method != "PUT" || r.URL.Path != "/api/v1/system/account-settings" || response.StatusCode != 200 {
++		return nil
++	}
++	f.mu.Lock()
++	defer f.mu.Unlock()
++	key := r.Header.Get("Idempotency-Key")
++	var attempt accountSecurityWebAttempt
++	for n := len(f.attempts) - 1; n >= 0; n-- {
++		if f.attempts[n].key == key {
++			attempt = f.attempts[n]
++			break
++		}
++	}
++	if f.lostKey != "" && key == f.lostKey {
++		f.replayed++
++		f.sameOriginal = f.sameOriginal && attempt.body == f.lostBody && attempt.csrf == f.lostCSRF
++	}
++	if !f.dropNext {
++		return nil
++	}
++	f.dropNext = false
++	raw, err := io.ReadAll(io.LimitReader(response.Body, 600001))
++	closeErr := response.Body.Close()
++	defer clear(raw)
++	var settings map[string]any
++	if err != nil || closeErr != nil || len(raw) > 600000 || len(raw) < 2 || json.Unmarshal(raw, &settings) != nil || len(settings) != 7 || settings["id"] != f.singletonID || settings["lifetime_changes_apply_to"] != "newly_issued_sessions_and_tokens" {
++		return errors.New("owned response control requires complete formal Account settings")
++	}
++	f.lostKey, f.lostBody, f.lostCSRF, f.lostSettings = key, attempt.body, attempt.csrf, settings
++	f.dropped++
++	return &modelsResponseLost{header: response.Header.Clone(), prefix: append([]byte(nil), raw[:len(raw)/2]...), length: len(raw)}
++}
++func (f *accountSecurityWebFixture) securityFacts(ctx context.Context) map[string]any {
++	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
++	defer closeConnection()
++	var version, idle, absolute, reset, challenge string
++	if err := conn.QueryRow(ctx, `SELECT version::text,session_idle_seconds::text,session_absolute_seconds::text,password_reset_seconds::text,challenge_after_failures::text FROM agenteam_account.account_settings WHERE singleton AND id=$1`, f.singletonID).Scan(&version, &idle, &absolute, &reset, &challenge); err != nil {
++		f.t.Fatal("owned settings snapshot unavailable", err)
++	}
++	f.mu.Lock()
++	key := f.lostKey
++	f.mu.Unlock()
++	identityDigest := ""
++	if key != "" {
++		identity, err := foundation.NewCommandIdentity("account.settings", []string{f.admin.UserID}, "settings-update", foundation.IdempotencyKey(key))
++		if err != nil {
++			f.t.Fatal("owned Account settings command identity invalid")
++		}
++		digest := sha256.Sum256([]byte(identity.Canonical()))
++		identityDigest = "sha256:" + hex.EncodeToString(digest[:])
++	}
++	var commands, audits, originalCommands, originalAudits, invocations int
++	if err := conn.QueryRow(ctx, `SELECT
++ (SELECT count(*) FROM agenteam_account.commands WHERE namespace='account.settings' AND command_name='settings-update' AND resource_id=$1 AND owner_id=$2 AND phase='committed'),
++ (SELECT count(*) FROM agenteam_audit.audit_records WHERE scope='system' AND producer='account' AND action='account.settings.update' AND resource_kind='account_settings' AND resource_id=$1 AND user_id=$2 AND outcome='success' AND ordinal=0),
++ (SELECT count(*) FROM agenteam_account.commands WHERE namespace='account.settings' AND command_name='settings-update' AND resource_id=$1 AND owner_id=$2 AND identity_digest=$3 AND phase='committed'),
++ (SELECT count(*) FROM agenteam_audit.audit_records WHERE scope='system' AND producer='account' AND action='account.settings.update' AND resource_kind='account_settings' AND resource_id=$1 AND user_id=$2 AND outcome='success' AND ordinal=0 AND cause_ref IN (SELECT id::text FROM agenteam_account.commands WHERE namespace='account.settings' AND command_name='settings-update' AND resource_id=$1 AND owner_id=$2 AND identity_digest=$3 AND phase='committed')),
++ (SELECT count(*) FROM agenteam_model.invocations)`, f.singletonID, f.admin.UserID, identityDigest).Scan(&commands, &audits, &originalCommands, &originalAudits, &invocations); err != nil {
++		f.t.Fatal("owned settings command/audit facts unavailable", err)
++	}
++	return map[string]any{"settings": map[string]any{"id": f.singletonID, "version": version, "session_idle_seconds": idle, "session_absolute_seconds": absolute, "password_reset_seconds": reset, "challenge_after_failures": challenge, "lifetime_changes_apply_to": "newly_issued_sessions_and_tokens"}, "commands": commands, "audits": audits, "original_commands": originalCommands, "original_audits": originalAudits, "invocations": invocations}
++}
++
++type accountSecurityWebIPC struct {
++	Sequence  int    `json:"sequence"`
++	Action    string `json:"action"`
++	UserID    string `json:"user_id"`
++	SessionID string `json:"session_id"`
++}
++
++func (f *accountSecurityWebFixture) securityIPC(ctx context.Context, r accountSecurityWebIPC) map[string]any {
++	out := map[string]any{"ok": true, "sequence": r.Sequence}
++	switch r.Action {
++	case "facts":
++		out["facts"] = f.securityFacts(ctx)
++	case "compete":
++		if f.secondClient == nil {
++			f.secondClient, f.secondCSRF, _ = f.loginClient(ctx)
++			f.secrets = append(f.secrets, f.secondCSRF)
++		}
++		observed := f.setup.setupRequest(ctx, f.secondClient, "GET", "/api/v1/system/account-settings", nil, "", false, 200)
++		body := map[string]any{"version": observed["version"], "session_idle_seconds": "3600", "session_absolute_seconds": "14400", "password_reset_seconds": "3600", "challenge_after_failures": "6"}
++		out["settings"] = f.setup.setupRequest(ctx, f.secondClient, "PUT", "/api/v1/system/account-settings", body, f.secondCSRF, true, 200)
++	case "capture-session":
++		if r.UserID != f.admin.UserID {
++			f.t.Fatal("owned Session user mismatch")
++		}
++		if _, err := foundation.ParseID[struct{}](r.SessionID); err != nil {
++			f.t.Fatal("owned Session ID invalid")
++		}
++		conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
++		defer closeConnection()
++		if err := conn.QueryRow(ctx, `SELECT idle_seconds::text,absolute_expires_at::text FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL`, r.SessionID, r.UserID).Scan(&f.oldIdle, &f.oldAbsolute); err != nil {
++			f.t.Fatal("owned live Session snapshot unavailable", err)
++		}
++		f.oldSessionID = r.SessionID
++		out["captured"] = true
++	case "lifetime-facts":
++		if f.oldSessionID == "" {
++			f.t.Fatal("original Session capture required")
++		}
++		_, csrf, newID := f.loginClient(ctx)
++		f.secrets = append(f.secrets, csrf)
++		conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
++		defer closeConnection()
++		var oldIdle, oldAbsolute string
++		if err := conn.QueryRow(ctx, `SELECT idle_seconds::text,absolute_expires_at::text FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL`, f.oldSessionID, f.admin.UserID).Scan(&oldIdle, &oldAbsolute); err != nil {
++			f.t.Fatal("old owned Session disappeared", err)
++		}
++		var matches bool
++		if err := conn.QueryRow(ctx, `SELECT s.idle_seconds=a.session_idle_seconds AND s.absolute_expires_at-s.issued_at=a.session_absolute_seconds*interval '1 second' FROM agenteam_account.sessions s CROSS JOIN agenteam_account.account_settings a WHERE s.id=$1 AND s.user_id=$2 AND s.revoked_at IS NULL AND a.singleton AND a.id=$3`, newID, f.admin.UserID, f.singletonID).Scan(&matches); err != nil {
++			f.t.Fatal("new owned Session lifetimes unavailable", err)
++		}
++		out["old_unchanged"], out["new_matches"], out["different_session"] = oldIdle == f.oldIdle && oldAbsolute == f.oldAbsolute, matches, newID != f.oldSessionID
++	case "arm-drop":
++		f.mu.Lock()
++		f.dropNext = true
++		f.lostKey = ""
++		f.lostSettings = nil
++		f.dropped = 0
++		f.replayed = 0
++		f.sameOriginal = true
++		f.mu.Unlock()
++		out["armed"] = true
++	case "drop-facts":
++		f.mu.Lock()
++		out["dropped"], out["replayed"], out["same_original"], out["settings"], out["armed"] = f.dropped, f.replayed, f.sameOriginal, f.lostSettings, f.dropNext
++		f.mu.Unlock()
++	case "arm-get-fail":
++		f.failRead.Store(true)
++		out["armed"] = true
++	case "arm-session-fail":
++		f.failSession.Store(true)
++		out["armed"] = true
++	case "failure-facts":
++		out["read_failures"], out["session_failures"] = f.readFailures.Load(), f.sessionFailures.Load()
++	case "attempt-facts":
++		f.mu.Lock()
++		keys := map[string]bool{}
++		for _, attempt := range f.attempts {
++			keys[attempt.key] = true
++		}
++		out["attempts"], out["distinct_keys"] = len(f.attempts), len(keys)
++		f.mu.Unlock()
++	case "demote", "promote", "revoke-session":
++		if f.mode != "authority" || r.UserID != f.admin.UserID {
++			f.t.Fatal("exact Account security authority target rejected")
++		}
++		if _, err := foundation.ParseID[struct{}](r.SessionID); err != nil {
++			f.t.Fatal("exact Account security Session invalid")
++		}
++		conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
++		defer closeConnection()
++		var exists bool
++		if err := conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL)`, r.SessionID, r.UserID).Scan(&exists); err != nil || !exists {
++			f.t.Fatal("exact active Account security Session absent", err)
++		}
++		if r.Action == "revoke-session" {
++			tag, err := conn.Exec(ctx, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='administrative' WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL`, r.SessionID, r.UserID)
++			if err != nil || tag.RowsAffected() != 1 {
++				f.t.Fatal("exact Session revoke failed", err)
++			}
++		} else {
++			role, previous := "user", "admin"
++			if r.Action == "promote" {
++				role, previous = "admin", "user"
++			}
++			tag, err := conn.Exec(ctx, `UPDATE agenteam_account.users SET role=$1,version=version+1,updated_at=clock_timestamp() WHERE id=$2 AND role=$3`, role, r.UserID, previous)
++			if err != nil || tag.RowsAffected() != 1 {
++				f.t.Fatal("exact owned role transition failed", err)
++			}
++		}
++	default:
++		f.t.Fatal("unknown Account security IPC action")
++	}
++	return out
++}
++
++func (f *accountSecurityWebFixture) browserAccountSecurity(ctx context.Context) map[string]any {
++	f.t.Helper()
++	root, e := filepath.Abs("../account-captcha-web")
++	if e != nil {
++		f.t.Fatal(e)
++	}
++	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "system-account-security.config.js"))
++	cmd.Dir = root
++	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
++	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
++	cmd.WaitDelay = time.Second
++	for _, value := range os.Environ() {
++		if !strings.HasPrefix(value, "TMPDIR=") && !strings.HasPrefix(value, "AGENTEAM_AUTH_WEB_") && !strings.HasPrefix(value, "AGENTEAM_ACCOUNT_SECURITY_WEB_") && !strings.HasPrefix(value, "PLAYWRIGHT_NO_COPY_PROMPT=") && !strings.HasPrefix(value, "DEBUG=") && !strings.HasPrefix(value, "PWDEBUG=") {
++			cmd.Env = append(cmd.Env, value)
++		}
++	}
++	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_ACCOUNT_SECURITY_WEB_CASE="+f.mode, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "PLAYWRIGHT_NO_COPY_PROMPT=1")
++	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
++		if !filepath.IsAbs(images) {
++			f.t.Fatal("Account security image path must be absolute")
++		}
++		cmd.Env = append(cmd.Env, "AGENTEAM_AUTH_WEB_IMAGES="+images)
++	}
++	var output bytes.Buffer
++	cmd.Stdout, cmd.Stderr = &output, &output
++	if e = cmd.Start(); e != nil {
++		f.t.Fatal("locked Account security browser runner could not start")
++	}
++	done := make(chan error, 1)
++	go func() { done <- cmd.Wait() }()
++	joined := false
++	defer func() {
++		if !joined {
++			_ = cmd.Cancel()
++			<-done
++		}
++		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
++		cmd.Env = nil
++	}()
++	tick := time.NewTicker(20 * time.Millisecond)
++	defer tick.Stop()
++	sequence := 0
++	var runErr error
++wait:
++	for {
++		select {
++		case runErr = <-done:
++			joined = true
++			break wait
++		case <-tick.C:
++			raw, err := os.ReadFile(filepath.Join(f.directory, "account-security-ipc.json"))
++			if errors.Is(err, os.ErrNotExist) {
++				continue
++			}
++			var request accountSecurityWebIPC
++			decode := json.Unmarshal(raw, &request)
++			clear(raw)
++			if err != nil || decode != nil || request.Sequence < 1 || request.Sequence > 128 {
++				f.t.Error("private Account security IPC rejected")
++				_ = cmd.Cancel()
++				continue
++			}
++			if request.Sequence <= sequence {
++				continue
++			}
++			if request.Sequence != sequence+1 {
++				f.t.Error("private Account security IPC sequence invalid")
++				_ = cmd.Cancel()
++				continue
++			}
++			reply := f.securityIPC(ctx, request)
++			sequence = request.Sequence
++			f.private("account-security-ack-"+strconv.Itoa(sequence)+".json", reply)
++		}
++	}
++	safe := output.String()
++	for _, secret := range f.secrets {
++		if secret != "" {
++			safe = strings.ReplaceAll(safe, secret, "[redacted]")
++		}
++	}
++	f.mu.Lock()
++	if f.lostKey != "" {
++		safe = strings.ReplaceAll(safe, f.lostKey, "[redacted]")
++	}
++	for _, attempt := range f.attempts {
++		if attempt.key != "" {
++			safe = strings.ReplaceAll(safe, attempt.key, "[redacted]")
++		}
++	}
++	f.mu.Unlock()
++	f.t.Log(safe)
++	if runErr != nil {
++		f.t.Fatalf("actual Account security production browser failed: %v", runErr)
++	}
++	raw, e := os.ReadFile(filepath.Join(f.directory, "account-security-result.json"))
++	if e != nil {
++		f.t.Fatal("safe Account security browser result missing")
++	}
++	defer clear(raw)
++	var result map[string]any
++	if json.Unmarshal(raw, &result) != nil || result["completed"] != true {
++		f.t.Fatal("safe Account security browser result invalid")
++	}
++	return result
++}
+--- base/tests/account-captcha-web/system-account-security.config.js
++++ candidate/tests/account-captcha-web/system-account-security.config.js
+@@ -0,0 +1,39 @@
++import { defineConfig } from "@playwright/test";
++const origin = process.env.AGENTEAM_AUTH_WEB_ORIGIN;
++const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE;
++const executablePath = process.env.AGENTEAM_AUTH_WEB_CHROMIUM;
++const selected = process.env.AGENTEAM_ACCOUNT_SECURITY_WEB_CASE;
++if (!origin || !directory || !executablePath)
++  throw new Error("OWNED_ACCOUNT_SECURITY_FIXTURE_REQUIRED");
++const url = new URL(origin);
++if (
++  url.protocol !== "http:" ||
++  url.hostname !== "127.0.0.1" ||
++  !url.port ||
++  url.origin !== origin
++)
++  throw new Error("EXACT_OWNED_ORIGIN_REQUIRED");
++if (
++  !["lifecycle", "concurrency", "outcome", "authority", "navigation"].includes(
++    selected,
++  )
++)
++  throw new Error("EXACT_ACCOUNT_SECURITY_CASE_REQUIRED");
++export default defineConfig({
++  testDir: "./e2e",
++  testMatch: "system-account-security.spec.ts",
++  grep: new RegExp(`\\[${selected}\\]`),
++  timeout: 45_000,
++  workers: 1,
++  retries: 0,
++  reporter: "line",
++  outputDir: `${directory}/account-security-playwright-results`,
++  use: {
++    baseURL: origin,
++    browserName: "chromium",
++    launchOptions: { executablePath, args: ["--no-sandbox"] },
++    screenshot: "off",
++    video: "off",
++    trace: "off",
++  },
++});
+--- base/tests/account-captcha-web/e2e/system-account-security.spec.ts
++++ candidate/tests/account-captcha-web/e2e/system-account-security.spec.ts
+@@ -0,0 +1,1240 @@
++import { test, expect, type Page, type Locator } from "@playwright/test";
++import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
++import { join } from "node:path";
++const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
++const endpoint = "/api/v1/system/account-settings";
++type Settings = {
++  id: string;
++  version: string;
++  session_idle_seconds: string;
++  session_absolute_seconds: string;
++  password_reset_seconds: string;
++  challenge_after_failures: string;
++  lifetime_changes_apply_to: "newly_issued_sessions_and_tokens";
++};
++type Credential = { email: string; password: string; user_id: string };
++type Fact = {
++  sequence: number;
++  path: string;
++  method: string;
++  status: number;
++  bytes: number;
++  ended: boolean;
++  code?: string;
++  commit_state?: string;
++  settings?: Settings;
++  session?: { user_id: string; session_id: string; role: string };
++};
++type ObservedWindow = Window & {
++  __securityFacts?: Fact[];
++  __securitySequence?: number;
++};
++const material = (): {
++  admin: Credential;
++  member: Credential;
++  initial: Settings;
++} =>
++  JSON.parse(
++    readFileSync(join(directory, "account-security-material.json"), "utf8"),
++  );
++function result(value: Record<string, unknown>) {
++  writeFileSync(
++    join(directory, "account-security-result.json"),
++    JSON.stringify({ completed: true, ...value }),
++    { mode: 0o600 },
++  );
++}
++let ipcSequence = 0;
++async function ipc(
++  action: string,
++  fields: Record<string, string> = {},
++): Promise<Record<string, any>> {
++  const sequence = ++ipcSequence,
++    request = join(directory, "account-security-ipc.json"),
++    ack = join(directory, `account-security-ack-${sequence}.json`);
++  writeFileSync(
++    request + ".tmp",
++    JSON.stringify({ sequence, action, ...fields }),
++    { mode: 0o600 },
++  );
++  renameSync(request + ".tmp", request);
++  await expect.poll(() => existsSync(ack), { timeout: 14000 }).toBe(true);
++  const value = JSON.parse(readFileSync(ack, "utf8"));
++  expect(value.ok === true && value.sequence === sequence).toBe(true);
++  return value;
++}
++// Side observations of the application's original fetch/read Promises only.
++// No clone, tee, second read or request; original cancel and abort are untouched.
++// Ended below is a projection marker, never proof of Cookie-owner release.
++function observeNative() {
++  const scope = window as ObservedWindow;
++  scope.__securityFacts = [];
++  scope.__securitySequence = 0;
++  const object = (value: unknown): Record<string, unknown> | null =>
++    value !== null && typeof value === "object" && !Array.isArray(value)
++      ? (value as Record<string, unknown>)
++      : null;
++  const closed = (value: Record<string, unknown>, keys: string[]) =>
++    Object.keys(value).length === keys.length &&
++    keys.every((key) => Object.hasOwn(value, key));
++  const id = (value: unknown): value is string =>
++    typeof value === "string" &&
++    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
++      value,
++    );
++  const decimal = (value: unknown, min: bigint, max: bigint): value is string =>
++    typeof value === "string" &&
++    /^[1-9][0-9]{0,18}$/.test(value) &&
++    BigInt(value) >= min &&
++    BigInt(value) <= max;
++  const nativeFetch = window.fetch;
++  window.fetch = function (...args: Parameters<typeof fetch>) {
++    const original = Reflect.apply(nativeFetch, this, args) as ReturnType<
++      typeof fetch
++    >;
++    try {
++      const [input, init] = args,
++        url = new URL(
++          input instanceof Request ? input.url : String(input),
++          location.origin,
++        );
++      if (
++        url.origin !== location.origin ||
++        !(
++          url.pathname === "/api/v1/session" ||
++          url.pathname.startsWith("/api/v1/system/")
++        )
++      )
++        return original;
++      const fact: Fact = {
++        sequence: ++scope.__securitySequence!,
++        path: url.pathname,
++        method:
++          init?.method ?? (input instanceof Request ? input.method : "GET"),
++        status: 0,
++        bytes: 0,
++        ended: false,
++      };
++      scope.__securityFacts!.push(fact);
++      void original
++        .then(
++          (response) => {
++            fact.status = response.status;
++            if (!(
++              fact.path === "/api/v1/session" ||
++              fact.path === "/api/v1/system/account-settings"
++            ))
++              return;
++            const body = response.body,
++              media = response.headers
++                .get("Content-Type")
++                ?.split(";", 1)[0]
++                ?.trim()
++                .toLowerCase();
++            if (
++              !body ||
++              media !==
++                (response.status === 200
++                  ? "application/json"
++                  : "application/problem+json")
++            ) {
++              fact.ended = true;
++              return;
++            }
++            let text = "",
++              collect = true;
++            const decoder = new TextDecoder();
++            function project() {
++              if (!collect) return;
++              const value = object(JSON.parse(text + decoder.decode()));
++              if (!value) return;
++              if (response.status !== 200) {
++                if (
++                  typeof value.code === "string" &&
++                  [
++                    "UNAUTHENTICATED",
++                    "SESSION_REVOKED",
++                    "CSRF_FAILED",
++                    "FORBIDDEN",
++                    "VERSION_CONFLICT",
++                    "INVALID_ARGUMENT",
++                    "RESOURCE_BUSY",
++                    "INTERNAL_ERROR",
++                    "UNAVAILABLE",
++                    "IDEMPOTENCY_KEY_REUSED",
++                    "COMMIT_UNKNOWN",
++                  ].includes(value.code)
++                )
++                  fact.code = value.code;
++                if (
++                  typeof value.commit_state === "string" &&
++                  [
++                    "not_started",
++                    "not_committed",
++                    "committed",
++                    "unknown",
++                  ].includes(value.commit_state)
++                )
++                  fact.commit_state = value.commit_state;
++                return;
++              }
++              if (fact.path === "/api/v1/session") {
++                const user = object(value.user),
++                  session = object(value.session);
++                if (
++                  closed(value, ["user", "session", "csrf_token"]) &&
++                  user &&
++                  session &&
++                  id(user.id) &&
++                  id(session.id) &&
++                  (user.role === "admin" || user.role === "user")
++                )
++                  fact.session = {
++                    user_id: user.id,
++                    session_id: session.id,
++                    role: user.role,
++                  };
++                return;
++              }
++              if (
++                !closed(value, [
++                  "id",
++                  "version",
++                  "session_idle_seconds",
++                  "session_absolute_seconds",
++                  "password_reset_seconds",
++                  "challenge_after_failures",
++                  "lifetime_changes_apply_to",
++                ]) ||
++                !id(value.id) ||
++                !decimal(value.version, 1n, 9223372036854775807n) ||
++                !decimal(value.session_idle_seconds, 900n, 2592000n) ||
++                !decimal(value.session_absolute_seconds, 3600n, 7776000n) ||
++                !decimal(value.password_reset_seconds, 300n, 7200n) ||
++                !decimal(value.challenge_after_failures, 1n, 20n) ||
++                BigInt(value.session_idle_seconds) >
++                  BigInt(value.session_absolute_seconds) ||
++                value.lifetime_changes_apply_to !==
++                  "newly_issued_sessions_and_tokens"
++              )
++                return;
++              fact.settings = {
++                id: value.id,
++                version: value.version,
++                session_idle_seconds: value.session_idle_seconds,
++                session_absolute_seconds: value.session_absolute_seconds,
++                password_reset_seconds: value.password_reset_seconds,
++                challenge_after_failures: value.challenge_after_failures,
++                lifetime_changes_apply_to: value.lifetime_changes_apply_to,
++              };
++            }
++            try {
++              const nativeGet = body.getReader;
++              Object.defineProperty(body, "getReader", {
++                configurable: true,
++                writable: true,
++                value: function (
++                  this: ReadableStream<Uint8Array>,
++                  ...args: unknown[]
++                ) {
++                  const reader = Reflect.apply(
++                    nativeGet,
++                    this,
++                    args,
++                  ) as ReadableStreamDefaultReader<Uint8Array>;
++                  try {
++                    Object.defineProperty(body, "getReader", {
++                      value: nativeGet,
++                    });
++                    const nativeRead = reader.read;
++                    Object.defineProperty(reader, "read", {
++                      configurable: true,
++                      writable: true,
++                      value: function (
++                        this: ReadableStreamDefaultReader<Uint8Array>,
++                        ...args: unknown[]
++                      ) {
++                        const original = Reflect.apply(
++                          nativeRead,
++                          this,
++                          args,
++                        ) as Promise<ReadableStreamReadResult<Uint8Array>>;
++                        void original
++                          .then(
++                            ({ done, value }) => {
++                              try {
++                                if (value) {
++                                  fact.bytes += value.byteLength;
++                                  if (fact.bytes > 600000) {
++                                    text = "";
++                                    collect = false;
++                                  } else if (collect)
++                                    text += decoder.decode(value, {
++                                      stream: true,
++                                    });
++                                }
++                                if (done) {
++                                  fact.ended = true;
++                                  try {
++                                    project();
++                                  } finally {
++                                    text = "";
++                                    collect = false;
++                                  }
++                                }
++                              } catch {
++                                text = "";
++                                collect = false;
++                              }
++                            },
++                            () => {
++                              text = "";
++                              collect = false;
++                              fact.ended = true;
++                            },
++                          )
++                          .catch(() => {
++                            text = "";
++                            collect = false;
++                          });
++                        return original;
++                      },
++                    });
++                  } catch {
++                    text = "";
++                    collect = false;
++                  }
++                  return reader;
++                },
++              });
++            } catch {
++              text = "";
++              collect = false;
++            }
++          },
++          () => {
++            fact.ended = true;
++          },
++        )
++        .catch(() => undefined);
++    } catch {
++      /* Observation failures cannot change the native result. */
++    }
++    return original;
++  };
++}
++const button = (page: Page, name: string) =>
++  page.getByRole("button", { name, exact: true });
++const title = (page: Page, name: string) =>
++  page.getByRole("heading", { name, exact: true });
++const form = (page: Page) =>
++  page.getByRole("form", { name: "修改账号安全配置", exact: true });
++const fields = [
++  ["session_idle_seconds", "会话空闲期限（秒）"],
++  ["session_absolute_seconds", "会话绝对期限（秒）"],
++  ["password_reset_seconds", "密码重置有效期（秒）"],
++  ["challenge_after_failures", "触发挑战的失败次数（次）"],
++] as const;
++const field = (page: Page, key: (typeof fields)[number][0]) =>
++  page.getByRole("textbox", {
++    name: fields.find(([name]) => name === key)![1],
++    exact: true,
++  });
++const top = (page: Page) => page.getByRole("dialog");
++const facts = (page: Page) =>
++  page.evaluate(() => (window as ObservedWindow).__securityFacts ?? []);
++const seq = (page: Page) =>
++  page.evaluate(() => (window as ObservedWindow).__securitySequence ?? 0);
++async function writes(page: Page) {
++  return (await facts(page)).filter(
++    (f) => f.path === endpoint && f.method === "PUT",
++  );
++}
++async function factAfter(
++  page: Page,
++  after: number,
++  predicate: (fact: Fact) => boolean,
++) {
++  let found: Fact | undefined;
++  await expect
++    .poll(async () => {
++      found = (await facts(page)).find(
++        (f) => f.sequence > after && predicate(f),
++      );
++      return !!found;
++    })
++    .toBe(true);
++  return found!;
++}
++async function session(page: Page) {
++  let value: Fact["session"];
++  await expect
++    .poll(async () => {
++      value = (await facts(page))
++        .filter(
++          (f) => f.path === "/api/v1/session" && f.status === 200 && f.ended,
++        )
++        .at(-1)?.session;
++      return !!value;
++    })
++    .toBe(true);
++  return value!;
++}
++async function login(page: Page, who: "admin" | "member" = "admin") {
++  const data = material()[who],
++    after = await seq(page);
++  await page.locator("#login-email").fill(data.email);
++  try {
++    await page.locator("#login-password").fill(data.password);
++  } catch {
++    throw new Error("private Account security login input failed");
++  }
++  await button(page, "登录").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === "/api/v1/session" &&
++      f.status === 200 &&
++      f.ended &&
++      f.session?.user_id === data.user_id &&
++      f.session.role === (who === "member" ? "user" : "admin"),
++  );
++  await expect(button(page, "退出登录")).toBeEnabled();
++  await expect(page).not.toHaveURL(/\/login(?:\?|$)/);
++}
++async function setup(page: Page, who: "admin" | "member" = "admin") {
++  await page.addInitScript(observeNative);
++  await page.goto("/system/account-security");
++  await login(page, who);
++  if (who === "admin") await currentRead(page, 0);
++}
++async function currentRead(page: Page, after: number) {
++  const read = await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "GET" &&
++      f.status === 200 &&
++      f.ended &&
++      !!f.settings,
++  );
++  await expect(button(page, "读取当前配置")).toBeEnabled();
++  return read.settings!;
++}
++async function dbFacts() {
++  return (await ipc("facts")).facts as {
++    settings: Settings;
++    commands: number;
++    audits: number;
++    original_commands: number;
++    original_audits: number;
++    invocations: number;
++  };
++}
++async function matchesForm(page: Page, value: Settings) {
++  await expect(form(page).locator("p code").first()).toHaveText(value.version);
++  for (const [key] of fields)
++    await expect(field(page, key)).toHaveValue(value[key]);
++}
++async function fill(page: Page, values: Partial<Settings>) {
++  for (const [key] of fields)
++    if (values[key] !== undefined) await field(page, key).fill(values[key]!);
++}
++async function save(page: Page) {
++  const after = await seq(page);
++  await button(page, "保存配置").click();
++  const written = await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 200 &&
++      f.ended &&
++      !!f.settings,
++  );
++  const current = await currentRead(page, written.sequence);
++  await matchesForm(page, current);
++  return written.settings!;
++}
++async function discard(page: Page) {
++  await button(page, "取消修改").click();
++  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
++  await top(page)
++    .getByRole("button", { name: "放弃修改", exact: true })
++    .click();
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++}
++async function refresh(page: Page) {
++  const after = await seq(page);
++  await button(page, "读取当前配置").click();
++  return currentRead(page, after);
++}
++async function cutSave(page: Page) {
++  await ipc("arm-drop");
++  const after = await seq(page);
++  await button(page, "保存配置").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 200 &&
++      f.ended &&
++      !f.settings,
++  );
++  await expect(title(page, "请求结果未确认")).toBeVisible();
++  await expect(button(page, "检查当前会话与配置")).toBeEnabled();
++}
++
++test("[lifecycle] current settings, exact four-field save and new-only Session lifetimes", async ({
++  page,
++}) => {
++  await setup(page);
++  const initial = material().initial,
++    baseline = await dbFacts(),
++    original = await session(page);
++  expect(await currentRead(page, 0)).toEqual(initial);
++  await matchesForm(page, initial);
++  await expect(button(page, "保存配置")).toBeDisabled();
++  await ipc("capture-session", original);
++  await fill(page, { password_reset_seconds: "3600" });
++  await discard(page);
++  await matchesForm(page, initial);
++  const invalid: [(typeof fields)[number][0], string][] = [
++    ["session_idle_seconds", "899"],
++    ["session_idle_seconds", "2592001"],
++    ["session_absolute_seconds", "3599"],
++    ["session_absolute_seconds", "7776001"],
++    ["password_reset_seconds", "299"],
++    ["password_reset_seconds", "7201"],
++    ["challenge_after_failures", "0"],
++    ["challenge_after_failures", "21"],
++    ["session_idle_seconds", "0900"],
++    ["session_idle_seconds", " 900"],
++  ];
++  for (const [key, value] of invalid) {
++    await field(page, key).fill(value);
++    await expect(field(page, key)).toHaveValue(value);
++    await expect(field(page, key)).toHaveAttribute("aria-invalid", "true");
++    await expect(button(page, "保存配置")).toBeDisabled();
++    await field(page, key).fill(initial[key]);
++  }
++  await fill(page, {
++    session_idle_seconds: "7200",
++    session_absolute_seconds: "3600",
++  });
++  await expect(button(page, "保存配置")).toBeDisabled();
++  expect((await writes(page)).length).toBe(0);
++  expect(await dbFacts()).toEqual(baseline);
++  const desired = {
++    session_idle_seconds: "1800",
++    session_absolute_seconds: "7200",
++    password_reset_seconds: "900",
++    challenge_after_failures: "4",
++  };
++  await fill(page, desired);
++  const saved = await save(page);
++  expect(saved).toEqual({
++    ...initial,
++    ...desired,
++    version: String(BigInt(initial.version) + 1n),
++  });
++  const after = await dbFacts();
++  expect(after.settings).toEqual(saved);
++  expect(after.commands - baseline.commands).toBe(1);
++  expect(after.audits - baseline.audits).toBe(1);
++  expect(await refresh(page)).toEqual(saved);
++  expect((await writes(page)).length).toBe(1);
++  const life = await ipc("lifetime-facts");
++  expect(life.old_unchanged && life.new_matches && life.different_session).toBe(
++    true,
++  );
++  await expect(
++    page.getByText("期限修改只影响随后签发的 Session/token", { exact: false }),
++  ).toBeVisible();
++  expect(after.invocations).toBe(0);
++  result({
++    current_settings: true,
++    four_fields: true,
++    no_op: true,
++    cancelled: true,
++    ranges: true,
++    persisted: true,
++    old_session_unchanged: true,
++    new_session_lifetimes: true,
++  });
++});
++
++test("[concurrency] two formal administrator Sessions compete and explicitly adopt the latest baseline", async ({
++  page,
++  browser,
++}) => {
++  await setup(page);
++  const baseline = await dbFacts(),
++    otherContext = await browser.newContext({
++      baseURL: process.env.AGENTEAM_AUTH_WEB_ORIGIN,
++    });
++  try {
++    const other = await otherContext.newPage();
++    await setup(other);
++    expect(
++      (await session(other)).session_id !== (await session(page)).session_id,
++    ).toBe(true);
++    await matchesForm(page, baseline.settings);
++    await matchesForm(other, baseline.settings);
++    const winner = {
++      session_idle_seconds: "1800",
++      session_absolute_seconds: "7200",
++      password_reset_seconds: "900",
++      challenge_after_failures: "4",
++    };
++    const loser = {
++      session_idle_seconds: "3600",
++      session_absolute_seconds: "14400",
++      password_reset_seconds: "3600",
++      challenge_after_failures: "6",
++    };
++    await fill(page, winner);
++    await fill(other, loser);
++    const attempts = await ipc("attempt-facts");
++    await save(page);
++    const accepted = await dbFacts(),
++      after = await seq(other);
++    await button(other, "保存配置").click();
++    const rejected = await factAfter(
++      other,
++      after,
++      (f) =>
++        f.path === endpoint &&
++        f.method === "PUT" &&
++        f.status === 409 &&
++        f.code === "VERSION_CONFLICT" &&
++        f.ended,
++    );
++    expect(rejected.settings).toBeUndefined();
++    expect(["not_started", "not_committed"]).toContain(rejected.commit_state);
++    await expect(title(other, "需要核对最新配置")).toBeVisible();
++    await matchesForm(other, { ...baseline.settings, ...loser });
++    expect(await dbFacts()).toEqual(accepted);
++    const attempted = await ipc("attempt-facts");
++    expect(attempted.attempts - attempts.attempts).toBe(2);
++    expect(attempted.distinct_keys - attempts.distinct_keys).toBe(2);
++    expect(accepted.commands - baseline.commands).toBe(1);
++    expect(accepted.audits - baseline.audits).toBe(1);
++    const before = await seq(other);
++    await button(other, "读取最新配置").click();
++    expect(await currentRead(other, before)).toEqual(accepted.settings);
++    await matchesForm(other, { ...baseline.settings, ...loser });
++    await button(other, "采用最新值重新编辑").click();
++    await expect(top(other)).toHaveAccessibleName("放弃草稿并采用最新值？");
++    await top(other)
++      .getByRole("button", { name: "继续编辑", exact: true })
++      .click();
++    await matchesForm(other, { ...baseline.settings, ...loser });
++    await button(other, "采用最新值重新编辑").click();
++    await top(other)
++      .getByRole("button", { name: "放弃修改", exact: true })
++      .click();
++    await matchesForm(other, accepted.settings);
++    expect((await writes(other)).length).toBe(1);
++    await fill(other, loser);
++    await save(other);
++    const final = await dbFacts();
++    expect(final.settings).toEqual({
++      ...accepted.settings,
++      ...loser,
++      version: String(BigInt(accepted.settings.version) + 1n),
++    });
++    expect(final.commands - baseline.commands).toBe(2);
++    expect(final.audits - baseline.audits).toBe(2);
++  } finally {
++    await otherContext.close();
++  }
++  result({
++    two_sessions: true,
++    same_version: true,
++    real_conflict: true,
++    draft_preserved: true,
++    explicit_adoption: true,
++    atomic_facts: true,
++  });
++});
++
++test("[outcome] accepted response cut, current GET evidence and immutable historical replay", async ({
++  page,
++}) => {
++  await setup(page);
++  const baseline = await dbFacts();
++  await fill(page, {
++    session_idle_seconds: "1800",
++    session_absolute_seconds: "7200",
++    password_reset_seconds: "900",
++    challenge_after_failures: "4",
++  });
++  await cutSave(page);
++  const accepted = await dbFacts(),
++    lost = await ipc("drop-facts");
++  expect(lost.dropped === 1 && lost.replayed === 0).toBe(true);
++  expect(accepted.commands - baseline.commands).toBe(1);
++  expect(accepted.audits - baseline.audits).toBe(1);
++  expect(accepted.original_commands).toBe(1);
++  expect(accepted.original_audits).toBe(1);
++  const newer = (await ipc("compete")).settings as Settings;
++  expect(BigInt(newer.version)).toBe(BigInt(accepted.settings.version) + 1n);
++  const after = await seq(page),
++    count = (await writes(page)).length;
++  await button(page, "检查当前会话与配置").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === "/api/v1/session" &&
++      f.status === 200 &&
++      f.ended &&
++      !!f.session,
++  );
++  expect(await currentRead(page, after)).toEqual(newer);
++  await expect(title(page, "请求结果未确认")).toBeVisible();
++  await expect(button(page, "重试原请求")).toBeEnabled();
++  expect((await writes(page)).length).toBe(count);
++  const retry = await seq(page);
++  await button(page, "重试原请求").click();
++  const historical = await factAfter(
++    page,
++    retry,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 200 &&
++      f.ended &&
++      !!f.settings,
++  );
++  expect(historical.settings).toEqual(accepted.settings);
++  expect(await currentRead(page, historical.sequence)).toEqual(newer);
++  await matchesForm(page, newer);
++  const replayed = await ipc("drop-facts"),
++    final = await dbFacts();
++  expect(
++    replayed.dropped === 1 &&
++      replayed.replayed === 1 &&
++      replayed.same_original === true,
++  ).toBe(true);
++  expect(final.original_commands).toBe(1);
++  expect(final.original_audits).toBe(1);
++  expect(final.commands - baseline.commands).toBe(2);
++  expect(final.audits - baseline.audits).toBe(2);
++  await fill(page, { password_reset_seconds: "7200" });
++  await ipc("arm-get-fail");
++  const next = await seq(page);
++  await button(page, "保存配置").click();
++  const confirmed = await factAfter(
++    page,
++    next,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 200 &&
++      f.ended &&
++      !!f.settings,
++  );
++  await factAfter(
++    page,
++    confirmed.sequence,
++    (f) =>
++      f.path === endpoint && f.method === "GET" && f.status === 503 && f.ended,
++  );
++  await expect(title(page, "保存已确认，当前配置读取失败")).toBeVisible();
++  await expect(form(page)).toHaveCount(0);
++  const beforeRead = (await writes(page)).length;
++  await refresh(page);
++  expect((await writes(page)).length).toBe(beforeRead);
++  await fill(page, { password_reset_seconds: "900" });
++  await cutSave(page);
++  const committed = await dbFacts();
++  await button(page, "放弃本次操作").click();
++  await top(page)
++    .getByRole("button", { name: "放弃修改", exact: true })
++    .click();
++  await expect(form(page)).toHaveCount(0);
++  expect(await dbFacts()).toEqual(committed);
++  await refresh(page);
++  await matchesForm(page, committed.settings);
++  expect((await facts(page)).some((f) => f.path.endsWith("/lookup"))).toBe(
++    false,
++  );
++  expect((await ipc("failure-facts")).read_failures).toBe(1);
++  result({
++    accepted_cut: true,
++    current_not_receipt: true,
++    historical_result: true,
++    same_original: true,
++    unique_facts: true,
++    confirmed_read_failure: true,
++    abandon_no_rollback: true,
++    no_lookup: true,
++  });
++});
++
++async function promoteAndRestore(
++  page: Page,
++  identity: NonNullable<Fact["session"]>,
++) {
++  await ipc("promote", identity);
++  const after = await seq(page);
++  await button(page, "重新检查权限").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === "/api/v1/session" &&
++      f.status === 200 &&
++      f.ended &&
++      f.session?.user_id === identity.user_id &&
++      f.session.session_id === identity.session_id &&
++      f.session.role === "admin",
++  );
++  await currentRead(page, after);
++  await expect(button(page, "保存配置")).toBeDisabled();
++  await expect(button(page, "重试原请求")).toHaveCount(0);
++}
++test("[authority] real current 403, denied historical replay, exact 401 and identity cleanup", async ({
++  page,
++}) => {
++  await setup(page, "member");
++  await expect(title(page, "无权访问系统设置")).toBeVisible();
++  expect(
++    (await facts(page)).some((f) => f.path.startsWith("/api/v1/system/")),
++  ).toBe(false);
++  await expect(
++    page.getByRole("navigation", { name: "系统设置", exact: true }),
++  ).toHaveCount(0);
++  await button(page, "退出登录").click();
++  await expect(page).toHaveURL(/\/login$/);
++  await login(page);
++  await page.goto("/system/account-security");
++  await currentRead(page, 0);
++  let original = await session(page),
++    after = await seq(page);
++  await ipc("demote", original);
++  await button(page, "读取当前配置").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "GET" &&
++      f.status === 403 &&
++      f.code === "FORBIDDEN" &&
++      f.ended,
++  );
++  await expect(title(page, "无权访问系统设置")).toBeVisible();
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  await promoteAndRestore(page, original);
++  await fill(page, { password_reset_seconds: "900" });
++  const beforeRejected = await dbFacts();
++  original = await session(page);
++  await ipc("demote", original);
++  after = await seq(page);
++  await button(page, "保存配置").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 403 &&
++      f.code === "FORBIDDEN" &&
++      f.ended,
++  );
++  await expect(title(page, "无权访问系统设置")).toBeVisible();
++  expect(await dbFacts()).toEqual(beforeRejected);
++  await promoteAndRestore(page, original);
++  await fill(page, { password_reset_seconds: "900" });
++  await cutSave(page);
++  after = await seq(page);
++  await button(page, "检查当前会话与配置").click();
++  await currentRead(page, after);
++  await expect(button(page, "重试原请求")).toBeEnabled();
++  original = await session(page);
++  const accepted = await dbFacts();
++  await ipc("demote", original);
++  after = await seq(page);
++  await button(page, "重试原请求").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === endpoint &&
++      f.method === "PUT" &&
++      f.status === 403 &&
++      f.code === "FORBIDDEN" &&
++      f.ended,
++  );
++  await expect(title(page, "无权访问系统设置")).toBeVisible();
++  expect(await dbFacts()).toEqual(accepted);
++  await promoteAndRestore(page, original);
++  await fill(page, { password_reset_seconds: "3600" });
++  await cutSave(page);
++  original = await session(page);
++  await ipc("revoke-session", original);
++  after = await seq(page);
++  await button(page, "检查当前会话与配置").click();
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === "/api/v1/session" &&
++      f.status === 401 &&
++      f.code === "SESSION_REVOKED" &&
++      f.ended,
++  );
++  await expect(page).toHaveURL(/\/login(?:\?|$)/);
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  await login(page);
++  await page.goto("/system/account-security");
++  await currentRead(page, 0);
++  const fresh = await session(page);
++  expect(
++    fresh.user_id === original.user_id &&
++      fresh.session_id !== original.session_id,
++  ).toBe(true);
++  await expect(button(page, "重试原请求")).toHaveCount(0);
++  await expect(button(page, "保存配置")).toBeDisabled();
++  await fill(page, { password_reset_seconds: "7200" });
++  await cutSave(page);
++  await button(page, "退出登录").click();
++  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
++  await top(page)
++    .getByRole("button", { name: "放弃修改", exact: true })
++    .click();
++  await expect(page).toHaveURL(/\/login$/);
++  await login(page, "member");
++  await page.goto("/system/account-security");
++  await expect(title(page, "无权访问系统设置")).toBeVisible();
++  expect(
++    (await facts(page)).some((f) => f.path.startsWith("/api/v1/system/")),
++  ).toBe(false);
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  result({
++    ordinary_denied: true,
++    get_forbidden: true,
++    put_forbidden: true,
++    replay_forbidden: true,
++    revoked: true,
++    new_session: true,
++    switched: true,
++  });
++});
++
++async function focusContained(page: Page) {
++  await expect(top(page)).toHaveCount(1);
++  await expect
++    .poll(() =>
++      top(page).evaluate((dialog) => dialog.contains(document.activeElement)),
++    )
++    .toBe(true);
++  for (let n = 0; n < 6; n++) {
++    await page.keyboard.press("Tab");
++    expect(
++      await top(page).evaluate((dialog) =>
++        dialog.contains(document.activeElement),
++      ),
++    ).toBe(true);
++  }
++  await page.keyboard.press("Shift+Tab");
++  expect(
++    await top(page).evaluate((dialog) =>
++      dialog.contains(document.activeElement),
++    ),
++  ).toBe(true);
++}
++async function restoredConfirmation(
++  page: Page,
++  fail: boolean,
++  decision: "continue" | "discard",
++) {
++  const original = await session(page),
++    after = await seq(page),
++    count = (await writes(page)).length;
++  if (fail) await ipc("arm-session-fail");
++  // A synthetic pageshow exercises the App listener; subsequent 200/EOF is real.
++  const checking = await page.evaluate(async () => {
++    let observer: MutationObserver | undefined;
++    try {
++      return await new Promise<{
++        zero: boolean;
++        unlocked: boolean;
++        operative: boolean;
++      }>((resolve) => {
++        observer = new MutationObserver(() => {
++          const check = document.querySelector<HTMLElement>(".session-check");
++          if (!check) return;
++          resolve({
++            zero: document.querySelectorAll(".ui-overlay").length === 0,
++            unlocked: document.body.style.overflow !== "hidden",
++            operative: check.closest("[inert]") === null,
++          });
++        });
++        observer.observe(document.body, { childList: true, subtree: true });
++        window.dispatchEvent(new Event("pageshow"));
++      });
++    } finally {
++      observer?.disconnect();
++    }
++  });
++  expect(checking).toEqual({ zero: true, unlocked: true, operative: true });
++  if (fail) {
++    await expect(page.locator(".ui-overlay")).toHaveCount(0);
++    await expect(button(page, "检查当前会话")).toBeEnabled();
++    await button(page, "检查当前会话").click();
++  }
++  await factAfter(
++    page,
++    after,
++    (f) =>
++      f.path === "/api/v1/session" &&
++      f.status === 200 &&
++      f.ended &&
++      f.session?.user_id === original.user_id &&
++      f.session.session_id === original.session_id &&
++      f.session.role === original.role,
++  );
++  await expect(page.locator('[role="dialog"]')).toHaveCount(1);
++  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
++  expect(
++    await top(page).evaluate(
++      (node) =>
++        !(node as HTMLElement).inert &&
++        node.getAttribute("aria-hidden") !== "true",
++    ),
++  ).toBe(true);
++  await focusContained(page);
++  await top(page)
++    .getByRole("button", {
++      name: decision === "continue" ? "继续编辑" : "放弃修改",
++      exact: true,
++    })
++    .click();
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  expect((await writes(page)).length).toBe(count);
++  if (decision === "continue") {
++    expect(
++      await page.evaluate(
++        () =>
++          document.activeElement instanceof HTMLElement &&
++          document.activeElement !== document.body &&
++          document.activeElement.isConnected &&
++          !document.activeElement.closest('[inert],[aria-hidden="true"]'),
++      ),
++    ).toBe(true);
++    await page.keyboard.press("Tab");
++    expect(
++      await page.evaluate(
++        () =>
++          document.activeElement instanceof HTMLElement &&
++          document.activeElement !== document.body &&
++          !document.activeElement.closest('[inert],[aria-hidden="true"]'),
++      ),
++    ).toBe(true);
++  }
++}
++async function layout(page: Page, width: number) {
++  const problems = await page
++    .locator(".system-account-security")
++    .evaluate((region, width) => {
++      const out: string[] = [],
++        rect = region.getBoundingClientRect();
++      if (
++        document.documentElement.scrollWidth > innerWidth + 1 ||
++        region.scrollWidth > region.clientWidth + 1
++      )
++        out.push("horizontal overflow");
++      if (document.scrollingElement!.scrollHeight > innerHeight + 1)
++        out.push("outer vertical overflow");
++      if (rect.left < 0 || rect.right > innerWidth + 1) out.push("page bounds");
++      const inputs = [
++        ...region.querySelectorAll<HTMLInputElement>(
++          'input[inputmode="numeric"]',
++        ),
++      ];
++      if (inputs.length !== 4) out.push("four fields");
++      for (const input of inputs) {
++        const bound = input.getBoundingClientRect();
++        if (
++          bound.left < rect.left - 1 ||
++          bound.right > rect.right + 1 ||
++          bound.width < 80
++        )
++          out.push("field bounds");
++        if (!input.labels?.length || !input.getAttribute("aria-describedby"))
++          out.push("label and range");
++      }
++      for (const node of region.querySelectorAll<HTMLElement>("p,dd,.ui-field"))
++        if (node.scrollWidth > node.clientWidth + 1) out.push("text overflow");
++      if (
++        width <= 680 &&
++        inputs.length >= 2 &&
++        Math.abs(
++          inputs[0]!.getBoundingClientRect().left -
++            inputs[1]!.getBoundingClientRect().left,
++        ) > 1
++      )
++        out.push("narrow columns");
++      return out;
++    }, width);
++  expect(problems).toEqual([]);
++  for (const [key] of fields) {
++    await field(page, key).scrollIntoViewIfNeeded();
++    await expect(field(page, key)).toBeInViewport();
++  }
++  await button(page, "取消修改").scrollIntoViewIfNeeded();
++  await expect(button(page, "取消修改")).toBeInViewport();
++}
++test("[navigation] six leaves, one restored inline confirmation and eight responsive layouts", async ({
++  page,
++}) => {
++  await page.addInitScript(observeNative);
++  await page.goto("/system/account-security");
++  await expect(page).toHaveURL(/\/login(?:\?|$)/);
++  expect(new URL(page.url()).searchParams.get("return")).toBe(
++    "/system/account-security",
++  );
++  await login(page);
++  await currentRead(page, 0);
++  await page.goto("/system");
++  await expect(page).toHaveURL(/\/system\/users$/);
++  const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
++  await expect(nav.getByRole("link")).toHaveCount(6);
++  await expect(nav.locator(".settings-group-toggle")).toHaveCount(3);
++  const platform = nav.getByRole("button", { name: "平台配置", exact: true });
++  await platform.focus();
++  await page.keyboard.press("Space");
++  await expect(platform).toHaveAttribute("aria-expanded", "false");
++  await page.keyboard.press("Space");
++  await expect(platform).toHaveAttribute("aria-expanded", "true");
++  let after = await seq(page);
++  await nav.getByRole("link", { name: "账号安全", exact: true }).click();
++  await currentRead(page, after);
++  await expect(
++    nav.getByRole("link", { name: "账号安全", exact: true }),
++  ).toHaveAttribute("aria-current", "page");
++  await fill(page, { password_reset_seconds: "3600" });
++  const cancel = button(page, "取消修改");
++  await cancel.click();
++  await focusContained(page);
++  await page.keyboard.press("Escape");
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  await expect(cancel).toBeFocused();
++  await cancel.click();
++  await page
++    .locator(".ui-overlay")
++    .last()
++    .click({ position: { x: 3, y: 3 } });
++  await expect(page.locator(".ui-overlay")).toHaveCount(0);
++  await expect(cancel).toBeFocused();
++  await nav.getByRole("link", { name: "用户", exact: true }).click();
++  await restoredConfirmation(page, true, "continue");
++  await expect(page).toHaveURL(/\/system\/account-security$/);
++  await expect(field(page, "password_reset_seconds")).toHaveValue("3600");
++  await nav.getByRole("link", { name: "用户", exact: true }).click();
++  await restoredConfirmation(page, false, "discard");
++  await expect(page).toHaveURL(/\/system\/users$/);
++  after = await seq(page);
++  await nav.getByRole("link", { name: "账号安全", exact: true }).click();
++  await currentRead(page, after);
++  await fill(page, { password_reset_seconds: "3600" });
++  const back = page.goBack();
++  await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
++  await top(page)
++    .getByRole("button", { name: "继续编辑", exact: true })
++    .click();
++  await back;
++  await expect(page).toHaveURL(/\/system\/account-security$/);
++  await cutSave(page);
++  const accepted = await dbFacts();
++  await nav.getByRole("link", { name: "用户", exact: true }).click();
++  await restoredConfirmation(page, false, "continue");
++  await expect(title(page, "请求结果未确认")).toBeVisible();
++  expect(await dbFacts()).toEqual(accepted);
++  await button(page, "放弃本次操作").click();
++  await top(page)
++    .getByRole("button", { name: "放弃修改", exact: true })
++    .click();
++  await refresh(page);
++  let layouts = 0;
++  for (const theme of ["light", "dark"] as const) {
++    await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
++    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
++    for (const width of [1440, 1024, 834, 390]) {
++      await page.setViewportSize({ width, height: 900 });
++      const original = await field(page, "session_idle_seconds").inputValue();
++      await field(page, "session_idle_seconds").fill(
++        " 000900000000000000000000 ",
++      );
++      await expect(field(page, "session_idle_seconds")).toHaveAttribute(
++        "aria-invalid",
++        "true",
++      );
++      await layout(page, width);
++      await field(page, "session_idle_seconds").fill(original);
++      await layout(page, width);
++      if (width === 390) {
++        const toggle = button(page, "系统设置栏目");
++        await toggle.click();
++        await expect(top(page).getByRole("link")).toHaveCount(6);
++        await focusContained(page);
++        await page.keyboard.press("Escape");
++        await expect(page.locator(".ui-overlay")).toHaveCount(0);
++        await expect(toggle).toBeFocused();
++        await toggle.click();
++        await page
++          .locator(".ui-overlay")
++          .last()
++          .click({ position: { x: width - 3, y: 3 } });
++        await expect(page.locator(".ui-overlay")).toHaveCount(0);
++        await expect(toggle).toBeFocused();
++      }
++      await expect(page.locator(".ui-overlay")).toHaveCount(0);
++      await expect(page.locator('input[type="password"],textarea')).toHaveCount(
++        0,
++      );
++      await page.evaluate(() => {
++        window.scrollTo(0, 0);
++        document.querySelector<HTMLElement>("main.app-content")!.scrollTop = 0;
++      });
++      await expect
++        .poll(() =>
++          page.evaluate(() => ({
++            main: document.querySelector<HTMLElement>("main.app-content")!
++              .scrollTop,
++            document: document.scrollingElement!.scrollTop,
++          })),
++        )
++        .toEqual({ main: 0, document: 0 });
++      await expect(title(page, "账号安全")).toBeInViewport();
++      const images = process.env.AGENTEAM_AUTH_WEB_IMAGES;
++      if (images)
++        await page.screenshot({
++          path: join(images, `account-security-${theme}-${width}.png`),
++          fullPage: true,
++        });
++      layouts++;
++    }
++  }
++  expect((await ipc("failure-facts")).session_failures).toBe(1);
++  result({
++    six_leaves: true,
++    tenth_return: true,
++    dirty: true,
++    uncertain: true,
++    checking: true,
++    focus: true,
++    drawer: true,
++    no_overflow: true,
++    layouts,
++  });
++});
+--- base/tests/account-captcha-web/e2e/system-invitations.spec.ts
++++ candidate/tests/account-captcha-web/e2e/system-invitations.spec.ts
+@@ -1525,7 +1525,7 @@
+           name: "系统设置栏目",
+           exact: true,
+         });
+-        await expect(drawer.getByRole("link")).toHaveCount(5);
++        await expect(drawer.getByRole("link")).toHaveCount(6);
+         for (let n = 0; n < 6; n++) {
+           await page.keyboard.press("Tab");
+           expect(
+--- base/tests/account-captcha-web/e2e/system-providers.spec.ts
++++ candidate/tests/account-captcha-web/e2e/system-providers.spec.ts
+@@ -1189,7 +1189,7 @@
+     page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+       .getByRole("link"),
+-  ).toHaveCount(5);
++  ).toHaveCount(6);
+   await page.getByRole("link", { name: "待注册邀请", exact: true }).click();
+   await expect(
+     page.getByRole("heading", { name: "待注册邀请", exact: true }),
+--- base/tests/account-captcha-web/e2e/system-models.spec.ts
++++ candidate/tests/account-captcha-web/e2e/system-models.spec.ts
+@@ -1920,7 +1920,7 @@
+     page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+       .getByRole("link"),
+-  ).toHaveCount(5);
++  ).toHaveCount(6);
+   for (const leaf of ["待注册邀请", "Providers", "Models"]) {
+     await page.getByRole("link", { name: leaf, exact: true }).click();
+     await expect(title(page, leaf)).toBeVisible();
+@@ -1988,7 +1988,7 @@
+         await expect(page.getByRole("dialog")).toHaveCount(0);
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(5);
++        await expect(top(page).getByRole("link")).toHaveCount(6);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.getByRole("dialog")).toHaveCount(0);
+--- base/tests/account-captcha-web/e2e/system-model-selection.spec.ts
++++ candidate/tests/account-captcha-web/e2e/system-model-selection.spec.ts
+@@ -1861,7 +1861,7 @@
+     page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+       .getByRole("link"),
+-  ).toHaveCount(5);
++  ).toHaveCount(6);
+   for (const leaf of ["待注册邀请", "Providers", "Models"]) {
+     await page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+@@ -1960,7 +1960,7 @@
+         await expect(page.getByRole("dialog")).toHaveCount(0);
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(5);
++        await expect(top(page).getByRole("link")).toHaveCount(6);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.getByRole("dialog")).toHaveCount(0);

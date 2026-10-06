@@ -1,0 +1,234 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { createMemoryHistory, createRouter, isNavigationFailure } from 'vue-router'
+const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
+vi.mock('../composables/useSession', async original => ({ ...(await original<typeof import('../composables/useSession')>()), useSession: () => selected.auth! }))
+import App from '../App.vue'
+import UiDialog from '../components/ui/UiDialog.vue'
+import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/auth/LoginView.vue'
+import SystemSettingsView from '../views/system/SystemSettingsView.vue'
+import SystemAccountSecurityView from '../views/system/SystemAccountSecurityView.vue'
+import { createSystemAccountSecurity, type SystemAccountSecurityController } from '../composables/useSystemAccountSecurity'
+import { installAuthentication, safeReturnTarget } from '../router/auth'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { type CommitState, type Fetch } from '../api/client'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI } from '../api/system-providers'
+import { createSystemModelAPI } from '../api/system-models'
+import { createSystemModelSelectionAPI, type SelectionCommand } from '../api/system-model-selection'
+import { createSystemAccountSecurityAPI, type AccountSecurityUpdateInput, type SystemAccountSecurityAPI } from '../api/system-account-security'
+import { createSessionController, type SessionController } from '../composables/useSession'
+
+const id = (n: number) => '01901abc-4321-7654-8abc-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z', encoder = new TextEncoder()
+const version = '9007199254740993', successor = '9007199254740994'
+const session = (n = 2): SessionView => ({
+  user: { id: id(1), email: 'admin@example.invalid', username: 'admin', display_name: 'Admin', role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false },
+  session: { id: id(n), issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const values = () => ({ session_idle_seconds: '3600', session_absolute_seconds: '7200', password_reset_seconds: '300', challenge_after_failures: '1' })
+const input = (v = version): AccountSecurityUpdateInput => ({ version: v, ...values() })
+const settings = (v = version, singleton = id(10)) => ({ id: singleton, version: v, ...values(), lifetime_changes_apply_to: 'newly_issued_sessions_and_tokens' })
+const selection = (): SelectionCommand => ({ kind: 'model.selection.update', id: id(20), expected_version: '1', embedding: id(21), memory: id(22), reranker: null, image: null })
+const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': status < 400 ? 'application/json' : 'application/problem+json', 'X-Request-ID': id(99) } })
+const problem = (code: string, status = 503, commit: CommitState = 'not_started') => json({ type: 'urn:agenteam:problem:test', title: '', detail: '', status, code, instance: '/api/v1/system/account-settings', request_id: id(99), commit_state: commit, retry_hint: 'lookup' }, status)
+function gate<T = void>() { let resolve!: (value: T | PromiseLike<T>) => void; const promise = new Promise<T>(done => { resolve = done }); return { promise, resolve } }
+function nativeBody(value: unknown, status = 200, media = 'application/json') {
+  const cancelled = gate(), tail = gate(); let source!: ReadableStreamDefaultController<Uint8Array>
+  const stream = new ReadableStream<Uint8Array>({ start(c) { source = c; c.enqueue(encoder.encode(JSON.stringify(value))) }, cancel() { cancelled.resolve(); return tail.promise } })
+  return { stream, response: new Response(stream, { status, headers: { 'Content-Type': media } }), cancelled, tail, close: () => source.close() }
+}
+const owners: SessionController[] = []
+const stops: (() => void)[] = []
+async function fixture(decorate: (api: SystemAccountSecurityAPI) => SystemAccountSecurityAPI = api => api) {
+  let current = session()
+  let sessionRequest: Fetch = async () => json(current)
+  let server = settings()
+  let securityRequest: Fetch = async (_, init) => {
+    if (init.method === 'PUT') { const body = JSON.parse(init.body as string); server = { ...server, ...body, version: String(BigInt(body.version) + 1n) } }
+    return json(server)
+  }
+  let otherRequest: Fetch = async path => path === '/api/v1/me' ? json({ user: current.user, avatar: null }) : path === '/api/v1/system/model-selection' ? json({ id: id(20), version: '1', configured: null }) : json({ items: [], next_cursor: null })
+  const calls: { path: string; init: RequestInit }[] = []
+  const fetcher: Fetch = async (path, init) => {
+    calls.push({ path, init })
+    if (path === '/api/v1/session') return sessionRequest(path, init)
+    if (path === '/api/v1/auth/bootstrap') return json({ csrf_token: 'A'.repeat(43), challenge_modes: ['rotate'], delivery_channel: 'backend_log' })
+    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
+    if (path === '/api/v1/system/account-settings') return securityRequest(path, init)
+    return otherRequest(path, init)
+  }
+  const auth = createSessionController(createAccountAPI(fetcher), createSystemAccountAPI(fetcher), createSystemInvitationAPI(fetcher), createSystemProviderAPI(fetcher), createSystemModelAPI(fetcher), createSystemModelSelectionAPI(fetcher), decorate(createSystemAccountSecurityAPI(fetcher)))
+  owners.push(auth); await auth.restore()
+  return { auth, calls, api: auth.system.accountSecurity,
+    security: (f: Fetch) => { securityRequest = f }, other: (f: Fetch) => { otherRequest = f },
+    sessionRequest: (f: Fetch) => { sessionRequest = f }, session: (v: SessionView) => { current = v },
+    writes: () => calls.filter(c => c.path === '/api/v1/system/account-settings' && c.init.method === 'PUT'),
+  }
+}
+const wrappers: VueWrapper[] = [], pages: SystemAccountSecurityController[] = []
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', vi.fn((media: string) => ({ media, matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
+  // Only jsdom layout eligibility; actual layout/pointer/Tab belong to later Chromium.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(() => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList)
+})
+afterEach(async () => {
+  for (const wrapper of wrappers.splice(0)) wrapper.unmount()
+  for (const page of pages.splice(0)) page.dispose()
+  for (const auth of owners.splice(0)) auth.leave()
+  await flushPromises(); document.body.innerHTML = ''
+  vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks()
+})
+async function screen() {
+  const f = await fixture(); selected.auth = f.auth
+  const router = createRouter({ history: createMemoryHistory(), routes: [
+    { path: '/', component: HomeView, meta: { authentication: true, protected: true } },
+    { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+    { path: '/settings/profile', component: { template: '<h1>Accepted personal leaf</h1>' }, meta: { authentication: true, protected: true } },
+    { path: '/system', component: SystemSettingsView, redirect: '/system/users', meta: { authentication: true, protected: true, systemAdmin: true, navigation: { label: '系统设置', order: 20 } }, children: [
+      { path: 'account-security', component: SystemAccountSecurityView },
+      ...['users', 'invitations', 'providers', 'models', 'model-selection'].map(path => ({ path, component: { template: '<h1>Accepted leaf outside this probe</h1>' } })),
+    ] },
+  ] })
+  installAuthentication(router, f.auth)
+  await router.push('/system/account-security'); await router.isReady()
+  const host = document.createElement('div'); host.id = 'app'; document.body.append(host)
+  const wrapper = mount(App, { attachTo: host, global: { plugins: [router] } }); wrappers.push(wrapper)
+  await flushPromises()
+  return { ...f, wrapper, router }
+}
+function accessibleText(node: Element) {
+  if (node.hasAttribute('aria-label')) return node.getAttribute('aria-label')!
+  const copy = node.cloneNode(true) as Element
+  for (const hidden of copy.querySelectorAll('[aria-hidden="true"]')) hidden.remove()
+  return copy.textContent?.replace(/\s+/g, ' ').trim() ?? ''
+}
+function button(label: string, within: ParentNode = document) {
+  const matches = [...within.querySelectorAll<HTMLButtonElement>('button')].filter(node => accessibleText(node) === label)
+  expect(matches.length, 'exact accessible button: ' + label).toBe(1)
+  return matches[0]!
+}
+function heading(label: string) {
+  return [...document.querySelectorAll('h1,h2,h3')].find(node => accessibleText(node) === label)
+}
+async function click(label: string, within: ParentNode = document) {
+  const node = button(label, within); expect(node.disabled).toBe(false); node.click(); await flushPromises()
+}
+function field(label: string) {
+  const labelNode = [...document.querySelectorAll<HTMLLabelElement>('label')].find(node => node.textContent?.trim().replace(/\s*\*$/, '') === label)
+  expect(labelNode, 'exact field: ' + label).toBeTruthy()
+  const node = document.getElementById(labelNode!.htmlFor)
+  expect(node instanceof HTMLInputElement).toBe(true)
+  return node as HTMLInputElement
+}
+async function edit(label: string, value: string) {
+  const node = field(label); expect(node.disabled).toBe(false)
+  node.value = value; node.dispatchEvent(new Event('input', { bubbles: true })); await flushPromises()
+}
+async function submit() {
+  const submitter = button('保存配置'); expect(submitter.disabled).toBe(false)
+  submitter.form!.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter })); await flushPromises()
+}
+function dialog() {
+  const all = [...document.querySelectorAll<HTMLElement>('[role="dialog"]')]
+  expect(all).toHaveLength(1)
+  expect(all[0]!.inert).toBe(false)
+  expect(all[0]!.getAttribute('aria-hidden')).toBeNull()
+  return all[0]!
+}
+function codes() {
+  return {
+    current: document.querySelector('section[aria-label="当前读取的账号安全配置"] code')?.textContent ?? null,
+    editor: document.querySelector('form[aria-label="修改账号安全配置"] code')?.textContent ?? null,
+    historical: document.querySelector('[aria-label="本次保存的历史确认"] code')?.textContent ?? null,
+  }
+}
+
+
+describe('independent account security fallback App', () => {
+  it('checking/503 detaches the old View without heading fallback, then normal close uses the fresh same-identity title', async () => {
+    const f = await screen()
+    const oldView = f.wrapper.getComponent(SystemAccountSecurityView)
+    const oldHeading = heading('账号安全') as HTMLElement
+    expect(oldView.getComponent(UiDialog).props('fallbackFocus')).toBe(oldHeading)
+    await edit('密码重置有效期（秒）', '3600')
+    button('保存配置').focus()
+    let finished = false
+    const pending = f.router.push('/system/users').then(result => { finished = true; return result })
+    await flushPromises(); dialog()
+    const oldHeadingFocus = vi.spyOn(oldHeading, 'focus')
+    const checking = gate<Response>(); f.sessionRequest(async () => checking.promise)
+    const mark = f.calls.length
+    window.dispatchEvent(new Event('pageshow')); await flushPromises()
+    expect(document.querySelector('.session-check')).toBeTruthy()
+    expect(f.wrapper.findComponent(SystemAccountSecurityView).exists()).toBe(false)
+    expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+    expect(oldHeading.isConnected).toBe(false)
+    expect(oldHeadingFocus).not.toHaveBeenCalled()
+    expect(finished).toBe(false)
+    checking.resolve(problem('UNAVAILABLE')); await flushPromises()
+    expect(heading('会话尚未确认')).toBeTruthy()
+    expect(f.wrapper.findComponent(SystemAccountSecurityView).exists()).toBe(false)
+    expect(oldHeadingFocus).not.toHaveBeenCalled()
+    expect(button('检查当前会话').disabled).toBe(false)
+    f.sessionRequest(async () => json(session())); await click('检查当前会话')
+    const newView = f.wrapper.getComponent(SystemAccountSecurityView)
+    const newHeading = heading('账号安全') as HTMLElement
+    expect(newHeading).not.toBe(oldHeading)
+    const newDialog = newView.getComponent(UiDialog)
+    const dialogInstance = newDialog.vm.$.uid
+    expect(newDialog.props('fallbackFocus')).toBe(newHeading)
+    const top = dialog()
+    expect(top.contains(document.activeElement)).toBe(true)
+    expect(field('密码重置有效期（秒）').value).toBe('3600')
+    expect(f.calls.slice(mark).filter(c => c.path === '/api/v1/session')).toHaveLength(2)
+    expect(finished).toBe(false); expect(f.writes()).toHaveLength(0)
+    await click('继续编辑', top)
+    expect(isNavigationFailure(await pending)).toBe(true)
+    expect(f.router.currentRoute.value.path).toBe('/system/account-security')
+    expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+    expect(document.activeElement).toBe(newHeading)
+    expect(newHeading.closest('[inert],[aria-hidden="true"]')).toBeNull()
+    expect(newView.getComponent(UiDialog).vm.$.uid).toBe(dialogInstance)
+    expect(newView.getComponent(UiDialog).props('open')).toBe(false)
+    expect(oldHeadingFocus).not.toHaveBeenCalled()
+    expect(field('密码重置有效期（秒）').value).toBe('3600')
+    expect(f.writes()).toHaveLength(0)
+  })
+
+  it('a new Session settles the prior confirmation false, destroys its View and lets only the new title receive mounted focus', async () => {
+    const f = await screen()
+    const oldView = f.wrapper.getComponent(SystemAccountSecurityView)
+    const oldHeading = heading('账号安全') as HTMLElement
+    const oldDialog = oldView.getComponent(UiDialog).vm.$.uid
+    await edit('密码重置有效期（秒）', '3600')
+    button('保存配置').focus()
+    const pending = f.router.push('/system/users'); await flushPromises(); dialog()
+    const oldHeadingFocus = vi.spyOn(oldHeading, 'focus')
+    const checking = gate<Response>(); f.sessionRequest(async () => checking.promise)
+    window.dispatchEvent(new Event('pageshow')); await flushPromises()
+    expect(f.wrapper.findComponent(SystemAccountSecurityView).exists()).toBe(false)
+    expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+    expect(oldHeading.isConnected).toBe(false)
+    expect(oldHeadingFocus).not.toHaveBeenCalled()
+    checking.resolve(json(session(3))); await flushPromises()
+    expect(isNavigationFailure(await pending)).toBe(true)
+    expect(f.router.currentRoute.value.path).toBe('/system/account-security')
+    expect(f.auth.personalContext.identity?.sessionID).toBe(id(3))
+    const currentView = f.wrapper.getComponent(SystemAccountSecurityView)
+    const currentHeading = heading('账号安全') as HTMLElement
+    expect(currentView.getComponent(UiDialog).vm.$.uid).not.toBe(oldDialog)
+    expect(currentView.getComponent(UiDialog).props('fallbackFocus')).toBe(currentHeading)
+    expect(currentView.getComponent(UiDialog).props('open')).toBe(false)
+    expect(currentHeading).not.toBe(oldHeading)
+    expect(document.activeElement).toBe(currentHeading)
+    expect(oldHeadingFocus).not.toHaveBeenCalled()
+    expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+    expect(field('密码重置有效期（秒）').value).toBe('300')
+    expect(button('保存配置').disabled).toBe(true)
+    expect(f.writes()).toHaveLength(0)
+  })
+})

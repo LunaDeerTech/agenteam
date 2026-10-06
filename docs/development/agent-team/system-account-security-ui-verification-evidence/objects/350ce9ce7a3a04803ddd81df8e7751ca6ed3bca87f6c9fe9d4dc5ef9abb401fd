@@ -1,0 +1,34 @@
+# 账号安全 UI 作者证据（截至诊断撤回）
+
+当前交验恢复为 input04，26 个源码/测试文件、33 个 dist 文件及固定 fd32120 的1050项实际编译运行闭包均匹配；README仍未写。完整 SHA 与原件路径见 [index.json](/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/author-report01/index.json)。无活动命令或真实资源，窗口已交主线程。
+
+账号安全新5项已按版本组合通过：input01 的 Lifecycle/Concurrency/OutcomeRecovery/AuthorityAndIdentity 与 input04 的 NavigationAndLayouts。旧 core7、Provider3、Model3、Selection2 已通过。Selection Nav 首红尚未归因；input05 诊断轮在引用详情齐全时通过，不覆盖原失败，主线程将潜在缺口另卡处理。账号安全独立 A/B 最终验收不在本报告结论内。
+
+| 实际轮次 | 固定输入 | 实际退出 / 秒 | 结果 |
+| --- | --- | --- | --- |
+| new01 | input01 | 1 / 133.704 | 新4 PASS；账号安全 Navigation 原焦点 FAIL。 |
+| new02 | input03 | 1 / 55.758 | 仅账号安全 Nav 诊断；activeElement=BODY，原强断言 FAIL。 |
+| new03 | input04 | 0 / 63.020 | 账号安全 Nav PASS，8图已逐看；原新4按未变语义复用。 |
+| oldcore01 | input04 | 0 / 124.770 | 旧 core7 全 PASS。 |
+| oldproviders01 | input04 | 0 / 89.416 | 旧 Provider3 全 PASS。 |
+| oldmodels01 | input04 | 0 / 135.005 | 旧 Model3 全 PASS。 |
+| oldselection01 | input04 | 1 / 150.434 | Selection Outcome/Authority PASS；Nav 保存按钮持续 disabled，原45s超时。 |
+| oldselection02 | input05 | 0 / 71.509 | 仅 Selection Nav 安全诊断 PASS；本次详情齐全，未解释原红。 |
+
+各轮均已实际 wait；每轮7个 exact Docker资源双 absent、所属 PID/starttime 双清、两 runtime 空、旧2容器4网络不变、monitor0，源/产物/固定基线及私有输入前后相同。原 argv/cwd/env/实际时长保留在每轮 command.json；逐轮原 raw/result/cleanup、前后输入与资源事实保留于原 runs 目录。未扩大45s浏览器/2min顶层/6min包预算，race/count1/worker1/retry0保持。
+
+## 失败与恢复链
+
+- input01/new01：账号安全 Nav 在同 Session 恢复后继续编辑，关闭确认后焦点有效性原断言失败。input02 是未执行的诊断草稿，不能计为真实测试。input03/new02 原时点安全诊断证明 BODY 焦点，未改原断言。
+- 独立共享 fallback 正式接受 fd32120 后，仅卡内 View/页面pure/账号安全browser三路径修复：Dialog保留组件实例，提供当前存活完整身份/admin合法标题fallback。fallback-page-red01 的2红保留；同9例 green01通过。完整 npm check 在 check-fallback02 实际0/26.545s，32文件1104例、格式、类型与构建通过；input04/new03 原生焦点和Tab原断言通过。
+- oldselection01：旧 Selection spec1423 的 cutSave（调用1908）定位到 disabled保存按钮，原45s超时，未到安全截图点；无失败截图或trace，原轮未记录详情字段，不能补造现场。仅静态候选是 Session恢复引用读与discard的revision变化交错，尚未证实为该轮根因。
+- input05/oldselection02：仅一次click前有限安全DOM布尔与原observer响应投影；无额外读取/clone/tee/重发、无强制点击/加时。该轮按钮可用、全部当前详情齐全，恢复后的Model/Provider GET均200/ended，Nav通过。原 input05 spec/diff/driver/raw永久保留；已按主线程要求从冻结26源副本精确撤回诊断，旧spec SHA e492cb71011c6abac789f2601965ce8497429158fb3997d7924d8aef0e08f389。input04-restored-after-selection05 全26/33/1050 gate实际0/.544s。
+
+## 离线与范围
+
+- API28、owner27及旧8state274、页面state34/App9首轮通过，分阶段快照和原实际命令见阶段manifest。API/owner产品保持不变，独立API14/owner9及原页面5项已先行有界通过；input04 fallback独立App2项也已通过。
+- Go1.27.1 integration/race仅编译0/52.041s、vet0/32.409s；依赖校验、locked Playwright各mode精确发现、TypeScript及native观察11投影均通过，原件见harness-stage01。input05临时诊断type/list/format与完整gate通过，撤回后未重新执行业务测试。
+- new03账号安全8图与oldselection02旧页8图均逐张实际查看；长字段折行、宽屏布局及390单列无目视横溢出。窄屏下部字段需要滚动，截图不代表全字段同时可见，也不解释旧Selection首红。
+- synthetic pageshow不声称BFCache；Session过期配置按数据库事实比较，未等待真实到期。仅验证自有真实fixture内正式HTTP/DB与原生浏览器行为，不外推生产部署、外部Model Runtime/连接能力或完整D27。
+
+冻结索引 SHA：`f86ccb86caa0ff55223deac83ed670073b2b996e34754dd458351d86e93ff1e3`。

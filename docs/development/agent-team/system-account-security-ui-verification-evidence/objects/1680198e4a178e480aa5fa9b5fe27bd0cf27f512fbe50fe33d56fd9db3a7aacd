@@ -1,0 +1,89 @@
+{
+  "task": "Account security API-stage01 independent offline verification",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/api-stage01/manifest.json",
+    "sha256": "ee4b61f18939a7e2a9b0d60bdd5d2df46c64d326e019e272ac4b66a71b1d52b3"
+  },
+  "base": "870ebbb986f56bb62be34ccdfa2c77819ce995a6",
+  "card": "cb9ad6c6ae5a34a6f123e6f8aad0db90646d5cb7",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "c820835627b2711ce174d92aa115400d09f5d12ff05f88221c3d5da8daf327c3",
+      "role": "candidate",
+      "origin": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/api-stage01/source/web/src/api/client.ts"
+    },
+    {
+      "path": "web/src/api/system-account-security.ts",
+      "sha256": "5dabbdd4c5de0cfde671c6bdfc8c92eae140a842719752740ea65282a8feffbb",
+      "role": "candidate",
+      "origin": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/api-stage01/source/web/src/api/system-account-security.ts"
+    },
+    {
+      "path": "web/src/tests/system-account-security-client.spec.ts",
+      "sha256": "2c2b0d022c5d7d91185223958155fb552865bc2521341bcf533eb2437c418aa3",
+      "role": "candidate",
+      "origin": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/api-stage01/source/web/src/tests/system-account-security-client.spec.ts"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "role": "accepted-dependency",
+      "origin": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/api-stage01/source/web/src/api/account.ts"
+    },
+    {
+      "path": "web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "role": "accepted-dependency",
+      "origin": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/api-stage01/source/web/package.json"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "role": "accepted-dependency",
+      "origin": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/api-stage01/source/web/package-lock.json"
+    },
+    {
+      "path": "web/vite.config.ts",
+      "sha256": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+      "role": "accepted-dependency",
+      "origin": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/api-stage01/source/web/vite.config.ts"
+    },
+    {
+      "path": "web/tsconfig.json",
+      "sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+      "role": "accepted-dependency",
+      "origin": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/api-stage01/source/web/tsconfig.json"
+    }
+  ],
+  "packages": [
+    {
+      "path": "/workspace/agenteam/web/node_modules/vitest/package.json",
+      "sha256": "a28126d97bcaf567da5bed69443b7f3bcd9a7a8c38c8b66e554686b6bb2c10e0"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/vite/package.json",
+      "sha256": "fd3af4eaf4eecb2069f3e2715d6aaa2137d084a8a95097389523f52213c08094"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/@vitest/runner/package.json",
+      "sha256": "357e56773a82d3aa95bf920a54ea7f91575d02e6b156d9d7719ea485708e6837"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/@vitest/expect/package.json",
+      "sha256": "bc566b4322c25920e82c2fcdea00c2154d8ef98dd30de6605c5f89ac0d607adc"
+    }
+  ],
+  "node": {
+    "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "version": "v24.19.0"
+  },
+  "limits": {
+    "outer_seconds": 45,
+    "test_timeout_ms": 5000,
+    "max_workers": 1,
+    "retries": 0
+  },
+  "resource_execution": false
+}

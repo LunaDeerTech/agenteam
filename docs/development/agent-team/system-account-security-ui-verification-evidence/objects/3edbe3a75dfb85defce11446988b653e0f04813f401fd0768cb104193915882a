@@ -1,0 +1,20 @@
+# Account security 最终组合独立增补
+
+**PASS：固定 input06 的 26 源整卡功能结果可接受；README 第27路径仍按末件另核。** 本次仅离线审固定差量和实际原件，没有重新运行产品、浏览器或 fixture。原 input04 本域报告与所有失败原件保持不变。
+
+固定作者 `/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input06/manifest.json`，SHA256 `baeaeb37b348167d8407831314e83adb60615dfb7882f248506c7a314c0e4954`。逐项核 26 源和33个 dist 文件；24源等于 input04。两份 Selection 测试相对已接受 `debbb28deb7c883fd0b6b77a75354b9b5d7ece0b` 只重放原5处菜单/分组适配，完整保留 native cancel 尾部、取消错误终态、显式重读和零自动写断言。非候选基线变更仅该已接受 controller/state，另补固定 styles 只读依赖，共1051文件。driver 差量只更新基线/该文档门禁/两个精确 Navigation 选择器，实际 cwd 仍是 `/workspace/agenteam`，前后门禁与清理逻辑未削。
+
+作者完整组合 `npm run check` 实际1115测试及格式/类型/build通过；两 browser 精确发现、类型与修正后的 Go 精确发现通过。首次 Go discovery 因私有 TMP 不存在退出1，原件保留，未当产品失败或业务执行。
+
+作者真实 `runs/combination-navigation06` 的 command/raw/result/cleanup 已独立读取并核SHA：实际命令 `sh scripts/test-security.sh -run ^(TestAccountSystemAccountSecurityWebNavigationAndLayouts|TestAccountSystemModelSelectionWebNavigationAndLayouts)$`，actual wait exit0/81.887秒。Account顶层17.12秒/browser13.9秒；Selection顶层16.49秒/browser12.0秒。保留45秒/2分钟/6分钟预算。7 exact IDs两扫absent，95 owned PID/starttime两扫空，8实际adopted waits，monitor0，自有runtime空/浏览器TMP删除，既有基线及输入不变。
+
+- raw `4eee875e4e6d105f8a17d8cb2a6c1e36ad7b540ba75f1f7912768d1f868573a6`
+- command `fc3d91807290410d1044718a6981590efc75a6d7ec367e4483a5c895e4e3a0b2`
+- result `f06348bfa7c3b9f2cc3ecc4eb8ebfc1cc958279db16b0ef1b15f7a5cd081a5a0`
+- cleanup `25462fd943232c7ecd31b5eb2550aa28a790b328a0b7129efb68716ff3f112bd`
+
+复用原独立 Account API14、owner9、页面controller1/App4、fallback App2及真实Replay/Conflict两代表，原报告 `../verification-report.md` SHA `6120ebb1032d2f2a6ebbeb6696aa2285f2cbf87fbc537f9faf9d3b8f1e141680`：Account生产/API/owner/HTTP/正式数据库接缝字节未变；新dist消费的 Selection取消恢复由其独立3pure/1real接受结果和本次两页真实组合闭合。Selection最终 v2 `/workspace/scratch/agenteam-selection-cancel-independent-4zz3f7ut/verification-report-v2.md` SHA `d57a0a6f8665fb252c90a773a731f67ef4d5e24864f4ce5fbc051ca794300433`。没有把旧dist声称为新dist复跑，也没有重标旧失败为通过。
+
+限制继续保留：原 oldselection01 保存禁用timeout没有可反填的唯一现场原因；另案独立屏障证明的是 Selection自身取消读状态缺口。synthetic pageshow不证明BFCache；Session期限依据正式新旧记录而非睡眠过期；不扩为完整D27或SMTP交付。此增补未目视本次组合截图，不新增主线程/独立视觉审阅声明。历史PPID1 Z未触及。真实资源由作者实际清零，本次没有新资源。
+
+独立可复核脚本 `check.py`、输出 `check-result.json`（SHA `c1cce8e8f6262107367a07974323829dd34ee3d1e565e6ad8659f7e1ce8b7a18`）及最终 `submission-26.sha256` 同目录；脚本只读固定源/Git对象/日志并写本私有结论。以上增补现冻结，不覆盖原报告，不再运行此组合。

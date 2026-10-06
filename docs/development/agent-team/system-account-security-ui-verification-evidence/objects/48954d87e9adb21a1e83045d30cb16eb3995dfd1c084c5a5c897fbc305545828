@@ -1,0 +1,86 @@
+{
+  "author_actually_viewed_all": true,
+  "findings": {
+    "account_security": "Both themes at 1440/1024/834 use the six-leaf, three-group shell and two-column current values/editor. At 390 the page is one column; header/help/labels wrap. The lower form controls require main scrolling. No visible horizontal overflow or leftover overlay.",
+    "selection": "Both themes show wrapped long Model/Provider names and native IDs. Desktop/tablet uses two purpose columns; 390 stacks purposes and wraps action links. Later purposes require main scrolling. No visible horizontal overflow or leftover overlay."
+  },
+  "images": [
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/account-security-dark-1024.png",
+      "sha256": "4952a6b92e5fcc5e517b5d1612fe083cace7e5ffbd2ac513a03bb44bb8219094"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/account-security-dark-1440.png",
+      "sha256": "866fc2275c0c6af9fd021ccc8638366aaf523b6de33a2a88a05e100131b22f0b"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/account-security-dark-390.png",
+      "sha256": "f0fbeababd5236afb2693224b7e00d8a4f857e9b3af18b6af9b38aa3b986480e"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/account-security-dark-834.png",
+      "sha256": "858090aec4eba89230874e83810c2286724b0df3958bffc81e05e21583b7172c"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/account-security-light-1024.png",
+      "sha256": "feac20cc8bebb71e20867825c8cb0200885e95195647540ec537b1598c01713a"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/account-security-light-1440.png",
+      "sha256": "0de4f31902042594bd94b90143667864ac7c3a9d1a71e176aee7d140efc8f5cb"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/account-security-light-390.png",
+      "sha256": "7f8881eed67abab80e86d278fcf7424f7b9a29a3b47d793bd302657b3ff34e08"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/account-security-light-834.png",
+      "sha256": "9bbfaf480285daab969f79b59f1df0bc4be6098b5469a79c6398ea5d07fc2e1a"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/selection-dark-1024.png",
+      "sha256": "be6505d481ed022d30ff21a9db8cd69e2f4d2304d056a2c544629d747eebb1a8"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/selection-dark-1440.png",
+      "sha256": "4e3cb57ec40da10065118efa132dab87c716551696ca8136691fa5ff189f212a"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/selection-dark-390.png",
+      "sha256": "6335f1e47feecd004a781e561d27adc83599f87540e328a717bce5e64caaac08"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/selection-dark-834.png",
+      "sha256": "216eedfeb39f91e2f3ba6973591cf7623c0c917721d8e91137d7e328bc0583ea"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/selection-light-1024.png",
+      "sha256": "a022436e1d5aa2da08f198024bf2ab73d24db20ccfd803c9ada191e985bc5f10"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/selection-light-1440.png",
+      "sha256": "bd84fcfeaf23f4bdd6ac4723ccdf198265603b7a1f3b76bfa3b3a7a5c0f5b023"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/selection-light-390.png",
+      "sha256": "dedfef290609b53c808d10231e523dda141a6f064cc619342f5c485b51fb5f56"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/combination-navigation06/images/selection-light-834.png",
+      "sha256": "883dd9f05f2fcf0950d9473760bd7f76bedf7ebeff6634f80323944b2f60a261"
+    }
+  ],
+  "input": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input06/manifest.json",
+    "sha256": "baeaeb37b348167d8407831314e83adb60615dfb7882f248506c7a314c0e4954"
+  },
+  "limits": [
+    "These are the saved viewport images, not full-page screenshots; no claim that every below-fold control is simultaneously visible.",
+    "Interaction/focus/geometry conclusions come from the actual Navigation assertions, not screenshots alone.",
+    "No new browser, screenshots or resource run was started for this review."
+  ],
+  "reviewed_utc": "2026-10-06T15:35:56.862615+00:00",
+  "reviewer": "frontend_worker /root/directory_frontend",
+  "root_image_view_claimed": false,
+  "root_scope": "Root read result/cleanup reports; this supplement makes no claim of root image viewing."
+}

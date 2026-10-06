@@ -1,0 +1,12 @@
+{"domain": "Account", "mode": "navigation", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-account-security.config.js", "--list"], "cwd": "/workspace/agenteam/tests/account-captcha-web", "env": {"AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1", "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/combination06/list-only", "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium", "AGENTEAM_ACCOUNT_SECURITY_WEB_CASE": "navigation"}, "exit": 0, "actual_wait": true, "seconds": 1.044}
+Listing tests:
+  system-account-security.spec.ts:744:1 › [navigation] six leaves, one restored inline confirmation and eight responsive layouts
+Total: 1 test in 1 file
+
+
+{"domain": "Selection", "mode": "navigation", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-model-selection.config.js", "--list"], "cwd": "/workspace/agenteam/tests/account-captcha-web", "env": {"AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1", "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/combination06/list-only", "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium", "AGENTEAM_MODEL_SELECTION_WEB_CASE": "navigation"}, "exit": 0, "actual_wait": true, "seconds": 1.048}
+Listing tests:
+  system-model-selection.spec.ts:1252:1 › [navigation] five leaves, restored cohost focus and eight real layouts
+Total: 1 test in 1 file
+
+

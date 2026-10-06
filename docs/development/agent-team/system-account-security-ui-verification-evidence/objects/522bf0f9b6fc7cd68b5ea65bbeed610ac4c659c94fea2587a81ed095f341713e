@@ -1,0 +1,22 @@
+# 账号安全 owner-stage01 独立验收
+
+结论：**有界 PASS**；仅 API/owner，不表示 controller、页面或整卡接受。
+
+固定作者 manifest `b6861a56a8cd503171693d8a1d75c8992849123cd42030b2923a5916594ca89f`；基线 `870ebbb986f56bb62be34ccdfa2c77819ce995a6`，卡 `cb9ad6c6ae5a34a6f123e6f8aad0db90646d5cb7`。5候选+11接受依赖逐 SHA 核合，11依赖与 Git 原字节相同。API 三文件与前阶段不变，复用独立14项；新增 useSession SHA `952d35360f6a5e5ac0892b4c7866b529264457d6ba6014e99e0f8af8d39a1f6a`。
+
+**独立9/9 PASS**，实际 `exit 0 / 1.168s`，actual wait，全部绑定输入前后不变；进程退出后 absent，无首红或真实资源。
+
+- 第七依赖和 read/write revision 明确；静态核原参数顺序、CSRF、身份/403与全局清理，不落 Provider 默认分类。
+- 首次成功 GET 才绑定 singleton；未读/读失败零写/零 key，正常同身份及 abandon 后不接收另 ID，PUT错ID不确认；新Session清旧intent。
+- 显式一次Session→至多一次GET始终只是观察。当前GET失败/较新版本与后续409不消除原 uncertainty；三次原 PUT 的 body/key/CSRF内存逐字节保持，成功历史 Settings 独立返回，不产生 lookup。确认后GET失败保留确认、无第二重放。
+- Session失败、换Session/CSRF/role均阻止后继配置GET与旧intent移交。当前403清本域和其它系统材料/意图，不篡改role或自动logout；当前write CSRF清原身份。
+- 完整合法 native body 尚未EOF，30s可见超时后 underlying cancel promise继续挂起，所有七域及restore/logout均不能越过原owner；放弃也不释放，实际join后才空闲。旧各域abandon不取消本域；反向以Selection实际读作代表，作者全反向矩阵单列复用。
+- 同步submitting通知abandon为零PUT；confirmed通知abandon后新intent不被旧续体清掉。晚已解析401/403用私有API promise门控核身份规则，与native cancel证据明确分开。
+
+实际 argv/cwd/env/前后指纹：`logs/independent01/command.json`；终局 `result.json`；原 `raw.log` SHA `301eebeab71a34ed6f0a04c6e29e677381d48dc45269c2cf7b38717e0aba4834`。原probe `candidate/web/src/tests/independent-account-security-owner.spec.ts`；固定运行脚本 `run-pure.py`，绝对Node/Vitest CLI、单worker、零retry、每例5s/外层45s。完整最小指纹与复用原件见同名JSON。
+
+作者新27/旧回归274/type/format原件SHA与actual0已核，仅称作者证据。API独立14项复用，未重跑旧全套。
+
+限制：30s为假时钟推进生产timer，native取消尾部则是真实Promise屏障；不是30秒墙钟。晚已解析错误通过真实parser后再由注入API promise门控，不冒native cancel证明。全部用 supplied Fetch、native Response/ReadableStream与jsdom，无HTTP服务/浏览器/PG/Docker。页面current显示/防倒退、App确认恢复、正式并发/签发期限仍未验证；未独立全npmcheck/私有probe类型检查。未复制依赖树，仅固定锁/Node及包metadata指纹。
+
+全部证据现停写，无活动命令或真实资源，无产品修改/Git操作。

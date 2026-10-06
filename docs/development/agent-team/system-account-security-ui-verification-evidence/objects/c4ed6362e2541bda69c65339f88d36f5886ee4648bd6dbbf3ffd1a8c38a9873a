@@ -1,0 +1,51 @@
+{
+  "conclusion": "PASS, bounded independent input04 static and offline App composition only",
+  "author_manifest_sha256": "c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7",
+  "base": "fd32120eba4c76f67b649248377f4825a78d5d79",
+  "source_count": 26,
+  "changed_sources": [
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts",
+    "web/src/tests/system-account-security.spec.ts",
+    "web/src/views/system/SystemAccountSecurityView.vue"
+  ],
+  "dist_count": 33,
+  "results": {
+    "app01": {
+      "exit_code": 1,
+      "elapsed_seconds": 2.485,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "a38fbb6c7a1891da1c5201f5b47e5b9cb52fa4a6f533931c57b6ff7b30d6d919",
+      "adopted_waits": []
+    },
+    "app02": {
+      "exit_code": 0,
+      "elapsed_seconds": 2.023,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "raw_sha256": "dc51611af21d2edb6a1492666d00e6448555705ee066c5c65f624b88d16e0ede",
+      "adopted_waits": []
+    }
+  },
+  "app01_classification": "private VTU wrapper proxy identity premise; both proxies had same component uid, fresh title focus already passed before the assertion. Original preserved. No product RED.",
+  "app02": "2/2 PASS; compare actual component uid, original semantic/focus/no-PUT assertions kept",
+  "limitations": [
+    "jsdom layout eligibility is explicit stub; does not establish native Chromium Tab, pointer, computed layout or real Account HTTP.",
+    "No real services, browser, PostgreSQL, Docker or resource window used. Author holds current real window.",
+    "Unchanged API, owner, current/historical Settings behavior reuses earlier independent results; full module acceptance and private A/B are pending."
+  ],
+  "artifact_hashes": {
+    "input.json": "4e430ce3098fb88a15ec4006b8aa1bcce04232c2e0439f1548af2d8d57764b1b",
+    "static.json": "bcbd679645bf72706f7803fa65bac85a61638159b84bf2f352cee8327015e9cf",
+    "run-pure.py": "850d9522885ce12b21ae35c3ea47d898a1cfcdceb3727baf27cbcb4263578ed1",
+    "probe01-to02.diff": "601e13387f25530c20b536c5479c990915ead67e0bba3c9dd3386b371d1a4ff4",
+    "logs/app01/command.json": "c5d5d06cb68419763af6e6eb607a22f568fa943424aad521721d98c12533e50b",
+    "logs/app01/result.json": "59796c7a3d8c8b28bc1802018bcb5d88bcc8fa4b328f70b97f66cd23fd36f134",
+    "logs/app01/raw.log": "a38fbb6c7a1891da1c5201f5b47e5b9cb52fa4a6f533931c57b6ff7b30d6d919",
+    "logs/app01/probe.ts.txt": "1f1dc8448dca2fb8d468181c10411da309d670e8713db8b6849f292b5b7e3a50",
+    "logs/app02/command.json": "92674915c78cc78fd4c8cead9c71df8d5794dcd1d46367045ec382eb75055525",
+    "logs/app02/result.json": "b58c7058b76e45f4743bd33360211e5f50fd884840545fd5085fd1ed074a438f",
+    "logs/app02/raw.log": "dc51611af21d2edb6a1492666d00e6448555705ee066c5c65f624b88d16e0ede",
+    "logs/app02/probe.ts.txt": "32390934d36bd2d1d60701f0f5778122e8a568dbd82f7077d29b35e5dbdc0a82"
+  }
+}

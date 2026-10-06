@@ -1,0 +1,51 @@
+--- 870ebbb/web/src/api/client.ts
++++ api-stage01/web/src/api/client.ts
+@@ -89,6 +89,8 @@
+   getModelSelection: ['GET', '/api/v1/system/model-selection', 200],
+   updateModelSelection: ['PUT', '/api/v1/system/model-selection', 200],
+   lookupModelSelectionCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
++  getAccountSecurity: ['GET', '/api/v1/system/account-settings', 200],
++  updateAccountSecurity: ['PUT', '/api/v1/system/account-settings', 200],
+   createModelCredential: ['POST', '/api/v1/system/model-credentials', 200],
+   getModelCredentialMetadata: ['GET', '/api/v1/system/model-credentials/{id}', 200],
+   lookupProviderCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
+@@ -342,8 +344,21 @@
+   'updateModelSelection',
+   'lookupModelSelectionCommand',
+ ]
++type AccountSecurityEndpoint = 'getAccountSecurity' | 'updateAccountSecurity'
++type AccountSecurityOptions<E extends AccountSecurityEndpoint> = E extends 'getAccountSecurity'
++  ? { signal: AbortSignal }
++  : { signal: AbortSignal; body: unknown; csrf: string; key: string }
++const accountSecurityEndpoints: readonly AccountSecurityEndpoint[] = [
++  'getAccountSecurity',
++  'updateAccountSecurity',
++]
+ 
+ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
++  function request<T, E extends AccountSecurityEndpoint>(
++    endpoint: E,
++    parse: (value: unknown) => T,
++    options: AccountSecurityOptions<E>,
++  ): Promise<T>
+   function request<T, E extends SelectionEndpoint>(
+     endpoint: E,
+     parse: (value: unknown) => T,
+@@ -383,6 +398,7 @@
+       | ProviderEndpoint
+       | ModelEndpoint
+       | SelectionEndpoint
++      | AccountSecurityEndpoint
+     >,
+     parse: (value: unknown) => T,
+     options: RequestOptions & { users?: never; invitations?: never; target?: never },
+@@ -404,7 +420,8 @@
+     if (
+       providerEndpoints.includes(endpoint as ProviderEndpoint) ||
+       modelEndpoints.includes(endpoint as ModelEndpoint) ||
+-      selectionEndpoints.includes(endpoint as SelectionEndpoint)
++      selectionEndpoints.includes(endpoint as SelectionEndpoint) ||
++      accountSecurityEndpoints.includes(endpoint as AccountSecurityEndpoint)
+     ) {
+       try {
+         const target = basePath.includes('{id}')

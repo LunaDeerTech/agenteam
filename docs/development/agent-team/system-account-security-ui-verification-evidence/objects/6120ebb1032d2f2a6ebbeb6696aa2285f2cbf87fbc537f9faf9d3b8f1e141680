@@ -1,0 +1,30 @@
+# Account security 独立本域验收（固定 input04）
+
+**本域 PASS；整体卡仍等待另案 Selection 取消读取状态修复组合。** 固定作者 manifest `c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7`，接受依赖 `fd32120`，私有 execution01 `89251b6c050f9e74638f949f362dbe740e3d751e70e459f450d37ff93a5254c9`。真实首轮两代表 actual wait exit 0 / 160.685 秒；未改断言、未重跑、未扩大 45秒/2分钟/6分钟预算。
+
+- Replay：真实已接受 PUT 截断后，另一正式 Session 推进当前配置；Session/GET 只读不作确认。原 key/body字节/非空合法CSRF 显式重放返回旧历史Settings，当前保持新版本；确认后 GET503 仅重读。正式 Account `sha256(Canonical)` identity 与命令 recordID→Audit 关联，精确单 command/单 Audit、完整metadata、2尝试/1已接受重放；浏览器和 Go 最后再次核验。顶层 8.07秒，browser 5.1秒。
+- Conflict：正式409保留四草稿及旧版本；读取当前不改草稿。单确认经真实 Session503→新序号200 EOF同user/session/admin恢复，继续编辑后实际标题焦点及原生Tab通过；明确采用最新值后才换草稿。旧Session政策不变，正式新Login采用新idle/absolute期限。顶层9.52秒，browser6.7秒。
+
+命令 `sh scripts/test-security.sh -run ^(TestAccountSystemAccountSecurityIndependentReplay|TestAccountSystemAccountSecurityIndependentConflict)$`，实际cwd `/workspace/agenteam`；私有overlay仅2个测试Go文件，私有testDir与唯一绝对锁定CLI。生产26源/33dist、固定1050依赖、私有源/运行时前后门禁一致。没有产品/Git写入。
+
+资源终局：7 exact IDs两遍absent；207 owned PID/starttime两遍空；8 adopted waits；monitor0；runtime/browser自有目录清空，既有基线不变。命令已实际结束，窗口已交回。历史PPID1 Z不触及，也不冒称被本轮回收。
+
+复用固定阶段：
+
+- API：独立14例 PASS，严格历史Settings/请求与响应/原生读取取消预算。 `/workspace/scratch/agenteam-account-security-api-verification-2a97hois/api-stage01-report.md` SHA `3f3f018f84a022875c73be3286ba2968950ed42862cfb5cf615fc445f073b699`。
+- Owner：独立9例 PASS，历史/当前观察隔离、七域与实际尾部。 `/workspace/scratch/agenteam-account-security-owner-verification-nnm4w0x6/owner-stage01-report.md` SHA `522bf0f9b6fc7cd68b5ea65bbeed610ac4c659c94fea2587a81ed095f341713e`。
+- 页面：独立controller1+App4 PASS，当前/草稿/历史及单确认组合。 `/workspace/scratch/agenteam-account-security-page-verification-qfjkrdik/web-stage01-report.md` SHA `f1e1d41a4550d66f41a5719f2cf747aea24d17a634f2219f4d2e39921fabce28`。
+- input04焦点修复：独立App2 PASS；原VTU proxy身份观察前提红保留。 `/workspace/scratch/agenteam-account-security-fallback-independent-8pl8pnzi/verification-report.md` SHA `cf81b42ff532197fb5f3abf564aadd4761c3d044be3708cebef4d95db9f3843c`。
+
+原始实际记录均在 `/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/runs/independent01`：
+
+- raw `63a1883cee95867b129294c6c9937b79420fa5cbe9b112f4ca357d056ab5fd3e`
+- command `cf03c6eb65b9a8a3779b340d522e61a2ea4ccff774db7d8d613260bc2be3fda7`
+- result `b7764e1d1d3d5686eac760ffc34882859d15bc3558176dfc287a96457f04c4f6`
+- cleanup `ac2d50982c430fe5b4730a49baff701d970a02840fe84b3e86b54ba98032d0f4`
+
+26精确提交源和SHA见 `submission-26.sha256`，同份JSON含完整列表。README仍为末件未授，33dist仅运行输入。API/owner/page原纯检查与原前提失败按各阶段报告复用，不重造；input04独立App初次VTU代理identity前提失败保留，改用真实组件uid后2例通过。私有bound01未完成版本和bound02准备记录均保存，未将编译当真实验证。
+
+Selection边界：oldselection01真实Nav禁用保存timeout原件保留；后续作者单Nav诊断成功只证明该轮四引用已完整，不倒填旧现场。新独立窄诊断通过原App按钮+native stream屏障证明既有Selection在discard取消reference/selection-state后loading未转终态；显式重读/刷新可恢复。报告 `/workspace/scratch/agenteam-selection-discard-diagnostic-0ikwbn_6/diagnosis.md` SHA `c83432dbf6190c1f4a79938c3bdc777a5c047ce3d6a63fcd2642041459f4d9df`，与Account本域结论分列。整体卡接受需由主线程在该另案修复组合后裁定。
+
+独立观察输出仅安全布尔/计数；原材料只私有内存且清除，不输出值或摘要；noTrace/noVideo/noScreenshot。成功200观察必须真实新请求EOF；text/plain503保持取消语义，不伪造EOF；观察器不充当owner实际join证明。本报告、两组原件、bound02、execution01现永久冻结，不再启动资源。

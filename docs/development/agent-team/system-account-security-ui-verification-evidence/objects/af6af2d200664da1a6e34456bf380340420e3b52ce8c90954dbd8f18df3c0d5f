@@ -1,0 +1,89 @@
+--- bound01/overlay.json
++++ bound02/overlay.json
+@@ -1,6 +1,6 @@
+ {
+   "Replace": {
+-    "/workspace/agenteam/tests/account/system_account_security_web_test.go": "/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/bound01/system_account_security_web_test.go",
+-    "/workspace/agenteam/tests/account/system_account_security_web_fixture_test.go": "/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/bound01/system_account_security_web_fixture_test.go"
++    "/workspace/agenteam/tests/account/system_account_security_web_test.go": "/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/bound02/system_account_security_web_test.go",
++    "/workspace/agenteam/tests/account/system_account_security_web_fixture_test.go": "/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/bound02/system_account_security_web_fixture_test.go"
+   }
+ }
+--- bound01/system_account_security_web_fixture_test.go
++++ bound02/system_account_security_web_fixture_test.go
+@@ -36,9 +36,9 @@
+ // This fixture owns only Account settings controls. Its root and helper methods
+ // consume the accepted same-origin Account/Secret/Model composition.
+ type accountSecurityWebAttempt struct {
+-	key        string
+-	body, csrf [32]byte
+-	privateRaw []byte
++	key         string
++	body, csrf  [32]byte
++	privateRaw  []byte
+ 	privateCSRF string
+ }
+ type accountSecurityWebFixture struct {
+@@ -372,7 +372,9 @@
+ 	out := map[string]any{"ok": true, "sequence": r.Sequence}
+ 	switch r.Action {
+ 	case "independent-original-facts":
+-		if f.mode != "independent-replay" { f.t.Fatal("private original facts restricted to replay mode") }
++		if f.mode != "independent-replay" {
++			f.t.Fatal("private original facts restricted to replay mode")
++		}
+ 		out["original"] = f.independentOriginalFacts(ctx)
+ 	case "facts":
+ 		out["facts"] = f.securityFacts(ctx)
+@@ -481,12 +483,9 @@
+ 
+ func (f *accountSecurityWebFixture) browserAccountSecurity(ctx context.Context) map[string]any {
+ 	f.t.Helper()
+-	root, e := filepath.Abs("../account-captcha-web")
+-	if e != nil {
+-		f.t.Fatal(e)
+-	}
+-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", "/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/bound01/playwright.config.mjs")
+-	cmd.Dir = root
++	var e error
++	cmd := exec.CommandContext(ctx, "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/bound02/playwright.config.mjs")
++	cmd.Dir = "/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/bound02"
+ 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+ 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+ 	cmd.WaitDelay = time.Second
+@@ -568,6 +567,12 @@
+ 		if attempt.key != "" {
+ 			safe = strings.ReplaceAll(safe, attempt.key, "[redacted]")
+ 		}
++		if attempt.privateCSRF != "" {
++			safe = strings.ReplaceAll(safe, attempt.privateCSRF, "[redacted]")
++		}
++		if len(attempt.privateRaw) > 0 {
++			safe = strings.ReplaceAll(safe, string(attempt.privateRaw), "[redacted]")
++		}
+ 	}
+ 	f.mu.Unlock()
+ 	f.t.Log(safe)
+--- bound01/system_account_security_web_test.go
++++ bound02/system_account_security_web_test.go
+@@ -87,9 +87,8 @@
+    AND actor_kind='human' AND user_id::text=$2 AND session_id::text=$5
+    AND action='account.settings.update' AND outcome='success'
+    AND resource_kind='account_settings' AND resource_id::text=$1
+-   AND metadata->>'version'=($6+1)::text AND metadata->>'phase'='updated'
+-   AND jsonb_array_length(metadata->'changed_fields')=4
+-   AND (metadata->'changed_fields') ?& ARRAY['session_idle_seconds','session_absolute_seconds','password_reset_seconds','challenge_after_failures']),false) FROM original_audit)`
++   AND metadata=jsonb_build_object('version',($6+1)::text,'phase','updated',
++     'changed_fields',jsonb_build_array('challenge_after_failures','password_reset_seconds','session_absolute_seconds','session_idle_seconds'))),false) FROM original_audit)`
+ 	if err := conn.QueryRow(ctx, query, f.singletonID, f.admin.UserID, identityDigest, key, f.oldSessionID, expected).Scan(&commandCount, &commandExact, &auditCount, &auditExact); err != nil {
+ 		f.t.Fatal("private Account command/Audit read unavailable")
+ 	}
+@@ -98,7 +97,7 @@
+ 		"command_metadata_exact": commandExact, "audit_metadata_exact": auditExact,
+ 		"original_attempts": matching, "accepted_cut": accepted == 1,
+ 		"accepted_replays": replays, "same_body_bytes": sameBody,
+-		"same_original_csrf_nonempty": sameCSRF,
++		"same_original_csrf_nonempty":  sameCSRF,
+ 		"legal_original_csrf_accepted": accepted == 1 && replays == 1 && sameCSRF,
+ 	}
+ }

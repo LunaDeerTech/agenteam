@@ -1,0 +1,107 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.48.155.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=8feb54af99af82d85ec2b1c5c05c0a92
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=1cd2562857e7f6e403f56ea11adbbdd0
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.129s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.030s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+=== RUN   TestAccountSystemAccountSecurityWebNavigationAndLayouts
+    system_account_security_web_test.go:41: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1220492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1220492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-account-security.spec.ts:803:1 › [navigation] six leaves, one restored inline confirmation and eight responsive layouts
+        [1A[2Ke2e/system-account-security.spec.ts:803:1 › [navigation] six leaves, one restored inline confirmation and eight responsive layouts
+        Account security focus diagnostic {"operative":false,"diagnostic":{"active":{"tag":"BODY","role":null,"id":null,"connected":true,"body":true,"inert":false,"ariaHidden":false,"disabled":false},"overlays":0,"checking":false,"beforeChecking":{"tag":"BUTTON","role":null,"id":null,"connected":false,"body":false,"inert":true,"ariaHidden":true,"disabled":false},"focusEvents":[{"target":{"tag":"A","role":null,"id":null,"connected":false,"body":false,"inert":false,"ariaHidden":false,"disabled":false},"overlays":1,"checking":false},{"target":{"tag":"BUTTON","role":null,"id":null,"connected":false,"body":false,"inert":false,"ariaHidden":false,"disabled":true},"overlays":0,"checking":true},{"target":{"tag":"BUTTON","role":null,"id":null,"connected":false,"body":false,"inert":true,"ariaHidden":true,"disabled":false},"overlays":1,"checking":false},{"target":{"tag":"BUTTON","role":null,"id":null,"connected":false,"body":false,"inert":true,"ariaHidden":true,"disabled":false},"overlays":1,"checking":false},{"target":{"tag":"BUTTON","role":null,"id":null,"connected":false,"body":false,"inert":true,"ariaHidden":true,"disabled":false},"overlays":1,"checking":false},{"target":{"tag":"BUTTON","role":null,"id":null,"connected":false,"body":false,"inert":true,"ariaHidden":true,"disabled":false},"overlays":1,"checking":false},{"target":{"tag":"BUTTON","role":null,"id":null,"connected":false,"body":false,"inert":true,"ariaHidden":true,"disabled":false},"overlays":1,"checking":false},{"target":{"tag":"BUTTON","role":null,"id":null,"connected":false,"body":false,"inert":true,"ariaHidden":true,"disabled":false},"overlays":1,"checking":false},{"target":{"tag":"BUTTON","role":null,"id":null,"connected":false,"body":false,"inert":true,"ariaHidden":true,"disabled":false},"overlays":1,"checking":false},{"target":{"tag":"BUTTON","role":null,"id":null,"connected":false,"body":false,"inert":true,"ariaHidden":true,"disabled":false},"overlays":1,"checking":false},{"target":{"tag":"BUTTON","role":null,"id":null,"connected":false,"body":false,"inert":true,"ariaHidden":true,"disabled":false},"overlays":1,"checking":false}]}}
+        
+        [1A[2K  1) e2e/system-account-security.spec.ts:803:1 › [navigation] six leaves, one restored inline confirmation and eight responsive layouts 
+        
+            Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+        
+            Expected: [32mtrue[39m
+            Received: [31mfalse[39m
+        
+              1092 |     if (focus.diagnostic)
+              1093 |       console.log("Account security focus diagnostic " + JSON.stringify(focus));
+            > 1094 |     expect(focus.operative).toBe(true);
+                   |                             ^
+              1095 |     await page.keyboard.press("Tab");
+              1096 |     expect(
+              1097 |       await page.evaluate(
+                at restoredConfirmation (/workspace/agenteam/tests/account-captcha-web/e2e/system-account-security.spec.ts:1094:29)
+                at /workspace/agenteam/tests/account-captcha-web/e2e/system-account-security.spec.ts:1201:3
+        
+        
+        [1A[2K  1 failed
+            e2e/system-account-security.spec.ts:803:1 › [navigation] six leaves, one restored inline confirmation and eight responsive layouts 
+        
+    system_account_security_web_test.go:41: actual Account security production browser failed: exit status 1
+--- FAIL: TestAccountSystemAccountSecurityWebNavigationAndLayouts (6.87s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	6.905s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.014s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce 2d4465eda955778e91a7c56114891f51
+D04 outbound fixture cleanup checked for nonce 1cd2562857e7f6e403f56ea11adbbdd0
+D05 object fixture exact resource cleanup checked nonce=8feb54af99af82d85ec2b1c5c05c0a92

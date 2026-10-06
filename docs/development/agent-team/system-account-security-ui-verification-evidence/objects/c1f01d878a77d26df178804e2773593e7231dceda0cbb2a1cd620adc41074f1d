@@ -1,0 +1,33 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ts=require('/workspace/agenteam/tests/account-captcha-web/node_modules/typescript');
+const source=fs.readFileSync('/workspace/agenteam/tests/account-captcha-web/e2e/system-account-security.spec.ts','utf8');
+const start=source.indexOf('function observeNative()'),end=source.indexOf('\nconst button =',start);assert(start>=0&&end>start);
+const js=ts.transpileModule(source.slice(start,end)+'\nobserveNative();',{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
+const id='01900000-0000-7000-8000-000000000001';
+const settings={id,version:'2',session_idle_seconds:'900',session_absolute_seconds:'3600',password_reset_seconds:'300',challenge_after_failures:'1',lifetime_changes_apply_to:'newly_issued_sessions_and_tokens'};
+async function run(path,method,value,status=200,pad=0){
+ const body=JSON.stringify(value);const bytes=new TextEncoder().encode(body+' '.repeat(Math.max(0,pad-new TextEncoder().encode(body).length)));
+ const response=new Response(bytes,{status,headers:{'Content-Type':status===200?'application/json':'application/problem+json'}}),nativePromise=Promise.resolve(response);let reads=0,expectedPromise,expectedReader;
+ const originalGet=response.body.getReader,originalCancel=response.body.cancel;
+ Object.defineProperty(response.body,'getReader',{configurable:true,writable:true,value:function(...args){const reader=Reflect.apply(originalGet,this,args);expectedReader=reader;const read=reader.read;Object.defineProperty(reader,'read',{configurable:true,writable:true,value:function(...args){reads++;expectedPromise=Reflect.apply(read,this,args);return expectedPromise}});return reader}});
+ const window={fetch:()=>nativePromise,location:{origin:'http://127.0.0.1:1',href:'http://127.0.0.1:1/system/models'}};
+ vm.runInNewContext(js,{window,location:window.location,URL,Request,Response,TextEncoder,TextDecoder});
+ const returned=window.fetch(path,{method});assert.equal(returned,nativePromise);const r=await returned;assert.equal(r,response);assert.equal(r.body.cancel,originalCancel);const reader=r.body.getReader();assert.equal(reader,expectedReader);let total=0;
+ while(true){const pending=reader.read();assert.equal(pending,expectedPromise);const x=await pending;if(x.value)total+=x.value.length;if(x.done)break}
+ await Promise.resolve();assert.equal(total,bytes.length);assert.equal(reads,2);assert.equal(window.__securityFacts.length,1);const fact=window.__securityFacts[0];assert.equal(fact.ended,true);assert.equal(fact.bytes,bytes.length);return fact;
+}
+(async()=>{
+ const endpoint='/api/v1/system/account-settings';
+ assert.equal((await run(endpoint,'GET',settings)).settings.version,'2');
+ assert.equal((await run(endpoint,'PUT',settings)).settings.session_idle_seconds,'900');
+ assert.equal((await run(endpoint,'GET',{...settings,extra:'not permitted'})).settings,undefined);
+ assert.equal((await run(endpoint,'GET',{...settings,version:'02'})).settings,undefined);
+ assert.equal((await run(endpoint,'GET',{...settings,session_idle_seconds:'7200'})).settings,undefined);
+ assert.equal((await run(endpoint,'GET',settings,200,600000)).settings.version,'2');
+ assert.equal((await run(endpoint,'GET',settings,200,600001)).settings,undefined);
+ assert.equal((await run('/api/v1/session','GET',{code:'SESSION_REVOKED'},401)).code,'SESSION_REVOKED');
+ assert.equal((await run(endpoint,'PUT',{code:'VERSION_CONFLICT',commit_state:'not_started'},409)).commit_state,'not_started');
+ assert.equal((await run(endpoint,'PUT',{code:'SECRET_TEXT',commit_state:'outside-contract'},400)).code,undefined);
+ assert.equal((await run('/api/v1/session','GET',{user:{id,role:'admin'},session:{id},csrf_token:'private-not-exported'})).session.session_id,id);
+ console.log('PASS 11 native projections; original fetch/read Promises, reader/cancel identity, native read count and bytes preserved; no browser/network');
+})().catch(e=>{console.error(e);process.exitCode=1});

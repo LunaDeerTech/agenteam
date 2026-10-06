@@ -1,0 +1,783 @@
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-account-security.spec.ts (9 tests | 2 failed) 617ms
+     × restores the one inline discard Dialog after pageshow checking/503 for pending route 104ms
+     × restores the one inline discard Dialog after pageshow checking/503 for pending logout 74ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > restores the one inline discard Dialog after pageshow checking/503 for pending route
+ FAIL  src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > restores the one inline discard Dialog after pageshow checking/503 for pending logout
+AssertionError: expected <body style>…(3)</body> to be <h1 data-v-d9f6bc97 tabindex="-1"></h1> // Object.is equality
+
+- Expected
++ Received
+
++ <body
++   style=""
++ >
++   <div
++     id="app"
++   >
++     <div
++       data-v-app=""
++     >
++       
++       <div
++         class="app-shell authentication-shell"
++         data-v-7a7a37b1=""
++       >
++         <a
++           class="skip-link"
++           href="#main-content"
++         >
++           跳转到内容
++         </a>
++         <header
++           class="system-nav"
++         >
++           <a
++             aria-label="agenteam 入口"
++             class="brand"
++             href="/"
++           >
++             <span
++               aria-hidden="true"
++               class="brand-mark"
++             >
++               a
++             </span>
++             agenteam
++           </a>
++           <nav
++             aria-label="系统导航"
++           >
++             
++             <a
++               class="router-link-active"
++               href="/system"
++             >
++               系统设置
++             </a>
++             
++           </nav>
++           
++           
++           <div
++             class="account-actions"
++             data-v-7a7a37b1=""
++           >
++             <a
++               class="account-name"
++               data-v-7a7a37b1=""
++               href="/settings/profile"
++               title="Admin"
++             >
++               Admin
++             </a>
++             <button
++               class="ui-button ghost"
++               data-v-7a7a37b1=""
++               type="button"
++             >
++               <span
++                 class="button-content"
++               >
++                 <span
++                   aria-hidden="false"
++                   class="button-label"
++                 >
++                   
++                   退出登录
++                   
++                 </span>
++                 <span
++                   aria-hidden="true"
++                   class="button-label button-hidden"
++                 >
++                   <span
++                     aria-hidden="true"
++                     class="ui-spinner"
++                   />
++                   处理中
++                 </span>
++                 <span
++                   aria-hidden="true"
++                   class="button-label button-hidden"
++                 >
++                   <svg
++                     aria-hidden="true"
++                     class="ui-icon"
++                     fill="none"
++                     stroke="currentColor"
++                     stroke-linecap="round"
++                     stroke-linejoin="round"
++                     stroke-width="1.6"
++                     viewBox="0 0 24 24"
++                   >
++                     <path
++                       d="M5 12l4 4L19 6"
++                     />
++                   </svg>
++                   已完成
++                 </span>
++                 <!--v-if-->
++                 <!--v-if-->
++               </span>
++             </button>
++           </div>
++           
++           
++         </header>
++         <main
++           class="app-content"
++           id="main-content"
++           tabindex="-1"
++         >
++           
++           <div
++             class="settings-shell"
++             data-v-14054004=""
++             data-v-7a7a37b1=""
++             data-v-bb68ba37=""
++           >
++             <!--v-if-->
++             <aside
++               class="settings-sidebar"
++               data-v-14054004=""
++               open="false"
++               title="系统设置栏目"
++             >
++               <nav
++                 aria-label="系统设置"
++                 class="settings-menu"
++                 data-v-14054004=""
++               >
++                 <h2
++                   data-v-14054004=""
++                 >
++                   系统设置
++                 </h2>
++                 
++                 <div
++                   class="settings-group"
++                   data-v-14054004=""
++                 >
++                   <button
++                     aria-controls="settings-v-8-1"
++                     aria-expanded="true"
++                     class="settings-group-toggle"
++                     data-v-14054004=""
++                     type="button"
++                   >
++                     用户与邀请
++                   </button>
++                   <ul
++                     data-v-14054004=""
++                     id="settings-v-8-1"
++                   >
++                     
++                     <li
++                       data-v-14054004=""
++                     >
++                       <a
++                         class=""
++                         data-v-14054004=""
++                         href="/system/users"
++                       >
++                         用户
++                       </a>
++                     </li>
++                     <li
++                       data-v-14054004=""
++                     >
++                       <a
++                         class=""
++                         data-v-14054004=""
++                         href="/system/invitations"
++                       >
++                         待注册邀请
++                       </a>
++                     </li>
++                     
++                   </ul>
++                 </div>
++                 <div
++                   class="settings-group"
++                   data-v-14054004=""
++                 >
++                   <button
++                     aria-controls="settings-v-8-2"
++                     aria-expanded="true"
++                     class="settings-group-toggle"
++                     data-v-14054004=""
++                     type="button"
++                   >
++                     模型与提供商
++                   </button>
++                   <ul
++                     data-v-14054004=""
++                     id="settings-v-8-2"
++                   >
++                     
++                     <li
++                       data-v-14054004=""
++                     >
++                       <a
++                         class=""
++                         data-v-14054004=""
++                         href="/system/providers"
++                       >
++                         Providers
++                       </a>
++                     </li>
++                     <li
++                       data-v-14054004=""
++                     >
++                       <a
++                         class=""
++                         data-v-14054004=""
++                         href="/system/models"
++                       >
++                         Models
++                       </a>
++                     </li>
++                     <li
++                       data-v-14054004=""
++                     >
++                       <a
++                         class=""
++                         data-v-14054004=""
++                         href="/system/model-selection"
++                       >
++                         平台模型用途
++                       </a>
++                     </li>
++                     
++                   </ul>
++                 </div>
++                 <div
++                   class="settings-group selected"
++                   data-v-14054004=""
++                 >
++                   <button
++                     aria-controls="settings-v-8-3"
++                     aria-expanded="true"
++                     class="settings-group-toggle"
++                     data-v-14054004=""
++                     type="button"
++                   >
++                     平台配置
++                   </button>
++                   <ul
++                     data-v-14054004=""
++                     id="settings-v-8-3"
++                   >
++                     
++                     <li
++                       data-v-14054004=""
++                     >
++                       <a
++                         aria-current="page"
++                         class="router-link-active router-link-exact-active"
++                         data-v-14054004=""
++                         href="/system/account-security"
++                       >
++                         账号安全
++                       </a>
++                     </li>
++                     
++                   </ul>
++                 </div>
++                 
++                 <!--v-if-->
++               </nav>
++             </aside>
++             <section
++               class="settings-content"
++               data-v-14054004=""
++             >
++               
++               <div
++                 class="system-account-security"
++                 data-v-bb68ba37=""
++                 data-v-d9f6bc97=""
++               >
+                  <h1
+                    data-v-d9f6bc97=""
+                    tabindex="-1"
+                  >
+                    账号安全
+                  </h1>
++                 <p
++                   class="meta"
++                   data-v-d9f6bc97=""
++                 >
++                   配置新签发 Session 和密码重置 token 的默认期限，以及触发登录挑战的失败次数。
++                 </p>
++                 <p
++                   class="notice"
++                   data-v-d9f6bc97=""
++                 >
++                    期限修改只影响随后签发的 Session/token，已签发对象保留原期限；挑战阈值在下一次尝试生效。邀请有效期固定为 24 小时。保存不会撤销已有登录。 
++                 </p>
++                 <div
++                   aria-label="账号安全页面操作"
++                   class="security-actions"
++                   data-v-d9f6bc97=""
++                 >
++                   <button
++                     class="ui-button default"
++                     data-v-d9f6bc97=""
++                     type="button"
++                   >
++                     <span
++                       class="button-content"
++                     >
++                       <span
++                         aria-hidden="false"
++                         class="button-label"
++                       >
++                         
++                         读取当前配置
++                         
++                       </span>
++                       <span
++                         aria-hidden="true"
++                         class="button-label button-hidden"
++                       >
++                         <span
++                           aria-hidden="true"
++                           class="ui-spinner"
++                         />
++                         处理中
++                       </span>
++                       <span
++                         aria-hidden="true"
++                         class="button-label button-hidden"
++                       >
++                         <svg
++                           aria-hidden="true"
++                           class="ui-icon"
++                           fill="none"
++                           stroke="currentColor"
++                           stroke-linecap="round"
++                           stroke-linejoin="round"
++                           stroke-width="1.6"
++                           viewBox="0 0 24 24"
++                         >
++                           <path
++                             d="M5 12l4 4L19 6"
++                           />
++                         </svg>
++                         已完成
++                       </span>
++                       <!--v-if-->
++                       <!--v-if-->
++                     </span>
++                   </button>
++                 </div>
++                 <!--v-if-->
++                 <!--v-if-->
++                 <!--v-if-->
++                 <!--v-if-->
++                 <section
++                   aria-label="当前读取的账号安全配置"
++                   data-v-d9f6bc97=""
++                 >
++                   <h2
++                     data-v-d9f6bc97=""
++                   >
++                     当前读取值
++                   </h2>
++                   <p
++                     class="meta"
++                     data-v-d9f6bc97=""
++                   >
++                      当前配置版本：
++                     <code
++                       data-v-d9f6bc97=""
++                     >
++                       1
++                     </code>
++                   </p>
++                   <dl
++                     class="current-values"
++                     data-v-d9f6bc97=""
++                   >
++                     
++                     <div
++                       data-v-d9f6bc97=""
++                     >
++                       <dt
++                         data-v-d9f6bc97=""
++                       >
++                         会话空闲期限
++                       </dt>
++                       <dd
++                         data-v-d9f6bc97=""
++                       >
++                         604800 秒
++                       </dd>
++                     </div>
++                     <div
++                       data-v-d9f6bc97=""
++                     >
++                       <dt
++                         data-v-d9f6bc97=""
++                       >
++                         会话绝对期限
++                       </dt>
++                       <dd
++                         data-v-d9f6bc97=""
++                       >
++                         2592000 秒
++                       </dd>
++                     </div>
++                     <div
++                       data-v-d9f6bc97=""
++                     >
++                       <dt
++                         data-v-d9f6bc97=""
++                       >
++                         密码重置有效期
++                       </dt>
++                       <dd
++                         data-v-d9f6bc97=""
++                       >
++                         1800 秒
++                       </dd>
++                     </div>
++                     <div
++                       data-v-d9f6bc97=""
++                     >
++                       <dt
++                         data-v-d9f6bc97=""
++                       >
++                         触发挑战的失败次数
++                       </dt>
++                       <dd
++                         data-v-d9f6bc97=""
++                       >
++                         5 次
++                       </dd>
++                     </div>
++                     
++                   </dl>
++                 </section>
++                 <!--v-if-->
++                 <form
++                   aria-label="修改账号安全配置"
++                   data-v-d9f6bc97=""
++                   novalidate=""
++                 >
++                   <h2
++                     data-v-d9f6bc97=""
++                   >
++                     修改配置
++                   </h2>
++                   <p
++                     class="meta"
++                     data-v-d9f6bc97=""
++                   >
++                      编辑基线版本：
++                     <code
++                       data-v-d9f6bc97=""
++                     >
++                       1
++                     </code>
++                   </p>
++                   <!--v-if-->
++                   <!--v-if-->
++                   <!--v-if-->
++                   <div
++                     class="security-fields"
++                     data-v-d9f6bc97=""
++                   >
++                     
++                     <div
++                       class="ui-field"
++                       data-v-d9f6bc97=""
++                     >
++                       <label
++                         for="v-9"
++                       >
++                         会话空闲期限（秒）
++                         <span
++                           aria-hidden="true"
++                         >
++                            *
++                         </span>
++                       </label>
++                       
++                       <input
++                         aria-describedby="v-9-note"
++                         autocomplete="off"
++                         class="ui-input"
++                         data-v-d9f6bc97=""
++                         id="v-9"
++                         inputmode="numeric"
++                       />
++                       
++                       <p
++                         class="field-note"
++                         id="v-9-note"
++                       >
++                         900–2592000 秒，不大于会话绝对期限。
++                       </p>
++                     </div>
++                     <div
++                       class="ui-field"
++                       data-v-d9f6bc97=""
++                     >
++                       <label
++                         for="v-10"
++                       >
++                         会话绝对期限（秒）
++                         <span
++                           aria-hidden="true"
++                         >
++                            *
++                         </span>
++                       </label>
++                       
++                       <input
++                         aria-describedby="v-10-note"
++                         autocomplete="off"
++                         class="ui-input"
++                         data-v-d9f6bc97=""
++                         id="v-10"
++                         inputmode="numeric"
++                       />
++                       
++                       <p
++                         class="field-note"
++                         id="v-10-note"
++                       >
++                         3600–7776000 秒，不小于会话空闲期限。
++                       </p>
++                     </div>
++                     <div
++                       class="ui-field"
++                       data-v-d9f6bc97=""
++                     >
++                       <label
++                         for="v-11"
++                       >
++                         密码重置有效期（秒）
++                         <span
++                           aria-hidden="true"
++                         >
++                            *
++                         </span>
++                       </label>
++                       
++                       <input
++                         aria-describedby="v-11-note"
++                         autocomplete="off"
++                         class="ui-input"
++                         data-v-d9f6bc97=""
++                         id="v-11"
++                         inputmode="numeric"
++                       />
++                       
++                       <p
++                         class="field-note"
++                         id="v-11-note"
++                       >
++                         300–7200 秒；邀请有效期固定为 24 小时。
++                       </p>
++                     </div>
++                     <div
++                       class="ui-field"
++                       data-v-d9f6bc97=""
++                     >
++                       <label
++                         for="v-12"
++                       >
++                         触发挑战的失败次数（次）
++                         <span
++                           aria-hidden="true"
++                         >
++                            *
++                         </span>
++                       </label>
++                       
++                       <input
++                         aria-describedby="v-12-note"
++                         autocomplete="off"
++                         class="ui-input"
++                         data-v-d9f6bc97=""
++                         id="v-12"
++                         inputmode="numeric"
++                       />
++                       
++                       <p
++                         class="field-note"
++                         id="v-12-note"
++                       >
++                         1–20 次，不能关闭挑战。
++                       </p>
++                     </div>
++                     
++                   </div>
++                   <div
++                     class="security-actions"
++                     data-v-d9f6bc97=""
++                   >
++                     <button
++                       class="ui-button primary"
++                       data-v-d9f6bc97=""
++                       type="submit"
++                     >
++                       <span
++                         class="button-content"
++                       >
++                         <span
++                           aria-hidden="false"
++                           class="button-label"
++                         >
++                           
++                           保存配置
++                           
++                         </span>
++                         <span
++                           aria-hidden="true"
++                           class="button-label button-hidden"
++                         >
++                           <span
++                             aria-hidden="true"
++                             class="ui-spinner"
++                           />
++                           处理中
++                         </span>
++                         <span
++                           aria-hidden="true"
++                           class="button-label button-hidden"
++                         >
++                           <svg
++                             aria-hidden="true"
++                             class="ui-icon"
++                             fill="none"
++                             stroke="currentColor"
++                             stroke-linecap="round"
++                             stroke-linejoin="round"
++                             stroke-width="1.6"
++                             viewBox="0 0 24 24"
++                           >
++                             <path
++                               d="M5 12l4 4L19 6"
++                             />
++                           </svg>
++                           账号安全配置已保存
++                         </span>
++                         <!--v-if-->
++                         <!--v-if-->
++                       </span>
++                     </button>
++                     <button
++                       class="ui-button ghost"
++                       data-v-d9f6bc97=""
++                       type="button"
++                     >
++                       <span
++                         class="button-content"
++                       >
++                         <span
++                           aria-hidden="false"
++                           class="button-label"
++                         >
++                           
++                           取消修改
++                           
++                         </span>
++                         <span
++                           aria-hidden="true"
++                           class="button-label button-hidden"
++                         >
++                           <span
++                             aria-hidden="true"
++                             class="ui-spinner"
++                           />
++                           处理中
++                         </span>
++                         <span
++                           aria-hidden="true"
++                           class="button-label button-hidden"
++                         >
++                           <svg
++                             aria-hidden="true"
++                             class="ui-icon"
++                             fill="none"
++                             stroke="currentColor"
++                             stroke-linecap="round"
++                             stroke-linejoin="round"
++                             stroke-width="1.6"
++                             viewBox="0 0 24 24"
++                           >
++                             <path
++                               d="M5 12l4 4L19 6"
++                             />
++                           </svg>
++                           已完成
++                         </span>
++                         <!--v-if-->
++                         <!--v-if-->
++                       </span>
++                     </button>
++                   </div>
++                 </form>
++                 <!--v-if-->
++               </div>
++               
++             </section>
++           </div>
++           
++         </main>
++       </div>
++       <!--teleport start-->
++       <!--teleport end-->
++       <!--teleport start-->
++       <!--teleport end-->
++       
++     </div>
++   </div>
++   
++   <transition-stub
++     appear="false"
++     css="true"
++     name="dialog"
++     persisted="false"
++   >
++     <!--v-if-->
++   </transition-stub>
++   
++   
++   <transition-stub
++     appear="false"
++     css="true"
++     name="dialog"
++     persisted="false"
++   >
++     <!--v-if-->
++   </transition-stub>
++   
++ </body>
+
+ ❯ src/tests/system-account-security.spec.ts:367:38
+    365|       expect(top.contains(document.activeElement)).toBe(true)
+    366|       await click('继续编辑', top)
+    367|       expect(document.activeElement).toBe(currentHeading)
+       |                                      ^
+    368|       if (route) expect(isNavigationFailure(await route)).toBe(true)
+    369|       expect(f.router.currentRoute.value.path).toBe('/system/account-s…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+   Start at  14:10:47
+   Duration  1.97s (transform 712ms, setup 0ms, import 840ms, tests 617ms, environment 388ms)
+

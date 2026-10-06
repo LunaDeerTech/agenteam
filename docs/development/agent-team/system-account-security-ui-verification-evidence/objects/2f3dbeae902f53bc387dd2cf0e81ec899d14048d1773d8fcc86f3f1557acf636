@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "mod",
+    "verify"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOCACHE": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/gocache",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "TMPDIR": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/compile-tmp",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "CGO_ENABLED": "1"
+  },
+  "exit_code": 0,
+  "duration_seconds": 0.684,
+  "actual_wait": true,
+  "resource_execution": false
+}

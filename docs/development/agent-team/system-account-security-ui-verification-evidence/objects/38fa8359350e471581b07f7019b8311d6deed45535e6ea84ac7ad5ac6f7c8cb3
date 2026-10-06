@@ -1,0 +1,116 @@
+--- author/input04-driver
++++ private/run-independent01.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only frozen Account security author groups and record actual resources."""
++"""Run only independent Account security representatives with fixed author and private inputs."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -162,6 +162,10 @@
+ 
+ 
+ def source_input():
++    link = FROZEN['private_module_link']
++    path = Path(link['path'])
++    if not path.is_symlink() or str(path.readlink()) != link['target']:
++        raise RuntimeError('private Playwright module link differs')
+     def sha(path):
+         if not path.is_file() or path.is_symlink() or any(parent.is_symlink() for parent in path.parents if parent != REPO.parent):
+             raise RuntimeError('non-regular candidate, artifact or dependency input')
+@@ -172,6 +176,8 @@
+         'files': {name: sha(REPO / name) for name in FROZEN['files']},
+         'dist': {str(path.relative_to(REPO)): sha(path) for path in sorted((REPO / 'web/dist').rglob('*')) if path.is_file()},
+         'dependencies': {name: sha(REPO / name) for name in FROZEN['dependencies']},
++        'private_inputs': {name: sha(Path(name)) for name in FROZEN['private_inputs']},
++        'runtime_inputs': {name: hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in FROZEN['runtime_inputs']},
+     }
+ 
+ 
+@@ -179,31 +185,34 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new', 'old-core', 'old-provider', 'old-model', 'old-selection', 'lifecycle', 'concurrency', 'outcome', 'authority', 'navigation'], required=True)
++    parser.add_argument('--group', choices=['both', 'replay', 'conflict'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+     args = parser.parse_args()
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+-    modes = dict(lifecycle='Lifecycle', concurrency='Concurrency', outcome='OutcomeRecovery', authority='AuthorityAndIdentity', navigation='NavigationAndLayouts')
+-    groups = {mode: ['TestAccountSystemAccountSecurityWeb' + suffix] for mode, suffix in modes.items()}
+-    groups['new'] = ['TestAccountSystemAccountSecurityWeb' + suffix for suffix in modes.values()]
+-    groups['old-core'] = ['TestAccountAuthenticationWebSessionLifecycle', 'TestAccountPersonalSettingsWebThemeAndNavigation', 'TestAccountPublicEntryWebIdentityNavigation', 'TestAccountSystemUserDirectoryWebAuthorityAndIdentity', 'TestAccountSystemUserDirectoryWebNavigationAndLayouts', 'TestAccountSystemInvitationsWebOutcomeRecovery', 'TestAccountSystemInvitationsWebNavigationAndLayouts']
+-    groups['old-provider'] = ['TestAccountSystemProvidersWebCredentialReplacement', 'TestAccountSystemProvidersWebOutcomeRecovery', 'TestAccountSystemProvidersWebNavigationAndLayouts']
+-    groups['old-model'] = ['TestAccountSystemModelsWebDeletionAndReplacement', 'TestAccountSystemModelsWebOutcomeRecovery', 'TestAccountSystemModelsWebNavigationAndLayouts']
+-    groups['old-selection'] = ['TestAccountSystemModelSelectionWebOutcomeRecovery', 'TestAccountSystemModelSelectionWebAuthorityAndIdentity', 'TestAccountSystemModelSelectionWebNavigationAndLayouts']
++    groups = {'replay': ['TestAccountSystemAccountSecurityIndependentReplay'], 'conflict': ['TestAccountSystemAccountSecurityIndependentConflict']}
++    groups['both'] = groups['replay'] + groups['conflict']
+     expected = set(groups[args.group])
+     args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
+     frozen_bytes = args.frozen.read_bytes()
+-    FROZEN = json.loads(frozen_bytes)
++    execution = json.loads(frozen_bytes)
++    author_manifest = Path(execution['author_manifest']['path'])
++    author_bytes = author_manifest.read_bytes()
++    if hashlib.sha256(author_bytes).hexdigest() != execution['author_manifest']['sha256']:
++        raise RuntimeError('author frozen manifest differs')
++    FROZEN = json.loads(author_bytes)
++    FROZEN['private_inputs'] = execution['private_inputs']
++    FROZEN['runtime_inputs'] = execution['runtime_inputs']
++    FROZEN['private_module_link'] = execution['runtime_node_modules_symlink']
+     if FROZEN['product_base'] != BASE:
+         raise ValueError('wrong accepted backend baseline')
+-    if hashlib.sha256(Path(__file__).read_bytes()).hexdigest() != FROZEN['driver_sha256']:
++    if hashlib.sha256(Path(__file__).read_bytes()).hexdigest() != execution['driver_sha256']:
+         raise RuntimeError('driver differs from frozen input')
+     if args.check_input_only:
+         current = source_input()
+-        same = all(current[key] == FROZEN[key] for key in ['files', 'dist', 'dependencies'])
++        same = all(current[key] == FROZEN[key] for key in ['files', 'dist', 'dependencies', 'private_inputs', 'runtime_inputs'])
+         accepted = current['accepted_baseline']['accepted']
+         print(json.dumps({'candidate_dist_dependencies_match': same, 'accepted_baseline': accepted,
+                           'accepted_count': current['accepted_baseline']['accepted_count'],
+@@ -217,7 +226,7 @@
+     run.mkdir(parents=True, mode=0o700)
+     driver_bytes = Path(__file__).read_bytes()
+     (run / 'driver.py.txt').write_bytes(driver_bytes)
+-    verification_inputs = {'driver_sha256': hashlib.sha256(driver_bytes).hexdigest()}
++    verification_inputs = {'driver_sha256': hashlib.sha256(driver_bytes).hexdigest(), 'execution_sha256': hashlib.sha256(frozen_bytes).hexdigest(), 'author_manifest': execution['author_manifest'], 'private_inputs': execution['private_inputs'], 'runtime_inputs': execution['runtime_inputs']}
+     write(run / 'verification-input.json', verification_inputs)
+     runtime = run / 'runtime'
+     runtime.mkdir(mode=0o700)
+@@ -225,7 +234,7 @@
+     if not before['accepted_baseline']['accepted']:
+         write(run / 'input-rejected.json', before)
+         raise RuntimeError('accepted baseline gate failed before any resource or fixture starts')
+-    if before['files'] != FROZEN['files'] or before['dist'] != FROZEN['dist'] or before['dependencies'] != FROZEN['dependencies']:
++    if any(before[key] != FROZEN[key] for key in ['files', 'dist', 'dependencies', 'private_inputs', 'runtime_inputs']):
+         raise RuntimeError('candidate source/dist differs from frozen input')
+     (run / 'frozen-input.json').write_bytes(args.frozen.read_bytes())
+     browser_runtime = Path(tempfile.mkdtemp(prefix='agtsecure-', dir='/tmp'))
+@@ -242,7 +251,7 @@
+     baseline = resources()
+     write(run / 'baseline.json', baseline)
+     env = os.environ.copy()
+-    flags = '-mod=readonly -buildvcs=false -p=1 -v'
++    flags = '-mod=readonly -buildvcs=false -p=1 -v -overlay='+str(ROOT / 'bound02/overlay.json')
+     env.update({'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+                 'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                 'AGENTEAM_AUTH_WEB_RUNTIME': str(browser_runtime), 'AGENTEAM_AUTH_WEB_IMAGES': str(images),
+@@ -315,11 +324,11 @@
+     after = source_input()
+     write(run / 'input-after.json', after)
+     clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and not row['browser_runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+-    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
++    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['private_inputs'] == after['private_inputs'] and before['runtime_inputs'] == after['runtime_inputs'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
+                'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
+                'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+                'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}
+-    verification_unchanged = Path(__file__).read_bytes() == driver_bytes and args.frozen.read_bytes() == frozen_bytes
++    verification_unchanged = Path(__file__).read_bytes() == driver_bytes and args.frozen.read_bytes() == frozen_bytes and author_manifest.read_bytes() == author_bytes
+     summary['verification_inputs_unchanged'] = verification_unchanged
+     tops = re.findall(r'^--- (PASS|FAIL|SKIP): (\S+)', (run / 'raw.log').read_text(errors='replace'), re.MULTILINE)
+     summary['browser_processes'] = sum(row['name'] in {'chromium', 'chrome', 'chrome_crashpad'} for row in observed_processes.values())

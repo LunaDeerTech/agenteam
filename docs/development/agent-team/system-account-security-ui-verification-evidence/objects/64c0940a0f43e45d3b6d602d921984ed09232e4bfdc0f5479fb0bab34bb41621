@@ -1,0 +1,207 @@
+{
+  "accepted_baseline_path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/accepted-baseline.json",
+  "accepted_baseline_sha256": "8bb41988536846dfbf525b274c47d67f91ccd65f286b202faf9f518933b281ed",
+  "checks": [
+    {
+      "label": "harness-go01",
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/harness-go01/result.json",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": {
+        "actual_wait": true,
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-race",
+          "-tags=integration",
+          "-o",
+          "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/account-security.test",
+          "./tests/account"
+        ],
+        "cwd": "/workspace/agenteam",
+        "duration_seconds": 52.041,
+        "env": {
+          "CGO_ENABLED": "1",
+          "GOCACHE": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/gocache",
+          "GOENV": "off",
+          "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+          "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOTOOLCHAIN": "local",
+          "GOWORK": "off",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "TMPDIR": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/compile-tmp"
+        },
+        "exit_code": 0,
+        "resource_execution": false
+      },
+      "sha256": "902cc94eed58588ed0517c9eb3aabae976c798a0a138631dc03824fea273f6c2"
+    },
+    {
+      "label": "harness-vet01",
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/harness-vet01/result.json",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": {
+        "actual_wait": true,
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-tags=integration",
+          "./tests/account"
+        ],
+        "cwd": "/workspace/agenteam",
+        "duration_seconds": 32.409,
+        "env": {
+          "CGO_ENABLED": "1",
+          "GOCACHE": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/gocache",
+          "GOENV": "off",
+          "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+          "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOTOOLCHAIN": "local",
+          "GOWORK": "off",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "TMPDIR": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/compile-tmp"
+        },
+        "exit_code": 0,
+        "resource_execution": false
+      },
+      "sha256": "613ab2579db8e560b8fcc25bc160cfc5e3045ee1361bba2281954bb5662c6112"
+    },
+    {
+      "label": "harness-types02",
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/harness-types02/result.json",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": {
+        "actual_wait": true,
+        "argv": [
+          "node",
+          "tests/account-captcha-web/node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--strict",
+          "--target",
+          "ES2022",
+          "--module",
+          "ESNext",
+          "--moduleResolution",
+          "Bundler",
+          "--lib",
+          "ES2022,DOM,DOM.Iterable",
+          "--skipLibCheck",
+          "--typeRoots",
+          "web/node_modules/@types",
+          "--types",
+          "node",
+          "tests/account-captcha-web/e2e/system-account-security.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam",
+        "duration_seconds": 1.327,
+        "env": {
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+        },
+        "exit_code": 0,
+        "resource_execution": false
+      },
+      "sha256": "76656e012af6c47fbd9587dc77ec38ccb09a8641f882731b5e240cbcc72c0a9a"
+    },
+    {
+      "label": "harness-format01",
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/harness-format01/result.json",
+      "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "result": {
+        "actual_wait": true,
+        "argv": [
+          "node",
+          "web/node_modules/prettier/bin/prettier.cjs",
+          "--check",
+          "tests/account-captcha-web/system-account-security.config.js",
+          "tests/account-captcha-web/e2e/system-account-security.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam",
+        "duration_seconds": 0.413,
+        "env": {
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+        },
+        "exit_code": 0,
+        "resource_execution": false
+      },
+      "sha256": "b3389dc9ed6a819ca6d43da03fcbf02fc9f35f6e0521e601f9c139a327560b26"
+    },
+    {
+      "label": "harness-discovery01",
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/harness-discovery01/result.json",
+      "raw_sha256": "e608d805907f31fadc08cac5dae8fdfdcfb3ee8bb81c5a3e9ca7c6f502676ed6",
+      "result": {
+        "actual_wait": true,
+        "argv": [
+          "python3",
+          "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/discover.py"
+        ],
+        "cwd": "/workspace/agenteam",
+        "duration_seconds": 3.826,
+        "env": {
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+        },
+        "exit_code": 0,
+        "resource_execution": false
+      },
+      "sha256": "bb4fb8df768ed11e956de71489d91d833914de407010fa47c5cf361434dda5b5"
+    },
+    {
+      "label": "go-discovery01",
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/go-discovery01/result.json",
+      "raw_sha256": "b1e5f53ec976fbf3c55f5d49ee520430cd8120c556c9b6abedc65e2bb7756b2e",
+      "result": {
+        "actual_wait": true,
+        "argv": [
+          "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/account-security.test",
+          "-test.list",
+          "^(TestAccountSystemAccountSecurityWeb(Lifecycle|Concurrency|OutcomeRecovery|AuthorityAndIdentity|NavigationAndLayouts)|TestAccountAuthenticationWebSessionLifecycle|TestAccountPersonalSettingsWebThemeAndNavigation|TestAccountPublicEntryWebIdentityNavigation|TestAccountSystemUserDirectoryWeb(AuthorityAndIdentity|NavigationAndLayouts)|TestAccountSystemInvitationsWeb(OutcomeRecovery|NavigationAndLayouts)|TestAccountSystemProvidersWeb(CredentialReplacement|OutcomeRecovery|NavigationAndLayouts)|TestAccountSystemModelsWeb(DeletionAndReplacement|OutcomeRecovery|NavigationAndLayouts)|TestAccountSystemModelSelectionWeb(OutcomeRecovery|AuthorityAndIdentity|NavigationAndLayouts))$"
+        ],
+        "cwd": "/workspace/agenteam/tests/account",
+        "duration_seconds": 1.021,
+        "env": {
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+        },
+        "exit_code": 0,
+        "resource_execution": false
+      },
+      "sha256": "c24e777840bc5a06bfa4a8b2df7d55206a2489c2fa704e454cdb85a85a3704e6"
+    },
+    {
+      "label": "observer01",
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/observer01/result.json",
+      "raw_sha256": "36a9d6fb461e0b39ad3c29b088c1466e1c2b68d707c0cb1fd4cfc0a07f1a4932",
+      "result": {
+        "actual_wait": true,
+        "argv": [
+          "node",
+          "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/observer-probe01.cjs"
+        ],
+        "cwd": "/workspace/agenteam",
+        "duration_seconds": 0.306,
+        "env": {
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+        },
+        "exit_code": 0,
+        "resource_execution": false
+      },
+      "sha256": "716992abef6d5b564e060ce279f1f72cd835c6a52ea54d8ff7cf6ebdca78cba5"
+    }
+  ],
+  "files": {
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts": "d1e1379c9192afb8522e05f18474a8919d6228f1a269f10a1855809309d1d6c3",
+    "tests/account-captcha-web/system-account-security.config.js": "89783e73025f2ae1af253785772031aa874308cd7187a37f6bc88a6b675e9494",
+    "tests/account/system_account_security_web_fixture_test.go": "d54e66fc9c2df6d59e321f519a128e9b4b9fcf9424b6032d1054b8b786254d72",
+    "tests/account/system_account_security_web_test.go": "3fdece54c9b80706a9939f4bb6346afe220b2f37abb2201d7e41213d6b10556d"
+  },
+  "gofmt_clean": true,
+  "observer_function_sha256": "6213cf0b26e3896173f4d8f5bc17ce35a1cacfb374169fe3e6268e6b1d74f81c",
+  "observer_probe_sha256": "c1f01d878a77d26df178804e2773593e7231dceda0cbb2a1cd620adc41074f1d",
+  "product_base": "870ebbb986f56bb62be34ccdfa2c77819ce995a6",
+  "real_resources_started": false,
+  "web_stage_manifest": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/web-stage01/manifest.json",
+  "web_stage_sha256": "bf52d983ab9c4f8c8d8210f7141c7dc08c36a9164fb4b27cb1c2c503ab18d202"
+}

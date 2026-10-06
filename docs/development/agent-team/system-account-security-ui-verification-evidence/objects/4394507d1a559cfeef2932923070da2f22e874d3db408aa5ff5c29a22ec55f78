@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/session.spec.ts src/tests/personal-settings-state.spec.ts src/tests/account-entry-state.spec.ts src/tests/system-user-directory-state.spec.ts src/tests/system-invitations-state.spec.ts src/tests/system-providers-state.spec.ts src/tests/system-models-state.spec.ts src/tests/system-model-selection-state.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+
+ Test Files  8 passed (8)
+      Tests  274 passed (274)
+   Start at  13:05:02
+   Duration  2.65s (transform 747ms, setup 0ms, import 1.46s, tests 1.25s, environment 3.49s)
+

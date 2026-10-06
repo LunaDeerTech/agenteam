@@ -1,0 +1,680 @@
+{
+  "status": "Author evidence frozen; Account independent A/B pending separately. Selection oldselection01 remains unresolved and root assigned separate scope; diagnostic PASS is not a fix.",
+  "current_manifest": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input04/manifest.json",
+    "sha256": "c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7"
+  },
+  "product_base": "fd32120eba4c76f67b649248377f4825a78d5d79",
+  "card_sha256": "5c50265eba42da48535eba3ec8817a9b3d71ab46c5fc0208b5208a57459e44e1",
+  "card_technical_sha256": "35c2f7f00917213642d9897ae37bc9509728f9921f9f71f674b59505bf06a146",
+  "source_files": {
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts": "32787bdcf22724cb6af449f6a4014d5f039878af8ee477953a89a3e29bf7ddd1",
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": "9deed2fbe09d35fe7b59bb23a9d828125f20cd7b846ce27b591898d3410bf8f5",
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": "e492cb71011c6abac789f2601965ce8497429158fb3997d7924d8aef0e08f389",
+    "tests/account-captcha-web/e2e/system-models.spec.ts": "8995d80f6df6b218f6804a63074033152e676c039088b764ebe7bead1c37fda2",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "54065768b1ac10e260c927c77198e840a13c0ea04e373f8abaa917d5f66f4f11",
+    "tests/account-captcha-web/system-account-security.config.js": "89783e73025f2ae1af253785772031aa874308cd7187a37f6bc88a6b675e9494",
+    "tests/account/system_account_security_web_fixture_test.go": "d54e66fc9c2df6d59e321f519a128e9b4b9fcf9424b6032d1054b8b786254d72",
+    "tests/account/system_account_security_web_test.go": "3fdece54c9b80706a9939f4bb6346afe220b2f37abb2201d7e41213d6b10556d",
+    "web/src/App.vue": "4edc9c917d4413ce703bd54c24af94d2f6cdad4a0a7a902026395e508dcb244b",
+    "web/src/api/client.ts": "c820835627b2711ce174d92aa115400d09f5d12ff05f88221c3d5da8daf327c3",
+    "web/src/api/system-account-security.ts": "5dabbdd4c5de0cfde671c6bdfc8c92eae140a842719752740ea65282a8feffbb",
+    "web/src/composables/useSession.ts": "952d35360f6a5e5ac0892b4c7866b529264457d6ba6014e99e0f8af8d39a1f6a",
+    "web/src/composables/useSystemAccountSecurity.ts": "97261a121b31d9dcb5cb8e10a869cbe40d0cc48611a82aa3fa2d97db49a8ad82",
+    "web/src/router/auth.ts": "874f77f602244f2dae3a49c65fbd3b1bc6cf2906ac2f0c9b349e6d642314c8fc",
+    "web/src/router/index.ts": "afd9fae1b5fe2bc9544c9038ca90e8ca64b892697e25976cc441645308119652",
+    "web/src/tests/personal-settings.spec.ts": "b3bf33b1677d2e13a9eb9e59fce52fffacc9df0d2585f465a6e602eff5207751",
+    "web/src/tests/system-account-security-client.spec.ts": "2c2b0d022c5d7d91185223958155fb552865bc2521341bcf533eb2437c418aa3",
+    "web/src/tests/system-account-security-state.spec.ts": "37a8cad65ab489ccf3ae3d3c9833c78c63353c1f2171a5ce26b3ffb7a6a1e270",
+    "web/src/tests/system-account-security.spec.ts": "ca2848daf9a5c50e2d4716579a27efb0f234933e20c7e1521226f774bbc8c580",
+    "web/src/tests/system-invitations.spec.ts": "162dafcb4d47422c25fa216003059131cbfde5568f8b890b0b93a105c699975c",
+    "web/src/tests/system-model-selection.spec.ts": "7603b7ed84bcab781178aea21d1b89e878cf26dc1ba311feab7d5fdd8860adbc",
+    "web/src/tests/system-models.spec.ts": "cca4a9733e5438a71aa51431f4cb8cabe759c2b639e10439a456699aaa2bf822",
+    "web/src/tests/system-providers.spec.ts": "7d354eb9570adf143571dbe10c5bd4899164380f121449dd446f02c3daf8b1cd",
+    "web/src/tests/system-user-directory.spec.ts": "557d8c90cf18242354bafdcb14902240265a3104ecc08f6a5a1c43a0d241d487",
+    "web/src/views/system/SystemAccountSecurityView.vue": "643d27ade4b7c905f98694da984ac528569313b3ef80fa18dc3aded84046227e",
+    "web/src/views/system/SystemSettingsView.vue": "59cf8243ee02e8f8493e36fc4b0f2d0de476b3a82422ea238957a3eaa369264c"
+  },
+  "dist": {
+    "web/dist/assets/AppearanceSettings-Cr00t59z.js": "4dce3378b11c2b8ac5503feec503677a0b6ed8b89de271cc49f16ee0c4e85abd",
+    "web/dist/assets/ForgotPasswordView-DJSF_FFM.css": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2",
+    "web/dist/assets/ForgotPasswordView-DwXzHTjE.js": "c926b1815e4bd12c444b19207094c869f4770180fb2b5b5c8a0a9135a82d0f7a",
+    "web/dist/assets/InvitationView-B4wTz1D4.css": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177",
+    "web/dist/assets/InvitationView-DI5jbuy6.js": "8defa85243fe1d9f252fbdd87265e044ba761b44c86910485668bc0cf69b454d",
+    "web/dist/assets/PasswordSettings-wpOx2m15.js": "1f335a3a00753106a80e8ca3f3f16eb40df667112773866b3c5a891ba21e56b4",
+    "web/dist/assets/PersonalSettingsView-BLWru9en.css": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5",
+    "web/dist/assets/PersonalSettingsView-nChzPZVx.js": "74e9711a779ed3f3f0fc5e68d3e8b6806ba58715f85602eda6cb62004ad56480",
+    "web/dist/assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+    "web/dist/assets/ProfileSettings-dn2ApVSN.js": "93b33c710fc7656599edf406cc160f9a3bbc0b1af18cf8ce130a6443264cddfc",
+    "web/dist/assets/ResetPasswordView-DSiu2awb.css": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527",
+    "web/dist/assets/ResetPasswordView-DsA0H6OZ.js": "b591eb8a4a093593fd11f0487650142c84ab0275cfcf51c467eb18f77aa38193",
+    "web/dist/assets/SettingsShell-CERAYORF.js": "a44b8fc77a6dc38a680d8ffc62c246525433a6005ba7eca3135b71342031951a",
+    "web/dist/assets/SettingsShell-D9S1S_aF.css": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e",
+    "web/dist/assets/SystemAccountSecurityView-DDeXsGVz.css": "8c0710c7f46cdaa82fd01031381969c02672f16825b06eea24840a2770b25e7e",
+    "web/dist/assets/SystemAccountSecurityView-DFkI14Jb.js": "523d3b60278b98b101c554d4bc9c4362b422cddb937be8da52aacbcc0a293bd2",
+    "web/dist/assets/SystemInvitationsView-B-r3PziZ.js": "f0e6f7e40bb1953f6eb04bb73fab29e690e8d342637339ff58071e28ce34361e",
+    "web/dist/assets/SystemInvitationsView-QSKOYHWH.css": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f",
+    "web/dist/assets/SystemModelSelectionView-DVaOEpxj.js": "0e0d4da0685a2dc451b37db3282b4ec01f1a23b15d6eda0db6ee0234f31a5be0",
+    "web/dist/assets/SystemModelSelectionView-Dpau881F.css": "3db921aee5324ed2c41c87284a1ef1ae79f34a9f4bee83ceac7cc05412398edb",
+    "web/dist/assets/SystemModelsView-6nzUQodS.css": "7697fe537f40b60c922c38227e7ddfff8a6e1c44514ff2efadb12808f1563a5f",
+    "web/dist/assets/SystemModelsView-DyQ74pWT.js": "2cb6239f91eb64008cd8fcdbc5c67fd88b89e379b8b2178c4b4028d888aaaf88",
+    "web/dist/assets/SystemProvidersView-elJ_-cRG.css": "495c2154ff8c96cfdbfb6e79d76bc39c11e20b046af85227d8bd27d3d7336c2c",
+    "web/dist/assets/SystemProvidersView-fuD6KXyT.js": "3a9207a6de76d0cdf6b004d705c6e295cd1744461fd0af225f7f459b408b6b07",
+    "web/dist/assets/SystemSettingsView-5WXISPi-.js": "e0d3628ab9e706d6b569aae1e84bf9db5b93a610c7f80dca05696ff853cada4d",
+    "web/dist/assets/SystemSettingsView-NN15CJub.css": "5a1948b51374ec1cdb5c2328f7777b784e472f216f99ce712330ab539fb17c56",
+    "web/dist/assets/SystemUsersView-6rZp3sN0.js": "cbccd9df1125bbdf00319c7892f8567e174c72da4002bfbdecddf625e68799f0",
+    "web/dist/assets/SystemUsersView-B41TxT1D.css": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3",
+    "web/dist/assets/UiButton-WoKd-pcG.js": "eaae0c99c4ce3015dc6706e33c400227193ca59d8ec7f66e9dfb784f4ca0e16f",
+    "web/dist/assets/UiSelect-cP5BVy9z.js": "6782e03cc5714467ef86646236d2fe29b1df09c5ec58cf93e629d18205476285",
+    "web/dist/assets/index-B45FTJJH.css": "05965def496d58bc570415895997aaedda30e40be56456bf506013e538b3adaf",
+    "web/dist/assets/index-DAF-uxef.js": "a5ac45c6f5ac842d77507b47b9bd3401c9ce0a01be699d6a0f9c74795b52bc8a",
+    "web/dist/index.html": "4d9c3d190271dea1b871bd9e0e43d59366988035667127a24a374a8742cfa1aa"
+  },
+  "accepted_baseline": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/accepted-baseline-fallback04.json",
+    "sha256": "6fab30a49c4a21079046ad4bdfbf10bf5dc4a486ef07cf57ed94007f540ded0f"
+  },
+  "accepted_baseline_delta": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/accepted-baseline-delta04.json",
+    "sha256": "ef4cddd550198e30435bda2f57de21c7a033fe3d295842075cbde3417fcc9b32"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/run-account-security-fallback04.py",
+    "sha256": "34a42ad75d7f500986c6afc4848178ddd12f80c40008d60fdab541d8afd098f6"
+  },
+  "stages": {
+    "api-stage01": {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/api-stage01/manifest.json",
+      "sha256": "ee4b61f18939a7e2a9b0d60bdd5d2df46c64d326e019e272ac4b66a71b1d52b3"
+    },
+    "owner-stage01": {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/owner-stage01/manifest.json",
+      "sha256": "b6861a56a8cd503171693d8a1d75c8992849123cd42030b2923a5916594ca89f"
+    },
+    "web-stage01": {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/web-stage01/manifest.json",
+      "sha256": "bf52d983ab9c4f8c8d8210f7141c7dc08c36a9164fb4b27cb1c2c503ab18d202"
+    },
+    "harness-stage01": {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/harness-stage01/manifest.json",
+      "sha256": "64c0940a0f43e45d3b6d602d921984ed09232e4bfdc0f5479fb0bab34bb41621"
+    }
+  },
+  "inputs": {
+    "input01": {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input01/manifest.json",
+      "sha256": "a748554b1502fe5878ee55751d54c95f203fa547467e3725af217d17c01cd437"
+    },
+    "input02": {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input02/manifest.json",
+      "sha256": "38b4a988fec90616f5b6ab94cdc30b9cab39e1d59f9407fcd5d25b5fc74986c2"
+    },
+    "input03": {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input03/manifest.json",
+      "sha256": "ca7cbe322cc50e875e5f30d788ee7950b27888cd90cd607ad87e65ee2b2f52f4"
+    },
+    "input04": {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input04/manifest.json",
+      "sha256": "c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7"
+    },
+    "input05": {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input05/manifest.json",
+      "sha256": "6df44d25263104c4a5311a780df10f605d5d01822741d622370c495a7cff42f4"
+    }
+  },
+  "input02_never_ran_real": true,
+  "input05_diagnostic_only_now_restored": true,
+  "input04_full26_source_snapshot": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/selection-diagnostic05/baseline-manifest.json",
+    "sha256": "c6afb7bff70f364ff67d870fb37ff6ab37bc83a543a8aec0495f896bdfba3529"
+  },
+  "restoration_gate": {
+    "result.json": {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/input04-restored-after-selection05/result.json",
+      "sha256": "687fffc5d96b00beb732389983878176f75d722f4b7b2e84e37852aa41d084e9"
+    },
+    "raw.log": {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/input04-restored-after-selection05/raw.log",
+      "sha256": "d261f3abbae5d8a9a60b8b0d66b74eb54142990ab2ba18519a673e4388995f29"
+    },
+    "input.json": {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/input04-restored-after-selection05/input.json",
+      "sha256": "0d6ef623b2d95d2d6889ab11007cf3efa4f66965288ec2e0bce5d277283bf4e8"
+    }
+  },
+  "pure_red_green": {
+    "fallback-page-red01": {
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/fallback-page-red01/result.json",
+        "sha256": "6ea28b6b13f15834383a60d1aad44e414f77d41aca72b0c24c490b7118904f9c"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/fallback-page-red01/raw.log",
+        "sha256": "505f86a1cd76b140dbddb76ad75270c46b112e56601505d7d17b723a5b49e854"
+      },
+      "input.json": {
+        "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/fallback-page-red01/input.json",
+        "sha256": "f160e8bfd8d7b475b7ad6cf58699ec95e0ee3efac13038b05c7d13ab0220b12d"
+      }
+    },
+    "fallback-page-green01": {
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/fallback-page-green01/result.json",
+        "sha256": "ec1d1bfba5dc819b9ef9aecd2ea8856232fd7caed4f3e88ea1497793286db6f6"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/fallback-page-green01/raw.log",
+        "sha256": "b39183004b260d81e3763fb31f9fefaf35711f2b419967f702b5d10207c3d90a"
+      },
+      "input.json": {
+        "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/fallback-page-green01/input.json",
+        "sha256": "0d6ef623b2d95d2d6889ab11007cf3efa4f66965288ec2e0bce5d277283bf4e8"
+      }
+    },
+    "check-fallback02": {
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/check-fallback02/result.json",
+        "sha256": "812d8af471d95f5f63fbd87d651a8b198b26ca40c633f0e51d95c004085833b2"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/check-fallback02/raw.log",
+        "sha256": "5670f5503a1f3e82ec992c3e2223551fc3d404ecbc85a4ee0d66c6dd6568085f"
+      },
+      "input.json": {
+        "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/check-fallback02/input.json",
+        "sha256": "0d6ef623b2d95d2d6889ab11007cf3efa4f66965288ec2e0bce5d277283bf4e8"
+      }
+    }
+  },
+  "real_runs": [
+    {
+      "run": "new01",
+      "input": "input01",
+      "exit": 1,
+      "seconds": 133.704,
+      "actual_wait_completed": true,
+      "observed_processes": 178,
+      "adopted_waits": 20,
+      "exact_resources": 7,
+      "double_cleanup": true,
+      "baseline_unchanged": true,
+      "source_dist_dependencies_unchanged": true,
+      "tests": [
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemAccountSecurityWebLifecycle",
+          "seconds": 7.01
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemAccountSecurityWebConcurrency",
+          "seconds": 7.71
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemAccountSecurityWebOutcomeRecovery",
+          "seconds": 7.67
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemAccountSecurityWebAuthorityAndIdentity",
+          "seconds": 11.31
+        },
+        {
+          "status": "FAIL",
+          "test": "TestAccountSystemAccountSecurityWebNavigationAndLayouts",
+          "seconds": 6.26
+        }
+      ],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new01/command.json",
+          "sha256": "00604f62979273098fa7cdd96fdd7aa671ee84a76d61c4c909af6466eada87dc"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new01/raw.log",
+          "sha256": "378d9d6a74065a4dd7db8daa287bc54505a091f909c3ecd9011531ec3d051378"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new01/result.json",
+          "sha256": "8486e8d9ebccbba74301b301fe2753f60bfc02f76443f7fff7e0bf260a951e29"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new01/cleanup.json",
+          "sha256": "92de36e569a58ceb8abd43fce414f4b5a4296ce2c1f7399941cad0345f1f464c"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new01/input-before.json",
+          "sha256": "b4b464cc60c942ac5e27dac6cc50491531de3d0c774296ae97b1435dd35cd06e"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new01/input-after.json",
+          "sha256": "b4b464cc60c942ac5e27dac6cc50491531de3d0c774296ae97b1435dd35cd06e"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new01/frozen-input.json",
+          "sha256": "a748554b1502fe5878ee55751d54c95f203fa547467e3725af217d17c01cd437"
+        }
+      }
+    },
+    {
+      "run": "new02",
+      "input": "input03",
+      "exit": 1,
+      "seconds": 55.758,
+      "actual_wait_completed": true,
+      "observed_processes": 82,
+      "adopted_waits": 4,
+      "exact_resources": 7,
+      "double_cleanup": true,
+      "baseline_unchanged": true,
+      "source_dist_dependencies_unchanged": true,
+      "tests": [
+        {
+          "status": "FAIL",
+          "test": "TestAccountSystemAccountSecurityWebNavigationAndLayouts",
+          "seconds": 6.87
+        }
+      ],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new02/command.json",
+          "sha256": "91073ed50cbde0b518ecb2f74d98024656dd8d02ca07a12d27a9b7ecab9e636d"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new02/raw.log",
+          "sha256": "8b7a2acebda38ddd2a9752066a455e44ba63e737cd217e0839dbc64a7b1f9a83"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new02/result.json",
+          "sha256": "2e938d1c5b306eb0638ab51f5ec8fd245ad2c4e76e7f5098f2337b1e199b5506"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new02/cleanup.json",
+          "sha256": "be6dcb2510ea9dec747e1354e37e4bacaf661674847d872b716049642b6b8be2"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new02/input-before.json",
+          "sha256": "8af8ebc37fc06cc0cf86b691889cf77bfbf3b52b24435f6d867ad1aabc89bf1a"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new02/input-after.json",
+          "sha256": "8af8ebc37fc06cc0cf86b691889cf77bfbf3b52b24435f6d867ad1aabc89bf1a"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new02/frozen-input.json",
+          "sha256": "ca7cbe322cc50e875e5f30d788ee7950b27888cd90cd607ad87e65ee2b2f52f4"
+        }
+      }
+    },
+    {
+      "run": "new03",
+      "input": "input04",
+      "exit": 0,
+      "seconds": 63.02,
+      "actual_wait_completed": true,
+      "observed_processes": 78,
+      "adopted_waits": 4,
+      "exact_resources": 7,
+      "double_cleanup": true,
+      "baseline_unchanged": true,
+      "source_dist_dependencies_unchanged": true,
+      "tests": [
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemAccountSecurityWebNavigationAndLayouts",
+          "seconds": 15.55
+        }
+      ],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new03/command.json",
+          "sha256": "da11a28726a8d71a103c5c1e0aab0d67b1d0baf93a8d9beafba498c49845b517"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new03/raw.log",
+          "sha256": "cd2f1dd0c154e60ab0fb76c29bdd3bf0b65241ebdb96b1c61bdd6961356b6d52"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new03/result.json",
+          "sha256": "c624913b1fd3784dd12ae2d866f1c551806bd0501a8adf5ccba5faae2b950b18"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new03/cleanup.json",
+          "sha256": "43273ae87c16fd16a18fe11e4da86201fc6ad2bf20d56c066a4dbd8bf19e4fdd"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new03/input-before.json",
+          "sha256": "8461cebcf7bca3b45233e852485483d2be0862865b1ed258242c49894e3f608e"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new03/input-after.json",
+          "sha256": "8461cebcf7bca3b45233e852485483d2be0862865b1ed258242c49894e3f608e"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new03/frozen-input.json",
+          "sha256": "c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7"
+        }
+      }
+    },
+    {
+      "run": "oldcore01",
+      "input": "input04",
+      "exit": 0,
+      "seconds": 124.77,
+      "actual_wait_completed": true,
+      "observed_processes": 159,
+      "adopted_waits": 28,
+      "exact_resources": 7,
+      "double_cleanup": true,
+      "baseline_unchanged": true,
+      "source_dist_dependencies_unchanged": true,
+      "tests": [
+        {
+          "status": "PASS",
+          "test": "TestAccountPublicEntryWebIdentityNavigation",
+          "seconds": 14.82
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountAuthenticationWebSessionLifecycle",
+          "seconds": 5.05
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountPersonalSettingsWebThemeAndNavigation",
+          "seconds": 14.05
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemInvitationsWebOutcomeRecovery",
+          "seconds": 11.93
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemInvitationsWebNavigationAndLayouts",
+          "seconds": 11.84
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemUserDirectoryWebAuthorityAndIdentity",
+          "seconds": 10.33
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemUserDirectoryWebNavigationAndLayouts",
+          "seconds": 8.65
+        }
+      ],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldcore01/command.json",
+          "sha256": "c3fceeb5c8f602b10ac7f8ed4d805926bb42f08b1a33ef4bea3ac309cfc7a555"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldcore01/raw.log",
+          "sha256": "6447237d1714d6210c854c04ce38d5306a90ed2db0913994ddcea87f2759b01a"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldcore01/result.json",
+          "sha256": "1fda7ffbb653d7bd6d44cb25c323814c992cfc7394454ab2a50d63c858c40624"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldcore01/cleanup.json",
+          "sha256": "6081ccd3bcdcf8bb06e0552cc20da7c5809bef62ab41e9a43ce2f3cb3074d30d"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldcore01/input-before.json",
+          "sha256": "8461cebcf7bca3b45233e852485483d2be0862865b1ed258242c49894e3f608e"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldcore01/input-after.json",
+          "sha256": "8461cebcf7bca3b45233e852485483d2be0862865b1ed258242c49894e3f608e"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldcore01/frozen-input.json",
+          "sha256": "c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7"
+        }
+      }
+    },
+    {
+      "run": "oldproviders01",
+      "input": "input04",
+      "exit": 0,
+      "seconds": 89.416,
+      "actual_wait_completed": true,
+      "observed_processes": 113,
+      "adopted_waits": 12,
+      "exact_resources": 7,
+      "double_cleanup": true,
+      "baseline_unchanged": true,
+      "source_dist_dependencies_unchanged": true,
+      "tests": [
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemProvidersWebCredentialReplacement",
+          "seconds": 10.91
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemProvidersWebOutcomeRecovery",
+          "seconds": 13.87
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemProvidersWebNavigationAndLayouts",
+          "seconds": 14.09
+        }
+      ],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldproviders01/command.json",
+          "sha256": "19d4279f9383cbae1a9f062041b69f1c9853e2c5e8b8a536307e3a8a4020b283"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldproviders01/raw.log",
+          "sha256": "ad59953de9193ec46080745ae5e7ab7376cce1d2f8ef7b3d94ff2d5c698be0b3"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldproviders01/result.json",
+          "sha256": "1172a1909d4a6e7d606df83babe31a00c3138ed01d602e79f8da347f6d6966f4"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldproviders01/cleanup.json",
+          "sha256": "990c6bc4a322779e93c42397fe732a8508ac0dfa406668b99d152269a6ef4df0"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldproviders01/input-before.json",
+          "sha256": "8461cebcf7bca3b45233e852485483d2be0862865b1ed258242c49894e3f608e"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldproviders01/input-after.json",
+          "sha256": "8461cebcf7bca3b45233e852485483d2be0862865b1ed258242c49894e3f608e"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldproviders01/frozen-input.json",
+          "sha256": "c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7"
+        }
+      }
+    },
+    {
+      "run": "oldmodels01",
+      "input": "input04",
+      "exit": 0,
+      "seconds": 135.005,
+      "actual_wait_completed": true,
+      "observed_processes": 107,
+      "adopted_waits": 12,
+      "exact_resources": 7,
+      "double_cleanup": true,
+      "baseline_unchanged": true,
+      "source_dist_dependencies_unchanged": true,
+      "tests": [
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemModelsWebDeletionAndReplacement",
+          "seconds": 31.08
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemModelsWebOutcomeRecovery",
+          "seconds": 14.82
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemModelsWebNavigationAndLayouts",
+          "seconds": 20.65
+        }
+      ],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldmodels01/command.json",
+          "sha256": "4713d685dc4178df30fe78da24b38c7e92b829842c8bbeb69a5c127f7c4cc030"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldmodels01/raw.log",
+          "sha256": "fd3f98d03ff56e26462fde0d557531b1853ed5ead8882942d2e151a555bdd851"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldmodels01/result.json",
+          "sha256": "c4cff7f07f0c1266f2ddb883f9ff44e2f69ef1cdb122f7692e33bf7d2889ded6"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldmodels01/cleanup.json",
+          "sha256": "a3bd15bc33f20db3cd387fc4ab4a00058b392acb8a5c05d2f107dc19d82fabbe"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldmodels01/input-before.json",
+          "sha256": "8461cebcf7bca3b45233e852485483d2be0862865b1ed258242c49894e3f608e"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldmodels01/input-after.json",
+          "sha256": "8461cebcf7bca3b45233e852485483d2be0862865b1ed258242c49894e3f608e"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldmodels01/frozen-input.json",
+          "sha256": "c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7"
+        }
+      }
+    },
+    {
+      "run": "oldselection01",
+      "input": "input04",
+      "exit": 1,
+      "seconds": 150.434,
+      "actual_wait_completed": true,
+      "observed_processes": 109,
+      "adopted_waits": 12,
+      "exact_resources": 7,
+      "double_cleanup": true,
+      "baseline_unchanged": true,
+      "source_dist_dependencies_unchanged": true,
+      "tests": [
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemModelSelectionWebOutcomeRecovery",
+          "seconds": 11.92
+        },
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemModelSelectionWebAuthorityAndIdentity",
+          "seconds": 19.65
+        },
+        {
+          "status": "FAIL",
+          "test": "TestAccountSystemModelSelectionWebNavigationAndLayouts",
+          "seconds": 50.22
+        }
+      ],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection01/command.json",
+          "sha256": "3d32c87a275dc3079387196322f22bb55e0b581fe205bd8e9e1cae80983e84ee"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection01/raw.log",
+          "sha256": "e3d331ee7cacbe510881b1b0cdbb2506d0922ce4fd6b519535407fbee7b261c9"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection01/result.json",
+          "sha256": "3db1568d80503dfb5ca9b9807f99375ff7a7e4eb32201df7df3c52d5f291f21f"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection01/cleanup.json",
+          "sha256": "c5afd2fc36c2233f991876bf6817607cffa85df3d8abaeec29d3dd0a237fa1d1"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection01/input-before.json",
+          "sha256": "8461cebcf7bca3b45233e852485483d2be0862865b1ed258242c49894e3f608e"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection01/input-after.json",
+          "sha256": "8461cebcf7bca3b45233e852485483d2be0862865b1ed258242c49894e3f608e"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection01/frozen-input.json",
+          "sha256": "c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7"
+        }
+      }
+    },
+    {
+      "run": "oldselection02",
+      "input": "input05",
+      "exit": 0,
+      "seconds": 71.509,
+      "actual_wait_completed": true,
+      "observed_processes": 80,
+      "adopted_waits": 4,
+      "exact_resources": 7,
+      "double_cleanup": true,
+      "baseline_unchanged": true,
+      "source_dist_dependencies_unchanged": true,
+      "tests": [
+        {
+          "status": "PASS",
+          "test": "TestAccountSystemModelSelectionWebNavigationAndLayouts",
+          "seconds": 14.25
+        }
+      ],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection02/command.json",
+          "sha256": "af276bff80174755a92594cadc5b9fd481342ec0ee90f73d43642927212935e8"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection02/raw.log",
+          "sha256": "cc28e21ca7b69b5240382cb2fea7a67637a09c9551fcb4a7f161ffa88aafa4cd"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection02/result.json",
+          "sha256": "da2f2f8e984bb2af950ea808aecfb3ac267d9288aabb026e924e371e828e19b5"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection02/cleanup.json",
+          "sha256": "cff58d07391558c563e37996cb9d8c6e504a7fac6950384486afec9a8c406455"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection02/input-before.json",
+          "sha256": "6dfd2dce96b90ff7b95544cf9c69419314273ed64c799e8db2c85994d1fa1cc6"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection02/input-after.json",
+          "sha256": "6dfd2dce96b90ff7b95544cf9c69419314273ed64c799e8db2c85994d1fa1cc6"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/oldselection02/frozen-input.json",
+          "sha256": "6df44d25263104c4a5311a780df10f605d5d01822741d622370c495a7cff42f4"
+        }
+      }
+    }
+  ],
+  "account_visual_review": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new03/visual-review.json",
+    "sha256": "488a6c1518695b2dde800aa22c95954ada7aa5871e0cc41b5938aeeefbac26b3"
+  },
+  "selection_diagnostic_visual_review": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/author-report01/selection-visual-review.json",
+    "sha256": "8d9eb8b3f8ec156a158c07c5153d65ee6b6a2d22bffb2f8d62e651c3ca1f1812"
+  },
+  "readme_deferred": "docs/development/frontend/README.md only after independent acceptance"
+}

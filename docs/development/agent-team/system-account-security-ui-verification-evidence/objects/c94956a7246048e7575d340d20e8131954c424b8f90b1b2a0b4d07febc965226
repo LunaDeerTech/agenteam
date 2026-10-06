@@ -1,0 +1,196 @@
+{
+  "conclusion": "PASS - account security web-stage01 offline page/controller/App only",
+  "base": "870ebbb986f56bb62be34ccdfa2c77819ce995a6",
+  "card": "cb9ad6c6ae5a34a6f123e6f8aad0db90646d5cb7",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/web-stage01/manifest.json",
+    "sha256": "bf52d983ab9c4f8c8d8210f7141c7dc08c36a9164fb4b27cb1c2c503ab18d202"
+  },
+  "input_sha256": "e793f5b3c34b3ab9da873f458e3706a6b21b241da1c2c32098315dbbf90c90c9",
+  "source_count": 18,
+  "dist_verified_count": 33,
+  "private_fixed_files": 53,
+  "actual_import_closure_count": 38,
+  "independent_results": [
+    {
+      "run": "controller01",
+      "tests_passed": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 1.772,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "pid": 1174785,
+      "pid_absent": true,
+      "adopted_waits": [],
+      "raw_sha256": "ca5296a527ed13ecb1908250781db5144f65e0ba01fcb3333ea32466d022e205"
+    },
+    {
+      "run": "app01",
+      "tests_passed": 4,
+      "exit_code": 0,
+      "elapsed_seconds": 2.181,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "pid": 1174904,
+      "pid_absent": true,
+      "adopted_waits": [],
+      "raw_sha256": "16463b8d88275aa85bc576b20dbf30643fe2a0ddfcf43b34a0ce174e340edc7d"
+    }
+  ],
+  "reuse": [
+    {
+      "kind": "independent API14",
+      "path": "/workspace/scratch/agenteam-account-security-api-verification-2a97hois/api-stage01-report.json",
+      "sha256": "405b8f8f41bda98cc6c6245e10a9dca71617b76bf0c50894cec03addb02df940"
+    },
+    {
+      "kind": "independent owner9",
+      "path": "/workspace/scratch/agenteam-account-security-owner-verification-nnm4w0x6/owner-stage01-report.json",
+      "sha256": "5c1b77211d5621a738247248b983111d9bbdcc1852d7fd1a450c47641366ecc0"
+    }
+  ],
+  "author_checks_reused": [
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/page-state01/result.json",
+      "sha256": "8688586b9d63e2e9a4194252c75eb511c0abb9f14b7e5e78296a8fdb50c301ce",
+      "exit_code": 0,
+      "actual_wait": true,
+      "duration_seconds": 1.404
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/page-app01/result.json",
+      "sha256": "b4231b71ea9eee1767bbb571e8b5df4401791bc91c8708939fbd948b7a8bade2",
+      "exit_code": 0,
+      "actual_wait": true,
+      "duration_seconds": 3.385
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/page-type01/result.json",
+      "sha256": "741c9cd376bf383aa0a2d8b59b52f9dbedf4caba24f9b6e694efcf8a84803337",
+      "exit_code": 0,
+      "actual_wait": true,
+      "duration_seconds": 6.915
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/check01/result.json",
+      "sha256": "998293fbc5bb8d981a3d6b0bd2bed2658906915696010ac1ee39bd80e7478d30",
+      "exit_code": 0,
+      "actual_wait": true,
+      "duration_seconds": 28.051
+    }
+  ],
+  "passed": [
+    "18 candidates and 33 dist fingerprints match frozen author snapshot; 19 listed accepted dependencies fetched from fixed Git and verified; actual App import closure materialized without copying full web or node_modules.",
+    "API/client/useSession production fingerprints unchanged; independent API14+owner9 reused. Original27 owner test bodies unchanged; author page-state only adds controller tests. Six old App tests only menu/return compatibility differences.",
+    "Controller: null initial GET leaves four empty drafts and no write/default; detached in-flight read cannot publish late success; max read version legal but save disabled and zero writes.",
+    "Actual App: all four conflict drafts and original BigInt version survive newer read and Continue; only explicit adopt/discard rebuilds edit baseline; new save uses explicitly adopted version.",
+    "Actual App: simulated first PUT response loss then Session/current GET does not confirm. Explicit original replay returns historical Settings while current and next edit remain higher. Private replay bytes/key/CSRF equality asserted in memory; no lookup.",
+    "Immediate new field edit, without advancing2400ms, restores ordinary accessible save label, zero extra PUT until explicit submit. That new PUT uses higher current baseline, not historical version.",
+    "Confirmed new PUT followed by current GET503 retains exact historical confirmation and removes form/current. Explicit reread emits only GET and creates new baseline while preserving historical confirmation.",
+    "Actual App single confirmation opened before synthetic pageshow: checking and503 remove overlay/inert/scroll lock without settling pending route or losing draft; same Session restore remounts operable top confirmation and retains undecided promise; Continue cancels route, later explicit Discard permits route with zero PUT.",
+    "Same-user new Session settles pending route false, clears old draft/confirmation and does not transfer old continuation. Six leaves/three groups and exact ten return paths verified in App/route guard composition; index.ts lazy route addition statically reviewed."
+  ],
+  "limits": [
+    "Offline unit composition only: actual Vue App/controllers/components/auth guard with memory router and supplied Fetch. Other accepted leaf views are inert private placeholders; their rendering is not retested.",
+    "jsdom getClientRects is explicitly stubbed only to allow shared focus eligibility. Programmatic DOM focus and state are checked; native pointer/Tab, geometry, themes/screenshots, layout and real browser/BFCache are not proven.",
+    "Loss/409/503/settings advancement are supplied transport fixtures, not formal Account mutation/transaction/concurrency/audit or newly-issued lifetime evidence. Those require later authorized real fixture window.",
+    "No network services/browser/PG/Docker or external requests; no product/Git changes. API/owner tests were not repeated; author1064 full check/state34/App9/type remain separately identified author results.",
+    "Private preparation first assumed accepted dependencies copied under snapshot source; read-only command got FileNotFoundError before tests. Corrected by fixed Git fetch and SHA checks. Tool observation note retained; no original disk raw for that one read-only attempt, no fabricated replay.",
+    "Runtime binds fixed lock/Node/four package metadata; no full dependency-tree archive. Private probe was not separately typechecked; executed Vitest transform is the dynamic evidence."
+  ],
+  "candidate18": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "c820835627b2711ce174d92aa115400d09f5d12ff05f88221c3d5da8daf327c3"
+    },
+    {
+      "path": "web/src/api/system-account-security.ts",
+      "sha256": "5dabbdd4c5de0cfde671c6bdfc8c92eae140a842719752740ea65282a8feffbb"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "952d35360f6a5e5ac0892b4c7866b529264457d6ba6014e99e0f8af8d39a1f6a"
+    },
+    {
+      "path": "web/src/composables/useSystemAccountSecurity.ts",
+      "sha256": "97261a121b31d9dcb5cb8e10a869cbe40d0cc48611a82aa3fa2d97db49a8ad82"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "4edc9c917d4413ce703bd54c24af94d2f6cdad4a0a7a902026395e508dcb244b"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "afd9fae1b5fe2bc9544c9038ca90e8ca64b892697e25976cc441645308119652"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "874f77f602244f2dae3a49c65fbd3b1bc6cf2906ac2f0c9b349e6d642314c8fc"
+    },
+    {
+      "path": "web/src/views/system/SystemSettingsView.vue",
+      "sha256": "59cf8243ee02e8f8493e36fc4b0f2d0de476b3a82422ea238957a3eaa369264c"
+    },
+    {
+      "path": "web/src/views/system/SystemAccountSecurityView.vue",
+      "sha256": "eff4bdf03cd2dda77ee384cea83d5923e40ee57b127b420777a7a57f690565a6"
+    },
+    {
+      "path": "web/src/tests/system-account-security-client.spec.ts",
+      "sha256": "2c2b0d022c5d7d91185223958155fb552865bc2521341bcf533eb2437c418aa3"
+    },
+    {
+      "path": "web/src/tests/system-account-security-state.spec.ts",
+      "sha256": "37a8cad65ab489ccf3ae3d3c9833c78c63353c1f2171a5ce26b3ffb7a6a1e270"
+    },
+    {
+      "path": "web/src/tests/system-account-security.spec.ts",
+      "sha256": "ae8f582803e65359385bda86583d0e15afb2b54814d510b456bdfdccc465ad09"
+    },
+    {
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "sha256": "557d8c90cf18242354bafdcb14902240265a3104ecc08f6a5a1c43a0d241d487"
+    },
+    {
+      "path": "web/src/tests/system-invitations.spec.ts",
+      "sha256": "162dafcb4d47422c25fa216003059131cbfde5568f8b890b0b93a105c699975c"
+    },
+    {
+      "path": "web/src/tests/system-providers.spec.ts",
+      "sha256": "7d354eb9570adf143571dbe10c5bd4899164380f121449dd446f02c3daf8b1cd"
+    },
+    {
+      "path": "web/src/tests/system-models.spec.ts",
+      "sha256": "cca4a9733e5438a71aa51431f4cb8cabe759c2b639e10439a456699aaa2bf822"
+    },
+    {
+      "path": "web/src/tests/system-model-selection.spec.ts",
+      "sha256": "7603b7ed84bcab781178aea21d1b89e878cf26dc1ba311feab7d5fdd8860adbc"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "b3bf33b1677d2e13a9eb9e59fce52fffacc9df0d2585f465a6e602eff5207751"
+    }
+  ],
+  "artifact_hashes": {
+    "input.json": "e793f5b3c34b3ab9da873f458e3706a6b21b241da1c2c32098315dbbf90c90c9",
+    "author-manifest.json": "bf52d983ab9c4f8c8d8210f7141c7dc08c36a9164fb4b27cb1c2c503ab18d202",
+    "integration.diff": "bc8a1aea6370d24c718f8a54bc951443bc948b0274cc020af256256ca9000e81",
+    "compatibility.diff": "cecc76bd7683e31b06ec3d077612481465e42710776e2d9f6d88e6b4e85217f8",
+    "preparation-note.json": "4504cf5830cc2d5ba03cd44c10ebfc6efe11a28a654f9dedf9e6e4bac259c4f8",
+    "run-pure.py": "b26c8f300568354e63e25ed8c07cfc95caad5ad0825525db64ca856fd6e8febf",
+    "candidate/web/vitest.config.mjs": "45c2dce0007673777a747ea3c3625db1032122404087093eb640eec0cf1e39a8",
+    "candidate/web/src/tests/independent-account-security-page.spec.ts": "5ea555bf2e9f667e8c48bd713aee9260de569bf7f59f712170dbe534fda8fa24",
+    "logs/controller01/command.json": "055319c70e8b0685b576b3008d13d715bd9160c32a087cf440f27790c0797e08",
+    "logs/controller01/raw.log": "ca5296a527ed13ecb1908250781db5144f65e0ba01fcb3333ea32466d022e205",
+    "logs/controller01/result.json": "ec58ed79513d567d942f0faa56806bda568f7b3b968257b48f4118f5122a4521",
+    "logs/controller01/driver.py.txt": "b26c8f300568354e63e25ed8c07cfc95caad5ad0825525db64ca856fd6e8febf",
+    "logs/controller01/probe.ts.txt": "5ea555bf2e9f667e8c48bd713aee9260de569bf7f59f712170dbe534fda8fa24",
+    "logs/app01/command.json": "0030d2cb6d23a03d61d790c73ecdb889aeb8b721c8d3adb2c048dfaf7813bd72",
+    "logs/app01/raw.log": "16463b8d88275aa85bc576b20dbf30643fe2a0ddfcf43b34a0ce174e340edc7d",
+    "logs/app01/result.json": "fb038265dcc77202fb4f3d86b49ab6219f2d36b8b94900bc393e7cf6f0a4524e",
+    "logs/app01/driver.py.txt": "b26c8f300568354e63e25ed8c07cfc95caad5ad0825525db64ca856fd6e8febf",
+    "logs/app01/probe.ts.txt": "5ea555bf2e9f667e8c48bd713aee9260de569bf7f59f712170dbe534fda8fa24"
+  },
+  "state": "permanently frozen; no active commands or real resources"
+}

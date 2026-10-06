@@ -1,0 +1,113 @@
+import difflib
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+AUTHOR = Path('/workspace/scratch/agenteam-account-security-frontend-b0df6sdm')
+HERE = Path(__file__).resolve().parent
+REPO = Path('/workspace/agenteam')
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def read(path):
+    return json.loads(path.read_text())
+
+def git_bytes(ref, name):
+    return subprocess.check_output(['git', 'show', ref + ':' + name], cwd=REPO)
+
+m = read(AUTHOR / 'input06/manifest.json')
+old = read(AUTHOR / 'input04/manifest.json')
+assert sha(AUTHOR / 'input06/manifest.json') == 'baeaeb37b348167d8407831314e83adb60615dfb7882f248506c7a314c0e4954'
+assert set(old['files']) == set(m['files']) and len(m['files']) == 26
+delta = sorted(k for k in m['files'] if m['files'][k] != old['files'][k])
+assert delta == sorted(['web/src/tests/system-model-selection.spec.ts', 'tests/account-captcha-web/e2e/system-model-selection.spec.ts'])
+for name, digest in m['files'].items():
+    assert sha(AUTHOR / 'input06/source' / name) == digest, name
+for name, digest in m['dist'].items():
+    assert sha(AUTHOR / 'input06/artifacts' / name) == digest, name
+assert len(m['dist']) == 33
+
+base = m['accepted_selection']['commit']
+assert base == 'debbb28deb7c883fd0b6b77a75354b9b5d7ece0b'
+test_changes = {}
+for name in delta:
+    before = git_bytes(base, name).decode()
+    after = (AUTHOR / 'input06/source' / name).read_text()
+    expected = before
+    if name.startswith('web/'):
+        replacements = [
+            ('keeps the users default and five leaves, and adds only the exact ninth return target', 'keeps the users default and six leaves with the exact Selection return target'),
+            ("['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途']", "['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全']"),
+            ("expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)", "expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)"),
+        ]
+        for previous, current in replacements:
+            assert expected.count(previous) == 1
+            expected = expected.replace(previous, current)
+    else:
+        assert expected.count(').toHaveCount(5);') == 2
+        expected = expected.replace(').toHaveCount(5);', ').toHaveCount(6);')
+    assert after == expected, name
+    test_changes[name] = {'accepted_sha256': hashlib.sha256(before.encode()).hexdigest(), 'candidate_sha256': m['files'][name]}
+
+oldbase = old['accepted_baseline']['files']
+newbase = m['accepted_baseline']['files']
+assert set(newbase) - set(oldbase) == {'docs/frontend-design/styles/colors-and-themes.md'}
+assert not set(oldbase) - set(newbase)
+changed_baseline = sorted(k for k in oldbase if oldbase[k]['sha256'] != newbase[k]['sha256'])
+assert changed_baseline == ['web/src/composables/useSystemModelSelection.ts', 'web/src/tests/system-model-selection-state.spec.ts']
+for name in changed_baseline + ['docs/frontend-design/styles/colors-and-themes.md']:
+    assert hashlib.sha256(git_bytes(base, name)).hexdigest() == newbase[name]['sha256']
+assert old['dependencies'] == m['dependencies']
+
+run = AUTHOR / 'runs/combination-navigation06'
+assert sha(run / 'frozen-input.json') == sha(AUTHOR / 'input06/manifest.json')
+before, after = read(run / 'input-before.json'), read(run / 'input-after.json')
+assert before == after
+for key in ('files', 'dist', 'dependencies'):
+    assert before[key] == m[key]
+assert before['accepted_baseline']['accepted']
+assert sha(run / 'driver.py.txt') == m['driver_sha256'] == sha(Path(m['driver_path']))
+assert sha(Path(m['driver_diff']['path'])) == m['driver_diff']['sha256']
+command, result, cleanup = read(run / 'command.json'), read(run / 'result.json'), read(run / 'cleanup.json')
+assert command['actual_wait_completed'] and command['exit'] == 0
+assert command['argv'] == ['sh', 'scripts/test-security.sh', '-run', '^(TestAccountSystemAccountSecurityWebNavigationAndLayouts|TestAccountSystemModelSelectionWebNavigationAndLayouts)$']
+assert command['cwd'] == '/workspace/agenteam'
+for key in ('accepted_baseline_before', 'accepted_baseline_after', 'browser_runtime_removed', 'double_cleanup', 'selected_tests_passed', 'source_files_unchanged', 'verification_inputs_unchanged'):
+    assert result[key]
+assert result['driver_exit'] == 0 and result['monitor_errors'] == 0
+assert result['observed_resources'] == 7 and result['observed_processes'] == 95 and result['adopted_waits'] == 8
+assert len(cleanup) == 2
+for row in cleanup:
+    assert row['baseline_unchanged'] and not row['owned_processes'] and not row['remaining_new']
+    assert not row['runtime_entries'] and not row['browser_runtime_entries']
+    assert len(row['exact_absent']) == 7 and all(v['absent'] for v in row['exact_absent'].values())
+raw = (run / 'raw.log').read_text()
+for name in ['TestAccountSystemAccountSecurityWebNavigationAndLayouts', 'TestAccountSystemModelSelectionWebNavigationAndLayouts']:
+    assert '--- PASS: ' + name in raw
+assert '--- FAIL:' not in raw
+checks = {}
+for name, check in m['checks'].items():
+    path = Path(check['path'])
+    assert sha(path / 'raw.log') == check['raw_sha256']
+    assert sha(path / 'result.json') == check['result_sha256']
+    actual = read(path / 'result.json')
+    assert actual['exit_code'] == check['exit_code']
+    checks[name] = {'exit_code': check['exit_code'], 'raw_sha256': check['raw_sha256']}
+assert '1115 passed' in (AUTHOR / 'runs/combination-check06/raw.log').read_text()
+assert 'no such file or directory' in (AUTHOR / 'runs/combination-go-list06/raw.log').read_text()
+
+summary = {
+    'outcome': 'PASS', 'activity': 'offline frozen evidence and exact delta review only; no product/test/browser execution',
+    'manifest': str(AUTHOR / 'input06/manifest.json'), 'manifest_sha256': sha(AUTHOR / 'input06/manifest.json'),
+    'candidate_count': 26, 'unchanged_from_input04': 24, 'changed_tests': test_changes,
+    'accepted_selection': base, 'baseline_count': len(newbase), 'baseline_changed': changed_baseline,
+    'dist_count': len(m['dist']), 'dependencies_unchanged': True, 'checks': checks,
+    'actual_author_combination': {'command': command['argv'], 'cwd': command['cwd'], 'exit': command['exit'], 'seconds': command['seconds'], 'actual_wait': command['actual_wait_completed'], 'two_top_levels': result['top_levels'], 'resources': 7, 'owned_processes': 95, 'adopted_waits': 8, 'double_cleanup': True},
+    'evidence': {str(run / name): sha(run / name) for name in ['raw.log', 'command.json', 'result.json', 'cleanup.json', 'input-before.json', 'input-after.json', 'driver.py.txt', 'frozen-input.json']},
+    'retained_limits': ['Original Selection navigation Save-disabled timeout does not have uniquely proven cause.', 'No new dynamics in this independent combination review; separate accepted Selection independent pure/real and Account A/B retained.', 'Current combination screenshots not viewed by this verifier; no additional visual-review attribution.', 'README path27 remains separate final documentation.'],
+}
+(HERE / 'check-result.json').write_text(json.dumps(summary, indent=2, ensure_ascii=False) + '\n')
+(HERE / 'submission-26.sha256').write_text(''.join(digest + '  ' + name + '\n' for name,digest in sorted(m['files'].items())))
+print(json.dumps({'outcome': 'PASS', 'candidate_count': 26, 'unchanged':24, 'baseline_count': len(newbase), 'exit': command['exit'], 'seconds': command['seconds'], 'result_sha256': sha(HERE / 'check-result.json')}, ensure_ascii=False))

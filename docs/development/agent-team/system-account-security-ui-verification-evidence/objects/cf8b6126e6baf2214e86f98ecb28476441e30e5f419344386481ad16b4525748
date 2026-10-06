@@ -1,0 +1,49 @@
+{
+  "node": {
+    "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "version": "v24.19.0"
+  },
+  "packages": [
+    {
+      "path": "/workspace/agenteam/web/node_modules/vitest/package.json",
+      "sha256": "a28126d97bcaf567da5bed69443b7f3bcd9a7a8c38c8b66e554686b6bb2c10e0"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/vite/package.json",
+      "sha256": "fd3af4eaf4eecb2069f3e2715d6aaa2137d084a8a95097389523f52213c08094"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/@vitest/runner/package.json",
+      "sha256": "357e56773a82d3aa95bf920a54ea7f91575d02e6b156d9d7719ea485708e6837"
+    },
+    {
+      "path": "/workspace/agenteam/web/node_modules/@vitest/expect/package.json",
+      "sha256": "bc566b4322c25920e82c2fcdea00c2154d8ef98dd30de6605c5f89ac0d607adc"
+    }
+  ],
+  "versions": [
+    {
+      "name": "vitest",
+      "version": "4.1.11",
+      "lock_match": true
+    },
+    {
+      "name": "vite",
+      "version": "8.3.1",
+      "lock_match": true
+    },
+    {
+      "name": "@vitest/runner",
+      "version": "4.1.11",
+      "lock_match": true
+    },
+    {
+      "name": "@vitest/expect",
+      "version": "4.1.11",
+      "lock_match": true
+    }
+  ],
+  "only_supplied_fetchers": true,
+  "network_requests": false
+}

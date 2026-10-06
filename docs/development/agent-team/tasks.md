@@ -2,6 +2,14 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：System 账号安全 UI 完整卡接受
+
+- [账号安全 rev2](../work-items/d27-system-account-security-ui.md)27路径获独立最终组合PASS、主线程采纳，提交推送 `40c904c0dd88420fc621f40c0a737d243d514ec1`，远端一致。[正式报告与不可变证据](system-account-security-ui-verification.md)固定input06的26源／33dist指纹、debbb28基线1051件及最后README，卡技术§1–7原字节保持。
+- 当前GET、四字段草稿和PUT历史Settings分离；无lookup，未确认命令仅明确原key/body/版本＋合法CSRF重放。409保留草稿，七域actual owner尾部及当前权限保持。共享fallback／Selection取消读取分别沿已接受档案，六叶三组与真实两页组合闭合。
+- 完整检查1115测试／32文件及format/type/build通过。新五组和旧十六组按原版本组合；独立A/B首轮actual0/160.685s、7IDs207PID8wait双清，最终Navigation组合actual0/81.887s、7IDs95PID8wait双清。A/B复用input04，最终增补独立核input06差量与原组合证据，不称同一最终整轮全绿。
+- 十轮真实原退出、焦点产品红、旧Selection禁用超时及诊断／私有前提红保留，旧现场无唯一可倒填原因。历史Go编译未消费的browser前态72e3a5…缺件如实保留；最终源齐全。最终16图仅作者逐张查看、主线程仅读报告。559逻辑原件按353新对象＋35永久复用对象离线核Git／字节／实际wait／双清，无产品重跑。
+- 本次不接受SMTP或完整D09/D26/D27及D08–D28/E01；E01未开始。Summary待决、Object/tools原停止、历史PPID1 Z不计回收、Artifact/Project与生产未绑定及ready503边界保持。
+
 ## 2026-10-06：Selection 取消读取恢复接受
 
 - [修复卡 rev1.1](../work-items/d27-model-selection-cancelled-read-recovery.md)四路径完成作者检查及独立验收，主线程采纳提交推送 `debbb28deb7c883fd0b6b77a75354b9b5d7ece0b`，远端一致。[正式报告与不可变证据](model-selection-cancelled-read-recovery-verification.md)绑定 fd32120、input01 `e0542701…fe8e6`、四源/31dist指纹与1033固定依赖；技术§1–4原字节保持。

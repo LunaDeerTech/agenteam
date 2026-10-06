@@ -1,0 +1,248 @@
+<script setup lang="ts">
+import { nextTick, onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue'
+import UiButton from '../../components/ui/UiButton.vue'
+import UiDialog from '../../components/ui/UiDialog.vue'
+import UiField from '../../components/ui/UiField.vue'
+import UiInput from '../../components/ui/UiInput.vue'
+import UiState from '../../components/ui/UiState.vue'
+import {
+  accountSecurityFields,
+  useSystemAccountSecurity,
+} from '../../composables/useSystemAccountSecurity'
+const page = useSystemAccountSecurity()
+const {
+  observation,
+  editor,
+  draft,
+  state,
+  confirmation,
+  blocked,
+  locked,
+  errors,
+  feedback,
+  progress,
+  canSave,
+  maximumVersion,
+} = page
+const heading = ref<HTMLElement | null>(null),
+  actions = ref<HTMLElement | null>(null)
+let alive = true
+function operable(node: HTMLElement) {
+  if (!node.isConnected || node.matches(':disabled') || !node.getClientRects().length) return false
+  for (let ancestor: HTMLElement | null = node; ancestor; ancestor = ancestor.parentElement)
+    if (ancestor.inert || ancestor.hidden || ancestor.getAttribute('aria-hidden') === 'true')
+      return false
+  return true
+}
+async function perform(work: () => Promise<unknown>, event: Event) {
+  const previous = event instanceof SubmitEvent ? event.submitter : event.currentTarget
+  await work()
+  if (!alive) return
+  await nextTick()
+  if (!alive || blocked.value || confirmation.open) return
+  const focused = document.activeElement
+  if (focused instanceof HTMLElement && focused !== document.body && operable(focused)) return
+  const target =
+    previous instanceof HTMLElement && operable(previous)
+      ? previous
+      : actions.value?.querySelector<HTMLElement>('button:not(:disabled)')
+  if (target && operable(target)) target.focus()
+}
+onMounted(async () => {
+  page.attach()
+  await nextTick()
+  if (alive && !confirmation.open && heading.value && operable(heading.value)) heading.value.focus()
+})
+onBeforeUnmount(() => {
+  alive = false
+})
+onUnmounted(page.detach)
+</script>
+<template>
+  <div class="system-account-security">
+    <h1 ref="heading" tabindex="-1">账号安全</h1>
+    <p class="meta">配置新签发 Session 和密码重置 token 的默认期限，以及触发登录挑战的失败次数。</p>
+    <p class="notice">
+      期限修改只影响随后签发的
+      Session/token，已签发对象保留原期限；挑战阈值在下一次尝试生效。邀请有效期固定为 24
+      小时。保存不会撤销已有登录。
+    </p>
+    <div ref="actions" class="security-actions" aria-label="账号安全页面操作">
+      <UiButton :disabled="blocked" @click="page.refresh">读取当前配置</UiButton>
+    </div>
+    <p v-if="page.auth.state.busy" class="meta" role="status">正在等待当前请求结束。</p>
+    <p v-if="state.writeMessage" class="notice" role="status">{{ state.writeMessage }}</p>
+    <p v-if="state.confirmed" class="meta" aria-label="本次保存的历史确认">
+      原请求已确认，历史结果版本：<code>{{ state.confirmed.version }}</code
+      >。此结果独立于当前读取值。
+    </p>
+    <UiState
+      v-if="progress?.phase === 'uncertain'"
+      kind="error"
+      title="请求结果未确认"
+      description="当前配置读取不能证明原请求是否已接受。请检查会话后显式重试原请求，或明确放弃本地追踪。"
+    >
+      <div class="security-actions">
+        <UiButton :disabled="blocked" @click="page.checkOriginal">检查当前会话与配置</UiButton>
+        <UiButton
+          :disabled="blocked || !progress.canRetryOriginal"
+          @click="perform(page.retryOriginal, $event)"
+          >重试原请求</UiButton
+        >
+        <UiButton variant="ghost" @click="page.abandonOperation">放弃本次操作</UiButton>
+      </div>
+    </UiState>
+    <UiState v-if="observation.phase === 'loading'" kind="loading" title="正在读取账号安全配置" />
+    <UiState
+      v-else-if="observation.phase === 'error'"
+      kind="error"
+      :title="state.confirmed ? '保存已确认，当前配置读取失败' : '账号安全配置读取失败'"
+      :description="observation.message"
+    />
+    <section v-else-if="observation.value" aria-label="当前读取的账号安全配置">
+      <h2>当前读取值</h2>
+      <p class="meta">
+        当前配置版本：<code>{{ observation.value.version }}</code>
+      </p>
+      <dl class="current-values">
+        <div v-for="field in accountSecurityFields" :key="field.key">
+          <dt>{{ field.label }}</dt>
+          <dd>{{ observation.value[field.key] }} {{ field.unit }}</dd>
+        </div>
+      </dl>
+    </section>
+    <p v-if="state.requiresRead" class="notice">
+      请在当前请求结束后明确读取配置。新的编辑基线必须来自成功的当前读取。
+    </p>
+    <form
+      v-if="editor.ready"
+      aria-label="修改账号安全配置"
+      novalidate
+      @submit.prevent="perform(page.save, $event)"
+    >
+      <h2>修改配置</h2>
+      <p class="meta">
+        编辑基线版本：<code>{{ editor.version }}</code>
+      </p>
+      <p v-if="editor.message" class="notice" role="status">{{ editor.message }}</p>
+      <UiState
+        v-if="editor.conflict && progress?.phase !== 'uncertain'"
+        kind="error"
+        title="需要核对最新配置"
+        description="读取最新值不会改写四项草稿或原编辑版本。核对后，明确采用最新值再重新编辑。"
+      >
+        <div class="security-actions">
+          <UiButton :disabled="blocked" @click="page.readLatest">读取最新配置</UiButton>
+          <UiButton :disabled="blocked || observation.phase !== 'ready'" @click="page.adoptLatest"
+            >采用最新值重新编辑</UiButton
+          >
+        </div>
+      </UiState>
+      <p v-if="maximumVersion" class="notice">配置版本已达上限；当前值可读取，不能继续保存。</p>
+      <div class="security-fields">
+        <UiField
+          v-for="field in accountSecurityFields"
+          :key="field.key"
+          v-slot="control"
+          :label="`${field.label}（${field.unit}）`"
+          :hint="field.hint"
+          :error="errors[field.key]"
+          required
+        >
+          <UiInput
+            :id="control.id"
+            :model-value="draft[field.key]"
+            :invalid="control.invalid"
+            :aria-describedby="control.describedby"
+            inputmode="numeric"
+            autocomplete="off"
+            :disabled="blocked || locked || maximumVersion"
+            @update:model-value="page.updateField(field.key, $event)"
+          />
+        </UiField>
+      </div>
+      <div class="security-actions">
+        <UiButton
+          type="submit"
+          variant="primary"
+          :disabled="!canSave"
+          :state="feedback"
+          success-label="账号安全配置已保存"
+          >保存配置</UiButton
+        >
+        <UiButton variant="ghost" :disabled="blocked" @click="page.cancel">取消修改</UiButton>
+      </div>
+    </form>
+    <UiDialog
+      v-if="confirmation.open"
+      :open="confirmation.open"
+      :title="confirmation.title"
+      @update:open="!$event && page.finishConfirmation(false)"
+    >
+      <p>{{ confirmation.message }}</p>
+      <template #footer
+        ><UiButton variant="ghost" @click="page.finishConfirmation(false)">继续编辑</UiButton
+        ><UiButton @click="page.finishConfirmation(true)">放弃修改</UiButton></template
+      >
+    </UiDialog>
+  </div>
+</template>
+<style scoped>
+.system-account-security,
+form,
+section {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+h2 {
+  font-size: 1.1rem;
+}
+.meta {
+  color: var(--muted);
+}
+p,
+dt,
+dd,
+code {
+  overflow-wrap: anywhere;
+}
+.security-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.security-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.security-fields :deep(input) {
+  min-width: 0;
+  width: 100%;
+}
+.current-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+.current-values > div {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+dt {
+  color: var(--muted);
+}
+dd {
+  margin: 0;
+}
+@media (max-width: 680px) {
+  .security-fields,
+  .current-values {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+</style>

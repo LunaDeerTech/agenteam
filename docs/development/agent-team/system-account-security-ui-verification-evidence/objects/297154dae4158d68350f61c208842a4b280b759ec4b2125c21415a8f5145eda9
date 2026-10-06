@@ -1,0 +1,14 @@
+# 独立规格静审：Dialog 显式后备焦点与账号安全 rev2
+
+结论：**STATIC PASS，无阻断。** 仅规格可实施性与证据核对，不是产品验收。
+
+- 两卡冻结 full/technical SHA 与派遣精确一致；账号安全 §1–4 和 27 条候选路径与 cb9ad6c 逐字节不变。
+- 新 API 为本地 DOM prop + 可选末尾只读 ref，关闭时读最新值。正常 open=false、无剩余 modal、提供非空目标才进入新分支；合法原 trigger 实际聚焦优先。卸载、非顶层、无 prop 和仍有 modal 保持旧契约。
+- 同 document/真实可见/禁用及祖先门禁、actual activeElement 核对与同步恢复已限定。§4 已明确 BODY trigger 不可作为合法恢复点；不新增全局扫描或延后抢焦点。
+- 账号安全移除 Dialog 外层 v-if，以正常 open=false 关闭，checking 仍整 View 卸载。当前 View 标题 ref 受 alive、完整 identity、current/admin/未拒绝门禁；App 不保存 DOM。原确认状态与 Promise 归属保持。
+- 固定 870ebbb 的浏览器 spec 本身生成最小 Vue 壳，原 config/11 文件组件闭包可复用；五路径足以做单层共同卸载/初始 open 重挂、latest ref、原 trigger 优先和卸载/剩余 modal 阴性。旧版红必须来自实际关闭焦点断言，不能用新 prop 类型装配失败替代。
+- 已复核 new02 原 raw/command/result/cleanup：actual wait、exit1/55.758s；断言时 BODY/connected、overlay0/checking=false；7 exact IDs 两扫 absent、所属 PID 两扫空、4 adopted waits、基线不变。原记录未直接采样 layer 捕获 trigger，不作该推断。
+
+实际静态检查：固定 SHA、Git 对照、31 个本地链接/fragment、两卡空白和限定 git diff --check 全通过。精确输入、命令和原件 SHA 见 review.json；原卡若页首随后采纳更新，以本目录匹配时保存副本和 technical SHA 为准。
+
+限制：本轮不启动任何浏览器/服务/fixture，不跑产品动态，不改产品/Git；账号安全 A/B 继续暂停。共享组件真实红绿和独立验收通过后，账号安全仍须按原预算验证实际 Navigation，不能从四组旧 PASS 或本规格 PASS 外推完成。

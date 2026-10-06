@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-account-security-client.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+
+ Test Files  1 passed (1)
+      Tests  28 passed (28)
+   Start at  13:01:42
+   Duration  717ms (transform 72ms, setup 0ms, import 135ms, tests 44ms, environment 416ms)
+

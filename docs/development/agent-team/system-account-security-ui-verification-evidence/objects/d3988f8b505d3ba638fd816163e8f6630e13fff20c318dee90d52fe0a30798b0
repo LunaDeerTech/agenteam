@@ -1,0 +1,66 @@
+--- input01/spec.ts
++++ input02/spec.ts
+@@ -29,4 +29,5 @@
+   __securityFacts?: Fact[];
+   __securitySequence?: number;
++  __securityFocusCandidates?: Record<string, Element | null>;
+ };
+ const material = (): {
+@@ -964,4 +965,7 @@
+   // A synthetic pageshow exercises the App listener; subsequent 200/EOF is real.
+   const checking = await page.evaluate(async () => {
++    (window as ObservedWindow).__securityFocusCandidates = {
++      beforeChecking: document.activeElement,
++    };
+     let observer: MutationObserver | undefined;
+     try {
+@@ -991,4 +995,8 @@
+     await expect(page.locator(".ui-overlay")).toHaveCount(0);
+     await expect(button(page, "检查当前会话")).toBeEnabled();
++    await button(page, "检查当前会话").evaluate((node) => {
++      (window as ObservedWindow).__securityFocusCandidates!.restoreButton =
++        node;
++    });
+     await button(page, "检查当前会话").click();
+   }
+@@ -1014,4 +1022,8 @@
+   ).toBe(true);
+   await focusContained(page);
++  await page.evaluate(() => {
++    (window as ObservedWindow).__securityFocusCandidates!.beforeDecision =
++      document.activeElement;
++  });
+   await top(page)
+     .getByRole("button", {
+@@ -1023,4 +1035,31 @@
+   expect((await writes(page)).length).toBe(count);
+   if (decision === "continue") {
++    const diagnostic = await page.evaluate(() => {
++      const project = (node: Element | null) => ({
++        tag: node?.tagName ?? null,
++        role: node?.getAttribute("role") ?? null,
++        id: node?.id || null,
++        connected: node?.isConnected ?? false,
++        body: node === document.body,
++        inert: node?.closest("[inert]") !== null && node !== null,
++        ariaHidden:
++          node?.closest('[aria-hidden="true"]') !== null && node !== null,
++        disabled: node?.matches(":disabled") ?? false,
++      });
++      const scope = window as ObservedWindow;
++      const result = {
++        active: project(document.activeElement),
++        candidates: Object.fromEntries(
++          Object.entries(scope.__securityFocusCandidates ?? {}).map(
++            ([name, node]) => [name, project(node)],
++          ),
++        ),
++      };
++      delete scope.__securityFocusCandidates;
++      return result;
++    });
++    console.log(
++      "Account security focus diagnostic " + JSON.stringify(diagnostic),
++    );
+     expect(
+       await page.evaluate(

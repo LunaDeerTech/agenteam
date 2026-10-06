@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-tags=integration",
+    "-race",
+    "-run",
+    "^$",
+    "-list",
+    "^TestAccountSystem(AccountSecurity|ModelSelection)WebNavigationAndLayouts$",
+    "-count=1",
+    "-timeout=6m",
+    "./tests/account"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOCACHE": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/gocache",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "TMPDIR": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/tmp",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "CGO_ENABLED": "1"
+  },
+  "exit_code": 1,
+  "duration_seconds": 0.691,
+  "actual_wait": true,
+  "resource_execution": false,
+  "product_base": "debbb28deb7c883fd0b6b77a75354b9b5d7ece0b",
+  "source_dependencies_unchanged": true,
+  "dist_unchanged": true,
+  "dist_change_authorized": false,
+  "driver_sha256": "d17cd0809d0f3cee2c9d815e4adb3df7ace5000e06c42dee48e9f91f597b6e5c"
+}

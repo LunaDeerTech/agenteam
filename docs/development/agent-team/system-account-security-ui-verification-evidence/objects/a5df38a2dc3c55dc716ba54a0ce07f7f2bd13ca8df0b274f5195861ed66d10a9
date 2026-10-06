@@ -1,0 +1,52 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-tags=integration",
+    "-c",
+    "-overlay=/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/bound02/overlay.json",
+    "-o",
+    "/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/preparation/compile01/account.test",
+    "./tests/account"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env_overrides": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/gocache",
+    "GOTMPDIR": "/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/preparation/compile01/runtime",
+    "TMPDIR": "/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/preparation/compile01/runtime",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "CGO_ENABLED": "1",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1",
+    "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1",
+    "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-account-security-real-preparation-swexn26v/preparation/compile01/runtime",
+    "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+    "AGENTEAM_ACCOUNT_SECURITY_WEB_CASE": "independent-replay"
+  },
+  "started_utc": "2026-10-06T14:24:05.576631+00:00",
+  "execution_sha256": "89251b6c050f9e74638f949f362dbe740e3d751e70e459f450d37ff93a5254c9",
+  "driver_sha256": "bd90e89d38331cfeb06cc02864761af7d25de6a63ce90429df232abcff617cc4",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input04/manifest.json",
+    "sha256": "c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7"
+  },
+  "preparation_driver_sha256": "ede4378632f15ec4f37b2c2bfdf03967010a7bb6c482eb58ba7243f9ce532392",
+  "outer_seconds": 180,
+  "resource_execution": false,
+  "pid": 1310783,
+  "exit_code": 0,
+  "actual_wait": true,
+  "elapsed_seconds": 133.59,
+  "adopted_waits": [],
+  "inputs_unchanged": true,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "runtime_entries": []
+}

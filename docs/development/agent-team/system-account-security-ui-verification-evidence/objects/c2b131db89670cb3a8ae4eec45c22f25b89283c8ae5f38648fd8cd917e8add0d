@@ -1,0 +1,15 @@
+# Account security A/B：离线准备完成
+
+固定作者 input04 `c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7`，已接受依赖 `fd32120eba4c76f67b649248377f4825a78d5d79`。`bound02/` 独立两代表及私有 Go overlay 已停写；旧 `bound01/` 保持原未完成/未编译状态，不拿它冒充本轮输入。
+
+Type、Go race 仅编译、两 browser mode 各一例 discovery、Go 两顶层 discovery、实际 driver `--check-input-only` 均真实 exit 0。compile01 总准备包络 133.590 秒（仅编译，没有测试体），type01 4.701 秒；全部命令实际 wait，前后 1050 accepted 文件、26 候选、33 dist、7 私有文件与 11 运行时关键指纹一致。精确 argv/env/raw/输入指纹在 `preparation/<check>/`；只编译产物未作业务执行。
+
+A 保留服务真实200截断、原 key/body 字节和原非空 CSRF 等值及实际200认可的安全布尔；Account identity 采用正式 `sha256(Canonical)`，Audit 以命令 recordID 关联，严格核单条 command/单条 Audit、actor/session/resource/version/COMPLETED 和完整三成员 typed metadata。另一正式 Session 推进 current 后，Session/GET 不当确认；显式重放须回原历史 Settings，当前不倒退，确认后 GET503 只能重读。原材料只在私有内存，输出不含值或摘要。
+
+B 正式同版本409保留四草稿/旧基线；单确认经历一次真实 Session503、同身份新序号200闭合 DTO、继续编辑后精确新标题及原生 Tab，再显式采用最新配置。复用作者之后的新写覆盖，不重复第二次 UI 保存；仅正式 Login 证明新期限并只读核旧 Session 政策不变。
+
+双方沿同绝对锁定 Node/Playwright CLI 与模块实例；私有 testDir 每 mode 恰一例。保留45秒 browser/2分钟 Go 顶层/6分钟包、race/count1/worker1/retry0/noTrace/noVideo/noScreenshot。真实 driver 复用已审 subreaper、actual wait、owned PID/starttime 与 exact ID 双清规则，增加私有输入/运行时指纹前后门禁。
+
+**尚未启动浏览器、server、PG、Docker 或真实 fixture。** 当前没有活动准备命令；只残留不含账号材料的私有编译/转译缓存。等待主线程正式资源移交，不能把此准备 PASS 当业务 PASS。执行清单及实际结果 SHA 在 `preparation-ready01.json`。
+
+execution01 SHA `89251b6c050f9e74638f949f362dbe740e3d751e70e459f450d37ff93a5254c9`；driver SHA `bd90e89d38331cfeb06cc02864761af7d25de6a63ce90429df232abcff617cc4`。此准备范围现停止写入。

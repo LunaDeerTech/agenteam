@@ -1,0 +1,23 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-account-security-api-verification-2a97hois/candidate/web
+
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > has two closed operations, exact wire options and no public lookup dispatch 41ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > publishes only complete immutable seven-field Settings and keeps maximum read version legal 4ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > captures the original before dispatch and accepts its exact historical successor behind a newer GET 2ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > rejects unsafe new-input versions and malformed private write options before any dispatch 1ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > enforces the exact 16 KiB UTF-8 request budget without changing the three older request exceptions 1ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > get waits for native EOF at the exact 600000-byte success limit 2ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > put waits for native EOF at the exact 600000-byte success limit 1ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > keeps a closed Problem at 600000 bytes unconfirmed and performs no invented lookup 2ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > get-success rejects 600001 actual bytes only after native cancel joins 1ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > put-success rejects 600001 actual bytes only after native cancel joins 1ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > put-problem rejects 600001 actual bytes only after native cancel joins 1ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > abort after a full valid body but before EOF neither confirms nor finishes before native cancellation 1ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > wrong-media 503 joins body cancellation without claiming reader EOF or exposing raw detail 1ms
+ ✓ src/tests/independent-account-security-api.spec.ts > independent account security API boundary > malformed UTF-8 cannot be parsed or published before its actual cancel tail 1ms
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  13:04:59
+   Duration  258ms (transform 65ms, setup 0ms, import 89ms, tests 62ms, environment 0ms)
+

@@ -1,0 +1,18 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-account-security-owner-verification-nnm4w0x6/candidate/web
+
+ ✓ src/tests/independent-account-security-owner.spec.ts > independent account-security owner transport compositions > pins only a successful singleton, preserves it across same-identity abandonment, and never confirms a different ID 29ms
+ ✓ src/tests/independent-account-security-owner.spec.ts > independent account-security owner transport compositions > retains exact historical input/key/CSRF across newer observation, failed GET and a later explicit rejection 7ms
+ ✓ src/tests/independent-account-security-owner.spec.ts > independent account-security owner transport compositions > issues no configuration GET after failed Session or changed Session/CSRF/role and never hands over the intent 7ms
+ ✓ src/tests/independent-account-security-owner.spec.ts > independent account-security owner transport compositions > 30s visible write timeout keeps all seven domains behind native cancellation until actual join 6ms
+ ✓ src/tests/independent-account-security-owner.spec.ts > independent account-security owner transport compositions > other-domain abandonment leaves a native security read alive and security cleanup leaves Selection owned 2ms
+ ✓ src/tests/independent-account-security-owner.spec.ts > independent account-security owner transport compositions > synchronous submitting abandonment emits zero PUT and confirmed consumers can start an intact successor 4ms
+ ✓ src/tests/independent-account-security-owner.spec.ts > independent account-security owner transport compositions > current security403 clears other system private state and write CSRF invalidates the exact current identity 3ms
+ ✓ src/tests/independent-account-security-owner.spec.ts > independent account-security owner transport compositions > late parsed 401 respects identity/generation after the read is visibly abandoned 1ms
+ ✓ src/tests/independent-account-security-owner.spec.ts > independent account-security owner transport compositions > late parsed 403 respects identity/generation after the read is visibly abandoned 1ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  13:09:32
+   Duration  862ms (transform 199ms, setup 0ms, import 281ms, tests 62ms, environment 398ms)
+

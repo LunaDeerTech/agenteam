@@ -1,0 +1,85 @@
+{
+  "status": "READY; offline only, no real window consumed",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input04/manifest.json",
+    "sha256": "c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7"
+  },
+  "execution01_sha256": "89251b6c050f9e74638f949f362dbe740e3d751e70e459f450d37ff93a5254c9",
+  "driver_sha256": "bd90e89d38331cfeb06cc02864761af7d25de6a63ce90429df232abcff617cc4",
+  "private_file_count": 7,
+  "product_sources": 26,
+  "dist_files": 33,
+  "accepted_baseline_files": 1050,
+  "checks": {
+    "type01": {
+      "result_path": "preparation/type01/result.json",
+      "result_sha256": "8aa139bf291f36241687b0f0afb9a34c6e527c315c565b006f0d4dd69040f3cf",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "elapsed_seconds": 4.701,
+      "actual_wait": true,
+      "inputs_unchanged": true
+    },
+    "compile01": {
+      "result_path": "preparation/compile01/result.json",
+      "result_sha256": "a5df38a2dc3c55dc716ba54a0ce07f7f2bd13ca8df0b274f5195861ed66d10a9",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "elapsed_seconds": 133.59,
+      "actual_wait": true,
+      "inputs_unchanged": true
+    },
+    "list-replay01": {
+      "result_path": "preparation/list-replay01/result.json",
+      "result_sha256": "59f71b8a2e265e5e0bb2678860af08cd2953221abd6a85ee9ce8b3b33fb31db9",
+      "raw_sha256": "e7e5ee81841a9b00f381ff956a9695ab6c9d8305ee5bc07b9fdaf34827b72572",
+      "elapsed_seconds": 3.003,
+      "actual_wait": true,
+      "inputs_unchanged": true
+    },
+    "list-conflict01": {
+      "result_path": "preparation/list-conflict01/result.json",
+      "result_sha256": "65dae4069037c88a1abc4cf62ac33a7f01d200c19a716f054b85a81b6273c5bd",
+      "raw_sha256": "a17271c3c58a0dfad6f53ad02ee047a0e6de96058bc4a63fdcceefcd83b07b83",
+      "elapsed_seconds": 3.036,
+      "actual_wait": true,
+      "inputs_unchanged": true
+    },
+    "gate01": {
+      "result_path": "preparation/gate01/result.json",
+      "result_sha256": "8ce44050aaff1b3e78840e62b4442032101b633dabf90df406b4d9850f71d143",
+      "raw_sha256": "d261f3abbae5d8a9a60b8b0d66b74eb54142990ab2ba18519a673e4388995f29",
+      "elapsed_seconds": 5.287,
+      "actual_wait": true,
+      "inputs_unchanged": true
+    },
+    "go-list01": {
+      "result_path": "preparation/go-list01/result.json",
+      "result_sha256": "dcc8c6aac1473f2633faf11e5926e0cf635d89bb6720e1f57fc2ea536ff44dd8",
+      "raw_sha256": "0e80993bd9e3216a8c5657fed0913c8e6e5332d8786b9a2223f6ab6b12a6c934",
+      "elapsed_seconds": 2.289,
+      "actual_wait": true,
+      "inputs_unchanged": true
+    }
+  },
+  "bound01_original": "preserved and never compiled/listed/executed",
+  "private_groups": [
+    "TestAccountSystemAccountSecurityIndependentReplay",
+    "TestAccountSystemAccountSecurityIndependentConflict"
+  ],
+  "business_execution_count": 0,
+  "limits": {
+    "browser_seconds": 45,
+    "top_seconds": 120,
+    "package_seconds": 360,
+    "workers": 1,
+    "retries": 0,
+    "race": true,
+    "count": 1,
+    "trace": false,
+    "video": false,
+    "screenshot": false
+  },
+  "binding_delta_sha256": "af6af2d200664da1a6e34456bf380340420e3b52ce8c90954dbd8f18df3c0d5f",
+  "driver_delta_sha256": "38fa8359350e471581b07f7019b8311d6deed45535e6ea84ac7ad5ac6f7c8cb3",
+  "prep_caches": "Only task-private Node/Playwright transform caches remain under preparation/*/runtime; no account material was created, no browser/server/fixture started.",
+  "read_only_preparation_limit": "A preliminary read tried three guessed fixed-Git filenames (00006_account.sql/settings.go/foundation/value.go) and one guessed private config filename; they did not exist. Correct fixed paths were then resolved by Git/rg and read. No test failure or resource run resulted, and those read errors exist only in tool transcript."
+}

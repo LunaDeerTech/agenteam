@@ -1,0 +1,268 @@
+{
+  "conclusion": "STATIC PASS",
+  "reviewer": "recovery_verification",
+  "frozen_at_utc": "2026-10-06T13:46:43.022635+00:00",
+  "cards": [
+    {
+      "path": "docs/development/work-items/d27-dialog-fallback-focus.md",
+      "reviewed_full_sha256": "c4ad9be1faaaddfe1abcdad92324e0822117cfa7cc5712eac3d219c72f34dfb8",
+      "technical_sha256": "e1e5606cbb493f5079aa51c72eaa46462ae80d6794059ca4db9904903e4cef75",
+      "at_report": {
+        "full": "9a348d14fcdb3965642c3b2932c5518894001b128bdb9c7ece740be29a426483",
+        "technical": "e1e5606cbb493f5079aa51c72eaa46462ae80d6794059ca4db9904903e4cef75"
+      }
+    },
+    {
+      "path": "docs/development/work-items/d27-system-account-security-ui.md",
+      "reviewed_full_sha256": "9e207a3735e1eab592f4c335318b48a08f8b6be3c93811414094b409d5b83a44",
+      "technical_sha256": "35c2f7f00917213642d9897ae37bc9509728f9921f9f71f674b59505bf06a146",
+      "at_report": {
+        "full": "5c50265eba42da48535eba3ec8817a9b3d71ab46c5fc0208b5208a57459e44e1",
+        "technical": "35c2f7f00917213642d9897ae37bc9509728f9921f9f71f674b59505bf06a146"
+      }
+    }
+  ],
+  "component_base": "870ebbb986f56bb62be34ccdfa2c77819ce995a6",
+  "baseline_file_sha256": {
+    "web/src/composables/useLayer.ts": "92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f",
+    "web/src/components/ui/UiDialog.vue": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065",
+    "web/src/tests/dialog-outside-focus.spec.ts": "69619799902edb157896712634e2678fc7bc3c2ed16e0b78e5a983347ba8d0e0",
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": "ab6f5b4e33d8d554a42ed64a9b874accc9c94bc67f2dc63626db94e96b089d1a",
+    "docs/development/frontend/components.md": "10ecd86ee870994dc435174c8d7bb8f8e257b31d5753ef77f6f49f259a512259",
+    "tests/account-captcha-web/dialog-outside-focus.config.js": "42516eb6ed5db78278a3169818a67e579e94a8b8671e067ade97830540adafd5"
+  },
+  "approved_candidate_paths": [
+    "web/src/composables/useLayer.ts",
+    "web/src/components/ui/UiDialog.vue",
+    "web/src/tests/dialog-outside-focus.spec.ts",
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts",
+    "docs/development/frontend/components.md"
+  ],
+  "account_changed_integration_paths": [
+    "web/src/views/system/SystemAccountSecurityView.vue",
+    "web/src/tests/system-account-security.spec.ts",
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts"
+  ],
+  "checks": {
+    "account_sections_1_to_4_equal": true,
+    "account_27_path_rows_equal": true,
+    "local_link_and_fragment_count": 31,
+    "links": [
+      {
+        "from": "d27-dialog-fallback-focus.md",
+        "target": "d27-modal-focus-restoration.md#2-最小恢复契约",
+        "pass": true
+      },
+      {
+        "from": "d27-dialog-fallback-focus.md",
+        "target": "../frontend/components.md#浮层",
+        "pass": true
+      },
+      {
+        "from": "d27-dialog-fallback-focus.md",
+        "target": "../../frontend-design/styles/components-and-interactions.md#5-浮层用途层级与焦点",
+        "pass": true
+      },
+      {
+        "from": "d27-dialog-fallback-focus.md",
+        "target": "../../../.agents/skills/agenteam-vue-development/SKILL.md",
+        "pass": true
+      },
+      {
+        "from": "d27-dialog-fallback-focus.md",
+        "target": "../../../.agents/skills/vue-testing-best-practices/SKILL.md",
+        "pass": true
+      },
+      {
+        "from": "d27-dialog-fallback-focus.md",
+        "target": "../../../.agents/skills/agenteam-verification/SKILL.md",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "d27-dialog-fallback-focus.md#1-责任边界与固定证据",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "d27-system-model-selection-ui.md",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "d07-account-session-smtp.md#当前进度",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../agent-team/system-models-ui-verification.md",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "d27-modal-focus-restoration.md",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "d26-personal-settings.md",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "d27-system-model-selection-ui.md#5-分域owner分页与确认生命周期",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../../architecture/platform-infrastructure/authentication/account-lifecycle.md#51-管理员可配置默认值",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "d07-account-session-smtp-design.md#2-工程参数与部署输入",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../../frontend-design/layouts/settings-shell.md",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../../frontend-design/styles/README.md",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../frontend/components.md",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../development-plan.md#d27-业务页面与设置",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../../../internal/central/account/http_facade.go",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../../../internal/central/account/http_system.go",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../../../internal/central/account/mutation.go",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../../../api/openapi/account.json",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../../../tests/account/http_admin_test.go",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "d26-personal-settings.md#6-unknown离页与敏感数据",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "d27-system-model-selection-ui.md#4-保存版本竞态与原命令恢复",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "d27-dialog-fallback-focus.md#2-最小-api-与恢复生命周期",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../../../.agents/skills/agenteam-vue-development/SKILL.md",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../../../.agents/skills/vue-testing-best-practices/SKILL.md",
+        "pass": true
+      },
+      {
+        "from": "d27-system-account-security-ui.md",
+        "target": "../../../.agents/skills/agenteam-verification/SKILL.md",
+        "pass": true
+      }
+    ],
+    "diff_check": {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "docs/development/work-items/d27-dialog-fallback-focus.md",
+        "docs/development/work-items/d27-system-account-security-ui.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "raw": "diff-check.log"
+    },
+    "new_file_trailing_whitespace": false
+  },
+  "new02_evidence": {
+    "artifacts": {
+      "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new02/raw.log": "8b7a2acebda38ddd2a9752066a455e44ba63e737cd217e0839dbc64a7b1f9a83",
+      "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new02/command.json": "91073ed50cbde0b518ecb2f74d98024656dd8d02ca07a12d27a9b7ecab9e636d",
+      "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new02/result.json": "2e938d1c5b306eb0638ab51f5ec8fd245ad2c4e76e7f5098f2337b1e199b5506",
+      "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new02/cleanup.json": "be6dcb2510ea9dec747e1354e37e4bacaf661674847d872b716049642b6b8be2"
+    },
+    "actual_wait_completed": true,
+    "exit": 1,
+    "seconds": 55.758,
+    "diagnostic": {
+      "operative": false,
+      "active": {
+        "tag": "BODY",
+        "role": null,
+        "id": null,
+        "connected": true,
+        "body": true,
+        "inert": false,
+        "ariaHidden": false,
+        "disabled": false
+      },
+      "overlays": 0,
+      "checking": false,
+      "sampled_prior_button_connected": false
+    },
+    "captured_layer_trigger_not_observed": true,
+    "double_cleanup": true,
+    "exact_resource_ids": 7,
+    "adopted_waits": 4
+  },
+  "findings": [
+    "Optional UiDialog DOM prop and final readonly ref parameter provide latest close-time target without changing the original five-parameter API.",
+    "Only normal open=false closure with no remaining modal and nonempty prop enables fallback; legal trigger must actually focus first. Omitted/null, unmount, non-top and remaining-modal paths preserve old contracts.",
+    "New branch requires same-document visible enabled legal programmatic focus and actual activeElement equality. Section4 explicitly treats BODY trigger as unavailable. No asynchronous restoration or global search.",
+    "Persistent View-local Dialog is required for normal close; whole-View unmount stays distinct. Local heading ref is gated by alive/full identity/current admin and must not be retained by App/controller.",
+    "Existing component test spec owns the generated shell and can simulate unmount/remount initially-open Dialog using the fixed config and component closure within the five paths.",
+    "Account rev2 leaves sections1-4 and all27 scope rows unchanged. Only original View/page pure/browser paths consume the separately accepted shared result."
+  ],
+  "limitations": [
+    "Specification review only. No compilation, unit tests, browser, business fixture or product implementation was run or accepted here.",
+    "Existing new02 is genuine BODY outcome evidence; it does not identify the layer trigger captured on opening. Synthetic pageshow does not prove BFCache.",
+    "Future author baseline red must be a real focus assertion, not an unknown-prop compile/setup failure. Shared component acceptance does not replace Account Navigation acceptance.",
+    "Account A/B private preparation remains paused; no resources or product/Git changes.",
+    "One initial read used the nonexistent views/settings path (exit2); fixed manifest path views/system was then read. This was a read-location error, not a product/test failure."
+  ]
+}

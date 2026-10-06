@@ -1,0 +1,30 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestAccountSystemAccountSecurityWebNavigationAndLayouts)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-06T14:14:06.723781+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new03/images",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtsecure-axei_3jj",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new03/runtime"
+  },
+  "exit": 0,
+  "seconds": 63.02,
+  "started_utc": "2026-10-06T14:13:03.703656+00:00"
+}

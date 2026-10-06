@@ -1,0 +1,31 @@
+import hashlib,json,os,runpy,subprocess,sys,time
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent
+REPO=Path('/workspace/agenteam')
+BASE=json.loads((ROOT/'combination06/baseline.json').read_text())
+module=runpy.run_path(str(ROOT/'run-account-security-combination06.py'))
+module['FROZEN'].update(BASE)
+label,cwd,*argv=sys.argv[1:]
+run=ROOT/'runs'/label;run.mkdir(parents=True,exist_ok=False)
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+before=module['source_input']()
+assert before['accepted_baseline']['accepted'],before['accepted_baseline']
+assert before['files']==BASE['files'] and before['dependencies']==BASE['dependencies']
+(run/'input-before.json').write_text(json.dumps(before,indent=2,sort_keys=True)+'\n')
+for name in BASE['files']:
+ p=run/'source'/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((REPO/name).read_bytes())
+env={k:os.environ[k] for k in ('PATH','NODE_OPTIONS','GOTOOLCHAIN','GOPROXY','GOSUMDB','GOCACHE','GOMODCACHE','TMPDIR','GOENV','GOWORK','GOFLAGS','CGO_ENABLED','AGENTEAM_AUTH_WEB_ORIGIN','AGENTEAM_AUTH_WEB_PRIVATE','AGENTEAM_AUTH_WEB_CHROMIUM','AGENTEAM_ACCOUNT_SECURITY_WEB_CASE','AGENTEAM_MODEL_SELECTION_WEB_CASE') if k in os.environ}
+started=time.monotonic()
+with (run/'raw.log').open('wb') as output:
+ p=subprocess.Popen(argv,cwd=cwd,stdout=output,stderr=subprocess.STDOUT)
+ code=p.wait()
+after=module['source_input']()
+(run/'input-after.json').write_text(json.dumps(after,indent=2,sort_keys=True)+'\n')
+unchanged=before['files']==after['files'] and before['dependencies']==after['dependencies'] and before['accepted_baseline']==after['accepted_baseline'] and after['accepted_baseline']['accepted']
+dist_unchanged=before['dist']==after['dist']
+result={'argv':argv,'cwd':cwd,'env':env,'exit_code':code,'duration_seconds':round(time.monotonic()-started,3),'actual_wait':True,'resource_execution':False,'product_base':BASE['product_base'],'source_dependencies_unchanged':unchanged,'dist_unchanged':dist_unchanged,'dist_change_authorized':label=='combination-check06','driver_sha256':sha(Path(__file__))}
+(run/'result.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result))
+print((run/'raw.log').read_text()[-16000:])
+assert unchanged and (dist_unchanged or label=='combination-check06'), 'unexpected offline input drift'
+sys.exit(code)

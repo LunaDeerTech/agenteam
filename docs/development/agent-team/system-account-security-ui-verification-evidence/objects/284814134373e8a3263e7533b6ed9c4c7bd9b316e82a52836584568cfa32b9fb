@@ -1,0 +1,122 @@
+--- input01/tests/account-captcha-web/e2e/system-account-security.spec.ts
++++ input04/tests/account-captcha-web/e2e/system-account-security.spec.ts
+@@ -1031,6 +1031,7 @@
+           !document.activeElement.closest('[inert],[aria-hidden="true"]'),
+       ),
+     ).toBe(true);
++    await expect(title(page, "账号安全")).toBeFocused();
+     await page.keyboard.press("Tab");
+     expect(
+       await page.evaluate(
+--- input01/web/src/tests/system-account-security.spec.ts
++++ input04/web/src/tests/system-account-security.spec.ts
+@@ -337,6 +337,7 @@
+     'restores the one inline discard Dialog after pageshow checking/503 for pending %s',
+     async (action) => {
+       const f = await page()
++      const originalHeading = f.wrapper.get('h1').element
+       await change('密码重置有效期（秒）', '3600')
+       const route = action === 'route' ? f.router.push('/system/users') : null
+       if (action === 'logout') button('退出登录').click()
+@@ -357,9 +358,13 @@
+       f.resetSession()
+       await click('检查当前会话')
+       const top = confirmation()
++      const currentHeading = f.wrapper.get('h1').element
++      expect(currentHeading).not.toBe(originalHeading)
++      expect(originalHeading.isConnected).toBe(false)
+       expect(field('密码重置有效期（秒）').value).toBe('3600')
+       expect(top.contains(document.activeElement)).toBe(true)
+       await click('继续编辑', top)
++      expect(document.activeElement).toBe(currentHeading)
+       if (route) expect(isNavigationFailure(await route)).toBe(true)
+       expect(f.router.currentRoute.value.path).toBe('/system/account-security')
+       expect(f.writes()).toHaveLength(0)
+@@ -414,6 +419,7 @@
+ 
+   it('settles a pending route false on a same-user new Session and never carries the draft or old DOM continuation', async () => {
+     const f = await page()
++    const originalHeading = f.wrapper.get('h1').element
+     await change('密码重置有效期（秒）', '3600')
+     const pending = f.router.push('/system/users')
+     await flushPromises()
+@@ -426,6 +432,8 @@
+     expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+     expect(field('密码重置有效期（秒）').value).toBe('1800')
+     expect(f.router.currentRoute.value.path).toBe('/system/account-security')
++    expect(originalHeading.isConnected).toBe(false)
++    expect(document.activeElement).toBe(f.wrapper.get('h1').element)
+     expect(f.writes()).toHaveLength(0)
+   })
+ })
+--- input01/web/src/views/system/SystemAccountSecurityView.vue
++++ input04/web/src/views/system/SystemAccountSecurityView.vue
+@@ -1,5 +1,5 @@
+ <script setup lang="ts">
+-import { nextTick, onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue'
++import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue'
+ import UiButton from '../../components/ui/UiButton.vue'
+ import UiDialog from '../../components/ui/UiDialog.vue'
+ import UiField from '../../components/ui/UiField.vue'
+@@ -26,7 +26,23 @@
+ } = page
+ const heading = ref<HTMLElement | null>(null),
+   actions = ref<HTMLElement | null>(null)
+-let alive = true
++const alive = ref(true)
++const identity = page.auth.personalContext.identity
++const fallbackFocus = computed(() => {
++  const current = page.auth.personalContext.identity
++  return alive.value &&
++    page.auth.state.phase === 'authenticated' &&
++    page.auth.personalContext.phase === 'current' &&
++    identity &&
++    current &&
++    identity.userID === current.userID &&
++    identity.sessionID === current.sessionID &&
++    identity.epoch === current.epoch &&
++    page.auth.state.user?.role === 'admin' &&
++    !page.auth.system.denied
++    ? heading.value
++    : null
++})
+ function operable(node: HTMLElement) {
+   if (!node.isConnected || node.matches(':disabled') || !node.getClientRects().length) return false
+   for (let ancestor: HTMLElement | null = node; ancestor; ancestor = ancestor.parentElement)
+@@ -37,9 +53,9 @@
+ async function perform(work: () => Promise<unknown>, event: Event) {
+   const previous = event instanceof SubmitEvent ? event.submitter : event.currentTarget
+   await work()
+-  if (!alive) return
++  if (!alive.value) return
+   await nextTick()
+-  if (!alive || blocked.value || confirmation.open) return
++  if (!alive.value || blocked.value || confirmation.open) return
+   const focused = document.activeElement
+   if (focused instanceof HTMLElement && focused !== document.body && operable(focused)) return
+   const target =
+@@ -51,10 +67,11 @@
+ onMounted(async () => {
+   page.attach()
+   await nextTick()
+-  if (alive && !confirmation.open && heading.value && operable(heading.value)) heading.value.focus()
++  if (alive.value && !confirmation.open && heading.value && operable(heading.value))
++    heading.value.focus()
+ })
+ onBeforeUnmount(() => {
+-  alive = false
++  alive.value = false
+ })
+ onUnmounted(page.detach)
+ </script>
+@@ -174,9 +191,9 @@
+       </div>
+     </form>
+     <UiDialog
+-      v-if="confirmation.open"
+       :open="confirmation.open"
+       :title="confirmation.title"
++      :fallback-focus="fallbackFocus"
+       @update:open="!$event && page.finishConfirmation(false)"
+     >
+       <p>{{ confirmation.message }}</p>

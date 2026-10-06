@@ -1,0 +1,180 @@
+import type { Page } from '@playwright/test';
+import {
+  test, expect, endpoint, result, ipc, button, title, form, field, top,
+  facts, seq, writes, factAfter, session, setup, currentRead, dbFacts,
+  matchesForm, fill, refresh, cutSave, focusContained,
+  type Settings,
+} from './fixed-helpers';
+
+const historical = (page: Page) => page.locator('[aria-label="本次保存的历史确认"]');
+const current = (page: Page) => page.getByRole('region', { name: '当前读取的账号安全配置', exact: true });
+async function originalFacts() {
+  return (await ipc('independent-original-facts')).original as Record<string, number | boolean>;
+}
+function exactOriginal(value: Record<string, number | boolean>, attempts: number, replays: number) {
+  expect(value.original_commands).toBe(1);
+  expect(value.original_audits).toBe(1);
+  expect(value.original_attempts).toBe(attempts);
+  expect(value.accepted_replays).toBe(replays);
+  for (const name of ['command_metadata_exact', 'audit_metadata_exact', 'accepted_cut', 'same_body_bytes', 'same_original_csrf_nonempty'])
+    expect(value[name], name).toBe(true);
+  if (replays === 1) expect(value.legal_original_csrf_accepted).toBe(true);
+}
+
+test('[independent-replay] original Account command confirmation stays historical after newer settings and confirmed read failure', async ({ page }) => {
+  await setup(page);
+  const identity = await session(page);
+  expect((await ipc('capture-session', identity)).captured).toBe(true);
+  const baseline = await dbFacts();
+  const desired = {
+    session_idle_seconds: '1800', session_absolute_seconds: '7200',
+    password_reset_seconds: '900', challenge_after_failures: '4',
+  };
+  await fill(page, desired);
+  await cutSave(page);
+  const accepted = await dbFacts();
+  expect(accepted.settings).toEqual({ ...baseline.settings, ...desired, version: String(BigInt(baseline.settings.version) + 1n) });
+  exactOriginal(await originalFacts(), 1, 0);
+  await expect(historical(page)).toHaveCount(0);
+  expect((await writes(page)).length).toBe(1);
+
+  const newer = (await ipc('compete')).settings as Settings;
+  expect(newer.id).toBe(accepted.settings.id);
+  expect(BigInt(newer.version)).toBe(BigInt(accepted.settings.version) + 1n);
+  const after = await seq(page);
+  await button(page, '检查当前会话与配置').click();
+  const checked = await factAfter(page, after, f => f.path === '/api/v1/session' && f.method === 'GET' && f.status === 200 && f.ended &&
+    f.session?.user_id === identity.user_id && f.session.session_id === identity.session_id && f.session.role === 'admin');
+  expect(await currentRead(page, checked.sequence)).toEqual(newer);
+  const reads = (await facts(page)).filter(f => f.sequence > after);
+  expect(reads.map(f => [f.path, f.method])).toEqual([['/api/v1/session', 'GET'], [endpoint, 'GET']]);
+  await expect(title(page, '请求结果未确认')).toBeVisible();
+  await expect(historical(page)).toHaveCount(0);
+  await expect(button(page, '重试原请求')).toBeEnabled();
+  await matchesForm(page, { ...baseline.settings, ...desired });
+  await expect(current(page).locator('code')).toHaveText(newer.version);
+  expect((await writes(page)).length).toBe(1);
+  exactOriginal(await originalFacts(), 1, 0);
+
+  expect((await ipc('arm-get-fail')).armed).toBe(true);
+  const replayMark = await seq(page);
+  await button(page, '重试原请求').click();
+  const receipt = await factAfter(page, replayMark, f => f.path === endpoint && f.method === 'PUT' && f.status === 200 && f.ended && !!f.settings);
+  expect(receipt.settings).toEqual(accepted.settings);
+  // The fixture sends text/plain 503. Its production client cancels the body;
+  // it has no successful native reader EOF and is not required to have one.
+  await factAfter(page, receipt.sequence, f => f.path === endpoint && f.method === 'GET' && f.status === 503);
+  await expect(title(page, '保存已确认，当前配置读取失败')).toBeVisible();
+  await expect(historical(page).locator('code')).toHaveText(accepted.settings.version);
+  await expect(form(page)).toHaveCount(0);
+  await expect(button(page, '重试原请求')).toHaveCount(0);
+  await expect(button(page, '读取当前配置')).toBeEnabled();
+  expect((await writes(page)).length).toBe(2);
+  exactOriginal(await originalFacts(), 2, 1);
+  const afterReplay = await dbFacts();
+  expect(afterReplay.settings).toEqual(newer);
+  expect(afterReplay.commands - baseline.commands).toBe(2);
+  expect(afterReplay.audits - baseline.audits).toBe(2);
+  expect((await ipc('failure-facts')).read_failures).toBe(1);
+
+  const recoverMark = await seq(page);
+  expect(await refresh(page)).toEqual(newer);
+  await matchesForm(page, newer);
+  await expect(historical(page).locator('code')).toHaveText(accepted.settings.version);
+  expect((await facts(page)).filter(f => f.sequence > recoverMark).map(f => [f.path, f.method])).toEqual([[endpoint, 'GET']]);
+  expect((await writes(page)).length).toBe(2);
+  expect(await dbFacts()).toEqual(afterReplay);
+  exactOriginal(await originalFacts(), 2, 1);
+  expect((await facts(page)).some(f => f.path.includes('lookup'))).toBe(false);
+  expect(afterReplay.invocations).toBe(0);
+  result({ original_exact: true, same_original: true, history_not_current: true,
+    check_not_confirmation: true, confirmed_read_only_recovery: true, zero_lookup: true });
+});
+
+test('[independent-conflict] formal version conflict preserves four drafts through failed Session restoration and explicit current adoption', async ({ page }) => {
+  await setup(page);
+  const identity = await session(page);
+  expect((await ipc('capture-session', identity)).captured).toBe(true);
+  const baseline = await dbFacts();
+  const desired = {
+    session_idle_seconds: '900', session_absolute_seconds: '3600',
+    password_reset_seconds: '600', challenge_after_failures: '2',
+  };
+  await fill(page, desired);
+  const competitor = (await ipc('compete')).settings as Settings;
+  expect(BigInt(competitor.version)).toBe(BigInt(baseline.settings.version) + 1n);
+  const beforeRejected = await dbFacts();
+  expect(beforeRejected.settings).toEqual(competitor);
+  const mark = await seq(page);
+  await button(page, '保存配置').click();
+  const rejected = await factAfter(page, mark, f => f.path === endpoint && f.method === 'PUT' && f.status === 409 && f.code === 'VERSION_CONFLICT' && f.ended);
+  expect(['not_started', 'not_committed'].includes(rejected.commit_state!)).toBe(true);
+  await expect(title(page, '需要核对最新配置')).toBeVisible();
+  await matchesForm(page, { ...baseline.settings, ...desired });
+  expect(await dbFacts()).toEqual(beforeRejected);
+  expect((await writes(page)).length).toBe(1);
+
+  const readMark = await seq(page);
+  await button(page, '读取最新配置').click();
+  expect(await currentRead(page, readMark)).toEqual(competitor);
+  await matchesForm(page, { ...baseline.settings, ...desired });
+  await button(page, '取消修改').click();
+  await expect(top(page)).toHaveAccessibleName('放弃未保存修改？');
+  expect((await ipc('arm-session-fail')).armed).toBe(true);
+  const restoreMark = await seq(page);
+  const checking = await page.evaluate(async () => {
+    let observer: MutationObserver | undefined;
+    try {
+      return await new Promise<{ zero: boolean; unlocked: boolean; operative: boolean }>(resolve => {
+        observer = new MutationObserver(() => {
+          const check = document.querySelector<HTMLElement>('.session-check');
+          if (check) resolve({ zero: document.querySelectorAll('.ui-overlay').length === 0,
+            unlocked: document.body.style.overflow !== 'hidden', operative: check.closest('[inert]') === null });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        window.dispatchEvent(new Event('pageshow'));
+      });
+    } finally { observer?.disconnect(); }
+  });
+  expect(checking).toEqual({ zero: true, unlocked: true, operative: true });
+  await factAfter(page, restoreMark, f => f.path === '/api/v1/session' && f.method === 'GET' && f.status === 503);
+  await expect(title(page, '会话尚未确认')).toBeVisible();
+  await expect(page.locator('.ui-overlay')).toHaveCount(0);
+  await expect(button(page, '检查当前会话')).toBeEnabled();
+  expect((await ipc('failure-facts')).session_failures).toBe(1);
+  expect((await writes(page)).length).toBe(1);
+  const successMark = await seq(page);
+  await button(page, '检查当前会话').click();
+  await factAfter(page, successMark, f => f.path === '/api/v1/session' && f.method === 'GET' && f.status === 200 && f.ended &&
+    f.session?.user_id === identity.user_id && f.session.session_id === identity.session_id && f.session.role === 'admin');
+  await expect(page.locator('[role="dialog"]')).toHaveCount(1);
+  await expect(top(page)).toHaveAccessibleName('放弃未保存修改？');
+  expect(await top(page).evaluate(node => !(node as HTMLElement).inert && node.getAttribute('aria-hidden') !== 'true')).toBe(true);
+  await focusContained(page);
+  await top(page).getByRole('button', { name: '继续编辑', exact: true }).click();
+  await expect(page.locator('.ui-overlay')).toHaveCount(0);
+  await expect(title(page, '账号安全')).toBeFocused();
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement !== document.body &&
+    document.activeElement.isConnected && !document.activeElement.closest('[inert],[aria-hidden="true"]'))).toBe(true);
+  await matchesForm(page, { ...baseline.settings, ...desired });
+  expect((await writes(page)).length).toBe(1);
+  await expect(title(page, '需要核对最新配置')).toBeVisible();
+  const freshRead = await seq(page);
+  await button(page, '读取最新配置').click();
+  expect(await currentRead(page, freshRead)).toEqual(competitor);
+  await matchesForm(page, { ...baseline.settings, ...desired });
+  await button(page, '采用最新值重新编辑').click();
+  await expect(top(page)).toHaveAccessibleName('放弃草稿并采用最新值？');
+  await top(page).getByRole('button', { name: '放弃修改', exact: true }).click();
+  await expect(page.locator('.ui-overlay')).toHaveCount(0);
+  await matchesForm(page, competitor);
+  await expect(button(page, '保存配置')).toBeDisabled();
+  expect((await writes(page)).length).toBe(1);
+  expect(await dbFacts()).toEqual(beforeRejected);
+  const life = await ipc('lifetime-facts');
+  expect(life.old_unchanged && life.new_matches && life.different_session).toBe(true);
+  expect((await session(page)).session_id === identity.session_id).toBe(true);
+  result({ real_conflict: true, four_drafts: true, explicit_adoption: true,
+    restored_single_confirmation: true, native_tab: true, old_session_unchanged: true, new_session_lifetimes: true });
+});

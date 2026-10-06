@@ -1,0 +1,9 @@
+{
+  "earlier_read_only_attempt": {
+    "outcome": "exit1 before tests",
+    "reason": "assumed accepted dependency account.ts existed under stage/source; stage only stores 18 candidates and 33dist",
+    "correction": "materialize accepted dependencies directly from fixed Git870ebbb and verify manifest hashes",
+    "raw_disk_log": null,
+    "evidence": "tool exec observed FileNotFoundError; no test or resource execution"
+  }
+}

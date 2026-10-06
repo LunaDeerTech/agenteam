@@ -1,0 +1,13 @@
+# Account security input04：独立焦点接缝复验
+
+结论：**有界 PASS**。冻结输入 `c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7`，共享依赖为已接受 `fd32120eba4c76f67b649248377f4825a78d5d79`。26 源及 33 dist 实际逐 SHA 核对；本轮仅 View、组件测试、新浏览器 spec 三路径改变，其他 23 源复用 input01，1050 基线清单仅四个已接受共享文件改变。没有读取活动候选或修改产品。
+
+生产差量按完整 User/Session/epoch、current/authenticated/admin/系统拒绝和 alive 返回当前标题。固定 owner 用 Object.freeze 创建 identity，捕获值不随新身份改写。去掉外层 v-if 后普通关闭走已接受的 open=false 观察；checking/failed 与真正离页仍卸载整 View。接受的 useLayer 在 unmount 不读取 fallback，剩余 modal 和有效原 trigger 的优先规则保持。浏览器原可操作 activeElement 与原生 Tab 强断言未删，仅增加精确账号安全标题焦点。
+
+私有离线 `app02` **2/2 PASS，实际 exit 0 / 2.023s**：同身份 pageshow→checking→503→恢复过程中旧 View 真卸载，旧标题 focus 未调用；恢复后草稿和待决导航保留、零 PUT，继续编辑使同一个新 Dialog 实例关闭并准确聚焦新标题。同用户新 Session 场景旧确认 false 结算，旧实例/草稿销毁，只有新页面标题接收 mounted focus，零 PUT。命令、完整输入前后、原 probe/raw/actual wait 在 `logs/app02/`；运行前后输入一致。
+
+原 `app01` **exit 1 / 2.485s** 保留：私有探针将 Vue Test Utils 每次包装出的 `.vm` 代理作 Object.is 相等比较，两个代理实际组件 uid 同为 91；该断言前的新标题焦点已通过。仅用 `.vm.$.uid` 比较实际组件身份，且同步收紧新身份例的实例差异判断；四行差量在 `probe01-to02.diff`。不归为产品缺陷，不把首轮升级为通过。
+
+本轮使用 44 文件最小固定闭包及原锁包；真实 App/controller/Session API 和 UiDialog/useLayer 都未替身，只有传输与 jsdom 布局条件受控。jsdom 结果不证明 Chromium 原生焦点/Tab、真实 Session 或布局，作者当前真实 Navigation 与旧回归、后续独立 A/B 仍须各自真实完成。未启动服务、浏览器、PG 或 Docker；两条纯命令均实际结束，无后台命令。API/owner/当前与历史 Settings 的未变证据复用之前三个独立阶段。
+
+精确三路径与全部原件 SHA 见 `static.json`、`verification-report.json`。此根到本报告写入后停止写入。

@@ -1,0 +1,148 @@
+--- input01/tests/account-captcha-web/e2e/system-account-security.spec.ts
++++ input03/tests/account-captcha-web/e2e/system-account-security.spec.ts
+@@ -28,6 +28,11 @@
+ type ObservedWindow = Window & {
+   __securityFacts?: Fact[];
+   __securitySequence?: number;
++  __securityFocusDiagnostic?: {
++    beforeChecking: Element | null;
++    events: { node: Element; overlays: number; checking: boolean }[];
++    stop: () => void;
++  };
+ };
+ const material = (): {
+   admin: Credential;
+@@ -962,30 +967,53 @@
+     count = (await writes(page)).length;
+   if (fail) await ipc("arm-session-fail");
+   // A synthetic pageshow exercises the App listener; subsequent 200/EOF is real.
+-  const checking = await page.evaluate(async () => {
+-    let observer: MutationObserver | undefined;
+-    try {
+-      return await new Promise<{
+-        zero: boolean;
+-        unlocked: boolean;
+-        operative: boolean;
+-      }>((resolve) => {
+-        observer = new MutationObserver(() => {
+-          const check = document.querySelector<HTMLElement>(".session-check");
+-          if (!check) return;
+-          resolve({
+-            zero: document.querySelectorAll(".ui-overlay").length === 0,
+-            unlocked: document.body.style.overflow !== "hidden",
+-            operative: check.closest("[inert]") === null,
++  const checking = await page.evaluate(
++    async (diagnose) => {
++      if (diagnose) {
++        const scope = window as ObservedWindow;
++        const events: { node: Element; overlays: number; checking: boolean }[] =
++          [];
++        const observeFocus = (event: FocusEvent) => {
++          if (!(event.target instanceof Element) || events.length >= 16) return;
++          events.push({
++            node: event.target,
++            overlays: document.querySelectorAll(".ui-overlay").length,
++            checking: document.querySelector(".session-check") !== null,
+           });
++        };
++        scope.__securityFocusDiagnostic = {
++          beforeChecking: document.activeElement,
++          events,
++          stop: () =>
++            document.removeEventListener("focusin", observeFocus, true),
++        };
++        document.addEventListener("focusin", observeFocus, true);
++      }
++      let observer: MutationObserver | undefined;
++      try {
++        return await new Promise<{
++          zero: boolean;
++          unlocked: boolean;
++          operative: boolean;
++        }>((resolve) => {
++          observer = new MutationObserver(() => {
++            const check = document.querySelector<HTMLElement>(".session-check");
++            if (!check) return;
++            resolve({
++              zero: document.querySelectorAll(".ui-overlay").length === 0,
++              unlocked: document.body.style.overflow !== "hidden",
++              operative: check.closest("[inert]") === null,
++            });
++          });
++          observer.observe(document.body, { childList: true, subtree: true });
++          window.dispatchEvent(new Event("pageshow"));
+         });
+-        observer.observe(document.body, { childList: true, subtree: true });
+-        window.dispatchEvent(new Event("pageshow"));
+-      });
+-    } finally {
+-      observer?.disconnect();
+-    }
+-  });
++      } finally {
++        observer?.disconnect();
++      }
++    },
++    fail && decision === "continue",
++  );
+   expect(checking).toEqual({ zero: true, unlocked: true, operative: true });
+   if (fail) {
+     await expect(page.locator(".ui-overlay")).toHaveCount(0);
+@@ -1022,15 +1050,48 @@
+   await expect(page.locator(".ui-overlay")).toHaveCount(0);
+   expect((await writes(page)).length).toBe(count);
+   if (decision === "continue") {
+-    expect(
+-      await page.evaluate(
+-        () =>
+-          document.activeElement instanceof HTMLElement &&
+-          document.activeElement !== document.body &&
+-          document.activeElement.isConnected &&
+-          !document.activeElement.closest('[inert],[aria-hidden="true"]'),
+-      ),
+-    ).toBe(true);
++    const focus = await page.evaluate(() => {
++      const operative =
++        document.activeElement instanceof HTMLElement &&
++        document.activeElement !== document.body &&
++        document.activeElement.isConnected &&
++        !document.activeElement.closest('[inert],[aria-hidden="true"]');
++      const scope = window as ObservedWindow;
++      const diagnostic = scope.__securityFocusDiagnostic;
++      if (!diagnostic) return { operative };
++      diagnostic.stop();
++      delete scope.__securityFocusDiagnostic;
++      const project = (node: Element | null) => ({
++        tag: node?.tagName ?? null,
++        role: node?.getAttribute("role") ?? null,
++        id: node?.id || null,
++        connected: node?.isConnected ?? false,
++        body: node === document.body,
++        inert: node !== null && node.closest("[inert]") !== null,
++        ariaHidden:
++          node !== null && node.closest('[aria-hidden="true"]') !== null,
++        disabled: node?.matches(":disabled") ?? false,
++      });
++      return {
++        operative,
++        diagnostic: {
++          active: project(document.activeElement),
++          overlays: document.querySelectorAll(".ui-overlay").length,
++          checking: document.querySelector(".session-check") !== null,
++          beforeChecking: project(diagnostic.beforeChecking),
++          focusEvents: diagnostic.events.map(
++            ({ node, overlays, checking }) => ({
++              target: project(node),
++              overlays,
++              checking,
++            }),
++          ),
++        },
++      };
++    });
++    if (focus.diagnostic)
++      console.log("Account security focus diagnostic " + JSON.stringify(focus));
++    expect(focus.operative).toBe(true);
+     await page.keyboard.press("Tab");
+     expect(
+       await page.evaluate(

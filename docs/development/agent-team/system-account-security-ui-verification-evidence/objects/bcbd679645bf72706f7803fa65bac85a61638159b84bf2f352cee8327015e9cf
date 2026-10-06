@@ -1,0 +1,68 @@
+{
+  "author_input04_sha256": "c51d5e9c1c5a46381c215402fcd68b6858d8950b1a44ea56978d5b2fae6a46b7",
+  "source_hashes_verified": {
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts": "32787bdcf22724cb6af449f6a4014d5f039878af8ee477953a89a3e29bf7ddd1",
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": "9deed2fbe09d35fe7b59bb23a9d828125f20cd7b846ce27b591898d3410bf8f5",
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": "e492cb71011c6abac789f2601965ce8497429158fb3997d7924d8aef0e08f389",
+    "tests/account-captcha-web/e2e/system-models.spec.ts": "8995d80f6df6b218f6804a63074033152e676c039088b764ebe7bead1c37fda2",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "54065768b1ac10e260c927c77198e840a13c0ea04e373f8abaa917d5f66f4f11",
+    "tests/account-captcha-web/system-account-security.config.js": "89783e73025f2ae1af253785772031aa874308cd7187a37f6bc88a6b675e9494",
+    "tests/account/system_account_security_web_fixture_test.go": "d54e66fc9c2df6d59e321f519a128e9b4b9fcf9424b6032d1054b8b786254d72",
+    "tests/account/system_account_security_web_test.go": "3fdece54c9b80706a9939f4bb6346afe220b2f37abb2201d7e41213d6b10556d",
+    "web/src/App.vue": "4edc9c917d4413ce703bd54c24af94d2f6cdad4a0a7a902026395e508dcb244b",
+    "web/src/api/client.ts": "c820835627b2711ce174d92aa115400d09f5d12ff05f88221c3d5da8daf327c3",
+    "web/src/api/system-account-security.ts": "5dabbdd4c5de0cfde671c6bdfc8c92eae140a842719752740ea65282a8feffbb",
+    "web/src/composables/useSession.ts": "952d35360f6a5e5ac0892b4c7866b529264457d6ba6014e99e0f8af8d39a1f6a",
+    "web/src/composables/useSystemAccountSecurity.ts": "97261a121b31d9dcb5cb8e10a869cbe40d0cc48611a82aa3fa2d97db49a8ad82",
+    "web/src/router/auth.ts": "874f77f602244f2dae3a49c65fbd3b1bc6cf2906ac2f0c9b349e6d642314c8fc",
+    "web/src/router/index.ts": "afd9fae1b5fe2bc9544c9038ca90e8ca64b892697e25976cc441645308119652",
+    "web/src/tests/personal-settings.spec.ts": "b3bf33b1677d2e13a9eb9e59fce52fffacc9df0d2585f465a6e602eff5207751",
+    "web/src/tests/system-account-security-client.spec.ts": "2c2b0d022c5d7d91185223958155fb552865bc2521341bcf533eb2437c418aa3",
+    "web/src/tests/system-account-security-state.spec.ts": "37a8cad65ab489ccf3ae3d3c9833c78c63353c1f2171a5ce26b3ffb7a6a1e270",
+    "web/src/tests/system-account-security.spec.ts": "ca2848daf9a5c50e2d4716579a27efb0f234933e20c7e1521226f774bbc8c580",
+    "web/src/tests/system-invitations.spec.ts": "162dafcb4d47422c25fa216003059131cbfde5568f8b890b0b93a105c699975c",
+    "web/src/tests/system-model-selection.spec.ts": "7603b7ed84bcab781178aea21d1b89e878cf26dc1ba311feab7d5fdd8860adbc",
+    "web/src/tests/system-models.spec.ts": "cca4a9733e5438a71aa51431f4cb8cabe759c2b639e10439a456699aaa2bf822",
+    "web/src/tests/system-providers.spec.ts": "7d354eb9570adf143571dbe10c5bd4899164380f121449dd446f02c3daf8b1cd",
+    "web/src/tests/system-user-directory.spec.ts": "557d8c90cf18242354bafdcb14902240265a3104ecc08f6a5a1c43a0d241d487",
+    "web/src/views/system/SystemAccountSecurityView.vue": "643d27ade4b7c905f98694da984ac528569313b3ef80fa18dc3aded84046227e",
+    "web/src/views/system/SystemSettingsView.vue": "59cf8243ee02e8f8493e36fc4b0f2d0de476b3a82422ea238957a3eaa369264c"
+  },
+  "source_count": 26,
+  "changed_sources": [
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts",
+    "web/src/tests/system-account-security.spec.ts",
+    "web/src/views/system/SystemAccountSecurityView.vue"
+  ],
+  "unchanged_source_count": 23,
+  "dist_count_verified": 33,
+  "accepted_baseline_changed": {
+    "added": [],
+    "changed": {
+      "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": {
+        "after": "f2db7a6e2f0123f1628a6c7c9a8d32c257373b4867c8710be53a9dd3030e57bc",
+        "before": "ab6f5b4e33d8d554a42ed64a9b874accc9c94bc67f2dc63626db94e96b089d1a"
+      },
+      "web/src/components/ui/UiDialog.vue": {
+        "after": "2009c74dbb2f2cd5ae351b435eb3d801f9dce3ea0a9c91c73a055371fed211b0",
+        "before": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065"
+      },
+      "web/src/composables/useLayer.ts": {
+        "after": "aa3e2624666350d289c571c99516776423ef79d58f095308478d2593a5dcd7f3",
+        "before": "92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f"
+      },
+      "web/src/tests/dialog-outside-focus.spec.ts": {
+        "after": "50e1e4da805ad3229322cc6429fab9fc476859df2f70f51f8b024bba3ff8ec59",
+        "before": "69619799902edb157896712634e2678fc7bc3c2ed16e0b78e5a983347ba8d0e0"
+      }
+    },
+    "from": "870ebbb986f56bb62be34ccdfa2c77819ce995a6",
+    "removed": [],
+    "to": "fd32120eba4c76f67b649248377f4825a78d5d79"
+  },
+  "baseline_file_count": 1050,
+  "candidate_copy_count": 44,
+  "browser_observer_unchanged": true,
+  "old_page_api_owner_reused": true,
+  "real_resources": false
+}

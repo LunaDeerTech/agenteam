@@ -1,0 +1,18 @@
+# 账号安全 API-stage01 独立验收
+
+结论：**有界 PASS**；仅 API 阶段，不表示账号安全 UI 或 owner 已接受。
+
+固定作者 manifest：`ee4b61f18939a7e2a9b0d60bdd5d2df46c64d326e019e272ac4b66a71b1d52b3`。基线 `870ebbb986f56bb62be34ccdfa2c77819ce995a6`，卡 `cb9ad6c6ae5a34a6f123e6f8aad0db90646d5cb7`。三候选与五固定依赖逐 SHA 核合；五依赖与 Git 原字节相同。
+
+- client 仅新增两 endpoint 的类型和封闭 options 分类；原读流、取消、预算、旧例外未变。无公开 Account lookup。
+- 独立 **14/14 PASS**，实际 `exit 0 / 0.565s`，actual wait，输入前后不变；无首红、无真实资源。
+- 核严格七字段 Settings、五字段输入、canonical 范围/交叉期限、UUIDv7/固定作用域、BigInt 最大版本/后继、不可变结果和原输入捕获。后续较新 GET 不阻止严格匹配的原历史 PUT；四值或后继不匹配均拒绝。
+- 16KiB UTF-8 请求边界实际通过，超一字节零额外派发。GET/PUT 成功及 Problem 均测 600000B/EOF；600001B、完整合法内容后 abort-before-EOF、text/plain 503、非法 UTF-8 均用 native ReadableStream 的独立 cancel 屏障核实际等待。
+
+实际命令及 cwd/env/前后 SHA：`logs/independent01/command.json`；终局：`logs/independent01/result.json`；原输出：`logs/independent01/raw.log`，SHA `937437b24151c13d08e35f201aacf50195a525988b0a6d4dae924fba5b2581d2`。私有原 probe：`candidate/web/src/tests/independent-account-security-api.spec.ts`。精确命令由固定 `run-pure.py independent01` 调用绝对 Node/Vitest CLI，单 worker、零 retry、每例5s/外层45s。
+
+作者28项纯测/type/format的原件 SHA 和实际退出已核；不将其计为独立14项。未变底层按 `client.diff` 复用，不重复旧全套测试。完整输入及精确三候选 SHA 在 `input.json`；报告 JSON 给最小原件指纹。
+
+限制：本轮用 supplied Fetch + native Node Response/ReadableStream，没有真实 HTTP/浏览器/PG/Docker。singleton 同身份绑定、权限/CSRF、owner 可见预算与实际占用、历史确认与 current 状态、页面/App 均留后续。text/plain 错误仅核 await cancel，不伪称 reader EOF。未另跑私有探针类型检查，未复制依赖树；runtime 仅固定锁/Node/四包 metadata 指纹。
+
+本根证据已停止写入；无活动命令或真实资源，无产品修改或 Git 操作。

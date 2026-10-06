@@ -1,0 +1,87 @@
+{
+  "conclusion": "PASS - account-security API-stage01 only",
+  "base": "870ebbb986f56bb62be34ccdfa2c77819ce995a6",
+  "card": "cb9ad6c6ae5a34a6f123e6f8aad0db90646d5cb7",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/api-stage01/manifest.json",
+    "sha256": "ee4b61f18939a7e2a9b0d60bdd5d2df46c64d326e019e272ac4b66a71b1d52b3"
+  },
+  "independent": {
+    "run": "logs/independent01",
+    "tests": 14,
+    "exit_code": 0,
+    "elapsed_seconds": 0.565,
+    "actual_wait": true,
+    "inputs_unchanged": true,
+    "pid": 1165552,
+    "pid_absent_after_actual_wait": true,
+    "adopted_waits": []
+  },
+  "checks": [
+    "Three candidate and five fixed dependency fingerprints match the author manifest; five dependencies byte-match Git 870ebbb.",
+    "Shared client diff only adds two AccountSecurity endpoints and closed option/type classification; byte budget, parsing, read/cancel helpers and earlier exceptions unchanged.",
+    "Two API operations, no lookup; Settings exact seven fields; input exact five fields; canonical decimal ranges and cross-field rule; UUIDv7 and lifetime constant; immutable outputs.",
+    "Historical PUT is checked against a copied original version+1 via BigInt and all four original values even after newer GET; max read version remains legal and max new PUT version rejected.",
+    "14 independent cases passed, including exact 16 KiB UTF-8 request size and pre-dispatch overflow rejection; GET/PUT 600000-byte success waits for native EOF; 600000-byte Problem remains a typed failure with no follow-up lookup.",
+    "Actual 600001-byte GET/PUT/Problem, abort after full valid content before EOF, wrong-media 503, and invalid UTF-8 all join a separately held native ReadableStream cancel promise before settling."
+  ],
+  "limits": [
+    "API stage only. Singleton ID binding, identity, owner uncertainty/current observation state, CSRF authorization, controller/View/App and real server behavior remain unverified by this stage.",
+    "Private supplied Fetch returns native Node Response/ReadableStream objects. No HTTP server, browser, PostgreSQL, Docker, real fixtures or external requests were started.",
+    "Wrong-media error has no reader EOF requirement; this probe confirms awaited cancellation, not stream EOF. Successful parse always requires native EOF.",
+    "Unchanged accepted client behavior is reused by exact diff. No full previous Provider/Model/Selection suite, private-probe typecheck or browser run was performed.",
+    "Author 28-test/type/format results are checked and reused as author evidence, distinct from the 14 independent cases. No failure occurred in this independent stage.",
+    "Runtime reproducibility records fixed lock, Node binary and four package metadata fingerprints/version-lock matches, not a complete node_modules tree archive."
+  ],
+  "author_results_reused": [
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/api01/result.json",
+      "sha256": "f6ff62fe8fdbb243f40346c1b7d72f5ed00bcd1832d927b2424c3b7d88b132d6",
+      "exit_code": 0,
+      "duration_seconds": 1.24
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/api-type01/result.json",
+      "sha256": "b3f22c291edb55373e9a6a3cab907e588cc94ee4c624ac7c952659f6e47c3a45",
+      "exit_code": 0,
+      "duration_seconds": 6.936
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/api-format01/result.json",
+      "sha256": "6fca08868cae87ea1e04fe322d888be1b855cc40f00aef64e2bcd60dc03b6629",
+      "exit_code": 0,
+      "duration_seconds": 0.292
+    }
+  ],
+  "candidate_files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "c820835627b2711ce174d92aa115400d09f5d12ff05f88221c3d5da8daf327c3",
+      "role": "candidate"
+    },
+    {
+      "path": "web/src/api/system-account-security.ts",
+      "sha256": "5dabbdd4c5de0cfde671c6bdfc8c92eae140a842719752740ea65282a8feffbb",
+      "role": "candidate"
+    },
+    {
+      "path": "web/src/tests/system-account-security-client.spec.ts",
+      "sha256": "2c2b0d022c5d7d91185223958155fb552865bc2521341bcf533eb2437c418aa3",
+      "role": "candidate"
+    }
+  ],
+  "artifact_hashes": {
+    "input.json": "1680198e4a178e480aa5fa9b5fe27bd0cf27f512fbe50fe33d56fd9db3a7aacd",
+    "author-manifest.json": "ee4b61f18939a7e2a9b0d60bdd5d2df46c64d326e019e272ac4b66a71b1d52b3",
+    "client.diff": "69a5153c1b45998d27ef3515e3c384af1ec67c3564709c89828a1ac5e88696b2",
+    "runtime-check.json": "cf8b6126e6baf2214e86f98ecb28476441e30e5f419344386481ad16b4525748",
+    "candidate/web/src/tests/independent-account-security-api.spec.ts": "5f963f66f1fe90d89554c5c6564b1f14d1eabf2407bd62836a308ad59bfc237e",
+    "candidate/web/vitest.config.mjs": "cad0c02abdacf700ab290ea1e413380c4953c8f1e5b3137506ed64cf875e624f",
+    "run-pure.py": "824348450de5469d41ce068e0c0b7a41cef6e570eaaa893586490d11de5dfa49",
+    "logs/independent01/command.json": "29affb650245d763fbf949758a64675d43775499c6c2ca5ab138ae1632bd8037",
+    "logs/independent01/raw.log": "937437b24151c13d08e35f201aacf50195a525988b0a6d4dae924fba5b2581d2",
+    "logs/independent01/result.json": "ffa85e52aa630ab0715135c0fc8b53a3d3d146f04436fb92e55f127e491b2b39",
+    "logs/independent01/driver.py.txt": "824348450de5469d41ce068e0c0b7a41cef6e570eaaa893586490d11de5dfa49"
+  },
+  "state": "frozen; no active commands or real resources; no product/Git mutation"
+}

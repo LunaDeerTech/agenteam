@@ -1,0 +1,229 @@
+import { describe, expect, it, vi } from 'vitest'
+import { setImmediate as nextTurn } from 'node:timers/promises'
+import { accountTransport, type Fetch } from '../api/client'
+import {
+  captureAccountSecurityUpdate,
+  createSystemAccountSecurityAPI,
+  type AccountSecurityUpdateInput,
+} from '../api/system-account-security'
+
+const id = '01901abc-4321-7654-8abc-0123456789ab'
+const requestID = '01901abc-4321-7654-9abc-0123456789ab'
+const version = '9007199254740993'
+const fields = () => ({
+  session_idle_seconds: '3600',
+  session_absolute_seconds: '7200',
+  password_reset_seconds: '300',
+  challenge_after_failures: '1',
+})
+const original = (): AccountSecurityUpdateInput => ({ version, ...fields() })
+const settings = (v = '9007199254740994') => ({
+  id, version: v, ...fields(), lifetime_changes_apply_to: 'newly_issued_sessions_and_tokens',
+})
+const options = (signal = new AbortController().signal) => ({
+  signal, key: 'offline/account-security-original:1', csrfToken: 'A'.repeat(43),
+})
+const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), {
+  status, headers: { 'Content-Type': 'application/json' },
+})
+const problem = () => ({
+  type: 'urn:agenteam:problem:commit-unknown', title: 'Unconfirmed', status: 503,
+  detail: '', instance: '/api/v1/system/account-settings', code: 'COMMIT_UNKNOWN',
+  request_id: requestID, commit_state: 'unknown', retry_hint: 'lookup',
+})
+const encoder = new TextEncoder()
+function padded(value: unknown, length: number) {
+  const text = JSON.stringify(value)
+  return encoder.encode(text + ' '.repeat(length - encoder.encode(text).byteLength))
+}
+function deferred<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((done) => { resolve = done })
+  return { promise, resolve }
+}
+const observed = <T>(promise: Promise<T>) => {
+  let settled = false
+  const result = promise.then(
+    (value) => { settled = true; return { success: true as const, value } },
+    (error: unknown) => { settled = true; return { success: false as const, error } },
+  )
+  return { result, settled: () => settled }
+}
+
+describe('independent account security API boundary', () => {
+  it('has two closed operations, exact wire options and no public lookup dispatch', async () => {
+    const fetcher = vi.fn<Fetch>(async () => json(settings()))
+    const api = createSystemAccountSecurityAPI(fetcher), write = options()
+    expect(Object.keys(api).sort()).toEqual(['getSettings', 'updateSettings'])
+    await api.getSettings(write.signal)
+    await api.updateSettings(original(), write)
+    expect(fetcher.mock.calls.map(([url, init]) => [url, init.method])).toEqual([
+      ['/api/v1/system/account-settings', 'GET'], ['/api/v1/system/account-settings', 'PUT'],
+    ])
+    for (const [, init] of fetcher.mock.calls) expect(init).toMatchObject({
+      signal: write.signal, credentials: 'same-origin', cache: 'no-store', redirect: 'error',
+    })
+    expect(fetcher.mock.calls[0]![1].body).toBeUndefined()
+    expect(Object.keys(fetcher.mock.calls[0]![1].headers!)).toEqual(['Accept'])
+    expect(fetcher.mock.calls[1]![1].body).toBe(JSON.stringify(original()))
+    expect(fetcher.mock.calls[1]![1].headers).toMatchObject({
+      'X-CSRF-Token': write.csrfToken, 'Idempotency-Key': write.key,
+    })
+    fetcher.mockClear()
+    const raw = accountTransport(fetcher) as (...args: any[]) => Promise<unknown>
+    for (const endpoint of ['lookupAccountSecurity', '/api/v1/system/account-settings', 'getAccountSecurity?cursor=x'])
+      await expect(raw(endpoint, (v: unknown) => v, { signal: write.signal })).rejects.toMatchObject({ kind: 'invalid-input' })
+    for (const extra of [{ body: {} }, { query: '' }, { csrf: write.csrfToken }, { key: write.key }, { target: id }])
+      await expect(raw('getAccountSecurity', (v: unknown) => v, { signal: write.signal, ...extra })).rejects.toMatchObject({ kind: 'invalid-input' })
+    await expect(api.updateSettings(original(), { ...write, target: id } as any)).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetcher).not.toHaveBeenCalled()
+  })
+
+  it('publishes only complete immutable seven-field Settings and keeps maximum read version legal', async () => {
+    const legal = { ...settings('9223372036854775807'), session_idle_seconds: '2592000', session_absolute_seconds: '2592000', password_reset_seconds: '7200', challenge_after_failures: '20' }
+    const result = await createSystemAccountSecurityAPI(async () => json(legal)).getSettings(options().signal)
+    expect(result).toEqual(legal)
+    expect(Object.isFrozen(result)).toBe(true)
+    const missing = { ...settings() } as Record<string, unknown>; delete missing.password_reset_seconds
+    for (const value of [null, [], missing,
+      { ...settings(), unknown: 'ignored?' },
+      { ...settings(), id: id.toUpperCase() },
+      { ...settings(), version: '9223372036854775808' },
+      { ...settings(), version: 9007199254740992 },
+      { ...settings(), session_idle_seconds: '7201' },
+      { ...settings(), password_reset_seconds: '0300' },
+      { ...settings(), challenge_after_failures: '+1' },
+      { ...settings(), lifetime_changes_apply_to: 'existing_sessions_and_tokens' },
+    ]) await expect(createSystemAccountSecurityAPI(async () => json(value)).getSettings(options().signal)).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+
+  it('captures the original before dispatch and accepts its exact historical successor behind a newer GET', async () => {
+    const response = deferred<Response>()
+    const fetcher = vi.fn<Fetch>(async (_, init) => init.method === 'GET' ? json(settings('9007199254741000')) : response.promise)
+    const api = createSystemAccountSecurityAPI(fetcher), body = original()
+    expect((await api.getSettings(options().signal)).version).toBe('9007199254741000')
+    const operation = api.updateSettings(body, options())
+    ;(body as { version: string }).version = '9007199254740999'
+    ;(body as { password_reset_seconds: string }).password_reset_seconds = '7200'
+    response.resolve(json(settings()))
+    expect(await operation).toEqual(settings())
+    expect(fetcher.mock.calls[1]![1].body).toBe(JSON.stringify(original()))
+    const captured = captureAccountSecurityUpdate(original())
+    expect(Object.isFrozen(captured)).toBe(true)
+    for (const corrupt of [
+      settings('9007199254740993'), settings('9007199254740995'),
+      { ...settings(), session_idle_seconds: '900' },
+      { ...settings(), session_absolute_seconds: '7776000' },
+      { ...settings(), password_reset_seconds: '301' },
+      { ...settings(), challenge_after_failures: '2' },
+    ]) await expect(createSystemAccountSecurityAPI(async () => json(corrupt)).updateSettings(original(), options())).rejects.toMatchObject({ kind: 'invalid-response' })
+    // Singleton identity comparison belongs to the later owner stage, not this generic parser.
+  })
+
+  it('rejects unsafe new-input versions and malformed private write options before any dispatch', async () => {
+    const fetcher = vi.fn<Fetch>(async () => json(settings())), api = createSystemAccountSecurityAPI(fetcher)
+    for (const value of [
+      { ...original(), version: '9223372036854775807' },
+      { ...original(), version: '1e3' }, { ...original(), version: ' 1' },
+      { ...original(), session_idle_seconds: '899' },
+      { ...original(), session_idle_seconds: '7201' },
+      { ...original(), challenge_after_failures: 1 },
+      { ...original(), id },
+    ]) await expect(api.updateSettings(value as any, options())).rejects.toMatchObject({ kind: 'invalid-input' })
+    for (const extra of [{ key: '' }, { key: 'white space' }, { csrfToken: 'short' }])
+      await expect(api.updateSettings(original(), { ...options(), ...extra })).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetcher).not.toHaveBeenCalled()
+    expect((await createSystemAccountSecurityAPI(async () => json(settings('9223372036854775807'))).updateSettings({ ...original(), version: '9223372036854775806' }, options())).version).toBe('9223372036854775807')
+  })
+
+  it('enforces the exact 16 KiB UTF-8 request budget without changing the three older request exceptions', async () => {
+    const fixedBytes = encoder.encode(JSON.stringify({ text: '' })).byteLength
+    const room = 16 * 1024 - fixedBytes
+    const body = { text: '界'.repeat(Math.floor(room / 3)) + 'x'.repeat(room % 3) }
+    expect(encoder.encode(JSON.stringify(body)).byteLength).toBe(16384)
+    const fetcher = vi.fn<Fetch>(async () => json({})), raw = accountTransport(fetcher), write = options()
+    await raw('updateAccountSecurity', (v) => v, { body, key: write.key, csrf: write.csrfToken, signal: write.signal })
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    await expect(raw('updateAccountSecurity', (v) => v, { body: { text: body.text + 'x' }, key: write.key, csrf: write.csrfToken, signal: write.signal })).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    // Older Provider/credential exceptions are unchanged in the reviewed client diff, not rerun here.
+  })
+
+  it.each(['get', 'put'] as const)('%s waits for native EOF at the exact 600000-byte success limit', async (mode) => {
+    let source!: ReadableStreamDefaultController<Uint8Array>
+    const stream = new ReadableStream<Uint8Array>({ start(c) { source = c } })
+    const api = createSystemAccountSecurityAPI(async () => new Response(stream, { headers: { 'Content-Type': 'application/json' } }))
+    const task = observed(mode === 'get' ? api.getSettings(options().signal) : api.updateSettings(original(), options()))
+    source.enqueue(padded(settings(), 600000))
+    await nextTurn()
+    expect(task.settled()).toBe(false)
+    source.close()
+    expect(await task.result).toEqual({ success: true, value: settings() })
+  })
+
+  it('keeps a closed Problem at 600000 bytes unconfirmed and performs no invented lookup', async () => {
+    let source!: ReadableStreamDefaultController<Uint8Array>
+    const stream = new ReadableStream<Uint8Array>({ start(c) { source = c } })
+    const fetcher = vi.fn<Fetch>(async () => new Response(stream, { status: 503, headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': requestID } }))
+    const task = observed(createSystemAccountSecurityAPI(fetcher).updateSettings(original(), options()))
+    source.enqueue(padded(problem(), 600000))
+    await nextTurn(); expect(task.settled()).toBe(false)
+    source.close()
+    expect(await task.result).toMatchObject({ success: false, error: { kind: 'problem', problem: { code: 'COMMIT_UNKNOWN', commit_state: 'unknown', retry_hint: 'lookup' } } })
+    expect(fetcher).toHaveBeenCalledTimes(1)
+  })
+
+  it.each(['get-success', 'put-success', 'put-problem'] as const)('%s rejects 600001 actual bytes only after native cancel joins', async (mode) => {
+    const tail = deferred(), cancelled = vi.fn(() => tail.promise)
+    const isProblem = mode === 'put-problem'
+    const stream = new ReadableStream<Uint8Array>({ start(c) { c.enqueue(padded(isProblem ? problem() : settings(), 600001)) }, cancel: cancelled })
+    const api = createSystemAccountSecurityAPI(async () => new Response(stream, { status: isProblem ? 503 : 200, headers: { 'Content-Type': isProblem ? 'application/problem+json' : 'application/json', 'X-Request-ID': requestID } }))
+    const task = observed(mode === 'get-success' ? api.getSettings(options().signal) : api.updateSettings(original(), options()))
+    try {
+      await nextTurn()
+      expect(cancelled).toHaveBeenCalledTimes(1)
+      expect(task.settled()).toBe(false)
+    } finally { tail.resolve() }
+    expect(await task.result).toMatchObject({ success: false, error: { kind: 'invalid-response' } })
+  })
+
+  it('abort after a full valid body but before EOF neither confirms nor finishes before native cancellation', async () => {
+    const tail = deferred(), cancelled = vi.fn(() => tail.promise), abort = new AbortController()
+    const stream = new ReadableStream<Uint8Array>({ start(c) { c.enqueue(encoder.encode(JSON.stringify(settings()))) }, cancel: cancelled })
+    const task = observed(createSystemAccountSecurityAPI(async () => new Response(stream, { headers: { 'Content-Type': 'application/json' } })).updateSettings(original(), options(abort.signal)))
+    try {
+      await nextTurn(); expect(task.settled()).toBe(false)
+      abort.abort(); await nextTurn()
+      expect(cancelled).toHaveBeenCalledTimes(1)
+      expect(task.settled()).toBe(false)
+    } finally { tail.resolve() }
+    expect(await task.result).toMatchObject({ success: false, error: { kind: 'cancelled' } })
+  })
+
+  it('wrong-media 503 joins body cancellation without claiming reader EOF or exposing raw detail', async () => {
+    const tail = deferred(), cancelled = vi.fn(() => tail.promise)
+    const stream = new ReadableStream<Uint8Array>({ start(c) { c.enqueue(encoder.encode('untrusted raw failure')) }, cancel: cancelled })
+    const task = observed(createSystemAccountSecurityAPI(async () => new Response(stream, { status: 503, headers: { 'Content-Type': 'text/plain' } })).updateSettings(original(), options()))
+    try {
+      await nextTurn()
+      expect(stream.locked).toBe(false)
+      expect(cancelled).toHaveBeenCalledTimes(1)
+      expect(task.settled()).toBe(false)
+    } finally { tail.resolve() }
+    const result = await task.result
+    expect(result).toMatchObject({ success: false, error: { kind: 'invalid-response', message: 'invalid-response' } })
+    expect(JSON.stringify(result)).not.toContain('untrusted raw failure')
+  })
+
+  it('malformed UTF-8 cannot be parsed or published before its actual cancel tail', async () => {
+    const tail = deferred(), cancelled = vi.fn(() => tail.promise)
+    const stream = new ReadableStream<Uint8Array>({ start(c) { c.enqueue(new Uint8Array([0xff])) }, cancel: cancelled })
+    const task = observed(createSystemAccountSecurityAPI(async () => new Response(stream, { headers: { 'Content-Type': 'application/json' } })).getSettings(options().signal))
+    try {
+      await nextTurn()
+      expect(cancelled).toHaveBeenCalledTimes(1)
+      expect(task.settled()).toBe(false)
+    } finally { tail.resolve() }
+    expect(await task.result).toMatchObject({ success: false, error: { kind: 'invalid-response' } })
+  })
+})

@@ -1,0 +1,150 @@
+--- input04/system-model-selection.spec.ts
++++ input05/system-model-selection.spec.ts
+@@ -1415,9 +1415,137 @@
+   });
+ });
+ 
+-async function cutSave(page: Page) {
++async function cutSave(page: Page, diagnostic = false) {
+   await ipc("arm-drop");
+   const after = await seq(page);
++  if (diagnostic)
++    console.log(
++      "selection-cut-save-diagnostic " +
++        JSON.stringify(
++          await page.evaluate(() => {
++            const region = document.querySelector(".system-model-selection"),
++              form = document.querySelector(".selection-editor"),
++              rows = [
++                ...(form?.querySelectorAll(".draft-purposes > li") ?? []),
++              ],
++              saved = [
++                ...(region?.querySelectorAll(".current-references > li") ?? []),
++              ],
++              purposes = ["embedding", "memory", "reranker", "image"];
++            const text = (node: Element | null | undefined) =>
++              node?.textContent?.trim() ?? "";
++            const notices = [
++              ...(region?.querySelectorAll(".notice") ?? []),
++              ...(form?.querySelectorAll(".notice") ?? []),
++            ].map(text);
++            const ownerNotice = [
++              ...(region?.querySelectorAll('[role="status"]') ?? []),
++            ].some((node) => text(node) === "正在等待当前请求结束。");
++            const path = (value: string) => {
++              if (
++                [
++                  "/api/v1/session",
++                  "/api/v1/system/model-selection",
++                  "/api/v1/system/model-providers",
++                ].includes(value)
++              )
++                return value;
++              if (/^\/api\/v1\/system\/models\/[0-9a-f-]+$/.test(value))
++                return "/api/v1/system/models/:id";
++              if (
++                /^\/api\/v1\/system\/model-providers\/[0-9a-f-]+$/.test(value)
++              )
++                return "/api/v1/system/model-providers/:id";
++              if (
++                /^\/api\/v1\/system\/model-providers\/[0-9a-f-]+\/models$/.test(
++                  value,
++                )
++              )
++                return "/api/v1/system/model-providers/:id/models";
++              return "other";
++            };
++            return {
++              saveDisabled:
++                form?.querySelector<HTMLButtonElement>('button[type="submit"]')
++                  ?.disabled ?? null,
++              ownerBusyNotice: ownerNotice,
++              sessionChecking: !!document.querySelector(".session-check"),
++              physicalDialogs:
++                document.querySelectorAll('[role="dialog"]').length,
++              requiresReloadNotice: notices.some((value) =>
++                value.includes("需要明确重新读取并核对当前配置"),
++              ),
++              versionChangedNotice: notices.some((value) =>
++                value.includes("当前配置版本已变化"),
++              ),
++              unknownResult: !!form?.querySelector(".recovery-actions"),
++              editorNoticePresent: !!form?.querySelector(
++                ':scope > .notice[role="status"]',
++              ),
++              draft: purposes.map((purpose, index) => {
++                const row = rows[index],
++                  current = saved[index],
++                  id = text(row?.querySelector("code")),
++                  currentID = text(current?.querySelector("code")),
++                  first = row?.querySelector("p"),
++                  note = text(row?.querySelector(".notice"));
++                return {
++                  purpose,
++                  idPresent: !!id,
++                  matchesCurrent: !!id && id === currentID,
++                  unconfigured: text(first) === "不配置",
++                  missingRequired: text(first) === "尚未选择",
++                  detailPresent:
++                    !!first &&
++                    !first.classList.contains("meta") &&
++                    !first.classList.contains("notice"),
++                  detailMissing:
++                    note === "尚未读取完整的当前详情，请重读或明确重新选择。",
++                  invalid: note.startsWith("当前不可选："),
++                  currentIDPresent: !!currentID,
++                  currentDetailPresent: !!current?.querySelector("dl"),
++                  currentPending: [
++                    ...(current?.querySelectorAll('[role="status"]') ?? []),
++                  ].some(
++                    (node) =>
++                      text(node) === "正在读取 Model 与 Provider 详情。",
++                  ),
++                  currentInvalid: text(
++                    current?.querySelector(".notice"),
++                  ).startsWith("当前不可选："),
++                  currentNoticePresent: !!current?.querySelector(".notice"),
++                };
++              }),
++              pickerPresent: !!form?.querySelector(".candidate-picker"),
++              pickerPending: [
++                ...(form?.querySelectorAll(
++                  ".candidate-picker h2,.candidate-picker h3",
++                ) ?? []),
++              ].some((node) =>
++                [
++                  "正在读取 Provider",
++                  "正在读取 Providers",
++                  "正在读取 Models",
++                ].includes(text(node)),
++              ),
++              pickerInvalid: [
++                ...(form?.querySelectorAll(".candidate-picker .notice") ?? []),
++              ].some((node) => text(node).startsWith("不可选：")),
++              observations: ((window as ObservedWindow).__selectionFacts ?? [])
++                .slice(-40)
++                .map((fact) => ({
++                  sequence: fact.sequence,
++                  method: ["GET", "PUT", "POST", "DELETE"].includes(fact.method)
++                    ? fact.method
++                    : "other",
++                  path: path(fact.path),
++                  status: fact.status,
++                  ended: fact.ended,
++                })),
++            };
++          }),
++        ),
++    );
+   await top(page)
+     .getByRole("button", { name: "保存用途配置", exact: true })
+     .click();
+@@ -1905,7 +2033,7 @@
+   await discard(page);
+   await openEditor(page);
+   await clearOptional(page, "image");
+-  await cutSave(page);
++  await cutSave(page, true);
+   const accepted = await dbFacts();
+   await top(page).getByRole("button", { name: "取消", exact: true }).click();
+   await checkingConfirmation(page, false, "配置平台模型用途");

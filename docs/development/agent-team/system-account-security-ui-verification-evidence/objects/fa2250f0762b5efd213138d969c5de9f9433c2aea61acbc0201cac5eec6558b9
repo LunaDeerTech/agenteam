@@ -1,0 +1,56 @@
+--- /workspace/scratch/agenteam-account-security-frontend-b0df6sdm/run-account-security-fallback04.py
++++ /workspace/scratch/agenteam-account-security-frontend-b0df6sdm/run-account-security-combination06.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only frozen Account security author groups and record actual resources."""
++"""Run only the frozen Account/Selection Navigation combination and record actual resources."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -15,7 +15,7 @@
+ 
+ ROOT = Path(__file__).resolve().parent
+ REPO = Path('/workspace/agenteam')
+-BASE = 'fd32120eba4c76f67b649248377f4825a78d5d79'
++BASE = 'debbb28deb7c883fd0b6b77a75354b9b5d7ece0b'
+ FROZEN = {}
+ 
+ 
+@@ -109,7 +109,8 @@
+     parts = Path(name).parts
+     if any(part in BASELINE_EXCLUDED_DIRS or part.startswith('.') for part in parts[:-1]):
+         return False
+-    return (Path(name).name in {'go.mod', 'go.sum'} or parts[0] in BASELINE_ROOTS or
++    return (name == 'docs/frontend-design/styles/colors-and-themes.md' or
++            Path(name).name in {'go.mod', 'go.sum'} or parts[0] in BASELINE_ROOTS or
+             Path(name).suffix in GO_INPUT_SUFFIXES or
+             any(name.startswith(parent + '/') for parent in outside_packages))
+ 
+@@ -179,20 +180,19 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new', 'old-core', 'old-provider', 'old-model', 'old-selection', 'lifecycle', 'concurrency', 'outcome', 'authority', 'navigation'], required=True)
++    parser.add_argument('--group', choices=['navigation', 'selection-navigation', 'navigation-pair'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+     args = parser.parse_args()
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+-    modes = dict(lifecycle='Lifecycle', concurrency='Concurrency', outcome='OutcomeRecovery', authority='AuthorityAndIdentity', navigation='NavigationAndLayouts')
+-    groups = {mode: ['TestAccountSystemAccountSecurityWeb' + suffix] for mode, suffix in modes.items()}
+-    groups['new'] = ['TestAccountSystemAccountSecurityWeb' + suffix for suffix in modes.values()]
+-    groups['old-core'] = ['TestAccountAuthenticationWebSessionLifecycle', 'TestAccountPersonalSettingsWebThemeAndNavigation', 'TestAccountPublicEntryWebIdentityNavigation', 'TestAccountSystemUserDirectoryWebAuthorityAndIdentity', 'TestAccountSystemUserDirectoryWebNavigationAndLayouts', 'TestAccountSystemInvitationsWebOutcomeRecovery', 'TestAccountSystemInvitationsWebNavigationAndLayouts']
+-    groups['old-provider'] = ['TestAccountSystemProvidersWebCredentialReplacement', 'TestAccountSystemProvidersWebOutcomeRecovery', 'TestAccountSystemProvidersWebNavigationAndLayouts']
+-    groups['old-model'] = ['TestAccountSystemModelsWebDeletionAndReplacement', 'TestAccountSystemModelsWebOutcomeRecovery', 'TestAccountSystemModelsWebNavigationAndLayouts']
+-    groups['old-selection'] = ['TestAccountSystemModelSelectionWebOutcomeRecovery', 'TestAccountSystemModelSelectionWebAuthorityAndIdentity', 'TestAccountSystemModelSelectionWebNavigationAndLayouts']
++    groups = {
++        'navigation': ['TestAccountSystemAccountSecurityWebNavigationAndLayouts'],
++        'selection-navigation': ['TestAccountSystemModelSelectionWebNavigationAndLayouts'],
++        'navigation-pair': ['TestAccountSystemAccountSecurityWebNavigationAndLayouts',
++                            'TestAccountSystemModelSelectionWebNavigationAndLayouts'],
++    }
+     expected = set(groups[args.group])
+     args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
+     frozen_bytes = args.frozen.read_bytes()

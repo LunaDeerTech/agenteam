@@ -1,0 +1,9 @@
+# 账号安全单层确认恢复：独立责任归因
+
+**行为 RED；共享恢复契约缺口。** 固定 input01 的作者 new01 实际 exit1/133.704s；四组通过，Navigation 在同 Session 恢复确认并点“继续编辑”后失败。物理 overlay 已为0、零新增PUT已过，随后“连接且非body的HTMLElement、不处于inert/aria-hidden”组合为false。原raw未分项记录，不能把BODY或某个旧触发器追填为旧轮事实。
+
+固定链路：checking撤下整页/全部Dialog而保留App期Promise；新页带open确认重挂且按卡不聚焦标题。UiDialog不暴露恢复目标，useLayer开层时仅快照activeElement；最后一层关闭只尝试仍连接的原trigger。79f922e的可用目标/实际focus校验后备只覆盖“还有modal”分支，不能外推到本次最后一层。没有证据指向后端状态、旧View晚续体或标题错误抢焦点。
+
+卡§5禁止业务手动focus及共享层改动，因此先补责任契约再修实现。建议最小选择为当前View提供可选、本地语义恢复后备目标，关闭时解析，由共享层负责合法性和实际focus成功；原合法trigger优先、残存modal允许层区优先，旧实例/失效身份返回空。不能只把新prop接到现有开层时快照trigger：首次open挂载时新View的DOM ref可能尚null。不要全局扫描body、App保存旧DOM、业务反复重挂，或放宽已失败的原断言。
+
+原目标具体为何无效待作者已获授权的有限安全诊断终局再确认；本报告未读其活动源/日志、未运行资源。原new01已actualwait、7 exact ID双absent、PID/starttime双清、20 adopted waits、1050前后门禁通过。精确输入/原件SHA与局限见 attribution.json。私有A/B扩展暂停，未编译或运行。

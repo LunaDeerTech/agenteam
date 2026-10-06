@@ -1,0 +1,152 @@
+{
+  "checked_utc": "2026-10-06T15:35:56.867167+00:00",
+  "fences_balanced": true,
+  "frozen26_sources_unchanged": true,
+  "frozen33_dist_unchanged": true,
+  "headings_blank_separated": true,
+  "kind": "documentation-only static checks; no test/resource execution",
+  "links": [
+    {
+      "exists": true,
+      "target": "../work-items/d26-account-authentication.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d26-personal-settings.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d26-public-account-entry.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-system-user-directory-ui.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-system-invitation-ui.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-system-provider-management-ui.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-system-model-management-ui.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-system-model-selection-ui.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-system-account-security-ui.md"
+    },
+    {
+      "exists": true,
+      "target": "../backend/README.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d26-account-authentication.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d26-personal-settings.md"
+    },
+    {
+      "exists": true,
+      "target": "../../../api/openapi/account.json"
+    },
+    {
+      "exists": true,
+      "target": "../agent-team/personal-settings-verification.md"
+    },
+    {
+      "exists": true,
+      "target": "../agent-team/public-account-entry-verification.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-system-user-directory-ui.md"
+    },
+    {
+      "exists": true,
+      "target": "../agent-team/system-user-directory-read-verification.md"
+    },
+    {
+      "exists": true,
+      "target": "../agent-team/dialog-outside-focus-repair-verification.md"
+    },
+    {
+      "exists": true,
+      "target": "../backend/README.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-system-invitation-ui.md"
+    },
+    {
+      "exists": true,
+      "target": "../agent-team/system-invitation-delivery-read-verification.md"
+    },
+    {
+      "exists": true,
+      "target": "../agent-team/modal-focus-restoration-verification.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-system-provider-management-ui.md"
+    },
+    {
+      "exists": true,
+      "target": "../../../api/openapi/model-system.json"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-system-model-management-ui.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-system-model-selection-ui.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-system-account-security-ui.md"
+    },
+    {
+      "exists": true,
+      "target": "../work-items/d27-model-selection-cancelled-read-recovery.md"
+    },
+    {
+      "exists": true,
+      "target": "../../frontend-design/styles/README.md"
+    },
+    {
+      "exists": true,
+      "target": "components.md"
+    },
+    {
+      "exists": true,
+      "target": "verification.md"
+    }
+  ],
+  "local_link_occurrences": 31,
+  "new_command_static_selectors": {
+    "^(TestAccountSystemAccountSecurityWebNavigationAndLayouts|TestAccountSystemModelSelectionWebNavigationAndLayouts)$": [
+      "TestAccountSystemAccountSecurityWebNavigationAndLayouts",
+      "TestAccountSystemModelSelectionWebNavigationAndLayouts"
+    ],
+    "^TestAccountSystemAccountSecurityWeb(Lifecycle|Concurrency|OutcomeRecovery|AuthorityAndIdentity|NavigationAndLayouts)$": [
+      "TestAccountSystemAccountSecurityWebAuthorityAndIdentity",
+      "TestAccountSystemAccountSecurityWebConcurrency",
+      "TestAccountSystemAccountSecurityWebLifecycle",
+      "TestAccountSystemAccountSecurityWebNavigationAndLayouts",
+      "TestAccountSystemAccountSecurityWebOutcomeRecovery"
+    ]
+  },
+  "old_author_report_and_index_unchanged": true,
+  "scope_card_exact27": true,
+  "trailing_whitespace_none": true,
+  "utf8_lf_final_newline": true
+}

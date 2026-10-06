@@ -1,0 +1,14 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-account-security-page-verification-qfjkrdik/candidate/web
+
+ ✓ src/tests/independent-account-security-page.spec.ts > independent account security page > controller refuses missing observations, stale detached results and max-version writes without defaults 29ms
+ ↓ src/tests/independent-account-security-page.spec.ts > independent account security page > App known conflict preserves all fields and original version until explicit current-value adoption
+ ↓ src/tests/independent-account-security-page.spec.ts > independent account security page > App historical retry never seeds newer editing and immediate new draft loses old success without advancing timer
+ ↓ src/tests/independent-account-security-page.spec.ts > independent account security page > App one confirmation survives actual pageshow checking/503/same-identity recovery and keeps drafts and navigation undecided
+ ↓ src/tests/independent-account-security-page.spec.ts > independent account security page > App same-user new Session settles pending confirmation false and destroys the old draft without an old route continuation
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 4 skipped (5)
+   Start at  13:17:55
+   Duration  1.38s (transform 720ms, setup 0ms, import 855ms, tests 31ms, environment 378ms)
+

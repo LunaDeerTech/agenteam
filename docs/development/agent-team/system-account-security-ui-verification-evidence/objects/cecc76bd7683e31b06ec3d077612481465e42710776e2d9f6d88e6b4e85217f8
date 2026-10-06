@@ -1,0 +1,120 @@
+--- 870ebbb/web/src/tests/system-user-directory.spec.ts
++++ web-stage01/web/src/tests/system-user-directory.spec.ts
+@@ -198,7 +198,7 @@
+ }
+ 
+ describe('System user directory page and shared shells', () => {
+-  it('opens users from the five-leaf administrator entry with separately labelled fields', async () => {
++  it('opens users from the six-leaf administrator entry with separately labelled fields', async () => {
+     const p = await page('/')
+     await p.wrapper.get('nav[aria-label="系统导航"] a[href="/system"]').trigger('click')
+     await flushPromises()
+@@ -213,6 +213,7 @@
+       'Providers',
+       'Models',
+       '平台模型用途',
++      '账号安全',
+     ])
+     expect(menu.get('a').attributes('aria-current')).toBe('page')
+     expect(menu.findAll('button').map((b) => b.text())).not.toContain('退出登录')
+--- 870ebbb/web/src/tests/system-invitations.spec.ts
++++ web-stage01/web/src/tests/system-invitations.spec.ts
+@@ -277,13 +277,13 @@
+     expect(f.wrapper.get('nav[aria-label="系统设置"] [aria-current="page"]').text()).toBe(
+       '待注册邀请',
+     )
+-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
++    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+     expect(
+       f.wrapper
+         .get('nav[aria-label="系统设置"]')
+         .findAll('a')
+         .map((a) => a.text()),
+-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途'])
++    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
+     expect(f.reads()).toHaveLength(1)
+     expect(f.wrapper.findAll('th').map((n) => n.text())).toEqual([
+       '邮箱',
+--- 870ebbb/web/src/tests/system-providers.spec.ts
++++ web-stage01/web/src/tests/system-providers.spec.ts
+@@ -316,7 +316,7 @@
+ }
+ 
+ describe('Provider actual App/router/controller composition', () => {
+-  it('keeps users as default, has exactly five leaves in two groups and validates nine exact return paths', async () => {
++  it('keeps users as default, has exactly six leaves in three groups and validates ten exact return paths', async () => {
+     const f = await page('/system')
+     expect(f.router.currentRoute.value.path).toBe('/system/users')
+     expect(
+@@ -324,8 +324,8 @@
+         .get('nav[aria-label="系统设置"]')
+         .findAll('a')
+         .map((a) => a.text()),
+-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途'])
+-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
++    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
++    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+     await f.wrapper.get('a[href="/system/providers"]').trigger('click')
+     await flushPromises()
+     expect(f.wrapper.get('h1').text()).toBe('Providers')
+--- 870ebbb/web/src/tests/system-models.spec.ts
++++ web-stage01/web/src/tests/system-models.spec.ts
+@@ -446,8 +446,8 @@
+         .get('nav[aria-label="系统设置"]')
+         .findAll('a')
+         .map((a) => a.text()),
+-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途'])
+-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
++    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
++    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+     await f.wrapper.get('a[href="/system/models"]').trigger('click')
+     await flushPromises()
+     expect(f.wrapper.get('h1').text()).toBe('Models')
+--- 870ebbb/web/src/tests/system-model-selection.spec.ts
++++ web-stage01/web/src/tests/system-model-selection.spec.ts
+@@ -390,7 +390,7 @@
+ }
+ 
+ describe('Selection actual App/router/controller interactions', () => {
+-  it('keeps the users default and five leaves, and adds only the exact ninth return target', async () => {
++  it('keeps the users default and six leaves with the exact Selection return target', async () => {
+     const f = await page({ path: '/system' })
+     expect(f.router.currentRoute.value.path).toBe('/system/users')
+     expect(
+@@ -398,8 +398,8 @@
+         .get('nav[aria-label="系统设置"]')
+         .findAll('a')
+         .map((a) => a.text()),
+-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途'])
+-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
++    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
++    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+     await f.wrapper.get('a[href="/system/model-selection"]').trigger('click')
+     await flushPromises()
+     expect(f.wrapper.get('h1').text()).toBe('平台模型用途')
+--- 870ebbb/web/src/tests/personal-settings.spec.ts
++++ web-stage01/web/src/tests/personal-settings.spec.ts
+@@ -471,16 +471,22 @@
+       expect(p.api.login.mock.calls.length).toBe(1)
+     },
+   )
+-  it('only permits the nine exact return targets and clears dirty previews on real context invalidation', async () => {
++  it('only permits the ten exact return targets and clears dirty previews on real context invalidation', async () => {
+     expect(safeReturnTarget('/system/invitations')).toBe('/system/invitations')
+     expect(safeReturnTarget('/system/providers')).toBe('/system/providers')
+     expect(safeReturnTarget('/system/models')).toBe('/system/models')
+     expect(safeReturnTarget('/system/model-selection')).toBe('/system/model-selection')
++    expect(safeReturnTarget('/system/account-security')).toBe('/system/account-security')
+     expect(safeReturnTarget('/system/users')).toBe('/system/users')
+     for (const target of [
+       '/settings',
+       '/settings/profile?x=1',
+       '/settings/password#x',
++      '/system/account-security?x=1',
++      '/system/account-security#x',
++      '/system/account-security/',
++      '/system/account-security/extra',
++      ['/system/account-security'],
+       '//example.com',
+       'https://example.com',
+       ['/settings/profile'],

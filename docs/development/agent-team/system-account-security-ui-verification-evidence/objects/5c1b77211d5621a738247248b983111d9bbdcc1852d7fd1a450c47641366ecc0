@@ -1,0 +1,112 @@
+{
+  "conclusion": "PASS - account-security owner-stage01 only",
+  "base": "870ebbb986f56bb62be34ccdfa2c77819ce995a6",
+  "card": "cb9ad6c6ae5a34a6f123e6f8aad0db90646d5cb7",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/owner-stage01/manifest.json",
+    "sha256": "b6861a56a8cd503171693d8a1d75c8992849123cd42030b2923a5916594ca89f"
+  },
+  "API_reuse": {
+    "path": "/workspace/scratch/agenteam-account-security-api-verification-2a97hois/api-stage01-report.json",
+    "sha256": "405b8f8f41bda98cc6c6245e10a9dca71617b76bf0c50894cec03addb02df940",
+    "three_API_candidates_unchanged": true
+  },
+  "independent": {
+    "tests": 9,
+    "exit_code": 0,
+    "elapsed_seconds": 1.168,
+    "actual_wait": true,
+    "inputs_unchanged": true,
+    "pid": 1168637,
+    "pid_absent_after_actual_wait": true,
+    "adopted_waits": []
+  },
+  "passed": [
+    "Five candidates and eleven accepted dependencies match manifest; accepted dependencies byte-match fixed Git; three API candidates identical to API-stage01, independent 14-case result reused.",
+    "New seventh optional constructor dependency and account-security read/write revisions are explicit. Current write CSRF, identity reset, system403 and global leave integrate with existing owner; other-domain APIs and budget helpers unchanged.",
+    "Singleton first successful GET gate, no write/key allocation after failed/no first GET, same-identity normal/abandon read mismatch rejected, different PUT singleton never confirmed; new Session destroys old intent and establishes new binding.",
+    "Three actual same-original supplied-transport PUT attempts retain exact private body/key/CSRF through current GET failure, newer read, and later VERSION_CONFLICT; Session check emits one Session GET then at most one configuration GET; no lookup request, historical Settings separate from current returned observation.",
+    "Session failure, changed Session, changed CSRF and changed role stop before configuration GET and never replay transferred intent.",
+    "30s visible timeout is advanced with fake setTimeout clock; complete valid native body lacks EOF and cancellation is held by its real stream underlying cancel promise. All seven domains plus restore/logout remain undispatched until that promise resolves and actual owner finally finishes.",
+    "All existing domain abandon methods leave security native read alive; reverse representative security cleanup does not abort Selection read. Author full reverse-domain matrix reused separately.",
+    "Synchronous submitting watcher abandonment sends zero PUT; confirmed watcher abandonment and new start do not let old continuation clear successor.",
+    "Current403 clears Selection uncertainty and Provider private material as well as account security, binds denial without role forgery or logout; successful Session recovers eligibility; current write CSRF clears exact identity.",
+    "Late parsed401 still clears same identity, whereas abandoned read late403 does not install stale system denial. Explicit API-promise gate after real Problem parse used for this case; no claim of native cancellation from this gate."
+  ],
+  "limits": [
+    "Owner-stage only; no controller/View/App code consumed, no page current-state or current-version rollback claim, no UI/HTTP/database authorization or formal AccountSettings transaction exercised.",
+    "Fixture uses the seven production API factories with supplied Fetch/native Response/ReadableStream under jsdom. No browser, server, PG, Docker or external network resources.",
+    "30s is simulated clock advancement of the unchanged production timer, not 30 seconds wall time. Native cancel pending/settlement observed separately in actual promises.",
+    "Late parsed-error test has an explicit injected API promise gate after real transport parsing. It is not a native reader/cancel-tail proof and is separate from the native stream cases.",
+    "Full pairwise domain matrix and earlier API budgets are reused only as separately identified unchanged author/independent evidence; not rerun. No independent full npm check, private probe typecheck or browser run.",
+    "Runtime fingerprints cover Node, fixed lock and four package metadata/version matches, not an archived complete dependency tree.",
+    "No independent failure occurred. No private values or their hashes emitted by assertions/logs; request equality remains in-memory boolean assertions."
+  ],
+  "author_checks_reused": [
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/owner01/result.json",
+      "sha256": "15132330690c20e9adb3e3acc46dc38c5afa209d2b60c2b504e591e78896c28c",
+      "exit_code": 0,
+      "duration_seconds": 1.537
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/owner-type01/result.json",
+      "sha256": "bc763566a4284b90e455d30070958d868c4bed2ddc3d75ef08d5a5abf68a24d7",
+      "exit_code": 0,
+      "duration_seconds": 6.201
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/owner-format01/result.json",
+      "sha256": "cd4b7c54c4c98a5e7290d2391dbd8022ea99b082fe78eda1a4c4a948a2c7603e",
+      "exit_code": 0,
+      "duration_seconds": 0.686
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/owner-regression01/result.json",
+      "sha256": "7408f26226b62392030b00967f70071f975b4a53662f190496d09fd638ae504d",
+      "exit_code": 0,
+      "duration_seconds": 3.117
+    }
+  ],
+  "candidate_files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "c820835627b2711ce174d92aa115400d09f5d12ff05f88221c3d5da8daf327c3",
+      "role": "candidate"
+    },
+    {
+      "path": "web/src/api/system-account-security.ts",
+      "sha256": "5dabbdd4c5de0cfde671c6bdfc8c92eae140a842719752740ea65282a8feffbb",
+      "role": "candidate"
+    },
+    {
+      "path": "web/src/tests/system-account-security-client.spec.ts",
+      "sha256": "2c2b0d022c5d7d91185223958155fb552865bc2521341bcf533eb2437c418aa3",
+      "role": "candidate"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "952d35360f6a5e5ac0892b4c7866b529264457d6ba6014e99e0f8af8d39a1f6a",
+      "role": "candidate"
+    },
+    {
+      "path": "web/src/tests/system-account-security-state.spec.ts",
+      "sha256": "b28b0cbe9f811045064420e1b78138272ec0e926820a2073523d056418ff71d3",
+      "role": "candidate"
+    }
+  ],
+  "artifact_hashes": {
+    "input.json": "246332ac7270eeaada98b0c9b9029d5e060bc9bc22c810f7ac21afb6ccae9275",
+    "author-manifest.json": "b6861a56a8cd503171693d8a1d75c8992849123cd42030b2923a5916594ca89f",
+    "owner.diff": "51cf6c379932053fe7a8c895129b11e16cd9feb15cb2193544b6537bc2cff2f7",
+    "runtime-check.json": "3bac7c028953e145f5899d6960eab27cf635f324b50bdc94786df1712f234aa9",
+    "candidate/web/src/tests/independent-account-security-owner.spec.ts": "c9a01ecee102a55916b8054c37f7cbf0bd80ac252e7a0110d2d0f35377125a16",
+    "candidate/web/vitest.config.mjs": "efa6c557e00a6eb7965343dd00f81e2fa15fcfeb3adbfef2d62289eb31e4cb7d",
+    "run-pure.py": "9403e685630087f84e2032f9bb7f153cf04ee2be5c021894d13e902650482495",
+    "logs/independent01/command.json": "900a2ff340c019a9c3c453211e42e5c5b57a95ec0a46732d7c7ba4a17707e903",
+    "logs/independent01/raw.log": "301eebeab71a34ed6f0a04c6e29e677381d48dc45269c2cf7b38717e0aba4834",
+    "logs/independent01/result.json": "ab296aee289c5af40db7f069fe8bd22e1de59dd7cbd63aa85a3c517b752c98ff",
+    "logs/independent01/driver.py.txt": "9403e685630087f84e2032f9bb7f153cf04ee2be5c021894d13e902650482495"
+  },
+  "state": "frozen; no active commands/resources; product and Git unchanged"
+}

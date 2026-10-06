@@ -1,0 +1,18 @@
+# 账号安全 web-stage01 独立验收
+
+结论：**离线页面/controller/App 有界 PASS**；真实服务与浏览器门槛仍待执行。固定作者 manifest `bf52d983ab9c4f8c8d8210f7141c7dc08c36a9164fb4b27cb1c2c503ab18d202`，基线 `870ebbb986f56bb62be34ccdfa2c77819ce995a6`。18源、33dist末次逐SHA一致；固定Git取必需接受依赖，私有53文件包含38文件实际导入闭包，没有复制完整web/依赖树。
+
+- `controller01`：**1/1 PASS，actual exit0/1.772s**。缺失/null读取零默认零写；detach后迟到读取不发布；版本上限只读。
+- `app01`：**4/4 PASS，actual exit0/2.181s**。真实App+路由守卫+正式API/owner/组件，测试使用私有Fetch。两轮原输入前后一致、actual wait、PID退出后absent。
+- 409后四项原草稿/原版本保留，最新GET不rebase；真实“继续编辑”不采纳，真实“放弃修改”后才采用新版本，新PUT确用采纳后的version。
+- 原PUT响应丢失→Session/较新GET不确认→显式原PUT严格历史成功：页面current/编辑仍用较新值；原body/key/CSRF仅内存安全相等断言。未产生lookup。
+- 不推进2400ms立即改新草稿，按钮真实可访问名恢复“保存配置”；零自动PUT。下一新PUT确用较新基线。确认后GET503保留历史、移除当前/表单，只GET恢复新基线。
+- 确认先打开，再实际派发pageshow事件→checking→503→同Session恢复：single Dialog物理卸载/重挂，Promise/草稿未结算；恢复后top可操作，继续阻止旧路由，后续显式放弃允许导航，零PUT。新Session则false结算旧路由并销毁草稿。六叶/三组/十return亦核合。
+
+API/client/useSession三个产品SHA与已验阶段一致，复用独立API14/owner9；原27owner测试体原字节。`integration.diff`核App、route与第三组入口；`compatibility.diff`核旧六App测试仅菜单/return兼容。作者state34/App9/type及完整1064项/format/type/build28.051s原件SHA/actual0已核，不计作独立5项。
+
+原日志：`logs/controller01/raw.log` SHA `ca5296a527ed13ecb1908250781db5144f65e0ba01fcb3333ea32466d022e205`；`logs/app01/raw.log` SHA `16463b8d88275aa85bc576b20dbf30643fe2a0ddfcf43b34a0ce174e340edc7d`。各目录含原probe副本、argv/env/cwd/输入/actual结果/driver。完整最小指纹与18源清单见同名JSON。
+
+限制：jsdom使用明确的getClientRects资格stub，程序化focus不代表原生Tab/指针/布局/BFCache。内存router中其它已接受叶子为非交互占位，不复验其渲染。冲突/丢响应/配置推进均私有传输事实，未证明正式并发、Audit或新签发期限；无HTTP服务/browser/PG/Docker。最初只读准备误假定依赖副本位于source，FileNotFoundError后改由固定Git取依赖；当时无动态运行，保留工具观察说明，不补造原磁盘raw。未另跑私有probe类型检查，不复制依赖树。
+
+本根现永久停写，无活动命令/真实资源，无产品修改或Git操作。

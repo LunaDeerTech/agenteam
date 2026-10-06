@@ -189,3 +189,16 @@ controller仅在公开主动放弃的同步退役边界将本批未完current/re
 八图只有作者逐图审阅及视觉报告；主线程仅读报告，没有view本轮截图，独立验证者也未图审。独立v1误称主线程代表图审的原文保持，v2只纠正审阅主体，不改功能、清理或源SHA。图片为可滚动内容顶部，不声称全部下方字段同时可见。原混合diagnostic02/04绿表示复现缺陷；01/03前提红、Account oldselection01 timeout及oldselection02完整引用场景诊断PASS分列，原首轮缺少现场分项，不能倒填唯一原因。
 
 归档271逻辑/176去重原件，保留原raw/diff、26项本修复检查和旧诊断交叉原件，仅离线核保存字节与固定Git；不复制全树、依赖、二进制或dist实体，不重跑产品。Account后继必须在已接受两测试文件上精确重放原六叶/三组增量，保留本修复全部强断言并另验组合，尚非整卡接受。本次不写Account卡或README；完整D09/D26/D27及D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503及Runtime/生产SPA/Vite等边界保持。
+## 18. System 账号安全 UI 完整卡接受
+
+§1–17保留各阶段原事实。[账号安全 rev2](../work-items/d27-system-account-security-ui.md)已获作者检查、独立本域及最终组合PASS，由主线程采纳提交推送 `40c904c0dd88420fc621f40c0a737d243d514ec1`，主线程核远端一致。[正式报告与不可变证据](system-account-security-ui-verification.md)固定input06 `baeaeb37b348167d8407831314e83adb60615dfb7882f248506c7a314c0e4954`的26源／33dist指纹、debbb28的1051接受基线及最后README；27交付路径逐SHA核固定Git，卡技术§1–7保持原字节。
+
+管理员账号安全内联表单区分当前GET、四字段草稿和历史PUT Settings；无lookup，未确认命令仅明确原key/body/expected version与合法CSRF重放，读取当前不充作确认。409保留草稿、明确采用才换基线，原Session期限不被追改。七域实际I/O尾部与当前权限、App期状态和共宿主确认保持；共享fallback fd32120及Selection取消读取debbb28分别已接受，本卡两重叠测试只重放原五处六叶三组适配并保留全部新强断言。
+
+完整组合检查1115测试／32文件及format/type/build通过；Go发现首轮私有TMPDIR不存在在编译前exit1、同命令准备目录后通过，原失败保留。新五组由new01四组＋最终Account Navigation组成，旧十六组由core7／Provider3／Model3／oldselection01两组＋最终Selection Navigation组成。原new01未采样BODY或captured trigger；new02实际BODY亦未直接采样原trigger。页面fallback两产品红后返修通过、独立VTU代理身份前提红改uid后两例通过，均保留原件。oldselection01禁用超时缺现场分项，诊断绿和后续独立修复不能反填唯一原因。
+
+独立input04 Replay／Conflict首轮actual0/160.685s：历史写响应截断后另一Session推进当前，明确原材料重放得旧Settings而当前不回退；正式409、同身份Session503→200EOF、待决确认／标题焦点／原生Tab和新旧Session期限均通过。最终input06仅24源不变＋两测试差量及既有Selection controller/state接受差量，独立增补核该复用与新组合，不称A/B在新dist重跑。两页Navigation actual0/81.887s、顶层17.12/16.49s全PASS；7exact IDs双absent、95PID/starttime双空、8实际adopted wait、monitor0、自有runtime空，基线／输入不变，窗口释放。全部十轮实际wait和各自双清保留；历史PPID1 Z不计已回收。
+
+最终十六图仅作者逐张检查，主线程仅读报告，独立及归档不新增图审声明；窄屏下方字段需主区域滚动。早期Go编译未消费browser前态72e3a507…40d37无精确副本，仅保留原fingerprint/command/raw/exit，不重复搜索或补造，最终失败源与受测源齐全。早期env只据原记录，不扩为完整环境。本次559逻辑／388唯一SHA对象中353新增、35复用既有永久档，离线核27Git路径／1051基线／64原检查含十轮终局，不复制依赖/dist实体／二进制或重跑产品。
+
+§16–17所述Account待组合现由本节独立接受闭合，旧正文不改。本次不写SMTP卡、前端README或产品；不接受SMTP发送／新后端／迁移、生产SPA／Vite代理浏览器、BFCache、原生缩放或Runtime。完整D09/D26/D27及D08–D28/E01未完成，E01未开始；Summary待决、Object/tools原停止、Artifact/Project与生产未绑定及ready503等边界保持。

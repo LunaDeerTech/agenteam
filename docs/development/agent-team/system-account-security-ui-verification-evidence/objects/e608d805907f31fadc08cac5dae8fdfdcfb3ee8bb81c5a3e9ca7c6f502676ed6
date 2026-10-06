@@ -1,0 +1,30 @@
+{"mode": "lifecycle", "cwd": "/workspace/agenteam/tests/account-captcha-web", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-account-security.config.js", "--list"], "exit": 0, "actual_wait": true, "elapsed": 1.0072783840005286}
+Listing tests:
+  system-account-security.spec.ts:295:1 › [lifecycle] current settings, exact four-field save and new-only Session lifetimes
+Total: 1 test in 1 file
+
+
+{"mode": "concurrency", "cwd": "/workspace/agenteam/tests/account-captcha-web", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-account-security.config.js", "--list"], "exit": 0, "actual_wait": true, "elapsed": 0.6713425139969331}
+Listing tests:
+  system-account-security.spec.ts:362:1 › [concurrency] two formal administrator Sessions compete and explicitly adopt the latest baseline
+Total: 1 test in 1 file
+
+
+{"mode": "outcome", "cwd": "/workspace/agenteam/tests/account-captcha-web", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-account-security.config.js", "--list"], "exit": 0, "actual_wait": true, "elapsed": 0.7228000100003555}
+Listing tests:
+  system-account-security.spec.ts:456:1 › [outcome] accepted response cut, current GET evidence and immutable historical replay
+Total: 1 test in 1 file
+
+
+{"mode": "authority", "cwd": "/workspace/agenteam/tests/account-captcha-web", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-account-security.config.js", "--list"], "exit": 0, "actual_wait": true, "elapsed": 0.7146410400018794}
+Listing tests:
+  system-account-security.spec.ts:550:1 › [authority] real current 403, denied historical replay, exact 401 and identity cleanup
+Total: 1 test in 1 file
+
+
+{"mode": "navigation", "cwd": "/workspace/agenteam/tests/account-captcha-web", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-account-security.config.js", "--list"], "exit": 0, "actual_wait": true, "elapsed": 0.6801939910001238}
+Listing tests:
+  system-account-security.spec.ts:743:1 › [navigation] six leaves, one restored inline confirmation and eight responsive layouts
+Total: 1 test in 1 file
+
+

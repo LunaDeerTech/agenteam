@@ -1,0 +1,24 @@
+{
+  "from": "870ebbb986f56bb62be34ccdfa2c77819ce995a6",
+  "to": "fd32120eba4c76f67b649248377f4825a78d5d79",
+  "added": [],
+  "removed": [],
+  "changed": {
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": {
+      "before": "ab6f5b4e33d8d554a42ed64a9b874accc9c94bc67f2dc63626db94e96b089d1a",
+      "after": "f2db7a6e2f0123f1628a6c7c9a8d32c257373b4867c8710be53a9dd3030e57bc"
+    },
+    "web/src/components/ui/UiDialog.vue": {
+      "before": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065",
+      "after": "2009c74dbb2f2cd5ae351b435eb3d801f9dce3ea0a9c91c73a055371fed211b0"
+    },
+    "web/src/composables/useLayer.ts": {
+      "before": "92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f",
+      "after": "aa3e2624666350d289c571c99516776423ef79d58f095308478d2593a5dcd7f3"
+    },
+    "web/src/tests/dialog-outside-focus.spec.ts": {
+      "before": "69619799902edb157896712634e2678fc7bc3c2ed16e0b78e5a983347ba8d0e0",
+      "after": "50e1e4da805ad3229322cc6429fab9fc476859df2f70f51f8b024bba3ff8ec59"
+    }
+  }
+}

@@ -1,0 +1,38 @@
+--- logs/app01/probe.ts.txt
++++ candidate/web/src/tests/independent-account-security-page.spec.ts
+@@ -179,7 +179,7 @@
+     const newHeading = heading('账号安全') as HTMLElement
+     expect(newHeading).not.toBe(oldHeading)
+     const newDialog = newView.getComponent(UiDialog)
+-    const dialogInstance = newDialog.vm
++    const dialogInstance = newDialog.vm.$.uid
+     expect(newDialog.props('fallbackFocus')).toBe(newHeading)
+     const top = dialog()
+     expect(top.contains(document.activeElement)).toBe(true)
+@@ -192,7 +192,7 @@
+     expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+     expect(document.activeElement).toBe(newHeading)
+     expect(newHeading.closest('[inert],[aria-hidden="true"]')).toBeNull()
+-    expect(newView.getComponent(UiDialog).vm).toBe(dialogInstance)
++    expect(newView.getComponent(UiDialog).vm.$.uid).toBe(dialogInstance)
+     expect(newView.getComponent(UiDialog).props('open')).toBe(false)
+     expect(oldHeadingFocus).not.toHaveBeenCalled()
+     expect(field('密码重置有效期（秒）').value).toBe('3600')
+@@ -203,7 +203,7 @@
+     const f = await screen()
+     const oldView = f.wrapper.getComponent(SystemAccountSecurityView)
+     const oldHeading = heading('账号安全') as HTMLElement
+-    const oldDialog = oldView.getComponent(UiDialog).vm
++    const oldDialog = oldView.getComponent(UiDialog).vm.$.uid
+     await edit('密码重置有效期（秒）', '3600')
+     button('保存配置').focus()
+     const pending = f.router.push('/system/users'); await flushPromises(); dialog()
+@@ -220,7 +220,7 @@
+     expect(f.auth.personalContext.identity?.sessionID).toBe(id(3))
+     const currentView = f.wrapper.getComponent(SystemAccountSecurityView)
+     const currentHeading = heading('账号安全') as HTMLElement
+-    expect(currentView.getComponent(UiDialog).vm).not.toBe(oldDialog)
++    expect(currentView.getComponent(UiDialog).vm.$.uid).not.toBe(oldDialog)
+     expect(currentView.getComponent(UiDialog).props('fallbackFocus')).toBe(currentHeading)
+     expect(currentView.getComponent(UiDialog).props('open')).toBe(false)
+     expect(currentHeading).not.toBe(oldHeading)

@@ -1,0 +1,103 @@
+{
+  "status": "BEHAVIOR RED; narrow shared focus contract gap; exact activeElement category pending separately frozen diagnostic",
+  "inputs": [
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new01/raw.log",
+      "sha256": "378d9d6a74065a4dd7db8daa287bc54505a091f909c3ecd9011531ec3d051378"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new01/result.json",
+      "sha256": "8486e8d9ebccbba74301b301fe2753f60bfc02f76443f7fff7e0bf260a951e29"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new01/command.json",
+      "sha256": "00604f62979273098fa7cdd96fdd7aa671ee84a76d61c4c909af6466eada87dc"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/runs/new01/cleanup.json",
+      "sha256": "92de36e569a58ceb8abd43fce414f4b5a4296ce2c1f7399941cad0345f1f464c"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input01/manifest.json",
+      "sha256": "a748554b1502fe5878ee55751d54c95f203fa547467e3725af217d17c01cd437"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input01/source/web/src/views/system/SystemAccountSecurityView.vue",
+      "sha256": "eff4bdf03cd2dda77ee384cea83d5923e40ee57b127b420777a7a57f690565a6"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input01/source/web/src/App.vue",
+      "sha256": "4edc9c917d4413ce703bd54c24af94d2f6cdad4a0a7a902026395e508dcb244b"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-account-security-frontend-b0df6sdm/input01/source/tests/account-captcha-web/e2e/system-account-security.spec.ts",
+      "sha256": "d1e1379c9192afb8522e05f18474a8919d6228f1a269f10a1855809309d1d6c3"
+    }
+  ],
+  "accepted_shared": [
+    {
+      "commit": "870ebbb986f56bb62be34ccdfa2c77819ce995a6",
+      "path": "web/src/composables/useLayer.ts",
+      "sha256": "92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f"
+    },
+    {
+      "commit": "870ebbb986f56bb62be34ccdfa2c77819ce995a6",
+      "path": "web/src/components/ui/UiDialog.vue",
+      "sha256": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065"
+    }
+  ],
+  "actual": {
+    "exit": 1,
+    "seconds": 133.704,
+    "actual_wait_completed": true,
+    "selected_top_levels": [
+      [
+        "PASS",
+        "TestAccountSystemAccountSecurityWebLifecycle"
+      ],
+      [
+        "PASS",
+        "TestAccountSystemAccountSecurityWebConcurrency"
+      ],
+      [
+        "PASS",
+        "TestAccountSystemAccountSecurityWebOutcomeRecovery"
+      ],
+      [
+        "PASS",
+        "TestAccountSystemAccountSecurityWebAuthorityAndIdentity"
+      ],
+      [
+        "FAIL",
+        "TestAccountSystemAccountSecurityWebNavigationAndLayouts"
+      ]
+    ],
+    "double_cleanup": true,
+    "observed_resources": 7,
+    "observed_processes": 178,
+    "adopted_waits": 20,
+    "source_unchanged": true,
+    "accepted_before": true,
+    "accepted_after": true
+  },
+  "proved": [
+    "Four other author top-level groups passed. Navigation failed at restoredConfirmation line1033 after initial dirty route confirmation, synthetic pageshow/Session503 recovery, fresh matching Session200 projection, physical/accessibility dialog1 and native Tab checks.",
+    "After clicking Continue, physical overlay0 and no-extra-PUT assertions already passed, then connected non-body HTMLElement outside inert/aria-hidden predicate was false. This is not a wrong text locator and not the former leave-animation sampling premise.",
+    "Raw preserves only combined false. It does not identify whether BODY, disconnected, non-HTMLElement or hidden/inert caused that false, nor any precise captured return target."
+  ],
+  "fixed_static_chain": [
+    "App authenticated-only RouterView unmounts entire AccountSecurity View during checking; App-owned confirmation Promise survives. New View mounts with confirmation.open already true.",
+    "View onMounted correctly avoids heading focus while confirmation is open, and old View async DOM operations have alive guards. No evidence of a late old-instance focus theft.",
+    "UiDialog calls useLayer(open,panel,close,true) without an explicit trigger. Layer open watcher captures current activeElement once; on closing the final modal it only focuses a connected saved trigger.",
+    "Accepted 79f922e restorationTarget/actual-focus fallback applies only while another modal remains. Final-modal branch intentionally has no fallback; UiDialog exposes no caller restoration target."
+  ],
+  "recommended_contract": [
+    "Keep original operable-focus and native Tab assertions. Account requirement is valid; current accepted shared capability plus card prohibition of business manual focus leaves this composition uncovered.",
+    "A narrow optional business-local restoration fallback can be supplied by the current View, resolved at close rather than captured while initial refs are null. Shared layer owns visibility/enabled/inert checks and actual focus success; original legal trigger has priority.",
+    "Remaining modal allowed-layer rules continue to win; stale/unmounted/identity-invalid View returns no target; do not store DOM in App controller, globally scan body, or remount repeatedly.",
+    "Default no-modal behavior for callers without explicit fallback should stay as accepted unless a separately reviewed broader contract explicitly changes it. Revise scope/contract before implementation; this report authorizes no shared or product edits."
+  ],
+  "bound01_state": "A/B source preparation paused incomplete before any compile/type/list or real execution. Exact paused files indexed separately at bound01-paused.json.",
+  "dynamic_work_by_verifier": false,
+  "active_diagnostic_source_read": false
+}

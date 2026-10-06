@@ -1,0 +1,17 @@
+# Account Security input06 组合增补
+
+本增补不覆盖 `author-report01`。基线为已接受 `debbb28deb7c883fd0b6b77a75354b9b5d7ece0b`，冻结输入 `input06/manifest.json`（SHA256 baeaeb37b348167d8407831314e83adb60615dfb7882f248506c7a314c0e4954），driver 为 `run-account-security-combination06.py`（SHA256 e950c5054301cb223e70f5ea7d87e1a6d08a30dbf2f7af45cd9338293db147a6）。
+
+26 候选中 24 个 Account 源保持 input04 原字节。两个 Selection 测试仅在已接受取消读取修复上重放原 Account 的五处菜单适配；controller/state 保持已接受字节，取消读取的新断言完整保留。完整实际基线为 1051 件；相比旧 1050 件增加固定 styles 文档测试依赖，并接受 Selection controller/state 的既有提交差量。实际执行 cwd 是 `/workspace/agenteam`，前后固定 Git 库存、字节、候选与 dist 门禁均通过，不用活动 HEAD 代替基线。
+
+`runs/combination-check06` 实际 exit 0 / 27.618 秒：32 文件、1115 项测试，以及格式、类型、生产构建通过。`combination-type06` 通过；同锁浏览器实际 cwd 的两项 discovery 各命中 1，Go discovery 精确命中 2。首次 `combination-go-list06` 因私有 TMPDIR 缺失在编译前实际 exit 1，原件保留；仅创建该目录后同命令 `combination-go-list06b` exit 0，没有产品修订。
+
+`runs/combination-navigation06` 实际 exit 0 / 81.887 秒，Account Navigation 顶层 17.12 秒、Selection Navigation 顶层 16.49 秒均 PASS。只运行这两个精确目标；45 秒浏览器 / 2 分钟顶层 / 6 分钟每包、race/count1、worker1/retries0 保持。原始 argv/cwd/env 与 actual wait 在 `command.json`，完整原 log、result 与两次 cleanup 同目录。
+
+两次清理均 7 个 exact-ID absent，95 个所属 PID/starttime 清零，8 次 adopted wait；runtime 和短浏览器目录为空，后者已移除。原资源 baseline 不变，无 remaining_new，monitor_errors=0。26 源、33 dist、1051 接受依赖及 driver 前后不变。已将窗口交回 root；本增补不启动任何资源。
+
+作者实际逐张查看本轮 16 图（两页 × light/dark × 1440/1024/834/390），记录在该轮 `visual-review.json`。无目视横溢或残留遮罩，窄屏下方字段/用途需主区域滚动；视口图不证明所有折叠以下内容同时可见。root 已读结果/清理报告，本增补不声称 root 看过图片。
+
+原 API/owner/页面和真实 A/B 按不变输入复用，root 已告知独立最终组合窄核通过并采纳 26 源功能。新增五组与所需十六旧组采用原作者报告及本轮组合证据，不重跑已通过域。Selection 旧导航 timeout、条件齐全下 diagnostic PASS 和后续独立取消读取工作项各自保留：原 timeout 无唯一已证原因，不被追改为通过。原 `new01`/`new02` focus 红、fallback pure 红和所有已冻输入同样保留。
+
+本次最后只同步 README 能力、菜单/return、命令与边界；最终 27 路径和该文档差异见 `final-delivery01`。不声称完整 D26/D27、生产 SPA、真实 Vite 代理浏览器、原生缩放、BFCache 或 Runtime 已交付；ready503 保持。历史资源/停止任务不重启。

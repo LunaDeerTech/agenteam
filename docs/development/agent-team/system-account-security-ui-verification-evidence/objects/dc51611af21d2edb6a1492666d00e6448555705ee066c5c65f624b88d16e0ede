@@ -1,0 +1,11 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-account-security-fallback-independent-8pl8pnzi/candidate/web
+
+ ✓ src/tests/independent-account-security-page.spec.ts > independent account security fallback App > checking/503 detaches the old View without heading fallback, then normal close uses the fresh same-identity title 311ms
+ ✓ src/tests/independent-account-security-page.spec.ts > independent account security fallback App > a new Session settles the prior confirmation false, destroys its View and lets only the new title receive mounted focus 68ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  14:18:16
+   Duration  1.65s (transform 649ms, setup 0ms, import 780ms, tests 381ms, environment 378ms)
+
