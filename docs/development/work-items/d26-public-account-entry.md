@@ -1,5 +1,7 @@
 # D26 邀请兑换与找回、重置密码公开入口
 
+修订：rev3，2026-10-06，仅增加 §12 的旧主题回归响应采样补遗：在rev2的24路径上加一条旧浏览器测试，共25路径。下列rev1/rev2正文与冻结记录保留；本次只允许单个已失败409观察点的测试采样修复，不改产品、业务断言或预算。本补遗及候选差量先交主线程审阅，再归位受影响测试。
+
 修订：rev2，2026-10-06，仅增加 §11 的测试接缝补遗：原23路径加一条旧测试fixture的私有日志路径元数据，共24路径。下文 rev1 授权与 §1–10 保留原冻结记录；当前窄例外以 §11 为准，产品规则与既有验收门槛不变。本补遗及精确候选差量先交主线程审阅，再归位新测试输入；不宣告页面或整卡验收完成。
 
 修订：rev1，2026-10-05，已独立规格静审通过并获主线程采纳；被审原卡 SHA-256 `3f3e3a9624af7b73ed8a5082d74e85c6a7f3631286892352e209c2e0b05008d2`。设计者 `d08_recovery_design`；规格已采纳提交推送 `e5a5ccf5343fe9f17aced6e9ee0d633fbfe3c5aa`，远端一致由主线程确认，原件见[规格持久记录](../agent-team/public-account-entry-spec-verification.md)。主线程现已正式授权 `d08_registry_backend` 按 §8 精确23路径实施，`skill_verification` 独立验收；作者仅获私有 offline/pure/type/build 权，未获 Docker/browser 运行权。固定业务基线为已验个人设置提交 `c54f73f3324caa11608d84e5d207141985eb6074`；认证前置为 `9a710f272026b41ef69852bbeb41cb7670b500a8`。已采纳精确23条实施范围，无后端生产、SQL、包依赖或迁移。本次仅归位规格归档与正式实施授权，不新增资源授权；§1–9 技术正文逐字保持，其中候选/待另授表述保留规格冻结时含义，当前行政状态见本段及 §10。
@@ -254,3 +256,13 @@ backend_log为本卡真实浏览器交付渠道。smtp UI分支在严格DTO/组�
 允许在新helper的首次观察与成功/失败终局增加安全只读阶段快照，以同一精确成员及请求、command、reset、delivery因果关系核事实。输出仅为白名单bool/count/phase/pass与必要SQLSTATE；ID在私有进程内用于精确关联。不得输出邮箱原值、Browser/CSRF、幂等key、token、密码或其hash、Secret材料、URL，不能转储原始行或原始数据库错误。该快照用于区分尚未扫描、已扫描未完成与已转入投递的阶段，不将缺失首红快照的原因补写为确定事实。
 
 新增候选先在私有冻结输入中形成24路径manifest与逐路径差量，由独立验收核上述元数据接缝、单截止、隐私和原断言，再交主线程审阅归位。只变测试观察或握手时，已通过且输入语义不变的业务证据可按 §9明确复用；受影响Privacy须定向复验。原23路径输入、首红原件及其动态结论保持可追溯，不以新的24路径清单改写旧输入。本补遗不增加产品、服务端、SQL、依赖或共享UI范围，资源执行继续使用主线程协调的独占窗口。
+
+## 12. rev3 旧主题回归观察点补遗（2026-10-06）
+
+本轮原 `TestAccountPersonalSettingsWebThemeAndNavigation` 在真实 `PUT /api/v1/me/preferences` 返回409后，旧浏览器测试执行 `conflict.json()` 时出现 CDP `Network.getResponseBody: No data found for resource with given identifier`。原409状态断言已通过，但后续草稿/主题行为与三次写入、三条Audit终態未走完，因此该原轮仍为失败；不据此声称产品响应体丢失或CDP唯一根因已确定。首红与资源证据保留，原 `ProfileAndAvatar` 通过事实不扩大到主题组。
+
+主线程授权在 §8原23路径及 §11元数据路径之外，追加且仅追加第25路径 `tests/account-captcha-web/e2e/personal-settings.spec.ts`。只可替换上述冲突保存动作的一个409响应体采样点：在真实点击前安装限定同源、`PUT`、`/api/v1/me/preferences`及409的一次原响应clone观察，返回并保留同一个原生fetch Promise/Response，原请求只发一次；保留原Playwright响应事件与409状态断言，从该次实际响应读取JSON并继续断言 `code === 'VERSION_CONFLICT'`。读取、解析或清理失败须显式失败，finally实际join观察读取/cancel/release并恢复fetch与删除私有状态。无网络拦截、响应替换、重发、额外写入或错误时空成功。
+
+clone会分出新的body读取分支，属于测试instrumentation；该观察只证明上述真实409及Problem code，不能证明未观测原始stream或共享owner的实际尾部时序。原后续radio/预览保留、取消预览、重新保存、系统浅深色、dirty导航和保护页返回行为，以及Go侧原精确三次持久写入、三条Audit与用户/版本/主题事实全部保持。不得改成仅检查409或UI文字，不删原code字面断言，不修改其它旧响应观察点、旧fixture、生产client或controller。
+
+候选在私有冻结输入中提供25路径manifest及该旧spec精确差量，先由独立验收核范围、原请求与断言保持、隐私和实际清理，再交主线程审阅归位。受影响 `TestAccountPersonalSettingsWebThemeAndNavigation` 按原selector定向复验；其余输入语义不变的已通过证据按 §9明确复用。原单例45s、workers=1/retries=0、Go顶层2分钟、driver race/count1/每包6m及独占资源双清门槛保持，§11单20s恢复链接握手不变。禁止trace/video/request-body日志与秘密输出，本补遗不增加产品、后端、SQL、依赖或其它旧测试路径范围。
