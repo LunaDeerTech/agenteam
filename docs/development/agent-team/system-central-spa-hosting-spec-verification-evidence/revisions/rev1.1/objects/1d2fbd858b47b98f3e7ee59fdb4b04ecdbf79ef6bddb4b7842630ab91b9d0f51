@@ -1,0 +1,9 @@
+# D28 SPA 首阶段作者交付
+
+9 候选固定于本目录 source：bundle/renderer 7 路径与 build script/测试 2 路径；26 个固定生产依赖文件一同复制，非全树。基线 97f4551 / web 628612c，正式 rev1 技术未变。manifest.json 列精确 SHA、原 command/raw/result 与源副本；candidate.diff 是这 9 个新文件的完整差量。
+
+实际检查：pure01 退出 0/13.319s（包 0.010s）；最终 race01 退出 0/23.987s（包 1.088s）；vet01 退出 0/4.245s。script-pure01 31 项 0/0.379s；补标准 qvalue 与受控直接子进程取消后，script-pure02 32 项 0/3.179s。两次 gofmt/Prettier 实际 0。每轮源快照、命令环境和原日志保留，迄今无失败轮；最终 race/vet/script-pure02 输入与本 manifest 9 源一致。
+
+实现细节：no-tag 明确未绑定；release 仅真实 embed，无空包。bundle 逐大小/SHA/MIME/全集校验后发布只读内存；renderer 不承担 deadline，实际 app scope 尚未写。脚本只用 Node 标准库，校验真实 production manifest 的静态/动态依赖图及 accepted HTML skeleton；固定 favicon/theme例外、排他生成目录、输入前后摘要、实际 Go EmbedFiles 集合均有门禁。发布采用内容地址安全摘要 `dist/agenteam.<binary-sha>.json` 先就位，最后对 `dist/agenteam` 作单次原子 rename，避免独立可变 latest sidecar。正式 Vite/Go 发布尚未执行；受控产物不冒发布证据。
+
+本阶段没有监听器/浏览器/PG/MinIO/Docker。Node 测试只启动直接自有普通进程并实际等到退出，取消例含忽略 SIGTERM 后的自有终止及 ESRCH；不外推未来真实发布进程树。Go 单测只使用内存 fs 与 httptest Recorder。Go/NPM 锁不改，private 9 源与本固定副本停写，作者继续不同 app/root 候选；后续由未参与实现者独立审，自己的规格静审不作实现接受。

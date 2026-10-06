@@ -1,0 +1,189 @@
+{
+  "status": "BLOCKED",
+  "scope": "Frozen SPA bundle-stage01 independent static review plus two separately authorized controlled process/filesystem probes. No implementation edits.",
+  "stage_manifest": "/workspace/scratch/agenteam-central-spa-author-gfjizhr4/stages/bundle-stage01/manifest.json",
+  "stage_manifest_sha256": "6b247f9f2b7563aba333e7edf411866dc9088759b2e842e8243f36f8c57541ae",
+  "candidate_diff_sha256": "8ecc4187cfeee27e9e2815f978b3535e3fb35d68e10f797dede640b0d900aed8",
+  "author_report_sha256": "1d2fbd858b47b98f3e7ee59fdb4b04ecdbf79ef6bddb4b7842630ab91b9d0f51",
+  "input_manifest": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/input.json",
+  "input_sha256": "f28d891ca8e230976bedef6fdd9b017938c11eb0d2825536468ff7e37d19dcd6",
+  "driver_sha256": "6815a658ab5446a03834126c526cc66364e3c99d2179aedb66ac2960b3834a44",
+  "independent_results": [
+    {
+      "case": "child-tail",
+      "run": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01",
+      "result": {
+        "actual_exit": 1,
+        "cleanup_clean": true,
+        "cleanup_sha256": "5cce8e4153afd941d1a20c5a43b23f5a1c38bb7042fd56e4283318e7f93401f4",
+        "driver_error": null,
+        "duration_seconds": 2.838,
+        "gate_error": null,
+        "input_unchanged": true,
+        "raw_sha256": "3ccf9b39608365cbf5d065be1a1bb674cb04a9dc46613ec1aa8ee0e9d7392fd8",
+        "timed_out": false
+      },
+      "observations": {
+        "kind": "independent-controlled-process-contract",
+        "cases": [
+          {
+            "mode": "inherit",
+            "settledBeforeProbeCleanup": false,
+            "terminalBeforeProbeCleanup": null,
+            "directChildLive": false,
+            "descendantLive": true,
+            "contractSatisfied": false
+          },
+          {
+            "mode": "ignore",
+            "settledBeforeProbeCleanup": true,
+            "terminalBeforeProbeCleanup": "WEB_BUILD_CHILD_FAILED",
+            "directChildLive": false,
+            "descendantLive": true,
+            "contractSatisfied": false
+          }
+        ],
+        "pass": false,
+        "limitation": "No listener, network, real Vite/Go tool or release build. Driver separately waits adopted descendants."
+      },
+      "artifacts": {
+        "command.json": "0eec3ed4bd59867fb19d34185c65241ae9eb7be348e31c4a985136423b980088",
+        "raw.log": "3ccf9b39608365cbf5d065be1a1bb674cb04a9dc46613ec1aa8ee0e9d7392fd8",
+        "result.json": "09cbc34ffc2c7e178b477477b49c0d3b921552e8e1934fbd546136a24786930e",
+        "cleanup.json": "5cce8e4153afd941d1a20c5a43b23f5a1c38bb7042fd56e4283318e7f93401f4",
+        "input-before.json": "b8b30007126a557e6a5eb16b3702934c2550827c6ae80fbe731093c6b05d8db7",
+        "input-after.json": "b8b30007126a557e6a5eb16b3702934c2550827c6ae80fbe731093c6b05d8db7",
+        "private/observations.json": "e78cc52e63f032a39d3f4ed07222f4223e8c7de89b043bb0d888b53a28ee725c"
+      }
+    },
+    {
+      "case": "publication",
+      "run": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/publication01",
+      "result": {
+        "actual_exit": 1,
+        "cleanup_clean": true,
+        "cleanup_sha256": "067cb177342ed6c2e17b3628e3c098ae7d3235af6f41e64d76ccb42116cedb6a",
+        "driver_error": null,
+        "duration_seconds": 1.179,
+        "gate_error": null,
+        "input_unchanged": true,
+        "raw_sha256": "16b2c38394b17c7ec3801b7c618cb83b728a771eab65007c49cb32b7a969525f",
+        "timed_out": false
+      },
+      "observations": {
+        "kind": "independent-controlled-publication-contract",
+        "cases": [
+          {
+            "name": "success-control",
+            "faultInjected": false,
+            "calls": [
+              "version",
+              "type",
+              "vite",
+              "list",
+              "build"
+            ],
+            "resolved": true,
+            "code": null,
+            "binaryIsPrevious": false,
+            "binaryIsNext": true,
+            "matchingSummaryExists": true,
+            "matchingSummaryAgrees": true,
+            "oldSummaryPreserved": true,
+            "contractSatisfied": true
+          },
+          {
+            "name": "post-commit-lock-failure",
+            "faultInjected": true,
+            "calls": [
+              "version",
+              "type",
+              "vite",
+              "list",
+              "build"
+            ],
+            "resolved": false,
+            "code": "WEB_BUILD_OWNERSHIP_CHANGED",
+            "binaryIsPrevious": false,
+            "binaryIsNext": true,
+            "matchingSummaryExists": false,
+            "matchingSummaryAgrees": false,
+            "oldSummaryPreserved": true,
+            "contractSatisfied": false
+          }
+        ],
+        "pass": false,
+        "limitation": "Synthetic assets and injected tool callbacks; not a real Vite, typecheck, Go embed or release-binary result."
+      },
+      "artifacts": {
+        "command.json": "c13bf6e31f040ad0bf6bb0eccbb30850f0bc413f4fa5905ae9db30e744bb9d6e",
+        "raw.log": "16b2c38394b17c7ec3801b7c618cb83b728a771eab65007c49cb32b7a969525f",
+        "result.json": "8219f5ebc9c51c446fde59fd2560518adcaa634e0949f4717c4f45b328cf6026",
+        "cleanup.json": "067cb177342ed6c2e17b3628e3c098ae7d3235af6f41e64d76ccb42116cedb6a",
+        "input-before.json": "b8b30007126a557e6a5eb16b3702934c2550827c6ae80fbe731093c6b05d8db7",
+        "input-after.json": "b8b30007126a557e6a5eb16b3702934c2550827c6ae80fbe731093c6b05d8db7",
+        "private/observations.json": "c56d3c25b82c5196998d212bfe4167469b6d384c1ea8412140e5c3ef9b0ed5ba"
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "A-SCRIPT-01",
+      "severity": "blocking",
+      "path": "scripts/build-central-web.mjs",
+      "lines": [
+        295,
+        317,
+        318,
+        340,
+        342
+      ],
+      "status": "independent controlled RED",
+      "summary": "Direct child termination skips group escalation or clears it at close; controlled descendant remains live with inherited or ignored stdio."
+    },
+    {
+      "id": "A-SCRIPT-02",
+      "severity": "blocking",
+      "path": "scripts/build-central-web.mjs",
+      "lines": [
+        528,
+        546,
+        549,
+        550,
+        551,
+        564,
+        569
+      ],
+      "status": "independent controlled RED",
+      "summary": "Post-commit lock cleanup failure can leave new binary with its content-addressed summary deleted and previous binary unrecoverable."
+    }
+  ],
+  "author_evidence_reused": [
+    {
+      "name": "race01",
+      "result_sha256": "82c11a3a775d142d6f17a27e4988d39c7492dbffb4ab0b4a65fae101867a1dee",
+      "raw_sha256": "381ea69a04c34533a9d28d1b7ef0b821d17ccfaa67f25ce71bcee0e01227c24c"
+    },
+    {
+      "name": "vet01",
+      "result_sha256": "969927a84e5b2545f7eea3a268f6e771bfb5c0de47b7eff7c58399aac2958438",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "script-pure02",
+      "result_sha256": "6b647c648f47895a2728c1a5f7af6580e1d805580f8bd3be25dec8e05e207f13",
+      "raw_sha256": "cacf923a6a11a353b98b3296778c61da19ab539ed2085576d670f64bf90552d0"
+    }
+  ],
+  "not_verified": [
+    "real Vite/typecheck",
+    "real release-tag compile success or missing-bundle compile failure",
+    "ordinary Central/Runner build",
+    "app scope/root",
+    "native listeners",
+    "real HTTP/browser tops",
+    "full D28",
+    "Object runtime join or OpenAI tools stopped tasks"
+  ],
+  "resource_status": "Both authorized pure commands completed; 6 owned total across disjoint runs, 2 adopted waits; exact PID/starttime and baseline/two scans empty. No network/listener/heavy-resource run."
+}

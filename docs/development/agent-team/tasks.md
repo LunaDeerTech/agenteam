@@ -2,6 +2,12 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：Central SPA rev1.1 发布脚本边界修订，原两产品失败保留
+
+- [正式卡rev1.1](../work-items/d28-central-spa-hosting.md)已由主线程审查采纳并提交推送 `272c6c178462b4da72ac0eda69278e8dbde61f30`、远端一致；[追加规格与原失败证据](system-central-spa-hosting-spec-verification.md#6-rev11-发布脚本边界修订与原失败)固定技术cfa6d8…4056f8，仅Linux启动前门禁与commit-last顺序，16路径不变。
+- 两独立受控轮均真实exit1：child-tail01 2.838s后代仍运行，publication01 1.179s锁错误破坏binary/summary配对。取证后6个owned PID/starttime实际结束、双扫空，2个adopted wait分列；补清理不是产品修复PASS。两原脚本、manifest、probe/driver、原命令/raw/退出与三版修订原件永久保留，不复制全树或运行时。
+- 据主线程调度通知：已收到SPA stage02两脚本修复及原两probe作者重跑PASS，尚待独立验收；正式发布、native、浏览器及16产品仍未交付。SMTP oldauthority02 actual0／59.566s、窗口释放，新五组和旧五组按版本通过，独立A/B仅六项离线检查进行中，仍未产品接受。这些是调度状态，本档未读取新增/活动证据，不冒充本档验收。完整D08–D28/E01未完成、E01未开始，Summary待决、Object/tools停止、未绑定能力与ready503保持。
+
 ## 2026-10-06：Central 嵌入 SPA 规格采纳与私有实施启动
 
 - [正式卡 rev1](../work-items/d28-central-spa-hosting.md)已获第三次独立有界 STATIC PASS、主线程采纳并提交推送 `7a490ac7d5b09c1fff564fc50af93bfe236c1d71`，主线程核远端一致；技术§1–7 `f5399abe…967220`保持。[规格报告与最小证据](system-central-spa-hosting-spec-verification.md)保留 rev0／0.1／0.2、两次技术差量、两版正式页首和三次独审，原四项规格接缝均已关闭，不称产品动态失败。

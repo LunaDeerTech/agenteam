@@ -1,0 +1,133 @@
+# D28 Central 嵌入式 SPA 与严格 HTTP 分流（工作项 rev1.1）
+
+状态：2026-10-06 **主线程已裁定 Linux 发布入口启动前门禁与 commit-last 发布顺序，本 rev1.1 为待审查提交的私有窄修候选**。原 rev1 已在 `7a490ac7d5b09c1fff564fc50af93bfe236c1d71` 接受；作者私有实施已经启动，但首阶段脚本仍有独立阻断，未获产品接受。发布脚本的对应修订须本卡由主线程审查提交后再落实，本修订不新增构建或动态资源授权。
+
+固定依赖为已接受 `97f45518f31c8b7b835b02c8624eb7aa321a1894`，前端产品 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`；16个候选路径固定，不依赖 SMTP17 活动实现/修复或后继 Outbound UI。已接受的静态规格不等于产品、发布构建或动态验收通过，不改变未绑定能力、停止任务与完整D28门槛。
+
+被审原件为 [rev0.2 私有稿](/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/d28-central-spa-hosting.rev0.2.draft.md)，全文 SHA `84529007e9c71258d3a5fb84334c412d0d92b8a0ce6d7e8c09ba8352f61ab5a8`；[独立 rev0.2 报告](/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/rev0.2-review.md) SHA `a30945d1cab277971ccba26912a76e82b8cb47451a34776f88c497bf477dbee8`，确认 S-SPA-04 关闭并复用前三项闭合结论。原 rev0、rev0.1、rev0.2 与各次差量/独立报告均保留。
+
+修订原因见[首阶段独立报告](/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/review.md)，SHA `fae76080028076bd5bfcf3dc1cc6083fb25cb12fa1b040281e545f113ec1df66`。A-SCRIPT-01 已受控证实 direct child 退出后后代仍可运行或持有 pipe，使原 Promise 提前结束或无法 join；Node 标准库不能 wait 非直属子进程。原实际尾部门槛要求取消/异常收尾持续 TERM→KILL，等待自有进程组无运行成员且 direct close 完成；Z/X 仅表示已停止，不等于已 wait，非直属实际 wait 与 adopted 回收由外部验证 driver 的证据分列。A-SCRIPT-02 已受控证实 binary rename 后的锁归属失败会删除匹配摘要；因此本次明确把全部可失败清理/锁 I/O 放在单次最终 rename 之前，避免发布后错误分支破坏当前配对，仍沿原原子发布、失败保留旧成功及 binary/summary 配对要求返修。普通无 tag Go/Runner 构建行为保持，不宣称新增跨平台保证。
+
+rev1 原全文与技术 SHA `f5399abe8b3137d4a8d8e8bbb3d2ddf6186013ae1ed092ecfa473b19a5967220` 保留在固定 Git。rev1.1 技术§1–7仅在§2发布脚本第一段新增 Linux 启动前门禁一句，并在步骤5/6明确 commit-last 顺序，SHA `cfa6d8f31c6f3159499bac4c1258c493299c4bee3c63825232a1841cc74056f8`；反向还原这两处即逐字恢复 rev1 技术。其余技术正文和16路径名单不变，正文中的“候选/待采纳”等历史表述由本页首说明当前状态，原实施/资源门槛保持。
+
+## 1. 完整结果、依据与真实依赖
+
+交付一个明确的生产 Central 构建：把真实 Vue 生产入口和全部被引用资产嵌入同一二进制；在现有 Central HTTP listener 上提供页面、静态资产和原 API；从空工作目录、无运行时 dist/Node 的条件下完成真实浏览器登录、受保护深链接刷新及退出。不是外置文件服务器、反向代理示例或 `vite preview`。
+
+| 固定依据/依赖 | 当前事实与本卡消费范围 |
+| --- | --- |
+| [部署运行 §2.1](/workspace/agenteam/docs/architecture/platform-infrastructure/deployment-runtime.md:82) | 明确要求嵌入 Central、适用 History 请求回退；API、缺资产、服务端错误不得变 HTML，Debug 不进生产资源。没有待定的托管产品模式。 |
+| [开发计划](/workspace/agenteam/docs/development/development-plan.md:85)及 D28 §408 | 按真实依赖拆完整结果；本卡只完成 D28 的前端托管子结果，不完成 Docker Compose、TLS/代理部署、升级运维或 D28 总验收。 |
+| 已接受 `628612c` 前端及其锁定工程 | HTML5 History、同源相对 API、生产 Debug 排除、认证/设置页面已验。现有证据使用自有测试服务器托管 dist；本卡必须另证正式二进制，不能直接复用为托管通过。 |
+| 固定 `97f4551` 的 app/HTTP/Account 与部署前置 | 正式 PG、MinIO、Security、Account、Model 配置和 SMTP 配置初始化及原 HTTP 门禁；不更改服务绑定或绕过启动校验。所有诊断/API 原样交回现 handler。 |
+| Project 路由纯契约 | 仅复用 `project/contract.NormalizeProjectPath` 的现有两段语法；不查询 Project/Owner、不绑定 Project 服务。合法 Project 深链接得到同一入口，不代表项目存在或已授权，当前前端仍可显示未找到。 |
+
+固定事实：`app/app.go:162–176` 目前只做诊断与 Account 分流；`frontend/README.md:61` 明示 Central 尚未托管 SPA；`scripts/build-go.sh:15–17` 及 `tests/process/TestMain` 普通 Go 构建不要求前端产物；`web/dist/` 被忽略。沿这些已验边界增加显式发布构建，不让普通 Go 检查被隐式 npm 安装或缺失 dist 破坏。
+
+本卡不依赖或重启 Object runtime join 停止任务、OpenAI tools 独立动态或 Summary 待决；不修 Object 关闭、不启动原失败探针。Project、Resolver/Runtime、真实 Provider 调用及其它未绑定端口保持未绑定，`/readyz` 仍为 503、`ready=false`；单项接受不得宣称 D26/D27/D28 或 E01 完成。
+
+## 2. 两种构建与真实资产闭包
+
+保留 `scripts/build-go.sh` 和普通 `go test/build` 的原行为：未设置 `agenteam_web` build tag 的工程二进制只提供原 API/诊断，不提供伪造或空白 SPA。普通构建不运行 Node，不要求 bundle，不成为正式 Web 发布产物；原 Central/Runner 构建和进程回归继续有效。新增显式命令 `node scripts/build-central-web.mjs` 是本卡的正式 Central Web 发布入口，最终产物为 `dist/agenteam`；不改变原 `bin/agenteam`/Runner 含义。
+
+发布脚本只用 Node 标准库、已安装锁定前端依赖和 Go1.27.1，不安装依赖、不联网。本显式发布入口仅在 Linux 执行，并须在启动任何工具前通过 `/proc` 证明可观察本轮自有进程组的 PID/starttime；其他 host 或该能力不可证明时安全失败，不启动工具。依赖准备与正式检查分开，检查沿 `GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOFLAGS=-mod=readonly`；Node 按现 package engines 校验。正式步骤固定为：
+
+1. 取得本任务唯一生成目录的排他占用；拒绝已有占用或不明残留，不删除另一进程/历史任务的文件。记录源文件、锁、工具版本与前端依赖的冻结输入；实施和验收使用固定接受副本，不在 SMTP 活动树构建。
+2. 运行既有 type-check 和真实 Vite production build，显式 `mode=production`、`base=/`、开启 Vite manifest，输出到本轮新建空 staging；不复用 `web/dist`、不直接复制旧 dist，不改 `vite.config.ts`/package/锁。任何失败停止，不用旧发布文件补位。
+3. 严格核对 `index.html`、Vite manifest 及其全部 imports/dynamicImports/css/assets 闭包；需要网络请求/嵌入的外部资源引用必须指向本包 `/assets/`，无开发入口、外部脚本或遗漏文件。只额外允许已接受入口中唯一 `rel="icon"` 且 `href="data:,"` 的非网络 favicon 占位，以及原内联主题初始化；前者不列入资源清单、不泛放其它 data URL，后者不授权新增任意内联脚本，不改 web/index.html。产物只接受一个入口及资产，不夹带源码、source map、Debug 模块、目录列表或测试文件；检查生产 manifest 无 `src/views/debug/`，实际浏览器另证 `/debug` 为未找到，不能用泛词 `debug` 搜索代替这两项。
+4. 生成内部闭合 `bundle/manifest.json`：`format=1`、`entry="index.html"`、`files` 为入口和实际资产的唯一相对路径、字节数、SHA-256、固定 MIME、是否可 immutable。索引/资产不含 Git 路径、运行环境、凭据或源代码映射；该 manifest 不经 HTTP 暴露。待嵌入内容集合必须恰等于声明文件加 manifest，拒绝 symlink、非普通文件、路径逃逸、重复/大小写冲突、未知扩展名和额外文件；生成目录的已知 `.gitignore`/本轮占用文件不进嵌入集合。总计最多 2048 文件、64 MiB，入口最多 1 MiB、单资产最多 16 MiB；这些是本构建的工程预算，真实 dist 必须实际核对，越界先报告而不静默截断。
+5. 把已核产物放入受独占的 `internal/central/webassets/bundle/`，通过 `-tags=agenteam_web` 编译 Central；`bundle_release.go` 必须显式 `go:embed bundle/index.html bundle/assets bundle/manifest.json`。Go目录模式会排除点号/下划线开头段，故发布校验拒绝拟嵌入入口/资产路径中的此类段，并实际核 embed 集合与 manifest 相等；不能把磁盘文件存在当作已嵌入。私有 Vite `.vite/manifest.json` 仅用于构建核对，不进拟嵌入集合，既有 `.gitignore`/占用文件例外保持。独审只读旧接受 dist 的36文件/547593字节均无此类资产路径，只是形状证据，不是当前漏包 RED 或新发布通过。缺入口/资产/manifest 在 Go 构建时就失败；不提供 release-tag 的空包兜底。构建完成后复核源与资源输入未变，将完整候选二进制放到 `dist/` 下本轮独占临时文件，并备妥按该二进制 SHA 定址的安全摘要；下一步完成全部发布前收尾后才原子发布，失败不覆盖先前成功发布。
+6. 所有工具及子进程实际结束后，仅清本轮占用的生成文件和 staging，完成锁归属核验及释放等全部可失败 I/O；最后只用一次候选临时文件→`dist/agenteam` 的原子 rename 完成 commit-last 发布，之后不做可失败 I/O。失败保留旧二进制及其摘要，不吞锁错误或破坏当前二进制对应摘要，不在锁释放后回滚可能属于后继发布的二进制。静态资源已经嵌入，运行时不得回查 web/dist、staging、CWD、Node、外部 URL 或可配置资产目录；不新增运行时热更新、CDN、service worker 或 reload 入口。
+
+生成目录中只有 `.gitignore` 是候选提交文件；其他资源及构建摘要属于生成产物，不入产品提交。普通源码包构建 tag 分支明确分开：`bundle_backend.go` 不加载 SPA；release 分支只有真实 embed。新的纯构造 `webassets.NewHandler() (http.Handler, bool, error)` 返回是否为嵌入构建；release 构造按清单重验大小、SHA、MIME、入口和完整集合，任何异常返回安全错误并阻止 root 监听，绝不半包服务。后端构建返回 `nil,false,nil` 表示明确的既有工程模式；root 不把它标作 SPA 已绑定。
+
+## 3. HTTP 命名空间、方法与 History
+
+业务分派仍位于原 app handler 装配层、唯一 `httpapi.Handler` 与既有 HTTP admission/drain 之内；仅 SPA 的外层安全投影精确按§5装配。必须先以原请求路径判定归属，不根据下游返回 404/500 再决定输出 HTML；不读取/改写 API body、Host、Cookie、Origin、query、RawPath、method 或 status。API 的严格边界、CSRF、幂等、认证、版本、取消、响应头和唯一 RequestID 继续由现正式 handler 负责。
+
+| 优先级 | 请求归属与结果 |
+| --- | --- |
+| 1 | 原三个精确 `/livez`、`/readyz`、`/diagnostics` 原样交诊断。`/api` 及完整 `/api/` 子路径原样交现 Account/Model/outbound 链；未知版本、未知 API、错误 method 不变 HTML。为避免模糊命名，首段大小写变体的 api、三个诊断名及诊断子路径也交旧 handler 拒绝，不作为页面。近似名如 `/api-example` 不是 `/api` 前缀匹配。 |
+| 2 | 嵌入构建才处理本卡静态/页面请求；非嵌入模式保持原所有非诊断请求交 Account。资产命名空间 `/assets` 及子路径（包括大小写变体）、`/index.html`、内部 manifest/源码/开发前缀不得充当页面兜底。 |
+| 3 | 合法精确 `/index.html` 或 manifest 中的 `/assets/...` 仅 GET/HEAD；精确大小写匹配，没有目录默认页或路径重定向。缺失资产、manifest、`.map`、`/src/`、`/node_modules/`、`/@vite/`、隐藏文件等返回安全 404。 |
+| 4 | 其余仅适用 GET/HEAD 页面请求可返回同一入口。必须明确接受 `text/html` 且 q>0；wildcard/缺 Accept 不自行推断页面。Sec-Fetch-Dest 存在时仅 document/iframe/empty 可参与，script/style/image/font 等绝不因 HTML Accept 得到入口。 |
+
+适用页面语法：`/`；一个 1–64 字节 ASCII 字母/数字/连字符段（含现认证入口、settings/system、未知叶子和 `/debug`）；`/settings/<leaf>`、`/system/<leaf>` 的 leaf 使用同一段语法；其它恰两段且通过现 `NormalizeProjectPath` 的路由。保留命名空间先判定，不把保留根解释成用户名。没有通用无限层级回退；后续正式多层页面新增时须扩规格，不靠全路径兜底。只验证语法，不用 Normalize 的输出改写或重定向请求；Project 名允许点号，因此 `/alice/report.v1` 的 HTML 导航应得到入口，不能按“最后一段含点号”误拒。非页面请求的 `/alice/report.js` 不作为资产返回 HTML。
+
+静态/页面路径须是 clean 的绝对路径；拒绝 RawPath 歧义、反斜线、NUL/control、重复斜线、点段、尾部目录 slash、非法 UTF-8，不执行 clean 后重试、不跟随目录跳转。query 在页面/已存在资产上仅原样留给浏览器，不参与资源查找、不写入 HTML/日志；`/invite` 和 `/reset-password` 的 query/hash 由原前端入口捕获纪律处理，不新增服务端 token 解析。非 GET/HEAD 在本卡归属内返回 405、`Allow: GET, HEAD`，不返回入口；这些方法的原 API/诊断行为完全不变。
+
+公开 shell/资产不读取 Session、无个性化内容、不创建 Cookie、不授权业务、不输出基于 Host/转发头生成的 URL、不开放 CORS。业务权限仍由前端当前 Session 与各 API 原 Host/Origin/CSRF/事务授权判定。页面文档成功不证明其内部 API 成功或资源存在。SPA 的显式错误、admission拒绝及未提交panic统一使用 instance `/`、日志Pattern `/{web}`，沿§5既有公开接口实现；不能在 Problem 或访问日志反射完整请求路径、query、原错误或文件路径。固定 `httpapi.WriteProblem` 实际读 URL.Path，不能假定存在 RouteInstance 接口或只设置 Pattern 就保护外层错误。
+
+## 4. 缓存、MIME、失败与实际尾部
+
+入口及每个 History 响应固定 `text/html; charset=utf-8`、`Cache-Control: no-store`，不按客户端旧 ETag 返回 304。只对经 Vite manifest 验证的内容哈希资产设置 `public, max-age=31536000, immutable`，其它允许的资产固定 no-store；ETag 为嵌入 manifest 中实际内容 SHA-256 的带引号强标签。资产 `If-None-Match` 沿标准列表/弱比较/星号语义返回 304，无 body；其他情况200。无 Last-Modified，忽略 If-Modified-Since、Range/If-Range，不宣称支持分段请求；不引入 gzip/br 动态压缩或多版本磁盘缓存。
+
+HEAD 采用与对应 GET 相同的路由、状态及表示头，200 的 Content-Length 为真实表示长度，无任何 body；304 无 body且不携带200长度。资产 MIME 来自发布校验的固定白名单：JS、CSS、SVG、PNG/JPEG/GIF/WebP/ICO、WOFF/WOFF2/TTF，对应明确标准类型；不使用系统 mime 数据库或内容嗅探兜底。未知后缀阻止发布，不以 octet-stream 放行。全部静态成功响应设 nosniff/no-referrer/X-Frame-Options DENY；不新增会阻断已验内联主题脚本的 script-src/CSP 改造。
+
+请求声明 body 或 Transfer-Encoding 时不读取/消耗它作为页面输入，安全400，并在当前 HTTP/1.x root 上关闭该连接以免未读体污染后续请求。所有本域回包由新 `app/webassets.go` 的私有 `withWebResponse(w, safeRequest, next)` 统一负责期限和实际尾部；`webassets/handler.go` 只渲染/校验/显式安全错误，不另建或提前清除期限。已获admission时该scope在webRoutes内进入，未获admission时只在gate的SPA拒绝分支进入，均建立从scope开始最长30s或更早parent的单一deadline，不在恢复写500/拒绝写503时续期。API/诊断/no-tag不进入scope，全局server时限不改。
+
+scope先用公开 `ResponseController.SetWriteDeadline` 建立期限，并设置受限context/取消回调；再在其内部执行 `httpapi.Recover(nil, next)`，传入安全URL副本。它通过已有Unwrap链复用唯一外层tracked writer状态，不读取httpapi私有committed，不增加RequestID；所以未提交的渲染/校验panic在期限仍有效时转成常量500，已提交panic转ErrAbortHandler。局部极窄writer仅转发Header/WriteHeader、提供Unwrap，并将Write短写/错误转成ErrAbortHandler，覆盖现WriteProblem忽略Write返回值的情况；不包装API、不引入缓冲响应/自建状态机。
+
+正常返回（包括局部Recover已完成的500/显式503）后，scope在同一期限内完成真实 `ResponseController.Flush`，然后stop取消回调、取消本地context并join实际已启动的回调；仅在成功且连接可复用时清本请求deadline，才返回给gate。能力缺失、SetWriteDeadline失败或期限已失效时直接ErrAbortHandler，不尝试一个无界的Problem写；写/Flush/回调设置失败、已提交异常及取消同样先结束本scope实际I/O并stop+join，放弃连接复用，再传播ErrAbortHandler。scope内逃出的异常不得在清尾之后作为任意panic交外层重新写500；必要的最外局部defer只负责完成清尾并把它规范为ErrAbortHandler，不输出第二响应或格式化cause。中止后的物理连接关闭仍由既有net/http/外层Recover负责，不宣称已在finishHTTP前完成TCP关闭。
+
+通过admission的请求必须在上述写/Flush或已确定的中止及回调实际结束后，才由原gate的defer恰一次finishHTTP；不能只取消ctx便释放。没有取得槽位的拒绝请求不调用finishHTTP，但其503同样有完整独立scope预算/实际收尾，不冒称受到未进入的renderer保护。没有额外常驻goroutine/watch/cache worker，也不改变原Object/全域关闭框架。
+
+资源内容和元数据在构造成功后只读，不从请求路径打开 OS 文件；并发 GET/HEAD 共享不可变内存。找不到文件是404，损坏包在监听前失败；SPA渲染panic由上述局部Recover在scope内处理，外层公共Recover保留原API兜底及ErrAbortHandler语义，不承担gate释放后的新SPA错误写。普通日志只有固定路由模式、RequestID、method/status/时长/字节及安全 code；不记录实际路径、query、凭据、请求/响应正文。API/诊断的原 no-store/security headers 不由托管层覆盖。
+
+## 5. root 装配与发布隔离
+
+`app.go:run` 在原 cfg.Validate/logger 非nil校验之后、`lifecycle.New` 及 `go initialize(...)`（固定行122）之前，执行一次纯 `webassets.NewHandler` 并保存结果。release验证失败直接返回安全 InitializationFailed：不得进入DB/迁移/服务/worker/listen，不能把构造放在行162默认handler装配处再新增return。固定initialize在行532–535已绑定listener，因此“还没Serve”不是零资源证明。本卡不新增后置失败清理分支、不改resources.go；既有初始化/清理顺序保持，正常构造无网络、文件系统外部资源或后台工作。包内deps.handler接缝不扩成生产配置。
+
+新 `app/webassets.go` 保留唯一公共组合 `webRequestBoundary(httpapi.Handler(logger.HTTPLogger(), gate), spaBound)`，不增加公共httpapi契约或另一层RequestID。修订rev0.1的no-second-Recover限制：只允许§4 scope内部的SPA局部 `httpapi.Recover(nil, next)`，仍复用同一tracked state。原gate的准入条件和已准入finish defer不动，仅其拒绝分支按已有SPA私有标记选择有界503；API/诊断拒绝仍原WriteProblem。`webRoutes(diagnostics, existingAPI, optionalSPA)` 仍在gate之内；无bundle或既有受控deps.handler路径沿原组合。具体数据流固定为：
+
+1. `webRequestBoundary` 先对原 URL.Path 按§3同一个保留命名空间判定函数分类，不能先清RawPath/clean/重写URL。API/诊断归属直接把同一 `*http.Request` 传给唯一 `httpapi.Handler`，不复制body、不加writer包装/期限/头、不改变原限制。分类对nil URL有显式安全分支，不调用可注入handler或产生业务I/O。
+2. 仅SPA归属创建请求局部副本。在app私有context key下保存原URL的值副本（含原Path/RawPath/RawQuery/ForceQuery等字段和nil标记）及原RequestURI；该值只活在本请求，禁止打印/序列化/放全局。传入 `httpapi.Handler` 的外层副本使用新的 `url.URL{Path:"/"}`、RequestURI `/`、Pattern `/{web}`；Method/Header/Body/ContentLength/TransferEncoding/Host及原取消context保持。WithRequestID仍只生成一次身份，Recover与gate从始至终持有这个外层安全副本，因此ShuttingDown及未提交panic的原WriteProblem自然得到constant instance。
+3. 通过admission后，`webRoutes`识别私有标记即以安全request进入 `withWebResponse`；其局部Recover所包next才恢复原URL/RawPath/RawQuery/ForceQuery/RequestURI并调用optionalSPA。恢复副本继承当前同一RequestID及scope受限context，原路径仍完整验证；恢复/渲染失败也在局部Recover内。不得回写外层安全request/URL，不得从浏览器header决定标记。scope实际结束返回后，原gate才finishHTTP；API分支不进入此scope或制造标记，继续原路由。
+4. `webassets/handler.go` 每个显式Problem出口仍用局部常量URL副本调用原WriteProblem，不改变Method，保证HEAD无body；它们现在在SPA scope/局部Recover之内。局部Recover也捕获安全副本，写500及其Flush/取消实际尾部先于gate释放；已提交panic/错误写失败只在清尾后传播ErrAbortHandler，外层公共Recover不追加响应。外层日志继续固定Pattern，不重建RequestID或修改公共safePath。
+5. 若原 `control.Stopping() || !owned.admitHTTP()` 分支拒绝，gate只对SPA私有标记调用同一个 `withWebResponse(w, safeRequest, rejectShuttingDown)`；next仅原WriteProblem(ShuttingDown,NotStarted)，不恢复原URL/调用renderer、不再次尝试admission。原条件短路及无槽位事实不变，不安排finishHTTP。scope实际Flush/stop+join后该分支才返回；非SPA拒绝原语句/headers/body限制不动。
+
+构造及上述安全投影只落原候选app.go、新app/webassets.go与webassets/handler.go；所有API/诊断的原请求、body限额、原响应头/状态与门禁都保持。原Account/outbound同实例、mandatory PG/MinIO、Secret、迁移、listener、health/ready、关闭及实际资源回收职责不变；测试替身不充当真实发布证据。
+
+真实前端编译只使用628612c接受源码（97f4551没有前端产品差量）及接受锁；不读取或覆盖 SMTP 私有源码/dist。后继 SMTP/Outbound UI 接受后可用同一正式构建脚本重新构建，但本卡证据不自动覆盖其产品行为，最终组合按实际输入另核。发布产物须能在没有仓库/asset目录的工作目录运行；迁移等既有嵌入和外部运行配置保持原依赖，不能为“单二进制”把 PG/MinIO/恢复日志等运行依赖伪装为不存在。
+
+## 6. 精确候选路径与所有权
+
+暂定16个受限候选，只有主线程采纳正式卡并另授后才能实施。生成目录另列排他运行输入，不授权改锁、路由或旧测试；实际发现需要新公共契约/额外路径时先报告。
+
+| # | 唯一路径 | 限定用途 |
+| --- | --- | --- |
+| 1 | `internal/central/webassets/handler.go`（新） | 静态/页面分类、GET/HEAD、缓存/MIME、安全错误/中止；实际写scope归#9。 |
+| 2 | `internal/central/webassets/handler_test.go`（新） | 路由/缓存/非法路径与渲染错误/中止；scope和native尾部组合归#10。 |
+| 3 | `internal/central/webassets/bundle.go`（新） | 内部闭合 manifest、只读资源校验、纯 NewHandler。 |
+| 4 | `internal/central/webassets/bundle_test.go`（新） | 缺/多/损坏资源、预算、MIME、声明与真实字节一致。 |
+| 5 | `internal/central/webassets/bundle_release.go`（新） | `agenteam_web` tag 下仅真实 go:embed。 |
+| 6 | `internal/central/webassets/bundle_backend.go`（新） | 无 tag 的明确工程构建分支，无伪 SPA。 |
+| 7 | `internal/central/webassets/bundle/.gitignore`（新） | 仅忽略生成资源/本目录占用文件，自身入库；不改全局 .gitignore。 |
+| 8 | `internal/central/app/app.go` | 仅一次纯 bundle 构造与分派接入；原生命周期不变。 |
+| 9 | `internal/central/app/webassets.go`（新） | 窄分派、安全投影及仅SPA的scope/局部Recover/拒绝回包实际尾部。 |
+| 10 | `internal/central/app/webassets_test.go`（新） | 原API/单RequestID兼容，SPA慢错误/拒绝/取消的真实handler栈与native尾部。 |
+| 11 | `scripts/build-central-web.mjs`（新） | 显式离线发布、独占生成目录、真实构建/manifest校验、带tag编译、原子输出与实际清理。 |
+| 12 | `scripts/build-central-web.test.mjs`（新） | 构建输入/资产校验、占用/残留/失败保留与子进程实际终止；Node标准测试。 |
+| 13 | `tests/process/central_web_test.go`（新，integration） | 只启动正式发布Central二进制，复用现PG/MinIO/accountenv及安全日志机制；新HTTP与browser两top。 |
+| 14 | `tests/account-captcha-web/central-spa.config.js`（新） | 单worker/无retry的精确Central原生origin与冻结私有输入。 |
+| 15 | `tests/account-captcha-web/e2e/central-spa.spec.ts`（新） | 单二进制入口/资产/登录/Session/刷新/退出及无Debug，不添加产品测试口。 |
+| 16 | `docs/development/backend/frontend-hosting.md`（新，末件） | 两构建命令、资源/缓存/诊断边界、真实证据及未验范围。 |
+
+生成输出限本轮自有 `webassets/bundle/` 内容、构建私有staging与 `dist/agenteam`/安全摘要，不提交编译资源。新app.go须主线程单独确认所有者。SMTP17中的 `App.vue`、useSession/API/View/tests与frontend README全部不碰；后继OutboundUI的router/menu/Cookie接缝也不碰。现build-go/check-go、web package/lock/vite/router、公共httpapi、Account、Project业务、DB/migrations、分类器、旧fixture/测试及归档台账均只读。正式接受后的跨文档状态对齐由主线程另行移交，不能提前覆盖SMTP末件README。
+
+## 7. 验收与未授权门槛
+
+| 组 | 必须取得的证据 |
+| --- | --- |
+| 普通构建/发布前提 | 无任何生成bundle时原Go unit/vet与Central/Runner构建可用；显式tag缺包硬失败。真实production编译+嵌入成功、无Debug/源码map、manifest每一条SHA/字节闭合；唯一data:, favicon和原主题脚本合法，其他data URL/内联脚本、嵌入排除段、缺/多/篡改、外部URL/路径逃逸、超限、错误工具、占用/残留、Vite/Go失败均不能发布伪成功或覆盖前成功。纯构造失败须证DB/open/migrate/bind/listen/worker未进入；受控子进程仅证明脚本分支，不能代替真实发布构建。 |
+| HTTP纯/native | API/诊断包括404/405/503与受控500完全不进入入口；原request/response/body限额/headers不改、唯一RequestID与常量日志。用私有SPA path/query哨兵分别核显式拒绝、admission拒绝、未提交panic、已提交panic/abort：前3者constant instance/Pattern且无哨兵，后者无第二响应/后缀；RawPath恢复后仍严格拒绝，身份未重建。根/认证/设置/未知单叶/带点Project HTML页、非HTML请求、assets缺失/大小写、RawPath/点段/控制字符、HEAD/304/Allow/MIME、no-store/immutable、无目录/source map/manifest；写取消实际join、先慢页面后同连接API不遗留期限，已开始失败无HTML/Problem后缀。另按下段证明未提交panic慢500与拒绝慢503实际尾部，不能只验最终status。 |
+| `TestCentralEmbeddedWebHTTP`（真实2m） | 本轮发布二进制SHA和manifest固定，移除自有生成资源、在空CWD启动正式cmd，必须PG/MinIO/原Account真实装配，无代理/Vite/自定义handler。HTTP核全部入口和实际资产SHA、懒加载闭包、GET/HEAD/缓存/非法路径、匿名API401/未知API404/方法拒绝、ready503，HTML Accept也不吞API错误；正常SIGTERM及原实际进程/DB/fixture尾部清理，日志无任务私有query。 |
+| `TestCentralEmbeddedWebBrowser`（真实2m，内部browser各45s） | PUBLIC_ORIGIN必须配置成任务实际独占listener的精确origin，并在listening事件后核一致；不能照搬旧HTTP测试的Host=localhost:8080覆盖、伪造Host或用反代掩盖不一致。浏览器直连该二进制origin，所有页面/JS/CSS/API同源；禁止外网、没有拦截伪造成功或测试server。使用正式bootstrap恢复日志的任务自有私密账号，实际页面正确登录与Session cookie/CSRF、刷新至少一个懒加载本人页及 `/system/smtp`、退出后保护路由回登录；真实403坏CSRF及未知API仍为Problem。`/debug`是未找到，未绑定Project路径不冒充项目页面。凭据只入私有0600输入，结果仅安全布尔/计数，无trace/video/含凭据截图。 |
+
+新增窄尾部门槛仅落#10：在真实公开中间件/本域scope/准入计数调用栈上，用支持deadline的受控Write/Flush及回调屏障，让已准入renderer在提交前panic，500写或Flush仍阻塞时finish计数必须为0；实际写/Flush和已启动取消回调全部join后恰一次finish。另核拒绝503同一预算/无续期，admit成功数与finish均为0，回包仍须实际返回后scope结束；短写、能力不足、deadline设置失败和错误写取消只有abort无第二Problem。30s或更早parent的建立与继承用受控证据核实，取消/更早deadline实际推动阻塞退出，不能用即时mock或只ctx.Done证明已join。原生loopback另核真实500/503/HEAD、单RequestID/安全instance、已提交abort及成功后同连接API；不把受控慢小Problem写宣称为自然TCP背压或物理关闭先于finish，不增加全域停机/对象测试。
+
+公开网页不新增业务写范围：浏览器仅已有登录/退出与读取，禁止SMTP发送、出站测试/代理、Provider调用和未验功能。既有正确首轮登录不需人为调低challenge策略；若环境产生真实challenge，用已接受公开机制，不修改生产门槛或SQL伪造Session。不强求重复全部既有页面视觉矩阵或全D02/D07测试，只核受影响入口和HTTP/root代表；单二进制证据独立于过去的测试代理证据。
+
+纯受控用例45s内，受影响integration包沿 `-race -count=1 -timeout=6m`，每新真实场景2m、browser45s、单worker/retries0；新发布编译单列准备/构建检查，不能挤入场景计时或以skip/没命中冒充通过。真实fixture/浏览器窗口由主线程另授；先离线完成固定输入、编译/vet/测试发现与driver门禁，再开唯一窗口。复用已验精确PG/MinIO和工具缓存，不改生产分类器；原预算、原失败及actual wait/owned PID-starttime/adopted/精确ID/baseline双扫和输入前后SHA都保留。不得以这一正常路径验收声称 Object runtime join 已修。
+
+实施前读设计/Go/验证技能相关段落，浏览器沿既有Playwright规则。作者冻结候选16源及固定最小编译/前端/运行闭包；独立验证重点为发布真嵌入与普通构建区分、fallback不吞API/资产错误、合法带点Project路径、敏感query不反射、取消后连接与root权限保持。只有规格审查、作者适用证据、独立高风险验证及实际清零后，主线程才能采纳本完整子结果；当前没有任何产品/构建/动态PASS。

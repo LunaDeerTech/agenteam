@@ -1,0 +1,105 @@
+import * as fs from 'node:fs/promises'
+import path from 'node:path'
+import { createHash } from 'node:crypto'
+import { pathToFileURL } from 'node:url'
+
+const [modulePath, root] = process.argv.slice(2)
+const { buildCentralWeb } = await import(pathToFileURL(modulePath))
+const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
+const previous = Buffer.from('INDEPENDENT-PREVIOUS-BINARY')
+const next = Buffer.from('INDEPENDENT-NEXT-CONTROLLED-BINARY')
+const sourceHTML = '<!doctype html><html><head><link rel="icon" href="data:," />' +
+  '<script>document.documentElement.dataset.theme="light"</script></head>' +
+  '<body><div id="app"></div><script type="module" src="/src/main.ts"></script></body></html>'
+const files = ['index.html', 'assets/main-AbCd1234.js']
+
+async function exists(file) {
+  try { await fs.lstat(file); return true } catch (error) {
+    if (error.code === 'ENOENT') return false
+    throw error
+  }
+}
+async function fixture(name, injectLockReplacement) {
+  const dir = path.join(root, name)
+  const bundle = path.join(dir, 'internal/central/webassets/bundle')
+  await fs.mkdir(bundle, { recursive: true })
+  await fs.writeFile(path.join(bundle, '.gitignore'), '*\n!.gitignore\n')
+  await fs.mkdir(path.join(dir, 'web/node_modules'), { recursive: true })
+  await fs.writeFile(path.join(dir, 'web/node_modules/.package-lock.json'), '{}\n')
+  await fs.writeFile(path.join(dir, 'web/package-lock.json'), '{}\n')
+  await fs.writeFile(path.join(dir, 'web/package.json'), JSON.stringify({
+    engines: { node: '^22.18.0 || >=24.12.0' }, scripts: { 'type-check': 'vue-tsc --noEmit' },
+  }))
+  await fs.writeFile(path.join(dir, 'web/index.html'), sourceHTML)
+  await fs.mkdir(path.join(dir, 'dist'))
+  const oldSummary = Buffer.from(JSON.stringify({ format: 1, binary: { sha256: sha(previous) } }) + '\n')
+  await fs.writeFile(path.join(dir, 'dist/agenteam'), previous)
+  await fs.writeFile(path.join(dir, `dist/agenteam.${sha(previous)}.json`), oldSummary)
+  let faultInjected = false
+  const calls = []
+  const run = async (_command, args, options) => {
+    calls.push(args[0].endsWith('/vue-tsc.js') ? 'type' : args[0].endsWith('/vite.js') ? 'vite' : args[0])
+    if (options.env.GOPROXY !== 'off' || options.env.GOTOOLCHAIN !== 'local' || options.env.GOFLAGS !== '-mod=readonly')
+      throw new Error('UNEXPECTED_TOOL_ENVIRONMENT')
+    if (args[0] === 'version') return 'go version go1.27.1 linux/amd64\n'
+    if (args[0].endsWith('/vue-tsc.js')) return ''
+    if (args[0].endsWith('/vite.js')) {
+      const output = args[args.indexOf('--outDir') + 1]
+      await fs.mkdir(path.join(output, '.vite'))
+      await fs.mkdir(path.join(output, 'assets'))
+      await fs.writeFile(path.join(output, '.vite/manifest.json'), JSON.stringify({
+        'index.html': { file: files[1], src: 'index.html', isEntry: true },
+      }))
+      await fs.writeFile(path.join(output, 'index.html'), sourceHTML.replace('/src/main.ts', '/' + files[1]))
+      await fs.writeFile(path.join(output, files[1]), 'export const value=1;\n')
+      return ''
+    }
+    if (args[0] === 'list') return [...files.map((file) => 'bundle/' + file), 'bundle/manifest.json'].join('\n') + '\n'
+    if (args[0] === 'build') {
+      await fs.writeFile(args[args.indexOf('-o') + 1], next, { mode: 0o700 })
+      if (injectLockReplacement) {
+        // Only this probe's directory is modified. Keeping the original lock
+        // inode alive in buildCentralWeb makes the distinct inode deterministic.
+        const lock = path.join(bundle, '.build.lock')
+        await fs.unlink(lock)
+        await fs.writeFile(lock, 'INDEPENDENT-FAULT-REPLACEMENT', { flag: 'wx', mode: 0o600 })
+        faultInjected = true
+      }
+      return ''
+    }
+    throw new Error('UNEXPECTED_CONTROLLED_TOOL')
+  }
+  let outcome
+  try {
+    outcome = { resolved: true, value: await buildCentralWeb(dir, { run, nodeVersion: '24.19.0', go: '/controlled/no-execution' }) }
+  } catch (error) {
+    outcome = { resolved: false, code: error.code ?? 'untyped-rejection' }
+  }
+  const current = await fs.readFile(path.join(dir, 'dist/agenteam'))
+  const matchingSummary = path.join(dir, `dist/agenteam.${sha(current)}.json`)
+  const matchingSummaryExists = await exists(matchingSummary)
+  let matchingSummaryAgrees = false
+  if (matchingSummaryExists) matchingSummaryAgrees = JSON.parse(await fs.readFile(matchingSummary, 'utf8')).binary.sha256 === sha(current)
+  const oldSummaryPreserved = oldSummary.equals(await fs.readFile(path.join(dir, `dist/agenteam.${sha(previous)}.json`)))
+  const observed = {
+    name, faultInjected, calls, resolved: outcome.resolved, code: outcome.code ?? null,
+    binaryIsPrevious: current.equals(previous), binaryIsNext: current.equals(next),
+    matchingSummaryExists, matchingSummaryAgrees, oldSummaryPreserved,
+  }
+  observed.contractSatisfied = injectLockReplacement
+    ? !outcome.resolved && observed.binaryIsPrevious && oldSummaryPreserved && matchingSummaryAgrees
+    : outcome.resolved && observed.binaryIsNext && matchingSummaryAgrees && oldSummaryPreserved
+  return observed
+}
+
+const cases = []
+cases.push(await fixture('success-control', false))
+cases.push(await fixture('post-commit-lock-failure', true))
+const result = {
+  kind: 'independent-controlled-publication-contract', cases,
+  pass: cases.every((value) => value.contractSatisfied),
+  limitation: 'Synthetic assets and injected tool callbacks; not a real Vite, typecheck, Go embed or release-binary result.',
+}
+await fs.writeFile(path.join(root, 'observations.json'), JSON.stringify(result, null, 2) + '\n')
+process.stdout.write(JSON.stringify(result) + '\n')
+if (!result.pass) process.exitCode = 1

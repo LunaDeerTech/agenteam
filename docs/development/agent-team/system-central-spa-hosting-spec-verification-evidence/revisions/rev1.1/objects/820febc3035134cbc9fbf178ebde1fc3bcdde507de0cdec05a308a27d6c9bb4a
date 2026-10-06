@@ -1,0 +1,40 @@
+{
+  "all_other_bytes_unchanged": true,
+  "exact_single_header_replacement": {
+    "after": "本 rev1.1 已由主线程审查采纳，待提交",
+    "before": "本 rev1.1 为待审查提交的私有窄修候选"
+  },
+  "format": {
+    "actual_exit": 1,
+    "actual_wait_completed": true,
+    "argv": [
+      "git",
+      "-C",
+      "/workspace/agenteam",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v2-qmlnvp7h/d28-central-spa-hosting.md",
+      "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v3-bqhs95n3/d28-central-spa-hosting.md"
+    ],
+    "diagnostic_bytes": 0,
+    "seconds": 0.002111
+  },
+  "full_sha256": "2cd71ed46779cbf382d0c507624839129a912ffa26a14056fe70678ae117fbd8",
+  "main_card_unchanged": true,
+  "main_status": "## main...origin/main\n",
+  "no_product_execution_or_resources": true,
+  "technical_sha256": "cfa6d8f31c6f3159499bac4c1258c493299c4bee3c63825232a1841cc74056f8",
+  "utf8_LF_final_newline_no_trailing_space": true,
+  "v2_files_unchanged": {
+    "checks.json": "f0908b66dac6aa68346fd5cc2777a29e93b77f7e5c5330754d74ae6462e7d8cb",
+    "d28-central-spa-hosting.md": "0a949a273547bb539c324359825449af793013cc21dcd99c3cfc9d579b5beca3",
+    "delivery.json": "a8b89d026b803ee48bac125d7833c86d7dcd30a7e0f34d9bb2b1ec9650494f48",
+    "format.raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "main-status.raw.log": "5fbcb2990ad25e368c12219bf3ddca36e464d044e7acac16696fa8cd54159185",
+    "rev1-to-rev1.1-v2.diff": "9f5b88a2292851edb37266ea542f19793afcf39da85c627240ded7ee416d1e6f",
+    "rev1.1-initial-to-v2.diff": "4161cc1e5f8dbdb04318c6c0a6c9745f32662427bceb86d7eed97bef7a5295c2",
+    "rev1.md": "88b95723ad1c8a122f181123afceaaf72c375e7c55840cb3c009e414ee1e9e0c"
+  }
+}

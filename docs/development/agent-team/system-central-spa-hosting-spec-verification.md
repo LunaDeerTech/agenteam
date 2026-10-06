@@ -43,3 +43,30 @@ env PYTHONDONTWRITEBYTECODE=1 GIT_NO_LAZY_FETCH=1 python3 docs/development/agent
 主线程确认后端作者已在 `/workspace/scratch/agenteam-central-spa-author-gfjizhr4` 实际启动，固定97f4551／web628612c并读取7a490ac卡；先做bundle／handler与build脚本纯检查。[独立私有计划](system-central-spa-hosting-spec-verification-evidence/objects/b906fed039f28452e3388b98375436cbf2b99e5b6f47825c41c6c3f2614e179a)与basis已冻结，未消费活动实现。计划者参与过规格设计、未参与产品或作者测试；此前规格独审来自另一验证者，计划本身不是实现审查或动态结果。这里记录授权和启动，不记录尚未交付的检查为PASS；本归档没有读取该活动根。
 
 SMTP投递UI authority01原失败已经独立静态产品归因、私有修复中，尚无产品交付；本报告不改SMTP卡或旧验收。D28仅此规格已接受，完整D08–D28/E01未完成、E01未开始。Summary初值待决、Object/tools原任务停止、Artifact/Project与生产未绑定、ready503等边界保持；不启动停止任务，也不以SPA规格解除它们。
+
+## 6. rev1.1 发布脚本边界修订与原失败
+
+2026-10-06追加：§1–5及原证据保持当时原字节。主线程已审查采纳[正式卡rev1.1](../work-items/d28-central-spa-hosting.md)，提交推送 `272c6c178462b4da72ac0eda69278e8dbde61f30`并核远端一致；全文 SHA `2cd71ed46779cbf382d0c507624839129a912ffa26a14056fe70678ae117fbd8`，技术§1–7 `cfa6d8f31c6f3159499bac4c1258c493299c4bee3c63825232a1841cc74056f8`。本次是已确认工程边界的规格修订，**两项原产品RED仍保留，返修尚未验收**。原rev1技术f5399abe…967220绑定7a490ac；不能套在当前rev1.1卡上。
+
+仅页首与§2两处技术精度变化：显式 `node scripts/build-central-web.mjs` 只在Linux执行，启动任何工具前须证明 `/proc` 可观察本轮自有进程组PID/starttime，否则安全失败且不启动工具。另明确commit-last：完整候选先放dist下本轮独占临时文件，内容SHA定址摘要先就绪；所有工具实际结束、生成物/staging清理、锁归属核验及释放等可失败I/O全部在发布前完成，最后只有一次candidate→dist/agenteam原子rename，之后无可失败I/O。失败保留旧成功与匹配摘要，不能吞锁错、删除当前匹配摘要或在锁释放后回滚后继发布。普通无tag Go/Runner行为保持，不新增跨平台保证；16路径、API、HTTP预算及其它技术正文不变。
+
+[首阶段独立原报告](system-central-spa-hosting-spec-verification-evidence/revisions/rev1.1/objects/fae76080028076bd5bfcf3dc1cc6083fb25cb12fa1b040281e545f113ec1df66)消费冻结bundle-stage01；其manifest SHA `6b247f9f2b7563aba333e7edf411866dc9088759b2e842e8243f36f8c57541ae`。验证者参与过规格设计，未参与产品实现或作者测试。下列是受控进程/文件系统实际失败，区别于§2原三次纯规格审查：
+
+| 原轮 | 实际结果与到达边界 | 终局及不外推范围 |
+| --- | --- | --- |
+| child-tail01 / A-SCRIPT-01 | exit1／2.838s；inherit分支direct已停止、后代仍运行且Promise仍pending，ignore分支Promise已拒绝但后代仍运行。 | 取证后探针精确KILL自有后代并await原Promise/direct close，外部driver实际wait两个adopted后代；5个owned PID/starttime双扫空。补清理不是产品正确收尾。 |
+| publication01 / A-SCRIPT-02 | exit1／1.179s；正常受控对照匹配发布，替换自有lock inode后实际命中WEB_BUILD_OWNERSHIP_CHANGED，binary已NEXT而匹配summary被删除，旧summary仍在。 | 1个owned PID/starttime实际wait及双扫空；合成资源与注入工具回调，不是真实Vite/type-check/Go embed或发布二进制。 |
+
+两轮各45s外限，原command/env/raw/result/前后输入/observations/cleanup及两probe/driver均保存；原输入未变，无超时、driver或gate错误。总计6个自有PID，2个adopted wait另列，两个探针直接child由driver实际wait；子级direct close与非直属wait不能混为一谈，Z/X只说明停止。没有监听、网络、PG/MinIO/Docker或浏览器，本归档不重新执行任何探针。Node不能wait非直属子进程，修后仍须持续TERM→KILL并等待自有组无运行成员和direct close，外部driver的收养/实际wait独立举证。
+
+[追加索引](system-central-spa-hosting-spec-verification-evidence/revisions/rev1.1/index.json)保存52个逻辑原件，用45个新SHA对象共211489字节与2个Git原件引用去重。初rev1.1、v2、v3及原diff/checks/delivery保留；v3逐字绑定272c6c1，四条差量在内存核闭合。两原候选脚本源码分别为53f2ffc…260e4、c2b0689…884cf4，与作者manifest及两轮输入原件相同。26个既有依赖逐项绑定97f4551 Git，未复制9+26树、App闭包、工具链、缓存或生成物。
+
+这份最小包只持久化受影响的两脚本；其余7个bundle/renderer候选、原9源candidate.diff、作者七组检查全文以及Node/Python工具实体仅留原清单/报告指纹，未收入本次对象。不能声称仅靠此追加包可直接重放原全输入gate或重建旧9源完整阶段。独立报告中的作者race/vet/32纯项复用仍是原审查记录；本追加不把它们转成新动态或发布通过。受控probe自建合成材料的代码与关键原observations已保留，不复制其假binary/临时树。
+
+旧index、16对象和旧checker保持原字节。新[版本定位checker](system-central-spa-hosting-spec-verification-evidence/revisions/rev1.1/verify_archive.py)先从6267717取6份必要历史文档到临时目录，调用原checker复核rev1历史；再核本次272c6c1、修订差量、原失败输入与终局、追加保留原文及链接。旧checker的直接当前工作树命令不再适合新增行政段；下面命令明确区分历史和当前，结果只表示离线归档完整：
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 GIT_NO_LAZY_FETCH=1 python3 docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/revisions/rev1.1/verify_archive.py --repo /workspace/agenteam
+```
+
+以下仅据主线程最新调度通知，不是本档新增验收：SPA stage02两脚本修复已收到，原两probe的作者重跑已PASS，尚待独立验收；正式发布、native、两真实binary代表及核心16产品仍未交付。SMTP oldauthority02已actual0／59.566s并释放窗口，新五组、旧五组按版本通过；独立A/B仅六项离线检查进行中，仍未产品接受。本档未读取这些新增或活动原件，不以调度状态替代原证据或独立结论。完整D08–D28/E01未完成、E01未开始；Summary待决、Object/tools停止、Artifact/Project及生产未绑定、ready503保持。

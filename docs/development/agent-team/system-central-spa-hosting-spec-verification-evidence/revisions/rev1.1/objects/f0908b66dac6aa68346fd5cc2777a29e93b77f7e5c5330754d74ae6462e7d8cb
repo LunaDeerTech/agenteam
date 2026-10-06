@@ -1,0 +1,140 @@
+{
+  "candidate_full_sha256": "0a949a273547bb539c324359825449af793013cc21dcd99c3cfc9d579b5beca3",
+  "candidate_technical_sha256": "cfa6d8f31c6f3159499bac4c1258c493299c4bee3c63825232a1841cc74056f8",
+  "format": {
+    "actual_exit": 1,
+    "actual_wait_completed": true,
+    "argv": [
+      "git",
+      "-C",
+      "/workspace/agenteam",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v2-qmlnvp7h/rev1.md",
+      "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v2-qmlnvp7h/d28-central-spa-hosting.md"
+    ],
+    "diagnostic_bytes": 0,
+    "seconds": 0.001764
+  },
+  "head_observed": "626771744b68610be9a2ef2813b59a91775eb89c",
+  "header_and_section2_only": true,
+  "independent_report": {
+    "path": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/review.md",
+    "sha256": "fae76080028076bd5bfcf3dc1cc6083fb25cb12fa1b040281e545f113ec1df66"
+  },
+  "limits": [
+    "No product execution, build or resources",
+    "No main/repository writes or Git mutation",
+    "Private card requires root review/copy/commit before corresponding implementation"
+  ],
+  "links_exist": [
+    "/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/d28-central-spa-hosting.rev0.2.draft.md",
+    "/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/rev0.2-review.md",
+    "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/review.md",
+    "/workspace/agenteam/docs/architecture/platform-infrastructure/deployment-runtime.md:82",
+    "/workspace/agenteam/docs/development/development-plan.md:85"
+  ],
+  "main_card_unchanged": true,
+  "main_status": "## main...origin/main\n",
+  "original_full_sha256": "88b95723ad1c8a122f181123afceaaf72c375e7c55840cb3c009e414ee1e9e0c",
+  "original_git": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71",
+  "original_private_delivery_preserved": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-n4tokr6v",
+  "original_private_file_hashes": {
+    "checks.json": "9c7e0f2437357c82ee9aaef523e5876ea18a17540c3ef4e33ea8e4e1d86f8fac",
+    "d28-central-spa-hosting.md": "52e9970997fe678eeb16914d8b5498541cbc65c3a15f42ebd1c88b6bdb48a66a",
+    "delivery.json": "62cfd04b15432abe6a0f9f409949f412a893f954176e413c1758ca06a9c6d2e7",
+    "format.raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rev1-to-rev1.1.diff": "e3ef00caca4a96b7bdcf4c014118d97cd9253cd2c355aa39107376052bbafa9c"
+  },
+  "original_technical_sha256": "f5399abe8b3137d4a8d8e8bbb3d2ddf6186013ae1ed092ecfa473b19a5967220",
+  "reverse_exact_two_technical_deltas_restores_rev1": true,
+  "scope_paths_unchanged": [
+    [
+      "1",
+      "internal/central/webassets/handler.go"
+    ],
+    [
+      "2",
+      "internal/central/webassets/handler_test.go"
+    ],
+    [
+      "3",
+      "internal/central/webassets/bundle.go"
+    ],
+    [
+      "4",
+      "internal/central/webassets/bundle_test.go"
+    ],
+    [
+      "5",
+      "internal/central/webassets/bundle_release.go"
+    ],
+    [
+      "6",
+      "internal/central/webassets/bundle_backend.go"
+    ],
+    [
+      "7",
+      "internal/central/webassets/bundle/.gitignore"
+    ],
+    [
+      "8",
+      "internal/central/app/app.go"
+    ],
+    [
+      "9",
+      "internal/central/app/webassets.go"
+    ],
+    [
+      "10",
+      "internal/central/app/webassets_test.go"
+    ],
+    [
+      "11",
+      "scripts/build-central-web.mjs"
+    ],
+    [
+      "12",
+      "scripts/build-central-web.test.mjs"
+    ],
+    [
+      "13",
+      "tests/process/central_web_test.go"
+    ],
+    [
+      "14",
+      "tests/account-captcha-web/central-spa.config.js"
+    ],
+    [
+      "15",
+      "tests/account-captcha-web/e2e/central-spa.spec.ts"
+    ],
+    [
+      "16",
+      "docs/development/backend/frontend-hosting.md"
+    ]
+  ],
+  "status": "PASS: private document delta only",
+  "technical_changes": {
+    "linux_gate_sentence": "本显式发布入口仅在 Linux 执行，并须在启动任何工具前通过 `/proc` 证明可观察本轮自有进程组的 PID/starttime；其他 host 或该能力不可证明时安全失败，不启动工具。",
+    "step5": {
+      "after": "构建完成后复核源与资源输入未变，将完整候选二进制放到 `dist/` 下本轮独占临时文件，并备妥按该二进制 SHA 定址的安全摘要；下一步完成全部发布前收尾后才原子发布，失败不覆盖先前成功发布。",
+      "before": "构建完成后复核源与资源输入未变，才原子发布本轮二进制和安全摘要，失败不覆盖先前成功发布。"
+    },
+    "step6": {
+      "after": "所有工具及子进程实际结束后，仅清本轮占用的生成文件和 staging，完成锁归属核验及释放等全部可失败 I/O；最后只用一次候选临时文件→`dist/agenteam` 的原子 rename 完成 commit-last 发布，之后不做可失败 I/O。失败保留旧二进制及其摘要，不吞锁错误或破坏当前二进制对应摘要，不在锁释放后回滚可能属于后继发布的二进制。",
+      "before": "所有子进程实际结束后，仅清本轮占用的生成文件和锁。"
+    }
+  },
+  "unchanged_sections": [
+    1,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "utf8_LF_final_newline_no_trailing_space": true
+}

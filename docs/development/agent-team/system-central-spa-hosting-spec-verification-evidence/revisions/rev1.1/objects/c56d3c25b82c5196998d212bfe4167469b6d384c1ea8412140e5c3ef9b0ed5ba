@@ -1,0 +1,45 @@
+{
+  "kind": "independent-controlled-publication-contract",
+  "cases": [
+    {
+      "name": "success-control",
+      "faultInjected": false,
+      "calls": [
+        "version",
+        "type",
+        "vite",
+        "list",
+        "build"
+      ],
+      "resolved": true,
+      "code": null,
+      "binaryIsPrevious": false,
+      "binaryIsNext": true,
+      "matchingSummaryExists": true,
+      "matchingSummaryAgrees": true,
+      "oldSummaryPreserved": true,
+      "contractSatisfied": true
+    },
+    {
+      "name": "post-commit-lock-failure",
+      "faultInjected": true,
+      "calls": [
+        "version",
+        "type",
+        "vite",
+        "list",
+        "build"
+      ],
+      "resolved": false,
+      "code": "WEB_BUILD_OWNERSHIP_CHANGED",
+      "binaryIsPrevious": false,
+      "binaryIsNext": true,
+      "matchingSummaryExists": false,
+      "matchingSummaryAgrees": false,
+      "oldSummaryPreserved": true,
+      "contractSatisfied": false
+    }
+  ],
+  "pass": false,
+  "limitation": "Synthetic assets and injected tool callbacks; not a real Vite, typecheck, Go embed or release-binary result."
+}

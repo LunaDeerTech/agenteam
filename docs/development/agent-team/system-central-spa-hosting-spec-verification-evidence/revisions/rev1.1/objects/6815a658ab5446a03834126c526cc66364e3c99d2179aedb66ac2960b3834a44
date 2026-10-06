@@ -1,0 +1,171 @@
+#!/usr/bin/python3
+"""Explicitly authorized, offline, no-listener verification only. No product edits."""
+import argparse
+import ctypes
+import hashlib
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+import time
+
+BASE = Path(__file__).resolve().parent
+def digest(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+def save(path, value):
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+def proc(pid):
+    try:
+        raw = Path('/proc', str(pid), 'stat').read_text()
+        fields = raw[raw.rfind(')') + 2:].split()
+        return {'pid': pid, 'ppid': int(fields[1]), 'state': fields[0], 'starttime': fields[19]}
+    except (FileNotFoundError, ProcessLookupError):
+        return None
+def snapshot():
+    rows = {}
+    for path in Path('/proc').iterdir():
+        if path.name.isdigit():
+            row = proc(int(path.name))
+            if row: rows[row['pid']] = row
+    return rows
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--case', choices=['child-tail', 'publication'], required=True)
+parser.add_argument('--name', required=True)
+parser.add_argument('--frozen', type=Path, required=True)
+parser.add_argument('--execute-authorized', action='store_true')
+args = parser.parse_args()
+if not args.execute_authorized:
+    raise SystemExit('execution requires root authorization and --execute-authorized')
+if not args.name or any(c not in 'abcdefghijklmnopqrstuvwxyz0123456789-' for c in args.name):
+    raise SystemExit('unsafe run name')
+manifest = json.loads(args.frozen.read_text())
+manifest_sha = digest(args.frozen)
+def gate():
+    bad = [name for name, expected in manifest['frozen_files'].items() if digest(name) != expected]
+    if bad: raise RuntimeError('FROZEN_INPUT_CHANGED: ' + ','.join(bad))
+    return {name: digest(name) for name in manifest['frozen_files']}
+before = gate()
+run = BASE / 'runs' / args.name
+run.parent.mkdir(mode=0o700, exist_ok=True)
+run.mkdir(mode=0o700)  # A previous run is never reused or overwritten.
+data = run / 'private'
+data.mkdir(mode=0o700)
+(run / 'tmp').mkdir(mode=0o700)
+os.umask(0o077)
+libc = ctypes.CDLL(None, use_errno=True)
+if libc.prctl(36, 1, 0, 0, 0) != 0:
+    raise OSError(ctypes.get_errno(), 'PR_SET_CHILD_SUBREAPER')
+owner = proc(os.getpid())
+initial = snapshot()
+baseline_children = [row for row in initial.values() if row['ppid'] == os.getpid()]
+if baseline_children:
+    raise RuntimeError('unexpected baseline child')
+owned = {}
+waited = []
+child = None
+def scan():
+    rows = snapshot()
+    parents = {os.getpid(), *[pid for pid, old in owned.items() if rows.get(pid, {}).get('starttime') == old['starttime']]}
+    changed = True
+    while changed:
+        changed = False
+        for pid, row in rows.items():
+            if row['ppid'] in parents and pid not in parents:
+                owned.setdefault(pid, row)
+                parents.add(pid)
+                changed = True
+    # The controlled probe persists identities before abort, so even a fast
+    # direct-child exit cannot disappear from the ownership ledger.
+    for name in data.glob('*/owned.json'):
+        try:
+            for row in json.loads(name.read_text()):
+                owned.setdefault(row['pid'], row)
+        except (json.JSONDecodeError, FileNotFoundError):
+            pass
+    return rows
+def reap_adopted():
+    rows = scan()
+    for pid, original in list(owned.items()):
+        row = rows.get(pid)
+        if child is not None and pid == child.pid: continue
+        if row and row['starttime'] == original['starttime'] and row['ppid'] == os.getpid():
+            try:
+                got, status = os.waitpid(pid, os.WNOHANG)
+                if got: waited.append({'pid': got, 'starttime': original['starttime'], 'status': status, 'adopted': True})
+            except ChildProcessError:
+                pass
+def kill_owned(sig):
+    rows = scan()
+    for pid, original in list(owned.items()):
+        row = rows.get(pid)
+        if row and row['starttime'] == original['starttime'] and row['state'] not in ['Z', 'X']:
+            try: os.kill(pid, sig)
+            except ProcessLookupError: pass
+def remaining():
+    rows = scan()
+    return [rows[pid] for pid, original in owned.items() if pid in rows and rows[pid]['starttime'] == original['starttime']]
+
+argv = [manifest['node'], str(BASE / 'probes' / (args.case + '.mjs')), manifest['product_script'], str(data)]
+env = {key: os.environ[key] for key in ['PATH', 'LANG', 'LC_ALL'] if key in os.environ}
+env.update({'TMPDIR': str(run / 'tmp'), 'NODE_NO_WARNINGS': '1'})
+save(run / 'input-before.json', before)
+save(run / 'command.json', {'argv': argv, 'cwd': str(BASE), 'env': env, 'budget_seconds': 45, 'case': args.case, 'input_sha256': digest(args.frozen), 'owner': owner})
+started = time.monotonic()
+timed_out = False
+error = None
+actual = None
+try:
+    with (run / 'raw.log').open('wb') as log:
+        child = subprocess.Popen(argv, cwd=BASE, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+        identity = proc(child.pid)
+        if identity: owned[child.pid] = identity
+        while child.poll() is None:
+            scan()
+            reap_adopted()
+            if time.monotonic() - started > 45:
+                timed_out = True
+                kill_owned(signal.SIGTERM)
+                break
+            time.sleep(0.02)
+        if timed_out:
+            end = time.monotonic() + 1
+            while child.poll() is None and time.monotonic() < end:
+                scan(); reap_adopted(); time.sleep(0.02)
+            kill_owned(signal.SIGKILL)
+        actual = child.wait()
+        waited.append({'pid': child.pid, 'starttime': owned.get(child.pid, {}).get('starttime'), 'returncode': actual, 'adopted': False})
+except BaseException as exc:
+    error = type(exc).__name__
+finally:
+    scan()
+    kill_owned(signal.SIGKILL)
+    if child is not None and child.poll() is None:
+        actual = child.wait()
+        waited.append({'pid': child.pid, 'starttime': owned.get(child.pid, {}).get('starttime'), 'returncode': actual, 'adopted': False})
+    end = time.monotonic() + 5
+    while remaining() and time.monotonic() < end:
+        reap_adopted()
+        time.sleep(0.02)
+    first = remaining()
+    time.sleep(0.05)
+    reap_adopted()
+    second = remaining()
+    gate_error = None
+    try:
+        after = gate()
+        if digest(args.frozen) != manifest_sha:
+            gate_error = 'FROZEN_MANIFEST_CHANGED'
+    except BaseException as exc:
+        after = {}
+        gate_error = type(exc).__name__
+    save(run / 'input-after.json', after)
+    cleanup = {'owned': list(owned.values()), 'actual_waits': waited, 'baseline_children': baseline_children, 'first_remaining': first, 'second_remaining': second, 'clean': not first and not second}
+    save(run / 'cleanup.json', cleanup)
+    result = {'actual_exit': actual, 'timed_out': timed_out, 'driver_error': error, 'gate_error': gate_error, 'duration_seconds': round(time.monotonic() - started, 3), 'input_unchanged': before == after and gate_error is None, 'cleanup_clean': cleanup['clean'], 'raw_sha256': digest(run / 'raw.log'), 'cleanup_sha256': digest(run / 'cleanup.json')}
+    save(run / 'result.json', result)
+    print(json.dumps({'run': str(run), **result}, sort_keys=True))
+    if not cleanup['clean'] or error or timed_out or gate_error: sys.exit(2)
+    sys.exit(actual if actual is not None else 2)

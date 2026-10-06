@@ -1,0 +1,123 @@
+import * as fs from 'node:fs/promises'
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+
+const [modulePath, root] = process.argv.slice(2)
+const { runCommand } = await import(pathToFileURL(modulePath))
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+async function identity(pid) {
+  try {
+    const raw = await fs.readFile(`/proc/${pid}/stat`, 'utf8')
+    const fields = raw.slice(raw.lastIndexOf(')') + 2).split(' ')
+    return { pid, starttime: fields[19], state: fields[0], ppid: Number(fields[1]) }
+  } catch (error) {
+    if (error.code === 'ENOENT') return null
+    throw error
+  }
+}
+async function alive(expected) {
+  const now = await identity(expected.pid)
+  return now?.starttime === expected.starttime && !['Z', 'X'].includes(now.state)
+}
+async function killOwned(expected) {
+  if (expected && await alive(expected)) {
+    try { process.kill(expected.pid, 'SIGKILL') } catch (error) {
+      if (error.code !== 'ESRCH') throw error
+    }
+  }
+}
+async function until(check, ms) {
+  const end = performance.now() + ms
+  do {
+    const value = await check()
+    if (value) return value
+    await pause(10)
+  } while (performance.now() < end)
+  return null
+}
+
+const grandSource = `
+const fs = require('node:fs');
+const raw = fs.readFileSync('/proc/self/stat', 'utf8');
+const fields = raw.slice(raw.lastIndexOf(')') + 2).split(' ');
+process.on('SIGTERM', () => {});
+fs.writeFileSync(process.argv[1], JSON.stringify({pid:process.pid,starttime:fields[19]}));
+setInterval(() => {}, 1000);
+`
+const parentSource = `
+const fs = require('node:fs');
+const cp = require('node:child_process');
+const [mode, dir, grandSource] = process.argv.slice(1);
+const grand = cp.spawn(process.execPath, ['-e',grandSource,dir+'/grand.json'], {stdio:mode,detached:false});
+const timer = setInterval(() => {
+  if (!fs.existsSync(dir+'/grand.json')) return;
+  const raw = fs.readFileSync('/proc/self/stat', 'utf8');
+  const fields = raw.slice(raw.lastIndexOf(')') + 2).split(' ');
+  fs.writeFileSync(dir+'/parent.json', JSON.stringify({pid:process.pid,starttime:fields[19],grand:grand.pid}));
+  clearInterval(timer);
+}, 10);
+setInterval(() => {}, 1000);
+`
+
+const cases = []
+for (const mode of ['inherit', 'ignore']) {
+  const dir = path.join(root, mode)
+  await fs.mkdir(dir)
+  const cancellation = new AbortController()
+  let settled = false
+  let terminal = null
+  let parent = null
+  let grand = null
+  const pending = runCommand(process.execPath, ['-e', parentSource, mode, dir, grandSource], {
+    cwd: dir, env: { PATH: process.env.PATH }, signal: cancellation.signal,
+  }).then(
+    () => { settled = true; terminal = 'resolved' },
+    (error) => { settled = true; terminal = error.code ?? 'untyped-rejection' },
+  )
+  try {
+    const ready = await until(async () => {
+      try {
+        const p = JSON.parse(await fs.readFile(path.join(dir, 'parent.json'), 'utf8'))
+        const g = JSON.parse(await fs.readFile(path.join(dir, 'grand.json'), 'utf8'))
+        return { p, g }
+      } catch (error) {
+        if (error.code === 'ENOENT' || error instanceof SyntaxError) return null
+        throw error
+      }
+    }, 5000)
+    if (!ready) throw new Error('CONTROLLED_TREE_NOT_READY')
+    parent = ready.p
+    grand = ready.g
+    if (parent.grand !== grand.pid || !await alive(parent) || !await alive(grand))
+      throw new Error('CONTROLLED_TREE_IDENTITY_CHANGED')
+    await fs.writeFile(path.join(dir, 'owned.json'), JSON.stringify([parent, grand]) + '\n')
+    cancellation.abort()
+    // The production escalation timer is 1000 ms. Allow twice that interval,
+    // while observing actual termination rather than assuming a slept delay.
+    await until(() => settled, 2200)
+    const observed = {
+      mode, settledBeforeProbeCleanup: settled, terminalBeforeProbeCleanup: terminal,
+      directChildLive: await alive(parent), descendantLive: await alive(grand),
+    }
+    observed.contractSatisfied = observed.settledBeforeProbeCleanup &&
+      !observed.directChildLive && !observed.descendantLive &&
+      observed.terminalBeforeProbeCleanup === 'WEB_BUILD_CHILD_FAILED'
+    cases.push(observed)
+    await fs.writeFile(path.join(dir, 'observation.json'), JSON.stringify(observed, null, 2) + '\n')
+  } finally {
+    cancellation.abort()
+    await killOwned(grand)
+    await killOwned(parent)
+    if (!await until(() => settled, 5000)) throw new Error('PRODUCT_PROMISE_DID_NOT_JOIN_AFTER_PROBE_CLEANUP')
+    await pending
+  }
+}
+const result = {
+  kind: 'independent-controlled-process-contract',
+  cases,
+  pass: cases.length === 2 && cases.every((value) => value.contractSatisfied),
+  limitation: 'No listener, network, real Vite/Go tool or release build. Driver separately waits adopted descendants.',
+}
+await fs.writeFile(path.join(root, 'observations.json'), JSON.stringify(result, null, 2) + '\n')
+process.stdout.write(JSON.stringify(result) + '\n')
+if (!result.pass) process.exitCode = 1

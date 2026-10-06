@@ -1,0 +1,58 @@
+{
+  "actual_waits": [
+    {
+      "adopted": true,
+      "pid": 2141958,
+      "starttime": "5710011",
+      "status": 9
+    },
+    {
+      "adopted": true,
+      "pid": 2141999,
+      "starttime": "5710241",
+      "status": 9
+    },
+    {
+      "adopted": false,
+      "pid": 2141940,
+      "returncode": 1,
+      "starttime": "5710004"
+    }
+  ],
+  "baseline_children": [],
+  "clean": true,
+  "first_remaining": [],
+  "owned": [
+    {
+      "pid": 2141940,
+      "ppid": 2141917,
+      "starttime": "5710004",
+      "state": "R"
+    },
+    {
+      "pid": 2141951,
+      "ppid": 2141940,
+      "starttime": "5710008",
+      "state": "R"
+    },
+    {
+      "pid": 2141958,
+      "ppid": 2141951,
+      "starttime": "5710011",
+      "state": "R"
+    },
+    {
+      "pid": 2141992,
+      "ppid": 2141940,
+      "starttime": "5710237",
+      "state": "R"
+    },
+    {
+      "pid": 2141999,
+      "ppid": 2141992,
+      "starttime": "5710241",
+      "state": "R"
+    }
+  ],
+  "second_remaining": []
+}

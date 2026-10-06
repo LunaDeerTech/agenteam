@@ -1,0 +1,755 @@
+{
+  "administrative_updates": {
+    "AGENTS.md": {
+      "after_sha256": "5106a1e087fb323a53be16ddff57e054614ea3b543586cc1aef0a2754a0f878c",
+      "base_git_ref": "626771744b68610be9a2ef2813b59a91775eb89c:AGENTS.md",
+      "base_sha256": "49d1912aab949ebaa3d81419e53a8a13f5e15022dcc077baa7637035c217e08f",
+      "inserted_text": "\nThe [Central SPA rev1.1 revision](docs/development/agent-team/system-central-spa-hosting-spec-verification.md#6-rev11-发布脚本边界修订与原失败) is accepted in `272c6c1`. It limits the explicit Web release entry to Linux with a pre-tool `/proc` process-group identity gate and requires commit-last publication after all fallible cleanup and lock operations. Two independent controlled product failures remain recorded: descendants outliving the direct child, and a post-rename lock error deleting the matching summary. Their probes ended with actual waits and empty owned-process scans; this does not accept the repair. The main thread reports receipt of the author’s two-script stage02 repair and passing author reruns of both original probes, within the unchanged 16-path scope; independent acceptance remains pending. This is coordination status, not evidence reviewed by this archive. Release-build, native, browser and complete product acceptance remain pending; ordinary no-tag Go/Runner behavior, stopped tasks, pending Summary and ready503 are unchanged.\n",
+      "offset": 11150,
+      "preserves_all_base_bytes": true
+    },
+    "docs/development/agent-team/recovery-2026-10-06-continuation.md": {
+      "after_sha256": "28c5f8f4e0370c98e4e1cd579bd7a705f4a7730c916ccdd60bfe7c92b17d290e",
+      "base_git_ref": "626771744b68610be9a2ef2813b59a91775eb89c:docs/development/agent-team/recovery-2026-10-06-continuation.md",
+      "base_sha256": "2196d2d006f63e1648fe4ecd8d5ee6b44cd360e826b6434de22c02174067e889",
+      "inserted_text": "\n## 25. Central SPA rev1.1 发布脚本边界与原失败归档\n\n§1–24逐字保留。[卡rev1.1](../work-items/d28-central-spa-hosting.md)由主线程采纳并提交推送 `272c6c178462b4da72ac0eda69278e8dbde61f30`、远端一致；[报告追加§6](system-central-spa-hosting-spec-verification.md#6-rev11-发布脚本边界修订与原失败)绑定全文2cd71ed…17fbd8、技术cfa6d8…4056f8及原rev1 Git7a490ac。仅§2明确Linux启动任何工具前的/proc自有组PID/starttime能力门禁，及全部工具实际结束/可失败清理与锁操作先于最后一次binary rename的commit-last顺序；16路径、HTTP/API预算和其它技术原字节，普通无tag/Runner不变。\n\n独立stageA固定两脚本与9源manifest。A-SCRIPT-01原child-tail01实际1/2.838s，direct退出后inherit/ignore两分支后代仍运行；探针补清理并等待原Promise，driver实际wait2个adopted。A-SCRIPT-02原publication01实际1/1.179s，受控lock inode变更在rename后触发错误，当前NEXT无匹配摘要；不是缺库/超时等前提失败。两轮共6个owned PID/starttime双扫空，输入未变，未运行监听/网络/真实构建/浏览器，不能将取证终局说成产品正常收尾。\n\n新增独立rev1.1证据子目录，旧report正文、index、objects、checker均保留；新checker用6267717历史文档执行旧核验，再按272c6c1核修订和追加。只收两脚本、原manifest及必要probe/运行原件，26既有依赖用固定Git引用；其余7候选/原完整candidate.diff/作者检查及工具实体未收，故不声称旧全阶段可由此包直接重放。初rev1.1/v2/v3与各diff/check保留；据主线程最新调度通知，SPA stage02两脚本修复及原两probe作者重跑PASS已收到，尚待独立验收，修后产品未接受。\n\n主线程另通知SMTP oldauthority02 actual0／59.566s、窗口释放，新五组和旧五组按版本通过；独立A/B仅六项离线检查进行中，仍未产品接受。以上是调度状态而非本档验收，本档未读取这些新增/活动原件。核心16产品、正式发布/native/两真实代表仍待验；完整D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project及生产未绑定/ready503不变。这里是规格修订和原失败持久记录，不扩产品/资源授权。\n",
+      "offset": 60995,
+      "preserves_all_base_bytes": true
+    },
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification.md": {
+      "after_sha256": "a9c09c73e6be77c04c8060e667b65444d8948aae232579327096505daa649c7e",
+      "base_git_ref": "626771744b68610be9a2ef2813b59a91775eb89c:docs/development/agent-team/system-central-spa-hosting-spec-verification.md",
+      "base_sha256": "2eb7a9efb4f7bdca772cd99c519c107347339deb02fb73d73252a7fbf68449f1",
+      "inserted_text": "\n## 6. rev1.1 发布脚本边界修订与原失败\n\n2026-10-06追加：§1–5及原证据保持当时原字节。主线程已审查采纳[正式卡rev1.1](../work-items/d28-central-spa-hosting.md)，提交推送 `272c6c178462b4da72ac0eda69278e8dbde61f30`并核远端一致；全文 SHA `2cd71ed46779cbf382d0c507624839129a912ffa26a14056fe70678ae117fbd8`，技术§1–7 `cfa6d8f31c6f3159499bac4c1258c493299c4bee3c63825232a1841cc74056f8`。本次是已确认工程边界的规格修订，**两项原产品RED仍保留，返修尚未验收**。原rev1技术f5399abe…967220绑定7a490ac；不能套在当前rev1.1卡上。\n\n仅页首与§2两处技术精度变化：显式 `node scripts/build-central-web.mjs` 只在Linux执行，启动任何工具前须证明 `/proc` 可观察本轮自有进程组PID/starttime，否则安全失败且不启动工具。另明确commit-last：完整候选先放dist下本轮独占临时文件，内容SHA定址摘要先就绪；所有工具实际结束、生成物/staging清理、锁归属核验及释放等可失败I/O全部在发布前完成，最后只有一次candidate→dist/agenteam原子rename，之后无可失败I/O。失败保留旧成功与匹配摘要，不能吞锁错、删除当前匹配摘要或在锁释放后回滚后继发布。普通无tag Go/Runner行为保持，不新增跨平台保证；16路径、API、HTTP预算及其它技术正文不变。\n\n[首阶段独立原报告](system-central-spa-hosting-spec-verification-evidence/revisions/rev1.1/objects/fae76080028076bd5bfcf3dc1cc6083fb25cb12fa1b040281e545f113ec1df66)消费冻结bundle-stage01；其manifest SHA `6b247f9f2b7563aba333e7edf411866dc9088759b2e842e8243f36f8c57541ae`。验证者参与过规格设计，未参与产品实现或作者测试。下列是受控进程/文件系统实际失败，区别于§2原三次纯规格审查：\n\n| 原轮 | 实际结果与到达边界 | 终局及不外推范围 |\n| --- | --- | --- |\n| child-tail01 / A-SCRIPT-01 | exit1／2.838s；inherit分支direct已停止、后代仍运行且Promise仍pending，ignore分支Promise已拒绝但后代仍运行。 | 取证后探针精确KILL自有后代并await原Promise/direct close，外部driver实际wait两个adopted后代；5个owned PID/starttime双扫空。补清理不是产品正确收尾。 |\n| publication01 / A-SCRIPT-02 | exit1／1.179s；正常受控对照匹配发布，替换自有lock inode后实际命中WEB_BUILD_OWNERSHIP_CHANGED，binary已NEXT而匹配summary被删除，旧summary仍在。 | 1个owned PID/starttime实际wait及双扫空；合成资源与注入工具回调，不是真实Vite/type-check/Go embed或发布二进制。 |\n\n两轮各45s外限，原command/env/raw/result/前后输入/observations/cleanup及两probe/driver均保存；原输入未变，无超时、driver或gate错误。总计6个自有PID，2个adopted wait另列，两个探针直接child由driver实际wait；子级direct close与非直属wait不能混为一谈，Z/X只说明停止。没有监听、网络、PG/MinIO/Docker或浏览器，本归档不重新执行任何探针。Node不能wait非直属子进程，修后仍须持续TERM→KILL并等待自有组无运行成员和direct close，外部driver的收养/实际wait独立举证。\n\n[追加索引](system-central-spa-hosting-spec-verification-evidence/revisions/rev1.1/index.json)保存52个逻辑原件，用45个新SHA对象共211489字节与2个Git原件引用去重。初rev1.1、v2、v3及原diff/checks/delivery保留；v3逐字绑定272c6c1，四条差量在内存核闭合。两原候选脚本源码分别为53f2ffc…260e4、c2b0689…884cf4，与作者manifest及两轮输入原件相同。26个既有依赖逐项绑定97f4551 Git，未复制9+26树、App闭包、工具链、缓存或生成物。\n\n这份最小包只持久化受影响的两脚本；其余7个bundle/renderer候选、原9源candidate.diff、作者七组检查全文以及Node/Python工具实体仅留原清单/报告指纹，未收入本次对象。不能声称仅靠此追加包可直接重放原全输入gate或重建旧9源完整阶段。独立报告中的作者race/vet/32纯项复用仍是原审查记录；本追加不把它们转成新动态或发布通过。受控probe自建合成材料的代码与关键原observations已保留，不复制其假binary/临时树。\n\n旧index、16对象和旧checker保持原字节。新[版本定位checker](system-central-spa-hosting-spec-verification-evidence/revisions/rev1.1/verify_archive.py)先从6267717取6份必要历史文档到临时目录，调用原checker复核rev1历史；再核本次272c6c1、修订差量、原失败输入与终局、追加保留原文及链接。旧checker的直接当前工作树命令不再适合新增行政段；下面命令明确区分历史和当前，结果只表示离线归档完整：\n\n```sh\nenv PYTHONDONTWRITEBYTECODE=1 GIT_NO_LAZY_FETCH=1 python3 docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/revisions/rev1.1/verify_archive.py --repo /workspace/agenteam\n```\n\n以下仅据主线程最新调度通知，不是本档新增验收：SPA stage02两脚本修复已收到，原两probe的作者重跑已PASS，尚待独立验收；正式发布、native、两真实binary代表及核心16产品仍未交付。SMTP oldauthority02已actual0／59.566s并释放窗口，新五组、旧五组按版本通过；独立A/B仅六项离线检查进行中，仍未产品接受。本档未读取这些新增或活动原件，不以调度状态替代原证据或独立结论。完整D08–D28/E01未完成、E01未开始；Summary待决、Object/tools停止、Artifact/Project及生产未绑定、ready503保持。\n",
+      "offset": 6843,
+      "preserves_all_base_bytes": true
+    },
+    "docs/development/agent-team/tasks.md": {
+      "after_sha256": "20e6f75fe350fb658ddf40e9f7a3f221d457928e91f657457a71cab96edeb750",
+      "base_git_ref": "626771744b68610be9a2ef2813b59a91775eb89c:docs/development/agent-team/tasks.md",
+      "base_sha256": "3506a18c91ab51eac5332c77a56fec282d59fc5e525e609f106ab79df385635c",
+      "inserted_text": "\n## 2026-10-06：Central SPA rev1.1 发布脚本边界修订，原两产品失败保留\n\n- [正式卡rev1.1](../work-items/d28-central-spa-hosting.md)已由主线程审查采纳并提交推送 `272c6c178462b4da72ac0eda69278e8dbde61f30`、远端一致；[追加规格与原失败证据](system-central-spa-hosting-spec-verification.md#6-rev11-发布脚本边界修订与原失败)固定技术cfa6d8…4056f8，仅Linux启动前门禁与commit-last顺序，16路径不变。\n- 两独立受控轮均真实exit1：child-tail01 2.838s后代仍运行，publication01 1.179s锁错误破坏binary/summary配对。取证后6个owned PID/starttime实际结束、双扫空，2个adopted wait分列；补清理不是产品修复PASS。两原脚本、manifest、probe/driver、原命令/raw/退出与三版修订原件永久保留，不复制全树或运行时。\n- 据主线程调度通知：已收到SPA stage02两脚本修复及原两probe作者重跑PASS，尚待独立验收；正式发布、native、浏览器及16产品仍未交付。SMTP oldauthority02 actual0／59.566s、窗口释放，新五组和旧五组按版本通过，独立A/B仅六项离线检查进行中，仍未产品接受。这些是调度状态，本档未读取新增/活动证据，不冒充本档验收。完整D08–D28/E01未完成、E01未开始，Summary待决、Object/tools停止、未绑定能力与ready503保持。\n",
+      "offset": 227,
+      "preserves_all_base_bytes": true
+    }
+  },
+  "artifacts": {
+    "author-stage/manifest.json": {
+      "bytes": 7875,
+      "object": "objects/6b247f9f2b7563aba333e7edf411866dc9088759b2e842e8243f36f8c57541ae",
+      "origin": "/workspace/scratch/agenteam-central-spa-author-gfjizhr4/stages/bundle-stage01/manifest.json",
+      "sha256": "6b247f9f2b7563aba333e7edf411866dc9088759b2e842e8243f36f8c57541ae",
+      "storage": "object"
+    },
+    "author-stage/report.md": {
+      "bytes": 1904,
+      "object": "objects/1d2fbd858b47b98f3e7ee59fdb4b04ecdbf79ef6bddb4b7842630ab91b9d0f51",
+      "origin": "/workspace/scratch/agenteam-central-spa-author-gfjizhr4/stages/bundle-stage01/report.md",
+      "sha256": "1d2fbd858b47b98f3e7ee59fdb4b04ecdbf79ef6bddb4b7842630ab91b9d0f51",
+      "storage": "object"
+    },
+    "author-stage/source/scripts/build-central-web.mjs": {
+      "bytes": 21143,
+      "object": "objects/53f2ffc78069f06d6c6e1f44f524e49240d072961d0eb567ab2d07bcccf260e4",
+      "origin": "/workspace/scratch/agenteam-central-spa-author-gfjizhr4/stages/bundle-stage01/source/scripts/build-central-web.mjs",
+      "sha256": "53f2ffc78069f06d6c6e1f44f524e49240d072961d0eb567ab2d07bcccf260e4",
+      "storage": "object"
+    },
+    "author-stage/source/scripts/build-central-web.test.mjs": {
+      "bytes": 13549,
+      "object": "objects/c2b06897813808868ecbf0ae882c59181ee80482bc387f992680e12b5e884cf4",
+      "origin": "/workspace/scratch/agenteam-central-spa-author-gfjizhr4/stages/bundle-stage01/source/scripts/build-central-web.test.mjs",
+      "sha256": "c2b06897813808868ecbf0ae882c59181ee80482bc387f992680e12b5e884cf4",
+      "storage": "object"
+    },
+    "independent/input.json": {
+      "bytes": 8889,
+      "object": "objects/f28d891ca8e230976bedef6fdd9b017938c11eb0d2825536468ff7e37d19dcd6",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/input.json",
+      "sha256": "f28d891ca8e230976bedef6fdd9b017938c11eb0d2825536468ff7e37d19dcd6",
+      "storage": "object"
+    },
+    "independent/probe-plan.md": {
+      "bytes": 3830,
+      "object": "objects/31dea6a2cdb38b0bbfb19debc590a07d75b6f8d4181a84ec8a4ad374d0b42cc3",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/probe-plan.md",
+      "sha256": "31dea6a2cdb38b0bbfb19debc590a07d75b6f8d4181a84ec8a4ad374d0b42cc3",
+      "storage": "object"
+    },
+    "independent/probes/child-tail.mjs": {
+      "bytes": 4928,
+      "object": "objects/a8570d8870eee78d06db183c3b95cd2746d6e474447b0f1bab8d1a4b16f24882",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/probes/child-tail.mjs",
+      "sha256": "a8570d8870eee78d06db183c3b95cd2746d6e474447b0f1bab8d1a4b16f24882",
+      "storage": "object"
+    },
+    "independent/probes/publication.mjs": {
+      "bytes": 5661,
+      "object": "objects/dbbefea9e7441dfd5201d398c9acce3cae370f5d9b1509193e6023104ccb21be",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/probes/publication.mjs",
+      "sha256": "dbbefea9e7441dfd5201d398c9acce3cae370f5d9b1509193e6023104ccb21be",
+      "storage": "object"
+    },
+    "independent/review.json": {
+      "bytes": 7722,
+      "object": "objects/08f60a86e812122d49d8c32106803ae9f9fd064e0220e6047b7cad900ac76aed",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/review.json",
+      "sha256": "08f60a86e812122d49d8c32106803ae9f9fd064e0220e6047b7cad900ac76aed",
+      "storage": "object"
+    },
+    "independent/review.md": {
+      "bytes": 6573,
+      "object": "objects/fae76080028076bd5bfcf3dc1cc6083fb25cb12fa1b040281e545f113ec1df66",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/review.md",
+      "sha256": "fae76080028076bd5bfcf3dc1cc6083fb25cb12fa1b040281e545f113ec1df66",
+      "storage": "object"
+    },
+    "independent/run-pure-probes.py": {
+      "bytes": 7410,
+      "object": "objects/6815a658ab5446a03834126c526cc66364e3c99d2179aedb66ac2960b3834a44",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/run-pure-probes.py",
+      "sha256": "6815a658ab5446a03834126c526cc66364e3c99d2179aedb66ac2960b3834a44",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/cleanup.json": {
+      "bytes": 997,
+      "object": "objects/5cce8e4153afd941d1a20c5a43b23f5a1c38bb7042fd56e4283318e7f93401f4",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/cleanup.json",
+      "sha256": "5cce8e4153afd941d1a20c5a43b23f5a1c38bb7042fd56e4283318e7f93401f4",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/command.json": {
+      "bytes": 1434,
+      "object": "objects/0eec3ed4bd59867fb19d34185c65241ae9eb7be348e31c4a985136423b980088",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/command.json",
+      "sha256": "0eec3ed4bd59867fb19d34185c65241ae9eb7be348e31c4a985136423b980088",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/input-after.json": {
+      "bytes": 8123,
+      "object": "objects/b8b30007126a557e6a5eb16b3702934c2550827c6ae80fbe731093c6b05d8db7",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/input-after.json",
+      "sha256": "b8b30007126a557e6a5eb16b3702934c2550827c6ae80fbe731093c6b05d8db7",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/input-before.json": {
+      "bytes": 8123,
+      "object": "objects/b8b30007126a557e6a5eb16b3702934c2550827c6ae80fbe731093c6b05d8db7",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/input-before.json",
+      "sha256": "b8b30007126a557e6a5eb16b3702934c2550827c6ae80fbe731093c6b05d8db7",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/private/ignore/grand.json": {
+      "bytes": 37,
+      "object": "objects/85590c851db364e05cdacf7c09999d36c52c6e5f18aa615ec8e53859b513b957",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/private/ignore/grand.json",
+      "sha256": "85590c851db364e05cdacf7c09999d36c52c6e5f18aa615ec8e53859b513b957",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/private/ignore/observation.json": {
+      "bytes": 202,
+      "object": "objects/4cbbb0653223bbc2be4b3d4fa50b46fdf50f80876d871a95c5c29b8d68f7b73d",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/private/ignore/observation.json",
+      "sha256": "4cbbb0653223bbc2be4b3d4fa50b46fdf50f80876d871a95c5c29b8d68f7b73d",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/private/ignore/owned.json": {
+      "bytes": 94,
+      "object": "objects/87ce4d0dc28ece4430965733646170d1157b09ed0ee97016217c03e3350c9e4d",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/private/ignore/owned.json",
+      "sha256": "87ce4d0dc28ece4430965733646170d1157b09ed0ee97016217c03e3350c9e4d",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/private/ignore/parent.json": {
+      "bytes": 53,
+      "object": "objects/ae7458bda0fb5f771aeb4414afbd0fc320990401e5de1a0765726dc4626df865",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/private/ignore/parent.json",
+      "sha256": "ae7458bda0fb5f771aeb4414afbd0fc320990401e5de1a0765726dc4626df865",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/private/inherit/grand.json": {
+      "bytes": 37,
+      "object": "objects/53e8705550e5556f1387648e16ea071b3b2314c378d277708936ce6aecf4d350",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/private/inherit/grand.json",
+      "sha256": "53e8705550e5556f1387648e16ea071b3b2314c378d277708936ce6aecf4d350",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/private/inherit/observation.json": {
+      "bytes": 184,
+      "object": "objects/d75c6202f8192dec994bb605113c91f9eec385ceb823b224dacc0d834d1474b1",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/private/inherit/observation.json",
+      "sha256": "d75c6202f8192dec994bb605113c91f9eec385ceb823b224dacc0d834d1474b1",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/private/inherit/owned.json": {
+      "bytes": 94,
+      "object": "objects/c6d4c6a7a59c1ef61e361462d62776d2f80d097bf4c739c69200b1524dbffda3",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/private/inherit/owned.json",
+      "sha256": "c6d4c6a7a59c1ef61e361462d62776d2f80d097bf4c739c69200b1524dbffda3",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/private/inherit/parent.json": {
+      "bytes": 53,
+      "object": "objects/a39fd45ffd3342adb3c566ae729a0af8059bc1bcd593540453e0ffce837c66bd",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/private/inherit/parent.json",
+      "sha256": "a39fd45ffd3342adb3c566ae729a0af8059bc1bcd593540453e0ffce837c66bd",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/private/observations.json": {
+      "bytes": 664,
+      "object": "objects/e78cc52e63f032a39d3f4ed07222f4223e8c7de89b043bb0d888b53a28ee725c",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/private/observations.json",
+      "sha256": "e78cc52e63f032a39d3f4ed07222f4223e8c7de89b043bb0d888b53a28ee725c",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/raw.log": {
+      "bytes": 528,
+      "object": "objects/3ccf9b39608365cbf5d065be1a1bb674cb04a9dc46613ec1aa8ee0e9d7392fd8",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/raw.log",
+      "sha256": "3ccf9b39608365cbf5d065be1a1bb674cb04a9dc46613ec1aa8ee0e9d7392fd8",
+      "storage": "object"
+    },
+    "independent/runs/child-tail01/result.json": {
+      "bytes": 344,
+      "object": "objects/09cbc34ffc2c7e178b477477b49c0d3b921552e8e1934fbd546136a24786930e",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/child-tail01/result.json",
+      "sha256": "09cbc34ffc2c7e178b477477b49c0d3b921552e8e1934fbd546136a24786930e",
+      "storage": "object"
+    },
+    "independent/runs/publication01/cleanup.json": {
+      "bytes": 357,
+      "object": "objects/067cb177342ed6c2e17b3628e3c098ae7d3235af6f41e64d76ccb42116cedb6a",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/publication01/cleanup.json",
+      "sha256": "067cb177342ed6c2e17b3628e3c098ae7d3235af6f41e64d76ccb42116cedb6a",
+      "storage": "object"
+    },
+    "independent/runs/publication01/command.json": {
+      "bytes": 1438,
+      "object": "objects/c13bf6e31f040ad0bf6bb0eccbb30850f0bc413f4fa5905ae9db30e744bb9d6e",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/publication01/command.json",
+      "sha256": "c13bf6e31f040ad0bf6bb0eccbb30850f0bc413f4fa5905ae9db30e744bb9d6e",
+      "storage": "object"
+    },
+    "independent/runs/publication01/input-after.json": {
+      "bytes": 8123,
+      "object": "objects/b8b30007126a557e6a5eb16b3702934c2550827c6ae80fbe731093c6b05d8db7",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/publication01/input-after.json",
+      "sha256": "b8b30007126a557e6a5eb16b3702934c2550827c6ae80fbe731093c6b05d8db7",
+      "storage": "object"
+    },
+    "independent/runs/publication01/input-before.json": {
+      "bytes": 8123,
+      "object": "objects/b8b30007126a557e6a5eb16b3702934c2550827c6ae80fbe731093c6b05d8db7",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/publication01/input-before.json",
+      "sha256": "b8b30007126a557e6a5eb16b3702934c2550827c6ae80fbe731093c6b05d8db7",
+      "storage": "object"
+    },
+    "independent/runs/publication01/private/observations.json": {
+      "bytes": 1121,
+      "object": "objects/c56d3c25b82c5196998d212bfe4167469b6d384c1ea8412140e5c3ef9b0ed5ba",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/publication01/private/observations.json",
+      "sha256": "c56d3c25b82c5196998d212bfe4167469b6d384c1ea8412140e5c3ef9b0ed5ba",
+      "storage": "object"
+    },
+    "independent/runs/publication01/raw.log": {
+      "bytes": 801,
+      "object": "objects/16b2c38394b17c7ec3801b7c618cb83b728a771eab65007c49cb32b7a969525f",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/publication01/raw.log",
+      "sha256": "16b2c38394b17c7ec3801b7c618cb83b728a771eab65007c49cb32b7a969525f",
+      "storage": "object"
+    },
+    "independent/runs/publication01/result.json": {
+      "bytes": 344,
+      "object": "objects/8219f5ebc9c51c446fde59fd2560518adcaa634e0949f4717c4f45b328cf6026",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/runs/publication01/result.json",
+      "sha256": "8219f5ebc9c51c446fde59fd2560518adcaa634e0949f4717c4f45b328cf6026",
+      "storage": "object"
+    },
+    "independent/static-checks.json": {
+      "bytes": 876,
+      "object": "objects/605e7467a71d030186d538924055f52ad9b89f40f6e2ef8a08de9357071ee201",
+      "origin": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/static-checks.json",
+      "sha256": "605e7467a71d030186d538924055f52ad9b89f40f6e2ef8a08de9357071ee201",
+      "storage": "object"
+    },
+    "revision/initial/checks.json": {
+      "bytes": 2168,
+      "object": "objects/9c7e0f2437357c82ee9aaef523e5876ea18a17540c3ef4e33ea8e4e1d86f8fac",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-n4tokr6v/checks.json",
+      "sha256": "9c7e0f2437357c82ee9aaef523e5876ea18a17540c3ef4e33ea8e4e1d86f8fac",
+      "storage": "object"
+    },
+    "revision/initial/d28-central-spa-hosting.md": {
+      "bytes": 31495,
+      "object": "objects/52e9970997fe678eeb16914d8b5498541cbc65c3a15f42ebd1c88b6bdb48a66a",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-n4tokr6v/d28-central-spa-hosting.md",
+      "sha256": "52e9970997fe678eeb16914d8b5498541cbc65c3a15f42ebd1c88b6bdb48a66a",
+      "storage": "object"
+    },
+    "revision/initial/delivery.json": {
+      "bytes": 1067,
+      "object": "objects/62cfd04b15432abe6a0f9f409949f412a893f954176e413c1758ca06a9c6d2e7",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-n4tokr6v/delivery.json",
+      "sha256": "62cfd04b15432abe6a0f9f409949f412a893f954176e413c1758ca06a9c6d2e7",
+      "storage": "object"
+    },
+    "revision/initial/format.raw.log": {
+      "bytes": 0,
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-n4tokr6v/format.raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "storage": "object"
+    },
+    "revision/initial/rev1-to-rev1.1.diff": {
+      "bytes": 5390,
+      "object": "objects/e3ef00caca4a96b7bdcf4c014118d97cd9253cd2c355aa39107376052bbafa9c",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-n4tokr6v/rev1-to-rev1.1.diff",
+      "sha256": "e3ef00caca4a96b7bdcf4c014118d97cd9253cd2c355aa39107376052bbafa9c",
+      "storage": "object"
+    },
+    "revision/v2/checks.json": {
+      "bytes": 5287,
+      "object": "objects/f0908b66dac6aa68346fd5cc2777a29e93b77f7e5c5330754d74ae6462e7d8cb",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v2-qmlnvp7h/checks.json",
+      "sha256": "f0908b66dac6aa68346fd5cc2777a29e93b77f7e5c5330754d74ae6462e7d8cb",
+      "storage": "object"
+    },
+    "revision/v2/d28-central-spa-hosting.md": {
+      "bytes": 32231,
+      "object": "objects/0a949a273547bb539c324359825449af793013cc21dcd99c3cfc9d579b5beca3",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v2-qmlnvp7h/d28-central-spa-hosting.md",
+      "sha256": "0a949a273547bb539c324359825449af793013cc21dcd99c3cfc9d579b5beca3",
+      "storage": "object"
+    },
+    "revision/v2/delivery.json": {
+      "bytes": 1443,
+      "object": "objects/a8b89d026b803ee48bac125d7833c86d7dcd30a7e0f34d9bb2b1ec9650494f48",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v2-qmlnvp7h/delivery.json",
+      "sha256": "a8b89d026b803ee48bac125d7833c86d7dcd30a7e0f34d9bb2b1ec9650494f48",
+      "storage": "object"
+    },
+    "revision/v2/format.raw.log": {
+      "bytes": 0,
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v2-qmlnvp7h/format.raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "storage": "object"
+    },
+    "revision/v2/main-status.raw.log": {
+      "bytes": 22,
+      "object": "objects/5fbcb2990ad25e368c12219bf3ddca36e464d044e7acac16696fa8cd54159185",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v2-qmlnvp7h/main-status.raw.log",
+      "sha256": "5fbcb2990ad25e368c12219bf3ddca36e464d044e7acac16696fa8cd54159185",
+      "storage": "object"
+    },
+    "revision/v2/rev1-to-rev1.1-v2.diff": {
+      "bytes": 10628,
+      "object": "objects/9f5b88a2292851edb37266ea542f19793afcf39da85c627240ded7ee416d1e6f",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v2-qmlnvp7h/rev1-to-rev1.1-v2.diff",
+      "sha256": "9f5b88a2292851edb37266ea542f19793afcf39da85c627240ded7ee416d1e6f",
+      "storage": "object"
+    },
+    "revision/v2/rev1.1-initial-to-v2.diff": {
+      "bytes": 10206,
+      "object": "objects/4161cc1e5f8dbdb04318c6c0a6c9745f32662427bceb86d7eed97bef7a5295c2",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v2-qmlnvp7h/rev1.1-initial-to-v2.diff",
+      "sha256": "4161cc1e5f8dbdb04318c6c0a6c9745f32662427bceb86d7eed97bef7a5295c2",
+      "storage": "object"
+    },
+    "revision/v2/rev1.md": {
+      "bytes": 30073,
+      "git_ref": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:docs/development/work-items/d28-central-spa-hosting.md",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v2-qmlnvp7h/rev1.md",
+      "sha256": "88b95723ad1c8a122f181123afceaaf72c375e7c55840cb3c009e414ee1e9e0c",
+      "storage": "git"
+    },
+    "revision/v3/checks.json": {
+      "bytes": 1803,
+      "object": "objects/820febc3035134cbc9fbf178ebde1fc3bcdde507de0cdec05a308a27d6c9bb4a",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v3-bqhs95n3/checks.json",
+      "sha256": "820febc3035134cbc9fbf178ebde1fc3bcdde507de0cdec05a308a27d6c9bb4a",
+      "storage": "object"
+    },
+    "revision/v3/d28-central-spa-hosting.md": {
+      "bytes": 32231,
+      "git_ref": "272c6c178462b4da72ac0eda69278e8dbde61f30:docs/development/work-items/d28-central-spa-hosting.md",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v3-bqhs95n3/d28-central-spa-hosting.md",
+      "sha256": "2cd71ed46779cbf382d0c507624839129a912ffa26a14056fe70678ae117fbd8",
+      "storage": "git"
+    },
+    "revision/v3/delivery.json": {
+      "bytes": 1075,
+      "object": "objects/4e9f47355e1577487725d0dcb8f33326cc076076be484ff3c894733b6ae0f6bf",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v3-bqhs95n3/delivery.json",
+      "sha256": "4e9f47355e1577487725d0dcb8f33326cc076076be484ff3c894733b6ae0f6bf",
+      "storage": "object"
+    },
+    "revision/v3/format.raw.log": {
+      "bytes": 0,
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v3-bqhs95n3/format.raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "storage": "object"
+    },
+    "revision/v3/v2-to-v3.diff": {
+      "bytes": 1409,
+      "object": "objects/35ab6cf80ee636ebc600f00fe168dee06a4de4573a5e2bb69c6fcf047db224b6",
+      "origin": "/workspace/scratch/agenteam-central-spa-spec-rev1-1-v3-bqhs95n3/v2-to-v3.diff",
+      "sha256": "35ab6cf80ee636ebc600f00fe168dee06a4de4573a5e2bb69c6fcf047db224b6",
+      "storage": "object"
+    }
+  },
+  "card_path": "docs/development/work-items/d28-central-spa-hosting.md",
+  "card_sha256": "2cd71ed46779cbf382d0c507624839129a912ffa26a14056fe70678ae117fbd8",
+  "counts": {
+    "baseline_dependencies_git": 26,
+    "candidate_scripts_archived": 2,
+    "controlled_failed_runs": 2,
+    "fixed_git_references": 34,
+    "git_artifacts": 2,
+    "logical_artifacts": 52,
+    "new_object_bytes": 211489,
+    "new_objects": 45
+  },
+  "format": 1,
+  "git_references": {
+    "272c6c178462b4da72ac0eda69278e8dbde61f30:docs/development/work-items/d28-central-spa-hosting.md": {
+      "blob": "e25f2dec85358d7301e423d3418da4ac51894447",
+      "bytes": 32231,
+      "commit": "272c6c178462b4da72ac0eda69278e8dbde61f30",
+      "path": "docs/development/work-items/d28-central-spa-hosting.md",
+      "sha256": "2cd71ed46779cbf382d0c507624839129a912ffa26a14056fe70678ae117fbd8"
+    },
+    "626771744b68610be9a2ef2813b59a91775eb89c:AGENTS.md": {
+      "blob": "5d59c8e57f032998166642926d9a16f326548fd6",
+      "bytes": 26710,
+      "commit": "626771744b68610be9a2ef2813b59a91775eb89c",
+      "path": "AGENTS.md",
+      "sha256": "49d1912aab949ebaa3d81419e53a8a13f5e15022dcc077baa7637035c217e08f"
+    },
+    "626771744b68610be9a2ef2813b59a91775eb89c:docs/development/agent-team/recovery-2026-10-06-continuation.md": {
+      "blob": "2f25f931b14a74d95dc78118d59ad0bdc69a56ad",
+      "bytes": 60995,
+      "commit": "626771744b68610be9a2ef2813b59a91775eb89c",
+      "path": "docs/development/agent-team/recovery-2026-10-06-continuation.md",
+      "sha256": "2196d2d006f63e1648fe4ecd8d5ee6b44cd360e826b6434de22c02174067e889"
+    },
+    "626771744b68610be9a2ef2813b59a91775eb89c:docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/index.json": {
+      "blob": "39ca859a7a221165e893cd3cbf3bbea5a40e1efa",
+      "bytes": 33528,
+      "commit": "626771744b68610be9a2ef2813b59a91775eb89c",
+      "path": "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/index.json",
+      "sha256": "321e1e9bb247660682152a2684d415dc6a6132132e864923acf7e8e671d92ba4"
+    },
+    "626771744b68610be9a2ef2813b59a91775eb89c:docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/verify_archive.py": {
+      "blob": "eb74aaaf30c4aaa7e4bc584a096f96d345145103",
+      "bytes": 8098,
+      "commit": "626771744b68610be9a2ef2813b59a91775eb89c",
+      "path": "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/verify_archive.py",
+      "sha256": "44907f411a1fc1df521ca5b600a336841a8a6604216b1911a713eb1f90361608"
+    },
+    "626771744b68610be9a2ef2813b59a91775eb89c:docs/development/agent-team/system-central-spa-hosting-spec-verification.md": {
+      "blob": "a622ede6f76a2988a12bd4dde74a887a56d8d567",
+      "bytes": 6843,
+      "commit": "626771744b68610be9a2ef2813b59a91775eb89c",
+      "path": "docs/development/agent-team/system-central-spa-hosting-spec-verification.md",
+      "sha256": "2eb7a9efb4f7bdca772cd99c519c107347339deb02fb73d73252a7fbf68449f1"
+    },
+    "626771744b68610be9a2ef2813b59a91775eb89c:docs/development/agent-team/tasks.md": {
+      "blob": "e310ea7255cef2b9f6058650d88f83b1e2baa4b6",
+      "bytes": 257067,
+      "commit": "626771744b68610be9a2ef2813b59a91775eb89c",
+      "path": "docs/development/agent-team/tasks.md",
+      "sha256": "3506a18c91ab51eac5332c77a56fec282d59fc5e525e609f106ab79df385635c"
+    },
+    "7a490ac7d5b09c1fff564fc50af93bfe236c1d71:docs/development/work-items/d28-central-spa-hosting.md": {
+      "blob": "9c038a05ec8e4469bc67fa07a3f8dd16a9594b63",
+      "bytes": 30073,
+      "commit": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71",
+      "path": "docs/development/work-items/d28-central-spa-hosting.md",
+      "sha256": "88b95723ad1c8a122f181123afceaaf72c375e7c55840cb3c009e414ee1e9e0c"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:go.mod": {
+      "blob": "2db97d5624d9575b72eb8e345b064bc4185388dc",
+      "bytes": 1468,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "go.mod",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:go.sum": {
+      "blob": "7f96b9efaf394930b1df6f095e0879e33cd95403",
+      "bytes": 8391,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "go.sum",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/event/contract/catalog.go": {
+      "blob": "3ef8cd19747cd0f22e3eaf45d05c171972fccd7b",
+      "bytes": 6395,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/event/contract/catalog.go",
+      "sha256": "55a5b24a36eec5409385a72f9be342d568eb8ca4651921bed4b25a13b2eb8742"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/event/contract/codec.go": {
+      "blob": "6c812448de89e4aca2a270da8b78ca25cd50e9f3",
+      "bytes": 4422,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/event/contract/codec.go",
+      "sha256": "40fdf79cae96194439adc5e84c047e78682d5b46f251d4ff3eacd19f1faf5a88"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/event/contract/event.go": {
+      "blob": "165a8a47917ae25265e5cf00ff98dd3762a6808f",
+      "bytes": 5820,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/event/contract/event.go",
+      "sha256": "0f1934a31b04706bead116552775c0b4e824dd6f3fc593f3a32808f3e22436ea"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/foundation/cause.go": {
+      "blob": "4027e70d18735dd54d1f59b23382a0699022bee4",
+      "bytes": 5490,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/foundation/cause.go",
+      "sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/foundation/fault.go": {
+      "blob": "114e98b7b68d536be0dc9aad22221447b098991b",
+      "bytes": 5460,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/foundation/fault.go",
+      "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/foundation/id.go": {
+      "blob": "96ddb9c704a7265de1f92af11aad850612011ede",
+      "bytes": 3120,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/foundation/id.go",
+      "sha256": "40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/foundation/instant.go": {
+      "blob": "b6113cd662e75bd8b1505af6ea39fc36e819782b",
+      "bytes": 1751,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/foundation/instant.go",
+      "sha256": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/foundation/integer.go": {
+      "blob": "bf4eba568b34555834d7ead7901e07fccfdf4985",
+      "bytes": 3998,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/foundation/integer.go",
+      "sha256": "6b415d63e04d63e46428bf3b19f545f5a289575c0f375192875a40405b39d215"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/foundation/lock.go": {
+      "blob": "f907283e5fc67482c99eb5c14add91923788ad2a",
+      "bytes": 5196,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/foundation/lock.go",
+      "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/foundation/page.go": {
+      "blob": "83cbeea722ddedbc907f23ac64a0a2bee702b067",
+      "bytes": 1860,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/foundation/page.go",
+      "sha256": "3be782a4c61729a5a2b13e195e5653ad1070e883765035b5cbb1f4f9e85c3c52"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/foundation/scalar.go": {
+      "blob": "3075d54c17cc8e5549cf93ccd46c21fb1c14e669",
+      "bytes": 3285,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/foundation/scalar.go",
+      "sha256": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/foundation/tx.go": {
+      "blob": "3988c8d4ab53261e784fcd175f27b88395b5087d",
+      "bytes": 2339,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/foundation/tx.go",
+      "sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/httpapi/json.go": {
+      "blob": "cc1bd353dd0d945fd2f3498604b7e0389f148131",
+      "bytes": 8722,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/httpapi/json.go",
+      "sha256": "5d1f29283f303400573261df614fa0c0ced66a1575c184cf02ffd720a02a2d6a"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/httpapi/middleware.go": {
+      "blob": "c40cc776618f862b3b38522c7737ca79644534f9",
+      "bytes": 3178,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/httpapi/middleware.go",
+      "sha256": "3db915b7be11aa978347a434bb22a2c6ae225022b65dac9ca2e1349e3008491c"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/httpapi/problem.go": {
+      "blob": "f489d6b96621bc8dfdac29a63575d2b6ceba9dd5",
+      "bytes": 8391,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/httpapi/problem.go",
+      "sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/httpapi/response_writer.go": {
+      "blob": "6f3ca6b0cb76752adccde7cac5be47e3ca333776",
+      "bytes": 3529,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/httpapi/response_writer.go",
+      "sha256": "360d0992159938812cfdad706a4b8b53de1e7673859462100aad4bd44bd361bc"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/httpapi/router.go": {
+      "blob": "cf2eff61f04ccbd785cba617aee44f3ca8999481",
+      "bytes": 1675,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/httpapi/router.go",
+      "sha256": "23adf225d48f5458548d5b2b239933bfa921947aafb92652ea9abdbe05cfa399"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/identity/contract/identity.go": {
+      "blob": "fd13667713bf1248111aa1f18687296be9c3cde0",
+      "bytes": 8639,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/identity/contract/identity.go",
+      "sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/project/contract/commands.go": {
+      "blob": "f47abca3975d0e4c0f95172eaab7c03bd2386be8",
+      "bytes": 18206,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/project/contract/commands.go",
+      "sha256": "30af1efac3ed5230ac06b1795e086fcf21840246243e293bcd46bbea335886fa"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/project/contract/events.go": {
+      "blob": "37a9229d265ef2be62a5314c2182ca38e8acab2b",
+      "bytes": 8371,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/project/contract/events.go",
+      "sha256": "ea9303956127b0734583b1f5e0c0ef4f7b3649d8bf1f843df0b0b7cf0973b07e"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/project/contract/initialization.go": {
+      "blob": "649dbda163b98c5b8b35d42c52cb429bc28944c7",
+      "bytes": 10379,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/project/contract/initialization.go",
+      "sha256": "0ed3217342ee10f3f0406f0576b0c63d4cac32c060da3b6c0bb9c62ee80303ee"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/project/contract/lifecycle.go": {
+      "blob": "f7f0829a87bde8cfda7ed5c59f50117bd2f6fe79",
+      "bytes": 29744,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/project/contract/lifecycle.go",
+      "sha256": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/project/contract/types.go": {
+      "blob": "317bf76d8f392be9b798b2b3d00c30ed9ff6edae",
+      "bytes": 12125,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/project/contract/types.go",
+      "sha256": "7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1"
+    },
+    "97f45518f31c8b7b835b02c8624eb7aa321a1894:internal/central/project/contract/validation.go": {
+      "blob": "4ad29bd8cc99b46af8c640dcc925d33b02575754",
+      "bytes": 4989,
+      "commit": "97f45518f31c8b7b835b02c8624eb7aa321a1894",
+      "path": "internal/central/project/contract/validation.go",
+      "sha256": "73db8aeb4db685433279cdeeb119fe12a231d7193d9b93e97305b7f30445c64b"
+    }
+  },
+  "historical_archive_commit": "626771744b68610be9a2ef2813b59a91775eb89c",
+  "legacy_evidence_path": "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence",
+  "legacy_files_unchanged": {
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/index.json": "321e1e9bb247660682152a2684d415dc6a6132132e864923acf7e8e671d92ba4",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/0b4788e0d800817a7d3ee0972af70058e590933295d22f509b20a53fac7b2637": "0b4788e0d800817a7d3ee0972af70058e590933295d22f509b20a53fac7b2637",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/23b8dde6f71f8737d4864eb9e41475a01e53e04bc39a92923c4cb06c52c1c4a0": "23b8dde6f71f8737d4864eb9e41475a01e53e04bc39a92923c4cb06c52c1c4a0",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/500c90f022e41b7ac1605feac84b4094824abe314b3dda10ac89c215ff5bf9fe": "500c90f022e41b7ac1605feac84b4094824abe314b3dda10ac89c215ff5bf9fe",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/79373ac9b4c2d2af1430f3a7f294eb5e8e0be1af1a5dd73863c142cf723d969e": "79373ac9b4c2d2af1430f3a7f294eb5e8e0be1af1a5dd73863c142cf723d969e",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/7c9137fe4c7ac8c3565737e8b7ede2d4d43d9f4ea9893a1a106bb0ea299723b7": "7c9137fe4c7ac8c3565737e8b7ede2d4d43d9f4ea9893a1a106bb0ea299723b7",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/84529007e9c71258d3a5fb84334c412d0d92b8a0ce6d7e8c09ba8352f61ab5a8": "84529007e9c71258d3a5fb84334c412d0d92b8a0ce6d7e8c09ba8352f61ab5a8",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/931a4b067cfa738bb33fed68085346f2b278e864a1a0ce97710e26e353865efd": "931a4b067cfa738bb33fed68085346f2b278e864a1a0ce97710e26e353865efd",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/975565c84e032a5250ef78837aaabffed53837f2ee3df87f990a96eb25521619": "975565c84e032a5250ef78837aaabffed53837f2ee3df87f990a96eb25521619",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/99a3fe9215d4de2fea7d193a95b575ef2ef110688ad3fac4ae5b158ac42894c2": "99a3fe9215d4de2fea7d193a95b575ef2ef110688ad3fac4ae5b158ac42894c2",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/a30945d1cab277971ccba26912a76e82b8cb47451a34776f88c497bf477dbee8": "a30945d1cab277971ccba26912a76e82b8cb47451a34776f88c497bf477dbee8",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/b3a94acfeba3c2338200f3ca6c82a3010d35d8c9bb80d6406be0e43a7d839862": "b3a94acfeba3c2338200f3ca6c82a3010d35d8c9bb80d6406be0e43a7d839862",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/b81c899ae001ed43af56538ec7ba457dce27030ef45651350d242e948366d860": "b81c899ae001ed43af56538ec7ba457dce27030ef45651350d242e948366d860",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/b906fed039f28452e3388b98375436cbf2b99e5b6f47825c41c6c3f2614e179a": "b906fed039f28452e3388b98375436cbf2b99e5b6f47825c41c6c3f2614e179a",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/eae0d3a194214485cb67de411567ed6e01feb00ee03aeaf56bf07a2846f9401c": "eae0d3a194214485cb67de411567ed6e01feb00ee03aeaf56bf07a2846f9401c",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/f5025b468dae2722e71a127e56be1524119ade1a5db1a69fa3ed99619cabb8c4": "f5025b468dae2722e71a127e56be1524119ade1a5db1a69fa3ed99619cabb8c4",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/objects/ffca4c1620f01e04144f61cb7fec8ce49b8622f9a2ffee1ea40a0053c99842ea": "ffca4c1620f01e04144f61cb7fec8ce49b8622f9a2ffee1ea40a0053c99842ea",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification-evidence/verify_archive.py": "44907f411a1fc1df521ca5b600a336841a8a6604216b1911a713eb1f90361608"
+  },
+  "legacy_historical_document_paths": [
+    "AGENTS.md",
+    "docs/development/agent-team/README.md",
+    "docs/development/agent-team/recovery-2026-10-06-continuation.md",
+    "docs/development/agent-team/system-central-spa-hosting-spec-verification.md",
+    "docs/development/agent-team/tasks.md",
+    "docs/development/backend/README.md"
+  ],
+  "limits": {
+    "active_smtp_and_spa_repairs_not_read": true,
+    "author_checks_fingerprints_only": {
+      "format01": {
+        "command_sha256": "e134df17aa0be1d72a0baf658ff89e63c30be178657c16936d73431d0701240e",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": "/workspace/scratch/agenteam-central-spa-author-gfjizhr4/checks/format01/result.json",
+        "result_sha256": "86a7910df94932712f9dbc1470340b90461debc0b5decf3b62f83a6bf818c058"
+      },
+      "format02": {
+        "command_sha256": "a45e07a0619593e265e935ddacf3586246ab903acf1c421bbc38544c552d2845",
+        "raw_sha256": "4c2a487fb8e0b920b2cbaf0b72acecc3d51f665a78f796a720ca6c69409ba36f",
+        "result": "/workspace/scratch/agenteam-central-spa-author-gfjizhr4/checks/format02/result.json",
+        "result_sha256": "d9c063496a5933041178f76ebf44d7ea2f4eb4f714f3846cc85674667e7ce428"
+      },
+      "pure01": {
+        "command_sha256": "bb1b9cd07d2393d06ba90c22e855927c5fee21dd8001de334e8b84c3f7e98910",
+        "raw_sha256": "4988daabfa6128ef640c8380eb4c46d9eb6d40014845656f9bdfd6f8cb303891",
+        "result": "/workspace/scratch/agenteam-central-spa-author-gfjizhr4/checks/pure01/result.json",
+        "result_sha256": "2e1bf3f5bb6f7ca878ab3f4264e0e66a1293d9d28daba9b854347d4aa42af4f2"
+      },
+      "race01": {
+        "command_sha256": "a595e06681a55eb927885dcfb62f687565dd5a13de9c11f6ad88b5445cf7fa2b",
+        "raw_sha256": "381ea69a04c34533a9d28d1b7ef0b821d17ccfaa67f25ce71bcee0e01227c24c",
+        "result": "/workspace/scratch/agenteam-central-spa-author-gfjizhr4/checks/race01/result.json",
+        "result_sha256": "82c11a3a775d142d6f17a27e4988d39c7492dbffb4ab0b4a65fae101867a1dee"
+      },
+      "script-pure01": {
+        "command_sha256": "ad526fa2392ab92f78b64e97029f1798730b01682d91b9d16d615630de8de9a5",
+        "raw_sha256": "fb2ce5348406db5397aeb270127085401b779c4c3c27e2b135fd77ef68bf4a8d",
+        "result": "/workspace/scratch/agenteam-central-spa-author-gfjizhr4/checks/script-pure01/result.json",
+        "result_sha256": "dfa302e287e8314e32dfdf6f13d18d3c8676a6c7a35fadd6392032bae44e77c9"
+      },
+      "script-pure02": {
+        "command_sha256": "268aea2822440850d47e4e67f8490b3f39034f981bd2d5899e26209f82f41fc4",
+        "raw_sha256": "cacf923a6a11a353b98b3296778c61da19ab539ed2085576d670f64bf90552d0",
+        "result": "/workspace/scratch/agenteam-central-spa-author-gfjizhr4/checks/script-pure02/result.json",
+        "result_sha256": "6b647c648f47895a2728c1a5f7af6580e1d805580f8bd3be25dec8e05e207f13"
+      },
+      "vet01": {
+        "command_sha256": "9278e5a62446e2aa0ebcb01736cd1aa762cdfe774b3c6aba6391a9793f6ae46f",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": "/workspace/scratch/agenteam-central-spa-author-gfjizhr4/checks/vet01/result.json",
+        "result_sha256": "969927a84e5b2545f7eea3a268f6e771bfb5c0de47b7eff7c58399aac2958438"
+      }
+    },
+    "candidate_diff_fingerprint_only": "8ecc4187cfeee27e9e2815f978b3535e3fb35d68e10f797dede640b0d900aed8",
+    "no_full_stage_gate_replay_claim": true,
+    "no_repair_or_native_or_release_acceptance": true,
+    "tool_entities_not_copied": {
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+      "/usr/bin/python3.13": "17b78e0a93175e86f9ac03141924fd7a7f0c0c52e66b34bfa0de20ffef989df1"
+    },
+    "two_scripts_only": true,
+    "unarchived_candidate_sources": {
+      "internal/central/webassets/bundle.go": "78c63eab8e6c6aa511cb13e8db363b2fc0143605845e5db9de5072aa876c38ef",
+      "internal/central/webassets/bundle/.gitignore": "240a3e0d37d2e86b614063f5347eb02d4f99ca6c254de6b82871ff8d95532a7d",
+      "internal/central/webassets/bundle_backend.go": "5283c4463b12a421080942eaf7f4b3d55a310f503705e3a51b48d16146e18fa8",
+      "internal/central/webassets/bundle_release.go": "d03805cf9298361230233ba4983f398d48311993f4846cdf640d66b02f8fe1aa",
+      "internal/central/webassets/bundle_test.go": "ea1b7235e22fd1552dc559c8d606d39060c6ca8c419b07815e4789082965cda9",
+      "internal/central/webassets/handler.go": "9e6205a0d168c83c7b25c1f58f55c78d5c3afa924cc264d595727a81912eb45c",
+      "internal/central/webassets/handler_test.go": "0a7c4e19c7b4094d1b03c37241ea5489a656354e24a476e19b4f28d150eb5d6f"
+    }
+  },
+  "original_spec_commit": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71",
+  "original_technical_sha256": "f5399abe8b3137d4a8d8e8bbb3d2ddf6186013ae1ed092ecfa473b19a5967220",
+  "report_path": "docs/development/agent-team/system-central-spa-hosting-spec-verification.md",
+  "scope": "Append-only rev1.1 specification revision and original two controlled product REDs; no repair acceptance",
+  "spec_commit": "272c6c178462b4da72ac0eda69278e8dbde61f30",
+  "technical_sha256": "cfa6d8f31c6f3159499bac4c1258c493299c4bee3c63825232a1841cc74056f8"
+}

@@ -1,0 +1,604 @@
+import { createHash, randomUUID } from 'node:crypto'
+import { createReadStream } from 'node:fs'
+import * as fs from 'node:fs/promises'
+import { spawn } from 'node:child_process'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const LIMITS = { files: 2048, total: 64 << 20, entry: 1 << 20, asset: 16 << 20 }
+const TYPES = {
+  '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+}
+const HASH_NAME = /^.+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/
+const BUNDLE = 'internal/central/webassets/bundle'
+const safeError = (code) => Object.assign(new Error(code), { code })
+const requireFact = (value, code = 'WEB_BUILD_INVALID_INPUT') => {
+  if (!value) throw safeError(code)
+}
+const digest = (bytes) => createHash('sha256').update(bytes).digest('hex')
+const plainObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value)
+
+export function validNodeVersion(version) {
+  const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(version)
+  if (!match) return false
+  const [major, minor] = match.slice(1).map(Number)
+  return (major === 22 && minor >= 18) || (major === 24 && minor >= 12) || major > 24
+}
+
+export function validAssetPath(name) {
+  return (
+    typeof name === 'string' &&
+    name.startsWith('assets/') &&
+    !/[\\%?#\s\x00-\x1f\x7f]/u.test(name) &&
+    path.posix.normalize(name) === name &&
+    name.split('/').every((part) => part && !part.startsWith('.') && !part.startsWith('_')) &&
+    Object.hasOwn(TYPES, path.posix.extname(name))
+  )
+}
+
+export function strictJSON(text) {
+  const result = JSON.parse(text)
+  const stack = []
+  const tokens = /"(?:[^"\\]|\\.)*"|[{}\[\]:,]/gs
+  for (const match of text.matchAll(tokens)) {
+    const token = match[0]
+    const current = stack.at(-1)
+    if (token === '{') stack.push({ keys: new Set(), key: true })
+    else if (token === '[') stack.push(null)
+    else if (token === '}' || token === ']') stack.pop()
+    else if (token === ':' && current) current.key = false
+    else if (token === ',' && current) current.key = true
+    else if (token.startsWith('"') && current?.key) {
+      const key = JSON.parse(token)
+      requireFact(!current.keys.has(key))
+      current.keys.add(key)
+      current.key = false
+    }
+  }
+  return result
+}
+
+async function regularBytes(name, limit) {
+  const info = await fs.lstat(name)
+  requireFact(info.isFile() && info.size <= limit)
+  const body = await fs.readFile(name)
+  requireFact(body.length === info.size && body.length <= limit)
+  return body
+}
+
+async function fileNames(root, prefix = '') {
+  const result = []
+  for (const entry of await fs.readdir(path.join(root, prefix), { withFileTypes: true })) {
+    const name = prefix ? `${prefix}/${entry.name}` : entry.name
+    requireFact(!entry.isSymbolicLink(), 'WEB_BUILD_OUTPUT_LINK')
+    if (entry.isDirectory()) result.push(...(await fileNames(root, name)))
+    else {
+      requireFact(entry.isFile())
+      result.push(name)
+    }
+    requireFact(result.length <= LIMITS.files)
+  }
+  return result.sort()
+}
+
+function attributes(raw) {
+  const result = new Map()
+  let rest = raw
+  while (rest.trim()) {
+    const match = /^\s+([A-Za-z][A-Za-z0-9:_.-]*)(?:\s*=\s*(?:"([^"<>]*)"|'([^'<>]*)'))?/.exec(rest)
+    requireFact(match)
+    const name = match[1].toLowerCase()
+    requireFact(!result.has(name))
+    result.set(name, match[2] ?? match[3] ?? null)
+    rest = rest.slice(match[0].length)
+  }
+  return result
+}
+
+function allowedAttributes(attrs, allowed) {
+  return [...attrs.keys()].every((key) => allowed.includes(key))
+}
+
+function entrySkeleton(html, production, manifestFiles, entryFile, references) {
+  let modules = 0
+  let themes = 0
+  let icons = 0
+  let theme = ''
+  let stripped = html.replace(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi, (_, raw, body) => {
+    const attrs = attributes(raw)
+    if (attrs.has('src')) {
+      modules++
+      requireFact(
+        attrs.get('type') === 'module' &&
+          !body.trim() &&
+          allowedAttributes(attrs, ['type', 'src', 'crossorigin']),
+      )
+      const src = attrs.get('src')
+      requireFact(src === (production ? `/${entryFile}` : '/src/main.ts'))
+      references.add(src.slice(1))
+      return ''
+    }
+    requireFact(attrs.size === 0)
+    themes++
+    theme = body.trim()
+    return '<script>ACCEPTED_THEME</script>'
+  })
+  stripped = stripped.replace(/<link\b([^>]*)\/?\s*>/gi, (_, raw) => {
+    const attrs = attributes(raw.replace(/\/\s*$/, ''))
+    const href = attrs.get('href')
+    if (attrs.get('rel') === 'icon') {
+      icons++
+      requireFact(href === 'data:,' && attrs.size === 2)
+      return '<link rel="icon" href="data:,">'
+    }
+    requireFact(
+      production &&
+        ['stylesheet', 'modulepreload'].includes(attrs.get('rel')) &&
+        allowedAttributes(attrs, ['rel', 'href', 'crossorigin']) &&
+        typeof href === 'string' &&
+        href.startsWith('/assets/') &&
+        manifestFiles.has(href.slice(1)),
+    )
+    references.add(href.slice(1))
+    return ''
+  })
+  requireFact(modules === 1 && themes === 1 && icons === 1)
+  return { skeleton: stripped.replace(/>\s+</g, '><').trim(), theme }
+}
+
+export async function validateProduction(staging, sourceHTML) {
+  const names = await fileNames(staging)
+  requireFact(names.includes('index.html') && names.includes('.vite/manifest.json'))
+  const viteRaw = await regularBytes(path.join(staging, '.vite/manifest.json'), LIMITS.total)
+  const vite = strictJSON(viteRaw.toString('utf8'))
+  requireFact(plainObject(vite) && Object.keys(vite).length > 0)
+  const entries = Object.entries(vite).filter(([, value]) => value?.isEntry === true)
+  requireFact(entries.length === 1 && entries[0][0] === 'index.html')
+  const entry = entries[0][1]
+  const visited = new Set()
+  const resources = new Set()
+  const visit = (key) => {
+    requireFact(
+      typeof key === 'string' && Object.hasOwn(vite, key) && !key.includes('src/views/debug/'),
+    )
+    if (visited.has(key)) return
+    visited.add(key)
+    const value = vite[key]
+    requireFact(
+      plainObject(value) &&
+        validAssetPath(value.file) &&
+        !(typeof value.src === 'string' && value.src.includes('src/views/debug/')),
+    )
+    resources.add(value.file)
+    for (const field of ['css', 'assets']) {
+      requireFact(value[field] === undefined || Array.isArray(value[field]))
+      for (const file of value[field] ?? []) {
+        requireFact(validAssetPath(file))
+        resources.add(file)
+      }
+    }
+    for (const field of ['imports', 'dynamicImports']) {
+      requireFact(value[field] === undefined || Array.isArray(value[field]))
+      for (const dependency of value[field] ?? []) visit(dependency)
+    }
+  }
+  visit('index.html')
+  for (const [key, value] of Object.entries(vite)) {
+    requireFact(
+      !key.includes('src/views/debug/') &&
+        plainObject(value) &&
+        resources.has(value.file) &&
+        !(typeof value.src === 'string' && value.src.includes('src/views/debug/')),
+    )
+  }
+  requireFact(
+    JSON.stringify(names) ===
+      JSON.stringify(['.vite/manifest.json', 'index.html', ...resources].sort()),
+  )
+  const html = await regularBytes(path.join(staging, 'index.html'), LIMITS.entry)
+  const decoder = new TextDecoder('utf-8', { fatal: true })
+  const references = new Set()
+  const actual = entrySkeleton(decoder.decode(html), true, resources, entry.file, references)
+  const accepted = entrySkeleton(sourceHTML, false, resources, entry.file, new Set())
+  requireFact(actual.theme === accepted.theme && actual.skeleton === accepted.skeleton)
+  for (const css of entry.css ?? []) requireFact(references.has(css))
+  const folded = new Set()
+  for (const name of resources) {
+    requireFact(!folded.has(name.toLowerCase()))
+    folded.add(name.toLowerCase())
+  }
+  const files = []
+  let total = 0
+  for (const name of ['index.html', ...[...resources].sort()]) {
+    const bytes =
+      name === 'index.html' ? html : await regularBytes(path.join(staging, name), LIMITS.asset)
+    total += bytes.length
+    requireFact(total <= LIMITS.total)
+    files.push({
+      path: name,
+      bytes: bytes.length,
+      sha256: digest(bytes),
+      mime: name === 'index.html' ? 'text/html; charset=utf-8' : TYPES[path.posix.extname(name)],
+      immutable: name !== 'index.html' && HASH_NAME.test(path.posix.basename(name)),
+    })
+  }
+  const manifest = Buffer.from(JSON.stringify({ format: 1, entry: 'index.html', files }) + '\n')
+  requireFact(files.length + 1 <= LIMITS.files && total + manifest.length <= LIMITS.total)
+  return { manifest, files, bytes: total + manifest.length }
+}
+
+async function hashFile(name) {
+  const hash = createHash('sha256')
+  let bytes = 0
+  for await (const chunk of createReadStream(name)) {
+    bytes += chunk.length
+    hash.update(chunk)
+  }
+  return { sha256: hash.digest('hex'), bytes }
+}
+
+async function treeHash(root, skip = () => false) {
+  const records = []
+  const walk = async (prefix) => {
+    for (const entry of (await fs.readdir(path.join(root, prefix), { withFileTypes: true })).sort(
+      (a, b) => a.name.localeCompare(b.name),
+    )) {
+      const name = prefix ? `${prefix}/${entry.name}` : entry.name
+      if (skip(name)) continue
+      if (entry.isDirectory()) await walk(name)
+      else if (entry.isSymbolicLink()) {
+        const target = await fs.realpath(path.join(root, name))
+        requireFact(
+          !path.relative(root, target).startsWith('..') && !(await fs.stat(target)).isDirectory(),
+          'WEB_BUILD_DEPENDENCY_LINK',
+        )
+        records.push([
+          name,
+          'link',
+          await fs.readlink(path.join(root, name)),
+          await hashFile(target),
+        ])
+      } else {
+        requireFact(entry.isFile())
+        records.push([name, await hashFile(path.join(root, name))])
+      }
+    }
+  }
+  await walk('')
+  return { sha256: digest(JSON.stringify(records)), files: records.length }
+}
+
+async function inputStamp(root) {
+  const sources = await treeHash(root, (name) => {
+    const first = name.split('/')[0]
+    if (['.git', 'dist', 'bin', 'node_modules'].includes(first)) return true
+    if (name === 'web/node_modules' || name === 'web/dist') return true
+    if (name.startsWith(`${BUNDLE}/`) && name !== `${BUNDLE}/.gitignore`) return true
+    return false
+  })
+  const dependencyRoot = await fs.realpath(path.join(root, 'web/node_modules'))
+  const dependencies = await treeHash(dependencyRoot)
+  return { sources, dependencies }
+}
+
+export async function runCommand(command, args, { cwd, env, signal }) {
+  signal?.throwIfAborted()
+  return await new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      cwd,
+      env,
+      detached: process.platform !== 'win32',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    let output = Buffer.alloc(0)
+    let stopped = false
+    let overflow = false
+    let launchError = false
+    let forceTimer
+    const stop = () => {
+      stopped = true
+      if (!child.pid) return
+      try {
+        process.platform === 'win32' ? child.kill('SIGTERM') : process.kill(-child.pid, 'SIGTERM')
+      } catch (error) {
+        if (error.code !== 'ESRCH') launchError = true
+      }
+      forceTimer ??= setTimeout(() => {
+        if (child.exitCode !== null || child.signalCode !== null) return
+        try {
+          process.platform === 'win32' ? child.kill('SIGKILL') : process.kill(-child.pid, 'SIGKILL')
+        } catch (error) {
+          if (error.code !== 'ESRCH') launchError = true
+        }
+      }, 1000)
+    }
+    const receive = (chunk) => {
+      if (output.length + chunk.length > 1 << 20) {
+        overflow = true
+        stop()
+        return
+      }
+      output = Buffer.concat([output, chunk])
+    }
+    signal?.addEventListener('abort', stop, { once: true })
+    child.stdout.on('data', receive)
+    child.stderr.on('data', receive)
+    child.on('error', () => {
+      launchError = true
+    })
+    child.on('close', (code, exitSignal) => {
+      signal?.removeEventListener('abort', stop)
+      clearTimeout(forceTimer)
+      if (launchError || overflow || stopped || signal?.aborted || code !== 0 || exitSignal)
+        reject(safeError('WEB_BUILD_CHILD_FAILED'))
+      else resolve(output.toString('utf8'))
+    })
+  })
+}
+
+// The content-addressed summary is installed before the one atomic binary
+// rename. Consumers select that immutable summary using the binary SHA; there
+// is no separately mutable "latest" manifest that can name another binary.
+export async function buildCentralWeb(
+  root,
+  {
+    run = runCommand,
+    go = process.env.AGENTEAM_GO ?? 'go',
+    signal,
+    nodeVersion = process.versions.node,
+  } = {},
+) {
+  requireFact(validNodeVersion(nodeVersion), 'WEB_BUILD_NODE_VERSION')
+  root = await fs.realpath(root)
+  const pkg = strictJSON(await fs.readFile(path.join(root, 'web/package.json'), 'utf8'))
+  requireFact(
+    pkg.engines?.node === '^22.18.0 || >=24.12.0' &&
+      pkg.scripts?.['type-check'] === 'vue-tsc --noEmit',
+  )
+  const bundle = path.join(root, BUNDLE)
+  const lockName = path.join(bundle, '.build.lock')
+  let lock
+  try {
+    lock = await fs.open(lockName, 'wx', 0o600)
+  } catch {
+    throw safeError('WEB_BUILD_OCCUPIED')
+  }
+  const lockInfo = await lock.stat()
+  const owned = []
+  const directories = []
+  let stage
+  let binaryCommitted = false
+  let previousBinary = false
+  let summaryCreated = false
+  let summaryName
+  const binaryName = path.join(root, 'dist/agenteam')
+  const writeOwned = async (name, data, mode = 0o600) => {
+    const handle = await fs.open(name, 'wx', mode)
+    try {
+      await handle.writeFile(data)
+      await handle.sync()
+      owned.push({ name, ...(await handle.stat()) })
+    } finally {
+      await handle.close()
+    }
+  }
+  const removeOwned = async () => {
+    for (const item of [...owned].reverse()) {
+      const info = await fs.lstat(item.name).catch((error) => {
+        if (error.code === 'ENOENT') return null
+        throw error
+      })
+      if (!info) continue
+      requireFact(info.dev === item.dev && info.ino === item.ino, 'WEB_BUILD_OWNERSHIP_CHANGED')
+      await fs.unlink(item.name)
+    }
+    for (const name of [...directories].reverse()) await fs.rmdir(name)
+    owned.length = 0
+    directories.length = 0
+  }
+  try {
+    await lock.writeFile(JSON.stringify({ nonce: randomUUID(), pid: process.pid }) + '\n')
+    const residual = (await fs.readdir(bundle)).filter(
+      (name) => !['.gitignore', '.build.lock'].includes(name),
+    )
+    requireFact(residual.length === 0, 'WEB_BUILD_RESIDUAL')
+    const env = {
+      ...process.env,
+      GOTOOLCHAIN: 'local',
+      GOPROXY: 'off',
+      GOSUMDB: 'off',
+      GOFLAGS: '-mod=readonly',
+      GOWORK: 'off',
+      NODE_ENV: 'production',
+      npm_config_offline: 'true',
+    }
+    const invoke = (command, args, cwd = root) => run(command, args, { cwd, env, signal })
+    const version = (await invoke(go, ['version'])).trim()
+    requireFact(
+      /^go version go1\.27\.1 (?:linux|darwin|windows)\/[A-Za-z0-9_]+$/.test(version),
+      'WEB_BUILD_GO_VERSION',
+    )
+    const before = await inputStamp(root)
+    await fs.mkdir(path.join(root, 'dist'), { recursive: true })
+    stage = await fs.mkdtemp(path.join(root, 'dist/.central-web-'))
+    const output = path.join(stage, 'web')
+    await fs.mkdir(output)
+    await invoke(
+      process.execPath,
+      [path.join(root, 'web/node_modules/vue-tsc/bin/vue-tsc.js'), '--noEmit'],
+      path.join(root, 'web'),
+    )
+    await invoke(
+      process.execPath,
+      [
+        path.join(root, 'web/node_modules/vite/bin/vite.js'),
+        'build',
+        '--mode',
+        'production',
+        '--base',
+        '/',
+        '--manifest',
+        '--outDir',
+        output,
+      ],
+      path.join(root, 'web'),
+    )
+    const verified = await validateProduction(
+      output,
+      await fs.readFile(path.join(root, 'web/index.html'), 'utf8'),
+    )
+    await fs.mkdir(path.join(bundle, 'assets'))
+    directories.push(path.join(bundle, 'assets'))
+    for (const file of verified.files) {
+      const parent = path.dirname(path.join(bundle, file.path))
+      if (parent !== bundle && parent !== path.join(bundle, 'assets')) {
+        const relative = path.relative(bundle, parent).split(path.sep)
+        let current = bundle
+        for (const segment of relative) {
+          current = path.join(current, segment)
+          if (!directories.includes(current)) {
+            await fs.mkdir(current)
+            directories.push(current)
+          }
+        }
+      }
+      await writeOwned(
+        path.join(bundle, file.path),
+        await fs.readFile(path.join(output, file.path)),
+      )
+    }
+    await writeOwned(path.join(bundle, 'manifest.json'), verified.manifest)
+    const embedOutput = await invoke(go, [
+      'list',
+      '-tags=agenteam_web',
+      '-f',
+      '{{range .EmbedFiles}}{{println .}}{{end}}',
+      './internal/central/webassets',
+    ])
+    const embedded = embedOutput.trim().split(/\r?\n/).filter(Boolean).sort()
+    requireFact(
+      JSON.stringify(embedded) ===
+        JSON.stringify(
+          ['bundle/manifest.json', ...verified.files.map((file) => `bundle/${file.path}`)].sort(),
+        ),
+      'WEB_BUILD_EMBED_MISMATCH',
+    )
+    const candidate = path.join(stage, 'agenteam')
+    await invoke(go, [
+      'build',
+      '-trimpath',
+      '-tags=agenteam_web',
+      '-o',
+      candidate,
+      './cmd/agenteam',
+    ])
+    signal?.throwIfAborted()
+    const after = await inputStamp(root)
+    requireFact(JSON.stringify(before) === JSON.stringify(after), 'WEB_BUILD_INPUT_CHANGED')
+    requireFact((await fs.lstat(candidate)).isFile(), 'WEB_BUILD_INVALID_BINARY')
+    const binary = await hashFile(candidate)
+    const summary = Buffer.from(
+      JSON.stringify(
+        {
+          format: 1,
+          binary,
+          bundle: {
+            manifest_sha256: digest(verified.manifest),
+            files: verified.files.length + 1,
+            bytes: verified.bytes,
+          },
+          inputs: before,
+          tools: { node: nodeVersion, go: version },
+        },
+        null,
+        2,
+      ) + '\n',
+    )
+    summaryName = path.join(root, `dist/agenteam.${binary.sha256}.json`)
+    try {
+      await fs.writeFile(summaryName, summary, { flag: 'wx', mode: 0o600 })
+      summaryCreated = true
+    } catch (error) {
+      if (error.code !== 'EEXIST' || !summary.equals(await regularBytes(summaryName, LIMITS.entry)))
+        throw safeError('WEB_BUILD_SUMMARY_CONFLICT')
+    }
+    try {
+      const info = await fs.lstat(binaryName)
+      requireFact(info.isFile())
+      await fs.link(binaryName, path.join(stage, 'previous'))
+      previousBinary = true
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error
+    }
+    await removeOwned()
+    signal?.throwIfAborted()
+    await fs.rename(candidate, binaryName)
+    binaryCommitted = true
+    // No child is live here. Remove only this invocation's private staging.
+    await fs.rm(stage, { recursive: true })
+    stage = undefined
+    const lockNow = await fs.lstat(lockName)
+    requireFact(
+      lockNow.dev === lockInfo.dev && lockNow.ino === lockInfo.ino,
+      'WEB_BUILD_OWNERSHIP_CHANGED',
+    )
+    await lock.close()
+    lock = undefined
+    await fs.unlink(lockName)
+    return {
+      binary: 'dist/agenteam',
+      sha256: binary.sha256,
+      summary: path.relative(root, summaryName).split(path.sep).join('/'),
+    }
+  } catch (error) {
+    if (binaryCommitted) {
+      if (previousBinary && stage) await fs.rename(path.join(stage, 'previous'), binaryName)
+      else if (!previousBinary) await fs.unlink(binaryName)
+    }
+    if (summaryCreated && summaryName) await fs.unlink(summaryName)
+    throw safeError(error?.code?.startsWith('WEB_BUILD_') ? error.code : 'WEB_BUILD_FAILED')
+  } finally {
+    await removeOwned()
+    if (stage) await fs.rm(stage, { recursive: true })
+    if (lock) {
+      const current = await fs.lstat(lockName).catch(() => null)
+      await lock.close()
+      if (current?.dev === lockInfo.dev && current?.ino === lockInfo.ino) await fs.unlink(lockName)
+      else if (current) throw safeError('WEB_BUILD_OWNERSHIP_CHANGED')
+    }
+  }
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const cancellation = new AbortController()
+  const stop = () => cancellation.abort()
+  process.once('SIGINT', stop)
+  process.once('SIGTERM', stop)
+  try {
+    requireFact(process.argv.length === 2)
+    const result = await buildCentralWeb(
+      path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'),
+      { signal: cancellation.signal },
+    )
+    process.stdout.write(JSON.stringify(result) + '\n')
+  } catch (error) {
+    process.stderr.write(
+      (error?.code?.startsWith('WEB_BUILD_') ? error.code : 'WEB_BUILD_FAILED') + '\n',
+    )
+    process.exitCode = 1
+  } finally {
+    process.removeListener('SIGINT', stop)
+    process.removeListener('SIGTERM', stop)
+  }
+}

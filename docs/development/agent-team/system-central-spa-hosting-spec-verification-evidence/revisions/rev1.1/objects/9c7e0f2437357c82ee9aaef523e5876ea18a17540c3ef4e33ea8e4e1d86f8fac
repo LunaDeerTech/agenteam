@@ -1,0 +1,42 @@
+{
+  "candidate_paths_unchanged": 16,
+  "exact_added_technical_sentence": "本显式发布入口仅在 Linux 执行，并须在启动任何工具前通过 `/proc` 证明可观察本轮自有进程组的 PID/starttime；其他 host 或该能力不可证明时安全失败，不启动工具。",
+  "format": {
+    "actual_exit": 1,
+    "actual_wait_completed": true,
+    "argv": [
+      "git",
+      "-C",
+      "/workspace/agenteam",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/workspace/scratch/agenteam-central-spa-spec-rev1-1-n4tokr6v/base-7scovavm/rev1.md",
+      "/workspace/scratch/agenteam-central-spa-spec-rev1-1-n4tokr6v/d28-central-spa-hosting.md"
+    ],
+    "diagnostic_bytes": 0,
+    "seconds": 0.001892
+  },
+  "independent_report": {
+    "path": "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/review.md",
+    "sha256": "fae76080028076bd5bfcf3dc1cc6083fb25cb12fa1b040281e545f113ec1df66"
+  },
+  "links_exist": [
+    "/workspace/scratch/agenteam-central-spa-spec-R3Lb6ByX/d28-central-spa-hosting.rev0.2.draft.md",
+    "/workspace/scratch/agenteam-central-spa-spec-independent-mbz2u6hr/rev0.2-review.md",
+    "/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/review.md",
+    "/workspace/agenteam/docs/architecture/platform-infrastructure/deployment-runtime.md:82",
+    "/workspace/agenteam/docs/development/development-plan.md:85"
+  ],
+  "main_card_unchanged": true,
+  "main_git_observed": "626771744b68610be9a2ef2813b59a91775eb89c",
+  "new_full_sha256": "52e9970997fe678eeb16914d8b5498541cbc65c3a15f42ebd1c88b6bdb48a66a",
+  "new_technical_sha256": "8a00687e615729228a996357167cdf622b876e13f28de1475665bdd5b1f58615",
+  "original_full_sha256": "88b95723ad1c8a122f181123afceaaf72c375e7c55840cb3c009e414ee1e9e0c",
+  "original_git": "7a490ac7d5b09c1fff564fc50af93bfe236c1d71",
+  "original_technical_sha256": "f5399abe8b3137d4a8d8e8bbb3d2ddf6186013ae1ed092ecfa473b19a5967220",
+  "remove_only_added_sentence_restores_technical_bytes": true,
+  "scope": "Private single-card revision only; no product/build/test/resource execution",
+  "utf8_LF_newline_no_trailing_space": true
+}

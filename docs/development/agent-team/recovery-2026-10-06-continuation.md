@@ -290,3 +290,13 @@ rev0原三项静态接缝为初始化前纯构造、外层错误的安全instanc
 本档18逻辑原件以16新SHA对象、正式卡Git原件及既有SMTP配置input04清单复用；33项必要Git引用不复制全树、依赖或dist。原独审只保存md／json，没有单独command／raw／环境／退出时长文件；不补造历史执行记录。旧36个dist／547593字节仅是原静审观察到的输入形状，不是D28发布证据。
 
 SMTP投递UI的authority01失败已有静态产品归因，私有修复仍未验收，不能用旧§23的启动状态或本规格推成产品交付。完整D08–D28/E01未完成，E01未开始；Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503及其它未验边界保持。本次只是报告／证据与行政索引候选，不修改SPA技术正文、SMTP卡、前端README或任何产品文件。
+
+## 25. Central SPA rev1.1 发布脚本边界与原失败归档
+
+§1–24逐字保留。[卡rev1.1](../work-items/d28-central-spa-hosting.md)由主线程采纳并提交推送 `272c6c178462b4da72ac0eda69278e8dbde61f30`、远端一致；[报告追加§6](system-central-spa-hosting-spec-verification.md#6-rev11-发布脚本边界修订与原失败)绑定全文2cd71ed…17fbd8、技术cfa6d8…4056f8及原rev1 Git7a490ac。仅§2明确Linux启动任何工具前的/proc自有组PID/starttime能力门禁，及全部工具实际结束/可失败清理与锁操作先于最后一次binary rename的commit-last顺序；16路径、HTTP/API预算和其它技术原字节，普通无tag/Runner不变。
+
+独立stageA固定两脚本与9源manifest。A-SCRIPT-01原child-tail01实际1/2.838s，direct退出后inherit/ignore两分支后代仍运行；探针补清理并等待原Promise，driver实际wait2个adopted。A-SCRIPT-02原publication01实际1/1.179s，受控lock inode变更在rename后触发错误，当前NEXT无匹配摘要；不是缺库/超时等前提失败。两轮共6个owned PID/starttime双扫空，输入未变，未运行监听/网络/真实构建/浏览器，不能将取证终局说成产品正常收尾。
+
+新增独立rev1.1证据子目录，旧report正文、index、objects、checker均保留；新checker用6267717历史文档执行旧核验，再按272c6c1核修订和追加。只收两脚本、原manifest及必要probe/运行原件，26既有依赖用固定Git引用；其余7候选/原完整candidate.diff/作者检查及工具实体未收，故不声称旧全阶段可由此包直接重放。初rev1.1/v2/v3与各diff/check保留；据主线程最新调度通知，SPA stage02两脚本修复及原两probe作者重跑PASS已收到，尚待独立验收，修后产品未接受。
+
+主线程另通知SMTP oldauthority02 actual0／59.566s、窗口释放，新五组和旧五组按版本通过；独立A/B仅六项离线检查进行中，仍未产品接受。以上是调度状态而非本档验收，本档未读取这些新增/活动原件。核心16产品、正式发布/native/两真实代表仍待验；完整D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project及生产未绑定/ready503不变。这里是规格修订和原失败持久记录，不扩产品/资源授权。

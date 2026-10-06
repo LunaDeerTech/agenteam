@@ -1,0 +1,41 @@
+# SPA bundle-stage01 独立有界验收：BLOCKED
+
+冻结9候选的首阶段尚不能接受。两个构建脚本缺口均已独立受控复现，原产品未改、首次失败保留；无真实Vite/tag、监听器、app/scope或发布binary通过结论。验证者参与过规格设计，未参与SPA实现或作者测试；本结论来自实际固定产品和下列独立证据，不以规格自审替代实现验证。
+
+## 固定输入与已复核边界
+
+作者根 `/workspace/scratch/agenteam-central-spa-author-gfjizhr4/stages/bundle-stage01`：manifest `6b247f9f2b7563aba333e7edf411866dc9088759b2e842e8243f36f8c57541ae`、candidate.diff `8ecc4187cfeee27e9e2815f978b3535e3fb35d68e10f797dede640b0d900aed8`、report `1d2fbd858b47b98f3e7ee59fdb4b04ecdbf79ef6bddb4b7842630ab91b9d0f51` 均实核。9候选+26固定依赖无缺项/额外文件且逐SHA相同；26依赖逐项与97f4551 Git原件同字节。7组作者command/raw/result均与manifest摘要一致；race01、vet01、script-pure02命令中的9源与最终输入一致。
+
+独立仅消费冻结source，未读作者活动app/scope。已核bundle的闭合字段/大小/SHA/MIME/全集与只读拷贝、显式无tag未绑定分支和真实embed声明；renderer路径/保留命名空间、HTML协商、HEAD/ETag/安全Problem符合当前静态边界，尚无本轮独立Go动态。构建脚本以fresh staging、显式production/base/manifest、递归静态/动态/css/assets闭包、固定data:, favicon及原theme比对、真实EmbedFiles一致性门禁组织发布，没有latest sidecar。以下两个错误收尾分支仍阻断接受。
+
+复用作者已有纯证据：race01 actual0/23.987s（包1.088s）、vet01 actual0/4.245s、script-pure02 32项actual0/3.179s。前两者是内存bundle/Recorder/no-tag包证据；后者是合成Vite及受控tool回调、单直接子进程证据，不能称真实typecheck/Vite/带tag构建。其现有成功不覆盖本轮后代与commit后失败触发。
+
+## A-SCRIPT-01：直接子进程退出后仍可能遗留后代或永久等待
+
+位置：固定 `scripts/build-central-web.mjs:295–347`，特别是317–323与340–345。取消向进程组TERM后，强制timer以direct child的exitCode/signalCode决定是否跳过KILL；close又立即清timer并结束Promise。direct child与所有受控后代的终局不是同一事实。
+
+独立 `child-tail01` 实际退出1，2.838s，无超时/门禁/驱动错误。原runCommand启动的两组自有Node先登记PID/starttime；后代明确忽略TERM，父进程默认退出。继承stdio组：超过原1000ms强制时点的2200ms观察窗口后，父已停止、后代仍活，原Promise仍pending。忽略stdio组：原Promise已以WEB_BUILD_CHILD_FAILED拒绝，后代仍活。两者oracle均失败；探针之后精确KILL其自有后代并await原Promise的实际close，驱动subreaper再实际wait两个收养后代。没有把探针补清理当产品正确收尾。
+
+- [raw.log](runs/child-tail01/raw.log)：`3ccf9b39608365cbf5d065be1a1bb674cb04a9dc46613ec1aa8ee0e9d7392fd8`
+- [result.json](runs/child-tail01/result.json)：`09cbc34ffc2c7e178b477477b49c0d3b921552e8e1934fbd546136a24786930e`
+- [cleanup.json](runs/child-tail01/cleanup.json)：`5cce8e4153afd941d1a20c5a43b23f5a1c38bb7042fd56e4283318e7f93401f4`
+
+最小修复责任仍在原build脚本/测试：取消/异常输出收尾不得因direct child已退便失去对本次受控后代的终止与实际结束门禁；不得在后代仍活时进入staging清理/返回。实现方式由原作者确定，本验证未增加公共工具/HTTP生命周期接口。修后需保留inherit/ignore两种分支及原直接子进程代表；固定Vite/Go的真实构建进程树另属后续发布阶段，当前未执行。
+
+## A-SCRIPT-02：发布commit之后的lock错误删除匹配摘要
+
+位置：固定 `scripts/build-central-web.mjs:528–579`。SHA定址summary先落盘、546行对binary rename为单commit的方向正确；但549–550删除stage及previous备份后，551–558的lock检查/close/unlink仍可失败。catch在previousBinary=true且stage=undefined时不回退binary，却569行删除新summary，破坏已发布内容配对且无法保留旧binary。
+
+独立 `publication01` 实际退出1，1.179s，无超时/门禁/驱动错误。正常受控发布对照通过。失败case只在自有fixture内替换lock inode（原锁fd仍活，确保不是偶然inode复用），实际命中WEB_BUILD_OWNERSHIP_CHANGED；结果binary已从PREVIOUS换成NEXT，对应内容地址summary不存在，旧summary仍在。未改产品、真实源码/锁、共享目录或他人产物；此处tool回调/合成资产只证明脚本分支，不冒真实编译证据。
+
+- [raw.log](runs/publication01/raw.log)：`16b2c38394b17c7ec3801b7c618cb83b728a771eab65007c49cb32b7a969525f`
+- [result.json](runs/publication01/result.json)：`8219f5ebc9c51c446fde59fd2560518adcaa634e0949f4717c4f45b328cf6026`
+- [cleanup.json](runs/publication01/cleanup.json)：`067cb177342ed6c2e17b3628e3c098ae7d3235af6f41e64d76ccb42116cedb6a`
+
+最小修复责任仍为原脚本/测试：明确单commit之前的失败保留旧publication、commit后不破坏当前binary的不可变summary，不能把已删的backup当可恢复依据。需要保留正常对照和该实际可达失败oracle，不改为忽略锁归属或吞错误，不引latest漂移。
+
+## 执行、清理与后续门槛
+
+两轮按主线程授的[精确计划](probe-plan.md)顺序执行，固定[input.json](input.json) SHA `f28d891ca8e230976bedef6fdd9b017938c11eb0d2825536468ff7e37d19dcd6`，driver `6815a658ab5446a03834126c526cc66364e3c99d2179aedb66ac2960b3834a44`。child-tail完整收尾后才publication。每例45s外限；只自有目录与Node普通进程，没有监听/网络/真实发布/Go/Vite/Docker/PG/MinIO/浏览器。源、probe、driver、Node/Python全部执行前后SHA一致，冻结输入本体亦未变。两轮共6 owned PID/starttime，2 adopted实际wait；其余直接child通过原Node close返回，探针本身通过Python Popen.wait；baseline和各轮两次精确扫描均空。资源授权已交回。
+
+最终证据索引见[review.json](review.json)，包含每轮command/raw/result/cleanup/observations SHA与作者复用记录。当前最小下一步为原作者在原两脚本路径返修后冻结新输入，由主线程另授受影响代表；不机械重跑未变Go路径。普通Central/Runner、带tag缺包真实失败和发布成功、app/root所有尾部、native及两个真实binary代表仍未验。完整D28、Runtime绑定和历史停止任务不在本结论内。

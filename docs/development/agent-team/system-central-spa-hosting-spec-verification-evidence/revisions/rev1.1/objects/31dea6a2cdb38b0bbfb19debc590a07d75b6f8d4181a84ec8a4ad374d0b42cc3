@@ -1,0 +1,25 @@
+# SPA bundle-stage01 两项独立纯探针冻结
+
+状态：仅静核/探针准备；未执行测试、Node探针、Go、监听、Vite或真实发布。作者9源+26固定依赖与基线SHA逐一匹配；manifest/diff/report及7组command/raw/result hash均匹配。本轮只消费冻结stage，不读作者app/scope活动源。
+
+## 静态发现与判定
+
+1. **A-SCRIPT-01：后代实际终止门禁不足。** 固定 `build-central-web.mjs:295–347` 只以直接child的close作为终局；:318在direct child已退出时跳过对组SIGKILL，:342又在close时清除timer。取消时direct child先退、同组后代忽略TERM：继承stdio的后代可使close持续等待且后续强制杀不再执行；关闭stdio的后代可在Promise已拒绝后继续运行。现有作者:323–348仅证明单个直接子进程，不证明后代。以上为静态可达分支，尚无独立动态结果。
+2. **A-SCRIPT-02：commit后清理错误破坏binary/summary配对。** :528–546先安装SHA摘要再rename二进制；:549–550删除stage（含旧binary hardlink）并置undefined。随后:551–558的lock检查/close/unlink失败，catch在previousBinary=true且stage不存在时不恢复binary，却:569删除新摘要。于是报错同时保留新binary、缺失其SHA摘要，亦不满足失败保留旧发布。作者原失败组仅覆盖提交前，不覆盖此分支。以上尚未动态运行。
+
+## 最小受控取证
+
+- `child-tail.mjs` 调用原冻结runCommand，分别构造inherit/ignore stdio的自有父子Node。后代先安装TERM忽略并登记PID/starttime，父进程默认TERM退出。取消后观察Promise、两个进程实际状态；继承pipe例观察超过原1000ms强制升级时间的2200ms上界，随后探针按精确身份清理并等原Promise实际close。断pipe例核Promise已结束时后代是否仍活。oracle要求取消终局前两者已停止；不把原输入失败当PASS。驱动另以subreaper实际wait收养后代并两次精确扫描。最大5个自有进程（探针Node+两组各父/子）。
+- `publication.mjs` 在自有目录用独立最小合法HTML/Vite闭包及注入工具回调，先证明正常匹配发布；另一case仅替换该fixture的lock inode，触发二进制commit后已有ownership检查。核旧成功binary/旧SHA摘要保持和当前binary的匹配摘要。不会改生产模块或他人文件；这是受控分支，fake工具输出绝不当真实typecheck/Vite/tag证据。只有探针Node，无Go/Vite子进程。
+- `run-pure-probes.py` 启动前/结束后核源、探针、driver、Node/Python SHA；每case45s，禁止重用run名。实际Popen.wait；Linux subreaper+PID/starttime台账、精确TERM/KILL及adopted wait；双扫清空才终局。记录command/raw/observations/cleanup/result。超时或driver/门禁错误退出2；产品契约不成立退出1；全部契约成立退出0。不监听/联网/Docker/PG/MinIO/browser/真实发布，也不调用全仓检查。
+
+## 待主线程另授的精确命令
+
+cwd：`/workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01`
+
+```sh
+/usr/bin/python3 run-pure-probes.py --case child-tail --name child-tail01 --frozen /workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/input.json --execute-authorized
+/usr/bin/python3 run-pure-probes.py --case publication --name publication01 --frozen /workspace/scratch/agenteam-central-spa-verification-XbTUuqmM/stage-a-static01/input.json --execute-authorized
+```
+
+两命令分别执行并实际清理；发生预期契约RED不自改产品/放宽oracle/重跑。尚未授权且未执行Node语法检查；Python仅ast.parse静态解析。其它stage闭合/renderer静核继续，发现不代表所有9路径已接受。普通构建/tag真实失败与成功、scope、native、真实两top均未验证。

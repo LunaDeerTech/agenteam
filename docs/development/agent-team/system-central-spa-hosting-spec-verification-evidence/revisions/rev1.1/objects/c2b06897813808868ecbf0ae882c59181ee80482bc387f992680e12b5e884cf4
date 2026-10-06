@@ -1,0 +1,348 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import * as fs from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
+import {
+  buildCentralWeb,
+  validateProduction,
+  strictJSON,
+  validNodeVersion,
+  runCommand,
+} from './build-central-web.mjs'
+
+const sourceHTML = `<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8" /><link rel="icon" href="data:," /><title>agenteam</title>
+<script>document.documentElement.dataset.theme = 'light'</script></head>
+<body><div id="app"></div><script type="module" src="/src/main.ts"></script></body></html>`
+const manifest = {
+  'index.html': {
+    file: 'assets/index-AbCd1234.js',
+    src: 'index.html',
+    isEntry: true,
+    imports: ['_shared.js'],
+    dynamicImports: ['src/views/Lazy.vue'],
+    css: ['assets/index-AbCd1234.css'],
+  },
+  '_shared.js': { file: 'assets/shared-EfGh5678.js' },
+  'src/views/Lazy.vue': {
+    file: 'assets/Lazy-JkLm9012.js',
+    src: 'src/views/Lazy.vue',
+    isDynamicEntry: true,
+    css: ['assets/Lazy-JkLm9012.css'],
+  },
+}
+
+async function temp(t) {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'central-web-pure-'))
+  t.after(() => fs.rm(root, { recursive: true, force: true }))
+  return root
+}
+
+async function output(root) {
+  await fs.mkdir(path.join(root, '.vite'), { recursive: true })
+  await fs.mkdir(path.join(root, 'assets'), { recursive: true })
+  await fs.writeFile(path.join(root, '.vite/manifest.json'), JSON.stringify(manifest))
+  const html = sourceHTML
+    .replace('<script type="module" src="/src/main.ts"></script>', '')
+    .replace(
+      '</head>',
+      '<script type="module" crossorigin src="/assets/index-AbCd1234.js"></script><link rel="modulepreload" crossorigin href="/assets/shared-EfGh5678.js"><link rel="stylesheet" crossorigin href="/assets/index-AbCd1234.css"></head>',
+    )
+  await fs.writeFile(path.join(root, 'index.html'), html)
+  for (const value of Object.values(manifest)) {
+    await fs.writeFile(path.join(root, value.file), `export const safe = 1;\n`)
+    for (const name of value.css ?? [])
+      await fs.writeFile(path.join(root, name), 'body { color: black }\n')
+  }
+}
+
+async function alterManifest(root, edit) {
+  const name = path.join(root, '.vite/manifest.json')
+  const value = JSON.parse(await fs.readFile(name, 'utf8'))
+  edit(value)
+  await fs.writeFile(name, JSON.stringify(value))
+}
+
+async function fixture(t) {
+  const root = await temp(t)
+  await fs.mkdir(path.join(root, 'internal/central/webassets/bundle'), { recursive: true })
+  await fs.writeFile(
+    path.join(root, 'internal/central/webassets/bundle/.gitignore'),
+    '*\n!.gitignore\n',
+  )
+  await fs.mkdir(path.join(root, 'web/node_modules/vue-tsc/bin'), { recursive: true })
+  await fs.mkdir(path.join(root, 'web/node_modules/vite/bin'), { recursive: true })
+  await fs.writeFile(
+    path.join(root, 'web/node_modules/vue-tsc/bin/vue-tsc.js'),
+    '// fixed locked test tool\n',
+  )
+  await fs.writeFile(
+    path.join(root, 'web/node_modules/vite/bin/vite.js'),
+    '// fixed locked test tool\n',
+  )
+  await fs.writeFile(path.join(root, 'web/node_modules/.package-lock.json'), '{}\n')
+  await fs.writeFile(
+    path.join(root, 'web/package.json'),
+    JSON.stringify({
+      engines: { node: '^22.18.0 || >=24.12.0' },
+      scripts: { 'type-check': 'vue-tsc --noEmit' },
+    }),
+  )
+  await fs.writeFile(path.join(root, 'web/package-lock.json'), '{}\n')
+  await fs.writeFile(path.join(root, 'web/index.html'), sourceHTML)
+  await fs.writeFile(path.join(root, 'go.mod'), 'module example.invalid/fixed\ngo 1.27.1\n')
+  const calls = []
+  const run = async (command, args, options) => {
+    calls.push({ command, args, env: options.env })
+    assert.equal(options.env.GOPROXY, 'off')
+    assert.equal(options.env.GOFLAGS, '-mod=readonly')
+    if (args[0] === 'version') return 'go version go1.27.1 linux/amd64\n'
+    if (args[0].endsWith('/vue-tsc.js')) return ''
+    if (args[0].endsWith('/vite.js')) {
+      await output(args[args.indexOf('--outDir') + 1])
+      return ''
+    }
+    if (args[0] === 'list') {
+      const m = JSON.parse(
+        await fs.readFile(
+          path.join(root, 'internal/central/webassets/bundle/manifest.json'),
+          'utf8',
+        ),
+      )
+      return (
+        [...m.files.map((file) => `bundle/${file.path}`), 'bundle/manifest.json'].join('\n') + '\n'
+      )
+    }
+    if (args[0] === 'build') {
+      await fs.writeFile(args[args.indexOf('-o') + 1], 'CONTROLLED-COMPILER-OUTPUT', {
+        mode: 0o700,
+      })
+      return ''
+    }
+    assert.fail('unexpected tool invocation')
+  }
+  return { root, run, calls }
+}
+
+async function cleanBundle(root) {
+  assert.deepEqual(await fs.readdir(path.join(root, 'internal/central/webassets/bundle')), [
+    '.gitignore',
+  ])
+  const names = await fs.readdir(path.join(root, 'dist')).catch(() => [])
+  assert(!names.some((name) => name.startsWith('.central-web-')))
+}
+
+test('locked Node versions and strict manifest duplicate keys', () => {
+  for (const version of ['22.18.0', '22.99.1', '24.12.0', '24.19.0', '25.0.0'])
+    assert(validNodeVersion(version))
+  for (const version of ['22.17.9', '23.1.0', '24.11.9', '24.12.0-preview', 'unknown'])
+    assert(!validNodeVersion(version))
+  assert.throws(() => strictJSON('{"a":1,"a":2}'))
+  assert.throws(() => strictJSON('{"a":{"file":"x","file":"y"}}'))
+  assert.deepEqual(strictJSON('{"a":[{"x":1},{"x":2}]}'), { a: [{ x: 1 }, { x: 2 }] })
+})
+
+test('actual files close static and lazy Vite references with the accepted entry', async (t) => {
+  const root = await temp(t)
+  await output(root)
+  const result = await validateProduction(root, sourceHTML)
+  assert.equal(result.files.length, 6)
+  assert.equal(result.files.find((file) => file.path === 'index.html').immutable, false)
+  assert(result.files.filter((file) => file.path !== 'index.html').every((file) => file.immutable))
+  assert.equal(JSON.parse(result.manifest).format, 1)
+})
+
+test('invalid output fails before any embedded package can be built', async (t) => {
+  const variants = {
+    'missing lazy chunk': async (root) => fs.unlink(path.join(root, 'assets/Lazy-JkLm9012.js')),
+    'extra source map': async (root) =>
+      fs.writeFile(path.join(root, 'assets/index-AbCd1234.js.map'), '{}'),
+    'extra private output': async (root) => fs.writeFile(path.join(root, '.private'), 'not public'),
+    'missing graph target': async (root) =>
+      alterManifest(root, (m) => {
+        m['index.html'].dynamicImports = ['absent']
+      }),
+    'external asset path': async (root) =>
+      alterManifest(root, (m) => {
+        m['_shared.js'].file = 'https://other.invalid/shared.js'
+      }),
+    'traversal asset path': async (root) =>
+      alterManifest(root, (m) => {
+        m['_shared.js'].file = 'assets/../shared.js'
+      }),
+    'excluded underscore asset': async (root) =>
+      alterManifest(root, (m) => {
+        m['_shared.js'].file = 'assets/_shared-EfGh5678.js'
+      }),
+    'production Debug record': async (root) =>
+      alterManifest(root, (m) => {
+        m['_shared.js'].src = 'src/views/debug/DebugView.vue'
+      }),
+    'unknown extension': async (root) =>
+      alterManifest(root, (m) => {
+        m['_shared.js'].file = 'assets/shared-EfGh5678.txt'
+      }),
+    'external script': async (root) => {
+      const p = path.join(root, 'index.html')
+      await fs.writeFile(
+        p,
+        (await fs.readFile(p, 'utf8')).replace(
+          '/assets/index-AbCd1234.js',
+          'https://other.invalid/module.js',
+        ),
+      )
+    },
+    'foreign data favicon': async (root) => {
+      const p = path.join(root, 'index.html')
+      await fs.writeFile(
+        p,
+        (await fs.readFile(p, 'utf8')).replace('data:,', 'data:text/html,private'),
+      )
+    },
+    'additional inline script': async (root) => {
+      const p = path.join(root, 'index.html')
+      await fs.appendFile(p, '<script>private()</script>')
+    },
+    'changed theme script': async (root) => {
+      const p = path.join(root, 'index.html')
+      await fs.writeFile(p, (await fs.readFile(p, 'utf8')).replace("'light'", "'foreign'"))
+    },
+    'unsafe output link': async (root) => {
+      await fs.unlink(path.join(root, 'assets/shared-EfGh5678.js'))
+      await fs.symlink('../index.html', path.join(root, 'assets/shared-EfGh5678.js'))
+    },
+    'entry budget': async (root) =>
+      fs.writeFile(path.join(root, 'index.html'), Buffer.alloc((1 << 20) + 1, 32)),
+    'asset budget': async (root) =>
+      fs.writeFile(path.join(root, 'assets/shared-EfGh5678.js'), Buffer.alloc((16 << 20) + 1, 32)),
+  }
+  for (const [name, mutate] of Object.entries(variants)) {
+    await t.test(name, async (t) => {
+      const root = await temp(t)
+      await output(root)
+      await mutate(root)
+      await assert.rejects(validateProduction(root, sourceHTML))
+    })
+  }
+})
+
+test('controlled build preserves no-tag tools and publishes an exact binary/summary pair', async (t) => {
+  const { root, run, calls } = await fixture(t)
+  const result = await buildCentralWeb(root, {
+    run,
+    go: '/locked/go1.27.1',
+    nodeVersion: '24.19.0',
+  })
+  assert.equal(
+    await fs.readFile(path.join(root, result.binary), 'utf8'),
+    'CONTROLLED-COMPILER-OUTPUT',
+  )
+  const summary = JSON.parse(await fs.readFile(path.join(root, result.summary), 'utf8'))
+  assert.equal(summary.binary.sha256, result.sha256)
+  assert.equal(summary.bundle.files, 7)
+  assert(calls.find((call) => call.args[0] === 'build').args.includes('-tags=agenteam_web'))
+  assert.equal(calls.filter((call) => call.args[0].endsWith('/vite.js')).length, 1)
+  await cleanBundle(root)
+})
+
+test('Vite/Go/type failures and changed inputs preserve the previous publication', async (t) => {
+  for (const failedPhase of ['type', 'vite', 'embed', 'go', 'input']) {
+    await t.test(failedPhase, async (t) => {
+      const { root, run } = await fixture(t)
+      await fs.mkdir(path.join(root, 'dist'))
+      await fs.writeFile(path.join(root, 'dist/agenteam'), 'PREVIOUS')
+      const controlled = async (command, args, options) => {
+        if (
+          (failedPhase === 'type' && args[0].endsWith('/vue-tsc.js')) ||
+          (failedPhase === 'vite' && args[0].endsWith('/vite.js')) ||
+          (failedPhase === 'go' && args[0] === 'build')
+        )
+          throw new Error('CONTROLLED_TOOL_FAILURE')
+        if (failedPhase === 'embed' && args[0] === 'list') return 'bundle/index.html\n'
+        const result = await run(command, args, options)
+        if (failedPhase === 'input' && args[0] === 'build')
+          await fs.appendFile(path.join(root, 'web/index.html'), '\n<!-- changed -->')
+        return result
+      }
+      await assert.rejects(buildCentralWeb(root, { run: controlled, nodeVersion: '24.19.0' }))
+      assert.equal(await fs.readFile(path.join(root, 'dist/agenteam'), 'utf8'), 'PREVIOUS')
+      assert.deepEqual(await fs.readdir(path.join(root, 'dist')), ['agenteam'])
+      await cleanBundle(root)
+    })
+  }
+})
+
+test('exclusive occupancy and unknown residuals are never removed', async (t) => {
+  for (const residual of ['.build.lock', 'unknown']) {
+    await t.test(residual, async (t) => {
+      const { root, run, calls } = await fixture(t)
+      const name = path.join(root, 'internal/central/webassets/bundle', residual)
+      await fs.writeFile(name, 'OTHER-OWNER')
+      await assert.rejects(buildCentralWeb(root, { run, nodeVersion: '24.19.0' }))
+      assert.equal(await fs.readFile(name, 'utf8'), 'OTHER-OWNER')
+      assert.equal(calls.length, 0)
+      if (residual === 'unknown')
+        assert.deepEqual((await fs.readdir(path.dirname(name))).sort(), ['.gitignore', 'unknown'])
+    })
+  }
+})
+
+test('unsupported Go does not run frontend or publish', async (t) => {
+  const { root } = await fixture(t)
+  let count = 0
+  await assert.rejects(
+    buildCentralWeb(root, {
+      nodeVersion: '24.19.0',
+      run: async () => {
+        count++
+        return 'go version go1.26.0 linux/amd64\n'
+      },
+    }),
+    { code: 'WEB_BUILD_GO_VERSION' },
+  )
+  assert.equal(count, 1)
+  await cleanBundle(root)
+})
+
+test('controlled child completion is actually awaited on success and failure', async () => {
+  const options = { cwd: process.cwd(), env: process.env }
+  assert.equal(
+    await runCommand(
+      process.execPath,
+      ['-e', 'process.stdout.write("actual-child-exit")'],
+      options,
+    ),
+    'actual-child-exit',
+  )
+  await assert.rejects(runCommand(process.execPath, ['-e', 'process.exit(7)'], options), {
+    code: 'WEB_BUILD_CHILD_FAILED',
+  })
+})
+
+test('cancellation awaits the controlled child exit before resolving', async (t) => {
+  const root = await temp(t)
+  const ready = path.join(root, 'ready')
+  const cancellation = new AbortController()
+  const source =
+    'const fs = require("node:fs"); process.on("SIGTERM", () => {}); fs.writeFileSync(process.argv[1], String(process.pid)); setInterval(() => {}, 1000)'
+  const pending = runCommand(process.execPath, ['-e', source, ready], {
+    cwd: root,
+    env: process.env,
+    signal: cancellation.signal,
+  })
+  const rejected = assert.rejects(pending, { code: 'WEB_BUILD_CHILD_FAILED' })
+  t.after(async () => {
+    cancellation.abort()
+    await rejected
+  })
+  const started = Date.now()
+  while (!(await fs.stat(ready).catch(() => null))) {
+    assert(Date.now() - started < 3000)
+    await new Promise((resolve) => setTimeout(resolve, 10))
+  }
+  const pid = Number(await fs.readFile(ready, 'utf8'))
+  cancellation.abort()
+  await rejected
+  assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' })
+})
