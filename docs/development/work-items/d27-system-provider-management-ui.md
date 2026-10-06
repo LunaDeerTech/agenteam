@@ -1,8 +1,8 @@
 # D27：System Provider 管理、凭据替换与 Models 只读子列表
 
-状态：rev2，2026-10-06 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳；被审稿 SHA256 `634af3d0b2fa337cfd6a60aa568c6e8825b3f9238cc24c6f12325131847a3580`。主线程仅授权 architecture_worker 更新本卡页首；§6 二十一条产品路径与真实资源均未授权，当前邀请 UI 的共享文件与真实资源仍由其作者/验收负责人持有。设计读取固定 Git 前端 `6be5321`、后端 `9b3201547f9b7b61fd9716a6ba6540084961496c`，不读取邀请 UI 活动源码作稳定输入。必须等待邀请 UI 最终独立接受、固定实际提交及资源清零交回，再由主线程移交产品与资源所有权。规格通过不代表上游 UI 或本卡产品通过。
+状态：rev3，2026-10-06 已获 `recovery_verification`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳；被审稿 SHA256 `c859524983cfb0c51f96d7cd20ee2871d0fc013498eff1cbbd109590615395c4`。rev2 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS）并由主线程采纳，被审稿 SHA256 `634af3d0b2fa337cfd6a60aa568c6e8825b3f9238cc24c6f12325131847a3580`。邀请 UI 已独立最终 PASS、主线程采纳并提交推送 `1c82d888adfef0d8b58ab51c920557ca4e2f084f`（六组新真实顶层、五组旧真实回归及453项纯测通过），所属真实资源已双次清零交回；本卡前端固定消费该提交，后端仍为 `9b3201547f9b7b61fd9716a6ba6540084961496c`及迁移1–19的已接受兼容组合。主线程已确定 `directory_backend`（改任frontend_worker）为§6原二十一条路径的唯一作者；待本卡提交后再由主线程正式下发产品写入与独占真实窗口，当前不自行启动。本次仅更新页首采纳及实施安排，技术§1–7保持被审原字节；下文设计冻结时的待授叙述以本页首为准。规格通过和上游接受不代表本卡产品通过。
 
-rev1独立静审为BLOCKED：合法Provider页经Go默认JSON转义可超过600000B；未发现其他规格阻断。rev2仅将listProviders成功JSON响应窄扩为2MiB，补完整上界、限定路径用途及相应验收；Problem与其他响应上限、请求预算、二十一条候选路径和两步恢复语义不变，该修订已独立复审通过。本次仅更新页首采纳状态，技术§1–7保持被审原字节。
+rev1独立静审为BLOCKED：合法Provider页经Go默认JSON转义可超过600000B；未发现其他规格阻断。rev2仅将listProviders成功JSON响应窄扩为2MiB，补完整上界、限定路径用途及相应验收；该修订已独立复审通过。rev3仅固定邀请已接受接缝，明确App期状态/Promise与View末尾确认宿主分工、checking失败恢复和旧实例焦点门禁，补已定分域/CSRF规则的固定接入注意与对应验收；API、请求/响应预算、二十一条路径、两步提交与敏感材料恢复规则不变。
 
 ## 1. 完整结果与真实依赖
 
@@ -11,7 +11,7 @@ rev1独立静审为BLOCKED：合法Provider页经Go默认JSON转义可超过6000
 | 依赖 | 本卡消费与门槛 |
 | --- | --- |
 | Account 与既有设置 UI | **已满足**，[认证](../agent-team/d26-authentication-verification.md)、[个人设置](../agent-team/personal-settings-verification.md)、[公开入口](../agent-team/public-account-entry-verification.md)、[系统用户目录](../agent-team/system-user-directory-ui-verification.md)均有接受证据；目录产品 `7ef3e30` 和遮罩焦点修复包含在固定前端中。复用当前 Session/admin、Cookie owner、身份草稿与导航确认。 |
-| 系统邀请 UI 及多叶子设置壳 | **尚未满足产品门槛**，[邀请 UI rev3](d27-system-invitation-ui.md)已采纳并正在实施；本卡依赖其受限 group key/children、共享 owner 分域、App 期草稿/确认和第六项 return。只引用已定契约，不把卡片采纳或活动代码视为已验。开工前核最终接受差量；接缝改变先修本卡。 |
+| 系统邀请 UI 及多叶子设置壳 | **已满足**，[邀请 UI rev4](d27-system-invitation-ui.md)已独立最终 PASS、主线程采纳并提交 `1c82d888adfef0d8b58ab51c920557ca4e2f084f`，资源已清零。该固定输入已有受限 group key/children、useSession第三可选依赖及分域owner、parseSystemInstant导出、第六项return，以及App期状态/Promise与View末尾确认宿主；并包含已接受[剩余模态焦点恢复](d27-modal-focus-restoration.md) `79f922e`。本卡仅消费这些接缝，Provider第四依赖/新域与自身页面仍须实施验收。 |
 | System 配置、HTTP 与生产根 | **已满足**，[B01-K](d09-b01-system-configuration.md) `543511c`、[HTTP 验收](../agent-team/d09-system-model-http-verification.md) `ac5b4c6`、[默认根验收](../agent-team/system-model-root-verification.md) `457b197`，均包含在 `9b32015`。消费真实 Provider CRUD、按 Provider 分页 Models、Credential create、两种命令 lookup、同事务当前权限、Secret reference、Audit 和事件事实。 |
 | Credential metadata | **已满足**，[管理读口验收](../agent-team/system-model-management-reads-verification.md) `ecd7337`包含在 `9b32015`。读取当前 System/Model 安全 metadata，包含 HTTP 认证的三秒预算、同事务权限及失败零候选；不需要本卡改后端。已验 Model deletion-impact 不在本卡调用范围。 |
 | 布局与协议 | [系统设置 §3](../../frontend-design/layouts/system-settings.md#3-模型与-provider)、[通用设置壳](../../frontend-design/layouts/settings-shell.md)、[样式](../../frontend-design/styles/README.md)、[组件](../frontend/components.md)、[Model Configuration](../../architecture/platform-infrastructure/model-system/model-configuration.md)、[HTTP 契约](recovery-d09-system-model-http.md)、[管理读口契约](recovery-d09-system-model-management-reads.md)、[OpenAPI](../../../api/openapi/model-system.json)。具体 wire 与支持范围以固定已接受实现/契约为准。 |
@@ -96,26 +96,32 @@ Provider列表与选中Provider的Models各有独立25项cursor历史。下一�
 
 dirty包括普通字段变化、新材料、进行中/未确认写及尚未完成的部分成功。菜单、顶部本人入口/退出、浏览器返回、选别的Provider、详情返回、分页/刷新和编辑Dialog所有关闭方式统一确认“继续编辑 / 放弃修改”，并在router触发Session复查前执行。空白未提交表单、普通只读加载不额外确认。显式“检查原请求”或已知冲突后的明确重读保留原intent/草稿，不被通用刷新误清。App顶部组合现有个人、公开与邀请确认，不能绕过或清掉其他域；安装和dispose成对移除watcher、hook、beforeunload、反馈计时器。
 
+确认状态及待决Promise归App期controller；**确认Dialog宿主固定置于SystemProvidersView的创建/编辑（含SystemProviderEditor）与删除等业务Dialog之后**，不在App新增常驻Provider确认层。所有Provider模态属于同一页面子树，按上述顺序共同挂载/卸载；确认只由本页dirty触发，离页guard与顶部退出均在真正离开前等待，不为其他叶子保留全局宿主。App的pageshow/visibilitychange复查条件不变，不因确认打开而跳过；checking期间RouterView卸载所有Provider模态，页面detach只撤离读取与DOM，不结算确认或销毁按§3/§4仍需保留的私有草稿/材料/意图。检查失败继续隐藏Provider内容，App恢复按钮不受残留overlay/inert/滚动锁阻挡；同一完整identity且仍为admin时按固定顺序重挂原业务层与末尾确认，恢复本身不发新写、不换key、不自动选择答案。输入DOM不向公开状态转存，材料的保留与及时清理仍沿§3/§4。
+
+继续编辑与放弃仅结算原确认一次；真实离页、失权、新Session/epoch、注销或App.dispose清旧状态并以false结束待决确认，使原导航/关闭/退出等待有终点，不能迁到新身份。checking或失败复查不视为上述失效。关闭确认后的模态内焦点恢复只消费已接受共享规则；View/Editor所有await后的焦点续体须核本实例仍有效、节点当前可操作，旧实例不触碰重挂页面。继续编辑仍保留业务Dialog时不另补焦点；确认打开时标题和业务恢复不抢焦点，即使没有底层业务Dialog也如此。正常业务关闭、提交拒绝后的可用控件恢复仍保留，不用全局querySelector、手工focus、z-index或反复nextTick重挂代偿层顺序/共享恢复。
+
 取消、30秒可见超时或放弃只结束可见等待；owner必须保留到实际fetch、read/cancel全部join。不可在返回Promise.race、进入第二阶段、清本地材料或Dialog关闭时提前释放。每个Provider工作流/读分区仅abandon自己的scope+代次，不能取消正在restore、登录/注销、改密、邀请写或users读取；反方向清理亦不得侵入Provider。晚到成功不得启动下一步骤、重开页面或污染新身份；当前identity的迟到401可能已清Cookie，仍按既有规则失效。
+
+固定 `1c82d88` 的接入注意：`useSession.personal.abandon()` 目前仍无kind限制地调用owner.abandon；在原第3路径内仅将该回调限制为personal owner，个人域自身清理与改密Cookie确认语义保持，不收紧App总dispose/auth.leave的全局清理。Provider读/写/lookup各分类必须绑定本域代次，不能落入runAuthorized的personalRevision默认分支；各域清理不误撤另一域操作或提前释放尾部。现systemFailure的CSRF_FAILED分支仅覆盖invitation-write，本卡须将Provider/Credential写及两个带CSRF的lookup分类接入既有完整identity和owner generation护栏，保留当前/迟到失败处理与旧GET行为，不把lookup当无CSRF的普通读。当前identity的403系统拒绝除保留既有清理，还须清Provider私有材料/草稿/intent并发布原身份绑定拒绝；旧identity/代次不得清新状态。以上落实原分域与身份规则，不扩路径或改变其他状态含义，所有owner均仍在实际finally结束后才释放。
 
 401/SESSION_REVOKED或CSRF_FAILED使当前身份失效并清旧私有材料；当前identity的403 FORBIDDEN清所有系统页面数据/草稿/intent并设置身份绑定system拒绝，不改User.role或自动注销，成功Session重验才可恢复。旧identity/旧代次403不污染新身份；真实换账号、同User新Session/epoch、降权与注销均清Provider及两步状态。敏感材料清理不等于实际网络已结束：未join的旧请求仍由同owner托管，禁止新身份请求越过；仅保存完成尾部所需最少私有引用，不发布晚到receipt。焦点只恢复到仍连接、可操作的触发器；删除后落到创建/刷新或标题，不聚焦已删除行。
 
 ## 6. 精确候选路径与所有权
 
-下列21路径仅为未来frontend_worker候选；邀请UI接受、独立静审采纳与主线程明确移交前，无源码/测试写权、无真实资源窗口。邀请UI接受提交及其22路径由主线程固定后再核差量，尤其不能覆盖共享App/router/Session/client/设置菜单/旧测试和README。当前仅本卡由architecture_worker写。
+下列21路径保持候选范围，拟由directory_backend改任frontend_worker实施；邀请UI及共享焦点前置已在 `1c82d88` 接受，但本修订独立静审采纳与主线程明确移交前，仍无源码/测试写权、无真实资源窗口。以该固定输入保留共享App/router/Session/client/设置菜单/旧测试和README中的已接受能力，不覆盖邀请成果。当前仅本卡由architecture_worker写。
 
 | # | 路径 | 限定用途 |
 | --- | --- | --- |
 | 1 | `web/src/api/client.ts` | 十个固定endpoint及受限options；Credential create为512KiB、Provider create/update为32KiB，其余16KiB；仅listProviders成功响应2MiB，Problem及其他响应600000B，实际join保持。 |
 | 2 | `web/src/api/system-providers.ts`（新） | 专用严格DTO/receipt/lookup与输入、UTF-8/JSON预算、固定API。 |
-| 3 | `web/src/composables/useSession.ts` | 第四可选依赖、同owner分域、私有两步intent/材料、恢复及当前身份清理。 |
+| 3 | `web/src/composables/useSession.ts` | 第四可选依赖、同owner分域、私有两步intent/材料、恢复及当前身份清理；仅收紧personal.abandon的owner回调门禁，并将新增写/lookup接入原CSRF失效护栏。 |
 | 4 | `web/src/composables/useSystemProviders.ts`（新） | App期私有草稿/进度、详情/分页、确认及身份/页面代次。 |
-| 5 | `web/src/App.vue` | provide、Provider导航/放弃确认与顶部退出组合、dispose，保留原页面流程。 |
+| 5 | `web/src/App.vue` | provide、App期Provider确认状态/Promise、导航及顶部退出组合、dispose；不新增Provider确认Dialog宿主，保留原页面流程。 |
 | 6 | `web/src/router/index.ts` | 仅增加Providers叶子，系统默认用户保持。 |
 | 7 | `web/src/router/auth.ts` | 第七项精确return、Provider离页前确认/完成hook。 |
 | 8 | `web/src/views/system/SystemSettingsView.vue` | 保留用户/邀请组，追加仅Providers的新组与原权限拒绝行为。 |
-| 9 | `web/src/views/system/SystemProvidersView.vue`（新） | 列表/详情、只读Models/metadata、删除确认及局部响应布局。 |
-| 10 | `web/src/views/system/SystemProviderEditor.vue`（新） | 创建/编辑表单、私有新凭据输入、分步进度与恢复交互，不另持Cookie或key。 |
+| 9 | `web/src/views/system/SystemProvidersView.vue`（新） | 列表/详情、只读Models/metadata、业务模态与末尾统一放弃确认宿主、生命周期焦点门禁及局部响应布局。 |
+| 10 | `web/src/views/system/SystemProviderEditor.vue`（新） | 创建/编辑表单、私有新凭据输入、分步进度与恢复交互；随View共同卸载/恢复，旧实例不抢焦点，不另持Cookie或key。 |
 | 11 | `web/src/tests/system-providers-client.spec.ts`（新） | 封闭endpoint/DTO/receipt/lookup、时间/分页、材料及编码预算。 |
 | 12 | `web/src/tests/system-providers-state.spec.ts`（新） | 实际controller+受控transport，两步/owner/身份/取消/历史观察/部分成功。 |
 | 13 | `web/src/tests/system-providers.spec.ts`（新） | 真实router/controller的页面操作、草稿与App/菜单/焦点组合。 |
@@ -132,13 +138,15 @@ dirty包括普通字段变化、新材料、进行中/未确认写及尚未完�
 
 ## 7. 高风险验收与资源门槛
 
-实施前固定邀请UI实际接受提交、后端 `9b32015`或其已接受兼容后继、迁移1–19及本卡输入清单；冻结产品后方可交独立审查。作者执行 `npm run check --prefix web`，只格式化授权文件；Go1.27.1、`GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOFLAGS=-mod=readonly`下新增integration-tag race编译与适用vet。依赖网络准备单列，正式检查离线readonly；纯检查/编译不能冒充真实浏览器或事务恢复通过。
+实施前固定前端 `1c82d888adfef0d8b58ab51c920557ca4e2f084f`、后端 `9b32015`或其已接受兼容后继、迁移1–19及本卡输入清单；冻结产品后方可交独立审查。作者执行 `npm run check --prefix web`，只格式化授权文件；Go1.27.1、`GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOFLAGS=-mod=readonly`下新增integration-tag race编译与适用vet。依赖网络准备单列，正式检查离线readonly；纯检查/编译不能冒充真实浏览器或事务恢复通过。
 
 纯测试必须覆盖：十endpoint的合法/非法options、非三项特例的16KiB不变、合法Provider转义后>16KiB且≤32KiB、65536B多字节边界及Credential JSON转义后>64KiB仍合法、65537B/非法surrogate/超原字段或编码预算零intent/dispatch；完整闭合Provider/Models/metadata/两类lookup/receipt、错误目标/类别、必填null、日期与>2^53；协议不可改、options={}、Models只读与空首项删除门槛。材料仅用任务生成值，断言/错误/快照不打印材料或请求body。
 
 响应预算专例须通过实际transport读取：25项均含最大合法8192B URL并按Go默认规则充分转义 `&`、`<`、`>`，同时覆盖最大名称、UUID/ref、版本/时间及cursor包装，完整页大于600000B仍合法；listProviders实际流累计超过2097152B时拒绝，不能只靠伪Content-Length触发。该endpoint的Problem以及getProvider、listModels、旧Account等其他响应超过600000B仍拒绝，不得随listProviders放大。用异步屏障覆盖超限后的read/cancel延迟或忽略abort：可见失败零候选，实际尾部未join时同owner仍阻止下一请求，不仅断言错误类别或buffer长度。
 
-用明确异步屏障和实际生产controller+transport验证第一/第二步骤fetch、body和cancel忽略abort时的owner；30秒可见结束、放弃、身份变化仍不能放行users/邀请/登录/注销/改密/公开入口，实际join后才继续。覆盖相反方向互斥、各域abandon、步骤间取消零后续写、late receipt不续绑、sameSession checking保留、跨Session销毁、当前/迟到401/403/CSRF。验证原材料/key/body精确重放、两步key分离、lookup true/false/失败都不跳过Execute、明确拒绝与历史未确认区别、create确认即清材料、Provider失败保留newref/receipt且无补偿删除、已知冲突显式重读后仅新Provider key、确认后读取失败仍保留成功；不能只用立即resolve mock、响应clone或内部状态镜像代替。
+用明确异步屏障和实际生产controller+transport验证第一/第二步骤fetch、body和cancel忽略abort时的owner；30秒可见结束、放弃、身份变化仍不能放行users/邀请/登录/注销/改密/公开入口，实际join后才继续。覆盖相反方向互斥、各域abandon、步骤间取消零后续写、late receipt不续绑、sameSession checking保留、跨Session销毁、当前/迟到401/403/CSRF。其中显式覆盖personal.abandon不撤Provider读/写/lookup、Provider清理不撤personal owner，且各域自身abandon仍生效并等待真实尾部；Provider写及两种lookup的当前CSRF_FAILED清本identity，当前403清Provider私有状态并设置原系统拒绝，旧identity/其他owner代次不误清新状态；App.dispose/auth.leave全局清理与旧个人/邀请行为保持，实际尾部不被跳过。验证原材料/key/body精确重放、两步key分离、lookup true/false/失败都不跳过Execute、明确拒绝与历史未确认区别、create确认即清材料、Provider失败保留newref/receipt且无补偿删除、已知冲突显式重读后仅新Provider key、确认后读取失败仍保留成功；不能只用立即resolve mock、响应clone或内部状态镜像代替。
+
+页面纯测复用真实App/router/controller和受控transport：先打开dirty/部分成功或未确认状态的放弃确认，再通过生产App listener的pageshow复查保持Session GET待决；checking零Provider模态且App恢复区域不被inert，失败后恢复按钮可用，同identity恢复仍保留原安全草稿状态及待决确认、末尾确认非inert/aria-hidden且无新增写。覆盖无底层业务Dialog的确认、继续/放弃仅结算一次、待决路由/退出及失权/换Session/dispose返回false；旧View/Editor异步续体不得改变新层焦点。保留原失败断言，不以直接finishConfirmation代替可交互按钮，不打印私有材料；jsdom仅证明状态/DOM，实际焦点由浏览器组合验证。
 
 | 新真实顶层 | 必需场景 |
 | --- | --- |
@@ -147,10 +155,10 @@ dirty包括普通字段变化、新材料、进行中/未确认写及尚未完�
 | `TestAccountSystemProvidersWebOutcomeRecovery` | 自有同源服务器在真实Credential或Provider POST/PUT接受后分别有界丢失响应；查原key、保留历史观察、显式同key/body重放后核同一receipt及唯一业务事实，未确认阶段不错误进入下一步。不注入DB提交故障、不造Object探针。确认写后GET失败、明确放弃和重新进入均按真实含义显示；恢复无自动Secret DELETE。 |
 | `TestAccountSystemProvidersWebReadAndPagination` | 至少26个正式Provider及选中Provider的26个正式Model，首/下/上页、目标切换、刷新、空与坏cursor；其中一完整25项Provider页使用8192B且含充分 `&`、`<`、`>` 的合法URL，由正式WriteJSON生成大于600000B的实际响应并成功显示。metadata版本推进由正式服务形成。另一管理员正式替换Provider引用、再删除已解除的旧ref，页面旧观察读metadata404时准确提示，不直改Credential表或绕过引用保护。真实请求不触发任何Provider网络连接；列表GET及子列表不冒称跨页原子快照。 |
 | `TestAccountSystemProvidersWebAuthorityAndIdentity` | 普通用户无入口、直链不发管理请求；真实Session撤销与admin失权使读写/lookup收到后端401/403并清私有状态；同User新Session及明确换账号不继承材料/intent。失权准备只在自有精确fixture，不能fulfill假403冒充真实授权。 |
-| `TestAccountSystemProvidersWebNavigationAndLayouts` | `/system`仍默认用户、Provider直链登录return、用户/邀请/Providers真实菜单；dirty/部分成功/未确认在所有关闭与离页路径的继续/放弃、sameSession复查。light/dark×1440/1024/834/390、长URL/名称、键盘、Dialog和窄屏Drawer Escape/遮罩焦点、reduced-motion、无页面溢出。 |
+| `TestAccountSystemProvidersWebNavigationAndLayouts` | `/system`仍默认用户、Provider直链登录return、用户/邀请/Providers真实菜单；dirty/部分成功/未确认在所有关闭与离页路径的继续/放弃。确认已打开时触发App pageshow复查，含任务自有服务器对精确Session GET的一次有界失败、App按钮重试及真实同Session恢复；确认须真实点击/键盘可达，继续后焦点仍在剩余模态且Tab/Shift+Tab不逃出，放弃/真实离页后无旧层。合成pageshow驱动须标明，不冒称浏览器自然恢复；其后Session由真实后端响应。light/dark×1440/1024/834/390、长URL/名称、键盘、Dialog和窄屏Drawer Escape/遮罩焦点、reduced-motion、无页面溢出。 |
 
 真实顶层用原脚本按精确名称分组运行，例如 `scripts/test-security.sh -run '^TestAccountSystemProvidersWeb(Lifecycle|CredentialReplacement|OutcomeRecovery|ReadAndPagination|AuthorityAndIdentity|NavigationAndLayouts)$'`；沿原浏览器45秒、Go顶层2分钟、workers=1/retries=0、race/count1/每包6分钟，不加时、削断言或把no-tests算通过。只用任务自有PG17.x（最低17.8）、MinIO、真实Central与同源生产dist服务器，不访问外部Provider、读取外部Credential或占现有基础设施；准备Models/共享ref等经正式服务，数据库只核授权fixture事实。
 
 共享App/router/owner改动须真实回归 `TestAccountAuthenticationWebSessionLifecycle`、`TestAccountPersonalSettingsWebThemeAndNavigation`、`TestAccountPublicEntryWebIdentityNavigation`、`TestAccountSystemUserDirectoryWebAuthorityAndIdentity`、`TestAccountSystemUserDirectoryWebNavigationAndLayouts`，以及上游已接受的 `TestAccountSystemInvitationsWebOutcomeRecovery`、`TestAccountSystemInvitationsWebNavigationAndLayouts`。按固定未变语义复用其余证据，不重跑被停止的Object/tools任务。凭据输入期间禁止自动截图/trace/video或请求body采集；布局截图仅在清空/遮蔽输入后，私有fixture值留受限runtime，归档只保存安全状态/次数/关联结果，不能为证明重放泄露材料。
 
-主线程在邀请UI作者/独立验收实际停止并资源清零后另授独占窗口；作者结束再向未参与实现的verification_worker移交，不能并发共用fixture。独立负责人核严格wire/原请求/材料清理/当前权限/实际join，并实际验证两步部分成功及响应丢失后的恢复；作者自测不替代独立结论。保留原失败、固定输入、实际argv/env/退出/原始安全日志；所属命令实际wait、进程结束、自有exact-ID两次absent且旧基线不变后交回。主线程核关键证据后才采纳/提交本完整结果，不把规格STATIC PASS或管理配置成功扩大为Runtime可用。
+邀请UI作者/独立验收已实际停止并资源双次清零；本卡独占窗口仍由主线程另授，作者结束再向未参与实现的verification_worker移交，不能并发共用fixture。独立负责人核严格wire/原请求/材料清理/当前权限/实际join，并实际验证两步部分成功及响应丢失后的恢复；作者自测不替代独立结论。保留原失败、固定输入、实际argv/env/退出/原始安全日志；所属命令实际wait、进程结束、自有exact-ID两次absent且旧基线不变后交回。主线程核关键证据后才采纳/提交本完整结果，不把规格STATIC PASS或管理配置成功扩大为Runtime可用。
