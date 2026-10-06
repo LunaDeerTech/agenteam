@@ -1,0 +1,185 @@
+# D27：System Audit 只读页面
+
+修订：rev1。状态：已获独立有界 STATIC PASS，主线程已采纳规格；这里只接受规格，不代表本页面已实施或验收。被审稿全文 SHA `096b18e3e50d1612d3ce03e92073164eff60db35b3732f785297f52aa421b010`，技术§1–7 SHA `e7c96b588eed6218030ef6ce42154c7967667ff156bd8c343d0cdd14cf2bd8d5` 原字节保持。
+
+当前已验输入为前端 `1ff044264a54c948e512db9aafad24ec5e0aa3c2` 与 System Audit HTTP 产品 `b124650aee095b26191bc181dc8cf5d6e0f977f5`；后者十四路径已由主线程接受、提交推送并核远端一致。本次静态核对 `api/openapi/audit.json`、`audit/query.go`、`audit/system_query.go`、`audit/http/handler.go`、`audit/http/wire.go`，均与独审 `Q/input03` manifest SHA `c6a4d5781b7028e4b4ea84b6210e2a40c390938ec3a0d533701df1f96ebc551b` 中的原文件 SHA 相同；未新增动态检查。上游产品前置现已满足，正文保留被审时的待验表述，当前依赖状态以此页首为准；正式字段/预算/查询和权限契约不变。
+
+独立冻结报告 `/workspace/scratch/agenteam-audit-ui-spec-independent-v2sc2s4h/review.md`，SHA `dc4afce5faf17d4dc458c516c41170b52dd8b1c7a039a3315ccf1184dea769ba`；同根 `review.json` SHA `aeb3a5264f1e70b2cda3157720478fbbd693e1fd290ed13e3e54d01802105ba9`。结论覆盖固定规格与有限源接缝，不是页面运行证据。
+
+验收前提依该报告明确分开：固定 `App.refreshVisible` 在 busy 时直接返回；生产 pageshow→Session503→同身份恢复/新页默认一次读取，应从空闲 owner 开始证明。新 controller 等待旧 owner 实际 tail 后仅一次初始读、等待中销毁零续发，另用受控 owner/新实例或合法导航组合证明；不得强造 busy 中的生产 listener 已进入 checking，也不改 App 或放宽守卫。这是原§4/§7两个场景的执行前提，不改变技术条款。
+
+§6 三十六候选及所有权保持。唯一 frontend_worker 的三十五源实施授权准备由主线程在本卡提交后另授；第19 `docs/development/frontend/README.md` 必须待其余产品独立完整接受后最后授权。当前不自启产品实施，任何动态资源窗口仍未授权；App、shared Ui、后端、迁移、锁文件及停止任务均无写权。原被审私稿保留在 `/workspace/scratch/agenteam-system-audit-ui-spec-on4ORhe8/d27-system-audit-ui.md`，无字节修改。
+
+## 1. 完整结果、依据与依赖门槛
+
+当前系统管理员从“审计 → 系统审计”查看 System 审计，明确应用结构化过滤、逐页读取，并打开一条记录的安全内联详情。列表、详情、加载、取消、读取失败、当前失权和窄屏形成同一完整结果。范围不含 Project 审计、全文搜索、导出、编辑、删除、后台轮询、关联领域正文、Secret/认证材料或任何审计重放命令。
+
+遵循 [仓库规则](../../../AGENTS.md)、[设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[D27 计划](../development-plan.md#d27-业务页面与设置)、[系统设置布局§6–7](../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置)、[Audit 架构](../../architecture/security-governance/audit.md)与[Audit HTTP 规格](d04-system-audit-management-http.md)。实现者必读 [Vue 开发技能](../../../.agents/skills/agenteam-vue-development/SKILL.md)、[Vue 测试技能](../../../.agents/skills/vue-testing-best-practices/SKILL.md)，独立验证按[验收技能](../../../.agents/skills/agenteam-verification/SKILL.md)及可用 Playwright 技能执行；不因技能可用取得运行资源。
+
+| 依赖 / 问题 | 当前事实、使用范围与实施前动作 |
+| --- | --- |
+| 前端 `1ff0442` | 已接受 Outbound UI 及其前十个 API 依赖、唯一 Cookie owner、八叶三组十二精确 return；SMTP 最终协调器、页期用户目录与 shared focus/cancel 修复可复用。逐文件固定读取，不消费其他活动候选。 |
+| Audit HTTP，技术 `687c85…6f21` | 两 GET、同 Tx 当前管理员权限、闭合 DTO、Filter/cursor 和1MiB上限已定，产品仍待独立最终接受及提交。实施前绑定实际接受 SHA，并核 `api/openapi/audit.json`、两个 operation、错误投影、正式 root 与 fixture 的真实签名；不以规格或作者 PASS 代替。 |
+| 既有 Audit 领域 | Filter、53种合法过滤 action、25种合法过滤 resource kind、37种 System 输出 action、typed metadata/安全标量来自固定 `audit/contract`，这里只实现相同 wire 的前端消费；不新增后端端口、关联查询或记录类型。 |
+| 产品含义 | 无新增待用户决定项。页期状态、内联详情、显式过滤/重试、GET 专用预算和路径拆分是本卡工程选择。 |
+| 未满足门槛 / 升级条件 | 只剩上述 HTTP 完整接受及实际接缝复核、规格独审与作者/资源移交。若最终接受 wire 与本契约不同、需新路径/公共规则，先报主线程修卡；不造 stub。 |
+
+本卡不依赖 Object 原 join、tools 或 SPA publication 停止任务，不重试、替代或绕其前置；Summary 待定不作选择。D04/D27/E01 整体、正式 SPA 托管、未绑定 Runtime 与 ready503 不因本卡完成而改变。
+
+## 2. 页面、十四过滤字段与分页
+
+新增唯一精确叶子 `/system/audit`；系统壳在“模型与提供商”之后、“平台配置”之前插入稳定 key=`audit` 的“审计”组，唯一子项“系统审计”。共九叶、四组，`/system` 默认用户保持。`safeReturnTarget` 只追加 `/system/audit` 成为第十三个精确目标；原十二项及次序保持，query/hash/trailing slash/extra path/数组均不加入 return 白名单。详情、filter 和 cursor 都在本页私有内存，不创建 `/system/audit/:id`、URL query、hash、Local/SessionStorage、浏览器历史快照或全局 store。
+
+页头“系统审计”说明当前只观察 System 安全事件。桌面列表显示时间（明确 UTC）、操作者 kind 与身份、动作稳定 code、结果、resource kind/id、所有现有安全关联 ID，另有逐行“查看详情”按钮。无姓名/邮箱/项目名补读。可给 code 配固定中文标签，但保留原 code；`success/denied/failed/unknown` 分别表达成功、拒绝、失败、结果未知，unknown 不是授权重试，accepted phase 不是投递成功。只显示本页数量与前后页可用性，不猜总数或全域完整性。
+
+过滤表单分“时间与事件”“操作者与资源”“关联 ID”三段，每个字段有永久可见 label。关联段可折叠但所有字段可访问；隐藏段仍有未应用/校验错误提示，不悄悄删除值。字段仅经显式“应用筛选”发送，输入/选择时不 fetch、不 debounce 请求、不在内存替后端筛数据；“重置筛选”明确应用全空过滤及默认每页50并读第一页。表单 draft 与最后已应用的 immutable filter 分开，已改未应用时明确标示，结果不冒称匹配未应用输入。
+
+| Query / 中文 label | 控件与精确规则 |
+| --- | --- |
+| `from` / 起始时间（含） | 可空文本，提示完整 RFC3339 时区与0–6位小数例；非空按 `foundation.ParseInstant` 接受集合，应用前规范为 UTC 六位微秒。 |
+| `to` / 结束时间（不含） | 同上；两端存在必须 from<to，范围 `[from,to)`；不默认为本地时区或自动改日末。 |
+| `actor_kind` / 操作者类型 | “全部”加 human、agent_run、service 三合法值；agent_run 筛选可得到合法 System 空页，不在本地拦成非法。 |
+| `actor_id` / 操作者 ID | 可空 canonical 小写 UUIDv7；service 与非空 actor_id 同时存在时报字段组合错误、零请求，不隐式清空。 |
+| `action` / 动作 | “全部”加 `Action.Valid` 的全部53个 code，按现领域分组；输出闭集37不裁剪输入集合，也不提供任意文本搜索。 |
+| `outcome` / 结果 | “全部”加 success、denied、failed、unknown。 |
+| `resource_kind` / 资源类型 | “全部”加 `ResourceKind.Valid` 全部25值；不因 Project-only 值在 System 下通常无记录而删除合法选择。 |
+| `resource_id` / 资源 ID | 可空 canonical UUIDv7；不增加 Filter 原来没有的 kind/id 组合限制。 |
+| `tool_id` / Tool ID | 可空 canonical UUIDv7；作为正式 Filter 的 AND 项，不请求 Tool。 |
+| `execution_id` / Execution ID | 同上；合法过滤不等于本输出允许 execution 关联。 |
+| `operation_id` / Operation ID | 同上，不新增 operation 详情入口。 |
+| `approval_id` / Approval ID | 同上，不新增审批动作。 |
+| `runner_id` / Runner ID | 同上，不推断设备可用性。 |
+| `agent_id` / Agent ID | 同上，原后端特殊匹配表达式保持；不凭输出字段自行实现替代过滤。 |
+
+过滤合法集合以固定 [Filter.Validate](../../../internal/central/audit/contract/access.go)、[基础 action/resource](../../../internal/central/audit/contract/types.go)及 Account/Project/Model/Knowledge 常量族为准。空字符串只表示省略；非空 ID/枚举不 trim、casefold 或截断。时间用同 [Instant](../../../internal/central/foundation/instant.go) 的公历、年0000–9999、偏移±00:00–23:59、UTC转换后年界与微秒精度；拒绝无时区、非法日期/秒、小数超6位及 UTC 越界，不能借 Date 自动归一化或丢后三位。无需新增服务端时间解析口。
+
+每页数量为独立数字输入，默认50，允许完整1–200，提交时拒绝空、前导零、正号、指数、小数与越界，规范成十进制 query。API 可省略 limit 使用50；页面始终提交已捕获数量。应用任意 filter 或数量变更重置到第一页与空历史，即使后端允许同游标换 limit 也不在 UI 混用旧页。cursor 仅取已完整验证页的 `next_cursor`，不对用户开放输入，不解析/改签名/trim；最宽8192B，传输保持原 token 并使用 URLSearchParams 编码一次。
+
+下一页使用当前完整页的 cursor；上一页只用同 applied filter/limit 的已访问 cursor 历史重新 GET，不自动扫描前后页或缓存全部记录。顺序固定 `created_at DESC,audit_id DESC`，不承诺多页快照；新增事件通过显式“刷新第一页”观察。普通失败可显式重试原读取目标；合法 `400/CURSOR_INVALID` 清候选并显示“分页链接已失效，返回第一页”，不自动回退或重放坏 cursor。详情不存在/不属 System 的合法 `404/NOT_FOUND` 合并为“记录不存在或不可访问”，不探测 scope。
+
+## 3. 两 API、封闭 DTO 与完整读取
+
+新 `SystemAuditAPI` 只公开：
+
+```ts
+interface SystemAuditAPI {
+  list(query: AuditQuery, signal: AbortSignal): Promise<SystemAuditPage>
+  get(id: string, signal: AbortSignal): Promise<SystemAuditRecord>
+}
+```
+
+`AuditQuery` 恰上述十四个可选过滤键加可选 limit/cursor；API 内捕获、校验、规范化并冻结实际输入，页面不得在 await 后改写其目标。新 `system-audit.ts` 提供同一纯 capture 给表单，不接受任意 URL、原始 query、scope/project_id 或请求 header。client 只新增 `listSystemAudit` GET `/api/v1/system/audit` 与 `getSystemAudit` GET `/api/v1/system/audit/{id}` 两固定分类及闭合 options；编码后 RawQuery≤32KiB，零参数不生成裸 `?`，详情 ID 单段 UUIDv7且无 query。client 不反向导入业务 API 形成循环。所有未授权字段/非法值本地失败，零 fetch；不发送 body、CSRF、Idempotency-Key，既有同源 Cookie/redirect:error/cache:no-store保持。
+
+成功仅200 application/json，使用现安全 transport 与 Problem 解析。**仅这两口成功 JSON 的内部读取上限为1048576B**；Problem及其他普通 endpoint 保持600000B，Provider列表成功原2MiB保持。调用方不能传任意 limit 来放大通用预算。不信 Content-Length，不先响应.json、不截取前N项；累计实际 chunk bytes、UTF-8 fatal decode、完整 EOF 后才 JSON.parse/DTO校验及一次不可变发布。超界/错媒体/截断/非法UTF-8/取消都零候选，reader.cancel 实际 Promise 和 response.body.cancel 实际结束、releaseLock之后请求才实际终局，不能以发出 abort 或 UI Promise 已拒绝代替。
+
+`SystemAuditPage` 为恰 `{items,next_cursor}`，均必需；items 为非null数组，长度≤实际limit且≤200；next_cursor 为 null 或1–8192B安全 ASCII token。保留正式 cursor 的 base64url分段文本，客户端不把它当权限令牌或解码身份。非null cursor 必须满页，空页必为 null；页内 audit_id 唯一，时间/ID tuple严格倒序。缺字段/null记录/重复或逆序/非法最后一项整页失败，不发布已校验前缀。详情的 audit_id 必须等于原请求 target；响应 ID 不得驱动第二个请求。
+
+每条记录恰十个 required 字段：`audit_id,created_at,scope,actor,action,outcome,resource,metadata,associations,summary`，按 [HTTP§3](d04-system-audit-management-http.md#3-安全-dto条件-metadata-与编码上界)全部条件闭合。复用公开 `parseSystemInstant` 验 canonical UTC六位微秒，UUIDv7、Digest、正 Version/非负 Progress 的十进制字符串不转 JS Number；MaxInt64边界用字符串或 BigInt。scope 字面 system；actor仅 human/id 或 service/service/cause_ref，13合法 ServiceName完整支持，不接受原 Actor/Session token。resource17种、两个无ID分支、五个可选 associations（tool_id/request_id/runner_id/correlation_id/http_trace_id）及Model关联限制均按原契约；optional只能省略，不能null/空串/未知键。
+
+summary 必须与原 query.go 的10项固定映射或其余 action 的 `Audit event` 一致，不用它拼接私有配置。所有合法身份ID，包括 typed Account session_id、session resource及service cause_ref，按明确标签显示；这不是 Cookie/认证token。resource不存在与关联资源权限不能由审计事实推断；页面不加入关联跳转或补读。
+
+新 `system-audit-metadata.ts` 导出 discriminated readonly metadata 类型、闭合解析与固定字段标签/顺序投影；未知 action/phase/枚举/字段整条失败，不降为任意 Record/map。完整复用正式37输出动作：基础Secret/出站10、Object三个、Outbox一个、Account十六、Model七；按 [metadata.go](../../../internal/central/audit/contract/metadata.go)、[account.go](../../../internal/central/audit/contract/account.go)、[model.go](../../../internal/central/audit/contract/model.go)与 HTTP§3条件表逐支落实，不能复制一个“所有字段可选”的宽 schema。尤其保留：
+
+- Account各 phase的required/forbidden ID与reason、invite/test可选channel、delivery必需channel、retry禁止channel；phase/outcome/resource/id关联齐全；changed_fields只列变更字段名，不包含值。
+- Model Human/Success、各自ID映射、Model delete非负affected_count与可选replacement_id/精确changed_fields、Selection platform及仅correlation/httptrace关联。
+- Secret版本/changed_fields、rotation结果与rotation_id相等；Object仅合法Service、资源ID对应、sent_bytes≤byte_size、phase/reason条件，不额外要求upload.complete发送字节等于大小；合法 metadata initiator_kind不能误套System actor限制。Outbox稳定handler名称、cycle/原因/资源ID对应。
+- 正式canonical MIME≤256B且只有受限charset参数；按Go Parse/Format闭包验证，不擅自添加原函数没有的规则或接受任意参数。所有计数、枚举、排序去重与条件缺省按构造结果核对。metadata规范安全投影≤4096B；计量须含Go默认JSON的HTML/U+2028/U+2029转义，不能把JS stringify未转义字节冒充Go上界。
+
+显示层只消费上述已验证 typed 值与固定标签，使用Vue文本插值/文本节点；不使用 v-html、Markdown、URL自动链接、通用JSON编辑器或原始响应 dump。详情逐字段展示 metadata/associations，缺省字段显示未记录或不渲染，绝不补null假值、Secret值或关联对象名称。最长合法ID/MIME/计数可换行，不能为美化省掉条件信息。HTTP 的975420B页上界只是保守算术；本卡不声称真实producer会同时产生200条极值metadata。
+
+## 4. 页期读取状态、取消与内联详情
+
+采用页期 `useSystemAudit(auth)`，不引入App期草稿、写确认Promise、命令key、receipt或lookup。状态分 filterDraft、appliedFilter/limit、list observation、detail observation/target与本实例generation；两观察只能来自完整API结果。列表状态至少 waiting/loading/ready/empty/error/forbidden/inactive，详情另含not-found；空只来自合法完整200空页，错误/取消/失权不得当空。
+
+每次读取只占同一 `audit-read` owner。请求前冻结身份userID/sessionID/epoch、实例、generation、list/detail目标及applied条件；成功仅这些仍当前、页面未销毁、Session authenticated/current/admin且system未拒绝时发布。启动读取清该目标的旧候选与错误；detail新目标不先显示另一记录或借列表行当正式详情。保持当前列表页为已读观察以便返回，不伪称它是新读取。
+
+显式“取消读取”、放弃详情或导航退出同步退休该读代次并调用本域 abandon；仍显示的已启动loading转明确可重读error，保留其合法重试目标。cancel实际尾部未结束时 busy仍真，所有新Cookie请求继续禁用；尾部完成只解锁，不把同实例 initial 标志重置或自动续读。旧 catch/finally不得把新目标退回loading、清新错误或发布旧页。更换过滤/翻页/详情选择只在本轮owner空闲时开始，取消按钮不因busy被禁用。
+
+仅**新controller首次进入**可等待已经存在的owner实际终局后发一次默认第一页。初始读一旦已派发，失败/取消/超时后同实例永不自动重试；显式重试/刷新/应用才派发。等待中离页/失权/dispose取消该首次资格，旧watch不得事后补发。
+
+同身份checking也卸载View并销毁全部页期filter draft/applied、cursor历史、列表和详情；不声称跨checking保持页态。Session503时只有原App恢复UI，零Audit续发；同完整身份恢复后挂载的新controller从全新空过滤/50条第一页开始，在旧owner实际尾部释放后仅一次初始读。真正换身份/匿名/失权同样清页期状态，旧响应或旧安全错误不得影响新身份。显式取消后的同一实例与同Session恢复后的新实例须分别验证。
+
+详情使用**同叶子内联视图**：选择行后展开详情区并隐藏列表操作，提供“返回列表”及显式重新读取；不新增Dialog/Drawer/overlay。返回时取消未完详情、清详情目标/候选，复用本实例先前完整列表与cursor历史，零自动列表GET。Focus只通过仍挂载、当前身份实例的本地refs：进详情到详情标题，返回优先恢复原行按钮，行不可用才到列表标题；await/nextTick后重新核实例和身份，不用全局querySelector或旧卸载节点聚焦。首挂h1本地聚焦，checking/unmount旧回调不抢App恢复按钮或新页焦点。
+
+View用 `onBeforeRouteLeave`（组件离开守卫先于全局 beforeEach）同步退休本页读取并正常放行，再由原认证路由守卫处理会话；无需等待用户确认，不提前释放owner、不扩大导航权限。离开守卫清观察/详情/cursor历史，保留applied条件、不复位已消费initial资格，将尚显示的本实例置为可显式刷新第一页的error；保留订阅，只有最终unmount才不可逆dispose并清全部页态。若后续守卫取消导航，页面仍可显式重读，不留inactive或自动发请求。filter本地改动不注册beforeunload警告；返回、Logo、菜单、账号入口沿原路由规则。顶栏退出仍在实际busy时禁用，完成后沿原App退出流程；本卡不改旧写域确认顺序、SMTP协调器或auth.leave全局收尾。
+
+## 5. 第十一依赖、当前权限与布局兼容
+
+`createSessionController` 在固定十个默认参数后追加可选 `auditAPI: SystemAuditAPI = createSystemAuditAPI()`；前十项位置、旧mock省略调用保持。新增明确 `audit-read` kind、独立revision与 `auth.system.audit.{list,get,abandon}`，显式加入runAuthorized类型和revision分类，不落到Provider/personal默认分支。list/get同步capture后才runAuthorized，详情不绕owner直接fetch。无本域write/CSRF/intent/lookup API。
+
+沿同一owner的30秒可见期限与实际finally释放；后端预认证起3秒及更早parent保持，不改公共超时或把UI超时当后端结束。新本域与原Account认证/公开入口/本人设置、用户目录、邀请、Provider、Model、Selection、账号安全、SMTP配置、SMTP投递、Outbound所有操作双向排他；各域abandon只影响自身kind，Audit取消不能销毁旧SMTP密码/原key/body或其他未确认intent，其他业务域清理不能退休Audit实际owner。App.dispose/auth.leave与正式身份失效仍是全局清理，不能误收窄。
+
+新域纳入clearIdentity、身份/角色变更及当前system denied的失效路径，递增读代次；旧实际tail仍持有owner。安全清理仅沿合法 AccountFailure Problem与原完整identity/op.generation守卫：401+(UNAUTHENTICATED|SESSION_REVOKED)沿既有unavailableSession；403/FORBIDDEN另要求current()，清当前system私有状态并发布身份绑定拒绝。GET不新增CSRF_FAILED门禁，不只看401/403数字清身份，未知code/status错配保持本次读错误。所有500/503、COMMIT_UNKNOWN/unknown或兼容retry_hint=lookup、非法响应只提供“重新读取”；不生成历史恢复材料、不调用未存在的lookup、不用旧成功解除denied。
+
+桌面使用现SystemSettings壳，局部表格/定义列表允许普通换行与长ID断行，避免全局th/td nowrap挤走其他列。窄屏单列筛选与记录卡/堆叠行，详情可返回，不产生页面级横向滚动；局部必要的长值区可滚动且可键盘操作。沿现light/dark tokens、可见focus、错误label/aria-describedby与status播报；只读页面不显示保存/创建/删除/危险确认空按钮。SettingsShell展开/active/aria-controls、移动栏目Drawer与旧Dialog/fallback规则均原样复用，不改shared组件或全局CSS。
+
+## 6. 唯一候选路径与所有权（36路径，未授实施）
+
+十九核心加十七旧导航测试，按固定1ff0442实读核定；不为依赖参数数量机械改所有调用。第19 README在其余产品独立接受后最后授写。当前只有本私有卡写权，最终作者需由主线程唯一移交client/useSession/router/系统菜单/旧测试；上游实际接受后再核路径与提交。App.vue、旧页面业务逻辑、shared Ui、锁/迁移/后端/OpenAPI和既有fixture/driver均只读。
+
+| # | 路径 | 最小用途 |
+| --- | --- | --- |
+| 1 | `web/src/api/client.ts` | 两固定GET/options/query闭集与仅成功1MiB分类，原EOF/cancel尾部和其它预算保持。 |
+| 2 | `web/src/api/system-audit.ts`（新） | Filter/Instant规范capture、两API、DTO外层/关联核对、分页完整性及不可变类型。 |
+| 3 | `web/src/api/system-audit-metadata.ts`（新） | 37action typed metadata与字段展示投影、计数/MIME/条件闭集。 |
+| 4 | `web/src/composables/useSession.ts` | 第十一参数、独立只读kind、当前权限和全部owner/清理分类接入。 |
+| 5 | `web/src/composables/useSystemAudit.ts`（新） | 页期filter/列表/详情、cursor、代次/初始资格、取消与dispose。 |
+| 6 | `web/src/router/index.ts` | 唯一 audit子路由，默认用户与原保护meta保持。 |
+| 7 | `web/src/router/auth.ts` | 仅第十三精确return；不新增写确认hook或改变原导航顺序。 |
+| 8 | `web/src/views/system/SystemSettingsView.vue` | 模型后、平台前插入审计单叶组，九叶四组。 |
+| 9 | `web/src/views/system/SystemAuditView.vue`（新） | 列表/内联详情、页期生命周期/离开守卫、本地focus与局部响应式布局。 |
+| 10 | `web/src/views/system/SystemAuditFilters.vue`（新） | 十四字段及页大小的受控表单、固定选项/错误/显式apply/reset，不自行fetch。 |
+| 11 | `web/src/tests/system-audit-client.spec.ts`（新） | Query/Instant/API/页面完整性/1MiB/原生流EOF和cancel实际尾部。 |
+| 12 | `web/src/tests/system-audit-metadata.spec.ts`（新） | 37分支与条件安全反例、正式构造规则向量/显示投影。 |
+| 13 | `web/src/tests/system-audit-state.spec.ts`（新） | 生产factory/controller+受控transport，分页、双向owner、实例/身份/取消屏障。 |
+| 14 | `web/src/tests/system-audit.spec.ts`（新） | 实际App/router/View组合，全部过滤UI/内联详情/九叶四组十三return与checking新实例。 |
+| 15 | `tests/account/system_audit_web_test.go`（新） | 三真实UI顶层、正式producer/权限/分页旁证与原上限。 |
+| 16 | `tests/account/system_audit_web_fixture_test.go`（新） | 自有正式root/同源dist及两GET有界hold/截断控制、原fixture清理，不伪造成功DTO。 |
+| 17 | `tests/account-captcha-web/system-audit.config.js`（新） | 三selector/45秒/单worker零retry，私有输出/禁trace与body采集。 |
+| 18 | `tests/account-captcha-web/e2e/system-audit.spec.ts`（新） | 真实dist/API、公开操作/取消、focus/Drawer与八图。 |
+| 19 | `docs/development/frontend/README.md` | 完整独立接受后最后同步实际范围、九叶四组十三return、证据和未交付边界。 |
+| 20 | `web/src/tests/system-user-directory.spec.ts` | 1ff:210–218菜单在平台前插入系统审计；只纠正相关当前总数描述，默认用户/字段不变。 |
+| 21 | `web/src/tests/system-invitations.spec.ts` | 1ff:280组3→4、286–294菜单插入审计；其它确认/业务断言保持。 |
+| 22 | `web/src/tests/system-providers.spec.ts` | 1ff:319当前总数说明、327–335菜单及337组3→4；原Provider/return拒绝断言不变。 |
+| 23 | `web/src/tests/system-models.spec.ts` | 1ff:449–457菜单插入审计、459组3→4；CRUD/impact不变。 |
+| 24 | `web/src/tests/system-model-selection.spec.ts` | 1ff:519当前总数说明、527–535菜单、537组3→4；取消恢复/保存门禁不变。 |
+| 25 | `web/src/tests/system-account-security.spec.ts` | 1ff:266–274菜单、276–280组名数组插审计及相关当前总数；焦点/身份/四设置保持。 |
+| 26 | `web/src/tests/system-smtp-settings.spec.ts` | 1ff:300说明、308–316菜单及318组名数组；SMTP菜单因新组前置而后移，原第11return及协议字段不改。 |
+| 27 | `web/src/tests/system-outbound-policy.spec.ts` | 1ff:739当前总数说明、747–755菜单、757组3→4；原第12return/未知恢复/强断言不变。 |
+| 28 | `web/src/tests/personal-settings.spec.ts` | 1ff:474起仅集合12→13及新精确目标和query/hash/trailing/extra/数组拒绝；原退出不变。 |
+| 29 | `tests/account-captcha-web/e2e/system-invitations.spec.ts` | 1ff:1528唯一全系统Drawer link8→9。 |
+| 30 | `tests/account-captcha-web/e2e/system-providers.spec.ts` | 1ff:1192唯一全系统link8→9。 |
+| 31 | `tests/account-captcha-web/e2e/system-models.spec.ts` | 1ff:1923/1991两处全系统link8→9。 |
+| 32 | `tests/account-captcha-web/e2e/system-model-selection.spec.ts` | 1ff:1922/2081两处link8→9，原取消/焦点保持。 |
+| 33 | `tests/account-captcha-web/e2e/system-account-security.spec.ts` | 1ff:1112/1189两处link8→9、1113组3→4。 |
+| 34 | `tests/account-captcha-web/e2e/system-smtp-settings.spec.ts` | 1ff:1311/1491两处link8→9、1312组3→4及1299当前总数说明。 |
+| 35 | `tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts` | 1ff:1424/1555两处link8→9、1425组3→4，原分区/确认协议保持。 |
+| 36 | `tests/account-captcha-web/e2e/system-outbound-policy.spec.ts` | 1ff:1358/1461两处link8→9、1359组3→4及1344当前总数说明；原receipt/权限/恢复保持。 |
+
+旧纯测试合计八个菜单、七个分组断言及一个精确return集合；旧browser八文件合计十四处link计数与四处组数，只允许上述菜单/总数差量，不能放宽Tab/遮罩/Escape/focus/取消/身份或业务断言。`system-smtp-delivery.spec.ts`纯测、`settings-shell.spec.ts`、旧用户目录browser没有需改的全系统固定数量，保持只读并复用原回归。新接口不要求App期provide或logout确认，故不纳入App.vue；若实施发现必须扩大则先报，不借“兼容”隐式加路径。
+
+## 7. 分层验收、资源与证据边界
+
+先纯/组件，后冻结dist与真实fixture；独立负责人按本卡风险另定最小代表。静态、受控transport、原生Response stream、正式HTTP/PG、真实browser分别记证据，不把合成Problem/记录或jsdom当真实后端事实。
+
+纯API/metadata必须覆盖全部14filter和53/25/3/4过滤枚举集合与正式Go常量一致、时区/微秒/年界/calendar反例、service+actor_id、编码32KiB/8192B、limit1/200及非法形式、scope/数组或raw-query入口拒绝、编码无重复键、详情query拒绝。37种System action各有一个完整合法向量，Account phase/Model delete/Object合法initiator等条件分支另有代表；未知/多字段/null/缺省、resource/id/actor/outcome/associations不匹配、int64/changed_fields/安全MIME边界整条拒绝。向量来源须可对照正式构造器和最终OpenAPI，不能仅让同一JS实现自证；纯构造向量不启动Object/Tools或声称真实producer全覆盖。
+
+完整页覆盖0/200条、等时ID倒序、重复/逆序、坏末项/不满页cursor、错误详情ID；所有候选在EOF与完整校验前不可见。实际chunk边界验证恰1MiB与超1MiB、非法UTF8/截断/非JSON媒体、abort、reader.cancel Promise扣留与releaseLock；可用受控合法JSON外空白达到transport字节边界，明确不是正式producer的极大页实测。1MiB只适用两成功口，Problem600000/Provider2MiB/其它原上限分别反例验证；不要将保守975420B算术当极值真实页。
+
+生产Session/controller配受控Fetch/native stream屏障：新Audit与前十依赖的Cookie操作双向占用，至少显式覆盖personal、SMTP配置私有password/intent、SMTP投递与Outbound pending，余域用真实factory参数化owner用例核分类；abandon和迟到安全错误不能越域。读取显式取消或30秒可见结束后仍实际busy，零第二请求/零候选；释放tail后仅解锁，同实例不重读。新controller在旧tail后恰一次首次读，等待中销毁/身份变更零续发；apply/limit/分页、详情返回、CURSOR_INVALID显式首页分别核目标/游标隔离。合法安全配对当前清理，错配/未知code与旧身份迟到失败不清新身份；COMMIT_UNKNOWN仅可新观察，零lookup/intent/key。
+
+实际App/router/factory纯测九叶四组十三return、全部过滤label/字段错误/dirty仅本地、detail不改URL、无写确认/beforeunload及零业务mutation；离开守卫退休与最终dispose区分，导航后续被取消仍能显式重读。生产pageshow listener合成checking→一次Session503→同身份显式恢复：旧页filter/列表/详情全部清，新页默认第一页且等待旧tail后一次请求，不复活旧目标。原生焦点由真实browser另外核，不把合成pageshow称BFCache。
+
+| 新Go顶层 / browser selector | 必要真实证据 |
+| --- | --- |
+| `TestAccountSystemAuditWebReadAndFilters` / read | 自有正式root通过Account profile及出站规则正式命令产生可定位事件；页面完整list/detail与正式GET一致，至少多种typed族。用小limit明确翻页、组合time/actor/action/outcome/resource/关联过滤与合法空、返回第一页；所有14控件实际构造请求，罕见/Project-only过滤合法空不制造对应业务。无SQL造Audit行或直接Append替代正式producer。 |
+| `TestAccountSystemAuditWebAuthorityAndOwnership` / authority | 正式邀请普通账号403、管理员真实读取；正式Logout撤销自有Session（当前无降权口，不SQL改role）。两GET当前权限/详情404、响应在正式服务返回后有界hold/截断并实际取消join、旧身份迟到零发布、换页/详情取消显式重读；离页期间原owner未释放前新页不能越过，默认SMTP配置不额外触发投递读。 |
+| `TestAccountSystemAuditWebNavigationAndLayouts` / navigation | 九叶四组/默认用户/十三return与直接Audit入口；筛选本地改变正常离页无确认、inline详情返回行/标题真实focus、pageshow503后新页默认读取、菜单Drawer的Tab/Escape/遮罩恢复。light/dark×390/768/1024/1440八图，长ID/MIME/错误、表格/堆叠和详情返回无外层溢出。 |
+
+真实fixture使用接受后的正式Account root与同auditor的两GET，PG/必要MinIO沿已验依赖，前端为冻结production dist的任务自有同源测试托管。PUBLIC_ORIGIN与实际对浏览器listener一致，不改Host/Cookie/Origin安全链；root ready503保持。正式bootstrap/登录/profile或出站命令准备事实，正式邀请/兑换与Logout准备权限，SQL只读精确自有Audit/关联事实作旁证；不改审计记录/角色、不伪造37种业务producer、不新增SMTP发送或外部目标请求。响应hold/截断仅专用fixture精确本域路径；observer按集合或合法单ID详情的完整族边界计数，不用近似前缀，跨页零请求检查须等本次目标操作终局而非旧ready。释放/取消/server/client/child实际join有计数；不得注入假200或修改产品分类器。
+
+旧纯回归为正式 `npm run check --prefix web`；受影响Go integration编译/vet/精确发现与browser type/list先于真实。最小旧真实组合选择原 `TestAccountSystemOutboundPolicyWebNavigationAndLayouts` 与 `TestAccountSystemSMTPDeliveryWebNavigationAndLayouts`，验证新分组下旧pending确认/实际owner及最终SMTP分区协调；其余六张旧browser保留强断言，仅计数变化以精确diff+完整pure+新真实导航复用，不宣称本轮执行。共享行为出现新差量/失败才由主线程按影响补授，不能机械重跑每卡所有业务组。
+
+日志只记录安全case/布尔/计数/本次请求ID，不输出Audit DTO、filter/cursor/记录关联ID、Cookie/CSRF/旧域私有body或网络原文；报错不用整个实际对象作为assert diff。截图只含自有已授权安全投影，采前清无关账号/私有输入；trace/video/自动失败截图/原始body采集关闭，逐图审布局而非仅统计文件。
+
+普通检查45秒、每个Playwright test45秒、关键Go顶层2分钟、race/count1/每包6分钟、workers=1/retries=0；按风险分组，不续期或外层早杀遮尾部。独立验收冻结精确源码/已验依赖/工具/所serve dist与nonce，保留首红及实际argv/env/exit；实际wait、owner/reader/server/browser/worker尾部、精确资源ID与PID/starttime/adopted wait、前后指纹和baseline双扫完成才移交窗口。当前本稿只有静态自查，不具独立规格结论、产品结果或资源授权。
