@@ -1,11 +1,20 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useSession } from '../../composables/useSession'
 const router = useRouter()
+const auth = useSession()
 const entries = computed(() =>
   router
     .getRoutes()
-    .filter((r) => r.meta.navigation)
+    .filter(
+      (r) =>
+        r.meta.navigation &&
+        (!r.meta.systemAdmin ||
+          (auth.state.phase === 'authenticated' &&
+            auth.state.user?.role === 'admin' &&
+            !auth.system.denied)),
+    )
     .sort((a, b) => a.meta.navigation!.order - b.meta.navigation!.order),
 )
 </script>

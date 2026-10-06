@@ -43,6 +43,18 @@ export const router = createRouter({
       meta: { authentication: true, accountEntry: 'reset' },
     },
     {
+      path: '/system',
+      component: () => import('../views/system/SystemSettingsView.vue'),
+      meta: {
+        authentication: true,
+        protected: true,
+        systemAdmin: true,
+        navigation: { label: '系统设置', order: 20 },
+      },
+      redirect: '/system/users',
+      children: [{ path: 'users', component: () => import('../views/system/SystemUsersView.vue') }],
+    },
+    {
       path: '/settings',
       component: () => import('../views/settings/PersonalSettingsView.vue'),
       meta: { authentication: true, protected: true },
@@ -63,6 +75,7 @@ declare module 'vue-router' {
     navigation?: { label: string; order: number }
     authentication?: boolean
     protected?: boolean
+    systemAdmin?: boolean
     accountEntry?: AccountEntryMode
   }
 }

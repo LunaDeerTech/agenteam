@@ -73,6 +73,7 @@ const endpoints = {
   requestPasswordReset: ['POST', '/api/v1/password-resets/request', 202],
   inspectPasswordReset: ['POST', '/api/v1/password-resets/inspect', 200],
   completePasswordReset: ['POST', '/api/v1/password-resets/complete', 204],
+  systemUsers: ['GET', '/api/v1/system/users', 200],
 } as const
 export type Fetch = (input: string, init: RequestInit) => Promise<Response>
 
@@ -232,19 +233,53 @@ async function readAvatar(response: Response, signal: AbortSignal) {
   }
 }
 
+type RequestOptions = {
+  body?: unknown
+  csrf?: string
+  key?: string
+  signal: AbortSignal
+  avatar?: { file: File; mediaType: string; version: string }
+}
+type UsersOptions = {
+  signal: AbortSignal
+  users: Readonly<{ cursor?: string }>
+  body?: never
+  csrf?: never
+  key?: never
+  avatar?: never
+}
+
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
-  return async function request<T>(
+  function request<T>(
+    endpoint: 'systemUsers',
+    parse: (value: unknown) => T,
+    options: UsersOptions,
+  ): Promise<T>
+  function request<T>(
+    endpoint: Exclude<keyof typeof endpoints, 'systemUsers'>,
+    parse: (value: unknown) => T,
+    options: RequestOptions & { users?: never },
+  ): Promise<T>
+  async function request<T>(
     endpoint: keyof typeof endpoints,
     parse: (value: unknown) => T,
-    options: {
-      body?: unknown
-      csrf?: string
-      key?: string
-      signal: AbortSignal
-      avatar?: { file: File; mediaType: string; version: string }
-    },
+    options: RequestOptions & { users?: Readonly<{ cursor?: string }> },
   ): Promise<T> {
-    const [method, path, status] = endpoints[endpoint]
+    const [method, basePath, status] = endpoints[endpoint]
+    let path: string = basePath
+    if (endpoint === 'systemUsers') {
+      try {
+        shape(options, ['signal', 'users'])
+        const query = shape(options.users, [], ['cursor'])
+        const params = new URLSearchParams({ limit: '25' })
+        if (Object.hasOwn(query, 'cursor')) params.set('cursor', string(query.cursor, 1, 8192))
+        path += '?' + params.toString()
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if (Object.hasOwn(options, 'users')) {
+      throw new AccountFailure('invalid-input')
+    }
     const headers: Record<string, string> = { Accept: 'application/json, application/problem+json' }
     let body: BodyInit | undefined
     if (endpoint === 'putAvatar' && options.avatar) {
@@ -321,4 +356,5 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       await response.body?.cancel().catch(() => undefined)
     }
   }
+  return request
 }

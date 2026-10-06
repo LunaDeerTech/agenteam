@@ -199,6 +199,7 @@ function user(value: unknown): User {
     initial_password_suggestion: u.initial_password_suggestion as boolean,
   }
 }
+export { user as parseAccountUser }
 function session(value: unknown): Session {
   const s = shape(value, ['id', 'issued_at', 'absolute_expires_at', 'idle_expires_at'])
   return {

@@ -5,12 +5,23 @@ import UiButton from '../ui/UiButton.vue'
 import UiDrawer from '../ui/UiDrawer.vue'
 const emit = defineEmits<{ logout: [] }>()
 const route = useRoute()
-const groups = [
-  { label: '个人资料', path: '/settings/profile', leaf: '基本资料' },
-  { label: '界面偏好', path: '/settings/appearance', leaf: '主题' },
-  { label: '账号安全', path: '/settings/password', leaf: '修改密码' },
-]
-const expanded = reactive(new Set(groups.map((g) => g.path)))
+const props = withDefaults(
+  defineProps<{
+    title?: string
+    groups?: readonly { label: string; path: string; leaf: string }[]
+    showLogout?: boolean
+  }>(),
+  {
+    title: '个人设置',
+    groups: () => [
+      { label: '个人资料', path: '/settings/profile', leaf: '基本资料' },
+      { label: '界面偏好', path: '/settings/appearance', leaf: '主题' },
+      { label: '账号安全', path: '/settings/password', leaf: '修改密码' },
+    ],
+    showLogout: true,
+  },
+)
+const expanded = reactive(new Set(props.groups.map((g) => g.path)))
 const narrow = ref(false),
   open = ref(false)
 let media: MediaQueryList | undefined
@@ -31,17 +42,17 @@ onUnmounted(() => media?.removeEventListener('change', resize))
 <template>
   <div class="settings-shell">
     <UiButton v-if="narrow" class="settings-menu-button" aria-haspopup="dialog" @click="open = true"
-      >个人设置栏目</UiButton
+      >{{ title }}栏目</UiButton
     >
     <component
       :is="narrow ? UiDrawer : 'aside'"
       :open="open"
-      title="个人设置栏目"
+      :title="title + '栏目'"
       :class="narrow ? undefined : 'settings-sidebar'"
       @update:open="open = $event"
     >
-      <nav class="settings-menu" aria-label="个人设置">
-        <h2>个人设置</h2>
+      <nav class="settings-menu" :aria-label="title">
+        <h2>{{ title }}</h2>
         <div
           v-for="group in groups"
           :key="group.path"
@@ -68,7 +79,7 @@ onUnmounted(() => media?.removeEventListener('change', resize))
             </li>
           </ul>
         </div>
-        <UiButton variant="ghost" @click="emit('logout')">退出登录</UiButton>
+        <UiButton v-if="showLogout" variant="ghost" @click="emit('logout')">退出登录</UiButton>
       </nav>
     </component>
     <section class="settings-content"><slot /></section>

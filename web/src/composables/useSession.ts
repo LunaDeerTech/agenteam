@@ -25,6 +25,11 @@ import {
   type ResetAccepted,
 } from '../api/account'
 import { AccountFailure, type Problem } from '../api/client'
+import {
+  createSystemAccountAPI,
+  type SystemAccountAPI,
+  type SystemUserQuery,
+} from '../api/system-account'
 import { useTheme } from './useTheme'
 
 export type SessionPhase =
@@ -63,7 +68,7 @@ interface LogoutIntent {
   csrf: string
 }
 type Intent = LoginIntent | LogoutIntent
-type Action = 'restore' | 'login' | 'logout' | 'personal' | 'entry'
+type Action = 'restore' | 'login' | 'logout' | 'personal' | 'entry' | 'system'
 interface Operation {
   generation: number
   kind: Action
@@ -146,7 +151,10 @@ const isUnknown = (e: AccountFailure) =>
 
 // Only this controller owns authentication materials and the four Cookie-producing
 // endpoints. Its public state has no token, command key, password or retry body.
-export function createSessionController(api: AccountAPI = createAccountAPI()) {
+export function createSessionController(
+  api: AccountAPI = createAccountAPI(),
+  systemAPI: SystemAccountAPI = createSystemAccountAPI(),
+) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
     user: null,
@@ -178,6 +186,11 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
   const personalState = shallowReactive<{ passwordProgress: PasswordProgress | null }>({
     passwordProgress: null,
   })
+  const systemState = shallowReactive<{ deniedIdentity: PersonalIdentity | null }>({
+    deniedIdentity: null,
+  })
+  let systemRevision = 0
+  const systemDenied = () => sameIdentity(systemState.deniedIdentity, personalContext.identity)
   let identityEpoch = 0,
     personalRevision = 0
   let trustedUser: User | null = null
@@ -210,6 +223,8 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     state.user = null
     state.session = null
     if (invalidate) {
+      ++systemRevision
+      systemState.deniedIdentity = null
       sessionCSRF = ''
       ++identityEpoch
       ++personalRevision
@@ -270,6 +285,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
       preview = null
     } else if (personalIntent) personalIntent.checked = true
     personalContext.phase = 'current'
+    systemState.deniedIdentity = null
     passwordSessionCheck = false
     passwordExpected = null
     trustedUser =
@@ -705,15 +721,16 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
       applyTheme()
     }
   }
-  function runPersonal<T>(
+  function runAuthorized<T>(
     identity: PersonalIdentity,
     work: (op: Operation, current: () => boolean) => Promise<T>,
     command?: PersonalCommand,
+    kind: 'personal' | 'system' = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
-    const revision = personalRevision
+    const revision = kind === 'system' ? systemRevision : personalRevision
     const op: Operation = {
-      kind: 'personal',
+      kind,
       generation: ++generation,
       abort: new AbortController(),
       expired: false,
@@ -721,7 +738,11 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
       visible: Promise.resolve(),
     }
     const current = () =>
-      valid(op) && revision === personalRevision && sameIdentity(identity, personalContext.identity)
+      valid(op) &&
+      revision === (kind === 'system' ? systemRevision : personalRevision) &&
+      sameIdentity(identity, personalContext.identity) &&
+      (kind !== 'system' ||
+        (state.phase === 'authenticated' && state.user?.role === 'admin' && !systemDenied()))
     owner = op
     state.busy = true
     let resolveVisible!: (value: T) => void, rejectVisible!: (failure: AccountFailure) => void
@@ -780,7 +801,10 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
         return result
       })
       .catch((error: unknown) => {
-        const e = personalFailure(identity, error)
+        const e =
+          kind === 'system'
+            ? systemFailure(identity, op, current, error)
+            : personalFailure(identity, error)
         if (command && personalIntent === command) {
           if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
             command.checked = false
@@ -814,7 +838,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
   ): Promise<T> {
     try {
       const identity = personalIdentity()
-      return runPersonal(identity, (op, current) => work(identity, op, current))
+      return runAuthorized(identity, (op, current) => work(identity, op, current))
     } catch (e) {
       return Promise.reject(e)
     }
@@ -842,7 +866,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
   }
   function performPersonal(original: PersonalCommand): Promise<PersonalMutationResult> {
     const identity = original.identity
-    return runPersonal(
+    return runAuthorized(
       identity,
       async (op, current) => {
         const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
@@ -933,6 +957,58 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
       },
       original,
     )
+  }
+  function systemFailure(
+    identity: PersonalIdentity,
+    op: Operation,
+    current: () => boolean,
+    error: unknown,
+  ) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    if (sameIdentity(identity, personalContext.identity) && generation === op.generation) {
+      // A late 401 may already have removed this same Session Cookie. It still
+      // invalidates that identity, but never a later identity or another owner.
+      if (unavailableSession(e)) {
+        clearIdentity()
+        clearBrowser()
+        state.phase = 'unavailable'
+        state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
+      } else if (current() && e.problem?.status === 403 && e.problem.code === 'FORBIDDEN') {
+        systemState.deniedIdentity = identity
+      }
+    }
+    return e
+  }
+  const system = {
+    get denied() {
+      return systemDenied()
+    },
+    listUsers(query: SystemUserQuery) {
+      try {
+        const identity = personalIdentity()
+        if (
+          state.user?.role !== 'admin' ||
+          systemDenied() ||
+          !query ||
+          typeof query !== 'object' ||
+          Array.isArray(query)
+        )
+          throw new AccountFailure('invalid-input')
+        const input = Object.freeze({ ...query })
+        return runAuthorized(
+          identity,
+          (op) => systemAPI.listUsers(input, op.abort.signal),
+          undefined,
+          'system',
+        )
+      } catch (e) {
+        return Promise.reject(e)
+      }
+    },
+    abandon() {
+      ++systemRevision
+      if (owner?.kind === 'system') owner.abandon?.()
+    },
   }
   const personal = {
     get passwordProgress() {
@@ -1361,6 +1437,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     state: readonly(state),
     personalContext: readonly(personalContext),
     personal,
+    system,
     entry,
     restore,
     login,

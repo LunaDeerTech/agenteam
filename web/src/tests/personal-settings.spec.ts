@@ -471,7 +471,8 @@ describe('personal settings pages', () => {
       expect(p.api.login.mock.calls.length).toBe(1)
     },
   )
-  it('only permits the four exact return targets and clears dirty previews on real context invalidation', async () => {
+  it('only permits the five exact return targets and clears dirty previews on real context invalidation', async () => {
+    expect(safeReturnTarget('/system/users')).toBe('/system/users')
     for (const target of [
       '/settings',
       '/settings/profile?x=1',

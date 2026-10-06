@@ -6,6 +6,7 @@ const returnTargets = [
   '/settings/profile',
   '/settings/appearance',
   '/settings/password',
+  '/system/users',
 ] as const
 type ReturnTarget = (typeof returnTargets)[number]
 export function safeReturnTarget(value: unknown): ReturnTarget {
