@@ -1,0 +1,124 @@
+# D28 / D27：System 运行信息 HTTP 只读快照
+
+修订：rev1（正式规格，技术沿独立审查的私稿rev2）。状态：独立有界 STATIC PASS，主线程已采纳规格；尚无本卡产品实现、编译或动态验收。被审私稿全文 SHA `bed0c30c025003460d1237f30329ffbfa9b3d9bd95029a751b14c3a794acff7b`，技术§1–7 SHA `aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab` 原字节保持。
+
+固定已接受后端 `b124650aee095b26191bc181dc8cf5d6e0f977f5`，文档/前端基线 `a7a29c34acbe392d9a1375967309123b9a74ec16`；后续 MIME schema 文档修订 `fa2d775` 不改变本卡31项固定源码依赖。独立 STATIC 报告（永久证据归档待后续单独提交）SHA `a6b00fdb0cc6060434631f02ad1cc0085b1506435f7098768a30f5a7f4ccb727`；该结论证明规格在固定接缝上可实施，不代表实际运行通过。
+
+这是 D28 运行观测的受限管理读口，由 D27 后续页面消费；D05 只提供既有 Object Storage 观测来源。十四候选路径不变，唯一backend作者的前十三源实施、原生监听与真实资源均由主线程另授，第十四后端说明为产品接受后的末件。没有新增产品待决，不消费活动 Audit UI，不改变停止任务。技术正文保留被审时的实施门槛和阶段时态，当前采纳状态以页首为准。
+
+## 1. 完整结果、依据与真实前置
+
+当前系统管理员通过一个正式 GET，读取同一 Central root 的安全运行快照：Central 版本的已知/未知事实、PostgreSQL/pgvector 最近成功检查的版本与时间、MinIO 支撑的 Object Storage 聚合观测，以及当前非 ready 原因。请求只读既有内存观测，不触发数据库健康探测、对象/MinIO I/O、后台刷新、外部 Provider/SMTP/Runner 测试或任何修复；Account 当前认证/授权所需事务不属于健康探测。
+
+沿 [仓库规则](../../../AGENTS.md)、[设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[开发计划](../development-plan.md#d28-集成部署与交付验收)、[系统设置布局](../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置)、[部署运行](../../architecture/platform-infrastructure/deployment-runtime.md)和[现有诊断说明](../backend/README.md#诊断与日志)。实现沿 [Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)，独立验收沿[验证技能](../../../.agents/skills/agenteam-verification/SKILL.md)。
+
+| 前置与事实所有者 | 本卡消费的已接受能力 / 限制 |
+| --- | --- |
+| [PostgreSQL Check](../../../internal/central/postgres/health.go)、[root 健康缓存](../../../internal/central/app/health.go) | 正式检查在回滚事务内验证 PostgreSQL、pgvector、迁移与读写，成功返回真实 `ServerVersion/ExtensionVersion/CheckedAt`；root 每10s采样、同轮2s、成功接收样本超过20s陈旧。当前失败只保留聚合失败标志，不能推断哪一子检查失败。 |
+| [Object Service.Check](../../../internal/central/object/initialize.go)、[Runtime.Check](../../../internal/central/object/runtime.go) | root 已绑定 MinIO 后端；聚合检查包含 bucket/control、transfer storage 与 maintenance 状态，不是单独 MinIO server 探测，没有 server-version/逐项诊断。只读取 root 已有结果，相关生产文件、探测与生命周期全部只读。 |
+| [当前 root/诊断](../../../internal/central/app/app.go)、[诊断投影](../../../internal/central/app/diagnostics.go) | `ready=false`，基础组件故障/陈旧为 DEPENDENCY_UNAVAILABLE，已实现组件健康仍为 DEPENDENCY_UNBOUND。Secret/出站只取各自现有内存 `Status().Available`，不读取 Secret、策略明细或部署坐标。 |
+| [Account 当前授权](../../../internal/central/account/authority.go)、[HTTPBoundary](../../../internal/central/account/http_boundary.go)、[已接受 Audit 同事务读](../../../internal/central/audit/system_query.go) | 使用同 root 的 Account Service/Authority、真实 Store、User Shared 锁及事务终局门禁；`HTTPBoundary.RequireSystem` 的 `Tx{}` 预认证不能替代新读事务内当前授权。不新增 Account 权限口。 |
+| [Central CLI](../../../cmd/agenteam/main.go) / 构建身份缺口 | 当前只有字面 `agenteam development (D05)`，没有已接受的构建版本提供者；这个阶段标签不是发布版本。运行信息明确报告版本未知，不能硬编码 Git、SDK/fixture 版本、读取仓库/环境或接入未验发布流水线补造版本。 |
+
+原 Object join、OpenAI tools 与 SPA publication 停止任务不恢复、不重建、不转派；Summary 保持待定。Model CRUD/selector/Resolution 库存在不证明 Runtime/Invocation/Usage 消费者、Project/Runner 协议或未来必需平台能力已绑定。本卡不新增这些能力的探针或连接，也不承诺完整 D05/D09/D27/D28、页面、部署或 ready 成功。
+
+## 2. 唯一路由与安全响应契约
+
+新增且仅新增 `GET /api/v1/system/runtime-information`，operationId `getSystemRuntimeInformation`。GET-only；精确路径的其他方法405且 `Allow: GET`，HEAD 错误无 body，不依赖 ServeMux 的隐式 GET→HEAD。任意 query（包括裸 `?`）、body、scope/身份选择均不支持。先沿 HTTPBoundary 检查 canonical Host/Origin/Fetch-Metadata、Path/RawPath，再判精确资源/方法及当前身份。在浏览器安全边界通过的前提下，`Path!=path.Clean(Path)`（含尾斜线、重复斜线和dot段）、反斜线/NUL或非空RawPath先返回400 INVALID_ARGUMENT；只有通过这些检查的规范未知子路径才返回404 NOT_FOUND。近似前缀不接管，不规范化、重定向或绕过HTTPBoundary去实现404；更早的Host/Origin/Fetch-Metadata拒绝保持原错误。有效 GET 先当前预认证，随后严格拒绝 `RawQuery!=""` 或 ForceQuery；ContentLength 非0、TransferEncoding 非空直接400，未知纯 reader 最多读1字节以区分空体 EOF/额外内容，禁止无界 drain。无写 CSRF、幂等键、lookup、缓存验证/304或流式事件口。
+
+成功200为下表闭合 DTO，所有字段必需，所有对象 `additionalProperties:false`；没有未声明省略字段、任意 map、错误正文或部署信息。瞬时值由 §3 一次观察产生；安全投影/编码失败整份零发布，不降为200带空对象。
+
+| 对象 / 字段 | 精确含义与合法集合 |
+| --- | --- |
+| 顶层 | 恰 `observed_at,central,database,object_storage,readiness`。observed_at 是本次授权后复制缓存的观察时刻，canonical UTC 微秒 Instant；不是事务提交、响应完成或所有依赖最后检查时间。 |
+| central | 恰 `{version:null,safe_reason:"build_version_not_recorded"}`。当前版本未知是正式构建身份尚未记录的事实，不把已绑定端口的故障解释为版本未知。本卡不引入已知版本分支或改变 CLI。 |
+| database | 恰 `status,safe_reason,last_success`。status 仅 available/unavailable/stale；safe_reason 分别 null/check_unavailable/sample_stale，不能交叉配对。它是原 PostgreSQL+pgvector+迁移+读写检查的聚合状态，不逐项发布猜测的 true/false。 |
+| database.last_success | 恰 `checked_at,received_at,postgresql_version,pgvector_version`，均非 null。checked_at 是原成功 DatabaseHealth.CheckedAt；received_at 是 root 接收并接受成功样本的时间。两版本是**此历史成功样本**的版本，失败/陈旧时仍留在此明确历史对象，不冒充当前再次查询结果。每个版本为1–256字节可打印 ASCII（U+0020–U+007E），不 trim、截断或补默认值；空、控制字符、非ASCII或越界视不合法观测。 |
+| object_storage | 恰 `backend:"minio",assessment:"object_storage_aggregate",status,safe_reason,last_success_received_at,details:"not_reported"`。status/reason 配对同 database；last_success_received_at 为原 objectReceived，不是未经记录的 MinIO 检查开始/结束时间。details 明确未提供 server-version/子检查/失败归因，不输出 MinIO endpoint/bucket/key。 |
+| readiness | 恰 `{ready:false,safe_reason}`，safe_reason 仅 DEPENDENCY_UNAVAILABLE 或 DEPENDENCY_UNBOUND，按 §3 原 root 规则计算。响应200只说明管理观察读取成功，绝不等于 Central ready；不得将 ready=false 改成接口503，也不得通过此口把 /readyz 改成200。 |
+
+全部时间须显式校验 `NewInstant`/Validate 并拒绝零时间，不能忽略转换错误。历史 last_success 是 root 完成既定必需启动检查之后已有的真实样本，本卡不把缺失样本、nil monitor/Authority/Store/Source 或必需 root 实例伪装成 unknown/available；绑定缺失为503 DEPENDENCY_UNBOUND，已绑定源返回不完整/非法数据为503 DEPENDENCY_UNAVAILABLE。组件检查失败但历史样本完整，是合法200 unavailable，不是读取基础失败。
+
+成功 JSON 的完整 UTF-8 编码上限 **16 KiB（16384B）**，先显式映射、默认 `json.Marshal` 完整编码并核长度，再提交 header/body。保守合法上界为3690B：最大固定壳618B（4个27字节时间、最长合法状态/reason及固定键/常量/null/false），两个256B版本各按最坏每字节6B HTML escaping，合计3072B。这个笛卡尔上界不声称生产版本含256个 `&`；保留完整编码核界，纯测验证最大转义和越界源拒绝。新口成功与未来客户端专用上限均为16KiB，不放宽任何旧口/通用读取预算；安全 Problem 使用原固定小形状，无任意 detail 扩展。
+
+安全 header 沿原 Account 边界：`Cache-Control:no-store`、nosniff、no-referrer；JSON Content-Type、完整 Content-Length；仅一个原外层 X-Request-ID。已知正常 route 可使用固定模板，未匹配只用 unknown_route，不将 URL/query/部署坐标/版本原件/缓存结构或任何 Cookie/CSRF/密码/Secret 写日志。safe_reason 只有本节闭集，不从 error.Error、SQL、HTTP、对象或配置字符串生成。
+
+## 3. 缓存、时间与 readiness 的一致观察
+
+不修改 health.go 的调度、Check 调用、成功/失败发布、超时/迟到处理或关闭算法。在新 app 文件中增加只读复制：持原 monitor.mu 的读锁，复制 `last,received,available,objectReceived/objectAvailable,outboxReceived/outboxAvailable,accountReceived/accountAvailable,accountBound`，并且只取得一次原 timing.now 作为 T。释放锁后不保留内部可变别名；同一响应所有年龄计算与 observed_at 都使用 T，不能依次调用旧 snapshot 方法取得多个 now，不能重新 newHealthMonitor 或把 last_success 更新成本次 GET 时间。新管理 Source 要求全部必需缓存已有合法非零成功接收时间（也包括仅参与ready的Account/Outbox）；缺失属于非法观测，不以 stale/unknown 掩盖。原无完整绑定的诊断测试不套此新管理源校验。
+
+按原 `T.Sub(received)>20s` 判陈旧，恰20s仍不过期；生产保留 time.Time 的 monotonic 比较，不能先转 UTC Instant 再计算年龄。wall-clock 时间只用于展示；时钟校正可能使两个显示时间倒序，不据此假定新采样、延长缓存或对旧采样算法加规则。新投影的错误检查仅验证已有时间/版本/原成功 health 完整，不新增时间排序要求。数据库/对象状态优先级为：原 available=false → unavailable/check_unavailable；否则超过20s → stale/sample_stale；否则 available/null。失败后旧样本逐渐变老仍是 unavailable，不能洗成“只有陈旧”；仅后续原真实检查成功才能恢复。版本与 last_success 保留对应旧事实，绝不显示为当前健康的证据。
+
+同一次观察还各调用一次原 Secret.Status 和 Outbound.Status，仅保留 Available；同时使用上述缓存复制内的 DB/Object/Outbox/Account 可用及陈旧结果，计算一个 readiness code：任一基础项不满足即 DEPENDENCY_UNAVAILABLE，全部满足仍 DEPENDENCY_UNBOUND。新 DTO 使用这份已冻结观察，不能为 ready 再读取缓存或状态。Object字段只描述自己的缓存检查，不把DB聚合失败伪造为已观测MinIO失败；DB/Object两项available也不排除其他基础项导致ready不可用。这不是多个领域锁上的原子分布式快照：Secret/Outbound 的内存状态按顺序各采一次，不重试直到“所有服务稳定”，不查询下游事实。
+
+`/readyz` 只将现有同一判定抽为这份只读收集/纯 predicate 复用，原 GET/HEAD、503、基础失败优先级和安全错误不变；不同 HTTP 请求允许观察不同时间的状态，不承诺与紧邻另一个请求逐字一致。`/livez` 和 `/diagnostics` 的现有 body/权限/路由保持，后者现有字段不被新 DTO 取代；组件根绑定为空的旧 package-local 诊断测试仍按旧规则，不作为新生产管理接口的 unknown 数据源。
+
+本次 GET 除 Account 认证/同事务授权之外只做内存复制/验证/编码。不得调用任何 Store.Check、Object/Runtime.Check、CheckBucket、Stat、Probe、Reload、MinIO admin/info或网络请求；不启动健康/业务 goroutine、ticker、后台重试或第二健康轮。§5 本域期限取消回调仍须实际join，不能借此条省略。真实根测试区分既有后台采样与 GET 因果，不拿一次测试期间总调用数增加就判新口探测，也不把关闭原生产采样作为实现修法。
+
+## 4. 当前授权、事务终局与错误
+
+新增独立包 `internal/central/runtimeinfo`；它不导入 app、account 或 HTTP。只定义本只读模型所需的最小依赖：Store 的 WithinTx/Acquire、既有 identity.SessionAuthority/SystemAuthority、同步 `Source.Snapshot(context.Context) (Snapshot,error)`。Snapshot 是本卡有限字段的值，不携带通用 config、DB/Secret/Object 指针或任意错误/metadata。`New(store,sessions,system,source)` 纯构造，拒绝包括 typed nil 在内的未绑定依赖；`(*Service).GetSystem(ctx,actor)` 返回独立值，无持久缓存或隐式状态更新。Source 是 root 唯一健康观测适配器，不是按请求寻找服务的 locator。
+
+HTTPBoundary 先以现有浏览器安全规则认证；Service 再在同一最多3s/更早parent上下文内创建技术 recovery cause `runtimeinfo.system-read`（新随机 attempt ID，不是命令），进入原 Store.WithinTx，Acquire 当前 actor.UserID 的 Shared 锁，调用原 RequireCurrentSession、AuthorizeSystem(Read)，严格核 grant.Matches 当前 actor/System/Read，然后调用 Source 一次、验证完整候选，检查上下文，结束 callback。不得在取快照之后才补当前权限，不能拿启动时的 admin/Session 或 Tx{} grant 作事务授权。
+
+只有 WithinTx 实际返回 Committed、callback 完整执行、ctx 和 deadline 均未失效才返回候选。NotCommitted 保留原 typed fault；无 fault 异常终局安全失败；Unknown 为 COMMIT_UNKNOWN/unknown、零候选，不将它改写为陈旧缓存或可用状态。此事务没有业务写/receipt/event/Audit append；共用 Problem 的 lookup 提示不创建本口 lookup 或命令身份，后续显式重新 GET 只是新观察。当前合法401/403沿原安全投影，普通用户/撤销Session拒绝，身份不可由 query/header/body伪造。
+
+与正式 Logout 的 User EX 锁保持既有顺序：预认证后已经撤销的 Session 在新读事务内拒绝；读事务先取得 SH 时，Logout 等实际终局后才能撤销，随后新读拒绝。不承诺取消已经正常提交并发布的历史观察。没有正式降权写口，不用 SQL 改 role 造“真实降权”；普通用户来自正式邀请兑换。
+
+400 INVALID_ARGUMENT 用于本口形状错误；401 UNAUTHENTICATED/SESSION_REVOKED、403 FORBIDDEN、404 NOT_FOUND、405 METHOD_NOT_ALLOWED 沿原映射；必需依赖未绑定503 DEPENDENCY_UNBOUND、当前授权/来源/事务依赖不可用503 DEPENDENCY_UNAVAILABLE、读终局未知503 COMMIT_UNKNOWN，未归类内部失败500 INTERNAL_ERROR。绑定/内部细因只保留为不可投影 cause；Problem instance 经 HTTPBoundary 固定为 `/api/v1`。请求已到期限/取消或无法完整安全写出时中止连接/stream，不在期限之后追加错误或成功 body。
+
+## 5. HTTP 预算、一次性 root 装配与兼容
+
+新 HTTP 子包导入 runtimeinfo 和 account，纯 `NewSystemHTTPHandler(service,*account.Service,{PublicOrigin})` 使用同 core 的 HTTPBoundary；父包不导入子包，Account 不导入新包。HTTP 本地3s从最初边界检查/预认证前开始，继承更早parent并贯穿空体EOF、授权事务、同步快照、编码、实际 Write/Flush、Body.Close及取消回调完成；Service 内同值预算不能延长外层截止。复用已接受 Audit handler 的本域 deadline、Unwrap/ResponseController、短写/Flush中止、取消后实际回调join与清除deadline接缝，不修改共享 httpapi/全局请求体限制，也不复制其审计 DTO。
+
+不支持底层 deadline/Flush 或设置失败时按既有本域能力边界直接 ErrAbortHandler，不假装建立预算或在失去约束后继续 I/O。正常返回前保留实际 Body.Close/stop+join，并清除读写deadline，旧回调不得影响连接下一次请求。ctx.Done 不是原调用/事务/body/callback 已退出的证据，不启动后台 goroutine 丢下它们换取提前返回。公共 RequestID/Recover、root admission/shutdown 规则保持原样；本卡预算证明涵盖新域正常和显式 Problem 路径，不扩全域异常生命周期。
+
+固定 root 的 `bindAccounts` 先于 monitor 构造，且 initialize 按值接收 dependencies；故明确如下唯一装配路线：
+
+1. `app/account.go` 在正式 bindAccounts 中，以已经构造的同一 core、Authority、实际 Store、PublicOrigin 捕获一个 package-private 纯 handler factory，写入本轮 dependencies。新 Store 从同一 `db` 明确断言为 runtimeinfo.Store：原 Account.Store 只公开 AcquireAll，不能误当它静态具备 Acquire；实际 PostgreSQL Store 已有两者，无须改 Account 口。不捕获未来待填服务指针，不新增 accountStorage 方法或 Account 公开能力。
+2. `initialize` 将这个 factory 经新增 startupResult 字段显式传回 run；不能误以为修改局部 dependencies 会更新外层。既有真实检查/初始化和监听顺序不变。
+3. run 在创建并填入原始 sample 时间的唯一 healthMonitor 后，用同 root 的已绑定 Secret/Outbound 与真实 Account/Object/Outbox 存在事实构造一次只读 Source，再调用 factory 一次建立新 service/HTTP handler。放在 health goroutine/Serve 启动之前；必需原实例/factory缺失或 typed nil 失败，不能以200 unknown或静默不注册降级。只有原 package-local 无 Account 的诊断替身保留其既有测试路径，生产 bindAccounts 没有运行时开关跳过新口。
+4. 此时 initialize 已可能拥有 listener，后置纯构造失败不能直接 return 泄漏；必须走与原 initial.err 相同的已有 startup cleanup/安全失败出口，回收已取得资源，不启动 Serve/额外 worker。不更改既有 cleanup算法或对象/ProcessGuard生命周期；新增失败分支的接线由受控所有者测试验证，不能借本卡验收停止任务。
+5. 默认原 Account/Model/Outbound/Audit 链之外接精确 runtime-information 路径根，只有字面根或 root+`/` 子树归新handler；所有请求字段/Body/Context保持，原三个诊断路由仍由原分派负责。factory不是每请求操作，Source不再创建/启动monitor。一个原外层 middleware、一个 RequestID，未知路径不重写成固定路径去调用别的handler。
+
+新增独立 OpenAPI3.1 `api/openapi/runtime-information.json`，仅上述 GET。Security 显式 Session cookie 或 LocalSession cookie 二选一，不含匿名分支；复用 common 的 Instant/Problem，所有DTO闭合、常量/null/status-reason条件齐全，声明16KiB完整读取和无probe/GET非ready语义。common.paths保持空，旧API文档/route-count和权限规则均不改。未来UI必须单独完成受控只读owner/权限/取消、专用响应预算与真实页面验收；本卡不增加菜单、页面或前端类型。
+
+## 6. 唯一候选路径、冲突与实施门槛
+
+以下十四路径是完整结果的候选集；静审与主线程另授唯一 backend_worker 后才可实施，私有/真实资源另授。#14 说明必须最后在产品接受后授权。新包/测试不接活动 Audit UI；app.go/account.go/diagnostics.go 与最后 README 为共享路径，实施前由主线程核单一所有者。当前 MIME schema 文档修正与本卡无依赖，不消费其活动源。
+
+| # | 路径 | 限定用途 |
+| --- | --- | --- |
+| 1 | `internal/central/runtimeinfo/service.go`（新） | 有限值/Source/最小Store契约、纯构造、当前User SH/同Tx授权与终局零候选。 |
+| 2 | `internal/central/runtimeinfo/service_test.go`（新） | 同Tx/权限/完整候选/NotCommitted/Unknown/过期和实际尾部受控测试。 |
+| 3 | `internal/central/runtimeinfo/http/handler.go`（新） | 唯一GET、同core边界、3s/emptybody/native实际尾部。 |
+| 4 | `internal/central/runtimeinfo/http/wire.go`（新） | 专用闭合DTO、版本/时间/状态校验、16KiB先编码后发布。 |
+| 5 | `internal/central/runtimeinfo/http/handler_test.go`（新） | 路由/schema/安全wire、受控I/O与最小native连接；不放PG fixture。 |
+| 6 | `api/openapi/runtime-information.json`（新） | 单GET/security/安全条件schema及预算，不改旧OpenAPI。 |
+| 7 | `internal/central/app/runtime_information.go`（新） | 原monitor只读复制/同T判定、Source、ready predicate与精确分流。 |
+| 8 | `internal/central/app/runtime_information_test.go`（新） | 时序/历史样本/零probe、原ready映射、固定实例/后置factory/失败清理、原链纯测试。 |
+| 9 | `internal/central/app/runtime_information_process_test.go`（新） | 正式root→缓存读口、真实PG版本、诊断/旧API与正常终局，复用原fixture。 |
+| 10 | `internal/central/app/diagnostics.go` | 仅原readyz收集/判定复用；旧状态码、优先级、路由与其余DTO保持。 |
+| 11 | `internal/central/app/app.go` | dependencies→startupResult一次factory传递、原monitor后纯绑定/失败出口和默认链接入。 |
+| 12 | `internal/central/app/account.go` | 仅捕获同core/Authority/Store的纯factory；既有域构造、启动与停止语义保持。 |
+| 13 | `tests/account/runtime_information_http_test.go`（新） | 正式Account/PG当前权限、Logout SH/EX与事务终局；内存Source替身与正式root证据分列。 |
+| 14 | `docs/development/backend/README.md` | 最后局部说明新管理读口、时间/unknown/ready边界，不改完整模块状态。 |
+
+不改 health.go/健康调度、postgres.Check、Secret/Outbound.Status、Account Authority/HTTPBoundary、Object/Runtime/ProcessGuard、Runner/Project、公共httpapi、cmd/构建发布脚本/锁文件、迁移、旧fixture、前端或任务档案。不得为getter改健康写入/关闭算法、重启停止的生命周期测试、新增通用服务容器。若实际接口不足、要增加候选路径或改既有错误/采样/授权语义，先报告主线程修卡，不能在未授权文件临时补洞。
+
+## 7. 有界验收与交付
+
+| 组 | 必须证明的结果 / 证据边界 |
+| --- | --- |
+| 纯观测与编码 | 同一T下19.999999s/20s/20s+1ns边界，失败优先于陈旧、失败保留last_success/版本、真正新成功才恢复；读取不改时间/flags且零Check/probe。DB聚合失败不变成pgvector或MinIO精细归因；Central版本严格null，坏/零历史样本不是unknown成功。两版本最大合法默认JSON转义、完整编码3690B保守界/16KiB门禁及非法/超长拒绝；schema闭集/required/security/method与wire双向一致。合成最大字符串只证明编码上界，不称正式生产版本。 |
+| 纯事务 / I/O | 预认证预算起点、同一非零Tx的User SH→当前Session/admin→Source一次→实际终局；伪grant/错误scope/缺依赖、NotCommitted/Unknown、Source错误/迟到完成、取消全部零候选。原调用与取消callback/Body.Close用实际屏障证明均已返回才释放；受控自然3s保持严格DeadlineExceeded，更早parent先约束。期限不靠goroutine抢先返回伪通过。 |
+| 新root与旧诊断纯回归 | factory恰一次/同core Authority与Store，startupResult真实传回；monitor仅原一个、原startup sample未续命，GET不重建/启动服务。合法新路由与相似前缀/歧义路径分流；合法浏览器边界下，尾斜线/重复斜线/dot段/非空RawPath精确断言400 INVALID_ARGUMENT，规范未知子路径404 NOT_FOUND，精确根的非GET405；另核Host/Origin拒绝先于路径判定，不以重写请求或绕过HTTPBoundary得到预期码。Body/URL/Host/Context原样、单RequestID/单日志。后置构造失败用受控已取得listener/资源证明必须执行原cleanup且不启动Serve/health调度，不开实际端口、不复演停止的Object任务。原readyz同源predicate所有六基础项失败优先级；复用原 `TestHealthSnapshotsExpireRecoverAndRejectLateSuccess`，不弱化原断言。 |
+| 最小native代表 | 自有loopback临时listener/单client连接，慢不允许的body/EOF、3s或更早parent、响应Flush/短写、actual callback/Close与下一请求deadline清除。native net/http同deadline会先触发请求cancel，不能只认DeadlineExceeded：自然期限场景入口记录min(parent,3s)，终局Done且不早于应到deadline，Err仅Canceled/DeadlineExceeded，保留实际耗时上限/零Source或零发布/Close和连接join；显式取消可早于deadline，另以真实取消屏障及实际尾部证明。pure自然期限仍单独严格。所有server/client/conns/callback实际关闭，Recorder证据不冒充native。 |
+| 真实 CurrentAuthorityAndTerminal | `TestSystemRuntimeInformationCurrentAuthorityAndTerminal`，tests/account，复用完整 `newB02Account(t).fixture`，正式bootstrap/login/邀请兑换普通用户/Logout。预认证后撤销→新事务拒绝；SH已持有→正式Logout EX等待实际读终局、随后新请求拒绝；正常Source/候选不能越过真实WithinTx结束。此组Source为受控内存值，只证明授权/事务，不称真实健康来源。SQL仅任务自有锁屏障/读旁证，不改role/Session/健康/业务表。LOCK_TIMEOUT=1s时验证min(parent,3s,DB1s)和typed安全失败/零候选，不冒称真实PG等3s自然到期。 |
+| 真实 RootSnapshotBinding | `TestSystemRuntimeInformationRootSnapshotBinding`，app，复用正式 `newModelRootApp`/PG+MinIO配置及实际绑定/首次检查，正式登录后GET。PG两版本与正式只读查询/原成功样本一致，Object值来自已接受聚合缓存，版本未知如实；检查原me/Model/Outbound/Audit读取和livez/diagnostics/ready503保持。只读计数/构造证据证明GET零probe；可以在本地测试协作者用原healthTiming固定采样窗口隔离后台tick，但不改生产10s/2s/20s，不声称做了MinIO故障注入。正常停服务实际收尾，不新增Object work/外部请求/停止任务代表。 |
+
+新真实顶层限上表两个；纯组/原生组按风险固定精确selector，受影响runtimeinfo/http/app的race/vet及必要集成compile/list、Central/Runner兼容编译；不机械重跑全D05/D07/D28。原 `TestDiagnosticRoutes` 实际启动listener，保留原断言并明确归入另授native窗口，不能将无过滤app测试当纯检查隐式启动它。现有健康采样与Object探测的未改算法复用原证据，本卡不通过重验来关闭原Object join缺口；原公开诊断不是管理员安全边界的替身。独立验证至少分别覆盖①当前权限/同Tx/终局零候选，②实际root缓存来源/零probe/同T状态/旧ready语义及新HTTP实际尾部；可复用未变公共能力证据，不重复作者完整矩阵。
+
+沿Go1.27.1；正式检查 `GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOFLAGS=-mod=readonly`，私有cache/tmp、最小源码闭包及runtime前后指纹。普通受控/native每场景45s、新真实每场景2m、原每包 `-race -count=1 -timeout=6m` 不加时。任何监听/PG/Docker/MinIO必须由主线程另授精确窗口，fixture nonce/exact IDs、PID/starttime/owner/adopted实际wait、前后双扫清零后交窗；首次失败保留、不自扩重跑，skip/零命中不算通过。
+
+交付固定十四候选与必要依赖SHA、精确diff、命令原raw/actual exit、未变证据复用和未验边界；产品独立接受后再完成第十四末件，主线程执行Git/正式归档。当前只有规格自查，未执行编译、原生或真实验收；无需用户另选产品规则，工程实施与资源仍未授权。
