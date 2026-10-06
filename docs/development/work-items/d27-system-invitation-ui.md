@@ -1,6 +1,6 @@
 # D27：系统待注册邀请管理页面
 
-状态：rev3，2026-10-06 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳；被审稿 SHA256 `7944834eedbc4a9be829e168bb40cfc452965fbb5a724aef367827a2a4355204`。本修订按正式 producer 历史与读口契约纠正 §2 的无 attempt 兼容表述，保留 cancelled/null 与 processing/unknown 的既定例外，不放宽后端 scanner 或新增产品规则。本次仅更新页首，技术 §1–7 保持被审稿原字节。§6 二十二条产品路径仍未授权实施，真实资源窗口仍未授予；邀请投递读口 rev1 尚未产品接受，本卡须等待该上游接受及主线程明确移交，不以规格采纳代替依赖、实施权或产品通过。
+状态：rev3，2026-10-06 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳；被审稿 SHA256 `7944834eedbc4a9be829e168bb40cfc452965fbb5a724aef367827a2a4355204`。本修订按正式 producer 历史与读口契约纠正 §2 的无 attempt 兼容表述，保留 cancelled/null 与 processing/unknown 的既定例外，不放宽后端 scanner 或新增产品规则。邀请读口已独立 PASS、接受并提交推送 `9b3201547f9b7b61fd9716a6ba6540084961496c`，迁移前缀1–19正式接受，所属真实资源已实际清零并交回；本卡上游依赖已满足。主线程现授权 `directory_frontend` 唯一实施 §6 二十二条产品路径，并授予唯一真实资源窗口；实际开工仍等待主线程正式下发，不由本次文档更新自行启动。本次仅更新页首和依赖表对应行，其余技术原字节及采纳语义保持；下文设计冻结时的候选/等待叙述以本页首和更新的依赖状态为准。规格采纳、上游接受及实施授权均不代表本页面产品通过。
 
 ## 1. 完整结果与依赖
 
@@ -13,7 +13,7 @@
 | 系统设置壳与用户目录 | **已满足**，`7ef3e30` 已独立最终 PASS、主线程采纳；[正式验收报告](../agent-team/system-user-directory-ui-verification.md)与证据已归档于 `d06afca8558a2579a646714f3fd8a0968d8827b1`，范围见[目录工作项](d27-system-user-directory-ui.md)。保留 `/system` 默认用户页、管理员导航、普通身份拒绝、signed cursor 与请求实际结束纪律。 |
 | 认证、个人设置、公开入口 | **已满足**，见[认证](../agent-team/d26-authentication-verification.md)、[个人设置](../agent-team/personal-settings-verification.md)、[公开入口](../agent-team/public-account-entry-verification.md)验收。复用同一 Cookie owner、当前 Session/CSRF、明确身份切换、原 key 重试和草稿确认。 |
 | D07 邀请与人工重试写服务 | **已满足**，B37 `022dcea`、终局 `0ed8085`，见 [D07 主卡](d07-account-session-smtp.md#b04-终局采纳与文档关闭)及[单跳 retry 契约](d07-account-mail-retry-addendum.md)。Create/Resend/Revoke/Retry 已有真实 HTTP、当前管理员、version、幂等和恢复能力；本卡不改这些服务。 |
-| 邀请的最近投递任务读口 | **未满足**，[读口 rev1](d27-system-invitation-delivery-read.md)已采纳、后端实施中，尚无产品接受。须先接受 exact invitation 跨周期投影、有效期过滤、当前 attempt 渠道/结果、同事务权限与规模验证；实际全局迁移是否包含00019以其最终接受结果为准，不在本卡预判。 |
+| 邀请的最近投递任务读口 | **已满足**，[读口 rev1](d27-system-invitation-delivery-read.md)已独立 PASS、主线程采纳并提交推送 `9b3201547f9b7b61fd9716a6ba6540084961496c`，迁移前缀1–19正式接受。本卡固定消费该接受组合的 exact invitation 跨周期投影、有效期过滤、当前 attempt 渠道/结果、同事务权限及规模验证，不消费此前活动候选。 |
 | 布局与组件 | [系统设置 §2](../../frontend-design/layouts/system-settings.md#2-用户与邀请)、[通用设置壳](../../frontend-design/layouts/settings-shell.md)、[交互样式](../../frontend-design/styles/README.md)、[公共组件](../frontend/components.md)。UiDialog/UiDrawer 遮罩关闭修复已接受 `b53895f`，包含在前端基线；不修改公共控件。 |
 
 [账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md#3-管理员邀请)与 [SMTP 投递](../../architecture/platform-infrastructure/authentication/smtp-delivery.md#4-保存测试与重试)已确定业务含义：有效链接固定24小时，重发/重试不续期；创建相同有效邮箱复用原邀请；已注册邮箱拒绝；发送失败不回滚邀请；未知投递可能重复。本次未发现待用户决定的产品问题。Summary、Project/Artifact、Provider/tools 非前置；Object 原停止任务及 tools 原独立停止任务保持停止，不重建。本卡不改变完整 D26/D27、ready503、生产 SPA/Vite 真实代理的原边界。
