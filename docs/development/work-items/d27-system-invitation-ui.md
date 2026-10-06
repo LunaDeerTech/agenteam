@@ -1,6 +1,8 @@
 # D27：系统待注册邀请管理页面
 
-状态：rev3，2026-10-06 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳；被审稿 SHA256 `7944834eedbc4a9be829e168bb40cfc452965fbb5a724aef367827a2a4355204`。本修订按正式 producer 历史与读口契约纠正 §2 的无 attempt 兼容表述，保留 cancelled/null 与 processing/unknown 的既定例外，不放宽后端 scanner 或新增产品规则。邀请读口已独立 PASS、接受并提交推送 `9b3201547f9b7b61fd9716a6ba6540084961496c`，迁移前缀1–19正式接受，所属真实资源已实际清零并交回；本卡上游依赖已满足。主线程现授权 `directory_frontend` 唯一实施 §6 二十二条产品路径，并授予唯一真实资源窗口；实际开工仍等待主线程正式下发，不由本次文档更新自行启动。本次仅更新页首和依赖表对应行，其余技术原字节及采纳语义保持；下文设计冻结时的候选/等待叙述以本页首和更新的依赖状态为准。规格采纳、上游接受及实施授权均不代表本页面产品通过。
+状态：rev4，2026-10-06 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳；被审稿 SHA256 `88106416905c389463b36128021d0726b67b75bf013839f615c33f67b950ef80`。rev3曾获独立STATIC PASS并采纳，被审稿SHA256 `7944834eedbc4a9be829e168bb40cfc452965fbb5a724aef367827a2a4355204`；这些规格结论不代表页面产品已接受。邀请读口 `9b3201547f9b7b61fd9716a6ba6540084961496c`及迁移1–19仍已接受。当前input02的21源/dist已冻结，作者停止且无所属真实资源；本卡22路径与业务真实窗口继续暂停，rev4产品返修尚未授权。先独立完成并接受[模态内焦点恢复前置](d27-modal-focus-restoration.md)，再由主线程另授同页确认宿主返修及组合验收。二十二条候选路径不扩张，共享三路径不归本卡作者；本次仅更新页首采纳/等待状态，技术§1–7保持被审原字节。
+
+rev4仅修确认UI宿主与生命周期：草稿、确认状态和Promise继续归App期controller，确认Dialog改与三个邀请业务Dialog同置页面并按固定顺序共同卸载/重挂；补checking失败恢复、待决导航及真实焦点组合门槛。固定分析输入为 `/workspace/scratch/agenteam-d27-invitations-frontend/input02.json`，SHA256 `1cc558fc266f3e315f76e73a8a32321e43419410a5c6ddaac057483774173a67`及同根input02-source，21源逐SHA相符；既有共享组件取Git `6be5321`。独立pure06原日志SHA256 `fe0ef474f1b9a141a0cca0678c3b95adfb76e29dbb29f99e62f6bb2eef94303b`证明jsdom中合成pageshow驱动生产App复查后确认层变为非顶层/inert，未证明浏览器焦点；精确来源和共享静态缺口见前置卡。原失败保留，API、写入恢复、投递语义和旧无attempt规则不变。
 
 ## 1. 完整结果与依赖
 
@@ -15,6 +17,7 @@
 | D07 邀请与人工重试写服务 | **已满足**，B37 `022dcea`、终局 `0ed8085`，见 [D07 主卡](d07-account-session-smtp.md#b04-终局采纳与文档关闭)及[单跳 retry 契约](d07-account-mail-retry-addendum.md)。Create/Resend/Revoke/Retry 已有真实 HTTP、当前管理员、version、幂等和恢复能力；本卡不改这些服务。 |
 | 邀请的最近投递任务读口 | **已满足**，[读口 rev1](d27-system-invitation-delivery-read.md)已独立 PASS、主线程采纳并提交推送 `9b3201547f9b7b61fd9716a6ba6540084961496c`，迁移前缀1–19正式接受。本卡固定消费该接受组合的 exact invitation 跨周期投影、有效期过滤、当前 attempt 渠道/结果、同事务权限及规模验证，不消费此前活动候选。 |
 | 布局与组件 | [系统设置 §2](../../frontend-design/layouts/system-settings.md#2-用户与邀请)、[通用设置壳](../../frontend-design/layouts/settings-shell.md)、[交互样式](../../frontend-design/styles/README.md)、[公共组件](../frontend/components.md)。UiDialog/UiDrawer 遮罩关闭修复已接受 `b53895f`，包含在前端基线；不修改公共控件。 |
+| 剩余模态内焦点恢复 | **尚未满足产品门槛**，[独立前置卡](d27-modal-focus-restoration.md)仅为规格候选，须先独立接受三路径共享修复并固定提交，再授权本卡组合返修。解决原trigger为body/断开/模态外时的关闭恢复；本卡负责同页宿主顺序，不改useLayer或手工focus代偿。 |
 
 [账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md#3-管理员邀请)与 [SMTP 投递](../../architecture/platform-infrastructure/authentication/smtp-delivery.md#4-保存测试与重试)已确定业务含义：有效链接固定24小时，重发/重试不续期；创建相同有效邮箱复用原邀请；已注册邮箱拒绝；发送失败不回滚邀请；未知投递可能重复。本次未发现待用户决定的产品问题。Summary、Project/Artifact、Provider/tools 非前置；Object 原停止任务及 tools 原独立停止任务保持停止，不重建。本卡不改变完整 D26/D27、ready503、生产 SPA/Vite 真实代理的原边界。
 
@@ -102,7 +105,11 @@ options 沿现有 WriteOptions 由 useSession 提供 Session CSRF、稳定命令
 
 新增 `createSystemInvitations` 由 App 创建并provide，其草稿、确认与安全进度跨 RouterView 的checking卸载保留；Cookie/CSRF/key仍私有于useSession。页面进入/离开明确attach/detach，只在邀请叶子有效且当前身份确认后加载。App.dispose实际撤销本控制器watcher、beforeunload及反馈计时器，不能遗留后台轮询或请求。
 
-创建邮箱草稿、进行中写和未确认写属于dirty。菜单、浏览器返回、跳其他系统叶子、顶部本人入口/退出、表单关闭/取消均先经“继续编辑 / 放弃修改”确认；确认须发生在router触发Session重验之前。App顶部退出组合既有个人草稿确认与邀请确认，不绕过任一现存owner。沿个人设置模式安装邀请navigation hook与App层确认Dialog；其余页面导航和公开入口确认保持。beforeunload按现有标准提示，有真实身份失效时立即销毁，不因dirty阻止清理。空白未提交表单和普通列表读取不额外要求放弃确认。
+创建邮箱草稿、进行中写和未确认写属于dirty。菜单、浏览器返回、跳其他系统叶子、顶部本人入口/退出、表单关闭/取消均先经“继续编辑 / 放弃修改”确认；确认须发生在router触发Session重验之前。App顶部退出组合既有个人草稿确认与邀请确认，不绕过任一现存owner。邀请navigation hook继续由App安装，确认状态/Promise继续留在App期controller；**确认Dialog的UI宿主置于SystemInvitationsView创建、撤销、重试三个Dialog之后**，不再留在App模板。按这一固定模板顺序共同挂载/卸载，确保确认的Teleport呈现顺序与useLayer注册顶层一致；不以z-index、stable layer ID、反复nextTick重挂或业务手工focus修顺序。其余页面导航和公开入口确认保持。beforeunload按现有标准提示，有真实身份失效时立即销毁，不因dirty阻止清理。空白未提交表单和普通列表读取不额外要求放弃确认。
+
+App的真实pageshow/visibilitychange仍按原规则重验Session，不因为确认打开而跳过。checking卸载RouterView时，三个业务Dialog及邀请确认Dialog全部隐藏/卸载，detach仅清读取候选，不选择继续/放弃、不结算待决确认、不迁移其Promise。检查失败仍隐藏邀请内容，App“检查当前会话”等恢复操作须可用，不能被残留overlay/inert/滚动锁阻断；原草稿、未确认写和待决确认保留。同一完整identity重新确认且仍为admin后，页面按上述顺序重挂，恢复原确认为唯一顶层；恢复本身不发邀请POST、不换key或自动选答案。
+
+邀请dirty仅由邀请页产生；路由guard在真正离页前等待，顶部退出在原页等待，因此不为其他叶子保留全局邀请确认宿主。继续编辑只结算原确认一次并保留草稿/intent，放弃只沿既定discard/离页规则执行一次。真实离页、失权、新Session/epoch、注销与App.dispose须清旧状态并以false结束待决确认，使旧导航/关闭/退出等待有终点且不迁移到新身份；暂时checking或失败复查不等于这些事件。纯层卸载不调用finishConfirmation。重挂后原触发节点可能已断开，关闭确认的模态内恢复消费已接受共享前置；不以旧页面闭包或全局querySelector手工补焦点，也不放宽当前权限隐藏纪律。
 
 列表只提供固定25项的首项刷新、上一页、下一页，cursor历史只活在当前邀请页。下一页使用服务端cursor；上一页重新读取该页原输入cursor，后退后丢弃后续历史；请求成功才改变页位置。刷新、已确认写后的刷新、重新进入均从首项开始，不补抓所有页、不排序搜索、不伪造总数/固定快照。行到期/兑换/撤销由服务事实决定，不用浏览器时钟自行删除或续期；陈旧行操作被拒绝后明确重新加载。
 
@@ -112,7 +119,7 @@ options 沿现有 WriteOptions 由 useSession 提供 Session CSRF、稳定命令
 
 ## 6. 精确候选路径与所有权
 
-以下22路径仅在上游读口产品接受、独立静审采纳及主线程明确移交后授予frontend_worker。当前architecture_worker只写本卡，无源码、测试、迁移或归档所有权；不修改正在实施的邀请后端八路径，不消费其活动副本作验收输入。
+以下22路径仅在上游读口及模态内焦点恢复前置产品接受、独立静审采纳及主线程明确移交后授予frontend_worker。当前architecture_worker仅写本卡与前置规格，无源码、测试、迁移或归档所有权；已冻结邀请产品不再写入，共享前置三路径由主线程另授独立作者，不归本卡扩权。
 
 | # | 路径 | 限定用途 |
 | --- | --- | --- |
@@ -121,12 +128,12 @@ options 沿现有 WriteOptions 由 useSession 提供 Session CSRF、稳定命令
 | 3 | `web/src/api/system-invitations.ts`（新） | 专用类型、严格输入/投影/receipt解析及固定API。 |
 | 4 | `web/src/composables/useSession.ts` | 第三依赖参数、同owner邀请操作/私有intent、原请求重试及限域清理。 |
 | 5 | `web/src/composables/useSystemInvitations.ts`（新） | App期草稿/未确认反馈、列表分页、确认和身份/页面生命周期。 |
-| 6 | `web/src/App.vue` | provide/导航hook、邀请放弃Dialog、顶部退出确认及dispose；原个人/公开流程保持。 |
+| 6 | `web/src/App.vue` | provide/导航hook、顶部退出确认及dispose；移除邀请确认UI宿主，controller/Promise仍属App期，原个人/公开流程保持。 |
 | 7 | `web/src/components/layout/SettingsShell.vue` | 兼容旧single-leaf与受限group key/children；归一化、展开键/props更新、选中及aria，原默认/窄屏保持。 |
 | 8 | `web/src/router/index.ts` | 仅新增邀请叶子；系统默认用户页保持。 |
 | 9 | `web/src/router/auth.ts` | 第六项精确return目标及邀请离页前确认/完成hook。 |
 | 10 | `web/src/views/system/SystemSettingsView.vue` | 同一多叶子组提供用户及待注册邀请、通用系统权限拒绝文案。 |
-| 11 | `web/src/views/system/SystemInvitationsView.vue`（新） | 列表、四操作、模态、状态及局部响应布局。 |
+| 11 | `web/src/views/system/SystemInvitationsView.vue`（新） | 列表、四操作、模态、状态及局部响应布局；邀请确认Dialog固定置三个业务Dialog之后，共同卸载/重挂。 |
 | 12 | `web/src/tests/system-invitations-client.spec.ts`（新） | 受限wire、严格DTO/receipt、时间/cursor/空流与输入反例。 |
 | 13 | `web/src/tests/system-invitations-state.spec.ts`（新） | 真实controller+受控transport，实际join/身份/原key/错误分类/分页。 |
 | 14 | `web/src/tests/system-invitations.spec.ts`（新） | 用户交互、真实router/controller、dirty/焦点/权限与App组合。 |
@@ -147,6 +154,8 @@ options 沿现有 WriteOptions 由 useSession 提供 Session CSRF、稳定命令
 
 纯测试须用明确屏障证明邀请读/写fetch、body/cancel忽略abort时，30秒可见结束后仍阻止users/登录/注销/改密/公开入口越过实际owner；只有原尾部实际结束才可继续。覆盖相反方向互斥、限域abandon、sameSession checking草稿保留、同User新Session及跨账号清理、当前/迟到401/403/CSRF、原key/body重放、retry后读5xx/not_started、明确业务拒绝与历史未确认区别、确认写后刷新失败、204非空流、版本不互换、closed/null/unknown投影、严格日期/分页、首次busy与无自动重试。测试实际生产controller+transport，不能只用立即resolve的API mock或响应clone证明实际尾部。
 
+rev4保留pure06的关键恢复断言并扩充：创建dirty→放弃确认保持待决→合成pageshow经生产App listener启动受控Session GET。checking中按新宿主契约应为零邀请Dialog且App恢复区域不被inert；同Session返回后仍有底层表单与确认两层，确认位于末尾、非aria-hidden/非inert、底层不可操作、邮箱不变且新POST=0。另覆盖Session检查失败→App恢复按钮→同Session成功、待决路由/顶部退出的继续与放弃各一次、失权/换Session/dispose使等待返回false且无旧确认残留。不能删pageshow/确认状态断言、跳过检查失败或以直接调用finishConfirmation冒充用户能操作；jsdom仅证明状态/DOM，实际关闭焦点须下列浏览器组合。
+
 SettingsShell专用测试通过真实Router和用户可见交互核同组两个链接、一次折叠同时隐藏两项、组按钮不导航、两个精确叶子各自高亮且父组保持选中；两个shell实例的aria-controls对应各自唯一列表。以props替换验证同键折叠状态/id保留、新增组可见、删除组无残留菜单，不能仅断言内部Set。旧single-leaf调用、无props的个人三组/title/退出事件，以及窄屏叶子选择/键盘行为均为兼容门槛；真实焦点和遮罩仍由下述新Navigation及既有个人/用户目录浏览器组证明，不以jsdom模拟通过冒充浏览器验证。
 
 | 新真实顶层 | 必需场景 |
@@ -156,7 +165,7 @@ SettingsShell专用测试通过真实Router和用户可见交互核同组两个�
 | `TestAccountSystemInvitationsWebOutcomeRecovery` | 任务自有同源服务器在真实POST完成后有界丢弃/阻断返回，保留原失败证据；页面检查Session/列表仍未确认，显式同key重放后数据库只有同一接受事实。并测放弃后重载、严格成功后GET失败仍保留成功、真实版本竞争不静默改version重发。仅控制响应，不注入数据库commit故障或重建Object探针。 |
 | `TestAccountSystemInvitationsWebReadAndPagination` | 至少26个有效邀请，每行由正式服务建立其accepted intent；逐页/返回/刷新核exact invitation和最新投影，投递推进不改变邀请分页顺序。空/到期/撤销/兑换边界与坏cursor、安全错误分别验证，不假装全局快照。纯规模播种不替代本组真实创建。 |
 | `TestAccountSystemInvitationsWebAuthorityAndIdentity` | 普通用户无入口/direct-link不发邀请请求；实际撤销Session/当前admin失权由真实后端401/403拒绝读写，旧数据/草稿/intent清除；同账号新Session及明确换账号不继承原重试。失权准备限自有精确fixture，不能fulfill假403冒充真实授权。 |
-| `TestAccountSystemInvitationsWebNavigationAndLayouts` | `/system`默认用户、邀请直链登录return、两个真实叶子；dirty表单与未确认写在菜单/顶部退出的继续/放弃、同Session复查保留；light/dark×1440/1024/834/390、长邮箱/状态、键盘、创建/撤销/放弃Dialog及窄屏Drawer的Escape/遮罩焦点、reduced-motion、无页面溢出。 |
+| `TestAccountSystemInvitationsWebNavigationAndLayouts` | `/system`默认用户、邀请直链登录return、两个真实叶子；dirty表单与未确认写在菜单/顶部退出的继续/放弃。确认已打开时触发App pageshow复查，含失败后在App重试、同Session恢复；确认仍是真实可点击/键盘可达顶层，继续后焦点在下层模态且Tab/Shift+Tab不逃出，放弃/真实离页后无旧层残留，不以手工focus或仅z-index/DOM顺序判通过。light/dark×1440/1024/834/390、长邮箱/状态、键盘、创建/撤销/放弃Dialog及窄屏Drawer的Escape/遮罩焦点、reduced-motion、无页面溢出。 |
 
 真实新增顶层通过既有脚本按精确名称运行，可采用 `scripts/test-security.sh -run '^TestAccountSystemInvitationsWeb(Lifecycle|DeliveryRetry|OutcomeRecovery|ReadAndPagination|AuthorityAndIdentity|NavigationAndLayouts)$'`；只使用已验真实依赖与任务自有PG17.x（最低17.8）、MinIO、受控私网SMTP、受限日志和生产dist服务器。脚本/旧fixture原预算不变：浏览器45秒、Go顶层2分钟、workers=1/retries=0、race/count1/每包6分钟。按真实耗时分组运行，不加时、削断言、跳过缺资源或把no-tests算通过。浏览器日志/截图不得包含私有邀请链接或初始化密码，fixture材料仅留受限runtime。
 
