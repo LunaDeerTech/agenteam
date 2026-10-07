@@ -41,6 +41,7 @@ const groups = [
       { label: '账号安全', path: '/system/account-security' },
       { label: 'SMTP', path: '/system/smtp' },
       { label: '出站规则', path: '/system/outbound-policy' },
+      { label: '运行信息', path: '/system/runtime-information' },
     ],
   },
 ]

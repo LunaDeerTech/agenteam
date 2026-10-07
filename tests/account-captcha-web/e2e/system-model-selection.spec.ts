@@ -1919,7 +1919,7 @@ test("[navigation] five leaves, restored cohost focus and eight real layouts", a
     page
       .getByRole("navigation", { name: "系统设置", exact: true })
       .getByRole("link"),
-  ).toHaveCount(9);
+  ).toHaveCount(10);
   for (const leaf of ["待注册邀请", "Providers", "Models"]) {
     await page
       .getByRole("navigation", { name: "系统设置", exact: true })
@@ -2078,7 +2078,7 @@ test("[navigation] five leaves, restored cohost focus and eight real layouts", a
         await expect(page.getByRole("dialog")).toHaveCount(0);
         const toggle = button(page, "系统设置栏目");
         await toggle.click();
-        await expect(top(page).getByRole("link")).toHaveCount(9);
+        await expect(top(page).getByRole("link")).toHaveCount(10);
         await focusContained(page);
         await page.keyboard.press("Escape");
         await expect(page.getByRole("dialog")).toHaveCount(0);

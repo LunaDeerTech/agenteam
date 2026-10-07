@@ -293,6 +293,7 @@ describe('real App, router and invitations controller composition', () => {
       '账号安全',
       'SMTP',
       '出站规则',
+      '运行信息',
     ])
     expect(f.reads()).toHaveLength(1)
     expect(f.wrapper.findAll('th').map((n) => n.text())).toEqual([

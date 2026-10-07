@@ -456,6 +456,7 @@ describe('Model actual App/router/form composition', () => {
       '账号安全',
       'SMTP',
       '出站规则',
+      '运行信息',
     ])
     expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
     await f.wrapper.get('a[href="/system/models"]').trigger('click')

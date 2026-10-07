@@ -74,6 +74,10 @@ export const router = createRouter({
           path: 'outbound-policy',
           component: () => import('../views/system/SystemOutboundPolicyView.vue'),
         },
+        {
+          path: 'runtime-information',
+          component: () => import('../views/system/SystemRuntimeInformationView.vue'),
+        },
       ],
     },
     {

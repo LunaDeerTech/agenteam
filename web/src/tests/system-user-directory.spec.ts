@@ -217,6 +217,7 @@ describe('System user directory page and shared shells', () => {
       '账号安全',
       'SMTP',
       '出站规则',
+      '运行信息',
     ])
     expect(menu.get('a').attributes('aria-current')).toBe('page')
     expect(menu.findAll('button').map((b) => b.text())).not.toContain('退出登录')

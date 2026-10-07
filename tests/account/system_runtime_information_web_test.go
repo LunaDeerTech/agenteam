@@ -1,0 +1,38 @@
+//go:build integration
+
+package account_test
+
+import (
+	"context"
+	"testing"
+	"time"
+)
+
+func runRuntimeInformationWeb(t *testing.T, mode string, required ...string) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	f := newRuntimeInformationWebFixture(t, ctx, mode)
+	result := f.browserRuntimeInformation(ctx)
+	for _, key := range required {
+		if result[key] != true {
+			t.Fatalf("Runtime browser evidence incomplete: %s", key)
+		}
+	}
+	if mode == "navigation" && result["layouts"] != float64(8) {
+		t.Fatal("Runtime theme/width image matrix incomplete")
+	}
+	f.mu.Lock()
+	joined := f.held == f.joined
+	f.mu.Unlock()
+	if !joined || f.serverStarted.Load() != f.serverFinished.Load() {
+		t.Fatal("owned Runtime proxy body/callback did not actually join")
+	}
+	t.Logf("real Runtime UI group=%s complete; formal root cache only, no new probe/production hosting/external resource health claim", mode)
+}
+func TestAccountSystemRuntimeInformationWebReadAndAuthority(t *testing.T) {
+	runRuntimeInformationWeb(t, "read", "same_response_projection", "unknown_and_not_ready", "explicit_read", "ordinary_forbidden", "read_error_and_cut", "formal_logout", "late_identity_isolation", "zero_runtime_writes")
+}
+func TestAccountSystemRuntimeInformationWebNavigationAndLifecycle(t *testing.T) {
+	runRuntimeInformationWeb(t, "navigation", "ten_leaves_four_groups", "fourteenth_return", "cancel_join", "leave_join", "busy_pageshow", "checking_new_page", "local_focus", "drawer", "no_overflow", "zero_runtime_writes")
+}

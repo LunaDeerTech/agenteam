@@ -339,7 +339,7 @@ async function apply() {
 const detailButton = (n = 100) => '查看详情 ' + id(n)
 
 describe('Audit page uses the production App, route records, authentication guard and factory', () => {
-  it('has one protected Audit leaf, nine leaves/four groups and thirteen exact return targets', async () => {
+  it('has one protected Audit leaf, ten leaves/four groups and fourteen exact return targets', async () => {
     const f = await app()
     expect(f.router.resolve('/system/audit').matched.at(-1)?.path).toBe('/system/audit')
     expect(f.router.currentRoute.value.meta.systemAdmin).toBe(true)
@@ -357,6 +357,7 @@ describe('Audit page uses the production App, route records, authentication guar
       '/system/account-security',
       '/system/smtp',
       '/system/outbound-policy',
+      '/system/runtime-information',
     ])
     const targets = [
       '/',
@@ -372,6 +373,7 @@ describe('Audit page uses the production App, route records, authentication guar
       '/system/smtp',
       '/system/outbound-policy',
       '/system/audit',
+      '/system/runtime-information',
     ]
     for (const target of targets) expect(safeReturnTarget(target)).toBe(target)
     for (const value of [

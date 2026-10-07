@@ -1483,7 +1483,7 @@ test("[navigation] ninth leaf, thirteenth return, page lifetimes and eight real 
   let current = await ready(page);
   await page.goto("/system");
   await expect(page).toHaveURL(/\/system\/users$/);
-  await expect(nav(page).getByRole("link")).toHaveCount(9);
+  await expect(nav(page).getByRole("link")).toHaveCount(10);
   await expect(nav(page).locator(".settings-group-toggle")).toHaveCount(4);
   expect(
     await nav(page)
@@ -1499,6 +1499,7 @@ test("[navigation] ninth leaf, thirteenth return, page lifetimes and eight real 
     "/system/account-security",
     "/system/smtp",
     "/system/outbound-policy",
+    "/system/runtime-information",
   ]);
   const group = nav(page).getByRole("button", { name: "审计", exact: true });
   await group.focus();
@@ -1576,7 +1577,9 @@ test("[navigation] ninth leaf, thirteenth return, page lifetimes and eight real 
       if (width === 390) {
         const toggle = button(page, "系统设置栏目");
         await toggle.click();
-        await expect(page.getByRole("dialog").getByRole("link")).toHaveCount(9);
+        await expect(page.getByRole("dialog").getByRole("link")).toHaveCount(
+          10,
+        );
         await focusContained(page);
         await page.keyboard.press("Escape");
         await expect(page.locator(".ui-overlay")).toHaveCount(0);

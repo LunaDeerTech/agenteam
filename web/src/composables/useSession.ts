@@ -118,6 +118,10 @@ import {
   type SystemAuditAPI,
   type AuditQuery,
 } from '../api/system-audit'
+import {
+  createSystemRuntimeInformationAPI,
+  type SystemRuntimeInformationAPI,
+} from '../api/system-runtime-information'
 
 type OutboundPolicyAction = 'outbound-policy-read' | 'outbound-policy-write'
 export type SystemOutboundPolicyProgress = Readonly<{
@@ -309,6 +313,7 @@ type Action =
   | 'entry'
   | 'system'
   | 'audit-read'
+  | 'runtime-information-read'
   | 'invitation-read'
   | 'invitation-write'
   | ProviderAction
@@ -424,6 +429,7 @@ export function createSessionController(
   smtpDeliveryAPI: SystemSMTPDeliveryAPI = createSystemSMTPDeliveryAPI(),
   outboundAPI: SystemOutboundPolicyAPI = createSystemOutboundPolicyAPI(),
   auditAPI: SystemAuditAPI = createSystemAuditAPI(),
+  runtimeInformationAPI: SystemRuntimeInformationAPI = createSystemRuntimeInformationAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -460,7 +466,8 @@ export function createSessionController(
     deniedIdentity: null,
   })
   let systemRevision = 0,
-    auditRevision = 0
+    auditRevision = 0,
+    runtimeInformationRevision = 0
   let invitationReadRevision = 0,
     invitationRevision = 0
   let invitationIntent: SystemInvitationIntent | null = null
@@ -625,6 +632,7 @@ export function createSessionController(
       clearSMTPDeliveryState()
       clearOutboundPolicyState()
       clearAuditRead()
+      clearRuntimeInformationRead()
       ++systemRevision
       systemState.deniedIdentity = null
       sessionCSRF = ''
@@ -741,6 +749,7 @@ export function createSessionController(
     )
       clearOutboundPolicyState()
     if (!same || view.user.role !== 'admin') clearAuditRead()
+    if (!same || view.user.role !== 'admin') clearRuntimeInformationRead()
     state.notice = ''
     state.fields = {}
     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
@@ -1171,6 +1180,7 @@ export function createSessionController(
       | 'personal'
       | 'system'
       | 'audit-read'
+      | 'runtime-information-read'
       | 'invitation-read'
       | 'invitation-write'
       | ProviderAction
@@ -1187,25 +1197,27 @@ export function createSessionController(
         ? systemRevision
         : kind === 'audit-read'
           ? auditRevision
-          : kind === 'invitation-read'
-            ? invitationReadRevision
-            : kind === 'invitation-write'
-              ? invitationRevision
-              : kind === 'personal'
-                ? personalRevision
-                : isModelAction(kind)
-                  ? modelRevisions[kind]
-                  : isSelectionAction(kind)
-                    ? selectionRevisions[kind]
-                    : isAccountSecurityAction(kind)
-                      ? accountSecurityRevisions[kind]
-                      : isSMTPAction(kind)
-                        ? smtpRevisions[kind]
-                        : isSMTPDeliveryAction(kind)
-                          ? smtpDeliveryRevisions[kind]
-                          : isOutboundPolicyAction(kind)
-                            ? outboundRevisions[kind]
-                            : providerRevisions[kind]
+          : kind === 'runtime-information-read'
+            ? runtimeInformationRevision
+            : kind === 'invitation-read'
+              ? invitationReadRevision
+              : kind === 'invitation-write'
+                ? invitationRevision
+                : kind === 'personal'
+                  ? personalRevision
+                  : isModelAction(kind)
+                    ? modelRevisions[kind]
+                    : isSelectionAction(kind)
+                      ? selectionRevisions[kind]
+                      : isAccountSecurityAction(kind)
+                        ? accountSecurityRevisions[kind]
+                        : isSMTPAction(kind)
+                          ? smtpRevisions[kind]
+                          : isSMTPDeliveryAction(kind)
+                            ? smtpDeliveryRevisions[kind]
+                            : isOutboundPolicyAction(kind)
+                              ? outboundRevisions[kind]
+                              : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1471,7 +1483,8 @@ export function createSessionController(
         state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
       } else if (
         current() &&
-        (op.kind !== 'audit-read' || e.kind === 'problem') &&
+        ((op.kind !== 'audit-read' && op.kind !== 'runtime-information-read') ||
+          e.kind === 'problem') &&
         e.problem?.status === 403 &&
         e.problem.code === 'FORBIDDEN'
       ) {
@@ -1484,6 +1497,7 @@ export function createSessionController(
         clearSMTPDeliveryState()
         clearOutboundPolicyState()
         clearAuditRead()
+        clearRuntimeInformationRead()
         systemState.deniedIdentity = identity
       }
     }
@@ -3321,6 +3335,26 @@ export function createSessionController(
       return performOutboundPolicy(outboundIntent)
     },
   }
+  function clearRuntimeInformationRead() {
+    ++runtimeInformationRevision
+    if (owner?.kind === 'runtime-information-read') owner.abandon?.()
+  }
+  const runtimeInformation = {
+    get() {
+      try {
+        const identity = invitationIdentity()
+        return runAuthorized(
+          identity,
+          (op) => runtimeInformationAPI.get(op.abort.signal),
+          undefined,
+          'runtime-information-read',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    abandon: clearRuntimeInformationRead,
+  }
   function clearAuditRead() {
     ++auditRevision
     if (owner?.kind === 'audit-read') owner.abandon?.()
@@ -3358,6 +3392,7 @@ export function createSessionController(
     abandon: clearAuditRead,
   }
   const system = {
+    runtimeInformation,
     audit,
     outboundPolicy,
     smtpDelivery,

@@ -471,7 +471,7 @@ describe('personal settings pages', () => {
       expect(p.api.login.mock.calls.length).toBe(1)
     },
   )
-  it('only permits the thirteen exact return targets and clears dirty previews on real context invalidation', async () => {
+  it('only permits the fourteen exact return targets and clears dirty previews on real context invalidation', async () => {
     expect(safeReturnTarget('/system/invitations')).toBe('/system/invitations')
     expect(safeReturnTarget('/system/providers')).toBe('/system/providers')
     expect(safeReturnTarget('/system/models')).toBe('/system/models')
@@ -480,6 +480,7 @@ describe('personal settings pages', () => {
     expect(safeReturnTarget('/system/smtp')).toBe('/system/smtp')
     expect(safeReturnTarget('/system/outbound-policy')).toBe('/system/outbound-policy')
     expect(safeReturnTarget('/system/audit')).toBe('/system/audit')
+    expect(safeReturnTarget('/system/runtime-information')).toBe('/system/runtime-information')
     expect(safeReturnTarget('/system/users')).toBe('/system/users')
     for (const target of [
       '/settings',
@@ -505,6 +506,11 @@ describe('personal settings pages', () => {
       '/system/audit/',
       '/system/audit/extra',
       ['/system/audit'],
+      '/system/runtime-information?x=1',
+      '/system/runtime-information#x',
+      '/system/runtime-information/',
+      '/system/runtime-information/extra',
+      ['/system/runtime-information'],
       '//example.com',
       'https://example.com',
       ['/settings/profile'],

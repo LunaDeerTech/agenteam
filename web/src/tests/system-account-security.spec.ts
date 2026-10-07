@@ -255,7 +255,7 @@ function confirmation() {
 }
 
 describe('Account security inline form in the actual App and router', () => {
-  it('keeps users as default, renders nine leaves in four groups and preserves the tenth exact return', async () => {
+  it('keeps users as default, renders ten leaves in four groups and preserves the tenth exact return', async () => {
     const f = await page({ path: '/system' })
     expect(f.router.currentRoute.value.path).toBe('/system/users')
     expect(
@@ -273,6 +273,7 @@ describe('Account security inline form in the actual App and router', () => {
       '账号安全',
       'SMTP',
       '出站规则',
+      '运行信息',
     ])
     expect(f.wrapper.findAll('.settings-group-toggle').map((group) => group.text())).toEqual([
       '用户与邀请',

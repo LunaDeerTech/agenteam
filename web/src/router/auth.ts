@@ -15,6 +15,7 @@ const returnTargets = [
   '/system/smtp',
   '/system/outbound-policy',
   '/system/audit',
+  '/system/runtime-information',
 ] as const
 type ReturnTarget = (typeof returnTargets)[number]
 export function safeReturnTarget(value: unknown): ReturnTarget {

@@ -76,6 +76,7 @@ const endpoints = {
   systemUsers: ['GET', '/api/v1/system/users', 200],
   listSystemAudit: ['GET', '/api/v1/system/audit', 200],
   getSystemAudit: ['GET', '/api/v1/system/audit/{id}', 200],
+  getSystemRuntimeInformation: ['GET', '/api/v1/system/runtime-information', 200],
   listProviders: ['GET', '/api/v1/system/model-providers', 200],
   getProvider: ['GET', '/api/v1/system/model-providers/{id}', 200],
   createProvider: ['POST', '/api/v1/system/model-providers', 200],
@@ -575,6 +576,11 @@ type AuditOptions<E extends AuditEndpoint> = E extends 'listSystemAudit'
   : { signal: AbortSignal; target: string }
 
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T>(
+    endpoint: 'getSystemRuntimeInformation',
+    parse: (value: unknown) => T,
+    options: { signal: AbortSignal },
+  ): Promise<T>
   function request<T, E extends AuditEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -645,6 +651,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       | SMTPDeliveryEndpoint
       | OutboundPolicyEndpoint
       | AuditEndpoint
+      | 'getSystemRuntimeInformation'
     >,
     parse: (value: unknown) => T,
     options: RequestOptions & { users?: never; invitations?: never; target?: never },
@@ -665,7 +672,13 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if (endpoint === 'listSystemAudit' || endpoint === 'getSystemAudit') {
+    if (endpoint === 'getSystemRuntimeInformation') {
+      try {
+        shape(options, ['signal'])
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if (endpoint === 'listSystemAudit' || endpoint === 'getSystemAudit') {
       try {
         if (endpoint === 'listSystemAudit') {
           shape(options, ['signal', 'audit'])
@@ -866,11 +879,13 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         value = await readJSON(
           response,
           options.signal,
-          endpoint === 'listProviders' && success
-            ? 2 * 1024 * 1024
-            : (endpoint === 'listSystemAudit' || endpoint === 'getSystemAudit') && success
-              ? 1024 * 1024
-              : 600_000,
+          endpoint === 'getSystemRuntimeInformation' && success
+            ? 16 * 1024
+            : endpoint === 'listProviders' && success
+              ? 2 * 1024 * 1024
+              : (endpoint === 'listSystemAudit' || endpoint === 'getSystemAudit') && success
+                ? 1024 * 1024
+                : 600_000,
         )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')

@@ -1296,7 +1296,7 @@ async function layout(page: Page, width: number) {
   await button(page, "取消修改").scrollIntoViewIfNeeded();
   await expect(button(page, "取消修改")).toBeInViewport();
 }
-test("[navigation] nine leaves, two restored confirmations and eight responsive layouts", async ({
+test("[navigation] ten leaves, two restored confirmations and eight responsive layouts", async ({
   page,
 }) => {
   await page.addInitScript(observeNative);
@@ -1308,7 +1308,7 @@ test("[navigation] nine leaves, two restored confirmations and eight responsive 
   await page.goto("/system");
   await expect(page).toHaveURL(/\/system\/users$/);
   const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
-  await expect(nav.getByRole("link")).toHaveCount(9);
+  await expect(nav.getByRole("link")).toHaveCount(10);
   await expect(nav.locator(".settings-group-toggle")).toHaveCount(4);
   const platform = nav.getByRole("button", { name: "平台配置", exact: true });
   await platform.focus();
@@ -1488,7 +1488,7 @@ test("[navigation] nine leaves, two restored confirmations and eight responsive 
       if (width === 390) {
         const toggle = button(page, "系统设置栏目");
         await toggle.click();
-        await expect(top(page).getByRole("link")).toHaveCount(9);
+        await expect(top(page).getByRole("link")).toHaveCount(10);
         await focusContained(page);
         await page.keyboard.press("Escape");
         await expect(page.locator(".ui-overlay")).toHaveCount(0);

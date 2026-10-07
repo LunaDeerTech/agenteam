@@ -1525,7 +1525,7 @@ test("[navigation] dirty navigation, same Session check, dialogs, drawer and eig
           name: "系统设置栏目",
           exact: true,
         });
-        await expect(drawer.getByRole("link")).toHaveCount(9);
+        await expect(drawer.getByRole("link")).toHaveCount(10);
         for (let n = 0; n < 6; n++) {
           await page.keyboard.press("Tab");
           expect(

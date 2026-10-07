@@ -316,7 +316,7 @@ async function openDirty() {
 }
 
 describe('Provider actual App/router/controller composition', () => {
-  it('keeps users as default, has exactly nine leaves in four groups and preserves Provider return validation', async () => {
+  it('keeps users as default, has exactly ten leaves in four groups and preserves Provider return validation', async () => {
     const f = await page('/system')
     expect(f.router.currentRoute.value.path).toBe('/system/users')
     expect(
@@ -334,6 +334,7 @@ describe('Provider actual App/router/controller composition', () => {
       '账号安全',
       'SMTP',
       '出站规则',
+      '运行信息',
     ])
     expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
     await f.wrapper.get('a[href="/system/providers"]').trigger('click')
