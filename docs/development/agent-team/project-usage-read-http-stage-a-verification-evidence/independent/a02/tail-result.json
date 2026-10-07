@@ -1,0 +1,20 @@
+{
+  "author_final_hashes": {
+    "stage-a-final-input.json": "ba247577940319f250b2a5d409848db6c569e38aa4e5d8bdaa5f82ab2ee4a3e0",
+    "stage-a-final-state.json": "199222a69c75431bf9c596942f2e6c985fb9ca9fe009baed9c7c8aa0feedf7f1"
+  },
+  "actual_verified_race_and_artifact_inputs": 18,
+  "author_groups_remaining": [
+    {
+      "pid": 22765,
+      "state": "Z",
+      "ppid": 1,
+      "pgrp": "20527",
+      "starttime": "81512"
+    }
+  ],
+  "independent_groups_remaining": [],
+  "own_runs": 7,
+  "at": 1791375183.3390853,
+  "limitation": "Author a04 compiler is historical unjoined zombie; no false cleanup/adopted wait claimed."
+}

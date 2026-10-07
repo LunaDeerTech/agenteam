@@ -1,0 +1,83 @@
+=== RUN   TestHTTPBoundaryUsesOriginalBrowserRules
+--- PASS: TestHTTPBoundaryUsesOriginalBrowserRules (0.00s)
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/GET/human
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/GET/system
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/HEAD/human
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/HEAD/system
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/OPTIONS/human
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/OPTIONS/system
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/POST/human
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/POST/system
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/PUT/human
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/PUT/system
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/DELETE/human
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/DELETE/system
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/GET/human
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/GET/system
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/HEAD/human
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/HEAD/system
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/OPTIONS/human
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/OPTIONS/system
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/POST/human
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/POST/system
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/PUT/human
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/PUT/system
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/DELETE/human
+=== RUN   TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/DELETE/system
+--- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority (0.03s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/GET/human (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/GET/system (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/HEAD/human (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/HEAD/system (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/OPTIONS/human (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/OPTIONS/system (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/POST/human (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/POST/system (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/PUT/human (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/PUT/system (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/DELETE/human (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/user/DELETE/system (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/GET/human (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/GET/system (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/HEAD/human (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/HEAD/system (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/OPTIONS/human (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/OPTIONS/system (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/POST/human (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/POST/system (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/PUT/human (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/PUT/system (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/DELETE/human (0.00s)
+    --- PASS: TestHTTPBoundaryHumanAndOriginalSystemAuthority/admin/DELETE/system (0.00s)
+=== RUN   TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent
+=== RUN   TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/origin
+=== RUN   TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/fetch
+=== RUN   TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/path
+=== RUN   TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/raw_path
+=== RUN   TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/unsafe_without_origin
+=== RUN   TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/host
+=== RUN   TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/cookie_absent
+=== RUN   TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/cookie_duplicate
+=== RUN   TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/unsafe_without_csrf
+--- PASS: TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent (0.01s)
+    --- PASS: TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/origin (0.00s)
+    --- PASS: TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/fetch (0.00s)
+    --- PASS: TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/path (0.00s)
+    --- PASS: TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/raw_path (0.00s)
+    --- PASS: TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/unsafe_without_origin (0.00s)
+    --- PASS: TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/host (0.00s)
+    --- PASS: TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/cookie_absent (0.00s)
+    --- PASS: TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/cookie_duplicate (0.00s)
+    --- PASS: TestHTTPBoundaryHumanRejectsBeforeIdentityAndPreservesSystemIntent/unsafe_without_csrf (0.00s)
+=== RUN   TestHTTPBoundaryHumanCurrentRevocationCSRFAndCancellation
+=== RUN   TestHTTPBoundaryHumanCurrentRevocationCSRFAndCancellation/revoked
+=== RUN   TestHTTPBoundaryHumanCurrentRevocationCSRFAndCancellation/bad_csrf
+=== RUN   TestHTTPBoundaryHumanCurrentRevocationCSRFAndCancellation/cancelled
+--- PASS: TestHTTPBoundaryHumanCurrentRevocationCSRFAndCancellation (0.00s)
+    --- PASS: TestHTTPBoundaryHumanCurrentRevocationCSRFAndCancellation/revoked (0.00s)
+    --- PASS: TestHTTPBoundaryHumanCurrentRevocationCSRFAndCancellation/bad_csrf (0.00s)
+    --- PASS: TestHTTPBoundaryHumanCurrentRevocationCSRFAndCancellation/cancelled (0.00s)
+=== RUN   TestHTTPBoundaryZeroAndSafeProblem
+--- PASS: TestHTTPBoundaryZeroAndSafeProblem (0.00s)
+PASS

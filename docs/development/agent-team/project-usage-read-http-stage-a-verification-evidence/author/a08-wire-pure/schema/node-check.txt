@@ -1,0 +1,10 @@
+const fs=require('node:fs'); const v=JSON.parse(fs.readFileSync(0,'utf8'));
+let compiled=0;function walk(x){if(!x||typeof x!=='object')return;for(const [k,y] of Object.entries(x)){if(k==='pattern'){new RegExp(y,'u');compiled++}else walk(y)}}walk(v.document);walk(v.common);
+function check(s,x,doc){if(s.$ref){let target=doc;let ref=s.$ref;if(ref.startsWith('./common.json')){target=v.common;ref=ref.slice('./common.json'.length)}s=ref.slice(2).split('/').reduce((a,k)=>a[k],target);return check(s,x,target)}
+if(s.type==='string'&&typeof x!=='string')return false;if(s.type==='null'&&x!==null)return false;if('const'in s&&x!==s.const)return false;if(s.enum&&!s.enum.includes(x))return false;
+if(typeof x==='string'){if(s.pattern&&!new RegExp(s.pattern,'u').test(x))return false;if(s.minLength!==undefined&&[...x].length<s.minLength)return false;if(s.maxLength!==undefined&&[...x].length>s.maxLength)return false}
+if(s.not&&check(s.not,x,doc))return false;if(s.anyOf&&!s.anyOf.some(a=>check(a,x,doc)))return false;if(s.allOf&&!s.allOf.every(a=>check(a,x,doc)))return false;return true}
+let tested=0;const names=new Set(['ProviderRequestID','ProjectName','Username','common:Instant','common:NonnegativeInt64String','common:PositiveInt64String']);
+for(const c of v.cases){if(!names.has(c.schema))continue;const doc=c.schema.startsWith('common:')?v.common:v.document;const name=c.schema.split(':').at(-1);const actual=check(doc.components.schemas[name],c.value,doc);if(actual!==c.valid)throw Error('ECMA scalar boundary: '+c.name);tested++}
+for(const n of [128,129]){const actual=check(v.document.components.schemas.Name,'😀'.repeat(n),v.document);if(actual!==(n===128))throw Error('Unicode scalar length')}
+console.log('Node '+process.version+' ECMA u-patterns='+compiled+' scalar cases='+tested+' Unicode=2 PASS');

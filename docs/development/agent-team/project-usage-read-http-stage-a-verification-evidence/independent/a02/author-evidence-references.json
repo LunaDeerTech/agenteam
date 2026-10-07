@@ -1,0 +1,126 @@
+[
+  {
+    "label": "a01-list",
+    "command_meta": "/workspace/scratch/usage-http-author/a01-list/command.json",
+    "command_meta_sha256": "b7a0b3b997d04bdd734a5777279dd6a94e1e36c30fd96d8fcdd9db28cadcbf47",
+    "raw": "/workspace/scratch/usage-http-author/a01-list/raw.log",
+    "raw_sha256": "0576c565c0fade12aef795ff8604e73944db349e308ca8d5a4752f368a6ccae7",
+    "actual_exit": 1,
+    "elapsed_seconds": 0.21453380584716797,
+    "unchanged": true
+  },
+  {
+    "label": "a02-schema-preflight",
+    "command_meta": "/workspace/scratch/usage-http-author/a02-schema-preflight/command.json",
+    "command_meta_sha256": "3716e8c3d8e97143654a852926ed49aa7df7fb1aa067f87d54114eff1dfa669b",
+    "raw": "/workspace/scratch/usage-http-author/a02-schema-preflight/raw.log",
+    "raw_sha256": "ad1359cf2ec5575123bbd4c632c1bcc8a45e7c4ece0f7a57d498d2e7659b83a5",
+    "actual_exit": 0,
+    "elapsed_seconds": 0.2645106315612793,
+    "unchanged": true
+  },
+  {
+    "label": "a03-list",
+    "command_meta": "/workspace/scratch/usage-http-author/a03-list/command.json",
+    "command_meta_sha256": "766185592e9532856456b335a11f5156ba699b020cd9ce9996058e1bdf58a001",
+    "raw": "/workspace/scratch/usage-http-author/a03-list/raw.log",
+    "raw_sha256": "0ebb0edc528cd076abbae01a38019f332db245e444532b6e37ba30e1df5306b2",
+    "actual_exit": 0,
+    "elapsed_seconds": 0.31569480895996094,
+    "unchanged": true
+  },
+  {
+    "label": "a04-pure",
+    "command_meta": "/workspace/scratch/usage-http-author/a04-pure/command.json",
+    "command_meta_sha256": "97e3c47218fae5cc7f1d7d509d37b22fc97a14d05096c7e66b2a6eeec827d47c",
+    "raw": "/workspace/scratch/usage-http-author/a04-pure/raw.log",
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual_exit": -15,
+    "elapsed_seconds": 45.00392484664917,
+    "unchanged": true
+  },
+  {
+    "label": "a05-account-compile",
+    "command_meta": "/workspace/scratch/usage-http-author/a05-account-compile/command.json",
+    "command_meta_sha256": "8928e3e8cde6484ed6d15b1c11dddb3d24e0609048eee307e9902c7ceece8798",
+    "raw": "/workspace/scratch/usage-http-author/a05-account-compile/raw.log",
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual_exit": 0,
+    "elapsed_seconds": 35.54991793632507,
+    "unchanged": true
+  },
+  {
+    "label": "a06-account-pure",
+    "command_meta": "/workspace/scratch/usage-http-author/a06-account-pure/command.json",
+    "command_meta_sha256": "22f89530e81e302e600744a51152dbb35c5f173661b0223ad73a4f87ab526405",
+    "raw": "/workspace/scratch/usage-http-author/a06-account-pure/raw.log",
+    "raw_sha256": "07c88aca81b6cd32b19b5ded0173032106cc0ea82e85679179cdcbb4d7aeb4a5",
+    "actual_exit": 0,
+    "elapsed_seconds": 1.0669310092926025,
+    "unchanged": true,
+    "top_tests": 5,
+    "subtests": 36
+  },
+  {
+    "label": "a07-wire-compile",
+    "command_meta": "/workspace/scratch/usage-http-author/a07-wire-compile/command.json",
+    "command_meta_sha256": "40c661e0f2abe99d11f11177f5665d79be8699ad34d936c3ad11ef473184cee6",
+    "raw": "/workspace/scratch/usage-http-author/a07-wire-compile/raw.log",
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual_exit": 0,
+    "elapsed_seconds": 3.6363000869750977,
+    "unchanged": true
+  },
+  {
+    "label": "a08-wire-pure",
+    "command_meta": "/workspace/scratch/usage-http-author/a08-wire-pure/command.json",
+    "command_meta_sha256": "b1a7e0e5bba9222eae1be15d01dd07c74641bbc034542060fb258f54efc877ba",
+    "raw": "/workspace/scratch/usage-http-author/a08-wire-pure/raw.log",
+    "raw_sha256": "f357d59e5ca07a6794fde722affc8656c67ed56e53e170249250b24772b0f12c",
+    "actual_exit": 0,
+    "elapsed_seconds": 1.5704271793365479,
+    "unchanged": true,
+    "top_tests": 11,
+    "subtests": 99
+  },
+  {
+    "label": "a09-vet",
+    "command_meta": "/workspace/scratch/usage-http-author/a09-vet/command.json",
+    "command_meta_sha256": "fcbc696efa3dd6ba77b0a9f161330f851ce4d8a6f530762c293f10b15a2f8bbf",
+    "raw": "/workspace/scratch/usage-http-author/a09-vet/raw.log",
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual_exit": -15,
+    "elapsed_seconds": 45.00391983985901,
+    "unchanged": true
+  },
+  {
+    "label": "a10-race-list",
+    "command_meta": "/workspace/scratch/usage-http-author/a10-race-list/command.json",
+    "command_meta_sha256": "f0ef15598cb4d53ea82fa010fd20602efa716a7f1ea5e9c5168dc9ce252ae2b0",
+    "raw": "/workspace/scratch/usage-http-author/a10-race-list/raw.log",
+    "raw_sha256": "b9e6e4f5fe84d73b7f4696979a195f2394cac66eb15f4aa51ed6d0152ef8056f",
+    "actual_exit": 0,
+    "elapsed_seconds": 0.2191314697265625,
+    "unchanged": true
+  },
+  {
+    "label": "a11-account-vet",
+    "command_meta": "/workspace/scratch/usage-http-author/a11-account-vet/command.json",
+    "command_meta_sha256": "09d303fb8f7303af28618b059502427a3f4112e8916c35e140b2959eb54f0873",
+    "raw": "/workspace/scratch/usage-http-author/a11-account-vet/raw.log",
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual_exit": 0,
+    "elapsed_seconds": 6.60649561882019,
+    "unchanged": true
+  },
+  {
+    "label": "a12-wire-vet",
+    "command_meta": "/workspace/scratch/usage-http-author/a12-wire-vet/command.json",
+    "command_meta_sha256": "3dbdb4d79e04b495d2750f63284db81f9e637df45600c635e08f2e603332ae11",
+    "raw": "/workspace/scratch/usage-http-author/a12-wire-vet/raw.log",
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual_exit": 0,
+    "elapsed_seconds": 0.264636754989624,
+    "unchanged": true
+  }
+]

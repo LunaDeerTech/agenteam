@@ -1,5 +1,10 @@
 # 团队任务台账
 
+## 2026-10-07：Usage HTTP 阶段 A 五路径接受
+
+- [阶段 A 验证归档](project-usage-read-http-stage-a-verification.md)绑定已提交推送 `ba7ce7296b7c08d976d3fc3ce1e1d0b727a3f04f`、同 a02 五源及独立限定 PASS；作者 Account5/36、Wire11/99、race compile/vet，独立四 race 顶层/schema382/Node147/250 refs/288 仓库依赖均有固定证据。111 小原件保存，五个大型 list raw 仅指纹，源码复用固定 Git。
+- 缺依赖、a04/a09 原 45s 超时、a04 未 join 的旧 Z、独立 runner `$id` 首错及 Go 依赖核对排序首错均保留，不宣称全轮清零或整 HTTP 接受。作者 B 已实际 ACK，仅两 handler 新源；真实 HTTP/root/PG/native 与整卡产品尚待验收，三停止及模块未完成边界不变。以下历史原文保持。
+
 ## 2026-10-07：固定测试依赖恢复
 
 - [恢复报告及原件](environment-test-dependencies-2026-10-07.md)记录 MinIO 精确 SHA/release/commit 与注入路径、两个固定 PG digest 镜像。16 条实际命令含四次原失败均保留；原 42 项 manifest 不改，仅归档 40 项小原件及 manifest 自身，binary/ZIP 只保留指纹，11 项仓库输入未变。

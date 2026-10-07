@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/go-dependency-recovery/check-cache.py", line 14, in <module>
+    source_sum='h1:'+base64.b64encode(h.digest()).decode();assert source_sum==zip_sum,('source content mismatch',path,v,source_sum,zip_sum)
+                                                                  ^^^^^^^^^^^^^^^^^^^
+AssertionError: ('source content mismatch', 'golang.org/x/crypto', 'v0.55.0', 'h1:A3pyD0XSkofCbkEXMo74T1oEfmy5QHACP6V2Jvtdo4U=', 'h1:+KWHjbgOaAQ66dh/YlkZKHlz9ZUlq61AFirAR9ntP8M=')

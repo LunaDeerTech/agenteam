@@ -1,0 +1,86 @@
+{
+  "five_manifest_sha256": "8d78d3b4de0fb8fcb8f0fb8af6ea4ff92fe03c40554d24014b0be422b0e8b7a9",
+  "original_execution_manifest_sha256": "169563a04601c468b3613dcf22e669de227729befda855352ca6cbdfa2b5de16",
+  "race_list_sha256": "b9e6e4f5fe84d73b7f4696979a195f2394cac66eb15f4aa51ed6d0152ef8056f",
+  "actual_race_packages": 379,
+  "race_additional_inputs": {
+    "/workspace/go/pkg/mod/github.com/klauspost/compress@v1.19.2/internal/race/race.go": {
+      "sha256": "6ebe151da3a374cc143542549b31e512aa7ac9c3d3145d8e259eb8912c671fd8",
+      "bytes": 511
+    },
+    "/workspace/toolchains/go1.27.1/src/internal/race/race.go": {
+      "sha256": "f5244134310fc209a46a5fe4864029c896b9d10a3acca5e757bea5854c01ffc9",
+      "bytes": 1194
+    },
+    "/workspace/toolchains/go1.27.1/src/internal/runtime/sys/consts_race.go": {
+      "sha256": "562f15026c1a55141edba8ae8b5e8099b0ea4dd60824cd69553a805d23acbe8e",
+      "bytes": 207
+    },
+    "/workspace/toolchains/go1.27.1/src/runtime/race/doc.go": {
+      "sha256": "cdfc84978384bc2368238913c18051bcd5f970b87d39b0b407f244dcd0025dc5",
+      "bytes": 386
+    },
+    "/workspace/toolchains/go1.27.1/src/runtime/race/internal/amd64v1/doc.go": {
+      "sha256": "782b508ccfefb8b936604fff89d0a98c422d6b1f94fd2cd72e2050de73a178f2",
+      "bytes": 364
+    },
+    "/workspace/toolchains/go1.27.1/src/runtime/race/internal/amd64v1/race_linux.syso": {
+      "sha256": "5bdd6b292a1d7bb4a21c3134bafec7545f23133e2e640fed265a7f8c5b67a638",
+      "bytes": 571888
+    },
+    "/workspace/toolchains/go1.27.1/src/runtime/race/race.go": {
+      "sha256": "1162e56a7fca95dcd5d9a3c86c795c553090b5b37b6d9f0361fe681a82bdba7d",
+      "bytes": 890
+    },
+    "/workspace/toolchains/go1.27.1/src/runtime/race/race_v1_amd64.go": {
+      "sha256": "7086b0c7f9eecc4ccbd8d40893d94749c74269bb7f0239ddb5925b6d92279761",
+      "bytes": 301
+    },
+    "/workspace/toolchains/go1.27.1/src/runtime/race.go": {
+      "sha256": "b4a356aa545dfd873b87ce0de264c15828d2ee1ff3507297afbb4a29d69a6479",
+      "bytes": 23013
+    },
+    "/workspace/toolchains/go1.27.1/src/runtime/race_amd64.s": {
+      "sha256": "8f70dab64d338085cd4e0efbbe20684fe55647e6f75fd3c07be33fdefb3457ae",
+      "bytes": 15534
+    },
+    "/workspace/toolchains/go1.27.1/src/sync/atomic/race.s": {
+      "sha256": "02a09e8cbde7b3a7f8e83facc6c8987b02cbe9b79a694e7efd8f76e054b3f6d7",
+      "bytes": 294
+    }
+  },
+  "changed_original_inputs": [
+    "/workspace/scratch/usage-http-author/run.py"
+  ],
+  "driver_original_preserved": "/workspace/scratch/usage-http-author/a04-pure/runner-original.py",
+  "artifacts": {
+    "/workspace/scratch/usage-http-author/run.py": {
+      "sha256": "f8cf508f59cb70716edd98da3489a601c7974b776b2a12b144023a59041ae515",
+      "bytes": 2845
+    },
+    "/workspace/scratch/usage-http-author/account.test": {
+      "sha256": "a3b5c9b5941c78ab91321f8999f5ea80cbcd08402815934dabc719992f45e801",
+      "bytes": 24628648
+    },
+    "/workspace/scratch/usage-http-author/wire.test": {
+      "sha256": "346461fbbd5ac48a7b8954165973a4633c5f1854a7473fbbc86ebd7979434fa3",
+      "bytes": 11222217
+    },
+    "/workspace/scratch/usage-http-author/a08-wire-pure/schema/schema-input.json": {
+      "sha256": "edd8483420929b1ea863ee8f7ace9c9878cc5589c31496d37780bbbde7aedbf6",
+      "bytes": 150068
+    },
+    "/workspace/scratch/usage-http-author/a08-wire-pure/schema/python-check.txt": {
+      "sha256": "494a4a3862e5da70d2d44c5ddf9947a59b30735c51000f9848bfb3d65e3b2fd7",
+      "bytes": 1321
+    },
+    "/workspace/scratch/usage-http-author/a08-wire-pure/schema/node-check.txt": {
+      "sha256": "87a7a66bcc1fe253e368afd131db23cf0d0ba2fcd9f69a2439ce79881db05bad",
+      "bytes": 1814
+    },
+    "/usr/bin/x86_64-linux-gnu-gcc-14": {
+      "sha256": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f",
+      "bytes": 1162264
+    }
+  }
+}

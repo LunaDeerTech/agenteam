@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/go-dependency-recovery/install.py"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+    "LANG": "C.UTF-8",
+    "TMPDIR": "/workspace/scratch/go-dependency-recovery/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "https://proxy.golang.org",
+    "GOSUMDB": "sum.golang.org",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/scratch/go-dependency-recovery/gocache",
+    "GOPATH": "/workspace/scratch/go-dependency-recovery/gopath",
+    "GOTELEMETRY": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMAXPROCS": "2",
+    "HTTP_PROXY": "<inherited-present>",
+    "HTTPS_PROXY": "<inherited-present>",
+    "NO_PROXY": "<inherited-present>",
+    "http_proxy": "<inherited-present>",
+    "https_proxy": "<inherited-present>",
+    "no_proxy": "<inherited-present>"
+  },
+  "started_ns": 1791374758901443353,
+  "pid": 19473,
+  "starttime": "71073",
+  "exit_code": 0,
+  "ended_ns": 1791374760353019101,
+  "elapsed_seconds": 1.451575748,
+  "raw_sha256": "0ab9a3b605e6261f4d2fc8ff9b32005c506756673aa33d89d4e7ded0f69938c4"
+}

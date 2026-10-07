@@ -1,0 +1,177 @@
+{
+  "at": 1791375130.8718858,
+  "groups": {
+    "17740": {
+      "label": "a01-list",
+      "members": []
+    },
+    "18203": {
+      "label": "a02-schema-preflight",
+      "members": []
+    },
+    "20121": {
+      "label": "a03-list",
+      "members": []
+    },
+    "20527": {
+      "label": "a04-pure",
+      "members": [
+        {
+          "pid": 22765,
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "81512"
+        }
+      ]
+    },
+    "23649": {
+      "label": "a05-account-compile",
+      "members": []
+    },
+    "26250": {
+      "label": "a06-account-pure",
+      "members": []
+    },
+    "26275": {
+      "label": "a07-wire-compile",
+      "members": []
+    },
+    "26415": {
+      "label": "a08-wire-pure",
+      "members": []
+    },
+    "26608": {
+      "label": "a09-vet",
+      "members": []
+    },
+    "30497": {
+      "label": "a10-race-list",
+      "members": []
+    },
+    "30736": {
+      "label": "a11-account-vet",
+      "members": []
+    },
+    "32378": {
+      "label": "a12-wire-vet",
+      "members": []
+    }
+  },
+  "commands": [
+    {
+      "label": "a01-list",
+      "exit": 1,
+      "elapsed": 0.21453380584716797,
+      "before_after_equal": true,
+      "adopted_waits": null,
+      "command_record_sha256": "b7a0b3b997d04bdd734a5777279dd6a94e1e36c30fd96d8fcdd9db28cadcbf47",
+      "raw_sha256": "0576c565c0fade12aef795ff8604e73944db349e308ca8d5a4752f368a6ccae7"
+    },
+    {
+      "label": "a02-schema-preflight",
+      "exit": 0,
+      "elapsed": 0.2645106315612793,
+      "before_after_equal": true,
+      "adopted_waits": null,
+      "command_record_sha256": "3716e8c3d8e97143654a852926ed49aa7df7fb1aa067f87d54114eff1dfa669b",
+      "raw_sha256": "ad1359cf2ec5575123bbd4c632c1bcc8a45e7c4ece0f7a57d498d2e7659b83a5"
+    },
+    {
+      "label": "a03-list",
+      "exit": 0,
+      "elapsed": 0.31569480895996094,
+      "before_after_equal": true,
+      "adopted_waits": null,
+      "command_record_sha256": "766185592e9532856456b335a11f5156ba699b020cd9ce9996058e1bdf58a001",
+      "raw_sha256": "0ebb0edc528cd076abbae01a38019f332db245e444532b6e37ba30e1df5306b2"
+    },
+    {
+      "label": "a04-pure",
+      "exit": -15,
+      "elapsed": 45.00392484664917,
+      "before_after_equal": true,
+      "adopted_waits": null,
+      "command_record_sha256": "97e3c47218fae5cc7f1d7d509d37b22fc97a14d05096c7e66b2a6eeec827d47c",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "a05-account-compile",
+      "exit": 0,
+      "elapsed": 35.54991793632507,
+      "before_after_equal": true,
+      "adopted_waits": [],
+      "command_record_sha256": "8928e3e8cde6484ed6d15b1c11dddb3d24e0609048eee307e9902c7ceece8798",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "a06-account-pure",
+      "exit": 0,
+      "elapsed": 1.0669310092926025,
+      "before_after_equal": true,
+      "adopted_waits": [],
+      "command_record_sha256": "22f89530e81e302e600744a51152dbb35c5f173661b0223ad73a4f87ab526405",
+      "raw_sha256": "07c88aca81b6cd32b19b5ded0173032106cc0ea82e85679179cdcbb4d7aeb4a5"
+    },
+    {
+      "label": "a07-wire-compile",
+      "exit": 0,
+      "elapsed": 3.6363000869750977,
+      "before_after_equal": true,
+      "adopted_waits": [],
+      "command_record_sha256": "40c661e0f2abe99d11f11177f5665d79be8699ad34d936c3ad11ef473184cee6",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "a08-wire-pure",
+      "exit": 0,
+      "elapsed": 1.5704271793365479,
+      "before_after_equal": true,
+      "adopted_waits": [],
+      "command_record_sha256": "b1a7e0e5bba9222eae1be15d01dd07c74641bbc034542060fb258f54efc877ba",
+      "raw_sha256": "f357d59e5ca07a6794fde722affc8656c67ed56e53e170249250b24772b0f12c"
+    },
+    {
+      "label": "a09-vet",
+      "exit": -15,
+      "elapsed": 45.00391983985901,
+      "before_after_equal": true,
+      "adopted_waits": [
+        {
+          "pid": 30312,
+          "wait_status": 15
+        }
+      ],
+      "command_record_sha256": "fcbc696efa3dd6ba77b0a9f161330f851ce4d8a6f530762c293f10b15a2f8bbf",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "a10-race-list",
+      "exit": 0,
+      "elapsed": 0.2191314697265625,
+      "before_after_equal": true,
+      "adopted_waits": [],
+      "command_record_sha256": "f0ef15598cb4d53ea82fa010fd20602efa716a7f1ea5e9c5168dc9ce252ae2b0",
+      "raw_sha256": "b9e6e4f5fe84d73b7f4696979a195f2394cac66eb15f4aa51ed6d0152ef8056f"
+    },
+    {
+      "label": "a11-account-vet",
+      "exit": 0,
+      "elapsed": 6.60649561882019,
+      "before_after_equal": true,
+      "adopted_waits": [],
+      "command_record_sha256": "09d303fb8f7303af28618b059502427a3f4112e8916c35e140b2959eb54f0873",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "a12-wire-vet",
+      "exit": 0,
+      "elapsed": 0.264636754989624,
+      "before_after_equal": true,
+      "adopted_waits": [],
+      "command_record_sha256": "3dbdb4d79e04b495d2750f63284db81f9e637df45600c635e08f2e603332ae11",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "product_five_unchanged": true,
+  "final_input_sha256": "ba247577940319f250b2a5d409848db6c569e38aa4e5d8bdaa5f82ab2ee4a3e0"
+}

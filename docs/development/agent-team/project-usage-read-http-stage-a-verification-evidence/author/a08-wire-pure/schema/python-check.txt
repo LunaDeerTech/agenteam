@@ -1,0 +1,16 @@
+import sys,json,importlib.metadata
+from jsonschema import Draft202012Validator
+from referencing import Registry,Resource
+from referencing.jsonschema import DRAFT202012
+v=json.load(sys.stdin)
+doc=v['document'];doc['$id']='https://usage-schema.invalid/project-usage.json'
+common=v['common'];common['$id']='https://usage-schema.invalid/common.json'
+registry=Registry().with_resources([(doc['$id'],Resource.from_contents(doc,default_specification=DRAFT202012)),(common['$id'],Resource.from_contents(common,default_specification=DRAFT202012))])
+for document in [doc,common]:
+ for schema in document['components']['schemas'].values(): Draft202012Validator.check_schema(schema)
+for c in v['cases']:
+ name=c['schema']; target=common if name.startswith('common:') else doc; name=name.split(':')[-1]
+ schema={'$id':target['$id'],'$ref':'#/components/schemas/'+name,'components':target['components']}
+ errors=list(Draft202012Validator(schema,registry=registry).iter_errors(c['value']))
+ if (not errors)!=c['valid']: raise AssertionError((c['name'],c['schema'],c['valid'],[e.message for e in errors]))
+print('Draft202012Validator jsonschema='+importlib.metadata.version('jsonschema')+' referencing='+importlib.metadata.version('referencing')+' cases='+str(len(v['cases']))+' PASS; format annotations remain server typed validation')

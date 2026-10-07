@@ -1,6 +1,6 @@
 # D09 Project Owner Usage 只读 HTTP 与根装配
 
-修订：rev1。状态：规格已独立完整 STATIC PASS 并获主线程采纳；主线程已授阶段A五路径私有实施，作者已实际开始建立新scratch及RequireHuman/query/DTO/schema与纯测试编写；尚无Go/Node/schema执行、资源或产品验收。本页记录规格归位时点，后续阶段以任务台账和各自证据为准。
+修订：rev1。状态：规格已独立完整 STATIC PASS；阶段 A 五路径已获独立限定 PASS、主线程采纳并提交推送 `ba7ce7296b7c08d976d3fc3ce1e1d0b727a3f04f`，见[阶段 A 验证归档](../agent-team/project-usage-read-http-stage-a-verification.md)。作者 B 已实际 ACK，仅 handler 两新源；原失败及 a04 未 join 限制保留，真实 HTTP/root/PG/native 与整卡产品尚未验收。技术 §1–7 保持原字节，后续阶段以任务台账和各自固定证据为准。
 固定产品基线：`4ae02e5c58f4efc3b360706cb2622df05a96cdf0`。
 已接受依赖：Usage ledger `36e5ff1a124c957d200888ad2e40bdc4ecb01305`、Project Owner/Store `6319d03`、Project 配置 `de00c610da62cb77cc03efe7c3cc842cf81f1ba5`；实际消费均以固定基线原字节为准。
 依据：[D09 §8/11](d09-model-system-token-usage-design.md)、[D08 路径、Owner 与 HTTP 契约](d08-project-owner-design.md)、[Usage ledger 工作卡](recovery-d09-invocation-usage-ledger.md)。只补下述读边界，不重述或替换其内部契约。

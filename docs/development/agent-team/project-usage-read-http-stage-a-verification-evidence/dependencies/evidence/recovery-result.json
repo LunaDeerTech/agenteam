@@ -1,0 +1,91 @@
+{
+  "status": "dependency availability restored",
+  "baseline": "175694bf1157b77ea13268bcd8a47787e1a28acd",
+  "cache": "/workspace/go/pkg/mod",
+  "required_modules": 31,
+  "newly_completed_modules": 25,
+  "module_checks": "All 31 fixed required module ZIP, extracted source, and go.mod h1 values match project go.sum.",
+  "injection": "GOMODCACHE=/workspace/go/pkg/mod",
+  "go_mod_sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+  "go_sum_sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+  "created_files": 4395,
+  "created_bytes": 191053771,
+  "created_path_content_sha256": "875bfc5ea9b3bf47e272a66b99c0cd53610a50c339fa3f1ddaec06ac6f676a47",
+  "offline_list_records": {
+    "offline-all-list": 504,
+    "offline-integration-list": 536
+  },
+  "commands": {
+    "check-final-cache-02.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.806765212,
+      "raw_sha256": "c7768f4daa7d6b2b5e474b76185cb05cec26c9dc1573e6721415c2051d4d9c42",
+      "pid": 21650,
+      "starttime": "78866"
+    },
+    "check-final-cache.meta.json": {
+      "exit_code": 1,
+      "elapsed_seconds": 0.182544821,
+      "raw_sha256": "309b663b18c35e7881f2716d1ef114152205a98cf8882de95164f648f366a2dd",
+      "pid": 20701,
+      "starttime": "77089"
+    },
+    "download-required.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 3.595858699,
+      "raw_sha256": "b1fe81273cdad152c91a25e6c552ce09adce0236ae9718abb8b4f6a14881fe95",
+      "pid": 18684,
+      "starttime": "65632"
+    },
+    "install-fixed.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 1.451575748,
+      "raw_sha256": "0ab9a3b605e6261f4d2fc8ff9b32005c506756673aa33d89d4e7ded0f69938c4",
+      "pid": 19473,
+      "starttime": "71073"
+    },
+    "offline-all-list.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.390288959,
+      "raw_sha256": "ef5e2ead718c1a35bd9a94b222f86d14a3331908708e3b4d89d3179b5f6a5e93",
+      "pid": 19994,
+      "starttime": "74298"
+    },
+    "offline-integration-list.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.519236088,
+      "raw_sha256": "01042fb92eb3c89d6b25f111ae02ac2a49162c9cfd93d0ce817471033883f80e",
+      "pid": 19995,
+      "starttime": "74298"
+    },
+    "offline-usage-list.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.316891479,
+      "raw_sha256": "f42b7125c3c5978872aa1ce302edca98f67547c2753b37414b99ad27a429745c",
+      "pid": 19744,
+      "starttime": "73026"
+    },
+    "prepare.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.035236735,
+      "raw_sha256": "a792fb92fb688d80a29516a6f7daf23c6e95f2c857ce800277497e080d686235",
+      "pid": 18489,
+      "starttime": "64104"
+    },
+    "source-hash-diagnostic.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.084364026,
+      "raw_sha256": "ec5bc6dd87d28a3cc3e6922c050b2da4a907403d4c3ee2d853dae45ca762efe6",
+      "pid": 21366,
+      "starttime": "78226"
+    }
+  },
+  "all_recorded_pids_absent": true,
+  "availability_input_changes": [],
+  "limitations": [
+    "Dependency listing only: no builds, tests, fixture services, listeners or containers were started.",
+    "Listing consumed main175694bf plus the five Usage A worktree inputs recorded by hash; this is not product acceptance.",
+    "Only fixed project required modules missing complete caches were downloaded. Existing unrelated cache entries were not copied or rewritten."
+  ],
+  "preserved_failure": "First custom source-hash check used Python Path component ordering. Diagnostic showed equal ZIP/source file sets and bytes; changed to Go-compatible full relative-name string ordering and all 31 passed."
+}

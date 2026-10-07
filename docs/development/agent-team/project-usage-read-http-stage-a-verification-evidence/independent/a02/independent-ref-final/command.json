@@ -1,0 +1,47 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/usage-http-verification/a02-ref-check.py"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env_overrides": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOPATH": "/workspace/go",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/home/agent/.cache/go-build",
+    "GOFLAGS": "-mod=readonly",
+    "GOMAXPROCS": "2",
+    "TMPDIR": "/workspace/scratch/usage-http-verification/a02/independent-ref-final",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "before": {
+    "internal/central/account/http_boundary.go": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572",
+    "internal/central/account/http_boundary_test.go": "b8355f2646dca7a5ea23ba269d4f9c025144f722ccd6bb5a7cb537797e312c7c",
+    "internal/central/usage/http/wire.go": "e61a6bb68b7e88e06c6972b4df0b614301195d71e1305f05faf9436fdd441f9c",
+    "internal/central/usage/http/wire_test.go": "ee65274616107a90561c53422896e339b1cee1729326e926fa908d4e5b6a8a3a",
+    "api/openapi/project-usage.json": "a908bd1e82d576441e978006fbfd5328e600480a4aa606dca3c818160a47feb4",
+    "api/openapi/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+  },
+  "started": 1791375075.5032122,
+  "timeout_seconds": 45,
+  "adopted_waits": [],
+  "pid": 30626,
+  "starttime": "102733",
+  "returncode": 0,
+  "elapsed_seconds": 0.11429865400009476,
+  "after": {
+    "internal/central/account/http_boundary.go": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572",
+    "internal/central/account/http_boundary_test.go": "b8355f2646dca7a5ea23ba269d4f9c025144f722ccd6bb5a7cb537797e312c7c",
+    "internal/central/usage/http/wire.go": "e61a6bb68b7e88e06c6972b4df0b614301195d71e1305f05faf9436fdd441f9c",
+    "internal/central/usage/http/wire_test.go": "ee65274616107a90561c53422896e339b1cee1729326e926fa908d4e5b6a8a3a",
+    "api/openapi/project-usage.json": "a908bd1e82d576441e978006fbfd5328e600480a4aa606dca3c818160a47feb4",
+    "api/openapi/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+  },
+  "finished": 1791375075.6179125,
+  "direct_pid_absent": true,
+  "unchanged": true,
+  "raw_sha256": "f428f8fd20f19faa5f3d4b85d06e8e72ebcb356875497b5e9f8652eb048a705f"
+}

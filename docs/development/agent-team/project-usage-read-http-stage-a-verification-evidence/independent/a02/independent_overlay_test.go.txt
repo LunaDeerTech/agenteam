@@ -1,0 +1,153 @@
+package usagehttp
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"math"
+	"net/url"
+	"reflect"
+	"strings"
+	"testing"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
+)
+
+func TestUsageIndependentQueryDecodingAndLimits(t *testing.T) {
+	for _, raw := range []string{"limit=1%0a", "limit=1%0d", "limit=1%E2%80%A8", "limit=1%E2%80%A9", "cursor=x&cur%73or=y", "cursor=x&%63ursor=y", "from=0000-01-01T00%3A00%3A00%2B23%3A59&to=2026-01-01T00%3A00%3A00Z", "from=2026-02-30T00%3A00%3A00Z&to=2026-03-01T00%3A00%3A00Z"} {
+		q, e := listQuery(wireRequest(raw), wireID[id.Project]())
+		if e == nil || !reflect.DeepEqual(q, uc.Query{}) {
+			t.Fatalf("bad query admitted %q", raw)
+		}
+	}
+	q, e := listQuery(wireRequest("cursor=%252F%2525%252B"), wireID[id.Project]())
+	if e != nil || q.Cursor != "%2F%25%2B" {
+		t.Fatalf("query decoded twice: %q %v", q.Cursor, e)
+	}
+	u, p, e := resolveQuery(wireRequest("username=AdMin&project_name=Pro%6Aect"))
+	if e != nil || u != "AdMin" || p != "Project" {
+		t.Fatal("resolver caller spelling changed", u, p, e)
+	}
+	for _, n := range []int{4096, 4097} {
+		value := strings.Repeat("é", n)
+		q, e := listQuery(wireRequest("cursor="+url.QueryEscape(value)), wireID[id.Project]())
+		if n == 4096 {
+			if e != nil || q.Cursor != value {
+				t.Fatal("inclusive decoded byte bound", e)
+			}
+		} else {
+			var x *f.Fault
+			if !errors.As(e, &x) || x.Code != f.CursorInvalid || !reflect.DeepEqual(q, uc.Query{}) {
+				t.Fatal("decoded byte overrun classification", e)
+			}
+		}
+	}
+}
+
+func TestUsageIndependentHistoricalAssociationsAndExactValues(t *testing.T) {
+	// Consumer.Validate intentionally permits these two associations; the HTTP projection must not trim them.
+	agent := wireInvocation()
+	agent.Consumer.MeetingID = wireID[pc.Meeting]().String()
+	tool := wirePurposeInvocation(mc.ApprovalAuto)
+	tool.Consumer.ExecutionID = wirePtr(wireID[id.Execution]())
+	for _, row := range []uc.Invocation{agent, tool} {
+		raw, e := encodeList(context.Background(), wireQuery(), uc.Page{Items: []uc.Invocation{row}})
+		if e != nil {
+			t.Fatal(e)
+		}
+		var doc struct {
+			Items []map[string]any `json:"items"`
+		}
+		if json.Unmarshal(raw, &doc) != nil {
+			t.Fatal("json")
+		}
+		got := doc.Items[0]
+		if row.Consumer.Kind == mc.AgentConsumer && got["meeting_id"] != row.Consumer.MeetingID {
+			t.Fatal("agent meeting lost")
+		}
+		if row.Consumer.Kind == mc.ToolConsumer && got["execution_id"] != row.Consumer.ExecutionID.String() {
+			t.Fatal("tool execution lost")
+		}
+	}
+	max := mc.TokenCount(math.MaxInt64)
+	large := mc.TokenCount(9007199254740993)
+	unknown := max - large
+	field := uc.FieldSummary{Sum: &max, KnownCount: large, UnknownCount: unknown}
+	summary := uc.Summary{ConfirmedInvocations: max, Unknown: large, Input: field, Output: field, Total: field, CachedInput: field, CacheWrite: field, Reasoning: field, AsOf: wireInstant()}
+	page := uc.AggregatePage{Items: []uc.GroupSummary{{Key: wireGroup(uc.ByModel), Summary: summary}}, AsOf: wireInstant()}
+	q := uc.AggregateQuery{Filter: wireQuery().Filter, GroupBy: uc.ByModel, Limit: 1}
+	raw, e := encodeAggregate(context.Background(), q, page)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if !strings.Contains(string(raw), `"known_count":"9007199254740993"`) || !strings.Contains(string(raw), `"confirmed_invocations":"9223372036854775807"`) {
+		t.Fatal("large summary lost exact string")
+	}
+	// Corruption in the final item must discard the whole representation while preserving a completed read state.
+	for _, bad := range []func(*uc.Invocation){func(v *uc.Invocation) {
+		v.Final = &uc.Final{Status: uc.Failed, Version: 1, FinishedAt: v.StartedAt, Error: &mc.ModelError{Category: "network", PartialOutput: true, Dispatched: false}}
+	}, func(v *uc.Invocation) { v.Identity.AdapterRevision = "hidden\nsecret" }} {
+		last := agent
+		bad(&last)
+		raw, e := encodeList(context.Background(), wireQuery(), uc.Page{Items: []uc.Invocation{tool, last}})
+		var fault *f.Fault
+		if raw != nil || !errors.As(e, &fault) || fault.CommitState != f.Committed || strings.Contains(e.Error(), "secret") {
+			t.Fatal("invalid hidden field published or state changed", e)
+		}
+	}
+}
+
+type independentLateContext struct {
+	context.Context
+	checks, cancelAt int
+}
+
+func (c *independentLateContext) Err() error {
+	c.checks++
+	if c.checks >= c.cancelAt {
+		return context.Canceled
+	}
+	return nil
+}
+func TestUsageIndependentLateContextRejectsCandidate(t *testing.T) {
+	c := &independentLateContext{Context: context.Background(), cancelAt: 4}
+	raw, e := encodeList(c, wireQuery(), uc.Page{Items: []uc.Invocation{wireInvocation()}})
+	var fault *f.Fault
+	if raw != nil || !errors.Is(e, context.Canceled) || !errors.As(e, &fault) || fault.CommitState != f.Committed {
+		t.Fatal("post-encoding cancellation published", c.checks, e)
+	}
+	if c.checks != 4 {
+		t.Fatal("did not exercise final completion check", c.checks)
+	}
+}
+
+func TestUsageIndependentDefaultEscapesAndYearZero(t *testing.T) {
+	row := wireInvocation()
+	row.Identity.ProviderName = strings.Repeat("<>&\u2028\u2029", 25)
+	row.Identity.ModelName = strings.Repeat("😀", 128)
+	raw, e := encodeList(context.Background(), wireQuery(), uc.Page{Items: []uc.Invocation{row}})
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, escaped := range []string{`\u003c`, `\u003e`, `\u0026`, `\u2028`, `\u2029`} {
+		if !strings.Contains(string(raw), escaped) {
+			t.Fatal("default JSON escaping absent", escaped)
+		}
+	}
+	// The accepted Instant/GroupKey contracts allow year zero; format annotations must not narrow history.
+	zero, e := f.ParseInstant("0000-01-01T00:00:00Z")
+	if e != nil {
+		t.Fatal(e)
+	}
+	summary := wireSummary()
+	summary.AsOf = zero
+	page := uc.AggregatePage{Items: []uc.GroupSummary{{Key: uc.GroupKey{By: uc.ByDay, Day: wirePtr("0000-01-01")}, Summary: summary}}, AsOf: zero}
+	q := uc.AggregateQuery{Filter: wireQuery().Filter, GroupBy: uc.ByDay, Limit: 1}
+	if raw, e = encodeAggregate(context.Background(), q, page); e != nil || !strings.Contains(string(raw), `"day":"0000-01-01"`) {
+		t.Fatal("valid historical year zero narrowed", e)
+	}
+}

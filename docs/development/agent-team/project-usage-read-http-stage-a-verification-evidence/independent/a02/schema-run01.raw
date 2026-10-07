@@ -1,0 +1,1538 @@
+{
+  "cases": 382,
+  "failures": [
+    {
+      "label": "agent/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "agent/wrong-purpose/rerank",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "agent/wrong-purpose/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "agent/missing-agent/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "agent/optional-meeting/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "agent/agent_compaction",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "agent/wrong-purpose/rerank",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "agent/wrong-purpose/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "agent/missing-agent/agent_compaction",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "agent/optional-meeting/agent_compaction",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "meeting/meeting_summary_initial",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "meeting/wrong-purpose/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "meeting/wrong-purpose/rerank",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "meeting/wrong-purpose/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "meeting/unexpected-agent/meeting_summary_initial",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "meeting/meeting_summary_update",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "meeting/wrong-purpose/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "meeting/wrong-purpose/rerank",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "meeting/wrong-purpose/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "meeting/unexpected-agent/meeting_summary_update",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "knowledge/knowledge_embedding",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "knowledge/wrong-purpose/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "knowledge/wrong-purpose/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "knowledge/unexpected-agent/knowledge_embedding",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "knowledge/rerank",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "knowledge/wrong-purpose/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "knowledge/wrong-purpose/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "knowledge/unexpected-agent/rerank",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/memory_embedding",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/wrong-purpose/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/wrong-purpose/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/missing-agent/memory_embedding",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/memory_extraction",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/wrong-purpose/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/wrong-purpose/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/missing-agent/memory_extraction",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/memory_consolidation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/wrong-purpose/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/wrong-purpose/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/missing-agent/memory_consolidation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/memory_reflection",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/wrong-purpose/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/wrong-purpose/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/missing-agent/memory_reflection",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/rerank",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/wrong-purpose/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/wrong-purpose/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "memory/missing-agent/rerank",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "tool/approval_auto",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "tool/wrong-purpose/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "tool/wrong-purpose/rerank",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "tool/unexpected-agent/approval_auto",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "tool/optional-execution/approval_auto",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "tool/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "tool/wrong-purpose/agent_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "tool/wrong-purpose/rerank",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "tool/unexpected-agent/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "tool/optional-execution/image_generation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "anthropic",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "openai-chat-completions/wrong-type",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "anthropic-messages/wrong-type",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "openai-embeddings/wrong-type",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "jina-rerank/wrong-type",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "openai-images-generations/wrong-type",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "dispatch/reserved",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "dispatch/bad-time/reserved",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/succeeded/reserved",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/reserved/failed",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/reserved/cancelled",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/reserved/unknown",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "dispatch/authorized",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "dispatch/bad-time/authorized",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/succeeded/authorized",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/authorized/failed",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/authorized/cancelled",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/authorized/unknown",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "dispatch/sent",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "dispatch/bad-time/sent",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/succeeded/sent",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/sent/failed",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/sent/cancelled",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/sent/unknown",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "dispatch/not_sent",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "dispatch/bad-time/not_sent",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/succeeded/not_sent",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/not_sent/failed",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/not_sent/cancelled",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/not_sent/unknown",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "dispatch/unknown",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "dispatch/bad-time/unknown",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/succeeded/unknown",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/unknown/failed",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/unknown/cancelled",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "final/unknown/unknown",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/invalid_request",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/invalid_request",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/authentication",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/authentication",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/permission",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/permission",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/model_not_found",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/model_not_found",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/rate_limited",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/rate_limited",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/context_too_large",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/context_too_large",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/provider_unavailable",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/provider_unavailable",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/timeout",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/timeout",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/network",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/network",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/cancelled",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/cancelled",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/content_filter",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/content_filter",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/unsupported_feature",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/unsupported_feature",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/provider_error",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/provider_error",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "error/unknown",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "succeeded/error/unknown",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "unknown-known/input_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-zero/input_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-max/input_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "unknown-known/output_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-zero/output_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-max/output_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "unknown-known/total_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-zero/total_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-max/total_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "unknown-known/cached_input_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-zero/cached_input_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-max/cached_input_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "unknown-known/cache_write_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-zero/cache_write_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-max/cache_write_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "unknown-known/reasoning_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-zero/reasoning_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-max/reasoning_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "provider-all-null",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/consumer",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/null/consumer",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/consumer",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/consumer",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/agent",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/null/agent",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/agent",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/agent",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/model",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/null/model",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/model",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/model",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/provider",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/null/provider",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/provider",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/provider",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/execution",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/null/execution",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/execution",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/execution",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/meeting",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/null/meeting",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/meeting",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/meeting",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/purpose",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/null/purpose",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/purpose",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/purpose",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/day",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/null/day",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/day",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "group/bad/day",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "field/('0', '0', '0')",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/FieldSummary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/FieldSummary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "field/(None, '0', '0')",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/FieldSummary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/FieldSummary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "field/(None, '0', '1')",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/FieldSummary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/FieldSummary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "field/('0', '0', '1')",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/FieldSummary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/FieldSummary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "field/('0', '1', '0')",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/FieldSummary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/FieldSummary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "field/(None, '1', '0')",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/FieldSummary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/FieldSummary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "field/('9223372036854775807', '1', '0')",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/FieldSummary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/FieldSummary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "project/active/None",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "project/active/2026-10-07T01:02:03.123456Z",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "project/archiving/None",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "project/archiving/2026-10-07T01:02:03.123456Z",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "project/archived/None",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "project/archived/2026-10-07T01:02:03.123456Z",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "project/deleting/None",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "project/deleting/2026-10-07T01:02:03.123456Z",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "object/Usage",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Usage/input_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Usage/output_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Usage/total_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Usage/cached_input_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Usage/cache_write_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Usage/reasoning_tokens",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Usage/source",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "closed/Usage",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Usage', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Usage'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "object/Final",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Final', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Final'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Final/status",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Final', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Final'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Final/finished_at",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Final', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Final'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Final/error_category",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Final', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Final'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "closed/Final",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Final', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Final'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "object/Invocation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/call_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/attempt_index",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/project_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/consumer_kind",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/purpose",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/agent_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/execution_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/meeting_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/provider_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/model_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/provider_name",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/model_name",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/provider_model_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/protocol",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/model_type",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/live_provider_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/live_model_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/dispatch",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/started_at",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/dispatched_at",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/final",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/usage",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Invocation/provider_request_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "closed/Invocation",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Invocation', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Invocation'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "object/List",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/List', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/List'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/List/items",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/List', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/List'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/List/next_cursor",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/List', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/List'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "closed/List",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/List', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/List'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "object/FieldSummary",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/FieldSummary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/FieldSummary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/FieldSummary/sum",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/FieldSummary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/FieldSummary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/FieldSummary/known_count",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/FieldSummary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/FieldSummary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/FieldSummary/unknown_count",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/FieldSummary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/FieldSummary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "closed/FieldSummary",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/FieldSummary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/FieldSummary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "object/Summary",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/confirmed_invocations",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/dispatch_unknown",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/succeeded",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/failed",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/cancelled",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/unknown",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/input",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/output",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/total",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/cached_input",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/cache_write",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/reasoning",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Summary/as_of",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "closed/Summary",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Summary', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Summary'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "object/GroupKey",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/GroupKey/by",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/GroupKey/id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/GroupKey/day",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "closed/GroupKey",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/GroupKey', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/GroupKey'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "object/Group",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Group', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Group'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Group/key",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Group', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Group'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Group/summary",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Group', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Group'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "closed/Group",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Group', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Group'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "object/Aggregate",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Aggregate', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Aggregate'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Aggregate/items",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Aggregate', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Aggregate'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Aggregate/next_cursor",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Aggregate', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Aggregate'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Aggregate/as_of",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Aggregate', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Aggregate'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "closed/Aggregate",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Aggregate', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Aggregate'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "object/Project",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Project/id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Project/owner_user_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Project/name",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Project/normalized_name",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Project/description",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Project/lifecycle",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Project/version",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Project/current_sprint_id",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Project/created_at",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Project/updated_at",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "required/Project/archived_at",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "closed/Project",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Project', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Project'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'0'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'0'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'1'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'1'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'9007199254740993'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'9007199254740993'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'9223372036854775806'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'9223372036854775806'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'9223372036854775807'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'9223372036854775807'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'9223372036854775808'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'9223372036854775808'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'9999999999999999999'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'9999999999999999999'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'18446744073709551615'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'18446744073709551615'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'01'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'01'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'+1'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'+1'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'-1'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'-1'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'1e2'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'1e2'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/1",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/1",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/None",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/None",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'\uff11\uff12'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'\uff11\uff12'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'1\\n'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'1\\n'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'1\\r'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'1\\r'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'1\\u2028'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'1\\u2028'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'1\\u2029'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'1\\u2029'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/NonnegativeInt64String/'1\\x00'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/NonnegativeInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/NonnegativeInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/PositiveInt64String/'1\\x00'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/PositiveInt64String', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/PositiveInt64String'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/Name/'\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Name', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Name'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/Name/'<>&\\u2028\\u2029'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Name', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Name'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/Name/'\\n'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Name', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Name'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/Name/'\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Name', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Name'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/Name/''",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Name', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Name'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/Name/'a\\x00'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Name', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Name'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/ProjectName/'A-._9'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/ProjectName/'aaaaaaaaaaaaaaaaaaaa'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/ProjectName/'.'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/ProjectName/'..'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/ProjectName/'aaaaaaaaaaaaaaaaaaaa'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/ProjectName/'a/'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/ProjectName/'a\\\\'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/ProjectName/'a%'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/ProjectName/'\u00e9'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/ProjectName/'\\n'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/ProjectName/'\\r'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/ProjectName/'\\u2028'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/ProjectName/'\\u2029'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/ProjectName/'\\x00'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProjectName', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProjectName'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/Username/'admin'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/Username/'AdMin'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/Username/'A--z'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/Username/'aaaaaaaaaaaaaaaaaaaa'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/Username/'ab'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/Username/'aaaaaaaaaaaaaaaaaaaa'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/Username/'-admin'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/Username/'admin-'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/Username/'a.b'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/Username/'\u00e9\u00e9\u00e9'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/Username/'\\n'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/Username/'\\r'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/Username/'\\u2028'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/Username/'\\u2029'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/Username/'\\x00'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Username', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/Username'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/ProviderRequestID/'_.:-09AZaz'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProviderRequestID', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProviderRequestID'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/ProviderRequestID/'xxxxxxxxxxxxxxxxxxxx'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProviderRequestID', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProviderRequestID'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/ProviderRequestID/'xxxxxxxxxxxxxxxxxxxx'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProviderRequestID', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProviderRequestID'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/ProviderRequestID/'x/y'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProviderRequestID', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProviderRequestID'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/ProviderRequestID/'x y'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProviderRequestID', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProviderRequestID'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/ProviderRequestID/'\ud83d\ude00'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProviderRequestID', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProviderRequestID'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/ProviderRequestID/'\\n'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProviderRequestID', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProviderRequestID'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/ProviderRequestID/'\\r'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProviderRequestID', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProviderRequestID'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/ProviderRequestID/'\\u2028'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProviderRequestID', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProviderRequestID'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/ProviderRequestID/'\\u2029'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProviderRequestID', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProviderRequestID'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/ProviderRequestID/'\\x00'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/ProviderRequestID', resource=Resource(contents={'$id': 'https://usage-independent.invalid/project-usage.json', '$ref': '#/components/schemas/ProviderRequestID'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/common:Instant/'2026-10-07T01:02:03.'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Instant', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/Instant'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/common:Instant/'2026-10-07T01:02:03Z'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Instant', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/Instant'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/common:Instant/'2026-10-07T01:02:03.'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Instant', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/Instant'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/common:Instant/'\\n'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Instant', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/Instant'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/common:Instant/'\\r'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Instant', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/Instant'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/common:Instant/'\\u2028'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Instant', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/Instant'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/common:Instant/'\\u2029'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Instant', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/Instant'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/common:Instant/'\\x00'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/Instant', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/Instant'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/common:InstantInput/'2026-10-07T01:02:03Z'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/InstantInput', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/InstantInput'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/common:InstantInput/'2026-10-07T01:02:03.'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/InstantInput', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/InstantInput'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar/common:InstantInput/'2026-10-07T01:02:03+'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/InstantInput', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/InstantInput'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-bad/common:InstantInput/'2026-10-07T01:02:03.'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/InstantInput', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/InstantInput'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/common:InstantInput/'\\n'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/InstantInput', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/InstantInput'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/common:InstantInput/'\\r'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/InstantInput', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/InstantInput'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/common:InstantInput/'\\u2028'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/InstantInput', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/InstantInput'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/common:InstantInput/'\\u2029'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/InstantInput', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/InstantInput'}, _specification=<Specification name='draft2020-12'>))>"
+    },
+    {
+      "label": "scalar-suffix/common:InstantInput/'\\x00'",
+      "exception": "<WrappedReferencingError PointerToNowhere(ref='/components/schemas/InstantInput', resource=Resource(contents={'$id': 'https://usage-independent.invalid/common.json', '$ref': '#/components/schemas/InstantInput'}, _specification=<Specification name='draft2020-12'>))>"
+    }
+  ],
+  "elapsed_seconds": 0.0966855060000853,
+  "jsonschema": "4.26.0",
+  "referencing": "0.37.0",
+  "format_assertion": false,
+  "custom_byte_extension_assertion": false
+}

@@ -1,0 +1,10 @@
+=== RUN   TestUsageIndependentQueryDecodingAndLimits
+--- PASS: TestUsageIndependentQueryDecodingAndLimits (0.00s)
+=== RUN   TestUsageIndependentHistoricalAssociationsAndExactValues
+--- PASS: TestUsageIndependentHistoricalAssociationsAndExactValues (0.00s)
+=== RUN   TestUsageIndependentLateContextRejectsCandidate
+--- PASS: TestUsageIndependentLateContextRejectsCandidate (0.00s)
+=== RUN   TestUsageIndependentDefaultEscapesAndYearZero
+--- PASS: TestUsageIndependentDefaultEscapesAndYearZero (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/usage/http	1.019s

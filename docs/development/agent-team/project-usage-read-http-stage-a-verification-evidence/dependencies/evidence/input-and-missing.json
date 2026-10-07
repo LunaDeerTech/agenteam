@@ -1,0 +1,383 @@
+{
+  "main": "175694bf1157b77ea13268bcd8a47787e1a28acd",
+  "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+  "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+  "modules": [
+    {
+      "Path": "github.com/jackc/pgx/v5",
+      "Version": "v5.11.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/jackc/pgx/v5/@v/v5.11.0.mod",
+        "cache/download/github.com/jackc/pgx/v5/@v/v5.11.0.info",
+        "cache/download/github.com/jackc/pgx/v5/@v/v5.11.0.zip",
+        "cache/download/github.com/jackc/pgx/v5/@v/v5.11.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/minio/minio-go/v7",
+      "Version": "v7.3.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/minio/minio-go/v7/@v/v7.3.0.mod",
+        "cache/download/github.com/minio/minio-go/v7/@v/v7.3.0.info",
+        "cache/download/github.com/minio/minio-go/v7/@v/v7.3.0.zip",
+        "cache/download/github.com/minio/minio-go/v7/@v/v7.3.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/pressly/goose/v3",
+      "Version": "v3.28.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/pressly/goose/v3/@v/v3.28.0.mod",
+        "cache/download/github.com/pressly/goose/v3/@v/v3.28.0.info",
+        "cache/download/github.com/pressly/goose/v3/@v/v3.28.0.zip",
+        "cache/download/github.com/pressly/goose/v3/@v/v3.28.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/wenlng/go-captcha/v2",
+      "Version": "v2.0.5",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/wenlng/go-captcha/v2/@v/v2.0.5.mod",
+        "cache/download/github.com/wenlng/go-captcha/v2/@v/v2.0.5.info",
+        "cache/download/github.com/wenlng/go-captcha/v2/@v/v2.0.5.zip",
+        "cache/download/github.com/wenlng/go-captcha/v2/@v/v2.0.5.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "golang.org/x/crypto",
+      "Version": "v0.55.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/golang.org/x/crypto/@v/v0.55.0.mod",
+        "cache/download/golang.org/x/crypto/@v/v0.55.0.info",
+        "cache/download/golang.org/x/crypto/@v/v0.55.0.zip",
+        "cache/download/golang.org/x/crypto/@v/v0.55.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/cespare/xxhash/v2",
+      "Version": "v2.3.0",
+      "source_present": true,
+      "missing": [],
+      "existing_files": {
+        "cache/download/github.com/cespare/xxhash/v2/@v/v2.3.0.mod": "a090f8eaaf59cc2adf163299ebefe797e1dca3f6add2c8e88a6a3b90ba538b02",
+        "cache/download/github.com/cespare/xxhash/v2/@v/v2.3.0.info": "3430177c73d37fcd2771ca178514a2eb723c84430e275dd31f1cb116a5547c74",
+        "cache/download/github.com/cespare/xxhash/v2/@v/v2.3.0.zip": "145a26cdc7c49db566017b807c4989ee7f7ddeb569423e9cb99f995fac3621d3",
+        "cache/download/github.com/cespare/xxhash/v2/@v/v2.3.0.ziphash": "10a9b34454c2ab44eaa0867ac35a2026bb155b738b9ace06f976ce92bc1654c9"
+      }
+    },
+    {
+      "Path": "github.com/dustin/go-humanize",
+      "Version": "v1.0.1",
+      "source_present": true,
+      "missing": [],
+      "existing_files": {
+        "cache/download/github.com/dustin/go-humanize/@v/v1.0.1.mod": "4325999d0a6841031258a2561c22879d9fbdf77abc6b32a17b1cb6edf0810fb2",
+        "cache/download/github.com/dustin/go-humanize/@v/v1.0.1.info": "13d13f3851f5b206af82030b9de1280c26f8ee0e45cd6e0dc27849adef8c4257",
+        "cache/download/github.com/dustin/go-humanize/@v/v1.0.1.zip": "319404ea84c8a4e2d3d83f30988b006e7dd04976de3e1a1a90484ad94679fa46",
+        "cache/download/github.com/dustin/go-humanize/@v/v1.0.1.ziphash": "51e953dac18ea86de59470af22f2b987a92d88c505cc1e38884b90c4f5f684d0"
+      }
+    },
+    {
+      "Path": "github.com/golang/freetype",
+      "Version": "v0.0.0-20170609003504-e2365dfdc4a0",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/golang/freetype/@v/v0.0.0-20170609003504-e2365dfdc4a0.mod",
+        "cache/download/github.com/golang/freetype/@v/v0.0.0-20170609003504-e2365dfdc4a0.info",
+        "cache/download/github.com/golang/freetype/@v/v0.0.0-20170609003504-e2365dfdc4a0.zip",
+        "cache/download/github.com/golang/freetype/@v/v0.0.0-20170609003504-e2365dfdc4a0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/google/uuid",
+      "Version": "v1.6.0",
+      "source_present": true,
+      "missing": [],
+      "existing_files": {
+        "cache/download/github.com/google/uuid/@v/v1.6.0.mod": "73da47b6338b00a082fd451aa35a3273d3adc09b8e9bba98dab01091e402af6e",
+        "cache/download/github.com/google/uuid/@v/v1.6.0.info": "3703c19d7d948a8bc5354b7e515d5297d3c5a8316958bcdd69eec2a7629513d7",
+        "cache/download/github.com/google/uuid/@v/v1.6.0.zip": "d0f02f377217f42702e259684e06441edbf5140dddcc34ba9bea56038b38a6ed",
+        "cache/download/github.com/google/uuid/@v/v1.6.0.ziphash": "da189739bfb89927b3fa0b5c332458bd197b639610db3fea6d51449a49094004"
+      }
+    },
+    {
+      "Path": "github.com/jackc/pgpassfile",
+      "Version": "v1.0.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/jackc/pgpassfile/@v/v1.0.0.mod",
+        "cache/download/github.com/jackc/pgpassfile/@v/v1.0.0.info",
+        "cache/download/github.com/jackc/pgpassfile/@v/v1.0.0.zip",
+        "cache/download/github.com/jackc/pgpassfile/@v/v1.0.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/jackc/pgservicefile",
+      "Version": "v0.0.0-20240606120523-5a60cdf6a761",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/jackc/pgservicefile/@v/v0.0.0-20240606120523-5a60cdf6a761.mod",
+        "cache/download/github.com/jackc/pgservicefile/@v/v0.0.0-20240606120523-5a60cdf6a761.info",
+        "cache/download/github.com/jackc/pgservicefile/@v/v0.0.0-20240606120523-5a60cdf6a761.zip",
+        "cache/download/github.com/jackc/pgservicefile/@v/v0.0.0-20240606120523-5a60cdf6a761.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/jackc/puddle/v2",
+      "Version": "v2.2.2",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/jackc/puddle/v2/@v/v2.2.2.mod",
+        "cache/download/github.com/jackc/puddle/v2/@v/v2.2.2.info",
+        "cache/download/github.com/jackc/puddle/v2/@v/v2.2.2.zip",
+        "cache/download/github.com/jackc/puddle/v2/@v/v2.2.2.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/klauspost/compress",
+      "Version": "v1.19.2",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/klauspost/compress/@v/v1.19.2.mod",
+        "cache/download/github.com/klauspost/compress/@v/v1.19.2.info",
+        "cache/download/github.com/klauspost/compress/@v/v1.19.2.zip",
+        "cache/download/github.com/klauspost/compress/@v/v1.19.2.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/klauspost/cpuid/v2",
+      "Version": "v2.4.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/klauspost/cpuid/v2/@v/v2.4.0.mod",
+        "cache/download/github.com/klauspost/cpuid/v2/@v/v2.4.0.info",
+        "cache/download/github.com/klauspost/cpuid/v2/@v/v2.4.0.zip",
+        "cache/download/github.com/klauspost/cpuid/v2/@v/v2.4.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/klauspost/crc32",
+      "Version": "v1.3.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/klauspost/crc32/@v/v1.3.0.mod",
+        "cache/download/github.com/klauspost/crc32/@v/v1.3.0.info",
+        "cache/download/github.com/klauspost/crc32/@v/v1.3.0.zip",
+        "cache/download/github.com/klauspost/crc32/@v/v1.3.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/mfridman/interpolate",
+      "Version": "v0.0.2",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/mfridman/interpolate/@v/v0.0.2.mod",
+        "cache/download/github.com/mfridman/interpolate/@v/v0.0.2.info",
+        "cache/download/github.com/mfridman/interpolate/@v/v0.0.2.zip",
+        "cache/download/github.com/mfridman/interpolate/@v/v0.0.2.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/minio/crc64nvme",
+      "Version": "v1.1.1",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/minio/crc64nvme/@v/v1.1.1.mod",
+        "cache/download/github.com/minio/crc64nvme/@v/v1.1.1.info",
+        "cache/download/github.com/minio/crc64nvme/@v/v1.1.1.zip",
+        "cache/download/github.com/minio/crc64nvme/@v/v1.1.1.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/minio/md5-simd",
+      "Version": "v1.1.2",
+      "source_present": true,
+      "missing": [],
+      "existing_files": {
+        "cache/download/github.com/minio/md5-simd/@v/v1.1.2.mod": "7665f075b83ccb81c66de980da5f23e54e1479472aadd4166dfc26f8148a2fa3",
+        "cache/download/github.com/minio/md5-simd/@v/v1.1.2.info": "a321905d76eabf5e7905eea0548b6e446f860588b599c4428bdf956c66b7b10b",
+        "cache/download/github.com/minio/md5-simd/@v/v1.1.2.zip": "f829d35a6e6897db415af8888c4b074d1a253aee0e8fb7054b4d95477a81c3d6",
+        "cache/download/github.com/minio/md5-simd/@v/v1.1.2.ziphash": "b76652095efa062f4ff2a523354a1720211a53c6bba83efd60b981ea4235d25f"
+      }
+    },
+    {
+      "Path": "github.com/philhofer/fwd",
+      "Version": "v1.2.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/philhofer/fwd/@v/v1.2.0.mod",
+        "cache/download/github.com/philhofer/fwd/@v/v1.2.0.info",
+        "cache/download/github.com/philhofer/fwd/@v/v1.2.0.zip",
+        "cache/download/github.com/philhofer/fwd/@v/v1.2.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/rs/xid",
+      "Version": "v1.6.0",
+      "source_present": true,
+      "missing": [],
+      "existing_files": {
+        "cache/download/github.com/rs/xid/@v/v1.6.0.mod": "2ebd8a4c48bf66680d0fba5ca0d9ea1ec134396497802c75f3b39683e6e662ef",
+        "cache/download/github.com/rs/xid/@v/v1.6.0.info": "5fbf553a7c918ce5139da754ce071e8b6cd289fe8385ced3136fb2d28f879449",
+        "cache/download/github.com/rs/xid/@v/v1.6.0.zip": "395b1caa8a7e835e4721291e629dac4f6608db3918d6fe1eb2ed5e7561b62eb2",
+        "cache/download/github.com/rs/xid/@v/v1.6.0.ziphash": "72b9c6689c2e69b6599a64797a76eb5c4dcdddd22dd0a1ad5f7649f442e8c5fe"
+      }
+    },
+    {
+      "Path": "github.com/sethvargo/go-retry",
+      "Version": "v0.4.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/sethvargo/go-retry/@v/v0.4.0.mod",
+        "cache/download/github.com/sethvargo/go-retry/@v/v0.4.0.info",
+        "cache/download/github.com/sethvargo/go-retry/@v/v0.4.0.zip",
+        "cache/download/github.com/sethvargo/go-retry/@v/v0.4.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/tinylib/msgp",
+      "Version": "v1.6.4",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/tinylib/msgp/@v/v1.6.4.mod",
+        "cache/download/github.com/tinylib/msgp/@v/v1.6.4.info",
+        "cache/download/github.com/tinylib/msgp/@v/v1.6.4.zip",
+        "cache/download/github.com/tinylib/msgp/@v/v1.6.4.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "github.com/zeebo/xxh3",
+      "Version": "v1.1.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/github.com/zeebo/xxh3/@v/v1.1.0.mod",
+        "cache/download/github.com/zeebo/xxh3/@v/v1.1.0.info",
+        "cache/download/github.com/zeebo/xxh3/@v/v1.1.0.zip",
+        "cache/download/github.com/zeebo/xxh3/@v/v1.1.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "go.uber.org/multierr",
+      "Version": "v1.11.0",
+      "source_present": true,
+      "missing": [],
+      "existing_files": {
+        "cache/download/go.uber.org/multierr/@v/v1.11.0.mod": "58a30dde730aba57576715d90841774f6344a879fec5633a2c66b37ec30c11f0",
+        "cache/download/go.uber.org/multierr/@v/v1.11.0.info": "f27049930a037d9d851561b9fc5c4cc77cd41bb1e58a4a858783d5149525b418",
+        "cache/download/go.uber.org/multierr/@v/v1.11.0.zip": "2249b5d2fdce61f6ee661a679d8552599af084a761cbbc871da77641bddce0c3",
+        "cache/download/go.uber.org/multierr/@v/v1.11.0.ziphash": "d6e33016371ba205372eb738c9a766e62a6a292e5da1af0d4bb1763d7f6f5537"
+      }
+    },
+    {
+      "Path": "go.yaml.in/yaml/v3",
+      "Version": "v3.0.5",
+      "source_present": false,
+      "missing": [
+        "cache/download/go.yaml.in/yaml/v3/@v/v3.0.5.mod",
+        "cache/download/go.yaml.in/yaml/v3/@v/v3.0.5.info",
+        "cache/download/go.yaml.in/yaml/v3/@v/v3.0.5.zip",
+        "cache/download/go.yaml.in/yaml/v3/@v/v3.0.5.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "golang.org/x/image",
+      "Version": "v0.45.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/golang.org/x/image/@v/v0.45.0.mod",
+        "cache/download/golang.org/x/image/@v/v0.45.0.info",
+        "cache/download/golang.org/x/image/@v/v0.45.0.zip",
+        "cache/download/golang.org/x/image/@v/v0.45.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "golang.org/x/net",
+      "Version": "v0.58.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/golang.org/x/net/@v/v0.58.0.mod",
+        "cache/download/golang.org/x/net/@v/v0.58.0.info",
+        "cache/download/golang.org/x/net/@v/v0.58.0.zip",
+        "cache/download/golang.org/x/net/@v/v0.58.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "golang.org/x/sync",
+      "Version": "v0.22.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/golang.org/x/sync/@v/v0.22.0.mod",
+        "cache/download/golang.org/x/sync/@v/v0.22.0.info",
+        "cache/download/golang.org/x/sync/@v/v0.22.0.zip",
+        "cache/download/golang.org/x/sync/@v/v0.22.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "golang.org/x/sys",
+      "Version": "v0.47.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/golang.org/x/sys/@v/v0.47.0.mod",
+        "cache/download/golang.org/x/sys/@v/v0.47.0.info",
+        "cache/download/golang.org/x/sys/@v/v0.47.0.zip",
+        "cache/download/golang.org/x/sys/@v/v0.47.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "golang.org/x/text",
+      "Version": "v0.41.0",
+      "source_present": false,
+      "missing": [
+        "cache/download/golang.org/x/text/@v/v0.41.0.mod",
+        "cache/download/golang.org/x/text/@v/v0.41.0.info",
+        "cache/download/golang.org/x/text/@v/v0.41.0.zip",
+        "cache/download/golang.org/x/text/@v/v0.41.0.ziphash"
+      ],
+      "existing_files": {}
+    },
+    {
+      "Path": "gopkg.in/ini.v1",
+      "Version": "v1.67.3",
+      "source_present": false,
+      "missing": [
+        "cache/download/gopkg.in/ini.v1/@v/v1.67.3.mod",
+        "cache/download/gopkg.in/ini.v1/@v/v1.67.3.info",
+        "cache/download/gopkg.in/ini.v1/@v/v1.67.3.zip",
+        "cache/download/gopkg.in/ini.v1/@v/v1.67.3.ziphash"
+      ],
+      "existing_files": {}
+    }
+  ],
+  "origin_failure": {
+    "command.json": "b7a0b3b997d04bdd734a5777279dd6a94e1e36c30fd96d8fcdd9db28cadcbf47",
+    "raw.log": "0576c565c0fade12aef795ff8604e73944db349e308ca8d5a4752f368a6ccae7"
+  }
+}

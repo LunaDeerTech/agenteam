@@ -1,0 +1,12 @@
+{
+  "source_author_manifest": "/workspace/scratch/usage-http-author/a03-execution-input.json",
+  "author_manifest_sha256": "169563a04601c468b3613dcf22e669de227729befda855352ca6cbdfa2b5de16",
+  "manifest_kind": "original nonrace Go package source closure; race-specific closure is separate author evidence",
+  "fixed_git": "6fa2ee721a75ea34a1ccd6523b8b25d68328c5b9",
+  "counts": {
+    "repository": 288,
+    "candidate": 6,
+    "fixed_dependency": 282
+  },
+  "failures": []
+}

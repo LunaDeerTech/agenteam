@@ -31,3 +31,7 @@ Object runtime join、OpenAI tools 独立验证、SPA concurrent-publication 三
 ## 测试依赖恢复结果
 
 [测试依赖恢复报告](environment-test-dependencies-2026-10-07.md)记录固定 MinIO 二进制及两个 PG digest 镜像已恢复。MinIO SHA、release/commit、`AGENTEAM_MINIO_BINARY=/workspace/scratch/fixture-recovery/bin/minio` 与 16 条实际命令（含四次原失败）均可追溯；PG 17.8/16.12 仅为 image inspect 配置，未运行数据库。原 42 项 manifest 保持，仅保存其中 40 项小原件及 manifest 自身，binary/ZIP 只保留指纹。11 项仓库输入未变；未启动容器、listener、DB 或产品测试，不构成 Usage HTTP 或其他产品验收，三停止边界不变。以上原恢复时点正文保持原文。
+
+## Usage HTTP 阶段 A 接受
+
+[阶段 A 归档](project-usage-read-http-stage-a-verification.md)记录主线程已采纳独立限定 PASS，五产品路径已提交推送 `ba7ce7296b7c08d976d3fc3ce1e1d0b727a3f04f` 并核远端一致。作者纯测/race compile/vet 与独立四 race 顶层、schema382/Node147/250 refs/288 依赖字节共同绑定同 a02；原缺依赖、两次超时、a04 compiler Z 未 join 及独立 runner 首错保留。作者 B 已实际 ACK，仅 handler 两新源；本结果没有真实资源或整卡 HTTP/root 接受，旧恢复时点原文、三停止与未完成边界保持。
