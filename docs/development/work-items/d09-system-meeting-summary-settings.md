@@ -1,6 +1,8 @@
 # D09：系统会议 Summary 设置 HTTP、同页表单与根初始化
 
-修订：rev2，2026-10-07，**rev1 完整审查与 rev2 四项差量复核共同形成完整 STATIC 接受，root 已采纳；本卡仍不授予实施、测试或资源权限。** 唯一规格写入为本页。S1 产品已由 root 接受、提交推送 `c210d249600d98871513c56fb9a8fff7c50a4c34` 并确认远端一致；技术候选共 35 路径，实际改动 28 技术路径，加独立通过的后端 README 末件共 29 改动路径，见[S1 验收归档](../agent-team/system-meeting-summary-selection-verification.md)。文档接续已推送至 `72f48d2724f55b0dfed559b6f7120429f78c0c01`；本页不冒称执行过 S1 或 S2 测试。
+修订：rev3，2026-10-07，**rev2 已经完整 STATIC 接受；本次仅增补 #32 的范围修订已通过独立差量 STATIC，root 已采纳 rev3，不因此授予新增实施、测试或资源权限。** 唯一规格写入为本页。S1 产品已由 root 接受、提交推送 `c210d249600d98871513c56fb9a8fff7c50a4c34` 并确认远端一致；技术候选共 35 路径，实际改动 28 技术路径，加独立通过的后端 README 末件共 29 改动路径，见[S1 验收归档](../agent-team/system-meeting-summary-selection-verification.md)。文档接续已推送至 `72f48d2724f55b0dfed559b6f7120429f78c0c01`；本页不冒称执行过 S1 或 S2 测试。
+
+rev3 仅补入既有 `internal/central/model/http_test.go` 为 #32，由后端作者 `fixture_recovery` 在 root 实际授权后处理：固定 c210d249 的 `TestSystemHTTPConstructionAndRoutesMatchOpenAPI` route 总数断言为 26，按本卡既定 GET/HEAD/PUT 改为 29，其余强断言原字节保持。此项来自实施静态核对，是既定三方法契约的旧测兼容，不是产品扩展或实际测试失败；#1–31 原编号及用途不变。以下 rev2 范围说明保留其历史时点。
 
 rev2 仅落实独审 B1/B2/D1/D2：原生 beforeunload 与应用内确认分离、新 HTTP handler 完整输出/Flush 后退休 deadline、S1 改动计数及 Usage 初始化 helper 白名单。31 候选路径及其它契约不扩，固定 c210d249 来源，不消费活动 S3 候选。
 
@@ -108,7 +110,7 @@ App 仍只创建/provide 现有 selection 页面 owner，现有 navigation hook�
 
 ## 5. 精确候选路径与所有权
 
-下表 **31 路径**是经 STATIC 采纳后可由 root 移交的候选，当前只允许写本规格；不为凑数量触碰无需变化的文件。S1 接受源、其它任务活动源、共享运行资源在交接前均核冻结；需增加路径先报告修卡。
+下表 **32 路径**是经 STATIC 采纳后可由 root 移交的候选，当前只允许写本规格；不为凑数量触碰无需变化的文件。S1 接受源、其它任务活动源、共享运行资源在交接前均核冻结；需增加路径先报告修卡。
 
 | # | 路径 | 唯一用途/作者 |
 | --- | --- | --- |
@@ -143,8 +145,9 @@ App 仍只创建/provide 现有 selection 页面 owner，现有 navigation hook�
 | 29 | `tests/account-captcha-web/e2e/system-model-selection.spec.ts` | 同上：仅新增section后的旧六组页面定位/准备兼容；旧动作/强断言/预算不能删弱 |
 | 30 | `docs/development/backend/README.md` | 后端接受后末件：新口/初始化与未绑定生成边界 |
 | 31 | `docs/development/frontend/README.md` | 前端接受后末件：同页两区/实际命令/恢复与部署限制 |
+| 32 | `internal/central/model/http_test.go` | 后端作者 `fixture_recovery`：仅 `TestSystemHTTPConstructionAndRoutesMatchOpenAPI` 的 route 总数断言 26→29，计入既定新增 GET/HEAD/PUT；其余强断言原字节保持 |
 
-App.vue、router、菜单、通用 Dialog、旧四项 Editor、Account boundary、common schema、所有迁移、S1 library/contract、脚本/lockfile/共享 fixture及Resolver保持只读。Usage 仅有 #7/#8 白名单例外：`project_usage.go` 的原 startup helper 参数/顺序及其对应测试适配；Usage 业务服务、HTTP、DTO、schema、端口、授权、预算语义和其它产品源保持只读，不能借接线改变业务行为。前端可在HTTP契约冻结后离线实施，真实联验须消费已固定的后端；后端与前端分别唯一作者，web Go fixture的全部权归指定browser作者，不能两个作者争写。31项由root逐文件实际交接，不因表中“新”自动获写权；README仅最后串行授权。独立验证者不参与对应实现，STATIC通过与产品PASS分开记录。
+App.vue、router、菜单、通用 Dialog、旧四项 Editor、Account boundary、common schema、所有迁移、S1 library/contract、脚本/lockfile/共享 fixture及Resolver保持只读。Usage 仅有 #7/#8 白名单例外：`project_usage.go` 的原 startup helper 参数/顺序及其对应测试适配；Usage 业务服务、HTTP、DTO、schema、端口、授权、预算语义和其它产品源保持只读，不能借接线改变业务行为。前端可在HTTP契约冻结后离线实施，真实联验须消费已固定的后端；后端与前端分别唯一作者，web Go fixture的全部权归指定browser作者，不能两个作者争写。32项由root逐文件实际交接，不因表中“新”自动获写权；README仅最后串行授权。独立验证者不参与对应实现，STATIC通过与产品PASS分开记录。
 
 ## 6. 验收与停止条件
 
