@@ -1,0 +1,334 @@
+{
+  "state": "AUTHOR PASS only; final independent A/B pending; backend candidate04 and frontend04 unchanged; all author source writes/processes/resources stopped",
+  "fixed_candidate": "candidate04.json",
+  "fixed_driver": "driver-v01/frozen.json",
+  "fixed_closure": "closure05.json",
+  "offline": "offline04-summary.json",
+  "runs": {
+    "new1": {
+      "seconds": 100.839,
+      "observed_processes": 139,
+      "observed_resources": 7,
+      "tops": [
+        [
+          "PASS",
+          "TestModelMeetingSummarySchema",
+          "3.59"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySelection",
+          "3.33"
+        ]
+      ],
+      "new_pid1_zombies_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 164015,
+          "ppid": 1,
+          "starttime": "731276",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 164855,
+          "ppid": 1,
+          "starttime": "732075",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 165140,
+          "ppid": 1,
+          "starttime": "732275",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 165733,
+          "ppid": 1,
+          "starttime": "732523",
+          "state": "Z"
+        }
+      ],
+      "adopted_waits": 0,
+      "hashes": {
+        "result.json": "e429aa278a5c5282f7ce765253d021ab5f46b856b6abcf1b51ebde3a24936bc8",
+        "command.json": "6a43c2a7d564d5ef4180929620c2bb36abdb92246d0e458575538a3dd55e43ae",
+        "raw.log": "0f808edbd62adcdf9de38c1410933c53de4ccddac6bb2357c031232e71739aca",
+        "cleanup.json": "3e745eb9742653db39736c97d952ee2777ee81f0fefe64e1a3c3230452d5b6cb",
+        "watchdog.json": "d9014b9429b8058458aa0a7d0a65efa91a003d0175d233f2f640b03bd9f225f6",
+        "input-before.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+        "input-after.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+        "observed-resources.json": "a01b607b01f68aa18adff40627c64d7a395cdd60c1f7400c89171315414fa9e1",
+        "observed-processes.json": "e28e28a2cc13712909032030c799f2ae39b0f6732ef3b3cb5012c02140deea06",
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "process-baseline.json": "85fa9496eebd990e8279f24ce932740b4d52923bcde0442ea6d3daab462f6865"
+      }
+    },
+    "new2": {
+      "seconds": 66.065,
+      "observed_processes": 88,
+      "observed_resources": 7,
+      "tops": [
+        [
+          "PASS",
+          "TestModelMeetingSummaryReplacement",
+          "4.80"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummaryUnknown",
+          "11.00"
+        ]
+      ],
+      "new_pid1_zombies_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 176282,
+          "ppid": 1,
+          "starttime": "743999",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 176814,
+          "ppid": 1,
+          "starttime": "744435",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 177138,
+          "ppid": 1,
+          "starttime": "744645",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 177677,
+          "ppid": 1,
+          "starttime": "744815",
+          "state": "Z"
+        }
+      ],
+      "adopted_waits": 0,
+      "hashes": {
+        "result.json": "4059da50d77ccd8ef3f9fe64f7095d8f25ba6089550886f270d10b314f242a91",
+        "command.json": "ce67d86264805dfce71af9c7ddff85f6735b5be4d2a9c659775f986deaaa189d",
+        "raw.log": "40f2f70ca30168b2e865c768bcdd0b43d9e74dcb16739f8491d73487b98d113c",
+        "cleanup.json": "d1160deb4558c229ded93eabb075f293e739e455da22f283c968149901e78f20",
+        "watchdog.json": "3539a95a7b1cc9b098221d51616dac847506ed8ead012c216e710ca0f2ff6190",
+        "input-before.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+        "input-after.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+        "observed-resources.json": "e6ad175631df5c1af093018c044a500d1922109fe1b4fb7ad0583d0dbb15d6ea",
+        "observed-processes.json": "6fce1ec388a88f0d96f95e86b645e789f3bcc1c3d2c21828e8b6fc800efa7ac8",
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "process-baseline.json": "9f84a5e61af7ac479e08f006323b81e160945f37594dbb47d67e09e708d8c4ce"
+      }
+    },
+    "new3": {
+      "seconds": 55.981,
+      "observed_processes": 90,
+      "observed_resources": 7,
+      "tops": [
+        [
+          "PASS",
+          "TestModelMeetingSummaryExistingHTTP",
+          "2.71"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummaryUpgradeReceipts",
+          "3.91"
+        ]
+      ],
+      "new_pid1_zombies_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 184825,
+          "ppid": 1,
+          "starttime": "752445",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 185354,
+          "ppid": 1,
+          "starttime": "752864",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 185632,
+          "ppid": 1,
+          "starttime": "753052",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 186256,
+          "ppid": 1,
+          "starttime": "753241",
+          "state": "Z"
+        }
+      ],
+      "adopted_waits": 0,
+      "hashes": {
+        "result.json": "6994574f79541bc16222fcebb691ce72005703dc1402979bd12f6f0fb4d055a9",
+        "command.json": "aed0f708fcb471e43a08d2684281e74d5e4fe7ac24208cf085f8ccf4a2ecdcd9",
+        "raw.log": "cacb4695b847033d7fa8dc8a126eff52ad1f8d161e75d8b1766cc2f51cd96a52",
+        "cleanup.json": "269c5edcc4855996927545700b6466d8d722bdefa66c55455225b4a3bb557959",
+        "watchdog.json": "f5fbb78ccefc380ad5c229a834d94b96d0a2a4bd82e9c3682529ec32f5c8f7a0",
+        "input-before.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+        "input-after.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+        "observed-resources.json": "fd4b1283d7c7540efbf38d42feac144ca7b30f16fc4fb93c7a64c61eeb5fdded",
+        "observed-processes.json": "6d7dc0beaa49a63e827e04540aa730b2e8e08225f7f497ddc90b0d78649bef5b",
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "process-baseline.json": "670d27c13be5fc91df3f1dd75a4da2b4c726df18d50dfed5ac40a9d4c9ce24b2"
+      }
+    },
+    "old1": {
+      "seconds": 87.618,
+      "observed_processes": 94,
+      "observed_resources": 7,
+      "tops": [
+        [
+          "PASS",
+          "TestModelCurrentResolutionSelection",
+          "2.43"
+        ],
+        [
+          "PASS",
+          "TestModelCurrentResolutionReplay",
+          "1.94"
+        ],
+        [
+          "PASS",
+          "TestModelProjectReceiptReadGateAndLegacySystemPlan",
+          "6.83"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUnboundReferencesAndDeleteBarrier",
+          "5.69"
+        ],
+        [
+          "PASS",
+          "TestModelB01PlatformSelectionAndAtomicReplacement",
+          "1.43"
+        ],
+        [
+          "PASS",
+          "TestModelB01SecretReferencesAndAllEffectsRollback",
+          "1.27"
+        ],
+        [
+          "PASS",
+          "TestModelB01ConcurrentSameKeyPreparationFailureStillReplaysReceipt",
+          "2.27"
+        ],
+        [
+          "PASS",
+          "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked",
+          "3.20"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPSelectionAndReferenceDeletion",
+          "2.57"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator",
+          "3.49"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire",
+          "2.14"
+        ],
+        [
+          "PASS",
+          "TestSystemModelManagementDeletionImpact",
+          "3.37"
+        ]
+      ],
+      "new_pid1_zombies_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 192574,
+          "ppid": 1,
+          "starttime": "761413",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 193067,
+          "ppid": 1,
+          "starttime": "761840",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 193426,
+          "ppid": 1,
+          "starttime": "762040",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 193943,
+          "ppid": 1,
+          "starttime": "762238",
+          "state": "Z"
+        }
+      ],
+      "adopted_waits": 0,
+      "hashes": {
+        "result.json": "c14d325879607d814e49db298b0098cbafbd4bbbab58c74cc6f9330a44605fee",
+        "command.json": "43d482d2a04ee0e8026a838c2f6312a4bacaf448eb0d06fd41b0b801c5421c2d",
+        "raw.log": "22b68e51a50c44bcd5665f384b81dc50f1a03bf158838296297685449e0f4412",
+        "cleanup.json": "47d4407dbd04effd63aa218e0f4a3d8ba48fa7d05922e4e298805591ad2bf66f",
+        "watchdog.json": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf",
+        "input-before.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+        "input-after.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+        "observed-resources.json": "b7ffdcea290f90f0deecf2d89b11d18014bf31c20c1bb6024d4804492c9f2b7f",
+        "observed-processes.json": "71de813ae432b9423ef2f7513be1f52378f9ce5cb388e791cd76f8f8f24faff2",
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "process-baseline.json": "c02252e612277efed1de56cc37fcfae33c9f7ecfb3bb5f8e1a83690129d83455"
+      }
+    }
+  },
+  "pid1_shim_accounting": {
+    "first_baseline": 24,
+    "author_new_unique_pid_starttime": 16,
+    "last_cleanup_total": 40,
+    "source": "only fixed new1/process-baseline.json + each run result + old1 final cleanup; later independent runs excluded",
+    "not_owned_or_waited": true
+  },
+  "identity_scope": "Primary administrator uses real Account Bootstrap/login; auxiliary addBrowser SQL seeds User then real Login; schema base.human uses fixed SQL fixture. These do not establish official User creation/invitation E2E. Fixed6fa producer accepted commands exclusively use old newSystemHTTPFixture Bootstrap/login, no SQL identity branches.",
+  "limitations": [
+    "No S2 new Summary HTTP/UI/root startup or S3 Resolver/Meeting runtime consumption",
+    "No production readiness/complete D09 acceptance",
+    "Old process safely exports only private0600 data handoff then actualwait before20; handoff removed and temporary lifecycle cleaned; logs only safe IDs/counts/hashes",
+    "HTTP proof uses actual accepted handler+PG fixture, not native network/browser rendering",
+    "Every resource round adds4 PID1 daemon shim zombies outside task ownership; none were waited or signaled"
+  ]
+}

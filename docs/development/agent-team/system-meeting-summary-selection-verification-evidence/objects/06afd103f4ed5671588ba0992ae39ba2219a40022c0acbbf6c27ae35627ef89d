@@ -1,0 +1,45 @@
+{
+  "time": 1791379720.741615,
+  "platform": {
+    "sys": "Linux",
+    "machine": "x86_64",
+    "libc": [
+      "glibc",
+      "2.41"
+    ]
+  },
+  "manager": "npm, lockfileVersion3; no pnpm/yarn lock",
+  "package_files": {
+    "package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "node_modules/.package-lock.json": "b3c46d4d6d7d25282ef60c069e02b181792731f0975e0cd19f62fbb8363ec071"
+  },
+  "lock_package_count": 171,
+  "hidden_package_count": 145,
+  "target_lock": {
+    "version": "2.0.7",
+    "resolved": "https://registry.npmjs.org/go-captcha-vue/-/go-captcha-vue-2.0.7.tgz",
+    "integrity": "sha512-ynlb/6CJiMdsqKe+79lIVpTsNXQTgOHDJ7BH+Gx6EZQZyHSwuyLZvQwjz9vQOYhyHpREW9tapBo8ZOTyVzIQew==",
+    "license": "MIT",
+    "peerDependencies": {
+      "vue": ">=3"
+    }
+  },
+  "hidden_target": null,
+  "target_lexists": true,
+  "version_mismatches": [],
+  "package_symlinks": [],
+  "cache": {
+    "root": "/home/agent/.npm/_cacache",
+    "root_exists": false,
+    "exact_content": "/home/agent/.npm/_cacache/content-v2/sha512/ca/79/5bffa08988c76ca8a7beefd9485694ec35741380e1c327b047f86c7a119419c874b0bb22d9bd0c23cfdbd03988721e94445bdb5aa41a3c64e4f25732107b",
+    "exact_content_exists": false
+  },
+  "runtime_paths": {
+    "node": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "npm": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm"
+  },
+  "vue_peer_actual": "3.5.43",
+  "cause_limit": "Entire nonoptional package and hidden-lock entry absent, not broken symlink. Installed-tree snapshot omits this dependency; no evidence identifies when/why omission occurred. No install logs, credentials or unrelated caches read."
+}
+missing_nonoptional []

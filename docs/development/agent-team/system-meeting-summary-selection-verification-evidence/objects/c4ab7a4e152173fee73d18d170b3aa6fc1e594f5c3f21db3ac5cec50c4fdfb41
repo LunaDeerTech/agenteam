@@ -1,0 +1,97 @@
+{
+  "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468": {
+    "id": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+    "kind": "network",
+    "labels": {
+      "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+      "com.docker.compose.network": "default",
+      "com.docker.compose.project": "agenteam-dev-infra",
+      "com.docker.compose.version": "2.40.3"
+    },
+    "name": "agenteam-dev-infra_default"
+  },
+  "763aebd4d7a2894245ef4a643125504f4af17530a15e91f781d5e02c1d91c5c9": {
+    "id": "763aebd4d7a2894245ef4a643125504f4af17530a15e91f781d5e02c1d91c5c9",
+    "kind": "network",
+    "labels": {},
+    "name": "bridge"
+  },
+  "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96": {
+    "id": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+    "kind": "network",
+    "labels": {},
+    "name": "none"
+  },
+  "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c": {
+    "id": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+    "kind": "container",
+    "labels": {
+      "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+      "com.docker.compose.container-number": "1",
+      "com.docker.compose.depends_on": "",
+      "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+      "com.docker.compose.oneoff": "False",
+      "com.docker.compose.project": "agenteam-dev-infra",
+      "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+      "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+      "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+      "com.docker.compose.service": "postgres",
+      "com.docker.compose.version": "2.40.3"
+    },
+    "mounts": [
+      {
+        "Destination": "/var/lib/postgresql/data",
+        "Mode": "rw",
+        "Propagation": "rprivate",
+        "RW": true,
+        "Source": "/workspace/agenteam-onboarding/infra/data/postgres",
+        "Type": "bind"
+      }
+    ],
+    "name": "/agenteam-dev-infra-postgres-1"
+  },
+  "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e": {
+    "id": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+    "kind": "container",
+    "labels": {
+      "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+      "com.docker.compose.container-number": "1",
+      "com.docker.compose.depends_on": "",
+      "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+      "com.docker.compose.oneoff": "False",
+      "com.docker.compose.project": "agenteam-dev-infra",
+      "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+      "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+      "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+      "com.docker.compose.service": "minio",
+      "com.docker.compose.version": "2.40.3"
+    },
+    "mounts": [
+      {
+        "Destination": "/data",
+        "Mode": "rw",
+        "Propagation": "rprivate",
+        "RW": true,
+        "Source": "/workspace/agenteam-onboarding/infra/data/minio",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/var/lib/postgresql/data",
+        "Driver": "local",
+        "Mode": "",
+        "Name": "5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260",
+        "Propagation": "",
+        "RW": true,
+        "Source": "/var/lib/docker/volumes/5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260/_data",
+        "Type": "volume"
+      }
+    ],
+    "name": "/agenteam-dev-infra-minio-1"
+  },
+  "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed": {
+    "id": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+    "kind": "network",
+    "labels": {},
+    "name": "host"
+  }
+}

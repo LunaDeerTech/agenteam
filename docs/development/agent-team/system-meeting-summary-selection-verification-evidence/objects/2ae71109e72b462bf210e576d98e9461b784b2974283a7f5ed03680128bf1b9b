@@ -1,0 +1,328 @@
+{
+  "tgz_sha256": "5f759f7c89ec8b8c69df34b96fa5faa1abaf272523128e5902295ff4a1fb403e",
+  "tgz_bytes": 23703,
+  "integrity": "sha512-ynlb/6CJiMdsqKe+79lIVpTsNXQTgOHDJ7BH+Gx6EZQZyHSwuyLZvQwjz9vQOYhyHpREW9tapBo8ZOTyVzIQew==",
+  "lock_integrity_matches": true,
+  "official_http200": true,
+  "member_count": 48,
+  "regular_files": 48,
+  "total_expanded_bytes": 110964,
+  "all_members_inside_package": true,
+  "symlink_hardlink_special_members": 0,
+  "package": {
+    "name": "go-captcha-vue",
+    "version": "2.0.7",
+    "private": false,
+    "type": "module",
+    "license": "MIT",
+    "email": "wengaolng@gmail.com",
+    "author": "Awen <wengaolng@gmail.com>",
+    "description": "GoCaptcha of Vue, which implements click mode, slider mode, drag-drop mode and rotation mode.",
+    "keywords": [
+      "go-captcha-vue",
+      "go-captcha",
+      "gocaptcha",
+      "captcha-vue",
+      "vue-captcha",
+      "capts",
+      "gocapts"
+    ],
+    "bugs": {
+      "url": "https://github.com/wenlng/go-captcha-vue/issues"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/wenlng/go-captcha-vue.git"
+    },
+    "homepage": "https://github.com/wenlng/go-captcha-vue",
+    "main": "dist/go-captcha-vue.umd.js",
+    "module": "dist/go-captcha-vue.es.js",
+    "types": "./dist/index.d.ts",
+    "typings": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "import": {
+          "node": "./dist/go-captcha-vue.es.js",
+          "default": "./dist/go-captcha-vue.es.js"
+        },
+        "require": "./dist/go-captcha-vue.es.js",
+        "types": "./dist/index.d.ts"
+      },
+      "./dist/*": "./dist/*",
+      "./env.d.ts": "./env.d.ts",
+      "./package.json": "./package.json"
+    },
+    "files": [
+      "dist/*",
+      "env.d.ts"
+    ],
+    "scripts": {
+      "dev": "vite",
+      "build": "run-p type:check \"build:only {@}\" --",
+      "build:only": "vite build && run-p tsd",
+      "tsd": "vue-tsc --rootDir ./packages --declaration --emitDeclarationOnly --noEmit false --outDir ./dist",
+      "preview": "vite preview --port 5050",
+      "type:check": "vue-tsc --noEmit -p tsconfig.json"
+    },
+    "peerDependencies": {
+      "vue": ">=3"
+    },
+    "devDependencies": {
+      "@types/node": "^16.11.10",
+      "@vitejs/plugin-vue": "4.4.0",
+      "@vitejs/plugin-vue-jsx": "^3.1.0",
+      "autoprefixer": "^10.4.19",
+      "fast-glob": "^3.3.2",
+      "less": "^4.2.0",
+      "less-loader": "^12.2.0",
+      "npm-run-all2": "^6.2.0",
+      "ts-morph": "^22.0.0",
+      "typescript": "~5.4.0",
+      "vue": "^3.0.0",
+      "vite": "4.4.11",
+      "vue-tsc": "^2.0.11"
+    }
+  },
+  "files": {
+    "LICENSE": {
+      "bytes": 1083,
+      "sha256": "67b97c610041b0cd2ad72c7a82e5789338f4077e271bf58b15bedf108b157eb9",
+      "mode": 420
+    },
+    "dist/style.css": {
+      "bytes": 12284,
+      "sha256": "1ab0726e1be56c78dc083bfeeb2e00766266bf31fe6412a07a90a047f7de24ee",
+      "mode": 420
+    },
+    "dist/go-captcha-vue.es.js": {
+      "bytes": 38396,
+      "sha256": "3880426d9f971ca755f2a7f880b2532f0d67f47f188c47d11217b153f0c3b632",
+      "mode": 420
+    },
+    "dist/go-captcha-vue.umd.js": {
+      "bytes": 31048,
+      "sha256": "defa7d333c54cf1a7d41c0fd3e1a8a528abc449cb2476fa4e3fbd59e2ec90bbe",
+      "mode": 420
+    },
+    "package.json": {
+      "bytes": 2014,
+      "sha256": "f89886791ed99da82bc129e130aa0bdb0d8c9c459cee7a12c6a77a0de862e1ee",
+      "mode": 420
+    },
+    "README.md": {
+      "bytes": 6256,
+      "sha256": "446b21ad002ab437711c5a42ebcce45ed5d080bd9e101974e898bda30e9d2c84",
+      "mode": 420
+    },
+    "dist/assets/icons/arrows-icon.vue.d.ts": {
+      "bytes": 364,
+      "sha256": "fc1198729ae12b2059f6885620d6a1f6803ff4ef04c48f4e7df4cf012d6bca35",
+      "mode": 420
+    },
+    "dist/assets/icons/btn-default-icon.vue.d.ts": {
+      "bytes": 364,
+      "sha256": "fc1198729ae12b2059f6885620d6a1f6803ff4ef04c48f4e7df4cf012d6bca35",
+      "mode": 420
+    },
+    "dist/assets/icons/btn-error-icon.vue.d.ts": {
+      "bytes": 364,
+      "sha256": "fc1198729ae12b2059f6885620d6a1f6803ff4ef04c48f4e7df4cf012d6bca35",
+      "mode": 420
+    },
+    "dist/assets/icons/btn-success-icon.vue.d.ts": {
+      "bytes": 364,
+      "sha256": "fc1198729ae12b2059f6885620d6a1f6803ff4ef04c48f4e7df4cf012d6bca35",
+      "mode": 420
+    },
+    "dist/assets/icons/btn-warn-icon.vue.d.ts": {
+      "bytes": 364,
+      "sha256": "fc1198729ae12b2059f6885620d6a1f6803ff4ef04c48f4e7df4cf012d6bca35",
+      "mode": 420
+    },
+    "dist/assets/icons/close-icon.vue.d.ts": {
+      "bytes": 364,
+      "sha256": "fc1198729ae12b2059f6885620d6a1f6803ff4ef04c48f4e7df4cf012d6bca35",
+      "mode": 420
+    },
+    "dist/components/button/meta/config.d.ts": {
+      "bytes": 268,
+      "sha256": "ce31a9b7f548e3e0ae696da957aee556e64851689baa5b8d0c4298febf054918",
+      "mode": 420
+    },
+    "dist/components/click/meta/config.d.ts": {
+      "bytes": 432,
+      "sha256": "1f8077858b781e5295188f25ed12e79ba659e9de21dc66d4f39f98d9f2329a9a",
+      "mode": 420
+    },
+    "dist/components/rotate/meta/config.d.ts": {
+      "bytes": 376,
+      "sha256": "2d26ca4102e32d1678146bd4e6ac7a546e5b880e0432eba19dbaa84b56fb9f1b",
+      "mode": 420
+    },
+    "dist/components/slide-region/meta/config.d.ts": {
+      "bytes": 367,
+      "sha256": "94b5a67cf64a0a65f5929ffe5cd45ad3d25fc6f1369369a12a3e9a432ff6c24b",
+      "mode": 420
+    },
+    "dist/components/slide/meta/config.d.ts": {
+      "bytes": 406,
+      "sha256": "3b5a4f621f85e214092f53d4b51719711e9d9013ba3808b96627b3952fb5ab6a",
+      "mode": 420
+    },
+    "dist/components/click/meta/data.d.ts": {
+      "bytes": 240,
+      "sha256": "cfff0957482f261a0048a1890ba767b6a5f7ee8c10133261b5dc098f6fa30d1e",
+      "mode": 420
+    },
+    "dist/components/rotate/meta/data.d.ts": {
+      "bytes": 245,
+      "sha256": "373bad8aafac24396226ee67e50d69ace440fddcd3b61551411de2cb09d906da",
+      "mode": 420
+    },
+    "dist/components/slide-region/meta/data.d.ts": {
+      "bytes": 375,
+      "sha256": "04963a9b86b40ae68f6055a45ca0bb99b9bbb65ae58344fa8863e41813ad4d19",
+      "mode": 420
+    },
+    "dist/components/slide/meta/data.d.ts": {
+      "bytes": 351,
+      "sha256": "9eefb876c6540b9364c860e08d8f5eaff036d23517564a0465678a8d822973f3",
+      "mode": 420
+    },
+    "env.d.ts": {
+      "bytes": 300,
+      "sha256": "ec4f7fa6e72a704aa9e2b7f4752218da4c5ab3e134d6ed1588bfcadcfc0a57d0",
+      "mode": 420
+    },
+    "dist/components/click/meta/event.d.ts": {
+      "bytes": 307,
+      "sha256": "e0f5b44700585e59e09356dea8cb9862670e007e9e2f495cd1aa65b3e413924a",
+      "mode": 420
+    },
+    "dist/components/rotate/meta/event.d.ts": {
+      "bytes": 254,
+      "sha256": "f711f760fffc9f40bb504bb2661e72a889875fdccd201f5da16ceac05ba3f9f9",
+      "mode": 420
+    },
+    "dist/components/slide-region/meta/event.d.ts": {
+      "bytes": 322,
+      "sha256": "719a3610a7b3ac3f726f50219ed8d2d7188fe6619cb508ea4b7d43cb590786e3",
+      "mode": 420
+    },
+    "dist/components/slide/meta/event.d.ts": {
+      "bytes": 304,
+      "sha256": "f110ec578ce9464db0d8a7c69b215fc9217e3659aca4e36d7aecfb2ed81c3f72",
+      "mode": 420
+    },
+    "dist/components/click/meta/expose.d.ts": {
+      "bytes": 203,
+      "sha256": "15a60d73674d371aba91e62695e0bea6d21b52ada488ad56f615f797e9db7a6e",
+      "mode": 420
+    },
+    "dist/components/rotate/meta/expose.d.ts": {
+      "bytes": 204,
+      "sha256": "798a6dd14c754259d81eaef0a22e86d9e34702b6b4a60a058978555c0b60cf21",
+      "mode": 420
+    },
+    "dist/components/slide-region/meta/expose.d.ts": {
+      "bytes": 209,
+      "sha256": "f6b927833d6fa115ce7248a670b8e8398f74a94df0ac217e674bb17191ffa7d1",
+      "mode": 420
+    },
+    "dist/components/slide/meta/expose.d.ts": {
+      "bytes": 203,
+      "sha256": "4640663381eacbd6a765847708b7ade918bbe4245bfd06ae92f8950ea9c0ee40",
+      "mode": 420
+    },
+    "dist/components/click/hooks/handler.d.ts": {
+      "bytes": 614,
+      "sha256": "42cbc017aca1ea0092b61bcc6420e09833a9598ce1fb21a3c7a4e56cfdf11b81",
+      "mode": 420
+    },
+    "dist/components/rotate/hooks/handler.d.ts": {
+      "bytes": 685,
+      "sha256": "d0ec3d140d141774ba2171973c037dfbe1a8355275a1b5e65c2af2d110bec525",
+      "mode": 420
+    },
+    "dist/components/slide-region/hooks/handler.d.ts": {
+      "bytes": 682,
+      "sha256": "104231051aa454246a68f1b32273e7dd8562343b613d938a6d33123e077f6c3f",
+      "mode": 420
+    },
+    "dist/components/slide/hooks/handler.d.ts": {
+      "bytes": 697,
+      "sha256": "2f3b4e381ee35c6deb9039efe56fc0219120ee0c8a7469505f7afb6cdce3c717",
+      "mode": 420
+    },
+    "dist/helper/helper.d.ts": {
+      "bytes": 231,
+      "sha256": "56145b6aba3a6587ad7ffa404df9149d705356eb4bd10721d8564f9dfab130cf",
+      "mode": 420
+    },
+    "dist/components/button/index.d.ts": {
+      "bytes": 128,
+      "sha256": "4a7f4339e7a6c5aa929fda48107e92a605cb7451036e847288e98d09eb20f844",
+      "mode": 420
+    },
+    "dist/components/click/index.d.ts": {
+      "bytes": 53,
+      "sha256": "79a8d70c686f9d0c2c47032f49b9f0c110e8d973b7947cc91d543a958770c037",
+      "mode": 420
+    },
+    "dist/components/rotate/index.d.ts": {
+      "bytes": 53,
+      "sha256": "79a8d70c686f9d0c2c47032f49b9f0c110e8d973b7947cc91d543a958770c037",
+      "mode": 420
+    },
+    "dist/components/slide-region/index.d.ts": {
+      "bytes": 53,
+      "sha256": "79a8d70c686f9d0c2c47032f49b9f0c110e8d973b7947cc91d543a958770c037",
+      "mode": 420
+    },
+    "dist/components/slide/index.d.ts": {
+      "bytes": 53,
+      "sha256": "79a8d70c686f9d0c2c47032f49b9f0c110e8d973b7947cc91d543a958770c037",
+      "mode": 420
+    },
+    "dist/index.d.ts": {
+      "bytes": 413,
+      "sha256": "111de1ddfb80680d8c0e9c047b954d89e480fa1aa7a7c22e798a2f35fb2d689c",
+      "mode": 420
+    },
+    "dist/components/button/index.vue.d.ts": {
+      "bytes": 1713,
+      "sha256": "1aa393840eb25ba5347193dc73605e8aab79b32d1f0afeee17a4d01c983aa10c",
+      "mode": 420
+    },
+    "dist/components/click/index.vue.d.ts": {
+      "bytes": 1532,
+      "sha256": "dc2577b98e525ab8f51e74dcb00dce684915570d5d4b6fd35b2de00a2de2e83c",
+      "mode": 420
+    },
+    "dist/components/rotate/index.vue.d.ts": {
+      "bytes": 1546,
+      "sha256": "df09332ee744ba3093113de57b0836bc57f43343ecd66cf5622d0fedb0d00ef9",
+      "mode": 420
+    },
+    "dist/components/slide-region/index.vue.d.ts": {
+      "bytes": 1621,
+      "sha256": "d4cb558fa4808f27048445e6857fb9f46e3a9989396ee1bf63e92f24597da871",
+      "mode": 420
+    },
+    "dist/components/slide/index.vue.d.ts": {
+      "bytes": 1531,
+      "sha256": "6335b5c30b85b79fb5b73bea0571bfd0c138aba0f5107ccfc93be35920ac7935",
+      "mode": 420
+    },
+    "dist/assets/icons/loading-icon.vue.d.ts": {
+      "bytes": 364,
+      "sha256": "fc1198729ae12b2059f6885620d6a1f6803ff4ef04c48f4e7df4cf012d6bca35",
+      "mode": 420
+    },
+    "dist/assets/icons/refresh-icon.vue.d.ts": {
+      "bytes": 364,
+      "sha256": "fc1198729ae12b2059f6885620d6a1f6803ff4ef04c48f4e7df4cf012d6bca35",
+      "mode": 420
+    }
+  }
+}

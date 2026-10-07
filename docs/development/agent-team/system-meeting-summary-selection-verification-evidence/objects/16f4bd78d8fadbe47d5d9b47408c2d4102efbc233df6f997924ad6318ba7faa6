@@ -1,0 +1,159 @@
+{
+  "conclusion": "PASS bounded Summary S1 frontend four-source and actual HTTP same-body compatibility",
+  "frontend_frozen04_sha256": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+  "backend_candidate04_sha256": "da01aba5921573ff03acaf9e4d24df047bd2306f82c24936a90f5343a2311fe2",
+  "prior_offline_report": {
+    "path": "/workspace/scratch/summary-frontend-verification/offline-review.md",
+    "sha256": "87fd0f65d9d01582f24b711ba8e564b9c24047343cf12c2abfb2a8c3a4378cd5"
+  },
+  "prior_offline_result": {
+    "path": "/workspace/scratch/summary-frontend-verification/offline-result.json",
+    "sha256": "ac9826be7230e50bfe0f0089a08e72cb013f0b347b3682067a415fab2b4c1e76"
+  },
+  "actual_http_cases": [
+    {
+      "case": "http01",
+      "source": "new3",
+      "freeze_sha256": "f54d7f422e2d7bc9e1ed96bc2b6087e1654691c79af678dcb42c67f7857bbc9a",
+      "provenance_sha256": "e5aa9bc5934e8f3f637a980a1a14561fbb6b5c9b947bdb6abfc5734032d436ef",
+      "body_sha256": "2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242",
+      "commands": [
+        {
+          "label": "h01-format",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+            "/workspace/agenteam/web/node_modules/prettier/bin/prettier.cjs",
+            "--write",
+            "/workspace/scratch/summary-frontend-verification/http01/independent.spec.ts",
+            "/workspace/scratch/summary-frontend-verification/http01/tools.mjs",
+            "/workspace/scratch/summary-frontend-verification/http01/guard.mjs"
+          ],
+          "seconds": 0.21798920631408691,
+          "actual_exit": 0,
+          "actual_wait": true,
+          "double_owned_zero": true,
+          "raw_sha256": "5920d963fba415701a01fac4276a2c386bf3f96ff8ac2bbf949af7ea1e4d79f9",
+          "command_sha256": "a155025e4bd62bb8367e7744a7f42d6145c4c341ded79ff95b86dbd29774ec9c"
+        },
+        {
+          "label": "h02-list",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+            "--import",
+            "/workspace/scratch/summary-frontend-verification/http01/guard.mjs",
+            "/workspace/scratch/summary-frontend-verification/http01/tools.mjs",
+            "list"
+          ],
+          "seconds": 0.41907429695129395,
+          "actual_exit": 0,
+          "actual_wait": true,
+          "double_owned_zero": true,
+          "raw_sha256": "f38dffeaa2ff41cfd19361bf6fcdc42fc153fd659d35c7669ce8879670542c6f",
+          "command_sha256": "4110bc26511f3b0a408a1a06cfae9a0a3ab7485032cb478c73d7fe4add50fda8"
+        },
+        {
+          "label": "h03-client",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+            "--import",
+            "/workspace/scratch/summary-frontend-verification/http01/guard.mjs",
+            "/workspace/scratch/summary-frontend-verification/http01/tools.mjs",
+            "pure"
+          ],
+          "seconds": 1.02335524559021,
+          "actual_exit": 0,
+          "actual_wait": true,
+          "double_owned_zero": true,
+          "raw_sha256": "d100e8d4af983633e88793634c50ef62091a182e00a250ee8ceb2264b870d516",
+          "command_sha256": "53f83440cdd80d3c7e0817106bd2ccd5ee29310b3be27c2fa0f2417a12a52ce3"
+        },
+        {
+          "label": "h04-schema",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+            "/workspace/scratch/summary-frontend-verification/http01/schema.py"
+          ],
+          "seconds": 0.11791181564331055,
+          "actual_exit": 0,
+          "actual_wait": true,
+          "double_owned_zero": true,
+          "raw_sha256": "82af22c5c8f8e6466f1e0241c2213a0a414a24ba19c27b1a31548167c58f355d",
+          "command_sha256": "01d2c29a941220c750185c1355c156990bc0a6a2b3103f6d27544e525832d98e"
+        }
+      ],
+      "client_result_sha256": "d910a7830683db73ef65cb7dbc56f2e4dae6ff3e93b01553c5866f11d03f371b",
+      "schema_result_sha256": "3ad90d54f445aae659eafa5b61ac31886c4b3b0a70dc0d119f93f331b74bc4c1",
+      "transformed_input_sha256": "0bb64b23a44c9789504d5577aadf42ae0120c5a20ff05bbfd47a988bece6fd6d",
+      "actual_web_source_files": 5,
+      "client_context_closed": true,
+      "groups": [
+        {
+          "owner_kind": "platform_selector",
+          "role": "meeting_summary",
+          "count": "1"
+        }
+      ]
+    },
+    {
+      "case": "http02",
+      "source": "independent-b01",
+      "freeze_sha256": "8a7a958a2193c64656005cadf8e2baad0671aed2a93b0e2f6fdeab3850c5195f",
+      "provenance_sha256": "c96500af91f53b9060a0103c22e21e01ad8c6f6b7d1d12f752efd289e1e8fbe6",
+      "body_sha256": "39b25a8b83cbce1128723132d168d4e0dce9d00bc79188e1fdaf86d0c68bcf6e",
+      "commands": [
+        {
+          "label": "h01-client",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+            "--import",
+            "/workspace/scratch/summary-frontend-verification/http02/guard.mjs",
+            "/workspace/scratch/summary-frontend-verification/http02/tools.mjs",
+            "pure"
+          ],
+          "seconds": 1.1218712329864502,
+          "actual_exit": 0,
+          "actual_wait": true,
+          "double_owned_zero": true,
+          "raw_sha256": "08d1ffe2cf6a6feb3923fd1b2f3360b7b141504771d94f8552bfb6b2a6db019c",
+          "command_sha256": "d1712647f6280151e61da5ab3cd8dc96aaefe0b225f4324bddc1779be7ff0c1e"
+        },
+        {
+          "label": "h02-schema",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+            "/workspace/scratch/summary-frontend-verification/http02/schema.py"
+          ],
+          "seconds": 0.11792635917663574,
+          "actual_exit": 0,
+          "actual_wait": true,
+          "double_owned_zero": true,
+          "raw_sha256": "4b9ad6c2c94c8f6df3267c6ea1c8458e5078d6a3d140ad5db86c298520cd7fdb",
+          "command_sha256": "b55f8f4eab21f67942d3d1f05a5de32d4a91c41d2cabaf8b0748821da0881643"
+        }
+      ],
+      "client_result_sha256": "45ba14e2af5fbaa8e25ec852d899d45b4047f951d713e3b2af5cdb168ad676d1",
+      "schema_result_sha256": "e1c347f53400ca348d53bd85e462a4d159cbaec4e4d2409eb94da4d0c54ada37",
+      "transformed_input_sha256": "c2034a4caada73735581feca1b35d205ba83c93a18a91c4a4658fe32ef00ddc3",
+      "actual_web_source_files": 5,
+      "client_context_closed": true,
+      "groups": [
+        {
+          "owner_kind": "platform_selector",
+          "role": "meeting_summary",
+          "count": "1"
+        },
+        {
+          "owner_kind": "platform_selector",
+          "role": "memory",
+          "count": "1"
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "No backend resource/browser/listener started by these offline same-body consumers. Original completed producer runs and their daemon PID1 non-wait boundary are referenced without broadening cleanup claims.",
+    "Standard JSON schema establishes declared structural constraints; public client checks strict group/count/requirement/blocker semantics. Synthetic earlier closed-set/UI tests remain separate from the two original actual HTTP bodies.",
+    "HEAD is a separate producer assertion; not parsed or rerun here. Full Summary S1 backend acceptance belongs to root/summary_verification; S2/S3/full D08/D09/E01 remain outside."
+  ],
+  "stopped": true
+}

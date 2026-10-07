@@ -1,0 +1,82 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.120.103.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=4d8cb0712f5773d19ce2d9f5cd38663d
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=fe8cf1b5704ba0c084c159a2f4a0af2a
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.387s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.008s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.010s [no tests to run]
+=== RUN   TestModelMeetingSummaryExistingHTTP
+    meeting_summary_http_test.go:55: safe Summary deletion body SHA256=2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242 model_id=01a116aa-266a-798e-a911-c66b5188ed22
+--- PASS: TestModelMeetingSummaryExistingHTTP (2.71s)
+=== RUN   TestModelMeetingSummaryUpgradeReceipts
+    meeting_summary_upgrade_test.go:82: fixed6fa old producer pid=189948 actual exit=0 stdout_sha256=fd04aec252617cc580b2bd594399f12ba154f93c5172373378277cdcda874753 stderr_sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    meeting_summary_upgrade_test.go:143: historical table=agenteam_audit.audit_records original_rows=15 original_sql_bytes_sha256=37111ca95f143d61bf43feef33f6a1405eb6ad8caa349e422a80a0bcbfb4db23 unchanged
+    meeting_summary_upgrade_test.go:143: historical table=agenteam_model.commands original_rows=9 original_sql_bytes_sha256=9dd9a10e90b43ff308399ef476b3e7436b6b1893aeb3c970b641bc16909d00c9 unchanged
+    meeting_summary_upgrade_test.go:143: historical table=agenteam_outbox.events original_rows=10 original_sql_bytes_sha256=73b44bdab64b0c162d5eb4d12266689cece69e1413dd31ea19d7f2bcceb6c712 unchanged
+    meeting_summary_upgrade_test.go:145: historical table=agenteam_model.commands original_rows=9 original_sql_bytes_sha256=9dd9a10e90b43ff308399ef476b3e7436b6b1893aeb3c970b641bc16909d00c9 unchanged
+    meeting_summary_upgrade_test.go:145: historical table=agenteam_outbox.events original_rows=10 original_sql_bytes_sha256=73b44bdab64b0c162d5eb4d12266689cece69e1413dd31ea19d7f2bcceb6c712 unchanged
+    meeting_summary_upgrade_test.go:145: historical table=agenteam_audit.audit_records original_rows=15 original_sql_bytes_sha256=37111ca95f143d61bf43feef33f6a1405eb6ad8caa349e422a80a0bcbfb4db23 unchanged
+    meeting_summary_upgrade_test.go:232: historical table=agenteam_audit.audit_records original_rows=15 original_sql_bytes_sha256=37111ca95f143d61bf43feef33f6a1405eb6ad8caa349e422a80a0bcbfb4db23 unchanged
+    meeting_summary_upgrade_test.go:232: historical table=agenteam_model.commands original_rows=9 original_sql_bytes_sha256=9dd9a10e90b43ff308399ef476b3e7436b6b1893aeb3c970b641bc16909d00c9 unchanged
+    meeting_summary_upgrade_test.go:232: historical table=agenteam_outbox.events original_rows=10 original_sql_bytes_sha256=73b44bdab64b0c162d5eb4d12266689cece69e1413dd31ea19d7f2bcceb6c712 unchanged
+--- PASS: TestModelMeetingSummaryUpgradeReceipts (3.91s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	7.646s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.012s [no tests to run]
+D03 fixture cleanup checked for nonce 90e18677fe0cd97434ff32f6c8120888
+D04 outbound fixture cleanup checked for nonce fe8cf1b5704ba0c084c159a2f4a0af2a
+D05 object fixture exact resource cleanup checked nonce=4d8cb0712f5773d19ce2d9f5cd38663d

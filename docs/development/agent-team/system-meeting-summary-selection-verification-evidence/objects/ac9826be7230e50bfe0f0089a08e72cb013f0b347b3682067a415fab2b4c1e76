@@ -1,0 +1,147 @@
+{
+  "time": 1791380371.5670693,
+  "conclusion": "STATIC/PURE limited PASS; real backend HTTP same-body/schema compatibility PENDING",
+  "source_four": {
+    "web/src/api/system-models.ts": "ffa1b0d4a917eee4b3faddffd30f96d650bfceffa24191b5e3833b54ea62cf29",
+    "web/src/views/system/SystemModelDeleteDialog.vue": "e33fdb1b02978eca6089837920b411b2f2691d2640c3eebcf4925d168e135015",
+    "web/src/tests/system-models-client.spec.ts": "9dd8cc0b259084308a0415b73889656ba05b783d013feac7d7a2c36f5442a7e8",
+    "web/src/tests/system-models.spec.ts": "6ebe3d69412101147a001e245ae835a7263782cf0ddef643fd7b02df9c774e03"
+  },
+  "author_frozen": {
+    "path": "/workspace/scratch/meeting-summary-model-delete-compat/frozen04.json",
+    "sha256": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0"
+  },
+  "author_handoff": {
+    "path": "/workspace/scratch/meeting-summary-model-delete-compat/handoff.json",
+    "sha256": "c845e137fe8f34c9f68c53c0194c6fb291e5ceeabfe22999e7e82d278d9e3b8d"
+  },
+  "author_checks_verified": {
+    "f04-format": {
+      "meta_sha256": "d28e415324e06f05a82661be0059a33c36ee409925557ca6f611387ae7e6294d",
+      "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "exit": 0,
+      "seconds": 1.3776171207427979,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f05-pure": {
+      "meta_sha256": "6820edd5161f143ac0c9c6999f1fb009390c1666e57b6e6e2f9ed79b3557af1b",
+      "raw_sha256": "80d1590c0ba3e256f6d465e84e06b853ad721bc4a42274dfe7a75c6e24065fc7",
+      "exit": 0,
+      "seconds": 8.182819843292236,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f06-type": {
+      "meta_sha256": "2b6a15fe697089714b795d1e470a777d4696c5330d673c20e490e2445c69cbb7",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "seconds": 8.832149505615234,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f07-build": {
+      "meta_sha256": "c81e84cf74fdcda7a7fb923afa1ca77cd47c69cce6d30f1baabbd64edfeb8e0d",
+      "raw_sha256": "c6d30ceed8e6ba61d9414c1930707d7cf9be01f497934c8cb4ccf5ced2613c94",
+      "exit": 0,
+      "seconds": 1.5977468490600586,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    }
+  },
+  "static": {
+    "diff_sha256": "3e5ce9dbd156905084f615b89518469127e7718558baee5b1db6d99c2b53639b",
+    "no_new_workflow": true,
+    "production_delta": "strict group+required, maxItems7to8; single system Summary label. No composable change.",
+    "unchanged_memory_rule_file": "web/src/composables/useSystemModels.ts",
+    "unchanged_memory_rule_sha256": "a5d572cab5f56115793d00aeaf502838510c1d8b97dfbcb58dd29cad57aca172",
+    "compared_to_git": "03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05"
+  },
+  "independent": {
+    "freeze02_sha256": "e99913e83b31b31bde3cfaae21778acf31075bf05b0244422b6bbee091a7611d",
+    "commands": {
+      "p01-format": {
+        "actual_exit": 0,
+        "seconds": 0.37155866622924805,
+        "actual_wait": true,
+        "adopted_waits": 0,
+        "double_owned_zero": true,
+        "meta_sha256": "882687accbe2cce1212ffda1f70797cf913823bfb659776b7df886d3e5783f38",
+        "raw_sha256": "1de9bdf38f255ef3590099ad5f3f92e7c4fc948f746aa5c1145967e03ed6e522"
+      },
+      "p02-list": {
+        "actual_exit": 0,
+        "seconds": 0.42079806327819824,
+        "actual_wait": true,
+        "adopted_waits": 0,
+        "double_owned_zero": true,
+        "meta_sha256": "6f57070484d79e10fa7c2ab0342ce4d61e1dec03fd282bdbb9e22743f5597f4a",
+        "raw_sha256": "ec7e8cc43f43cdfbae0e81954ef55175175df5b1aabaf3b63c4273ca9f2de2bc"
+      },
+      "p03-pure": {
+        "actual_exit": 1,
+        "seconds": 2.0433120727539062,
+        "actual_wait": true,
+        "adopted_waits": 0,
+        "double_owned_zero": true,
+        "meta_sha256": "153470da8a66af4b51ddf4875b86dd31a8ed306276b3b3724de87cdcb86a5314",
+        "raw_sha256": "11d631abe65d8b6c65b9692730f3e4e1f6deabac06d47a3d7bc71e94b5121bf6"
+      },
+      "p04-format": {
+        "actual_exit": 0,
+        "seconds": 0.318544864654541,
+        "actual_wait": true,
+        "adopted_waits": 0,
+        "double_owned_zero": true,
+        "meta_sha256": "3ab4e86078c9b0580a8fb986a5d5fba147adb8975e7d6de288e4cd6ee81cbc51",
+        "raw_sha256": "08d21fc51338f184a5fa0beace6c068baeaea41949a70a758f7f7169d4723ac2"
+      },
+      "p05-pure": {
+        "actual_exit": 0,
+        "seconds": 1.7767198085784912,
+        "actual_wait": true,
+        "adopted_waits": 0,
+        "double_owned_zero": true,
+        "meta_sha256": "7165a0caf7fc843439528645e1df554c97222b0eeca9b98213806b17d29830e7",
+        "raw_sha256": "5661b9439ee959fa3e4b7d01dda3ee826682a81bd0a7d286c4fe94eaf770f777"
+      }
+    },
+    "final_tests": 5,
+    "positive_closed_subsets": 256,
+    "other_cases": "8group exact10000; 11 count negatives; 21 closed-shape/pair/required/blocker/order/duplicate negative cases; real public controller+dialog Summary\u2192memory reread invalidates plain choice; legacy Project Summary remains distinct/unbound",
+    "transformed_source_count": 26,
+    "transformed_graph_sha256": "ac81f83c71638b1bf50d6ae10ff40cd67bce5b00eca96ffb635a84cb2bbebd87",
+    "context_closed": true,
+    "original_failure": "p03 private textContent selector included aria-hidden UiButton status text; old probe retained and only helper corrected. Product unchanged; p05 all5 actually rerun before narrower root steering arrived.",
+    "network": "No services/listeners/real fetch. Node guard rejects listen/connect/bind; injected Fetch uses synthetic bodies; no browser run.",
+    "original_probe_sha256": "001e938c528f27c0dc5f2a3ba49468ef0cbb5ee6da80a7d4a141e24e39682ce1"
+  },
+  "real_http_pending": {
+    "coordinator": "/root/summary_verification",
+    "requires": [
+      "common frozen backend schema and local ref hashes",
+      "actual safe GET body original bytes+SHA/status/Content-Type/targetID/source run and frozen input binding",
+      "replay original bytes through public createSystemModelAPI(fetcher).getDeletionImpact, no private-parser export or JSON reencoding",
+      "same raw body with frozen standard schema; HEAD body checked separately"
+    ],
+    "pure_is_not_real_http": true
+  },
+  "all_commands_stopped": true,
+  "product_dependency_and_old_evidence_writes": false
+}

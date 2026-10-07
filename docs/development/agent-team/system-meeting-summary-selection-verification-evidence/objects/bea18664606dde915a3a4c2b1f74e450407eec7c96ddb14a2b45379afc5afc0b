@@ -1,0 +1,16 @@
+from pathlib import Path
+import os,json,hashlib,base64,platform,shutil,sys,time
+R=Path('/workspace/agenteam/web');B=Path('/workspace/scratch/summary-frontend-dependency-recovery')
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+lock=json.loads((R/'package-lock.json').read_text());hidden=json.loads((R/'node_modules/.package-lock.json').read_text());packages=lock['packages'];missing=[];versions=[];present={};links=[]
+for n,row in packages.items():
+ if not n:continue
+ p=R/n;pf=p/'package.json'
+ if not pf.is_file():missing.append({'path':n,'version':row.get('version'),'optional':row.get('optional',False),'os':row.get('os'),'cpu':row.get('cpu'),'directory_exists':p.exists(),'link_exists':os.path.lexists(p),'hidden_lock_present':n in hidden.get('packages',{})})
+ else:
+  meta=json.loads(pf.read_text());present[n]=sha(pf)
+  if meta.get('version')!=row.get('version'):versions.append({'path':n,'expected':row.get('version'),'actual':meta.get('version')})
+ if p.is_symlink():links.append({'path':n,'target':os.readlink(p),'resolved_exists':p.exists()})
+row=packages['node_modules/go-captcha-vue'];hexdigest=base64.b64decode(row['integrity'].split('-',1)[1]).hex();cache=Path.home()/'.npm/_cacache';exact=cache/'content-v2/sha512'/hexdigest[:2]/hexdigest[2:4]/hexdigest[4:]
+result={'time':time.time(),'platform':{'sys':platform.system(),'machine':platform.machine(),'libc':platform.libc_ver()},'manager':'npm, lockfileVersion3; no pnpm/yarn lock','package_files':{n:sha(R/n) for n in ['package.json','package-lock.json','node_modules/.package-lock.json']},'lock_package_count':len(packages)-1,'hidden_package_count':len(hidden['packages']),'target_lock':row,'hidden_target':hidden['packages'].get('node_modules/go-captcha-vue'),'target_lexists':os.path.lexists(R/'node_modules/go-captcha-vue'),'missing':missing,'version_mismatches':versions,'present_package_metadata_sha256':present,'package_symlinks':links,'cache':{'root':str(cache),'root_exists':cache.is_dir(),'exact_content':str(exact),'exact_content_exists':exact.is_file()},'runtime_paths':{n:shutil.which(n) for n in ['node','npm']},'vue_peer_actual':json.loads((R/'node_modules/vue/package.json').read_text())['version'],'cause_limit':'Entire nonoptional package and hidden-lock entry absent, not broken symlink. Installed-tree snapshot omits this dependency; no evidence identifies when/why omission occurred. No install logs, credentials or unrelated caches read.'}
+label=sys.argv[1];(B/(label+'.json')).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items() if k not in ['missing','present_package_metadata_sha256']},indent=2));print('missing_nonoptional',json.dumps([v for v in missing if not v['optional']]))

@@ -1,0 +1,266 @@
+{
+  "scope": "Data-only archival self-check. No business/old script/Git/resource command executed; product commit/push provided by root.",
+  "saved_source_paths": 422,
+  "unique_original_objects": 297,
+  "unique_original_bytes": 2190776,
+  "parsed_original_JSON_paths": 239,
+  "fingerprint_only_sources": 108,
+  "source_map_sha256": "212c3deb27b399e1567ea6310027c01a1cfd0584a7cf9bf9ac4cd19dba4045c4",
+  "product_input_match": {
+    "backend": 27,
+    "accepted_contract": 4,
+    "frontend": 4,
+    "README": true
+  },
+  "work_card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-selection.md",
+    "before_sha256": "941bccfd7cd1c87d5709900d0d83849512b5aaa4f244ff35b8703272fc826dd4",
+    "header_before": "work-card-header-before.txt",
+    "header_before_sha256": "fb9ef877e74b81b03912286601868185a952c9c3270cded20256c120c231acab",
+    "technical_from_section_1_sha256": "977c6124cd0b54a9776a3a135a0ab47dc3a85ddaf0637d6aa582db2a9f018a04",
+    "after_sha256": "e87c1833c3eca52761f377cf817a012e5ce13332b131119b3843fd3fa4bb882f"
+  },
+  "actual_real_runs_read_only_checked": [
+    {
+      "run": "new1",
+      "actual_exit": 0,
+      "seconds": 100.839,
+      "top_passes": 2,
+      "owned_pid_starttime": 139,
+      "resources": 7,
+      "double_cleanup": true,
+      "actual_main_and_watchdog_wait": true,
+      "new_daemon_unjoined": 4
+    },
+    {
+      "run": "new2",
+      "actual_exit": 0,
+      "seconds": 66.065,
+      "top_passes": 2,
+      "owned_pid_starttime": 88,
+      "resources": 7,
+      "double_cleanup": true,
+      "actual_main_and_watchdog_wait": true,
+      "new_daemon_unjoined": 4
+    },
+    {
+      "run": "new3",
+      "actual_exit": 0,
+      "seconds": 55.981,
+      "top_passes": 2,
+      "owned_pid_starttime": 90,
+      "resources": 7,
+      "double_cleanup": true,
+      "actual_main_and_watchdog_wait": true,
+      "new_daemon_unjoined": 4
+    },
+    {
+      "run": "old1",
+      "actual_exit": 0,
+      "seconds": 87.618,
+      "top_passes": 12,
+      "owned_pid_starttime": 94,
+      "resources": 7,
+      "double_cleanup": true,
+      "actual_main_and_watchdog_wait": true,
+      "new_daemon_unjoined": 4
+    },
+    {
+      "run": "independent-a01",
+      "actual_exit": 0,
+      "seconds": 53.995,
+      "top_passes": 1,
+      "owned_pid_starttime": 87,
+      "resources": 7,
+      "double_cleanup": true,
+      "actual_main_and_watchdog_wait": true,
+      "new_daemon_unjoined": 4
+    },
+    {
+      "run": "independent-b01",
+      "actual_exit": 0,
+      "seconds": 57.27,
+      "top_passes": 1,
+      "owned_pid_starttime": 87,
+      "resources": 7,
+      "double_cleanup": true,
+      "actual_main_and_watchdog_wait": true,
+      "new_daemon_unjoined": 4
+    }
+  ],
+  "actual_same_body_consumers_read_only_checked": [
+    {
+      "case": "http01",
+      "body_sha256": "2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242",
+      "commands_actual_wait_zero": true,
+      "context_closed": true,
+      "source_graph_files": 5
+    },
+    {
+      "case": "http02",
+      "body_sha256": "39b25a8b83cbce1128723132d168d4e0dce9d00bc79188e1fdaf86d0c68bcf6e",
+      "commands_actual_wait_zero": true,
+      "context_closed": true,
+      "source_graph_files": 5
+    }
+  ],
+  "raw_exceptions": "Original patches/source/runtime-proc strings retain original whitespace. Saved previous card header keeps original blank line at EOF. These raw originals are not rewritten for prose format.",
+  "checks_actual_exit": 0,
+  "git_diff_check": "Not executed; direct UTF8/LF/final-newline/trailing-space and header reconstruction checks used.",
+  "local_links_checked": 38,
+  "links": [
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/9c6790dfbedf8f6ad1d0b1061cbd49d079a64e3f117a644cf88d7de6b044acea"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/d808b8e2c01603824275fc47f7d2cb6c80c80823e05c5da11b9ff4f57199d245"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/30d964bd6ee839cfc3f9dfb5bd80feac6d9a350c9a4a20cb8682e59ae91584bb"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/da01aba5921573ff03acaf9e4d24df047bd2306f82c24936a90f5343a2311fe2"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "../work-items/d09-system-meeting-summary-selection.md"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/c65b3ede3460c717a541b0e2329f79bf1de2238af924b2fc0b7a5d1febd05d96"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/cfbb8da7632b79759b8aecf9051cce768668531ebef66fa067cfd9efd86c320e"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/82bdb3845da7266a19cb77c5dfc7b241d7dd3e30d92fb7fb8886c7ce223d7df2"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/fae66a8f504b7e7c03f4af35c91cc18361c761100984e669dd7fc6bce60f7d2b"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/976c5fffe4ca2c9812bf95bfd25a405c73da8edb720fb8d58941071efa3b8a93"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/da270317643d53c4d78a7dd346d28cba6acf32a643d424f50d0f58e05b8fdcf0"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/438ca815ca2c79621e13cb7662b7a609f1e739f2387bd791eaa9080c1de96a65"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/cacb4695b847033d7fa8dc8a126eff52ad1f8d161e75d8b1766cc2f51cd96a52"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/1bcc1bf9189313e5ee4cebc0b2a1db8ca4c8b2fee7c54c61b22789098f8a666d"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/c48a9ad52bc4025324ce53cdfca158e4b39e967ff65f03df375dbc74cc6292d0"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/b7e43fe4a00bd54baa24106b33ebc4117dd97947314cf0e1f371a86ba4fbc50a"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/c845e137fe8f34c9f68c53c0194c6fb291e5ceeabfe22999e7e82d278d9e3b8d"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/87fd0f65d9d01582f24b711ba8e564b9c24047343cf12c2abfb2a8c3a4378cd5"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/b2cc8fd9af3feadb3c7a84c0142392303e3a51c335000ec65f68c8ac9c221674"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/80ea8528118691bff16b12fc47311f8087ec22c7440aec5837c6aa7da18f6a40"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/objects/16f4bd78d8fadbe47d5d9b47408c2d4102efbc233df6f997924ad6318ba7faa6"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/source-map.json"
+    },
+    {
+      "document": "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+      "target": "system-meeting-summary-selection-verification-evidence/archive-checks.json"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../agent-team/system-meeting-summary-selection-verification.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../development-plan.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../agent-team/README.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../../architecture/platform-infrastructure/model-system/model-configuration.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../../architecture/platform-infrastructure/model-system/model-resolution.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../../architecture/meeting/meeting-context-summary.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../agent-team/recovery-2026-10-07-environment.md#保留边界"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../agent-team/system-model-root-verification.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../agent-team/d09-project-configuration-verification.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../agent-team/system-model-management-reads-verification.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../agent-team/system-models-ui-verification.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../agent-team/system-model-selection-ui-verification.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../agent-team/system-invitation-delivery-read-verification.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "target": "../agent-team/current-model-resolution-verification.md"
+    }
+  ],
+  "report_sha256": "13b2d383ca028c49f14f93239800dc69551da7d01f2c1dbb838ad7e764b7bbaf"
+}

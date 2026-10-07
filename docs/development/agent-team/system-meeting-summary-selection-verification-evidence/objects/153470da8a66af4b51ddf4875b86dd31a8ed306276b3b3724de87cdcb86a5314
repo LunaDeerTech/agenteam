@@ -1,0 +1,71 @@
+{
+  "label": "p03-pure",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--import",
+    "/workspace/scratch/summary-frontend-verification/guard.mjs",
+    "/workspace/scratch/summary-frontend-verification/tools.mjs",
+    "pure"
+  ],
+  "cwd": "/workspace/agenteam/web",
+  "env": {
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "TMPDIR": "/workspace/scratch/summary-frontend-verification/p03-pure/tmp",
+    "SUMMARY_VERIFY_OUTPUT": "/workspace/scratch/summary-frontend-verification/p03-pure",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "npm_config_offline": "true"
+  },
+  "before": {
+    "author_frozen_sha256": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+    "own": {
+      "run.py": "82b7180db88d6229ec7bd2e2215c0868240108567384040e298b867facbb79ae",
+      "tools.mjs": "64c0ed87dfba5ce6bc3b70205059e242cb8fd530ed6cb315d2978d9f5fd1f8f5",
+      "guard.mjs": "5444032d0a5c648907ee50da7d7dda16ef4e07aee3703f959a179534c7db3d91",
+      "independent.spec.ts": "001e938c528f27c0dc5f2a3ba49468ef0cbb5ee6da80a7d4a141e24e39682ce1"
+    },
+    "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+  },
+  "subreaper": true,
+  "budget_seconds": 45,
+  "started": 1791380228.091777,
+  "child": {
+    "pid": 147529,
+    "starttime": "617992",
+    "ppid": 147518,
+    "pgrp": 147529,
+    "state": "R"
+  },
+  "actual_exit": 1,
+  "actual_wait": true,
+  "seconds": 2.0433120727539062,
+  "adopted_waits": [],
+  "forced_tail": false,
+  "cleanup": [
+    {
+      "time": 1791380230.1351273,
+      "owned": [],
+      "direct": null
+    },
+    {
+      "time": 1791380230.2402387,
+      "owned": [],
+      "direct": null
+    }
+  ],
+  "after": {
+    "author_frozen_sha256": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+    "own": {
+      "run.py": "82b7180db88d6229ec7bd2e2215c0868240108567384040e298b867facbb79ae",
+      "tools.mjs": "64c0ed87dfba5ce6bc3b70205059e242cb8fd530ed6cb315d2978d9f5fd1f8f5",
+      "guard.mjs": "5444032d0a5c648907ee50da7d7dda16ef4e07aee3703f959a179534c7db3d91",
+      "independent.spec.ts": "001e938c528f27c0dc5f2a3ba49468ef0cbb5ee6da80a7d4a141e24e39682ce1"
+    },
+    "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+  },
+  "input_unchanged": true,
+  "raw_sha256": "11d631abe65d8b6c65b9692730f3e4e1f6deabac06d47a3d7bc71e94b5121bf6"
+}

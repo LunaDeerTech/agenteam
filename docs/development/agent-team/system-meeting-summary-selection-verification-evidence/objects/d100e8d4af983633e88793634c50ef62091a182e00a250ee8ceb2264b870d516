@@ -1,0 +1,11 @@
+The `envFile` option is deprecated, please use `envDir: false` instead.
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ✓ ../../scratch/summary-frontend-verification/http01/independent.spec.ts > parses completed new3 real HTTP Summary-only original bytes through the public client 12ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  14:05:34
+   Duration  612ms (transform 79ms, setup 0ms, import 99ms, tests 13ms, environment 388ms)
+

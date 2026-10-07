@@ -1,0 +1,55 @@
+{
+  "source_run": "new3",
+  "run_directory": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3",
+  "source_metadata": {
+    "body_sha256": "2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242",
+    "content_type": "application/json",
+    "method": "GET",
+    "model_id": "01a116aa-266a-798e-a911-c66b5188ed22",
+    "path": "/api/v1/system/models/01a116aa-266a-798e-a911-c66b5188ed22/deletion-impact",
+    "producer_test": "TestModelMeetingSummaryExistingHTTP",
+    "status": 200
+  },
+  "source_metadata_note": "Run association is independently bound by completed run directory, result, frozen-input and equal input-before/after; no missing header fabricated.",
+  "origin_hashes": {
+    "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/result.json": "6994574f79541bc16222fcebb691ce72005703dc1402979bd12f6f0fb4d055a9",
+    "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/safe-http-evidence/summary-deletion-impact.json": "2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242",
+    "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/safe-http-evidence/summary-deletion-impact-source.json": "87a557676bb6bd348cd5a3642b8190a2a880f6a989711104425641622be5bdcd",
+    "/workspace/scratch/meeting-summary-s1-author/candidate04.json": "da01aba5921573ff03acaf9e4d24df047bd2306f82c24936a90f5343a2311fe2",
+    "/workspace/scratch/meeting-summary-s1-author/closure05.json": "f6ff34db166f6db757705f71770316e96a8285fbe0a5ae05635b2c7e9e979372",
+    "/workspace/scratch/meeting-summary-model-delete-compat/frozen04.json": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+    "/workspace/agenteam/api/openapi/model-system.json": "1de2d849f8a6534ef9473d2d5c4d472b17905d6cc0ce25651f5b1ad3c1b21dd6",
+    "/workspace/agenteam/api/openapi/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+    "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/frozen-input.json": "69f295fdb08ae4cecfbcae66b715dccaa87bfc950da10208523b07b8d5f6039d",
+    "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/input-before.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+    "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/input-after.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603"
+  },
+  "frontend_frozen": "/workspace/scratch/meeting-summary-model-delete-compat/frozen04.json",
+  "schema_common_baseline": "03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05:api/openapi/common.json",
+  "run_completion": {
+    "actual_wait_completed": true,
+    "driver_exit": 0,
+    "double_cleanup": true,
+    "observed_processes": 90,
+    "observed_resources": 7,
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "top_levels": [
+      [
+        "PASS",
+        "TestModelMeetingSummaryExistingHTTP"
+      ],
+      [
+        "PASS",
+        "TestModelMeetingSummaryUpgradeReceipts"
+      ]
+    ]
+  },
+  "daemon_boundary": "new3 reports 4 new PID1 containerd-shim zombies outside task wait; this offline verification does not reclassify them",
+  "same_bytes_copies": {
+    "summary-deletion-impact.json": "2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242",
+    "summary-deletion-impact-source.json": "87a557676bb6bd348cd5a3642b8190a2a880f6a989711104425641622be5bdcd",
+    "model-system.json": "1de2d849f8a6534ef9473d2d5c4d472b17905d6cc0ce25651f5b1ad3c1b21dd6",
+    "common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+  }
+}

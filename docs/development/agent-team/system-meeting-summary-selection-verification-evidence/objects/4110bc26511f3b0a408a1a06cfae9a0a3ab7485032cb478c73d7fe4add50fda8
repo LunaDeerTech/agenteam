@@ -1,0 +1,111 @@
+{
+  "label": "h02-list",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--import",
+    "/workspace/scratch/summary-frontend-verification/http01/guard.mjs",
+    "/workspace/scratch/summary-frontend-verification/http01/tools.mjs",
+    "list"
+  ],
+  "cwd": "/workspace/agenteam/web",
+  "env": {
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "TMPDIR": "/workspace/scratch/summary-frontend-verification/http01/h02-list/tmp",
+    "SUMMARY_VERIFY_OUTPUT": "/workspace/scratch/summary-frontend-verification/http01/h02-list",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "npm_config_offline": "true"
+  },
+  "before": {
+    "origins": {
+      "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/result.json": "6994574f79541bc16222fcebb691ce72005703dc1402979bd12f6f0fb4d055a9",
+      "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/safe-http-evidence/summary-deletion-impact.json": "2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242",
+      "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/safe-http-evidence/summary-deletion-impact-source.json": "87a557676bb6bd348cd5a3642b8190a2a880f6a989711104425641622be5bdcd",
+      "/workspace/scratch/meeting-summary-s1-author/candidate04.json": "da01aba5921573ff03acaf9e4d24df047bd2306f82c24936a90f5343a2311fe2",
+      "/workspace/scratch/meeting-summary-s1-author/closure05.json": "f6ff34db166f6db757705f71770316e96a8285fbe0a5ae05635b2c7e9e979372",
+      "/workspace/scratch/meeting-summary-model-delete-compat/frozen04.json": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+      "/workspace/agenteam/api/openapi/model-system.json": "1de2d849f8a6534ef9473d2d5c4d472b17905d6cc0ce25651f5b1ad3c1b21dd6",
+      "/workspace/agenteam/api/openapi/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/frozen-input.json": "69f295fdb08ae4cecfbcae66b715dccaa87bfc950da10208523b07b8d5f6039d",
+      "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/input-before.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+      "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/input-after.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603"
+    },
+    "author_frozen_sha256": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+    "own": {
+      "run.py": "801d402141aa53e5d1b295bdd79ff3b7beb1af9f05c5a003f1e8d5a4fc0e9816",
+      "tools.mjs": "67852201289e0a0abad1e1d1c6d60d290d174b3603a85b66d798fcb7f22fc414",
+      "guard.mjs": "5444032d0a5c648907ee50da7d7dda16ef4e07aee3703f959a179534c7db3d91",
+      "independent.spec.ts": "04ae3429864ce72d82d940d02d93c30597ebe38ddbf3cb3161dbe37234119e05",
+      "schema.py": "7e0e5c895bddc625b4aefd6d5afc32d096bc43e2938ece8d08e3c0c09c1cb253",
+      "prepare.py": "be400c4e15e962b197ad4060daae3ee01762d9eb6183bfc6206b09f628224a41",
+      "provenance.json": "e5aa9bc5934e8f3f637a980a1a14561fbb6b5c9b947bdb6abfc5734032d436ef",
+      "summary-deletion-impact.json": "2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242",
+      "summary-deletion-impact-source.json": "87a557676bb6bd348cd5a3642b8190a2a880f6a989711104425641622be5bdcd",
+      "model-system.json": "1de2d849f8a6534ef9473d2d5c4d472b17905d6cc0ce25651f5b1ad3c1b21dd6",
+      "common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+    },
+    "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+  },
+  "subreaper": true,
+  "budget_seconds": 45,
+  "started": 1791381925.164941,
+  "child": {
+    "pid": 218088,
+    "starttime": "787699",
+    "ppid": 218084,
+    "pgrp": 218088,
+    "state": "R"
+  },
+  "actual_exit": 0,
+  "actual_wait": true,
+  "seconds": 0.41907429695129395,
+  "adopted_waits": [],
+  "forced_tail": false,
+  "cleanup": [
+    {
+      "time": 1791381925.5840504,
+      "owned": [],
+      "direct": null
+    },
+    {
+      "time": 1791381925.6897922,
+      "owned": [],
+      "direct": null
+    }
+  ],
+  "after": {
+    "origins": {
+      "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/result.json": "6994574f79541bc16222fcebb691ce72005703dc1402979bd12f6f0fb4d055a9",
+      "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/safe-http-evidence/summary-deletion-impact.json": "2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242",
+      "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/safe-http-evidence/summary-deletion-impact-source.json": "87a557676bb6bd348cd5a3642b8190a2a880f6a989711104425641622be5bdcd",
+      "/workspace/scratch/meeting-summary-s1-author/candidate04.json": "da01aba5921573ff03acaf9e4d24df047bd2306f82c24936a90f5343a2311fe2",
+      "/workspace/scratch/meeting-summary-s1-author/closure05.json": "f6ff34db166f6db757705f71770316e96a8285fbe0a5ae05635b2c7e9e979372",
+      "/workspace/scratch/meeting-summary-model-delete-compat/frozen04.json": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+      "/workspace/agenteam/api/openapi/model-system.json": "1de2d849f8a6534ef9473d2d5c4d472b17905d6cc0ce25651f5b1ad3c1b21dd6",
+      "/workspace/agenteam/api/openapi/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/frozen-input.json": "69f295fdb08ae4cecfbcae66b715dccaa87bfc950da10208523b07b8d5f6039d",
+      "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/input-before.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+      "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3/input-after.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603"
+    },
+    "author_frozen_sha256": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+    "own": {
+      "run.py": "801d402141aa53e5d1b295bdd79ff3b7beb1af9f05c5a003f1e8d5a4fc0e9816",
+      "tools.mjs": "67852201289e0a0abad1e1d1c6d60d290d174b3603a85b66d798fcb7f22fc414",
+      "guard.mjs": "5444032d0a5c648907ee50da7d7dda16ef4e07aee3703f959a179534c7db3d91",
+      "independent.spec.ts": "04ae3429864ce72d82d940d02d93c30597ebe38ddbf3cb3161dbe37234119e05",
+      "schema.py": "7e0e5c895bddc625b4aefd6d5afc32d096bc43e2938ece8d08e3c0c09c1cb253",
+      "prepare.py": "be400c4e15e962b197ad4060daae3ee01762d9eb6183bfc6206b09f628224a41",
+      "provenance.json": "e5aa9bc5934e8f3f637a980a1a14561fbb6b5c9b947bdb6abfc5734032d436ef",
+      "summary-deletion-impact.json": "2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242",
+      "summary-deletion-impact-source.json": "87a557676bb6bd348cd5a3642b8190a2a880f6a989711104425641622be5bdcd",
+      "model-system.json": "1de2d849f8a6534ef9473d2d5c4d472b17905d6cc0ce25651f5b1ad3c1b21dd6",
+      "common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+    },
+    "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+  },
+  "input_unchanged": true,
+  "raw_sha256": "f38dffeaa2ff41cfd19361bf6fcdc42fc153fd659d35c7669ce8879670542c6f"
+}

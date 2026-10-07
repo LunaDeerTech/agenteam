@@ -1,6 +1,6 @@
 # D09：系统会议 Summary 模型选择
 
-当前阶段（2026-10-07）：四源纯契约已独立 PASS、root 采纳并提交推送 `e6cb70bdfc6ef7569d740f767f7dca3211a2ef7a`，见[四源验证归档](../agent-team/system-meeting-summary-contract-verification.md)。仅接受 MeetingSummarySelection/request 与 reference role 的契约和纯测试；完整 S1 持久化、事务授权、删除替换及 HTTP/client 尚未验收。以下原规格接受时点的页首与末尾状态保留历史事实，技术正文不改。
+当前阶段（2026-10-07）：S1 已获[完整限定验收](../agent-team/system-meeting-summary-selection-verification.md)、root 采纳并提交推送 `c210d249600d98871513c56fb9a8fff7c50a4c34`。接受独立 singleton/version、迁移00020、当前Session/System授权、选择更新/原命令查证、双owner删除替换、旧四用途/旧binary历史兼容及既有deletion-impact HTTP/schema/client。35技术路径包含先前已接受4契约；本次29改动路径含README末件。作者新6/旧12、独立A/B与两份真实HTTP原body联验通过；六资源窗口各有实际wait/七资源双清，daemon24→48的新增24个PID1 shim zombie未task wait，不能宣称全机零残留。S2新配置HTTP/UI及默认root Summary初始化、S3 resolver、D24真实Meeting消费、完整D09/E01均未完成，ready503与三停止任务保持。以下规格接受时点的页首与末尾保留历史事实，技术正文不改。
 
 修订：rev1，2026-10-07，规格已独立完整 STATIC 接受并获 root 采纳；尚未实施、未动态验收。规格接受不授予业务、SQL、测试运行或共享资源权限。文档基线 `175694bf1157b77ea13268bcd8a47787e1a28acd`，产品输入固定 `6fa2ee721a75ea34a1ccd6523b8b25d68328c5b9`。root 已核已接受迁移连续前缀 00001–00019，**00020 唯一预留给本卡**；本阶段不创建迁移源。
 

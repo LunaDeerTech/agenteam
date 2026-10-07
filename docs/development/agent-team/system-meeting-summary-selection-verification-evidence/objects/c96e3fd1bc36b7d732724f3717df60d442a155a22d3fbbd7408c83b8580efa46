@@ -1,0 +1,180 @@
+{
+  "baseline": "03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05 (root supplied; no Git command executed)",
+  "state": "candidate02 frozen; only management test SQL dispatch order changed; production remains candidate01",
+  "owned_sources": {
+    "internal/central/model/commands.go": {
+      "sha256": "339f609004eef43b4af75c6cfd0a6c899b0de9e11d96e54ab57fd67da3a41953",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/commands.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/commands_test.go": {
+      "sha256": "2fc3f9256725a971d4584f8b69da761b3f3b61d41b61d68cb004e7c7b30600db",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/commands_test.go",
+      "changed_from_initial": false
+    },
+    "internal/central/model/configuration.go": {
+      "sha256": "45306abf851b5f963a1ce1f21f758989792f061f0eabf9107f3361fe4605f31d",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/configuration.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/configuration_test.go": {
+      "sha256": "b3528f17b17441c7b31009b706fc63f7a2c68d3832064df58f85eb3e67bb2179",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/configuration_test.go",
+      "changed_from_initial": false
+    },
+    "internal/central/model/references.go": {
+      "sha256": "4c0b7e19587bf7d38da9a21d7aa415d9974d5a3a4a845d38048968917c96357c",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/references.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/references_test.go": {
+      "sha256": "a38074893dd78d795af1c334585c3a1620a6b5ec1b335324744e9cd2160758e8",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/references_test.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/audit_authority.go": {
+      "sha256": "248ec324c9e941ce8d214df4f1086cf2e45cbe01310d19a6d505561ae6bc55f0",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/audit_authority.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/audit_authority_test.go": {
+      "sha256": "0f17b830825d214aa416e81c93aa276735b886219bbeb92fee98046ea2de47c1",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/audit_authority_test.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/events.go": {
+      "sha256": "b3e4462e2c8638310934e1cbf993b15edb4c1252e45c8ba0b1ec125ee1fa56aa",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/events.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/events_test.go": {
+      "sha256": "6223b680072bd765ac95e764d74a074633c098ce21949505bc64d33d4ed0a81f",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/events_test.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/management_read.go": {
+      "sha256": "3b6159de9b27111b029c488916ad42b9c170b5839c2b6c91719cabda5fc8e92a",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/management_read.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/management_read_test.go": {
+      "sha256": "e0c81488de96c934775091dd793de3bae8de2595c43d2cf9b43186a0df139fdc",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate02/internal/central/model/management_read_test.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/http_management_test.go": {
+      "sha256": "d43cd46e501af46bae0dba0270d07082fd83d94f1f94dd60f5de85df3a078615",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/http_management_test.go",
+      "changed_from_initial": false
+    },
+    "api/openapi/model-system.json": {
+      "sha256": "1de2d849f8a6534ef9473d2d5c4d472b17905d6cc0ce25651f5b1ad3c1b21dd6",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/api/openapi/model-system.json",
+      "changed_from_initial": true
+    },
+    "internal/central/model/meeting_summary.go": {
+      "sha256": "39e83ad8f0bde6ec6eaa32afaf9dcb5c0b85c3d7c34aa6f353eb35551ff4189f",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/meeting_summary.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/meeting_summary_store.go": {
+      "sha256": "1307ddebbde5c3de7af3312a787f9d6034879dc9766b414a29092e299a942c14",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/meeting_summary_store.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/meeting_summary_commands.go": {
+      "sha256": "60fcb40fbc55f55b9ecd6b433b3f89f79acfb0772db48fa00086cbee574883d7",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/meeting_summary_commands.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/meeting_summary_test.go": {
+      "sha256": "09efeaf3db150c92c101de4959d89cdd508a3c47fa5910186eb17773779efd6b",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/meeting_summary_test.go",
+      "changed_from_initial": true
+    },
+    "internal/central/model/meeting_summary_commands_test.go": {
+      "sha256": "a1211628a4d01e007344a7e753c6f27c75611c6e3f35fcbf68f2f60f75a24ffe",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/meeting_summary_commands_test.go",
+      "changed_from_initial": true
+    },
+    "db/migrations/00020_model_meeting_summary_selection.sql": {
+      "sha256": "5e2e71ba542fe02b6726d79a6ee335719ccd3e4107d0ba98a44396c5628236ec",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/db/migrations/00020_model_meeting_summary_selection.sql",
+      "changed_from_initial": true
+    },
+    "tests/model/meeting_summary_fixture_test.go": {
+      "sha256": "b00f10e96f11b4b8c2682a41dbf73dcde33b29cd930948c39f8a96daee2e939f",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/tests/model/meeting_summary_fixture_test.go",
+      "changed_from_initial": true
+    },
+    "tests/model/meeting_summary_selection_test.go": {
+      "sha256": "7dae1915cf19cd408c4281ef1904d2bacd3fdebd4b15690368bffbd04474cbe0",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/tests/model/meeting_summary_selection_test.go",
+      "changed_from_initial": true
+    },
+    "tests/model/meeting_summary_replacement_test.go": {
+      "sha256": "23ad221378ffd12a79ceebf0a5115bd00e12acc9b08a2fb8c9b5870c6a2b2edc",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/tests/model/meeting_summary_replacement_test.go",
+      "changed_from_initial": true
+    },
+    "tests/model/meeting_summary_unknown_test.go": {
+      "sha256": "d9212c461bd513c9fb70f16b85241d1745970e62479f5a6fe178912e048713bf",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/tests/model/meeting_summary_unknown_test.go",
+      "changed_from_initial": true
+    },
+    "tests/model/meeting_summary_schema_test.go": {
+      "sha256": "0bfcc002fac6962cdbe4d6ea44fe0e6f5f7bf6bb4e83d19e9777a83771af052c",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/tests/model/meeting_summary_schema_test.go",
+      "changed_from_initial": true
+    },
+    "tests/model/meeting_summary_upgrade_test.go": {
+      "sha256": "12c9b3d9fdd71b629883f5a776f6424f7ea121286cc000798f0139ecdf2e06e5",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/tests/model/meeting_summary_upgrade_test.go",
+      "changed_from_initial": true
+    },
+    "tests/model/meeting_summary_http_test.go": {
+      "sha256": "6568811ac5119e7844d12432354a7c7349e2db6f68c43167546280bade2b3955",
+      "snapshot": "/workspace/scratch/meeting-summary-s1-author/candidate01/tests/model/meeting_summary_http_test.go",
+      "changed_from_initial": true
+    }
+  },
+  "contract_unchanged": {
+    "internal/central/model/contract/meeting_summary.go": "02ffab6bfddda7417575d422a17cf31f563dbe234079fbd3ebd0e45192628e1c",
+    "internal/central/model/contract/meeting_summary_test.go": "d029a73d9922b6a66a6acc6fa6fe3e0b9ad1d6de18899f1196d1919cf76525d1",
+    "internal/central/model/contract/references.go": "b7f3b3eef67aa1d3ba707649489db5700c2e23e890bb02147038409affb49ae9",
+    "internal/central/model/contract/references_test.go": "5619eb29438961afaf68eba73cfafff157f74ea82ca9f9ab9db5057dbda45ab9"
+  },
+  "old_producer": "old-producer.test built only; not run; source receipt proof pending real resource window",
+  "checks": {
+    "gofmt": "gofmt-candidate01 actual0/join/zero descendants",
+    "go_list": "normal/integration/race/full-fixture/old-producer actual0; raw outputs retained; graph final manifest being assembled"
+  },
+  "selectors": {
+    "new": {
+      "TestModelMeetingSummarySchema": "tests/model/meeting_summary_schema_test.go",
+      "TestModelMeetingSummarySelection": "tests/model/meeting_summary_selection_test.go",
+      "TestModelMeetingSummaryReplacement": "tests/model/meeting_summary_replacement_test.go",
+      "TestModelMeetingSummaryUnknown": "tests/model/meeting_summary_unknown_test.go",
+      "TestModelMeetingSummaryUpgradeReceipts": "tests/model/meeting_summary_upgrade_test.go",
+      "TestModelMeetingSummaryExistingHTTP": "tests/model/meeting_summary_http_test.go"
+    },
+    "old": {
+      "TestModelB01PlatformSelectionAndAtomicReplacement": "tests/model/system_configuration_integration_test.go",
+      "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked": "tests/model/system_configuration_integration_test.go",
+      "TestModelB01SecretReferencesAndAllEffectsRollback": "tests/model/system_configuration_integration_test.go",
+      "TestModelB01ConcurrentSameKeyPreparationFailureStillReplaysReceipt": "tests/model/system_configuration_integration_test.go",
+      "TestModelProjectReceiptReadGateAndLegacySystemPlan": "tests/model/project_configuration_integration_test.go",
+      "TestModelProjectUnboundReferencesAndDeleteBarrier": "tests/model/project_configuration_integration_test.go",
+      "TestSystemModelManagementDeletionImpact": "tests/model/system_management_impact_test.go",
+      "TestModelSystemHTTPSelectionAndReferenceDeletion": "tests/model/system_http_configuration_test.go",
+      "TestModelSystemHTTPCurrentAdministrator": "tests/model/system_http_configuration_test.go",
+      "TestModelSystemHTTPBoundaryAndStrictWire": "tests/model/system_http_configuration_test.go",
+      "TestModelCurrentResolutionSelection": "tests/model/current_resolution_selection_test.go",
+      "TestModelCurrentResolutionReplay": "tests/model/current_resolution_selection_test.go"
+    }
+  },
+  "actual_list_status": "source declarations exact, compiled -test.list not yet authorized/run",
+  "delta_from": "candidate01.json",
+  "driver_cwd_fix": "driver-offline-v02.py accepts exact per-binary package cwd; old driver/raw retained",
+  "original_failure": "pure-run-01 exit2: old relative schema path and management mock SQL dispatch panic; direct joined/no remaining descendants"
+}

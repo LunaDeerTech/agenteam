@@ -1,0 +1,29 @@
+panic: interface conversion: interface {} is *[]uint8, not *string [recovered, repanicked]
+
+goroutine 68 [running]:
+testing.tRunner.func1.2({0xd75298, 0x323d8703b320})
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2123 +0x232
+testing.tRunner.func1()
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2126 +0x329
+panic({0xd75298?, 0x323d8703b320?})
+	/workspace/toolchains/go1.27.1/src/runtime/panic.go:859 +0x125
+github.com/LunaDeerTech/agenteam/internal/central/model.(*managementStore).QueryRow.func1({0x323d8708e0a0, 0x1, 0xf57a40?})
+	/workspace/agenteam/internal/central/model/management_read_test.go:125 +0x907
+github.com/LunaDeerTech/agenteam/internal/central/model.scanFunc.Scan(0x10?, {0x323d8708e0a0?, 0xf57a40?, 0x9547d2?})
+	/workspace/agenteam/internal/central/model/commands_test.go:56 +0x24
+github.com/LunaDeerTech/agenteam/internal/central/model.loadMeetingSummary({0xe582e8, 0x323d870865b0}, {0xe57288, 0x323d86ea61c0})
+	/workspace/agenteam/internal/central/model/meeting_summary_store.go:41 +0x107
+github.com/LunaDeerTech/agenteam/internal/central/model.managementSelectionConsistent({0xe582e8, 0x323d870865b0}, {0xe57288, 0x323d86ea61c0})
+	/workspace/agenteam/internal/central/model/management_read.go:158 +0x3b4
+github.com/LunaDeerTech/agenteam/internal/central/model.(*Service).GetModelDeletionImpact.func1({0xe582e8, 0x323d870865b0}, {0xf55f80?})
+	/workspace/agenteam/internal/central/model/management_read.go:126 +0x626
+github.com/LunaDeerTech/agenteam/internal/central/model.(*managementStore).WithinTx(0x323d86ea61c0, {0xe582e8, 0x323d870865b0}, {0x0?}, 0x323d87042320)
+	/workspace/agenteam/internal/central/model/management_read_test.go:49 +0x431
+github.com/LunaDeerTech/agenteam/internal/central/model.(*Service).GetModelDeletionImpact(0xe5cf20?, {0xe58160, 0xf77a20}, {0x527c4d?}, {{0x1, 0xa1, 0x16, 0x99, 0xca, 0xca, ...}})
+	/workspace/agenteam/internal/central/model/management_read.go:98 +0xaed
+github.com/LunaDeerTech/agenteam/internal/central/model.TestModelManagementImpactClosedGroupsAndBoundedSQL.func1(0x323d8702fd48)
+	/workspace/agenteam/internal/central/model/management_read_test.go:209 +0xde
+testing.tRunner(0x323d8702fd48, 0x323d87066c60)
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0xea
+created by testing.(*T).Run in goroutine 67
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x4d4

@@ -1,0 +1,20 @@
+from pathlib import Path,PurePosixPath
+import json,hashlib,tarfile,ctypes,os,time
+B=Path('/workspace/scratch/summary-frontend-dependency-recovery');R=Path('/workspace/agenteam/web');target=R/'node_modules/go-captcha-vue';before=json.loads((B/'before.json').read_text());verified=json.loads((B/'archive-verification.json').read_text());archive=B/'go-captcha-vue-2.0.7.tgz'
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+assert sha(archive)==verified['tgz_sha256'];assert not os.path.lexists(target)
+assert all(sha(R/n)==v for n,v in before['package_files'].items());assert all(sha(R/n/'package.json')==v for n,v in before['present_package_metadata_sha256'].items())
+initial_entries=sorted(p.name for p in (R/'node_modules').iterdir());stage=B/'staging/go-captcha-vue';stage.mkdir(parents=True,exist_ok=False)
+with tarfile.open(archive,'r:gz') as tf:
+ for name,row in verified['files'].items():
+  dst=stage/name;dst.parent.mkdir(parents=True,exist_ok=True);data=tf.extractfile('package/'+name).read();assert hashlib.sha256(data).hexdigest()==row['sha256']
+  with dst.open('xb') as f:f.write(data)
+  dst.chmod(row['mode']&0o755)
+assert sorted(str(p.relative_to(stage)) for p in stage.rglob('*') if p.is_file())==sorted(verified['files'])
+assert all(sha(stage/n)==v['sha256'] for n,v in verified['files'].items())
+assert stage.stat().st_dev==target.parent.stat().st_dev
+libc=ctypes.CDLL(None,use_errno=True);rename=libc.renameat2;rename.argtypes=[ctypes.c_int,ctypes.c_char_p,ctypes.c_int,ctypes.c_char_p,ctypes.c_uint];rename.restype=ctypes.c_int
+started=time.time();code=rename(-100,os.fsencode(stage),-100,os.fsencode(target),1)
+if code!=0:raise OSError(ctypes.get_errno(),'atomic RENAME_NOREPLACE failed')
+assert all(sha(target/n)==v['sha256'] for n,v in verified['files'].items());assert all(sha(R/n)==v for n,v in before['package_files'].items());assert all(sha(R/n/'package.json')==v for n,v in before['present_package_metadata_sha256'].items());assert sorted(p.name for p in target.parent.iterdir())==sorted(initial_entries+['go-captcha-vue'])
+result={'time':time.time(),'atomic_rename_seconds':time.time()-started,'driver_sha256':sha(Path(__file__)),'source_archive_sha256':sha(archive),'installed_target':str(target),'atomic_rename':'renameat2(RENAME_NOREPLACE), absent target only','new_regular_files':len(verified['files']),'all_installed_bytes_match_archive':True,'package_and_both_locks_unchanged':True,'existing145_package_metadata_unchanged':True,'top_directory_delta':['go-captcha-vue'],'scripts_executed':False,'application_tests_browser_run':False,'no_cache_or_existing_dependency_write':True};(B/'install-result.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

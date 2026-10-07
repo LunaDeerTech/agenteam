@@ -1,0 +1,37 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/prettier/bin/prettier.cjs",
+    "--check",
+    "src/api/system-models.ts",
+    "src/views/system/SystemModelDeleteDialog.vue",
+    "src/tests/system-models-client.spec.ts",
+    "src/tests/system-models.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam/web",
+  "env": {
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "TMPDIR": "/workspace/scratch/meeting-summary-model-delete-compat/f02-format/tmp",
+    "SUMMARY_FRONTEND_OUTPUT": "/workspace/scratch/meeting-summary-model-delete-compat/f02-format",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "npm_config_offline": "true"
+  },
+  "subreaper": true,
+  "budget_seconds": 45,
+  "frozen": "/workspace/scratch/meeting-summary-model-delete-compat/frozen02.json",
+  "frozen_sha256": "f4ab9cb09dcc48ce3057985b056d1b509ab68c88d0f05502e25adb1cef37fb93",
+  "started": 1791379945.42677,
+  "pid": 142646,
+  "pid_starttime": "589725",
+  "exit": 1,
+  "finished": 1791379946.7036076,
+  "adopted_waits": [],
+  "forced_descendants": false,
+  "first_tail": [],
+  "second_tail": [],
+  "inputs_unchanged": true
+}

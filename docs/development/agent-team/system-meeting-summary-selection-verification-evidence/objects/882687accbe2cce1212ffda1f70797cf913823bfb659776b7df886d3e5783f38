@@ -1,0 +1,68 @@
+{
+  "label": "p01-format",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/prettier/bin/prettier.cjs",
+    "--write",
+    "/workspace/scratch/summary-frontend-verification/independent.spec.ts",
+    "/workspace/scratch/summary-frontend-verification/tools.mjs",
+    "/workspace/scratch/summary-frontend-verification/guard.mjs"
+  ],
+  "cwd": "/workspace/agenteam/web",
+  "env": {
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "TMPDIR": "/workspace/scratch/summary-frontend-verification/p01-format/tmp",
+    "SUMMARY_VERIFY_OUTPUT": "/workspace/scratch/summary-frontend-verification/p01-format",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "npm_config_offline": "true"
+  },
+  "before": {
+    "author_frozen_sha256": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+    "own": {
+      "run.py": "82b7180db88d6229ec7bd2e2215c0868240108567384040e298b867facbb79ae",
+      "tools.mjs": "07faaa375251e0f07afaed646c5fc557de6889cc23436cef0ae3d6e2cf9a493f",
+      "guard.mjs": "4af72988c72e174f6d85108d4ea82fa0a4dc418737ff5c63c30269f7d572e78d",
+      "independent.spec.ts": "4eab4663a9a2fe516149865f42fe8e4eadefc0255fcb08d3704e769e7972877e"
+    },
+    "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+  },
+  "subreaper": true,
+  "budget_seconds": 45,
+  "started": 1791380208.3475983,
+  "child": {
+    "pid": 146338,
+    "starttime": "616018",
+    "ppid": 146306,
+    "pgrp": 146338,
+    "state": "R"
+  },
+  "actual_exit": 0,
+  "actual_wait": true,
+  "seconds": 0.37155866622924805,
+  "adopted_waits": [],
+  "forced_tail": false,
+  "cleanup": [
+    {
+      "time": 1791380208.7191935,
+      "owned": [],
+      "direct": null
+    },
+    {
+      "time": 1791380208.8247335,
+      "owned": [],
+      "direct": null
+    }
+  ],
+  "after_private": {
+    "run.py": "82b7180db88d6229ec7bd2e2215c0868240108567384040e298b867facbb79ae",
+    "tools.mjs": "64c0ed87dfba5ce6bc3b70205059e242cb8fd530ed6cb315d2978d9f5fd1f8f5",
+    "guard.mjs": "5444032d0a5c648907ee50da7d7dda16ef4e07aee3703f959a179534c7db3d91",
+    "independent.spec.ts": "001e938c528f27c0dc5f2a3ba49468ef0cbb5ee6da80a7d4a141e24e39682ce1"
+  },
+  "product_unchanged": true,
+  "raw_sha256": "1de9bdf38f255ef3590099ad5f3f92e7c4fc948f746aa5c1145967e03ed6e522"
+}

@@ -1,0 +1,30 @@
+{
+  "origin": "completed independent-b01 actual GET bytes",
+  "body_sha256": "39b25a8b83cbce1128723132d168d4e0dce9d00bc79188e1fdaf86d0c68bcf6e",
+  "calls": 1,
+  "public_client": "createSystemModelAPI(fetcher).getDeletionImpact",
+  "actual_response_status": 200,
+  "actual_content_type": "application/json",
+  "request_id_not_supplied_or_invented": true,
+  "body_used": true,
+  "body_unlocked": true,
+  "result": {
+    "model_id": "01a116ae-a3a1-7e95-9f30-e27b5e902075",
+    "version": "1",
+    "reference_count": "2",
+    "reference_groups": [
+      {
+        "owner_kind": "platform_selector",
+        "role": "meeting_summary",
+        "count": "1"
+      },
+      {
+        "owner_kind": "platform_selector",
+        "role": "memory",
+        "count": "1"
+      }
+    ],
+    "replacement_requirement": "required",
+    "delete_blocker": null
+  }
+}

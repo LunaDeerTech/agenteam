@@ -1,0 +1,34 @@
+from pathlib import Path
+import fnmatch,hashlib,json,re,subprocess
+repo=Path('/workspace/agenteam');base=Path('/workspace/scratch/meeting-summary-s1-author');dest=base/'old-6fa';dest.mkdir(exist_ok=False)
+commit='6fa2ee721a75ea34a1ccd6523b8b25d68328c5b9';prefix='github.com/LunaDeerTech/agenteam/'
+raw=subprocess.run(['git','ls-tree','-r','-z',commit],cwd=repo,capture_output=True,check=True).stdout
+names={}
+for line in raw.split(b'\0'):
+ if line:
+  meta,name=line.split(b'\t',1);names[name.decode()]=meta.split()[2].decode()
+pending=['go.mod','go.sum','tests/model/system_configuration_integration_test.go','tests/model/system_http_fixture_test.go'];seen={};dirs=set()
+while pending:
+ path=pending.pop()
+ if path in seen:continue
+ data=subprocess.run(['git','show',commit+':'+path],cwd=repo,capture_output=True,check=True).stdout
+ target=dest/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+ seen[path]={'blob':names[path],'sha256':hashlib.sha256(data).hexdigest()}
+ if not path.endswith('.go'):continue
+ text=data.decode();imports=[]
+ for group in re.findall(r'(?m)^import\s*\((.*?)\)',text,re.S):imports+=re.findall(r'"([^"]+)"',group)
+ imports+=re.findall(r'(?m)^import\s+(?:\w+\s+)?"([^"]+)"',text)
+ for imp in imports:
+  if not imp.startswith(prefix):continue
+  directory=imp[len(prefix):]
+  if directory in dirs:continue
+  dirs.add(directory)
+  pending.extend(n for n in names if str(Path(n).parent)==directory and n.endswith('.go') and not n.endswith('_test.go'))
+ for line in re.findall(r'(?m)^//go:embed\s+(.+)$',text):
+  for pattern in line.split():
+   pattern=pattern.strip('"`')
+   pattern=str(Path(path).parent/pattern)
+   pending.extend(n for n in names if fnmatch.fnmatchcase(n,pattern))
+manifest={'baseline':commit,'method':'git ls-tree/show read-only; two accepted test fixture sources plus transitive repository regular Go imports and matching embed files; go list will refine actual compilation inputs','files':seen}
+(base/'old-extraction.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print(json.dumps({'files':len(seen),'packages':len(dirs),'destination':str(dest),'manifest_sha256':hashlib.sha256((base/'old-extraction.json').read_bytes()).hexdigest()}))

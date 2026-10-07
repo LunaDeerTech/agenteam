@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/prettier/bin/prettier.cjs",
+    "src/tests/system-models.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam/web",
+  "env": {
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "TMPDIR": "/workspace/scratch/meeting-summary-model-delete-compat/f03-format-show/tmp",
+    "SUMMARY_FRONTEND_OUTPUT": "/workspace/scratch/meeting-summary-model-delete-compat/f03-format-show",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "npm_config_offline": "true"
+  },
+  "subreaper": true,
+  "budget_seconds": 45,
+  "frozen": "/workspace/scratch/meeting-summary-model-delete-compat/frozen03.json",
+  "frozen_sha256": "c29203d4ce08a5d4d5c8c13d3d09d4e025650918dac79b5fd374a29f4dafd85c",
+  "started": 1791379960.5891883,
+  "pid": 142903,
+  "pid_starttime": "591241",
+  "exit": 0,
+  "finished": 1791379961.6087887,
+  "adopted_waits": [],
+  "forced_descendants": false,
+  "first_tail": [],
+  "second_tail": [],
+  "inputs_unchanged": true
+}

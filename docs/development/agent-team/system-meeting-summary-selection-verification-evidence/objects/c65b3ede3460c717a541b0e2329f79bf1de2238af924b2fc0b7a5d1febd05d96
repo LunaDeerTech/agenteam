@@ -1,0 +1,24 @@
+# S1 candidate01/02 独立静审阶段结论
+
+**FAIL：四项确定阻断已报 root 并纳入 candidate03 返修。** 本轮只读冻结候选、固定旧源及必要测试接缝，不运行 Go/Node/测试/资源，不修改产品或原证据。candidate01 manifest SHA256 为 `617328e91298ef4e6b1dc8fffd4675c731233916bb72831fd53698261c06bf81`；27 源快照逐一匹配，4 contract 与接受指纹一致。管理读测试另消费 candidate02 manifest `c96e3fd1bc36b7d732724f3717df60d442a155a22d3fbbd7408c83b8580efa46` 的单文件修正（源 SHA `e0c81488de96c934775091dd793de3bae8de2595c43d2cf9b43186a0df139fdc`）。
+
+## 阻断
+
+1. **旧 binary handoff 无法解码。** `tests/model/meeting_summary_upgrade_test.go:24` 把三种原请求直接存入 handoff；旧 producer 直接 JSON Encode，请求内 CommandMeta.Scope 被输出。但既有 identity.Scope.UnmarshalJSON 恒返回 INVALID_ARGUMENT，候选第89行 Decode 必在升级20前失败。须私有数据DTO严格解析后以正式 SystemScope 构造器重建，禁止开放 authority 的 JSON 反解。
+2. **所谓历史原字节在 handoff 中已改变。** History 是 map[string]json.RawMessage；Go1.27.1 encoding/json 的 marshalerEncoder 调用 appendCompact，旧SQL JSONB原字节被压缩/转义后再入handoff。候选第119行却把解码后字节与新SQL原字节直接 bytes.Equal，既会误报也不保存原证据。应采用 []byte/base64 等无损私有封装、严格三张表及非空原ID集合，保持真正旧SQL bytes/hash，不能以两端重编码掩盖。
+3. **新 Summary 参与删除的持久 plan 未完整闭合。** `meeting_summary_commands.go` 的 model.delete 分支仅核新Summary及其一条引用。对合法双owner删除plan，仅将 AfterSelection 设null、保留不同ID的 BeforeSelection，验证仍通过，随后允许查证/重放。还须核旧before/after成对、同ID、版本+1、只替换目标角色、保留其余角色；References必须恰为两个before canonical中指向待删Model的完整边集，拒绝第三owner/多边/漏边。Receipt/Metadata的ID、版本、受影响边数、Changed也须对应真实删除事实。
+4. **独立 safe_receipt 列未绑定新 plan。** `commands.go` 新分支虽核行身份与plan，却仍只对 safe_receipt 做通用 Validate；旧SQL仅要求JSON object。替换为另一合法kind/resource/version的receipt仍会被新Summary lookup/replay返回。仅对含新Summary字段的分支增加与 plan.Receipt及行事实的精确一致校验；不改变无新字段的旧历史加载路径。
+
+上述均为冻结源码完整控制流及序列化行为的静态结论，无伪造执行。root 已认可并授权相应返修；涉及新plan/commands分支、upgrade测试和旧producer的审查已暂停，等新freeze。旧producer首次读取时 SHA `ac1be19b7285b7cc316f6c2c406b312edaec36cb2b3c049c10d548fe617a3371` 与 old-input01 匹配。
+
+## 已核其他关键范围
+
+新DTO与旧四用途分离；Initialize显式且不改旧Initialize/root；缺schema错误不吞为未配置，空singleton+零新role与已初始化null可区分。Summary精确canonical/required引用与同Tx模型/Provider重核，禁用保留已选ID。旧 semantic 正文未改，新discriminator保留共享 command identity。Audit沿platform；更新一份配置Event，双owner删除增加两个selector Event；副作用沿原事务统一提交。管理读实际合并两个owner并按(owner_id,role)排序、LIMIT6/最大5，8种配对的总数/10001边界与未知组合拒绝保留。迁移20无默认行，旧约束分支原语义保持。既有HTTP生产源无变更，新增库状态通过旧impact/delete/lookup投影；前端限定PASS复用独立 frozen04结果，真实HTTP同body/schema仍未验。
+
+真实测试接缝静态具备正式bootstrap/login/Logout、双owner替代与Audit/Event失败、真正PG帧COMMIT ACK丢失/持锁/回滚及异义确认；不把HTTP CommitResult decorator当真实Unknown。旧二进制采用owned空库、旧1..19、actual Wait再候选20的顺序正确，但上述handoff阻断未修不能运行通过。已读旧提取清单305源、old-input01共306输入含19 SQL；完整最终import/embed/TestMain/动态命令图及实际资源driver仍待最终冻结，不凭目录计数宣称执行闭包通过。
+
+## 必须补齐的验收输入
+
+root 已安排作者补合法双owner完整5边（owner ID前/后两种排序）及第6边哨兵 pure 例；candidate02 mock对新singleton始终返回[]，旧fifth-row不能替代该证明。实际HTTP body已按原字节导出，但需加真实Content-Type；root已同批转修，前端验证者不得重造头或body冒实际响应。六新top各120s预算待driver以实际参数落地；当前无授权运行，不将包6m或分调用20s说成顶层预算通过。
+
+作者原两轮pure失败（cwd/schema路径、管理mock SQL匹配次序；后续两个新top零Digest fixture Marshal失败）由作者保留原raw与输入。本审未删除失败、不将生产闭合问题归类为harness错误。等待candidate03及适用离线/真实证据后差量复核，不重跑未变旧证据。本轮静态写入完成，现停写。

@@ -1,0 +1,55 @@
+{
+  "argv": [
+    "/usr/bin/curl",
+    "-q",
+    "--fail",
+    "--silent",
+    "--show-error",
+    "--proto",
+    "=https",
+    "--connect-timeout",
+    "10",
+    "--max-time",
+    "30",
+    "--retry",
+    "0",
+    "--output",
+    "/workspace/scratch/summary-frontend-dependency-recovery/go-captcha-vue-2.0.7.tgz",
+    "--write-out",
+    "{\"http_code\":%{http_code},\"size_download\":%{size_download},\"url_effective\":\"%{url_effective}\"}\n",
+    "https://registry.npmjs.org/go-captcha-vue/-/go-captcha-vue-2.0.7.tgz"
+  ],
+  "driver_sha256": "029eceea8d7a04bb4c344549a70541c08ee7b14da6144601133852295aaa9946",
+  "curl_sha256": "d2136f430029a8750c6c3280effdca0383e24b1f606e32d63e3b4154409b1038",
+  "started": 1791379638.8186529,
+  "timeout_seconds": 40,
+  "subreaper": true,
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/agent"
+  },
+  "child": {
+    "pid": 138626,
+    "starttime": "559064",
+    "ppid": 138622,
+    "pgrp": 138626,
+    "state": "R"
+  },
+  "actual_exit": 6,
+  "actual_wait": true,
+  "seconds": 0.015857458114624023,
+  "adopted_waits": [],
+  "cleanup": [
+    {
+      "time": 1791379638.8345368,
+      "direct": null,
+      "group_members": []
+    },
+    {
+      "time": 1791379638.936159,
+      "direct": null,
+      "group_members": []
+    }
+  ],
+  "raw_sha256": "89e90691fb925fd2cd5c9ea0667b9abb0aabb137aa5e052185913f5a0ac5bc24"
+}

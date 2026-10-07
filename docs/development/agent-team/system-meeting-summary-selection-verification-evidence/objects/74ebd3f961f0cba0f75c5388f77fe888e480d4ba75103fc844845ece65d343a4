@@ -1,0 +1,62 @@
+{
+  "time": 1791379764.1571522,
+  "conclusion": "RESTORED exact locked go-captcha-vue2.0.7; application acceptance not run",
+  "target": "/workspace/agenteam/web/node_modules/go-captcha-vue",
+  "integrity": "sha512-ynlb/6CJiMdsqKe+79lIVpTsNXQTgOHDJ7BH+Gx6EZQZyHSwuyLZvQwjz9vQOYhyHpREW9tapBo8ZOTyVzIQew==",
+  "tgz_sha256": "5f759f7c89ec8b8c69df34b96fa5faa1abaf272523128e5902295ff4a1fb403e",
+  "tgz_bytes": 23703,
+  "regular_files": 48,
+  "expanded_bytes": 110964,
+  "scope_before": "One missing nonoptional package; whole directory absent, no bad symlink. Hidden lock also omitted it; exact historical cause unproved.",
+  "scope_after": "No missing nonoptional package; remaining25 missing entries all off-platform/libc optional.146installed metadata versions match lock.",
+  "unchanged": {
+    "package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "node_modules/.package-lock.json": "b3c46d4d6d7d25282ef60c069e02b181792731f0975e0cd19f62fbb8363ec071"
+  },
+  "existing145_metadata_unchanged": true,
+  "other_directory_entries_unchanged": true,
+  "hidden_lock_intentionally_unchanged": true,
+  "network_attempts": [
+    {
+      "attempt": 1,
+      "actual_exit": 6,
+      "reason": "Sanitized first environment omitted proxy; direct DNS failed; no file/package mutation",
+      "actual_wait": true,
+      "double_owned_process_zero": true
+    },
+    {
+      "attempt": 2,
+      "actual_exit": 0,
+      "http_status": 200,
+      "seconds": 0.26515698432922363,
+      "same_official_URL": true,
+      "same_locked_integrity": true,
+      "standard_proxy_values": "inherited unchanged and not recorded",
+      "actual_wait": true,
+      "double_owned_process_zero": true
+    }
+  ],
+  "no_npm_install_ci_or_scripts": true,
+  "no_apps_tests_browsers": true,
+  "old_usage_evidence_untouched": true,
+  "commands_stopped": true,
+  "evidence": {
+    "archive-verification.json": "2ae71109e72b462bf210e576d98e9461b784b2974283a7f5ed03680128bf1b9b",
+    "verify-archive.py": "c7a75c091b4608df7848ccb2731526c89040ef8fbebf5e32ee2c16b73d766c27",
+    "download.py": "029eceea8d7a04bb4c344549a70541c08ee7b14da6144601133852295aaa9946",
+    "install-result.json": "febd8f8e5c797b4ccf05edd6cd8d1685115758616a75addf4669de7a73aea734",
+    "install.py": "9d19069d863b0fd19c6832510f61bb999bd86ef4cd6eee4bb95d2d270fdb628e",
+    "download.raw": "89e90691fb925fd2cd5c9ea0667b9abb0aabb137aa5e052185913f5a0ac5bc24",
+    "download.meta.json": "1a88b5a88e6a78a455ade01f9e9a94fd5dd8d28290d555e5c94cb1c41560e037",
+    "after.json": "26b4cddc833a123eebd8e9142328a665fdcb653524787ac2bc2193e27dce8087",
+    "go-captcha-vue-2.0.7.tgz": "5f759f7c89ec8b8c69df34b96fa5faa1abaf272523128e5902295ff4a1fb403e",
+    "preflight.raw": "2e84f12e321d176c0bfa21a6bd207eb5d615ec0a64840cf746935fe18090f640",
+    "download02.meta.json": "3d764811c2c786f457f2de2da927a5859b62124be17eeacc01a1ccfc0b1211e8",
+    "preflight.py": "bea18664606dde915a3a4c2b1f74e450407eec7c96ddb14a2b45379afc5afc0b",
+    "before.json": "0311a4a0a0790717529f770d0e41b87e2eab78b0607d59f350cea828d26930d6",
+    "after.raw": "06afd103f4ed5671588ba0992ae39ba2219a40022c0acbbf6c27ae35627ef89d",
+    "download02.py": "cb0ecd9f908bc1ecebd8e6ad4e13798988b604d9243b33fbc0f77940013c5161",
+    "download02.raw": "9a872065a06760112b88aea83100bc817730579e17ac1e1cf2eb276a5c9041c0"
+  }
+}

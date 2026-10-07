@@ -1,0 +1,29 @@
+# Meeting Summary S1 candidate03/04 独立 STATIC 差量结论
+
+结论：原四项阻断与两项验收补口在冻结源码中均已修复；本轮 STATIC 差量 PASS。复用 candidate01 已完成的其余静态审查，最终绑定 candidate04。此结论不是完整 S1 或真实 PostgreSQL/HTTP 验收。
+
+## 固定输入与方法
+
+- candidate03 manifest：`e4a9f46cd1883f12db32567ff812fba1c57ce520db10a20b0f19b14f3bb6a621`。
+- candidate04 manifest：`da01aba5921573ff03acaf9e4d24df047bd2306f82c24936a90f5343a2311fe2`。27 个后端快照全部 hash 相符；相对03只修改 `meeting_summary_commands_test.go` 的合法旧计划夹具。四个已接受 contract 的 manifest 保持原 hash。
+- old-input02：`976c5fffe4ca2c9812bf95bfd25a405c73da8edb720fb8d58941071efa3b8a93`；306 个文件实存 hash 全符。305 个原文件逐一核对固定 `6fa2ee721a75ea34a1ccd6523b8b25d68328c5b9` 的 Git blob 和内容，唯一额外文件为私有 producer test，迁移 SQL 精确19份。
+- 本轮只执行冻结文件读取、hash/manifest 比对及只读 `git ls-tree`。未运行 Go/Node、产品、测试或资源，也未修改业务、卡片或 Git。输入和实际核对结果见 `delta-inputs.json`。
+
+## 已闭合项
+
+| 原项 | 独立复核 |
+| --- | --- |
+| B1 私有交接含不可反解 Scope | 旧 producer/候选 reader 的 DTO 同形且不含 authority；以明确 `system` 字符串、原 User/Session/request 数据校验，再通过正式 `NewHuman`、`SystemScope` 构造。无开放 Scope JSON 反解。生产调用仍重查当前 Session/admin。 |
+| B2 历史 SQL 字节损失 | 两端 `History map[string][]byte` 经 base64 无损交接；限定三张表、非空行及合法 ID。旧进程实际 Wait 后且迁移20之前检查原 schema1..19；迁移前后及新双 owner 删除后按原 IDs 比较原 SQL bytes，保留 hash，不把 JSON 重编码当原件。该顺序是静态可执行性结论，尚无本轮真实执行。 |
+| B3 新 Summary delete plan 不完整 | 新分支现在校验目标与替代 Model/Provider 快照、旧 owner 成对、ID/version、全部旧角色映射、目标边准确替换、未涉及角色保留，并重建排序后的精确 references。receipt、metadata、affected count、ChangedFields 对齐。无新字段的历史路径保持。持久化加载负例覆盖缺边/多边/错角色/第三 owner、旧 pair/version/ID/非目标字段及 receipt/metadata。 |
+| B4 safe_receipt 与 plan 分离 | 仅新 Summary plan 分支要求持久 `safe_receipt == plan.Receipt`，并对齐行 kind/resource；独立合法但内容不同的 safe receipt 不能通过。旧无新字段 loader 不扩大限制。 |
+| C1 双 owner 五边与第六哨兵 | 管理读测试实际给出四旧角色及一 Summary 的完整五边，覆盖两个 owner ID 排序方向；添加第六边必须零 DTO/Unavailable。旧 SQL matcher 先抢新 Summary query 的问题已修。 |
+| C2 实际 HTTP metadata | 安全 body 证据 metadata 读取真实响应 `Content-Type`，为后续同一原字节/schema/公开 client 解析提供必要输入。 |
+
+candidate04 的唯一夹具修复使用完整有效的 plan 后去除两新字段，明确处理 Marshal 错误；未削弱生产校验或更改旧命令编码。此前失败原件和 candidate01 FAIL 报告继续保留；不改写为首轮通过。
+
+## 保留门槛与停止状态
+
+作者报告的纯检查/编译结果由 root 汇总；本轮没有独立动态运行，不代替其原始命令、输入图与实际退出证据。最终完整 import/embed/TestMain/dynamic command 图、六个新 real top 各120秒的冻结 driver、真实旧 binary 1..19→20、新旧历史 replay/lookup、授权/Unknown/事务，以及真实安全 HTTP 原 body 对 schema 和公开 strict client 的联合验收仍待授权与执行。前端既有 STATIC/PURE 结论按其固定输入复用。
+
+未新增范围或额外报告前置条件。仅写本目录，当前无活动命令/资源，交付后停写；PID1 shim Z 不在本轮所有权内，也未重新观测，不声明全机零。

@@ -1,0 +1,30 @@
+from pathlib import Path
+import hashlib,json,os,sys,socket,importlib.metadata
+B=Path('/workspace/scratch/summary-frontend-verification/http02')
+def forbid(*args,**kwargs):raise RuntimeError('offline schema network forbidden')
+socket.socket=forbid;socket.create_connection=forbid
+from jsonschema import Draft202012Validator,FormatChecker
+from referencing import Registry,Resource
+from referencing.jsonschema import DRAFT202012
+
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+provenance=json.loads((B/'provenance.json').read_bytes());source=json.loads((B/'independent-summary-memory-source.json').read_bytes());raw=(B/'independent-summary-memory.json').read_bytes();assert hashlib.sha256(raw).hexdigest()==source['body_sha256']
+S=Path('/workspace/scratch/summary-frontend-verification/http01')
+base='file:///workspace/agenteam/api/openapi/'
+def retrieve(uri):raise RuntimeError('unfrozen schema retrieval forbidden: '+uri)
+registry=Registry(retrieve=retrieve)
+for name in ['model-system.json','common.json']:
+ assert sha(S/name)==provenance['origin_hashes'][str(S/name)]
+ document=json.loads((S/name).read_bytes());registry=registry.with_resource(base+name,Resource.from_contents(document,default_specification=DRAFT202012))
+model=json.loads((S/'model-system.json').read_bytes());schema_ref=model['paths']['/api/v1/system/models/{id}/deletion-impact']['get']['responses']['200']['content']['application/json']['schema']['$ref'];assert schema_ref=='#/components/schemas/ModelDeletionImpact'
+Draft202012Validator.check_schema(model['components']['schemas']['ModelDeletionImpact'])
+validator=Draft202012Validator({'$ref':base+'model-system.json'+schema_ref},registry=registry,format_checker=FormatChecker())
+body=json.loads(raw);errors=list(validator.iter_errors(body));assert not errors,[str(e) for e in errors]
+assert body['model_id']==source['model_id'] and body['replacement_requirement']=='required' and body['delete_blocker'] is None
+out=Path(os.environ['SUMMARY_VERIFY_OUTPUT']);assert out.parent==B
+runtime={}
+for module in list(sys.modules.values()):
+ filename=getattr(module,'__file__',None)
+ if filename and Path(filename).is_file() and ('/jsonschema/' in filename or '/referencing/' in filename or '/jsonschema_specifications/' in filename or '/rpds/' in filename or '/attrs/' in filename or '/attr/' in filename):runtime[filename]=sha(filename)
+result={'body_sha256':hashlib.sha256(raw).hexdigest(),'schema_ref':base+'model-system.json'+schema_ref,'validator':'jsonschema.Draft202012Validator with FormatChecker and closed local referencing.Registry','versions':{n:importlib.metadata.version(n) for n in ['jsonschema','referencing','jsonschema-specifications','rpds-py','attrs']},'errors':[],'same_bytes':True,'runtime_module_files':runtime}
+(out/'schema-result.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items() if k!='runtime_module_files'}))

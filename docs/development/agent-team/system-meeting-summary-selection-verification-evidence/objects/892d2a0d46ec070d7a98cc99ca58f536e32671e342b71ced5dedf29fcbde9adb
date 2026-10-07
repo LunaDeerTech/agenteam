@@ -1,0 +1,73 @@
+import {
+  it,
+  expect,
+} from "/workspace/agenteam/web/node_modules/vitest/dist/index.js";
+import { readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { createSystemModelAPI } from "/workspace/agenteam/web/src/api/system-models";
+const base = "/workspace/scratch/summary-frontend-verification/http02";
+const sha = (v: Uint8Array) => createHash("sha256").update(v).digest("hex");
+it("parses completed independent-b01 real HTTP Summary+memory original bytes through the public client", async () => {
+  const raw = readFileSync(base + "/independent-summary-memory.json");
+  const source = JSON.parse(
+    readFileSync(base + "/independent-summary-memory-source.json", "utf8"),
+  );
+  expect(sha(raw)).toBe(source.body_sha256);
+  expect(source.method).toBe("GET");
+  expect(source.status).toBe(200);
+  expect(source.content_type).toBe("application/json");
+  const controller = new AbortController();
+  let calls = 0;
+  let response: Response | undefined;
+  const result = await createSystemModelAPI(async (path, init) => {
+    calls++;
+    expect(path).toBe(source.path);
+    expect(init.method).toBe(source.method);
+    expect(init.signal).toBe(controller.signal);
+    expect(init.body).toBeUndefined();
+    response = new Response(raw, {
+      status: source.status,
+      headers: { "Content-Type": source.content_type },
+    });
+    return response;
+  }).getDeletionImpact(source.model_id, controller.signal);
+  expect(calls).toBe(1);
+  expect(response?.bodyUsed).toBe(true);
+  expect(response?.body?.locked).toBe(false);
+  expect(result).toEqual(JSON.parse(raw.toString("utf8")));
+  expect(result.model_id).toBe(source.model_id);
+  expect(result.reference_count).toBe("2");
+  expect(result.reference_groups).toEqual([
+    { owner_kind: "platform_selector", role: "meeting_summary", count: "1" },
+    { owner_kind: "platform_selector", role: "memory", count: "1" },
+  ]);
+  expect(result.replacement_requirement).toBe("required");
+  expect(result.delete_blocker).toBe(null);
+  expect(Object.isFrozen(result)).toBe(true);
+  expect(Object.isFrozen(result.reference_groups)).toBe(true);
+  expect(result.reference_groups.every(Object.isFrozen)).toBe(true);
+  expect(sha(readFileSync(base + "/independent-summary-memory.json"))).toBe(
+    source.body_sha256,
+  );
+  const output = process.env.SUMMARY_VERIFY_OUTPUT;
+  expect(output?.startsWith(base + "/")).toBe(true);
+  writeFileSync(
+    output + "/client-result.json",
+    JSON.stringify(
+      {
+        origin: "completed independent-b01 actual GET bytes",
+        body_sha256: sha(raw),
+        calls,
+        public_client: "createSystemModelAPI(fetcher).getDeletionImpact",
+        actual_response_status: source.status,
+        actual_content_type: source.content_type,
+        request_id_not_supplied_or_invented: true,
+        body_used: response?.bodyUsed,
+        body_unlocked: !response?.body?.locked,
+        result,
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+});

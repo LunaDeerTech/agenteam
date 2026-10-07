@@ -1,0 +1,47 @@
+# Meeting Summary S1 技术独立验收：PASS
+
+固定 candidate04 的27个后端源、已接受且未变的4个 contract，以及 frontend04 的4个兼容源。独立 STATIC、真实 A/B 与两份 HTTP 原字节的 schema/client 联验均通过；无未闭合的 S1 技术阻断。末件 README/仓库归位由 root 单独核对，本报告不提前接受未冻结的文档差量。S2/S3、生产根 Summary 初始化接线/新HTTP、Meeting 实际消费、完整 D09/E01 不在本结果。
+
+## 输入与复用
+
+- candidate04 manifest `da01aba5921573ff03acaf9e4d24df047bd2306f82c24936a90f5343a2311fe2`，frontend04 `051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0`；产品依赖固定03a4a0b8。35技术路径计入已接受 e6cb70bd 的4contract，不把它们记为新增改动。
+- STATIC 复用 candidate01 无关部分，candidate03/04 差量报告 `../S1-static-candidate03/review.md`，SHA `cfbb8da7632b79759b8aecf9051cce768668531ebef66fa067cfd9efd86c320e`。原 B1/B2 authority-free handoff/SQL bytes、B3完整双owner持久plan、B4safe_receipt闭合及5/6边与Content-Type补口已修；原 FAIL 报告保留。
+- 独立 overlay 源 SHA `33c6d5be6e03c6b563254e315d019a5bce4a5cf2e6f2e2addeb16a00417d525f`；driver-v02 SHA `37dd864aee5ef307605522521416e108857874a2057569af51eb06cf5f825390`、frozen SHA `fbe256b0188f2134fdf0daa8254705997f1ca467a0e829163886cc27e1571112`。固定实际3360输入包含完整 import/embed/TestMain/dynamic command 链及独立graph02；无未冻结活动业务输入。
+- 旧 producer02 SHA `b9d6b5207549724004bfef282c0e50daa26da17d24a4c2eeb195b1028f03a308`；305原文件逐一核对固定6fa Git blob/内容，另1私有helper，仅旧1..19迁移。未以候选创建的receipt冒充旧二进制历史。
+- 作者最终报告 `author-final04.md` SHA `cf895bf155bebbf229effa0d93601c4f2fd36cffa8ce41275163a977b90c8bef`；JSON `fae66a8f504b7e7c03f4af35c91cc18361c761100984e669dd7fc6bce60f7d2b`。复用其固定 pure/race/vet/build 与6新/12旧真实测试；独立核对四轮 command/result/raw/双清/输入一致，不重复无关全套。
+
+## 真实结果
+
+| 轮次 | 实际 exit/全命令时间 | 精确 tops | 资源/owned PID/starttime | 结果 |
+| --- | --- | --- | --- | --- |
+| 作者 new1 | 0 /100.839s | schema + selection | 7/139 | PASS |
+| 作者 new2 | 0 /66.065s | replacement + Unknown | 7/88 | PASS |
+| 作者 new3 | 0 /55.981s | upgrade + existing HTTP | 7/90 | PASS |
+| 作者 old1 | 0 /87.618s | 旧12 | 7/94 | PASS |
+| 独立 A | 0 /53.995s | TestIndependentSummaryA，top4.74s | 7/87 | PASS |
+| 独立 B | 0 /57.270s | TestIndependentSummaryB，top5.92s | 7/87 | PASS |
+
+各轮均实际 wait、adopted0、强制尾部动作0、监控错误0、源/验证输入前后相同；两次核对 exact7资源 absent、baseline不变、owned进程和runtime为空。新top均在120s内，原包6m/race/count1/p1保持。实际独立命令使用冻结绝对 Python `/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python`，没有依赖未绑定的PATH解释器。各轮精确原件hash及PID1差量见 `real-rounds.json`。
+
+独立 A 证明：真实双owner删除同时推进两个canonical；缺旧owner、改非目标角色、改引用version、改safe_receipt version四类存储损坏均使公开lookup/原请求replay拒绝且零receipt。显式故障注入恢复原SQL bytes后完整Model/引用/receipt/Audit/Event事实无额外变化。旧无新字段的计划仍走原loader。真实COMMIT ACK丢失后，正式Account.Logout撤当前Session使确认保留原cause/attempt的Unknown；旧Session不能公开读receipt；同User正式Login的新Session重放原key/原请求，不产生新副作用。该结论是Session撤权，不是管理员角色更改。
+
+独立 B 证明：旧二进制实际启动并Wait完成后，PG确为1..19且无Summary表，再由候选迁移20。9条commands、15条Audit、10条Events的原SQL bytes/hash在迁移及新Summary请求前后相同；原选择receipt重放与两删除receipt lookup精确保持。初始化不生成Summary默认；新旧请求共享key的两个方向均冲突，旧generic lookup可按当前原身份观察新Summary安全receipt。真实GET输出Summary+memory两个required group；HEAD为空。
+
+## 同一 HTTP 原字节联验
+
+前端独立最终报告 `/workspace/scratch/summary-frontend-verification/http-final-review.md` SHA `80ea8528118691bff16b12fc47311f8087ec22c7440aec5837c6aa7da18f6a40`，result SHA `16f4bd78d8fadbe47d5d9b47408c2d4102efbc233df6f997924ad6318ba7faa6`，已读取并核hash。
+
+- 作者 new3 Summary-only：原body `2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242`。
+- 独立 B Summary+memory：原body `39b25a8b83cbce1128723132d168d4e0dce9d00bc79188e1fdaf86d0c68bcf6e`，source metadata `83b36963e7f375b7b76977429468c546eff38e22b49199075594de589fa8963a`。
+
+两者实际GET200/application-json/status/target/run各自绑定，直接原Buffer交公开 createSystemModelAPI.getDeletionImpact，并由标准Draft202012解析同原bytes；均PASS。此前前端四源STATIC/PURE及作者239 tests/type/build按固定输入复用。真实来源是生产handler+PG，不声称native网络/browser；离线客户端重放不是再次发送HTTP，HEAD事实属于各producer实际断言。
+
+## 原失败、身份来源与限制
+
+原作者 package cwd/SQL mock次序、零Digest/Version编码夹具、cmd参数错误，以及独立首编译错误字段/代码名均保留原始RED；实质生产plan/safe_receipt缺陷与夹具修复分别记账。未执行的SQL role探针草稿保留，root指示后收窄为正式Logout/Login，未用该草稿形成权限证据。
+
+主管理员与旧producer来自正式Bootstrap/Login；作者辅助 addBrowser 是固定SQL seed User后正式Login，schema base.human为固定故障fixture。辅助身份仅证明当前DB Session/role与User隔离，不证明账号创建/Invitation E2E，不将SQL fixture视作正式创建链。
+
+本S1六个资源轮各增加4个daemon侧PID1 containerd-shim Z：作者24→40，独立A40→44、B44→48。共新增24个不属任务owned、未wait/未signal；精确PID/starttime保留。owned链实际清零不等于全机零。ready503、Production Invocations nil与原三个停止任务边界保持；本结果不恢复它们。
+
+所有技术源只读；独立只写自有scratch/overlay证据。资源窗口已交root，无活动命令、自有资源或业务写入。最终报告写毕后停写。

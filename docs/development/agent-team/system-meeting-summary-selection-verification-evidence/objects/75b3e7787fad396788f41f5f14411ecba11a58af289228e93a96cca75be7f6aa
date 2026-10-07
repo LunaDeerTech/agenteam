@@ -1,0 +1,22 @@
+{
+  "base": "03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05",
+  "files": {
+    "web/src/api/system-models.ts": {
+      "sha256": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8",
+      "bytes": 13267
+    },
+    "web/src/views/system/SystemModelDeleteDialog.vue": {
+      "sha256": "df056eac828da1e756c9cec52182bf83680e1c6e6f0b9d34751d05069afd2872",
+      "bytes": 13013
+    },
+    "web/src/tests/system-models-client.spec.ts": {
+      "sha256": "05a6431ba1bcd8c195d6db2ac3d74f0847bdd7034e00151e10a6b7a8c1737b04",
+      "bytes": 22805
+    },
+    "web/src/tests/system-models.spec.ts": {
+      "sha256": "c93487eea21313da1198823786b50a97091ad3ef8d9193b96c95a6eb6cd950b5",
+      "bytes": 35597
+    }
+  },
+  "scope": "Only four frontend compatibility paths. No browser/resource/test/build executed. Active backend S1 candidate/OpenAPI remains excluded until frozen."
+}

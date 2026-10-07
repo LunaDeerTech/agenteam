@@ -1,0 +1,15 @@
+The `envFile` option is deprecated, please use `envDir: false` instead.
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ✓ ../../scratch/summary-frontend-verification/independent.spec.ts > Independent closed deletion-impact projection > accepts every one of the 256 legal subsets with independent required/unbound derivation 76ms
+ ✓ ../../scratch/summary-frontend-verification/independent.spec.ts > Independent closed deletion-impact projection > preserves the exact 10000 boundary across eight groups and rejects noncanonical or excess counts 5ms
+ ✓ ../../scratch/summary-frontend-verification/independent.spec.ts > Independent closed deletion-impact projection > rejects Summary requirement/blocker lies, crossed or unknown pairs, closed-field violations, duplicate/order/ninth groups 5ms
+ ✓ ../../scratch/summary-frontend-verification/independent.spec.ts > Independent existing Summary deletion controller and dialog > requires a Summary replacement and revokes the plain choice after a real client reread adds memory 159ms
+ ✓ ../../scratch/summary-frontend-verification/independent.spec.ts > Independent existing Summary deletion controller and dialog > keeps the legacy project Summary unbound even beside the new bound system Summary 13ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  13:37:51
+   Duration  1.31s (transform 466ms, setup 0ms, import 558ms, tests 261ms, environment 369ms)
+

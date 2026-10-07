@@ -1,0 +1,245 @@
+diff --git a/web/src/api/system-models.ts b/web/src/api/system-models.ts
+index 44853010..1762f8bf 100644
+--- a/web/src/api/system-models.ts
++++ b/web/src/api/system-models.ts
+@@ -38,6 +38,7 @@ const referenceKinds = [
+   ['agent', 'approval_model', 'required'],
+   ['platform_selector', 'embedding', 'required'],
+   ['platform_selector', 'image', 'optional'],
++  ['platform_selector', 'meeting_summary', 'required'],
+   ['platform_selector', 'memory', 'required'],
+   ['platform_selector', 'reranker', 'optional'],
+   ['project_summary', 'meeting_summary', 'required'],
+@@ -251,7 +252,7 @@ function impact(value: unknown, target: string): ModelDeletionImpact {
+   ])
+   requireValue(id(v.model_id) === target)
+   const count = integer(v.reference_count, 0n, 10000n)
+-  requireValue(Array.isArray(v.reference_groups) && v.reference_groups.length <= 7)
++  requireValue(Array.isArray(v.reference_groups) && v.reference_groups.length <= 8)
+   let previous = '',
+     total = 0n,
+     required = false,
+diff --git a/web/src/tests/system-models-client.spec.ts b/web/src/tests/system-models-client.spec.ts
+index 10a034e0..62bbe7ed 100644
+--- a/web/src/tests/system-models-client.spec.ts
++++ b/web/src/tests/system-models-client.spec.ts
+@@ -437,6 +437,24 @@ describe('Exact registered Model deletion impact', () => {
+       { owner_kind: 'project_summary', role: 'meeting_summary', count: '1' },
+     ],
+   })
++  const summary = () => ({
++    ...emptyImpact(),
++    reference_count: '1',
++    reference_groups: [{ owner_kind: 'platform_selector', role: 'meeting_summary', count: '1' }],
++    replacement_requirement: 'required',
++  })
++  const eight = () => {
++    const value = all()
++    return {
++      ...value,
++      reference_groups: [
++        { ...value.reference_groups[0]!, count: '9993' },
++        ...value.reference_groups.slice(1, 4),
++        ...summary().reference_groups,
++        ...value.reference_groups.slice(4),
++      ],
++    }
++  }
+   it('accepts zero, exact 10000 and every closed group with the correct requirement/blocker', async () => {
+     expect(await parseImpact(emptyImpact())).toEqual(emptyImpact())
+     expect(await parseImpact(all())).toEqual(all())
+@@ -456,6 +474,40 @@ describe('Exact registered Model deletion impact', () => {
+       expect(Object.isFrozen(result.reference_groups[0])).toBe(true)
+     }
+   })
++  it('accepts the eighth group in exact order and a required, bound system Meeting Summary alone', async () => {
++    for (const value of [summary(), eight()]) {
++      const result = await parseImpact(value)
++      expect(result).toEqual(value)
++      expect(JSON.stringify(result)).toBe(JSON.stringify(value))
++      expect(Object.isFrozen(result.reference_groups)).toBe(true)
++      expect(result.reference_groups.every(Object.isFrozen)).toBe(true)
++    }
++    expect(eight().reference_groups.map((group) => group.role)).toEqual([
++      'agent_model',
++      'approval_model',
++      'embedding',
++      'image',
++      'meeting_summary',
++      'memory',
++      'reranker',
++      'meeting_summary',
++    ])
++  })
++  it.each([
++    ['replacement_requirement', 'none'],
++    ['replacement_requirement', 'optional'],
++    ['delete_blocker', 'reference_adapter_unbound'],
++    ['reference_count', '2'],
++    ['reference_groups.0.owner_kind', 'agent'],
++    ['reference_groups.0.role', 'summary'],
++    ['reference_groups.0.count', '0'],
++    ['reference_groups.0.count', '01'],
++    ['reference_groups.0.reasoning_effort', 'high'],
++  ])('rejects invalid system Summary Impact %s=%s', async (field, value) => {
++    await expect(parseImpact(changed(summary(), field as string, value))).rejects.toMatchObject({
++      kind: 'invalid-response',
++    })
++  })
+   it.each(Object.keys(emptyImpact()))('rejects missing required Impact %s', async (field) => {
+     await expect(parseImpact(changed(emptyImpact(), field, undefined, true))).rejects.toMatchObject(
+       { kind: 'invalid-response' },
+@@ -496,7 +548,7 @@ describe('Exact registered Model deletion impact', () => {
+       kind: 'invalid-response',
+     })
+   })
+-  it('rejects order changes, duplicate groups and eight groups rather than publishing a partial candidate', async () => {
++  it('rejects order changes, duplicate groups and a ninth group rather than publishing a partial candidate', async () => {
+     const value = all()
+     for (const groups of [
+       [...value.reference_groups].reverse(),
+@@ -506,6 +558,26 @@ describe('Exact registered Model deletion impact', () => {
+       await expect(parseImpact({ ...value, reference_groups: groups })).rejects.toMatchObject({
+         kind: 'invalid-response',
+       })
++    const full = eight()
++    for (const groups of [
++      [
++        ...full.reference_groups.slice(0, 4),
++        full.reference_groups[5]!,
++        full.reference_groups[4]!,
++        ...full.reference_groups.slice(6),
++      ],
++      [...full.reference_groups, summary().reference_groups[0]!],
++    ])
++      await expect(parseImpact({ ...full, reference_groups: groups })).rejects.toMatchObject({
++        kind: 'invalid-response',
++      })
++    await expect(
++      parseImpact({
++        ...summary(),
++        reference_count: '2',
++        reference_groups: [...summary().reference_groups, ...summary().reference_groups],
++      }),
++    ).rejects.toMatchObject({ kind: 'invalid-response' })
+   })
+ })
+ 
+diff --git a/web/src/tests/system-models.spec.ts b/web/src/tests/system-models.spec.ts
+index d38eb5dd..30b1d19a 100644
+--- a/web/src/tests/system-models.spec.ts
++++ b/web/src/tests/system-models.spec.ts
+@@ -732,6 +732,101 @@ describe('Model deletion previews and original command recovery', () => {
+     await click('确认删除 Model', dialog())
+     expect(JSON.parse(f.writes()[0]![1].body as string).replacement).toBe(good.id)
+   })
++  it.each([false, true])(
++    'requires a Summary replacement without adding json_schema unless memory is also referenced (memory=%s)',
++    async (withMemory) => {
++      const f = await page()
++      f.sources.set(id(101), provider(101))
++      const plain = {
++        ...model(202, provider(101)),
++        input: { ...input(), name: 'Plain text replacement' },
++      }
++      const structured = {
++        ...model(203, provider(101)),
++        input: {
++          ...input(),
++          name: 'Structured replacement',
++          capabilities: {
++            ...input().capabilities,
++            structured_output_modes: ['text', 'json_schema'],
++          },
++        },
++      }
++      f.records.set(plain.id, plain)
++      f.records.set(structured.id, structured)
++      await selectProvider()
++      await selectModel()
++      f.setImpact(async () =>
++        json({
++          ...preview(),
++          reference_count: withMemory ? '2' : '1',
++          reference_groups: [
++            { owner_kind: 'platform_selector', role: 'meeting_summary', count: '1' },
++            ...(withMemory
++              ? [{ owner_kind: 'platform_selector', role: 'memory', count: '1' }]
++              : []),
++          ],
++          replacement_requirement: 'required',
++        }),
++      )
++      await click('删除 Model')
++      expect(dialog().textContent).toContain('系统会议 Summary 模型：1')
++      expect(dialog().textContent).not.toContain('项目会议摘要模型')
++      expect(dialog().textContent).not.toContain('清空相应用途引用')
++      expect(button('确认删除 Model', dialog()).disabled).toBe(true)
++      expect(f.writes()).toHaveLength(0)
++      const source = [...dialog().querySelectorAll('li')].find((row) =>
++        row.textContent?.includes('Provider 101'),
++      )!
++      await click('查看此 Provider 的 Models', source)
++      const choices = [...dialog().querySelectorAll('.choices li')]
++      const plainRow = choices.find((row) => row.textContent?.includes('Plain text replacement'))!
++      expect(button('选择此替代 Model', plainRow).disabled).toBe(withMemory)
++      if (withMemory) expect(plainRow.textContent).toContain('json_schema')
++      else expect(plainRow.textContent).not.toContain('json_schema')
++      const selected = withMemory ? structured : plain
++      await click(
++        '选择此替代 Model',
++        choices.find((row) => row.textContent?.includes(selected.input.name))!,
++      )
++      expect(button('确认删除 Model', dialog()).disabled).toBe(false)
++      await click('确认删除 Model', dialog())
++      expect(f.writes()).toHaveLength(1)
++      expect(f.writes()[0]![0]).toBe('/api/v1/system/models/' + id(200))
++      expect(JSON.parse(f.writes()[0]![1].body as string)).toEqual({
++        expected_version: '1',
++        replacement: selected.id,
++      })
++    },
++  )
++  it('keeps legacy project Summary labels and unbound blocking separate from the system Summary', async () => {
++    const f = await page()
++    await selectProvider()
++    await selectModel()
++    f.setImpact(async () =>
++      json({
++        ...preview(),
++        reference_count: '2',
++        reference_groups: [
++          { owner_kind: 'platform_selector', role: 'meeting_summary', count: '1' },
++          { owner_kind: 'project_summary', role: 'meeting_summary', count: '1' },
++        ],
++        replacement_requirement: 'required',
++        delete_blocker: 'reference_adapter_unbound',
++      }),
++    )
++    await click('删除 Model')
++    expect(dialog().textContent).toContain('系统会议 Summary 模型：1')
++    expect(dialog().textContent).toContain('项目会议摘要模型：1')
++    expect(dialog().textContent).toContain('当前引用替换能力尚未绑定')
++    expect(dialog().querySelectorAll('.replacement-picker')).toHaveLength(0)
++    expect(
++      [...dialog().querySelectorAll('button')].some((button) =>
++        button.textContent?.includes('确认删除 Model'),
++      ),
++    ).toBe(false)
++    expect(f.writes()).toHaveLength(0)
++  })
+   it('replays the original DELETE after an actual current GET404 and failed Impact without using those reads as permission', async () => {
+     const f = await page()
+     await selectProvider()
+diff --git a/web/src/views/system/SystemModelDeleteDialog.vue b/web/src/views/system/SystemModelDeleteDialog.vue
+index 115a85ae..c010972b 100644
+--- a/web/src/views/system/SystemModelDeleteDialog.vue
++++ b/web/src/views/system/SystemModelDeleteDialog.vue
+@@ -28,6 +28,7 @@ const labels: Record<string, string> = {
+   'agent/approval_model': 'Agent 审批模型',
+   'platform_selector/embedding': '平台 embedding 用途',
+   'platform_selector/image': '平台 image 用途',
++  'platform_selector/meeting_summary': '系统会议 Summary 模型',
+   'platform_selector/memory': '平台 memory 用途',
+   'platform_selector/reranker': '平台 reranker 用途',
+   'project_summary/meeting_summary': '项目会议摘要模型',

@@ -1,0 +1,30 @@
+from pathlib import Path
+import ctypes,subprocess,os,signal,time,hashlib,json
+B=Path('/workspace/scratch/summary-frontend-dependency-recovery');before=json.loads((B/'before.json').read_text());url=before['target_lock']['resolved'];assert url=='https://registry.npmjs.org/go-captcha-vue/-/go-captcha-vue-2.0.7.tgz'
+assert ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0)==0
+argv=['/usr/bin/curl','-q','--fail','--silent','--show-error','--proto','=https','--connect-timeout','10','--max-time','30','--retry','0','--output',str(B/'go-captcha-vue-2.0.7.tgz'),'--write-out','{"http_code":%{http_code},"size_download":%{size_download},"url_effective":"%{url_effective}"}\n',url]
+if not Path(argv[0]).is_file():raise RuntimeError('expected curl unavailable, no alternate source attempted')
+def stat(pid):
+ try:
+  parts=Path(f'/proc/{pid}/stat').read_text().rsplit(') ',1)[1].split();return {'pid':int(pid),'starttime':parts[19],'ppid':int(parts[1]),'pgrp':int(parts[2]),'state':parts[0]}
+ except (OSError,ProcessLookupError):return None
+def members(pg):return [s for p in Path('/proc').iterdir() if p.name.isdigit() and (s:=stat(p.name)) and s['pgrp']==pg]
+record={'argv':argv,'driver_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'curl_sha256':hashlib.sha256(Path(argv[0]).read_bytes()).hexdigest(),'started':time.time(),'timeout_seconds':40,'subreaper':True};env={'PATH':'/usr/bin:/bin','HOME':'/home/agent'};record['env']=env
+with (B/'download.raw').open('xb') as log:
+ p=subprocess.Popen(argv,env=env,cwd=B,stdout=log,stderr=subprocess.STDOUT,start_new_session=True);record['child']=stat(p.pid)
+ try:code=p.wait(timeout=40)
+ except subprocess.TimeoutExpired:
+  record['timeout']=True;os.killpg(p.pid,signal.SIGTERM)
+  try:code=p.wait(timeout=3)
+  except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);code=p.wait(timeout=3)
+record.update(actual_exit=code,actual_wait=True,seconds=time.time()-record['started']);waits=[]
+while True:
+ try:pid,status=os.waitpid(-1,os.WNOHANG)
+ except ChildProcessError:break
+ if pid==0:raise RuntimeError('unexpected active network descendant')
+ waits.append({'pid':pid,'status':status,'actual_wait':True})
+record['adopted_waits']=waits;record['cleanup']=[]
+for i in range(2):
+ record['cleanup'].append({'time':time.time(),'direct':stat(p.pid),'group_members':members(p.pid)})
+ if i==0:time.sleep(.1)
+record['raw_sha256']=hashlib.sha256((B/'download.raw').read_bytes()).hexdigest();(B/'download.meta.json').write_text(json.dumps(record,indent=2)+'\n');assert all(c['direct'] is None and not c['group_members'] for c in record['cleanup']);print(json.dumps(record,indent=2));raise SystemExit(code)

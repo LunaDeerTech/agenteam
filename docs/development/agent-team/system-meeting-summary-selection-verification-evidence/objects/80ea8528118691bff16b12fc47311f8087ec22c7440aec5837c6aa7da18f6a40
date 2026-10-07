@@ -1,0 +1,14 @@
+# Summary S1 前端窄验收：PASS
+
+固定前端 frozen04（051e5f3c…d9d0）与后端 candidate04（da01aba5…1fe2）。既有四源静审、256 闭集组合/严格解析/替换选择纯探针和作者 format、239 tests、type、build 证据复用；原私有 helper 首红保留，未重跑无关组合。
+
+新增两份真实 HTTP 原 body 均独立通过公开 `createSystemModelAPI(fetcher).getDeletionImpact` 与标准 `jsonschema.Draft202012Validator`：
+
+- 作者已完成 new3：Summary-only，GET 200/application/json，1 个 required group；原 body SHA256 `2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242`。client 实际 0/1.023s，schema 0/0.118s。
+- 独审已完成 independent-b01：Summary + memory，GET 200/application/json，2 个 required groups；原 body SHA256 `39b25a8b83cbce1128723132d168d4e0dce9d00bc79188e1fdaf86d0c68bcf6e`。client 实际 0/1.122s，schema 实际 0（精确耗时见 result）。
+
+各自 source/status/Content-Type/target/path/producer/run result 与前后输入关联经核对；body 直接作为 Response 的原 Buffer，未先解析重编码，未补造 request-id。GET 200 schema 由冻结 model-system.json 定位，唯一外部 localref common.json 与固定 03a4a0b8 字节一致。两个用例均保留独立 provenance、freeze、原始输出、实际 5 个 web API 文件图及结果。
+
+每条命令预算 45s，Vitest workers=1/retries=0；Node 禁止监听和连接，schema 关闭外部 retrieval。所有命令实际 wait、adopted=0、两次 owned 清零、输入前后相同，Vitest context.close 已等待完成。两个实际 GET 联验均未启动后端/监听/browser，不将纯合成例当真实 HTTP；HEAD 空体属于 producer 单独断言。原资源轮次的 PID1 daemon zombie 未 wait 边界保持原样。
+
+限定前端四源兼容与两份实际 body 联验通过；全 S1 后端验收由主线程结合 summary_verification 结论决定，S2/S3、完整 D08/D09/E01 不在此结论中。证据写入与命令已停止。

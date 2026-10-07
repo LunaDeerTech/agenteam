@@ -1,0 +1,20 @@
+# Independent S1 A/B offline preparation (final Session-only input)
+
+Offline preparation PASS; no test body or resource execution. Candidate04 and frontend04 remain unchanged. Final probe source `33c6d5be6e03c6b563254e315d019a5bce4a5cf2e6f2e2addeb16a00417d525f`.
+
+A: a real two-owner model deletion, then four explicit persisted-command fault injections (old selector missing, unrelated role rewritten, reference version changed, safe receipt version changed), public lookup/replay rejection and exact original-row restoration/no additional effects. An old plan without new fields preserves its original loader behavior. The second subcase loses a real COMMIT ACK, formally logs out the current Session before private confirmation, checks original Unknown and zero receipt/current Session denial, then formally logs in the same User with a new Session and checks effect-free original-request replay. This proves Session revocation, not administrator-role changes.
+
+B: independently starts the fixed old producer binary, waits for its actual exit, validates schema1..19 and absent Summary table, preserves original SQL bytes through migration20 and historical replay, checks no invented Summary default, both directions of shared-key conflict, and old generic lookup of the new safe receipt. The other subcase exports a real Summary+memory deletion-impact GET body unchanged, with status, actual Content-Type, target ID, source run and SHA; HEAD must be empty. Same-body schema/strict-client verification remains pending actual evidence and the frontend verifier.
+
+The current final source uses the formally bootstrapped administrator and formal Logout/Login. Author auxiliary identity evidence uses fixed SQL-seeded users plus formal Login and actual DB Session/role checks; it does not prove account creation/invitation E2E. Explicit SQL corruption is fault injection, not authorization evidence. The original unexecuted SQL-role draft is retained as `probe-sql-role-unexecuted.txt`; root narrowed this probe before any test execution. Original compile01 failed on the probe's own incorrect PlatformSelectionState/error-code names; its raw evidence remains. compile02/03 passed before the Session-only revision; final relevant runs are below.
+
+Each offline command uses `offline.py` with 45s deadline, child 42s, actual subreaper/wait and two quiet tail observations. Final race compile04 passed, graph02 covers actual overlay imports/embed/test variants, list03 names exactly TestIndependentSummaryA/B, and hash-only input02 accepted3360 files with no drift. No Go test body was run. Driver-v02 only changes groups and GOFLAGS overlay from the reviewed author driver; monitors,120s per selected top,original6m package budget,exact seven resources,wait/two cleanup gates,5GiB preflight and PID1 zombie delta recording remain unchanged.
+
+Final run commands (NOT executed; root resource window required):
+
+```text
+python3 /workspace/scratch/summary-verification/S1-probes/driver-v02/driver.py --name independent-a01 --group new-independent-a --frozen /workspace/scratch/summary-verification/S1-probes/driver-v02/frozen.json --execute-authorized
+python3 /workspace/scratch/summary-verification/S1-probes/driver-v02/driver.py --name independent-b01 --group new-independent-b --frozen /workspace/scratch/summary-verification/S1-probes/driver-v02/frozen.json --execute-authorized
+```
+
+Run sequentially only after root grants the window; failure stops after actual cleanup, without automatic rerun. Final driver SHA `37dd864aee5ef307605522521416e108857874a2057569af51eb06cf5f825390`; frozen SHA `fbe256b0188f2134fdf0daa8254705997f1ca467a0e829163886cc27e1571112`; closure02 SHA `deb013754ec1d3df83ae9dcd7e01c4ee1d55aa5568ab2ccb236cd888610fd667`. Author closure05/static provenance is reused, and own actual graph02/overlay source additions are bound. Source/driver frozen; no active command/resource. This is preparation, not S1 acceptance.

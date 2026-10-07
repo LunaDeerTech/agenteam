@@ -1,0 +1,11 @@
+import net from "node:net";
+import dgram from "node:dgram";
+net.Server.prototype.listen = function () {
+  throw new Error("INDEPENDENT_OFFLINE_LISTENER_FORBIDDEN");
+};
+net.Socket.prototype.connect = function () {
+  throw new Error("INDEPENDENT_OFFLINE_NETWORK_FORBIDDEN");
+};
+dgram.Socket.prototype.bind = function () {
+  throw new Error("INDEPENDENT_OFFLINE_DATAGRAM_FORBIDDEN");
+};

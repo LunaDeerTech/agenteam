@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/meeting-summary-model-delete-compat/tools.mjs",
+    "build"
+  ],
+  "cwd": "/workspace/agenteam/web",
+  "env": {
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "TMPDIR": "/workspace/scratch/meeting-summary-model-delete-compat/f07-build/tmp",
+    "SUMMARY_FRONTEND_OUTPUT": "/workspace/scratch/meeting-summary-model-delete-compat/f07-build",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "npm_config_offline": "true"
+  },
+  "subreaper": true,
+  "budget_seconds": 45,
+  "frozen": "/workspace/scratch/meeting-summary-model-delete-compat/frozen04.json",
+  "frozen_sha256": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+  "started": 1791380002.5722518,
+  "pid": 143461,
+  "pid_starttime": "595440",
+  "exit": 0,
+  "finished": 1791380004.1699986,
+  "adopted_waits": [],
+  "forced_descendants": false,
+  "first_tail": [],
+  "second_tail": [],
+  "inputs_unchanged": true
+}

@@ -1,0 +1,12 @@
+作者层已完成并冻结；S1 最终接受仍待独立 A/B。生产基线为 root 固定的 `03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05`，旧升级生产输入固定 `6fa2ee721a75ea34a1ccd6523b8b25d68328c5b9`。candidate04 27 后端路径、已接受四契约及 frontend04 均未再改；README 未获写权，未改。
+
+- 固定输入：`candidate04.json` / `closure05.json` / `driver-v01/frozen.json`；精确指纹见各 manifest。旧 producer02 是固定 305 Git 源加 1 私有交接 helper，306 输入仅 helper 相较 v01 改动；旧生产没有注入候选逻辑。
+- 离线：Model race 48 top、contract pure/race 各 31 top、race vet、两 cmd build、integration race compile 和精确新6/旧12 list 通过；每命令≤45s，subreaper/direct/adopted 实际 wait、双清。原始失败保留在 `offline04-summary.json`：错误 package cwd/SQL matcher panic，测试零 Digest/Version 的 JSON 编码错误，以及错误 cmd/runner 参数。
+- 独审发现的实质缺陷已修并冻入 candidate03/04：新 Summary 删除持久计划完整闭合旧/新 owner 的 before/after、精确引用、receipt/metadata；新分支 safe_receipt 必须与 plan/行一致。旧无新字段路径不变。旧升级改私有数据 DTO，拒绝反解 Actor/Scope 等 authority；History 用 []byte 无损保存原 SQL 字节。
+- 真实四轮均 actual exit0：new1 100.839s（schema/selection）、new2 66.065s（replacement/四种真实 COMMIT Unknown）、new3 55.981s（现有 HTTP/真正跨旧二进制升级）、old1 87.618s（旧12）。新6各 top 小于120s，包沿6m；每轮7资源、完整 Mount/labels baseline、精确ID双清、owned进程/runtime空、源码和验证输入前后一致、adopted waits0、强退0。
+- 主管理员来自正式 Bootstrap/login。辅助 addBrowser 为 SQL seed User 后正式 Login；schema base.human 是固定 SQL fixture，不宣称辅助身份创建/邀请 E2E。旧 producer 的三个 accepted 命令只用旧正式 Bootstrap/login 主管理员。
+- new3 实际旧 producer PID189948 exit0/Wait 后才检查1..19并迁移20；9条 commands、15条 audit、10条 events 原SQL字节/hash在升级及双owner替换后保持，原三请求历史回执可重放。0600 handoff 解码后删除，临时目录由测试清理；敏感身份/请求不存公共证据。
+- 真实 HTTP 安全 body 在 `driver-v01/runs/new3/safe-http-evidence/summary-deletion-impact.json`，SHA256 `2ccad1b1d55edc0c496d3de87767bfe30db4376b1813b9f959b1453a76066242`；相邻 source 文件保留实际 method/path/status/Content-Type/ModelID。已交前端独审同输入解析；handler+PG 证据不冒 native网络/browser。
+- 按固定 PID/starttime 集合：new1 baseline有24个 PID1 shimZ；四作者轮各新增4，共16；old1最后cleanup总40。均由daemon产生、非任务 owned、未wait/未signal。后继独立轮不在此统计。
+
+`author-final04.json` SHA256 `fae66a8f504b7e7c03f4af35c91cc18361c761100984e669dd7fc6bce60f7d2b` 绑定四轮原始 command/raw/result/watchdog/cleanup/input/resource/process 证据。作者已经停止全部源写入、命令与自有资源并交还窗口。S2/S3、默认根绑定、Meeting 消费、ready503、完整 D09/E01 及三个停止任务均不在本结果。

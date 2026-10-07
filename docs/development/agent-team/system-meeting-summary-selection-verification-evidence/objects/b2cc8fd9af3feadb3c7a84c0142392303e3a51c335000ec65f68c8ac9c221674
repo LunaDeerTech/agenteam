@@ -1,0 +1,9 @@
+已恢复唯一缺失的非 optional 依赖 go-captcha-vue 2.0.7，新增目标为 /workspace/agenteam/web/node_modules/go-captcha-vue。只恢复环境依赖，未运行应用、单元测试、类型检查或浏览器。
+
+web/package-lock.json 为 npm lockfileVersion3；原171个包条目中145个已装版本均匹配，缺失26项，其中25项是其它平台/libc的 optional 包，唯一必需缺项为 go-captcha-vue。它的整个目录与 hidden lock 条目均不存在，并非坏链接；现有快照遗漏此依赖，但没有证据确定遗漏发生的历史原因。默认 npm cache 不存在，未扫描其它缓存或凭据。
+
+恢复来源仅为锁定官方 URL https://registry.npmjs.org/go-captcha-vue/-/go-captcha-vue-2.0.7.tgz。下载23703字节，SHA256为5f759f7c89ec8b8c69df34b96fa5faa1abaf272523128e5902295ff4a1fb403e，SHA512与锁内 integrity 完整匹配。归档48个普通文件、展开110964字节，均在 package/ 下，无路径穿越、符号链接、硬链接或特殊成员；包名/版本/入口存在，只有Vue>=3 peer且本地Vue3.5.43满足，未增加运行依赖。
+
+归档先解压到本任务 scratch，再以 renameat2(RENAME_NOREPLACE) 原子新增原本不存在的目录，安装48文件逐项hash相等。package.json、package-lock.json及node_modules/.package-lock.json三者字节未变，既有145包metadata hash与其它顶层目录项未变；hidden lock有意不改。恢复后146个已装版本与锁匹配，非optional缺件为0，剩余25项未动。未运行 npm ci/install、包脚本或任何产品代码，未修改旧Usage证据。
+
+首轮最小环境未透传代理，curl实际exit6/DNS失败且无文件写入，原raw/meta保留。root补充授权后，仅透传已有标准代理环境，同URL第二轮curl实际exit0/HTTP200，用时0.265秒；代理值未输出或归档。两轮均实际wait、adopted0及两次自有进程组清零。所有命令已停止。精确输入、缺件清单、下载原件/命令、归档成员hash和安装结果见result.json引用。

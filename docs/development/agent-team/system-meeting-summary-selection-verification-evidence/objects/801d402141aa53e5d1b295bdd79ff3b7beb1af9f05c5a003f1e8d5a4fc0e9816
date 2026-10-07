@@ -1,0 +1,52 @@
+from pathlib import Path
+import ctypes,hashlib,importlib.util,json,os,signal,subprocess,sys,time
+B=Path('/workspace/scratch/summary-frontend-verification/http01');A=Path('/workspace/scratch/meeting-summary-model-delete-compat');W=Path('/workspace/agenteam/web');NODE='/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node'
+spec=importlib.util.spec_from_file_location('accepted_input',A/'input.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+freeze=json.loads((B/'freeze.json').read_text());assert sha(A/'frozen04.json')==freeze['author_frozen_sha256'];expected=json.loads((A/'frozen04.json').read_text())
+label,mode=sys.argv[1:];out=B/label;out.mkdir(exist_ok=False);(out/'tmp').mkdir()
+def check():
+ assert module.snapshot()==expected,'author source/config/package drift'
+ values={n:sha(B/n) for n in freeze['own']};assert values==freeze['own'],'private input drift'
+ origins={p:sha(p) for p in freeze['origins']};assert origins==freeze['origins'],'HTTP/schema provenance drift'
+ return {'origins':origins,'author_frozen_sha256':sha(A/'frozen04.json'),'own':values,'node_sha256':sha(NODE)}
+before=check();env={'PATH':str(Path(NODE).parent)+':/usr/bin:/bin','HOME':'/home/agent','TMPDIR':str(out/'tmp'),'SUMMARY_VERIFY_OUTPUT':str(out),'CI':'1','NO_COLOR':'1','TZ':'UTC','LANG':'C.UTF-8','npm_config_offline':'true'}
+command=[NODE,str(W/'node_modules/prettier/bin/prettier.cjs'),'--write',str(B/'independent.spec.ts'),str(B/'tools.mjs'),str(B/'guard.mjs')] if mode=='format' else ([sys.executable,str(B/'schema.py')] if mode=='schema' else [NODE,'--import',str(B/'guard.mjs'),str(B/'tools.mjs'),mode])
+assert mode in ['format','list','pure','schema'];assert ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0)==0
+record={'label':label,'command':command,'cwd':str(W),'env':env,'before':before,'subreaper':True,'budget_seconds':45,'started':time.time()}
+def stat(pid):
+ try:
+  p=Path(f'/proc/{pid}/stat').read_text().rsplit(') ',1)[1].split();return {'pid':int(pid),'starttime':p[19],'ppid':int(p[1]),'pgrp':int(p[2]),'state':p[0]}
+ except OSError:return None
+def tail(pg):return [s for p in Path('/proc').iterdir() if p.name.isdigit() and (s:=stat(p.name)) and (s['ppid']==os.getpid() or s['pgrp']==pg)]
+for n in ['tcp','tcp6']:(out/('before-'+n+'.raw')).write_bytes(Path('/proc/net/'+n).read_bytes())
+with (out/'raw.log').open('wb') as f:
+ p=subprocess.Popen(command,cwd=W,env=env,stdout=f,stderr=subprocess.STDOUT,start_new_session=True);record['child']=stat(p.pid)
+ try:code=p.wait(timeout=45)
+ except subprocess.TimeoutExpired:
+  record['timeout']=True;os.killpg(p.pid,signal.SIGTERM)
+  try:code=p.wait(timeout=3)
+  except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);code=p.wait()
+record.update(actual_exit=code,actual_wait=True,seconds=time.time()-record['started']);adopted=[];deadline=time.monotonic()+3;forced=False
+while True:
+ try:pid,status=os.waitpid(-1,os.WNOHANG)
+ except ChildProcessError:break
+ if pid:adopted.append({'pid':pid,'status':status,'actual_wait':True});continue
+ if time.monotonic()>deadline:
+  if forced:raise RuntimeError('owned tail failed actual termination')
+  try:os.killpg(p.pid,signal.SIGKILL)
+  except ProcessLookupError:pass
+  forced=True;deadline=time.monotonic()+3
+ time.sleep(.02)
+record['adopted_waits']=adopted;record['forced_tail']=forced;record['cleanup']=[]
+for i in range(2):
+ record['cleanup'].append({'time':time.time(),'owned':tail(p.pid),'direct':stat(p.pid)})
+ for n in ['tcp','tcp6']:(out/f'after-{i+1}-{n}.raw').write_bytes(Path('/proc/net/'+n).read_bytes())
+ if i==0:time.sleep(.1)
+if mode=='format':
+ assert module.snapshot()==expected
+ record['after_private']={n:sha(B/n) for n in freeze['own']};record['product_unchanged']=True
+else:record['after']=check();record['input_unchanged']=record['after']==before
+record['raw_sha256']=sha(out/'raw.log');(out/'command.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps({'label':label,'exit':code,'seconds':record['seconds'],'adopted':adopted,'double_owned_zero':all(not r['owned'] and r['direct'] is None for r in record['cleanup']),'input_unchanged':record.get('input_unchanged'),'private_format':mode=='format'}))
+if record.get('timeout') or forced or any(r['owned'] or r['direct'] is not None for r in record['cleanup']):sys.exit(125)
+sys.exit(code if code>=0 else 128-code)

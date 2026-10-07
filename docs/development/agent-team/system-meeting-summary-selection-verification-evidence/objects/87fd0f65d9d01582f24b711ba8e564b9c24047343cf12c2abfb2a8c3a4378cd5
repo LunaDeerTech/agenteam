@@ -1,0 +1,13 @@
+四源独立 STATIC/PURE 限定通过，绑定作者 frozen04 SHA256051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0。真实后端HTTP同body→候选client/schema这一项仍待验，不能据此宣称S1整体或S2前端完成。
+
+产品仅两处窄兼容：strict闭集增加platform_selector/meeting_summary(required)，组数上限7→8；删除dialog增加“系统会议 Summary 模型”标签。排序、未知组合拒绝、总数精度、required与unbound推导均沿旧规则。现有composable与固定03a4a0b8逐字相同，json_schema只由精确platform_selector/memory触发；没有新增设置流程、接口、owner或恢复分支。旧project_summary仍为不同标签及unbound。
+
+作者格式、三spec共239项、类型及构建原始hash已核，实际0/输入不变/双尾清零。独立最终p05实际0/1.777s，全5项通过：枚举256合法闭集子集；八组10000边界与非法计数；unknown/跨配对/缺字段/额外字段/required和blocker矛盾/重复/乱序/第九组拒绝；公开Session/controller和实际DeleteDialog在Summary-only接受plain替代且禁止clear，重新读取加入memory后撤销原plain选择并要求json_schema；旧Project Summary与新组共存时仍阻断。26个实际变换源码（含私有probe）与已冻结输入逐项匹配，工具和146个包复用作者指纹，无大图复刻。
+
+首轮p03为4通过1失败，原因是私有按钮选择器使用完整textContent而纳入aria-hidden状态文本；原probe、freeze、raw与actualexit1保留。只修私有helper按可访问文本选择，产品未动。p05已全5跑完后收到root建议仅重跑受影响一例的收窄消息，报告按实际全5通过，不改写成组合接受。作者两次格式首红亦保留。
+
+所有命令45秒封顶，Vitestworkers1/retries0、无API/HMR/WS、缓存仅scratch，实际context.close、subreaper/direct wait、adopted0与两次自有进程清零。Node guard拒绝listen/connect/bind；Fetch全部为合成响应，未运行服务、浏览器或真实HTTP。此处“重新读取”是纯客户端受控读取，不是后端事实证据。
+
+真实同输入接缝已与summary_verification对齐：由其真实GET产生安全body原字节与SHA、status/Content-Type、targetID、来源run/共同freeze；我随后将同字节送公开createSystemModelAPI(fetcher).getDeletionImpact，不导出私有parser或先parse/stringify重编码。OpenAPI及local refs须等后端共同冻结，HEAD空body另核。当前该项PENDING，尚未读取活动schema形成结论。
+
+本轮仅写本scratch，未改产品、依赖或旧Usage/恢复证据。全部命令停止；offline-result.json记录源/hash、原始命令、图与剩余边界。

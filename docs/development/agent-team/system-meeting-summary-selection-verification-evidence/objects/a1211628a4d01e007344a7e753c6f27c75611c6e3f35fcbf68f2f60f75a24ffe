@@ -1,0 +1,108 @@
+package model
+
+import (
+	"encoding/json"
+	"strings"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+func TestModelMeetingSummarySemanticAndLegacyBytes(t *testing.T) {
+	user, _ := f.ParseID[id.User]("018f0000-0000-7000-8000-000000000001")
+	session, _ := f.ParseID[id.Session]("018f0000-0000-7000-8000-000000000002")
+	actor, _ := id.NewHuman(user, session)
+	model, _ := f.ParseID[mc.Model]("018f0000-0000-7000-8000-000000000003")
+	resource := "018f0000-0000-7000-8000-000000000004"
+	r := commandRequest{Meta: mc.CommandMeta{Actor: actor, Scope: id.SystemScope(), Key: "shared-key"}, Kind: "model.selection.update", Resource: resource, Expected: 9007199254740993, MeetingSummary: &model}
+	want, e := cursor.Digest([]byte(`{"format":"model-meeting-summary-command-v1","user":"018f0000-0000-7000-8000-000000000001","kind":"model.selection.update","resource":"018f0000-0000-7000-8000-000000000004","expected_version":"9007199254740993","model":"018f0000-0000-7000-8000-000000000003"}`))
+	if e != nil {
+		t.Fatal(e)
+	}
+	got, e := commandSemantic(r)
+	if e != nil || got != want {
+		t.Fatal("new semantic wire changed", e)
+	}
+	same := r
+	same.Meta.Actor, _ = id.NewHuman(user, mustID[id.Session](t))
+	again, e := commandSemantic(same)
+	if e != nil || again != got {
+		t.Fatal("session entered stable semantic")
+	}
+	legacy := r
+	legacy.MeetingSummary = nil
+	legacy.Selection = &mc.PlatformSelection{ID: resource, Version: r.Expected, Embedding: model, Memory: model}
+	old, e := commandSemantic(legacy)
+	if e != nil {
+		t.Fatal(e)
+	}
+	oldWant, e := cursor.Digest([]byte(`{"Format":"model-command-v1","User":"018f0000-0000-7000-8000-000000000001","Kind":"model.selection.update","Resource":"018f0000-0000-7000-8000-000000000004","Provider":"","Expected":"9007199254740993","ProviderInput":null,"ModelInput":null,"Selection":{"id":"018f0000-0000-7000-8000-000000000004","version":"9007199254740993","embedding":"018f0000-0000-7000-8000-000000000003","memory":"018f0000-0000-7000-8000-000000000003","reranker":null,"image":null},"Replacement":""}`))
+	if e != nil || old != oldWant || old == got {
+		t.Fatal("legacy command-v1 changed")
+	}
+	ci, _ := commandIdentity(r.Meta, r.Kind)
+	oldCI, _ := commandIdentity(legacy.Meta, legacy.Kind)
+	if ci.Canonical() != oldCI.Canonical() {
+		t.Fatal("new selector invented an independent key namespace")
+	}
+	for _, edit := range []func(*commandRequest){func(r *commandRequest) { r.Kind = "model.update" }, func(r *commandRequest) { r.Selection = legacy.Selection }, func(r *commandRequest) { r.Provider = resource }, func(r *commandRequest) { r.Replacement = model.String() }, func(r *commandRequest) { r.Expected = 0 }} {
+		bad := r
+		edit(&bad)
+		_, e = commandSemantic(bad)
+		requireCode(t, e, f.InvalidArgument)
+	}
+	raw, _ := json.Marshal(mutationPlan{})
+	if strings.Contains(string(raw), "MeetingSummary") {
+		t.Fatal("old mutation plan gained serialized fields")
+	}
+	var p mutationPlan
+	if e = decodeMeetingSummaryPlan(raw, &p); e != nil {
+		t.Fatal("old plan rejected", e)
+	}
+}
+func summaryPlanFixture(t *testing.T) mutationPlan {
+	at, _ := f.NewInstant(time.Now())
+	key := mustID[struct{}](t).String()
+	modelID, providerID := mustID[mc.Model](t).String(), mustID[mc.Provider](t).String()
+	m := modelRecord{ID: modelID, ProviderID: providerID, Version: 1, CreatedAt: at, UpdatedAt: at, Input: mc.ModelInput{Name: "plain text", ProviderModelID: "plain", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), HeaderOverwrite: map[string]string{}}}
+	provider := providerRecord{ID: providerID, Input: providerInput{Name: "provider", Protocol: mc.OpenAIChat, BaseURL: "https://provider.example/v1", Enabled: true, Options: json.RawMessage(`{}`)}, Version: 1, CreatedAt: at, UpdatedAt: at}
+	return mutationPlan{Kind: "model.selection.update", Resource: key, BeforeMeetingSummary: &meetingSummaryRecord{ID: key, Version: 1, UpdatedAt: at}, AfterMeetingSummary: &meetingSummaryRecord{ID: key, Version: 2, Model: modelID, UpdatedAt: at}, At: at, Models: []modelRecord{m}, Providers: []providerRecord{provider}, References: []referenceRecord{}, Receipt: mc.CommandReceipt{Kind: "model.selection.update", ResourceID: key, Version: 2}, Metadata: ac.ModelMetadataFields{SelectionID: key, SelectorKind: "platform", Version: 2, ChangedFields: []string{"selection"}}, Changed: []string{"selection"}}
+}
+func TestModelMeetingSummaryPlanClosedBranch(t *testing.T) {
+	p := summaryPlanFixture(t)
+	if e := validateMeetingSummaryPlan(&p); e != nil {
+		t.Fatal(e)
+	}
+	for name, edit := range map[string]func(*mutationPlan){
+		"missing-before": func(p *mutationPlan) { p.BeforeMeetingSummary = nil }, "missing-after": func(p *mutationPlan) { p.AfterMeetingSummary = nil },
+		"clear": func(p *mutationPlan) { p.AfterMeetingSummary.Model = "" }, "wrong-version": func(p *mutationPlan) { p.AfterMeetingSummary.Version++ },
+		"wrong-id": func(p *mutationPlan) { p.AfterMeetingSummary.ID = mustID[struct{}](t).String() }, "old-selection-mixed": func(p *mutationPlan) { p.BeforeSelection = &selectionRecord{} },
+		"provider-mixed": func(p *mutationPlan) { p.BeforeProvider = &p.Providers[0] }, "project": func(p *mutationPlan) { p.Project = mustID[id.Project](t).String() },
+		"disabled": func(p *mutationPlan) { p.Models[0].Input.Enabled = false }, "wrong-provider": func(p *mutationPlan) { p.Providers[0].Input.Enabled = false },
+		"wrong-receipt": func(p *mutationPlan) { p.Receipt.Version++ }, "wrong-kind": func(p *mutationPlan) { p.Kind = "model.update" },
+	} {
+		t.Run(name, func(t *testing.T) {
+			candidate := summaryPlanFixture(t)
+			edit(&candidate)
+			requireCode(t, validateMeetingSummaryPlan(&candidate), f.DependencyUnavailable)
+		})
+	}
+	raw, _ := json.Marshal(p)
+	var roundtrip mutationPlan
+	if json.Unmarshal(raw, &roundtrip) != nil {
+		t.Fatal("plan JSON")
+	}
+	if e := decodeMeetingSummaryPlan(raw, &roundtrip); e != nil {
+		t.Fatal(e)
+	}
+	for _, raw := range []string{`{"BeforeMeetingSummary":null}`, `{"BeforeMeetingSummary":{},"AfterMeetingSummary":null}`, `{"beforemeetingsummary":{}}`} {
+		var v mutationPlan
+		_ = json.Unmarshal([]byte(raw), &v)
+		requireCode(t, decodeMeetingSummaryPlan([]byte(raw), &v), f.DependencyUnavailable)
+	}
+}

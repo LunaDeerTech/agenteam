@@ -1,0 +1,414 @@
+//go:build integration
+
+package model_test
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"io"
+	"net"
+	"net/http"
+	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"sync"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/model"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+)
+
+// These probes use formal service calls and real fixture PG rows; only explicit
+// corruption cases edit a persisted command, restoring its original bytes.
+func TestIndependentSummaryA(t *testing.T) {
+	t.Run("stored_plan_receipt_and_dual_owner", independentSummaryStored)
+	t.Run("committed_unknown_then_current_admin_revoked", independentSummaryUnknown)
+}
+
+func independentSummaryStored(t *testing.T) {
+	v := newMeetingSummaryFixture(t, true)
+	target, next := v.chat(t, true), v.chat(t, true)
+	legacy := v.setMemory(t, target)
+	v.selectModel(t, target)
+	req := mc.DeleteModelRequest{CommandMeta: v.meta(t, "independent-dual-delete"), ID: target, ExpectedVersion: 1, Replacement: &next}
+	receipt, e := v.service.DeleteModel(testContext(t), req)
+	if e != nil || receipt.AffectedReferences != 2 {
+		t.Fatal("dual owner delete", e)
+	}
+	summary := v.summary(t)
+	platform, e := v.service.GetPlatformSelection(testContext(t), v.admin)
+	if e != nil || summary.Model == nil || *summary.Model != next || platform.Configured == nil || platform.Configured.Memory != next || platform.Version != legacy.ExpectedVersion+2 {
+		t.Fatal("both canonical owners not advanced exactly", e)
+	}
+	identity, e := f.NewCommandIdentity("model.system", []string{v.admin.Details().UserID}, "model.delete", req.Key)
+	if e != nil {
+		t.Fatal(e)
+	}
+	var originalPlan, originalReceipt []byte
+	if e = v.raw.QueryRow(testContext(t), `SELECT mutation_plan,safe_receipt FROM agenteam_model.commands WHERE command_identity=$1`, identity.Canonical()).Scan(&originalPlan, &originalReceipt); e != nil {
+		t.Fatal(e)
+	}
+	write := func(plan, receipt []byte) {
+		t.Helper()
+		if _, e := v.raw.Exec(testContext(t), `UPDATE agenteam_model.commands SET mutation_plan=$1,safe_receipt=$2 WHERE command_identity=$3`, plan, receipt, identity.Canonical()); e != nil {
+			t.Fatal(e)
+		}
+	}
+	t.Cleanup(func() { write(originalPlan, originalReceipt) })
+	baseline := v.summaryFacts(t)
+	for _, mode := range []string{"old_owner_missing", "unchanged_role_rewritten", "reference_wrong_version", "receipt_version"} {
+		t.Run(mode, func(t *testing.T) {
+			var plan map[string]any
+			if json.Unmarshal(originalPlan, &plan) != nil {
+				t.Fatal("plan decode")
+			}
+			safe := append([]byte(nil), originalReceipt...)
+			switch mode {
+			case "old_owner_missing":
+				delete(plan, "AfterSelection")
+			case "unchanged_role_rewritten":
+				plan["AfterSelection"].(map[string]any)["Embedding"] = next.String()
+			case "reference_wrong_version":
+				plan["References"].([]any)[0].(map[string]any)["Version"] = "999"
+			case "receipt_version":
+				changed := receipt
+				changed.Version++
+				safe = summaryJSON(t, changed)
+			}
+			write(summaryJSON(t, plan), safe)
+			got, e := v.service.LookupCommand(testContext(t), model.LookupCommandRequest{Meta: req.CommandMeta, Command: "model.delete"})
+			requireCode(t, e, f.DependencyUnavailable)
+			if got.Found || got.Receipt != nil {
+				t.Fatal("bad stored command leaked receipt")
+			}
+			again, e := v.service.DeleteModel(testContext(t), req)
+			requireCode(t, e, f.DependencyUnavailable)
+			if again != (mc.CommandReceipt{}) {
+				t.Fatal("bad replay leaked receipt")
+			}
+			write(originalPlan, originalReceipt)
+			httpSameFacts(t, baseline, v.summaryFacts(t))
+		})
+	}
+	// Old plans have no Summary discriminator: an unused embedded receipt does
+	// not override the original safe receipt, preserving the historical loader.
+	oldID, _ := f.NewCommandIdentity("model.system", []string{v.admin.Details().UserID}, "model.selection.update", legacy.Key)
+	var oldPlan []byte
+	if e = v.raw.QueryRow(testContext(t), `SELECT mutation_plan FROM agenteam_model.commands WHERE command_identity=$1`, oldID.Canonical()).Scan(&oldPlan); e != nil {
+		t.Fatal(e)
+	}
+	var p map[string]any
+	if json.Unmarshal(oldPlan, &p) != nil {
+		t.Fatal("old plan decode")
+	}
+	if _, ok := p["BeforeMeetingSummary"]; ok {
+		t.Fatal("legacy discriminator present")
+	}
+	p["Receipt"].(map[string]any)["version"] = "999"
+	if _, e = v.raw.Exec(testContext(t), `UPDATE agenteam_model.commands SET mutation_plan=$1 WHERE command_identity=$2`, summaryJSON(t, p), oldID.Canonical()); e != nil {
+		t.Fatal(e)
+	}
+	old, e := v.service.UpdatePlatformSelection(testContext(t), legacy)
+	if _, restore := v.raw.Exec(testContext(t), `UPDATE agenteam_model.commands SET mutation_plan=$1 WHERE command_identity=$2`, oldPlan, oldID.Canonical()); restore != nil {
+		t.Fatal(restore)
+	}
+	if e != nil || old.ResourceID != legacy.Selection.ID || old.Version != legacy.ExpectedVersion+1 {
+		t.Fatal("legacy loader changed", e)
+	}
+	httpSameFacts(t, baseline, v.summaryFacts(t))
+}
+
+func independentSummaryUnknown(t *testing.T) {
+	base := newMeetingSummaryFixture(t, true)
+	target := base.chat(t, false)
+	request := base.choice(t, target)
+	identity, _ := f.NewCommandIdentity("model.system", []string{base.admin.Details().UserID}, "model.selection.update", request.Key)
+	trace := newProjectModelPGTrace(t, net.JoinHostPort("127.0.0.1", base.db.Fixture.Port))
+	u, e := url.Parse(base.db.Fixture.URL(base.db.Name))
+	if e != nil {
+		t.Fatal(e)
+	}
+	u.Host = trace.listener.Addr().String()
+	raw := openStore(t, base.db.Config(t, map[string]string{"URL": u.String(), "TLS_MODE": "disable"}))
+	writer := &meetingSummaryCommitStore{Store: raw, target: identity.Canonical(), arm: func() { trace.dropCommitACK.Store(true) }, reached: make(chan struct{}), release: make(chan struct{})}
+	candidate := assemble(t, base.db, raw, writer)
+	candidate.admin = base.admin
+	var once sync.Once
+	release := func() { once.Do(func() { close(writer.release) }) }
+	t.Cleanup(release)
+	ctx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
+	defer cancel()
+	type response struct {
+		receipt mc.CommandReceipt
+		err     error
+	}
+	done := make(chan response, 1)
+	joined := false
+	t.Cleanup(func() {
+		release()
+		cancel()
+		if !joined {
+			select {
+			case <-done:
+				joined = true
+			case <-time.After(2 * time.Second):
+				t.Error("failed probe did not join its command goroutine")
+			}
+		}
+	})
+	go func() { r, e := candidate.service.UpdateMeetingSummarySelection(ctx, request); done <- response{r, e} }()
+	waitSignal(t, trace.ackDropped)
+	waitSignal(t, writer.reached)
+	base.role(t, base.adminBrowser, "user")
+	release()
+	var got response
+	select {
+	case got = <-done:
+		joined = true
+	case <-ctx.Done():
+		t.Fatal("writer did not join")
+	}
+	writer.mu.Lock()
+	original := writer.original
+	writer.mu.Unlock()
+	var unknown *model.UnknownCommandError
+	if !errors.As(got.err, &unknown) || got.receipt != (mc.CommandReceipt{}) || original.State() != f.Unknown || unknown.AttemptID() != original.AttemptID() || unknown.Cause().Details().Primary.Canonical() != identity.Canonical() {
+		t.Fatal("revoked confirmation lost original Unknown", got.err)
+	}
+	lookup, e := base.service.LookupCommand(testContext(t), model.LookupCommandRequest{Meta: request.CommandMeta, Command: "model.selection.update"})
+	requireCode(t, e, f.Forbidden)
+	if lookup.Found || lookup.Receipt != nil {
+		t.Fatal("revoked lookup leaked receipt")
+	}
+	base.role(t, base.adminBrowser, "admin")
+	before := base.summaryFacts(t)
+	accepted, e := base.service.UpdateMeetingSummarySelection(testContext(t), request)
+	if e != nil || accepted.Version != request.ExpectedVersion+1 {
+		t.Fatal("accepted write not replayed after restored authority", e)
+	}
+	httpSameFacts(t, before, base.summaryFacts(t))
+	if current := base.summary(t); current.Model == nil || *current.Model != target {
+		t.Fatal("real commit disappeared")
+	}
+	t.Log("actual COMMIT ACK lost; original Unknown survived current-admin denial; goroutine joined; restored authority replay had no effects")
+}
+
+func TestIndependentSummaryB(t *testing.T) {
+	t.Run("fixed_old_binary_and_original_history", independentSummaryUpgrade)
+	t.Run("same_http_body_summary_and_memory", independentSummaryHTTP)
+}
+
+func independentSummaryUpgrade(t *testing.T) {
+	binary, want := os.Getenv("AGENTEAM_MEETING_SUMMARY_OLD_BINARY"), os.Getenv("AGENTEAM_MEETING_SUMMARY_OLD_SHA256")
+	data, e := os.ReadFile(binary)
+	if e != nil {
+		t.Fatal("old binary missing")
+	}
+	sum := sha256.Sum256(data)
+	clear(data)
+	if !filepath.IsAbs(binary) || hex.EncodeToString(sum[:]) != want {
+		t.Fatal("unbound old binary")
+	}
+	db := pgfixture.NewDatabase(t)
+	dir := t.TempDir()
+	if e = os.Chmod(dir, 0700); e != nil {
+		t.Fatal(e)
+	}
+	path := filepath.Join(dir, "private.json")
+	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, binary, "-test.run=^TestMeetingSummaryOldProducer$", "-test.timeout=85s", "-test.v")
+	cmd.Dir = dir
+	cmd.Env = append(os.Environ(), "AGENTEAM_MEETING_SUMMARY_OLD_DATABASE="+db.Name, "AGENTEAM_MEETING_SUMMARY_OLD_HANDOFF="+path)
+	var out, errout bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &errout
+	if e = cmd.Start(); e != nil {
+		t.Fatal(e)
+	}
+	e = cmd.Wait()
+	t.Logf("old producer actual exit=%d stdout_sha256=%x stderr_sha256=%x", cmd.ProcessState.ExitCode(), sha256.Sum256(out.Bytes()), sha256.Sum256(errout.Bytes()))
+	if e != nil {
+		t.Fatal("old binary failed", e)
+	}
+	stat, e := os.Stat(path)
+	if e != nil || stat.Mode().Perm() != 0600 {
+		t.Fatal("private handoff mode")
+	}
+	raw, e := os.ReadFile(path)
+	if e != nil {
+		t.Fatal(e)
+	}
+	var h meetingSummaryOldHandoff
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.DisallowUnknownFields()
+	if e = dec.Decode(&h); e != nil {
+		t.Fatal("handoff decode")
+	}
+	var tail any
+	if dec.Decode(&tail) != io.EOF {
+		t.Fatal("handoff trailing")
+	}
+	clear(raw)
+	if e = os.Remove(path); e != nil {
+		t.Fatal(e)
+	}
+	conn := db.Connect(t)
+	var count, max int
+	var absent bool
+	if e = conn.QueryRow(testContext(t), `SELECT count(*),max(version),to_regclass('agenteam_model.meeting_summary_selection') IS NULL FROM agenteam_meta.migration_journal WHERE state='applied'`).Scan(&count, &max, &absent); e != nil || count != 19 || max != 19 || !absent {
+		t.Fatal("not old schema1..19", e)
+	}
+	if len(h.History) != 3 || h.Selection.Scope != "system" || h.Provider.Scope != "system" || h.Model.Scope != "system" || h.Model.Replacement != nil || h.Provider.Replacement != nil {
+		t.Fatal("handoff shape")
+	}
+	history := func() {
+		t.Helper()
+		for _, table := range []string{"agenteam_model.commands", "agenteam_audit.audit_records", "agenteam_outbox.events"} {
+			old, ok := h.History[table]
+			if !ok {
+				t.Fatal("history table")
+			}
+			var rows map[string]json.RawMessage
+			if json.Unmarshal(old, &rows) != nil || len(rows) == 0 {
+				t.Fatal("history raw")
+			}
+			ids := make([]string, 0, len(rows))
+			for key := range rows {
+				if _, e = f.ParseID[struct{}](key); e != nil {
+					t.Fatal("history ID")
+				}
+				ids = append(ids, key)
+			}
+			var now []byte
+			if e = conn.QueryRow(testContext(t), `SELECT coalesce(jsonb_object_agg(id::text,to_jsonb(r)),'{}'::jsonb) FROM `+table+` r WHERE id::text=ANY($1)`, ids).Scan(&now); e != nil || !bytes.Equal(old, now) {
+				t.Fatal("old original SQL bytes changed", table, e)
+			}
+			t.Logf("old rows table=%s count=%d sha256=%x", table, len(rows), sha256.Sum256(old))
+		}
+	}
+	history()
+	migrateModel(t, modelMigrator(t, db, modelMigrationFiles(t, "00020")), 20)
+	history()
+	store := openStore(t, db.Config(t, nil))
+	v := assemble(t, db, store, store)
+	user, e := f.ParseID[id.User](h.User)
+	if e != nil {
+		t.Fatal(e)
+	}
+	session, e := f.ParseID[id.Session](h.Session)
+	if e != nil {
+		t.Fatal(e)
+	}
+	actor, e := id.NewHuman(user, session)
+	if e != nil {
+		t.Fatal(e)
+	}
+	v.admin = actor
+	meta := func(key string) mc.CommandMeta {
+		return mc.CommandMeta{Actor: actor, Scope: id.SystemScope(), Key: f.IdempotencyKey(key)}
+	}
+	old := mc.UpdatePlatformSelectionRequest{CommandMeta: meta(h.Selection.Key), ExpectedVersion: h.Selection.ExpectedVersion, Selection: h.Selection.Selection}
+	if old.Validate() != nil {
+		t.Fatal("old request")
+	}
+	replay, e := v.service.UpdatePlatformSelection(testContext(t), old)
+	if e != nil || replay != h.SelectionReceipt {
+		t.Fatal("original selection changed", e)
+	}
+	for _, r := range []struct {
+		kind    string
+		d       meetingSummaryOldDelete
+		receipt mc.CommandReceipt
+	}{{"provider.delete", h.Provider, h.ProviderReceipt}, {"model.delete", h.Model, h.ModelReceipt}} {
+		if r.receipt.Validate() != nil {
+			t.Fatal("receipt")
+		}
+		got, e := v.service.LookupCommand(testContext(t), model.LookupCommandRequest{Meta: meta(r.d.Key), Command: r.kind})
+		if e != nil || !got.Found || got.Receipt == nil || *got.Receipt != r.receipt {
+			t.Fatal("original delete receipt lookup", e)
+		}
+	}
+	if e = v.service.InitializeMeetingSummarySelection(testContext(t)); e != nil {
+		t.Fatal(e)
+	}
+	current, e := v.service.GetMeetingSummarySelection(testContext(t), actor)
+	if e != nil || current.Model != nil || current.Version != 1 {
+		t.Fatal("upgrade invented summary default", e)
+	}
+	req := mc.UpdateMeetingSummarySelectionRequest{CommandMeta: old.CommandMeta, SelectionID: current.ID, ExpectedVersion: current.Version, Model: old.Selection.Memory}
+	_, e = v.service.UpdateMeetingSummarySelection(testContext(t), req)
+	requireCode(t, e, f.IdempotencyKeyReused)
+	req.Key = "independent-new-summary"
+	accepted, e := v.service.UpdateMeetingSummarySelection(testContext(t), req)
+	if e != nil {
+		t.Fatal(e)
+	}
+	collision := old
+	collision.Key = req.Key
+	_, e = v.service.UpdatePlatformSelection(testContext(t), collision)
+	requireCode(t, e, f.IdempotencyKeyReused)
+	lookup, e := v.service.LookupCommand(testContext(t), model.LookupCommandRequest{Meta: req.CommandMeta, Command: "model.selection.update"})
+	if e != nil || !lookup.Found || lookup.Receipt == nil || *lookup.Receipt != accepted {
+		t.Fatal("old generic lookup of summary", e)
+	}
+	replay, e = v.service.UpdatePlatformSelection(testContext(t), old)
+	if e != nil || replay != h.SelectionReceipt {
+		t.Fatal("summary altered historical selection", e)
+	}
+	history()
+}
+
+func independentSummaryHTTP(t *testing.T) {
+	v := newMeetingSummaryFixture(t, true)
+	target := v.chat(t, true)
+	v.setMemory(t, target)
+	v.selectModel(t, target)
+	path := "/api/v1/system/models/" + target.String() + "/deletion-impact"
+	r := v.request(t, v.adminBrowser, http.MethodGet, path, "", nil).want(t, 200)
+	fields := r.object(t)
+	if fields["reference_count"] != "2" || fields["replacement_requirement"] != "required" {
+		t.Fatal("dual HTTP impact")
+	}
+	groups := fields["reference_groups"].([]any)
+	if len(groups) != 2 {
+		t.Fatal("dual groups")
+	}
+	roles := map[string]bool{}
+	for _, g := range groups {
+		m := g.(map[string]any)
+		if m["owner_kind"] != "platform_selector" || m["count"] != "1" {
+			t.Fatal("group")
+		}
+		roles[m["role"].(string)] = true
+	}
+	if !roles["meeting_summary"] || !roles["memory"] {
+		t.Fatal("role pair")
+	}
+	if h := v.request(t, v.adminBrowser, http.MethodHead, path, "", nil).want(t, 200); len(h.body) != 0 {
+		t.Fatal("HEAD body")
+	}
+	dir := os.Getenv("AGENTEAM_MEETING_SUMMARY_EVIDENCE_DIR")
+	s, e := os.Stat(dir)
+	if e != nil || !s.IsDir() || s.Mode().Perm()&0077 != 0 {
+		t.Fatal("private evidence directory")
+	}
+	sum := sha256.Sum256(r.body)
+	if e = os.WriteFile(filepath.Join(dir, "independent-summary-memory.json"), r.body, 0600); e != nil {
+		t.Fatal(e)
+	}
+	metadata := map[string]any{"status": r.status, "content_type": r.headers.Get("Content-Type"), "model_id": target.String(), "path": path, "method": "GET", "body_sha256": hex.EncodeToString(sum[:]), "producer_test": "TestIndependentSummaryB/same_http_body_summary_and_memory"}
+	if e = os.WriteFile(filepath.Join(dir, "independent-summary-memory-source.json"), summaryJSON(t, metadata), 0600); e != nil {
+		t.Fatal(e)
+	}
+	t.Logf("same raw HTTP body exported sha256=%x", sum)
+}

@@ -1,0 +1,117 @@
+{
+  "status": "author-offline-pass; independent and real-HTTP composition pending",
+  "frozen": {
+    "path": "/workspace/scratch/meeting-summary-model-delete-compat/frozen04.json",
+    "sha256": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0"
+  },
+  "owned_four": {
+    "web/src/api/system-models.ts": "ffa1b0d4a917eee4b3faddffd30f96d650bfceffa24191b5e3833b54ea62cf29",
+    "web/src/views/system/SystemModelDeleteDialog.vue": "e33fdb1b02978eca6089837920b411b2f2691d2640c3eebcf4925d168e135015",
+    "web/src/tests/system-models-client.spec.ts": "9dd8cc0b259084308a0415b73889656ba05b783d013feac7d7a2c36f5442a7e8",
+    "web/src/tests/system-models.spec.ts": "6ebe3d69412101147a001e245ae835a7263782cf0ddef643fd7b02df9c774e03"
+  },
+  "commands": {
+    "f01-format": {
+      "meta_sha256": "fe4c33b90405164c63e7b56d785f7bbd2adb8047cdc196bd64794d45c3f207cf",
+      "raw_sha256": "3c15d4ede99fcaf88b8be99672f8e031d26fc7f111c3fb15499811863c433f17",
+      "exit": 1,
+      "seconds": 1.3609538078308105,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f02-format": {
+      "meta_sha256": "bec09ac8b32cb37282446d3174f87c2fc6646ea584941bc589dfd7b49dc82ba1",
+      "raw_sha256": "3c15d4ede99fcaf88b8be99672f8e031d26fc7f111c3fb15499811863c433f17",
+      "exit": 1,
+      "seconds": 1.2768375873565674,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f03-format-show": {
+      "meta_sha256": "76545aadc93a046908acd9acd589d5be6c5b82ab63cea7400462414f8d56418e",
+      "raw_sha256": "6ebe3d69412101147a001e245ae835a7263782cf0ddef643fd7b02df9c774e03",
+      "exit": 0,
+      "seconds": 1.0196003913879395,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f04-format": {
+      "meta_sha256": "d28e415324e06f05a82661be0059a33c36ee409925557ca6f611387ae7e6294d",
+      "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "exit": 0,
+      "seconds": 1.3776171207427979,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f05-pure": {
+      "meta_sha256": "6820edd5161f143ac0c9c6999f1fb009390c1666e57b6e6e2f9ed79b3557af1b",
+      "raw_sha256": "80d1590c0ba3e256f6d465e84e06b853ad721bc4a42274dfe7a75c6e24065fc7",
+      "exit": 0,
+      "seconds": 8.182819843292236,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f06-type": {
+      "meta_sha256": "2b6a15fe697089714b795d1e470a777d4696c5330d673c20e490e2445c69cbb7",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "seconds": 8.832149505615234,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f07-build": {
+      "meta_sha256": "c81e84cf74fdcda7a7fb923afa1ca77cd47c69cce6d30f1baabbd64edfeb8e0d",
+      "raw_sha256": "c6d30ceed8e6ba61d9414c1930707d7cf9be01f497934c8cb4ccf5ced2613c94",
+      "exit": 0,
+      "seconds": 1.5977468490600586,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    }
+  },
+  "build_artifacts": {
+    "path": "/workspace/scratch/meeting-summary-model-delete-compat/build-artifacts.json",
+    "sha256": "eaa35cb68a36563aec8d766013992c85dd16f9125f1c481c98d610d756602178",
+    "files": 42
+  },
+  "diff_sha256": "3e5ce9dbd156905084f615b89518469127e7718558baee5b1db6d99c2b53639b",
+  "dependencies_recovery": {
+    "path": "/workspace/scratch/summary-frontend-dependency-recovery/result.json",
+    "sha256": "74ebd3f961f0cba0f75c5388f77fe888e480d4ba75103fc844845ece65d343a4"
+  },
+  "limits": [
+    "No browser/native/network/PG resources executed",
+    "No real HTTP response received yet; no claim of schema/client composition",
+    "Backend/OpenAPI active inputs excluded",
+    "No Summary editing UI, cookie owner, or composable changes",
+    "First format failures f01/f02 preserved; f03 formatted output installed only into owned spec",
+    "All source/drivers now stopped; root owns Git acceptance"
+  ]
+}

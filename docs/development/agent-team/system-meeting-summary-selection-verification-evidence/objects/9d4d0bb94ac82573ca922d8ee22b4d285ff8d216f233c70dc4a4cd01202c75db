@@ -1,0 +1,20 @@
+--- candidate01/internal/central/model/management_read_test.go
++++ candidate02/internal/central/model/management_read_test.go
+@@ -120,6 +120,8 @@
+ 				s.t.Fatal("wrong model scope")
+ 			}
+ 			*dst[0].(*f.Version) = s.version
++		case strings.Contains(q, "FROM agenteam_model.meeting_summary_selection"):
++			*dst[0].(*[]byte) = []byte(`[]`)
+ 		case strings.Contains(q, "FROM agenteam_model.platform_selection"):
+ 			r := s.selection
+ 			*dst[0].(*string) = r.ID
+@@ -131,8 +133,6 @@
+ 					*dst[i+3].(**string) = &v
+ 				}
+ 			}
+-		case strings.Contains(q, "FROM agenteam_model.meeting_summary_selection"):
+-			*dst[0].(*[]byte) = []byte(`[]`)
+ 		case strings.Contains(q, "LIMIT 6"):
+ 			if strings.Contains(q, "owner_id=$") || len(args) != 0 {
+ 				s.t.Fatal("platform query failed to cover extra owners")

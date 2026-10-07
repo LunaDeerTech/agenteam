@@ -1,0 +1,639 @@
+The `envFile` option is deprecated, please use `envDir: false` instead.
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > rejects malformed read input instead of turning null into an empty Provider query 28ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > validates the whole original command before intent/key allocation and freezes its fields 6ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'read' 'fetch' after the visible 30s cutoff until actual join 7ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'read' 'read' after the visible 30s cutoff until actual join 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'read' 'reader-cancel' after the visible 30s cutoff until actual join 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'read' 'body-cancel' after the visible 30s cutoff until actual join 4ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'write' 'fetch' after the visible 30s cutoff until actual join 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'write' 'read' after the visible 30s cutoff until actual join 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'write' 'reader-cancel' after the visible 30s cutoff until actual join 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'write' 'body-cancel' after the visible 30s cutoff until actual join 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'lookup' 'fetch' after the visible 30s cutoff until actual join 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'lookup' 'read' after the visible 30s cutoff until actual join 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'lookup' 'reader-cancel' after the visible 30s cutoff until actual join 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'lookup' 'body-cancel' after the visible 30s cutoff until actual join 8ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > other domain abandonment cannot cancel Model read 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > other domain abandonment cannot cancel Model write 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > other domain abandonment cannot cancel Model lookup 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > Model abandonment cannot cancel personal, whose own tail remains owned 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > Model abandonment cannot cancel users, whose own tail remains owned 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > Model abandonment cannot cancel invitations, whose own tail remains owned 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > Model abandonment cannot cancel provider, whose own tail remains owned 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > Model abandonment cannot cancel restore, whose own tail remains owned 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > keeps Provider Credential→Provider stages on the owner despite Model cleanup 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > keeps main and replacement read abandonment separate and joins the cancelled read 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > 'model.create' 'found' lookup only observes; explicit retry preserves original key/body/CSRF 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > 'model.create' 'missing' lookup only observes; explicit retry preserves original key/body/CSRF 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > 'model.create' 'failed' lookup only observes; explicit retry preserves original key/body/CSRF 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > 'model.update' 'found' lookup only observes; explicit retry preserves original key/body/CSRF 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > 'model.update' 'missing' lookup only observes; explicit retry preserves original key/body/CSRF 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > 'model.update' 'failed' lookup only observes; explicit retry preserves original key/body/CSRF 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > 'model.delete' 'found' lookup only observes; explicit retry preserves original key/body/CSRF 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > 'model.delete' 'missing' lookup only observes; explicit retry preserves original key/body/CSRF 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > 'model.delete' 'failed' lookup only observes; explicit retry preserves original key/body/CSRF 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > does not let deleted-target GET404 or failed Impact block historical DELETE replay 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > classifies INVALID_ARGUMENT/400/not_started as rejected without silent resubmission 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > classifies VERSION_CONFLICT/409/not_committed as rejected without silent resubmission 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > classifies NOT_FOUND/404/not_started as rejected without silent resubmission 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > classifies CAPABILITY_UNSUPPORTED/422/not_committed as rejected without silent resubmission 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > classifies INTERNAL_ERROR/500/not_started as uncertain without silent resubmission 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > classifies DEPENDENCY_UNAVAILABLE/503/not_started as uncertain without silent resubmission 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > classifies RESOURCE_BUSY/409/not_started as uncertain without silent resubmission 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > classifies COMMIT_UNKNOWN/503/unknown as uncertain without silent resubmission 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > classifies INVALID_ARGUMENT/400/committed as uncertain without silent resubmission 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > preserves historical uncertainty through a later known refusal and locks a reused key 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > keeps same-identity pending intent during Session checking and failure, but clears new Sessions 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > invalidates exact identity on current Model write CSRF_FAILED 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > invalidates exact identity on current Model lookup CSRF_FAILED 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > clears every system domain on current FORBIDDEN, without rewriting role or logging out 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > rejects current revoked Session during Model read and clears its private state 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > rejects current revoked Session during Model write and clears its private state 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > rejects current revoked Session during Model lookup and clears its private state 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > does not apply old-generation FORBIDDEN after global leave; still blocks the new identity until join 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > does not apply old-generation SESSION_REVOKED after global leave; still blocks the new identity until join 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > does not apply old-generation CSRF_FAILED after global leave; still blocks the new identity until join 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > handles already parsed late read/SESSION_REVOKED only for its current identity 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > handles already parsed late write/CSRF_FAILED only for its current identity 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > handles already parsed late lookup/CSRF_FAILED only for its current identity 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > handles already parsed late read/FORBIDDEN only for its current identity 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > does not keep an old intent after Session role changes 1ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > does not keep an old intent after Session csrf changes 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > does not erase a successor started synchronously from confirmation 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > loads only one Provider page, reuses only explicitly visited cursors, hides stale rows on failure and explicitly resets invalid cursors 9ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > keeps main Provider, main Model and both replacement cursors partitioned without automatic scanning 11ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > stops continuation and rejects a stale main Provider response after detach until its native operation really ends 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > delays the first read once behind another owner and does not poll after a real failure 2ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > leaves the current page and ordinary draft intact when a dirty Provider/page change is declined 3ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > requires explicit review if the selected detail changes before the first deletion preview 4ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > does not silently accept a changed Model version when restoring an open deletion preview 4ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > invalidates a retained replacement when its restored current observation is disabled 6ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > invalidates a retained replacement when its restored current observation is changed 12ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > invalidates a retained replacement when its restored current observation is missing 8ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > invalidates a retained replacement when its restored current observation is provider-disabled 4ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > restores an unchanged replacement by comparing the complete new observation, without selecting another row 6ms
+ ✓ src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > does not publish a detached explicit edit review or silently replace its captured version 4ms
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > keeps the users default and five leaves with the exact Model safe return
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > keeps the users default and five leaves with the exact Model safe return
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > keeps the users default and five leaves with the exact Model safe return
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > logs in through the existing form and exact Model return target
+[Vue Router warn]: No match found for location with path "/forgot-password"
+
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > logs in through the existing form and exact Model return target
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > keeps the users default and five leaves with the exact Model safe return 190ms
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > shows no management leaf or requests to an ordinary user 20ms
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete openai-chat-completions shape without normalizing ordinary fields
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > logs in through the existing form and exact Model return target 67ms
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete anthropic-messages shape without normalizing ordinary fields
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete openai-chat-completions shape without normalizing ordinary fields 382ms
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete openai-embeddings shape without normalizing ordinary fields
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete anthropic-messages shape without normalizing ordinary fields 190ms
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete jina-rerank shape without normalizing ordinary fields
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete openai-embeddings shape without normalizing ordinary fields 141ms
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete openai-images-generations shape without normalizing ordinary fields
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete jina-rerank shape without normalizing ordinary fields 124ms
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected parallel fields, dispatches zero writes and restores the submitter
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete openai-images-generations shape without normalizing ordinary fields 119ms
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected capacity fields, dispatches zero writes and restores the submitter
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected parallel fields, dispatches zero writes and restores the submitter 113ms
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected unicode fields, dispatches zero writes and restores the submitter
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected capacity fields, dispatches zero writes and restores the submitter 102ms
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected native-bytes fields, dispatches zero writes and restores the submitter
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected unicode fields, dispatches zero writes and restores the submitter 97ms
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected unset-enabled fields, dispatches zero writes and restores the submitter
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > keeps confirmed receipt separate from a failed refresh and opens a new form with an ordinary submit label immediately
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected native-bytes fields, dispatches zero writes and restores the submitter 99ms
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected unset-enabled fields, dispatches zero writes and restores the submitter 55ms
+stderr | src/tests/system-models.spec.ts > Model actual App/router/form composition > requires explicit current-version review after a real structured conflict and preserves the ordinary draft
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > keeps confirmed receipt separate from a failed refresh and opens a new form with an ordinary submit label immediately 133ms
+stderr | src/tests/system-models.spec.ts > Model deletion previews and original command recovery > cannot dispatch a DELETE from error Impact
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model deletion previews and original command recovery > cannot dispatch a DELETE from mismatch Impact
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model actual App/router/form composition > requires explicit current-version review after a real structured conflict and preserves the ordinary draft 121ms
+ ✓ src/tests/system-models.spec.ts > Model deletion previews and original command recovery > cannot dispatch a DELETE from error Impact 53ms
+stderr | src/tests/system-models.spec.ts > Model deletion previews and original command recovery > cannot dispatch a DELETE from unbound Impact
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model deletion previews and original command recovery > confirms no-reference DELETE once and renders the actual unbounded nonnegative receipt count
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model deletion previews and original command recovery > cannot dispatch a DELETE from mismatch Impact 55ms
+ ✓ src/tests/system-models.spec.ts > Model deletion previews and original command recovery > cannot dispatch a DELETE from unbound Impact 53ms
+stderr | src/tests/system-models.spec.ts > Model deletion previews and original command recovery > requires an explicit optional clear and records that choice as null only after confirmation
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model deletion previews and original command recovery > enforces same type, nonself, enabled Provider/Model and memory json_schema before choosing a cross-Provider replacement
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model deletion previews and original command recovery > confirms no-reference DELETE once and renders the actual unbounded nonnegative receipt count 59ms
+ ✓ src/tests/system-models.spec.ts > Model deletion previews and original command recovery > requires an explicit optional clear and records that choice as null only after confirmation 73ms
+stderr | src/tests/system-models.spec.ts > Model deletion previews and original command recovery > requires a Summary replacement without adding json_schema unless memory is also referenced (memory=false)
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model deletion previews and original command recovery > enforces same type, nonself, enabled Provider/Model and memory json_schema before choosing a cross-Provider replacement 88ms
+stderr | src/tests/system-models.spec.ts > Model deletion previews and original command recovery > requires a Summary replacement without adding json_schema unless memory is also referenced (memory=true)
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model deletion previews and original command recovery > keeps legacy project Summary labels and unbound blocking separate from the system Summary
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model deletion previews and original command recovery > requires a Summary replacement without adding json_schema unless memory is also referenced (memory=false) 92ms
+ ✓ src/tests/system-models.spec.ts > Model deletion previews and original command recovery > requires a Summary replacement without adding json_schema unless memory is also referenced (memory=true) 92ms
+stderr | src/tests/system-models.spec.ts > Model deletion previews and original command recovery > replays the original DELETE after an actual current GET404 and failed Impact without using those reads as permission
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model deletion previews and original command recovery > replays the original DELETE after an actual current GET404 and failed Impact without using those reads as permission
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model deletion previews and original command recovery > keeps legacy project Summary labels and unbound blocking separate from the system Summary 45ms
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > preserves pending close across Session503 and same-identity restoration without new writes
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > preserves pending close across Session503 and same-identity restoration without new writes
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model deletion previews and original command recovery > replays the original DELETE after an actual current GET404 and failed Impact without using those reads as permission 115ms
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > preserves pending route across Session503 and same-identity restoration without new writes
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > preserves pending route across Session503 and same-identity restoration without new writes
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > preserves pending close across Session503 and same-identity restoration without new writes 153ms
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > preserves pending logout across Session503 and same-identity restoration without new writes
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > preserves pending logout across Session503 and same-identity restoration without new writes
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > preserves pending route across Session503 and same-identity restoration without new writes 145ms
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > resumes only the original pending route when discard is explicitly chosen after restoration
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > resumes only the original pending route when discard is explicitly chosen after restoration
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > preserves pending logout across Session503 and same-identity restoration without new writes 153ms
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > resumes only the original pending route when discard is explicitly chosen after restoration
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > resumes only the original pending route when discard is explicitly chosen after restoration
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > resumes only the original pending logout when discard is explicitly chosen after restoration
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > resumes only the original pending logout when discard is explicitly chosen after restoration
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > resumes only the original pending route when discard is explicitly chosen after restoration 197ms
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > resumes only the original pending logout when discard is explicitly chosen after restoration
+[Vue Router warn]: No match found for location with path "/forgot-password"
+
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > ends pending old navigation false on session and cannot transfer its answer
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > ends pending old navigation false on session and cannot transfer its answer
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > resumes only the original pending logout when discard is explicitly chosen after restoration 154ms
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > ends pending old navigation false on role and cannot transfer its answer
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > ends pending old navigation false on session and cannot transfer its answer 117ms
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > ends pending old navigation false on dispose and cannot transfer its answer
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > restores a pending confirmation with no business Dialog, without synthesizing a write or answering it
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > ends pending old navigation false on role and cannot transfer its answer 101ms
+ ✓ src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > ends pending old navigation false on dispose and cannot transfer its answer 80ms
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > restores a pending confirmation with no business Dialog, without synthesizing a write or answering it
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > restores a dirty deletion selection below its confirmation and keeps continue focus inside that business layer
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > restores a dirty deletion selection below its confirmation and keeps continue focus inside that business layer
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > restores a pending confirmation with no business Dialog, without synthesizing a write or answering it 55ms
+stderr | src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > blocks dirty beforeunload and removes its listener when App is disposed
+[Vue Router warn]: No match found for location with path "/system/model-selection"
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > restores a dirty deletion selection below its confirmation and keeps continue focus inside that business layer 122ms
+ ✓ src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > blocks dirty beforeunload and removes its listener when App is disposed 71ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > uses only the nine fixed operations and keeps Provider context off the wire 24ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > accepts complete openai-chat-completions/chat configuration for reads and writes 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > accepts complete anthropic-messages/chat configuration for reads and writes 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > accepts complete openai-embeddings/embedding configuration for reads and writes 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > accepts complete jina-rerank/reranker configuration for reads and writes 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > accepts complete openai-images-generations/image_generation configuration for reads and writes 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field id 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field provider_id 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field version 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field created_at 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field updated_at 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.name 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.provider_model_id 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.type 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.enabled 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.parameters 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.request_overwrite 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.header_overwrite 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.capabilities 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.capabilities.tool_calls 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.capabilities.parallel_tool_calls 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.capabilities.streaming 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.capabilities.reasoning 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.capabilities.input_modalities 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.capabilities.output_modalities 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.capabilities.reasoning_efforts 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.capabilities.structured_output_modes 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.capabilities.context_length 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects missing complete Model field input.capabilities.max_output 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field id=01900000-0000-7000-8000-000000000065 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field provider_id=01900000-0000-7000-8000-000000000002 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field version=1 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field version=01 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field version=9223372036854775808 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field created_at=2026-02-29T12:34:56.123456Z 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field created_at=0099-02-29T00:00:00.000000Z 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field updated_at=2026-10-06T12:34:56.123455Z 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field created_at=2026-10-06T12:34:56.123Z 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field extra=true 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field input.extra=true 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field input.name=� 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field input.provider_model_id=� 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field input.capabilities.extra=true 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > retains valid foundation Instant 0000-02-29T00:00:00.000000Z without Date year normalization 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > retains valid foundation Instant 0099-01-01T00:00:00.000001Z without Date year normalization 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration name before dispatch 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration name before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration name before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration name before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration provider_model_id before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration provider_model_id before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration provider_model_id before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration type before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration enabled before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration parameters before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration request_overwrite before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration header_overwrite before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration capabilities.tool_calls before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration capabilities.context_length before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration capabilities.context_length before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration capabilities.context_length before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration capabilities.context_length before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration capabilities.max_output before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration capabilities.reasoning_efforts before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration capabilities.input_modalities before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration capabilities.input_modalities before dispatch 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration capabilities.output_modalities before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid configuration capabilities.structured_output_modes before dispatch 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > enforces protocol-specific capabilities and conditional tool/decimal rules 3ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > captures independent immutable fields and rejects unknown command/options before sending 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects wrong delete receipt kind=provider.delete 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects wrong delete receipt resource_id=01900000-0000-7000-8000-0000000000c8 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects wrong delete receipt version=9007199254740993 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects wrong delete receipt affected_references=-1 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects wrong delete receipt affected_references=0 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects wrong delete receipt affected_references=00 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects wrong delete receipt affected_references=9223372036854775808 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects wrong delete receipt extra=true 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > allows delete counts beyond old impact/10000 but requires create/update counts zero 2ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid historical observation 0 1ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid historical observation 1 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid historical observation 2 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid historical observation 3 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid historical observation 4 0ms
+ ✓ src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid historical observation 5 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > accepts zero, exact 10000 and every closed group with the correct requirement/blocker 2ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > accepts the eighth group in exact order and a required, bound system Meeting Summary alone 1ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid system Summary Impact replacement_requirement=none 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid system Summary Impact replacement_requirement=optional 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid system Summary Impact delete_blocker=reference_adapter_unbound 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid system Summary Impact reference_count=2 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid system Summary Impact reference_groups.0.owner_kind=agent 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid system Summary Impact reference_groups.0.role=summary 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid system Summary Impact reference_groups.0.count=0 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid system Summary Impact reference_groups.0.count=01 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid system Summary Impact reference_groups.0.reasoning_effort=high 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects missing required Impact model_id 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects missing required Impact version 1ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects missing required Impact reference_count 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects missing required Impact reference_groups 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects missing required Impact replacement_requirement 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects missing required Impact delete_blocker 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid zero Impact model_id=01900000-0000-7000-8000-000000000065 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid zero Impact version=0 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid zero Impact reference_count=10001 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid zero Impact reference_count=0 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid zero Impact reference_count=00 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid zero Impact reference_groups=null 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid zero Impact reference_groups=[object Object] 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid zero Impact replacement_requirement=optional 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid zero Impact replacement_requirement=null 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid zero Impact delete_blocker=reference_adapter_unbound 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid zero Impact delete_blocker=unknown 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid zero Impact owner_id=01900000-0000-7000-8000-0000000000c8 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid grouped Impact reference_count=9999 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid grouped Impact reference_count=10001 1ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid grouped Impact reference_groups.0.count=0 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid grouped Impact reference_groups.0.count=9995 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid grouped Impact reference_groups.0.count=01 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid grouped Impact reference_groups.0.name=private 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid grouped Impact reference_groups.0.owner_kind=project 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid grouped Impact reference_groups.0.role=embedding 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid grouped Impact reference_groups.0.count=null 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid grouped Impact replacement_requirement=optional 1ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects invalid grouped Impact delete_blocker=null 0ms
+ ✓ src/tests/system-models-client.spec.ts > Exact registered Model deletion impact > rejects order changes, duplicate groups and a ninth group rather than publishing a partial candidate 2ms
+ ✓ src/tests/system-models-client.spec.ts > Model transport retains inherited page and stream limits > checks full microseconds, duplicate IDs, Provider identity and complete pages 7ms
+ ✓ src/tests/system-models-client.spec.ts > Model transport retains inherited page and stream limits > keeps the 2MiB Provider success exception, 600000B Model/error cap and 16KiB write cap 9ms
+
+ Test Files  3 passed (3)
+      Tests  239 passed (239)
+   Start at  13:32:56
+   Duration  7.20s (transform 1.05s, setup 0ms, import 1.33s, tests 4.36s, environment 1.17s)
+

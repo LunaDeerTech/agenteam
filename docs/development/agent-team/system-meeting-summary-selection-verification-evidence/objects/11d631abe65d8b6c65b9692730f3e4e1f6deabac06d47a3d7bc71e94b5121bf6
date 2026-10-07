@@ -1,0 +1,31 @@
+The `envFile` option is deprecated, please use `envDir: false` instead.
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ✓ ../../scratch/summary-frontend-verification/independent.spec.ts > Independent closed deletion-impact projection > accepts every one of the 256 legal subsets with independent required/unbound derivation 96ms
+ ✓ ../../scratch/summary-frontend-verification/independent.spec.ts > Independent closed deletion-impact projection > preserves the exact 10000 boundary across eight groups and rejects noncanonical or excess counts 7ms
+ ✓ ../../scratch/summary-frontend-verification/independent.spec.ts > Independent closed deletion-impact projection > rejects Summary requirement/blocker lies, crossed or unknown pairs, closed-field violations, duplicate/order/ninth groups 7ms
+ × ../../scratch/summary-frontend-verification/independent.spec.ts > Independent existing Summary deletion controller and dialog > requires a Summary replacement and revokes the plain choice after a real client reread adds memory 88ms
+   → Cannot read properties of undefined (reading 'disabled')
+ ✓ ../../scratch/summary-frontend-verification/independent.spec.ts > Independent existing Summary deletion controller and dialog > keeps the legacy project Summary unbound even beside the new bound system Summary 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../../scratch/summary-frontend-verification/independent.spec.ts > Independent existing Summary deletion controller and dialog > requires a Summary replacement and revokes the plain choice after a real client reread adds memory
+TypeError: Cannot read properties of undefined (reading 'disabled')
+ ❯ ../../scratch/summary-frontend-verification/independent.spec.ts:339:32
+    337|     expect(dialog().textContent).not.toContain("项目会议摘要模型");
+    338|     expect(button("清空相应用途引用")).toBeUndefined();
+    339|     expect(button("确认删除 Model").disabled).toBe(true);
+       |                                ^
+    340|     await click("查看此 Provider 的 Models");
+    341|     expect(choice("Plain replacement").textContent).not.toContain(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  13:37:08
+   Duration  1.53s (transform 617ms, setup 0ms, import 724ms, tests 213ms, environment 455ms)
+

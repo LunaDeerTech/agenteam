@@ -1,0 +1,175 @@
+package model
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"strings"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+func meetingSummarySemantic(r commandRequest) (f.Digest, error) {
+	if r.MeetingSummary == nil || r.MeetingSummary.Validate() != nil || r.Meta.Validate() != nil || r.Meta.Scope.Details().Kind != id.System || r.Kind != "model.selection.update" || r.Provider != "" || r.ProviderInput != nil || r.ModelInput != nil || r.Selection != nil || r.Replacement != "" {
+		return "", fault(f.InvalidArgument)
+	}
+	v := mc.UpdateMeetingSummarySelectionRequest{CommandMeta: r.Meta, SelectionID: r.Resource, ExpectedVersion: r.Expected, Model: *r.MeetingSummary}
+	if v.Validate() != nil {
+		return "", fault(f.InvalidArgument)
+	}
+	raw, e := json.Marshal(struct {
+		Format          string `json:"format"`
+		User            string `json:"user"`
+		Kind            string `json:"kind"`
+		Resource        string `json:"resource"`
+		ExpectedVersion string `json:"expected_version"`
+		Model           string `json:"model"`
+	}{"model-meeting-summary-command-v1", r.Meta.Actor.Details().UserID, r.Kind, r.Resource, r.Expected.String(), r.MeetingSummary.String()})
+	if e != nil {
+		return "", unavailable(e)
+	}
+	return cursor.Digest(raw)
+}
+func (s *Service) prepareMeetingSummary(ctx context.Context, p *preparedCommand, r commandRequest) (f.Version, error) {
+	old, e := loadMeetingSummaryState(ctx, s.state().store)
+	if e != nil {
+		return 0, e
+	}
+	if old == nil {
+		return 0, fault(f.DependencyUnbound)
+	}
+	if old.ID != r.Resource {
+		return 0, fault(f.NotFound)
+	}
+	if old.Version != r.Expected {
+		return 0, fault(f.VersionConflict)
+	}
+	version, e := nextVersion(old.Version)
+	if e != nil {
+		return 0, e
+	}
+	m, e := loadModel(ctx, s.state().store, r.MeetingSummary.String())
+	if e != nil {
+		return 0, e
+	}
+	if m == nil {
+		return 0, fault(f.NotFound)
+	}
+	if e = selectionCompatible("meeting_summary", m.Input, ""); e != nil {
+		return 0, e
+	}
+	provider, e := loadProvider(ctx, s.state().store, m.ProviderID)
+	if e != nil {
+		return 0, e
+	}
+	if provider == nil || !provider.Input.Enabled {
+		return 0, fault(f.InvalidState)
+	}
+	if e = modelPolicy(m.Input, provider.Input.Protocol); e != nil {
+		return 0, e
+	}
+	p.plan.BeforeMeetingSummary = old
+	p.plan.AfterMeetingSummary = &meetingSummaryRecord{ID: old.ID, Version: version, Model: m.ID, UpdatedAt: p.plan.At}
+	p.plan.References = meetingSummaryReferences(old)
+	p.plan.Models = append(p.plan.Models, *m)
+	p.plan.Providers = append(p.plan.Providers, *provider)
+	p.plan.Changed = []string{"selection"}
+	return version, nil
+}
+
+// Historical plans omit both fields. An explicit malformed/null or mixed new
+// branch must not be interpreted as an old plan merely because JSON is valid.
+func decodeMeetingSummaryPlan(raw []byte, p *mutationPlan) error {
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(raw, &fields) != nil {
+		return unavailable(nil)
+	}
+	present := 0
+	for k, v := range fields {
+		if strings.EqualFold(k, "BeforeMeetingSummary") || strings.EqualFold(k, "AfterMeetingSummary") {
+			if k != "BeforeMeetingSummary" && k != "AfterMeetingSummary" {
+				return unavailable(nil)
+			}
+			present++
+			if bytes.Equal(bytes.TrimSpace(v), []byte("null")) {
+				return unavailable(nil)
+			}
+			var record meetingSummaryRecord
+			d := json.NewDecoder(bytes.NewReader(v))
+			d.DisallowUnknownFields()
+			if d.Decode(&record) != nil {
+				return unavailable(nil)
+			}
+		}
+	}
+	if present == 0 {
+		return nil
+	}
+	if present != 2 {
+		return unavailable(nil)
+	}
+	return validateMeetingSummaryPlan(p)
+}
+func validateMeetingSummaryPlan(p *mutationPlan) error {
+	b, a := p.BeforeMeetingSummary, p.AfterMeetingSummary
+	if b == nil && a == nil {
+		return nil
+	}
+	if b == nil || a == nil || p.Project != "" || p.BeforeProvider != nil || p.AfterProvider != nil {
+		return unavailable(nil)
+	}
+	if _, e := b.view(); e != nil {
+		return unavailable(e)
+	}
+	if _, e := a.view(); e != nil {
+		return unavailable(e)
+	}
+	version, e := nextVersion(b.Version)
+	if e != nil || a.ID != b.ID || a.Version != version || a.Model == "" || a.UpdatedAt != p.At {
+		return unavailable(e)
+	}
+	if p.BeforeSelection != nil && p.BeforeSelection.ID == a.ID || p.AfterSelection != nil && p.AfterSelection.ID == a.ID {
+		return unavailable(nil)
+	}
+	switch p.Kind {
+	case "model.selection.update":
+		if len(p.Models) != 1 || len(p.Providers) != 1 || p.Receipt.Kind != p.Kind || p.Receipt.AffectedReferences != 0 || p.Metadata.Version != a.Version || !sameValue(p.Changed, []string{"selection"}) || !sameValue(p.Metadata.ChangedFields, []string{"selection"}) || p.BeforeModel != nil || p.AfterModel != nil || p.BeforeSelection != nil || p.AfterSelection != nil || p.Resource != a.ID || !sameValue(p.References, meetingSummaryReferences(b)) || p.Receipt.ResourceID != a.ID || p.Receipt.Version != a.Version || p.Metadata.SelectionID != a.ID || p.Metadata.SelectorKind != "platform" {
+			return unavailable(nil)
+		}
+	case "model.delete":
+		if p.BeforeModel == nil || p.AfterModel != nil || p.BeforeModel.ID != p.Resource || b.Model != p.Resource || a.Model == p.Resource || a.Model != p.Metadata.ReplacementID {
+			return unavailable(nil)
+		}
+		seen := 0
+		for _, ref := range p.References {
+			if ref.Owner == b.ID {
+				if !sameValue([]referenceRecord{ref}, meetingSummaryReferences(b)) {
+					return unavailable(nil)
+				}
+				seen++
+			}
+		}
+		if seen != 1 {
+			return unavailable(nil)
+		}
+	default:
+		return unavailable(nil)
+	}
+	matched := false
+	for _, m := range p.Models {
+		if m.ID == a.Model && m.Project == "" && selectionCompatible("meeting_summary", m.Input, "") == nil {
+			for _, provider := range p.Providers {
+				if provider.ID == m.ProviderID && provider.Project == "" && provider.Input.Enabled && modelPolicy(m.Input, provider.Input.Protocol) == nil {
+					matched = true
+				}
+			}
+		}
+	}
+	if !matched {
+		return unavailable(nil)
+	}
+	return nil
+}

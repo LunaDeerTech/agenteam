@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 7777.931131075,
+      "top": "TestIndependentSummaryA"
+    },
+    {
+      "event": "result",
+      "monotonic": 7782.673743956,
+      "observed_seconds": 4.742612881000241,
+      "reported_seconds": 4.74,
+      "state": "PASS",
+      "top": "TestIndependentSummaryA"
+    }
+  ],
+  "expected": [
+    "TestIndependentSummaryA"
+  ],
+  "failures": []
+}

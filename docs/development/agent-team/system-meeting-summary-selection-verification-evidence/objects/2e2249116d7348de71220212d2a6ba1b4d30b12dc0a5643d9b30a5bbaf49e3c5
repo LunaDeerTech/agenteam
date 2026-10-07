@@ -1,0 +1,399 @@
+--- candidate02/internal/central/model/commands.go
++++ candidate03/internal/central/model/commands.go
+@@ -180,6 +180,9 @@
+ 		if json.Unmarshal(receipt, &v) != nil || v.Validate() != nil {
+ 			return nil, unavailable(nil)
+ 		}
++		if r.Plan.BeforeMeetingSummary != nil && (v != r.Plan.Receipt || v.Kind != r.Kind || v.ResourceID != r.Resource) {
++			return nil, unavailable(nil)
++		}
+ 		r.Receipt = &v
+ 	}
+ 	return &r, nil
+--- candidate02/internal/central/model/management_read_test.go
++++ candidate03/internal/central/model/management_read_test.go
+@@ -5,6 +5,7 @@
+ 	"encoding/json"
+ 	"errors"
+ 	"reflect"
++	"sort"
+ 	"strings"
+ 	"testing"
+ 	"time"
+@@ -23,6 +24,7 @@
+ 	model                                  mc.ModelID
+ 	actor                                  id.Actor
+ 	selection                              selectionRecord
++	summary                                *meetingSummaryRecord
+ 	platform                               []referenceRecord
+ 	counts                                 [8]f.Progress
+ 	total                                  f.Progress
+@@ -122,6 +124,17 @@
+ 			*dst[0].(*f.Version) = s.version
+ 		case strings.Contains(q, "FROM agenteam_model.meeting_summary_selection"):
+ 			*dst[0].(*[]byte) = []byte(`[]`)
++			if s.summary != nil {
++				raw, e := json.Marshal([]struct {
++					meetingSummaryRecord
++					Singleton bool
++					Platform  string
++				}{{*s.summary, true, s.selection.ID}})
++				if e != nil {
++					return e
++				}
++				*dst[0].(*[]byte) = raw
++			}
+ 		case strings.Contains(q, "FROM agenteam_model.platform_selection"):
+ 			r := s.selection
+ 			*dst[0].(*string) = r.ID
+@@ -285,6 +298,43 @@
+ 				t.Fatal("drift returned data")
+ 			}
+ 		})
++	}
++}
++
++func TestModelManagementBothOwnersFiveEdgesAndSentinel(t *testing.T) {
++	for _, summaryFirst := range []bool{false, true} {
++		for _, extra := range []bool{false, true} {
++			s, store, actor, key := managementFixture(t)
++			oldID, newID := "018f0000-0000-7000-8000-000000000001", "018f0000-0000-7000-8000-000000000002"
++			if summaryFirst {
++				oldID, newID = newID, oldID
++			}
++			store.selection = selectionRecord{ID: oldID, Version: 3, Configured: true, Embedding: mustID[mc.Model](t).String(), Memory: key.String(), Image: mustID[mc.Model](t).String(), Reranker: mustID[mc.Model](t).String()}
++			at, _ := f.NewInstant(time.Now())
++			store.summary = &meetingSummaryRecord{ID: newID, Version: 7, Model: key.String(), UpdatedAt: at}
++			store.platform = append(selectionReferences(&store.selection), meetingSummaryReferences(store.summary)...)
++			if extra {
++				store.platform = append(store.platform, referenceRecord{Kind: "platform_selector", Owner: "018f0000-0000-7000-8000-000000000003", Role: "meeting_summary", Model: key.String(), Version: 1})
++			}
++			sort.Slice(store.platform, func(i, j int) bool {
++				if store.platform[i].Owner != store.platform[j].Owner {
++					return store.platform[i].Owner < store.platform[j].Owner
++				}
++				return store.platform[i].Role < store.platform[j].Role
++			})
++			store.total, store.counts = 2, [8]f.Progress{4: 1, 5: 1}
++			out, e := s.GetModelDeletionImpact(context.Background(), actor, key)
++			if extra {
++				requireCode(t, e, f.DependencyUnavailable)
++				if !reflect.DeepEqual(out, ModelDeletionImpact{}) {
++					t.Fatal("sixth edge published candidate")
++				}
++				continue
++			}
++			if e != nil || out.ReferenceCount != 2 || len(out.ReferenceGroups) != 2 || out.ReferenceGroups[0].Role != "meeting_summary" || out.ReferenceGroups[1].Role != "memory" || out.ReplacementRequirement != "required" {
++				t.Fatal("five-edge two-owner union rejected", summaryFirst, e)
++			}
++		}
+ 	}
+ }
+ 
+--- candidate02/internal/central/model/meeting_summary_commands.go
++++ candidate03/internal/central/model/meeting_summary_commands.go
+@@ -4,6 +4,7 @@
+ 	"bytes"
+ 	"context"
+ 	"encoding/json"
++	"sort"
+ 	"strings"
+ 
+ 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+@@ -136,30 +137,21 @@
+ 	}
+ 	switch p.Kind {
+ 	case "model.selection.update":
+-		if len(p.Models) != 1 || len(p.Providers) != 1 || p.Receipt.Kind != p.Kind || p.Receipt.AffectedReferences != 0 || p.Metadata.Version != a.Version || !sameValue(p.Changed, []string{"selection"}) || !sameValue(p.Metadata.ChangedFields, []string{"selection"}) || p.BeforeModel != nil || p.AfterModel != nil || p.BeforeSelection != nil || p.AfterSelection != nil || p.Resource != a.ID || !sameValue(p.References, meetingSummaryReferences(b)) || p.Receipt.ResourceID != a.ID || p.Receipt.Version != a.Version || p.Metadata.SelectionID != a.ID || p.Metadata.SelectorKind != "platform" {
++		if len(p.Models) != 1 || len(p.Providers) != 1 || p.Receipt.Kind != p.Kind || p.Receipt.AffectedReferences != 0 || p.Metadata.Version != a.Version || p.Metadata.ProviderID != "" || p.Metadata.ModelID != "" || p.Metadata.ReplacementID != "" || p.Metadata.AffectedCount != nil || !sameValue(p.Changed, []string{"selection"}) || !sameValue(p.Metadata.ChangedFields, []string{"selection"}) || p.BeforeModel != nil || p.AfterModel != nil || p.BeforeSelection != nil || p.AfterSelection != nil || p.Resource != a.ID || !sameValue(p.References, meetingSummaryReferences(b)) || p.Receipt.ResourceID != a.ID || p.Receipt.Version != a.Version || p.Metadata.SelectionID != a.ID || p.Metadata.SelectorKind != "platform" {
+ 			return unavailable(nil)
+ 		}
+ 	case "model.delete":
+-		if p.BeforeModel == nil || p.AfterModel != nil || p.BeforeModel.ID != p.Resource || b.Model != p.Resource || a.Model == p.Resource || a.Model != p.Metadata.ReplacementID {
+-			return unavailable(nil)
+-		}
+-		seen := 0
+-		for _, ref := range p.References {
+-			if ref.Owner == b.ID {
+-				if !sameValue([]referenceRecord{ref}, meetingSummaryReferences(b)) {
+-					return unavailable(nil)
+-				}
+-				seen++
+-			}
+-		}
+-		if seen != 1 {
+-			return unavailable(nil)
++		if e := validateMeetingSummaryDeletion(p); e != nil {
++			return e
+ 		}
+ 	default:
+ 		return unavailable(nil)
+ 	}
+ 	matched := false
+ 	for _, m := range p.Models {
++		if _, e := m.view(); e != nil {
++			return unavailable(e)
++		}
+ 		if m.ID == a.Model && m.Project == "" && selectionCompatible("meeting_summary", m.Input, "") == nil {
+ 			for _, provider := range p.Providers {
+ 				if provider.ID == m.ProviderID && provider.Project == "" && provider.Input.Enabled && modelPolicy(m.Input, provider.Input.Protocol) == nil {
+@@ -168,8 +160,91 @@
+ 			}
+ 		}
+ 	}
++	for _, provider := range p.Providers {
++		if _, e := provider.view(); e != nil {
++			return unavailable(e)
++		}
++	}
+ 	if !matched {
+ 		return unavailable(nil)
+ 	}
+ 	return nil
+ }
++
++// Only plans carrying the new Summary branch enter this check. Historical
++// plans retain their original loader and never consult today's canonical state.
++func validateMeetingSummaryDeletion(p *mutationPlan) error {
++	b, a := p.BeforeMeetingSummary, p.AfterMeetingSummary
++	if p.BeforeModel == nil || p.AfterModel != nil || p.BeforeModel.Project != "" || p.BeforeModel.ID != p.Resource || b.Model != p.Resource || a.Model == p.Resource || a.Model != p.Metadata.ReplacementID || len(p.Models) != 1 || len(p.Providers) != 2 {
++		return unavailable(nil)
++	}
++	if _, e := p.BeforeModel.view(); e != nil {
++		return unavailable(e)
++	}
++	version, e := nextVersion(p.BeforeModel.Version)
++	if e != nil || p.Receipt != (mc.CommandReceipt{Kind: p.Kind, ResourceID: p.Resource, Version: version, AffectedReferences: mc.TokenCount(len(p.References))}) || p.Metadata.ModelID != p.Resource || p.Metadata.ProviderID != p.BeforeModel.ProviderID || p.Metadata.Version != version || p.Metadata.AffectedCount == nil || *p.Metadata.AffectedCount != f.Progress(len(p.References)) || p.Metadata.SelectionID != "" || p.Metadata.SelectorKind != "" || !sameValue(p.Changed, []string{"deleted", "replacement"}) || !sameValue(p.Metadata.ChangedFields, p.Changed) {
++		return unavailable(e)
++	}
++	// The provider snapshots are collected in deletion-target/replacement order.
++	if p.Providers[0].ID != p.BeforeModel.ProviderID || p.Providers[0].Project != "" || p.Providers[1].ID != p.Models[0].ProviderID || p.Models[0].ID != a.Model {
++		return unavailable(nil)
++	}
++	expected := meetingSummaryReferences(b)
++	old, next := p.BeforeSelection, p.AfterSelection
++	if (old == nil) != (next == nil) {
++		return unavailable(nil)
++	}
++	if old != nil {
++		if _, e := f.ParseID[struct{}](old.ID); e != nil || !old.Configured || old.ID == b.ID || old.Version.Validate() != nil {
++			return unavailable(e)
++		}
++		if _, e := f.ParseID[mc.Model](old.Embedding); e != nil {
++			return unavailable(e)
++		}
++		if _, e := f.ParseID[mc.Model](old.Memory); e != nil {
++			return unavailable(e)
++		}
++		updated := *old
++		updated.Version, e = nextVersion(old.Version)
++		if e != nil {
++			return unavailable(e)
++		}
++		changed := false
++		for _, ref := range selectionReferences(old) {
++			if _, e := f.ParseID[mc.Model](ref.Model); e != nil {
++				return unavailable(e)
++			}
++			if ref.Model != p.Resource {
++				continue
++			}
++			if e := selectionCompatible(ref.Role, p.Models[0].Input, ref.Effort); e != nil {
++				return unavailable(e)
++			}
++			expected = append(expected, ref)
++			changed = true
++			switch ref.Role {
++			case "embedding":
++				updated.Embedding = a.Model
++			case "memory":
++				updated.Memory = a.Model
++			case "reranker":
++				updated.Reranker = a.Model
++			case "image":
++				updated.Image = a.Model
++			}
++		}
++		if !changed || updated != *next {
++			return unavailable(nil)
++		}
++	}
++	sort.Slice(expected, func(i, j int) bool {
++		if expected[i].Owner != expected[j].Owner {
++			return expected[i].Owner < expected[j].Owner
++		}
++		return expected[i].Role < expected[j].Role
++	})
++	if !sameValue(p.References, expected) {
++		return unavailable(nil)
++	}
++	return nil
++}
+--- candidate02/tests/model/meeting_summary_upgrade_test.go
++++ candidate03/tests/model/meeting_summary_upgrade_test.go
+@@ -8,6 +8,7 @@
+ 	"crypto/sha256"
+ 	"encoding/hex"
+ 	"encoding/json"
++	"io"
+ 	"os"
+ 	"os/exec"
+ 	"path/filepath"
+@@ -21,18 +22,25 @@
+ 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+ )
+ 
++type meetingSummaryOldSelection struct {
++	Scope, Key      string
++	ExpectedVersion f.Version
++	Selection       mc.PlatformSelection
++}
++type meetingSummaryOldDelete struct {
++	Scope, Key, ID  string
++	ExpectedVersion f.Version
++	Replacement     *string
++}
+ type meetingSummaryOldHandoff struct {
+ 	User, Session    string
+-	Selection        mc.UpdatePlatformSelectionRequest
+-	SelectionKey     string
++	Selection        meetingSummaryOldSelection
+ 	SelectionReceipt mc.CommandReceipt
+-	Provider         mc.DeleteProviderRequest
+-	ProviderKey      string
++	Provider         meetingSummaryOldDelete
+ 	ProviderReceipt  mc.CommandReceipt
+-	Model            mc.DeleteModelRequest
+-	ModelKey         string
++	Model            meetingSummaryOldDelete
+ 	ModelReceipt     mc.CommandReceipt
+-	History          map[string]json.RawMessage
++	History          map[string][]byte
+ }
+ 
+ func TestModelMeetingSummaryUpgradeReceipts(t *testing.T) {
+@@ -87,6 +95,10 @@
+ 	decoder := json.NewDecoder(bytes.NewReader(raw))
+ 	decoder.DisallowUnknownFields()
+ 	e = decoder.Decode(&handoff)
++	var trailing any
++	if e == nil && decoder.Decode(&trailing) != io.EOF {
++		e = io.ErrUnexpectedEOF
++	}
+ 	clear(raw)
+ 	if e != nil {
+ 		t.Fatal("old handoff invalid")
+@@ -101,6 +113,9 @@
+ 	if e = conn.QueryRow(testContext(t), `SELECT max(version),count(*),to_regclass('agenteam_model.meeting_summary_selection') IS NULL FROM agenteam_meta.migration_journal WHERE state='applied'`).Scan(&max, &count, &absent); e != nil || max != 19 || count != 19 || !absent {
+ 		t.Fatal("not a real pre20 upgrade", e)
+ 	}
++	if len(handoff.History) != 3 {
++		t.Fatal("incomplete old history tables")
++	}
+ 	history := func() {
+ 		t.Helper()
+ 		for table, previous := range handoff.History {
+@@ -108,17 +123,21 @@
+ 				t.Fatal("unexpected old history table")
+ 			}
+ 			var rows map[string]json.RawMessage
+-			if json.Unmarshal(previous, &rows) != nil {
++			if json.Unmarshal(previous, &rows) != nil || len(rows) == 0 {
+ 				t.Fatal("old history invalid")
+ 			}
+ 			ids := make([]string, 0, len(rows))
+ 			for key := range rows {
++				if _, e := f.ParseID[struct{}](key); e != nil {
++					t.Fatal("old history ID invalid")
++				}
+ 				ids = append(ids, key)
+ 			}
+ 			var current []byte
+ 			if e := conn.QueryRow(testContext(t), `SELECT coalesce(jsonb_object_agg(id::text,to_jsonb(r)),'{}'::jsonb) FROM `+table+` r WHERE id::text=ANY($1)`, ids).Scan(&current); e != nil || !bytes.Equal(current, previous) {
+ 				t.Fatal("old plan/semantic/receipt/Audit/Event rewritten", table, e)
+ 			}
++			t.Logf("historical table=%s original_rows=%d original_sql_bytes_sha256=%x unchanged", table, len(ids), sha256.Sum256(previous))
+ 		}
+ 	}
+ 	history()
+@@ -138,25 +157,52 @@
+ 	if e != nil {
+ 		t.Fatal(e)
+ 	}
++	// Reconstructing a Human only supplies identity claims. Each production call
++	// still rechecks the actual current Session and System administrator in PG.
+ 	v.admin = actor
+-	handoff.Selection.Actor, handoff.Provider.Actor, handoff.Model.Actor = actor, actor, actor
+-	handoff.Selection.Key = f.IdempotencyKey(handoff.SelectionKey)
+-	handoff.Provider.Key = f.IdempotencyKey(handoff.ProviderKey)
+-	handoff.Model.Key = f.IdempotencyKey(handoff.ModelKey)
++	if handoff.Selection.Scope != "system" || handoff.Provider.Scope != "system" || handoff.Model.Scope != "system" || handoff.Provider.Replacement != nil || handoff.Model.Replacement != nil {
++		t.Fatal("unexpected old request scope/shape")
++	}
++	providerID, e := f.ParseID[mc.Provider](handoff.Provider.ID)
++	if e != nil {
++		t.Fatal("old provider ID invalid")
++	}
++	modelID, e := f.ParseID[mc.Model](handoff.Model.ID)
++	if e != nil {
++		t.Fatal("old model ID invalid")
++	}
++	meta := func(key string) mc.CommandMeta {
++		return mc.CommandMeta{Actor: actor, Scope: id.SystemScope(), Key: f.IdempotencyKey(key)}
++	}
++	selectionRequest := mc.UpdatePlatformSelectionRequest{CommandMeta: meta(handoff.Selection.Key), ExpectedVersion: handoff.Selection.ExpectedVersion, Selection: handoff.Selection.Selection}
++	providerRequest := mc.DeleteProviderRequest{CommandMeta: meta(handoff.Provider.Key), ID: providerID, ExpectedVersion: handoff.Provider.ExpectedVersion}
++	modelRequest := mc.DeleteModelRequest{CommandMeta: meta(handoff.Model.Key), ID: modelID, ExpectedVersion: handoff.Model.ExpectedVersion}
++	if selectionRequest.Validate() != nil || providerRequest.Validate() != nil || modelRequest.Validate() != nil {
++		t.Fatal("old request data invalid")
++	}
++	for _, pair := range []struct {
++		receipt        mc.CommandReceipt
++		kind, resource string
++		version        f.Version
++	}{{handoff.SelectionReceipt, "model.selection.update", selectionRequest.Selection.ID, selectionRequest.ExpectedVersion + 1}, {handoff.ProviderReceipt, "provider.delete", providerID.String(), providerRequest.ExpectedVersion + 1}, {handoff.ModelReceipt, "model.delete", modelID.String(), modelRequest.ExpectedVersion + 1}} {
++		if pair.receipt.Validate() != nil || pair.receipt.Kind != pair.kind || pair.receipt.ResourceID != pair.resource || pair.receipt.Version != pair.version || pair.receipt.AffectedReferences != 0 {
++			t.Fatal("old receipt data invalid")
++		}
++	}
+ 	replay := func() {
+-		a, e := v.service.UpdatePlatformSelection(testContext(t), handoff.Selection)
++		a, e := v.service.UpdatePlatformSelection(testContext(t), selectionRequest)
+ 		if e != nil || a != handoff.SelectionReceipt {
+ 			t.Fatal("old selection replay", e)
+ 		}
+-		b, e := v.service.DeleteProvider(testContext(t), handoff.Provider)
++		b, e := v.service.DeleteProvider(testContext(t), providerRequest)
+ 		if e != nil || b != handoff.ProviderReceipt {
+ 			t.Fatal("old provider-delete replay", e)
+ 		}
+-		c, e := v.service.DeleteModel(testContext(t), handoff.Model)
++		c, e := v.service.DeleteModel(testContext(t), modelRequest)
+ 		if e != nil || c != handoff.ModelReceipt {
+ 			t.Fatal("old model-delete replay", e)
+ 		}
+-		lookup, e := v.service.LookupCommand(testContext(t), model.LookupCommandRequest{Meta: handoff.Selection.CommandMeta, Command: "model.selection.update"})
++		lookup, e := v.service.LookupCommand(testContext(t), model.LookupCommandRequest{Meta: selectionRequest.CommandMeta, Command: "model.selection.update"})
+ 		if e != nil || !lookup.Found || lookup.Receipt == nil || *lookup.Receipt != handoff.SelectionReceipt {
+ 			t.Fatal("old lookup", e)
+ 		}
+@@ -169,7 +215,7 @@
+ 	if e != nil {
+ 		t.Fatal(e)
+ 	}
+-	request := mc.UpdateMeetingSummarySelectionRequest{CommandMeta: handoff.Selection.CommandMeta, SelectionID: summary.ID, ExpectedVersion: summary.Version, Model: handoff.Selection.Selection.Memory}
++	request := mc.UpdateMeetingSummarySelectionRequest{CommandMeta: selectionRequest.CommandMeta, SelectionID: summary.ID, ExpectedVersion: summary.Version, Model: handoff.Selection.Selection.Memory}
+ 	_, e = v.service.UpdateMeetingSummarySelection(testContext(t), request)
+ 	requireCode(t, e, f.IdempotencyKeyReused)
+ 	request.Key = "new-summary-choice"
+--- candidate02/tests/model/meeting_summary_http_test.go
++++ candidate03/tests/model/meeting_summary_http_test.go
+@@ -48,7 +48,7 @@
+ 		if e = os.WriteFile(filepath.Join(dir, "summary-deletion-impact.json"), response.body, 0600); e != nil {
+ 			t.Fatal(e)
+ 		}
+-		metadata := map[string]any{"method": "GET", "path": path, "status": response.status, "model_id": old.String(), "body_sha256": hex.EncodeToString(sum[:]), "producer_test": "TestModelMeetingSummaryExistingHTTP"}
++		metadata := map[string]any{"method": "GET", "path": path, "status": response.status, "content_type": response.headers.Get("Content-Type"), "model_id": old.String(), "body_sha256": hex.EncodeToString(sum[:]), "producer_test": "TestModelMeetingSummaryExistingHTTP"}
+ 		if e = os.WriteFile(filepath.Join(dir, "summary-deletion-impact-source.json"), summaryJSON(t, metadata), 0600); e != nil {
+ 			t.Fatal(e)
+ 		}

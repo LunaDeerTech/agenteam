@@ -1,0 +1,20 @@
+--- author-driver-v01
++++ independent-driver-v01
+@@ -24,7 +24,7 @@
+ MINIO = '/workspace/scratch/fixture-recovery/bin/minio'
+ GOCACHE = '/workspace/.cache/go-build'
+ PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python'
+-GROUPS = {'new-schema-selection': ['TestModelMeetingSummarySchema', 'TestModelMeetingSummarySelection'], 'new-replacement-unknown': ['TestModelMeetingSummaryReplacement', 'TestModelMeetingSummaryUnknown'], 'new-upgrade-http': ['TestModelMeetingSummaryUpgradeReceipts', 'TestModelMeetingSummaryExistingHTTP'], 'old': ['TestModelB01PlatformSelectionAndAtomicReplacement', 'TestModelB01PreparedReferencesAndCurrentAdminAreRechecked', 'TestModelB01SecretReferencesAndAllEffectsRollback', 'TestModelB01ConcurrentSameKeyPreparationFailureStillReplaysReceipt', 'TestModelProjectReceiptReadGateAndLegacySystemPlan', 'TestModelProjectUnboundReferencesAndDeleteBarrier', 'TestSystemModelManagementDeletionImpact', 'TestModelSystemHTTPSelectionAndReferenceDeletion', 'TestModelSystemHTTPCurrentAdministrator', 'TestModelSystemHTTPBoundaryAndStrictWire', 'TestModelCurrentResolutionSelection', 'TestModelCurrentResolutionReplay']}
++GROUPS = {'new-independent-a': ['TestIndependentSummaryA'], 'new-independent-b': ['TestIndependentSummaryB']}
+ 
+ GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+ FROZEN = {}
+@@ -78,7 +78,7 @@
+             'HOME': '/home/agent', 'DOCKER_CONFIG': str(ROOT / 'docker-config'), 'GOPATH': '/workspace/go', 'GOMAXPROCS': '2',
+             'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off', 'GOPROXY': 'off', 'GOSUMDB': 'off',
+             'GOMODCACHE': MODCACHE, 'GOCACHE': GOCACHE, 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime),
+-            'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v',
++            'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/summary-verification/S1-probes/overlay.json',
+             'AGENTEAM_GO': GO, 'AGENTEAM_MINIO_BINARY': MINIO,
+             'AGENTEAM_MEETING_SUMMARY_OLD_BINARY': FROZEN['old_binary']['path'],
+             'AGENTEAM_MEETING_SUMMARY_OLD_SHA256': FROZEN['old_binary']['sha256']}

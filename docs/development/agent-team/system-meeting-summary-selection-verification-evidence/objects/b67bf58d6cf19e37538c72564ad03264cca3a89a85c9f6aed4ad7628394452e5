@@ -1,0 +1,454 @@
+[
+  {
+    "run": "new1",
+    "path": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new1",
+    "seconds": 100.839,
+    "actual_exit": 0,
+    "top_levels": [
+      [
+        "PASS",
+        "TestModelMeetingSummarySchema"
+      ],
+      [
+        "PASS",
+        "TestModelMeetingSummarySelection"
+      ]
+    ],
+    "resources": 7,
+    "owned_processes": 139,
+    "adopted_waits": 0,
+    "actual_wait": true,
+    "double_cleanup": true,
+    "source_unchanged": true,
+    "input_unchanged": true,
+    "shim_z_baseline": 24,
+    "pid1_z_new_not_owned_or_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 164015,
+        "ppid": 1,
+        "starttime": "731276",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 164855,
+        "ppid": 1,
+        "starttime": "732075",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 165140,
+        "ppid": 1,
+        "starttime": "732275",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 165733,
+        "ppid": 1,
+        "starttime": "732523",
+        "state": "Z"
+      }
+    ],
+    "evidence": {
+      "result.json": "e429aa278a5c5282f7ce765253d021ab5f46b856b6abcf1b51ebde3a24936bc8",
+      "command.json": "6a43c2a7d564d5ef4180929620c2bb36abdb92246d0e458575538a3dd55e43ae",
+      "raw.log": "0f808edbd62adcdf9de38c1410933c53de4ccddac6bb2357c031232e71739aca",
+      "cleanup.json": "3e745eb9742653db39736c97d952ee2777ee81f0fefe64e1a3c3230452d5b6cb",
+      "input-before.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+      "input-after.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+      "watchdog.json": "d9014b9429b8058458aa0a7d0a65efa91a003d0175d233f2f640b03bd9f225f6",
+      "observed-resources.json": "a01b607b01f68aa18adff40627c64d7a395cdd60c1f7400c89171315414fa9e1",
+      "observed-processes.json": "e28e28a2cc13712909032030c799f2ae39b0f6732ef3b3cb5012c02140deea06",
+      "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  {
+    "run": "new2",
+    "path": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new2",
+    "seconds": 66.065,
+    "actual_exit": 0,
+    "top_levels": [
+      [
+        "PASS",
+        "TestModelMeetingSummaryReplacement"
+      ],
+      [
+        "PASS",
+        "TestModelMeetingSummaryUnknown"
+      ]
+    ],
+    "resources": 7,
+    "owned_processes": 88,
+    "adopted_waits": 0,
+    "actual_wait": true,
+    "double_cleanup": true,
+    "source_unchanged": true,
+    "input_unchanged": true,
+    "shim_z_baseline": 28,
+    "pid1_z_new_not_owned_or_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 176282,
+        "ppid": 1,
+        "starttime": "743999",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 176814,
+        "ppid": 1,
+        "starttime": "744435",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 177138,
+        "ppid": 1,
+        "starttime": "744645",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 177677,
+        "ppid": 1,
+        "starttime": "744815",
+        "state": "Z"
+      }
+    ],
+    "evidence": {
+      "result.json": "4059da50d77ccd8ef3f9fe64f7095d8f25ba6089550886f270d10b314f242a91",
+      "command.json": "ce67d86264805dfce71af9c7ddff85f6735b5be4d2a9c659775f986deaaa189d",
+      "raw.log": "40f2f70ca30168b2e865c768bcdd0b43d9e74dcb16739f8491d73487b98d113c",
+      "cleanup.json": "d1160deb4558c229ded93eabb075f293e739e455da22f283c968149901e78f20",
+      "input-before.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+      "input-after.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+      "watchdog.json": "3539a95a7b1cc9b098221d51616dac847506ed8ead012c216e710ca0f2ff6190",
+      "observed-resources.json": "e6ad175631df5c1af093018c044a500d1922109fe1b4fb7ad0583d0dbb15d6ea",
+      "observed-processes.json": "6fce1ec388a88f0d96f95e86b645e789f3bcc1c3d2c21828e8b6fc800efa7ac8",
+      "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  {
+    "run": "new3",
+    "path": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new3",
+    "seconds": 55.981,
+    "actual_exit": 0,
+    "top_levels": [
+      [
+        "PASS",
+        "TestModelMeetingSummaryExistingHTTP"
+      ],
+      [
+        "PASS",
+        "TestModelMeetingSummaryUpgradeReceipts"
+      ]
+    ],
+    "resources": 7,
+    "owned_processes": 90,
+    "adopted_waits": 0,
+    "actual_wait": true,
+    "double_cleanup": true,
+    "source_unchanged": true,
+    "input_unchanged": true,
+    "shim_z_baseline": 32,
+    "pid1_z_new_not_owned_or_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 184825,
+        "ppid": 1,
+        "starttime": "752445",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 185354,
+        "ppid": 1,
+        "starttime": "752864",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 185632,
+        "ppid": 1,
+        "starttime": "753052",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 186256,
+        "ppid": 1,
+        "starttime": "753241",
+        "state": "Z"
+      }
+    ],
+    "evidence": {
+      "result.json": "6994574f79541bc16222fcebb691ce72005703dc1402979bd12f6f0fb4d055a9",
+      "command.json": "aed0f708fcb471e43a08d2684281e74d5e4fe7ac24208cf085f8ccf4a2ecdcd9",
+      "raw.log": "cacb4695b847033d7fa8dc8a126eff52ad1f8d161e75d8b1766cc2f51cd96a52",
+      "cleanup.json": "269c5edcc4855996927545700b6466d8d722bdefa66c55455225b4a3bb557959",
+      "input-before.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+      "input-after.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+      "watchdog.json": "f5fbb78ccefc380ad5c229a834d94b96d0a2a4bd82e9c3682529ec32f5c8f7a0",
+      "observed-resources.json": "fd4b1283d7c7540efbf38d42feac144ca7b30f16fc4fb93c7a64c61eeb5fdded",
+      "observed-processes.json": "6d7dc0beaa49a63e827e04540aa730b2e8e08225f7f497ddc90b0d78649bef5b",
+      "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  {
+    "run": "old1",
+    "path": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/old1",
+    "seconds": 87.618,
+    "actual_exit": 0,
+    "top_levels": [
+      [
+        "PASS",
+        "TestModelCurrentResolutionSelection"
+      ],
+      [
+        "PASS",
+        "TestModelCurrentResolutionReplay"
+      ],
+      [
+        "PASS",
+        "TestModelProjectReceiptReadGateAndLegacySystemPlan"
+      ],
+      [
+        "PASS",
+        "TestModelProjectUnboundReferencesAndDeleteBarrier"
+      ],
+      [
+        "PASS",
+        "TestModelB01PlatformSelectionAndAtomicReplacement"
+      ],
+      [
+        "PASS",
+        "TestModelB01SecretReferencesAndAllEffectsRollback"
+      ],
+      [
+        "PASS",
+        "TestModelB01ConcurrentSameKeyPreparationFailureStillReplaysReceipt"
+      ],
+      [
+        "PASS",
+        "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked"
+      ],
+      [
+        "PASS",
+        "TestModelSystemHTTPSelectionAndReferenceDeletion"
+      ],
+      [
+        "PASS",
+        "TestModelSystemHTTPCurrentAdministrator"
+      ],
+      [
+        "PASS",
+        "TestModelSystemHTTPBoundaryAndStrictWire"
+      ],
+      [
+        "PASS",
+        "TestSystemModelManagementDeletionImpact"
+      ]
+    ],
+    "resources": 7,
+    "owned_processes": 94,
+    "adopted_waits": 0,
+    "actual_wait": true,
+    "double_cleanup": true,
+    "source_unchanged": true,
+    "input_unchanged": true,
+    "shim_z_baseline": 36,
+    "pid1_z_new_not_owned_or_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 192574,
+        "ppid": 1,
+        "starttime": "761413",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 193067,
+        "ppid": 1,
+        "starttime": "761840",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 193426,
+        "ppid": 1,
+        "starttime": "762040",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 193943,
+        "ppid": 1,
+        "starttime": "762238",
+        "state": "Z"
+      }
+    ],
+    "evidence": {
+      "result.json": "c14d325879607d814e49db298b0098cbafbd4bbbab58c74cc6f9330a44605fee",
+      "command.json": "43d482d2a04ee0e8026a838c2f6312a4bacaf448eb0d06fd41b0b801c5421c2d",
+      "raw.log": "22b68e51a50c44bcd5665f384b81dc50f1a03bf158838296297685449e0f4412",
+      "cleanup.json": "47d4407dbd04effd63aa218e0f4a3d8ba48fa7d05922e4e298805591ad2bf66f",
+      "input-before.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+      "input-after.json": "dbd8121483e01a49a83ff7469ea65671ad62935353e4f5933b4590e827264603",
+      "watchdog.json": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf",
+      "observed-resources.json": "b7ffdcea290f90f0deecf2d89b11d18014bf31c20c1bb6024d4804492c9f2b7f",
+      "observed-processes.json": "71de813ae432b9423ef2f7513be1f52378f9ce5cb388e791cd76f8f8f24faff2",
+      "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  {
+    "run": "independent-a01",
+    "path": "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-a01",
+    "seconds": 53.995,
+    "actual_exit": 0,
+    "top_levels": [
+      [
+        "PASS",
+        "TestIndependentSummaryA"
+      ]
+    ],
+    "resources": 7,
+    "owned_processes": 87,
+    "adopted_waits": 0,
+    "actual_wait": true,
+    "double_cleanup": true,
+    "source_unchanged": true,
+    "input_unchanged": true,
+    "shim_z_baseline": 40,
+    "pid1_z_new_not_owned_or_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 203810,
+        "ppid": 1,
+        "starttime": "774064",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 204243,
+        "ppid": 1,
+        "starttime": "774423",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 204608,
+        "ppid": 1,
+        "starttime": "774613",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 205108,
+        "ppid": 1,
+        "starttime": "774804",
+        "state": "Z"
+      }
+    ],
+    "evidence": {
+      "result.json": "aed3b9df7909c679653db450400c62ccd897b31d1e00ed17b29aa070abaf3629",
+      "command.json": "f51f185812c4424d57fef67120ec1679fe1d0cef3e4086d12d27aeea20221be6",
+      "raw.log": "cf7957d0294ade53cdcea68445bca4a52ca2a8e6d395122b03c075be87a4169b",
+      "cleanup.json": "a43dc09e0c241f0d6795258c3676c714fc32681dbb77a4dbb118de68e577b493",
+      "input-before.json": "5e0d1d46d9c0fe37b9aa925facbf2b45a47d0852ef9bca3e313bbd4343e28a87",
+      "input-after.json": "5e0d1d46d9c0fe37b9aa925facbf2b45a47d0852ef9bca3e313bbd4343e28a87",
+      "watchdog.json": "ad7b6319efd23af27d1921f19b81589ae18ccca34ba4a0725b7e4e68ee3189d0",
+      "observed-resources.json": "f709c56513c2c078d680fb1ec1412b297b02a002482ce1b88ff28595c484ad56",
+      "observed-processes.json": "b9dbca42caa7bf951fd424986e9f3f08a92fa445ecf974e30ffd69d4ad250124",
+      "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  {
+    "run": "independent-b01",
+    "path": "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01",
+    "seconds": 57.27,
+    "actual_exit": 0,
+    "top_levels": [
+      [
+        "PASS",
+        "TestIndependentSummaryB"
+      ]
+    ],
+    "resources": 7,
+    "owned_processes": 87,
+    "adopted_waits": 0,
+    "actual_wait": true,
+    "double_cleanup": true,
+    "source_unchanged": true,
+    "input_unchanged": true,
+    "shim_z_baseline": 44,
+    "pid1_z_new_not_owned_or_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 211033,
+        "ppid": 1,
+        "starttime": "781303",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 211590,
+        "ppid": 1,
+        "starttime": "781751",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 211962,
+        "ppid": 1,
+        "starttime": "782018",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 212561,
+        "ppid": 1,
+        "starttime": "782270",
+        "state": "Z"
+      }
+    ],
+    "evidence": {
+      "result.json": "6d0ddf764a217df9f329eaa1a78629dc704b47b7eee0ba96cba7e9babd5cd53d",
+      "command.json": "178dd54bb9a9056f3dad8da768a94d3f6d3dd02985ad0f9b6893c25bdf115d43",
+      "raw.log": "b7e43fe4a00bd54baa24106b33ebc4117dd97947314cf0e1f371a86ba4fbc50a",
+      "cleanup.json": "5f0d2ce1f06435569ef707d224a713e988c96600d7b5da09e6a03261c0cf7abc",
+      "input-before.json": "5e0d1d46d9c0fe37b9aa925facbf2b45a47d0852ef9bca3e313bbd4343e28a87",
+      "input-after.json": "5e0d1d46d9c0fe37b9aa925facbf2b45a47d0852ef9bca3e313bbd4343e28a87",
+      "watchdog.json": "a3f8b342b5fc1e67282b0781158ab6d2e847efae68528393a204756004c765d0",
+      "observed-resources.json": "4f4c47cdf30c6a7fc5bf6b6d300f653d1b0b9c2d5cd91d651a236d4e1c6249a0",
+      "observed-processes.json": "ed73c759568668b8949f3aab33c3870f6c0c3efd0a5c9f5ead5d1ed49ea02bb7",
+      "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  }
+]

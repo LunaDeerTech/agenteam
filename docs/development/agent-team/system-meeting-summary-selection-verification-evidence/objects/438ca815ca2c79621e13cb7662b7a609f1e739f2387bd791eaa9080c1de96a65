@@ -1,0 +1,255 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	accountc "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	ec "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/model"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+)
+
+func oldMeetingSummaryFixture(t *testing.T) *systemHTTPFixture {
+	t.Helper()
+	db := oldMeetingSummaryDatabase(t)
+	raw := openStore(t, db.Config(t, nil))
+	store := &systemHTTPStore{Store: raw, active: map[f.Tx]*systemHTTPTrace{}}
+	ak, ck, sk := testKeys(t)
+	accounts, err := account.NewAuthority(store, ak)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = accounts.Initialize(testContext(t)); err != nil {
+		t.Fatal(err)
+	}
+	ma, err := model.NewAuthority(store, model.Authorizations{Sessions: accounts, System: accounts})
+	if err != nil {
+		t.Fatal(err)
+	}
+	aud, err := audit.New(store, ck, audit.Authorizations{Sessions: accounts, System: accounts, Accounts: accounts, Models: ma})
+	if err != nil {
+		t.Fatal(err)
+	}
+	auditFail := &systemHTTPAudit{Appender: aud}
+	router, err := model.NewSecretUsageRouter(ma, accounts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	secrets, err := secret.New(store, sk, auditFail, secret.Authorizations{Sessions: accounts, System: accounts, Usage: router, AccountWrites: accounts})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = secrets.Initialize(testContext(t)); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(secrets.StopMaintenance)
+	catalog := ec.NewCatalog()
+	types, err := model.DefineEvents(catalog)
+	if err != nil {
+		t.Fatal(err)
+	}
+	revoked, err := accountc.DefineSessionsRevoked(catalog)
+	if err != nil {
+		t.Fatal(err)
+	}
+	delivery, err := accountc.DefineDeliveryRequested(catalog)
+	if err != nil {
+		t.Fatal(err)
+	}
+	process := systemHTTPAccountProcess{newID[accountc.Process](t)}
+	outProcess, _ := f.ParseID[oc.Process](process.id.String())
+	events, err := outbox.New(store, catalog, outbox.Authorizations{Producers: map[ec.StableName]oc.ProducerAuthority{model.ModelProducer: ma, accountc.AccountProducer: accounts}, Sessions: accounts, System: accounts, Audit: auditFail, Cursors: ck, Processes: liveProcess{outProcess}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	runtime, err := outbox.NewRuntime(events, nil, outbox.Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = runtime.Initialize(testContext(t)); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		runtime.StopClaims()
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		if err := runtime.Drain(ctx); err != nil {
+			t.Error(err)
+		}
+	})
+	eventFail := &systemHTTPEvents{Appender: events}
+	deps := model.Dependencies{Secret: secrets, Audit: auditFail, Events: eventFail, ConfigurationEvents: types, Cursors: ck}
+	service, err := model.New(store, ma, deps)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = service.Initialize(testContext(t)); err != nil {
+		t.Fatal(err)
+	}
+	dir := t.TempDir()
+	if err = os.Chmod(dir, 0700); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(dir, "recovery.jsonl")
+	sink, err := recoverylog.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	challenges, err := account.NewChallenges(accounts, process.id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	core, err := account.New(account.Dependencies{Authority: accounts, Audit: auditFail, Secrets: secrets, Events: events, SessionsRevoked: revoked, DeliveryRequested: delivery, Processes: process, RecoveryLog: sink, Challenges: challenges})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := core.Force(context.Background()); err != nil || !core.Joined() {
+			t.Error(err)
+		}
+	})
+	status, err := core.Bootstrap(testContext(t))
+	if err != nil || !status.Created || status.LogState != "written" {
+		t.Fatal("real Account bootstrap", err)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var record struct {
+		Password string `json:"initial_password"`
+	}
+	if json.Unmarshal(data, &record) != nil || record.Password == "" {
+		t.Fatal("private bootstrap record")
+	}
+	clear(data)
+	password, err := sc.NewSecretMaterial([]byte(record.Password))
+	record.Password = ""
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(password.Destroy)
+	v := &systemHTTPFixture{fixture: &fixture{db: db, raw: raw, store: store, accounts: accounts, authority: ma, service: service, secrets: secrets, aud: aud, events: events, runtime: runtime, deps: deps}, account: core, tracked: store, auditFail: auditFail, eventFail: eventFail, password: password, log: &systemHTTPLog{}}
+	v.adminBrowser = v.login(t, "admin@mail.com")
+	v.admin = v.adminBrowser.actor
+	v.install(t, secrets)
+	return v
+}
+
+func oldMeetingSummaryDatabase(t *testing.T) *pgfixture.Database {
+	t.Helper()
+	descriptor, e := pgfixture.Load()
+	if e != nil {
+		t.Fatal(e)
+	}
+	db := &pgfixture.Database{Fixture: descriptor, Name: os.Getenv("AGENTEAM_MEETING_SUMMARY_OLD_DATABASE")}
+	migrator, e := postgres.NewMigrator(db.Config(t, nil))
+	if e != nil {
+		t.Fatal(e)
+	}
+	result := migrator.Migrate(testContext(t))
+	if !result.Migrated || result.Version != 19 {
+		t.Fatal("old binary must migrate exactly 1..19", result.Fault)
+	}
+	conn := db.Connect(t)
+	var count, max int64
+	var absent bool
+	if e = conn.QueryRow(testContext(t), `SELECT count(*),max(version),to_regclass('agenteam_model.meeting_summary_selection') IS NULL FROM agenteam_meta.migration_journal WHERE state='applied'`).Scan(&count, &max, &absent); e != nil || count != 19 || max != 19 || !absent {
+		t.Fatal("old schema is not exact 1..19", e)
+	}
+	t.Log("fixed 6fa producer schema journal 1..19, Summary table absent")
+	return db
+}
+
+type oldMeetingSummarySelection struct {
+	Scope, Key      string
+	ExpectedVersion f.Version
+	Selection       mc.PlatformSelection
+}
+type oldMeetingSummaryDelete struct {
+	Scope, Key, ID  string
+	ExpectedVersion f.Version
+	Replacement     *string
+}
+type oldMeetingSummaryHandoff struct {
+	User, Session    string
+	Selection        oldMeetingSummarySelection
+	SelectionReceipt mc.CommandReceipt
+	Provider         oldMeetingSummaryDelete
+	ProviderReceipt  mc.CommandReceipt
+	Model            oldMeetingSummaryDelete
+	ModelReceipt     mc.CommandReceipt
+	History          map[string][]byte
+}
+
+func TestMeetingSummaryOldProducer(t *testing.T) {
+	v := oldMeetingSummaryFixture(t)
+	selection, e := v.service.GetPlatformSelection(testContext(t), v.admin)
+	if e != nil {
+		t.Fatal(e)
+	}
+	embed, _ := f.ParseID[mc.Model](v.model(t, v.provider(t, mc.OpenAIEmbeddings), mc.EmbeddingModel))
+	provider := v.provider(t, mc.OpenAIChat)
+	body := httpModelBody(provider, mc.ChatModel)
+	body["input"].(map[string]any)["capabilities"].(map[string]any)["structured_output_modes"] = []string{"json_schema"}
+	memory, _ := f.ParseID[mc.Model](v.request(t, v.adminBrowser, "POST", "/api/v1/system/models", newID[struct{}](t).String(), body).want(t, 200).object(t)["resource_id"].(string))
+	handoff := oldMeetingSummaryHandoff{User: v.admin.Details().UserID, Session: v.admin.Details().SessionID, History: map[string][]byte{}}
+	selectionRequest := mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, "old-selection-command"), ExpectedVersion: selection.Version, Selection: mc.PlatformSelection{ID: selection.ID, Version: selection.Version, Embedding: embed, Memory: memory}}
+	handoff.Selection = oldMeetingSummarySelection{Scope: "system", Key: string(selectionRequest.Key), ExpectedVersion: selectionRequest.ExpectedVersion, Selection: selectionRequest.Selection}
+	handoff.SelectionReceipt, e = v.service.UpdatePlatformSelection(testContext(t), selectionRequest)
+	if e != nil {
+		t.Fatal(e)
+	}
+	doomed, _ := f.ParseID[mc.Model](v.model(t, provider, mc.ChatModel))
+	modelRequest := mc.DeleteModelRequest{CommandMeta: v.meta(t, "old-model-delete-command"), ID: doomed, ExpectedVersion: 1}
+	handoff.Model = oldMeetingSummaryDelete{Scope: "system", Key: string(modelRequest.Key), ID: modelRequest.ID.String(), ExpectedVersion: modelRequest.ExpectedVersion}
+	handoff.ModelReceipt, e = v.service.DeleteModel(testContext(t), modelRequest)
+	if e != nil {
+		t.Fatal(e)
+	}
+	empty, _ := f.ParseID[mc.Provider](v.provider(t, mc.OpenAIChat))
+	providerRequest := mc.DeleteProviderRequest{CommandMeta: v.meta(t, "old-provider-delete-command"), ID: empty, ExpectedVersion: 1}
+	handoff.Provider = oldMeetingSummaryDelete{Scope: "system", Key: string(providerRequest.Key), ID: providerRequest.ID.String(), ExpectedVersion: providerRequest.ExpectedVersion}
+	handoff.ProviderReceipt, e = v.service.DeleteProvider(testContext(t), providerRequest)
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, table := range []string{"agenteam_model.commands", "agenteam_audit.audit_records", "agenteam_outbox.events"} {
+		var raw []byte
+		if e = v.raw.QueryRow(testContext(t), `SELECT coalesce(jsonb_object_agg(id::text,to_jsonb(r)),'{}'::jsonb) FROM `+table+` r`).Scan(&raw); e != nil {
+			t.Fatal(e)
+		}
+		handoff.History[table] = raw
+	}
+	path := os.Getenv("AGENTEAM_MEETING_SUMMARY_OLD_HANDOFF")
+	if path == "" {
+		t.Fatal("private handoff required")
+	}
+	file, e := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+	if e != nil {
+		t.Fatal(e)
+	}
+	e = json.NewEncoder(file).Encode(handoff)
+	closeErr := file.Close()
+	if e != nil || closeErr != nil {
+		t.Fatal("private handoff write failed")
+	}
+	t.Logf("fixed 6fa accepted selection=%s version=%s and two delete receipts; private handoff written", handoff.SelectionReceipt.ResourceID, handoff.SelectionReceipt.Version.String())
+}

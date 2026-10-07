@@ -1,0 +1,55 @@
+{
+  "readme": {
+    "path": "/workspace/agenteam/docs/development/backend/README.md",
+    "sha256": "b011e9f9ca395d2325a4bc6badb26652874052536f2a6c1a87e8854fa0bf9696"
+  },
+  "diff": {
+    "path": "/workspace/scratch/meeting-summary-s1-author/backend-readme.diff",
+    "sha256": "cbded494ee5b742018211deb766de0b135b91c0773fd7e1bb494583b8e10bb89"
+  },
+  "technical_review_sha256": "9c6790dfbedf8f6ad1d0b1061cbd49d079a64e3f117a644cf88d7de6b044acea",
+  "changed_segment_local_links": [
+    [
+      "../../../api/openapi/model-system.json",
+      true
+    ],
+    [
+      "../work-items/recovery-d09-system-model-root.md",
+      true
+    ],
+    [
+      "object-runtime.md",
+      true
+    ],
+    [
+      "../agent-team/object-runtime-join-regression.md",
+      true
+    ],
+    [
+      "../../../api/openapi/account.json",
+      true
+    ],
+    [
+      "artifact.md",
+      true
+    ],
+    [
+      "../agent-team/system-model-management-reads-verification.md",
+      true
+    ],
+    [
+      "../work-items/recovery-d09-system-model-management-reads.md",
+      true
+    ],
+    [
+      "../work-items/d09-system-meeting-summary-selection.md",
+      true
+    ],
+    [
+      "database.md#版本与配置",
+      true
+    ]
+  ],
+  "report_sha256": "30d964bd6ee839cfc3f9dfb5bd80feac6d9a350c9a4a20cb8682e59ae91584bb",
+  "status": "PASS; STATIC only; stopped"
+}

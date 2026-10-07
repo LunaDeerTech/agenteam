@@ -1,0 +1,32 @@
+{
+  "Replace": {
+    "/workspace/agenteam/internal/central/model/commands.go": "/workspace/scratch/meeting-summary-s1-author/candidate03/internal/central/model/commands.go",
+    "/workspace/agenteam/internal/central/model/commands_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/commands_test.go",
+    "/workspace/agenteam/internal/central/model/configuration.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/configuration.go",
+    "/workspace/agenteam/internal/central/model/configuration_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/configuration_test.go",
+    "/workspace/agenteam/internal/central/model/references.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/references.go",
+    "/workspace/agenteam/internal/central/model/references_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/references_test.go",
+    "/workspace/agenteam/internal/central/model/audit_authority.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/audit_authority.go",
+    "/workspace/agenteam/internal/central/model/audit_authority_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/audit_authority_test.go",
+    "/workspace/agenteam/internal/central/model/events.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/events.go",
+    "/workspace/agenteam/internal/central/model/events_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/events_test.go",
+    "/workspace/agenteam/internal/central/model/management_read.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/management_read.go",
+    "/workspace/agenteam/internal/central/model/management_read_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate03/internal/central/model/management_read_test.go",
+    "/workspace/agenteam/internal/central/model/http_management_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/http_management_test.go",
+    "/workspace/agenteam/api/openapi/model-system.json": "/workspace/scratch/meeting-summary-s1-author/candidate01/api/openapi/model-system.json",
+    "/workspace/agenteam/internal/central/model/meeting_summary.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/meeting_summary.go",
+    "/workspace/agenteam/internal/central/model/meeting_summary_store.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/meeting_summary_store.go",
+    "/workspace/agenteam/internal/central/model/meeting_summary_commands.go": "/workspace/scratch/meeting-summary-s1-author/candidate03/internal/central/model/meeting_summary_commands.go",
+    "/workspace/agenteam/internal/central/model/meeting_summary_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/internal/central/model/meeting_summary_test.go",
+    "/workspace/agenteam/internal/central/model/meeting_summary_commands_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate04/internal/central/model/meeting_summary_commands_test.go",
+    "/workspace/agenteam/db/migrations/00020_model_meeting_summary_selection.sql": "/workspace/scratch/meeting-summary-s1-author/candidate01/db/migrations/00020_model_meeting_summary_selection.sql",
+    "/workspace/agenteam/tests/model/meeting_summary_fixture_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/tests/model/meeting_summary_fixture_test.go",
+    "/workspace/agenteam/tests/model/meeting_summary_selection_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/tests/model/meeting_summary_selection_test.go",
+    "/workspace/agenteam/tests/model/meeting_summary_replacement_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/tests/model/meeting_summary_replacement_test.go",
+    "/workspace/agenteam/tests/model/meeting_summary_unknown_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/tests/model/meeting_summary_unknown_test.go",
+    "/workspace/agenteam/tests/model/meeting_summary_schema_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate01/tests/model/meeting_summary_schema_test.go",
+    "/workspace/agenteam/tests/model/meeting_summary_upgrade_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate03/tests/model/meeting_summary_upgrade_test.go",
+    "/workspace/agenteam/tests/model/meeting_summary_http_test.go": "/workspace/scratch/meeting-summary-s1-author/candidate03/tests/model/meeting_summary_http_test.go",
+    "/workspace/agenteam/tests/model/summary_independent_verification_test.go": "/workspace/scratch/summary-verification/S1-probes/probe_test.go"
+  }
+}

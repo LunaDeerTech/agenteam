@@ -1,0 +1,115 @@
+{
+  "label": "h01-client",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--import",
+    "/workspace/scratch/summary-frontend-verification/http02/guard.mjs",
+    "/workspace/scratch/summary-frontend-verification/http02/tools.mjs",
+    "pure"
+  ],
+  "cwd": "/workspace/agenteam/web",
+  "env": {
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "TMPDIR": "/workspace/scratch/summary-frontend-verification/http02/h01-client/tmp",
+    "SUMMARY_VERIFY_OUTPUT": "/workspace/scratch/summary-frontend-verification/http02/h01-client",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "npm_config_offline": "true"
+  },
+  "before": {
+    "origins": {
+      "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01/result.json": "6d0ddf764a217df9f329eaa1a78629dc704b47b7eee0ba96cba7e9babd5cd53d",
+      "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01/frozen-input.json": "fbe256b0188f2134fdf0daa8254705997f1ca467a0e829163886cc27e1571112",
+      "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01/safe-http-evidence/independent-summary-memory.json": "39b25a8b83cbce1128723132d168d4e0dce9d00bc79188e1fdaf86d0c68bcf6e",
+      "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01/safe-http-evidence/independent-summary-memory-source.json": "83b36963e7f375b7b76977429468c546eff38e22b49199075594de589fa8963a",
+      "/workspace/scratch/meeting-summary-s1-author/candidate04.json": "da01aba5921573ff03acaf9e4d24df047bd2306f82c24936a90f5343a2311fe2",
+      "/workspace/scratch/summary-verification/S1-probes/closure02.json": "deb013754ec1d3df83ae9dcd7e01c4ee1d55aa5568ab2ccb236cd888610fd667",
+      "/workspace/scratch/meeting-summary-model-delete-compat/frozen04.json": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+      "/workspace/scratch/summary-frontend-verification/http01/model-system.json": "1de2d849f8a6534ef9473d2d5c4d472b17905d6cc0ce25651f5b1ad3c1b21dd6",
+      "/workspace/agenteam/api/openapi/model-system.json": "1de2d849f8a6534ef9473d2d5c4d472b17905d6cc0ce25651f5b1ad3c1b21dd6",
+      "/workspace/scratch/summary-frontend-verification/http01/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "/workspace/agenteam/api/openapi/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01/input-before.json": "5e0d1d46d9c0fe37b9aa925facbf2b45a47d0852ef9bca3e313bbd4343e28a87",
+      "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01/input-after.json": "5e0d1d46d9c0fe37b9aa925facbf2b45a47d0852ef9bca3e313bbd4343e28a87",
+      "/workspace/scratch/summary-frontend-verification/http01/freeze-final.json": "f54d7f422e2d7bc9e1ed96bc2b6087e1654691c79af678dcb42c67f7857bbc9a",
+      "/workspace/scratch/summary-frontend-verification/http01/h04-schema/schema-result.json": "3ad90d54f445aae659eafa5b61ac31886c4b3b0a70dc0d119f93f331b74bc4c1"
+    },
+    "author_frozen_sha256": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+    "own": {
+      "prepare.py": "b3f6fabc597a19b71ce0d8a30a9b6cd350d804b30fb8348a338ed1a01437522e",
+      "provenance.json": "c96500af91f53b9060a0103c22e21e01ad8c6f6b7d1d12f752efd289e1e8fbe6",
+      "guard.mjs": "5444032d0a5c648907ee50da7d7dda16ef4e07aee3703f959a179534c7db3d91",
+      "tools.mjs": "75395c39d87431b87822366f55f20cd5f3e3328ca4a2e4e4a4d1f398e758d771",
+      "run.py": "affbd8ae31074bc99e7b54dd98b7d10ca2aa740dd44c13dfee9fa0cc9c79d2ea",
+      "independent.spec.ts": "892d2a0d46ec070d7a98cc99ca58f536e32671e342b71ced5dedf29fcbde9adb",
+      "schema.py": "b39af9db8e15a15376649113663d1b14fd513abd4a1079c88fad02df500028b2",
+      "independent-summary-memory.json": "39b25a8b83cbce1128723132d168d4e0dce9d00bc79188e1fdaf86d0c68bcf6e",
+      "independent-summary-memory-source.json": "83b36963e7f375b7b76977429468c546eff38e22b49199075594de589fa8963a"
+    },
+    "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+  },
+  "subreaper": true,
+  "budget_seconds": 45,
+  "started": 1791382005.8605342,
+  "child": {
+    "pid": 219012,
+    "starttime": "795769",
+    "ppid": 219009,
+    "pgrp": 219012,
+    "state": "R"
+  },
+  "actual_exit": 0,
+  "actual_wait": true,
+  "seconds": 1.1218712329864502,
+  "adopted_waits": [],
+  "forced_tail": false,
+  "cleanup": [
+    {
+      "time": 1791382006.9824421,
+      "owned": [],
+      "direct": null
+    },
+    {
+      "time": 1791382007.087914,
+      "owned": [],
+      "direct": null
+    }
+  ],
+  "after": {
+    "origins": {
+      "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01/result.json": "6d0ddf764a217df9f329eaa1a78629dc704b47b7eee0ba96cba7e9babd5cd53d",
+      "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01/frozen-input.json": "fbe256b0188f2134fdf0daa8254705997f1ca467a0e829163886cc27e1571112",
+      "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01/safe-http-evidence/independent-summary-memory.json": "39b25a8b83cbce1128723132d168d4e0dce9d00bc79188e1fdaf86d0c68bcf6e",
+      "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01/safe-http-evidence/independent-summary-memory-source.json": "83b36963e7f375b7b76977429468c546eff38e22b49199075594de589fa8963a",
+      "/workspace/scratch/meeting-summary-s1-author/candidate04.json": "da01aba5921573ff03acaf9e4d24df047bd2306f82c24936a90f5343a2311fe2",
+      "/workspace/scratch/summary-verification/S1-probes/closure02.json": "deb013754ec1d3df83ae9dcd7e01c4ee1d55aa5568ab2ccb236cd888610fd667",
+      "/workspace/scratch/meeting-summary-model-delete-compat/frozen04.json": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+      "/workspace/scratch/summary-frontend-verification/http01/model-system.json": "1de2d849f8a6534ef9473d2d5c4d472b17905d6cc0ce25651f5b1ad3c1b21dd6",
+      "/workspace/agenteam/api/openapi/model-system.json": "1de2d849f8a6534ef9473d2d5c4d472b17905d6cc0ce25651f5b1ad3c1b21dd6",
+      "/workspace/scratch/summary-frontend-verification/http01/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "/workspace/agenteam/api/openapi/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01/input-before.json": "5e0d1d46d9c0fe37b9aa925facbf2b45a47d0852ef9bca3e313bbd4343e28a87",
+      "/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01/input-after.json": "5e0d1d46d9c0fe37b9aa925facbf2b45a47d0852ef9bca3e313bbd4343e28a87",
+      "/workspace/scratch/summary-frontend-verification/http01/freeze-final.json": "f54d7f422e2d7bc9e1ed96bc2b6087e1654691c79af678dcb42c67f7857bbc9a",
+      "/workspace/scratch/summary-frontend-verification/http01/h04-schema/schema-result.json": "3ad90d54f445aae659eafa5b61ac31886c4b3b0a70dc0d119f93f331b74bc4c1"
+    },
+    "author_frozen_sha256": "051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0",
+    "own": {
+      "prepare.py": "b3f6fabc597a19b71ce0d8a30a9b6cd350d804b30fb8348a338ed1a01437522e",
+      "provenance.json": "c96500af91f53b9060a0103c22e21e01ad8c6f6b7d1d12f752efd289e1e8fbe6",
+      "guard.mjs": "5444032d0a5c648907ee50da7d7dda16ef4e07aee3703f959a179534c7db3d91",
+      "tools.mjs": "75395c39d87431b87822366f55f20cd5f3e3328ca4a2e4e4a4d1f398e758d771",
+      "run.py": "affbd8ae31074bc99e7b54dd98b7d10ca2aa740dd44c13dfee9fa0cc9c79d2ea",
+      "independent.spec.ts": "892d2a0d46ec070d7a98cc99ca58f536e32671e342b71ced5dedf29fcbde9adb",
+      "schema.py": "b39af9db8e15a15376649113663d1b14fd513abd4a1079c88fad02df500028b2",
+      "independent-summary-memory.json": "39b25a8b83cbce1128723132d168d4e0dce9d00bc79188e1fdaf86d0c68bcf6e",
+      "independent-summary-memory-source.json": "83b36963e7f375b7b76977429468c546eff38e22b49199075594de589fa8963a"
+    },
+    "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+  },
+  "input_unchanged": true,
+  "raw_sha256": "08d1ffe2cf6a6feb3923fd1b2f3360b7b141504771d94f8552bfb6b2a6db019c"
+}

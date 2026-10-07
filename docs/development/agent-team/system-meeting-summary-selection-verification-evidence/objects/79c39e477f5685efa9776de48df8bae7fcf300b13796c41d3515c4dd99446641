@@ -1,0 +1,80 @@
+from pathlib import Path
+import ctypes, hashlib, json, os, signal, subprocess, sys, time
+from input import BASE, WEB, NODE, snapshot
+
+name, mode, frozen_name = sys.argv[1:]
+frozen_path = BASE/frozen_name
+frozen = json.loads(frozen_path.read_text())
+out = BASE/name
+out.mkdir(exist_ok=False)
+commands = {
+    'format': [NODE, str(WEB/'node_modules/prettier/bin/prettier.cjs'), '--check',
+        'src/api/system-models.ts', 'src/views/system/SystemModelDeleteDialog.vue',
+        'src/tests/system-models-client.spec.ts', 'src/tests/system-models.spec.ts'],
+    'type': [NODE, str(WEB/'node_modules/vue-tsc/bin/vue-tsc.js'), '--noEmit'],
+    'pure': [NODE, str(BASE/'tools.mjs'), 'pure'],
+    'build': [NODE, str(BASE/'tools.mjs'), 'build'],
+}
+command = commands[mode]
+before = snapshot()
+if before != frozen:
+    (out/'input-mismatch.json').write_text(json.dumps(before, indent=2)+'\n')
+    raise RuntimeError('frozen input mismatch; no command spawned')
+if ctypes.CDLL(None, use_errno=True).prctl(36,1,0,0,0) != 0:
+    raise RuntimeError('subreaper setup failed')
+(out/'tmp').mkdir()
+env = {'PATH': str(Path(NODE).parent)+':/usr/bin:/bin', 'HOME': '/home/agent',
+       'TMPDIR': str(out/'tmp'), 'SUMMARY_FRONTEND_OUTPUT': str(out), 'CI': '1',
+       'NO_COLOR': '1', 'TZ': 'UTC', 'LANG': 'C.UTF-8', 'npm_config_offline': 'true'}
+record = {'command': command, 'cwd': str(WEB), 'env': env, 'subreaper': True,
+          'budget_seconds': 45, 'frozen': str(frozen_path),
+          'frozen_sha256': hashlib.sha256(frozen_path.read_bytes()).hexdigest(), 'started': time.time()}
+(out/'command.json').write_text(json.dumps(record, indent=2)+'\n')
+with (out/'raw.log').open('wb') as log:
+    p = subprocess.Popen(command, cwd=WEB, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+    record['pid'] = p.pid
+    record['pid_starttime'] = Path(f'/proc/{p.pid}/stat').read_text().rsplit(')',1)[1].split()[19]
+    try: code = p.wait(timeout=45)
+    except subprocess.TimeoutExpired:
+        record['timeout'] = True
+        os.killpg(p.pid, signal.SIGTERM)
+        try: code = p.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            os.killpg(p.pid, signal.SIGKILL)
+            code = p.wait()
+adopted = []
+deadline = time.monotonic()+3
+forced = False
+while True:
+    try: child, status = os.waitpid(-1, os.WNOHANG)
+    except ChildProcessError: break
+    if child:
+        adopted.append({'pid': child, 'wait_status': status})
+        continue
+    if time.monotonic()>deadline:
+        if forced: raise RuntimeError('owned descendants failed terminal wait')
+        try: os.killpg(p.pid, signal.SIGKILL)
+        except ProcessLookupError: pass
+        forced=True
+        deadline=time.monotonic()+3
+    time.sleep(.02)
+def tail():
+    found=[]
+    for stat in Path('/proc').glob('[0-9]*/stat'):
+        try:
+            parts=stat.read_text().rsplit(')',1)[1].split()
+            if int(parts[1])==os.getpid() or int(parts[2])==p.pid:
+                found.append({'pid':int(stat.parent.name),'state':parts[0],'starttime':parts[19]})
+        except (FileNotFoundError,ProcessLookupError): pass
+    return found
+first=tail()
+time.sleep(.1)
+second=tail()
+after=snapshot()
+record.update(exit=code, finished=time.time(), adopted_waits=adopted, forced_descendants=forced,
+              first_tail=first, second_tail=second, inputs_unchanged=after==before)
+(out/'command.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps({'path':str(out),'exit':code,'elapsed':record['finished']-record['started'],
+                  'inputs_unchanged':after==before,'tails':[first,second],'adopted':adopted}))
+if first or second or before!=after or record.get('timeout') or forced: sys.exit(125)
+sys.exit(code if code>=0 else 128-code)

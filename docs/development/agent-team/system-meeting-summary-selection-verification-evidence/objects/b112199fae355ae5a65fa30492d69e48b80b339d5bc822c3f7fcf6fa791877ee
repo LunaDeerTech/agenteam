@@ -1,0 +1,97 @@
+=== RUN   TestModelAuditPlanHasExactStableCauseAndCurrentActor
+--- PASS: TestModelAuditPlanHasExactStableCauseAndCurrentActor (0.00s)
+=== RUN   TestModelMeetingSummaryUsesOriginalPlatformAuditShape
+--- PASS: TestModelMeetingSummaryUsesOriginalPlatformAuditShape (0.00s)
+=== RUN   TestModelCurrentAuthorityRequiresHeldUserAndActualSessionBeforeGrant
+--- PASS: TestModelCurrentAuthorityRequiresHeldUserAndActualSessionBeforeGrant (0.00s)
+=== RUN   TestModelCommandDigestStableUserButCompleteMeaning
+--- PASS: TestModelCommandDigestStableUserButCompleteMeaning (0.00s)
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/same
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/different
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/absent
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/confirmation-error
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/revoked
+--- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/same (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/different (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/absent (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/confirmation-error (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/revoked (0.00s)
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/same
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/different
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/absent
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/revoked
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown-confirmation-failed
+--- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/same (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/different (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/absent (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/revoked (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown-confirmation-failed (0.00s)
+=== RUN   TestModelPolicyDoesNotClaimUnverifiedNativeSchemas
+--- PASS: TestModelPolicyDoesNotClaimUnverifiedNativeSchemas (0.00s)
+=== RUN   TestModelProjectCommandsAreExplicitlyUnboundWithoutIO
+--- PASS: TestModelProjectCommandsAreExplicitlyUnboundWithoutIO (0.00s)
+=== RUN   TestModelEventsUseExplicitCatalogAndWrongOwnerFailsBeforeSQL
+--- PASS: TestModelEventsUseExplicitCatalogAndWrongOwnerFailsBeforeSQL (0.00s)
+=== RUN   TestModelEventPlansBindFullActorAndExactRegisteredPayload
+--- PASS: TestModelEventPlansBindFullActorAndExactRegisteredPayload (0.00s)
+=== RUN   TestModelMeetingSummaryConfigurationEvents
+--- PASS: TestModelMeetingSummaryConfigurationEvents (0.00s)
+=== RUN   TestSystemHTTPDTORequiredNullAndExactScalars
+--- PASS: TestSystemHTTPDTORequiredNullAndExactScalars (0.00s)
+=== RUN   TestSystemHTTPListQueryCanonicalAndProjection
+--- PASS: TestSystemHTTPListQueryCanonicalAndProjection (0.00s)
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/observed
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/metadata
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/late-receipt
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/denied
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/lookup-error
+--- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/observed (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/metadata (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/late-receipt (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/denied (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/lookup-error (0.00s)
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/valid
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/wrong-ref
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/project
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/purpose
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/version
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/failure
+--- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/valid (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/wrong-ref (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/project (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/purpose (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/version (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/failure (0.00s)
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/query
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/empty-query
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/length
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/chunked
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/unknown-length
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/bad-id
+--- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/query (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/empty-query (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/length (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/chunked (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/unknown-length (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/bad-id (0.00s)
+=== RUN   TestSystemManagementHTTPBudgetOnlyNewReads
+--- PASS: TestSystemManagementHTTPBudgetOnlyNewReads (0.00s)
+=== RUN   TestSystemHTTPConstructionAndRoutesMatchOpenAPI
+    http_test.go:49: open ../../../api/openapi/model-system.json: no such file or directory
+--- FAIL: TestSystemHTTPConstructionAndRoutesMatchOpenAPI (0.00s)
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL/empty
+--- FAIL: TestModelManagementImpactClosedGroupsAndBoundedSQL (0.00s)
+    --- FAIL: TestModelManagementImpactClosedGroupsAndBoundedSQL/empty (0.00s)

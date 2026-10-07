@@ -1,0 +1,46 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestModelMeetingSummaryReplacement|TestModelMeetingSummaryUnknown)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-07T13:59:09.817369+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MEETING_SUMMARY_EVIDENCE_DIR": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new2/safe-http-evidence",
+    "AGENTEAM_MEETING_SUMMARY_OLD_BINARY": "/workspace/scratch/meeting-summary-s1-author/old-producer02.test",
+    "AGENTEAM_MEETING_SUMMARY_OLD_SHA256": "b9d6b5207549724004bfef282c0e50daa26da17d24a4c2eeb195b1028f03a308",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery/bin/minio",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/meeting-summary-s1-author/driver-v01/docker-config",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new2/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/home/agent",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new2/runtime"
+  },
+  "exit": 0,
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 175905,
+  "pid_stat": "175905 (sh) R 175846 175905 175905 0 -1 4194560 7 0 0 0 0 0 0 0 20 0 1 0 743558 540672 0 18446744073709551615 94088456658944 94088456739937 140734383014128 0 0 0 0 0 0 0 0 0 17 1 0 0 0 0 0 94088456769072 94088456774208 94089280593920 140734383020890 140734383020992 140734383020992 140734383022060 0\n",
+  "seconds": 66.065,
+  "started_utc": "2026-10-07T13:58:03.752618+00:00",
+  "testmain_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

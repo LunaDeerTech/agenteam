@@ -1,0 +1,32 @@
+from pathlib import Path
+import hashlib,json
+B=Path('/workspace/scratch/summary-frontend-verification/http02');P=B.parent/'http01';R=Path('/workspace/agenteam');N=Path('/workspace/scratch/summary-verification/S1-probes/driver-v02/runs/independent-b01');C=Path('/workspace/scratch/summary-verification/S1-probes/closure02.json');F=Path('/workspace/scratch/meeting-summary-model-delete-compat/frozen04.json');A=Path('/workspace/scratch/meeting-summary-s1-author/candidate04.json')
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def load(p):return json.loads(Path(p).read_bytes())
+expected={N/'result.json':'6d0ddf764a217df9f329eaa1a78629dc704b47b7eee0ba96cba7e9babd5cd53d',N/'frozen-input.json':'fbe256b0188f2134fdf0daa8254705997f1ca467a0e829163886cc27e1571112',N/'safe-http-evidence/independent-summary-memory.json':'39b25a8b83cbce1128723132d168d4e0dce9d00bc79188e1fdaf86d0c68bcf6e',N/'safe-http-evidence/independent-summary-memory-source.json':'83b36963e7f375b7b76977429468c546eff38e22b49199075594de589fa8963a',A:'da01aba5921573ff03acaf9e4d24df047bd2306f82c24936a90f5343a2311fe2',C:'deb013754ec1d3df83ae9dcd7e01c4ee1d55aa5568ab2ccb236cd888610fd667',F:'051e5f3c5cac38e142cb62dd1109fa0411da38cc7754cd82c53443ffdab6d9d0'}
+for p,h in expected.items():assert sha(p)==h,str(p)
+source=load(N/'safe-http-evidence/independent-summary-memory-source.json');body=N/'safe-http-evidence/independent-summary-memory.json';assert source['body_sha256']==sha(body);assert source['method']=='GET' and source['status']==200 and source['content_type']=='application/json' and source['source_run']=='independent-b01';assert source['path']=='/api/v1/system/models/'+source['model_id']+'/deletion-impact'
+result=load(N/'result.json');assert result['run']==source['source_run'] and result['run_directory']==str(N) and result['driver_exit']==0
+for k in ['actual_wait_completed','double_cleanup','selected_tests_passed','source_files_unchanged','verification_inputs_unchanged','watchdog_thread_joined']:assert result[k] is True
+assert ['PASS',source['producer_test'].split('/')[0]] in result['top_levels']
+before=load(N/'input-before.json');assert before==load(N/'input-after.json') and before['accepted'] and not before['mismatches'] and not before['missing'];assert before['candidate_sha256']==expected[A] and before['closure_sha256']==expected[C]
+closure=load(C);assert closure['candidate']['sha256']==expected[A] and closure['frontend_four']['sha256']==expected[F];assert load(N/'frozen-input.json')['closure']=={'path':str(C),'sha256':expected[C]}
+for p,h in load(F)['owned_four'].items():assert closure['files'][str(R/p)]['sha256']==h==sha(R/p)
+for name in ['model-system.json','common.json']:
+ p=P/name;expected[p]=load(P/'provenance.json')['same_bytes_copies'][name];assert sha(p)==expected[p]==sha(R/'api/openapi'/name);expected[R/'api/openapi'/name]=expected[p]
+for name in ['input-before.json','input-after.json']:expected[N/name]=sha(N/name)
+for name in ['independent-summary-memory.json','independent-summary-memory-source.json']:(B/name).write_bytes((N/'safe-http-evidence'/name).read_bytes())
+expected[P/'freeze-final.json']=sha(P/'freeze-final.json');expected[P/'h04-schema/schema-result.json']=sha(P/'h04-schema/schema-result.json')
+record={'source_run':source['source_run'],'run_directory':str(N),'source_metadata':source,'origin_hashes':{str(p):h for p,h in expected.items()},'frontend_frozen':str(F),'schema_reused_from':str(P),'schema_runtime_reused_from':str(P/'h04-schema/schema-result.json'),'same_bytes_copies':{n:sha(B/n) for n in ['independent-summary-memory.json','independent-summary-memory-source.json']},'run_completion':{k:result[k] for k in ['actual_wait_completed','driver_exit','double_cleanup','observed_processes','observed_resources','forced_tail_actions','monitor_errors','top_levels']},'daemon_boundary':'Real producer PID1 daemon zombies remain outside owned-chain wait; no backend rerun or cleanup claimed here'}
+(B/'provenance.json').write_text(json.dumps(record,indent=2)+'\n')
+for name in ['guard.mjs','tools.mjs','run.py','independent.spec.ts','schema.py']:
+ s=(P/name).read_text().replace(str(P),str(B)).replace('summary-deletion-impact','independent-summary-memory')
+ if name=='independent.spec.ts':s=s.replace('new3','independent-b01').replace('Summary-only','Summary+memory').replace('result.reference_count).toBe("1")','result.reference_count).toBe("2")').replace('{ owner_kind: "platform_selector", role: "meeting_summary", count: "1" },','{ owner_kind: "platform_selector", role: "meeting_summary", count: "1" },\n    { owner_kind: "platform_selector", role: "memory", count: "1" },')
+ if name=='schema.py':
+  s=s.replace("base='file:///workspace/agenteam/api/openapi/'","S=Path('/workspace/scratch/summary-frontend-verification/http01')\nbase='file:///workspace/agenteam/api/openapi/'")
+  s=s.replace("sha(B/name)==provenance['same_bytes_copies'][name]","sha(S/name)==provenance['origin_hashes'][str(S/name)]").replace("(B/name).read_bytes()","(S/name).read_bytes()").replace("(B/'model-system.json').read_bytes()","(S/'model-system.json').read_bytes()")
+ if name=='run.py':s=s.replace(" origins={p:sha(p)", " runtime_reference=json.loads(Path(freeze['schema_runtime_reference']).read_bytes());assert all(sha(p)==h for p,h in runtime_reference['runtime_module_files'].items()),'schema runtime drift'\n origins={p:sha(p)")
+ (B/name).write_text(s)
+files=['prepare.py','provenance.json','guard.mjs','tools.mjs','run.py','independent.spec.ts','schema.py','independent-summary-memory.json','independent-summary-memory-source.json']
+freeze={'author_frozen_sha256':expected[F],'own':{n:sha(B/n) for n in files},'origins':record['origin_hashes'],'schema_runtime_reference':str(P/'h04-schema/schema-result.json'),'scope':'Only new independent-b01 actual GET same-body client/schema increment; unchanged frontend04/schema/common/runtime; no resources;45s per command'}
+(B/'freeze.json').write_text(json.dumps(freeze,indent=2)+'\n');(B/'freeze-final.json').write_bytes((B/'freeze.json').read_bytes());print(json.dumps({'driver_sha256':sha(B/'run.py'),'freeze_sha256':sha(B/'freeze-final.json'),'provenance_sha256':sha(B/'provenance.json')}))

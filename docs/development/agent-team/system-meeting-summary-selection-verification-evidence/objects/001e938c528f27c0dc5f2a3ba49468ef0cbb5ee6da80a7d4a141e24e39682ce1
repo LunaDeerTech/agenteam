@@ -1,0 +1,370 @@
+import {
+  beforeEach,
+  afterEach,
+  describe,
+  it,
+  expect,
+  vi,
+} from "/workspace/agenteam/web/node_modules/vitest/dist/index.js";
+import {
+  mount,
+  flushPromises,
+} from "/workspace/agenteam/web/node_modules/@vue/test-utils/dist/vue-test-utils.esm-bundler.mjs";
+import { createSystemModelAPI } from "/workspace/agenteam/web/src/api/system-models";
+import { createAccountAPI } from "/workspace/agenteam/web/src/api/account";
+import { createSystemProviderAPI } from "/workspace/agenteam/web/src/api/system-providers";
+import { createSystemAccountAPI } from "/workspace/agenteam/web/src/api/system-account";
+import { createSystemInvitationAPI } from "/workspace/agenteam/web/src/api/system-invitations";
+import { createSessionController } from "/workspace/agenteam/web/src/composables/useSession";
+import {
+  createSystemModels,
+  systemModelsKey,
+} from "/workspace/agenteam/web/src/composables/useSystemModels";
+import { useTheme } from "/workspace/agenteam/web/src/composables/useTheme";
+import DeleteDialog from "/workspace/agenteam/web/src/views/system/SystemModelDeleteDialog.vue";
+
+const id = (n: number) =>
+  "01900000-0000-7000-8000-" + n.toString(16).padStart(12, "0");
+const target = id(30);
+const time = "2026-10-06T12:34:56.123456Z";
+// Independent oracle from the S1 closed contract; never imported from the parser.
+const kinds = [
+  ["agent", "agent_model", true],
+  ["agent", "approval_model", true],
+  ["platform_selector", "embedding", true],
+  ["platform_selector", "image", false],
+  ["platform_selector", "meeting_summary", true],
+  ["platform_selector", "memory", true],
+  ["platform_selector", "reranker", false],
+  ["project_summary", "meeting_summary", true],
+] as const;
+const impact = (indices: number[]) => ({
+  model_id: target,
+  version: "1",
+  reference_count: String(indices.length),
+  reference_groups: indices.map((i) => ({
+    owner_kind: kinds[i]![0],
+    role: kinds[i]![1],
+    count: "1",
+  })),
+  replacement_requirement: indices.some((i) => kinds[i]![2])
+    ? "required"
+    : indices.length
+      ? "optional"
+      : "none",
+  delete_blocker: indices.some((i) => kinds[i]![0] !== "platform_selector")
+    ? "reference_adapter_unbound"
+    : null,
+});
+const response = (value: unknown) =>
+  new Response(JSON.stringify(value), {
+    status: 200,
+    headers: { "Content-Type": "application/json", "X-Request-ID": id(9) },
+  });
+async function parse(value: unknown) {
+  let calls = 0;
+  const result = await createSystemModelAPI(async (path, init) => {
+    calls++;
+    expect(path).toBe("/api/v1/system/models/" + target + "/deletion-impact");
+    expect(init.method).toBe("GET");
+    return response(value);
+  }).getDeletionImpact(target, new AbortController().signal);
+  expect(calls).toBe(1);
+  return result;
+}
+const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
+
+describe("Independent closed deletion-impact projection", () => {
+  it("accepts every one of the 256 legal subsets with independent required/unbound derivation", async () => {
+    for (let mask = 0; mask < 256; mask++) {
+      const body = impact(
+        kinds.flatMap((_, i) => (mask & (1 << i) ? [i] : [])),
+      );
+      const got = await parse(body);
+      expect(got).toEqual(body);
+      expect(Object.isFrozen(got)).toBe(true);
+      expect(Object.isFrozen(got.reference_groups)).toBe(true);
+      expect(got.reference_groups.every(Object.isFrozen)).toBe(true);
+    }
+  });
+  it("preserves the exact 10000 boundary across eight groups and rejects noncanonical or excess counts", async () => {
+    const body = impact([0, 1, 2, 3, 4, 5, 6, 7]);
+    body.reference_count = "10000";
+    body.reference_groups[0]!.count = "9993";
+    expect(await parse(body)).toEqual(body);
+    const invalid: unknown[] = [];
+    for (const count of [
+      "0",
+      "01",
+      "+1",
+      "1.0",
+      "1e0",
+      "-1",
+      "10001",
+      1,
+      null,
+    ]) {
+      const value = clone(impact([4]));
+      (value.reference_groups[0] as any).count = count;
+      (value as any).reference_count = count;
+      invalid.push(value);
+    }
+    const tooMany = clone(body);
+    tooMany.reference_count = "10001";
+    tooMany.reference_groups[0]!.count = "9994";
+    invalid.push(tooMany);
+    const wrongTotal = clone(body);
+    wrongTotal.reference_count = "9999";
+    invalid.push(wrongTotal);
+    for (const value of invalid)
+      await expect(parse(value)).rejects.toMatchObject({
+        kind: "invalid-response",
+      });
+  });
+  it("rejects Summary requirement/blocker lies, crossed or unknown pairs, closed-field violations, duplicate/order/ninth groups", async () => {
+    const values: unknown[] = [];
+    for (const requirement of ["none", "optional", null])
+      values.push({ ...impact([4]), replacement_requirement: requirement });
+    values.push({
+      ...impact([4]),
+      delete_blocker: "reference_adapter_unbound",
+    });
+    values.push({ ...impact([4, 7]), delete_blocker: null });
+    for (const pair of [
+      ["agent", "meeting_summary"],
+      ["project_summary", "memory"],
+      ["platform_selector", "summary"],
+      ["unknown", "meeting_summary"],
+    ]) {
+      const v = impact([4]);
+      v.reference_groups[0] = {
+        owner_kind: pair[0] as any,
+        role: pair[1] as any,
+        count: "1",
+      };
+      values.push(v);
+    }
+    const duplicate = impact([4]);
+    duplicate.reference_count = "2";
+    duplicate.reference_groups.push({ ...duplicate.reference_groups[0]! });
+    values.push(duplicate);
+    const reversed = impact([3, 4, 5]);
+    reversed.reference_groups.reverse();
+    values.push(reversed);
+    const ninth = impact([0, 1, 2, 3, 4, 5, 6, 7]);
+    ninth.reference_groups.push({ ...ninth.reference_groups[4]! });
+    ninth.reference_count = "9";
+    values.push(ninth);
+    for (const key of Object.keys(impact([4]))) {
+      const v = clone(impact([4]));
+      delete (v as any)[key];
+      values.push(v);
+    }
+    values.push({ ...impact([4]), debug: true });
+    const extra = impact([4]);
+    (extra.reference_groups[0] as any).reasoning_effort = "high";
+    values.push(extra);
+    values.push({ ...impact([4]), model_id: id(31) });
+    for (const value of values)
+      await expect(parse(value)).rejects.toMatchObject({
+        kind: "invalid-response",
+      });
+  });
+});
+
+let mounted: ReturnType<typeof mount> | undefined;
+let page: ReturnType<typeof createSystemModels> | undefined;
+let auth: ReturnType<typeof createSessionController> | undefined;
+beforeEach(() => {
+  vi.stubGlobal("fetch", () => {
+    throw new Error("Uninjected network access forbidden");
+  });
+  vi.stubGlobal("matchMedia", (media: string) => ({
+    media,
+    matches: false,
+    addEventListener() {},
+    removeEventListener() {},
+  }));
+});
+afterEach(() => {
+  mounted?.unmount();
+  mounted = undefined;
+  page?.dispose();
+  page = undefined;
+  auth?.leave();
+  auth = undefined;
+  document.body.innerHTML = "";
+  useTheme().setTheme("system");
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
+const source = {
+  id: id(20),
+  version: "1",
+  created_at: time,
+  updated_at: time,
+  input: {
+    name: "Independent Provider",
+    protocol: "openai-chat-completions",
+    base_url: "https://provider.invalid",
+    enabled: true,
+    credential_ref: null,
+    options: {},
+  },
+};
+const model = (n: number, name: string, modes = ["text"]) => ({
+  id: id(n),
+  provider_id: source.id,
+  version: "1",
+  created_at: time,
+  updated_at: time,
+  input: {
+    name,
+    provider_model_id: "native-" + n,
+    type: "chat",
+    enabled: true,
+    parameters: {},
+    request_overwrite: {},
+    header_overwrite: {},
+    capabilities: {
+      tool_calls: false,
+      parallel_tool_calls: false,
+      streaming: false,
+      reasoning: false,
+      input_modalities: ["text"],
+      output_modalities: ["text"],
+      reasoning_efforts: [],
+      structured_output_modes: modes,
+      context_length: null,
+      max_output: null,
+    },
+  },
+});
+const original = model(30, "Original"),
+  plain = model(31, "Plain replacement"),
+  structured = model(32, "Structured replacement", ["text", "json_schema"]);
+const session = {
+  user: {
+    id: id(1),
+    email: "independent@example.test",
+    username: "independent",
+    display_name: "Independent",
+    role: "admin",
+    theme: "system",
+    version: "1",
+    initial_password_suggestion: false,
+  },
+  session: {
+    id: id(2),
+    issued_at: time,
+    idle_expires_at: time,
+    absolute_expires_at: time,
+  },
+  csrf_token: "S".repeat(43),
+};
+async function dialogFixture(indices: number[]) {
+  let current = impact(indices);
+  let writes = 0;
+  const fetcher = async (path: string, init: RequestInit) => {
+    if (init.method !== "GET") {
+      writes++;
+      throw new Error("Independent read/choice probe must not write");
+    }
+    if (path === "/api/v1/session") return response(session);
+    if (path.startsWith("/api/v1/system/model-providers?"))
+      return response({ items: [source], next_cursor: null });
+    if (path === "/api/v1/system/model-providers/" + source.id)
+      return response(source);
+    if (path.startsWith("/api/v1/system/models?"))
+      return response({
+        items: [structured, plain, original],
+        next_cursor: null,
+      });
+    if (path === "/api/v1/system/models/" + target + "/deletion-impact")
+      return response(current);
+    const row = [original, plain, structured].find(
+      (v) => path === "/api/v1/system/models/" + v.id,
+    );
+    if (row) return response(row);
+    throw new Error("Unexpected independent fixture read " + path);
+  };
+  auth = createSessionController(
+    createAccountAPI(fetcher),
+    createSystemAccountAPI(fetcher),
+    createSystemInvitationAPI(fetcher),
+    createSystemProviderAPI(fetcher),
+    createSystemModelAPI(fetcher),
+  );
+  await auth.restore();
+  page = createSystemModels(auth);
+  page.attach();
+  await flushPromises();
+  await page.selectProvider(page.pages.providers.rows[0]!);
+  await page.selectModel(page.pages.models.rows.find((v) => v.id === target)!);
+  await page.openDelete();
+  mounted = mount(DeleteDialog, {
+    attachTo: document.body,
+    global: { provide: { [systemModelsKey as symbol]: page } },
+  });
+  await flushPromises();
+  return {
+    setImpact: (value: number[]) => {
+      current = impact(value);
+    },
+    writes: () => writes,
+  };
+}
+const dialog = () => document.body.querySelector("[role=dialog]")!;
+const button = (label: string, within: Element = dialog()) =>
+  [...within.querySelectorAll("button")].find(
+    (v) => v.textContent?.trim() === label,
+  ) as HTMLButtonElement;
+async function click(label: string, within: Element = dialog()) {
+  const node = button(label, within);
+  expect(node).toBeTruthy();
+  expect(node.disabled).toBe(false);
+  node.click();
+  await flushPromises();
+}
+const choice = (name: string) =>
+  [...dialog().querySelectorAll("li")].find((v) =>
+    v.textContent?.includes(name),
+  )!;
+describe("Independent existing Summary deletion controller and dialog", () => {
+  it("requires a Summary replacement and revokes the plain choice after a real client reread adds memory", async () => {
+    const fixture = await dialogFixture([4]);
+    expect(dialog().textContent).toContain("系统会议 Summary 模型：1");
+    expect(dialog().textContent).not.toContain("项目会议摘要模型");
+    expect(button("清空相应用途引用")).toBeUndefined();
+    expect(button("确认删除 Model").disabled).toBe(true);
+    await click("查看此 Provider 的 Models");
+    expect(choice("Plain replacement").textContent).not.toContain(
+      "json_schema",
+    );
+    await click("选择此替代 Model", choice("Plain replacement"));
+    expect(button("确认删除 Model").disabled).toBe(false);
+    fixture.setImpact([4, 5]);
+    await page!.reviewDeletion();
+    await flushPromises();
+    expect(dialog().textContent).not.toContain("已选择替代：");
+    expect(button("确认删除 Model").disabled).toBe(true);
+    await click("查看此 Provider 的 Models");
+    expect(
+      button("选择此替代 Model", choice("Plain replacement")).disabled,
+    ).toBe(true);
+    expect(choice("Plain replacement").textContent).toContain("json_schema");
+    await click("选择此替代 Model", choice("Structured replacement"));
+    expect(button("确认删除 Model").disabled).toBe(false);
+    expect(fixture.writes()).toBe(0);
+  });
+  it("keeps the legacy project Summary unbound even beside the new bound system Summary", async () => {
+    const fixture = await dialogFixture([4, 7]);
+    expect(dialog().textContent).toContain("系统会议 Summary 模型：1");
+    expect(dialog().textContent).toContain("项目会议摘要模型：1");
+    expect(dialog().textContent).toContain("当前引用替换能力尚未绑定");
+    expect(button("清空相应用途引用")).toBeUndefined();
+    expect(button("确认删除 Model")).toBeUndefined();
+    expect(dialog().querySelector('[aria-label="删除替代选择"]')).toBeNull();
+    expect(fixture.writes()).toBe(0);
+  });
+});

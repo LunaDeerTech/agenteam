@@ -1,0 +1,551 @@
+{
+  "time": 1791379613.025963,
+  "platform": {
+    "sys": "Linux",
+    "machine": "x86_64",
+    "libc": [
+      "glibc",
+      "2.41"
+    ]
+  },
+  "manager": "npm, lockfileVersion3; no pnpm/yarn lock",
+  "package_files": {
+    "package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "node_modules/.package-lock.json": "b3c46d4d6d7d25282ef60c069e02b181792731f0975e0cd19f62fbb8363ec071"
+  },
+  "lock_package_count": 171,
+  "hidden_package_count": 145,
+  "target_lock": {
+    "version": "2.0.7",
+    "resolved": "https://registry.npmjs.org/go-captcha-vue/-/go-captcha-vue-2.0.7.tgz",
+    "integrity": "sha512-ynlb/6CJiMdsqKe+79lIVpTsNXQTgOHDJ7BH+Gx6EZQZyHSwuyLZvQwjz9vQOYhyHpREW9tapBo8ZOTyVzIQew==",
+    "license": "MIT",
+    "peerDependencies": {
+      "vue": ">=3"
+    }
+  },
+  "hidden_target": null,
+  "target_lexists": false,
+  "missing": [
+    {
+      "path": "node_modules/@rolldown/binding-android-arm-eabi",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "android"
+      ],
+      "cpu": [
+        "arm"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-android-arm64",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "android"
+      ],
+      "cpu": [
+        "arm64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-darwin-arm64",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "darwin"
+      ],
+      "cpu": [
+        "arm64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-darwin-x64",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "darwin"
+      ],
+      "cpu": [
+        "x64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-freebsd-x64",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "freebsd"
+      ],
+      "cpu": [
+        "x64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-linux-arm-gnueabihf",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "cpu": [
+        "arm"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-linux-arm64-gnu",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "cpu": [
+        "arm64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-linux-arm64-musl",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "cpu": [
+        "arm64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-linux-ppc64-gnu",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "cpu": [
+        "ppc64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-linux-s390x-gnu",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "cpu": [
+        "s390x"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-linux-x64-musl",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "cpu": [
+        "x64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-openharmony-arm64",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "openharmony"
+      ],
+      "cpu": [
+        "arm64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-win32-arm64-msvc",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "win32"
+      ],
+      "cpu": [
+        "arm64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/@rolldown/binding-win32-x64-msvc",
+      "version": "1.2.12",
+      "optional": true,
+      "os": [
+        "win32"
+      ],
+      "cpu": [
+        "x64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/fsevents",
+      "version": "2.3.3",
+      "optional": true,
+      "os": [
+        "darwin"
+      ],
+      "cpu": null,
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/go-captcha-vue",
+      "version": "2.0.7",
+      "optional": false,
+      "os": null,
+      "cpu": null,
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/lightningcss-android-arm64",
+      "version": "1.33.0",
+      "optional": true,
+      "os": [
+        "android"
+      ],
+      "cpu": [
+        "arm64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/lightningcss-darwin-arm64",
+      "version": "1.33.0",
+      "optional": true,
+      "os": [
+        "darwin"
+      ],
+      "cpu": [
+        "arm64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/lightningcss-darwin-x64",
+      "version": "1.33.0",
+      "optional": true,
+      "os": [
+        "darwin"
+      ],
+      "cpu": [
+        "x64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/lightningcss-freebsd-x64",
+      "version": "1.33.0",
+      "optional": true,
+      "os": [
+        "freebsd"
+      ],
+      "cpu": [
+        "x64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/lightningcss-linux-arm-gnueabihf",
+      "version": "1.33.0",
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "cpu": [
+        "arm"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/lightningcss-linux-arm64-gnu",
+      "version": "1.33.0",
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "cpu": [
+        "arm64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/lightningcss-linux-arm64-musl",
+      "version": "1.33.0",
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "cpu": [
+        "arm64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/lightningcss-linux-x64-musl",
+      "version": "1.33.0",
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "cpu": [
+        "x64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/lightningcss-win32-arm64-msvc",
+      "version": "1.33.0",
+      "optional": true,
+      "os": [
+        "win32"
+      ],
+      "cpu": [
+        "arm64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    },
+    {
+      "path": "node_modules/lightningcss-win32-x64-msvc",
+      "version": "1.33.0",
+      "optional": true,
+      "os": [
+        "win32"
+      ],
+      "cpu": [
+        "x64"
+      ],
+      "directory_exists": false,
+      "link_exists": false,
+      "hidden_lock_present": false
+    }
+  ],
+  "version_mismatches": [],
+  "present_package_metadata_sha256": {
+    "node_modules/@acemir/cssom": "b4fb0f1bc1bdba41a25c334218759d42baf394961491b7c1ae9fdae0744f7472",
+    "node_modules/@asamuzakjp/css-color": "86c6b61dbef8c28298e495c56e9702c0db4651a461b070722e0e1484b397ff89",
+    "node_modules/@asamuzakjp/dom-selector": "d54389aeb0c2df8621ccbaada46ff4f278a701695c1abe2491b5471a6d48d132",
+    "node_modules/@asamuzakjp/nwsapi": "358910888afe62192233ce50e1af4420bd7c92fc1ac2b0c07cbd29a964064847",
+    "node_modules/@babel/helper-string-parser": "ecbd1aaffa9ad000d3bc5a526067b89244cb3ec64c738fbae8b64a9e805f401b",
+    "node_modules/@babel/helper-validator-identifier": "1ad6aeced8b186ac259da45fea50ab9d65d3d958f6458c80e3c8013649d1b12d",
+    "node_modules/@babel/parser": "fa70cca00587bdb335e8249fa40e9356ed7b7c9a4fc92b1e74245ab1b852cda1",
+    "node_modules/@babel/types": "f32460a35cc4649d81f10d4bc6dcfa1ade7a47f95df5db4bb4483f34d24b476e",
+    "node_modules/@csstools/color-helpers": "d2728c35a2a2c476361c44bf50b29c6f6851ec599c5a68727cb095525435379b",
+    "node_modules/@csstools/css-calc": "5bc6294ad5f35dd6d38abe4a44946f2f239f91264509ece2c5ed8e6dde243526",
+    "node_modules/@csstools/css-color-parser": "8f96e38800befb48d3b9a9093812e6daf60aa3944cc9c1fa4d4a755ebd641c42",
+    "node_modules/@csstools/css-parser-algorithms": "0dc6485eb3dedfd39b1e341d43f5b5768cd4cfeaba0428f95905ccf67127a26d",
+    "node_modules/@csstools/css-syntax-patches-for-csstree": "2daafd7d5af42ec0eb1512d33edc84a2b667a132921722ad621ef56fc13a9bc7",
+    "node_modules/@csstools/css-tokenizer": "0b65e9c0944ae5d0e71e97d99a847977dc9afe65fb2cf852871420cff7abdb8f",
+    "node_modules/@exodus/bytes": "8e95bdcf936995137b1ab89ef3820660d17463168892f8f68181b018c7b6c96d",
+    "node_modules/@floating-ui/core": "2f24216dd2a32b10e6c868173832a0667c3cdbee92886797b219aadac48d8b99",
+    "node_modules/@floating-ui/dom": "59643af1b1bfc5a80b172c21ccbe21ea56eaa0115378f6077d9934458db25ac1",
+    "node_modules/@floating-ui/utils": "b2138e8855520f4313f26ace0d93a9a9c9e6a862f0299a5aeaccb2370dd1bf40",
+    "node_modules/@floating-ui/vue": "c1a3788ba76dca96a3d2fa6a163718da3af3270b36ee77cc9e0f79b37ba60765",
+    "node_modules/@floating-ui/vue/node_modules/vue-demi": "826a3e8415b8bb1ff91b890f119dd95069e9e0d4db1cd7779e538d3a7a8c42a5",
+    "node_modules/@jridgewell/sourcemap-codec": "ac7afd57294dbee1f891ca797e19e405340f2cd6031808e6d3845fec60a5b43f",
+    "node_modules/@one-ini/wasm": "7ee34bf6d9ba728d2f2fa12aa3475f7628539fd20f8504d2f5255bddb40bca1d",
+    "node_modules/@oxc-project/types": "78ba8a6b8cf8c037c6e4eb2b9857402c0b51164dadbe9ccf18696a9b5e0bb681",
+    "node_modules/@rolldown/binding-linux-x64-gnu": "1c39de774b0545858596ce6cd4c96c2a7df574485739fdbad33ff79501ca5f36",
+    "node_modules/@rolldown/pluginutils": "c3d2bfe0ff94de71fd5b82e6f3a01b12ee4d99b8f1b34cc00b984b9acde61cfa",
+    "node_modules/@standard-schema/spec": "58e5bd75ddd0684c88b07cd799585cc72a37fd6efb8ab0c936d49e230d5164fb",
+    "node_modules/@types/chai": "273a3159a592826cc068b22356e9a3e968dffe88a0f99892032a889f28c567a7",
+    "node_modules/@types/deep-eql": "a2e45f386b2fbaed8a8fe333502f97e59061ed738ddd0437437fde05acfa5484",
+    "node_modules/@types/estree": "3537a6a503f57901111d8a29df81962887653deb199b9a795c7fb50bbfdd1bdc",
+    "node_modules/@types/node": "0c00eb484e4af210aeab0ea0b5d643c24daba4936e59af53a67f9eedd19a7776",
+    "node_modules/@vitejs/plugin-vue": "fc6ec30b002301294bba8da23e81fce670b711c7931738a05042bee1ff5671c1",
+    "node_modules/@vitest/expect": "bc566b4322c25920e82c2fcdea00c2154d8ef98dd30de6605c5f89ac0d607adc",
+    "node_modules/@vitest/mocker": "c3d815afb1b768b0578f1644f215a8ef5fc883dbd245659a1ac997502775ba4d",
+    "node_modules/@vitest/mocker/node_modules/estree-walker": "c459668153035def85be26dbeb40caf315191da06ac8a092cd8024b677c2fc21",
+    "node_modules/@vitest/pretty-format": "ab62f25e475757b0e7e167022091a39930296615a4beb1c627eb37e586344b69",
+    "node_modules/@vitest/runner": "357e56773a82d3aa95bf920a54ea7f91575d02e6b156d9d7719ea485708e6837",
+    "node_modules/@vitest/snapshot": "c41b0e3171c822fc20f38418eb5c092112e29be09ecb470aec25ef200174e09d",
+    "node_modules/@vitest/spy": "9ae07df2e84098cc2360a9e1563925e123c8740e4b7d158bab11fa20573d6516",
+    "node_modules/@vitest/utils": "60611b68702749e1da829d835b528bf5dfe6712e4d59be14d058fcb46cf7a6e8",
+    "node_modules/@volar/language-core": "e5fc0a4599a91dbd2ffc18050f5a4d85f92c0a0b58964fdcff54ba2c1b83d23c",
+    "node_modules/@volar/source-map": "cbf1bdb95679acd4519ef6299bf8396430c1a6ea69f4813402bdc0eefa43ed6c",
+    "node_modules/@volar/typescript": "b7325a337e30f0f37873c038f21efa0d6eda7553e5985c6f679f590b023ff744",
+    "node_modules/@vue/compiler-core": "807770bded967c94fb831230b89125c49a57c96517a7e4b8445be6f429fead04",
+    "node_modules/@vue/compiler-dom": "0f18de20306ea6c4100cd46debb89b7503bfd2a62022cc890e67428d6747ef12",
+    "node_modules/@vue/compiler-sfc": "add07941324745443d8414cf988e0cd2c1e11daceb346304a636fedaec715025",
+    "node_modules/@vue/compiler-ssr": "a197fdd82cb501fde4214e8f782d482d1e534ce8b08473e7d04caca0fe253e45",
+    "node_modules/@vue/devtools-api": "16103b215db2ade43369020415869db5f7e89158c2c07524ef8fb5c8d71864cf",
+    "node_modules/@vue/language-core": "93a9c9f0a0ca127144b878f4c7b9ce5063f7ae1d5db04041335a1fa18b15bb53",
+    "node_modules/@vue/reactivity": "6802677cbb164158a6211705d5f9c2b97090da80686721e967208159b593d7ba",
+    "node_modules/@vue/runtime-core": "5305e8a668b201b4726126f2a7815696ea41915ecb478b96f96f42cca0b5854c",
+    "node_modules/@vue/runtime-dom": "abfce0719cb6a045568c5aaf803209b79809c0945e32b3363ecc9100d869a6ac",
+    "node_modules/@vue/server-renderer": "6b880dfac934aa70d8a5b1cf08482ca387ac001c9a7b37779ae26500f79fab4e",
+    "node_modules/@vue/shared": "d07532b80ccae41694f2dc2f1a66ed598d2be8c96d540b82630e9f40c85b5189",
+    "node_modules/@vue/test-utils": "1ab696c97bf2e57b9c37ad6918301fe7dba70425c831c73f2a9fc366c8357963",
+    "node_modules/abbrev": "cde9446d72d605fdfe65bbadea7a3946feb2ef49a4e653535e46bbef80fb2b06",
+    "node_modules/agent-base": "7a08cb2fe1d2b788e0a7bf6a9b7597dbeeeae804698c2fbd15de786d284d327c",
+    "node_modules/alien-signals": "404a702020d71750c1dac2e1edcf71a127fa949dfdc97a59f2653f6de1221a82",
+    "node_modules/assertion-error": "7a77fe7be32038e40aab9a3fc6180a6fbe3fdbb68b006b78a47401f7026e96e7",
+    "node_modules/balanced-match": "c984e6ae5c41fac085a07a732b665b22e0a26f28b61c692ba18ff458a8ecc95a",
+    "node_modules/bidi-js": "975c91119792da92bb7bb99e822cffcae2459ae8a2cca391c3f8696502be2041",
+    "node_modules/brace-expansion": "8af7dc0916002266f3b01459ef691d9f834d8ecdb0e021263280a50b913d85fa",
+    "node_modules/chai": "1cfe6961e9484f378c906b58303884f71f591aa53a55fb58acfe9f48585d050e",
+    "node_modules/commander": "abcadf3d5575510b0ebcc9c04d39a838b01a5932861cf2454beb985eae4b4ea3",
+    "node_modules/config-chain": "c71470e797bc104ab667f720a29d22327efff7ff0940982b16d5819776856c7b",
+    "node_modules/convert-source-map": "e6bf802e6ee220d66321808ce3d619fbb85ff4d5729ea4f649bd65dfe9ee8956",
+    "node_modules/css-tree": "bd734f2de92e7a254bd05970fa83b30f8be9ed73e33577065a1529e59843cfd4",
+    "node_modules/cssstyle": "914938c0d4e9be8b74c9e2ece0ef6b844889fee50a9d74da14e4911235d2890c",
+    "node_modules/csstype": "c818b74a9bc1556488b7ec2a65399224738f6619228f9a6491c5c02ca91f849e",
+    "node_modules/data-urls": "cc5d1a1cc1b2a9665f0ccf1b743af5e30330278fe80743a7459bbfae46b9ff21",
+    "node_modules/data-urls/node_modules/whatwg-mimetype": "8f3f428034995a3424b3e6ebaf7a38899e556337bd1016734149cfb73035a7c6",
+    "node_modules/debug": "ea8e33d63fe5f3a4c36609b6c3df8e2ef1f8b8ba2fc3a2e1e53cb27291f384af",
+    "node_modules/decimal.js": "d7e3794828ee8bc94818613c9d901a9e7c857e6ffcf027245e661ddfc63d9b72",
+    "node_modules/detect-libc": "ee88e5b954fdf3a8480b1d01ef767d68d8ca2c6da269f58c5cf1c5550e9aa2a7",
+    "node_modules/editorconfig": "24976f0205a118a419891f75f25250fdb6b1bf0b364b546cdf009d62d89aeb1a",
+    "node_modules/entities": "b33b5d3fd4a8e196d3245c10ebb8feb2e076fc8d392f99a1050377d6e2b8b641",
+    "node_modules/es-module-lexer": "6ac33aba7ed35abf79f1bfa12f39563369cb2b5ffa25bd7b7982e9554c7de4af",
+    "node_modules/estree-walker": "6f08430331daeaedaa35e7a8ca347cdb7493922fe9485bf57eb4d619cfb0b3ad",
+    "node_modules/expect-type": "0e7a8ee8b23ae57ee5a3a98daba3ce476786ca5675f7f60b6a8ac320b83501a0",
+    "node_modules/fdir": "aca49395d61ef383a09f74555c66ed45817ca2b5724e710a4dc9e0471b83d8f5",
+    "node_modules/glob": "5a28ef9a1f5252feb47ffe288a6350fe99b18311462e6a9cdacbdd0bb4be6be9",
+    "node_modules/html-encoding-sniffer": "076b124776de77e05e0e883fcbb85dafbc0d91a3cb1a8b0ced901c75abbdca56",
+    "node_modules/http-proxy-agent": "38b61961aa0ba3028f2e120b3d883179281f6ba25fe22ff2214bf9f363161b65",
+    "node_modules/https-proxy-agent": "b08c1977d38f14f4be7fb5be33aab545e3e5a6e2e12100733a6ad97dec995206",
+    "node_modules/ini": "8cfafc3521292bd7434d2f40762984f36eb12f03bde92b42a9df2ea17552f4a4",
+    "node_modules/is-potential-custom-element-name": "9b41645708a8d3fdae25ceac23c0b8861be9010c6c9dbb9770d0018e803bd1d9",
+    "node_modules/js-beautify": "2f2bd3d59e7b482def55096d5973f13f2787eb0684983bf512542ae6205a2dcd",
+    "node_modules/js-cookie": "a31b0210c02d0499f98c67f9c3fdbe03b9d379a7eee87932fcd21d791749961c",
+    "node_modules/jsdom": "e8f4906ea5beba475daa5736d0158f1770092c46718dd04aa2bfe2190808bb7e",
+    "node_modules/lightningcss": "b26fa1b188f90ec672206326e9a1de793f0403a263be9c3797c2e2d56aa48b3c",
+    "node_modules/lightningcss-linux-x64-gnu": "ffa202abaa05da41d1fa809dbc3eda56f76953c8cf0e954c96b4b73de08fb915",
+    "node_modules/lru-cache": "c085d38560434a8915fd1817cd17cee316118078b07f40302b32ef4d8bc760f4",
+    "node_modules/magic-string": "86814aaf7dacba9d31fbf361c3285981f1cbbda0a87108caa4131d297bd9eba2",
+    "node_modules/mdn-data": "4454243524dd13a032e0c70554ef1c51a92033559647edd8d12e6f0c0b992df3",
+    "node_modules/minimatch": "bb847ba240909c9a36d4eaeb4e0efdc3e31182aeef208c1611259a48f282ea75",
+    "node_modules/minipass": "b8ab116187d5e9375d494f17437eb862cbee4b329c21f15412c6a5170ec2f55c",
+    "node_modules/ms": "1a6b4d9739790c0b94ab96c8cc0507e281c164c311ff4fbf5e57fb8d26290b40",
+    "node_modules/muggle-string": "7b3ab742bef547a29122fe41b55283014f7b65c325458290813955d35b04bb4f",
+    "node_modules/nanoid": "9085b3737c98a71e5cca3fe9f6469a974534a6a9afa384cebabf2c0a6e5f6fae",
+    "node_modules/nopt": "a5c1fbef2c901cc729793a855eb7a1c9f8f8f1bc7e6a38e98375b625c235f8b6",
+    "node_modules/obug": "88e00fc4cd39cb333c35b6cca6cb7a8dd858baa548b00493046e8a0e76ae5428",
+    "node_modules/parse5": "159187fd5c0c0c17456282f4cf7beab91eb46dfc717928522938c947007282b7",
+    "node_modules/parse5/node_modules/entities": "b6ff1175be0fa103f032d52e42af95d95c674e3cba08d93670cc8944697bcc42",
+    "node_modules/path-browserify": "8adb61e752398b45fbcf7bc35f254b74302622b100e49915a4905e74c97acb42",
+    "node_modules/path-scurry": "fb54fe908dbe5f288bd1c5d7429f033c4f527f435c3d3a583ee0ce9e78992087",
+    "node_modules/pathe": "6cccffe6bb2a39e2e4f257aefc3f5d553d98199a0c79558bdb5ea2880fa030a3",
+    "node_modules/picocolors": "ef2ac226c4811d312e12c64214c453878653e834482125ae475f27cea60de737",
+    "node_modules/picomatch": "479b70b87aa7b44344d62c8a459ae7e53dd2bca6c61f1396bd55e63e9de73fc6",
+    "node_modules/postcss": "f5c32824e407aadf9d306cb36370330109f017a7590e4f10c4fe0ff61831e436",
+    "node_modules/prettier": "8453a79e60e5437ccfe0722475ba80593373885c578f85604a562ebdfb621c30",
+    "node_modules/proto-list": "2bb6adb5d9849b45be2d6f99e4b7e00a5c2f664bb019c3e9e3219103c37b0223",
+    "node_modules/punycode": "e025033bd11110af671fb8eb62f0db8895073ccdca70b596aa94a27eb5bf9acb",
+    "node_modules/require-from-string": "c0002f7d4c7d7e2a885cf0f97226344902417c3a0980f2beca41962d2bc1f6d8",
+    "node_modules/rolldown": "6cbb247d5ff8ae3d45cba6af71ab424aa887835d917573ad1bb54ef6b2ff3b0f",
+    "node_modules/saxes": "32052572b41c2a890ed0854798c48454cc5991dcaafe5fb1718a4253046acfd3",
+    "node_modules/semver": "7c94cb7f2a53c27b20d76386ec144c062894dbcc909cfabd0f728c37874b1776",
+    "node_modules/siginfo": "ff13b85283144b84f297d757a7b5dcffc7abcc469b3b22bb6fc94b6b1ae5f662",
+    "node_modules/source-map-js": "9f1ea63b1661d0f6e5fcd50b625d86cddd77de870a0019b23262360987b487f5",
+    "node_modules/stackback": "4d984909b27d37d2f1a379b9cda7292a6e3a133c076df166d740a17514ac6e60",
+    "node_modules/std-env": "ae22cda0dcbc1c7e2c76a52274dc876ff28fae3141aeefdbec24493eb380ac43",
+    "node_modules/symbol-tree": "962fd6c0ed18cdec3bdb7df4684da775e294078a8302504e8ce04c711e1c37d4",
+    "node_modules/tinybench": "74cf001e0ad7780cb3f596a75a2595d737337741ba76f734811387a5139ff327",
+    "node_modules/tinyexec": "f6d914909fee06059ce78f6f3390e12b163d900eb109cbbe6482cfddcbca8be7",
+    "node_modules/tinyglobby": "bd2b2af3c9ba0580f1acfb22c55d0b6d29abf683af5cac8a2efe82fa7c943f23",
+    "node_modules/tinyrainbow": "c6db7d71e40cfd12a3001fbde06b3bf3538420f77f66fe5d83b4d0ef72ee243c",
+    "node_modules/tldts": "ee6f509afc31ee935e7b68bb6d50c80a64cbeb31b0c8ad6bf38922f984c891da",
+    "node_modules/tldts-core": "2521722ebdde86c013567b70c24aec7c0210cf1840fad4de973ade9ad8a5bd3a",
+    "node_modules/tough-cookie": "a604b86eadd81d8e9c5a5de9571d15036225c20da0d51dd4af80c88e4e54feed",
+    "node_modules/tr46": "3cc81081409bea2f0fd4ec18d64c542a18e0ac6f7f970c7f7be4139aaa8d140f",
+    "node_modules/typescript": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6",
+    "node_modules/undici-types": "541adf5ec10733ecbf9278ec706914c76b1e5b25cccebdadb7ade8f3066ae052",
+    "node_modules/vite": "fd3af4eaf4eecb2069f3e2715d6aaa2137d084a8a95097389523f52213c08094",
+    "node_modules/vitest": "a28126d97bcaf567da5bed69443b7f3bcd9a7a8c38c8b66e554686b6bb2c10e0",
+    "node_modules/vscode-uri": "cc5817e31a1d799401a7d2cc9b9725a154d4a77db536a5bfda599c4d32404882",
+    "node_modules/vue": "b5cbf896563ac8087e8acdfe81ff5155db2eb75aced9725cdc05820be483cdda",
+    "node_modules/vue-component-type-helpers": "32c86b6b7ed64b8d484ed4895086050a9af62f90d8c2e465a53ebae1a0379d08",
+    "node_modules/vue-router": "40f70fdb21741d9fda761e4ecd7c38bf5ad283934b6751e51fabca54fb21b4f6",
+    "node_modules/vue-tsc": "2a2e226f78029f1d2511add1625a1bcc8a9b690f7459cd97ce300fe95317fcb7",
+    "node_modules/w3c-xmlserializer": "56d3dbb5448f88c83cdc77fe3a5074dcb4936f140ed7e5f81a81ac910152acde",
+    "node_modules/webidl-conversions": "2c964d3940c039d74fb1ebb5158969cf737e3e5d548d6620e5fb5258e34cfab7",
+    "node_modules/whatwg-mimetype": "6a93238d0e3aba0d633c948ac670bf022b091e0f502203482ed2bc759d8668ff",
+    "node_modules/whatwg-url": "5555c02e33009a5c901071b1f00e31b64a10b8c1564336c0e7a016a03b255c69",
+    "node_modules/why-is-node-running": "c762d49d3da5e8d8fdaa840ba1f18d68bb433e61c671b66b3127f8430d490fe2",
+    "node_modules/ws": "c1ef91ca04eb4754c011c5f0e7638b5078ff71104fada400c44ac761cf93e0b1",
+    "node_modules/xml-name-validator": "08d74267200473a56d572d7453324e896d98150077c9af7e9efb73faaf447de6",
+    "node_modules/xmlchars": "a91c0b20003ff9399dde1de8c59681f1b6901c6fb1aac71780a3a876dc548583"
+  },
+  "package_symlinks": [],
+  "cache": {
+    "root": "/home/agent/.npm/_cacache",
+    "root_exists": false,
+    "exact_content": "/home/agent/.npm/_cacache/content-v2/sha512/ca/79/5bffa08988c76ca8a7beefd9485694ec35741380e1c327b047f86c7a119419c874b0bb22d9bd0c23cfdbd03988721e94445bdb5aa41a3c64e4f25732107b",
+    "exact_content_exists": false
+  },
+  "runtime_paths": {
+    "node": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "npm": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm"
+  },
+  "vue_peer_actual": "3.5.43",
+  "cause_limit": "Entire nonoptional package and hidden-lock entry absent, not broken symlink. Installed-tree snapshot omits this dependency; no evidence identifies when/why omission occurred. No install logs, credentials or unrelated caches read."
+}

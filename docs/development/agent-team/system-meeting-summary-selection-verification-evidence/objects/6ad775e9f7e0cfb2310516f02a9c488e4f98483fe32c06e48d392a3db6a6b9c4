@@ -1,0 +1,796 @@
+--- 03a4/internal/central/model/commands.go
++++ candidate01/internal/central/model/commands.go
+@@ -28,6 +28,7 @@
+ 	ProviderInput            *mc.ProviderInput
+ 	ModelInput               *mc.ModelInput
+ 	Selection                *mc.PlatformSelection
++	MeetingSummary           *mc.ModelID
+ 	Replacement              string
+ }
+ type persistedEvent struct {
+@@ -41,6 +42,8 @@
+ 	BeforeProvider, AfterProvider             *providerRecord
+ 	BeforeModel, AfterModel                   *modelRecord
+ 	BeforeSelection, AfterSelection           *selectionRecord
++	BeforeMeetingSummary                      *meetingSummaryRecord `json:",omitempty"`
++	AfterMeetingSummary                       *meetingSummaryRecord `json:",omitempty"`
+ 	Providers                                 []providerRecord
+ 	Models                                    []modelRecord
+ 	References                                []referenceRecord
+@@ -88,6 +91,9 @@
+ 	return f.NewCommandIdentity("model.system", []string{meta.Actor.Details().UserID}, kind, meta.Key)
+ }
+ func commandSemantic(r commandRequest) (f.Digest, error) {
++	if r.MeetingSummary != nil {
++		return meetingSummarySemantic(r)
++	}
+ 	var provider *providerInput
+ 	if r.ProviderInput != nil {
+ 		v := providerFromInput(*r.ProviderInput)
+@@ -161,6 +167,12 @@
+ 		return nil, unavailable(nil)
+ 	}
+ 	if json.Unmarshal(plan, &r.Plan) != nil || r.Plan.Project != scope.Details().ProjectID {
++		return nil, unavailable(nil)
++	}
++	if e := decodeMeetingSummaryPlan(plan, &r.Plan); e != nil {
++		return nil, e
++	}
++	if r.Plan.BeforeMeetingSummary != nil && (r.Resource != r.Plan.Resource || r.Kind != r.Plan.Kind || r.ID != r.Plan.CommandID || r.Identity != r.Plan.Identity || r.User != r.Plan.User || r.Semantic != r.Plan.Semantic) {
+ 		return nil, unavailable(nil)
+ 	}
+ 	if r.Phase == "committed" {
+--- 03a4/internal/central/model/configuration.go
++++ candidate01/internal/central/model/configuration.go
+@@ -150,6 +150,13 @@
+ 			}
+ 		}
+ 	case "model.selection.update":
++		if r.MeetingSummary != nil {
++			version, e = s.prepareMeetingSummary(ctx, p, r)
++			if e != nil {
++				return nil, e
++			}
++			break
++		}
+ 		old, e := loadSelection(ctx, x)
+ 		if e != nil {
+ 			return nil, e
+@@ -228,6 +235,15 @@
+ 			p.locks = append(p.locks, recordLock(f.ReferenceRecordLock, "model:platform:"+ref.Owner+":"+ref.Role))
+ 		}
+ 	}
++	if plan.BeforeMeetingSummary != nil {
++		p.locks = append(p.locks, systemLock("model-meeting-summary-selection", f.Exclusive))
++		for _, ref := range append(meetingSummaryReferences(plan.BeforeMeetingSummary), meetingSummaryReferences(plan.AfterMeetingSummary)...) {
++			p.locks = append(p.locks, recordLock(f.ReferenceRecordLock, "model:platform:"+ref.Owner+":"+ref.Role))
++		}
++	}
++	if e = validateMeetingSummaryPlan(plan); e != nil {
++		return nil, e
++	}
+ 	if e = s.prepareEvents(p); e != nil {
+ 		return nil, e
+ 	}
+@@ -245,6 +261,18 @@
+ 
+ func (s *Service) validateMapping(ctx context.Context, x postgres.SQLExecutor, p *preparedCommand) error {
+ 	v := &p.plan
++	if e := validateMeetingSummaryPlan(v); e != nil {
++		return e
++	}
++	if v.BeforeMeetingSummary != nil {
++		current, e := loadMeetingSummaryState(ctx, x)
++		if e != nil {
++			return e
++		}
++		if !sameValue(current, v.BeforeMeetingSummary) {
++			return fault(f.ResourceBusy)
++		}
++	}
+ 	if v.BeforeProvider != nil {
+ 		current, e := loadProviderScope(ctx, x, v.BeforeProvider.ID, configurationScope(v.BeforeProvider.Project))
+ 		if e != nil {
+@@ -363,6 +391,11 @@
+ 			}
+ 		}
+ 	}
++	if v.AfterMeetingSummary != nil {
++		if e := applyMeetingSummary(ctx, x, v.AfterMeetingSummary); e != nil {
++			return e
++		}
++	}
+ 	if v.Kind == "model.delete" {
+ 		if _, e := x.Exec(ctx, `DELETE FROM agenteam_model.models WHERE id=$1`, v.Resource); e != nil {
+ 			return unavailable(e)
+--- 03a4/internal/central/model/references.go
++++ candidate01/internal/central/model/references.go
+@@ -108,13 +108,44 @@
+ 	if !sameValue(all, selectionReferences(old)) {
+ 		return unavailable(nil)
+ 	}
++	var summary *meetingSummaryRecord
++	for _, ref := range refs {
++		if ref.Owner != old.ID || ref.Role == "meeting_summary" {
++			summary, e = loadMeetingSummaryState(ctx, x)
++			if e != nil {
++				return e
++			}
++			if summary == nil {
++				return unavailable(nil)
++			}
++			break
++		}
++	}
+ 	current := *old
+-	current.Version, e = nextVersion(old.Version)
+-	if e != nil {
+-		return e
+-	}
++	oldChanged := false
+ 	for _, ref := range refs {
+-		if ref.Owner != old.ID || ref.Version != old.Version || ref.Project != "" {
++		if ref.Owner != old.ID {
++			if summary == nil || !sameValue([]referenceRecord{ref}, meetingSummaryReferences(summary)) {
++				return unavailable(nil)
++			}
++			if next == nil {
++				return fault(f.InvalidState)
++			}
++			if e = selectionCompatible("meeting_summary", next.Input, ref.Effort); e != nil {
++				return e
++			}
++			if e = modelPolicy(next.Input, plan.Providers[len(plan.Providers)-1].Input.Protocol); e != nil {
++				return e
++			}
++			version, e := nextVersion(summary.Version)
++			if e != nil {
++				return e
++			}
++			plan.BeforeMeetingSummary = summary
++			plan.AfterMeetingSummary = &meetingSummaryRecord{ID: summary.ID, Version: version, Model: replacement, UpdatedAt: plan.At}
++			continue
++		}
++		if ref.Version != old.Version || ref.Project != "" || ref.Effort != "" {
+ 			return fault(f.ResourceBusy)
+ 		}
+ 		if next == nil && (ref.Role == "embedding" || ref.Role == "memory") {
+@@ -147,20 +178,30 @@
+ 			}
+ 			current.Image = replacement
+ 		default:
+-			return fault(f.DependencyUnbound)
+-		}
+-	}
+-	plan.BeforeSelection = old
+-	plan.AfterSelection = &current
++			return unavailable(nil)
++		}
++		oldChanged = true
++	}
++	if oldChanged {
++		current.Version, e = nextVersion(old.Version)
++		if e != nil {
++			return e
++		}
++		plan.BeforeSelection = old
++		plan.AfterSelection = &current
++	}
+ 	return nil
+ }
+ func selectionCompatible(role string, m mc.ModelInput, effort string) error {
+-	want := map[string]mc.ModelType{"embedding": mc.EmbeddingModel, "memory": mc.ChatModel, "reranker": mc.RerankerModel, "image": mc.ImageModel}[role]
++	want := map[string]mc.ModelType{"embedding": mc.EmbeddingModel, "memory": mc.ChatModel, "meeting_summary": mc.ChatModel, "reranker": mc.RerankerModel, "image": mc.ImageModel}[role]
+ 	if want == "" || m.Type != want || !m.Enabled {
+ 		return fault(f.InvalidArgument)
+ 	}
+ 	if role == "memory" && !slices.Contains(m.Capabilities.StructuredOutputModes, "json_schema") {
+ 		return fault(f.CapabilityUnsupported)
++	}
++	if role == "meeting_summary" && effort != "" {
++		return fault(f.InvalidArgument)
+ 	}
+ 	if effort != "" && (!m.Capabilities.Reasoning || !slices.Contains(m.Capabilities.ReasoningEfforts, effort)) {
+ 		return fault(f.CapabilityUnsupported)
+--- 03a4/internal/central/model/audit_authority.go
++++ candidate01/internal/central/model/audit_authority.go
+@@ -88,6 +88,15 @@
+ 			return fault(f.Forbidden)
+ 		}
+ 	}
++	if p.plan.AfterMeetingSummary != nil {
++		actual, e := loadMeetingSummaryState(ctx, x)
++		if e != nil {
++			return e
++		}
++		if !sameValue(actual, p.plan.AfterMeetingSummary) {
++			return fault(f.Forbidden)
++		}
++	}
+ 	for _, event := range r.Plan.Events {
+ 		if !validPersistedEvent(event) {
+ 			return fault(f.Forbidden)
+--- 03a4/internal/central/model/events.go
++++ candidate01/internal/central/model/events.go
+@@ -123,6 +123,11 @@
+ 			p.events = append(p.events, event)
+ 		}
+ 	}
++	if after := p.plan.AfterMeetingSummary; after != nil && p.plan.Kind == "model.delete" {
++		if e := add(after.ID, after.Version, []string{"selection"}); e != nil {
++			return e
++		}
++	}
+ 	for _, event := range p.events {
+ 		p.plan.Events = append(p.plan.Events, persistedEvent{Header: event.Header(), Payload: event.PayloadBytes()})
+ 	}
+--- 03a4/internal/central/model/management_read.go
++++ candidate01/internal/central/model/management_read.go
+@@ -4,6 +4,8 @@
+ 	"context"
+ 	"encoding/json"
+ 	"errors"
++	"slices"
++	"strings"
+ 	"time"
+ 
+ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+@@ -47,6 +49,7 @@
+ 	{"agent", "approval_model", true, true},
+ 	{"platform_selector", "embedding", true, false},
+ 	{"platform_selector", "image", false, false},
++	{"platform_selector", "meeting_summary", true, false},
+ 	{"platform_selector", "memory", true, false},
+ 	{"platform_selector", "reranker", false, false},
+ 	{"project_summary", "meeting_summary", true, true},
+@@ -86,6 +89,7 @@
+ 		userLock(actor.Details().UserID),
+ 		aggregateLock(f.ModelConfigAggregate, model.String(), f.Shared),
+ 		systemLock("model-platform-selection", f.Shared),
++		systemLock("model-meeting-summary-selection", f.Shared),
+ 		// Ordinary reference writers hold Shared. Exclusive freezes their union
+ 		// with the canonical selector; it does not grant a business mutation.
+ 		systemLock("model-references", f.Exclusive),
+@@ -150,17 +154,28 @@
+ 		return err
+ 	}
+ 	// Query all platform owners, not just the singleton ID: an extra owner is
+-	// corruption too. Five is the sentinel beyond the four canonical roles.
++	// corruption too. Six is the sentinel beyond both canonical owners.
++	summary, err := loadMeetingSummary(ctx, x)
++	if err != nil {
++		return err
++	}
++	expected := append(selectionReferences(selection), meetingSummaryReferences(summary)...)
++	slices.SortFunc(expected, func(a, b referenceRecord) int {
++		if n := strings.Compare(a.Owner, b.Owner); n != 0 {
++			return n
++		}
++		return strings.Compare(a.Role, b.Role)
++	})
+ 	var raw []byte
+-	err = x.QueryRow(ctx, `SELECT coalesce(jsonb_agg(jsonb_build_object('Kind',owner_kind,'Owner',owner_id::text,'Role',role,'Project',coalesce(project_id::text,''),'Model',model_id::text,'Version',owner_version::text,'Effort',reasoning_effort) ORDER BY owner_id,role),'[]'::jsonb) FROM (SELECT owner_kind,owner_id,role,project_id,model_id,owner_version,reasoning_effort FROM agenteam_model.references WHERE owner_kind='platform_selector' ORDER BY owner_id,role LIMIT 5) platform`).Scan(&raw)
++	err = x.QueryRow(ctx, `SELECT coalesce(jsonb_agg(jsonb_build_object('Kind',owner_kind,'Owner',owner_id::text,'Role',role,'Project',coalesce(project_id::text,''),'Model',model_id::text,'Version',owner_version::text,'Effort',reasoning_effort) ORDER BY owner_id,role),'[]'::jsonb) FROM (SELECT owner_kind,owner_id,role,project_id,model_id,owner_version,reasoning_effort FROM agenteam_model.references WHERE owner_kind='platform_selector' ORDER BY owner_id,role LIMIT 6) platform`).Scan(&raw)
+ 	if err != nil {
+ 		return managementReadError(err)
+ 	}
+ 	var actual []referenceRecord
+-	if err = json.Unmarshal(raw, &actual); err != nil || actual == nil || len(actual) > 4 {
++	if err = json.Unmarshal(raw, &actual); err != nil || actual == nil || len(actual) > 5 {
+ 		return unavailable(err)
+ 	}
+-	if !sameValue(actual, selectionReferences(selection)) {
++	if !sameValue(actual, expected) {
+ 		return unavailable(nil)
+ 	}
+ 	return nil
+@@ -169,17 +184,18 @@
+ func managementReferenceImpact(ctx context.Context, x postgres.SQLExecutor, model mc.ModelID, version f.Version) (ModelDeletionImpact, error) {
+ 	var counts [len(managementReferenceKinds)]f.Progress
+ 	var total f.Progress
+-	// The materialized input is bounded before any aggregate. The eighth
+-	// count includes unknown combinations so they cannot silently disappear.
++	// The materialized input is bounded before any aggregate. The overall
++	// total includes unknown combinations so they cannot silently disappear.
+ 	err := x.QueryRow(ctx, `WITH bounded AS MATERIALIZED (SELECT owner_kind,role FROM agenteam_model.references WHERE model_id=$1 LIMIT 10001)
+ SELECT count(*),
+ count(*) FILTER (WHERE owner_kind='agent' AND role='agent_model'),
+ count(*) FILTER (WHERE owner_kind='agent' AND role='approval_model'),
+ count(*) FILTER (WHERE owner_kind='platform_selector' AND role='embedding'),
+ count(*) FILTER (WHERE owner_kind='platform_selector' AND role='image'),
++count(*) FILTER (WHERE owner_kind='platform_selector' AND role='meeting_summary'),
+ count(*) FILTER (WHERE owner_kind='platform_selector' AND role='memory'),
+ count(*) FILTER (WHERE owner_kind='platform_selector' AND role='reranker'),
+-count(*) FILTER (WHERE owner_kind='project_summary' AND role='meeting_summary') FROM bounded`, model.String()).Scan(&total, &counts[0], &counts[1], &counts[2], &counts[3], &counts[4], &counts[5], &counts[6])
++count(*) FILTER (WHERE owner_kind='project_summary' AND role='meeting_summary') FROM bounded`, model.String()).Scan(&total, &counts[0], &counts[1], &counts[2], &counts[3], &counts[4], &counts[5], &counts[6], &counts[7])
+ 	if err != nil {
+ 		return ModelDeletionImpact{}, managementReadError(err)
+ 	}
+--- 03a4/api/openapi/model-system.json
++++ candidate01/api/openapi/model-system.json
+@@ -3086,6 +3086,7 @@
+                 "enum": [
+                   "embedding",
+                   "image",
++                  "meeting_summary",
+                   "memory",
+                   "reranker"
+                 ]
+@@ -3129,7 +3130,7 @@
+           },
+           "reference_groups": {
+             "type": "array",
+-            "maxItems": 7,
++            "maxItems": 8,
+             "items": {
+               "$ref": "#/components/schemas/ModelReferenceCount"
+             },
+@@ -3150,7 +3151,7 @@
+             "description": "Null only means absence of this known adapter blocker; it does not mean deletion is allowed."
+           }
+         },
+-        "description": "Zero references implies none and null blocker. Any agent, project_summary, platform embedding or memory requires replacement. Otherwise nonempty platform image/reranker is optional. Any agent/project_summary group sets reference_adapter_unbound."
++        "description": "Zero references implies none and null blocker. Any agent, project_summary, platform embedding, meeting_summary or memory requires replacement. Otherwise nonempty platform image/reranker is optional. Any agent/project_summary group sets reference_adapter_unbound."
+       }
+     }
+   }
+--- 03a4/internal/central/model/meeting_summary.go
++++ candidate01/internal/central/model/meeting_summary.go
+@@ -0,0 +1,132 @@
++package model
++
++import (
++	"context"
++	"errors"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++// InitializeMeetingSummarySelection creates only an independent nullable
++// technical selection. Startup binding is deliberately left to the caller.
++func (s *Service) InitializeMeetingSummarySelection(ctx context.Context) error {
++	if ctx == nil {
++		return fault(f.InvalidArgument)
++	}
++	if s.state() == nil {
++		return fault(f.DependencyUnbound)
++	}
++	cause, e := readCause("meeting-summary-initialize")
++	if e != nil {
++		return e
++	}
++	next, e := newID()
++	if e != nil {
++		return e
++	}
++	locks := []f.LockRequest{systemLock("model-platform-selection", f.Shared), systemLock("model-meeting-summary-selection", f.Exclusive), systemLock("model-references", f.Shared)}
++	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
++		if e := s.state().store.AcquireAll(ctx, tx, locks); e != nil {
++			return portError(e)
++		}
++		x, e := s.state().store.InTx(tx)
++		if e != nil {
++			return portError(e)
++		}
++		old, e := loadSelection(ctx, x)
++		if e != nil {
++			var ff *f.Fault
++			if errors.As(e, &ff) && ff.Code == f.InvalidState {
++				return fault(f.DependencyUnbound)
++			}
++			return e
++		}
++		if _, e = selectionView(old); e != nil {
++			return e
++		}
++		r, e := loadMeetingSummaryState(ctx, x)
++		if e != nil {
++			return e
++		}
++		if r != nil {
++			return nil
++		}
++		if next == old.ID {
++			return unavailable(nil)
++		}
++		if _, e = x.Exec(ctx, `INSERT INTO agenteam_model.meeting_summary_selection(id,singleton,version,model_id,updated_at) VALUES($1,true,1,NULL,clock_timestamp())`, next); e != nil {
++			return unavailable(e)
++		}
++		r, e = loadMeetingSummaryState(ctx, x)
++		if e != nil {
++			return e
++		}
++		if r == nil {
++			return unavailable(nil)
++		}
++		return nil
++	})
++	return commitError(result)
++}
++
++func (s *Service) GetMeetingSummarySelection(ctx context.Context, actor id.Actor) (mc.MeetingSummarySelection, error) {
++	zero := mc.MeetingSummarySelection{}
++	if ctx == nil {
++		return zero, fault(f.InvalidArgument)
++	}
++	if e := human(actor); e != nil {
++		return zero, e
++	}
++	state := s.state()
++	if state == nil {
++		return zero, fault(f.DependencyUnbound)
++	}
++	ctx, cancel := context.WithTimeout(ctx, managementReadBudget)
++	defer cancel()
++	cause, e := readCause("meeting-summary-query")
++	if e != nil {
++		return zero, e
++	}
++	locks := []f.LockRequest{userLock(actor.Details().UserID), systemLock("model-meeting-summary-selection", f.Shared), systemLock("model-references", f.Shared)}
++	var out mc.MeetingSummarySelection
++	result := state.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
++		if e := state.store.AcquireAll(ctx, tx, locks); e != nil {
++			return portError(e)
++		}
++		if e := state.store.RequireHeldLocks(ctx, tx, locks); e != nil {
++			return portError(e)
++		}
++		if e := state.authority.currentScope(ctx, tx, actor, id.SystemScope(), id.Read); e != nil {
++			return e
++		}
++		x, e := state.store.InTx(tx)
++		if e != nil {
++			return portError(e)
++		}
++		r, e := loadMeetingSummaryState(ctx, x)
++		if e != nil {
++			return e
++		}
++		out, e = r.view()
++		return e
++	})
++	if e = commitError(result); e != nil {
++		return zero, e
++	}
++	if e = ctx.Err(); e != nil {
++		return zero, f.NewFault(f.DependencyUnavailable, f.Committed).WithCause(e)
++	}
++	return out, nil
++}
++func (s *Service) UpdateMeetingSummarySelection(ctx context.Context, r mc.UpdateMeetingSummarySelectionRequest) (mc.CommandReceipt, error) {
++	if ctx == nil {
++		return mc.CommandReceipt{}, fault(f.InvalidArgument)
++	}
++	if e := r.Validate(); e != nil {
++		return mc.CommandReceipt{}, e
++	}
++	model := r.Model
++	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "model.selection.update", Resource: r.SelectionID, Expected: r.ExpectedVersion, MeetingSummary: &model})
++}
+--- 03a4/internal/central/model/meeting_summary_store.go
++++ candidate01/internal/central/model/meeting_summary_store.go
+@@ -0,0 +1,122 @@
++package model
++
++import (
++	"context"
++	"encoding/json"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++)
++
++type meetingSummaryRecord struct {
++	ID        string
++	Version   f.Version
++	Model     string
++	UpdatedAt f.Instant
++}
++
++func (r *meetingSummaryRecord) view() (mc.MeetingSummarySelection, error) {
++	if r == nil {
++		return mc.MeetingSummarySelection{}, fault(f.DependencyUnbound)
++	}
++	v := mc.MeetingSummarySelection{ID: r.ID, Version: r.Version}
++	if r.Model != "" {
++		m, e := f.ParseID[mc.Model](r.Model)
++		if e != nil || m.String() != r.Model {
++			return mc.MeetingSummarySelection{}, unavailable(e)
++		}
++		v.Model = &m
++	}
++	if v.Validate() != nil || r.UpdatedAt.Validate() != nil || r.UpdatedAt.Time().IsZero() {
++		return mc.MeetingSummarySelection{}, unavailable(nil)
++	}
++	return v, nil
++}
++
++// This loader distinguishes a missing table, a missing technical singleton,
++// and an initialized nullable choice. LIMIT 2 detects a corrupted singleton.
++func loadMeetingSummary(ctx context.Context, x postgres.SQLExecutor) (*meetingSummaryRecord, error) {
++	var raw []byte
++	e := x.QueryRow(ctx, `SELECT coalesce(jsonb_agg(jsonb_build_object('ID',id::text,'Version',version::text,'Model',coalesce(model_id::text,''),'UpdatedAt',to_char(updated_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),'Singleton',singleton,'Platform',(SELECT id::text FROM agenteam_model.platform_selection WHERE singleton)) ORDER BY id),'[]'::jsonb) FROM (SELECT * FROM agenteam_model.meeting_summary_selection ORDER BY id LIMIT 2) summary`).Scan(&raw)
++	if e != nil {
++		return nil, unavailable(e)
++	}
++	var records []struct {
++		meetingSummaryRecord
++		Singleton bool
++		Platform  *string
++	}
++	if json.Unmarshal(raw, &records) != nil || records == nil || len(records) > 1 {
++		return nil, unavailable(nil)
++	}
++	var out *meetingSummaryRecord
++	for _, v := range records {
++		if !v.Singleton || v.Platform == nil || *v.Platform == v.ID {
++			return nil, unavailable(nil)
++		}
++		if _, e = v.view(); e != nil {
++			return nil, e
++		}
++		r := v.meetingSummaryRecord
++		out = &r
++	}
++	return out, nil
++}
++func meetingSummaryReferences(r *meetingSummaryRecord) []referenceRecord {
++	refs := []referenceRecord{}
++	if r != nil && r.Model != "" {
++		refs = append(refs, referenceRecord{Kind: "platform_selector", Owner: r.ID, Role: "meeting_summary", Model: r.Model, Version: r.Version})
++	}
++	return refs
++}
++
++// Include every Summary-role edge, even when its owner is unknown; include all
++// roles of the canonical owner, so an incorrect extra role cannot be hidden.
++func meetingSummaryConsistent(ctx context.Context, x postgres.SQLExecutor, r *meetingSummaryRecord) error {
++	owner := ""
++	if r != nil {
++		owner = r.ID
++	}
++	var raw []byte
++	e := x.QueryRow(ctx, `SELECT coalesce(jsonb_agg(jsonb_build_object('Kind',owner_kind,'Owner',owner_id::text,'Role',role,'Project',coalesce(project_id::text,''),'Model',model_id::text,'Version',owner_version::text,'Effort',reasoning_effort) ORDER BY owner_id,role),'[]'::jsonb) FROM (SELECT owner_kind,owner_id,role,project_id,model_id,owner_version,reasoning_effort FROM agenteam_model.references WHERE owner_kind='platform_selector' AND (role='meeting_summary' OR owner_id::text=$1) ORDER BY owner_id,role LIMIT 2) summary_references`, owner).Scan(&raw)
++	if e != nil {
++		return unavailable(e)
++	}
++	var refs []referenceRecord
++	if json.Unmarshal(raw, &refs) != nil || refs == nil || len(refs) > 1 || !sameValue(refs, meetingSummaryReferences(r)) {
++		return unavailable(nil)
++	}
++	return nil
++}
++func loadMeetingSummaryState(ctx context.Context, x postgres.SQLExecutor) (*meetingSummaryRecord, error) {
++	r, e := loadMeetingSummary(ctx, x)
++	if e != nil {
++		return nil, e
++	}
++	if e = meetingSummaryConsistent(ctx, x, r); e != nil {
++		return nil, e
++	}
++	return r, nil
++}
++func applyMeetingSummary(ctx context.Context, x postgres.SQLExecutor, r *meetingSummaryRecord) error {
++	if _, e := r.view(); e != nil {
++		return e
++	}
++	tag, e := x.Exec(ctx, `UPDATE agenteam_model.meeting_summary_selection SET version=$2,model_id=$3,updated_at=$4 WHERE id=$1`, r.ID, int64(r.Version), null(r.Model), r.UpdatedAt.Time())
++	if e != nil {
++		return unavailable(e)
++	}
++	if tag.RowsAffected() != 1 {
++		return unavailable(nil)
++	}
++	if _, e = x.Exec(ctx, `DELETE FROM agenteam_model.references WHERE owner_kind='platform_selector' AND owner_id=$1`, r.ID); e != nil {
++		return unavailable(e)
++	}
++	for _, ref := range meetingSummaryReferences(r) {
++		if _, e = x.Exec(ctx, `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,model_id,owner_version) VALUES('platform_selector',$1,'meeting_summary',$2,$3)`, ref.Owner, ref.Model, int64(ref.Version)); e != nil {
++			return unavailable(e)
++		}
++	}
++	return nil
++}
+--- 03a4/internal/central/model/meeting_summary_commands.go
++++ candidate01/internal/central/model/meeting_summary_commands.go
+@@ -0,0 +1,175 @@
++package model
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"strings"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++func meetingSummarySemantic(r commandRequest) (f.Digest, error) {
++	if r.MeetingSummary == nil || r.MeetingSummary.Validate() != nil || r.Meta.Validate() != nil || r.Meta.Scope.Details().Kind != id.System || r.Kind != "model.selection.update" || r.Provider != "" || r.ProviderInput != nil || r.ModelInput != nil || r.Selection != nil || r.Replacement != "" {
++		return "", fault(f.InvalidArgument)
++	}
++	v := mc.UpdateMeetingSummarySelectionRequest{CommandMeta: r.Meta, SelectionID: r.Resource, ExpectedVersion: r.Expected, Model: *r.MeetingSummary}
++	if v.Validate() != nil {
++		return "", fault(f.InvalidArgument)
++	}
++	raw, e := json.Marshal(struct {
++		Format          string `json:"format"`
++		User            string `json:"user"`
++		Kind            string `json:"kind"`
++		Resource        string `json:"resource"`
++		ExpectedVersion string `json:"expected_version"`
++		Model           string `json:"model"`
++	}{"model-meeting-summary-command-v1", r.Meta.Actor.Details().UserID, r.Kind, r.Resource, r.Expected.String(), r.MeetingSummary.String()})
++	if e != nil {
++		return "", unavailable(e)
++	}
++	return cursor.Digest(raw)
++}
++func (s *Service) prepareMeetingSummary(ctx context.Context, p *preparedCommand, r commandRequest) (f.Version, error) {
++	old, e := loadMeetingSummaryState(ctx, s.state().store)
++	if e != nil {
++		return 0, e
++	}
++	if old == nil {
++		return 0, fault(f.DependencyUnbound)
++	}
++	if old.ID != r.Resource {
++		return 0, fault(f.NotFound)
++	}
++	if old.Version != r.Expected {
++		return 0, fault(f.VersionConflict)
++	}
++	version, e := nextVersion(old.Version)
++	if e != nil {
++		return 0, e
++	}
++	m, e := loadModel(ctx, s.state().store, r.MeetingSummary.String())
++	if e != nil {
++		return 0, e
++	}
++	if m == nil {
++		return 0, fault(f.NotFound)
++	}
++	if e = selectionCompatible("meeting_summary", m.Input, ""); e != nil {
++		return 0, e
++	}
++	provider, e := loadProvider(ctx, s.state().store, m.ProviderID)
++	if e != nil {
++		return 0, e
++	}
++	if provider == nil || !provider.Input.Enabled {
++		return 0, fault(f.InvalidState)
++	}
++	if e = modelPolicy(m.Input, provider.Input.Protocol); e != nil {
++		return 0, e
++	}
++	p.plan.BeforeMeetingSummary = old
++	p.plan.AfterMeetingSummary = &meetingSummaryRecord{ID: old.ID, Version: version, Model: m.ID, UpdatedAt: p.plan.At}
++	p.plan.References = meetingSummaryReferences(old)
++	p.plan.Models = append(p.plan.Models, *m)
++	p.plan.Providers = append(p.plan.Providers, *provider)
++	p.plan.Changed = []string{"selection"}
++	return version, nil
++}
++
++// Historical plans omit both fields. An explicit malformed/null or mixed new
++// branch must not be interpreted as an old plan merely because JSON is valid.
++func decodeMeetingSummaryPlan(raw []byte, p *mutationPlan) error {
++	var fields map[string]json.RawMessage
++	if json.Unmarshal(raw, &fields) != nil {
++		return unavailable(nil)
++	}
++	present := 0
++	for k, v := range fields {
++		if strings.EqualFold(k, "BeforeMeetingSummary") || strings.EqualFold(k, "AfterMeetingSummary") {
++			if k != "BeforeMeetingSummary" && k != "AfterMeetingSummary" {
++				return unavailable(nil)
++			}
++			present++
++			if bytes.Equal(bytes.TrimSpace(v), []byte("null")) {
++				return unavailable(nil)
++			}
++			var record meetingSummaryRecord
++			d := json.NewDecoder(bytes.NewReader(v))
++			d.DisallowUnknownFields()
++			if d.Decode(&record) != nil {
++				return unavailable(nil)
++			}
++		}
++	}
++	if present == 0 {
++		return nil
++	}
++	if present != 2 {
++		return unavailable(nil)
++	}
++	return validateMeetingSummaryPlan(p)
++}
++func validateMeetingSummaryPlan(p *mutationPlan) error {
++	b, a := p.BeforeMeetingSummary, p.AfterMeetingSummary
++	if b == nil && a == nil {
++		return nil
++	}
++	if b == nil || a == nil || p.Project != "" || p.BeforeProvider != nil || p.AfterProvider != nil {
++		return unavailable(nil)
++	}
++	if _, e := b.view(); e != nil {
++		return unavailable(e)
++	}
++	if _, e := a.view(); e != nil {
++		return unavailable(e)
++	}
++	version, e := nextVersion(b.Version)
++	if e != nil || a.ID != b.ID || a.Version != version || a.Model == "" || a.UpdatedAt != p.At {
++		return unavailable(e)
++	}
++	if p.BeforeSelection != nil && p.BeforeSelection.ID == a.ID || p.AfterSelection != nil && p.AfterSelection.ID == a.ID {
++		return unavailable(nil)
++	}
++	switch p.Kind {
++	case "model.selection.update":
++		if len(p.Models) != 1 || len(p.Providers) != 1 || p.Receipt.Kind != p.Kind || p.Receipt.AffectedReferences != 0 || p.Metadata.Version != a.Version || !sameValue(p.Changed, []string{"selection"}) || !sameValue(p.Metadata.ChangedFields, []string{"selection"}) || p.BeforeModel != nil || p.AfterModel != nil || p.BeforeSelection != nil || p.AfterSelection != nil || p.Resource != a.ID || !sameValue(p.References, meetingSummaryReferences(b)) || p.Receipt.ResourceID != a.ID || p.Receipt.Version != a.Version || p.Metadata.SelectionID != a.ID || p.Metadata.SelectorKind != "platform" {
++			return unavailable(nil)
++		}
++	case "model.delete":
++		if p.BeforeModel == nil || p.AfterModel != nil || p.BeforeModel.ID != p.Resource || b.Model != p.Resource || a.Model == p.Resource || a.Model != p.Metadata.ReplacementID {
++			return unavailable(nil)
++		}
++		seen := 0
++		for _, ref := range p.References {
++			if ref.Owner == b.ID {
++				if !sameValue([]referenceRecord{ref}, meetingSummaryReferences(b)) {
++					return unavailable(nil)
++				}
++				seen++
++			}
++		}
++		if seen != 1 {
++			return unavailable(nil)
++		}
++	default:
++		return unavailable(nil)
++	}
++	matched := false
++	for _, m := range p.Models {
++		if m.ID == a.Model && m.Project == "" && selectionCompatible("meeting_summary", m.Input, "") == nil {
++			for _, provider := range p.Providers {
++				if provider.ID == m.ProviderID && provider.Project == "" && provider.Input.Enabled && modelPolicy(m.Input, provider.Input.Protocol) == nil {
++					matched = true
++				}
++			}
++		}
++	}
++	if !matched {
++		return unavailable(nil)
++	}
++	return nil
++}
+--- 03a4/db/migrations/00020_model_meeting_summary_selection.sql
++++ candidate01/db/migrations/00020_model_meeting_summary_selection.sql
+@@ -0,0 +1,19 @@
++-- agenteam:transaction tx
++-- +goose Up
++-- Independent, initially unconfigured system Meeting Rolling Summary choice.
++CREATE TABLE agenteam_model.meeting_summary_selection (
++ id agenteam_model.safe_id PRIMARY KEY,
++ singleton boolean NOT NULL DEFAULT true UNIQUE CHECK(singleton),
++ version bigint NOT NULL CHECK(version>0),
++ model_id agenteam_model.safe_id REFERENCES agenteam_model.models(id) ON DELETE RESTRICT,
++ updated_at timestamptz(6) NOT NULL
++);
++
++-- Preserve all old owner/role branches; only the new system role is added.
++ALTER TABLE agenteam_model.references DROP CONSTRAINT references_check;
++ALTER TABLE agenteam_model.references ADD CONSTRAINT references_check CHECK (
++ (owner_kind='platform_selector' AND project_id IS NULL AND role IN ('embedding','memory','reranker','image'))
++ OR (owner_kind='platform_selector' AND project_id IS NULL AND role='meeting_summary' AND reasoning_effort='')
++ OR (owner_kind='agent' AND project_id IS NOT NULL AND role IN ('agent_model','approval_model'))
++ OR (owner_kind='project_summary' AND project_id IS NOT NULL AND owner_id=project_id AND role='meeting_summary')
++);

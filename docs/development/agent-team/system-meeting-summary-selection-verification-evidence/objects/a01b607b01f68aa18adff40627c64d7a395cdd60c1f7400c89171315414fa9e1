@@ -1,0 +1,126 @@
+{
+  "03c613550779d1af85a61874970d393f5d7d8cb2042c443ffc96618359fbbe8b": {
+    "id": "03c613550779d1af85a61874970d393f5d7d8cb2042c443ffc96618359fbbe8b",
+    "kind": "container",
+    "labels": {
+      "agenteam.d04.networkfixture": "e2b748dfddba39a312476c4ecbd58293"
+    },
+    "mounts": [
+      {
+        "Destination": "/fixture",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new1/runtime/agenteam-d05-object-c3d40aac4eb1235fd2658d8b1ba399ca/agenteam-d04-net-e2b748dfddba39a312476c4ecbd58293-2460726896",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/var/lib/postgresql/data",
+        "Driver": "local",
+        "Mode": "",
+        "Name": "09d4f8589ca0e84b289e5ae3d5016d855a7d98fdc53157d0920484501d1e78a2",
+        "Propagation": "",
+        "RW": true,
+        "Source": "/var/lib/docker/volumes/09d4f8589ca0e84b289e5ae3d5016d855a7d98fdc53157d0920484501d1e78a2/_data",
+        "Type": "volume"
+      }
+    ],
+    "name": "/agenteam-d04-net-e2b748dfddba39a312476c4ecbd58293"
+  },
+  "24ea21519c476c854eb397de12a48cdbaed76f9fde33d9d0594a281d0a91fb6b": {
+    "id": "24ea21519c476c854eb397de12a48cdbaed76f9fde33d9d0594a281d0a91fb6b",
+    "kind": "network",
+    "labels": {
+      "agenteam.d03.fixture": "813e11d3f16f09d45a01f7c9bbe2e783"
+    },
+    "name": "agenteam-d03-813e11d3f16f09d45a01f7c9bbe2e783"
+  },
+  "5fb5cff0db66cf9aece9fc18ae32fda4ea07390e5c294cfdcf884de70f847c09": {
+    "id": "5fb5cff0db66cf9aece9fc18ae32fda4ea07390e5c294cfdcf884de70f847c09",
+    "kind": "container",
+    "labels": {
+      "agenteam.d05.objectfixture": "c3d40aac4eb1235fd2658d8b1ba399ca"
+    },
+    "mounts": [
+      {
+        "Destination": "/fixture",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new1/runtime/agenteam-d05-object-c3d40aac4eb1235fd2658d8b1ba399ca",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/fixture/data",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": true,
+        "Source": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new1/runtime/agenteam-d05-object-c3d40aac4eb1235fd2658d8b1ba399ca/data",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/var/lib/postgresql/data",
+        "Driver": "local",
+        "Mode": "",
+        "Name": "da113336ca549414eb8077a6b5e8966974215bff3217632cf823393508609271",
+        "Propagation": "",
+        "RW": true,
+        "Source": "/var/lib/docker/volumes/da113336ca549414eb8077a6b5e8966974215bff3217632cf823393508609271/_data",
+        "Type": "volume"
+      }
+    ],
+    "name": "/agenteam-d05-object-c3d40aac4eb1235fd2658d8b1ba399ca"
+  },
+  "8a7e1183702bb7fc97cd10a4659e0764e56cffcb797a65977889f16ceab0268d": {
+    "id": "8a7e1183702bb7fc97cd10a4659e0764e56cffcb797a65977889f16ceab0268d",
+    "kind": "network",
+    "labels": {
+      "agenteam.d05.objectfixture": "c3d40aac4eb1235fd2658d8b1ba399ca"
+    },
+    "name": "agenteam-d05-object-c3d40aac4eb1235fd2658d8b1ba399ca"
+  },
+  "8fb11b020f22dc54c4458f3e7db1380b40f7b8da873b336bf751fa19a56b15a7": {
+    "id": "8fb11b020f22dc54c4458f3e7db1380b40f7b8da873b336bf751fa19a56b15a7",
+    "kind": "container",
+    "labels": {
+      "agenteam.d03.fixture": "813e11d3f16f09d45a01f7c9bbe2e783"
+    },
+    "mounts": [
+      {
+        "Destination": "/fixture",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new1/runtime/agenteam-d05-object-c3d40aac4eb1235fd2658d8b1ba399ca/agenteam-d04-net-e2b748dfddba39a312476c4ecbd58293-2460726896/agenteam-d03-813e11d3f16f09d45a01f7c9bbe2e783-488666977",
+        "Type": "bind"
+      }
+    ],
+    "name": "/agenteam-d03-813e11d3f16f09d45a01f7c9bbe2e783-pg16"
+  },
+  "9cb4cda2c5ea0e4672b23b1fcc4fc1a7e4003c586ac9042ca792fd7750e1afa3": {
+    "id": "9cb4cda2c5ea0e4672b23b1fcc4fc1a7e4003c586ac9042ca792fd7750e1afa3",
+    "kind": "network",
+    "labels": {
+      "agenteam.d04.networkfixture": "e2b748dfddba39a312476c4ecbd58293"
+    },
+    "name": "agenteam-d04-net-e2b748dfddba39a312476c4ecbd58293"
+  },
+  "a91b40abbd779da3776a56c6d679bf7c3446d652a752353ec3b9312573ff51e4": {
+    "id": "a91b40abbd779da3776a56c6d679bf7c3446d652a752353ec3b9312573ff51e4",
+    "kind": "container",
+    "labels": {
+      "agenteam.d03.fixture": "813e11d3f16f09d45a01f7c9bbe2e783"
+    },
+    "mounts": [
+      {
+        "Destination": "/fixture",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/workspace/scratch/meeting-summary-s1-author/driver-v01/runs/new1/runtime/agenteam-d05-object-c3d40aac4eb1235fd2658d8b1ba399ca/agenteam-d04-net-e2b748dfddba39a312476c4ecbd58293-2460726896/agenteam-d03-813e11d3f16f09d45a01f7c9bbe2e783-488666977",
+        "Type": "bind"
+      }
+    ],
+    "name": "/agenteam-d03-813e11d3f16f09d45a01f7c9bbe2e783"
+  }
+}

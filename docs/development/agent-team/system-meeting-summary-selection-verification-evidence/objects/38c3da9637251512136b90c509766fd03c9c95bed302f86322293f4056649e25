@@ -1,0 +1,137 @@
+--- /workspace/scratch/usage-http-author/C/driver-v05/driver.py
++++ /workspace/scratch/meeting-summary-s1-author/driver-v01/driver.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Frozen Usage HTTP fixture runner. --execute-authorized requires root's resource window."""
++"""Frozen Meeting Summary S1 fixture runner. --execute-authorized requires root's resource window."""
+ import argparse
+ import ctypes
+ import datetime
+@@ -22,15 +22,10 @@
+ DOCKER_SHA256 = '27f239f97492c434e091a70b41b8796c698f0aa2b6052c6f9c28da4ee7ae888b'
+ MODCACHE = '/workspace/go/pkg/mod'
+ MINIO = '/workspace/scratch/fixture-recovery/bin/minio'
+-GOCACHE = '/home/agent/.cache/go-build'
++GOCACHE = '/workspace/.cache/go-build'
+ PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python'
+-GROUPS = {
+-    'root-only': ['TestModelProjectUsageHTTPRootBinding'],
+-    'affected': ['TestModelProjectUsageHTTPRootBinding', 'TestModelProjectUsageHTTPAuthorityAndTerminal'],
+-    'new': ['TestModelProjectUsageHTTPProjectionAndPath', 'TestModelProjectUsageHTTPAuthorityAndTerminal', 'TestModelProjectUsageHTTPRootBinding'],
+-    'old-model': ['TestUsageReaderNonemptyPagination', 'TestUsageInvocationWireLedger', 'TestModelSystemHTTPBoundaryAndStrictWire', 'TestModelSystemHTTPCurrentAdministrator'],
+-    'old-project': ['TestProjectB02OwnerSessionNamePathAndPaging', 'TestProjectB02OwnerPortRequiresCallerTransactionLocks'],
+-}
++GROUPS = {'new-schema-selection': ['TestModelMeetingSummarySchema', 'TestModelMeetingSummarySelection'], 'new-replacement-unknown': ['TestModelMeetingSummaryReplacement', 'TestModelMeetingSummaryUnknown'], 'new-upgrade-http': ['TestModelMeetingSummaryUpgradeReceipts', 'TestModelMeetingSummaryExistingHTTP'], 'old': ['TestModelB01PlatformSelectionAndAtomicReplacement', 'TestModelB01PreparedReferencesAndCurrentAdminAreRechecked', 'TestModelB01SecretReferencesAndAllEffectsRollback', 'TestModelB01ConcurrentSameKeyPreparationFailureStillReplaysReceipt', 'TestModelProjectReceiptReadGateAndLegacySystemPlan', 'TestModelProjectUnboundReferencesAndDeleteBarrier', 'TestSystemModelManagementDeletionImpact', 'TestModelSystemHTTPSelectionAndReferenceDeletion', 'TestModelSystemHTTPCurrentAdministrator', 'TestModelSystemHTTPBoundaryAndStrictWire', 'TestModelCurrentResolutionSelection', 'TestModelCurrentResolutionReplay']}
++
+ GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+ FROZEN = {}
+ 
+@@ -51,22 +46,11 @@
+ 
+ 
+ def source_input():
+-    delta = load_bound(FROZEN['closure_delta'])
+-    closure = load_bound(delta['base_closure'])
+-    sources = load_bound(delta['source_fourteen'])
+-    references = {}
+-    for path, expected in closure['references'].items():
+-        references[path] = load_bound({'path': path, 'sha256': expected})
+-    known = {}
+-    for doc in references.values():
+-        for field in ['files', 'race_additional_inputs', 'new_actual_inputs', 'changed_known_inputs']:
+-            known.update(doc.get(field, {}))
+-    known.update(closure['new_inputs'])
+-    known.update(closure['changed_known_inputs'])
+-    known.update(delta['changed_inputs'])
+-    expected = {path: known[path]['sha256'] for path in closure['actual_input_paths']}
++    closure = load_bound(FROZEN['closure'])
++    load_bound(closure['candidate'])
++    load_bound(closure['frontend_four'])
++    expected = {p: row['sha256'] for p, row in closure['files'].items()}
+     expected.update(FROZEN['driver_runtime_files'])
+-    expected.update({str(REPO / name): entry['sha256'] for name, entry in sources.items()})
+     missing, actual = [], {}
+     for path in sorted(expected):
+         try:
+@@ -79,18 +63,13 @@
+         names = sorted(p.name for p in Path(directory).iterdir() if p.is_file() and (p.suffix in GO_INPUT_SUFFIXES or row['embed_directory']))
+         if names != row['names']:
+             set_changes.append(directory)
+-    accepted_changed = []
+-    for name, oid in closure['accepted_local_git_blobs'].items():
+-        data = (REPO / name).read_bytes()
+-        if hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest() != oid:
+-            accepted_changed.append(name)
+     minio_ok = actual.get(MINIO) == 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
+     docker_ok = actual.get(DOCKER) == DOCKER_SHA256 and shutil.which('docker', path=runtime_environment(ROOT / 'auxiliary-tmp')['PATH']) == DOCKER
+     return {'docker_path_and_hash_match': docker_ok, 'files_count': len(expected), 'actual_digest': digest(actual), 'expected_digest': digest(expected),
+             'missing': missing, 'mismatches': mismatches, 'package_set_changes': set_changes,
+-            'accepted_baseline_changes': sorted(accepted_changed), 'accepted_count': len(closure['accepted_local_git_blobs']),
+-            'source_fourteen_sha256': delta['source_fourteen']['sha256'], 'closure_delta_sha256': FROZEN['closure_delta']['sha256'],
+-            'minio_matches': minio_ok, 'accepted': not (missing or mismatches or set_changes or accepted_changed) and minio_ok and docker_ok}
++            'candidate_sha256': closure['candidate']['sha256'], 'closure_sha256': FROZEN['closure']['sha256'],
++            'old_binary_sha256': closure['old_binary']['sha256'], 'minio_matches': minio_ok,
++            'accepted': not (missing or mismatches or set_changes) and minio_ok and docker_ok}
+ 
+ 
+ def runtime_environment(runtime):
+@@ -100,7 +79,9 @@
+             'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off', 'GOPROXY': 'off', 'GOSUMDB': 'off',
+             'GOMODCACHE': MODCACHE, 'GOCACHE': GOCACHE, 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime),
+             'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v',
+-            'AGENTEAM_GO': GO, 'AGENTEAM_MINIO_BINARY': MINIO, 'AGENTEAM_USAGE_SCHEMA_PYTHON': PYTHON}
++            'AGENTEAM_GO': GO, 'AGENTEAM_MINIO_BINARY': MINIO,
++            'AGENTEAM_MEETING_SUMMARY_OLD_BINARY': FROZEN['old_binary']['path'],
++            'AGENTEAM_MEETING_SUMMARY_OLD_SHA256': FROZEN['old_binary']['sha256']}
+ 
+ 
+ def processes():
+@@ -369,6 +350,9 @@
+     baseline = resources()
+     write(run / 'baseline.json', baseline)
+     env = runtime_environment(runtime)
++    evidence = run / 'safe-http-evidence'
++    evidence.mkdir(mode=0o700)
++    env['AGENTEAM_MEETING_SUMMARY_EVIDENCE_DIR'] = str(evidence)
+     expected = set(GROUPS[args.group])
+     selector = '^(' + '|'.join(GROUPS[args.group]) + ')$'
+     argv = ['sh', 'scripts/test-objects.sh', '-run', selector]
+@@ -385,7 +369,7 @@
+         raise RuntimeError('runner inputs changed before launch')
+     start = time.monotonic()
+     cancellations = []
+-    watchdog = TopWatchdog(expected if args.group in ('new', 'affected', 'root-only') else [])
++    watchdog = TopWatchdog(expected if args.group.startswith('new-') else [])
+     watch_stop = threading.Event()
+     with (run / 'raw.log').open('wb') as raw:
+         process = subprocess.Popen(argv, cwd=REPO, env=env, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)
+@@ -399,7 +383,7 @@
+                 process.send_signal(signal.SIGTERM)
+         signal.signal(signal.SIGTERM, request_stop)
+         signal.signal(signal.SIGINT, request_stop)
+-        watcher = threading.Thread(target=watch_output, args=(run / 'raw.log', watchdog, watch_stop, request_stop, errors), name='usage-top-watchdog')
++        watcher = threading.Thread(target=watch_output, args=(run / 'raw.log', watchdog, watch_stop, request_stop, errors), name='meeting-summary-top-watchdog')
+         watcher.start()
+         next_resources = 0.0
+         while True:
+@@ -437,7 +421,8 @@
+         remaining = [row for row in observed_processes.values() if row['pid'] in proc and proc[row['pid']]['starttime'] == row['starttime']]
+         cleanups.append({'time': utc(), 'exact_absent': exact, 'baseline_unchanged': {key: current.get(key) for key in baseline} == baseline,
+                          'remaining_new': sorted(set(current) - set(baseline)), 'owned_processes': remaining,
+-                         'runtime_entries': sorted(path.name for path in runtime.iterdir())})
++                         'runtime_entries': sorted(path.name for path in runtime.iterdir()),
++                         'pid1_zombies': [{'pid': pid, **row} for pid, row in proc.items() if row['ppid'] == 1 and row['state'] == 'Z']})
+         time.sleep(0.5)
+     write(run / 'cleanup.json', cleanups)
+     write(run / 'observed-processes.json', observed_processes)
+@@ -457,7 +442,9 @@
+                'top_watchdog_complete': watchdog.result()['complete'], 'watchdog_thread_joined': not watcher.is_alive(),
+                'browser_processes': sum(row['name'] in {'chromium', 'chrome', 'chrome_crashpad'} for row in observed_processes.values()),
+                'node_processes': sum(row['executable'] in {'node', 'nodejs'} for row in observed_processes.values()),
+-               'historical_zombies_untouched': [{'pid': pid, **row} for pid, row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z']}
++               'historical_zombies_untouched': [{'pid': pid, **row} for pid, row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z'],
++               'new_pid1_zombies_not_owned_or_joined': [row for row in cleanups[-1]['pid1_zombies'] if row['pid'] not in baseline_processes or baseline_processes[row['pid']]['starttime'] != row['starttime']],
++               'safe_http_evidence': str(evidence)}
+     write(run / 'result.json', summary)
+     print(json.dumps(summary), flush=True)
+     return 0 if exit_code == 0 and clean and len(observed_resources) == 7 and not errors and not cancellations and not tail_actions and summary['source_files_unchanged'] and summary['verification_inputs_unchanged'] and summary['selected_tests_passed'] and not summary['browser_processes'] and not summary['node_processes'] and summary['resource_topology_matches'] and summary['top_watchdog_complete'] and summary['watchdog_thread_joined'] else 1

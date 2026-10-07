@@ -1,0 +1,17 @@
+{
+  "status": "STATIC FAIL; four blockers acknowledged, candidate03 repair pending; no test/resource execution",
+  "files": {
+    "review.md": {
+      "bytes": 5184,
+      "sha256": "c65b3ede3460c717a541b0e2329f79bf1de2238af924b2fc0b7a5d1febd05d96"
+    },
+    "inputs.json": {
+      "bytes": 5065,
+      "sha256": "df0f114b1faca7315290deaad7533403cd06b5ae72c5ae31f438d8fdc1fd21de"
+    },
+    "production.diff": {
+      "bytes": 30810,
+      "sha256": "6ad775e9f7e0cfb2310516f02a9c488e4f98483fe32c06e48d392a3db6a6b9c4"
+    }
+  }
+}

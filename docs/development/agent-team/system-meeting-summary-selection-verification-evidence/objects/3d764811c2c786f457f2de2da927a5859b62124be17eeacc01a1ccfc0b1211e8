@@ -1,0 +1,66 @@
+{
+  "argv": [
+    "/usr/bin/curl",
+    "-q",
+    "--fail",
+    "--silent",
+    "--show-error",
+    "--proto",
+    "=https",
+    "--connect-timeout",
+    "10",
+    "--max-time",
+    "30",
+    "--retry",
+    "0",
+    "--output",
+    "/workspace/scratch/summary-frontend-dependency-recovery/go-captcha-vue-2.0.7.tgz",
+    "--write-out",
+    "{\"http_code\":%{http_code},\"size_download\":%{size_download},\"url_effective\":\"%{url_effective}\"}\n",
+    "https://registry.npmjs.org/go-captcha-vue/-/go-captcha-vue-2.0.7.tgz"
+  ],
+  "driver_sha256": "cb0ecd9f908bc1ecebd8e6ad4e13798988b604d9243b33fbc0f77940013c5161",
+  "curl_sha256": "d2136f430029a8750c6c3280effdca0383e24b1f606e32d63e3b4154409b1038",
+  "started": 1791379682.4611247,
+  "timeout_seconds": 40,
+  "subreaper": true,
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "network_variables_present": {
+      "HTTP_PROXY": true,
+      "HTTPS_PROXY": true,
+      "ALL_PROXY": false,
+      "NO_PROXY": true,
+      "http_proxy": true,
+      "https_proxy": true,
+      "all_proxy": false,
+      "no_proxy": true
+    },
+    "network_values": "inherited unchanged; intentionally not recorded"
+  },
+  "child": {
+    "pid": 139124,
+    "starttime": "563429",
+    "ppid": 139120,
+    "pgrp": 139124,
+    "state": "R"
+  },
+  "actual_exit": 0,
+  "actual_wait": true,
+  "seconds": 0.26515698432922363,
+  "adopted_waits": [],
+  "cleanup": [
+    {
+      "time": 1791379682.7263243,
+      "direct": null,
+      "group_members": []
+    },
+    {
+      "time": 1791379682.8281853,
+      "direct": null,
+      "group_members": []
+    }
+  ],
+  "raw_sha256": "9a872065a06760112b88aea83100bc817730579e17ac1e1cf2eb276a5c9041c0"
+}

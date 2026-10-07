@@ -1,0 +1,93 @@
+from pathlib import Path
+root=Path('/workspace/scratch/meeting-summary-s1-author/old-6fa')
+s=(root/'tests/model/system_http_fixture_test.go').read_text();start=s.index('func newSystemHTTPFixture(');end=s.index('\nfunc (v *systemHTTPFixture) install',start)
+fn=s[start:end].replace('func newSystemHTTPFixture(', 'func oldMeetingSummaryFixture(').replace('db := newDatabase(t)','db := oldMeetingSummaryDatabase(t)',1)
+fn=fn.replace('if err := core.Force(ctx); err != nil && !core.Joined() {','if err := core.Force(context.Background()); err != nil || !core.Joined() {').replace('ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)\n\t\tdefer cancel()\n\t\tif err := core.Force(context.Background())','if err := core.Force(context.Background())')
+header='''//go:build integration
+
+package model_test
+
+import (
+ "context"
+ "encoding/json"
+ "os"
+ "path/filepath"
+ "testing"
+ "time"
+
+ "github.com/LunaDeerTech/agenteam/internal/central/account"
+ accountc "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+ "github.com/LunaDeerTech/agenteam/internal/central/audit"
+ ec "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+ f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ "github.com/LunaDeerTech/agenteam/internal/central/model"
+ mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+ "github.com/LunaDeerTech/agenteam/internal/central/outbox"
+ oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+ "github.com/LunaDeerTech/agenteam/internal/central/postgres"
+ "github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
+ "github.com/LunaDeerTech/agenteam/internal/central/secret"
+ sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+ pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+)
+'''
+extra='''
+func oldMeetingSummaryDatabase(t *testing.T)*pgfixture.Database{
+ t.Helper();descriptor,e:=pgfixture.Load();if e!=nil{t.Fatal(e)}
+ db:=&pgfixture.Database{Fixture:descriptor,Name:os.Getenv("AGENTEAM_MEETING_SUMMARY_OLD_DATABASE")}
+ migrator,e:=postgres.NewMigrator(db.Config(t,nil));if e!=nil{t.Fatal(e)}
+ result:=migrator.Migrate(testContext(t));if !result.Migrated || result.Version!=19{t.Fatal("old binary must migrate exactly 1..19",result.Fault)}
+ conn:=db.Connect(t);var count,max int64;var absent bool
+ if e=conn.QueryRow(testContext(t),`SELECT count(*),max(version),to_regclass('agenteam_model.meeting_summary_selection') IS NULL FROM agenteam_meta.migration_journal WHERE state='applied'`).Scan(&count,&max,&absent);e!=nil || count!=19 || max!=19 || !absent{t.Fatal("old schema is not exact 1..19",e)}
+ t.Log("fixed 6fa producer schema journal 1..19, Summary table absent")
+ return db
+}
+type oldMeetingSummarySelection struct {
+ Scope, Key string
+ ExpectedVersion f.Version
+ Selection mc.PlatformSelection
+}
+type oldMeetingSummaryDelete struct {
+ Scope, Key, ID string
+ ExpectedVersion f.Version
+ Replacement *string
+}
+type oldMeetingSummaryHandoff struct {
+ User, Session string
+ Selection oldMeetingSummarySelection
+ SelectionReceipt mc.CommandReceipt
+ Provider oldMeetingSummaryDelete
+ ProviderReceipt mc.CommandReceipt
+ Model oldMeetingSummaryDelete
+ ModelReceipt mc.CommandReceipt
+ History map[string][]byte
+}
+func TestMeetingSummaryOldProducer(t *testing.T){
+ v:=oldMeetingSummaryFixture(t)
+ selection,e:=v.service.GetPlatformSelection(testContext(t),v.admin);if e!=nil{t.Fatal(e)}
+ embed,_:=f.ParseID[mc.Model](v.model(t,v.provider(t,mc.OpenAIEmbeddings),mc.EmbeddingModel))
+ provider:=v.provider(t,mc.OpenAIChat);body:=httpModelBody(provider,mc.ChatModel);body["input"].(map[string]any)["capabilities"].(map[string]any)["structured_output_modes"]=[]string{"json_schema"}
+ memory,_:=f.ParseID[mc.Model](v.request(t,v.adminBrowser,"POST","/api/v1/system/models",newID[struct{}](t).String(),body).want(t,200).object(t)["resource_id"].(string))
+ handoff:=oldMeetingSummaryHandoff{User:v.admin.Details().UserID,Session:v.admin.Details().SessionID,History:map[string][]byte{}}
+ selectionRequest:=mc.UpdatePlatformSelectionRequest{CommandMeta:v.meta(t,"old-selection-command"),ExpectedVersion:selection.Version,Selection:mc.PlatformSelection{ID:selection.ID,Version:selection.Version,Embedding:embed,Memory:memory}}
+ handoff.Selection=oldMeetingSummarySelection{Scope:"system",Key:string(selectionRequest.Key),ExpectedVersion:selectionRequest.ExpectedVersion,Selection:selectionRequest.Selection}
+ handoff.SelectionReceipt,e=v.service.UpdatePlatformSelection(testContext(t),selectionRequest);if e!=nil{t.Fatal(e)}
+ doomed,_:=f.ParseID[mc.Model](v.model(t,provider,mc.ChatModel))
+ modelRequest:=mc.DeleteModelRequest{CommandMeta:v.meta(t,"old-model-delete-command"),ID:doomed,ExpectedVersion:1}
+ handoff.Model=oldMeetingSummaryDelete{Scope:"system",Key:string(modelRequest.Key),ID:modelRequest.ID.String(),ExpectedVersion:modelRequest.ExpectedVersion}
+ handoff.ModelReceipt,e=v.service.DeleteModel(testContext(t),modelRequest);if e!=nil{t.Fatal(e)}
+ empty,_:=f.ParseID[mc.Provider](v.provider(t,mc.OpenAIChat))
+ providerRequest:=mc.DeleteProviderRequest{CommandMeta:v.meta(t,"old-provider-delete-command"),ID:empty,ExpectedVersion:1}
+ handoff.Provider=oldMeetingSummaryDelete{Scope:"system",Key:string(providerRequest.Key),ID:providerRequest.ID.String(),ExpectedVersion:providerRequest.ExpectedVersion}
+ handoff.ProviderReceipt,e=v.service.DeleteProvider(testContext(t),providerRequest);if e!=nil{t.Fatal(e)}
+ for _,table:=range []string{"agenteam_model.commands","agenteam_audit.audit_records","agenteam_outbox.events"}{
+  var raw []byte;if e=v.raw.QueryRow(testContext(t),`SELECT coalesce(jsonb_object_agg(id::text,to_jsonb(r)),'{}'::jsonb) FROM `+table+` r`).Scan(&raw);e!=nil{t.Fatal(e)};handoff.History[table]=raw
+ }
+ path:=os.Getenv("AGENTEAM_MEETING_SUMMARY_OLD_HANDOFF")
+ if path==""{t.Fatal("private handoff required")}
+ file,e:=os.OpenFile(path,os.O_WRONLY|os.O_CREATE|os.O_EXCL,0600);if e!=nil{t.Fatal(e)}
+ e=json.NewEncoder(file).Encode(handoff);closeErr:=file.Close();if e!=nil || closeErr!=nil{t.Fatal("private handoff write failed")}
+ t.Logf("fixed 6fa accepted selection=%s version=%s and two delete receipts; private handoff written",handoff.SelectionReceipt.ResourceID,handoff.SelectionReceipt.Version.String())
+}
+'''
+(root/'tests/model/meeting_summary_old_producer_test.go').write_text(header+'\n'+fn+'\n'+extra)

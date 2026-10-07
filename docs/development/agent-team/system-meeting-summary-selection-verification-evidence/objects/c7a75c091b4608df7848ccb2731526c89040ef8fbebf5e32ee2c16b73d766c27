@@ -1,0 +1,22 @@
+from pathlib import Path,PurePosixPath
+import json,hashlib,base64,tarfile
+B=Path('/workspace/scratch/summary-frontend-dependency-recovery');before=json.loads((B/'before.json').read_text());p=B/'go-captcha-vue-2.0.7.tgz';data=p.read_bytes();integrity='sha512-'+base64.b64encode(hashlib.sha512(data).digest()).decode();assert integrity==before['target_lock']['integrity'];response=json.loads((B/'download02.raw').read_text());assert response['http_code']==200 and response['url_effective']==before['target_lock']['resolved']
+files={};directories=[];total=0
+with tarfile.open(p,'r:gz') as archive:
+ members=archive.getmembers();seen=set()
+ for m in members:
+  n=PurePosixPath(m.name)
+  assert not n.is_absolute() and '..' not in n.parts and '\\' not in m.name and n.parts[0]=='package',m.name
+  assert m.name not in seen;seen.add(m.name)
+  assert m.isdir() or m.isfile(),('nonregular archive entry',m.name,m.type)
+  assert not m.issym() and not m.islnk()
+  if m.isdir():directories.append(m.name);continue
+  assert len(n.parts)>1 and 0<=m.size<=16*1024*1024,m.name
+  total+=m.size;assert total<=32*1024*1024
+  content=archive.extractfile(m).read();assert len(content)==m.size
+  files[str(PurePosixPath(*n.parts[1:]))]={'bytes':len(content),'sha256':hashlib.sha256(content).hexdigest(),'mode':m.mode&0o777}
+  if str(n)=='package/package.json':metadata=json.loads(content)
+assert metadata['name']=='go-captcha-vue' and metadata['version']=='2.0.7';assert not metadata.get('dependencies'),metadata.get('dependencies')
+for n in ['main','module','types','typings']:
+ if metadata.get(n):assert str(PurePosixPath(metadata[n])) in files,(n,metadata[n])
+result={'tgz_sha256':hashlib.sha256(data).hexdigest(),'tgz_bytes':len(data),'integrity':integrity,'lock_integrity_matches':True,'official_http200':True,'member_count':len(members),'regular_files':len(files),'total_expanded_bytes':total,'all_members_inside_package':True,'symlink_hardlink_special_members':0,'package':metadata,'files':files};(B/'archive-verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items() if k!='files'},indent=2))

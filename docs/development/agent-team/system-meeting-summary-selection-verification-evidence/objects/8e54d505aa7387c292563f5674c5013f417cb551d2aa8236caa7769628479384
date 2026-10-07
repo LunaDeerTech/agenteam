@@ -1,0 +1,13 @@
+--- candidate03/internal/central/model/meeting_summary_commands_test.go
++++ candidate04/internal/central/model/meeting_summary_commands_test.go
+@@ -59,7 +59,9 @@
+ 		_, e = commandSemantic(bad)
+ 		requireCode(t, e, f.InvalidArgument)
+ 	}
+-	raw, e := json.Marshal(mutationPlan{Semantic: hash([]byte("legacy"))})
++	legacyPlan := summaryPlanFixture(t)
++	legacyPlan.BeforeMeetingSummary, legacyPlan.AfterMeetingSummary = nil, nil
++	raw, e := json.Marshal(legacyPlan)
+ 	if e != nil {
+ 		t.Fatal(e)
+ 	}

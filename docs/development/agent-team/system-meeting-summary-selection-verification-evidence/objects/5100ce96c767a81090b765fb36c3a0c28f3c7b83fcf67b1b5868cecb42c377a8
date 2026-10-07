@@ -1,0 +1,185 @@
+=== RUN   TestExactInvocationAndSharedLeaseRetirement
+--- PASS: TestExactInvocationAndSharedLeaseRetirement (0.00s)
+=== RUN   TestOpaquePlanCopiesAndIssuerCannotBeForged
+--- PASS: TestOpaquePlanCopiesAndIssuerCannotBeForged (0.00s)
+=== RUN   TestPlanUnionMustCoverChildAndNormalizeStrongest
+--- PASS: TestPlanUnionMustCoverChildAndNormalizeStrongest (0.00s)
+=== RUN   TestFinitePolicyCannotBecomeAgentBudget
+--- PASS: TestFinitePolicyCannotBecomeAgentBudget (0.00s)
+=== RUN   TestConsumerActionBindingsRejectForeignFields
+--- PASS: TestConsumerActionBindingsRejectForeignFields (0.00s)
+=== RUN   TestChatClosedPartsAndImmutableCopy
+--- PASS: TestChatClosedPartsAndImmutableCopy (0.00s)
+=== RUN   TestFramePayloadAndExactAttemptIdentity
+--- PASS: TestFramePayloadAndExactAttemptIdentity (0.00s)
+=== RUN   TestSensitiveDTOFormattingDoesNotExposePayload
+--- PASS: TestSensitiveDTOFormattingDoesNotExposePayload (0.00s)
+=== RUN   TestEveryFrameVariantRequiresItsOwnPayload
+--- PASS: TestEveryFrameVariantRequiresItsOwnPayload (0.00s)
+=== RUN   TestConfigurationCannotHideTransportOrSecrets
+--- PASS: TestConfigurationCannotHideTransportOrSecrets (0.00s)
+=== RUN   TestSelectionIsClosedAndNoSummaryDefault
+--- PASS: TestSelectionIsClosedAndNoSummaryDefault (0.00s)
+=== RUN   TestEndpointPortAndFragmentStructure
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:1/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:443/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:65535/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example/v1%23literal
+=== RUN   TestEndpointPortAndFragmentStructure/https://[2001:db8::1]:443/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:0/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:65536/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:9999999999999999999999/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://[2001:db8::1]:/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example/v1#
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example/v1#fragment
+--- PASS: TestEndpointPortAndFragmentStructure (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:1/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:443/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:65535/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example/v1%23literal (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://[2001:db8::1]:443/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:0/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:65536/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:9999999999999999999999/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://[2001:db8::1]:/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example/v1# (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example/v1#fragment (0.00s)
+=== RUN   TestConfigurationEventsContainOnlyClosedSafeFields
+--- PASS: TestConfigurationEventsContainOnlyClosedSafeFields (0.00s)
+=== RUN   TestMeetingSummarySelectionValidation
+=== RUN   TestMeetingSummarySelectionValidation/empty-id
+=== RUN   TestMeetingSummarySelectionValidation/uppercase-id
+=== RUN   TestMeetingSummarySelectionValidation/non-v7-id
+=== RUN   TestMeetingSummarySelectionValidation/invalid-variant
+=== RUN   TestMeetingSummarySelectionValidation/id-space
+=== RUN   TestMeetingSummarySelectionValidation/zero-version
+=== RUN   TestMeetingSummarySelectionValidation/negative-version
+=== RUN   TestMeetingSummarySelectionValidation/invalid-present-model
+--- PASS: TestMeetingSummarySelectionValidation (0.00s)
+    --- PASS: TestMeetingSummarySelectionValidation/empty-id (0.00s)
+    --- PASS: TestMeetingSummarySelectionValidation/uppercase-id (0.00s)
+    --- PASS: TestMeetingSummarySelectionValidation/non-v7-id (0.00s)
+    --- PASS: TestMeetingSummarySelectionValidation/invalid-variant (0.00s)
+    --- PASS: TestMeetingSummarySelectionValidation/id-space (0.00s)
+    --- PASS: TestMeetingSummarySelectionValidation/zero-version (0.00s)
+    --- PASS: TestMeetingSummarySelectionValidation/negative-version (0.00s)
+    --- PASS: TestMeetingSummarySelectionValidation/invalid-present-model (0.00s)
+=== RUN   TestMeetingSummarySelectionCloneAndWirePrecision
+=== RUN   TestMeetingSummarySelectionCloneAndWirePrecision/1/selected=false
+=== RUN   TestMeetingSummarySelectionCloneAndWirePrecision/1/selected=true
+=== RUN   TestMeetingSummarySelectionCloneAndWirePrecision/9007199254740993/selected=false
+=== RUN   TestMeetingSummarySelectionCloneAndWirePrecision/9007199254740993/selected=true
+=== RUN   TestMeetingSummarySelectionCloneAndWirePrecision/9223372036854775807/selected=false
+=== RUN   TestMeetingSummarySelectionCloneAndWirePrecision/9223372036854775807/selected=true
+--- PASS: TestMeetingSummarySelectionCloneAndWirePrecision (0.00s)
+    --- PASS: TestMeetingSummarySelectionCloneAndWirePrecision/1/selected=false (0.00s)
+    --- PASS: TestMeetingSummarySelectionCloneAndWirePrecision/1/selected=true (0.00s)
+    --- PASS: TestMeetingSummarySelectionCloneAndWirePrecision/9007199254740993/selected=false (0.00s)
+    --- PASS: TestMeetingSummarySelectionCloneAndWirePrecision/9007199254740993/selected=true (0.00s)
+    --- PASS: TestMeetingSummarySelectionCloneAndWirePrecision/9223372036854775807/selected=false (0.00s)
+    --- PASS: TestMeetingSummarySelectionCloneAndWirePrecision/9223372036854775807/selected=true (0.00s)
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/zero-actor
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/agent
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/service
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/zero-scope
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/project-scope
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/memory-scope
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/empty-key
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/invalid-key
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/long-key
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/empty-selection
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/noncanonical-selection
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/non-v7-selection
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/zero-version
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/negative-version
+=== RUN   TestMeetingSummaryRequestRequiresHumanSystemAndModel/clear-model
+--- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/zero-actor (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/agent (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/service (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/zero-scope (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/project-scope (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/memory-scope (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/empty-key (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/invalid-key (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/long-key (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/empty-selection (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/noncanonical-selection (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/non-v7-selection (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/zero-version (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/negative-version (0.00s)
+    --- PASS: TestMeetingSummaryRequestRequiresHumanSystemAndModel/clear-model (0.00s)
+=== RUN   TestMeetingSummarySafeFormatting
+=== RUN   TestMeetingSummarySafeFormatting/selection
+=== RUN   TestMeetingSummarySafeFormatting/request
+--- PASS: TestMeetingSummarySafeFormatting (0.00s)
+    --- PASS: TestMeetingSummarySafeFormatting/selection (0.00s)
+    --- PASS: TestMeetingSummarySafeFormatting/request (0.00s)
+=== RUN   TestMeetingSummaryDoesNotChangeExistingSelectionContracts
+--- PASS: TestMeetingSummaryDoesNotChangeExistingSelectionContracts (0.00s)
+=== RUN   TestEmbeddingShapeAndFiniteValues
+--- PASS: TestEmbeddingShapeAndFiniteValues (0.00s)
+=== RUN   TestRerankerDoesNotInventProviderScoreBounds
+--- PASS: TestRerankerDoesNotInventProviderScoreBounds (0.00s)
+=== RUN   TestGeneratedFilesCarryBusinessReferenceOnly
+--- PASS: TestGeneratedFilesCarryBusinessReferenceOnly (0.00s)
+=== RUN   TestReferenceBindingAndReplacementClosure
+--- PASS: TestReferenceBindingAndReplacementClosure (0.00s)
+=== RUN   TestRequiredReferencesCannotBeSilentlyCleared
+--- PASS: TestRequiredReferencesCannotBeSilentlyCleared (0.00s)
+=== RUN   TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure
+=== RUN   TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/clear
+=== RUN   TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/reasoning
+=== RUN   TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/project-on-platform
+=== RUN   TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/agent-role
+=== RUN   TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/legacy-without-project
+=== RUN   TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/unknown-role
+=== RUN   TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/unknown-kind
+=== RUN   TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/legacy-embedding
+=== RUN   TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/legacy-memory
+=== RUN   TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/legacy-reranker
+=== RUN   TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/legacy-image
+--- PASS: TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure (0.00s)
+    --- PASS: TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/clear (0.00s)
+    --- PASS: TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/reasoning (0.00s)
+    --- PASS: TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/project-on-platform (0.00s)
+    --- PASS: TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/agent-role (0.00s)
+    --- PASS: TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/legacy-without-project (0.00s)
+    --- PASS: TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/unknown-role (0.00s)
+    --- PASS: TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/unknown-kind (0.00s)
+    --- PASS: TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/legacy-embedding (0.00s)
+    --- PASS: TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/legacy-memory (0.00s)
+    --- PASS: TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/legacy-reranker (0.00s)
+    --- PASS: TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure/legacy-image (0.00s)
+=== RUN   TestMeetingSummaryReferenceBindingAndPlans
+=== RUN   TestMeetingSummaryReferenceBindingAndPlans/owner
+=== RUN   TestMeetingSummaryReferenceBindingAndPlans/role
+=== RUN   TestMeetingSummaryReferenceBindingAndPlans/version
+=== RUN   TestMeetingSummaryReferenceBindingAndPlans/before
+=== RUN   TestMeetingSummaryReferenceBindingAndPlans/after
+=== RUN   TestMeetingSummaryReferenceBindingAndPlans/actor
+--- PASS: TestMeetingSummaryReferenceBindingAndPlans (0.00s)
+    --- PASS: TestMeetingSummaryReferenceBindingAndPlans/owner (0.00s)
+    --- PASS: TestMeetingSummaryReferenceBindingAndPlans/role (0.00s)
+    --- PASS: TestMeetingSummaryReferenceBindingAndPlans/version (0.00s)
+    --- PASS: TestMeetingSummaryReferenceBindingAndPlans/before (0.00s)
+    --- PASS: TestMeetingSummaryReferenceBindingAndPlans/after (0.00s)
+    --- PASS: TestMeetingSummaryReferenceBindingAndPlans/actor (0.00s)
+=== RUN   TestResolveBindingIncludesFullActorAndSource
+--- PASS: TestResolveBindingIncludesFullActorAndSource (0.00s)
+=== RUN   TestServingResolutionKeepsOldConfigAndNewCallOwner
+--- PASS: TestServingResolutionKeepsOldConfigAndNewCallOwner (0.00s)
+=== RUN   TestTokenCountAndUsageUnknown
+--- PASS: TestTokenCountAndUsageUnknown (0.00s)
+=== RUN   TestConsumerAndSnapshotNoImplicitAuthority
+--- PASS: TestConsumerAndSnapshotNoImplicitAuthority (0.00s)
+=== RUN   TestStructuralJSONRejectsAmbiguity
+--- PASS: TestStructuralJSONRejectsAmbiguity (0.00s)
+=== RUN   TestConsumerPurposeMatrixAndCredentialBinding
+--- PASS: TestConsumerPurposeMatrixAndCredentialBinding (0.00s)
+PASS

@@ -1,0 +1,78 @@
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import {
+  createVitest,
+  startVitest,
+} from "/workspace/agenteam/web/node_modules/vitest/dist/node.js";
+const base = "/workspace/scratch/summary-frontend-verification/http01";
+const root = "/workspace/agenteam/web";
+const spec = base + "/independent.spec.ts";
+const output = process.env.SUMMARY_VERIFY_OUTPUT;
+if (!output?.startsWith(base + "/")) throw new Error("owned output required");
+await mkdir(output, { recursive: true });
+const mode = process.argv[2];
+const inputs = new Set();
+const options = {
+  run: true,
+  watch: false,
+  api: false,
+  cache: false,
+  pool: "forks",
+  maxWorkers: 1,
+  fileParallelism: false,
+  retry: 0,
+  reporters: ["verbose"],
+  configLoader: "runner",
+};
+const config = {
+  root,
+  configFile: root + "/vite.config.ts",
+  configLoader: "runner",
+  envFile: false,
+  cacheDir: output + "/vite-cache",
+  test: { include: [spec], environment: "jsdom", retry: 0 },
+  server: {
+    watch: null,
+    hmr: false,
+    ws: false,
+    middlewareMode: true,
+    fs: { allow: [root, base] },
+  },
+  plugins: [
+    {
+      name: "independent-input-trace",
+      enforce: "pre",
+      transform(_code, id) {
+        const p = id.split("?")[0];
+        if (p.startsWith("/workspace/agenteam/web/src/") || p === spec)
+          inputs.add(p);
+      },
+    },
+  ],
+};
+let context;
+try {
+  if (mode === "list") {
+    context = await createVitest("test", options, config);
+    const specs = await context.globTestSpecifications([spec]);
+    const paths = specs.map((value) => value.moduleId);
+    console.log(JSON.stringify({ list: paths, expected: spec }));
+    if (paths.length !== 1 || paths[0] !== spec)
+      throw new Error("independent exact specification missing or extra");
+  } else if (mode === "pure")
+    context = await startVitest("test", [spec], options, config);
+  else throw new Error("unknown mode");
+  if (!context) throw new Error("Vitest did not start");
+} finally {
+  await context?.close();
+  const hashes = {};
+  for (const path of [...inputs].sort())
+    hashes[path] = createHash("sha256")
+      .update(await readFile(path))
+      .digest("hex");
+  await writeFile(
+    output + "/transformed-inputs.json",
+    JSON.stringify({ mode, context_closed: true, files: hashes }, null, 2) +
+      "\n",
+  );
+}
