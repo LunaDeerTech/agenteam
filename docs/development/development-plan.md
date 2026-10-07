@@ -8,6 +8,8 @@ AT-0005 已逐项确认审计方向；正式文档归位和验收见[同步任�
 
 ## 当前基线与计划范围
 
+2026-10-07 当前状态：[Usage HTTP 阶段 A](agent-team/project-usage-read-http-stage-a-verification.md)五路径已在 `ba7ce729` 接受，B 已受控接受并提交推送 `e7304512`、远端一致；C 七路径作者已实际 ACK、离线实施已启动，尚无 root/native/PG 验收。用户已确认系统管理员统一配置会议 Rolling Summary initial/update（含首轮标题）的模型，Project 消费系统选择、不 override 或复制创建初值；[正式规格](work-items/d09-system-meeting-summary-selection.md)及设计已在 `9ff1292d` 接受，[四源纯契约](agent-team/system-meeting-summary-contract-verification.md)已在 `e6cb70bd` 接受，完整 S1 持久化/事务/删除/HTTP-client 及后继 S2/S3/Meeting 消费仍未验收。下列历史时点原文保留；完整 D08–D28/E01 未完成、E01 未开始、ready503 与 Object runtime join、OpenAI tools 独立验证、SPA concurrent-publication 三停止不变。
+
 2026-10-07 下一可执行前沿：[Project Owner Usage只读HTTP](work-items/d09-project-usage-read-http.md)规格已独立STATIC通过并获采纳，固定4ae02e5，来源见[规格归档](agent-team/project-usage-read-http-spec-verification.md)。沿既定名称resolve/稳定ID职责接入三个GET/HEAD读资源；A五路径私有实施已获授权并实际开始，仅RequireHuman/query/DTO/schema与纯测编写，尚无Go/Node/schema执行、资源或产品验收。生产Invocations仍为nil，不以此交付Runtime Facts、Project初始化、UI、Execution Summary或完整D08/D09，模块门槛与三停止事项保持。
 
 2026-10-07 当前增量：D09 [OpenAI Embeddings float wire](work-items/d09-openai-embeddings-wire.md)已按[验证归档](agent-team/openai-embeddings-wire-verification.md)独立接受，十六路径产品提交推送 `2debfdde347d8c9262ab83d3fe5e18e947a983e1`、远端一致。固定c142十五技术源加README末件，914依赖无漂移；六真实轮按版本组合通过，不冒主树动态重跑。原容量指标失败、启动闭包阻断及辅助原件缺口保留。本结果不完成D09或绑定Nonchat/InvocationID/Usage/root，不改变模块顺序、Summary待决、ready503、E01未开始及三停止任务。

@@ -1,5 +1,7 @@
 # D09：系统会议 Summary 模型选择
 
+当前阶段（2026-10-07）：四源纯契约已独立 PASS、root 采纳并提交推送 `e6cb70bdfc6ef7569d740f767f7dca3211a2ef7a`，见[四源验证归档](../agent-team/system-meeting-summary-contract-verification.md)。仅接受 MeetingSummarySelection/request 与 reference role 的契约和纯测试；完整 S1 持久化、事务授权、删除替换及 HTTP/client 尚未验收。以下原规格接受时点的页首与末尾状态保留历史事实，技术正文不改。
+
 修订：rev1，2026-10-07，规格已独立完整 STATIC 接受并获 root 采纳；尚未实施、未动态验收。规格接受不授予业务、SQL、测试运行或共享资源权限。文档基线 `175694bf1157b77ea13268bcd8a47787e1a28acd`，产品输入固定 `6fa2ee721a75ea34a1ccd6523b8b25d68328c5b9`。root 已核已接受迁移连续前缀 00001–00019，**00020 唯一预留给本卡**；本阶段不创建迁移源。
 
 依据：[开发计划](../development-plan.md) D09、[团队流程](../agent-team/README.md)、[Model 配置](../../architecture/platform-infrastructure/model-system/model-configuration.md)、[Model Resolution](../../architecture/platform-infrastructure/model-system/model-resolution.md)、[Meeting Summary](../../architecture/meeting/meeting-context-summary.md)。相关11份架构、布局与设计文档已同步用户决定；会议 Summary 的用户决定以本卡 §1 及[当前恢复记录的保留边界](../agent-team/recovery-2026-10-07-environment.md#保留边界)为准，历史验收报告不改写。

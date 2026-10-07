@@ -1,0 +1,1 @@
+Preparation only: an initial read guessed nonexistent foundation/command.go; rg found cause.go/scalar.go. A cache-location check got PermissionError for /root/.cache/go-build; accessible hot cache is /workspace/.cache/go-build. No Go or product test had run at either error; original outputs remain tool-call observations, not reconstructed raw logs.

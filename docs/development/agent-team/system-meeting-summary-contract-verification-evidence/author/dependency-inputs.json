@@ -1,0 +1,1245 @@
+{
+  "list_stdout_sha256": "5ab644ded1c6dc333b4161ade87f7b6605e8490cbc173e4435d87949235809de",
+  "packages": [
+    {
+      "ImportPath": "internal/goarch",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/goarch",
+      "Standard": true
+    },
+    {
+      "ImportPath": "unsafe",
+      "Dir": "/workspace/toolchains/go1.27.1/src/unsafe",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/abi",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/abi",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/unsafeheader",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/unsafeheader",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/cpu",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/cpu",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/bytealg",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/bytealg",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/byteorder",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/byteorder",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/chacha8rand",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/chacha8rand",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/coverage/rtcov",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/coverage/rtcov",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/godebugs",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/godebugs",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/goexperiment",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/goexperiment",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/goos",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/goos",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/profilerecord",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/profilerecord",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/runtime/atomic",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/runtime/atomic",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/runtime/syscall/linux",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/runtime/syscall/linux",
+      "Standard": true
+    },
+    {
+      "ImportPath": "math/bits",
+      "Dir": "/workspace/toolchains/go1.27.1/src/math/bits",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/strconv",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/strconv",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/runtime/cgroup",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/runtime/cgroup",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/runtime/exithook",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/runtime/exithook",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/runtime/gc",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/runtime/gc",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/runtime/sys",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/runtime/sys",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/runtime/gc/scan",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/runtime/gc/scan",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/asan",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/asan",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/msan",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/msan",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/race",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/race",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/runtime/math",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/runtime/math",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/runtime/maps",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/runtime/maps",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/runtime/pprof/label",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/runtime/pprof/label",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/stringslite",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/stringslite",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/trace/tracev2",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/trace/tracev2",
+      "Standard": true
+    },
+    {
+      "ImportPath": "runtime",
+      "Dir": "/workspace/toolchains/go1.27.1/src/runtime",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/reflectlite",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/reflectlite",
+      "Standard": true
+    },
+    {
+      "ImportPath": "errors",
+      "Dir": "/workspace/toolchains/go1.27.1/src/errors",
+      "Standard": true
+    },
+    {
+      "ImportPath": "sync/atomic",
+      "Dir": "/workspace/toolchains/go1.27.1/src/sync/atomic",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/sync",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/sync",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/synctest",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/synctest",
+      "Standard": true
+    },
+    {
+      "ImportPath": "sync",
+      "Dir": "/workspace/toolchains/go1.27.1/src/sync",
+      "Standard": true
+    },
+    {
+      "ImportPath": "io",
+      "Dir": "/workspace/toolchains/go1.27.1/src/io",
+      "Standard": true
+    },
+    {
+      "ImportPath": "iter",
+      "Dir": "/workspace/toolchains/go1.27.1/src/iter",
+      "Standard": true
+    },
+    {
+      "ImportPath": "unicode",
+      "Dir": "/workspace/toolchains/go1.27.1/src/unicode",
+      "Standard": true
+    },
+    {
+      "ImportPath": "unicode/utf8",
+      "Dir": "/workspace/toolchains/go1.27.1/src/unicode/utf8",
+      "Standard": true
+    },
+    {
+      "ImportPath": "bytes",
+      "Dir": "/workspace/toolchains/go1.27.1/src/bytes",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/oserror",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/oserror",
+      "Standard": true
+    },
+    {
+      "ImportPath": "cmp",
+      "Dir": "/workspace/toolchains/go1.27.1/src/cmp",
+      "Standard": true
+    },
+    {
+      "ImportPath": "slices",
+      "Dir": "/workspace/toolchains/go1.27.1/src/slices",
+      "Standard": true
+    },
+    {
+      "ImportPath": "syscall",
+      "Dir": "/workspace/toolchains/go1.27.1/src/syscall",
+      "Standard": true
+    },
+    {
+      "ImportPath": "time",
+      "Dir": "/workspace/toolchains/go1.27.1/src/time",
+      "Standard": true
+    },
+    {
+      "ImportPath": "context",
+      "Dir": "/workspace/toolchains/go1.27.1/src/context",
+      "Standard": true
+    },
+    {
+      "ImportPath": "hash",
+      "Dir": "/workspace/toolchains/go1.27.1/src/hash",
+      "Standard": true
+    },
+    {
+      "ImportPath": "strconv",
+      "Dir": "/workspace/toolchains/go1.27.1/src/strconv",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/bisect",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/bisect",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/godebug",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/godebug",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140deps/godebug",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140deps/godebug",
+      "Standard": true
+    },
+    {
+      "ImportPath": "strings",
+      "Dir": "/workspace/toolchains/go1.27.1/src/strings",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/alias",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/alias",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140deps/byteorder",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140deps/byteorder",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140deps/cpu",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140deps/cpu",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/impl",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/impl",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/sha256",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/sha256",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/constanttime",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/constanttime",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/subtle",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/subtle",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/sha3",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/sha3",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/sha512",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/sha512",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/hmac",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/hmac",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/check",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/check",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/aes",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/aes",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140deps/time",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140deps/time",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/entropy/v1.0.0",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/entropy/v1.0.0",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/syscall/unix",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/syscall/unix",
+      "Standard": true
+    },
+    {
+      "ImportPath": "math",
+      "Dir": "/workspace/toolchains/go1.27.1/src/math",
+      "Standard": true
+    },
+    {
+      "ImportPath": "path",
+      "Dir": "/workspace/toolchains/go1.27.1/src/path",
+      "Standard": true
+    },
+    {
+      "ImportPath": "io/fs",
+      "Dir": "/workspace/toolchains/go1.27.1/src/io/fs",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/filepathlite",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/filepathlite",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/poll",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/poll",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/syscall/execenv",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/syscall/execenv",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/testlog",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/testlog",
+      "Standard": true
+    },
+    {
+      "ImportPath": "os",
+      "Dir": "/workspace/toolchains/go1.27.1/src/os",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/sysrand",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/sysrand",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/drbg",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/drbg",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/aes/gcm",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/aes/gcm",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/fips140",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/fips140",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140only",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140only",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/subtle",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/subtle",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/cipher",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/cipher",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/boring/sig",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/boring/sig",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/boring",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/boring",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/sha256",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/sha256",
+      "Standard": true
+    },
+    {
+      "ImportPath": "reflect",
+      "Dir": "/workspace/toolchains/go1.27.1/src/reflect",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/fmtsort",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/fmtsort",
+      "Standard": true
+    },
+    {
+      "ImportPath": "fmt",
+      "Dir": "/workspace/toolchains/go1.27.1/src/fmt",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/hex",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/hex",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/json/internal",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/json/internal",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/json/internal/jsonflags",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/json/internal/jsonflags",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/json/internal/jsonopts",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/json/internal/jsonopts",
+      "Standard": true
+    },
+    {
+      "ImportPath": "unicode/utf16",
+      "Dir": "/workspace/toolchains/go1.27.1/src/unicode/utf16",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/json/internal/jsonwire",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/json/internal/jsonwire",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/json/jsontext",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/json/jsontext",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/base32",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/base32",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/base64",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/base64",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/binary",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/binary",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/json/v2",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/json/v2",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/json",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/json",
+      "Standard": true
+    },
+    {
+      "ImportPath": "math/rand/v2",
+      "Dir": "/workspace/toolchains/go1.27.1/src/math/rand/v2",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/randutil",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/randutil",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/rand",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/rand",
+      "Standard": true
+    },
+    {
+      "ImportPath": "math/rand",
+      "Dir": "/workspace/toolchains/go1.27.1/src/math/rand",
+      "Standard": true
+    },
+    {
+      "ImportPath": "math/big",
+      "Dir": "/workspace/toolchains/go1.27.1/src/math/big",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/rand",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/rand",
+      "Standard": true
+    },
+    {
+      "ImportPath": "log/internal",
+      "Dir": "/workspace/toolchains/go1.27.1/src/log/internal",
+      "Standard": true
+    },
+    {
+      "ImportPath": "log",
+      "Dir": "/workspace/toolchains/go1.27.1/src/log",
+      "Standard": true
+    },
+    {
+      "ImportPath": "log/slog/internal",
+      "Dir": "/workspace/toolchains/go1.27.1/src/log/slog/internal",
+      "Standard": true
+    },
+    {
+      "ImportPath": "log/slog/internal/buffer",
+      "Dir": "/workspace/toolchains/go1.27.1/src/log/slog/internal/buffer",
+      "Standard": true
+    },
+    {
+      "ImportPath": "log/slog",
+      "Dir": "/workspace/toolchains/go1.27.1/src/log/slog",
+      "Standard": true
+    },
+    {
+      "ImportPath": "sort",
+      "Dir": "/workspace/toolchains/go1.27.1/src/sort",
+      "Standard": true
+    },
+    {
+      "ImportPath": "regexp/syntax",
+      "Dir": "/workspace/toolchains/go1.27.1/src/regexp/syntax",
+      "Standard": true
+    },
+    {
+      "ImportPath": "regexp",
+      "Dir": "/workspace/toolchains/go1.27.1/src/regexp",
+      "Standard": true
+    },
+    {
+      "ImportPath": "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+      "Dir": "/workspace/agenteam/internal/central/foundation",
+      "Module": {
+        "Path": "github.com/LunaDeerTech/agenteam",
+        "Main": true,
+        "Dir": "/workspace/agenteam",
+        "GoMod": "/workspace/agenteam/go.mod",
+        "GoVersion": "1.27.1"
+      }
+    },
+    {
+      "ImportPath": "github.com/LunaDeerTech/agenteam/internal/central/identity/contract",
+      "Dir": "/workspace/agenteam/internal/central/identity/contract",
+      "Module": {
+        "Path": "github.com/LunaDeerTech/agenteam",
+        "Main": true,
+        "Dir": "/workspace/agenteam",
+        "GoMod": "/workspace/agenteam/go.mod",
+        "GoVersion": "1.27.1"
+      }
+    },
+    {
+      "ImportPath": "bufio",
+      "Dir": "/workspace/toolchains/go1.27.1/src/bufio",
+      "Standard": true
+    },
+    {
+      "ImportPath": "maps",
+      "Dir": "/workspace/toolchains/go1.27.1/src/maps",
+      "Standard": true
+    },
+    {
+      "ImportPath": "mime",
+      "Dir": "/workspace/toolchains/go1.27.1/src/mime",
+      "Standard": true
+    },
+    {
+      "ImportPath": "compress/flate",
+      "Dir": "/workspace/toolchains/go1.27.1/src/compress/flate",
+      "Standard": true
+    },
+    {
+      "ImportPath": "hash/crc32",
+      "Dir": "/workspace/toolchains/go1.27.1/src/hash/crc32",
+      "Standard": true
+    },
+    {
+      "ImportPath": "compress/gzip",
+      "Dir": "/workspace/toolchains/go1.27.1/src/compress/gzip",
+      "Standard": true
+    },
+    {
+      "ImportPath": "container/list",
+      "Dir": "/workspace/toolchains/go1.27.1/src/container/list",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/aes",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/aes",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/des",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/des",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/nistec/fiat",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/nistec/fiat",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/nistec",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/nistec",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/ecdh",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/ecdh",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/edwards25519/field",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/edwards25519/field",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/ecdh",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/ecdh",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/elliptic",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/elliptic",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/boring/bbig",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/boring/bbig",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/bigmod",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/bigmod",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/ecdsa",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/ecdsa",
+      "Standard": true
+    },
+    {
+      "ImportPath": "weak",
+      "Dir": "/workspace/toolchains/go1.27.1/src/weak",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140cache",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140cache",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/sha3",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/sha3",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140hash",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140hash",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/sha512",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/sha512",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/saferio",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/saferio",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/asn1",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/asn1",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/crypto/cryptobyte/asn1",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/crypto/cryptobyte/asn1",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/crypto/cryptobyte",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/crypto/cryptobyte",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/ecdsa",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/ecdsa",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/edwards25519",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/edwards25519",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/ed25519",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/ed25519",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/ed25519",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/ed25519",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/hkdf",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/hkdf",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/hkdf",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/hkdf",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/hmac",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/hmac",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/mlkem",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/mlkem",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/mlkem",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/mlkem",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/crypto/internal/alias",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/crypto/internal/alias",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/crypto/chacha20",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/crypto/chacha20",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/crypto/internal/poly1305",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/crypto/internal/poly1305",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/sys/cpu",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/sys/cpu",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/crypto/chacha20poly1305",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/crypto/chacha20poly1305",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/hpke",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/hpke",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/tls12",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/tls12",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/tls13",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/tls13",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/md5",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/md5",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/mldsa",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/mldsa",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/mldsa",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/mldsa",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/rc4",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/rc4",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/internal/fips140/rsa",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/internal/fips140/rsa",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/rsa",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/rsa",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/sha1",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/sha1",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/tls/internal/fips140tls",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/tls/internal/fips140tls",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/dsa",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/dsa",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/x509/pkix",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/x509/pkix",
+      "Standard": true
+    },
+    {
+      "ImportPath": "encoding/pem",
+      "Dir": "/workspace/toolchains/go1.27.1/src/encoding/pem",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/net/dns/dnsmessage",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/net/dns/dnsmessage",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/nettrace",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/nettrace",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/singleflight",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/singleflight",
+      "Standard": true
+    },
+    {
+      "ImportPath": "unique",
+      "Dir": "/workspace/toolchains/go1.27.1/src/unique",
+      "Standard": true
+    },
+    {
+      "ImportPath": "net/netip",
+      "Dir": "/workspace/toolchains/go1.27.1/src/net/netip",
+      "Standard": true
+    },
+    {
+      "ImportPath": "runtime/cgo",
+      "Dir": "/workspace/toolchains/go1.27.1/src/runtime/cgo",
+      "Standard": true
+    },
+    {
+      "ImportPath": "net",
+      "Dir": "/workspace/toolchains/go1.27.1/src/net",
+      "Standard": true
+    },
+    {
+      "ImportPath": "net/url",
+      "Dir": "/workspace/toolchains/go1.27.1/src/net/url",
+      "Standard": true
+    },
+    {
+      "ImportPath": "path/filepath",
+      "Dir": "/workspace/toolchains/go1.27.1/src/path/filepath",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/x509",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/x509",
+      "Standard": true
+    },
+    {
+      "ImportPath": "crypto/tls",
+      "Dir": "/workspace/toolchains/go1.27.1/src/crypto/tls",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/text/transform",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/text/transform",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/text/unicode/bidi",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/text/unicode/bidi",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/text/secure/bidirule",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/text/secure/bidirule",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/text/unicode/norm",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/text/unicode/norm",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/net/idna",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/net/idna",
+      "Standard": true
+    },
+    {
+      "ImportPath": "net/textproto",
+      "Dir": "/workspace/toolchains/go1.27.1/src/net/textproto",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/net/http/httpguts",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/net/http/httpguts",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/net/http/httpproxy",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/net/http/httpproxy",
+      "Standard": true
+    },
+    {
+      "ImportPath": "mime/quotedprintable",
+      "Dir": "/workspace/toolchains/go1.27.1/src/mime/quotedprintable",
+      "Standard": true
+    },
+    {
+      "ImportPath": "mime/multipart",
+      "Dir": "/workspace/toolchains/go1.27.1/src/mime/multipart",
+      "Standard": true
+    },
+    {
+      "ImportPath": "net/http/httptrace",
+      "Dir": "/workspace/toolchains/go1.27.1/src/net/http/httptrace",
+      "Standard": true
+    },
+    {
+      "ImportPath": "net/http/internal",
+      "Dir": "/workspace/toolchains/go1.27.1/src/net/http/internal",
+      "Standard": true
+    },
+    {
+      "ImportPath": "net/http/internal/ascii",
+      "Dir": "/workspace/toolchains/go1.27.1/src/net/http/internal/ascii",
+      "Standard": true
+    },
+    {
+      "ImportPath": "vendor/golang.org/x/net/http2/hpack",
+      "Dir": "/workspace/toolchains/go1.27.1/src/vendor/golang.org/x/net/http2/hpack",
+      "Standard": true
+    },
+    {
+      "ImportPath": "net/http/internal/httpcommon",
+      "Dir": "/workspace/toolchains/go1.27.1/src/net/http/internal/httpcommon",
+      "Standard": true
+    },
+    {
+      "ImportPath": "net/http/internal/httpsfv",
+      "Dir": "/workspace/toolchains/go1.27.1/src/net/http/internal/httpsfv",
+      "Standard": true
+    },
+    {
+      "ImportPath": "net/http/internal/http2",
+      "Dir": "/workspace/toolchains/go1.27.1/src/net/http/internal/http2",
+      "Standard": true
+    },
+    {
+      "ImportPath": "net/http",
+      "Dir": "/workspace/toolchains/go1.27.1/src/net/http",
+      "Standard": true
+    },
+    {
+      "ImportPath": "github.com/LunaDeerTech/agenteam/internal/central/object/contract",
+      "Dir": "/workspace/agenteam/internal/central/object/contract",
+      "Module": {
+        "Path": "github.com/LunaDeerTech/agenteam",
+        "Main": true,
+        "Dir": "/workspace/agenteam",
+        "GoMod": "/workspace/agenteam/go.mod",
+        "GoVersion": "1.27.1"
+      }
+    },
+    {
+      "ImportPath": "github.com/LunaDeerTech/agenteam/internal/central/secret/contract",
+      "Dir": "/workspace/agenteam/internal/central/secret/contract",
+      "Module": {
+        "Path": "github.com/LunaDeerTech/agenteam",
+        "Main": true,
+        "Dir": "/workspace/agenteam",
+        "GoMod": "/workspace/agenteam/go.mod",
+        "GoVersion": "1.27.1"
+      }
+    },
+    {
+      "ImportPath": "github.com/LunaDeerTech/agenteam/internal/central/model/contract",
+      "Dir": "/workspace/agenteam/internal/central/model/contract",
+      "Module": {
+        "Path": "github.com/LunaDeerTech/agenteam",
+        "Main": true,
+        "Dir": "/workspace/agenteam",
+        "GoMod": "/workspace/agenteam/go.mod",
+        "GoVersion": "1.27.1"
+      }
+    },
+    {
+      "ImportPath": "flag",
+      "Dir": "/workspace/toolchains/go1.27.1/src/flag",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/sysinfo",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/sysinfo",
+      "Standard": true
+    },
+    {
+      "ImportPath": "runtime/debug",
+      "Dir": "/workspace/toolchains/go1.27.1/src/runtime/debug",
+      "Standard": true
+    },
+    {
+      "ImportPath": "runtime/trace",
+      "Dir": "/workspace/toolchains/go1.27.1/src/runtime/trace",
+      "Standard": true
+    },
+    {
+      "ImportPath": "testing",
+      "Dir": "/workspace/toolchains/go1.27.1/src/testing",
+      "Standard": true
+    },
+    {
+      "ImportPath": "go/token",
+      "Dir": "/workspace/toolchains/go1.27.1/src/go/token",
+      "Standard": true
+    },
+    {
+      "ImportPath": "go/scanner",
+      "Dir": "/workspace/toolchains/go1.27.1/src/go/scanner",
+      "Standard": true
+    },
+    {
+      "ImportPath": "go/ast",
+      "Dir": "/workspace/toolchains/go1.27.1/src/go/ast",
+      "Standard": true
+    },
+    {
+      "ImportPath": "go/build/constraint",
+      "Dir": "/workspace/toolchains/go1.27.1/src/go/build/constraint",
+      "Standard": true
+    },
+    {
+      "ImportPath": "go/parser",
+      "Dir": "/workspace/toolchains/go1.27.1/src/go/parser",
+      "Standard": true
+    },
+    {
+      "ImportPath": "os/exec",
+      "Dir": "/workspace/toolchains/go1.27.1/src/os/exec",
+      "Standard": true
+    },
+    {
+      "ImportPath": "internal/fuzz",
+      "Dir": "/workspace/toolchains/go1.27.1/src/internal/fuzz",
+      "Standard": true
+    },
+    {
+      "ImportPath": "os/signal",
+      "Dir": "/workspace/toolchains/go1.27.1/src/os/signal",
+      "Standard": true
+    },
+    {
+      "ImportPath": "text/tabwriter",
+      "Dir": "/workspace/toolchains/go1.27.1/src/text/tabwriter",
+      "Standard": true
+    },
+    {
+      "ImportPath": "runtime/pprof",
+      "Dir": "/workspace/toolchains/go1.27.1/src/runtime/pprof",
+      "Standard": true
+    },
+    {
+      "ImportPath": "testing/internal/testdeps",
+      "Dir": "/workspace/toolchains/go1.27.1/src/testing/internal/testdeps",
+      "Standard": true
+    },
+    {
+      "ImportPath": "github.com/LunaDeerTech/agenteam/internal/central/model/contract [github.com/LunaDeerTech/agenteam/internal/central/model/contract.test]",
+      "Dir": "/workspace/agenteam/internal/central/model/contract",
+      "Module": {
+        "Path": "github.com/LunaDeerTech/agenteam",
+        "Main": true,
+        "Dir": "/workspace/agenteam",
+        "GoMod": "/workspace/agenteam/go.mod",
+        "GoVersion": "1.27.1"
+      }
+    },
+    {
+      "ImportPath": "github.com/LunaDeerTech/agenteam/internal/central/model/contract.test",
+      "Dir": "/workspace/agenteam/internal/central/model/contract",
+      "Module": {
+        "Path": "github.com/LunaDeerTech/agenteam",
+        "Main": true,
+        "Dir": "/workspace/agenteam",
+        "GoMod": "/workspace/agenteam/go.mod",
+        "GoVersion": "1.27.1"
+      }
+    }
+  ],
+  "repository_inputs": {
+    "internal/central/foundation/cause.go": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+    "internal/central/foundation/fault.go": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+    "internal/central/foundation/id.go": "40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54",
+    "internal/central/foundation/instant.go": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+    "internal/central/foundation/integer.go": "6b415d63e04d63e46428bf3b19f545f5a289575c0f375192875a40405b39d215",
+    "internal/central/foundation/lock.go": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+    "internal/central/foundation/page.go": "3be782a4c61729a5a2b13e195e5653ad1070e883765035b5cbb1f4f9e85c3c52",
+    "internal/central/foundation/scalar.go": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198",
+    "internal/central/foundation/tx.go": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+    "internal/central/foundation/cause_test.go": "33dfa3128d34c2bb922f0cec55147e9a8c8531df22fe651d52abaad5beacf5b5",
+    "internal/central/foundation/lock_test.go": "bef76346f06b4869451348632f2f3cd3646170fe84952dd4e6c2a568bc5dca7c",
+    "internal/central/foundation/scalar_test.go": "f8c57c65678b27ed2a11f0248bac41c776f369e9db7b23854a8a67f3d91ff426",
+    "internal/central/foundation/tx_test.go": "a952a354cc6fd9422f13ed93c790ef2abdaec5c1724bc8ee9fa716716717fe6a",
+    "internal/central/identity/contract/identity.go": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+    "internal/central/identity/contract/account_test.go": "84ba587587679d82e88cd6a10fa38bef7676ccd4a95d00358324e35eb61e9bd1",
+    "internal/central/identity/contract/identity_test.go": "14a778eb74d859062a0f7208f06d62a954a14feb78c2fed3cb8513354912d15c",
+    "internal/central/identity/contract/outbox_test.go": "3542a1770006047e05d52265cb3ab029f9b16a1eaf0b6636e2475f808820b51e",
+    "internal/central/identity/contract/project_initialization_test.go": "8c6248e64fa473031e6055ec50ae4ab1ce649d64ae9ab8f5c6bf680f5ac87ea1",
+    "internal/central/object/contract/access.go": "6257b7bb96b7f83c39b322c75a66ea66c4865194d4c637029c57a8b518a7f6a4",
+    "internal/central/object/contract/authority.go": "96e2e54596e7d9302a5733e3eeee746eaae5434b718d905703ca36055534fdfe",
+    "internal/central/object/contract/download.go": "8986309ca500a3c0df2f3f141357ef3c7e692edbc26e6d145fcb724f123fec17",
+    "internal/central/object/contract/download_cleanup.go": "3c08add16b506d64d2ecc4226581d3def2b27a9d0c797e6c44780865f51977c7",
+    "internal/central/object/contract/project_lifecycle.go": "91c600a0600f26d23570d73ab5ec47839e0e6e2c11338a75b950e9a94500fe0e",
+    "internal/central/object/contract/reference_cleanup.go": "4cc8aeff4d0278f64ef5d3cd2ea75a350314d89af02ad072bdf36c04b7f0b196",
+    "internal/central/object/contract/source.go": "444c04fc677d88d026a2211812757ce15108527786ea5ba0c874457c398d5e82",
+    "internal/central/object/contract/source_lease.go": "0669b5bd38d3cc9ff80d7af8519f36d66f76916ebb506775a7ad11e4c7c2fce3",
+    "internal/central/object/contract/transfer.go": "ce8169c2626e6e9a4879a34fcf74a42c2c1a1ba5b7226c69c7babdd34dbb2c31",
+    "internal/central/object/contract/transfer_authority.go": "3806be2183c1f7c299f30c27b7c9bf0db152b3400721d5e6165c8f6d82d5a05e",
+    "internal/central/object/contract/types.go": "9021d1aefe210a84677497e02297791b0eb980c30c8be4a2330e27198c24f194",
+    "internal/central/object/contract/access_test.go": "94e17964a390a35dee093920d2b7b18b711703bf0221648e4de5201389b74be1",
+    "internal/central/object/contract/download_test.go": "a51f965d28515c039e855cd34ca8dac41a07e67ac49c097f9190b9c0639e6b1f",
+    "internal/central/object/contract/knowledge_cleanup_test.go": "0cf82af177e041172c80a60739e19d79a08acb83e7c7f364e972a728b5403a0d",
+    "internal/central/object/contract/project_lifecycle_test.go": "9ef6a02c5e603251469dce2480f1f1a121366695b107be95b10526e6e598c2e0",
+    "internal/central/object/contract/project_prepare_read_test.go": "5b32bd5219797e0caa4e8bd3317d9be016b1acd880ae43b1b68b9b0a1b977cca",
+    "internal/central/object/contract/reference_cleanup_test.go": "6776f644ffe768ed9f35309a9696f7f25c2b09cccd49f610e040bedbd5b3de98",
+    "internal/central/object/contract/source_lease_test.go": "165e0091f1d676723874783ca7ae5a6259462feefd858b8b91da4b52868db9a4",
+    "internal/central/object/contract/transfer_test.go": "b6d91c7c2d462b661d4eb038421c76a0ff18428e0d8e39252f6d4e25da9729b9",
+    "internal/central/object/contract/types_test.go": "29e46a7ea69301753c8b59e5849a1100512f58bfb156499bfbc7664259af4b90",
+    "internal/central/secret/contract/account.go": "389eb3472f5684892f5e41c036bb904f9218d5892fac0f6cc19701ddf5c5e6a9",
+    "internal/central/secret/contract/material.go": "a83f362b2d163ea0f7a9ea320670beb0bba7d046361a8f45590b8aca8ecd4a9f",
+    "internal/central/secret/contract/model.go": "f8bf949c3ac35a02351b61a7510609b2e86861b5ceffdddbf8fc54aa1dac2821",
+    "internal/central/secret/contract/types.go": "2e9109c3278ef461166d41e4def3f6c76b0fde2cdd11fff7b755bdbcd1052cd7",
+    "internal/central/secret/contract/write_lookup.go": "805e1f99c643cd574e6f9a18c9b99d0fba2ff27ec9276116636896e127d84558",
+    "internal/central/secret/contract/account_test.go": "e6d249e35d99aea1ab32c2567c18a70b4262c6e00981baa379bb8c50f8d4e75c",
+    "internal/central/secret/contract/material_test.go": "5ff505e2dcfaed20abc1088299ebf8d2ee6a5706a97e1adc5d99d60e0049aa55",
+    "internal/central/secret/contract/model_test.go": "c449d978b130dfa4d84b3118369a2c962a3e53504660a21f33ffc3b1a470a8a8",
+    "internal/central/secret/contract/types_test.go": "56a95cb489c309ae7ded891514abb3f67002ab41268782969b0359e90ece61db",
+    "internal/central/secret/contract/write_lookup_test.go": "2b275124816a7f468f42e9a06bd20b00fb2acf7a28f3e0d96c9508e524eb421e",
+    "internal/central/model/contract/authority.go": "358a96356382a651e5668a73962699ecfc39e2fbe27512af880e1ce3aef7e77a",
+    "internal/central/model/contract/chat.go": "01f2abe8a8d5be54ed3193f22be75094f3868e2b09a6d8ca5dab6fb70aac2d88",
+    "internal/central/model/contract/configuration.go": "a318e6cc6fb3697d407569f8b3ecb9a441817b8ea1d7e2d0dd1b567d1ced4d14",
+    "internal/central/model/contract/events.go": "b68f21edf228c85a7b9243e44a0e8fad2789206bff14555c518115ddf38e1e10",
+    "internal/central/model/contract/meeting_summary.go": "02ffab6bfddda7417575d422a17cf31f563dbe234079fbd3ebd0e45192628e1c",
+    "internal/central/model/contract/nonchat.go": "45c655ec6778279ec92aa06e045f1ca370a6306e35ae1d8e376088ad517e451d",
+    "internal/central/model/contract/references.go": "b7f3b3eef67aa1d3ba707649489db5700c2e23e890bb02147038409affb49ae9",
+    "internal/central/model/contract/resolution.go": "151f89787aa0d35d016dd8d77b03f957548fd2f1c9b81cf44e646441867f9a64",
+    "internal/central/model/contract/types.go": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+    "internal/central/model/contract/authority_test.go": "4487ec145381c6ef276b0a9f99402ada02925722323c829692d4034cc572567b",
+    "internal/central/model/contract/chat_test.go": "52279b0c03abeeb3eb07166f7cdb9aa68db80c27979b52d800589cbe375c2b97",
+    "internal/central/model/contract/configuration_test.go": "1c361e957c709f3cbaee75594ff9dbd0b93e8935cf52d0481f7fc5a500e2d12c",
+    "internal/central/model/contract/events_test.go": "63d07cb777b373ce1a37c8908dc634ce72c8415c00928a9f37f1e285a05854be",
+    "internal/central/model/contract/meeting_summary_test.go": "d029a73d9922b6a66a6acc6fa6fe3e0b9ad1d6de18899f1196d1919cf76525d1",
+    "internal/central/model/contract/nonchat_test.go": "a5911b83882e81c3900dadfefc27f58f417dab2563712ab61e3c0132b98a9c99",
+    "internal/central/model/contract/references_test.go": "5619eb29438961afaf68eba73cfafff157f74ea82ca9f9ab9db5057dbda45ab9",
+    "internal/central/model/contract/resolution_test.go": "1d67a96398dec15e4c7c1937defedb4314e04d90ea5b96b5aeb4874615f15dab",
+    "internal/central/model/contract/types_test.go": "d1371f97d0a6467f7f318eeabc953c7590b4b013f8484edb9aef9acdea954d08"
+  }
+}

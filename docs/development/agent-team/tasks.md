@@ -1,5 +1,10 @@
 # 团队任务台账
 
+## 2026-10-07：系统会议 Summary 四源纯契约接受
+
+- [四源验证归档](system-meeting-summary-contract-verification.md)绑定独立 PASS 与已提交推送 `e6cb70bdfc6ef7569d740f767f7dca3211a2ef7a`、远端一致；作者 pure/race 各31顶层61子测及vet，独立 pure/race 各3顶层（288组合、16 Clone）通过，原 JSON 判定探针首错保留。58 原件、64 固定 Git 依赖，不复制源树/cache/binary。
+- 会议 Summary 系统决定已确认，正式规格/设计 `9ff1292d` 已接受；本次只接受 DTO/request/reference 四源，完整 S1 服务持久化/事务/删除/HTTP-client 未验收。Usage A 已验 `ba7ce729`，B 已受控接受并提交推送 `e7304512`、远端一致；C 七路径作者已实际 ACK、离线实施已启动，无 root/native/PG 接受；三停止、ready503、D08–D28/E01 未完成及 E01 未开始保持。以下历史原文不改。
+
 ## 2026-10-07：Usage HTTP 阶段 A 五路径接受
 
 - [阶段 A 验证归档](project-usage-read-http-stage-a-verification.md)绑定已提交推送 `ba7ce7296b7c08d976d3fc3ce1e1d0b727a3f04f`、同 a02 五源及独立限定 PASS；作者 Account5/36、Wire11/99、race compile/vet，独立四 race 顶层/schema382/Node147/250 refs/288 仓库依赖均有固定证据。111 小原件保存，五个大型 list raw 仅指纹，源码复用固定 Git。

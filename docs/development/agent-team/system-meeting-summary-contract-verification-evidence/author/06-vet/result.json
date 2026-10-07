@@ -1,0 +1,108 @@
+{
+  "command_exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 0.47073742799989304,
+  "direct_child_pid": 44589,
+  "direct_child_joined": true,
+  "subreaper": true,
+  "adopted_reaped": [],
+  "processes_seen": [
+    {
+      "pid": 44589,
+      "ppid": 44586,
+      "pgid": 44589,
+      "state": "Z",
+      "starttime": "180010"
+    },
+    {
+      "pid": 44620,
+      "ppid": 44589,
+      "pgid": 44589,
+      "state": "R",
+      "starttime": "180022"
+    },
+    {
+      "pid": 44625,
+      "ppid": 44589,
+      "pgid": 44589,
+      "state": "R",
+      "starttime": "180022"
+    },
+    {
+      "pid": 44637,
+      "ppid": 44589,
+      "pgid": 44589,
+      "state": "R",
+      "starttime": "180025"
+    },
+    {
+      "pid": 44649,
+      "ppid": 44589,
+      "pgid": 44589,
+      "state": "R",
+      "starttime": "180029"
+    },
+    {
+      "pid": 44657,
+      "ppid": 44589,
+      "pgid": 44589,
+      "state": "R",
+      "starttime": "180032"
+    },
+    {
+      "pid": 44661,
+      "ppid": 44589,
+      "pgid": 44589,
+      "state": "R",
+      "starttime": "180034"
+    },
+    {
+      "pid": 44665,
+      "ppid": 44589,
+      "pgid": 44589,
+      "state": "R",
+      "starttime": "180036"
+    },
+    {
+      "pid": 44669,
+      "ppid": 44589,
+      "pgid": 44589,
+      "state": "Z",
+      "starttime": "180039"
+    },
+    {
+      "pid": 44677,
+      "ppid": 44589,
+      "pgid": 44589,
+      "state": "R",
+      "starttime": "180043"
+    },
+    {
+      "pid": 44678,
+      "ppid": 44589,
+      "pgid": 44589,
+      "state": "S",
+      "starttime": "180043"
+    },
+    {
+      "pid": 44685,
+      "ppid": 44589,
+      "pgid": 44589,
+      "state": "R",
+      "starttime": "180047"
+    }
+  ],
+  "actions": [],
+  "remaining_descendants": [],
+  "inputs_after": {
+    "internal/central/model/contract/meeting_summary.go": "02ffab6bfddda7417575d422a17cf31f563dbe234079fbd3ebd0e45192628e1c",
+    "internal/central/model/contract/meeting_summary_test.go": "d029a73d9922b6a66a6acc6fa6fe3e0b9ad1d6de18899f1196d1919cf76525d1",
+    "internal/central/model/contract/references.go": "b7f3b3eef67aa1d3ba707649489db5700c2e23e890bb02147038409affb49ae9",
+    "internal/central/model/contract/references_test.go": "5619eb29438961afaf68eba73cfafff157f74ea82ca9f9ab9db5057dbda45ab9",
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+  },
+  "exit_code": 0,
+  "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

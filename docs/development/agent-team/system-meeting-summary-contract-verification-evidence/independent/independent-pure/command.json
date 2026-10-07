@@ -1,0 +1,44 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-overlay=/workspace/scratch/summary-verification/contract-four-source/overlay.json",
+    "-run",
+    "^TestIndependentSummary",
+    "-count=1",
+    "-timeout=40s",
+    "-v",
+    "./internal/central/model/contract"
+  ],
+  "cwd": "/workspace/agenteam",
+  "environment_overrides": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOFLAGS": "-mod=readonly",
+    "TMPDIR": "/workspace/scratch/summary-verification/contract-four-source/tmp",
+    "CGO_ENABLED": "1",
+    "GOMAXPROCS": "2"
+  },
+  "subreaper": true,
+  "driver_pid": 48135,
+  "driver_sha256": "a58d87b435ae6ee990862535c135646100c5222881d2fd287b65722cff05f4e7",
+  "started_utc": "2026-10-07T12:29:01Z",
+  "total_deadline_seconds": 45,
+  "child_timeout_seconds": 42,
+  "inputs_before": {
+    "internal/central/model/contract/meeting_summary.go": "02ffab6bfddda7417575d422a17cf31f563dbe234079fbd3ebd0e45192628e1c",
+    "internal/central/model/contract/meeting_summary_test.go": "d029a73d9922b6a66a6acc6fa6fe3e0b9ad1d6de18899f1196d1919cf76525d1",
+    "internal/central/model/contract/references.go": "b7f3b3eef67aa1d3ba707649489db5700c2e23e890bb02147038409affb49ae9",
+    "internal/central/model/contract/references_test.go": "5619eb29438961afaf68eba73cfafff157f74ea82ca9f9ab9db5057dbda45ab9",
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "/workspace/scratch/summary-verification/contract-four-source/probe_test.go": "8bccf5728d6ab98f2b6377c9edc8472ad9233d778cb2d1f8cae93071dda21bc9",
+    "/workspace/scratch/summary-verification/contract-four-source/overlay.json": "1a00255c08e304ed9ac0c71e2471c8d7484b2fa93ebe67ef7c499c957c00a9d9"
+  }
+}

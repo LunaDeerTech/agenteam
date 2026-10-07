@@ -1,0 +1,131 @@
+{
+  "baseline": "ba7ce7296b7c08d976d3fc3ce1e1d0b727a3f04f",
+  "head_at_freeze": "9ff1292d7e64b2ee2e9e049cf4eb625a7d11c6e7",
+  "scope": "four pure contract sources only; not full S1 implementation/acceptance",
+  "source_sha256": {
+    "internal/central/model/contract/meeting_summary.go": "02ffab6bfddda7417575d422a17cf31f563dbe234079fbd3ebd0e45192628e1c",
+    "internal/central/model/contract/meeting_summary_test.go": "d029a73d9922b6a66a6acc6fa6fe3e0b9ad1d6de18899f1196d1919cf76525d1",
+    "internal/central/model/contract/references.go": "b7f3b3eef67aa1d3ba707649489db5700c2e23e890bb02147038409affb49ae9",
+    "internal/central/model/contract/references_test.go": "5619eb29438961afaf68eba73cfafff157f74ea82ca9f9ab9db5057dbda45ab9"
+  },
+  "accepted_repository_dependency_count": 64,
+  "dependency_input_sha256": "27b329d7a1d11454ea9e9831186fcd56602cb1f36c07747321275788f3ad0a1d",
+  "comparison_sha256": "7b923c2cdb87eaac271d4f0fed164695480149b14e47f45764ba346f534a217c",
+  "driver_sha256": "b5ad0448d86788f09e7b4ad1b809e6e49e75c3f3b70cb33e92c1db9acbd265f6",
+  "toolchain_sha256": {
+    "go": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342"
+  },
+  "diff_sha256": "2310ff41bcf493674d9084403e9efa108d4c2ec743814ac566ebc7febb349336",
+  "commands": [
+    {
+      "run": "01-gofmt",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/gofmt",
+        "-w",
+        "internal/central/model/contract/meeting_summary.go",
+        "internal/central/model/contract/meeting_summary_test.go",
+        "internal/central/model/contract/references.go",
+        "internal/central/model/contract/references_test.go"
+      ],
+      "seconds": 0.09986351699990337,
+      "exit_code": 0,
+      "joined": true,
+      "remaining_descendants": [],
+      "result_sha256": "39ccf475834dd71ee46f6080085138552bb6804fc2be878c3d06de5640d0b15b",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "02-go-version",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "version"
+      ],
+      "seconds": 0.0652930070000366,
+      "exit_code": 0,
+      "joined": true,
+      "remaining_descendants": [],
+      "result_sha256": "19cf4e5a0856d9ef2c497ecbd534bd2e37a757bd2b6acc9304f9d6b2637bb9b9",
+      "stdout_sha256": "f554cfdb85411c2bb1d503df3f53dfbad1f753eb8271938833166a5d26a7547c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "03-go-list",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-deps",
+        "-test",
+        "-json",
+        "./internal/central/model/contract"
+      ],
+      "seconds": 1.1058447640000395,
+      "exit_code": 0,
+      "joined": true,
+      "remaining_descendants": [],
+      "result_sha256": "28e6e5d5137621b61abf92e657933d36062cb55d8b32710c50ea0cb82e649ea3",
+      "stdout_sha256": "5ab644ded1c6dc333b4161ade87f7b6605e8490cbc173e4435d87949235809de",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "04-pure-test",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-count=1",
+        "-timeout=40s",
+        "-v",
+        "./internal/central/model/contract"
+      ],
+      "seconds": 2.3140804939998816,
+      "exit_code": 0,
+      "joined": true,
+      "remaining_descendants": [],
+      "result_sha256": "a58e78e18a42ac611f5f3c23a91ebfb405eeb56d5f1295546ae41d159c790f46",
+      "stdout_sha256": "f2f59b210a58a3ace6f001e34d364f8dff08891a8b9ce727c396221c7a2ec678",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "top_level_pass": 31,
+      "subtest_pass": 61,
+      "meeting_summary_top_level_pass": 7
+    },
+    {
+      "run": "05-race-test",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "-timeout=40s",
+        "-v",
+        "./internal/central/model/contract"
+      ],
+      "seconds": 24.492325498000127,
+      "exit_code": 0,
+      "joined": true,
+      "remaining_descendants": [],
+      "result_sha256": "c5db8a553b16baff530c5704d97f4c20ea0c2ec9420e0e4c66e9e017f9449ed4",
+      "stdout_sha256": "5ada9d862061041fb95146acbc8e02842064d2d732b8a47313f88edb06eb4a22",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "top_level_pass": 31,
+      "subtest_pass": 61,
+      "meeting_summary_top_level_pass": 7
+    },
+    {
+      "run": "06-vet",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "./internal/central/model/contract"
+      ],
+      "seconds": 0.47073742799989304,
+      "exit_code": 0,
+      "joined": true,
+      "remaining_descendants": [],
+      "result_sha256": "95233978b51b7f392ccf686291219a36e176a20e9ac4e0de2c08cead12f82f45",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "resources": "No listener, database, container, HTTP route, background worker, or migration was started. No test command failed or timed out. Preparation observations retained separately."
+}

@@ -1,0 +1,157 @@
+{
+  "command_exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 2.3140804939998816,
+  "direct_child_pid": 41723,
+  "direct_child_joined": true,
+  "subreaper": true,
+  "adopted_reaped": [],
+  "processes_seen": [
+    {
+      "pid": 41723,
+      "ppid": 41720,
+      "pgid": 41723,
+      "state": "Z",
+      "starttime": "176624"
+    },
+    {
+      "pid": 41728,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176627"
+    },
+    {
+      "pid": 41746,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176642"
+    },
+    {
+      "pid": 41775,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "Z",
+      "starttime": "176660"
+    },
+    {
+      "pid": 41776,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176660"
+    },
+    {
+      "pid": 41787,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176665"
+    },
+    {
+      "pid": 41791,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176670"
+    },
+    {
+      "pid": 41803,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176676"
+    },
+    {
+      "pid": 41807,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176677"
+    },
+    {
+      "pid": 41811,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "S",
+      "starttime": "176679"
+    },
+    {
+      "pid": 41815,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176682"
+    },
+    {
+      "pid": 41823,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176685"
+    },
+    {
+      "pid": 41827,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176686"
+    },
+    {
+      "pid": 41835,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "S",
+      "starttime": "176713"
+    },
+    {
+      "pid": 41859,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176754"
+    },
+    {
+      "pid": 41860,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176754"
+    },
+    {
+      "pid": 41867,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "R",
+      "starttime": "176823"
+    },
+    {
+      "pid": 41868,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "S",
+      "starttime": "176823"
+    },
+    {
+      "pid": 41879,
+      "ppid": 41723,
+      "pgid": 41723,
+      "state": "S",
+      "starttime": "176825"
+    }
+  ],
+  "actions": [],
+  "remaining_descendants": [],
+  "inputs_after": {
+    "internal/central/model/contract/meeting_summary.go": "02ffab6bfddda7417575d422a17cf31f563dbe234079fbd3ebd0e45192628e1c",
+    "internal/central/model/contract/meeting_summary_test.go": "d029a73d9922b6a66a6acc6fa6fe3e0b9ad1d6de18899f1196d1919cf76525d1",
+    "internal/central/model/contract/references.go": "b7f3b3eef67aa1d3ba707649489db5700c2e23e890bb02147038409affb49ae9",
+    "internal/central/model/contract/references_test.go": "5619eb29438961afaf68eba73cfafff157f74ea82ca9f9ab9db5057dbda45ab9",
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+  },
+  "exit_code": 0,
+  "stdout.log_sha256": "f2f59b210a58a3ace6f001e34d364f8dff08891a8b9ce727c396221c7a2ec678",
+  "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

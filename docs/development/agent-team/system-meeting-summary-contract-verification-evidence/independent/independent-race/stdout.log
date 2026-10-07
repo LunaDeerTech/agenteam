@@ -1,0 +1,11 @@
+=== RUN   TestIndependentSummaryPublicWireCannotGrantAuthority
+    independent_meeting_summary_probe_test.go:72: request transport cannot mint actor/key; exact large version; six invalid scalar encodings rejected
+--- PASS: TestIndependentSummaryPublicWireCannotGrantAuthority (0.00s)
+=== RUN   TestIndependentSummaryReferenceRoleMatrix
+    independent_meeting_summary_probe_test.go:114: 288 independent owner/role/project/clear/reasoning combinations
+--- PASS: TestIndependentSummaryReferenceRoleMatrix (0.00s)
+=== RUN   TestIndependentSummaryCloneIsolationAndRealLogHandlers
+    independent_meeting_summary_probe_test.go:168: 16 separately owned clones; value/pointer formatting and real JSON/text log handlers remain safe
+--- PASS: TestIndependentSummaryCloneIsolationAndRealLogHandlers (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.017s

@@ -1,0 +1,169 @@
+package contract
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"log/slog"
+	"strings"
+	"sync"
+	"testing"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+func independentSummaryID[T any](t *testing.T, tail string) f.ID[T] {
+	t.Helper()
+	x, err := f.ParseID[T]("018f0000-0000-7000-8000-" + tail)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return x
+}
+
+func independentSummaryRequest(t *testing.T) UpdateMeetingSummarySelectionRequest {
+	t.Helper()
+	u := independentSummaryID[id.User](t, "000000000001")
+	s := independentSummaryID[id.Session](t, "000000000002")
+	a, err := id.NewHuman(u, s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return UpdateMeetingSummarySelectionRequest{
+		CommandMeta: CommandMeta{Actor: a, Scope: id.SystemScope(), Key: "independent-secret-command-canary"},
+		SelectionID: "018f0000-0000-7000-8000-000000000003", ExpectedVersion: 9007199254740993,
+		Model: independentSummaryID[Model](t, "000000000004"),
+	}
+}
+
+func TestIndependentSummaryPublicWireCannotGrantAuthority(t *testing.T) {
+	r := independentSummaryRequest(t)
+	if err := r.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := json.Marshal(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var public map[string]json.RawMessage
+	if err = json.Unmarshal(raw, &public); err != nil || len(public) != 4 {
+		t.Fatal("public request shape changed", err)
+	}
+	if string(public["expected_version"]) != `"9007199254740993"` || bytes.Contains(raw, []byte(r.Key)) || bytes.Contains(raw, []byte(r.Actor.Details().UserID)) {
+		t.Fatal("wire rounded version or exposed caller authority")
+	}
+	var decoded UpdateMeetingSummarySelectionRequest
+	if err = json.Unmarshal(raw, &decoded); err == nil && decoded.Validate() == nil {
+		t.Fatal("public JSON must not reconstruct command authority")
+	}
+	for _, version := range []string{`9007199254740993`, `"01"`, `"0"`, `"-1"`, `"9223372036854775808"`, `null`} {
+		payload := `{"id":"` + r.SelectionID + `","version":` + version + `,"model":null}`
+		var state MeetingSummarySelection
+		if json.Unmarshal([]byte(payload), &state) == nil && state.Validate() == nil {
+			t.Fatalf("invalid version accepted: %s", version)
+		}
+	}
+	state := MeetingSummarySelection{ID: r.SelectionID, Version: r.ExpectedVersion}
+	raw, err = json.Marshal(state)
+	if err != nil || !bytes.Contains(raw, []byte(`"model":null`)) {
+		t.Fatal("unconfigured model was omitted", err)
+	}
+	t.Log("request transport cannot mint actor/key; exact large version; six invalid scalar encodings rejected")
+}
+
+func TestIndependentSummaryReferenceRoleMatrix(t *testing.T) {
+	r := independentSummaryRequest(t)
+	project := independentSummaryID[id.Project](t, "000000000005")
+	roles := []string{"agent_model", "approval_model", "embedding", "memory", "reranker", "image", "meeting_summary", "summary", ""}
+	checks := 0
+	for _, kind := range []string{"platform_selector", "project_summary", "agent", "unknown"} {
+		for _, role := range roles {
+			for _, withProject := range []bool{false, true} {
+				for _, clear := range []bool{false, true} {
+					for _, reasoning := range []bool{false, true} {
+						owner := ReferenceOwner{Kind: kind, ID: project.String(), Role: role}
+						if withProject {
+							owner.ProjectID = &project
+						}
+						change := ReferenceChange{Actor: r.Actor, Owner: owner, ExpectedOwnerVersion: 3, Before: &r.Model}
+						if !clear {
+							change.After = &r.Model
+						}
+						if reasoning {
+							change.ReasoningEffort = "high"
+						}
+						valid := kind == "platform_selector" && !withProject && (role == "embedding" || role == "memory" || role == "reranker" || role == "image" || role == "meeting_summary") || kind == "project_summary" && withProject && role == "meeting_summary" || kind == "agent" && withProject && (role == "agent_model" || role == "approval_model")
+						valid = valid && (!clear || role == "reranker" || role == "image") && (!reasoning || role == "agent_model" || role == "approval_model" || role == "memory")
+						if got := change.Validate() == nil; got != valid {
+							t.Fatalf("matrix: %s/%s project=%t clear=%t reasoning=%t got=%t", kind, role, withProject, clear, reasoning, got)
+						}
+						_, bindErr := ReferenceBinding(change)
+						if (bindErr == nil) != valid {
+							t.Fatal("binding accepted a rejected reference")
+						}
+						checks++
+					}
+				}
+			}
+		}
+	}
+	if checks != 288 {
+		t.Fatal(checks)
+	}
+	t.Logf("%d independent owner/role/project/clear/reasoning combinations", checks)
+}
+
+func TestIndependentSummaryCloneIsolationAndRealLogHandlers(t *testing.T) {
+	r := independentSummaryRequest(t)
+	state := MeetingSummarySelection{ID: r.SelectionID, Version: r.ExpectedVersion, Model: &r.Model}
+	original := r.Model
+	const workers = 16
+	clones := make([]MeetingSummarySelection, workers)
+	for i := range clones {
+		clones[i] = state.Clone()
+		if clones[i].Model == state.Model {
+			t.Fatal("shared mutable model pointer")
+		}
+	}
+	var wg sync.WaitGroup
+	for i := range clones {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			*clones[i].Model = ModelID{}
+			clones[i].Version++
+		}(i)
+	}
+	wg.Wait()
+	if *state.Model != original || state.Version != r.ExpectedVersion {
+		t.Fatal("parallel clone mutation changed source")
+	}
+	for _, value := range []any{r, &r, state, &state} {
+		for _, format := range []string{"%v", "%+v", "%#v", "%q", "%s"} {
+			text := fmt.Sprintf(format, value)
+			for _, forbidden := range []string{r.SelectionID, r.Model.String(), string(r.Key), r.Actor.Details().UserID} {
+				if strings.Contains(text, forbidden) {
+					t.Fatal("format leaked command data")
+				}
+			}
+		}
+	}
+	for _, jsonHandler := range []bool{false, true} {
+		var output bytes.Buffer
+		var handler slog.Handler = slog.NewTextHandler(&output, nil)
+		if jsonHandler {
+			handler = slog.NewJSONHandler(&output, nil)
+		}
+		slog.New(handler).Info("probe", "request", &r, "state", &state)
+		for _, forbidden := range []string{r.SelectionID, r.Model.String(), string(r.Key), r.Actor.Details().UserID} {
+			if strings.Contains(output.String(), forbidden) {
+				t.Fatal("real slog handler leaked command data")
+			}
+		}
+		if !strings.Contains(output.String(), "model_update_meeting_summary_selection_request") || !strings.Contains(output.String(), "model_meeting_summary_selection") {
+			t.Fatal("safe log type markers disappeared")
+		}
+	}
+	t.Log("16 separately owned clones; value/pointer formatting and real JSON/text log handlers remain safe")
+}

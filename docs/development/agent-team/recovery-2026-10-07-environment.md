@@ -35,3 +35,7 @@ Object runtime join、OpenAI tools 独立验证、SPA concurrent-publication 三
 ## Usage HTTP 阶段 A 接受
 
 [阶段 A 归档](project-usage-read-http-stage-a-verification.md)记录主线程已采纳独立限定 PASS，五产品路径已提交推送 `ba7ce7296b7c08d976d3fc3ce1e1d0b727a3f04f` 并核远端一致。作者纯测/race compile/vet 与独立四 race 顶层、schema382/Node147/250 refs/288 依赖字节共同绑定同 a02；原缺依赖、两次超时、a04 compiler Z 未 join 及独立 runner 首错保留。作者 B 已实际 ACK，仅 handler 两新源；本结果没有真实资源或整卡 HTTP/root 接受，旧恢复时点原文、三停止与未完成边界保持。
+
+## 系统会议 Summary 四源纯契约接受
+
+用户的系统统一会议 Summary 选择已由 `9ff1292d` 正式规格/设计接受；[四源契约归档](system-meeting-summary-contract-verification.md)记录产品 `e6cb70bdfc6ef7569d740f767f7dca3211a2ef7a` 已独立 PASS、主线程采纳并提交推送、远端一致。作者 pure/race31顶层61子测/vet 与独立三顶层 pure/race（288组合、16 Clone）形成限定证据，原独立 JSON 判定探针失误保留；完整 S1 持久化/事务/删除/HTTP-client 未验收。Usage A 已接受，B 已受控接受并提交推送 `e7304512`、远端一致；C 七路径作者已实际 ACK、离线实施已启动，仍无 root/native/PG 接受；三停止、ready503、模块未完成与 E01 未开始保持，上述旧时点原文不改。

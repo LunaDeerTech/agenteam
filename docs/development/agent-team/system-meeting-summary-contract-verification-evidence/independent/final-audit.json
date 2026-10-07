@@ -1,0 +1,115 @@
+{
+  "scope": "four pure contract sources only; not full S1",
+  "author_freeze_sha256": "623f5d057b1dc677203a073b045babffcbbab1880749ce48dc0217c5c73a60bd",
+  "author_report_sha256": "5a52f2ba3b18b215a281f7c8a2a4dbbe39e0a7d75a3100cf1f2e13776cc81dba",
+  "source_sha256": {
+    "internal/central/model/contract/meeting_summary.go": "02ffab6bfddda7417575d422a17cf31f563dbe234079fbd3ebd0e45192628e1c",
+    "internal/central/model/contract/meeting_summary_test.go": "d029a73d9922b6a66a6acc6fa6fe3e0b9ad1d6de18899f1196d1919cf76525d1",
+    "internal/central/model/contract/references.go": "b7f3b3eef67aa1d3ba707649489db5700c2e23e890bb02147038409affb49ae9",
+    "internal/central/model/contract/references_test.go": "5619eb29438961afaf68eba73cfafff157f74ea82ca9f9ab9db5057dbda45ab9"
+  },
+  "accepted_dependency_count": 64,
+  "all_current_dependency_sha256_match": true,
+  "legacy_sha256": {
+    "internal/central/model/contract/configuration.go": "a318e6cc6fb3697d407569f8b3ecb9a441817b8ea1d7e2d0dd1b567d1ced4d14",
+    "internal/central/model/contract/types.go": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+    "internal/central/model/commands.go": "c801fae31f25815e00ebe82c41a363d53d9a6ff5c2f246f99541cac91de948e7"
+  },
+  "contract_directory_set_exact": true,
+  "author_evidence_runs_verified": 6,
+  "toolchain_sha256": {
+    "go": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342"
+  },
+  "own_files_sha256": {
+    "driver.py": "a58d87b435ae6ee990862535c135646100c5222881d2fd287b65722cff05f4e7",
+    "probe_test.go": "7e861742eaed594407aa9dcbab527f0d2576b59e7bad86c1b39a636b6e33fa0e",
+    "probe_test.initial.go.txt": "8bccf5728d6ab98f2b6377c9edc8472ad9233d778cb2d1f8cae93071dda21bc9",
+    "overlay.json": "1a00255c08e304ed9ac0c71e2471c8d7484b2fa93ebe67ef7c499c957c00a9d9",
+    "inputs.json": "264ab71a83fdf3f576c2aafa9893844f758996b21d3311a667b1d8ae9b55de1d",
+    "final_audit.py": "414f32e3218ca1a0dd30b1a430a34f1acb843d4315e17c539a6d0fceb781bc3a"
+  },
+  "runs": [
+    {
+      "run": "format-probe",
+      "exit_code": 0,
+      "seconds": 0.06720913999993172,
+      "subreaper": true,
+      "joined": true,
+      "actions": [],
+      "remaining_descendants": [],
+      "driver_pid": 47236,
+      "sha256": {
+        "command.json": "97e1809c9fea7d8120131f77a2e4f8546045a945eba10be70e55155a82b72a8a",
+        "result.json": "7fd3d28bcfcb7211e51bed377194ae86728d18221821f1cc8a33c49551088ef8",
+        "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracked_process_count": 1
+    },
+    {
+      "run": "independent-pure",
+      "exit_code": 1,
+      "seconds": 1.2620817400002124,
+      "subreaper": true,
+      "joined": true,
+      "actions": [],
+      "remaining_descendants": [],
+      "driver_pid": 48135,
+      "sha256": {
+        "command.json": "4cd91253b31a3dd4ce271a6fc089a59cd4f0dd7c807698eb062024b6b42f5afd",
+        "result.json": "38769a609580dbd00c32b15f84e5532caa305c33c36ea8243bc2d5ea4d1c0418",
+        "stdout.log": "5a0c24bfb48b8e99c16faff07ddc2636a3ad358ffc812adbadfac5ed425708ca",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracked_process_count": 4
+    },
+    {
+      "run": "independent-pure-corrected",
+      "exit_code": 0,
+      "seconds": 1.156655559000228,
+      "subreaper": true,
+      "joined": true,
+      "actions": [],
+      "remaining_descendants": [],
+      "driver_pid": 48432,
+      "sha256": {
+        "command.json": "171581a6860b71d38f9fffd3165a351c6a3b38ed845619f7fc7a2d7c8a4059ba",
+        "result.json": "065f2931052215668c621f86c68b5aafa2f1d361b048b9c9a6cc06b11430b940",
+        "stdout.log": "f05cf02ce15ef504619d88e4a24cf5beb20af3f4eb1b599846cc9bf7155b5ff5",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracked_process_count": 5
+    },
+    {
+      "run": "independent-race",
+      "exit_code": 0,
+      "seconds": 2.757078561000071,
+      "subreaper": true,
+      "joined": true,
+      "actions": [],
+      "remaining_descendants": [],
+      "driver_pid": 48547,
+      "sha256": {
+        "command.json": "9a9a2e2629b5f79805f1aa14849317a3478bf10f6d40dcc06920bc0770cd996e",
+        "result.json": "296bded98c32b32237d0c4b35dd23abf6289d1f7a8657cc7329ec881e9b82c4d",
+        "stdout.log": "a2d9f0a2a64d3a80522efce1bcc76df2f0ada73c2177d711b02aec593128524b",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracked_process_count": 5
+    }
+  ],
+  "tail_checks": [
+    {
+      "utc": "2026-10-07T12:30:25Z",
+      "remaining_pid_starttime_matches": [],
+      "driver_pids_present": []
+    },
+    {
+      "utc": "2026-10-07T12:30:25Z",
+      "remaining_pid_starttime_matches": [],
+      "driver_pids_present": []
+    }
+  ],
+  "initial_probe_failure": "Own assertion incorrectly treated JSON decode rejection as failure. Corrected only probe condition; all frozen sources unchanged. Raw failure retained."
+}
