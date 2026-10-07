@@ -432,3 +432,11 @@ A01跨字段实际RED保留，A02三行guard／同probeGREEN；错误作者笛�
 - A原race01七PASS一FAIL是累计TotalAlloc指标，candidate03仅测试改为实际backing/clone/辅助容量；原Fatal后未达尾部以后轮证明。B的ioDone/Drain与workerDone分层、format1806区别、D编译/list和startup01静态缺两cmd→02精确五host roots/914Git/3513runtime闭合均保留；辅助脚本/stdin缺件不重建。
 - 作者HTTP/Terminal/Budget/旧Chat/旧structured五轮actual0（101.179/52.460/52.367/54.210/53.781s），独立两top两sub同轮actual0/50.779s；共十一top，每轮7IDs双absent、所属PID双空、0adopt、actualwait及完整Mount基线不变。历史PPID1 Z不倒填回收；独立literal3×3与作者global64/structured复用边界明确。
 - 仅float文本wire，ExpectedDimensions非默认，不支持原生dimensions；无SDK/供应商smoke/RSS/Nonchat/InvocationID/Resolver/Facts/Usage/root接受。Jina/Anthropic后继阻塞报告不混入本证据。Runtime既有接受不改，D08–D28/E01未完、E01未开始，Summary待决、ready503及Object/tools/SPA publication三停止不变。
+
+## 39. Project Owner Usage只读HTTP规格接受
+
+固定基线 `4ae02e5c58f4efc3b360706cb2622df05a96cdf0`；[正式工作卡 rev1](../work-items/d09-project-usage-read-http.md)已独立完整STATIC PASS并获主线程采纳，[规格归档](project-usage-read-http-spec-verification.md)保存少量冻结原件与固定Git依据。技术§1–7 SHA `36a7fa5c64cbb8d6716f87851b2b5eea895d344319944f6d558c37c55f53a11d` 不变，D09 §11仅澄清既定名称resolve和稳定ProjectID分工，其他设计正文不变。
+
+这是当前可执行的新前沿，非全目标阻塞：三个GET/HEAD资源分别resolve当前名称、读取稳定ID Usage历史、统计既有Usage；当前Session/Owner与项目状态各自授权，两秒总预算包含实际I/O尾部。只绑定Reader，生产Invocations为真正nil，缺少真实数据不由测试fixture填进root。
+
+主线程已授A五路径私有实施，作者已实际开始建立新scratch及RequireHuman/query/DTO/schema与纯测编写；尚无Go/Node/schema执行、资源或产品验收；不交付生产Runtime Facts、Project初始化/生命周期、UI、Execution Summary或完整D08/D09。§1–38与既有验收历史保留，D08–D28/E01整体未完、E01未开始，Summary待决、ready503及Object/tools/SPA publication三停止不变。

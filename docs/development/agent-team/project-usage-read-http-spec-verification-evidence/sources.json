@@ -1,0 +1,61 @@
+{
+  "design": {
+    "candidate_sha256": "33da97d04ebc0d3bb89ef92a3451ec4ea80c2c99c60166ae8bd47a6e70df1af1",
+    "delta_original": "design-section11.diff",
+    "preimage_git": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+    "preimage_path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+    "preimage_sha256": "2c362366c8e52f28b16b92aa574e6a245489ba17eaaff79ac27aacffc704c133",
+    "target": "docs/development/work-items/d09-model-system-token-usage-design.md"
+  },
+  "fixed_git": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+  "fixed_git_inputs_record": "independent/inputs.json",
+  "fixed_git_source_count": 36,
+  "no_source_tree_copy": true,
+  "original_command_logs_not_created": true,
+  "originals": {
+    "card-freeze.json": {
+      "bytes": 816,
+      "object": "objects/594685a361d62cfd38d5b1c34c3e301ce1bea364133a86b03d798fdd9a58a333",
+      "origin": "/workspace/scratch/agenteam-project-usage-http-spec-5vG0NivY/card-freeze.json",
+      "sha256": "594685a361d62cfd38d5b1c34c3e301ce1bea364133a86b03d798fdd9a58a333"
+    },
+    "d09-project-usage-read-http.rev0.1.draft.md": {
+      "bytes": 21227,
+      "object": "objects/cd15e12f62e5ed2056aabcf09f6b0f2da389be278f15e2b72e5fe69495239395",
+      "origin": "/workspace/scratch/agenteam-project-usage-http-spec-5vG0NivY/d09-project-usage-read-http.rev0.1.draft.md",
+      "sha256": "cd15e12f62e5ed2056aabcf09f6b0f2da389be278f15e2b72e5fe69495239395"
+    },
+    "design-section11-checks.json": {
+      "bytes": 1688,
+      "object": "objects/4c76f10faf39aacc2290d2db9583fbd417405eeb3b066d71135da3c12c65582e",
+      "origin": "/workspace/scratch/agenteam-project-usage-http-spec-5vG0NivY/design-section11-checks.json",
+      "sha256": "4c76f10faf39aacc2290d2db9583fbd417405eeb3b066d71135da3c12c65582e"
+    },
+    "design-section11.diff": {
+      "bytes": 1541,
+      "object": "objects/6f5c96acaa4f4a97b2b54f573fd3e0f8b04f08781bbcf1175d1716f76ca09c58",
+      "origin": "/workspace/scratch/agenteam-project-usage-http-spec-5vG0NivY/design-section11.diff",
+      "sha256": "6f5c96acaa4f4a97b2b54f573fd3e0f8b04f08781bbcf1175d1716f76ca09c58"
+    },
+    "independent/inputs.json": {
+      "bytes": 13156,
+      "object": "objects/db4a4cddb3bb5815d05086a928c88cf0b664c5e08fa07ad9cb1182b1f93bbe6e",
+      "origin": "/workspace/scratch/agenteam-project-usage-spec-independent-vr19tdk_/inputs.json",
+      "sha256": "db4a4cddb3bb5815d05086a928c88cf0b664c5e08fa07ad9cb1182b1f93bbe6e"
+    },
+    "independent/review.json": {
+      "bytes": 651,
+      "object": "objects/afe9eb6263e0922efd5bde72d1320c86d9609b31a1799d93e5300b6926a41adc",
+      "origin": "/workspace/scratch/agenteam-project-usage-spec-independent-vr19tdk_/review.json",
+      "sha256": "afe9eb6263e0922efd5bde72d1320c86d9609b31a1799d93e5300b6926a41adc"
+    },
+    "independent/review.md": {
+      "bytes": 5282,
+      "object": "objects/ccf1f861f5ba33c07b6a94ee105815df259a8544f37923d30a12a0fb2d80cbb0",
+      "origin": "/workspace/scratch/agenteam-project-usage-spec-independent-vr19tdk_/review.md",
+      "sha256": "ccf1f861f5ba33c07b6a94ee105815df259a8544f37923d30a12a0fb2d80cbb0"
+    }
+  },
+  "status": "specification accepted; private stage A five paths authorized and actually started; no Go/Node/schema execution or resource/product acceptance",
+  "technical_sha256": "36a7fa5c64cbb8d6716f87851b2b5eea895d344319944f6d558c37c55f53a11d"
+}

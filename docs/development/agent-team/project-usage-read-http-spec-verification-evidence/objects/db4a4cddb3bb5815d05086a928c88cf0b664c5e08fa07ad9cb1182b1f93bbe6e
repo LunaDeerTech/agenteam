@@ -1,0 +1,278 @@
+{
+  "base": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+  "mode": "STATIC only; no product build/test/network/resource execution",
+  "candidate_technical_sha256": "36a7fa5c64cbb8d6716f87851b2b5eea895d344319944f6d558c37c55f53a11d",
+  "frozen_inputs": [
+    {
+      "path": "/workspace/scratch/agenteam-project-usage-http-spec-5vG0NivY/d09-project-usage-read-http.rev0.1.draft.md",
+      "bytes": 21227,
+      "sha256": "cd15e12f62e5ed2056aabcf09f6b0f2da389be278f15e2b72e5fe69495239395"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-project-usage-http-spec-5vG0NivY/design-section11.diff",
+      "bytes": 1541,
+      "sha256": "6f5c96acaa4f4a97b2b54f573fd3e0f8b04f08781bbcf1175d1716f76ca09c58"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-project-usage-http-spec-5vG0NivY/d09-model-system-token-usage-design.candidate.md",
+      "bytes": 67160,
+      "sha256": "33da97d04ebc0d3bb89ef92a3451ec4ea80c2c99c60166ae8bd47a6e70df1af1"
+    }
+  ],
+  "git_inputs": [
+    {
+      "path": "internal/central/account/http_boundary.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 2525,
+      "sha256": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/account/http_boundary_test.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 3429,
+      "sha256": "b06d9d913085c83a04e1614bdcc5b3d5ff07f2cbf87bdf5f4ab6583f9c0dd2b5",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/account/csrf.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 5731,
+      "sha256": "7081e08ba956c81daa1051a3f57e0792600cc12e71f4dddeeb3277e675a59e94",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/account/http_wire.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 7376,
+      "sha256": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/httpapi/problem.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 8391,
+      "sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/usage/authority.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 7352,
+      "sha256": "830ff92eb7a30c8a4fae64a3d604b3c9d3bc114641384671d4d5ccf82cf16221",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/usage/service.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 2594,
+      "sha256": "7a475e186679f11a01423fa5857aa288ab1369cb3f81a5b828f0bc959f329608",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/usage/query.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 13262,
+      "sha256": "eccc2a9ce7f632925986de28b31be2036013fa711830a6b5802bf77316ca315a",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/usage/store.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 12575,
+      "sha256": "4c2025d6422a86f2efdd0561ea6b7a3f8370c2db3ebe96cd4cb957c194d13b19",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/usage/summary.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 12145,
+      "sha256": "4612beb92345a116f8619c1ab2bab486da9b2414d35e34e03f7768c3486b4587",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/usage/contract/query.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 7042,
+      "sha256": "9d72156476c47d3d157a966542a0573e8a20ef75d3253bcb18140889cd648726",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/usage/contract/types.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 7475,
+      "sha256": "3845c7c7a75a93e9bf15813fca4d352a7da789c2b0db42bfc1cb9371cb8b38ad",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/usage/contract/invocations.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 7265,
+      "sha256": "e2e782b55321ac9bfd4b90164c11a8d8d8ce75d1f2b87d6871952e1fa5a76707",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/model/contract/types.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 19439,
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/project/authority.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 9818,
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/project/service.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 11158,
+      "sha256": "44abe5e8400c3a1086c4270461d7c1ed81581898b790e301a85a266e2d134e14",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/project/contract/types.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 12125,
+      "sha256": "7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/project/contract/validation.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 4989,
+      "sha256": "73db8aeb4db685433279cdeeb119fe12a231d7193d9b93e97305b7f30445c64b",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/foundation/instant.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 1751,
+      "sha256": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/foundation/scalar.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 3285,
+      "sha256": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/foundation/integer.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 3998,
+      "sha256": "6b415d63e04d63e46428bf3b19f545f5a289575c0f375192875a40405b39d215",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/app/account.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 14263,
+      "sha256": "96fb4de27b49225be963c81baaa9088b177f67ab1a6e227d7dfb7c3a8c4b2223",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/app/app.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 21065,
+      "sha256": "72e7d6689d3dda38c8c68ccb7908cf0dfbcbda5fb4a8b3d59edb1e3b9ea90d77",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "internal/central/app/runtime_information.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 7716,
+      "sha256": "8544c989b3dc3ec1ffd2ff2f430c810da544f87133434a5e6f3b08551a790736",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "tests/model/usage_fixture_test.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 35348,
+      "sha256": "ce1c88f0678edb0c3e1633c6dbb24e0b3a0d701a36d818f40480ffeed5a17a40",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "tests/model/current_resolution_fixture_test.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 16271,
+      "sha256": "669ccb190ae3c5043c104305a3116e1fc39ab28316983984ec0b261653a423b6",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "tests/model/project_configuration_fixture_test.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 22720,
+      "sha256": "d19c5fb039e784e9747fe853261ceefa4ebdccba9659e5a1010e34832e5c523a",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "tests/model/system_http_fixture_test.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 20539,
+      "sha256": "917574ad6ffac121c845b9cbb11d29b35d0eb418d14d9d09820796510e077a5c",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "tests/model/system_http_configuration_test.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 17428,
+      "sha256": "b8abc3d280b66115ccc8a1b676a4ce6c3e0ddfa32c04cf9783ae7b31eef3a168",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "tests/model/usage_ledger_test.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 15376,
+      "sha256": "979674fc4739ad2ba184e57b0fe1464a82b943400f88d8c071ea2694a7e4db70",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "tests/model/usage_query_test.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 22917,
+      "sha256": "77538ea85e42def5c628d5c1689cb3fe28d43c3ca5f489407d642873139eb5bc",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "tests/model/system_configuration_integration_test.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 53704,
+      "sha256": "7d46b46766659386f7d643be76ab56526d9c5e911cc14fbc2fd3b81967afab32",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "tests/project/b02_owner_commands_test.go",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 45066,
+      "sha256": "5d4b886c58ae4b286da9e79e5470688db953091e54905badb0ea5993064b7b35",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "docs/development/work-items/d08-project-owner-design.md",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 70890,
+      "sha256": "6b4fafa43f9ea3912c72ec40c042e79ba316ae863beb13365fad2b88dafbde8b",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 66903,
+      "sha256": "2c362366c8e52f28b16b92aa574e6a245489ba17eaaff79ac27aacffc704c133",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    },
+    {
+      "path": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "git_ref": "4ae02e5c58f4efc3b360706cb2622df05a96cdf0",
+      "bytes": 47163,
+      "sha256": "5c6f555d163309089fc451c28987643f72361ea18416765144b43673953574b6",
+      "review_scope": "targeted contract/implementation/fixture/selector passages; full-file hash"
+    }
+  ],
+  "git_input_count": 36,
+  "source_copy": false
+}

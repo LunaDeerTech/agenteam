@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-07：Project Owner Usage 只读 HTTP 规格接受
+
+- [正式卡 rev1](../work-items/d09-project-usage-read-http.md)已独立完整 STATIC PASS、主线程采纳；[规格归档](project-usage-read-http-spec-verification.md)保留原稿、D09 §11窄澄清与独审原件。固定4ae02e5，技术 `36a7fa5c…53a11d` 原字节；主线程已授A五路径私有实施，作者已实际开始新scratch及RequireHuman/query/DTO/schema与纯测编写；尚无Go/Node/schema执行、资源或产品验收。
+- 这是既定名称resolve/稳定ID分工下的下一可执行前沿，三个GET/HEAD资源各自完成当前Session/Owner授权；生产Invocations为真正nil。后继wire依赖阻塞按[另案记录](d09-next-wire-dependencies-2026-10-07.md)处理，不等于全目标阻塞。
+- 本卡不交付生产Runtime Facts、Project初始化/生命周期、UI或Execution Summary，不完成D08/D09。见[接续§39](recovery-2026-10-06-continuation.md#39-project-owner-usage只读http规格接受)；旧档、Summary待决、ready503、E01未开始及Object/tools/SPA publication三停止不变。
+
 ## 2026-10-07：OpenAI Embeddings float wire 十六路径接受
 
 - 产品已独立验收、主线程采纳并提交推送 `2debfdde347d8c9262ab83d3fe5e18e947a983e1`，核远端一致；[验证报告](openai-embeddings-wire-verification.md)与[工作卡](../work-items/d09-openai-embeddings-wire.md)绑定十六交付、914固定依赖无漂移及无主树动态重跑。604逻辑引用/427对象、44固定Git复用、27保存源版本；官方六SDK原件复用既有规格档。

@@ -301,7 +301,7 @@ D09先后端服务与HTTP，无匿名模型调用路由，无新增账户/System
 | scope对应 `/model-credentials` create/update/delete | 仅D04 Secret正式Human命令，PurposeModel，独立receipt；敏感正文不log，不提供明文GET |
 | `/projects/{id}/model-usage`、`/model-usage/summary` | 当前Owner；§8过滤/游标/空值/安全时间统计，admin无他人访问豁免 |
 
-具体path parser复用D08已验路径解析，`{id}`表示内部稳定ProjectID接点，不绕过本人username/Project路由校验；最终OpenAPI不同时造两套不一致项目地址。未绑定真实provider时能力端口明确503，不注册匿名fallback。D22 Stream是内部受控Go口；D25/D28负责以后向浏览器的RuntimeEvent投影，不在D09造第二条WS频道。
+Project 地址沿 D08 正式分工：名称入口使用 `GET /api/v1/projects/resolve?username&project_name`，业务路由中的 `{id}` 为稳定 ProjectID；普通 ID API 不依赖 `CurrentUserRoutes`，不携带原名称或新增路径 fence。名称 resolve 与后续 ID 读各自完成正式当前 Session、Owner 和项目状态授权，前次解析不代替后续授权；具体解析复用 D08，不新增另一套 username 路径体系。未绑定真实provider时能力端口明确503，不注册匿名fallback。D22 Stream是内部受控Go口；D25/D28负责以后向浏览器的RuntimeEvent投影，不在D09造第二条WS频道。
 
 ## 12. 验收及命令
 
