@@ -1,0 +1,118 @@
+# D27：System 运行信息只读页面
+
+修订：rev2。状态：规格已独立 STATIC PASS 并经主线程采纳；产品未开工、未验收，唯一作者、实施和真实资源窗口另授。正式路径 `docs/development/work-items/d27-system-runtime-information-ui.md`，不重复已有 HTTP 卡。
+
+固定完整产品/源码输入 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1`：Runtime HTTP十四路径结果已在 `9b074f809df4603923faa68d963cb30a5fe4d7eb` 独立接受，Audit UI三十六路径结果已在 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1` 独立接受；均经主线程提交推送。现从这个固定Git读取实际签名、路由、菜单、测试与HTTP契约，不再消费待验阶段副本或活动归档。Runtime HTTP技术 SHA `aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab` 保持。
+
+受审 private rev2全文 SHA `f3d22a8d416c60410f00c28745b985196c72ccb31b10599cbc58a70b29bebe5e`；下列技术§1–7逐字保持，SHA `85b3d003c8f257e12fa29e0becd2f23b1f77ea4f64efcc521179567c50f27400`。独立审查原件 `/workspace/scratch/agenteam-runtime-ui-spec-independent-qzs4vwza/review.md`，SHA `ec63c9b2521974faec1244d9b0350f342bdb0afa5acdb035660b7f0363090f07`，结论为完整技术正文有界 STATIC PASS，无必需修订。正文候选阶段的待审时态保留为受审输入原文，当前规格接受状态以本页首为准；不据此宣称产品或动态验收通过。
+
+## 1. 完整结果与边界
+
+管理员在系统设置中读取 Central 已记录的运行快照，查看版本未知、PostgreSQL/pgvector 历史成功版本和时间、MinIO 支撑的 Object Storage 聚合观测及非 ready 原因，并可显式重新读取或取消当前读取。按[系统设置布局](../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置)、[运行信息 HTTP 卡](d28-system-runtime-information-http.md)及[Audit UI 卡](d27-system-audit-ui.md)落实既定需求；沿[设计](../../../.agents/skills/agenteam-design/SKILL.md)、[Vue](../../../.agents/skills/agenteam-vue-development/SKILL.md)与[验证](../../../.agents/skills/agenteam-verification/SKILL.md)技能。这里只定义页面结果，不复制后端缓存、事务或组件算法。
+
+GET 仅观察现有缓存，不触发健康探测或修复。没有写口、连接测试、自动轮询、可编辑部署配置、Secret 回显、版本构建绑定、Runtime/Runner/Project 状态扩展或 ready 成功分支。原 Object join、OpenAI tools、SPA publication 停止任务不恢复；Summary 仍待定。本页接受不代表完整 D27/D28、部署或那些未绑定能力完成。当前未发现新增产品待决；两个上游完整接受已绑定，实际接口已按上述固定Git复核，本卡仍待独立规格审查和实施授权。
+
+## 2. 导航与可见行为
+
+唯一新子路由 `/system/runtime-information`，沿父 `/system` 的认证、protected、systemAdmin metadata；在稳定 key `platform-configuration` 的“出站规则”之后增加“运行信息”。不生成尚未实现的检索配置/项目默认值入口。实际菜单由九叶变十叶，仍四组；默认用户页、个人三组、审计独立组和原各叶子顺序不变。精确 return 白名单只追加这个字符串，由13变14；query/hash/尾斜线/额外子路径/数组仍回 `/`。页面状态不写 URL、路由 state、localStorage 或 SessionStorage。
+
+页面为标题、简短缓存说明、观察时刻、四个有语义标题的只读信息区及“重新读取运行信息”/读取中的“取消读取”。Central 显示“未知：尚未记录构建版本”；数据库把 PostgreSQL/pgvector 标为“最近成功检查记录的版本”，同时显示检查完成时间与 root 接收时间；Object 区标为“对象存储（MinIO）聚合观测”，显示最近成功接收时间及“未提供版本和逐项诊断”；readiness 单独显示“尚未就绪”和闭集原因，不能从上面两项自行推导原因。
+
+available 表示服务端最近样本可用；unavailable 表示最近聚合检查未能确认可用；stale 表示服务端判定样本陈旧。失败时仍存在的 last_success 明确是历史成功信息，不能称现在版本/检查再次成功；数据库聚合失败不改写为 pgvector 故障或 MinIO 故障。DEPENDENCY_UNAVAILABLE 的文案保留“至少一项基础依赖不可用或样本陈旧”的范围，不能定位到未给出的组件；DEPENDENCY_UNBOUND 表示仍有必需运行能力未绑定。合法200中的 unknown/stale/unavailable/ready=false 正常展示，HTTP/DTO读取失败则显示读取错误和显式重读，不能伪造一份 unknown 快照。
+
+四个时间按完整 canonical UTC 微秒字符串展示并标明含义，保留服务端精度；不按客户端时钟更新状态、推算倒计时、比较先后或给旧样本续命。版本为文本插值，保留合法空格并可换行，不使用 HTML/原 JSON dump。沿现有 token、UiState/UiButton/SettingsShell/Drawer，窄屏单列、长版本局部换行，无整页横向溢出；状态有文字而非仅颜色。没有业务 Dialog 或放弃修改确认。挂载及取消后的焦点只落当前存活实例的本地标题/原合法按钮，检查身份、代次和 connected/disabled；旧实例、卸载或身份失效不抢焦点。
+
+## 3. 唯一 GET 与闭合解析
+
+新增 `SystemRuntimeInformationAPI.get(signal: AbortSignal): Promise<SystemRuntimeInformation>` / `createSystemRuntimeInformationAPI(fetcher?)`。固定 `getSystemRuntimeInformation = GET /api/v1/system/runtime-information`、唯一成功200。transport 的该 endpoint 仅接受 `{signal}`，逐键拒绝 body/query/target/cursor/身份/CSRF/key等选项，发送前拒绝非法输入；不向调用者暴露 URL、headers、response-budget 参数。保持同源 Cookie、no-store、redirect:error、原 MIME/status/Problem 校验。
+
+成功 JSON 的实际完整 UTF-8 流专用上限 **16384B**，只窄改这个 endpoint 的成功分支；Problem 和普通旧口继续600000B，Audit成功1MiB、Provider列表成功2MiB保持。完整 EOF、严格 UTF-8/JSON 与全字段验证之前零快照发布；不信 Content-Length、不以首块/前缀成功，超界/坏MIME/异常/取消均等待实际 reader.cancel、read终局、releaseLock和 response.body.cancel 尾部。读错或取消不保留半份 DTO；不改公共 owner 30s 可见预算，也不把后端3s改为浏览器并发超时队列。
+
+所有对象恰含下列 required 字段，无额外键/默认值/隐式 null/字符串转布尔；完整深层验证后一次发布不可变值：
+
+| 对象 | 解析要求 |
+| --- | --- |
+| 顶层 | 恰 `observed_at,central,database,object_storage,readiness`。 |
+| central | 恰 `version:null,safe_reason:"build_version_not_recorded"`；非null版本/其他原因非法，本卡没有已知版本分支。 |
+| database | 恰 `status,safe_reason,last_success`；状态 available/unavailable/stale 分别只能配 null/check_unavailable/sample_stale。 |
+| database.last_success | 恰 `checked_at,received_at,postgresql_version,pgvector_version`；时间非null，两个版本各1–256B可打印 ASCII U+0020–U+007E，不 trim/截断/替换空格。 |
+| object_storage | 恰 `backend:"minio",assessment:"object_storage_aggregate",status,safe_reason,last_success_received_at,details:"not_reported"`；状态/reason配对同数据库，不增加 MinIO server version、坐标或失败 detail。 |
+| readiness | 恰 `ready:false,safe_reason`，原因仅 DEPENDENCY_UNAVAILABLE/DEPENDENCY_UNBOUND。若 database 或 object_storage 非available，原因必须 `DEPENDENCY_UNAVAILABLE`；两者均available仍可能因其他基础项为 `DEPENDENCY_UNAVAILABLE`，不能强制 `DEPENDENCY_UNBOUND`。 |
+
+四个时间复用已公开 `parseSystemInstant` 的27字符、完整公历、六位微秒 UTC 校验，并在本新解析器额外拒绝 Go 零时间 `0001-01-01T00:00:00.000000Z`；不修改旧 helper 的合法集，不添加 wall-clock 排序或年龄判定。未知enum、配对矛盾、缺失历史样本、额外敏感字段、ready=true、错误版本字符或非法时间使整份失败。共用 Problem 的 COMMIT_UNKNOWN/lookup hint 只产生本页读取错误；没有本口 lookup/receipt/命令，之后显式 GET 是新观察。
+
+## 4. 当前身份与实际读取所有权
+
+固定 `createSessionController` 的第1–11项依次为 `api,systemAPI,invitationAPI,providerAPI,modelAPI,selectionAPI,accountSecurityAPI,smtpAPI,smtpDeliveryAPI,outboundAPI,auditAPI`；本卡只在其后追加默认工厂的可选第12项 `runtimeInformationAPI`，保留原参数次序/调用兼容。新增唯一 kind `runtime-information-read`、独立 revision 与 `auth.system.runtimeInformation.{get,abandon}`；`runAuthorized` 显式选择本域 revision，不落入 personal/provider 等默认分支。`get()`只从当前 `personalContext` 捕获身份，通过原系统管理员入口，整个传输/解析/取消共享唯一 Cookie owner；不建立第二队列或绕过 state.busy。
+
+本域 abandon 同步递增本域代次、只取消本域 owner，不影响其他11个 API 域的请求、私有材料、历史 intent 或确认 Promise；反向旧域 abandon 也不能取消本域。本域清理接入原 `clearIdentity`、`publish` 的换身份/非admin分支及当前系统403拒绝；App卸载中原各controller的 `dispose()` 与 `auth.leave()` 的全局清理及次序保持，不新增 `auth.dispose` 或App持久页面controller。取消/可见30s结束不代表实际I/O结束，owner仅在原 actual.finally 释放，期间所有域的新 Cookie 请求仍拒绝/等待其各自已定入口，不偷发后台 Session/健康读。
+
+响应仅当前 user/session/epoch、op代次、页面实例与管理员资格均合法时发布。合法 Problem 的401+(UNAUTHENTICATED|SESSION_REVOKED)沿同身份/op generation安全清理，即便本页已放弃也不得让当前已失效Session继续获权；403+FORBIDDEN还须 current()，清系统内容和当前权限。本新 kind 的403清理同 Audit 要求 `kind==='problem'`；数字状态、错配/未知code/CSRF_FAILED均不能推断 GET 身份失效。旧身份/旧owner迟到结果不得清新身份、重新授权或发布旧观察；不扩大旧域错误规则。
+
+## 5. 页面期 controller 与恢复
+
+新增 `useSystemRuntimeInformation(auth=useSession())`，只持有本实例的观察、phase/message和代次，不持久化在 App。可见阶段限 waiting/loading/ready/error/forbidden/inactive，无“空快照成功”。合格新实例默认读取一次；若旧实际 owner 未收尾，处于 waiting，等其实际释放且身份/实例仍合格才启动一次。取消 waiting 同步撤销首次资格且不碰旧域 owner；开始读取后取消、失败或离页均消耗本实例首次资格，busy转false不得自动重读。
+
+开始显式读取时清掉旧观察，loading不展示旧值为新成功；失败/取消同步成为可明确重读的error，actual尾部未结束时按钮仍禁新请求，不能留下无活读取的loading。身份变更/非admin/system.denied/checking使本实例退休并清值，不能靠后来的同Session重获资格。`onBeforeRouteLeave`先停本页读取/资格再允许导航，无写确认；若后置guard拒绝导航，原页仍可显式重读。仅实际卸载dispose，禁止旧 finally 将已退休页改回ready或启动后继读取。
+
+同身份 checking 卸载也丢弃旧观察；恢复后创建新controller，重新读取一份新快照，不能声称跨checking保持页态。沿固定 App 的真实 `refreshVisible`：busy时pageshow直接return，不人为强造“读取中pageshow必进入checking”。分别验①owner空闲时pageshow→Session503→同Session恢复→新页默认一次；②新实例挂载时旧读取actual tail仍扣留→等待→释放后一次；③同实例cancel后tail释放不自动读。上述 `refreshVisible`、`RouterView v-if="state.phase === 'authenticated'"` 与Audit页面期controller接缝已在固定Git实核；不在本卡改App或给新页增加全局导航协调器。
+
+## 6. 唯一候选范围与固定接缝
+
+以下16核心路径加19已核旧导航路径（10 pure、9 browser）共35条，是当前确定候选，均不构成实施授权。文档#16最后完成。新API/helper不要求修改 system-account.ts 或 Audit实现；后端、App、共享UI、全局配置/锁/迁移/部署构建和旧fixture均只读。
+
+| # | 精确候选路径 | 限定用途 |
+| --- | --- | --- |
+| 1 | `web/src/api/client.ts` | 固定GET/严格options/成功16KiB，旧分类和预算保持。 |
+| 2 | `web/src/api/system-runtime-information.ts`（新） | 唯一API、闭合DTO/跨字段解析。 |
+| 3 | `web/src/composables/useSession.ts` | 第12API、本域owner/revision/当前权限接入。 |
+| 4 | `web/src/composables/useSystemRuntimeInformation.ts`（新） | 页面期只读状态及取消恢复。 |
+| 5 | `web/src/router/index.ts` | 唯一受保护子路由。 |
+| 6 | `web/src/router/auth.ts` | 仅追加第14精确return，不加全局导航协调器。 |
+| 7 | `web/src/views/system/SystemSettingsView.vue` | 平台配置末尾第十叶，四组保持。 |
+| 8 | `web/src/views/system/SystemRuntimeInformationView.vue`（新） | 缓存事实只读呈现、手动重读/取消及本地焦点。 |
+| 9 | `web/src/tests/system-runtime-information-client.spec.ts`（新） | wire/严格DTO/完整EOF与取消尾部。 |
+| 10 | `web/src/tests/system-runtime-information-state.spec.ts`（新） | 身份、实际owner、取消终态/首次资格及跨域。 |
+| 11 | `web/src/tests/system-runtime-information.spec.ts`（新） | 真实App/router工厂、页面状态/导航/焦点。 |
+| 12 | `tests/account/system_runtime_information_web_test.go`（新） | 两个有界正式root/browser风险顶层。 |
+| 13 | `tests/account/system_runtime_information_web_fixture_test.go`（新） | 任务自有root/生产dist/精确故障边界与收尾。 |
+| 14 | `tests/account-captcha-web/system-runtime-information.config.js`（新） | 本组精确browser入口和原预算。 |
+| 15 | `tests/account-captcha-web/e2e/system-runtime-information.spec.ts`（新） | 两组真实用户行为及布局。 |
+| 16 | `docs/development/frontend/README.md` | 全部独立接受后最后局部说明限制。 |
+| 17 | `web/src/tests/system-user-directory.spec.ts` | 完整菜单数组追加运行信息。 |
+| 18 | `web/src/tests/system-invitations.spec.ts` | 同上，原四组及确认断言保持。 |
+| 19 | `web/src/tests/system-providers.spec.ts` | 同上，仅全局九→十文字/数量适配。 |
+| 20 | `web/src/tests/system-models.spec.ts` | 同上，原Model断言保持。 |
+| 21 | `web/src/tests/system-model-selection.spec.ts` | 同上，取消读/严格保存断言保持。 |
+| 22 | `web/src/tests/system-account-security.spec.ts` | 同上，原十号return含义/焦点保持。 |
+| 23 | `web/src/tests/system-smtp-settings.spec.ts` | 同上，不改变SMTP自身return/操作断言。 |
+| 24 | `web/src/tests/system-outbound-policy.spec.ts` | 同上，原十二号return及未知写保持。 |
+| 25 | `web/src/tests/system-audit.spec.ts` | 菜单追加；完整return数组13→14；Audit行为不改。 |
+| 26 | `web/src/tests/personal-settings.spec.ts` | 新return精确正例及query/hash/斜线/子路径/数组负例。 |
+| 27 | `tests/account-captcha-web/e2e/system-invitations.spec.ts` | 冻结1528全局link数9→10。 |
+| 28 | `tests/account-captcha-web/e2e/system-providers.spec.ts` | 冻结1192全局link数9→10。 |
+| 29 | `tests/account-captcha-web/e2e/system-models.spec.ts` | 冻结1923/1991两处9→10。 |
+| 30 | `tests/account-captcha-web/e2e/system-model-selection.spec.ts` | 冻结1922/2081两处9→10。 |
+| 31 | `tests/account-captcha-web/e2e/system-account-security.spec.ts` | 冻结1112/1189两处9→10。 |
+| 32 | `tests/account-captcha-web/e2e/system-smtp-settings.spec.ts` | 冻结1311/1491两处9→10及相应全局数量标题。 |
+| 33 | `tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts` | 冻结1424/1555两处9→10。 |
+| 34 | `tests/account-captcha-web/e2e/system-outbound-policy.spec.ts` | 冻结1358/1461两处9→10及全局数量标题。 |
+| 35 | `tests/account-captcha-web/e2e/system-audit.spec.ts` | 固定1486/1579两处全局link数9→10，1488–1502完整href数组末尾追加运行信息；仅同步全局叶数标题，Audit自身 `/system/audit` return、四组与原生命周期断言保持。 |
+
+旧导航改动不削弱active/aria、Tab困陷、Escape/遮罩恢复、确认/身份/写结果及原取消断言；四组不改成五组。固定旧浏览器共16处link数量已定位（原8文件14处、Audit新纳入文件2处），Audit另有一份完整href数组；不存在必要固定数量的旧测试不机械加入。Audit browser的 `nine_leaves` / `thirteenth_return` 与旧Go要求键作为已有证据协议名保持，本轮新增的数量硬断言明确是10，键名不作为当前全局数量证明；Audit自己仍是第13个已加入的return目标，不将其路径或旧协议键改成新页。实际Git/输入SHA、第12签名与kind分类、十叶四组/十四return及下面两个精确旧selector均已实核。新fixture沿已接受的正式root闭包模式，不修改旧fixture；若实施中发现新路径或语义差异，先交主线程修订。
+
+## 7. 最小验收与交接
+
+| 组 | 必须证明 / 证据边界 |
+| --- | --- |
+| 纯API | 固定GET零query/body/key/CSRF；每层缺键/额外键/null/enum及跨字段矛盾整份拒绝；四时间完整公历/非零/年0000/六位微秒，合法倒序仍接收；ASCII版本1/256与257/非ASCII/控制字符，`<>&`只作文字。合法最大转义、16384B完整JSON含空白边界/16385B拒绝、坏UTF8/截断/非200/MIME/重定向/Problem错配；EOF前零发布，read与cancel的独立actual屏障，旧三类response预算不变。 |
+| 纯状态与App | 真实工厂+原生受控stream；11旧API域与新域双向busy/abandon屏障，至少含Audit未完读和SMTP/Outbound旧pending材料保持；一组代表actual tail扣留及所有域入口表驱动分类，不重跑全部旧业务矩阵。取消同步error、等待/开始后的首次资格差别、30s可见边界后仍busy、late401同身份规则与新身份零污染、当前403/错误配对、检查卸载/重挂上述三场景；同页读取无写确认、后置导航拒绝可显式恢复，本页及其恢复不发起业务写，旧pending准备与既有写行为另列。 |
+| 真实 ReadAndAuthority | `TestAccountSystemRuntimeInformationWebReadAndAuthority`：正式 `app.Run`+已接受 runtime HTTP/cache源，正式登录/普通邀请账户/Logout，生产dist经任务自有同源host读取；有效快照逐字段对照同次真实GET，未知版本和ready=false如实显示，手动重读仍只调用唯一GET。非admin页面零本口GET/零内容，直接正式HTTP拒绝与页面门禁分列；正式撤销后不再展示旧快照。精确GET的一次503/截断只验证读错零快照，不伪造200或通过SQL修改健康/Session/role。后端同T/零probe/SH-EX算法复用其最终接受证据，不在浏览器重复故障注入。 |
+| 真实 NavigationAndLifecycle | `TestAccountSystemRuntimeInformationWebNavigationAndLifecycle`：十叶四组/默认用户/直达和return、页内取消或离页时真实stream/代理尾部收回、旧结果零呈现；owner空闲pageshow→受限Session503→同Session恢复新GET一次，读取busy时pageshow原样不强造checking。任务自有精确GET代理hold/截断/失败仅测试控制，原生产API/auth链保留；无Session DTO/版本原件/凭据日志。浅/深色×390/768/1024/1440布局无横溢，窄Drawer键盘/Escape/遮罩恢复原强断言，无业务modal。 |
+| 旧风险回归 | 受影响10个pure导航文件按原断言运行；9个旧browser只精确菜单增量并做必要compile/发现。真实旧代表精确为已接受的 `TestAccountSystemAuditWebNavigationAndLayouts` 与 `TestAccountSystemOutboundPolicyWebNavigationAndLayouts`，覆盖紧邻只读生命周期和旧写确认/Drawer；不因数量改动重跑每域全部CRUD/SMTP发送。缺陷证据需要扩大时由主线程另定。 |
+
+真实浏览器fixture沿既有 `system_outbound_policy_web_fixture_test.go` 的正式root+同源生产dist接缝，在本新fixture持有自己的PG/MinIO、HTTP和浏览器资源；不修改旧fixture、不引生产SPA hosting或额外SMTP发送。成功内容必须来自正式 runtime source，纯合成stale/unavailable/矛盾DTO只证明客户端解析/呈现，不冒充真实停库/MinIO故障。页面请求观察按精确method/path计数，不读原始Session/Secret响应或静默调用diagnostics/readyz作补读；无全域日志/网络录制。
+
+受控场景45s、新真实场景2m、Go原包 `-race -count=1 -timeout=6m`，不靠增加预算救测试；离线check/build仅在实施另授后执行。独立验收按API/owner与真实root/browser风险选代表，不能用作者自测或规格静审替代。所有工具/依赖/源码/dist固定输入，原失败保留；真实资源另授唯一窗口，nonce/exact IDs、PID/starttime/adopted实际wait、server/client/body/callback关停及前后双扫后归还。README最后、Git/永久证据归档由主线程安排。
+
+本稿仅做文档自查与固定Git只读接缝复核，没有运行产品/测试/构建/监听器或资源。两个上游产品已完整接受，本次完成前置重绑定；仍待本卡独立STATIC、主线程采纳及实施授权，不存在由本稿自动开始的后续动作。
