@@ -1,0 +1,114 @@
+{
+  "status": "PREPARATION PASS; no test bodies/resources",
+  "runs": [
+    {
+      "name": "format01",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/format01/result.json",
+        "sha256": "1e25f5a8dd01546ee6ab51defca75a6eaac2481347c8efd1b6d7e0872f2bf794"
+      },
+      "elapsed": 0.3595260609945399,
+      "actual_wait": true,
+      "owned_double_empty": true,
+      "inputs_match": true
+    },
+    {
+      "name": "graph01",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/graph01/result.json",
+        "sha256": "a8f97cfeb6a4d082ad2116a946315658724f63442f11f29c2891ce3d6bcb22f2"
+      },
+      "elapsed": 0.6559436099996674,
+      "actual_wait": true,
+      "owned_double_empty": true,
+      "inputs_match": true
+    },
+    {
+      "name": "compile-native01",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/compile-native01/result.json",
+        "sha256": "2faf4066b58a0a27b63bdbf9fa9c18b7a477538be40d37669a9fd0b0bbe916f2"
+      },
+      "elapsed": 5.53379904400208,
+      "actual_wait": true,
+      "owned_double_empty": true,
+      "inputs_match": true
+    },
+    {
+      "name": "compile-pg01",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/compile-pg01/result.json",
+        "sha256": "4694202b7a7f407682efac732743db804dd5339ddb4bdec3c71e21125dc5f2ae"
+      },
+      "elapsed": 7.172234411998943,
+      "actual_wait": true,
+      "owned_double_empty": true,
+      "inputs_match": true
+    },
+    {
+      "name": "compile-native02",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/compile-native02/result.json",
+        "sha256": "1c8b5c49eff09c5e3812b61b094bb93965b3973c4b8f3432971fde00cf489f9c"
+      },
+      "elapsed": 5.935230816998228,
+      "actual_wait": true,
+      "owned_double_empty": true,
+      "inputs_match": true
+    },
+    {
+      "name": "list-native01",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/list-native01/result.json",
+        "sha256": "d9c3647d52359fb9d82c580d63851cdf8ca20b8bee15fcb0e9d1a0e0a13961b8"
+      },
+      "elapsed": 1.501019944997097,
+      "actual_wait": true,
+      "owned_double_empty": true,
+      "inputs_match": true
+    },
+    {
+      "name": "list-pg01",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/list-pg01/result.json",
+        "sha256": "4b535e90cfccf81835d2e8279c6187ed16ec6c72e24990661eb47c8758c5caca"
+      },
+      "elapsed": 1.5134228480019374,
+      "actual_wait": true,
+      "owned_double_empty": true,
+      "inputs_match": true
+    },
+    {
+      "name": "vet01",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/vet01/result.json",
+        "sha256": "daf547fb759a137738feca2ffdf615f15a2f9902656e308c0830df56a7bec083"
+      },
+      "elapsed": 1.4954042129975278,
+      "actual_wait": true,
+      "owned_double_empty": true,
+      "inputs_match": true
+    },
+    {
+      "name": "runtime-inputgate01",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/runtime-inputgate01/result.json",
+        "sha256": "758398c9973eceddc885aafc62d9f04e709f30d173071295a75861988ec9b5ea"
+      },
+      "elapsed": 1.3984724460024154,
+      "actual_wait": true,
+      "owned_double_empty": true,
+      "inputs_match": true
+    }
+  ],
+  "private_graph_postprocess_first_failure": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/graph-postprocess-first01.json",
+    "sha256": "1edf303d23ae8cd761aee92bb8e9ca6fd7e10759f4efea6a05858878559e7ed3",
+    "cause": "Incorrectly included dependency TestGoFiles metadata; corrected to effective variant GoFiles. Original retained; no Go execution failed."
+  },
+  "selected_graph": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/actual-graph02.json",
+    "sha256": "77a7e2fa890aaee1d3d38eb546638d3c263bed0c27861f05ed8af1e924e9f55f"
+  },
+  "gate_files": 3314
+}

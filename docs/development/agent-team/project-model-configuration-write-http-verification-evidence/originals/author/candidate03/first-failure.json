@@ -1,0 +1,24 @@
+{
+  "status": "native writeclose FAIL actualwait and double owned/allTCP empty; PG not started",
+  "originals": {
+    "raw.log": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/writeclose/raw.log",
+      "sha256": "5ba01f6a751ab96d9ee4741b758bcd5cfd6be49ee3774e1de6df42081ddf927a"
+    },
+    "command.json": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/writeclose/command.json",
+      "sha256": "8e86e3d8b39934fe93a67b21e8cd283ce39e16c78e7adc3c1afd582b1cf334af"
+    },
+    "ports.json": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/writeclose/ports.json",
+      "sha256": "983a12a1f0d59a81e4cc5ee879bd69950f4a5c839d1ce366726f6018e941c911"
+    },
+    "trace.raw": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/writeclose/trace.raw",
+      "sha256": "01283202afd19ee1af79a69ca6dc33d16227f907fa488738a4087b3ee9e6fbb8"
+    }
+  },
+  "observed": "HEAD Write0/Flush entered=exited=1/net_timeout=true then merged ReadAll-error-or-Problem-substring assertion failed",
+  "unknown": "original raw did not distinguish read error from legal first Problem header; cannot backfill branch or original bytes",
+  "repair": "private header observer; unique405/Write0/Flush1/timeout retained; safe read EOF/headercomplete/length/body0; other modes unchanged"
+}

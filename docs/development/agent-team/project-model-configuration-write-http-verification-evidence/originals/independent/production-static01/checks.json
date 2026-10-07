@@ -1,0 +1,73 @@
+{
+  "status": "PASS_STATIC_FINGERPRINT_AND_STRUCTURAL_CHECKS_ONLY",
+  "candidate_manifest_sha256": "36105d193d9f28d3522d9e5a1d02774829aed3228576822868b5c7cfdd1e6b07",
+  "candidate_patch_sha256": "033f5f6162bfd9892c86e40f646f75a7cc8c2222b7df18973397a58456b330d3",
+  "four_snapshot_hashes_match": true,
+  "old_five_handoff_snapshot_hashes_match": true,
+  "old_operation_exact_value_bytes_unchanged": 10,
+  "old_schema_exact_value_bytes_unchanged": 12,
+  "new_operation_set_exact": [
+    [
+      "/api/v1/projects/{project_id}/model-commands/lookup",
+      "post"
+    ],
+    [
+      "/api/v1/projects/{project_id}/model-providers",
+      "post"
+    ],
+    [
+      "/api/v1/projects/{project_id}/model-providers/{provider_id}",
+      "delete"
+    ],
+    [
+      "/api/v1/projects/{project_id}/model-providers/{provider_id}",
+      "put"
+    ],
+    [
+      "/api/v1/projects/{project_id}/models",
+      "post"
+    ],
+    [
+      "/api/v1/projects/{project_id}/models/{model_id}",
+      "delete"
+    ],
+    [
+      "/api/v1/projects/{project_id}/models/{model_id}",
+      "put"
+    ]
+  ],
+  "new_schema_names": [
+    "ConfigurationCreateModel",
+    "ConfigurationCreateProvider",
+    "ConfigurationDeleteModel",
+    "ConfigurationDeleteProvider",
+    "ConfigurationLookup",
+    "ConfigurationLookupInput",
+    "ConfigurationReceipt",
+    "ConfigurationUpdateModel",
+    "ConfigurationUpdateProvider"
+  ],
+  "metadata_info_delta": {
+    "old": {
+      "title": "Project Model configuration and safe available chat read API",
+      "version": "1.0.0",
+      "description": "Five Owner GET/HEAD resources only. The new HTTP representation limit is 8 MiB; it does not bound prior accepted database/library allocations or process RSS. Legal oversized results produce zero success projection; no array/item truncation or automatic smaller-limit retry. Existing System routes are unchanged."
+    },
+    "new": {
+      "title": "Project Model configuration, commands and safe available chat API",
+      "version": "1.1.0",
+      "description": "Five accepted Owner GET/HEAD resources retain their two-second I/O and 8 MiB complete representation rules. Six configuration mutations and one explicit historical command lookup use the same current Project authority. Mutation publication/I/O budget is 30 seconds, lookup is two seconds; request JSON <=1 MiB and safe success output <=1 KiB. No Provider network invocation, credential material, new selector or Agent reference rewrite is provided."
+    }
+  },
+  "internal_refs_resolve": true,
+  "external_refs_add_only_existing_common_symbols": [
+    "./common.json#/components/schemas/IdempotencyKey",
+    "./common.json#/components/schemas/NonnegativeInt64String",
+    "./common.json#/components/schemas/Version"
+  ],
+  "all_local_common_refs_resolve": true,
+  "accepted_common_sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+  "io_helper_exact_after_private_name_substitution": true,
+  "credential_io_source_sha256": "af55eb294e131d779bc7cfc1fc892c522f07da86666e088b73af51ac4513a878",
+  "Go_or_tests_or_resources_executed": false
+}

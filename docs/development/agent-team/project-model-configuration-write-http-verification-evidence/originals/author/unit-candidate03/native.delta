@@ -1,0 +1,18 @@
+--- partial8/internal/central/model/http_project_configuration_native_test.go
++++ partial8-rev3/internal/central/model/http_project_configuration_native_test.go
+@@ -116,12 +116,13 @@
+ 				if !writer.timedOut.Load() {
+ 					t.Fatal("backpressure did not observe actual net timeout")
+ 				}
+-				if mode == "blocked_head_flush" && (writer.flushEntered.Load() == 0 || writer.flushExited.Load() != writer.flushEntered.Load()) {
++				if mode == "blocked_head_flush" && (writer.writeEntered.Load() != 0 || writer.writeExited.Load() != 0 || writer.writeAsked.Load() != 0 || writer.writeReturned.Load() != 0 || writer.flushEntered.Load() != 1 || writer.flushExited.Load() != 1) {
+ 					t.Fatal("HEAD actual Flush not retired")
+ 				}
+-				if mode == "blocked_get_write" && (writer.writeEntered.Load() == 0 || writer.writeExited.Load() != writer.writeEntered.Load()) {
++				if mode == "blocked_get_write" && (writer.writeEntered.Load() == 0 || writer.writeExited.Load() != writer.writeEntered.Load() || writer.writeAsked.Load() <= 0 || writer.writeReturned.Load() < 0 || writer.writeReturned.Load() > writer.writeAsked.Load()) {
+ 					t.Fatal("actual Write not retired")
+ 				}
++				t.Logf("actual_write_entered=%d actual_write_exited=%d actual_write_asked=%d actual_write_returned=%d actual_flush_entered=%d actual_flush_exited=%d net_timeout=%t", writer.writeEntered.Load(), writer.writeExited.Load(), writer.writeAsked.Load(), writer.writeReturned.Load(), writer.flushEntered.Load(), writer.flushExited.Load(), writer.timedOut.Load())
+ 				if e = conn.(*net.TCPConn).SetReadBuffer(4 << 20); e != nil {
+ 					t.Fatal(e)
+ 				}

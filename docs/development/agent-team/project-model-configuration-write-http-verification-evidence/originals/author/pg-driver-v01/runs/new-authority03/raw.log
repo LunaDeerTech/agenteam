@@ -1,0 +1,94 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.113.110.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=800c2896c7311a436916df19a395888e
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=c7ba5a835516bf3c374a19c6b15b2f9f
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.183s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+=== RUN   TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts
+=== RUN   TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/cross_project_system
+=== RUN   TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/rollback_secret
+=== RUN   TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/rollback_audit
+=== RUN   TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/rollback_event
+=== RUN   TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/rollback_preparation_lifecycle_change
+=== RUN   TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/terminal_project_gate_binding_rollback
+    project_configuration_write_http_authority_test.go:204: same_tx_prepared_provider_ref_typedAudit=true event_and_receipt_absent=true original_NewFact_gate_valid=true real_foreign_issuer_Forbidden=true full_snapshot_rollback=true
+=== RUN   TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/writer_poison
+=== RUN   TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/unbound_references_and_empty_replacement
+=== RUN   TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/secret_release_deletion_writer
+=== RUN   TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/six_history_archiving
+=== RUN   TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/six_history_archived
+=== NAME  TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts
+    project_configuration_write_http_authority_test.go:303: current Owner/Session/gate and original Read history; Model prepared checker retained; real Secret/Audit/Event/gate failures rolled back full private state; writer poison, missing adapters, reference release/delete serialized
+--- PASS: TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts (9.87s)
+    --- PASS: TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/cross_project_system (0.09s)
+    --- PASS: TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/rollback_secret (0.03s)
+    --- PASS: TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/rollback_audit (0.03s)
+    --- PASS: TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/rollback_event (0.04s)
+    --- PASS: TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/rollback_preparation_lifecycle_change (0.13s)
+    --- PASS: TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/terminal_project_gate_binding_rollback (0.03s)
+    --- PASS: TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/writer_poison (1.04s)
+    --- PASS: TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/unbound_references_and_empty_replacement (0.34s)
+    --- PASS: TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/secret_release_deletion_writer (1.17s)
+    --- PASS: TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/six_history_archiving (1.11s)
+    --- PASS: TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts/six_history_archived (1.07s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	10.909s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.009s [no tests to run]
+D03 fixture cleanup checked for nonce 0d0420ec71d64f1bb9892a93f1442bb2
+D04 outbound fixture cleanup checked for nonce c7ba5a835516bf3c374a19c6b15b2f9f
+D05 object fixture exact resource cleanup checked nonce=800c2896c7311a436916df19a395888e

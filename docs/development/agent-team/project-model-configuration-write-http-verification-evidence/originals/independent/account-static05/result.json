@@ -1,0 +1,39 @@
+{
+  "status": "PASS bounded STATIC candidate05 only #11; actual authority rerun not performed by verifier",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate05/manifest.json",
+    "sha256": "e36cbccbe33c1fc99876541133883c1d0ea4657d304616a19c418e89685dbc18"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate05/account-setup-baseline.delta",
+    "sha256": "61c9edfdff2eae0215b7ce01888971dacdad5efebcceec123461526c4734417d"
+  },
+  "previous_candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate04/manifest.json",
+    "sha256": "dc5c6eeb66167fb2773e7349c81c8fdf04b076f25e81d1e5a48815b709fcd98d"
+  },
+  "first_failure": {
+    "result": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-authority01/result.json",
+      "sha256": "e2c9eee3d3bf898a5a90f4fec699af589e811d1258d17c0073343459b8d3cc65"
+    },
+    "raw": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-authority01/raw.log",
+      "sha256": "b2942d0071945d9660acbd2e80068928a8f96af5e5ce3a6f90c71f0268a0c37a"
+    },
+    "limitation": "Original raw reports aggregate snapshot inequality only; no bucket/row difference was recorded. Static Account Login retain path explains baseline contamination, not retroactive dynamic row proof."
+  },
+  "checks": [
+    "14 frozen snapshots match manifest; only #11 differs from candidate04",
+    "Before/after formal Login+Logout: providers/models/commands/audits/events exact RawMessage equality",
+    "All consumer=model Secret reference complete rows, count and order must remain exact",
+    "New complete six-bucket baseline immediately precedes revoked-session command; full snapshot refusal checks retained",
+    "Outsider original full snapshot and #9 global Secret refs unchanged; no product/shared helper changes"
+  ],
+  "independence_limit": "Earlier STATIC review missed Account setup versus command baseline boundary; original reports and FAIL preserved. Private A had same issue found statically, never dynamically executed. Its authorized repair/version and offline rebinding remain separate.",
+  "author_offline": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate05/offline-result.json",
+    "sha256": "71b40fdf9017ae55781afa699ee1f6c5feacaa8108748dc7b4341a5450375d58"
+  },
+  "resources": "No verifier resources or test behavior executed for this static delta; no whole-machine zero claim."
+}

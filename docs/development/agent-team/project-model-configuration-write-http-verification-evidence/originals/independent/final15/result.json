@@ -1,0 +1,52 @@
+{
+  "status": "PASS_COMPLETE_BOUNDED_15_PATHS; 14 technical + final backend README",
+  "technical14": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-final14/result.json",
+    "sha256": "e1fd265669627297cdff0c4b456752179a2e397cbcfbec54ee933e491826a8fa"
+  },
+  "technical14_review": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-final14/review.md",
+    "sha256": "f6aeb79063759431936eca3a2733de62c5f35293dc5592e1c317ced70bbf9db6"
+  },
+  "final_manifest15": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/readme15/manifest15.json",
+    "sha256": "fbfb374487c0eea7b67df7dd5f9f3369f57463e4b87de76ae5860d195e5b0982"
+  },
+  "readme": {
+    "path": "/workspace/agenteam/docs/development/backend/README.md",
+    "sha256": "b41d4be58d8a8d0d79ec2d73c3caccf271c2f0382ef28ee566ffad51894f3b3f"
+  },
+  "readme_snapshot": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/readme15/README.md",
+    "sha256": "b41d4be58d8a8d0d79ec2d73c3caccf271c2f0382ef28ee566ffad51894f3b3f"
+  },
+  "readme_before": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/readme15/before.md",
+    "sha256": "b5b4444d61af796a9ecd5843b4de9cfd55981324e21ba1e6ef4b0c991bac0e5e"
+  },
+  "readme_delta": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/readme15/readme.delta",
+    "sha256": "5107b54d363e974bc9a803edbed5e5b1490f4b6aa3b182e3272dab5ad631c85d"
+  },
+  "scope": {
+    "paths": 15,
+    "technical_paths": 14,
+    "README_paths": 1,
+    "all_worktree_and_frozen_snapshot_hashes_match": true,
+    "technical14_drift": false
+  },
+  "README_checks": [
+    "Exact before\u2192after unified diff matches frozen readme.delta; changes restricted to capability phrase, stale binding statements and one local section",
+    "Six Project Provider/Model writes plus passive found/receipt lookup agree with7 schema operations and existing5GETHEAD composition",
+    "1MiB strict typed input/zero Service,1KiB bounded output, original error priority and new private damaged write Unknown vs lookup NotStarted stated accurately",
+    "Original Model current Read\u2192history\u2192new Mutate, original-context private confirmation, public CommandEX+User/Project/referenceShared match accepted library",
+    "30s write/2s lookup budgets and real I/O/Close/callback joins, prior read2s/8MiB limit retained; no promise every handler returns by deadline",
+    "Native and PG example selectors exist in frozen test sources; native enable/schema interpreter env names and fixture script usage statically match; no commands executed for README",
+    "58 relative links exist; added lines whitespace clean, code fences balanced; formal spec/OpenAPI links resolve",
+    "Actual evidence counts/version combinations/22 original bodies/first failures/held-writer vs terminal-first/controlled read vs physical write/forced-innerjoin and nonowned daemon limits match final14",
+    "Unbound Agent/ProjectSummary reference adapters/UI/Resolution/Invocations/Provider calls/D24, shared Summary without Project override,three stops and ready503 unchanged"
+  ],
+  "test_execution": "None for README. Full technical STATIC/controlled/offline/native/A/B/body evidence reused from frozen final14.",
+  "limitations_inherited": "All final14 original failures, version combinations, private pre-execution corrections, tool transport interruption and44 nonowned/nonwaited shims remain. No whole-machine-zero or fullD09 acceptance.",
+  "state": "All own source/evidence writes complete; no active command or owned resource; no product source/README/Git modification by verifier; root owns commit/acceptance."
+}

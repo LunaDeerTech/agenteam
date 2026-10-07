@@ -1,0 +1,59 @@
+{
+  "status": "read-only minimal test SQL fix proposal; no product write/rerun",
+  "source_sha256": "177107d68957137b302ae2eb547ae1f4560c33285965571b59945a9b9457bd58",
+  "proposed_sha256": "126ae0c7b141caa82ebfce044fc9affd45179e3ccd31057ca63ae2cda312a380",
+  "patch_sha256": "8acea980469b02b908b38118b97484ebf1a4b18d512888005de9e22b48a79379",
+  "raw": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud01/raw.log",
+    "sha256": "edadb46a0f49bc040abb7cc0ec92924336fd68fe00be704a4cae7c81a3b64ee7"
+  },
+  "result": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud01/result.json",
+    "sha256": "7326a44b93c0f4851476e29d46b0267cd4147968f6a206f5da4bf831c02c1684"
+  },
+  "observed_failure": "top line121 reports private full state snapshot DATABASE_SQL_FAILED, first snapshot after provider.create; no exported body yet",
+  "static_cause": "snapshot models WHERE project_id references absent column; accepted models schema derives project via provider_id. Replace only this scalar aggregate with existing formal query join/filter; preserve to_jsonb(m) and row-id ordering",
+  "observation_limit": "generic raw did not expose underlying PG error/SQLSTATE; do not claim dynamic per-column event",
+  "scope": "only #9 one SQL line; no Model.references coverage expansion or shared helper/product change",
+  "nonowned_daemon": {
+    "historical_pid1_shim_z": 284,
+    "new_pid1_shim_z": 4,
+    "new_unowned": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1030278,
+        "ppid": 1,
+        "starttime": "4022288",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1030640,
+        "ppid": 1,
+        "starttime": "4022598",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1031005,
+        "ppid": 1,
+        "starttime": "4022791",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1031509,
+        "ppid": 1,
+        "starttime": "4022965",
+        "state": "Z"
+      }
+    ],
+    "waited": false
+  },
+  "actualwait": true,
+  "doublecleanup": true
+}

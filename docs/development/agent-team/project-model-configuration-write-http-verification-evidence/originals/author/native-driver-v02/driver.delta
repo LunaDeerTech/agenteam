@@ -1,0 +1,19 @@
+--- native-v01/driver.py
++++ native-v02/driver.py
+@@ -1,6 +1,6 @@
+ from pathlib import Path
+ import os,sys,json,hashlib,subprocess,time,signal,ctypes,re,shutil
+-BASE=Path('/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01')
++BASE=Path('/workspace/scratch/project-model-configuration-write-http-author/native-driver-v02')
+ REPO=Path('/workspace/agenteam/internal/central/model')
+ from trace_parser import parse_trace
+ FROZEN=json.loads((BASE/'execution-freeze.json').read_text())
+@@ -34,7 +34,7 @@
+ tmp=OUT/'tmp';tmp.mkdir()
+ env={'PATH':'/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin','TMPDIR':str(tmp),'GOTOOLCHAIN':'local','GOENV':'off','GOPROXY':'off','GOSUMDB':'off','GOPATH':'/workspace/go','GOMODCACHE':'/workspace/go/pkg/mod','GOCACHE':'/workspace/.cache/go-build','GOWORK':'off','CGO_ENABLED':'1','GOFLAGS':'-mod=readonly -p=1','GOMAXPROCS':'2'}
+ if MODE!='list':env['AGENTEAM_PROJECT_MODEL_CONFIGURATION_NATIVE']='1'
+-binary=['/workspace/scratch/project-model-configuration-write-http-author/model-native-race01.test']
++binary=['/workspace/scratch/project-model-configuration-write-http-author/model-native-race02.test']
+ if MODE=='list':binary+=['-test.list='+SELECTOR]
+ else:binary+=['-test.count=1','-test.parallel=1','-test.timeout=40s','-test.run='+SELECTOR,'-test.v']
+ command=['/usr/bin/strace','-D','-f','-ttt','-yy','-e','trace=socket,bind,listen,connect,accept,accept4,getsockname,getpeername,shutdown,close','-o',str(OUT/'trace.raw')]+binary

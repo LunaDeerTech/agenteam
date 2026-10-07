@@ -1,0 +1,11 @@
+--- candidate03/tests/model/project_configuration_write_http_fixture_test.go
++++ proposed/tests/model/project_configuration_write_http_fixture_test.go
+@@ -123,7 +123,7 @@
+ 	// Reference metadata is included; encrypted material is deliberately absent.
+ 	e := v.raw.QueryRow(testContext(t), `SELECT jsonb_build_object(
+  'providers',COALESCE((SELECT jsonb_agg(to_jsonb(p) ORDER BY id) FROM agenteam_model.providers p WHERE project_id=$1),'[]'::jsonb),
+- 'models',COALESCE((SELECT jsonb_agg(to_jsonb(m) ORDER BY id) FROM agenteam_model.models m WHERE project_id=$1),'[]'::jsonb),
++ 'models',COALESCE((SELECT jsonb_agg(to_jsonb(m) ORDER BY m.id) FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='project' AND p.project_id=$1),'[]'::jsonb),
+  'commands',COALESCE((SELECT jsonb_agg(to_jsonb(c) ORDER BY command_identity) FROM agenteam_model.commands c WHERE project_id=$1),'[]'::jsonb),
+  'audits',COALESCE((SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM agenteam_audit.audit_records a WHERE project_id=$1 AND producer='model'),'[]'::jsonb),
+  'events',COALESCE((SELECT jsonb_agg(to_jsonb(e) ORDER BY id) FROM agenteam_outbox.events e WHERE project_id=$1 AND producer='model'),'[]'::jsonb),

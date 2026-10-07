@@ -1,0 +1,84 @@
+--- candidate02/internal/central/model/http_project_configuration_native_test.go
++++ candidate03/internal/central/model/http_project_configuration_native_test.go
+@@ -66,20 +66,34 @@
+ 		})
+ 	}
+ }
++
++// The HEAD error path may publish its first 405 header before Flush times out.
++// Count publication calls separately from the existing actual Write/Flush owner.
++type configurationNativeHeaderObserved struct {
++	*projectHTTPNativeObserved
++	headerCalls, headerStatus atomic.Int32
++}
++
++func (w *configurationNativeHeaderObserved) WriteHeader(status int) {
++	w.headerCalls.Add(1)
++	w.headerStatus.Store(int32(status))
++	w.projectHTTPNativeObserved.WriteHeader(status)
++}
++
+ func TestProjectModelConfigurationNativeWriteAndClose(t *testing.T) {
+ 	requireProjectConfigurationNative(t)
+ 	for _, mode := range []string{"short", "write_error", "flush_error", "close_error", "panic", "reset_error", "unsupported", "blocked_head_flush", "blocked_get_write"} {
+ 		t.Run(mode, func(t *testing.T) {
+ 			h, b, s := configurationTestHandler(t)
+ 			var eof, closes atomic.Int32
+-			seen := make(chan *projectHTTPNativeObserved, 1)
++			seen := make(chan *configurationNativeHeaderObserved, 1)
+ 			blocked := strings.HasPrefix(mode, "blocked_")
+ 			address, results, _ := summaryNativeListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+ 				ctx, cancel := context.WithTimeout(r.Context(), time.Minute)
+ 				defer cancel()
+ 				r = r.WithContext(ctx)
+ 				r.Body = summaryNativeBody{r.Body, &eof, &closes, mode == "close_error"}
+-				writer := &projectHTTPNativeObserved{summaryNativeWriter: &summaryNativeWriter{ResponseWriter: w, mode: mode}}
++				writer := &configurationNativeHeaderObserved{projectHTTPNativeObserved: &projectHTTPNativeObserved{summaryNativeWriter: &summaryNativeWriter{ResponseWriter: w, mode: mode}}}
+ 				seen <- writer
+ 				if blocked {
+ 					w.Header().Set("X-Test-Backpressure", strings.Repeat("x", 4<<20))
+@@ -99,7 +113,7 @@
+ 			if e != nil {
+ 				t.Fatal(e)
+ 			}
+-			var writer *projectHTTPNativeObserved
++			var writer *configurationNativeHeaderObserved
+ 			select {
+ 			case writer = <-seen:
+ 			case <-time.After(time.Second):
+@@ -116,7 +130,7 @@
+ 				if !writer.timedOut.Load() {
+ 					t.Fatal("backpressure did not observe actual net timeout")
+ 				}
+-				if mode == "blocked_head_flush" && (writer.writeEntered.Load() != 0 || writer.writeExited.Load() != 0 || writer.writeAsked.Load() != 0 || writer.writeReturned.Load() != 0 || writer.flushEntered.Load() != 1 || writer.flushExited.Load() != 1) {
++				if mode == "blocked_head_flush" && (writer.headerCalls.Load() != 1 || writer.headerStatus.Load() != http.StatusMethodNotAllowed || writer.writeEntered.Load() != 0 || writer.writeExited.Load() != 0 || writer.writeAsked.Load() != 0 || writer.writeReturned.Load() != 0 || writer.flushEntered.Load() != 1 || writer.flushExited.Load() != 1) {
+ 					t.Fatal("HEAD actual Flush not retired")
+ 				}
+ 				if mode == "blocked_get_write" && (writer.writeEntered.Load() == 0 || writer.writeExited.Load() != writer.writeEntered.Load() || writer.writeAsked.Load() <= 0 || writer.writeReturned.Load() < 0 || writer.writeReturned.Load() > writer.writeAsked.Load()) {
+@@ -128,7 +142,25 @@
+ 				}
+ 			}
+ 			data, e := io.ReadAll(conn)
+-			if e != nil || strings.Contains(string(data), "application/problem+json") {
++			if mode == "blocked_head_flush" {
++				text := string(data)
++				separator := strings.Index(text, "\r\n\r\n")
++				bodyBytes := -1 // No complete header was received.
++				if separator >= 0 {
++					bodyBytes = len(data) - separator - 4
++				}
++				t.Logf("actual_header_calls=%d actual_header_status=%d read_error_present=%t received_bytes=%d header_complete=%t body_bytes=%d", writer.headerCalls.Load(), writer.headerStatus.Load(), e != nil, len(data), separator >= 0, bodyBytes)
++				if e != nil {
++					t.Fatal("HEAD client read did not retire at EOF")
++				}
++				const statusLine = "HTTP/1.1 405 Method Not Allowed\r\n"
++				if !strings.HasPrefix(text, statusLine) && !strings.HasPrefix(statusLine, text) {
++					t.Fatal("HEAD response was not the original 405 header")
++				}
++				if separator >= 0 && bodyBytes != 0 {
++					t.Fatal("HEAD published bytes after its header")
++				}
++			} else if e != nil || strings.Contains(string(data), "application/problem+json") {
+ 				t.Fatal("abort did not close or appended Problem")
+ 			}
+ 		})

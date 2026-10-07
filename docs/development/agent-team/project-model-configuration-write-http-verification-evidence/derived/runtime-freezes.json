@@ -1,0 +1,199 @@
+{
+  "derived_not_original": true,
+  "description": "Original metadata parsed; complete source hashes and omitted repeated-map fields bound per item.",
+  "items": [
+    {
+      "original": {
+        "source": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/execution-freeze.json",
+        "sha256": "ed3e6aad1c929db31c145e89322d4412065d58a5a572502cd6aff5999be0bad9",
+        "bytes": 612947
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "root_authorized": true,
+        "permitted_modes": [
+          "keepalive",
+          "slowbody",
+          "writeclose"
+        ],
+        "candidate": {
+          "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate02/manifest.json",
+          "sha256": "a9be2ef2bcd3e8f4397cf941517a825b948c45b1c6518b9ab9843c27e3f368dc"
+        },
+        "source_suffixes": [
+          ".go",
+          ".s",
+          ".S",
+          ".c",
+          ".h",
+          ".cc",
+          ".cpp",
+          ".cxx",
+          ".m",
+          ".mm",
+          ".f",
+          ".F",
+          ".for",
+          ".f90",
+          ".swig",
+          ".swigcxx",
+          ".syso"
+        ],
+        "budgets": {
+          "test": 40,
+          "execution": 45,
+          "owned_cleanup": 15,
+          "tcp_retirement": 75
+        },
+        "inherited_parser": {
+          "path": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/trace_parser.py",
+          "sha256": "e9ae7102034cb87c15bb9086a76130a879d0b0d1caca0cbb2b7e8d27a07c054a"
+        },
+        "root_authorization": "Explicit root message authorizes three serial native groups with candidate02 inheritance, fixed driver/parser/race binary; 40s test/45s execute/15s owned/75s TCP retirement; prior PASS+actualdirect/adoptedwait+two PID/allTCP empty+inputsame required; failure cleanup stops; no PG."
+      },
+      "omitted_fields": {
+        "files": {
+          "reason": "Repeated source/input/package map omitted",
+          "items": 2833,
+          "canonical_json_sha256": "27787b6c617ec8b54e46703f783dad0b37d5b9d6aeb8a64396e0533a97fa183f"
+        },
+        "package_file_sets": {
+          "reason": "Repeated source/input/package map omitted",
+          "items": 391,
+          "canonical_json_sha256": "7544487febc3950d646cf4407089c282774670a35d7c1d98d16230f3c437b32b"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v02/execution-freeze.json",
+        "sha256": "1d0bfe6c61da8198ad4d7b84088d7cbd0fcecab9e164c0f1f218b5ab3846d999",
+        "bytes": 614110
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "root_authorized": true,
+        "permitted_modes": [
+          "writeclose"
+        ],
+        "candidate": {
+          "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate03/manifest.json",
+          "sha256": "dd2663f288ce88ef4aca0f2c7fe4176d682f97e0d2580c4b473bd6c0c7473bdb"
+        },
+        "source_suffixes": [
+          ".go",
+          ".s",
+          ".S",
+          ".c",
+          ".h",
+          ".cc",
+          ".cpp",
+          ".cxx",
+          ".m",
+          ".mm",
+          ".f",
+          ".F",
+          ".for",
+          ".f90",
+          ".swig",
+          ".swigcxx",
+          ".syso"
+        ],
+        "budgets": {
+          "test": 40,
+          "execution": 45,
+          "owned_cleanup": 15,
+          "tcp_retirement": 75
+        },
+        "inherited_parser": {
+          "path": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/trace_parser.py",
+          "sha256": "e9ae7102034cb87c15bb9086a76130a879d0b0d1caca0cbb2b7e8d27a07c054a"
+        },
+        "inherits": {
+          "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/execution-freeze.json",
+          "sha256": "ed3e6aad1c929db31c145e89322d4412065d58a5a572502cd6aff5999be0bad9"
+        },
+        "scope": "PREPARED ONLY: writeclose affected rerun; prior keepalive and slowbody complete PASS reused; no PG, no changed budget/trace/cleanup/parser",
+        "authorization": "Root explicitly authorized one writeclose rerun after candidate03 test-only independent STATIC and affected racecompile/list PASS. fixed proposal82efdb6c/freezed2823082/driver290a0e97/binaryd1bebcae; original40s test/45s execution+15s owned+75s fullTCP retirement/fresh2GiB/currentPIDTCP/directadopted actualwait/doubleallTCPownedempty/inputsame. AnyFAIL actualcleanup stop no retry. NoPG; keepalive and slowbody originalPASS reused."
+      },
+      "omitted_fields": {
+        "files": {
+          "reason": "Repeated source/input/package map omitted",
+          "items": 2837,
+          "canonical_json_sha256": "5642f69dd0ffc6a5bee8ab1c5d62e5a8e9bd057ede54bb675384e978f9efdd06"
+        },
+        "package_file_sets": {
+          "reason": "Repeated source/input/package map omitted",
+          "items": 391,
+          "canonical_json_sha256": "7544487febc3950d646cf4407089c282774670a35d7c1d98d16230f3c437b32b"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native-driver-v01/execution-freeze.json",
+        "sha256": "f9ed533d0aa44131cab55d4049e75a033818043b750e6349ddaa5edfd40b9ab7",
+        "bytes": 616651
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "root_authorized": true,
+        "permitted_modes": [
+          "independent"
+        ],
+        "candidate": {
+          "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate06/manifest.json",
+          "sha256": "138e5263a8c7dce66670c7b01551de9074c64c780f975453a1bb249d488c4788"
+        },
+        "source_suffixes": [
+          ".go",
+          ".s",
+          ".S",
+          ".c",
+          ".h",
+          ".cc",
+          ".cpp",
+          ".cxx",
+          ".m",
+          ".mm",
+          ".f",
+          ".F",
+          ".for",
+          ".f90",
+          ".swig",
+          ".swigcxx",
+          ".syso"
+        ],
+        "budgets": {
+          "test": 40,
+          "execution": 45,
+          "owned_cleanup": 15,
+          "tcp_retirement": 75
+        },
+        "inherited_parser": {
+          "path": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/trace_parser.py",
+          "sha256": "e9ae7102034cb87c15bb9086a76130a879d0b0d1caca0cbb2b7e8d27a07c054a"
+        },
+        "proposed_modes": [
+          "independent"
+        ],
+        "scope": "PREPARED only; one mixed-method real TCP; no behavior/resource permission yet; inherited parser/actualwait and 40/45/15/75 budgets unchanged",
+        "candidate04_note": "metadata only; #9 integration fixture not consumed by native binary. Original native source/binary/driver unchanged.",
+        "candidate06_note": "Metadata only: #11 integration changes/private A do not affect native source/binary/driver. Existing native compile/list reused.",
+        "authorization": "Root explicit unique window transfer after author native and all9PG actual waits/seven-resource double cleanup; native→A→B conditional chain; no retry on failure."
+      },
+      "omitted_fields": {
+        "files": {
+          "reason": "Repeated source/input/package map omitted",
+          "items": 2848,
+          "canonical_json_sha256": "da1e33fb4b73da157a0a3f7206be956341a3da01b2daf640b2b48d54e249541b"
+        },
+        "package_file_sets": {
+          "reason": "Repeated source/input/package map omitted",
+          "items": 391,
+          "canonical_json_sha256": "7544487febc3950d646cf4407089c282774670a35d7c1d98d16230f3c437b32b"
+        }
+      }
+    }
+  ]
+}

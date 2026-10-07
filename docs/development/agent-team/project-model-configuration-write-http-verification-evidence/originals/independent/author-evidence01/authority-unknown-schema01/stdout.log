@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "runs": [
+    {
+      "run": "new-authority03",
+      "top": "TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts",
+      "subcases": 11,
+      "result_sha256": "229814105c51d3167280ce14799b4e28e5ae9c543e381fee2301a4a684bf22b7",
+      "seconds": 58.503,
+      "input_sha256": "df5b7d83e70bafe15483e0eb8a3708d8045e83c2d456851a38054d4eb8f0a7d3",
+      "owned_actual_wait_doublecleanup": true,
+      "owned_processes": 86,
+      "new_nonowned_shims_not_waited": 4
+    },
+    {
+      "run": "new-unknown01",
+      "top": "TestModelProjectConfigurationWriteHTTPUnknownAndLookup",
+      "subcases": 4,
+      "result_sha256": "bdda23af8f8a63165e48eea80ea4cbf16331bf52c5756eeedf00f7857a72e55b",
+      "seconds": 54.843,
+      "input_sha256": "df5b7d83e70bafe15483e0eb8a3708d8045e83c2d456851a38054d4eb8f0a7d3",
+      "owned_actual_wait_doublecleanup": true,
+      "owned_processes": 80,
+      "new_nonowned_shims_not_waited": 4
+    }
+  ],
+  "bodies": [
+    {
+      "name": "confirmed-write",
+      "schema": "ConfigurationReceipt",
+      "body_sha256": "7f6d7b519a4f6dbc6e677f2804f4b04ea29bfd964f255ac319628ff86a4d62dc",
+      "source_sha256": "5114272666e58a98cc6fff00f54cc0f339de7a5dd3a484aef340394d2255bf4d",
+      "bytes": 119,
+      "origin": "real targeted writer ACK loss; held writer released to actual terminal"
+    },
+    {
+      "name": "unknown-rollback",
+      "schema": "Problem",
+      "body_sha256": "ba676deee986a1afc737b326d22ad0152f12feec3b465fa021105c77e4d6c08c",
+      "source_sha256": "3693853addeae04527c05eb8c8ced51b323be9db5d0f52ce96957ebaca63aaba",
+      "bytes": 315,
+      "origin": "real targeted writer ACK loss; held writer released to actual terminal"
+    },
+    {
+      "name": "unknown-pending",
+      "schema": "Problem",
+      "body_sha256": "ae267f11e7ea74200d69806e2ffbdf18f0fd858535c14fdcc8eb591476949374",
+      "source_sha256": "da23554c9e32b65a81d7967e82bf38f800607154f47a2b3671ec8acffd87065a",
+      "bytes": 315,
+      "origin": "real targeted writer ACK loss; held writer released to actual terminal"
+    },
+    {
+      "name": "lookup-read-unknown",
+      "schema": "Problem",
+      "body_sha256": "c55158048fbbfe9b8df4dfca81fc3940f0b1daec68b714c395facb3d9a3c665f",
+      "source_sha256": "574c446b32e608830199aae07450eb686b34ba0a57ad14af7acab28ea294ecee",
+      "bytes": 315,
+      "origin": "controlled result after real read, not physical read Unknown"
+    }
+  ],
+  "independent_PG": false,
+  "limitations": [
+    "Writer proxy closes client before forwarding held COMMIT/ROLLBACK; real terminal C+Z later observed, not terminal-first.",
+    "lookup-read-unknown is a controlled terminal substitution after real read, separate from physical writer Unknown.",
+    "Original authority01/02 and CRUD01 failures and independent preliminary correction remain; no whole-product PASS or whole-machine zero."
+  ]
+}

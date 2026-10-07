@@ -1,0 +1,459 @@
+//go:build integration
+
+package model_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/binary"
+	"encoding/json"
+	"io"
+	"net"
+	"net/url"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+)
+
+type independentConfigurationStore struct {
+	*postgres.Store
+	target                            string
+	proxy                             *independentConfigurationACKProxy
+	mu                                sync.Mutex
+	writeContext, confirmationContext context.Context
+	original                          f.CommitResult
+	armed                             bool
+	targetCalls, lookupCalls          int
+	command                           f.LockKey
+}
+
+func (s *independentConfigurationStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
+	target := cause.Kind() == f.CommandsCause && cause.Details().Primary.Canonical() == s.target
+	s.mu.Lock()
+	if target {
+		s.targetCalls++
+		if s.armed {
+			s.confirmationContext = ctx
+		} else {
+			s.writeContext = ctx
+		}
+	}
+	s.mu.Unlock()
+	r := s.Store.WithinTx(ctx, cause, func(c context.Context, tx f.Tx) error {
+		if err := fn(c, tx); err != nil {
+			return err
+		}
+		if !target {
+			if cause.Kind() == f.RecoveryCause && cause.Details().Owner == "model.query" {
+				s.mu.Lock()
+				armed := s.armed
+				s.mu.Unlock()
+				if armed {
+					if err := s.Store.RequireHeldLocks(c, tx, []f.LockRequest{{Key: s.command, Mode: f.Exclusive}}); err != nil {
+						return err
+					}
+					s.mu.Lock()
+					s.lookupCalls++
+					s.mu.Unlock()
+				}
+			}
+			return nil
+		}
+		s.mu.Lock()
+		armed := s.armed
+		s.mu.Unlock()
+		if armed {
+			return nil
+		}
+		if err := s.Store.RequireHeldLocks(c, tx, []f.LockRequest{{Key: s.command, Mode: f.Exclusive}}); err != nil {
+			return err
+		}
+		x, err := s.Store.InTx(tx)
+		if err != nil {
+			return err
+		}
+		var pid int32
+		var final bool
+		err = x.QueryRow(c, `SELECT pg_backend_pid(),EXISTS(SELECT 1 FROM agenteam_model.commands c JOIN agenteam_model.providers p ON p.id=c.resource_id AND p.project_id=c.project_id WHERE c.command_identity=$1 AND c.phase='committed' AND c.safe_receipt IS NOT NULL AND EXISTS(SELECT 1 FROM agenteam_audit.audit_records a WHERE a.project_id=c.project_id AND a.resource_id=p.id AND a.producer='model' AND a.action='provider.create') AND EXISTS(SELECT 1 FROM agenteam_outbox.events e WHERE e.id=c.event_id AND e.project_id=c.project_id AND e.producer='model'))`, s.target).Scan(&pid, &final)
+		if err != nil {
+			return err
+		}
+		if !final {
+			return f.NewFault(f.InvalidState, f.NotStarted)
+		}
+		n := uint64(s.command.AdvisoryKey())
+		var count int
+		var owner int32
+		err = x.QueryRow(c, `SELECT count(*),COALESCE(min(pid),0) FROM pg_locks WHERE locktype='advisory' AND database=(SELECT oid FROM pg_database WHERE datname=current_database()) AND classid::bigint=$1 AND objid::bigint=$2 AND objsubid=1 AND granted AND mode='ExclusiveLock'`, int64(uint32(n>>32)), int64(uint32(n))).Scan(&count, &owner)
+		if err != nil {
+			return err
+		}
+		if count != 1 || owner != pid {
+			return f.NewFault(f.InvalidState, f.NotStarted)
+		}
+		s.mu.Lock()
+		s.armed = true
+		s.mu.Unlock()
+		s.proxy.target.Store(pid)
+		return nil
+	})
+	if target && r.State() == f.Unknown {
+		s.mu.Lock()
+		s.original = r
+		s.mu.Unlock()
+	}
+	return r // Original physical result, with its Cause/Attempt unchanged.
+}
+
+func independentConfigurationModelRefs(t *testing.T, v *configurationWriteFixture) []byte {
+	t.Helper()
+	var raw []byte
+	if err := v.raw.QueryRow(testContext(t), `SELECT COALESCE(jsonb_agg(to_jsonb(r) ORDER BY model_id,owner_kind,owner_id,role),'[]'::jsonb)::text FROM agenteam_model.references r`).Scan(&raw); err != nil {
+		t.Fatal("private Model index snapshot", err)
+	}
+	return raw
+}
+
+func TestIndependentConfigurationAuthorityAndTerminal(t *testing.T) {
+	configurationWriteTop(t)
+	v := newConfigurationWriteFixture(t)
+	t.Run("exact_model_index_refusal", func(t *testing.T) {
+		p := v.projectProvider(t, nil)
+		m := v.projectModel(t, p)
+		v.addReference(t, m.ID, "agent")
+		modelRefs, all := independentConfigurationModelRefs(t, v), v.snapshot(t)
+		v.command(t, v.ownerBrowser, "DELETE", v.base()+"models/"+m.ID.String(), "iv-index-refusal", projectUpdateJSON(t, map[string]any{"expected_version": "1", "replacement": nil})).problem(t, 503, f.DependencyUnbound)
+		if !bytes.Equal(modelRefs, independentConfigurationModelRefs(t, v)) {
+			t.Fatal("Model index changed despite missing canonical adapter")
+		}
+		v.sameSnapshot(t, all)
+	})
+	t.Run("terminal_first_original_context_confirmation", func(t *testing.T) {
+		proxy := newIndependentConfigurationACKProxy(t, net.JoinHostPort("127.0.0.1", v.db.Fixture.Port))
+		u, err := url.Parse(v.db.Fixture.URL(v.db.Name))
+		if err != nil {
+			t.Fatal("owned fixture URL")
+		}
+		u.Host = proxy.listener.Addr().String()
+		raw := openStore(t, v.db.Config(t, map[string]string{"URL": u.String(), "TLS_MODE": "disable"}))
+		key := "iv-terminal-first-model"
+		identity := configurationCommandIdentity(t, v.ownerBrowser, v.project.ID, "provider.create", key)
+		lock, _ := f.CommandLock(identity)
+		store := &independentConfigurationStore{Store: raw, target: identity.Canonical(), proxy: proxy, command: lock}
+		fixed := assembleProjectConfiguration(t, v.db, raw, store)
+		old := v.handler
+		v.installConfiguration(t, fixed.service)
+		defer func() { v.handler = old }()
+		body := projectUpdateJSON(t, map[string]any{"input": configurationProviderBody(nil)})
+		before := v.modelCounts(t)
+		response := v.command(t, v.ownerBrowser, "POST", v.base()+"model-providers", key, body)
+		select {
+		case <-proxy.ackDropped:
+		default:
+			t.Fatal("response preceded real same-backend COMMIT+idle ACK drop")
+		}
+		store.mu.Lock()
+		original, same, calls, lookups := store.original, store.writeContext == store.confirmationContext, store.targetCalls, store.lookupCalls
+		store.mu.Unlock()
+		if original.State() != f.Unknown || original.AttemptID().Validate() != nil || original.Cause().Details().Primary.Canonical() != identity.Canonical() || !same || calls != 2 || lookups != 0 || proxy.committedPID.Load() <= 0 {
+			t.Fatal("physical Unknown/private same-context confirmation/unique terminal lost")
+		}
+		receipt := configurationWriteReceipt(t, response, "provider.create")
+		after := v.modelCounts(t)
+		for _, i := range []int{0, 2, 3, 4} {
+			if after[i] != before[i]+1 {
+				t.Fatal("terminal facts are not exactly once")
+			}
+		}
+		if after[1] != before[1] || after[5] != before[5] {
+			t.Fatal("unrelated model/Secret refs changed")
+		}
+		configurationWriteSchema(t, "ConfigurationReceipt", response.body)
+		configurationWriteExport(t, "independent-confirmed", "POST", v.base()+"model-providers", response)
+		lookupBody := projectUpdateJSON(t, map[string]any{"command": "provider.create"})
+		observed := v.command(t, v.ownerBrowser, "POST", v.base()+"model-commands/lookup", key, lookupBody)
+		configurationLookupReceipt(t, observed, &receipt)
+		store.mu.Lock()
+		lookups = store.lookupCalls
+		store.mu.Unlock()
+		if lookups != 1 {
+			t.Fatal("public lookup did not use original Command EX transaction")
+		}
+		configurationWriteExport(t, "independent-lookup", "POST", v.base()+"model-commands/lookup", observed)
+		beforeIdentity := v.snapshot(t)
+		session := v.login(t, v.ownerBrowser.email)
+		if err := v.core.Logout(testContext(t), account.LogoutRequest{Actor: session.actor, Key: "iv-revoke-session"}); err != nil {
+			t.Fatal(err)
+		}
+		fresh := v.login(t, v.ownerBrowser.email)
+		stable := v.snapshot(t)
+		independentConfigurationIdentityUnchanged(t, beforeIdentity, stable)
+		v.command(t, session, "POST", v.base()+"model-commands/lookup", key, lookupBody).problem(t, 401, f.SessionRevoked)
+		v.sameSnapshot(t, stable)
+		if !bytes.Equal(v.command(t, fresh, "POST", v.base()+"model-providers", key, body).want(t, 200).body, response.body) {
+			t.Fatal("same User fresh Session historical replay changed")
+		}
+		v.sameSnapshot(t, stable)
+		t.Log("one HTTP write; original Store Unknown and unique backend actual C(COMMIT)+Z(I) before ACK drop; two target transactions (write+private confirmation), identical context, no implicit public query; explicit lookup CommandEX/current Session separate")
+	})
+}
+
+func TestIndependentConfigurationDefaultRootHistory(t *testing.T) {
+	configurationWriteTop(t)
+	v := newConfigurationWriteFixture(t)
+	root := startProjectUsageRoot(t, v.projectUsageHTTPFixture)
+	call := func(method, path, key string, body []byte) systemHTTPResponse {
+		return projectUpdateRootRequest(t, root, v.ownerBrowser, method, path, key, body)
+	}
+	secret := call("POST", v.collection(), "iv-root-secret", projectUpdateJSON(t, map[string]any{"value": "iv-root-private-material"})).want(t, 200).object(t)["credential_id"].(string)
+	providerBody := configurationProviderBody(secret)
+	pbody := projectUpdateJSON(t, map[string]any{"input": providerBody})
+	p := call("POST", v.base()+"model-providers", "iv-root-provider", pbody)
+	pr := configurationWriteReceipt(t, p, "provider.create")
+	m := call("POST", v.base()+"models", "iv-root-model", projectUpdateJSON(t, map[string]any{"provider_id": pr.ResourceID, "input": configurationModelBody()}))
+	mr := configurationWriteReceipt(t, m, "model.create")
+	var refs int
+	if err := v.raw.QueryRow(testContext(t), `SELECT count(*) FROM agenteam_secret.secret_references WHERE credential_id=$1 AND consumer='model' AND owner_id=$2`, secret, pr.ResourceID).Scan(&refs); err != nil || refs != 1 {
+		t.Fatal("root uses real Project credential reference")
+	}
+	for _, suffix := range []string{"model-providers", "model-providers/" + pr.ResourceID, "models", "models/" + mr.ResourceID, "available-chat-models"} {
+		g := call("GET", v.base()+suffix, "", nil).want(t, 200)
+		head := call("HEAD", v.base()+suffix, "", nil).want(t, 200)
+		if len(head.body) != 0 || head.headers.Get("Content-Length") != g.headers.Get("Content-Length") {
+			t.Fatal("root read/HEAD combination")
+		}
+	}
+	for _, tc := range []struct{ path, allow string }{{v.base() + "models", "GET, HEAD, POST"}, {v.base() + "model-providers/" + pr.ResourceID, "DELETE, GET, HEAD, PUT"}, {v.base() + "model-commands/lookup", "POST"}} {
+		r := call("OPTIONS", tc.path, "", nil)
+		r.problem(t, 405, f.MethodNotAllowed)
+		if r.headers.Get("Allow") != tc.allow {
+			t.Fatal("root shared method Allow")
+		}
+	}
+	providerBody["name"] = "iv root provider changed"
+	updated := call("PUT", v.base()+"model-providers/"+pr.ResourceID, "iv-root-provider-update", projectUpdateJSON(t, map[string]any{"expected_version": "1", "input": providerBody}))
+	if configurationWriteReceipt(t, updated, "provider.update").Version != 2 {
+		t.Fatal("root update version")
+	}
+	lookup := call("POST", v.base()+"model-commands/lookup", "iv-root-provider", projectUpdateJSON(t, map[string]any{"command": "provider.create"}))
+	configurationLookupReceipt(t, lookup, &pr)
+	configurationWriteExport(t, "independent-root-create", "POST", v.base()+"model-providers", p)
+	configurationWriteExport(t, "independent-root-historical-lookup", "POST", v.base()+"model-commands/lookup", lookup)
+	projectCredentialCanonical(t, v.projectCredentialFixture, `UPDATE agenteam_project.projects SET lifecycle='archived',archived_at=clock_timestamp(),version=version+1,updated_at=clock_timestamp() WHERE id=$1`, v.project.ID.String())
+	stable := v.snapshot(t)
+	if !bytes.Equal(call("POST", v.base()+"model-providers", "iv-root-provider", pbody).want(t, 200).body, p.body) {
+		t.Fatal("archived current Read historical replay")
+	}
+	call("POST", v.base()+"model-providers", "iv-root-provider-new", pbody).problem(t, 409, f.ProjectNotActive)
+	v.sameSnapshot(t, stable)
+	root.stop(t)
+	if !strings.Contains(root.logs.String(), `"outcome":"drained"`) {
+		t.Fatal("default root actual drain")
+	}
+	again := startProjectUsageRoot(t, v.projectUsageHTTPFixture)
+	observed := projectUpdateRootRequest(t, again, v.ownerBrowser, "POST", v.base()+"model-commands/lookup", "iv-root-provider", projectUpdateJSON(t, map[string]any{"command": "provider.create"}))
+	configurationLookupReceipt(t, observed, &pr)
+	again.stop(t)
+	for _, logs := range []string{root.logs.String(), again.logs.String()} {
+		for _, private := range []string{"iv-root-private-material", "iv-root-provider", v.ownerBrowser.cookie, v.ownerBrowser.csrf} {
+			if strings.Contains(logs, private) {
+				t.Fatal("private material/key in default root logs")
+			}
+		}
+	}
+	t.Log("default app.Run: formal credential->configuration->five reads, complete Allow, historical create lookup after update and archived replay through restart, current new mutation rejected; only normal drain claimed")
+}
+
+// Accepted independent credential terminal-first proxy, with full-write helper.
+type independentConfigurationACKProxy struct {
+	listener             net.Listener
+	upstream             string
+	mu                   sync.Mutex
+	closing              bool
+	connections          map[net.Conn]bool
+	wg                   sync.WaitGroup
+	target, committedPID atomic.Int32
+	ackDropped           chan struct{}
+}
+
+func newIndependentConfigurationACKProxy(t *testing.T, upstream string) *independentConfigurationACKProxy {
+	t.Helper()
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal("private listener acquisition failed")
+	}
+	p := &independentConfigurationACKProxy{listener: l, upstream: upstream, connections: map[net.Conn]bool{}, ackDropped: make(chan struct{})}
+	p.wg.Add(1)
+	go func() {
+		defer p.wg.Done()
+		for {
+			c, e := l.Accept()
+			if e != nil {
+				return
+			}
+			if !p.add(c) {
+				return
+			}
+			p.wg.Add(1)
+			go p.serve(c)
+		}
+	}()
+	t.Cleanup(func() {
+		_ = l.Close()
+		p.mu.Lock()
+		p.closing = true
+		for c := range p.connections {
+			_ = c.Close()
+		}
+		p.mu.Unlock()
+		p.wg.Wait()
+	})
+	return p
+}
+func (p *independentConfigurationACKProxy) add(c net.Conn) bool {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if p.closing {
+		_ = c.Close()
+		return false
+	}
+	p.connections[c] = true
+	return true
+}
+func (p *independentConfigurationACKProxy) remove(c net.Conn) {
+	_ = c.Close()
+	p.mu.Lock()
+	delete(p.connections, c)
+	p.mu.Unlock()
+}
+func (p *independentConfigurationACKProxy) serve(client net.Conn) {
+	defer p.wg.Done()
+	defer p.remove(client)
+	server, err := net.DialTimeout("tcp", p.upstream, 3*time.Second)
+	if err != nil {
+		return
+	}
+	if !p.add(server) {
+		return
+	}
+	defer p.remove(server)
+	var header [4]byte
+	if _, err = io.ReadFull(client, header[:]); err != nil {
+		return
+	}
+	size := binary.BigEndian.Uint32(header[:])
+	if size < 8 || size > 1<<20 {
+		return
+	}
+	startup := make([]byte, int(size))
+	copy(startup, header[:])
+	if _, err = io.ReadFull(client, startup[4:]); err != nil {
+		return
+	}
+	if err = configurationWriteFrame(server, startup); err != nil {
+		return
+	}
+	clear(startup)
+	var backend atomic.Int32
+	var drop atomic.Bool
+	done := make(chan struct{}, 2)
+	go func() {
+		defer func() { done <- struct{}{} }()
+		for {
+			frame, e := readModelPGFrame(client)
+			if e != nil {
+				return
+			}
+			if frame[0] == 'Q' && strings.EqualFold(strings.Trim(string(frame[5:]), "\x00; \t\r\n"), "COMMIT") && backend.Load() > 0 && p.target.CompareAndSwap(backend.Load(), 0) {
+				drop.Store(true)
+			}
+			e = configurationWriteFrame(server, frame)
+			clear(frame)
+			if e != nil {
+				return
+			}
+		}
+	}()
+	go func() {
+		defer func() { done <- struct{}{} }()
+		for {
+			frame, e := readModelPGFrame(server)
+			if e != nil {
+				return
+			}
+			if frame[0] == 'K' && len(frame) >= 9 {
+				backend.Store(int32(binary.BigEndian.Uint32(frame[5:9])))
+			}
+			if drop.Load() && frame[0] == 'C' && string(frame[5:]) == "COMMIT\x00" {
+				ready, e := readModelPGFrame(server)
+				if e != nil || ready[0] != 'Z' || len(ready) != 6 || ready[5] != 'I' {
+					return
+				}
+				clear(frame)
+				clear(ready)
+				p.committedPID.Store(backend.Load())
+				close(p.ackDropped)
+				_ = client.Close()
+				return
+			}
+			e = configurationWriteFrame(client, frame)
+			clear(frame)
+			if e != nil {
+				return
+			}
+		}
+	}()
+	<-done
+	_ = client.Close()
+	_ = server.Close()
+	<-done
+}
+
+// Formal Login may retain Account response references. Compare every Model
+// fact and complete Model-consumer reference row before rebasing all references.
+func independentConfigurationIdentityUnchanged(t *testing.T, before, after []byte) {
+	t.Helper()
+	var left, right map[string]json.RawMessage
+	if json.Unmarshal(before, &left) != nil || json.Unmarshal(after, &right) != nil || len(left) != 6 || len(right) != 6 {
+		t.Fatal("private identity snapshot shape")
+	}
+	for _, key := range []string{"providers", "models", "commands", "audits", "events"} {
+		if len(left[key]) == 0 || !bytes.Equal(left[key], right[key]) {
+			t.Fatal("Model bucket changed during formal identity setup:", key)
+		}
+	}
+	modelRefs := func(raw json.RawMessage) []json.RawMessage {
+		var rows []json.RawMessage
+		if json.Unmarshal(raw, &rows) != nil {
+			t.Fatal("private reference snapshot shape")
+		}
+		selected := []json.RawMessage{}
+		for _, row := range rows {
+			var owner struct {
+				Consumer string `json:"consumer"`
+			}
+			if json.Unmarshal(row, &owner) != nil || owner.Consumer == "" {
+				t.Fatal("private reference owner missing")
+			}
+			if owner.Consumer == "model" {
+				selected = append(selected, row)
+			}
+		}
+		return selected
+	}
+	beforeRefs, afterRefs := modelRefs(left["refs"]), modelRefs(right["refs"])
+	if len(beforeRefs) != len(afterRefs) {
+		t.Fatal("Model Secret reference count changed during formal identity setup")
+	}
+	for i := range beforeRefs {
+		if !bytes.Equal(beforeRefs[i], afterRefs[i]) {
+			t.Fatal("Model Secret reference row changed during formal identity setup")
+		}
+	}
+}

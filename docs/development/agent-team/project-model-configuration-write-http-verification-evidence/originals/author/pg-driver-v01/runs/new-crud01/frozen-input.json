@@ -1,0 +1,28 @@
+{
+  "root_authorized_resources": true,
+  "permitted_groups": [
+    "new-crud",
+    "new-authority",
+    "new-unknown",
+    "new-root",
+    "new-shutdown",
+    "old"
+  ],
+  "driver_sha256": "3b3e07f2c4d2d59dd2eb2cd5381435c16b03af512270df4e97b89d503ab0e849",
+  "candidate_sha256": "dd2663f288ce88ef4aca0f2c7fe4176d682f97e0d2580c4b473bd6c0c7473bdb",
+  "closure": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/closure02.json",
+    "sha256": "f3070e4976e0bba9f3a96e8ce156710dd1aac6bcbaec10b8d8e0c80c692820de"
+  },
+  "driver_runtime_files": {
+    "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/driver.py": "3b3e07f2c4d2d59dd2eb2cd5381435c16b03af512270df4e97b89d503ab0e849",
+    "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/groups.json": "74a2420d42faee0933fcc3983db2fa3fb6efb79c3eca22420ed6ea9169bd670a",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "check_only_ready": false,
+  "authorization": "Root explicitly authorized six serial PG groups after native3 full PASS/actualwait/allTCPowned doubleempty. Fixeddriver3b3e07f2/closure02f3070e49/proposal02e7a15b6b; eachfresh5GiB/newlivePIDstarttime/Dockerdaemonbaseline/emptyDockerconfig exact2localdigests no pull/full20fixture/newtop120inclCleanup/pkg6m. PriorPASS+actualwait7resourcesowned doubleempty+inputsame gates next. AnyFAIL actualcleanup stop no automaticretry; nonowneddaemon differences not waited recorded separately. No parallel independent resources.",
+  "inherited": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/frozen-proposal.json",
+    "sha256": "3e7f825eeeb2c8b42f233d133cfab6c78e02f71627a051d13ad29d38db39c84f"
+  }
+}

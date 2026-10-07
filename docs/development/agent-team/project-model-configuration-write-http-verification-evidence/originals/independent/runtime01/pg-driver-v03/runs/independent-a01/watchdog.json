@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 42204.100350172,
+      "top": "TestIndependentConfigurationAuthorityAndTerminal"
+    },
+    {
+      "event": "result",
+      "monotonic": 42209.433329028,
+      "observed_seconds": 5.332978856000409,
+      "reported_seconds": 5.33,
+      "state": "PASS",
+      "top": "TestIndependentConfigurationAuthorityAndTerminal"
+    }
+  ],
+  "expected": [
+    "TestIndependentConfigurationAuthorityAndTerminal"
+  ],
+  "failures": []
+}

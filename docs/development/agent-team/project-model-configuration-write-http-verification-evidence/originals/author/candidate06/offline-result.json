@@ -1,0 +1,61 @@
+{
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate06/manifest.json",
+    "sha256": "138e5263a8c7dce66670c7b01551de9074c64c780f975453a1bb249d488c4788"
+  },
+  "runs": {
+    "integration-race-compile05": {
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-race-compile05/result.json",
+        "sha256": "382440befd9c57173cb3e9fbe1af451a792773a029fa49b6df9bf7d752d1a2ce"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-race-compile05/command.json",
+        "sha256": "35eab569ed70dd7fd302749d0b40f199b3a3b17f1fc8700e1ae5a83c456b993c"
+      },
+      "exit": 0,
+      "elapsed_seconds": 7.824993469002948,
+      "actualwait": true,
+      "ownedempty": true,
+      "inputs_same": true
+    },
+    "integration-list05": {
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-list05/result.json",
+        "sha256": "2693b5d344c02814aa9c3582e8a00f3f3cdd1ee66b360ff6e66091a876726d23"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-list05/command.json",
+        "sha256": "0a97d6e3532ac9ab182c302de30c7565992e1894ee2aae567379a2cd8a3500a0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 1.8973485329988762,
+      "actualwait": true,
+      "ownedempty": true,
+      "inputs_same": true
+    },
+    "integration-vet05": {
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-vet05/result.json",
+        "sha256": "b176d1a13cc05b76cfb7fe0fc041cea3550cba7945847b9fda86ccdc68f7c8af"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-vet05/command.json",
+        "sha256": "7987d69acc4dbd381790affe9fc33ddc888a019b8959f511cf5d03bf37168db9"
+      },
+      "exit": 0,
+      "elapsed_seconds": 1.6613507900037803,
+      "actualwait": true,
+      "ownedempty": true,
+      "inputs_same": true
+    }
+  },
+  "only_delta": "#11 test formalgate isolatedproject",
+  "resources": "not restarted",
+  "list_top_count": 13,
+  "current14_hash_match": true,
+  "pg_input_check": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/input-only06-command.json",
+    "sha256": "9df127b40caf76c631ee5c3d34c476fbfd38e5f9fe0cdab0a3765a212e38bce7"
+  }
+}

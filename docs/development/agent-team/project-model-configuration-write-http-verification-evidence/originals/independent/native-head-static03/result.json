@@ -1,0 +1,23 @@
+{
+  "status": "PASS, test-only STATIC; no verifier native run",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate03/manifest.json",
+    "sha256": "dd2663f288ce88ef4aca0f2c7fe4176d682f97e0d2580c4b473bd6c0c7473bdb"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate03/native-head.delta",
+    "sha256": "eb1015e7c2b2a208d60ed9c7aecef3b33be4fc073cf0dde854d4db4284832448"
+  },
+  "changed_only": "internal/central/model/http_project_configuration_native_test.go",
+  "all14snapshots_match": true,
+  "checks": [
+    "original WriteHeader delegated exactly once405; actual Write0/Flush1/nettimeout/Close/abort retained",
+    "EOF error separate; original405 complete or partial prefix; complete-header suffix must be zero",
+    "other mode late Problem rejection unchanged; no budget/shared helper/production changes"
+  ],
+  "first_failure_limit": "combined old e!=nil || contains Problem condition did not record which branch; no retroactive dynamic cause claim",
+  "inherited_full14_static": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-full-static02/result.json",
+    "sha256": "9f8d24d066dde0566e49321ce367df9288ddb8113f864cdaab45b6e90a47e122"
+  }
+}

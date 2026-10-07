@@ -1,0 +1,22 @@
+Static source-comparison script exited 1 at check_inputs.py:79:
+AssertionError: info
+
+The script initially required unchanged OpenAPI info metadata, beyond the
+accepted contract's ten old operations/twelve old schema objects. Inspection
+confirmed the title/version/description intentionally introduce the seven new
+operations. The revised structural check exempts only info from global equality,
+checks its exact field set and new 1.1.0 version, and records both info objects.
+Old operations and schema objects still require exact value bytes unchanged.
+This was a verifier script assertion failure, not a Go/product/runtime result.
+
+Second static script exited 1 at check_inputs.py:109, external reference set
+equality. Seven new write/lookup operations legitimately add references to
+existing common IdempotencyKey, NonnegativeInt64String and Version symbols.
+Revised check accepts exactly those three added refs, requires no removed refs,
+and resolves every common ref against the accepted common.json hash bound by
+credential author http-run-input09.json. Old object bytes still strict-equal.
+
+Third static script exited 1 at helper section selection: accepted handler's
+receiver is projectCredentialHTTP, not credentialHTTP. The fixed selector ends
+the helper segment at its next handler method, without assuming receiver name.
+No compared source changed. Each pre-correction script is retained separately.

@@ -1,0 +1,39 @@
+{
+  "status": "PASS_INDEPENDENT_CONTROLLED_NORMAL_AND_RACE_PARTIAL7",
+  "commands": [
+    {
+      "name": "controlled-normal01",
+      "result": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/controlled-normal01/result.json",
+      "result_sha256": "a557b16cfb37f34cafe8e116d24974f78616ef8bc2b8a97d160eef5cc72a1d94",
+      "command_sha256": "ba2a08b3157f04634097f3697c69b898306733c31d50d35ecc4280008a850c95",
+      "exit": 0,
+      "elapsed": 0.45593779800401535,
+      "top_pass": 1,
+      "sub_nodes_pass": 14,
+      "actual_direct_join": true,
+      "adopted_actual_waits": [],
+      "double_owned_empty": 2,
+      "input_same": true,
+      "raw_stdout_sha256": "460fdfde5ce882a5d7ea3ad996318ebe6e6fbf1e567c9d309e25fd44557afd47",
+      "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "controlled-race01",
+      "result": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/controlled-race01/result.json",
+      "result_sha256": "eb0a831218c5cb8d288907036d4b9875f755b4fe304233f56c0acdd06d836862",
+      "command_sha256": "00007acb991acc782298cadb524dfad5a54f4da1948b9ed5e92db7616442fd38",
+      "exit": 0,
+      "elapsed": 1.4194959640008165,
+      "top_pass": 1,
+      "sub_nodes_pass": 14,
+      "actual_direct_join": true,
+      "adopted_actual_waits": [],
+      "double_owned_empty": 2,
+      "input_same": true,
+      "raw_stdout_sha256": "460fdfde5ce882a5d7ea3ad996318ebe6e6fbf1e567c9d309e25fd44557afd47",
+      "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "no_native_or_PG_or_socket": true,
+  "full14_not_accepted": true
+}

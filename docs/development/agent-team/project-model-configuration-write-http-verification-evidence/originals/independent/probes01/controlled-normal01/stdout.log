@@ -1,0 +1,31 @@
+=== RUN   TestIndependentProjectConfigurationControlled
+=== RUN   TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error
+=== RUN   TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/provider.create
+=== RUN   TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/provider.update
+=== RUN   TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/provider.delete
+=== RUN   TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/model.create
+=== RUN   TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/model.update
+=== RUN   TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/model.delete
+=== RUN   TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/lookup
+=== RUN   TestIndependentProjectConfigurationControlled/historical_version_binding_and_observation
+=== RUN   TestIndependentProjectConfigurationControlled/typed_relation_and_escaped_nested_duplicate_are_zero_call
+=== RUN   TestIndependentProjectConfigurationControlled/reasoning_policy_stays_service_owned
+=== RUN   TestIndependentProjectConfigurationControlled/head_lookup_has_no_entity
+=== RUN   TestIndependentProjectConfigurationControlled/unwrap_failure_precedes_auth_and_closes_body
+=== RUN   TestIndependentProjectConfigurationControlled/close_panic_still_joins_blocked_cancel_callback
+--- PASS: TestIndependentProjectConfigurationControlled (0.02s)
+    --- PASS: TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error (0.00s)
+        --- PASS: TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/provider.create (0.00s)
+        --- PASS: TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/provider.update (0.00s)
+        --- PASS: TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/provider.delete (0.00s)
+        --- PASS: TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/model.create (0.00s)
+        --- PASS: TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/model.update (0.00s)
+        --- PASS: TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/model.delete (0.00s)
+        --- PASS: TestIndependentProjectConfigurationControlled/valid_candidate_does_not_override_original_error/lookup (0.00s)
+    --- PASS: TestIndependentProjectConfigurationControlled/historical_version_binding_and_observation (0.00s)
+    --- PASS: TestIndependentProjectConfigurationControlled/typed_relation_and_escaped_nested_duplicate_are_zero_call (0.00s)
+    --- PASS: TestIndependentProjectConfigurationControlled/reasoning_policy_stays_service_owned (0.00s)
+    --- PASS: TestIndependentProjectConfigurationControlled/head_lookup_has_no_entity (0.00s)
+    --- PASS: TestIndependentProjectConfigurationControlled/unwrap_failure_precedes_auth_and_closes_body (0.00s)
+    --- PASS: TestIndependentProjectConfigurationControlled/close_panic_still_joins_blocked_cancel_callback (0.02s)
+PASS

@@ -1,0 +1,42 @@
+{
+  "checked_after_environment_ready": true,
+  "pid": 1011455,
+  "frozen8": [
+    {
+      "path": "internal/central/model/http_project_configuration.go",
+      "match": true
+    },
+    {
+      "path": "internal/central/model/http_project_configuration_wire.go",
+      "match": true
+    },
+    {
+      "path": "internal/central/model/http_project_configuration_test.go",
+      "match": true
+    },
+    {
+      "path": "internal/central/model/http_project_configuration_wire_test.go",
+      "match": true
+    },
+    {
+      "path": "internal/central/app/project_models.go",
+      "match": true
+    },
+    {
+      "path": "internal/central/app/project_models_test.go",
+      "match": true
+    },
+    {
+      "path": "api/openapi/project-models.json",
+      "match": true
+    },
+    {
+      "path": "internal/central/model/http_project_configuration_native_test.go",
+      "match": true
+    }
+  ],
+  "previous_offline_results": "/workspace/scratch/project-model-configuration-write-http-author/unit-results01.json",
+  "inflight_commands": false,
+  "resources_started": false,
+  "partial_fixture_exists": true
+}

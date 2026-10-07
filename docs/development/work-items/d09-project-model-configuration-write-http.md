@@ -1,5 +1,7 @@
 # D09 Project Owner Provider/Model 配置写入 HTTP 与默认根组合
 
+当前产品接受（2026-10-07）：**完整15路径独立PASS/root采纳**，产品 `cc850b2244cad771eb862a2c82d99887d5da7284` 已推送并核远端一致，含14技术与README末件。[版本组合、原失败及完整验收证据](../agent-team/project-model-configuration-write-http-verification.md)已归档。产品基线承接凭据完整接受 `e4b1b891`；下列原rev2规格时点说明保留为历史，§1–9技术原字节不变，不代表UI、未绑定调用链或完整D09已完成。
+
 修订 rev2，2026-10-07。**完整限定独立 STATIC PASS（rev1 全审＋rev2 差量），root 已采纳；正式归位已通过独立复核，未授权产品实施、Go 或资源。** 完整结果与工程界以本卡§1–9为准。当前固定产品输入为 Model Owner read `a0b012ce`、其归档 `6bd11cda`；凭据仅接受[规格 rev2](d09-project-model-credentials-http.md) `9a2a9a1a` / 归档 `b498c0bc`。凭据活动 #1–22 实施不是已验依赖，本稿不读取其活动内容。
 
 本卡正式实施须等凭据完整产品（含 README）独立接受并经 root 采纳、固定实际提交和共享根依赖移交；随后针对该新基线重冻本卡唯一文件表/实际图。不得用当前 `a0b012ce` 根覆盖凭据后继增量。本卡只定义完整结果，不授任何技术路径。

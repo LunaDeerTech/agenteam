@@ -1,0 +1,126 @@
+{
+  "020b7f00fbb69f6ca4db3b4070a66eafa00b2c4e5f93b9e56af23c9717937cff": {
+    "id": "020b7f00fbb69f6ca4db3b4070a66eafa00b2c4e5f93b9e56af23c9717937cff",
+    "kind": "container",
+    "labels": {
+      "agenteam.d04.networkfixture": "ad11ab07baae64ff633fa68a28324dc4"
+    },
+    "mounts": [
+      {
+        "Destination": "/fixture",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/runtime/agenteam-d05-object-ae23fe9a83af188c47deefdea9b663d4/agenteam-d04-net-ad11ab07baae64ff633fa68a28324dc4-881204224",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/var/lib/postgresql/data",
+        "Driver": "local",
+        "Mode": "",
+        "Name": "30ab1ea0e59f894bc8568da93852c3290634b8e24d5ab902f9e1ea34129aff47",
+        "Propagation": "",
+        "RW": true,
+        "Source": "/var/lib/docker/volumes/30ab1ea0e59f894bc8568da93852c3290634b8e24d5ab902f9e1ea34129aff47/_data",
+        "Type": "volume"
+      }
+    ],
+    "name": "/agenteam-d04-net-ad11ab07baae64ff633fa68a28324dc4"
+  },
+  "035349486ff88832414d52816629d0c2c60d6707ff89a8652b8dd7a116bd20b6": {
+    "id": "035349486ff88832414d52816629d0c2c60d6707ff89a8652b8dd7a116bd20b6",
+    "kind": "network",
+    "labels": {
+      "agenteam.d03.fixture": "b50102ee60c65f745ef617dd302f89c9"
+    },
+    "name": "agenteam-d03-b50102ee60c65f745ef617dd302f89c9"
+  },
+  "187678c5ce69f1233856f278eb88b1cff5ff1f73bd31d4e8f10a22c0e571c979": {
+    "id": "187678c5ce69f1233856f278eb88b1cff5ff1f73bd31d4e8f10a22c0e571c979",
+    "kind": "container",
+    "labels": {
+      "agenteam.d03.fixture": "b50102ee60c65f745ef617dd302f89c9"
+    },
+    "mounts": [
+      {
+        "Destination": "/fixture",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/runtime/agenteam-d05-object-ae23fe9a83af188c47deefdea9b663d4/agenteam-d04-net-ad11ab07baae64ff633fa68a28324dc4-881204224/agenteam-d03-b50102ee60c65f745ef617dd302f89c9-356308813",
+        "Type": "bind"
+      }
+    ],
+    "name": "/agenteam-d03-b50102ee60c65f745ef617dd302f89c9-pg16"
+  },
+  "4ec27d4dac9a9d9e276fca444ea32d1531cb8d339b53b7471a9c0da6689f1716": {
+    "id": "4ec27d4dac9a9d9e276fca444ea32d1531cb8d339b53b7471a9c0da6689f1716",
+    "kind": "container",
+    "labels": {
+      "agenteam.d05.objectfixture": "ae23fe9a83af188c47deefdea9b663d4"
+    },
+    "mounts": [
+      {
+        "Destination": "/fixture",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/runtime/agenteam-d05-object-ae23fe9a83af188c47deefdea9b663d4",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/fixture/data",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": true,
+        "Source": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/runtime/agenteam-d05-object-ae23fe9a83af188c47deefdea9b663d4/data",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/var/lib/postgresql/data",
+        "Driver": "local",
+        "Mode": "",
+        "Name": "ed8568cb032d8639991f6a8041187e9de6e35883e33720a782691888b9f48b95",
+        "Propagation": "",
+        "RW": true,
+        "Source": "/var/lib/docker/volumes/ed8568cb032d8639991f6a8041187e9de6e35883e33720a782691888b9f48b95/_data",
+        "Type": "volume"
+      }
+    ],
+    "name": "/agenteam-d05-object-ae23fe9a83af188c47deefdea9b663d4"
+  },
+  "52c88516b7aba2af643f6d763d30fdd81d1058e1a757a7bc845d225485ceef63": {
+    "id": "52c88516b7aba2af643f6d763d30fdd81d1058e1a757a7bc845d225485ceef63",
+    "kind": "network",
+    "labels": {
+      "agenteam.d05.objectfixture": "ae23fe9a83af188c47deefdea9b663d4"
+    },
+    "name": "agenteam-d05-object-ae23fe9a83af188c47deefdea9b663d4"
+  },
+  "fb3618aa7466da531de362ac6bf45f4b32f160c3f690852dae02543338b7e436": {
+    "id": "fb3618aa7466da531de362ac6bf45f4b32f160c3f690852dae02543338b7e436",
+    "kind": "network",
+    "labels": {
+      "agenteam.d04.networkfixture": "ad11ab07baae64ff633fa68a28324dc4"
+    },
+    "name": "agenteam-d04-net-ad11ab07baae64ff633fa68a28324dc4"
+  },
+  "fd8c962d3c15790d5ee3c11098e59d232e000f1b4d752b33ba4bfe325c52dd37": {
+    "id": "fd8c962d3c15790d5ee3c11098e59d232e000f1b4d752b33ba4bfe325c52dd37",
+    "kind": "container",
+    "labels": {
+      "agenteam.d03.fixture": "b50102ee60c65f745ef617dd302f89c9"
+    },
+    "mounts": [
+      {
+        "Destination": "/fixture",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/runtime/agenteam-d05-object-ae23fe9a83af188c47deefdea9b663d4/agenteam-d04-net-ad11ab07baae64ff633fa68a28324dc4-881204224/agenteam-d03-b50102ee60c65f745ef617dd302f89c9-356308813",
+        "Type": "bind"
+      }
+    ],
+    "name": "/agenteam-d03-b50102ee60c65f745ef617dd302f89c9"
+  }
+}

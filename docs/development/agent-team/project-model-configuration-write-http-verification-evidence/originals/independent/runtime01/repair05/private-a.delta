@@ -1,0 +1,76 @@
+--- original/independent_pg_test.go
++++ repair05/independent_pg_test.go
+@@ -6,6 +6,7 @@
+ 	"bytes"
+ 	"context"
+ 	"encoding/binary"
++	"encoding/json"
+ 	"io"
+ 	"net"
+ 	"net/url"
+@@ -185,13 +186,16 @@
+ 			t.Fatal("public lookup did not use original Command EX transaction")
+ 		}
+ 		configurationWriteExport(t, "independent-lookup", "POST", v.base()+"model-commands/lookup", observed)
+-		stable := v.snapshot(t)
++		beforeIdentity := v.snapshot(t)
+ 		session := v.login(t, v.ownerBrowser.email)
+ 		if err := v.core.Logout(testContext(t), account.LogoutRequest{Actor: session.actor, Key: "iv-revoke-session"}); err != nil {
+ 			t.Fatal(err)
+ 		}
++		fresh := v.login(t, v.ownerBrowser.email)
++		stable := v.snapshot(t)
++		independentConfigurationIdentityUnchanged(t, beforeIdentity, stable)
+ 		v.command(t, session, "POST", v.base()+"model-commands/lookup", key, lookupBody).problem(t, 401, f.SessionRevoked)
+-		fresh := v.login(t, v.ownerBrowser.email)
++		v.sameSnapshot(t, stable)
+ 		if !bytes.Equal(v.command(t, fresh, "POST", v.base()+"model-providers", key, body).want(t, 200).body, response.body) {
+ 			t.Fatal("same User fresh Session historical replay changed")
+ 		}
+@@ -410,3 +414,46 @@
+ 	_ = server.Close()
+ 	<-done
+ }
++
++// Formal Login may retain Account response references. Compare every Model
++// fact and complete Model-consumer reference row before rebasing all references.
++func independentConfigurationIdentityUnchanged(t *testing.T, before, after []byte) {
++	t.Helper()
++	var left, right map[string]json.RawMessage
++	if json.Unmarshal(before, &left) != nil || json.Unmarshal(after, &right) != nil || len(left) != 6 || len(right) != 6 {
++		t.Fatal("private identity snapshot shape")
++	}
++	for _, key := range []string{"providers", "models", "commands", "audits", "events"} {
++		if len(left[key]) == 0 || !bytes.Equal(left[key], right[key]) {
++			t.Fatal("Model bucket changed during formal identity setup:", key)
++		}
++	}
++	modelRefs := func(raw json.RawMessage) []json.RawMessage {
++		var rows []json.RawMessage
++		if json.Unmarshal(raw, &rows) != nil {
++			t.Fatal("private reference snapshot shape")
++		}
++		selected := []json.RawMessage{}
++		for _, row := range rows {
++			var owner struct {
++				Consumer string `json:"consumer"`
++			}
++			if json.Unmarshal(row, &owner) != nil || owner.Consumer == "" {
++				t.Fatal("private reference owner missing")
++			}
++			if owner.Consumer == "model" {
++				selected = append(selected, row)
++			}
++		}
++		return selected
++	}
++	beforeRefs, afterRefs := modelRefs(left["refs"]), modelRefs(right["refs"])
++	if len(beforeRefs) != len(afterRefs) {
++		t.Fatal("Model Secret reference count changed during formal identity setup")
++	}
++	for i := range beforeRefs {
++		if !bytes.Equal(beforeRefs[i], afterRefs[i]) {
++			t.Fatal("Model Secret reference row changed during formal identity setup")
++		}
++	}
++}

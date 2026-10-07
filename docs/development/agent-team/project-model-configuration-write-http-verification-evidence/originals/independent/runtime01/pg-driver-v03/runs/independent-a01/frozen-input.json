@@ -1,0 +1,40 @@
+{
+  "root_authorized_resources": true,
+  "permitted_groups": [
+    "new-independent-a",
+    "new-independent-b"
+  ],
+  "driver_sha256": "58f3367d987d503276e80ae36aa464b3d101f4e28e1cb3d6acd2fb360f71f4bd",
+  "candidate_sha256": "138e5263a8c7dce66670c7b01551de9074c64c780f975453a1bb249d488c4788",
+  "closure": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/closure.json",
+    "sha256": "f2a1b40c98ab63b09075789f01b9c3d7db8a614c1a47f41a7b7208bc691d37a0"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/overlay05.json",
+    "sha256": "2c7304a40012b7830fa53e98b98c8e8968fa8530da40180064194fbe5e184dbb"
+  },
+  "overlay_files": {
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration.go": "5f3c13a4d796bbecf6d302782d4bd46893513adf871759a8c11369d36c164c73",
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration_wire.go": "2689130f0e462586f76c310628f99ec02db2b758474e038864630009c4d40b83",
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration_test.go": "d09f1a8709d2e821c5458c5923b5c243c5d72c2c5e07b6cd84bf748ef8d8ac3a",
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration_wire_test.go": "51d6938d90991ae3e120f41a9e30adf4113c6895da694e6e34f2eb8a696196d6",
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/app/project_models.go": "1efb3f0c95f05639db8f3da96cabb036d2a266859f425b418a031bebef57f5d0",
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/app/project_models_test.go": "039912e56b1278d60d42e220d162b09ab7f8106484c5ae4ca3101f2ba7f46cc4",
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate03/src/internal/central/model/http_project_configuration_native_test.go": "b9b629661284a0f93979b6eba450be2f703644a45522e29c5a1542f2a5c147ec",
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate04/src/tests/model/project_configuration_write_http_fixture_test.go": "126ae0c7b141caa82ebfce044fc9affd45179e3ccd31057ca63ae2cda312a380",
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_write_http_test.go": "2af31adbe083158cb806a1749c72198af7408b87379b45279c1ab293f73e5f01",
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate06/src/tests/model/project_configuration_write_http_authority_test.go": "75151a13387991a2d292a684d59b28f497d5ddbd3f19f919db7a495d63cc1d9f",
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_write_http_terminal_test.go": "7ed76aaff68cced66ec9bcd13978edc79a2aa579903fa9da14684b358ffcab47",
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_write_http_root_test.go": "f0adb77b3c330f45662b48d0f8d85f85c76f62fb00069ec2c518566d965cb656",
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_http_root_test.go": "659a1a6cfd4b47e79620f63981454d1f7d5f8c6d9f7813620ad89109c8540f85",
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/independent_native_test.go": "7d6e63cc7e2291e8c2c91ed3abe3568338f3e9bae241557458e670a3301a788e",
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/independent_pg_test.go": "a7bce68285e35928d229e9f2edf3c1e38414fe46d3ace85a3fde2a539acf6358"
+  },
+  "driver_runtime_files": {
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/driver.py": "58f3367d987d503276e80ae36aa464b3d101f4e28e1cb3d6acd2fb360f71f4bd",
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/overlay05.json": "2c7304a40012b7830fa53e98b98c8e8968fa8530da40180064194fbe5e184dbb",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "authorization": "Root explicit conditional permission: A only after independent native PASS/actualwait/allTCP+PID doublezero/inputsame; B only after A PASS/actualwait/seven-resource doublezero/inputsame. Exact independent-a01/independent-b01; any failure cleanup and stop, no automatic retry. Fresh baselines/localdigests/no pull/original budgets."
+}

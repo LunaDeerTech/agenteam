@@ -1,0 +1,6 @@
+{
+  "supersedes_recommendation_only": "lifecycle-followup-static.json minimal_scope and initial message were incomplete; do not treat as approved executable repair",
+  "reason": "00013_project_owner.sql:72 deferred projects_operation_fk requires a real lifecycle_operations row; lines55\u201371 also impose exact operation constraints and per-Project one-active unique index. Random OperationID alone is invalid.",
+  "retained_finding": "Current archiving SQL omits required pointer and conflicts with line17. Original dynamic raw does not carry exact PG constraint detail.",
+  "pending": "Author/root examine formal Archive command or complete legal auxiliary operation fixture; no product/SQL/helper changes or runtime authorized to verifier."
+}

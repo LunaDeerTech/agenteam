@@ -1,0 +1,40 @@
+{
+  "status": "PASS completed author new-crud02 evidence STATIC + independent offline original-byte schema validation, not independent PG",
+  "input": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/crud02-input.json",
+    "sha256": "d9948b29d3abe78958606ebd48b35b558ad1c9e2cd4e8c5a72b32a016451d158"
+  },
+  "schema_input": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/schema-input01.json",
+    "sha256": "4ca1bf079c62cfe582139810e7aa5cc65d3a1b5fdbcc166fe761d9f5c1b3db14"
+  },
+  "offline_result": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/crud-schema01/result.json",
+    "sha256": "648200f380fae14882441da9b26d5c759d84f4e404f4cb16d9a00f6c19f6b03b"
+  },
+  "stdout": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/crud-schema01/stdout.log",
+    "sha256": "4e20090b517cebf01d653aba8f473219f5989d5297e24f9f8678e72a4f218c37"
+  },
+  "checker": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/check_crud02.py",
+    "sha256": "a32099e8c74ce88f95a4bcd3691e598624eaa16cb36a5ba858ba7bd414a1c0f2"
+  },
+  "author_result": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/result.json",
+    "sha256": "802ec1d51cadbe8bb78725d6df9ab20ccafea24b6e8d02711ff09e445e21f89e"
+  },
+  "checks": "8 original bodies: six mutation receipts and found/absent lookup; actual headers/status/length/run/input/schema bindings; strict local Draft202012 and FormatChecker; create/update/delete versions1/2/3; found binds provider.create history",
+  "runtime": {
+    "exit": 0,
+    "elapsed_seconds": 0.3607837129966356,
+    "actualwait": true,
+    "owned_double_empty": true,
+    "input_same": true
+  },
+  "limits": [
+    "new-crud01 original FAIL retained; candidate04 only private snapshot SQL repair",
+    "author round actualwait and 7-resource doublecleanup referenced; daemon288\u2192292 four non-owned shims not waited",
+    "No completed configuration write whole-product acceptance; author remaining groups and independent resources pending"
+  ]
+}

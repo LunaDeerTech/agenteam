@@ -1,0 +1,87 @@
+{
+  "status": "PASS",
+  "body_count": 10,
+  "checks": [
+    {
+      "run": "new-root01",
+      "name": "root-provider.create",
+      "schema": "ConfigurationReceipt",
+      "bytes": 119,
+      "body_sha256": "c27cdc15fe8be8feeccd56b3143f65b36babd9fb45b557668cfd962d95f05b22",
+      "source_sha256": "7f93a7c4f4de1a8ec93e8fad8ac437c36a37f4404ad5c9d49de5fce1f07d8485"
+    },
+    {
+      "run": "new-root01",
+      "name": "root-provider.update",
+      "schema": "ConfigurationReceipt",
+      "bytes": 119,
+      "body_sha256": "8dede9e84841eb3fb834e08fdd047aa0bd9951ba4f575c505f9636f6808ff61e",
+      "source_sha256": "ce76ca7edfa23771cbef65c4a2066af7aa4ff4bfa0f4485b3f9c6441d2d8a278"
+    },
+    {
+      "run": "new-root01",
+      "name": "root-provider.delete",
+      "schema": "ConfigurationReceipt",
+      "bytes": 119,
+      "body_sha256": "1468ff1bb4bba53bb247a3389abe98fbd24b8e71f43dfc28be307bea8f0a10c4",
+      "source_sha256": "386fa00f9eb0716a427d8a3d9005b318bf94379e63ed1bdb1a557be0f8aa865c"
+    },
+    {
+      "run": "new-root01",
+      "name": "root-model.create",
+      "schema": "ConfigurationReceipt",
+      "bytes": 116,
+      "body_sha256": "7ca43c309a712661cf1bddacfb5257bfd8308c2ebf47cfebb6468a45f4500dc9",
+      "source_sha256": "41c55db0343bd0a66540e9363b26109ac0505679b5febbb0c5966b9aeb6f79b4"
+    },
+    {
+      "run": "new-root01",
+      "name": "root-model.update",
+      "schema": "ConfigurationReceipt",
+      "bytes": 116,
+      "body_sha256": "e4168fbfe5d963aa61e1f1a8629d6498b20e2147d2b33ab7882cc044abbf9dc6",
+      "source_sha256": "febacfe448ad84d1cd5bbc4c791942e66ed8acbba893eaf47b1bb3b86591194b"
+    },
+    {
+      "run": "new-root01",
+      "name": "root-model.delete",
+      "schema": "ConfigurationReceipt",
+      "bytes": 116,
+      "body_sha256": "6a2daf97b5c5fb5f1a6d5f4be7e434c601340bcf8cdbbe3afedbae7f4b72a96c",
+      "source_sha256": "4983c033be4ae512416e3eeb034e7eaad27847f05652d45fd91d75e3fab8199e"
+    },
+    {
+      "run": "independent-a01",
+      "name": "independent-confirmed",
+      "schema": "ConfigurationReceipt",
+      "bytes": 119,
+      "body_sha256": "62b8e40b865dac57aa1d0085a26e50d27901ab85b7d085258d96564abad1e5ee",
+      "source_sha256": "b9e36b5c06958f28a5752bd883326f80733e5f1eb75fb3d794fdf0169e08dfde"
+    },
+    {
+      "run": "independent-a01",
+      "name": "independent-lookup",
+      "schema": "ConfigurationLookup",
+      "bytes": 144,
+      "body_sha256": "3f67f43707d0505d9fab576ead37f6b62c8857bbe8fd44d4296d5252dbcd1575",
+      "source_sha256": "0f3a85ddbef9757718beced6c201e2eb494d45c843e295d22563052a4b70b829"
+    },
+    {
+      "run": "independent-b01",
+      "name": "independent-root-create",
+      "schema": "ConfigurationReceipt",
+      "bytes": 119,
+      "body_sha256": "e43d4851b2970f428c60b1032231842a20aa9bb7df4b27b61f00c98b4b4a0259",
+      "source_sha256": "249d0facc4550b44016f3b055f88232018bd294ddc20d143e97cbe389b98c352"
+    },
+    {
+      "run": "independent-b01",
+      "name": "independent-root-historical-lookup",
+      "schema": "ConfigurationLookup",
+      "bytes": 144,
+      "body_sha256": "e1820cce4864f1300550e4819f04275c1870a7f35b908a61c5fcad864dde1d78",
+      "source_sha256": "229f94764165e2a0867125a76d41aadcbe7f442609f9f7f8929e25b8a9cc5412"
+    }
+  ],
+  "scope": "only new final10 original bytes, prior CRUD8+Unknown4 not rerun; author root6 and independent A2/B2 kept distinct"
+}

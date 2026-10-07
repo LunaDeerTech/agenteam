@@ -1,0 +1,40 @@
+{
+  "status": "PARTIAL offline preparation PASS; paused before list/runtime gate/proposal, no real resource execution",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate05/manifest.json",
+    "sha256": "e36cbccbe33c1fc99876541133883c1d0ea4657d304616a19c418e89685dbc18"
+  },
+  "runs": [
+    {
+      "name": "format05",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/format05/result.json",
+        "sha256": "49160f8cde44778db5a600b9ca8e364daf64ee2ffb59b59565070746b691f0c6"
+      },
+      "elapsed": 0.5075888869978371,
+      "actualwait": true,
+      "double_owned_empty": true
+    },
+    {
+      "name": "compile-pg05",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/compile-pg05/result.json",
+        "sha256": "8c3cd1ce13301883b837b7fe678379e82a8feb425809a008e76d3eff438b625c"
+      },
+      "elapsed": 7.883490181004163,
+      "actualwait": true,
+      "double_owned_empty": true
+    }
+  ],
+  "private_A_static_repair": "formal Login/Logout/newLogin all before new baseline; five exact Model buckets plus every consumer=model Secret reference raw row/order/count unchanged across setup; original never run, not dynamic failure",
+  "files": {
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/input08.json": "353881c7dd13b4ba1a29f4f0b6ed07539845bdca8b99c4e6dbacbed1a536eaed",
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/overlay04.json": "7621840268c33ce1708f091a74f1575fa24c9765263ec23254987d2c5dc7b71c",
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/independent_pg_test.go": "a7bce68285e35928d229e9f2edf3c1e38414fe46d3ace85a3fde2a539acf6358",
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/private-a.delta": "7326c23e6cb15a1afb75eca96350fd749ccad938a03875538174aa21d129268e",
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/graph-postprocess-first05.json": "da314f7a8b0a0c2e3546bbc9442f0b9a23a6901fae18693afb4f551ca3f4bbd2",
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/integration05.test": "540276468471041eed70c1f90516a028f73a840ad44685cab7f3799f0563a9ec"
+  },
+  "native_and_B": "native unchanged; B and proxy functions exact byte equality apart from separating newline; no native rebuild",
+  "next": "wait candidate06/parent before affected final binding; preserve all prior proposals"
+}

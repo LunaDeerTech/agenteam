@@ -1,0 +1,60 @@
+{
+  "normal": {
+    "packages": 395,
+    "effective_files": 2502,
+    "added": {
+      "/workspace/agenteam/internal/central/model/independent_configuration_http_test.go": {
+        "physical": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/independent_test.go",
+        "sha256": "cf060eba783a5a031b0e71da29ef9e28ab1a98e346b0a06b34c255747e4761cd"
+      }
+    },
+    "removed": [],
+    "excluded_active_native": "/workspace/agenteam/internal/central/model/http_project_configuration_native_test.go",
+    "no_integration_package": true,
+    "generated_testmain": [
+      {
+        "path": "/workspace/.cache/go-build/1a/1a5c7d9e2ae795c209dc356fa474174e76884c9ba257ea6d037a385461b1a1a8-d",
+        "sha256": "1a5c7d9e2ae795c209dc356fa474174e76884c9ba257ea6d037a385461b1a1a8"
+      },
+      {
+        "path": "/workspace/.cache/go-build/c1/c1d4c1c81d2dd577acdfe5e9a890fbfc1ded69db4ed478db25f8c0b2a692d8fa-d",
+        "sha256": "c1d4c1c81d2dd577acdfe5e9a890fbfc1ded69db4ed478db25f8c0b2a692d8fa"
+      }
+    ],
+    "selected_package_custom_TestMain_or_init": [],
+    "baseline_actual_graph": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/unit-graph-normal01/actual-graph.json",
+      "sha256": "ba672d04a5c2cddbe5aa6b708c7112184fd825572b0df261dc67f692e20b87f2"
+    },
+    "raw_sha256": "04c4bd592a2ab75fa324ef70fd28f4da8825c879d8b1cbd60134aa5073105e5c"
+  },
+  "race": {
+    "packages": 397,
+    "effective_files": 2508,
+    "added": {
+      "/workspace/agenteam/internal/central/model/independent_configuration_http_test.go": {
+        "physical": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/independent_test.go",
+        "sha256": "cf060eba783a5a031b0e71da29ef9e28ab1a98e346b0a06b34c255747e4761cd"
+      }
+    },
+    "removed": [],
+    "excluded_active_native": "/workspace/agenteam/internal/central/model/http_project_configuration_native_test.go",
+    "no_integration_package": true,
+    "generated_testmain": [
+      {
+        "path": "/workspace/.cache/go-build/1a/1a5c7d9e2ae795c209dc356fa474174e76884c9ba257ea6d037a385461b1a1a8-d",
+        "sha256": "1a5c7d9e2ae795c209dc356fa474174e76884c9ba257ea6d037a385461b1a1a8"
+      },
+      {
+        "path": "/workspace/.cache/go-build/c1/c1d4c1c81d2dd577acdfe5e9a890fbfc1ded69db4ed478db25f8c0b2a692d8fa-d",
+        "sha256": "c1d4c1c81d2dd577acdfe5e9a890fbfc1ded69db4ed478db25f8c0b2a692d8fa"
+      }
+    ],
+    "selected_package_custom_TestMain_or_init": [],
+    "baseline_actual_graph": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/unit-graph-race01/actual-graph.json",
+      "sha256": "228cf6ab627a3476d455198339ccfa3e33e419634729b964e742117ad0d2c2cb"
+    },
+    "raw_sha256": "cd4414edf25bec05eae4cecaf9a374cf9fa50fe5d2c7616b2acc361316825628"
+  }
+}

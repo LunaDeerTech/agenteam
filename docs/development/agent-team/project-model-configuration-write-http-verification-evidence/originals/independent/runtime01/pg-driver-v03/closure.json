@@ -1,0 +1,84 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v02/closure.json",
+    "sha256": "5538dfa976cd517a7e7b330ac371ea46f38343f91474b09a509c88a89b9fb134"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate06/manifest.json",
+    "sha256": "138e5263a8c7dce66670c7b01551de9074c64c780f975453a1bb249d488c4788"
+  },
+  "actual_union": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/runtime-graph-delta03.json",
+    "sha256": "a011a0ed1ce6ea3eb79af12245d9f265c5e2029b7eb4020eb232bdb62101e698"
+  },
+  "files": {
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/driver.py": {
+      "sha256": "58f3367d987d503276e80ae36aa464b3d101f4e28e1cb3d6acd2fb360f71f4bd"
+    },
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/overlay05.json": {
+      "sha256": "2c7304a40012b7830fa53e98b98c8e8968fa8530da40180064194fbe5e184dbb"
+    },
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/integration06.test": {
+      "sha256": "78a6937b5dd16f457b5264b32007670fa17ab5a2325a26d773e4e89cf9a86231"
+    },
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/actual-graph05.json": {
+      "sha256": "49538e42a708e45381d8e14a5faf777643ae78f517fb7737bfd7adf17b900223"
+    },
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/runtime-graph-delta03.json": {
+      "sha256": "a011a0ed1ce6ea3eb79af12245d9f265c5e2029b7eb4020eb232bdb62101e698"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate06/manifest.json": {
+      "sha256": "138e5263a8c7dce66670c7b01551de9074c64c780f975453a1bb249d488c4788"
+    },
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/private-a.delta": {
+      "sha256": "7326c23e6cb15a1afb75eca96350fd749ccad938a03875538174aa21d129268e"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration.go": {
+      "sha256": "5f3c13a4d796bbecf6d302782d4bd46893513adf871759a8c11369d36c164c73"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration_wire.go": {
+      "sha256": "2689130f0e462586f76c310628f99ec02db2b758474e038864630009c4d40b83"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration_test.go": {
+      "sha256": "d09f1a8709d2e821c5458c5923b5c243c5d72c2c5e07b6cd84bf748ef8d8ac3a"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration_wire_test.go": {
+      "sha256": "51d6938d90991ae3e120f41a9e30adf4113c6895da694e6e34f2eb8a696196d6"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/app/project_models.go": {
+      "sha256": "1efb3f0c95f05639db8f3da96cabb036d2a266859f425b418a031bebef57f5d0"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/app/project_models_test.go": {
+      "sha256": "039912e56b1278d60d42e220d162b09ab7f8106484c5ae4ca3101f2ba7f46cc4"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate03/src/internal/central/model/http_project_configuration_native_test.go": {
+      "sha256": "b9b629661284a0f93979b6eba450be2f703644a45522e29c5a1542f2a5c147ec"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate04/src/tests/model/project_configuration_write_http_fixture_test.go": {
+      "sha256": "126ae0c7b141caa82ebfce044fc9affd45179e3ccd31057ca63ae2cda312a380"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_write_http_test.go": {
+      "sha256": "2af31adbe083158cb806a1749c72198af7408b87379b45279c1ab293f73e5f01"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate06/src/tests/model/project_configuration_write_http_authority_test.go": {
+      "sha256": "75151a13387991a2d292a684d59b28f497d5ddbd3f19f919db7a495d63cc1d9f"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_write_http_terminal_test.go": {
+      "sha256": "7ed76aaff68cced66ec9bcd13978edc79a2aa579903fa9da14684b358ffcab47"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_write_http_root_test.go": {
+      "sha256": "f0adb77b3c330f45662b48d0f8d85f85c76f62fb00069ec2c518566d965cb656"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_http_root_test.go": {
+      "sha256": "659a1a6cfd4b47e79620f63981454d1f7d5f8c6d9f7813620ad89109c8540f85"
+    },
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/independent_native_test.go": {
+      "sha256": "7d6e63cc7e2291e8c2c91ed3abe3568338f3e9bae241557458e670a3301a788e"
+    },
+    "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/independent_pg_test.go": {
+      "sha256": "a7bce68285e35928d229e9f2edf3c1e38414fe46d3ace85a3fde2a539acf6358"
+    }
+  },
+  "package_file_sets": {},
+  "scope": "Only accepted candidate06 #11 and private A identity setup bridge/overlay/binary delta; no runtime scope expansion"
+}

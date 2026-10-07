@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 42276.676529843,
+      "top": "TestIndependentConfigurationDefaultRootHistory"
+    },
+    {
+      "event": "result",
+      "monotonic": 42281.522453587,
+      "observed_seconds": 4.845923744003812,
+      "reported_seconds": 4.86,
+      "state": "PASS",
+      "top": "TestIndependentConfigurationDefaultRootHistory"
+    }
+  ],
+  "expected": [
+    "TestIndependentConfigurationDefaultRootHistory"
+  ],
+  "failures": []
+}

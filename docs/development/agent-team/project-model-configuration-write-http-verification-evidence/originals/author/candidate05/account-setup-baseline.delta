@@ -1,0 +1,59 @@
+--- candidate04/tests/model/project_configuration_write_http_authority_test.go
++++ candidate05/tests/model/project_configuration_write_http_authority_test.go
+@@ -3,6 +3,7 @@
+ package model_test
+ 
+ import (
++	"bytes"
+ 	"context"
+ 	"encoding/json"
+ 	"errors"
+@@ -39,6 +40,48 @@
+ 	if e := v.core.Logout(testContext(t), account.LogoutRequest{Actor: session.actor, Key: "configuration-formal-logout"}); e != nil {
+ 		t.Fatal(e)
+ 	}
++	// Formal Login retains System response material; that legitimate setup is
++	// outside the rejected Model command. Bridge its baseline without allowing
++	// any Model row or Model-owned Secret reference to change.
++	afterSessionSetup := v.snapshot(t)
++	var beforeFields, afterFields map[string]json.RawMessage
++	if json.Unmarshal(before, &beforeFields) != nil || json.Unmarshal(afterSessionSetup, &afterFields) != nil || len(beforeFields) != 6 || len(afterFields) != 6 {
++		t.Fatal("private setup snapshot shape")
++	}
++	for _, bucket := range []string{"providers", "models", "commands", "audits", "events"} {
++		if len(beforeFields[bucket]) == 0 || !bytes.Equal(beforeFields[bucket], afterFields[bucket]) {
++			t.Fatal("account setup changed Model bucket", bucket)
++		}
++	}
++	modelRefs := func(raw json.RawMessage) []json.RawMessage {
++		var rows []json.RawMessage
++		if json.Unmarshal(raw, &rows) != nil {
++			t.Fatal("private reference snapshot shape")
++		}
++		var selected []json.RawMessage
++		for _, row := range rows {
++			var ref struct {
++				Consumer string `json:"consumer"`
++			}
++			if json.Unmarshal(row, &ref) != nil || ref.Consumer == "" {
++				t.Fatal("private reference row shape")
++			}
++			if ref.Consumer == "model" {
++				selected = append(selected, row)
++			}
++		}
++		return selected
++	}
++	beforeRefs, afterRefs := modelRefs(beforeFields["refs"]), modelRefs(afterFields["refs"])
++	if len(beforeRefs) != len(afterRefs) {
++		t.Fatal("account setup changed Model reference count")
++	}
++	for i := range beforeRefs {
++		if !bytes.Equal(beforeRefs[i], afterRefs[i]) {
++			t.Fatal("account setup changed Model reference row")
++		}
++	}
++	before = afterSessionSetup
+ 	v.command(t, session, "POST", v.base()+"model-providers", "authority-provider", create).problem(t, 401, f.SessionRevoked)
+ 	v.sameSnapshot(t, before)
+ 	projectCredentialCanonical(t, v.projectCredentialFixture, `UPDATE agenteam_project.projects SET owner_user_id=$2,version=version+1,updated_at=clock_timestamp() WHERE id=$1`, v.project.ID.String(), v.otherBrowser.actor.Details().UserID)

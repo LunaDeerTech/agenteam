@@ -1,0 +1,28 @@
+{
+  "status": "PASS narrow STATIC; actual rerun not part of this check",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate06/manifest.json",
+    "sha256": "138e5263a8c7dce66670c7b01551de9074c64c780f975453a1bb249d488c4788"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate06/archiving-setup.delta",
+    "sha256": "badae2e63f89e8d17946533d8afce217f18b2b91bce3344de88c1ca5217dc7ac"
+  },
+  "checks": [
+    "all14 snapshots verified; only #11 changed",
+    "preparation isolated formally created Project+same-Project credential/body; original actor, initial version1 and current scope valid",
+    "existing gate formally BeginArchive persists operation/manifest/participants/Audit/Outbox and satisfies pointer/FK; no copied operation SQL",
+    "original full Model+all Secret refs snapshot refusal retained; release and actualjoin cleanup registered before goroutine",
+    "six_history newProject uses same accepted gate; all six historical replay/newkey refusal remain",
+    "defer restores original Project/scope; Archived helper terminal SQL is explicit authority fixture only, no participant runtime claim"
+  ],
+  "prior_incomplete_suggestion": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-account-static05/lifecycle-followup-correction.json",
+    "sha256": "045653e0063d0b500a01f7eccfb142a49d52d2d8c1b405efa6a62e6a42149a2a"
+  },
+  "limits": [
+    "No Go/native/PG run for this STATIC",
+    "authority02 raw specific PG constraint not recorded, preserve original failure without backfilling",
+    "Production/sharedhelper/budget unchanged"
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "status": "README15_FROZEN_FOR_NARROW_STATIC; technical14 previously accepted and unchanged",
+  "utc": "2026-10-07T23:44:57.283818+00:00",
+  "files": {
+    "internal/central/model/http_project_configuration.go": {
+      "sha256": "5f3c13a4d796bbecf6d302782d4bd46893513adf871759a8c11369d36c164c73",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration.go"
+    },
+    "internal/central/model/http_project_configuration_wire.go": {
+      "sha256": "2689130f0e462586f76c310628f99ec02db2b758474e038864630009c4d40b83",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration_wire.go"
+    },
+    "internal/central/model/http_project_configuration_test.go": {
+      "sha256": "d09f1a8709d2e821c5458c5923b5c243c5d72c2c5e07b6cd84bf748ef8d8ac3a",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration_test.go"
+    },
+    "internal/central/model/http_project_configuration_wire_test.go": {
+      "sha256": "51d6938d90991ae3e120f41a9e30adf4113c6895da694e6e34f2eb8a696196d6",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration_wire_test.go"
+    },
+    "internal/central/app/project_models.go": {
+      "sha256": "1efb3f0c95f05639db8f3da96cabb036d2a266859f425b418a031bebef57f5d0",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/app/project_models.go"
+    },
+    "internal/central/app/project_models_test.go": {
+      "sha256": "039912e56b1278d60d42e220d162b09ab7f8106484c5ae4ca3101f2ba7f46cc4",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/app/project_models_test.go"
+    },
+    "api/openapi/project-models.json": {
+      "sha256": "0ce108387b53167a9e7d218e7f15a34a9e1c81c3538338a24822c0d6719ce1f5",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/api/openapi/project-models.json"
+    },
+    "internal/central/model/http_project_configuration_native_test.go": {
+      "sha256": "b9b629661284a0f93979b6eba450be2f703644a45522e29c5a1542f2a5c147ec",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate03/src/internal/central/model/http_project_configuration_native_test.go"
+    },
+    "tests/model/project_configuration_write_http_fixture_test.go": {
+      "sha256": "126ae0c7b141caa82ebfce044fc9affd45179e3ccd31057ca63ae2cda312a380",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate04/src/tests/model/project_configuration_write_http_fixture_test.go"
+    },
+    "tests/model/project_configuration_write_http_test.go": {
+      "sha256": "2af31adbe083158cb806a1749c72198af7408b87379b45279c1ab293f73e5f01",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_write_http_test.go"
+    },
+    "tests/model/project_configuration_write_http_authority_test.go": {
+      "sha256": "75151a13387991a2d292a684d59b28f497d5ddbd3f19f919db7a495d63cc1d9f",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate06/src/tests/model/project_configuration_write_http_authority_test.go"
+    },
+    "tests/model/project_configuration_write_http_terminal_test.go": {
+      "sha256": "7ed76aaff68cced66ec9bcd13978edc79a2aa579903fa9da14684b358ffcab47",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_write_http_terminal_test.go"
+    },
+    "tests/model/project_configuration_write_http_root_test.go": {
+      "sha256": "f0adb77b3c330f45662b48d0f8d85f85c76f62fb00069ec2c518566d965cb656",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_write_http_root_test.go"
+    },
+    "tests/model/project_configuration_http_root_test.go": {
+      "sha256": "659a1a6cfd4b47e79620f63981454d1f7d5f8c6d9f7813620ad89109c8540f85",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_http_root_test.go"
+    },
+    "docs/development/backend/README.md": {
+      "sha256": "b41d4be58d8a8d0d79ec2d73c3caccf271c2f0382ef28ee566ffad51894f3b3f",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/readme15/README.md"
+    }
+  },
+  "readme_before": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/readme15/before.md",
+    "sha256": "b5b4444d61af796a9ecd5843b4de9cfd55981324e21ba1e6ef4b0c991bac0e5e"
+  },
+  "readme_delta": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/readme15/readme.delta",
+    "sha256": "5107b54d363e974bc9a803edbed5e5b1490f4b6aa3b182e3272dab5ad631c85d"
+  },
+  "technical14": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/effective14.json",
+    "sha256": "0298fad3b751636e37e9c9814dc228dd6b7f4428810daa426406d5c065e8d830"
+  },
+  "author_final": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/author-final06.json",
+    "sha256": "8ed1f817d164db52b6ffb6cb8ea5b4d083aca853994b750619f2b763efe997af"
+  },
+  "independent_technical14": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-final14/result.json",
+    "sha256": "e1fd265669627297cdff0c4b456752179a2e397cbcfbec54ee933e491826a8fa"
+  },
+  "scope": "Only backend README changed; no Go/resource/Git operations"
+}

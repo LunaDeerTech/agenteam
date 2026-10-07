@@ -1,0 +1,6 @@
+{
+  "kind": "scratch graph inheritance postprocess AssertionError, not Go/test behavior failure",
+  "trigger": "Over-specific check for /encoding/json/encode.go on Go1.27.1 actual graph; current encoding/json dependency already has38 effective files under variant names",
+  "sequence": "input08 and private delta saved before assertion; compile-pg05 separately ran fixed input08+overlay04 successfully; actual-graph04 not saved by failed script",
+  "resolution": "Do not rerun unrelated Go graph; confirm already effective encoding/json package sources. Further list/runtime gate/proposal paused on root request due author authority02 failure."
+}

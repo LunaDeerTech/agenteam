@@ -1,0 +1,18 @@
+{
+  "original_raw": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-authority01/raw.log",
+    "sha256": "b2942d0071945d9660acbd2e80068928a8f96af5e5ce3a6f90c71f0268a0c37a"
+  },
+  "original_result": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-authority01/result.json",
+    "sha256": "e2c9eee3d3bf898a5a90f4fec699af589e811d1258d17c0073343459b8d3cc65"
+  },
+  "observed": "outside full comparison passed then formal Login/Logout then HTTP401SessionRevoked passed then complete snapshot mismatch; later groups stopped",
+  "limit": "original raw did not identify changed bucket/rows; no dynamic attribution fabricated",
+  "static_chain": [
+    "project_usage_http_fixture.go:314 -> system_http_fixture_test.go:374 -> account.Login",
+    "account/login.go:284 RetainReferenceUsage System;338-341 ApplyWrite+UsageInTx",
+    "account/response.go:166 Close ReleaseLeaseUsage; reference removal belongs to recovery.go:389-413"
+  ],
+  "fix": "same complete refs SQL retained; five Model buckets and exact Model-owned Secret reference rows bridge setup, then all complete bytes checked around rejection"
+}

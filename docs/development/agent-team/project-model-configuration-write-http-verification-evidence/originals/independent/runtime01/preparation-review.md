@@ -1,0 +1,13 @@
+# 独立 native/A/B 准备
+
+PREPARED / offline PASS，真实资源尚未授权。固定candidate03，未改业务或官方文档。精确命令与指纹见proposal01.json；root交唯一窗口之后另冻结execution权限，不改proposal原件。
+
+两私有源已race编译、精确list及vet通过。有效图400包/2569源、两个生成test main、选包无自定义TestMain/init；仅新增两私有源，依赖不扩。完整fixture原20生成main与实际tests/process TestMain双cmd构建链经接受图继承；本次不重复大图。原图汇总首个Python断言误将非选中依赖TestGoFiles元数据算成有效输入，原文件保留，随后按实际GoFiles variants闭合；不是Go失败。native首次编译在原go list成功后、后处理纠正前已开始，输入始终由完整继承closure固定；没有执行任何test body。
+
+九条离线命令均45s内actualwait、双owned空及输入同。native仅#5新HEAD判据变化后受影响重编；PG选包不消费internal/model测试文件，原已过PGbinary有效复用。当前无在飞命令。
+
+native只测一个实际TCP组合：HEAD405错误尾部→闲置超过lookup2s→有效写→显式lookup，复用作者自然30s。A重组缺adapter拒绝前后完整Model索引与独立Secret引用snapshot；目标真实backend已完整事实并持唯一CommandEX，实际C(COMMIT)+Z(I)之后才断ACK，原Store真正Unknown、原ctx私有确认成功与被动EX查询分列。代理继承接受凭据独审的closing门禁和双方actualjoin，帧写改用本卡已审完整写helper，不复制Secret不自动确认语义。唯一Service调用由已有controlled+生产STATIC证据提供；integration不谎称有无法注入的导出Service wrapper，仅观察单HTTP、唯一写与原确认两Tx、无隐式query。
+
+B使用真正默认app.Run，正式凭据→Provider/Model→五读、真实Secret引用、完整Allow、update后的历史create lookup；辅助archived事实下当前Read可重放、新key拒绝，normal drain/restart重新查证。不是Archive全域E2E，也不重复作者forced关闭矩阵或称root返回等于inner全部join。
+
+Native driver函数/原parser同，40/45/15/75及新PID/TCP基线保持；PG除了固定selectors、overlay有效输入和显式Go overlay标志，其余main/watchdog/wait/cleanup全部原样，120含Cleanup/6m、fresh5GiB、两localdigest不pull、实际7资源双清保持。每轮一个top、独立safe目录、原bytes与实际header/run/input一致绑定。失败实际清尾停止后继，禁止自动retry。作者所有旧红、candidate版本和非owned限制留存。

@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 40760.576854513,
+      "top": "TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts"
+    },
+    {
+      "event": "result",
+      "monotonic": 40764.881116604,
+      "observed_seconds": 4.304262091005512,
+      "reported_seconds": 4.31,
+      "state": "FAIL",
+      "top": "TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts"
+    }
+  ],
+  "expected": [
+    "TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts"
+  ],
+  "failures": []
+}

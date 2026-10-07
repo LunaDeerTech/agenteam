@@ -1,0 +1,41 @@
+{
+  "status": "FROZEN_PRODUCTION01_FOR_INDEPENDENT_STATIC_NOT_COMPILED_TESTED",
+  "baseline": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "handoff": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/handoff01.json",
+    "sha256": "02cfe052108c8db0c1a6049e9e11383d6198fc7f23318e3cdf89f0233938aa89"
+  },
+  "files": {
+    "internal/central/model/http_project_configuration.go": {
+      "path": "/workspace/agenteam/internal/central/model/http_project_configuration.go",
+      "sha256": "5f3c13a4d796bbecf6d302782d4bd46893513adf871759a8c11369d36c164c73",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/production01/src/internal/central/model/http_project_configuration.go"
+    },
+    "internal/central/model/http_project_configuration_wire.go": {
+      "path": "/workspace/agenteam/internal/central/model/http_project_configuration_wire.go",
+      "sha256": "2689130f0e462586f76c310628f99ec02db2b758474e038864630009c4d40b83",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/production01/src/internal/central/model/http_project_configuration_wire.go"
+    },
+    "internal/central/app/project_models.go": {
+      "path": "/workspace/agenteam/internal/central/app/project_models.go",
+      "sha256": "1efb3f0c95f05639db8f3da96cabb036d2a266859f425b418a031bebef57f5d0",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/production01/src/internal/central/app/project_models.go"
+    },
+    "api/openapi/project-models.json": {
+      "path": "/workspace/agenteam/api/openapi/project-models.json",
+      "sha256": "0ce108387b53167a9e7d218e7f15a34a9e1c81c3538338a24822c0d6719ce1f5",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/production01/src/api/openapi/project-models.json"
+    }
+  },
+  "patch": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/production01/changes.patch",
+    "sha256": "033f5f6162bfd9892c86e40f646f75a7cc8c2222b7df18973397a58456b330d3"
+  },
+  "unchanged_original_read_operations": 10,
+  "unchanged_original_read_schemas": 12,
+  "new_operations": 7,
+  "readonly_roots_and_README_match": true,
+  "other10_technical_files": "not yet frozen; author continues only test sources",
+  "IO_provenance": "configuration-private controller/tail copied with names changed from accepted credential adapter; no changes to old helper; no Secret write/lookup semantics reused",
+  "Go_resources_run": false
+}

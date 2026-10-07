@@ -1,0 +1,4 @@
+=== RUN   TestIndependentConfigurationNativeMixedMethods
+    independent_configuration_runtime_test.go:63: one real TCP: HEAD405 Flush/Close -> idle over 2s -> write200 -> lookup200; exactly one write and one lookup
+--- PASS: TestIndependentConfigurationNativeMixedMethods (2.11s)
+PASS

@@ -1,0 +1,24 @@
+--- author-native-v01
++++ independent-native-v01
+@@ -1,10 +1,10 @@
+ from pathlib import Path
+ import os,sys,json,hashlib,subprocess,time,signal,ctypes,re,shutil
+-BASE=Path('/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01')
++BASE=Path('/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native-driver-v01')
+ REPO=Path('/workspace/agenteam/internal/central/model')
+ from trace_parser import parse_trace
+ FROZEN=json.loads((BASE/'execution-freeze.json').read_text())
+-GROUPS={'list':('^TestProjectModelConfigurationNative(Keepalive|BodyDeadline|WriteAndClose)$',0,0), 'keepalive':('^TestProjectModelConfigurationNativeKeepalive$',1,0), 'slowbody':('^TestProjectModelConfigurationNativeBodyDeadline$',3,3), 'writeclose':('^TestProjectModelConfigurationNativeWriteAndClose$',10,10)}
++GROUPS={'independent':('^TestIndependentConfigurationNativeMixedMethods$',1,0)}
+ MODE=sys.argv[1]
+ assert MODE in GROUPS
+ assert MODE in FROZEN['permitted_modes']
+@@ -34,7 +34,7 @@
+ tmp=OUT/'tmp';tmp.mkdir()
+ env={'PATH':'/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin','TMPDIR':str(tmp),'GOTOOLCHAIN':'local','GOENV':'off','GOPROXY':'off','GOSUMDB':'off','GOPATH':'/workspace/go','GOMODCACHE':'/workspace/go/pkg/mod','GOCACHE':'/workspace/.cache/go-build','GOWORK':'off','CGO_ENABLED':'1','GOFLAGS':'-mod=readonly -p=1','GOMAXPROCS':'2'}
+ if MODE!='list':env['AGENTEAM_PROJECT_MODEL_CONFIGURATION_NATIVE']='1'
+-binary=['/workspace/scratch/project-model-configuration-write-http-author/model-native-race01.test']
++binary=['/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native02.test']
+ if MODE=='list':binary+=['-test.list='+SELECTOR]
+ else:binary+=['-test.count=1','-test.parallel=1','-test.timeout=40s','-test.run='+SELECTOR,'-test.v']
+ command=['/usr/bin/strace','-D','-f','-ttt','-yy','-e','trace=socket,bind,listen,connect,accept,accept4,getsockname,getpeername,shutdown,close','-o',str(OUT/'trace.raw')]+binary

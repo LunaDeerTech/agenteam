@@ -1,0 +1,12 @@
+{
+  "status": "preliminary STATIC explanation only, pending completed authority02 raw/result freeze",
+  "sources": {
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate05/src/tests/model/project_configuration_write_http_authority_test.go": "9b75ffddccc29785c4eb2fbbba5f715a086bd473dbd3ea9373aef2fa99b9e77f",
+    "/workspace/agenteam/db/migrations/00013_project_owner.sql": "6ec8c84b7fcedd538550ece134c2df3e35febfe13e4906c74aa91dd1fe878cc0",
+    "/workspace/agenteam/tests/model/project_credentials_http_authority_test.go": "1e7f69af5fc54583a287a0808bb05e7657bdf90353578b3612dd3ec37463d3df"
+  },
+  "finding": "Both candidate05 auxiliary archiving UPDATE statements omit non-null current_lifecycle_operation_id required by 00013_project_owner.sql line17. Existing helper holds Project EX and original WithinTx; it reports wrapper fault, not SQLSTATE.",
+  "boundary": "No product gate/rollback regression established. Original round fail cannot be backfilled with precise PG constraint details. Model terminal gate subcase reportedly passed but entire author top remains FAIL until fixed rerun.",
+  "minimal_scope": "Only two #11 auxiliary archiving setups need legal OperationID; restore active should clear pointer. Shared helper/product and lifecycle E2E scope remain unchanged.",
+  "independent_runtime": "Own private A repaired Account setup only; compile05 actual0/closed; further list/proposal paused by root, original proposals retained."
+}

@@ -1,0 +1,19 @@
+{
+  "status": "scratch only; product source unchanged, no compile/resource rerun",
+  "source_sha256": "9b75ffddccc29785c4eb2fbbba5f715a086bd473dbd3ea9373aef2fa99b9e77f",
+  "proposed_sha256": "75151a13387991a2d292a684d59b28f497d5ddbd3f19f919db7a495d63cc1d9f",
+  "patch_sha256": "badae2e63f89e8d17946533d8afce217f18b2b91bce3344de88c1ca5217dc7ac",
+  "raw": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-authority02/raw.log",
+    "sha256": "f0a3df5c29070463e9924e0b341cfe9b0c00b41ba8f6e526c1697228148a97b9"
+  },
+  "result": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-authority02/result.json",
+    "sha256": "aff4ff40e0a953427bd2c63df86ad5ca9177647cb4d9d5691e9fc1c11f1fd449"
+  },
+  "cause": "accepted migration00013 requires nonnulloperation in archiving and FK to lifecycle_operations; generic raw has no specific PG detail, do not backfill",
+  "setup": "existing gate278 and already bound registry147 formally BeginArchive persisting operation/manifest/participants/Audit/Event; no new adapter or operation SQL",
+  "isolation": "preparation sub uses private Project plus its own formalcredential/body then restores fixture project/scope; no active rollback needed, no accepted operation on mainProject",
+  "limits": "Archived existing helper supplies auxiliary terminal state; participants never stopped/called; no acceptance of lifecycle runtime",
+  "aux_sql_check": "bounded scan of five own integration sources; remaining SQL audited against fixed00002/00003/00008/00013/00015/00020, no additional setup constraint mismatch found statically; root ALTER reversible isolated fixture, MaxInt64 and reset legalversion, owner_user_id realformalUser underProjectEX, snapshot modelsJOINfixed; finalpreparedqueries read-only and reference columns existent"
+}

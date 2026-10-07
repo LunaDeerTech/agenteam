@@ -1,0 +1,383 @@
+{
+  "status": "passed-round actual safe original bytes only",
+  "bodies": {
+    "new-crud02/lookup-absent": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/lookup-absent.json",
+        "sha256": "3998c1796653397077a9d89f2413eda9cc774701a9fd955f0622f4b549bb6d28"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/lookup-absent-source.json",
+        "sha256": "8b98d66aeeaf1db0e53259181bbfe0a2123913769b50517e3c8e24aaffb13495"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-crud02/lookup-found": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/lookup-found.json",
+        "sha256": "ad91bd41db87080f7e86648e0f2aa01d0d8f347f0565dad615857cb423a94018"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/lookup-found-source.json",
+        "sha256": "b39f7fecbbcc60641bcb6f03945272b34a7c1a101793cb1806229344b573b2ae"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-crud02/model.create": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/model.create.json",
+        "sha256": "34949ac710c329a15b4d6f2fb322ed4aef59e54ab36cd4b0800afbd13ca8df7c"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/model.create-source.json",
+        "sha256": "05134413ffc80a0cb9b7ac4b70742c4efcf0863b331f8c88ff458fcb7a98ca5c"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-crud02/model.delete": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/model.delete.json",
+        "sha256": "ee3f26ed04ec1782a7df9a4517978c0b5badf8061c1bd39e9a6d77b3787c89c7"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/model.delete-source.json",
+        "sha256": "c4f526c25c2f20270fed0b68a138c119d66cc7b054926cc9ed4d9917706c89e2"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-crud02/model.update": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/model.update.json",
+        "sha256": "f223f2afa7c688a213c9b1ac87b5fdfd32b161aaf7791580c72a7d9f63828557"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/model.update-source.json",
+        "sha256": "c2ed01035356078b91116d484b121f91794ba89bc8df415b9f9b2f9fd4c46a0e"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-crud02/provider.create": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/provider.create.json",
+        "sha256": "d5b8671de6c1f162973dc236e1852e69ca806b3a55b6896012e93612c8945926"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/provider.create-source.json",
+        "sha256": "910a5d6ce64a9512454029a6b3d1ea32647744e8aa5214e5d0d083db94cc15cd"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-crud02/provider.delete": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/provider.delete.json",
+        "sha256": "d2ccd0155e97c0aaf2a3119a9e6e736f4c6aafb7413a244ebc30d9419576c4c5"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/provider.delete-source.json",
+        "sha256": "fd6cfbb3dda545511a64adec6c2fcaeb7ad537f1166a314a1c56b08c1b8060be"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-crud02/provider.update": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/provider.update.json",
+        "sha256": "8ac5ef16692b6018ab706bf2dacac554d8dc650c27b43bc6d14466c959286d21"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/safe-http-evidence/provider.update-source.json",
+        "sha256": "426f2e9bd75e83825fda34e409203f9de5122790eba053eb4b75de0bf38ce86d"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-unknown01/confirmed-write": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/safe-http-evidence/confirmed-write.json",
+        "sha256": "7f6d7b519a4f6dbc6e677f2804f4b04ea29bfd964f255ac319628ff86a4d62dc"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/safe-http-evidence/confirmed-write-source.json",
+        "sha256": "5114272666e58a98cc6fff00f54cc0f339de7a5dd3a484aef340394d2255bf4d"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-unknown01/lookup-read-unknown": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/safe-http-evidence/lookup-read-unknown.json",
+        "sha256": "c55158048fbbfe9b8df4dfca81fc3940f0b1daec68b714c395facb3d9a3c665f"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/safe-http-evidence/lookup-read-unknown-source.json",
+        "sha256": "574c446b32e608830199aae07450eb686b34ba0a57ad14af7acab28ea294ecee"
+      },
+      "kind": "controlled read terminal replacement after real read, not physical ACKdrop",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-unknown01/unknown-pending": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/safe-http-evidence/unknown-pending.json",
+        "sha256": "ae267f11e7ea74200d69806e2ffbdf18f0fd858535c14fdcc8eb591476949374"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/safe-http-evidence/unknown-pending-source.json",
+        "sha256": "da23554c9e32b65a81d7967e82bf38f800607154f47a2b3671ec8acffd87065a"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-unknown01/unknown-rollback": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/safe-http-evidence/unknown-rollback.json",
+        "sha256": "ba676deee986a1afc737b326d22ad0152f12feec3b465fa021105c77e4d6c08c"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/safe-http-evidence/unknown-rollback-source.json",
+        "sha256": "3693853addeae04527c05eb8c8ced51b323be9db5d0f52ce96957ebaca63aaba"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-root01/root-model.create": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/safe-http-evidence/root-model.create.json",
+        "sha256": "7ca43c309a712661cf1bddacfb5257bfd8308c2ebf47cfebb6468a45f4500dc9"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/safe-http-evidence/root-model.create-source.json",
+        "sha256": "41c55db0343bd0a66540e9363b26109ac0505679b5febbb0c5966b9aeb6f79b4"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-root01/root-model.delete": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/safe-http-evidence/root-model.delete.json",
+        "sha256": "6a2daf97b5c5fb5f1a6d5f4be7e434c601340bcf8cdbbe3afedbae7f4b72a96c"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/safe-http-evidence/root-model.delete-source.json",
+        "sha256": "4983c033be4ae512416e3eeb034e7eaad27847f05652d45fd91d75e3fab8199e"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-root01/root-model.update": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/safe-http-evidence/root-model.update.json",
+        "sha256": "e4168fbfe5d963aa61e1f1a8629d6498b20e2147d2b33ab7882cc044abbf9dc6"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/safe-http-evidence/root-model.update-source.json",
+        "sha256": "febacfe448ad84d1cd5bbc4c791942e66ed8acbba893eaf47b1bb3b86591194b"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-root01/root-provider.create": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/safe-http-evidence/root-provider.create.json",
+        "sha256": "c27cdc15fe8be8feeccd56b3143f65b36babd9fb45b557668cfd962d95f05b22"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/safe-http-evidence/root-provider.create-source.json",
+        "sha256": "7f93a7c4f4de1a8ec93e8fad8ac437c36a37f4404ad5c9d49de5fce1f07d8485"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-root01/root-provider.delete": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/safe-http-evidence/root-provider.delete.json",
+        "sha256": "1468ff1bb4bba53bb247a3389abe98fbd24b8e71f43dfc28be307bea8f0a10c4"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/safe-http-evidence/root-provider.delete-source.json",
+        "sha256": "386fa00f9eb0716a427d8a3d9005b318bf94379e63ed1bdb1a557be0f8aa865c"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "new-root01/root-provider.update": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/safe-http-evidence/root-provider.update.json",
+        "sha256": "8dede9e84841eb3fb834e08fdd047aa0bd9951ba4f575c505f9636f6808ff61e"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/safe-http-evidence/root-provider.update-source.json",
+        "sha256": "ce76ca7edfa23771cbef65c4a2066af7aa4ff4bfa0f4485b3f9c6441d2d8a278"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "configuration-write new HTTP evidence"
+    },
+    "old01/create": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/create.json",
+        "sha256": "302a417f49f60f7bd810e10fcdd1bc45c2c93af758245ad6c78107dfbb4e86cc"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/create-source.json",
+        "sha256": "596eb8f07f5db2cff2b40fcca18b08469e8315ee8f6c62cbd633be91194af90b"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    },
+    "old01/lookup-create": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/lookup-create.json",
+        "sha256": "0c70584103b398e43c08ad4a338c709b9aef7fab67b79bdc82ea3a5e4c04953d"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/lookup-create-source.json",
+        "sha256": "8347f09f730b34e892248a7566b806352b696cb0acd978d20f0364c644641533"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    },
+    "old01/lookup-delete": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/lookup-delete.json",
+        "sha256": "912395ec4a7341e82bc1544a4f2328013f33a8c16ad5f8e5c08eca30c4ad7ad5"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/lookup-delete-source.json",
+        "sha256": "77ea4010d8f408c062b82039449bc24c25af45031fab5032ea2202a64493a720"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    },
+    "old01/lookup-update": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/lookup-update.json",
+        "sha256": "a07c5cfccee0a14991f367bfadfcbbbafa02afab09a62e57be8ef36f388e4168"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/lookup-update-source.json",
+        "sha256": "49c943b5f1ef8c48f80ccf47c89fc205349f13edac11a0bb1fe57e84d42a6b7c"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    },
+    "old01/metadata": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/metadata.json",
+        "sha256": "7782a246078c24cb0654c65a0bea147d7073400a4c597aba1b759f28a8e94e88"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/metadata-source.json",
+        "sha256": "3d57ac300af84a10fae064a3b0e76e78321ab7da561d1acd8398b5a39b3f7ceb"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    },
+    "old01/root-available": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-available.json",
+        "sha256": "05709513a2b801bbe8fa8a114dc1fd1a12377603a8ae7f09ce9ea02e800975f6"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-available-source.json",
+        "sha256": "ef2b53719b0966767ebe48d072b88bb50685297bc2265200d5f32324f8c5973d"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    },
+    "old01/root-create": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-create.json",
+        "sha256": "d7bdc1163999a3704b6acb02e94b140f4f383f4521606e9449129ae154c3a49f"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-create-source.json",
+        "sha256": "72939b5542e2903744b85d579a2f52d05eaa54c10d8060cef74fdad013f38f65"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    },
+    "old01/root-lookup": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-lookup.json",
+        "sha256": "cbce8ed4f844f9eeba2ba8268452ea3569b42db48f34eab32f01fd509fdc6486"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-lookup-source.json",
+        "sha256": "599d0661cab0e8bc377fd88cd8c5b17d1610feb8ba139719e1477c4486628cb3"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    },
+    "old01/root-metadata": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-metadata.json",
+        "sha256": "3416af6588cb7f2bdaa0c222e0ad97efbbefcf8df5c75290d4f8273486555ee0"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-metadata-source.json",
+        "sha256": "17e51b7154925834fed15c1861e0d0ab49ea055982424d8bb7b10e1dfffc2a23"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    },
+    "old01/root-model": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-model.json",
+        "sha256": "d05e03bab65a20c7e392712c509685f66b035991f51b71c7633ea4abc4816b13"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-model-source.json",
+        "sha256": "0ea1aff170b3d040d86367ec61e9069cfb8ec100b7c33b5a88f609b34a8ca37f"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    },
+    "old01/root-models": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-models.json",
+        "sha256": "0859e1b9eb3abc9f61a58344404e4cb773956b536f7bb246ebfd8965d54516e9"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-models-source.json",
+        "sha256": "82d3b435176034fe93d9fcfff55a00dcc30e3562a654862930cd936152b96c7d"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    },
+    "old01/root-provider": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-provider.json",
+        "sha256": "80470c9c95ad6bf3773ca29cc16f0bef9365e3202e1399f5467165fd8aa51bab"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-provider-source.json",
+        "sha256": "c1f8b79d3ed0b474ef1bed51f705fbea311ff37a231088320f6face1c5e11901"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    },
+    "old01/root-providers": {
+      "body": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-providers.json",
+        "sha256": "96c79898fcf9ef0e101601454b69346ce08a3808b004ea818d2a2f52e0a553c6"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/safe-http-evidence/root-providers-source.json",
+        "sha256": "fede3aff5b4c246f75fd9623b5b35d6b31ca66b1b72d5792576dee843cbf05ae"
+      },
+      "kind": "original actual HTTP bytes/status/header metadata; source run retained",
+      "scope": "legacy regression actual body"
+    }
+  },
+  "limits": "writer held-proxy closes client first, then actual server COMMIT/ROLLBACK C+Z terminal and ACKdrop; StoreUnknown and original-context confirmation independent facts. lookup-read-unknown is controlled terminal substitution after actual read. Neither claims independent terminal-first. Failed-run outputs not promoted.",
+  "counts": {
+    "configuration_write_new": 18,
+    "legacy_regression": 13,
+    "total": 31
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "status": "PASS completed author rounds read-only evidence and independent offline raw-body schema; no independent PG",
+  "input": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/authority-unknown-input.json",
+    "sha256": "656e9c923a3b71d8b52cc56b12a77a296b7dcc11c48688d981ad9c991c19cc29"
+  },
+  "schema_input": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/schema-input02.json",
+    "sha256": "216717612fa52a6c47b9538077da1ed859f67d57eda3fe5f3afefeeb931c4706"
+  },
+  "script": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/check_authority_unknown.py",
+    "sha256": "b0a907639bb34f3854eaefbd3a4fdfc814a2922e1362103c769d3479fcae77fc"
+  },
+  "offline_result": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/authority-unknown-schema01/result.json",
+    "sha256": "5206f2eb200ea832ac96d2f0fcf85c4b7bb57e99260c5cea549a4ee77b233d4e"
+  },
+  "validated_result": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/authority-unknown-schema01/stdout.log",
+    "sha256": "1aa92698b256edcc1cd3cf700572c986b370d21f8a51e7f66529b82c65aaa44c"
+  },
+  "elapsed_seconds": 0.3581451720019686,
+  "checks": {
+    "authority": "1top11sub, 9.87s, exact Project gate rollback/complete snapshots/versioned setup fixes, no safe bodies exported",
+    "unknown": "1top4sub, 6.95s, original Store Unknown/cause/attempt/same-context confirmation; pending/committed/actualRollback/cancelled confirmation and separate public CommandEX query",
+    "safe_body_count": 4,
+    "owned_actual_wait_double_empty_inputs_same": true
+  },
+  "limits": [
+    "Writer proxy closes client before forwarding held COMMIT/ROLLBACK; real terminal C+Z later observed, not terminal-first.",
+    "lookup-read-unknown is a controlled terminal substitution after real read, separate from physical writer Unknown.",
+    "Original authority01/02 and CRUD01 failures and independent preliminary correction remain; no whole-product PASS or whole-machine zero."
+  ],
+  "original_failures": "Earlier authority01 snapshot Account setup and authority02 illegal archiving setup retained; terminal gate PASS formerly within FAIL now in full PASS. Native HEAD prior failure unchanged.",
+  "current_scope": "author root/shutdown/old and independent native/A/B still pending at review; no full product acceptance"
+}

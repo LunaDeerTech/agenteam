@@ -1,0 +1,7 @@
+14项技术范围限定 PASS。candidate06 的14工作树文件与冻结快照逐hash一致，生产仍是 production01；README15单独待审。
+
+复用作者纯/race/schema和三组native版本组合、最终五新八旧PG顶层；实际9轮PG含3次原失败均已wait与七资源双清。独立受控normal/race、真实native、A/B均通过：A补全Model引用索引与先真实COMMIT+idle再丢ACK后原上下文确认、正式Session恢复；B验证真实默认root历史查证、原读写组合及正常关闭重启。22份本卡安全原body分批经本地标准schema检验（作者18、独立4）；旧域13不混记。
+
+全部11轮PG的77个不同资源ID均核双清；44个新增PID1 daemon shim非owned、未wait，历史git/go/compile保持，不能称全机零。保留所有作者原红、私有A执行前基线修正、图后处理误断言及A启动前无spawn工具断线；原失败无细分日志的分支不倒填。作者held-writer与独立terminal-first、controlled read Unknown与物理writer Unknown、强制root返回与innerjoin严格区分。Archived辅助终局不代表participant runtime；生产Resolution/Invocations/D24仍未绑定。
+
+本报告不改业务或Git。全部自有命令/资源已停止并归窗，末件README后续窄审。精确原始入口与指纹见 result.json。

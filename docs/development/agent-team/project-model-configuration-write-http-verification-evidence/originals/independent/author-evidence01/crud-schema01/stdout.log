@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "body_count": 8,
+  "checks": [
+    {
+      "name": "provider.create",
+      "schema": "ConfigurationReceipt",
+      "body_sha256": "d5b8671de6c1f162973dc236e1852e69ca806b3a55b6896012e93612c8945926",
+      "bytes": 119,
+      "source_sha256": "910a5d6ce64a9512454029a6b3d1ea32647744e8aa5214e5d0d083db94cc15cd"
+    },
+    {
+      "name": "provider.update",
+      "schema": "ConfigurationReceipt",
+      "body_sha256": "8ac5ef16692b6018ab706bf2dacac554d8dc650c27b43bc6d14466c959286d21",
+      "bytes": 119,
+      "source_sha256": "426f2e9bd75e83825fda34e409203f9de5122790eba053eb4b75de0bf38ce86d"
+    },
+    {
+      "name": "provider.delete",
+      "schema": "ConfigurationReceipt",
+      "body_sha256": "d2ccd0155e97c0aaf2a3119a9e6e736f4c6aafb7413a244ebc30d9419576c4c5",
+      "bytes": 119,
+      "source_sha256": "fd6cfbb3dda545511a64adec6c2fcaeb7ad537f1166a314a1c56b08c1b8060be"
+    },
+    {
+      "name": "model.create",
+      "schema": "ConfigurationReceipt",
+      "body_sha256": "34949ac710c329a15b4d6f2fb322ed4aef59e54ab36cd4b0800afbd13ca8df7c",
+      "bytes": 116,
+      "source_sha256": "05134413ffc80a0cb9b7ac4b70742c4efcf0863b331f8c88ff458fcb7a98ca5c"
+    },
+    {
+      "name": "model.update",
+      "schema": "ConfigurationReceipt",
+      "body_sha256": "f223f2afa7c688a213c9b1ac87b5fdfd32b161aaf7791580c72a7d9f63828557",
+      "bytes": 116,
+      "source_sha256": "c2ed01035356078b91116d484b121f91794ba89bc8df415b9f9b2f9fd4c46a0e"
+    },
+    {
+      "name": "model.delete",
+      "schema": "ConfigurationReceipt",
+      "body_sha256": "ee3f26ed04ec1782a7df9a4517978c0b5badf8061c1bd39e9a6d77b3787c89c7",
+      "bytes": 116,
+      "source_sha256": "c4f526c25c2f20270fed0b68a138c119d66cc7b054926cc9ed4d9917706c89e2"
+    },
+    {
+      "name": "lookup-found",
+      "schema": "ConfigurationLookup",
+      "body_sha256": "ad91bd41db87080f7e86648e0f2aa01d0d8f347f0565dad615857cb423a94018",
+      "bytes": 144,
+      "source_sha256": "b39f7fecbbcc60641bcb6f03945272b34a7c1a101793cb1806229344b573b2ae"
+    },
+    {
+      "name": "lookup-absent",
+      "schema": "ConfigurationLookup",
+      "body_sha256": "3998c1796653397077a9d89f2413eda9cc774701a9fd955f0622f4b549bb6d28",
+      "bytes": 30,
+      "source_sha256": "8b98d66aeeaf1db0e53259181bbfe0a2123913769b50517e3c8e24aaffb13495"
+    }
+  ],
+  "actual_author_run": "new-crud02",
+  "independent_runtime": false,
+  "author_seconds": 51.506,
+  "owned_actual_wait_doublecleanup": true,
+  "run_input_sha256": "523a992576fda4956ad620e2d5d0b3525ad907d924740f45486c84301f60b64a"
+}

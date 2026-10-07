@@ -1,0 +1,178 @@
+{
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate02/manifest.json",
+    "sha256": "a9be2ef2bcd3e8f4397cf941517a825b948c45b1c6518b9ab9843c27e3f368dc"
+  },
+  "production": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/production01/manifest.json",
+    "sha256": "36105d193d9f28d3522d9e5a1d02774829aed3228576822868b5c7cfdd1e6b07"
+  },
+  "partial_pure_evidence": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/unit-results01.json",
+    "sha256": "8f681135db8cc5a7ef95b07954797d09b2b648b377634ce725a7ebf3074656c2"
+  },
+  "actual_graphs": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/actual-graph-full01.json",
+    "sha256": "f4ff42d3b491045e000dd39e69504e4e9064c45e85492320bb0520f558115256"
+  },
+  "checks": [
+    {
+      "run": "model-native-race-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/model-native-race-compile01/result.json",
+        "sha256": "d59fe21f4530b4c508bf82439a92ec3ddb1e2360b5ff193b29f1ffbe645ecf02"
+      },
+      "exit": 0,
+      "elapsed": 6.32506239599752,
+      "actual_direct_wait": true,
+      "adopted_waits": 0,
+      "owned_double_empty": true,
+      "inputs_same": true
+    },
+    {
+      "run": "native-list01",
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/native-list01/result.json",
+        "sha256": "6ca70a53557c021181c94e44bc3521e2f7f9a2bbd729928427bd0f8c2dded7f7"
+      },
+      "exit": 0,
+      "elapsed": 1.9566158520028694,
+      "actual_direct_wait": true,
+      "adopted_waits": 0,
+      "owned_double_empty": true,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-graph01",
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-graph01/result.json",
+        "sha256": "90020f890dc8d6fadab0b2099f3aa534a4cdf1e6431b7b2685b1d099c229cb7d"
+      },
+      "exit": 0,
+      "elapsed": 1.1438718479985255,
+      "actual_direct_wait": true,
+      "adopted_waits": 0,
+      "owned_double_empty": true,
+      "inputs_same": true
+    },
+    {
+      "run": "full-fixture-graph01",
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/full-fixture-graph01/result.json",
+        "sha256": "166a1c16e0345c98a27caa7ecb91432c980ee55b3d93c302fb81022254b18068"
+      },
+      "exit": 0,
+      "elapsed": 1.2779751240013866,
+      "actual_direct_wait": true,
+      "adopted_waits": 0,
+      "owned_double_empty": true,
+      "inputs_same": true
+    },
+    {
+      "run": "dynamic-cmd-graph01",
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/dynamic-cmd-graph01/result.json",
+        "sha256": "c645c85ef390deb8edf923919f098991902c8a8a9ddd92269d7c79312a6bbe4e"
+      },
+      "exit": 0,
+      "elapsed": 1.1048173290037084,
+      "actual_direct_wait": true,
+      "adopted_waits": 0,
+      "owned_double_empty": true,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-race-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-race-compile01/result.json",
+        "sha256": "9b71e19fdb26a641151e7f9287ad60cd49428195f4f301bc46a478061d02e630"
+      },
+      "exit": 0,
+      "elapsed": 9.086113789002411,
+      "actual_direct_wait": true,
+      "adopted_waits": 0,
+      "owned_double_empty": true,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-list01",
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-list01/result.json",
+        "sha256": "0490e373bdc65ed50b5c9ba9317d1b5042e3eea7abfc25aa9a90f7387062d7a5"
+      },
+      "exit": 0,
+      "elapsed": 1.9712760699985665,
+      "actual_direct_wait": true,
+      "adopted_waits": 0,
+      "owned_double_empty": true,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-vet01",
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-vet01/result.json",
+        "sha256": "7a3b688b1caf6df83af872584d72770b967ab8a70a962d5db30d0f75ad9ade94"
+      },
+      "exit": 0,
+      "elapsed": 3.697230543999467,
+      "actual_direct_wait": true,
+      "adopted_waits": 0,
+      "owned_double_empty": true,
+      "inputs_same": true
+    },
+    {
+      "run": "dynamic-build01",
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/dynamic-build01/result.json",
+        "sha256": "e7cd6fb4a6bbe3c743e64c0fc0d6ddac05b91c91e3ab26359d9441f3ed09a2f8"
+      },
+      "exit": 0,
+      "elapsed": 2.1383476900009555,
+      "actual_direct_wait": true,
+      "adopted_waits": 0,
+      "owned_double_empty": true,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-race-compile02",
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-race-compile02/result.json",
+        "sha256": "3bf476711e346e40092dc8372c4cbbaba1197d40f15d9f79f20f08ffd46f1739"
+      },
+      "exit": 0,
+      "elapsed": 7.89039880400378,
+      "actual_direct_wait": true,
+      "adopted_waits": 0,
+      "owned_double_empty": true,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-list02",
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-list02/result.json",
+        "sha256": "aa05894c1341f53a44ebec5957ea3d5e1f875c9c1d569c8aebdda80ed0703206"
+      },
+      "exit": 0,
+      "elapsed": 1.9523516210028902,
+      "actual_direct_wait": true,
+      "adopted_waits": 0,
+      "owned_double_empty": true,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-vet02",
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-vet02/result.json",
+        "sha256": "fc11ef3fed2a466922e8434082aa298c8975a931ce742a0034827d20abedb4a9"
+      },
+      "exit": 0,
+      "elapsed": 1.3836054880011943,
+      "actual_direct_wait": true,
+      "adopted_waits": 0,
+      "owned_double_empty": true,
+      "inputs_same": true
+    }
+  ],
+  "status": "offline checks PASS; native/PG conclusions are separate; generated TestMain20 enumerated not executed by these commands",
+  "resources_started_by_offline": false
+}

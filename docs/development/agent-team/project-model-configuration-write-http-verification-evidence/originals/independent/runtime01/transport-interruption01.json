@@ -1,0 +1,10 @@
+{
+  "kind": "exec-server transport disconnected before A launch received any result",
+  "time": 1791416196.4520695,
+  "native_command_sha256": "8bbe1cdc9056875ee200613bcf0242e927b3167aad4d675b0fb5de8a5cc53c86",
+  "native_actual_pass_wait_doubleclear": true,
+  "A_run_directory_exists": false,
+  "exact_A_driver_processes": [],
+  "resource_order": "fixed PG driver makes run directory before any runtime/resources/Docker mutation; no directory and no exact argv PID => no A resources could have been created by this invocation",
+  "scope": "tool transport event, not Go/test failure; no real retry of started round; subsequent A is first actual launch under original authorization"
+}

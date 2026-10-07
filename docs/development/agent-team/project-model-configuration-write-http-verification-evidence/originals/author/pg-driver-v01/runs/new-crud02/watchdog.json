@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 40684.29405436,
+      "top": "TestModelProjectConfigurationWriteHTTPCRUDAndHistory"
+    },
+    {
+      "event": "result",
+      "monotonic": 40691.097962557,
+      "observed_seconds": 6.803908197005512,
+      "reported_seconds": 6.79,
+      "state": "PASS",
+      "top": "TestModelProjectConfigurationWriteHTTPCRUDAndHistory"
+    }
+  ],
+  "expected": [
+    "TestModelProjectConfigurationWriteHTTPCRUDAndHistory"
+  ],
+  "failures": []
+}

@@ -1,0 +1,55 @@
+--- candidate05/tests/model/project_configuration_write_http_authority_test.go
++++ proposed/tests/model/project_configuration_write_http_authority_test.go
+@@ -125,6 +125,13 @@
+ 				v.sameSnapshot(t, stable)
+ 				return
+ 			}
++			// Isolate the real accepted lifecycle operation from the main Project.
++			original, scope := v.project, v.scope
++			v.project = v.createProject(t, v.owner)
++			v.scope, _ = id.InProject(v.project.ID)
++			defer func() { v.project, v.scope = original, scope }()
++			credential := v.create(t, "preparation-lifecycle-credential", "preparation-lifecycle-private")
++			create := projectUpdateJSON(t, map[string]any{"input": configurationProviderBody(credential)})
+ 			gate := &observedEvents{inner: v.events, entered: make(chan struct{}), release: make(chan struct{})}
+ 			d.Events = gate
+ 			v.installConfiguration(t, v.withDeps(t, d))
+@@ -139,11 +146,10 @@
+ 				done <- call("POST", v.base()+"model-providers", "gate-before-final", create)
+ 			}()
+ 			waitSignal(t, gate.entered)
+-			projectCredentialCanonical(t, v.projectCredentialFixture, `UPDATE agenteam_project.projects SET lifecycle='archiving',version=version+1,updated_at=clock_timestamp() WHERE id=$1`, v.project.ID.String())
++			v.gate(t, pc.Archiving)
+ 			release()
+ 			response := <-done
+ 			response.problem(t, 409, f.ProjectNotActive)
+-			projectCredentialCanonical(t, v.projectCredentialFixture, `UPDATE agenteam_project.projects SET lifecycle='active',version=version+1,updated_at=clock_timestamp() WHERE id=$1`, v.project.ID.String())
+ 			v.sameSnapshot(t, stable)
+ 		})
+ 	}
+@@ -274,8 +280,8 @@
+ 	})
+ 	for _, state := range []pc.Lifecycle{pc.Archiving, pc.Archived} {
+ 		t.Run("six_history_"+string(state), func(t *testing.T) {
+-			// Separate real Project in the same formal identity chain; isolated only
+-			// canonical lifecycle input under the actual Project EX lock.
++			// Separate real Project in the same formal identity chain, with the
++			// already accepted fixture's formal lifecycle acceptance setup.
+ 			original, scope := v.project, v.scope
+ 			v.project = v.createProject(t, v.owner)
+ 			v.scope, _ = id.InProject(v.project.ID)
+@@ -283,11 +289,9 @@
+ 			a := v.create(t, "archive-first-"+string(state), "archive-first-private")
+ 			b := v.create(t, "archive-second-"+string(state), "archive-second-private")
+ 			history := configurationWriteSix(t, v, "history-"+string(state), a, b, call, false)
+-			if state == pc.Archived {
+-				projectCredentialCanonical(t, v.projectCredentialFixture, `UPDATE agenteam_project.projects SET lifecycle='archived',archived_at=clock_timestamp(),version=version+1,updated_at=clock_timestamp() WHERE id=$1`, v.project.ID.String())
+-			} else {
+-				projectCredentialCanonical(t, v.projectCredentialFixture, `UPDATE agenteam_project.projects SET lifecycle='archiving',version=version+1,updated_at=clock_timestamp() WHERE id=$1`, v.project.ID.String())
+-			}
++			// Existing gate uses formal Archive acceptance; Archived then supplies
++			// explicit terminal Authority input, not participant stop execution.
++			v.gate(t, state)
+ 			configurationReplayHistory(t, v, history, call)
+ 			stable := v.snapshot(t)
+ 			for _, h := range history {

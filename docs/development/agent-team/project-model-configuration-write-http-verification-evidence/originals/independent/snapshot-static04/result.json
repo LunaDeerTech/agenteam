@@ -1,0 +1,58 @@
+{
+  "status": "PASS: proposed one-line fixture SQL repair and candidate04 exact placement STATIC; not a rerun",
+  "inputs": [
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/snapshot-query-plan01/finding.json",
+      "sha256": "0fb33b47282291f26c4063b77dfb943630e9bee5158c8f67b0e70402054ecd8f"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/snapshot-query-plan01/proposed.patch",
+      "sha256": "8acea980469b02b908b38118b97484ebf1a4b18d512888005de9e22b48a79379"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/snapshot-query-plan01/proposed.go",
+      "sha256": "126ae0c7b141caa82ebfce044fc9affd45179e3ccd31057ca63ae2cda312a380"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud01/raw.log",
+      "sha256": "edadb46a0f49bc040abb7cc0ec92924336fd68fe00be704a4cae7c81a3b64ee7"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud01/result.json",
+      "sha256": "7326a44b93c0f4851476e29d46b0267cd4147968f6a206f5da4bf831c02c1684"
+    },
+    {
+      "path": "/workspace/agenteam/db/migrations/00015_model_configuration.sql",
+      "sha256": "c1f4c4685d1710be4850994ce3e216d98c43201ac38b03e932fd610ab38b17af"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/project_query.go",
+      "sha256": "9ed9bf858b9b216e7c544dbe4fab92613c6371e5c97c1d94c905525b580f4602"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate04/manifest.json",
+      "sha256": "dc5c6eeb66167fb2773e7349c81c8fdf04b076f25e81d1e5a48815b709fcd98d"
+    }
+  ],
+  "observed": {
+    "actual_wait_completed": true,
+    "double_cleanup": true,
+    "driver_exit": 1,
+    "selected_tests_passed": false,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true,
+    "watchdog_thread_joined": true,
+    "observed_resources": 7
+  },
+  "observed_error": "only generic DATABASE_SQL_FAILED at first snapshot; PG per-column error/SQLSTATE not exported",
+  "static_cause": "models has no project_id; scope derives through provider_id, formal accepted Project query joins providers",
+  "repair": "models aggregate joins providers by primary key and scopes p.scope=project/p.project_id; retains full to_jsonb(m), stable m.id sort and [] fallback",
+  "scope": [
+    "tests/model/project_configuration_write_http_fixture_test.go"
+  ],
+  "all14snapshot_hashes_match": true,
+  "proposal_exact_bytes_landed": true,
+  "prior_review_limit": "full14 STATIC missed fixture SQL defect. Compile did not execute SQL. Preserve original FAIL and earlier static versions.",
+  "private_report_first_error": "report script used len() on integer observed_resources before writing artifact; corrected to preserve original scalar; no test/Go/resource command",
+  "next": "only private PG overlay/racecompile/list rebind; native unaffected; no real resources authorized"
+}

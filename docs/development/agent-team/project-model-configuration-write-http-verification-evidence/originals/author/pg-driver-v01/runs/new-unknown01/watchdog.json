@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 41720.733467048,
+      "top": "TestModelProjectConfigurationWriteHTTPUnknownAndLookup"
+    },
+    {
+      "event": "result",
+      "monotonic": 41727.679766446,
+      "observed_seconds": 6.946299398005067,
+      "reported_seconds": 6.95,
+      "state": "PASS",
+      "top": "TestModelProjectConfigurationWriteHTTPUnknownAndLookup"
+    }
+  ],
+  "expected": [
+    "TestModelProjectConfigurationWriteHTTPUnknownAndLookup"
+  ],
+  "failures": []
+}

@@ -1,5 +1,11 @@
 # 主线程统筹的开发团队
 
+当前增量（2026-10-07）：[Project Model配置写入HTTP](project-model-configuration-write-http-verification.md)完整15路径（14技术＋README）已接受，产品 `cc850b22` 已推送且root核远端一致。版本组合与原失败保留：5实际native（含作者首红）、11实际PG每轮7资源actualwait/双清，实表核77不同ID；44新增daemon/PID1 shim非owned、未wait，不称全机清零。本卡22原body与旧域13分列，全部任务窗口已归还。
+
+[Project Owner Audit规格](project-owner-audit-http-spec-verification.md) `9eb167e4`／归档 `210bd733` 已接受。以 `cc850b22` 为基线，root正式移交 `account.go`；usage_verification已ACK并开始唯一#1–14技术实施，必要45s离线已授，当前尚无执行结论。next_frontier已ACK，仅独立scratch准备；Audit #15–16文档末件与native/PG未授，产品未接受。
+
+既有Summary/Owner读写/Model读与凭据/Usage接受保持；系统管理员统一会议Summary initial/update含首轮标题，Project不override/复制初值，compaction/Execution Summary不改。production Resolution/Invocations与D24未绑定，ready503、D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止不变。以下旧记录保持其历史范围。
+
 用户与主线程讨论产品目标、可见行为和取舍；主线程专注沟通协调，将意图转成工程规格、任务与验收条件，并负责技术决定、调度、返修、最终整合和交付。业务实现、业务返修和成组文档修改委派对应子 agent；测试计划、证据分析、故障归因和独立验收交给专门验收负责人。主线程核对验收结论与关键证据、协调跨任务整合并执行 Git 交付。
 
 直接在 `main` 上按真实依赖推进工作项；没有未满足依赖的模块和完整结果任务可以并行，不再要求只有一个活动模块。依赖、契约和完整验收门槛见[开发计划](../development-plan.md)；单项任务完成不代表模块完成，所有适用门槛仍须完整通过。

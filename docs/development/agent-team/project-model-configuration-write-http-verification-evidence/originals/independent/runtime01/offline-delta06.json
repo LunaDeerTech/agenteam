@@ -1,0 +1,62 @@
+{
+  "status": "PASS necessary PG preparation only",
+  "inherits": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/offline-delta04.json",
+    "sha256": "1f17ea785dadb1a0d822b053254200914969f88ba017225f0aa4b096f5e4769f"
+  },
+  "intermediate_preserved": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/partial-offline05.json",
+    "sha256": "332f4154cb69821d70f26126bc23a7feb4a825d963178cf7960a272a79564339"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate06/manifest.json",
+    "sha256": "138e5263a8c7dce66670c7b01551de9074c64c780f975453a1bb249d488c4788"
+  },
+  "runs": [
+    {
+      "name": "compile-pg06",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/compile-pg06/result.json",
+        "sha256": "5f50db9ac384e9a4a909cd5398255df7fd68f8f97cd96821e3d0e9e06fa6498e"
+      },
+      "elapsed": 8.047358642994368,
+      "actualwait": true,
+      "double_owned_empty": true,
+      "input_same": true
+    },
+    {
+      "name": "list-pg06",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/list-pg06/result.json",
+        "sha256": "313b27c96dcc373ff1475a8e42dabfe4b05eeb8d7b7338beb3d119bc78240735"
+      },
+      "elapsed": 1.5467508729998372,
+      "actualwait": true,
+      "double_owned_empty": true,
+      "input_same": true
+    },
+    {
+      "name": "runtime-inputgate03",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/runtime-inputgate03/result.json",
+        "sha256": "e2f84f9c7feddde337739bb9a72361e1ff2c7a93f96170f90f6b46ed6c76baec"
+      },
+      "elapsed": 1.6950346220037318,
+      "actualwait": true,
+      "double_owned_empty": true,
+      "input_same": true
+    }
+  ],
+  "input_gate_files": 3330,
+  "native_recompiled": false,
+  "test_bodies_or_resources_run": false,
+  "private_repair": "A only Account setup snapshot bridge; STATIC discovery before real execution, not dynamic failure",
+  "private_delta": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/private-a.delta",
+    "sha256": "7326c23e6cb15a1afb75eca96350fd749ccad938a03875538174aa21d129268e"
+  },
+  "scratch_postprocess_failure": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/graph-postprocess-first05.json",
+    "sha256": "da314f7a8b0a0c2e3546bbc9442f0b9a23a6901fae18693afb4f551ca3f4bbd2"
+  }
+}

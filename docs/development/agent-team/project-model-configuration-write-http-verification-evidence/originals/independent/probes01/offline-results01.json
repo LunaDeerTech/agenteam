@@ -1,0 +1,94 @@
+{
+  "status": "OFFLINE_PREPARATION_PASS_NO_TEST_BODY",
+  "commands": [
+    {
+      "name": "format01",
+      "result": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/format01/result.json",
+      "sha256": "7f50f5220eb46f61490c993dd06ee7e8c098fc68708a6dc53ec5843d7371611a",
+      "exit": 0,
+      "elapsed": 0.34250458700262243,
+      "actual_wait": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true
+    },
+    {
+      "name": "graph-normal01",
+      "result": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/graph-normal01/result.json",
+      "sha256": "a8e67b26e0874a75944ab4e7e54448da761916bc8f3744c3ee15141ac1660572",
+      "exit": 0,
+      "elapsed": 0.628375842999958,
+      "actual_wait": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true
+    },
+    {
+      "name": "graph-race01",
+      "result": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/graph-race01/result.json",
+      "sha256": "9697a894d7e120e1235572dfdc517797c2bedd0a66f231edb3b4266294bb17ff",
+      "exit": 0,
+      "elapsed": 0.5758233669985202,
+      "actual_wait": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true
+    },
+    {
+      "name": "compile-normal01",
+      "result": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/compile-normal01/result.json",
+      "sha256": "56f6ad0cf68f6fab33bce63b06a8a33c78df4a159c0fb3edd164070d69916fbf",
+      "exit": 0,
+      "elapsed": 3.8562517739992472,
+      "actual_wait": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true
+    },
+    {
+      "name": "compile-race01",
+      "result": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/compile-race01/result.json",
+      "sha256": "1e6b009ce2ec6ae8b91478016ec48594fc8e8ba2feb60136cd4b4ad44b3b3ac9",
+      "exit": 0,
+      "elapsed": 5.466266880001058,
+      "actual_wait": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true
+    },
+    {
+      "name": "list-normal01",
+      "result": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/list-normal01/result.json",
+      "sha256": "528dee1100ae93a6494756f2c54179af0907a0b7ca16fe8327a6e7ee2f710f6e",
+      "exit": 0,
+      "elapsed": 0.3902920069958782,
+      "actual_wait": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true
+    },
+    {
+      "name": "list-race01",
+      "result": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/list-race01/result.json",
+      "sha256": "8a36fc372c0716cdd15340dedf421d9639cf1b21a611be3e8ddeb8d31203e63b",
+      "exit": 0,
+      "elapsed": 1.4050664309979766,
+      "actual_wait": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true
+    },
+    {
+      "name": "vet01",
+      "result": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/vet01/result.json",
+      "sha256": "9e4a02bd56fb9b03882b61e3590d733f9074038d7b999f39c1be7c79d688bb00",
+      "exit": 0,
+      "elapsed": 0.7936909599957289,
+      "actual_wait": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true
+    }
+  ],
+  "author_results": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/unit-results01.json",
+    "sha256": "8f681135db8cc5a7ef95b07954797d09b2b648b377634ce725a7ebf3074656c2",
+    "usage": "checked original results and raw fingerprints; author evidence only"
+  },
+  "graph_delta": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/graph-delta01.json",
+    "sha256": "10b62033939201de5e8568f08007eb64f8fb5353b35fe5c8640f12eb7fe41f8a"
+  }
+}

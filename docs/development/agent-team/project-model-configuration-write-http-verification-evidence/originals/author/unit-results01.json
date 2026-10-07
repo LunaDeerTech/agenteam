@@ -1,0 +1,138 @@
+{
+  "status": "partial7 offline PASS; native/integration absent and not accepted",
+  "candidate": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate01/manifest.json",
+  "commands": [
+    {
+      "name": "unit-graph-normal01",
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/unit-graph-normal01/result.json",
+      "sha256": "180f2fcd11883f58330693560eb8f2f71a527c7c80deff429667e8cee9121c72",
+      "exit": 0,
+      "elapsed": 1.1738432669953909,
+      "direct_joined": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true,
+      "top_pass": 0,
+      "sub_pass": 0
+    },
+    {
+      "name": "unit-graph-race01",
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/unit-graph-race01/result.json",
+      "sha256": "66e8361d44cfb2bdf47d2170eccd9b788d61449ae812d8708196522c3eaa64ed",
+      "exit": 0,
+      "elapsed": 1.1511234990030061,
+      "direct_joined": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true,
+      "top_pass": 0,
+      "sub_pass": 0
+    },
+    {
+      "name": "model-compile01",
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/model-compile01/result.json",
+      "sha256": "8886b343931f2390d9f52c664b97f4b45d9ff39a4a7166b75cbf66152cebf9be",
+      "exit": 0,
+      "elapsed": 4.6770843980048085,
+      "direct_joined": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true,
+      "top_pass": 0,
+      "sub_pass": 0
+    },
+    {
+      "name": "model-race-compile01",
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/model-race-compile01/result.json",
+      "sha256": "e3cbf3b2cdbd0eaa1a88fbccc3052ab636839f4063f1803742251fec6058300b",
+      "exit": 0,
+      "elapsed": 6.224136604003434,
+      "direct_joined": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true,
+      "top_pass": 0,
+      "sub_pass": 0
+    },
+    {
+      "name": "model-pure01",
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/model-pure01/result.json",
+      "sha256": "c848ab2231ca6b4a49f587cb0b5eae9231a47de705716ca60c14ebcc16362224",
+      "exit": 0,
+      "elapsed": 1.3445650680005201,
+      "direct_joined": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true,
+      "top_pass": 4,
+      "sub_pass": 137
+    },
+    {
+      "name": "model-race-pure01",
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/model-race-pure01/result.json",
+      "sha256": "bcbfef7337c950d06707eae711fd7716eaa233753f09ea3f79f362c9897e3a0f",
+      "exit": 0,
+      "elapsed": 2.9168283799954224,
+      "direct_joined": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true,
+      "top_pass": 4,
+      "sub_pass": 137
+    },
+    {
+      "name": "app-compile01",
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/app-compile01/result.json",
+      "sha256": "ba0cc4e2e0191df535b9124a6be3b282afd539c09030f0ac3c46da80e4b48fc4",
+      "exit": 0,
+      "elapsed": 5.297026604996063,
+      "direct_joined": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true,
+      "top_pass": 0,
+      "sub_pass": 0
+    },
+    {
+      "name": "app-race-compile01",
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/app-race-compile01/result.json",
+      "sha256": "e588b349559c5ce76cd6c1b7f67e7fd5d1837982c42fd4d2f35f74077e7f038c",
+      "exit": 0,
+      "elapsed": 6.8858134339971,
+      "direct_joined": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true,
+      "top_pass": 0,
+      "sub_pass": 0
+    },
+    {
+      "name": "app-pure01",
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/app-pure01/result.json",
+      "sha256": "390f18537ab9a6bd8914acd1bd450efd6443401f040dcbc09db1a49a8defc911",
+      "exit": 0,
+      "elapsed": 0.9534962170000654,
+      "direct_joined": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true,
+      "top_pass": 3,
+      "sub_pass": 62
+    },
+    {
+      "name": "app-race-pure01",
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/app-race-pure01/result.json",
+      "sha256": "b4c0afe5b8e3d3bf7690796a3ce74c423b68870931da7e63bfb3f356fabc723c",
+      "exit": 0,
+      "elapsed": 2.119812646000355,
+      "direct_joined": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true,
+      "top_pass": 3,
+      "sub_pass": 62
+    },
+    {
+      "name": "unit-vet01",
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/unit-vet01/result.json",
+      "sha256": "c954ebe44592c3a57a3d1c241e1f5e709a019cabd7841e3214153cdf27eb9b89",
+      "exit": 0,
+      "elapsed": 2.7739569440018386,
+      "direct_joined": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true,
+      "top_pass": 0,
+      "sub_pass": 0
+    }
+  ]
+}

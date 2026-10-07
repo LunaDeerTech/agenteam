@@ -1,0 +1,40 @@
+--- /workspace/scratch/summary-verification/project-model-owner-read-http-probes01/driver.py
++++ /workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/driver.py
+@@ -11,7 +11,7 @@
+ import time
+ 
+ ROOT = Path('/workspace/agenteam')
+-BASE = Path('/workspace/scratch/summary-verification/project-model-owner-read-http-probes01')
++BASE = Path('/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01')
+ INPUT = Path(sys.argv.pop(1))
+ INITIAL = json.loads(INPUT.read_text())
+ def checked_json(ref):
+@@ -26,6 +26,10 @@
+ for p,h in aux['files'].items():
+     if p.startswith(('/usr/','/bin/','/opt/','/workspace/toolchains/')) and not p.endswith(('.go','.s','.h','.c','.S')):
+         files[p]=h
++for original, replacement in INITIAL.get('overlay_replacements', {}).items():
++    files.pop(original, None)
++    if replacement:
++        files[replacement] = INITIAL['files'][replacement]
+ files.update(INITIAL['files'])
+ INITIAL['files']=files
+ 
+@@ -35,7 +39,7 @@
+ def fingerprints():
+     result = {p: hashlib.sha256(Path(p).read_bytes()).hexdigest() if Path(p).exists() else None for p in FILES}
+     for directory,row in INITIAL.get('package_file_sets',{}).items():
+-        names=sorted(p.name for p in Path(directory).iterdir() if p.is_file() and (p.suffix in SOURCE_SUFFIXES or row['embed_directory']))
++        names=sorted(p.name for p in Path(directory).iterdir() if p.is_file() and p.name not in INITIAL.get('excluded_file_set_names', {}).get(directory, []) and (p.suffix in SOURCE_SUFFIXES or row['embed_directory']))
+         result['@set:'+directory]=hashlib.sha256(json.dumps(names).encode()).hexdigest()
+     return result
+ 
+@@ -85,6 +89,8 @@
+     'GOCACHE': '/workspace/.cache/go-build', 'GOFLAGS': '-mod=readonly -p=1',
+     'TMPDIR': str(BASE / 'tmp'), 'CGO_ENABLED': '1', 'GOMAXPROCS': '2',
+     'AGENTEAM_PROJECT_READ_SCHEMA_PYTHON': '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3',
++    'AGENTEAM_PROJECT_MODEL_CONFIGURATION_NATIVE': '0',
++    'AGENTEAM_PROJECT_MODEL_CREDENTIAL_NATIVE': '0',
+     'AGENTEAM_PROJECT_OWNER_READ_NATIVE': '0',
+     'AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE': '0',
+     'AGENTEAM_PROJECT_MODEL_NATIVE': '0',

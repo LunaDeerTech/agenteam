@@ -1,0 +1,194 @@
+{
+  "status": "three groups version-combination PASS; first writeclose FAIL retained",
+  "candidate03_sha256": "dd2663f288ce88ef4aca0f2c7fe4176d682f97e0d2580c4b473bd6c0c7473bdb",
+  "rounds": {
+    "keepalive": {
+      "command": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/keepalive/command.json",
+        "sha256": "4434073af83a78c22002147776a4e766018f62e19e3cbbb008915ae21bd3d4b8"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/keepalive/raw.log",
+        "sha256": "b8fa9aa5e593bcb2d1144e9208ab570b13676e2de1ec708a74c4e49cee5c0e89"
+      },
+      "exit": 0,
+      "elapsed": 3.1534301420033444,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 1021869,
+          "starttime": "3952765",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791413578.974228
+        },
+        {
+          "role": "adopted",
+          "pid": 1021873,
+          "starttime": "3952765",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791413578.9794953
+        }
+      ],
+      "inputs_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "test_results": {
+        "top_passes": [
+          "TestProjectModelConfigurationNativeKeepalive"
+        ],
+        "sub_passes": [],
+        "test_bodies": true
+      },
+      "pass": true
+    },
+    "slowbody": {
+      "command": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/slowbody/command.json",
+        "sha256": "1dff40b0883e54685a3ed5f13db54892a6e6685d0b5722f7a0275776919af2cb"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/slowbody/raw.log",
+        "sha256": "7e0fa2099ef27507d742a689695dce81aecb0d60a5a1f5dcc867b4c0a4853907"
+      },
+      "exit": 0,
+      "elapsed": 33.20229628400557,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 1022857,
+          "starttime": "3961350",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791413694.8814054
+        },
+        {
+          "role": "adopted",
+          "pid": 1022861,
+          "starttime": "3961351",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791413694.886885
+        }
+      ],
+      "inputs_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "test_results": {
+        "top_passes": [
+          "TestProjectModelConfigurationNativeBodyDeadline"
+        ],
+        "sub_passes": [
+          "TestProjectModelConfigurationNativeBodyDeadline/natural_write",
+          "TestProjectModelConfigurationNativeBodyDeadline/natural_lookup",
+          "TestProjectModelConfigurationNativeBodyDeadline/earlier_parent"
+        ],
+        "test_bodies": true
+      },
+      "pass": true
+    },
+    "writeclose-first-failure": {
+      "command": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/writeclose/command.json",
+        "sha256": "8e86e3d8b39934fe93a67b21e8cd283ce39e16c78e7adc3c1afd582b1cf334af"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/writeclose/raw.log",
+        "sha256": "5ba01f6a751ab96d9ee4741b758bcd5cfd6be49ee3774e1de6df42081ddf927a"
+      },
+      "exit": 1,
+      "elapsed": 6.9409502600028645,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 1025165,
+          "starttime": "3982297",
+          "returncode": 1,
+          "actual_wait": true,
+          "time": 1791413878.0826519
+        },
+        {
+          "role": "adopted",
+          "pid": 1025169,
+          "starttime": "3982297",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791413878.088277
+        }
+      ],
+      "inputs_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "test_results": {
+        "top_passes": [],
+        "sub_passes": [
+          "TestProjectModelConfigurationNativeWriteAndClose/short",
+          "TestProjectModelConfigurationNativeWriteAndClose/write_error",
+          "TestProjectModelConfigurationNativeWriteAndClose/flush_error",
+          "TestProjectModelConfigurationNativeWriteAndClose/close_error",
+          "TestProjectModelConfigurationNativeWriteAndClose/panic",
+          "TestProjectModelConfigurationNativeWriteAndClose/reset_error",
+          "TestProjectModelConfigurationNativeWriteAndClose/unsupported",
+          "TestProjectModelConfigurationNativeWriteAndClose/blocked_get_write",
+          "TestProjectModelConfigurationNativeWriteAndClose/service_tail_actual_join"
+        ],
+        "test_bodies": true
+      },
+      "pass": false
+    },
+    "writeclose-rerun": {
+      "command": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v02/writeclose/command.json",
+        "sha256": "b04b2af844bb5ad2352d7d96ed2a97efb0e1b13180dbb0c8c02f403b8b996e2e"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v02/writeclose/raw.log",
+        "sha256": "f3d60ea283cca57c621a3819fed7906961385c228317a123cbd26dbdb11ea0db"
+      },
+      "exit": 0,
+      "elapsed": 7.951027779003198,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 1028640,
+          "starttime": "4011390",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791414170.030726
+        },
+        {
+          "role": "adopted",
+          "pid": 1028644,
+          "starttime": "4011391",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791414170.0361698
+        }
+      ],
+      "inputs_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "test_results": {
+        "top_passes": [
+          "TestProjectModelConfigurationNativeWriteAndClose"
+        ],
+        "sub_passes": [
+          "TestProjectModelConfigurationNativeWriteAndClose/short",
+          "TestProjectModelConfigurationNativeWriteAndClose/write_error",
+          "TestProjectModelConfigurationNativeWriteAndClose/flush_error",
+          "TestProjectModelConfigurationNativeWriteAndClose/close_error",
+          "TestProjectModelConfigurationNativeWriteAndClose/panic",
+          "TestProjectModelConfigurationNativeWriteAndClose/reset_error",
+          "TestProjectModelConfigurationNativeWriteAndClose/unsupported",
+          "TestProjectModelConfigurationNativeWriteAndClose/blocked_head_flush",
+          "TestProjectModelConfigurationNativeWriteAndClose/blocked_get_write",
+          "TestProjectModelConfigurationNativeWriteAndClose/service_tail_actual_join"
+        ],
+        "test_bodies": true
+      },
+      "pass": true
+    }
+  },
+  "limits": "HEAD rerun observed partial legal405 header8192B/EOF, not complete-header-body dynamic case; actualWrite0 held. blocked_get_write retained label isPOSTlookup"
+}

@@ -1,0 +1,70 @@
+{
+  "status": "PREPARED_BEHAVIOR_NOT_AUTHORIZED_NOT_RUN",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate01/manifest.json",
+    "sha256": "0ae9e48c5d609e69609d76082302d75c3f77b3ff22fb1a8269583188e17090e9"
+  },
+  "driver": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/driver.py",
+    "sha256": "32edb15e8e01a0b7f647785006fb8d99e42077242d434df5c0cbf581bfd81e40"
+  },
+  "input": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/input02.json",
+    "sha256": "306003c4b7b791a6ca2e5e1f1ab2eaf25bee27f9557aa5913a3105849df685c5"
+  },
+  "private_source": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/independent_test.go",
+    "sha256": "cf060eba783a5a031b0e71da29ef9e28ab1a98e346b0a06b34c255747e4761cd"
+  },
+  "review": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/preparation-review.md",
+    "sha256": "49a71c0113a915d4c8405e55e6aa45fd58c83c006db8c87a4836f6cd4ac1f389"
+  },
+  "offline_results": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/offline-results01.json",
+    "sha256": "a08f63399e3069158bfb9f822daa0f0668c91435786d70787fed423f2b045673"
+  },
+  "commands": [
+    {
+      "name": "controlled-normal01",
+      "cwd": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/driver.py",
+        "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/input02.json",
+        "controlled-normal01",
+        "--cwd",
+        "/workspace/agenteam/internal/central/model",
+        "--",
+        "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/model.test",
+        "-test.run",
+        "^TestIndependentProjectConfigurationControlled$",
+        "-test.count=1",
+        "-test.timeout=40s",
+        "-test.v"
+      ],
+      "binary_sha256": "2863ecf22777937b3dbe2963582496e6181aaa873252220c57c334149a737f85"
+    },
+    {
+      "name": "controlled-race01",
+      "cwd": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/driver.py",
+        "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/input02.json",
+        "controlled-race01",
+        "--cwd",
+        "/workspace/agenteam/internal/central/model",
+        "--",
+        "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/model-race.test",
+        "-test.run",
+        "^TestIndependentProjectConfigurationControlled$",
+        "-test.count=1",
+        "-test.timeout=40s",
+        "-test.v"
+      ],
+      "binary_sha256": "4ac13f6f294a2d70ab8b9f0778cfc7ceebd6134dafc428b4aee63147c19f01fb"
+    }
+  ],
+  "budget": "Each test40s, driver45s with actual direct/adopted waits and double owned empty. No listeners/PG/browser. Native source explicitly absent in effective overlay."
+}

@@ -8,6 +8,12 @@ AT-0005 已逐项确认审计方向；正式文档归位和验收见[同步任�
 
 ## 当前基线与计划范围
 
+2026-10-07 当前增量：[Project Model配置写入HTTP](agent-team/project-model-configuration-write-http-verification.md)完整15路径（14技术＋README）已接受，产品 `cc850b22` 已推送且root核远端一致。版本组合与原失败保留：5实际native（含作者首红）、11实际PG每轮7资源actualwait/双清，实表核77不同ID；44新增daemon/PID1 shim非owned、未wait，不称全机清零。本卡22原body与旧域13分列，全部任务窗口已归还。
+
+[Project Owner Audit规格](agent-team/project-owner-audit-http-spec-verification.md) `9eb167e4`／归档 `210bd733` 已接受。以 `cc850b22` 为基线，root正式移交 `account.go`；usage_verification已ACK并开始唯一#1–14技术实施，必要45s离线已授，当前尚无执行结论。next_frontier已ACK，仅独立scratch准备；Audit #15–16文档末件与native/PG未授，产品未接受。
+
+既有Summary/Owner读写/Model读与凭据/Usage接受保持；系统管理员统一会议Summary initial/update含首轮标题，Project不override/复制初值，compaction/Execution Summary不改。production Resolution/Invocations与D24未绑定，ready503、D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止不变。以下旧记录保持其历史范围。
+
 2026-10-07 当前增量：[Project Model credentials HTTP](agent-team/project-model-credentials-http-verification.md)完整23路径已接受，产品 `e4b1b891` 已推送且root核远端一致；实际修改22项（21技术＋README，1技术项不变）。原失败与版本组合保留，3native/14listeners的direct3＋adopted3实际wait及9PG每轮7资源双清已完成，63个不同资源ID沿原实表；新增36个daemon/PID1 shim仍非owned、未wait，不称全机清零。
 
 [Project Model配置写入规格](agent-team/project-model-configuration-write-http-spec-verification.md) `f2ab9c4c`／归档 `1afe0756` 已接受。以 `e4b1b891` 为基线，fixture_recovery已ACK并开始#1–14唯一技术实施，必要offline45s已授、暂无运行结果；summary_verification已ACK，仅独立scratch准备。三根只读，README15与真实native/PG未授，配置写入产品未接受。

@@ -1,0 +1,71 @@
+{
+  "status": "PASS: full14 limited STATIC; native driver gate STATIC; no native/PG execution by verifier",
+  "inputs": [
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/manifest.json",
+      "sha256": "fdd4d455e8ccf774fd4570e4071b7ed84dcbb04f0878054b7ce1c40d30c1d850"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate02/manifest.json",
+      "sha256": "a9be2ef2bcd3e8f4397cf941517a825b948c45b1c6518b9ab9843c27e3f368dc"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate02/authority.delta",
+      "sha256": "bf152121be47535b435b7eee3b69c2cb24a01bb6738fdf8065d3fff3142c9f5a"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/proposal.json",
+      "sha256": "ad6398f2248d7daa36f52b5857b922e9f5f071a076506f75c103c7ead2a9a059"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/proposal-freeze.json",
+      "sha256": "db700341563405a33b6bbbf5dbd224078768f55de59494b8ecdef85493945224"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/driver.py",
+      "sha256": "f71f681b5b39af480c989c2f0c11a7a860ec0388e449bebdbf27a9c47364d935"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/driver.delta",
+      "sha256": "27ad99d4fbe3a60fa1ff64e24b55a72c8ed45d1667669a3811f18b6c2956a29f"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v01/trace_parser.py",
+      "sha256": "e9ae7102034cb87c15bb9086a76130a879d0b0d1caca0cbb2b7e8d27a07c054a"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-production-static01/result.json",
+      "sha256": "5a2eda2493f91ee8d785ce8c349cf029eaa81cebfe79ad7b00eddcf7bf3ea4d3"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/controlled-results01.json",
+      "sha256": "ff6631bb1e7c4d511bebfdf194bb0ac687dd684fc8f685a65b7caf53e139614c"
+    }
+  ],
+  "checks": {
+    "candidate02_snapshot_count": 14,
+    "snapshot_hashes_match": true,
+    "candidate02_changed_only": [
+      "tests/model/project_configuration_write_http_authority_test.go"
+    ],
+    "old_root_exact_change": "POST models nil/405 MethodNotAllowed -> empty JSON object/400 InvalidArgument; all other bytes same",
+    "native_fixed_file_count": 2832,
+    "native_effective_directory_count": 391,
+    "native_input_drift": [],
+    "native_helper_functions_AST_equal_to_accepted_driver": true,
+    "native_parser_byte_equal_to_accepted": true
+  },
+  "closed_finding": "candidate01 preparation lifecycle change was not terminal Project gate rollback; candidate02 adds real NewFact Validate success then real Forbidden from valid foreign-issuer dependencies after same-Tx canonical/ref/Audit/prepared-command proof",
+  "remaining_dynamic": [
+    "native/PG actual tests and safe-body schema",
+    "independent A exact Model reference-index before/after comparison; author snapshot refs covers Secret references only",
+    "README15 after full14 independent technical acceptance"
+  ],
+  "limitations": [
+    "Author held proxy closes client before forwarding COMMIT, then observes real C(COMMIT/ROLLBACK)+Z(I); do not label terminal-first ACK loss.",
+    "Native blocked_get_write label refers to POST lookup; blocked HEAD is error405 Flush.",
+    "Forced root return is not evidence all inner handlers joined.",
+    "Auxiliary lifecycle/owner/reference SQL fixtures are not full Archive/owner migration/new Agent adapter.",
+    "No dynamic PG/production completion claim from this STATIC."
+  ]
+}

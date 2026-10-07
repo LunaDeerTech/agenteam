@@ -1,0 +1,27 @@
+{
+  "new-crud": [
+    "TestModelProjectConfigurationWriteHTTPCRUDAndHistory"
+  ],
+  "new-authority": [
+    "TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts"
+  ],
+  "new-unknown": [
+    "TestModelProjectConfigurationWriteHTTPUnknownAndLookup"
+  ],
+  "new-root": [
+    "TestModelProjectConfigurationWriteHTTPDefaultRoot"
+  ],
+  "new-shutdown": [
+    "TestModelProjectConfigurationWriteHTTPShutdown"
+  ],
+  "old": [
+    "TestModelProjectConfigurationHTTPDefaultRoot",
+    "TestModelProjectOwnerUpdateHTTPRootBinding",
+    "TestModelProjectUsageHTTPRootBinding",
+    "TestModelMeetingSummarySettingsRoot",
+    "TestModelSystemHTTPConfigurationCRUD",
+    "TestModelSystemHTTPAtomicEffects",
+    "TestModelProjectCredentialHTTPDefaultRoot",
+    "TestModelProjectCredentialHTTPCRUDAndHistory"
+  ]
+}

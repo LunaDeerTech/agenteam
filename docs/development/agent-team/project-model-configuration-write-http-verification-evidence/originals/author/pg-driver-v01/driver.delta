@@ -1,0 +1,45 @@
+--- accepted-credential-pg-v02
++++ configuration-pg-v01
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Frozen D09 Project Model Credential HTTP fixture runner. --execute-authorized requires root's resource window."""
++"""Frozen D09 Project Model Configuration Write HTTP fixture runner. --execute-authorized requires root's resource window."""
+ import argparse
+ import ctypes
+ import datetime
+@@ -24,7 +24,7 @@
+ MINIO = '/workspace/scratch/fixture-recovery/bin/minio'
+ GOCACHE = '/workspace/.cache/go-build'
+ PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3'
+-GROUPS = {'new-crud-authority': ['TestModelProjectCredentialHTTPCRUDAndHistory', 'TestModelProjectCredentialHTTPCurrentAuthorityAndFacts'], 'new-lookup-unknown': ['TestModelProjectCredentialHTTPPassiveLookup', 'TestModelProjectCredentialHTTPUnknown'], 'new-root': ['TestModelProjectCredentialHTTPDefaultRoot'], 'old-project': ['TestProjectSecretAuditBindingCRUD', 'TestProjectSecretAuditBindingCurrentAuthority', 'TestProjectSecretAuditBindingFactRejection', 'TestProjectSecretAuditBindingUnknown', 'TestProjectSecretMetadataReadCompatibility'], 'old-model': ['TestModelSystemHTTPCredentialWritesAndBinding', 'TestModelSystemHTTPPassiveCredentialLookup', 'TestModelSystemHTTPPassiveLookupLocksAndFailures', 'TestModelSystemHTTPUnknownAndHistoricalResults', 'TestModelProjectSecretReferencesAndAtomicEffects', 'TestModelProjectOwnerUpdateHTTPRootBinding', 'TestModelMeetingSummarySettingsRoot', 'TestModelProjectUsageHTTPRootBinding', 'TestModelProjectConfigurationHTTPDefaultRoot']}
++GROUPS = {'new-crud': ['TestModelProjectConfigurationWriteHTTPCRUDAndHistory'], 'new-authority': ['TestModelProjectConfigurationWriteHTTPCurrentAuthorityAndFacts'], 'new-unknown': ['TestModelProjectConfigurationWriteHTTPUnknownAndLookup'], 'new-root': ['TestModelProjectConfigurationWriteHTTPDefaultRoot'], 'new-shutdown': ['TestModelProjectConfigurationWriteHTTPShutdown'], 'old': ['TestModelProjectConfigurationHTTPDefaultRoot', 'TestModelProjectOwnerUpdateHTTPRootBinding', 'TestModelProjectUsageHTTPRootBinding', 'TestModelMeetingSummarySettingsRoot', 'TestModelSystemHTTPConfigurationCRUD', 'TestModelSystemHTTPAtomicEffects', 'TestModelProjectCredentialHTTPDefaultRoot', 'TestModelProjectCredentialHTTPCRUDAndHistory']}
+ 
+ GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+ FROZEN = {}
+@@ -356,6 +356,15 @@
+     docker_config.mkdir(mode=0o700, exist_ok=True)
+     if list(docker_config.iterdir()):
+         raise RuntimeError('task Docker config must remain empty')
++    fixed_images = ['pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc', 'pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782']
++    inspected = {}
++    for image in fixed_images:
++        argv = [DOCKER, 'image', 'inspect', '--format', '{{json .RepoDigests}}', image]
++        raw = command(argv)
++        if image not in json.loads(raw):
++            raise RuntimeError('exact local image digest unavailable; no pull permitted')
++        inspected[image] = {'argv': argv, 'raw': raw}
++    write(run / 'local-image-digests.json', inspected)
+     baseline_processes = processes()
+     write(run / 'process-baseline.json', baseline_processes)
+     baseline = resources()
+@@ -373,6 +382,10 @@
+     env['AGENTEAM_PROJECT_CREDENTIAL_BODY_DIR'] = str(evidence)
+     env['AGENTEAM_PROJECT_CREDENTIAL_RUN'] = args.name
+     env['AGENTEAM_PROJECT_CREDENTIAL_CANDIDATE'] = FROZEN['candidate_sha256']
++    env['AGENTEAM_PROJECT_MODEL_CONFIGURATION_SCHEMA_PYTHON'] = PYTHON
++    env['AGENTEAM_PROJECT_MODEL_CONFIGURATION_BODY_DIR'] = str(evidence)
++    env['AGENTEAM_PROJECT_MODEL_CONFIGURATION_RUN_ID'] = args.name
++    env['AGENTEAM_PROJECT_MODEL_CONFIGURATION_INPUT_ID'] = hashlib.sha256(frozen_bytes).hexdigest()
+     expected = set(GROUPS[args.group])
+     selector = '^(' + '|'.join(GROUPS[args.group]) + ')$'
+     argv = ['sh', 'scripts/test-objects.sh', '-run', selector]

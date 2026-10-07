@@ -1,0 +1,369 @@
+{
+  "status": "PASS_COMPLETE_BOUNDED_14_TECHNICAL; README15 pending separate review",
+  "baseline_product": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate06/manifest.json",
+    "sha256": "138e5263a8c7dce66670c7b01551de9074c64c780f975453a1bb249d488c4788"
+  },
+  "effective14": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/effective14.json",
+    "sha256": "0298fad3b751636e37e9c9814dc228dd6b7f4428810daa426406d5c065e8d830"
+  },
+  "scope": {
+    "technical_paths": 14,
+    "technical_worktree_and_snapshot_hashes_match": true,
+    "README15": "not reviewed; root to authorize separately"
+  },
+  "author_final": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/author-final06.json",
+    "sha256": "8ed1f817d164db52b6ffb6cb8ea5b4d083aca853994b750619f2b763efe997af"
+  },
+  "author_native": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/native-results02.json",
+    "sha256": "49f6de8a8f810ae29a8713ced22d20412bba9e1a953a40e33d80551d05d97dd5"
+  },
+  "author_pg": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-results06.json",
+    "sha256": "836fa4a7895d663a18693d98085b5d136753496e43ec692e7cdbaece9d081a8c"
+  },
+  "offline_and_static": [
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-production-static01/result.json",
+      "sha256": "5a2eda2493f91ee8d785ce8c349cf029eaa81cebfe79ad7b00eddcf7bf3ea4d3"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-full-static02/result.json",
+      "sha256": "9f8d24d066dde0566e49321ce367df9288ddb8113f864cdaab45b6e90a47e122"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-native-head-static03/result.json",
+      "sha256": "2ce956d136f7e67b55367f10bef2dec765e08dc3ebaf4ec7ec6ad5e067a11a31"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-snapshot-static04/result.json",
+      "sha256": "e5588639157253587fb0e1d1654a25c4a08409d3ff0f2162328791c7b693c1c3"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-account-static05/result.json",
+      "sha256": "c89dd3acfd9baa3a7b9ea085e1d67cedf387f139c98c26475dab2557e5a34a25"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-archiving-static06/result.json",
+      "sha256": "8cc56292e87b8d9f93fc6f8b5efce9b1503b2a6e1258ed5d11c8f3c888f68105"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-probes01/controlled-results01.json",
+      "sha256": "ff6631bb1e7c4d511bebfdf194bb0ac687dd684fc8f685a65b7caf53e139614c"
+    }
+  ],
+  "independent_preparation": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/proposal03.json",
+    "sha256": "f5e9392214eecc6c8999b14be471e64bfa09f8d9503f23f2c3799942c22c41fa"
+  },
+  "independent_offline_delta": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/offline-delta06.json",
+    "sha256": "0aec756970d5710226e6a579011c6319069f1cc6fc8868b095a4816bd126fdff"
+  },
+  "independent_native": {
+    "command": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native-driver-v01/independent/command.json",
+      "sha256": "8bbe1cdc9056875ee200613bcf0242e927b3167aad4d675b0fb5de8a5cc53c86"
+    },
+    "raw": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native-driver-v01/independent/raw.log",
+      "sha256": "1e4b9d393489577c08529736401170db0f577b64ae08e4ada078b64626a067a3"
+    },
+    "trace": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native-driver-v01/independent/trace.raw",
+      "sha256": "74cf5d01dd1c852c85bbae070a2b8758e5104d38cc5c4c0746cf35ba10b2d099"
+    },
+    "double_cleanup": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native-driver-v01/independent/cleanup-double-zero.json",
+      "sha256": "591cee7c3f0e68b70a7a62775698fe94a4d1466c768c1aa97f84f2c33ade2f7f"
+    },
+    "test_seconds": 2.11,
+    "command_seconds": 3.1570708349972847,
+    "direct_actual_wait": 0,
+    "adopted_actual_wait": 0,
+    "listeners": 1,
+    "TCP_including_TIME_WAIT_double_empty": true
+  },
+  "PG_rounds": [
+    {
+      "name": "new-crud01",
+      "kind": "author",
+      "exit": 1,
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud01/result.json",
+        "sha256": "7326a44b93c0f4851476e29d46b0267cd4147968f6a206f5da4bf831c02c1684"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud01/raw.log",
+        "sha256": "edadb46a0f49bc040abb7cc0ec92924336fd68fe00be704a4cae7c81a3b64ee7"
+      }
+    },
+    {
+      "name": "new-crud02",
+      "kind": "author",
+      "exit": 0,
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/result.json",
+        "sha256": "802ec1d51cadbe8bb78725d6df9ab20ccafea24b6e8d02711ff09e445e21f89e"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-crud02/raw.log",
+        "sha256": "556dc7e59913ab31666ab24986f031ff0a33504b06bee0f266efdccb48e8b114"
+      }
+    },
+    {
+      "name": "new-authority01",
+      "kind": "author",
+      "exit": 1,
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-authority01/result.json",
+        "sha256": "e2c9eee3d3bf898a5a90f4fec699af589e811d1258d17c0073343459b8d3cc65"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-authority01/raw.log",
+        "sha256": "b2942d0071945d9660acbd2e80068928a8f96af5e5ce3a6f90c71f0268a0c37a"
+      }
+    },
+    {
+      "name": "new-authority02",
+      "kind": "author",
+      "exit": 1,
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-authority02/result.json",
+        "sha256": "aff4ff40e0a953427bd2c63df86ad5ca9177647cb4d9d5691e9fc1c11f1fd449"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-authority02/raw.log",
+        "sha256": "f0a3df5c29070463e9924e0b341cfe9b0c00b41ba8f6e526c1697228148a97b9"
+      }
+    },
+    {
+      "name": "new-authority03",
+      "kind": "author",
+      "exit": 0,
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-authority03/result.json",
+        "sha256": "229814105c51d3167280ce14799b4e28e5ae9c543e381fee2301a4a684bf22b7"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-authority03/raw.log",
+        "sha256": "98b6817de1b6aae411bb8e320be4a43d559b169001530d5a6797b9bcc2c90110"
+      }
+    },
+    {
+      "name": "new-unknown01",
+      "kind": "author",
+      "exit": 0,
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/result.json",
+        "sha256": "bdda23af8f8a63165e48eea80ea4cbf16331bf52c5756eeedf00f7857a72e55b"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-unknown01/raw.log",
+        "sha256": "aa7da817af2c19a8bb907a5dfb163043a1700dcbef11b9f2f68f005ac26c5bfc"
+      }
+    },
+    {
+      "name": "new-root01",
+      "kind": "author",
+      "exit": 0,
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/result.json",
+        "sha256": "5071d131e6f5d77779791bfab36110870edffe8d38e569626037a2173501b153"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-root01/raw.log",
+        "sha256": "e7c0b381d4452c8e8485d669c641c7f9fa582ed9d5ad5eb69bc1ebe5fe0bcd85"
+      }
+    },
+    {
+      "name": "new-shutdown01",
+      "kind": "author",
+      "exit": 0,
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-shutdown01/result.json",
+        "sha256": "dbb69940cd0f0b6d3108555e4921f24c7e685eaeda83001169df564369132ec7"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/new-shutdown01/raw.log",
+        "sha256": "982c5480dd50dc8a1368efff9acbaffac458f7d9ef5fd5f544e6937102df5529"
+      }
+    },
+    {
+      "name": "old01",
+      "kind": "author",
+      "exit": 0,
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/result.json",
+        "sha256": "4f8cefa6abfc0508140e144afbc8bad4f8f9cc71b3a09b266a0b1549be89e8f9"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/runs/old01/raw.log",
+        "sha256": "8d32b0e63d9640b2a26201d0d6f1d0d3bd4fd6902b32ad7d159fa1586da6fe70"
+      }
+    },
+    {
+      "name": "independent-a01",
+      "kind": "independent",
+      "exit": 0,
+      "seconds": 57.913,
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/runs/independent-a01/result.json",
+        "sha256": "3ca383567dc997708266f91a032bde7a79a12f20937cf2a76098bc52bd8a1fbb"
+      },
+      "raw": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/runs/independent-a01/raw.log",
+        "sha256": "55eb25f3c48d0415164eb153505e77fcc913c4c0e1ff6b9f24a76868618b6177"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/runs/independent-a01/cleanup.json",
+        "sha256": "4b4d293c237766401e85ccd6b507685ad9251e17a0b79d4048528deb8c47f299"
+      },
+      "wait": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/runs/independent-a01/command.json",
+        "sha256": "b85387e889ca2bd234fb57c205e376ca287aabf592cbf26a836e57dfbd8e5fd4"
+      },
+      "safe_body_count": 2
+    },
+    {
+      "name": "independent-b01",
+      "kind": "independent",
+      "exit": 0,
+      "seconds": 53.246,
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/runs/independent-b01/result.json",
+        "sha256": "d6ea9844b59b2a6938ca0a7584a30e37bbaa6a92a3d5b6def7f7ed3875c28b08"
+      },
+      "raw": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/runs/independent-b01/raw.log",
+        "sha256": "38f5927f15151c06bac8ed5e80dbe7c56f480b6c6cd62dbae19b8237daba6897"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/runs/independent-b01/cleanup.json",
+        "sha256": "5c6f237d75f1fd4f8773ce677f23ffa688a15e7243313f1845d942e68f1b5852"
+      },
+      "wait": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/runs/independent-b01/command.json",
+        "sha256": "e259dcb0bdf84f638864bb4e70899130f5d791fa504e99fcdafdec4ab39ea3d5"
+      },
+      "safe_body_count": 2
+    }
+  ],
+  "schema_original_bytes": [
+    {
+      "name": "crud-schema01",
+      "count": 8,
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/crud-schema01/result.json",
+        "sha256": "648200f380fae14882441da9b26d5c759d84f4e404f4cb16d9a00f6c19f6b03b"
+      },
+      "validated": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/crud-schema01/stdout.log",
+        "sha256": "4e20090b517cebf01d653aba8f473219f5989d5297e24f9f8678e72a4f218c37"
+      }
+    },
+    {
+      "name": "authority-unknown-schema01",
+      "count": 4,
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/authority-unknown-schema01/result.json",
+        "sha256": "5206f2eb200ea832ac96d2f0fcf85c4b7bb57e99260c5cea549a4ee77b233d4e"
+      },
+      "validated": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/authority-unknown-schema01/stdout.log",
+        "sha256": "1aa92698b256edcc1cd3cf700572c986b370d21f8a51e7f66529b82c65aaa44c"
+      }
+    },
+    {
+      "name": "final-body-schema01",
+      "count": 10,
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/final-body-schema01/result.json",
+        "sha256": "2cc5429d133a8608fbc420e1b20e80e5f28ce07d60b2265304121c48ca24a33b"
+      },
+      "validated": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-author-evidence01/final-body-schema01/stdout.log",
+        "sha256": "e6bb4455971035a4f4640100882824956af9d5a2441de37d42db8e039b15a612"
+      }
+    }
+  ],
+  "totals": {
+    "author_final_PG_top": 13,
+    "author_final_PG_sub": 35,
+    "author_PG_actual_rounds": 9,
+    "author_PG_original_FAIL": 3,
+    "independent_PG_actual_rounds": 2,
+    "independent_PG_tops": 2,
+    "independent_PG_subcases": 2,
+    "PG_exact_distinct_resource_ids_checked": 77,
+    "new_nonowned_nonwaited_daemon_shims": 44,
+    "validated_body_count": 22,
+    "body_domains": "author18 + independent4; old domain13 exported by author not counted as new configuration coverage"
+  },
+  "findings_preserved": {
+    "author": {
+      "native01": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate03/first-failure.json",
+        "sha256": "9650035758cef01d7211662294fe0504376f36546a63acfe30d654ef42846ddf"
+      },
+      "snapshotSQL": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/snapshot-query-plan01/finding.json",
+        "sha256": "0fb33b47282291f26c4063b77dfb943630e9bee5158c8f67b0e70402054ecd8f"
+      },
+      "account_setup": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate05/first-failure.json",
+        "sha256": "0967aabe8c39503b2022e3ad2dc352f7ab71372ab04af4d2490948301fa83a7b"
+      },
+      "archiving_setup": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/archiving-setup-plan01/finding.json",
+        "sha256": "d7f2c546ce79f4adc7f81fa2ab8f075f1f77434602a12ecffe377f38c182a12e"
+      }
+    },
+    "private_A_static_baseline_repair": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/private-a.delta",
+      "sha256": "7326c23e6cb15a1afb75eca96350fd749ccad938a03875538174aa21d129268e"
+    },
+    "private_A_intermediate_offline": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/partial-offline05.json",
+      "sha256": "332f4154cb69821d70f26126bc23a7feb4a825d963178cf7960a272a79564339"
+    },
+    "scratch_graph_postprocess_assertion": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/graph-postprocess-first05.json",
+      "sha256": "da314f7a8b0a0c2e3546bbc9442f0b9a23a6901fae18693afb4f551ca3f4bbd2"
+    },
+    "transport_before_A_no_spawn": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/transport-interruption01.json",
+      "sha256": "7f171c55da0ef4406699092e23304691e1bbb624712a0065a79d42acdda43c89"
+    },
+    "initial_incomplete_OperationID_suggestion_retracted": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-account-static05/lifecycle-followup-correction.json",
+      "sha256": "045653e0063d0b500a01f7eccfb142a49d52d2d8c1b405efa6a62e6a42149a2a"
+    },
+    "metadata_display_only": "final report inspection used [0] on dict rounds once, KeyError before mutation; corrected explicit values iteration. No Go/resource command involved."
+  },
+  "coverage": [
+    "strict typed projection/no Service invocation on invalid input, original error precedence and private damaged-write-receipt Unknown vs passive-lookup NotStarted",
+    "Project credential conversion uses existing Secret rules; true scoped Read/history replay/first Mutate, accepted policy/reference adapter boundaries and MaxInt64",
+    "actual Secret references+typed Audit+Model canonical/receipt/Event rollback including real original Project gate successful then foreign issuer refusal",
+    "independent full Model reference index refusal comparison separately from Secret reference snapshot",
+    "independent terminal-first actual backend C(COMMIT)+Z(I) then ACK drop, original Store Unknown cause/attempt, unchanged original context private library confirmation, one HTTP request/two target transactions and no implicit public lookup; explicit EX public lookup/Logout+freshSession replay",
+    "same actual default root six writes+existing five reads, historical receipt after current update, archived replay/current new mutation refusal, normal drain/restart; original forced shutdown evidence reused separately",
+    "native true TCP method combination and idle reuse; author natural30s/body/write/flush/Close actual tails version-combination retained"
+  ],
+  "limits": [
+    "Author held-writer closes client before forwarding COMMIT/ROLLBACK, real later terminal observed; independent A supplies terminal-first evidence.",
+    "lookup-read-unknown is controlled terminal replacement after actual read, not physical read ACK-loss.",
+    "Author native HEAD rerun observed8192B legal partial405 header without header separator plus Write0; no claim complete header then zero body dynamically occurred. Original failed combined branch unrecorded.",
+    "Archived helper includes explicit accepted terminal SQL input, not participant runtime stop or full Archive E2E.",
+    "Forced app return alone does not prove every inner join; actual client/proxy/command EX terminal and owned-process wait checked separately.",
+    "Every real round took fresh live baseline. Author36+independent8 added shim zombies non-owned/non-waited; historical git/go/compile untouched, no host-wide zero.",
+    "Earlier native01/CRUD01/authority01/authority02 raw failures retained; static fixture misses and independent pre-execution setup correction not rewritten as first-pass.",
+    "Production Resolution/Invocations and D24/fullD09 remain unbound/unaccepted; ready remains503.",
+    "No source implementation or Git mutation by independent verifier. README remains separately gated."
+  ],
+  "state": "all task-owned commands and resources stopped; unique resource window returned root"
+}

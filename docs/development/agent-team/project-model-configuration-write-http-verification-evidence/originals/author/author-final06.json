@@ -1,0 +1,110 @@
+{
+  "status": "AUTHOR_LIMITED_PASS_READY_FOR_INDEPENDENT_FINAL; NOT PRODUCT ACCEPTED",
+  "baseline_product": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d accepted credential",
+  "effective14": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/effective14.json",
+    "sha256": "0298fad3b751636e37e9c9814dc228dd6b7f4428810daa426406d5c065e8d830"
+  },
+  "production01": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/production01/manifest.json",
+    "sha256": "36105d193d9f28d3522d9e5a1d02774829aed3228576822868b5c7cfdd1e6b07"
+  },
+  "offline": {
+    "original_pure": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/unit-results01.json",
+      "sha256": "8f681135db8cc5a7ef95b07954797d09b2b648b377634ce725a7ebf3074656c2"
+    },
+    "initial_full": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/offline-results02.json",
+      "sha256": "15d3854a953173bd2d13665343ab8ed1a5f81699ce81951bd4cbcc008a795cce"
+    },
+    "native_repair": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/native-driver-v02/offline-result.json",
+      "sha256": "02b2b3dd8c7e90d417f11baa314d418d7d5c80ea06f9de3c9bf7843edf77c4c9"
+    },
+    "candidate04": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate04/offline-result.json",
+      "sha256": "c985e91b6a3d3f6930939c6e7d1250e230cc646ad2aedab4768bb5c09c92c14b"
+    },
+    "candidate05": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate05/offline-result.json",
+      "sha256": "71b40fdf9017ae55781afa699ee1f6c5feacaa8108748dc7b4341a5450375d58"
+    },
+    "candidate06": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate06/offline-result.json",
+      "sha256": "c500794722fbf29c62c27b8c61b734f423b1ecc9c5068637c9a26ec17d35a2e6"
+    }
+  },
+  "actual_graph": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/actual-graph-full05.json",
+    "sha256": "c53029c4b5336ea2aa248664b68c12a954e056b3287ed25818e0ee68a3a8cfb9"
+  },
+  "input": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/full-input06.json",
+    "sha256": "3501b5b7ecc9dacb5f02d536e758d3462c57be7f0e41c965eebf6c9d52a1b1dd"
+  },
+  "native": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/native-results02.json",
+    "sha256": "49f6de8a8f810ae29a8713ced22d20412bba9e1a953a40e33d80551d05d97dd5"
+  },
+  "pg": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-results06.json",
+    "sha256": "836fa4a7895d663a18693d98085b5d136753496e43ec692e7cdbaece9d081a8c"
+  },
+  "safe_bodies": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/body-index06.json",
+    "sha256": "169e885fefa558fab1ef111bd1e697c5d2e56a5f2dc3f4c1a860c4633b974f9f"
+  },
+  "failures": {
+    "native01": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate03/first-failure.json",
+      "sha256": "9650035758cef01d7211662294fe0504376f36546a63acfe30d654ef42846ddf"
+    },
+    "snapshotSQL": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/snapshot-query-plan01/finding.json",
+      "sha256": "0fb33b47282291f26c4063b77dfb943630e9bee5158c8f67b0e70402054ecd8f"
+    },
+    "account_setup": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate05/first-failure.json",
+      "sha256": "0967aabe8c39503b2022e3ad2dc352f7ab71372ab04af4d2490948301fa83a7b"
+    },
+    "archiving_setup": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/archiving-setup-plan01/finding.json",
+      "sha256": "d7f2c546ce79f4adc7f81fa2ab8f075f1f77434602a12ecffe377f38c182a12e"
+    }
+  },
+  "closure": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/closure05.json",
+    "sha256": "562654c58cc7f537e004b2512dffbbdd538ac4b3405e451cd1ab5bdbc338ae05"
+  },
+  "pg_driver": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/driver.py",
+    "sha256": "3b3e07f2c4d2d59dd2eb2cd5381435c16b03af512270df4e97b89d503ab0e849"
+  },
+  "final_execution_freeze": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/execution-freeze05.json",
+    "sha256": "df5b7d83e70bafe15483e0eb8a3708d8045e83c2d456851a38054d4eb8f0a7d3"
+  },
+  "unchanged_limits": [
+    "production01 unchanged; only private tests repaired after first failures",
+    "Model.references index exact coverage delegated independent A; author snapshots Model canonical/command/Audit/Event plus Secretrefs only",
+    "Author heldwriter closes client before actual terminal; not terminal-first",
+    "forced app return alone is not every inner join; client join and originalcommandEXterminal are separate tested facts",
+    "Archived fixture terminal SQL supplies authority input, not participant runtime stop",
+    "defaultroot Resolution/Invocations and fullD09/D24 remain unbound/unaccepted",
+    "README15 unauthorized and unchanged; independent final technical and product acceptance pending"
+  ],
+  "root_only_coordination_incidents": [
+    {
+      "source": "root message",
+      "type": "auxiliary metadata display KeyError owned_empty versus actual ownedempty; corrected read succeeded",
+      "product_failure": false
+    },
+    {
+      "source": "root message",
+      "type": "one read-only exec transport disconnected then pwd succeeded; author shutdown session returned actual0/wait/doublecleanup independently, no author supervision loss observed",
+      "product_failure": false
+    }
+  ],
+  "no_active_author_resources": true
+}

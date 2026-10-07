@@ -1,0 +1,28 @@
+--- accepted-credential-offline-v02
++++ configuration-offline01
+@@ -11,7 +11,7 @@
+ import time
+ 
+ ROOT = Path('/workspace/agenteam')
+-BASE = Path('/workspace/scratch/project-model-credentials-http-author')
++BASE = Path('/workspace/scratch/project-model-configuration-write-http-author')
+ INPUT = Path(sys.argv.pop(1))
+ INITIAL = json.loads(INPUT.read_text())
+ FILES = list(INITIAL['files'])
+@@ -73,13 +73,15 @@
+     'AGENTEAM_PROJECT_OWNER_READ_NATIVE': '0',
+     'AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE': '0',
+     'AGENTEAM_PROJECT_CREDENTIAL_NATIVE': '0',
++    'AGENTEAM_PROJECT_MODEL_CONFIGURATION_NATIVE': '0',
++    'AGENTEAM_PROJECT_MODEL_CONFIGURATION_SCHEMA_PYTHON': '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3',
+     'AGENTEAM_PROJECT_MODEL_READ_NATIVE': '0',
+     'AGENTEAM_PROJECT_MODEL_NATIVE': '0',
+     'AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON': '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3',
+     'AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON': '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3',
+     'AGENTEAM_USAGE_SCHEMA_PYTHON': '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3',
+ }
+-env = dict(os.environ)
++env = {k:v for k,v in os.environ.items() if not k.startswith("AGENTEAM_")}
+ env.update(overrides)
+ started = time.monotonic()
+ meta = {'argv': argv, 'cwd': str(cwd), 'environment_overrides': overrides, 'subreaper': True,

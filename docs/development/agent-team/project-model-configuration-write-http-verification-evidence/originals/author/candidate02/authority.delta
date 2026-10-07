@@ -1,0 +1,95 @@
+--- candidate01/tests/model/project_configuration_write_http_authority_test.go
++++ candidate02/tests/model/project_configuration_write_http_authority_test.go
+@@ -5,14 +5,17 @@
+ import (
+ 	"context"
+ 	"encoding/json"
++	"errors"
+ 	"sync"
+ 	"testing"
+ 
+ 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+ 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	ec "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+ 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+ 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+ )
+ 
+@@ -55,7 +58,7 @@
+ 		}
+ 		v.sameSnapshot(t, before)
+ 	})
+-	for _, stage := range []string{"secret", "audit", "event", "project_gate"} {
++	for _, stage := range []string{"secret", "audit", "event", "preparation_lifecycle_change"} {
+ 		t.Run("rollback_"+stage, func(t *testing.T) {
+ 			d := v.deps
+ 			old := v.handler
+@@ -72,7 +75,7 @@
+ 				e.enabled.Store(true)
+ 				d.Events = e
+ 			}
+-			if stage != "project_gate" {
++			if stage != "preparation_lifecycle_change" {
+ 				v.installConfiguration(t, v.withDeps(t, d))
+ 				stable := v.snapshot(t)
+ 				call("POST", v.base()+"model-providers", "rollback-"+stage, create).problem(t, 409, f.InvalidState)
+@@ -101,6 +104,56 @@
+ 			v.sameSnapshot(t, stable)
+ 		})
+ 	}
++
++	t.Run("terminal_project_gate_binding_rollback", func(t *testing.T) {
++		stable := v.snapshot(t)
++		old := v.handler
++		defer func() { v.handler = old }()
++		identity := configurationCommandIdentity(t, v.ownerBrowser, v.project.ID, "provider.create", "terminal-project-gate")
++		tap := &projectModelEventTap{Appender: v.events}
++		reached, originalValid, foreignRejected := false, false, false
++		tap.check = func(ctx context.Context, tx f.Tx, actor id.Actor, event ec.Event, plan oc.AppendPlan) error {
++			x, e := v.raw.InTx(tx)
++			if e != nil {
++				t.Fatal(e)
++			}
++			var complete bool
++			e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_model.commands c JOIN agenteam_model.providers p ON p.id=c.resource_id AND p.project_id=c.project_id WHERE c.command_identity=$1 AND c.phase='prepared' AND c.safe_receipt IS NULL AND EXISTS(SELECT 1 FROM agenteam_secret.secret_references r WHERE r.credential_id=$2 AND r.consumer='model' AND r.owner_id=p.id) AND EXISTS(SELECT 1 FROM agenteam_audit.audit_records a WHERE a.producer='model' AND a.action='provider.create' AND a.project_id=c.project_id AND a.resource_id=p.id) AND NOT EXISTS(SELECT 1 FROM agenteam_outbox.events e WHERE e.id=c.event_id))`, identity.Canonical(), credential).Scan(&complete)
++			if e != nil || !complete {
++				t.Fatal("terminal gate lacks same Tx canonical/ref/Audit/prepared-command proof", e)
++			}
++			reached = true
++			request, e := oc.NewProjectRequest(oc.ProjectRequestDetails{Kind: oc.AppendProject, ProjectID: v.project.ID, Actor: actor, Stage: oc.NewFact, Event: event.Summary()})
++			if e != nil {
++				t.Fatal("original gate request", e)
++			}
++			deps := plan.Details().Project
++			if e = v.projects.ValidateInTx(ctx, tx, request, deps); e != nil {
++				t.Fatal("original prepared gate rejected", e)
++			}
++			originalValid = true
++			foreign, e := oc.NewDependencies(oc.NewPlanIssuer(), deps.Binding(), deps.Locks(), deps.Opaque())
++			if e != nil {
++				t.Fatal("valid foreign issuer construction", e)
++			}
++			e = v.projects.ValidateInTx(ctx, tx, request, foreign)
++			var fault *f.Fault
++			if !errors.As(e, &fault) || fault.Code != f.Forbidden {
++				t.Fatal("real gate did not reject foreign issuer", e)
++			}
++			foreignRejected = true
++			return e
++		}
++		d := v.deps
++		d.Events = tap
++		v.installConfiguration(t, v.withDeps(t, d))
++		call("POST", v.base()+"model-providers", "terminal-project-gate", create).problem(t, 403, f.Forbidden)
++		if !reached || !originalValid || !foreignRejected {
++			t.Fatal("terminal gate proof did not complete")
++		}
++		v.sameSnapshot(t, stable)
++		t.Log("same_tx_prepared_provider_ref_typedAudit=true event_and_receipt_absent=true original_NewFact_gate_valid=true real_foreign_issuer_Forbidden=true full_snapshot_rollback=true")
++	})
+ 	t.Run("writer_poison", func(t *testing.T) {
+ 		command := configurationCommandIdentity(t, v.ownerBrowser, v.project.ID, "provider.create", "held-writer")
+ 		lock, _ := f.CommandLock(command)

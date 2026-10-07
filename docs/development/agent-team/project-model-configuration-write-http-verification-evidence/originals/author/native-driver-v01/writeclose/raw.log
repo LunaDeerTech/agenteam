@@ -1,0 +1,26 @@
+=== RUN   TestProjectModelConfigurationNativeWriteAndClose
+=== RUN   TestProjectModelConfigurationNativeWriteAndClose/short
+=== RUN   TestProjectModelConfigurationNativeWriteAndClose/write_error
+=== RUN   TestProjectModelConfigurationNativeWriteAndClose/flush_error
+=== RUN   TestProjectModelConfigurationNativeWriteAndClose/close_error
+=== RUN   TestProjectModelConfigurationNativeWriteAndClose/panic
+=== RUN   TestProjectModelConfigurationNativeWriteAndClose/reset_error
+=== RUN   TestProjectModelConfigurationNativeWriteAndClose/unsupported
+=== RUN   TestProjectModelConfigurationNativeWriteAndClose/blocked_head_flush
+    http_project_configuration_native_test.go:125: actual_write_entered=0 actual_write_exited=0 actual_write_asked=0 actual_write_returned=0 actual_flush_entered=1 actual_flush_exited=1 net_timeout=true
+    http_project_configuration_native_test.go:132: abort did not close or appended Problem
+=== RUN   TestProjectModelConfigurationNativeWriteAndClose/blocked_get_write
+    http_project_configuration_native_test.go:125: actual_write_entered=1 actual_write_exited=1 actual_write_asked=30 actual_write_returned=30 actual_flush_entered=1 actual_flush_exited=1 net_timeout=true
+=== RUN   TestProjectModelConfigurationNativeWriteAndClose/service_tail_actual_join
+--- FAIL: TestProjectModelConfigurationNativeWriteAndClose (6.91s)
+    --- PASS: TestProjectModelConfigurationNativeWriteAndClose/short (0.00s)
+    --- PASS: TestProjectModelConfigurationNativeWriteAndClose/write_error (0.00s)
+    --- PASS: TestProjectModelConfigurationNativeWriteAndClose/flush_error (0.00s)
+    --- PASS: TestProjectModelConfigurationNativeWriteAndClose/close_error (0.00s)
+    --- PASS: TestProjectModelConfigurationNativeWriteAndClose/panic (0.00s)
+    --- PASS: TestProjectModelConfigurationNativeWriteAndClose/reset_error (0.00s)
+    --- PASS: TestProjectModelConfigurationNativeWriteAndClose/unsupported (0.00s)
+    --- FAIL: TestProjectModelConfigurationNativeWriteAndClose/blocked_head_flush (3.37s)
+    --- PASS: TestProjectModelConfigurationNativeWriteAndClose/blocked_get_write (3.36s)
+    --- PASS: TestProjectModelConfigurationNativeWriteAndClose/service_tail_actual_join (0.15s)
+FAIL

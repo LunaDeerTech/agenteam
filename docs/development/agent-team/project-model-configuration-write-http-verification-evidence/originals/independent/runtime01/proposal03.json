@@ -1,0 +1,149 @@
+{
+  "status": "PREPARED, offline PASS, no native/PG execution permission",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate06/manifest.json",
+    "sha256": "138e5263a8c7dce66670c7b01551de9074c64c780f975453a1bb249d488c4788"
+  },
+  "source_scope": "only two private scratch test sources + overlays/drivers/evidence; no product modifications",
+  "private_sources": [
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/independent_native_test.go",
+      "sha256": "7d6e63cc7e2291e8c2c91ed3abe3568338f3e9bae241557458e670a3301a788e"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/repair05/independent_pg_test.go",
+      "sha256": "a7bce68285e35928d229e9f2edf3c1e38414fe46d3ace85a3fde2a539acf6358"
+    }
+  ],
+  "offline": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/offline-results01.json",
+    "sha256": "ea19a78dd86b87a6d31909ebfd1fd1481117af6850c84d6bb90b1ea73a2e685b"
+  },
+  "actual_graph": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/actual-graph05.json",
+    "sha256": "49538e42a708e45381d8e14a5faf777643ae78f517fb7737bfd7adf17b900223"
+  },
+  "runtime_graph_delta": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/runtime-graph-delta03.json",
+    "sha256": "a011a0ed1ce6ea3eb79af12245d9f265c5e2029b7eb4020eb232bdb62101e698"
+  },
+  "driver_static": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/driver-static01.json",
+    "sha256": "0113e947fef299814127149e7124ec72129be30ad012efb26bab29798106dce1"
+  },
+  "native": {
+    "driver": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native-driver-v01/driver.py",
+      "sha256": "5fe8e5cb71ca6463d4c1f5764ba03932f33a533e5e30baa9b9c421f775ca90ef"
+    },
+    "proposal_freeze": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native-driver-v01/proposal-freeze03.json",
+      "sha256": "04a32e2a85c2525416ef2b18f34412e46b218af9535a3e849ec28dcf9c9fab02"
+    },
+    "binary": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native02.test",
+      "sha256": "45eef3c7ad3c3b6fd968b4c92faa735b5c4dbe96fd5393ed5ab933f7a847754f"
+    },
+    "inherited_delta": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native-driver-v01/driver.delta",
+      "sha256": "ae8eaebbf0b74cc77c9b70413ce73093f93bb5993946a7a22897932764fca461"
+    },
+    "proposed_command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native-driver-v01/driver.py",
+      "independent",
+      "--execute-authorized"
+    ],
+    "required_execution_freeze": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/native-driver-v01/execution-freeze.json",
+    "budgets": {
+      "test": 40,
+      "command": 45,
+      "actual_owned_cleanup": 15,
+      "all_TCP_retirement": 75
+    },
+    "listeners": 1,
+    "subcases": 0,
+    "fresh_GiB": 2,
+    "candidate04_change": "metadata only; native source/binary unchanged",
+    "candidate06_change": "metadata only; unchanged actual native binary/driver"
+  },
+  "pg": {
+    "driver": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/driver.py",
+      "sha256": "58f3367d987d503276e80ae36aa464b3d101f4e28e1cb3d6acd2fb360f71f4bd"
+    },
+    "proposal_freeze": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/proposal-freeze.json",
+      "sha256": "1dbf39cd7b24deb2bb6888af6b453f31ee24e468e964950a7eea72d5a3480a7a"
+    },
+    "closure": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/closure.json",
+      "sha256": "f2a1b40c98ab63b09075789f01b9c3d7db8a614c1a47f41a7b7208bc691d37a0"
+    },
+    "binary": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/integration06.test",
+      "sha256": "78a6937b5dd16f457b5264b32007670fa17ab5a2325a26d773e4e89cf9a86231"
+    },
+    "inherited_delta": {
+      "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/driver.delta",
+      "sha256": "eef1a033eaff6bc870cfba885655a8517db83367265aee4bb970dd6e716514c3"
+    },
+    "proposed_commands": [
+      [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/driver.py",
+        "--name",
+        "independent-a01",
+        "--group",
+        "new-independent-a",
+        "--frozen",
+        "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/execution-freeze.json",
+        "--execute-authorized"
+      ],
+      [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/driver.py",
+        "--name",
+        "independent-b01",
+        "--group",
+        "new-independent-b",
+        "--frozen",
+        "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/pg-driver-v03/execution-freeze.json",
+        "--execute-authorized"
+      ]
+    ],
+    "budgets": {
+      "top_with_cleanup": 120,
+      "fixture_package": "6m"
+    },
+    "fixture_resources": "unchanged 4 containers + 3 networks; exact local image digests only/no pull",
+    "fresh_GiB": 5
+  },
+  "conditions": [
+    "Only after root explicitly transfers the unique window, following author all groups actualwait+doublecleanup/inputsame.",
+    "Each native/A/B step must PASS/actualwait/owned and TCP or seven-resource doublezero/inputsame before next; failure cleanup then stop, no retry.",
+    "Create separate execution-freeze from immutable proposal with only explicit authorization/permitted group values; bind new hash before execution.",
+    "Fresh live PID/daemon baseline each round; nonowned shim/git facts separate, never claim host-wide zero."
+  ],
+  "coverage": [
+    "Native one real TCP HEAD405/Flush+Close -> idle over2s -> provider.create200 -> explicit lookup200; no repeated30s body timeout.",
+    "A exact Model reference index plus separate Secret snapshot on missing-adapter refusal; terminal-first real target backend C(COMMIT)+Z(I) -> ACKdrop -> actual Store Unknown -> original same-context private confirmation -> receipt200; exact one write transaction+one confirmation, no implicit public query; separate EX public lookup and formal Logout/newSession replay.",
+    "B default app.Run normal drain/restart: formal credential/provider/model, real Secret ref, five read/HEAD paths/Allow, historical create after update, archived currentRead replay vs new mutation refusal."
+  ],
+  "limits": [
+    "Unique HTTP service dispatch is established by production STATIC+already passed controlled counters; integration observes one submitted request/two original target transactions and no implicit public lookup, not a new exported service decorator.",
+    "Author terminal failure matrix/forced root behavior/natural30s reused distinctly, not duplicated or called independent runtime.",
+    "Original candidate02 snapshot refs=Secret only; independent A additionally compares entire Model index in private memory.",
+    "Author native first FAIL remains branch-undetermined; candidate03 actual HEAD later partialheader/no separator does not assert fullheader case happened.",
+    "Private graph postprocessor first error retained; all actual Go/format/list/vet commands passed."
+  ],
+  "inherits": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/proposal02.json",
+    "sha256": "4928dda99f16529743242ea9ff28c542b1c6a8de147165e31b2e17deec6f0bc1"
+  },
+  "offline_delta": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/offline-delta06.json",
+    "sha256": "0aec756970d5710226e6a579011c6319069f1cc6fc8868b095a4816bd126fdff"
+  },
+  "revision": "Only candidate05/06 #11 accepted setup corrections + independent A equivalent identity-setup snapshot bridge. No coverage, budgets, native/B/helper/proxy/resource changes. Preserve first private STATIC issue and scratch postprocess assertion."
+}

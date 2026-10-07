@@ -1,0 +1,195 @@
+package model
+
+import (
+	"context"
+	"errors"
+	"net/http"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+// These probes use accepted inert boundary/writer fixtures, never a Store,
+// listener or database. They exercise additional ordering combinations.
+func TestIndependentProjectConfigurationControlled(t *testing.T) {
+	t.Run("valid_candidate_does_not_override_original_error", func(t *testing.T) {
+		for _, tc := range configurationTestCases() {
+			t.Run(tc.kind, func(t *testing.T) {
+				h, boundary, service := configurationTestHandler(t)
+				cause := errors.New("independent-private-cause")
+				original := f.NewFault(f.CommitUnknown, f.Unknown).WithCause(cause)
+				var observed error
+				boundary.problem = func(w http.ResponseWriter, _ *http.Request, err error) {
+					observed = err
+					w.WriteHeader(http.StatusServiceUnavailable)
+				}
+				service.execute = func(_ context.Context, req configurationRequest) (mc.CommandReceipt, error) {
+					return configurationTestReceipt(req), original
+				}
+				service.lookup = func(context.Context, LookupCommandRequest) (CommandLookup, error) {
+					return CommandLookup{Found: true, Receipt: &mc.CommandReceipt{Kind: "model.delete", ResourceID: projectHTTPTestModel, Version: 42}}, original
+				}
+				w := summaryWriter()
+				h.ServeHTTP(w, configurationTestRequest(tc.method, tc.path, tc.body))
+				if observed != original || !errors.Is(observed, cause) || w.Code != 503 || w.Body.Len() != 0 || service.writes.Load()+service.lookups.Load() != 1 {
+					t.Fatal("valid candidate replaced original error or initiated additional call")
+				}
+				w.cleared(t)
+			})
+		}
+	})
+	t.Run("historical_version_binding_and_observation", func(t *testing.T) {
+		h, _, service := configurationTestHandler(t)
+		service.execute = func(_ context.Context, req configurationRequest) (mc.CommandReceipt, error) {
+			if req.expected != 41 {
+				t.Error("original expected version altered")
+			}
+			return mc.CommandReceipt{Kind: "model.delete", ResourceID: projectHTTPTestModel, Version: 42}, nil
+		}
+		w := summaryWriter()
+		h.ServeHTTP(w, configurationTestRequest("DELETE", configurationTestModel, `{"expected_version":"41","replacement":null}`))
+		if w.Code != 200 || !strings.Contains(w.Body.String(), `"version":"42"`) || service.writes.Load() != 1 || service.lookups.Load() != 0 {
+			t.Fatal("historical mutation receipt rejected or replaced")
+		}
+		service.lookup = func(context.Context, LookupCommandRequest) (CommandLookup, error) {
+			return CommandLookup{Found: true, Receipt: &mc.CommandReceipt{Kind: "model.delete", ResourceID: projectHTTPTestProvider, Version: 9223372036854775807, AffectedReferences: 9223372036854775807}}, nil
+		}
+		w = summaryWriter()
+		h.ServeHTTP(w, configurationTestRequest("POST", configurationTestLookup, `{"command":"model.delete"}`))
+		if w.Code != 200 || !strings.Contains(w.Body.String(), projectHTTPTestProvider) || !strings.Contains(w.Body.String(), `"affected_references":"9223372036854775807"`) || service.lookups.Load() != 1 || service.writes.Load() != 1 {
+			t.Fatal("public lookup invented target/current-write binding")
+		}
+	})
+	t.Run("typed_relation_and_escaped_nested_duplicate_are_zero_call", func(t *testing.T) {
+		for _, body := range []string{
+			strings.Replace(configurationTestCases()[3].body, `"parallel_tool_calls":false`, `"parallel_tool_calls":true`, 1),
+			strings.Replace(configurationTestCases()[3].body, `"parameters":{}`, `"parameters":{"x":1,"\u0078":2}`, 1),
+		} {
+			h, _, service := configurationTestHandler(t)
+			w := summaryWriter()
+			h.ServeHTTP(w, configurationTestRequest("POST", configurationTestModels, body))
+			if w.Code != 400 || service.writes.Load() != 0 || service.lookups.Load() != 0 {
+				t.Fatal("malformed complete projection reached service")
+			}
+		}
+	})
+	t.Run("reasoning_policy_stays_service_owned", func(t *testing.T) {
+		h, boundary, service := configurationTestHandler(t)
+		original := fault(f.CapabilityUnsupported)
+		var observed error
+		boundary.problem = func(w http.ResponseWriter, _ *http.Request, err error) { observed = err; w.WriteHeader(400) }
+		service.execute = func(_ context.Context, req configurationRequest) (mc.CommandReceipt, error) {
+			if req.model == nil || !req.model.Capabilities.Reasoning || len(req.model.Capabilities.ReasoningEfforts) != 1 || req.model.Capabilities.ReasoningEfforts[0] != "low" {
+				t.Error("typed policy candidate altered")
+			}
+			return mc.CommandReceipt{}, original
+		}
+		body := strings.Replace(configurationTestCases()[3].body, `"reasoning":false`, `"reasoning":true`, 1)
+		body = strings.Replace(body, `"reasoning_efforts":[]`, `"reasoning_efforts":["low"]`, 1)
+		h.ServeHTTP(summaryWriter(), configurationTestRequest("POST", configurationTestModels, body))
+		if observed != original || service.writes.Load() != 1 || service.lookups.Load() != 0 {
+			t.Fatal("policy-valid typed input rejected before service")
+		}
+	})
+	t.Run("head_lookup_has_no_entity", func(t *testing.T) {
+		h, _, service := configurationTestHandler(t)
+		w := summaryWriter()
+		body := &summaryHTTPBody{Reader: strings.NewReader("")}
+		r := configurationTestRequest("HEAD", configurationTestLookup, "")
+		r.Body = body
+		h.ServeHTTP(w, r)
+		if w.Code != 405 || w.Header().Get("Allow") != "POST" || w.Body.Len() != 0 || w.flushes != 1 || body.closes.Load() != 1 || service.lookups.Load()+service.writes.Load() != 0 {
+			t.Fatal("HEAD method rejection lost output/body ownership")
+		}
+		w.cleared(t)
+	})
+	t.Run("unwrap_failure_precedes_auth_and_closes_body", func(t *testing.T) {
+		for _, panics := range []bool{false, true} {
+			h, boundary, service := configurationTestHandler(t)
+			writer := &independentConfigurationUnwrap{summaryHTTPWriter: summaryWriter(), panics: panics}
+			body := &summaryHTTPBody{Reader: strings.NewReader(`{"command":"model.delete"}`)}
+			r := configurationTestRequest("POST", configurationTestLookup, "")
+			r.Body = body
+			if !summaryAborts(func() { h.ServeHTTP(writer, r) }) || boundary.checks.Load() != 0 || boundary.auths.Load() != 0 || service.lookups.Load() != 0 || body.closes.Load() != 1 || writer.flushes != 0 {
+				t.Fatal("capability preflight escaped body/auth boundary")
+			}
+			want := int32(64)
+			if panics {
+				want = 1
+			}
+			if writer.unwraps.Load() != want {
+				t.Fatal("unwrap traversal unbounded or skipped")
+			}
+		}
+	})
+	t.Run("close_panic_still_joins_blocked_cancel_callback", func(t *testing.T) {
+		h, _, _ := configurationTestHandler(t)
+		w := summaryWriter()
+		ctx, cancel := context.WithCancel(context.Background())
+		entered, release, joined := make(chan struct{}), make(chan struct{}), make(chan struct{})
+		outcome := make(chan bool, 1)
+		var releaseOnce sync.Once
+		var reads atomic.Int32
+		unblock := func() { releaseOnce.Do(func() { close(release) }) }
+		// Register failure cleanup before launch or the first blocking assertion.
+		t.Cleanup(func() { unblock(); cancel(); <-joined })
+		w.setRead = func(time.Time) error {
+			if reads.Add(1) == 2 {
+				close(entered)
+				<-release
+			}
+			return nil
+		}
+		body := &summaryHTTPBody{Reader: strings.NewReader(`{"command":"model.delete"}`)}
+		body.close = func() error {
+			cancel()
+			select {
+			case <-entered:
+			case <-time.After(time.Second):
+				return errors.New("cancel callback did not enter")
+			}
+			panic("independent-close-private")
+		}
+		r := configurationTestRequest("POST", configurationTestLookup, "").WithContext(ctx)
+		r.Body = body
+		go func() { defer close(joined); outcome <- summaryAborts(func() { h.ServeHTTP(w, r) }) }()
+		select {
+		case <-entered:
+		case <-time.After(time.Second):
+			t.Fatal("callback stage absent")
+		}
+		select {
+		case <-joined:
+			t.Fatal("Close panic bypassed actual callback join")
+		case <-time.After(15 * time.Millisecond):
+		}
+		unblock()
+		select {
+		case <-joined:
+		case <-time.After(time.Second):
+			t.Fatal("callback release did not complete handler")
+		}
+		if !<-outcome || body.closes.Load() != 1 || w.Body.Len() != 0 || w.flushes != 0 || reads.Load() < 3 {
+			t.Fatal("combined failure published output or lost actual tail")
+		}
+	})
+}
+
+type independentConfigurationUnwrap struct {
+	*summaryHTTPWriter
+	panics  bool
+	unwraps atomic.Int32
+}
+
+func (w *independentConfigurationUnwrap) Unwrap() http.ResponseWriter {
+	w.unwraps.Add(1)
+	if w.panics {
+		panic("independent-unwrap-private")
+	}
+	return w
+}

@@ -1,0 +1,79 @@
+{
+  "status": "candidate05 complete14 frozen; only test account setup bridge baseline; no real rerun",
+  "baseline": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "files": {
+    "internal/central/model/http_project_configuration.go": {
+      "sha256": "5f3c13a4d796bbecf6d302782d4bd46893513adf871759a8c11369d36c164c73",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration.go"
+    },
+    "internal/central/model/http_project_configuration_wire.go": {
+      "sha256": "2689130f0e462586f76c310628f99ec02db2b758474e038864630009c4d40b83",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration_wire.go"
+    },
+    "internal/central/model/http_project_configuration_test.go": {
+      "sha256": "d09f1a8709d2e821c5458c5923b5c243c5d72c2c5e07b6cd84bf748ef8d8ac3a",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration_test.go"
+    },
+    "internal/central/model/http_project_configuration_wire_test.go": {
+      "sha256": "51d6938d90991ae3e120f41a9e30adf4113c6895da694e6e34f2eb8a696196d6",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/model/http_project_configuration_wire_test.go"
+    },
+    "internal/central/app/project_models.go": {
+      "sha256": "1efb3f0c95f05639db8f3da96cabb036d2a266859f425b418a031bebef57f5d0",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/app/project_models.go"
+    },
+    "internal/central/app/project_models_test.go": {
+      "sha256": "039912e56b1278d60d42e220d162b09ab7f8106484c5ae4ca3101f2ba7f46cc4",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/internal/central/app/project_models_test.go"
+    },
+    "api/openapi/project-models.json": {
+      "sha256": "0ce108387b53167a9e7d218e7f15a34a9e1c81c3538338a24822c0d6719ce1f5",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/api/openapi/project-models.json"
+    },
+    "internal/central/model/http_project_configuration_native_test.go": {
+      "sha256": "b9b629661284a0f93979b6eba450be2f703644a45522e29c5a1542f2a5c147ec",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate03/src/internal/central/model/http_project_configuration_native_test.go"
+    },
+    "tests/model/project_configuration_write_http_fixture_test.go": {
+      "sha256": "126ae0c7b141caa82ebfce044fc9affd45179e3ccd31057ca63ae2cda312a380",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate04/src/tests/model/project_configuration_write_http_fixture_test.go"
+    },
+    "tests/model/project_configuration_write_http_test.go": {
+      "sha256": "2af31adbe083158cb806a1749c72198af7408b87379b45279c1ab293f73e5f01",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_write_http_test.go"
+    },
+    "tests/model/project_configuration_write_http_authority_test.go": {
+      "sha256": "9b75ffddccc29785c4eb2fbbba5f715a086bd473dbd3ea9373aef2fa99b9e77f",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate05/src/tests/model/project_configuration_write_http_authority_test.go"
+    },
+    "tests/model/project_configuration_write_http_terminal_test.go": {
+      "sha256": "7ed76aaff68cced66ec9bcd13978edc79a2aa579903fa9da14684b358ffcab47",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_write_http_terminal_test.go"
+    },
+    "tests/model/project_configuration_write_http_root_test.go": {
+      "sha256": "f0adb77b3c330f45662b48d0f8d85f85c76f62fb00069ec2c518566d965cb656",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_write_http_root_test.go"
+    },
+    "tests/model/project_configuration_http_root_test.go": {
+      "sha256": "659a1a6cfd4b47e79620f63981454d1f7d5f8c6d9f7813620ad89109c8540f85",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/src/tests/model/project_configuration_http_root_test.go"
+    }
+  },
+  "patch": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate01/changes.patch",
+    "sha256": "1dea09ad14a96c25c0307d5303ba0f966709b6226b2f2876bf57826ee952d173"
+  },
+  "native_actualn": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate03/manifest.json",
+    "sha256": "6f382bad0174269542b87c4a7cada333b1f801c5be13b2fb1d004d94ebc90d8f"
+  },
+  "root_three_readonly_and_README": "unchanged; no resource authorized",
+  "inherits": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate04/manifest.json",
+    "sha256": "dc5c6eeb66167fb2773e7349c81c8fdf04b076f25e81d1e5a48815b709fcd98d"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate05/account-setup-baseline.delta",
+    "sha256": "61c9edfdff2eae0215b7ce01888971dacdad5efebcceec123461526c4734417d"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 41856.79747332,
+      "top": "TestModelProjectConfigurationWriteHTTPShutdown"
+    },
+    {
+      "event": "result",
+      "monotonic": 41862.715220606,
+      "observed_seconds": 5.917747285995574,
+      "reported_seconds": 5.91,
+      "state": "PASS",
+      "top": "TestModelProjectConfigurationWriteHTTPShutdown"
+    }
+  ],
+  "expected": [
+    "TestModelProjectConfigurationWriteHTTPShutdown"
+  ],
+  "failures": []
+}

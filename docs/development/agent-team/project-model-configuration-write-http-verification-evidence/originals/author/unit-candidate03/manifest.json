@@ -1,0 +1,46 @@
+{
+  "status": "partial8 revised only native actualn evidence; no native execution",
+  "files": {
+    "internal/central/model/http_project_configuration.go": {
+      "sha256": "5f3c13a4d796bbecf6d302782d4bd46893513adf871759a8c11369d36c164c73",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate01/src/internal/central/model/http_project_configuration.go"
+    },
+    "internal/central/model/http_project_configuration_wire.go": {
+      "sha256": "2689130f0e462586f76c310628f99ec02db2b758474e038864630009c4d40b83",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate01/src/internal/central/model/http_project_configuration_wire.go"
+    },
+    "internal/central/model/http_project_configuration_test.go": {
+      "sha256": "d09f1a8709d2e821c5458c5923b5c243c5d72c2c5e07b6cd84bf748ef8d8ac3a",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate01/src/internal/central/model/http_project_configuration_test.go"
+    },
+    "internal/central/model/http_project_configuration_wire_test.go": {
+      "sha256": "51d6938d90991ae3e120f41a9e30adf4113c6895da694e6e34f2eb8a696196d6",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate01/src/internal/central/model/http_project_configuration_wire_test.go"
+    },
+    "internal/central/app/project_models.go": {
+      "sha256": "1efb3f0c95f05639db8f3da96cabb036d2a266859f425b418a031bebef57f5d0",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate01/src/internal/central/app/project_models.go"
+    },
+    "internal/central/app/project_models_test.go": {
+      "sha256": "039912e56b1278d60d42e220d162b09ab7f8106484c5ae4ca3101f2ba7f46cc4",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate01/src/internal/central/app/project_models_test.go"
+    },
+    "api/openapi/project-models.json": {
+      "sha256": "0ce108387b53167a9e7d218e7f15a34a9e1c81c3538338a24822c0d6719ce1f5",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate01/src/api/openapi/project-models.json"
+    },
+    "internal/central/model/http_project_configuration_native_test.go": {
+      "sha256": "cfbfc01f8925ee52c06778dcd883c5ac0c0ad946598cae4ce19ea1c2bedf3006",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate03/src/internal/central/model/http_project_configuration_native_test.go"
+    }
+  },
+  "not_included": "native source and all integration sources still author preparation",
+  "inherits": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate02/manifest.json",
+    "sha256": "803091640826e23a8172722faf30c66de6b5222352d017860f0893a3a45b3c8b"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/unit-candidate03/native.delta",
+    "sha256": "127ce8ebcd1f1a3bcf0d9ffb5d879ec2eedc9f91c49c77d4f51fbfd9ab247ccc"
+  }
+}

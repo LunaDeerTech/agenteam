@@ -1,0 +1,43 @@
+{
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate03/manifest.json",
+    "sha256": "dd2663f288ce88ef4aca0f2c7fe4176d682f97e0d2580c4b473bd6c0c7473bdb"
+  },
+  "runs": {
+    "model-native-race-compile02": {
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/model-native-race-compile02/result.json",
+        "sha256": "45cd9cfd93419b150a5673452234b4cd3f4e7d93453fe5459429e89c6e6e3a4e"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/model-native-race-compile02/command.json",
+        "sha256": "25423b164e5dd3c1ce12320afbf622342c7cb246a0c39003a22959166639ed6d"
+      },
+      "exit": 0,
+      "elapsed_seconds": 6.1984860230004415,
+      "actualwait": true,
+      "remaining": [],
+      "inputs_same": true
+    },
+    "native-list02": {
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/native-list02/result.json",
+        "sha256": "a682aff92de2abcc0439f68fefbfad5b29f96fae54e92f2471bcd3282f119372"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/native-list02/command.json",
+        "sha256": "576abb8030d7ff087ae3f1907735b0f022729794df7cb91c49f05ba978d92b06"
+      },
+      "exit": 0,
+      "elapsed_seconds": 1.9299907789973076,
+      "actualwait": true,
+      "remaining": [],
+      "inputs_same": true
+    }
+  },
+  "gate": {
+    "file_mismatch": [],
+    "set_mismatch": []
+  },
+  "native_execution": "NOT AUTHORIZED/RUN after candidate03"
+}

@@ -1,0 +1,51 @@
+{
+  "status": "PASS_BOUNDED_INDEPENDENT_STATIC_FOUR_SOURCES_ONLY",
+  "blocking": [],
+  "candidate_manifest": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/production01/manifest.json",
+    "sha256": "36105d193d9f28d3522d9e5a1d02774829aed3228576822868b5c7cfdd1e6b07"
+  },
+  "scope": {
+    "internal/central/model/http_project_configuration.go": "5f3c13a4d796bbecf6d302782d4bd46893513adf871759a8c11369d36c164c73",
+    "internal/central/model/http_project_configuration_wire.go": "2689130f0e462586f76c310628f99ec02db2b758474e038864630009c4d40b83",
+    "internal/central/app/project_models.go": "1efb3f0c95f05639db8f3da96cabb036d2a266859f425b418a031bebef57f5d0",
+    "api/openapi/project-models.json": "0ce108387b53167a9e7d218e7f15a34a9e1c81c3538338a24822c0d6719ce1f5"
+  },
+  "review": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-production-static01/review.md",
+    "sha256": "e08964128ac6d845424278b163bee055a1c08d29aca2606f947b0477a3a34c7d"
+  },
+  "checks": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-production-static01/checks.json",
+    "sha256": "99fc9641ffc29dabeba52f81bee04a234fce8b1ef91400a87b90d6812f2fddc3"
+  },
+  "static_command": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "check_inputs.py"
+    ],
+    "cwd": "/workspace/scratch/summary-verification/project-model-configuration-write-http-production-static01",
+    "final_exit": 0,
+    "earlier_verifier_script_failures": 3,
+    "record": "/workspace/scratch/summary-verification/project-model-configuration-write-http-production-static01/first-check-failure.txt"
+  },
+  "artifacts": {
+    "check_inputs-first.py": "4c5233d9899805b1831ddeea79cd70cb7bec8ca41b002f2145de8c7b61a1e99a",
+    "check_inputs-second.py": "dc7c57e11eff4cbf39d2c8adafa1f0fb0593404c240a2088c48df204f0831fda",
+    "check_inputs-third.py": "3550c1e3d3fe218c0d03cc1f3866dc889738fcae70e1ac98584cdbe315501a1d",
+    "check_inputs.py": "0f2fb64b899196d390667130f616d65ef796732f4dd2f4f5039ecc78987b60ca",
+    "checks.json": "99fc9641ffc29dabeba52f81bee04a234fce8b1ef91400a87b90d6812f2fddc3",
+    "first-check-failure.txt": "c74d126d23bd36c202d131d9723d3e26c5dfb7614abd9f408ac0df5af5bccf05",
+    "review.md": "e08964128ac6d845424278b163bee055a1c08d29aca2606f947b0477a3a34c7d"
+  },
+  "not_run": [
+    "Go compile/list/vet",
+    "controlled or schema behavior tests",
+    "native",
+    "PostgreSQL",
+    "default root"
+  ],
+  "not_reviewed": "other 10 product test paths; full14 integration and README15 pending",
+  "business_Git_resource_mutations": false,
+  "stopped": true
+}

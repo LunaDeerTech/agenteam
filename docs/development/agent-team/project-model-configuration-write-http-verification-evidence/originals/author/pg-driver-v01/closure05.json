@@ -1,0 +1,320 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/closure.json",
+    "sha256": "c710918462af79b1fb08f734403f8a3ba8221ec991884b00fd53bb6aa0de30b3"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate06/manifest.json",
+    "sha256": "138e5263a8c7dce66670c7b01551de9074c64c780f975453a1bb249d488c4788"
+  },
+  "actual_union": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/actual-graph-full05.json",
+    "sha256": "c53029c4b5336ea2aa248664b68c12a954e056b3287ed25818e0ee68a3a8cfb9"
+  },
+  "files": {
+    "/workspace/agenteam/internal/central/model/http_project_configuration.go": {
+      "sha256": "5f3c13a4d796bbecf6d302782d4bd46893513adf871759a8c11369d36c164c73"
+    },
+    "/workspace/agenteam/internal/central/model/http_project_configuration_wire.go": {
+      "sha256": "2689130f0e462586f76c310628f99ec02db2b758474e038864630009c4d40b83"
+    },
+    "/workspace/agenteam/internal/central/model/http_project_configuration_test.go": {
+      "sha256": "d09f1a8709d2e821c5458c5923b5c243c5d72c2c5e07b6cd84bf748ef8d8ac3a"
+    },
+    "/workspace/agenteam/internal/central/model/http_project_configuration_wire_test.go": {
+      "sha256": "51d6938d90991ae3e120f41a9e30adf4113c6895da694e6e34f2eb8a696196d6"
+    },
+    "/workspace/agenteam/internal/central/app/project_models.go": {
+      "sha256": "1efb3f0c95f05639db8f3da96cabb036d2a266859f425b418a031bebef57f5d0"
+    },
+    "/workspace/agenteam/internal/central/app/project_models_test.go": {
+      "sha256": "039912e56b1278d60d42e220d162b09ab7f8106484c5ae4ca3101f2ba7f46cc4"
+    },
+    "/workspace/agenteam/api/openapi/project-models.json": {
+      "sha256": "0ce108387b53167a9e7d218e7f15a34a9e1c81c3538338a24822c0d6719ce1f5"
+    },
+    "/workspace/agenteam/internal/central/model/http_project_configuration_native_test.go": {
+      "sha256": "b9b629661284a0f93979b6eba450be2f703644a45522e29c5a1542f2a5c147ec"
+    },
+    "/workspace/agenteam/tests/model/project_configuration_write_http_fixture_test.go": {
+      "sha256": "126ae0c7b141caa82ebfce044fc9affd45179e3ccd31057ca63ae2cda312a380"
+    },
+    "/workspace/agenteam/tests/model/project_configuration_write_http_test.go": {
+      "sha256": "2af31adbe083158cb806a1749c72198af7408b87379b45279c1ab293f73e5f01"
+    },
+    "/workspace/agenteam/tests/model/project_configuration_write_http_authority_test.go": {
+      "sha256": "75151a13387991a2d292a684d59b28f497d5ddbd3f19f919db7a495d63cc1d9f"
+    },
+    "/workspace/agenteam/tests/model/project_configuration_write_http_terminal_test.go": {
+      "sha256": "7ed76aaff68cced66ec9bcd13978edc79a2aa579903fa9da14684b358ffcab47"
+    },
+    "/workspace/agenteam/tests/model/project_configuration_write_http_root_test.go": {
+      "sha256": "f0adb77b3c330f45662b48d0f8d85f85c76f62fb00069ec2c518566d965cb656"
+    },
+    "/workspace/agenteam/tests/model/project_configuration_http_root_test.go": {
+      "sha256": "659a1a6cfd4b47e79620f63981454d1f7d5f8c6d9f7813620ad89109c8540f85"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate02/manifest.json": {
+      "sha256": "a9be2ef2bcd3e8f4397cf941517a825b948c45b1c6518b9ab9843c27e3f368dc"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/actual-graph-full01.json": {
+      "sha256": "f4ff42d3b491045e000dd39e69504e4e9064c45e85492320bb0520f558115256"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/integration02.test": {
+      "sha256": "40580f4ee77339813da999ecb741ca40dc14b82ead4f1f3449a78d980356c94c"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/driver.py": {
+      "sha256": "3b3e07f2c4d2d59dd2eb2cd5381435c16b03af512270df4e97b89d503ab0e849"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/groups.json": {
+      "sha256": "74a2420d42faee0933fcc3983db2fa3fb6efb79c3eca22420ed6ea9169bd670a"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate03/manifest.json": {
+      "sha256": "dd2663f288ce88ef4aca0f2c7fe4176d682f97e0d2580c4b473bd6c0c7473bdb"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/actual-graph-full02.json": {
+      "sha256": "12e3e40f6546b5c71dd38e583e7c2034368a6ffe968fcfdd5f4526b4ba2ee1ae"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate04/manifest.json": {
+      "sha256": "dc5c6eeb66167fb2773e7349c81c8fdf04b076f25e81d1e5a48815b709fcd98d"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/actual-graph-full03.json": {
+      "sha256": "d9c7d33df86c75fa1fa547e3f3367cf532e072a563821d5b559f1d549a81b65c"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/integration03.test": {
+      "sha256": "d4d88af53b87f4145b8edd5d03c50cdd3e25b01c124e38fa20e22552a5b1c143"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate05/manifest.json": {
+      "sha256": "e36cbccbe33c1fc99876541133883c1d0ea4657d304616a19c418e89685dbc18"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/actual-graph-full04.json": {
+      "sha256": "c081d8ae033350b6cdc33c85a701669c44c3a082fa9e473c30ee5ff6e2d0bb2f"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/integration04.test": {
+      "sha256": "2d86792786b600734464e236fa7bb54ef55ff60e29de5b34a3e58973fd3bf459"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/candidate06/manifest.json": {
+      "sha256": "138e5263a8c7dce66670c7b01551de9074c64c780f975453a1bb249d488c4788"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/actual-graph-full05.json": {
+      "sha256": "c53029c4b5336ea2aa248664b68c12a954e056b3287ed25818e0ee68a3a8cfb9"
+    },
+    "/workspace/scratch/project-model-configuration-write-http-author/integration05.test": {
+      "sha256": "30286cddd478e79c0fa557fc97934f5466e41aecc565faf3d05e5045cb174fe4"
+    }
+  },
+  "package_file_sets": {
+    "/workspace/agenteam/internal/central/app": {
+      "names": [
+        "account.go",
+        "account_lifecycle_test.go",
+        "account_process_test.go",
+        "account_test.go",
+        "app.go",
+        "app_test.go",
+        "audit_http.go",
+        "audit_http_process_test.go",
+        "audit_http_test.go",
+        "database_process_test.go",
+        "database_test.go",
+        "diagnostics.go",
+        "health.go",
+        "health_sampling_test.go",
+        "model.go",
+        "model_process_test.go",
+        "model_test.go",
+        "object.go",
+        "object_test.go",
+        "outbound.go",
+        "outbound_policy_http.go",
+        "outbound_policy_http_process_test.go",
+        "outbound_policy_http_test.go",
+        "outbound_process_test.go",
+        "outbound_test.go",
+        "outbox.go",
+        "outbox_process_test.go",
+        "outbox_test.go",
+        "process_test.go",
+        "project_credentials.go",
+        "project_credentials_test.go",
+        "project_models.go",
+        "project_models_test.go",
+        "project_read.go",
+        "project_read_test.go",
+        "project_update.go",
+        "project_update_test.go",
+        "project_usage.go",
+        "project_usage_test.go",
+        "repair.go",
+        "resources.go",
+        "runtime_information.go",
+        "runtime_information_process_test.go",
+        "runtime_information_test.go",
+        "secret_process_test.go",
+        "secret_test.go",
+        "security.go",
+        "security_test.go"
+      ],
+      "embed_directory": false
+    },
+    "/workspace/agenteam/internal/central/model": {
+      "names": [
+        "audit_authority.go",
+        "audit_authority_test.go",
+        "authority.go",
+        "authority_test.go",
+        "commands.go",
+        "commands_test.go",
+        "configuration.go",
+        "configuration_policy.go",
+        "configuration_policy_test.go",
+        "configuration_test.go",
+        "events.go",
+        "events_test.go",
+        "http.go",
+        "http_configuration.go",
+        "http_credentials.go",
+        "http_dto.go",
+        "http_dto_test.go",
+        "http_management.go",
+        "http_management_test.go",
+        "http_meeting_summary.go",
+        "http_meeting_summary_native_test.go",
+        "http_meeting_summary_test.go",
+        "http_project.go",
+        "http_project_configuration.go",
+        "http_project_configuration_native_test.go",
+        "http_project_configuration_test.go",
+        "http_project_configuration_wire.go",
+        "http_project_configuration_wire_test.go",
+        "http_project_credentials.go",
+        "http_project_credentials_native_test.go",
+        "http_project_credentials_test.go",
+        "http_project_credentials_wire.go",
+        "http_project_credentials_wire_test.go",
+        "http_project_native_test.go",
+        "http_project_test.go",
+        "http_project_wire.go",
+        "http_project_wire_test.go",
+        "http_test.go",
+        "management_read.go",
+        "management_read_test.go",
+        "meeting_summary.go",
+        "meeting_summary_commands.go",
+        "meeting_summary_commands_test.go",
+        "meeting_summary_store.go",
+        "meeting_summary_test.go",
+        "project_authority_test.go",
+        "project_configuration_test.go",
+        "project_query.go",
+        "project_query_test.go",
+        "query.go",
+        "query_test.go",
+        "references.go",
+        "references_test.go",
+        "resolution_plan.go",
+        "resolution_plan_test.go",
+        "resolution_policy.go",
+        "resolution_policy_test.go",
+        "resolution_secret.go",
+        "resolution_secret_test.go",
+        "resolution_store.go",
+        "resolver.go",
+        "resolver_test.go",
+        "secret_authority.go",
+        "secret_authority_test.go",
+        "secret_router.go",
+        "secret_router_test.go",
+        "service.go",
+        "service_test.go",
+        "store.go",
+        "store_test.go"
+      ],
+      "embed_directory": false
+    },
+    "/workspace/agenteam/tests/model": {
+      "names": [
+        "current_resolution_atomicity_test.go",
+        "current_resolution_authorization_test.go",
+        "current_resolution_fixture_test.go",
+        "current_resolution_schema_test.go",
+        "current_resolution_selection_test.go",
+        "current_resolution_unknown_test.go",
+        "meeting_summary_fixture_test.go",
+        "meeting_summary_http_test.go",
+        "meeting_summary_replacement_test.go",
+        "meeting_summary_resolution_atomicity_test.go",
+        "meeting_summary_resolution_authorization_test.go",
+        "meeting_summary_resolution_fixture_test.go",
+        "meeting_summary_resolution_replay_test.go",
+        "meeting_summary_resolution_selection_test.go",
+        "meeting_summary_resolution_unknown_test.go",
+        "meeting_summary_schema_test.go",
+        "meeting_summary_selection_test.go",
+        "meeting_summary_settings_fixture_test.go",
+        "meeting_summary_settings_http_test.go",
+        "meeting_summary_settings_root_test.go",
+        "meeting_summary_unknown_test.go",
+        "meeting_summary_upgrade_test.go",
+        "openai_chat_structured_http_test.go",
+        "openai_chat_structured_stream_test.go",
+        "openai_chat_wire_fixture_test.go",
+        "openai_chat_wire_http_test.go",
+        "openai_chat_wire_stream_test.go",
+        "openai_embeddings_wire_budget_test.go",
+        "openai_embeddings_wire_fixture_test.go",
+        "openai_embeddings_wire_http_test.go",
+        "openai_embeddings_wire_terminal_test.go",
+        "project_available_models_test.go",
+        "project_configuration_fixture_test.go",
+        "project_configuration_http_fixture_test.go",
+        "project_configuration_http_root_test.go",
+        "project_configuration_http_terminal_test.go",
+        "project_configuration_http_test.go",
+        "project_configuration_integration_test.go",
+        "project_configuration_unknown_test.go",
+        "project_configuration_write_http_authority_test.go",
+        "project_configuration_write_http_fixture_test.go",
+        "project_configuration_write_http_root_test.go",
+        "project_configuration_write_http_terminal_test.go",
+        "project_configuration_write_http_test.go",
+        "project_credentials_http_authority_test.go",
+        "project_credentials_http_fixture_test.go",
+        "project_credentials_http_root_test.go",
+        "project_credentials_http_test.go",
+        "project_credentials_http_unknown_test.go",
+        "project_owner_read_http_fixture_test.go",
+        "project_owner_read_http_root_test.go",
+        "project_owner_read_http_terminal_test.go",
+        "project_owner_read_http_test.go",
+        "project_owner_update_http_fixture_test.go",
+        "project_owner_update_http_root_test.go",
+        "project_owner_update_http_test.go",
+        "project_owner_update_http_unknown_test.go",
+        "project_usage_http_fixture_test.go",
+        "project_usage_http_root_test.go",
+        "project_usage_http_terminal_test.go",
+        "project_usage_http_test.go",
+        "system_configuration_integration_test.go",
+        "system_http_configuration_test.go",
+        "system_http_credentials_test.go",
+        "system_http_fixture_test.go",
+        "system_management_boundaries_test.go",
+        "system_management_impact_test.go",
+        "system_management_metadata_test.go",
+        "usage_authorization_test.go",
+        "usage_fixture_test.go",
+        "usage_ledger_test.go",
+        "usage_query_test.go",
+        "usage_schema_test.go",
+        "usage_unknown_test.go"
+      ],
+      "embed_directory": false
+    }
+  },
+  "scope": "candidate06 #11 private lifecycle setup on isolatedProject via accepted formal gate; complete inherited full20/TestMain/dynamiccmd; no imports/path additions",
+  "inherited": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/closure04.json",
+    "sha256": "488aeebdcc9807a14ae4ec986519c128ac2c21686daaf36dc371526c6c8f9c78"
+  }
+}

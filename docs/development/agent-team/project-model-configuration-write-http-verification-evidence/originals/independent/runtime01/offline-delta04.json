@@ -1,0 +1,50 @@
+{
+  "status": "PASS: affected PG preparation only",
+  "inherits": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/offline-results01.json",
+    "sha256": "ea19a78dd86b87a6d31909ebfd1fd1481117af6850c84d6bb90b1ea73a2e685b"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate04/manifest.json",
+    "sha256": "dc5c6eeb66167fb2773e7349c81c8fdf04b076f25e81d1e5a48815b709fcd98d"
+  },
+  "runs": [
+    {
+      "name": "compile-pg04",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/compile-pg04/result.json",
+        "sha256": "87a86a95cf45a50dc73c084af6f5bce5aebc0d8304d2d3869e07730d8e646e2a"
+      },
+      "elapsed": 7.953422974002024,
+      "actualwait": true,
+      "double_owned_empty": true,
+      "input_same": true
+    },
+    {
+      "name": "list-pg04",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/list-pg04/result.json",
+        "sha256": "e9f6af57470bcb95ebc1511ac7ffe4ac29c5a4ae05e3b1ba0380276f6e1bf620"
+      },
+      "elapsed": 1.5786391680012457,
+      "actualwait": true,
+      "double_owned_empty": true,
+      "input_same": true
+    },
+    {
+      "name": "runtime-inputgate02",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-configuration-write-http-runtime01/runtime-inputgate02/result.json",
+        "sha256": "7374eafc4ae908f86bcfa21c4f1c12743a3b0c19a66136d4387d88eff209dddd"
+      },
+      "elapsed": 1.4795836070043151,
+      "actualwait": true,
+      "double_owned_empty": true,
+      "input_same": true
+    }
+  ],
+  "input_gate_files": 3321,
+  "native_recompiled": false,
+  "test_bodies_or_resources_run": false,
+  "private_sources_unchanged": true
+}

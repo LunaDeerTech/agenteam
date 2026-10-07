@@ -1,0 +1,61 @@
+{
+  "candidate": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/candidate05/manifest.json",
+    "sha256": "e36cbccbe33c1fc99876541133883c1d0ea4657d304616a19c418e89685dbc18"
+  },
+  "runs": {
+    "integration-race-compile04": {
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-race-compile04/result.json",
+        "sha256": "2bf41e1c11223fd84402cc8f15e478b6fd0ddb7b2a602e26db6edf95b5ab2629"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-race-compile04/command.json",
+        "sha256": "f3ad52051a26589265283e4e8652d0f79e465ec2c346dc0aff2c101c4eae3a72"
+      },
+      "exit": 0,
+      "elapsed_seconds": 7.827757610000845,
+      "actualwait": true,
+      "ownedempty": true,
+      "inputs_same": true
+    },
+    "integration-list04": {
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-list04/result.json",
+        "sha256": "6fb6702c29d736cc3c3d7cdfff7c52b72e4e382c156004dcbc01012a7aa1500d"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-list04/command.json",
+        "sha256": "4c94ee115b9d5566f9136720143ee2c5f3e91a0ba0ca453a3e3746a8bd955d5d"
+      },
+      "exit": 0,
+      "elapsed_seconds": 1.884646343998611,
+      "actualwait": true,
+      "ownedempty": true,
+      "inputs_same": true
+    },
+    "integration-vet04": {
+      "result": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-vet04/result.json",
+        "sha256": "de56738502a9483f5c294289d2d1b4a06771e1b5c14812b6fae7a8ecd28174cb"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-model-configuration-write-http-author/integration-vet04/command.json",
+        "sha256": "e874535c2b7557d64c79d1b62b8648f9231a9f0c974f4f8aea0dec5c85f2280b"
+      },
+      "exit": 0,
+      "elapsed_seconds": 1.425373469995975,
+      "actualwait": true,
+      "ownedempty": true,
+      "inputs_same": true
+    }
+  },
+  "only_delta": "#11 test setup bridge",
+  "resources": "not restarted",
+  "list_top_count": 13,
+  "current14_hash_match": true,
+  "pg_input_check": {
+    "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/input-only05-command.json",
+    "sha256": "aba76bd8a6bfeaf7769039bc5c6969d500240b0b8935a61ba1d2b8d543410085"
+  }
+}

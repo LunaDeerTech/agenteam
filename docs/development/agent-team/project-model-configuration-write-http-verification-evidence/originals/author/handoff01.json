@@ -1,0 +1,92 @@
+{
+  "status": "HANDOFF_ACCEPTED_CREDENTIAL23_MATCHED_CURRENT; implementation only14 authorized",
+  "baseline_product": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "baseline_commit_provenance": "root confirms pushed remote and clean; no Git operation by author",
+  "credential_manifest": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/readme23/manifest23.json",
+    "sha256": "3e96f4ed032fbf299f064127f54e1e4125c269651de1bcd820c1a83b10fe9e6b"
+  },
+  "credential_final23": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/final23/result.json",
+    "sha256": "4bc0659b1f9f9063e9601e9040ca6262d9bea584419fbe96a5b597c6c6c88289"
+  },
+  "credential23_current_and_snapshots_match": true,
+  "spec": {
+    "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-configuration-write-http.md",
+    "sha256": "cce364e54c513a04b7fd45298b98e1e22a2e5154340619c7d973f63f4dda5235"
+  },
+  "spec_commit": "f2ab9c4cc54ce140f586c8131a97b4289d27749e",
+  "spec_archive": "1afe0756",
+  "owned_technical_paths": [
+    "internal/central/model/http_project_configuration.go",
+    "internal/central/model/http_project_configuration_wire.go",
+    "internal/central/model/http_project_configuration_test.go",
+    "internal/central/model/http_project_configuration_wire_test.go",
+    "internal/central/model/http_project_configuration_native_test.go",
+    "api/openapi/project-models.json",
+    "internal/central/app/project_models.go",
+    "internal/central/app/project_models_test.go",
+    "tests/model/project_configuration_write_http_fixture_test.go",
+    "tests/model/project_configuration_write_http_test.go",
+    "tests/model/project_configuration_write_http_authority_test.go",
+    "tests/model/project_configuration_write_http_terminal_test.go",
+    "tests/model/project_configuration_write_http_root_test.go",
+    "tests/model/project_configuration_http_root_test.go"
+  ],
+  "new_paths_absent": [
+    "internal/central/model/http_project_configuration.go",
+    "internal/central/model/http_project_configuration_wire.go",
+    "internal/central/model/http_project_configuration_test.go",
+    "internal/central/model/http_project_configuration_wire_test.go",
+    "internal/central/model/http_project_configuration_native_test.go",
+    "tests/model/project_configuration_write_http_fixture_test.go",
+    "tests/model/project_configuration_write_http_test.go",
+    "tests/model/project_configuration_write_http_authority_test.go",
+    "tests/model/project_configuration_write_http_terminal_test.go",
+    "tests/model/project_configuration_write_http_root_test.go"
+  ],
+  "old_five_current": {
+    "api/openapi/project-models.json": {
+      "sha256": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/handoff01/src/api/openapi/project-models.json",
+      "writable_now": true
+    },
+    "internal/central/app/project_models.go": {
+      "sha256": "9cc03c1c29c004e456e6e7151f55de40deb23378cb15f2ba47f7722d414ca771",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/handoff01/src/internal/central/app/project_models.go",
+      "writable_now": true
+    },
+    "internal/central/app/project_models_test.go": {
+      "sha256": "44eb1fbaac79118703e5bb4cc4ef2d29dde5c60b556c7a688d4226e1e7e85f46",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/handoff01/src/internal/central/app/project_models_test.go",
+      "writable_now": true
+    },
+    "tests/model/project_configuration_http_root_test.go": {
+      "sha256": "3f2ee5b8e9a0f8d05c95976fa038240f43a822296289ef5d6a9dece4e759d12f",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/handoff01/src/tests/model/project_configuration_http_root_test.go",
+      "writable_now": true
+    },
+    "docs/development/backend/README.md": {
+      "sha256": "b5b4444d61af796a9ecd5843b4de9cfd55981324e21ba1e6ef4b0c991bac0e5e",
+      "snapshot": "/workspace/scratch/project-model-configuration-write-http-author/handoff01/src/docs/development/backend/README.md",
+      "writable_now": false
+    }
+  },
+  "readonly_shared_roots": {
+    "internal/central/app/account.go": {
+      "path": "/workspace/agenteam/internal/central/app/account.go",
+      "sha256": "89d01abf651ca247515ae8226c739469b86ed01ac6cb4a717cdd3091633e79e7"
+    },
+    "internal/central/app/project_usage.go": {
+      "path": "/workspace/agenteam/internal/central/app/project_usage.go",
+      "sha256": "13abb6bbdc4d38d40b1ba627aa989aec503ffe55c7a310dd42d11acc33d81275"
+    },
+    "internal/central/app/security.go": {
+      "path": "/workspace/agenteam/internal/central/app/security.go",
+      "sha256": "0804ec5ab4c3b8566d3f933881415779bf354eaa89a1bb85e0fb4fb09bd0a7a4"
+    }
+  },
+  "README15_authorized": false,
+  "native_PG_socket_authorized": false,
+  "offline_authorized": "45s command; frozen actual graph; subreaper actualwait/double owned empty; no resource body"
+}
