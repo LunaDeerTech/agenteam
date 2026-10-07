@@ -1,0 +1,368 @@
+{
+  "kind": "independent static source analysis only; no Go/schema/test/resource execution",
+  "fixed_commit": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "action_count": 53,
+  "project_output_action_count": 31,
+  "project_output_actions": [
+    "artifact.create",
+    "artifact.download",
+    "artifact.list",
+    "artifact.read",
+    "knowledge.delete_subtree",
+    "model.create",
+    "model.delete",
+    "model.update",
+    "object.delete",
+    "object.transfer.complete",
+    "object.transfer.issue",
+    "object.transfer.revoke",
+    "object.upload.complete",
+    "object.upload.failed",
+    "outbound.access.deny",
+    "outbox.delivery.requeue",
+    "project.archive.accepted",
+    "project.archive.completed",
+    "project.create.accepted",
+    "project.create.completed",
+    "project.delete.accepted",
+    "project.lifecycle.retry",
+    "project.restore",
+    "project.update",
+    "provider.create",
+    "provider.delete",
+    "provider.update",
+    "secret.create",
+    "secret.delete",
+    "secret.resolve",
+    "secret.update"
+  ],
+  "actor_count": 3,
+  "service_count": 13,
+  "resource_count": 14,
+  "budget": {
+    "actor_branch_encoded_lengths": [
+      60,
+      170,
+      191
+    ],
+    "longest_service": "project-initialization",
+    "longest_project_action": "project.archive.completed",
+    "longest_resource": "artifact_collection",
+    "fixed_shell": 1049,
+    "canonical_metadata_upper": 4096,
+    "per_record_upper": 5145,
+    "page_shell_with_cursor": 8221,
+    "max_items": 200,
+    "comma_count": 199,
+    "total_upper": 1037420,
+    "budget": 1048576,
+    "headroom": 11156,
+    "is_static_cartesian_not_runtime_maximum": true
+  },
+  "existing_selector_checks": [
+    {
+      "name": "TestAuditHTTPPureBodyCloseJoinAndSafeUnknown",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureBodyWriteAndCapabilities",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureEncodedBudget",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureMIMEClosedSchema",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureOpenAPIClosedContract",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureQueryClosure",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureRoutesAndAuthorizationOrder",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureTypedProjection",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditPaginationBindingsFiltersAndRevocation",
+      "declaration_matched": true,
+      "files": [
+        "tests/security/audit_query_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditRootPureRoutePreservationAndSingleMiddleware",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/app/audit_http_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditRootPureSameInstanceConstructionGraph",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/app/audit_http_test.go"
+      ]
+    },
+    {
+      "name": "TestModelProjectCredentialHTTPDefaultRoot",
+      "declaration_matched": true,
+      "files": [
+        "tests/model/project_credentials_http_root_test.go"
+      ]
+    },
+    {
+      "name": "TestModelProjectOwnerUpdateHTTPRootBinding",
+      "declaration_matched": true,
+      "files": [
+        "tests/model/project_owner_update_http_root_test.go"
+      ]
+    },
+    {
+      "name": "TestModelProjectUsageHTTPRootBinding",
+      "declaration_matched": true,
+      "files": [
+        "tests/model/project_usage_http_root_test.go"
+      ]
+    },
+    {
+      "name": "TestProjectCredentialsRootPureRouteOwnership",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/app/project_credentials_test.go"
+      ]
+    },
+    {
+      "name": "TestProjectModelsRootPureRouteOwnership",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/app/project_models_test.go"
+      ]
+    },
+    {
+      "name": "TestProjectReadRootPureRouteOwnership",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/app/project_read_test.go"
+      ]
+    },
+    {
+      "name": "TestProjectUsageRootPureRoutesPreserveOriginalChain",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/app/project_usage_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditCursorBindingAndInvalidActor",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/system_query_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditHTTPQueryAndProjection",
+      "declaration_matched": true,
+      "files": [
+        "tests/account/audit_http_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditHTTPRootProducerBinding",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/app/audit_http_process_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditHTTPTransactionAndBudget",
+      "declaration_matched": true,
+      "files": [
+        "tests/account/audit_http_transaction_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditLegacyQueryScopeAndValidationEquivalence",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/system_query_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditPageScansSentinelAndClosesBeforePublication",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/system_query_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditReadDeadlineAndActualTail",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/system_query_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditReadFailureHasZeroCandidate",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/system_query_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditReadTransactionPublication",
+      "declaration_matched": true,
+      "files": [
+        "internal/central/audit/system_query_test.go"
+      ]
+    }
+  ],
+  "existing_selectors_all_match": true,
+  "scope_checks": [
+    {
+      "path": "internal/central/audit/project_query.go",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "internal/central/audit/project_query_test.go",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "internal/central/audit/http/project.go",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "internal/central/audit/http/project_wire.go",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "internal/central/audit/http/project_test.go",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "internal/central/audit/http/project_wire_test.go",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "internal/central/audit/http/project_native_test.go",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "api/openapi/project-audit.json",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "internal/central/app/project_audit.go",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "internal/central/app/project_audit_test.go",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "internal/central/app/account.go",
+      "present": true,
+      "declared": true,
+      "match": true
+    },
+    {
+      "path": "tests/model/project_audit_http_fixture_test.go",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "tests/model/project_audit_http_test.go",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "tests/model/project_audit_http_root_test.go",
+      "present": false,
+      "declared": false,
+      "match": true
+    },
+    {
+      "path": "docs/development/backend/audit.md",
+      "present": true,
+      "declared": true,
+      "match": true
+    },
+    {
+      "path": "docs/development/backend/README.md",
+      "present": true,
+      "declared": true,
+      "match": true
+    }
+  ],
+  "scope_all_match": true,
+  "actual_cmd_directories": [
+    "agenteam-runner",
+    "agenteam"
+  ],
+  "declared_wrong_cmd_directories": [
+    "central",
+    "agent_server"
+  ]
+}

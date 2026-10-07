@@ -1,0 +1,590 @@
+{
+  "kind": "formal-card-only administrative/link/provenance equivalence selfcheck",
+  "passed": true,
+  "same_name_exclusive_creation": true,
+  "source_draft_sha256": "3eae6ce5d129e8125aba157cb4687656c31cd49fe654e3c583a386ffe843a809",
+  "formal_card_sha256": "23ab7e869cd05cd7605ccf6c5d3a0e17d3ad43d46157e429f35d4c03c2d86563",
+  "section1_to8_technical_equivalence": true,
+  "equivalence_method": "Exact invertible allowlist of header, one architecture link, budget artifact link, specification-state sentence and final status paragraph; appended self-contained source section9",
+  "new_business_or_scope_change": false,
+  "relative_links_and_fragments": 81,
+  "links": [
+    {
+      "label": "§9",
+      "target": "#9-固定来源与规格验收定位",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d04-project-owner-audit-http.md",
+      "fragment": "9-固定来源与规格验收定位",
+      "passed": true
+    },
+    {
+      "label": "Audit 业务规则",
+      "target": "../../architecture/security-governance/audit.md",
+      "resolved": "/workspace/agenteam/docs/architecture/security-governance/audit.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "静态核算原件与指纹",
+      "target": "#9-固定来源与规格验收定位",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d04-project-owner-audit-http.md",
+      "fragment": "9-固定来源与规格验收定位",
+      "passed": true
+    },
+    {
+      "label": "§9",
+      "target": "#9-固定来源与规格验收定位",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d04-project-owner-audit-http.md",
+      "fragment": "9-固定来源与规格验收定位",
+      "passed": true
+    },
+    {
+      "label": "AGENTS.md",
+      "target": "../../../AGENTS.md",
+      "resolved": "/workspace/agenteam/AGENTS.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": ".agents/skills/agenteam-design/SKILL.md",
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "resolved": "/workspace/agenteam/.agents/skills/agenteam-design/SKILL.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/agent-team/README.md",
+      "target": "../agent-team/README.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/README.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/architecture/README.md",
+      "target": "../../architecture/README.md",
+      "resolved": "/workspace/agenteam/docs/architecture/README.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/development-plan.md",
+      "target": "../development-plan.md",
+      "resolved": "/workspace/agenteam/docs/development/development-plan.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/agent-team/tasks.md",
+      "target": "../agent-team/tasks.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/tasks.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/backend/README.md",
+      "target": "../backend/README.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/README.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/backend/audit.md",
+      "target": "../backend/audit.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/audit.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/architecture/security-governance/audit.md",
+      "target": "../../architecture/security-governance/audit.md",
+      "resolved": "/workspace/agenteam/docs/architecture/security-governance/audit.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/architecture/project-work-management/project-environment-variables.md",
+      "target": "../../architecture/project-work-management/project-environment-variables.md",
+      "resolved": "/workspace/agenteam/docs/architecture/project-work-management/project-environment-variables.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/work-items/d09-project-model-configuration-write-http.md",
+      "target": "d09-project-model-configuration-write-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-configuration-write-http.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/work-items/d04-system-audit-management-http.md",
+      "target": "d04-system-audit-management-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d04-system-audit-management-http.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/work-items/d10-skills-initialization.md",
+      "target": "d10-skills-initialization.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d10-skills-initialization.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/work-items/d12-b02-knowledge-service.md",
+      "target": "d12-b02-knowledge-service.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d12-b02-knowledge-service.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "recovery-d09-current-model-resolution.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "recovery-d09-invocation-usage-ledger.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/agent-team/d09-next-wire-dependencies-2026-10-07.md",
+      "target": "../agent-team/d09-next-wire-dependencies-2026-10-07.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/d09-next-wire-dependencies-2026-10-07.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/agent-team/system-audit-management-http-verification.md",
+      "target": "../agent-team/system-audit-management-http-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/system-audit-management-http-verification.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/agent-team/d09-project-configuration-verification.md",
+      "target": "../agent-team/d09-project-configuration-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/d09-project-configuration-verification.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/agent-team/secret-project-audit-verification.md",
+      "target": "../agent-team/secret-project-audit-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/secret-project-audit-verification.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "docs/development/agent-team/d10-p1-recovery-verification.md",
+      "target": "../agent-team/d10-p1-recovery-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/d10-p1-recovery-verification.md",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/query.go",
+      "target": "../../../internal/central/audit/query.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/query.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/system_query.go",
+      "target": "../../../internal/central/audit/system_query.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/system_query.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/service.go",
+      "target": "../../../internal/central/audit/service.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/service.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/contract/access.go",
+      "target": "../../../internal/central/audit/contract/access.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/contract/access.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/contract/types.go",
+      "target": "../../../internal/central/audit/contract/types.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/contract/types.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/contract/metadata.go",
+      "target": "../../../internal/central/audit/contract/metadata.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/contract/metadata.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/contract/project.go",
+      "target": "../../../internal/central/audit/contract/project.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/contract/project.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/http/handler.go",
+      "target": "../../../internal/central/audit/http/handler.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/http/handler.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/http/wire.go",
+      "target": "../../../internal/central/audit/http/wire.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/http/wire.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/project/authority.go",
+      "target": "../../../internal/central/project/authority.go",
+      "resolved": "/workspace/agenteam/internal/central/project/authority.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/project/audit_authority.go",
+      "target": "../../../internal/central/project/audit_authority.go",
+      "resolved": "/workspace/agenteam/internal/central/project/audit_authority.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/project/contract/lifecycle.go",
+      "target": "../../../internal/central/project/contract/lifecycle.go",
+      "resolved": "/workspace/agenteam/internal/central/project/contract/lifecycle.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/app/security.go",
+      "target": "../../../internal/central/app/security.go",
+      "resolved": "/workspace/agenteam/internal/central/app/security.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/app/account.go",
+      "target": "../../../internal/central/app/account.go",
+      "resolved": "/workspace/agenteam/internal/central/app/account.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/app/project_usage.go",
+      "target": "../../../internal/central/app/project_usage.go",
+      "resolved": "/workspace/agenteam/internal/central/app/project_usage.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/app/project_models.go",
+      "target": "../../../internal/central/app/project_models.go",
+      "resolved": "/workspace/agenteam/internal/central/app/project_models.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/app/project_credentials.go",
+      "target": "../../../internal/central/app/project_credentials.go",
+      "resolved": "/workspace/agenteam/internal/central/app/project_credentials.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "tests/account/audit_http_transaction_test.go",
+      "target": "../../../tests/account/audit_http_transaction_test.go",
+      "resolved": "/workspace/agenteam/tests/account/audit_http_transaction_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "tests/model/project_credentials_http_fixture_test.go",
+      "target": "../../../tests/model/project_credentials_http_fixture_test.go",
+      "resolved": "/workspace/agenteam/tests/model/project_credentials_http_fixture_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/contract/model.go",
+      "target": "../../../internal/central/audit/contract/model.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/contract/model.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/contract/knowledge.go",
+      "target": "../../../internal/central/audit/contract/knowledge.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/contract/knowledge.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/contract/account.go",
+      "target": "../../../internal/central/audit/contract/account.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/contract/account.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/error.go",
+      "target": "../../../internal/central/audit/error.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/error.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/foundation/tx.go",
+      "target": "../../../internal/central/foundation/tx.go",
+      "resolved": "/workspace/agenteam/internal/central/foundation/tx.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/foundation/fault.go",
+      "target": "../../../internal/central/foundation/fault.go",
+      "resolved": "/workspace/agenteam/internal/central/foundation/fault.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/foundation/cause.go",
+      "target": "../../../internal/central/foundation/cause.go",
+      "resolved": "/workspace/agenteam/internal/central/foundation/cause.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/foundation/lock.go",
+      "target": "../../../internal/central/foundation/lock.go",
+      "resolved": "/workspace/agenteam/internal/central/foundation/lock.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/foundation/instant.go",
+      "target": "../../../internal/central/foundation/instant.go",
+      "resolved": "/workspace/agenteam/internal/central/foundation/instant.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/foundation/page.go",
+      "target": "../../../internal/central/foundation/page.go",
+      "resolved": "/workspace/agenteam/internal/central/foundation/page.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/identity/contract/identity.go",
+      "target": "../../../internal/central/identity/contract/identity.go",
+      "resolved": "/workspace/agenteam/internal/central/identity/contract/identity.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/account/http_boundary.go",
+      "target": "../../../internal/central/account/http_boundary.go",
+      "resolved": "/workspace/agenteam/internal/central/account/http_boundary.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/httpapi/response_writer.go",
+      "target": "../../../internal/central/httpapi/response_writer.go",
+      "resolved": "/workspace/agenteam/internal/central/httpapi/response_writer.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/httpapi/problem.go",
+      "target": "../../../internal/central/httpapi/problem.go",
+      "resolved": "/workspace/agenteam/internal/central/httpapi/problem.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/project/service.go",
+      "target": "../../../internal/central/project/service.go",
+      "resolved": "/workspace/agenteam/internal/central/project/service.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/project/reader.go",
+      "target": "../../../internal/central/project/reader.go",
+      "resolved": "/workspace/agenteam/internal/central/project/reader.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/cursor/cursor.go",
+      "target": "../../../internal/central/cursor/cursor.go",
+      "resolved": "/workspace/agenteam/internal/central/cursor/cursor.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/system_query_test.go",
+      "target": "../../../internal/central/audit/system_query_test.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/system_query_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/audit/http/handler_test.go",
+      "target": "../../../internal/central/audit/http/handler_test.go",
+      "resolved": "/workspace/agenteam/internal/central/audit/http/handler_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/app/audit_http_test.go",
+      "target": "../../../internal/central/app/audit_http_test.go",
+      "resolved": "/workspace/agenteam/internal/central/app/audit_http_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/app/audit_http_process_test.go",
+      "target": "../../../internal/central/app/audit_http_process_test.go",
+      "resolved": "/workspace/agenteam/internal/central/app/audit_http_process_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/app/project_credentials_test.go",
+      "target": "../../../internal/central/app/project_credentials_test.go",
+      "resolved": "/workspace/agenteam/internal/central/app/project_credentials_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/app/project_read_test.go",
+      "target": "../../../internal/central/app/project_read_test.go",
+      "resolved": "/workspace/agenteam/internal/central/app/project_read_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/app/project_models_test.go",
+      "target": "../../../internal/central/app/project_models_test.go",
+      "resolved": "/workspace/agenteam/internal/central/app/project_models_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/app/project_usage_test.go",
+      "target": "../../../internal/central/app/project_usage_test.go",
+      "resolved": "/workspace/agenteam/internal/central/app/project_usage_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "internal/central/model/http_project_credentials.go",
+      "target": "../../../internal/central/model/http_project_credentials.go",
+      "resolved": "/workspace/agenteam/internal/central/model/http_project_credentials.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "tests/model/project_credentials_http_root_test.go",
+      "target": "../../../tests/model/project_credentials_http_root_test.go",
+      "resolved": "/workspace/agenteam/tests/model/project_credentials_http_root_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "tests/model/project_owner_read_http_fixture_test.go",
+      "target": "../../../tests/model/project_owner_read_http_fixture_test.go",
+      "resolved": "/workspace/agenteam/tests/model/project_owner_read_http_fixture_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "tests/model/project_owner_update_http_root_test.go",
+      "target": "../../../tests/model/project_owner_update_http_root_test.go",
+      "resolved": "/workspace/agenteam/tests/model/project_owner_update_http_root_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "tests/model/project_usage_http_root_test.go",
+      "target": "../../../tests/model/project_usage_http_root_test.go",
+      "resolved": "/workspace/agenteam/tests/model/project_usage_http_root_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "tests/account/audit_http_test.go",
+      "target": "../../../tests/account/audit_http_test.go",
+      "resolved": "/workspace/agenteam/tests/account/audit_http_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "tests/security/audit_query_test.go",
+      "target": "../../../tests/security/audit_query_test.go",
+      "resolved": "/workspace/agenteam/tests/security/audit_query_test.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "api/openapi/common.json",
+      "target": "../../../api/openapi/common.json",
+      "resolved": "/workspace/agenteam/api/openapi/common.json",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "go.mod",
+      "target": "../../../go.mod",
+      "resolved": "/workspace/agenteam/go.mod",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "go.sum",
+      "target": "../../../go.sum",
+      "resolved": "/workspace/agenteam/go.sum",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "cmd/agenteam/main.go",
+      "target": "../../../cmd/agenteam/main.go",
+      "resolved": "/workspace/agenteam/cmd/agenteam/main.go",
+      "fragment": "",
+      "passed": true
+    },
+    {
+      "label": "cmd/agenteam-runner/main.go",
+      "target": "../../../cmd/agenteam-runner/main.go",
+      "resolved": "/workspace/agenteam/cmd/agenteam-runner/main.go",
+      "fragment": "",
+      "passed": true
+    }
+  ],
+  "fixed_source_entries": 77,
+  "technical_paths": 14,
+  "documentation_paths": 2,
+  "git_diff_no_index_check_exit": 1,
+  "git_diff_check_diagnostics_empty": true,
+  "git_diff_status_note": "no-index new-file difference returns 1; no whitespace diagnostics; independent explicit whitespace check passed",
+  "format": "UTF-8 LF terminal newline no trailing spaces",
+  "no_other_repository_file_written": true,
+  "no_product_go_resources_or_git_mutation": true,
+  "governance_documentation_skill_sha256": "06f02c889d09f9bce0f0257545dd1f36ce4a387291356b4c694deb64c1a9b023"
+}

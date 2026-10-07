@@ -1,0 +1,516 @@
+{
+  "kind": "independent formal placement STATIC checks",
+  "formal": {
+    "path": "/workspace/agenteam/docs/development/work-items/d04-project-owner-audit-http.md",
+    "sha256": "23ab7e869cd05cd7605ccf6c5d3a0e17d3ad43d46157e429f35d4c03c2d86563"
+  },
+  "accepted_draft_sha256": "3eae6ce5d129e8125aba157cb4687656c31cd49fe654e3c583a386ffe843a809",
+  "author_freeze_sha256": "7615da06f4ecc4050e37279f92ceb2cc796ad510e9fb2e9e938f2e1200f9662f",
+  "actual_diff_matches_frozen": true,
+  "administrative_or_link_changed_lines": [
+    3,
+    9,
+    86,
+    104,
+    179
+  ],
+  "exact_technical_body_after_inverse_allowed_substitutions": true,
+  "source_table_77_matches_accepted_inputs": true,
+  "relative_links_and_fragments_checked": 81,
+  "links": [
+    {
+      "target": "#9-固定来源与规格验收定位",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../architecture/security-governance/audit.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "#9-固定来源与规格验收定位",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "#9-固定来源与规格验收定位",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../AGENTS.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../agent-team/README.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../architecture/README.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../development-plan.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../agent-team/tasks.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../backend/README.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../backend/audit.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../architecture/security-governance/audit.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../architecture/project-work-management/project-environment-variables.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "d09-project-model-configuration-write-http.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "d04-system-audit-management-http.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "d10-skills-initialization.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "d12-b02-knowledge-service.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "recovery-d09-current-model-resolution.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "recovery-d09-invocation-usage-ledger.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../agent-team/d09-next-wire-dependencies-2026-10-07.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../agent-team/system-audit-management-http-verification.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../agent-team/d09-project-configuration-verification.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../agent-team/secret-project-audit-verification.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../agent-team/d10-p1-recovery-verification.md",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/query.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/system_query.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/service.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/contract/access.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/contract/types.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/contract/metadata.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/contract/project.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/http/handler.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/http/wire.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/project/authority.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/project/audit_authority.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/project/contract/lifecycle.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/app/security.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/app/account.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/app/project_usage.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/app/project_models.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/app/project_credentials.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../tests/account/audit_http_transaction_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../tests/model/project_credentials_http_fixture_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/contract/model.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/contract/knowledge.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/contract/account.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/error.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/foundation/tx.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/foundation/fault.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/foundation/cause.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/foundation/lock.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/foundation/instant.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/foundation/page.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/identity/contract/identity.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/account/http_boundary.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/httpapi/response_writer.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/httpapi/problem.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/project/service.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/project/reader.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/cursor/cursor.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/system_query_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/audit/http/handler_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/app/audit_http_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/app/audit_http_process_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/app/project_credentials_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/app/project_read_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/app/project_models_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/app/project_usage_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../internal/central/model/http_project_credentials.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../tests/model/project_credentials_http_root_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../tests/model/project_owner_read_http_fixture_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../tests/model/project_owner_update_http_root_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../tests/model/project_usage_http_root_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../tests/account/audit_http_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../tests/security/audit_query_test.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../api/openapi/common.json",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../go.mod",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../go.sum",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../cmd/agenteam/main.go",
+      "exists": true,
+      "fragment_valid": true
+    },
+    {
+      "target": "../../../cmd/agenteam-runner/main.go",
+      "exists": true,
+      "fragment_valid": true
+    }
+  ],
+  "provenance_artifacts_hash_checked": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/draft-rev2.md",
+      "sha256": "3eae6ce5d129e8125aba157cb4687656c31cd49fe654e3c583a386ffe843a809"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/draft-rev1.md",
+      "sha256": "95db31411d7e41db7966cab30b894c11d4f905696ff6a4f6572b89b47cd9c02f"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/rev1-to-rev2.diff",
+      "sha256": "3785380536f80244ea028e50150defdfa1b0de84e016e6dfb77088d1cc7a8906"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/freeze-rev2.json",
+      "sha256": "9a0bdc7df2fcbfbdf00ece64e40621929a97ffe4e53b10b25a61fb4ae76496a3"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/inputs-rev2.json",
+      "sha256": "a4bbed783e205ab4b9274e38c20cc6033442070552e9f4f0ea93fa338eaf7727"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/scope16.json",
+      "sha256": "4daf7cc824b6526b99349f772f97319cf313e28be0ec3a06ccd6b657741d790e"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/compatibility-selectors.json",
+      "sha256": "85ed926277c007af8dfcfe206ba0a169e6effa436f5420d9f05cc281c3bb1d9b"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/budget-static.py",
+      "sha256": "13525ab6724947c0ebafc367f56561a29893a4bf757f11aa9fa1566900bf2e3c"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/budget-static.json",
+      "sha256": "a0c02c2db3247c48e05fe5b5bbdd1f997f54370b165f6dc8b9f1c4109a063ef6"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/result.json",
+      "sha256": "2e1b24ea418798aa1bc67bab134cf0ce4182ce493f5a2de71194224604044fb1"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev2/result.json",
+      "sha256": "e2103767a9e8a280a3a8161608d235b052a2d587abf30bd6e245a78a0dcc3064"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev2/review.md",
+      "sha256": "a0d98f7b18215c90efba5c75628b97db8ec6d2dbe975c83508d4b10d23a6f642"
+    },
+    {
+      "path": "/workspace/toolchains/go1.27.1/src/mime/mediatype.go",
+      "sha256": "2179fd195097a382a2ac3cdcbcbc6961f2770dbd61adfabfc60535c1acc5faa0"
+    },
+    {
+      "path": "/workspace/toolchains/go1.27.1/src/mime/grammar.go",
+      "sha256": "85d1052199201e6ad52e27db50104842295dbf10e87f3914c803c6ce533772a6"
+    },
+    {
+      "path": "/workspace/scratch/project-model-credentials-http-author/actual-graph-full02.json",
+      "sha256": "a670f98b64bec39e931662e6c096ec33c9b0ef0c7f4e6b0e8a1d120d5eee1504"
+    },
+    {
+      "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/closure.json",
+      "sha256": "c710918462af79b1fb08f734403f8a3ba8221ec991884b00fd53bb6aa0de30b3"
+    }
+  ],
+  "all_author_freeze_files_match": true,
+  "two_helper_failure_history_preserved": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/formalize-rev2-original.py",
+      "sha256": "f4a6a176ac73ef812aeaed9e7c78b15df831e39cc66e01249c9c71c1fa3dce20"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/formalize-first-failure.txt",
+      "sha256": "f99d3954cad88888cfc2132a16065c17d540bbf61ffd72fab933e0bb9830156c"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/formalize-rev2-second.py",
+      "sha256": "3ca82e39a9af6668be6ba11973f36df5c663fb991b7575f4aa9cccd0b60e594b"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/formalize-second-result.txt",
+      "sha256": "d02af5a346a406ac8aa23eb527e8a377833187cf67f0a746d473571b97a4003a"
+    }
+  ],
+  "review_check_first_attempt": "Expected source location85 was an off-by-one reviewer assertion; actual budget reference is86. No source changed; corrected only expected line and reran static check.",
+  "format": "UTF-8 LF final newline no trailing whitespace",
+  "active_linked_source_content_read": false,
+  "go_or_resources_executed": false
+}

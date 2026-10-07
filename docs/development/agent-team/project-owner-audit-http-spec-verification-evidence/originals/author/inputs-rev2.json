@@ -1,0 +1,516 @@
+{
+  "kind": "scratch engineering spec fixed sources; not implementation/test freeze",
+  "commit": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "parent_sources": {
+    "path": "/workspace/scratch/usage-next-frontier-after-project-config-write01/sources.json",
+    "sha256": "59a61781ba9b51778d10cbc7d788500bfaf7d6290cd8d8190a2202518b0cfcb9",
+    "count": 40
+  },
+  "recommendation": {
+    "path": "/workspace/scratch/usage-next-frontier-after-project-config-write01/recommendation.md",
+    "sha256": "27d6ba85340ec00548416be7480b3986f847679aca18813028a1b034407f59a5"
+  },
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "git_blob": "764823cf10ed88d24b96f9e94bdabc3702e3aa6a",
+      "sha256": "cdfc9d803deceee06968567236735370af0e7da0f663668c63803ae33b54eccc",
+      "bytes": 61525
+    },
+    {
+      "path": ".agents/skills/agenteam-design/SKILL.md",
+      "git_blob": "dc06833821245cc578b46febc741c5740b3ec7f0",
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81",
+      "bytes": 3874
+    },
+    {
+      "path": "docs/development/agent-team/README.md",
+      "git_blob": "7a31918bdc048515046dedcac20ce0e636106f14",
+      "sha256": "9d8bad3c85cf2a34fd0d9360bbc9eb27ea5c76082222a174984f78d599701c40",
+      "bytes": 14625
+    },
+    {
+      "path": "docs/architecture/README.md",
+      "git_blob": "1696d14033ae4a236f95f797528ed908179bb87f",
+      "sha256": "ebbdb68cf1facc0786eae34771d08b9d27c8876fcf89376d91c20f54d9492cf9",
+      "bytes": 10418
+    },
+    {
+      "path": "docs/development/development-plan.md",
+      "git_blob": "8cd99530bd66d7a272422f430dc2cf39c2e371b2",
+      "sha256": "e3f5abdad1151912610c497b8efa3b09266da83203a8e6115f1c35df0457d44c",
+      "bytes": 82812
+    },
+    {
+      "path": "docs/development/agent-team/tasks.md",
+      "git_blob": "c24b625d12d7875ed86e69945280d482847e0a0d",
+      "sha256": "1ca6646746e573cdc24189bc93560b9c4e3a22c99de1886069b7ab6b29605ab0",
+      "bytes": 292677
+    },
+    {
+      "path": "docs/development/backend/README.md",
+      "git_blob": "5d63e41153c3da79a4e72b7b1e83188ad569e481",
+      "sha256": "b5b4444d61af796a9ecd5843b4de9cfd55981324e21ba1e6ef4b0c991bac0e5e",
+      "bytes": 64358
+    },
+    {
+      "path": "docs/development/backend/audit.md",
+      "git_blob": "d88a90cfb492d5bdb7a2b36e5278d4b08ec376bf",
+      "sha256": "6c0447804f5bd92c6963d56984848130cddebeff5142e27f7f338c8f426274ca",
+      "bytes": 12622
+    },
+    {
+      "path": "docs/architecture/security-governance/audit.md",
+      "git_blob": "cd378e556d3b59628f5c945e5cfcd46a5fc572ec",
+      "sha256": "c5be8ea4041cebffe6eb4ee994147fcf6c8b7f75d324898a4c90bbd0962e9929",
+      "bytes": 16224
+    },
+    {
+      "path": "docs/architecture/project-work-management/project-environment-variables.md",
+      "git_blob": "4480e86b3bdbaae8ec30d3d32f9a15f772025382",
+      "sha256": "3d473b08c7257c4cf73fd89ea975efc1e3bfe5c8313814cae146846af21d4aad",
+      "bytes": 19799
+    },
+    {
+      "path": "docs/development/work-items/d09-project-model-configuration-write-http.md",
+      "git_blob": "e94bb63dea0f49100a4a3a896f65859bd8380553",
+      "sha256": "cce364e54c513a04b7fd45298b98e1e22a2e5154340619c7d973f63f4dda5235",
+      "bytes": 41309
+    },
+    {
+      "path": "docs/development/work-items/d04-system-audit-management-http.md",
+      "git_blob": "1e7efd2497185928349b80de443dcea79cb6e34a",
+      "sha256": "989046372da9679a5760bf0857e4e64b1dc6e7499ef49af676b2974e0c61e7d1",
+      "bytes": 33520
+    },
+    {
+      "path": "docs/development/work-items/d10-skills-initialization.md",
+      "git_blob": "14788e94d8ba24a42939737a9dc5d55c32da76f0",
+      "sha256": "87033b3a37d03568fa47441084d9153c3ce3d2bebf34c5949dd52150d4ea2f6b",
+      "bytes": 5101
+    },
+    {
+      "path": "docs/development/work-items/d12-b02-knowledge-service.md",
+      "git_blob": "230c7980351b52d6047ec369d79ac65242c6add4",
+      "sha256": "f1cc70efc15e6f7c9024b1db578cfe7333f4722c2ce8be50603c881c7ed7fba3",
+      "bytes": 24661
+    },
+    {
+      "path": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "git_blob": "f7dc08f528199e0415d8b67378f9b327bfb2d659",
+      "sha256": "2a698720f2879eea62384f570ea5086d50aaebc578c8a6fe2ce113c93e7e57f6",
+      "bytes": 39350
+    },
+    {
+      "path": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "git_blob": "f245822045261a1138f23903fa8002808014fb8f",
+      "sha256": "5c6f555d163309089fc451c28987643f72361ea18416765144b43673953574b6",
+      "bytes": 47163
+    },
+    {
+      "path": "docs/development/agent-team/d09-next-wire-dependencies-2026-10-07.md",
+      "git_blob": "dedcb8bdfc410d5b8e5e7ecc3a0328bdd600c15b",
+      "sha256": "6ee5b8275379c72d16bd527c190d37b2b86e70033a1bf8ddd9c5f29ae63ccc6c",
+      "bytes": 4710
+    },
+    {
+      "path": "docs/development/agent-team/system-audit-management-http-verification.md",
+      "git_blob": "a8cbabdba4da723469f7cf603b5f68f53ed00dad",
+      "sha256": "61107f3ec3a5b51eca843e2b1ab316d0c008f85e8118899de4298d99ea989883",
+      "bytes": 11249
+    },
+    {
+      "path": "docs/development/agent-team/d09-project-configuration-verification.md",
+      "git_blob": "194a346b154d98b06f2ef7059156473955392fea",
+      "sha256": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291",
+      "bytes": 12387
+    },
+    {
+      "path": "docs/development/agent-team/secret-project-audit-verification.md",
+      "git_blob": "c9740ddbd2f60bad0ed6970fb196a632889ebb20",
+      "sha256": "a63800cc04315d1fe7916fcbb53acd6f84cd1b6747c8b3e247ff2a2a1c36d733",
+      "bytes": 9484
+    },
+    {
+      "path": "docs/development/agent-team/d10-p1-recovery-verification.md",
+      "git_blob": "c9d184274cb7b067ba73a6fd8122aea3023871ee",
+      "sha256": "e0fff9717e5ace0ec3c300206073d29312fc823a2d90b39cd779803e1fc40960",
+      "bytes": 9015
+    },
+    {
+      "path": "internal/central/audit/query.go",
+      "git_blob": "8a24e10fac01fd4dd779384e551f88a223760c97",
+      "sha256": "3713a95d285b19300e0038cb6243f9932754bb22a030afb820012b8f9e8968f3",
+      "bytes": 11976
+    },
+    {
+      "path": "internal/central/audit/system_query.go",
+      "git_blob": "15124c702afbdef16caa30e495d998aaa499c8dc",
+      "sha256": "b84646b38e6810d02e3c6b259c1ee1e88b26aa79af406ebb5c504b58abd2014f",
+      "bytes": 4269
+    },
+    {
+      "path": "internal/central/audit/service.go",
+      "git_blob": "3ba349c7c316dfc09752185e46427104923a5602",
+      "sha256": "0e9efa8c36c0538617a4e499d9224894ebd22f61ec7de49f54ba8cbfce98b689",
+      "bytes": 14639
+    },
+    {
+      "path": "internal/central/audit/contract/access.go",
+      "git_blob": "d550c158c6e3043fb24dece099c1ed3397c9237e",
+      "sha256": "775a838c03690fef4b709c37975fd23ccfc24e506569d4c3e8684ac32f8abfd1",
+      "bytes": 4407
+    },
+    {
+      "path": "internal/central/audit/contract/types.go",
+      "git_blob": "295170e6f48788f772e03b61142afca5734393ce",
+      "sha256": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d",
+      "bytes": 15562
+    },
+    {
+      "path": "internal/central/audit/contract/metadata.go",
+      "git_blob": "13538ff6a994ed740b2f92b021297f8345fa701b",
+      "sha256": "bdffe42f77fa2525dbbc03a3d3749af7b7665cb6cf2f995d62b82863a2080646",
+      "bytes": 21891
+    },
+    {
+      "path": "internal/central/audit/contract/project.go",
+      "git_blob": "aa18033cf7bf34725fb4251372c221cde186ba61",
+      "sha256": "526e8c86d72f45b2584572c159586b59a360e1029269b4304d68ffa55f26083b",
+      "bytes": 9172
+    },
+    {
+      "path": "internal/central/audit/http/handler.go",
+      "git_blob": "8899a76bf5c49731d68434e8bbe315bf1eb9296e",
+      "sha256": "b13e6a0885c155ff4eff737790be0fb4f06191abb0d0409701f510cd6441a039",
+      "bytes": 6633
+    },
+    {
+      "path": "internal/central/audit/http/wire.go",
+      "git_blob": "49e8187e117cec265f548ecd798faa128069ee92",
+      "sha256": "4a42524d07301277350ed57d0a15901e2dfa6a541e16e14bbd145563adb593b4",
+      "bytes": 11980
+    },
+    {
+      "path": "internal/central/project/authority.go",
+      "git_blob": "c8af518a1a99084f07f56633d1ec3e3afe774af4",
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "bytes": 9818
+    },
+    {
+      "path": "internal/central/project/audit_authority.go",
+      "git_blob": "fa2ad4a2cfb1bcca1d0432fde0c10679b25b6ec6",
+      "sha256": "3736a441bb6d49b48384069a1c0c014bd4df9278dd3b9b1713f2772fa4066a9b",
+      "bytes": 6444
+    },
+    {
+      "path": "internal/central/project/contract/lifecycle.go",
+      "git_blob": "f7f0829a87bde8cfda7ed5c59f50117bd2f6fe79",
+      "sha256": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6",
+      "bytes": 29744
+    },
+    {
+      "path": "internal/central/app/security.go",
+      "git_blob": "edf5a88ee28c9fb0d3c0c8cc3de34f741a511dfa",
+      "sha256": "0804ec5ab4c3b8566d3f933881415779bf354eaa89a1bb85e0fb4fb09bd0a7a4",
+      "bytes": 1857
+    },
+    {
+      "path": "internal/central/app/account.go",
+      "git_blob": "3837dfa2dfc5758b729f7280b78527880ac4edb4",
+      "sha256": "89d01abf651ca247515ae8226c739469b86ed01ac6cb4a717cdd3091633e79e7",
+      "bytes": 16108
+    },
+    {
+      "path": "internal/central/app/project_usage.go",
+      "git_blob": "3463ae43544a68548924b7faf513ab0cfffe490a",
+      "sha256": "13abb6bbdc4d38d40b1ba627aa989aec503ffe55c7a310dd42d11acc33d81275",
+      "bytes": 3274
+    },
+    {
+      "path": "internal/central/app/project_models.go",
+      "git_blob": "788747bfbffcbcb41fe51c25b96eeac3b219b3c4",
+      "sha256": "9cc03c1c29c004e456e6e7151f55de40deb23378cb15f2ba47f7722d414ca771",
+      "bytes": 834
+    },
+    {
+      "path": "internal/central/app/project_credentials.go",
+      "git_blob": "9e020f31af5d7b4bb7acdb889d0879978a846c03",
+      "sha256": "1d155adeaef744b05c75071a828ee6aee3002ab4cba3848f92a14dda0b2a8dd5",
+      "bytes": 995
+    },
+    {
+      "path": "tests/account/audit_http_transaction_test.go",
+      "git_blob": "cada61e9861b92cb8a33ca737afda727fa972472",
+      "sha256": "56f5b38e2a35117fc29e5b634a51bd4f613fa1969c848119f8b1f9f4c236c25b",
+      "bytes": 15682
+    },
+    {
+      "path": "tests/model/project_credentials_http_fixture_test.go",
+      "git_blob": "f91fba666d428cdeea663db3bc6858cbece7a610",
+      "sha256": "cfdc4107891cf0be9a6ba2d963ca90550932a577825a6e2a5743774c537ba38b",
+      "bytes": 9905
+    },
+    {
+      "path": "internal/central/audit/contract/model.go",
+      "git_blob": "e8a764e3c1b8ef0846b7cf73a67051924a014c24",
+      "sha256": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6",
+      "bytes": 7724
+    },
+    {
+      "path": "internal/central/audit/contract/knowledge.go",
+      "git_blob": "8caceef17717d77ecb73b588b4779e03bfb52ed1",
+      "sha256": "270e1943c9539dda9dc2ae9bb1013a0a48bf2309578b2da8d36c1a432a4d8372",
+      "bytes": 3446
+    },
+    {
+      "path": "internal/central/audit/contract/account.go",
+      "git_blob": "25a8f62fc1e10295cc98032ce756ebf8cd81b0ba",
+      "sha256": "ef2b5bc2cca4435161d9b2f543c62b868324e54813581da894bfbfb70e42bfed",
+      "bytes": 14907
+    },
+    {
+      "path": "internal/central/audit/error.go",
+      "git_blob": "58ab74d590762d4cd731512cd3469aa8c42f6ef8",
+      "sha256": "ad980308d48166a978891ad999adbf4309dee28fe201bf40e3629192712a58d8",
+      "bytes": 2249
+    },
+    {
+      "path": "internal/central/foundation/tx.go",
+      "git_blob": "3988c8d4ab53261e784fcd175f27b88395b5087d",
+      "sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+      "bytes": 2339
+    },
+    {
+      "path": "internal/central/foundation/fault.go",
+      "git_blob": "114e98b7b68d536be0dc9aad22221447b098991b",
+      "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+      "bytes": 5460
+    },
+    {
+      "path": "internal/central/foundation/cause.go",
+      "git_blob": "4027e70d18735dd54d1f59b23382a0699022bee4",
+      "sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+      "bytes": 5490
+    },
+    {
+      "path": "internal/central/foundation/lock.go",
+      "git_blob": "f907283e5fc67482c99eb5c14add91923788ad2a",
+      "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+      "bytes": 5196
+    },
+    {
+      "path": "internal/central/foundation/instant.go",
+      "git_blob": "b6113cd662e75bd8b1505af6ea39fc36e819782b",
+      "sha256": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+      "bytes": 1751
+    },
+    {
+      "path": "internal/central/foundation/page.go",
+      "git_blob": "83cbeea722ddedbc907f23ac64a0a2bee702b067",
+      "sha256": "3be782a4c61729a5a2b13e195e5653ad1070e883765035b5cbb1f4f9e85c3c52",
+      "bytes": 1860
+    },
+    {
+      "path": "internal/central/identity/contract/identity.go",
+      "git_blob": "fd13667713bf1248111aa1f18687296be9c3cde0",
+      "sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+      "bytes": 8639
+    },
+    {
+      "path": "internal/central/account/http_boundary.go",
+      "git_blob": "2c96df37be1f070ef440f21b4372eb66cb958d89",
+      "sha256": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572",
+      "bytes": 3112
+    },
+    {
+      "path": "internal/central/httpapi/response_writer.go",
+      "git_blob": "6f3ca6b0cb76752adccde7cac5be47e3ca333776",
+      "sha256": "360d0992159938812cfdad706a4b8b53de1e7673859462100aad4bd44bd361bc",
+      "bytes": 3529
+    },
+    {
+      "path": "internal/central/httpapi/problem.go",
+      "git_blob": "f489d6b96621bc8dfdac29a63575d2b6ceba9dd5",
+      "sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde",
+      "bytes": 8391
+    },
+    {
+      "path": "internal/central/project/service.go",
+      "git_blob": "68d495375017a1562e2f712e55ce2d96bd77a6b1",
+      "sha256": "ee0b6294d901829c0d89f4bdcfb0869031dfbea968ded2d07add070c6282591f",
+      "bytes": 7098
+    },
+    {
+      "path": "internal/central/project/reader.go",
+      "git_blob": "8edc23d6235cdf316a62a878aab910f0cd7b0fed",
+      "sha256": "37cd934431d601bf052719eae9ad7f91274a1bc583a13c1425d9d14082555ed5",
+      "bytes": 8703
+    },
+    {
+      "path": "internal/central/cursor/cursor.go",
+      "git_blob": "f12c75aa6d76a3792b038c0bfdc04fe99da175e4",
+      "sha256": "c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f",
+      "bytes": 6023
+    },
+    {
+      "path": "internal/central/audit/system_query_test.go",
+      "git_blob": "e88a015570530532563fbc6998a417c7073c0140",
+      "sha256": "411baa52add891a82ba720643981eae1584c3b7371a8a21a8e21ff56591aef6d",
+      "bytes": 18599
+    },
+    {
+      "path": "internal/central/audit/http/handler_test.go",
+      "git_blob": "eacef5de8f5e3c759aa37fbd78cc53e79a68956d",
+      "sha256": "0844862bbaa0ac8f7f90dbd574e73534333c3d31b1bba10e2d3dd22cff5c0764",
+      "bytes": 50702
+    },
+    {
+      "path": "internal/central/app/audit_http_test.go",
+      "git_blob": "8e23f848a90787dcbc68fc38b88fea4a5db12ab0",
+      "sha256": "c3bef11fb2c72a62d4c89e44a4921ff98e508ba00326b16fe5bdb5bfe6de8467",
+      "bytes": 5273
+    },
+    {
+      "path": "internal/central/app/audit_http_process_test.go",
+      "git_blob": "cc15eb98044d916807159cf8ca1c94698bf1d2fd",
+      "sha256": "b44be5136db527ebcb39da30da760b49bc794937c32db3f44d02c07e01f9d1ba",
+      "bytes": 6318
+    },
+    {
+      "path": "internal/central/app/project_credentials_test.go",
+      "git_blob": "99386e6d2f3072cb1df2c74eca9a8e976d49b7dd",
+      "sha256": "139525a6ccf4decf256e61c0ebc7090dd7f98d9f71adc21161a74b237613a5af",
+      "bytes": 2149
+    },
+    {
+      "path": "internal/central/app/project_read_test.go",
+      "git_blob": "70db50693971fc23fca852c391fb978ac8338030",
+      "sha256": "9722e3da78abdd38a9cc9dcc019094264c1227b391c2feabb06a9f7aaae62e3a",
+      "bytes": 2743
+    },
+    {
+      "path": "internal/central/app/project_models_test.go",
+      "git_blob": "c3415dd5d9635a8a0fdd7adee942f8bfbbebfda9",
+      "sha256": "44eb1fbaac79118703e5bb4cc4ef2d29dde5c60b556c7a688d4226e1e7e85f46",
+      "bytes": 1963
+    },
+    {
+      "path": "internal/central/app/project_usage_test.go",
+      "git_blob": "ff015cbe6ced14b028bf1085919044b4f9a73db8",
+      "sha256": "5321f1119dc32d075b8e332cf132c03ad5864e700bf25f9ba6bff4cd2ad272cf",
+      "bytes": 6754
+    },
+    {
+      "path": "internal/central/model/http_project_credentials.go",
+      "git_blob": "55910fb50864f2ec01b0c53082df4c92126bb8e6",
+      "sha256": "af55eb294e131d779bc7cfc1fc892c522f07da86666e088b73af51ac4513a878",
+      "bytes": 12456
+    },
+    {
+      "path": "tests/model/project_credentials_http_root_test.go",
+      "git_blob": "df304d974298605f41ec705ed50b667f698d9ff6",
+      "sha256": "0c11d5e3bf701bc0525841c3428196e91c53003e4e4c57122b7ee110ff3d7d6d",
+      "bytes": 10530
+    },
+    {
+      "path": "tests/model/project_owner_read_http_fixture_test.go",
+      "git_blob": "b38ea67a393089a56588bb0f1d3474b4756e070a",
+      "sha256": "56adb3a44e0fb3d4f5d50559a2f31cfcfd2a1e194723b0d44627d7a826d5ac39",
+      "bytes": 4913
+    },
+    {
+      "path": "tests/model/project_owner_update_http_root_test.go",
+      "git_blob": "059458a945ba93152145909fdee2cac3f06903df",
+      "sha256": "352cfa5d35c39109fd0759cc8879ebe65e53df2a686e564b5c5fa9fd388b0103",
+      "bytes": 14140
+    },
+    {
+      "path": "tests/model/project_usage_http_root_test.go",
+      "git_blob": "88fe91b1218ab1bfc31610c810c37aadc5069a12",
+      "sha256": "1d63defd90cbf1637b290adf1eba9b3e2c9c449453d63d17b1204e6ae3f67f8c",
+      "bytes": 8930
+    },
+    {
+      "path": "tests/account/audit_http_test.go",
+      "git_blob": "53b2bc3ddcc09c2982efc65fc58f20b23f8a8e32",
+      "sha256": "788fcc081557181115f17202964e77a99e04b140924cfc7c33df49095c17cff4",
+      "bytes": 10924
+    },
+    {
+      "path": "tests/security/audit_query_test.go",
+      "git_blob": "3cb4b18df03376e61f40b0166f6b82355a537428",
+      "sha256": "4307432031c51718d98397fa5edb77313773ca9f2d805adbcde07b64241485cd",
+      "bytes": 10156
+    },
+    {
+      "path": "api/openapi/common.json",
+      "git_blob": "22f7d8e5f560f05380ca9c8031260f2d941ad273",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "bytes": 11091
+    },
+    {
+      "path": "go.mod",
+      "git_blob": "2db97d5624d9575b72eb8e345b064bc4185388dc",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "bytes": 1468
+    },
+    {
+      "path": "go.sum",
+      "git_blob": "7f96b9efaf394930b1df6f095e0879e33cd95403",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "bytes": 8391
+    },
+    {
+      "path": "cmd/agenteam/main.go",
+      "git_blob": "1345651a64a24833421f22b21bdb80a2b6df559c",
+      "sha256": "4412cc0e4d838b076d1447ea3ec9137f1eb0dffc01f95d8ff54c5756e305198a",
+      "bytes": 3825
+    },
+    {
+      "path": "cmd/agenteam-runner/main.go",
+      "git_blob": "afb614f13f0148147586b0c431aa912187fa2ffc",
+      "sha256": "e4341598318b791e6bd03b2cff75a1a6280adea2b4efa68736bb323f3e70aa66",
+      "bytes": 2679
+    }
+  ],
+  "static_toolchain_sources": [
+    {
+      "path": "/workspace/toolchains/go1.27.1/src/mime/mediatype.go",
+      "sha256": "2179fd195097a382a2ac3cdcbcbc6961f2770dbd61adfabfc60535c1acc5faa0",
+      "bytes": 9971,
+      "use": "static MIME token reasoning only; Go not executed"
+    },
+    {
+      "path": "/workspace/toolchains/go1.27.1/src/mime/grammar.go",
+      "sha256": "85d1052199201e6ad52e27db50104842295dbf10e87f3914c803c6ce533772a6",
+      "bytes": 1941,
+      "use": "static MIME token reasoning only; Go not executed"
+    }
+  ],
+  "accepted_reuse_entrypoints": [
+    {
+      "path": "/workspace/scratch/project-model-credentials-http-author/actual-graph-full02.json",
+      "sha256": "a670f98b64bec39e931662e6c096ec33c9b0ef0c7f4e6b0e8a1d120d5eee1504",
+      "bytes": 842,
+      "use": "accepted credentials baseline graph/fixture provenance only; new effective inputs/commands must be frozen later"
+    },
+    {
+      "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/closure.json",
+      "sha256": "c710918462af79b1fb08f734403f8a3ba8221ec991884b00fd53bb6aa0de30b3",
+      "bytes": 1372,
+      "use": "accepted credentials baseline graph/fixture provenance only; new effective inputs/commands must be frozen later"
+    }
+  ],
+  "policy": "Only fixed git show/ls-tree/rev-parse plus current governance and own scratch. No active configuration-write implementation read. No Go/Node/testing/resource/network/Git mutation. Actual runtime graph and fresh environment baseline still pending.",
+  "revision_delta": {
+    "from": {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/inputs-rev1.json",
+      "sha256": "53d629d3b64915a4e122f79cfeb108a07523f92a5e3cc652459c79b56a6cf8e0"
+    },
+    "reason": "B1: correct actual executable package entrypoints at the same accepted commit",
+    "unchanged_original_sources": 75,
+    "added_fixed_entrypoints": 2,
+    "changes_to_product_or_execution": false
+  }
+}

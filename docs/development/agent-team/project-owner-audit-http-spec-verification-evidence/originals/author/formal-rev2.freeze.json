@@ -1,0 +1,62 @@
+{
+  "kind": "formal Project Owner Audit specification rev2 placement freeze",
+  "formal_path": "/workspace/agenteam/docs/development/work-items/d04-project-owner-audit-http.md",
+  "formal_sha256": "23ab7e869cd05cd7605ccf6c5d3a0e17d3ad43d46157e429f35d4c03c2d86563",
+  "accepted_draft": {
+    "path": "/workspace/scratch/project-owner-audit-http-spec/draft-rev2.md",
+    "sha256": "3eae6ce5d129e8125aba157cb4687656c31cd49fe654e3c583a386ffe843a809"
+  },
+  "independent_spec_result": {
+    "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev2/result.json",
+    "sha256": "e2103767a9e8a280a3a8161608d235b052a2d587abf30bd6e245a78a0dcc3064"
+  },
+  "files": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/formal-rev2.md",
+      "sha256": "23ab7e869cd05cd7605ccf6c5d3a0e17d3ad43d46157e429f35d4c03c2d86563",
+      "bytes": 62536
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/draft-to-formal-rev2.diff",
+      "sha256": "220ffdffd7d0e39b48420fcdb937a9e64a22f0eae908fcaa8fd5956974b3d13d",
+      "bytes": 31235
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/formalize-rev2.py",
+      "sha256": "118e2501990db04b372e62c17fef08f0d1096c6f9f7e5c82a421254073e7638f",
+      "bytes": 9509
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/formal-rev2-check.json",
+      "sha256": "944eedd4aaaa26a90037d38d8a0d2ae227def6ec5030c63bfb654ca0b155e2c1",
+      "bytes": 22709
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/formal-diff-check.raw",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/formalize-rev2-original.py",
+      "sha256": "f4a6a176ac73ef812aeaed9e7c78b15df831e39cc66e01249c9c71c1fa3dce20",
+      "bytes": 9027
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/formalize-first-failure.txt",
+      "sha256": "f99d3954cad88888cfc2132a16065c17d540bbf61ffd72fab933e0bb9830156c",
+      "bytes": 367
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/formalize-rev2-second.py",
+      "sha256": "3ca82e39a9af6668be6ba11973f36df5c663fb991b7575f4aa9cccd0b60e594b",
+      "bytes": 9029
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/formalize-second-result.txt",
+      "sha256": "d02af5a346a406ac8aa23eb527e8a377833187cf67f0a746d473571b97a4003a",
+      "bytes": 469
+    }
+  ],
+  "status": "author stopped writing; awaiting narrow formal placement independent review",
+  "implementation_or_resource_authorization": false
+}

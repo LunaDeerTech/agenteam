@@ -1,0 +1,29 @@
+{
+  "kind": "static scalar accounting, not Go execution nor maximality proof over every producer",
+  "project_actions_count": 31,
+  "max_page_items": 200,
+  "metadata_canonical_bound": 4096,
+  "max_cursor_safe_ascii_bound": 8192,
+  "fixed_shell_without_metadata_bytes": 1049,
+  "cartesian_record_upper_bytes": 5145,
+  "page_overhead_with_max_shape_cursor_bytes": 8221,
+  "cartesian_page_upper_bytes": 1037420,
+  "chosen_success_budget_bytes": 1048576,
+  "cartesian_bound_below_budget": true,
+  "largest_proposed_escaped_structural_representative": {
+    "action": "object.transfer.revoke",
+    "mime_decoded_ascii_bytes": 256,
+    "mime_encoded_content_bytes": 1536,
+    "metadata_bytes": 1922,
+    "record_bytes": 2949,
+    "page200_with_shape_cursor_bytes": 598220
+  },
+  "required_future_Go_evidence": [
+    "All31 action maxima built with original formal constructors and new DTO",
+    "Concrete 201st sentinel also fully validated; first200 encode/decode unchanged",
+    "Actual maximum across31 constructed action extremals compared, not guessed",
+    "Real signed cursor example separate from8192B wire shape cap",
+    "Exact production JSON bytes measured and standard schema parsed",
+    "No claim of actual runtime/Object production or global RSS bound"
+  ]
+}

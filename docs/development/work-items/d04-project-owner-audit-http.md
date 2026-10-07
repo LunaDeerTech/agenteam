@@ -1,5 +1,7 @@
 # D04：Project Owner Audit 列表与详情读取 HTTP
 
+持久归档（2026-10-07）：rev2完整规格及正式末件STATIC接受已提交 `9eb167e4` 并推送核远端一致；[三轮独审、B1修订与静态证据](../agent-team/project-owner-audit-http-spec-verification.md)已归档。以下§1–8技术原字节保持，仍仅规格接受，实施须满足既定配置完整接受与根移交门槛。
+
 修订：rev2；状态：完整规格独立 STATIC 已通过（rev1 完整审＋rev2 B1 差量），root 已采纳，现正式归位；**尚未授权本卡14技术实施、2文档末件或任何 Go／资源执行**。固定产品基线 `e4b1b89197da0e9027018fdb41f6ab3e04050b9d`（Project 模型凭据完整接受），固定来源与验收指纹见 [§9](#9-固定来源与规格验收定位)。Project 模型配置写入 rev2 完整产品接受后，须由 root 正式移交 account.go 与共同冻结输入再下发实施；这是调度与共享编译输入门槛，不是 Audit 查询功能缺失。
 
 ## 1. 完整结果、既定范围与依赖
@@ -179,6 +181,8 @@ subreaper direct/adopted实际wait，主结束后owned残留有限TERM/KILL退�
 本rev2技术含义与已接受候选相同；正式归位只更新状态、文档链接与自包含固定索引。独立 STATIC 与 root 采纳均是规格结论，尚未执行或验收本卡产品。原建议、rev1、B1首问题与rev2差量原件全部保留，见 [§9](#9-固定来源与规格验收定位)。后续实施仍以页首调度与另行授权为前置，不将文档归位视为实施或资源授权。
 
 ## 9. 固定来源与规格验收定位
+
+持久证据与可逆修订定位见[规格验收归档](../agent-team/project-owner-audit-http-spec-verification.md)及[来源映射](../agent-team/project-owner-audit-http-spec-verification-evidence/source-map.json)；下列原scratch指纹和77项固定来源表保持原样。
 
 本卡 §1–8 是完整工程约束，不依赖外部 scratch 才能确定接口、字段、范围、预算与选择器。以下原件绝对路径用于证据定位；若运行环境被回收，以固定提交、逐源 Git blob／SHA-256 与本卡正文重建来源，不能改读活动工作树当已接受输入。scratch 不是产品代码或已运行测试的替代品。
 

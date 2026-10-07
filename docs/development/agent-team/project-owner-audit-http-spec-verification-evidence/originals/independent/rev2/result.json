@@ -1,0 +1,61 @@
+{
+  "kind": "independent complete specification STATIC acceptance by version combination",
+  "status": "PASS",
+  "revision": 2,
+  "reviewer": "/root/next_frontier",
+  "author": "/root/usage_verification",
+  "fixed_product_commit": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "draft": {
+    "path": "/workspace/scratch/project-owner-audit-http-spec/draft-rev2.md",
+    "sha256": "3eae6ce5d129e8125aba157cb4687656c31cd49fe654e3c583a386ffe843a809"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/project-owner-audit-http-spec/inputs-rev2.json",
+    "sha256": "a4bbed783e205ab4b9274e38c20cc6033442070552e9f4f0ea93fa338eaf7727"
+  },
+  "author_freeze": {
+    "path": "/workspace/scratch/project-owner-audit-http-spec/freeze-rev2.json",
+    "sha256": "9a0bdc7df2fcbfbdf00ece64e40621929a97ffe4e53b10b25a61fb4ae76496a3"
+  },
+  "reused_complete_rev1_review": {
+    "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/review.md",
+    "sha256": "583fc48c81d5de976b86c3c1df736c3ae268d67745ba1b6585ed7a66fa69dfa5",
+    "result_path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/result.json",
+    "result_sha256": "2e1b24ea418798aa1bc67bab134cf0ce4182ce493f5a2de71194224604044fb1"
+  },
+  "closed_findings": [
+    {
+      "id": "AUDIT-STATIC-01",
+      "root_alias": "B1",
+      "status": "CLOSED"
+    }
+  ],
+  "remaining_blocking_findings": [],
+  "changed_draft_lines": [
+    3,
+    137,
+    179
+  ],
+  "fixed_source_count": 77,
+  "original_75_entries_unchanged": true,
+  "added_two_main_sources_hash_and_blob_match": true,
+  "technical_scope": 14,
+  "documentation_scope": 2,
+  "scope_and_business_contracts_unchanged": true,
+  "go_node_schema_tests_resources_executed": false,
+  "active_configuration_sources_read": false,
+  "repository_write_or_git_mutation": false,
+  "product_acceptance": false,
+  "implementation_authorization": false,
+  "review_stopped_writing": true,
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev2/review.md",
+      "sha256": "a0d98f7b18215c90efba5c75628b97db8ec6d2dbe975c83508d4b10d23a6f642"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev2/delta-check.json",
+      "sha256": "5835b3c6f4e65d42812ec5678ea185e4231cf3c2a03b73180ee6ab9215d468db"
+    }
+  ]
+}

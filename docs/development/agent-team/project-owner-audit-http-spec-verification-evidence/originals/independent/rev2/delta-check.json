@@ -1,0 +1,33 @@
+{
+  "kind": "independent STATIC delta only",
+  "revision": 2,
+  "fixed_commit": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "changed_draft_lines": [
+    3,
+    137,
+    179
+  ],
+  "expected_exact_delta": true,
+  "original_75_source_entries_unchanged": true,
+  "other_original_input_keys_unchanged": true,
+  "added_fixed_sources": [
+    {
+      "path": "cmd/agenteam/main.go",
+      "git_blob": "1345651a64a24833421f22b21bdb80a2b6df559c",
+      "sha256": "4412cc0e4d838b076d1447ea3ec9137f1eb0dffc01f95d8ff54c5756e305198a",
+      "bytes": 3825,
+      "snapshot": "/workspace/scratch/project-owner-audit-http-spec-verification/rev2/fixed/cmd/agenteam/main.go"
+    },
+    {
+      "path": "cmd/agenteam-runner/main.go",
+      "git_blob": "afb614f13f0148147586b0c431aa912187fa2ffc",
+      "sha256": "e4341598318b791e6bd03b2cff75a1a6280adea2b4efa68736bb323f3e70aa66",
+      "bytes": 2679,
+      "snapshot": "/workspace/scratch/project-owner-audit-http-spec-verification/rev2/fixed/cmd/agenteam-runner/main.go"
+    }
+  ],
+  "all_rev2_artifacts_hash_match": true,
+  "unchanged_scope_16": true,
+  "unchanged_selectors_and_static_budget": true,
+  "runtime_or_product_execution": false
+}

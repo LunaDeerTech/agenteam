@@ -1,0 +1,66 @@
+{
+  "kind": "independent complete specification STATIC review",
+  "status": "CHANGES_REQUIRED",
+  "revision": 1,
+  "reviewer": "/root/next_frontier",
+  "author": "/root/usage_verification",
+  "fixed_product_commit": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "draft": {
+    "path": "/workspace/scratch/project-owner-audit-http-spec/draft-rev1.md",
+    "sha256": "95db31411d7e41db7966cab30b894c11d4f905696ff6a4f6572b89b47cd9c02f"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/project-owner-audit-http-spec/inputs-rev1.json",
+    "sha256": "53d629d3b64915a4e122f79cfeb108a07523f92a5e3cc652459c79b56a6cf8e0"
+  },
+  "author_freeze": {
+    "path": "/workspace/scratch/project-owner-audit-http-spec/freeze-rev1.json",
+    "sha256": "9679bacb12f600cc32704086482a233bb70c86a8903f1d8db2443fa8afa64702"
+  },
+  "fixed_source_count": 75,
+  "source_hash_and_blob_checks": true,
+  "all_frozen_inputs_still_match": true,
+  "finding_count": 1,
+  "findings": [
+    {
+      "id": "AUDIT-STATIC-01",
+      "root_alias": "B1",
+      "severity": "required engineering correction",
+      "section": "7.1",
+      "line": 137,
+      "problem": "Both declared cmd/central and cmd/agent_server do not exist at fixed product baseline.",
+      "required_change": "Use cmd/agenteam and cmd/agenteam-runner; preserve exact frozen variants and build-only boundary."
+    }
+  ],
+  "other_full_scope_static": "PASS within stated fixed-source limits",
+  "existing_selector_declarations_checked": 28,
+  "technical_scope_count": 14,
+  "documentation_scope_count": 2,
+  "static_page_upper_bytes": 1037420,
+  "dynamic_validation_executed": false,
+  "go_or_node_executed": false,
+  "resource_execution": false,
+  "active_configuration_sources_read": false,
+  "repository_writes": false,
+  "git_mutation": false,
+  "delegated": false,
+  "review_stopped_writing": true,
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/review.md",
+      "sha256": "583fc48c81d5de976b86c3c1df736c3ae268d67745ba1b6585ed7a66fa69dfa5"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/source-check.json",
+      "sha256": "d503df8fd71c5f87419ae5e2e285f6e72dcf84391dc8bc7d9bb01189c66731dc"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/independent-static-checks.json",
+      "sha256": "7417171464bb71bb9b0039e48b7cbabcacebc7f55a2ff6b1faede8368ce07db9"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/cmd-tree.txt",
+      "sha256": "c31267ccbdb607c707f5a7d552f5306a3b5eeac8aaa5d1fd7c5f7bb10026c776"
+    }
+  ]
+}

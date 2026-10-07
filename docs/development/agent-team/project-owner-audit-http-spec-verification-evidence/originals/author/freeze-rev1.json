@@ -1,0 +1,58 @@
+{
+  "kind": "author scratch engineering specification rev1 freeze, awaiting independent STATIC/root acceptance",
+  "revision": 1,
+  "fixed_product_commit": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "files": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/draft-rev1.md",
+      "sha256": "95db31411d7e41db7966cab30b894c11d4f905696ff6a4f6572b89b47cd9c02f",
+      "bytes": 41413
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/inputs-rev1.json",
+      "sha256": "53d629d3b64915a4e122f79cfeb108a07523f92a5e3cc652459c79b56a6cf8e0",
+      "bytes": 20085
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/scope16.json",
+      "sha256": "4daf7cc824b6526b99349f772f97319cf313e28be0ec3a06ccd6b657741d790e",
+      "bytes": 4599
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/compatibility-selectors.json",
+      "sha256": "85ed926277c007af8dfcfe206ba0a169e6effa436f5420d9f05cc281c3bb1d9b",
+      "bytes": 7538
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/budget-static.py",
+      "sha256": "13525ab6724947c0ebafc367f56561a29893a4bf757f11aa9fa1566900bf2e3c",
+      "bytes": 3320
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/budget-static.json",
+      "sha256": "a0c02c2db3247c48e05fe5b5bbdd1f997f54370b165f6dc8b9f1c4109a063ef6",
+      "bytes": 1270
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/freeze-static.py",
+      "sha256": "ae2036536d365ab0d5a4781e4c39699c71c0601afa34a831043ea7380a9a2535",
+      "bytes": 8954
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec/selfcheck-rev1.json",
+      "sha256": "e4ea9507bc0208cd25fc0a5b64f8689e4c574df08567c2c8c2480fa613f587a2",
+      "bytes": 1809
+    }
+  ],
+  "technical_scope_count": 14,
+  "documentation_scope_count": 2,
+  "product_implementation_or_execution": false,
+  "active_configuration_sources_read": false,
+  "status": "author stopped writing after this freeze",
+  "limits": [
+    "Static selfcheck only, no independent PASS",
+    "1MiB conservative proof is static; actual Go 31-action maxima / 200-row encoding / standard schema / real HTTP / native / PG remain future acceptance",
+    "Configuration write full acceptance and root handoff are scheduling prerequisites for final root composition, not missing Audit function",
+    "Three stops and other unbound modules remain unchanged"
+  ]
+}

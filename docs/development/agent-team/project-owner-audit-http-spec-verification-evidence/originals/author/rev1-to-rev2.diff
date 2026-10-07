@@ -1,0 +1,25 @@
+--- draft-rev1.md
++++ draft-rev2.md
+@@ -1,6 +1,6 @@
+ # D04：Project Owner Audit 列表与详情读取 HTTP
+ 
+-修订：rev1；状态：scratch 工程规格候选，作者自查待独立 STATIC／root 接受；不授权实施或资源。固定产品基线 `e4b1b89197da0e9027018fdb41f6ab3e04050b9d`（Project 模型凭据完整接受），固定来源见 `inputs-rev1.json`。下一轮根组合须在 Project 模型配置写入 rev2 完整接受后由 root 移交；这是调度与共享编译输入门槛，不是 Audit 查询功能缺失。
++修订：rev2；状态：scratch 工程规格候选，已按独立 STATIC 的 B1 修正命令入口，待差量确认／root 接受；不授权实施或资源。固定产品基线 `e4b1b89197da0e9027018fdb41f6ab3e04050b9d`（Project 模型凭据完整接受），固定来源见 `inputs-rev2.json`。下一轮根组合须在 Project 模型配置写入 rev2 完整接受后由 root 移交；这是调度与共享编译输入门槛，不是 Audit 查询功能缺失。
+ 
+ ## 1. 完整结果、既定范围与依赖
+ 
+@@ -134,7 +134,7 @@
+ 
+ - audit：`^(TestProjectAuditReadTransactionAndAuthority|TestProjectAuditReadTerminalAndPage)$`，正常/race；核User→Project SH、同Tx授权/Query、nil/错scope/错ID/全过滤/严格降序/limit+1及额外第202行、RowsClose→Err、提前父取消/晚Committed/NotCommitted/Unknown保存原CauseAttempt/零候选及完整callback。
+ - audithttp：`^(TestProjectAuditHTTPPureWireAndMaximumPage|TestProjectAuditHTTPPureDispatchAndProjection|TestProjectAuditHTTPPureActualTail)$`，正常/race；31action×三合法Actor分支（按动作约束）及全部不合法交叉、general合法System filter空结果、strictpresence/null/未知/重复、19位数/同时间分页、真实200最大页编码反解、3s自然/earlier parent、所有setter/Close/Unwrap/Flush panic、callback/服务真实tail、tracked日志/committed防二写。长自然例若总时会触40s，按这三个top各自分命令，不拉长budget。
+-- app：`^TestProjectAuditRootPureCompositionAndRoutes$` 正常/race；同实例真实构造依赖检查/路由委派/一次middleware/旧链保持，不运行无tag全包网络测试。对三受影响包race vet；cmd/central、cmd/agent_server按实际fixture固定CGO变体build但不启动。
++- app：`^TestProjectAuditRootPureCompositionAndRoutes$` 正常/race；同实例真实构造依赖检查/路由委派/一次middleware/旧链保持，不运行无tag全包网络测试。对三受影响包race vet；cmd/agenteam、cmd/agenteam-runner按实际fixture固定CGO变体build但不启动。
+ - schema：新增wire spec用标准Python jsonschema Draft202012Validator加format checker/已有scalar严格pattern、固定本地引用common；核每个分支正例及action/actor/resource不匹配、foreignscope/null/missing/unknown/重复列表/精度/摘要/MIME参数/数字界/误接受System-only输出。schema不能只检查required列表，不能依自写近似parser宣称标准通过。冻结Python模块与jsonschema_specifications实际读取的20个官方schema JSON。实际Go编码200页bytes与保存的真实HTTPbytes都要给同标准解析器；schema对无法表示的跨字段等式由生产投影验证且受控反例独立证实，不冒schema单独检查全部等式。
+ 
+ ### 7.2 三真实native（唯一loopback窗口）
+@@ -176,4 +176,4 @@
+ 
+ 实施接受同时需要：技术14固定全STATIC、真实普通/race/vet/标准schema、31合法分支与最大200真实编码／全哨兵、三native、四新PG+上述旧兼容、独立互补验证、实际source前后/资源尾部闭合，随后两文档停写末件独审。若公开接口/合法投影/范围/预算/依赖与此卡冲突先报root修订；产品含义未变的测试/helper错误仅修自有scope并保首红，不为过测改权限/HTTP原语义。不得把accepted schema或库单测等同默认根/资源证明。
+ 
+-本rev1只完成固定源码推导、静态scalar核算与作者自查；没有执行Go/Node、schema运行、listener/DB/container、浏览器或Git写操作，没有证明产品实现。附 `inputs-rev1.json`（原40来源加必要定点依赖）、`scope16.json`、`compatibility-selectors.json`、`budget-static.py/json` 与冻结指纹。原建议及其40来源保持不变。待独立STATIC/root采纳后再由root决定正式卡归位与实施授权。
++本rev2保留rev1技术正文，仅修正B1的两条命令入口及修订／来源索引；仍只完成固定源码推导、静态scalar核算与作者自查；没有执行Go/Node、schema运行、listener/DB/container、浏览器或Git写操作，没有证明产品实现。附 `inputs-rev2.json`（原40来源加必要定点依赖）、`scope16.json`、`compatibility-selectors.json`、`budget-static.py/json` 与冻结指纹。原建议及其40来源保持不变。待独立STATIC/root采纳后再由root决定正式卡归位与实施授权。

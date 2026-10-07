@@ -1,0 +1,40 @@
+{
+  "kind": "independent narrow formal specification placement STATIC review",
+  "status": "PASS",
+  "blocking_findings": [],
+  "reviewer": "/root/next_frontier",
+  "spec_author": "/root/usage_verification",
+  "formal_card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d04-project-owner-audit-http.md",
+    "sha256": "23ab7e869cd05cd7605ccf6c5d3a0e17d3ad43d46157e429f35d4c03c2d86563"
+  },
+  "formal_freeze": {
+    "path": "/workspace/scratch/project-owner-audit-http-spec/formal-rev2.freeze.json",
+    "sha256": "7615da06f4ecc4050e37279f92ceb2cc796ad510e9fb2e9e938f2e1200f9662f"
+  },
+  "reused_complete_spec_result": {
+    "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev2/result.json",
+    "sha256": "e2103767a9e8a280a3a8161608d235b052a2d587abf30bd6e245a78a0dcc3064"
+  },
+  "technical_sections_1_to_8_exact_after_admin_link_inverse": true,
+  "fixed_source_table_count": 77,
+  "relative_links_and_fragments": 81,
+  "provenance_hashes": 16,
+  "author_two_helper_failures_preserved": true,
+  "scope_and_authorization_boundary_unchanged": true,
+  "implementation_or_runtime_acceptance": false,
+  "go_resources_git_product_execution": false,
+  "active_configuration_implementation_read": false,
+  "repository_writes": false,
+  "review_stopped_writing": true,
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec-verification/formal01/review.md",
+      "sha256": "9ac6fd80fec96ae5b0a1a532192e8920cbddab075f1e70fc114801a8751758d2"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec-verification/formal01/checks.json",
+      "sha256": "498fae24874a26fd8b7efce698f15bdadd29123bde5a988fd3b1c1ea5e1e04fa"
+    }
+  ]
+}

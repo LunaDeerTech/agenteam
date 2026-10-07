@@ -1,0 +1,277 @@
+{
+  "commit": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "definition_check": "read-only textual declaration and committed card check, no Go -list or execution",
+  "selectors": [
+    {
+      "name": "TestAuditHTTPPureBodyCloseJoinAndSafeUnknown",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureBodyWriteAndCapabilities",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureEncodedBudget",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureMIMEClosedSchema",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureOpenAPIClosedContract",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPurePreauthenticationBudgetAndCallbackJoin",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureQueryClosure",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureRoutesAndAuthorizationOrder",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditHTTPPureTypedProjection",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/http/handler_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditPaginationBindingsFiltersAndRevocation",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "tests/security/audit_query_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditRootPureRoutePreservationAndSingleMiddleware",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/app/audit_http_test.go"
+      ]
+    },
+    {
+      "name": "TestAuditRootPureSameInstanceConstructionGraph",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/app/audit_http_test.go"
+      ]
+    },
+    {
+      "name": "TestModelProjectAuditHTTPAuthorityAndTerminal",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestModelProjectAuditHTTPDefaultRoot",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestModelProjectAuditHTTPProjectionAndPaging",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestModelProjectAuditHTTPShutdown",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestModelProjectConfigurationWriteHTTPDefaultRoot",
+      "status": "configuration_accepted_spec_future_product",
+      "fixed_files": []
+    },
+    {
+      "name": "TestModelProjectCredentialHTTPDefaultRoot",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "tests/model/project_credentials_http_root_test.go"
+      ]
+    },
+    {
+      "name": "TestModelProjectOwnerUpdateHTTPRootBinding",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "tests/model/project_owner_update_http_root_test.go"
+      ]
+    },
+    {
+      "name": "TestModelProjectUsageHTTPRootBinding",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "tests/model/project_usage_http_root_test.go"
+      ]
+    },
+    {
+      "name": "TestProjectAuditHTTPNativeEOFAndKeepAlive",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestProjectAuditHTTPNativeSlowBodyBudgets",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestProjectAuditHTTPNativeWriteAndFlushAbort",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestProjectAuditHTTPPureActualTail",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestProjectAuditHTTPPureDispatchAndProjection",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestProjectAuditHTTPPureWireAndMaximumPage",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestProjectAuditReadTerminalAndPage",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestProjectAuditReadTransactionAndAuthority",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestProjectAuditRootPureCompositionAndRoutes",
+      "status": "proposed_new",
+      "fixed_files": []
+    },
+    {
+      "name": "TestProjectCredentialsRootPureRouteOwnership",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/app/project_credentials_test.go"
+      ]
+    },
+    {
+      "name": "TestProjectModelConfigurationHTTPComposition",
+      "status": "configuration_accepted_spec_future_product",
+      "fixed_files": []
+    },
+    {
+      "name": "TestProjectModelsRootPureRouteOwnership",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/app/project_models_test.go"
+      ]
+    },
+    {
+      "name": "TestProjectReadRootPureRouteOwnership",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/app/project_read_test.go"
+      ]
+    },
+    {
+      "name": "TestProjectUsageRootPureRoutesPreserveOriginalChain",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/app/project_usage_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditCursorBindingAndInvalidActor",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/system_query_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditHTTPQueryAndProjection",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "tests/account/audit_http_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditHTTPRootProducerBinding",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/app/audit_http_process_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditHTTPTransactionAndBudget",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "tests/account/audit_http_transaction_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditLegacyQueryScopeAndValidationEquivalence",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/system_query_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditPageScansSentinelAndClosesBeforePublication",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/system_query_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditReadDeadlineAndActualTail",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/system_query_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditReadFailureHasZeroCandidate",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/system_query_test.go"
+      ]
+    },
+    {
+      "name": "TestSystemAuditReadTransactionPublication",
+      "status": "existing_fixed",
+      "fixed_files": [
+        "internal/central/audit/system_query_test.go"
+      ]
+    }
+  ]
+}

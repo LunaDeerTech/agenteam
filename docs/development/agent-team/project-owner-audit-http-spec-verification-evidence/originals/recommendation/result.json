@@ -1,0 +1,45 @@
+{
+  "conclusion": "RECOMMEND_PROJECT_OWNER_AUDIT_READ_HTTP",
+  "kind": "read-only frontier recommendation; neither product nor formal specification acceptance",
+  "commit": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "report": {
+    "path": "/workspace/scratch/usage-next-frontier-after-project-config-write01/recommendation.md",
+    "sha256": "27d6ba85340ec00548416be7480b3986f847679aca18813028a1b034407f59a5"
+  },
+  "sources": {
+    "path": "/workspace/scratch/usage-next-frontier-after-project-config-write01/sources.json",
+    "sha256": "59a61781ba9b51778d10cbc7d788500bfaf7d6290cd8d8190a2202518b0cfcb9",
+    "count": 40
+  },
+  "checks": {
+    "utf8_lf_trailing_whitespace": "pass",
+    "fixed_critical_git_sources_rechecked": [
+      "internal/central/app/security.go",
+      "internal/central/app/account.go",
+      "internal/central/project/authority.go",
+      "internal/central/audit/query.go",
+      "docs/architecture/security-governance/audit.md"
+    ]
+  },
+  "proposed_scope": {
+    "technical_paths": 14,
+    "documentation_tail_paths": 2,
+    "migration": false,
+    "product_decision_pending": false
+  },
+  "activity": {
+    "product_tests_run": false,
+    "resources_started": false,
+    "network_access": false,
+    "git_mutations": false,
+    "active_configuration_sources_read": false,
+    "delegation": false,
+    "writes": "own scratch only"
+  },
+  "limits": [
+    "No newly verified runtime behavior or environment availability",
+    "Project Audit same-Tx facade and HTTP/schema/root remain to implement and verify",
+    "Three stop boundaries and production unbound dependencies remain",
+    "Parallelization requires root file ownership and stable shared package inputs/resource windows"
+  ]
+}

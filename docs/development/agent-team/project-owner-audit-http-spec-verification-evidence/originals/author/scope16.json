@@ -1,0 +1,138 @@
+{
+  "kind": "candidate scope, not implementation authorization",
+  "commit": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "technical": 14,
+  "documentation": 2,
+  "new": 13,
+  "existing": 3,
+  "paths": [
+    {
+      "number": 1,
+      "path": "internal/central/audit/project_query.go",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 2,
+      "path": "internal/central/audit/project_query_test.go",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 3,
+      "path": "internal/central/audit/http/project.go",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 4,
+      "path": "internal/central/audit/http/project_wire.go",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 5,
+      "path": "internal/central/audit/http/project_test.go",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 6,
+      "path": "internal/central/audit/http/project_wire_test.go",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 7,
+      "path": "internal/central/audit/http/project_native_test.go",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 8,
+      "path": "api/openapi/project-audit.json",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 9,
+      "path": "internal/central/app/project_audit.go",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 10,
+      "path": "internal/central/app/project_audit_test.go",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 11,
+      "path": "internal/central/app/account.go",
+      "scope": "technical",
+      "existing_at_fixed_base": true,
+      "sha256_at_fixed_base": "89d01abf651ca247515ae8226c739469b86ed01ac6cb4a717cdd3091633e79e7",
+      "ownership": "root handoff of account.go required after configuration-write full acceptance"
+    },
+    {
+      "number": 12,
+      "path": "tests/model/project_audit_http_fixture_test.go",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 13,
+      "path": "tests/model/project_audit_http_test.go",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 14,
+      "path": "tests/model/project_audit_http_root_test.go",
+      "scope": "technical",
+      "existing_at_fixed_base": false,
+      "sha256_at_fixed_base": null,
+      "ownership": "new task sole author, authorization pending"
+    },
+    {
+      "number": 15,
+      "path": "docs/development/backend/audit.md",
+      "scope": "documentation",
+      "existing_at_fixed_base": true,
+      "sha256_at_fixed_base": "6c0447804f5bd92c6963d56984848130cddebeff5142e27f7f338c8f426274ca",
+      "ownership": "new task sole author; docs only after technical acceptance"
+    },
+    {
+      "number": 16,
+      "path": "docs/development/backend/README.md",
+      "scope": "documentation",
+      "existing_at_fixed_base": true,
+      "sha256_at_fixed_base": "b5b4444d61af796a9ecd5843b4de9cfd55981324e21ba1e6ef4b0c991bac0e5e",
+      "ownership": "new task sole author; docs only after technical acceptance"
+    }
+  ]
+}

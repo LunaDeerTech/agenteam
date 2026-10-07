@@ -1,0 +1,39 @@
+{
+  "kind": "author B1 static delta selfcheck, not independent acceptance",
+  "passed": true,
+  "fixed_commit": "e4b1b89197da0e9027018fdb41f6ab3e04050b9d",
+  "prior_freeze_sha256": "9679bacb12f600cc32704086482a233bb70c86a8903f1d8db2443fa8afa64702",
+  "rev1_all_frozen_files_unchanged": true,
+  "changed_document_lines": [
+    3,
+    137,
+    179
+  ],
+  "body_delta_only": "section 7.1 cmd/central,cmd/agent_server -> cmd/agenteam,cmd/agenteam-runner",
+  "other_technical_body_bytes_identical": true,
+  "original75_source_entries_identical": true,
+  "new_fixed_entrypoints": [
+    {
+      "path": "cmd/agenteam/main.go",
+      "git_blob": "1345651a64a24833421f22b21bdb80a2b6df559c",
+      "sha256": "4412cc0e4d838b076d1447ea3ec9137f1eb0dffc01f95d8ff54c5756e305198a",
+      "bytes": 3825
+    },
+    {
+      "path": "cmd/agenteam-runner/main.go",
+      "git_blob": "afb614f13f0148147586b0c431aa912187fa2ffc",
+      "sha256": "e4341598318b791e6bd03b2cff75a1a6280adea2b4efa68736bb323f3e70aa66",
+      "bytes": 2679
+    }
+  ],
+  "scope16_unchanged": true,
+  "budget_static_unchanged": true,
+  "selectors_unchanged": true,
+  "format": "UTF-8/LF/final newline/no trailing whitespace",
+  "limits": [
+    "No Go/Node/compile/list/tests/resource/network executed",
+    "No formal card or product writes",
+    "No Git mutation",
+    "Await independent delta STATIC/root acceptance"
+  ]
+}
