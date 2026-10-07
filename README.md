@@ -2,6 +2,14 @@
 
 agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期项目状态、任务、会议、Agent 执行与人类审核。
 
+## 当前增量：D09只读规格接受，D08 Update进入PG验证（2026-10-07）
+
+[D09 Project Model Owner只读HTTP rev2规格](docs/development/agent-team/project-model-owner-read-http-spec-verification.md) `f68c5c95` 与归档 `70974605` 已完整限定STATIC接受并推送、root核远端一致；仅规格接受，13技术路径实施未授权，须D08 Update完整产品接受后正式交接 `account.go`。
+
+[D08 Update](docs/development/work-items/d08-project-owner-update-http.md) candidate06的18技术源未提交、未接受。作者受影响离线检查按版本组合通过，三轮native共3顶层/7子测/8 listeners通过；direct/adopted各3实际wait exit0，owned进程/端口含TIME_WAIT双空。独立HTTP06离线1顶层/11嵌套节点（9叶）通过，所有原失败保留。作者五轮串行PG验证已启动，尚无整窗结论；独立A/B已获条件资源授权但尚未执行，须作者五轮全部实际清理释放并由root转达后才可启动；#19 README末件未授。
+
+Owner-read、Summary S1/S2/S3及Usage既有接受保持。系统管理员统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则不改；production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
+
 ## 当前增量：Project Owner Update HTTP规格接受（2026-10-07）
 
 [Update规格](docs/development/agent-team/project-owner-update-http-spec-verification.md)已完整限定独立STATIC接受，规格 `03d1c107`、归档 `221ec4ba` 已推送且root核远端一致。`next_frontier` 已实际ACK并沿基线 `901eb546` 开始#1–18技术实施，先strict wire/handler；#19 README末件未授。必要离线窗口整体已授，尚无Go结果；native/PG资源未授。`usage_verification` 已ACK，独立product-prep仅scratch计划，Update产品尚未接受。
