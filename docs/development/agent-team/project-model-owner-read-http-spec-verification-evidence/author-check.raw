@@ -1,0 +1,48 @@
+{
+  "status": "AUTHOR_DOCUMENT_SELF_CHECK_PASS",
+  "not_independent_static": true,
+  "draft_sha256": "9c0062bee024794f85b00f3581aa3782e4f0040ada3110989313c591b563fafe",
+  "inputs_sha256": "0b3ba4165bb0ef2f951a4883281221626d2a9c4bf3d6c02f831ab9e74e6af311",
+  "source_count": 46,
+  "accepted_fingerprint_count": 45,
+  "fingerprint_only_corroboration": [
+    "docs/development/work-items/recovery-d09-project-configuration.md"
+  ],
+  "source_hashes_rechecked_unchanged": true,
+  "links": [
+    {
+      "target": "inputs02.json",
+      "exists": true
+    },
+    {
+      "target": "/workspace/agenteam/docs/development/agent-team/d09-project-configuration-verification.md",
+      "exists": true
+    },
+    {
+      "target": "/workspace/agenteam/docs/development/work-items/d08-project-owner-read-http.md",
+      "exists": true
+    },
+    {
+      "target": "/workspace/scratch/project-owner-update-http-spec/rev1.md",
+      "exists": true
+    },
+    {
+      "target": "/workspace/agenteam/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "exists": true
+    }
+  ],
+  "candidate_technical_paths": 13,
+  "README_last": 1,
+  "new_candidate_paths_absent": 12,
+  "errors": [],
+  "large_legal_capabilities_example": {
+    "tokens": "r00000000 through r000fffff",
+    "unique_token_count": 1048576,
+    "token_ascii_bytes": 9,
+    "array_json_bytes_by_arithmetic": 12582913,
+    "http_limit_bytes": 8388608,
+    "product_execution": false
+  },
+  "no_git_go_network_tests_or_resources": true,
+  "repository_writes": []
+}

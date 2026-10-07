@@ -1,0 +1,16 @@
+{
+  "purpose": "Static scratch document self-check only",
+  "cwd": "/workspace",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/scratch/project-model-owner-read-http-spec/check.py"
+  ],
+  "explicit_env": {"PYTHONHASHSEED": "0"},
+  "stdout_stderr": "/workspace/scratch/project-model-owner-read-http-spec/check.raw",
+  "actual_exit_code": 0,
+  "execution_tool_chunk_id": "07740a",
+  "completed_without_tool_session": true,
+  "business_scripts_or_go_executed": false,
+  "listeners_containers_or_services_started": false,
+  "git_commands_or_repository_writes": false
+}

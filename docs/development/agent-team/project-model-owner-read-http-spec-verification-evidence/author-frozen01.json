@@ -1,0 +1,53 @@
+{
+  "status": "FROZEN_SCRATCH_DRAFT_FOR_ROOT_NOT_FORMAL_SPEC_OR_PRODUCT_ACCEPTANCE",
+  "accepted_product": "901eb54605d293d4308caadd278c2c3a7ae1b824",
+  "accepted_update_spec": "03d1c107",
+  "future_update_product_handover_required": true,
+  "candidate_technical_paths": 13,
+  "README_final_separate_authorization": 1,
+  "files": [
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-spec/check-command.json",
+      "bytes": 627,
+      "sha256": "c8e659251b2366e9054b91112c61239badf067bd6da646e636e39e1da7637e23"
+    },
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-spec/check-result.json",
+      "bytes": 1543,
+      "sha256": "9b17737fa9bb9f217efe1166261704c934bbfd9b89226a78c1f72b86094a8d48"
+    },
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-spec/check.py",
+      "bytes": 3307,
+      "sha256": "6388778084dfbd098426893bbdde670794713ea71c007f3dd8f4355ed5ee771a"
+    },
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-spec/check.raw",
+      "bytes": 1543,
+      "sha256": "9b17737fa9bb9f217efe1166261704c934bbfd9b89226a78c1f72b86094a8d48"
+    },
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-spec/draft01.md",
+      "bytes": 36370,
+      "sha256": "9c0062bee024794f85b00f3581aa3782e4f0040ada3110989313c591b563fafe"
+    },
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-spec/inputs01.json",
+      "bytes": 18364,
+      "sha256": "d75728bf8070ceef67a9571765534dd15b32b88c9f30421f15a47fc9287125b5"
+    },
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-spec/inputs02.json",
+      "bytes": 24994,
+      "sha256": "0b3ba4165bb0ef2f951a4883281221626d2a9c4bf3d6c02f831ab9e74e6af311"
+    }
+  ],
+  "source_index": {
+    "path": "/workspace/scratch/project-model-owner-read-http-spec/inputs02.json",
+    "sha256": "0b3ba4165bb0ef2f951a4883281221626d2a9c4bf3d6c02f831ab9e74e6af311"
+  },
+  "checks": "AUTHOR_DOCUMENT_SELF_CHECK_PASS",
+  "all_scratch_writes_stopped_after_this_freeze": true,
+  "repository_writes": [],
+  "git_go_business_network_or_resources": false
+}

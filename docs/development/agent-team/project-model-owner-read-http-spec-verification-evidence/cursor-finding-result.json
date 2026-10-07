@@ -1,0 +1,34 @@
+{
+  "status": "STATIC_WORDING_CORRECTION_PROPOSED_NOT_APPLIED",
+  "draft_sha256_unchanged": "9c0062bee024794f85b00f3581aa3782e4f0040ada3110989313c591b563fafe",
+  "closure": {
+    "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/closure-v02.json",
+    "sha256": "309a4adca96f2fbe11122101f4fb07489664c4ca33e68616991b5e01fad7f929"
+  },
+  "sources": [
+    {
+      "path": "/workspace/agenteam/internal/central/cursor/cursor.go",
+      "sha256": "c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f",
+      "accepted_closure_match": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/cursor/keyring.go",
+      "sha256": "76199cd840e179a3a7dc993e91d89cacdc140c59ba99d158a9b294c57f01cb8f",
+      "accepted_closure_match": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/project_query.go",
+      "sha256": "9ed9bf858b9b216e7c544dbe4fab92613c6371e5c97c1d94c905525b580f4602",
+      "accepted_closure_match": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/query.go",
+      "sha256": "bcc0f680b3f45299249b405b69a64370a3a97699aae3232b36bc1c7b068d15fd",
+      "accepted_closure_match": true
+    }
+  ],
+  "proposed_patch_sha256": "80f56ce48a1eba08056298f2088d561a6fd95eb55f0744cd7fc46991c3acbbc0",
+  "note_sha256": "834186ff337a39716935042c297116022ed934a6a1bdb68116b7867d65644b45",
+  "product_or_resource_execution": false,
+  "repository_writes": []
+}

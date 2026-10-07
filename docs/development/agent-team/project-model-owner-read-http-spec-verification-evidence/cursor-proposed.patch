@@ -1,0 +1,11 @@
+--- draft01.md (frozen; not changed)
++++ draft01.md (proposed text only)
+@@ -51,7 +51,7 @@
+ | 未初始化或 deleting | 原 `PROJECT_NOT_ACTIVE`；不把当前库 gate 改成 Owner Reader 的另一种投影 |
+ | Session 撤销、失效或 Account 当前拒绝 | 保留原 Fault/status；不是 HTTP 缓存 grant |
+ 
+-列表按原 `created_at DESC,id DESC` keyset 和首水位，cursor 绑定 Project scope、稳定 User、查询种类及固定 chat/enabled 语义；包含 water/after instant+UUID 四 scalar、无 OrderGeneration。更换同一 User 的有效 Session/合法变更 limit 可以续页；跨 User/Project/三查询种类、System cursor、篡改/过期 token 都拒绝。每页重验当前权限；首水位限制后插入行，不宣称跨页 frozen configuration snapshot。目录原单 JOIN 的 statement snapshot 同时读取两层 enabled 和七字段；不得改成多个未约束查询或把 SH 当配置 mutation 排他锁。
++列表按原 `created_at DESC,id DESC` keyset 和首水位，cursor 绑定 Project scope、稳定 User、查询种类及固定 chat/enabled 语义；包含 water/after instant+UUID 四 scalar、无 OrderGeneration。更换同一 User 的有效 Session/合法变更 limit 可以续页；跨 User/Project/三查询种类、System cursor、篡改 token，或签名 kid 已不在当前加载 keyring 中的 token 均拒绝。cursor 无 TTL/时间到期语义；轮换后保留旧 kid 及对应 key 时，原 token 仍可验签，且必须继续通过每页当前权限和查询绑定检查。每页重验当前权限；首水位限制后插入行，不宣称跨页 frozen configuration snapshot。目录原单 JOIN 的 statement snapshot 同时读取两层 enabled 和七字段；不得改成多个未约束查询或把 SH 当配置 mutation 排他锁。
+ 
+ 原五查询负责 scan/Rows.Close/rows.Err、哨兵与签游标，HTTP 不接触数据库。HTTP 检查返回 item 数不超过请求 limit、ID 无重复、cursor 长度/空页关系及各 DTO 的完整安全条件；Provider/Model 列表可用已有 CreatedAt/ID核严格降序，目录七字段没有 CreatedAt，不为验证排序偷偷添加或加载该字段，顺序真实性由原库及真实分页验收证明。不能因为某条不能安全投影而删除它，不能改变 next_cursor 或减 limit 后自动重查。
+ 

@@ -1,0 +1,49 @@
+{
+  "status": "FROZEN_FORMAL_REV2_AWAITING_INDEPENDENT_DELTA_AND_FULL_STATIC",
+  "files": [
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-owner-read-http.md",
+      "sha256": "97b70dfde863fa73b88c25dd14c6a7d95476282eee3ea91972b426c41b61cc36",
+      "bytes": 36820
+    },
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-spec/rev2/draft01-to-formal-rev2.patch",
+      "sha256": "3e008c08e9ec054365fca1a6bd7371cdcd770c8ae55e712dbd29f234d633bcc0",
+      "bytes": 8933
+    },
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-spec/rev2/result.json",
+      "sha256": "a776540e72317e797ff4e92677ab7adb15b4d41ce5f236ab551459ba853bb396",
+      "bytes": 6785
+    },
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-spec/rev2/command.json",
+      "sha256": "4777e1c54b773d3d7e8ec003f14edb6f67f2a53a9ed8fc2ffdb7b868f5a01992",
+      "bytes": 583
+    },
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-spec/land_rev2.py",
+      "sha256": "5972eec44f4b5aa2bdc296919bbfdaaca0d9d63df38b1ae3453211943d1661df",
+      "bytes": 6553
+    }
+  ],
+  "unchanged_sources": {
+    "draft01": "9c0062bee024794f85b00f3581aa3782e4f0040ada3110989313c591b563fafe",
+    "inputs02": "0b3ba4165bb0ef2f951a4883281221626d2a9c4bf3d6c02f831ab9e74e6af311",
+    "cursor_finding": "80f56ce48a1eba08056298f2088d561a6fd95eb55f0744cd7fc46991c3acbbc0"
+  },
+  "only_repository_write": "/workspace/agenteam/docs/development/work-items/d09-project-model-owner-read-http.md",
+  "technical_changes": [
+    "cursor TTL wording only"
+  ],
+  "administrative_changes": [
+    "title",
+    "current state/source note",
+    "4 relative document links",
+    "closing current delivery state"
+  ],
+  "all_other_bytes_reverse_match_draft01": true,
+  "Update_product_handover_gate_preserved": true,
+  "git_go_business_or_resources": false,
+  "stopped_writing": true
+}

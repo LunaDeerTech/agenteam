@@ -1,0 +1,61 @@
+{
+  "status": "COMPLETE_BOUNDED_STATIC_PASS",
+  "scope": "formal rev2; 13 technical paths + 1 README final separately authorized",
+  "card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-owner-read-http.md",
+    "sha256": "97b70dfde863fa73b88c25dd14c6a7d95476282eee3ea91972b426c41b61cc36"
+  },
+  "baseline": "901eb54605d293d4308caadd278c2c3a7ae1b824",
+  "accepted_update_spec": "03d1c107",
+  "blocking_findings": [],
+  "closed_findings": [
+    "B1 cursor TTL wording"
+  ],
+  "reverse_transform_count": 8,
+  "reverse_exact_draft01": true,
+  "only_technical_change": "cursor no-TTL and retained loaded keyring validity",
+  "formal_links": [
+    {
+      "target": "../agent-team/d09-project-configuration-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/d09-project-configuration-verification.md",
+      "sha256": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291"
+    },
+    {
+      "target": "d08-project-owner-read-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d08-project-owner-read-http.md",
+      "sha256": "45d77d3add041e9c87cb936c6c7cc82b84c112d897758e6234e3d8a654071bc4"
+    },
+    {
+      "target": "d08-project-owner-update-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d08-project-owner-update-http.md",
+      "sha256": "b7596871feab7ed147fa59d4a3eb9b331a5c49ceb6296df2c60a1cd551b53b96"
+    },
+    {
+      "target": "../../architecture/platform-infrastructure/model-system/model-configuration.md",
+      "resolved": "/workspace/agenteam/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "sha256": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4"
+    }
+  ],
+  "update_formal_technical_body_equal_fixed_rev1": true,
+  "author_delta": {
+    "path": "/workspace/scratch/project-model-owner-read-http-spec/rev2/draft01-to-formal-rev2.patch",
+    "sha256": "3e008c08e9ec054365fca1a6bd7371cdcd770c8ae55e712dbd29f234d633bcc0"
+  },
+  "author_freeze_sha256": "b54b16e521186f95281cbb319c9c9ec0bcccaf924d90e0cf9b2c0a3523088c82",
+  "reused_review": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-static01/review.md",
+    "sha256": "aeb1666372492fb84504c128b3223f2f890d8f4226c9935b198f7c8f9e5ea541"
+  },
+  "preserved_rev1_result_sha256": "4a84431e0dc014cce72871576039f2a1270cf3139b606f783aa711cee99ec023",
+  "review_sha256": "098542a154d645c43566ff22d1368d757fe79a2e4faa261dec585a2d23a69c60",
+  "active_update_sources_read": false,
+  "execution": {
+    "git": false,
+    "go": false,
+    "tests": false,
+    "resources": false,
+    "network": false
+  },
+  "product_implementation_authorized": false,
+  "writes_stopped": true
+}

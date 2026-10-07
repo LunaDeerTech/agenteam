@@ -1,0 +1,42 @@
+--- scratch/draft01.md
++++ docs/development/work-items/d09-project-model-owner-read-http.md
+@@ -1,6 +1,6 @@
+-# D09 Project 配置与安全可用目录 Owner 只读 HTTP（scratch 工程草稿 rev1）
++# D09 Project 配置与安全可用目录 Owner 只读 HTTP
+ 
+-状态：供 root 评估的完整规格草稿，不是正式任务卡、实施授权或独立 STATIC/产品 PASS。只写本 scratch 目录；没有 Git、Go、业务测试、网络、监听或容器执行。固定产品输入为 root 已接受的 `901eb54605d293d4308caadd278c2c3a7ae1b824`；D08 Update 仅消费已接受规格 `03d1c107`，其活动实现尚未接受。准确读取路径、指纹及继承来源见 [inputs02.json](inputs02.json)。root 已采纳下文 8 MiB 完整表示限制及输出无法提供时的原 503 语义；其余内容仍待整份规格审查。
++修订：rev2，2026-10-07，**待独立差量及正式卡完整 STATIC 采纳，未实施**。本轮唯一仓库写入为本规格；下列实施白名单不是产品、Go 检查或资源授权。固定产品输入为 root 已接受的 `901eb54605d293d4308caadd278c2c3a7ae1b824`；D08 Update 仅消费已接受规格 `03d1c107`，其活动实现尚未接受，完整产品接受与共享根交接门槛保持。固定来源索引 `/workspace/scratch/project-model-owner-read-http-spec/inputs02.json` SHA-256 `0b3ba4165bb0ef2f951a4883281221626d2a9c4bf3d6c02f831ab9e74e6af311` 原样保留；原 scratch draft01 与 cursor 问题记录不改。root 已采纳下文 8 MiB 完整表示限制及输出无法提供时的原 503 语义。本修订仅归位标题、状态与正式文档链接，并纠正 cursor 无时间到期语义；其余技术内容保持 draft01。
+ 
+ ## 1. 完整结果与真实前置
+ 
+@@ -8,11 +8,11 @@
+ 
+ | 固定来源 | 已有事实、本卡消费及限制 |
+ | --- | --- |
+-| [D09 配置库验收](/workspace/agenteam/docs/development/agent-team/d09-project-configuration-verification.md)，`de00c610da62cb77cc03efe7c3cc842cf81f1ba5` | 已验 Project CRUD、五查询、当前 Owner/Session、同 Tx scope/锁、分页与七字段安全目录。本卡只消费五查询，不重复该库实施或开放 CRUD。该旧报告末尾关于 Summary 未定是当时历史，不能覆盖后来已接受的 S1/S2/S3。 |
+-| [Owner read](/workspace/agenteam/docs/development/work-items/d08-project-owner-read-http.md)，产品 `901eb546` | 已验 Account HTTPBoundary、同一 Project Authority、Reader、Usage/名称 resolve 路由和有界 native I/O 终局。 |
+-| [Update rev1 固定规格](/workspace/scratch/project-owner-update-http-spec/rev1.md)，规格 `03d1c107` | 规定将唯一 Project Authority 提前纯构造，供 Usage/Reader/Project Service/Audit/Outbox；仍明确 `Model.Authorizations.Projects=nil`。这是未来接线位置和交接约束，当前不声称该实现已验。 |
++| [D09 配置库验收](../agent-team/d09-project-configuration-verification.md)，`de00c610da62cb77cc03efe7c3cc842cf81f1ba5` | 已验 Project CRUD、五查询、当前 Owner/Session、同 Tx scope/锁、分页与七字段安全目录。本卡只消费五查询，不重复该库实施或开放 CRUD。该旧报告末尾关于 Summary 未定是当时历史，不能覆盖后来已接受的 S1/S2/S3。 |
++| [Owner read](d08-project-owner-read-http.md)，产品 `901eb546` | 已验 Account HTTPBoundary、同一 Project Authority、Reader、Usage/名称 resolve 路由和有界 native I/O 终局。 |
++| [Update rev1 固定规格](d08-project-owner-update-http.md)，规格 `03d1c107` | 规定将唯一 Project Authority 提前纯构造，供 Usage/Reader/Project Service/Audit/Outbox；仍明确 `Model.Authorizations.Projects=nil`。这是未来接线位置和交接约束，当前不声称该实现已验。 |
+ | `model/project_query.go`、`model/query.go`、`model/authority.go` | 五个查询签名已存在；Authority 的 `Projects ProjectAuthority` 可选口已由真实 `project.Authority.AuthorizeProject` 满足。现固定默认根未注入此口，既有 HTTP 只有 System 路由；这两个缺口就是本结果的生产增量。 |
+-| [模型配置正式规则](/workspace/agenteam/docs/architecture/platform-infrastructure/model-system/model-configuration.md) | Owner 管理本 Project chat 配置；enabled System chat 对所有 Project 可选，第一阶段无 allowlist；System 配置秘密不通过目录给 Project。目录可选不等于 Provider 网络/型号已实测。 |
++| [模型配置正式规则](../../architecture/platform-infrastructure/model-system/model-configuration.md) | Owner 管理本 Project chat 配置；enabled System chat 对所有 Project 可选，第一阶段无 allowlist；System 配置秘密不通过目录给 Project。目录可选不等于 Provider 网络/型号已实测。 |
+ 
+ 没有发现五查询所需的未接受公共端口或待用户决定的产品含义。所需 Account、Store/Tx、Project Owner gate、Model Service、cursor、Secret/Audit/Outbox 既有构造依赖均有已验能力；正式根接线必须等待 §7 的 Update 产品接受与共享文件交接。该等待是工程依赖/所有权门槛，不能用 fake grant、额外 Authority 或生产 stub 跨过。
+ 
+@@ -51,7 +51,7 @@
+ | 未初始化或 deleting | 原 `PROJECT_NOT_ACTIVE`；不把当前库 gate 改成 Owner Reader 的另一种投影 |
+ | Session 撤销、失效或 Account 当前拒绝 | 保留原 Fault/status；不是 HTTP 缓存 grant |
+ 
+-列表按原 `created_at DESC,id DESC` keyset 和首水位，cursor 绑定 Project scope、稳定 User、查询种类及固定 chat/enabled 语义；包含 water/after instant+UUID 四 scalar、无 OrderGeneration。更换同一 User 的有效 Session/合法变更 limit 可以续页；跨 User/Project/三查询种类、System cursor、篡改/过期 token 都拒绝。每页重验当前权限；首水位限制后插入行，不宣称跨页 frozen configuration snapshot。目录原单 JOIN 的 statement snapshot 同时读取两层 enabled 和七字段；不得改成多个未约束查询或把 SH 当配置 mutation 排他锁。
++列表按原 `created_at DESC,id DESC` keyset 和首水位，cursor 绑定 Project scope、稳定 User、查询种类及固定 chat/enabled 语义；包含 water/after instant+UUID 四 scalar、无 OrderGeneration。更换同一 User 的有效 Session/合法变更 limit 可以续页；跨 User/Project/三查询种类、System cursor、篡改 token，或签名 kid 已不在当前加载 keyring 中的 token 均拒绝。cursor 无 TTL/时间到期语义；轮换后保留旧 kid 及对应 key 时，原 token 仍可验签，且必须继续通过每页当前权限和查询绑定检查。每页重验当前权限；首水位限制后插入行，不宣称跨页 frozen configuration snapshot。目录原单 JOIN 的 statement snapshot 同时读取两层 enabled 和七字段；不得改成多个未约束查询或把 SH 当配置 mutation 排他锁。
+ 
+ 原五查询负责 scan/Rows.Close/rows.Err、哨兵与签游标，HTTP 不接触数据库。HTTP 检查返回 item 数不超过请求 limit、ID 无重复、cursor 长度/空页关系及各 DTO 的完整安全条件；Provider/Model 列表可用已有 CreatedAt/ID核严格降序，目录七字段没有 CreatedAt，不为验证排序偷偷添加或加载该字段，顺序真实性由原库及真实分页验收证明。不能因为某条不能安全投影而删除它，不能改变 next_cursor 或减 limit 后自动重查。
+ 
+@@ -186,4 +186,4 @@
+ 
+ 五查询/安全规则/权限和分页公共契约均已稳定，没有需要用户再决定的产品项。完整scope可在13技术路径+最后README内设计；唯一必要实施顺序依赖为Update完整接受和共享root文件交接，不能抢写。8MiB限制是已由root采纳的新HTTP工程规则，合法超界的存在和旧System/库前序分配限制已明确，没有假设小闭集或成功裁剪。
+ 
+-当前产物仅scratch草稿及输入索引。自查只核文档来源/路径、JSON、哈希、结构与格式，不运行业务/资源；自查不叫独立STATIC。root若采纳整份草稿，再指定正式卡唯一作者/独立审查和后续实施，不因本报告自动启动代码或资源。若后续实际图、Update交接或正式库发现新公共缺口，仅暂停相应部分并给具体源/失败证据，不能在新HTTP里造替代端口。
++当前产物为本正式规格 rev2 及原样保留的 scratch 输入/差量记录，待独立差量与正式卡完整 STATIC 采纳。自查只核文档来源/路径、JSON、哈希、结构与格式，不运行业务/资源；自查不叫独立 STATIC。后续实施与资源仍须 root 另行授权，并满足 Update 完整产品接受及共享文件交接门槛，不因本卡落盘自动启动。若后续实际图、Update交接或正式库发现新公共缺口，仅暂停相应部分并给具体源/失败证据，不能在新HTTP里造替代端口。

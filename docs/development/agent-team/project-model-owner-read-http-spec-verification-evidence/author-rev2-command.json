@@ -1,0 +1,14 @@
+{
+  "purpose": "Land the explicitly authorized new formal rev2 card with static checks",
+  "cwd": "/workspace",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/scratch/project-model-owner-read-http-spec/land_rev2.py"
+  ],
+  "explicit_env": {"PYTHONHASHSEED": "0"},
+  "actual_exit_code": 0,
+  "execution_tool_chunk_id": "96075f",
+  "stdout_original_location": "tool result for chunk 96075f; not retroactively reconstructed as a raw file",
+  "completed_without_tool_session": true,
+  "git_go_business_or_resources": false
+}

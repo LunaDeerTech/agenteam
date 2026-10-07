@@ -1,0 +1,440 @@
+{
+  "status": "SCRATCH_SPEC_PREPARATION_NOT_PRODUCT_ACCEPTANCE",
+  "accepted_product": "901eb54605d293d4308caadd278c2c3a7ae1b824",
+  "accepted_update_spec_from_root": "03d1c107",
+  "update_product": "active/unaccepted, no active source input",
+  "files": [
+    {
+      "logical_path": "internal/central/model/project_query.go",
+      "read_path": "/workspace/agenteam/internal/central/model/project_query.go",
+      "sha256": "9ed9bf858b9b216e7c544dbe4fab92613c6371e5c97c1d94c905525b580f4602",
+      "expected_sha256": "9ed9bf858b9b216e7c544dbe4fab92613c6371e5c97c1d94c905525b580f4602",
+      "provenance": "Owner-read candidate04 / fixed frontier / accepted Update spec source index"
+    },
+    {
+      "logical_path": "internal/central/model/query.go",
+      "read_path": "/workspace/agenteam/internal/central/model/query.go",
+      "sha256": "bcc0f680b3f45299249b405b69a64370a3a97699aae3232b36bc1c7b068d15fd",
+      "expected_sha256": "bcc0f680b3f45299249b405b69a64370a3a97699aae3232b36bc1c7b068d15fd",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "internal/central/model/authority.go",
+      "read_path": "/workspace/agenteam/internal/central/model/authority.go",
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba",
+      "expected_sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba",
+      "provenance": "Owner-read candidate04 / fixed frontier / accepted Update spec source index"
+    },
+    {
+      "logical_path": "internal/central/model/service.go",
+      "read_path": "/workspace/agenteam/internal/central/model/service.go",
+      "sha256": "537c750a0cab179ec7b7e309b7325e26978d147224f580a6d5bb75bdb16e4d94",
+      "expected_sha256": "537c750a0cab179ec7b7e309b7325e26978d147224f580a6d5bb75bdb16e4d94",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "internal/central/model/store.go",
+      "read_path": "/workspace/agenteam/internal/central/model/store.go",
+      "sha256": "726c777e5b549ff091e4134f1b82930a643197d24497b6cabb2813191c7657da",
+      "expected_sha256": "726c777e5b549ff091e4134f1b82930a643197d24497b6cabb2813191c7657da",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "internal/central/model/http.go",
+      "read_path": "/workspace/agenteam/internal/central/model/http.go",
+      "sha256": "7084f53c0794f122be2b18113c6e6602f26939bc19a9a778fa5f653c58c1986a",
+      "expected_sha256": "7084f53c0794f122be2b18113c6e6602f26939bc19a9a778fa5f653c58c1986a",
+      "provenance": "Owner-read candidate04 / fixed frontier / accepted Update spec source index"
+    },
+    {
+      "logical_path": "internal/central/model/http_dto.go",
+      "read_path": "/workspace/agenteam/internal/central/model/http_dto.go",
+      "sha256": "6e910d66b4336b96017e166bc23515f5df4ff817f98c782a21affe1c221e5d35",
+      "expected_sha256": "6e910d66b4336b96017e166bc23515f5df4ff817f98c782a21affe1c221e5d35",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "internal/central/model/http_configuration.go",
+      "read_path": "/workspace/agenteam/internal/central/model/http_configuration.go",
+      "sha256": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e",
+      "expected_sha256": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "internal/central/model/http_management.go",
+      "read_path": "/workspace/agenteam/internal/central/model/http_management.go",
+      "sha256": "9865c1d4172c7903eb2c7ee37d5037a93065d0819e546c63f5c33c689c56f6cc",
+      "expected_sha256": "9865c1d4172c7903eb2c7ee37d5037a93065d0819e546c63f5c33c689c56f6cc",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "internal/central/model/http_meeting_summary.go",
+      "read_path": "/workspace/agenteam/internal/central/model/http_meeting_summary.go",
+      "sha256": "846984d236d53c63bbdf565c7be657246811749066bfa3a3d5501d9739eb7361",
+      "expected_sha256": "846984d236d53c63bbdf565c7be657246811749066bfa3a3d5501d9739eb7361",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "internal/central/model/contract/types.go",
+      "read_path": "/workspace/agenteam/internal/central/model/contract/types.go",
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+      "expected_sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "internal/central/model/contract/configuration.go",
+      "read_path": "/workspace/agenteam/internal/central/model/contract/configuration.go",
+      "sha256": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c",
+      "expected_sha256": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "internal/central/project/authority.go",
+      "read_path": "/workspace/agenteam/internal/central/project/authority.go",
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "expected_sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "provenance": "Owner-read candidate04 / fixed frontier / accepted Update spec source index"
+    },
+    {
+      "logical_path": "internal/central/project/contract/lifecycle.go",
+      "read_path": "/workspace/agenteam/internal/central/project/contract/lifecycle.go",
+      "sha256": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6",
+      "expected_sha256": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "internal/central/project/http/handler.go",
+      "read_path": "/workspace/agenteam/internal/central/project/http/handler.go",
+      "sha256": "7acac6171cfe580dafd1e8821659bde2926eddb15ec54969024245d3a5c1052e",
+      "expected_sha256": "7acac6171cfe580dafd1e8821659bde2926eddb15ec54969024245d3a5c1052e",
+      "provenance": "Owner-read candidate04 / fixed frontier / accepted Update spec source index"
+    },
+    {
+      "logical_path": "internal/central/app/project_read.go",
+      "read_path": "/workspace/agenteam/internal/central/app/project_read.go",
+      "sha256": "edfe8a16265864d6152c0a79110da4f8d9c4365cfb876006c3ad525483dfb772",
+      "expected_sha256": "edfe8a16265864d6152c0a79110da4f8d9c4365cfb876006c3ad525483dfb772",
+      "provenance": "Owner-read candidate04 / fixed frontier / accepted Update spec source index"
+    },
+    {
+      "logical_path": "internal/central/app/project_usage.go",
+      "read_path": "/workspace/agenteam/internal/central/app/project_usage.go",
+      "sha256": "df4ce7a5752f97a382901bde8e11fe393fbfae45409bf4b7b67dfacf42ae7337",
+      "expected_sha256": "df4ce7a5752f97a382901bde8e11fe393fbfae45409bf4b7b67dfacf42ae7337",
+      "provenance": "Owner-read candidate04 / fixed frontier / accepted Update spec source index"
+    },
+    {
+      "logical_path": "internal/central/account/http_boundary.go",
+      "read_path": "/workspace/agenteam/internal/central/account/http_boundary.go",
+      "sha256": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572",
+      "expected_sha256": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572",
+      "provenance": "Owner-read candidate04 / fixed frontier / accepted Update spec source index"
+    },
+    {
+      "logical_path": "internal/central/httpapi/problem.go",
+      "read_path": "/workspace/agenteam/internal/central/httpapi/problem.go",
+      "sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde",
+      "expected_sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde",
+      "provenance": "Owner-read candidate04 / fixed frontier / accepted Update spec source index"
+    },
+    {
+      "logical_path": "internal/central/httpapi/json.go",
+      "read_path": "/workspace/agenteam/internal/central/httpapi/json.go",
+      "sha256": "5d1f29283f303400573261df614fa0c0ced66a1575c184cf02ffd720a02a2d6a",
+      "expected_sha256": "5d1f29283f303400573261df614fa0c0ced66a1575c184cf02ffd720a02a2d6a",
+      "provenance": "Owner-read candidate04 / fixed frontier / accepted Update spec source index"
+    },
+    {
+      "logical_path": "internal/central/identity/contract/identity.go",
+      "read_path": "/workspace/agenteam/internal/central/identity/contract/identity.go",
+      "sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+      "expected_sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "api/openapi/model-system.json",
+      "read_path": "/workspace/agenteam/api/openapi/model-system.json",
+      "sha256": "d4dcc2c8852916828e68e6927145867432d9ae192b48fd54cf516c95a4afd50e",
+      "expected_sha256": "d4dcc2c8852916828e68e6927145867432d9ae192b48fd54cf516c95a4afd50e",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "api/openapi/common.json",
+      "read_path": "/workspace/agenteam/api/openapi/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "expected_sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "db/migrations/00015_model_configuration.sql",
+      "read_path": "/workspace/agenteam/db/migrations/00015_model_configuration.sql",
+      "sha256": "c1f4c4685d1710be4850994ce3e216d98c43201ac38b03e932fd610ab38b17af",
+      "expected_sha256": "c1f4c4685d1710be4850994ce3e216d98c43201ac38b03e932fd610ab38b17af",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "tests/model/project_available_models_test.go",
+      "read_path": "/workspace/agenteam/tests/model/project_available_models_test.go",
+      "sha256": "52a726e1b59d77561e57e56bea1d733df69abba33fc8114095d1a63130d26e91",
+      "expected_sha256": "52a726e1b59d77561e57e56bea1d733df69abba33fc8114095d1a63130d26e91",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "tests/model/project_configuration_unknown_test.go",
+      "read_path": "/workspace/agenteam/tests/model/project_configuration_unknown_test.go",
+      "sha256": "6b18ae4b6651a10926381d8198a74315cebd08768b4794f2f65d5efffc3bbcf2",
+      "expected_sha256": "6b18ae4b6651a10926381d8198a74315cebd08768b4794f2f65d5efffc3bbcf2",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "tests/model/project_configuration_fixture_test.go",
+      "read_path": "/workspace/agenteam/tests/model/project_configuration_fixture_test.go",
+      "sha256": "d19c5fb039e784e9747fe853261ceefa4ebdccba9659e5a1010e34832e5c523a",
+      "expected_sha256": "d19c5fb039e784e9747fe853261ceefa4ebdccba9659e5a1010e34832e5c523a",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "tests/model/system_http_configuration_test.go",
+      "read_path": "/workspace/agenteam/tests/model/system_http_configuration_test.go",
+      "sha256": "b8abc3d280b66115ccc8a1b676a4ce6c3e0ddfa32c04cf9783ae7b31eef3a168",
+      "expected_sha256": "b8abc3d280b66115ccc8a1b676a4ce6c3e0ddfa32c04cf9783ae7b31eef3a168",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "go.mod",
+      "read_path": "/workspace/agenteam/go.mod",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "expected_sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "provenance": "Owner-read candidate04 / fixed frontier / accepted Update spec source index"
+    },
+    {
+      "logical_path": "go.sum",
+      "read_path": "/workspace/agenteam/go.sum",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "expected_sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "provenance": "Owner-read accepted runtime closure (unchanged input)"
+    },
+    {
+      "logical_path": "docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "read_path": "/workspace/agenteam/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "sha256": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4",
+      "expected_sha256": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4",
+      "provenance": "Accepted Summary design 11-page final freeze; unchanged product rule, not new runtime capability"
+    },
+    {
+      "logical_path": "docs/development/work-items/recovery-d09-project-configuration.md",
+      "read_path": "/workspace/agenteam/docs/development/work-items/recovery-d09-project-configuration.md",
+      "sha256": "308605a3e70c44d267c6111f0beb12877e409bd72c9a360e2956c0e44493ef81",
+      "expected_sha256": null,
+      "provenance": "Current non-active design file, fingerprint only; corroborating scope, not new accepted capability"
+    },
+    {
+      "logical_path": "docs/development/agent-team/d09-project-configuration-verification.md",
+      "read_path": "/workspace/agenteam/docs/development/agent-team/d09-project-configuration-verification.md",
+      "sha256": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291",
+      "expected_sha256": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291",
+      "provenance": "Owner-read candidate04 / fixed frontier / accepted Update spec source index"
+    },
+    {
+      "logical_path": "docs/development/work-items/d08-project-owner-read-http.md",
+      "read_path": "/workspace/agenteam/docs/development/work-items/d08-project-owner-read-http.md",
+      "sha256": "45d77d3add041e9c87cb936c6c7cc82b84c112d897758e6234e3d8a654071bc4",
+      "expected_sha256": "45d77d3add041e9c87cb936c6c7cc82b84c112d897758e6234e3d8a654071bc4",
+      "provenance": "Accepted Update rev1 freeze source index; later accepted Owner-read administrative header than frontier index"
+    },
+    {
+      "logical_path": "internal/central/app/account.go",
+      "read_path": "/workspace/scratch/project-owner-update-http-author/baseline/internal/central/app/account.go",
+      "sha256": "4e8c3e18b4748caeef850a1437106b60ecf4477bdb85378c7e998ed98afcfe53",
+      "expected_sha256": "4e8c3e18b4748caeef850a1437106b60ecf4477bdb85378c7e998ed98afcfe53",
+      "provenance": "Fixed 901eb546 baseline snapshot; active repository source excluded"
+    },
+    {
+      "logical_path": "internal/central/app/security.go",
+      "read_path": "/workspace/scratch/project-owner-update-http-author/baseline/internal/central/app/security.go",
+      "sha256": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7",
+      "expected_sha256": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7",
+      "provenance": "Fixed 901eb546 baseline snapshot; active repository source excluded"
+    },
+    {
+      "logical_path": "scripts/test-objects.sh",
+      "read_path": "/workspace/agenteam/scripts/test-objects.sh",
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+      "expected_sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+      "provenance": "Accepted Owner-read runtime closure; static dependency reading only"
+    },
+    {
+      "logical_path": "scripts/test-security.sh",
+      "read_path": "/workspace/agenteam/scripts/test-security.sh",
+      "sha256": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be",
+      "expected_sha256": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be",
+      "provenance": "Accepted Owner-read runtime closure; static dependency reading only"
+    },
+    {
+      "logical_path": "scripts/test-postgres.sh",
+      "read_path": "/workspace/agenteam/scripts/test-postgres.sh",
+      "sha256": "eddfb4f44288f8ec448400b02435f5fd6d6c44b0d80003fd34f7785e2980cdfe",
+      "expected_sha256": "eddfb4f44288f8ec448400b02435f5fd6d6c44b0d80003fd34f7785e2980cdfe",
+      "provenance": "Accepted Owner-read runtime closure; static dependency reading only"
+    },
+    {
+      "logical_path": "tests/testsupport/objectstore/cmd/fixture/main.go",
+      "read_path": "/workspace/agenteam/tests/testsupport/objectstore/cmd/fixture/main.go",
+      "sha256": "680472027d5a30aa5f3a316c9301fc3c78bc9a7297cbe18647fab43af1b5bbab",
+      "expected_sha256": "680472027d5a30aa5f3a316c9301fc3c78bc9a7297cbe18647fab43af1b5bbab",
+      "provenance": "Accepted Owner-read runtime closure; static dependency reading only"
+    },
+    {
+      "logical_path": "tests/testsupport/outbound/cmd/fixture/main.go",
+      "read_path": "/workspace/agenteam/tests/testsupport/outbound/cmd/fixture/main.go",
+      "sha256": "46da1f582264c5799b509e5d3f5002ed588628b1d12b9b589ab8064fc3cdf683",
+      "expected_sha256": "46da1f582264c5799b509e5d3f5002ed588628b1d12b9b589ab8064fc3cdf683",
+      "provenance": "Accepted Owner-read runtime closure; static dependency reading only"
+    },
+    {
+      "logical_path": "tests/testsupport/postgres/cmd/fixture/main.go",
+      "read_path": "/workspace/agenteam/tests/testsupport/postgres/cmd/fixture/main.go",
+      "sha256": "55ae7da25e69c4f4f29ca516748d8cc837913016e9fc381fc96abc11f37298de",
+      "expected_sha256": "55ae7da25e69c4f4f29ca516748d8cc837913016e9fc381fc96abc11f37298de",
+      "provenance": "Accepted Owner-read runtime closure; static dependency reading only"
+    },
+    {
+      "logical_path": "tests/testsupport/outbound/cmd/server/main.go",
+      "read_path": "/workspace/agenteam/tests/testsupport/outbound/cmd/server/main.go",
+      "sha256": "f6ad55cae4b3864fa2fbd55777fecdbbe2a3a39ea707d31abb0a7b5a0eb04baf",
+      "expected_sha256": "f6ad55cae4b3864fa2fbd55777fecdbbe2a3a39ea707d31abb0a7b5a0eb04baf",
+      "provenance": "Accepted Owner-read runtime closure; static dependency reading only"
+    },
+    {
+      "logical_path": "tests/testsupport/objectstore/fixture.go",
+      "read_path": "/workspace/agenteam/tests/testsupport/objectstore/fixture.go",
+      "sha256": "7363ada9d27a39eda336c4025ab67cb8812f8f0fbd4dd7a945b0bacc7e0fb95c",
+      "expected_sha256": "7363ada9d27a39eda336c4025ab67cb8812f8f0fbd4dd7a945b0bacc7e0fb95c",
+      "provenance": "Accepted Owner-read runtime closure; static dependency reading only"
+    },
+    {
+      "logical_path": "tests/testsupport/postgres/fixture.go",
+      "read_path": "/workspace/agenteam/tests/testsupport/postgres/fixture.go",
+      "sha256": "448c63e2986b823ac15ccda25b75f4c8ebc28e461b3c6dbfcbb49ae24bd89437",
+      "expected_sha256": "448c63e2986b823ac15ccda25b75f4c8ebc28e461b3c6dbfcbb49ae24bd89437",
+      "provenance": "Accepted Owner-read runtime closure; static dependency reading only"
+    },
+    {
+      "logical_path": "tests/process/process_test.go",
+      "read_path": "/workspace/agenteam/tests/process/process_test.go",
+      "sha256": "fcbf27e63b52b361d307ed22a0585dc0752ba471d7d1fb2348a0077b28d21b60",
+      "expected_sha256": "fcbf27e63b52b361d307ed22a0585dc0752ba471d7d1fb2348a0077b28d21b60",
+      "provenance": "Accepted Owner-read runtime closure; static dependency reading only"
+    }
+  ],
+  "inherited_indexes": [
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/closure-v02.json",
+      "sha256": "309a4adca96f2fbe11122101f4fb07489664c4ca33e68616991b5e01fad7f929"
+    },
+    {
+      "path": "/workspace/scratch/next-frontier/after-owner-read01/inputs.json",
+      "sha256": "7a695aff5a1bc879ebf536f4ea06db74e1e8a3d01780bb347ce664683211948b"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-update-http-spec/frozen01.json",
+      "sha256": "3151ebc3dfdf682437cea978741a1803fb08f7eb07dd151bd542881243884bf1"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/candidate04/manifest.json",
+      "sha256": "097d47b4f4cdb5c92a102f62f6398c0d691bc918111c76b95a7972cd54004b38"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-update-http-spec/rev1.md",
+      "sha256": "f504baf6c91b291c38bdcc0b6590aaa68cc86554466c6ae15694b95de6b77669"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-update-http-spec/accepted-header.json",
+      "sha256": "d87191cbf7fd47ada9e30e7cdeb34c3d5e52ca5e1f9c9e7b33f8f36c86462971"
+    },
+    {
+      "path": "/workspace/scratch/next-frontier/after-owner-read01/recommendation.md",
+      "sha256": "84727538b20fdddaac444d936d7599aeec0e00d4219e22ad52d26c711e127bb5"
+    },
+    {
+      "path": "/workspace/scratch/summary-design-docs/freeze.json",
+      "sha256": "e2567ddd78971e73b73c8a1398c5e21a56fb0a8e688352d6d4b745fb76b89313"
+    }
+  ],
+  "mismatches": [],
+  "not_executed": [
+    "Git",
+    "Go",
+    "business tests",
+    "network",
+    "containers",
+    "listeners"
+  ],
+  "active_update_paths_excluded": [
+    "internal/central/project/http/update.go",
+    "internal/central/project/http/update_wire.go",
+    "internal/central/project/http/update_test.go",
+    "internal/central/project/http/update_wire_test.go",
+    "internal/central/project/http/update_native_test.go",
+    "internal/central/project/http/wire.go",
+    "api/openapi/project-owner.json",
+    "internal/central/app/project_update.go",
+    "internal/central/app/project_update_test.go",
+    "internal/central/app/account.go",
+    "internal/central/app/security.go",
+    "internal/central/app/model_test.go",
+    "internal/central/app/account_lifecycle_test.go",
+    "tests/model/project_owner_update_http_fixture_test.go",
+    "tests/model/project_owner_update_http_test.go",
+    "tests/model/project_owner_update_http_unknown_test.go",
+    "tests/model/project_owner_update_http_root_test.go",
+    "tests/model/project_owner_read_http_root_test.go",
+    "docs/development/backend/README.md"
+  ],
+  "root_accepted_engineering_choice": "8MiB complete representation admission; 503 DependencyUnavailable/NotStarted on output bound; original service error including Read Unknown takes precedence",
+  "initial_observation": {
+    "path": "/workspace/scratch/project-model-owner-read-http-spec/inputs01.json",
+    "sha256": "d75728bf8070ceef67a9571765534dd15b32b88c9f30421f15a47fc9287125b5",
+    "explanation": "Earlier frontier card hash differs from later accepted header; exact current hash already independently frozen by accepted Update spec. No product source drift."
+  },
+  "supplementary_reads": [
+    {
+      "path": "/workspace/agenteam/scripts/test-models.sh",
+      "sha256": "f9187e2e17cd58bc22557d75af8cf60ab32362a6e9a6848569c298860291374b",
+      "purpose": "Existing broad wrapper reference only; planned exact runs use accepted frozen scripts/test-objects.sh directly. Not inherited actual execution closure."
+    }
+  ],
+  "governance_reads": [
+    {
+      "path": "/workspace/agenteam/AGENTS.md",
+      "sha256": "047aefd352150e563dbd71b619caa13d8337a12a03ec8f77de7b07cafde4d4af",
+      "purpose": "Instructions/current coordination, not new product evidence"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/README.md",
+      "sha256": "9d8bad3c85cf2a34fd0d9360bbc9eb27ea5c76082222a174984f78d599701c40",
+      "purpose": "Instructions/current coordination, not new product evidence"
+    },
+    {
+      "path": "/workspace/agenteam/.agents/skills/agenteam-design/SKILL.md",
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81",
+      "purpose": "Instructions/current coordination, not new product evidence"
+    },
+    {
+      "path": "/workspace/agenteam/.agents/skills/agenteam-go-development/SKILL.md",
+      "sha256": "037910810b78e431d6c477677704cbcc746ea3d9db6448556221800661072b2b",
+      "purpose": "Instructions/current coordination, not new product evidence"
+    },
+    {
+      "path": "/workspace/agenteam/.agents/skills/agenteam-verification/SKILL.md",
+      "sha256": "a982bdc7614bbe2283d690fadf5628775175e0745b4bb2acebf3f5ba4ad1fa61",
+      "purpose": "Instructions/current coordination, not new product evidence"
+    }
+  ],
+  "static_index_observations": [
+    {
+      "observation": "Initial exact index lookup assumed test-models.sh was in inherited actual closure; KeyError before write. It is only broad convenience wrapper, not used for exact group execution. Excluded from inherited actual graph claims.",
+      "product_test_failure": false
+    }
+  ]
+}

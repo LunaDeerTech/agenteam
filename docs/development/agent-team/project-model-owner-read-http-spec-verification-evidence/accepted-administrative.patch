@@ -1,0 +1,16 @@
+--- formal-rev2-before-acceptance.md
++++ docs/development/work-items/d09-project-model-owner-read-http.md
+@@ -1,6 +1,6 @@
+ # D09 Project 配置与安全可用目录 Owner 只读 HTTP
+ 
+-修订：rev2，2026-10-07，**待独立差量及正式卡完整 STATIC 采纳，未实施**。本轮唯一仓库写入为本规格；下列实施白名单不是产品、Go 检查或资源授权。固定产品输入为 root 已接受的 `901eb54605d293d4308caadd278c2c3a7ae1b824`；D08 Update 仅消费已接受规格 `03d1c107`，其活动实现尚未接受，完整产品接受与共享根交接门槛保持。固定来源索引 `/workspace/scratch/project-model-owner-read-http-spec/inputs02.json` SHA-256 `0b3ba4165bb0ef2f951a4883281221626d2a9c4bf3d6c02f831ab9e74e6af311` 原样保留；原 scratch draft01 与 cursor 问题记录不改。root 已采纳下文 8 MiB 完整表示限制及输出无法提供时的原 503 语义。本修订仅归位标题、状态与正式文档链接，并纠正 cursor 无时间到期语义；其余技术内容保持 draft01。
++修订：rev2，2026-10-07，**完整限定独立 STATIC PASS，root 已采纳；未授权实施/Go 资源，仍待 Update 完整产品接受及共享根交接**。本轮唯一仓库写入为本规格；下列实施白名单不是产品、Go 检查或资源授权。固定产品输入为 root 已接受的 `901eb54605d293d4308caadd278c2c3a7ae1b824`；D08 Update 仅消费已接受规格 `03d1c107`，其活动实现尚未接受，完整产品接受与共享根交接门槛保持。固定来源索引 `/workspace/scratch/project-model-owner-read-http-spec/inputs02.json` SHA-256 `0b3ba4165bb0ef2f951a4883281221626d2a9c4bf3d6c02f831ab9e74e6af311` 原样保留；原 scratch draft01 与 cursor 问题记录不改。root 已采纳下文 8 MiB 完整表示限制及输出无法提供时的原 503 语义。本修订仅归位标题、状态与正式文档链接，并纠正 cursor 无时间到期语义；其余技术内容保持 draft01。
+ 
+ ## 1. 完整结果与真实前置
+ 
+@@ -186,4 +186,4 @@
+ 
+ 五查询/安全规则/权限和分页公共契约均已稳定，没有需要用户再决定的产品项。完整scope可在13技术路径+最后README内设计；唯一必要实施顺序依赖为Update完整接受和共享root文件交接，不能抢写。8MiB限制是已由root采纳的新HTTP工程规则，合法超界的存在和旧System/库前序分配限制已明确，没有假设小闭集或成功裁剪。
+ 
+-当前产物为本正式规格 rev2 及原样保留的 scratch 输入/差量记录，待独立差量与正式卡完整 STATIC 采纳。自查只核文档来源/路径、JSON、哈希、结构与格式，不运行业务/资源；自查不叫独立 STATIC。后续实施与资源仍须 root 另行授权，并满足 Update 完整产品接受及共享文件交接门槛，不因本卡落盘自动启动。若后续实际图、Update交接或正式库发现新公共缺口，仅暂停相应部分并给具体源/失败证据，不能在新HTTP里造替代端口。
++当前产物为本正式规格 rev2 及原样保留的 scratch 输入/差量记录，完整限定独立 STATIC PASS，root 已采纳；未授权实施/Go 资源，仍待 Update 完整产品接受及共享根交接。自查只核文档来源/路径、JSON、哈希、结构与格式，不运行业务/资源；自查不叫独立 STATIC。后续实施与资源仍须 root 另行授权，并满足 Update 完整产品接受及共享文件交接门槛，不因本卡落盘自动启动。若后续实际图、Update交接或正式库发现新公共缺口，仅暂停相应部分并给具体源/失败证据，不能在新HTTP里造替代端口。

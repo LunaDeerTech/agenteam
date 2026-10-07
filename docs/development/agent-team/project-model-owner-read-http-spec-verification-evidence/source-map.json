@@ -1,0 +1,237 @@
+{
+  "description": "Original source-to-archive mapping; generated metadata, not an original execution result",
+  "spec_commit": "f68c5c958404cdaf69231b8c1c7918efbb931382",
+  "accepted_card": {
+    "path": "docs/development/work-items/d09-project-model-owner-read-http.md",
+    "sha256": "28fb448189e3845c6be2a169f42cd1445d731a2383f29c78d592c59cb1debdce",
+    "copied": false,
+    "reuse": "accepted specification commit"
+  },
+  "reviewed_card_sha256": "97b70dfde863fa73b88c25dd14c6a7d95476282eee3ea91972b426c41b61cc36",
+  "accepted_product_baseline": "901eb54605d293d4308caadd278c2c3a7ae1b824",
+  "accepted_update_spec": "03d1c107",
+  "scope": "13 technical paths plus separately authorized final README; specification acceptance only; implementation not authorized",
+  "originals": [
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/draft01.md",
+      "archive": "author-draft01.md",
+      "bytes": 36370,
+      "sha256": "9c0062bee024794f85b00f3581aa3782e4f0040ada3110989313c591b563fafe",
+      "purpose": "Original rev1, including the sole cursor TTL finding"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/inputs02.json",
+      "archive": "author-inputs02.json",
+      "bytes": 24994,
+      "sha256": "0b3ba4165bb0ef2f951a4883281221626d2a9c4bf3d6c02f831ab9e74e6af311",
+      "purpose": "46 mapped fixed-source records; no source-tree copy"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/frozen01.json",
+      "archive": "author-frozen01.json",
+      "bytes": 2118,
+      "sha256": "802f03f3ff7ddbd2934756cd48aa8d8626b5c46d0c7367704ef04a228789b1b0",
+      "purpose": "Original draft freeze, including historical inputs01 fingerprint"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/check.py",
+      "archive": "author-check.py",
+      "bytes": 3307,
+      "sha256": "6388778084dfbd098426893bbdde670794713ea71c007f3dd8f4355ed5ee771a",
+      "purpose": "Original static checker; retain only, do not execute"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/check-command.json",
+      "archive": "author-check-command.json",
+      "bytes": 627,
+      "sha256": "c8e659251b2366e9054b91112c61239badf067bd6da646e636e39e1da7637e23",
+      "purpose": "Original actual command/exit metadata"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/check.raw",
+      "archive": "author-check.raw",
+      "bytes": 1543,
+      "sha256": "9b17737fa9bb9f217efe1166261704c934bbfd9b89226a78c1f72b86094a8d48",
+      "purpose": "Original output; byte-identical to check-result.json, store once"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/cursor-clarification01/note.md",
+      "archive": "cursor-finding-note.md",
+      "bytes": 1802,
+      "sha256": "834186ff337a39716935042c297116022ed934a6a1bdb68116b7867d65644b45",
+      "purpose": "Original cursor no-TTL diagnosis"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/cursor-clarification01/result.json",
+      "archive": "cursor-finding-result.json",
+      "bytes": 1451,
+      "sha256": "62b216df1e95653e23722eaa31020fd63e65fc0a60e79890a66cefe79d908261",
+      "purpose": "Four cursor/model source fingerprints and proposed patch binding"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/cursor-clarification01/proposed.patch",
+      "archive": "cursor-proposed.patch",
+      "bytes": 2337,
+      "sha256": "80f56ce48a1eba08056298f2088d561a6fd95eb55f0744cd7fc46991c3acbbc0",
+      "purpose": "Original proposed technical wording correction"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/rev2/draft01-to-formal-rev2.patch",
+      "archive": "draft01-to-formal-rev2.patch",
+      "bytes": 8933,
+      "sha256": "3e008c08e9ec054365fca1a6bd7371cdcd770c8ae55e712dbd29f234d633bcc0",
+      "purpose": "All eight formalization changes; cursor is the only technical correction"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/rev2/frozen.json",
+      "archive": "author-rev2-frozen.json",
+      "bytes": 1929,
+      "sha256": "b54b16e521186f95281cbb319c9c9ec0bcccaf924d90e0cf9b2c0a3523088c82",
+      "purpose": "Pre-acceptance formal card/hash and original source freeze"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/rev2/result.json",
+      "archive": "author-rev2-result.json",
+      "bytes": 6785,
+      "sha256": "a776540e72317e797ff4e92677ab7adb15b4d41ce5f236ab551459ba853bb396",
+      "purpose": "Exact transformations, reverse equality and static checks"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/rev2/command.json",
+      "archive": "author-rev2-command.json",
+      "bytes": 583,
+      "sha256": "4777e1c54b773d3d7e8ec003f14edb6f67f2a53a9ed8fc2ffdb7b868f5a01992",
+      "purpose": "Actual static landing command; output not retroactively fabricated as raw"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/land_rev2.py",
+      "archive": "author-land-rev2.py",
+      "bytes": 6553,
+      "sha256": "5972eec44f4b5aa2bdc296919bbfdaaca0d9d63df38b1ae3453211943d1661df",
+      "purpose": "Original transformation/check script; retain only, do not execute"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-static01/review.md",
+      "archive": "independent-rev1-review.md",
+      "bytes": 5770,
+      "sha256": "aeb1666372492fb84504c128b3223f2f890d8f4226c9935b198f7c8f9e5ea541",
+      "purpose": "Full original NEEDS_REVISION review and implementation gates"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-static01/result.json",
+      "archive": "independent-rev1-result.json",
+      "bytes": 991,
+      "sha256": "4a84431e0dc014cce72871576039f2a1270cf3139b606f783aa711cee99ec023",
+      "purpose": "Sole B1 blocker and execution limits"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-static01/inputs.json",
+      "archive": "independent-rev1-inputs.json",
+      "bytes": 16197,
+      "sha256": "ff6066d6d74d7a4bac2f1d627844eec051bfb7bed16ec8ad6e1db7f3017eec65",
+      "purpose": "Independent fixed input evidence; no mapped source copy"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-static02/review.md",
+      "archive": "independent-rev2-review.md",
+      "bytes": 2288,
+      "sha256": "098542a154d645c43566ff22d1368d757fe79a2e4faa261dec585a2d23a69c60",
+      "purpose": "Final bounded complete STATIC PASS"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-static02/result.json",
+      "archive": "independent-rev2-result.json",
+      "bytes": 2763,
+      "sha256": "351eacc6e83da7c93f36527f59517017ab5b84764de8eb18851cd0ebf8964c28",
+      "purpose": "Original reverse-transform, links and closed-B1 evidence"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/administrative-acceptance01/changes.patch",
+      "archive": "accepted-administrative.patch",
+      "bytes": 3675,
+      "sha256": "19e47690a409009986c46976d55238bb0e621746d70d515b963d628dc55dd5c3",
+      "purpose": "Original accepted header and tail status delta only"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/administrative-acceptance01/result.json",
+      "archive": "accepted-administrative-result.json",
+      "bytes": 1300,
+      "sha256": "50507ab1363c489d0054be44bf73a3b71f4d417513e1ab724fb395a580c4c420",
+      "purpose": "Accepted card and exact administrative delta binding"
+    }
+  ],
+  "exact_byte_aliases": [
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/check-result.json",
+      "sha256": "9b17737fa9bb9f217efe1166261704c934bbfd9b89226a78c1f72b86094a8d48",
+      "bytes": 1543,
+      "reuse_proposed_evidence_name": "author-check.raw",
+      "reason": "exact same bytes; source alias retained, not copied twice"
+    }
+  ],
+  "fingerprint_only": [
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/inputs01.json",
+      "sha256": "d75728bf8070ceef67a9571765534dd15b32b88c9f30421f15a47fc9287125b5",
+      "bytes": 18364,
+      "reason": "historical predecessor superseded by original inputs02; retain fingerprint already bound by frozen01, not a second mapped index"
+    },
+    {
+      "source": "/workspace/scratch/project-model-owner-read-http-spec/administrative-acceptance01/before.md",
+      "bytes": 36820,
+      "sha256": "97b70dfde863fa73b88c25dd14c6a7d95476282eee3ea91972b426c41b61cc36",
+      "reason": "full reviewed card reconstructs exactly from saved draft01 plus saved rev2 changes; reuse accepted card and saved administrative delta, avoid duplicate full copy"
+    }
+  ],
+  "mapped_product_sources": "46 original author inputs retained as original inputs02 index; no source tree copy or re-reading active Update files; original author records 45 accepted fingerprints and one fingerprint-only corroborating historical card",
+  "whitespace_exceptions": [
+    {
+      "archive": "cursor-proposed.patch",
+      "lines": [
+        6,
+        9,
+        11
+      ],
+      "reason": "original unified-patch blank context lines; original bytes retained"
+    },
+    {
+      "archive": "draft01-to-formal-rev2.patch",
+      "lines": [
+        6,
+        9,
+        11,
+        13,
+        25,
+        27,
+        31,
+        34,
+        36,
+        38,
+        40
+      ],
+      "reason": "original unified-patch blank context lines; original bytes retained"
+    },
+    {
+      "archive": "accepted-administrative.patch",
+      "lines": [
+        5,
+        8,
+        10,
+        12,
+        14
+      ],
+      "reason": "original unified-patch blank context lines; original bytes retained"
+    }
+  ],
+  "original_markdown_links": "original bytes retained; absolute/relative references keep their original source-location meaning, not rewritten as archive links",
+  "execution_limit": "archive worker performed byte/hash/JSON/UTF8/Python syntax/Markdown checks only; did not run original scripts, Git, Go, product, network or resources",
+  "not_copied": [
+    "fixed product source tree",
+    "46 mapped product inputs",
+    "prior Owner-read/Update archive trees",
+    "large dependency graphs",
+    "cache",
+    "binaries",
+    "private runtime"
+  ]
+}

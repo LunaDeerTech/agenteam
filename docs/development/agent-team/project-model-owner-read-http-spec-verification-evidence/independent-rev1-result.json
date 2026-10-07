@@ -1,0 +1,28 @@
+{
+  "status": "NEEDS_REVISION",
+  "review_kind": "complete bounded independent STATIC of scratch draft01",
+  "blocking_findings": [
+    {
+      "id": "B1",
+      "draft_line": 54,
+      "problem": "token expiry falsely suggests TTL absent from accepted cursor implementation",
+      "required_change": "clarify current loaded keyring kid/signature validity without expiry; retain per-page authority/binding"
+    }
+  ],
+  "other_contract_review": "PASS within fixed-source scope; no product execution",
+  "technical_paths": 13,
+  "readme_separate_final": 1,
+  "scope_expansion_needed": false,
+  "input_mismatch_count": 0,
+  "inputs_sha256": "ff6066d6d74d7a4bac2f1d627844eec051bfb7bed16ec8ad6e1db7f3017eec65",
+  "review_sha256": "aeb1666372492fb84504c128b3223f2f890d8f4226c9935b198f7c8f9e5ea541",
+  "execution": {
+    "git": false,
+    "go": false,
+    "tests": false,
+    "resources": false,
+    "network": false
+  },
+  "implementation_authorized": false,
+  "reviewer_writes_stopped": true
+}
