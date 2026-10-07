@@ -51,13 +51,19 @@ func (a *projectUsageAssembly) handler(core *account.Service, origin string) (ht
 	return usagehttp.NewHTTPHandler(a.projects, a.reader, boundary)
 }
 
-// Both schema checks consume the original Secret/Model startup context. No
-// child budget, default rows, table creation or background work is introduced.
-func initializeModelsAndUsage(ctx context.Context, models, usageSchema func(context.Context) error) error {
+// Model, its independent Summary singleton and Usage consume the original
+// Secret startup context, without another budget or background initializer.
+func initializeModelsAndUsage(ctx context.Context, models, summary, usageSchema func(context.Context) error) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
 	if err := models(ctx); err != nil {
+		return err
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if err := summary(ctx); err != nil {
 		return err
 	}
 	if err := ctx.Err(); err != nil {

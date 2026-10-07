@@ -90,6 +90,8 @@ const endpoints = {
   getModelDeletionImpact: ['GET', '/api/v1/system/models/{id}/deletion-impact', 200],
   lookupModelCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
   getModelSelection: ['GET', '/api/v1/system/model-selection', 200],
+  getMeetingSummary: ['GET', '/api/v1/system/model-selection/meeting-summary', 200],
+  updateMeetingSummary: ['PUT', '/api/v1/system/model-selection/meeting-summary', 200],
   updateModelSelection: ['PUT', '/api/v1/system/model-selection', 200],
   lookupModelSelectionCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
   getAccountSecurity: ['GET', '/api/v1/system/account-settings', 200],
@@ -346,11 +348,18 @@ const modelEndpoints: readonly ModelEndpoint[] = [
   'lookupModelCommand',
 ]
 type SelectionEndpoint =
-  'getModelSelection' | 'updateModelSelection' | 'lookupModelSelectionCommand'
-type SelectionOptions<E extends SelectionEndpoint> = E extends 'getModelSelection'
+  | 'getModelSelection'
+  | 'updateModelSelection'
+  | 'lookupModelSelectionCommand'
+  | 'getMeetingSummary'
+  | 'updateMeetingSummary'
+type SelectionOptions<E extends SelectionEndpoint> = E extends
+  'getModelSelection' | 'getMeetingSummary'
   ? { signal: AbortSignal }
   : { signal: AbortSignal; body: unknown; csrf: string; key: string }
 const selectionEndpoints: readonly SelectionEndpoint[] = [
+  'getMeetingSummary',
+  'updateMeetingSummary',
   'getModelSelection',
   'updateModelSelection',
   'lookupModelSelectionCommand',

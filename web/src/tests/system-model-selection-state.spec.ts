@@ -15,6 +15,8 @@ import {
   selectionReason,
   type SystemModelSelectionController,
 } from '../composables/useSystemModelSelection'
+import { meetingSummaryReason } from '../composables/useMeetingSummarySettings'
+import type { MeetingSummaryCommand } from '../api/system-meeting-summary'
 import type { SelectionPurpose, SelectionState } from '../api/system-model-selection'
 import type { ModelType, Provider, ProviderModel, ProviderProtocol } from '../api/system-providers'
 
@@ -41,6 +43,19 @@ const command = (): SelectionCommand => ({
   id: id(100),
   expected_version: '1',
   ...configured(),
+})
+const summaryValue = () => ({ id: id(101), version: '1', model: null })
+const summaryCommand = (): MeetingSummaryCommand => ({
+  kind: 'model.selection.update',
+  id: id(101),
+  expected_version: '1',
+  model: id(21),
+})
+const summaryReceipt = (version = '2') => ({
+  kind: 'model.selection.update',
+  resource_id: id(101),
+  version,
+  affected_references: '0',
 })
 const receipt = (version = '2') => ({
   kind: 'model.selection.update',
@@ -130,6 +145,12 @@ async function fixture() {
     if (init.method === 'GET') return json(selectionValue())
     return json(receipt(String(BigInt(JSON.parse(init.body as string).expected_version) + 1n)))
   }
+  let summaryPerform: Fetch = async (_path, init) =>
+    json(
+      init.method === 'GET'
+        ? summaryValue()
+        : summaryReceipt(String(BigInt(JSON.parse(init.body as string).expected_version) + 1n)),
+    )
   let references: Fetch = async (path) =>
     json(path.includes('model-providers') ? provider() : model())
   let other: Fetch = async (path, init) => {
@@ -152,6 +173,7 @@ async function fixture() {
   }
   const fetch = vi.fn<Fetch>(async (path, init) => {
     if (path === '/api/v1/session') return session(path, init)
+    if (path === '/api/v1/system/model-selection/meeting-summary') return summaryPerform(path, init)
     if (path.endsWith('/bootstrap'))
       return json({
         csrf_token: 'A'.repeat(43),
@@ -188,6 +210,15 @@ async function fixture() {
     auth,
     fetch,
     selectionAPI,
+    setSummaryPerform(value: Fetch) {
+      summaryPerform = value
+    },
+    summaryWrites() {
+      return fetch.mock.calls.filter(
+        ([path, init]) =>
+          path === '/api/v1/system/model-selection/meeting-summary' && init.method === 'PUT',
+      )
+    },
     setPerform(value: Fetch) {
       perform = value
     },
@@ -2058,5 +2089,202 @@ describe('Selection App-lifetime controller and explicit choices', () => {
     expect(f.writes()).toHaveLength(1)
     await f.page.retryOriginal()
     expect(f.writes()).toHaveLength(1)
+  })
+})
+
+describe('Selection two independent private intents with one Cookie owner', () => {
+  it('allows both uncertain intents, isolates local abandon and preserves original replay inputs', async () => {
+    const f = await fixture(),
+      platform = f.auth.system.selection,
+      summary = platform.meetingSummary
+    f.setPerform(async () => {
+      throw new Error('unobserved transport')
+    })
+    f.setSummaryPerform(async () => {
+      throw new Error('unobserved transport')
+    })
+    await expect(platform.start(command())).rejects.toBeDefined()
+    await expect(summary.start(summaryCommand())).rejects.toBeDefined()
+    expect(platform.progress?.phase).toBe('uncertain')
+    expect(summary.progress?.phase).toBe('uncertain')
+    const original = f.summaryWrites()[0]![1]
+    expect(new Headers(original.headers).get('Idempotency-Key')).not.toBe(
+      new Headers(f.writes()[0]![1].headers).get('Idempotency-Key'),
+    )
+    platform.abandon()
+    expect(platform.progress).toBeNull()
+    expect(summary.progress?.phase).toBe('uncertain')
+    f.setPerform(async () => json({ found: true, receipt: summaryReceipt() }))
+    await summary.checkOriginal()
+    expect(summary.progress).toMatchObject({
+      phase: 'uncertain',
+      observation: 'found',
+      canRetryOriginal: true,
+    })
+    expect(f.summaryWrites()).toHaveLength(1)
+    f.setSummaryPerform(async () => json(summaryReceipt()))
+    await summary.retryOriginal()
+    expect(f.summaryWrites()[1]![1].body).toBe(original.body)
+    expect(new Headers(f.summaryWrites()[1]![1].headers).get('Idempotency-Key')).toBe(
+      new Headers(original.headers).get('Idempotency-Key'),
+    )
+    expect(summary.progress).toMatchObject({ phase: 'confirmed', receipt: summaryReceipt() })
+    expect(f.writes()).toHaveLength(1)
+  })
+
+  it('summary abandon cannot cancel the active platform read and reverse abandon cannot cancel Summary', async () => {
+    const f = await fixture(),
+      summary = f.auth.system.selection.meetingSummary
+    const platformTail = barrier<Response>(),
+      summaryTail = barrier<Response>()
+    f.setPerform(() => platformTail.promise)
+    const platformRead = f.auth.system.selection.get()
+    await flushPromises()
+    summary.abandon()
+    expect(f.auth.state.busy).toBe(true)
+    expect(f.fetch.mock.calls.at(-1)![1].signal!.aborted).toBe(false)
+    platformTail.resolve(json(selectionValue()))
+    await expect(platformRead).resolves.toEqual(selectionValue())
+    f.setSummaryPerform(() => summaryTail.promise)
+    const summaryRead = summary.get()
+    await flushPromises()
+    f.auth.system.selection.abandon()
+    expect(f.auth.state.busy).toBe(true)
+    expect(f.fetch.mock.calls.at(-1)![1].signal!.aborted).toBe(false)
+    summaryTail.resolve(json(summaryValue()))
+    await expect(summaryRead).resolves.toEqual(summaryValue())
+  })
+
+  it('holds Summary owner through visible timeout and actual cancel tail, blocking every sibling dispatch', async () => {
+    vi.useFakeTimers()
+    const f = await fixture(),
+      summary = f.auth.system.selection.meetingSummary
+    const tail = barrier(),
+      cancelled = barrier()
+    const response = new Response(
+      new ReadableStream<Uint8Array>({
+        start(stream) {
+          stream.enqueue(new TextEncoder().encode(JSON.stringify(summaryValue())))
+        },
+        cancel() {
+          cancelled.resolve()
+          return tail.promise
+        },
+      }),
+      { headers: { 'Content-Type': 'application/json' } },
+    )
+    f.setSummaryPerform(async () => response)
+    const result = summary.get().catch((error: unknown) => error)
+    try {
+      await flushPromises()
+      await vi.advanceTimersByTimeAsync(30000)
+      expect(await result).toMatchObject({ kind: 'cancelled' })
+      await cancelled.promise
+      summary.abandon()
+      const before = f.fetch.mock.calls.length
+      await expect(f.auth.system.selection.get()).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.system.selection.start(command())).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.system.providers.list({})).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.system.models.listProviders({})).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.system.listInvitations({})).rejects.toMatchObject({ kind: 'busy' })
+      await f.auth.restore()
+      expect(f.fetch.mock.calls).toHaveLength(before)
+      expect(f.auth.state.busy).toBe(true)
+      expect(response.body!.locked).toBe(true)
+    } finally {
+      tail.resolve()
+      await result
+      await flushPromises()
+    }
+    expect(response.body!.locked).toBe(false)
+    expect(f.auth.state.busy).toBe(false)
+    expect(summary.progress).toBeNull()
+  })
+
+  it.each(['same', 'session', 'csrf', 'role'] as const)(
+    'restoration %s preserves or clears both slots together without replay',
+    async (change) => {
+      const f = await fixture(),
+        platform = f.auth.system.selection,
+        summary = platform.meetingSummary
+      f.setPerform(async () => {
+        throw new Error('unknown')
+      })
+      f.setSummaryPerform(async () => {
+        throw new Error('unknown')
+      })
+      await expect(platform.start(command())).rejects.toBeDefined()
+      await expect(summary.start(summaryCommand())).rejects.toBeDefined()
+      const next = view(change === 'session' ? id(99) : id(2), change === 'role' ? 'user' : 'admin')
+      f.setSession(change === 'csrf' ? { ...next, csrf_token: 'T'.repeat(43) } : next)
+      await f.auth.restore()
+      if (change === 'same') {
+        expect(platform.progress?.phase).toBe('uncertain')
+        expect(summary.progress?.phase).toBe('uncertain')
+      } else {
+        expect(platform.progress).toBeNull()
+        expect(summary.progress).toBeNull()
+      }
+      expect(f.writes()).toHaveLength(1)
+      expect(f.summaryWrites()).toHaveLength(1)
+    },
+  )
+
+  it.each(['missing', 'failed'] as const)(
+    'Summary %s lookup enables only an explicit replay with the same intent',
+    async (observation) => {
+      const f = await fixture(),
+        summary = f.auth.system.selection.meetingSummary
+      f.setSummaryPerform(async () => {
+        throw new Error('unknown')
+      })
+      await expect(summary.start(summaryCommand())).rejects.toBeDefined()
+      f.setPerform(async () => {
+        if (observation === 'failed') throw new Error('lookup failed')
+        return json({ found: false, receipt: null })
+      })
+      await summary.checkOriginal().catch(() => undefined)
+      expect(summary.progress).toMatchObject({
+        phase: 'uncertain',
+        observation,
+        canRetryOriginal: true,
+      })
+      expect(f.summaryWrites()).toHaveLength(1)
+      f.setSummaryPerform(async () => problem('IDEMPOTENCY_KEY_REUSED', 409, 'not_committed'))
+      await expect(summary.retryOriginal()).rejects.toBeDefined()
+      expect(summary.progress).toMatchObject({ phase: 'uncertain', canRetryOriginal: false })
+    },
+  )
+
+  it('accepts plain chat independently of memory capabilities and refuses disabled/nonchat targets', () => {
+    const original = model() as ProviderModel
+    const plain: ProviderModel = {
+      ...original,
+      input: {
+        ...original.input,
+        capabilities: {
+          ...original.input.capabilities,
+          structured_output_modes: [],
+          tool_calls: true,
+          reasoning: true,
+        },
+      },
+    }
+    const pair = { model: plain, provider: provider() as Provider }
+    expect(meetingSummaryReason(pair)).toBe('')
+    expect(selectionReason('memory', pair)).not.toBe('')
+    expect(
+      meetingSummaryReason({
+        ...pair,
+        provider: { ...pair.provider, input: { ...pair.provider.input, enabled: false } },
+      }),
+    ).not.toBe('')
+    expect(
+      meetingSummaryReason({
+        ...pair,
+        model: { ...plain, input: { ...plain.input, type: 'embedding' } },
+      }),
+    ).not.toBe('')
   })
 })

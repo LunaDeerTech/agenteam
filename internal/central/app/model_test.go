@@ -32,6 +32,12 @@ func TestModelRootRouteOwnershipAndRequestPreservation(t *testing.T) {
 		cases = append(cases, routeCase{path: path + "-other"}, routeCase{path: path + "x"})
 	}
 	cases = append(cases, routeCase{path: "/api/v1/session"}, routeCase{path: "/diagnostics"}, routeCase{path: "/api/v1/system/model"}, routeCase{path: "/api/v1/system/models/opaque", raw: "/api/v1/system/models%2fopaque", model: true})
+	cases = append(cases,
+		routeCase{path: "/api/v1/system/model-selection/meeting-summary", model: true},
+		routeCase{path: "/api/v1/system/model-selection/meeting-summary/", model: true},
+		routeCase{path: "/api/v1/system/model-selection/meeting-summary-other", model: true},
+		routeCase{path: "/api/v1/system/model-selection-other/meeting-summary"},
+	)
 	for _, tc := range cases {
 		t.Run(tc.path+tc.raw, func(t *testing.T) {
 			r := httptest.NewRequest(http.MethodPatch, "http://localhost:8080"+tc.path+"?private=query", strings.NewReader("body-sentinel"))

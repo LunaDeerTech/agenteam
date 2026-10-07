@@ -545,3 +545,139 @@ describe('selection fixed transport boundaries', () => {
     }
   })
 })
+
+describe('Meeting Summary exact singleton client within Selection API', () => {
+  const captured = () => ({
+    kind: 'model.selection.update' as const,
+    id: id(3),
+    expected_version: '9007199254740993',
+    model: id(11),
+  })
+  const state = () => ({ id: id(3), version: '9007199254740993', model: null })
+  const accepted = () => ({ ...receipt(), resource_id: id(3) })
+
+  it('uses its own GET/PUT and the original lookup command, with exact decimal receipt correlation', async () => {
+    const fetch = vi.fn<Fetch>(async (path, init) =>
+      json(
+        path.endsWith('/lookup')
+          ? { found: true, receipt: accepted() }
+          : init.method === 'GET'
+            ? state()
+            : accepted(),
+      ),
+    )
+    const api = createSystemModelSelectionAPI(fetch),
+      write = options()
+    expect(await api.getMeetingSummary(write.signal)).toEqual(state())
+    expect(await api.updateMeetingSummary(captured(), write)).toEqual(accepted())
+    expect(await api.lookupMeetingSummaryCommand(captured(), write)).toEqual({
+      found: true,
+      receipt: accepted(),
+    })
+    expect(fetch.mock.calls.map(([path, init]) => [init.method, path])).toEqual([
+      ['GET', '/api/v1/system/model-selection/meeting-summary'],
+      ['PUT', '/api/v1/system/model-selection/meeting-summary'],
+      ['POST', '/api/v1/system/model-commands/lookup'],
+    ])
+    expect(JSON.parse(fetch.mock.calls[1]![1].body as string)).toEqual({
+      id: id(3),
+      expected_version: '9007199254740993',
+      model: id(11),
+    })
+    expect(JSON.parse(fetch.mock.calls[2]![1].body as string)).toEqual({
+      command: 'model.selection.update',
+    })
+    expect(fetch.mock.calls[0]![1].headers).not.toHaveProperty('X-CSRF-Token')
+    for (const [, init] of fetch.mock.calls)
+      expect(init).toMatchObject({
+        credentials: 'same-origin',
+        cache: 'no-store',
+        redirect: 'error',
+        signal: write.signal,
+      })
+    for (const [, init] of fetch.mock.calls.slice(1))
+      expect(init.headers).toMatchObject({
+        'Idempotency-Key': write.key,
+        'X-CSRF-Token': write.csrfToken,
+      })
+  })
+
+  it.each([
+    {},
+    { id: id(3), version: '1' },
+    { ...state(), configured: null },
+    { ...state(), model: '' },
+    { ...state(), model: id(11).toUpperCase() },
+    ...['0', '01', '+1', '1.0', '9223372036854775808', 1].map((version) => ({
+      ...state(),
+      version,
+    })),
+  ])('rejects a noncanonical or nonclosed current observation %#', async (value) => {
+    await expect(
+      createSystemModelSelectionAPI(async () => json(value)).getMeetingSummary(signal()),
+    ).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+
+  it('allows explicit null and the exact signed-int64 terminal current version', async () => {
+    const value = { ...state(), version: '9223372036854775807' }
+    const observed = await createSystemModelSelectionAPI(async () => json(value)).getMeetingSummary(
+      signal(),
+    )
+    expect(observed).toEqual(value)
+    expect(Object.isFrozen(observed)).toBe(true)
+  })
+
+  it.each([
+    { model: null },
+    { expected_version: '9223372036854775807' },
+    { expected_version: '01' },
+    { model: id(11), memory: id(11) },
+    { kind: 'model.meeting-summary.update' },
+  ])('rejects invalid write input before dispatch %#', async (change) => {
+    const fetch = vi.fn<Fetch>()
+    await expect(async () =>
+      createSystemModelSelectionAPI(fetch).updateMeetingSummary(
+        { ...captured(), ...change } as never,
+        options(),
+      ),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    { resource_id: id(1) },
+    { version: '9007199254740993' },
+    { version: '9007199254740995' },
+    { affected_references: '1' },
+    { kind: 'model.update' },
+    { extra: true },
+  ])(
+    'rejects unrelated or malformed receipts for direct and historical results %#',
+    async (change) => {
+      const value = { ...accepted(), ...change }
+      const api = createSystemModelSelectionAPI(async (path) =>
+        json(path.endsWith('/lookup') ? { found: true, receipt: value } : value),
+      )
+      await expect(api.updateMeetingSummary(captured(), options())).rejects.toMatchObject({
+        kind: 'invalid-response',
+      })
+      await expect(api.lookupMeetingSummaryCommand(captured(), options())).rejects.toMatchObject({
+        kind: 'invalid-response',
+      })
+    },
+  )
+
+  it.each([
+    { found: false, receipt: accepted() },
+    { found: true, receipt: null },
+    { found: false },
+    { found: false, receipt: null, extra: true },
+  ])('rejects an inconsistent lookup observation %#', async (value) => {
+    await expect(
+      createSystemModelSelectionAPI(async () => json(value)).lookupMeetingSummaryCommand(
+        captured(),
+        options(),
+      ),
+    ).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+})

@@ -24,6 +24,7 @@ import {
 } from '../api/system-providers'
 import { createSystemModelAPI, modelTypeForProtocol } from '../api/system-models'
 import { createSystemModelSelectionAPI, type SelectionState } from '../api/system-model-selection'
+import type { MeetingSummaryState } from '../api/system-meeting-summary'
 import type { Fetch } from '../api/client'
 import { installAuthentication, safeReturnTarget } from '../router/auth'
 import { useTheme } from '../composables/useTheme'
@@ -179,6 +180,17 @@ async function page(
     version: '1',
     configured: options.unconfigured ? null : bindings(),
   }
+  let summaryObserved: MeetingSummaryState = { id: id(101), version: '1', model: null }
+  let summaryRead: Fetch = async () => json(summaryObserved)
+  let summaryMutation: Fetch = async (_path, init) => {
+    const body = JSON.parse(init.body as string)
+    summaryObserved = {
+      id: body.id,
+      version: String(BigInt(body.expected_version) + 1n),
+      model: body.model,
+    }
+    return json({ ...receipt(summaryObserved.version), resource_id: id(101) })
+  }
   const sources = new Map<string, Provider>(
     [
       provider(10, 'openai-chat-completions'),
@@ -221,6 +233,8 @@ async function page(
   let lookup: Fetch = async () => json({ found: false, receipt: null })
   const fetch = vi.fn<Fetch>(async (path, init) => {
     if (path === '/api/v1/session') return session(path, init)
+    if (path === '/api/v1/system/model-selection/meeting-summary')
+      return init.method === 'GET' ? summaryRead(path, init) : summaryMutation(path, init)
     if (path === '/api/v1/system/model-selection')
       return init.method === 'GET' ? read(path, init) : mutation(path, init)
     if (path.endsWith('/model-commands/lookup')) return lookup(path, init)
@@ -322,6 +336,21 @@ async function page(
     },
     resetSession() {
       session = async () => (signedIn ? json(current) : problem('UNAUTHENTICATED', 401))
+    },
+    setSummaryRead(value: Fetch) {
+      summaryRead = value
+    },
+    setSummaryMutation(value: Fetch) {
+      summaryMutation = value
+    },
+    setSummaryObserved(value: MeetingSummaryState) {
+      summaryObserved = value
+    },
+    summaryWrites() {
+      return fetch.mock.calls.filter(
+        ([path, init]) =>
+          path === '/api/v1/system/model-selection/meeting-summary' && init.method === 'PUT',
+      )
     },
     setRead(value: Fetch) {
       read = value
@@ -813,4 +842,204 @@ describe('Selection cohost confirmation through actual App listeners', () => {
     expect(f.auth.system.selection.progress?.phase).toBe('uncertain')
     expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
   })
+})
+
+function summarySection() {
+  return document.querySelector<HTMLElement>('.meeting-summary-settings')!
+}
+async function summaryDraft(target = 25) {
+  await click('配置会议 Summary', summarySection())
+  await click('选择会议 Summary Model', summarySection())
+  const source = [...summarySection().querySelectorAll<HTMLElement>('.choices > li')].find(
+    (row) => row.querySelector('strong')?.textContent === 'Provider 10',
+  )!
+  await click('查看此 Provider 的 Models', source)
+  const modelRow = [...summarySection().querySelectorAll<HTMLElement>('.choices > li')].find(
+    (row) => row.querySelector('strong')?.textContent === `chat ${target}`,
+  )!
+  await click('选择此会议 Summary Model', modelRow)
+}
+
+describe('Meeting Summary inline section and aggregate page ownership', () => {
+  it('configures plain chat while four purposes are null, uses a separate PUT and provides no clear action', async () => {
+    const f = await page({ unconfigured: true })
+    const plain = f.records.get(id(25))!
+    f.records.set(id(25), {
+      ...plain,
+      input: {
+        ...plain.input,
+        capabilities: {
+          ...plain.input.capabilities,
+          structured_output_modes: [],
+          tool_calls: true,
+          reasoning: true,
+        },
+      },
+    })
+    expect(summarySection().textContent).toContain('尚未配置会议 Summary')
+    expect(f.writes()).toHaveLength(0)
+    await summaryDraft()
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+    expect(button('保存会议 Summary', summarySection()).disabled).toBe(false)
+    expect(summarySection().textContent).not.toContain('清空会议 Summary')
+    button('保存会议 Summary', summarySection()).focus()
+    const form = summarySection().querySelector('form')!
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    await flushPromises()
+    expect(f.summaryWrites()).toHaveLength(1)
+    expect(JSON.parse(f.summaryWrites()[0]![1].body as string)).toEqual({
+      id: id(101),
+      expected_version: '1',
+      model: id(25),
+    })
+    expect(f.writes()).toHaveLength(0)
+    expect(summarySection().textContent).toContain('会议 Summary 配置已保存')
+    expect(summarySection().textContent).toContain(id(25))
+    expect(summarySection().querySelector('form')).toBeNull()
+    expect(summarySection().contains(document.activeElement)).toBe(true)
+    expect(document.activeElement?.closest('form')).toBeNull()
+  })
+
+  it('keeps the other initial observation available after an ordinary section failure', async () => {
+    const f = await page()
+    f.setRead(async () => problem('INTERNAL_ERROR'))
+    await click('刷新配置')
+    expect(f.wrapper.text()).toContain('用途配置读取失败')
+    expect(summarySection().textContent).toContain('尚未配置会议 Summary')
+    await summaryDraft()
+    expect(button('保存会议 Summary', summarySection()).disabled).toBe(false)
+    expect(f.summaryWrites()).toHaveLength(0)
+  })
+
+  it('opens one aggregate confirmation, cancels without discarding either draft, then discards both on a later confirmed leave', async () => {
+    const f = await page()
+    await summaryDraft()
+    await dirty()
+    const first = f.router.push('/system/providers')
+    await flushPromises()
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(2)
+    expect(dialog().textContent).toContain('四项平台用途、会议 Summary')
+    expect(summarySection().querySelector('form')).not.toBeNull()
+    await click('继续编辑', dialog())
+    expect(isNavigationFailure(await first, NavigationFailureType.aborted)).toBe(true)
+    expect(summarySection().textContent).toContain('草稿 Model：chat 25')
+    expect(dialog().textContent).toContain('不配置')
+    const second = f.router.push('/system/providers')
+    await flushPromises()
+    await click('放弃修改', dialog())
+    await second
+    expect(f.router.currentRoute.value.path).toBe('/system/providers')
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+    await f.router.push('/system/model-selection')
+    await flushPromises()
+    expect(summarySection().querySelector('form')).toBeNull()
+    expect(f.summaryWrites()).toHaveLength(0)
+    expect(f.writes()).toHaveLength(0)
+  })
+
+  it('native beforeunload protects both drafts without opening or answering an application confirmation', async () => {
+    const f = await page()
+    await summaryDraft()
+    await dirty()
+    const event = new Event('beforeunload', { cancelable: true })
+    window.dispatchEvent(event)
+    expect(event.defaultPrevented).toBe(true)
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1)
+    expect(summarySection().textContent).toContain('草稿 Model：chat 25')
+    expect(dialog().textContent).toContain('不配置')
+    expect(f.summaryWrites()).toHaveLength(0)
+    expect(f.writes()).toHaveLength(0)
+  })
+
+  it('local Summary cancel keeps the platform uncertain intent and pending original command', async () => {
+    const f = await page()
+    f.setMutation(async () => {
+      throw new Error('unobserved')
+    })
+    await expect(
+      f.auth.system.selection.start({
+        kind: 'model.selection.update',
+        id: id(100),
+        expected_version: '1',
+        ...bindings(),
+      }),
+    ).rejects.toBeDefined()
+    await summaryDraft()
+    const cancelling = click('取消会议 Summary 编辑', summarySection())
+    await flushPromises()
+    expect(dialog().textContent).toContain('仅放弃会议 Summary')
+    await click('放弃修改', dialog())
+    await cancelling
+    expect(summarySection().querySelector('form')).toBeNull()
+    expect(f.auth.system.selection.progress?.phase).toBe('uncertain')
+    expect(f.writes()).toHaveLength(1)
+    expect(f.summaryWrites()).toHaveLength(0)
+  })
+
+  it('does not retire a newly started intent when an older navigation confirmation is accepted', async () => {
+    const f = await page()
+    await summaryDraft()
+    const navigating = f.router.push('/system/providers')
+    await flushPromises()
+    f.setMutation(async () => {
+      throw new Error('new unknown')
+    })
+    await expect(
+      f.auth.system.selection.start({
+        kind: 'model.selection.update',
+        id: id(100),
+        expected_version: '1',
+        ...bindings(),
+      }),
+    ).rejects.toBeDefined()
+    await click('放弃修改', dialog())
+    expect(isNavigationFailure(await navigating, NavigationFailureType.aborted)).toBe(true)
+    expect(f.auth.system.selection.progress?.phase).toBe('uncertain')
+    expect(summarySection().textContent).toContain('草稿 Model：chat 25')
+    expect(f.summaryWrites()).toHaveLength(0)
+  })
+
+  it('keeps a confirmed Summary receipt after the follow-up GET fails and offers only explicit reread', async () => {
+    const f = await page()
+    await summaryDraft()
+    f.setSummaryRead(async () => problem('INTERNAL_ERROR'))
+    summarySection()
+      .querySelector('form')!
+      .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    await flushPromises()
+    expect(f.auth.system.selection.meetingSummary.progress?.phase).toBe('confirmed')
+    expect(summarySection().textContent).toContain('已保存，当前配置读取失败')
+    expect(summarySection().textContent).not.toContain('重试会议 Summary 原请求')
+    expect(f.summaryWrites()).toHaveLength(1)
+    await click('重读会议 Summary 配置', summarySection())
+    expect(f.summaryWrites()).toHaveLength(1)
+  })
+})
+
+it('Summary original check restores the App and actually dispatches its own lookup before deferred platform reads', async () => {
+  const f = await page()
+  await summaryDraft()
+  f.setSummaryMutation(async () => {
+    throw new Error('accepted response not observed')
+  })
+  summarySection()
+    .querySelector('form')!
+    .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+  await flushPromises()
+  expect(f.auth.system.selection.meetingSummary.progress?.phase).toBe('uncertain')
+  f.setLookup(async () => json({ found: true, receipt: { ...receipt(), resource_id: id(101) } }))
+  const before = f.fetch.mock.calls.length
+  await click('检查会议 Summary 原请求', summarySection())
+  const requests = f.fetch.mock.calls.slice(before)
+  expect(requests.filter(([path]) => path.endsWith('/model-commands/lookup'))).toHaveLength(1)
+  expect(requests.findIndex(([path]) => path.endsWith('/model-commands/lookup'))).toBeLessThan(
+    requests.findIndex(([path]) => path === '/api/v1/system/model-selection'),
+  )
+  expect(f.auth.system.selection.meetingSummary.progress).toMatchObject({
+    phase: 'uncertain',
+    observation: 'found',
+    canRetryOriginal: true,
+  })
+  expect(f.summaryWrites()).toHaveLength(1)
+  expect(f.writes()).toHaveLength(0)
 })

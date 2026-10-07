@@ -101,6 +101,8 @@ func (h *systemHTTP) routes() []systemHTTPRoute {
 		{"DELETE", "/system/models/{id}", id.Mutate, false, h.deleteModel},
 		{"GET", "/system/model-selection", id.Read, false, h.getSelection},
 		{"PUT", "/system/model-selection", id.Mutate, false, h.updateSelection},
+		{"GET", meetingSummaryHTTPPath, id.Read, false, nil},
+		{"PUT", meetingSummaryHTTPPath, id.Mutate, false, nil},
 		{"POST", "/system/model-commands/lookup", id.Read, false, h.lookupCommand},
 		{"POST", "/system/model-credentials", id.Mutate, false, h.createCredential},
 		{"GET", "/system/model-credentials/{id}", id.Read, false, h.getCredentialMetadata},
@@ -111,6 +113,10 @@ func (h *systemHTTP) routes() []systemHTTPRoute {
 }
 
 func (h *systemHTTP) dispatch(w http.ResponseWriter, r *http.Request, route systemHTTPRoute) {
+	if route.path == meetingSummaryHTTPPath {
+		meetingSummaryHTTP{core: h.core, boundary: h.boundary}.serveHTTP(w, r)
+		return
+	}
 	r, cancel := managementReadRequest(r, route)
 	defer cancel()
 	actor, err := h.boundary.RequireSystem(r, route.intent)

@@ -439,7 +439,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		if err = ctx.Err(); err != nil {
 			return secrets, err
 		}
-		return secrets, initializeModelsAndUsage(ctx, models.Initialize, projectUsage.reader.Initialize)
+		return secrets, initializeModelsAndUsage(ctx, models.Initialize, models.InitializeMeetingSummarySelection, projectUsage.reader.Initialize)
 	}
 	deps.outbound = func(ctx context.Context, _ config.Config, _ database, _ *audit.Service) (egress, error) {
 		if deps.outboundInitialize != nil {

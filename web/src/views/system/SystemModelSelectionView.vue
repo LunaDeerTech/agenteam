@@ -4,6 +4,7 @@ import UiButton from '../../components/ui/UiButton.vue'
 import UiDialog from '../../components/ui/UiDialog.vue'
 import UiState from '../../components/ui/UiState.vue'
 import SystemModelSelectionEditor from './SystemModelSelectionEditor.vue'
+import SystemMeetingSummarySettings from './SystemMeetingSummarySettings.vue'
 import {
   selectionLabels,
   selectionPurposes,
@@ -63,8 +64,8 @@ onUnmounted(page.detach)
   <div class="system-model-selection">
     <h1 ref="heading" tabindex="-1">平台模型用途</h1>
     <p class="meta">
-      为四项平台用途选择已有的 System
-      Model。保存仅确认配置，不表示外部服务可调用、索引已重建或检索已切换。
+      为四项平台用途和独立的会议 Summary 选择已有的 System
+      Model。各区独立保存；保存仅确认配置，不表示外部服务可调用、索引已重建或检索已切换。
     </p>
     <div ref="actions" class="selection-actions" aria-label="用途配置页面操作">
       <UiButton :disabled="blocked" @click="perform(page.refresh, $event)">刷新配置</UiButton>
@@ -161,8 +162,9 @@ onUnmounted(page.detach)
         </li>
       </ul>
     </template>
+    <SystemMeetingSummarySettings :settings="page.meetingSummary" />
     <SystemModelSelectionEditor />
-    <!-- Both dialogs leave and remount together; confirmation is always last. -->
+    <!-- The business dialog and section remount before the sole confirmation host. -->
     <UiDialog
       :open="confirmation.open"
       :title="confirmation.title"

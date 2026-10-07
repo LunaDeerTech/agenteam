@@ -74,7 +74,7 @@ func TestSystemHTTPConstructionAndRoutesMatchOpenAPI(t *testing.T) {
 			t.Fatal("lookup intent")
 		}
 	}
-	if count != 26 {
+	if count != 29 {
 		t.Fatalf("route count %d", count)
 	}
 	for path, methods := range spec.Paths {

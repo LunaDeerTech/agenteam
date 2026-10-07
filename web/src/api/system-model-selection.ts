@@ -1,6 +1,11 @@
 import { AccountFailure, accountTransport, shape, string, uuid7, type Fetch } from './client'
 import type { WriteOptions } from './account'
 import {
+  createMeetingSummaryAPI,
+  type MeetingSummaryCommand,
+  type MeetingSummaryState,
+} from './system-meeting-summary'
+import {
   createSystemProviderAPI,
   parseProviderModel,
   type ConfigurationPage,
@@ -34,6 +39,15 @@ export type SelectionObservation =
   Readonly<{ found: false; receipt: null }> | Readonly<{ found: true; receipt: SelectionReceipt }>
 export type SavedModel = Readonly<{ model: ProviderModel; provider: Provider }>
 export interface SystemModelSelectionAPI {
+  getMeetingSummary(signal: AbortSignal): Promise<MeetingSummaryState>
+  updateMeetingSummary(
+    command: MeetingSummaryCommand,
+    options: WriteOptions,
+  ): Promise<SelectionReceipt>
+  lookupMeetingSummaryCommand(
+    command: MeetingSummaryCommand,
+    options: WriteOptions,
+  ): Promise<SelectionObservation>
   getSelection(signal: AbortSignal): Promise<SelectionState>
   updateSelection(command: SelectionCommand, options: WriteOptions): Promise<SelectionReceipt>
   lookupSelectionCommand(
@@ -143,6 +157,7 @@ export function createSystemModelSelectionAPI(fetcher?: Fetch): SystemModelSelec
   const request = accountTransport(fetcher)
   const providers = createSystemProviderAPI(fetcher)
   return {
+    ...createMeetingSummaryAPI(fetcher),
     getSelection: (signal) => request('getModelSelection', selection, { signal }),
     async updateSelection(value, write) {
       const command = captureSelectionCommand(value)

@@ -72,6 +72,10 @@ import {
   type SelectionReceipt,
 } from '../api/system-model-selection'
 import {
+  captureMeetingSummaryCommand,
+  type MeetingSummaryCommand,
+} from '../api/system-meeting-summary'
+import {
   createSystemAccountSecurityAPI,
   captureAccountSecurityUpdate,
   type SystemAccountSecurityAPI,
@@ -200,7 +204,15 @@ export type SystemModelSelectionRead =
   | 'selection-providers'
   | 'selection-provider'
   | 'selection-models'
-type SelectionAction = SystemModelSelectionRead | 'selection-write' | 'selection-lookup'
+export type MeetingSummaryRead =
+  | 'meeting-summary-state'
+  | 'meeting-summary-reference'
+  | 'meeting-summary-providers'
+  | 'meeting-summary-provider'
+  | 'meeting-summary-models'
+type MeetingSummaryAction = MeetingSummaryRead | 'meeting-summary-write' | 'meeting-summary-lookup'
+type PlatformSelectionAction = SystemModelSelectionRead | 'selection-write' | 'selection-lookup'
+type SelectionAction = PlatformSelectionAction | MeetingSummaryAction
 export type SystemModelSelectionProgress = Readonly<{
   phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
   receipt: SelectionReceipt | null
@@ -210,6 +222,12 @@ export type SystemModelSelectionProgress = Readonly<{
 }>
 type SystemModelSelectionIntent = Readonly<{
   command: SelectionCommand
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+}>
+type MeetingSummaryIntent = Readonly<{
+  command: MeetingSummaryCommand
   identity: PersonalIdentity
   csrf: string
   key: string
@@ -542,6 +560,13 @@ export function createSessionController(
     progress: Omit<SystemModelProgress, 'contextValid' | 'canRetryOriginal'> | null
   }>({ progress: null })
   const selectionRevisions: Record<SelectionAction, number> = {
+    'meeting-summary-state': 0,
+    'meeting-summary-reference': 0,
+    'meeting-summary-providers': 0,
+    'meeting-summary-provider': 0,
+    'meeting-summary-models': 0,
+    'meeting-summary-write': 0,
+    'meeting-summary-lookup': 0,
     'selection-state': 0,
     'selection-reference': 0,
     'selection-providers': 0,
@@ -552,6 +577,17 @@ export function createSessionController(
   }
   const isSelectionAction = (kind: Action): kind is SelectionAction =>
     Object.hasOwn(selectionRevisions, kind)
+  const isPlatformSelectionAction = (kind: Action): kind is PlatformSelectionAction =>
+    isSelectionAction(kind) && kind.startsWith('selection-')
+  const isMeetingSummaryAction = (kind: Action): kind is MeetingSummaryAction =>
+    isSelectionAction(kind) && kind.startsWith('meeting-summary-')
+  let meetingSummaryIntent: MeetingSummaryIntent | null = null,
+    meetingSummaryUncertain = false,
+    meetingSummaryChecked = false,
+    meetingSummaryKeyConflict = false
+  const meetingSummaryState = shallowReactive<{
+    progress: Omit<SystemModelSelectionProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
   let selectionIntent: SystemModelSelectionIntent | null = null,
     selectionUncertain = false,
     selectionChecked = false,
@@ -725,7 +761,8 @@ export function createSessionController(
     if (
       !same ||
       view.user.role !== 'admin' ||
-      (selectionIntent && selectionIntent.csrf !== sessionCSRF)
+      (selectionIntent && selectionIntent.csrf !== sessionCSRF) ||
+      (meetingSummaryIntent && meetingSummaryIntent.csrf !== sessionCSRF)
     )
       clearSelectionState()
     if (
@@ -1468,6 +1505,8 @@ export function createSessionController(
           'model-lookup',
           'selection-write',
           'selection-lookup',
+          'meeting-summary-write',
+          'meeting-summary-lookup',
           'account-security-write',
           'smtp-settings-write',
           'smtp-delivery-write',
@@ -2214,9 +2253,229 @@ export function createSessionController(
     },
   }
   function clearSelectionState() {
-    const retiring = owner && isSelectionAction(owner.kind) ? owner : null
+    clearPlatformSelectionState()
+    clearMeetingSummaryState()
+  }
+  function clearMeetingSummaryState() {
+    const retiring = owner && isMeetingSummaryAction(owner.kind) ? owner : null
     for (const scope of Object.keys(selectionRevisions) as SelectionAction[])
-      ++selectionRevisions[scope]
+      if (scope.startsWith('meeting-summary-')) ++selectionRevisions[scope]
+    meetingSummaryIntent = null
+    meetingSummaryUncertain = meetingSummaryChecked = meetingSummaryKeyConflict = false
+    meetingSummaryState.progress = null
+    retiring?.abandon?.()
+  }
+  function abandonMeetingSummaryRead(scope: MeetingSummaryRead) {
+    if (
+      !Object.hasOwn(selectionRevisions, scope) ||
+      !scope.startsWith('meeting-summary-') ||
+      scope === ('meeting-summary-write' as string) ||
+      scope === ('meeting-summary-lookup' as string)
+    )
+      throw new AccountFailure('invalid-input')
+    ++selectionRevisions[scope]
+    if (owner?.kind === scope) owner.abandon?.()
+  }
+  function readMeetingSummary<T>(
+    scope: MeetingSummaryRead,
+    work: (signal: AbortSignal) => Promise<T>,
+  ): Promise<T> {
+    try {
+      const identity = invitationIdentity()
+      // One operation encloses the complete private Model -> Provider read.
+      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, scope)
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  function publishMeetingSummary(
+    phase: SystemModelSelectionProgress['phase'],
+    receipt: SelectionReceipt | null = null,
+  ) {
+    meetingSummaryState.progress = Object.freeze({ phase, receipt, observation: 'none' })
+  }
+  function performMeetingSummary(original: MeetingSummaryIntent): Promise<SelectionReceipt> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (meetingSummaryIntent !== original || !invitationContext(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const revision = selectionRevisions['meeting-summary-write']
+    const live = () =>
+      meetingSummaryIntent === original &&
+      revision === selectionRevisions['meeting-summary-write'] &&
+      invitationContext(original)
+    let dispatched = false
+    meetingSummaryChecked = false
+    publishMeetingSummary('submitting')
+    if (!live()) return Promise.reject(new AccountFailure('cancelled'))
+    return runAuthorized(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        dispatched = true
+        return selectionAPI.updateMeetingSummary(original.command, {
+          csrfToken: original.csrf,
+          key: original.key,
+          signal: op.abort.signal,
+        })
+      },
+      undefined,
+      'meeting-summary-write',
+    ).then(
+      (receipt) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        publishMeetingSummary('confirmed', receipt)
+        // Synchronous consumers may retire this intent and start a successor.
+        if (!live()) throw new AccountFailure('cancelled')
+        meetingSummaryIntent = null
+        meetingSummaryUncertain = meetingSummaryChecked = meetingSummaryKeyConflict = false
+        return receipt
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          meetingSummaryIntent === original &&
+          revision === selectionRevisions['meeting-summary-write'] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          const known =
+            !dispatched ||
+            (p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.status < 500 &&
+              [
+                'INVALID_ARGUMENT',
+                'VERSION_CONFLICT',
+                'NOT_FOUND',
+                'INVALID_STATE',
+                'CAPABILITY_UNSUPPORTED',
+                'RATE_LIMITED',
+                'RESOURCE_DELETED',
+              ].includes(p.code))
+          meetingSummaryKeyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+          meetingSummaryUncertain ||= !known || meetingSummaryKeyConflict
+          meetingSummaryChecked = false
+          publishMeetingSummary(meetingSummaryUncertain ? 'uncertain' : 'rejected')
+        }
+        throw e
+      },
+    )
+  }
+  const meetingSummary = {
+    get progress(): SystemModelSelectionProgress | null {
+      const value = meetingSummaryState.progress
+      if (!value) return null
+      const contextValid = !!meetingSummaryIntent && invitationContext(meetingSummaryIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!meetingSummaryIntent &&
+          meetingSummaryUncertain &&
+          meetingSummaryChecked &&
+          !meetingSummaryKeyConflict &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    get() {
+      return readMeetingSummary('meeting-summary-state', (signal) =>
+        selectionAPI.getMeetingSummary(signal),
+      )
+    },
+    getSavedModel(id: string) {
+      return readMeetingSummary('meeting-summary-reference', (signal) =>
+        selectionAPI.getSavedModel(id, signal),
+      )
+    },
+    async listProviders(query: ProviderQuery) {
+      const captured = captureModelRead(query)
+      return readMeetingSummary('meeting-summary-providers', (signal) =>
+        selectionAPI.listProviders(captured, signal),
+      )
+    },
+    getProvider(id: string) {
+      return readMeetingSummary('meeting-summary-provider', (signal) =>
+        selectionAPI.getProvider(id, signal),
+      )
+    },
+    async listModels(query: ProviderModelQuery) {
+      const captured = captureModelRead(query)
+      return readMeetingSummary('meeting-summary-models', (signal) =>
+        selectionAPI.listModels(captured, signal),
+      )
+    },
+    abandonRead: abandonMeetingSummaryRead,
+    abandon: clearMeetingSummaryState,
+    start(command: MeetingSummaryCommand) {
+      try {
+        const identity = invitationIdentity()
+        if (owner || meetingSummaryIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
+        const captured = captureMeetingSummaryCommand(command)
+        const original = Object.freeze({
+          command: captured,
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+        })
+        meetingSummaryIntent = original
+        meetingSummaryUncertain = meetingSummaryChecked = meetingSummaryKeyConflict = false
+        return performMeetingSummary(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    async checkOriginal() {
+      const original = meetingSummaryIntent
+      if (!original || !meetingSummaryUncertain || owner) throw new AccountFailure('invalid-input')
+      meetingSummaryChecked = false
+      await restore()
+      if (meetingSummaryIntent !== original || !invitationContext(original))
+        throw new AccountFailure('cancelled')
+      meetingSummaryChecked = true
+      // A refreshed identity permits explicit Execute; lookup never confirms its body.
+      return runAuthorized(
+        original.identity,
+        async (op, current) => {
+          if (meetingSummaryIntent !== original || !current()) throw new AccountFailure('cancelled')
+          const observed = await selectionAPI.lookupMeetingSummaryCommand(original.command, {
+            csrfToken: original.csrf,
+            key: original.key,
+            signal: op.abort.signal,
+          })
+          if (current() && meetingSummaryIntent === original && meetingSummaryState.progress)
+            meetingSummaryState.progress = Object.freeze({
+              ...meetingSummaryState.progress,
+              observation: observed.found ? 'found' : 'missing',
+            })
+          return observed
+        },
+        undefined,
+        'meeting-summary-lookup',
+      ).catch((error: unknown) => {
+        if (
+          meetingSummaryIntent === original &&
+          invitationContext(original) &&
+          meetingSummaryState.progress
+        )
+          meetingSummaryState.progress = Object.freeze({
+            ...meetingSummaryState.progress,
+            observation: 'failed',
+          })
+        throw error
+      })
+    },
+    retryOriginal() {
+      if (!meetingSummaryIntent || !meetingSummary.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performMeetingSummary(meetingSummaryIntent)
+    },
+  }
+  function clearPlatformSelectionState() {
+    const retiring = owner && isPlatformSelectionAction(owner.kind) ? owner : null
+    for (const scope of Object.keys(selectionRevisions) as SelectionAction[])
+      if (scope.startsWith('selection-')) ++selectionRevisions[scope]
     selectionIntent = null
     selectionUncertain = selectionChecked = selectionKeyConflict = false
     selectionState.progress = null
@@ -2225,6 +2484,7 @@ export function createSessionController(
   function abandonSelectionRead(scope: SystemModelSelectionRead) {
     if (
       !Object.hasOwn(selectionRevisions, scope) ||
+      !scope.startsWith('selection-') ||
       scope === ('selection-write' as string) ||
       scope === ('selection-lookup' as string)
     )
@@ -2318,6 +2578,7 @@ export function createSessionController(
     )
   }
   const selection = {
+    meetingSummary,
     get progress(): SystemModelSelectionProgress | null {
       const value = selectionState.progress
       if (!value) return null
@@ -2358,7 +2619,7 @@ export function createSessionController(
       )
     },
     abandonRead: abandonSelectionRead,
-    abandon: clearSelectionState,
+    abandon: clearPlatformSelectionState,
     start(command: SelectionCommand) {
       try {
         const identity = invitationIdentity()

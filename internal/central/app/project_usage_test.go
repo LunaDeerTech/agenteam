@@ -53,7 +53,7 @@ func TestProjectUsageRootPureConstructionAndReadOnly(t *testing.T) {
 }
 
 func TestProjectUsageRootPureStartupContextAndFailure(t *testing.T) {
-	for _, mode := range []string{"normal", "expired", "model_error", "model_cancels", "usage_error"} {
+	for _, mode := range []string{"normal", "expired", "model_error", "model_cancels", "summary_error", "summary_cancels", "usage_error"} {
 		t.Run(mode, func(t *testing.T) {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
@@ -71,10 +71,10 @@ func TestProjectUsageRootPureStartupContextAndFailure(t *testing.T) {
 			if mode == "expired" {
 				cancel()
 			}
-			models, usageChecks := 0, 0
+			models, summaryChecks, usageChecks := 0, 0, 0
 			err := initializeModelsAndUsage(ctx, func(got context.Context) error {
 				models++
-				if got != ctx || usageChecks != 0 {
+				if got != ctx || summaryChecks != 0 || usageChecks != 0 {
 					t.Fatal("startup context/order changed")
 				}
 				if mode == "model_error" {
@@ -85,8 +85,20 @@ func TestProjectUsageRootPureStartupContextAndFailure(t *testing.T) {
 				}
 				return nil
 			}, func(got context.Context) error {
+				summaryChecks++
+				if got != ctx || models != 1 || usageChecks != 0 {
+					t.Fatal("Summary startup context/order changed")
+				}
+				if mode == "summary_error" {
+					return sentinel
+				}
+				if mode == "summary_cancels" {
+					cancel()
+				}
+				return nil
+			}, func(got context.Context) error {
 				usageChecks++
-				if got != ctx || models != 1 {
+				if got != ctx || models != 1 || summaryChecks != 1 {
 					t.Fatal("Usage schema startup context/order changed")
 				}
 				if mode == "usage_error" {
@@ -103,7 +115,7 @@ func TestProjectUsageRootPureStartupContextAndFailure(t *testing.T) {
 				if !errors.Is(err, sentinel) || usageChecks != 1 {
 					t.Fatal("Usage failure not propagated", err)
 				}
-			case "model_error":
+			case "model_error", "summary_error":
 				if !errors.Is(err, sentinel) || usageChecks != 0 {
 					t.Fatal("checked Usage after Model failure", err)
 				}
@@ -114,6 +126,13 @@ func TestProjectUsageRootPureStartupContextAndFailure(t *testing.T) {
 			}
 			if mode == "expired" && models != 0 || mode != "expired" && models != 1 {
 				t.Fatal("Model check repeated/skipped")
+			}
+			wantSummary := 1
+			if mode == "expired" || mode == "model_error" || mode == "model_cancels" {
+				wantSummary = 0
+			}
+			if summaryChecks != wantSummary {
+				t.Fatal("Summary repeated/skipped or ran after Model failure")
 			}
 		})
 	}

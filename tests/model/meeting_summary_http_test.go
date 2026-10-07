@@ -75,9 +75,13 @@ func TestModelMeetingSummaryExistingHTTP(t *testing.T) {
 	if len(legacy) != 3 || legacy["configured"] != nil || legacy["id"] == request.SelectionID {
 		t.Fatal("old four-purpose response changed")
 	}
-	for _, method := range []string{"GET", "PUT"} {
-		v.request(t, v.adminBrowser, method, "/api/v1/system/model-selection/meeting-summary", newID[struct{}](t).String(), nil).want(t, 404)
+	// S2 now owns this exact child route. Retain all S1 compatibility assertions
+	// above/below; only its former absence checks change to the new contract.
+	current := meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, "GET", meetingSummarySettingsPath, "", nil).want(t, 200).object(t)
+	if len(current) != 3 || current["id"] != request.SelectionID || current["model"] != old.String() {
+		t.Fatal("new independent Summary projection")
 	}
+	meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, "PUT", meetingSummarySettingsPath, newID[struct{}](t).String(), nil).problem(t, 400, f.InvalidArgument)
 	v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-selection", newID[struct{}](t).String(), map[string]any{"id": legacy["id"], "expected_version": "1", "meeting_summary": old.String()}).problem(t, 400, f.InvalidArgument)
 	v.request(t, v.adminBrowser, "DELETE", "/api/v1/system/models/"+old.String(), newID[struct{}](t).String(), map[string]any{"expected_version": "1", "replacement": nil}).problem(t, 409, f.InvalidState)
 	deleted := v.request(t, v.adminBrowser, "DELETE", "/api/v1/system/models/"+old.String(), newID[struct{}](t).String(), map[string]any{"expected_version": "1", "replacement": next.String()}).want(t, 200).object(t)
