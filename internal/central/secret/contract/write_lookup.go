@@ -21,11 +21,20 @@ type WriteCommandLookupRequest struct {
 }
 
 func (r WriteCommandLookupRequest) Validate() error {
-	if r.Actor.Validate() != nil || r.Actor.Details().Kind != id.Human || !r.Scope.Equal(id.SystemScope()) || r.Purpose != Model || r.Identity.Validate() != nil || r.Identity.Namespace() != "secret" || r.Identity.Command() != string(r.Kind) {
+	if r.Actor.Validate() != nil || r.Actor.Details().Kind != id.Human || r.Scope.Validate() != nil || r.Purpose != Model || r.Identity.Validate() != nil || r.Identity.Namespace() != "secret" || r.Identity.Command() != string(r.Kind) {
 		return bad()
 	}
 	owners := r.Identity.OwnerIDs()
-	if len(owners) != 1 || owners[0] != r.Actor.Details().UserID {
+	switch r.Scope.Details().Kind {
+	case id.System:
+		if len(owners) != 1 || owners[0] != r.Actor.Details().UserID {
+			return bad()
+		}
+	case id.ProjectScope:
+		if len(owners) != 2 || owners[0] != r.Scope.Details().ProjectID || owners[1] != r.Actor.Details().UserID {
+			return bad()
+		}
+	default:
 		return bad()
 	}
 	switch r.Kind {

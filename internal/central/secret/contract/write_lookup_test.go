@@ -95,3 +95,61 @@ func TestWriteCommandLookupSafeProjection(t *testing.T) {
 		t.Fatalf("absence=%s %v", b, err)
 	}
 }
+
+func TestProjectWriteCommandLookupIdentityScopeAndBounds(t *testing.T) {
+	for _, kind := range []MutationKind{Create, Update, Delete} {
+		t.Run(string(kind), func(t *testing.T) {
+			r := lookupRequest(t, kind)
+			project := contractID[id.Project](t)
+			r.Scope, _ = id.InProject(project)
+			r.Identity, _ = f.NewCommandIdentity("secret", []string{project.String(), r.Actor.Details().UserID}, string(kind), "original-key")
+			if kind != Create {
+				r.Ref, _ = NewCredentialRef(contractID[Credential](t), r.Scope)
+				r.ExpectedVersion = f.Version(math.MaxInt64 - 1)
+			}
+			if err := r.Validate(); err != nil {
+				t.Fatal("valid Project lookup rejected", err)
+			}
+			for name, owners := range map[string][]string{
+				"missing-project": {r.Actor.Details().UserID},
+				"reverse":         {r.Actor.Details().UserID, project.String()},
+				"other-project":   {contractID[id.Project](t).String(), r.Actor.Details().UserID},
+				"other-user":      {project.String(), contractID[id.User](t).String()},
+				"extra":           {project.String(), r.Actor.Details().UserID, contractID[id.Session](t).String()},
+			} {
+				t.Run(name, func(t *testing.T) {
+					bad := r
+					bad.Identity, _ = f.NewCommandIdentity("secret", owners, string(kind), "original-key")
+					if bad.Validate() == nil {
+						t.Fatal("misbound Project identity accepted")
+					}
+				})
+			}
+			changes := map[string]func(*WriteCommandLookupRequest){
+				"scope":   func(v *WriteCommandLookupRequest) { v.Scope, _ = id.InProject(contractID[id.Project](t)) },
+				"system":  func(v *WriteCommandLookupRequest) { v.Scope = id.SystemScope() },
+				"purpose": func(v *WriteCommandLookupRequest) { v.Purpose = MCP },
+				"command": func(v *WriteCommandLookupRequest) {
+					v.Identity, _ = f.NewCommandIdentity("secret", []string{project.String(), v.Actor.Details().UserID}, "unknown", "original-key")
+				},
+			}
+			if kind == Create {
+				changes["ref"] = func(v *WriteCommandLookupRequest) { v.Ref, _ = NewCredentialRef(contractID[Credential](t), v.Scope) }
+				changes["expected"] = func(v *WriteCommandLookupRequest) { v.ExpectedVersion = 1 }
+			} else {
+				changes["zero-version"] = func(v *WriteCommandLookupRequest) { v.ExpectedVersion = 0 }
+				changes["overflow"] = func(v *WriteCommandLookupRequest) { v.ExpectedVersion = f.Version(math.MaxInt64) }
+				changes["ref-scope"] = func(v *WriteCommandLookupRequest) { v.Ref, _ = NewCredentialRef(v.Ref.Details().ID, id.SystemScope()) }
+			}
+			for name, change := range changes {
+				t.Run(name, func(t *testing.T) {
+					bad := r
+					change(&bad)
+					if bad.Validate() == nil {
+						t.Fatal("invalid Project lookup accepted")
+					}
+				})
+			}
+		})
+	}
+}

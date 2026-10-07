@@ -34,7 +34,7 @@ func (s *Service) LookupWriteCommand(ctx context.Context, r sc.WriteCommandLooku
 		return zero, failure(AuthorizationUnbound, f.DependencyUnbound, nil)
 	}
 	state := s.state()
-	if state == nil || lookupNil(state.store) || lookupNil(state.auth.Sessions) || lookupNil(state.auth.System) {
+	if state == nil || lookupNil(state.store) || lookupNil(state.auth.Sessions) || r.Scope.Details().Kind != id.ProjectScope && lookupNil(state.auth.System) {
 		return zero, failure(AuthorizationUnbound, f.DependencyUnbound, nil)
 	}
 	if ctx == nil || r.Validate() != nil {
@@ -47,6 +47,10 @@ func (s *Service) LookupWriteCommand(ctx context.Context, r sc.WriteCommandLooku
 	command, _ := f.CommandLock(r.Identity)
 	user, _ := f.UserLock(r.Actor.Details().UserID)
 	locks := []f.LockRequest{{Key: command, Mode: f.Shared}, {Key: user, Mode: f.Shared}}
+	if r.Scope.Details().Kind == id.ProjectScope {
+		project, _ := f.ProjectLock(r.Scope.Details().ProjectID)
+		locks = append(locks, f.LockRequest{Key: project, Mode: f.Shared})
+	}
 	digest, err := cursor.Digest([]byte(r.Identity.Canonical()))
 	if err != nil {
 		return zero, invalid()
@@ -65,6 +69,15 @@ func (s *Service) LookupWriteCommand(ctx context.Context, r sc.WriteCommandLooku
 		}
 		if err = state.store.RequireHeldLocks(ctx, tx, locks); err != nil {
 			return lookupError(err)
+		}
+		// A Project lookup has no System authority dependency. As in Metadata,
+		// preserve current Session rejection before reporting an unbound scope
+		// port, including named nil channels that implement the interface.
+		if r.Scope.Details().Kind == id.ProjectScope && lookupNil(state.auth.Projects) {
+			if err = state.auth.Sessions.RequireCurrentSession(ctx, tx, r.Actor); err != nil {
+				return authorization(err)
+			}
+			return failure(AuthorizationUnbound, f.DependencyUnbound, nil)
 		}
 		if err = s.authorize(ctx, tx, r.Actor, r.Scope, id.Read); err != nil {
 			return err

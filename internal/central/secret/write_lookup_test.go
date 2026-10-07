@@ -25,6 +25,7 @@ type lookupUnitStore struct {
 	result                       f.CommitState
 	acquireErr, heldErr, inTxErr error
 	afterCommit                  func()
+	project                      string
 }
 
 func (s *lookupUnitStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
@@ -83,7 +84,11 @@ func (s *lookupUnitStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
 }
 func (s *lookupUnitStore) QueryRow(_ context.Context, sql string, args ...any) postgres.Row {
 	s.queries++
-	if !strings.Contains(sql, "FROM agenteam_secret.secret_command_receipts WHERE scope=$1 AND scope_key=$2 AND command_digest=$3") || strings.Contains(sql, "payload") || args[0] != "system" || args[1] != "system" {
+	scope, key := "system", "system"
+	if s.project != "" {
+		scope, key = "project", s.project
+	}
+	if !strings.Contains(sql, "FROM agenteam_secret.secret_command_receipts WHERE scope=$1 AND scope_key=$2 AND command_digest=$3") || strings.Contains(sql, "payload") || args[0] != scope || args[1] != key {
 		s.t.Fatal("non-passive query")
 	}
 	return s.row
@@ -268,5 +273,132 @@ func TestSecretPassiveLookupCancellationAfterCommittedRead(t *testing.T) {
 		if store.queries != 1 || len(s.state().nonces) != 0 {
 			t.Fatal("read/write boundary")
 		}
+	}
+}
+
+type lookupProject func(context.Context, f.Tx, id.Actor, id.ProjectID, id.AccessIntent) (id.AccessGrant, error)
+
+func (fn lookupProject) AuthorizeProject(ctx context.Context, tx f.Tx, a id.Actor, p id.ProjectID, intent id.AccessIntent) (id.AccessGrant, error) {
+	return fn(ctx, tx, a, p, intent)
+}
+func (lookupProject) CheckMutationInTx(context.Context, f.Tx, id.Actor, sc.CredentialRef) error {
+	panic("passive lookup called mutation gate")
+}
+func (lookupProject) CheckCleanupInTx(context.Context, f.Tx, id.Actor, sc.LifecycleCause, id.ProjectID) error {
+	panic("passive lookup called cleanup")
+}
+
+type lookupNilProject chan int
+
+func (lookupNilProject) AuthorizeProject(context.Context, f.Tx, id.Actor, id.ProjectID, id.AccessIntent) (id.AccessGrant, error) {
+	panic("typed nil Project invoked")
+}
+func (lookupNilProject) CheckMutationInTx(context.Context, f.Tx, id.Actor, sc.CredentialRef) error {
+	panic("typed nil Project invoked")
+}
+func (lookupNilProject) CheckCleanupInTx(context.Context, f.Tx, id.Actor, sc.LifecycleCause, id.ProjectID) error {
+	panic("typed nil Project invoked")
+}
+
+func projectLookupFixture(t *testing.T) (*Service, *lookupUnitStore, sc.WriteCommandLookupRequest) {
+	t.Helper()
+	s, store, r := lookupFixture(t)
+	project, _ := f.NewID[id.Project]()
+	r.Scope, _ = id.InProject(project)
+	r.Identity, _ = f.NewCommandIdentity("secret", []string{project.String(), r.Actor.Details().UserID}, string(r.Kind), "same-key")
+	store.project = project.String()
+	s.state().auth.System = nil
+	s.state().auth.Projects = lookupProject(func(_ context.Context, tx f.Tx, a id.Actor, target id.ProjectID, intent id.AccessIntent) (id.AccessGrant, error) {
+		if tx != store.tx || intent != id.Read || target != project || store.acquires != 1 || store.held != 1 || len(store.locks) != 3 {
+			t.Fatal("Project lookup outside full held Tx")
+		}
+		now, _ := f.NewInstant(time.Now())
+		return id.NewAccessGrant(a, r.Scope, intent, now, 1)
+	})
+	return s, store, r
+}
+
+func TestSecretProjectPassiveLookupLocksAndTerminal(t *testing.T) {
+	for _, state := range []f.CommitState{f.Committed, f.NotCommitted, f.Unknown} {
+		for _, present := range []bool{false, true} {
+			t.Run(string(state)+"/"+map[bool]string{false: "absent", true: "present"}[present], func(t *testing.T) {
+				s, store, r := projectLookupFixture(t)
+				store.result = state
+				credential, _ := f.NewID[sc.Credential]()
+				if present {
+					store.row = lookupRow{values: []any{"create", credential.String(), "model", int64(1), false}}
+				}
+				out, err := s.LookupWriteCommand(context.Background(), r)
+				if state == f.Committed {
+					if err != nil || out.Observed != present || (out.Result != nil) != present {
+						t.Fatal("Project observation", err)
+					}
+					if present && (!out.Result.Metadata.CredentialRef.Details().Scope.Equal(r.Scope) || out.Result.Metadata.CredentialRef.Details().ID != credential) {
+						t.Fatal("Project receipt scope")
+					}
+				} else if err == nil || out.Observed || out.Result != nil {
+					t.Fatal("unconfirmed Project observation")
+				}
+				command, _ := f.CommandLock(r.Identity)
+				user, _ := f.UserLock(r.Actor.Details().UserID)
+				project, _ := f.ProjectLock(store.project)
+				if !lookupSameLocks(store.locks, []f.LockRequest{{Key: command, Mode: f.Shared}, {Key: user, Mode: f.Shared}, {Key: project, Mode: f.Shared}}) || store.queries != 1 || len(s.state().nonces) != 0 {
+					t.Fatal("Project lock/read-only boundary")
+				}
+			})
+		}
+	}
+}
+
+func TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation(t *testing.T) {
+	for _, kind := range []string{"nil-project", "typed-nil-project", "session", "session-before-unbound", "project", "grant", "held", "cancel-after-commit"} {
+		t.Run(kind, func(t *testing.T) {
+			s, store, r := projectLookupFixture(t)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			wanted := f.DependencyUnbound
+			switch kind {
+			case "nil-project":
+				s.state().auth.Projects = nil
+			case "typed-nil-project":
+				s.state().auth.Projects = lookupNilProject(nil)
+			case "session", "session-before-unbound":
+				wanted = f.SessionRevoked
+				s.state().auth.Sessions = lookupSessions(func(context.Context, f.Tx, id.Actor) error { return f.NewFault(wanted, f.NotStarted) })
+				if kind == "session-before-unbound" {
+					s.state().auth.Projects = lookupNilProject(nil)
+				}
+			case "project":
+				wanted = f.NotFound
+				s.state().auth.Projects = lookupProject(func(context.Context, f.Tx, id.Actor, id.ProjectID, id.AccessIntent) (id.AccessGrant, error) {
+					return id.AccessGrant{}, f.NewFault(wanted, f.NotStarted)
+				})
+			case "grant":
+				wanted = f.DependencyUnavailable
+				s.state().auth.Projects = lookupProject(func(context.Context, f.Tx, id.Actor, id.ProjectID, id.AccessIntent) (id.AccessGrant, error) {
+					return id.AccessGrant{}, nil
+				})
+			case "held":
+				wanted = f.DependencyUnavailable
+				store.heldErr = f.NewFault(wanted, f.NotStarted)
+			case "cancel-after-commit":
+				wanted = f.DependencyUnavailable
+				store.afterCommit = cancel
+			}
+			out, err := s.LookupWriteCommand(ctx, r)
+			projectAuditCode(t, err, wanted)
+			if out.Observed || out.Result != nil {
+				t.Fatal("authority failure exposed result")
+			}
+			if kind != "cancel-after-commit" && store.queries != 0 {
+				t.Fatal("receipt before current authority")
+			}
+			if kind == "cancel-after-commit" {
+				var fault *f.Fault
+				if !errors.As(err, &fault) || fault.CommitState != f.Committed {
+					t.Fatal("lost actual commit state")
+				}
+			}
+		})
 	}
 }

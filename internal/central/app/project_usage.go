@@ -5,15 +5,17 @@ import (
 	"net/http"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"github.com/LunaDeerTech/agenteam/internal/central/usage"
 	usagehttp "github.com/LunaDeerTech/agenteam/internal/central/usage/http"
 )
 
-// These are read capabilities, with no Project initializer, Runtime facts or
-// lifecycle owner. All constructors retain the existing Store and Account authority.
+// The sole Project authority owns reads, commands and the real Secret Audit
+// gate. Its initializer, Runtime facts and lifecycle owner remain unbound.
 type projectUsageAssembly struct {
 	projects *project.Authority
 	reader   *usage.Service
@@ -28,7 +30,15 @@ func createProjectUsage(cfg config.Config, db database, accounts *account.Author
 	if !ok || runtimeInformationNil(usageStore) {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
-	projects, err := project.NewAuthority(projectsStore, project.AuthorityDependencies{Sessions: accounts, Routes: accounts})
+	secretStore, ok := db.(secret.Store)
+	if !ok || runtimeInformationNil(secretStore) {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	secretFacts, err := secret.NewProjectAuditAuthority(secretStore)
+	if err != nil {
+		return nil, err
+	}
+	projects, err := project.NewAuthority(projectsStore, project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.SecretProducer: secretFacts}})
 	if err != nil {
 		return nil, err
 	}

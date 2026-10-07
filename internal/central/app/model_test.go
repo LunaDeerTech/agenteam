@@ -101,7 +101,7 @@ func TestModelRootRequiredConstructionDependencies(t *testing.T) {
 	if err != nil || auditor == nil {
 		t.Fatal("valid Audit construction", err)
 	}
-	secrets, err := createSecret(cfg, store, auditor, accounts, usage)
+	secrets, err := createSecret(cfg, store, auditor, accounts, usage, projects)
 	if err != nil || secrets == nil || secrets.Status().Available {
 		t.Fatal("valid Secret construction or premature initialized state", err)
 	}
@@ -138,10 +138,15 @@ func TestModelRootRequiredConstructionDependencies(t *testing.T) {
 		{"missing-router", store, auditor, accounts, nil},
 	} {
 		t.Run("secret/"+tc.name, func(t *testing.T) {
-			if got, err := createSecret(cfg, tc.db, tc.audit, tc.accounts, tc.usage); err == nil || got != nil {
+			if got, err := createSecret(cfg, tc.db, tc.audit, tc.accounts, tc.usage, projects); err == nil || got != nil {
 				t.Fatal("missing graph dependency produced Secret service")
 			}
 		})
+	}
+	for _, missing := range []*project.Authority{nil, {}} {
+		if got, err := createSecret(cfg, store, auditor, accounts, usage, missing); err == nil || got != nil {
+			t.Fatal("missing Project Secret authority accepted")
+		}
 	}
 	owned := &resources{}
 	if err := bindAccounts(context.Background(), cfg, &unitDatabase{}, owned, &dependencies{}); err == nil || owned.accounts() != nil {

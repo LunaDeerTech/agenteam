@@ -34,7 +34,7 @@ type maintenance interface {
 	Status() secret.Status
 }
 
-func createSecret(cfg config.Config, db database, auditing *audit.Service, authority *account.Authority, usage *model.SecretUsageRouter) (*secret.Service, error) {
+func createSecret(cfg config.Config, db database, auditing *audit.Service, authority *account.Authority, usage *model.SecretUsageRouter, projects *project.Authority) (*secret.Service, error) {
 	store, ok := db.(secret.Store)
 	if !ok || authority == nil {
 		return nil, errors.New("SECRET_STORE_UNAVAILABLE")
@@ -42,5 +42,9 @@ func createSecret(cfg config.Config, db database, auditing *audit.Service, autho
 	if usage == nil {
 		return nil, errors.New("MODEL_USAGE_UNAVAILABLE")
 	}
-	return secret.New(store, cfg.SecretKeyring(), auditing, secret.Authorizations{AccountWrites: authority, Sessions: authority, System: authority, Usage: usage})
+	projectSecrets, err := project.NewSecretAuthority(projects)
+	if err != nil {
+		return nil, err
+	}
+	return secret.New(store, cfg.SecretKeyring(), auditing, secret.Authorizations{AccountWrites: authority, Sessions: authority, System: authority, Usage: usage, Projects: projectSecrets})
 }
