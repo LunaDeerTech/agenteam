@@ -1,0 +1,123 @@
+{
+  "actual_identity_publication": "publish",
+  "audit_complete_href_assertion": {
+    "current": [
+      "/system/users",
+      "/system/invitations",
+      "/system/providers",
+      "/system/models",
+      "/system/model-selection",
+      "/system/audit",
+      "/system/account-security",
+      "/system/smtp",
+      "/system/outbound-policy"
+    ],
+    "delta": "append /system/runtime-information after /system/outbound-policy",
+    "end_line": 1502,
+    "start_line": 1488
+  },
+  "audit_legacy_evidence_keys_unchanged": [
+    "nine_leaves",
+    "thirteenth_return"
+  ],
+  "audit_owner_kind": "audit-read",
+  "browser_count_locations": {
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts": [
+      1112,
+      1189
+    ],
+    "tests/account-captcha-web/e2e/system-audit.spec.ts": [
+      1486,
+      1579
+    ],
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": [
+      1528
+    ],
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": [
+      1922,
+      2081
+    ],
+    "tests/account-captcha-web/e2e/system-models.spec.ts": [
+      1923,
+      1991
+    ],
+    "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts": [
+      1358,
+      1461
+    ],
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": [
+      1192
+    ],
+    "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": [
+      1424,
+      1555
+    ],
+    "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts": [
+      1311,
+      1491
+    ]
+  },
+  "browser_count_total": 16,
+  "current_groups": [
+    "users-invitations",
+    "models-providers",
+    "audit",
+    "platform-configuration"
+  ],
+  "current_leaves": [
+    "/system/users",
+    "/system/invitations",
+    "/system/providers",
+    "/system/models",
+    "/system/model-selection",
+    "/system/audit",
+    "/system/account-security",
+    "/system/smtp",
+    "/system/outbound-policy"
+  ],
+  "current_return_targets": [
+    "/",
+    "/settings/profile",
+    "/settings/appearance",
+    "/settings/password",
+    "/system/users",
+    "/system/invitations",
+    "/system/providers",
+    "/system/models",
+    "/system/model-selection",
+    "/system/account-security",
+    "/system/smtp",
+    "/system/outbound-policy",
+    "/system/audit"
+  ],
+  "old_real_selectors": [
+    "TestAccountSystemAuditWebNavigationAndLayouts",
+    "TestAccountSystemOutboundPolicyWebNavigationAndLayouts"
+  ],
+  "parseSystemInstant_existing_export": "web/src/api/system-account.ts:38",
+  "runtime_proposed_kind": "runtime-information-read",
+  "runtime_single_GET_operation": "getSystemRuntimeInformation",
+  "runtime_success_max_bytes": 16384,
+  "session_parameter_count": 11,
+  "session_parameters": [
+    "api",
+    "systemAPI",
+    "invitationAPI",
+    "providerAPI",
+    "modelAPI",
+    "selectionAPI",
+    "accountSecurityAPI",
+    "smtpAPI",
+    "smtpDeliveryAPI",
+    "outboundAPI",
+    "auditAPI"
+  ],
+  "session_signature": "export function createSessionController(\n  api: AccountAPI = createAccountAPI(),\n  systemAPI: SystemAccountAPI = createSystemAccountAPI(),\n  invitationAPI: SystemInvitationAPI = createSystemInvitationAPI(),\n  providerAPI: SystemProviderAPI = createSystemProviderAPI(),\n  modelAPI: SystemModelAPI = createSystemModelAPI(),\n  selectionAPI: SystemModelSelectionAPI = createSystemModelSelectionAPI(),\n  accountSecurityAPI: SystemAccountSecurityAPI = createSystemAccountSecurityAPI(),\n  smtpAPI: SystemSMTPSettingsAPI = createSystemSMTPSettingsAPI(),\n  smtpDeliveryAPI: SystemSMTPDeliveryAPI = createSystemSMTPDeliveryAPI(),\n  outboundAPI: SystemOutboundPolicyAPI = createSystemOutboundPolicyAPI(),\n  auditAPI: SystemAuditAPI = createSystemAuditAPI(),\n) {",
+  "stages_unchanged_except": [
+    {
+      "accepted_sha256": "f04bb7e1574242d2546f01c81e41b7209fc66e6a444321ced64b195e5b68aaba",
+      "original_stage_sha256": "b11ae46e854fa8ad918b8f13536d1fe354d968949205d77d6935807f8bb9ea51",
+      "path": "web/src/views/system/SystemAuditView.vue"
+    }
+  ]
+}

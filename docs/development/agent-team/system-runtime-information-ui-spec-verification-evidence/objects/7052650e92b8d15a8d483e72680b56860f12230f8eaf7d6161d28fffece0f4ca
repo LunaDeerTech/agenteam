@@ -1,0 +1,7 @@
+# Runtime UI 正式卡页首交付
+
+仅把已独立 STATIC PASS 的 private rev2 适配为正式 rev2 页首：注明主线程规格采纳、产品未开工/未验收、固定 a0e73bd 与 Runtime HTTP 9b074f8，并记录受审稿及独立报告 SHA。删除只适用于旧私有目录的同目录输入/差量指引；技术 §1–7 全字节保持，正文历史待审时态由页首澄清。
+
+交付仅 `docs/development/work-items/d27-system-runtime-information-ui.md` 一张卡，35 产品候选范围未变，README #16 仍最后。精确差量见 `private-rev2-to-formal.diff`，SHA/路径见 `delivery.json`。静态指纹、格式及差量检查通过；原六条技术链接保持并复用此前已核目标。不构成实施或动态接受。
+
+原 private rev2 与独立报告未修改；本目录冻结后停写。未修改主树/Git，未运行产品或资源。

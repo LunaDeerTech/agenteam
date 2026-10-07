@@ -396,3 +396,13 @@ A01跨字段实际RED保留，A02三行guard／同probeGREEN；错误作者笛�
 早期C完整1763/type/build不代表最终CSS全套重跑；后续仅受影响12PASS/8skip、type/build、native导航和最终两组独立覆盖。26张900px局部图作者实际看14/root看4，不夸整页视觉。主树86a882+35仅graph/racecompile/exact3list actual0，6PID双清，Runtime13/前端149依赖相符；不是a0e73bd8动态重验。README首checker重复selector前提红保留，第二版限定新增段后通过且产品未变。
 
 本档1347逻辑原件、815新对象；36Git路径和40dist指纹可核，不复制依赖树/cache/二进制。两历史format前态、未冻结准备脚本覆盖和tool-only缺原raw边界如实保留。当前Runtime HTTP已接受、Runtime UI仅私有规格整理；完整D08–D28/E01未完、E01未开始、Summary待决、ready503和三停止任务不变，本档不接续或替代停止任务。
+
+## 35. System运行信息UI规格接受与有限实施授权
+
+主线程已采纳完整rev2独立STATIC PASS，正式卡提交推送`2aceadfef6e7a214bc631822317ccf4283bcabc0`并核远端一致；[永久规格报告](system-runtime-information-ui-spec-verification.md)保存原private rev0.1、rev2/正式页首差量、独立原件、计划与正式绑定。技术`85b3d003c8f257e12fa29e0becd2f23b1f77ea4f64efcc521179567c50f27400`保持，原§1–34原字节保留。
+
+规格固定产品a0e73bd8，包含Runtime HTTP9b074f8与Audit UI；55有限Git来源逐字核对，不是未来运行闭包。35候选为16核心/10旧pure/9旧browser，原§2/3逐字不变；两次no-index原exit1为有意差量且无空白诊断，不能当产品失败。24逻辑引用去重22对象和正式卡Git，无全树/依赖复制。
+
+主线程已确认唯一前端API A三源私有实施与离线自测实际开始；owner/page/harness/README尚未开始。独立计划已实际准备并冻结，但没有独立实现或真实资源结论。计划中的两真实代表与预算待固定实现和后续授权，不预称通过。本档不消费活动源码，不改既有产品与规格历史。
+
+完整D08–D28/E01未完成、E01未开始，Summary待决、未绑定能力/ready503和Object/tools/SPA publication三停止不变。

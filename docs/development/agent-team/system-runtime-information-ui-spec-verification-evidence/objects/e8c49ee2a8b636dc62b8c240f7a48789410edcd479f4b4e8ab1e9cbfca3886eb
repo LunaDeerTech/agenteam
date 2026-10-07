@@ -1,0 +1,79 @@
+--- private-rev0.1/d27-system-runtime-information-ui.draft.md
++++ private-rev2/d27-system-runtime-information-ui.rev2.draft.md
+@@ -1,16 +1,16 @@
+ # D27：System 运行信息只读页面
+ 
+-修订：private rev0.1。状态：仅私有后继规格草案，未独立静审，未授产品、主树写入或资源权限。拟正式路径 `docs/development/work-items/d27-system-runtime-information-ui.md`；当前不存在同类 UI 工作项，不重复已有 HTTP 卡。
++修订：private rev2（原private rev0.1的已接受前置重绑定）。状态：仅私有工程规格候选，待独立STATIC与主线程采纳；未授产品、主树写入或资源权限。拟正式路径 `docs/development/work-items/d27-system-runtime-information-ui.md`，不重复已有 HTTP 卡。
+ 
+-固定正式前端 `1ff044264a54c948e512db9aafad24ec5e0aa3c2`；只将 Audit UI 冻结 `web-stage01`（manifest SHA `44e7b61bb61e53878ecdb8469d69e749d28021380ede640e1fbc08cd4675aae0`）用作下一接口/布局的待验前置。HTTP 正式技术 SHA `aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab`；文档读取固定 `aa9ea0b63de0c395525f3084ef514752ce2f1dfd`。有限输入及逐文件 SHA 见同目录 `inputs.json`，与 Audit 的工程差量见 `delta.md`。
++固定完整产品/源码输入 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1`：Runtime HTTP十四路径结果已在 `9b074f809df4603923faa68d963cb30a5fe4d7eb` 独立接受，Audit UI三十六路径结果已在 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1` 独立接受；均经主线程提交推送。现从这个固定Git读取实际签名、路由、菜单、测试与HTTP契约，不再消费待验阶段副本或活动归档。Runtime HTTP技术 SHA `aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab` 保持。
+ 
+-主线程授本稿时，Audit A/B/C 已接受、D 真实与完整产品接受/提交未完成；Runtime serviceA02/HTTPB 已接受，rootC 独立、native/真实与完整产品接受/提交未完成。阶段通过不关闭这两个产品前置。以下范围只是候选：核心16、已核旧导航18、尚未读取的 Audit D browser 条件候选1；上游正式接受后必须固定实际 Git/签名/文件名单，重新定稿静审并由主线程另授唯一作者，不能据本稿开工。
++原private rev0.1全文 SHA `daf9dd060e9be40da88abc4a8a0c25ab5d2dce564d24c4f56a0affe9cb6bab89`、技术§1–7 SHA `c1ddd9eac33d591a3b6d9464c3be88c6fed4228b53f2d7b0413d445bc25eeceb` 原件保留。本修订仅关闭两项上游产品前置、落实实际接缝及原条件#35：范围确定为核心16、旧pure导航10、旧browser导航9，共35路径，README仍#16最后；没有新增产品语义或范围外文件。有限输入及逐文件 SHA 见同目录 `inputs.json`，精确原稿差量见 `rev0.1-to-rev2.diff`，接缝与差量说明见 `delta.md`。独立静审及唯一作者/实施/资源窗口仍须主线程另授，不能据本稿开工。
+ 
+ ## 1. 完整结果与边界
+ 
+ 管理员在系统设置中读取 Central 已记录的运行快照，查看版本未知、PostgreSQL/pgvector 历史成功版本和时间、MinIO 支撑的 Object Storage 聚合观测及非 ready 原因，并可显式重新读取或取消当前读取。按[系统设置布局](../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置)、[运行信息 HTTP 卡](d28-system-runtime-information-http.md)及[Audit UI 卡](d27-system-audit-ui.md)落实既定需求；沿[设计](../../../.agents/skills/agenteam-design/SKILL.md)、[Vue](../../../.agents/skills/agenteam-vue-development/SKILL.md)与[验证](../../../.agents/skills/agenteam-verification/SKILL.md)技能。这里只定义页面结果，不复制后端缓存、事务或组件算法。
+ 
+-GET 仅观察现有缓存，不触发健康探测或修复。没有写口、连接测试、自动轮询、可编辑部署配置、Secret 回显、版本构建绑定、Runtime/Runner/Project 状态扩展或 ready 成功分支。原 Object join、OpenAI tools、SPA publication 停止任务不恢复；Summary 仍待定。本页接受不代表完整 D27/D28、部署或那些未绑定能力完成。当前未发现新增产品待决；尚缺的是两个上游完整验收和实际接口复核。
++GET 仅观察现有缓存，不触发健康探测或修复。没有写口、连接测试、自动轮询、可编辑部署配置、Secret 回显、版本构建绑定、Runtime/Runner/Project 状态扩展或 ready 成功分支。原 Object join、OpenAI tools、SPA publication 停止任务不恢复；Summary 仍待定。本页接受不代表完整 D27/D28、部署或那些未绑定能力完成。当前未发现新增产品待决；两个上游完整接受已绑定，实际接口已按上述固定Git复核，本卡仍待独立规格审查和实施授权。
+ 
+ ## 2. 导航与可见行为
+ 
+@@ -43,9 +43,9 @@
+ 
+ ## 4. 当前身份与实际读取所有权
+ 
+-冻结 Audit 签名末尾第11项是 `auditAPI`；本卡只在其后追加默认工厂的第12项 `runtimeInformationAPI`，保留原参数次序/调用兼容。新增唯一 kind `runtime-information-read`、独立 revision 与 `auth.system.runtimeInformation.{get,abandon}`；`runAuthorized` 显式选择本域 revision，不落入 personal/provider 等默认分支。`get()`只从当前 `personalContext` 捕获身份，通过原系统管理员入口，整个传输/解析/取消共享唯一 Cookie owner；不建立第二队列或绕过 state.busy。
++固定 `createSessionController` 的第1–11项依次为 `api,systemAPI,invitationAPI,providerAPI,modelAPI,selectionAPI,accountSecurityAPI,smtpAPI,smtpDeliveryAPI,outboundAPI,auditAPI`；本卡只在其后追加默认工厂的可选第12项 `runtimeInformationAPI`，保留原参数次序/调用兼容。新增唯一 kind `runtime-information-read`、独立 revision 与 `auth.system.runtimeInformation.{get,abandon}`；`runAuthorized` 显式选择本域 revision，不落入 personal/provider 等默认分支。`get()`只从当前 `personalContext` 捕获身份，通过原系统管理员入口，整个传输/解析/取消共享唯一 Cookie owner；不建立第二队列或绕过 state.busy。
+ 
+-本域 abandon 同步递增本域代次、只取消本域 owner，不影响其他11个 API 域的请求、私有材料、历史 intent 或确认 Promise；反向旧域 abandon 也不能取消本域。本域清理接入原 clearIdentity、adopt 的换身份/非admin分支及当前系统403拒绝；App/auth.leave/dispose 的全局清理仍是原全局语义。取消/可见30s结束不代表实际I/O结束，owner仅在原 actual.finally 释放，期间所有域的新 Cookie 请求仍拒绝/等待其各自已定入口，不偷发后台 Session/健康读。
++本域 abandon 同步递增本域代次、只取消本域 owner，不影响其他11个 API 域的请求、私有材料、历史 intent 或确认 Promise；反向旧域 abandon 也不能取消本域。本域清理接入原 `clearIdentity`、`publish` 的换身份/非admin分支及当前系统403拒绝；App卸载中原各controller的 `dispose()` 与 `auth.leave()` 的全局清理及次序保持，不新增 `auth.dispose` 或App持久页面controller。取消/可见30s结束不代表实际I/O结束，owner仅在原 actual.finally 释放，期间所有域的新 Cookie 请求仍拒绝/等待其各自已定入口，不偷发后台 Session/健康读。
+ 
+ 响应仅当前 user/session/epoch、op代次、页面实例与管理员资格均合法时发布。合法 Problem 的401+(UNAUTHENTICATED|SESSION_REVOKED)沿同身份/op generation安全清理，即便本页已放弃也不得让当前已失效Session继续获权；403+FORBIDDEN还须 current()，清系统内容和当前权限。本新 kind 的403清理同 Audit 要求 `kind==='problem'`；数字状态、错配/未知code/CSRF_FAILED均不能推断 GET 身份失效。旧身份/旧owner迟到结果不得清新身份、重新授权或发布旧观察；不扩大旧域错误规则。
+ 
+@@ -55,11 +55,11 @@
+ 
+ 开始显式读取时清掉旧观察，loading不展示旧值为新成功；失败/取消同步成为可明确重读的error，actual尾部未结束时按钮仍禁新请求，不能留下无活读取的loading。身份变更/非admin/system.denied/checking使本实例退休并清值，不能靠后来的同Session重获资格。`onBeforeRouteLeave`先停本页读取/资格再允许导航，无写确认；若后置guard拒绝导航，原页仍可显式重读。仅实际卸载dispose，禁止旧 finally 将已退休页改回ready或启动后继读取。
+ 
+-同身份 checking 卸载也丢弃旧观察；恢复后创建新controller，重新读取一份新快照，不能声称跨checking保持页态。沿固定 App 的真实 `refreshVisible`：busy时pageshow直接return，不人为强造“读取中pageshow必进入checking”。分别验①owner空闲时pageshow→Session503→同Session恢复→新页默认一次；②新实例挂载时旧读取actual tail仍扣留→等待→释放后一次；③同实例cancel后tail释放不自动读。未验 Audit 最终若改变此接缝，重新核对，不在本卡改App。
++同身份 checking 卸载也丢弃旧观察；恢复后创建新controller，重新读取一份新快照，不能声称跨checking保持页态。沿固定 App 的真实 `refreshVisible`：busy时pageshow直接return，不人为强造“读取中pageshow必进入checking”。分别验①owner空闲时pageshow→Session503→同Session恢复→新页默认一次；②新实例挂载时旧读取actual tail仍扣留→等待→释放后一次；③同实例cancel后tail释放不自动读。上述 `refreshVisible`、`RouterView v-if="state.phase === 'authenticated'"` 与Audit页面期controller接缝已在固定Git实核；不在本卡改App或给新页增加全局导航协调器。
+ 
+-## 6. 唯一候选范围与后置复核
++## 6. 唯一候选范围与固定接缝
+ 
+-以下16核心路径加18已核旧导航路径是当前确定候选，均不构成实施授权。文档#16最后完成。新API/helper不要求修改 system-account.ts 或 Audit实现；后端、App、共享UI、全局配置/锁/迁移/部署构建和旧fixture均只读。
++以下16核心路径加19已核旧导航路径（10 pure、9 browser）共35条，是当前确定候选，均不构成实施授权。文档#16最后完成。新API/helper不要求修改 system-account.ts 或 Audit实现；后端、App、共享UI、全局配置/锁/迁移/部署构建和旧fixture均只读。
+ 
+ | # | 精确候选路径 | 限定用途 |
+ | --- | --- | --- |
+@@ -97,9 +97,9 @@
+ | 32 | `tests/account-captcha-web/e2e/system-smtp-settings.spec.ts` | 冻结1311/1491两处9→10及相应全局数量标题。 |
+ | 33 | `tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts` | 冻结1424/1555两处9→10。 |
+ | 34 | `tests/account-captcha-web/e2e/system-outbound-policy.spec.ts` | 冻结1358/1461两处9→10及全局数量标题。 |
+-| 35（条件） | `tests/account-captcha-web/e2e/system-audit.spec.ts` | Audit D尚未读/未完整接受；接受后只核是否有全局9叶/13return精确断言，必要才授相应增量，否则剔除。 |
++| 35 | `tests/account-captcha-web/e2e/system-audit.spec.ts` | 固定1486/1579两处全局link数9→10，1488–1502完整href数组末尾追加运行信息；仅同步全局叶数标题，Audit自身 `/system/audit` return、四组与原生命周期断言保持。 |
+ 
+-旧导航改动不削弱active/aria、Tab困陷、Escape/遮罩恢复、确认/身份/写结果及原取消断言；四组不改成五组。冻结旧浏览器原文14处link数量已定位；不存在必要固定数量的旧测试不机械加入。上游接受后核实际Git/全部hash、第12签名和kind分类、四组十叶/十四return、Audit D条件候选/精确旧导航selector，以及新fixture引用的正式root闭包；有新路径或语义差异先交主线程修订，不能消费活动候选当产品依赖。
++旧导航改动不削弱active/aria、Tab困陷、Escape/遮罩恢复、确认/身份/写结果及原取消断言；四组不改成五组。固定旧浏览器共16处link数量已定位（原8文件14处、Audit新纳入文件2处），Audit另有一份完整href数组；不存在必要固定数量的旧测试不机械加入。Audit browser的 `nine_leaves` / `thirteenth_return` 与旧Go要求键作为已有证据协议名保持，本轮新增的数量硬断言明确是10，键名不作为当前全局数量证明；Audit自己仍是第13个已加入的return目标，不将其路径或旧协议键改成新页。实际Git/输入SHA、第12签名与kind分类、十叶四组/十四return及下面两个精确旧selector均已实核。新fixture沿已接受的正式root闭包模式，不修改旧fixture；若实施中发现新路径或语义差异，先交主线程修订。
+ 
+ ## 7. 最小验收与交接
+ 
+@@ -107,12 +107,12 @@
+ | --- | --- |
+ | 纯API | 固定GET零query/body/key/CSRF；每层缺键/额外键/null/enum及跨字段矛盾整份拒绝；四时间完整公历/非零/年0000/六位微秒，合法倒序仍接收；ASCII版本1/256与257/非ASCII/控制字符，`<>&`只作文字。合法最大转义、16384B完整JSON含空白边界/16385B拒绝、坏UTF8/截断/非200/MIME/重定向/Problem错配；EOF前零发布，read与cancel的独立actual屏障，旧三类response预算不变。 |
+ | 纯状态与App | 真实工厂+原生受控stream；11旧API域与新域双向busy/abandon屏障，至少含Audit未完读和SMTP/Outbound旧pending材料保持；一组代表actual tail扣留及所有域入口表驱动分类，不重跑全部旧业务矩阵。取消同步error、等待/开始后的首次资格差别、30s可见边界后仍busy、late401同身份规则与新身份零污染、当前403/错误配对、检查卸载/重挂上述三场景；同页读取无写确认、后置导航拒绝可显式恢复，本页及其恢复不发起业务写，旧pending准备与既有写行为另列。 |
+-| 真实 ReadAndAuthority | 拟 `TestAccountSystemRuntimeInformationWebReadAndAuthority`：正式 `app.Run`+已接受 runtime HTTP/cache源，正式登录/普通邀请账户/Logout，生产dist经任务自有同源host读取；有效快照逐字段对照同次真实GET，未知版本和ready=false如实显示，手动重读仍只调用唯一GET。非admin页面零本口GET/零内容，直接正式HTTP拒绝与页面门禁分列；正式撤销后不再展示旧快照。精确GET的一次503/截断只验证读错零快照，不伪造200或通过SQL修改健康/Session/role。后端同T/零probe/SH-EX算法复用其最终接受证据，不在浏览器重复故障注入。 |
+-| 真实 NavigationAndLifecycle | 拟 `TestAccountSystemRuntimeInformationWebNavigationAndLifecycle`：十叶四组/默认用户/直达和return、页内取消或离页时真实stream/代理尾部收回、旧结果零呈现；owner空闲pageshow→受限Session503→同Session恢复新GET一次，读取busy时pageshow原样不强造checking。任务自有精确GET代理hold/截断/失败仅测试控制，原生产API/auth链保留；无Session DTO/版本原件/凭据日志。浅/深色×390/768/1024/1440布局无横溢，窄Drawer键盘/Escape/遮罩恢复原强断言，无业务modal。 |
+-| 旧风险回归 | 受影响10个pure导航文件按原断言运行；8个旧browser只精确菜单增量并做必要compile/发现。真实旧代表选已接受 Audit D 的 Navigation（接收后固定名称）及正式 `TestAccountSystemOutboundPolicyWebNavigationAndLayouts`，覆盖紧邻只读生命周期和旧写确认/Drawer；不因数量改动重跑每域全部CRUD/SMTP发送。缺陷证据需要扩大时由主线程另定。 |
++| 真实 ReadAndAuthority | `TestAccountSystemRuntimeInformationWebReadAndAuthority`：正式 `app.Run`+已接受 runtime HTTP/cache源，正式登录/普通邀请账户/Logout，生产dist经任务自有同源host读取；有效快照逐字段对照同次真实GET，未知版本和ready=false如实显示，手动重读仍只调用唯一GET。非admin页面零本口GET/零内容，直接正式HTTP拒绝与页面门禁分列；正式撤销后不再展示旧快照。精确GET的一次503/截断只验证读错零快照，不伪造200或通过SQL修改健康/Session/role。后端同T/零probe/SH-EX算法复用其最终接受证据，不在浏览器重复故障注入。 |
++| 真实 NavigationAndLifecycle | `TestAccountSystemRuntimeInformationWebNavigationAndLifecycle`：十叶四组/默认用户/直达和return、页内取消或离页时真实stream/代理尾部收回、旧结果零呈现；owner空闲pageshow→受限Session503→同Session恢复新GET一次，读取busy时pageshow原样不强造checking。任务自有精确GET代理hold/截断/失败仅测试控制，原生产API/auth链保留；无Session DTO/版本原件/凭据日志。浅/深色×390/768/1024/1440布局无横溢，窄Drawer键盘/Escape/遮罩恢复原强断言，无业务modal。 |
++| 旧风险回归 | 受影响10个pure导航文件按原断言运行；9个旧browser只精确菜单增量并做必要compile/发现。真实旧代表精确为已接受的 `TestAccountSystemAuditWebNavigationAndLayouts` 与 `TestAccountSystemOutboundPolicyWebNavigationAndLayouts`，覆盖紧邻只读生命周期和旧写确认/Drawer；不因数量改动重跑每域全部CRUD/SMTP发送。缺陷证据需要扩大时由主线程另定。 |
+ 
+ 真实浏览器fixture沿既有 `system_outbound_policy_web_fixture_test.go` 的正式root+同源生产dist接缝，在本新fixture持有自己的PG/MinIO、HTTP和浏览器资源；不修改旧fixture、不引生产SPA hosting或额外SMTP发送。成功内容必须来自正式 runtime source，纯合成stale/unavailable/矛盾DTO只证明客户端解析/呈现，不冒充真实停库/MinIO故障。页面请求观察按精确method/path计数，不读原始Session/Secret响应或静默调用diagnostics/readyz作补读；无全域日志/网络录制。
+ 
+ 受控场景45s、新真实场景2m、Go原包 `-race -count=1 -timeout=6m`，不靠增加预算救测试；离线check/build仅在实施另授后执行。独立验收按API/owner与真实root/browser风险选代表，不能用作者自测或规格静审替代。所有工具/依赖/源码/dist固定输入，原失败保留；真实资源另授唯一窗口，nonce/exact IDs、PID/starttime/adopted实际wait、server/client/body/callback关停及前后双扫后归还。README最后、Git/永久证据归档由主线程安排。
+ 
+-本稿仅做文档自查与有限只读接缝定位，没有运行产品/测试/构建/监听器或资源。先等待两个产品完整接受，再做前置重绑定、卡片独立STATIC和实施授权；不存在由本稿自动开始的后续动作。
++本稿仅做文档自查与固定Git只读接缝复核，没有运行产品/测试/构建/监听器或资源。两个上游产品已完整接受，本次完成前置重绑定；仍待本卡独立STATIC、主线程采纳及实施授权，不存在由本稿自动开始的后续动作。

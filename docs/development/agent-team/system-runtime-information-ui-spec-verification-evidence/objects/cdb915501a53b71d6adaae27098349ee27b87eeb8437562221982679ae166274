@@ -1,0 +1,16 @@
+{
+  "formal_git": "2aceadfef6e7a214bc631822317ccf4283bcabc0",
+  "path": "docs/development/work-items/d27-system-runtime-information-ui.md",
+  "full_sha256": "284d00a91772697b6c9a3b7917c9d2caf877f71ae1c0f73da0966d9a0816c4e3",
+  "technical_sha256": "85b3d003c8f257e12fa29e0becd2f23b1f77ea4f64efcc521179567c50f27400",
+  "technical_bytes_equal_reviewed_rev2": true,
+  "plan01_sha256": "b0a455e1e012568ae64c48ef4a4ddcc42b4b18bd2c931588f10b3256b6278900",
+  "implementation_stage_A_scope": [
+    "web/src/api/client.ts",
+    "web/src/api/system-runtime-information.ts",
+    "web/src/tests/system-runtime-information-client.spec.ts"
+  ],
+  "active_implementation_read": false,
+  "independent_execution_authorized": false,
+  "note": "Supplementary fixed formal reference only; original plan and finite55 source inventory unchanged."
+}

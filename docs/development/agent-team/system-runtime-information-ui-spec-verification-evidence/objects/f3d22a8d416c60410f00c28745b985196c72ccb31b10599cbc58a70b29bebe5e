@@ -1,10 +1,10 @@
 # D27：System 运行信息只读页面
 
-修订：rev2。状态：规格已独立完整STATIC PASS、主线程采纳并提交推送`2aceadfef6e7a214bc631822317ccf4283bcabc0`，核远端一致；[永久规格记录](../agent-team/system-runtime-information-ui-spec-verification.md)保存受审输入与计划。唯一前端已实际启动API A三源私有实施/离线自测；owner/page/harness/README尚未开始，独立仅计划冻结，无独立实现接受或真实资源。本页首不表示产品验收通过。
+修订：private rev2（原private rev0.1的已接受前置重绑定）。状态：仅私有工程规格候选，待独立STATIC与主线程采纳；未授产品、主树写入或资源权限。拟正式路径 `docs/development/work-items/d27-system-runtime-information-ui.md`，不重复已有 HTTP 卡。
 
 固定完整产品/源码输入 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1`：Runtime HTTP十四路径结果已在 `9b074f809df4603923faa68d963cb30a5fe4d7eb` 独立接受，Audit UI三十六路径结果已在 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1` 独立接受；均经主线程提交推送。现从这个固定Git读取实际签名、路由、菜单、测试与HTTP契约，不再消费待验阶段副本或活动归档。Runtime HTTP技术 SHA `aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab` 保持。
 
-受审 private rev2全文 SHA `f3d22a8d416c60410f00c28745b985196c72ccb31b10599cbc58a70b29bebe5e`；下列技术§1–7逐字保持，SHA `85b3d003c8f257e12fa29e0becd2f23b1f77ea4f64efcc521179567c50f27400`。独立审查原件 [STATIC原报告](../agent-team/system-runtime-information-ui-spec-verification-evidence/objects/ec63c9b2521974faec1244d9b0350f342bdb0afa5acdb035660b7f0363090f07)，SHA `ec63c9b2521974faec1244d9b0350f342bdb0afa5acdb035660b7f0363090f07`，结论为完整技术正文有界 STATIC PASS，无必需修订。正文候选阶段的待审时态保留为受审输入原文，当前规格接受状态以本页首为准；不据此宣称产品或动态验收通过。
+原private rev0.1全文 SHA `daf9dd060e9be40da88abc4a8a0c25ab5d2dce564d24c4f56a0affe9cb6bab89`、技术§1–7 SHA `c1ddd9eac33d591a3b6d9464c3be88c6fed4228b53f2d7b0413d445bc25eeceb` 原件保留。本修订仅关闭两项上游产品前置、落实实际接缝及原条件#35：范围确定为核心16、旧pure导航10、旧browser导航9，共35路径，README仍#16最后；没有新增产品语义或范围外文件。有限输入及逐文件 SHA 见同目录 `inputs.json`，精确原稿差量见 `rev0.1-to-rev2.diff`，接缝与差量说明见 `delta.md`。独立静审及唯一作者/实施/资源窗口仍须主线程另授，不能据本稿开工。
 
 ## 1. 完整结果与边界
 

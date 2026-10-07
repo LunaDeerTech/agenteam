@@ -1,0 +1,32 @@
+{
+  "candidate_full_sha256": "284d00a91772697b6c9a3b7917c9d2caf877f71ae1c0f73da0966d9a0816c4e3",
+  "changed_region": "only bytes before ## 1.",
+  "delivery_count": 1,
+  "diff_check": {
+    "actual_exit": 1,
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/workspace/scratch/agenteam-runtime-ui-spec-rev2-ljmyx0hy/d27-system-runtime-information-ui.rev2.draft.md",
+      "/workspace/scratch/agenteam-runtime-ui-formal-euaw3ybp/d27-system-runtime-information-ui.md"
+    ],
+    "interpretation": "intentional content difference, no whitespace diagnostic",
+    "stderr": "",
+    "stdout": ""
+  },
+  "execution": "Static file/format/hash/diff only; no product/test/build/listener/resources/main/Git mutation",
+  "format": "UTF-8 LF/no BOM/no trailing whitespace/no invisible format characters",
+  "links": "All six original technical links unchanged; formal destination equals prior checked destination; no new Markdown link",
+  "original_link_check": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-spec-rev2-ljmyx0hy/checks.json",
+    "sha256": "c867f53d0fb0f1de383ec3e0ee62eb1322081e731ee5687125af2ffea04c4188"
+  },
+  "result": "PASS: private formal-header-only static checks",
+  "scope_paths": 35,
+  "source_full_sha256": "f3d22a8d416c60410f00c28745b985196c72ccb31b10599cbc58a70b29bebe5e",
+  "technical_bytes_equal": true,
+  "technical_sha256": "85b3d003c8f257e12fa29e0becd2f23b1f77ea4f64efcc521179567c50f27400"
+}

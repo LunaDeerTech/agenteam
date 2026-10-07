@@ -1,0 +1,18 @@
+# Runtime UI private rev2：前置重绑定差量
+
+仅规格整理，未实施或运行产品。固定输入为已接受的 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1`，包含 Runtime HTTP `9b074f809df4603923faa68d963cb30a5fe4d7eb` 与 Audit UI36；原私稿及其输入清单保留。本稿待独立 STATIC 和主线程采纳。
+
+| 项目 | 相对原 private rev0.1 的必要变化 |
+| --- | --- |
+| 前置与状态 | 将两个待验阶段替换为上述已接受 Git；删除等待上游接受的过时状态。技术需求和权限边界不扩大。 |
+| API/owner 名称 | 固定当前 11 参数顺序，仍只追加默认工厂的可选第 12 参数；将原稿误称的 `adopt` 改为实际 `publish`。沿原 App controller `dispose()` → `auth.leave()` 清理，不新增接口或全局页面 controller。 |
+| 页面生命周期 | 将待验接缝改为已实核 `refreshVisible` busy return、authenticated `RouterView` 和页面期 controller；原三场景及矩阵不变。 |
+| 条件 #35 | 已接受 Audit browser 存在两处全局 link 数 9（1486/1579）及完整 href 数组（1488–1502），故纳入确定范围，分别改为 10 和追加运行信息路径。Audit 自身 return URL、四组、原业务/生命周期断言保持。 |
+| 旧证据协议 | `nine_leaves` / `thirteenth_return` 是既有 browser→Go 协议键，保留以免扩大旧 Go 范围；新数量硬断言为 10。Audit 自身仍是既有第 13 个 return 目标。 |
+| 精确验收名称 | 固定已存在的 `TestAccountSystemAuditWebNavigationAndLayouts` 与 `TestAccountSystemOutboundPolicyWebNavigationAndLayouts`；旧 browser 总数由 8 变为 9。未增加业务矩阵或放宽断言。 |
+
+范围为核心 16 + 旧 pure 10 + 旧 browser 9 = **35 条**，无条件项；README #16 最后。固定 Git 中其中 25 条已存在、10 条待新建。旧 9 个 browser 共 16 处菜单数量断言，另有 Audit 完整 href 集合。精确范围见 spec §6，实际签名、位置及旧 selector 见 `seams.json`；55 个有限固定 Git 输入的字节数/SHA 见 `inputs.json`。
+
+原冻结前端阶段的 27 个相关输入中，仅 `web/src/views/system/SystemAuditView.vue` 的已接受字节不同（原 `b11ae46e854fa8ad918b8f13536d1fe354d968949205d77d6935807f8bb9ea51` → 已接受 `f04bb7e1574242d2546f01c81e41b7209fc66e6a444321ced64b195e5b68aaba`）；本修订按已接受字节复核接缝，不推断待验阶段等同最终产品。
+
+原 §2 导航/行为与 §3 HTTP/DTO 契约逐字不变；第 12 API、独立 `runtime-information-read`、10 叶/4 组/14 return、成功 16 KiB/Problem 600000 B、无写入/探测/自动轮询保持。`parseSystemInstant` 已由 `system-account.ts` 导出，不需要新增导出或路径。未发现 35 条以外的必要文件或新产品待决；三项停止任务与待定 Summary 均不消费。自查仅文档和固定 Git 静态核对，不构成独立审查、实现或动态接受。

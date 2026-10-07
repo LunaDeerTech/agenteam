@@ -1,0 +1,20 @@
+# Runtime UI rev2 独立 STATIC 审查
+
+结论：**STATIC PASS，无实质阻断或必需修订。** 已完整审读正文 §1–7，不只审相对 rev0.1 的差量。本结论允许主线程采纳规格，不表示产品、构建、页面交互或真实资源验收已通过。
+
+固定稿：`/workspace/scratch/agenteam-runtime-ui-spec-rev2-ljmyx0hy/d27-system-runtime-information-ui.rev2.draft.md`，全文 SHA `f3d22a8d416c60410f00c28745b985196c72ccb31b10599cbc58a70b29bebe5e`；技术 SHA `85b3d003c8f257e12fa29e0becd2f23b1f77ea4f64efcc521179567c50f27400`。固定产品 Git 为 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1`，包含已接受 Runtime HTTP `9b074f809df4603923faa68d963cb30a5fe4d7eb` 与 Audit UI。
+
+作者 `inputs.json` SHA `1fb9efbb6048ce9b6c4a968a2b2e29663369ab9cb569ef3e332f9be303cd2840` 的55项均以只读 `git show <fixed>:<path>` 实核字节数/SHA；同根冻结稿、原稿、diff、delta、seams、checks也与freeze清单相符。本目录 `input-check01.json` 保留精确有限来源，不是未来编译或执行闭包。
+
+| 核查 | 结论及固定依据 |
+| --- | --- |
+| 唯一 GET / DTO | `runtimeinfo/http/handler.go` 的字面GET、200、无query/body与预认证起3s；`wire.go` 的五顶层键和全部嵌套required/constants；`runtimeinfo/service.go` 的 Snapshot.Validate 与 OpenAPI 条件均对应 §3。历史样本不可缺，非available公共依赖必须对应 DEPENDENCY_UNAVAILABLE；双available仍允许两个readiness原因。合法200的ready=false和历史版本不可变成HTTP失败或当前健康推断。 |
+| 时间、版本和预算 | `system-account.ts:16–38` 已导出完整27字符公历微秒解析，包含年0000；新解析器仅额外拒绝明确Go零时间，不改旧helper或加入时间排序。正式 Snapshot.Validate 对四时间IsZero和两版本1–256B可打印ASCII的要求一致。client.ts:170–201/861–892的流读取和finally可增加仅本口成功16384B分支，保留普通/Problem600000B、Audit1MiB、Provider列表2MiB及实际cancel/lock尾部。3690B合法编码上界与16384B含空白传输边界是不同证明。 |
+| 第12 API / owner | `useSession.ts:415–426` 的11参数顺序与卡一致；追加可选默认工厂无需修改旧调用。`runAuthorized` 的显式revision选择及唯一owner/actual.finally（1166–1309）、`clearIdentity`/`publish`/当前403入口可接新域。`systemFailure:1439–1488` 明确：合法401须同完整identity和op generation，允许已abandon的同身份迟到失效；合法403 FORBIDDEN还须current()，新kind需Problem类别。错配、未知code或CSRF_FAILED不因GET数字状态而清身份。没有新command、lookup或write intent。 |
+| 页面期与导航 | `useSystemAudit.ts` 已有首次等待、cancel/leave耗尽首次资格、永久retire与实际dispose分离；新页可用同样局部结构。`SystemAuditView.vue:119–130` 在组件leave先取消、实际unmount才dispose；后置guard拒绝时允许本实例显式再读，而checking退休不复活。`App.vue` 的refreshVisible busy return、authenticated RouterView、原卸载auth.leave均足够；不需App常驻controller或新增全局confirmLeave。 |
+| 菜单与范围 | 35条唯一候选实核为16核心（README最后）+10旧pure+9旧browser；固定菜单9叶4组、return白名单13项，可分别只追加为10/4/14。旧browser实查16处toHaveCount(9)，Audit另有1488–1502完整href数组。Audit `nine_leaves`/`thirteenth_return` 是现有Go要求键，保留它们并把实际断言改10不会要求修改旧Go协议。旧Audit自己的return路径保持。 |
+| 真实验收可实施性 | 两新top分别覆盖正式root读取/权限与页面生命周期/布局；已有 `system_outbound_policy_web_fixture_test.go` 使用正式app.Run+自有PG/MinIO同源dist，能在新fixture复用接缝而不改旧fixture。两个旧精确selector实际存在：`TestAccountSystemAuditWebNavigationAndLayouts`、`TestAccountSystemOutboundPolicyWebNavigationAndLayouts`。45s场景、2m新top、6m包及实际wait/精确ID/PID双扫要求保持，未机械扩成每域业务矩阵。 |
+
+实施时按正文已有边界验收：成功页面内容与**同一次**正式GET逐字段对应，不拿第二次GET的observed_at或缓存变化做相等前提；未知、stale和unavailable的合成DTO只证明客户端解析/呈现。页空闲pageshow才沿现有App进入checking，busy时不能人为要求检查；403后guard重新确认管理员时，仍须按已接受页面期规则识别合法新实例首次读取。原生焦点、布局、真实取消尾部与唯一资源拓扑都必须由后续冻结实现和实际运行举证，本STATIC不预称通过。
+
+本轮只执行有限文件读取、固定Git检索及指纹/文档结构核对；无产品测试、Go/Node构建、HTTP/监听器、浏览器、PG/Docker或业务资源。未改原稿、主树、Git或产品，未消费活动Audit归档；未委派。原Object join、OpenAI tools、SPA publication停止任务及待定Summary不触及。报告冻结后等待主线程明确后续授权。

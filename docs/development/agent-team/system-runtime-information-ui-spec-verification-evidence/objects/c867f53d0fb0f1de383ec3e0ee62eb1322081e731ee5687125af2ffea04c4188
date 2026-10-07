@@ -1,0 +1,250 @@
+{
+  "candidate_full_sha256": "f3d22a8d416c60410f00c28745b985196c72ccb31b10599cbc58a70b29bebe5e",
+  "candidate_paths": [
+    {
+      "number": 1,
+      "path": "web/src/api/client.ts",
+      "status": "existing"
+    },
+    {
+      "number": 2,
+      "path": "web/src/api/system-runtime-information.ts",
+      "status": "new"
+    },
+    {
+      "number": 3,
+      "path": "web/src/composables/useSession.ts",
+      "status": "existing"
+    },
+    {
+      "number": 4,
+      "path": "web/src/composables/useSystemRuntimeInformation.ts",
+      "status": "new"
+    },
+    {
+      "number": 5,
+      "path": "web/src/router/index.ts",
+      "status": "existing"
+    },
+    {
+      "number": 6,
+      "path": "web/src/router/auth.ts",
+      "status": "existing"
+    },
+    {
+      "number": 7,
+      "path": "web/src/views/system/SystemSettingsView.vue",
+      "status": "existing"
+    },
+    {
+      "number": 8,
+      "path": "web/src/views/system/SystemRuntimeInformationView.vue",
+      "status": "new"
+    },
+    {
+      "number": 9,
+      "path": "web/src/tests/system-runtime-information-client.spec.ts",
+      "status": "new"
+    },
+    {
+      "number": 10,
+      "path": "web/src/tests/system-runtime-information-state.spec.ts",
+      "status": "new"
+    },
+    {
+      "number": 11,
+      "path": "web/src/tests/system-runtime-information.spec.ts",
+      "status": "new"
+    },
+    {
+      "number": 12,
+      "path": "tests/account/system_runtime_information_web_test.go",
+      "status": "new"
+    },
+    {
+      "number": 13,
+      "path": "tests/account/system_runtime_information_web_fixture_test.go",
+      "status": "new"
+    },
+    {
+      "number": 14,
+      "path": "tests/account-captcha-web/system-runtime-information.config.js",
+      "status": "new"
+    },
+    {
+      "number": 15,
+      "path": "tests/account-captcha-web/e2e/system-runtime-information.spec.ts",
+      "status": "new"
+    },
+    {
+      "number": 16,
+      "path": "docs/development/frontend/README.md",
+      "status": "existing"
+    },
+    {
+      "number": 17,
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 18,
+      "path": "web/src/tests/system-invitations.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 19,
+      "path": "web/src/tests/system-providers.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 20,
+      "path": "web/src/tests/system-models.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 21,
+      "path": "web/src/tests/system-model-selection.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 22,
+      "path": "web/src/tests/system-account-security.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 23,
+      "path": "web/src/tests/system-smtp-settings.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 24,
+      "path": "web/src/tests/system-outbound-policy.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 25,
+      "path": "web/src/tests/system-audit.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 26,
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 27,
+      "path": "tests/account-captcha-web/e2e/system-invitations.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 28,
+      "path": "tests/account-captcha-web/e2e/system-providers.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 29,
+      "path": "tests/account-captcha-web/e2e/system-models.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 30,
+      "path": "tests/account-captcha-web/e2e/system-model-selection.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 31,
+      "path": "tests/account-captcha-web/e2e/system-account-security.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 32,
+      "path": "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 33,
+      "path": "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 34,
+      "path": "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+      "status": "existing"
+    },
+    {
+      "number": 35,
+      "path": "tests/account-captcha-web/e2e/system-audit.spec.ts",
+      "status": "existing"
+    }
+  ],
+  "candidate_technical_sha256": "85b3d003c8f257e12fa29e0becd2f23b1f77ea4f64efcc521179567c50f27400",
+  "counts": {
+    "browser_count_assertions": 16,
+    "core": 16,
+    "existing": 25,
+    "fixed_git_inputs": 55,
+    "legacy_browser": 9,
+    "legacy_pure": 10,
+    "new": 10,
+    "total": 35
+  },
+  "delta_sha256": "f60c0d60945af3d3b3227784118084b26d40477d0e65f5f3a8d46de7e133edb1",
+  "diff_check": {
+    "actual_exit": 1,
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/workspace/scratch/agenteam-runtime-ui-spec-rev2-ljmyx0hy/original-rev0.1.draft.md",
+      "/workspace/scratch/agenteam-runtime-ui-spec-rev2-ljmyx0hy/d27-system-runtime-information-ui.rev2.draft.md"
+    ],
+    "meaning": "intentional file difference exit 1, no whitespace diagnostics",
+    "stderr": "",
+    "stdout": ""
+  },
+  "diff_sha256": "e8c49ee2a8b636dc62b8c240f7a48789410edcd479f4b4e8ab1e9cbfca3886eb",
+  "execution_scope": "Git object reads and static documentation checks only; no product/test/build/listener/browser/Docker/PG/MinIO/main or Git mutation",
+  "fixed_git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+  "format": "UTF-8 LF, no BOM/trailing whitespace/invisible format characters; 7 numbered sections",
+  "independent_review": "not performed by this author; handoff required",
+  "input_sha256": "1fb9efbb6048ce9b6c4a968a2b2e29663369ab9cb569ef3e332f9be303cd2840",
+  "links": [
+    {
+      "anchor_checked": true,
+      "fixed_git_target": "docs/frontend-design/layouts/system-settings.md",
+      "link": "../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置"
+    },
+    {
+      "anchor_checked": false,
+      "fixed_git_target": "docs/development/work-items/d28-system-runtime-information-http.md",
+      "link": "d28-system-runtime-information-http.md"
+    },
+    {
+      "anchor_checked": false,
+      "fixed_git_target": "docs/development/work-items/d27-system-audit-ui.md",
+      "link": "d27-system-audit-ui.md"
+    },
+    {
+      "anchor_checked": false,
+      "fixed_git_target": ".agents/skills/agenteam-design/SKILL.md",
+      "link": "../../../.agents/skills/agenteam-design/SKILL.md"
+    },
+    {
+      "anchor_checked": false,
+      "fixed_git_target": ".agents/skills/agenteam-vue-development/SKILL.md",
+      "link": "../../../.agents/skills/agenteam-vue-development/SKILL.md"
+    },
+    {
+      "anchor_checked": false,
+      "fixed_git_target": ".agents/skills/agenteam-verification/SKILL.md",
+      "link": "../../../.agents/skills/agenteam-verification/SKILL.md"
+    }
+  ],
+  "original_full_sha256": "daf9dd060e9be40da88abc4a8a0c25ab5d2dce564d24c4f56a0affe9cb6bab89",
+  "original_technical_sha256": "c1ddd9eac33d591a3b6d9464c3be88c6fed4228b53f2d7b0413d445bc25eeceb",
+  "result": "PASS (author static document checks only)",
+  "seams_sha256": "febafb14e7a49bfc695bdda69683343901d28c0f13e52f5098ba0d6a4b925df9",
+  "sections_2_3_exact_unchanged": true
+}

@@ -1,0 +1,27 @@
+{
+  "status": "frozen plan only; execution requires subsequent stage authorization",
+  "spec": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-spec-rev2-ljmyx0hy/d27-system-runtime-information-ui.rev2.draft.md",
+    "sha256": "f3d22a8d416c60410f00c28745b985196c72ccb31b10599cbc58a70b29bebe5e",
+    "technical_sha256": "85b3d003c8f257e12fa29e0becd2f23b1f77ea4f64efcc521179567c50f27400"
+  },
+  "fixed_git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+  "finite_inputs": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-spec-rev2-ljmyx0hy/inputs.json",
+    "sha256": "1fb9efbb6048ce9b6c4a968a2b2e29663369ab9cb569ef3e332f9be303cd2840",
+    "count": 55
+  },
+  "accepted_static_review": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-spec-independent-qzs4vwza/review.md",
+    "sha256": "ec63c9b2521974faec1244d9b0350f342bdb0afa5acdb035660b7f0363090f07"
+  },
+  "plan": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-independent-plan-xx_ygl_n/plan01.md",
+    "sha256": "b0a455e1e012568ae64c48ef4a4ddcc42b4b18bd2c931588f10b3256b6278900"
+  },
+  "maximum_independent_real_tops": 2,
+  "product_execution": false,
+  "resource_execution": false,
+  "new_probe_implementation": false,
+  "scope_expansion": false
+}

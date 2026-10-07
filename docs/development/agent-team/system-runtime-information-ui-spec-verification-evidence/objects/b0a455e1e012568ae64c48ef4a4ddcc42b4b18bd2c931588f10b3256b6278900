@@ -1,0 +1,21 @@
+# Runtime UI 独立验收计划 01
+
+本轮只冻结计划，不实现探针、不执行产品检查或资源。依据已接受独立 STATIC 的 private rev2 全文 `f3d22a8d416c60410f00c28745b985196c72ccb31b10599cbc58a70b29bebe5e`、技术 `85b3d003c8f257e12fa29e0becd2f23b1f77ea4f64efcc521179567c50f27400`，固定产品 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1`。原55项输入清单 SHA `1fb9efbb6048ce9b6c4a968a2b2e29663369ab9cb569ef3e332f9be303cd2840`、独立静审 `ec63c9b2521974faec1244d9b0350f342bdb0afa5acdb035660b7f0363090f07` 原件不改。正式卡提交后，在首个执行输入中追加正式提交/全文指纹并核技术不变，不因页首变化重做静审。
+
+各阶段收到停止写入的快照和主线程对应授权才实施、运行。每阶段最多两个独立风险组合；以实际冻结接口写探针，不先猜新helper/API。未变上游解析、组件和后端授权/缓存证据按输入条件复用，不复制作者完整矩阵。
+
+| 阶段 | 独立组合与必要证明 | 冻结输入门槛 |
+| --- | --- | --- |
+| A API | ①正式 service/wire/schema 对照严格DTO：所有层闭合；状态/reason/readiness蕴含；四时间完整公历、年0000、六位微秒、额外拒绝Go零时间但接受合法显示倒序；版本ASCII1/256、空格及转义保真、257/控制/非ASCII拒绝。未知/缺键/多键/不完整历史整份拒绝，不伪造unknown快照。②真实原生受控ReadableStream：仅该GET成功16384B完整EOF才发布，16385B/坏UTF8/MIME/截断/取消拒绝；独立read及cancel屏障扣留actual尾部直到reader解锁和body终局。端点只signal，零query/body/CSRF/key；旧600000/1MiB/2MiB分支只核差量和必要代表。 | 新API、client、相关测试的固定源/差量；接受的parseSystemInstant、正式runtime service/wire/schema及实际Node依赖。若需Go对照，仅授权后选有界正式oracle，不复制后端全集。16384B的合法DTO加空白与最大合法编码分列，不称生产最大样本。 |
+| B owner / controller | ①真实createSessionController：第12参数、显式kind/revision、当前identity捕获；合法401同identity/op generation迟到清理，403 FORBIDDEN须合法Problem及current；错配/未知/CSRF_FAILED不误清、旧身份不污染新身份。COMMIT_UNKNOWN只是读取错误，不创建或吞掉旧域write intent。②原生尾部与页面期组合：virtual30s可见取消与实际walltime/join分列；11旧API域以冻结签名映射表核双向busy/abandon，实际held-tail优先Audit读及SMTP/Outbound旧材料，不重演每域业务。waiting取消仅撤首次资格、不碰其他owner；开始后cancel/leave使error且释放后不自动读；dispose/checking永久退休，新合格实例等旧actual tail结束后仅一次。 | 固定useSession、新页面controller/state测试及A原SHA；作者原失败/修前后差量与实际终局可读。跨域分类按实际Action/API映射，不增任意同步重入门槛，不把process exit当未到屏障的join。 |
+| C App / 页面 | ①真实App/router/factory公开操作：取消及离页先停止本页；后置guard拒绝仍可显式重读；晚旧结果不能改新观察/焦点，当前read error不会展示旧成功。②owner空闲pageshow→Session503→显式同身份恢复，旧实例永久退休、新实例默认一次；busy pageshow按原App不检查。对当前403/重新确认管理员，允许旧route上合格新实例的一次合法初读，依精确请求序列断言，不能以总GET不增误禁。覆盖非admin无内容/无本口GET、正常离页无业务确认及10叶4组14return。 | 完整新页面/路由/menu与必要旧测试差量、A/B原SHA、固定实际App递归依赖、构建dist指纹。仅jsdom/受控fetch阶段，不冒原生焦点或浏览器布局；本地refs须身份/实例代次/connected/disabled保护。 |
+| D harness / 就绪 | 先核两新top、两个精确旧Navigation selector、正式root/登录/邀请/Logout接缝与原生观察器。正常200只能来自正式Runtime HTTP；hold在何段、上游是否已EOF/Close、实际取消/join分别记事实；有限503/截断不得变fake200。检查版本/Session/凭据不输出，浏览器关闭异常也进入实际清理。 | 固定完整候选、dist、作者harness/driver，以及**实际**Go/Node/CLI/runtime闭包，含通用TestMain动态build依赖；不能把早期最小编译依赖当最终运行闭包。精确selector、工具版本/绝对解释器、原预算、nonce/exact IDs、PID/starttime/subreaper、direct/adopted actualwait、baseline完整比较和双扫须闭合。此静审不自动授资源。 |
+
+最终独立真实最多两个top，按作者最终已验事实精简，不增加新的producer、控制协议或共享fixture修改：
+
+- **R1 正式读取与当前权限。** 用本任务固定正式root/同源生产dist，正常管理员读取并与同一次真实GET的完整安全DTO对应；明确Central未知、数据库历史版本/时间、Object聚合及ready=false。必要一次手动重读/受限失败后显式恢复，观察零本页业务写/零客户端诊断补读。当前Session正式撤销或普通邀请身份的权限代表按作者最终缺口择一补强，页面门禁与直接HTTP拒绝分列。复用已接受Runtime后端同T/Source/SH-EX/零probe证据，不在本轮伪造健康、改业务表、注入停止任务故障，也不拿第二个GET与先前observed_at作全等前提。
+- **R2 取消、Session与原生导航。** 复用固定精确GET控制，公开取消/离页后旧响应不呈现，实际尾部结束前全局owner不放行；显式重读必须是新序号200+EOF。空闲pageshow503、显式同Session恢复后新实例一次读取；busy pageshow只验证原有不检查行为。原生标题/按钮/Drawer焦点与Tab/离页选一个有风险的组合，不机械重复作者8图。代理上游已结束后的hold不能冒DB事务尾部；显式pageshow事件不能冒物理BFCache。作者两旧真实Navigation及8布局图按最后源/dist条件复用并标明审图来源。
+
+离线命令按45s有界，真实browser45s、新top2m、Go包 `-race -count=1 -timeout=6m`，实际运行仍需主线程另授唯一资源窗。事前冻结私有probe/overlay/精确argv/源码依赖指纹，保留原命令raw、actual exit、可见取消与实际终局、输入前后和direct/adopted wait及两扫。首错先保原件、完成实际收尾再报告；产品红不私改，工具前提修正与受影响复验另冻，不将未到断言算通过。两真实代表后不新增业务轮补排版。
+
+交付采用每阶段短报告与原件指针、限定结论及未验边界；最终固定35候选精确清单，README最后由主线程另授作者。原Object join、OpenAI tools、SPA publication三项安全停止持续，Summary不消费；不改App/后端/共享UI/旧fixture，不对这些停止任务重新设计验证。本计划无实现源码副本、无新全树库存、无主树或Git变更、无委派。

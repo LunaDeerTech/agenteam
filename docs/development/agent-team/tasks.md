@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-07：System运行信息UI规格接受与私有API阶段启动
+
+- [正式卡rev2](../work-items/d27-system-runtime-information-ui.md)已独立完整STATIC PASS、主线程采纳并提交推送`2aceadfef6e7a214bc631822317ccf4283bcabc0`，核远端一致；[规格报告](system-runtime-information-ui-spec-verification.md)保存原稿/rev2/正式页首、独立审查和计划。技术`85b3d003…27400`保持，24逻辑引用/22对象/55固定Git输入不冒运行闭包。
+- 核心16+旧pure10+旧browser9共35候选，README第16最后；唯一前端已实际启动API A三源私有实施/离线自测，owner/page/harness/README未开始。独立仅计划冻结，没有独立实现结果或资源。本次只归位规格来源，不写产品PASS。
+- 已接受Audit UI与Runtime HTTP原档、所有旧段保留；完整D08–D28/E01未完、E01未开始，Summary待决、ready503及Object/tools/SPA publication三停止不变。
+
 ## 2026-10-07：System Audit只读UI三十六路径接受
 
 - 产品已由主线程接受、提交推送`a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1`并核远端一致；[验证报告](system-audit-ui-verification.md)归位1347逻辑原件、815新对象及固定Git复用。[工作卡](../work-items/d27-system-audit-ui.md)技术§1–7原字节保持；旧规格档按当时状态保留。

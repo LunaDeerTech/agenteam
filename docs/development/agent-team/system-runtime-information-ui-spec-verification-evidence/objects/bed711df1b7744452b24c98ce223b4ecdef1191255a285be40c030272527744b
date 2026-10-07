@@ -1,0 +1,192 @@
+{
+  "purpose": "Private Runtime Information UI specification only; not implementation or validation acceptance",
+  "fixed_git_inputs": {
+    "AGENTS.md": {
+      "git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+      "sha256": "81bbfb59b5039a6cc8d92cd125600baffb1ee93676ac8ce15c00f05cd4160411"
+    },
+    ".agents/skills/agenteam-design/SKILL.md": {
+      "git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81"
+    },
+    ".agents/skills/agenteam-vue-development/SKILL.md": {
+      "git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+      "sha256": "a52ae4b3e6913f3a37b6944e833de9fc282ecb282bf6d2478aea783b19bee039"
+    },
+    ".agents/skills/agenteam-verification/SKILL.md": {
+      "git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+      "sha256": "a982bdc7614bbe2283d690fadf5628775175e0745b4bb2acebf3f5ba4ad1fa61"
+    },
+    "docs/development/work-items/d28-system-runtime-information-http.md": {
+      "git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+      "sha256": "8b0c321d839199e5d1b46069169364f51b33804047e9dd8deb62ea0c5016141b",
+      "technical_sha256": "aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab"
+    },
+    "docs/development/work-items/d27-system-audit-ui.md": {
+      "git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+      "sha256": "f5132fec92d3041afed0211ba4bd1c0dad44098cc58785e398dc7d985324d34f",
+      "technical_sha256": "e7c96b588eed6218030ef6ce42154c7967667ff156bd8c343d0cdd14cf2bd8d5"
+    },
+    "docs/frontend-design/layouts/system-settings.md": {
+      "git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+      "sha256": "41bc84c2a672bce0c107de75f39e2c2365148ed8b5112df2d0abb680d45a23c8"
+    },
+    "docs/development/frontend/README.md": {
+      "git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+      "sha256": "bb2988144e87d10ea24c3245ad967596780f38b6db5d10167c0d851f5c5d8d1f"
+    },
+    "tests/account/system_outbound_policy_web_fixture_test.go": {
+      "git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "sha256": "beb8ef5e4d6307f6ac1d09392dafc7fe04fd3324cb5603c4c866520d01386872"
+    },
+    "tests/account/system_outbound_policy_web_test.go": {
+      "git": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+      "sha256": "61ec8d9518df4ef6c24e3ab67c6afd83babdac888660fdd338856555bec473b8"
+    },
+    "docs/development/development-plan.md": {
+      "git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+      "sha256": "307d8c418cc81bbf1a3eb9a4089b01b0d12b87dfd424d77fd081a391437505b0",
+      "inspection": "D27 requirement / runtime header only"
+    },
+    "docs/development/agent-team/tasks.md": {
+      "git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+      "sha256": "7da68d5f1371a3bb537be6f8fb4afa8496e98d5aa26a6771049dafdacc4d1368",
+      "inspection": "D27 requirement / runtime header only"
+    }
+  },
+  "audit_interface_stage": {
+    "root": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01",
+    "manifest_sha256": "44e7b61bb61e53878ecdb8469d69e749d28021380ede640e1fbc08cd4675aae0",
+    "files": {
+      "web/src/api/client.ts": {
+        "sha256": "cfb85b0ae3226468cb64aa4d3fb9aab62bf354af0c7493863302708aa1d104e3",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/api/system-audit.ts": {
+        "sha256": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/composables/useSession.ts": {
+        "sha256": "63148d3ef0ea2ecf15b1bf14fc1168e3c0f1657db0f40fb0bedd3bc9b7e92879",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/composables/useSystemAudit.ts": {
+        "sha256": "a52668f54bc158374ae57a0bc9e06317d710885e8fb46d10841da181a684aa04",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/router/auth.ts": {
+        "sha256": "49a2f794d00b66908afdd79c45783106f581070fe2b93b8de14dce4aec75d2b0",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/router/index.ts": {
+        "sha256": "a768a5d88800af3de74fcda06d48d5d38a3837471e996982b5e8c492b7bac02a",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/views/system/SystemSettingsView.vue": {
+        "sha256": "24bd26fbde890d08d300b52b93ef7c4c5081bcf78dbf4acb4808b8fecd2a2883",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/views/system/SystemAuditView.vue": {
+        "sha256": "b11ae46e854fa8ad918b8f13536d1fe354d968949205d77d6935807f8bb9ea51",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/tests/system-user-directory.spec.ts": {
+        "sha256": "c1a63db8c01f7001f2f544e0d6dced4d65c3e6bbbd5fa1d5531d0e7cfe0feae4",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/tests/system-invitations.spec.ts": {
+        "sha256": "22e4862cca8fe5e8e11d6709fcb069e5df9be2eb7fd7ded85e02a7715ca884ed",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/tests/system-providers.spec.ts": {
+        "sha256": "91e12a2cb4766283438c4a1f37dd776a2b353011801df14f66a9c4d0419aa0f1",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/tests/system-models.spec.ts": {
+        "sha256": "9a78cc78082a2e423645c9f9aaefd775454bc73a97ca767225fc36e1ade830f7",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/tests/system-model-selection.spec.ts": {
+        "sha256": "01f9e3f6d342f17bd0595a8af5d2472ef32639d26c17d996f7151b5b6cc40a4d",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/tests/system-account-security.spec.ts": {
+        "sha256": "5918a2252defb3d246b7d4b476b21f182d7e88908b29836416a23d109edc7a35",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/tests/system-smtp-settings.spec.ts": {
+        "sha256": "73abaa8c418a43e87cc2822baa0e16e4bffd53a61ce51e844e97e857e500aef5",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/tests/system-outbound-policy.spec.ts": {
+        "sha256": "76fc0f58dec8495cecb2294d216ca61e24dc4c2a775e824c8007cea1ab4311ca",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/tests/system-audit.spec.ts": {
+        "sha256": "9a531df46a5b9063c0df0336a37103e679bcb4e66fe1dca26020e26a6026937d",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/tests/personal-settings.spec.ts": {
+        "sha256": "e7cd73413e3ac8ff52d02fd8258fc1b05cc3ad0064c2b7ad74d8cea6b11bcc86",
+        "role": "interface/layout/nav-only"
+      },
+      "tests/account-captcha-web/e2e/system-invitations.spec.ts": {
+        "sha256": "bec2de5459b232cdfa7ee92faffadc9c151240a2b9af2df22010cb6459451b5a",
+        "role": "interface/layout/nav-only"
+      },
+      "tests/account-captcha-web/e2e/system-providers.spec.ts": {
+        "sha256": "4d6cc776456cd587677fac6df4893a4abf2f28095e6b43547c0e637450b40584",
+        "role": "interface/layout/nav-only"
+      },
+      "tests/account-captcha-web/e2e/system-models.spec.ts": {
+        "sha256": "61ad1cc8809ee58ecf1ae615c64e1fab53383c37aa722d560481ea6a5f084209",
+        "role": "interface/layout/nav-only"
+      },
+      "tests/account-captcha-web/e2e/system-model-selection.spec.ts": {
+        "sha256": "47a164055594b67c2753499ac428263bdc3532660df9fbb66434a7da94e1a228",
+        "role": "interface/layout/nav-only"
+      },
+      "tests/account-captcha-web/e2e/system-account-security.spec.ts": {
+        "sha256": "995b5fba8700a605eedf5a044aa1b6be22c405a832e52938d3f2f62a2aed79fc",
+        "role": "interface/layout/nav-only"
+      },
+      "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts": {
+        "sha256": "1de992019efe026cea0cd158c228fb7a9506ddcc40a478fb41bc13aba49b39b8",
+        "role": "interface/layout/nav-only"
+      },
+      "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": {
+        "sha256": "528442de4491a3d9fc4baf27b12a99260428d7ef66a9f1209b7ed0dcd93e973b",
+        "role": "interface/layout/nav-only"
+      },
+      "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts": {
+        "sha256": "228a5ff2e1334efef89e42107f562b7ded279dd24549b5395e06b33935964424",
+        "role": "interface/layout/nav-only"
+      },
+      "web/src/api/system-account.ts": {
+        "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+        "role": "existing-export-only",
+        "location": "dependencies"
+      }
+    }
+  },
+  "product_gates": {
+    "audit_ui": "A/B/C accepted by root; D real and complete product acceptance/commit outstanding at task grant",
+    "runtime_http": "serviceA02/HTTPB accepted by root; rootC independent/native/real and complete product acceptance/commit outstanding at task grant"
+  },
+  "excluded": [
+    "active Audit D",
+    "active Runtime C",
+    "stopped Object runtime join",
+    "stopped OpenAI tools",
+    "stopped SPA publication",
+    "pending Summary"
+  ],
+  "candidate_scope": {
+    "core": 16,
+    "verified_old_navigation": 18,
+    "conditional_audit_browser": 1,
+    "determined": 34,
+    "maximum_pending_rebind": 35
+  },
+  "inspection": "Read-only git show/frozen sources; hashes and documentation checks only; no product tests/build/listener/resource"
+}
