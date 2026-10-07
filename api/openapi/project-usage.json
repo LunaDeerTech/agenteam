@@ -1,0 +1,4279 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Project Owner Usage read-only HTTP",
+    "version": "0.1.0",
+    "description": "Three GET/HEAD resources under current browser Session and Owner authorization, with no administrator cross-Owner exemption. Each stable-ID read authorizes again in its own transaction. Resolve uses current names; old names return 404 without aliases or redirects and name reuse does not restore identity. Strict query: at most 32768 raw bytes before parsing; only documented keys, one nonempty value each, decoded once; reject duplicate decoded keys, malformed escapes/UTF-8/NUL, semicolons, empty segments and bare ?. No request entity, uncertain/nonzero length or Transfer-Encoding. Host/Origin/Fetch Metadata/path checks keep the original Account priority. Exact resources allow only GET/HEAD. The two-second total budget starts before authentication and includes Body.Close, transaction completion, complete default-escaped JSON (at most 1 MiB), write/flush and joined cancellation callbacks. Earlier parent deadlines win. HEAD repeats the full read and encoding and emits no success or Problem body. Safe Problem instance is /api/v1. Unknown retains its original Fault/CommitState; this API offers no receipt or lookup. Only formally persisted Project/Usage records are readable; production Invocations remains nil. No project initialization/lifecycle, Runtime Facts producer, UI or Execution Summary selection is provided."
+  },
+  "paths": {
+    "/api/v1/projects/resolve": {
+      "get": {
+        "operationId": "resolveProject",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Username"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "project_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ProjectName"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          }
+        ],
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete current-owner read",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "resolveProjectHead",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Username"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "project_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ProjectName"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          }
+        ],
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete current-owner read",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "400": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "401": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "403": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "404": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "405": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "410": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "422": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "429": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "500": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "503": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/model-usage": {
+      "get": {
+        "operationId": "listProjectModelUsage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "name": "consumer_kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ConsumerKind"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "agent_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "execution_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "meeting_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "purpose",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Purpose"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "provider_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "model_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/FinalStatus"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/InstantInput"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false,
+            "description": "Both from/to are supplied or both omitted, with from < to. Omitted dates use the original 30-day window; a cursor retains the original window."
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/InstantInput"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false,
+            "description": "Both from/to are supplied or both omitted, with from < to. Omitted dates use the original 30-day window; a cursor retains the original window."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(?:[1-9]|[1-9][0-9]|100)(?![\\s\\S])",
+              "default": "50"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false,
+            "description": "Unsigned canonical decimal 1\u2013100; no sign, whitespace, leading zero or exponent."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Cursor"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          }
+        ],
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete current-owner read",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/List"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "listProjectModelUsageHead",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "name": "consumer_kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ConsumerKind"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "agent_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "execution_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "meeting_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "purpose",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Purpose"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "provider_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "model_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/FinalStatus"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/InstantInput"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false,
+            "description": "Both from/to are supplied or both omitted, with from < to. Omitted dates use the original 30-day window; a cursor retains the original window."
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/InstantInput"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false,
+            "description": "Both from/to are supplied or both omitted, with from < to. Omitted dates use the original 30-day window; a cursor retains the original window."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(?:[1-9]|[1-9][0-9]|100)(?![\\s\\S])",
+              "default": "50"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false,
+            "description": "Unsigned canonical decimal 1\u2013100; no sign, whitespace, leading zero or exponent."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Cursor"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          }
+        ],
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete current-owner read",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "400": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "401": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "403": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "404": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "405": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "410": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "422": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "429": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "500": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "503": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/model-usage/summary": {
+      "get": {
+        "operationId": "aggregateProjectModelUsage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "name": "consumer_kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ConsumerKind"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "agent_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "execution_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "meeting_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "purpose",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Purpose"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "provider_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "model_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/FinalStatus"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/InstantInput"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false,
+            "description": "Both from/to are supplied or both omitted, with from < to. Omitted dates use the original 30-day window; a cursor retains the original window."
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/InstantInput"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false,
+            "description": "Both from/to are supplied or both omitted, with from < to. Omitted dates use the original 30-day window; a cursor retains the original window."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(?:[1-9]|[1-9][0-9]|100)(?![\\s\\S])",
+              "default": "50"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false,
+            "description": "Unsigned canonical decimal 1\u2013100; no sign, whitespace, leading zero or exponent."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Cursor"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/GroupBy"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          }
+        ],
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete current-owner read",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Aggregate"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "aggregateProjectModelUsageHead",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "name": "consumer_kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ConsumerKind"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "agent_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "execution_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "meeting_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "purpose",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Purpose"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "provider_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "model_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/FinalStatus"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/InstantInput"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false,
+            "description": "Both from/to are supplied or both omitted, with from < to. Omitted dates use the original 30-day window; a cursor retains the original window."
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/InstantInput"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false,
+            "description": "Both from/to are supplied or both omitted, with from < to. Omitted dates use the original 30-day window; a cursor retains the original window."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(?:[1-9]|[1-9][0-9]|100)(?![\\s\\S])",
+              "default": "50"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false,
+            "description": "Unsigned canonical decimal 1\u2013100; no sign, whitespace, leading zero or exponent."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Cursor"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/GroupBy"
+            },
+            "allowEmptyValue": false,
+            "style": "form",
+            "explode": false
+          }
+        ],
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete current-owner read",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "400": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "401": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "403": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "404": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "405": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "410": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "422": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "429": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "500": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          },
+          "503": {
+            "description": "Safe shared Problem; no candidate result on failure or Unknown",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Length of the complete GET representation; HEAD performs the same read, validation and encoding without a body."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account session cookie; configured loopback HTTP uses agenteam_local_session. No bearer or caller-supplied Actor."
+      }
+    },
+    "schemas": {
+      "ConsumerKind": {
+        "type": "string",
+        "enum": [
+          "agent",
+          "meeting",
+          "knowledge",
+          "memory",
+          "tool"
+        ]
+      },
+      "Purpose": {
+        "type": "string",
+        "enum": [
+          "agent_generation",
+          "agent_compaction",
+          "approval_auto",
+          "meeting_summary_initial",
+          "meeting_summary_update",
+          "knowledge_embedding",
+          "memory_embedding",
+          "memory_extraction",
+          "memory_consolidation",
+          "memory_reflection",
+          "rerank",
+          "image_generation"
+        ]
+      },
+      "Protocol": {
+        "type": "string",
+        "enum": [
+          "openai-chat-completions",
+          "anthropic-messages",
+          "openai-embeddings",
+          "jina-rerank",
+          "openai-images-generations"
+        ]
+      },
+      "ModelType": {
+        "type": "string",
+        "enum": [
+          "chat",
+          "embedding",
+          "reranker",
+          "image_generation"
+        ]
+      },
+      "Dispatch": {
+        "type": "string",
+        "enum": [
+          "reserved",
+          "authorized",
+          "sent",
+          "not_sent",
+          "unknown"
+        ]
+      },
+      "FinalStatus": {
+        "type": "string",
+        "enum": [
+          "succeeded",
+          "failed",
+          "cancelled",
+          "unknown"
+        ]
+      },
+      "ErrorCategory": {
+        "type": "string",
+        "enum": [
+          "invalid_request",
+          "authentication",
+          "permission",
+          "model_not_found",
+          "rate_limited",
+          "context_too_large",
+          "provider_unavailable",
+          "timeout",
+          "network",
+          "cancelled",
+          "content_filter",
+          "unsupported_feature",
+          "provider_error",
+          "unknown"
+        ]
+      },
+      "GroupBy": {
+        "type": "string",
+        "enum": [
+          "consumer",
+          "agent",
+          "model",
+          "provider",
+          "execution",
+          "meeting",
+          "purpose",
+          "day"
+        ]
+      },
+      "Cursor": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8192,
+        "not": {
+          "pattern": "\u0000"
+        },
+        "description": "Opaque signed cursor, at most 8192 decoded UTF-8 bytes. Binding remains current stable Actor, Project, filters and ordering; limit, SessionID and names do not join the binding. Invalid tokens, scope/identity mismatches and overlong decoded tokens use CURSOR_INVALID. Never log or display the token.",
+        "x-maxUTF8Bytes": 8192
+      },
+      "Name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "not": {
+          "pattern": "\u0000"
+        }
+      },
+      "ProviderModelID": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "not": {
+          "pattern": "\u0000"
+        },
+        "x-maxUTF8Bytes": 256,
+        "description": "Frozen provider-native model identifier, at most 256 UTF-8 bytes; server validates the byte bound."
+      },
+      "ProviderRequestID": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_.:-]{1,256}(?![\\s\\S])",
+        "maxLength": 256
+      },
+      "ProjectName": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9._-]{1,64}(?![\\s\\S])",
+        "not": {
+          "enum": [
+            ".",
+            ".."
+          ]
+        },
+        "maxLength": 64
+      },
+      "NormalizedProjectName": {
+        "type": "string",
+        "pattern": "^[a-z0-9._-]{1,64}(?![\\s\\S])",
+        "not": {
+          "enum": [
+            ".",
+            ".."
+          ]
+        },
+        "maxLength": 64
+      },
+      "Username": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9](?![\\s\\S])",
+        "minLength": 3,
+        "maxLength": 32,
+        "description": "Current account route spelling. Existing admin is accepted; no creation-time reserved-name rules or second decoding."
+      },
+      "Usage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "input_tokens",
+          "output_tokens",
+          "total_tokens",
+          "cached_input_tokens",
+          "cache_write_tokens",
+          "reasoning_tokens",
+          "source"
+        ],
+        "properties": {
+          "input_tokens": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "output_tokens": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "total_tokens": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cached_input_tokens": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cache_write_tokens": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reasoning_tokens": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "provider",
+              "unknown"
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "source": {
+                  "const": "unknown"
+                }
+              },
+              "required": [
+                "source"
+              ]
+            },
+            "then": {
+              "properties": {
+                "input_tokens": {
+                  "type": "null"
+                },
+                "output_tokens": {
+                  "type": "null"
+                },
+                "total_tokens": {
+                  "type": "null"
+                },
+                "cached_input_tokens": {
+                  "type": "null"
+                },
+                "cache_write_tokens": {
+                  "type": "null"
+                },
+                "reasoning_tokens": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "source": {
+                  "const": "provider"
+                }
+              }
+            },
+            "then": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "input_tokens": {
+                      "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "output_tokens": {
+                      "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "total_tokens": {
+                      "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "cached_input_tokens": {
+                      "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "cache_write_tokens": {
+                      "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "reasoning_tokens": {
+                      "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "Final": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "finished_at",
+          "error_category"
+        ],
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/FinalStatus"
+          },
+          "finished_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "error_category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorCategory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "succeeded"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "error_category": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Invocation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "call_id",
+          "attempt_index",
+          "project_id",
+          "consumer_kind",
+          "purpose",
+          "agent_id",
+          "execution_id",
+          "meeting_id",
+          "provider_id",
+          "model_id",
+          "provider_name",
+          "model_name",
+          "provider_model_id",
+          "protocol",
+          "model_type",
+          "live_provider_id",
+          "live_model_id",
+          "dispatch",
+          "started_at",
+          "dispatched_at",
+          "final",
+          "usage",
+          "provider_request_id"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "call_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "attempt_index": {
+            "$ref": "./common.json#/components/schemas/Sequence"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "consumer_kind": {
+            "$ref": "#/components/schemas/ConsumerKind"
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/Purpose"
+          },
+          "agent_id": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution_id": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meeting_id": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "provider_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "model_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "provider_name": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "model_name": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "provider_model_id": {
+            "$ref": "#/components/schemas/ProviderModelID"
+          },
+          "protocol": {
+            "$ref": "#/components/schemas/Protocol"
+          },
+          "model_type": {
+            "$ref": "#/components/schemas/ModelType"
+          },
+          "live_provider_id": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "live_model_id": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dispatch": {
+            "$ref": "#/components/schemas/Dispatch"
+          },
+          "started_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "dispatched_at": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "final": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Final"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "usage": {
+            "$ref": "#/components/schemas/Usage"
+          },
+          "provider_request_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProviderRequestID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "protocol": {
+                  "const": "openai-chat-completions"
+                }
+              },
+              "required": [
+                "protocol"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "chat"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "protocol": {
+                  "const": "anthropic-messages"
+                }
+              },
+              "required": [
+                "protocol"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "chat"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "protocol": {
+                  "const": "openai-embeddings"
+                }
+              },
+              "required": [
+                "protocol"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "embedding"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "protocol": {
+                  "const": "jina-rerank"
+                }
+              },
+              "required": [
+                "protocol"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "reranker"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "protocol": {
+                  "const": "openai-images-generations"
+                }
+              },
+              "required": [
+                "protocol"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "image_generation"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "purpose": {
+                  "const": "agent_generation"
+                }
+              },
+              "required": [
+                "purpose"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "chat"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "purpose": {
+                  "const": "agent_compaction"
+                }
+              },
+              "required": [
+                "purpose"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "chat"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "purpose": {
+                  "const": "approval_auto"
+                }
+              },
+              "required": [
+                "purpose"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "chat"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "purpose": {
+                  "const": "meeting_summary_initial"
+                }
+              },
+              "required": [
+                "purpose"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "chat"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "purpose": {
+                  "const": "meeting_summary_update"
+                }
+              },
+              "required": [
+                "purpose"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "chat"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "purpose": {
+                  "const": "knowledge_embedding"
+                }
+              },
+              "required": [
+                "purpose"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "embedding"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "purpose": {
+                  "const": "memory_embedding"
+                }
+              },
+              "required": [
+                "purpose"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "embedding"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "purpose": {
+                  "const": "memory_extraction"
+                }
+              },
+              "required": [
+                "purpose"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "chat"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "purpose": {
+                  "const": "memory_consolidation"
+                }
+              },
+              "required": [
+                "purpose"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "chat"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "purpose": {
+                  "const": "memory_reflection"
+                }
+              },
+              "required": [
+                "purpose"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "chat"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "purpose": {
+                  "const": "rerank"
+                }
+              },
+              "required": [
+                "purpose"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "reranker"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "purpose": {
+                  "const": "image_generation"
+                }
+              },
+              "required": [
+                "purpose"
+              ]
+            },
+            "then": {
+              "properties": {
+                "model_type": {
+                  "const": "image_generation"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "consumer_kind": {
+                  "const": "agent"
+                }
+              },
+              "required": [
+                "consumer_kind"
+              ]
+            },
+            "then": {
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "enum": [
+                    "agent_generation",
+                    "agent_compaction"
+                  ]
+                },
+                "agent_id": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "execution_id": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "consumer_kind": {
+                  "const": "meeting"
+                }
+              },
+              "required": [
+                "consumer_kind"
+              ]
+            },
+            "then": {
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "enum": [
+                    "meeting_summary_initial",
+                    "meeting_summary_update"
+                  ]
+                },
+                "agent_id": {
+                  "type": "null"
+                },
+                "execution_id": {
+                  "type": "null"
+                },
+                "meeting_id": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "consumer_kind": {
+                  "const": "knowledge"
+                }
+              },
+              "required": [
+                "consumer_kind"
+              ]
+            },
+            "then": {
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "enum": [
+                    "knowledge_embedding",
+                    "rerank"
+                  ]
+                },
+                "agent_id": {
+                  "type": "null"
+                },
+                "execution_id": {
+                  "type": "null"
+                },
+                "meeting_id": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "consumer_kind": {
+                  "const": "memory"
+                }
+              },
+              "required": [
+                "consumer_kind"
+              ]
+            },
+            "then": {
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "enum": [
+                    "memory_embedding",
+                    "memory_extraction",
+                    "memory_consolidation",
+                    "memory_reflection",
+                    "rerank"
+                  ]
+                },
+                "agent_id": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "execution_id": {
+                  "type": "null"
+                },
+                "meeting_id": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "consumer_kind": {
+                  "const": "tool"
+                }
+              },
+              "required": [
+                "consumer_kind"
+              ]
+            },
+            "then": {
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "enum": [
+                    "approval_auto",
+                    "image_generation"
+                  ]
+                },
+                "agent_id": {
+                  "type": "null"
+                },
+                "meeting_id": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "dispatch": {
+                  "const": "sent"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "dispatched_at": {
+                  "$ref": "./common.json#/components/schemas/Instant"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "dispatched_at": {
+                  "type": "null"
+                },
+                "usage": {
+                  "properties": {
+                    "source": {
+                      "const": "unknown"
+                    }
+                  }
+                },
+                "final": {
+                  "not": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "const": "succeeded"
+                      }
+                    },
+                    "required": [
+                      "status"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "description": "Safe frozen invocation projection. The server first validates every internal field, including fields omitted here, then requires the exact requested ProjectID. Non-null live references must equal frozen IDs. Started/dispatched/final times retain the validated chronological ordering. No prompts, endpoint, credentials, profile, revision, process, fence, snapshot, operation or internal error code/cause are exposed."
+      },
+      "List": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/Invocation"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Cursor"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "FieldSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sum",
+          "known_count",
+          "unknown_count"
+        ],
+        "properties": {
+          "sum": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "known_count": {
+            "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+          },
+          "unknown_count": {
+            "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "known_count": {
+                  "const": "0"
+                },
+                "unknown_count": {
+                  "const": "0"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "sum": {
+                  "const": "0"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "known_count": {
+                  "const": "0"
+                },
+                "unknown_count": {
+                  "not": {
+                    "const": "0"
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "sum": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "known_count": {
+                  "not": {
+                    "const": "0"
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "sum": {
+                  "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Summary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "confirmed_invocations",
+          "dispatch_unknown",
+          "succeeded",
+          "failed",
+          "cancelled",
+          "unknown",
+          "input",
+          "output",
+          "total",
+          "cached_input",
+          "cache_write",
+          "reasoning",
+          "as_of"
+        ],
+        "properties": {
+          "confirmed_invocations": {
+            "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+          },
+          "dispatch_unknown": {
+            "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+          },
+          "succeeded": {
+            "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+          },
+          "failed": {
+            "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+          },
+          "cancelled": {
+            "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+          },
+          "unknown": {
+            "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+          },
+          "input": {
+            "$ref": "#/components/schemas/FieldSummary"
+          },
+          "output": {
+            "$ref": "#/components/schemas/FieldSummary"
+          },
+          "total": {
+            "$ref": "#/components/schemas/FieldSummary"
+          },
+          "cached_input": {
+            "$ref": "#/components/schemas/FieldSummary"
+          },
+          "cache_write": {
+            "$ref": "#/components/schemas/FieldSummary"
+          },
+          "reasoning": {
+            "$ref": "#/components/schemas/FieldSummary"
+          },
+          "as_of": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "description": "Original validated aggregate, never inferred from a page. Each known_count + unknown_count equals confirmed_invocations; summed statuses do not exceed confirmed_invocations + dispatch_unknown, and additions must fit Int64. Row as_of equals page as_of; all six token fields retain their original denominators."
+      },
+      "Day": {
+        "type": "string",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])",
+        "format": "date",
+        "minLength": 10,
+        "maxLength": 10,
+        "description": "An actual calendar day under the original GroupKey contract."
+      },
+      "GroupKey": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "by",
+          "id",
+          "day"
+        ],
+        "properties": {
+          "by": {
+            "$ref": "#/components/schemas/GroupBy"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "day": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Day"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "by": {
+                  "const": "day"
+                }
+              },
+              "required": [
+                "by"
+              ]
+            },
+            "then": {
+              "properties": {
+                "id": {
+                  "type": "null"
+                },
+                "day": {
+                  "$ref": "#/components/schemas/Day"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "by": {
+                  "const": "consumer"
+                }
+              },
+              "required": [
+                "by"
+              ]
+            },
+            "then": {
+              "properties": {
+                "day": {
+                  "type": "null"
+                },
+                "id": {
+                  "$ref": "#/components/schemas/ConsumerKind"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "by": {
+                  "const": "agent"
+                }
+              },
+              "required": [
+                "by"
+              ]
+            },
+            "then": {
+              "properties": {
+                "day": {
+                  "type": "null"
+                },
+                "id": {
+                  "anyOf": [
+                    {
+                      "$ref": "./common.json#/components/schemas/ID"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "by": {
+                  "const": "model"
+                }
+              },
+              "required": [
+                "by"
+              ]
+            },
+            "then": {
+              "properties": {
+                "day": {
+                  "type": "null"
+                },
+                "id": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "by": {
+                  "const": "provider"
+                }
+              },
+              "required": [
+                "by"
+              ]
+            },
+            "then": {
+              "properties": {
+                "day": {
+                  "type": "null"
+                },
+                "id": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "by": {
+                  "const": "execution"
+                }
+              },
+              "required": [
+                "by"
+              ]
+            },
+            "then": {
+              "properties": {
+                "day": {
+                  "type": "null"
+                },
+                "id": {
+                  "anyOf": [
+                    {
+                      "$ref": "./common.json#/components/schemas/ID"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "by": {
+                  "const": "meeting"
+                }
+              },
+              "required": [
+                "by"
+              ]
+            },
+            "then": {
+              "properties": {
+                "day": {
+                  "type": "null"
+                },
+                "id": {
+                  "anyOf": [
+                    {
+                      "$ref": "./common.json#/components/schemas/ID"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "by": {
+                  "const": "purpose"
+                }
+              },
+              "required": [
+                "by"
+              ]
+            },
+            "then": {
+              "properties": {
+                "day": {
+                  "type": "null"
+                },
+                "id": {
+                  "$ref": "#/components/schemas/Purpose"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Group": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "summary"
+        ],
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/GroupKey"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/Summary"
+          }
+        }
+      },
+      "Aggregate": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/Group"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Cursor"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "as_of": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        }
+      },
+      "Project": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "owner_user_id",
+          "name",
+          "normalized_name",
+          "description",
+          "lifecycle",
+          "version",
+          "current_sprint_id",
+          "created_at",
+          "updated_at",
+          "archived_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "owner_user_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "name": {
+            "$ref": "#/components/schemas/ProjectName"
+          },
+          "normalized_name": {
+            "$ref": "#/components/schemas/NormalizedProjectName"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 8192,
+            "x-maxUTF8Bytes": 8192,
+            "not": {
+              "pattern": "[\u0000-\b\u000b-\u001f\u007f]"
+            },
+            "description": "At most 8192 UTF-8 bytes; server validates this byte bound. Tabs and newlines are allowed."
+          },
+          "lifecycle": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archiving",
+              "archived",
+              "deleting"
+            ]
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "current_sprint_id": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "lifecycle": {
+                  "const": "archived"
+                }
+              },
+              "required": [
+                "lifecycle"
+              ]
+            },
+            "then": {
+              "properties": {
+                "archived_at": {
+                  "$ref": "./common.json#/components/schemas/Instant"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "lifecycle": {
+                  "const": "active"
+                }
+              },
+              "required": [
+                "lifecycle"
+              ]
+            },
+            "then": {
+              "properties": {
+                "archived_at": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "lifecycle": {
+                  "const": "archiving"
+                }
+              },
+              "required": [
+                "lifecycle"
+              ]
+            },
+            "then": {
+              "properties": {
+                "archived_at": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ],
+        "description": "Current ProjectRef, with full typed validation and owner_user_id equal to the authenticated Human. Names normalize under the formal Project contract; updated_at is at least created_at and archived_at, when present, lies between them. This independent resolve is not authority for a later stable-ID read."
+      }
+    }
+  }
+}

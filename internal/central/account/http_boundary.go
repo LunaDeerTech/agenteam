@@ -49,6 +49,22 @@ func (b *HTTPBoundary) CheckRequest(w http.ResponseWriter, r *http.Request) erro
 	return b.check(r)
 }
 
+// RequireHuman authenticates the current browser Session. It does not grant
+// Project access; each reader must authorize the Actor in its own transaction.
+func (b *HTTPBoundary) RequireHuman(r *http.Request) (identity.Actor, error) {
+	if err := b.check(r); err != nil {
+		return identity.Actor{}, err
+	}
+	actor, err := b.csrf.csrfSession(b.core, r, csrfUnsafe(r.Method))
+	if err != nil {
+		return identity.Actor{}, err
+	}
+	if actor.Validate() != nil || actor.Details().Kind != identity.Human {
+		return identity.Actor{}, fault(foundation.Unauthenticated, nil)
+	}
+	return actor, nil
+}
+
 func (b *HTTPBoundary) RequireSystem(r *http.Request, intent identity.AccessIntent) (identity.Actor, error) {
 	if err := b.check(r); err != nil {
 		return identity.Actor{}, err
