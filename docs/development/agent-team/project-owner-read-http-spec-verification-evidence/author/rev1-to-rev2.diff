@@ -1,0 +1,19 @@
+--- rev1/d08-project-owner-read-http.md
++++ rev2/d08-project-owner-read-http.md
+@@ -1,6 +1,6 @@
+ # D08 Project Owner 列表与详情只读 HTTP
+ 
+-修订：rev1。状态：正式工程规格候选，待完整独立 STATIC 审查与主线程采纳；未授权产品实施、Go 执行或真实资源。本卡只交付下述读取结果，不标记完整 D08 完成。
++修订：rev2。状态：正式工程规格候选，待完整独立 STATIC 审查与主线程采纳；未授权产品实施、Go 执行或真实资源。本卡只交付下述读取结果，不标记完整 D08 完成。
+ 
+ 固定已接受产品基线：`baa6ffac7bdf87dea6f052704e509d7b547e9886`；[S3 验收](../agent-team/system-meeting-summary-resolution-verification.md)及归档 `77965be16feeb22d8c1b8301a047d95e3b15e8eb`不构成本卡的生成依赖。原 [Usage 根装配](../agent-team/project-usage-read-http-root-verification.md)产品 `03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05`是实际读取根接缝。编卡时 S2 仍在最终联验，不消费其活动实现；共享文件交接见 §5。
+ 
+@@ -77,7 +77,7 @@
+ 
+ 使用默认 JSON 转义，完整成功表示上限 **5 MiB（5242880 B）**，不边扫边写、不截断、不放宽字段。依据：100 条最大 description 的 6 倍 JSON 转义为 4915200 B；每项其余字段保守 1024 B，加 8192 B cursor 及 256 B 外壳共 5026048 B，小于上限。详情的 8192 B description 加有限其它字段小于 64 KiB。实现须实测最大合法默认转义页，并保留最终编码上限；推导不成立先报差量，不靠提高预算掩盖。
+ 
+-成功响应 200、`application/json`、`Cache-Control: no-store`、准确 Content-Length，安全头沿 Account 边界。错误沿既有 `HTTPBoundary.WriteProblem` 和公共映射，保留 CommitState/CauseID/RequestID/RetryHint，固定安全 instance；日志只用安全模板或 unknown_route，不记录原 query、名称、cursor。校验或终局失败零成功候选；已部分写时按 §4 abort。
++成功响应 200、`application/json`、`Cache-Control: no-store`、准确 Content-Length，安全头沿 Account 边界。错误的内部 Fault/UnknownAttempt 保留原 CauseID/attempt；HTTP 沿既有 `HTTPBoundary.WriteProblem` 和公共 Problem 映射保留 `code/commit_state/request_id/retry_hint`，固定安全 instance，不新增 `cause_id` 字段或头，也不修改公共 Problem/schema；日志只用安全模板或 unknown_route，不记录原 query、名称、cursor。校验或终局失败零成功候选；已部分写时按 §4 abort。
+ 
+ 新 `api/openapi/project-owner.json` 为 OpenAPI 3.1，完整描述两路径四操作、query、共同 Problem、闭合 Page/三种列表项/详情与条件约束；复用只读 `common.json`。所有对象 `additionalProperties:false`；nullable/字段缺席/空串分别表达。十进制正整数须精确排除 MaxInt64 以上值，不能仅限制 19 位。HEAD 不声明成功/错误 body。标准 Draft 2020-12 解析器验证合法/非法代表及真实 HTTP 原 body，ECMA pattern 的尾换行/Unicode 不以 Go regexp 自证。
+ 

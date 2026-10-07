@@ -1,0 +1,49 @@
+{
+  "conclusion": "FULL BOUNDED DESIGN STATIC PASS: D08 Owner list/detail GET/HEAD rev2",
+  "frozen_card": {
+    "path": "/workspace/scratch/next-frontier-after-summary/d08-read-spec-rev2/card.md",
+    "sha256": "4167558f3c6d4d7ad9352c776d9cb6557f77ed3e7afefeee4de740df4b6de99c"
+  },
+  "repository_card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d08-project-owner-read-http.md",
+    "sha256": "4167558f3c6d4d7ad9352c776d9cb6557f77ed3e7afefeee4de740df4b6de99c"
+  },
+  "author_manifest": {
+    "path": "/workspace/scratch/next-frontier-after-summary/d08-read-spec-rev2/manifest.json",
+    "sha256": "08fadedb3a6971d0e9708d6c58d38290134e26e5356fdb9e3ea6b3f41e566e20"
+  },
+  "delta": {
+    "path": "/workspace/scratch/next-frontier-after-summary/d08-read-spec-rev2/rev1-to-rev2.diff",
+    "sha256": "ff65874d41235acad61387372b81a3cdcb103f7e80f65705954f450987f8343b"
+  },
+  "rev1_full_review_reused": {
+    "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/review.md",
+    "sha256": "32cdff46833e63f8b0a78ab19503a3404c7e0bf66418ff20c3cb33df96d65d7e"
+  },
+  "rev1_full_result_reused": {
+    "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/result.json",
+    "sha256": "3a7a0039a04a129ee70f8329f889db074374030607cefb873cf603382fec29df"
+  },
+  "changed_lines": [
+    3,
+    80
+  ],
+  "unchanged_lines": 173,
+  "closed_findings": [
+    "D08-STATIC-01: internal CauseID/attempt remains in Fault/UnknownAttempt; public HTTP Problem remains unchanged without cause_id field/header"
+  ],
+  "open_blocking_findings": [],
+  "unchanged_links_count": 26,
+  "whitespace": "PASS",
+  "scope": "Owner current-authorized list/detail read HTTP + pure narrow Reader sharing existing Service logic + final default root;16 technical paths and separately authorized last README",
+  "remaining_execution_gates": [
+    "Root implementation authorization; specification PASS is not code/test authorization",
+    "S2 complete acceptance/fixed input and exclusive account.go handoff before shared final root implementation/testing",
+    "Actual Go/source/runtime closure freeze and separately authorized offline/native/PG windows",
+    "Real payload/schema, sentinel/current authorization/Unknown/native/PG/default root and independent A/B acceptance",
+    "Final documentation/root acceptance without claiming create/lifecycle/UI/D24/full D08\u2013D28/E01 or lifting stopped tasks"
+  ],
+  "Go_or_test_or_resource_executed": false,
+  "product_card_or_Git_mutation": false,
+  "stopped": true
+}

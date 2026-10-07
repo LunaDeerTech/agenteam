@@ -1,0 +1,21 @@
+{
+  "card": "/workspace/agenteam/docs/development/work-items/d08-project-owner-read-http.md",
+  "before_sha256": "4167558f3c6d4d7ad9352c776d9cb6557f77ed3e7afefeee4de740df4b6de99c",
+  "after_sha256": "bf77809f18c2fd5cb3d512ccaf6ee878121baf274f8c2d7f355ce3c77ee80ef0",
+  "all_after_header_bytes_unchanged": true,
+  "technical_section1_to_end_sha256": "d607c0c57f1465160de380b2f98eb568fe81b5efac0f1e85d779795dca7a36fa",
+  "patch": {
+    "path": "/workspace/scratch/recovery-docs/d08-owner-read-spec/adoption-header.diff",
+    "sha256": "4a0053633c9e7eb08f46fd8059986b35c2e1319a115ce64620d798707aadddf7"
+  },
+  "review": {
+    "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev2/review.md",
+    "sha256": "e1feb6719a047a03fcf000e9abbf96d1a149dd890b8fb70726f4ae8f7a812c99"
+  },
+  "review_result": {
+    "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev2/result.json",
+    "sha256": "7f1c849f25e968b8ad7dfae20f912e072e90a10b00a5c4963f3d08486d1c2524"
+  },
+  "diff_check": "PASS",
+  "status": "card stopped; design accepted only; implementation/Go/resources not authorized"
+}

@@ -1,0 +1,129 @@
+{
+  "sources": [
+    {
+      "source": "internal/central/cursor/keyring.go",
+      "commit": "baa6ffac7bdf87dea6f052704e509d7b547e9886",
+      "sha256": "76199cd840e179a3a7dc993e91d89cacdc140c59ba99d158a9b294c57f01cb8f",
+      "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/fixed/internal/central/cursor/keyring.go",
+      "argv": [
+        "git",
+        "show",
+        "baa6ffac7bdf87dea6f052704e509d7b547e9886:internal/central/cursor/keyring.go"
+      ],
+      "actual_exit": 0
+    },
+    {
+      "source": "internal/central/cursor/cursor.go",
+      "commit": "baa6ffac7bdf87dea6f052704e509d7b547e9886",
+      "sha256": "c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f",
+      "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/fixed/internal/central/cursor/cursor.go",
+      "argv": [
+        "git",
+        "show",
+        "baa6ffac7bdf87dea6f052704e509d7b547e9886:internal/central/cursor/cursor.go"
+      ],
+      "actual_exit": 0
+    },
+    {
+      "source": "internal/central/foundation/instant.go",
+      "commit": "baa6ffac7bdf87dea6f052704e509d7b547e9886",
+      "sha256": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+      "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/fixed/internal/central/foundation/instant.go",
+      "argv": [
+        "git",
+        "show",
+        "baa6ffac7bdf87dea6f052704e509d7b547e9886:internal/central/foundation/instant.go"
+      ],
+      "actual_exit": 0
+    },
+    {
+      "source": "internal/central/account/http_wire.go",
+      "commit": "baa6ffac7bdf87dea6f052704e509d7b547e9886",
+      "sha256": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095",
+      "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/fixed/internal/central/account/http_wire.go",
+      "argv": [
+        "git",
+        "show",
+        "baa6ffac7bdf87dea6f052704e509d7b547e9886:internal/central/account/http_wire.go"
+      ],
+      "actual_exit": 0
+    },
+    {
+      "source": "api/openapi/common.json",
+      "commit": "baa6ffac7bdf87dea6f052704e509d7b547e9886",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/fixed/api/openapi/common.json",
+      "argv": [
+        "git",
+        "show",
+        "baa6ffac7bdf87dea6f052704e509d7b547e9886:api/openapi/common.json"
+      ],
+      "actual_exit": 0
+    },
+    {
+      "source": "tests/model/project_configuration_unknown_test.go",
+      "commit": "baa6ffac7bdf87dea6f052704e509d7b547e9886",
+      "sha256": "6b18ae4b6651a10926381d8198a74315cebd08768b4794f2f65d5efffc3bbcf2",
+      "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/fixed/tests/model/project_configuration_unknown_test.go",
+      "argv": [
+        "git",
+        "show",
+        "baa6ffac7bdf87dea6f052704e509d7b547e9886:tests/model/project_configuration_unknown_test.go"
+      ],
+      "actual_exit": 0
+    },
+    {
+      "source": "tests/model/meeting_summary_unknown_test.go",
+      "commit": "baa6ffac7bdf87dea6f052704e509d7b547e9886",
+      "sha256": "d9212c461bd513c9fb70f16b85241d1745970e62479f5a6fe178912e048713bf",
+      "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/fixed/tests/model/meeting_summary_unknown_test.go",
+      "argv": [
+        "git",
+        "show",
+        "baa6ffac7bdf87dea6f052704e509d7b547e9886:tests/model/meeting_summary_unknown_test.go"
+      ],
+      "actual_exit": 0
+    },
+    {
+      "source": "tests/model/system_http_configuration_test.go",
+      "commit": "baa6ffac7bdf87dea6f052704e509d7b547e9886",
+      "sha256": "b8abc3d280b66115ccc8a1b676a4ce6c3e0ddfa32c04cf9783ae7b31eef3a168",
+      "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/fixed/tests/model/system_http_configuration_test.go",
+      "argv": [
+        "git",
+        "show",
+        "baa6ffac7bdf87dea6f052704e509d7b547e9886:tests/model/system_http_configuration_test.go"
+      ],
+      "actual_exit": 0
+    }
+  ],
+  "selector_command": {
+    "argv": [
+      "git",
+      "grep",
+      "-n",
+      "-E",
+      "^func (TestProjectB02OwnerSessionNamePathAndPaging|TestProjectB02OwnerPortRequiresCallerTransactionLocks|TestModelProjectUsageHTTPProjectionAndPath|TestModelProjectUsageHTTPRootBinding|TestModelSystemHTTPBoundaryAndStrictWire|TestModelSystemHTTPCurrentAdministrator)\\(",
+      "baa6ffac7bdf87dea6f052704e509d7b547e9886",
+      "--",
+      "tests/model",
+      "tests/project"
+    ],
+    "exit": 0,
+    "raw_sha256": "95ca5ed87d759a655d9a1a96f920e9c491d60e3bee44868b2a6af202aa6b79c5",
+    "matches": 6
+  },
+  "Problem_properties": [
+    "type",
+    "title",
+    "status",
+    "detail",
+    "instance",
+    "code",
+    "request_id",
+    "field_errors",
+    "retry_hint",
+    "commit_state"
+  ],
+  "root_no_resources": true
+}

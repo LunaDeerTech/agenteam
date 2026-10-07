@@ -1,0 +1,58 @@
+{
+  "conclusion": "COMPLETE STATIC REVIEW: one protocol wording clarification required; otherwise no design blocker found",
+  "card": {
+    "path": "/workspace/scratch/next-frontier-after-summary/d08-read-spec-rev1/card.md",
+    "sha256": "0ac1ab4813ea56fcdb18bff95d122e383af55d2953dc01f626578faa94e59aff"
+  },
+  "author_manifest": {
+    "path": "/workspace/scratch/next-frontier-after-summary/d08-read-spec-rev1/manifest.json",
+    "sha256": "a5d2d2867dfca0956db7266dc06d3da248eb36e02f08fcde6c776b0ba4c1e162"
+  },
+  "fixed_sources": {
+    "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/source-input.json",
+    "sha256": "604a7503b446058f85e5d80dca43d20dbe194f32ea21c40ac94d393074b5c199"
+  },
+  "additional_fixed_sources": {
+    "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/additional-input.json",
+    "sha256": "08874e53680291a2ad4202080d95a0478f37896b80789f4a438e597b0529d23e"
+  },
+  "document_checks": {
+    "path": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/document-check.json",
+    "sha256": "a8e2c9fbe5f7583fe7bb15bfa36da218eebb4e0fa61303fcbaf3581d97618881"
+  },
+  "blocking": [
+    {
+      "id": "D08-STATIC-01",
+      "card_line": 80,
+      "severity": "blocking wording clarification before full STATIC acceptance",
+      "problem": "CauseID is internal Fault/UnknownAttempt metadata; the existing immutable HTTPBoundary -> httpapi.Problem/common.json projector has no CauseID/cause_id property or header. Mixing it with wire RequestID/CommitState/RetryHint risks adding an out-of-scope public API.",
+      "evidence": [
+        "fixed/internal/central/httpapi/problem.go:15-26,77-138",
+        "fixed/internal/central/project/service.go:323-345",
+        "fixed/api/openapi/common.json components.schemas.Problem"
+      ],
+      "required_change": "State separately that original Fault/UnknownAttempt preserves CauseID and attempt; HTTP preserves only existing code/commit_state/request_id/retry_hint projection, without new cause_id field/header or shared Problem modification."
+    }
+  ],
+  "passed_boundaries": [
+    "pure narrow Reader dependency identity and original Service lifecycle preservation",
+    "current Human/Session/Owner transaction authorization and UserSH/ProjectSH plus existing lifecycle/order privacy",
+    "signed cursor namespace, owner/filter/order binding, Session/limit independence, max100 and full limit+1 sentinel validation",
+    "closed safe DTO/null/absence/string-int64 and bounded whole encoding",
+    "static resolve and nested Usage route precedence, strict query/body/HEAD formal Account boundary",
+    "two-second pre-auth total budget, real ResponseController/Body/Write/Flush/callback actual completion and deadline reset",
+    "no false Unknown rollback or receipt; existing same-package physical COMMIT ACK observer feasible within own new glue",
+    "root same Project Authority/Store/CursorKeyring, explicit S2 accepted commit+account.go handoff before shared compilation",
+    "16 technical plus last README exact scope; no migration/create/write/UI/worker/stopped-task expansion",
+    "three native plus three PG and exact six existing selectors, independent A/B, separate budgets/windows/actualwait/doublecleanup/daemon limits"
+  ],
+  "no_source_runtime_acceptance": true,
+  "no_Go_or_schema_or_browser_or_network_or_database_execution": true,
+  "no_product_or_card_or_Git_mutations": true,
+  "limits": [
+    "Static feasibility, not implementation/performance/actual 5MiB encoding proof",
+    "Current S2 app files not read as accepted dependencies; final shared root requires accepted S2 handoff",
+    "Legacy named selectors found in fixed source only, not executed",
+    "Existing B02/Usage authority and root acceptance are prerequisites, not proof of new HTTP endpoints"
+  ]
+}

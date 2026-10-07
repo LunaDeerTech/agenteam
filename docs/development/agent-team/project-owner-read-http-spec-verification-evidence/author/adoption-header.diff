@@ -1,0 +1,10 @@
+--- pre-adoption-rev2.md
++++ adopted-rev2.md
+@@ -1,6 +1,6 @@
+ # D08 Project Owner 列表与详情只读 HTTP
+ 
+-修订：rev2。状态：正式工程规格候选，待完整独立 STATIC 审查与主线程采纳；未授权产品实施、Go 执行或真实资源。本卡只交付下述读取结果，不标记完整 D08 完成。
++修订：rev2。状态：完整限定独立 STATIC PASS，主线程已采纳 rev2；未授权产品实施、Go 执行或真实资源。本卡只交付下述读取结果，不标记完整 D08 完成。
+ 
+ 固定已接受产品基线：`baa6ffac7bdf87dea6f052704e509d7b547e9886`；[S3 验收](../agent-team/system-meeting-summary-resolution-verification.md)及归档 `77965be16feeb22d8c1b8301a047d95e3b15e8eb`不构成本卡的生成依赖。原 [Usage 根装配](../agent-team/project-usage-read-http-root-verification.md)产品 `03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05`是实际读取根接缝。编卡时 S2 仍在最终联验，不消费其活动实现；共享文件交接见 §5。
+ 

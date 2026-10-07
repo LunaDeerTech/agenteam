@@ -1,0 +1,248 @@
+{
+  "frozen_card_sha256": "0ac1ab4813ea56fcdb18bff95d122e383af55d2953dc01f626578faa94e59aff",
+  "manifest_sha256": "a5d2d2867dfca0956db7266dc06d3da248eb36e02f08fcde6c776b0ba4c1e162",
+  "source_input_sha256": "604a7503b446058f85e5d80dca43d20dbe194f32ea21c40ac94d393074b5c199",
+  "additional_input_sha256": "08874e53680291a2ad4202080d95a0478f37896b80789f4a438e597b0529d23e",
+  "local_links": [
+    {
+      "label": "S3 \u9a8c\u6536",
+      "target": "../agent-team/system-meeting-summary-resolution-verification.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "Usage \u6839\u88c5\u914d",
+      "target": "../agent-team/project-usage-read-http-root-verification.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "\u4ed3\u5e93\u89c4\u8303",
+      "target": "../../../AGENTS.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "\u56e2\u961f\u6d41\u7a0b",
+      "target": "../agent-team/README.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "\u8bbe\u8ba1",
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "Go \u5f00\u53d1",
+      "target": "../../../.agents/skills/agenteam-go-development/SKILL.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "\u72ec\u7acb\u9a8c\u6536",
+      "target": "../../../.agents/skills/agenteam-verification/SKILL.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "D08 \u8bbe\u8ba1 \u00a75/11/12",
+      "target": "d08-project-owner-design.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "Usage HTTP \u00a72\u20135",
+      "target": "d09-project-usage-read-http.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "\u5f00\u53d1\u8ba1\u5212 D08",
+      "target": "../development-plan.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "\u5f53\u524d\u53f0\u8d26",
+      "target": "../agent-team/tasks.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "D08 \u4e3b\u5361",
+      "target": "d08-project-owner.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "D08 \u8bbe\u8ba1 \u00a711/12",
+      "target": "d08-project-owner-design.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "\u6062\u590d\u540e\u56fa\u5b9a B02 \u771f\u5b9e\u57fa\u7ebf",
+      "target": "../agent-team/d08-b02-recovery-baseline.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "service.go",
+      "target": "../../../internal/central/project/service.go",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "authority.go",
+      "target": "../../../internal/central/project/authority.go",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "repository.go",
+      "target": "../../../internal/central/project/repository.go",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "commands.go",
+      "target": "../../../internal/central/project/contract/commands.go",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "lifecycle.go",
+      "target": "../../../internal/central/project/contract/lifecycle.go",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "Account HTTPBoundary",
+      "target": "../../../internal/central/account/http_boundary.go",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "\u5df2\u9a8c Usage HTTP \u89c4\u683c",
+      "target": "d09-project-usage-read-http.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "\u6839\u9a8c\u6536",
+      "target": "../agent-team/project-usage-read-http-root-verification.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "D10 Skills",
+      "target": "d10-skills-initialization.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "Project \u9886\u57df\u7ed1\u5b9a\u963b\u65ad",
+      "target": "recovery-project-domain-bindings.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "R4 runtime \u89c4\u683c",
+      "target": "recovery-d08-lifecycle-runtime.md",
+      "path_exists": true,
+      "fragment": ""
+    },
+    {
+      "label": "S3 Resolution \u7ed1\u5b9a\u8fb9\u754c",
+      "target": "d09-system-meeting-summary-resolution.md",
+      "path_exists": true,
+      "fragment": ""
+    }
+  ],
+  "local_link_count": 26,
+  "no_fragment_links": true,
+  "paths": [
+    [
+      "1",
+      "internal/central/project/reader.go"
+    ],
+    [
+      "2",
+      "internal/central/project/reader_test.go"
+    ],
+    [
+      "3",
+      "internal/central/project/service.go"
+    ],
+    [
+      "4",
+      "internal/central/project/http/handler.go"
+    ],
+    [
+      "5",
+      "internal/central/project/http/wire.go"
+    ],
+    [
+      "6",
+      "internal/central/project/http/handler_test.go"
+    ],
+    [
+      "7",
+      "internal/central/project/http/wire_test.go"
+    ],
+    [
+      "8",
+      "internal/central/project/http/native_test.go"
+    ],
+    [
+      "9",
+      "api/openapi/project-owner.json"
+    ],
+    [
+      "10",
+      "internal/central/app/project_read.go"
+    ],
+    [
+      "11",
+      "internal/central/app/project_read_test.go"
+    ],
+    [
+      "12",
+      "internal/central/app/account.go"
+    ],
+    [
+      "13",
+      "tests/model/project_owner_read_http_fixture_test.go"
+    ],
+    [
+      "14",
+      "tests/model/project_owner_read_http_test.go"
+    ],
+    [
+      "15",
+      "tests/model/project_owner_read_http_terminal_test.go"
+    ],
+    [
+      "16",
+      "tests/model/project_owner_read_http_root_test.go"
+    ],
+    [
+      "17",
+      "docs/development/backend/README.md"
+    ]
+  ],
+  "new_path_collisions": [],
+  "technical_paths": 16,
+  "final_doc_paths": 1,
+  "max_json_bound_math": {
+    "bytes": 5026048,
+    "max_bytes": 5242880,
+    "margin": 216832,
+    "not_a_runtime_encoding_test": true
+  },
+  "whitespace": "PASS",
+  "fences": "balanced",
+  "formal_tests_or_resources_run": false
+}

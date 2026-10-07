@@ -1,0 +1,45 @@
+{
+  "status": "PASS: pure documentation archive checks only",
+  "specification_commit": "ac33ea1516df0c9747c77b5a23ab1f5f018ec1c0",
+  "accepted_card_sha256": "bf77809f18c2fd5cb3d512ccaf6ee878121baf274f8c2d7f355ce3c77ee80ef0",
+  "committed_card_matches": true,
+  "technical_section1_to_end_sha256": "d607c0c57f1465160de380b2f98eb568fe81b5efac0f1e85d779795dca7a36fa",
+  "header_only_after_STATIC": true,
+  "originals_count": 15,
+  "originals_bytes": 85933,
+  "sources_original_bytes_still_identical": true,
+  "json_original_count": 8,
+  "fixed_git_source_entries_checked": 34,
+  "two_exact_patches_reconstruct_committed_card": true,
+  "rev1_to_rev2_changed_lines": [
+    3,
+    80
+  ],
+  "other_rev1_to_rev2_lines_unchanged": 173,
+  "card_links": 26,
+  "raw_patch_whitespace_exceptions": {
+    "author/rev1-to-rev2.diff": {
+      "sha256": "ff65874d41235acad61387372b81a3cdcb103f7e80f65705954f450987f8343b",
+      "original_blank_context_lines": [
+        5,
+        8,
+        10,
+        12,
+        14,
+        17,
+        19
+      ]
+    },
+    "author/adoption-header.diff": {
+      "sha256": "4a0053633c9e7eb08f46fd8059986b35c2e1319a115ce64620d798707aadddf7",
+      "original_blank_context_lines": [
+        5,
+        8,
+        10
+      ]
+    }
+  },
+  "no_product_or_schema_tests_resources_old_scripts_or_git_mutations": true,
+  "report_links": 11,
+  "generated_utf8_lf_json_markdown_diff_check": "PASS"
+}

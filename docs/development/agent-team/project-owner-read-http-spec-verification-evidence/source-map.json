@@ -1,0 +1,85 @@
+{
+  "stored": {
+    "author/rev1-card.md.txt": {
+      "source": "/workspace/scratch/next-frontier-after-summary/d08-read-spec-rev1/card.md",
+      "sha256": "0ac1ab4813ea56fcdb18bff95d122e383af55d2953dc01f626578faa94e59aff",
+      "bytes": 29117
+    },
+    "author/rev1-manifest.json": {
+      "source": "/workspace/scratch/next-frontier-after-summary/d08-read-spec-rev1/manifest.json",
+      "sha256": "a5d2d2867dfca0956db7266dc06d3da248eb36e02f08fcde6c776b0ba4c1e162",
+      "bytes": 7740
+    },
+    "author/rev1-check-first-error.txt": {
+      "source": "/workspace/scratch/next-frontier-after-summary/d08-read-spec-rev1/check-first-error.txt",
+      "sha256": "e7618ede10b25dced9c9e356a5295604d6c590819b901698ead037d26fe2eb41",
+      "bytes": 493
+    },
+    "author/rev2-manifest.json": {
+      "source": "/workspace/scratch/next-frontier-after-summary/d08-read-spec-rev2/manifest.json",
+      "sha256": "08fadedb3a6971d0e9708d6c58d38290134e26e5356fdb9e3ea6b3f41e566e20",
+      "bytes": 1057
+    },
+    "author/rev1-to-rev2.diff": {
+      "source": "/workspace/scratch/next-frontier-after-summary/d08-read-spec-rev2/rev1-to-rev2.diff",
+      "sha256": "ff65874d41235acad61387372b81a3cdcb103f7e80f65705954f450987f8343b",
+      "bytes": 3105
+    },
+    "author/adoption-header.diff": {
+      "source": "/workspace/scratch/recovery-docs/d08-owner-read-spec/adoption-header.diff",
+      "sha256": "4a0053633c9e7eb08f46fd8059986b35c2e1319a115ce64620d798707aadddf7",
+      "bytes": 1021
+    },
+    "author/header-freeze.json": {
+      "source": "/workspace/scratch/recovery-docs/d08-owner-read-spec/header-freeze.json",
+      "sha256": "c68fdc00763bed195b480871802c69c5ddb5ca432e70e2bad87843b9939f309f",
+      "bytes": 1115
+    },
+    "independent/rev1/review.md": {
+      "source": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/review.md",
+      "sha256": "32cdff46833e63f8b0a78ab19503a3404c7e0bf66418ff20c3cb33df96d65d7e",
+      "bytes": 5119
+    },
+    "independent/rev1/result.json": {
+      "source": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/result.json",
+      "sha256": "3a7a0039a04a129ee70f8329f889db074374030607cefb873cf603382fec29df",
+      "bytes": 3825
+    },
+    "independent/rev1/source-input.json": {
+      "source": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/source-input.json",
+      "sha256": "604a7503b446058f85e5d80dca43d20dbe194f32ea21c40ac94d393074b5c199",
+      "bytes": 16511
+    },
+    "independent/rev1/additional-input.json": {
+      "source": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/additional-input.json",
+      "sha256": "08874e53680291a2ad4202080d95a0478f37896b80789f4a438e597b0529d23e",
+      "bytes": 4931
+    },
+    "independent/rev1/document-check.json": {
+      "source": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/document-check.json",
+      "sha256": "a8e2c9fbe5f7583fe7bb15bfa36da218eebb4e0fa61303fcbaf3581d97618881",
+      "bytes": 6255
+    },
+    "independent/rev1/legacy-selectors.raw": {
+      "source": "/workspace/scratch/project-owner-read-http-spec-verification/rev1/legacy-selectors.raw",
+      "sha256": "95ca5ed87d759a655d9a1a96f920e9c491d60e3bee44868b2a6af202aa6b79c5",
+      "bytes": 911
+    },
+    "independent/rev2/review.md": {
+      "source": "/workspace/scratch/project-owner-read-http-spec-verification/rev2/review.md",
+      "sha256": "e1feb6719a047a03fcf000e9abbf96d1a149dd890b8fb70726f4ae8f7a812c99",
+      "bytes": 2199
+    },
+    "independent/rev2/result.json": {
+      "source": "/workspace/scratch/project-owner-read-http-spec-verification/rev2/result.json",
+      "sha256": "7f1c849f25e968b8ad7dfae20f912e072e90a10b00a5c4963f3d08486d1c2524",
+      "bytes": 2534
+    }
+  },
+  "scope": "15 exact small static-review/specification originals; rev1 full card plus exact revision/adoption patches, no duplicate rev2 card or source tree/graph/cache/binary",
+  "fixed_source_provenance": "34 original fixed-source entries preserved in independent/rev1 source-input.json and additional-input.json; source bytes reused from fixed Git, not copied",
+  "accepted_card_sha256": "bf77809f18c2fd5cb3d512ccaf6ee878121baf274f8c2d7f355ce3c77ee80ef0",
+  "technical_section1_to_end_sha256": "d607c0c57f1465160de380b2f98eb568fe81b5efac0f1e85d779795dca7a36fa",
+  "specification_commit": "ac33ea1516df0c9747c77b5a23ab1f5f018ec1c0",
+  "product_implementation_authorized": false
+}

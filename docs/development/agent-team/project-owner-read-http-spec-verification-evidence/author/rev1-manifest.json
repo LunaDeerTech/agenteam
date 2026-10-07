@@ -1,0 +1,175 @@
+{
+  "card": "/workspace/agenteam/docs/development/work-items/d08-project-owner-read-http.md",
+  "sha256": "0ac1ab4813ea56fcdb18bff95d122e383af55d2953dc01f626578faa94e59aff",
+  "snapshot": "/workspace/scratch/next-frontier-after-summary/d08-read-spec-rev1/card.md",
+  "bytes": 29117,
+  "lines": 175,
+  "product_baseline": "baa6ffac7bdf87dea6f052704e509d7b547e9886",
+  "usage_root_product": "03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05",
+  "source_hashes": {
+    "docs/development/work-items/d08-project-owner-design.md": "6b4fafa43f9ea3912c72ec40c042e79ba316ae863beb13365fad2b88dafbde8b",
+    "docs/development/agent-team/d08-b02-recovery-baseline.md": "01258a5f954a452e5dc0d74138da16a75addb2f9a9c920fd7f694d1292a965a2",
+    "docs/development/work-items/d09-project-usage-read-http.md": "b872bc7481c8236bbfdea826c7e40c9f96f083669b4189f1a9437b1d976ac6e0",
+    "docs/development/agent-team/project-usage-read-http-root-verification.md": "df13d0de2878ce86cfe22586bc05d737afe0785d2e676d20883300bd323ea375",
+    "internal/central/project/service.go": "44abe5e8400c3a1086c4270461d7c1ed81581898b790e301a85a266e2d134e14",
+    "internal/central/project/authority.go": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+    "internal/central/project/repository.go": "f89d5b582b79cb31434d70c03be43a99ac1b66261591850d141263c2af44ed55",
+    "internal/central/project/contract/types.go": "7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1",
+    "internal/central/project/contract/commands.go": "30af1efac3ed5230ac06b1795e086fcf21840246243e293bcd46bbea335886fa",
+    "internal/central/project/contract/lifecycle.go": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6",
+    "internal/central/project/contract/validation.go": "73db8aeb4db685433279cdeeb119fe12a231d7193d9b93e97305b7f30445c64b",
+    "internal/central/account/http_boundary.go": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572",
+    "internal/central/usage/http/handler.go": "e56b1050691ef5c10b0649d4d06e94a6d4a819f832db85ed49e9faca0f0eebe9",
+    "internal/central/usage/http/wire.go": "e61a6bb68b7e88e06c6972b4df0b614301195d71e1305f05faf9436fdd441f9c",
+    "internal/central/foundation/page.go": "3be782a4c61729a5a2b13e195e5653ad1070e883765035b5cbb1f4f9e85c3c52",
+    "internal/central/httpapi/problem.go": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde",
+    "tests/model/project_usage_http_fixture_test.go": "c28e314a756150b5f517c4d90b8f22cc0a25cd5c251bb7c593b43a70ed0dab62",
+    "tests/model/project_usage_http_test.go": "d421ca88f364f7674cce73fe40c4912d7554c66ab60326207f2023ac4cb10820",
+    "tests/model/project_usage_http_terminal_test.go": "ebb16698947ecf0a72d9a7e91561bdd75e334b43d6fd274a81804aa530f02c40",
+    "tests/model/project_usage_http_root_test.go": "1d63defd90cbf1637b290adf1eba9b3e2c9c449453d63d17b1204e6ae3f67f8c",
+    "tests/project/b02_fixture_test.go": "6687003d2f1700f336c365477237e413580fb5d217e6a6754733d4326434df94",
+    "tests/project/b02_owner_commands_test.go": "5d4b886c58ae4b286da9e79e5470688db953091e54905badb0ea5993064b7b35"
+  },
+  "previous_frontier_same_source": {
+    "docs/development/work-items/d08-project-owner-design.md": true,
+    "docs/development/agent-team/d08-b02-recovery-baseline.md": true,
+    "docs/development/work-items/d09-project-usage-read-http.md": true,
+    "docs/development/agent-team/project-usage-read-http-root-verification.md": true,
+    "internal/central/project/service.go": true,
+    "internal/central/project/repository.go": true
+  },
+  "accepted_app_source_commit": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "accepted_app_sources": {
+    "internal/central/app/account.go": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/overlay01/accepted/internal/central/app/account.go",
+      "sha256": "7cf981e59507f27bb6aac57378acb65ee109ec2f4a1f73d554a0ddb877e380ba",
+      "matches_provenance": true
+    },
+    "internal/central/app/project_usage.go": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/overlay01/accepted/internal/central/app/project_usage.go",
+      "sha256": "de5dfb03150ccc7fc3a875c871e5dfef150eb838d4173b392a6ed397b3550144",
+      "matches_provenance": true
+    },
+    "internal/central/app/project_usage_test.go": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/overlay01/accepted/internal/central/app/project_usage_test.go",
+      "sha256": "dfa09bf12b0e39323ef4c4e339a8c247de1f524e766d30827873541b5e014c8a",
+      "matches_provenance": true
+    },
+    "internal/central/app/model_test.go": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/overlay01/accepted/internal/central/app/model_test.go",
+      "sha256": "e89d795350b31362b02d1181d8c22facde06ddae32b0c1b394cf0706429bff54",
+      "matches_provenance": true
+    }
+  },
+  "write_scope": [
+    "/workspace/agenteam/docs/development/work-items/d08-project-owner-read-http.md"
+  ],
+  "future_implementation_whitelist": [
+    {
+      "number": 1,
+      "path": "internal/central/project/reader.go",
+      "currently_exists": false
+    },
+    {
+      "number": 2,
+      "path": "internal/central/project/reader_test.go",
+      "currently_exists": false
+    },
+    {
+      "number": 3,
+      "path": "internal/central/project/service.go",
+      "currently_exists": true
+    },
+    {
+      "number": 4,
+      "path": "internal/central/project/http/handler.go",
+      "currently_exists": false
+    },
+    {
+      "number": 5,
+      "path": "internal/central/project/http/wire.go",
+      "currently_exists": false
+    },
+    {
+      "number": 6,
+      "path": "internal/central/project/http/handler_test.go",
+      "currently_exists": false
+    },
+    {
+      "number": 7,
+      "path": "internal/central/project/http/wire_test.go",
+      "currently_exists": false
+    },
+    {
+      "number": 8,
+      "path": "internal/central/project/http/native_test.go",
+      "currently_exists": false
+    },
+    {
+      "number": 9,
+      "path": "api/openapi/project-owner.json",
+      "currently_exists": false
+    },
+    {
+      "number": 10,
+      "path": "internal/central/app/project_read.go",
+      "currently_exists": false
+    },
+    {
+      "number": 11,
+      "path": "internal/central/app/project_read_test.go",
+      "currently_exists": false
+    },
+    {
+      "number": 12,
+      "path": "internal/central/app/account.go",
+      "currently_exists": true
+    },
+    {
+      "number": 13,
+      "path": "tests/model/project_owner_read_http_fixture_test.go",
+      "currently_exists": false
+    },
+    {
+      "number": 14,
+      "path": "tests/model/project_owner_read_http_test.go",
+      "currently_exists": false
+    },
+    {
+      "number": 15,
+      "path": "tests/model/project_owner_read_http_terminal_test.go",
+      "currently_exists": false
+    },
+    {
+      "number": 16,
+      "path": "tests/model/project_owner_read_http_root_test.go",
+      "currently_exists": false
+    },
+    {
+      "number": 17,
+      "path": "docs/development/backend/README.md",
+      "currently_exists": true
+    }
+  ],
+  "local_link_count": 26,
+  "broken_links": [],
+  "diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/dev/null",
+      "/workspace/agenteam/docs/development/work-items/d08-project-owner-read-http.md"
+    ],
+    "exit_code": 1,
+    "meaning": "new file differs; no whitespace diagnostics; original checker expected 0 and failed before publication",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "code_fences": 2,
+  "trailing_whitespace_lines": [],
+  "no_go_tests_or_resources_run": true,
+  "no_git_mutations": true
+}
