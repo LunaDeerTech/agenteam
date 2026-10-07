@@ -1,0 +1,22 @@
+=== RUN   TestUsageIndependentBDeadlineCloseAndCallbackBothJoin
+=== RUN   TestUsageIndependentBDeadlineCloseAndCallbackBothJoin/natural-two-seconds
+    independent_b_overlay_test.go:119: earlier=false actual elapsed=2.041988312s; Close and callback both released and joined
+=== RUN   TestUsageIndependentBDeadlineCloseAndCallbackBothJoin/earlier-parent
+    independent_b_overlay_test.go:119: earlier=true actual elapsed=110.966335ms; Close and callback both released and joined
+--- PASS: TestUsageIndependentBDeadlineCloseAndCallbackBothJoin (2.15s)
+    --- PASS: TestUsageIndependentBDeadlineCloseAndCallbackBothJoin/natural-two-seconds (2.04s)
+    --- PASS: TestUsageIndependentBDeadlineCloseAndCallbackBothJoin/earlier-parent (0.11s)
+=== RUN   TestUsageIndependentBReadTailCannotEscapeCancellation
+--- PASS: TestUsageIndependentBReadTailCannotEscapeCancellation (0.02s)
+=== RUN   TestUsageIndependentBWriteAndHeadProblemFlushTails
+=== RUN   TestUsageIndependentBWriteAndHeadProblemFlushTails/partial-get-write
+=== RUN   TestUsageIndependentBWriteAndHeadProblemFlushTails/success-head-flush
+=== RUN   TestUsageIndependentBWriteAndHeadProblemFlushTails/unknown-head-flush
+--- PASS: TestUsageIndependentBWriteAndHeadProblemFlushTails (0.06s)
+    --- PASS: TestUsageIndependentBWriteAndHeadProblemFlushTails/partial-get-write (0.02s)
+    --- PASS: TestUsageIndependentBWriteAndHeadProblemFlushTails/success-head-flush (0.02s)
+    --- PASS: TestUsageIndependentBWriteAndHeadProblemFlushTails/unknown-head-flush (0.02s)
+=== RUN   TestUsageIndependentBControlledDeadlineReuse
+--- PASS: TestUsageIndependentBControlledDeadlineReuse (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/usage/http	3.251s

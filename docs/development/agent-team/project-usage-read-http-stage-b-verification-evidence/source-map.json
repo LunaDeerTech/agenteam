@@ -1,0 +1,245 @@
+{
+  "scope": "Stage B bounded controlled acceptance; no native/PG/root or whole-card product acceptance.",
+  "product_commit": "e7304512e73fdddb25bdbf1c0882400ad5b5f791",
+  "stage_a_commit": "ba7ce7296b7c08d976d3fc3ce1e1d0b727a3f04f",
+  "summary_contract_dependency_commit": "e6cb70bdfc6ef7569d740f767f7dca3211a2ef7a",
+  "saved_originals": [
+    {
+      "source": "/workspace/scratch/usage-http-author/B/HANDOFF.md",
+      "archive": "author/HANDOFF.md",
+      "sha256": "6d55a4385dd1e6b77ee8f3c1f64156e119a5d6ee550ca8117bb56c2ae13291b3",
+      "bytes": 2642,
+      "role": "author frozen original"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/input01.json",
+      "archive": "author/input01.json",
+      "sha256": "1ac71b65f3566c07a4fb9e03250e82ac226836a134ac4a5289d4d17d6287d6b9",
+      "bytes": 400,
+      "role": "author frozen original"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/final-input.json",
+      "archive": "author/final-input.json",
+      "sha256": "f99553429fffdb163086eadda94e28d2cbc1d78f80cff1b4955f5530faf5f3a7",
+      "bytes": 29911,
+      "role": "author frozen original"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/final-state.json",
+      "archive": "author/final-state.json",
+      "sha256": "54fba54d3a9d08f40553217346a05983a26f90f0dfc072d3c1565168adec3be0",
+      "bytes": 3778,
+      "role": "author frozen original"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/added-input-provenance.json",
+      "archive": "author/added-input-provenance.json",
+      "sha256": "b146ebb4eabd98eae6dd85a2a8e1f5040d51baeceb7d41f72ac6713f0c76aad8",
+      "bytes": 1340,
+      "role": "author frozen original"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/run.py",
+      "archive": "author/run.py",
+      "sha256": "3e656bde33a95deb5c9b553b1ca6e069ec98000e957cb1676a137cc8aaddef6c",
+      "bytes": 3279,
+      "role": "author frozen original"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/b01-race-list/command.json",
+      "archive": "author/b01-race-list/command.json",
+      "sha256": "b58bad198bf18600ae21abb190ab007902dc368b70f58dcd0b1b675fd771d57a",
+      "bytes": 4717,
+      "role": "actual command/env/input/exit/wait record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/b02-compile/command.json",
+      "archive": "author/b02-compile/command.json",
+      "sha256": "89abc86ea40178d0d5578b742147dc86bf5377150801ef988fbd5ca5e01f434a",
+      "bytes": 4770,
+      "role": "actual command/env/input/exit/wait record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/b02-compile/raw.log",
+      "archive": "author/b02-compile/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "actual raw output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/b03-pure/command.json",
+      "archive": "author/b03-pure/command.json",
+      "sha256": "69b47e047547124da5ba6284c97c4d5950e61cf013afcb022a7371c002b9828a",
+      "bytes": 4855,
+      "role": "actual command/env/input/exit/wait record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/b03-pure/raw.log",
+      "archive": "author/b03-pure/raw.log",
+      "sha256": "97f72574190520f394bc3cacafc21e45e91a66914c817d036ee40c9f3e7b1d47",
+      "bytes": 12413,
+      "role": "actual raw output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/b04-native-list/command.json",
+      "archive": "author/b04-native-list/command.json",
+      "sha256": "dd07b7d723d58c5810fa1237d989e29732368f3e777ac112161ca4cad3a50f8e",
+      "bytes": 4693,
+      "role": "actual command/env/input/exit/wait record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/b04-native-list/raw.log",
+      "archive": "author/b04-native-list/raw.log",
+      "sha256": "9661bc53be64762a853aeb36de3e475ea8c4169ae1899c0c77a9396d814e94bd",
+      "bytes": 111,
+      "role": "actual raw output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/b05-vet/command.json",
+      "archive": "author/b05-vet/command.json",
+      "sha256": "517235261a1aa921844cdcb5b3b8cac8479aa1fc1c737094758c4b014718ec1c",
+      "bytes": 4682,
+      "role": "actual command/env/input/exit/wait record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/b05-vet/raw.log",
+      "archive": "author/b05-vet/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "actual raw output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/b01/review.md",
+      "archive": "independent/review.md",
+      "sha256": "0784e21b67f4da86c04c018b1514f8628a98730fae185719c188fc031c6b4982",
+      "bytes": 6605,
+      "role": "independent frozen original"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/b01/final-check.json",
+      "archive": "independent/final-check.json",
+      "sha256": "99e25a4abbf125b0bcb9f1ec306cb9bcc07048af5bd48693e7d7ad080a1b928d",
+      "bytes": 2795,
+      "role": "independent frozen original"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/b01/bind-result.json",
+      "archive": "independent/bind-result.json",
+      "sha256": "3f99cda4561b0c7107770e8c157bb813c97f856a44bba6cc457d02a674f4565c",
+      "bytes": 299,
+      "role": "independent frozen original"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/b01/inputs.json",
+      "archive": "independent/inputs.json",
+      "sha256": "de0ebe8bf27a338b642a82063e957170291fefeb486b4f5a575c79b327679c5d",
+      "bytes": 1891,
+      "role": "independent frozen original"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/b01/overlay.json",
+      "archive": "independent/overlay.json",
+      "sha256": "93185a8acd98030e609e04d3056d2bbf800f8c04e7755d46147bb7ac4bb1706d",
+      "bytes": 185,
+      "role": "independent frozen original"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/b01/independent_overlay_test.go",
+      "archive": "independent/independent_overlay_test.go.txt",
+      "sha256": "8889439b836554054aa1d8db9e7447add76f71a8decc066a9bb3d6dab93cf281",
+      "bytes": 9617,
+      "role": "original independent probe bytes; .txt avoids Go package discovery"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/b01-run.py",
+      "archive": "independent/b01-run.py",
+      "sha256": "423d3607f9a04d1e19fafb3ab85c3177b7f7c762edfc170130be949d7cb562d0",
+      "bytes": 2556,
+      "role": "original independent command driver, archived without execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/b01/independent-go01/command.json",
+      "archive": "independent/independent-go01/command.json",
+      "sha256": "facbae8a39577548e347a8e09e043e02dc61c05dd6c86fbb22033b774afe38a6",
+      "bytes": 3943,
+      "role": "actual independent command or raw"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/b01/independent-go01/raw.log",
+      "archive": "independent/independent-go01/raw.log",
+      "sha256": "66e5b82bf63fcc7038ba93d00ec92dbde6f5290860d8c46a382e879c82e77e47",
+      "bytes": 1713,
+      "role": "actual independent command or raw"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/b01/independent-format/command.json",
+      "archive": "independent/independent-format/command.json",
+      "sha256": "8aa3509f06a201360cc33fb970dd4f050b7896ccede259bc1768f33889b739a3",
+      "bytes": 3820,
+      "role": "actual independent command or raw"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/b01/independent-format/raw.log",
+      "archive": "independent/independent-format/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "actual independent command or raw"
+    }
+  ],
+  "saved_count": 26,
+  "saved_bytes": 111015,
+  "fingerprint_only": [
+    {
+      "source": "/workspace/scratch/usage-http-author/B/b01-race-list/raw.log",
+      "sha256": "f96cbb50bb8afd9a0aeed0f07013f70c317cef4e9c6f9af270f5a10318035264",
+      "bytes": 1076617,
+      "archive": null,
+      "reason": "Large race dependency-list raw: fingerprint only; final-input and final-check retain graph findings."
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/b01-list-summary.log",
+      "sha256": "5252ef5653bc142330d133aef97bfb1d9b4a79f2feda19deca5ee6b11b4fb706",
+      "bytes": 1076707,
+      "archive": null,
+      "reason": "Large duplicated list summary: fingerprint only."
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/B/usage-http.test",
+      "sha256": "fc86e607bc6b9f5abebdca787634b06fb79ad8a012451ccb11235dbe9c7acf50",
+      "bytes": 21119045,
+      "archive": null,
+      "reason": "Race test binary: fingerprint only; no binary copied."
+    }
+  ],
+  "product_source_reuse": [
+    {
+      "git": "e7304512e73fdddb25bdbf1c0882400ad5b5f791",
+      "path": "internal/central/usage/http/handler.go",
+      "sha256": "e56b1050691ef5c10b0649d4d06e94a6d4a819f832db85ed49e9faca0f0eebe9",
+      "bytes": 9770,
+      "archive": null
+    },
+    {
+      "git": "e7304512e73fdddb25bdbf1c0882400ad5b5f791",
+      "path": "internal/central/usage/http/handler_test.go",
+      "sha256": "6cb52c4553409b5edad5a7e641d55e966eea48b2a6ef452403e9ec24553102da",
+      "bytes": 38050,
+      "archive": null
+    }
+  ],
+  "stage_a_reuse": "../project-usage-read-http-stage-a-verification.md and its existing evidence; no copy here",
+  "work_card_before": {
+    "path": "docs/development/work-items/d09-project-usage-read-http.md",
+    "git": "e7304512e73fdddb25bdbf1c0882400ad5b5f791",
+    "sha256": "cf50de4b9e120787980f586220361fef1aaf32064bf98453494224633d2a6761",
+    "header_sha256": "85367c10bfcc3dc0d42c096e9a4e95c3efd85f3bf6ffc442939b70b2d5586ffd",
+    "technical_section_1_onward_sha256": "36a7fa5c64cbb8d6716f87851b2b5eea895d344319944f6d558c37c55f53a11d"
+  },
+  "limitations": [
+    "Author final-input and HANDOFF preserve the earlier pending Summary status; independent bind/final-check closes it against e6cb70bd without rerunning unchanged input.",
+    "Original commands retain only the environment and before/after bindings they actually recorded; archive hashes do not invent additional execution-time records.",
+    "Large dependency-list raw, duplicate summary, binary, tools, caches and product source snapshots are not copied.",
+    "Historical A unjoined zombie is excluded from every B cleanup claim."
+  ]
+}

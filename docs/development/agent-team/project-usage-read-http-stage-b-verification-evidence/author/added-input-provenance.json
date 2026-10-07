@@ -1,0 +1,31 @@
+{
+  "baseline": "9ff1292d7e64b2ee2e9e049cf4eb625a7d11c6e7",
+  "added_project_usage_go_sources_match_committed_baseline": [
+    "internal/central/project/audit_authority.go",
+    "internal/central/project/audit_facts.go",
+    "internal/central/project/authority.go",
+    "internal/central/project/commands.go",
+    "internal/central/project/creation.go",
+    "internal/central/project/events.go",
+    "internal/central/project/external_event_authority.go",
+    "internal/central/project/lifecycle.go",
+    "internal/central/project/lifecycle_audit.go",
+    "internal/central/project/lifecycle_authority.go",
+    "internal/central/project/lifecycle_events.go",
+    "internal/central/project/lifecycle_store.go",
+    "internal/central/project/object_stop_authority.go",
+    "internal/central/project/outbox_lifecycle_authority.go",
+    "internal/central/project/participants.go",
+    "internal/central/project/recovery.go",
+    "internal/central/project/repository.go",
+    "internal/central/project/secret_authority.go",
+    "internal/central/project/service.go",
+    "internal/central/usage/authority.go",
+    "internal/central/usage/invocations.go",
+    "internal/central/usage/query.go",
+    "internal/central/usage/service.go",
+    "internal/central/usage/store.go",
+    "internal/central/usage/summary.go"
+  ],
+  "git_read_only": true
+}

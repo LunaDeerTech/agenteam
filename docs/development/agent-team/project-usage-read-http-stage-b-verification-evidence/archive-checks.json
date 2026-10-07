@@ -1,0 +1,75 @@
+{
+  "scope": "Archive self-check only; product and original scripts not executed; active C code not read.",
+  "cwd": "/workspace/agenteam",
+  "input_product_commit": "e7304512e73fdddb25bdbf1c0882400ad5b5f791",
+  "report_sha256": "d193b1a37628b9b6843c0fece2e9f84e7835afc3253df8f3d9999f709b59197e",
+  "source_map_sha256": "7992b0b810046e9dc045ebcf0ed23b5242f4b363d88ef93c97085e179842ae7f",
+  "work_card_before_sha256": "cf50de4b9e120787980f586220361fef1aaf32064bf98453494224633d2a6761",
+  "work_card_after_sha256": "7a4f09c1ca0fe10494cfcbfe40685bc952fec9b15bde8f98319087c18a643c95",
+  "work_card_section_1_onward_sha256": "36a7fa5c64cbb8d6716f87851b2b5eea895d344319944f6d558c37c55f53a11d",
+  "work_card_changes_header_only": true,
+  "originals_byte_identical": 26,
+  "saved_bytes": 111015,
+  "original_json_parsed": 15,
+  "fingerprint_only_checked": 3,
+  "product_sources_match_accepted_git": 2,
+  "summary_contract_sources_match_accepted_git": 4,
+  "author_raw_pass_counts": {
+    "top": 9,
+    "sub": 61
+  },
+  "independent_raw_pass_counts": {
+    "top": 4,
+    "sub": 5
+  },
+  "local_links_checked": 23,
+  "fragments_checked": [],
+  "authored_utf8_lf_newline_whitespace_and_fences": "PASS",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "/dev/null",
+        "docs/development/agent-team/project-usage-read-http-stage-b-verification.md"
+      ],
+      "exit_code": 1,
+      "raw": "",
+      "meaning": "New-file content difference may return1; no whitespace diagnostics; explicit UTF-8/line checks also passed."
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "/dev/null",
+        "docs/development/agent-team/project-usage-read-http-stage-b-verification-evidence/source-map.json"
+      ],
+      "exit_code": 1,
+      "raw": "",
+      "meaning": "New-file content difference may return1; no whitespace diagnostics; explicit UTF-8/line checks also passed."
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "docs/development/work-items/d09-project-usage-read-http.md",
+        "docs/development/agent-team/project-usage-read-http-stage-b-verification.md",
+        "docs/development/agent-team/project-usage-read-http-stage-b-verification-evidence"
+      ],
+      "exit_code": 0,
+      "raw": ""
+    }
+  ],
+  "native_coordination_note": "Root-authorized dependency scheduling only: independent native gate preparation ACKed, no actual native execution. Fixed actual A/B plus Summary closure, unique loopback window, original45s budget, actual waits and double cleanup required. C/PG fourteen-source freeze unchanged.",
+  "limitations": [
+    "Original before/after/actual wait records are preserved as recorded; no new runtime or cleanup evidence generated.",
+    "B historical zero-owned groups does not include or retrospectively join A PID22765/starttime81512.",
+    "Only small originals archived; large graph raw, duplicate summary and binary remain fingerprint-only."
+  ]
+}

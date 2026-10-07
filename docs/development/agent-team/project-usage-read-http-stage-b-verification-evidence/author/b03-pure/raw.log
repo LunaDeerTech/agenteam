@@ -1,0 +1,141 @@
+=== RUN   TestProjectUsageHTTPPureConstructorAndResources
+--- PASS: TestProjectUsageHTTPPureConstructorAndResources (0.00s)
+=== RUN   TestProjectUsageHTTPPureGETHEADAndCurrentActor
+=== RUN   TestProjectUsageHTTPPureGETHEADAndCurrentActor/GET//api/v1/projects/resolve?username=admin&project_name=Project
+=== RUN   TestProjectUsageHTTPPureGETHEADAndCurrentActor/HEAD//api/v1/projects/resolve?username=admin&project_name=Project
+=== RUN   TestProjectUsageHTTPPureGETHEADAndCurrentActor/GET//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage
+=== RUN   TestProjectUsageHTTPPureGETHEADAndCurrentActor/HEAD//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage
+=== RUN   TestProjectUsageHTTPPureGETHEADAndCurrentActor/GET//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/summary?group_by=day
+=== RUN   TestProjectUsageHTTPPureGETHEADAndCurrentActor/HEAD//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/summary?group_by=day
+--- PASS: TestProjectUsageHTTPPureGETHEADAndCurrentActor (0.00s)
+    --- PASS: TestProjectUsageHTTPPureGETHEADAndCurrentActor/GET//api/v1/projects/resolve?username=admin&project_name=Project (0.00s)
+    --- PASS: TestProjectUsageHTTPPureGETHEADAndCurrentActor/HEAD//api/v1/projects/resolve?username=admin&project_name=Project (0.00s)
+    --- PASS: TestProjectUsageHTTPPureGETHEADAndCurrentActor/GET//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage (0.00s)
+    --- PASS: TestProjectUsageHTTPPureGETHEADAndCurrentActor/HEAD//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage (0.00s)
+    --- PASS: TestProjectUsageHTTPPureGETHEADAndCurrentActor/GET//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/summary?group_by=day (0.00s)
+    --- PASS: TestProjectUsageHTTPPureGETHEADAndCurrentActor/HEAD//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/summary?group_by=day (0.00s)
+=== RUN   TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder
+=== RUN   TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/origin-before-path
+=== RUN   TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/unrelated
+=== RUN   TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/method-resolve
+=== RUN   TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/method-list
+=== RUN   TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/method-summary
+=== RUN   TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/auth-before-query
+=== RUN   TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/bad-id
+=== RUN   TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/bad-list-query
+=== RUN   TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/missing-group
+=== RUN   TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/bad-resolve
+=== RUN   TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/non-human
+--- PASS: TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/origin-before-path (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/unrelated (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/method-resolve (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/method-list (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/method-summary (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/auth-before-query (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/bad-id (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/bad-list-query (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/missing-group (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/bad-resolve (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBoundaryMethodAndQueryOrder/non-human (0.00s)
+=== RUN   TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging
+=== RUN   TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging/GET//api/v1/projects/resolve?username=admin&project_name=Project&
+=== RUN   TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging/GET//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage?cursor=private-canary
+=== RUN   TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging/GET//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/summary?group_by=day
+=== RUN   TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging/HEAD//api/v1/projects/resolve?username=admin&project_name=Project&
+=== RUN   TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging/HEAD//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage?cursor=private-canary
+=== RUN   TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging/HEAD//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/summary?group_by=day
+--- PASS: TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging (0.00s)
+    --- PASS: TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging/GET//api/v1/projects/resolve?username=admin&project_name=Project& (0.00s)
+    --- PASS: TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging/GET//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage?cursor=private-canary (0.00s)
+    --- PASS: TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging/GET//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/summary?group_by=day (0.00s)
+    --- PASS: TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging/HEAD//api/v1/projects/resolve?username=admin&project_name=Project& (0.00s)
+    --- PASS: TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging/HEAD//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage?cursor=private-canary (0.00s)
+    --- PASS: TestProjectUsageHTTPPureUnknownProjectionAndSafeLogging/HEAD//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/summary?group_by=day (0.00s)
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead/positive/GET
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead/positive/HEAD
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead/unknown/GET
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead/unknown/HEAD
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead/transfer/GET
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead/transfer/HEAD
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead/actual/GET
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead/actual/HEAD
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead/read_error/GET
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead/read_error/HEAD
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead/zero_progress/GET
+=== RUN   TestProjectUsageHTTPPureBodyFramingAndBoundedRead/zero_progress/HEAD
+--- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead/positive/GET (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead/positive/HEAD (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead/unknown/GET (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead/unknown/HEAD (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead/transfer/GET (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead/transfer/HEAD (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead/actual/GET (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead/actual/HEAD (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead/read_error/GET (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead/read_error/HEAD (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead/zero_progress/GET (0.00s)
+    --- PASS: TestProjectUsageHTTPPureBodyFramingAndBoundedRead/zero_progress/HEAD (0.00s)
+=== RUN   TestProjectUsageHTTPPureCapabilitiesAndIOFailures
+=== RUN   TestProjectUsageHTTPPureCapabilitiesAndIOFailures/read_unsupported
+=== RUN   TestProjectUsageHTTPPureCapabilitiesAndIOFailures/write_unsupported
+=== RUN   TestProjectUsageHTTPPureCapabilitiesAndIOFailures/no_flush
+=== RUN   TestProjectUsageHTTPPureCapabilitiesAndIOFailures/short_write
+=== RUN   TestProjectUsageHTTPPureCapabilitiesAndIOFailures/write_error
+=== RUN   TestProjectUsageHTTPPureCapabilitiesAndIOFailures/flush_error
+=== RUN   TestProjectUsageHTTPPureCapabilitiesAndIOFailures/close_error
+=== RUN   TestProjectUsageHTTPPureCapabilitiesAndIOFailures/clear_read_error
+=== RUN   TestProjectUsageHTTPPureCapabilitiesAndIOFailures/clear_write_error
+=== RUN   TestProjectUsageHTTPPureCapabilitiesAndIOFailures/panic
+--- PASS: TestProjectUsageHTTPPureCapabilitiesAndIOFailures (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCapabilitiesAndIOFailures/read_unsupported (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCapabilitiesAndIOFailures/write_unsupported (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCapabilitiesAndIOFailures/no_flush (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCapabilitiesAndIOFailures/short_write (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCapabilitiesAndIOFailures/write_error (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCapabilitiesAndIOFailures/flush_error (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCapabilitiesAndIOFailures/close_error (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCapabilitiesAndIOFailures/clear_read_error (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCapabilitiesAndIOFailures/clear_write_error (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCapabilitiesAndIOFailures/panic (0.00s)
+=== RUN   TestProjectUsageHTTPPurePreauthenticationDeadlineAndCallbackJoin
+=== RUN   TestProjectUsageHTTPPurePreauthenticationDeadlineAndCallbackJoin/boundary/1m0s
+=== RUN   TestProjectUsageHTTPPurePreauthenticationDeadlineAndCallbackJoin/boundary/50ms
+=== RUN   TestProjectUsageHTTPPurePreauthenticationDeadlineAndCallbackJoin/authentication/1m0s
+=== RUN   TestProjectUsageHTTPPurePreauthenticationDeadlineAndCallbackJoin/authentication/50ms
+--- PASS: TestProjectUsageHTTPPurePreauthenticationDeadlineAndCallbackJoin (4.10s)
+    --- PASS: TestProjectUsageHTTPPurePreauthenticationDeadlineAndCallbackJoin/boundary/1m0s (2.00s)
+    --- PASS: TestProjectUsageHTTPPurePreauthenticationDeadlineAndCallbackJoin/boundary/50ms (0.05s)
+    --- PASS: TestProjectUsageHTTPPurePreauthenticationDeadlineAndCallbackJoin/authentication/1m0s (2.00s)
+    --- PASS: TestProjectUsageHTTPPurePreauthenticationDeadlineAndCallbackJoin/authentication/50ms (0.05s)
+=== RUN   TestProjectUsageHTTPPureActualIOTails
+=== RUN   TestProjectUsageHTTPPureActualIOTails/authentication
+=== RUN   TestProjectUsageHTTPPureActualIOTails/read
+=== RUN   TestProjectUsageHTTPPureActualIOTails/resolve
+=== RUN   TestProjectUsageHTTPPureActualIOTails/list
+=== RUN   TestProjectUsageHTTPPureActualIOTails/aggregate
+=== RUN   TestProjectUsageHTTPPureActualIOTails/close
+=== RUN   TestProjectUsageHTTPPureActualIOTails/write
+=== RUN   TestProjectUsageHTTPPureActualIOTails/flush
+--- PASS: TestProjectUsageHTTPPureActualIOTails (0.00s)
+    --- PASS: TestProjectUsageHTTPPureActualIOTails/authentication (0.00s)
+    --- PASS: TestProjectUsageHTTPPureActualIOTails/read (0.00s)
+    --- PASS: TestProjectUsageHTTPPureActualIOTails/resolve (0.00s)
+    --- PASS: TestProjectUsageHTTPPureActualIOTails/list (0.00s)
+    --- PASS: TestProjectUsageHTTPPureActualIOTails/aggregate (0.00s)
+    --- PASS: TestProjectUsageHTTPPureActualIOTails/close (0.00s)
+    --- PASS: TestProjectUsageHTTPPureActualIOTails/write (0.00s)
+    --- PASS: TestProjectUsageHTTPPureActualIOTails/flush (0.00s)
+=== RUN   TestProjectUsageHTTPPureCloseBeforePublication
+=== RUN   TestProjectUsageHTTPPureCloseBeforePublication/GET/problem=false
+=== RUN   TestProjectUsageHTTPPureCloseBeforePublication/GET/problem=true
+=== RUN   TestProjectUsageHTTPPureCloseBeforePublication/HEAD/problem=false
+=== RUN   TestProjectUsageHTTPPureCloseBeforePublication/HEAD/problem=true
+--- PASS: TestProjectUsageHTTPPureCloseBeforePublication (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCloseBeforePublication/GET/problem=false (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCloseBeforePublication/GET/problem=true (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCloseBeforePublication/HEAD/problem=false (0.00s)
+    --- PASS: TestProjectUsageHTTPPureCloseBeforePublication/HEAD/problem=true (0.00s)
+PASS

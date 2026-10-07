@@ -1,0 +1,123 @@
+{
+  "at": 1791376192.428559,
+  "final_input_sha256": "f99553429fffdb163086eadda94e28d2cbc1d78f80cff1b4955f5530faf5f3a7",
+  "input_two": {
+    "internal/central/usage/http/handler.go": "e56b1050691ef5c10b0649d4d06e94a6d4a819f832db85ed49e9faca0f0eebe9",
+    "internal/central/usage/http/handler_test.go": "6cb52c4553409b5edad5a7e641d55e966eea48b2a6ef452403e9ec24553102da"
+  },
+  "commands": [
+    {
+      "label": "b01-race-list",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-race",
+        "-deps",
+        "-test",
+        "-json",
+        "./internal/central/usage/http"
+      ],
+      "exit": 0,
+      "elapsed": 0.21535563468933105,
+      "adopted_waits": [],
+      "record_sha256": "b58bad198bf18600ae21abb190ab007902dc368b70f58dcd0b1b675fd771d57a",
+      "raw_sha256": "f96cbb50bb8afd9a0aeed0f07013f70c317cef4e9c6f9af270f5a10318035264"
+    },
+    {
+      "label": "b02-compile",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-p=1",
+        "-c",
+        "-o",
+        "/workspace/scratch/usage-http-author/B/usage-http.test",
+        "./internal/central/usage/http"
+      ],
+      "exit": 0,
+      "elapsed": 11.690296173095703,
+      "adopted_waits": [],
+      "record_sha256": "89abc86ea40178d0d5578b742147dc86bf5377150801ef988fbd5ca5e01f434a",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "b03-pure",
+      "command": [
+        "/usr/bin/env",
+        "-C",
+        "/workspace/agenteam/internal/central/usage/http",
+        "/workspace/scratch/usage-http-author/B/usage-http.test",
+        "-test.count=1",
+        "-test.timeout=30s",
+        "-test.run",
+        "^TestProjectUsageHTTPPure.*$",
+        "-test.v"
+      ],
+      "exit": 0,
+      "elapsed": 5.186792850494385,
+      "adopted_waits": [],
+      "record_sha256": "69b47e047547124da5ba6284c97c4d5950e61cf013afcb022a7371c002b9828a",
+      "raw_sha256": "97f72574190520f394bc3cacafc21e45e91a66914c817d036ee40c9f3e7b1d47"
+    },
+    {
+      "label": "b04-native-list",
+      "command": [
+        "/usr/bin/env",
+        "-C",
+        "/workspace/agenteam/internal/central/usage/http",
+        "/workspace/scratch/usage-http-author/B/usage-http.test",
+        "-test.list",
+        "^TestProjectUsageHTTPNative"
+      ],
+      "exit": 0,
+      "elapsed": 1.017655372619629,
+      "adopted_waits": [],
+      "record_sha256": "dd07b7d723d58c5810fa1237d989e29732368f3e777ac112161ca4cad3a50f8e",
+      "raw_sha256": "9661bc53be64762a853aeb36de3e475ea8c4169ae1899c0c77a9396d814e94bd"
+    },
+    {
+      "label": "b05-vet",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-race",
+        "-p=1",
+        "./internal/central/usage/http"
+      ],
+      "exit": 0,
+      "elapsed": 0.6679370403289795,
+      "adopted_waits": [],
+      "record_sha256": "517235261a1aa921844cdcb5b3b8cac8479aa1fc1c737094758c4b014718ec1c",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "pure_top_pass": 9,
+  "pure_named_subcase_pass": 61,
+  "owned_groups": {
+    "46487": {
+      "label": "b01-race-list",
+      "members": []
+    },
+    "46553": {
+      "label": "b02-compile",
+      "members": []
+    },
+    "47833": {
+      "label": "b03-pure",
+      "members": []
+    },
+    "47952": {
+      "label": "b04-native-list",
+      "members": []
+    },
+    "47957": {
+      "label": "b05-vet",
+      "members": []
+    }
+  },
+  "all_own_commands_actual_waited": true,
+  "source_writes_stopped": true,
+  "native_executed": false,
+  "historical_A_a04_unjoined_zombie_excluded": "PID 22765/starttime 81512; not joined by author; not included in B cleanup claims"
+}

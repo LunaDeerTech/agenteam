@@ -1,0 +1,266 @@
+package usagehttp
+
+import (
+	"context"
+	"errors"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
+)
+
+func independentBWait(t *testing.T, ch <-chan struct{}, label string) {
+	t.Helper()
+	select {
+	case <-ch:
+	case <-time.After(3 * time.Second):
+		t.Fatal("missing actual event", label)
+	}
+}
+func independentBPending(t *testing.T, done <-chan bool) {
+	t.Helper()
+	select {
+	case <-done:
+		t.Fatal("handler returned before owned tail release")
+	case <-time.After(20 * time.Millisecond):
+	}
+}
+
+func TestUsageIndependentBDeadlineCloseAndCallbackBothJoin(t *testing.T) {
+	for _, earlier := range []bool{false, true} {
+		t.Run(map[bool]string{false: "natural-two-seconds", true: "earlier-parent"}[earlier], func(t *testing.T) {
+			duration := time.Minute
+			if earlier {
+				duration = 70 * time.Millisecond
+			}
+			parent, cancel := context.WithTimeout(context.Background(), duration)
+			defer cancel()
+			parentDeadline, _ := parent.Deadline()
+			h, b, s := handlerFixture()
+			w := newHandlerWriter()
+			callbackEntered, releaseCallback, callbackReturned := make(chan struct{}), make(chan struct{}), make(chan struct{})
+			closeEntered, releaseClose, closeReturned := make(chan struct{}), make(chan struct{}), make(chan struct{})
+			var callbackOnce, closeOnce sync.Once
+			var callbackFirst atomic.Bool
+			var resetBeforeCallback atomic.Bool
+			w.setRead = func(at time.Time) error {
+				if at.IsZero() {
+					select {
+					case <-callbackReturned:
+					default:
+						resetBeforeCallback.Store(true)
+					}
+					return nil
+				}
+				if !at.After(time.Now()) && callbackFirst.CompareAndSwap(false, true) {
+					close(callbackEntered)
+					<-releaseCallback
+					close(callbackReturned)
+				}
+				return nil
+			}
+			body := &handlerBody{Reader: strings.NewReader(""), close: func() error { close(closeEntered); <-releaseClose; close(closeReturned); return nil }}
+			observed := make(chan context.Context, 1)
+			started := time.Now()
+			b.check = func(_ http.ResponseWriter, r *http.Request) error {
+				observed <- r.Context()
+				<-r.Context().Done()
+				<-callbackEntered
+				return f.NewFault(f.OriginDenied, f.NotStarted)
+			}
+			request := httptest.NewRequest("HEAD", httpListPath, nil).WithContext(parent)
+			request.Body = body
+			done := make(chan bool, 1)
+			joined := make(chan struct{})
+			go func() { defer close(joined); done <- handlerAborts(func() { h.ServeHTTP(w, request) }) }()
+			t.Cleanup(func() {
+				cancel()
+				callbackOnce.Do(func() { close(releaseCallback) })
+				closeOnce.Do(func() { close(releaseClose) })
+				independentBWait(t, joined, "handler cleanup")
+			})
+			ctx := <-observed
+			deadline, ok := ctx.Deadline()
+			if !ok || earlier && !deadline.Equal(parentDeadline) || !earlier && (deadline.Before(started.Add(2*time.Second)) || deadline.After(time.Now().Add(2*time.Second))) {
+				t.Fatal("request deadline extended or restarted")
+			}
+			independentBWait(t, callbackEntered, "deadline callback")
+			independentBWait(t, closeEntered, "body close")
+			if !errors.Is(ctx.Err(), context.DeadlineExceeded) || (!earlier && parent.Err() != nil) {
+				t.Fatal("wrong natural deadline fact", ctx.Err(), parent.Err())
+			}
+			if s.calls() != 0 || b.auths.Load() != 0 || w.Body.Len() != 0 || w.flushes != 0 {
+				t.Fatal("expired preauthentication published or queried")
+			}
+			independentBPending(t, done)
+			closeOnce.Do(func() { close(releaseClose) })
+			independentBWait(t, closeReturned, "body close terminal")
+			independentBPending(t, done)
+			if resetBeforeCallback.Load() {
+				t.Fatal("native deadline reset before callback terminal")
+			}
+			callbackOnce.Do(func() { close(releaseCallback) })
+			if !handlerJoined(t, done) {
+				t.Fatal("deadline request did not abort")
+			}
+			independentBWait(t, joined, "handler terminal")
+			if body.closes.Load() != 1 || w.Body.Len() != 0 || w.flushes != 0 || resetBeforeCallback.Load() {
+				t.Fatal("late candidate or incomplete input close")
+			}
+			w.assertCleared(t)
+			t.Logf("earlier=%v actual elapsed=%v; Close and callback both released and joined", earlier, time.Since(started))
+		})
+	}
+}
+
+func TestUsageIndependentBReadTailCannotEscapeCancellation(t *testing.T) {
+	h, _, s := handlerFixture()
+	w := newHandlerWriter()
+	parent, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	entered, release, readReturned := make(chan struct{}), make(chan struct{}), make(chan struct{})
+	var once sync.Once
+	body := &handlerBody{Reader: handlerReadFunc(func(p []byte) (int, error) {
+		if len(p) != 1 {
+			t.Error("read not bounded to one byte")
+		}
+		close(entered)
+		<-release
+		close(readReturned)
+		return 0, io.EOF
+	})}
+	r := httptest.NewRequest("GET", httpListPath, nil).WithContext(parent)
+	r.Body = body
+	done := make(chan bool, 1)
+	joined := make(chan struct{})
+	go func() { defer close(joined); done <- handlerAborts(func() { h.ServeHTTP(w, r) }) }()
+	t.Cleanup(func() { cancel(); once.Do(func() { close(release) }); independentBWait(t, joined, "read cleanup") })
+	independentBWait(t, entered, "body read")
+	cancel()
+	independentBPending(t, done)
+	if s.calls() != 0 || body.closes.Load() != 0 {
+		t.Fatal("read ownership escaped")
+	}
+	once.Do(func() { close(release) })
+	if !handlerJoined(t, done) {
+		t.Fatal("cancelled read returned normally")
+	}
+	independentBWait(t, readReturned, "read terminal")
+	independentBWait(t, joined, "handler terminal")
+	if s.calls() != 0 || body.closes.Load() != 1 || w.Body.Len() != 0 || w.flushes != 0 {
+		t.Fatal("late EOF became successful usage")
+	}
+	w.assertCleared(t)
+}
+
+func TestUsageIndependentBWriteAndHeadProblemFlushTails(t *testing.T) {
+	for _, mode := range []string{"partial-get-write", "success-head-flush", "unknown-head-flush"} {
+		t.Run(mode, func(t *testing.T) {
+			h, _, s := handlerFixture()
+			w := newHandlerWriter()
+			parent, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			entered, release, returned := make(chan struct{}), make(chan struct{}), make(chan struct{})
+			var once sync.Once
+			method := "HEAD"
+			if mode == "partial-get-write" {
+				method = "GET"
+				w.write = func(p []byte) (int, error) {
+					close(entered)
+					<-release
+					n, _ := w.ResponseRecorder.Write(p[:2])
+					close(returned)
+					return n, io.ErrClosedPipe
+				}
+			} else {
+				w.flush = func() error { close(entered); <-release; close(returned); return nil }
+			}
+			if mode == "unknown-head-flush" {
+				s.list = func(context.Context, id.Actor, uc.Query) (uc.Page, error) {
+					return uc.Page{Items: []uc.Invocation{wireInvocation()}}, f.NewFault(f.CommitUnknown, f.Unknown).WithCause(errors.New("private-independent-cause"))
+				}
+			}
+			body := &handlerBody{Reader: strings.NewReader("")}
+			r := httptest.NewRequest(method, httpListPath, nil).WithContext(parent)
+			r.Body = body
+			done := make(chan bool, 1)
+			joined := make(chan struct{})
+			go func() { defer close(joined); done <- handlerAborts(func() { h.ServeHTTP(w, r) }) }()
+			t.Cleanup(func() { cancel(); once.Do(func() { close(release) }); independentBWait(t, joined, "writer cleanup") })
+			independentBWait(t, entered, "writer/flush")
+			if body.closes.Load() != 1 || s.calls() != 1 {
+				t.Fatal("writer began before input terminal/full service")
+			}
+			cancel()
+			independentBPending(t, done)
+			once.Do(func() { close(release) })
+			if !handlerJoined(t, done) {
+				t.Fatal("cancelled native tail returned normally")
+			}
+			independentBWait(t, returned, "writer terminal")
+			independentBWait(t, joined, "handler terminal")
+			if body.closes.Load() != 1 || strings.Contains(w.Body.String(), "private-independent-cause") {
+				t.Fatal("close repeated or cause leaked")
+			}
+			if method == "HEAD" && (w.Body.Len() != 0 || w.Header().Get("Content-Length") == "") {
+				t.Fatal("HEAD skipped complete representation or wrote body")
+			}
+			if mode == "unknown-head-flush" && w.Code != 503 {
+				t.Fatal("Unknown changed mapping")
+			}
+			if mode == "partial-get-write" && (w.Body.Len() != 2 || w.flushes != 0) {
+				t.Fatal("partial write appended response or flushed after error")
+			}
+			w.assertCleared(t)
+		})
+	}
+}
+
+func TestUsageIndependentBControlledDeadlineReuse(t *testing.T) {
+	h, b, s := handlerFixture()
+	w := newHandlerWriter()
+	contexts := []context.Context{}
+	b.auth = func(r *http.Request) (id.Actor, error) {
+		contexts = append(contexts, r.Context())
+		return wireActor(), nil
+	}
+	for _, method := range []string{"GET", "HEAD", "GET"} {
+		w.ResponseRecorder = httptest.NewRecorder()
+		body := &handlerBody{Reader: strings.NewReader("")}
+		r := httptest.NewRequest(method, httpListPath, nil)
+		r.Body = body
+		if handlerAborts(func() { h.ServeHTTP(w, r) }) {
+			t.Fatal("normal controlled request aborted")
+		}
+		if body.closes.Load() != 1 || w.Code != 200 || method == "HEAD" && w.Body.Len() != 0 {
+			t.Fatal("controlled reuse representation")
+		}
+		w.assertCleared(t)
+	}
+	if s.calls() != 3 || len(contexts) != 3 {
+		t.Fatal("reuse skipped reads")
+	}
+	for _, ctx := range contexts {
+		if !errors.Is(ctx.Err(), context.Canceled) {
+			t.Fatal("request context remained live")
+		}
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	if len(w.reads) != 6 || len(w.writes) != 6 {
+		t.Fatal("retired request callback changed next deadline", len(w.reads), len(w.writes))
+	}
+	for i := 0; i < 6; i++ {
+		if w.reads[i].IsZero() != (i%2 == 1) || w.writes[i].IsZero() != (i%2 == 1) {
+			t.Fatal("deadline reset order", i)
+		}
+	}
+}
