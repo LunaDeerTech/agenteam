@@ -1,0 +1,30 @@
+=== RUN   TestIndependentEmbeddingsPrepareBoundaries
+=== RUN   TestIndependentEmbeddingsPrepareBoundaries/original_three_fields_and_local_dimensions
+=== RUN   TestIndependentEmbeddingsPrepareBoundaries/actual_escaped_eight_MiB_and_tighter_limit
+=== RUN   TestIndependentEmbeddingsPrepareBoundaries/text_product_and_C0_classification
+--- PASS: TestIndependentEmbeddingsPrepareBoundaries (0.39s)
+    --- PASS: TestIndependentEmbeddingsPrepareBoundaries/original_three_fields_and_local_dimensions (0.00s)
+    --- PASS: TestIndependentEmbeddingsPrepareBoundaries/actual_escaped_eight_MiB_and_tighter_limit (0.32s)
+    --- PASS: TestIndependentEmbeddingsPrepareBoundaries/text_product_and_C0_classification (0.06s)
+=== RUN   TestIndependentEmbeddingsStrictEOFAndUsage
+=== RUN   TestIndependentEmbeddingsStrictEOFAndUsage/index_order_usage_and_copy
+=== RUN   TestIndependentEmbeddingsStrictEOFAndUsage/semantic_failure_preserves_only_reliable_usage
+=== RUN   TestIndependentEmbeddingsStrictEOFAndUsage/semantic_failure_preserves_only_reliable_usage/late_nonfinite
+=== RUN   TestIndependentEmbeddingsStrictEOFAndUsage/semantic_failure_preserves_only_reliable_usage/duplicate_index
+=== RUN   TestIndependentEmbeddingsStrictEOFAndUsage/semantic_failure_preserves_only_reliable_usage/escaped_duplicate_key
+=== RUN   TestIndependentEmbeddingsStrictEOFAndUsage/semantic_failure_preserves_only_reliable_usage/noncanonical_usage
+=== RUN   TestIndependentEmbeddingsStrictEOFAndUsage/semantic_failure_preserves_only_reliable_usage/truncated
+=== RUN   TestIndependentEmbeddingsStrictEOFAndUsage/complete_prefix_waits_for_reader_EOF
+=== RUN   TestIndependentEmbeddingsStrictEOFAndUsage/cancel_does_not_complete_a_held_reader_call
+--- PASS: TestIndependentEmbeddingsStrictEOFAndUsage (0.00s)
+    --- PASS: TestIndependentEmbeddingsStrictEOFAndUsage/index_order_usage_and_copy (0.00s)
+    --- PASS: TestIndependentEmbeddingsStrictEOFAndUsage/semantic_failure_preserves_only_reliable_usage (0.00s)
+        --- PASS: TestIndependentEmbeddingsStrictEOFAndUsage/semantic_failure_preserves_only_reliable_usage/late_nonfinite (0.00s)
+        --- PASS: TestIndependentEmbeddingsStrictEOFAndUsage/semantic_failure_preserves_only_reliable_usage/duplicate_index (0.00s)
+        --- PASS: TestIndependentEmbeddingsStrictEOFAndUsage/semantic_failure_preserves_only_reliable_usage/escaped_duplicate_key (0.00s)
+        --- PASS: TestIndependentEmbeddingsStrictEOFAndUsage/semantic_failure_preserves_only_reliable_usage/noncanonical_usage (0.00s)
+        --- PASS: TestIndependentEmbeddingsStrictEOFAndUsage/semantic_failure_preserves_only_reliable_usage/truncated (0.00s)
+    --- PASS: TestIndependentEmbeddingsStrictEOFAndUsage/complete_prefix_waits_for_reader_EOF (0.00s)
+    --- PASS: TestIndependentEmbeddingsStrictEOFAndUsage/cancel_does_not_complete_a_held_reader_call (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.407s

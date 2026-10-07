@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-07：OpenAI Embeddings float wire 十六路径接受
+
+- 产品已独立验收、主线程采纳并提交推送 `2debfdde347d8c9262ab83d3fe5e18e947a983e1`，核远端一致；[验证报告](openai-embeddings-wire-verification.md)与[工作卡](../work-items/d09-openai-embeddings-wire.md)绑定十六交付、914固定依赖无漂移及无主树动态重跑。604逻辑引用/427对象、44固定Git复用、27保存源版本；官方六SDK原件复用既有规格档。
+- A原race七PASS一FAIL与test-only容量修订分轮保留；B受控尾部、Dcompile/list和startup01遗漏TestMain两cmd→02闭合各有边界。作者五真实轮新3/旧6及独立一轮两top/两sub均actual0、每轮7IDs双清/0adopt；历史Z与辅助stdin缺件不补造。见[接续§38](recovery-2026-10-06-continuation.md#38-openai-embeddings-float-wire十六路径接受)。
+- 本卡仅float文本wire，ExpectedDimensions非默认维度；SDK/真实供应商、Nonchat/InvocationID/root/Usage与完整D09未接受。旧档不改；D08–D28/E01未完、E01未开始、Summary待决、ready503及Object/tools/SPA publication三停止保持。后继Jina/Anthropic另立报告，不纳本产品证明。
+
 ## 2026-10-07：System 运行信息只读 UI 三十五路径接受
 
 - 产品已独立验收、主线程采纳并提交推送 `e1f8cefbeaf3203c4e0388f9ea9dbf11e2e2959b`，核远端一致；[验证报告](system-runtime-information-ui-verification.md)与[工作卡](../work-items/d27-system-runtime-information-ui.md)记录 35 路径交付。1079 原件路径归档为 610 新对象并复用固定 Git，35 源路径/53 保存版本、42 dist 指纹和 24 图可追溯。

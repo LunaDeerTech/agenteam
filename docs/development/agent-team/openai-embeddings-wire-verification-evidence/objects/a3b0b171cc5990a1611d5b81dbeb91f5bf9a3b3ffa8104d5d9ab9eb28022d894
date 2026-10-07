@@ -1,0 +1,100 @@
+--- /workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-runtime-fixture.py
++++ /workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only frozen System runtime-information groups and record actual completion and resources."""
++"""Run only frozen OpenAI Embeddings and accepted Chat groups and record actual completion and resources."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -18,7 +18,7 @@
+ ROOT = Path(__file__).resolve().parent
+ REPO = ROOT / 'workspace'
+ GIT_REPO = Path('/workspace/agenteam')
+-BASE = 'b124650aee095b26191bc181dc8cf5d6e0f977f5'
++BASE = 'c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c'
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
+ MODCACHE = '/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache'
+ MINIO = '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio'
+@@ -168,7 +168,7 @@
+ # plus the fixture binaries built by its shell/SMTP chain. Discovery starts none.
+ TEST_PACKAGES = ['./internal/central/postgres/...', './tests/database/...', './internal/central/app/...', './tests/process/...', './tests/security/...', './tests/outbox/...', './internal/central/outbox/...', './tests/account/...', './tests/accountmail/...', './internal/central/accountmail/...', './internal/central/recoverylog/...', './tests/project/...', './internal/central/model/...', './tests/model/...', './tests/objects/...', './internal/central/object/...']
+ HELPER_PACKAGES = ['./tests/testsupport/objectstore/cmd/fixture', './tests/testsupport/outbound/cmd/fixture', './tests/testsupport/outbound/cmd/server', './tests/testsupport/postgres/cmd/fixture']
+-NATIVE_PACKAGES = ['./internal/central/runtimeinfo/http', './internal/central/app']
++NATIVE_PACKAGES = []  # This driver has no native-only execution group.
+ 
+ 
+ def runtime_environment():
+@@ -187,7 +187,10 @@
+         raise RuntimeError('wrong Go toolchain')
+     discovery_argv = [GO, 'list', '-race', '-deps', '-test', '-tags=integration', '-json', *TEST_PACKAGES, *HELPER_PACKAGES, *NATIVE_PACKAGES]
+     raw = subprocess.check_output(discovery_argv, cwd=REPO, env=env, timeout=45)
+-    decoder, text, offset = json.JSONDecoder(), raw.decode(), 0
++    server_environment = dict(env, CGO_ENABLED='0')
++    server_argv = [GO, 'list', '-deps', '-json', './tests/testsupport/outbound/cmd/server']
++    server_raw = subprocess.check_output(server_argv, cwd=REPO, env=server_environment, timeout=45)
++    decoder, text, offset = json.JSONDecoder(), raw.decode() + '\n' + server_raw.decode(), 0
+     files = {Path(GO), Path(MINIO)}
+     executables = {'python': str(Path(sys.executable).resolve())}
+     for name in ['sh', 'docker', 'mktemp', 'rm', 'rmdir', 'dirname', go_environment['CC'], go_environment['CXX']]:
+@@ -240,6 +243,7 @@
+             'modules': dict(sorted(modules.items())), 'packages': sorted(packages),
+             'generated_test_mains': sorted(generated), 'go_environment': go_environment,
+             'executables': executables, 'discovery_argv': discovery_argv,
++            'server_cgo0_discovery': {'argv': server_argv, 'CGO_ENABLED': '0'},
+             'discovery_env': {key: env[key] for key in ['GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'GOTMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
+ 
+ 
+@@ -280,7 +284,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['native', 'new-account', 'new-root'], required=True)
++    parser.add_argument('--group', choices=['new', 'new-http', 'new-terminal', 'new-budget', 'old-chat', 'old-structured'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     mode = parser.add_mutually_exclusive_group(required=True)
+@@ -290,9 +294,12 @@
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+     groups = {
+-        'native': ['TestRuntimeInformationHTTPNativeEOFAndKeepAlive', 'TestRuntimeInformationHTTPNativeSlowBodyBudgets', 'TestRuntimeInformationHTTPNativeWriteAndFlushAbort', 'TestDiagnosticRoutes'],
+-        'new-account': ['TestSystemRuntimeInformationCurrentAuthorityAndTerminal'],
+-        'new-root': ['TestSystemRuntimeInformationRootSnapshotBinding'],
++        'new': ['TestModelOpenAIEmbeddingsWireHTTP', 'TestModelOpenAIEmbeddingsWireTerminal', 'TestModelOpenAIEmbeddingsWireBudget'],
++        'new-http': ['TestModelOpenAIEmbeddingsWireHTTP'],
++        'new-terminal': ['TestModelOpenAIEmbeddingsWireTerminal'],
++        'new-budget': ['TestModelOpenAIEmbeddingsWireBudget'],
++        'old-chat': ['TestModelOpenAIChatWireHTTP', 'TestModelOpenAIChatWireStream', 'TestModelOpenAIChatWireJoinAndBudget'],
++        'old-structured': ['TestModelOpenAIChatStructuredHTTP', 'TestModelOpenAIChatStructuredStream', 'TestModelOpenAIChatStructuredCloseAndBudget'],
+     }
+     if str(Path(args.modcache).resolve()) != MODCACHE:
+         raise ValueError('modcache differs from frozen runtime')
+@@ -325,7 +332,7 @@
+     write(run / 'verification-input.json', verification_inputs)
+     runtime = run / 'runtime'
+     runtime.mkdir(mode=0o700)
+-    minimum_free = (2 if args.group == 'native' else 5) * (1 << 30)
++    minimum_free = 5 * (1 << 30)
+     disk = {'time': utc(), 'path': str(ROOT), 'free_bytes': shutil.disk_usage(ROOT).free, 'minimum_free_bytes': minimum_free}
+     write(run / 'disk-preflight.json', disk)
+     if disk['free_bytes'] < minimum_free:
+@@ -342,7 +349,7 @@
+     write(run / 'input-before.json', before)
+     baseline_processes = processes()
+     write(run / 'process-baseline.json', {pid: {key: row[key] for key in ['ppid','starttime','state','name','executable']} for pid,row in baseline_processes.items()})
+-    fixture = args.group != 'native'
++    fixture = True  # Fixed test-security topology; no native/listener-only branch.
+     baseline = resources() if fixture else {}
+     write(run / 'baseline.json', baseline)
+     env = runtime_environment()
+@@ -353,8 +360,7 @@
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': args.modcache,
+                 'GOCACHE': GOCACHE, 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime),
+                 'CGO_ENABLED': '1', 'GOFLAGS': flags})
+-    argv = (['sh', 'scripts/test-security.sh', '-run', args.selector] if fixture else
+-            [GO, 'test', '-race', '-count=1', '-timeout=45s', '-v', '-run', args.selector, *NATIVE_PACKAGES])
++    argv = ['sh', 'scripts/test-security.sh', '-run', args.selector]
+     record = {'argv': argv, 'cwd': str(REPO), 'started_utc': utc(),
+               'env': {key: env[key] for key in ['AGENTEAM_GO', 'AGENTEAM_MINIO_BINARY', 'GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'GOTMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
+     write(run / 'command.json', record)

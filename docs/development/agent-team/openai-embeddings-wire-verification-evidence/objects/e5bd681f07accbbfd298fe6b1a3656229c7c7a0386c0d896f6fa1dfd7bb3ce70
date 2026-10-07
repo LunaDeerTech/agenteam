@@ -1,0 +1,56 @@
+{
+  "actual_exit": 0,
+  "actual_seconds": 101.179,
+  "actual_wait_completed": true,
+  "adopted_waits": 0,
+  "baseline_unchanged": true,
+  "double_cleanup": true,
+  "driver": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture02.py",
+    "sha256": "0dcb5905240e2fa5a92c1f2e866ab7c4187a25dfbfd2c3b79fca35cb2d2a9bc4"
+  },
+  "frozen_input": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02/input.json",
+    "sha256": "278bcc65e3a0bce6234a2c3043789ee58343a6f94c7a38b01f2653d3167aa630"
+  },
+  "go_top_seconds": 2.28,
+  "historical_zombies": "observed outside ownership, untouched; no claim of reaping",
+  "input_before_after_equal": true,
+  "monitor_errors": 0,
+  "observed_exact_resources": 7,
+  "observed_pid_starttime": 108,
+  "records": {
+    "cleanup.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/cleanup.json",
+      "sha256": "76c659d29896eb6ec97399c9edebb3b834b338cfb9aec68dd5ce095b65019f1e"
+    },
+    "command.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/command.json",
+      "sha256": "14fef7a7d29e800e77758d1d4a59830acfbdbca2fa92347c964bdbda0dda2dfb"
+    },
+    "disk-before-spawn.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/disk-before-spawn.json",
+      "sha256": "cfd44058678855d0de821fdd5f029c829566cbd0db1ff45d267eb148af99ef4d"
+    },
+    "disk-preflight.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/disk-preflight.json",
+      "sha256": "53446b90ea4f09f016882e1c555917f13bb51f711650cef1928b958ba5b25c0c"
+    },
+    "raw.log": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/raw.log",
+      "sha256": "4876922c445aac99f9d68b222f918f55185e7d22417cb41f479d6ed844325c08"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/result.json",
+      "sha256": "ef4d3ebc9c6378741b6d80b0f16f2fc64b119f2fadba29ed1857ca199147f5d6"
+    }
+  },
+  "run": "new-http01",
+  "top_levels": [
+    [
+      "PASS",
+      "TestModelOpenAIEmbeddingsWireHTTP"
+    ]
+  ],
+  "window_released": true
+}

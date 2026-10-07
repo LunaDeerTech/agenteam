@@ -1,0 +1,30 @@
+# Embeddings D offline harness stage
+
+Five D sources are frozen; the ten independently accepted A+B sources retain their exact SHA. This is an offline preparation result, not a real wire test PASS.
+
+Fixed product: `c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c`. Candidate: `/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-candidate01/manifest.json` (`6878f9fbe5952f4c1b5c71cc3eaed5f2bd3ac1a72fe137149c2482c9488fa80b`). Five-path diff: `d-candidate01/d.diff` (`d7e8b72cfb5ad97bfa169a3d08ae5e7fdc10e2b368ae2ed43e9f4ebd104b24ad`).
+
+The server adds only `openai_embeddings_wire` and its `/embeddings` suffix. The old mode rules, control DTO, 512 chunks / 512 KiB synthetic-response ceiling and 2 MiB client State limit remain unchanged. New HTTP, Terminal and Budget groups reuse the accepted owned fixture and public adapter surfaces. All six old Chat/structured source files remain fixed Git bytes.
+
+| Actual offline command | Exit | Seconds | Observed PID/starttime |
+| --- | --- | --- | --- |
+| d-format01 | 0 | 0.047799 | 1 |
+| d-graph01 | 0 | 0.198144 | 1 |
+| d-graph-race01 | 0 | 0.209710 | 1 |
+| d-compile01 | 0 | 24.733541 | 21 |
+| d-list01 | 0 | 1.021428 | 1 |
+| d-vet01 | 0 | 12.347631 | 45 |
+| d-fixture-build01 | 0 | 0.540368 | 3 |
+| d-format-check01 | 0 | 0.008654 | 1 |
+
+Every command actually waited, retained its command/env/raw/result/input records, and had two empty owned-PID scans with zero adopted waits. Format-check and vet output are empty. The integration binary listed exactly the three new and six old top-level tests with `-test.run=^$`; no test body ran. The server binary was only built.
+
+The private workspace binds 5 D + 10 accepted sources and 373 fixed Git dependencies. The nonrace/race graph union selects 388 packages; `d-go-input01.json` fixes 2,496 selected/retained toolchain and source inputs. Two generated Go test mains are derived cache outputs, not falsely labelled repository inputs. Resource scripts/executables and the future supervisor are a separate not-yet-frozen runtime closure.
+
+The first closure-preparation attempt stopped at the explicit Account `assets/weak-passwords.json` embed guard, before copying source or invoking Go. Its exit 1 and script preimage are retained in `d-prepare01`; adding the exact fixed Git asset closed that preparation prerequisite. No compiler/test failure occurred in this stage.
+
+Formal D04 waits for `WroteRequest` before response reading. The held-writer cancellation test therefore expects unknown usage; complete JSON/EOF usage followed by a failed or cancelled Result is tested separately. No fixture claim is made that reliable usage was parsed behind a held writer. The old fixture seeds owned User/Session facts, then uses real Account Authority/Audit/Policy; this does not establish Nonchat, model resolution, InvocationID, external-provider or conformance behavior.
+
+All fifteen source snapshots and this stage report are stopped. No main/Git/README write, listener, container or other real resource occurred. Independent D static review and a separately frozen runtime plan are required before any real window.
+
+Exact hashes and original evidence paths are in `report.json`, `checks.json` and `delivery15.json`.

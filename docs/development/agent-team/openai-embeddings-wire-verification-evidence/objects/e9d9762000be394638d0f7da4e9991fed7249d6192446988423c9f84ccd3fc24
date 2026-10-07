@@ -1,0 +1,36 @@
+{
+  "verdict": "Diagnostic closed: cumulative metric mismatch and incomplete original capacity evidence; no product over-capacity demonstrated; author affected test repair and verification remain required.",
+  "candidate_manifest": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate02/manifest.json",
+  "candidate_sha256": "003c0c5e1d5ea402ee13086471f85042820fb056082e0c3d8c8cc353a939467b",
+  "review": {
+    "path": "/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/review.md",
+    "sha256": "986343d0dad915b62b570950a531fa04118f8edbc5a075f385a561086f9a634b"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/diagnosis-inputs01.json",
+    "sha256": "2e3f870b4f8c5bca6c376a4669f1340a4cbc080953fa6b5b85d3c93d570825a4"
+  },
+  "independent": {
+    "top": "TestIndependentEmbeddingsOwnedCapacity",
+    "actual_exit": 0,
+    "seconds": 4.254068273003213,
+    "observed_owned": 5,
+    "adopted_waits": 0,
+    "double_cleanup": true,
+    "input_unchanged": true,
+    "raw_sha256": "e0687d1b6a908d422e399a9008b1c93e7e11d9911dc701c3d8e083691e3163d0",
+    "result_sha256": "1ebc4f68f0e69a821be60fcaccf5b05999dd9f27942a6a5b5fd6542565ab2d42",
+    "cleanup_sha256": "cb7cef22488e6361e369de009d4c7a4f4e96ce057f8dab65803278fdb942cbbe"
+  },
+  "original_race": {
+    "actual_exit": 1,
+    "seconds": 6.178178010006377,
+    "top_pass": 7,
+    "top_fail": 1,
+    "data_race_report": false,
+    "capacity_top_late_bad_value_and_cancel_cases": "not reached after Fatal; no backfill"
+  },
+  "source_changed": false,
+  "stage_A_complete_pass": false,
+  "no_new_resources": true
+}

@@ -1,0 +1,27 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 889989,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 889989,
+      "ppid": 889986,
+      "pgid": 889989,
+      "state": "Z",
+      "starttime": "3850616"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-embeddings-offline-5tdf_pnv",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

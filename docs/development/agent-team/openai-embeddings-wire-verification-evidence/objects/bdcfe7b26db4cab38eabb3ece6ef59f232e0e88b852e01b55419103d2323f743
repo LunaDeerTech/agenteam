@@ -1,0 +1,115 @@
+{
+  "new_tops": [
+    "TestOpenAIEmbeddingsProfileAndSafeViews",
+    "TestOpenAIEmbeddingsConstructorAndAdmission",
+    "TestOpenAIEmbeddingsExchangeOwnership",
+    "TestOpenAIEmbeddingsActualTerminalBarriers",
+    "TestOpenAIEmbeddingsBoundaryFailures",
+    "TestOpenAIEmbeddingsCancellationAndJoin",
+    "TestOpenAIEmbeddingsMixedBudget",
+    "TestOpenAIEmbeddingsConcurrentBudget",
+    "TestOpenAIEmbeddingsForceSharesCallerBudget"
+  ],
+  "legacy_all_pure_tops": [
+    "TestWireBudgetGlobalProjectAndSealedAdmission",
+    "TestWireBudgetCancellationDoesNotRetireLocalWork",
+    "TestWireBudgetConcurrentAdmissionHasOneOwner",
+    "TestOpenAIChatNativeUsageExactAndUnknown",
+    "TestOpenAIChatNativeEnvelopeAndSafeErrors",
+    "TestStructuredWireRequestAndProfile",
+    "TestStructuredPinnedSources",
+    "TestOpenAIChatPinnedProfileManifest",
+    "TestOpenAIChatEncodedBodyBound",
+    "TestOpenAIChatRequestEncodingAndClosedInputs",
+    "TestOpenAIChatInvalidConstructorAndSafeViews",
+    "TestOpenAIChatSSETextUsageAndRequiredTermination",
+    "TestOpenAIChatSSEUnknownUsageAndBoundedEvents",
+    "TestOpenAIChatSSECumulativeTextBound",
+    "TestStructuredSchemaSubsetAndFailures",
+    "TestStructuredSchemaResourceBounds",
+    "TestStructuredExactNumericValues",
+    "TestStructuredValidationAllocationBounds",
+    "TestStructuredStringAndJSONLexing",
+    "TestStructuredStreamCompletion",
+    "TestStructuredValidationCancellation",
+    "TestStructuredStreamAccumulatedContentBound",
+    "TestStructuredSuccessfulConsumptionRechecksCancellation",
+    "TestWireConsumerModesCopiesAndActualPrefix",
+    "TestWireBackpressureCancellationAndConcurrentReader",
+    "TestWireCancelledStartDoesNotAdmitOrCreateClient"
+  ],
+  "legacy_race_affected_tops": [
+    "TestWireBudgetGlobalProjectAndSealedAdmission",
+    "TestWireBudgetCancellationDoesNotRetireLocalWork",
+    "TestWireBudgetConcurrentAdmissionHasOneOwner",
+    "TestWireConsumerModesCopiesAndActualPrefix",
+    "TestWireBackpressureCancellationAndConcurrentReader",
+    "TestWireCancelledStartDoesNotAdmitOrCreateClient"
+  ],
+  "commands": {
+    "b-graph01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "list",
+      "-deps",
+      "-test",
+      "-json",
+      "./internal/central/model/adapter"
+    ],
+    "b-pure01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-p=1",
+      "-vet=off",
+      "-count=1",
+      "-timeout=45s",
+      "-run",
+      "^(TestOpenAIEmbeddingsProfileAndSafeViews|TestOpenAIEmbeddingsConstructorAndAdmission|TestOpenAIEmbeddingsExchangeOwnership|TestOpenAIEmbeddingsActualTerminalBarriers|TestOpenAIEmbeddingsBoundaryFailures|TestOpenAIEmbeddingsCancellationAndJoin|TestOpenAIEmbeddingsMixedBudget|TestOpenAIEmbeddingsConcurrentBudget|TestOpenAIEmbeddingsForceSharesCallerBudget)$",
+      "-v",
+      "./internal/central/model/adapter"
+    ],
+    "b-race01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-p=1",
+      "-race",
+      "-vet=off",
+      "-count=1",
+      "-timeout=45s",
+      "-run",
+      "^(TestOpenAIEmbeddingsProfileAndSafeViews|TestOpenAIEmbeddingsConstructorAndAdmission|TestOpenAIEmbeddingsExchangeOwnership|TestOpenAIEmbeddingsActualTerminalBarriers|TestOpenAIEmbeddingsBoundaryFailures|TestOpenAIEmbeddingsCancellationAndJoin|TestOpenAIEmbeddingsMixedBudget|TestOpenAIEmbeddingsConcurrentBudget|TestOpenAIEmbeddingsForceSharesCallerBudget|TestWireBudgetGlobalProjectAndSealedAdmission|TestWireBudgetCancellationDoesNotRetireLocalWork|TestWireBudgetConcurrentAdmissionHasOneOwner|TestWireConsumerModesCopiesAndActualPrefix|TestWireBackpressureCancellationAndConcurrentReader|TestWireCancelledStartDoesNotAdmitOrCreateClient)$",
+      "-v",
+      "./internal/central/model/adapter"
+    ],
+    "b-old-pure01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-p=1",
+      "-vet=off",
+      "-count=1",
+      "-timeout=45s",
+      "-run",
+      "^(TestWireBudgetGlobalProjectAndSealedAdmission|TestWireBudgetCancellationDoesNotRetireLocalWork|TestWireBudgetConcurrentAdmissionHasOneOwner|TestOpenAIChatNativeUsageExactAndUnknown|TestOpenAIChatNativeEnvelopeAndSafeErrors|TestStructuredWireRequestAndProfile|TestStructuredPinnedSources|TestOpenAIChatPinnedProfileManifest|TestOpenAIChatEncodedBodyBound|TestOpenAIChatRequestEncodingAndClosedInputs|TestOpenAIChatInvalidConstructorAndSafeViews|TestOpenAIChatSSETextUsageAndRequiredTermination|TestOpenAIChatSSEUnknownUsageAndBoundedEvents|TestOpenAIChatSSECumulativeTextBound|TestStructuredSchemaSubsetAndFailures|TestStructuredSchemaResourceBounds|TestStructuredExactNumericValues|TestStructuredValidationAllocationBounds|TestStructuredStringAndJSONLexing|TestStructuredStreamCompletion|TestStructuredValidationCancellation|TestStructuredStreamAccumulatedContentBound|TestStructuredSuccessfulConsumptionRechecksCancellation|TestWireConsumerModesCopiesAndActualPrefix|TestWireBackpressureCancellationAndConcurrentReader|TestWireCancelledStartDoesNotAdmitOrCreateClient)$",
+      "-v",
+      "./internal/central/model/adapter"
+    ],
+    "b-vet01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "-p=1",
+      "./internal/central/model/adapter"
+    ],
+    "b-format01": [
+      "/workspace/toolchains/go1.27.1/bin/gofmt",
+      "-d",
+      "internal/central/model/adapter/openai_embeddings.go",
+      "internal/central/model/adapter/embedding_transport.go",
+      "internal/central/model/adapter/budget.go",
+      "internal/central/model/adapter/transport.go",
+      "internal/central/model/adapter/openai_embeddings_test.go",
+      "internal/central/model/adapter/embedding_transport_test.go",
+      "internal/central/model/adapter/embedding_budget_test.go"
+    ]
+  },
+  "no_listener_source_scan": "all fixed adapter test files inspected; no net.Listen/httptest/ListenAndServe",
+  "cache_release": "root explicitly confirmed Runtime independent actual terminal and bi81 release before B commands"
+}

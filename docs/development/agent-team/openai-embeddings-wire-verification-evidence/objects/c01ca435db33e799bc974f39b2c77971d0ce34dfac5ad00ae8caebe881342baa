@@ -1,0 +1,6 @@
+{
+  "actual_exit": 1,
+  "raw": "explicit embed closure required: db/migrations/embed.go\n",
+  "scope": "static dependency preparation; no Go command or product execution",
+  "resolution": "fixed embed *.sql requires the existing migration source bytes; no migration change"
+}

@@ -1,0 +1,126 @@
+{
+  "status": "BLOCKED: missing unconditional process TestMain build roots; static finding, no real failure",
+  "fixed_metadata": {
+    "driver-stage01/input.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/input.json",
+      "bytes": 847433,
+      "sha256": "4c9f95ce61a19317d654df3307840a191aa06623d4a4e6030e4f2629dbf6927e"
+    },
+    "run-embeddings-fixture.py": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture.py",
+      "bytes": 27125,
+      "sha256": "ea27894f831f887bb572d8357373d0a3eee42b3e47622741be9644fc36666446"
+    },
+    "driver-stage01/report.md": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/report.md",
+      "bytes": 2908,
+      "sha256": "41437f574392988c72c0a8366052ab9d8ee058136230794e33ea8fcccd386e85"
+    },
+    "driver-stage01/execution-plan.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/execution-plan.json",
+      "bytes": 6731,
+      "sha256": "5235f6c446002ca15918f93a5aca5f12dab6ef5cb6e5f1eaa28f65cfb9094d57"
+    },
+    "driver-stage01/driver.diff": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/driver.diff",
+      "bytes": 6939,
+      "sha256": "a3b0b171cc5990a1611d5b81dbeb91f5bf9a3b3ffa8104d5d9ab9eb28022d894"
+    }
+  },
+  "accepted_supervisor": {
+    "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-runtime-fixture.py",
+    "bytes": 26605,
+    "sha256": "b78846a88242665b3a8915a62c906ae78aaca3ebb3f1680d5c12413d6bf799f5"
+  },
+  "unchanged_supervisor_functions": [
+    "utc",
+    "write",
+    "command",
+    "resources",
+    "processes",
+    "reap_adopted",
+    "fixed_tree",
+    "accepted_baseline_input",
+    "runtime_environment",
+    "resource_topology",
+    "source_input"
+  ],
+  "changed_supervisor_functions": [
+    "runtime_input",
+    "main"
+  ],
+  "bounded_source_references": {
+    "scripts/test-security.sh": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace/scripts/test-security.sh",
+      "bytes": 1117,
+      "sha256": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be"
+    },
+    "scripts/test-objects.sh": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace/scripts/test-objects.sh",
+      "bytes": 1029,
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87"
+    },
+    "scripts/test-postgres.sh": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace/scripts/test-postgres.sh",
+      "bytes": 1353,
+      "sha256": "eddfb4f44288f8ec448400b02435f5fd6d6c44b0d80003fd34f7785e2980cdfe"
+    },
+    "tests/process/process_test.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace/tests/process/process_test.go",
+      "bytes": 14410,
+      "sha256": "fcbf27e63b52b361d307ed22a0585dc0752ba471d7d1fb2348a0077b28d21b60"
+    },
+    "tests/testsupport/postgres/cmd/fixture/main.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace/tests/testsupport/postgres/cmd/fixture/main.go",
+      "bytes": 13098,
+      "sha256": "55ae7da25e69c4f4f29ca516748d8cc837913016e9fc381fc96abc11f37298de"
+    },
+    "tests/testsupport/outbound/cmd/fixture/main.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace/tests/testsupport/outbound/cmd/fixture/main.go",
+      "bytes": 8288,
+      "sha256": "46da1f582264c5799b509e5d3f5002ed588628b1d12b9b589ab8064fc3cdf683"
+    },
+    "tests/testsupport/objectstore/cmd/fixture/main.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace/tests/testsupport/objectstore/cmd/fixture/main.go",
+      "bytes": 9567,
+      "sha256": "680472027d5a30aa5f3a316c9301fc3c78bc9a7297cbe18647fab43af1b5bbab"
+    },
+    "tests/testsupport/smtp/fixture.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace/tests/testsupport/smtp/fixture.go",
+      "bytes": 10839,
+      "sha256": "9555fe9e05d795354a9f7eaec57cb11d20b378c5566ed69a7ca5362dbb907851"
+    },
+    "tests/accountmail/fixture_test.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace/tests/accountmail/fixture_test.go",
+      "bytes": 8868,
+      "sha256": "53e71fd3afe42508c01612778a69e21f8543513bf0d7ea2b0e8cfd53159dc971"
+    },
+    "internal/central/app/account_process_test.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace/internal/central/app/account_process_test.go",
+      "bytes": 23312,
+      "sha256": "1b6ba5a83336555daeba9046cefdc37c9b0c8f91923de0a80fcffe2f79c88b7c"
+    }
+  },
+  "fixed_input_facts": {
+    "candidate_count": 15,
+    "accepted_count": 907,
+    "runtime_files": 3510,
+    "cmd_sources_bound": []
+  },
+  "actual_build_roots": {
+    "CGO_ENABLED=1; no race; no integration tags": [
+      "./cmd/agenteam",
+      "./cmd/agenteam-runner",
+      "./tests/testsupport/objectstore/cmd/fixture",
+      "./tests/testsupport/outbound/cmd/fixture",
+      "./tests/testsupport/postgres/cmd/fixture"
+    ],
+    "CGO_ENABLED=0; no race; no integration tags": [
+      "./tests/testsupport/outbound/cmd/server"
+    ]
+  },
+  "conditional_not_reached_by_nine_exact_tops": [
+    "./tests/testsupport/smtp/cmd/server"
+  ],
+  "execution": "none; read/hash/AST comparison only"
+}

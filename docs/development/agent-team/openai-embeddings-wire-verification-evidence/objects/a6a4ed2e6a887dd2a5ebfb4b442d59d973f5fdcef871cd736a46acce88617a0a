@@ -1,0 +1,81 @@
+{
+  "decision": "STATIC PASS; two probes prepared, not compiled or executed; waiting root execution grant",
+  "candidate": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/manifest.json",
+    "sha256": "bd18c341adb9269a6c3f46d4c6d48c6d21677206bb73b7212a16663d05c9d505"
+  },
+  "candidate_files": {
+    "internal/central/model/adapter/budget.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/budget.go",
+      "sha256": "3f2c644e762601d257a11522831a6644622dd125b1c49c92b6cfdc2a743c7803"
+    },
+    "internal/central/model/adapter/embedding_budget_test.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_budget_test.go",
+      "sha256": "e472c9af9d85a1792274cfe4c3897aa80d06ade5641f90f18477aa6c59c4a6b8"
+    },
+    "internal/central/model/adapter/embedding_json.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_json.go",
+      "sha256": "fd9742129008b25970c93ed03e6e1383a08ac3cb674f80e8bbba3c14380b7ed0"
+    },
+    "internal/central/model/adapter/embedding_json_test.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_json_test.go",
+      "sha256": "86f28d3e3397506a9edc97a6d5daa2b19369f1f2f5b777a1343bb6e36d57eba4"
+    },
+    "internal/central/model/adapter/embedding_transport.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_transport.go",
+      "sha256": "ba6f8604cda9f6233d53e4c4f2b5ce3aa924639d5195950fd370b1b1d519274e"
+    },
+    "internal/central/model/adapter/embedding_transport_test.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_transport_test.go",
+      "sha256": "19ed75780491c605670d6c72cf64f279df113d393c9c62bf0dcae02452a2f0cc"
+    },
+    "internal/central/model/adapter/openai_embeddings.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/openai_embeddings.go",
+      "sha256": "19fdc6fd6b52f4a191b6c4b28c7e3795c4de6df9896938b18167821563db255a"
+    },
+    "internal/central/model/adapter/openai_embeddings_test.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/openai_embeddings_test.go",
+      "sha256": "f125ea873dbc429de84b0e12434565f60946f0c12e431444989ce93ead3246c1"
+    },
+    "internal/central/model/adapter/testdata/openai-embeddings-float-v1.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/testdata/openai-embeddings-float-v1.json",
+      "sha256": "ad0cc43ea95ebc0416ee677b3719e6d270a7d255d7b2b7891fce8ecdd8b372cf"
+    },
+    "internal/central/model/adapter/transport.go": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/transport.go",
+      "sha256": "9f1d60ff48fb64ba04827368b7cf6fc4947b72c93a665ddf91276d5db2b6b29b"
+    }
+  },
+  "fixed_product": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+  "spec_commit": "15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597",
+  "probe": {
+    "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/embedding_independent_b_test.go",
+    "sha256": "55cdaeeb1ccfc28e807799fc8d165119c08fb9aeeb6122bede9fe52fdc14f93d"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/overlay01.json",
+    "sha256": "307e5540030a3acfaa6b522a24ac16534fc5e8dfd3e40a29f01ae11b94a06f43"
+  },
+  "reused_execution_graph": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-b-race01.json",
+    "sha256": "bd5fc443bb4a4a3c3179ef5c3d60696327f37ee6aea862192cadd765ec745a0f",
+    "source_file_count": 1805
+  },
+  "derived_test_main_excluded": {
+    "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache/ac/acc0018f72f26a6ad1567795ee3622578dfcc2c94104ddc53e0ee8fbc8756f98-d": {
+      "sha256": "acc0018f72f26a6ad1567795ee3622578dfcc2c94104ddc53e0ee8fbc8756f98",
+      "reason": "derived prior go-test main; new probe selection generates a different main, not an independent source input"
+    }
+  },
+  "source_gate": "1804 unchanged author-bound inputs reused without a new graph or tree copy; exact candidate snapshots overlaid; all listed files read-only hashed equal before freezing",
+  "private_helpers": "Only fixed legacy unitInput/requireFault/requireModel reused; own B gates/client/response/assertions",
+  "controls": "No Do socket or listener: private creation seam returns controlled public-operation implementation. No live D04 writer/callback facts inferred.",
+  "workerDone_boundary": "Cleanup awaits worker epilogue separately; no new product requirement to close workerDone before Joined once all actual IO has completed.",
+  "run_authorization": "none",
+  "manual_preflight_for_future_run": {
+    "fresh_workspace_min_bytes": 2147483648,
+    "cache_owner": "root confirms bi81 free before execution",
+    "preserve_first_failure": true,
+    "no_automatic_retry": true
+  }
+}

@@ -1,0 +1,43 @@
+# OpenAI Embeddings Stage A 作者交付
+
+五源已冻结，作者纯检查已完成，**等待完整 Stage A 独立验收**。本次容量独立诊断只解决证据口径，不是完整 A 接受。未推进 constructor/Start/handle/Budget/transport/server/README；没有 listener、socket、Docker、browser、Provider 调用、主树或 Git 写入。
+
+固定产品 c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c，正式卡 15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597，技术 SHA 1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133。五文件/逐 SHA/原件位置在 [delivery5.json](delivery5.json)，完整新增差量 [candidate.diff](candidate.diff)。candidate03 在复验前冻结；仅 embedding_json_test.go 较 candidate02 改变，另四文件 SHA 原样。窄差量及逐轮实际输入由 [inputs.json](inputs.json) 绑定。
+
+A 的实现是可独立编译的真实纯块：固定 EmbeddingRequest/Result、请求预检/快照复制、先计算 JSON 转义后字节再有限编码、C0/借用 Credential→正式 outbound.Profile 的纯构造；没有传输调用或成功 stub。响应侧单 raw buffer、严格 UTF-8/JSON/重复键/索引与有限 float 向量、精确整数 usage、结果深复制和安全显示。官方 profile JSON 仅绑定已取证 SDK revision 与文件 SHA，未安装/执行 SDK，不冒型号 conformance。
+
+仅支持空 parameters {}、float 批量输入；ExpectedDimensions 是明确 caller 的校验要求，不断言供应商默认维度。N≤128、D≤4096、N×D≤262144，raw≤16MiB（读取容量16MiB+1），结果与一次合法 clone 各≤2MiB，严格所列自有容量合计<21MiB。严格 JSON 后仍拒未知字段、重复/遗漏 index、超长/非有限数字、错误维度和不可靠 usage；完整合法 usage 可在末尾向量语义错误时单独保留，向量候选归零。
+
+## 检查与原红
+
+完整 command/env/raw/result/cleanup/input 前后 SHA 在 [checks.json](checks.json)，每轮保持其原版本：
+
+| 轮次 | 实际结果与边界 |
+| --- | --- |
+| pure01 | 8 top PASS，actual0/3.849595s，27 PID 双空。其原容量 TotalAlloc 门槛为23MiB；源另存 pure01-source。 |
+| pure02 | candidate02 受影响安全显示+容量两 top PASS，actual0/1.200271s，5 PID 双空；累计门槛21MiB。 |
+| race01 | candidate02，7 top PASS、容量1 FAIL，actual1/6.178178s，26 PID 双空；累计 TotalAlloc 22,072,128B。无 DATA RACE 报告。该 top Fatal 后的末尾坏值/三个 cancel 未到，永久保留。 |
+| pure03 | candidate03 仅原容量/cancel top 完整 PASS，actual0/1.421152s，5 PID 双空。 |
+| race02 | 同 candidate03、同一 top 完整 PASS，actual0/4.922671s，5 PID 双空；三个 cancel 子例均实际到达。 |
+| vet01 | 整个有限 adapter 编译闭包 go vet -p=1，actual0/0.693914s，12 PID 双空。 |
+| format01 | 唯一修改测试 gofmt -d 空输出，actual0/0.005201s，1 PID 双空。 |
+
+原 seven race PASS 的测试体/生产没有本次变化，可与 race02 单 top 组合复用；不是最终版本同轮八 top 全绿。pure 的未受影响组复用 pure01，安全显示补项复用 pure02，容量最终以 pure03 为准。旧 Chat/structured 测试仅参与同包编译/vet，本阶段没有执行它们，也没有 transport 兼容动态结论。
+
+新两轮均原45s、readonly/offline、-p=1、count1（race02 加-race），精确 selector 为 ^TestOpenAIEmbeddingsJSONCapacityAndCancellation$；没有拓宽时间/重跑无关七组。原 Go1.27.1、GOCACHE=/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache，GOMODCACHE=/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache 只读依赖。完整实际 argv/env 见各轮 command.json。
+
+## 容量证据修正
+
+runtime.TotalAlloc 是进程累计分配，释放不减；不是同时持有容量。本次保留原失败，将其明确记为诊断：pure03 为21,048,104B，race02 为22,177,016B，不再据该指标判持有容量；未用 GC 或放宽21MiB。
+
+实际硬验 raw cap16,777,217B，原结果与 clone 各为独立连续2,097,152B backing；两份128行各len/cap2048，items 表各cap128，raw/两结果不重叠，clone首末回写与usage修改不影响原结果。按实际结构尺寸和固定扫描/Go标准库路径保守枚举辅助31,360B<64KiB。该和式是有限对象与容量上界，不是 allocator arena/RSS/全进程峰值测试。
+
+辅助路径实际覆盖最大1538B逃逸键→256B解码、七个同时存在的8键对象帧及标量深度8、额外层/第9键拒绝；257B键在stringToken阶段错误且无span/无解码值。64B数值接受、65B在number阶段失败且目标标量不写。标准库 json 只解码有限 string，未建立向量对象树；固定 Go strconv 的 decimal 是800B数组+标量，数字只保留有限临时。完整静态推导及原独立代表由 inputs.json 的独立诊断引用，不以辅助常量自证。
+
+原 raw/vector/总容量上界、最大 N×D、末值1e309零候选/可靠usage、vector/whitespace/long_string 三项真实 ctx 取消/≤4KiB或1024 scalar 检查均保留，末段源字节与 candidate02 完全相同。两次修后实际 top PASS证明这些断言现在完整到达，不倒填原 race01。
+
+## 输入与终局
+
+仅113个固定基线文件（12个内部包；旧 adapter 测试保留、依赖包测试排除）+五新文件。最初准备因遗漏 db/migrations/embed.go 的19个固定 SQL 源门禁退出1，原 prepare01.py/prepare01-result.json 保留，未运行 Go；后补原 SQL 到闭包并未改变迁移。实际 Go -deps -test 图290包，原1800源码/工具输入每轮逐 SHA 绑定；修后加 candidate03 manifest 与窄 diff 共1802。未将首次不完整准备冒充最终完整闭包。
+
+一次 functions.exec 的 JavaScript 解析错误发生在任何 shell/工具调用之前，无写入或测试；最小说明在 repair-preparation01.json，随后合法命令只写授权测试。所有已执行 Go/format 命令均由先设置 subreaper 的固定 runner 实际 wait，记录 PID/starttime，累计0 adopted；每轮两扫均空、临时目录移除、输入前后相同，无活动子进程/服务。候选五源、baseline113、所有已有失败和运行原件现在停写。等待独立 A，不擅自开始 B。

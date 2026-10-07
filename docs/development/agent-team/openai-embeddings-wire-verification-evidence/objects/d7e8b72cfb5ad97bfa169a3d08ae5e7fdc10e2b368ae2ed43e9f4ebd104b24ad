@@ -1,0 +1,849 @@
+--- /dev/null
++++ b/tests/model/openai_embeddings_wire_fixture_test.go
+@@ -0,0 +1,149 @@
++//go:build integration
++
++package model_test
++
++import (
++	"context"
++	"encoding/json"
++	"reflect"
++	"testing"
++	"time"
++
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
++)
++
++// The accepted fixture owns real Account/Audit/Policy services and controlled
++// TLS resources. Its synthetic Snapshot/material is not a Nonchat binding.
++func embeddingWireFixture(t *testing.T) (*wireFixture, *wire.OpenAIEmbeddings, context.Context) {
++	t.Helper()
++	started := time.Now()
++	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
++	t.Cleanup(func() {
++		cancel()
++		if time.Since(started) > 2*time.Minute {
++			t.Error("embedding scenario exceeded its two-minute budget")
++		}
++	})
++	v := newWireFixture(t)
++	return v, embeddingWireAdapter(t, v, v.budget), ctx
++}
++
++func embeddingWireAdapter(t *testing.T, v *wireFixture, b *wire.Budget) *wire.OpenAIEmbeddings {
++	t.Helper()
++	a, err := wire.NewOpenAIEmbeddings(v.transport, b)
++	if err != nil {
++		t.Fatal("embedding constructor", err)
++	}
++	known := false
++	for _, existing := range v.budgets {
++		known = known || existing == b
++	}
++	if !known {
++		v.budgets = append(v.budgets, b)
++	}
++	return a
++}
++
++func embeddingWireScenario(t *testing.T, v *wireFixture, cfg netfixture.WireScenario) string {
++	t.Helper()
++	key, err := v.net.Create(testContext(t), netfixture.ScenarioConfig{Mode: "openai_embeddings_wire", Wire: &cfg})
++	if err != nil {
++		t.Fatal("embedding scenario", err)
++	}
++	v.cases = append(v.cases, key)
++	return key
++}
++
++func embeddingWireInput(t *testing.T, v *wireFixture, key string) (wire.EmbeddingRequest, wire.CallOptions) {
++	t.Helper()
++	chat, options := v.input(t, key, wire.JSONResponse)
++	snapshot := chat.Snapshot
++	snapshot.Identity.Protocol = mc.OpenAIEmbeddings
++	snapshot.Identity.Profile = mc.OpenAIEmbeddingsV1
++	snapshot.Identity.ModelType = mc.EmbeddingModel
++	snapshot.Identity.AdapterRevision = wire.OpenAIEmbeddingsFloatRevision
++	snapshot.Capabilities = mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}
++	return wire.EmbeddingRequest{Snapshot: snapshot, Texts: []string{"  exact 世界\n"}, ExpectedDimensions: 2}, options
++}
++
++func embeddingWireStart(t *testing.T, ctx context.Context, a *wire.OpenAIEmbeddings, r wire.EmbeddingRequest, o wire.CallOptions) *wire.EmbeddingExchange {
++	t.Helper()
++	x, err := a.Start(ctx, r, o)
++	if err != nil || x == nil {
++		t.Fatal("embedding admission", err)
++	}
++	return x
++}
++
++func embeddingWireClose(t *testing.T, x *wire.EmbeddingExchange) {
++	t.Helper()
++	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
++	defer cancel()
++	if err := x.Close(ctx); err != nil || !x.Joined() {
++		t.Fatal("embedding actual close/join", err)
++	}
++}
++
++func embeddingWireZero(t *testing.T, result wire.EmbeddingResult) {
++	t.Helper()
++	if !reflect.DeepEqual(result, wire.EmbeddingResult{}) {
++		t.Fatal("failed embedding result published a candidate")
++	}
++}
++
++type embeddingWireOutcome struct {
++	result wire.EmbeddingResult
++	err    error
++}
++
++// Every asynchronous Result has a cancellation path and an actual return
++// checkpoint, including failures before the main test receives its result.
++func embeddingWireConsume(t *testing.T, parent context.Context, x *wire.EmbeddingExchange) <-chan embeddingWireOutcome {
++	t.Helper()
++	ctx, cancel := context.WithCancel(parent)
++	out := make(chan embeddingWireOutcome, 1)
++	done := make(chan struct{})
++	go func() {
++		defer close(done)
++		result, err := x.Result(ctx)
++		out <- embeddingWireOutcome{result, err}
++	}()
++	t.Cleanup(func() {
++		cancel()
++		wait, stop := context.WithTimeout(context.Background(), 5*time.Second)
++		defer stop()
++		if err := x.Close(wait); err != nil || !x.Joined() {
++			t.Error("asynchronous embedding cleanup did not join", err)
++		}
++		select {
++		case <-done:
++		case <-wait.Done():
++			t.Error("asynchronous Result did not actually return")
++		}
++	})
++	return out
++}
++
++func embeddingWireReply(t *testing.T, indices []int, values [][]float64, usage json.RawMessage) []byte {
++	t.Helper()
++	type row struct {
++		Object string    `json:"object"`
++		Index  int       `json:"index"`
++		Values []float64 `json:"embedding"`
++	}
++	items := make([]row, len(indices))
++	for i, index := range indices {
++		items[i] = row{"embedding", index, values[i]}
++	}
++	response := map[string]any{"object": "list", "model": "provider-response-alias", "data": items}
++	if usage != nil {
++		response["usage"] = usage
++	}
++	body, err := json.Marshal(response)
++	if err != nil {
++		t.Fatal("synthetic embedding response shape")
++	}
++	return body
++}
+--- /dev/null
++++ b/tests/model/openai_embeddings_wire_http_test.go
+@@ -0,0 +1,210 @@
++//go:build integration
++
++package model_test
++
++import (
++	"context"
++	"encoding/json"
++	"reflect"
++	"strconv"
++	"strings"
++	"testing"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
++)
++
++func TestModelOpenAIEmbeddingsWireHTTP(t *testing.T) {
++	v, a, ctx := embeddingWireFixture(t)
++	t.Run("real_policy_and_exact_frozen_float_batch", func(t *testing.T) {
++		cfg := wireJSON(embeddingWireReply(t, []int{1, 0}, [][]float64{{3.5, -4}, {1, 2}}, json.RawMessage(`{"prompt_tokens":9007199254740993,"total_tokens":0}`)))
++		cfg.Suffix = "/base%2Fkeep//./inner/embeddings"
++		key := embeddingWireScenario(t, v, cfg)
++		r, o := embeddingWireInput(t, v, key)
++		r.Texts = append(r.Texts, "second\tinput")
++		r.Snapshot.Endpoint += "/base%2Fkeep//./inner/"
++		denied := embeddingWireStart(t, ctx, a, r, o)
++		result, err := denied.Result(ctx)
++		embeddingWireZero(t, result)
++		wireModelError(t, err, "permission", "wire_transport_error", false, false)
++		embeddingWireClose(t, denied)
++		if d := denied.Observe(); !d.DoStarted || d.Decision == nil || d.Decision.Reason != ac.PrivateNotAllowed || d.Decision.Sent || len(v.state(t, key).Requests) != 0 {
++			t.Fatal("real policy denial did not prove zero send")
++		}
++		v.allow(t, true)
++		x := embeddingWireStart(t, ctx, a, r, o)
++		r.Texts[0] = "mutated after admission"
++		r.ExpectedDimensions = 1
++		r.Snapshot.Identity.ProviderModelID = "mutated model"
++		result, err = x.Result(ctx)
++		want := []mc.Embedding{{Index: 0, Values: []float64{1, 2}}, {Index: 1, Values: []float64{3.5, -4}}}
++		if err != nil || !x.Joined() || !reflect.DeepEqual(result.Items, want) || result.ProviderRequestID != "req_wire:1" {
++			t.Fatal("complete ordered embedding batch", err)
++		}
++		u := result.Usage
++		if u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 9007199254740993 || u.TotalTokens == nil || *u.TotalTokens != 0 || u.OutputTokens != nil || u.CachedInputTokens != nil || u.CacheWriteTokens != nil || u.ReasoningTokens != nil {
++			t.Fatal("exact embedding usage projection")
++		}
++		*u.InputTokens = 1
++		if *x.Observe().Usage.InputTokens != 9007199254740993 {
++			t.Fatal("embedding observation aliases result")
++		}
++		state := v.state(t, key)
++		if len(state.Requests) != 1 {
++			t.Fatal("embedding request count")
++		}
++		got := state.Requests[0]
++		if got.Method != "POST" || got.Host != "fixture.test:8443" || got.RequestURI != "/case/"+key+cfg.Suffix || got.Query != "" || got.Headers.Get("Authorization") != "Bearer "+wireCredentialCanary || got.Headers.Get("Content-Type") != "application/json" || got.Headers.Get("Accept") != "application/json" {
++			t.Fatal("embedding origin/path/header binding")
++		}
++		var body map[string]json.RawMessage
++		var texts []string
++		if json.Unmarshal([]byte(got.Body), &body) != nil || len(body) != 3 || string(body["model"]) != `"fixture-native-model"` || string(body["encoding_format"]) != `"float"` || json.Unmarshal(body["input"], &texts) != nil || !reflect.DeepEqual(texts, []string{"  exact 世界\n", "second\tinput"}) {
++			t.Fatal("embedding body keys/order/original text")
++		}
++		if d := x.Observe().Decision; d == nil || !d.Sent || d.Reason != "" {
++			t.Fatal("successful embedding lacks actual Decision")
++		}
++		if again, err := x.Result(ctx); err == nil {
++			t.Fatal("embedding Result consumed twice")
++		} else {
++			embeddingWireZero(t, again)
++			wireFault(t, err, f.InvalidState)
++		}
++		embeddingWireClose(t, x)
++		v.settled(t, key)
++	})
++	t.Run("single_item_stays_array_and_missing_usage_stays_unknown", func(t *testing.T) {
++		key := embeddingWireScenario(t, v, wireJSON(embeddingWireReply(t, []int{0}, [][]float64{{0, 0}}, nil)))
++		r, o := embeddingWireInput(t, v, key)
++		x := embeddingWireStart(t, ctx, a, r, o)
++		result, err := x.Result(ctx)
++		if err != nil || len(result.Items) != 1 || !reflect.DeepEqual(result.Usage, mc.Usage{Source: mc.UnknownUsage}) {
++			t.Fatal("single embedding/unknown usage", err)
++		}
++		state := v.state(t, key)
++		var body struct{ Input []string }
++		if len(state.Requests) != 1 || json.Unmarshal([]byte(state.Requests[0].Body), &body) != nil || len(body.Input) != 1 || body.Input[0] != r.Texts[0] {
++			t.Fatal("single input was not an unchanged string array")
++		}
++		embeddingWireClose(t, x)
++	})
++	t.Run("unsupported_invalid_cancelled_are_zero_handles_and_requests", func(t *testing.T) {
++		key := embeddingWireScenario(t, v, wireJSON(nil))
++		for _, kind := range []string{"dimensions", "overwrite", "header", "revision", "bad_dimension", "duplicate", "cancelled"} {
++			r, o := embeddingWireInput(t, v, key)
++			call := ctx
++			switch kind {
++			case "dimensions":
++				r.Snapshot.Parameters = json.RawMessage(`{"dimensions":2}`)
++			case "overwrite":
++				r.Snapshot.RequestOverwrite = json.RawMessage(`{"encoding_format":"base64"}`)
++			case "header":
++				r.Snapshot.HeaderOverwrite = map[string]string{"X-Custom": "unsupported"}
++			case "revision":
++				r.Snapshot.Identity.AdapterRevision = "unverified-revision"
++			case "bad_dimension":
++				r.ExpectedDimensions = 0
++			case "duplicate":
++				r.Snapshot.Parameters = json.RawMessage(`{"x":1,"x":2}`)
++			case "cancelled":
++				c, cancel := context.WithCancel(ctx)
++				cancel()
++				call = c
++			}
++			x, err := a.Start(call, r, o)
++			if x != nil {
++				t.Fatal("rejected embedding acquired handle")
++			}
++			switch kind {
++			case "bad_dimension", "duplicate":
++				wireFault(t, err, f.InvalidArgument)
++			case "cancelled":
++				wireModelError(t, err, "cancelled", "wire_cancelled", false, false)
++			default:
++				wireModelError(t, err, "unsupported_feature", "wire_unsupported_feature", false, false)
++			}
++		}
++		empty, cancel := context.WithCancel(ctx)
++		cancel()
++		if len(v.state(t, key).Requests) != 0 || v.budget.Drain(empty) != nil {
++			t.Fatal("preflight rejection sent or occupied a slot")
++		}
++		var nilResolver wireNilResolver
++		transport := v.transport
++		transport.Resolver = nilResolver
++		if _, err := wire.NewOpenAIEmbeddings(transport, wire.NewBudget()); err == nil {
++			t.Fatal("typed nil resolver accepted")
++		}
++	})
++	t.Run("safe_status_mapping_without_retry", func(t *testing.T) {
++		for _, tc := range []struct {
++			status   int
++			category mc.ErrorCategory
++			retry    bool
++		}{{400, "provider_error", false}, {401, "authentication", false}, {403, "permission", false}, {404, "provider_error", false}, {429, "rate_limited", true}, {500, "provider_error", false}, {502, "provider_unavailable", true}, {503, "provider_unavailable", true}, {504, "provider_unavailable", true}} {
++			t.Run(strconv.Itoa(tc.status), func(t *testing.T) {
++				cfg := wireJSON([]byte(strings.Repeat(wireBodyCanary, 3000)))
++				cfg.Status = tc.status
++				cfg.Headers["X-Request-Id"] = "unsafe request id"
++				key := embeddingWireScenario(t, v, cfg)
++				r, o := embeddingWireInput(t, v, key)
++				x := embeddingWireStart(t, ctx, a, r, o)
++				result, err := x.Result(ctx)
++				embeddingWireZero(t, result)
++				m := wireModelError(t, err, tc.category, "wire_http_error", true, false)
++				if m.Retryable != tc.retry || m.ProviderRequestID != "" || len(v.state(t, key).Requests) != 1 {
++					t.Fatal("embedding status retried or leaked request id")
++				}
++				embeddingWireClose(t, x)
++			})
++		}
++	})
++	t.Run("tls_and_post_redirect_preserve_actual_send_boundary", func(t *testing.T) {
++		key := embeddingWireScenario(t, v, wireJSON(nil))
++		r, o := embeddingWireInput(t, v, key)
++		r.Snapshot.Endpoint = strings.Replace(r.Snapshot.Endpoint, "fixture.test", "wrong.fixture.test", 1)
++		x := embeddingWireStart(t, ctx, a, r, o)
++		result, err := x.Result(ctx)
++		embeddingWireZero(t, result)
++		wireModelError(t, err, "network", "wire_transport_error", false, false)
++		if d := x.Observe().Decision; d == nil || d.Reason != ac.TLSFailed || d.Sent || len(v.state(t, key).Requests) != 0 {
++			t.Fatal("TLS failure did not preserve zero send")
++		}
++		embeddingWireClose(t, x)
++		cfg := wireJSON(nil)
++		cfg.Status = 307
++		cfg.Headers["Location"] = "https://fixture.test:8443/case/" + key + "/embeddings"
++		redirect := embeddingWireScenario(t, v, cfg)
++		r, o = embeddingWireInput(t, v, redirect)
++		x = embeddingWireStart(t, ctx, a, r, o)
++		result, err = x.Result(ctx)
++		embeddingWireZero(t, result)
++		wireModelError(t, err, "permission", "wire_transport_error", true, false)
++		if d := x.Observe().Decision; d == nil || d.Reason != ac.RedirectDenied || len(v.state(t, redirect).Requests) != 1 || len(v.state(t, key).Requests) != 0 {
++			t.Fatal("POST redirect sent a successor request")
++		}
++		embeddingWireClose(t, x)
++	})
++	t.Run("fixture_modes_suffixes_and_existing_limits_stay_closed", func(t *testing.T) {
++		for _, cfg := range []netfixture.ScenarioConfig{
++			{Mode: "openai_embeddings_wire"},
++			{Mode: "stream", Wire: &netfixture.WireScenario{Status: 200}},
++			{Mode: "openai_embeddings_wire", Body: "legacy", Wire: &netfixture.WireScenario{Status: 200}},
++			{Mode: "openai_embeddings_wire", Wire: &netfixture.WireScenario{Status: 201}},
++			{Mode: "openai_embeddings_wire", Wire: &netfixture.WireScenario{Status: 200, Suffix: "/chat/completions"}},
++			{Mode: "openai_chat_wire", Wire: &netfixture.WireScenario{Status: 200, Suffix: "/embeddings"}},
++			{Mode: "openai_embeddings_wire", Wire: &netfixture.WireScenario{Status: 200, Suffix: "/bad?query/embeddings"}},
++			{Mode: "openai_embeddings_wire", Wire: &netfixture.WireScenario{Status: 200, Headers: map[string]string{"Set-Cookie": "forbidden"}}},
++			{Mode: "openai_embeddings_wire", Wire: &netfixture.WireScenario{Status: 200, Chunks: make([][]byte, 513)}},
++			{Mode: "openai_embeddings_wire", Wire: &netfixture.WireScenario{Status: 200, Chunks: [][]byte{make([]byte, 512<<10+1)}}},
++		} {
++			if _, err := v.net.Create(ctx, cfg); err == nil {
++				t.Fatal("outside closed embedding scenario accepted")
++			}
++		}
++	})
++}
+--- /dev/null
++++ b/tests/model/openai_embeddings_wire_terminal_test.go
+@@ -0,0 +1,203 @@
++//go:build integration
++
++package model_test
++
++import (
++	"context"
++	"encoding/json"
++	"net/http/httptrace"
++	"reflect"
++	"sync"
++	"testing"
++	"time"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++func TestModelOpenAIEmbeddingsWireTerminal(t *testing.T) {
++	v, a, ctx := embeddingWireFixture(t)
++	v.allow(t, true)
++	t.Run("valid_json_prefix_is_not_success_before_actual_eof", func(t *testing.T) {
++		cfg := wireJSON(embeddingWireReply(t, []int{0}, [][]float64{{1, 2}}, json.RawMessage(`{"prompt_tokens":0}`)))
++		hold := 1
++		cfg.HoldAfter = &hold
++		key := embeddingWireScenario(t, v, cfg)
++		r, o := embeddingWireInput(t, v, key)
++		x := embeddingWireStart(t, ctx, a, r, o)
++		out := embeddingWireConsume(t, ctx, x)
++		wireWait(t, "held embedding response not observed", func() bool {
++			return x.Observe().Decision != nil && v.state(t, key).ActiveHandlers == 1
++		})
++		window := time.NewTimer(40 * time.Millisecond)
++		defer window.Stop()
++		select {
++		case <-out:
++			t.Fatal("parseable bytes escaped before HTTP EOF")
++		case <-window.C:
++		}
++		if x.Joined() || !reflect.DeepEqual(x.Observe().Usage, mc.Usage{Source: mc.UnknownUsage}) {
++			t.Fatal("held EOF manufactured terminal or reliable usage")
++		}
++		if err := v.net.Release(ctx, key); err != nil {
++			t.Fatal("release controlled EOF", err)
++		}
++		select {
++		case got := <-out:
++			if got.err != nil || len(got.result.Items) != 1 || !x.Joined() || got.result.Usage.InputTokens == nil || *got.result.Usage.InputTokens != 0 {
++				t.Fatal("actual EOF did not publish the full result", got.err)
++			}
++		case <-ctx.Done():
++			t.Fatal("released result did not return")
++		}
++		v.settled(t, key)
++	})
++	t.Run("truncation_and_tighter_cap_publish_zero_and_no_usage", func(t *testing.T) {
++		for _, kind := range []string{"truncated_json", "valid_json_without_chunked_eof", "tighter_cap"} {
++			t.Run(kind, func(t *testing.T) {
++				body := embeddingWireReply(t, []int{0}, [][]float64{{1, 2}}, json.RawMessage(`{"prompt_tokens":4}`))
++				cfg := wireJSON(body)
++				disconnect := 1
++				switch kind {
++				case "truncated_json":
++					cfg.Chunks[0] = body[:len(body)-1]
++				case "valid_json_without_chunked_eof":
++					cfg.DisconnectAfter = &disconnect
++				}
++				key := embeddingWireScenario(t, v, cfg)
++				r, o := embeddingWireInput(t, v, key)
++				if kind == "tighter_cap" {
++					o.Limits.ResponseBodyBytes = 64
++				}
++				x := embeddingWireStart(t, ctx, a, r, o)
++				result, err := x.Result(ctx)
++				embeddingWireZero(t, result)
++				category, code := mc.ErrorCategory("provider_error"), "wire_protocol_invalid"
++				if kind == "valid_json_without_chunked_eof" {
++					category, code = "network", "wire_transport_error"
++				} else if kind == "tighter_cap" {
++					code = "wire_limit_exceeded"
++				}
++				wireModelError(t, err, category, code, true, false)
++				if !reflect.DeepEqual(x.Observe().Usage, mc.Usage{Source: mc.UnknownUsage}) {
++					t.Fatal("incomplete bounded response invented usage")
++				}
++				embeddingWireClose(t, x)
++				v.settled(t, key)
++			})
++		}
++	})
++	t.Run("complete_usage_survives_bad_dimension_and_late_caller_cancel", func(t *testing.T) {
++		for _, cancelled := range []bool{false, true} {
++			key := embeddingWireScenario(t, v, wireJSON(embeddingWireReply(t, []int{0}, [][]float64{{1, 2}}, json.RawMessage(`{"prompt_tokens":9007199254740993,"total_tokens":null}`))))
++			r, o := embeddingWireInput(t, v, key)
++			if !cancelled {
++				r.ExpectedDimensions = 3
++			}
++			x := embeddingWireStart(t, ctx, a, r, o)
++			call := ctx
++			if cancelled {
++				// The formal writer precedes response reads; this separate
++				// checkpoint proves cancellation after complete JSON/EOF.
++				wireWait(t, "complete usage checkpoint not reached", func() bool { return x.Observe().Usage.InputTokens != nil })
++				c, cancel := context.WithCancel(ctx)
++				cancel()
++				call = c
++			}
++			result, err := x.Result(call)
++			embeddingWireZero(t, result)
++			if cancelled {
++				wireModelError(t, err, "cancelled", "wire_cancelled", true, false)
++			} else {
++				wireModelError(t, err, "provider_error", "wire_protocol_invalid", true, false)
++			}
++			u := x.Observe().Usage
++			if u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 9007199254740993 || u.TotalTokens != nil {
++				t.Fatal("reliable EOF usage lost on result failure")
++			}
++			*u.InputTokens = 0
++			if *x.Observe().Usage.InputTokens != 9007199254740993 {
++				t.Fatal("usage observation not isolated")
++			}
++			embeddingWireClose(t, x)
++			if late, err := x.Result(ctx); err == nil {
++				t.Fatal("failed result recovered a late vector")
++			} else {
++				embeddingWireZero(t, late)
++				wireFault(t, err, f.InvalidState)
++			}
++			v.settled(t, key)
++		}
++	})
++	t.Run("cancelled_real_writer_owns_material_and_mixed_project_slot_until_join", func(t *testing.T) {
++		b := wire.NewBudget()
++		ea := embeddingWireAdapter(t, v, b)
++		chat := v.newAdapter(t, b)
++		cfg := wireJSON(embeddingWireReply(t, []int{0}, [][]float64{{1, 2}}, nil))
++		hold := 0
++		cfg.HoldAfter = &hold
++		key := embeddingWireScenario(t, v, cfg)
++		r, o := embeddingWireInput(t, v, key)
++		entered, released, returned := make(chan struct{}), make(chan struct{}), make(chan struct{})
++		var once sync.Once
++		release := func() { once.Do(func() { close(released) }) }
++		t.Cleanup(release)
++		attempt, cancel := context.WithCancel(ctx)
++		t.Cleanup(cancel)
++		trace := &httptrace.ClientTrace{WroteRequest: func(httptrace.WroteRequestInfo) { close(entered); <-released; close(returned) }}
++		x := embeddingWireStart(t, httptrace.WithClientTrace(attempt, trace), ea, r, o)
++		waitSignal(t, entered)
++		wireWait(t, "held writer not sent", func() bool { return len(v.state(t, key).Requests) == 1 })
++		cancel()
++		wireWait(t, "cancelled writer lacks actual Decision", func() bool { return x.Observe().Decision != nil })
++		result, err := x.Result(ctx)
++		embeddingWireZero(t, result)
++		wireModelError(t, err, "cancelled", "wire_cancelled", true, false)
++		short, stop := context.WithTimeout(ctx, 30*time.Millisecond)
++		err = x.Close(short)
++		stop()
++		wireModelError(t, err, "timeout", "wire_transport_error", false, false)
++		if d := x.Observe().Decision; d == nil || d.Reason != ac.Cancelled || !d.Sent || x.Joined() {
++			t.Fatal("visible cancellation released a live writer")
++		}
++		if err := o.Credential.Use(func([]byte) error { return nil }); err != nil {
++			t.Fatal("borrowed material not live while writer remains")
++		}
++		chatCfg := wireJSON(wireReply("unused", "stop", nil, nil))
++		chatCfg.HoldAfter = &hold
++		chatKey := v.scenario(t, chatCfg)
++		for i := 0; i < 7; i++ {
++			cr, co := v.input(t, chatKey, wire.JSONResponse)
++			co.ProjectID = o.ProjectID
++			v.start(t, ctx, chat, cr, co)
++		}
++		cr, co := v.input(t, chatKey, wire.JSONResponse)
++		co.ProjectID = o.ProjectID
++		if extra, err := chat.Start(ctx, cr, co); extra != nil {
++			t.Fatal("cancelled embedding lost its mixed project slot")
++		} else {
++			wireFault(t, err, f.ResourceBusy)
++		}
++		wireWait(t, "seven mixed chat slots not dispatched", func() bool { return len(v.state(t, chatKey).Requests) == 7 })
++		release()
++		waitSignal(t, returned)
++		embeddingWireClose(t, x)
++		replacement := v.start(t, ctx, chat, cr, co)
++		wireWait(t, "actual writer join did not release one slot", func() bool { return len(v.state(t, chatKey).Requests) == 8 })
++		if replacement.Joined() {
++			t.Fatal("held replacement response prematurely terminal")
++		}
++		cleanup, finish := context.WithTimeout(ctx, 5*time.Second)
++		defer finish()
++		if err := b.Force(cleanup); err != nil || !b.Joined() {
++			t.Fatal("mixed actual cleanup failed", err)
++		}
++		if len(v.state(t, key).Requests) != 1 || len(v.state(t, chatKey).Requests) != 8 {
++			t.Fatal("rejected mixed work was queued or retried")
++		}
++		v.settled(t, key)
++		v.settled(t, chatKey)
++	})
++}
+--- /dev/null
++++ b/tests/model/openai_embeddings_wire_budget_test.go
+@@ -0,0 +1,210 @@
++//go:build integration
++
++package model_test
++
++import (
++	"context"
++	"encoding/json"
++	"net/http/httptrace"
++	"sync"
++	"testing"
++	"time"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++)
++
++func TestModelOpenAIEmbeddingsWireBudget(t *testing.T) {
++	v, _, ctx := embeddingWireFixture(t)
++	v.allow(t, true)
++	t.Run("text_structured_and_embeddings_share_global64_and_project8", func(t *testing.T) {
++		b := wire.NewBudget()
++		ea := embeddingWireAdapter(t, v, b)
++		text, structured := v.newAdapter(t, b), v.newAdapter(t, b)
++		hold := 0
++		ecfg := wireJSON(embeddingWireReply(t, []int{0}, [][]float64{{1, 2}}, nil))
++		ecfg.HoldAfter = &hold
++		ekey := embeddingWireScenario(t, v, ecfg)
++		ccfg := wireJSON(wireReply("text", "stop", nil, nil))
++		ccfg.HoldAfter = &hold
++		ckey := v.scenario(t, ccfg)
++		scfg := wireJSON(wireReply(`{"v":1}`, "stop", nil, nil))
++		scfg.HoldAfter = &hold
++		skey := v.scenario(t, scfg)
++		var embeddings []*wire.EmbeddingExchange
++		var chats []*wire.Exchange
++		var counts [3]int
++		for projectIndex := 0; projectIndex < 8; projectIndex++ {
++			project := newID[id.Project](t)
++			for slot := 0; slot < 8; slot++ {
++				kind := (projectIndex + slot) % 3
++				counts[kind]++
++				switch kind {
++				case 0:
++					r, o := embeddingWireInput(t, v, ekey)
++					o.ProjectID, o.Limits.Overall = project, 120*time.Second
++					embeddings = append(embeddings, embeddingWireStart(t, ctx, ea, r, o))
++				case 1:
++					r, o := v.input(t, ckey, wire.JSONResponse)
++					o.ProjectID, o.Limits.Overall = project, 120*time.Second
++					chats = append(chats, v.start(t, ctx, text, r, o))
++				case 2:
++					r, o := structuredWireInput(t, v, skey, wire.JSONResponse)
++					r.ResponseFormat.Schema = json.RawMessage(structuredScalarSchema)
++					o.ProjectID, o.Limits.Overall = project, 120*time.Second
++					chats = append(chats, v.start(t, ctx, structured, r, o))
++				}
++			}
++			r, o := embeddingWireInput(t, v, ekey)
++			o.ProjectID = project
++			if x, err := ea.Start(ctx, r, o); x != nil {
++				t.Fatal("mixed project ninth embedding admitted")
++			} else {
++				wireFault(t, err, f.ResourceBusy)
++			}
++			cr, co := structuredWireInput(t, v, skey, wire.JSONResponse)
++			co.ProjectID = project
++			if x, err := structured.Start(ctx, cr, co); x != nil {
++				t.Fatal("mixed project ninth structured call admitted")
++			} else {
++				wireFault(t, err, f.ResourceBusy)
++			}
++		}
++		r, o := embeddingWireInput(t, v, ekey)
++		if x, err := ea.Start(ctx, r, o); x != nil {
++			t.Fatal("mixed global sixty-fifth embedding admitted")
++		} else {
++			wireFault(t, err, f.ResourceBusy)
++		}
++		cr, co := v.input(t, ckey, wire.JSONResponse)
++		if x, err := text.Start(ctx, cr, co); x != nil {
++			t.Fatal("mixed global sixty-fifth text call admitted")
++		} else {
++			wireFault(t, err, f.ResourceBusy)
++		}
++		wireWait(t, "exact mixed native dispatches not observed", func() bool {
++			return len(v.state(t, ekey).Requests) == counts[0] && len(v.state(t, ckey).Requests) == counts[1] && len(v.state(t, skey).Requests) == counts[2]
++		})
++		for _, x := range embeddings {
++			if x.Joined() {
++				t.Fatal("held embedding body released budget")
++			}
++		}
++		for _, x := range chats {
++			if x.Joined() {
++				t.Fatal("held chat body released budget")
++			}
++		}
++		b.StopAdmission()
++		if x, err := ea.Start(ctx, r, o); x != nil {
++			t.Fatal("stopped embedding admitted")
++		} else {
++			wireFault(t, err, f.ShuttingDown)
++		}
++		if x, err := text.Start(ctx, cr, co); x != nil {
++			t.Fatal("stopped text admitted")
++		} else {
++			wireFault(t, err, f.ShuttingDown)
++		}
++		sr, so := structuredWireInput(t, v, skey, wire.JSONResponse)
++		if x, err := structured.Start(ctx, sr, so); x != nil {
++			t.Fatal("stopped structured call admitted")
++		} else {
++			wireFault(t, err, f.ShuttingDown)
++		}
++		expired, cancel := context.WithCancel(ctx)
++		cancel()
++		if err := b.Drain(expired); err == nil || b.Joined() {
++			t.Fatal("cancelled Drain claimed held clients terminal")
++		}
++		cleanup, finish := context.WithTimeout(ctx, 5*time.Second)
++		defer finish()
++		if err := b.Force(cleanup); err != nil || !b.Joined() {
++			t.Fatal("one mixed Force budget failed to actually join", err)
++		}
++		for _, x := range embeddings {
++			if !x.Joined() {
++				t.Fatal("embedding escaped actual cleanup")
++			}
++		}
++		for _, x := range chats {
++			if !x.Joined() {
++				t.Fatal("chat escaped actual cleanup")
++			}
++		}
++		for index, key := range []string{ekey, ckey, skey} {
++			v.settled(t, key)
++			if len(v.state(t, key).Requests) != counts[index] {
++				t.Fatal("rejected mixed work was queued or retried")
++			}
++		}
++	})
++	t.Run("force_cancels_both_protocols_before_waiting_in_one_caller_budget", func(t *testing.T) {
++		b := wire.NewBudget()
++		ea, chat := embeddingWireAdapter(t, v, b), v.newAdapter(t, b)
++		hold := 0
++		ecfg := wireJSON(embeddingWireReply(t, []int{0}, [][]float64{{1, 2}}, nil))
++		ecfg.HoldAfter = &hold
++		ekey := embeddingWireScenario(t, v, ecfg)
++		ccfg := wireJSON(wireReply(`{"v":1}`, "stop", nil, nil))
++		ccfg.HoldAfter = &hold
++		ckey := v.scenario(t, ccfg)
++		entered := []chan struct{}{make(chan struct{}), make(chan struct{})}
++		returned := []chan struct{}{make(chan struct{}), make(chan struct{})}
++		released := make(chan struct{})
++		var once sync.Once
++		release := func() { once.Do(func() { close(released) }) }
++		t.Cleanup(release)
++		traced := func(index int) context.Context {
++			return httptrace.WithClientTrace(ctx, &httptrace.ClientTrace{WroteRequest: func(httptrace.WroteRequestInfo) {
++				close(entered[index])
++				<-released
++				close(returned[index])
++			}})
++		}
++		r, o := embeddingWireInput(t, v, ekey)
++		ex := embeddingWireStart(t, traced(0), ea, r, o)
++		cr, co := structuredWireInput(t, v, ckey, wire.JSONResponse)
++		cr.ResponseFormat.Schema = json.RawMessage(structuredScalarSchema)
++		cx := v.start(t, traced(1), chat, cr, co)
++		for _, checkpoint := range entered {
++			waitSignal(t, checkpoint)
++		}
++		wireWait(t, "two held writers not dispatched", func() bool {
++			return len(v.state(t, ekey).Requests) == 1 && len(v.state(t, ckey).Requests) == 1
++		})
++		short, cancel := context.WithTimeout(ctx, 60*time.Millisecond)
++		started := time.Now()
++		err := b.Force(short)
++		elapsed := time.Since(started)
++		done := short.Err()
++		cancel()
++		wireModelError(t, err, "timeout", "wire_transport_error", false, false)
++		if done != context.DeadlineExceeded || elapsed > 560*time.Millisecond || ex.Joined() || cx.Joined() || b.Joined() {
++			t.Fatal("Force deadline manufactured actual terminal")
++		}
++		wireWait(t, "Force did not cancel both types before waiting", func() bool {
++			ed, cd := ex.Observe().Decision, cx.Observe().Decision
++			return ed != nil && cd != nil && ed.Reason == ac.Cancelled && cd.Reason == ac.Cancelled && ed.Sent && cd.Sent
++		})
++		if o.Credential.Use(func([]byte) error { return nil }) != nil || co.Credential.Use(func([]byte) error { return nil }) != nil {
++			t.Fatal("Force retired borrowed material before actual writer return")
++		}
++		release()
++		for _, checkpoint := range returned {
++			waitSignal(t, checkpoint)
++		}
++		cleanup, finish := context.WithTimeout(ctx, 5*time.Second)
++		defer finish()
++		if err := b.Drain(cleanup); err != nil || !b.Joined() || !ex.Joined() || !cx.Joined() {
++			t.Fatal("released mixed writers did not actually join", err)
++		}
++		result, err := ex.Result(ctx)
++		embeddingWireZero(t, result)
++		wireModelError(t, err, "cancelled", "wire_cancelled", true, false)
++		v.settled(t, ekey)
++		v.settled(t, ckey)
++	})
++}
+--- a/tests/testsupport/outbound/cmd/server/main.go
++++ b/tests/testsupport/outbound/cmd/server/main.go
+@@ -174,7 +174,7 @@
+ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
+ 	id := strings.TrimPrefix(r.URL.Path, "/case/")
+ 	if len(id) != 32 {
+-		// Only the new wire scenario admits a suffix. Legacy modes retain their
++		// Only the two wire scenarios admit a suffix. Legacy modes retain their
+ 		// exact decoded /case/<id> route below, including existing defaults.
+ 		raw := strings.TrimPrefix(r.URL.EscapedPath(), "/case/")
+ 		if !strings.HasPrefix(r.URL.EscapedPath(), "/case/") || len(raw) < 33 {
+@@ -191,7 +191,7 @@
+ 		return
+ 	}
+ 	cfg := v.Config
+-	if cfg.Mode == "openai_chat_wire" {
++	if cfg.Mode == "openai_chat_wire" || cfg.Mode == "openai_embeddings_wire" {
+ 		if r.URL.EscapedPath() != "/case/"+id+cfg.Wire.Suffix || r.URL.RawQuery != "" || r.URL.ForceQuery {
+ 			s.mu.Unlock()
+ 			w.WriteHeader(404)
+@@ -212,7 +212,7 @@
+ 		return
+ 	}
+ 	_ = r.Body.Close()
+-	if cfg.Mode == "openai_chat_wire" && len(body) > 16<<20 {
++	if (cfg.Mode == "openai_chat_wire" || cfg.Mode == "openai_embeddings_wire") && len(body) > 16<<20 {
+ 		w.WriteHeader(413)
+ 		return
+ 	}
+@@ -220,7 +220,7 @@
+ 	s.mu.Lock()
+ 	v.Requests = append(v.Requests, record)
+ 	s.mu.Unlock()
+-	if cfg.Mode == "openai_chat_wire" {
++	if cfg.Mode == "openai_chat_wire" || cfg.Mode == "openai_embeddings_wire" {
+ 		serveWire(w, r, cfg.Wire, release)
+ 		return
+ 	}
+@@ -303,7 +303,7 @@
+ }
+ 
+ func validWire(cfg *config, id string) bool {
+-	if cfg.Mode != "openai_chat_wire" {
++	if cfg.Mode != "openai_chat_wire" && cfg.Mode != "openai_embeddings_wire" {
+ 		return cfg.Wire == nil
+ 	}
+ 	v := cfg.Wire
+@@ -313,10 +313,14 @@
+ 	if raw, err := hex.DecodeString(id); err != nil || len(raw) != 16 {
+ 		return false
+ 	}
++	suffix := "/chat/completions"
++	if cfg.Mode == "openai_embeddings_wire" {
++		suffix = "/embeddings"
++	}
+ 	if v.Suffix == "" {
+-		v.Suffix = "/chat/completions"
+-	}
+-	if len(v.Suffix) > 2048 || !strings.HasPrefix(v.Suffix, "/") || !strings.HasSuffix(v.Suffix, "/chat/completions") || strings.ContainsAny(v.Suffix, "?#") {
++		v.Suffix = suffix
++	}
++	if len(v.Suffix) > 2048 || !strings.HasPrefix(v.Suffix, "/") || !strings.HasSuffix(v.Suffix, suffix) || strings.ContainsAny(v.Suffix, "?#") {
+ 		return false
+ 	}
+ 	u, err := url.ParseRequestURI(v.Suffix)

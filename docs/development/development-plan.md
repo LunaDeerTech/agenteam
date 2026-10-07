@@ -8,6 +8,8 @@ AT-0005 已逐项确认审计方向；正式文档归位和验收见[同步任�
 
 ## 当前基线与计划范围
 
+2026-10-07 当前增量：D09 [OpenAI Embeddings float wire](work-items/d09-openai-embeddings-wire.md)已按[验证归档](agent-team/openai-embeddings-wire-verification.md)独立接受，十六路径产品提交推送 `2debfdde347d8c9262ab83d3fe5e18e947a983e1`、远端一致。固定c142十五技术源加README末件，914依赖无漂移；六真实轮按版本组合通过，不冒主树动态重跑。原容量指标失败、启动闭包阻断及辅助原件缺口保留。本结果不完成D09或绑定Nonchat/InvocationID/Usage/root，不改变模块顺序、Summary待决、ready503、E01未开始及三停止任务。
+
 2026-10-07 当前增量：D27 [System 运行信息只读 UI](work-items/d27-system-runtime-information-ui.md)已按[验收记录](agent-team/system-runtime-information-ui-verification.md)独立接受，35 路径产品提交推送 `e1f8cefbeaf3203c4e0388f9ea9dbf11e2e2959b`、远端一致。它只读取 Central 缓存观测并提供显式重读/取消，不新增探测、写口、自动轮询或 ready 成功。原两真实失败与各阶段/分版本证据保留；本结果不改变下述模块顺序和完整门槛。D08–D28/E01 整体仍未完成，E01 未开始，Summary 待决与三项停止任务保持，当前后继以团队台账为准。
 
 规划日期：2026-10-03。计划制定时核对基线为 `fe5b833`，环境检出分支为 `work`、工作区干净；D00 已由主线程建立 `main`，后续工作沿用该分支，当前提交与进度以任务台账和 Git 为准。恢复开发时核对真实分支与基线，由主线程处理环境差异，不让子 agent 自行切换分支或创建 worktree。

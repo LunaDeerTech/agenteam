@@ -1,0 +1,27 @@
+# OpenAI Embeddings float wire 作者十五源最终交付
+
+作者范围已完成：三组新真实测试与六组旧 Chat/structured 回归分五轮全部 PASS，实际等待与双清均完成。A/B 已独立有界接受、D 已独立 STATIC 接受；最终独立真实验收仍待完成。README 是第十六末件，尚未授权或写入。
+
+固定产品 `c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c`，正式卡 `15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597`。十五文件逐 SHA、固定原源 SHA、实际 workspace 及既有不可变副本见 `delivery15.json`；合并差量见 `candidate15.diff`。本轮未修改十五源。真实五轮均使用同 driver02、input02、15 候选 + 914 固定 Git 依赖 + 3513 runtime 指纹。
+
+专用 wire 仅实现空 parameters `{}`、float 批量 Embeddings；ExpectedDimensions 是 caller 的明确校验要求，不宣称供应商默认值。请求在入槽前预检和编码限额；响应为严格有限 JSON/索引/float/整数 usage，结果一次消费与深复制，可靠 usage 和失败向量候选分开。材料引用和共享全局64/Project8槽保持到实际 D04/读体/Close/Drain/取消尾部完成；旧 Chat 公共流程不改。
+
+| 独立授权轮 | 实际命令 exit / 秒 | 顶层结果 | 自有 PID/starttime |
+| --- | --- | --- | ---: |
+| new-http01 | 0 / 101.179 | TestModelOpenAIEmbeddingsWireHTTP 2.28s | 108 |
+| new-terminal01 | 0 / 52.460 | TestModelOpenAIEmbeddingsWireTerminal 1.79s | 70 |
+| new-budget01 | 0 / 52.367 | TestModelOpenAIEmbeddingsWireBudget 1.63s | 71 |
+| old-chat01 | 0 / 54.210 | TestModelOpenAIChatWireHTTP 1.83s; TestModelOpenAIChatWireStream 1.63s; TestModelOpenAIChatWireJoinAndBudget 1.41s | 71 |
+| old-structured01 | 0 / 53.781 | TestModelOpenAIChatStructuredHTTP 1.67s; TestModelOpenAIChatStructuredStream 1.48s; TestModelOpenAIChatStructuredCloseAndBudget 1.29s | 72 |
+
+每轮均原 `-race -count=1 -timeout=6m`、原内部预算，新 top 上限2m；没有重试或加时。全部 actual wait、0 adopted、monitor errors0、7 exact IDs 两扫 absent、owned PID/starttime 两扫空、runtime 空、原基线含 canonical Mount 不变、输入前后相同。每轮两次 fresh >=5GiB 原值及 command/env/raw/input/cleanup/driver SHA 全在 `real-five-runs.json`，未把五轮说成单轮全绿。窗口已释放。
+
+HTTP 覆盖真实 Policy、精确编码批量、零发送预检、安全状态、TLS/POST重定向和 fixture 闭合规则。Terminal 覆盖 JSON 前缀与实际 EOF 区分、截断/紧限额零候选、可靠 usage 后失败/取消及 WroteRequest 持有时材料/混合槽直到 join；未假定 writer 被阻挡时已解析 usage。Budget 覆盖真实混合 text/structured/embedding 64/8 和一个 caller 期限下先全取消再共同等待。六个旧顶层使用原测试字节和断言。
+
+纯/受控证据按原阶段复用，见 `stages.json`：A 原 race01 七 PASS + candidate03 race02 受影响容量/cancel top PASS，不能冒同版同轮八组全绿；B 新9/受影响旧6 race、原旧26纯、vet/format 已过；D compile/vet/精确list 与 server 构建已过。B 指纹数准确分列：format 为1806（1805+gofmt），其余五轮1805。没有为最终报告重复 Go 或占用独立 cache。
+
+原失败全部保留，见 `preserved-history.json`：A SQL embed 准备门禁、内联工具解析准备错误、TotalAlloc 累计指标前提红；D weak-passwords embed 准备门禁；startup01 漏 TestMain 两 cmd 图的静态阻断；startup02 可选报告脚本误假定无 embed 的准备错误。TotalAlloc 原红并非已证同时持有容量越界；最终仍硬验 raw+原向量+clone+有限辅助 <21MiB，不通过 GC 或放宽容量修复。原 race01 Fatal 后未到的尾部仅以修后真实纯/race轮证明，不回填历史。报告准备脚本原 stdin 未保存的限制如实记录，不制造原件。
+
+边界：真实是受控拥有的 Provider fixture 与正式 D04/Account Authority/Audit/Policy；fixture 的任务账号事实种子不等于 Nonchat 实现。没有 InvocationID、Resolver、Facts/Usage消费者或 root 接线；没有原生 dimensions 参数、型号默认维度保证、实际供应商 smoke或全部 D09。官方 profile 只绑定 SDK 静态 revision/SHA。容量不等于全进程 RSS。旧 PPID1 Z 未触碰，不称回收。主树/Git/README和停止事项均未改。
+
+全部十五源、五轮原件与本交付现在停写。下一步由主线程协调独立真实验收；本报告不代替独立结论。

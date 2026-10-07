@@ -1,0 +1,117 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.5.25.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=86ff3e68b44e7e257c5b2b5ed36637a7
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=d52b813a6bcd74de5514f3a3ffd228b3
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.217s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.009s [no tests to run]
+=== RUN   TestModelOpenAIChatWireHTTP
+=== RUN   TestModelOpenAIChatWireHTTP/real_policy_deny_then_allow_and_exact_native_request
+=== RUN   TestModelOpenAIChatWireHTTP/unsupported_invalid_and_cancelled_admission_are_zero_do
+=== RUN   TestModelOpenAIChatWireHTTP/native_refusal_is_safe_error_with_usage
+=== RUN   TestModelOpenAIChatWireHTTP/status_mapping_discards_private_body_and_does_not_retry
+=== RUN   TestModelOpenAIChatWireHTTP/tls_and_post_redirect_preserve_actual_decision
+=== RUN   TestModelOpenAIChatWireHTTP/wire_control_rejects_outside_closed_profile
+--- PASS: TestModelOpenAIChatWireHTTP (1.83s)
+    --- PASS: TestModelOpenAIChatWireHTTP/real_policy_deny_then_allow_and_exact_native_request (0.05s)
+    --- PASS: TestModelOpenAIChatWireHTTP/unsupported_invalid_and_cancelled_admission_are_zero_do (0.03s)
+    --- PASS: TestModelOpenAIChatWireHTTP/native_refusal_is_safe_error_with_usage (0.03s)
+    --- PASS: TestModelOpenAIChatWireHTTP/status_mapping_discards_private_body_and_does_not_retry (0.38s)
+    --- PASS: TestModelOpenAIChatWireHTTP/tls_and_post_redirect_preserve_actual_decision (0.07s)
+    --- PASS: TestModelOpenAIChatWireHTTP/wire_control_rejects_outside_closed_profile (0.21s)
+=== RUN   TestModelOpenAIChatWireStream
+=== RUN   TestModelOpenAIChatWireStream/fragmented_utf8_crlf_default_obfuscation_and_final_usage
+=== RUN   TestModelOpenAIChatWireStream/no_usage_and_content_filter_finish_are_not_refusal
+=== RUN   TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end
+=== RUN   TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/missing_done
+=== RUN   TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/premature_done
+=== RUN   TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/bad_event
+=== RUN   TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/unknown_finish
+=== RUN   TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/tools
+=== RUN   TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/obfuscation_type
+=== RUN   TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/duplicate_key
+=== RUN   TestModelOpenAIChatWireStream/refusal_is_one_safe_error_with_actual_prefix
+=== RUN   TestModelOpenAIChatWireStream/observed_usage_survives_later_bad_event
+=== RUN   TestModelOpenAIChatWireStream/real_d04_body_cap_is_not_ignored_obfuscation
+=== RUN   TestModelOpenAIChatWireStream/slow_consumer_backpressure_cancel_has_no_late_end
+--- PASS: TestModelOpenAIChatWireStream (1.63s)
+    --- PASS: TestModelOpenAIChatWireStream/fragmented_utf8_crlf_default_obfuscation_and_final_usage (0.04s)
+    --- PASS: TestModelOpenAIChatWireStream/no_usage_and_content_filter_finish_are_not_refusal (0.06s)
+    --- PASS: TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end (0.25s)
+        --- PASS: TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/missing_done (0.03s)
+        --- PASS: TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/premature_done (0.03s)
+        --- PASS: TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/bad_event (0.03s)
+        --- PASS: TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/unknown_finish (0.03s)
+        --- PASS: TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/tools (0.03s)
+        --- PASS: TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/obfuscation_type (0.03s)
+        --- PASS: TestModelOpenAIChatWireStream/protocol_errors_and_interruption_never_emit_end/duplicate_key (0.03s)
+    --- PASS: TestModelOpenAIChatWireStream/refusal_is_one_safe_error_with_actual_prefix (0.07s)
+    --- PASS: TestModelOpenAIChatWireStream/observed_usage_survives_later_bad_event (0.03s)
+    --- PASS: TestModelOpenAIChatWireStream/real_d04_body_cap_is_not_ignored_obfuscation (0.03s)
+    --- PASS: TestModelOpenAIChatWireStream/slow_consumer_backpressure_cancel_has_no_late_end (0.07s)
+=== RUN   TestModelOpenAIChatWireJoinAndBudget
+=== RUN   TestModelOpenAIChatWireJoinAndBudget/real_writer_late_return_keeps_exact_slot
+=== RUN   TestModelOpenAIChatWireJoinAndBudget/two_adapters_share_global64_project8_without_queue
+--- PASS: TestModelOpenAIChatWireJoinAndBudget (1.41s)
+    --- PASS: TestModelOpenAIChatWireJoinAndBudget/real_writer_late_return_keeps_exact_slot (0.12s)
+    --- PASS: TestModelOpenAIChatWireJoinAndBudget/two_adapters_share_global64_project8_without_queue (0.15s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	5.889s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.011s [no tests to run]
+D03 fixture cleanup checked for nonce 35dcbf4bd0f12250ff58d705ce234a5f
+D04 outbound fixture cleanup checked for nonce d52b813a6bcd74de5514f3a3ffd228b3
+D05 object fixture exact resource cleanup checked nonce=86ff3e68b44e7e257c5b2b5ed36637a7

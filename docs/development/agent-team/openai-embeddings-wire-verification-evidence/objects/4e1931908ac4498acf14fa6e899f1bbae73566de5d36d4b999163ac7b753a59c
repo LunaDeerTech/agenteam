@@ -1,0 +1,58 @@
+{
+  "B_independent_report": {
+    "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/verification-report.md",
+    "sha256": "8784c23b9f54d1862407716f4d7ed1128d5990cd14c2dee18b952bc521420ff6"
+  },
+  "candidate_manifest": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-candidate01/manifest.json",
+    "sha256": "6878f9fbe5952f4c1b5c71cc3eaed5f2bd3ac1a72fe137149c2482c9488fa80b"
+  },
+  "checks_sha256": "a13daa4b1efb18202f7c56fd8c2bc4ce661fbe2d24f758bfd2061fd1fc86150d",
+  "delivery15_sha256": "024939a4e968407935bbb0c9fe6950cf920b2a1761d5762f1e549a49777dc64d",
+  "diff": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-candidate01/d.diff",
+    "sha256": "d7e8b72cfb5ad97bfa169a3d08ae5e7fdc10e2b368ae2ed43e9f4ebd104b24ad"
+  },
+  "discovery": {
+    "exact_tops": [
+      "TestModelOpenAIChatStructuredHTTP",
+      "TestModelOpenAIChatStructuredStream",
+      "TestModelOpenAIChatStructuredCloseAndBudget",
+      "TestModelOpenAIChatWireHTTP",
+      "TestModelOpenAIChatWireStream",
+      "TestModelOpenAIChatWireJoinAndBudget",
+      "TestModelOpenAIEmbeddingsWireBudget",
+      "TestModelOpenAIEmbeddingsWireHTTP",
+      "TestModelOpenAIEmbeddingsWireTerminal"
+    ],
+    "local_initializers_and_TestMain": [],
+    "test_body_executions": 0
+  },
+  "go_input": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-go-input01.json",
+    "sha256": "992337a976ab18b15b43f3a984534dfd4f43ac1c5324615cc6771a5af080f4ca"
+  },
+  "limitations": [
+    "No listener, Docker, PG, MinIO, browser or Provider call started.",
+    "Fixture server binary was compiled but never executed.",
+    "D dynamic scripts/runtime/driver closure will be frozen separately; this is a compiler-input stage only.",
+    "Held WroteRequest prevents response parsing in formal D04. Reliable EOF usage after a failed or cancelled Result is a separate representative, not asserted while that writer is held.",
+    "The existing fixture seeds owned User/Session facts and invokes real Account Authority/Audit/Policy; synthetic Snapshot/material/project keys are not business bindings or InvocationIDs."
+  ],
+  "preparation_prerequisite_failure": {
+    "actual_exit": 1,
+    "meaning": "explicit embed guard required fixed Account weak-password dictionary, before any dependency copy or compilation; corrected only closure preparation; original saved",
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-prepare01/result.json",
+    "sha256": "35e700de758d16f22f7872bffb6ae1bed127b46328bce543bc6ff636b45462a7"
+  },
+  "resource_authorization": "not granted",
+  "scope": {
+    "D_sources": 5,
+    "compiler_input_files": 2496,
+    "derived_test_mains": 2,
+    "fixed_workspace_dependencies": 373,
+    "packages_nonrace_race_union": 388,
+    "readonly_accepted_sources": 10
+  },
+  "source_stopped": true
+}

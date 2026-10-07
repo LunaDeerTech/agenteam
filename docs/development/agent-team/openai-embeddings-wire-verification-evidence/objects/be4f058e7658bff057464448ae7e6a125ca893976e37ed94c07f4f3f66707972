@@ -1,0 +1,133 @@
+{
+  "decision": "PASS — complete bounded independent Stage A (five sources only)",
+  "input": {
+    "delivery5": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/stage-a01/delivery5.json",
+      "sha256": "fdbb5126ba9744cea2e7b198580dad08cd30db620529b31eb55dd951de7d2426"
+    },
+    "candidate03": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/manifest.json",
+      "sha256": "cd076fe6fee33685ae5259de1d7f31851202b21a11fa29a95d4a2fdab1ff23fe"
+    },
+    "five_sources": {
+      "internal/central/model/adapter/embedding_json.go": {
+        "bytes": 14478,
+        "sha256": "fd9742129008b25970c93ed03e6e1383a08ac3cb674f80e8bbba3c14380b7ed0",
+        "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/internal/central/model/adapter/embedding_json.go"
+      },
+      "internal/central/model/adapter/embedding_json_test.go": {
+        "bytes": 22615,
+        "sha256": "86f28d3e3397506a9edc97a6d5daa2b19369f1f2f5b777a1343bb6e36d57eba4",
+        "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/internal/central/model/adapter/embedding_json_test.go"
+      },
+      "internal/central/model/adapter/openai_embeddings.go": {
+        "bytes": 8965,
+        "sha256": "ba38a7849f257bb0f5ac42fbc789c610aac978cbb34ac725dec63fa0bbc5a12d",
+        "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/internal/central/model/adapter/openai_embeddings.go"
+      },
+      "internal/central/model/adapter/openai_embeddings_test.go": {
+        "bytes": 13434,
+        "sha256": "f3138ea97cc71c72b3d94113328d5ffd73aad5a446d90eed9b55e09ff30e5747",
+        "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/internal/central/model/adapter/openai_embeddings_test.go"
+      },
+      "internal/central/model/adapter/testdata/openai-embeddings-float-v1.json": {
+        "bytes": 3355,
+        "sha256": "ad0cc43ea95ebc0416ee677b3719e6d270a7d255d7b2b7891fce8ecdd8b372cf",
+        "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/internal/central/model/adapter/testdata/openai-embeddings-float-v1.json"
+      }
+    },
+    "execution": {
+      "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/execution01.json",
+      "sha256": "318a16dd9fdc5ba50fde53e176263991dc7b6a6aa42de93333ad77ce1c3171e0"
+    },
+    "probe": {
+      "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/embedding_independent_a_test.go",
+      "sha256": "b185b064f695cbd1b497809a30c34fb0db8871f45c61a19435d1073516d1f9da"
+    },
+    "overlay": {
+      "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/overlay01.json",
+      "sha256": "ce88761061b6fbf387fc57c5d82e2e3930703e69953e3731b87badf3219f36b1"
+    },
+    "runner": {
+      "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/run_offline01.py",
+      "sha256": "7da22bd2e3b25222b5680068369b077c58abe1f5f5e1c0cef7c10a1e10bb3e1e"
+    },
+    "source_check": {
+      "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/source-check01.json",
+      "sha256": "97ecd71734aa55e92bd2fb3fa7533da250b1c5240f7866c2f5ea1bd7879781f6"
+    }
+  },
+  "static_review": {
+    "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/static-review-and-preparation01.md",
+    "sha256": "889ed95f6a18c10a7549502b7f53490ec7d1d9f1caebfe8cc288d08a1626aad2"
+  },
+  "actual_run": {
+    "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/runs/pure01",
+    "result": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "seconds": 3.1136933140005567,
+      "timeout": false,
+      "input_before_matches": true,
+      "input_after_matches": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_processes_observed": 5,
+      "adopted_wait_count": 0,
+      "raw_sha256": "c83bd054e02ee44f7915e0bed43fe8921a61d7011b72b0efde8841a3845e1a08",
+      "cleanup_sha256": "b276ecb90188a9288d909df642039f2d987719997f42f5f3b223d1aaf461e87c"
+    },
+    "evidence": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/runs/pure01/command.json",
+        "sha256": "46194e68a567466e2e9590e52a9fe85029159f914b96b3edcf50e6602d061fdb"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/runs/pure01/raw.log",
+        "sha256": "c83bd054e02ee44f7915e0bed43fe8921a61d7011b72b0efde8841a3845e1a08"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/runs/pure01/result.json",
+        "sha256": "58de46477c0fd63327ec802bf8f0bfc1a5e0a872c731dc09ed918d461215b4d8"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/runs/pure01/cleanup.json",
+        "sha256": "b276ecb90188a9288d909df642039f2d987719997f42f5f3b223d1aaf461e87c"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/runs/pure01/input-before.json",
+        "sha256": "e319160570b61ade9e414b0345d3efa78a5e74c35b900a569f323bf676cba961"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/runs/pure01/input-after.json",
+        "sha256": "e319160570b61ade9e414b0345d3efa78a5e74c35b900a569f323bf676cba961"
+      }
+    },
+    "disk": {
+      "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/disk-before-pure01.json",
+      "sha256": "e5d71c351b46cbc32ff4e4d22552588b85da2eb549e04fe67ce3de9da6ba3546"
+    }
+  },
+  "reuse": {
+    "capacity_independent": {
+      "path": "/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/review.md",
+      "sha256": "986343d0dad915b62b570950a531fa04118f8edbc5a075f385a561086f9a634b"
+    },
+    "author": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/stage-a01/report.md",
+      "sha256": "5777d649dc0c5ae5aafad9c8fd211a3b4b1e3a269a9dcdf5fc6979b7ab7dfb7a"
+    },
+    "author_checks": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/stage-a01/checks.json",
+      "sha256": "f4bd3aad6b59f0f9eda8f709747fe6c6d1ccd64a369368e873cf9acfd2c3e83c"
+    }
+  },
+  "limits": [
+    "Pure prepare/codec only. No constructor/Start/Budget/transport implemented or verified in this stage.",
+    "Held io.Reader test proves call termination and private goroutine actual join, not handle/D04 writer/callback/Drain.",
+    "Prior capacity probe and unchanged author late-value/cancellation results reused. Original race01 cumulative TotalAlloc failure remains failed.",
+    "Author seven race passes plus repaired capacity race02 are separate-version evidence, not one final eight-top race run.",
+    "Official SDK static provenance only; no provider/model conformance, SDK execution or native dimensions support.",
+    "No listener/HTTP/PG/Docker/browser/resource/main/Git writes or delegation."
+  ]
+}

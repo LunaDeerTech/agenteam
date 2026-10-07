@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/prepare-d01.py"
+  ],
+  "actual_exit": 1,
+  "seconds": 0.523633701,
+  "source_sha256": "19fad86b162d105d319e5221f56eb28e6ddaf42038754166b6e523f04cd74aaa",
+  "error": "explicit embed closure guard: internal/central/account/password.go",
+  "writes_before_guard": "preparation script only; source-copy loop had not started",
+  "resource_execution": false
+}

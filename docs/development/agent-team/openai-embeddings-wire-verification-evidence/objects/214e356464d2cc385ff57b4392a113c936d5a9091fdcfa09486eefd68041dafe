@@ -1,0 +1,22 @@
+# Embeddings wire 独立验收计划 01
+
+本轮仅计划。绑定正式卡 `15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597`，全文 `9154874ac03b0e6b4563b1eb994f5dcde0b11a66ce305953c6cf550d28585b15`、技术 `1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133`，已只读核对与原独审技术字节相同。产品依赖固定 `c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c`，不隐式重基。
+
+复用独立静审 `/workspace/scratch/agenteam-embeddings-spec-independent-rtb6bf88/review.md`（`208d90a678e22364debe5f59b86abd9b21a0449566815cf1d28203c828456f51`）及该根 `input-check01.json`（31个Git来源，`3b8f8eebe93f98f2b45fbac724e707f5cea3c334bc528f1c6aa9865e81fcf4ef`）、`additional-input01.json`（同Git的D04 Client.Drain，`f41fab77b8505aca47c8feec86a8f33acd0b703deaeee76b919de68a43f85ed8`）。六官方原件与两代理403继续沿原冻结来源，不联网补证或新建全树库存。
+
+每阶段在作者停止写入并获主线程授权后，按实际接口实现最多两个独立风险组合。未变证据按SHA复用，不抄作者整矩阵，也不把不同层的证据互相替代。
+
+| 阶段 | 风险组合 | 冻结输入门槛与结论边界 |
+| --- | --- | --- |
+| A：输入/编码与严格codec | **A1** 受信 ExpectedDimensions/数量/乘积及UTF-8/原文不trim；选择实际JSON转义后8MiB门槛、4MiB文本总量和C0合法但未支持参数代表。精确三个body键、单项仍数组、显式float，dimensions不发送；坏JSON/重复键与unsupported分类不同。**A2** 最大合法N×D与末尾坏值代表，乱序index复排/缺重index、有限数/64B数字、usage nil/0/>2^53和完整EOF后语义失败仍保可靠usage；容量上限和扫描取消覆盖大空白/长非法数的一项有意义反例。 | 当前作者只做卡#1/#3/#6/#8/#10五路径；接收其固定源、原失败、实际命令/工具/必要依赖与采用字段manifest。只验证已存在的prepare/codec，不要求constructor/Start/transport假stub，不宣称已证明零Do/slot或实际HTTP EOF。解析器raw+float backing+返回副本+辅助容量<21MiB按源码与实际测量口径共同核，不能用RSS/GC/OOM替代；最大协议样本属于纯阶段，512KiB真实fixture不冒最大响应证据。 |
+| B：constructor/Start、handle与同一Budget | **B1** 两种exact handle共用一把登记锁和64全局/每Project8；混合text/structured/Embedding竞争、超额不入队、取消未join仍占槽，Stop后不admit，Force先全取消再同一个剩余ctx Drain，exact release一次。**B2** 已接收handle的成功/错误/取消、一次Result及Observation分离：当前ctx与join后再验、零候选、合法usage保留、输入/返回副本不互改、安全格式化。借用材料至真实join，已完成Do/reader/parser/公开Close/Drain的证据逐层列明。 | 固定新增transport及Budget/旧transport最小diff、A五源不变条件、完整旧纯测试证据。旧Chat accept/公共形状和主流程不改，新增只能私有接口转发；constructor无IO。离线只用实际实现可达的受控接缝，不能虚构D04私有注入口或用fake Drain宣称正式writer/callback终局；不足的实际I/O层留D的真实代表验证。当前正式Response.Close返回nil，不要求它暴露内部原生Close错误，也不返修D04来迎合探针。 |
+| D：真实harness/启动就绪 | 先静核3新top与6旧top的精确selector、正式Account/Audit/Policy准入、转义base/Bearer、server计数及EOF/cut/hold语义。核新server mode仅embeddings suffix，原WireScenario/nonce/连接跟踪/512chunks/512KiB/State2MiB保持；不增加代理、客户端控制协议或fixture假成功。然后仅选择下述最多两个独立真实组合。 | 冻结完整15代码候选与16末件责任、官方来源/profile manifest、原共享fixture及所有真实编译/动态build依赖、绝对Go/解释器/runner指纹、完整资源拓扑/门禁。作者3新6旧必须有实际终局与版本分层证据；编译/发现不冒执行。若作者失败需返修，保留原件并只重绑真正变化，受影响验证由主线程另授。 |
+
+最终独立真实最多两个top，最终按作者冻结实现/已到达断言精简：
+
+1. **R1 协议与可靠usage。** 原正式PG Account/Audit/Policy和受控TLS，选一个小批量乱序向量并使用明确caller维度及独立golden；记录原转义路径、三个JSON键、单项/批量原顺序、显式float和受信origin凭据安全等值事实。补一个向量语义拒绝但完整合法usage保留，以及一个不支持参数的零handle/零Do/零server请求事实；已验D04状态/POST redirect原理可按作者实际覆盖复用，不重演整个HTTP矩阵。不据返回model别名推新配置，不声称Nonchat/Invocation/真实Provider conformance。
+2. **R2 实际尾部与共享配额。** 复用原真实EOF hold及WroteRequest/callback控制：合法JSON尚无EOF不能成功；取消后的Result错误/Close等待期限与材料/slot仍被占用分列，只有实际release、reader/parser/Client.Drain及server连接终局后才可释放。选最有风险的混合text/structured/Embedding共享Project配额竞争与释放代表；全局64作者真实边界和未变旧6组证据可复用，不另复制完整64矩阵。合法usage在尾部失败后保留须按具体可达控制段证明，不能假设所有hold都已到usage解析；每次错误零向量且无迟到发布。
+
+两真实top的最终精确名称、入口overlay和命令在实际harness冻结后再定，不先猜接口。仅新私有测试/窄入口复用既有fixture；每top≤2m、Go包 `-race -count=1 -timeout=6m`，离线每命令45s；是否拆轮由主线程按完整拓扑及窗口裁定。每轮先固定nonce/exact IDs、完整baseline/Mount与fresh空间，subreaper记录direct/adopted actualwait、PID/starttime、原argv/env/raw/exit、输入前后，精确资源和owned进程两扫清零；可见取消/ctx返回不当终局。所有实际资源仍须root另授唯一窗口。
+
+发现产品或协议缺口先冻原输入/失败与实际尾部，报主线程，不私改、减断言、扩预算或自动重跑；明确工具前提和未到断言。未消费未冻源码，无probe、产品命令、构建、网络、监听、业务资源、主树/Git写或委派。Object runtime join、OpenAI tools独立验证、SPA publication三项停止以及Summary仍不在计划内。计划冻结后等待Runtime D和后续明确调度，不自行转场。

@@ -1,0 +1,41 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 890892,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 890892,
+      "ppid": 890889,
+      "pgid": 890892,
+      "state": "S",
+      "starttime": "3857417"
+    },
+    {
+      "pid": 890922,
+      "ppid": 890892,
+      "pgid": 890892,
+      "state": "S",
+      "starttime": "3857434"
+    },
+    {
+      "pid": 890928,
+      "ppid": 890892,
+      "pgid": 890892,
+      "state": "S",
+      "starttime": "3857479"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-embeddings-offline-ciaj77v3",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

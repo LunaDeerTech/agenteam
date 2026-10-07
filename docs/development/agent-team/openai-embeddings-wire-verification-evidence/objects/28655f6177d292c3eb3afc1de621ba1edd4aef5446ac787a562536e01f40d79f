@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-p=1",
+    "-vet=off",
+    "-count=1",
+    "-timeout=45s",
+    "-run",
+    "^(TestWireBudgetGlobalProjectAndSealedAdmission|TestWireBudgetCancellationDoesNotRetireLocalWork|TestWireBudgetConcurrentAdmissionHasOneOwner|TestOpenAIChatNativeUsageExactAndUnknown|TestOpenAIChatNativeEnvelopeAndSafeErrors|TestStructuredWireRequestAndProfile|TestStructuredPinnedSources|TestOpenAIChatPinnedProfileManifest|TestOpenAIChatEncodedBodyBound|TestOpenAIChatRequestEncodingAndClosedInputs|TestOpenAIChatInvalidConstructorAndSafeViews|TestOpenAIChatSSETextUsageAndRequiredTermination|TestOpenAIChatSSEUnknownUsageAndBoundedEvents|TestOpenAIChatSSECumulativeTextBound|TestStructuredSchemaSubsetAndFailures|TestStructuredSchemaResourceBounds|TestStructuredExactNumericValues|TestStructuredValidationAllocationBounds|TestStructuredStringAndJSONLexing|TestStructuredStreamCompletion|TestStructuredValidationCancellation|TestStructuredStreamAccumulatedContentBound|TestStructuredSuccessfulConsumptionRechecksCancellation|TestWireConsumerModesCopiesAndActualPrefix|TestWireBackpressureCancellationAndConcurrentReader|TestWireCancelledStartDoesNotAdmitOrCreateClient)$",
+    "-v",
+    "./internal/central/model/adapter"
+  ],
+  "cwd": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-embeddings-offline-ciaj77v3",
+    "GOTMPDIR": "/tmp/agt-embeddings-offline-ciaj77v3",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMAXPROCS": "4",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "494932745ad619fd4ed764eeca7336a2bf66928a27cc57bcdb05a67402744a09",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 890892,
+  "actual_exit": 0,
+  "seconds": 1.685680754002533,
+  "timeout": false
+}

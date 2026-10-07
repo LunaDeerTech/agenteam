@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-bin/model.test",
+    "-test.list=^(TestModelOpenAIEmbeddingsWireHTTP|TestModelOpenAIEmbeddingsWireTerminal|TestModelOpenAIEmbeddingsWireBudget|TestModelOpenAIChatWireHTTP|TestModelOpenAIChatWireStream|TestModelOpenAIChatWireJoinAndBudget|TestModelOpenAIChatStructuredHTTP|TestModelOpenAIChatStructuredStream|TestModelOpenAIChatStructuredCloseAndBudget)$",
+    "-test.run=^$",
+    "-test.count=1",
+    "-test.timeout=45s"
+  ],
+  "cwd": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-embeddings-offline-gm__71qk",
+    "GOTMPDIR": "/tmp/agt-embeddings-offline-gm__71qk",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMAXPROCS": "4",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "595f33e0caf2a59d62213aa62894ba69a9ffe68662ab8f0468aeeb4ca0ef7268",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 913963,
+  "actual_exit": 0,
+  "seconds": 1.021428313004435,
+  "timeout": false
+}

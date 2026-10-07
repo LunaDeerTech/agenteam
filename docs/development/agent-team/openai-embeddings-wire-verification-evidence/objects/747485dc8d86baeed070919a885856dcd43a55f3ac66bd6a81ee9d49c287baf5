@@ -1,0 +1,293 @@
+package adapter
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log/slog"
+	"math"
+	"os"
+	"runtime"
+	"strings"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+)
+
+func embeddingUnitInput(t *testing.T) (EmbeddingRequest, CallOptions) {
+	t.Helper()
+	chat, o := unitInput(t)
+	chat.Snapshot.Identity.Protocol = mc.OpenAIEmbeddings
+	chat.Snapshot.Identity.Profile = mc.OpenAIEmbeddingsV1
+	chat.Snapshot.Identity.ModelType = mc.EmbeddingModel
+	chat.Snapshot.Identity.AdapterRevision = OpenAIEmbeddingsFloatRevision
+	chat.Snapshot.Capabilities.Streaming = false
+	chat.Snapshot.Capabilities.OutputModalities = []string{"vector"}
+	return EmbeddingRequest{Snapshot: chat.Snapshot, Texts: []string{"  text & 世界\n"}, ExpectedDimensions: 2}, o
+}
+
+func TestOpenAIEmbeddingsProfileAndSafeViews(t *testing.T) {
+	raw, err := os.ReadFile("testdata/openai-embeddings-float-v1.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var profile struct {
+		Revision, Protocol, Profile, Commit string
+		Sources                             []struct{ Path, URL, SHA256 string }
+		Adopted, Unsupported                []string
+		Conformance                         bool
+	}
+	if json.Unmarshal(raw, &profile) != nil || profile.Revision != OpenAIEmbeddingsFloatRevision ||
+		profile.Protocol != string(mc.OpenAIEmbeddings) || profile.Profile != string(mc.OpenAIEmbeddingsV1) ||
+		profile.Commit != "becc1d20eed83c1b8d85e15dc131a372d9dc7813" || profile.Conformance ||
+		strings.Join(profile.Adopted, ",") != "model,input,encoding_format=float" ||
+		strings.Join(profile.Unsupported, ",") != "dimensions,token_arrays,base64,user,stream,request_overwrite,header_overwrite" {
+		t.Fatal("profile identity or supported boundary changed")
+	}
+	expected := map[string]string{
+		"src/openai/resources/embeddings.py":            "3c8f49bd504319f298b4cc5cc67d537e434814a3b06f352b41ad4a04fddaa262",
+		"src/openai/types/embedding_create_params.py":   "0b4f8235983b9c6ed04f9ab5563b22c9f144e46e597ff8dfc084a2f021a67c3f",
+		"src/openai/types/create_embedding_response.py": "7a5a25314a25b5fc13361de3f77eecfdcd5c77e52c402955588957bffcebe13c",
+		"src/openai/types/embedding.py":                 "11348ef537cd3994c0395b7ef55640b55504d1b2fe9d5c4deec31a9e160b6942",
+		"src/openai/types/embedding_model.py":           "d90fcf1d47d2d99afb42338a0cb98efddfb9a55caccb10c5012086162810576e",
+		"LICENSE":                                       "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
+	}
+	if len(profile.Sources) != len(expected) {
+		t.Fatal("source set")
+	}
+	for _, source := range profile.Sources {
+		if expected[source.Path] != source.SHA256 || source.URL != "https://raw.githubusercontent.com/openai/openai-python/"+profile.Commit+"/"+source.Path {
+			t.Fatal("source provenance changed")
+		}
+		delete(expected, source.Path)
+	}
+	if len(expected) != 0 {
+		t.Fatal("duplicate/missing source")
+	}
+	r, o := embeddingUnitInput(t)
+	r.Texts = []string{"embedding-wire-private-canary"}
+	r.Snapshot.Endpoint = "https://embedding-wire-private-canary.example/"
+	result := EmbeddingResult{ProviderRequestID: "embedding-wire-private-canary", Items: []mc.Embedding{{Values: []float64{9876.54321}}}}
+	for _, value := range []any{r, &r, result, &result, o} {
+		for _, format := range []string{"%v", "%+v", "%#v", "%s", "%q", "%x"} {
+			rendered := fmt.Sprintf(format, value)
+			if strings.Contains(rendered, "canary") || strings.Contains(rendered, "9876") {
+				t.Fatal("format leaked private content")
+			}
+		}
+		encoded, err := json.Marshal(value)
+		if err != nil || bytes.Contains(encoded, []byte("canary")) || bytes.Contains(encoded, []byte("9876")) {
+			t.Fatal("JSON leaked private content")
+		}
+		var log strings.Builder
+		slog.New(slog.NewJSONHandler(&log, nil)).Info("safe", "value", value)
+		if strings.Contains(log.String(), "canary") || strings.Contains(log.String(), "9876") {
+			t.Fatal("slog leaked private content")
+		}
+	}
+}
+
+func TestOpenAIEmbeddingsPrepareAndIsolation(t *testing.T) {
+	for _, path := range []string{"", "/base%2Fsegment/", "/base//inner/", "/base/./inner/", "/base/%2e/"} {
+		t.Run(path, func(t *testing.T) {
+			r, o := embeddingUnitInput(t)
+			r.Snapshot.Endpoint = "https://provider.example" + path
+			r.Texts = []string{" \b\f\n\r\t\\\"<&>\u000b\u2028\u2029世界😀 "}
+			want, err := json.Marshal(struct {
+				Model    string   `json:"model"`
+				Input    []string `json:"input"`
+				Encoding string   `json:"encoding_format"`
+			}{r.Snapshot.Identity.ProviderModelID, append([]string(nil), r.Texts...), "float"})
+			if err != nil {
+				t.Fatal(err)
+			}
+			p, err := prepareEmbeddings(context.Background(), r, o)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer p.request.Body.Close()
+			r.Texts[0] = "changed"
+			r.Snapshot.Identity.ProviderModelID = "changed"
+			r.Snapshot.Parameters[0] = '['
+			r.Snapshot.Capabilities.OutputModalities[0] = "changed"
+			got, err := io.ReadAll(p.request.Body)
+			if err != nil || !bytes.Equal(got, want) {
+				t.Fatal("native body differs from original exact JSON shape")
+			}
+			if p.request.Method != "POST" || p.request.URL.RequestURI() != strings.TrimSuffix(path, "/")+"/embeddings" ||
+				p.request.Header.Get("Content-Type") != "application/json" || p.request.Header.Get("Accept") != "application/json" ||
+				p.request.Header.Get("Authorization") != "" || !p.request.Close ||
+				p.count != 1 || p.dimensions != 2 || p.responseBytes != embeddingResponseBytes {
+				t.Fatal("prepared request boundary")
+			}
+		})
+	}
+	r, o := embeddingUnitInput(t)
+	p, err := prepareEmbeddings(context.Background(), r, o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	length := p.request.ContentLength
+	p.request.Body.Close()
+	o.Limits.RequestBodyBytes = length
+	o.Limits.ResponseBodyBytes = 17
+	p, err = prepareEmbeddings(context.Background(), r, o)
+	if err != nil || p.responseBytes != 17 {
+		t.Fatal("exact tighter body limit")
+	}
+	p.request.Body.Close()
+	o.Limits.RequestBodyBytes--
+	p, err = prepareEmbeddings(context.Background(), r, o)
+	if p.request != nil {
+		t.Fatal("over-limit request allocated")
+	}
+	requireModel(t, err, "provider_error", "wire_limit_exceeded")
+}
+
+func TestOpenAIEmbeddingsInputLimits(t *testing.T) {
+	for _, tc := range []struct {
+		name        string
+		mutate      func(*EmbeddingRequest, *CallOptions)
+		unsupported bool
+	}{
+		{"zero_items", func(r *EmbeddingRequest, _ *CallOptions) { r.Texts = nil }, false},
+		{"129_items", func(r *EmbeddingRequest, _ *CallOptions) { r.Texts = make([]string, 129) }, false},
+		{"zero_dimensions", func(r *EmbeddingRequest, _ *CallOptions) { r.ExpectedDimensions = 0 }, false},
+		{"negative_dimensions", func(r *EmbeddingRequest, _ *CallOptions) { r.ExpectedDimensions = -1 }, false},
+		{"dimensions_overflow", func(r *EmbeddingRequest, _ *CallOptions) { r.ExpectedDimensions = math.MaxInt }, false},
+		{"4097_dimensions", func(r *EmbeddingRequest, _ *CallOptions) { r.ExpectedDimensions = 4097 }, false},
+		{"product", func(r *EmbeddingRequest, _ *CallOptions) { r.Texts = make([]string, 65); r.ExpectedDimensions = 4096 }, false},
+		{"empty", func(r *EmbeddingRequest, _ *CallOptions) { r.Texts = []string{""} }, false},
+		{"utf8", func(r *EmbeddingRequest, _ *CallOptions) { r.Texts = []string{string([]byte{0xff})} }, false},
+		{"nul", func(r *EmbeddingRequest, _ *CallOptions) { r.Texts = []string{"a\x00b"} }, false},
+		{"text_limit", func(r *EmbeddingRequest, _ *CallOptions) {
+			r.Texts = []string{strings.Repeat("x", embeddingTextBytes+1)}
+		}, false},
+		{"aggregate_limit", func(r *EmbeddingRequest, _ *CallOptions) {
+			r.Texts = []string{strings.Repeat("x", embeddingTextBytes), strings.Repeat("x", embeddingTextBytes), strings.Repeat("x", embeddingTextBytes), strings.Repeat("x", embeddingTextBytes), "x"}
+		}, false},
+		{"missing_snapshot", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot = mc.ConfigSnapshot{} }, false},
+		{"revision", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Identity.AdapterRevision = "another" }, true},
+		{"different_protocol", func(r *EmbeddingRequest, _ *CallOptions) {
+			r.Snapshot.Identity.Protocol = mc.OpenAIChat
+			r.Snapshot.Identity.Profile = mc.OpenAIChatV1
+			r.Snapshot.Identity.ModelType = mc.ChatModel
+		}, true},
+		{"streaming", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Capabilities.Streaming = true }, true},
+		{"tools", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Capabilities.ToolCalls = true }, true},
+		{"parallel", func(r *EmbeddingRequest, _ *CallOptions) {
+			r.Snapshot.Capabilities.ToolCalls = true
+			r.Snapshot.Capabilities.ParallelToolCalls = true
+		}, true},
+		{"reasoning", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Capabilities.Reasoning = true }, true},
+		{"modalities", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Capabilities.OutputModalities = []string{"text"} }, true},
+		{"max_output", func(r *EmbeddingRequest, _ *CallOptions) {
+			v := mc.TokenCount(1)
+			r.Snapshot.Capabilities.MaxOutput = &v
+		}, true},
+		{"dimensions_parameter", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Parameters = []byte(`{"dimensions":2}`) }, true},
+		{"overwrite", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.RequestOverwrite = []byte(`{"user":"x"}`) }, true},
+		{"header", func(r *EmbeddingRequest, _ *CallOptions) {
+			r.Snapshot.HeaderOverwrite = map[string]string{"X-Test": "x"}
+		}, true},
+		{"duplicate", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Parameters = []byte(`{"x":1,"x":2}`) }, false},
+		{"bad_surrogate", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Parameters = []byte(`{"x":"\ud800"}`) }, false},
+		{"overall_zero", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.Overall = 0 }, false},
+		{"overall_long", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.Overall = 121 * time.Second }, false},
+		{"idle_long", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.ReadIdle = 2 * time.Second }, false},
+		{"bad_request_limit", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.RequestBodyBytes = -1 }, false},
+		{"bad_response_limit", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.ResponseBodyBytes = embeddingResponseBytes + 1 }, false},
+		{"query", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Endpoint += "?x=1" }, false},
+		{"credential", func(_ *EmbeddingRequest, o *CallOptions) { o.Credential = sc.SecretMaterial{} }, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r, o := embeddingUnitInput(t)
+			tc.mutate(&r, &o)
+			p, err := prepareEmbeddings(context.Background(), r, o)
+			if p.request != nil {
+				p.request.Body.Close()
+				t.Fatal("invalid input published prepared request")
+			}
+			if tc.unsupported {
+				requireModel(t, err, "unsupported_feature", "wire_unsupported_feature")
+			} else {
+				requireFault(t, err, f.InvalidArgument)
+			}
+		})
+	}
+	t.Run("max_product_and_total_text", func(t *testing.T) {
+		r, o := embeddingUnitInput(t)
+		r.ExpectedDimensions = 2048
+		r.Texts = make([]string, 128)
+		for i := range r.Texts {
+			r.Texts[i] = strings.Repeat("x", 32768)
+		}
+		p, err := prepareEmbeddings(context.Background(), r, o)
+		if err != nil {
+			t.Fatal(err)
+		}
+		p.request.Body.Close()
+		if p.count*p.dimensions != 262144 {
+			t.Fatal("exact product")
+		}
+	})
+	t.Run("escaped_budget_before_body_allocation", func(t *testing.T) {
+		r, o := embeddingUnitInput(t)
+		r.Texts = []string{strings.Repeat("<", embeddingTextBytes), strings.Repeat("<", embeddingTextBytes)}
+		var before, after runtime.MemStats
+		runtime.ReadMemStats(&before)
+		p, err := prepareEmbeddings(context.Background(), r, o)
+		runtime.ReadMemStats(&after)
+		if p.request != nil {
+			p.request.Body.Close()
+			t.Fatal("escaped request accepted")
+		}
+		requireModel(t, err, "provider_error", "wire_limit_exceeded")
+		if after.TotalAlloc-before.TotalAlloc > 1<<20 {
+			t.Fatal("allocated rejected encoded body")
+		}
+		t.Logf("rejected encoding allocated=%d bytes (<1 MiB)", after.TotalAlloc-before.TotalAlloc)
+	})
+}
+
+// The wrapper triggers a real context cancellation at an observed check, with
+// no timers or background worker. Its Err still reports the real parent Err.
+type embeddingCheckContext struct {
+	context.Context
+	cancel    context.CancelFunc
+	calls, at int
+}
+
+func (c *embeddingCheckContext) Err() error {
+	c.calls++
+	if c.calls == c.at {
+		c.cancel()
+	}
+	return c.Context.Err()
+}
+func TestOpenAIEmbeddingsPreflightCancellation(t *testing.T) {
+	r, o := embeddingUnitInput(t)
+	r.Texts = []string{strings.Repeat("x", embeddingTextBytes)}
+	parent, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ctx := &embeddingCheckContext{Context: parent, cancel: cancel, at: 5}
+	p, err := prepareEmbeddings(ctx, r, o)
+	if p.request != nil {
+		p.request.Body.Close()
+		t.Fatal("cancelled preflight published request")
+	}
+	requireModel(t, err, "cancelled", "wire_cancelled")
+	if parent.Err() != context.Canceled || ctx.calls != 5 {
+		t.Fatal("cancellation checkpoint not reached")
+	}
+	p, err = prepareEmbeddings(nil, r, o)
+	if p.request != nil {
+		t.Fatal("nil context")
+	}
+	requireFault(t, err, f.InvalidArgument)
+}

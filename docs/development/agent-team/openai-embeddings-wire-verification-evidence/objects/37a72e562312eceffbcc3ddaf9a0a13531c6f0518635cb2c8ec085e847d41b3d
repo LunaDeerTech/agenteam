@@ -1,0 +1,167 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 913180,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 913180,
+      "ppid": 913177,
+      "pgid": 913180,
+      "state": "S",
+      "starttime": "4058880"
+    },
+    {
+      "pid": 913203,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "R",
+      "starttime": "4058890"
+    },
+    {
+      "pid": 913208,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "S",
+      "starttime": "4058909"
+    },
+    {
+      "pid": 913213,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "S",
+      "starttime": "4058963"
+    },
+    {
+      "pid": 913219,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "Z",
+      "starttime": "4058988"
+    },
+    {
+      "pid": 913245,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "Z",
+      "starttime": "4059063"
+    },
+    {
+      "pid": 913292,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "Z",
+      "starttime": "4059552"
+    },
+    {
+      "pid": 913298,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "S",
+      "starttime": "4059589"
+    },
+    {
+      "pid": 913303,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "S",
+      "starttime": "4059610"
+    },
+    {
+      "pid": 913371,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "R",
+      "starttime": "4060186"
+    },
+    {
+      "pid": 913376,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "Z",
+      "starttime": "4060251"
+    },
+    {
+      "pid": 913402,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "Z",
+      "starttime": "4060424"
+    },
+    {
+      "pid": 913426,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "S",
+      "starttime": "4060542"
+    },
+    {
+      "pid": 913432,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "R",
+      "starttime": "4060659"
+    },
+    {
+      "pid": 913457,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "S",
+      "starttime": "4060816"
+    },
+    {
+      "pid": 913463,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "S",
+      "starttime": "4060856"
+    },
+    {
+      "pid": 913490,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "S",
+      "starttime": "4060933"
+    },
+    {
+      "pid": 913497,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "S",
+      "starttime": "4060947"
+    },
+    {
+      "pid": 913502,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "Z",
+      "starttime": "4060952"
+    },
+    {
+      "pid": 913528,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "R",
+      "starttime": "4061238"
+    },
+    {
+      "pid": 913538,
+      "ppid": 913180,
+      "pgid": 913180,
+      "state": "R",
+      "starttime": "4061242"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-embeddings-offline-737hh6yt",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

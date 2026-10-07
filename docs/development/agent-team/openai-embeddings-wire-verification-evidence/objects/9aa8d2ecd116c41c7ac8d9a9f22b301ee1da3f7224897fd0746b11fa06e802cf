@@ -1,0 +1,9 @@
+from pathlib import Path
+import subprocess
+import sys
+root = Path(__file__).resolve().parent
+argv = ['/workspace/toolchains/go1.27.1/bin/gofmt', '-d', str(root / 'source02/embeddings_independent_real_test.go')]
+result = subprocess.run(argv, capture_output=True, text=True, timeout=40)
+sys.stdout.write(result.stdout)
+sys.stderr.write(result.stderr)
+raise SystemExit(result.returncode or (1 if result.stdout else 0))

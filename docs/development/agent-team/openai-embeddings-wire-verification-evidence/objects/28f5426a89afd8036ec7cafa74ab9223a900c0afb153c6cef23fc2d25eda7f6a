@@ -1,0 +1,104 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 932749,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 932749,
+      "ppid": 932726,
+      "pgid": 932749,
+      "state": "S",
+      "starttime": "4221813"
+    },
+    {
+      "pid": 932774,
+      "ppid": 932749,
+      "pgid": 932749,
+      "state": "R",
+      "starttime": "4221826"
+    },
+    {
+      "pid": 932779,
+      "ppid": 932749,
+      "pgid": 932749,
+      "state": "S",
+      "starttime": "4221854"
+    },
+    {
+      "pid": 932785,
+      "ppid": 932749,
+      "pgid": 932749,
+      "state": "S",
+      "starttime": "4221878"
+    },
+    {
+      "pid": 932790,
+      "ppid": 932749,
+      "pgid": 932749,
+      "state": "S",
+      "starttime": "4221887"
+    },
+    {
+      "pid": 932795,
+      "ppid": 932749,
+      "pgid": 932749,
+      "state": "S",
+      "starttime": "4221902"
+    },
+    {
+      "pid": 932800,
+      "ppid": 932749,
+      "pgid": 932749,
+      "state": "S",
+      "starttime": "4221910"
+    },
+    {
+      "pid": 932805,
+      "ppid": 932749,
+      "pgid": 932749,
+      "state": "R",
+      "starttime": "4221926"
+    },
+    {
+      "pid": 932810,
+      "ppid": 932749,
+      "pgid": 932749,
+      "state": "R",
+      "starttime": "4221929"
+    },
+    {
+      "pid": 932815,
+      "ppid": 932749,
+      "pgid": 932749,
+      "state": "Z",
+      "starttime": "4221933"
+    },
+    {
+      "pid": 932820,
+      "ppid": 932749,
+      "pgid": 932749,
+      "state": "S",
+      "starttime": "4221984"
+    },
+    {
+      "pid": 932830,
+      "ppid": 932749,
+      "pgid": 932749,
+      "state": "Z",
+      "starttime": "4221990"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-embeddings-offline-lh6vfei1",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

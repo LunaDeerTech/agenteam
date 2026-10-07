@@ -1,0 +1,113 @@
+{
+  "checks": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02/checks.json",
+    "sha256": "b20a8d385dd3b05b91d34456d758a325c625a83b853739ae20e0e24b614a9edd"
+  },
+  "counts": {
+    "accepted_sources": 15,
+    "driver_and_frozen_manifest_before_after": true,
+    "fixed_git_dependencies": 914,
+    "go_packages_union": 459,
+    "host_cgo1_nonrace_untagged_builds": {
+      "CGO_ENABLED": "1",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-deps",
+        "-json",
+        "./cmd/agenteam",
+        "./cmd/agenteam-runner",
+        "./tests/testsupport/objectstore/cmd/fixture",
+        "./tests/testsupport/outbound/cmd/fixture",
+        "./tests/testsupport/postgres/cmd/fixture"
+      ],
+      "integration_tag": false,
+      "race": false
+    },
+    "race_test_roots": [
+      "./internal/central/postgres/...",
+      "./tests/database/...",
+      "./internal/central/app/...",
+      "./tests/process/...",
+      "./tests/security/...",
+      "./tests/outbox/...",
+      "./internal/central/outbox/...",
+      "./tests/account/...",
+      "./tests/accountmail/...",
+      "./internal/central/accountmail/...",
+      "./internal/central/recoverylog/...",
+      "./tests/project/...",
+      "./internal/central/model/...",
+      "./tests/model/...",
+      "./tests/objects/...",
+      "./internal/central/object/..."
+    ],
+    "runtime_files": 3513,
+    "server_actual_variant": {
+      "CGO_ENABLED": "0",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-deps",
+        "-json",
+        "./tests/testsupport/outbound/cmd/server"
+      ]
+    },
+    "source_before_after": true
+  },
+  "delivery15": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-stage01/delivery15.json",
+    "sha256": "024939a4e968407935bbb0c9fe6950cf920b2a1761d5762f1e549a49777dc64d"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture02.py",
+    "sha256": "0dcb5905240e2fa5a92c1f2e866ab7c4187a25dfbfd2c3b79fca35cb2d2a9bc4"
+  },
+  "driver_diff": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02/driver.diff",
+    "sha256": "b62fbac2be820ba64318b4af5a131410a47ea95abaf492bc3b522bb148c96510"
+  },
+  "erratum": "driver-stage01 missed two unconditional process TestMain cmd builds. Prior check-only PASS verified only the declared graph, not runtime closure completeness. This was a preparation/static finding, not an executed product failure. All original records remain unchanged.",
+  "execution_plan": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02/execution-plan.json",
+    "sha256": "1ddf631c64a6fddaf829f57f26dd059c4f6a9e3b5d8fa11038e962c4e2cd8ac4"
+  },
+  "fixed_baseline_delta": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runtime-baseline01-to02.json",
+    "sha256": "00644f20670a4b9fa8def4f5b99e4d4fa3f4ddc1ed1ec5dda7c2954c9f02c555"
+  },
+  "frozen_input": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02/input.json",
+    "sha256": "278bcc65e3a0bce6234a2c3043789ee58343a6f94c7a38b01f2653d3167aa630"
+  },
+  "limits": [
+    "Offline checks compiled only two newly bound cmd targets; helper graphs were discovered, and prior helper compile evidence was reused. The separately authorized later new-http01 actual chain passed; that is not retroactively part of the offline checks.",
+    "No extra Go matrix, server standalone execution or TestMain execution occurred in the offline preparation.",
+    "New Terminal/Budget and old six Chat/structured real tests remain pending explicit root grants.",
+    "No Nonchat/InvocationID, external Provider conformance, README acceptance or stopped-task conclusion."
+  ],
+  "old_driver_snapshot": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-original01/run-embeddings-fixture.py",
+    "sha256": "ea27894f831f887bb572d8357373d0a3eee42b3e47622741be9644fc36666446"
+  },
+  "old_input_preserved": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/input.json",
+    "sha256": "4c9f95ce61a19317d654df3307840a191aa06623d4a4e6030e4f2629dbf6927e"
+  },
+  "old_report_preserved": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/report.md",
+    "sha256": "41437f574392988c72c0a8366052ab9d8ee058136230794e33ea8fcccd386e85"
+  },
+  "readonly_15_unchanged": true,
+  "readonly_existing_907_unchanged": true,
+  "report_preparation_failure": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02-report-preparation01/record.json",
+    "sha256": "c27f3779b47dfcb0a014c90cd1f274bdeef15543645e84fcd02dce721199a1b9"
+  },
+  "separate_later_real_http": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02/new-http01-summary.json",
+    "sha256": "e5bd681f07accbbfd298fe6b1a3656229c7c7a0386c0d896f6fa1dfd7bb3ce70"
+  },
+  "status": "STARTUP02_OFFLINE_COMPLETE_AND_SEPARATE_NEW_HTTP01_PASS",
+  "stopped": true
+}

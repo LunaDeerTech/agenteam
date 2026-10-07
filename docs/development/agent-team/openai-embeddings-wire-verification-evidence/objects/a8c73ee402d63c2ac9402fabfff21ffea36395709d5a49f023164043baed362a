@@ -1,0 +1,13 @@
+=== RUN   TestOpenAIEmbeddingsJSONCapacityAndCancellation
+    embedding_json_test.go:388: owned raw=16777217 result backing=2097152 clone backing=2097152 item tables=8192 auxiliary bound=31360
+    embedding_json_test.go:389: auxiliary boundaries reached: 1538->256 escaped key; seven 8-key frames; depth/ninth-key/257-byte key reject; 64-byte number accepts and 65-byte number rejects before conversion
+    embedding_json_test.go:393: max raw capacity=16777217, vector capacity=2097152, clone=2097152, diagnostic cumulative TotalAlloc=21048104
+=== RUN   TestOpenAIEmbeddingsJSONCapacityAndCancellation/vectors
+=== RUN   TestOpenAIEmbeddingsJSONCapacityAndCancellation/whitespace
+=== RUN   TestOpenAIEmbeddingsJSONCapacityAndCancellation/long_string
+--- PASS: TestOpenAIEmbeddingsJSONCapacityAndCancellation (0.15s)
+    --- PASS: TestOpenAIEmbeddingsJSONCapacityAndCancellation/vectors (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONCapacityAndCancellation/whitespace (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONCapacityAndCancellation/long_string (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	0.159s

@@ -1,0 +1,14 @@
+# Embeddings 最后两代表：固定接缝准备
+
+仅承接 [原独立计划](../agenteam-embeddings-independent-plan-9q322s2c/plan01.md) 的 R1/R2；B 已按 [阶段报告](verification-report.md) 接受。本文没有读取作者活动 D、编写依赖其实现的 probe、运行构建或资源。正式卡与产品仍为 `15d7e08` / `c1427fa`，不隐式重基或扩矩阵。
+
+两代表使用原冻结 `tests/model/openai_chat_wire_fixture_test.go` 的 `newWireFixture`、`allow`、`input`、`state`、`settled` 接缝：沿正式 Account Authority、typed Audit、PolicyService 和现有受控 TLS descriptor。原 fixture 的自有 User/Session SQL seed 只是协议授权前提，不冒正式登录流程或生产模型解析。`allow` 保持正式 UpdatePolicy；材料在所有 Budget 实际 join 后才 Destroy。原 `WireScenario` / `ScenarioConfig` / `State` 客户端不改。新 embeddings mode/suffix 必须等 D 五源冻结逐项审过，不能据卡声明当作现在已实现。
+
+1. **R1：协议、完整 EOF 与可靠 usage。** 拟 `TestIndependentEmbeddingsWireProtocolAndUsage`。由旧 `input` 的已验 C0/合成材料转为固定 embedding shape，真实公开 NewOpenAIEmbeddings/Start 使用同 transport/Budget。小批量乱序向量对独立 golden，明确 caller ExpectedDimensions；用原 State 的实际 request 观测核逃逸 base、Bearer 安全等值、恰三个 body 字段、单项仍数组、显式 float，不输出原材料或正文。补完整 JSON 的向量语义失败但合法 usage 保留，以及不支持参数零 handle/零 server 请求；取消、缺 EOF 或坏 JSON 不借用该可靠 usage 结论。作者已完成的状态/redirect/Policy/较紧 cap 与原六组兼容按实际版本复用，不复制全矩阵。
+2. **R2：实际尾部与同 Budget。** 拟 `TestIndependentEmbeddingsWireActualTailAndBudget`。先沿现有 `WireScenario.HoldAfter` 及正式 Release 表达合法字节后未 EOF，不能提前成功；再复用旧 `TestModelOpenAIChatWireJoinAndBudget/real_writer_late_return_keeps_exact_slot` 的公开 `httptrace.WroteRequest` entered/released/returned 屏障。实际 server 收到请求后取消，Result/Close 可见错误不等于 Joined；held callback/Client.Drain 未终局时，混合 Chat/Embedding 同 Project8 的替换必须拒绝且材料仍由 caller 保持。只有 callback 实际返回、handle Join 和 server handler/connection 全部终局后才允许复用 slot。保留 Force 先全取消/同一个剩余清理 ctx，不增加独立后台 waiter。该 WroteRequest held 段不预设 usage 已解析；可靠 usage 的纯尾部证明复用 B，实际 D 能证明哪一段则据冻结控制流标明。
+
+R2 中旧 Chat 本次必须走正式 adapter 请求，而不是 B 的 local handle；structured 仍可按作者本轮真实覆盖精简选择，不为第三种协议再复制完整预算矩阵。全局64及三种协议完整组合由作者 D 原顶层实际证据与静核复用；独立两个 top 不冒作者已过或未到子例。
+
+D 冻结后先完整 STATIC 三新 harness/server 及旧六 selector，再准备至多上述两体的私有 overlay。需要作者实际编译/动态 TestMain targets、Go/std/modcache、官方 profile 及原 fixture/server/脚本完整来源；复用已有清单按差量绑定，不复制全树。资源沿原 test-security 完整拓扑，exact 数量由冻结 driver 实际闭包确定，不能在计划里猜测或裁剪。每场景≤2m、包 `-race -count=1 -timeout=6m`；纯/编译命令45s，最终真实窗口须 root 单独授予。
+
+启动前 fresh 空间、唯一 name、原容器/网络完整 Mount 基线、nonce/exact IDs、绝对 CLI 与输入逐 SHA。实际终局需 direct/adopted wait、测试/server/callback join、owned PID/starttime 和 exact resource 双扫、输入后同；失败保留原件并停止，不自动重跑或扩预算。没有新 Object 生命周期、任意代理、生产 hook、外部 Provider 或停止任务接缝。

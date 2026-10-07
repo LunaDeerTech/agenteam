@@ -1,0 +1,251 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"net/http/httptrace"
+	"reflect"
+	"sync"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+func TestIndependentEmbeddingsWireProtocolAndUsage(t *testing.T) {
+	v, adapter, ctx := embeddingWireFixture(t)
+	v.allow(t, true)
+
+	// A valid C0 extension that this profile deliberately cannot send. The
+	// independent witness is zero handle, zero recorded requests and no slot.
+	blocked := embeddingWireScenario(t, v, wireJSON(nil))
+	request, options := embeddingWireInput(t, v, blocked)
+	request.Snapshot.Parameters = json.RawMessage(`{"dimensions":3}`)
+	if exchange, err := adapter.Start(ctx, request, options); exchange != nil {
+		t.Fatal("unsupported request acquired an independent handle")
+	} else {
+		wireModelError(t, err, "unsupported_feature", "wire_unsupported_feature", false, false)
+	}
+	empty, cancel := context.WithCancel(ctx)
+	cancel()
+	if err := v.budget.Drain(empty); err != nil || len(v.state(t, blocked).Requests) != 0 {
+		t.Fatal("unsupported request occupied a slot or reached the peer")
+	}
+
+	// Literal provider bytes and a separately written golden avoid deriving
+	// the expected vectors from the response builder or parser under test.
+	body := []byte(`{"object":"list","model":"independent-alias","data":[{"object":"embedding","index":2,"embedding":[-1,8,0]},{"object":"embedding","index":0,"embedding":[0.5,-2,4]},{"object":"embedding","index":1,"embedding":[3,2,1]}],"usage":{"prompt_tokens":9007199254740995,"total_tokens":0}}`)
+	config := wireJSON(body)
+	config.Suffix = "/nested%2Fbase//./embeddings"
+	key := embeddingWireScenario(t, v, config)
+	request, options = embeddingWireInput(t, v, key)
+	request.Texts = []string{" leading ", "世界\nline", "last\tinput"}
+	request.ExpectedDimensions = 3
+	request.Snapshot.Endpoint += "/nested%2Fbase//./"
+	exchange := embeddingWireStart(t, ctx, adapter, request, options)
+	result, err := exchange.Result(ctx)
+	golden := []mc.Embedding{
+		{Index: 0, Values: []float64{0.5, -2, 4}},
+		{Index: 1, Values: []float64{3, 2, 1}},
+		{Index: 2, Values: []float64{-1, 8, 0}},
+	}
+	if err != nil || !exchange.Joined() || !reflect.DeepEqual(result.Items, golden) {
+		t.Fatal("independent native vector golden was not published after join", err)
+	}
+	if u := result.Usage; u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 9007199254740995 || u.TotalTokens == nil || *u.TotalTokens != 0 || u.OutputTokens != nil || u.CachedInputTokens != nil || u.CacheWriteTokens != nil || u.ReasoningTokens != nil {
+		t.Fatal("native usage lost exact integers or manufactured a counter")
+	}
+	state := v.state(t, key)
+	if len(state.Requests) != 1 {
+		t.Fatal("independent request was retried")
+	}
+	observed := state.Requests[0]
+	if observed.Method != "POST" || observed.Host != "fixture.test:8443" || observed.RequestURI != "/case/"+key+config.Suffix || observed.Query != "" || observed.Headers.Get("Authorization") != "Bearer "+wireCredentialCanary || observed.Headers.Get("Content-Type") != "application/json" || observed.Headers.Get("Accept") != "application/json" {
+		t.Fatal("native request changed escaped target or bound headers")
+	}
+	var fields map[string]json.RawMessage
+	var texts []string
+	if json.Unmarshal([]byte(observed.Body), &fields) != nil || len(fields) != 3 || string(fields["model"]) != `"fixture-native-model"` || string(fields["encoding_format"]) != `"float"` || json.Unmarshal(fields["input"], &texts) != nil || !reflect.DeepEqual(texts, []string{" leading ", "世界\nline", "last\tinput"}) {
+		t.Fatal("native three-field body changed caller text or sent local dimensions")
+	}
+	if decision := exchange.Observe().Decision; decision == nil || !decision.Sent || decision.Reason != "" {
+		t.Fatal("native successful request has no actual send decision")
+	}
+	wireNoLeak(t, result)
+	wireNoLeak(t, exchange.Observe())
+	embeddingWireClose(t, exchange)
+	v.settled(t, key)
+
+	// The whole JSON and HTTP EOF are valid, while one vector violates the
+	// trusted local dimension. Result is zero; reliable usage stays observable.
+	bad := []byte(`{"object":"list","model":"independent-alias","data":[{"object":"embedding","index":0,"embedding":[11,12]}],"usage":{"prompt_tokens":17,"total_tokens":null}}`)
+	badKey := embeddingWireScenario(t, v, wireJSON(bad))
+	request, options = embeddingWireInput(t, v, badKey)
+	request.ExpectedDimensions = 3
+	failed := embeddingWireStart(t, ctx, adapter, request, options)
+	result, err = failed.Result(ctx)
+	embeddingWireZero(t, result)
+	wireModelError(t, err, "provider_error", "wire_protocol_invalid", true, false)
+	if u := failed.Observe().Usage; u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 17 || u.TotalTokens != nil || u.OutputTokens != nil {
+		t.Fatal("complete EOF usage was discarded with the bad vector")
+	}
+	embeddingWireClose(t, failed)
+	result, err = failed.Result(ctx)
+	embeddingWireZero(t, result)
+	wireFault(t, err, f.InvalidState)
+	if len(v.state(t, badKey).Requests) != 1 || len(v.state(t, blocked).Requests) != 0 {
+		t.Fatal("failed or preflight work generated a successor request")
+	}
+	v.settled(t, badKey)
+}
+
+func TestIndependentEmbeddingsWireActualTailAndBudget(t *testing.T) {
+	v, adapter, ctx := embeddingWireFixture(t)
+	v.allow(t, true)
+	t.Run("withheld_eof_then_complete_batch", func(t *testing.T) {
+		config := wireJSON([]byte(`{"object":"list","model":"tail-alias","data":[{"object":"embedding","index":1,"embedding":[-1]},{"object":"embedding","index":0,"embedding":[1]}],"usage":{"total_tokens":17}}`))
+		afterBody := 1
+		config.HoldAfter = &afterBody
+		key := embeddingWireScenario(t, v, config)
+		request, options := embeddingWireInput(t, v, key)
+		request.Texts, request.ExpectedDimensions = []string{"lead", "trail"}, 1
+		exchange := embeddingWireStart(t, ctx, adapter, request, options)
+		out := embeddingWireConsume(t, ctx, exchange)
+		wireWait(t, "independent held response did not become observable", func() bool {
+			state := v.state(t, key)
+			return len(state.Requests) == 1 && state.ActiveHandlers == 1 && exchange.Observe().Decision != nil
+		})
+		window := time.NewTimer(35 * time.Millisecond)
+		defer window.Stop()
+		select {
+		case <-out:
+			t.Fatal("withheld HTTP EOF published an independent batch")
+		case <-window.C:
+		}
+		if exchange.Joined() || !reflect.DeepEqual(exchange.Observe().Usage, mc.Usage{Source: mc.UnknownUsage}) {
+			t.Fatal("held EOF claimed actual terminal or parsed reliable usage")
+		}
+		if err := v.net.Release(ctx, key); err != nil {
+			t.Fatal("independent EOF release failed", err)
+		}
+		select {
+		case got := <-out:
+			golden := []mc.Embedding{{Index: 0, Values: []float64{1}}, {Index: 1, Values: []float64{-1}}}
+			if got.err != nil || !exchange.Joined() || !reflect.DeepEqual(got.result.Items, golden) || got.result.Usage.Source != mc.ProviderUsage || got.result.Usage.InputTokens != nil || got.result.Usage.TotalTokens == nil || *got.result.Usage.TotalTokens != 17 {
+				t.Fatal("released native EOF did not produce the independent complete result", got.err)
+			}
+		case <-ctx.Done():
+			t.Fatal("independent Result did not return within its original budget")
+		}
+		v.settled(t, key)
+	})
+	t.Run("cancelled_callback_retains_one_of_eight_mixed_slots", func(t *testing.T) {
+		budget := wire.NewBudget()
+		embeddings := embeddingWireAdapter(t, v, budget)
+		chat := v.newAdapter(t, budget)
+		beforeBody := 0
+		config := wireJSON([]byte(`{"object":"list","data":[{"object":"embedding","index":0,"embedding":[1,2]}]}`))
+		config.HoldAfter = &beforeBody
+		firstKey := embeddingWireScenario(t, v, config)
+		request, options := embeddingWireInput(t, v, firstKey)
+		entered, released, returned := make(chan struct{}), make(chan struct{}), make(chan struct{})
+		var once sync.Once
+		release := func() { once.Do(func() { close(released) }) }
+		attempt, cancel := context.WithCancel(ctx)
+		t.Cleanup(func() { cancel(); release() })
+		trace := &httptrace.ClientTrace{WroteRequest: func(httptrace.WroteRequestInfo) {
+			close(entered)
+			<-released
+			close(returned)
+		}}
+		first := embeddingWireStart(t, httptrace.WithClientTrace(attempt, trace), embeddings, request, options)
+		waitSignal(t, entered)
+		wireWait(t, "independent held writer did not actually send", func() bool { return len(v.state(t, firstKey).Requests) == 1 })
+
+		otherKey := embeddingWireScenario(t, v, config)
+		chatConfig := wireJSON(wireReply("held independent text", "stop", nil, nil))
+		chatConfig.HoldAfter = &beforeBody
+		chatKey := v.scenario(t, chatConfig)
+		var heldEmbeddings []*wire.EmbeddingExchange
+		var heldChats []*wire.Exchange
+		for i := 0; i < 3; i++ {
+			r, o := embeddingWireInput(t, v, otherKey)
+			o.ProjectID = options.ProjectID
+			heldEmbeddings = append(heldEmbeddings, embeddingWireStart(t, ctx, embeddings, r, o))
+		}
+		for i := 0; i < 4; i++ {
+			r, o := v.input(t, chatKey, wire.JSONResponse)
+			o.ProjectID = options.ProjectID
+			heldChats = append(heldChats, v.start(t, ctx, chat, r, o))
+		}
+		wireWait(t, "independent mixed requests did not all reach the peer", func() bool {
+			return len(v.state(t, otherKey).Requests) == 3 && len(v.state(t, chatKey).Requests) == 4
+		})
+		cancel()
+		wireWait(t, "independent cancel decision is not actual yet", func() bool {
+			d := first.Observe().Decision
+			return d != nil && d.Sent && d.Reason == ac.Cancelled
+		})
+		result, err := first.Result(ctx)
+		embeddingWireZero(t, result)
+		wireModelError(t, err, "cancelled", "wire_cancelled", true, false)
+		short, stop := context.WithTimeout(ctx, 30*time.Millisecond)
+		err = first.Close(short)
+		stop()
+		wireModelError(t, err, "timeout", "wire_transport_error", false, false)
+		if first.Joined() || !reflect.DeepEqual(first.Observe().Usage, mc.Usage{Source: mc.UnknownUsage}) || options.Credential.Use(func([]byte) error { return nil }) != nil {
+			t.Fatal("cancelled callback lost actual ownership or invented usage")
+		}
+		r, o := embeddingWireInput(t, v, otherKey)
+		o.ProjectID = options.ProjectID
+		if extra, err := embeddings.Start(ctx, r, o); extra != nil {
+			t.Fatal("cancelled callback freed a mixed slot for embeddings")
+		} else {
+			wireFault(t, err, f.ResourceBusy)
+		}
+		cr, co := v.input(t, chatKey, wire.JSONResponse)
+		co.ProjectID = options.ProjectID
+		if extra, err := chat.Start(ctx, cr, co); extra != nil {
+			t.Fatal("cancelled callback freed a mixed slot for chat")
+		} else {
+			wireFault(t, err, f.ResourceBusy)
+		}
+
+		release()
+		waitSignal(t, returned)
+		embeddingWireClose(t, first)
+		v.settled(t, firstKey)
+		replacement := embeddingWireStart(t, ctx, embeddings, r, o)
+		wireWait(t, "actual callback join did not permit exactly one replacement", func() bool {
+			return len(v.state(t, otherKey).Requests) == 4
+		})
+		if replacement.Joined() {
+			t.Fatal("held replacement prematurely joined")
+		}
+		cleanup, finish := context.WithTimeout(ctx, 5*time.Second)
+		defer finish()
+		if err := budget.Force(cleanup); err != nil || !budget.Joined() || !replacement.Joined() {
+			t.Fatal("independent mixed cleanup did not actually join", err)
+		}
+		for _, x := range heldEmbeddings {
+			if !x.Joined() {
+				t.Fatal("an independent embedding tail remains active")
+			}
+		}
+		for _, x := range heldChats {
+			if !x.Joined() {
+				t.Fatal("an independent chat tail remains active")
+			}
+		}
+		v.settled(t, otherKey)
+		v.settled(t, chatKey)
+		if len(v.state(t, firstKey).Requests) != 1 || len(v.state(t, otherKey).Requests) != 4 || len(v.state(t, chatKey).Requests) != 4 {
+			t.Fatal("rejected mixed work was later queued or retried")
+		}
+	})
+}

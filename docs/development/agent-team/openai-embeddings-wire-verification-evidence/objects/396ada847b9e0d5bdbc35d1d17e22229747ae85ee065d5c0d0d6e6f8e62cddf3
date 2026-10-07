@@ -1,0 +1,231 @@
+{
+  "conclusion": "OFFLINE READY; real bodies remain UNRUN and require separate root authorization",
+  "preparation": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/preparation01.json",
+    "sha256": "b6c7463ebd35239b5dd1018b12b5454c5ce446739649b93340a835d17c462abe"
+  },
+  "execution": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/execution01.json",
+    "sha256": "d44728a7246f6110d32677bca9c091a818ecf20773f92659bc751a0b1fd1f05b"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/driver01.py",
+    "sha256": "35fa51c32198bfbc47fecb47855a85c822b08b3fc66dc19de29234b3fba30b13"
+  },
+  "source02": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/source02/embeddings_independent_real_test.go",
+    "sha256": "000168a0b8a4f57621a914c42acc0cb66e142c61f1e9664c5c87e07f8be39ee7"
+  },
+  "preflight": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/offline-preflight01.json",
+    "sha256": "8eb624a6eca41128f1659374ef958842d36042a284f9e0f689ee353a65d54833"
+  },
+  "bound_inputs_each_round": 4452,
+  "runs": [
+    {
+      "name": "format01",
+      "actual": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 0.025568161996488925,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 1,
+        "adopted_wait_count": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cleanup_sha256": "77590cea8e42078d20c43b02a3338fc74fa643967360c36d560e92c4049b63d6"
+      },
+      "artifacts": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/format01/command.json",
+          "sha256": "dd187b23fe70c8e65541e27fa4fb2b891e9a6142fa4336ed16ea70c12e320cf1"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/format01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/format01/result.json",
+          "sha256": "d33a168c867bfdd2bd638f2f4dcd0f4561e410bfd92fc76f50b6ba8648d1a9c3"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/format01/cleanup.json",
+          "sha256": "77590cea8e42078d20c43b02a3338fc74fa643967360c36d560e92c4049b63d6"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/format01/input-before.json",
+          "sha256": "021f1efe9c7360c0d815c52f97cf61e72a7a747df1d3f282707424194059c2bb"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/format01/input-after.json",
+          "sha256": "021f1efe9c7360c0d815c52f97cf61e72a7a747df1d3f282707424194059c2bb"
+        }
+      }
+    },
+    {
+      "name": "compile-list01",
+      "actual": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 5.203168035994167,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 5,
+        "adopted_wait_count": 0,
+        "raw_sha256": "150ec2215b199fc6380477ab3cb6e4c273f350a0b6b8383c0f745689b1ac4ef1",
+        "cleanup_sha256": "0002184df0feead53287d3293e857d98cf12ffe326c0f7b60a9575394af0bce9"
+      },
+      "artifacts": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/compile-list01/command.json",
+          "sha256": "d8d1246c1a5a97e1973f106096b9c94a8b19c5b34c824dddbde0698314a85c97"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/compile-list01/raw.log",
+          "sha256": "150ec2215b199fc6380477ab3cb6e4c273f350a0b6b8383c0f745689b1ac4ef1"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/compile-list01/result.json",
+          "sha256": "3de7688300cf0f4c20502cc84f779f649d7fe798a3bed4af67dc715f0ceaddf5"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/compile-list01/cleanup.json",
+          "sha256": "0002184df0feead53287d3293e857d98cf12ffe326c0f7b60a9575394af0bce9"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/compile-list01/input-before.json",
+          "sha256": "9f58daa62ef67b6f59f62bd59ade972401eaa04411209e1c912e4c0e3c8a47b7"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/compile-list01/input-after.json",
+          "sha256": "9f58daa62ef67b6f59f62bd59ade972401eaa04411209e1c912e4c0e3c8a47b7"
+        }
+      }
+    },
+    {
+      "name": "vet01",
+      "actual": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 0.4000344399973983,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 2,
+        "adopted_wait_count": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cleanup_sha256": "d75d239fbfd8f32477f062c9adc4f561ab5b257f623e866a62921474e8d16a12"
+      },
+      "artifacts": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/vet01/command.json",
+          "sha256": "c45797aee90727f485ff2f71839e2afeb7d0a8c2cb58694c6f1c21e1ccc747eb"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/vet01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/vet01/result.json",
+          "sha256": "6f25afcb84c06954d0b2bf4a18ae974819d8ab1a98c635bab83cd96abc4a0425"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/vet01/cleanup.json",
+          "sha256": "d75d239fbfd8f32477f062c9adc4f561ab5b257f623e866a62921474e8d16a12"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/vet01/input-before.json",
+          "sha256": "fb99fe7f98d883a304138054819c068dcd899d87a2eee7b51bac8429a146fa57"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/vet01/input-after.json",
+          "sha256": "fb99fe7f98d883a304138054819c068dcd899d87a2eee7b51bac8429a146fa57"
+        }
+      }
+    },
+    {
+      "name": "gate01",
+      "actual": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 2.517539514003147,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 4,
+        "adopted_wait_count": 0,
+        "raw_sha256": "bdf3462e01b9bd1220754cd42c046e34d669cb3205631ee682a8efa4d901a881",
+        "cleanup_sha256": "b3cbc1651fe98a63972ac92cdc4bfb3a5c4f03fe3a07aa1f205fffff5e623f37"
+      },
+      "artifacts": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/gate01/command.json",
+          "sha256": "7feb5325dcdc9b6491c95d7eb3ec9ffacf7f5ff6dd175732020f906e711a0af5"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/gate01/raw.log",
+          "sha256": "bdf3462e01b9bd1220754cd42c046e34d669cb3205631ee682a8efa4d901a881"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/gate01/result.json",
+          "sha256": "81c85caf275cbe7a5636da3afe618ba48f098fa2fa42582228f20c0d4e75d039"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/gate01/cleanup.json",
+          "sha256": "b3cbc1651fe98a63972ac92cdc4bfb3a5c4f03fe3a07aa1f205fffff5e623f37"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/gate01/input-before.json",
+          "sha256": "87bc8d4db7bf546705d09a6cad8abae3815d5299b6c3c9b5defbdbf5170fb400"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/gate01/input-after.json",
+          "sha256": "87bc8d4db7bf546705d09a6cad8abae3815d5299b6c3c9b5defbdbf5170fb400"
+        }
+      }
+    }
+  ],
+  "exact_selectors": [
+    "TestIndependentEmbeddingsWireProtocolAndUsage",
+    "TestIndependentEmbeddingsWireActualTailAndBudget"
+  ],
+  "runtime_gate": {
+    "candidate_runtime_match": true,
+    "accepted_baseline": true,
+    "accepted_count": 914,
+    "missing": [],
+    "unexpected": [],
+    "mismatches": [],
+    "errors": [],
+    "product_base": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+    "resources_started": false
+  },
+  "proposed_real_argv_unexecuted": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/driver01.py",
+    "--name",
+    "independent01",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/execution01.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--execute-authorized"
+  ],
+  "limitations": [
+    "Compiler/discovery success does not execute either business body.",
+    "No service, listener, Docker, browser, or fixture was started in these four offline commands.",
+    "Source01 and source02 pre-execution history remain unchanged; original author startup01 closure blocker remains preserved."
+  ]
+}

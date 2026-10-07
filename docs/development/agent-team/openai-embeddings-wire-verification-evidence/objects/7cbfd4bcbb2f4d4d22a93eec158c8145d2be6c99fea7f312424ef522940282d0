@@ -1,0 +1,99 @@
+package adapter
+
+import (
+	"bytes"
+	"context"
+	"fmt"
+	"runtime"
+	"strings"
+	"testing"
+	"unsafe"
+)
+
+// One independent capacity representative. Caller-owned input construction is
+// outside parser ownership. TotalAlloc is diagnostic only, never a live-cap gate.
+func TestIndependentEmbeddingsOwnedCapacity(t *testing.T) {
+	const n, dimensions = 128, 2048
+	var input strings.Builder
+	input.WriteString(`{"object":"list","model":"`)
+	input.WriteString(strings.Repeat(`\u006d`, 256))
+	input.WriteString(`","data":[`)
+	vector := strings.Repeat("0,", dimensions-1) + "0"
+	for row := range n {
+		if row != 0 { input.WriteByte(',') }
+		fmt.Fprintf(&input, `{"object":"embedding","index":%d,"embedding":[%s]}`, n-1-row, vector)
+	}
+	input.WriteString(`],"usage":{"prompt_tokens":0,"total_tokens":0}}`)
+	padded := make([]byte, 16<<20)
+	if input.Len() >= len(padded) { t.Fatal("independent input precondition") }
+	copy(padded, input.String())
+	for i := input.Len(); i < len(padded); i++ { padded[i] = ' ' }
+	var before, after runtime.MemStats
+	runtime.ReadMemStats(&before)
+	raw, err := readEmbeddingBody(context.Background(), bytes.NewReader(padded), 16<<20)
+	if err != nil || len(raw) != 16<<20 || cap(raw) != (16<<20)+1 { t.Fatal("actual raw capacity") }
+	original, usage, err := parseEmbeddingJSON(context.Background(), raw, n, dimensions)
+	if err != nil || usage.InputTokens == nil || usage.TotalTokens == nil { t.Fatal("maximum legal parse") }
+	clone := cloneEmbeddingResult(original)
+	runtime.ReadMemStats(&after)
+	if len(original.Items) != n || cap(original.Items) != n || len(clone.Items) != n || cap(clone.Items) != n { t.Fatal("actual item table capacity") }
+	originalBase := uintptr(unsafe.Pointer(unsafe.SliceData(original.Items[0].Values)))
+	cloneBase := uintptr(unsafe.Pointer(unsafe.SliceData(clone.Items[0].Values)))
+	rawBase := uintptr(unsafe.Pointer(unsafe.SliceData(raw)))
+	bytesPerVector := uintptr(dimensions) * unsafe.Sizeof(float64(0))
+	rangeBytes := uintptr(n)*bytesPerVector
+	overlap := func(a, an, b, bn uintptr) bool { return a < b+bn && b < a+an }
+	if overlap(originalBase, rangeBytes, cloneBase, rangeBytes) || overlap(rawBase, uintptr(cap(raw)), originalBase, rangeBytes) || overlap(rawBase, uintptr(cap(raw)), cloneBase, rangeBytes) { t.Fatal("parser backing alias") }
+	for i := range n {
+		a, b := original.Items[i], clone.Items[i]
+		if a.Index != i || b.Index != i || len(a.Values) != dimensions || cap(a.Values) != dimensions || len(b.Values) != dimensions || cap(b.Values) != dimensions { t.Fatal("actual vector dimensions or capacity") }
+		if uintptr(unsafe.Pointer(unsafe.SliceData(a.Values))) != originalBase+uintptr(i)*bytesPerVector || uintptr(unsafe.Pointer(unsafe.SliceData(b.Values))) != cloneBase+uintptr(i)*bytesPerVector { t.Fatal("noncontiguous vector backing") }
+	}
+	clone.Items[0].Values[0] = 17
+	clone.Items[n-1].Values[dimensions-1] = 19
+	*clone.Usage.InputTokens = 11
+	if original.Items[0].Values[0] != 0 || original.Items[n-1].Values[dimensions-1] != 0 || *original.Usage.InputTokens != 0 || *usage.InputTokens != 0 { t.Fatal("result or usage alias") }
+
+	// Longest encoded short key: 256 decoded ASCII bytes / 1538 quoted bytes.
+	// Seven object frames each keep eight distinct long keys; the last child is
+	// scalar depth eight. A further object layer and a ninth key must be rejected.
+	key := func(last byte) string { return `"` + strings.Repeat(`\u006b`, 255) + fmt.Sprintf(`\u%04x`, last) + `"` }
+	wrap := func(child string, keys int) string {
+		var b strings.Builder
+		b.WriteByte('{')
+		for i := range keys {
+			if i != 0 { b.WriteByte(',') }
+			b.WriteString(key(byte('a'+i)))
+			b.WriteByte(':')
+			if i == keys-1 { b.WriteString(child) } else { b.WriteString("null") }
+		}
+		b.WriteByte('}')
+		return b.String()
+	}
+	nested := "null"
+	for range 7 { nested = wrap(nested, 8) }
+	scan := embeddingScan(context.Background(), []byte(nested))
+	scan.value(1)
+	if !scan.done() { t.Fatal("bounded maximum short-key path") }
+	for _, rejected := range []string{wrap(nested, 8), wrap("null", 9)} {
+		s := embeddingScan(context.Background(), []byte(rejected)); s.value(1)
+		if s.done() || s.err == nil { t.Fatal("key-count or depth bound") }
+	}
+	decoded, err := embeddingString(context.Background(), []byte(key('a')), 256)
+	if err != nil || len(decoded) != 256 || len(key('a')) != 1538 { t.Fatal("actual decoded key bound") }
+	tooLong := `"` + strings.Repeat(`\u006b`, 257) + `"`
+	if _, err := embeddingString(context.Background(), []byte(tooLong), 256); err == nil { t.Fatal("decode before short-key limit") }
+	literal64 := "0." + strings.Repeat("0", 62)
+	one := []float64{1}
+	if len(literal64) != 64 || embeddingVector(context.Background(), []byte("["+literal64+"]"), one) != nil || one[0] != 0 { t.Fatal("64-byte number temporary") }
+	if embeddingVector(context.Background(), []byte("["+literal64+"0]"), one) == nil { t.Fatal("65-byte number before conversion") }
+
+	// These are measured fixed-structure sizes, not a claim to observe the
+	// complete live peak or allocator arena. The remaining auxiliary proof is
+	// separately tied to the fixed scanner/json/strconv source paths.
+	t.Logf("owned_raw_cap=%d original_backing_bytes=%d clone_backing_bytes=%d item_tables_bytes=%d scanner_size=%d key_frame_size=%d offsets_size=%d diagnostic_total_alloc=%d", cap(raw), rangeBytes, rangeBytes, (cap(original.Items)+cap(clone.Items))*int(unsafe.Sizeof(original.Items[0])), unsafe.Sizeof(embeddingScanner{}), unsafe.Sizeof([8]string{}), unsafe.Sizeof([4]embeddingSpan{}), after.TotalAlloc-before.TotalAlloc)
+	t.Logf("escaped_key_encoded_bytes=%d decoded_bytes=%d simultaneous_object_frames=7 keys_per_frame=8 depth8_reject=true ninth_key_reject=true numeric64_accept=true numeric65_reject=true", len(key('a')), len(decoded))
+	runtime.KeepAlive(raw)
+	runtime.KeepAlive(original)
+	runtime.KeepAlive(clone)
+}

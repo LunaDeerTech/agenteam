@@ -1,0 +1,15 @@
+# Embedding B 窄共享设计（源码准备；未运行检查）
+
+固定 c1427fa 与已接受 A candidate03。只在原七个 B 路径实现；A 的 embedding_json.go、embedding_json_test.go 与 profile JSON 保持原 SHA。本件冻结两个共享生产源；其余五个 B 路径继续准备，不把本件当 B 接受。Runtime 独立正在使用 bi81 GOCACHE，本作者没有 Go 命令或真实资源。
+
+Budget 私有 active key 从 *Exchange 改为 budgetWork，接口仅 cancelWork/waitJoined/Joined；同一个锁内 admit 执行原取消、Stop、全局64/每Project8检查，之后才构造 exact handle 并计数。旧 accept 签名与 newExchange 参数原样，经该原子 admit；release/snapshot/Drain/Force/Joined 用同一个注册表，Force 先取消所有类型，再用原 caller ctx 调原 Drain。旧 transport.go 只追加 cancelWork→原 cancel 字段转发，没有变更 Chat Result/Next/run/perform/Close 流程。
+
+Embedding constructor 沿正式 outbound.NewClient 校验依赖、停止无工作 probe，无 SQL/socket/goroutine；Start 先完整 A 预检/编码，再共享 admit，只有成功接收后才创建本次正式 D04 Client/worker。公开 Start 始终绑定真实 NewClient；Embedding 局部私有创建函数参数使纯测试可控制公开 Do/Response.Close/Drain 边界，不新增公开可替换 transport，也不提供生产成功 stub。
+
+新 handle 的 worker 只一次 Do；响应状态、媒体、实际 EOF、A parser、Response.Close 与自有 request Body.Close 都在 ioDone 前真实返回。观察沿真实 Decision/安全 request ID/独立合法 usage，向量候选不进入 Observe。公开边界返回的 Close/Read 错误抹掉候选；非上下文 Drain 错误会保留为该 Result 的终局错误，即使后续实际清理完成也不恢复候选。
+
+ioDone 不是 Joined。waitJoined 在 caller 剩余 ctx 内串行化实际 Client.Drain，只有其成功才清除借用材料引用并释放 exact slot 一次；等待中的 caller 可按自己的 ctx 返回错误，不延长预算。Joined 使用无等待探测：未完成/另一个 join 正进行即 false，已完成则可退槽；取消的探测不是业务取消，不因探测自身 ctx 拒绝污染已完成结果。Close 取消原 attempt 后按传入 ctx 等真实 join，不销毁 caller-owned SecretMaterial。Force/Drain 同 caller ctx，不给每个 handle 新 timeout。
+
+Result 在入口原子占用一次；并发/重读 InvalidState，失败零候选。等待局部完成后，仅在实际 join 和原 attempt/caller ctx 再复核均通过才交结果；使用 A 深复制或独占转移，不泄露内部/Observe别名。跨 caller 的取消桥接 callback 必须 stop 或实际 join；不会由后台 context.Background 无限等待尾部。原 attempt 可见取消/Result 错误不释放未 join 的 handle/material/slot。
+
+离线纯代表将覆盖 pre-admission 零工、一次 Result/Observe 复制、安全显示，受控 Do/EOF/Close/Drain 延迟及错误、取消/早 parent、slot 与材料保持，混合 text/structured/Embedding 的64/8、封 admission、Force先全取消及共享 caller deadline、并发竞争。现有 adapter 全部已接受纯 top 保留执行；没有 listener 测试。真实 D04 socket/Policy/TLS 与 writer/callback 网络事实仍留后续独占资源授权。

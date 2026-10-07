@@ -1,0 +1,18 @@
+# Embeddings Stage A 独立静审与两组合准备
+
+STATIC PASS（仅五源 A）；两个新增独立纯组合已冻结，尚未授权或执行，不预称完整 A 动态接受。固定产品 c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c，正式卡 15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597、技术1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133。
+
+已审五源完整实现/作者测试、candidate02→03 窄修及原历史。delivery5 fdbb5126ba9744cea2e7b198580dad08cd30db620529b31eb55dd951de7d2426，candidate03 cd076fe6fee33685ae5259de1d7f31851202b21a11fa29a95d4a2fdab1ff23fe；五份固定副本与实际只读 workspace 同 SHA。profile 六官方 URL/SHA/bytes 与原冻结官方文件逐一匹配，无网络补证。
+
+prepare 的受信维度/数量/安全乘积、C0 与严格空参数分类、UTF8 原文/总量、实际 JSON 转义长度预检、三字段 float body、base 转义追加、借用 SecretMaterial→正式 Profile 的纯构造符合 A 范围；不存在伪成功 transport stub。parser 先完整有界语法/重复键检查，再独立 usage 与 index/向量语义，有限转换和错误零结果、可靠 usage 独立保存、结果深复制与安全显示未见阻断。EOF 由 readEmbeddingBody 要求，parseEmbeddingJSON 的完整 EOF 输入前提不能冒充该内部函数自行证明 HTTP EOF。
+
+容量结论沿已接受独立诊断 /workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/review.md（986343d0dad915b62b570950a531fa04118f8edbc5a075f385a561086f9a634b）。原 race01 累计 TotalAlloc 失败保持，不改作 PASS；candidate03 只修改容量证据测试、生产两源与另外两源未变。作者原7个 race PASS 与受影响容量 top race02 的完整 PASS 分轮复用，原未到末值/三个取消由新受影响轮证明，不倒填。TotalAlloc/RSS/GC 都不是自有同时 capacity 指标。无需再次完整最大容量运行。
+
+新增私有组合严格沿原计划，只有两个 top：
+
+- TestIndependentEmbeddingsPrepareBoundaries：独立 encoding/json 黄金字节、单项数组及原文/可变输入隔离；实际转义后精确 8MiB 与 +1B、调用者更紧限额；4MiB 原文边界/安全乘积；合法但未支持原生 dimensions 与重复键 InvalidArgument 区分，非法 UTF8。
+- TestIndependentEmbeddingsStrictEOFAndUsage：小批乱序向量/负零/精确0和 >2^53整数、深复制；末值超范围或重 index 时零结果而可靠 usage 保留，重复转义键/坏 usage/截断时 unknown；可解析前缀尚无 EOF 保持 Read 调用，取消不能替持有的 reader 调用宣布完成，显式释放后实际 goroutine join。
+
+后者仅证明纯 readEmbeddingBody/解析 ctx 与受控 reader 调用终局，**不证明尚未实现的 exchange/handle、D04 writer/callback/Drain 或材料/slot 的实际 join**。不启动 listener、SDK、Provider、HTTP、PG、Docker 或浏览器；没有 constructor/Start/Budget 的阶段性动态结论。
+
+运行提案为单次精确两 top race，readonly/offline/p1，Go 内40s、外45s，使用原已接受 subreaper runner 与既有 bi81 cache/锁定 modcache；原1802实际输入复用，加有限独立 probe/overlay/官方和已验引用，1823条逐 SHA 前后门禁，不复制树。原 argv/env、确切路径及指纹见 preparation01.json 与 execution01.json。只准备未执行，等待主线程另授。

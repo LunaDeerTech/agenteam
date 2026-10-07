@@ -1,0 +1,23 @@
+{
+  "status": "BLOCKED",
+  "blocking_findings": [
+    "unconditional process TestMain cmd build roots missing from actual runtime closure"
+  ],
+  "review": {
+    "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/startup-review01.md",
+    "bytes": 2637,
+    "sha256": "9e68c10064c47ed29e910de120650e93d92f7bcedbb541c5072ff3cca108c360"
+  },
+  "input": {
+    "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/startup-input01.json",
+    "bytes": 5420,
+    "sha256": "a904e09e2b4b6199446cf427cf162c24e90b30940562f8c5030072ceeba4d236"
+  },
+  "D_static_report": {
+    "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/review.md",
+    "bytes": 4234,
+    "sha256": "5ee23e46eceed940d820b7d177bc313db884e3eb788a885dd840858d4337c2cb"
+  },
+  "no_dynamic_execution": true,
+  "author_fix_authorized_by_root": true
+}

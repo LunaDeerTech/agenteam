@@ -1,0 +1,209 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 749479,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 749479,
+      "ppid": 749475,
+      "pgid": 749479,
+      "state": "Z",
+      "starttime": "3285383"
+    },
+    {
+      "pid": 749497,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285391"
+    },
+    {
+      "pid": 749503,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285393"
+    },
+    {
+      "pid": 749509,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285395"
+    },
+    {
+      "pid": 749527,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "S",
+      "starttime": "3285410"
+    },
+    {
+      "pid": 749525,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "Z",
+      "starttime": "3285410"
+    },
+    {
+      "pid": 749526,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285410"
+    },
+    {
+      "pid": 749542,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "S",
+      "starttime": "3285418"
+    },
+    {
+      "pid": 749543,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "S",
+      "starttime": "3285418"
+    },
+    {
+      "pid": 749553,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285418"
+    },
+    {
+      "pid": 749558,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285465"
+    },
+    {
+      "pid": 749581,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "S",
+      "starttime": "3285482"
+    },
+    {
+      "pid": 749587,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "S",
+      "starttime": "3285489"
+    },
+    {
+      "pid": 749588,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "Z",
+      "starttime": "3285489"
+    },
+    {
+      "pid": 749602,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "S",
+      "starttime": "3285525"
+    },
+    {
+      "pid": 749606,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "S",
+      "starttime": "3285526"
+    },
+    {
+      "pid": 749613,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285553"
+    },
+    {
+      "pid": 749614,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285553"
+    },
+    {
+      "pid": 749624,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285569"
+    },
+    {
+      "pid": 749625,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "Z",
+      "starttime": "3285569"
+    },
+    {
+      "pid": 749654,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "S",
+      "starttime": "3285642"
+    },
+    {
+      "pid": 749659,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285646"
+    },
+    {
+      "pid": 749660,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285646"
+    },
+    {
+      "pid": 749691,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285704"
+    },
+    {
+      "pid": 749692,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "S",
+      "starttime": "3285704"
+    },
+    {
+      "pid": 749706,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "R",
+      "starttime": "3285707"
+    },
+    {
+      "pid": 749712,
+      "ppid": 749479,
+      "pgid": 749479,
+      "state": "S",
+      "starttime": "3285744"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-embeddings-offline-o50t7rd7",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

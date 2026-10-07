@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-p=1",
+    "-race",
+    "-vet=off",
+    "-count=1",
+    "-timeout=45s",
+    "-run",
+    "^(TestOpenAIEmbeddingsProfileAndSafeViews|TestOpenAIEmbeddingsConstructorAndAdmission|TestOpenAIEmbeddingsExchangeOwnership|TestOpenAIEmbeddingsActualTerminalBarriers|TestOpenAIEmbeddingsBoundaryFailures|TestOpenAIEmbeddingsCancellationAndJoin|TestOpenAIEmbeddingsMixedBudget|TestOpenAIEmbeddingsConcurrentBudget|TestOpenAIEmbeddingsForceSharesCallerBudget|TestWireBudgetGlobalProjectAndSealedAdmission|TestWireBudgetCancellationDoesNotRetireLocalWork|TestWireBudgetConcurrentAdmissionHasOneOwner|TestWireConsumerModesCopiesAndActualPrefix|TestWireBackpressureCancellationAndConcurrentReader|TestWireCancelledStartDoesNotAdmitOrCreateClient)$",
+    "-v",
+    "./internal/central/model/adapter"
+  ],
+  "cwd": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-embeddings-offline-jcmi7bpj",
+    "GOTMPDIR": "/tmp/agt-embeddings-offline-jcmi7bpj",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMAXPROCS": "4",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "bd5fc443bb4a4a3c3179ef5c3d60696327f37ee6aea862192cadd765ec745a0f",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 890572,
+  "actual_exit": 0,
+  "seconds": 3.3159800860012183,
+  "timeout": false
+}

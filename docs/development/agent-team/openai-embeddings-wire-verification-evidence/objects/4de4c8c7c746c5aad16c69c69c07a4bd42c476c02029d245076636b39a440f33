@@ -1,0 +1,38 @@
+# OpenAI Embeddings B 作者交付
+
+B 七路径实现与离线检查已完成，**等待独立 B 验收**。十源整体清单（B 七件+A 三件只读）在 [delivery10.json](delivery10.json)；阶段来源/差量/逐 SHA 在 [inputs.json](inputs.json)。源码与所有原运行记录已停写，无活动命令/资源，未推进真实 harness、fixture server 或 README。
+
+固定 c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c / 正式卡 15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597。A 接受报告 SHA94a0c44adff8650ff71318de6cfe3537b71f8a497f69b1573e8dcbdfeedaf091 独立复用；embedding_json.go、embedding_json_test.go、profile JSON 原 SHA 保持。openai_embeddings.go 与其测试只追加 B API/接缝；两份旧共享源维持已冻结 b-shared01 原字节，不修改旧测试/C0/D04/任何停止任务候选。
+
+## 变更
+
+Budget 将 exact *Exchange key 改为最小私有 budgetWork；原 accept 的原子检查/构造落在同一 admit 锁内，全局64、每canonical Project8仍是同一注册表。factory 只返回唯一可比较的 *Exchange 或 *EmbeddingExchange，锁内构造完成、admit返回后才起 worker。旧 transport.go 仅增加 cancelWork→原cancel的三行转发；旧 Chat 公共签名、Result/Next/run/perform/Close流程不变。Stop只封入场，Force先给所有类型取消，再用同一个caller ctx Drain；没有排队/每handle续期。
+
+真实公开 NewOpenAIEmbeddings 用正式 NewClient 检查依赖，公开 Start 始终使用正式 D04 Client。A 预检/编码先于slot/每次Client/worker，成功接收后的失败交还同一handle；一次Do、POST且不引重试。局部私有创建函数/response interface只用于同一实施路径的受控纯检查；不是公开替代端口、生产成功stub或网络证据。
+
+新 handle 以实际 Do/parser/Response.Close/request Body.Close 返回标记局部终局。Response.Read/Close/Drain 错误全部使对应结果无候选；合法 EOF/JSON usage 独立保留。非上下文 Drain 错误粘性保留，后续成功清理不会恢复向量。Client.Drain 实际成功才清除借用材料引用并释放slot一次；caller-owned SecretMaterial 不由adapter销毁。Joined 是无等待的实际探测，探测自身的已取消ctx不当业务失败；其他等待使用 caller 原剩余ctx，不靠无界背景wait。Result 一次原子消费，重复/并发InvalidState；只在实际join并复核attempt/caller取消后移交唯一向量backing，内部清空，usage/Observe独立复制。取消桥接callback会stop或实际等其返回。
+
+## 实际检查
+
+[checks.json](checks.json) 绑定每轮原command/env/raw/result/cleanup/input前后和精确selector，全部外层45s、offline/readonly，Go test count1/timeout45s、-p=1：
+
+| 轮次 | 实际结果 | observed PID / adopted |
+| --- | --- | --- |
+| b-graph01 | go list -deps -test；actual0/0.106188s | 1 / 0 |
+| b-pure01 | 9 top / 24 sub PASS；actual0/1.512079s | 5 / 0 |
+| b-race01 | B9 +受影响原Wire6，15 top /24 sub PASS；actual0/3.315980s | 5 / 0 |
+| b-old-pure01 | 固定原adapter全部26 top /113 sub PASS；actual0/1.685681s | 3 / 0 |
+| b-vet01 | 有限adapter包vet，actual0/0.241161s | 2 / 0 |
+| b-format01 | 七个B源gofmt -d空输出，actual0/0.006848s | 1 / 0 |
+
+没有 B 失败轮或暗改重跑。本次没有机械重跑 A 不变 parser/最大容量矩阵；A 原完整受影响检查与独立接受引用保留。原 A prepare门禁、race01累计分配前提红及未到末段仍永久保留，没有用 B 结果覆盖。
+
+9组纯代表覆盖正式构造的无SQL/DNS调用、取消/坏输入/unsupported/封入场的零handle/零每次Client，受控Do/EOF/Response.Close/Drain四道真实同步屏障，caller Close 40ms与早parent50ms、取消后保slot/材料、实际放行后退槽。验证一次Result、并发拒绝、移动vector、深拷贝Usage/Decision、安全显示；factory/Do/read/两Close/Drain/媒体/401/404/429/302/错维均零候选，已合法usage在后续失败保留，unknown Decision不伪造。混合Chat JSON/SSE与Embedding用同注册表填64/8和96并发，Force证明先全取消、60ms caller期限不重置、后续显式同一清理ctx访问两尾部。结构化仍是同一个原Exchange；其全部旧纯断言通过，不冒本纯组已经发送真实structured请求。
+
+## 固定闭包与限制
+
+111件未变固定依赖 + 十候选，workspace仅121文件。实际Go图290包；1781个选中源均在绑定闭包，其余为原工具/锁/profile等必要输入，总1805逐SHA前后相同。Go生成的adapter.test main标为派生缓存产物，没有当成预存固定源码；图复核原件在 b-candidate01/graph-review.json。没有复制全仓/cache或新增依赖。
+
+Go1.27.1，GOCACHE仍 /workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache；原 readonly modcache与全部env见command。等root确认Runtime独立退出/双清释放cache后才开始本轮Go。constructor纯例将SSL_CERT_FILE/SSL_CERT_DIR限制为测试自有空file/dir来构造正式TrustStore；不连接或授权TLS目标，Store/Audit端口如果被调用会panic。受控Client/Response屏障只证明adapter处理公开边界的逻辑与实际纯goroutine终局，不替代真实D04 writer/callback/原生socket证据。
+
+每轮 runner在Popen前设subreaper，实际wait并记录PID/starttime，两扫空、0 adopted、TMP移除；测试自有worker/Result caller也在Cleanup释放gate并实际等done。没有listener/native/Docker/PG/MinIO/browser/外部Provider或main/Git改动。真实协议、Policy、TLS、重定向、D04 writer/callback与三组集成harness仍未实施/未验；这里只交B有界结果，不宣完整wire或D09。

@@ -1,0 +1,103 @@
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.34.142.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=576ee8567c060ae0bfb62b7ea776884f
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=fea5c8e6ddec9527cd27aa0dbb23efb5
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.023s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.172s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/real_policy_and_exact_frozen_float_batch
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/single_item_stays_array_and_missing_usage_stays_unknown
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/unsupported_invalid_cancelled_are_zero_handles_and_requests
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/400
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/401
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/403
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/404
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/429
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/500
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/502
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/503
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/504
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/tls_and_post_redirect_preserve_actual_send_boundary
+=== RUN   TestModelOpenAIEmbeddingsWireHTTP/fixture_modes_suffixes_and_existing_limits_stay_closed
+--- PASS: TestModelOpenAIEmbeddingsWireHTTP (2.28s)
+    --- PASS: TestModelOpenAIEmbeddingsWireHTTP/real_policy_and_exact_frozen_float_batch (0.09s)
+    --- PASS: TestModelOpenAIEmbeddingsWireHTTP/single_item_stays_array_and_missing_usage_stays_unknown (0.04s)
+    --- PASS: TestModelOpenAIEmbeddingsWireHTTP/unsupported_invalid_cancelled_are_zero_handles_and_requests (0.03s)
+    --- PASS: TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry (0.43s)
+        --- PASS: TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/400 (0.05s)
+        --- PASS: TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/401 (0.05s)
+        --- PASS: TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/403 (0.05s)
+        --- PASS: TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/404 (0.04s)
+        --- PASS: TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/429 (0.06s)
+        --- PASS: TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/500 (0.04s)
+        --- PASS: TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/502 (0.04s)
+        --- PASS: TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/503 (0.05s)
+        --- PASS: TestModelOpenAIEmbeddingsWireHTTP/safe_status_mapping_without_retry/504 (0.04s)
+    --- PASS: TestModelOpenAIEmbeddingsWireHTTP/tls_and_post_redirect_preserve_actual_send_boundary (0.08s)
+    --- PASS: TestModelOpenAIEmbeddingsWireHTTP/fixture_modes_suffixes_and_existing_limits_stay_closed (0.34s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	3.301s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.011s [no tests to run]
+D03 fixture cleanup checked for nonce 61bac0d03e9459cfa997c646f7632aeb
+D04 outbound fixture cleanup checked for nonce fea5c8e6ddec9527cd27aa0dbb23efb5
+D05 object fixture exact resource cleanup checked nonce=576ee8567c060ae0bfb62b7ea776884f

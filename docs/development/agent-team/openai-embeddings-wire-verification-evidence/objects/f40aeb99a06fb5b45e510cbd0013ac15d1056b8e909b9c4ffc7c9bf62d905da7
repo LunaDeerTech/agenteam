@@ -1,0 +1,46 @@
+{
+  "status": "private binding preparation only; offline commands and resources not authorized/executed",
+  "author_input": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02/input.json",
+    "bytes": 850374,
+    "sha256": "278bcc65e3a0bce6234a2c3043789ee58343a6f94c7a38b01f2653d3167aa630"
+  },
+  "source15_914_fixed": true,
+  "author_runtime3513_reused": true,
+  "author_driver": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture02.py",
+    "bytes": 27828,
+    "sha256": "0dcb5905240e2fa5a92c1f2e866ab7c4187a25dfbfd2c3b79fca35cb2d2a9bc4"
+  },
+  "private_source": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/source02/embeddings_independent_real_test.go",
+    "bytes": 11819,
+    "sha256": "000168a0b8a4f57621a914c42acc0cb66e142c61f1e9664c5c87e07f8be39ee7"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/overlay02.json",
+    "bytes": 255,
+    "sha256": "a9a696edfe2410775219889c495b9485433fc917f0a559fb9ba1763d5eb3bcc2"
+  },
+  "source_freeze02": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/source-freeze02.json",
+    "bytes": 2609,
+    "sha256": "1e4f95842ff773a93bfaa8d1044ec78a0433b261f84ed2cffd0095d57f9920fb"
+  },
+  "independent_D_review": {
+    "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/review.md",
+    "bytes": 4234,
+    "sha256": "5ee23e46eceed940d820b7d177bc313db884e3eb788a885dd840858d4337c2cb"
+  },
+  "startup02_review": {
+    "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/startup-review02.md",
+    "bytes": 2158,
+    "sha256": "f8dc85600feb792451e9e13974b6aecbcc8721ba43279dadbba424fa96095249"
+  },
+  "exact_tops": [
+    "TestIndependentEmbeddingsWireProtocolAndUsage",
+    "TestIndependentEmbeddingsWireActualTailAndBudget"
+  ],
+  "actual_cwd": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace",
+  "private_source_graph_assumption": "only existing imports; original 3513 external files expected unchanged; future dry gate must establish actual graph equality"
+}

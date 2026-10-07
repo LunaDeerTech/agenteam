@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/usr/bin/df",
+    "-B1",
+    "/workspace",
+    "/tmp"
+  ],
+  "actual_exit": 0,
+  "actual_wait": true,
+  "stdout": "Filesystem       1B-blocks        Used  Available Use% Mounted on\noverlay        33770192896 26184028160 5851402240  82% /\nnone            9441349632    99295232 9342054400   2% /tmp\n",
+  "stderr": "",
+  "utc": "2026-10-07T06:39:23.551272+00:00",
+  "rows": [
+    {
+      "mount": "/",
+      "available_bytes": 5851402240
+    },
+    {
+      "mount": "/tmp",
+      "available_bytes": 9342054400
+    }
+  ],
+  "minimum_available_bytes": 2147483648,
+  "accepted": true
+}

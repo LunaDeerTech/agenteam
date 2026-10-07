@@ -1,0 +1,17 @@
+# Embeddings D 独立静审
+
+**STATIC PASS；未发现阻断。** 本次完整审查四个新 fixture/HTTP/Terminal/Budget 测试及共享 fixture server 的五路径差量，未执行测试、编译、监听器或资源。固定产品 `c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c`，正式卡 `15d7e08`；输入是作者 `d-candidate01/manifest.json`（`6878f9fbe5952f4c1b5c71cc3eaed5f2bd3ac1a72fe137149c2482c9488fa80b`）。15 源实算 SHA 与 delivery15 一致，A/B 十源保持已接受字节。有限来源与实际原件定位见 [input01.json](input01.json)。
+
+HTTP 代表沿原正式 Account Authority、Audit、PolicyService 和 D04/TLS，验证真实 policy 零发送、原 escaped base、POST/Bearer 安全等值、恰三个请求字段、原数组文本、显式 float、维度本地资格、乱序向量独立预期及精确 usage。未把 fixture 自有 User/Session SQL seed、合成 Snapshot/材料冒充正式 Login、Nonchat/Invocation 绑定或外部 Provider conformance。unsupported/invalid/cancelled 在 Start 前置返回零 handle；HTTP 状态、TLS 和 POST redirect 沿正式发送边界，无重试。
+
+Terminal 的完整 JSON held EOF、截断/较紧限额、完整 EOF 后语义失败或 caller 取消保留 reliable usage 分段明确。held WroteRequest 段先等实际 server request，再取消并等正式 Decision；固定 D04 `http.go` 在 writer callback 未返时可由 ctx 分支返回 Cancelled/Sent，而 `Client.Drain` 仍检查 writers、active 和 stopped connections。因此 Result 可见取消、Close 超时、Joined=false 与 slot 继续占用可同时成立；该段没有假称已读取或解析 usage。只有 release、callback returned、实际 Close/join 后才准替换 slot，随后核服务器 handler/connection 终局。
+
+Budget 的 8 个 Project×8 个持有请求共 64，三个场景分别为 Embedding 21、text 22、structured 21；第九与全局第六十五跨类型拒绝，并核精确 server 请求数。各请求是冻结 helper 的小型固定文本/schema，State 只返回所选场景请求及全局连接索引，不要求放宽原 2 MiB State 读取。structured 预检用已接受有效 schema/revision；部分拒绝例保留原 memory schema 仍合法，不会以无效输入假证 ResourceBusy。单独两 writer 代表保留同一 60ms Force 调用预算、先全取消后等待、无假 Joined，再以显式 5s cleanup Drain 收尾。全局 64 的真实执行结果仍待后续轮次。
+
+清理顺序闭合：子测试的 cancel/release 在原 fixture cleanup 前执行；消费 Result 的 goroutine 有 buffered 结果、done 和显式 Close/wait。原 fixture 使用同一 5s ctx Force 所有 Budget，全部 Joined 后才 Destroy 借用材料，再核各场景 handlers/connection settled。没有新增后台 waiter 或把 process exit 当 handle join。
+
+server 只把原 wire 路径规则扩为 `openai_embeddings_wire`，按模式选择 `/embeddings`；原 Chat 默认、legacy 路径、控制 DTO、精确 escaped suffix/无 query、状态/header 闭集、512 chunks/512 KiB response 与 State 上限保持。新测试没有修改旧六组强断言或生产入口，五路径符合卡 #11–15；README 尚不在本阶段。
+
+作者 compile/list/vet/server build 原 command、raw、result、cleanup 已读取并核 SHA：分别 actual 0 / 24.734s、1.021s、12.348s、0.540s，记录 actual wait、输入不变、PID 双清和 0 adopted；独立没有重跑。实际 list 是精确新三/旧六且 `-test.run=^$`，不代表九组业务 PASS。原准备缺 weak-password embed 的 exit1 保留，属于 Go 启动前闭包前提，不改写为测试失败或通过。
+
+后续沿 [已冻两真实代表](../agenteam-embeddings-b-independent-cbguedls/real-seams01.md) 即可：R1 协议/完整 EOF/usage，R2 真实 callback 尾部与混合 Project8；作者全局64和旧六组按实际结果复用，不复制全矩阵。每 top 2m、包 race/count1/6m 保持。373 Git / 2496 编译输入 / 388 包 / 两派生 main 目前仅编译阶段证据；最终动态 TestMain targets、脚本、工具、CGO server 图、资源监督及完整运行输入仍须冻结并单独审查。本结论不授真实资源，也不接续任何停止任务。

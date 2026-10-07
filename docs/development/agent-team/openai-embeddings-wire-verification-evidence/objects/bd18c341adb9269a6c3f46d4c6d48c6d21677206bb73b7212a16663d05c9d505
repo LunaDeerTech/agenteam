@@ -1,0 +1,87 @@
+{
+  "B_paths": [
+    "internal/central/model/adapter/openai_embeddings.go",
+    "internal/central/model/adapter/embedding_transport.go",
+    "internal/central/model/adapter/budget.go",
+    "internal/central/model/adapter/transport.go",
+    "internal/central/model/adapter/openai_embeddings_test.go",
+    "internal/central/model/adapter/embedding_transport_test.go",
+    "internal/central/model/adapter/embedding_budget_test.go"
+  ],
+  "accepted_A_manifest": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/manifest.json",
+    "sha256": "cd076fe6fee33685ae5259de1d7f31851202b21a11fa29a95d4a2fdab1ff23fe"
+  },
+  "diff_sha256": "3ab98fb4442c4394ab5cd9ee5f507a80c18d2a6c5c9ecf88d62aaf7c5a9453fd",
+  "files": {
+    "internal/central/model/adapter/budget.go": {
+      "b_authorized": true,
+      "bytes": 3065,
+      "sha256": "3f2c644e762601d257a11522831a6644622dd125b1c49c92b6cfdc2a743c7803",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/budget.go"
+    },
+    "internal/central/model/adapter/embedding_budget_test.go": {
+      "b_authorized": true,
+      "bytes": 8713,
+      "sha256": "e472c9af9d85a1792274cfe4c3897aa80d06ade5641f90f18477aa6c59c4a6b8",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_budget_test.go"
+    },
+    "internal/central/model/adapter/embedding_json.go": {
+      "b_authorized": false,
+      "bytes": 14478,
+      "sha256": "fd9742129008b25970c93ed03e6e1383a08ac3cb674f80e8bbba3c14380b7ed0",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_json.go"
+    },
+    "internal/central/model/adapter/embedding_json_test.go": {
+      "b_authorized": false,
+      "bytes": 22615,
+      "sha256": "86f28d3e3397506a9edc97a6d5daa2b19369f1f2f5b777a1343bb6e36d57eba4",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_json_test.go"
+    },
+    "internal/central/model/adapter/embedding_transport.go": {
+      "b_authorized": true,
+      "bytes": 10294,
+      "sha256": "ba6f8604cda9f6233d53e4c4f2b5ce3aa924639d5195950fd370b1b1d519274e",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_transport.go"
+    },
+    "internal/central/model/adapter/embedding_transport_test.go": {
+      "b_authorized": true,
+      "bytes": 16327,
+      "sha256": "19ed75780491c605670d6c72cf64f279df113d393c9c62bf0dcae02452a2f0cc",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_transport_test.go"
+    },
+    "internal/central/model/adapter/openai_embeddings.go": {
+      "b_authorized": true,
+      "bytes": 11081,
+      "sha256": "19fdc6fd6b52f4a191b6c4b28c7e3795c4de6df9896938b18167821563db255a",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/openai_embeddings.go"
+    },
+    "internal/central/model/adapter/openai_embeddings_test.go": {
+      "b_authorized": true,
+      "bytes": 17108,
+      "sha256": "f125ea873dbc429de84b0e12434565f60946f0c12e431444989ce93ead3246c1",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/openai_embeddings_test.go"
+    },
+    "internal/central/model/adapter/testdata/openai-embeddings-float-v1.json": {
+      "b_authorized": false,
+      "bytes": 3355,
+      "sha256": "ad0cc43ea95ebc0416ee677b3719e6d270a7d255d7b2b7891fce8ecdd8b372cf",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/testdata/openai-embeddings-float-v1.json"
+    },
+    "internal/central/model/adapter/transport.go": {
+      "b_authorized": true,
+      "bytes": 12077,
+      "sha256": "9f1d60ff48fb64ba04827368b7cf6fc4947b72c93a665ddf91276d5db2b6b29b",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/transport.go"
+    }
+  },
+  "fixed_product": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+  "shared_manifest": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-shared01/manifest.json",
+    "sha256": "83c8158ff189469dd3796beb62b6639b534a4c15333696b3155d72c49552df33"
+  },
+  "source_status": "frozen before B first graph/test/vet checks",
+  "spec_commit": "15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597",
+  "unchanged_A_files": 3,
+  "unchanged_baseline_files": 111
+}

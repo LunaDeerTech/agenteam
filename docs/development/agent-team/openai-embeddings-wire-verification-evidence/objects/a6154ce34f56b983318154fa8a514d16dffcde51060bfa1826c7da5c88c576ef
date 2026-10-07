@@ -1,0 +1,56 @@
+{
+  "B_exact_input_counts": {
+    "b-format01": 1806,
+    "b-graph01": 1805,
+    "b-old-pure01": 1805,
+    "b-pure01": 1805,
+    "b-race01": 1805,
+    "b-vet01": 1805
+  },
+  "reports": {
+    "author_A": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/stage-a01/report.md",
+      "sha256": "5777d649dc0c5ae5aafad9c8fd211a3b4b1e3a269a9dcdf5fc6979b7ab7dfb7a"
+    },
+    "author_A_checks": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/stage-a01/checks.json",
+      "sha256": "f4bd3aad6b59f0f9eda8f709747fe6c6d1ccd64a369368e873cf9acfd2c3e83c"
+    },
+    "author_B": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-stage01/report.md",
+      "sha256": "4de4c8c7c746c5aad16c69c69c07a4bd42c476c02029d245076636b39a440f33"
+    },
+    "author_B_checks": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-stage01/checks.json",
+      "sha256": "fd86f9cb4288213baa24a12a124ff9459ca1b8feb819e4c3af1e1afafce782de"
+    },
+    "author_D": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-stage01/report.md",
+      "sha256": "3a0e4de6b1cb3198d27a5fe6980bddd2b87268826e9f73e2256ce1a63edcf8a2"
+    },
+    "author_D_checks": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-stage01/checks.json",
+      "sha256": "a13daa4b1efb18202f7c56fd8c2bc4ce661fbe2d24f758bfd2061fd1fc86150d"
+    },
+    "independent_A": {
+      "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/verification-report.md",
+      "sha256": "94a0c44adff8650ff71318de6cfe3537b71f8a497f69b1573e8dcbdfeedaf091"
+    },
+    "independent_B": {
+      "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/verification-report.md",
+      "sha256": "8784c23b9f54d1862407716f4d7ed1128d5990cd14c2dee18b952bc521420ff6"
+    },
+    "independent_D_static": {
+      "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/review.md",
+      "sha256": "5ee23e46eceed940d820b7d177bc313db884e3eb788a885dd840858d4337c2cb"
+    },
+    "startup02": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02/report.md",
+      "sha256": "ae9618d457e25704845f17ab335af3eadc9a66dc07b63ea3e23145ca394707b7"
+    },
+    "startup02_checks": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02/checks.json",
+      "sha256": "b20a8d385dd3b05b91d34456d758a325c625a83b853739ae20e0e24b614a9edd"
+    }
+  }
+}

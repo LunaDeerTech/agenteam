@@ -1,0 +1,6 @@
+=== RUN   TestIndependentEmbeddingsOwnedCapacity
+    independent_capacity_test.go:94: owned_raw_cap=16777217 original_backing_bytes=2097152 clone_backing_bytes=2097152 item_tables_bytes=8192 scanner_size=80 key_frame_size=128 offsets_size=64 diagnostic_total_alloc=22123240
+    independent_capacity_test.go:95: escaped_key_encoded_bytes=1538 decoded_bytes=256 simultaneous_object_frames=7 keys_per_frame=8 depth8_reject=true ninth_key_reject=true numeric64_accept=true numeric65_reject=true
+--- PASS: TestIndependentEmbeddingsOwnedCapacity (1.57s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	2.588s

@@ -1,0 +1,93 @@
+{
+  "baseline_file_count": 113,
+  "files": {
+    "internal/central/model/adapter/embedding_json.go": {
+      "bytes": 14478,
+      "sha256": "fd9742129008b25970c93ed03e6e1383a08ac3cb674f80e8bbba3c14380b7ed0",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/internal/central/model/adapter/embedding_json.go"
+    },
+    "internal/central/model/adapter/embedding_json_test.go": {
+      "bytes": 22615,
+      "sha256": "86f28d3e3397506a9edc97a6d5daa2b19369f1f2f5b777a1343bb6e36d57eba4",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/internal/central/model/adapter/embedding_json_test.go"
+    },
+    "internal/central/model/adapter/openai_embeddings.go": {
+      "bytes": 8965,
+      "sha256": "ba38a7849f257bb0f5ac42fbc789c610aac978cbb34ac725dec63fa0bbc5a12d",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/internal/central/model/adapter/openai_embeddings.go"
+    },
+    "internal/central/model/adapter/openai_embeddings_test.go": {
+      "bytes": 13434,
+      "sha256": "f3138ea97cc71c72b3d94113328d5ffd73aad5a446d90eed9b55e09ff30e5747",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/internal/central/model/adapter/openai_embeddings_test.go"
+    },
+    "internal/central/model/adapter/testdata/openai-embeddings-float-v1.json": {
+      "bytes": 3355,
+      "sha256": "ad0cc43ea95ebc0416ee677b3719e6d270a7d255d7b2b7891fce8ecdd8b372cf",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/internal/central/model/adapter/testdata/openai-embeddings-float-v1.json"
+    }
+  },
+  "final_execution_bound_files": 1802,
+  "fixed_product": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+  "go_graph_packages": 290,
+  "offline_env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMAXPROCS": "4",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "references": {
+    "actual_final_runtime_input": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-race02.json",
+      "sha256": "8ac1c8f5d12f82083573f9d630843eeeba93523f78753dcfa1a2c8f78c6ec6fe"
+    },
+    "baseline": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/baseline.json",
+      "sha256": "f5c81831a793768dd565dbef39ba88e0df95ab7cb57042cec972eb3e31983fce"
+    },
+    "candidate02_to03_diff": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate02-to03.diff",
+      "sha256": "455e247482cc7cc1d49223412ef4474278ab3890086b1b6971f545bea4962d5f"
+    },
+    "candidate03": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/manifest.json",
+      "sha256": "cd076fe6fee33685ae5259de1d7f31851202b21a11fa29a95d4a2fdab1ff23fe"
+    },
+    "full_addition_diff": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/stage-a01/candidate.diff",
+      "sha256": "cd7d860f3b61c184294060cee59fe3e0d04b07341a9a3d15875231c3c30526c8"
+    },
+    "independent_capacity_diagnosis": {
+      "path": "/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/review.md",
+      "sha256": "986343d0dad915b62b570950a531fa04118f8edbc5a075f385a561086f9a634b"
+    },
+    "original_candidate02": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate02/manifest.json",
+      "sha256": "003c0c5e1d5ea402ee13086471f85042820fb056082e0c3d8c8cc353a939467b"
+    },
+    "original_race_diagnosis": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/race01-diagnosis.md",
+      "sha256": "2080ed955fadb5cc40b7ab2fd4f1b8fd5ba8b9e33c89ceb88604fbec03c2e079"
+    },
+    "pure01_to_candidate02_diff": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/pure01-to-candidate02.diff",
+      "sha256": "a3b66273ceae58de1f8be6eb844841f728f624102da46ac66eb161685b9d6bf1"
+    },
+    "runner": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run_offline.py",
+      "sha256": "7da22bd2e3b25222b5680068369b077c58abe1f5f5e1c0cef7c10a1e10bb3e1e"
+    },
+    "runner_origin": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runner-origin.json",
+      "sha256": "06203dfdbffd211d4e50f0f2c1ca034b9b0f8612b637269f80bf789e69de5e99"
+    }
+  },
+  "scope": "finite private source closure; no full repository/cache copy",
+  "spec_commit": "15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597"
+}

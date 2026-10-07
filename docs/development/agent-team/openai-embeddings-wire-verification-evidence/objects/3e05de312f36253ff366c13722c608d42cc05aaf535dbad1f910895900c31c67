@@ -1,0 +1,26 @@
+# Embeddings independent offline readiness 01
+
+OFFLINE READY. All four authorized commands passed in order; neither independent business body has run. Real execution still requires a separate root grant.
+
+| Command | Actual exit | Wall seconds | Observed owned PID/starttime | Adopted waits |
+| --- | ---: | ---: | ---: | ---: |
+| format01 | 0 | 0.025568 | 1 | 0 |
+| compile-list01 | 0 | 5.203168 | 5 | 0 |
+| vet01 | 0 | 0.400034 | 2 | 0 |
+| gate01 | 0 | 2.517540 | 4 | 0 |
+
+Every command completed actual wait within its original 45-second outer budget. Both owned-process scans were empty, temporary directories were removed, and all 4452 input fingerprints matched before and after. Fresh preflight workspace free space was 6,981,558,272 bytes. No source, driver, execution manifest or author input changed.
+
+The race compile/list command discovered exactly the two independent top names and ran no test body (`-run ^$`). The actual dry gate confirmed the overlay runtime, the 914 accepted Git dependencies and no missing/unexpected/mismatched input. These are offline results, not native protocol or resource acceptance.
+
+Immutable execution: `execution01.json` SHA256 `d44728a7246f6110d32677bca9c091a818ecf20773f92659bc751a0b1fd1f05b`; driver: `driver01.py` SHA256 `35fa51c32198bfbc47fecb47855a85c822b08b3fc66dc19de29234b3fba30b13`. The full four-command argv/env and original preparation remain in `preparation01.json`; all command/raw/result/cleanup/input artifacts remain in `runs/{format01,compile-list01,vet01,gate01}`.
+
+Proposed real command, not executed:
+
+```text
+/usr/bin/python3 /workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/driver01.py --name independent01 --group both --frozen /workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/execution01.json --modcache /workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache --execute-authorized
+```
+
+The eventual real round retains seven exact owned resources, two fresh 5 GiB checks, 2 minutes per top and package race/count1/6 minutes, full baseline mounts, actual direct/adopted wait, and both cleanup scans. No extra business round or matrix is proposed.
+
+Exact evidence index: `offline-ready01.json` SHA256 `396ada847b9e0d5bdbc35d1d17e22229747ae85ee065d5c0d0d6e6f8e62cddf3`.

@@ -1,0 +1,11 @@
+--- source01/embeddings_independent_real_test.go
++++ source02/embeddings_independent_real_test.go
+@@ -149,7 +149,7 @@
+ 		embeddings := embeddingWireAdapter(t, v, budget)
+ 		chat := v.newAdapter(t, budget)
+ 		beforeBody := 0
+-		config := wireJSON([]byte(`{"object":"list","data":[{"object":"embedding","index":0,"embedding":[1,2]}]}`))
++		config := wireJSON([]byte(`{"object":"list","model":"held-independent-alias","data":[{"object":"embedding","index":0,"embedding":[1,2]}]}`))
+ 		config.HoldAfter = &beforeBody
+ 		firstKey := embeddingWireScenario(t, v, config)
+ 		request, options := embeddingWireInput(t, v, firstKey)

@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/format_check01.py"
+  ],
+  "cwd": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-embeddings-offline-6miwm8r_",
+    "GOTMPDIR": "/tmp/agt-embeddings-offline-6miwm8r_",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/overlay02.json",
+    "GOMAXPROCS": "4",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "a409fa2b51d5b78f490dffadf2e9e5a079b5cfff75f7c13dfcdcaf90aa627698",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 993177,
+  "actual_exit": 0,
+  "seconds": 0.025568161996488925,
+  "timeout": false
+}

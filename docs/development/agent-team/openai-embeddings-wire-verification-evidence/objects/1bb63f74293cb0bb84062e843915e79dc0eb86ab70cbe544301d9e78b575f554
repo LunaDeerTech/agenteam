@@ -1,0 +1,37 @@
+{
+  "status": "source-only preparation; not formatted, compiled, listed or executed",
+  "exact_tops": [
+    "TestIndependentEmbeddingsWireProtocolAndUsage",
+    "TestIndependentEmbeddingsWireActualTailAndBudget"
+  ],
+  "source": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/embeddings_independent_real_test.go",
+    "bytes": 11786,
+    "sha256": "00b248b8f644171c7cbd6093c13aa523bc3855b4a1a60a4275c25408655453a5"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/overlay01.json",
+    "bytes": 246,
+    "sha256": "662f57400bf2735aa089f979158a0fae94bea889f506978c1bd9f7dddb0046a2"
+  },
+  "source_input": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-candidate01/manifest.json",
+    "bytes": 65782,
+    "sha256": "6878f9fbe5952f4c1b5c71cc3eaed5f2bd3ac1a72fe137149c2482c9488fa80b"
+  },
+  "accepted_plan": {
+    "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/real-seams01.md",
+    "bytes": 4003,
+    "sha256": "25a34d9b35c32f86a52ebd21f8c1d124e1d306df212944f50ddd5d62abc91d4c"
+  },
+  "D_static": {
+    "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/review.md",
+    "bytes": 4234,
+    "sha256": "5ee23e46eceed940d820b7d177bc313db884e3eb788a885dd840858d4337c2cb"
+  },
+  "driver_stage01": "BLOCKED; immutable history; wait fixed driver02 and root before compile/runtime binding",
+  "private_mutations_only": true,
+  "no_author_workspace_reads_or_writes_for_probe_preparation": true,
+  "no_resource_or_go_execution": true,
+  "budget": "two tops; 2m each; package race/count1/6m; no new fixture modes, helper or producer"
+}

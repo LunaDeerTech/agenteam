@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "build",
+    "-mod=readonly",
+    "-p=1",
+    "-o",
+    "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-bin/outbound-server-cgo0",
+    "./tests/testsupport/outbound/cmd/server"
+  ],
+  "cwd": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-embeddings-offline-voe0hhjg",
+    "GOTMPDIR": "/tmp/agt-embeddings-offline-voe0hhjg",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CGO_ENABLED": "0",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMAXPROCS": "4",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "96b9113a460169671778dfd3fbdb77e7b2a4bfce0b19775850eca5bf4bd478ff",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 922027,
+  "actual_exit": 0,
+  "seconds": 0.4423720590057201,
+  "timeout": false
+}

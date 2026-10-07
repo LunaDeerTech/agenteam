@@ -1,0 +1,17 @@
+# Embeddings Stage A 独立验收
+
+结论：**PASS，仅冻结五源 A 的有界验收**。完整静审及两个独立纯组合已完成，未扩到 constructor/Start/handle/Budget/transport。
+
+固定产品 c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c，正式规格15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597。作者 delivery5 SHA fdbb5126ba9744cea2e7b198580dad08cd30db620529b31eb55dd951de7d2426；candidate03 SHA cd076fe6fee33685ae5259de1d7f31851202b21a11fa29a95d4a2fdab1ff23fe。五源与实际只读 workspace 同字节；六官方原件的 URL/SHA/bytes 均与 profile 对应。
+
+独立 pure01：精确 TestIndependentEmbeddingsPrepareBoundaries 与 TestIndependentEmbeddingsStrictEOFAndUsage 同轮全部 PASS；Go package1.407s，外层 actual0/3.113693s，race未报告问题。原 argv/env 与1823实际输入门禁冻结在 execution01；Go40s/外45s、readonly/offline/p1，使用原缓存。fresh磁盘5,851,402,240B，符合本次≥2GiB门槛。
+
+第一组合证明实际 JSON 编码后的8MiB/+1B与更紧调用者限额、4MiB原文边界、乘积拒绝、C0非法/unsupported分类、原文及三字段body和输入隔离。第二组合证明乱序index与有限向量、负零/精确0和>2^53usage、深复制、语义失败零候选与可靠usage分离、错误语法/usage未知，以及完整前缀未EOF不能完成、取消不替持有的reader调用结束，显式release后实际goroutine join。原测试断言和所有子段均实际到达，没有失败后跳过项。
+
+监督实际 wait、5 owned PID/starttime 两扫空、0 adopted、TMP移除；输入before/after相同。raw c83bd054e02ee44f7915e0bed43fe8921a61d7011b72b0efde8841a3845e1a08；result58de46477c0fd63327ec802bf8f0bfc1a5e0a872c731dc09ed918d461215b4d8；cleanupb276ecb90188a9288d909df642039f2d987719997f42f5f3b223d1aaf461e87c。工具session67600已actualexit0关闭。
+
+最大raw/vector/clone/辅助容量复用已接受独立容量诊断（986343d0…634b），不重复完整最大样本。原作者race01 TotalAlloc首红保持；它是累计分配指标，不能改称同时capacity越界或把原轮洗绿。作者生产两源未变，旧7个race PASS与candidate03受影响容量race02完整PASS分轮复用，原未到末值/取消由新轮补到；不是最终同轮8个top。
+
+本次受控 reader 只证明 readEmbeddingBody/解析ctx及该调用的实际尾部，**不证明尚未实现的 handle 或 D04 writer/callback/Drain join、slot/material释放**。借用凭据构造Profile不等于真实授权或Do；没有HTTP/native/SDK/Provider conformance。原D04/text/structured及三停止边界未重开。未写产品/主树/Git，未启动服务、监听器、PG、Docker或浏览器。
+
+精确五源SHA、原命令/probe/runner/输入与所有原件链接见 verification-report.json，SHA be4f058e7658bff057464448ae7e6a125ca893976e37ed94c07f4f3f66707972。准备阶段“未执行”报告原件保留，与本次实际终局分开。报告冻结后停止，不追加测试。

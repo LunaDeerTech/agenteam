@@ -1,0 +1,245 @@
+{
+  "d-central-compile02": {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "build",
+      "-mod=readonly",
+      "-p=1",
+      "-o",
+      "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-bin/agenteam-input02",
+      "./cmd/agenteam"
+    ],
+    "cwd": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace",
+    "execution": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-d-central-compile02.json",
+      "sha256": "afb7ee340b7766afe5df7ecbd2971c9dcead16d2aa69873b70de6ca049a0acc5"
+    },
+    "input_count": 4445,
+    "records": {
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-central-compile02/cleanup.json",
+        "sha256": "28f5426a89afd8036ec7cafa74ab9223a900c0afb153c6cef23fc2d25eda7f6a"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-central-compile02/command.json",
+        "sha256": "9e00ebeeb2df16ccd3e2d7882605095c2ef4845409685b406610865e03f3f81d"
+      },
+      "compiled-output.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-central-compile02/compiled-output.json",
+        "sha256": "041eaa7cabe9c1dc8790475f4424de172cc561985f805a3d4f3a8a718ead07cc"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-central-compile02/input-after.json",
+        "sha256": "ac540f7e90a83e56e1e9b3468ca53ce895a0bc5ef72e8a1628f634c86dcc11ad"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-central-compile02/input-before.json",
+        "sha256": "ac540f7e90a83e56e1e9b3468ca53ce895a0bc5ef72e8a1628f634c86dcc11ad"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-central-compile02/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-central-compile02/result.json",
+        "sha256": "6b7c103887e2dfbe761e0f83ce7cbb707df38c3101a717fb0240a06257a9b4ad"
+      }
+    },
+    "result": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_wait_count": 0,
+      "cleanup_clean": true,
+      "cleanup_sha256": "28f5426a89afd8036ec7cafa74ab9223a900c0afb153c6cef23fc2d25eda7f6a",
+      "input_after_matches": true,
+      "input_before_matches": true,
+      "input_unchanged": true,
+      "owned_processes_observed": 12,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "seconds": 2.682203099997423,
+      "timeout": false
+    }
+  },
+  "d-check-input02": {
+    "argv": [
+      "/usr/bin/python3",
+      "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture02.py",
+      "--name",
+      "check-only02",
+      "--group",
+      "new-http",
+      "--frozen",
+      "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02/input.json",
+      "--modcache",
+      "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+      "--check-input-only"
+    ],
+    "cwd": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace",
+    "execution": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-d-check-input02.json",
+      "sha256": "a4dcd4cfc09886368fd1e9c785dbd3603d30a39bea12e225b7a012341c88df96"
+    },
+    "input_count": 4445,
+    "records": {
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-check-input02/cleanup.json",
+        "sha256": "826c4eca277d6dac519cb364d549b79c6a9c49a3dace736a4916077ad7321c5b"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-check-input02/command.json",
+        "sha256": "4056faa39ccbbc813e986fa9cabea885d053daef34c476f6281b597e40ef5655"
+      },
+      "compiled-output.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-check-input02/compiled-output.json",
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-check-input02/input-after.json",
+        "sha256": "c5d8bd84e22b21797e5e6bec3f175f0dbc5f74d6bbd01b707f9274f26bf748c7"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-check-input02/input-before.json",
+        "sha256": "c5d8bd84e22b21797e5e6bec3f175f0dbc5f74d6bbd01b707f9274f26bf748c7"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-check-input02/raw.log",
+        "sha256": "bdf3462e01b9bd1220754cd42c046e34d669cb3205631ee682a8efa4d901a881"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-check-input02/result.json",
+        "sha256": "f290d118cbb4645a348f3fb055b131e67edcd3e3afe29016b334e5f63fb26c44"
+      }
+    },
+    "result": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_wait_count": 0,
+      "cleanup_clean": true,
+      "cleanup_sha256": "826c4eca277d6dac519cb364d549b79c6a9c49a3dace736a4916077ad7321c5b",
+      "input_after_matches": true,
+      "input_before_matches": true,
+      "input_unchanged": true,
+      "owned_processes_observed": 5,
+      "raw_sha256": "bdf3462e01b9bd1220754cd42c046e34d669cb3205631ee682a8efa4d901a881",
+      "seconds": 2.199619431994506,
+      "timeout": false
+    }
+  },
+  "d-runner-compile02": {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "build",
+      "-mod=readonly",
+      "-p=1",
+      "-o",
+      "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-bin/agenteam-runner-input02",
+      "./cmd/agenteam-runner"
+    ],
+    "cwd": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace",
+    "execution": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-d-runner-compile02.json",
+      "sha256": "8301706324bbe7f8d0554ef316bd084f97c3f1cd555cf788861f2df4d5a1a67f"
+    },
+    "input_count": 4445,
+    "records": {
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runner-compile02/cleanup.json",
+        "sha256": "6ef181d5af3c1482ae2fe04d4efa2f3ed9f0224938fe01d5b0ff48ffb478bc49"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runner-compile02/command.json",
+        "sha256": "955056a99341943b5c530ad24166bf19cd7709156b97a0962f75d6729420db70"
+      },
+      "compiled-output.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runner-compile02/compiled-output.json",
+        "sha256": "34fb79f0cd51ff4789982da5d075905f20348226ae817b2df7a05cbf276b4e35"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runner-compile02/input-after.json",
+        "sha256": "6a937ad64a7c5093d2e0f418f722865e25559a4f6fe627507e4471d238ed13f9"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runner-compile02/input-before.json",
+        "sha256": "6a937ad64a7c5093d2e0f418f722865e25559a4f6fe627507e4471d238ed13f9"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runner-compile02/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runner-compile02/result.json",
+        "sha256": "5a77b4e404d44fb8cbb4f1ae73161cd0d97591c10ca348551d81264bad828874"
+      }
+    },
+    "result": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_wait_count": 0,
+      "cleanup_clean": true,
+      "cleanup_sha256": "6ef181d5af3c1482ae2fe04d4efa2f3ed9f0224938fe01d5b0ff48ffb478bc49",
+      "input_after_matches": true,
+      "input_before_matches": true,
+      "input_unchanged": true,
+      "owned_processes_observed": 2,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "seconds": 0.29050698000355624,
+      "timeout": false
+    }
+  },
+  "d-runtime-gate02": {
+    "argv": [
+      "/usr/bin/python3",
+      "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/prepare-d-runtime-input02.py"
+    ],
+    "cwd": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace",
+    "execution": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-d-runtime-gate02.json",
+      "sha256": "c8b8ab2aaeb525eaa3e7184d9c87f1546b742c2b8f2bfaa7d67df41fe4452a1b"
+    },
+    "input_count": 938,
+    "records": {
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runtime-gate02/cleanup.json",
+        "sha256": "71f1014d632848d7f03203330831ba0c3cf8d3dec67eacdbe9a2f2a4259ca05b"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runtime-gate02/command.json",
+        "sha256": "ee16b87c6716dac356faff2718b616f9df6f15e283dbd2bc87b4a9c2cd40984f"
+      },
+      "compiled-output.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runtime-gate02/compiled-output.json",
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runtime-gate02/input-after.json",
+        "sha256": "1d99659132a6a698f8e9c5c8a069a88989a272ff58341cb3419ef0f1d939b017"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runtime-gate02/input-before.json",
+        "sha256": "1d99659132a6a698f8e9c5c8a069a88989a272ff58341cb3419ef0f1d939b017"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runtime-gate02/raw.log",
+        "sha256": "2ba7ed209385bb5c6cb0b936df77c1a87ed12078dec95787fdb87ed6bc541080"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runtime-gate02/result.json",
+        "sha256": "ab89a879fb9f6fc8caf1aad01c8992b44e76d39a640b263a85c2eae17774b680"
+      }
+    },
+    "result": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_wait_count": 0,
+      "cleanup_clean": true,
+      "cleanup_sha256": "71f1014d632848d7f03203330831ba0c3cf8d3dec67eacdbe9a2f2a4259ca05b",
+      "input_after_matches": true,
+      "input_before_matches": true,
+      "input_unchanged": true,
+      "owned_processes_observed": 5,
+      "raw_sha256": "2ba7ed209385bb5c6cb0b936df77c1a87ed12078dec95787fdb87ed6bc541080",
+      "seconds": 2.136500241998874,
+      "timeout": false
+    }
+  }
+}

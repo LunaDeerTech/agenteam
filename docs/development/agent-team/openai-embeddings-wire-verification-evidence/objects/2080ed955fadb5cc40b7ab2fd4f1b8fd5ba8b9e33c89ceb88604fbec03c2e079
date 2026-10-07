@@ -1,0 +1,13 @@
+# Embeddings A race01 原红与容量口径
+
+当前五源冻结在 `candidate02/`，manifest SHA `003c0c5e1d5ea402ee13086471f85042820fb056082e0c3d8c8cc353a939467b`，逐件匹配 race01 实际前后输入；原 workspace 同字节且停写。原 c1427fa 的113依赖未改。尚未运行 vet；gofmt 已执行，不新增检查。
+
+race01 实际 exit1 / 6.178178s；原8个精确 top 中7 PASS，唯一 FAIL 是 `TestOpenAIEmbeddingsJSONCapacityAndCancellation` 第247行。原始错误：`parser retained/copied more than bounded representation: allocated=22072128`。没有 DATA RACE 报告。实际等待已完成，26个观察到的PID/starttime、0 adopted，两扫均空且临时目录移除；输入前后不变。每项 command/raw/result/cleanup 精确 SHA 见同名 JSON，不改原轮结论。
+
+失败断言新增要求 `after.TotalAlloc-before.TotalAlloc < 21 MiB`，卡要求的是列明解析器自有缓冲的同时容量和 <21 MiB。固定 Go1.27.1 `runtime/mstats.go:63–68` 明确 TotalAlloc 是进程累计 heap 分配，释放不递减；114–124 的 HeapAlloc 也包括未回收不可达对象，不能直接替代容量边界。统计区间包括 read raw、syntax/typed passes、临时 key/number转换、vector/items/usage、clone 和同进程其它 heap 分配；并非只三块 backing 的容量，也不是逐路径归因。不能凭两轮差值断定某个具体 race runtime 或数值转换是唯一来源，本轮未运行 heap/编译探针。
+
+原硬容量断言先于失败点，已经实际通过：read raw 的 cap=16777217B；每行 vector cap=2048×8，128行合计2097152B；clone 长度同形。现代码 raw 一次分配，vector backing 一块、clone backing 一块；这些与辅助约定65536B之和21037057B <22020096B。尚须独立审查确认辅助实际保留上界与测试是否充分；本报告不把常量预算加法冒成所有分配独立证明。
+
+相关产品来源：`candidate02/internal/central/model/adapter/embedding_json.go` 的 `readEmbeddingBody` / `embeddingScanner`（固定8键、256B键、depth≤8；无向量对象树）/ `parseEmbeddingJSON` / `cloneEmbeddingResult`；相关测试同目录 `embedding_json_test.go:218–295`。原 `pure01` 八组actual0、当时较宽的累计23MiB监测；后续只补私有类型安全显示及把该累计门槛收紧至21MiB，精确差量 `pure01-to-candidate02.diff`；`pure02` 同最终源的受影响两组actual0。这次 race 在累计断言 Fatal 后未到该top的末尾坏值/三项取消子例，不能说这些race子例已通过；其他7 top完整实际PASS。
+
+建议由独立确认“容量证明+累计分配诊断”口径后再授权必要窄修，不通过事后GC、删边界或增预算替代。当前无源码/断言变更，无重跑，没有native、listener或其它真实资源，尚不交付A阶段PASS。

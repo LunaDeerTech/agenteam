@@ -1,0 +1,62 @@
+{
+  "B_diff": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/b.diff",
+    "sha256": "3ab98fb4442c4394ab5cd9ee5f507a80c18d2a6c5c9ecf88d62aaf7c5a9453fd"
+  },
+  "accepted_A_author_report": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/stage-a01/report.md",
+    "sha256": "5777d649dc0c5ae5aafad9c8fd211a3b4b1e3a269a9dcdf5fc6979b7ab7dfb7a"
+  },
+  "accepted_A_independent_report": {
+    "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/verification-report.md",
+    "sha256": "94a0c44adff8650ff71318de6cfe3537b71f8a497f69b1573e8dcbdfeedaf091"
+  },
+  "accepted_A_manifest": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/manifest.json",
+    "sha256": "cd076fe6fee33685ae5259de1d7f31851202b21a11fa29a95d4a2fdab1ff23fe"
+  },
+  "actual_execution_input": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-b-race01.json",
+    "sha256": "bd5fc443bb4a4a3c3179ef5c3d60696327f37ee6aea862192cadd765ec745a0f"
+  },
+  "actual_graph_review": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/graph-review.json",
+    "sha256": "431503657ff95bf34200b2d51cf1fdea5584c213beb6faa479eafd2e57069973"
+  },
+  "baseline": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/baseline.json",
+    "sha256": "f5c81831a793768dd565dbef39ba88e0df95ab7cb57042cec972eb3e31983fce"
+  },
+  "bound_execution_files": 1805,
+  "candidate": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/manifest.json",
+    "sha256": "bd18c341adb9269a6c3f46d4c6d48c6d21677206bb73b7212a16663d05c9d505"
+  },
+  "candidate_source_count": 10,
+  "checks_plan": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/checks-plan.json",
+    "sha256": "bdcfe7b26db4cab38eabb3ece6ef59f232e0e88b852e01b55419103d2323f743"
+  },
+  "fixed_product": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+  "formal_spec_commit": "15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597",
+  "formal_spec_technical_sha256": "1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133",
+  "runner": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run_offline.py",
+    "sha256": "7da22bd2e3b25222b5680068369b077c58abe1f5f5e1c0cef7c10a1e10bb3e1e"
+  },
+  "shared_design": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-shared01/design.md",
+    "sha256": "0c8e4485798d724d8c525c44141cbefc32cb52acc18ee76662d2de6ba0411c8a"
+  },
+  "shared_diff": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-shared01/shared.diff",
+    "sha256": "269a4f69cd60024483f422a07bb8f3c33cfc71e6d812bae42f50fa39a3b61dd5"
+  },
+  "shared_manifest": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-shared01/manifest.json",
+    "sha256": "83c8158ff189469dd3796beb62b6639b534a4c15333696b3155d72c49552df33"
+  },
+  "source_status": "all B and A readonly sources stopped",
+  "unchanged_fixed_dependencies": 111,
+  "workspace_files": 121
+}

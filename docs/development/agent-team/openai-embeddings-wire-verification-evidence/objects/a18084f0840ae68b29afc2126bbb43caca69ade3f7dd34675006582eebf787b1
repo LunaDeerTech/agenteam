@@ -1,0 +1,162 @@
+{
+  "conclusion": "PASS — independent acceptance of the fixed 15-source Embeddings float wire slice; README and main integration are outside this report",
+  "fixed_product": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+  "spec_commit": "15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597",
+  "spec_technical_sha256": "1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133",
+  "source15_sha256": {
+    "internal/central/model/adapter/budget.go": "3f2c644e762601d257a11522831a6644622dd125b1c49c92b6cfdc2a743c7803",
+    "internal/central/model/adapter/embedding_budget_test.go": "e472c9af9d85a1792274cfe4c3897aa80d06ade5641f90f18477aa6c59c4a6b8",
+    "internal/central/model/adapter/embedding_json.go": "fd9742129008b25970c93ed03e6e1383a08ac3cb674f80e8bbba3c14380b7ed0",
+    "internal/central/model/adapter/embedding_json_test.go": "86f28d3e3397506a9edc97a6d5daa2b19369f1f2f5b777a1343bb6e36d57eba4",
+    "internal/central/model/adapter/embedding_transport.go": "ba6f8604cda9f6233d53e4c4f2b5ce3aa924639d5195950fd370b1b1d519274e",
+    "internal/central/model/adapter/embedding_transport_test.go": "19ed75780491c605670d6c72cf64f279df113d393c9c62bf0dcae02452a2f0cc",
+    "internal/central/model/adapter/openai_embeddings.go": "19fdc6fd6b52f4a191b6c4b28c7e3795c4de6df9896938b18167821563db255a",
+    "internal/central/model/adapter/openai_embeddings_test.go": "f125ea873dbc429de84b0e12434565f60946f0c12e431444989ce93ead3246c1",
+    "internal/central/model/adapter/testdata/openai-embeddings-float-v1.json": "ad0cc43ea95ebc0416ee677b3719e6d270a7d255d7b2b7891fce8ecdd8b372cf",
+    "internal/central/model/adapter/transport.go": "9f1d60ff48fb64ba04827368b7cf6fc4947b72c93a665ddf91276d5db2b6b29b",
+    "tests/model/openai_embeddings_wire_budget_test.go": "48413fb07b2914977e2818e052d8aaeeebeeb9ea0ff69edf4cd2596e2b7f4afa",
+    "tests/model/openai_embeddings_wire_fixture_test.go": "1cafa692e9d733f7d800b9caedd976872e863926361cc424f1f3be1a4165a1d5",
+    "tests/model/openai_embeddings_wire_http_test.go": "b66e8509d53eb7a0ceac594f5f6d4ec12b590b0b58a29a647d1973d5d32dccad",
+    "tests/model/openai_embeddings_wire_terminal_test.go": "7d0de31c2eca4d14554878d3604a991a7eafc8485d7fef02e0594ecf60b3a8c2",
+    "tests/testsupport/outbound/cmd/server/main.go": "f6ad55cae4b3864fa2fbd55777fecdbbe2a3a39ea707d31abb0a7b5a0eb04baf"
+  },
+  "references": {
+    "A_independent": {
+      "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/verification-report.md",
+      "sha256": "94a0c44adff8650ff71318de6cfe3537b71f8a497f69b1573e8dcbdfeedaf091"
+    },
+    "B_independent": {
+      "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/verification-report.md",
+      "sha256": "8784c23b9f54d1862407716f4d7ed1128d5990cd14c2dee18b952bc521420ff6"
+    },
+    "D_static": {
+      "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/review.md",
+      "sha256": "5ee23e46eceed940d820b7d177bc313db884e3eb788a885dd840858d4337c2cb"
+    },
+    "startup01_blocked": {
+      "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/startup-review01.md",
+      "sha256": "9e68c10064c47ed29e910de120650e93d92f7bcedbb541c5072ff3cca108c360"
+    },
+    "startup02_pass": {
+      "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/startup-review02.md",
+      "sha256": "f8dc85600feb792451e9e13974b6aecbcc8721ba43279dadbba424fa96095249"
+    },
+    "author_delivery15": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/author-final01/delivery15.json",
+      "sha256": "e38ab96d1cbc9d7a33b230f75c1dd8bca5fab52e3b2eb00390b2ab519b2a041f"
+    },
+    "author_final": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/author-final01/report.md",
+      "sha256": "01ab0db2acf93093827a5fc625e3f19b16cea6aa85bcce08520642fe8abcabe6"
+    },
+    "author_five_real_runs": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/author-final01/real-five-runs.json",
+      "sha256": "1c16b4e783d27724d10288448f7990d9ed97cdcb02699baa39eae08e2c47cf58"
+    },
+    "offline_ready": {
+      "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/offline-ready01.md",
+      "sha256": "3e05de312f36253ff366c13722c608d42cc05aaf535dbad1f910895900c31c67"
+    },
+    "execution": {
+      "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/execution01.json",
+      "sha256": "d44728a7246f6110d32677bca9c091a818ecf20773f92659bc751a0b1fd1f05b"
+    },
+    "driver": {
+      "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/driver01.py",
+      "sha256": "35fa51c32198bfbc47fecb47855a85c822b08b3fc66dc19de29234b3fba30b13"
+    },
+    "probe": {
+      "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/source02/embeddings_independent_real_test.go",
+      "sha256": "000168a0b8a4f57621a914c42acc0cb66e142c61f1e9664c5c87e07f8be39ee7"
+    }
+  },
+  "independent_real": {
+    "directory": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/independent01",
+    "actual_exit": 0,
+    "actual_wait_completed": true,
+    "wall_seconds": 50.779,
+    "tool_session": 76766,
+    "tool_session_exit": 0,
+    "tops": [
+      [
+        "PASS",
+        "TestIndependentEmbeddingsWireProtocolAndUsage"
+      ],
+      [
+        "PASS",
+        "TestIndependentEmbeddingsWireActualTailAndBudget"
+      ]
+    ],
+    "top_seconds": [
+      1.19,
+      1.36
+    ],
+    "second_top_sub_seconds": [
+      0.08,
+      0.18
+    ],
+    "observed_exact_resources": 7,
+    "observed_pid_starttime": 73,
+    "adopted_wait_count": 0,
+    "double_cleanup": true,
+    "input_before_after_identical": true,
+    "artifacts": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/independent01/command.json",
+        "sha256": "e4f6912338bccd074e89b0479047e6ebbfe18cae5ed01e88249bbe24512b924f"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/independent01/raw.log",
+        "sha256": "b5be97e502ff69a1921cba29687397d9b270b43d4f2f6b5c94ecba36b916fe78"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/independent01/result.json",
+        "sha256": "5c79759c407949a4f57a4e936aee4da2ed1b58c4e910ee4c7310dcd17f34d898"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/independent01/cleanup.json",
+        "sha256": "b9430d4e98e8c33af18fb76534f22b5bae85ab9e58e54b7a413427cf2e09ef06"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/independent01/input-before.json",
+        "sha256": "4fc68d9ead60c8f5e5db052d4b5c8870f1f059538288b72308f45ea9ce320133"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/independent01/input-after.json",
+        "sha256": "4fc68d9ead60c8f5e5db052d4b5c8870f1f059538288b72308f45ea9ce320133"
+      },
+      "disk-preflight.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/independent01/disk-preflight.json",
+        "sha256": "c11d543d13d19e0168e0f7ddde6d728d59c794b431d8a0f00ea638cbfc4b0d35"
+      },
+      "disk-before-spawn.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/independent01/disk-before-spawn.json",
+        "sha256": "697d53a77c3e6198035be87769256df6f1be00000bf5f6b0047f4b2bfca8eaf1"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/independent01/observed-processes.json",
+        "sha256": "e680e64c45ed76fa6cadcecbe46871b96b4381a2fc100913af2f799299ee6218"
+      },
+      "observed-resources.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/independent01/observed-resources.json",
+        "sha256": "d85ce67ee88c958dac262913143f1685e48b8c040a9be52f4bfbde101583285e"
+      },
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/runs/independent01/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      }
+    }
+  },
+  "preserved_history_and_limits": [
+    "After the driver had actually exited 0, one auxiliary read-only summary command (tool chunk 9acc49) exited 1 because it treated cleanup.json (an array) as a dictionary. The corrected read-only command read its two scan entries. No source, run artifact or cleanup action changed; the original tool output is retained in the conversation, and its stdin was not independently frozen as a file.",
+    "The original author A TotalAlloc race failure is preserved and is not reclassified as a simultaneous-capacity overflow or a passed run. Accepted corrected affected checks and independent A evidence are reused with their original limits.",
+    "Private source01 lacked the model field in one held synthetic response; source02 added that field during self-static preparation before execution. Both source versions and the exact diff remain preserved; source01 was never run.",
+    "Startup01 was a static closure blocker (missing unconditional tests/process dynamic cmd build roots), not a runtime failure. Startup02 added the exact fixed nonrace host graph without changing the 15 sources."
+  ],
+  "evidence_boundaries": [
+    "Independent A/B are controlled offline evidence, D/startup are static reviews, and independent01 is the only new independent native fixture run.",
+    "Author new3/old6 actual results are reused from five separate accepted runs, not represented as independent re-execution or one all-green run.",
+    "The independent native shared-budget sample is real 4+4 project occupancy; global64 and structured native coverage are reused from the author accepted runs.",
+    "No claim of live-provider conformance/smoke, Nonchat/InvocationID integration, model default dimensions, whole-process RSS bound, or all D09 completion. No stopped task reopened."
+  ]
+}

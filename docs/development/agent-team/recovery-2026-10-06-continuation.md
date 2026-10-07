@@ -424,3 +424,11 @@ A01跨字段实际RED保留，A02三行guard／同probeGREEN；错误作者笛�
 - 作者 read01 actual1/109.734、read02 actual1/64.776 的原前提失败/未到达与未采样边界保留；read03 57.871、navigation01 65.161、旧 Audit 导航74.353、旧 Outbound 导航78.249 全实际0/双清。独立两 top 同轮 actual0/118.972，7 IDs/136 PID/8 adopted waits 双清；完整 Mount 多重集合不变与 raw 顺序差异同时保存，PID89884 等历史僵尸未被本轮回收。
 - 前阶段 1875/App8、虚拟30s、Node/jsdom、六项 input03 offline、input04 唯 gate 和真实 browser 证据各有固定边界；三 helper 无同期脚本 SHA 门禁、原 CLI/格式/AST/闭包准备错误不补造。保存24张900px局部图，作者新8+旧各2实际view共12，root仅新light390/dark768两张。
 - 本卡 GET 只读缓存，显式重读/取消，不探测、不写、不轮询。Runtime HTTP 和 Audit UI 的既有接受保持；不读取或归档另线 Embedding B。完整 D08–D28/E01 未完成，E01 未开始，Summary 待決、ready503 及 Object/tools/SPA publication 三停止保持。后继由主线程按真实依赖继续调度。
+
+## 38. OpenAI Embeddings float wire十六路径接受
+
+- §1–37原字节保留。主线程采纳独立十五技术源与README末件，产品 `2debfdde347d8c9262ab83d3fe5e18e947a983e1` 已提交推送并核远端一致；[永久报告](openai-embeddings-wire-verification.md)与[正式卡](../work-items/d09-openai-embeddings-wire.md)绑定接受，技术§1–7 SHA `1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133` 不变。既有规格档按原时点保留。
+- c142固定受测源、18b README原态与最终main16分列；914固定Git依赖无漂移，三旧源原态核同，无主树动态重跑。604逻辑引用/427对象（38,093,184字节）、44Git复用与27保存源版本，不复制工具/cache/依赖树。六份官方SDK与proxy403引用原永久证据，仅来源不作conformance。
+- A原race01七PASS一FAIL是累计TotalAlloc指标，candidate03仅测试改为实际backing/clone/辅助容量；原Fatal后未达尾部以后轮证明。B的ioDone/Drain与workerDone分层、format1806区别、D编译/list和startup01静态缺两cmd→02精确五host roots/914Git/3513runtime闭合均保留；辅助脚本/stdin缺件不重建。
+- 作者HTTP/Terminal/Budget/旧Chat/旧structured五轮actual0（101.179/52.460/52.367/54.210/53.781s），独立两top两sub同轮actual0/50.779s；共十一top，每轮7IDs双absent、所属PID双空、0adopt、actualwait及完整Mount基线不变。历史PPID1 Z不倒填回收；独立literal3×3与作者global64/structured复用边界明确。
+- 仅float文本wire，ExpectedDimensions非默认，不支持原生dimensions；无SDK/供应商smoke/RSS/Nonchat/InvocationID/Resolver/Facts/Usage/root接受。Jina/Anthropic后继阻塞报告不混入本证据。Runtime既有接受不改，D08–D28/E01未完、E01未开始，Summary待决、ready503及Object/tools/SPA publication三停止不变。

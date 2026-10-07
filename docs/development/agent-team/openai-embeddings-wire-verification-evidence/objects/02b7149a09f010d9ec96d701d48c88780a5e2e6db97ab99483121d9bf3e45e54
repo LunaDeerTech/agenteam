@@ -1,0 +1,68 @@
+=== RUN   TestOpenAIEmbeddingsMixedBudget
+--- PASS: TestOpenAIEmbeddingsMixedBudget (0.00s)
+=== RUN   TestOpenAIEmbeddingsConcurrentBudget
+--- PASS: TestOpenAIEmbeddingsConcurrentBudget (0.00s)
+=== RUN   TestOpenAIEmbeddingsForceSharesCallerBudget
+--- PASS: TestOpenAIEmbeddingsForceSharesCallerBudget (0.06s)
+=== RUN   TestOpenAIEmbeddingsExchangeOwnership
+--- PASS: TestOpenAIEmbeddingsExchangeOwnership (0.00s)
+=== RUN   TestOpenAIEmbeddingsActualTerminalBarriers
+=== RUN   TestOpenAIEmbeddingsActualTerminalBarriers/Do
+=== RUN   TestOpenAIEmbeddingsActualTerminalBarriers/EOF
+=== RUN   TestOpenAIEmbeddingsActualTerminalBarriers/ResponseClose
+=== RUN   TestOpenAIEmbeddingsActualTerminalBarriers/Drain
+--- PASS: TestOpenAIEmbeddingsActualTerminalBarriers (0.18s)
+    --- PASS: TestOpenAIEmbeddingsActualTerminalBarriers/Do (0.04s)
+    --- PASS: TestOpenAIEmbeddingsActualTerminalBarriers/EOF (0.04s)
+    --- PASS: TestOpenAIEmbeddingsActualTerminalBarriers/ResponseClose (0.05s)
+    --- PASS: TestOpenAIEmbeddingsActualTerminalBarriers/Drain (0.05s)
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures/factory
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures/Do
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures/read
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures/ResponseClose
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures/requestClose
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures/Drain
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures/mime
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures/401
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures/404
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures/429
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures/302
+=== RUN   TestOpenAIEmbeddingsBoundaryFailures/dimension
+--- PASS: TestOpenAIEmbeddingsBoundaryFailures (0.01s)
+    --- PASS: TestOpenAIEmbeddingsBoundaryFailures/factory (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBoundaryFailures/Do (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBoundaryFailures/read (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBoundaryFailures/ResponseClose (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBoundaryFailures/requestClose (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBoundaryFailures/Drain (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBoundaryFailures/mime (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBoundaryFailures/401 (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBoundaryFailures/404 (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBoundaryFailures/429 (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBoundaryFailures/302 (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBoundaryFailures/dimension (0.00s)
+=== RUN   TestOpenAIEmbeddingsCancellationAndJoin
+=== RUN   TestOpenAIEmbeddingsCancellationAndJoin/parent
+=== RUN   TestOpenAIEmbeddingsCancellationAndJoin/result
+=== RUN   TestOpenAIEmbeddingsCancellationAndJoin/cancel-after-join
+--- PASS: TestOpenAIEmbeddingsCancellationAndJoin (0.05s)
+    --- PASS: TestOpenAIEmbeddingsCancellationAndJoin/parent (0.05s)
+    --- PASS: TestOpenAIEmbeddingsCancellationAndJoin/result (0.00s)
+    --- PASS: TestOpenAIEmbeddingsCancellationAndJoin/cancel-after-join (0.00s)
+=== RUN   TestOpenAIEmbeddingsProfileAndSafeViews
+--- PASS: TestOpenAIEmbeddingsProfileAndSafeViews (0.00s)
+=== RUN   TestOpenAIEmbeddingsConstructorAndAdmission
+=== RUN   TestOpenAIEmbeddingsConstructorAndAdmission/cancelled
+=== RUN   TestOpenAIEmbeddingsConstructorAndAdmission/nil-context
+=== RUN   TestOpenAIEmbeddingsConstructorAndAdmission/shape
+=== RUN   TestOpenAIEmbeddingsConstructorAndAdmission/unsupported
+=== RUN   TestOpenAIEmbeddingsConstructorAndAdmission/sealed
+--- PASS: TestOpenAIEmbeddingsConstructorAndAdmission (0.00s)
+    --- PASS: TestOpenAIEmbeddingsConstructorAndAdmission/cancelled (0.00s)
+    --- PASS: TestOpenAIEmbeddingsConstructorAndAdmission/nil-context (0.00s)
+    --- PASS: TestOpenAIEmbeddingsConstructorAndAdmission/shape (0.00s)
+    --- PASS: TestOpenAIEmbeddingsConstructorAndAdmission/unsupported (0.00s)
+    --- PASS: TestOpenAIEmbeddingsConstructorAndAdmission/sealed (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	0.306s

@@ -1,0 +1,15 @@
+# Embeddings 文档末件移交
+
+第十六路径仅 `docs/development/backend/README.md`，私有候选在 `source/docs/development/backend/README.md`。固定前态 Git `18b6fb5a18958a4146d3be5c064a1fba0fa959dd`，未写主树或 Git；十五个已接受源与其既有 snapshot 逐 SHA 完全相同。
+
+- README 前态 SHA `670427cda0f7f5795478131e01a2fcdc6ea2a14b744db8d652e0b56ca07ff7b8`。
+- README 候选 SHA `42c7e527eaa2d2bd1a16f7cbd0afec894cb228206f6224e95a45629cff56ceb3`。
+- 精确差量 `README.diff` SHA `ddbd8fa59132a01b05fe9615dc5ff77d8d93dccf7cfa98c9e06a664b00c75435`。
+- 十六路径逐 SHA/旧前态/固定副本指针：`delivery16.json` SHA `270cb2d85136f81552c679090a38d7fa4d17497b1aaa15affc2f49f71eb9690d`。
+- 文档检查：`checks.json` SHA `0243b48da8d70ae14aba35f38528ca95b1ecb90e2a5f93a3c5704c42226c12ca`。
+
+变动只增加 wire 能力/输入闭集/显式本地维度要求、单次 D04 Do、严格有界 JSON 与整数 usage、共享64/8及实际join/once Result、D04原生Close限制三段，并在既有 test-security 命令区追加三新与两旧精确 selector。去除新增字节可逐字还原原 README。新增两链接均已在固定 Git 核存在，全文无尾随空格、终换行与代码围栏检查通过。未执行 Go、构建或任何资源。
+
+产品验收事实来自主线程已采纳的最终独立报告 `/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/verification-report.md`，SHA `f4f967d0b2ecccce3c8b5c5ee6b082ef9c4de6d5c0b4cab9d6643dd7f285bb32`：独立01两顶层同轮 actual0/50.779s、7ID73PID0adopt双清。作者新3+旧6分五轮的原事实和失败限制留在 author-final01。README不新增不存在的永久归档链接、不把wire当作Nonchat/InvocationID/root/真实账号smoke或完整D09，也不改变ready503。
+
+本末件、候选与全部既有十五源现停写，交主线程审阅整合。

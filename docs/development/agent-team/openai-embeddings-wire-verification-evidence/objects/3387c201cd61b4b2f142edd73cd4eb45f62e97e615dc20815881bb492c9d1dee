@@ -1,0 +1,13 @@
+=== RUN   TestOpenAIEmbeddingsJSONCapacityAndCancellation
+    embedding_json_test.go:249: max raw capacity=16777217, vector capacity=2097152, clone=2097152, total allocated=21037800
+=== RUN   TestOpenAIEmbeddingsJSONCapacityAndCancellation/vectors
+=== RUN   TestOpenAIEmbeddingsJSONCapacityAndCancellation/whitespace
+=== RUN   TestOpenAIEmbeddingsJSONCapacityAndCancellation/long_string
+--- PASS: TestOpenAIEmbeddingsJSONCapacityAndCancellation (0.14s)
+    --- PASS: TestOpenAIEmbeddingsJSONCapacityAndCancellation/vectors (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONCapacityAndCancellation/whitespace (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONCapacityAndCancellation/long_string (0.00s)
+=== RUN   TestOpenAIEmbeddingsProfileAndSafeViews
+--- PASS: TestOpenAIEmbeddingsProfileAndSafeViews (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	0.147s

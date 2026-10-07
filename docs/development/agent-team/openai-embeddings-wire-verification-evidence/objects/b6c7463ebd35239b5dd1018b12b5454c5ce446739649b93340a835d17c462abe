@@ -1,0 +1,146 @@
+{
+  "status": "PRIVATE PREPARATION ONLY; not offline-ready and not resource-authorized",
+  "real_execution": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/execution01.json",
+    "bytes": 851544,
+    "sha256": "d44728a7246f6110d32677bca9c091a818ecf20773f92659bc751a0b1fd1f05b"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/driver01.py",
+    "bytes": 28069,
+    "sha256": "35fa51c32198bfbc47fecb47855a85c822b08b3fc66dc19de29234b3fba30b13"
+  },
+  "driver_diff": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/driver-author-to-independent01.diff",
+    "bytes": 6943,
+    "sha256": "a4266f167ea4009bf84949d10f18707a9325423fe4d8ce45dc94fa2f7f59a055"
+  },
+  "binding": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/binding01.json",
+    "bytes": 2144,
+    "sha256": "f40aeb99a06fb5b45e510cbd0013ac15d1056b8e909b9c4ffc7c9bf62d905da7"
+  },
+  "source": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/source02/embeddings_independent_real_test.go",
+    "bytes": 11819,
+    "sha256": "000168a0b8a4f57621a914c42acc0cb66e142c61f1e9664c5c87e07f8be39ee7"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/overlay02.json",
+    "bytes": 255,
+    "sha256": "a9a696edfe2410775219889c495b9485433fc917f0a559fb9ba1763d5eb3bcc2"
+  },
+  "offline_commands": [
+    {
+      "name": "format01",
+      "execution": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/offline-format01.json",
+        "bytes": 713564,
+        "sha256": "a409fa2b51d5b78f490dffadf2e9e5a079b5cfff75f7c13dfcdcaf90aa627698"
+      },
+      "runner_argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/run_offline01.py",
+        "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/offline-format01.json"
+      ],
+      "actual_argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/format_check01.py"
+      ]
+    },
+    {
+      "name": "compile-list01",
+      "execution": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/offline-compile-list01.json",
+        "bytes": 713777,
+        "sha256": "a616112fea9ca8ca5c2f304b9f8898b04be1ee81942f4ef187c390904d16c078"
+      },
+      "runner_argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/run_offline01.py",
+        "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/offline-compile-list01.json"
+      ],
+      "actual_argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-p=1",
+        "-race",
+        "-tags=integration",
+        "-vet=off",
+        "-count=1",
+        "-timeout=40s",
+        "-run",
+        "^$",
+        "-list",
+        "^(TestIndependentEmbeddingsWireProtocolAndUsage|TestIndependentEmbeddingsWireActualTailAndBudget)$",
+        "./tests/model"
+      ]
+    },
+    {
+      "name": "vet01",
+      "execution": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/offline-vet01.json",
+        "bytes": 713561,
+        "sha256": "15b7584501d085b46ed12943404eb46ce5414b9d4484e35513ba9184edfe8b4d"
+      },
+      "runner_argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/run_offline01.py",
+        "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/offline-vet01.json"
+      ],
+      "actual_argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-p=1",
+        "-tags=integration",
+        "./tests/model"
+      ]
+    },
+    {
+      "name": "gate01",
+      "execution": {
+        "path": "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/offline-gate01.json",
+        "bytes": 713840,
+        "sha256": "75400b31d526adf63dfd49caac7b737d897a2512e477870e9144d44e4656b965"
+      },
+      "runner_argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/run_offline01.py",
+        "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/offline-gate01.json"
+      ],
+      "actual_argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/driver01.py",
+        "--name",
+        "check-only01",
+        "--group",
+        "both",
+        "--frozen",
+        "/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/execution01.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--check-input-only"
+      ]
+    }
+  ],
+  "offline_files_count": 4452,
+  "offline_environment": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/overlay02.json",
+    "GOMAXPROCS": "4",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "offline_outer_seconds": 45,
+  "all_commands_require_root_authorization": true,
+  "stop_on_first_failure": true,
+  "fresh_workspace_minimum_bytes_for_offline": 2147483648,
+  "cache_serialization": "bi81; author owns active real window; no independent Go until root transfers offline/cache permission",
+  "real_budget": "seven exact resources; two tops max; 2m/top, package race/count1/6m; two fresh 5GiB gates"
+}

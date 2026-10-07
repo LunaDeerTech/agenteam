@@ -1,0 +1,61 @@
+--- pure01/openai_embeddings.go
++++ candidate02/openai_embeddings.go
+@@ -276,3 +276,9 @@
+ 	return []byte("\"model_embedding_wire_result\""), nil
+ }
+ func (EmbeddingResult) LogValue() slog.Value { return slog.StringValue("model_embedding_wire_result") }
++
++func (embeddingPrepared) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_prepared") }
++func (embeddingPrepared) MarshalJSON() ([]byte, error) {
++	return []byte("\"model_embedding_prepared\""), nil
++}
++func (embeddingPrepared) LogValue() slog.Value { return slog.StringValue("model_embedding_prepared") }
+--- pure01/embedding_json.go
++++ candidate02/embedding_json.go
+@@ -4,7 +4,9 @@
+ 	"bytes"
+ 	"context"
+ 	"encoding/json"
++	"fmt"
+ 	"io"
++	"log/slog"
+ 	"math"
+ 	"strconv"
+ 	"unicode/utf8"
+@@ -640,3 +642,9 @@
+ 	}
+ 	return out
+ }
++
++func (*embeddingScanner) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_parser") }
++func (*embeddingScanner) MarshalJSON() ([]byte, error) {
++	return []byte("\"model_embedding_parser\""), nil
++}
++func (*embeddingScanner) LogValue() slog.Value { return slog.StringValue("model_embedding_parser") }
+--- pure01/openai_embeddings_test.go
++++ candidate02/openai_embeddings_test.go
+@@ -73,7 +73,12 @@
+ 	r.Texts = []string{"embedding-wire-private-canary"}
+ 	r.Snapshot.Endpoint = "https://embedding-wire-private-canary.example/"
+ 	result := EmbeddingResult{ProviderRequestID: "embedding-wire-private-canary", Items: []mc.Embedding{{Values: []float64{9876.54321}}}}
+-	for _, value := range []any{r, &r, result, &result, o} {
++	prepared, err := prepareEmbeddings(context.Background(), r, o)
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer prepared.request.Body.Close()
++	for _, value := range []any{r, &r, result, &result, o, prepared, embeddingScan(context.Background(), []byte("embedding-wire-private-canary"))} {
+ 		for _, format := range []string{"%v", "%+v", "%#v", "%s", "%q", "%x"} {
+ 			rendered := fmt.Sprintf(format, value)
+ 			if strings.Contains(rendered, "canary") || strings.Contains(rendered, "9876") {
+--- pure01/embedding_json_test.go
++++ candidate02/embedding_json_test.go
+@@ -243,7 +243,7 @@
+ 	if vectorCapacity != 2<<20 || cap(raw)+2*vectorCapacity+embeddingAuxiliaryBytes >= 21<<20 {
+ 		t.Fatal("owned parser capacity budget")
+ 	}
+-	if allocated := after.TotalAlloc - before.TotalAlloc; allocated > 23<<20 {
++	if allocated := after.TotalAlloc - before.TotalAlloc; allocated >= 21<<20 {
+ 		t.Fatalf("parser retained/copied more than bounded representation: allocated=%d", allocated)
+ 	} else {
+ 		t.Logf("max raw capacity=%d, vector capacity=%d, clone=%d, total allocated=%d", cap(raw), vectorCapacity, vectorCapacity, allocated)

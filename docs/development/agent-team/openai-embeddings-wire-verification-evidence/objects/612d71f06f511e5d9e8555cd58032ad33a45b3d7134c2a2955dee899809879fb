@@ -1,0 +1,4225 @@
+--- a/internal/central/model/adapter/budget.go
++++ b/internal/central/model/adapter/budget.go
+@@ -9,39 +9,55 @@
+ 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+ )
+ 
++// budgetWork identifies one exact admitted handle across supported wire types.
++// Only actual waitJoined completion may remove it from the shared registry.
++type budgetWork interface {
++	cancelWork()
++	waitJoined(context.Context) error
++	Joined() bool
++}
++
+ type budgetState struct {
+ 	mu       sync.Mutex
+ 	stopped  bool
+-	active   map[*Exchange]identity.ProjectID
++	active   map[budgetWork]identity.ProjectID
+ 	projects map[identity.ProjectID]int
+ }
+ type Budget struct{ state *budgetState }
+ 
+ func NewBudget() *Budget {
+-	return &Budget{state: &budgetState{active: make(map[*Exchange]identity.ProjectID), projects: make(map[identity.ProjectID]int)}}
++	return &Budget{state: &budgetState{active: make(map[budgetWork]identity.ProjectID), projects: make(map[identity.ProjectID]int)}}
+ }
+ func (b *Budget) accept(ctx context.Context, project identity.ProjectID, mode ResponseMode, overall time.Duration) (*Exchange, error) {
++	var x *Exchange
++	err := b.admit(ctx, project, func() budgetWork {
++		x = newExchange(ctx, mode, overall, b)
++		return x
++	})
++	return x, err
++}
++func (b *Budget) admit(ctx context.Context, project identity.ProjectID, create func() budgetWork) error {
+ 	if b == nil || b.state == nil || project.Validate() != nil {
+-		return nil, invalid()
++		return invalid()
+ 	}
+ 	s := b.state
+ 	s.mu.Lock()
+ 	defer s.mu.Unlock()
+ 	if err := ctx.Err(); err != nil {
+-		return nil, contextFailure(err)
++		return contextFailure(err)
+ 	}
+ 	if s.stopped {
+-		return nil, f.NewFault(f.ShuttingDown, f.NotStarted)
++		return f.NewFault(f.ShuttingDown, f.NotStarted)
+ 	}
+ 	if len(s.active) >= 64 || s.projects[project] >= 8 {
+-		return nil, f.NewFault(f.ResourceBusy, f.NotStarted)
++		return f.NewFault(f.ResourceBusy, f.NotStarted)
+ 	}
+-	x := newExchange(ctx, mode, overall, b)
++	x := create()
+ 	s.active[x] = project
+ 	s.projects[project]++
+-	return x, nil
++	return nil
+ }
+-func (b *Budget) release(x *Exchange) {
++func (b *Budget) release(x budgetWork) {
+ 	s := b.state
+ 	s.mu.Lock()
+ 	defer s.mu.Unlock()
+@@ -61,14 +77,14 @@
+ 	b.state.stopped = true
+ 	b.state.mu.Unlock()
+ }
+-func (b *Budget) snapshot() ([]*Exchange, bool) {
++func (b *Budget) snapshot() ([]budgetWork, bool) {
+ 	if b == nil || b.state == nil {
+ 		return nil, false
+ 	}
+ 	s := b.state
+ 	s.mu.Lock()
+ 	defer s.mu.Unlock()
+-	list := make([]*Exchange, 0, len(s.active))
++	list := make([]budgetWork, 0, len(s.active))
+ 	for x := range s.active {
+ 		list = append(list, x)
+ 	}
+@@ -97,7 +113,7 @@
+ 	b.StopAdmission()
+ 	list, _ := b.snapshot()
+ 	for _, x := range list {
+-		x.cancel()
++		x.cancelWork()
+ 	}
+ 	return b.Drain(ctx)
+ }
+--- /dev/null
++++ b/internal/central/model/adapter/embedding_budget_test.go
+@@ -0,0 +1,310 @@
++package adapter
++
++import (
++	"context"
++	"sync"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++// This helper completes only local work. Actual D04 writer/connection facts
++// belong to the later native fixture; mixed admission uses the real registry.
++func embeddingLocalHandle(b *Budget, project id.ProjectID) (*EmbeddingExchange, error) {
++	var x *EmbeddingExchange
++	err := b.admit(context.Background(), project, func() budgetWork {
++		x = newEmbeddingExchange(context.Background(), time.Second, b, sc.SecretMaterial{})
++		return x
++	})
++	return x, err
++}
++func embeddingFinishLocal(x *EmbeddingExchange) {
++	x.mu.Lock()
++	select {
++	case <-x.ioDone:
++	default:
++		close(x.ioDone)
++		close(x.workerDone)
++	}
++	x.mu.Unlock()
++}
++func embeddingRetireLocal(t *testing.T, b *Budget, handles []budgetWork) {
++	t.Helper()
++	for _, handle := range handles {
++		handle.cancelWork()
++		switch x := handle.(type) {
++		case *Exchange:
++			select {
++			case <-x.ioDone:
++			default:
++				finishLocal(x, Result{}, nil)
++			}
++		case *EmbeddingExchange:
++			embeddingFinishLocal(x)
++		}
++	}
++	b.StopAdmission()
++	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
++	defer cancel()
++	if err := b.Drain(ctx); err != nil || !b.Joined() {
++		t.Error("mixed local handles not actually joined", err)
++	}
++}
++
++func TestOpenAIEmbeddingsMixedBudget(t *testing.T) {
++	b := NewBudget()
++	var handles []budgetWork
++	t.Cleanup(func() { embeddingRetireLocal(t, b, handles) })
++	var first id.ProjectID
++	for projectIndex := range 8 {
++		project := fresh[id.Project](t)
++		if projectIndex == 0 {
++			first = project
++		}
++		for n := range 8 {
++			if n%3 == 2 {
++				x, err := embeddingLocalHandle(b, project)
++				if err != nil {
++					t.Fatal(err)
++				}
++				handles = append(handles, x)
++			} else {
++				// Both accepted Chat modes (including structured's same
++				// Exchange handle) share the exact old accept path.
++				mode := JSONResponse
++				if n%3 == 1 {
++					mode = SSEResponse
++				}
++				x, err := b.accept(context.Background(), project, mode, time.Second)
++				if err != nil {
++					t.Fatal(err)
++				}
++				handles = append(handles, x)
++			}
++		}
++		x, err := embeddingLocalHandle(b, project)
++		if x != nil {
++			t.Fatal("ninth mixed Project handle admitted")
++		}
++		requireFault(t, err, f.ResourceBusy)
++		if x, err := b.accept(context.Background(), project, JSONResponse, time.Second); x != nil || err == nil {
++			t.Fatal("Chat bypassed mixed Project cap")
++		}
++	}
++	x, err := embeddingLocalHandle(b, fresh[id.Project](t))
++	if x != nil {
++		t.Fatal("65th global handle admitted")
++	}
++	requireFault(t, err, f.ResourceBusy)
++	active, _ := b.snapshot()
++	if len(active) != 64 {
++		t.Fatal("mixed global registry split")
++	}
++	// Cancellation alone does not free either protocol's slot.
++	for _, handle := range handles {
++		handle.cancelWork()
++	}
++	x, err = embeddingLocalHandle(b, first)
++	if x != nil {
++		t.Fatal("cancelled but unfinished handle released capacity")
++	}
++	requireFault(t, err, f.ResourceBusy)
++	// Input validation still precedes full admission and per-call Client.
++	r, o := embeddingUnitInput(t)
++	o.ProjectID = first
++	a := &OpenAIEmbeddings{budget: b}
++	var creates atomic.Int32
++	create := func() (embeddingClient, error) { creates.Add(1); return nil, nil }
++	r.ExpectedDimensions = 0
++	if x, err := a.start(context.Background(), r, o, create); x != nil || err == nil {
++		t.Fatal("invalid shape admitted")
++	} else {
++		requireFault(t, err, f.InvalidArgument)
++	}
++	r.ExpectedDimensions = 2
++	if x, err := a.start(context.Background(), r, o, create); x != nil || err == nil {
++		t.Fatal("full budget admitted Start")
++	} else {
++		requireFault(t, err, f.ResourceBusy)
++	}
++	if creates.Load() != 0 {
++		t.Fatal("full/invalid Start created Client")
++	}
++	b.StopAdmission()
++	if x, err := embeddingLocalHandle(b, first); x != nil || err == nil {
++		t.Fatal("sealed mixed admission")
++	} else {
++		requireFault(t, err, f.ShuttingDown)
++	}
++}
++
++func TestOpenAIEmbeddingsConcurrentBudget(t *testing.T) {
++	b := NewBudget()
++	project := fresh[id.Project](t)
++	var handles []budgetWork
++	t.Cleanup(func() { embeddingRetireLocal(t, b, handles) })
++	start := make(chan struct{})
++	results := make(chan budgetWork, 96)
++	failures := make(chan error, 96)
++	var wg sync.WaitGroup
++	for n := range 96 {
++		wg.Add(1)
++		go func() {
++			defer wg.Done()
++			<-start
++			if n%2 == 0 {
++				x, err := embeddingLocalHandle(b, project)
++				if err != nil {
++					failures <- err
++				} else {
++					results <- x
++				}
++			} else {
++				x, err := b.accept(context.Background(), project, SSEResponse, time.Second)
++				if err != nil {
++					failures <- err
++				} else {
++					results <- x
++				}
++			}
++		}()
++	}
++	close(start)
++	wg.Wait()
++	close(results)
++	close(failures)
++	for x := range results {
++		handles = append(handles, x)
++	}
++	if len(handles) != 8 || len(failures) != 88 {
++		t.Fatal("mixed concurrent owner count", len(handles), len(failures))
++	}
++	for err := range failures {
++		requireFault(t, err, f.ResourceBusy)
++	}
++}
++
++func TestOpenAIEmbeddingsForceSharesCallerBudget(t *testing.T) {
++	b := NewBudget()
++	project := fresh[id.Project](t)
++	chat, err := b.accept(context.Background(), project, JSONResponse, time.Second)
++	if err != nil {
++		t.Fatal(err)
++	}
++	embedding, err := embeddingLocalHandle(b, project)
++	if err != nil {
++		finishLocal(chat, Result{}, nil)
++		chat.cancel()
++		t.Fatal(err)
++	}
++	handles := []budgetWork{chat, embedding}
++	t.Cleanup(func() { embeddingRetireLocal(t, b, handles) })
++	// A cancelled caller still cancels every exact type before the first wait.
++	cancelled, cancel := context.WithCancel(context.Background())
++	cancel()
++	if err := b.Force(cancelled); err == nil || chat.ctx.Err() == nil || embedding.ctx.Err() == nil {
++		t.Fatal("Force did not cancel all handles before waiting")
++	}
++	if b.Joined() || chat.Joined() || embedding.Joined() {
++		t.Fatal("Force manufactured actual completion")
++	}
++	active, stopped := b.snapshot()
++	if len(active) != 2 || !stopped {
++		t.Fatal("Force lost exact work")
++	}
++	// Attach two controlled D04 tails to real Embedding handles. Each Drain
++	// must receive the very same caller deadline, not a new per-handle budget.
++	embeddingRetireLocal(t, b, handles)
++	handles = nil
++	b = NewBudget()
++	gates := []*embeddingTestGate{embeddingGate(), embeddingGate()}
++	var deadlinesMu sync.Mutex
++	var deadlines []time.Time
++	for _, gate := range gates {
++		x, err := embeddingLocalHandle(b, project)
++		if err != nil {
++			t.Fatal(err)
++		}
++		client := &embeddingTestClient{}
++		client.onDrain = func(ctx context.Context) error {
++			deadline, ok := ctx.Deadline()
++			if !ok {
++				return context.DeadlineExceeded
++			}
++			deadlinesMu.Lock()
++			deadlines = append(deadlines, deadline)
++			deadlinesMu.Unlock()
++			gate.enter.Do(func() { close(gate.entered) })
++			select {
++			case <-gate.release:
++				return nil
++			default:
++			}
++			select {
++			case <-gate.release:
++				return nil
++			case <-ctx.Done():
++				return ctx.Err()
++			}
++		}
++		x.client = client
++		embeddingFinishLocal(x)
++		handles = append(handles, x)
++	}
++	t.Cleanup(func() {
++		for _, gate := range gates {
++			gate.open()
++		}
++	})
++	caller, stop := context.WithTimeout(context.Background(), 60*time.Millisecond)
++	want, _ := caller.Deadline()
++	started := time.Now()
++	err = b.Force(caller)
++	elapsed := time.Since(started)
++	stop()
++	if err == nil || elapsed < 40*time.Millisecond || elapsed > 500*time.Millisecond {
++		t.Fatal("Force reset caller budget", elapsed)
++	}
++	for _, x := range handles {
++		if x.(*EmbeddingExchange).ctx.Err() == nil {
++			t.Fatal("Force waited before cancelling a handle")
++		}
++	}
++	deadlinesMu.Lock()
++	observed := append([]time.Time(nil), deadlines...)
++	deadlinesMu.Unlock()
++	for _, got := range observed {
++		if !got.Equal(want) {
++			t.Fatal("per-handle Drain got a renewed deadline")
++		}
++	}
++	if len(observed) == 0 {
++		t.Fatal("no actual Drain")
++	}
++	active, _ = b.snapshot()
++	if len(active) != 2 {
++		t.Fatal("timeout freed controlled tails")
++	}
++	// Release both and use one explicit caller cleanup window. Both exact
++	// tails must be visited with that same deadline before actual retirement.
++	for _, gate := range gates {
++		gate.open()
++	}
++	cleanup, done := context.WithTimeout(context.Background(), time.Second)
++	cleanupDeadline, _ := cleanup.Deadline()
++	deadlinesMu.Lock()
++	deadlines = nil
++	deadlinesMu.Unlock()
++	err = b.Drain(cleanup)
++	done()
++	deadlinesMu.Lock()
++	observed = append([]time.Time(nil), deadlines...)
++	deadlinesMu.Unlock()
++	if err != nil || len(observed) != 2 || !observed[0].Equal(cleanupDeadline) || !observed[1].Equal(cleanupDeadline) || !b.Joined() {
++		t.Fatal("shared cleanup window did not join both exact tails", err)
++	}
++}
+--- /dev/null
++++ b/internal/central/model/adapter/embedding_json.go
+@@ -0,0 +1,650 @@
++package adapter
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"fmt"
++	"io"
++	"log/slog"
++	"math"
++	"strconv"
++	"unicode/utf8"
++
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++// readEmbeddingBody owns exactly one bounded raw backing. It never treats a
++// parseable prefix or a non-EOF read error as the end of the response. Transport
++// cancellation and actual reader/connection completion remain the caller's job.
++func readEmbeddingBody(ctx context.Context, reader io.Reader, limit int64) ([]byte, error) {
++	if ctx == nil || reader == nil || limit < 1 || limit > embeddingResponseBytes {
++		return nil, invalid()
++	}
++	if err := ctx.Err(); err != nil {
++		return nil, contextFailure(err)
++	}
++	raw := make([]byte, int(limit)+1)
++	used, emptyReads := 0, 0
++	for {
++		if err := ctx.Err(); err != nil {
++			return nil, contextFailure(err)
++		}
++		end := min(len(raw), used+embeddingCheckBytes)
++		n, err := reader.Read(raw[used:end])
++		if n < 0 || n > end-used {
++			return nil, protocolFailure()
++		}
++		used += n
++		if used > int(limit) {
++			return nil, limitFailure()
++		}
++		if e := ctx.Err(); e != nil {
++			return nil, contextFailure(e)
++		}
++		if err == io.EOF {
++			return raw[:used], nil
++		}
++		if err != nil {
++			return nil, transportFailure(err)
++		}
++		if n == 0 {
++			emptyReads++
++			if emptyReads >= 100 {
++				return nil, transportFailure(io.ErrNoProgress)
++			}
++		} else {
++			emptyReads = 0
++		}
++	}
++}
++
++type embeddingSpan struct{ start, end int }
++
++// The syntax pass stores only bounded object keys on a depth<=8 stack, never
++// individual vector values or RawMessage copies. No legal profile object has
++// more than four keys. Eight keys of <=256 decoded bytes per frame leave ample
++// room below the 64 KiB auxiliary cap, including the second-pass index table.
++type embeddingScanner struct {
++	ctx     context.Context
++	raw     []byte
++	pos     int
++	check   int
++	scalars int
++	err     error
++}
++
++func embeddingScan(ctx context.Context, raw []byte) *embeddingScanner {
++	s := &embeddingScanner{ctx: ctx, raw: raw}
++	if ctx == nil {
++		s.err = invalid()
++	} else if err := ctx.Err(); err != nil {
++		s.err = contextFailure(err)
++	}
++	return s
++}
++func (s *embeddingScanner) advance(n int) {
++	if s.err == nil && s.pos+n-s.check >= embeddingCheckBytes {
++		s.check = s.pos
++		if err := s.ctx.Err(); err != nil {
++			s.err = contextFailure(err)
++		}
++	}
++	s.pos += n
++}
++func (s *embeddingScanner) scalar() {
++	s.scalars++
++	if s.err == nil && s.scalars%1024 == 0 {
++		if err := s.ctx.Err(); err != nil {
++			s.err = contextFailure(err)
++		}
++	}
++}
++func (s *embeddingScanner) bad() {
++	if s.err == nil {
++		s.err = protocolFailure()
++	}
++}
++func (s *embeddingScanner) space() {
++	for s.err == nil && s.pos < len(s.raw) {
++		switch s.raw[s.pos] {
++		case ' ', '\n', '\r', '\t':
++			s.advance(1)
++		default:
++			return
++		}
++	}
++}
++func (s *embeddingScanner) take(c byte) bool {
++	s.space()
++	if s.err != nil {
++		return false
++	}
++	if s.pos >= len(s.raw) || s.raw[s.pos] != c {
++		s.bad()
++		return false
++	}
++	s.advance(1)
++	return s.err == nil
++}
++func (s *embeddingScanner) next(c byte) bool {
++	s.space()
++	return s.err == nil && s.pos < len(s.raw) && s.raw[s.pos] == c
++}
++func (s *embeddingScanner) done() bool {
++	s.space()
++	if s.err == nil && s.pos != len(s.raw) {
++		s.bad()
++	}
++	if s.err == nil {
++		if err := s.ctx.Err(); err != nil {
++			s.err = contextFailure(err)
++		}
++	}
++	return s.err == nil
++}
++func (s *embeddingScanner) literal(text string) {
++	for i := 0; i < len(text) && s.err == nil; i++ {
++		if s.pos >= len(s.raw) || s.raw[s.pos] != text[i] {
++			s.bad()
++			return
++		}
++		s.advance(1)
++	}
++}
++func (s *embeddingScanner) hex4() rune {
++	var result rune
++	for range 4 {
++		if s.err != nil || s.pos >= len(s.raw) {
++			s.bad()
++			return 0
++		}
++		c := s.raw[s.pos]
++		var v byte
++		switch {
++		case c >= '0' && c <= '9':
++			v = c - '0'
++		case c >= 'a' && c <= 'f':
++			v = c - 'a' + 10
++		case c >= 'A' && c <= 'F':
++			v = c - 'A' + 10
++		default:
++			s.bad()
++			return 0
++		}
++		result = result*16 + rune(v)
++		s.advance(1)
++	}
++	return result
++}
++func (s *embeddingScanner) stringToken(maxDecoded int) embeddingSpan {
++	s.space()
++	start := s.pos
++	if !s.take('"') {
++		return embeddingSpan{}
++	}
++	decoded := 0
++	for s.err == nil && s.pos < len(s.raw) {
++		c := s.raw[s.pos]
++		if c == '"' {
++			s.advance(1)
++			s.scalar()
++			return embeddingSpan{start, s.pos}
++		}
++		var width int
++		switch {
++		case c == '\\':
++			s.advance(1)
++			if s.pos >= len(s.raw) {
++				s.bad()
++				break
++			}
++			c = s.raw[s.pos]
++			s.advance(1)
++			switch c {
++			case '"', '\\', '/', 'b', 'f', 'n', 'r', 't':
++				width = 1
++			case 'u':
++				r := s.hex4()
++				if r >= 0xdc00 && r <= 0xdfff {
++					s.bad()
++					break
++				}
++				if r >= 0xd800 && r <= 0xdbff {
++					s.literal("\\u")
++					low := s.hex4()
++					if low < 0xdc00 || low > 0xdfff {
++						s.bad()
++						break
++					}
++					r = 0x10000 + (r-0xd800)*0x400 + (low - 0xdc00)
++				}
++				width = utf8.RuneLen(r)
++			default:
++				s.bad()
++			}
++		case c < 0x20:
++			s.bad()
++		case c < utf8.RuneSelf:
++			width = 1
++			s.advance(1)
++		default:
++			r, n := utf8.DecodeRune(s.raw[s.pos:])
++			if r == utf8.RuneError && n == 1 {
++				s.bad()
++				break
++			}
++			width = n
++			s.advance(n)
++		}
++		decoded += width
++		if maxDecoded >= 0 && decoded > maxDecoded && s.err == nil {
++			s.err = limitFailure()
++		}
++	}
++	s.bad()
++	return embeddingSpan{}
++}
++func (s *embeddingScanner) number() embeddingSpan {
++	s.space()
++	start := s.pos
++	digit := func() bool {
++		return s.pos < len(s.raw) && s.raw[s.pos] >= '0' && s.raw[s.pos] <= '9'
++	}
++	step := func() {
++		s.advance(1)
++		if s.pos-start > embeddingNumberBytes && s.err == nil {
++			s.err = limitFailure()
++		}
++	}
++	if s.pos < len(s.raw) && s.raw[s.pos] == '-' {
++		step()
++	}
++	if !digit() {
++		s.bad()
++		return embeddingSpan{}
++	}
++	if s.raw[s.pos] == '0' {
++		step()
++	} else {
++		for digit() && s.err == nil {
++			step()
++		}
++	}
++	if s.pos < len(s.raw) && s.raw[s.pos] == '.' {
++		step()
++		if !digit() {
++			s.bad()
++		}
++		for digit() && s.err == nil {
++			step()
++		}
++	}
++	if s.pos < len(s.raw) && (s.raw[s.pos] == 'e' || s.raw[s.pos] == 'E') {
++		step()
++		if s.pos < len(s.raw) && (s.raw[s.pos] == '+' || s.raw[s.pos] == '-') {
++			step()
++		}
++		if !digit() {
++			s.bad()
++		}
++		for digit() && s.err == nil {
++			step()
++		}
++	}
++	s.scalar()
++	return embeddingSpan{start, s.pos}
++}
++func (s *embeddingScanner) smallString(span embeddingSpan) string {
++	if s.err != nil {
++		return ""
++	}
++	var key string
++	if json.Unmarshal(s.raw[span.start:span.end], &key) != nil {
++		s.bad()
++	}
++	return key
++}
++func (s *embeddingScanner) value(depth int) {
++	s.space()
++	if s.err != nil {
++		return
++	}
++	if depth > 8 {
++		s.err = limitFailure()
++		return
++	}
++	if s.pos >= len(s.raw) {
++		s.bad()
++		return
++	}
++	switch s.raw[s.pos] {
++	case '{':
++		s.advance(1)
++		var keys [8]string
++		count := 0
++		if s.next('}') {
++			s.advance(1)
++			return
++		}
++		for s.err == nil {
++			if count == len(keys) {
++				s.err = limitFailure()
++				return
++			}
++			key := s.smallString(s.stringToken(256))
++			for _, previous := range keys[:count] {
++				if key == previous {
++					s.bad()
++					return
++				}
++			}
++			keys[count] = key
++			count++
++			if !s.take(':') {
++				return
++			}
++			s.value(depth + 1)
++			if s.next('}') {
++				s.advance(1)
++				return
++			}
++			if !s.take(',') {
++				return
++			}
++		}
++	case '[':
++		s.advance(1)
++		if s.next(']') {
++			s.advance(1)
++			return
++		}
++		for s.err == nil {
++			s.value(depth + 1)
++			if s.next(']') {
++				s.advance(1)
++				return
++			}
++			if !s.take(',') {
++				return
++			}
++		}
++	case '"':
++		s.stringToken(-1)
++	case 't':
++		s.literal("true")
++		s.scalar()
++	case 'f':
++		s.literal("false")
++		s.scalar()
++	case 'n':
++		s.literal("null")
++		s.scalar()
++	default:
++		s.number()
++	}
++}
++
++// fields validates each entire value before returning offsets into the single
++// raw buffer. The fixed set excludes unknown fields; escaped keys compare by
++// their decoded value, so they cannot bypass duplicate detection.
++func (s *embeddingScanner) fields(names ...string) ([4]embeddingSpan, uint) {
++	var fields [4]embeddingSpan
++	var seen uint
++	if !s.take('{') {
++		return fields, seen
++	}
++	if s.next('}') {
++		s.advance(1)
++		return fields, seen
++	}
++	for s.err == nil {
++		name := s.smallString(s.stringToken(256))
++		index := -1
++		for i, allowed := range names {
++			if name == allowed {
++				index = i
++				break
++			}
++		}
++		if index < 0 || seen&(1<<index) != 0 {
++			s.bad()
++			return fields, seen
++		}
++		seen |= 1 << index
++		if !s.take(':') {
++			return fields, seen
++		}
++		s.space()
++		start := s.pos
++		s.value(2)
++		fields[index] = embeddingSpan{start, s.pos}
++		if s.next('}') {
++			s.advance(1)
++			return fields, seen
++		}
++		if !s.take(',') {
++			return fields, seen
++		}
++	}
++	return fields, seen
++}
++func embeddingString(ctx context.Context, raw []byte, maxBytes int) (string, error) {
++	s := embeddingScan(ctx, raw)
++	span := s.stringToken(maxBytes)
++	if !s.done() {
++		return "", s.err
++	}
++	result := s.smallString(span)
++	if s.err != nil {
++		return "", s.err
++	}
++	return result, nil
++}
++func embeddingCount(raw []byte) (*mc.TokenCount, error) {
++	if len(raw) == 0 || bytes.Equal(raw, []byte("null")) {
++		return nil, nil
++	}
++	for _, c := range raw {
++		if c < '0' || c > '9' {
++			return nil, protocolFailure()
++		}
++	}
++	if len(raw) > 1 && raw[0] == '0' {
++		return nil, protocolFailure()
++	}
++	n, err := strconv.ParseInt(string(raw), 10, 64)
++	if err != nil {
++		return nil, protocolFailure()
++	}
++	result := mc.TokenCount(n)
++	return &result, nil
++}
++func embeddingUsage(ctx context.Context, raw []byte) (mc.Usage, error) {
++	unknown := mc.Usage{Source: mc.UnknownUsage}
++	if len(raw) == 0 || bytes.Equal(raw, []byte("null")) {
++		return unknown, nil
++	}
++	s := embeddingScan(ctx, raw)
++	fields, _ := s.fields("prompt_tokens", "total_tokens")
++	if !s.done() {
++		return unknown, s.err
++	}
++	u := unknown
++	var err error
++	u.InputTokens, err = embeddingCount(raw[fields[0].start:fields[0].end])
++	if err != nil {
++		return unknown, err
++	}
++	u.TotalTokens, err = embeddingCount(raw[fields[1].start:fields[1].end])
++	if err != nil {
++		return unknown, err
++	}
++	if u.InputTokens != nil || u.TotalTokens != nil {
++		u.Source = mc.ProviderUsage
++	}
++	return u, nil
++}
++
++// parseEmbeddingJSON requires a complete EOF-delimited buffer (obtained via
++// readEmbeddingBody). Syntax/usage failures expose no counts. After complete
++// syntax and valid usage, a vector semantic error may preserve usage separately;
++// the candidate EmbeddingResult is always zero on every error.
++func parseEmbeddingJSON(ctx context.Context, raw []byte, count, dimensions int) (EmbeddingResult, mc.Usage, error) {
++	unknown := mc.Usage{Source: mc.UnknownUsage}
++	if ctx == nil || !embeddingShape(count, dimensions) {
++		return EmbeddingResult{}, unknown, invalid()
++	}
++	if len(raw) > embeddingResponseBytes {
++		return EmbeddingResult{}, unknown, limitFailure()
++	}
++	s := embeddingScan(ctx, raw)
++	fields, seen := s.fields("object", "data", "model", "usage")
++	if !s.done() {
++		return EmbeddingResult{}, unknown, s.err
++	}
++	if seen&7 != 7 {
++		return EmbeddingResult{}, unknown, protocolFailure()
++	}
++	part := func(span embeddingSpan) []byte { return raw[span.start:span.end] }
++	usage := unknown
++	fail := func(err error) (EmbeddingResult, mc.Usage, error) { return EmbeddingResult{}, usage, err }
++	object, err := embeddingString(ctx, part(fields[0]), 16)
++	if err != nil {
++		return fail(err)
++	}
++	if object != "list" {
++		return fail(protocolFailure())
++	}
++	model, err := embeddingString(ctx, part(fields[2]), 256)
++	if err != nil {
++		return fail(err)
++	}
++	if model == "" || stringsNUL(model) {
++		return fail(protocolFailure())
++	}
++	usage, err = embeddingUsage(ctx, part(fields[3]))
++	if err != nil {
++		return EmbeddingResult{}, unknown, err
++	}
++
++	data := part(fields[1])
++	d := embeddingScan(ctx, data)
++	if !d.take('[') {
++		return fail(d.err)
++	}
++	values := make([]float64, count*dimensions)
++	items := make([]mc.Embedding, count)
++	var indices [embeddingMaxItems]bool
++	rows := 0
++	if !d.next(']') {
++		for d.err == nil {
++			if rows == count {
++				return fail(protocolFailure())
++			}
++			row, mask := d.fields("object", "index", "embedding")
++			if d.err != nil {
++				return fail(d.err)
++			}
++			if mask != 7 {
++				return fail(protocolFailure())
++			}
++			obj, err := embeddingString(ctx, data[row[0].start:row[0].end], 16)
++			if err != nil {
++				return fail(err)
++			}
++			if obj != "embedding" {
++				return fail(protocolFailure())
++			}
++			index, err := embeddingCount(data[row[1].start:row[1].end])
++			if err != nil || index == nil || int64(*index) >= int64(count) {
++				return fail(protocolFailure())
++			}
++			i := int(*index)
++			if indices[i] {
++				return fail(protocolFailure())
++			}
++			indices[i] = true
++			vector := values[i*dimensions : (i+1)*dimensions : (i+1)*dimensions]
++			if err := embeddingVector(ctx, data[row[2].start:row[2].end], vector); err != nil {
++				return fail(err)
++			}
++			items[i] = mc.Embedding{Index: i, Values: vector}
++			rows++
++			if d.next(']') {
++				break
++			}
++			if !d.take(',') {
++				return fail(d.err)
++			}
++		}
++	}
++	if !d.take(']') || !d.done() {
++		return fail(d.err)
++	}
++	if rows != count {
++		return fail(protocolFailure())
++	}
++	if err := ctx.Err(); err != nil {
++		return fail(contextFailure(err))
++	}
++	return EmbeddingResult{Items: items, Usage: usage.Clone()}, usage, nil
++}
++
++func stringsNUL(s string) bool {
++	for i := 0; i < len(s); i++ {
++		if s[i] == 0 {
++			return true
++		}
++	}
++	return false
++}
++func embeddingVector(ctx context.Context, raw []byte, values []float64) error {
++	s := embeddingScan(ctx, raw)
++	if !s.take('[') {
++		return s.err
++	}
++	for i := range values {
++		if i > 0 && !s.take(',') {
++			return s.err
++		}
++		token := s.number()
++		if s.err != nil {
++			return s.err
++		}
++		n, err := strconv.ParseFloat(string(raw[token.start:token.end]), 64)
++		if err != nil || math.IsInf(n, 0) || math.IsNaN(n) {
++			return protocolFailure()
++		}
++		values[i] = n
++	}
++	if !s.take(']') || !s.done() {
++		return s.err
++	}
++	return nil
++}
++
++func cloneEmbeddingResult(r EmbeddingResult) EmbeddingResult {
++	out := r
++	out.Usage = r.Usage.Clone()
++	out.Items = make([]mc.Embedding, len(r.Items))
++	total := 0
++	for _, item := range r.Items {
++		total += len(item.Values)
++	}
++	values := make([]float64, total)
++	at := 0
++	for i, item := range r.Items {
++		end := at + len(item.Values)
++		copy(values[at:end], item.Values)
++		out.Items[i] = mc.Embedding{Index: item.Index, Values: values[at:end:end]}
++		at = end
++	}
++	return out
++}
++
++func (*embeddingScanner) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_parser") }
++func (*embeddingScanner) MarshalJSON() ([]byte, error) {
++	return []byte("\"model_embedding_parser\""), nil
++}
++func (*embeddingScanner) LogValue() slog.Value { return slog.StringValue("model_embedding_parser") }
+--- /dev/null
++++ b/internal/central/model/adapter/embedding_json_test.go
+@@ -0,0 +1,549 @@
++package adapter
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"errors"
++	"fmt"
++	"io"
++	"math"
++	"reflect"
++	"runtime"
++	"strconv"
++	"strings"
++	"testing"
++	"time"
++	"unsafe"
++
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++func embeddingJSON(data, usage string) []byte {
++	if usage != "" {
++		usage = ",\"usage\":" + usage
++	}
++	return []byte("{\"object\":\"list\",\"model\":\"native-alias\",\"data\":" + data + usage + "}")
++}
++func embeddingZero(t *testing.T, r EmbeddingResult, err error) {
++	t.Helper()
++	if err == nil || !reflect.DeepEqual(r, EmbeddingResult{}) {
++		t.Fatal("invalid response published candidate")
++	}
++}
++func TestOpenAIEmbeddingsJSONStrict(t *testing.T) {
++	valid := `[{"object":"embedding","index":0,"embedding":[-0.5,1e2]}]`
++	for _, tc := range []struct {
++		name, data string
++		n, d       int
++	}{
++		{"valid", valid, 1, 2},
++		{"finite_extremes", `[{"object":"embedding","index":0,"embedding":[1.7976931348623157e308,5e-324]}]`, 1, 2},
++		{"negative_zero", `[{"object":"embedding","index":0,"embedding":[-0,0]}]`, 1, 2},
++		{"numeric_64", `[{"object":"embedding","index":0,"embedding":[` + "1." + strings.Repeat("0", 62) + `,0]}]`, 1, 2},
++		{"escaped_keys", `[{"ob\u006aect":"embedding","in\u0064ex":0,"embedding":[0,0]}]`, 1, 2},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			r, u, err := parseEmbeddingJSON(context.Background(), embeddingJSON(tc.data, ""), tc.n, tc.d)
++			if err != nil || len(r.Items) != tc.n || len(r.Items[0].Values) != tc.d || u.Source != mc.UnknownUsage {
++				t.Fatal("valid wire rejected", err)
++			}
++			if tc.name == "negative_zero" && !math.Signbit(r.Items[0].Values[0]) {
++				t.Fatal("lost negative zero")
++			}
++		})
++	}
++	for _, tc := range []struct{ name, data string }{
++		{"empty", "[]"},
++		{"extra_row", valid[:len(valid)-1] + "," + valid[1:]},
++		{"duplicate_index", `[{"object":"embedding","index":0,"embedding":[0,0]},{"object":"embedding","index":0,"embedding":[0,0]}]`},
++		{"out_of_range", strings.Replace(valid, `"index":0`, `"index":1`, 1)},
++		{"negative_index", strings.Replace(valid, `"index":0`, `"index":-1`, 1)},
++		{"negative_zero_index", strings.Replace(valid, `"index":0`, `"index":-0`, 1)},
++		{"float_index", strings.Replace(valid, `"index":0`, `"index":0.0`, 1)},
++		{"exponent_index", strings.Replace(valid, `"index":0`, `"index":0e0`, 1)},
++		{"huge_index", strings.Replace(valid, `"index":0`, `"index":9223372036854775808`, 1)},
++		{"missing_index", strings.Replace(valid, `"index":0,`, "", 1)},
++		{"wrong_object", strings.Replace(valid, `"object":"embedding"`, `"object":"other"`, 1)},
++		{"null_vector", strings.Replace(valid, "[-0.5,1e2]", "null", 1)},
++		{"base64_vector", strings.Replace(valid, "[-0.5,1e2]", `"AAAAAA=="`, 1)},
++		{"short_vector", strings.Replace(valid, "[-0.5,1e2]", "[0]", 1)},
++		{"long_vector", strings.Replace(valid, "[-0.5,1e2]", "[0,0,0]", 1)},
++		{"string_number", strings.Replace(valid, "-0.5", `"0"`, 1)},
++		{"null_number", strings.Replace(valid, "-0.5", "null", 1)},
++		{"bool_number", strings.Replace(valid, "-0.5", "false", 1)},
++		{"overflow", strings.Replace(valid, "-0.5", "1e309", 1)},
++		{"underflow_exponent_overflow", strings.Replace(valid, "-0.5", "1e99999999999999999999999", 1)},
++		{"number_65", strings.Replace(valid, "-0.5", "1."+strings.Repeat("0", 63), 1)},
++		{"NaN", strings.Replace(valid, "-0.5", "NaN", 1)},
++		{"infinity", strings.Replace(valid, "-0.5", "Infinity", 1)},
++		{"leading_zero", strings.Replace(valid, "-0.5", "01", 1)},
++		{"plus_number", strings.Replace(valid, "-0.5", "+1", 1)},
++		{"bare_dot", strings.Replace(valid, "-0.5", ".1", 1)},
++		{"trailing_dot", strings.Replace(valid, "-0.5", "1.", 1)},
++		{"bare_exponent", strings.Replace(valid, "-0.5", "1e", 1)},
++		{"extra_key", strings.Replace(valid, `"index":0`, `"index":0,"x":0`, 1)},
++		{"duplicate_key", strings.Replace(valid, `"index":0`, `"index":0,"index":0`, 1)},
++		{"escaped_duplicate_key", strings.Replace(valid, `"index":0`, `"index":0,"in\u0064ex":0`, 1)},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			r, _, err := parseEmbeddingJSON(context.Background(), embeddingJSON(tc.data, `{"prompt_tokens":0}`), 1, 2)
++			embeddingZero(t, r, err)
++		})
++	}
++	for _, tc := range []struct {
++		name string
++		raw  []byte
++	}{
++		{"truncated", embeddingJSON(valid, "")[:20]},
++		{"trailing", append(embeddingJSON(valid, ""), []byte("{}")...)},
++		{"root_array", []byte("[]")},
++		{"unknown_root", bytes.Replace(embeddingJSON(valid, ""), []byte(`"object":"list"`), []byte(`"object":"list","new":0`), 1)},
++		{"duplicate_root", bytes.Replace(embeddingJSON(valid, ""), []byte(`"object":"list"`), []byte(`"object":"list","object":"list"`), 1)},
++		{"wrong_root_object", bytes.Replace(embeddingJSON(valid, ""), []byte(`"list"`), []byte(`"embedding"`), 1)},
++		{"empty_model", bytes.Replace(embeddingJSON(valid, ""), []byte(`"native-alias"`), []byte(`""`), 1)},
++		{"null_model", bytes.Replace(embeddingJSON(valid, ""), []byte(`"native-alias"`), []byte("null"), 1)},
++		{"long_model", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(strings.Repeat("x", 257)), 1)},
++		{"nul_model", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(`\u0000`), 1)},
++		{"high_surrogate", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(`\ud800`), 1)},
++		{"low_surrogate", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(`\udc00`), 1)},
++		{"bad_pair", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(`\ud800\u0041`), 1)},
++		{"invalid_escape", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(`\x41`), 1)},
++		{"invalid_utf8", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte{0xff}, 1)},
++		{"encoded_surrogate", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte{0xed, 0xa0, 0x80}, 1)},
++		{"deep", embeddingJSON(strings.Repeat("[", 9)+"0"+strings.Repeat("]", 9), "")},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			r, _, err := parseEmbeddingJSON(context.Background(), tc.raw, 1, 2)
++			embeddingZero(t, r, err)
++		})
++	}
++	for _, model := range []string{`\ud83d\ude00`, "😀", "\ufffd", strings.Repeat("x", 256)} {
++		raw := bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(model), 1)
++		if _, _, err := parseEmbeddingJSON(context.Background(), raw, 1, 2); err != nil {
++			t.Fatal("valid model unicode boundary", err)
++		}
++	}
++	// Two rows really require a permutation; this distinguishes a duplicate
++	// index from the one-row excess-count check above.
++	r, _, err := parseEmbeddingJSON(context.Background(), embeddingJSON(`[{"object":"embedding","index":0,"embedding":[0]},{"object":"embedding","index":0,"embedding":[0]}]`, ""), 2, 1)
++	embeddingZero(t, r, err)
++}
++
++func TestOpenAIEmbeddingsUsageAndIsolation(t *testing.T) {
++	data := `[{"embedding":[3,4],"index":1,"object":"embedding"},{"object":"embedding","embedding":[1,2],"index":0}]`
++	for _, usage := range []string{"", "null", "{}", `{"prompt_tokens":null,"total_tokens":null}`} {
++		r, u, err := parseEmbeddingJSON(context.Background(), embeddingJSON(data, usage), 2, 2)
++		if err != nil || u.Source != mc.UnknownUsage || u.Validate() != nil || r.Usage.Source != mc.UnknownUsage {
++			t.Fatal("missing usage projection", err)
++		}
++	}
++	for _, usage := range []string{`{"prompt_tokens":0}`, `{"total_tokens":9007199254740993}`, `{"prompt_tokens":9223372036854775807,"total_tokens":0}`} {
++		r, u, err := parseEmbeddingJSON(context.Background(), embeddingJSON(data, usage), 2, 2)
++		if err != nil || u.Source != mc.ProviderUsage || u.Validate() != nil || u.OutputTokens != nil || u.CachedInputTokens != nil || u.CacheWriteTokens != nil || u.ReasoningTokens != nil {
++			t.Fatal("provider usage projection", err)
++		}
++		if strings.Contains(usage, "9007199254740993") && (u.TotalTokens == nil || *u.TotalTokens != 9007199254740993) {
++			t.Fatal("integer rounded through float")
++		}
++		if u.InputTokens != nil && r.Usage.InputTokens == u.InputTokens {
++			t.Fatal("usage alias")
++		}
++	}
++	for _, usage := range []string{
++		`{"prompt_tokens":-1}`, `{"prompt_tokens":-0}`, `{"total_tokens":1.0}`, `{"total_tokens":1e0}`,
++		`{"total_tokens":9223372036854775808}`, `{"total_tokens":"1"}`, `{"output_tokens":1}`,
++		`{"prompt_tokens":1,"prompt_tokens":2}`, `{"total_tokens":true}`, `[]`,
++	} {
++		r, u, err := parseEmbeddingJSON(context.Background(), embeddingJSON(data, usage), 2, 2)
++		embeddingZero(t, r, err)
++		if u.Source != mc.UnknownUsage || u.InputTokens != nil || u.TotalTokens != nil {
++			t.Fatal("invalid usage became reliable")
++		}
++	}
++	raw := embeddingJSON(data, `{"prompt_tokens":0,"total_tokens":9007199254740993}`)
++	r, u, err := parseEmbeddingJSON(context.Background(), raw, 2, 2)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if r.Items[0].Index != 0 || r.Items[1].Index != 1 || !reflect.DeepEqual(r.Items[0].Values, []float64{1, 2}) || !reflect.DeepEqual(r.Items[1].Values, []float64{3, 4}) {
++		t.Fatal("index/order changed")
++	}
++	clone := cloneEmbeddingResult(r)
++	r.Items[0].Values[0] = 100
++	*r.Usage.TotalTokens = 1
++	raw[0] = '['
++	if clone.Items[0].Values[0] != 1 || *clone.Usage.TotalTokens != 9007199254740993 || *u.TotalTokens != 9007199254740993 {
++		t.Fatal("mutable response alias")
++	}
++	if cap(clone.Items[0].Values) != len(clone.Items[0].Values) {
++		t.Fatal("append can overwrite next row")
++	}
++	for _, bad := range []string{
++		strings.Replace(data, "[3,4]", "[3]", 1),
++		strings.Replace(data, "[3,4]", "[3,1e309]", 1),
++		strings.Replace(data, "[3,4]", `"base64"`, 1),
++	} {
++		r, u, err := parseEmbeddingJSON(context.Background(), embeddingJSON(bad, `{"prompt_tokens":0}`), 2, 2)
++		embeddingZero(t, r, err)
++		if u.InputTokens == nil || *u.InputTokens != 0 || u.Source != mc.ProviderUsage {
++			t.Fatal("valid EOF usage lost after vector semantic error")
++		}
++	}
++	broken := embeddingJSON(strings.Replace(data, "[3,4]", "[3,NaN]", 1), `{"prompt_tokens":1}`)
++	r, u, err = parseEmbeddingJSON(context.Background(), broken, 2, 2)
++	embeddingZero(t, r, err)
++	if u.InputTokens != nil || u.Source != mc.UnknownUsage {
++		t.Fatal("malformed JSON supplied reliable usage")
++	}
++}
++
++func embeddingMaximumJSON() []byte {
++	var body strings.Builder
++	body.WriteString(`{"object":"list","model":"m","data":[`)
++	for i := range 128 {
++		if i > 0 {
++			body.WriteByte(',')
++		}
++		fmt.Fprintf(&body, `{"object":"embedding","index":%d,"embedding":[`, i)
++		for j := range 2048 {
++			if j > 0 {
++				body.WriteByte(',')
++			}
++			body.WriteByte('0')
++		}
++		body.WriteString("]}")
++	}
++	body.WriteString(`],"usage":{"prompt_tokens":0}}`)
++	return []byte(body.String())
++}
++
++// Check owned capacities and backing identity directly. Addresses are only
++// compared while their owners remain live; no uintptr is converted to a pointer.
++func embeddingOwnedCapacity(t *testing.T, raw []byte, original, clone EmbeddingResult) {
++	t.Helper()
++	const count, dimensions = 128, 2048
++	if len(original.Items) != count || cap(original.Items) != count ||
++		len(clone.Items) != count || cap(clone.Items) != count {
++		t.Fatal("item table capacity")
++	}
++	originalBase := uintptr(unsafe.Pointer(unsafe.SliceData(original.Items[0].Values)))
++	cloneBase := uintptr(unsafe.Pointer(unsafe.SliceData(clone.Items[0].Values)))
++	rawBase := uintptr(unsafe.Pointer(unsafe.SliceData(raw)))
++	rowBytes := uintptr(dimensions) * unsafe.Sizeof(float64(0))
++	backingBytes := uintptr(count) * rowBytes
++	overlap := func(a, an, b, bn uintptr) bool { return a < b+bn && b < a+an }
++	if overlap(originalBase, backingBytes, cloneBase, backingBytes) ||
++		overlap(rawBase, uintptr(cap(raw)), originalBase, backingBytes) ||
++		overlap(rawBase, uintptr(cap(raw)), cloneBase, backingBytes) {
++		t.Fatal("raw/result/clone backing alias")
++	}
++	for i := range count {
++		a, b := original.Items[i], clone.Items[i]
++		if a.Index != i || b.Index != i || len(a.Values) != dimensions || cap(a.Values) != dimensions ||
++			len(b.Values) != dimensions || cap(b.Values) != dimensions {
++			t.Fatal("result or clone row capacity")
++		}
++		if uintptr(unsafe.Pointer(unsafe.SliceData(a.Values))) != originalBase+uintptr(i)*rowBytes ||
++			uintptr(unsafe.Pointer(unsafe.SliceData(b.Values))) != cloneBase+uintptr(i)*rowBytes {
++			t.Fatal("result or clone has more than one contiguous backing")
++		}
++	}
++	if original.Usage.InputTokens == nil || clone.Usage.InputTokens == nil {
++		t.Fatal("maximum shape usage precondition")
++	}
++	clone.Items[0].Values[0] = 17
++	clone.Items[count-1].Values[dimensions-1] = 19
++	*clone.Usage.InputTokens = 11
++	if original.Items[0].Values[0] != 0 || original.Items[count-1].Values[dimensions-1] != 0 ||
++		*original.Usage.InputTokens != 0 {
++		t.Fatal("clone mutation reached original result")
++	}
++	if backingBytes != 2<<20 || uintptr(cap(raw))+2*backingBytes+embeddingAuxiliaryBytes >= 21<<20 {
++		t.Fatal("actual owned backing capacity budget")
++	}
++
++	// Fixed Go 1.27.1 and scanner paths: at most eight frames with eight
++	// decoded keys of 256 bytes, two item tables, a fixed index set, and one
++	// short-string decode scratch (six escaped bytes per decoded ASCII byte).
++	// Scalar-only json.Unmarshal does not construct a JSON object tree.
++	// json.Decoder overbounds its fixed decodeState; strconv's decimal is an
++	// 800-byte array plus scalar fields (<1 KiB). Numeric tokens are <=64B.
++	// The allowance per frame covers its scalar/iterator bookkeeping. This
++	// sums bounded objects/capacities, not allocator arenas or process peak.
++	itemTables := uintptr(cap(original.Items)+cap(clone.Items)) * unsafe.Sizeof(mc.Embedding{})
++	auxiliary := 8*(8*256+unsafe.Sizeof([8]string{})+unsafe.Sizeof(embeddingScanner{})+
++		unsafe.Sizeof([4]embeddingSpan{})+128) +
++		itemTables + unsafe.Sizeof([128]bool{}) + (6*256 + 8) + 256 +
++		unsafe.Sizeof(json.Decoder{}) + unsafe.Sizeof(reflect.Value{}) +
++		4*unsafe.Sizeof(mc.Usage{}) + 4*64 + 1024 + unsafe.Sizeof(strconv.NumError{})
++	if auxiliary >= embeddingAuxiliaryBytes {
++		t.Fatal("bounded auxiliary objects exceed 64 KiB", auxiliary)
++	}
++	t.Logf("owned raw=%d result backing=%d clone backing=%d item tables=%d auxiliary bound=%d",
++		cap(raw), backingBytes, backingBytes, itemTables, auxiliary)
++	runtime.KeepAlive(raw)
++	runtime.KeepAlive(original)
++	runtime.KeepAlive(clone)
++}
++
++func embeddingAuxiliaryBoundaries(t *testing.T) {
++	t.Helper()
++	key := func(last byte) string {
++		return `"` + strings.Repeat(`\u006b`, 255) + fmt.Sprintf(`\u%04x`, last) + `"`
++	}
++	wrap := func(child string, keys int) string {
++		var b strings.Builder
++		b.WriteByte('{')
++		for i := range keys {
++			if i > 0 {
++				b.WriteByte(',')
++			}
++			b.WriteString(key(byte('a' + i)))
++			b.WriteByte(':')
++			if i == keys-1 {
++				b.WriteString(child)
++			} else {
++				b.WriteString("null")
++			}
++		}
++		b.WriteByte('}')
++		return b.String()
++	}
++	nested := "null"
++	for range 7 {
++		nested = wrap(nested, 8)
++	}
++	scanner := embeddingScan(context.Background(), []byte(nested))
++	scanner.value(1)
++	if !scanner.done() {
++		t.Fatal("maximum short keys at scalar depth eight")
++	}
++	for _, rejected := range []string{wrap(nested, 8), wrap("null", 9)} {
++		s := embeddingScan(context.Background(), []byte(rejected))
++		s.value(1)
++		if s.done() || s.err == nil {
++			t.Fatal("depth or ninth-key auxiliary bound")
++		}
++	}
++	decoded, err := embeddingString(context.Background(), []byte(key('a')), 256)
++	if err != nil || len(decoded) != 256 || len(key('a')) != 1538 {
++		t.Fatal("maximum escaped short-string decode")
++	}
++	tooLong := []byte(`"` + strings.Repeat(`\u006b`, 257) + `"`)
++	s := embeddingScan(context.Background(), tooLong)
++	span := s.stringToken(256)
++	if s.err == nil || span != (embeddingSpan{}) || s.pos >= len(tooLong) {
++		t.Fatal("short-string rejection did not precede decoding")
++	}
++	if value, err := embeddingString(context.Background(), tooLong, 256); err == nil || value != "" {
++		t.Fatal("overlong short string published decoded result")
++	}
++	literal64 := "0." + strings.Repeat("0", 62)
++	one := []float64{1}
++	if len(literal64) != 64 || embeddingVector(context.Background(), []byte("["+literal64+"]"), one) != nil || one[0] != 0 {
++		t.Fatal("64-byte number conversion")
++	}
++	one[0] = 1
++	if embeddingVector(context.Background(), []byte("["+literal64+"0]"), one) == nil || one[0] != 1 {
++		t.Fatal("65-byte number reached value publication")
++	}
++	s = embeddingScan(context.Background(), []byte(literal64+"0"))
++	s.number()
++	if s.err == nil || s.pos != 65 {
++		t.Fatal("number limit did not precede float conversion")
++	}
++	t.Log("auxiliary boundaries reached: 1538->256 escaped key; seven 8-key frames; depth/ninth-key/257-byte key reject; 64-byte number accepts and 65-byte number rejects before conversion")
++}
++
++func TestOpenAIEmbeddingsJSONCapacityAndCancellation(t *testing.T) {
++	core := embeddingMaximumJSON()
++	padded := make([]byte, embeddingResponseBytes)
++	copy(padded, core)
++	for i := len(core); i < len(padded); i++ {
++		padded[i] = ' '
++	}
++	var before, after runtime.MemStats
++	runtime.ReadMemStats(&before)
++	raw, err := readEmbeddingBody(context.Background(), bytes.NewReader(padded), embeddingResponseBytes)
++	if err != nil || len(raw) != embeddingResponseBytes || cap(raw) != embeddingResponseBytes+1 {
++		t.Fatal("raw body bound", err)
++	}
++	r, u, err := parseEmbeddingJSON(context.Background(), raw, 128, 2048)
++	if err != nil || u.InputTokens == nil || *u.InputTokens != 0 {
++		t.Fatal("maximum legal product", err)
++	}
++	clone := cloneEmbeddingResult(r)
++	runtime.ReadMemStats(&after)
++	vectorCapacity := 0
++	for i := range r.Items {
++		if len(r.Items[i].Values) != 2048 || cap(r.Items[i].Values) != 2048 || len(clone.Items[i].Values) != 2048 {
++			t.Fatal("vector capacity")
++		}
++		vectorCapacity += cap(r.Items[i].Values) * 8
++	}
++	if vectorCapacity != 2<<20 || cap(raw)+2*vectorCapacity+embeddingAuxiliaryBytes >= 21<<20 {
++		t.Fatal("owned parser capacity budget")
++	}
++	embeddingOwnedCapacity(t, raw, r, clone)
++	embeddingAuxiliaryBoundaries(t)
++	// TotalAlloc includes all process-wide cumulative allocations in this
++	// interval, even objects no longer held. It is diagnostic, not owned
++	// capacity; the strict raw/vector/auxiliary gates above remain independent.
++	t.Logf("max raw capacity=%d, vector capacity=%d, clone=%d, diagnostic cumulative TotalAlloc=%d",
++		cap(raw), vectorCapacity, vectorCapacity, after.TotalAlloc-before.TotalAlloc)
++	// A value at the very end of the maximum vector set is invalid. A complete
++	// valid usage remains observable, but no prefix of the vectors escapes.
++	last := bytes.LastIndex(core, []byte("0]}"))
++	if last < 0 {
++		t.Fatal("test last scalar")
++	}
++	bad := append([]byte(nil), core...)
++	bad = append(bad[:last], append([]byte("1e309"), core[last+1:]...)...)
++	result, usage, err := parseEmbeddingJSON(context.Background(), bad, 128, 2048)
++	embeddingZero(t, result, err)
++	if usage.InputTokens == nil || *usage.InputTokens != 0 {
++		t.Fatal("late semantic error lost usage")
++	}
++	for _, tc := range []struct {
++		name string
++		raw  []byte
++	}{
++		{"vectors", core},
++		{"whitespace", append(bytes.Repeat([]byte(" "), 2<<20), embeddingJSON(`[{"object":"embedding","index":0,"embedding":[0]}]`, "")...)},
++		{"long_string", []byte(`{"object":"list","model":"` + strings.Repeat("x", 2<<20) + `","data":[]}`)},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			base, cancel := context.WithCancel(context.Background())
++			defer cancel()
++			ctx := &embeddingCheckContext{Context: base, cancel: cancel, at: 2}
++			s := embeddingScan(ctx, tc.raw)
++			s.value(1)
++			if s.err == nil {
++				t.Fatal("parser did not stop at real cancellation")
++			}
++			requireModel(t, s.err, "cancelled", "wire_cancelled")
++			if base.Err() != context.Canceled || ctx.calls != 2 || s.pos > embeddingCheckBytes {
++				t.Fatal("byte/scalar cancellation bound", s.pos, ctx.calls)
++			}
++			if tc.name == "vectors" && s.scalars > 1024 {
++				t.Fatal("scalar cancellation checkpoint")
++			}
++		})
++	}
++}
++
++type embeddingTerminalReader struct {
++	data []byte
++	err  error
++}
++
++func (r *embeddingTerminalReader) Read(p []byte) (int, error) {
++	if len(r.data) > 0 {
++		n := copy(p, r.data)
++		r.data = r.data[n:]
++		if len(r.data) == 0 {
++			return n, r.err
++		}
++		return n, nil
++	}
++	return 0, r.err
++}
++
++type embeddingEOFBarrier struct {
++	data    []byte
++	entered chan struct{}
++	release chan struct{}
++}
++
++func (r *embeddingEOFBarrier) Read(p []byte) (int, error) {
++	if len(r.data) > 0 {
++		n := copy(p, r.data)
++		r.data = r.data[n:]
++		return n, nil
++	}
++	close(r.entered)
++	<-r.release
++	return 0, io.EOF
++}
++func TestOpenAIEmbeddingsBodyEOFAndLimits(t *testing.T) {
++	body := embeddingJSON(`[{"object":"embedding","index":0,"embedding":[0]}]`, `{"total_tokens":0}`)
++	for _, tc := range []struct {
++		name     string
++		limit    int64
++		terminal error
++		success  bool
++	}{
++		{"exact_EOF", int64(len(body)), io.EOF, true},
++		{"limit_plus_one", int64(len(body) - 1), io.EOF, false},
++		{"late_read_error", int64(len(body)), io.ErrUnexpectedEOF, false},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			raw, err := readEmbeddingBody(context.Background(), &embeddingTerminalReader{data: body, err: tc.terminal}, tc.limit)
++			if tc.success {
++				if err != nil || !bytes.Equal(raw, body) {
++					t.Fatal("actual EOF failed", err)
++				}
++			} else if err == nil || raw != nil {
++				t.Fatal("read failure supplied parseable candidate")
++			}
++		})
++	}
++	t.Run("parseable_prefix_waits_for_actual_EOF", func(t *testing.T) {
++		ctx, cancel := context.WithCancel(context.Background())
++		reader := &embeddingEOFBarrier{data: body, entered: make(chan struct{}), release: make(chan struct{})}
++		type outcome struct {
++			raw []byte
++			err error
++		}
++		done := make(chan outcome, 1)
++		go func() { raw, err := readEmbeddingBody(ctx, reader, 1024); done <- outcome{raw, err} }()
++		released, joined := false, false
++		t.Cleanup(func() {
++			cancel()
++			if !released {
++				close(reader.release)
++			}
++			if !joined {
++				<-done
++			}
++		})
++		select {
++		case <-reader.entered:
++		case <-time.After(time.Second):
++			t.Fatal("EOF barrier not entered")
++		}
++		select {
++		case <-done:
++			joined = true
++			t.Fatal("returned before actual EOF")
++		default:
++		}
++		cancel()
++		select {
++		case <-done:
++			joined = true
++			t.Fatal("caller cancellation abandoned actual reader")
++		default:
++		}
++		close(reader.release)
++		released = true
++		result := <-done
++		joined = true
++		if result.raw != nil {
++			t.Fatal("cancelled EOF candidate")
++		}
++		requireModel(t, result.err, "cancelled", "wire_cancelled")
++		if !errors.Is(ctx.Err(), context.Canceled) {
++			t.Fatal("real cancellation")
++		}
++	})
++	tooLarge := bytes.Repeat([]byte(" "), embeddingResponseBytes+1)
++	raw, err := readEmbeddingBody(context.Background(), bytes.NewReader(tooLarge), embeddingResponseBytes)
++	if raw != nil {
++		t.Fatal("response cap+1 escaped")
++	}
++	requireModel(t, err, "provider_error", "wire_limit_exceeded")
++	r, _, err := parseEmbeddingJSON(context.Background(), tooLarge, 1, 1)
++	embeddingZero(t, r, err)
++}
+--- /dev/null
++++ b/internal/central/model/adapter/embedding_transport.go
+@@ -0,0 +1,388 @@
++package adapter
++
++import (
++	"context"
++	"errors"
++	"fmt"
++	"io"
++	"log/slog"
++	"mime"
++	"net/http"
++	"sync"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++// These private boundaries mirror only the public D04 operations this wire
++// needs. The production implementation below forwards every operation to D04.
++type embeddingResponse interface {
++	StatusCode() int
++	Headers() http.Header
++	Body() io.ReadCloser
++	Close() error
++	Decision() outbound.Decision
++}
++type embeddingClient interface {
++	Do(context.Context, *http.Request, outbound.Profile) (embeddingResponse, error)
++	StopAdmission()
++	Drain(context.Context) error
++}
++type embeddingD04Client struct{ *outbound.Client }
++
++func (c embeddingD04Client) Do(ctx context.Context, req *http.Request, p outbound.Profile) (embeddingResponse, error) {
++	response, err := c.Client.Do(ctx, req, p)
++	if err != nil {
++		return nil, err
++	}
++	return response, nil
++}
++
++type EmbeddingExchange struct {
++	mu          sync.Mutex
++	ctx         context.Context
++	cancel      context.CancelFunc
++	budget      *Budget
++	client      embeddingClient
++	material    sc.SecretMaterial // borrowed, never destroyed by the adapter
++	ioDone      chan struct{}
++	workerDone  chan struct{}
++	joinPermit  chan struct{}
++	joined      bool
++	consumed    bool
++	result      EmbeddingResult
++	err         error
++	joinErr     error
++	observation Observation
++	requestID   string
++}
++
++func newEmbeddingExchange(ctx context.Context, overall time.Duration, b *Budget, material sc.SecretMaterial) *EmbeddingExchange {
++	ctx, cancel := context.WithTimeout(ctx, overall)
++	x := &EmbeddingExchange{
++		ctx: ctx, cancel: cancel, budget: b, material: material,
++		ioDone: make(chan struct{}), workerDone: make(chan struct{}), joinPermit: make(chan struct{}, 1),
++		observation: Observation{Usage: mc.Usage{Source: mc.UnknownUsage}},
++	}
++	x.joinPermit <- struct{}{}
++	return x
++}
++func (x *EmbeddingExchange) cancelWork() { x.cancel() }
++
++func (x *EmbeddingExchange) run(create func() (embeddingClient, error), p embeddingPrepared) {
++	defer close(x.workerDone)
++	result, err := x.perform(create, p)
++	x.mu.Lock()
++	client := x.client
++	x.mu.Unlock()
++	if client != nil {
++		client.StopAdmission()
++	}
++	x.mu.Lock()
++	if e := x.ctx.Err(); e != nil {
++		result = EmbeddingResult{}
++		if err == nil {
++			err = contextFailure(e)
++		}
++	}
++	x.result, x.err = result, err
++	// Do, parser and both public Close boundaries have actually returned.
++	close(x.ioDone)
++	x.mu.Unlock()
++	// Original attempt budget only. A late D04 writer remains owned until a
++	// caller supplies its own remaining Close/Drain budget and joins it.
++	_ = x.waitJoined(x.ctx)
++}
++
++func (x *EmbeddingExchange) perform(create func() (embeddingClient, error), p embeddingPrepared) (result EmbeddingResult, err error) {
++	defer func() {
++		if e := p.request.Body.Close(); e != nil {
++			result = EmbeddingResult{}
++			if err == nil {
++				err = transportFailure(e)
++			}
++		}
++	}()
++	client, err := create()
++	if err != nil || nilPort(client) {
++		return EmbeddingResult{}, failure("unknown", "wire_transport_error")
++	}
++	x.mu.Lock()
++	x.client, x.observation.DoStarted = client, true
++	x.mu.Unlock()
++	response, err := client.Do(x.ctx, p.request, p.profile)
++	if !nilPort(response) {
++		defer func() {
++			if e := response.Close(); e != nil {
++				x.observeNetworkError(e)
++				result = EmbeddingResult{}
++				if err == nil {
++					err = transportFailure(e)
++				}
++			}
++		}()
++	}
++	if err != nil {
++		x.observeNetworkError(err)
++		return EmbeddingResult{}, transportFailure(err)
++	}
++	if nilPort(response) {
++		return EmbeddingResult{}, protocolFailure()
++	}
++	d := response.Decision()
++	x.mu.Lock()
++	x.observation.Decision = &d
++	x.requestID = requestID(response.Headers().Get("X-Request-Id"))
++	x.mu.Unlock()
++	body := response.Body()
++	if nilPort(body) {
++		return EmbeddingResult{}, protocolFailure()
++	}
++	reader := embeddingReadFunc(func(p []byte) (int, error) {
++		n, err := body.Read(p)
++		x.observeNetworkError(err)
++		return n, err
++	})
++	if response.StatusCode() != http.StatusOK {
++		// Discard only a bounded diagnostic body; never expose its bytes.
++		if _, err := io.Copy(io.Discard, io.LimitReader(reader, 64<<10)); err != nil {
++			return EmbeddingResult{}, transportFailure(err)
++		}
++		return EmbeddingResult{}, statusFailure(response.StatusCode())
++	}
++	media, _, err := mime.ParseMediaType(response.Headers().Get("Content-Type"))
++	if err != nil || media != "application/json" {
++		return EmbeddingResult{}, protocolFailure()
++	}
++	raw, err := readEmbeddingBody(x.ctx, reader, p.responseBytes)
++	if err != nil {
++		return EmbeddingResult{}, err
++	}
++	result, usage, err := parseEmbeddingJSON(x.ctx, raw, p.count, p.dimensions)
++	x.mu.Lock()
++	x.observation.Usage = usage.Clone()
++	result.ProviderRequestID = x.requestID
++	x.mu.Unlock()
++	if err != nil {
++		return EmbeddingResult{}, err
++	}
++	return result, nil
++}
++
++type embeddingReadFunc func([]byte) (int, error)
++
++func (r embeddingReadFunc) Read(p []byte) (int, error) { return r(p) }
++
++func (x *EmbeddingExchange) observeNetworkError(err error) {
++	var network *outbound.NetworkError
++	if !errors.As(err, &network) {
++		return
++	}
++	d := network.Decision()
++	x.mu.Lock()
++	x.observation.Decision = &d
++	x.mu.Unlock()
++}
++func (x *EmbeddingExchange) Observe() Observation {
++	if x == nil {
++		return Observation{Usage: mc.Usage{Source: mc.UnknownUsage}}
++	}
++	x.mu.Lock()
++	defer x.mu.Unlock()
++	o := x.observation
++	o.Usage = o.Usage.Clone()
++	if o.Decision != nil {
++		d := *o.Decision
++		if d.PolicyVersion != nil {
++			v := *d.PolicyVersion
++			d.PolicyVersion = &v
++		}
++		o.Decision = &d
++	}
++	return o
++}
++
++func (x *EmbeddingExchange) waitJoined(ctx context.Context) error { return x.join(ctx, false) }
++func (x *EmbeddingExchange) join(ctx context.Context, probe bool) error {
++	if x == nil || ctx == nil {
++		return invalid()
++	}
++	select {
++	case <-x.ioDone:
++	default:
++		if probe {
++			return contextFailure(context.Canceled)
++		}
++		select {
++		case <-x.ioDone:
++		case <-ctx.Done():
++			return contextFailure(ctx.Err())
++		}
++	}
++	// Only one actual Drain at a time, without an uninterruptible mutex wait.
++	// An instantaneous Joined probe never waits behind another join caller.
++	select {
++	case <-x.joinPermit:
++	default:
++		if probe {
++			return contextFailure(context.Canceled)
++		}
++		select {
++		case <-x.joinPermit:
++		case <-ctx.Done():
++			return contextFailure(ctx.Err())
++		}
++	}
++	defer func() { x.joinPermit <- struct{}{} }()
++	x.mu.Lock()
++	client, joined := x.client, x.joined
++	x.mu.Unlock()
++	if joined {
++		return nil
++	}
++	if client != nil {
++		if err := client.Drain(ctx); err != nil {
++			x.observeNetworkError(err)
++			if ctx.Err() != nil {
++				return contextFailure(ctx.Err())
++			}
++			safe := transportFailure(err)
++			// A real Drain failure stays a failed result even when a later
++			// explicit cleanup succeeds. A cancelled no-wait probe is not a
++			// business failure and cannot poison a still-running attempt.
++			if !probe {
++				x.mu.Lock()
++				if x.joinErr == nil {
++					x.joinErr = safe
++				}
++				x.result = EmbeddingResult{}
++				x.mu.Unlock()
++			}
++			return safe
++		}
++	}
++	x.mu.Lock()
++	if !x.joined {
++		x.joined = true
++		x.material = sc.SecretMaterial{}
++		x.budget.release(x)
++	}
++	x.mu.Unlock()
++	return nil
++}
++func (x *EmbeddingExchange) Joined() bool {
++	if x == nil {
++		return false
++	}
++	ctx, cancel := context.WithCancel(context.Background())
++	cancel()
++	return x.join(ctx, true) == nil
++}
++func (x *EmbeddingExchange) Close(ctx context.Context) error {
++	if x == nil || ctx == nil {
++		return invalid()
++	}
++	x.cancel()
++	return x.waitJoined(ctx)
++}
++
++func (x *EmbeddingExchange) readError(err error) error {
++	x.mu.Lock()
++	defer x.mu.Unlock()
++	var model *mc.ModelError
++	if !errors.As(err, &model) {
++		model = failure("unknown", "wire_transport_error")
++	}
++	v := *model
++	v.ProviderRequestID = x.requestID
++	v.Dispatched = x.observation.Decision != nil && x.observation.Decision.Sent
++	v.PartialOutput = false
++	return &v
++}
++
++func (x *EmbeddingExchange) consumerJoin(ctx context.Context) error {
++	wait, cancel := context.WithCancel(x.ctx)
++	callbackDone := make(chan struct{})
++	stop := context.AfterFunc(ctx, func() {
++		cancel()
++		close(callbackDone)
++	})
++	defer func() {
++		if !stop() {
++			<-callbackDone
++		}
++		cancel()
++	}()
++	if ctx.Err() != nil {
++		cancel()
++	}
++	err := x.waitJoined(wait)
++	if ctx.Err() != nil {
++		return contextFailure(ctx.Err())
++	}
++	if x.ctx.Err() != nil {
++		return contextFailure(x.ctx.Err())
++	}
++	return err
++}
++func (x *EmbeddingExchange) Result(ctx context.Context) (EmbeddingResult, error) {
++	if x == nil || ctx == nil {
++		return EmbeddingResult{}, invalid()
++	}
++	x.mu.Lock()
++	if x.consumed {
++		x.mu.Unlock()
++		return EmbeddingResult{}, f.NewFault(f.InvalidState, f.NotStarted)
++	}
++	x.consumed = true
++	x.mu.Unlock()
++	defer func() {
++		x.cancel()
++		x.mu.Lock()
++		x.result = EmbeddingResult{}
++		x.mu.Unlock()
++	}()
++	select {
++	case <-x.ioDone:
++	case <-ctx.Done():
++		return EmbeddingResult{}, x.readError(contextFailure(ctx.Err()))
++	case <-x.ctx.Done():
++		return EmbeddingResult{}, x.readError(contextFailure(x.ctx.Err()))
++	}
++	x.mu.Lock()
++	err := x.err
++	x.mu.Unlock()
++	if err != nil {
++		return EmbeddingResult{}, x.readError(err)
++	}
++	if err := x.consumerJoin(ctx); err != nil {
++		return EmbeddingResult{}, x.readError(err)
++	}
++	x.mu.Lock()
++	result, err := x.result, x.joinErr
++	x.result = EmbeddingResult{}
++	x.mu.Unlock()
++	if err != nil {
++		return EmbeddingResult{}, x.readError(err)
++	}
++	// Recheck cancellation after actual join and before any success escapes.
++	if err := ctx.Err(); err != nil {
++		return EmbeddingResult{}, x.readError(contextFailure(err))
++	}
++	if err := x.ctx.Err(); err != nil {
++		return EmbeddingResult{}, x.readError(contextFailure(err))
++	}
++	// Move the sole vector backing to the once-only consumer. Usage still has
++	// an independent observation copy; no vector remains in the handle.
++	result.Usage = result.Usage.Clone()
++	return result, nil
++}
++
++func (*EmbeddingExchange) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_exchange") }
++func (*EmbeddingExchange) MarshalJSON() ([]byte, error) {
++	return []byte("\"model_embedding_exchange\""), nil
++}
++func (*EmbeddingExchange) LogValue() slog.Value { return slog.StringValue("model_embedding_exchange") }
+--- /dev/null
++++ b/internal/central/model/adapter/embedding_transport_test.go
+@@ -0,0 +1,518 @@
++package adapter
++
++import (
++	"context"
++	"errors"
++	"io"
++	"net/http"
++	"reflect"
++	"strings"
++	"sync"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++)
++
++type embeddingTestGate struct {
++	entered, release chan struct{}
++	enter, leave     sync.Once
++}
++
++func embeddingGate() *embeddingTestGate {
++	return &embeddingTestGate{entered: make(chan struct{}), release: make(chan struct{})}
++}
++func (g *embeddingTestGate) block() {
++	g.enter.Do(func() { close(g.entered) })
++	<-g.release
++}
++func (g *embeddingTestGate) open() { g.leave.Do(func() { close(g.release) }) }
++func embeddingWait(t *testing.T, c <-chan struct{}, label string) {
++	t.Helper()
++	select {
++	case <-c:
++	case <-time.After(2 * time.Second):
++		t.Fatal("controlled boundary did not complete:", label)
++	}
++}
++
++type embeddingTestBody struct {
++	reader   io.Reader
++	eofGate  *embeddingTestGate
++	readErr  error
++	closeErr error
++	closes   atomic.Int32
++}
++
++func (b *embeddingTestBody) Read(p []byte) (int, error) {
++	n, err := b.reader.Read(p)
++	if err == io.EOF {
++		if b.eofGate != nil {
++			b.eofGate.block()
++		}
++		if b.readErr != nil {
++			return n, b.readErr
++		}
++	}
++	return n, err
++}
++func (b *embeddingTestBody) Close() error { b.closes.Add(1); return b.closeErr }
++
++type embeddingTestResponse struct {
++	status    int
++	headers   http.Header
++	body      *embeddingTestBody
++	decision  outbound.Decision
++	closeGate *embeddingTestGate
++	closeErr  error
++	closes    atomic.Int32
++}
++
++func (r *embeddingTestResponse) StatusCode() int             { return r.status }
++func (r *embeddingTestResponse) Headers() http.Header        { return r.headers.Clone() }
++func (r *embeddingTestResponse) Body() io.ReadCloser         { return r.body }
++func (r *embeddingTestResponse) Decision() outbound.Decision { return r.decision }
++func (r *embeddingTestResponse) Close() error {
++	r.closes.Add(1)
++	if r.closeGate != nil {
++		r.closeGate.block()
++	}
++	if err := r.body.Close(); err != nil {
++		return err
++	}
++	return r.closeErr
++}
++
++type embeddingTestClient struct {
++	response  embeddingResponse
++	doErr     error
++	doGate    *embeddingTestGate
++	onDo      func(context.Context, *http.Request, outbound.Profile)
++	drainGate *embeddingTestGate
++	drainErr  error
++	onDrain   func(context.Context) error
++	creates   atomic.Int32
++	doCalls   atomic.Int32
++	stops     atomic.Int32
++	drains    atomic.Int32
++	gates     []*embeddingTestGate
++}
++
++func (c *embeddingTestClient) Do(ctx context.Context, req *http.Request, profile outbound.Profile) (embeddingResponse, error) {
++	c.doCalls.Add(1)
++	if c.doGate != nil {
++		c.doGate.block()
++	}
++	if c.onDo != nil {
++		c.onDo(ctx, req, profile)
++	}
++	return c.response, c.doErr
++}
++func (c *embeddingTestClient) StopAdmission() { c.stops.Add(1) }
++func (c *embeddingTestClient) Drain(ctx context.Context) error {
++	c.drains.Add(1)
++	if c.onDrain != nil {
++		return c.onDrain(ctx)
++	}
++	if c.drainGate != nil {
++		c.drainGate.enter.Do(func() { close(c.drainGate.entered) })
++		select {
++		case <-c.drainGate.release:
++		default:
++			select {
++			case <-c.drainGate.release:
++			case <-ctx.Done():
++				return ctx.Err()
++			}
++		}
++	}
++	return c.drainErr
++}
++func (c *embeddingTestClient) release() {
++	for _, g := range c.gates {
++		g.open()
++	}
++}
++
++type embeddingOutcome struct {
++	result EmbeddingResult
++	err    error
++}
++type embeddingHarness struct {
++	x       *EmbeddingExchange
++	client  *embeddingTestClient
++	readers []<-chan struct{}
++}
++
++func embeddingResponseFor(raw string) *embeddingTestResponse {
++	version := f.Version(7)
++	return &embeddingTestResponse{
++		status:   http.StatusOK,
++		headers:  http.Header{"Content-Type": {"application/json; charset=utf-8"}, "X-Request-Id": {"embedding-request-7"}},
++		body:     &embeddingTestBody{reader: strings.NewReader(raw)},
++		decision: outbound.Decision{Sent: true, PolicyVersion: &version},
++	}
++}
++func embeddingValidBody() string {
++	return string(embeddingJSON("[{\"object\":\"embedding\",\"index\":0,\"embedding\":[1,2]}]", "{\"prompt_tokens\":0,\"total_tokens\":9007199254740993}"))
++}
++func startEmbeddingHarness(t *testing.T, parent context.Context, r EmbeddingRequest, o CallOptions, client *embeddingTestClient) *embeddingHarness {
++	t.Helper()
++	h := &embeddingHarness{client: client}
++	t.Cleanup(func() {
++		client.release()
++		if h.x != nil {
++			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
++			defer cancel()
++			_ = h.x.Close(ctx) // failures are asserted at their original boundary
++			embeddingWait(t, h.x.workerDone, "worker")
++			// A controlled non-context Drain failure is allowed to persist;
++			// each test that injects one supplies a later successful cleanup.
++			if !h.x.Joined() {
++				t.Error("actual controlled client remained unjoined")
++			}
++		}
++		for _, done := range h.readers {
++			embeddingWait(t, done, "Result caller")
++		}
++	})
++	a := &OpenAIEmbeddings{budget: NewBudget()}
++	x, err := a.start(parent, r, o, func() (embeddingClient, error) {
++		client.creates.Add(1)
++		return client, nil
++	})
++	if err != nil {
++		t.Fatal("controlled Start", err)
++	}
++	h.x = x
++	return h
++}
++func (h *embeddingHarness) result(ctx context.Context) <-chan embeddingOutcome {
++	out := make(chan embeddingOutcome, 1)
++	done := make(chan struct{})
++	h.readers = append(h.readers, done)
++	go func() {
++		defer close(done)
++		r, err := h.x.Result(ctx)
++		out <- embeddingOutcome{r, err}
++	}()
++	return out
++}
++func embeddingReceive(t *testing.T, out <-chan embeddingOutcome) embeddingOutcome {
++	t.Helper()
++	select {
++	case r := <-out:
++		return r
++	case <-time.After(2 * time.Second):
++		t.Fatal("Result caller did not return")
++		return embeddingOutcome{}
++	}
++}
++func embeddingSlot(t *testing.T, x *EmbeddingExchange, want int) {
++	t.Helper()
++	active, _ := x.budget.snapshot()
++	if len(active) != want {
++		t.Fatal("actual budget slot count", len(active), want)
++	}
++}
++func embeddingMaterial(t *testing.T, x *EmbeddingExchange, live bool) {
++	t.Helper()
++	x.mu.Lock()
++	m := x.material
++	x.mu.Unlock()
++	err := m.Use(func([]byte) error { return nil })
++	if (err == nil) != live {
++		t.Fatal("borrowed material retention", live)
++	}
++}
++
++func TestOpenAIEmbeddingsExchangeOwnership(t *testing.T) {
++	r, o := embeddingUnitInput(t)
++	gate := embeddingGate()
++	response := embeddingResponseFor(embeddingValidBody())
++	response.body.eofGate = gate
++	client := &embeddingTestClient{response: response, gates: []*embeddingTestGate{gate}}
++	h := startEmbeddingHarness(t, context.Background(), r, o, client)
++	embeddingWait(t, gate.entered, "EOF")
++	if value, err := h.x.Result(nil); err == nil || !reflect.DeepEqual(value, EmbeddingResult{}) {
++		t.Fatal("nil Result context consumed or returned a candidate")
++	}
++	first := h.result(context.Background())
++	deadline := time.NewTimer(time.Second)
++	defer deadline.Stop()
++	tick := time.NewTicker(time.Millisecond)
++	defer tick.Stop()
++	for {
++		h.x.mu.Lock()
++		consumed := h.x.consumed
++		h.x.mu.Unlock()
++		if consumed {
++			break
++		}
++		select {
++		case <-tick.C:
++		case <-deadline.C:
++			t.Fatal("Result ownership not acquired")
++		}
++	}
++	_, err := h.x.Result(context.Background())
++	requireFault(t, err, f.InvalidState)
++	select {
++	case <-first:
++		t.Fatal("parseable bytes without EOF published success")
++	default:
++	}
++	before := h.x.Observe()
++	if before.Usage.Source != mc.UnknownUsage || before.Decision == nil || !before.Decision.Sent {
++		t.Fatal("pre-EOF observation")
++	}
++	*before.Decision.PolicyVersion = 90
++	if *h.x.Observe().Decision.PolicyVersion != 7 {
++		t.Fatal("Decision alias")
++	}
++	gate.open()
++	result := embeddingReceive(t, first)
++	if result.err != nil || len(result.result.Items) != 1 || !reflect.DeepEqual(result.result.Items[0].Values, []float64{1, 2}) ||
++		result.result.ProviderRequestID != "embedding-request-7" || !h.x.Joined() {
++		t.Fatal("joined result shape", result.err)
++	}
++	result.result.Items[0].Values[0] = 88
++	*result.result.Usage.TotalTokens = 1
++	observed := h.x.Observe()
++	if observed.Usage.InputTokens == nil || *observed.Usage.InputTokens != 0 ||
++		observed.Usage.TotalTokens == nil || *observed.Usage.TotalTokens != 9007199254740993 {
++		t.Fatal("result/observation usage alias or precision")
++	}
++	*observed.Usage.TotalTokens = 2
++	if *h.x.Observe().Usage.TotalTokens != 9007199254740993 {
++		t.Fatal("Observe retained alias")
++	}
++	h.x.mu.Lock()
++	zero := reflect.DeepEqual(h.x.result, EmbeddingResult{})
++	h.x.mu.Unlock()
++	if !zero || client.creates.Load() != 1 || client.doCalls.Load() != 1 || client.stops.Load() != 1 ||
++		response.closes.Load() != 1 || response.body.closes.Load() != 1 {
++		t.Fatal("result transfer or exactly-once public operations")
++	}
++	embeddingSlot(t, h.x, 0)
++	embeddingMaterial(t, h.x, false)
++	if err := o.Credential.Use(func([]byte) error { return nil }); err != nil {
++		t.Fatal("adapter destroyed caller-owned material")
++	}
++	_, err = h.x.Result(context.Background())
++	requireFault(t, err, f.InvalidState)
++}
++
++func TestOpenAIEmbeddingsActualTerminalBarriers(t *testing.T) {
++	for _, stage := range []string{"Do", "EOF", "ResponseClose", "Drain"} {
++		t.Run(stage, func(t *testing.T) {
++			r, o := embeddingUnitInput(t)
++			o.Limits.Overall = 2 * time.Second
++			gate := embeddingGate()
++			response := embeddingResponseFor(embeddingValidBody())
++			client := &embeddingTestClient{response: response, gates: []*embeddingTestGate{gate}}
++			switch stage {
++			case "Do":
++				client.doGate = gate
++			case "EOF":
++				response.body.eofGate = gate
++			case "ResponseClose":
++				response.closeGate = gate
++			case "Drain":
++				client.drainGate = gate
++			}
++			h := startEmbeddingHarness(t, context.Background(), r, o, client)
++			embeddingWait(t, gate.entered, stage)
++			if h.x.Joined() {
++				t.Fatal("held actual boundary claimed joined")
++			}
++			embeddingSlot(t, h.x, 1)
++			embeddingMaterial(t, h.x, true)
++			caller, cancel := context.WithCancel(context.Background())
++			cancel()
++			got, err := h.x.Result(caller)
++			embeddingZero(t, got, err)
++			requireModel(t, err, "cancelled", "wire_cancelled")
++			wait, stop := context.WithTimeout(context.Background(), 40*time.Millisecond)
++			started := time.Now()
++			err = h.x.Close(wait)
++			elapsed := time.Since(started)
++			stop()
++			if err == nil || elapsed < 25*time.Millisecond || elapsed > 500*time.Millisecond || h.x.Joined() {
++				t.Fatal("Close forged completion or ignored caller budget", elapsed)
++			}
++			embeddingSlot(t, h.x, 1)
++			embeddingMaterial(t, h.x, true)
++			if stage == "ResponseClose" || stage == "Drain" {
++				u := h.x.Observe().Usage
++				if u.InputTokens == nil || *u.InputTokens != 0 || u.TotalTokens == nil {
++					t.Fatal("reliable EOF usage lost at actual tail")
++				}
++			}
++			gate.open()
++			wait, stop = context.WithTimeout(context.Background(), time.Second)
++			err = h.x.Close(wait)
++			stop()
++			if err != nil || !h.x.Joined() {
++				t.Fatal("actual tail did not join", err)
++			}
++			embeddingSlot(t, h.x, 0)
++			embeddingMaterial(t, h.x, false)
++			_, err = h.x.Result(context.Background())
++			requireFault(t, err, f.InvalidState)
++		})
++	}
++}
++
++func TestOpenAIEmbeddingsBoundaryFailures(t *testing.T) {
++	for _, name := range []string{"factory", "Do", "read", "ResponseClose", "requestClose", "Drain", "mime", "401", "404", "429", "302", "dimension"} {
++		t.Run(name, func(t *testing.T) {
++			r, o := embeddingUnitInput(t)
++			response := embeddingResponseFor(embeddingValidBody())
++			client := &embeddingTestClient{response: response}
++			privateErr := errors.New("embedding-private-error-canary")
++			wantCategory, wantCode := mc.ErrorCategory("network"), "wire_transport_error"
++			wantUsage := false
++			switch name {
++			case "factory":
++				a := &OpenAIEmbeddings{budget: NewBudget()}
++				x, err := a.start(context.Background(), r, o, func() (embeddingClient, error) { return nil, privateErr })
++				if err != nil || x == nil {
++					t.Fatal("accepted failure must retain exact handle")
++				}
++				t.Cleanup(func() {
++					ctx, cancel := context.WithTimeout(context.Background(), time.Second)
++					defer cancel()
++					_ = x.Close(ctx)
++					embeddingWait(t, x.workerDone, "factory worker")
++				})
++				got, err := x.Result(context.Background())
++				embeddingZero(t, got, err)
++				requireModel(t, err, "unknown", "wire_transport_error")
++				if x.Observe().DoStarted || x.Observe().Decision != nil {
++					t.Fatal("factory failure fabricated Do/Decision")
++				}
++				return
++			case "Do":
++				client.response, client.doErr = nil, privateErr
++			case "read":
++				response.body.readErr = io.ErrUnexpectedEOF
++			case "ResponseClose":
++				response.closeErr, wantUsage = privateErr, true
++			case "requestClose":
++				wantUsage = true
++				client.onDo = func(_ context.Context, req *http.Request, _ outbound.Profile) {
++					req.Body = &embeddingTestBody{reader: req.Body, closeErr: privateErr}
++				}
++			case "Drain":
++				wantUsage = true
++				var calls atomic.Int32
++				client.onDrain = func(context.Context) error {
++					if calls.Add(1) == 1 {
++						return privateErr
++					}
++					return nil
++				}
++			case "mime":
++				response.headers.Set("Content-Type", "text/plain")
++				wantCategory, wantCode = "provider_error", "wire_protocol_invalid"
++			case "401":
++				response.status = 401
++				wantCategory, wantCode = "authentication", "wire_http_error"
++			case "404", "302":
++				response.status = 404
++				if name == "302" {
++					response.status = 302
++				}
++				wantCategory, wantCode = "provider_error", "wire_http_error"
++			case "429":
++				response.status = 429
++				wantCategory, wantCode = "rate_limited", "wire_http_error"
++			case "dimension":
++				r.ExpectedDimensions = 3
++				wantCategory, wantCode, wantUsage = "provider_error", "wire_protocol_invalid", true
++			}
++			h := startEmbeddingHarness(t, context.Background(), r, o, client)
++			if name == "Drain" {
++				// The first actual failed Drain must remain a failed Result
++				// even though the subsequent cleanup Drain can succeed.
++				embeddingWait(t, h.x.workerDone, "original failed Drain")
++			}
++			got, err := h.x.Result(context.Background())
++			embeddingZero(t, got, err)
++			m := requireModel(t, err, wantCategory, wantCode)
++			if strings.Contains(err.Error(), "canary") || m.PartialOutput || m.Dispatched != (name != "Do") || m.Retryable != (name == "429") {
++				t.Fatal("unsafe or fabricated error facts")
++			}
++			if (h.x.Observe().Usage.InputTokens != nil) != wantUsage {
++				t.Fatal("EOF reliable usage boundary")
++			}
++			if client.creates.Load() != 1 || client.doCalls.Load() != 1 {
++				t.Fatal("adapter retried")
++			}
++			if name != "Do" && response.closes.Load() != 1 {
++				t.Fatal("public response Close was not observed")
++			}
++		})
++	}
++}
++
++func TestOpenAIEmbeddingsCancellationAndJoin(t *testing.T) {
++	for _, boundary := range []string{"parent", "result", "cancel-after-join"} {
++		t.Run(boundary, func(t *testing.T) {
++			r, o := embeddingUnitInput(t)
++			o.Limits.Overall = time.Second
++			parent := context.Background()
++			var parentCancel context.CancelFunc
++			if boundary == "parent" {
++				parent, parentCancel = context.WithTimeout(parent, 50*time.Millisecond)
++				defer parentCancel()
++			}
++			gate := embeddingGate()
++			client := &embeddingTestClient{response: embeddingResponseFor(embeddingValidBody()), drainGate: gate, gates: []*embeddingTestGate{gate}}
++			caller, cancel := context.WithCancel(context.Background())
++			defer cancel()
++			if boundary == "cancel-after-join" {
++				client.drainGate = nil
++				client.onDrain = func(context.Context) error { cancel(); return nil }
++			}
++			h := startEmbeddingHarness(t, parent, r, o, client)
++			if boundary != "cancel-after-join" {
++				embeddingWait(t, gate.entered, "join")
++			}
++			if boundary == "parent" {
++				pd, _ := parent.Deadline()
++				xd, _ := h.x.ctx.Deadline()
++				if !pd.Equal(xd) {
++					t.Fatal("earlier parent deadline was replaced")
++				}
++			}
++			out := h.result(caller)
++			if boundary == "result" {
++				cancel()
++			}
++			got := embeddingReceive(t, out)
++			embeddingZero(t, got.result, got.err)
++			if boundary == "parent" {
++				requireModel(t, got.err, "timeout", "wire_transport_error")
++			} else {
++				requireModel(t, got.err, "cancelled", "wire_cancelled")
++			}
++			u := h.x.Observe().Usage
++			if u.InputTokens == nil || *u.InputTokens != 0 {
++				t.Fatal("cancelled tail lost reliable usage")
++			}
++			if boundary != "cancel-after-join" {
++				embeddingSlot(t, h.x, 1)
++				embeddingMaterial(t, h.x, true)
++				if h.x.Joined() {
++					t.Fatal("cancelled join released actual held client")
++				}
++				gate.open()
++			}
++		})
++	}
++}
+--- /dev/null
++++ b/internal/central/model/adapter/openai_embeddings.go
+@@ -0,0 +1,348 @@
++package adapter
++
++import (
++	"bytes"
++	"context"
++	"fmt"
++	"log/slog"
++	"net/http"
++	"net/url"
++	"strings"
++	"time"
++	"unicode/utf8"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++)
++
++const OpenAIEmbeddingsFloatRevision = "openai-embeddings-float-v1"
++
++const (
++	embeddingMaxItems       = 128
++	embeddingMaxDimensions  = 4096
++	embeddingMaxValues      = 262144
++	embeddingTextBytes      = 1 << 20
++	embeddingTotalTextBytes = 4 << 20
++	embeddingRequestBytes   = 8 << 20
++	embeddingResponseBytes  = 16 << 20
++	embeddingCheckBytes     = 4096
++	embeddingNumberBytes    = 64
++	embeddingAuxiliaryBytes = 64 << 10
++)
++
++type EmbeddingRequest struct {
++	Snapshot           mc.ConfigSnapshot
++	Texts              []string
++	ExpectedDimensions int
++}
++
++type EmbeddingResult struct {
++	Items             []mc.Embedding
++	Usage             mc.Usage
++	ProviderRequestID string
++}
++
++type OpenAIEmbeddings struct {
++	transport Transport
++	budget    *Budget
++}
++
++func NewOpenAIEmbeddings(t Transport, b *Budget) (*OpenAIEmbeddings, error) {
++	if b == nil || b.state == nil || t.Resolver != nil && nilPort(t.Resolver) {
++		return nil, invalid()
++	}
++	if t.Resolver == nil {
++		var err error
++		t.Resolver, err = outbound.SystemResolver()
++		if err != nil {
++			return nil, invalid()
++		}
++	}
++	// This formal dependency check creates no I/O or work goroutine.
++	probe, err := outbound.NewClient(t.Policy, t.Trust, t.Resolver)
++	if err != nil {
++		return nil, invalid()
++	}
++	probe.StopAdmission()
++	return &OpenAIEmbeddings{transport: t, budget: b}, nil
++}
++
++func (a *OpenAIEmbeddings) Start(ctx context.Context, r EmbeddingRequest, o CallOptions) (*EmbeddingExchange, error) {
++	return a.start(ctx, r, o, func() (embeddingClient, error) {
++		client, err := outbound.NewClient(a.transport.Policy, a.transport.Trust, a.transport.Resolver)
++		if err != nil {
++			return nil, err
++		}
++		return embeddingD04Client{client}, nil
++	})
++}
++
++// The private creation seam exercises the same admission and handle path with
++// controlled public I/O boundaries in pure tests. Public Start always uses D04.
++func (a *OpenAIEmbeddings) start(ctx context.Context, r EmbeddingRequest, o CallOptions, create func() (embeddingClient, error)) (*EmbeddingExchange, error) {
++	if a == nil || a.budget == nil || ctx == nil || create == nil {
++		return nil, invalid()
++	}
++	prepared, err := prepareEmbeddings(ctx, r, o)
++	if err != nil {
++		return nil, err
++	}
++	var x *EmbeddingExchange
++	err = a.budget.admit(ctx, o.ProjectID, func() budgetWork {
++		x = newEmbeddingExchange(ctx, o.Limits.Overall, a.budget, o.Credential)
++		return x
++	})
++	if err != nil {
++		_ = prepared.request.Body.Close()
++		return nil, err
++	}
++	go x.run(create, prepared)
++	return x, nil
++}
++
++func (*OpenAIEmbeddings) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_adapter") }
++func (*OpenAIEmbeddings) MarshalJSON() ([]byte, error) {
++	return []byte(`"model_embedding_adapter"`), nil
++}
++func (*OpenAIEmbeddings) LogValue() slog.Value { return slog.StringValue("model_embedding_adapter") }
++
++// embeddingPrepared owns an encoded request, not a dispatched exchange.
++// Construction, admission and transport are separate from this pure boundary.
++type embeddingPrepared struct {
++	request       *http.Request
++	profile       outbound.Profile
++	count         int
++	dimensions    int
++	responseBytes int64
++}
++
++func embeddingShape(n, dimensions int) bool {
++	return n > 0 && n <= embeddingMaxItems && dimensions > 0 &&
++		dimensions <= embeddingMaxDimensions && n <= embeddingMaxValues/dimensions
++}
++
++func prepareEmbeddings(ctx context.Context, r EmbeddingRequest, o CallOptions) (embeddingPrepared, error) {
++	fail := func(err error) (embeddingPrepared, error) { return embeddingPrepared{}, err }
++	if ctx == nil {
++		return fail(invalid())
++	}
++	if err := ctx.Err(); err != nil {
++		return fail(contextFailure(err))
++	}
++	if !embeddingShape(len(r.Texts), r.ExpectedDimensions) || r.Snapshot.Validate() != nil ||
++		!unicodeEscapes(r.Snapshot.Parameters) || !unicodeEscapes(r.Snapshot.RequestOverwrite) ||
++		o.ProjectID.Validate() != nil {
++		return fail(invalid())
++	}
++	s, c := r.Snapshot.Identity, r.Snapshot.Capabilities
++	if s.Protocol != mc.OpenAIEmbeddings || s.Profile != mc.OpenAIEmbeddingsV1 ||
++		s.ModelType != mc.EmbeddingModel || s.AdapterRevision != OpenAIEmbeddingsFloatRevision ||
++		!onlyText(c.InputModalities) || len(c.OutputModalities) != 1 || c.OutputModalities[0] != "vector" ||
++		c.Streaming || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 ||
++		len(c.StructuredOutputModes) != 0 || c.MaxOutput != nil ||
++		!emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 {
++		return fail(unsupported())
++	}
++	total := 0
++	for _, text := range r.Texts {
++		if len(text) == 0 || len(text) > embeddingTextBytes || len(text) > embeddingTotalTextBytes-total ||
++			!utf8.ValidString(text) || strings.IndexByte(text, 0) >= 0 {
++			return fail(invalid())
++		}
++		total += len(text)
++		if err := ctx.Err(); err != nil {
++			return fail(contextFailure(err))
++		}
++	}
++	if o.Limits.Overall <= 0 || o.Limits.Overall > 120*time.Second {
++		return fail(invalid())
++	}
++	idle := min(60*time.Second, o.Limits.Overall)
++	if o.Limits.ReadIdle == 0 {
++		o.Limits.ReadIdle = idle
++	} else if o.Limits.ReadIdle < 0 || o.Limits.ReadIdle > idle {
++		return fail(invalid())
++	}
++	requestCap := int64(embeddingRequestBytes)
++	if o.Limits.RequestBodyBytes != 0 {
++		if o.Limits.RequestBodyBytes < 0 || o.Limits.RequestBodyBytes > 16<<20 {
++			return fail(invalid())
++		}
++		requestCap = min(requestCap, o.Limits.RequestBodyBytes)
++	}
++	responseCap := int64(embeddingResponseBytes)
++	if o.Limits.ResponseBodyBytes != 0 {
++		if o.Limits.ResponseBodyBytes < 0 || o.Limits.ResponseBodyBytes > embeddingResponseBytes {
++			return fail(invalid())
++		}
++		responseCap = o.Limits.ResponseBodyBytes
++	}
++	// Count exactly the same JSON escapes used by the encoder, before either
++	// cloning the input or allocating the body. All counts are bounded above.
++	size := len("{\"model\":") + len(",\"input\":[") + len("],\"encoding_format\":\"float\"}")
++	n, err := embeddingQuotedSize(ctx, s.ProviderModelID)
++	if err != nil {
++		return fail(err)
++	}
++	size += n
++	for i, text := range r.Texts {
++		n, err = embeddingQuotedSize(ctx, text)
++		if err != nil {
++			return fail(err)
++		}
++		if i > 0 {
++			size++
++		}
++		if int64(n) > requestCap-int64(size) {
++			return fail(limitFailure())
++		}
++		size += n
++	}
++	if int64(size) > requestCap {
++		return fail(limitFailure())
++	}
++
++	// Strings are immutable; copy their slice and every mutable Snapshot field.
++	r.Snapshot = r.Snapshot.Clone()
++	r.Texts = append([]string(nil), r.Texts...)
++	raw := make([]byte, 0, size)
++	raw = append(raw, "{\"model\":"...)
++	raw, err = embeddingAppendString(ctx, raw, r.Snapshot.Identity.ProviderModelID)
++	if err != nil {
++		return fail(err)
++	}
++	raw = append(raw, ",\"input\":["...)
++	for i, text := range r.Texts {
++		if i > 0 {
++			raw = append(raw, ',')
++		}
++		raw, err = embeddingAppendString(ctx, raw, text)
++		if err != nil {
++			return fail(err)
++		}
++	}
++	raw = append(raw, "],\"encoding_format\":\"float\"}"...)
++	if len(raw) != size {
++		return fail(protocolFailure())
++	}
++
++	u, err := url.Parse(r.Snapshot.Endpoint)
++	if err != nil || u.User != nil || u.RawQuery != "" || u.ForceQuery || u.Fragment != "" {
++		return fail(invalid())
++	}
++	path := strings.TrimSuffix(u.EscapedPath(), "/") + "/embeddings"
++	u.Path, err = url.PathUnescape(path)
++	if err != nil {
++		return fail(invalid())
++	}
++	u.RawPath = path
++	target, err := outbound.ParseTarget(u.String())
++	if err != nil {
++		return fail(invalid())
++	}
++	if o.Credential.Use(func([]byte) error { return nil }) != nil {
++		return fail(invalid())
++	}
++	field, err := outbound.HeaderCredential("Authorization", "Bearer ", o.Credential)
++	if err != nil {
++		return fail(invalid())
++	}
++	binding, err := outbound.NewCredentialBinding(target.Origin(), field)
++	if err != nil {
++		return fail(invalid())
++	}
++	o.Limits.RequestBodyBytes, o.Limits.ResponseBodyBytes = requestCap, responseCap
++	profile, err := outbound.NewProfile(outbound.ProfileOptions{
++		Consumer: ac.Model, AllowHTTP: o.AllowHTTP, Limits: o.Limits, Context: o.Context, Credentials: binding,
++	})
++	if err != nil {
++		return fail(invalid())
++	}
++	if err := ctx.Err(); err != nil {
++		return fail(contextFailure(err))
++	}
++	req, err := http.NewRequest(http.MethodPost, target.URL().String(), bytes.NewReader(raw))
++	if err != nil {
++		return fail(invalid())
++	}
++	req.Header.Set("Content-Type", "application/json")
++	req.Header.Set("Accept", "application/json")
++	req.Close = true
++	return embeddingPrepared{req, profile, len(r.Texts), r.ExpectedDimensions, responseCap}, nil
++}
++
++func embeddingQuotedSize(ctx context.Context, s string) (int, error) {
++	n, next := 2, 0
++	for i, r := range s {
++		if i >= next {
++			if err := ctx.Err(); err != nil {
++				return 0, contextFailure(err)
++			}
++			next = i + embeddingCheckBytes
++		}
++		switch {
++		case r == '"' || r == '\\' || r == '\n' || r == '\r' || r == '\t' || r == '\b' || r == '\f':
++			n += 2
++		case r < 32 || r == '<' || r == '>' || r == '&' || r == '\u2028' || r == '\u2029':
++			n += 6
++		default:
++			n += utf8.RuneLen(r)
++		}
++	}
++	return n, nil
++}
++
++func embeddingAppendString(ctx context.Context, dst []byte, s string) ([]byte, error) {
++	const hex = "0123456789abcdef"
++	dst = append(dst, '"')
++	next := 0
++	for i, r := range s {
++		if i >= next {
++			if err := ctx.Err(); err != nil {
++				return nil, contextFailure(err)
++			}
++			next = i + embeddingCheckBytes
++		}
++		switch r {
++		case '"', '\\':
++			dst = append(dst, '\\', byte(r))
++		case '\n':
++			dst = append(dst, '\\', 'n')
++		case '\r':
++			dst = append(dst, '\\', 'r')
++		case '\t':
++			dst = append(dst, '\\', 't')
++		case '\b':
++			dst = append(dst, '\\', 'b')
++		case '\f':
++			dst = append(dst, '\\', 'f')
++		default:
++			if r < 32 || r == '<' || r == '>' || r == '&' || r == '\u2028' || r == '\u2029' {
++				dst = append(dst, '\\', 'u', hex[(r>>12)&15], hex[(r>>8)&15], hex[(r>>4)&15], hex[r&15])
++			} else {
++				dst = utf8.AppendRune(dst, r)
++			}
++		}
++	}
++	return append(dst, '"'), nil
++}
++
++func (EmbeddingRequest) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_wire_request") }
++func (EmbeddingRequest) MarshalJSON() ([]byte, error) {
++	return []byte("\"model_embedding_wire_request\""), nil
++}
++func (EmbeddingRequest) LogValue() slog.Value {
++	return slog.StringValue("model_embedding_wire_request")
++}
++func (EmbeddingResult) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_wire_result") }
++func (EmbeddingResult) MarshalJSON() ([]byte, error) {
++	return []byte("\"model_embedding_wire_result\""), nil
++}
++func (EmbeddingResult) LogValue() slog.Value { return slog.StringValue("model_embedding_wire_result") }
++
++func (embeddingPrepared) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_prepared") }
++func (embeddingPrepared) MarshalJSON() ([]byte, error) {
++	return []byte("\"model_embedding_prepared\""), nil
++}
++func (embeddingPrepared) LogValue() slog.Value { return slog.StringValue("model_embedding_prepared") }
+--- /dev/null
++++ b/internal/central/model/adapter/openai_embeddings_test.go
+@@ -0,0 +1,400 @@
++package adapter
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"fmt"
++	"io"
++	"log/slog"
++	"math"
++	"os"
++	"path/filepath"
++	"runtime"
++	"strings"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++func embeddingUnitInput(t *testing.T) (EmbeddingRequest, CallOptions) {
++	t.Helper()
++	chat, o := unitInput(t)
++	chat.Snapshot.Identity.Protocol = mc.OpenAIEmbeddings
++	chat.Snapshot.Identity.Profile = mc.OpenAIEmbeddingsV1
++	chat.Snapshot.Identity.ModelType = mc.EmbeddingModel
++	chat.Snapshot.Identity.AdapterRevision = OpenAIEmbeddingsFloatRevision
++	chat.Snapshot.Capabilities.Streaming = false
++	chat.Snapshot.Capabilities.OutputModalities = []string{"vector"}
++	return EmbeddingRequest{Snapshot: chat.Snapshot, Texts: []string{"  text & 世界\n"}, ExpectedDimensions: 2}, o
++}
++
++func TestOpenAIEmbeddingsProfileAndSafeViews(t *testing.T) {
++	raw, err := os.ReadFile("testdata/openai-embeddings-float-v1.json")
++	if err != nil {
++		t.Fatal(err)
++	}
++	var profile struct {
++		Revision, Protocol, Profile, Commit string
++		Sources                             []struct{ Path, URL, SHA256 string }
++		Adopted, Unsupported                []string
++		Conformance                         bool
++	}
++	if json.Unmarshal(raw, &profile) != nil || profile.Revision != OpenAIEmbeddingsFloatRevision ||
++		profile.Protocol != string(mc.OpenAIEmbeddings) || profile.Profile != string(mc.OpenAIEmbeddingsV1) ||
++		profile.Commit != "becc1d20eed83c1b8d85e15dc131a372d9dc7813" || profile.Conformance ||
++		strings.Join(profile.Adopted, ",") != "model,input,encoding_format=float" ||
++		strings.Join(profile.Unsupported, ",") != "dimensions,token_arrays,base64,user,stream,request_overwrite,header_overwrite" {
++		t.Fatal("profile identity or supported boundary changed")
++	}
++	expected := map[string]string{
++		"src/openai/resources/embeddings.py":            "3c8f49bd504319f298b4cc5cc67d537e434814a3b06f352b41ad4a04fddaa262",
++		"src/openai/types/embedding_create_params.py":   "0b4f8235983b9c6ed04f9ab5563b22c9f144e46e597ff8dfc084a2f021a67c3f",
++		"src/openai/types/create_embedding_response.py": "7a5a25314a25b5fc13361de3f77eecfdcd5c77e52c402955588957bffcebe13c",
++		"src/openai/types/embedding.py":                 "11348ef537cd3994c0395b7ef55640b55504d1b2fe9d5c4deec31a9e160b6942",
++		"src/openai/types/embedding_model.py":           "d90fcf1d47d2d99afb42338a0cb98efddfb9a55caccb10c5012086162810576e",
++		"LICENSE":                                       "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
++	}
++	if len(profile.Sources) != len(expected) {
++		t.Fatal("source set")
++	}
++	for _, source := range profile.Sources {
++		if expected[source.Path] != source.SHA256 || source.URL != "https://raw.githubusercontent.com/openai/openai-python/"+profile.Commit+"/"+source.Path {
++			t.Fatal("source provenance changed")
++		}
++		delete(expected, source.Path)
++	}
++	if len(expected) != 0 {
++		t.Fatal("duplicate/missing source")
++	}
++	r, o := embeddingUnitInput(t)
++	r.Texts = []string{"embedding-wire-private-canary"}
++	r.Snapshot.Endpoint = "https://embedding-wire-private-canary.example/"
++	result := EmbeddingResult{ProviderRequestID: "embedding-wire-private-canary", Items: []mc.Embedding{{Values: []float64{9876.54321}}}}
++	prepared, err := prepareEmbeddings(context.Background(), r, o)
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer prepared.request.Body.Close()
++	for _, value := range []any{r, &r, result, &result, o, prepared, &OpenAIEmbeddings{transport: Transport{}}, &EmbeddingExchange{result: result}, embeddingScan(context.Background(), []byte("embedding-wire-private-canary"))} {
++		for _, format := range []string{"%v", "%+v", "%#v", "%s", "%q", "%x"} {
++			rendered := fmt.Sprintf(format, value)
++			if strings.Contains(rendered, "canary") || strings.Contains(rendered, "9876") {
++				t.Fatal("format leaked private content")
++			}
++		}
++		encoded, err := json.Marshal(value)
++		if err != nil || bytes.Contains(encoded, []byte("canary")) || bytes.Contains(encoded, []byte("9876")) {
++			t.Fatal("JSON leaked private content")
++		}
++		var log strings.Builder
++		slog.New(slog.NewJSONHandler(&log, nil)).Info("safe", "value", value)
++		if strings.Contains(log.String(), "canary") || strings.Contains(log.String(), "9876") {
++			t.Fatal("slog leaked private content")
++		}
++	}
++}
++
++func TestOpenAIEmbeddingsPrepareAndIsolation(t *testing.T) {
++	for _, path := range []string{"", "/base%2Fsegment/", "/base//inner/", "/base/./inner/", "/base/%2e/"} {
++		t.Run(path, func(t *testing.T) {
++			r, o := embeddingUnitInput(t)
++			r.Snapshot.Endpoint = "https://provider.example" + path
++			r.Texts = []string{" \b\f\n\r\t\\\"<&>\u000b\u2028\u2029世界😀 "}
++			want, err := json.Marshal(struct {
++				Model    string   `json:"model"`
++				Input    []string `json:"input"`
++				Encoding string   `json:"encoding_format"`
++			}{r.Snapshot.Identity.ProviderModelID, append([]string(nil), r.Texts...), "float"})
++			if err != nil {
++				t.Fatal(err)
++			}
++			p, err := prepareEmbeddings(context.Background(), r, o)
++			if err != nil {
++				t.Fatal(err)
++			}
++			defer p.request.Body.Close()
++			r.Texts[0] = "changed"
++			r.Snapshot.Identity.ProviderModelID = "changed"
++			r.Snapshot.Parameters[0] = '['
++			r.Snapshot.Capabilities.OutputModalities[0] = "changed"
++			got, err := io.ReadAll(p.request.Body)
++			if err != nil || !bytes.Equal(got, want) {
++				t.Fatal("native body differs from original exact JSON shape")
++			}
++			if p.request.Method != "POST" || p.request.URL.RequestURI() != strings.TrimSuffix(path, "/")+"/embeddings" ||
++				p.request.Header.Get("Content-Type") != "application/json" || p.request.Header.Get("Accept") != "application/json" ||
++				p.request.Header.Get("Authorization") != "" || !p.request.Close ||
++				p.count != 1 || p.dimensions != 2 || p.responseBytes != embeddingResponseBytes {
++				t.Fatal("prepared request boundary")
++			}
++		})
++	}
++	r, o := embeddingUnitInput(t)
++	p, err := prepareEmbeddings(context.Background(), r, o)
++	if err != nil {
++		t.Fatal(err)
++	}
++	length := p.request.ContentLength
++	p.request.Body.Close()
++	o.Limits.RequestBodyBytes = length
++	o.Limits.ResponseBodyBytes = 17
++	p, err = prepareEmbeddings(context.Background(), r, o)
++	if err != nil || p.responseBytes != 17 {
++		t.Fatal("exact tighter body limit")
++	}
++	p.request.Body.Close()
++	o.Limits.RequestBodyBytes--
++	p, err = prepareEmbeddings(context.Background(), r, o)
++	if p.request != nil {
++		t.Fatal("over-limit request allocated")
++	}
++	requireModel(t, err, "provider_error", "wire_limit_exceeded")
++}
++
++func TestOpenAIEmbeddingsInputLimits(t *testing.T) {
++	for _, tc := range []struct {
++		name        string
++		mutate      func(*EmbeddingRequest, *CallOptions)
++		unsupported bool
++	}{
++		{"zero_items", func(r *EmbeddingRequest, _ *CallOptions) { r.Texts = nil }, false},
++		{"129_items", func(r *EmbeddingRequest, _ *CallOptions) { r.Texts = make([]string, 129) }, false},
++		{"zero_dimensions", func(r *EmbeddingRequest, _ *CallOptions) { r.ExpectedDimensions = 0 }, false},
++		{"negative_dimensions", func(r *EmbeddingRequest, _ *CallOptions) { r.ExpectedDimensions = -1 }, false},
++		{"dimensions_overflow", func(r *EmbeddingRequest, _ *CallOptions) { r.ExpectedDimensions = math.MaxInt }, false},
++		{"4097_dimensions", func(r *EmbeddingRequest, _ *CallOptions) { r.ExpectedDimensions = 4097 }, false},
++		{"product", func(r *EmbeddingRequest, _ *CallOptions) { r.Texts = make([]string, 65); r.ExpectedDimensions = 4096 }, false},
++		{"empty", func(r *EmbeddingRequest, _ *CallOptions) { r.Texts = []string{""} }, false},
++		{"utf8", func(r *EmbeddingRequest, _ *CallOptions) { r.Texts = []string{string([]byte{0xff})} }, false},
++		{"nul", func(r *EmbeddingRequest, _ *CallOptions) { r.Texts = []string{"a\x00b"} }, false},
++		{"text_limit", func(r *EmbeddingRequest, _ *CallOptions) {
++			r.Texts = []string{strings.Repeat("x", embeddingTextBytes+1)}
++		}, false},
++		{"aggregate_limit", func(r *EmbeddingRequest, _ *CallOptions) {
++			r.Texts = []string{strings.Repeat("x", embeddingTextBytes), strings.Repeat("x", embeddingTextBytes), strings.Repeat("x", embeddingTextBytes), strings.Repeat("x", embeddingTextBytes), "x"}
++		}, false},
++		{"missing_snapshot", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot = mc.ConfigSnapshot{} }, false},
++		{"revision", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Identity.AdapterRevision = "another" }, true},
++		{"different_protocol", func(r *EmbeddingRequest, _ *CallOptions) {
++			r.Snapshot.Identity.Protocol = mc.OpenAIChat
++			r.Snapshot.Identity.Profile = mc.OpenAIChatV1
++			r.Snapshot.Identity.ModelType = mc.ChatModel
++		}, true},
++		{"streaming", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Capabilities.Streaming = true }, true},
++		{"tools", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Capabilities.ToolCalls = true }, true},
++		{"parallel", func(r *EmbeddingRequest, _ *CallOptions) {
++			r.Snapshot.Capabilities.ToolCalls = true
++			r.Snapshot.Capabilities.ParallelToolCalls = true
++		}, true},
++		{"reasoning", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Capabilities.Reasoning = true }, true},
++		{"modalities", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Capabilities.OutputModalities = []string{"text"} }, true},
++		{"max_output", func(r *EmbeddingRequest, _ *CallOptions) {
++			v := mc.TokenCount(1)
++			r.Snapshot.Capabilities.MaxOutput = &v
++		}, true},
++		{"dimensions_parameter", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Parameters = []byte(`{"dimensions":2}`) }, true},
++		{"overwrite", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.RequestOverwrite = []byte(`{"user":"x"}`) }, true},
++		{"header", func(r *EmbeddingRequest, _ *CallOptions) {
++			r.Snapshot.HeaderOverwrite = map[string]string{"X-Test": "x"}
++		}, true},
++		{"duplicate", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Parameters = []byte(`{"x":1,"x":2}`) }, false},
++		{"bad_surrogate", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Parameters = []byte(`{"x":"\ud800"}`) }, false},
++		{"overall_zero", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.Overall = 0 }, false},
++		{"overall_long", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.Overall = 121 * time.Second }, false},
++		{"idle_long", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.ReadIdle = 2 * time.Second }, false},
++		{"bad_request_limit", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.RequestBodyBytes = -1 }, false},
++		{"bad_response_limit", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.ResponseBodyBytes = embeddingResponseBytes + 1 }, false},
++		{"query", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Endpoint += "?x=1" }, false},
++		{"credential", func(_ *EmbeddingRequest, o *CallOptions) { o.Credential = sc.SecretMaterial{} }, false},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			r, o := embeddingUnitInput(t)
++			tc.mutate(&r, &o)
++			p, err := prepareEmbeddings(context.Background(), r, o)
++			if p.request != nil {
++				p.request.Body.Close()
++				t.Fatal("invalid input published prepared request")
++			}
++			if tc.unsupported {
++				requireModel(t, err, "unsupported_feature", "wire_unsupported_feature")
++			} else {
++				requireFault(t, err, f.InvalidArgument)
++			}
++		})
++	}
++	t.Run("max_product_and_total_text", func(t *testing.T) {
++		r, o := embeddingUnitInput(t)
++		r.ExpectedDimensions = 2048
++		r.Texts = make([]string, 128)
++		for i := range r.Texts {
++			r.Texts[i] = strings.Repeat("x", 32768)
++		}
++		p, err := prepareEmbeddings(context.Background(), r, o)
++		if err != nil {
++			t.Fatal(err)
++		}
++		p.request.Body.Close()
++		if p.count*p.dimensions != 262144 {
++			t.Fatal("exact product")
++		}
++	})
++	t.Run("escaped_budget_before_body_allocation", func(t *testing.T) {
++		r, o := embeddingUnitInput(t)
++		r.Texts = []string{strings.Repeat("<", embeddingTextBytes), strings.Repeat("<", embeddingTextBytes)}
++		var before, after runtime.MemStats
++		runtime.ReadMemStats(&before)
++		p, err := prepareEmbeddings(context.Background(), r, o)
++		runtime.ReadMemStats(&after)
++		if p.request != nil {
++			p.request.Body.Close()
++			t.Fatal("escaped request accepted")
++		}
++		requireModel(t, err, "provider_error", "wire_limit_exceeded")
++		if after.TotalAlloc-before.TotalAlloc > 1<<20 {
++			t.Fatal("allocated rejected encoded body")
++		}
++		t.Logf("rejected encoding allocated=%d bytes (<1 MiB)", after.TotalAlloc-before.TotalAlloc)
++	})
++}
++
++// The wrapper triggers a real context cancellation at an observed check, with
++// no timers or background worker. Its Err still reports the real parent Err.
++type embeddingCheckContext struct {
++	context.Context
++	cancel    context.CancelFunc
++	calls, at int
++}
++
++func (c *embeddingCheckContext) Err() error {
++	c.calls++
++	if c.calls == c.at {
++		c.cancel()
++	}
++	return c.Context.Err()
++}
++func TestOpenAIEmbeddingsPreflightCancellation(t *testing.T) {
++	r, o := embeddingUnitInput(t)
++	r.Texts = []string{strings.Repeat("x", embeddingTextBytes)}
++	parent, cancel := context.WithCancel(context.Background())
++	defer cancel()
++	ctx := &embeddingCheckContext{Context: parent, cancel: cancel, at: 5}
++	p, err := prepareEmbeddings(ctx, r, o)
++	if p.request != nil {
++		p.request.Body.Close()
++		t.Fatal("cancelled preflight published request")
++	}
++	requireModel(t, err, "cancelled", "wire_cancelled")
++	if parent.Err() != context.Canceled || ctx.calls != 5 {
++		t.Fatal("cancellation checkpoint not reached")
++	}
++	p, err = prepareEmbeddings(nil, r, o)
++	if p.request != nil {
++		t.Fatal("nil context")
++	}
++	requireFault(t, err, f.InvalidArgument)
++}
++
++// Embedded nil ports panic if used: constructor must only check dependencies,
++// and must not execute Store/Audit methods or make a network request.
++type embeddingNoIOStore struct{ outbound.Store }
++type embeddingNoIOAudit struct{ ac.Appender }
++
++func TestOpenAIEmbeddingsConstructorAndAdmission(t *testing.T) {
++	var resolver nilResolver
++	for _, tc := range []struct {
++		transport Transport
++		budget    *Budget
++	}{{Transport{}, nil}, {Transport{}, &Budget{}}, {Transport{Resolver: resolver}, NewBudget()}, {Transport{Policy: &outbound.PolicyService{}}, NewBudget()}} {
++		if a, err := NewOpenAIEmbeddings(tc.transport, tc.budget); a != nil || err == nil {
++			t.Fatal("invalid Embedding constructor")
++		}
++	}
++	// Bound system-root discovery to an empty owned file/directory. This only
++	// creates a formal TrustStore; it does not authorize any TLS endpoint.
++	dir := t.TempDir()
++	file := filepath.Join(dir, "roots.pem")
++	if err := os.WriteFile(file, nil, 0600); err != nil {
++		t.Fatal(err)
++	}
++	t.Setenv("SSL_CERT_FILE", file)
++	t.Setenv("SSL_CERT_DIR", dir)
++	trust, err := outbound.LoadTrustStore("")
++	if err != nil {
++		t.Fatal("formal trust construction", err)
++	}
++	policy, err := outbound.NewPolicyService(&embeddingNoIOStore{}, &embeddingNoIOAudit{}, outbound.Authorizations{})
++	if err != nil {
++		t.Fatal(err)
++	}
++	b := NewBudget()
++	a, err := NewOpenAIEmbeddings(Transport{Policy: policy, Trust: trust}, b)
++	if err != nil || a == nil || a.budget != b || a.transport.Policy != policy {
++		t.Fatal("formal constructor", err)
++	}
++	if active, _ := b.snapshot(); len(active) != 0 {
++		t.Fatal("constructor admitted work")
++	}
++	r, o := embeddingUnitInput(t)
++	var creates atomic.Int32
++	create := func() (embeddingClient, error) {
++		creates.Add(1)
++		return nil, nil
++	}
++	b.StopAdmission()
++	for _, name := range []string{"cancelled", "nil-context", "shape", "unsupported", "sealed"} {
++		t.Run(name, func(t *testing.T) {
++			input := r
++			ctx := context.Background()
++			switch name {
++			case "cancelled":
++				var cancel context.CancelFunc
++				ctx, cancel = context.WithCancel(ctx)
++				cancel()
++			case "nil-context":
++				ctx = nil
++			case "shape":
++				input.ExpectedDimensions = 0
++			case "unsupported":
++				input.Snapshot = input.Snapshot.Clone()
++				input.Snapshot.Parameters = json.RawMessage("{\"dimensions\":2}")
++			}
++			x, err := a.start(ctx, input, o, create)
++			if x != nil || err == nil || creates.Load() != 0 {
++				t.Fatal("pre-admission failure created a client or handle")
++			}
++			switch name {
++			case "cancelled":
++				requireModel(t, err, "cancelled", "wire_cancelled")
++			case "nil-context", "shape":
++				requireFault(t, err, f.InvalidArgument)
++			case "unsupported":
++				requireModel(t, err, "unsupported_feature", "wire_unsupported_feature")
++			case "sealed":
++				requireFault(t, err, f.ShuttingDown)
++			}
++		})
++	}
++	if active, _ := b.snapshot(); len(active) != 0 || !b.Joined() {
++		t.Fatal("preflight reserved a slot")
++	}
++	// The public Start shares that preflight/admission path and cannot reach
++	// a Client when the input is cancelled, unsupported or admission is sealed.
++	ctx, cancel := context.WithCancel(context.Background())
++	cancel()
++	x, err := a.Start(ctx, r, o)
++	if x != nil {
++		t.Fatal("public cancelled Start returned a handle")
++	}
++	requireModel(t, err, "cancelled", "wire_cancelled")
++	var none *OpenAIEmbeddings
++	if x, err := none.Start(context.Background(), r, o); x != nil || err == nil {
++		t.Fatal("nil adapter")
++	}
++}
+--- /dev/null
++++ b/internal/central/model/adapter/testdata/openai-embeddings-float-v1.json
+@@ -0,0 +1,87 @@
++{
++  "revision": "openai-embeddings-float-v1",
++  "protocol": "openai-embeddings",
++  "profile": "openai-embeddings-v1",
++  "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
++  "conformance": false,
++  "adopted": [
++    "model",
++    "input",
++    "encoding_format=float"
++  ],
++  "unsupported": [
++    "dimensions",
++    "token_arrays",
++    "base64",
++    "user",
++    "stream",
++    "request_overwrite",
++    "header_overwrite"
++  ],
++  "sources": [
++    {
++      "path": "src/openai/resources/embeddings.py",
++      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/resources/embeddings.py",
++      "sha256": "3c8f49bd504319f298b4cc5cc67d537e434814a3b06f352b41ad4a04fddaa262",
++      "bytes": 11163
++    },
++    {
++      "path": "src/openai/types/embedding_create_params.py",
++      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/embedding_create_params.py",
++      "sha256": "0b4f8235983b9c6ed04f9ab5563b22c9f144e46e597ff8dfc084a2f021a67c3f",
++      "bytes": 2081
++    },
++    {
++      "path": "src/openai/types/create_embedding_response.py",
++      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/create_embedding_response.py",
++      "sha256": "7a5a25314a25b5fc13361de3f77eecfdcd5c77e52c402955588957bffcebe13c",
++      "bytes": 847
++    },
++    {
++      "path": "src/openai/types/embedding.py",
++      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/embedding.py",
++      "sha256": "11348ef537cd3994c0395b7ef55640b55504d1b2fe9d5c4deec31a9e160b6942",
++      "bytes": 716
++    },
++    {
++      "path": "src/openai/types/embedding_model.py",
++      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/embedding_model.py",
++      "sha256": "d90fcf1d47d2d99afb42338a0cb98efddfb9a55caccb10c5012086162810576e",
++      "bytes": 280
++    },
++    {
++      "path": "LICENSE",
++      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/LICENSE",
++      "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
++      "bytes": 11336
++    }
++  ],
++  "usage_projection": {
++    "prompt_tokens": "input_tokens",
++    "total_tokens": "total_tokens",
++    "missing_or_null": "unknown; no inferred counts"
++  },
++  "dimensions": {
++    "source": "Explicit trusted caller validation requirement; not provider default or discovery.",
++    "minimum": 1,
++    "maximum": 4096,
++    "max_vectors": 128,
++    "max_product": 262144,
++    "native_dimensions": false
++  },
++  "bounds": {
++    "per_text_utf8_bytes": 1048576,
++    "total_text_utf8_bytes": 4194304,
++    "encoded_request_bytes": 8388608,
++    "response_bytes": 16777216,
++    "number_literal_bytes": 64,
++    "json_depth": 8,
++    "parser_owned_capacity_exclusive": 22020096
++  },
++  "evidence_limits": [
++    "Static official SDK source only; no SDK execution or provider smoke.",
++    "Default dimensions/model-specific conformance not established.",
++    "Official guide and cookbook revision query each failed proxy CONNECT 403; no source content acquired.",
++    "Missing usage success follows the accepted D09 contract, not SDK required-field typing."
++  ]
++}
+--- a/internal/central/model/adapter/transport.go
++++ b/internal/central/model/adapter/transport.go
+@@ -426,3 +426,6 @@
+ func (Transport) Format(w fmt.State, _ rune)     { safeFormat(w, "model_wire_transport") }
+ func (Transport) MarshalJSON() ([]byte, error)   { return []byte(`"model_wire_transport"`), nil }
+ func (Transport) LogValue() slog.Value           { return slog.StringValue("model_wire_transport") }
++
++// cancelWork forwards the shared budget signal without changing Chat lifecycle.
++func (x *Exchange) cancelWork() { x.cancel() }
+--- /dev/null
++++ b/tests/model/openai_embeddings_wire_budget_test.go
+@@ -0,0 +1,210 @@
++//go:build integration
++
++package model_test
++
++import (
++	"context"
++	"encoding/json"
++	"net/http/httptrace"
++	"sync"
++	"testing"
++	"time"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++)
++
++func TestModelOpenAIEmbeddingsWireBudget(t *testing.T) {
++	v, _, ctx := embeddingWireFixture(t)
++	v.allow(t, true)
++	t.Run("text_structured_and_embeddings_share_global64_and_project8", func(t *testing.T) {
++		b := wire.NewBudget()
++		ea := embeddingWireAdapter(t, v, b)
++		text, structured := v.newAdapter(t, b), v.newAdapter(t, b)
++		hold := 0
++		ecfg := wireJSON(embeddingWireReply(t, []int{0}, [][]float64{{1, 2}}, nil))
++		ecfg.HoldAfter = &hold
++		ekey := embeddingWireScenario(t, v, ecfg)
++		ccfg := wireJSON(wireReply("text", "stop", nil, nil))
++		ccfg.HoldAfter = &hold
++		ckey := v.scenario(t, ccfg)
++		scfg := wireJSON(wireReply(`{"v":1}`, "stop", nil, nil))
++		scfg.HoldAfter = &hold
++		skey := v.scenario(t, scfg)
++		var embeddings []*wire.EmbeddingExchange
++		var chats []*wire.Exchange
++		var counts [3]int
++		for projectIndex := 0; projectIndex < 8; projectIndex++ {
++			project := newID[id.Project](t)
++			for slot := 0; slot < 8; slot++ {
++				kind := (projectIndex + slot) % 3
++				counts[kind]++
++				switch kind {
++				case 0:
++					r, o := embeddingWireInput(t, v, ekey)
++					o.ProjectID, o.Limits.Overall = project, 120*time.Second
++					embeddings = append(embeddings, embeddingWireStart(t, ctx, ea, r, o))
++				case 1:
++					r, o := v.input(t, ckey, wire.JSONResponse)
++					o.ProjectID, o.Limits.Overall = project, 120*time.Second
++					chats = append(chats, v.start(t, ctx, text, r, o))
++				case 2:
++					r, o := structuredWireInput(t, v, skey, wire.JSONResponse)
++					r.ResponseFormat.Schema = json.RawMessage(structuredScalarSchema)
++					o.ProjectID, o.Limits.Overall = project, 120*time.Second
++					chats = append(chats, v.start(t, ctx, structured, r, o))
++				}
++			}
++			r, o := embeddingWireInput(t, v, ekey)
++			o.ProjectID = project
++			if x, err := ea.Start(ctx, r, o); x != nil {
++				t.Fatal("mixed project ninth embedding admitted")
++			} else {
++				wireFault(t, err, f.ResourceBusy)
++			}
++			cr, co := structuredWireInput(t, v, skey, wire.JSONResponse)
++			co.ProjectID = project
++			if x, err := structured.Start(ctx, cr, co); x != nil {
++				t.Fatal("mixed project ninth structured call admitted")
++			} else {
++				wireFault(t, err, f.ResourceBusy)
++			}
++		}
++		r, o := embeddingWireInput(t, v, ekey)
++		if x, err := ea.Start(ctx, r, o); x != nil {
++			t.Fatal("mixed global sixty-fifth embedding admitted")
++		} else {
++			wireFault(t, err, f.ResourceBusy)
++		}
++		cr, co := v.input(t, ckey, wire.JSONResponse)
++		if x, err := text.Start(ctx, cr, co); x != nil {
++			t.Fatal("mixed global sixty-fifth text call admitted")
++		} else {
++			wireFault(t, err, f.ResourceBusy)
++		}
++		wireWait(t, "exact mixed native dispatches not observed", func() bool {
++			return len(v.state(t, ekey).Requests) == counts[0] && len(v.state(t, ckey).Requests) == counts[1] && len(v.state(t, skey).Requests) == counts[2]
++		})
++		for _, x := range embeddings {
++			if x.Joined() {
++				t.Fatal("held embedding body released budget")
++			}
++		}
++		for _, x := range chats {
++			if x.Joined() {
++				t.Fatal("held chat body released budget")
++			}
++		}
++		b.StopAdmission()
++		if x, err := ea.Start(ctx, r, o); x != nil {
++			t.Fatal("stopped embedding admitted")
++		} else {
++			wireFault(t, err, f.ShuttingDown)
++		}
++		if x, err := text.Start(ctx, cr, co); x != nil {
++			t.Fatal("stopped text admitted")
++		} else {
++			wireFault(t, err, f.ShuttingDown)
++		}
++		sr, so := structuredWireInput(t, v, skey, wire.JSONResponse)
++		if x, err := structured.Start(ctx, sr, so); x != nil {
++			t.Fatal("stopped structured call admitted")
++		} else {
++			wireFault(t, err, f.ShuttingDown)
++		}
++		expired, cancel := context.WithCancel(ctx)
++		cancel()
++		if err := b.Drain(expired); err == nil || b.Joined() {
++			t.Fatal("cancelled Drain claimed held clients terminal")
++		}
++		cleanup, finish := context.WithTimeout(ctx, 5*time.Second)
++		defer finish()
++		if err := b.Force(cleanup); err != nil || !b.Joined() {
++			t.Fatal("one mixed Force budget failed to actually join", err)
++		}
++		for _, x := range embeddings {
++			if !x.Joined() {
++				t.Fatal("embedding escaped actual cleanup")
++			}
++		}
++		for _, x := range chats {
++			if !x.Joined() {
++				t.Fatal("chat escaped actual cleanup")
++			}
++		}
++		for index, key := range []string{ekey, ckey, skey} {
++			v.settled(t, key)
++			if len(v.state(t, key).Requests) != counts[index] {
++				t.Fatal("rejected mixed work was queued or retried")
++			}
++		}
++	})
++	t.Run("force_cancels_both_protocols_before_waiting_in_one_caller_budget", func(t *testing.T) {
++		b := wire.NewBudget()
++		ea, chat := embeddingWireAdapter(t, v, b), v.newAdapter(t, b)
++		hold := 0
++		ecfg := wireJSON(embeddingWireReply(t, []int{0}, [][]float64{{1, 2}}, nil))
++		ecfg.HoldAfter = &hold
++		ekey := embeddingWireScenario(t, v, ecfg)
++		ccfg := wireJSON(wireReply(`{"v":1}`, "stop", nil, nil))
++		ccfg.HoldAfter = &hold
++		ckey := v.scenario(t, ccfg)
++		entered := []chan struct{}{make(chan struct{}), make(chan struct{})}
++		returned := []chan struct{}{make(chan struct{}), make(chan struct{})}
++		released := make(chan struct{})
++		var once sync.Once
++		release := func() { once.Do(func() { close(released) }) }
++		t.Cleanup(release)
++		traced := func(index int) context.Context {
++			return httptrace.WithClientTrace(ctx, &httptrace.ClientTrace{WroteRequest: func(httptrace.WroteRequestInfo) {
++				close(entered[index])
++				<-released
++				close(returned[index])
++			}})
++		}
++		r, o := embeddingWireInput(t, v, ekey)
++		ex := embeddingWireStart(t, traced(0), ea, r, o)
++		cr, co := structuredWireInput(t, v, ckey, wire.JSONResponse)
++		cr.ResponseFormat.Schema = json.RawMessage(structuredScalarSchema)
++		cx := v.start(t, traced(1), chat, cr, co)
++		for _, checkpoint := range entered {
++			waitSignal(t, checkpoint)
++		}
++		wireWait(t, "two held writers not dispatched", func() bool {
++			return len(v.state(t, ekey).Requests) == 1 && len(v.state(t, ckey).Requests) == 1
++		})
++		short, cancel := context.WithTimeout(ctx, 60*time.Millisecond)
++		started := time.Now()
++		err := b.Force(short)
++		elapsed := time.Since(started)
++		done := short.Err()
++		cancel()
++		wireModelError(t, err, "timeout", "wire_transport_error", false, false)
++		if done != context.DeadlineExceeded || elapsed > 560*time.Millisecond || ex.Joined() || cx.Joined() || b.Joined() {
++			t.Fatal("Force deadline manufactured actual terminal")
++		}
++		wireWait(t, "Force did not cancel both types before waiting", func() bool {
++			ed, cd := ex.Observe().Decision, cx.Observe().Decision
++			return ed != nil && cd != nil && ed.Reason == ac.Cancelled && cd.Reason == ac.Cancelled && ed.Sent && cd.Sent
++		})
++		if o.Credential.Use(func([]byte) error { return nil }) != nil || co.Credential.Use(func([]byte) error { return nil }) != nil {
++			t.Fatal("Force retired borrowed material before actual writer return")
++		}
++		release()
++		for _, checkpoint := range returned {
++			waitSignal(t, checkpoint)
++		}
++		cleanup, finish := context.WithTimeout(ctx, 5*time.Second)
++		defer finish()
++		if err := b.Drain(cleanup); err != nil || !b.Joined() || !ex.Joined() || !cx.Joined() {
++			t.Fatal("released mixed writers did not actually join", err)
++		}
++		result, err := ex.Result(ctx)
++		embeddingWireZero(t, result)
++		wireModelError(t, err, "cancelled", "wire_cancelled", true, false)
++		v.settled(t, ekey)
++		v.settled(t, ckey)
++	})
++}
+--- /dev/null
++++ b/tests/model/openai_embeddings_wire_fixture_test.go
+@@ -0,0 +1,149 @@
++//go:build integration
++
++package model_test
++
++import (
++	"context"
++	"encoding/json"
++	"reflect"
++	"testing"
++	"time"
++
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
++)
++
++// The accepted fixture owns real Account/Audit/Policy services and controlled
++// TLS resources. Its synthetic Snapshot/material is not a Nonchat binding.
++func embeddingWireFixture(t *testing.T) (*wireFixture, *wire.OpenAIEmbeddings, context.Context) {
++	t.Helper()
++	started := time.Now()
++	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
++	t.Cleanup(func() {
++		cancel()
++		if time.Since(started) > 2*time.Minute {
++			t.Error("embedding scenario exceeded its two-minute budget")
++		}
++	})
++	v := newWireFixture(t)
++	return v, embeddingWireAdapter(t, v, v.budget), ctx
++}
++
++func embeddingWireAdapter(t *testing.T, v *wireFixture, b *wire.Budget) *wire.OpenAIEmbeddings {
++	t.Helper()
++	a, err := wire.NewOpenAIEmbeddings(v.transport, b)
++	if err != nil {
++		t.Fatal("embedding constructor", err)
++	}
++	known := false
++	for _, existing := range v.budgets {
++		known = known || existing == b
++	}
++	if !known {
++		v.budgets = append(v.budgets, b)
++	}
++	return a
++}
++
++func embeddingWireScenario(t *testing.T, v *wireFixture, cfg netfixture.WireScenario) string {
++	t.Helper()
++	key, err := v.net.Create(testContext(t), netfixture.ScenarioConfig{Mode: "openai_embeddings_wire", Wire: &cfg})
++	if err != nil {
++		t.Fatal("embedding scenario", err)
++	}
++	v.cases = append(v.cases, key)
++	return key
++}
++
++func embeddingWireInput(t *testing.T, v *wireFixture, key string) (wire.EmbeddingRequest, wire.CallOptions) {
++	t.Helper()
++	chat, options := v.input(t, key, wire.JSONResponse)
++	snapshot := chat.Snapshot
++	snapshot.Identity.Protocol = mc.OpenAIEmbeddings
++	snapshot.Identity.Profile = mc.OpenAIEmbeddingsV1
++	snapshot.Identity.ModelType = mc.EmbeddingModel
++	snapshot.Identity.AdapterRevision = wire.OpenAIEmbeddingsFloatRevision
++	snapshot.Capabilities = mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}
++	return wire.EmbeddingRequest{Snapshot: snapshot, Texts: []string{"  exact 世界\n"}, ExpectedDimensions: 2}, options
++}
++
++func embeddingWireStart(t *testing.T, ctx context.Context, a *wire.OpenAIEmbeddings, r wire.EmbeddingRequest, o wire.CallOptions) *wire.EmbeddingExchange {
++	t.Helper()
++	x, err := a.Start(ctx, r, o)
++	if err != nil || x == nil {
++		t.Fatal("embedding admission", err)
++	}
++	return x
++}
++
++func embeddingWireClose(t *testing.T, x *wire.EmbeddingExchange) {
++	t.Helper()
++	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
++	defer cancel()
++	if err := x.Close(ctx); err != nil || !x.Joined() {
++		t.Fatal("embedding actual close/join", err)
++	}
++}
++
++func embeddingWireZero(t *testing.T, result wire.EmbeddingResult) {
++	t.Helper()
++	if !reflect.DeepEqual(result, wire.EmbeddingResult{}) {
++		t.Fatal("failed embedding result published a candidate")
++	}
++}
++
++type embeddingWireOutcome struct {
++	result wire.EmbeddingResult
++	err    error
++}
++
++// Every asynchronous Result has a cancellation path and an actual return
++// checkpoint, including failures before the main test receives its result.
++func embeddingWireConsume(t *testing.T, parent context.Context, x *wire.EmbeddingExchange) <-chan embeddingWireOutcome {
++	t.Helper()
++	ctx, cancel := context.WithCancel(parent)
++	out := make(chan embeddingWireOutcome, 1)
++	done := make(chan struct{})
++	go func() {
++		defer close(done)
++		result, err := x.Result(ctx)
++		out <- embeddingWireOutcome{result, err}
++	}()
++	t.Cleanup(func() {
++		cancel()
++		wait, stop := context.WithTimeout(context.Background(), 5*time.Second)
++		defer stop()
++		if err := x.Close(wait); err != nil || !x.Joined() {
++			t.Error("asynchronous embedding cleanup did not join", err)
++		}
++		select {
++		case <-done:
++		case <-wait.Done():
++			t.Error("asynchronous Result did not actually return")
++		}
++	})
++	return out
++}
++
++func embeddingWireReply(t *testing.T, indices []int, values [][]float64, usage json.RawMessage) []byte {
++	t.Helper()
++	type row struct {
++		Object string    `json:"object"`
++		Index  int       `json:"index"`
++		Values []float64 `json:"embedding"`
++	}
++	items := make([]row, len(indices))
++	for i, index := range indices {
++		items[i] = row{"embedding", index, values[i]}
++	}
++	response := map[string]any{"object": "list", "model": "provider-response-alias", "data": items}
++	if usage != nil {
++		response["usage"] = usage
++	}
++	body, err := json.Marshal(response)
++	if err != nil {
++		t.Fatal("synthetic embedding response shape")
++	}
++	return body
++}
+--- /dev/null
++++ b/tests/model/openai_embeddings_wire_http_test.go
+@@ -0,0 +1,210 @@
++//go:build integration
++
++package model_test
++
++import (
++	"context"
++	"encoding/json"
++	"reflect"
++	"strconv"
++	"strings"
++	"testing"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
++)
++
++func TestModelOpenAIEmbeddingsWireHTTP(t *testing.T) {
++	v, a, ctx := embeddingWireFixture(t)
++	t.Run("real_policy_and_exact_frozen_float_batch", func(t *testing.T) {
++		cfg := wireJSON(embeddingWireReply(t, []int{1, 0}, [][]float64{{3.5, -4}, {1, 2}}, json.RawMessage(`{"prompt_tokens":9007199254740993,"total_tokens":0}`)))
++		cfg.Suffix = "/base%2Fkeep//./inner/embeddings"
++		key := embeddingWireScenario(t, v, cfg)
++		r, o := embeddingWireInput(t, v, key)
++		r.Texts = append(r.Texts, "second\tinput")
++		r.Snapshot.Endpoint += "/base%2Fkeep//./inner/"
++		denied := embeddingWireStart(t, ctx, a, r, o)
++		result, err := denied.Result(ctx)
++		embeddingWireZero(t, result)
++		wireModelError(t, err, "permission", "wire_transport_error", false, false)
++		embeddingWireClose(t, denied)
++		if d := denied.Observe(); !d.DoStarted || d.Decision == nil || d.Decision.Reason != ac.PrivateNotAllowed || d.Decision.Sent || len(v.state(t, key).Requests) != 0 {
++			t.Fatal("real policy denial did not prove zero send")
++		}
++		v.allow(t, true)
++		x := embeddingWireStart(t, ctx, a, r, o)
++		r.Texts[0] = "mutated after admission"
++		r.ExpectedDimensions = 1
++		r.Snapshot.Identity.ProviderModelID = "mutated model"
++		result, err = x.Result(ctx)
++		want := []mc.Embedding{{Index: 0, Values: []float64{1, 2}}, {Index: 1, Values: []float64{3.5, -4}}}
++		if err != nil || !x.Joined() || !reflect.DeepEqual(result.Items, want) || result.ProviderRequestID != "req_wire:1" {
++			t.Fatal("complete ordered embedding batch", err)
++		}
++		u := result.Usage
++		if u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 9007199254740993 || u.TotalTokens == nil || *u.TotalTokens != 0 || u.OutputTokens != nil || u.CachedInputTokens != nil || u.CacheWriteTokens != nil || u.ReasoningTokens != nil {
++			t.Fatal("exact embedding usage projection")
++		}
++		*u.InputTokens = 1
++		if *x.Observe().Usage.InputTokens != 9007199254740993 {
++			t.Fatal("embedding observation aliases result")
++		}
++		state := v.state(t, key)
++		if len(state.Requests) != 1 {
++			t.Fatal("embedding request count")
++		}
++		got := state.Requests[0]
++		if got.Method != "POST" || got.Host != "fixture.test:8443" || got.RequestURI != "/case/"+key+cfg.Suffix || got.Query != "" || got.Headers.Get("Authorization") != "Bearer "+wireCredentialCanary || got.Headers.Get("Content-Type") != "application/json" || got.Headers.Get("Accept") != "application/json" {
++			t.Fatal("embedding origin/path/header binding")
++		}
++		var body map[string]json.RawMessage
++		var texts []string
++		if json.Unmarshal([]byte(got.Body), &body) != nil || len(body) != 3 || string(body["model"]) != `"fixture-native-model"` || string(body["encoding_format"]) != `"float"` || json.Unmarshal(body["input"], &texts) != nil || !reflect.DeepEqual(texts, []string{"  exact 世界\n", "second\tinput"}) {
++			t.Fatal("embedding body keys/order/original text")
++		}
++		if d := x.Observe().Decision; d == nil || !d.Sent || d.Reason != "" {
++			t.Fatal("successful embedding lacks actual Decision")
++		}
++		if again, err := x.Result(ctx); err == nil {
++			t.Fatal("embedding Result consumed twice")
++		} else {
++			embeddingWireZero(t, again)
++			wireFault(t, err, f.InvalidState)
++		}
++		embeddingWireClose(t, x)
++		v.settled(t, key)
++	})
++	t.Run("single_item_stays_array_and_missing_usage_stays_unknown", func(t *testing.T) {
++		key := embeddingWireScenario(t, v, wireJSON(embeddingWireReply(t, []int{0}, [][]float64{{0, 0}}, nil)))
++		r, o := embeddingWireInput(t, v, key)
++		x := embeddingWireStart(t, ctx, a, r, o)
++		result, err := x.Result(ctx)
++		if err != nil || len(result.Items) != 1 || !reflect.DeepEqual(result.Usage, mc.Usage{Source: mc.UnknownUsage}) {
++			t.Fatal("single embedding/unknown usage", err)
++		}
++		state := v.state(t, key)
++		var body struct{ Input []string }
++		if len(state.Requests) != 1 || json.Unmarshal([]byte(state.Requests[0].Body), &body) != nil || len(body.Input) != 1 || body.Input[0] != r.Texts[0] {
++			t.Fatal("single input was not an unchanged string array")
++		}
++		embeddingWireClose(t, x)
++	})
++	t.Run("unsupported_invalid_cancelled_are_zero_handles_and_requests", func(t *testing.T) {
++		key := embeddingWireScenario(t, v, wireJSON(nil))
++		for _, kind := range []string{"dimensions", "overwrite", "header", "revision", "bad_dimension", "duplicate", "cancelled"} {
++			r, o := embeddingWireInput(t, v, key)
++			call := ctx
++			switch kind {
++			case "dimensions":
++				r.Snapshot.Parameters = json.RawMessage(`{"dimensions":2}`)
++			case "overwrite":
++				r.Snapshot.RequestOverwrite = json.RawMessage(`{"encoding_format":"base64"}`)
++			case "header":
++				r.Snapshot.HeaderOverwrite = map[string]string{"X-Custom": "unsupported"}
++			case "revision":
++				r.Snapshot.Identity.AdapterRevision = "unverified-revision"
++			case "bad_dimension":
++				r.ExpectedDimensions = 0
++			case "duplicate":
++				r.Snapshot.Parameters = json.RawMessage(`{"x":1,"x":2}`)
++			case "cancelled":
++				c, cancel := context.WithCancel(ctx)
++				cancel()
++				call = c
++			}
++			x, err := a.Start(call, r, o)
++			if x != nil {
++				t.Fatal("rejected embedding acquired handle")
++			}
++			switch kind {
++			case "bad_dimension", "duplicate":
++				wireFault(t, err, f.InvalidArgument)
++			case "cancelled":
++				wireModelError(t, err, "cancelled", "wire_cancelled", false, false)
++			default:
++				wireModelError(t, err, "unsupported_feature", "wire_unsupported_feature", false, false)
++			}
++		}
++		empty, cancel := context.WithCancel(ctx)
++		cancel()
++		if len(v.state(t, key).Requests) != 0 || v.budget.Drain(empty) != nil {
++			t.Fatal("preflight rejection sent or occupied a slot")
++		}
++		var nilResolver wireNilResolver
++		transport := v.transport
++		transport.Resolver = nilResolver
++		if _, err := wire.NewOpenAIEmbeddings(transport, wire.NewBudget()); err == nil {
++			t.Fatal("typed nil resolver accepted")
++		}
++	})
++	t.Run("safe_status_mapping_without_retry", func(t *testing.T) {
++		for _, tc := range []struct {
++			status   int
++			category mc.ErrorCategory
++			retry    bool
++		}{{400, "provider_error", false}, {401, "authentication", false}, {403, "permission", false}, {404, "provider_error", false}, {429, "rate_limited", true}, {500, "provider_error", false}, {502, "provider_unavailable", true}, {503, "provider_unavailable", true}, {504, "provider_unavailable", true}} {
++			t.Run(strconv.Itoa(tc.status), func(t *testing.T) {
++				cfg := wireJSON([]byte(strings.Repeat(wireBodyCanary, 3000)))
++				cfg.Status = tc.status
++				cfg.Headers["X-Request-Id"] = "unsafe request id"
++				key := embeddingWireScenario(t, v, cfg)
++				r, o := embeddingWireInput(t, v, key)
++				x := embeddingWireStart(t, ctx, a, r, o)
++				result, err := x.Result(ctx)
++				embeddingWireZero(t, result)
++				m := wireModelError(t, err, tc.category, "wire_http_error", true, false)
++				if m.Retryable != tc.retry || m.ProviderRequestID != "" || len(v.state(t, key).Requests) != 1 {
++					t.Fatal("embedding status retried or leaked request id")
++				}
++				embeddingWireClose(t, x)
++			})
++		}
++	})
++	t.Run("tls_and_post_redirect_preserve_actual_send_boundary", func(t *testing.T) {
++		key := embeddingWireScenario(t, v, wireJSON(nil))
++		r, o := embeddingWireInput(t, v, key)
++		r.Snapshot.Endpoint = strings.Replace(r.Snapshot.Endpoint, "fixture.test", "wrong.fixture.test", 1)
++		x := embeddingWireStart(t, ctx, a, r, o)
++		result, err := x.Result(ctx)
++		embeddingWireZero(t, result)
++		wireModelError(t, err, "network", "wire_transport_error", false, false)
++		if d := x.Observe().Decision; d == nil || d.Reason != ac.TLSFailed || d.Sent || len(v.state(t, key).Requests) != 0 {
++			t.Fatal("TLS failure did not preserve zero send")
++		}
++		embeddingWireClose(t, x)
++		cfg := wireJSON(nil)
++		cfg.Status = 307
++		cfg.Headers["Location"] = "https://fixture.test:8443/case/" + key + "/embeddings"
++		redirect := embeddingWireScenario(t, v, cfg)
++		r, o = embeddingWireInput(t, v, redirect)
++		x = embeddingWireStart(t, ctx, a, r, o)
++		result, err = x.Result(ctx)
++		embeddingWireZero(t, result)
++		wireModelError(t, err, "permission", "wire_transport_error", true, false)
++		if d := x.Observe().Decision; d == nil || d.Reason != ac.RedirectDenied || len(v.state(t, redirect).Requests) != 1 || len(v.state(t, key).Requests) != 0 {
++			t.Fatal("POST redirect sent a successor request")
++		}
++		embeddingWireClose(t, x)
++	})
++	t.Run("fixture_modes_suffixes_and_existing_limits_stay_closed", func(t *testing.T) {
++		for _, cfg := range []netfixture.ScenarioConfig{
++			{Mode: "openai_embeddings_wire"},
++			{Mode: "stream", Wire: &netfixture.WireScenario{Status: 200}},
++			{Mode: "openai_embeddings_wire", Body: "legacy", Wire: &netfixture.WireScenario{Status: 200}},
++			{Mode: "openai_embeddings_wire", Wire: &netfixture.WireScenario{Status: 201}},
++			{Mode: "openai_embeddings_wire", Wire: &netfixture.WireScenario{Status: 200, Suffix: "/chat/completions"}},
++			{Mode: "openai_chat_wire", Wire: &netfixture.WireScenario{Status: 200, Suffix: "/embeddings"}},
++			{Mode: "openai_embeddings_wire", Wire: &netfixture.WireScenario{Status: 200, Suffix: "/bad?query/embeddings"}},
++			{Mode: "openai_embeddings_wire", Wire: &netfixture.WireScenario{Status: 200, Headers: map[string]string{"Set-Cookie": "forbidden"}}},
++			{Mode: "openai_embeddings_wire", Wire: &netfixture.WireScenario{Status: 200, Chunks: make([][]byte, 513)}},
++			{Mode: "openai_embeddings_wire", Wire: &netfixture.WireScenario{Status: 200, Chunks: [][]byte{make([]byte, 512<<10+1)}}},
++		} {
++			if _, err := v.net.Create(ctx, cfg); err == nil {
++				t.Fatal("outside closed embedding scenario accepted")
++			}
++		}
++	})
++}
+--- /dev/null
++++ b/tests/model/openai_embeddings_wire_terminal_test.go
+@@ -0,0 +1,203 @@
++//go:build integration
++
++package model_test
++
++import (
++	"context"
++	"encoding/json"
++	"net/http/httptrace"
++	"reflect"
++	"sync"
++	"testing"
++	"time"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++func TestModelOpenAIEmbeddingsWireTerminal(t *testing.T) {
++	v, a, ctx := embeddingWireFixture(t)
++	v.allow(t, true)
++	t.Run("valid_json_prefix_is_not_success_before_actual_eof", func(t *testing.T) {
++		cfg := wireJSON(embeddingWireReply(t, []int{0}, [][]float64{{1, 2}}, json.RawMessage(`{"prompt_tokens":0}`)))
++		hold := 1
++		cfg.HoldAfter = &hold
++		key := embeddingWireScenario(t, v, cfg)
++		r, o := embeddingWireInput(t, v, key)
++		x := embeddingWireStart(t, ctx, a, r, o)
++		out := embeddingWireConsume(t, ctx, x)
++		wireWait(t, "held embedding response not observed", func() bool {
++			return x.Observe().Decision != nil && v.state(t, key).ActiveHandlers == 1
++		})
++		window := time.NewTimer(40 * time.Millisecond)
++		defer window.Stop()
++		select {
++		case <-out:
++			t.Fatal("parseable bytes escaped before HTTP EOF")
++		case <-window.C:
++		}
++		if x.Joined() || !reflect.DeepEqual(x.Observe().Usage, mc.Usage{Source: mc.UnknownUsage}) {
++			t.Fatal("held EOF manufactured terminal or reliable usage")
++		}
++		if err := v.net.Release(ctx, key); err != nil {
++			t.Fatal("release controlled EOF", err)
++		}
++		select {
++		case got := <-out:
++			if got.err != nil || len(got.result.Items) != 1 || !x.Joined() || got.result.Usage.InputTokens == nil || *got.result.Usage.InputTokens != 0 {
++				t.Fatal("actual EOF did not publish the full result", got.err)
++			}
++		case <-ctx.Done():
++			t.Fatal("released result did not return")
++		}
++		v.settled(t, key)
++	})
++	t.Run("truncation_and_tighter_cap_publish_zero_and_no_usage", func(t *testing.T) {
++		for _, kind := range []string{"truncated_json", "valid_json_without_chunked_eof", "tighter_cap"} {
++			t.Run(kind, func(t *testing.T) {
++				body := embeddingWireReply(t, []int{0}, [][]float64{{1, 2}}, json.RawMessage(`{"prompt_tokens":4}`))
++				cfg := wireJSON(body)
++				disconnect := 1
++				switch kind {
++				case "truncated_json":
++					cfg.Chunks[0] = body[:len(body)-1]
++				case "valid_json_without_chunked_eof":
++					cfg.DisconnectAfter = &disconnect
++				}
++				key := embeddingWireScenario(t, v, cfg)
++				r, o := embeddingWireInput(t, v, key)
++				if kind == "tighter_cap" {
++					o.Limits.ResponseBodyBytes = 64
++				}
++				x := embeddingWireStart(t, ctx, a, r, o)
++				result, err := x.Result(ctx)
++				embeddingWireZero(t, result)
++				category, code := mc.ErrorCategory("provider_error"), "wire_protocol_invalid"
++				if kind == "valid_json_without_chunked_eof" {
++					category, code = "network", "wire_transport_error"
++				} else if kind == "tighter_cap" {
++					code = "wire_limit_exceeded"
++				}
++				wireModelError(t, err, category, code, true, false)
++				if !reflect.DeepEqual(x.Observe().Usage, mc.Usage{Source: mc.UnknownUsage}) {
++					t.Fatal("incomplete bounded response invented usage")
++				}
++				embeddingWireClose(t, x)
++				v.settled(t, key)
++			})
++		}
++	})
++	t.Run("complete_usage_survives_bad_dimension_and_late_caller_cancel", func(t *testing.T) {
++		for _, cancelled := range []bool{false, true} {
++			key := embeddingWireScenario(t, v, wireJSON(embeddingWireReply(t, []int{0}, [][]float64{{1, 2}}, json.RawMessage(`{"prompt_tokens":9007199254740993,"total_tokens":null}`))))
++			r, o := embeddingWireInput(t, v, key)
++			if !cancelled {
++				r.ExpectedDimensions = 3
++			}
++			x := embeddingWireStart(t, ctx, a, r, o)
++			call := ctx
++			if cancelled {
++				// The formal writer precedes response reads; this separate
++				// checkpoint proves cancellation after complete JSON/EOF.
++				wireWait(t, "complete usage checkpoint not reached", func() bool { return x.Observe().Usage.InputTokens != nil })
++				c, cancel := context.WithCancel(ctx)
++				cancel()
++				call = c
++			}
++			result, err := x.Result(call)
++			embeddingWireZero(t, result)
++			if cancelled {
++				wireModelError(t, err, "cancelled", "wire_cancelled", true, false)
++			} else {
++				wireModelError(t, err, "provider_error", "wire_protocol_invalid", true, false)
++			}
++			u := x.Observe().Usage
++			if u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 9007199254740993 || u.TotalTokens != nil {
++				t.Fatal("reliable EOF usage lost on result failure")
++			}
++			*u.InputTokens = 0
++			if *x.Observe().Usage.InputTokens != 9007199254740993 {
++				t.Fatal("usage observation not isolated")
++			}
++			embeddingWireClose(t, x)
++			if late, err := x.Result(ctx); err == nil {
++				t.Fatal("failed result recovered a late vector")
++			} else {
++				embeddingWireZero(t, late)
++				wireFault(t, err, f.InvalidState)
++			}
++			v.settled(t, key)
++		}
++	})
++	t.Run("cancelled_real_writer_owns_material_and_mixed_project_slot_until_join", func(t *testing.T) {
++		b := wire.NewBudget()
++		ea := embeddingWireAdapter(t, v, b)
++		chat := v.newAdapter(t, b)
++		cfg := wireJSON(embeddingWireReply(t, []int{0}, [][]float64{{1, 2}}, nil))
++		hold := 0
++		cfg.HoldAfter = &hold
++		key := embeddingWireScenario(t, v, cfg)
++		r, o := embeddingWireInput(t, v, key)
++		entered, released, returned := make(chan struct{}), make(chan struct{}), make(chan struct{})
++		var once sync.Once
++		release := func() { once.Do(func() { close(released) }) }
++		t.Cleanup(release)
++		attempt, cancel := context.WithCancel(ctx)
++		t.Cleanup(cancel)
++		trace := &httptrace.ClientTrace{WroteRequest: func(httptrace.WroteRequestInfo) { close(entered); <-released; close(returned) }}
++		x := embeddingWireStart(t, httptrace.WithClientTrace(attempt, trace), ea, r, o)
++		waitSignal(t, entered)
++		wireWait(t, "held writer not sent", func() bool { return len(v.state(t, key).Requests) == 1 })
++		cancel()
++		wireWait(t, "cancelled writer lacks actual Decision", func() bool { return x.Observe().Decision != nil })
++		result, err := x.Result(ctx)
++		embeddingWireZero(t, result)
++		wireModelError(t, err, "cancelled", "wire_cancelled", true, false)
++		short, stop := context.WithTimeout(ctx, 30*time.Millisecond)
++		err = x.Close(short)
++		stop()
++		wireModelError(t, err, "timeout", "wire_transport_error", false, false)
++		if d := x.Observe().Decision; d == nil || d.Reason != ac.Cancelled || !d.Sent || x.Joined() {
++			t.Fatal("visible cancellation released a live writer")
++		}
++		if err := o.Credential.Use(func([]byte) error { return nil }); err != nil {
++			t.Fatal("borrowed material not live while writer remains")
++		}
++		chatCfg := wireJSON(wireReply("unused", "stop", nil, nil))
++		chatCfg.HoldAfter = &hold
++		chatKey := v.scenario(t, chatCfg)
++		for i := 0; i < 7; i++ {
++			cr, co := v.input(t, chatKey, wire.JSONResponse)
++			co.ProjectID = o.ProjectID
++			v.start(t, ctx, chat, cr, co)
++		}
++		cr, co := v.input(t, chatKey, wire.JSONResponse)
++		co.ProjectID = o.ProjectID
++		if extra, err := chat.Start(ctx, cr, co); extra != nil {
++			t.Fatal("cancelled embedding lost its mixed project slot")
++		} else {
++			wireFault(t, err, f.ResourceBusy)
++		}
++		wireWait(t, "seven mixed chat slots not dispatched", func() bool { return len(v.state(t, chatKey).Requests) == 7 })
++		release()
++		waitSignal(t, returned)
++		embeddingWireClose(t, x)
++		replacement := v.start(t, ctx, chat, cr, co)
++		wireWait(t, "actual writer join did not release one slot", func() bool { return len(v.state(t, chatKey).Requests) == 8 })
++		if replacement.Joined() {
++			t.Fatal("held replacement response prematurely terminal")
++		}
++		cleanup, finish := context.WithTimeout(ctx, 5*time.Second)
++		defer finish()
++		if err := b.Force(cleanup); err != nil || !b.Joined() {
++			t.Fatal("mixed actual cleanup failed", err)
++		}
++		if len(v.state(t, key).Requests) != 1 || len(v.state(t, chatKey).Requests) != 8 {
++			t.Fatal("rejected mixed work was queued or retried")
++		}
++		v.settled(t, key)
++		v.settled(t, chatKey)
++	})
++}
+--- a/tests/testsupport/outbound/cmd/server/main.go
++++ b/tests/testsupport/outbound/cmd/server/main.go
+@@ -174,7 +174,7 @@
+ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
+ 	id := strings.TrimPrefix(r.URL.Path, "/case/")
+ 	if len(id) != 32 {
+-		// Only the new wire scenario admits a suffix. Legacy modes retain their
++		// Only the two wire scenarios admit a suffix. Legacy modes retain their
+ 		// exact decoded /case/<id> route below, including existing defaults.
+ 		raw := strings.TrimPrefix(r.URL.EscapedPath(), "/case/")
+ 		if !strings.HasPrefix(r.URL.EscapedPath(), "/case/") || len(raw) < 33 {
+@@ -191,7 +191,7 @@
+ 		return
+ 	}
+ 	cfg := v.Config
+-	if cfg.Mode == "openai_chat_wire" {
++	if cfg.Mode == "openai_chat_wire" || cfg.Mode == "openai_embeddings_wire" {
+ 		if r.URL.EscapedPath() != "/case/"+id+cfg.Wire.Suffix || r.URL.RawQuery != "" || r.URL.ForceQuery {
+ 			s.mu.Unlock()
+ 			w.WriteHeader(404)
+@@ -212,7 +212,7 @@
+ 		return
+ 	}
+ 	_ = r.Body.Close()
+-	if cfg.Mode == "openai_chat_wire" && len(body) > 16<<20 {
++	if (cfg.Mode == "openai_chat_wire" || cfg.Mode == "openai_embeddings_wire") && len(body) > 16<<20 {
+ 		w.WriteHeader(413)
+ 		return
+ 	}
+@@ -220,7 +220,7 @@
+ 	s.mu.Lock()
+ 	v.Requests = append(v.Requests, record)
+ 	s.mu.Unlock()
+-	if cfg.Mode == "openai_chat_wire" {
++	if cfg.Mode == "openai_chat_wire" || cfg.Mode == "openai_embeddings_wire" {
+ 		serveWire(w, r, cfg.Wire, release)
+ 		return
+ 	}
+@@ -303,7 +303,7 @@
+ }
+ 
+ func validWire(cfg *config, id string) bool {
+-	if cfg.Mode != "openai_chat_wire" {
++	if cfg.Mode != "openai_chat_wire" && cfg.Mode != "openai_embeddings_wire" {
+ 		return cfg.Wire == nil
+ 	}
+ 	v := cfg.Wire
+@@ -313,10 +313,14 @@
+ 	if raw, err := hex.DecodeString(id); err != nil || len(raw) != 16 {
+ 		return false
+ 	}
++	suffix := "/chat/completions"
++	if cfg.Mode == "openai_embeddings_wire" {
++		suffix = "/embeddings"
++	}
+ 	if v.Suffix == "" {
+-		v.Suffix = "/chat/completions"
+-	}
+-	if len(v.Suffix) > 2048 || !strings.HasPrefix(v.Suffix, "/") || !strings.HasSuffix(v.Suffix, "/chat/completions") || strings.ContainsAny(v.Suffix, "?#") {
++		v.Suffix = suffix
++	}
++	if len(v.Suffix) > 2048 || !strings.HasPrefix(v.Suffix, "/") || !strings.HasSuffix(v.Suffix, suffix) || strings.ContainsAny(v.Suffix, "?#") {
+ 		return false
+ 	}
+ 	u, err := url.ParseRequestURI(v.Suffix)

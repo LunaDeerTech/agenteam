@@ -1,0 +1,15 @@
+# Embeddings float wire 最终独立验收
+
+结论：PASS，可接受固定十五源。产品依据 `c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c`，正式卡 `15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597`；不包含 README 或主树整合动作。精确路径和 SHA 复用 [作者 delivery15](/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/author-final01/delivery15.json)，SHA256 `e38ab96d1cbc9d7a33b230f75c1dd8bca5fab52e3b2eb00390b2ab519b2a041f`，逐项与独立执行输入及当前冻结源相同。
+
+本次唯一独立真实轮 `independent01` 实际 exit 0 / 50.779 秒，工具 session 76766 已实际关闭。`TestIndependentEmbeddingsWireProtocolAndUsage` PASS 1.19 秒；`TestIndependentEmbeddingsWireActualTailAndBudget` PASS 1.36 秒，两个子例均到达（0.08 / 0.18 秒）。前者以独立 literal 3×3 golden 验证实际请求、原始文本、索引重排、精确整数 usage、零发送预检及完整 EOF 后维度错误的可靠 usage；后者验证 withheld EOF 不提前发布，以及真实 WroteRequest 回调取消后材料和混合 4+4 槽仍保留，实际回调退出/Close 后才准入替代，Force 最终 join，拒绝项无后继发送。
+
+两次原 fresh 门禁均超过 5 GiB。actual direct wait 完成，0 adopted；7 个 exact ID 两扫 absent，73 个已观察 PID/starttime 两扫为空，runtime 空，完整 baseline/Mount 不变。15 源、914 固定 Git 依赖、3513 runtime 和私有输入前后相同。原 race/count1、2m/top、6m/package 均未扩大；没有重跑或追加资源轮。
+
+组合复用 [独立 A](/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/verification-report.md)、[独立 B](/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/verification-report.md) 的受控离线证据与 [D 完整静审](/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/review.md)。[startup01](/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/startup-review01.md) 的 TestMain 动态构建闭包缺口保留为 STATIC BLOCKED；[startup02](/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/startup-review02.md) 以精确 host/nonrace 图补齐，十五源不变。本次四项离线检查亦全部通过。作者 [最终报告](/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/author-final01/report.md) 中新三组、旧 Chat/structured 六组分五轮实际通过及双清，按未变十五源复用，未冒称独立重跑；独立原生只选择上述两代表，global64/structured 仍明确来自作者证据。
+
+原 A 累计 TotalAlloc race 红及修后 affected 证据按既有报告分层保留，不称原轮全绿，也不把累计分配当同时持有 capacity。私有 source01 的 held-response 缺 model 是执行前静态修正，原件和 source02 差量保留，未发生运行失败。终局后一次辅助读取误把 cleanup 数组作字典，命令实际 exit 1；随后仅修读取方式读出两扫，未改任何原件或执行清理。该工具输出保留于会话，原 stdin 未单独冻结文件，不能冒称它是测试失败或完整脚本档案。
+
+真实范围是自有 Provider fixture 与正式 D04/Account/Audit/Policy 接缝；不宣称实际供应商 smoke、Nonchat/InvocationID/root 接线、型号默认维度、全进程 RSS 上界或整个 D09 完成。三项既有停止事项未触碰。
+
+原件：`runs/independent01/{command.json,raw.log,result.json,cleanup.json,input-before.json,input-after.json}`。精确 SHA、十五源清单及复用入口见 `verification-report.json`（SHA256 `a18084f0840ae68b29afc2126bbb43caca69ade3f7dd34675006582eebf787b1`）。所有源、driver、执行输入与原件现停止写入；资源窗口已交回。

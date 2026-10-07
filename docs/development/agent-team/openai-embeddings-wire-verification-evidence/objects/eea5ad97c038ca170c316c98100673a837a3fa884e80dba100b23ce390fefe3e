@@ -1,0 +1,18 @@
+import hashlib,importlib.util,json,subprocess,sys
+from pathlib import Path
+sys.dont_write_bytecode=True
+R=Path(__file__).resolve().parent;S=R/'driver-stage01';S.mkdir()
+D=R/'run-embeddings-fixture.py';spec=importlib.util.spec_from_file_location('runtime_driver',D);driver=importlib.util.module_from_spec(spec);spec.loader.exec_module(driver)
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+baseline=json.loads((R/'runtime-baseline.json').read_text());source=json.loads((R/'d-stage01/delivery15.json').read_text())['files']
+raw,tree=driver.fixed_tree()
+fixed={p:{**tree[p],**m} for p,m in baseline['files'].items()}
+driver.FROZEN={'product_base':driver.BASE,'files':{p:m['sha256'] for p,m in source.items()},'accepted_baseline':{'product_base':driver.BASE,'git_tree_sha256':hashlib.sha256(raw).hexdigest(),'files':fixed}}
+current=driver.source_input()
+if not current['accepted_baseline']['accepted']:raise RuntimeError('baseline gate failed: '+json.dumps(current['accepted_baseline']))
+driver.FROZEN.update({'driver_sha256':sha(D),'runtime':current['runtime'],'harness_manifest_sha256':sha(R/'d-candidate01/manifest.json'),'runtime_baseline_sha256':sha(R/'runtime-baseline.json')})
+driver.write(S/'input.json',driver.FROZEN)
+driver.write(S/'initial-gate.json',current)
+(S/'driver.py.txt').write_bytes(D.read_bytes())
+(S/'driver.diff').write_bytes((R/'embeddings-driver.diff').read_bytes())
+print(json.dumps({'fixed_dependency_count':len(fixed),'candidate_count':len(source),'runtime_files':len(current['runtime']['files']),'go_packages':len(current['runtime']['packages']),'driver_sha256':sha(D),'input_sha256':sha(S/'input.json'),'resources_started':False}))

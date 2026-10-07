@@ -1,6 +1,6 @@
 # D09：OpenAI Embeddings float wire 库
 
-修订：rev1。状态：规格已独立 STATIC PASS，并获主线程采纳；已提交推送`15d7e08`并核远端一致；唯一backend已实际启动私有A五路径输入/编码/parser/纯测/manifest。constructor/Start/handle、Budget/transport/fixture及末件README尚未开始，产品未验收；真实资源窗口仍须另行授权。本卡正式路径 `docs/development/work-items/d09-openai-embeddings-wire.md`。
+修订：rev1。状态：本卡十六路径产品已独立验收、主线程采纳并提交推送 `2debfdde347d8c9262ab83d3fe5e18e947a983e1`，远端一致；固定c142十五技术源与第十六README按版本组合接受，无主树动态重跑。原失败、资源终局和未验范围见[永久验证报告](../agent-team/openai-embeddings-wire-verification.md)。技术§1–7保持，不代表完整D09、SDK/真实供应商、Nonchat/InvocationID/Usage或生产root已绑定。
 
 固定产品 `c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c`。已接受 C0 `e6e94c4`、D04 `abf5c37` 与后继同实例管理口 `a942779`、text wire `9c72190`、structured wire `be0bd07`；消费固定 Git 当前字节，不回退早期实现或读取未验 tools 候选。依据 [D09 主卡](d09-model-system-token-usage.md)、[工程规格 §5–7/13](d09-model-system-token-usage-design.md)、[text wire 契约](recovery-d09-openai-chat-wire.md)及[structured 增量](recovery-d09-openai-chat-structured-wire.md)。沿[设计](../../../.agents/skills/agenteam-design/SKILL.md)、[Go](../../../.agents/skills/agenteam-go-development/SKILL.md)和[验证](../../../.agents/skills/agenteam-verification/SKILL.md)技能。
 

@@ -1,0 +1,88 @@
+{
+  "decision": "PASS bounded stage B; not native D04 or complete wire acceptance",
+  "fixed_product": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+  "spec_commit": "15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597",
+  "candidate_manifest": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/manifest.json",
+    "sha256": "bd18c341adb9269a6c3f46d4c6d48c6d21677206bb73b7212a16663d05c9d505"
+  },
+  "delivery10": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-stage01/delivery10.json",
+    "sha256": "81cb7cd3a0e243d545ab130489299d668287ff08df3d4a269f41da54a20105f4"
+  },
+  "report": {
+    "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/verification-report.md",
+    "sha256": "8784c23b9f54d1862407716f4d7ed1128d5990cd14c2dee18b952bc521420ff6"
+  },
+  "static_review": {
+    "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/static-review-and-preparation01.md",
+    "sha256": "b1d0babc6080ca9abcad78cefb705c61dbff9e930efab6552b0f8f451cfec029"
+  },
+  "execution": {
+    "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/execution01.json",
+    "sha256": "1f07264e1bb73a22364a6e82a6cf67749a190ffab8bb205d6b3cfa4c1532fef7"
+  },
+  "probe": {
+    "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/embedding_independent_b_test.go",
+    "sha256": "55cdaeeb1ccfc28e807799fc8d165119c08fb9aeeb6122bede9fe52fdc14f93d"
+  },
+  "runner": {
+    "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/run_offline01.py",
+    "sha256": "7da22bd2e3b25222b5680068369b077c58abe1f5f5e1c0cef7c10a1e10bb3e1e"
+  },
+  "originals": {
+    "raw.log": {
+      "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/runs/pure01/raw.log",
+      "sha256": "0b57a7cc497488ff16cd010100dbb379e9b484b5bc1139cd2ae8895b1cde05c0"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/runs/pure01/result.json",
+      "sha256": "e38d0bf47eb5ee5ac2c5659031f9075c46a05bb69b531e44df59e9fe4d5f2a27"
+    },
+    "command.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/runs/pure01/command.json",
+      "sha256": "46d1dff17d33838799efd17ad3b63b32e22a7cedd873180e7cd1cd90f401ea18"
+    },
+    "cleanup.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/runs/pure01/cleanup.json",
+      "sha256": "4f81b46075885a8d16b7a8c3a2361236480ebb8dd793e65557c096d69da20ed6"
+    },
+    "input-before.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/runs/pure01/input-before.json",
+      "sha256": "77b1c38e4e511792ce342eda24764d39ea21076062e73e8c7536cae9d526af3b"
+    },
+    "input-after.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/runs/pure01/input-after.json",
+      "sha256": "77b1c38e4e511792ce342eda24764d39ea21076062e73e8c7536cae9d526af3b"
+    }
+  },
+  "actual_result": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "seconds": 3.1120906619980815,
+    "timeout": false,
+    "input_before_matches": true,
+    "input_after_matches": true,
+    "input_unchanged": true,
+    "cleanup_clean": true,
+    "owned_processes_observed": 5,
+    "adopted_wait_count": 0,
+    "raw_sha256": "0b57a7cc497488ff16cd010100dbb379e9b484b5bc1139cd2ae8895b1cde05c0",
+    "cleanup_sha256": "4f81b46075885a8d16b7a8c3a2361236480ebb8dd793e65557c096d69da20ed6"
+  },
+  "tops": [
+    "TestIndependentEmbeddingsMixedOwnership",
+    "TestIndependentEmbeddingsResultAndStickyFailure"
+  ],
+  "author_reuse": {
+    "path": "/workspace/scratch/agenteam-embeddings-b-independent-cbguedls/author-evidence-reuse01.json",
+    "sha256": "e8782910f526ce6fb63f58324e99a9c9b09c274d6d24c6a29358dda0234c1f9d"
+  },
+  "limits": [
+    "Private controlled public-operation seam, not native D04 writer/callback/socket",
+    "Old exact handles model local admission, not real Chat protocol traffic",
+    "Global64 and broader matrix reused from author fixed evidence and static review",
+    "A original failures unchanged",
+    "No resources, main/Git mutations or stopped-task consumption"
+  ]
+}

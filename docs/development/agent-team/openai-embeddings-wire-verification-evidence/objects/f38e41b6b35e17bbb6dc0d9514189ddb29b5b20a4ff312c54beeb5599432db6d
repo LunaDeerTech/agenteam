@@ -1,0 +1,39 @@
+{
+  "candidate03": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate03/manifest.json",
+    "sha256": "cd076fe6fee33685ae5259de1d7f31851202b21a11fa29a95d4a2fdab1ff23fe"
+  },
+  "checks": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/stage-a01/checks.json",
+    "sha256": "f4bd3aad6b59f0f9eda8f709747fe6c6d1ccd64a369368e873cf9acfd2c3e83c"
+  },
+  "delivery": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/stage-a01/delivery5.json",
+    "sha256": "fdbb5126ba9744cea2e7b198580dad08cd30db620529b31eb55dd951de7d2426"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/stage-a01/inputs.json",
+    "sha256": "375e3cf6d19cd5017f81014f657bfc21c131ba25e9f981db2500a209515a4fed"
+  },
+  "no_main_git_writes": true,
+  "not_implemented": [
+    "constructor",
+    "Start",
+    "EmbeddingExchange",
+    "Budget adaptation",
+    "transport",
+    "server",
+    "README"
+  ],
+  "original_failures_preserved": [
+    "prepare01 missing explicit embed closure",
+    "race01 cumulative TotalAlloc premise"
+  ],
+  "report": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/stage-a01/report.md",
+    "sha256": "5777d649dc0c5ae5aafad9c8fd211a3b4b1e3a269a9dcdf5fc6979b7ab7dfb7a"
+  },
+  "resources_active": false,
+  "source_unchanged_after_checks": true,
+  "status": "AUTHOR_STAGE_A_COMPLETE_AWAITING_INDEPENDENT"
+}

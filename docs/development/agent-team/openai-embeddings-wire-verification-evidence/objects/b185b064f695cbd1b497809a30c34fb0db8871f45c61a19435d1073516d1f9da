@@ -1,0 +1,253 @@
+package adapter
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/json"
+	"io"
+	"math"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+// Only the accepted Chat fixture supplies a valid C0 snapshot and owned secret.
+// These tests exercise the new pure boundary, not Start, handles or D04 I/O.
+func independentEmbeddingInput(t *testing.T) (EmbeddingRequest, CallOptions) {
+	t.Helper()
+	chat, options := unitInput(t)
+	snapshot := chat.Snapshot.Clone()
+	snapshot.Identity.Protocol = mc.OpenAIEmbeddings
+	snapshot.Identity.Profile = mc.OpenAIEmbeddingsV1
+	snapshot.Identity.ModelType = mc.EmbeddingModel
+	snapshot.Identity.AdapterRevision = "openai-embeddings-float-v1"
+	snapshot.Capabilities = mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}
+	return EmbeddingRequest{Snapshot: snapshot, Texts: []string{"  \t<&>\"\\\u2028\u2029世界  "}, ExpectedDimensions: 3}, options
+}
+
+func independentEmbeddingBody(t *testing.T, r EmbeddingRequest) []byte {
+	t.Helper()
+	body, err := json.Marshal(struct {
+		Model string `json:"model"`
+		Input []string `json:"input"`
+		Encoding string `json:"encoding_format"`
+	}{r.Snapshot.Identity.ProviderModelID, r.Texts, "float"})
+	if err != nil { t.Fatal("independent JSON oracle failed") }
+	return body
+}
+
+func independentPreparedBytes(t *testing.T, p embeddingPrepared, want []byte) {
+	t.Helper()
+	if p.request == nil || p.request.Body == nil { t.Fatal("missing prepared body") }
+	defer p.request.Body.Close()
+	h := sha256.New()
+	n, err := io.Copy(h, p.request.Body)
+	wantHash := sha256.Sum256(want)
+	if err != nil || n != int64(len(want)) || p.request.ContentLength != n || !bytes.Equal(h.Sum(nil), wantHash[:]) {
+		t.Fatal("prepared bytes differ from independently serialized original")
+	}
+}
+
+func TestIndependentEmbeddingsPrepareBoundaries(t *testing.T) {
+	t.Run("original_three_fields_and_local_dimensions", func(t *testing.T) {
+		r, options := independentEmbeddingInput(t)
+		want := independentEmbeddingBody(t, r)
+		p, err := prepareEmbeddings(context.Background(), r, options)
+		if err != nil { t.Fatal("valid pure preparation rejected") }
+		r.Texts[0] = "changed-after-prepare"
+		r.Snapshot.Identity.ProviderModelID = "changed-after-prepare"
+		r.Snapshot.Parameters[0] = '['
+		r.Snapshot.Capabilities.OutputModalities[0] = "changed-after-prepare"
+		independentPreparedBytes(t, p, want)
+		if p.count != 1 || p.dimensions != 3 || p.responseBytes != 16<<20 || p.request.Method != "POST" ||
+			p.request.URL.RequestURI() != "/base%2Fsegment/embeddings" || !p.request.Close ||
+			p.request.Header.Get("Content-Type") != "application/json" || p.request.Header.Get("Accept") != "application/json" ||
+			p.request.Header.Get("Authorization") != "" {
+			t.Fatal("pure preparation boundary changed")
+		}
+	})
+	t.Run("actual_escaped_eight_MiB_and_tighter_limit", func(t *testing.T) {
+		r, options := independentEmbeddingInput(t)
+		r.Texts = []string{"", ""}
+		overhead := len(independentEmbeddingBody(t, r))
+		payload := (8 << 20) - overhead
+		escaped, remainder := payload/6, payload%6
+		r.Texts[0] = strings.Repeat("<", escaped/2)
+		r.Texts[1] = strings.Repeat("<", escaped-escaped/2) + strings.Repeat("a", remainder)
+		want := independentEmbeddingBody(t, r)
+		if len(want) != 8<<20 || len(r.Texts[0]) > 1<<20 || len(r.Texts[1]) > 1<<20 || len(r.Texts[0])+len(r.Texts[1]) > 4<<20 {
+			t.Fatal("independent exact-boundary construction failed")
+		}
+		p, err := prepareEmbeddings(context.Background(), r, options)
+		if err != nil { t.Fatal("exact encoded boundary rejected") }
+		independentPreparedBytes(t, p, want)
+		r.Texts[1] += "a"
+		p, err = prepareEmbeddings(context.Background(), r, options)
+		if p.request != nil { p.request.Body.Close(); t.Fatal("over-limit request retained") }
+		requireModel(t, err, "provider_error", "wire_limit_exceeded")
+		r, options = independentEmbeddingInput(t)
+		want = independentEmbeddingBody(t, r)
+		options.Limits.RequestBodyBytes = int64(len(want))
+		options.Limits.ResponseBodyBytes = 37
+		p, err = prepareEmbeddings(context.Background(), r, options)
+		if err != nil || p.responseBytes != 37 { t.Fatal("caller tighter bounds rejected") }
+		independentPreparedBytes(t, p, want)
+		options.Limits.RequestBodyBytes--
+		p, err = prepareEmbeddings(context.Background(), r, options)
+		if p.request != nil { p.request.Body.Close(); t.Fatal("tighter cap bypassed") }
+		requireModel(t, err, "provider_error", "wire_limit_exceeded")
+	})
+	t.Run("text_product_and_C0_classification", func(t *testing.T) {
+		r, options := independentEmbeddingInput(t)
+		r.Texts = []string{strings.Repeat("x", 1<<20), strings.Repeat("x", 1<<20), strings.Repeat("x", 1<<20), strings.Repeat("x", 1<<20)}
+		p, err := prepareEmbeddings(context.Background(), r, options)
+		if err != nil { t.Fatal("exact raw total rejected") }
+		if _, err := io.Copy(io.Discard, p.request.Body); err != nil { t.Fatal("pure body read failed") }
+		p.request.Body.Close()
+		r.Texts = append(r.Texts, "x")
+		p, err = prepareEmbeddings(context.Background(), r, options)
+		if p.request != nil { p.request.Body.Close(); t.Fatal("raw total overflow retained") }
+		requireFault(t, err, f.InvalidArgument)
+		r, options = independentEmbeddingInput(t)
+		r.ExpectedDimensions = 4096
+		r.Texts = make([]string, 65)
+		for i := range r.Texts { r.Texts[i] = "x" }
+		p, err = prepareEmbeddings(context.Background(), r, options)
+		if p.request != nil { p.request.Body.Close(); t.Fatal("product overflow retained") }
+		requireFault(t, err, f.InvalidArgument)
+		for _, tc := range []struct { parameters string; unsupported bool }{
+			{`{"dimensions":3}`, true},
+			{`{"dimensions":3,"dimensions":3}`, false},
+		} {
+			r, options = independentEmbeddingInput(t)
+			r.Snapshot.Parameters = json.RawMessage(tc.parameters)
+			p, err = prepareEmbeddings(context.Background(), r, options)
+			if p.request != nil { p.request.Body.Close(); t.Fatal("rejected configuration retained") }
+			if tc.unsupported { requireModel(t, err, "unsupported_feature", "wire_unsupported_feature") } else { requireFault(t, err, f.InvalidArgument) }
+		}
+		r, options = independentEmbeddingInput(t)
+		r.Texts = []string{string([]byte{0xff})}
+		p, err = prepareEmbeddings(context.Background(), r, options)
+		if p.request != nil { p.request.Body.Close(); t.Fatal("invalid UTF-8 retained") }
+		requireFault(t, err, f.InvalidArgument)
+	})
+}
+
+const independentEmbeddingJSON = `{"usage":{"prompt_tokens":0,"total_tokens":9007199254740993},"object":"list","data":[{"index":1,"object":"embedding","embedding":[-0,2.5,1e2]},{"index":0,"object":"embedding","embedding":[1,-2,3.0]}],"model":"returned-alias"}`
+
+func independentZeroEmbeddingResult(t *testing.T, r EmbeddingResult) {
+	t.Helper()
+	u := r.Usage
+	if r.Items != nil || r.ProviderRequestID != "" || u.Source != "" || u.InputTokens != nil || u.TotalTokens != nil ||
+		u.OutputTokens != nil || u.CachedInputTokens != nil || u.CacheWriteTokens != nil || u.ReasoningTokens != nil {
+		t.Fatal("error returned a candidate result")
+	}
+}
+
+func independentEmbeddingUsage(t *testing.T, u mc.Usage, reliable bool) {
+	t.Helper()
+	if u.Validate() != nil || u.OutputTokens != nil || u.CachedInputTokens != nil || u.CacheWriteTokens != nil || u.ReasoningTokens != nil {
+		t.Fatal("unexpected usage projection")
+	}
+	if reliable {
+		if u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 0 || u.TotalTokens == nil || *u.TotalTokens != 9007199254740993 {
+			t.Fatal("exact reliable usage lost")
+		}
+	} else if u.Source != mc.UnknownUsage || u.InputTokens != nil || u.TotalTokens != nil {
+		t.Fatal("unknown usage acquired counts")
+	}
+}
+
+type independentEmbeddingEOFReader struct {
+	raw []byte
+	entered chan struct{}
+	release chan struct{}
+	once sync.Once
+}
+
+func (r *independentEmbeddingEOFReader) Read(p []byte) (int, error) {
+	if len(r.raw) != 0 { n := copy(p, r.raw); r.raw = r.raw[n:]; return n, nil }
+	r.once.Do(func() { close(r.entered) })
+	<-r.release
+	return 0, io.EOF
+}
+
+func TestIndependentEmbeddingsStrictEOFAndUsage(t *testing.T) {
+	t.Run("index_order_usage_and_copy", func(t *testing.T) {
+		raw := []byte(independentEmbeddingJSON)
+		r, usage, err := parseEmbeddingJSON(context.Background(), raw, 2, 3)
+		if err != nil || len(r.Items) != 2 || r.Items[0].Index != 0 || r.Items[1].Index != 1 || len(r.Items[0].Values) != 3 || len(r.Items[1].Values) != 3 {
+			t.Fatal("valid unordered vector response rejected")
+		}
+		if r.Items[0].Values[0] != 1 || r.Items[0].Values[1] != -2 || r.Items[0].Values[2] != 3 || !math.Signbit(r.Items[1].Values[0]) || r.Items[1].Values[1] != 2.5 || r.Items[1].Values[2] != 100 {
+			t.Fatal("input index order or finite number changed")
+		}
+		independentEmbeddingUsage(t, usage, true)
+		independentEmbeddingUsage(t, r.Usage, true)
+		cloned := cloneEmbeddingResult(r)
+		cloned.Items[0].Values[0] = 22
+		*cloned.Usage.TotalTokens = 1
+		*usage.InputTokens = 9
+		for i := range raw { raw[i] = ' ' }
+		if r.Items[0].Values[0] != 1 || *r.Usage.InputTokens != 0 || *r.Usage.TotalTokens != 9007199254740993 { t.Fatal("mutable result alias") }
+	})
+	t.Run("semantic_failure_preserves_only_reliable_usage", func(t *testing.T) {
+		for _, tc := range []struct { name, raw string; reliable bool }{
+			{"late_nonfinite", strings.Replace(independentEmbeddingJSON, "3.0", "1e309", 1), true},
+			{"duplicate_index", strings.Replace(independentEmbeddingJSON, `"index":0`, `"index":1`, 1), true},
+			{"escaped_duplicate_key", strings.Replace(independentEmbeddingJSON, `"model":"returned-alias"`, `"model":"returned-alias","m\u006fdel":"second"`, 1), false},
+			{"noncanonical_usage", strings.Replace(independentEmbeddingJSON, "9007199254740993", "1e0", 1), false},
+			{"truncated", independentEmbeddingJSON[:len(independentEmbeddingJSON)-1], false},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				r, usage, err := parseEmbeddingJSON(context.Background(), []byte(tc.raw), 2, 3)
+				requireModel(t, err, "provider_error", "wire_protocol_invalid")
+				independentZeroEmbeddingResult(t, r)
+				independentEmbeddingUsage(t, usage, tc.reliable)
+			})
+		}
+		missing := strings.Replace(independentEmbeddingJSON, `"usage":{"prompt_tokens":0,"total_tokens":9007199254740993},`, "", 1)
+		r, usage, err := parseEmbeddingJSON(context.Background(), []byte(missing), 2, 3)
+		if err != nil || len(r.Items) != 2 { t.Fatal("missing usage must remain a valid response") }
+		independentEmbeddingUsage(t, usage, false)
+		independentEmbeddingUsage(t, r.Usage, false)
+	})
+	for _, cancelBeforeEOF := range []bool{false, true} {
+		name := "complete_prefix_waits_for_reader_EOF"
+		if cancelBeforeEOF { name = "cancel_does_not_complete_a_held_reader_call" }
+		t.Run(name, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(context.Background())
+			reader := &independentEmbeddingEOFReader{raw: []byte(independentEmbeddingJSON), entered: make(chan struct{}), release: make(chan struct{})}
+			type outcome struct { raw []byte; err error }
+			done, joined := make(chan outcome, 1), make(chan struct{})
+			var release sync.Once
+			go func() { defer close(joined); raw, err := readEmbeddingBody(ctx, reader, int64(len(independentEmbeddingJSON))); done <- outcome{raw, err} }()
+			defer func() {
+				cancel()
+				release.Do(func() { close(reader.release) })
+				select { case <-joined: case <-time.After(time.Second): t.Error("controlled reader goroutine failed to join") }
+			}()
+			select { case <-reader.entered: case <-time.After(time.Second): t.Fatal("reader did not reach the explicit EOF barrier") }
+			if cancelBeforeEOF { cancel() }
+			select { case <-done: t.Fatal("complete JSON/cancellation bypassed held actual Read"); default: }
+			release.Do(func() { close(reader.release) })
+			var result outcome
+			select { case result = <-done: case <-time.After(time.Second): t.Fatal("reader result failed to complete after release") }
+			select { case <-joined: case <-time.After(time.Second): t.Fatal("reader result preceded unjoined goroutine") }
+			if cancelBeforeEOF {
+				if result.raw != nil { t.Fatal("cancelled read retained candidate bytes") }
+				requireModel(t, result.err, "cancelled", "wire_cancelled")
+			} else {
+				if result.err != nil || !bytes.Equal(result.raw, []byte(independentEmbeddingJSON)) { t.Fatal("exact bytes were not released at EOF") }
+				r, usage, err := parseEmbeddingJSON(ctx, result.raw, 2, 3)
+				if err != nil || len(r.Items) != 2 { t.Fatal("EOF-delimited response did not parse") }
+				independentEmbeddingUsage(t, usage, true)
+			}
+		})
+	}
+}

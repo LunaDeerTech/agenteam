@@ -1,0 +1,73 @@
+{
+  "check_summary": {
+    "d-check-input01": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_wait_count": 0,
+      "cleanup_clean": true,
+      "input_unchanged": true,
+      "owned_processes_observed": 3,
+      "seconds": 1.5849680850005825
+    },
+    "d-runtime-gate01": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_wait_count": 0,
+      "cleanup_clean": true,
+      "input_unchanged": true,
+      "owned_processes_observed": 3,
+      "seconds": 1.593500024995592
+    },
+    "d-server-cgo0-compile01": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "adopted_wait_count": 0,
+      "cleanup_clean": true,
+      "input_unchanged": true,
+      "owned_processes_observed": 3,
+      "seconds": 0.4423720590057201
+    }
+  },
+  "checks_sha256": "17fa5a3a620341df10da2475df790893095e9dcc282ccdc2ee04050d4ec6b86c",
+  "counts": {
+    "accepted_sources": 15,
+    "driver_and_frozen_manifest_before_after": true,
+    "fixed_git_dependencies": 907,
+    "go_packages_union": 455,
+    "runtime_files": 3510,
+    "server_actual_variant": "CGO_ENABLED=0 explicitly included and separately compiled; no server execution",
+    "source_before_after": true,
+    "tags_and_roots": "fixed postgres helper test roots plus four helper build packages"
+  },
+  "delivery15": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-stage01/delivery15.json",
+    "sha256": "024939a4e968407935bbb0c9fe6950cf920b2a1761d5762f1e549a49777dc64d"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture.py",
+    "sha256": "ea27894f831f887bb572d8357373d0a3eee42b3e47622741be9644fc36666446"
+  },
+  "driver_diff_sha256": "a3b0b171cc5990a1611d5b81dbeb91f5bf9a3b3ffa8104d5d9ab9eb28022d894",
+  "execution_plan_sha256": "5235f6c446002ca15918f93a5aca5f12dab6ef5cb6e5f1eaa28f65cfb9094d57",
+  "frozen_input": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/input.json",
+    "sha256": "4c9f95ce61a19317d654df3307840a191aa06623d4a4e6030e4f2629dbf6927e"
+  },
+  "limitations": [
+    "No real Docker/PG/MinIO/server/listener execution or resource baseline capture has occurred.",
+    "Only the new tests/model package and server were compiled; the broader fixed test-security package selection has been dependency-discovered for the upcoming actual command, not fully recompiled or executed.",
+    "The D stage initial gate failure was preparation-only, not compiler or product failure.",
+    "Pure/race and independent A+B results remain versioned; D real protocol/terminal/budget evidence is still pending."
+  ],
+  "original_driver": {
+    "origin": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-runtime-fixture.py",
+    "scope": "same accepted monitor/Popen/subreaper/exact-ID/Mount/double-clean logic; fixed baseline and selectors; additional actual CGO=0 server graph; no execute authorization",
+    "sha256": "b78846a88242665b3a8915a62c906ae78aaca3ebb3f1680d5c12413d6bf799f5"
+  },
+  "source_manifest": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-candidate01/manifest.json",
+    "sha256": "6878f9fbe5952f4c1b5c71cc3eaed5f2bd3ac1a72fe137149c2482c9488fa80b"
+  },
+  "status": "OFFLINE_READY_STATIC_REVIEW_REQUIRED_NO_RESOURCE_AUTHORIZATION",
+  "stopped": true
+}

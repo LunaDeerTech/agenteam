@@ -1,0 +1,15 @@
+{
+  "actual_tool_exit": 1,
+  "argv": [
+    "/usr/bin/python3",
+    "-"
+  ],
+  "evidence_limit": "The stdin preparation script was supplied inline in the tool call; no original separate script file was saved. This record preserves the observed exit/trace, not a reconstructed original script.",
+  "failed_assertion": "assert //go:embed not in text while recursively comparing unchanged helper production imports",
+  "failing_fixed_file": "db/migrations/embed.go",
+  "followup": "No retry of that assertion or Go matrix. Final report will cite actual source/runtime gates and separately distinguish prior helper compile from the two new cmd builds.",
+  "kind": "optional report-source-comparison preparation, not Go build/test/product failure",
+  "output_state": "Failed before first helper-reuse/report/plan/freeze write; existing driver02/input02/delta and all15 source bytes untouched.",
+  "reason": "The helper import closure includes migration embeds, so the optional no-embed assumption was false. This assertion was not a product or startup gate.",
+  "tool_chunk": "2a0c2b"
+}

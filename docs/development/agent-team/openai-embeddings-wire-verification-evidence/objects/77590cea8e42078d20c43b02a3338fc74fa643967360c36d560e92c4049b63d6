@@ -1,0 +1,27 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 993177,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 993177,
+      "ppid": 993174,
+      "pgid": 993177,
+      "state": "R",
+      "starttime": "4350162"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-embeddings-offline-6miwm8r_",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

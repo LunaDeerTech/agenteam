@@ -1,0 +1,23 @@
+{
+  "base": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+  "checks": "not started; source-only freeze pending B completion/cache window",
+  "design_sha256": "0c8e4485798d724d8c525c44141cbefc32cb52acc18ee76662d2de6ba0411c8a",
+  "diff_sha256": "269a4f69cd60024483f422a07bb8f3c33cfc71e6d812bae42f50fa39a3b61dd5",
+  "files": {
+    "internal/central/model/adapter/budget.go": {
+      "old_sha256": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a",
+      "sha256": "3f2c644e762601d257a11522831a6644622dd125b1c49c92b6cfdc2a743c7803",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-shared01/source/internal/central/model/adapter/budget.go"
+    },
+    "internal/central/model/adapter/transport.go": {
+      "old_sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf",
+      "sha256": "9f1d60ff48fb64ba04827368b7cf6fc4947b72c93a665ddf91276d5db2b6b29b",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-shared01/source/internal/central/model/adapter/transport.go"
+    }
+  },
+  "unchanged_A": {
+    "internal/central/model/adapter/embedding_json.go": "fd9742129008b25970c93ed03e6e1383a08ac3cb674f80e8bbba3c14380b7ed0",
+    "internal/central/model/adapter/embedding_json_test.go": "86f28d3e3397506a9edc97a6d5daa2b19369f1f2f5b777a1343bb6e36d57eba4",
+    "internal/central/model/adapter/testdata/openai-embeddings-float-v1.json": "ad0cc43ea95ebc0416ee677b3719e6d270a7d255d7b2b7891fce8ecdd8b372cf"
+  }
+}

@@ -1,0 +1,12 @@
+=== RUN   TestIndependentEmbeddingsMixedOwnership
+--- PASS: TestIndependentEmbeddingsMixedOwnership (0.04s)
+=== RUN   TestIndependentEmbeddingsResultAndStickyFailure
+=== RUN   TestIndependentEmbeddingsResultAndStickyFailure/once_only_success_requires_EOF_Close_Drain
+=== RUN   TestIndependentEmbeddingsResultAndStickyFailure/public_Close
+=== RUN   TestIndependentEmbeddingsResultAndStickyFailure/sticky_Drain
+--- PASS: TestIndependentEmbeddingsResultAndStickyFailure (0.01s)
+    --- PASS: TestIndependentEmbeddingsResultAndStickyFailure/once_only_success_requires_EOF_Close_Drain (0.00s)
+    --- PASS: TestIndependentEmbeddingsResultAndStickyFailure/public_Close (0.00s)
+    --- PASS: TestIndependentEmbeddingsResultAndStickyFailure/sticky_Drain (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.060s

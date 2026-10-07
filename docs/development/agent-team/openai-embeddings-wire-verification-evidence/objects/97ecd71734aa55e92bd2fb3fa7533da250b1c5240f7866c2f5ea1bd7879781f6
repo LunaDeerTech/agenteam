@@ -1,0 +1,29 @@
+{
+  "candidate03": "cd076fe6fee33685ae5259de1d7f31851202b21a11fa29a95d4a2fdab1ff23fe",
+  "five_sources_checked": [
+    [
+      "internal/central/model/adapter/embedding_json.go",
+      "fd9742129008b25970c93ed03e6e1383a08ac3cb674f80e8bbba3c14380b7ed0"
+    ],
+    [
+      "internal/central/model/adapter/embedding_json_test.go",
+      "86f28d3e3397506a9edc97a6d5daa2b19369f1f2f5b777a1343bb6e36d57eba4"
+    ],
+    [
+      "internal/central/model/adapter/openai_embeddings.go",
+      "ba38a7849f257bb0f5ac42fbc789c610aac978cbb34ac725dec63fa0bbc5a12d"
+    ],
+    [
+      "internal/central/model/adapter/openai_embeddings_test.go",
+      "f3138ea97cc71c72b3d94113328d5ffd73aad5a446d90eed9b55e09ff30e5747"
+    ],
+    [
+      "internal/central/model/adapter/testdata/openai-embeddings-float-v1.json",
+      "ad0cc43ea95ebc0416ee677b3719e6d270a7d255d7b2b7891fce8ecdd8b372cf"
+    ]
+  ],
+  "six_official_files_match": true,
+  "official_inputs": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/inputs.json",
+  "prior_capacity_review": "/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/review.md",
+  "execution": "not authorized; preparation only"
+}

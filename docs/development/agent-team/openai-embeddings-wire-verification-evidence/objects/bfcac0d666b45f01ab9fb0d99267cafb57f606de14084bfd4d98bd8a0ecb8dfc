@@ -1,0 +1,52 @@
+{
+  "candidate_manifest": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate02/manifest.json",
+    "sha256": "003c0c5e1d5ea402ee13086471f85042820fb056082e0c3d8c8cc353a939467b"
+  },
+  "observations": {
+    "actual_exit": 1,
+    "asserted_total_alloc_limit_exclusive": 22020096,
+    "auxiliary_contract_budget": 65536,
+    "capacity_sum_with_contract_aux": 21037057,
+    "data_race_report": false,
+    "known_raw_capacity": 16777217,
+    "known_vector_capacity_each": 2097152,
+    "late_bad_value_and_cancel_subtests_in_this_top": "not reached in race01 after Fatal; unit pure02 did reach/pass",
+    "measured_total_alloc_bytes": 22072128,
+    "seconds": 6.178178010006377,
+    "top_fail": 1,
+    "top_pass": 7
+  },
+  "race01": {
+    "cleanup.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race01/cleanup.json",
+      "sha256": "d03e8c786694d0fbeba42c82fb53c266adb4e8349d048cb06ff8b7c7ddc71d17"
+    },
+    "command.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race01/command.json",
+      "sha256": "d4eeebd00b65d8530014b5061204f7fbd1e702b509e6f33efe7c60becbd0f46a"
+    },
+    "input-after.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race01/input-after.json",
+      "sha256": "4ba11e7c1b35686aeeef8b25636f619e219fc30239050ef57656e122978065eb"
+    },
+    "input-before.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race01/input-before.json",
+      "sha256": "4ba11e7c1b35686aeeef8b25636f619e219fc30239050ef57656e122978065eb"
+    },
+    "raw.log": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race01/raw.log",
+      "sha256": "6c0321e05070a96719cf6a27ce8fcaebb84cd3f98705666cc787a98bd7e080fd"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race01/result.json",
+      "sha256": "a83bdf08f0742f4c0078902821e0e2fe00129e74eb9b64b7fba99b329b2d2d4c"
+    }
+  },
+  "runtime_mstats": {
+    "lines": "63-68,114-124,508-513",
+    "path": "/workspace/toolchains/go1.27.1/src/runtime/mstats.go",
+    "sha256": "4a33458ef51ba74a46f63d66244c55d93356cdad9a2eafe7062c1f1800710ed4"
+  },
+  "status": "Frozen read-only diagnosis, pending independent interpretation. No assertion/source changes or rerun."
+}

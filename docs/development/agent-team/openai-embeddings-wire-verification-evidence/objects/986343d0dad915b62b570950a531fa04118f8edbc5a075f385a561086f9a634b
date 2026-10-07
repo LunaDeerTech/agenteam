@@ -1,0 +1,27 @@
+# Embeddings A：race 容量失败独立诊断
+
+结论：**原容量断言口径错误，且硬容量证据需补强；未证实产品越过卡定容量。** 本次唯一私有纯代表通过，不把作者原 race01 改为通过，也不宣布 A 阶段完整验收。建议只修受影响新测试及证据说明，保持产品与原容量预算不动，再由 root 授权必要复验。
+
+固定输入 `/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/candidate02/manifest.json` SHA `003c0c5e1d5ea402ee13086471f85042820fb056082e0c3d8c8cc353a939467b`；正式卡 `15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597` §4。五候选实际副本与作者工作区冻结 SHA 相同；原轮、标准库和本次实际输入定位见 [diagnosis-inputs01.json](diagnosis-inputs01.json)。未修改作者或主树。
+
+原证据分层：pure01 八 top actual0/3.849595s，当时累计门槛 23 MiB；随后私有安全显示补项与累计门槛收紧的精确差量仍在 `pure01-to-candidate02.diff`。pure02 同最终五源受影响两 top actual0/1.200271s，累计值 21,037,800B。race01 actual1/6.178178s，7 top PASS、1 top FAIL，第247行累计值 **22,072,128B ≥22,020,096B**；没有 DATA RACE 报告。26 PID/starttime、0 adopted、实际 wait 与双清完整。Fatal 后本 top 的末尾坏值/三项取消在该 race 轮未到；先前 pure 到达不能倒填为 race 到达。
+
+`runtime/mstats.go:63–68` 定义 TotalAlloc 为进程累计 heap 分配，释放不减；`HeapAlloc` 又含尚未回收的不可达对象。卡限定的是当前解析器所列自有缓冲容量，不是累计分配、堆采样或 RSS。区间覆盖所有进程分配，临时字串/短键可反复分配后不再被持有；两轮数值之差不能唯一归于 race runtime、GC、ParseFloat 或某个临时对象。这里不作该归因。
+
+实际持有路径已逐段核对（`embedding_json.go`）：
+
+- L20 原 raw 单次 `make(limit+1)`，每次读取至多4KiB，无增长/第二份正文；L493 typed pass 仅保存同 raw 的 span/slice。字符串值先扫描，过长 model/短键在相应解码分配前拒绝。
+- L308 深度先限8，各对象 `[8]string`，第9键先拒；L180 短键先限256解码字节。最大合法单键编码为1538B（含引号）。键只在递归的活帧中保留，顺序对象间没有集合累计；保守8帧×8键×256=16,384B短键内容，键头8×128=1,024B。辅助 scalar/index 不保留数字对象树。
+- L298 只对有界短键/短字符串调用 `json.Unmarshal`。固定 Go `decode.go:103/214/1194` 直接引用传入片段，解码目标总是 string；valid UTF-8/代理对已由自有 scanner 验过，`unquoteBytes` 的一次 scratch 最多1536+8=1,544B，不走非法 UTF-8 扩容分支，decoded string≤256B；没有数组/Map/整份 RawMessage。decoder/reflect 状态固定，scalar-only 解码不建立随外层 JSON 深度增长的标准库 parseState。
+- L535 一块 `count*dimensions` float backing；预检除法已防溢出，至多262144个float64。items 至多128个（每个32B）；index `[128]bool`。L627 clone 另建一块 float backing 和一个 items 表，Usage 只复制有限 TokenCount 指针。当前两个 items 表实际8,192B。clone 只对合法解析结果作此说明，未来 handle/transport 尚未实现。
+- L602 数字先限64B再转 float。固定 `strconv/number.go:93/264` 与 `internal/strconv/atof.go:634/680` 的快路径用标量，慢路径仅固定 decimal `[800]byte`（含标量字段约824B）；没有随向量长度累积的数字串列表。错误路径至多一个短输入的 NumError/复制，随后替换为安全 ModelError，不保留原 cause。辅助控制 scanner 实测80B、span表64B；其余为有限标量/指针/usage/模型文本，不能当作 Go allocator/栈 arena/RSS 度量。
+
+这些源码关系把可随输入增长的辅助缓冲限定在短键内容/键头、至多两个 items 表、128索引、至多1,544B解码 scratch 与单数字临时；主要部分约28KiB，剩余仅少数固定 scanner/span/decoder/decimal/usage 结构，处于64KiB内。此为固定实现的对象与容量上界分析，不是从 `embeddingAuxiliaryBytes=65536` 自我推导，也不是独立测得全程序峰值。原测试缺少此路径论证，仅常量相加本身不足；原 clone 只验 len，没有验 cap/backing，已列为修测事项。
+
+唯一私有代表 `TestIndependentEmbeddingsOwnedCapacity`：执行 `/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/execution01.json` SHA `6677599d43de0583f8facd76d865b8647b2cfe752dc29d97011e54d2c9109a57`；`-race -p=1 -vet=off -count=1 -timeout=45s`，外层45s，readonly/offline，无 listener。实际 **1 PASS / exit0 /4.254068s**（top1.57s），tool session25437已返回exit0。通过原 parser/clone 实测 raw cap **16,777,217B**，原结果与 clone 各独立连续 **2,097,152B**；所有128行 cap/len=2048，独立回写不污染原向量/usage。最大逃逸键1538→256、七层各八长键、额外层/第9键拒绝、64B数字接收/65B拒绝全部到达。诊断 TotalAlloc **22,123,240B** 仅记录，未设阈值或用它证明容量；也未 GC/测 RSS。
+
+原件：`runs/capacity01/{command.json,raw.log,result.json,cleanup.json,input-before.json,input-after.json}`。raw `e0687d1b6a908d422e399a9008b1c93e7e11d9911dc701c3d8e083691e3163d0`；result `1ebc4f68f0e69a821be60fcaccf5b05999dd9f27942a6a5b5fd6542565ab2d42`；cleanup `cb7cef22488e6361e369de009d4c7a4f4e96ce057f8dab65803278fdb942cbbe`。5 PID/starttime、0 adopted、child actualwait、两扫空、TMP移除；1808输入前后相同。私有 probe/overlay/runner/原 argv 在 preparation01 和 execution01 绑定；原失败 source/raw 均未覆盖。
+
+最小后继修订建议：仅受影响 `embedding_json_test.go` 把错误的“TotalAlloc<21MiB即持有容量”改为清楚标注的累计诊断，同时新增实际 clone cap、两块 backing 连续且独立、有限辅助路径与解码/数字前置限额证据，保留 raw/vector/总容量严格上界、最大合法形状、末尾坏值零候选/可靠 usage 和原三取消强断言。不能仅删除/放宽阈值、退回23MiB或靠GC。必要复验是修订后的原 capacity/cancellation top 在纯/race 下完整到达；作者原7个未变 race PASS可有界复用，vet此前未运行仍需按阶段流程补齐。由 root 决定授权，独立者本次未改测试或自动重跑。
+
+限制：仅上述一次新纯代表；没有完整内存 profiler、逐分配来源追踪、未来 handle/Start/Budget/transport 或真实 HTTP 验证。新代表的阶段边界不取代原 race 末段尚待复验的事实。三个停止任务未触碰。

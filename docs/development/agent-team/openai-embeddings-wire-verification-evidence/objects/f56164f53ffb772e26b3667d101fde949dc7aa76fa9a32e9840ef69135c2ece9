@@ -1,0 +1,278 @@
+{
+  "status": "STATIC PASS; startup01 blocker closed",
+  "inputs": {
+    "run-embeddings-fixture02.py": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture02.py",
+      "bytes": 27828,
+      "sha256": "0dcb5905240e2fa5a92c1f2e866ab7c4187a25dfbfd2c3b79fca35cb2d2a9bc4"
+    },
+    "driver-stage02/input.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02/input.json",
+      "bytes": 850374,
+      "sha256": "278bcc65e3a0bce6234a2c3043789ee58343a6f94c7a38b01f2653d3167aa630"
+    },
+    "driver-stage02/driver.diff": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage02/driver.diff",
+      "bytes": 3481,
+      "sha256": "b62fbac2be820ba64318b4af5a131410a47ea95abaf492bc3b522bb148c96510"
+    },
+    "runtime-baseline01-to02.json": {
+      "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runtime-baseline01-to02.json",
+      "bytes": 1365,
+      "sha256": "00644f20670a4b9fa8def4f5b99e4d4fa3f4ddc1ed1ec5dda7c2954c9f02c555"
+    }
+  },
+  "original_blocker": {
+    "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/startup-review01.md",
+    "bytes": 2637,
+    "sha256": "9e68c10064c47ed29e910de120650e93d92f7bcedbb541c5072ff3cca108c360"
+  },
+  "added_fixed_git": {
+    "cmd/agenteam-runner/main.go": {
+      "bytes": 2679,
+      "git_blob": "afb614f13f0148147586b0c431aa912187fa2ffc",
+      "kind": "blob",
+      "mode": "100644",
+      "sha256": "e4341598318b791e6bd03b2cff75a1a6280adea2b4efa68736bb323f3e70aa66"
+    },
+    "cmd/agenteam/main.go": {
+      "bytes": 3825,
+      "git_blob": "1345651a64a24833421f22b21bdb80a2b6df559c",
+      "kind": "blob",
+      "mode": "100644",
+      "sha256": "4412cc0e4d838b076d1447ea3ec9137f1eb0dffc01f95d8ff54c5756e305198a"
+    },
+    "cmd/agenteam/main_test.go": {
+      "bytes": 3082,
+      "git_blob": "77d60da3502b88070bbaff3b522deefea7c38119",
+      "kind": "blob",
+      "mode": "100644",
+      "sha256": "91ae72fe08e61323d1341b40638f96ad63a56b09a63892209fde3690ee2bbd00"
+    },
+    "internal/runner/app/app.go": {
+      "bytes": 1250,
+      "git_blob": "f1351a9c73e3cd3fb6fa20615d04d8abead040e4",
+      "kind": "blob",
+      "mode": "100644",
+      "sha256": "b31aa6a2d0208235c8fef9f336ec1774020d8f3cedcb0df3e1436058dbb4e984"
+    },
+    "internal/runner/app/app_test.go": {
+      "bytes": 2070,
+      "git_blob": "2a67cd26649ee1d17d6636973f8281d1dcede18a",
+      "kind": "blob",
+      "mode": "100644",
+      "sha256": "cfaf5df626ebe02ccadaeb8e7bfc6e9d143fd7aafe294c42cae00d53c6ea2c66"
+    },
+    "internal/runner/config/config.go": {
+      "bytes": 2451,
+      "git_blob": "67ef6fd6724ee117e83f860b7f6a902aa3df8871",
+      "kind": "blob",
+      "mode": "100644",
+      "sha256": "aca1c6bd1c6d0273fb1468c67815594f8e03cd0175038f21610e67de4bb95437"
+    },
+    "internal/runner/config/config_test.go": {
+      "bytes": 1922,
+      "git_blob": "60a81c3114d957cff07edea79695daa52b5ddc0c",
+      "kind": "blob",
+      "mode": "100644",
+      "sha256": "b67928ba57e0028181ffd38cf910444905b832ecce790275c3482e506a136518"
+    }
+  },
+  "original15_and907_unchanged": true,
+  "original_runtime3510_unchanged": true,
+  "runtime_added": {
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/pgproto3/norace_test.go": "26f6b3bc37df060203d273252e2acb2e42c021cb1d9191b7ef3f0abdae1b7c99",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/klauspost/compress@v1.19.2/internal/race/norace.go": "89707a31045c08611a62a5662eaab0f23e280569b4fe28742617eb43f0ab0314",
+    "/workspace/toolchains/go1.27.1/src/regexp/exec2_test.go": "6e60356cc5532dcc1265776736916d5ee927d3601bb0958ae8d1b5b7f16cc120"
+  },
+  "actual_build_variants": {
+    "host": {
+      "CGO_ENABLED": "1",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-deps",
+        "-json",
+        "./cmd/agenteam",
+        "./cmd/agenteam-runner",
+        "./tests/testsupport/objectstore/cmd/fixture",
+        "./tests/testsupport/outbound/cmd/fixture",
+        "./tests/testsupport/postgres/cmd/fixture"
+      ],
+      "integration_tag": false,
+      "race": false
+    },
+    "server": {
+      "CGO_ENABLED": "0",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-deps",
+        "-json",
+        "./tests/testsupport/outbound/cmd/server"
+      ]
+    }
+  },
+  "counts": {
+    "candidates": 15,
+    "fixed_Git": 914,
+    "runtime": 3513,
+    "packages": 459
+  },
+  "author_offline_evidence": {
+    "d-runtime-gate02": {
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 2.136500241998874,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 5,
+        "adopted_wait_count": 0,
+        "raw_sha256": "2ba7ed209385bb5c6cb0b936df77c1a87ed12078dec95787fdb87ed6bc541080",
+        "cleanup_sha256": "71f1014d632848d7f03203330831ba0c3cf8d3dec67eacdbe9a2f2a4259ca05b"
+      },
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runtime-gate02/command.json",
+          "bytes": 1047,
+          "sha256": "ee16b87c6716dac356faff2718b616f9df6f15e283dbd2bc87b4a9c2cd40984f"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runtime-gate02/raw.log",
+          "bytes": 295,
+          "sha256": "2ba7ed209385bb5c6cb0b936df77c1a87ed12078dec95787fdb87ed6bc541080"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runtime-gate02/result.json",
+          "bytes": 445,
+          "sha256": "ab89a879fb9f6fc8caf1aad01c8992b44e76d39a640b263a85c2eae17774b680"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runtime-gate02/cleanup.json",
+          "bytes": 1121,
+          "sha256": "71f1014d632848d7f03203330831ba0c3cf8d3dec67eacdbe9a2f2a4259ca05b"
+        }
+      }
+    },
+    "d-central-compile02": {
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 2.682203099997423,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 12,
+        "adopted_wait_count": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cleanup_sha256": "28f5426a89afd8036ec7cafa74ab9223a900c0afb153c6cef23fc2d25eda7f6a"
+      },
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-central-compile02/command.json",
+          "bytes": 1161,
+          "sha256": "9e00ebeeb2df16ccd3e2d7882605095c2ef4845409685b406610865e03f3f81d"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-central-compile02/raw.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-central-compile02/result.json",
+          "bytes": 446,
+          "sha256": "6b7c103887e2dfbe761e0f83ce7cbb707df38c3101a717fb0240a06257a9b4ad"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-central-compile02/cleanup.json",
+          "bytes": 2010,
+          "sha256": "28f5426a89afd8036ec7cafa74ab9223a900c0afb153c6cef23fc2d25eda7f6a"
+        }
+      }
+    },
+    "d-runner-compile02": {
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 0.29050698000355624,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 2,
+        "adopted_wait_count": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cleanup_sha256": "6ef181d5af3c1482ae2fe04d4efa2f3ed9f0224938fe01d5b0ff48ffb478bc49"
+      },
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runner-compile02/command.json",
+          "bytes": 1177,
+          "sha256": "955056a99341943b5c530ad24166bf19cd7709156b97a0962f75d6729420db70"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runner-compile02/raw.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runner-compile02/result.json",
+          "bytes": 447,
+          "sha256": "5a77b4e404d44fb8cbb4f1ae73161cd0d97591c10ca348551d81264bad828874"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-runner-compile02/cleanup.json",
+          "bytes": 740,
+          "sha256": "6ef181d5af3c1482ae2fe04d4efa2f3ed9f0224938fe01d5b0ff48ffb478bc49"
+        }
+      }
+    },
+    "d-check-input02": {
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 2.199619431994506,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 5,
+        "adopted_wait_count": 0,
+        "raw_sha256": "bdf3462e01b9bd1220754cd42c046e34d669cb3205631ee682a8efa4d901a881",
+        "cleanup_sha256": "826c4eca277d6dac519cb364d549b79c6a9c49a3dace736a4916077ad7321c5b"
+      },
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-check-input02/command.json",
+          "bytes": 1354,
+          "sha256": "4056faa39ccbbc813e986fa9cabea885d053daef34c476f6281b597e40ef5655"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-check-input02/raw.log",
+          "bytes": 237,
+          "sha256": "bdf3462e01b9bd1220754cd42c046e34d669cb3205631ee682a8efa4d901a881"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-check-input02/result.json",
+          "bytes": 445,
+          "sha256": "f290d118cbb4645a348f3fb055b131e67edcd3e3afe29016b334e5f63fb26c44"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/d-check-input02/cleanup.json",
+          "bytes": 1121,
+          "sha256": "826c4eca277d6dac519cb364d549b79c6a9c49a3dace736a4916077ad7321c5b"
+        }
+      }
+    }
+  },
+  "independent_execution": "none: bounded read/hash/static AST and fixed Git byte comparison only",
+  "resource_authorization": "root only; HTTP single-window may be granted on this fixed input; no dynamic PASS"
+}

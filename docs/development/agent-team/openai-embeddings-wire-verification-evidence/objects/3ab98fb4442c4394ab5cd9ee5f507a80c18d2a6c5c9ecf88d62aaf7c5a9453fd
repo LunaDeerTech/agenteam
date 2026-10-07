@@ -1,0 +1,1531 @@
+--- fixed-c1427fa/internal/central/model/adapter/budget.go
++++ B01/internal/central/model/adapter/budget.go
+@@ -9,39 +9,55 @@
+ 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+ )
+ 
++// budgetWork identifies one exact admitted handle across supported wire types.
++// Only actual waitJoined completion may remove it from the shared registry.
++type budgetWork interface {
++	cancelWork()
++	waitJoined(context.Context) error
++	Joined() bool
++}
++
+ type budgetState struct {
+ 	mu       sync.Mutex
+ 	stopped  bool
+-	active   map[*Exchange]identity.ProjectID
++	active   map[budgetWork]identity.ProjectID
+ 	projects map[identity.ProjectID]int
+ }
+ type Budget struct{ state *budgetState }
+ 
+ func NewBudget() *Budget {
+-	return &Budget{state: &budgetState{active: make(map[*Exchange]identity.ProjectID), projects: make(map[identity.ProjectID]int)}}
++	return &Budget{state: &budgetState{active: make(map[budgetWork]identity.ProjectID), projects: make(map[identity.ProjectID]int)}}
+ }
+ func (b *Budget) accept(ctx context.Context, project identity.ProjectID, mode ResponseMode, overall time.Duration) (*Exchange, error) {
++	var x *Exchange
++	err := b.admit(ctx, project, func() budgetWork {
++		x = newExchange(ctx, mode, overall, b)
++		return x
++	})
++	return x, err
++}
++func (b *Budget) admit(ctx context.Context, project identity.ProjectID, create func() budgetWork) error {
+ 	if b == nil || b.state == nil || project.Validate() != nil {
+-		return nil, invalid()
++		return invalid()
+ 	}
+ 	s := b.state
+ 	s.mu.Lock()
+ 	defer s.mu.Unlock()
+ 	if err := ctx.Err(); err != nil {
+-		return nil, contextFailure(err)
++		return contextFailure(err)
+ 	}
+ 	if s.stopped {
+-		return nil, f.NewFault(f.ShuttingDown, f.NotStarted)
++		return f.NewFault(f.ShuttingDown, f.NotStarted)
+ 	}
+ 	if len(s.active) >= 64 || s.projects[project] >= 8 {
+-		return nil, f.NewFault(f.ResourceBusy, f.NotStarted)
++		return f.NewFault(f.ResourceBusy, f.NotStarted)
+ 	}
+-	x := newExchange(ctx, mode, overall, b)
++	x := create()
+ 	s.active[x] = project
+ 	s.projects[project]++
+-	return x, nil
++	return nil
+ }
+-func (b *Budget) release(x *Exchange) {
++func (b *Budget) release(x budgetWork) {
+ 	s := b.state
+ 	s.mu.Lock()
+ 	defer s.mu.Unlock()
+@@ -61,14 +77,14 @@
+ 	b.state.stopped = true
+ 	b.state.mu.Unlock()
+ }
+-func (b *Budget) snapshot() ([]*Exchange, bool) {
++func (b *Budget) snapshot() ([]budgetWork, bool) {
+ 	if b == nil || b.state == nil {
+ 		return nil, false
+ 	}
+ 	s := b.state
+ 	s.mu.Lock()
+ 	defer s.mu.Unlock()
+-	list := make([]*Exchange, 0, len(s.active))
++	list := make([]budgetWork, 0, len(s.active))
+ 	for x := range s.active {
+ 		list = append(list, x)
+ 	}
+@@ -97,7 +113,7 @@
+ 	b.StopAdmission()
+ 	list, _ := b.snapshot()
+ 	for _, x := range list {
+-		x.cancel()
++		x.cancelWork()
+ 	}
+ 	return b.Drain(ctx)
+ }
+--- /dev/null/internal/central/model/adapter/embedding_budget_test.go
++++ B01/internal/central/model/adapter/embedding_budget_test.go
+@@ -0,0 +1,310 @@
++package adapter
++
++import (
++	"context"
++	"sync"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++// This helper completes only local work. Actual D04 writer/connection facts
++// belong to the later native fixture; mixed admission uses the real registry.
++func embeddingLocalHandle(b *Budget, project id.ProjectID) (*EmbeddingExchange, error) {
++	var x *EmbeddingExchange
++	err := b.admit(context.Background(), project, func() budgetWork {
++		x = newEmbeddingExchange(context.Background(), time.Second, b, sc.SecretMaterial{})
++		return x
++	})
++	return x, err
++}
++func embeddingFinishLocal(x *EmbeddingExchange) {
++	x.mu.Lock()
++	select {
++	case <-x.ioDone:
++	default:
++		close(x.ioDone)
++		close(x.workerDone)
++	}
++	x.mu.Unlock()
++}
++func embeddingRetireLocal(t *testing.T, b *Budget, handles []budgetWork) {
++	t.Helper()
++	for _, handle := range handles {
++		handle.cancelWork()
++		switch x := handle.(type) {
++		case *Exchange:
++			select {
++			case <-x.ioDone:
++			default:
++				finishLocal(x, Result{}, nil)
++			}
++		case *EmbeddingExchange:
++			embeddingFinishLocal(x)
++		}
++	}
++	b.StopAdmission()
++	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
++	defer cancel()
++	if err := b.Drain(ctx); err != nil || !b.Joined() {
++		t.Error("mixed local handles not actually joined", err)
++	}
++}
++
++func TestOpenAIEmbeddingsMixedBudget(t *testing.T) {
++	b := NewBudget()
++	var handles []budgetWork
++	t.Cleanup(func() { embeddingRetireLocal(t, b, handles) })
++	var first id.ProjectID
++	for projectIndex := range 8 {
++		project := fresh[id.Project](t)
++		if projectIndex == 0 {
++			first = project
++		}
++		for n := range 8 {
++			if n%3 == 2 {
++				x, err := embeddingLocalHandle(b, project)
++				if err != nil {
++					t.Fatal(err)
++				}
++				handles = append(handles, x)
++			} else {
++				// Both accepted Chat modes (including structured's same
++				// Exchange handle) share the exact old accept path.
++				mode := JSONResponse
++				if n%3 == 1 {
++					mode = SSEResponse
++				}
++				x, err := b.accept(context.Background(), project, mode, time.Second)
++				if err != nil {
++					t.Fatal(err)
++				}
++				handles = append(handles, x)
++			}
++		}
++		x, err := embeddingLocalHandle(b, project)
++		if x != nil {
++			t.Fatal("ninth mixed Project handle admitted")
++		}
++		requireFault(t, err, f.ResourceBusy)
++		if x, err := b.accept(context.Background(), project, JSONResponse, time.Second); x != nil || err == nil {
++			t.Fatal("Chat bypassed mixed Project cap")
++		}
++	}
++	x, err := embeddingLocalHandle(b, fresh[id.Project](t))
++	if x != nil {
++		t.Fatal("65th global handle admitted")
++	}
++	requireFault(t, err, f.ResourceBusy)
++	active, _ := b.snapshot()
++	if len(active) != 64 {
++		t.Fatal("mixed global registry split")
++	}
++	// Cancellation alone does not free either protocol's slot.
++	for _, handle := range handles {
++		handle.cancelWork()
++	}
++	x, err = embeddingLocalHandle(b, first)
++	if x != nil {
++		t.Fatal("cancelled but unfinished handle released capacity")
++	}
++	requireFault(t, err, f.ResourceBusy)
++	// Input validation still precedes full admission and per-call Client.
++	r, o := embeddingUnitInput(t)
++	o.ProjectID = first
++	a := &OpenAIEmbeddings{budget: b}
++	var creates atomic.Int32
++	create := func() (embeddingClient, error) { creates.Add(1); return nil, nil }
++	r.ExpectedDimensions = 0
++	if x, err := a.start(context.Background(), r, o, create); x != nil || err == nil {
++		t.Fatal("invalid shape admitted")
++	} else {
++		requireFault(t, err, f.InvalidArgument)
++	}
++	r.ExpectedDimensions = 2
++	if x, err := a.start(context.Background(), r, o, create); x != nil || err == nil {
++		t.Fatal("full budget admitted Start")
++	} else {
++		requireFault(t, err, f.ResourceBusy)
++	}
++	if creates.Load() != 0 {
++		t.Fatal("full/invalid Start created Client")
++	}
++	b.StopAdmission()
++	if x, err := embeddingLocalHandle(b, first); x != nil || err == nil {
++		t.Fatal("sealed mixed admission")
++	} else {
++		requireFault(t, err, f.ShuttingDown)
++	}
++}
++
++func TestOpenAIEmbeddingsConcurrentBudget(t *testing.T) {
++	b := NewBudget()
++	project := fresh[id.Project](t)
++	var handles []budgetWork
++	t.Cleanup(func() { embeddingRetireLocal(t, b, handles) })
++	start := make(chan struct{})
++	results := make(chan budgetWork, 96)
++	failures := make(chan error, 96)
++	var wg sync.WaitGroup
++	for n := range 96 {
++		wg.Add(1)
++		go func() {
++			defer wg.Done()
++			<-start
++			if n%2 == 0 {
++				x, err := embeddingLocalHandle(b, project)
++				if err != nil {
++					failures <- err
++				} else {
++					results <- x
++				}
++			} else {
++				x, err := b.accept(context.Background(), project, SSEResponse, time.Second)
++				if err != nil {
++					failures <- err
++				} else {
++					results <- x
++				}
++			}
++		}()
++	}
++	close(start)
++	wg.Wait()
++	close(results)
++	close(failures)
++	for x := range results {
++		handles = append(handles, x)
++	}
++	if len(handles) != 8 || len(failures) != 88 {
++		t.Fatal("mixed concurrent owner count", len(handles), len(failures))
++	}
++	for err := range failures {
++		requireFault(t, err, f.ResourceBusy)
++	}
++}
++
++func TestOpenAIEmbeddingsForceSharesCallerBudget(t *testing.T) {
++	b := NewBudget()
++	project := fresh[id.Project](t)
++	chat, err := b.accept(context.Background(), project, JSONResponse, time.Second)
++	if err != nil {
++		t.Fatal(err)
++	}
++	embedding, err := embeddingLocalHandle(b, project)
++	if err != nil {
++		finishLocal(chat, Result{}, nil)
++		chat.cancel()
++		t.Fatal(err)
++	}
++	handles := []budgetWork{chat, embedding}
++	t.Cleanup(func() { embeddingRetireLocal(t, b, handles) })
++	// A cancelled caller still cancels every exact type before the first wait.
++	cancelled, cancel := context.WithCancel(context.Background())
++	cancel()
++	if err := b.Force(cancelled); err == nil || chat.ctx.Err() == nil || embedding.ctx.Err() == nil {
++		t.Fatal("Force did not cancel all handles before waiting")
++	}
++	if b.Joined() || chat.Joined() || embedding.Joined() {
++		t.Fatal("Force manufactured actual completion")
++	}
++	active, stopped := b.snapshot()
++	if len(active) != 2 || !stopped {
++		t.Fatal("Force lost exact work")
++	}
++	// Attach two controlled D04 tails to real Embedding handles. Each Drain
++	// must receive the very same caller deadline, not a new per-handle budget.
++	embeddingRetireLocal(t, b, handles)
++	handles = nil
++	b = NewBudget()
++	gates := []*embeddingTestGate{embeddingGate(), embeddingGate()}
++	var deadlinesMu sync.Mutex
++	var deadlines []time.Time
++	for _, gate := range gates {
++		x, err := embeddingLocalHandle(b, project)
++		if err != nil {
++			t.Fatal(err)
++		}
++		client := &embeddingTestClient{}
++		client.onDrain = func(ctx context.Context) error {
++			deadline, ok := ctx.Deadline()
++			if !ok {
++				return context.DeadlineExceeded
++			}
++			deadlinesMu.Lock()
++			deadlines = append(deadlines, deadline)
++			deadlinesMu.Unlock()
++			gate.enter.Do(func() { close(gate.entered) })
++			select {
++			case <-gate.release:
++				return nil
++			default:
++			}
++			select {
++			case <-gate.release:
++				return nil
++			case <-ctx.Done():
++				return ctx.Err()
++			}
++		}
++		x.client = client
++		embeddingFinishLocal(x)
++		handles = append(handles, x)
++	}
++	t.Cleanup(func() {
++		for _, gate := range gates {
++			gate.open()
++		}
++	})
++	caller, stop := context.WithTimeout(context.Background(), 60*time.Millisecond)
++	want, _ := caller.Deadline()
++	started := time.Now()
++	err = b.Force(caller)
++	elapsed := time.Since(started)
++	stop()
++	if err == nil || elapsed < 40*time.Millisecond || elapsed > 500*time.Millisecond {
++		t.Fatal("Force reset caller budget", elapsed)
++	}
++	for _, x := range handles {
++		if x.(*EmbeddingExchange).ctx.Err() == nil {
++			t.Fatal("Force waited before cancelling a handle")
++		}
++	}
++	deadlinesMu.Lock()
++	observed := append([]time.Time(nil), deadlines...)
++	deadlinesMu.Unlock()
++	for _, got := range observed {
++		if !got.Equal(want) {
++			t.Fatal("per-handle Drain got a renewed deadline")
++		}
++	}
++	if len(observed) == 0 {
++		t.Fatal("no actual Drain")
++	}
++	active, _ = b.snapshot()
++	if len(active) != 2 {
++		t.Fatal("timeout freed controlled tails")
++	}
++	// Release both and use one explicit caller cleanup window. Both exact
++	// tails must be visited with that same deadline before actual retirement.
++	for _, gate := range gates {
++		gate.open()
++	}
++	cleanup, done := context.WithTimeout(context.Background(), time.Second)
++	cleanupDeadline, _ := cleanup.Deadline()
++	deadlinesMu.Lock()
++	deadlines = nil
++	deadlinesMu.Unlock()
++	err = b.Drain(cleanup)
++	done()
++	deadlinesMu.Lock()
++	observed = append([]time.Time(nil), deadlines...)
++	deadlinesMu.Unlock()
++	if err != nil || len(observed) != 2 || !observed[0].Equal(cleanupDeadline) || !observed[1].Equal(cleanupDeadline) || !b.Joined() {
++		t.Fatal("shared cleanup window did not join both exact tails", err)
++	}
++}
+--- /dev/null/internal/central/model/adapter/embedding_transport.go
++++ B01/internal/central/model/adapter/embedding_transport.go
+@@ -0,0 +1,388 @@
++package adapter
++
++import (
++	"context"
++	"errors"
++	"fmt"
++	"io"
++	"log/slog"
++	"mime"
++	"net/http"
++	"sync"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++// These private boundaries mirror only the public D04 operations this wire
++// needs. The production implementation below forwards every operation to D04.
++type embeddingResponse interface {
++	StatusCode() int
++	Headers() http.Header
++	Body() io.ReadCloser
++	Close() error
++	Decision() outbound.Decision
++}
++type embeddingClient interface {
++	Do(context.Context, *http.Request, outbound.Profile) (embeddingResponse, error)
++	StopAdmission()
++	Drain(context.Context) error
++}
++type embeddingD04Client struct{ *outbound.Client }
++
++func (c embeddingD04Client) Do(ctx context.Context, req *http.Request, p outbound.Profile) (embeddingResponse, error) {
++	response, err := c.Client.Do(ctx, req, p)
++	if err != nil {
++		return nil, err
++	}
++	return response, nil
++}
++
++type EmbeddingExchange struct {
++	mu          sync.Mutex
++	ctx         context.Context
++	cancel      context.CancelFunc
++	budget      *Budget
++	client      embeddingClient
++	material    sc.SecretMaterial // borrowed, never destroyed by the adapter
++	ioDone      chan struct{}
++	workerDone  chan struct{}
++	joinPermit  chan struct{}
++	joined      bool
++	consumed    bool
++	result      EmbeddingResult
++	err         error
++	joinErr     error
++	observation Observation
++	requestID   string
++}
++
++func newEmbeddingExchange(ctx context.Context, overall time.Duration, b *Budget, material sc.SecretMaterial) *EmbeddingExchange {
++	ctx, cancel := context.WithTimeout(ctx, overall)
++	x := &EmbeddingExchange{
++		ctx: ctx, cancel: cancel, budget: b, material: material,
++		ioDone: make(chan struct{}), workerDone: make(chan struct{}), joinPermit: make(chan struct{}, 1),
++		observation: Observation{Usage: mc.Usage{Source: mc.UnknownUsage}},
++	}
++	x.joinPermit <- struct{}{}
++	return x
++}
++func (x *EmbeddingExchange) cancelWork() { x.cancel() }
++
++func (x *EmbeddingExchange) run(create func() (embeddingClient, error), p embeddingPrepared) {
++	defer close(x.workerDone)
++	result, err := x.perform(create, p)
++	x.mu.Lock()
++	client := x.client
++	x.mu.Unlock()
++	if client != nil {
++		client.StopAdmission()
++	}
++	x.mu.Lock()
++	if e := x.ctx.Err(); e != nil {
++		result = EmbeddingResult{}
++		if err == nil {
++			err = contextFailure(e)
++		}
++	}
++	x.result, x.err = result, err
++	// Do, parser and both public Close boundaries have actually returned.
++	close(x.ioDone)
++	x.mu.Unlock()
++	// Original attempt budget only. A late D04 writer remains owned until a
++	// caller supplies its own remaining Close/Drain budget and joins it.
++	_ = x.waitJoined(x.ctx)
++}
++
++func (x *EmbeddingExchange) perform(create func() (embeddingClient, error), p embeddingPrepared) (result EmbeddingResult, err error) {
++	defer func() {
++		if e := p.request.Body.Close(); e != nil {
++			result = EmbeddingResult{}
++			if err == nil {
++				err = transportFailure(e)
++			}
++		}
++	}()
++	client, err := create()
++	if err != nil || nilPort(client) {
++		return EmbeddingResult{}, failure("unknown", "wire_transport_error")
++	}
++	x.mu.Lock()
++	x.client, x.observation.DoStarted = client, true
++	x.mu.Unlock()
++	response, err := client.Do(x.ctx, p.request, p.profile)
++	if !nilPort(response) {
++		defer func() {
++			if e := response.Close(); e != nil {
++				x.observeNetworkError(e)
++				result = EmbeddingResult{}
++				if err == nil {
++					err = transportFailure(e)
++				}
++			}
++		}()
++	}
++	if err != nil {
++		x.observeNetworkError(err)
++		return EmbeddingResult{}, transportFailure(err)
++	}
++	if nilPort(response) {
++		return EmbeddingResult{}, protocolFailure()
++	}
++	d := response.Decision()
++	x.mu.Lock()
++	x.observation.Decision = &d
++	x.requestID = requestID(response.Headers().Get("X-Request-Id"))
++	x.mu.Unlock()
++	body := response.Body()
++	if nilPort(body) {
++		return EmbeddingResult{}, protocolFailure()
++	}
++	reader := embeddingReadFunc(func(p []byte) (int, error) {
++		n, err := body.Read(p)
++		x.observeNetworkError(err)
++		return n, err
++	})
++	if response.StatusCode() != http.StatusOK {
++		// Discard only a bounded diagnostic body; never expose its bytes.
++		if _, err := io.Copy(io.Discard, io.LimitReader(reader, 64<<10)); err != nil {
++			return EmbeddingResult{}, transportFailure(err)
++		}
++		return EmbeddingResult{}, statusFailure(response.StatusCode())
++	}
++	media, _, err := mime.ParseMediaType(response.Headers().Get("Content-Type"))
++	if err != nil || media != "application/json" {
++		return EmbeddingResult{}, protocolFailure()
++	}
++	raw, err := readEmbeddingBody(x.ctx, reader, p.responseBytes)
++	if err != nil {
++		return EmbeddingResult{}, err
++	}
++	result, usage, err := parseEmbeddingJSON(x.ctx, raw, p.count, p.dimensions)
++	x.mu.Lock()
++	x.observation.Usage = usage.Clone()
++	result.ProviderRequestID = x.requestID
++	x.mu.Unlock()
++	if err != nil {
++		return EmbeddingResult{}, err
++	}
++	return result, nil
++}
++
++type embeddingReadFunc func([]byte) (int, error)
++
++func (r embeddingReadFunc) Read(p []byte) (int, error) { return r(p) }
++
++func (x *EmbeddingExchange) observeNetworkError(err error) {
++	var network *outbound.NetworkError
++	if !errors.As(err, &network) {
++		return
++	}
++	d := network.Decision()
++	x.mu.Lock()
++	x.observation.Decision = &d
++	x.mu.Unlock()
++}
++func (x *EmbeddingExchange) Observe() Observation {
++	if x == nil {
++		return Observation{Usage: mc.Usage{Source: mc.UnknownUsage}}
++	}
++	x.mu.Lock()
++	defer x.mu.Unlock()
++	o := x.observation
++	o.Usage = o.Usage.Clone()
++	if o.Decision != nil {
++		d := *o.Decision
++		if d.PolicyVersion != nil {
++			v := *d.PolicyVersion
++			d.PolicyVersion = &v
++		}
++		o.Decision = &d
++	}
++	return o
++}
++
++func (x *EmbeddingExchange) waitJoined(ctx context.Context) error { return x.join(ctx, false) }
++func (x *EmbeddingExchange) join(ctx context.Context, probe bool) error {
++	if x == nil || ctx == nil {
++		return invalid()
++	}
++	select {
++	case <-x.ioDone:
++	default:
++		if probe {
++			return contextFailure(context.Canceled)
++		}
++		select {
++		case <-x.ioDone:
++		case <-ctx.Done():
++			return contextFailure(ctx.Err())
++		}
++	}
++	// Only one actual Drain at a time, without an uninterruptible mutex wait.
++	// An instantaneous Joined probe never waits behind another join caller.
++	select {
++	case <-x.joinPermit:
++	default:
++		if probe {
++			return contextFailure(context.Canceled)
++		}
++		select {
++		case <-x.joinPermit:
++		case <-ctx.Done():
++			return contextFailure(ctx.Err())
++		}
++	}
++	defer func() { x.joinPermit <- struct{}{} }()
++	x.mu.Lock()
++	client, joined := x.client, x.joined
++	x.mu.Unlock()
++	if joined {
++		return nil
++	}
++	if client != nil {
++		if err := client.Drain(ctx); err != nil {
++			x.observeNetworkError(err)
++			if ctx.Err() != nil {
++				return contextFailure(ctx.Err())
++			}
++			safe := transportFailure(err)
++			// A real Drain failure stays a failed result even when a later
++			// explicit cleanup succeeds. A cancelled no-wait probe is not a
++			// business failure and cannot poison a still-running attempt.
++			if !probe {
++				x.mu.Lock()
++				if x.joinErr == nil {
++					x.joinErr = safe
++				}
++				x.result = EmbeddingResult{}
++				x.mu.Unlock()
++			}
++			return safe
++		}
++	}
++	x.mu.Lock()
++	if !x.joined {
++		x.joined = true
++		x.material = sc.SecretMaterial{}
++		x.budget.release(x)
++	}
++	x.mu.Unlock()
++	return nil
++}
++func (x *EmbeddingExchange) Joined() bool {
++	if x == nil {
++		return false
++	}
++	ctx, cancel := context.WithCancel(context.Background())
++	cancel()
++	return x.join(ctx, true) == nil
++}
++func (x *EmbeddingExchange) Close(ctx context.Context) error {
++	if x == nil || ctx == nil {
++		return invalid()
++	}
++	x.cancel()
++	return x.waitJoined(ctx)
++}
++
++func (x *EmbeddingExchange) readError(err error) error {
++	x.mu.Lock()
++	defer x.mu.Unlock()
++	var model *mc.ModelError
++	if !errors.As(err, &model) {
++		model = failure("unknown", "wire_transport_error")
++	}
++	v := *model
++	v.ProviderRequestID = x.requestID
++	v.Dispatched = x.observation.Decision != nil && x.observation.Decision.Sent
++	v.PartialOutput = false
++	return &v
++}
++
++func (x *EmbeddingExchange) consumerJoin(ctx context.Context) error {
++	wait, cancel := context.WithCancel(x.ctx)
++	callbackDone := make(chan struct{})
++	stop := context.AfterFunc(ctx, func() {
++		cancel()
++		close(callbackDone)
++	})
++	defer func() {
++		if !stop() {
++			<-callbackDone
++		}
++		cancel()
++	}()
++	if ctx.Err() != nil {
++		cancel()
++	}
++	err := x.waitJoined(wait)
++	if ctx.Err() != nil {
++		return contextFailure(ctx.Err())
++	}
++	if x.ctx.Err() != nil {
++		return contextFailure(x.ctx.Err())
++	}
++	return err
++}
++func (x *EmbeddingExchange) Result(ctx context.Context) (EmbeddingResult, error) {
++	if x == nil || ctx == nil {
++		return EmbeddingResult{}, invalid()
++	}
++	x.mu.Lock()
++	if x.consumed {
++		x.mu.Unlock()
++		return EmbeddingResult{}, f.NewFault(f.InvalidState, f.NotStarted)
++	}
++	x.consumed = true
++	x.mu.Unlock()
++	defer func() {
++		x.cancel()
++		x.mu.Lock()
++		x.result = EmbeddingResult{}
++		x.mu.Unlock()
++	}()
++	select {
++	case <-x.ioDone:
++	case <-ctx.Done():
++		return EmbeddingResult{}, x.readError(contextFailure(ctx.Err()))
++	case <-x.ctx.Done():
++		return EmbeddingResult{}, x.readError(contextFailure(x.ctx.Err()))
++	}
++	x.mu.Lock()
++	err := x.err
++	x.mu.Unlock()
++	if err != nil {
++		return EmbeddingResult{}, x.readError(err)
++	}
++	if err := x.consumerJoin(ctx); err != nil {
++		return EmbeddingResult{}, x.readError(err)
++	}
++	x.mu.Lock()
++	result, err := x.result, x.joinErr
++	x.result = EmbeddingResult{}
++	x.mu.Unlock()
++	if err != nil {
++		return EmbeddingResult{}, x.readError(err)
++	}
++	// Recheck cancellation after actual join and before any success escapes.
++	if err := ctx.Err(); err != nil {
++		return EmbeddingResult{}, x.readError(contextFailure(err))
++	}
++	if err := x.ctx.Err(); err != nil {
++		return EmbeddingResult{}, x.readError(contextFailure(err))
++	}
++	// Move the sole vector backing to the once-only consumer. Usage still has
++	// an independent observation copy; no vector remains in the handle.
++	result.Usage = result.Usage.Clone()
++	return result, nil
++}
++
++func (*EmbeddingExchange) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_exchange") }
++func (*EmbeddingExchange) MarshalJSON() ([]byte, error) {
++	return []byte("\"model_embedding_exchange\""), nil
++}
++func (*EmbeddingExchange) LogValue() slog.Value { return slog.StringValue("model_embedding_exchange") }
+--- /dev/null/internal/central/model/adapter/embedding_transport_test.go
++++ B01/internal/central/model/adapter/embedding_transport_test.go
+@@ -0,0 +1,518 @@
++package adapter
++
++import (
++	"context"
++	"errors"
++	"io"
++	"net/http"
++	"reflect"
++	"strings"
++	"sync"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++)
++
++type embeddingTestGate struct {
++	entered, release chan struct{}
++	enter, leave     sync.Once
++}
++
++func embeddingGate() *embeddingTestGate {
++	return &embeddingTestGate{entered: make(chan struct{}), release: make(chan struct{})}
++}
++func (g *embeddingTestGate) block() {
++	g.enter.Do(func() { close(g.entered) })
++	<-g.release
++}
++func (g *embeddingTestGate) open() { g.leave.Do(func() { close(g.release) }) }
++func embeddingWait(t *testing.T, c <-chan struct{}, label string) {
++	t.Helper()
++	select {
++	case <-c:
++	case <-time.After(2 * time.Second):
++		t.Fatal("controlled boundary did not complete:", label)
++	}
++}
++
++type embeddingTestBody struct {
++	reader   io.Reader
++	eofGate  *embeddingTestGate
++	readErr  error
++	closeErr error
++	closes   atomic.Int32
++}
++
++func (b *embeddingTestBody) Read(p []byte) (int, error) {
++	n, err := b.reader.Read(p)
++	if err == io.EOF {
++		if b.eofGate != nil {
++			b.eofGate.block()
++		}
++		if b.readErr != nil {
++			return n, b.readErr
++		}
++	}
++	return n, err
++}
++func (b *embeddingTestBody) Close() error { b.closes.Add(1); return b.closeErr }
++
++type embeddingTestResponse struct {
++	status    int
++	headers   http.Header
++	body      *embeddingTestBody
++	decision  outbound.Decision
++	closeGate *embeddingTestGate
++	closeErr  error
++	closes    atomic.Int32
++}
++
++func (r *embeddingTestResponse) StatusCode() int             { return r.status }
++func (r *embeddingTestResponse) Headers() http.Header        { return r.headers.Clone() }
++func (r *embeddingTestResponse) Body() io.ReadCloser         { return r.body }
++func (r *embeddingTestResponse) Decision() outbound.Decision { return r.decision }
++func (r *embeddingTestResponse) Close() error {
++	r.closes.Add(1)
++	if r.closeGate != nil {
++		r.closeGate.block()
++	}
++	if err := r.body.Close(); err != nil {
++		return err
++	}
++	return r.closeErr
++}
++
++type embeddingTestClient struct {
++	response  embeddingResponse
++	doErr     error
++	doGate    *embeddingTestGate
++	onDo      func(context.Context, *http.Request, outbound.Profile)
++	drainGate *embeddingTestGate
++	drainErr  error
++	onDrain   func(context.Context) error
++	creates   atomic.Int32
++	doCalls   atomic.Int32
++	stops     atomic.Int32
++	drains    atomic.Int32
++	gates     []*embeddingTestGate
++}
++
++func (c *embeddingTestClient) Do(ctx context.Context, req *http.Request, profile outbound.Profile) (embeddingResponse, error) {
++	c.doCalls.Add(1)
++	if c.doGate != nil {
++		c.doGate.block()
++	}
++	if c.onDo != nil {
++		c.onDo(ctx, req, profile)
++	}
++	return c.response, c.doErr
++}
++func (c *embeddingTestClient) StopAdmission() { c.stops.Add(1) }
++func (c *embeddingTestClient) Drain(ctx context.Context) error {
++	c.drains.Add(1)
++	if c.onDrain != nil {
++		return c.onDrain(ctx)
++	}
++	if c.drainGate != nil {
++		c.drainGate.enter.Do(func() { close(c.drainGate.entered) })
++		select {
++		case <-c.drainGate.release:
++		default:
++			select {
++			case <-c.drainGate.release:
++			case <-ctx.Done():
++				return ctx.Err()
++			}
++		}
++	}
++	return c.drainErr
++}
++func (c *embeddingTestClient) release() {
++	for _, g := range c.gates {
++		g.open()
++	}
++}
++
++type embeddingOutcome struct {
++	result EmbeddingResult
++	err    error
++}
++type embeddingHarness struct {
++	x       *EmbeddingExchange
++	client  *embeddingTestClient
++	readers []<-chan struct{}
++}
++
++func embeddingResponseFor(raw string) *embeddingTestResponse {
++	version := f.Version(7)
++	return &embeddingTestResponse{
++		status:   http.StatusOK,
++		headers:  http.Header{"Content-Type": {"application/json; charset=utf-8"}, "X-Request-Id": {"embedding-request-7"}},
++		body:     &embeddingTestBody{reader: strings.NewReader(raw)},
++		decision: outbound.Decision{Sent: true, PolicyVersion: &version},
++	}
++}
++func embeddingValidBody() string {
++	return string(embeddingJSON("[{\"object\":\"embedding\",\"index\":0,\"embedding\":[1,2]}]", "{\"prompt_tokens\":0,\"total_tokens\":9007199254740993}"))
++}
++func startEmbeddingHarness(t *testing.T, parent context.Context, r EmbeddingRequest, o CallOptions, client *embeddingTestClient) *embeddingHarness {
++	t.Helper()
++	h := &embeddingHarness{client: client}
++	t.Cleanup(func() {
++		client.release()
++		if h.x != nil {
++			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
++			defer cancel()
++			_ = h.x.Close(ctx) // failures are asserted at their original boundary
++			embeddingWait(t, h.x.workerDone, "worker")
++			// A controlled non-context Drain failure is allowed to persist;
++			// each test that injects one supplies a later successful cleanup.
++			if !h.x.Joined() {
++				t.Error("actual controlled client remained unjoined")
++			}
++		}
++		for _, done := range h.readers {
++			embeddingWait(t, done, "Result caller")
++		}
++	})
++	a := &OpenAIEmbeddings{budget: NewBudget()}
++	x, err := a.start(parent, r, o, func() (embeddingClient, error) {
++		client.creates.Add(1)
++		return client, nil
++	})
++	if err != nil {
++		t.Fatal("controlled Start", err)
++	}
++	h.x = x
++	return h
++}
++func (h *embeddingHarness) result(ctx context.Context) <-chan embeddingOutcome {
++	out := make(chan embeddingOutcome, 1)
++	done := make(chan struct{})
++	h.readers = append(h.readers, done)
++	go func() {
++		defer close(done)
++		r, err := h.x.Result(ctx)
++		out <- embeddingOutcome{r, err}
++	}()
++	return out
++}
++func embeddingReceive(t *testing.T, out <-chan embeddingOutcome) embeddingOutcome {
++	t.Helper()
++	select {
++	case r := <-out:
++		return r
++	case <-time.After(2 * time.Second):
++		t.Fatal("Result caller did not return")
++		return embeddingOutcome{}
++	}
++}
++func embeddingSlot(t *testing.T, x *EmbeddingExchange, want int) {
++	t.Helper()
++	active, _ := x.budget.snapshot()
++	if len(active) != want {
++		t.Fatal("actual budget slot count", len(active), want)
++	}
++}
++func embeddingMaterial(t *testing.T, x *EmbeddingExchange, live bool) {
++	t.Helper()
++	x.mu.Lock()
++	m := x.material
++	x.mu.Unlock()
++	err := m.Use(func([]byte) error { return nil })
++	if (err == nil) != live {
++		t.Fatal("borrowed material retention", live)
++	}
++}
++
++func TestOpenAIEmbeddingsExchangeOwnership(t *testing.T) {
++	r, o := embeddingUnitInput(t)
++	gate := embeddingGate()
++	response := embeddingResponseFor(embeddingValidBody())
++	response.body.eofGate = gate
++	client := &embeddingTestClient{response: response, gates: []*embeddingTestGate{gate}}
++	h := startEmbeddingHarness(t, context.Background(), r, o, client)
++	embeddingWait(t, gate.entered, "EOF")
++	if value, err := h.x.Result(nil); err == nil || !reflect.DeepEqual(value, EmbeddingResult{}) {
++		t.Fatal("nil Result context consumed or returned a candidate")
++	}
++	first := h.result(context.Background())
++	deadline := time.NewTimer(time.Second)
++	defer deadline.Stop()
++	tick := time.NewTicker(time.Millisecond)
++	defer tick.Stop()
++	for {
++		h.x.mu.Lock()
++		consumed := h.x.consumed
++		h.x.mu.Unlock()
++		if consumed {
++			break
++		}
++		select {
++		case <-tick.C:
++		case <-deadline.C:
++			t.Fatal("Result ownership not acquired")
++		}
++	}
++	_, err := h.x.Result(context.Background())
++	requireFault(t, err, f.InvalidState)
++	select {
++	case <-first:
++		t.Fatal("parseable bytes without EOF published success")
++	default:
++	}
++	before := h.x.Observe()
++	if before.Usage.Source != mc.UnknownUsage || before.Decision == nil || !before.Decision.Sent {
++		t.Fatal("pre-EOF observation")
++	}
++	*before.Decision.PolicyVersion = 90
++	if *h.x.Observe().Decision.PolicyVersion != 7 {
++		t.Fatal("Decision alias")
++	}
++	gate.open()
++	result := embeddingReceive(t, first)
++	if result.err != nil || len(result.result.Items) != 1 || !reflect.DeepEqual(result.result.Items[0].Values, []float64{1, 2}) ||
++		result.result.ProviderRequestID != "embedding-request-7" || !h.x.Joined() {
++		t.Fatal("joined result shape", result.err)
++	}
++	result.result.Items[0].Values[0] = 88
++	*result.result.Usage.TotalTokens = 1
++	observed := h.x.Observe()
++	if observed.Usage.InputTokens == nil || *observed.Usage.InputTokens != 0 ||
++		observed.Usage.TotalTokens == nil || *observed.Usage.TotalTokens != 9007199254740993 {
++		t.Fatal("result/observation usage alias or precision")
++	}
++	*observed.Usage.TotalTokens = 2
++	if *h.x.Observe().Usage.TotalTokens != 9007199254740993 {
++		t.Fatal("Observe retained alias")
++	}
++	h.x.mu.Lock()
++	zero := reflect.DeepEqual(h.x.result, EmbeddingResult{})
++	h.x.mu.Unlock()
++	if !zero || client.creates.Load() != 1 || client.doCalls.Load() != 1 || client.stops.Load() != 1 ||
++		response.closes.Load() != 1 || response.body.closes.Load() != 1 {
++		t.Fatal("result transfer or exactly-once public operations")
++	}
++	embeddingSlot(t, h.x, 0)
++	embeddingMaterial(t, h.x, false)
++	if err := o.Credential.Use(func([]byte) error { return nil }); err != nil {
++		t.Fatal("adapter destroyed caller-owned material")
++	}
++	_, err = h.x.Result(context.Background())
++	requireFault(t, err, f.InvalidState)
++}
++
++func TestOpenAIEmbeddingsActualTerminalBarriers(t *testing.T) {
++	for _, stage := range []string{"Do", "EOF", "ResponseClose", "Drain"} {
++		t.Run(stage, func(t *testing.T) {
++			r, o := embeddingUnitInput(t)
++			o.Limits.Overall = 2 * time.Second
++			gate := embeddingGate()
++			response := embeddingResponseFor(embeddingValidBody())
++			client := &embeddingTestClient{response: response, gates: []*embeddingTestGate{gate}}
++			switch stage {
++			case "Do":
++				client.doGate = gate
++			case "EOF":
++				response.body.eofGate = gate
++			case "ResponseClose":
++				response.closeGate = gate
++			case "Drain":
++				client.drainGate = gate
++			}
++			h := startEmbeddingHarness(t, context.Background(), r, o, client)
++			embeddingWait(t, gate.entered, stage)
++			if h.x.Joined() {
++				t.Fatal("held actual boundary claimed joined")
++			}
++			embeddingSlot(t, h.x, 1)
++			embeddingMaterial(t, h.x, true)
++			caller, cancel := context.WithCancel(context.Background())
++			cancel()
++			got, err := h.x.Result(caller)
++			embeddingZero(t, got, err)
++			requireModel(t, err, "cancelled", "wire_cancelled")
++			wait, stop := context.WithTimeout(context.Background(), 40*time.Millisecond)
++			started := time.Now()
++			err = h.x.Close(wait)
++			elapsed := time.Since(started)
++			stop()
++			if err == nil || elapsed < 25*time.Millisecond || elapsed > 500*time.Millisecond || h.x.Joined() {
++				t.Fatal("Close forged completion or ignored caller budget", elapsed)
++			}
++			embeddingSlot(t, h.x, 1)
++			embeddingMaterial(t, h.x, true)
++			if stage == "ResponseClose" || stage == "Drain" {
++				u := h.x.Observe().Usage
++				if u.InputTokens == nil || *u.InputTokens != 0 || u.TotalTokens == nil {
++					t.Fatal("reliable EOF usage lost at actual tail")
++				}
++			}
++			gate.open()
++			wait, stop = context.WithTimeout(context.Background(), time.Second)
++			err = h.x.Close(wait)
++			stop()
++			if err != nil || !h.x.Joined() {
++				t.Fatal("actual tail did not join", err)
++			}
++			embeddingSlot(t, h.x, 0)
++			embeddingMaterial(t, h.x, false)
++			_, err = h.x.Result(context.Background())
++			requireFault(t, err, f.InvalidState)
++		})
++	}
++}
++
++func TestOpenAIEmbeddingsBoundaryFailures(t *testing.T) {
++	for _, name := range []string{"factory", "Do", "read", "ResponseClose", "requestClose", "Drain", "mime", "401", "404", "429", "302", "dimension"} {
++		t.Run(name, func(t *testing.T) {
++			r, o := embeddingUnitInput(t)
++			response := embeddingResponseFor(embeddingValidBody())
++			client := &embeddingTestClient{response: response}
++			privateErr := errors.New("embedding-private-error-canary")
++			wantCategory, wantCode := mc.ErrorCategory("network"), "wire_transport_error"
++			wantUsage := false
++			switch name {
++			case "factory":
++				a := &OpenAIEmbeddings{budget: NewBudget()}
++				x, err := a.start(context.Background(), r, o, func() (embeddingClient, error) { return nil, privateErr })
++				if err != nil || x == nil {
++					t.Fatal("accepted failure must retain exact handle")
++				}
++				t.Cleanup(func() {
++					ctx, cancel := context.WithTimeout(context.Background(), time.Second)
++					defer cancel()
++					_ = x.Close(ctx)
++					embeddingWait(t, x.workerDone, "factory worker")
++				})
++				got, err := x.Result(context.Background())
++				embeddingZero(t, got, err)
++				requireModel(t, err, "unknown", "wire_transport_error")
++				if x.Observe().DoStarted || x.Observe().Decision != nil {
++					t.Fatal("factory failure fabricated Do/Decision")
++				}
++				return
++			case "Do":
++				client.response, client.doErr = nil, privateErr
++			case "read":
++				response.body.readErr = io.ErrUnexpectedEOF
++			case "ResponseClose":
++				response.closeErr, wantUsage = privateErr, true
++			case "requestClose":
++				wantUsage = true
++				client.onDo = func(_ context.Context, req *http.Request, _ outbound.Profile) {
++					req.Body = &embeddingTestBody{reader: req.Body, closeErr: privateErr}
++				}
++			case "Drain":
++				wantUsage = true
++				var calls atomic.Int32
++				client.onDrain = func(context.Context) error {
++					if calls.Add(1) == 1 {
++						return privateErr
++					}
++					return nil
++				}
++			case "mime":
++				response.headers.Set("Content-Type", "text/plain")
++				wantCategory, wantCode = "provider_error", "wire_protocol_invalid"
++			case "401":
++				response.status = 401
++				wantCategory, wantCode = "authentication", "wire_http_error"
++			case "404", "302":
++				response.status = 404
++				if name == "302" {
++					response.status = 302
++				}
++				wantCategory, wantCode = "provider_error", "wire_http_error"
++			case "429":
++				response.status = 429
++				wantCategory, wantCode = "rate_limited", "wire_http_error"
++			case "dimension":
++				r.ExpectedDimensions = 3
++				wantCategory, wantCode, wantUsage = "provider_error", "wire_protocol_invalid", true
++			}
++			h := startEmbeddingHarness(t, context.Background(), r, o, client)
++			if name == "Drain" {
++				// The first actual failed Drain must remain a failed Result
++				// even though the subsequent cleanup Drain can succeed.
++				embeddingWait(t, h.x.workerDone, "original failed Drain")
++			}
++			got, err := h.x.Result(context.Background())
++			embeddingZero(t, got, err)
++			m := requireModel(t, err, wantCategory, wantCode)
++			if strings.Contains(err.Error(), "canary") || m.PartialOutput || m.Dispatched != (name != "Do") || m.Retryable != (name == "429") {
++				t.Fatal("unsafe or fabricated error facts")
++			}
++			if (h.x.Observe().Usage.InputTokens != nil) != wantUsage {
++				t.Fatal("EOF reliable usage boundary")
++			}
++			if client.creates.Load() != 1 || client.doCalls.Load() != 1 {
++				t.Fatal("adapter retried")
++			}
++			if name != "Do" && response.closes.Load() != 1 {
++				t.Fatal("public response Close was not observed")
++			}
++		})
++	}
++}
++
++func TestOpenAIEmbeddingsCancellationAndJoin(t *testing.T) {
++	for _, boundary := range []string{"parent", "result", "cancel-after-join"} {
++		t.Run(boundary, func(t *testing.T) {
++			r, o := embeddingUnitInput(t)
++			o.Limits.Overall = time.Second
++			parent := context.Background()
++			var parentCancel context.CancelFunc
++			if boundary == "parent" {
++				parent, parentCancel = context.WithTimeout(parent, 50*time.Millisecond)
++				defer parentCancel()
++			}
++			gate := embeddingGate()
++			client := &embeddingTestClient{response: embeddingResponseFor(embeddingValidBody()), drainGate: gate, gates: []*embeddingTestGate{gate}}
++			caller, cancel := context.WithCancel(context.Background())
++			defer cancel()
++			if boundary == "cancel-after-join" {
++				client.drainGate = nil
++				client.onDrain = func(context.Context) error { cancel(); return nil }
++			}
++			h := startEmbeddingHarness(t, parent, r, o, client)
++			if boundary != "cancel-after-join" {
++				embeddingWait(t, gate.entered, "join")
++			}
++			if boundary == "parent" {
++				pd, _ := parent.Deadline()
++				xd, _ := h.x.ctx.Deadline()
++				if !pd.Equal(xd) {
++					t.Fatal("earlier parent deadline was replaced")
++				}
++			}
++			out := h.result(caller)
++			if boundary == "result" {
++				cancel()
++			}
++			got := embeddingReceive(t, out)
++			embeddingZero(t, got.result, got.err)
++			if boundary == "parent" {
++				requireModel(t, got.err, "timeout", "wire_transport_error")
++			} else {
++				requireModel(t, got.err, "cancelled", "wire_cancelled")
++			}
++			u := h.x.Observe().Usage
++			if u.InputTokens == nil || *u.InputTokens != 0 {
++				t.Fatal("cancelled tail lost reliable usage")
++			}
++			if boundary != "cancel-after-join" {
++				embeddingSlot(t, h.x, 1)
++				embeddingMaterial(t, h.x, true)
++				if h.x.Joined() {
++					t.Fatal("cancelled join released actual held client")
++				}
++				gate.open()
++			}
++		})
++	}
++}
+--- accepted-A03/internal/central/model/adapter/openai_embeddings.go
++++ B01/internal/central/model/adapter/openai_embeddings.go
+@@ -42,6 +42,70 @@
+ 	Usage             mc.Usage
+ 	ProviderRequestID string
+ }
++
++type OpenAIEmbeddings struct {
++	transport Transport
++	budget    *Budget
++}
++
++func NewOpenAIEmbeddings(t Transport, b *Budget) (*OpenAIEmbeddings, error) {
++	if b == nil || b.state == nil || t.Resolver != nil && nilPort(t.Resolver) {
++		return nil, invalid()
++	}
++	if t.Resolver == nil {
++		var err error
++		t.Resolver, err = outbound.SystemResolver()
++		if err != nil {
++			return nil, invalid()
++		}
++	}
++	// This formal dependency check creates no I/O or work goroutine.
++	probe, err := outbound.NewClient(t.Policy, t.Trust, t.Resolver)
++	if err != nil {
++		return nil, invalid()
++	}
++	probe.StopAdmission()
++	return &OpenAIEmbeddings{transport: t, budget: b}, nil
++}
++
++func (a *OpenAIEmbeddings) Start(ctx context.Context, r EmbeddingRequest, o CallOptions) (*EmbeddingExchange, error) {
++	return a.start(ctx, r, o, func() (embeddingClient, error) {
++		client, err := outbound.NewClient(a.transport.Policy, a.transport.Trust, a.transport.Resolver)
++		if err != nil {
++			return nil, err
++		}
++		return embeddingD04Client{client}, nil
++	})
++}
++
++// The private creation seam exercises the same admission and handle path with
++// controlled public I/O boundaries in pure tests. Public Start always uses D04.
++func (a *OpenAIEmbeddings) start(ctx context.Context, r EmbeddingRequest, o CallOptions, create func() (embeddingClient, error)) (*EmbeddingExchange, error) {
++	if a == nil || a.budget == nil || ctx == nil || create == nil {
++		return nil, invalid()
++	}
++	prepared, err := prepareEmbeddings(ctx, r, o)
++	if err != nil {
++		return nil, err
++	}
++	var x *EmbeddingExchange
++	err = a.budget.admit(ctx, o.ProjectID, func() budgetWork {
++		x = newEmbeddingExchange(ctx, o.Limits.Overall, a.budget, o.Credential)
++		return x
++	})
++	if err != nil {
++		_ = prepared.request.Body.Close()
++		return nil, err
++	}
++	go x.run(create, prepared)
++	return x, nil
++}
++
++func (*OpenAIEmbeddings) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_adapter") }
++func (*OpenAIEmbeddings) MarshalJSON() ([]byte, error) {
++	return []byte(`"model_embedding_adapter"`), nil
++}
++func (*OpenAIEmbeddings) LogValue() slog.Value { return slog.StringValue("model_embedding_adapter") }
+ 
+ // embeddingPrepared owns an encoded request, not a dispatched exchange.
+ // Construction, admission and transport are separate from this pure boundary.
+--- accepted-A03/internal/central/model/adapter/openai_embeddings_test.go
++++ B01/internal/central/model/adapter/openai_embeddings_test.go
+@@ -9,13 +9,17 @@
+ 	"log/slog"
+ 	"math"
+ 	"os"
++	"path/filepath"
+ 	"runtime"
+ 	"strings"
++	"sync/atomic"
+ 	"testing"
+ 	"time"
+ 
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+ 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+ )
+ 
+@@ -78,7 +82,7 @@
+ 		t.Fatal(err)
+ 	}
+ 	defer prepared.request.Body.Close()
+-	for _, value := range []any{r, &r, result, &result, o, prepared, embeddingScan(context.Background(), []byte("embedding-wire-private-canary"))} {
++	for _, value := range []any{r, &r, result, &result, o, prepared, &OpenAIEmbeddings{transport: Transport{}}, &EmbeddingExchange{result: result}, embeddingScan(context.Background(), []byte("embedding-wire-private-canary"))} {
+ 		for _, format := range []string{"%v", "%+v", "%#v", "%s", "%q", "%x"} {
+ 			rendered := fmt.Sprintf(format, value)
+ 			if strings.Contains(rendered, "canary") || strings.Contains(rendered, "9876") {
+@@ -296,3 +300,101 @@
+ 	}
+ 	requireFault(t, err, f.InvalidArgument)
+ }
++
++// Embedded nil ports panic if used: constructor must only check dependencies,
++// and must not execute Store/Audit methods or make a network request.
++type embeddingNoIOStore struct{ outbound.Store }
++type embeddingNoIOAudit struct{ ac.Appender }
++
++func TestOpenAIEmbeddingsConstructorAndAdmission(t *testing.T) {
++	var resolver nilResolver
++	for _, tc := range []struct {
++		transport Transport
++		budget    *Budget
++	}{{Transport{}, nil}, {Transport{}, &Budget{}}, {Transport{Resolver: resolver}, NewBudget()}, {Transport{Policy: &outbound.PolicyService{}}, NewBudget()}} {
++		if a, err := NewOpenAIEmbeddings(tc.transport, tc.budget); a != nil || err == nil {
++			t.Fatal("invalid Embedding constructor")
++		}
++	}
++	// Bound system-root discovery to an empty owned file/directory. This only
++	// creates a formal TrustStore; it does not authorize any TLS endpoint.
++	dir := t.TempDir()
++	file := filepath.Join(dir, "roots.pem")
++	if err := os.WriteFile(file, nil, 0600); err != nil {
++		t.Fatal(err)
++	}
++	t.Setenv("SSL_CERT_FILE", file)
++	t.Setenv("SSL_CERT_DIR", dir)
++	trust, err := outbound.LoadTrustStore("")
++	if err != nil {
++		t.Fatal("formal trust construction", err)
++	}
++	policy, err := outbound.NewPolicyService(&embeddingNoIOStore{}, &embeddingNoIOAudit{}, outbound.Authorizations{})
++	if err != nil {
++		t.Fatal(err)
++	}
++	b := NewBudget()
++	a, err := NewOpenAIEmbeddings(Transport{Policy: policy, Trust: trust}, b)
++	if err != nil || a == nil || a.budget != b || a.transport.Policy != policy {
++		t.Fatal("formal constructor", err)
++	}
++	if active, _ := b.snapshot(); len(active) != 0 {
++		t.Fatal("constructor admitted work")
++	}
++	r, o := embeddingUnitInput(t)
++	var creates atomic.Int32
++	create := func() (embeddingClient, error) {
++		creates.Add(1)
++		return nil, nil
++	}
++	b.StopAdmission()
++	for _, name := range []string{"cancelled", "nil-context", "shape", "unsupported", "sealed"} {
++		t.Run(name, func(t *testing.T) {
++			input := r
++			ctx := context.Background()
++			switch name {
++			case "cancelled":
++				var cancel context.CancelFunc
++				ctx, cancel = context.WithCancel(ctx)
++				cancel()
++			case "nil-context":
++				ctx = nil
++			case "shape":
++				input.ExpectedDimensions = 0
++			case "unsupported":
++				input.Snapshot = input.Snapshot.Clone()
++				input.Snapshot.Parameters = json.RawMessage("{\"dimensions\":2}")
++			}
++			x, err := a.start(ctx, input, o, create)
++			if x != nil || err == nil || creates.Load() != 0 {
++				t.Fatal("pre-admission failure created a client or handle")
++			}
++			switch name {
++			case "cancelled":
++				requireModel(t, err, "cancelled", "wire_cancelled")
++			case "nil-context", "shape":
++				requireFault(t, err, f.InvalidArgument)
++			case "unsupported":
++				requireModel(t, err, "unsupported_feature", "wire_unsupported_feature")
++			case "sealed":
++				requireFault(t, err, f.ShuttingDown)
++			}
++		})
++	}
++	if active, _ := b.snapshot(); len(active) != 0 || !b.Joined() {
++		t.Fatal("preflight reserved a slot")
++	}
++	// The public Start shares that preflight/admission path and cannot reach
++	// a Client when the input is cancelled, unsupported or admission is sealed.
++	ctx, cancel := context.WithCancel(context.Background())
++	cancel()
++	x, err := a.Start(ctx, r, o)
++	if x != nil {
++		t.Fatal("public cancelled Start returned a handle")
++	}
++	requireModel(t, err, "cancelled", "wire_cancelled")
++	var none *OpenAIEmbeddings
++	if x, err := none.Start(context.Background(), r, o); x != nil || err == nil {
++		t.Fatal("nil adapter")
++	}
++}
+--- fixed-c1427fa/internal/central/model/adapter/transport.go
++++ B01/internal/central/model/adapter/transport.go
+@@ -426,3 +426,6 @@
+ func (Transport) Format(w fmt.State, _ rune)     { safeFormat(w, "model_wire_transport") }
+ func (Transport) MarshalJSON() ([]byte, error)   { return []byte(`"model_wire_transport"`), nil }
+ func (Transport) LogValue() slog.Value           { return slog.StringValue("model_wire_transport") }
++
++// cancelWork forwards the shared budget signal without changing Chat lifecycle.
++func (x *Exchange) cancelWork() { x.cancel() }

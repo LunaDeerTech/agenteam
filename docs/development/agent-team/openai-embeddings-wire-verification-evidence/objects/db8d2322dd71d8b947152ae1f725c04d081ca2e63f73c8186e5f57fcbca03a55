@@ -1,0 +1,41 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 914773,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 914773,
+      "ppid": 914768,
+      "pgid": 914773,
+      "state": "Z",
+      "starttime": "4069878"
+    },
+    {
+      "pid": 914796,
+      "ppid": 914773,
+      "pgid": 914773,
+      "state": "R",
+      "starttime": "4069887"
+    },
+    {
+      "pid": 914806,
+      "ppid": 914773,
+      "pgid": 914773,
+      "state": "S",
+      "starttime": "4069895"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-embeddings-offline-gma2rqkg",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

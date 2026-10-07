@@ -1,0 +1,109 @@
+--- /workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture02.py
++++ /workspace/scratch/agenteam-embeddings-real-independent-y4ny6v95/driver01.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only frozen OpenAI Embeddings and accepted Chat groups and record actual completion and resources."""
++"""Run only two frozen independent Embeddings groups and record actual completion and resources."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -16,7 +16,10 @@
+ 
+ 
+ ROOT = Path(__file__).resolve().parent
+-REPO = ROOT / 'workspace'
++REPO = Path('/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace')
++PROBE = ROOT / 'source02' / 'embeddings_independent_real_test.go'
++OVERLAY = ROOT / 'overlay02.json'
++VIRTUAL_PROBE = REPO / 'tests/model/embeddings_independent_real_test.go'
+ GIT_REPO = Path('/workspace/agenteam')
+ BASE = 'c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c'
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
+@@ -180,7 +183,7 @@
+     env.update({'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': MODCACHE,
+                 'GOCACHE': GOCACHE, 'TMPDIR': str(ROOT / 'tmp'), 'GOTMPDIR': str(ROOT / 'tmp'),
+-                'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1'})
++                'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -overlay=' + str(OVERLAY)})
+     return env
+ 
+ 
+@@ -229,6 +232,9 @@
+         for field in fields:
+             for name in package.get(field, []):
+                 path = (directory / name).resolve()
++                if path in {VIRTUAL_PROBE.resolve(), PROBE.resolve()}:
++                    # Exactly one private integration source, independently hashed.
++                    continue
+                 if path.is_relative_to(REPO):
+                     name = str(path.relative_to(REPO))
+                     if name not in FROZEN['files'] and name not in FROZEN['accepted_baseline']['files']:
+@@ -283,6 +289,7 @@
+         'product_base': BASE,
+         'accepted_baseline': accepted_baseline_input(),
+         'files': {name: sha(REPO / name) for name in FROZEN['files']},
++        'private_inputs': {name: sha(Path(name)) for name in FROZEN['private_inputs']},
+         'runtime': runtime_input(),
+     }
+ 
+@@ -291,7 +298,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new', 'new-http', 'new-terminal', 'new-budget', 'old-chat', 'old-structured'], required=True)
++    parser.add_argument('--group', choices=['both', 'protocol', 'tail'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     mode = parser.add_mutually_exclusive_group(required=True)
+@@ -301,12 +308,9 @@
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+     groups = {
+-        'new': ['TestModelOpenAIEmbeddingsWireHTTP', 'TestModelOpenAIEmbeddingsWireTerminal', 'TestModelOpenAIEmbeddingsWireBudget'],
+-        'new-http': ['TestModelOpenAIEmbeddingsWireHTTP'],
+-        'new-terminal': ['TestModelOpenAIEmbeddingsWireTerminal'],
+-        'new-budget': ['TestModelOpenAIEmbeddingsWireBudget'],
+-        'old-chat': ['TestModelOpenAIChatWireHTTP', 'TestModelOpenAIChatWireStream', 'TestModelOpenAIChatWireJoinAndBudget'],
+-        'old-structured': ['TestModelOpenAIChatStructuredHTTP', 'TestModelOpenAIChatStructuredStream', 'TestModelOpenAIChatStructuredCloseAndBudget'],
++        'both': ['TestIndependentEmbeddingsWireProtocolAndUsage', 'TestIndependentEmbeddingsWireActualTailAndBudget'],
++        'protocol': ['TestIndependentEmbeddingsWireProtocolAndUsage'],
++        'tail': ['TestIndependentEmbeddingsWireActualTailAndBudget'],
+     }
+     if str(Path(args.modcache).resolve()) != MODCACHE:
+         raise ValueError('modcache differs from frozen runtime')
+@@ -320,7 +324,7 @@
+         raise RuntimeError('driver differs from frozen input')
+     if args.check_input_only:
+         current = source_input()
+-        same = all(current[key] == FROZEN[key] for key in ['files', 'runtime'])
++        same = all(current[key] == FROZEN[key] for key in ['files', 'runtime', 'private_inputs'])
+         accepted = current['accepted_baseline']['accepted']
+         print(json.dumps({'candidate_runtime_match': same, 'accepted_baseline': accepted,
+                           'accepted_count': current['accepted_baseline']['accepted_count'],
+@@ -348,7 +352,7 @@
+     if not before['accepted_baseline']['accepted']:
+         write(run / 'input-rejected.json', before)
+         raise RuntimeError('accepted baseline gate failed before any resource or fixture starts')
+-    if any(before[key] != FROZEN[key] for key in ['files', 'runtime']):
++    if any(before[key] != FROZEN[key] for key in ['files', 'runtime', 'private_inputs']):
+         raise RuntimeError('candidate source/runtime differs from frozen input')
+     if args.frozen.read_bytes() != frozen_bytes:
+         raise RuntimeError('frozen manifest changed during input gate')
+@@ -360,7 +364,7 @@
+     baseline = resources() if fixture else {}
+     write(run / 'baseline.json', baseline)
+     env = runtime_environment()
+-    flags = '-mod=readonly -buildvcs=false -p=1 -v'
++    flags = '-mod=readonly -buildvcs=false -p=1 -v -overlay=' + str(OVERLAY)
+     env.update({'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+                 'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                 'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+@@ -442,7 +446,7 @@
+     after = source_input()
+     write(run / 'input-after.json', after)
+     clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+-    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['runtime'] == after['runtime'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
++    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['private_inputs'] == after['private_inputs'] and before['runtime'] == after['runtime'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
+                'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
+                'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+                'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}

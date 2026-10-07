@@ -1,0 +1,13 @@
+# Embeddings B 共享两源独立静审
+
+结论：**STATIC PASS，仅 b-shared01 两个冻结共享生产接缝**；不是完整B接受或动态兼容结论。没有读取活动Embedding handle，其余五个B路径待完整冻结另验。
+
+输入 manifest83c8158ff189469dd3796beb62b6639b534a4c15333696b3155d72c49552df33；design0c8e4485798d724d8c525c44141cbefc32cb52acc18ee76662d2de6ba0411c8a；shared.diff269a4f69cd60024483f422a07bb8f3c33cfc71e6d812bae42f50fa39a3b61dd5。两个新源SHA实核，旧源取固定c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c逐SHA一致，有限原件见 input01.json。
+
+Budget仅新增包私有budgetWork（cancelWork/waitJoined/Joined），将同一注册表的key推广至exact handle。原accept签名保留，旧newExchange参数与构造路径不变。ctx、Stop、全局64/Project8检查以及创建/登记都在原同一锁内，拒绝不调用create；无第二套预算或等待队列。release仅对仍登记的exact key减计数一次，项目计数归零才删除。snapshot先释放预算锁，再调用handle的waitJoined/Joined，避免新增跨handle等待时持预算锁。
+
+Force仍先StopAdmission，再对本批全部handle请求取消，最后将原同一caller ctx交Drain；没有逐handle续期。旧Chat的interface动态值仍是原*Exchange地址，可比较、唯一且保留身份。新Embedding的factory/取消转发/实际waitJoined释放语义必须在其冻结实现中核，不能从共享接口形式先行宣称尾部或混合竞争已证。
+
+transport.go旧全文作为前缀逐字不变，唯一追加cancelWork→原cancel()，旧perform/Result/Next/Close/consumerJoin等未改变，不借本卡返修旧Chat流程。旧构造newExchange在预算锁内只构造context/结构、没有注册后worker；新factory遵循同设计的成功接收后派发要求留完整B审查。
+
+本轮只有静态有限文件与只读Git来源核对，未编译、运行测试、启动监听或业务资源，未修改作者/主树/Git；设计其余handle说明只作为后续审查要求，不当本次源码事实。三项停止边界保持。

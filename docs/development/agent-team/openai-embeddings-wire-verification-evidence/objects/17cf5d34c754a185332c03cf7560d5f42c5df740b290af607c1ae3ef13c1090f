@@ -1,0 +1,11 @@
+from pathlib import Path
+import subprocess,json
+root=Path('/workspace/scratch/agenteam-embeddings-author-j_3k9nbq')
+manifest=json.loads((root/"d-preformat01/manifest.json").read_text())
+for rel in manifest["files"]:
+    source=root/"d-preformat01/source"/rel
+    dest=root/"workspace"/rel
+    assert dest.read_bytes()==source.read_bytes(), rel
+    result=subprocess.run(["/workspace/toolchains/go1.27.1/bin/gofmt",str(source)],check=True,stdout=subprocess.PIPE)
+    dest.write_bytes(result.stdout)
+print("formatted exactly five D paths from fixed preimages")

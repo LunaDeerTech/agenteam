@@ -1,0 +1,523 @@
+{
+  "new-budget01": {
+    "actual_exit": 0,
+    "actual_seconds": 52.367,
+    "actual_wait_completed": true,
+    "adopted_waits": 0,
+    "argv": [
+      "sh",
+      "scripts/test-security.sh",
+      "-run",
+      "^(TestModelOpenAIEmbeddingsWireBudget)$"
+    ],
+    "baseline_unchanged": true,
+    "candidate_and_dependency_and_runtime_inputs_equal": true,
+    "disk_free_bytes": [
+      6992773120,
+      6991175680
+    ],
+    "observed_exact_ids": 7,
+    "observed_pid_starttime": 71,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "baseline.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/baseline.json",
+        "sha256": "1f6da9c90d944cfe44e768bea8b149dc358b8910f25852d9f4713dc12a2061dd"
+      },
+      "cancellation.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/cancellation.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/cleanup.json",
+        "sha256": "f919a92002586f2af9dd661a186546a39a64a40288b2c3b3fd09680f1ecafe90"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/command.json",
+        "sha256": "959d9bc30eb557a23d4bcda079c45e02eea833245643c1649bd8c3d9d27c3c67"
+      },
+      "disk-before-spawn.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/disk-before-spawn.json",
+        "sha256": "a28952e52f88462fcfdc2e74d092c564caf2df69634a9d9ca0e38a3077924d0a"
+      },
+      "disk-preflight.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/disk-preflight.json",
+        "sha256": "3719676dfdbd843ce953d4f5300ff774e648a273ae8f08ba7a33f3a16ea36e8a"
+      },
+      "driver.py.txt": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/driver.py.txt",
+        "sha256": "0dcb5905240e2fa5a92c1f2e866ab7c4187a25dfbfd2c3b79fca35cb2d2a9bc4"
+      },
+      "frozen-input.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/frozen-input.json",
+        "sha256": "278bcc65e3a0bce6234a2c3043789ee58343a6f94c7a38b01f2653d3167aa630"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/input-after.json",
+        "sha256": "53d576c37fa9e64c6e89e89f3e927c37750c8ab11e20a25d3f0aa4be44eb4af8"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/input-before.json",
+        "sha256": "53d576c37fa9e64c6e89e89f3e927c37750c8ab11e20a25d3f0aa4be44eb4af8"
+      },
+      "monitor-errors.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/monitor-errors.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/observed-processes.json",
+        "sha256": "412c44c89a51fd6948563a82c7469af7fd513b66f22f1e10afdc80d987a24461"
+      },
+      "observed-resources.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/observed-resources.json",
+        "sha256": "a27f851e2a6897f99ef206a77b380eb79c44554314ccc0972f5ed1a81ded5986"
+      },
+      "process-baseline.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/process-baseline.json",
+        "sha256": "13e49f85b433905c3d03734d79db40bf11d1924f5358d3d43b928e9c89d3b15b"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/raw.log",
+        "sha256": "9bf1c2377bf55b4863dad7cb860728a19489814f66193ef800a8ee9c5db9287a"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/result.json",
+        "sha256": "467574280f7c6a4dc165bf71ee95d667fee41283141357a32355b28ee906c4ba"
+      },
+      "verification-input.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-budget01/verification-input.json",
+        "sha256": "2ef1fcfa37421f2b0850eaa5397ac817136f74f864e369aa851ee911a699bb8c"
+      }
+    },
+    "top_results": [
+      [
+        "TestModelOpenAIEmbeddingsWireBudget",
+        "1.63s"
+      ]
+    ],
+    "two_scans_clean": true
+  },
+  "new-http01": {
+    "actual_exit": 0,
+    "actual_seconds": 101.179,
+    "actual_wait_completed": true,
+    "adopted_waits": 0,
+    "argv": [
+      "sh",
+      "scripts/test-security.sh",
+      "-run",
+      "^(TestModelOpenAIEmbeddingsWireHTTP)$"
+    ],
+    "baseline_unchanged": true,
+    "candidate_and_dependency_and_runtime_inputs_equal": true,
+    "disk_free_bytes": [
+      7160467456,
+      7158849536
+    ],
+    "observed_exact_ids": 7,
+    "observed_pid_starttime": 108,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "baseline.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/baseline.json",
+        "sha256": "1f6da9c90d944cfe44e768bea8b149dc358b8910f25852d9f4713dc12a2061dd"
+      },
+      "cancellation.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/cancellation.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/cleanup.json",
+        "sha256": "76c659d29896eb6ec97399c9edebb3b834b338cfb9aec68dd5ce095b65019f1e"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/command.json",
+        "sha256": "14fef7a7d29e800e77758d1d4a59830acfbdbca2fa92347c964bdbda0dda2dfb"
+      },
+      "disk-before-spawn.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/disk-before-spawn.json",
+        "sha256": "cfd44058678855d0de821fdd5f029c829566cbd0db1ff45d267eb148af99ef4d"
+      },
+      "disk-preflight.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/disk-preflight.json",
+        "sha256": "53446b90ea4f09f016882e1c555917f13bb51f711650cef1928b958ba5b25c0c"
+      },
+      "driver.py.txt": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/driver.py.txt",
+        "sha256": "0dcb5905240e2fa5a92c1f2e866ab7c4187a25dfbfd2c3b79fca35cb2d2a9bc4"
+      },
+      "frozen-input.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/frozen-input.json",
+        "sha256": "278bcc65e3a0bce6234a2c3043789ee58343a6f94c7a38b01f2653d3167aa630"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/input-after.json",
+        "sha256": "53d576c37fa9e64c6e89e89f3e927c37750c8ab11e20a25d3f0aa4be44eb4af8"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/input-before.json",
+        "sha256": "53d576c37fa9e64c6e89e89f3e927c37750c8ab11e20a25d3f0aa4be44eb4af8"
+      },
+      "monitor-errors.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/monitor-errors.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/observed-processes.json",
+        "sha256": "5d8d8b16be715bd36ef285747f260d1f07130640b226c423377fb1fb8f0f5193"
+      },
+      "observed-resources.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/observed-resources.json",
+        "sha256": "23b9d81c1587c542c77114078d57ac175cc364e86c8378d5e3e99d6c95238eee"
+      },
+      "process-baseline.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/process-baseline.json",
+        "sha256": "16936a2721a6b11bfb9a96f4424dc8523aed65c4e861e319881e6e951e0fa2c8"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/raw.log",
+        "sha256": "4876922c445aac99f9d68b222f918f55185e7d22417cb41f479d6ed844325c08"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/result.json",
+        "sha256": "ef4d3ebc9c6378741b6d80b0f16f2fc64b119f2fadba29ed1857ca199147f5d6"
+      },
+      "verification-input.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-http01/verification-input.json",
+        "sha256": "2ef1fcfa37421f2b0850eaa5397ac817136f74f864e369aa851ee911a699bb8c"
+      }
+    },
+    "top_results": [
+      [
+        "TestModelOpenAIEmbeddingsWireHTTP",
+        "2.28s"
+      ]
+    ],
+    "two_scans_clean": true
+  },
+  "new-terminal01": {
+    "actual_exit": 0,
+    "actual_seconds": 52.46,
+    "actual_wait_completed": true,
+    "adopted_waits": 0,
+    "argv": [
+      "sh",
+      "scripts/test-security.sh",
+      "-run",
+      "^(TestModelOpenAIEmbeddingsWireTerminal)$"
+    ],
+    "baseline_unchanged": true,
+    "candidate_and_dependency_and_runtime_inputs_equal": true,
+    "disk_free_bytes": [
+      6995308544,
+      6993711104
+    ],
+    "observed_exact_ids": 7,
+    "observed_pid_starttime": 70,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "baseline.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/baseline.json",
+        "sha256": "1f6da9c90d944cfe44e768bea8b149dc358b8910f25852d9f4713dc12a2061dd"
+      },
+      "cancellation.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/cancellation.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/cleanup.json",
+        "sha256": "52f671ca9eaa95d824b7cdf25319785b1b4a55f23b2ee84dab97cca0a929e6a8"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/command.json",
+        "sha256": "80b628758d351a0cc4267c9c1475b0aca52bb6ed7278fdac2c9e58421ec90120"
+      },
+      "disk-before-spawn.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/disk-before-spawn.json",
+        "sha256": "0241da465d7a0c839607f82f8cf9e8b1a9595a3aa07efb0f94e73ef332419e94"
+      },
+      "disk-preflight.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/disk-preflight.json",
+        "sha256": "622647230ba392c1ae2ce0b770c8ff1d66cc2c88fc582e9b654f63a8fb1ee815"
+      },
+      "driver.py.txt": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/driver.py.txt",
+        "sha256": "0dcb5905240e2fa5a92c1f2e866ab7c4187a25dfbfd2c3b79fca35cb2d2a9bc4"
+      },
+      "frozen-input.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/frozen-input.json",
+        "sha256": "278bcc65e3a0bce6234a2c3043789ee58343a6f94c7a38b01f2653d3167aa630"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/input-after.json",
+        "sha256": "53d576c37fa9e64c6e89e89f3e927c37750c8ab11e20a25d3f0aa4be44eb4af8"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/input-before.json",
+        "sha256": "53d576c37fa9e64c6e89e89f3e927c37750c8ab11e20a25d3f0aa4be44eb4af8"
+      },
+      "monitor-errors.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/monitor-errors.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/observed-processes.json",
+        "sha256": "6ef2fa84553b1400417042e10f2f2e6d34af9632fcb02666c94458aedd10cff9"
+      },
+      "observed-resources.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/observed-resources.json",
+        "sha256": "0a41dcf82d0656cc987b348438073b27acb752a2b32be53f6e993181fdc633a6"
+      },
+      "process-baseline.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/process-baseline.json",
+        "sha256": "bdd317a4227e07483a69c6610ee148a1d7b8eb301ddd027901100531f072ec69"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/raw.log",
+        "sha256": "db05efafc47796f2bd3abdf1f0d01397b5249832d8778239df3ab97f0cb811df"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/result.json",
+        "sha256": "91afb410e16ee7b572298df483fa3e12233240483c38a0fa62ebdd006f969464"
+      },
+      "verification-input.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/new-terminal01/verification-input.json",
+        "sha256": "2ef1fcfa37421f2b0850eaa5397ac817136f74f864e369aa851ee911a699bb8c"
+      }
+    },
+    "top_results": [
+      [
+        "TestModelOpenAIEmbeddingsWireTerminal",
+        "1.79s"
+      ]
+    ],
+    "two_scans_clean": true
+  },
+  "old-chat01": {
+    "actual_exit": 0,
+    "actual_seconds": 54.21,
+    "actual_wait_completed": true,
+    "adopted_waits": 0,
+    "argv": [
+      "sh",
+      "scripts/test-security.sh",
+      "-run",
+      "^(TestModelOpenAIChatWireHTTP|TestModelOpenAIChatWireStream|TestModelOpenAIChatWireJoinAndBudget)$"
+    ],
+    "baseline_unchanged": true,
+    "candidate_and_dependency_and_runtime_inputs_equal": true,
+    "disk_free_bytes": [
+      6986702848,
+      6985101312
+    ],
+    "observed_exact_ids": 7,
+    "observed_pid_starttime": 71,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "baseline.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/baseline.json",
+        "sha256": "1f6da9c90d944cfe44e768bea8b149dc358b8910f25852d9f4713dc12a2061dd"
+      },
+      "cancellation.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/cancellation.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/cleanup.json",
+        "sha256": "986847a81dd76e7ca55612edcf257341b594aaba528e83fa00104f5d32ab8c28"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/command.json",
+        "sha256": "2d6b19b5610bd40bd833d7a4b21e3a5ec6b7e0ef797951a2c1c67d2f72532d69"
+      },
+      "disk-before-spawn.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/disk-before-spawn.json",
+        "sha256": "cebd4124abdeac9b3df6351a517c341b89338e133e3bb00be0ca8d5b4714fdb0"
+      },
+      "disk-preflight.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/disk-preflight.json",
+        "sha256": "9a123d018198c7d2db989927ff2dac7bfa7a9c99d9ba2e222ec7d7979f9ecfa3"
+      },
+      "driver.py.txt": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/driver.py.txt",
+        "sha256": "0dcb5905240e2fa5a92c1f2e866ab7c4187a25dfbfd2c3b79fca35cb2d2a9bc4"
+      },
+      "frozen-input.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/frozen-input.json",
+        "sha256": "278bcc65e3a0bce6234a2c3043789ee58343a6f94c7a38b01f2653d3167aa630"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/input-after.json",
+        "sha256": "53d576c37fa9e64c6e89e89f3e927c37750c8ab11e20a25d3f0aa4be44eb4af8"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/input-before.json",
+        "sha256": "53d576c37fa9e64c6e89e89f3e927c37750c8ab11e20a25d3f0aa4be44eb4af8"
+      },
+      "monitor-errors.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/monitor-errors.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/observed-processes.json",
+        "sha256": "9f960de8031df55acf91e93ba9355bc6b17a8f80944d203acf41b24605b6c896"
+      },
+      "observed-resources.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/observed-resources.json",
+        "sha256": "da89967b9d7066a2f54ceee83ee11b1cb228834a6ff5a04574d46671ef167564"
+      },
+      "process-baseline.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/process-baseline.json",
+        "sha256": "9b411b3733b656286aa53cac1e279d0a00be34496ee046323d217d7e469f8d7b"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/raw.log",
+        "sha256": "28a50c515902d67cfabb8ca39782a91ad9054a5b6cbd1f243157bfc76d797958"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/result.json",
+        "sha256": "7f72745333ef4cfb31a3823ad3c53ff2d4b5131a3f96cdfa581dc9df4da1f22b"
+      },
+      "verification-input.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-chat01/verification-input.json",
+        "sha256": "2ef1fcfa37421f2b0850eaa5397ac817136f74f864e369aa851ee911a699bb8c"
+      }
+    },
+    "top_results": [
+      [
+        "TestModelOpenAIChatWireHTTP",
+        "1.83s"
+      ],
+      [
+        "TestModelOpenAIChatWireStream",
+        "1.63s"
+      ],
+      [
+        "TestModelOpenAIChatWireJoinAndBudget",
+        "1.41s"
+      ]
+    ],
+    "two_scans_clean": true
+  },
+  "old-structured01": {
+    "actual_exit": 0,
+    "actual_seconds": 53.781,
+    "actual_wait_completed": true,
+    "adopted_waits": 0,
+    "argv": [
+      "sh",
+      "scripts/test-security.sh",
+      "-run",
+      "^(TestModelOpenAIChatStructuredHTTP|TestModelOpenAIChatStructuredStream|TestModelOpenAIChatStructuredCloseAndBudget)$"
+    ],
+    "baseline_unchanged": true,
+    "candidate_and_dependency_and_runtime_inputs_equal": true,
+    "disk_free_bytes": [
+      6984077312,
+      6982475776
+    ],
+    "observed_exact_ids": 7,
+    "observed_pid_starttime": 72,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "baseline.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/baseline.json",
+        "sha256": "1f6da9c90d944cfe44e768bea8b149dc358b8910f25852d9f4713dc12a2061dd"
+      },
+      "cancellation.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/cancellation.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/cleanup.json",
+        "sha256": "79715533c33266865ff6c10e3c7d5825ed4908f1429fcaab09314883c3967a3f"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/command.json",
+        "sha256": "cba4f5c6fc36e0d0e93f0c6d508457e9e8a0f079ae86a1fd2da6b5ae94fc020c"
+      },
+      "disk-before-spawn.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/disk-before-spawn.json",
+        "sha256": "0f32439928e1206cad1c48ef840c211a7cf3472a2fa269d39cc1704508943e7d"
+      },
+      "disk-preflight.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/disk-preflight.json",
+        "sha256": "07621a4a81eb4b8eba9c9f12903d6fd9322a8586eef414b0d5112774cde5abde"
+      },
+      "driver.py.txt": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/driver.py.txt",
+        "sha256": "0dcb5905240e2fa5a92c1f2e866ab7c4187a25dfbfd2c3b79fca35cb2d2a9bc4"
+      },
+      "frozen-input.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/frozen-input.json",
+        "sha256": "278bcc65e3a0bce6234a2c3043789ee58343a6f94c7a38b01f2653d3167aa630"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/input-after.json",
+        "sha256": "53d576c37fa9e64c6e89e89f3e927c37750c8ab11e20a25d3f0aa4be44eb4af8"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/input-before.json",
+        "sha256": "53d576c37fa9e64c6e89e89f3e927c37750c8ab11e20a25d3f0aa4be44eb4af8"
+      },
+      "monitor-errors.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/monitor-errors.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/observed-processes.json",
+        "sha256": "7643c56e1b4cda42a79562b0c0244c028b8e9581f655368ab7ad069ee74408df"
+      },
+      "observed-resources.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/observed-resources.json",
+        "sha256": "77e687bb6fac8c9396895486246b2d30a761ff89d77d2547047a55f30927d1b2"
+      },
+      "process-baseline.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/process-baseline.json",
+        "sha256": "e8e980598ecbe1e1f35f472991d80488a9ea8829c0dc5aa030cb0c170e497dff"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/raw.log",
+        "sha256": "5e9e46769261e41785d085def2f3c55f846d4e1f857745994b8932144bc7927f"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/result.json",
+        "sha256": "67caa1f3096f7daf2672559f44aa5ff55969d64fc7e7859c94ef974269349e0b"
+      },
+      "verification-input.json": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/old-structured01/verification-input.json",
+        "sha256": "2ef1fcfa37421f2b0850eaa5397ac817136f74f864e369aa851ee911a699bb8c"
+      }
+    },
+    "top_results": [
+      [
+        "TestModelOpenAIChatStructuredHTTP",
+        "1.67s"
+      ],
+      [
+        "TestModelOpenAIChatStructuredStream",
+        "1.48s"
+      ],
+      [
+        "TestModelOpenAIChatStructuredCloseAndBudget",
+        "1.29s"
+      ]
+    ],
+    "two_scans_clean": true
+  }
+}

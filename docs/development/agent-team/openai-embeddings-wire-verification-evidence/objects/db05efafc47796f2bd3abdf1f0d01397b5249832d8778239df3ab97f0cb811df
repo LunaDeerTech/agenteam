@@ -1,0 +1,83 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.53.86.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=22cca32c3852b8227c70840af719f0ae
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=6d180dd067ec6940adc5d1138d984fe2
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.303s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.025s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+=== RUN   TestModelOpenAIEmbeddingsWireTerminal
+=== RUN   TestModelOpenAIEmbeddingsWireTerminal/valid_json_prefix_is_not_success_before_actual_eof
+=== RUN   TestModelOpenAIEmbeddingsWireTerminal/truncation_and_tighter_cap_publish_zero_and_no_usage
+=== RUN   TestModelOpenAIEmbeddingsWireTerminal/truncation_and_tighter_cap_publish_zero_and_no_usage/truncated_json
+=== RUN   TestModelOpenAIEmbeddingsWireTerminal/truncation_and_tighter_cap_publish_zero_and_no_usage/valid_json_without_chunked_eof
+=== RUN   TestModelOpenAIEmbeddingsWireTerminal/truncation_and_tighter_cap_publish_zero_and_no_usage/tighter_cap
+=== RUN   TestModelOpenAIEmbeddingsWireTerminal/complete_usage_survives_bad_dimension_and_late_caller_cancel
+=== RUN   TestModelOpenAIEmbeddingsWireTerminal/cancelled_real_writer_owns_material_and_mixed_project_slot_until_join
+--- PASS: TestModelOpenAIEmbeddingsWireTerminal (1.79s)
+    --- PASS: TestModelOpenAIEmbeddingsWireTerminal/valid_json_prefix_is_not_success_before_actual_eof (0.09s)
+    --- PASS: TestModelOpenAIEmbeddingsWireTerminal/truncation_and_tighter_cap_publish_zero_and_no_usage (0.14s)
+        --- PASS: TestModelOpenAIEmbeddingsWireTerminal/truncation_and_tighter_cap_publish_zero_and_no_usage/truncated_json (0.04s)
+        --- PASS: TestModelOpenAIEmbeddingsWireTerminal/truncation_and_tighter_cap_publish_zero_and_no_usage/valid_json_without_chunked_eof (0.06s)
+        --- PASS: TestModelOpenAIEmbeddingsWireTerminal/truncation_and_tighter_cap_publish_zero_and_no_usage/tighter_cap (0.04s)
+    --- PASS: TestModelOpenAIEmbeddingsWireTerminal/complete_usage_survives_bad_dimension_and_late_caller_cancel (0.09s)
+    --- PASS: TestModelOpenAIEmbeddingsWireTerminal/cancelled_real_writer_owns_material_and_mixed_project_slot_until_join (0.15s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	2.820s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.016s [no tests to run]
+D03 fixture cleanup checked for nonce 28ba7f72424a6650a0c303969d626c04
+D04 outbound fixture cleanup checked for nonce 6d180dd067ec6940adc5d1138d984fe2
+D05 object fixture exact resource cleanup checked nonce=22cca32c3852b8227c70840af719f0ae

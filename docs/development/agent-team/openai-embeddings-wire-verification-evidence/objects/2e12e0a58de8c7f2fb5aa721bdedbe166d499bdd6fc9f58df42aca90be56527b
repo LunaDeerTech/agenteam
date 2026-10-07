@@ -1,0 +1,51 @@
+{
+  "decision": "STATIC PASS for two frozen shared production seams only; full B and dynamic checks pending",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-shared01/manifest.json",
+    "sha256": "83c8158ff189469dd3796beb62b6639b534a4c15333696b3155d72c49552df33"
+  },
+  "design": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-shared01/design.md",
+    "sha256": "0c8e4485798d724d8c525c44141cbefc32cb52acc18ee76662d2de6ba0411c8a"
+  },
+  "diff": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-shared01/shared.diff",
+    "sha256": "269a4f69cd60024483f422a07bb8f3c33cfc71e6d812bae42f50fa39a3b61dd5"
+  },
+  "files": {
+    "internal/central/model/adapter/budget.go": {
+      "old_fixed_git": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "old_sha256": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a",
+      "old_private_copy": "/workspace/scratch/agenteam-embeddings-b-shared-independent-7lyiaxld/baseline/internal/central/model/adapter/budget.go",
+      "new_sha256": "3f2c644e762601d257a11522831a6644622dd125b1c49c92b6cfdc2a743c7803",
+      "new_fixed_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-shared01/source/internal/central/model/adapter/budget.go",
+      "read_argv": [
+        "git",
+        "-C",
+        "/workspace/agenteam",
+        "show",
+        "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c:internal/central/model/adapter/budget.go"
+      ],
+      "actual_exit": 0
+    },
+    "internal/central/model/adapter/transport.go": {
+      "old_fixed_git": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "old_sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf",
+      "old_private_copy": "/workspace/scratch/agenteam-embeddings-b-shared-independent-7lyiaxld/baseline/internal/central/model/adapter/transport.go",
+      "new_sha256": "9f1d60ff48fb64ba04827368b7cf6fc4947b72c93a665ddf91276d5db2b6b29b",
+      "new_fixed_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-shared01/source/internal/central/model/adapter/transport.go",
+      "read_argv": [
+        "git",
+        "-C",
+        "/workspace/agenteam",
+        "show",
+        "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c:internal/central/model/adapter/transport.go"
+      ],
+      "actual_exit": 0
+    }
+  },
+  "old_transport_exact_prefix_preserved": true,
+  "executed_product_tests": false,
+  "resources_started": false,
+  "active_handler_read": false
+}

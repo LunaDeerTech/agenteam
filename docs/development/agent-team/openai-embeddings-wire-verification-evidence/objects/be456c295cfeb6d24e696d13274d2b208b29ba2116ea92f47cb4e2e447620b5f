@@ -1,0 +1,30 @@
+{
+  "root": "/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo",
+  "probe": {
+    "path": "/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/probe/independent_capacity_test.go",
+    "sha256": "7cbfd4bcbb2f4d4d22a93eec158c8145d2be6c99fea7f312424ef522940282d0"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/overlay01.json",
+    "sha256": "3c0e1bd209a8d0c401e56707fa091d87444955b1b111e914c0e11cb544609cc0"
+  },
+  "runner": {
+    "path": "/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/run_offline.py",
+    "sha256": "7da22bd2e3b25222b5680068369b077c58abe1f5f5e1c0cef7c10a1e10bb3e1e",
+    "origin": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run_offline.py",
+    "origin_sha256": "7da22bd2e3b25222b5680068369b077c58abe1f5f5e1c0cef7c10a1e10bb3e1e",
+    "unchanged": true
+  },
+  "execution": {
+    "path": "/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/execution01.json",
+    "sha256": "6677599d43de0583f8facd76d865b8647b2cfe752dc29d97011e54d2c9109a57"
+  },
+  "input_count": 1808,
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/run_offline.py",
+    "/workspace/scratch/agenteam-embedding-capacity-independent-hg7d6hjo/execution01.json"
+  ],
+  "scope": "One private pure test, no original failed test rerun, no source edit, no listener/resources. Source bound proof remains separate from measured capacities.",
+  "static_read_precondition": "First standard-library lookup used old strconv/atof.go paths, got missing-file diagnostics; actual Go1.27 source is internal/strconv plus public number.go. No product command was spawned by that read."
+}

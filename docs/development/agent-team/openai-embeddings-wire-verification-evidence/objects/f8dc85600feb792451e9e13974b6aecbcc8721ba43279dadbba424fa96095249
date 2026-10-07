@@ -1,0 +1,11 @@
+# Embeddings 启动差量复核 02
+
+**STATIC PASS；startup01 闭包阻断已关闭，可由 root 授 HTTP 单窗。** 本次只读静核，没有运行 Go、TestMain、产物或资源。输入 `driver-stage02/input.json` SHA `278bcc65e3a0bce6234a2c3043789ee58343a6f94c7a38b01f2653d3167aa630`；driver02 SHA `0dcb5905240e2fa5a92c1f2e866ab7c4187a25dfbfd2c3b79fca35cb2d2a9bc4`。原 [startup01](startup-review01.md) 与 D 五源结论不覆盖改写，有限依据见 [startup-input02.json](startup-input02.json)。
+
+新增七文件逐字核为固定 c1427fa Git 来源：两 cmd/main、Central main_test、Runner app/config 及其同包 tests。原 15 候选、907 fixed 元数据与 3510 runtime SHA 逐项不变；当前为 15+914、3513 runtime、459 package identities。新增三 runtime 来源包含实际非 race 的 compress/internal/race/norace.go；另两 test source 是原固定字段收集策略保留的输入，不冒执行。
+
+五个实际 host build 根均按 CGO1、非 race、无 integration tags 发现，原 outbound server CGO0 图保留；原十六 integration/race test roots 不变。helpers 从不实际使用的 race 构建图移入真实 host 图符合 shell 调用。唯一 unconditional process TestMain 的两 cmd 构建已有来源和变体覆盖；当前九个 exact selectors 不调用 SMTP Start，原七资源拓扑保持。
+
+新旧 driver 静态函数段逐字比对只有 runtime_input 改动，main 与资源/进程监督函数未变。原唯一 name、两次 fresh≥5GiB、完整 Mount baseline、nonce/exact ID、signal forwarding、subreaper/direct/adopted wait、双清及输入后核仍有效。
+
+已读原四轮 argv/raw/result/cleanup 并核指纹：runtime gate actual0/2.137s，Central build0/2.682s，Runner build0/0.291s，check-input-only0/2.200s；各实际 wait、输入不变、两扫空、TMP 删除、0 adopted。两个 cmd 仅编译；check-only 原 stdout 明确 914 accepted、无缺失/额外/错配、resources_started=false。这些证据不代表 TestMain 或九组业务实际通过。后续仅 root 明确授予的单组窗口可启动，原预算、失败停报和停止任务边界不变。

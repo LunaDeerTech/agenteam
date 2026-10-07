@@ -1,0 +1,27 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 891353,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 891353,
+      "ppid": 891350,
+      "pgid": 891353,
+      "state": "Z",
+      "starttime": "3860572"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-embeddings-offline-vyj73zco",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

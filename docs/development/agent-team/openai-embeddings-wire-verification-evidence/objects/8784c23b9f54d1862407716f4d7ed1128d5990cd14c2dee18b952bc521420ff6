@@ -1,0 +1,24 @@
+# Embeddings B 独立阶段终验
+
+**PASS：十源固定组合的完整 STATIC 与两个独立离线风险组合通过。** 这是 constructor/Start、handle 和共享 Budget 的 B 阶段结论；真实 D04、协议 fixture 和完整 wire 尚未验收。本轮未修改产品、作者测试、主树或 Git，未启动 listener/业务资源。
+
+固定产品 `c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c`，正式卡 `15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597`。作者 [b-candidate01/manifest.json](../agenteam-embeddings-author-j_3k9nbq/b-candidate01/manifest.json) SHA `bd18c341adb9269a6c3f46d4c6d48c6d21677206bb73b7212a16663d05c9d505`，十源交付 [delivery10.json](../agenteam-embeddings-author-j_3k9nbq/b-stage01/delivery10.json) SHA `81cb7cd3a0e243d545ab130489299d668287ff08df3d4a269f41da54a20105f4`。B 七路径+A 三件未变源的逐项 hash 均已核。A 已接受解析/容量及共享两源先审按原 SHA 复用；完整静态依据与边界在 [static-review-and-preparation01.md](static-review-and-preparation01.md)，SHA `b1d0babc6080ca9abcad78cefb705c61dbff9e930efab6552b0f8f451cfec029`。
+
+执行固定 [execution01.json](execution01.json) SHA `1f07264e1bb73a22364a6e82a6cf67749a190ffab8bb205d6b3cfa4c1532fef7`；[独立 probe](embedding_independent_b_test.go) SHA `55cdaeeb1ccfc28e807799fc8d165119c08fb9aeeb6122bede9fe52fdc14f93d`。唯一启动命令 `/usr/bin/python3 /workspace/scratch/agenteam-embeddings-b-independent-cbguedls/run_offline01.py /workspace/scratch/agenteam-embeddings-b-independent-cbguedls/execution01.json`，实际 cwd 为作者冻结 workspace。Go1.27.1、`-race -p=1 -count=1 -timeout=40s`、外层45s，offline/readonly；原 runner、bi81 GOCACHE 与锁定 modcache 复用。fresh workspace 5,620,703,232 B，满足本轮≥2GiB门槛。
+
+| 独立代表 | 实际结果与到达边界 |
+| --- | --- |
+| `TestIndependentEmbeddingsMixedOwnership` | PASS/0.04s。六个旧本地 exact handle 与两个执行新 start/run 的受控 handle 共用 Project8；超额不建 Client。取消/Force 后 held Do 与 Drain 仍占 slot/材料；所有类型先收到取消、封新入场，再以同一个显式 caller context 清理两个尾部并一次退槽。原材料仍由 caller 所有。 |
+| `TestIndependentEmbeddingsResultAndStickyFailure` | PASS/0.01s，三个子例全到。EOF/公开 Close/Drain 分段屏障阻止提前成功，一次消费/独立 golden/usage 与 Decision 副本通过；公开 Close error 零候选。原非上下文 Drain error 后，在 attempt 未取消时成功清理，随后 Result 仍返回安全错误和零向量，合法 usage 保留。 |
+
+`pure01` 实际 exit0/3.112091s，包1.060s，无 DATA RACE。tool session63342 已返回并关闭，Go PID899411 实际 wait；5 个 observed owned PID/starttime、0 adopted，两扫均空，TMP 已移除，1825项输入前后完全相同。原始证据：
+
+- [raw.log](runs/pure01/raw.log)：`0b57a7cc497488ff16cd010100dbb379e9b484b5bc1139cd2ae8895b1cde05c0`
+- [result.json](runs/pure01/result.json)：`e38d0bf47eb5ee5ac2c5659031f9075c46a05bb69b531e44df59e9fe4d5f2a27`
+- [command.json](runs/pure01/command.json)：`46d1dff17d33838799efd17ad3b63b32e22a7cedd873180e7cd1cd90f401ea18`
+- [cleanup.json](runs/pure01/cleanup.json)：`4f81b46075885a8d16b7a8c3a2361236480ebb8dd793e65557c096d69da20ed6`
+- [input-before.json](runs/pure01/input-before.json) / [input-after.json](runs/pure01/input-after.json) 同 SHA `77b1c38e4e511792ce342eda24764d39ea21076062e73e8c7536cae9d526af3b`。
+
+作者 B9 pure、B9+旧6 race、全部原26 pure、vet/format 的 actual0/实际 wait/双清和输入同一性按 [author-evidence-reuse01.json](author-evidence-reuse01.json) 复用，未机械重复旧矩阵。全局64、96竞争、正时间预算 Force 和其他错误分类来自作者有界结果及独立源码审查；不把本次 Project8 代表冒充独立重跑该全集。A 原容量累计分配首红与分版本修测记录均保留，本 B 没有失败重跑。
+
+本次 controlled client/response 的实际返回与 worker/Result goroutine 收尾已明确观察；不替代正式 D04 writer、callback、TLS、socket、PG Policy 或真实 Provider。`workerDone` 在 I/O 终局后的 bookkeeping 边界已静核，无额外业务 I/O/材料访问，不新增 Joined 前该 defer channel 必闭合的门槛；探针清理仍实际等它结束。三项停止任务没有消费或重开。候选和本轮原件现停写，后续 D 阶段须另行冻结和授权。

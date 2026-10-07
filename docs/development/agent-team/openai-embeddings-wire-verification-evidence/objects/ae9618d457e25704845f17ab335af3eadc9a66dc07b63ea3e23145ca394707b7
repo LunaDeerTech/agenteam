@@ -1,0 +1,29 @@
+# Embeddings 启动准备 02 与独立授权 HTTP 首轮
+
+02 窄修和必要离线检查已完成；主线程随后独立授权的 new-http01 实际通过并完成双清。十五个候选源、原 907 个固定依赖均未修改。剩余组尚未获本轮授权。
+
+原 driver-stage01 遗漏 `tests/process` 在 `m.Run()` 前无条件构建两个 cmd。`-run` 不能过滤该前置行为。旧 gate/check PASS 只证明其声明输入吻合，不能证明动态编译闭包完整；此为静态准备阻断，没有真实产品失败。旧 input/report/driver 原件保持，额外原 driver 副本位于 `../driver-original01/`。
+
+新 driver02 只改依赖发现：保留 16 integration/race test roots；单列 CGO=1、非 race、无 tag 的两 cmd 和三个 fixture helper；保留实际 server CGO=0 图。新增七个固定 Git 文件，合计 914 依赖 + 15 候选；runtime 3513 指纹、459 package identities。监督、selector、预算、实际 wait/双清及资源拓扑均未改。
+
+| 离线命令 | exit | 秒 | 自有 PID |
+| --- | ---: | ---: | ---: |
+| d-runtime-gate02 | 0 | 2.136500 | 5 |
+| d-central-compile02 | 0 | 2.682203 | 12 |
+| d-runner-compile02 | 0 | 0.290507 | 2 |
+| d-check-input02 | 0 | 2.199619 | 5 |
+
+四轮均实际 wait、输入前后同、两扫清零、0 adopted；每命令 45s，readonly `-p=1`，没有执行 TestMain 或产物。Central/Runner 产物 SHA 存各轮 compiled-output.json。三旧 helper 本轮只补实际图，复用既有编译事实；server CGO0 复用未变 d-server-cgo0-compile01。原 D 编译/vet/list 和 A/B 验收不机械重复。
+
+整理可选 helper 对比说明时，一个内联报告脚本错误假定依赖没有 embed，遇 `db/migrations/embed.go` 后 exit1；发生在首次输出报告前，原输入/driver/源码均不变。原 trace 与未保存 stdin 脚本的证据限制存 `../driver-stage02-report-preparation01/`。未据此改产品或重跑测试。
+
+new-http01 经另行授权真实执行：exact `TestModelOpenAIEmbeddingsWireHTTP` PASS 2.28s，整个原命令 actual exit0 /101.179s。7 exact IDs、108 PID/starttime 两扫清零、0 adopted、monitor errors0；完整基线含 Mount 不变，输入前后相同。历史 PPID1 Z 未触碰、不称回收。窗口已释放，没有续跑其他组。此事实与之前离线检查分开记录。
+
+- 固定输入 `input.json` SHA `278bcc65e3a0bce6234a2c3043789ee58343a6f94c7a38b01f2653d3167aa630`。
+- driver02 SHA `0dcb5905240e2fa5a92c1f2e866ab7c4187a25dfbfd2c3b79fca35cb2d2a9bc4`，精确差量 `driver.diff`。
+- 七文件差量：`../runtime-baseline01-to02.json`。
+- 离线原 command/env/raw/result/input/cleanup 索引：`checks.json`。
+- 实际 HTTP 原件索引：`new-http01-summary.json`。
+- 后续 argv、原预算与两次 fresh >=5GiB/7-ID/nonce/Mount/actualwait/双清规则：`execution-plan.json`。
+
+本报告不外推后续 Terminal/Budget、旧六组、Nonchat/InvocationID、真实供应商或停止事项。全部候选/driver/input 保持冻结。

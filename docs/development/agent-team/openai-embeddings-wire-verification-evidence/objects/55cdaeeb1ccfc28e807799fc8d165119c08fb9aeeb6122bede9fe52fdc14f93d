@@ -1,0 +1,389 @@
+package adapter
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"reflect"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+)
+
+// The accepted old Chat helper supplies only valid C0 input and caller-owned
+// material. These tests use independent controlled public-operation boundaries;
+// they make no network/D04 writer or socket completion claim.
+func independentBInput(t *testing.T) (EmbeddingRequest, CallOptions) {
+	t.Helper()
+	chat, options := unitInput(t)
+	snapshot := chat.Snapshot.Clone()
+	snapshot.Identity.Protocol = mc.OpenAIEmbeddings
+	snapshot.Identity.Profile = mc.OpenAIEmbeddingsV1
+	snapshot.Identity.ModelType = mc.EmbeddingModel
+	snapshot.Identity.AdapterRevision = "openai-embeddings-float-v1"
+	snapshot.Capabilities = mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}
+	options.Limits.Overall = 5 * time.Second
+	return EmbeddingRequest{Snapshot: snapshot, Texts: []string{"independent finite input"}, ExpectedDimensions: 2}, options
+}
+
+type independentBGate struct {
+	entered, release chan struct{}
+	enter, leave sync.Once
+}
+
+func independentBGateNew() *independentBGate {
+	return &independentBGate{entered: make(chan struct{}), release: make(chan struct{})}
+}
+func (g *independentBGate) open() { g.leave.Do(func() { close(g.release) }) }
+func (g *independentBGate) enterNow() { g.enter.Do(func() { close(g.entered) }) }
+func (g *independentBGate) block() { g.enterNow(); <-g.release }
+func (g *independentBGate) wait(ctx context.Context) error {
+	g.enterNow()
+	select {
+	case <-g.release:
+		return nil
+	default:
+	}
+	select {
+	case <-g.release:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
+func independentBAwait(t *testing.T, done <-chan struct{}, label string) {
+	t.Helper()
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("controlled boundary did not complete:", label)
+	}
+}
+
+type independentBBody struct {
+	reader io.Reader
+	eof *independentBGate
+}
+func (b *independentBBody) Read(p []byte) (int, error) {
+	n, err := b.reader.Read(p)
+	if err == io.EOF && b.eof != nil { b.eof.block() }
+	return n, err
+}
+func (*independentBBody) Close() error { return nil }
+
+type independentBResponse struct {
+	body *independentBBody
+	closeGate *independentBGate
+	closeErr error
+	closes atomic.Int32
+}
+func (*independentBResponse) StatusCode() int { return http.StatusOK }
+func (*independentBResponse) Headers() http.Header {
+	return http.Header{"Content-Type": {"application/json; charset=utf-8"}, "X-Request-Id": {"independent-b-request"}}
+}
+func (r *independentBResponse) Body() io.ReadCloser { return r.body }
+func (*independentBResponse) Decision() outbound.Decision {
+	v := f.Version(17)
+	return outbound.Decision{Sent: true, PolicyVersion: &v}
+}
+func (r *independentBResponse) Close() error {
+	r.closes.Add(1)
+	if r.closeGate != nil { r.closeGate.block() }
+	return r.closeErr
+}
+
+type independentBClient struct {
+	response *independentBResponse
+	doGate, drainGate *independentBGate
+	drainFn func(context.Context, int32) error
+	creates, calls, stops, drains atomic.Int32
+}
+func (c *independentBClient) Do(context.Context, *http.Request, outbound.Profile) (embeddingResponse, error) {
+	c.calls.Add(1)
+	if c.doGate != nil { c.doGate.block() }
+	return c.response, nil
+}
+func (c *independentBClient) StopAdmission() { c.stops.Add(1) }
+func (c *independentBClient) Drain(ctx context.Context) error {
+	n := c.drains.Add(1)
+	if c.drainFn != nil { return c.drainFn(ctx, n) }
+	if c.drainGate != nil { return c.drainGate.wait(ctx) }
+	return nil
+}
+func independentBResponseNew() *independentBResponse {
+	const raw = `{"object":"list","model":"returned-alias","data":[{"object":"embedding","index":0,"embedding":[0,-1.5]}],"usage":{"prompt_tokens":0,"total_tokens":9007199254740993}}`
+	return &independentBResponse{body: &independentBBody{reader: strings.NewReader(raw)}}
+}
+
+func independentBStart(t *testing.T, b *Budget, r EmbeddingRequest, o CallOptions, c *independentBClient, gates ...*independentBGate) *EmbeddingExchange {
+	t.Helper()
+	var x *EmbeddingExchange
+	t.Cleanup(func() {
+		for _, gate := range gates { gate.open() }
+		if x == nil { return }
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		if err := x.Close(ctx); err != nil { t.Error("controlled cleanup Close failed") }
+		independentBAwait(t, x.workerDone, "worker cleanup")
+		if !x.Joined() { t.Error("controlled client did not actually join") }
+	})
+	a := &OpenAIEmbeddings{budget: b}
+	var err error
+	x, err = a.start(context.Background(), r, o, func() (embeddingClient, error) {
+		c.creates.Add(1)
+		return c, nil
+	})
+	if err != nil || x == nil { t.Fatal("valid controlled Start rejected") }
+	return x
+}
+func independentBSlot(t *testing.T, b *Budget, count int) {
+	t.Helper()
+	active, _ := b.snapshot()
+	if len(active) != count { t.Fatal("shared exact slot count mismatch") }
+}
+func independentBMaterial(t *testing.T, x *EmbeddingExchange, live bool) {
+	t.Helper()
+	x.mu.Lock()
+	material := x.material
+	x.mu.Unlock()
+	err := material.Use(func([]byte) error { return nil })
+	if (err == nil) != live { t.Fatal("borrowed material lifetime mismatch") }
+}
+func independentBZero(t *testing.T, r EmbeddingResult, err error) {
+	t.Helper()
+	if err == nil || !reflect.DeepEqual(r, EmbeddingResult{}) { t.Fatal("error returned a vector candidate") }
+}
+func independentBUsage(t *testing.T, x *EmbeddingExchange) {
+	t.Helper()
+	u := x.Observe().Usage
+	if u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 0 ||
+		u.TotalTokens == nil || *u.TotalTokens != 9007199254740993 || u.OutputTokens != nil {
+		t.Fatal("reliable exact usage was lost or fabricated")
+	}
+}
+
+func TestIndependentEmbeddingsMixedOwnership(t *testing.T) {
+	r, o := independentBInput(t)
+	b := NewBudget()
+	var local []*Exchange
+	// These old exact handles model local admission, not native Chat traffic.
+	// Their shared accepted registry is the assertion; old protocol bodies are reused.
+	finishLocalHandles := func() {
+		for _, x := range local {
+			x.cancel()
+			x.mu.Lock()
+			select { case <-x.ioDone: default: close(x.ioDone) }
+			x.mu.Unlock()
+		}
+	}
+	t.Cleanup(func() {
+		finishLocalHandles()
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		b.StopAdmission()
+		if err := b.Drain(ctx); err != nil || !b.Joined() { t.Error("mixed cleanup did not join") }
+	})
+	for n := 0; n < 6; n++ {
+		mode := JSONResponse
+		if n%2 != 0 { mode = SSEResponse }
+		x, err := b.accept(context.Background(), o.ProjectID, mode, 5*time.Second)
+		if err != nil { t.Fatal("old local handle rejected") }
+		local = append(local, x)
+	}
+	var xs []*EmbeddingExchange
+	var clients []*independentBClient
+	var doGates, drainGates []*independentBGate
+	var finalPhase atomic.Bool
+	var cleanupContext context.Context
+	var contextMu sync.Mutex
+	var cleanupCalls []bool
+	for n := 0; n < 2; n++ {
+		doGate, drainGate := independentBGateNew(), independentBGateNew()
+		c := &independentBClient{response: independentBResponseNew(), doGate: doGate}
+		c.drainFn = func(ctx context.Context, _ int32) error {
+			if finalPhase.Load() {
+				contextMu.Lock()
+				cleanupCalls = append(cleanupCalls, ctx == cleanupContext)
+				contextMu.Unlock()
+			}
+			return drainGate.wait(ctx)
+		}
+		x := independentBStart(t, b, r, o, c, doGate, drainGate)
+		xs, clients = append(xs, x), append(clients, c)
+		doGates, drainGates = append(doGates, doGate), append(drainGates, drainGate)
+		independentBAwait(t, doGate.entered, "accepted Do")
+	}
+	independentBSlot(t, b, 8)
+	var rejectedCreates atomic.Int32
+	a := &OpenAIEmbeddings{budget: b}
+	if x, err := a.start(context.Background(), r, o, func() (embeddingClient, error) {
+		rejectedCreates.Add(1)
+		return nil, nil
+	}); x != nil || err == nil { t.Fatal("ninth mixed handle admitted") } else { requireFault(t, err, f.ResourceBusy) }
+	if x, err := b.accept(context.Background(), o.ProjectID, JSONResponse, time.Second); x != nil || err == nil {
+		t.Fatal("old Chat bypassed mixed Project limit")
+	} else { requireFault(t, err, f.ResourceBusy) }
+	if rejectedCreates.Load() != 0 { t.Fatal("full registry created a client") }
+	caller, cancel := context.WithCancel(context.Background())
+	cancel()
+	result, err := xs[0].Result(caller)
+	independentBZero(t, result, err)
+	requireModel(t, err, "cancelled", "wire_cancelled")
+	if observed := xs[0].Observe(); !observed.DoStarted || observed.Decision != nil { t.Fatal("held Do fabricated a Decision") }
+	short, stop := context.WithTimeout(context.Background(), 35*time.Millisecond)
+	err = xs[0].Close(short)
+	stop()
+	if err == nil || xs[0].Joined() { t.Fatal("held Do retired on visible cancellation") }
+	independentBSlot(t, b, 8)
+	independentBMaterial(t, xs[0], true)
+	// Force must cancel every type before its first wait, even with no wait budget.
+	if err := b.Force(caller); err == nil { t.Fatal("Force claimed held work joined") }
+	for _, x := range local { if x.ctx.Err() == nil { t.Fatal("Force skipped old handle") } }
+	for _, x := range xs { if x.ctx.Err() == nil { t.Fatal("Force skipped embedding handle") } }
+	if x, err := a.start(context.Background(), r, o, func() (embeddingClient, error) {
+		rejectedCreates.Add(1); return nil, nil
+	}); x != nil || err == nil { t.Fatal("Force did not seal admission") } else { requireFault(t, err, f.ShuttingDown) }
+	for _, gate := range doGates { gate.open() }
+	for n, gate := range drainGates {
+		independentBAwait(t, gate.entered, "actual Drain boundary")
+		independentBAwait(t, xs[n].workerDone, "cancelled automatic join")
+		if xs[n].Joined() { t.Fatal("held client Drain released slot") }
+		independentBMaterial(t, xs[n], true)
+	}
+	independentBSlot(t, b, 8)
+	finishLocalHandles()
+	cleanup, done := context.WithTimeout(context.Background(), 2*time.Second)
+	defer done()
+	cleanupContext = cleanup
+	finalPhase.Store(true)
+	for _, gate := range drainGates { gate.open() }
+	if err := b.Drain(cleanup); err != nil { t.Fatal("explicit mixed Drain failed") }
+	contextMu.Lock()
+	observed := append([]bool(nil), cleanupCalls...)
+	contextMu.Unlock()
+	if len(observed) != 2 || !observed[0] || !observed[1] { t.Fatal("Drain did not preserve one exact caller context") }
+	independentBSlot(t, b, 0)
+	if !b.Joined() || rejectedCreates.Load() != 0 { t.Fatal("shared terminal or rejection changed") }
+	for n, x := range xs {
+		independentBMaterial(t, x, false)
+		if !x.Joined() || clients[n].creates.Load() != 1 || clients[n].calls.Load() != 1 || clients[n].response.closes.Load() != 1 {
+			t.Fatal("one accepted handle did not reach exact controlled terminal")
+		}
+	}
+	if err := o.Credential.Use(func([]byte) error { return nil }); err != nil { t.Fatal("adapter destroyed caller material") }
+	result, err = xs[1].Result(context.Background())
+	independentBZero(t, result, err)
+	_, err = xs[0].Result(context.Background())
+	requireFault(t, err, f.InvalidState)
+}
+
+func TestIndependentEmbeddingsResultAndStickyFailure(t *testing.T) {
+	t.Run("once_only_success_requires_EOF_Close_Drain", func(t *testing.T) {
+		r, o := independentBInput(t)
+		b := NewBudget()
+		eof, closeGate, drain := independentBGateNew(), independentBGateNew(), independentBGateNew()
+		response := independentBResponseNew()
+		response.body.eof, response.closeGate = eof, closeGate
+		c := &independentBClient{response: response, drainGate: drain}
+		x := independentBStart(t, b, r, o, c, eof, closeGate, drain)
+		independentBAwait(t, eof.entered, "pending EOF")
+		if x.Observe().Usage.Source != mc.UnknownUsage { t.Fatal("pre-EOF usage published") }
+		type outcome struct { value EmbeddingResult; err error }
+		out := make(chan outcome, 1)
+		callerDone := make(chan struct{})
+		ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+		t.Cleanup(func() {
+			cancel(); eof.open(); closeGate.open(); drain.open()
+			independentBAwait(t, callerDone, "Result caller cleanup")
+		})
+		go func() { defer close(callerDone); value, err := x.Result(ctx); out <- outcome{value, err} }()
+		deadline := time.NewTimer(time.Second)
+		tick := time.NewTicker(time.Millisecond)
+		defer deadline.Stop()
+		defer tick.Stop()
+		for {
+			x.mu.Lock(); consumed := x.consumed; x.mu.Unlock()
+			if consumed { break }
+			select { case <-tick.C: case <-deadline.C: t.Fatal("Result did not take once-only ownership") }
+		}
+		_, err := x.Result(context.Background())
+		requireFault(t, err, f.InvalidState)
+		assertPending := func() {
+			t.Helper()
+			select { case <-out: t.Fatal("held actual boundary returned a result"); default: }
+			if x.Joined() { t.Fatal("held actual boundary joined") }
+			independentBSlot(t, b, 1)
+			independentBMaterial(t, x, true)
+		}
+		assertPending()
+		eof.open()
+		independentBAwait(t, closeGate.entered, "public Response.Close")
+		independentBUsage(t, x)
+		assertPending()
+		closeGate.open()
+		independentBAwait(t, drain.entered, "client Drain")
+		assertPending()
+		drain.open()
+		independentBAwait(t, callerDone, "Result completed")
+		got := <-out
+		if got.err != nil || len(got.value.Items) != 1 || !reflect.DeepEqual(got.value.Items[0].Values, []float64{0, -1.5}) ||
+			got.value.ProviderRequestID != "independent-b-request" || !x.Joined() { t.Fatal("joined independent golden result failed") }
+		independentBAwait(t, x.workerDone, "worker epilogue")
+		got.value.Items[0].Values[0] = 99
+		*got.value.Usage.TotalTokens = 1
+		observed := x.Observe()
+		*observed.Usage.InputTokens = 2
+		*observed.Decision.PolicyVersion = 3
+		independentBUsage(t, x)
+		if *x.Observe().Decision.PolicyVersion != 17 { t.Fatal("Observe Decision alias") }
+		x.mu.Lock(); empty := reflect.DeepEqual(x.result, EmbeddingResult{}); x.mu.Unlock()
+		if !empty || c.calls.Load() != 1 || response.closes.Load() != 1 { t.Fatal("result transfer or one-shot transport changed") }
+		independentBSlot(t, b, 0)
+		independentBMaterial(t, x, false)
+		_, err = x.Result(context.Background())
+		requireFault(t, err, f.InvalidState)
+	})
+	for _, boundary := range []string{"public_Close", "sticky_Drain"} {
+		t.Run(boundary, func(t *testing.T) {
+			r, o := independentBInput(t)
+			b := NewBudget()
+			response := independentBResponseNew()
+			c := &independentBClient{response: response}
+			privateErr := errors.New("independent-private-boundary-canary")
+			if boundary == "public_Close" { response.closeErr = privateErr }
+			if boundary == "sticky_Drain" {
+				c.drainFn = func(_ context.Context, call int32) error { if call == 1 { return privateErr }; return nil }
+			}
+			x := independentBStart(t, b, r, o, c)
+			independentBAwait(t, x.workerDone, "original boundary failure")
+			independentBUsage(t, x)
+			if boundary == "sticky_Drain" {
+				independentBSlot(t, b, 1)
+				independentBMaterial(t, x, true)
+				// Successful later cleanup does not cancel the attempt. Therefore a
+				// failed Result below must be the saved Drain error, not ctx masking.
+				ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+				defer cancel()
+				if err := b.Drain(ctx); err != nil || x.ctx.Err() != nil { t.Fatal("cleanup did not succeed under live attempt") }
+				independentBSlot(t, b, 0)
+				independentBMaterial(t, x, false)
+			}
+			value, err := x.Result(context.Background())
+			independentBZero(t, value, err)
+			model := requireModel(t, err, "network", "wire_transport_error")
+			if model.PartialOutput || !model.Dispatched || strings.Contains(fmt.Sprintf("%+v", err), "canary") { t.Fatal("unsafe or fabricated boundary error") }
+			independentBUsage(t, x)
+			if c.creates.Load() != 1 || c.calls.Load() != 1 || response.closes.Load() != 1 || !x.Joined() { t.Fatal("error path did not preserve exact terminal") }
+			_, err = x.Result(context.Background())
+			requireFault(t, err, f.InvalidState)
+		})
+	}
+}

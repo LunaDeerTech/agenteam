@@ -1,0 +1,18 @@
+{
+  "status": "STATIC PASS",
+  "scope": "five D sources; accepted A/B reused; no independent dynamic execution",
+  "input": {
+    "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/input01.json",
+    "bytes": 14937,
+    "sha256": "06629526cf473d92e515565a29461c1c390ddaa8242c8392df02b005ea160575"
+  },
+  "review": {
+    "path": "/workspace/scratch/agenteam-embeddings-d-independent-3mdehnwy/review.md",
+    "bytes": 4234,
+    "sha256": "5ee23e46eceed940d820b7d177bc313db884e3eb788a885dd840858d4337c2cb"
+  },
+  "blocking_findings": [],
+  "resource_ready": false,
+  "next_gate": "frozen runtime closure and supervisor review; root resource authorization",
+  "source15_hashes_after_match": true
+}

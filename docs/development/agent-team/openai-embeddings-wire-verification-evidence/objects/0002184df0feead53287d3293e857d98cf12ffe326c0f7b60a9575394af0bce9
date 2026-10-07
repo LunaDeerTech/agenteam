@@ -1,0 +1,55 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 993332,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 993332,
+      "ppid": 993329,
+      "pgid": 993332,
+      "state": "Z",
+      "starttime": "4351617"
+    },
+    {
+      "pid": 993356,
+      "ppid": 993332,
+      "pgid": 993332,
+      "state": "R",
+      "starttime": "4351634"
+    },
+    {
+      "pid": 993383,
+      "ppid": 993332,
+      "pgid": 993332,
+      "state": "R",
+      "starttime": "4351945"
+    },
+    {
+      "pid": 993393,
+      "ppid": 993332,
+      "pgid": 993332,
+      "state": "R",
+      "starttime": "4351948"
+    },
+    {
+      "pid": 993424,
+      "ppid": 993332,
+      "pgid": 993332,
+      "state": "S",
+      "starttime": "4352035"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-embeddings-offline-0sbqmmzk",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

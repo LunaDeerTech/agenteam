@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/prepare-d-runtime-input01.py"
+  ],
+  "cwd": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-embeddings-offline-homc8rkt",
+    "GOTMPDIR": "/tmp/agt-embeddings-offline-homc8rkt",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMAXPROCS": "4",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "8490cacff28b1bc106bb38767720e949887a9eeec0b3ca85f75210018b03dfa7",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 920403,
+  "actual_exit": 0,
+  "seconds": 1.593500024995592,
+  "timeout": false
+}

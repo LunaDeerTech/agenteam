@@ -1,0 +1,220 @@
+=== RUN   TestOpenAIEmbeddingsJSONStrict
+=== RUN   TestOpenAIEmbeddingsJSONStrict/valid
+=== RUN   TestOpenAIEmbeddingsJSONStrict/finite_extremes
+=== RUN   TestOpenAIEmbeddingsJSONStrict/negative_zero
+=== RUN   TestOpenAIEmbeddingsJSONStrict/numeric_64
+=== RUN   TestOpenAIEmbeddingsJSONStrict/escaped_keys
+=== RUN   TestOpenAIEmbeddingsJSONStrict/empty
+=== RUN   TestOpenAIEmbeddingsJSONStrict/extra_row
+=== RUN   TestOpenAIEmbeddingsJSONStrict/duplicate_index
+=== RUN   TestOpenAIEmbeddingsJSONStrict/out_of_range
+=== RUN   TestOpenAIEmbeddingsJSONStrict/negative_index
+=== RUN   TestOpenAIEmbeddingsJSONStrict/negative_zero_index
+=== RUN   TestOpenAIEmbeddingsJSONStrict/float_index
+=== RUN   TestOpenAIEmbeddingsJSONStrict/exponent_index
+=== RUN   TestOpenAIEmbeddingsJSONStrict/huge_index
+=== RUN   TestOpenAIEmbeddingsJSONStrict/missing_index
+=== RUN   TestOpenAIEmbeddingsJSONStrict/wrong_object
+=== RUN   TestOpenAIEmbeddingsJSONStrict/null_vector
+=== RUN   TestOpenAIEmbeddingsJSONStrict/base64_vector
+=== RUN   TestOpenAIEmbeddingsJSONStrict/short_vector
+=== RUN   TestOpenAIEmbeddingsJSONStrict/long_vector
+=== RUN   TestOpenAIEmbeddingsJSONStrict/string_number
+=== RUN   TestOpenAIEmbeddingsJSONStrict/null_number
+=== RUN   TestOpenAIEmbeddingsJSONStrict/bool_number
+=== RUN   TestOpenAIEmbeddingsJSONStrict/overflow
+=== RUN   TestOpenAIEmbeddingsJSONStrict/underflow_exponent_overflow
+=== RUN   TestOpenAIEmbeddingsJSONStrict/number_65
+=== RUN   TestOpenAIEmbeddingsJSONStrict/NaN
+=== RUN   TestOpenAIEmbeddingsJSONStrict/infinity
+=== RUN   TestOpenAIEmbeddingsJSONStrict/leading_zero
+=== RUN   TestOpenAIEmbeddingsJSONStrict/plus_number
+=== RUN   TestOpenAIEmbeddingsJSONStrict/bare_dot
+=== RUN   TestOpenAIEmbeddingsJSONStrict/trailing_dot
+=== RUN   TestOpenAIEmbeddingsJSONStrict/bare_exponent
+=== RUN   TestOpenAIEmbeddingsJSONStrict/extra_key
+=== RUN   TestOpenAIEmbeddingsJSONStrict/duplicate_key
+=== RUN   TestOpenAIEmbeddingsJSONStrict/escaped_duplicate_key
+=== RUN   TestOpenAIEmbeddingsJSONStrict/truncated
+=== RUN   TestOpenAIEmbeddingsJSONStrict/trailing
+=== RUN   TestOpenAIEmbeddingsJSONStrict/root_array
+=== RUN   TestOpenAIEmbeddingsJSONStrict/unknown_root
+=== RUN   TestOpenAIEmbeddingsJSONStrict/duplicate_root
+=== RUN   TestOpenAIEmbeddingsJSONStrict/wrong_root_object
+=== RUN   TestOpenAIEmbeddingsJSONStrict/empty_model
+=== RUN   TestOpenAIEmbeddingsJSONStrict/null_model
+=== RUN   TestOpenAIEmbeddingsJSONStrict/long_model
+=== RUN   TestOpenAIEmbeddingsJSONStrict/nul_model
+=== RUN   TestOpenAIEmbeddingsJSONStrict/high_surrogate
+=== RUN   TestOpenAIEmbeddingsJSONStrict/low_surrogate
+=== RUN   TestOpenAIEmbeddingsJSONStrict/bad_pair
+=== RUN   TestOpenAIEmbeddingsJSONStrict/invalid_escape
+=== RUN   TestOpenAIEmbeddingsJSONStrict/invalid_utf8
+=== RUN   TestOpenAIEmbeddingsJSONStrict/encoded_surrogate
+=== RUN   TestOpenAIEmbeddingsJSONStrict/deep
+--- PASS: TestOpenAIEmbeddingsJSONStrict (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/valid (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/finite_extremes (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/negative_zero (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/numeric_64 (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/escaped_keys (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/empty (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/extra_row (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/duplicate_index (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/out_of_range (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/negative_index (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/negative_zero_index (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/float_index (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/exponent_index (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/huge_index (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/missing_index (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/wrong_object (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/null_vector (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/base64_vector (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/short_vector (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/long_vector (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/string_number (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/null_number (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/bool_number (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/overflow (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/underflow_exponent_overflow (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/number_65 (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/NaN (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/infinity (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/leading_zero (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/plus_number (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/bare_dot (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/trailing_dot (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/bare_exponent (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/extra_key (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/duplicate_key (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/escaped_duplicate_key (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/truncated (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/trailing (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/root_array (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/unknown_root (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/duplicate_root (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/wrong_root_object (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/empty_model (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/null_model (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/long_model (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/nul_model (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/high_surrogate (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/low_surrogate (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/bad_pair (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/invalid_escape (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/invalid_utf8 (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/encoded_surrogate (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONStrict/deep (0.00s)
+=== RUN   TestOpenAIEmbeddingsUsageAndIsolation
+--- PASS: TestOpenAIEmbeddingsUsageAndIsolation (0.00s)
+=== RUN   TestOpenAIEmbeddingsJSONCapacityAndCancellation
+    embedding_json_test.go:249: max raw capacity=16777217, vector capacity=2097152, clone=2097152, total allocated=21042864
+=== RUN   TestOpenAIEmbeddingsJSONCapacityAndCancellation/vectors
+=== RUN   TestOpenAIEmbeddingsJSONCapacityAndCancellation/whitespace
+=== RUN   TestOpenAIEmbeddingsJSONCapacityAndCancellation/long_string
+--- PASS: TestOpenAIEmbeddingsJSONCapacityAndCancellation (0.14s)
+    --- PASS: TestOpenAIEmbeddingsJSONCapacityAndCancellation/vectors (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONCapacityAndCancellation/whitespace (0.00s)
+    --- PASS: TestOpenAIEmbeddingsJSONCapacityAndCancellation/long_string (0.00s)
+=== RUN   TestOpenAIEmbeddingsBodyEOFAndLimits
+=== RUN   TestOpenAIEmbeddingsBodyEOFAndLimits/exact_EOF
+=== RUN   TestOpenAIEmbeddingsBodyEOFAndLimits/limit_plus_one
+=== RUN   TestOpenAIEmbeddingsBodyEOFAndLimits/late_read_error
+=== RUN   TestOpenAIEmbeddingsBodyEOFAndLimits/parseable_prefix_waits_for_actual_EOF
+--- PASS: TestOpenAIEmbeddingsBodyEOFAndLimits (0.01s)
+    --- PASS: TestOpenAIEmbeddingsBodyEOFAndLimits/exact_EOF (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBodyEOFAndLimits/limit_plus_one (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBodyEOFAndLimits/late_read_error (0.00s)
+    --- PASS: TestOpenAIEmbeddingsBodyEOFAndLimits/parseable_prefix_waits_for_actual_EOF (0.00s)
+=== RUN   TestOpenAIEmbeddingsProfileAndSafeViews
+--- PASS: TestOpenAIEmbeddingsProfileAndSafeViews (0.00s)
+=== RUN   TestOpenAIEmbeddingsPrepareAndIsolation
+=== RUN   TestOpenAIEmbeddingsPrepareAndIsolation/#00
+=== RUN   TestOpenAIEmbeddingsPrepareAndIsolation//base%2Fsegment/
+=== RUN   TestOpenAIEmbeddingsPrepareAndIsolation//base//inner/
+=== RUN   TestOpenAIEmbeddingsPrepareAndIsolation//base/./inner/
+=== RUN   TestOpenAIEmbeddingsPrepareAndIsolation//base/%2e/
+--- PASS: TestOpenAIEmbeddingsPrepareAndIsolation (0.00s)
+    --- PASS: TestOpenAIEmbeddingsPrepareAndIsolation/#00 (0.00s)
+    --- PASS: TestOpenAIEmbeddingsPrepareAndIsolation//base%2Fsegment/ (0.00s)
+    --- PASS: TestOpenAIEmbeddingsPrepareAndIsolation//base//inner/ (0.00s)
+    --- PASS: TestOpenAIEmbeddingsPrepareAndIsolation//base/./inner/ (0.00s)
+    --- PASS: TestOpenAIEmbeddingsPrepareAndIsolation//base/%2e/ (0.00s)
+=== RUN   TestOpenAIEmbeddingsInputLimits
+=== RUN   TestOpenAIEmbeddingsInputLimits/zero_items
+=== RUN   TestOpenAIEmbeddingsInputLimits/129_items
+=== RUN   TestOpenAIEmbeddingsInputLimits/zero_dimensions
+=== RUN   TestOpenAIEmbeddingsInputLimits/negative_dimensions
+=== RUN   TestOpenAIEmbeddingsInputLimits/dimensions_overflow
+=== RUN   TestOpenAIEmbeddingsInputLimits/4097_dimensions
+=== RUN   TestOpenAIEmbeddingsInputLimits/product
+=== RUN   TestOpenAIEmbeddingsInputLimits/empty
+=== RUN   TestOpenAIEmbeddingsInputLimits/utf8
+=== RUN   TestOpenAIEmbeddingsInputLimits/nul
+=== RUN   TestOpenAIEmbeddingsInputLimits/text_limit
+=== RUN   TestOpenAIEmbeddingsInputLimits/aggregate_limit
+=== RUN   TestOpenAIEmbeddingsInputLimits/missing_snapshot
+=== RUN   TestOpenAIEmbeddingsInputLimits/revision
+=== RUN   TestOpenAIEmbeddingsInputLimits/different_protocol
+=== RUN   TestOpenAIEmbeddingsInputLimits/streaming
+=== RUN   TestOpenAIEmbeddingsInputLimits/tools
+=== RUN   TestOpenAIEmbeddingsInputLimits/parallel
+=== RUN   TestOpenAIEmbeddingsInputLimits/reasoning
+=== RUN   TestOpenAIEmbeddingsInputLimits/modalities
+=== RUN   TestOpenAIEmbeddingsInputLimits/max_output
+=== RUN   TestOpenAIEmbeddingsInputLimits/dimensions_parameter
+=== RUN   TestOpenAIEmbeddingsInputLimits/overwrite
+=== RUN   TestOpenAIEmbeddingsInputLimits/header
+=== RUN   TestOpenAIEmbeddingsInputLimits/duplicate
+=== RUN   TestOpenAIEmbeddingsInputLimits/bad_surrogate
+=== RUN   TestOpenAIEmbeddingsInputLimits/overall_zero
+=== RUN   TestOpenAIEmbeddingsInputLimits/overall_long
+=== RUN   TestOpenAIEmbeddingsInputLimits/idle_long
+=== RUN   TestOpenAIEmbeddingsInputLimits/bad_request_limit
+=== RUN   TestOpenAIEmbeddingsInputLimits/bad_response_limit
+=== RUN   TestOpenAIEmbeddingsInputLimits/query
+=== RUN   TestOpenAIEmbeddingsInputLimits/credential
+=== RUN   TestOpenAIEmbeddingsInputLimits/max_product_and_total_text
+=== RUN   TestOpenAIEmbeddingsInputLimits/escaped_budget_before_body_allocation
+    openai_embeddings_test.go:254: rejected encoding allocated=1728 bytes (<1 MiB)
+--- PASS: TestOpenAIEmbeddingsInputLimits (0.08s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/zero_items (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/129_items (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/zero_dimensions (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/negative_dimensions (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/dimensions_overflow (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/4097_dimensions (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/product (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/empty (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/utf8 (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/nul (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/text_limit (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/aggregate_limit (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/missing_snapshot (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/revision (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/different_protocol (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/streaming (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/tools (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/parallel (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/reasoning (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/modalities (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/max_output (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/dimensions_parameter (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/overwrite (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/header (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/duplicate (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/bad_surrogate (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/overall_zero (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/overall_long (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/idle_long (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/bad_request_limit (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/bad_response_limit (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/query (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/credential (0.00s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/max_product_and_total_text (0.07s)
+    --- PASS: TestOpenAIEmbeddingsInputLimits/escaped_budget_before_body_allocation (0.01s)
+=== RUN   TestOpenAIEmbeddingsPreflightCancellation
+--- PASS: TestOpenAIEmbeddingsPreflightCancellation (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	0.240s

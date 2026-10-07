@@ -1,0 +1,16 @@
+{
+  "exact_tops": [
+    "TestModelOpenAIEmbeddingsWireHTTP",
+    "TestModelOpenAIEmbeddingsWireTerminal",
+    "TestModelOpenAIEmbeddingsWireBudget",
+    "TestModelOpenAIChatWireHTTP",
+    "TestModelOpenAIChatWireStream",
+    "TestModelOpenAIChatWireJoinAndBudget",
+    "TestModelOpenAIChatStructuredHTTP",
+    "TestModelOpenAIChatStructuredStream",
+    "TestModelOpenAIChatStructuredCloseAndBudget"
+  ],
+  "binary_sha256": "2b6fb299ad00abec2d7566b52ee2f8285dd38092d85a2e05eac5c84435716297",
+  "TestMain_or_init_in_fixed_local_closure": [],
+  "test_bodies_to_execute": 0
+}

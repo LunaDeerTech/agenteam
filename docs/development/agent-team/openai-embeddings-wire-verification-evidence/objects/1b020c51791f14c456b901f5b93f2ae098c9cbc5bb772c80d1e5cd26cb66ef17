@@ -1,0 +1,29 @@
+{
+  "B_source_count": 7,
+  "actual_commands_complete": true,
+  "candidate_manifest": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/manifest.json",
+    "sha256": "bd18c341adb9269a6c3f46d4c6d48c6d21677206bb73b7212a16663d05c9d505"
+  },
+  "checks": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-stage01/checks.json",
+    "sha256": "fd86f9cb4288213baa24a12a124ff9459ca1b8feb819e4c3af1e1afafce782de"
+  },
+  "delivery10": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-stage01/delivery10.json",
+    "sha256": "81cb7cd3a0e243d545ab130489299d668287ff08df3d4a269f41da54a20105f4"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-stage01/inputs.json",
+    "sha256": "be00d7f0b83dcb63971cb63e44092386777f33e283bd5a089a09afe4fe1ce8e0"
+  },
+  "no_B_failed_runs": true,
+  "readonly_A_source_count": 3,
+  "report": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-stage01/report.md",
+    "sha256": "4de4c8c7c746c5aad16c69c69c07a4bd42c476c02029d245076636b39a440f33"
+  },
+  "resources_active": false,
+  "source_stopped": true,
+  "status": "AUTHOR_B_CHECKS_PASS_AWAITING_INDEPENDENT"
+}

@@ -1,0 +1,187 @@
+{
+  "actual_business_command": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(authorized exact names)$"
+  ],
+  "budgets": {
+    "fresh_free_bytes_before_input_and_before_spawn": 5368709120,
+    "go_package": "-race -count=1 -timeout=6m",
+    "new_scenario_seconds": 120,
+    "no_automatic_next_group": true,
+    "no_automatic_retries": true,
+    "offline_command_seconds": 45
+  },
+  "combined_new_option": {
+    "exact_tops": [
+      "TestModelOpenAIEmbeddingsWireHTTP",
+      "TestModelOpenAIEmbeddingsWireTerminal",
+      "TestModelOpenAIEmbeddingsWireBudget"
+    ],
+    "group": "new",
+    "requires_explicit_root_group_choice": true
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture.py",
+    "sha256": "ea27894f831f887bb572d8357373d0a3eee42b3e47622741be9644fc36666446"
+  },
+  "fixed_git": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+  "frozen_input": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/input.json",
+    "sha256": "4c9f95ce61a19317d654df3307840a191aa06623d4a4e6030e4f2629dbf6927e"
+  },
+  "input_binding": {
+    "accepted_sources": 15,
+    "driver_and_frozen_manifest_before_after": true,
+    "fixed_git_dependencies": 907,
+    "go_packages_union": 455,
+    "runtime_files": 3510,
+    "server_actual_variant": "CGO_ENABLED=0 explicitly included and separately compiled; no server execution",
+    "source_before_after": true,
+    "tags_and_roots": "fixed postgres helper test roots plus four helper build packages"
+  },
+  "proposed_separate_windows": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture.py",
+        "--name",
+        "new-http01",
+        "--group",
+        "new-http",
+        "--frozen",
+        "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/input.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--execute-authorized"
+      ],
+      "exact_tops": [
+        "TestModelOpenAIEmbeddingsWireHTTP"
+      ],
+      "group": "new-http",
+      "name": "new-http01",
+      "requires_new_root_authorization": true
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture.py",
+        "--name",
+        "new-terminal01",
+        "--group",
+        "new-terminal",
+        "--frozen",
+        "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/input.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--execute-authorized"
+      ],
+      "exact_tops": [
+        "TestModelOpenAIEmbeddingsWireTerminal"
+      ],
+      "group": "new-terminal",
+      "name": "new-terminal01",
+      "requires_new_root_authorization": true
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture.py",
+        "--name",
+        "new-budget01",
+        "--group",
+        "new-budget",
+        "--frozen",
+        "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/input.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--execute-authorized"
+      ],
+      "exact_tops": [
+        "TestModelOpenAIEmbeddingsWireBudget"
+      ],
+      "group": "new-budget",
+      "name": "new-budget01",
+      "requires_new_root_authorization": true
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture.py",
+        "--name",
+        "old-chat01",
+        "--group",
+        "old-chat",
+        "--frozen",
+        "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/input.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--execute-authorized"
+      ],
+      "exact_tops": [
+        "TestModelOpenAIChatWireHTTP",
+        "TestModelOpenAIChatWireStream",
+        "TestModelOpenAIChatWireJoinAndBudget"
+      ],
+      "group": "old-chat",
+      "name": "old-chat01",
+      "requires_new_root_authorization": true
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/run-embeddings-fixture.py",
+        "--name",
+        "old-structured01",
+        "--group",
+        "old-structured",
+        "--frozen",
+        "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/driver-stage01/input.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--execute-authorized"
+      ],
+      "exact_tops": [
+        "TestModelOpenAIChatStructuredHTTP",
+        "TestModelOpenAIChatStructuredStream",
+        "TestModelOpenAIChatStructuredCloseAndBudget"
+      ],
+      "group": "old-structured",
+      "name": "old-structured01",
+      "requires_new_root_authorization": true
+    }
+  ],
+  "ready_conditions": [
+    "root grants exact group/name and exclusive real window",
+    "fresh >=5 GiB twice and every original source/runtime gate matches",
+    "no other owner resource/cache window",
+    "on any FAIL preserve actual evidence, wait and double-clean; no source edits or rerun without root"
+  ],
+  "resources": {
+    "baseline": "fresh full container/network IDs and canonical Mount projections; preserve existing baseline; do not reuse old 2c4n observations as current truth",
+    "browser": false,
+    "foreign_provider_calls": false,
+    "historical_zombies": "record old PPID1 zombies as outside ownership; never claim to reap them",
+    "names_and_ids": "fresh original helper nonces; exact IDs observed and nonce labels checked; never guess IDs",
+    "owned_exact_expected": 7,
+    "owned_processes": "PID/starttime descendants, subreaper before Popen, original signal-forwarding only, actual direct wait and adopted wait, two absence scans",
+    "topology": {
+      "agenteam.d03.fixture": {
+        "containers": 2,
+        "networks": 1
+      },
+      "agenteam.d04.networkfixture": {
+        "containers": 1,
+        "networks": 1
+      },
+      "agenteam.d05.objectfixture": {
+        "containers": 1,
+        "networks": 1
+      }
+    }
+  },
+  "safe_records": "synthetic body/material only in task-owned fixture memory; no request body/credential in test output; record safe errors and counts",
+  "source_stage": "d-stage01 (compile-only inputs) stays unchanged; this adds only the actual fixed script/import/runtime closure",
+  "status": "offline ready; root resource authorization not granted"
+}

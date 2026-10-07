@@ -1,0 +1,331 @@
+{
+  "baseline_files_unchanged": 113,
+  "format_raw_empty": true,
+  "original_bad_last_scalar_and_cancel_tail_byte_identical": true,
+  "other_four_equal_candidate02": true,
+  "runs": {
+    "format01": {
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/format01/cleanup.json",
+          "sha256": "aaedf5ae83e57a6e7aba9d1746e1f157e0ad14fa171d5d2a1fec807ac5110a3c"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/format01/command.json",
+          "sha256": "4a6101125715510f41453c7b26f6981b0630d73bbd3a305f9f8aa98f889d5a47"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/format01/input-after.json",
+          "sha256": "3bcff704ba7044cb7a79c03086ebe46d8540dfba358e501aae98bb5e97c4d2d7"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/format01/input-before.json",
+          "sha256": "3bcff704ba7044cb7a79c03086ebe46d8540dfba358e501aae98bb5e97c4d2d7"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/format01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/format01/result.json",
+          "sha256": "c801e9ff47cff15f0ade07efbe26f00736093887b6989f57478c1cd8e27a01cd"
+        }
+      },
+      "execution": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-format01.json",
+        "sha256": "4e3c1690fbd7c7ee1a2976273763a328b09cf33ed06319679218626d0ba5b2a2"
+      },
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "adopted_wait_count": 0,
+        "cleanup_clean": true,
+        "cleanup_sha256": "aaedf5ae83e57a6e7aba9d1746e1f157e0ad14fa171d5d2a1fec807ac5110a3c",
+        "input_after_matches": true,
+        "input_before_matches": true,
+        "input_unchanged": true,
+        "owned_processes_observed": 1,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "seconds": 0.005201254003623035,
+        "timeout": false
+      }
+    },
+    "pure01": {
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure01/cleanup.json",
+          "sha256": "b5cef114a193a7e6c8381273fba8c2551e53801fe58718f52d26028007ea26b9"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure01/command.json",
+          "sha256": "ee114c947ab117c7c30eb855215d8fb0082beae294e09a4bbccbe96734a554ca"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure01/input-after.json",
+          "sha256": "41e9a67cf139d039d31770b87015b7a74c47f9862565380060ec1a2678f53518"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure01/input-before.json",
+          "sha256": "41e9a67cf139d039d31770b87015b7a74c47f9862565380060ec1a2678f53518"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure01/raw.log",
+          "sha256": "a1eb5f6a16d8afb2a606dee55146eb750d0a9d66111f2067a5ab253bea21786d"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure01/result.json",
+          "sha256": "b01bba8fa69e3f7a2952fdbb42fc20e83873f58538e75daec2767c1212692dcf"
+        }
+      },
+      "execution": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-pure01.json",
+        "sha256": "70633ab116ec11037a77480c2386e184b1700386b7d6206858efbb2cc5e88f67"
+      },
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "adopted_wait_count": 0,
+        "cleanup_clean": true,
+        "cleanup_sha256": "b5cef114a193a7e6c8381273fba8c2551e53801fe58718f52d26028007ea26b9",
+        "input_after_matches": true,
+        "input_before_matches": true,
+        "input_unchanged": true,
+        "owned_processes_observed": 27,
+        "raw_sha256": "a1eb5f6a16d8afb2a606dee55146eb750d0a9d66111f2067a5ab253bea21786d",
+        "seconds": 3.849594883999089,
+        "timeout": false
+      }
+    },
+    "pure02": {
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure02/cleanup.json",
+          "sha256": "876f9b71d5d12113619d8e655538f1ce1baaf477c746860ed994ce291c32ee5e"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure02/command.json",
+          "sha256": "9c85d9570a1301943481a3287eb777416d376a72f088ee66a2f15c1429db4c20"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure02/input-after.json",
+          "sha256": "6e6ad1448023f18eba54fbcb8da6cf2ed0aff0e434b4583bdf2c2a2c156f3940"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure02/input-before.json",
+          "sha256": "6e6ad1448023f18eba54fbcb8da6cf2ed0aff0e434b4583bdf2c2a2c156f3940"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure02/raw.log",
+          "sha256": "3387c201cd61b4b2f142edd73cd4eb45f62e97e615dc20815881bb492c9d1dee"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure02/result.json",
+          "sha256": "f080deddb44fe4c6e9680a36804e0d460b20e1549bef01397ccead317811df84"
+        }
+      },
+      "execution": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-pure02.json",
+        "sha256": "b7af3c6c8b8a81f244f2a0e3ca2c925658c7fc733b10621045ccf85ecc15b997"
+      },
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "adopted_wait_count": 0,
+        "cleanup_clean": true,
+        "cleanup_sha256": "876f9b71d5d12113619d8e655538f1ce1baaf477c746860ed994ce291c32ee5e",
+        "input_after_matches": true,
+        "input_before_matches": true,
+        "input_unchanged": true,
+        "owned_processes_observed": 5,
+        "raw_sha256": "3387c201cd61b4b2f142edd73cd4eb45f62e97e615dc20815881bb492c9d1dee",
+        "seconds": 1.2002706160055823,
+        "timeout": false
+      }
+    },
+    "pure03": {
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure03/cleanup.json",
+          "sha256": "7d31919aafdad319a09892c030d669864e1426e875dee51bbf6256f154a84970"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure03/command.json",
+          "sha256": "e19df29676ab9f479cdcbdf9b6b860002990bc9b106a540e9da2fa8478dd4948"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure03/input-after.json",
+          "sha256": "d414258cee605c6c15be385e606b8fb32ef993226a71d757b4f1a2666cfe6f60"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure03/input-before.json",
+          "sha256": "d414258cee605c6c15be385e606b8fb32ef993226a71d757b4f1a2666cfe6f60"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure03/raw.log",
+          "sha256": "a8c73ee402d63c2ac9402fabfff21ffea36395709d5a49f023164043baed362a"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/pure03/result.json",
+          "sha256": "bb75c381967f10cc803914762a2cc6424b039d71d24a994334ef993cbd0c70ff"
+        }
+      },
+      "execution": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-pure03.json",
+        "sha256": "0c42af62d440c0d7b28eee549a045af347c414064cd91317099de5c08cf357cf"
+      },
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "adopted_wait_count": 0,
+        "cleanup_clean": true,
+        "cleanup_sha256": "7d31919aafdad319a09892c030d669864e1426e875dee51bbf6256f154a84970",
+        "input_after_matches": true,
+        "input_before_matches": true,
+        "input_unchanged": true,
+        "owned_processes_observed": 5,
+        "raw_sha256": "a8c73ee402d63c2ac9402fabfff21ffea36395709d5a49f023164043baed362a",
+        "seconds": 1.4211518690062803,
+        "timeout": false
+      }
+    },
+    "race01": {
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race01/cleanup.json",
+          "sha256": "d03e8c786694d0fbeba42c82fb53c266adb4e8349d048cb06ff8b7c7ddc71d17"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race01/command.json",
+          "sha256": "d4eeebd00b65d8530014b5061204f7fbd1e702b509e6f33efe7c60becbd0f46a"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race01/input-after.json",
+          "sha256": "4ba11e7c1b35686aeeef8b25636f619e219fc30239050ef57656e122978065eb"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race01/input-before.json",
+          "sha256": "4ba11e7c1b35686aeeef8b25636f619e219fc30239050ef57656e122978065eb"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race01/raw.log",
+          "sha256": "6c0321e05070a96719cf6a27ce8fcaebb84cd3f98705666cc787a98bd7e080fd"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race01/result.json",
+          "sha256": "a83bdf08f0742f4c0078902821e0e2fe00129e74eb9b64b7fba99b329b2d2d4c"
+        }
+      },
+      "execution": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-race01.json",
+        "sha256": "300493c4785442adf0fea80fce8124e0d01bff1d771eeb922c7df8d824388349"
+      },
+      "result": {
+        "actual_exit": 1,
+        "actual_wait": true,
+        "adopted_wait_count": 0,
+        "cleanup_clean": true,
+        "cleanup_sha256": "d03e8c786694d0fbeba42c82fb53c266adb4e8349d048cb06ff8b7c7ddc71d17",
+        "input_after_matches": true,
+        "input_before_matches": true,
+        "input_unchanged": true,
+        "owned_processes_observed": 26,
+        "raw_sha256": "6c0321e05070a96719cf6a27ce8fcaebb84cd3f98705666cc787a98bd7e080fd",
+        "seconds": 6.178178010006377,
+        "timeout": false
+      }
+    },
+    "race02": {
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race02/cleanup.json",
+          "sha256": "a3ad6dea99f379cbe1f21e2d67ae61852cf15d880a3ec6f77bf6b63078f94274"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race02/command.json",
+          "sha256": "b7bb9ba310d21a534b366b25af87e0dde4ebfb0c0a7c1c648fe09a520fe41b68"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race02/input-after.json",
+          "sha256": "caa0c36dc18132ca22f1a306e51722c05ff3000dd8c9cbf21e0ca7cdcf5025fe"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race02/input-before.json",
+          "sha256": "caa0c36dc18132ca22f1a306e51722c05ff3000dd8c9cbf21e0ca7cdcf5025fe"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race02/raw.log",
+          "sha256": "a13d4e4f021aa3cfd95fe2124a8c8f02379ad9fd67a2f91b3946c3d360448c6e"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/race02/result.json",
+          "sha256": "ca35d0023a893fef87114b20331bc4ab3e750af85f35d475b6f84092c199f7ca"
+        }
+      },
+      "execution": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-race02.json",
+        "sha256": "8ac1c8f5d12f82083573f9d630843eeeba93523f78753dcfa1a2c8f78c6ec6fe"
+      },
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "adopted_wait_count": 0,
+        "cleanup_clean": true,
+        "cleanup_sha256": "a3ad6dea99f379cbe1f21e2d67ae61852cf15d880a3ec6f77bf6b63078f94274",
+        "input_after_matches": true,
+        "input_before_matches": true,
+        "input_unchanged": true,
+        "owned_processes_observed": 5,
+        "raw_sha256": "a13d4e4f021aa3cfd95fe2124a8c8f02379ad9fd67a2f91b3946c3d360448c6e",
+        "seconds": 4.922670956002548,
+        "timeout": false
+      }
+    },
+    "vet01": {
+      "artifacts": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/vet01/cleanup.json",
+          "sha256": "004e5eb1621ccd38b3914878b9c581e768b19ad427b58c5c6c8b41319d2463b4"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/vet01/command.json",
+          "sha256": "ba9b1978236de1cf233da535c6d4ee672d2fdf7316427a465b52ba2f638e536d"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/vet01/input-after.json",
+          "sha256": "f7d5dae0820a472c57b119e6bf32ee6474f04aad1969bce70eab22d3ea1e9b94"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/vet01/input-before.json",
+          "sha256": "f7d5dae0820a472c57b119e6bf32ee6474f04aad1969bce70eab22d3ea1e9b94"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/vet01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/runs/vet01/result.json",
+          "sha256": "fddbf09d559bf3232cbf68312552dddb1ed00c97d3b68f0d5feb915a55aad4fa"
+        }
+      },
+      "execution": {
+        "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/execution-vet01.json",
+        "sha256": "877bc16cf5c7e6214a024801ce00923b971b171d2b930c83ec3e41721c95b93c"
+      },
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "adopted_wait_count": 0,
+        "cleanup_clean": true,
+        "cleanup_sha256": "004e5eb1621ccd38b3914878b9c581e768b19ad427b58c5c6c8b41319d2463b4",
+        "input_after_matches": true,
+        "input_before_matches": true,
+        "input_unchanged": true,
+        "owned_processes_observed": 12,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "seconds": 0.6939144100033445,
+        "timeout": false
+      }
+    }
+  },
+  "workspace_files": 118
+}

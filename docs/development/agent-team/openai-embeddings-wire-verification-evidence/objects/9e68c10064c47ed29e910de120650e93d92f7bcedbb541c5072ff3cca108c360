@@ -1,0 +1,11 @@
+# Embeddings 启动闭包独审 01
+
+**BLOCKED，仅运行闭包前提；D 五源 STATIC PASS 不变。** 输入为 `driver-stage01/input.json`（`4c9f95ce61a19317d654df3307840a191aa06623d4a4e6030e4f2629dbf6927e`）与 driver `ea27894f831f887bb572d8357373d0a3eee42b3e47622741be9644fc36666446`。本次仅只读/hash/静态 AST 比对，没有 Go、TestMain、监听器或资源执行，不能记为真实测试首红。固定依据及最小清单见 [startup-input01.json](startup-input01.json)。
+
+确定链：固定 `tests/testsupport/postgres/cmd/fixture/main.go:227` 无条件把 `./tests/process/...` 纳入实际 `go test`；`tests/process/process_test.go:31–69` 的 TestMain 在 `m.Run()` 前无条件构建 `./cmd/agenteam`、`./cmd/agenteam-runner`。`-run` 选择 Embeddings 不能抑制这两次 build。当前 907 个 fixed 路径中没有任何 `cmd/` 来源，runtime discovery 也没有这两个根。现有 check-only/模型包九例 list 均不会执行 process TestMain，所以它们通过并未证明此缺口闭合。
+
+最小修订保留原输入/driver/15 源、原 16 integration roots/race 图与所有预算，仅从固定 c1427fa 补两 cmd 的完整 import/embed/GoMod 来源。按真实调用增加 **CGO1、非 race、无 integration tags** 的五 build 根：两 cmd，以及 objectstore/outbound/postgres 的三个 fixture helper；这三个 shell build 本来也是非 race，不能仅以 integration race 图替代实际变体。保留已有 **CGO0、非 race** 的 outbound server 图。可只编译两 cmd 验证闭包，不执行产物或 TestMain，不以删 process/旧脚本绕过。重新冻结 driver/input/check-only 后再审。
+
+已有限核对固定 process/accountmail/app 及 SMTP helper：唯一 TestMain 是 process；SMTP server 的动态 build 在 `smtpfixture.Start` 内，仅由未选中的 SMTP/accountmail/app 业务体/helper 调用，当前新三/旧六精确 selector 不可达，不需为本窗口额外补 SMTP server 或资源。若以后变 selector 则须重新绑定，不能泛化为所有 SMTP 测试已可启动。
+
+其余启动设计未发现阻断：绝对 `/usr/bin/python3` 对应冻结 Python3.13；实际 cwd 为作者私有 workspace；同一 locked Go/modcache、只读/offline、两次 fresh≥5GiB、唯一 run 目录、原完整七资源 nonce/exact ID、canonical 完整 Mount、subreaper/direct+adopted actualwait、PID/starttime 两扫和输入后核保持。原监督函数逐字相同，仅 `runtime_input` 与 `main` 有已读差量。未导入 tools 候选或修改旧测试/生产服务。当前不得授 HTTP 资源窗；待窄修冻结后点核。

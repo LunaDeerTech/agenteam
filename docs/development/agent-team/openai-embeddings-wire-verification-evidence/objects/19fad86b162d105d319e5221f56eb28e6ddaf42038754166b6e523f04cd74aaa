@@ -1,0 +1,56 @@
+from pathlib import Path
+import subprocess, re, json, hashlib
+
+root = Path(__file__).resolve().parent
+repo = Path('/workspace/agenteam')
+base = 'c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c'
+module = 'github.com/LunaDeerTech/agenteam/'
+workspace = root / 'workspace'
+accepted = json.loads((root / 'b-stage01/delivery10.json').read_text())['files']
+def sha(raw): return hashlib.sha256(raw).hexdigest()
+for path, row in accepted.items():
+    assert sha((workspace / path).read_bytes()) == row['sha256'], path
+def git(*args):
+    return subprocess.run(['git', *args], cwd=repo, check=True, stdout=subprocess.PIPE).stdout
+raws = {}
+todo = ['tests/model', 'tests/testsupport/outbound/cmd/server', 'tests/testsupport/outbound/cmd/fixture']
+seen = set()
+while todo:
+    directory = todo.pop()
+    if directory in seen: continue
+    seen.add(directory)
+    names = git('ls-tree', '--name-only', base + ':' + directory).decode().splitlines()
+    for name in names:
+        if not name.endswith('.go') or name.endswith('_test.go') and directory != 'tests/model': continue
+        path = directory + '/' + name
+        original = git('show', base + ':' + path)
+        raws[path] = original
+        data = (workspace / path).read_bytes() if path in accepted else original
+        text = data.decode()
+        for block in re.findall(r'(?m)^import\s+(?:\((.*?)\)|([^\n]+))', text, re.S):
+            for package in re.findall(r'"([^"\n]+)"', ' '.join(block)):
+                if package.startswith(module): todo.append(package[len(module):])
+        if '//go:embed' in text:
+            assert directory == 'db/migrations' and '//go:embed *.sql' in text, path
+            for asset in names:
+                if asset.endswith('.sql'):
+                    asset_path = directory + '/' + asset
+                    raws[asset_path] = git('show', base + ':' + asset_path)
+added = []
+for path, raw in raws.items():
+    dest = workspace / path
+    if path in accepted: continue
+    if dest.exists():
+        assert dest.read_bytes() == raw, 'nonaccepted difference: ' + path
+    else:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(raw)
+        added.append(path)
+rows = {path: {'sha256': sha(raw), 'bytes': len(raw), 'accepted_override': path in accepted} for path, raw in sorted(raws.items())}
+main_matches = []
+for path, raw in raws.items():
+    for number, line in enumerate(raw.decode().splitlines(), 1):
+        if re.match(r'^func (?:TestMain|init)\b', line): main_matches.append({'path': path, 'line': number, 'text': line})
+record = {'fixed_git': base, 'packages': sorted(seen), 'fixed_git_files': rows, 'newly_copied': added, 'accepted10_unchanged': True, 'initializers_or_testmain': main_matches, 'scope': 'fixed test/model package and production import closure plus owned outbound fixture build; dependency tests excluded; no compilation or resource execution'}
+(root / 'd-baseline01.json').write_text(json.dumps(record, indent=2, sort_keys=True) + '\n')
+print(json.dumps({'fixed_files': len(rows), 'added': len(added), 'packages': len(seen), 'initializers': main_matches}))

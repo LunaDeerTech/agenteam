@@ -1,0 +1,41 @@
+{
+  "state": "FROZEN PREPARATION ONLY; NOT EXECUTED",
+  "stage_a_delivery": {
+    "path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/stage-a01/delivery5.json",
+    "sha256": "fdbb5126ba9744cea2e7b198580dad08cd30db620529b31eb55dd951de7d2426"
+  },
+  "probe": {
+    "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/embedding_independent_a_test.go",
+    "sha256": "b185b064f695cbd1b497809a30c34fb0db8871f45c61a19435d1073516d1f9da"
+  },
+  "runner": {
+    "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/run_offline01.py",
+    "sha256": "7da22bd2e3b25222b5680068369b077c58abe1f5f5e1c0cef7c10a1e10bb3e1e",
+    "source": "unchanged copy of accepted capacity diagnosis subreaper runner"
+  },
+  "execution": {
+    "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/execution01.json",
+    "sha256": "318a16dd9fdc5ba50fde53e176263991dc7b6a6aa42de93333ad77ce1c3171e0"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/overlay01.json",
+    "sha256": "ce88761061b6fbf387fc57c5d82e2e3930703e69953e3731b87badf3219f36b1"
+  },
+  "command": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/run_offline01.py",
+    "/workspace/scratch/agenteam-embeddings-a-independent-77l61ot7/execution01.json"
+  ],
+  "author_runtime_files_reused": 1802,
+  "full_bound_files": 1823,
+  "targets": [
+    "TestIndependentEmbeddingsPrepareBoundaries",
+    "TestIndependentEmbeddingsStrictEOFAndUsage"
+  ],
+  "boundary": [
+    "No constructor, Start, Budget, D04 Do or exchange/handle join is present in this stage.",
+    "Held pure io.Reader proves readEmbeddingBody call termination and actual private test goroutine join only.",
+    "Prior maximum capacity diagnostic and author unchanged late-value/cancellation assertions reused; not rerun.",
+    "No services/listeners/native resources/SDK/provider requests; no product or author source writes."
+  ]
+}

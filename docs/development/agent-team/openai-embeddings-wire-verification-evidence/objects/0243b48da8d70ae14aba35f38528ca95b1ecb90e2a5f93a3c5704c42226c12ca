@@ -1,0 +1,29 @@
+{
+  "after_sha256": "42c7e527eaa2d2bd1a16f7cbd0afec894cb228206f6224e95a45629cff56ceb3",
+  "before_sha256": "670427cda0f7f5795478131e01a2fcdc6ea2a14b744db8d652e0b56ca07ff7b8",
+  "diff_sha256": "ddbd8fa59132a01b05fe9615dc5ff77d8d93dccf7cfa98c9e06a664b00c75435",
+  "edit_scope": "Three local paragraphs plus five exact selectors in the existing security command block; removal reconstructs preimage byte-for-byte.",
+  "fence_count_even": true,
+  "final_newline": true,
+  "fixed_readme_git": "18b6fb5a18958a4146d3be5c064a1fba0fa959dd",
+  "historical_reports_modified": false,
+  "local_links": [
+    {
+      "bytes": 20327,
+      "fixed_git": "18b6fb5a18958a4146d3be5c064a1fba0fa959dd",
+      "resolved_path": "docs/development/work-items/d09-openai-embeddings-wire.md",
+      "sha256": "40e8f37a7e0b78469f994112f6d0dff2380654fc83e40b340b6fbfe7c47b6a09",
+      "target": "../work-items/d09-openai-embeddings-wire.md"
+    },
+    {
+      "bytes": 16420,
+      "fixed_git": "18b6fb5a18958a4146d3be5c064a1fba0fa959dd",
+      "resolved_path": "docs/development/backend/outbound.md",
+      "sha256": "809de939bedcd7625342b9507921f0f0b7a0be4be62a6aa377edcebf1b501015",
+      "target": "outbound.md"
+    }
+  ],
+  "tests_or_go_or_resources_executed": false,
+  "trailing_whitespace": false,
+  "unchanged_fifteen_sources": true
+}

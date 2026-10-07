@@ -1,0 +1,27 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 912456,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 912456,
+      "ppid": 912453,
+      "pgid": 912456,
+      "state": "R",
+      "starttime": "4052494"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-embeddings-offline-xmhlr1tp",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

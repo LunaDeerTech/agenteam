@@ -1,0 +1,125 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.93.1.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=35bbb7dffb00ba738267c3a5e1adf6c8
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=9595cb1416d596293ff3fa641ed3697a
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.265s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.014s [no tests to run]
+=== RUN   TestModelOpenAIChatStructuredHTTP
+=== RUN   TestModelOpenAIChatStructuredHTTP/strict_native_request_and_immutable_schema
+=== RUN   TestModelOpenAIChatStructuredHTTP/schema_errors_are_pre_admission_zero_send
+=== RUN   TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema
+=== RUN   TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/missing
+=== RUN   TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/extra
+=== RUN   TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/nested_type
+=== RUN   TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/enum
+=== RUN   TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/duplicate
+=== RUN   TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/trailing
+=== RUN   TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/malformed
+=== RUN   TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/length_even_valid
+=== RUN   TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/content_filter
+=== RUN   TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/refusal
+=== RUN   TestModelOpenAIChatStructuredHTTP/new_revision_text_path_and_unknown_usage
+--- PASS: TestModelOpenAIChatStructuredHTTP (1.67s)
+    --- PASS: TestModelOpenAIChatStructuredHTTP/strict_native_request_and_immutable_schema (0.04s)
+    --- PASS: TestModelOpenAIChatStructuredHTTP/schema_errors_are_pre_admission_zero_send (0.04s)
+    --- PASS: TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema (0.33s)
+        --- PASS: TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/missing (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/extra (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/nested_type (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/enum (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/duplicate (0.04s)
+        --- PASS: TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/trailing (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/malformed (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/length_even_valid (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/content_filter (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredHTTP/valid_native_envelope_never_bypasses_schema/refusal (0.04s)
+    --- PASS: TestModelOpenAIChatStructuredHTTP/new_revision_text_path_and_unknown_usage (0.07s)
+=== RUN   TestModelOpenAIChatStructuredStream
+=== RUN   TestModelOpenAIChatStructuredStream/fragmented_strict_json_and_done_before_http_eof
+=== RUN   TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage
+=== RUN   TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/mismatch
+=== RUN   TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/trailing
+=== RUN   TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/malformed
+=== RUN   TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/length
+=== RUN   TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/filtered
+=== RUN   TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/missing_done
+=== RUN   TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/refusal_after_prefix
+=== RUN   TestModelOpenAIChatStructuredStream/no_usage_is_unknown_and_output_node_budget_is_real
+--- PASS: TestModelOpenAIChatStructuredStream (1.48s)
+    --- PASS: TestModelOpenAIChatStructuredStream/fragmented_strict_json_and_done_before_http_eof (0.04s)
+    --- PASS: TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage (0.23s)
+        --- PASS: TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/mismatch (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/trailing (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/malformed (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/length (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/filtered (0.03s)
+        --- PASS: TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/missing_done (0.04s)
+        --- PASS: TestModelOpenAIChatStructuredStream/schema_failure_preserves_delivered_prefix_and_final_usage/refusal_after_prefix (0.03s)
+    --- PASS: TestModelOpenAIChatStructuredStream/no_usage_is_unknown_and_output_node_budget_is_real (0.16s)
+=== RUN   TestModelOpenAIChatStructuredCloseAndBudget
+=== RUN   TestModelOpenAIChatStructuredCloseAndBudget/backpressured_parser_owns_slot_and_borrowed_material
+=== RUN   TestModelOpenAIChatStructuredCloseAndBudget/text_and_structured_share_exact_global_and_project_budget
+--- PASS: TestModelOpenAIChatStructuredCloseAndBudget (1.29s)
+    --- PASS: TestModelOpenAIChatStructuredCloseAndBudget/backpressured_parser_owns_slot_and_borrowed_material (0.11s)
+    --- PASS: TestModelOpenAIChatStructuredCloseAndBudget/text_and_structured_share_exact_global_and_project_budget (0.17s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	5.468s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+D03 fixture cleanup checked for nonce aeb6351a53eee02f13975757f45ae775
+D04 outbound fixture cleanup checked for nonce 9595cb1416d596293ff3fa641ed3697a
+D05 object fixture exact resource cleanup checked nonce=35bbb7dffb00ba738267c3a5e1adf6c8

@@ -1,0 +1,96 @@
+{
+  "files": {
+    "internal/central/model/adapter/budget.go": {
+      "bytes": 3065,
+      "sha256": "3f2c644e762601d257a11522831a6644622dd125b1c49c92b6cfdc2a743c7803",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/budget.go",
+      "stage": "accepted-A+B"
+    },
+    "internal/central/model/adapter/embedding_budget_test.go": {
+      "bytes": 8713,
+      "sha256": "e472c9af9d85a1792274cfe4c3897aa80d06ade5641f90f18477aa6c59c4a6b8",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_budget_test.go",
+      "stage": "accepted-A+B"
+    },
+    "internal/central/model/adapter/embedding_json.go": {
+      "bytes": 14478,
+      "sha256": "fd9742129008b25970c93ed03e6e1383a08ac3cb674f80e8bbba3c14380b7ed0",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_json.go",
+      "stage": "accepted-A+B"
+    },
+    "internal/central/model/adapter/embedding_json_test.go": {
+      "bytes": 22615,
+      "sha256": "86f28d3e3397506a9edc97a6d5daa2b19369f1f2f5b777a1343bb6e36d57eba4",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_json_test.go",
+      "stage": "accepted-A+B"
+    },
+    "internal/central/model/adapter/embedding_transport.go": {
+      "bytes": 10294,
+      "sha256": "ba6f8604cda9f6233d53e4c4f2b5ce3aa924639d5195950fd370b1b1d519274e",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_transport.go",
+      "stage": "accepted-A+B"
+    },
+    "internal/central/model/adapter/embedding_transport_test.go": {
+      "bytes": 16327,
+      "sha256": "19ed75780491c605670d6c72cf64f279df113d393c9c62bf0dcae02452a2f0cc",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/embedding_transport_test.go",
+      "stage": "accepted-A+B"
+    },
+    "internal/central/model/adapter/openai_embeddings.go": {
+      "bytes": 11081,
+      "sha256": "19fdc6fd6b52f4a191b6c4b28c7e3795c4de6df9896938b18167821563db255a",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/openai_embeddings.go",
+      "stage": "accepted-A+B"
+    },
+    "internal/central/model/adapter/openai_embeddings_test.go": {
+      "bytes": 17108,
+      "sha256": "f125ea873dbc429de84b0e12434565f60946f0c12e431444989ce93ead3246c1",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/openai_embeddings_test.go",
+      "stage": "accepted-A+B"
+    },
+    "internal/central/model/adapter/testdata/openai-embeddings-float-v1.json": {
+      "bytes": 3355,
+      "sha256": "ad0cc43ea95ebc0416ee677b3719e6d270a7d255d7b2b7891fce8ecdd8b372cf",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/testdata/openai-embeddings-float-v1.json",
+      "stage": "accepted-A+B"
+    },
+    "internal/central/model/adapter/transport.go": {
+      "bytes": 12077,
+      "sha256": "9f1d60ff48fb64ba04827368b7cf6fc4947b72c93a665ddf91276d5db2b6b29b",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/b-candidate01/source/internal/central/model/adapter/transport.go",
+      "stage": "accepted-A+B"
+    },
+    "tests/model/openai_embeddings_wire_budget_test.go": {
+      "bytes": 7593,
+      "sha256": "48413fb07b2914977e2818e052d8aaeeebeeb9ea0ff69edf4cd2596e2b7f4afa",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-candidate01/source/tests/model/openai_embeddings_wire_budget_test.go",
+      "stage": "D"
+    },
+    "tests/model/openai_embeddings_wire_fixture_test.go": {
+      "bytes": 4628,
+      "sha256": "1cafa692e9d733f7d800b9caedd976872e863926361cc424f1f3be1a4165a1d5",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-candidate01/source/tests/model/openai_embeddings_wire_fixture_test.go",
+      "stage": "D"
+    },
+    "tests/model/openai_embeddings_wire_http_test.go": {
+      "bytes": 9951,
+      "sha256": "b66e8509d53eb7a0ceac594f5f6d4ec12b590b0b58a29a647d1973d5d32dccad",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-candidate01/source/tests/model/openai_embeddings_wire_http_test.go",
+      "stage": "D"
+    },
+    "tests/model/openai_embeddings_wire_terminal_test.go": {
+      "bytes": 7912,
+      "sha256": "7d0de31c2eca4d14554878d3604a991a7eafc8485d7fef02e0594ecf60b3a8c2",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-candidate01/source/tests/model/openai_embeddings_wire_terminal_test.go",
+      "stage": "D"
+    },
+    "tests/testsupport/outbound/cmd/server/main.go": {
+      "bytes": 10830,
+      "sha256": "f6ad55cae4b3864fa2fbd55777fecdbbe2a3a39ea707d31abb0a7b5a0eb04baf",
+      "snapshot_path": "/workspace/scratch/agenteam-embeddings-author-j_3k9nbq/d-candidate01/source/tests/testsupport/outbound/cmd/server/main.go",
+      "stage": "D"
+    }
+  },
+  "fixed_git": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+  "status": "A+B independently accepted; five D harness sources compiled/listed only, not dynamically accepted"
+}

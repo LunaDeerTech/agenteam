@@ -1,0 +1,38 @@
+{
+  "old_baseline_sha256": "993e810647d6bc128eb511a900f0d93e6bff5e8a08413757f6a8b168b87a0ce3",
+  "new_baseline_sha256": "290cb6a3a937d87216270dbe131bbc8a8388b4d3044eb81a2ade757db99b5c4a",
+  "old_count": 907,
+  "new_count": 914,
+  "unchanged_existing": true,
+  "added_fixed_files": {
+    "cmd/agenteam-runner/main.go": {
+      "sha256": "e4341598318b791e6bd03b2cff75a1a6280adea2b4efa68736bb323f3e70aa66",
+      "bytes": 2679
+    },
+    "cmd/agenteam/main.go": {
+      "sha256": "4412cc0e4d838b076d1447ea3ec9137f1eb0dffc01f95d8ff54c5756e305198a",
+      "bytes": 3825
+    },
+    "cmd/agenteam/main_test.go": {
+      "sha256": "91ae72fe08e61323d1341b40638f96ad63a56b09a63892209fde3690ee2bbd00",
+      "bytes": 3082
+    },
+    "internal/runner/app/app.go": {
+      "sha256": "b31aa6a2d0208235c8fef9f336ec1774020d8f3cedcb0df3e1436058dbb4e984",
+      "bytes": 1250
+    },
+    "internal/runner/app/app_test.go": {
+      "sha256": "cfaf5df626ebe02ccadaeb8e7bfc6e9d143fd7aafe294c42cae00d53c6ea2c66",
+      "bytes": 2070
+    },
+    "internal/runner/config/config.go": {
+      "sha256": "aca1c6bd1c6d0273fb1468c67815594f8e03cd0175038f21610e67de4bb95437",
+      "bytes": 2451
+    },
+    "internal/runner/config/config_test.go": {
+      "sha256": "b67928ba57e0028181ffd38cf910444905b832ecce790275c3482e506a136518",
+      "bytes": 1922
+    }
+  },
+  "readonly15_unchanged": true
+}
